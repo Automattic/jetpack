@@ -2,6 +2,36 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.45.8] - 2023-12-19
+### Changed
+- Updated package dependencies. [#34694, #34696]
+
+## [0.45.7] - 2023-12-13
+### Added
+- Added `className` prop to RecordMeterBar component [#34182]
+
+## [0.45.6] - 2023-12-11
+### Fixed
+- Fixed resizing of the performance history graph. [#34185]
+
+## [0.45.5] - 2023-12-06
+### Changed
+- Updated package dependencies. [#34416]
+
+## [0.45.4] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+
+## [0.45.3] - 2023-11-21
+### Fixed
+- Fixed ActionPopover CSS variables. [#34226]
+
+## [0.45.2] - 2023-11-20
+
+## [0.45.1] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
 ## [0.45.0] - 2023-11-13
 ### Fixed
 - Fixed React warnings in Boost Score Graph. [#34014]
@@ -876,6 +906,14 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.45.8]: https://github.com/Automattic/jetpack-components/compare/0.45.7...0.45.8
+[0.45.7]: https://github.com/Automattic/jetpack-components/compare/0.45.6...0.45.7
+[0.45.6]: https://github.com/Automattic/jetpack-components/compare/0.45.5...0.45.6
+[0.45.5]: https://github.com/Automattic/jetpack-components/compare/0.45.4...0.45.5
+[0.45.4]: https://github.com/Automattic/jetpack-components/compare/0.45.3...0.45.4
+[0.45.3]: https://github.com/Automattic/jetpack-components/compare/0.45.2...0.45.3
+[0.45.2]: https://github.com/Automattic/jetpack-components/compare/0.45.1...0.45.2
+[0.45.1]: https://github.com/Automattic/jetpack-components/compare/0.45.0...0.45.1
 [0.45.0]: https://github.com/Automattic/jetpack-components/compare/0.44.4...0.45.0
 [0.44.4]: https://github.com/Automattic/jetpack-components/compare/0.44.3...0.44.4
 [0.44.3]: https://github.com/Automattic/jetpack-components/compare/0.44.2...0.44.3

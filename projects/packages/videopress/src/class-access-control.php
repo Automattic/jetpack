@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Modules;
 use VIDEOPRESS_PRIVACY;
 
@@ -145,9 +147,12 @@ class Access_Control {
 		$restriction_details = $this->default_video_restriction_details( $default_auth );
 
 		if ( $this->jetpack_memberships_available() ) {
-			$memberships_can_view_post         = \Jetpack_Memberships::user_can_view_post( $embedded_post_id );
-			$restriction_details               = $this->get_subscriber_only_restriction_details( $default_auth );
-			$restriction_details['can_access'] = $memberships_can_view_post;
+			$post_access_level = \Jetpack_Memberships::get_post_access_level( $embedded_post_id );
+			if ( 'everybody' !== $post_access_level ) {
+				$memberships_can_view_post         = \Jetpack_Memberships::user_can_view_post( $embedded_post_id );
+				$restriction_details               = $this->get_subscriber_only_restriction_details( $default_auth );
+				$restriction_details['can_access'] = $memberships_can_view_post;
+			}
 		}
 
 		return $this->check_block_level_access(
@@ -174,7 +179,12 @@ class Access_Control {
 			$paywall             = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 
 			// Only paid subscribers should be granted access to the premium content.
-			$access_level                      = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
+			if ( class_exists( Abstract_Token_Subscription_Service::class ) ) {
+				$access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
+			} else {
+				$access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
+			}
+
 			$can_view                          = $paywall->visitor_can_view_content( array( $selected_plan_id ), $access_level );
 			$restriction_details['can_access'] = $can_view || current_user_can( 'edit_post', $embedded_post_id ); // Editors can always view the content.
 		}

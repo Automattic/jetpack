@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.1] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411]
+
+## [3.0.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
+### Removed
+- Removed the Partner package requirement. Relying on the Connection package instead. [#33832]
+
+## [2.5.3] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
 ## [2.5.2] - 2023-11-03
 
 ## [2.5.1] - 2023-10-19
@@ -643,6 +658,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[3.0.1]: https://github.com/Automattic/jetpack-jitm/compare/v3.0.0...v3.0.1
+[3.0.0]: https://github.com/Automattic/jetpack-jitm/compare/v2.5.3...v3.0.0
+[2.5.3]: https://github.com/Automattic/jetpack-jitm/compare/v2.5.2...v2.5.3
 [2.5.2]: https://github.com/Automattic/jetpack-jitm/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/Automattic/jetpack-jitm/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/Automattic/jetpack-jitm/compare/v2.4.0...v2.5.0

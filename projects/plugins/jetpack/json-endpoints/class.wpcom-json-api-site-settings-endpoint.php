@@ -118,6 +118,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'rss_use_excerpt'                         => '(bool) Whether the RSS feed will use post excerpts',
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
 			'sm_enabled'                              => '(bool) Whether the newsletter subscribe modal is enabled',
+			'wpcom_ai_site_prompt'                    => '(string) User input in the AI site prompt',
 		),
 
 		'response_format'     => array(
@@ -456,6 +457,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
 						'subscription_options'             => (array) get_option( 'subscription_options' ),
+						'jetpack_verbum_subscription_modal' => (bool) get_option( 'jetpack_verbum_subscription_modal', true ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -533,7 +535,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					 * - 5 days before the monthly plan expiration.
 					 * This is to match the gifting banner logic.
 					 */
-					$days_of_warning          = false !== strpos( $purchase->product_slug, 'monthly' ) ? 5 : 54;
+					$days_of_warning          = str_contains( $purchase->product_slug, 'monthly' ) ? 5 : 54;
 					$seconds_until_expiration = strtotime( $purchase->expiry_date ) - time();
 					if ( $seconds_until_expiration >= $days_of_warning * DAY_IN_SECONDS ) {
 						return false;
@@ -747,6 +749,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_portfolio':
 				case 'jetpack_comment_likes_enabled':
 				case 'wpcom_reader_views_enabled':
+				case 'jetpack_verbum_subscription_modal':
 					// settings are stored as 1|0.
 					$coerce_value = (int) $value;
 					if ( update_option( $key, $coerce_value ) ) {

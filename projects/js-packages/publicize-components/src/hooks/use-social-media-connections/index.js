@@ -1,28 +1,35 @@
 import { useDispatch, useSelect } from '@wordpress/data';
-import { SOCIAL_STORE_ID } from '../../social-store';
+import { store as socialStore } from '../../social-store';
 
 /**
  * Hooks to deal with the social media connections.
  *
- * @returns {Function} Social media connection handler.
+ * @returns {object} Social media connection handler.
  */
 export default function useSocialMediaConnections() {
-	const { refreshConnectionTestResults: refresh, toggleConnectionById } =
-		useDispatch( SOCIAL_STORE_ID );
+	const { refreshConnectionTestResults, toggleConnectionById } = useDispatch( socialStore );
 
-	const connections = useSelect( select => select( SOCIAL_STORE_ID ).getConnections(), [] );
-	const skippedConnections = connections
-		.filter( connection => ! connection.enabled )
-		.map( connection => connection.id );
-	const enabledConnections = connections.filter( connection => connection.enabled );
+	const connectionsData = useSelect( select => {
+		const store = select( socialStore );
+		const connections = store.getConnections();
+		const enabledConnections = store.getEnabledConnections();
+		const skippedConnections = store.getDisabledConnections().map( connection => connection.id );
+
+		const hasConnections = connections.length > 0;
+		const hasEnabledConnections = enabledConnections.length > 0;
+
+		return {
+			connections,
+			hasConnections,
+			hasEnabledConnections,
+			skippedConnections,
+			enabledConnections,
+		};
+	}, [] );
 
 	return {
-		connections,
-		hasConnections: connections.length > 0,
-		hasEnabledConnections: connections && connections.some( connection => connection.enabled ),
-		skippedConnections,
-		enabledConnections,
+		...connectionsData,
 		toggleById: toggleConnectionById,
-		refresh,
+		refresh: refreshConnectionTestResults,
 	};
 }

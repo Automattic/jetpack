@@ -26,16 +26,12 @@
 		// Monorepo packages are excluded in renovate-config.js, where we can read
 		// the list of them in code.
 
-		// We need to keep a wide version range to support PHP 5.6.
-		// Note for libraries used in plugins this will only work right for require-dev deps, not require.
+		// Widen PHP dev deps to maintain support for old PHP versions we still support.
+		// When we drop an old PHP version we'll manually go through and narrow any ranges.
+		// (non-dev deps are handled in renovate-config.js where we can read the correct value for `constraints.php`)
 		{
-			matchPackageNames: [
-				'johnkary/phpunit-speedtrap',
-				'symfony/console',
-				'symfony/process',
-				'wikimedia/at-ease',
-				'wikimedia/testing-access-wrapper',
-			],
+			matchDatasources: [ 'packagist' ],
+			matchDepTypes: [ 'require-dev' ],
 			rangeStrategy: 'widen',
 		},
 

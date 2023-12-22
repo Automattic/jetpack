@@ -29,7 +29,6 @@ use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
@@ -672,8 +671,8 @@ class Jetpack {
 
 		$first_priority = array_shift( $taken_priorities );
 
-		if ( defined( 'PHP_INT_MAX' ) && $first_priority <= - PHP_INT_MAX ) {
-			$new_priority = - PHP_INT_MAX;
+		if ( $first_priority <= PHP_INT_MIN ) {
+			$new_priority = PHP_INT_MIN;
 		} else {
 			$new_priority = $first_priority - 1;
 		}
@@ -981,7 +980,6 @@ class Jetpack {
 	public function late_initialization() {
 		add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 
-		Partner::init();
 		My_Jetpack_Initializer::init();
 
 		// Initialize Boost Speed Score
@@ -3114,7 +3112,7 @@ p {
 	 * @return null|\WP_Error The domain validation error, or `null` if everything's fine.
 	 */
 	public static function registration_check_domains( $error ) {
-		if ( static::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
+		if ( static::is_development_version() ) {
 			$domains_to_check = array_unique(
 				array(
 					'siteurl' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
@@ -4858,11 +4856,7 @@ endif;
 	 * @return int 0 if the same sort or (+/-) to indicate which is greater.
 	 */
 	public static function sort_modules( $a, $b ) {
-		if ( $a['sort'] === $b['sort'] ) {
-			return 0;
-		}
-
-		return ( $a['sort'] < $b['sort'] ) ? -1 : 1;
+		return $a['sort'] <=> $b['sort'];
 	}
 
 	/**
@@ -5007,7 +5001,7 @@ endif;
 
 		if ( $force_recheck || false === $ssl ) {
 			$message = '';
-			if ( 'https' !== substr( JETPACK__API_BASE, 0, 5 ) ) {
+			if ( ! str_starts_with( JETPACK__API_BASE, 'https' ) ) {
 				$ssl = 0;
 			} else {
 				$ssl = 1;
@@ -5770,7 +5764,7 @@ endif;
 		$base = dirname( plugin_basename( $plugin ) );
 
 		// Short out on non-Jetpack assets.
-		if ( 'jetpack/' !== substr( $base, 0, 8 ) ) {
+		if ( ! str_starts_with( $base, 'jetpack/' ) ) {
 			return $url;
 		}
 
@@ -5812,13 +5806,13 @@ endif;
 	 * @return mixed
 	 */
 	public static function set_suffix_on_min( $src, $handle ) {
-		if ( false === strpos( $src, '.min.css' ) ) {
+		if ( ! str_contains( $src, '.min.css' ) ) {
 			return $src;
 		}
 
 		if ( ! empty( self::$min_assets ) ) {
 			foreach ( self::$min_assets as $file => $path ) {
-				if ( false !== strpos( $src, $file ) ) {
+				if ( str_contains( $src, $file ) ) {
 					wp_style_add_data( $handle, 'suffix', '.min' );
 					return $src;
 				}
@@ -6190,7 +6184,7 @@ endif;
 				$url = trim( $match['path'], "'\" \t" );
 
 				// If this is a data url, we don't want to mess with it.
-				if ( 'data:' === substr( $url, 0, 5 ) ) {
+				if ( str_starts_with( $url, 'data:' ) ) {
 					continue;
 				}
 
@@ -6442,7 +6436,7 @@ endif;
 		}
 
 		foreach ( $sorted as $box_context => $ids ) {
-			if ( false === strpos( $ids, 'dashboard_stats' ) ) {
+			if ( ! str_contains( $ids, 'dashboard_stats' ) ) {
 				// If the old id isn't anywhere in the ids, don't bother exploding and fail out.
 				continue;
 			}
@@ -6769,6 +6763,21 @@ endif;
 				'text'      => __( '* Subject to your usage and storage limit.', 'jetpack' ),
 				'link_text' => __( 'Learn more', 'jetpack' ),
 				'url'       => Redirect::get_url( 'jetpack-faq-backup-disclaimer' ),
+			),
+		);
+
+		$products['creator'] = array(
+			'title'             => __( 'Jetpack Creator', 'jetpack' ),
+			'slug'              => 'jetpack_creator_yearly',
+			'description'       => __( 'Craft stunning content, boost your subscriber base, and monetize your online presence.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 50,
+			'included_in_plans' => array( 'complete' ),
+			'features'          => array(
+				_x( 'Unlimited subscriber imports', 'Creator Product Feature', 'jetpack' ),
+				_x( 'Earn more from your content', 'Creator Product Feature', 'jetpack' ),
+				_x( 'Accept payments with PayPal', 'Creator Product Feature', 'jetpack' ),
+				_x( 'Increase earnings with WordAds', 'Creator Product Feature', 'jetpack' ),
 			),
 		);
 

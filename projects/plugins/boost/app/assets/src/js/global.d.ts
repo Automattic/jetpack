@@ -2,7 +2,6 @@
  * Type definitions for the global namespace. i.e.: things we expect to find in window.
  */
 
-import type { ConnectionStatus } from './stores/connection';
 import type { Optimizations } from './stores/modules';
 import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
 
@@ -24,6 +23,7 @@ declare global {
 		preferences: {
 			prioritySupport: boolean;
 		};
+		isaFixButton: boolean;
 		isPremium: boolean;
 		version: string;
 		api: {
@@ -31,7 +31,7 @@ declare global {
 			prefix: string;
 		};
 		connectionIframeOriginUrl: string;
-		connection: ConnectionStatus;
+		fixImageNonce?: string;
 		superCache: {
 			pluginActive: boolean;
 			cacheEnabled: boolean;
@@ -42,6 +42,7 @@ declare global {
 			url: string;
 			online: boolean;
 			assetPath: string;
+			staticAssetPath: string;
 			canResizeImages: boolean;
 			isAtomic: boolean;
 			postTypes: {
@@ -52,14 +53,6 @@ declare global {
 		shownAdminNoticeIds: string[];
 		nonces: {
 			[ key: string ]: string;
-		};
-		pricing: {
-			yearly?: {
-				priceBefore: number;
-				priceAfter: number;
-				currencyCode: string;
-				isIntroductoryOffer: boolean;
-			};
 		};
 	};
 

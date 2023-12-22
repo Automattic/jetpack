@@ -8,13 +8,9 @@
 // Components
 @import 'components/connection';
 @import 'components/feature-toggle';
-@import 'components/benchmarks';
-@import 'components/score';
-@import 'components/performance-history';
 @import 'components/error-message';
 @import 'components/critical-css';
 @import 'components/close-button';
-@import 'components/numbered-list';
 @import 'components/rating-card';
 @import 'components/button';
 @import 'components/card';
@@ -22,7 +18,6 @@
 @import 'components/icons';
 @import 'components/badge';
 @import 'components/snackbar';
-@import 'components/pricing-table.scss';
 
 // React Migration CSS
 @import 'react/pages/settings/elements/MinifyMeta.scss';

@@ -39,7 +39,7 @@ function e2e_mock_speed_score_api( $default_action, $args, $target ) {
 	// Return successful speed score message when polling.
 	if ( 'GET' === $args['method'] ) {
 		// Return a lower mock-score when generating with no Boost modules enabled (determined by URL arguments).
-		$modules_disabled = strpos( $target, 'jb-disable-modules' ) !== false;
+		$modules_disabled = str_contains( $target, 'jb-disable-modules' );
 
 		return e2e_mock_speed_score_api_response(
 			array(

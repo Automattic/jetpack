@@ -208,7 +208,25 @@ class Jetpack_AI_Helper {
 				),
 			);
 
-			$result = ( new OpenAI( 'openai', array( 'post_id' => $post_id ) ) )->request_chat_completion( $data );
+			$openai            = new OpenAI( 'openai', array( 'post_id' => $post_id ) );
+			$moderation_result = $openai->moderate(
+				implode(
+					' ',
+					array_map(
+						function ( $msg ) {
+							return $msg['role'] === 'user' ? $msg['content'] : '';
+						},
+						$data
+					)
+				)
+			);
+
+			if ( is_wp_error( $moderation_result ) ) {
+				return $moderation_result;
+			}
+
+			$max_tokens = 480; // Default
+			$result     = $openai->request_chat_completion( $data, $max_tokens );
 
 			if ( is_wp_error( $result ) ) {
 				return $result;
@@ -332,42 +350,10 @@ class Jetpack_AI_Helper {
 	 * @return mixed
 	 */
 	public static function get_ai_assistance_feature() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		// Try to pick the AI Assistant feature from cache.
-		$transient_name = self::transient_name_for_ai_assistance_feature( $blog_id );
-		$cache          = get_transient( $transient_name );
-		if ( $cache ) {
-			return $cache;
-		}
-
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$has_ai_assistant_feature = \wpcom_site_has_feature( 'ai-assistant' );
-			if ( ! class_exists( 'OpenAI' ) ) {
-				\require_lib( 'openai' );
-			}
-
-			if ( ! class_exists( 'OpenAI_Limit_Usage' ) ) {
-				if ( is_readable( WP_CONTENT_DIR . '/lib/openai/openai-limit-usage.php' ) ) {
-					require_once WP_CONTENT_DIR . '/lib/openai/openai-limit-usage.php';
-				} else {
-					return new WP_Error(
-						'openai_limit_usage_not_found',
-						__( 'OpenAI_Limit_Usage class not found.', 'jetpack' )
-					);
-				}
-			}
-
-			if ( ! class_exists( 'OpenAI_Request_Count' ) ) {
-				if ( is_readable( WP_CONTENT_DIR . '/lib/openai/openai-request-count.php' ) ) {
-					require_once WP_CONTENT_DIR . '/lib/openai/openai-request-count.php';
-				} else {
-					return new WP_Error(
-						'openai_request_count_not_found',
-						__( 'OpenAI_Request_Count class not found.', 'jetpack' )
-					);
-				}
-			}
+			// On WPCOM, we can get the ID from the site.
+			$blog_id                  = get_current_blog_id();
+			$has_ai_assistant_feature = \wpcom_site_has_feature( 'ai-assistant', $blog_id );
 
 			if ( ! class_exists( 'WPCOM\Jetpack_AI\Usage\Helper' ) ) {
 				if ( is_readable( WP_CONTENT_DIR . '/lib/jetpack-ai/usage/helper.php' ) ) {
@@ -380,29 +366,32 @@ class Jetpack_AI_Helper {
 				}
 			}
 
-			$blog_id        = get_current_blog_id();
-			$is_over_limit  = \OpenAI_Limit_Usage::is_blog_over_request_limit( $blog_id );
-			$requests_limit = \OpenAI_Limit_Usage::get_free_requests_limit( $blog_id );
-			$requests_count = \OpenAI_Request_Count::get_count( $blog_id );
-
-			// Check if the site requires an upgrade.
-			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
-
 			// Determine the upgrade type
 			$upgrade_type = wpcom_is_vip( $blog_id ) ? 'vip' : 'default';
 
 			return array(
 				'has-feature'          => $has_ai_assistant_feature,
-				'is-over-limit'        => $is_over_limit,
-				'requests-count'       => $requests_count,
-				'requests-limit'       => $requests_limit,
+				'is-over-limit'        => WPCOM\Jetpack_AI\Usage\Helper::is_over_limit( $blog_id ),
+				'requests-count'       => WPCOM\Jetpack_AI\Usage\Helper::get_all_time_requests_count( $blog_id ),
+				'requests-limit'       => WPCOM\Jetpack_AI\Usage\Helper::get_free_requests_limit( $blog_id ),
 				'usage-period'         => WPCOM\Jetpack_AI\Usage\Helper::get_period_data( $blog_id ),
-				'site-require-upgrade' => $require_upgrade,
+				'site-require-upgrade' => WPCOM\Jetpack_AI\Usage\Helper::site_requires_upgrade( $blog_id ),
 				'upgrade-type'         => $upgrade_type,
 				'current-tier'         => WPCOM\Jetpack_AI\Usage\Helper::get_current_tier( $blog_id ),
 				'next-tier'            => WPCOM\Jetpack_AI\Usage\Helper::get_next_tier( $blog_id ),
 				'tier-plans'           => WPCOM\Jetpack_AI\Usage\Helper::get_tier_plans_list(),
+				'tier-plans-enabled'   => WPCOM\Jetpack_AI\Usage\Helper::ai_tier_plans_enabled(),
 			);
+		}
+
+		// Outside of WPCOM, we need to fetch the data from the site.
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		// Try to pick the AI Assistant feature from cache.
+		$transient_name = self::transient_name_for_ai_assistance_feature( $blog_id );
+		$cache          = get_transient( $transient_name );
+		if ( $cache ) {
+			return $cache;
 		}
 
 		$request_path = sprintf( '/sites/%d/jetpack-ai/ai-assistant-feature', $blog_id );

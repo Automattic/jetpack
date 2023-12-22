@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Changelogger\Tests;
 use Automattic\Jetpack\Changelogger\Config;
 use PHPUnit\Framework\TestCase as PHPUnit_TestCase;
 use Wikimedia\TestingAccessWrapper;
-use function Wikimedia\quietCall;
 
 /**
  * Base test case for the changelogger tool.
@@ -75,7 +74,8 @@ class TestCase extends PHPUnit_TestCase {
 		$mask = rand( 0, 0xffffff );
 		for ( $i = 0; $i < 0xffffff; $i++ ) {
 			$tmpdir = $base . sprintf( '%06x', $i ^ $mask );
-			if ( quietCall( 'mkdir', $tmpdir, 0700 ) ) {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			if ( @mkdir( $tmpdir, 0700 ) ) {
 				// Success!
 				file_put_contents( "$tmpdir/composer.json", "{}\n" );
 				$this->oldcwd = getcwd();

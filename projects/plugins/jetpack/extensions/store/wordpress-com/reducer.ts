@@ -1,7 +1,6 @@
 /**
  * Types & Constants
  */
-import { __ } from '@wordpress/i18n';
 import {
 	ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN,
 	ACTION_ENQUEUE_ASYNC_REQUEST,
@@ -12,40 +11,35 @@ import {
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
 	ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
 	FREE_PLAN_REQUESTS_LIMIT,
+	UNLIMITED_PLAN_REQUESTS_LIMIT,
+	ACTION_SET_TIER_PLANS_ENABLED,
 } from './constants';
 import type { PlanStateProps } from './types';
-
-const aiAssistantFeature = window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ];
 
 const INITIAL_STATE: PlanStateProps = {
 	plans: [],
 	features: {
 		aiAssistant: {
-			hasFeature: !! aiAssistantFeature?.[ 'has-feature' ],
-			isOverLimit: !! aiAssistantFeature?.[ 'is-over-limit' ],
-			requestsCount: aiAssistantFeature?.[ 'requests-count' ] || 0,
-			requestsLimit: aiAssistantFeature?.[ 'requests-limit' ] || FREE_PLAN_REQUESTS_LIMIT,
-			requireUpgrade: !! aiAssistantFeature?.[ 'site-require-upgrade' ],
-			errorMessage: aiAssistantFeature?.[ 'error-message' ] || '',
-			errorCode: aiAssistantFeature?.[ 'error-code' ],
-			upgradeType: aiAssistantFeature?.[ 'upgrade-type' ] || 'default',
-			currentTier: aiAssistantFeature?.[ 'current-tier' ] || {
+			hasFeature: true,
+			isOverLimit: false,
+			requestsCount: 0,
+			requestsLimit: FREE_PLAN_REQUESTS_LIMIT,
+			requireUpgrade: false,
+			errorMessage: '',
+			errorCode: '',
+			upgradeType: 'default',
+			currentTier: {
 				slug: 'ai-assistant-tier-free',
 				value: 0,
 				limit: 20,
 			},
 			usagePeriod: {
-				currentStart:
-					aiAssistantFeature?.[ 'usage-period' ]?.[ 'current-start' ] || 'ai-assistant-tier-free',
-				nextStart: aiAssistantFeature?.[ 'usage-period' ]?.[ 'next-start' ] || '',
-				requestsCount: aiAssistantFeature?.[ 'usage-period' ]?.[ 'requests-count' ] || 0,
+				currentStart: '',
+				nextStart: '',
+				requestsCount: 0,
 			},
-			nextTier: aiAssistantFeature?.[ 'next-tier' ] || {
-				slug: 'ai-assistant-tier-unlimited',
-				value: 1,
-				limit: 922337203685477600,
-				readableLimit: __( 'Unlimited', 'jetpack' ),
-			},
+			nextTier: null,
+			tierPlansEnabled: false,
 			_meta: {
 				isRequesting: false,
 				asyncRequestCountdown: ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
@@ -97,8 +91,37 @@ export default function reducer( state = INITIAL_STATE, action ) {
 		}
 
 		case ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT: {
-			// Increase request count;
+			// Usage Period data
+			const usagePeriod = state.features.aiAssistant.usagePeriod || { requestsCount: 0 };
+
+			// Increase requests counters
 			const requestsCount = state.features.aiAssistant.requestsCount + action.count;
+			usagePeriod.requestsCount += action.count;
+
+			// Current tier value
+			const currentTierValue = state.features.aiAssistant.currentTier?.value;
+
+			const isFreeTierPlan =
+				( typeof currentTierValue === 'undefined' && ! state.features.aiAssistant.hasFeature ) ||
+				currentTierValue === 0;
+
+			const isUnlimitedTierPlan =
+				( typeof currentTierValue === 'undefined' && state.features.aiAssistant.hasFeature ) ||
+				currentTierValue === 1;
+
+			// Request limit defined with the current tier limit by default.
+			let requestsLimit = state.features.aiAssistant.currentTier?.limit;
+
+			if ( isUnlimitedTierPlan ) {
+				requestsLimit = UNLIMITED_PLAN_REQUESTS_LIMIT;
+			} else if ( isFreeTierPlan ) {
+				requestsLimit = state.features.aiAssistant.requestsLimit;
+			}
+
+			const currentCount =
+				isUnlimitedTierPlan || isFreeTierPlan // @todo: update once tier data is available
+					? requestsCount
+					: state.features.aiAssistant.usagePeriod?.requestsCount;
 
 			/**
 			 * Compute the AI Assistant Feature data optimistically,
@@ -106,12 +129,10 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			 *
 			 * @see _inc/lib/class-jetpack-ai-helper.php
 			 */
-			const isOverLimit = requestsCount >= state.features.aiAssistant.requestsLimit;
-			const requireUpgrade = isOverLimit && ! state.features.aiAssistant.hasFeature;
+			const isOverLimit = currentCount >= requestsLimit;
 
-			// Increase the requests count also fo the Usage Period.
-			const usagePeriod = state.features.aiAssistant.usagePeriod || { requestsCount: 0 };
-			usagePeriod.requestsCount += action.count;
+			// highest tier holds a soft limit so requireUpgrade is false on that case (nextTier null means highest tier)
+			const requireUpgrade = isOverLimit && state.features.aiAssistant.nextTier !== null;
 
 			return {
 				...state,
@@ -161,6 +182,12 @@ export default function reducer( state = INITIAL_STATE, action ) {
 		}
 
 		case ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE: {
+			/*
+			 * If we require an upgrade, we are also over the limit;
+			 * The opposite is not true, we can be over the limit without
+			 * requiring an upgrade, for example when we are on the highest tier.
+			 * In this case, we don't want to set isOverLimit to false.
+			 */
 			return {
 				...state,
 				features: {
@@ -168,8 +195,20 @@ export default function reducer( state = INITIAL_STATE, action ) {
 					aiAssistant: {
 						...state.features.aiAssistant,
 						requireUpgrade: action.requireUpgrade,
-						hasFeature: ! action.requireUpgrade, // If we require an upgrade, we don't have the feature.
-						isOverLimit: true, // If we require an upgrade, we are over the limit.
+						...( action.requireUpgrade ? { isOverLimit: true } : {} ),
+					},
+				},
+			};
+		}
+
+		case ACTION_SET_TIER_PLANS_ENABLED: {
+			return {
+				...state,
+				features: {
+					...state.features,
+					aiAssistant: {
+						...state.features.aiAssistant,
+						tierPlansEnabled: action.tierPlansEnabled,
 					},
 				},
 			};

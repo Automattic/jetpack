@@ -1,4 +1,3 @@
-import { select } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { setAutoConversionSettings } from './actions/auto-conversion-settings';
 import { setConnections } from './actions/connection-data';
@@ -38,7 +37,7 @@ export function* getSocialImageGeneratorSettings() {
 	try {
 		const settings = yield fetchSocialImageGeneratorSettings();
 		if ( settings ) {
-			return setSocialImageGeneratorSettings( settings );
+			return setSocialImageGeneratorSettings( settings.jetpack_social_image_generator_settings );
 		}
 	} catch ( e ) {
 		// TODO: Add proper error handling here
@@ -56,7 +55,7 @@ export function* getAutoConversionSettings() {
 	try {
 		const settings = yield fetchAutoConversionSettings();
 		if ( settings ) {
-			return setAutoConversionSettings( settings );
+			return setAutoConversionSettings( settings.jetpack_social_autoconvert_images );
 		}
 	} catch ( e ) {
 		// TODO: Add proper error handling here
@@ -70,11 +69,10 @@ export function* getAutoConversionSettings() {
  * @returns {Function} Resolver
  */
 export function getConnections() {
-	return function ( { dispatch } ) {
+	return function ( { dispatch, registry } ) {
+		const editor = registry.select( editorStore );
 		// Get the initial connections from the post meta
-		const connections = select( editorStore ).getEditedPostAttribute(
-			'jetpack_publicize_connections'
-		);
+		const connections = editor.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
 		dispatch( setConnections( connections || [] ) );
 	};

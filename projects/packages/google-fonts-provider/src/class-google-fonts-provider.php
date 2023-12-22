@@ -350,7 +350,7 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 	private function get_font_weights( $font_weights ) {
 		$font_weights = trim( $font_weights );
 
-		// A single font-weight.
+		// A single font-weight. Note: str_contains() is not used here, as wp-includes/compat.php is not loaded in this file.
 		if ( false === strpos( $font_weights, ' ' ) ) {
 			return array( $font_weights );
 		}

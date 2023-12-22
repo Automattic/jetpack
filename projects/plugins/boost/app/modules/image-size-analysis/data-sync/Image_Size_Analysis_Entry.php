@@ -7,6 +7,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
+use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis_Fixer;
 
 require_once dirname( __DIR__ ) . '/jetpack-boost-mock-api.php';
 
@@ -29,6 +30,15 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 
 		$issues = array();
 		foreach ( $data->issues as $issue ) {
+			$page  = $this->get_page( $issue );
+			$image = $this->get_image_info( $issue );
+			if ( empty( $page['edit_url'] ) ) { // archive or front page
+				$image['fixed'] = false;
+			} else {
+				$post_id        = Image_Size_Analysis_Fixer::get_post_id( $page['edit_url'] );
+				$image['fixed'] = Image_Size_Analysis_Fixer::is_fixed( $post_id, $image['url'] );
+			}
+
 			$issues[] = array(
 				'id'           => $issue->id,
 				'thumbnail'    => $issue->url,
@@ -36,8 +46,8 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 				'type'         => $issue->type,
 				'status'       => $issue->status,
 				'instructions' => $this->get_instructions( $issue ),
-				'page'         => $this->get_page( $issue ),
-				'image'        => $this->get_image_info( $issue ),
+				'page'         => $page,
+				'image'        => $image,
 			);
 		}
 
@@ -54,10 +64,6 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 			),
 		);
 
-		// Visual indication that groups are working
-		if ( $this->group !== 'all' ) {
-			shuffle( $results['data']['images'] );
-		}
 		return $results;
 	}
 

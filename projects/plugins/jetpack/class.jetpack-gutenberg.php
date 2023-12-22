@@ -153,7 +153,7 @@ class Jetpack_Gutenberg {
 	 * @return string The unprefixed extension name.
 	 */
 	public static function remove_extension_prefix( $extension_name ) {
-		if ( 0 === strpos( $extension_name, 'jetpack/' ) || 0 === strpos( $extension_name, 'jetpack-' ) ) {
+		if ( str_starts_with( $extension_name, 'jetpack/' ) || str_starts_with( $extension_name, 'jetpack-' ) ) {
 			return substr( $extension_name, strlen( 'jetpack/' ) );
 		}
 		return $extension_name;
@@ -622,6 +622,18 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		/**
+		 * This can be called multiple times per page load in the admin, during the `enqueue_block_assets` action.
+		 * These assets are necessary for the admin for editing but are not necessary for each pattern preview.
+		 * Therefore we dequeue them, so they don't load for each pattern preview iframe.
+		 */
+		if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
+			wp_dequeue_script( 'jp-tracks' );
+			wp_dequeue_script( 'jetpack-blocks-editor' );
+
+			return;
+		}
+
 		$status = new Status();
 
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
@@ -677,19 +689,10 @@ class Jetpack_Gutenberg {
 		}
 
 		// AI Assistant
-		$ai_assistant_state = Jetpack_AI_Helper::get_ai_assistance_feature();
-
-		if ( is_wp_error( $ai_assistant_state ) ) {
-			$ai_assistant_state = array(
-				'error-message' => $ai_assistant_state->get_error_message(),
-				'error-code'    => $ai_assistant_state->get_error_code(),
-			);
-		} else {
-			$ai_assistant_state['is-playground-visible'] = Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' );
-		}
-
-		// Jetpack AI enabled
-		$ai_assistant_state['is-enabled'] = apply_filters( 'jetpack_ai_enabled', true );
+		$ai_assistant_state = array(
+			'is-enabled'            => apply_filters( 'jetpack_ai_enabled', true ),
+			'is-playground-visible' => Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' ),
+		);
 
 		$screen_base = null;
 		if ( function_exists( 'get_current_screen' ) ) {
@@ -735,24 +738,19 @@ class Jetpack_Gutenberg {
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
-			$publicize                = publicize_init();
-			$sig_settings             = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
-			$auto_conversion_settings = new Automattic\Jetpack\Publicize\Auto_Conversion\Settings();
+			$publicize               = publicize_init();
+			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
+			$settings                = $jetpack_social_settings->get_settings( true );
 
 			$initial_state['social'] = array(
 				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
 				'hasPaidPlan'                     => $publicize->has_paid_plan(),
 				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
-				'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
-				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
+				'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
+				'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
 				'dismissedNotices'                => $publicize->get_dismissed_notices(),
-				'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
-				'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
-				'isNextdoorConnectionSupported'   => $publicize->has_nextdoor_connection_feature(),
-				'autoConversionSettings'          => array(
-					'available' => $auto_conversion_settings->is_available( 'image' ),
-					'image'     => $auto_conversion_settings->is_enabled( 'image' ),
-				),
+				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
+				'autoConversionSettings'          => $settings['autoConversionSettings'],
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
 			);
 		}

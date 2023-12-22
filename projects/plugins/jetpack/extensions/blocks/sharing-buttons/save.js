@@ -1,19 +1,10 @@
-import SocialButton from './components/social-button';
+import { useInnerBlocksProps, useBlockProps } from '@wordpress/block-editor';
 
-function SaveSharingButtons( { attributes, className } ) {
-	const hasServices = ( attributes.services?.length ?? 0 ) > 1;
+export default function save() {
+	const className = 'jetpack-sharing-buttons__services-list';
+	const id = 'jetpack-sharing-serivces-list';
+	const blockProps = useBlockProps.save( { className } );
+	const innerBlocksProps = useInnerBlocksProps.save( blockProps );
 
-	return hasServices ? (
-		<div className={ className }>
-			<ul sharingEventsAdded="true" className="jetpack-sharing-buttons__sharing-services-list">
-				{ attributes.services.map( service => (
-					<li className="jetpack-sharing-buttons__sharing-service-selected">
-						<SocialButton service={ service } post={ attributes.post } />
-					</li>
-				) ) }
-			</ul>
-		</div>
-	) : null;
+	return <ul { ...innerBlocksProps } id={ id } />;
 }
-
-export default SaveSharingButtons;

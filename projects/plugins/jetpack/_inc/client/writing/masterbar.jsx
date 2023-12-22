@@ -11,8 +11,7 @@ export const Masterbar = withModuleSettingsFormHelpers(
 	class extends Component {
 		render() {
 			const isActive = this.props.getOptionValue( 'masterbar' ),
-				unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'masterbar' ),
-				isLinked = this.props.isLinked;
+				unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'masterbar' );
 
 			return (
 				<SettingsCard
@@ -41,7 +40,7 @@ export const Masterbar = withModuleSettingsFormHelpers(
 						</p>
 						<ModuleToggle
 							slug="masterbar"
-							disabled={ unavailableInOfflineMode || ! isLinked }
+							disabled={ unavailableInOfflineMode }
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'masterbar' ) }
 							toggleModule={ this.props.toggleModuleNow }

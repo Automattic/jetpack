@@ -2,7 +2,7 @@
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
 Tested up to: 6.4
-Stable tag: 6.2.0
+Stable tag: 6.3.2
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPLv2
@@ -389,28 +389,10 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.2.0 - 2023-10-11
-#### Added
-- Tests: Add mock globals for testing.
-- Automations: Add new backend in preparation for future release.
-
+### 6.3.2 - 2023-12-19
 #### Changed
-- Quotes: Allow admin users to accept quotes.
-- Tasks: Use consistent language in code.
-- Increase PHP required version to 7.3.
-- Updated package dependencies.
+- Settings: Make support document links more consistent.
 
 #### Fixed
-- API: Rewrite rules are now flushed after enabling module.
-- API: Task reminder param is no longer ignored.
-- Better PHP 8.2 support.
-- CRM Forms: Removed reference to old branding.
-- CSV Importer: Fixed assignment to companies by name.
-- Custom Fields: Corrected bug that prevented new address custom fields from being shown.
-- Invoices: Handle status translations consistently.
-- Segments: Fixed error 219 occurring when using date ranges.
-- Tags: Better slug generation and added tag slug migration.
-- Tags: Prevent duplicate slugs, and adding more robust slug fallback support.
-- Tasks: Corrected placeholders for contacts and companies in the task reminder email.
-- Transactions: Filters now work for custom statuses.
+- Segments: Fixed an issue preventing segments from being deleted.
 

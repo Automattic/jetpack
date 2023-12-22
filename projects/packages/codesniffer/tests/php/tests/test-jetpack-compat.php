@@ -21,7 +21,6 @@ class JetpackCompatTest extends TestCase {
 
 	const SRC1 = <<<'EOF'
 <?php
-function bad_in_56( bool $b ) {}
 try {} catch ( Bad | In70 $e ) {}
 function bad_in_71( object $o ) {}
 bad_in_72( $a, $b, );
@@ -39,6 +38,8 @@ ini_get( 'session.cookie_samesite' );
 ini_get( 'opcache.cache_id' );
 ini_get( 'zend.exception_string_param_max_len' );
 ini_get( 'fiber.stack_size' );
+ini_get( 'error_log_mode' );
+ini_get( 'zend.max_allowed_stack_size' );
 
 EOF;
 
@@ -74,7 +75,7 @@ EOF;
 			'VariableAnalysis.CodeAnalysis.VariableAnalysis',
 			'WordPress.WhiteSpace.ControlStructureSpacing',
 		);
-		Config::setConfigData( 'testVersion', '5.6-' );
+		Config::setConfigData( 'testVersion', '7.0-' );
 
 		$ruleset = new Ruleset( $config );
 		$dummy   = new DummyFile( $src, $ruleset, $config );
@@ -102,25 +103,23 @@ EOF;
 	 */
 	public function provide_standards() {
 		$lines1 = array(
-			' 2 | ERROR | \'bool\' type declaration is not present in PHP version 5.6 or earlier (PHPCompatibility.FunctionDeclarations.NewParamTypeDeclarations.boolFound)',
-			' 3 | ERROR | Catching multiple exceptions within one statement is not supported in PHP 7.0 or earlier. (PHPCompatibility.ControlStructures.NewMultiCatch.Found)',
-			' 4 | ERROR | \'object\' type declaration is not present in PHP version 7.1 or earlier (PHPCompatibility.FunctionDeclarations.NewParamTypeDeclarations.objectFound)',
-			' 5 | ERROR | Trailing comma\'s are not allowed in function calls in PHP 7.2 or earlier (PHPCompatibility.Syntax.NewFunctionCallTrailingComma.FoundInFunctionCall)',
-			' 6 | ERROR | null coalesce equal operator (??=) is not present in PHP version 7.3 or earlier (PHPCompatibility.Operators.NewOperators.t_coalesce_equalFound)',
+			' 2 | ERROR | Catching multiple exceptions within one statement is not supported in PHP 7.0 or earlier. (PHPCompatibility.ControlStructures.NewMultiCatch.Found)',
+			' 3 | ERROR | \'object\' type declaration is not present in PHP version 7.1 or earlier (PHPCompatibility.FunctionDeclarations.NewParamTypeDeclarations.objectFound)',
+			' 4 | ERROR | Trailing comma\'s are not allowed in function calls in PHP 7.2 or earlier (PHPCompatibility.Syntax.NewFunctionCallTrailingComma.FoundInFunctionCall)',
+			' 5 | ERROR | null coalesce equal operator (??=) is not present in PHP version 7.3 or earlier (PHPCompatibility.Operators.NewOperators.t_coalesce_equalFound)',
 		);
 
 		yield array( 'Jetpack', self::SRC1, $lines1 );
-		yield array( 'Jetpack-Compat-70', self::SRC1, array_slice( $lines1, 1 ) );
-		yield array( 'Jetpack-Compat-71', self::SRC1, array_slice( $lines1, 2 ) );
-		yield array( 'Jetpack-Compat-72', self::SRC1, array_slice( $lines1, 3 ) );
-		yield array( 'Jetpack-Compat-73', self::SRC1, array_slice( $lines1, 4 ) );
-		yield array( 'Jetpack-Compat-74', self::SRC1, array_slice( $lines1, 5 ) );
-		yield array( 'Jetpack-Compat-80', self::SRC1, array_slice( $lines1, 6 ) );
-		yield array( 'Jetpack-Compat-81', self::SRC1, array_slice( $lines1, 7 ) );
-		yield array( 'Jetpack-Compat-82', self::SRC1, array_slice( $lines1, 8 ) );
+		yield array( 'Jetpack-Compat-71', self::SRC1, array_slice( $lines1, 1 ) );
+		yield array( 'Jetpack-Compat-72', self::SRC1, array_slice( $lines1, 2 ) );
+		yield array( 'Jetpack-Compat-73', self::SRC1, array_slice( $lines1, 3 ) );
+		yield array( 'Jetpack-Compat-74', self::SRC1, array_slice( $lines1, 4 ) );
+		yield array( 'Jetpack-Compat-80', self::SRC1, array_slice( $lines1, 5 ) );
+		yield array( 'Jetpack-Compat-81', self::SRC1, array_slice( $lines1, 6 ) );
+		yield array( 'Jetpack-Compat-82', self::SRC1, array_slice( $lines1, 7 ) );
+		yield array( 'Jetpack-Compat-83', self::SRC1, array_slice( $lines1, 8 ) );
 
 		$lines2 = array(
-			' 2 | WARNING | INI directive \'assert.exception\' is not present in PHP version 5.6 or earlier (PHPCompatibility.IniDirectives.NewIniDirectives.assert_exceptionFound)',
 			' 3 | WARNING | INI directive \'hard_timeout\' is not present in PHP version 7.0 or earlier (PHPCompatibility.IniDirectives.NewIniDirectives.hard_timeoutFound)',
 			' 4 | WARNING | INI directive \'imap.enable_insecure_rsh\' is not present in PHP version 7.1.24 or earlier (PHPCompatibility.IniDirectives.NewIniDirectives.imap_enable_insecure_rshFound)',
 			' 5 | WARNING | INI directive \'session.cookie_samesite\' is not present in PHP version 7.2 or earlier (PHPCompatibility.IniDirectives.NewIniDirectives.session_cookie_samesiteFound)',
@@ -129,13 +128,13 @@ EOF;
 		);
 
 		yield array( 'Jetpack', self::SRC2, $lines2 );
-		yield array( 'Jetpack-Compat-70', self::SRC2, array_slice( $lines2, 1 ) );
-		yield array( 'Jetpack-Compat-71', self::SRC2, array_slice( $lines2, 2 ) );
-		yield array( 'Jetpack-Compat-72', self::SRC2, array_slice( $lines2, 3 ) );
-		yield array( 'Jetpack-Compat-73', self::SRC2, array_slice( $lines2, 4 ) );
-		yield array( 'Jetpack-Compat-74', self::SRC2, array_slice( $lines2, 5 ) );
-		yield array( 'Jetpack-Compat-80', self::SRC2, array_slice( $lines2, 6 ) );
-		yield array( 'Jetpack-Compat-81', self::SRC2, array_slice( $lines2, 7 ) );
-		yield array( 'Jetpack-Compat-82', self::SRC2, array_slice( $lines2, 8 ) );
+		yield array( 'Jetpack-Compat-71', self::SRC2, array_slice( $lines2, 1 ) );
+		yield array( 'Jetpack-Compat-72', self::SRC2, array_slice( $lines2, 2 ) );
+		yield array( 'Jetpack-Compat-73', self::SRC2, array_slice( $lines2, 3 ) );
+		yield array( 'Jetpack-Compat-74', self::SRC2, array_slice( $lines2, 4 ) );
+		yield array( 'Jetpack-Compat-80', self::SRC2, array_slice( $lines2, 5 ) );
+		yield array( 'Jetpack-Compat-81', self::SRC2, array_slice( $lines2, 6 ) );
+		yield array( 'Jetpack-Compat-82', self::SRC2, array_slice( $lines2, 7 ) );
+		yield array( 'Jetpack-Compat-83', self::SRC2, array_slice( $lines2, 8 ) );
 	}
 }
