@@ -1333,7 +1333,7 @@ class Identity_Crisis {
 	 * Adds `url_secret` to the `jetpack.idcUrlValidation` URL validation endpoint.
 	 * Adds `url_secret_error` in case of an error.
 	 *
-	 * @param array $response The endurl_is_ippoint response that we're modifying.
+	 * @param array $response The endpoint response that we're modifying.
 	 *
 	 * @return array
 	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
