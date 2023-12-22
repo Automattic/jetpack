@@ -258,7 +258,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	let text;
 
-	if ( ! isSendEmailEnabled ) {
+	if ( ! isSendEmailEnabled() ) {
 		text = __( 'Not sent via email.', 'jetpack' );
 	} else if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
 		// Get newsletter category copy & count separately, unless post is paid
