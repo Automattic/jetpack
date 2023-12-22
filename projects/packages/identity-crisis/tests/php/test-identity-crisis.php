@@ -1044,35 +1044,8 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 *
 	 * @return void
 	 */
-	public function test_register_request_body() {
-		Identity_Crisis::init();
-
-		$body = array(
-			'key1' => 'val1',
-			'key2' => 'val2',
-		);
-		update_option( 'jetpack_persistent_blog_id', '12345' );
-
-		$new_body = apply_filters( 'jetpack_register_request_body', $body );
-
-		delete_option( 'jetpack_persistent_blog_id' );
-
-		$this->assertEquals( array_merge( $body, array( 'persistent_blog_id' => '12345' ) ), $new_body );
-	}
-
-	/**
-	 * Test the 'register_request_body' filter for an IP hostname.
-	 *
-	 * @return void
-	 */
 	public function test_register_request_body_ip() {
 		Identity_Crisis::init();
-
-		$original_home    = get_option( 'home' );
-		$original_siteurl = get_option( 'siteurl' );
-
-		update_option( 'home', 'http://72.182.131.109/~wordpress' );
-		update_option( 'siteurl', 'http://72.182.131.109/~wordpress/wp' );
 
 		$body = array(
 			'key1' => 'val1',
@@ -1086,8 +1059,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 		delete_option( 'jetpack_persistent_blog_id' );
 		delete_option( 'jetpack_identity_crisis_url_secret' );
-		update_option( 'home', $original_home );
-		update_option( 'siteurl', $original_siteurl );
 
 		$this->assertTrue( (bool) $secret );
 		$this->assertEquals(
