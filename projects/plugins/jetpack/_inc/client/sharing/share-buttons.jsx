@@ -93,7 +93,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				const featureDescription = isActive
 					? createInterpolateElement(
 							__(
-								'You are using a block-based theme. You can continue using Jetpack’s legacy sharing buttons and configure them below. As an alternative, you could disable the legacy sharing feature below and add a sharing button block to your themes’s template instead. <a>Discover how</a>.',
+								'You are using a block-based theme. You can continue using Jetpack’s legacy sharing buttons and configure them below. As an alternative, you could disable the legacy sharing feature above and add a sharing button block to your themes’s template instead. <a>Discover how</a>.',
 								'jetpack'
 							),
 							{
