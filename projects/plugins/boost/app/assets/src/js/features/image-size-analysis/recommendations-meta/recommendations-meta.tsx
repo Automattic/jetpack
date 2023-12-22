@@ -43,7 +43,11 @@ const _RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActi
 		 */
 		if ( isaReport?.groups ) {
 			setTotalIssues(
-				Object.values( isaReport.groups ).reduce( ( total, group ) => total + group.issue_count, 0 )
+				Object.entries( isaReport.groups ).reduce( ( total, [ , group ] ) => {
+					const groupWithIssueCount = group as { issue_count: number };
+
+					return total + groupWithIssueCount.issue_count;
+				}, 0 )
 			);
 		}
 
