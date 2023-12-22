@@ -211,6 +211,10 @@ class Identity_Crisis {
 			return $url;
 		}
 
+		if ( self::url_is_ip() ) {
+			self::set_ip_requester_for_idc();
+		}
+
 		$query_args = array(
 			'home'    => Urls::home_url(),
 			'siteurl' => Urls::site_url(),
