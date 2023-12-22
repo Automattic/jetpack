@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Exclude @charset and @import statements from Critical CSS

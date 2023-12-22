@@ -114,7 +114,51 @@ class Test_REST_Controller extends TestCase {
 	public function test_install_backup_helper_script_success() {
 		$body = array(
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-			'helper' => base64_encode( "<?php /* Jetpack Backup Helper Script */\n" ),
+			'helper' => base64_encode( "<?php /* Jetpack Backup Helper Script */\n\$path = '[wp_path]'\n" ),
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $body ) );
+
+		$response      = $this->dispatch_request_signed_with_blog_token( $request );
+		$response_data = $response->get_data();
+		$this->assertEquals(
+			200,
+			$response->get_status(),
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			'Non-HTTP 200 response with data: ' . var_export( $response_data, true )
+		);
+		$this->assertArrayHasKey(
+			'url',
+			$response_data,
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			'Response should have "url" key: ' . var_export( $response_data, true )
+		);
+		$this->assertArrayHasKey(
+			'abspath',
+			$response_data,
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			'Response should have "abspath" key: ' . var_export( $response_data, true )
+		);
+		$this->assertArrayHasKey(
+			'path',
+			$response_data,
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			'Response should have "path" key: ' . var_export( $response_data, true )
+		);
+
+		// Cleanup.
+		wp_delete_file( $response_data['path'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/backup-helper-script` endpoint with bad helper script contents.
+	 */
+	public function test_install_backup_helper_script_bad_header() {
+		$body = array(
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			'helper' => base64_encode( 'totally not a helper script' ),
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
@@ -122,14 +166,8 @@ class Test_REST_Controller extends TestCase {
 		$request->set_body( wp_json_encode( $body ) );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
-		$this->assertEquals( 200, $response->get_status() );
-		$response_data = $response->get_data();
-		$this->assertArrayHasKey( 'url', $response_data );
-		$this->assertArrayHasKey( 'abspath', $response_data );
-		$this->assertArrayHasKey( 'path', $response_data );
-
-		// Cleanup.
-		wp_delete_file( $response_data['path'] );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertTrue( false !== strpos( $response->get_data()['message'], 'Bad helper script header' ) );
 	}
 
 	/**
@@ -177,6 +215,27 @@ class Test_REST_Controller extends TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 
 		$this->assertTrue( $response->get_data()['success'] );
+	}
+
+	/**
+	 * Testing the `DELETE /jetpack/v4/backup-helper-script` endpoint on success.
+	 */
+	public function test_delete_backup_helper_script_bad_header() {
+		$path = tempnam( sys_get_temp_dir(), 'helper-script' );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $path, str_repeat( 'a', 1024 ) );
+
+		$body = array( 'path' => $path );
+
+		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $body ) );
+
+		$response = $this->dispatch_request_signed_with_blog_token( $request );
+		$this->assertEquals( 500, $response->get_status() );
+		$this->assertTrue( false !== strpos( $response->get_data()['message'], 'Bad helper script header' ) );
+
+		wp_delete_file( $path );
 	}
 
 	/**

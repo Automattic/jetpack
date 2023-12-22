@@ -891,12 +891,15 @@ class Posts extends Module {
 					}
 					$current_metadata[] = $metadata_item;
 					$metadata_size     += $metadata_item_size >= self::MAX_POST_META_LENGTH ? 0 : $metadata_item_size;
+					if ( ! empty( $filtered_post_ids ) && ( $current_size + $post_content_size + $metadata_size ) > ( self::MAX_SIZE_FULL_SYNC ) ) {
+						break 2; // Break both foreach loops.
+					}
 					unset( $metadata[ $key ] );
 				}
 			}
 			// Always allow the first post with its metadata.
 			if ( empty( $filtered_post_ids ) || ( $current_size + $post_content_size + $metadata_size ) <= ( self::MAX_SIZE_FULL_SYNC ) ) {
-				$filtered_post_ids[] = $post->ID;
+				$filtered_post_ids[] = strval( $post->ID );
 				$filtered_posts[]    = $post;
 				$filtered_metadata   = array_merge( $filtered_metadata, $current_metadata );
 				$current_size       += $post_content_size + $metadata_size;

@@ -9,14 +9,15 @@ import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import JetpackLogo from '$svg/jetpack-green';
 import styles from './upgrade.module.scss';
+import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
+import { useConfig } from '$lib/stores/config-ds';
 
 type UpgradeProps = {
-	pricing: ( typeof Jetpack_Boost )[ 'pricing' ];
 	siteDomain: string;
 	userConnected: boolean;
 };
 
-const Upgrade: React.FC< UpgradeProps > = ( { pricing, siteDomain, userConnected } ) => {
+const Upgrade: React.FC< UpgradeProps > = ( { siteDomain, userConnected } ) => {
 	const goToCheckout = () => {
 		recordBoostEventAndRedirect(
 			getUpgradeURL( siteDomain, userConnected ),
@@ -24,7 +25,9 @@ const Upgrade: React.FC< UpgradeProps > = ( { pricing, siteDomain, userConnected
 		);
 	};
 
-	if ( ! ( 'yearly' in pricing ) ) {
+	const { pricing } = useConfig();
+
+	if ( ! pricing ) {
 		goToCheckout();
 	}
 
@@ -79,14 +82,14 @@ const Upgrade: React.FC< UpgradeProps > = ( { pricing, siteDomain, userConnected
 						</div>
 
 						<div className="jb-card__cta px-2 my-4">
-							{ 'yearly' in pricing && (
+							{ pricing && (
 								<PricingCard
 									title={ __( 'Jetpack Boost', 'jetpack-boost' ) }
 									icon={ `${ Jetpack_Boost.site.staticAssetPath }images/forward.svg` }
-									priceBefore={ pricing.yearly.priceBefore / 12 }
-									priceAfter={ pricing.yearly.priceAfter / 12 }
+									priceBefore={ pricing.priceBefore / 12 }
+									priceAfter={ pricing.priceAfter / 12 }
 									priceDetails={ __( '/month, paid yearly', 'jetpack-boost' ) }
-									currencyCode={ pricing.yearly.currencyCode }
+									currencyCode={ pricing.currencyCode }
 									ctaText={ __( 'Upgrade Jetpack Boost', 'jetpack-boost' ) }
 									onCtaClick={ goToCheckout }
 								/>
@@ -109,4 +112,10 @@ const Upgrade: React.FC< UpgradeProps > = ( { pricing, siteDomain, userConnected
 	);
 };
 
-export default Upgrade;
+export default ( props: UpgradeProps ) => {
+	return (
+		<DataSyncProvider>
+			<Upgrade { ...props } />
+		</DataSyncProvider>
+	);
+};

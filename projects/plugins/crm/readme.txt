@@ -2,7 +2,7 @@
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
 Tested up to: 6.4
-Stable tag: 6.2.0
+Stable tag: 6.3.2
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPLv2
@@ -389,26 +389,10 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.3.0 - 2023-11-15
-#### Added
-- API: Add support for creating transactions with custom fields.
-
+### 6.3.2 - 2023-12-19
 #### Changed
-- Requires PHP 7.4 or higher.
-- Requires WordPress 6.0 or higher.
+- Settings: Make support document links more consistent.
 
 #### Fixed
-- API: Allow events endpoint to be filtered by owner.
-- API: The `create_event` endpoint no longer throws a 100 error.
-- API: Restrict what owner data is returned with events endpoint.
-- Backend: Prevent error if OpenSSL functions aren't available in PHP.
-- Backend: Changing how styles are added to the page on several stand-alone pages to prevent WordPress 6.4 compatibility issues.
-- Client Portal: Better PHP 8.2 support.
-- Contacts: Fixed display issues on the Add and Edit pages that occurred when moving fields.
-- Listviews: Remove legacy code.
-- Mail Delivery: Removed usage of deprecated function utf8_encode.
-- Quote Templates: Fix issue with notes field rendering HTML entities in some cases.
-- Quote Templates: Make sure quote titles with apostrophes do not have backslashes added when rendered.
-- WooSync: Catch PHP error in Client Portal invoice if WooCommerce is disabled.
-- WooSync: Contacts can now be assigned to existing companies.
+- Segments: Fixed an issue preventing segments from being deleted.
 

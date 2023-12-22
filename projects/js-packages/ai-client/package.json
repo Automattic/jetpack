@@ -1,7 +1,7 @@
 {
 	"private": false,
 	"name": "@automattic/jetpack-ai-client",
-	"version": "0.2.1",
+	"version": "0.3.0",
 	"description": "A JS client for consuming Jetpack AI services",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/ai-client/#readme",
 	"bugs": {
@@ -22,9 +22,9 @@
 	},
 	"type": "module",
 	"devDependencies": {
-		"@storybook/addon-actions": "7.4.6",
-		"@storybook/blocks": "7.4.6",
-		"@storybook/react": "7.4.6",
+		"@storybook/addon-actions": "7.6.5",
+		"@storybook/blocks": "7.6.5",
+		"@storybook/react": "7.6.5",
 		"jest": "^29.6.2",
 		"jest-environment-jsdom": "29.7.0",
 		"typescript": "5.0.4"
