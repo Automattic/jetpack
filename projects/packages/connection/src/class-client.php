@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Identity_Crisis;
 
 /**
  * The Client class that is used to connect to WordPress.com Jetpack API.
@@ -32,6 +33,10 @@ class Client {
 			 * @param string The remote request url.
 			 */
 			$args['url'] = apply_filters( 'jetpack_remote_request_url', $args['url'] );
+		}
+
+		if ( Identity_Crisis::url_is_ip() ) {
+			Identity_Crisis::set_ip_requester_for_idc();
 		}
 
 		$result = self::build_signed_request( $args, $body );

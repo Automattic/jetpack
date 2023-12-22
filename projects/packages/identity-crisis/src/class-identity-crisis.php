@@ -90,7 +90,6 @@ class Identity_Crisis {
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( __CLASS__, 'jetpack_connection_disconnect_site_wpcom_filter' ) );
 
 		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
-		add_filter( 'jetpack_remote_request_url', array( $this, 'set_ip_requester_for_idc' ) );
 
 		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ) );
 		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_ip_requester_to_url_validation_response' ) );
@@ -1397,49 +1396,48 @@ class Identity_Crisis {
 	 * If URL is an IP, add the IP value to the ip_requester option with its expiry value.
 	 *
 	 * @throws Exception Thrown if unable to save the new IP requester.
-	 *
-	 * @return array|null
 	 */
 	public static function set_ip_requester_for_idc() {
-		// Check if URL is an IP.
-		if ( self::url_is_ip() ) {
-			// Check if option exists
-			$data = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
-			// If not set it
-			$ip           = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
-			$ip_requester = array(
-				'ip'         => $ip,
-				'expires_at' => time() + 300,
-			);
-			if ( ! $data && ! empty( $ip_requester ) ) {
-				$data[] = $ip_requester;
-				$result = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $data );
+		// Check if option exists
+		$data = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+		// If not set it
+		$site_ip      = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
+		$ip_requester = array(
+			'ip'         => $site_ip,
+			'expires_at' => time() + 300,
+		);
+		if ( ! $data && ! empty( $ip_requester ) ) {
+			$data[] = $ip_requester;
+			$result = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $data );
+			if ( ! $result ) {
+				throw new Exception( esc_html__( 'Unable to save new ip requester', 'jetpack-idc' ) );
+			}
+		} else {
+			$updated_data  = array();
+			$updated_value = false;
+			foreach ( $data as $item ) {
+				// If set, delete any expired values first
+				if ( time() > $item['expires_at'] ) {
+					$item = null;
+				}
+				if ( $item ) {
+					if ( $item['ip'] === $site_ip ) {
+						$item['expires_at'] = time() + 300;
+						$updated_value      = true;
+					}
+					$updated_data[] = $item;
+				}
+			}
+			if ( ! $updated_value ) {
+				$updated_data[] = $ip_requester;
+			}
+			if ( $data !== $updated_data ) {
+				$result = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $updated_data );
 				if ( ! $result ) {
 					throw new Exception( esc_html__( 'Unable to save new ip requester', 'jetpack-idc' ) );
 				}
-			} else {
-				$updated_data = null;
-				foreach ( $data as $item ) {
-					// If set, delete any expired values first
-					if ( time() > $item['expires_at'] ) {
-						$item = null;
-					}
-					if ( $item ) {
-						if ( $item['ip'] === $ip ) {
-							$item['expires_at'] = time() + 300;
-						}
-						$updated_data[] = $item;
-					}
-				}
-				if ( $data !== $updated_data ) {
-					$result = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $updated_data );
-					if ( ! $result ) {
-						throw new Exception( esc_html__( 'Unable to save new ip requester', 'jetpack-idc' ) );
-					}
-				}
 			}
 		}
-		return false;
 	}
 
 	/**
