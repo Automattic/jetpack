@@ -36,8 +36,10 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	function handleSubscriptionModalIframeResult( eventFromIframe ) {
 		if ( eventFromIframe.origin === 'https://subscribe.wordpress.com' && eventFromIframe.data ) {
 			const data = JSON.parse( eventFromIframe.data );
+			const iframeElement = document.querySelector( '.jetpack-subscription-modal__iframe' );
 			if ( data && data.action === 'close' ) {
 				window.removeEventListener( 'message', handleSubscriptionModalIframeResult );
+				iframeElement.src = 'about:blank';
 				reloadOnCloseSubscriptionModal( subscriptionData.url );
 			}
 		}
