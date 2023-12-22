@@ -53,7 +53,6 @@
 		"ai-assistant-support",
 		"ai-assistant-form-support",
 		"paywall",
-		"ai-content-lens",
 		"blogroll",
 		"blogroll-item",
 		"nextdoor",
@@ -71,7 +70,8 @@
 		"ai-assistant-backend-prompts",
 		"sharing-button",
 		"sharing-buttons",
-		"ai-logo-generator"
+		"ai-logo-generator",
+		"ai-content-lens"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

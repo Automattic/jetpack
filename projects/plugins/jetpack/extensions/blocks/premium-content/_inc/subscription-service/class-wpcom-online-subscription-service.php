@@ -65,7 +65,7 @@ class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Servi
 	/**
 	 * Returns true if the current authenticated user is subscribed to the current site.
 	 *
-	 * @return boole
+	 * @return bool
 	 */
 	public function is_current_user_subscribed(): bool {
 		include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
