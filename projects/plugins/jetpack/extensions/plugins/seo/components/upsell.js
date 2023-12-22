@@ -27,14 +27,14 @@ const UpsellNotice = ( { requiredPlan } ) => {
 			<div>
 				{ sprintf(
 					/* translators: placeholder is the product name of the plan. */
-					__( 'To use SEO Tools feature you need to upgrade to the %s plan', 'jetpack' ),
+					__( 'To use the SEO feature you need to upgrade to the %s plan', 'jetpack' ),
 					planName
 				) }
 			</div>
 
 			<div className="components-seo-upsell__learn-more">
 				<ExternalLink href={ supportUrl }>
-					{ __( 'Learn more about Jetpack SEO.', 'jetpack' ) }
+					{ __( 'Learn more about SEO feature.', 'jetpack' ) }
 				</ExternalLink>
 			</div>
 
