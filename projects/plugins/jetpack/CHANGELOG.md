@@ -4,6 +4,7 @@
 
 ## 12.9.3 - 2023-12-22
 ### Bug fixes
+- Subscribe Modal: Fix fatal errors happening under certain conditions. [#34758]
 - VideoPress: Fix an issue when using VideoPress inside a subscription block. [#34723]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->

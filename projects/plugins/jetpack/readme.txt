@@ -295,6 +295,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 12.9.3 - 2023-12-22
 #### Bug fixes
+- Subscribe Modal: Fix fatal errors happening under certain conditions.
 - VideoPress: Fix an issue when using VideoPress inside a subscription block.
 
 --------
