@@ -1436,10 +1436,7 @@ class Identity_Crisis {
 				$updated_data[] = $ip_requester;
 			}
 			if ( $data !== $updated_data ) {
-				$result = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $updated_data );
-				if ( ! $result ) {
-					throw new Exception( esc_html__( 'Unable to save new ip requester', 'jetpack-idc' ) );
-				}
+				Jetpack_Options::update_option( 'identity_crisis_ip_requester', $updated_data );
 			}
 		}
 	}
