@@ -22,7 +22,7 @@ export function ManualSharing( props: ManualSharingProps ) {
 					<Text variant="body-extra-small" className={ styles.title }>
 						{ __( 'Manual sharing', 'jetpack' ) }
 					</Text>
-					<IconTooltip inline={ false } iconSize={ 16 } placement="top-end">
+					<IconTooltip inline={ false } shift iconSize={ 16 } placement="top-end">
 						<ManualSharingInfo { ...props } />
 					</IconTooltip>
 				</Flex>
