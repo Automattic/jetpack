@@ -55,6 +55,11 @@ Genericons
 	content: "\f415";
 }
 
+/* Bluesky */
+.jetpack-social-navigation-genericons a[href*="bsky.app"]:before {
+	content: "\f10f";
+}
+
 /* CodePen */
 .jetpack-social-navigation-genericons a[href*="codepen.io"]:before {
 	content: "\f216";

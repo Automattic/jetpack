@@ -118,6 +118,7 @@ export default function PublicizeForm() {
 							<ValidationNotice
 								connectionsCount={ connections.length }
 								invalidConnectionIdsCount={ invalidIds.length }
+								shouldAutoConvert={ shouldAutoConvert }
 							/>
 						) ) }
 				</>

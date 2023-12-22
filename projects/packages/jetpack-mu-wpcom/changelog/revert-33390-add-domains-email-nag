@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove a nag for domains without a verified email

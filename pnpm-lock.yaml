@@ -2646,6 +2646,9 @@ importers:
       prettier:
         specifier: npm:wp-prettier@3.0.3
         version: /wp-prettier@3.0.3
+      react-router-dom:
+        specifier: 6.21.0
+        version: 6.21.0(react-dom@18.2.0)(react@18.2.0)
       svelte-navigator:
         specifier: 3.2.2
         version: 3.2.2(svelte@3.58.0)(typescript@5.0.4)
@@ -3133,8 +3136,8 @@ importers:
         specifier: 7.5.2
         version: 7.5.2
       social-logos:
-        specifier: 2.5.7
-        version: 2.5.7(react@18.2.0)
+        specifier: 2.5.8
+        version: 2.5.8(react@18.2.0)
       swiper:
         specifier: 6.7.0
         version: 6.7.0
@@ -8831,6 +8834,11 @@ packages:
       '@react-spring/types': 9.7.3
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+
+  /@remix-run/router@1.14.0:
+    resolution: {integrity: sha512-WOHih+ClN7N8oHk9N4JUiMxQJmRVaOxcg8w7F/oHUXzJt920ekASLI/7cYX8XkntDWRhLZtsk6LbGrkgOAvi5A==}
+    engines: {node: '>=14.0.0'}
+    dev: false
 
   /@remix-run/router@1.2.1:
     resolution: {integrity: sha512-XiY0IsyHR+DXYS5vBxpoBe/8veTeoRpMHP+vDosLZxL5bnpetzI0igkxkLZS235ldLzyfkxF+2divEwWHP3vMQ==}
@@ -21379,6 +21387,19 @@ packages:
       react-router: 6.2.2(react@18.2.0)
     dev: false
 
+  /react-router-dom@6.21.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-1dUdVj3cwc1npzJaf23gulB562ESNvxf7E4x8upNJycqyUm5BRRZ6dd3LrlzhtLaMrwOCO8R0zoiYxdaJx4LlQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+    dependencies:
+      '@remix-run/router': 1.14.0
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-router: 6.21.0(react@18.2.0)
+    dev: false
+
   /react-router-dom@6.6.2(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-6SCDXxRQqW5af8ImOqKza7icmQ47/EMbz572uFjzvcArg3lZ+04PxSPp8qGs+p2Y+q+b+S/AjXv8m8dyLndIIA==}
     engines: {node: '>=14'}
@@ -21435,6 +21456,16 @@ packages:
       react: '>=16.8'
     dependencies:
       history: 5.3.0
+      react: 18.2.0
+    dev: false
+
+  /react-router@6.21.0(react@18.2.0):
+    resolution: {integrity: sha512-hGZ0HXbwz3zw52pLZV3j3+ec+m/PQ9cTpBvqjFQmy2XVUWGn5MD+31oXHb6dVTxYzmAeaiUBYjkoNz66n3RGCg==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
+      '@remix-run/router': 1.14.0
       react: 18.2.0
     dev: false
 
@@ -22411,8 +22442,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /social-logos@2.5.7(react@18.2.0):
-    resolution: {integrity: sha512-4+SCMIWAicxk3Z1TKVTLI+bo1TH6jq1q9fylpNKbfvgemia84DmJYdsnRoE9/XXm0HMTj/ZlPU5NoUF1G4fPrw==}
+  /social-logos@2.5.8(react@18.2.0):
+    resolution: {integrity: sha512-NqHmubqls14MUjsquYbkQIygTVdq1UZ9ogEbIqPbkRkF1iiAQXqiw2XC1/5+Ra0VQv3hxb7l9J9UmOCUACnbbw==}
     peerDependencies:
       react: 15 - 18
     dependencies:

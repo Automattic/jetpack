@@ -30,7 +30,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'setup_general',
 				'design_selected',
 				'plan_selected',
@@ -45,7 +44,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'plan_selected',
 				'setup_free',
 				'design_selected',
@@ -61,7 +59,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'design_selected',
 				'setup_link_in_bio',
 				'plan_selected',
@@ -75,7 +72,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'design_selected',
 				'setup_link_in_bio',
 				'plan_selected',
@@ -105,7 +101,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'videopress_setup',
 				'plan_selected',
 				'videopress_upload',
@@ -118,7 +113,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'setup_write',
 				'design_selected',
 				'plan_selected',
@@ -132,7 +126,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'first_post_published',
 				'setup_blog',
 				'domain_upsell',
@@ -146,7 +139,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
-				'verify_domain_email',
 				'design_completed',
 				'setup_blog',
 				'domain_upsell',
