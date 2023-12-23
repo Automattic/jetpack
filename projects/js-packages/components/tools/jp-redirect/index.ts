@@ -47,7 +47,7 @@ export default function getRedirectUrl( source: string, args: GetRedirectUrlArgs
 		typeof jetpack_redirects !== 'undefined' &&
 		jetpack_redirects.hasOwnProperty( 'currentSiteRawUrl' )
 	) {
-		queryVars.site = jetpack_redirects.currentSiteRawUrl;
+		queryVars.site = jetpack_redirects.currentBlogID ?? jetpack_redirects.currentSiteRawUrl;
 	}
 
 	if ( calypsoEnv ) {

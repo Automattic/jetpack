@@ -25,6 +25,7 @@ const defaultAdminUrl =
  * @param {string} props.productSlug                      - The WordPress product slug.
  * @param {string} props.redirectUrl                      - The URI to redirect to after checkout.
  * @param {string} [props.siteSuffix]                     - The site suffix.
+ * @param {string} [props.blogID]                         - The blog ID.
  * @param {string} [props.adminUrl]                       - The site wp-admin url.
  * @param {boolean} props.connectAfterCheckout            - Whether or not to conect after checkout if not connected (default false - connect before).
  * @param {Function} props.siteProductAvailabilityHandler - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
@@ -35,6 +36,7 @@ const defaultAdminUrl =
 export default function useProductCheckoutWorkflow( {
 	productSlug,
 	redirectUrl,
+	blogID,
 	siteSuffix = defaultSiteSuffix,
 	adminUrl = defaultAdminUrl,
 	connectAfterCheckout = false,
@@ -45,6 +47,7 @@ export default function useProductCheckoutWorkflow( {
 	debug( 'productSlug is %s', productSlug );
 	debug( 'redirectUrl is %s', redirectUrl );
 	debug( 'siteSuffix is %s', siteSuffix );
+	blogID && debug( 'blogID is %s', blogID );
 	debug( 'from is %s', from );
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
@@ -61,7 +64,7 @@ export default function useProductCheckoutWorkflow( {
 
 		const checkoutPath = shouldConnectAfterCheckout
 			? 'checkout/jetpack/'
-			: `checkout/${ siteSuffix }/`;
+			: `checkout/${ blogID ?? siteSuffix }/`;
 
 		const quantitySuffix = quantity != null ? `:-q-${ quantity }` : '';
 
@@ -97,6 +100,7 @@ export default function useProductCheckoutWorkflow( {
 		isUserConnected,
 		connectAfterCheckout,
 		siteSuffix,
+		blogID,
 		quantity,
 		productSlug,
 		from,

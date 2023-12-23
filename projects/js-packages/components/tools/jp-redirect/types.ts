@@ -45,5 +45,6 @@ declare global {
 	}
 	const jetpack_redirects: {
 		currentSiteRawUrl?: string;
+		currentBlogID?: string;
 	};
 }

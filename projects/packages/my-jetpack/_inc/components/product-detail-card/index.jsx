@@ -83,7 +83,7 @@ const ProductDetailCard = ( {
 	quantity = null,
 	highlightLastFeature = false,
 } ) => {
-	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackUrl } =
+	const { fileSystemWriteAccess, siteSuffix, blogID, adminUrl, myJetpackUrl } =
 		window?.myJetpackInitialState ?? {};
 
 	const { detail, isFetching } = useProduct( slug );
@@ -135,6 +135,7 @@ const ProductDetailCard = ( {
 			productSlug: wpcomProductSlug,
 			redirectUrl: checkoutRedirectUrl,
 			siteSuffix,
+			blogID,
 			adminUrl,
 			connectAfterCheckout: true,
 			from: 'my-jetpack',
@@ -146,6 +147,7 @@ const ProductDetailCard = ( {
 			productSlug: wpcomFreeProductSlug,
 			redirectUrl: myJetpackUrl,
 			siteSuffix,
+			blogID,
 			from: 'my-jetpack',
 			quantity,
 		} );
