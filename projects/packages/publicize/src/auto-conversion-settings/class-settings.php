@@ -1,13 +1,16 @@
 <?php
 /**
  * Settings class.
+ * Flagged to be removed after deprecation.
+ *
+ * @deprecated $$next_version$$
  *
  * @package automattic/jetpack-publicize
  */
 
 namespace Automattic\Jetpack\Publicize\Auto_Conversion;
 
-use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings as Jetpack_Social_Settings;
 
 /**
  * This class is used to get and update Auto_Conversion_Settings.
@@ -40,43 +43,21 @@ class Settings {
 	 * @return array
 	 */
 	private function get_settings() {
-		return get_option(
-			self::OPTION_NAME,
-			array(
-				'image' => $this->is_available( 'image' ),
-			)
+		$new_settings = ( new Jetpack_Social_Settings() )->get_settings();
+
+		return array(
+			'image' => $new_settings['autoConversionSettings']['enabled'],
 		);
-	}
-
-	/**
-	 * Update setting.
-	 *
-	 * @param string $key The key to update.
-	 * @param mixed  $value The value to set for the key.
-	 * @return bool True if the value was updated, false otherwise.
-	 */
-	private function update_setting( $key, $value ) {
-		$settings       = array_replace_recursive( $this->get_settings(), array( $key => $value ) );
-		$this->settings = $settings;
-
-		return update_option( self::OPTION_NAME, $settings );
 	}
 
 	/**
 	 * Check if the auto conversion feature is available.
 	 *
 	 * @param string $type Whether video or image.
-
 	 * @return bool True if available, false otherwise.
 	 */
 	public function is_available( $type ) {
-		global $publicize;
-
-		if ( ! $publicize ) {
-			return false;
-		}
-
-		return $publicize->has_social_auto_conversion_feature( $type );
+		return ( new Jetpack_Social_Settings() )->is_auto_conversion_available( $type );
 	}
 
 	/**
@@ -87,31 +68,9 @@ class Settings {
 	 * @return bool True if the feature is enabled, false otherwise.
 	 */
 	public function is_enabled( $type ) {
-		// If the feature isn't available it should never be enabled.
-		if ( ! $this->is_available( $type ) ) {
-			return false;
+		if ( 'image' === $type ) {
+			$new_settings = ( new Jetpack_Social_Settings() )->get_settings();
+			return $new_settings['autoConversionSettings']['enabled'];
 		}
-
-		// The feature cannot be enabled without Publicize.
-		if ( ! ( new Modules() )->is_active( 'publicize' ) ) {
-			return false;
-		}
-
-		if ( isset( $this->settings[ $type ] ) ) {
-			return $this->settings[ $type ];
-		}
-
-		return false;
-	}
-
-	/**
-	 * Enable or disable Auto Conversion.
-	 *
-	 * @param bool $key Whether video or image.
-	 * @param bool $value True to enable auto-conversion settings, false to disable.
-	 * @return bool True if the setting was updated successfully, false otherwise.
-	 */
-	public function set_enabled( $key, $value ) {
-		return $this->update_setting( $key, (bool) $value );
 	}
 }

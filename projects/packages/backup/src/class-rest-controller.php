@@ -218,12 +218,14 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @return array|WP_Error Returns the result of Helper Script installation. Returns one of:
-	 * - WP_Error on failure, or
-	 * - An array with installation info on success:
-	 *  'path'    (string) The sinstallation path.
-	 *  'url'     (string) The access url.
-	 *  'abspath' (string) The abspath.
+	 *
+	 * @return array|WP_Error Array with installation info on success:
+	 *
+	 *   'path'    (string) Helper script installation path on the filesystem.
+	 *   'url'     (string) URL to the helper script.
+	 *   'abspath' (string) WordPress root.
+	 *
+	 *   or an instance of WP_Error on failure.
 	 */
 	public static function install_backup_helper_script( $request ) {
 		$helper_script = $request->get_param( 'helper' );
@@ -237,11 +239,6 @@ class REST_Controller {
 		$installation_info = Helper_Script_Manager::install_helper_script( $helper_script );
 		Helper_Script_Manager::cleanup_expired_helper_scripts();
 
-		// Include ABSPATH with successful result.
-		if ( ! is_wp_error( $installation_info ) ) {
-			$installation_info['abspath'] = ABSPATH;
-		}
-
 		return rest_ensure_response( $installation_info );
 	}
 
@@ -252,19 +249,19 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @return array An array with 'success' key indicating the result of the delete operation.
+	 * @return array|WP_Error An array with 'success' key, or an instance of WP_Error on failure.
 	 */
 	public static function delete_backup_helper_script( $request ) {
 		$path_to_helper_script = $request->get_param( 'path' );
 
-		$deleted = Helper_Script_Manager::delete_helper_script( $path_to_helper_script );
+		$delete_result = Helper_Script_Manager::delete_helper_script( $path_to_helper_script );
 		Helper_Script_Manager::cleanup_expired_helper_scripts();
 
-		return rest_ensure_response(
-			array(
-				'success' => $deleted,
-			)
-		);
+		if ( is_wp_error( $delete_result ) ) {
+			return $delete_result;
+		}
+
+		return rest_ensure_response( array( 'success' => true ) );
 	}
 
 	/**

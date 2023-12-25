@@ -818,6 +818,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			'default'     => 'foo',
 			'placeholder' => 'PLACEHOLDTHIS!',
 			'id'          => 'funID',
+			'format'      => '(YYYY-MM-DD)',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
@@ -975,10 +976,6 @@ class WP_Test_Contact_Form extends BaseTestCase {
 
 		$css_class = "grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap grunion-field-wrap";
 
-		if ( 'select' === $attributes['type'] ) {
-			$css_class .= ' contact-form-dropdown-wrap ui-front';
-		}
-
 		$this->assertEquals(
 			$wrapper_div->getAttribute( 'class' ),
 			$css_class,
@@ -995,10 +992,12 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	 *                                                       and radio buttons.
 	 */
 	public function assertFieldLabel( $wrapper_div, $attributes, $tag_name = 'label' ) {
-		$label = $this->getFirstElement( $wrapper_div, $tag_name );
+		$type     = $attributes['type'];
+		$label    = $this->getFirstElement( $wrapper_div, $tag_name );
+		$expected = 'date' === $type ? $attributes['label'] . ' ' . $attributes['format'] : $attributes['label'];
 
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$this->assertEquals( trim( $label->nodeValue ), $attributes['label'], 'Label is not what we expect it to be...' );
+		$this->assertEquals( $expected, trim( $label->nodeValue ), 'Label is not what we expect it to be...' );
 	}
 
 	/**
@@ -1123,7 +1122,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 				'label for does not equal input name!'
 			);
 
-			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' grunion-field contact-form-dropdown', ' select class does not match expected' );
+			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' grunion-field', ' select class does not match expected' );
 
 			// Options.
 			$options = $select->getElementsByTagName( 'option' );

@@ -69,7 +69,10 @@ export default function AiAssistantToolbarButton( {
 		let slot = toolbar.parentElement?.querySelector(
 			`.${ AI_ASSISTANT_BAR_SLOT_CLASS }`
 		) as HTMLElement;
+
 		if ( slot ) {
+			// always move the slot right after the toolbar.
+			toolbar.after( slot );
 			return setAnchor( slot );
 		}
 
@@ -81,11 +84,11 @@ export default function AiAssistantToolbarButton( {
 		slot.setAttribute( 'aria-label', __( 'AI Assistant', 'jetpack' ) );
 		slot.setAttribute( 'aria-orientation', 'horizontal' );
 		slot.className = AI_ASSISTANT_BAR_SLOT_CLASS;
-		toolbar.after( slot );
 
 		// Set the top position based on the toolbar height.
 		const toolbarHeight = toolbar.offsetHeight;
 		slot.style.top = `${ toolbarHeight }px`;
+		toolbar.after( slot );
 
 		// Set the anchor where the Assistant Bar will be rendered.
 		setAnchor( slot );

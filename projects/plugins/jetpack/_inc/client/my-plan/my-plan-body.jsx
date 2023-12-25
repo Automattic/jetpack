@@ -106,13 +106,12 @@ class MyPlanBody extends React.Component {
 					<div className="jp-landing__plan-features-text">
 						<h3 className="jp-landing__plan-features-title">{ title }</h3>
 						<p>{ description }</p>
-						<Button
-							onClick={ this.handleButtonClickForTracking( 'view_backup_dash' ) }
-							href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
-							compact
-							rna
-						>
-							<ExternalLink>{ __( 'View your backups', 'jetpack' ) }</ExternalLink>
+						<Button onClick={ this.handleButtonClickForTracking( 'view_backup_dash' ) } compact rna>
+							<ExternalLink
+								href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
+							>
+								{ __( 'View your backups', 'jetpack' ) }
+							</ExternalLink>
 						</Button>
 					</div>
 				</div>
@@ -146,11 +145,14 @@ class MyPlanBody extends React.Component {
 							</p>
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'view_security_dash_rewind' ) }
-								href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
 								compact
 								rna
 							>
-								<ExternalLink>{ __( 'View your security activity', 'jetpack' ) }</ExternalLink>
+								<ExternalLink
+									href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
+								>
+									{ __( 'View your security activity', 'jetpack' ) }
+								</ExternalLink>
 							</Button>
 						</div>
 					</div>
@@ -200,23 +202,27 @@ class MyPlanBody extends React.Component {
 						this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'view_security_dash' ) }
-								href={ getRedirectUrl( 'vaultpress-dashboard' ) }
 								compact
 								rna
 							>
-								<ExternalLink> { __( 'View your security dashboard', 'jetpack' ) }</ExternalLink>
+								<ExternalLink href={ getRedirectUrl( 'vaultpress-dashboard' ) }>
+									{ __( 'View your security dashboard', 'jetpack' ) }
+								</ExternalLink>
 							</Button>
 						) : (
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'configure_vault' ) }
-								href={ getRedirectUrl( 'calypso-plugins-setup', {
-									site: this.props.siteRawUrl,
-									query: 'only=vaultpress',
-								} ) }
 								compact
 								rna
 							>
-								<ExternalLink>{ __( 'View settings', 'jetpack' ) }</ExternalLink>
+								<ExternalLink
+									href={ getRedirectUrl( 'calypso-plugins-setup', {
+										site: this.props.siteRawUrl,
+										query: 'only=vaultpress',
+									} ) }
+								>
+									{ __( 'View settings', 'jetpack' ) }
+								</ExternalLink>
 							</Button>
 						) }
 					</div>
@@ -365,14 +371,17 @@ class MyPlanBody extends React.Component {
 								) : (
 									<Button
 										onClick={ this.handleButtonClickForTracking( 'configure_akismet' ) }
-										href={ getRedirectUrl( 'calypso-plugins-setup', {
-											site: this.props.siteRawUrl,
-											query: 'only=akismet',
-										} ) }
 										compact
 										rna
 									>
-										<ExternalLink>{ __( 'View settings', 'jetpack' ) }</ExternalLink>
+										<ExternalLink
+											href={ getRedirectUrl( 'calypso-plugins-setup', {
+												site: this.props.siteRawUrl,
+												query: 'only=akismet',
+											} ) }
+										>
+											{ __( 'View settings', 'jetpack' ) }
+										</ExternalLink>
 									</Button>
 								) }
 							</div>
@@ -447,11 +456,16 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) }
-									href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
 									compact
 									rna
 								>
-									<ExternalLink>{ __( 'View your site activity', 'jetpack' ) }</ExternalLink>
+									<ExternalLink
+										href={ getRedirectUrl( 'calypso-activity-log', {
+											site: this.props.siteRawUrl,
+										} ) }
+									>
+										{ __( 'View your site activity', 'jetpack' ) }
+									</ExternalLink>
 								</Button>
 							</div>
 						</div>
@@ -478,13 +492,16 @@ class MyPlanBody extends React.Component {
 									{ this.props.isModuleActivated( 'wordads' ) ? (
 										<Button
 											onClick={ this.handleButtonClickForTracking( 'view_earnings' ) }
-											href={ getRedirectUrl( 'wpcom-ads-earnings', {
-												site: this.props.siteRawUrl,
-											} ) }
 											compact
 											rna
 										>
-											<ExternalLink>{ __( 'View your earnings', 'jetpack' ) }</ExternalLink>
+											<ExternalLink
+												href={ getRedirectUrl( 'wpcom-ads-earnings', {
+													site: this.props.siteRawUrl,
+												} ) }
+											>
+												{ __( 'View your earnings', 'jetpack' ) }
+											</ExternalLink>
 										</Button>
 									) : (
 										<Button
@@ -526,13 +543,14 @@ class MyPlanBody extends React.Component {
 										{ this.props.isModuleActivated( 'google-analytics' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'configure_ga' ) }
-												href={ getRedirectUrl( 'calypso-marketing-traffic', {
-													site: this.props.siteRawUrl,
-												} ) }
 												compact
 												rna
 											>
-												<ExternalLink>
+												<ExternalLink
+													href={ getRedirectUrl( 'calypso-marketing-traffic', {
+														site: this.props.siteRawUrl,
+													} ) }
+												>
 													{ __( 'Configure Google Analytics', 'jetpack' ) }
 												</ExternalLink>
 											</Button>
@@ -573,13 +591,16 @@ class MyPlanBody extends React.Component {
 										{ this.props.isModuleActivated( 'publicize' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'schedule_posts' ) }
-												href={ getRedirectUrl( 'calypso-edit-posts', {
-													site: this.props.siteRawUrl,
-												} ) }
 												compact
 												rna
 											>
-												<ExternalLink>{ __( 'Schedule posts', 'jetpack' ) }</ExternalLink>
+												<ExternalLink
+													href={ getRedirectUrl( 'calypso-edit-posts', {
+														site: this.props.siteRawUrl,
+													} ) }
+												>
+													{ __( 'Schedule posts', 'jetpack' ) }
+												</ExternalLink>
 											</Button>
 										) : (
 											<Button
@@ -635,13 +656,16 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_security' ) }
-									href={ getRedirectUrl( 'calypso-settings-security', {
-										site: this.props.siteRawUrl,
-									} ) }
 									compact
 									rna
 								>
-									<ExternalLink>{ __( 'Set up your site security', 'jetpack' ) }</ExternalLink>
+									<ExternalLink
+										href={ getRedirectUrl( 'calypso-settings-security', {
+											site: this.props.siteRawUrl,
+										} ) }
+									>
+										{ __( 'Set up your site security', 'jetpack' ) }
+									</ExternalLink>
 								</Button>
 							</div>
 						</div>
@@ -693,13 +717,12 @@ class MyPlanBody extends React.Component {
 										'jetpack'
 									) }
 								</p>
-								<Button
-									onClick={ this.handleButtonClickForTracking( 'free_themes' ) }
-									href={ getRedirectUrl( 'calypso-themes', { site: this.props.siteRawUrl } ) }
-									compact
-									rna
-								>
-									<ExternalLink>{ __( 'Explore themes', 'jetpack' ) }</ExternalLink>
+								<Button onClick={ this.handleButtonClickForTracking( 'free_themes' ) } compact rna>
+									<ExternalLink
+										href={ getRedirectUrl( 'calypso-themes', { site: this.props.siteRawUrl } ) }
+									>
+										{ __( 'Explore themes', 'jetpack' ) }
+									</ExternalLink>
 								</Button>
 							</div>
 						</div>
@@ -729,13 +752,16 @@ class MyPlanBody extends React.Component {
 									{ this.props.isModuleActivated( 'publicize' ) ? (
 										<Button
 											onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
-											href={ getRedirectUrl( 'calypso-marketing-connections', {
-												site: this.props.siteRawUrl,
-											} ) }
 											compact
 											rna
 										>
-											<ExternalLink>{ __( 'Start sharing', 'jetpack' ) }</ExternalLink>
+											<ExternalLink
+												href={ getRedirectUrl( 'calypso-marketing-connections', {
+													site: this.props.siteRawUrl,
+												} ) }
+											>
+												{ __( 'Start sharing', 'jetpack' ) }
+											</ExternalLink>
 										</Button>
 									) : (
 										<Button
@@ -774,11 +800,16 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) }
-									href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
 									compact
 									rna
 								>
-									<ExternalLink>{ __( 'View your site activity', 'jetpack' ) }</ExternalLink>
+									<ExternalLink
+										href={ getRedirectUrl( 'calypso-activity-log', {
+											site: this.props.siteRawUrl,
+										} ) }
+									>
+										{ __( 'View your site activity', 'jetpack' ) }
+									</ExternalLink>
 								</Button>
 							</div>
 						</div>
@@ -803,11 +834,12 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_support_documentation' ) }
-									href={ getRedirectUrl( 'jetpack-support' ) }
 									compact
 									rna
 								>
-									<ExternalLink>{ __( 'Search support docs', 'jetpack' ) }</ExternalLink>
+									<ExternalLink href={ getRedirectUrl( 'jetpack-support' ) }>
+										{ __( 'Search support docs', 'jetpack' ) }
+									</ExternalLink>
 								</Button>
 							</div>
 						</div>

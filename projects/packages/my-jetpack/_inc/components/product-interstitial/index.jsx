@@ -41,6 +41,7 @@ import videoPressImage from './videopress.png';
  * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
  * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @param {number} [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
+ * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature in the list of features
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -56,6 +57,7 @@ export default function ProductInterstitial( {
 	hideTOS = false,
 	quantity = null,
 	directCheckout = false,
+	highlightLastFeature = false,
 } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle, tiers } = detail;
@@ -169,6 +171,7 @@ export default function ProductInterstitial( {
 									ctaButtonLabel={ ctaButtonLabel }
 									hideTOS={ hideTOS }
 									quantity={ quantity }
+									highlightLastFeature={ highlightLastFeature }
 								/>
 							</Col>
 							<Col
@@ -184,6 +187,7 @@ export default function ProductInterstitial( {
 										onClick={ clickHandler }
 										className={ isUpgradableByBundle ? styles.container : null }
 										quantity={ quantity }
+										highlightLastFeature={ highlightLastFeature }
 									/>
 								) : (
 									children
@@ -297,6 +301,9 @@ export function JetpackAIInterstitial() {
 	// Decide the quantity value for the upgrade, but ignore the unlimited tier.
 	const quantity = nextTier?.value !== 1 ? nextTier?.value : null;
 
+	// Highlight the last feature in the table for all the tiers except the unlimited one.
+	const highlightLastFeature = nextTier?.value !== 1;
+
 	return (
 		<ProductInterstitial
 			slug="jetpack-ai"
@@ -306,6 +313,7 @@ export function JetpackAIInterstitial() {
 			hideTOS={ true }
 			quantity={ quantity }
 			directCheckout={ hasRequiredPlan }
+			highlightLastFeature={ highlightLastFeature }
 		>
 			<img src={ jetpackAiImage } alt="Jetpack AI" />
 		</ProductInterstitial>

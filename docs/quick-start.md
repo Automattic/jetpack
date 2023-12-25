@@ -4,19 +4,23 @@
 
 This guide is designed to get you up and running working with the Jetpack Monorepo quickly following recommended and supported guidelines.
 
-This guide assumes you are using MacOS or a Linux machine and are an Automattician. For more detailed information, including alternate local dev environments, running unit tests, best coding practices, and more, you can use the [full Development Environment guide here](development-environment.md#clone-the-repository). 
+**This guide assumes you are using MacOS or a Linux machine and are an Automattician**. For more detailed information, including setting up local dev environments for all contributors, running unit tests, best coding practices, and more, you can use the [full Development Environment guide here](development-environment.md#clone-the-repository).
 
 ## Installation
 
 ### Using the installation script
 
 To speed up the installation process, you may use our monorepo installation script. To do so:
- - clone the Jetpack repo using one of these two methods: 
- 	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/jetpack.git` 
-	- HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
- - `cd` into the cloned `jetpack` folder.
- - run `tools/install-monorepo.sh` from the monorepo root.
- Once the installation is complete, continue onto the section [Running Jetpack locally](#running-jetpack-locally). 
+
+- Clone the Jetpack Monorepo:
+	- Using a public SSH key ([recommended](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)): `git clone git@github.com:Automattic/jetpack.git` 
+		- Or use HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
+	- Note that the monorepo should not be cloned into the WordPress plugins directory. If you plan on not using the provided Docker environment, read the [full Development Environment guide here](development-environment.md#clone-the-repository) to find out how to add symlinks.
+- `cd` into the cloned `jetpack` folder.
+- Run `tools/install-monorepo.sh` from the monorepo root.
+- You can use the [environment checker script](#check-if-your-environment-is-ready-for-jetpack-development) to confirm that all required tools are installed.
+
+Once the installation is complete, continue onto the section [Running Jetpack locally](#running-jetpack-locally).
 
 ### Installing manually
 
@@ -26,11 +30,11 @@ Prior to installation, we recommend using [`Homebrew`](https://brew.sh/) to mana
 - nvm: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash`
 
 The Jetpack Monorepo requires various software to be installed on your machine.
-- Start by cloning the GitHub repo using one of these two methods:
-	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/Jetpack.git` 
-		- HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
-		- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/get-started/quickstart/contributing-to-projects).
-	- Note that the Monorepo should not be cloned into the WordPress plugins directory (you will see a warning on your plugins page in that case saying that the Jetpack Monorepo is not a plugin and shouldn't be installed as one). If you are not cloning into a Docker environment, read the [full Development Environment guide here](development-environment.md#clone-the-repository) to find out how to add symlinks.
+
+- Clone the Jetpack Monorepo:
+ 	- Using a public SSH key ([recommended](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)): `git clone git@github.com:Automattic/jetpack.git`
+		- Or use HTTPS: `git clone https://github.com/Automattic/jetpack.git`
+	- Note that the monorepo should not be cloned into the WordPress plugins directory. If you plan on not using the provided Docker environment, read the [full Development Environment guide here](development-environment.md#clone-the-repository) to find out how to add symlinks.
 - This software needs to be installed or updated system-wide:
 	- Bash (will need to be updated from default Mac version): `brew install bash`
 	- jq (JSON processor used in scripts): `brew install jq` 
@@ -41,6 +45,20 @@ The Jetpack Monorepo requires various software to be installed on your machine.
 	- Composer (our PHP package manager): `brew install composer`
 	- Jetpack CLI (an internal tool that assists with development): `pnpm install && pnpm jetpack cli link`
 		- [You can read more about using the CLI here](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md).
+
+### Check if your environment is ready for Jetpack development
+
+We provide a script to help you in assessing if everything's ready on your system to contribute to Jetpack.
+
+```sh
+tools/check-development-environment.sh
+```
+
+Running the script will tell you if you have your environment already set up and what you need to do in order to get it ready for Jetpack development:
+
+- All green `YES` or `OK` messages mean you're ready to start
+- Red `NO` messages mean something is wrong or missing, and a link will be provided to help you with a fix.
+- Yellow messages indicate something optional is broken or missing.
 
 ## Running Jetpack locally
 
@@ -60,9 +78,11 @@ To setup Docker:
 
 For more in depth Docker instructions, follow the [Docker environment for Jetpack Development guide](../tools/docker/README.md).
 
-### Setting up Jurassic Tube
+## Setting up Jurassic Tube
 
-In order to test features that require a WordPress.com connection and other network related Jetpack features, you'll need a test site that can create local HTTP tunnels. If you're an Automattician, we recommend using Jurassic Tube:
+In order to test features that require a WordPress.com connection and other network related Jetpack features, you'll need a test site that can create local HTTP tunnels. If you're an Automattician, we recommend using Jurassic Tube.
+
+Note: This is for Automattician use only. For other methods, check out [ngrok](../tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
 
 **Warning: This creates a tunnel to your local machine which should not be trusted as secure. If it is compromised, so is your computer and everything it has access to. Only `jetpack docker jt-up` when needed for testing things that require the site to be publicly accessible, and `jetpack docker jt-down` when completed.**
 
@@ -77,27 +97,7 @@ In order to test features that require a WordPress.com connection and other netw
 - Now, you can start your site with `jetpack docker jt-up`
 - Your site should be available at `https://custom-subdomain.jurassic.tube`
 
-Note: This is for Automattician use only. For other methods, check out [ngrok](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
-
-### Check if your environment is ready for Jetpack development
-
-We provide a script to help you in assessing if everything's ready on your system to contribute to Jetpack.
-
-```sh
-tools/check-development-environment.sh
-```
-
-Running the script will tell you if you have your environment already set up and what you need to do in order to get it ready for Jetpack development:
-
-- All green `YES` or `OK` messages mean you're ready to start
-- Red `NO` messages mean something is wrong or missing, and a link will be provided to help you with a fix.
-- Yellow messages indicate something optional is broken or missing.
-
-#### Running Tests
-
-To run PHP and JS tests, you can use the Jetpack CLI: `jetpack test` and then choose the project and type of test you'd like to run.
-
-# Development Workflow
+## Development Workflow
 
 Once you have a local copy of Jetpack and all development tools installed, you can start developing.
 
@@ -110,6 +110,8 @@ By default the development build above will run once and if you change any of th
 ```sh
 jetpack watch
 ```
+### Running Tests
 
-That's all! 
+To run PHP and JS tests, you can use the Jetpack CLI: `jetpack test` and then choose the project and type of test you'd like to run.
 
+That's all!

@@ -251,28 +251,18 @@ class Contact_Form_Plugin {
 		 *  }
 		 *  add_action('wp_print_styles', 'remove_grunion_style');
 		 */
-		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . 'contact-form/css/grunion.css', array(), \JETPACK__VERSION );
+		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . '../dist/contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
 		Assets::register_script(
 			'accessible-form',
-			'./js/accessible-form.js',
+			'../../dist/contact-form/js/accessible-form.js',
 			__FILE__,
 			array(
-				'async' => true,
-			)
-		);
-
-		wp_localize_script(
-			'accessible-form',
-			'jetpackContactForm',
-			array(
-				/* translators: text read by a screen reader when a warning icon is displayed in front of an error message. */
-				'warning'              => __( 'Warning.', 'jetpack-forms' ),
-				/* translators: error message shown when one or more fields of the form are invalid. */
-				'invalidForm'          => __( 'Please make sure all fields are valid.', 'jetpack-forms' ),
-				/* translators: error message shown when a multiple choice field requires at least one option to be selected. */
-				'checkboxMissingValue' => __( 'Please select at least one option.', 'jetpack-forms' ),
+				'async'        => true,
+				'textdomain'   => 'jetpack-forms',
+				'version'      => \JETPACK__VERSION,
+				'dependencies' => array( 'wp-i18n' ),
 			)
 		);
 
@@ -1378,6 +1368,8 @@ class Contact_Form_Plugin {
 		$post_ids     = $this->personal_data_post_ids_by_email( $email, $per_page, $page, $last_post_id );
 
 		foreach ( $post_ids as $post_id ) {
+			$last_post_id = $post_id;
+
 			/**
 			 * Filters whether to erase a particular Feedback post.
 			 *
@@ -1422,7 +1414,7 @@ class Contact_Form_Plugin {
 		if ( $done ) {
 			delete_option( $option_name );
 		} else {
-			update_option( $option_name, (int) $post_id );
+			update_option( $option_name, (int) $last_post_id );
 		}
 
 		return array(

@@ -1133,7 +1133,7 @@ abstract class Publicize_Base {
 			'single'        => true,
 			'default'       => array(
 				'image_generator_settings' => array(
-					'template' => ( new Social_Image_Generator\Settings() )->get_default_template(),
+					'template' => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_template(),
 					'enabled'  => false,
 				),
 			),

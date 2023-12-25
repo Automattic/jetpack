@@ -1,10 +1,7 @@
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
-
-export const SET_CONNECTIONS = 'SET_CONNECTIONS';
-
-export const TOGGLE_CONNECTION = 'TOGGLE_CONNECTION';
+import { SET_CONNECTIONS, TOGGLE_CONNECTION } from './constants';
 
 /**
  * Set connections list
@@ -43,7 +40,7 @@ export function mergeConnections( freshConnections ) {
 		const connections = [];
 		const defaults = {
 			done: false,
-			enabled: Boolean( getJetpackData()?.social?.sharesData?.shares_remaining ),
+			enabled: Boolean( select.numberOfSharesRemaining() ),
 			toggleable: true,
 		};
 
