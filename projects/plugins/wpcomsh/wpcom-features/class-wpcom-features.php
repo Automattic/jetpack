@@ -1060,12 +1060,7 @@ class WPCOM_Features {
 			),
 		),
 		self::SOCIAL_IMAGE_AUTO_CONVERT        => array(
-			array(
-				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
-				'before' => '1900-01-01',
-				self::WPCOM_ALL_SITES,
-				self::JETPACK_ALL_SITES,
-			),
+			self::WPCOM_ALL_SITES,
 		),
 		self::SPACE                            => array(
 			self::WPCOM_ALL_SITES,
