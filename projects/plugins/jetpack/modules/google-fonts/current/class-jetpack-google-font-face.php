@@ -24,11 +24,9 @@ class Jetpack_Google_Font_Face {
 	public function __construct() {
 		// Turns off hooks to print fonts
 		add_action( 'wp_loaded', array( $this, 'wp_loaded' ) );
-		add_action( 'admin_init', array( $this, 'admin_init' ), 10 );
 
 		// Collect and print fonts in use
 		add_action( 'wp_head', array( $this, 'print_font_faces' ), 50 );
-		add_action( 'admin_head', array( $this, 'print_font_faces' ), 50 );
 		add_filter( 'pre_render_block', array( $this, 'collect_block_fonts' ), 10, 2 );
 	}
 
@@ -38,14 +36,6 @@ class Jetpack_Google_Font_Face {
 	public function wp_loaded() {
 		remove_action( 'wp_head', 'wp_print_fonts', 50 );
 		remove_action( 'wp_head', 'wp_print_font_faces', 50 );
-	}
-
-	/**
-	 * Turn off hooks to print fonts on wp-admin
-	 */
-	public function admin_init() {
-		remove_action( 'admin_print_styles', 'wp_print_fonts', 50 );
-		remove_action( 'admin_print_styles', 'wp_print_font_faces', 50 );
 	}
 
 	/**
