@@ -2,6 +2,19 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.0-a.9 - 2023-12-25
+### Enhancements
+- Added description and link inviting to disable legacy sharing module if block is available [#34759]
+- Social Menu & Social Media Icons: Add support for the Bluesky service. [#34738]
+
+### Bug fixes
+- Subscribe Modal: Fix fatal under exceptional conditions [#34758]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Page: remove alt attribute from decorative icon. [#34715]
+- On wpcom sites if SEO tools not supported by current plan we show upsell message. [#34725]
+- Remove the recommendations banner from non-jetpack wp-admin pages [#34769]
+
 ## 13.0-a.7 - 2023-12-20
 ### Enhancements
 - Sharing Buttons Block: update the admin's setting screen when the sharing block is available. [#34673]
