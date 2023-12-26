@@ -737,7 +737,6 @@ class Sharing_Admin {
 			<div class="sharing-block-message__items-wrapper">
 				<div>
 					<p><?php esc_html_e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack' ); ?></p>
-					
 					<div class="sharing-block-message__buttons-wrapper">
 						<a href="<?php echo esc_url( admin_url( 'site-editor.php?path=%2Fwp_template' ) ); ?>" class="button button-primary">
 							<?php esc_html_e( 'Go to the site editor', 'jetpack' ); ?>
@@ -759,6 +758,20 @@ class Sharing_Admin {
 						</div>
 					</div>
 				</div>
+				<p class="settings-sharing__block-theme-description">
+					<?php
+					printf(
+						wp_kses(
+							/* translators: Link to Jetpack sharing settings. */
+							__( 'You are using a block-based theme. You can <a class="dops-card__link" href="%s">disable Jetpack’s legacy sharing buttons</a> and add a sharing block to your theme’s template instead.', 'jetpack' ),
+							array(
+								'a' => array( 'href' => array() ),
+							)
+						),
+						esc_url( admin_url( 'admin.php?page=jetpack#/sharing' ) )
+					);
+					?>
+				</p>
 			</div>
 			<br class="clearing" />
 		</div>
