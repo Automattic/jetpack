@@ -316,7 +316,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$params['show_cookie_consent'] = (int) has_action( 'set_comment_cookies', 'wp_set_comment_cookies' );
 			$params['has_cookie_consent']  = (int) ! empty( $commenter['comment_author_email'] );
 			// Jetpack_Memberships for logged out users only checks for the jp-premium-content-session cookie
-			$params['is_current_user_subscribed'] = (int) Jetpack_Memberships::is_current_user_subscribed();
+			$params['is_current_user_subscribed'] = class_exists( '\Jetpack_Memberships' ) ? (int) Jetpack_Memberships::is_current_user_subscribed() : 0;
 		}
 
 		list( $token_key ) = explode( '.', $blog_token->secret, 2 );
