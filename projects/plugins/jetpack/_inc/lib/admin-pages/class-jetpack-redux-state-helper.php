@@ -135,6 +135,8 @@ class Jetpack_Redux_State_Helper {
 
 		$speed_score_history = new Speed_Score_History( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
 
+		$block_availability = Jetpack_Gutenberg::get_cached_availability();
+
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
@@ -196,6 +198,8 @@ class Jetpack_Redux_State_Helper {
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
 				'latestBoostSpeedScores'     => $speed_score_history->latest(),
+				'isSharingBlockAvailable'    => (bool) isset( $block_availability['sharing-buttons'] )
+					&& $block_availability['sharing-buttons']['available'],
 			),
 			'themeData'                   => array(
 				'name'         => $current_theme->get( 'Name' ),

@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#34416]
 
+## [0.21.3.1] - 2023-12-20
+### Fixed
+- Updated name of Abstract_Token_Subscription_Service [#34723]
+
 ## [0.21.3] - 2023-12-03
 ### Changed
 - Updated package dependencies. [#34411] [#34427]
@@ -1213,6 +1217,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.21.3.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.3...v0.21.3.1
 [0.21.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.4...v0.21.5
 [0.21.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.3...v0.21.4
 [0.21.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.2...v0.21.3

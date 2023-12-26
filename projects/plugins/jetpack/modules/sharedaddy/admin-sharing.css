@@ -451,3 +451,17 @@ body.settings_page_sharing .advanced input[type=submit] {
 .sharing-block-message__buttons-wrapper .button {
 	margin-right:1rem;
 }
+
+
+.admin-sharing-settings__block-theme-description {
+	margin-top: 1rem;
+	font-style: italic;
+}
+
+a.dops-card__link {
+	cursor: pointer;
+}
+
+.settings-sharing__block-theme-description {
+	font-style: italic;
+}
