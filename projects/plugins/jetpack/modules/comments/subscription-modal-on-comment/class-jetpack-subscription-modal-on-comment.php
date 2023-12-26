@@ -7,7 +7,9 @@
  * @since 12.4
  */
 
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 /**
  * Jetpack_Subscription_Modal_On_Comment class.
@@ -197,18 +199,18 @@ HTML;
 		}
 
 		// Don't show if post is for subscribers only or has paywall block
-		// global $post;
-		// TODO: Review why this was generating a fatal error
-		// if ( defined( 'Automattic\\Jetpack\\Extensions\\Subscriptions\\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS' ) ) {
-		// $access_level = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
-		// } else {
-		// $access_level = get_post_meta( $post->ID, '_jetpack_newsletter_access', true );
-		// }
+		global $post;
+		if ( defined( 'Automattic\\Jetpack\\Extensions\\Subscriptions\\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS' ) ) {
+			$access_level = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+		} else {
+			$access_level = get_post_meta( $post->ID, '_jetpack_newsletter_access', true );
+		}
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-		// $is_accessible_by_everyone = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level || empty( $access_level );
-		// if ( ! $is_accessible_by_everyone ) {
-		// return false;
-		// }
+		$is_accessible_by_everyone = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level || empty( $access_level );
+
+		if ( ! $is_accessible_by_everyone ) {
+			return false;
+		}
 
 		return true;
 	}
