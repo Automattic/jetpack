@@ -10,6 +10,7 @@ const FieldLabel = ( {
 	attributes,
 	className,
 	label,
+	suffix,
 	labelFieldName,
 	placeholder,
 	resetFocus,
@@ -37,6 +38,7 @@ const FieldLabel = ( {
 				withoutInteractiveFormatting
 				allowedFormats={ [ 'core/bold', 'core/italic' ] }
 			/>
+			{ suffix && <span className="jetpack-field-label__suffix">{ suffix }</span> }
 			{ required && (
 				<RichText
 					tagName="span"

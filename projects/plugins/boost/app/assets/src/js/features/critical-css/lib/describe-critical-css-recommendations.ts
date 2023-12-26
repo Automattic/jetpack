@@ -46,7 +46,7 @@ export function suggestion( set: ErrorSet ): Suggestion {
  *
  * @param {ErrorSet} set Set to get a footer component for.
  */
-export function footerComponent( set: ErrorSet ): typeof ComponentType | null {
+export function footerComponent( set: ErrorSet ): ComponentType | null {
 	const spec = getErrorSpec( set.type );
 
 	if ( spec.footerComponent ) {
@@ -238,7 +238,7 @@ type ErrorTypeSpec = {
 	groupKey?: ( error: CriticalCssErrorDetails ) => string; // Returns a string which helps determine error groupings. If unspecified, type is used.
 	describeSet: ( set: ErrorSet ) => string; // Returns a string used to describe a set of this type of error.
 	suggestion?: ( set: ErrorSet ) => Suggestion; // Returns a simple string with suggestions. Gets templated on display.
-	footerComponent?: () => typeof ComponentType; // Returns an extra React component to add to the footer of the error.
+	footerComponent?: () => ComponentType; // Returns an extra React component to add to the footer of the error.
 	rawError?: ( set: ErrorSet ) => string; // Returns a string of the first raw error message
 };
 

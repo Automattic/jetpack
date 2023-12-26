@@ -503,6 +503,18 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Indicate whether this site was upgraded from a trial plan at some point.
+	 *
+	 * @return bool
+	 */
+	public function was_upgraded_from_trial() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'has-upgraded-from-ecommerce-trial' );
+		}
+		return false;
+	}
+
+	/**
 	 * Detect whether a site has the WooCommerce plugin active.
 	 *
 	 * @see /wpcom/public.api/rest/sal/class.json-api-site-jetpack-shadow.php.

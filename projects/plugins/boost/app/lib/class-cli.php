@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
-use Automattic\Jetpack_Boost\Admin\Config;
+use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 
 /**
@@ -96,7 +96,7 @@ class CLI {
 			);
 		}
 
-		Config::set_getting_started( 'true' === $status );
+		( new Getting_Started_Entry() )->set( 'true' === $status );
 
 		\WP_CLI::success(
 			/* translators: %s refers to 'true' or 'false' */

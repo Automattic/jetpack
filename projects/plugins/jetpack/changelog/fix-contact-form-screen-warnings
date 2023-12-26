@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Contact Form: avoid PHP warnings in the WordPress dashboard when used alongside other plugins making changes to admin pages.

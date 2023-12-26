@@ -128,8 +128,7 @@ class DashVideoPress extends Component {
 				className="jp-dash-item__is-inactive"
 				noToggle={ ! hasConnectedOwner }
 				overrideContent={
-					! hasConnectedOwner &&
-					! isOffline && (
+					! hasConnectedOwner && ! isOffline ? (
 						<JetpackBanner
 							callToAction={ __( 'Connect', 'jetpack' ) }
 							title={ __(
@@ -143,7 +142,7 @@ class DashVideoPress extends Component {
 							plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 							icon="video"
 						/>
-					)
+					) : null
 				}
 			>
 				<p className="jp-dash-item__description">
