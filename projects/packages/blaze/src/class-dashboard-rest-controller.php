@@ -96,6 +96,17 @@ class Dashboard_REST_Controller {
 			)
 		);
 
+		// WordAds DSP API upload to WP Media Library routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1/wpcom/media(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'post_dsp_media' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
 		// WordAds DSP API media openverse query routes
 		register_rest_route(
 			static::$namespace,
@@ -386,6 +397,20 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
+	 * Redirect POST requests to WordAds DSP Blaze media endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function post_dsp_media( $req ) {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+		return $this->post_dsp_generic( sprintf( 'v1/wpcom/sites/%d/media', $site_id ), $req );
+	}
+
+	/**
 	 * Redirect GET requests to WordAds DSP Blaze openverse endpoint.
 	 *
 	 * @param WP_REST_Request $req The request object.
@@ -550,6 +575,30 @@ class Dashboard_REST_Controller {
 			array_merge(
 				$args,
 				array( 'method' => 'GET' )
+			)
+		);
+	}
+
+	/**
+	 * Redirect POST requests to WordAds DSP for the site.
+	 *
+	 * @param String          $path The Root API endpoint.
+	 * @param WP_REST_Request $req The request object.
+	 * @param array           $args Request arguments.
+	 * @return array|WP_Error
+	 */
+	public function post_dsp_generic( $path, $req, $args = array() ) {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
+		return $this->request_as_user(
+			sprintf( '/sites/%d/wordads/dsp/api/%s%s', $site_id, $path, $this->build_subpath_with_query_strings( $req->get_params() ) ),
+			'v2',
+			array_merge(
+				$args,
+				array( 'method' => 'POST' )
 			)
 		);
 	}
