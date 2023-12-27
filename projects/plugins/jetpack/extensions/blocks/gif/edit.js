@@ -30,14 +30,18 @@ function GifEdit( { attributes, setAttributes, className, isSelected } ) {
 		}
 	}, [ giphyData, setAttributes ] );
 
-	const onSubmit = event => {
+	const onSubmit = async event => {
 		event.preventDefault();
 
 		if ( ! attributes.searchText || isFetching ) {
 			return;
 		}
 
-		fetchGiphyData( getUrl( attributes.searchText ) );
+		const url = await getUrl( attributes.searchText );
+
+		if ( url ) {
+			fetchGiphyData( url );
+		}
 	};
 
 	const onChange = event => setAttributes( { searchText: event.target.value } );

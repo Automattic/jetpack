@@ -115,7 +115,7 @@ describe( 'GifEdit', () => {
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		fireEvent.submit( container.querySelector( 'form' ) );
 
-		expect( fetchGiphyData ).toHaveBeenCalledWith( getUrl( newProps.attributes.searchText ) );
+		expect( fetchGiphyData ).toHaveBeenCalledWith( await getUrl( newProps.attributes.searchText ) );
 		expect( setAttributes.mock.calls[ 0 ][ 0 ] ).toStrictEqual( {
 			giphyUrl: getEmbedUrl( GIPHY_DATA[ 0 ] ),
 			paddingTop: getPaddingTop( GIPHY_DATA[ 0 ] ),
