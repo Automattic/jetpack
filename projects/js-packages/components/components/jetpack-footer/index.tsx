@@ -65,7 +65,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 			href: areAdminLinksEnabled
 				? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
 				: getRedirectUrl( 'jetpack-about' ),
-			target: '_blank',
+			target: areAdminLinksEnabled ? '_self' : '_blank',
 			onClick: onAboutClick,
 		},
 		{
