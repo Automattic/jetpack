@@ -68,6 +68,7 @@ domReady( function () {
 
 					const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
 					const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
+					const app_source = form.querySelector( 'input[name="sub-type"]' ).value;
 
 					show_iframe( {
 						email,
@@ -78,6 +79,7 @@ domReady( function () {
 						source: 'jetpack_subscribe',
 						post_access_level: form.dataset.post_access_level,
 						display: 'alternate',
+						app_source,
 					} );
 				}
 			} );
