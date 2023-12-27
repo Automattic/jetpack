@@ -43,12 +43,11 @@ class Jetpack_Google_Font_Face {
 	 * Turn off hooks to print fonts on wp-admin, except for GB editor pages.
 	 */
 	public function current_screen() {
-		if ( $this->is_block_editor() ) {
-			return;
-		}
-
 		remove_action( 'admin_print_styles', 'wp_print_fonts', 50 );
-		remove_action( 'admin_print_styles', 'wp_print_font_faces', 50 );
+
+		if ( ! $this->is_block_editor() ) {
+			remove_action( 'admin_print_styles', 'wp_print_font_faces', 50 );
+		}
 	}
 
 	/**
