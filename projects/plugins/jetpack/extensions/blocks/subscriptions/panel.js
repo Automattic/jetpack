@@ -18,10 +18,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
-import {
-	accessOptions,
-	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
-} from '../../shared/memberships/constants';
+import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel, isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
 import {
 	NewsletterAccessDocumentSettings,
@@ -122,12 +119,6 @@ function NewsletterPrePublishSettingsPanel( { accessLevel, isModuleActive, showP
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
 
-	const isSendEmailEnabled = useSelect( select => {
-		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
-		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-		return ! meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
-	} );
-
 	// Nudge to enable module
 	if ( ! isModuleActive && shouldLoadSubscriptionPlaceholder ) {
 		return (
@@ -186,10 +177,8 @@ function NewsletterPrePublishSettingsPanel( { accessLevel, isModuleActive, showP
 				{ isModuleActive && (
 					<>
 						<NewsletterEmailDocumentSettings />
-						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
-
-						{ ! isSendEmailEnabled || showMisconfigurationWarning ? (
-							<p>{ __( 'Not sent via email.', 'jetpack' ) }</p>
+						{ showMisconfigurationWarning ? (
+							<MisconfigurationWarning />
 						) : (
 							<SubscribersAffirmation prePublish={ true } accessLevel={ accessLevel } />
 						) }
@@ -211,38 +200,15 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 		};
 	} );
 
-	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
-
-	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
-
-	const isSendEmailEnabled = useSelect( select => {
-		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
-		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-		return ! meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
-	} );
-
 	return (
 		<>
 			<PluginPostPublishPanel
-				title={
-					<>
-						{ __( 'Newsletter:', 'jetpack' ) }
-						{ accessLevel && (
-							<span className={ 'jetpack-subscribe-post-publish-panel__heading' }>
-								{ accessOptions[ accessLevel ].panelHeading }
-							</span>
-						) }
-					</>
-				}
+				title={ __( 'Newsletter', 'jetpack' ) }
 				className="jetpack-subscribe-newsletters-panel jetpack-subscribe-post-publish-panel"
 				icon={ <JetpackEditorPanelLogo /> }
 				name="jetpack-subscribe-newsletters-postpublish-panel"
 			>
-				{ ! isSendEmailEnabled || showMisconfigurationWarning ? (
-					<p>{ __( 'Only published, did not send this post.', 'jetpack' ) }</p>
-				) : (
-					<SubscribersAffirmation accessLevel={ accessLevel } />
-				) }
+				<SubscribersAffirmation accessLevel={ accessLevel } />
 			</PluginPostPublishPanel>
 
 			{ ! isStripeConnected && (
