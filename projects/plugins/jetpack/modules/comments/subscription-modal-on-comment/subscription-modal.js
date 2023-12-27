@@ -49,7 +49,9 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			blog: subscriptionData.blog_id,
 			source: 'jetpack_subscribe',
 			display: 'alternate',
-			app_source: 'verbum-subscription-modal',
+			app_source: subscriptionData.is_logged_in
+				? 'atomic-subscription-modal-li'
+				: 'atomic-subscription-modal-lo',
 			locale: subscriptionData.lang,
 		};
 		const params = new URLSearchParams( subscribeData );
