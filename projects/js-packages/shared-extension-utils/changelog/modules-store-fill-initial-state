@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Fill jetpack modules data for initializing store
