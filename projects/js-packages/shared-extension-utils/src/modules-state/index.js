@@ -12,21 +12,20 @@ const initialData =
 	window?.Jetpack_Editor_Initial_State?.modules || // Gutenberg
 	null;
 
-const store = createReduxStore( JETPACK_MODULES_STORE_ID, {
-	reducer,
-	actions,
-	controls,
-	resolvers,
-	selectors,
-	initialState: {
-		isLoading: false,
-		isUpdating: false,
-		data: { ...initialData },
-	},
-} );
-
 // This is a temporary fix to prevent the store from being registered early.
 // TODO: Remove this once we have a proper solution (https://github.com/Automattic/jetpack/issues/34793).
 if ( initialData !== null ) {
+	const store = createReduxStore( JETPACK_MODULES_STORE_ID, {
+		reducer,
+		actions,
+		controls,
+		resolvers,
+		selectors,
+		initialState: {
+			isLoading: false,
+			isUpdating: false,
+			data: { ...initialData },
+		},
+	} );
 	register( store );
 }
