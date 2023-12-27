@@ -1,10 +1,4 @@
-const defaultState = {
-	isLoading: false,
-	isUpdating: false,
-	data: {},
-};
-
-const setModulesData = ( state = defaultState, action ) => {
+const setModulesData = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case 'SET_JETPACK_MODULES':
 			return {
