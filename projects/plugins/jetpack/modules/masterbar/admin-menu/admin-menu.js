@@ -1,6 +1,6 @@
 /* global ajaxurl, jetpackAdminMenu */
 
-( function () {
+( function ( $ ) {
 	function init() {
 		var adminbar = document.querySelector( '#wpadminbar' );
 		var wpwrap = document.querySelector( '#wpwrap' );
@@ -18,23 +18,25 @@
 			}
 		}
 
-		var adminbarBlogMenuList = adminbar.querySelector( '#wp-admin-bar-blog > .ab-sub-wrapper ul' );
+		var adminbarBlogMenuList = adminbar.querySelector( '#wp-admin-bar-blog > .ab-sub-wrapper' );
 		if ( adminbarBlogMenuList ) {
 			setFocusOnActiveMenuItem();
 			setAriaExpanded( 'false' );
 
-			var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog' );
+			var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog > a' );
 			// Toggle sidebar when toggle is clicked.
 			if ( adminbarBlog ) {
 				adminbarBlog.addEventListener( 'click', function ( event ) {
 					event.preventDefault();
+
+					// Remove event handlers from the original toggle as its hidden and conflicts with the new toggle.
+					$( '#wp-admin-bar-menu-toggle' ).off( 'click.wp-responsive' );
 
 					// Close any open toolbar submenus.
 					var hovers = adminbar.querySelectorAll( '.hover' );
 					for ( var i = 0; i < hovers.length; i++ ) {
 						hovers[ i ].classList.remove( 'hover' );
 					}
-
 					wpwrap.classList.toggle( 'wp-responsive-open' );
 					if ( wpwrap.classList.contains( 'wp-responsive-open' ) ) {
 						setAriaExpanded( 'true' );
@@ -154,4 +156,4 @@
 	} else {
 		init();
 	}
-} )();
+} )( jQuery );
