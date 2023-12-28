@@ -1,5 +1,5 @@
 import {
-	PostPublishOneClickSharing,
+	PostPublishManualSharing,
 	PostPublishReviewPrompt,
 	PublicizePanel,
 	SocialImageGeneratorPanel,
@@ -53,7 +53,7 @@ export const Settings = () => {
 				</PluginPrePublishPanel>
 			) }
 
-			<PostPublishOneClickSharing />
+			<PostPublishManualSharing />
 			<PostPublishReviewPrompt />
 		</PostTypeSupportCheck>
 	);

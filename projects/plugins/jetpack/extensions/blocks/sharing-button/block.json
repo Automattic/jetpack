@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/sharing-button",
 	"title": "Sharing Button",
-	"description": "Give your readers the ability to easily share your content with X, Facebook, Tumblr, LinkedIn, and a host of other services to help spread your message across the web.",
+	"description": "Display a sharing button, allowing users to share your post.",
 	"keywords": [],
 	"version": "12.5.0",
 	"textdomain": "jetpack",

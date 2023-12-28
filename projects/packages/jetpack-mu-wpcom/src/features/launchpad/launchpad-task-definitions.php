@@ -140,15 +140,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/me/account';
 			},
 		),
-		'verify_domain_email'                => array(
-			'get_title'           => function () {
-				return __( 'Verify domain email address', 'jetpack-mu-wpcom' );
-			},
-			'is_visible_callback' => 'wpcom_launchpad_is_domain_email_unverified',
-			'get_calypso_path'    => function ( $task, $default, $data ) {
-				return '/domains/manage/' . $data['site_slug_encoded'];
-			},
-		),
 
 		// Newsletter pre-launch tasks.
 		'first_post_published_newsletter'    => array(
@@ -1333,21 +1324,6 @@ function wpcom_launchpad_is_email_verified() {
 	}
 
 	return ! Email_Verification::is_email_unverified();
-}
-
-/**
- * Callback for email verification visibility when the user has a
- * custom domain.
- *
- * @return bool True if email is unverified, false otherwise.
- */
-function wpcom_launchpad_is_domain_email_unverified() {
-	// TODO: handle the edge case where an Atomic user can be unverified.
-	if ( ! class_exists( 'Email_Verification' ) ) {
-		return false;
-	}
-
-	return Email_Verification::is_domain_email_unverified();
 }
 
 /**
