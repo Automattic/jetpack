@@ -383,7 +383,7 @@ export default compose( [
 		const { getBlocks } = select( 'core/block-editor' );
 		const { getEditedPostAttribute } = select( 'core/editor' );
 		const { getSite, getUser, canUser } = select( 'core' );
-		const { isModuleActive, areModulesLoading, areModulesUpdating } = select( 'jetpack-modules' );
+		const { isModuleActive, areModulesLoading, isModuleUpdating } = select( 'jetpack-modules' );
 		const innerBlocks = getBlocks( props.clientId );
 
 		const authorId = getEditedPostAttribute( 'author' );
@@ -410,7 +410,7 @@ export default compose( [
 			postAuthorEmail: authorEmail,
 			isModuleActive: isModuleActive( 'contact-form' ),
 			isLoadingModules: areModulesLoading(),
-			isChangingStatus: areModulesUpdating(),
+			isChangingStatus: isModuleUpdating( 'contact-form' ),
 		};
 	} ),
 	withDispatch( dispatch => {

@@ -1,6 +1,6 @@
 const defaultState = {
 	isLoading: false,
-	isUpdating: false,
+	isUpdating: {},
 	data: {},
 };
 
@@ -10,6 +10,16 @@ const setModulesData = ( state = defaultState, action ) => {
 			return {
 				...state,
 				...action.options,
+			};
+		case 'SET_MODULE_UPDATING':
+			return {
+				...state,
+				...{
+					isUpdating: {
+						...state.isUpdating,
+						[ action.name ]: action.isUpdating,
+					},
+				},
 			};
 	}
 	return state;

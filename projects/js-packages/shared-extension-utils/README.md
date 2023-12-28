@@ -51,11 +51,11 @@ const SampleComponent = props => {
 // Jetpack modules will be pulled after first selection `isModuleActive`.
 export default compose( [
 	withSelect( ( select, props ) => {
-		const { isModuleActive, areModulesLoading, areModulesUpdating } = select( 'jetpack-modules' );
+		const { isModuleActive, areModulesLoading, isModuleUpdating } = select( 'jetpack-modules' );
 		return {
 			isModuleActive: isModuleActive( 'contact-form' ),
 			isLoadingModules: areModulesLoading(),
-			isChangingStatus: areModulesUpdating(),
+			isChangingStatus: isModuleUpdating( 'contact-form' ),
 		};
 	} ),
 	withDispatch( dispatch => {
