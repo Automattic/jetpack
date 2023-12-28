@@ -1,6 +1,7 @@
 <?php
 /**
  * Prompt the user to setup Jetpack Boost.
+ * DEPRECATED in v2.3.1
  */
 
 namespace Automattic\Jetpack_Boost\Features\Setup_Prompt;

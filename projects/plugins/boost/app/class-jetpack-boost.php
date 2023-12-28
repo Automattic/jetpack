@@ -19,7 +19,6 @@ use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
-use Automattic\Jetpack_Boost\Features\Setup_Prompt\Setup_Prompt;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
@@ -102,9 +101,6 @@ class Jetpack_Boost {
 
 		// Initialize the Admin experience.
 		$this->init_admin( $modules_setup );
-
-		// Add the setup prompt.
-		Setup::add( new Setup_Prompt() );
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
