@@ -10,7 +10,6 @@ test.beforeAll( async ( { browser } ) => {
 		.withLoggedIn( true )
 		.withWpComLoggedIn( true )
 		.withConnection( true )
-		.withPlan( Plans.Free )
 		.build();
 	await page.close();
 } );
