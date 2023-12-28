@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added is_automattician_feature_flags_only function as an alternative for simnple sites is_automattician
