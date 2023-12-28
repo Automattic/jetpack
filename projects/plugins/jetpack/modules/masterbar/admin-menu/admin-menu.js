@@ -27,6 +27,12 @@
 			// Toggle sidebar when toggle is clicked.
 			if ( adminbarBlog ) {
 				adminbarBlog.addEventListener( 'click', function ( event ) {
+					// Prevent the menu toggle from being triggered when the screen is not in mobile view.
+					// This allows the toggle to function as a link to the site's dashboard.
+					if ( $( window ).width() > 782 ) {
+						return;
+					}
+
 					event.preventDefault();
 
 					// Remove event handlers from the original toggle as its hidden and conflicts with the new toggle.
