@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Ensure post id is numerical when uploading external media.
