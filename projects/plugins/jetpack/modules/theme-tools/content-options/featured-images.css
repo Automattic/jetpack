@@ -4,6 +4,7 @@
 
 .wp-block-query .jetpack-hide-featured-image,
 .wp-block-latest-posts__featured-image .jetpack-hide-featured-image,
+.wp-block-newspack-blocks-carousel .jetpack-hide-featured-image,
 .wp-block-newspack-blocks-homepage-articles .jetpack-hide-featured-image {
 	display: block;
 }
