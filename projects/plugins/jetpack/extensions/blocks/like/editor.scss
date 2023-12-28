@@ -176,6 +176,16 @@ a.comment-like-link.loading:before {
 	margin-right: 8px;
 	overflow: initial;
 }
+@media screen and (max-width: 782px) {
+	.wpl-likebox.wpl-new-layout .wpl-avatars,
+	.rtl .wpl-likebox.wpl-new-layout .wpl-avatars {
+		flex-wrap: wrap;
+	}
+	.wpl-likebox.wpl-new-layout .wpl-count,
+	.rtl .wpl-likebox.wpl-new-layout .wpl-count {
+		white-space: nowrap;
+	}
+}
 .wpl-likebox.wpl-new-layout .wpl-avatars li a {
 	position: relative; /* For z-index */
 	margin: 0;
@@ -206,7 +216,7 @@ a.comment-like-link.loading:before {
 .wpl-likebox {
 
 	// Prevents color conflict by
-	// .wp-block-post-content a:where(:not(.wp-element-button)) 
+	// .wp-block-post-content a:where(:not(.wp-element-button))
 	a {
 		color: #2C3338 !important;
 		text-decoration: none !important;
