@@ -1897,7 +1897,8 @@ function wpcom_launchpad_mark_customize_welcome_message_complete_on_add( $value 
 add_action( 'add_option_subscription_options', 'wpcom_launchpad_mark_customize_welcome_message_complete_on_add', 10, 1 );
 
 /**
- * Mark the WooCommerce setup task as complete if the value is changed.
+ * Mark the WooCommerce setup task as complete the setup task list is in
+ * the completed list or in the hidden list.
  *
  * @param string $old_value The old value of the option.
  * @param string $value The new value of the option.
@@ -1905,20 +1906,16 @@ add_action( 'add_option_subscription_options', 'wpcom_launchpad_mark_customize_w
  * @return void
  */
 function wpcom_launchpad_mark_woocommerce_setup_complete( $old_value, $value ) {
-	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+	if ( ! in_array( 'setup', $value, true ) ) {
 		return;
 	}
 
-	if ( wp_installing() ) {
-		return;
-	}
-
-	if ( true === $value ) {
-		wpcom_mark_launchpad_task_complete( 'woocommerce_setup' );
-	}
+	wpcom_mark_launchpad_task_complete( 'woocommerce_setup' );
 }
-add_action( 'update_option_woocommerce_task_list_complete', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
-add_action( 'add_option_woocommerce_task_list_complete', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
+add_action( 'update_option_woocommerce_task_list_completed_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
+add_action( 'add_option_woocommerce_task_list_completed_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
+add_action( 'update_option_woocommerce_task_list_hidden_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
+add_action( 'add_option_woocommerce_task_list_hidden_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
 
 /**
  * When a page is updated, check to see if we've already completed the `add_new_page` task and mark the `edit_page` task complete accordingly.
