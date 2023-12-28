@@ -121,7 +121,7 @@ class SearchApp extends Component {
 
 	initializeAnalytics() {
 		initializeTracks();
-		window[ SERVER_OBJECT_NAME ].preventTrackingCookiesReset && resetTrackingCookies();
+		! window[ SERVER_OBJECT_NAME ].preventTrackingCookiesReset && resetTrackingCookies();
 		identifySite( this.props.options.siteId );
 	}
 
