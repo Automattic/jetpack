@@ -25,8 +25,6 @@ const initialData =
 // TODO: Create a proper solution after fixing initial issue (https://github.com/Automattic/jetpack/issues/34793).
 if ( initialData !== null ) {
 	dispatch( JETPACK_MODULES_STORE_ID ).setJetpackModules( {
-		isLoading: false,
-		isUpdating: false,
 		data: { ...initialData },
 	} );
 }
