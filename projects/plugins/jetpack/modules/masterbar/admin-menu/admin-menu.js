@@ -26,34 +26,50 @@
 			var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog > a' );
 			// Toggle sidebar when toggle is clicked.
 			if ( adminbarBlog ) {
-				adminbarBlog.addEventListener( 'click', function ( event ) {
-					// Prevent the menu toggle from being triggered when the screen is not in mobile view.
-					// This allows the toggle to function as a link to the site's dashboard.
-					if ( $( window ).width() > 782 ) {
-						return;
-					}
+				// Toggle the sidebar when the 'My Sites' button is clicked in a mobile view.
+				adminbarBlog.addEventListener( 'click', toggleSidebar );
+				// Detect a click outside the sidebar and close it if its open.
+				document.addEventListener( 'click', closeSidebarWhenClickedOutside );
+			}
+		}
 
-					event.preventDefault();
+		function closeSidebarWhenClickedOutside( event ) {
+			const isClickOnToggle = event.target.closest( '#wp-admin-bar-blog > a' );
+			const isClickOutsideMenu = document.getElementById( 'adminmenu' ).contains( event.target );
+			const sidebarIsOpen = wpwrap.classList.contains( 'wp-responsive-open' );
+			const shouldCloseSidebar = sidebarIsOpen && ! isClickOnToggle && ! isClickOutsideMenu;
+			if ( shouldCloseSidebar ) {
+				toggleSidebar( event );
+			}
+		}
 
-					// Remove event handlers from the original toggle as its hidden and conflicts with the new toggle.
-					$( '#wp-admin-bar-menu-toggle' ).off( 'click.wp-responsive' );
+		function toggleSidebar( event ) {
+			// Prevent the menu toggle from being triggered when the screen is not in mobile view.
+			// This allows the toggle to function as a link to the site's dashboard the same way it works in Calypso.
+			if ( $( window ).width() > 782 ) {
+				event.stopImmediatePropagation(); // Prevent propagation to conflicting event handlers.
+				return true;
+			}
 
-					// Close any open toolbar submenus.
-					var hovers = adminbar.querySelectorAll( '.hover' );
-					for ( var i = 0; i < hovers.length; i++ ) {
-						hovers[ i ].classList.remove( 'hover' );
-					}
-					wpwrap.classList.toggle( 'wp-responsive-open' );
-					if ( wpwrap.classList.contains( 'wp-responsive-open' ) ) {
-						setAriaExpanded( 'true' );
-						var first = document.querySelector( '#adminmenu a' );
-						if ( first ) {
-							first.focus();
-						}
-					} else {
-						setAriaExpanded( 'false' );
-					}
-				} );
+			event.preventDefault();
+
+			// Remove event handlers from the original toggle as its hidden and conflicts with the new toggle.
+			$( '#wp-admin-bar-menu-toggle' ).off( 'click.wp-responsive' );
+
+			// Close any open toolbar submenus.
+			var hovers = adminbar.querySelectorAll( '.hover' );
+			for ( var i = 0; i < hovers.length; i++ ) {
+				hovers[ i ].classList.remove( 'hover' );
+			}
+			wpwrap.classList.toggle( 'wp-responsive-open' );
+			if ( wpwrap.classList.contains( 'wp-responsive-open' ) ) {
+				setAriaExpanded( 'true' );
+				var first = document.querySelector( '#adminmenu a' );
+				if ( first ) {
+					first.focus();
+				}
+			} else {
+				setAriaExpanded( 'false' );
 			}
 		}
 
