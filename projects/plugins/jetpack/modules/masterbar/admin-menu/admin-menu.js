@@ -22,12 +22,12 @@
 		setAriaExpanded( 'false' );
 
 		var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog.my-sites > a' );
-		// We need to remove an event listener and attribute from the my sites button to prevent default behavior of the wp-responsive-overlay.
-		$( '#wp-admin-bar-blog.my-sites > a' ).off( 'click.wp-responsive' );
-		adminbarBlog.removeAttribute( 'aria-haspopup' );
 
 		// Toggle sidebar when toggle is clicked.
-		if ( adminbarBlog ) {
+		if ( adminbarBlog && ! document.body.classList.contains( 'wpcom-admin-interface' ) ) {
+			// We need to remove an event listener and attribute from the my sites button to prevent default behavior of the wp-responsive-overlay.
+			$( '#wp-admin-bar-blog.my-sites > a' ).off( 'click.wp-responsive' );
+			adminbarBlog.removeAttribute( 'aria-haspopup' );
 			// Toggle the sidebar when the 'My Sites' button is clicked in a mobile view.
 			adminbarBlog.addEventListener( 'click', toggleSidebar );
 			// Detect a click outside the sidebar and close it if its open.
