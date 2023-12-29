@@ -21,7 +21,7 @@
 		setFocusOnActiveMenuItem();
 		setAriaExpanded( 'false' );
 
-		var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog > a' );
+		var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog.my-sites > a' );
 		// Toggle sidebar when toggle is clicked.
 		if ( adminbarBlog ) {
 			// Toggle the sidebar when the 'My Sites' button is clicked in a mobile view.
