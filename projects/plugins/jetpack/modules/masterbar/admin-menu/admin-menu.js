@@ -22,6 +22,10 @@
 		setAriaExpanded( 'false' );
 
 		var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog.my-sites > a' );
+		// We need to remove an event listener and attribute from the my sites button to prevent default behavior of the wp-responsive-overlay.
+		$( '#wp-admin-bar-blog.my-sites > a' ).off( 'click.wp-responsive' );
+		adminbarBlog.removeAttribute( 'aria-haspopup' );
+
 		// Toggle sidebar when toggle is clicked.
 		if ( adminbarBlog ) {
 			// Toggle the sidebar when the 'My Sites' button is clicked in a mobile view.
@@ -31,10 +35,10 @@
 		}
 
 		function closeSidebarWhenClickedOutside( event ) {
-			const isClickOnToggle = event.target.closest( '#wp-admin-bar-blog > a' );
-			const isClickOutsideMenu = document.getElementById( 'adminmenu' ).contains( event.target );
+			const isClickOnToggle = !! event.target.closest( '#wp-admin-bar-blog > a' );
+			const isClickInsideMenu = document.getElementById( 'adminmenu' ).contains( event.target );
 			const sidebarIsOpen = wpwrap.classList.contains( 'wp-responsive-open' );
-			const shouldCloseSidebar = sidebarIsOpen && ! isClickOnToggle && ! isClickOutsideMenu;
+			const shouldCloseSidebar = sidebarIsOpen && ! isClickOnToggle && ! isClickInsideMenu;
 			if ( shouldCloseSidebar ) {
 				toggleSidebar( event );
 			}
@@ -55,7 +59,9 @@
 
 			// Close any open toolbar submenus.
 			var hovers = adminbar.querySelectorAll( '.hover' );
-			for ( var i = 0; i < hovers.length; i++ ) {
+
+			const hoverLength = hovers.length;
+			for ( var i = 0; i < hoverLength; i++ ) {
 				hovers[ i ].classList.remove( 'hover' );
 			}
 			wpwrap.classList.toggle( 'wp-responsive-open' );
