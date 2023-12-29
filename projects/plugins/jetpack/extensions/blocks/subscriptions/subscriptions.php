@@ -825,7 +825,7 @@ function add_paywall( $the_content ) {
 
 	if ( has_block( \Automattic\Jetpack\Extensions\Paywall\BLOCK_NAME ) ) {
 		if ( strpos( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML ) ) {
-			return strstr( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML, true ) . get_paywall_content( $post_access_level, 'block' );
+			return strstr( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML, true ) . get_paywall_content( $post_access_level, 'paywall_block' );
 		}
 		// WordPress generates excerpts by either rendering or stripping blocks before invoking the `the_content` filter.
 		// In the context of generating an excerpt, the Paywall block specifically renders THE_EXCERPT_BLOCK.
@@ -834,7 +834,7 @@ function add_paywall( $the_content ) {
 		}
 	}
 
-	return get_paywall_content( $post_access_level, 'full_content' );
+	return get_paywall_content( $post_access_level, 'access_paywall' );
 }
 
 /**
@@ -880,7 +880,7 @@ function maybe_gate_existing_comments( $comment ) {
  * @param string $context           The context in which the paywall is being rendered.
  * @return string
  */
-function get_paywall_content( $post_access_level, $context = 'all_content' ) {
+function get_paywall_content( $post_access_level, $context = 'access_paywall' ) {
 	if ( Jetpack_Memberships::user_is_pending_subscriber() ) {
 		return get_paywall_blocks_subscribe_pending();
 	}
@@ -975,7 +975,7 @@ function sanitize_submit_text( $text ) {
  * @param string $context                 The context in which the paywall is being rendered.
  * @return string
  */
-function get_paywall_blocks( $newsletter_access_level, $context = 'all_content' ) {
+function get_paywall_blocks( $newsletter_access_level, $context = 'access_paywall' ) {
 	$custom_paywall = apply_filters( 'jetpack_custom_paywall_blocks', false );
 	if ( ! empty( $custom_paywall ) ) {
 		return $custom_paywall;
@@ -1039,7 +1039,6 @@ function get_paywall_blocks( $newsletter_access_level, $context = 'all_content' 
 	}
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
-	$source   = $context === 'all_content' ? 'paywall-all-content' : 'paywall-block';
 
 	return '
 <!-- wp:group {"style":{"border":{"width":"1px","radius":"4px"},"spacing":{"padding":{"top":"32px","bottom":"32px","left":"32px","right":"32px"}}},"borderColor":"primary","className":"jetpack-subscribe-paywall","layout":{"type":"constrained","contentSize":"400px"}} -->
@@ -1056,7 +1055,7 @@ function get_paywall_blocks( $newsletter_access_level, $context = 'all_content' 
 <p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact","isPaidSubscriber":' . ( $is_paid_subscriber ? 'true' : 'false' ) . ', "source":"' . $source . '"} /-->
+<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact","isPaidSubscriber":' . ( $is_paid_subscriber ? 'true' : 'false' ) . ', "source":"' . $context . '"} /-->
 ' . $sign_in . '
 ' . $switch_accounts . '
 </div>
