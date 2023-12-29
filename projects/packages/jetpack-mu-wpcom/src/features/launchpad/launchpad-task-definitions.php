@@ -1498,6 +1498,30 @@ add_action( 'update_option_sm_enabled', 'wpcom_launchpad_mark_enable_subscribers
 add_action( 'add_option_sm_enabled', 'wpcom_launchpad_mark_enable_subscribers_modal_complete', 10, 3 );
 
 /**
+ * Mark the Sensei setup task as complete if the value is changed.
+ *
+ * @param string $old_value The old value of the option.
+ * @param string $value The new value of the option.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_sensei_setup_complete( $old_value, $value ) {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	if ( wp_installing() ) {
+		return;
+	}
+
+	if ( true === $value ) {
+		wpcom_mark_launchpad_task_complete( 'sensei_setup' );
+	}
+}
+add_action( 'update_option_sensei_home_tasks_list_is_completed', 'wpcom_launchpad_mark_sensei_setup_complete', 10, 3 );
+add_action( 'add_option_sensei_home_tasks_list_is_completed', 'wpcom_launchpad_mark_sensei_setup_complete', 10, 3 );
+
+/**
  * Determine `domain_claim` task visibility.
  *
  * @return bool True if we should show the task, false otherwise.
