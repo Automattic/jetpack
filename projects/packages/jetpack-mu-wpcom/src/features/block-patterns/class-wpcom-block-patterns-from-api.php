@@ -102,11 +102,6 @@ class Wpcom_Block_Patterns_From_Api {
 						'Blog Posts',
 						'jetpack-mu-wpcom'
 					);
-				} elseif ( 'testimonials' === $slug ) {
-					$category_properties['label'] = __(
-						'Quotes',
-						'jetpack-mu-wpcom'
-					);
 				}
 				register_block_pattern_category( $slug, $category_properties );
 			}
