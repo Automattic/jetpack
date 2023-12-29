@@ -611,6 +611,7 @@ class Masterbar {
 					'class' => 'menupop mb-trackable',
 				),
 				'parent' => 'top-secondary',
+				'href'   => 'https://wordpress.com/notifications',
 			)
 		);
 	}
