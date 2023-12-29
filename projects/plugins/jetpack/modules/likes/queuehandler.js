@@ -301,6 +301,10 @@ function JetpackLikesMessageListener( event ) {
 			};
 
 			if ( newLayout ) {
+				// Due to the additional title on Jetpack, we need to position the popover differently
+				let parent = el.parentElement.getBoundingClientRect();
+				container.style.top = rect.top - parent.top + 'px';
+
 				if ( isRtl ) {
 					const visibleAvatarsCount = data && data.likers ? Math.min( data.likers.length, 5 ) : 0;
 					// 24px is the width of the avatar + 4px is the padding between avatars
