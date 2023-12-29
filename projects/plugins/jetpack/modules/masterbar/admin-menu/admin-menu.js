@@ -18,19 +18,16 @@
 			}
 		}
 
-		var adminbarBlogMenuList = adminbar.querySelector( '#wp-admin-bar-blog > .ab-sub-wrapper' );
-		if ( adminbarBlogMenuList ) {
-			setFocusOnActiveMenuItem();
-			setAriaExpanded( 'false' );
+		setFocusOnActiveMenuItem();
+		setAriaExpanded( 'false' );
 
-			var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog > a' );
-			// Toggle sidebar when toggle is clicked.
-			if ( adminbarBlog ) {
-				// Toggle the sidebar when the 'My Sites' button is clicked in a mobile view.
-				adminbarBlog.addEventListener( 'click', toggleSidebar );
-				// Detect a click outside the sidebar and close it if its open.
-				document.addEventListener( 'click', closeSidebarWhenClickedOutside );
-			}
+		var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog > a' );
+		// Toggle sidebar when toggle is clicked.
+		if ( adminbarBlog ) {
+			// Toggle the sidebar when the 'My Sites' button is clicked in a mobile view.
+			adminbarBlog.addEventListener( 'click', toggleSidebar );
+			// Detect a click outside the sidebar and close it if its open.
+			document.addEventListener( 'click', closeSidebarWhenClickedOutside );
 		}
 
 		function closeSidebarWhenClickedOutside( event ) {
