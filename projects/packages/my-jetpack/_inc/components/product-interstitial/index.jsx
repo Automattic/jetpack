@@ -23,6 +23,7 @@ import extrasImage from './extras.png';
 import { JetpackAIInterstitialMoreRequests } from './jetpack-ai/more-requests';
 import jetpackAiImage from './jetpack-ai.png';
 import searchImage from './search.png';
+import socialImage from './social.png';
 import statsImage from './stats.png';
 import styles from './style.module.scss';
 import videoPressImage from './videopress.png';
@@ -349,7 +350,11 @@ export function ScanInterstitial() {
  * @returns {object} SocialInterstitial react component.
  */
 export function SocialInterstitial() {
-	return <ProductInterstitial slug="social" installsPlugin={ true } />;
+	return (
+		<ProductInterstitial slug="social" installsPlugin={ true }>
+			<img src={ socialImage } alt="Social" />
+		</ProductInterstitial>
+	);
 }
 
 /**
