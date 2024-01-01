@@ -259,7 +259,7 @@ class Initializer {
 
 		// Does the site have any purchases?
 		$purchases = Wpcom_Products::get_site_current_purchases();
-		if ( ! empty( $purchases ) ) {
+		if ( ! empty( $purchases ) && ! is_wp_error( $purchases ) ) {
 			return false;
 		}
 
