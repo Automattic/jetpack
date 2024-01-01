@@ -21,6 +21,7 @@ use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Jetpack;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -186,6 +187,7 @@ class Initializer {
 				'adminUrl'              => esc_url( admin_url() ),
 				'IDCContainerID'        => static::get_idc_container_id(),
 				'userIsAdmin'           => current_user_can( 'manage_options' ),
+				'userIsNew'             => self::is_jetpack_user_new(),
 				'isStatsModuleActive'   => $modules->is_active( 'stats' ),
 				'welcomeBanner'         => array(
 					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
@@ -209,6 +211,33 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * Determine if the current user is "new" to Jetpack
+	 * This is used to vary some messaging in My Jetpack
+	 *
+	 * @return bool
+	 */
+	public static function is_jetpack_user_new() {
+		// is the user connected?
+		$connection = new Connection_Manager();
+		if ( $connection->is_user_connected() ) {
+			return false;
+		}
+
+		// are any modules active?
+		$modules        = new Modules();
+		$active_modules = $modules->get_active();
+		// if the Jetpack plugin is active, filter out the modules that are active by default
+		if ( class_exists( 'Jetpack' ) ) {
+			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
+		}
+		if ( ! empty( $active_modules ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
