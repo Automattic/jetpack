@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Optimize how the web application firewall checks for updates on admin screens.
