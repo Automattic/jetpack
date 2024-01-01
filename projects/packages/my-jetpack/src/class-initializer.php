@@ -253,7 +253,7 @@ class Initializer {
 		// If there's more than one Jetpack plugin active, this user is not "new"
 		$plugin_slugs              = array_keys( Plugins_Installer::get_plugins() );
 		$installed_jetpack_plugins = array_intersect( self::JETPACK_PLUGIN_SLUGS, $plugin_slugs );
-		if ( is_countable( $installed_jetpack_plugins ) && count( $installed_jetpack_plugins ) ) {
+		if ( is_countable( $installed_jetpack_plugins ) && count( $installed_jetpack_plugins ) >= 2 ) {
 			return false;
 		}
 
