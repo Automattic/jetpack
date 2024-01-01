@@ -30,6 +30,8 @@ class Wpcom_Products {
 	 */
 	const CACHE_META_NAME = 'my-jetpack-cache';
 
+	const MY_JETPACK_PURCHASES_TRANSIENT_KEY = 'my-jetpack-purchases';
+
 	/**
 	 * Fetches the list of products from WPCOM
 	 *
@@ -233,12 +235,15 @@ class Wpcom_Products {
 	/**
 	 * Gets the site purchases from WPCOM.
 	 *
-	 * @todo Maybe add caching.
-	 *
 	 * @return Object|WP_Error
 	 */
 	public static function get_site_current_purchases() {
-		// TODO: Add a short-lived cache (less than a minute) to accommodate repeated invocation of this function.
+		// Check for a cached value
+		$stored_purchases = get_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+		if ( $stored_purchases !== false ) {
+			return $stored_purchases;
+		}
+
 		static $purchases = null;
 
 		if ( $purchases !== null ) {
@@ -260,6 +265,9 @@ class Wpcom_Products {
 
 		$body      = wp_remote_retrieve_body( $response );
 		$purchases = json_decode( $body );
+		// Set a transient for 30 seconds
+		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, 30 );
+
 		return $purchases;
 	}
 }

@@ -40,6 +40,16 @@ class Initializer {
 	 */
 	const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
 
+	const JETPACK_PLUGIN_SLUGS = array(
+		'jetpack-backup',
+		'jetpack-boost',
+		'zero-bs-crm',
+		'jetpack',
+		'jetpack-protect',
+		'jetpack-social',
+		'jetpack-videopress',
+	);
+
 	/**
 	 * Initialize My Jetpack
 	 *
@@ -187,7 +197,7 @@ class Initializer {
 				'adminUrl'              => esc_url( admin_url() ),
 				'IDCContainerID'        => static::get_idc_container_id(),
 				'userIsAdmin'           => current_user_can( 'manage_options' ),
-				'userIsNew'             => self::is_jetpack_user_new(),
+				'userIsNewToJetpack'    => self::is_jetpack_user_new(),
 				'isStatsModuleActive'   => $modules->is_active( 'stats' ),
 				'welcomeBanner'         => array(
 					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
@@ -217,6 +227,8 @@ class Initializer {
 	 * Determine if the current user is "new" to Jetpack
 	 * This is used to vary some messaging in My Jetpack
 	 *
+	 * On the front-end, purchases are also taken into account
+	 *
 	 * @return bool
 	 */
 	public static function is_jetpack_user_new() {
@@ -234,6 +246,20 @@ class Initializer {
 			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
 		}
 		if ( ! empty( $active_modules ) ) {
+			return false;
+		}
+
+		// check for other Jetpack plugins that are installed on the site (active or not)
+		// If there's more than one Jetpack plugin active, this user is not "new"
+		$plugin_slugs              = array_keys( Plugins_Installer::get_plugins() );
+		$installed_jetpack_plugins = array_intersect( self::JETPACK_PLUGIN_SLUGS, $plugin_slugs );
+		if ( is_countable( $installed_jetpack_plugins ) && count( $installed_jetpack_plugins ) ) {
+			return false;
+		}
+
+		// Does the site have any purchases?
+		$purchases = Wpcom_Products::get_site_current_purchases();
+		if ( ! empty( $purchases ) ) {
 			return false;
 		}
 
