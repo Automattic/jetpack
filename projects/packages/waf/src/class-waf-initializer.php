@@ -155,7 +155,7 @@ class Waf_Initializer {
 			return;
 		}
 
-		update_option( self::NEEDS_UPDATE_OPTION_NAME, 1 );
+		update_option( self::NEEDS_UPDATE_OPTION_NAME, '1' );
 	}
 
 	/**
@@ -199,7 +199,7 @@ class Waf_Initializer {
 			}
 		}
 
-		update_option( self::NEEDS_UPDATE_OPTION_NAME, 0 );
+		update_option( self::NEEDS_UPDATE_OPTION_NAME, '0' );
 		return true;
 	}
 
