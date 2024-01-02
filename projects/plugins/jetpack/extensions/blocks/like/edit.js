@@ -78,54 +78,56 @@ function LikeEdit() {
 					</PanelBody>
 				) }
 			</InspectorControls>
-			<div className="wpl-likebox wpl-new-layout">
-				{ showReblogButton && (
-					<div className="wpl-button reblog">
-						<a
-							href="#"
-							title={ __( 'Reblog this post on your main site.', 'jetpack' ) }
-							className="reblog sd-button"
-							rel="nofollow"
-						>
-							<span>{ __( 'Reblog', 'jetpack' ) }</span>
+			<div className={ 'wp-block-group is-layout-constrained has-global-padding' }>
+				<div className="wpl-likebox wpl-new-layout">
+					{ showReblogButton && (
+						<div className="wpl-button reblog">
+							<a
+								href="#"
+								title={ __( 'Reblog this post on your main site.', 'jetpack' ) }
+								className="reblog sd-button"
+								rel="nofollow"
+							>
+								<span>{ __( 'Reblog', 'jetpack' ) }</span>
+							</a>
+						</div>
+					) }
+					<div className="wpl-button like">
+						<a href="#" className="sd-button like" rel="nofollow" onClick={ preventDefault }>
+							<span>{ __( 'Like', 'jetpack' ) }</span>
 						</a>
 					</div>
-				) }
-				<div className="wpl-button like">
-					<a href="#" className="sd-button like" rel="nofollow" onClick={ preventDefault }>
-						<span>{ __( 'Like', 'jetpack' ) }</span>
-					</a>
-				</div>
-				<ul className="wpl-avatars">
-					{ avatars.map( ( avatar, i ) => (
-						<li key={ `liker-${ i }` } className="wp-liker-me">
-							<a className="wpl-liker" href="#" rel="nofollow" onClick={ preventDefault }>
-								<img
-									src={ avatar }
-									className="avatar avatar-30"
-									width={ 30 }
-									height={ 30 }
-									alt=""
-								/>
+					<ul className="wpl-avatars">
+						{ avatars.map( ( avatar, i ) => (
+							<li key={ `liker-${ i }` } className="wp-liker-me">
+								<a className="wpl-liker" href="#" rel="nofollow" onClick={ preventDefault }>
+									<img
+										src={ avatar }
+										className="avatar avatar-30"
+										width={ 30 }
+										height={ 30 }
+										alt=""
+									/>
+								</a>
+							</li>
+						) ) }
+					</ul>
+					<div className="wpl-count">
+						<span className="wpl-count-text">
+							<a href="#" onClick={ preventDefault }>
+								{ createInterpolateElement(
+									sprintf(
+										// translators: %$1s: Number of likes
+										__( '<span>%1$d</span> likes', 'jetpack' ),
+										avatars.length
+									),
+									{
+										span: <span className="wpl-count-number"></span>,
+									}
+								) }
 							</a>
-						</li>
-					) ) }
-				</ul>
-				<div className="wpl-count">
-					<span className="wpl-count-text">
-						<a href="#" onClick={ preventDefault }>
-							{ createInterpolateElement(
-								sprintf(
-									// translators: %$1s: Number of likes
-									__( '<span>%1$d</span> likes', 'jetpack' ),
-									avatars.length
-								),
-								{
-									span: <span className="wpl-count-number"></span>,
-								}
-							) }
-						</a>
-					</span>
+						</span>
+					</div>
 				</div>
 			</div>
 		</div>

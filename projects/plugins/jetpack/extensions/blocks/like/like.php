@@ -116,11 +116,57 @@ function render_block( $attr, $content, $block ) {
 		. "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . "</span></span> <span class='loading'>" . esc_html__( 'Loading...', 'jetpack' ) . '</span></div>'
 		. "<span class='sd-text-color'></span><a class='sd-link-color'></a>"
 		. '</div>';
-	return sprintf(
+
+	$group_block_start = '<!-- wp:group {"layout":{"type":"constrained"}} --><div class="wp-block-group">';
+	$output            = sprintf(
 		'<div class="%1$s">%2$s</div>',
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		$html
 	);
+	$group_block_end   = '</div><!-- /wp:group -->';
+
+	return do_blocks( $group_block_start . $output . $group_block_end );
+}
+
+/**
+ * Filters the list of blocks to be automatically inserted into the post content.
+ *
+ * This function is designed to hook certain types of blocks based on specific conditions.
+ * It checks the context and position relative to the anchor block and decides whether
+ * to add a new block type (e.g., 'jetpack/like') to the list of hooked blocks.
+ *
+ * @param array                     $hooked_blocks       The current array of blocks to be hooked.
+ * @param string                    $relative_position   The position relative to the anchor block ('before' or 'after').
+ * @param string                    $anchor_block        The anchor block type (e.g., 'core/post-content').
+ * @param WP_Block_Template | array $context             The block template, template part, or pattern that the anchor block belongs to.
+ *
+ * @return array The modified array of blocks to be hooked.
+ */
+function hooked_block_types( $hooked_blocks, $relative_position, $anchor_block, $context ) {
+	if (
+		'core/post-content' === $anchor_block &&
+		'after' === $relative_position &&
+		'single' === $context->slug &&
+		should_hook_block()
+	) {
+		$hooked_blocks[] = 'jetpack/like';
+	}
+	return $hooked_blocks;
+}
+
+add_filter( 'hooked_block_types', __NAMESPACE__ . '\hooked_block_types', 10, 4 );
+
+/**
+ * Determines whether a block should be hooked.
+ *
+ * This function is used to evaluate conditions under which a specific block
+ * should be hooked. Currently, it is set up to always return false, indicating
+ * that no blocks should be hooked.
+ *
+ * @return bool Returns false, indicating that no blocks should be hooked.
+ */
+function should_hook_block() {
+	return false;
 }
 
 /**
