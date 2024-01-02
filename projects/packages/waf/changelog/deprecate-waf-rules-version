@@ -1,0 +1,5 @@
+Significance: patch
+Type: deprecated
+Comment: Deprecated a function in the WAF package.
+
+

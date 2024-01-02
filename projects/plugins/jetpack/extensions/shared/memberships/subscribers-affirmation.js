@@ -4,7 +4,10 @@ import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
-import { accessOptions } from '../../shared/memberships/constants';
+import {
+	accessOptions,
+	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+} from '../../shared/memberships/constants';
 import { getReachForAccessLevelKey } from '../../shared/memberships/settings';
 import { store as membershipProductsStore } from '../../store/membership-products';
 
@@ -181,13 +184,19 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			.some( block => block.name === paywallBlockMetadata.name )
 	);
 
-	const { isScheduledPost, postCategories } = useSelect( select => {
+	const { isScheduledPost, postCategories, postMeta } = useSelect( select => {
 		const { isCurrentPostScheduled, getEditedPostAttribute } = select( editorStore );
 		return {
 			isScheduledPost: isCurrentPostScheduled(),
 			postCategories: getEditedPostAttribute( 'categories' ),
+			postMeta: getEditedPostAttribute( 'meta' ),
 		};
 	} );
+
+	const isSendEmailEnabled = () => {
+		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
+		return ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
+	};
 
 	const {
 		emailSubscribersCount,
@@ -249,8 +258,10 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	let text;
 
-	// Get newsletter category copy & count separately, unless post is paid
-	if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
+	if ( ! isSendEmailEnabled() ) {
+		text = __( 'Not sent via email.', 'jetpack' );
+	} else if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
+		// Get newsletter category copy & count separately, unless post is paid
 		text = getCopyForCategorySubscribers( {
 			futureTense,
 			isPaidPost,

@@ -87,7 +87,7 @@ function render_block( $attr, $content, $block ) {
 		$bloginfo = get_blog_details( (int) $blog_id );
 		$domain   = $bloginfo->domain;
 		$version  = '20231201';
-		$src      = sprintf( '//widgets.wp.com/likes/index.html?ver=%1$d#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s', $version, $blog_id, $post_id, $domain, $uniqid, $new_layout );
+		$src      = sprintf( '//widgets.wp.com/likes/index.html?ver=%1$d#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s&amp;block=1', $version, $blog_id, $post_id, $domain, $uniqid, $new_layout );
 		$headline = '';
 
 		// provide the mapped domain when needed
@@ -100,7 +100,7 @@ function render_block( $attr, $content, $block ) {
 		$url       = home_url();
 		$url_parts = wp_parse_url( $url );
 		$domain    = $url_parts['host'];
-		$src       = sprintf( 'https://widgets.wp.com/likes/#blog_id=%1$d&amp;post_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s%5$s', $blog_id, $post_id, $domain, $uniqid, $new_layout );
+		$src       = sprintf( 'https://widgets.wp.com/likes/#blog_id=%1$d&amp;post_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s%5$s&amp;block=1', $blog_id, $post_id, $domain, $uniqid, $new_layout );
 		$headline  = sprintf(
 			/** This filter is already documented in modules/sharedaddy/sharing-service.php */
 			apply_filters( 'jetpack_sharing_headline_html', '<h3 class="sd-title">%s</h3>', esc_html__( 'Like this:', 'jetpack' ), 'likes' ),

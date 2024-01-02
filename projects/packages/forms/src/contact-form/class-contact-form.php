@@ -354,7 +354,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
 			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' );
 			$form_classes            = 'contact-form commentsblock';
-			$form_accessible_name    = $attributes['formTitle'] ? $attributes['formTitle'] : $post->post_title;
+			$form_accessible_name    = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post->post_title;
 			$form_aria_label         = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
 
 			if ( $has_submit_button_block ) {

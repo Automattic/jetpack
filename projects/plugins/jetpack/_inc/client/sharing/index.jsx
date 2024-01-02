@@ -9,10 +9,12 @@ import {
 	getConnectUrl,
 } from 'state/connection';
 import {
+	currentThemeIsBlockTheme,
 	getSiteRawUrl,
 	getSiteAdminUrl,
 	userCanManageModules,
 	isAtomicSite,
+	isSharingBlockAvailable,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -39,6 +41,8 @@ class Sharing extends Component {
 			hasSocialImageGenerator: this.props.hasSocialImageGenerator,
 			hasAutoConversion: this.props.hasAutoConversion,
 			isAtomicSite: this.props.isAtomicSite,
+			hasSharingBlock: this.props.hasSharingBlock,
+			isBlockTheme: this.props.isBlockTheme,
 		};
 
 		const foundPublicize = this.props.isModuleFound( 'publicize' ),
@@ -91,5 +95,7 @@ export default connect( state => {
 		hasAutoConversion: siteHasFeature( state, 'social-image-auto-convert' ),
 		userCanManageModules: userCanManageModules( state ),
 		isAtomicSite: isAtomicSite( state ),
+		hasSharingBlock: isSharingBlockAvailable( state ),
+		isBlockTheme: currentThemeIsBlockTheme( state ),
 	};
 } )( Sharing );
