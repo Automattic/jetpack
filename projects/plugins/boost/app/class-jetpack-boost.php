@@ -204,7 +204,7 @@ class Jetpack_Boost {
 		$jetpack_config->ensure(
 			'sync',
 			array(
-				'jetpack_sync_option_whitelist' => $boost_options,
+				'jetpack_sync_options_whitelist' => $boost_options,
 			)
 		);
 	}
