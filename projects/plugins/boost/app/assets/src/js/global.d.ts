@@ -20,11 +20,7 @@ declare global {
 
 	// Constants provided by the plugin.
 	const Jetpack_Boost: {
-		preferences: {
-			prioritySupport: boolean;
-		};
 		isaFixButton: boolean;
-		isPremium: boolean;
 		version: string;
 		api: {
 			namespace: string;
@@ -50,7 +46,6 @@ declare global {
 			};
 		};
 		optimizations: Optimizations;
-		shownAdminNoticeIds: string[];
 		nonces: {
 			[ key: string ]: string;
 		};
