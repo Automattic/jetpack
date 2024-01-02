@@ -575,15 +575,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/site-editor/' . $data['site_slug_encoded'] . '/?canvas=edit&help-center=subscribe-block';
 			},
 		),
-		'blogname_set'                       => array(
-			'get_title'            => function () {
-				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/settings/general/' . $data['site_slug_encoded'];
-			},
-		),
 		'mobile_app_installed'               => array(
 			'get_title'            => function () {
 				return __( 'Install the mobile app', 'jetpack-mu-wpcom' );
