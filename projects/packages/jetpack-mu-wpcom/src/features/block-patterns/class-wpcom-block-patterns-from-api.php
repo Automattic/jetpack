@@ -135,7 +135,6 @@ class Wpcom_Block_Patterns_From_Api {
 			}
 		}
 
-		$this->update_core_patterns_with_wpcom_categories();
 		$this->update_pattern_block_types();
 
 		// Temporarily removing the call to `update_pattern_post_types` while we investigate
