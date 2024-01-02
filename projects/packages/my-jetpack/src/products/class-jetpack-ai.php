@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
@@ -80,6 +81,10 @@ class Jetpack_Ai extends Product {
 	 * @return int
 	 */
 	public static function get_current_usage_tier() {
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			return 0;
+		}
+
 		$info = self::get_ai_assistant_feature();
 
 		// Bail early if it's not possible to fetch the feature data.
@@ -98,6 +103,10 @@ class Jetpack_Ai extends Product {
 	 * @return int
 	 */
 	public static function get_next_usage_tier() {
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			return 100;
+		}
+
 		$info = self::get_ai_assistant_feature();
 
 		// Bail early if it's not possible to fetch the feature data.
