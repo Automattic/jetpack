@@ -400,8 +400,8 @@ function wpcom_is_checklist_task_complete( $task_id ) {
 /**
  * Returns launchpad checklist by checklist slug.
  *
- * @param string $checklist_slug Checklist slug.
- * @param string $launchpad_context Screen where Launchpad is loading.
+ * @param string      $checklist_slug Checklist slug.
+ * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
  *
  * @return Task[] Collection of tasks for a given checklist
  */
