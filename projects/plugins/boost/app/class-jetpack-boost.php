@@ -21,6 +21,7 @@ use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
@@ -28,6 +29,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
+use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Config_State;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
@@ -177,13 +179,27 @@ class Jetpack_Boost {
 	}
 
 	public function init_sync() {
+		$boost_options = array();
+
+		// Instantiate the entry to use it's utility methods.
+		$entry = new Modules_State_Entry();
+
+		// Add all modules options to the sync whitelist.
+		foreach ( Modules_Index::MODULES as $module ) {
+			$boost_options[] = $entry->get_module_option_name( $module::get_slug() );
+		}
+
+		// Add the Speed Score History option to the sync whitelist.
+		$boost_options[] = ( new Speed_Score_History( get_home_url() ) )->get_option_name();
+
+		// Add the no-boost option to the sync whitelist.
+		$boost_options[] = ( new Speed_Score_History( add_query_arg( 'jb-disable-modules', 'all', get_home_url() ) ) )->get_option_name();
+
 		$jetpack_config = new Jetpack_Config();
 		$jetpack_config->ensure(
 			'sync',
 			array(
-				'jetpack_sync_option_whitelist' => array(
-					( new Speed_Score_History( get_home_url() ) )->get_option_name(),
-				),
+				'jetpack_sync_option_whitelist' => $boost_options,
 			)
 		);
 	}

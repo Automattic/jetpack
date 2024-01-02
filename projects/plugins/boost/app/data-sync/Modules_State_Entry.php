@@ -59,7 +59,7 @@ class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 		return array_merge( $value, $partial_value );
 	}
 
-	private function get_module_option_name( $module_slug ) {
+	public function get_module_option_name( $module_slug ) {
 		return 'jetpack_boost_status_' . str_replace( '_', '-', $module_slug );
 	}
 }
