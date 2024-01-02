@@ -185,10 +185,11 @@ class Jetpack_Boost {
 			// Add the no-boost option to the sync whitelist.
 			( new Speed_Score_History( add_query_arg( 'jb-disable-modules', 'all', get_home_url() ) ) )->get_option_name(),
 
-			// Include critical CSS state.
 			JETPACK_BOOST_DATASYNC_NAMESPACE . '_critical_css_state',
-			// Include getting started state.
 			JETPACK_BOOST_DATASYNC_NAMESPACE . '_getting_started',
+			JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_js_excludes',
+			JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_css_excludes',
+			JETPACK_BOOST_DATASYNC_NAMESPACE . '_image_cdn_quality',
 		);
 
 		// Instantiate the entry to use it's utility methods.
