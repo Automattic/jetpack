@@ -179,7 +179,17 @@ class Jetpack_Boost {
 	}
 
 	public function init_sync() {
-		$boost_options = array();
+		$boost_options = array(
+			// Add the Speed Score History option to the sync whitelist.
+			( new Speed_Score_History( get_home_url() ) )->get_option_name(),
+			// Add the no-boost option to the sync whitelist.
+			( new Speed_Score_History( add_query_arg( 'jb-disable-modules', 'all', get_home_url() ) ) )->get_option_name(),
+
+			// Include critical CSS state.
+			JETPACK_BOOST_DATASYNC_NAMESPACE . '_critical_css_state',
+			// Include getting started state.
+			JETPACK_BOOST_DATASYNC_NAMESPACE . '_getting_started',
+		);
 
 		// Instantiate the entry to use it's utility methods.
 		$entry = new Modules_State_Entry();
@@ -188,12 +198,6 @@ class Jetpack_Boost {
 		foreach ( Modules_Index::MODULES as $module ) {
 			$boost_options[] = $entry->get_module_option_name( $module::get_slug() );
 		}
-
-		// Add the Speed Score History option to the sync whitelist.
-		$boost_options[] = ( new Speed_Score_History( get_home_url() ) )->get_option_name();
-
-		// Add the no-boost option to the sync whitelist.
-		$boost_options[] = ( new Speed_Score_History( add_query_arg( 'jb-disable-modules', 'all', get_home_url() ) ) )->get_option_name();
 
 		$jetpack_config = new Jetpack_Config();
 		$jetpack_config->ensure(
