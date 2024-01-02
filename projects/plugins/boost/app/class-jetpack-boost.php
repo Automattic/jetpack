@@ -13,6 +13,7 @@
 namespace Automattic\Jetpack_Boost;
 
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Config as Jetpack_Config;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
@@ -177,7 +178,14 @@ class Jetpack_Boost {
 
 	public function init_sync() {
 		$jetpack_config = new Jetpack_Config();
-		$jetpack_config->ensure( 'sync' );
+		$jetpack_config->ensure(
+			'sync',
+			array(
+				'jetpack_sync_option_whitelist' => array(
+					( new Speed_Score_History( site_url() ) )->get_option_name(),
+				),
+			)
+		);
 	}
 
 	/**

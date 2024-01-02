@@ -52,7 +52,7 @@ class Speed_Score_History {
 	 *
 	 * @return string
 	 */
-	private function get_option_name() {
+	public function get_option_name() {
 		return static::OPTION_PREFIX . Speed_Score_Request::generate_cache_id_from_url( $this->url );
 	}
 
