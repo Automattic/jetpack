@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.0-a.11 - 2024-01-02
+### Bug fixes
+- Editor: Fixed missing fonts issue inside the block editor. [#34776]
+- Subscriptions Block: Added compatibility for the latest Gutenberg. [#34809]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Use default store value pased from backend. [#34794]
+- Subscribe Block: Adjusted how cookies are set. [#34634]
+- Blogroll: Use blogroll item url as name if name does not exist. [#34693]
+- Removed Jetpack connection banners from WP dashboard and plugins page. [#34768]
+- Updated the design for Quick Share buttons and fixed its a11y. [#34754]
+
 ## 13.0-a.9 - 2023-12-25
 ### Enhancements
 - Added description and link inviting to disable legacy sharing module if block is available [#34759]
