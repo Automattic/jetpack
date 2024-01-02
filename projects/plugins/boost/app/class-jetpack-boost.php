@@ -182,7 +182,7 @@ class Jetpack_Boost {
 			'sync',
 			array(
 				'jetpack_sync_option_whitelist' => array(
-					( new Speed_Score_History( site_url() ) )->get_option_name(),
+					( new Speed_Score_History( get_home_url() ) )->get_option_name(),
 				),
 			)
 		);
