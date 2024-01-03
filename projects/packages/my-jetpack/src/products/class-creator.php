@@ -337,7 +337,8 @@ class Creator extends Product {
 		}
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				if ( strpos( $purchase->product_slug, 'jetpack_creator' ) !== false ) {
+				// Creator is available as standalone bundle and as part of the Complete plan.
+				if ( strpos( $purchase->product_slug, 'jetpack_creator' ) !== false || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
 					return true;
 				}
 			}

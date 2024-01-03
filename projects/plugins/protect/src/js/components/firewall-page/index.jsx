@@ -53,7 +53,7 @@ const FirewallPage = () => {
 		displayUpgradeBadge,
 		wafSupported,
 		isUpdating,
-		stats: { ipAllowListCount, ipBlockListCount, rulesVersion, automaticRulesLastUpdated },
+		stats: { ipAllowListCount, ipBlockListCount, automaticRulesLastUpdated },
 		toggleAutomaticRules,
 		toggleManualRules,
 		toggleBruteForceProtection,
@@ -506,21 +506,16 @@ const FirewallPage = () => {
 						) }
 					</Text>
 					<div className={ styles[ 'toggle-section__details' ] }>
-						{ jetpackWafAutomaticRules && ! automaticRulesInstallationError && (
-							<div className={ styles[ 'automatic-rules-stats' ] }>
-								{ rulesVersion && (
+						{ jetpackWafAutomaticRules &&
+							automaticRulesLastUpdated &&
+							! automaticRulesInstallationError && (
+								<div className={ styles[ 'automatic-rules-stats' ] }>
 									<Text
 										className={ styles[ 'automatic-rules-stats__version' ] }
 										variant={ 'body-small' }
 									>
-										{ sprintf(
-											// translators: placeholder is the latest rules version i.e. "v2.0".
-											__( 'Automatic security rules v%s installed.', 'jetpack-protect' ),
-											rulesVersion
-										) }
+										{ __( 'Automatic security rules installed.', 'jetpack-protect' ) }
 									</Text>
-								) }
-								{ automaticRulesLastUpdated && (
 									<Text
 										className={ styles[ 'automatic-rules-stats__last-updated' ] }
 										variant={ 'body-small' }
@@ -531,9 +526,8 @@ const FirewallPage = () => {
 											moment.unix( automaticRulesLastUpdated ).format( 'MMMM D, YYYY' )
 										) }
 									</Text>
-								) }
-							</div>
-						) }
+								</div>
+							) }
 						{ automaticRulesInstallationError && (
 							<>
 								<Text
