@@ -34,7 +34,7 @@ const mockUseDismissNotice = ( {
 };
 
 describe( 'AutoConversionNotice', () => {
-	it( 'should render is shouldShowNotice is true', async () => {
+	it( 'should render when shouldShowNotice is true', async () => {
 		mockUseDismissNotice( { shouldShowNoticeValue: true } );
 		const { container } = render( <AutoConversionNotice canChangeSettings={ true } /> );
 
@@ -42,7 +42,7 @@ describe( 'AutoConversionNotice', () => {
 		await expect( screen.findByText( /Got it/i ) ).resolves.toBeInTheDocument();
 	} );
 
-	it( 'should not render is shouldShowNotice is false', async () => {
+	it( 'should not render when shouldShowNotice is false', async () => {
 		mockUseDismissNotice( { shouldShowNoticeValue: false } );
 		const { container } = render( <AutoConversionNotice canChangeSettings={ true } /> );
 

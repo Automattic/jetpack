@@ -112,7 +112,7 @@ export default function PublicizeForm() {
 					<BrokenConnectionsNotice />
 					<UnsupportedConnectionsNotice />
 					{ shouldAutoConvert && showValidationNotice && mediaId && (
-						<AutoConversionNotice canChangeSettings={ ! isSimpleSite } />
+						<AutoConversionNotice canChangeSettings={ ! isSimpleSite() } />
 					) }
 					{ showValidationNotice &&
 						( Object.values( validationErrors ).includes( NO_MEDIA_ERROR ) ? (
