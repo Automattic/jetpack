@@ -29,9 +29,9 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 } ) => {
 	const [ hasRetried, setHasRetried ] = useState( false );
 
-	const successCount = cssState.providers.filter(
-		provider => provider.status === 'success'
-	).length;
+	const successCount = cssState.providers
+		? cssState.providers.filter( provider => provider.status === 'success' ).length
+		: 0;
 
 	function retry() {
 		setHasRetried( true );

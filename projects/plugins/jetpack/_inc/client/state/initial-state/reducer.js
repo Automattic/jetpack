@@ -719,3 +719,13 @@ export function arePreConnectionHelpersEnabled( state ) {
 export function getGutenbergState( state ) {
 	return state.jetpack.initialState.gutenbergInitialState;
 }
+
+/**
+ * Check if the Sharing block is available on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the Sharing block is available on the site.
+ */
+export function isSharingBlockAvailable( state ) {
+	return !! state.jetpack.initialState.siteData.isSharingBlockAvailable;
+}

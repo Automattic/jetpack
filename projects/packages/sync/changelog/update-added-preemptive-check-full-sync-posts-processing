@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Added preemptive check to break expanding metadata for posts loop in Full Sync

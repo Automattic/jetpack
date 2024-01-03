@@ -3,7 +3,7 @@ import CloseButton from '$features/ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, ReactNode } from 'react';
-import { DataSyncProvider, useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 import { Button } from '@wordpress/components';
 
@@ -55,20 +55,6 @@ const slowerMessage = {
 };
 
 /**
- * Wrapper for PopOut which provides a data sync context. Can be removed once we know the
- * parent of PopOut is always wrapped in a DataSyncProvider.
- *
- * @param {Props} props Properties.
- */
-export default function PopOut( props: Props ) {
-	return (
-		<DataSyncProvider>
-			<_PopOut { ...props } />
-		</DataSyncProvider>
-	);
-}
-
-/**
  * Helper hook - Use data sync to track which score popouts have been dismissed.
  *
  * @param id - The id of the score popout to track. Accepts null (which will result in dummy return values) for ease of use.
@@ -95,7 +81,7 @@ function useDismissedScoreAlerts( id: string | null ): [ boolean, () => void ] {
 	return [ isDismissed, dismiss ];
 }
 
-function _PopOut( { scoreChange, onClose }: Props ) {
+function PopOut( { scoreChange, onClose }: Props ) {
 	const [ message, setMessage ] = useState< ScoreChangeMessage | null >( null );
 	const hasScoreChanged = scoreChange !== false && Math.abs( scoreChange ) > 5;
 
@@ -152,3 +138,5 @@ function _PopOut( { scoreChange, onClose }: Props ) {
 		</div>
 	);
 }
+
+export default PopOut;

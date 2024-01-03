@@ -2,9 +2,9 @@ import classNames from 'classnames';
 import React from 'react';
 import styles from './header.module.scss';
 import { BackButton } from '$features/ui';
-import { navigate } from '$lib/utils/navigate';
 import ChevronRight from '$svg/chevron-right';
 import Logo from '$svg/logo';
+import { useNavigate } from 'react-router-dom';
 
 type HeaderProps = {
 	subPageTitle?: string;
@@ -12,6 +12,7 @@ type HeaderProps = {
 };
 
 const Header = ( { subPageTitle = '', children }: HeaderProps ) => {
+	const navigate = useNavigate();
 	return (
 		<div className={ classNames( styles.header ) }>
 			<div className={ classNames( 'jb-container', styles.masthead ) }>

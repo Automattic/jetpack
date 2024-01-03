@@ -1,6 +1,7 @@
 <?php
 /**
  * Displays the site type recommendations question as a banner.
+ * DEPRECATED in v 13.0
  *
  * @package automattic/jetpack
  */
