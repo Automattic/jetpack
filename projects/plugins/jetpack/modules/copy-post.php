@@ -319,8 +319,8 @@ class Jetpack_Copy_Post {
 			'jetpack-copy' => sprintf(
 				'<a href="%s" aria-label="%s">%s</a>',
 				esc_url( $edit_url ),
-				esc_attr__( 'Copy this post.', 'jetpack' ),
-				esc_html__( 'Copy', 'jetpack' )
+				esc_attr__( 'Duplicate this post.', 'jetpack' ),
+				esc_html__( 'Duplicate', 'jetpack' )
 			),
 		);
 
