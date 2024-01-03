@@ -293,13 +293,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.0-a.9 - 2023-12-25
-#### Enhancements
-- Added description and link inviting to disable legacy sharing module if block is available
-- Social Menu & Social Media Icons: Add support for the Bluesky service.
-
+### 13.0-a.11 - 2024-01-02
 #### Bug fixes
-- Subscribe Modal: Fix fatal under exceptional conditions
+- Editor: Fixed missing fonts issue inside the block editor.
+- Subscriptions Block: Added compatibility for the latest Gutenberg.
 
 --------
 
