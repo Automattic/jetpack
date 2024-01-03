@@ -8,11 +8,15 @@ import { enableAutomaticRules, generateRules } from '../../helpers/waf-helper.js
 test.describe.parallel( 'WAF Blocking', () => {
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
+		/* Note that .withPlan( Plans.Complete ) does not really apply yet because we are mocking the data returned from
+		 * the API for now. See tools/e2e-commons/plugins/e2e-waf-data-interceptor.php for details.
+		 */
 		await prerequisitesBuilder( page )
 			.withCleanEnv()
 			.withWpComLoggedIn( true )
 			.withLoggedIn( true )
 			.withConnection( true )
+			.withPlan( Plans.Complete )
 			.withActiveModules( [ 'waf' ] )
 			.build();
 		await enableAutomaticRules();
