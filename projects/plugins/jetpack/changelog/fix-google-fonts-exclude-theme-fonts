@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Jetpack Google Fonts: Don't print font definition if the font is provided by the active theme

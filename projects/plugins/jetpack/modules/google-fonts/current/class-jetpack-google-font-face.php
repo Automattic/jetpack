@@ -24,7 +24,7 @@ class Jetpack_Google_Font_Face {
 	public function __construct() {
 		// Turns off hooks to print fonts
 		add_action( 'wp_loaded', array( $this, 'wp_loaded' ) );
-		add_action( 'admin_init', array( $this, 'admin_init' ), 10 );
+		add_action( 'current_screen', array( $this, 'current_screen' ), 10 );
 
 		// Collect and print fonts in use
 		add_action( 'wp_head', array( $this, 'print_font_faces' ), 50 );
@@ -40,11 +40,14 @@ class Jetpack_Google_Font_Face {
 	}
 
 	/**
-	 * Turn off hooks to print fonts on wp-admin
+	 * Turn off hooks to print fonts on wp-admin, except for GB editor pages.
 	 */
-	public function admin_init() {
+	public function current_screen() {
 		remove_action( 'admin_print_styles', 'wp_print_fonts', 50 );
-		remove_action( 'admin_print_styles', 'wp_print_font_faces', 50 );
+
+		if ( ! $this->is_block_editor() ) {
+			remove_action( 'admin_print_styles', 'wp_print_font_faces', 50 );
+		}
 	}
 
 	/**
@@ -200,5 +203,21 @@ class Jetpack_Google_Font_Face {
 		}
 
 		return $font_family;
+	}
+
+	/**
+	 * Check if the current screen is the block editor.
+	 *
+	 * @return bool
+	 */
+	public function is_block_editor() {
+		if ( function_exists( 'get_current_screen' ) ) {
+			$current_screen = get_current_screen();
+			if ( ! empty( $current_screen ) && method_exists( $current_screen, 'is_block_editor' ) && $current_screen->is_block_editor() ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

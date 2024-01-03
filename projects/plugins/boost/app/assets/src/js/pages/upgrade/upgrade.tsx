@@ -2,29 +2,31 @@ import { PricingCard } from '@automattic/jetpack-components';
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import ActivateLicense from '$features/activate-license/activate-license';
-import { getUpgradeURL } from '$lib/stores/connection';
+import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
 import BackButton from '$features/ui/back-button/back-button';
 import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import JetpackLogo from '$svg/jetpack-green';
 import styles from './upgrade.module.scss';
+import { useConfig } from '$lib/stores/config-ds';
 
-type UpgradeProps = {
-	pricing: ( typeof Jetpack_Boost )[ 'pricing' ];
-	siteDomain: string;
-	userConnected: boolean;
-};
+const Upgrade: React.FC = () => {
+	const {
+		pricing,
+		site: { domain: siteDomain },
+	} = useConfig();
 
-const Upgrade: React.FC< UpgradeProps > = ( { pricing, siteDomain, userConnected } ) => {
+	const { connection } = useConnection();
+
 	const goToCheckout = () => {
 		recordBoostEventAndRedirect(
-			getUpgradeURL( siteDomain, userConnected ),
+			getUpgradeURL( siteDomain, connection.userConnected ),
 			'checkout_from_pricing_page_in_plugin'
 		);
 	};
 
-	if ( ! ( 'yearly' in pricing ) ) {
+	if ( ! pricing ) {
 		goToCheckout();
 	}
 
@@ -79,14 +81,14 @@ const Upgrade: React.FC< UpgradeProps > = ( { pricing, siteDomain, userConnected
 						</div>
 
 						<div className="jb-card__cta px-2 my-4">
-							{ 'yearly' in pricing && (
+							{ pricing && (
 								<PricingCard
 									title={ __( 'Jetpack Boost', 'jetpack-boost' ) }
 									icon={ `${ Jetpack_Boost.site.staticAssetPath }images/forward.svg` }
-									priceBefore={ pricing.yearly.priceBefore / 12 }
-									priceAfter={ pricing.yearly.priceAfter / 12 }
+									priceBefore={ pricing.priceBefore / 12 }
+									priceAfter={ pricing.priceAfter / 12 }
 									priceDetails={ __( '/month, paid yearly', 'jetpack-boost' ) }
-									currencyCode={ pricing.yearly.currencyCode }
+									currencyCode={ pricing.currencyCode }
 									ctaText={ __( 'Upgrade Jetpack Boost', 'jetpack-boost' ) }
 									onCtaClick={ goToCheckout }
 								/>

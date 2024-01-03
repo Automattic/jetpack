@@ -271,12 +271,18 @@
 		margin-bottom: 0.25em;
 	}
 
+	.jetpack-field-label__suffix {
+		margin-inline-start: 0.25em;
+
+		font-weight: 700;
+	}
+
 	.required {
 		word-break: normal;
 		color: unset;
 		opacity: 0.6;
 		font-size: 85%;
-		margin-left: 0.25em;
+		margin-inline-start: 0.25em;
 		font-weight: normal;
 	}
 
