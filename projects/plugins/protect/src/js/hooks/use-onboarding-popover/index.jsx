@@ -1,16 +1,21 @@
 import { Text, Button, getRedirectUrl, useBreakpointMatch } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import API from '../../api';
 import useThreatsList from '../../components/threats-list/use-threats-list';
 import { JETPACK_SCAN_SLUG } from '../../constants';
+import { STORE_ID } from '../../state/store';
 import useAnalyticsTracks from '../use-analytics-tracks';
 import useProtectData from '../use-protect-data';
 import useDynamicRefs from './use-dynamic-refs';
 
 const useOnboardingPopover = () => {
+	const { setOnboardingStep } = useDispatch( STORE_ID );
+	const onboardingStep = useSelect( select => select( STORE_ID ).getOnboardingStep() );
+
 	const { adminUrl, siteSuffix, freeOnboardingDismissed, paidOnboardingDismissed } =
 		window.jetpackProtectInitialState;
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -28,8 +33,8 @@ const useOnboardingPopover = () => {
 	const getScan = recordEventHandler( 'jetpack_protect_onboarding_get_scan_link_click', run );
 
 	const [ onboardingPopoverArgs, setOnboardingPopoverArgs ] = useState( null );
-	const [ onboardingStep, setOnboardingStep ] = useState( 1 );
 
+	// This needs to udpdate when list does and args needs to also!
 	const totalSteps = useMemo( () => {
 		if ( ! hasRequiredPlan || list.length === 0 ) {
 			return 2;
@@ -38,7 +43,7 @@ const useOnboardingPopover = () => {
 		}
 
 		return 4;
-	}, [ hasRequiredPlan, list, fixableList ] );
+	}, [ fixableList.length, hasRequiredPlan, list.length ] );
 
 	const incrementOnboardingPopoverStep = useCallback( () => {
 		if ( onboardingStep === 4 ) {
@@ -46,16 +51,16 @@ const useOnboardingPopover = () => {
 			return;
 		}
 		setOnboardingStep( onboardingStep + 1 );
-	}, [ onboardingStep ] );
+	}, [ onboardingStep, setOnboardingStep ] );
 
 	const closeOnboardingPopover = useCallback( () => {
 		setOnboardingStep( null );
-	}, [] );
+	}, [ setOnboardingStep ] );
 
 	const dismissOnboardingPopover = useCallback( () => {
 		API.protectOnboardingDismissed();
 		setOnboardingStep( null );
-	}, [] );
+	}, [ setOnboardingStep ] );
 
 	const yourScanResultsPopoverArgs = {
 		title: __( 'Your scan results', 'jetpack-protect' ),
@@ -239,6 +244,7 @@ const useOnboardingPopover = () => {
 		setOnboardingPopoverArgs( args );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
+		list,
 		onboardingStep,
 		freeOnboardingDismissed,
 		paidOnboardingDismissed,

@@ -21,6 +21,8 @@ const SET_MODAL = 'SET_MODAL';
 const SET_NOTICE = 'SET_NOTICE';
 const CLEAR_NOTICE = 'CLEAR_NOTICE';
 const SET_HAS_REQUIRED_PLAN = 'SET_HAS_REQUIRED_PLAN';
+const SET_ONBOARDING_STEP = 'SET_ONBOARDING_STEP';
+const SET_SELECTED = 'SET_SELECTED';
 
 const SET_WAF_IS_SEEN = 'SET_WAF_IS_SEEN';
 const SET_WAF_UPGRADE_IS_SEEN = 'SET_WAF_UPGRADE_IS_SEEN';
@@ -381,6 +383,14 @@ const setHasRequiredPlan = hasRequiredPlan => {
 	return { type: SET_HAS_REQUIRED_PLAN, hasRequiredPlan };
 };
 
+const setOnboardingStep = step => {
+	return { type: SET_ONBOARDING_STEP, step };
+};
+
+const setSelected = selected => {
+	return { type: SET_SELECTED, selected };
+};
+
 const setWafIsEnabled = isEnabled => {
 	return { type: SET_WAF_IS_ENABLED, isEnabled };
 };
@@ -433,6 +443,8 @@ const actions = {
 	refreshPlan,
 	setHasRequiredPlan,
 	setScanIsUnavailable,
+	setOnboardingStep,
+	setSelected,
 	setWafIsEnabled,
 	setWafIsSeen,
 	setWafUpgradeIsSeen,
@@ -462,6 +474,8 @@ export {
 	CLEAR_NOTICE,
 	SET_THREATS_ARE_FIXING,
 	SET_HAS_REQUIRED_PLAN,
+	SET_ONBOARDING_STEP,
+	SET_SELECTED,
 	SET_WAF_IS_SEEN,
 	SET_WAF_UPGRADE_IS_SEEN,
 	SET_WAF_IS_ENABLED,
