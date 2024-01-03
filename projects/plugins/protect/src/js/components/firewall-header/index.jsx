@@ -168,7 +168,7 @@ const FirewallHeader = ( {
 							<Text className={ classnames( styles.status, styles.active ) } variant={ 'label' }>
 								{ standaloneMode
 									? __( 'Standalone mode', 'jetpack-protect' )
-									: __( 'Active', 'jetpack-protect' ) }
+									: __( 'Active', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ) }
 							</Text>
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
 								{ ! wafSupported && __( 'Brute force protection is active', 'jetpack-protect' ) }
