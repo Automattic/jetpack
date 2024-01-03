@@ -205,6 +205,12 @@ class Jetpack_Ai extends Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui_by_usage_tier( $tier ) {
+
+		// Bail early if the site is not connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			return array();
+		}
+
 		$product = Wpcom_Products::get_product( static::get_wpcom_product_slug() );
 
 		if ( empty( $product ) ) {
@@ -369,6 +375,11 @@ class Jetpack_Ai extends Product {
 
 		// Check if the global constant is defined.
 		if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			return array();
+		}
+
+		// Bail early if the site is not connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			return array();
 		}
 
