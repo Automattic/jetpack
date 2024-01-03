@@ -34,7 +34,7 @@
 		"@storybook/react": "7.6.5",
 		"@testing-library/dom": "9.3.3",
 		"@testing-library/react": "14.1.2",
-		"@types/jest": "29.5.10",
+		"@types/jest": "29.5.11",
 		"@types/react": "18.2.33",
 		"@types/react-dom": "18.2.14",
 		"@types/react-test-renderer": "18.0.5",
