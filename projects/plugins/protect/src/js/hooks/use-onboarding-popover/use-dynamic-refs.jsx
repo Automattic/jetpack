@@ -8,8 +8,9 @@ const useDynamicRefs = () => {
 	const [ anchors, setAnchors ] = useState( {} );
 	const { isRegistered } = useConnection();
 
-	const { status } = useSelect( select => ( {
+	const { status, selected } = useSelect( select => ( {
 		status: select( STORE_ID ).getStatus(),
+		selected: select( STORE_ID ).getSelected(),
 	} ) );
 
 	const getRef = useCallback(
@@ -36,7 +37,7 @@ const useDynamicRefs = () => {
 				...updatedAnchors,
 			} ) );
 		}
-	}, [ refs, setAnchors, status.status, isRegistered ] );
+	}, [ refs, setAnchors, status.status, isRegistered, selected ] );
 
 	return { getRef, anchors };
 };
