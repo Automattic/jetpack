@@ -236,7 +236,7 @@ const useOnboarding = () => {
 		4: handleOnboardingStepFour,
 	};
 
-	const onboardingArgs = useMemo( () => {
+	const onboardingPopoverArgs = useMemo( () => {
 		const handler = onboardingStepHandlers[ onboardingStep ];
 		return handler ? handler() : null;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -244,7 +244,7 @@ const useOnboarding = () => {
 
 	return {
 		anchors,
-		onboardingArgs,
+		onboardingPopoverArgs,
 		closeOnboarding,
 		getRef,
 	};
