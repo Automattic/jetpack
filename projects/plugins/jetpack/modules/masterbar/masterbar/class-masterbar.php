@@ -267,13 +267,13 @@ class Masterbar {
 	 */
 	public function admin_body_class( $admin_body_classes ) {
 
-		$classes = array( 'jetpack-masterbar' );
+		$classes = array( 'jetpack-masterbar', trim( $admin_body_classes ) );
 
 		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 			$classes[] = 'wpcom-admin-interface';
 		}
 
-		return implode( ' ', $classes ) . $admin_body_classes;
+		return implode( ' ', $classes );
 	}
 
 	/**
