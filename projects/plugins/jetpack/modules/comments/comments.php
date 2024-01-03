@@ -151,6 +151,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		parent::setup_filters();
 
 		add_filter( 'comment_post_redirect', array( $this, 'capture_comment_post_redirect_to_reload_parent_frame' ), 100 );
+		add_filter( 'comment_duplicate_trigger', array( $this, 'capture_comment_duplicate_trigger' ), 100 );
 		add_filter( 'get_avatar', array( $this, 'get_avatar' ), 10, 4 );
 		// Fix comment reply link when `comment_registration` is required.
 		add_filter( 'comment_reply_link', array( $this, 'comment_reply_link' ), 10, 4 );
@@ -724,6 +725,82 @@ HTML;
 		// $jetpack->stat automatically prepends the stat group with 'jetpack-'
 		$jetpack->stat( 'subscribe-modal-comm', $tracking_event );
 		$jetpack->do_stats( 'server_side' );
+	}
+
+	/**
+	 * Catch the duplicated comment error and show a custom error page
+	 *
+	 * @return void
+	 */
+	public function capture_comment_duplicate_trigger() {
+		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			exit;
+		}
+
+		?>
+		<!DOCTYPE html>
+		<html <?php language_attributes(); ?>>
+		<!--<![endif]-->
+		<head>
+			<meta charset="<?php bloginfo( 'charset' ); ?>" />
+			<title>
+				<?php
+					wp_kses_post(
+						printf(
+							/* translators: %s is replaced by an ellipsis */
+							__( 'Submitting Comment%s', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							'&hellip;'
+						)
+					);
+				?>
+				</title>
+			<style type="text/css">
+				body {
+					display: table;
+					width: 100%;
+					height: 60%;
+					position: absolute;
+					top: 0;
+					left: 0;
+					overflow: hidden;
+					color: #333;
+				}
+				div {
+					text-align: center;
+					margin: 0;
+					padding: 0;
+					display: table-cell;
+					vertical-align: middle;
+					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
+					font-weight: normal;
+				}
+
+				h1 {
+					text-align: center;
+					margin: 0;
+					padding: 3% 0;
+					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
+					font-weight: normal;
+				}
+				a {
+					text-decoration: none;
+					color: #333 !important;
+				}
+			</style>
+		</head>
+		<body>
+		<div>
+			<h1>
+				<?php
+					echo esc_html__( 'Duplicate comment detected; it looks as though you&#8217;ve already said that!', 'jetpack' );
+				?>
+			</h1>
+			<a href="javascript:history.go(-2)"><?php echo esc_html__( '&laquo; Back', 'jetpack' ); ?></a>
+		</div>
+		</body>
+		</html>
+		<?php
+		exit;
 	}
 
 	/**
