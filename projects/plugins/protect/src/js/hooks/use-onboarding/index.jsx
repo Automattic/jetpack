@@ -61,17 +61,36 @@ const useOnboarding = () => {
 
 	const totalSteps = useMemo( calculateTotalSteps, [ hasRequiredPlan, list, fixableList ] );
 
-	const yourScanResultsPopoverArgs = {
+	// Define a helper function with common properties hardcoded
+	const createPopoverArgs = ( {
+		title,
+		buttonContent,
+		anchor,
+		onClick,
+		position,
+		step,
+		children,
+	} ) => ( {
+		title,
+		buttonContent,
+		anchor,
+		onClose: closeOnboarding,
+		onClick,
+		noArrow: false,
+		position,
+		offset: 15,
+		step,
+		totalSteps: totalSteps,
+		children,
+	} );
+
+	const yourScanResultsPopoverArgs = createPopoverArgs( {
 		title: __( 'Your scan results', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
 		anchor: anchors.anchor1,
-		onClose: closeOnboarding,
 		onClick: incrementOnboardingStep,
-		noArrow: false,
 		position: 'middle top',
-		offset: 15,
 		step: 1,
-		totalSteps: totalSteps,
 		children: (
 			<Text>
 				{ __(
@@ -80,19 +99,15 @@ const useOnboarding = () => {
 				) }
 			</Text>
 		),
-	};
+	} );
 
-	const fixAllThreatsPopoverArgs = {
+	const fixAllThreatsPopoverArgs = createPopoverArgs( {
 		title: __( 'Auto-fix with one click', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
 		anchor: anchors.anchor2,
-		onClose: closeOnboarding,
 		onClick: incrementOnboardingStep,
-		noArrow: false,
 		position: isSm ? 'bottom right' : 'middle left',
-		offset: 15,
 		step: 2,
-		totalSteps: 4,
 		children: (
 			<Text>
 				{ __(
@@ -120,19 +135,15 @@ const useOnboarding = () => {
 				) }
 			</Text>
 		),
-	};
+	} );
 
-	const dailyAutomatedScansPopoverArgs = {
+	const dailyAutomatedScansPopoverArgs = createPopoverArgs( {
 		title: __( 'Daily automated scans', 'jetpack-protect' ),
 		buttonContent: __( 'Finish', 'jetpack-protect' ),
 		anchor: anchors.anchor2a,
-		onClose: closeOnboarding,
 		onClick: dismissOnboarding,
-		noArrow: false,
 		position: 'middle right',
-		offset: 15,
 		step: 2,
-		totalSteps: 2,
 		children: (
 			<Text>
 				{ createInterpolateElement(
@@ -146,19 +157,15 @@ const useOnboarding = () => {
 				) }
 			</Text>
 		),
-	};
+	} );
 
-	const understandSeverityPopoverArgs = {
+	const understandSeverityPopoverArgs = createPopoverArgs( {
 		title: __( 'Understand severity', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
 		anchor: anchors.anchor3,
-		onClose: closeOnboarding,
 		onClick: incrementOnboardingStep,
-		noArrow: false,
 		position: 'top middle',
-		offset: 15,
 		step: totalSteps - 1,
-		totalSteps: totalSteps,
 		children: (
 			<Text>
 				{ __(
@@ -167,18 +174,15 @@ const useOnboarding = () => {
 				) }
 			</Text>
 		),
-	};
+	} );
 
-	const dailyAndManualScansPopoverArgs = {
+	const dailyAndManualScansPopoverArgs = createPopoverArgs( {
 		title: __( 'Daily & manual scanning', 'jetpack-protect' ),
 		buttonContent: __( 'Finish', 'jetpack-protect' ),
-		onClose: closeOnboarding,
+		anchor: anchors.anchor4,
 		onClick: dismissOnboarding,
-		noArrow: false,
 		position: isSm ? 'bottom left' : 'middle left',
-		offset: 15,
 		step: totalSteps,
-		totalSteps: totalSteps,
 		children: (
 			<Text>
 				{ __(
@@ -187,62 +191,56 @@ const useOnboarding = () => {
 				) }
 			</Text>
 		),
+	} );
+
+	const handleOnboardingStepOne = () => {
+		if (
+			( ! hasRequiredPlan && ! freeOnboardingDismissed ) ||
+			( hasRequiredPlan && ! paidOnboardingDismissed )
+		) {
+			return yourScanResultsPopoverArgs;
+		}
+	};
+
+	const handleOnboardingStepTwo = () => {
+		if ( ! hasRequiredPlan && ! freeOnboardingDismissed ) {
+			return dailyAutomatedScansPopoverArgs;
+		} else if ( ! paidOnboardingDismissed ) {
+			if ( list.length === 0 ) {
+				return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor2b };
+			} else if ( fixableList.length === 0 ) {
+				return understandSeverityPopoverArgs;
+			}
+			return fixAllThreatsPopoverArgs;
+		}
+	};
+
+	const handleOnboardingStepThree = () => {
+		if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
+			return fixableList.length === 0
+				? dailyAndManualScansPopoverArgs
+				: understandSeverityPopoverArgs;
+		}
+	};
+
+	const handleOnboardingStepFour = () => {
+		if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
+			return dailyAndManualScansPopoverArgs;
+		}
+	};
+
+	const onboardingStepHandlers = {
+		1: handleOnboardingStepOne,
+		2: handleOnboardingStepTwo,
+		3: handleOnboardingStepThree,
+		4: handleOnboardingStepFour,
 	};
 
 	const onboardingArgs = useMemo( () => {
-		if ( freeOnboardingDismissed && paidOnboardingDismissed ) {
-			return null;
-		}
-
-		switch ( onboardingStep ) {
-			case 1:
-				if (
-					( ! hasRequiredPlan && ! freeOnboardingDismissed ) ||
-					( hasRequiredPlan && ! paidOnboardingDismissed )
-				) {
-					return yourScanResultsPopoverArgs;
-				}
-				break;
-
-			case 2:
-				if ( ! hasRequiredPlan && ! freeOnboardingDismissed ) {
-					return dailyAutomatedScansPopoverArgs;
-				} else if ( ! paidOnboardingDismissed ) {
-					if ( list.length === 0 ) {
-						return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor2b };
-					} else if ( fixableList.length === 0 ) {
-						return understandSeverityPopoverArgs;
-					}
-					return fixAllThreatsPopoverArgs;
-				}
-				break;
-
-			case 3:
-				if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
-					return fixableList.length === 0
-						? { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 }
-						: understandSeverityPopoverArgs;
-				}
-				break;
-
-			case 4:
-				if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
-					return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 };
-				}
-				break;
-
-			default:
-				return null;
-		}
+		const handler = onboardingStepHandlers[ onboardingStep ];
+		return handler ? handler() : null;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [
-		list,
-		onboardingStep,
-		freeOnboardingDismissed,
-		paidOnboardingDismissed,
-		hasRequiredPlan,
-		anchors,
-	] );
+	}, [ list, onboardingStep, freeOnboardingDismissed, paidOnboardingDismissed, hasRequiredPlan ] );
 
 	return {
 		anchors,
