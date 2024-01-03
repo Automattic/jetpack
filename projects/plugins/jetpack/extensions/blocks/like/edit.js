@@ -10,12 +10,11 @@ import './editor.scss';
 
 function LikeEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
-	const enabledReblogs = attributes?.enabled_reblogs || false;
-	const showReblogButton = isSimpleSite() && enabledReblogs;
+	const showReblogButton = attributes?.showReblogButton || false;
 
 	const handleReblogSetting = newValue => {
 		setAttributes( {
-			enabled_reblogs: newValue,
+			showReblogButton: newValue,
 		} );
 	};
 
@@ -38,7 +37,7 @@ function LikeEdit( { attributes, setAttributes } ) {
 					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 						<ToggleControl
 							label={ __( 'Show reblog button', 'jetpack' ) }
-							checked={ enabledReblogs }
+							checked={ showReblogButton }
 							onChange={ newValue => {
 								handleReblogSetting( newValue );
 							} }
@@ -47,7 +46,7 @@ function LikeEdit( { attributes, setAttributes } ) {
 				) }
 			</InspectorControls>
 			<div className="wpl-likebox wpl-new-layout">
-				{ showReblogButton && (
+				{ isSimpleSite() && showReblogButton && (
 					<div className="wpl-button reblog">
 						<a
 							href="#"
