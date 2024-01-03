@@ -11,7 +11,7 @@ import PaidList from './paid-list';
 import styles from './styles.module.scss';
 import useThreatsList from './use-threats-list';
 
-const ThreatsList = ( { getRef, closeOnboardingPopover } ) => {
+const ThreatsList = ( { getRef } ) => {
 	const { hasRequiredPlan } = useProtectData();
 	const { item, list, selected, setSelected } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
@@ -23,7 +23,6 @@ const ThreatsList = ( { getRef, closeOnboardingPopover } ) => {
 	const handleFixAllThreatsClick = threatList => {
 		return event => {
 			event.preventDefault();
-			closeOnboardingPopover();
 			setModal( {
 				type: 'FIX_ALL_THREATS',
 				props: { threatList },

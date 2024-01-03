@@ -1,3 +1,4 @@
+import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	plugins as pluginsIcon,
 	wordpress as coreIcon,
@@ -5,8 +6,9 @@ import {
 	code as filesIcon,
 	grid as databaseIcon,
 } from '@wordpress/icons';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
+import { STORE_ID } from '../../state/store';
 
 const sortThreats = ( a, b ) => b.severity - a.severity;
 
@@ -50,9 +52,10 @@ const flattenThreats = ( data, newData ) => {
  * @returns {UseThreatsList} useThreatsList hook.
  */
 const useThreatsList = () => {
-	const { plugins, themes, core, files, database } = useProtectData();
+	const selected = useSelect( select => select( STORE_ID ).getSelected() );
+	const { setSelected } = useDispatch( STORE_ID );
 
-	const [ selected, setSelected ] = useState( 'all' );
+	const { plugins, themes, core, files, database } = useProtectData();
 
 	const { unsortedList, item } = useMemo( () => {
 		// If a specific threat category is selected, filter for and flatten the category's threats.
@@ -111,7 +114,7 @@ const useThreatsList = () => {
 	}, [ core, database, files, plugins, selected, themes ] );
 
 	const list = useMemo( () => {
-		return unsortedList.sort( sortThreats );
+		return [ ...unsortedList ].sort( sortThreats );
 	}, [ unsortedList ] );
 
 	return {
