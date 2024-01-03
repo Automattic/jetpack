@@ -1716,6 +1716,22 @@ function wpcom_launchpad_is_add_about_page_visible() {
 }
 
 /**
+ * Determine `front_page_updated` task visibility.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_launchpad_is_front_page_updated_visible() {
+	$show_on_front = get_option( 'show_on_front' );
+	$blog_on_front = $show_on_front === 'posts' || ( $show_on_front === 'page' && get_option( 'page_on_front' ) === '0' );
+
+	if ( $blog_on_front && ! wp_is_block_theme() ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Determine `site_title` task visibility. The task is not visible if the name was already set.
  *
  * @return bool True if we should show the task, false otherwise.
