@@ -192,6 +192,7 @@ class Jetpack_Notifications {
 			array(
 				'id'     => 'notes',
 				'title'  => '<span id="wpnt-notes-unread-count" class="' . esc_attr( $classes ) . '">
+					<span class="screen-reader-text">' . esc_html__( 'Notifications', 'jetpack' ) . '</span>
 					<span class="noticon noticon-notification"></span>
 					</span>',
 				'meta'   => array(
