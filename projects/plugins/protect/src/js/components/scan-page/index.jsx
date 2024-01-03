@@ -12,7 +12,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useOnboardingPopover from '../../hooks/use-onboarding-popover';
+import useOnboarding from '../../hooks/use-onboarding';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
@@ -28,7 +28,7 @@ import useCredentials from './use-credentials';
 import useStatusPolling from './use-status-polling';
 
 const ScanPage = () => {
-	const { anchors, onboardingPopoverArgs, getRef } = useOnboardingPopover();
+	const { anchors, OnboardingArgs, getRef } = useOnboarding();
 	const { lastChecked, currentStatus, errorCode, errorMessage, hasRequiredPlan } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { refreshStatus } = useDispatch( STORE_ID );
@@ -187,7 +187,7 @@ const ScanPage = () => {
 					<Col>
 						<ThreatsList getRef={ getRef } />
 					</Col>
-					{ anchors ? <ActionPopover { ...onboardingPopoverArgs } /> : null }
+					{ anchors ? <ActionPopover { ...OnboardingArgs } /> : null }
 				</Container>
 			</AdminSectionHero>
 			<ScanFooter />

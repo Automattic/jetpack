@@ -12,7 +12,7 @@ import useAnalyticsTracks from '../use-analytics-tracks';
 import useProtectData from '../use-protect-data';
 import useDynamicRefs from './use-dynamic-refs';
 
-const useOnboardingPopover = () => {
+const useOnboarding = () => {
 	const { setOnboardingStep } = useDispatch( STORE_ID );
 	const onboardingStep = useSelect( select => select( STORE_ID ).getOnboardingStep() );
 
@@ -32,7 +32,7 @@ const useOnboardingPopover = () => {
 	const { recordEventHandler } = useAnalyticsTracks();
 	const getScan = recordEventHandler( 'jetpack_protect_onboarding_get_scan_link_click', run );
 
-	const incrementOnboardingPopoverStep = useCallback( () => {
+	const incrementOnboardingStep = useCallback( () => {
 		if ( onboardingStep === 4 ) {
 			setOnboardingStep( null );
 			return;
@@ -40,11 +40,11 @@ const useOnboardingPopover = () => {
 		setOnboardingStep( onboardingStep + 1 );
 	}, [ onboardingStep, setOnboardingStep ] );
 
-	const closeOnboardingPopover = useCallback( () => {
+	const closeOnboarding = useCallback( () => {
 		setOnboardingStep( null );
 	}, [ setOnboardingStep ] );
 
-	const dismissOnboardingPopover = useCallback( () => {
+	const dismissOnboarding = useCallback( () => {
 		API.protectOnboardingDismissed();
 		setOnboardingStep( null );
 	}, [ setOnboardingStep ] );
@@ -63,8 +63,8 @@ const useOnboardingPopover = () => {
 		title: __( 'Your scan results', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
 		anchor: anchors.anchor1,
-		onClose: closeOnboardingPopover,
-		onClick: incrementOnboardingPopoverStep,
+		onClose: closeOnboarding,
+		onClick: incrementOnboardingStep,
 		noArrow: false,
 		position: 'middle top',
 		offset: 15,
@@ -84,8 +84,8 @@ const useOnboardingPopover = () => {
 		title: __( 'Auto-fix with one click', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
 		anchor: anchors.anchor2,
-		onClose: closeOnboardingPopover,
-		onClick: incrementOnboardingPopoverStep,
+		onClose: closeOnboarding,
+		onClick: incrementOnboardingStep,
 		noArrow: false,
 		position: isSm ? 'bottom right' : 'middle left',
 		offset: 15,
@@ -124,8 +124,8 @@ const useOnboardingPopover = () => {
 		title: __( 'Daily automated scans', 'jetpack-protect' ),
 		buttonContent: __( 'Finish', 'jetpack-protect' ),
 		anchor: anchors.anchor2a,
-		onClose: closeOnboardingPopover,
-		onClick: dismissOnboardingPopover,
+		onClose: closeOnboarding,
+		onClick: dismissOnboarding,
 		noArrow: false,
 		position: 'middle right',
 		offset: 15,
@@ -150,8 +150,8 @@ const useOnboardingPopover = () => {
 		title: __( 'Understand severity', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
 		anchor: anchors.anchor3,
-		onClose: closeOnboardingPopover,
-		onClick: incrementOnboardingPopoverStep,
+		onClose: closeOnboarding,
+		onClick: incrementOnboardingStep,
 		noArrow: false,
 		position: 'top middle',
 		offset: 15,
@@ -170,8 +170,8 @@ const useOnboardingPopover = () => {
 	const dailyAndManualScansPopoverArgs = {
 		title: __( 'Daily & manual scanning', 'jetpack-protect' ),
 		buttonContent: __( 'Finish', 'jetpack-protect' ),
-		onClose: closeOnboardingPopover,
-		onClick: dismissOnboardingPopover,
+		onClose: closeOnboarding,
+		onClick: dismissOnboarding,
 		noArrow: false,
 		position: isSm ? 'bottom left' : 'middle left',
 		offset: 15,
@@ -187,7 +187,7 @@ const useOnboardingPopover = () => {
 		),
 	};
 
-	const onboardingPopoverArgs = useMemo( () => {
+	const OnboardingArgs = useMemo( () => {
 		if ( freeOnboardingDismissed && paidOnboardingDismissed ) {
 			return null;
 		}
@@ -244,10 +244,10 @@ const useOnboardingPopover = () => {
 
 	return {
 		anchors,
-		onboardingPopoverArgs,
-		closeOnboardingPopover,
+		OnboardingArgs,
+		closeOnboarding,
 		getRef,
 	};
 };
 
-export default useOnboardingPopover;
+export default useOnboarding;
