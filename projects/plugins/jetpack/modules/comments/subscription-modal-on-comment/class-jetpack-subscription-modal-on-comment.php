@@ -49,13 +49,10 @@ class Jetpack_Subscription_Modal_On_Comment {
 	 * Limited to Atomic sites.
 	 */
 	public function __construct() {
-		// Only Automattitians for now
-		if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) {
-			if ( ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true ) ) {
-				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-				add_action( 'wp_footer', array( $this, 'add_subscription_modal_to_frontend' ) );
-				add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
-			}
+		if ( ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true ) ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+			add_action( 'wp_footer', array( $this, 'add_subscription_modal_to_frontend' ) );
+			add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
 		}
 	}
 

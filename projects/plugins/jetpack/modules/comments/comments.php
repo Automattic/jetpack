@@ -614,11 +614,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 */
 	public function should_show_subscription_modal() {
 
-		// Only Automattitians for now
-		if ( ! ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ) {
-			return false;
-		}
-
 		// Not allow it to run on self-hosted or simple sites
 		if ( ! ( new Host() )->is_wpcom_platform() || ( new Host() )->is_wpcom_simple() ) {
 			return false;
