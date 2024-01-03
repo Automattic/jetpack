@@ -132,7 +132,6 @@ const weirdRtlEntries = {
 		'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
 		'modules/shortcodes/css/quiz.css',
 		'modules/subscriptions/subscriptions.css',
-		'modules/theme-tools/content-options/featured-images.css',
 		'modules/theme-tools/responsive-videos/responsive-videos.css',
 		'modules/theme-tools/social-menu/social-menu.css',
 		'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',

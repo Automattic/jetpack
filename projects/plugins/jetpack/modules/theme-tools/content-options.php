@@ -64,15 +64,8 @@ function jetpack_content_options_init() {
 	// Load Post Details function.
 	require __DIR__ . '/content-options/post-details.php';
 
-	// Load Featured Images function and styles for hiding them.
+	// Load Featured Images function.
 	if ( jetpack_featured_images_should_load() ) {
-		wp_enqueue_style(
-			'jetpack-featured-images',
-			plugins_url( 'content-options/featured-images.css', __FILE__ ),
-			array(),
-			JETPACK__VERSION
-		);
-
 		require __DIR__ . '/content-options/featured-images.php';
 	}
 

@@ -69,29 +69,21 @@ function jetpack_featured_images_remove_post_thumbnail( $metadata, $object_id, $
 			&& in_the_loop()
 		)
 	) {
-		add_filter( 'post_thumbnail_html', 'jetpack_hide_featured_images', 10, 5 );
-	}
 
-	return $metadata;
+		// Do not override thumbnail settings within blocks (eg. Latest Posts block).
+		$trace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
+		foreach ( $trace as $frame ) {
+			if ( ! empty( $frame['class'] ) && class_exists( $frame['class'], false ) && is_a( $frame['class'], WP_Block::class, true ) ) {
+					return $metadata;
+			}
+		}
+
+		return false;
+	} else {
+		return $metadata;
+	}
 }
 add_filter( 'get_post_metadata', 'jetpack_featured_images_remove_post_thumbnail', true, 3 );
-
-/**
- * Add a class to hide Featured Images.
- *
- * We don't want to override the user's settings for Featured Images in blocks. For
- * example, the Latest Posts block allows manually displaying a thumbnail. This
- * means needing to hide the Featured Images using CSS, unfortunately.
- *
- * @param string $html Post thumbnail HTML.
- */
-function jetpack_hide_featured_images( $html ) {
-	if ( strpos( $html, 'jetpack-hide-featured-image' ) === false ) {
-		$html = str_replace( 'class="', 'class="jetpack-hide-featured-image ', $html );
-	}
-
-	return $html;
-}
 
 /**
  * Check if we are in a WooCommerce Product in order to exclude it from the is_single check.

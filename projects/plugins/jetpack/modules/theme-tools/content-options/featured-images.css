@@ -1,7 +1,0 @@
-.jetpack-hide-featured-image {
-	display: none;
-}
-
-[class^='wp-block'] .jetpack-hide-featured-image {
-	display: block;
-}
