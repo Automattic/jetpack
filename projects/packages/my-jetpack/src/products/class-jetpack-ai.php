@@ -81,7 +81,7 @@ class Jetpack_Ai extends Product {
 	 * @return int
 	 */
 	public static function get_current_usage_tier() {
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
+		if ( ! self::is_site_connected() ) {
 			return 0;
 		}
 
@@ -103,7 +103,7 @@ class Jetpack_Ai extends Product {
 	 * @return int
 	 */
 	public static function get_next_usage_tier() {
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
+		if ( ! self::is_site_connected() ) {
 			return 100;
 		}
 
@@ -207,7 +207,7 @@ class Jetpack_Ai extends Product {
 	public static function get_pricing_for_ui_by_usage_tier( $tier ) {
 
 		// Bail early if the site is not connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
+		if ( ! self::is_site_connected() ) {
 			return array();
 		}
 
@@ -379,7 +379,7 @@ class Jetpack_Ai extends Product {
 		}
 
 		// Bail early if the site is not connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
+		if ( ! self::is_site_connected() ) {
 			return array();
 		}
 
@@ -396,5 +396,14 @@ class Jetpack_Ai extends Product {
 		}
 
 		return \Jetpack_AI_Helper::get_ai_assistance_feature();
+	}
+
+	/**
+	 * Checks whether the site is connected to WordPress.com.
+	 *
+	 * @return boolean
+	 */
+	private static function is_site_connected() {
+		return ( new Connection_Manager() )->is_connected();
 	}
 }
