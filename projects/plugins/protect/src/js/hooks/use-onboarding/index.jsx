@@ -49,15 +49,17 @@ const useOnboarding = () => {
 		setOnboardingStep( null );
 	}, [ setOnboardingStep ] );
 
-	let totalSteps;
+	const calculateTotalSteps = () => {
+		if ( ! hasRequiredPlan || list.length === 0 ) {
+			return 2;
+		}
+		if ( fixableList.length === 0 ) {
+			return 3;
+		}
+		return 4;
+	};
 
-	if ( ! hasRequiredPlan || list.length === 0 ) {
-		totalSteps = 2;
-	} else if ( fixableList.length === 0 ) {
-		totalSteps = 3;
-	} else {
-		totalSteps = 4;
-	}
+	const totalSteps = useMemo( calculateTotalSteps, [ hasRequiredPlan, list, fixableList ] );
 
 	const yourScanResultsPopoverArgs = {
 		title: __( 'Your scan results', 'jetpack-protect' ),
@@ -187,7 +189,7 @@ const useOnboarding = () => {
 		),
 	};
 
-	const OnboardingArgs = useMemo( () => {
+	const onboardingArgs = useMemo( () => {
 		if ( freeOnboardingDismissed && paidOnboardingDismissed ) {
 			return null;
 		}
@@ -244,7 +246,7 @@ const useOnboarding = () => {
 
 	return {
 		anchors,
-		OnboardingArgs,
+		onboardingArgs,
 		closeOnboarding,
 		getRef,
 	};
