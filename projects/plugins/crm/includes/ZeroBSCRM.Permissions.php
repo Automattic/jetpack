@@ -560,6 +560,7 @@ function zeroBSCRM_permsObjType( $obj_type_id = -1 ) { // phpcs:ignore WordPress
 	switch ( $obj_type_id ) {
 		case ZBS_TYPE_CONTACT:
 		case ZBS_TYPE_COMPANY:
+		case ZBS_TYPE_SEGMENT:
 			return zeroBSCRM_permsCustomers();
 
 		case ZBS_TYPE_QUOTE:
@@ -577,6 +578,7 @@ function zeroBSCRM_permsObjType( $obj_type_id = -1 ) { // phpcs:ignore WordPress
 
 		case ZBS_TYPE_TASK:
 			return zeroBSCRM_perms_tasks();
+
 	}
 
 	return false;
@@ -715,7 +717,6 @@ function zeroBSCRM_permsCustomers() {
 	    if ($cu->has_cap('admin_zerobs_customers')) return true;
 	    return false;
 	}
-
 
 	// LOGS
 

@@ -2,11 +2,12 @@ import { createInterpolateElement } from '@wordpress/element';
 import { standardizeError } from '$lib/utils/standardize-error';
 import NoticeOutline from '$svg/notice-outline';
 import styles from './error-notice.module.scss';
-import React from 'react';
+import classNames from 'classnames';
 
 type ErrorNoticeProps = {
 	title: string;
 	error?: string | Error;
+	variant?: 'normal' | 'module';
 	data?: string;
 	suggestion?: string;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,6 +19,7 @@ type ErrorNoticeProps = {
 const ErrorNotice = ( {
 	title,
 	error = new Error( title ),
+	variant = 'normal',
 	data,
 	suggestion,
 	vars = {},
@@ -27,8 +29,12 @@ const ErrorNotice = ( {
 	const description = standardizeError( error ).message;
 
 	return (
-		<div className={ styles[ 'error-notice' ] }>
-			<div>
+		<div
+			className={ classNames( styles[ 'error-notice' ], {
+				[ styles[ 'variant-module' ] ]: variant === 'module',
+			} ) }
+		>
+			<div className={ styles[ 'icon-wrapper' ] }>
 				<NoticeOutline className={ styles.icon } />
 			</div>
 

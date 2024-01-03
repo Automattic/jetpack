@@ -3741,7 +3741,11 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 	// Check perms for given object
 	$has_perms = zeroBSCRM_permsObjType( $zbs->DAL->objTypeID( $objtype ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	if ( ! $has_perms ) {
-		jpcrm_api_forbidden_request();
+		$reply = array(
+			'status'  => __( 'Forbidden', 'zero-bs-crm' ),
+			'message' => __( 'You do not have permission to access this resource.', 'zero-bs-crm' ),
+		);
+		wp_send_json_error( $reply, 403 );
 	}
 
 	// ret

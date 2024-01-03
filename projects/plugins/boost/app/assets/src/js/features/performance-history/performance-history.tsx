@@ -7,19 +7,19 @@ import GraphComponent from './graph-component/graph-component';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { __ } from '@wordpress/i18n';
 import { Panel, PanelBody, PanelRow } from '@wordpress/components';
-import { navigate } from '$lib/utils/navigate';
 import { PerformanceHistoryData } from './lib/types';
-
-import styles from './performance-history.module.scss';
 import { Button } from '@automattic/jetpack-components';
+import { useNavigate } from 'react-router-dom';
+import { useSingleModuleState } from '$features/module/lib/stores';
+import styles from './performance-history.module.scss';
 
-type PerformanceHistoryProps = {
-	needsUpgrade: boolean;
-};
+const PerformanceHistoryBody = () => {
+	const [ performanceHistoryState ] = useSingleModuleState( 'performance_history' );
+	const needsUpgrade = ! performanceHistoryState?.available;
 
-const PerformanceHistoryBody = ( { needsUpgrade }: PerformanceHistoryProps ) => {
 	const { data, isFetching, isError, error, refetch } = usePerformanceHistoryQuery();
 	const [ isFreshStart, dismissFreshStart ] = usePerformanceHistoryFreshStartState();
+	const navigate = useNavigate();
 
 	if ( isError && ! isFetching ) {
 		return (
@@ -47,7 +47,7 @@ const PerformanceHistoryBody = ( { needsUpgrade }: PerformanceHistoryProps ) => 
 	);
 };
 
-const PerformanceHistory = ( { needsUpgrade }: PerformanceHistoryProps ) => {
+const PerformanceHistory = () => {
 	const [ isPanelOpen, setPanelOpen ] = usePerformanceHistoryPanelQuery();
 
 	return (
@@ -56,14 +56,14 @@ const PerformanceHistory = ( { needsUpgrade }: PerformanceHistoryProps ) => {
 				<PanelBody
 					title={ __( 'Historical Performance', 'jetpack-boost' ) }
 					initialOpen={ isPanelOpen }
-					onToggle={ value => {
+					onToggle={ ( value: boolean ) => {
 						setPanelOpen( value );
 					} }
 					className={ styles[ 'performance-history-body' ] }
 				>
 					<PanelRow>
 						<div style={ { flexGrow: 1, minHeight: '300px' } }>
-							<PerformanceHistoryBody needsUpgrade={ needsUpgrade } />
+							<PerformanceHistoryBody />
 						</div>
 					</PanelRow>
 				</PanelBody>
