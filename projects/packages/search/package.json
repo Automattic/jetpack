@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-search",
-	"version": "0.40.3",
+	"version": "0.40.4",
 	"description": "Package for Jetpack Search products",
 	"main": "main.js",
 	"directories": {
@@ -71,9 +71,9 @@
 		"@babel/preset-typescript": "7.23.3",
 		"@babel/runtime": "7.23.5",
 		"@size-limit/preset-app": "8.2.6",
-		"@testing-library/dom": "8.20.1",
+		"@testing-library/dom": "9.3.3",
 		"@testing-library/preact": "3.2.3",
-		"@testing-library/react": "13.4.0",
+		"@testing-library/react": "14.1.2",
 		"@wordpress/babel-plugin-import-jsx-pragma": "4.30.0",
 		"@wordpress/browserslist-config": "5.30.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "4.30.0",

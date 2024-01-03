@@ -61,11 +61,7 @@ function addBoostProps( props: TracksEventProperties ): TracksEventProperties {
 		if ( 'version' in Jetpack_Boost ) {
 			defaultProps.boost_version = Jetpack_Boost.version;
 		}
-		if ( 'connection' in Jetpack_Boost ) {
-			defaultProps.jetpack_connection = Jetpack_Boost.connection.connected
-				? 'connected'
-				: 'disconnected';
-		}
+
 		if ( 'optimizations' in Jetpack_Boost ) {
 			defaultProps.optimizations = JSON.stringify( Jetpack_Boost.optimizations );
 		}
