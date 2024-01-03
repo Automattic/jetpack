@@ -87,7 +87,7 @@ const useOnboarding = () => {
 	const yourScanResultsPopoverArgs = createPopoverArgs( {
 		title: __( 'Your scan results', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
-		anchor: anchors.anchor1,
+		anchor: anchors.yourScanResultsPopoverAnchor,
 		onClick: incrementOnboardingStep,
 		position: 'middle top',
 		step: 1,
@@ -104,7 +104,7 @@ const useOnboarding = () => {
 	const fixAllThreatsPopoverArgs = createPopoverArgs( {
 		title: __( 'Auto-fix with one click', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
-		anchor: anchors.anchor2,
+		anchor: anchors.fixAllThreatsPopoverAnchor,
 		onClick: incrementOnboardingStep,
 		position: isSm ? 'bottom right' : 'middle left',
 		step: 2,
@@ -140,7 +140,7 @@ const useOnboarding = () => {
 	const dailyAutomatedScansPopoverArgs = createPopoverArgs( {
 		title: __( 'Daily automated scans', 'jetpack-protect' ),
 		buttonContent: __( 'Finish', 'jetpack-protect' ),
-		anchor: anchors.anchor2a,
+		anchor: anchors.dailyAutomatedScansPopoverAnchor,
 		onClick: dismissOnboarding,
 		position: 'middle right',
 		step: 2,
@@ -162,7 +162,7 @@ const useOnboarding = () => {
 	const understandSeverityPopoverArgs = createPopoverArgs( {
 		title: __( 'Understand severity', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
-		anchor: anchors.anchor3,
+		anchor: anchors.understandSeverityPopoverAnchor,
 		onClick: incrementOnboardingStep,
 		position: 'top middle',
 		step: totalSteps - 1,
@@ -179,7 +179,7 @@ const useOnboarding = () => {
 	const dailyAndManualScansPopoverArgs = createPopoverArgs( {
 		title: __( 'Daily & manual scanning', 'jetpack-protect' ),
 		buttonContent: __( 'Finish', 'jetpack-protect' ),
-		anchor: anchors.anchor4,
+		anchor: anchors.dailyAndManualScansPopoverAnchor,
 		onClick: dismissOnboarding,
 		position: isSm ? 'bottom left' : 'middle left',
 		step: totalSteps,
@@ -207,7 +207,7 @@ const useOnboarding = () => {
 			return dailyAutomatedScansPopoverArgs;
 		} else if ( ! paidOnboardingDismissed ) {
 			if ( list.length === 0 ) {
-				return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor2b };
+				return dailyAndManualScansPopoverArgs;
 			} else if ( fixableList.length === 0 ) {
 				return understandSeverityPopoverArgs;
 			}
