@@ -24,7 +24,6 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 	showFooter = true,
 	showBackground = true,
 	header,
-	siteAdminUrl,
 } ) => {
 	const rootClassName = classNames( styles[ 'admin-page' ], {
 		[ styles.background ]: showBackground,
@@ -43,11 +42,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 			{ showFooter && (
 				<Container horizontalSpacing={ 5 }>
 					<Col>
-						<JetpackFooter
-							moduleName={ moduleName }
-							moduleNameHref={ moduleNameHref }
-							siteAdminUrl={ siteAdminUrl }
-						/>
+						<JetpackFooter moduleName={ moduleName } moduleNameHref={ moduleNameHref } />
 					</Col>
 				</Container>
 			) }

@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import React from 'react';
 import { getRedirectUrl } from '../..';
 import { STORE_ID as CONNECTION_STORE_ID } from '../../../../js-packages/connection/state/store';
+import getSiteAdminUrl from '../../tools/get-site-admin-url';
 import AutomatticBylineLogo from '../automattic-byline-logo';
 import './style.scss';
 import JetpackLogo from '../jetpack-logo';
@@ -26,7 +27,6 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	className,
 	moduleNameHref = 'https://jetpack.com',
 	menu,
-	siteAdminUrl,
 	onAboutClick,
 	onPrivacyClick,
 	onTermsClick,
@@ -50,7 +50,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 		},
 		[ CONNECTION_STORE_ID ]
 	);
-
+	const siteAdminUrl = getSiteAdminUrl();
 	const areAdminLinksEnabled =
 		siteAdminUrl &&
 		// Some admin pages require the site to be connected (e.g., Privacy)
