@@ -21,15 +21,14 @@ use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
-use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
-use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Config_State;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
@@ -180,31 +179,23 @@ class Jetpack_Boost {
 
 	public function init_sync() {
 		$boost_options = array(
-			// Add the Speed Score History option to the sync whitelist.
-			( new Speed_Score_History( get_home_url() ) )->get_option_name(),
-			// Add the no-boost option to the sync whitelist.
-			( new Speed_Score_History( add_query_arg( 'jb-disable-modules', 'all', get_home_url() ) ) )->get_option_name(),
-
-			JETPACK_BOOST_DATASYNC_NAMESPACE . '_critical_css_state',
 			JETPACK_BOOST_DATASYNC_NAMESPACE . '_getting_started',
 			JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_js_excludes',
 			JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_css_excludes',
 			JETPACK_BOOST_DATASYNC_NAMESPACE . '_image_cdn_quality',
 		);
 
-		// Instantiate the entry to use it's utility methods.
-		$entry = new Modules_State_Entry();
-
-		// Add all modules options to the sync whitelist.
-		foreach ( Modules_Index::MODULES as $module ) {
-			$boost_options[] = $entry->get_module_option_name( $module::get_slug() );
-		}
-
 		$jetpack_config = new Jetpack_Config();
 		$jetpack_config->ensure(
 			'sync',
 			array(
-				'jetpack_sync_options_whitelist' => $boost_options,
+				'jetpack_sync_options_whitelist'  => $boost_options,
+				'jetpack_sync_callable_whitelist' => array(
+					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
+					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
+					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( 'jb-disable-modules', 'all', get_home_url() ) ), 'latest' ),
+					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),
+				),
 			)
 		);
 	}
