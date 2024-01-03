@@ -13,17 +13,20 @@ const useDynamicRefs = () => {
 		selected: select( STORE_ID ).getSelected(),
 	} ) );
 
-	const getRef = useCallback(
-		key => {
-			if ( ! refs[ key ] ) {
-				refs[ key ] = createRef();
-			}
-			return refs[ key ];
-		},
-		[ refs ]
-	);
+	const getRef = useCallback( key => {
+		if ( ! refs[ key ] ) {
+			refs[ key ] = createRef();
+		}
+		return refs[ key ];
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	useEffect( () => {
+		// Return early if the site is not registered
+		if ( ! isRegistered ) {
+			return;
+		}
+
 		if ( status.status === 'idle' || status.status === 'in_progress' ) {
 			const updatedAnchors = Object.keys( refs ).reduce( ( acc, key ) => {
 				if ( refs[ key ].current !== null ) {
@@ -37,7 +40,8 @@ const useDynamicRefs = () => {
 				...updatedAnchors,
 			} ) );
 		}
-	}, [ refs, setAnchors, status.status, isRegistered, selected ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ status.status, isRegistered, selected ] );
 
 	return { getRef, anchors };
 };
