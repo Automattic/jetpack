@@ -3,7 +3,7 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 import API from '../../api';
 import useThreatsList from '../../components/threats-list/use-threats-list';
 import { JETPACK_SCAN_SLUG } from '../../constants';
@@ -32,19 +32,6 @@ const useOnboardingPopover = () => {
 	const { recordEventHandler } = useAnalyticsTracks();
 	const getScan = recordEventHandler( 'jetpack_protect_onboarding_get_scan_link_click', run );
 
-	const [ onboardingPopoverArgs, setOnboardingPopoverArgs ] = useState( null );
-
-	// This needs to udpdate when list does and args needs to also!
-	const totalSteps = useMemo( () => {
-		if ( ! hasRequiredPlan || list.length === 0 ) {
-			return 2;
-		} else if ( fixableList.length === 0 ) {
-			return 3;
-		}
-
-		return 4;
-	}, [ fixableList.length, hasRequiredPlan, list.length ] );
-
 	const incrementOnboardingPopoverStep = useCallback( () => {
 		if ( onboardingStep === 4 ) {
 			setOnboardingStep( null );
@@ -61,6 +48,16 @@ const useOnboardingPopover = () => {
 		API.protectOnboardingDismissed();
 		setOnboardingStep( null );
 	}, [ setOnboardingStep ] );
+
+	let totalSteps;
+
+	if ( ! hasRequiredPlan || list.length === 0 ) {
+		totalSteps = 2;
+	} else if ( fixableList.length === 0 ) {
+		totalSteps = 3;
+	} else {
+		totalSteps = 4;
+	}
 
 	const yourScanResultsPopoverArgs = {
 		title: __( 'Your scan results', 'jetpack-protect' ),
@@ -190,13 +187,10 @@ const useOnboardingPopover = () => {
 		),
 	};
 
-	useEffect( () => {
+	const onboardingPopoverArgs = useMemo( () => {
 		if ( freeOnboardingDismissed && paidOnboardingDismissed ) {
-			setOnboardingPopoverArgs( null );
-			return;
+			return null;
 		}
-
-		let args = null;
 
 		switch ( onboardingStep ) {
 			case 1:
@@ -204,44 +198,40 @@ const useOnboardingPopover = () => {
 					( ! hasRequiredPlan && ! freeOnboardingDismissed ) ||
 					( hasRequiredPlan && ! paidOnboardingDismissed )
 				) {
-					args = yourScanResultsPopoverArgs;
+					return yourScanResultsPopoverArgs;
 				}
 				break;
 
 			case 2:
 				if ( ! hasRequiredPlan && ! freeOnboardingDismissed ) {
-					args = dailyAutomatedScansPopoverArgs;
+					return dailyAutomatedScansPopoverArgs;
 				} else if ( ! paidOnboardingDismissed ) {
 					if ( list.length === 0 ) {
-						args = { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor2b };
+						return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor2b };
 					} else if ( fixableList.length === 0 ) {
-						args = understandSeverityPopoverArgs;
-					} else {
-						args = fixAllThreatsPopoverArgs;
+						return understandSeverityPopoverArgs;
 					}
+					return fixAllThreatsPopoverArgs;
 				}
 				break;
 
 			case 3:
 				if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
-					args =
-						fixableList.length === 0
-							? { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 }
-							: understandSeverityPopoverArgs;
+					return fixableList.length === 0
+						? { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 }
+						: understandSeverityPopoverArgs;
 				}
 				break;
 
 			case 4:
 				if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
-					args = { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 };
+					return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 };
 				}
 				break;
 
 			default:
-				args = null;
+				return null;
 		}
-
-		setOnboardingPopoverArgs( args );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		list,
