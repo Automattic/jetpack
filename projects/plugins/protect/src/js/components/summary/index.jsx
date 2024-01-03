@@ -27,7 +27,7 @@ const Summary = ( { getRef } ) => {
 					<div>
 						<Title size="small" className={ styles.summary__title }>
 							<Icon size={ 32 } className={ styles.summary__icon } />
-							<div ref={ ! hasRequiredPlan ? getRef( 'anchor2a' ) : null }>
+							<div ref={ ! hasRequiredPlan ? getRef( 'dailyAutomatedScansPopoverAnchor' ) : null }>
 								{ sprintf(
 									/* translators: %s: Latest check date  */
 									__( 'Latest results as of %s', 'jetpack-protect' ),
@@ -48,7 +48,7 @@ const Summary = ( { getRef } ) => {
 					</div>
 					{ hasRequiredPlan && numThreats === 0 && (
 						<Button
-							ref={ getRef( 'anchor2b' ) }
+							ref={ getRef( 'dailyAndManualScansPopoverAnchor' ) }
 							variant="secondary"
 							className={ styles[ 'summary__scan-button' ] }
 							isLoading={ scanIsEnqueuing }

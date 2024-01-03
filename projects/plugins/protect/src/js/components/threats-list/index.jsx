@@ -77,7 +77,7 @@ const ThreatsList = ( { getRef } ) => {
 	return (
 		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
 			<Col lg={ 4 }>
-				<div ref={ getRef( 'anchor1' ) }>
+				<div ref={ getRef( 'yourScanResultsPopoverAnchor' ) }>
 					<ThreatsNavigation selected={ selected } onSelect={ setSelected } />
 				</div>
 			</Col>
@@ -90,7 +90,7 @@ const ThreatsList = ( { getRef } ) => {
 								<>
 									{ fixableList.length > 0 && (
 										<Button
-											ref={ getRef( 'anchor2' ) }
+											ref={ getRef( 'fixAllThreatsPopoverAnchor' ) }
 											variant="primary"
 											className={ styles[ 'list-header-button' ] }
 											onClick={ handleFixAllThreatsClick( fixableList ) }
@@ -103,7 +103,7 @@ const ThreatsList = ( { getRef } ) => {
 										</Button>
 									) }
 									<Button
-										ref={ getRef( 'anchor4' ) }
+										ref={ getRef( 'dailyAndManualScansPopoverAnchor' ) }
 										variant="secondary"
 										className={ styles[ 'list-header-button' ] }
 										isLoading={ scanIsEnqueuing }
@@ -115,7 +115,7 @@ const ThreatsList = ( { getRef } ) => {
 							) }
 						</div>
 						{ hasRequiredPlan ? (
-							<div ref={ getRef( 'anchor3' ) }>
+							<div ref={ getRef( 'understandSeverityPopoverAnchor' ) }>
 								<PaidList list={ list } />
 							</div>
 						) : (
