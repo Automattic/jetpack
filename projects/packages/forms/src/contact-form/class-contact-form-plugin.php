@@ -251,7 +251,7 @@ class Contact_Form_Plugin {
 		 *  }
 		 *  add_action('wp_print_styles', 'remove_grunion_style');
 		 */
-		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . 'contact-form/css/grunion.css', array(), \JETPACK__VERSION );
+		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . '../dist/contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
 		Assets::register_script(
@@ -259,24 +259,10 @@ class Contact_Form_Plugin {
 			'../../dist/contact-form/js/accessible-form.js',
 			__FILE__,
 			array(
-				'async'      => true,
-				'textdomain' => 'jetpack-forms',
-				'version'    => \JETPACK__VERSION,
-			)
-		);
-
-		wp_localize_script(
-			'accessible-form',
-			'jetpackContactForm',
-			array(
-				/* translators: text read by a screen reader when a warning icon is displayed in front of an error message. */
-				'warning'              => __( 'Warning.', 'jetpack-forms' ),
-				/* translators: error message shown when one or more fields of the form are invalid. */
-				'invalidForm'          => __( 'Please make sure all fields are valid.', 'jetpack-forms' ),
-				/* translators: error message shown when a multiple choice field requires at least one option to be selected. */
-				'checkboxMissingValue' => __( 'Please select at least one option.', 'jetpack-forms' ),
-				/* translators: text read by a screen reader when a form is being submitted */
-				'submittingForm'       => __( 'Submitting form', 'jetpack-forms' ),
+				'async'        => true,
+				'textdomain'   => 'jetpack-forms',
+				'version'      => \JETPACK__VERSION,
+				'dependencies' => array( 'wp-i18n' ),
 			)
 		);
 

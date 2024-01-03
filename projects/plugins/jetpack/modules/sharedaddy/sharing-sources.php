@@ -1347,6 +1347,22 @@ class Share_X extends Sharing_Source {
 	public $short_url_length = 24;
 
 	/**
+	 * Constructor.
+	 *
+	 * @param int   $id       Sharing source ID.
+	 * @param array $settings Sharing settings.
+	 */
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+
+		if ( 'official' === $this->button_style ) {
+			$this->smart = true;
+		} else {
+			$this->smart = false;
+		}
+	}
+
+	/**
 	 * Service name.
 	 *
 	 * @return string
@@ -1363,13 +1379,47 @@ class Share_X extends Sharing_Source {
 	 * @return string
 	 */
 	public function get_display( $post ) {
-		return $this->get_link(
-			$this->get_process_request_url( $post->ID ),
-			_x( 'X', 'share to', 'jetpack' ),
-			__( 'Click to share on X', 'jetpack' ),
-			'share=x',
-			'sharing-x-' . $post->ID
-		);
+		$via = static::sharing_x_via( $post );
+
+		if ( $via ) {
+			$via = 'data-via="' . esc_attr( $via ) . '"';
+		} else {
+			$via = '';
+		}
+
+		$related = static::get_related_accounts( $post );
+		if ( ! empty( $related ) && $related !== $via ) {
+			$related = 'data-related="' . esc_attr( $related ) . '"';
+		} else {
+			$related = '';
+		}
+
+		if ( $this->smart ) {
+			$share_url  = $this->get_share_url( $post->ID );
+			$post_title = $this->get_share_title( $post->ID );
+			return sprintf(
+				'<a href="https://x.com/share" class="twitter-share-button" data-url="%1$s" data-text="%2$s" %3$s %4$s>%5$s</a>',
+				esc_url( $share_url ),
+				esc_attr( $post_title ),
+				$via,
+				$related,
+				esc_html__( 'Post', 'jetpack' )
+			);
+		} else {
+			if (
+				/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+				apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'x' )
+			) {
+				sharing_register_post_for_share_counts( $post->ID );
+			}
+			return $this->get_link(
+				$this->get_process_request_url( $post->ID ),
+				_x( 'X', 'share to', 'jetpack' ),
+				__( 'Click to share on X', 'jetpack' ),
+				'share=x',
+				'sharing-x-' . $post->ID
+			);
+		}
 	}
 
 	/**
@@ -1435,7 +1485,13 @@ class Share_X extends Sharing_Source {
 	 * Add content specific to a service in the footer.
 	 */
 	public function display_footer() {
-		$this->js_dialog( $this->shortname, array( 'height' => 350 ) );
+		if ( $this->smart ) {
+			?>
+			<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+			<?php
+		} else {
+			$this->js_dialog( $this->shortname, array( 'height' => 350 ) );
+		}
 	}
 
 	/**
@@ -1490,6 +1546,15 @@ class Share_X extends Sharing_Source {
 		);
 
 		parent::redirect_request( $twitter_url );
+	}
+
+	/**
+	 * Does this sharing source have a custom style.
+	 *
+	 * @return bool
+	 */
+	public function has_custom_button_style() {
+		return $this->smart;
 	}
 }
 

@@ -1,3 +1,4 @@
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -25,6 +26,7 @@ export const AutoConversionNotice: React.FC< AutoConversionNoticeProps > = ( {
 	const { adminUrl, jetpackSharingSettingsUrl } = usePublicizeConfig();
 
 	return (
+		! isSimpleSite() &&
 		shouldShowNotice( NOTICES.autoConversion ) && (
 			<Notice
 				type={ 'warning' }

@@ -118,6 +118,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'rss_use_excerpt'                         => '(bool) Whether the RSS feed will use post excerpts',
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
 			'sm_enabled'                              => '(bool) Whether the newsletter subscribe modal is enabled',
+			'wpcom_ai_site_prompt'                    => '(string) User input in the AI site prompt',
 		),
 
 		'response_format'     => array(

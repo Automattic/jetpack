@@ -53,11 +53,11 @@
 		"ai-assistant-support",
 		"ai-assistant-form-support",
 		"paywall",
-		"ai-content-lens",
 		"blogroll",
 		"blogroll-item",
 		"nextdoor",
-		"ai-assistant-usage-panel"
+		"ai-assistant-usage-panel",
+		"ai-content-lens"
 	],
 	"beta": [
 		"google-docs-embed",

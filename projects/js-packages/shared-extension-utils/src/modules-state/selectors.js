@@ -7,7 +7,7 @@ const jetpackModulesSelectors = {
 	isModuleActive: ( state, moduleName ) =>
 		isSimpleSite() || ( state?.data?.[ moduleName ]?.activated ?? false ),
 	areModulesLoading: state => state.isLoading ?? false,
-	areModulesUpdating: state => state.isUpdating ?? false,
+	isModuleUpdating: ( state, moduleName ) => state?.isUpdating?.[ moduleName ] ?? false,
 };
 
 export default jetpackModulesSelectors;
