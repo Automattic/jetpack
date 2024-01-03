@@ -1100,6 +1100,7 @@ class WPCOM_Features {
 			array(
 				'before' => '2023-12-19',
 				self::WPCOM_PERSONAL_PLANS,
+				self::WPCOM_ALL_SITES,
 			),
 			self::WP_P2_PLUS_MONTHLY,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -1451,6 +1452,22 @@ class WPCOM_Features {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Treat free plan as a purchase so the logic for purchase_in_products_map are applied when checking for legacy features.
+	 * As the free plan isn't actually a purchase, there is no subscribed_date, so we use the blog_registered_date instead.
+	 *
+	 * @param array  $purchases Reference to an array of purchases, this function adds a free plan to the end of the array passed in.
+	 * @param string $site_type Site type to check. Can be 'wpcom' or 'jetpack'.
+	 * @param string $blog_registered_date The date the blog was registered.
+	 */
+	public static function add_free_plan_purchase( &$purchases, $site_type, $blog_registered_date ) {
+		$free_purchase_object                  = new stdClass();
+		$free_purchase_object->product_slug    = "{$site_type}-all-sites";
+		$free_purchase_object->subscribed_date = $blog_registered_date;
+
+		$purchases[] = $free_purchase_object;
 	}
 
 	/**

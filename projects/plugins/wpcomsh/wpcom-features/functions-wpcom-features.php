@@ -56,6 +56,7 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 
 	$purchases = wpcom_get_site_purchases( $blog_id );
 
+	$blog = null;
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		$site_type = 'wpcom';
 	} else {
@@ -80,6 +81,10 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 	 */
 	if ( $feature === WPCOM_Features::CLASSIC_SEARCH && ( function_exists( 'wpcom_is_wporg_jp_index' ) && wpcom_is_wporg_jp_index( $blog_id ) ) ) {
 		return true;
+	}
+
+	if ( isset( $blog->registered ) ) {
+		WPCOM_Features::add_free_plan_purchase( $purchases, $site_type, $blog->registered );
 	}
 
 	return WPCOM_Features::has_feature( $feature, $purchases, $site_type );
@@ -180,7 +185,7 @@ function _wpcom_features_get_simple_site_purchases( $blog_id ) {
 	$purchases = $wpdb->get_results(
 		$wpdb->prepare(
 			"
-					SELECT 
+					SELECT
 					    product.product_slug,
 					    product.product_id,
 					    product.billing_product_id,
