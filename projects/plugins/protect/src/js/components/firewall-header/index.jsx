@@ -259,7 +259,8 @@ const ConnectedFirewallHeader = () => {
 		isEnabled,
 	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
-	const currentStatus = isEnabled ? 'on' : 'off';
+	const isSupportedFeatureEnabled = wafSupported ? isEnabled : bruteForceProtection;
+	const currentStatus = isSupportedFeatureEnabled ? 'on' : 'off';
 
 	return (
 		<FirewallHeader
