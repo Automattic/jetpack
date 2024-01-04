@@ -43,6 +43,6 @@ function jetpack_likes_master_iframe() {
 	}
 	?>
 	<iframe src='<?php echo esc_url( $src ); ?>' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
-	<div id='likes-other-gravatars' class='<?php echo esc_attr( $new_layout_class ); ?>'><div class="likes-text"><?php echo $likers_text; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
+	<div id='likers-base-popover' class='likes-other-gravatars <?php echo esc_attr( $new_layout_class ); ?>'><div class="likes-text"><?php echo $likers_text; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
 	<?php
 }

@@ -201,22 +201,40 @@ function JetpackLikesMessageListener( event ) {
 			break;
 
 		case 'hideOtherGravatars': {
-			const container = document.querySelector( '#likes-other-gravatars' );
-			if ( ! container ) {
-				break;
+			const iframe = window.document.querySelector( `iframe[name='${ data.parent }']` );
+
+			if (
+				iframe &&
+				iframe.nextElementSibling &&
+				iframe.nextElementSibling.id === 'likes-other-gravatars'
+			) {
+				iframe.nextElementSibling.remove();
 			}
 
-			if ( container.style.display === 'block' ) {
-				container.style.display = 'none';
-			}
 			break;
 		}
 
 		case 'showOtherGravatars': {
-			const container = document.querySelector( '#likes-other-gravatars' );
-			if ( ! container ) {
+			const basePopover = document.querySelector( '#likers-base-popover' );
+
+			if ( ! basePopover ) {
 				break;
 			}
+
+			const iframe = window.document.querySelector( `iframe[name='${ data.parent }']` );
+
+			// Toggle the popover off if it's already open
+			if (
+				iframe &&
+				iframe.nextElementSibling &&
+				iframe.nextElementSibling.id === 'likes-other-gravatars'
+			) {
+				iframe.nextElementSibling.remove();
+				break;
+			}
+
+			const container = basePopover.cloneNode( true );
+			container.id = 'likes-other-gravatars';
 
 			const newLayout = container.classList.contains( 'wpl-new-layout' );
 
@@ -271,8 +289,8 @@ function JetpackLikesMessageListener( event ) {
 				}
 			} );
 
-			const containerStyle = getComputedStyle( container );
-			const isRtl = containerStyle.direction === 'rtl';
+			const basePopoverStyle = getComputedStyle( basePopover );
+			const isRtl = basePopoverStyle.direction === 'rtl';
 
 			const el = document.querySelector( `*[name='${ data.parent }']` );
 			const rect = el.getBoundingClientRect();
@@ -283,16 +301,17 @@ function JetpackLikesMessageListener( event ) {
 			};
 
 			if ( newLayout ) {
-				container.style.top = offset.top + data.position.top - 1 + 'px';
+				// Due to the additional title on Jetpack, we need to position the popover differently
+				let parent = el.parentElement.getBoundingClientRect();
+				container.style.top = rect.top - parent.top + 'px';
 
 				if ( isRtl ) {
 					const visibleAvatarsCount = data && data.likers ? Math.min( data.likers.length, 5 ) : 0;
 					// 24px is the width of the avatar + 4px is the padding between avatars
-					container.style.left =
-						offset.left + data.position.left + 24 * visibleAvatarsCount + 4 + 'px';
+					container.style.left = data.position.left + 24 * visibleAvatarsCount + 4 + 'px';
 					container.style.transform = 'translateX(-100%)';
 				} else {
-					container.style.left = offset.left + data.position.left + 'px';
+					container.style.left = data.position.left + 'px';
 				}
 			} else {
 				container.style.left = offset.left + data.position.left - 10 + 'px';
@@ -322,6 +341,9 @@ function JetpackLikesMessageListener( event ) {
 			}
 
 			container.style.display = 'block';
+			container.setAttribute( 'aria-hidden', 'false' );
+
+			iframe.after( container );
 		}
 	}
 }
@@ -332,7 +354,7 @@ document.addEventListener( 'click', e => {
 	const container = document.querySelector( '#likes-other-gravatars' );
 
 	if ( container && ! container.contains( e.target ) ) {
-		container.style.display = 'none';
+		container.remove();
 	}
 } );
 
