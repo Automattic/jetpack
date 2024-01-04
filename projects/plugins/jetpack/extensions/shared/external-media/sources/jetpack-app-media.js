@@ -1,8 +1,9 @@
 import { QRCode } from '@automattic/jetpack-components';
 import { select } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useCallback, useEffect } from '@wordpress/element';
+import { useRef, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { JetpackAppIcon } from '../../icons';
 import MediaBrowser from '../media-browser';
 import { MediaSource } from '../media-service/types';
 import withMedia from './with-media';
@@ -36,14 +37,15 @@ function JetpackAppMedia( props ) {
 	const { media, insertMedia, isCopying, multiple, getMedia } = props;
 
 	const wpcomBlogId = window?.Jetpack_Editor_Initial_State?.wpcomBlogId || 0;
+	const imagePath = window?.Jetpack_Editor_Initial_State?.pluginBasePath + '/images/';
 	const postId = select( editorStore ).getCurrentPostId();
 	const getNextPage = useCallback( () => {
-		getMedia( '/wpcom/v2/app-media?refresh=true', true );
-	}, [ getMedia ] );
+		getMedia( `/wpcom/v2/app-media?refresh=true&after=${ currentTime }`, true );
+	}, [ getMedia, currentTime ] );
 
 	const getNextPagePull = useCallback( () => {
-		getMedia( '/wpcom/v2/app-media?refresh=true', false, false );
-	}, [ getMedia ] );
+		getMedia( `/wpcom/v2/app-media?refresh=true&after=${ currentTime }`, false, false );
+	}, [ getMedia, currentTime ] );
 
 	const onCopy = useCallback(
 		items => {
@@ -51,29 +53,50 @@ function JetpackAppMedia( props ) {
 		},
 		[ insertMedia ]
 	);
+	// get the current time and store it in the state
+	const [ currentTime ] = useState( Date.now() / 1000 );
 
 	// Load initial results for the random example query. Only do it once.
 	useEffect( getNextPage, [] ); // eslint-disable-line react-hooks/exhaustive-deps
-	useInterval( getNextPagePull, 500 );
+	useInterval( getNextPagePull, 1000 );
+
+	const hasImageUploaded = !! media.length;
 
 	return (
 		<div className="jetpack-external-media-wrapper__jetpack_app_media">
-			<div className="jetpack-external-media-wrapper__jetpack_app_media-qr-code-wrapper">
-				<div className="jetpack-external-media-wrapper__jetpack_app_media-qr-code">
-					<QRCode
-						size="80"
-						value={ `https://apps.wordpress.com/get?campaign=qr-code-media&data={post_id:${ postId },site_id:${ wpcomBlogId }}` }
-					/>
+			<JetpackAppIcon />
+			<h2 className="jetpack-external-media-wrapper__jetpack_app_media-title">
+				{ hasImageUploaded && __( 'Photos uploaded!', 'jetpack' ) }
+				{ ! hasImageUploaded && __( 'Upload straight from your phone.', 'jetpack' ) }
+			</h2>
+			<p className="jetpack-external-media-wrapper__jetpack_app_media-description">
+				{ hasImageUploaded &&
+					__( 'You can continue selecting images from your device.', 'jetpack' ) }
+				{ ! hasImageUploaded &&
+					__(
+						'Scan the QR code with your iPhone or Android camera to upload straight from your photos.',
+						'jetpack'
+					) }
+			</p>
+			{ ! hasImageUploaded && (
+				<div className="jetpack-external-media-wrapper__jetpack_app_media-qr-code-wrapper">
+					<div className="jetpack-external-media-wrapper__jetpack_app_media-qr-code">
+						<QRCode
+							size="80"
+							value={ `https://apps.wordpress.com/get?campaign=qr-code-media&data={post_id:${ postId },site_id:${ wpcomBlogId }}` }
+						/>
+					</div>
+					<div className="jetpack-external-media-wrapper__jetpack_app_media-instructions">
+						<img
+							src={ imagePath + 'app-image-upload.png' }
+							srcSet={ `${ imagePath + 'app-image-upload.png' } 1x, ${
+								imagePath + 'app-image-upload-2x.png'
+							} 2x` }
+							alt="Screenshot of the Jetpack mobile app with the media upload highlighted."
+						/>
+					</div>
 				</div>
-				<div className="jetpack-external-media-wrapper__jetpack_app_media-instructions">
-					<ol>
-						<li>{ __( 'Scan the QR code with your phone.', 'jetpack' ) }</li>
-						<li>{ __( 'Select and upload images to your site.', 'jetpack' ) }</li>
-						<li>{ __( 'Insert the images from your phone into the post.', 'jetpack' ) }</li>
-					</ol>
-				</div>
-			</div>
-			{ !! media.length && <h3>{ __( 'Recently uploaded', 'jetpack' ) }</h3> }
+			) }
 			<MediaBrowser
 				key={ 'jetpack-app-media' }
 				className="jetpack-external-media-browser__jetpack_app_media_browser"

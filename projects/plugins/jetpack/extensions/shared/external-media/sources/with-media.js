@@ -284,9 +284,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				// eslint-disable-next-line no-nested-ternary
 
 				const defaultTitle =
-					mediaSource !== 'jetpack_app_media'
-						? __( 'Select media', 'jetpack' )
-						: __( 'Scan QR Code', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+					mediaSource !== 'jetpack_app_media' ? __( 'Select media', 'jetpack' ) : '';
 
 				const title = isCopying ? __( 'Inserting media', 'jetpack' ) : defaultTitle;
 
@@ -305,6 +303,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				const classes = classnames( {
 					'jetpack-external-media-browser': true,
 					'jetpack-external-media-browser--is-copying': isCopying,
+					'is-jetpack-app-media': mediaSource === 'jetpack_app_media',
 				} );
 
 				return (
