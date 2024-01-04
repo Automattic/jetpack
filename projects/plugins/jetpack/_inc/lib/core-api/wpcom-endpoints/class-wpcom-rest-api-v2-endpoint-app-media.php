@@ -43,6 +43,11 @@ class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 					'page_handle' => array(
 						'type' => 'string',
 					),
+					'after'       => array(
+						'description' => __( 'Timestamp since the media was uploaded', 'jetpack' ),
+						'type'        => 'number',
+						'default'     => 0,
+					),
 				),
 			)
 		);
@@ -115,6 +120,11 @@ class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 			'post_type'   => 'attachment',
 			'post_status' => 'inherit',
 			'number'      => $number,
+			'date_query'  => array(
+				'after' => gmdate( DATE_RSS, intval( $params['after'] ) ),
+			),
+			'paged'       => $params['page_handle'],
+			'author'      => get_current_user_id(),
 		);
 		$media_query = new WP_Query( $query_args );
 		$response    = $this->format_response( $media_query );
