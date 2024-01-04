@@ -118,29 +118,6 @@ abstract class Jetpack_Admin_Page {
 
 		// Attach page specific actions in addition to the above.
 		$this->add_page_actions( $hook );
-
-		// If the current user can connect Jetpack, Jetpack isn't connected, and is not in offline mode, let's prompt!
-		if ( current_user_can( 'jetpack_connect' ) && $connectable ) {
-			$this->add_connection_banner_actions();
-		}
-	}
-
-	/**
-	 * Hooks to add when Jetpack is not active or in offline mode for an user capable of connecting.
-	 */
-	private function add_connection_banner_actions() {
-		global $pagenow;
-		// If someone just activated Jetpack, let's show them a fullscreen connection banner.
-		if ( ( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_banner_scripts' ) );
-			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
-			delete_transient( 'activated_jetpack' );
-		}
-
-		// If Jetpack not yet connected, but user is viewing one of the pages with a Jetpack connection banner.
-		if ( ( 'index.php' === $pagenow || 'plugins.php' === $pagenow ) ) {
-			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
-		}
 	}
 
 	/**

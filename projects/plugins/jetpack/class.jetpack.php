@@ -751,6 +751,7 @@ class Jetpack {
 		// Returns HTTPS support status.
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
 
+		// TODO: the conneciton banner has been deprecated - this can be removed in 13.1+
 		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
@@ -3327,11 +3328,6 @@ p {
 		$fallback_no_verify_ssl_certs = Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
 		/** Already documented in automattic/jetpack-connection::src/class-client.php */
 		$client_verify_ssl_certs = apply_filters( 'jetpack_client_verify_ssl_certs', false );
-
-		if ( ! $is_offline_mode ) {
-			Jetpack_Connection_Banner::init();
-			Jetpack_Connection_Widget::init();
-		}
 
 		if ( ( self::is_connection_ready() || $is_offline_mode ) && false === $fallback_no_verify_ssl_certs && ! $client_verify_ssl_certs ) {
 			// Upgrade: 1.1 -> 1.1.1
