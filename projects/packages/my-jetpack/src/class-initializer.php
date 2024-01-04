@@ -43,7 +43,7 @@ class Initializer {
 	const JETPACK_PLUGIN_SLUGS = array(
 		'jetpack-backup',
 		'jetpack-boost',
-		'zero-bs-crm',
+		'zerobscrm',
 		'jetpack',
 		'jetpack-protect',
 		'jetpack-social',
@@ -261,6 +261,13 @@ class Initializer {
 		// check for other Jetpack plugins that are installed on the site (active or not)
 		// If there's more than one Jetpack plugin active, this user is not "new"
 		$plugin_slugs              = array_keys( Plugins_Installer::get_plugins() );
+		$plugin_slugs              = array_map(
+			static function ( $slug ) {
+				$parts = explode( '/', $slug );
+				return str_replace( '.php', '', $parts[ is_countable( $parts ) ? count( $parts ) - 1 : 0 ] );
+			},
+			$plugin_slugs
+		);
 		$installed_jetpack_plugins = array_intersect( self::JETPACK_PLUGIN_SLUGS, $plugin_slugs );
 		if ( is_countable( $installed_jetpack_plugins ) && count( $installed_jetpack_plugins ) >= 2 ) {
 			return false;
