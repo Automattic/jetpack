@@ -1,4 +1,4 @@
-import { AdminPage as JetpackAdminPage, Container, Notice } from '@automattic/jetpack-components';
+import { AdminPage as JetpackAdminPage, Container } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -10,6 +10,7 @@ import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import InterstitialPage from '../interstitial-page';
 import Logo from '../logo';
+import Notice from '../notice';
 import Tabs, { Tab } from '../tabs';
 import styles from './styles.module.scss';
 import useRegistrationWatcher from './use-registration-watcher';
