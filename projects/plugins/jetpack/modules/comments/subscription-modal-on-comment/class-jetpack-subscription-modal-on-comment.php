@@ -171,7 +171,7 @@ class Jetpack_Subscription_Modal_On_Comment {
 				required="required"
 				type="email"
 				name="email"
-				style="border-width: 1px;"
+				style="border-width: 1px !important;"
 				/>
 			<button
 				class="jetpack-subscription-modal__form-submit"
