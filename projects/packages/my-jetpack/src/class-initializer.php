@@ -242,7 +242,7 @@ class Initializer {
 		// Check to see if there's been a heartbeat recorded
 		// This would tell us that the user has been connected at least once in the past,
 		// even if they are disconnected now
-		$last_heartbeat = (int) Jetpack_Options::get_option( 'last_heartbeat' );
+		$last_heartbeat = (int) \Jetpack_Options::get_option( 'last_heartbeat' );
 		if ( $last_heartbeat && $last_heartbeat > 0 ) {
 			return false;
 		}
