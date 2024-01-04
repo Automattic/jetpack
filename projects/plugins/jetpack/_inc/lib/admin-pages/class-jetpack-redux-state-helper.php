@@ -244,6 +244,21 @@ class Jetpack_Redux_State_Helper {
 			'isBlazeDashboardEnabled'     => Blaze::is_dashboard_enabled(),
 			'socialInitialState'          => self::get_publicize_initial_state(),
 			'gutenbergInitialState'       => self::get_gutenberg_initial_state(),
+			'wafInitialState'             => self::get_waf_initial_state(),
+		);
+	}
+
+	/**
+	 * Get information about the WAF module.
+	 *
+	 * @return array
+	 */
+	private static function get_waf_initial_state() {
+		// Check if standalone mode is enabled
+		$waf_standalone_enabled = defined( 'JETPACK_WAF_RUN' ) && JETPACK_WAF_RUN === 'preload';
+
+		return array(
+			'standaloneMode' => $waf_standalone_enabled,
 		);
 	}
 

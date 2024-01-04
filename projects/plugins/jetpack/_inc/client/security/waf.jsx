@@ -1,4 +1,4 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl, ToggleControl, Status } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -22,6 +22,7 @@ import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
 import { ModuleToggle } from '../components/module-toggle';
 import Textarea from '../components/textarea';
+import { getWafState } from '../state/initial-state';
 import { getSetting } from '../state/settings/reducer';
 import { updateWafSettings, updateWafIpAllowList } from '../state/waf/actions';
 import {
@@ -183,6 +184,7 @@ export const Waf = class extends Component {
 
 	render() {
 		const isWafActive = this.props.getOptionValue( 'waf' );
+		const standaloneMode = isWafActive ? this.props.wafInfo?.standaloneMode : false;
 		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
 		const baseInputDisabledCase =
 			! isWafActive ||
@@ -201,6 +203,13 @@ export const Waf = class extends Component {
 				>
 					{ _x( 'NEW', 'Settings header badge', 'jetpack' ) }
 				</a>
+				{ standaloneMode && (
+					<Status
+						className="waf__standalone__mode"
+						status="active"
+						label={ __( 'Standalone mode', 'jetpack' ) }
+					/>
+				) }
 			</div>
 		);
 
@@ -491,6 +500,7 @@ export default connect(
 			settings: getWafSettings( state ),
 			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 			sitePlan,
+			wafInfo: getWafState( state ),
 		};
 	},
 	dispatch => {
