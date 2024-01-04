@@ -238,6 +238,9 @@ class Initializer {
 			return false;
 		}
 
+		// TODO: add a data point to check if the user has been connected before in the past
+		// This would best be stored in Jetpack Options after a successful connection
+
 		// are any modules active?
 		$modules        = new Modules();
 		$active_modules = $modules->get_active();
