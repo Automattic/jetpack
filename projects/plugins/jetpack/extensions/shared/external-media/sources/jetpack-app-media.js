@@ -39,6 +39,8 @@ function JetpackAppMedia( props ) {
 	const wpcomBlogId = window?.Jetpack_Editor_Initial_State?.wpcomBlogId || 0;
 	const imagePath = window?.Jetpack_Editor_Initial_State?.pluginBasePath + '/images/';
 	const postId = select( editorStore ).getCurrentPostId();
+	// get the current time and store it in the state
+	const [ currentTime ] = useState( Date.now() / 1000 );
 	const getNextPage = useCallback( () => {
 		getMedia( `/wpcom/v2/app-media?refresh=true&after=${ currentTime }`, true );
 	}, [ getMedia, currentTime ] );
@@ -53,8 +55,6 @@ function JetpackAppMedia( props ) {
 		},
 		[ insertMedia ]
 	);
-	// get the current time and store it in the state
-	const [ currentTime ] = useState( Date.now() / 1000 );
 
 	// Load initial results for the random example query. Only do it once.
 	useEffect( getNextPage, [] ); // eslint-disable-line react-hooks/exhaustive-deps
@@ -82,8 +82,8 @@ function JetpackAppMedia( props ) {
 				<div className="jetpack-external-media-wrapper__jetpack_app_media-qr-code-wrapper">
 					<div className="jetpack-external-media-wrapper__jetpack_app_media-qr-code">
 						<QRCode
-							size="80"
-							value={ `https://apps.wordpress.com/get?campaign=qr-code-media&data={post_id:${ postId },site_id:${ wpcomBlogId }}` }
+							size="120"
+							value={ `https://apps.wordpress.com/get?campaign=qr-code-media&data={post_id:${ postId },site_id:${ wpcomBlogId }}#media` }
 						/>
 					</div>
 					<div className="jetpack-external-media-wrapper__jetpack_app_media-instructions">
