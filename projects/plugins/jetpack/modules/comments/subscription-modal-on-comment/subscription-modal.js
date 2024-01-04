@@ -57,8 +57,6 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
 		iframeElement.src = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
 
-		window.scrollTo( 0, 0 );
-
 		modalContainer.classList.add( 'has-iframe' );
 
 		window.addEventListener( 'message', handleSubscriptionModalIframeResult, false );

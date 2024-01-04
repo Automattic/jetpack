@@ -133,9 +133,9 @@ class Jetpack_Subscription_Modal_On_Comment {
 	 * @return string
 	 */
 	public function get_subscribe_template_content() {
-		$discover_more_from = __( 'Never miss a beat!', 'jetpack' );
-		$subscribe_text     = __( 'Interested in getting blog post updates? Simply click the button below to stay in the loop!', 'jetpack' );
-		$subscribe_button   = __( 'Subscribe', 'jetpack' );
+		$discover_more_from = __( 'Never miss a beat!', 'default' ); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
+		$subscribe_text     = __( 'Interested in getting blog post updates? Simply click the button below to stay in the loop!', 'default' ); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
+		$subscribe_button   = __( 'Subscribe', 'default' ); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
 
 		return <<<HTML
 	<!-- wp:group -->
