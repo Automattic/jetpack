@@ -1,10 +1,12 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-namespace Automattic\Jetpack\Backup;
+// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
+// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
+// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
+// are installed, or in some other cases).
+namespace Automattic\Jetpack\Backup\V0001;
 
 use PHPUnit\Framework\TestCase;
-
-require_once __DIR__ . '/../../src/class-jetpack-backup.php';
 
 /**
  * Unit tests for storage addon fetch
@@ -44,7 +46,7 @@ class Test_Storage_Addon_Upsell extends TestCase {
 	public function test_storage_addon_upsell_offer( $storage_used, $storage_limit, $expected_addon ) {
 		$this->assertEquals(
 			$expected_addon,
-			\Jetpack_Backup::get_storage_addon_upsell_slug( $storage_used, $storage_limit )
+			Jetpack_Backup::get_storage_addon_upsell_slug( $storage_used, $storage_limit )
 		);
 	}
 }
