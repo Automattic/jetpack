@@ -120,7 +120,7 @@ export default function MyJetpackScreen() {
 	}
 
 	return (
-		<AdminPage>
+		<AdminPage siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }>
 			<IDCModal />
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 0 }>
