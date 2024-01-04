@@ -1,0 +1,38 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.ai-assistant-onboarding-guide {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        padding: 1rem 1rem 1.5rem 1rem;
+
+        h2, p {
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        p {
+            font-size: 0.875rem;
+            line-height: 1.7;
+        }
+
+        p > strong {
+            font-weight: 700;
+        }
+    }
+}
+
+.components-guide {
+    max-width: 400px;
+}

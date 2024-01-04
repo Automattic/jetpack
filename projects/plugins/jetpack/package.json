@@ -58,7 +58,6 @@
 		"@automattic/popup-monitor": "1.0.2",
 		"@automattic/request-external-access": "1.0.0",
 		"@automattic/social-previews": "2.0.1-beta.10",
-		"@automattic/tour-kit": "1.1.1",
 		"@automattic/viewport": "1.0.0",
 		"@microsoft/fetch-event-source": "2.0.1",
 		"@wordpress/base-styles": "4.39.0",
