@@ -1499,7 +1499,7 @@ class WPCOM_Features {
 		foreach ( $products_map as $product_definition ) {
 
 			if ( ! empty( $product_definition['product_type'] ) ) {
-				if ( in_array( $purchase->product_type, $product_definition['product_type'], true ) ) {
+				if ( ! empty( $purchase->product_type ) && in_array( $purchase->product_type, $product_definition['product_type'], true ) ) {
 					return true;
 				}
 				continue;
