@@ -125,6 +125,7 @@ class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 			),
 			'paged'       => $params['page_handle'],
 			'author'      => get_current_user_id(),
+			'orderby'     => 'date',
 		);
 		$media_query = new WP_Query( $query_args );
 		$response    = $this->format_response( $media_query );
