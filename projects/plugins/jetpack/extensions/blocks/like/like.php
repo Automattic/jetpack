@@ -124,29 +124,6 @@ function render_block( $attr, $content, $block ) {
 }
 
 /**
- * Add the initial state for the Like block in the editor
- */
-function add_like_block_data() {
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$blog_id = get_current_blog_id();
-	} else {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
-	}
-
-	$like_block_data = array(
-		'blog_id' => $blog_id,
-	);
-
-	wp_add_inline_script(
-		'jetpack-blocks-editor',
-		'var Jetpack_LikeBlock = ' . wp_json_encode( $like_block_data, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
-		'before'
-	);
-}
-
-add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\add_like_block_data' );
-
-/**
  * Helper function to determine whether the Like module has been disabled
  */
 function is_legacy_likes_disabled() {
