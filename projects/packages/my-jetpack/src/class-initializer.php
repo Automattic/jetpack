@@ -242,7 +242,7 @@ class Initializer {
 		$modules        = new Modules();
 		$active_modules = $modules->get_active();
 		// if the Jetpack plugin is active, filter out the modules that are active by default
-		if ( class_exists( 'Jetpack' ) ) {
+		if ( class_exists( 'Jetpack' ) && ! empty( $active_modules ) ) {
 			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
 		}
 		if ( ! empty( $active_modules ) ) {

@@ -238,16 +238,16 @@ class Wpcom_Products {
 	 * @return Object|WP_Error
 	 */
 	public static function get_site_current_purchases() {
-		// Check for a cached value
-		$stored_purchases = get_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
-		if ( $stored_purchases !== false ) {
-			return $stored_purchases;
-		}
-
 		static $purchases = null;
 
 		if ( $purchases !== null ) {
 			return $purchases;
+		}
+
+		// Check for a cached value before doing lookup
+		$stored_purchases = get_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+		if ( $stored_purchases !== false ) {
+			return $stored_purchases;
 		}
 
 		$site_id = Jetpack_Options::get_option( 'id' );
