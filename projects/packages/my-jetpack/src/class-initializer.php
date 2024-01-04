@@ -239,8 +239,13 @@ class Initializer {
 			return false;
 		}
 
-		// TODO: add a data point to check if the user has been connected before in the past
-		// This would best be stored in Jetpack Options after a successful connection
+		// Check to see if there's been a heartbeat recorded
+		// This would tell us that the user has been connected at least once in the past,
+		// even if they are disconnected now
+		$last_heartbeat = (int) Jetpack_Options::get_option( 'last_heartbeat' );
+		if ( $last_heartbeat && $last_heartbeat > 0 ) {
+			return false;
+		}
 
 		// are any modules active?
 		$modules        = new Modules();
