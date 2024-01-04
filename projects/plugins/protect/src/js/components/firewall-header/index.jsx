@@ -256,12 +256,10 @@ const ConnectedFirewallHeader = () => {
 		isToggling,
 		wafSupported,
 		standaloneMode,
+		isEnabled,
 	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
-	const currentStatus =
-		( wafSupported && ( jetpackWafAutomaticRules || jetpackWafIpList ) ) || bruteForceProtection
-			? 'on'
-			: 'off';
+	const currentStatus = isEnabled ? 'on' : 'off';
 
 	return (
 		<FirewallHeader
