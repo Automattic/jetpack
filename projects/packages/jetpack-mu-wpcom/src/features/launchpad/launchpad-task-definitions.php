@@ -575,15 +575,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/site-editor/' . $data['site_slug_encoded'] . '/?canvas=edit&help-center=subscribe-block';
 			},
 		),
-		'blogname_set'                       => array(
-			'get_title'            => function () {
-				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/settings/general/' . $data['site_slug_encoded'];
-			},
-		),
 		'mobile_app_installed'               => array(
 			'get_title'            => function () {
 				return __( 'Install the mobile app', 'jetpack-mu-wpcom' );
@@ -1904,6 +1895,27 @@ function wpcom_launchpad_mark_customize_welcome_message_complete_on_add( $value 
 	}
 }
 add_action( 'add_option_subscription_options', 'wpcom_launchpad_mark_customize_welcome_message_complete_on_add', 10, 1 );
+
+/**
+ * Mark the WooCommerce setup task as complete the setup task list is in
+ * the completed list or in the hidden list.
+ *
+ * @param string $old_value The old value of the option.
+ * @param string $value The new value of the option.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_woocommerce_setup_complete( $old_value, $value ) {
+	if ( ! in_array( 'setup', $value, true ) ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'woocommerce_setup' );
+}
+add_action( 'update_option_woocommerce_task_list_completed_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
+add_action( 'add_option_woocommerce_task_list_completed_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
+add_action( 'update_option_woocommerce_task_list_hidden_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
+add_action( 'add_option_woocommerce_task_list_hidden_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
 
 /**
  * When a page is updated, check to see if we've already completed the `add_new_page` task and mark the `edit_page` task complete accordingly.

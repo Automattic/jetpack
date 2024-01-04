@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Uses the Site Title task instead of the blogname_set task.

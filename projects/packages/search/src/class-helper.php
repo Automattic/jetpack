@@ -849,7 +849,7 @@ class Helper {
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
 		$options = array(
-			'overlayOptions'        => array(
+			'overlayOptions'              => array(
 				'colorTheme'                  => get_option( $prefix . 'color_theme', 'light' ),
 				'enableInfScroll'             => get_option( $prefix . 'inf_scroll', '1' ) === '1',
 				'enableFilteringOpensOverlay' => get_option( $prefix . 'filtering_opens_overlay', '1' ) === '1',
@@ -866,26 +866,36 @@ class Helper {
 			),
 
 			// core config.
-			'homeUrl'               => home_url(),
-			'locale'                => str_replace( '_', '-', self::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
-			'postsPerPage'          => $posts_per_page,
-			'siteId'                => self::get_wpcom_site_id(),
-			'postTypes'             => $post_type_labels,
-			'webpackPublicPath'     => plugins_url( '/build/instant-search/', __DIR__ ),
-			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
-			'isFreePlan'            => ( new Plan() )->is_free_plan(),
+			'homeUrl'                     => home_url(),
+			'locale'                      => str_replace( '_', '-', self::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
+			'postsPerPage'                => $posts_per_page,
+			'siteId'                      => self::get_wpcom_site_id(),
+			'postTypes'                   => $post_type_labels,
+			'webpackPublicPath'           => plugins_url( '/build/instant-search/', __DIR__ ),
+			'isPhotonEnabled'             => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
+			'isFreePlan'                  => ( new Plan() )->is_free_plan(),
 
 			// config values related to private site support.
-			'apiRoot'               => esc_url_raw( rest_url() ),
-			'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-			'isPrivateSite'         => $is_private_site,
-			'isWpcom'               => $is_wpcom,
+			'apiRoot'                     => esc_url_raw( rest_url() ),
+			'apiNonce'                    => wp_create_nonce( 'wp_rest' ),
+			'isPrivateSite'               => $is_private_site,
+			'isWpcom'                     => $is_wpcom,
 
 			// widget info.
-			'hasOverlayWidgets'     => is_countable( $overlay_widget_ids ) && count( $overlay_widget_ids ) > 0,
-			'widgets'               => array_values( $widgets ),
-			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
-			'hasNonSearchWidgets'   => $has_non_search_widgets,
+			'hasOverlayWidgets'           => is_countable( $overlay_widget_ids ) && count( $overlay_widget_ids ) > 0,
+			'widgets'                     => array_values( $widgets ),
+			'widgetsOutsideOverlay'       => array_values( $widgets_outside_overlay ),
+			'hasNonSearchWidgets'         => $has_non_search_widgets,
+			/**
+			 * Whether to prevent tracking cookie reset. More information `pbmxuV-39H-p2`.
+			 *
+			 * @module search
+			 *
+			 * @since $next-version$
+			 *
+			 * @param bool Prevent cookie reset for automattic sites as default value.
+			 */
+			'preventTrackingCookiesReset' => apply_filters( 'jetpack_instant_search_prevent_tracking_cookies_reset', function_exists( 'is_automattic' ) && is_automattic() ),
 		);
 
 		/**

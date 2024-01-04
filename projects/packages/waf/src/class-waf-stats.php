@@ -53,10 +53,10 @@ class Waf_Stats {
 	 *
 	 * @return bool|string False if value is not found. The current stored rules version if cache is found.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Waf\Waf_Stats::get_automatic_rules_last_updated() to version the rules instead.
+	 * @deprecated 0.12.3 Use Automattic\Jetpack\Waf\Waf_Stats::get_automatic_rules_last_updated() to version the rules instead.
 	 */
 	public static function get_rules_version() {
-		_deprecated_function( __METHOD__, 'waf-$$next-version$$', 'Automattic\Jetpack\Waf\Waf_Stats::get_automatic_rules_last_updated' );
+		_deprecated_function( __METHOD__, 'waf-0.12.3', 'Automattic\Jetpack\Waf\Waf_Stats::get_automatic_rules_last_updated' );
 
 		return get_option( Waf_Rules_Manager::VERSION_OPTION_NAME );
 	}
