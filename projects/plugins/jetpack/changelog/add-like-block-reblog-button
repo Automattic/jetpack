@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+In editor view, the Like block now shows or hides the reblog button according to sidebar config
