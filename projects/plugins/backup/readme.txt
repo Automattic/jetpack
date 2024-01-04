@@ -1,5 +1,5 @@
 === Jetpack VaultPress Backup ===
-Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
+Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, pypt, samiff, sermitr, williamvianas
 Tags: jetpack, backup, restore
 Requires at least: 6.3
 Requires PHP: 7.0

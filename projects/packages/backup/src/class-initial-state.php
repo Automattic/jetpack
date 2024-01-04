@@ -5,10 +5,25 @@
  * @package automattic/jetpack-backup-plugin
  */
 
-namespace Automattic\Jetpack\Backup;
+// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
+// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
+// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
+// are installed, or in some other cases).
+namespace Automattic\Jetpack\Backup\V0001;
 
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Status;
+use Jetpack_Options;
+use function add_action;
+use function admin_url;
+use function esc_url;
+use function esc_url_raw;
+use function get_bloginfo;
+use function get_site_url;
+use function plugins_url;
+use function rest_url;
+use function wp_create_nonce;
+use function wp_json_encode;
 
 /**
  * The React initial state.
@@ -31,7 +46,7 @@ class Initial_State {
 			),
 			'connectedPlugins' => Connection_Plugin_Storage::get_all(),
 			'siteData'         => array(
-				'id'       => \Jetpack_Options::get_option( 'id' ),
+				'id'       => Jetpack_Options::get_option( 'id' ),
 				'title'    => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
 				'adminUrl' => esc_url( admin_url() ),
 			),
