@@ -1167,7 +1167,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "0d1ea60cf2c7a86d515ae071330395de358d3791"
+				"reference": "a27d51d101dd1ddd776afadecb0d0faf77fc634a"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1193,7 +1193,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.29.x-dev"
+					"dev-trunk": "0.30.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -2587,7 +2587,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/videopress",
-				"reference": "c839f6ca2f5d150942dee198242e303d3a45e56e"
+				"reference": "ccaf247242c5ee95ce5ac179ef65b402ed56da49"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2613,7 +2613,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.21.x-dev"
+					"dev-trunk": "0.22.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-package-version.php"
