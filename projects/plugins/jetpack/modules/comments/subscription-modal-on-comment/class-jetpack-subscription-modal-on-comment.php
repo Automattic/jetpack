@@ -165,18 +165,19 @@ class Jetpack_Subscription_Modal_On_Comment {
 		<!-- /wp:paragraph -->
 
 		<!-- wp:group {"style":{"spacing":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
-		<div class="jetpack-subscription-modal__form">
+		<form class="jetpack-subscription-modal__form">
 			<input
 				class="jetpack-subscription-modal__form-email"
 				required="required"
 				type="email"
 				name="email"
+				style="border-width: 1px;"
 				/>
 			<button
 				class="jetpack-subscription-modal__form-submit"
 				type="submit"
 				name="jetpack_subscriptions_widget" >$subscribe_button</button>
-		</div>
+		</form>
 		<!-- /wp:group -->
 	</div>
 	<!-- /wp:group -->

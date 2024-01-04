@@ -6,9 +6,8 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	}
 
 	const close = document.getElementsByClassName( 'jetpack-subscription-modal__close' )[ 0 ];
-	const subscribeBtn = document.getElementsByClassName(
-		'jetpack-subscription-modal__form-submit'
-	)[ 0 ];
+	const subscribeForms = document.querySelectorAll( '.jetpack-subscription-modal__form' );
+
 	let redirectUrl = '';
 	let subscriptionData = '';
 	let hasLoaded = false;
@@ -63,9 +62,6 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		modalContainer.classList.add( 'has-iframe' );
 
 		window.addEventListener( 'message', handleSubscriptionModalIframeResult, false );
-
-		// This line has to come after the Thickbox has opened otherwise Firefox doesnt scroll to the top.
-		window.scrollTo( 0, 0 );
 	}
 
 	function JetpackSubscriptionModalOnCommentMessageListener( event ) {
@@ -137,11 +133,23 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		};
 	}
 
-	if ( subscribeBtn ) {
-		subscribeBtn.onclick = function () {
+	subscribeForms.forEach( form => {
+		form.addEventListener( 'submit', function ( event ) {
+			if ( form.resubmitted ) {
+				return;
+			}
+
+			const emailInput = form.querySelector( 'input[type=email]' );
+			const email = emailInput ? emailInput.value : form.dataset.subscriber_email;
+
+			if ( ! email ) {
+				return;
+			}
+			event.preventDefault();
 			showSubscriptionIframe( subscriptionData );
-		};
-	}
+			return;
+		} );
+	} );
 
 	window.onclick = function ( event ) {
 		if ( event.target === modal ) {

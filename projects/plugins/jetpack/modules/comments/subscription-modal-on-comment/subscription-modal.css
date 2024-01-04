@@ -106,7 +106,7 @@
 }
 
 .jetpack-subscription-modal__form-email {
-flex: 1;
+	flex: 1;
     font-size: 16px;
     line-height: 28px;
     padding: 15px 23px 15px 23px !important;
@@ -117,6 +117,9 @@ flex: 1;
     border-start-end-radius: 0 !important;
     border-style: solid !important;
     outline: none;
+}
+.jetpack-subscription-modal__form-email:focus {
+	outline: none !important;
 }
 .jetpack-subscription-modal__form-submit {
 	font-size: 16px;
