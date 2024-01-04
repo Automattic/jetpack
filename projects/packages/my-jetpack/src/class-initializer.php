@@ -48,6 +48,7 @@ class Initializer {
 		'jetpack-protect',
 		'jetpack-social',
 		'jetpack-videopress',
+		'jetpack-search',
 	);
 
 	/**
