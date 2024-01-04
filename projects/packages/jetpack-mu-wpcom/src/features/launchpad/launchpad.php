@@ -717,6 +717,9 @@ function wpcom_launchpad_is_task_list_dismissed( $checklist_slug ) {
  * @return bool True if the Launchpad is dismissible, false otherwise.
  */
 function wpcom_launchpad_is_task_list_dismissible( $checklist_slug ) {
+	if ( false === $checklist_slug ) {
+		return false;
+	}
 	return wpcom_launchpad_checklists()->is_task_list_dismissible( $checklist_slug );
 }
 
