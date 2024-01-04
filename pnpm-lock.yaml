@@ -981,17 +981,17 @@ importers:
         specifier: workspace:*
         version: link:../shared-extension-utils
       '@wordpress/api-fetch':
-        specifier: 6.44.0
-        version: 6.44.0
+        specifier: 6.45.0
+        version: 6.45.0
       '@wordpress/element':
-        specifier: 5.24.0
-        version: 5.24.0
+        specifier: 5.25.0
+        version: 5.25.0
       '@wordpress/i18n':
-        specifier: 4.47.0
-        version: 4.47.0
+        specifier: 4.48.0
+        version: 4.48.0
       '@wordpress/url':
-        specifier: 3.48.0
-        version: 3.48.0
+        specifier: 3.49.0
+        version: 3.49.0
       debug:
         specifier: 4.3.4
         version: 4.3.4
@@ -1024,8 +1024,8 @@ importers:
         specifier: 7.4.6
         version: 7.4.6(react-dom@18.2.0)(react@18.2.0)(typescript@5.0.4)
       '@testing-library/react':
-        specifier: 13.4.0
-        version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
+        specifier: 14.1.2
+        version: 14.1.2(react-dom@18.2.0)(react@18.2.0)
       '@types/jest':
         specifier: 29.5.10
         version: 29.5.10
@@ -1033,8 +1033,8 @@ importers:
         specifier: 18.2.33
         version: 18.2.33
       '@wordpress/babel-plugin-import-jsx-pragma':
-        specifier: 4.30.0
-        version: 4.30.0(@babel/core@7.23.5)
+        specifier: 4.31.0
+        version: 4.31.0(@babel/core@7.23.5)
       babel-jest:
         specifier: 29.7.0
         version: 29.7.0(@babel/core@7.23.5)
@@ -11075,20 +11075,6 @@ packages:
       preact: 10.12.1
     dev: true
 
-  /@testing-library/react@13.4.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-sXOGON+WNTh3MLE9rve97ftaZukN3oNf2KjDy7YTx6hcTO2uuLHuCGynMDhFwGw/jYf4OJ2Qk0i4i79qMNNkyw==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
-    dependencies:
-      '@babel/runtime': 7.23.5
-      '@testing-library/dom': 8.20.1
-      '@types/react-dom': 18.2.14
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: true
-
   /@testing-library/react@14.1.2(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-z4p7DVBTPjKM5qDZ0t5ZjzkpSNb+fZy1u6bzO7kk8oeGagpPCAtgh4cx1syrfp7a+QWkM021jGqjJaxJJnXAZg==}
     engines: {node: '>=14'}
@@ -11303,6 +11289,13 @@ packages:
     resolution: {integrity: sha512-pk2B1NWalF9toCRu6gjBzR69syFjP4Od8WRAX+0mmf9lAjCRicLOWc+ZrxZHx/0XRjotgkF9t6iaMJ+aXcOdZQ==}
     dependencies:
       '@types/istanbul-lib-report': 3.0.3
+
+  /@types/jest@29.5.10:
+    resolution: {integrity: sha512-tE4yxKEphEyxj9s4inideLHktW/x6DwesIwWZ9NN1FKf9zbJYsnhBoA9vrHA/IuIOKwPa5PcFBNV4lpMIOEzyQ==}
+    dependencies:
+      expect: 29.7.0
+      pretty-format: 29.7.0
+    dev: true
 
   /@types/jest@29.5.11:
     resolution: {integrity: sha512-S2mHmYIVe13vrm6q4kN6fLYYAka15ALQki/vgDC3mIukEOx8WJlv0kQPM+d4w8Gp6u0uSdKND04IlTXBv0rwnQ==}
