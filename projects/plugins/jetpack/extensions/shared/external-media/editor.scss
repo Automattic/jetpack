@@ -90,6 +90,22 @@ $grid-size: 8px;
 		margin-top: 0;
 		padding: 32px 32px 0;
 	}
+
+	.jetpack-external-media-browser__media__item {
+		opacity: 1;
+		animation: animate-drop 0.3s ease;
+	}
+}
+
+@keyframes animate-drop {
+	0% {
+		opacity: 0;
+		transform: translateY(-100%);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .jetpack-external-media-wrapper__jetpack_app_media-title {
@@ -119,6 +135,7 @@ $grid-size: 8px;
 	right: 32px;
 	bottom: 0;
 	display: none;
+
 	@media only screen and ( min-width: 600px ) {
 		display: inline;
 	}
