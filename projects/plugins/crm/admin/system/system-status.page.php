@@ -273,7 +273,7 @@ function zeroBSCRM_render_systemstatus_page() {
 		if ( is_array( $creationErrors ) && isset( $creationErrors['lasttried'] ) ) {
 
 			// has persistent SQL creation errors
-			$generalErrors['creationsql'] = __( 'Jetpack CRM experienced errors while trying to build it\'s database tables. Please contact support sharing the following errors:', 'zero-bs-crm' ) . ' (#306sql)';
+			$generalErrors['creationsql'] = __( 'Jetpack CRM experienced errors while trying to build its database tables. Please contact support sharing the following errors:', 'zero-bs-crm' ) . ' (#306sql)'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			if ( is_array( $creationErrors['errors'] ) ) {
 				foreach ( $creationErrors['errors'] as $err ) {
 
