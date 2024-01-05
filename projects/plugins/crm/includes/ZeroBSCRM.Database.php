@@ -987,6 +987,10 @@ function zeroBSCRM_db_runDelta($sql=''){
  */
 function zeroBSCRM_DB_canInnoDB(){
 
+	if ( jpcrm_database_engine() === 'sqlite' ) {
+		return false;
+	}
+
     global $wpdb;
 
     // attempt to cycle through MySQL's ENGINES & discern InnoDB
