@@ -1016,24 +1016,40 @@ function zeroBSCRM_DB_canInnoDB(){
 
 }
 
-function zeroBSCRM_database_getVersion(){
+/**
+ * Get info about the database engine.
+ *
+ * @param boolean $pretty Retrieve a user-friendly label instead of a slug.
+ *
+ * @return string
+ */
+function jpcrm_database_engine( $pretty = false ) {
 	global $zbs;
-	return $zbs->database_server_info['raw_version'];
+	if ( $pretty ) {
+		return $zbs->database_server_info['db_engine_label'];
+	}
+	return $zbs->database_server_info['db_engine'];
 }
 
-// determine if current database server is MariaDB
-function jpcrm_database_server_is_mariadb() {
+/**
+ * Get the database version.
+ *
+ * @return string
+ */
+function zeroBSCRM_database_getVersion() {
 	global $zbs;
-	return $zbs->database_server_info['is_mariadb'];
+	return $zbs->database_server_info['raw_version'];
 }
 
 function jpcrm_database_server_has_ability( $ability_name ) {
 	global $zbs;
 	$db_server_version = zeroBSCRM_database_getVersion();
-	$is_mariadb = jpcrm_database_server_is_mariadb();
+	$db_engine         = $zbs->database_server_info['db_engine'];
 
 	if ( $ability_name === 'fulltext_index' ) {
-		if ( $is_mariadb ) {
+		if ( $db_engine === 'sqlite' ) {
+			return false;
+		} elseif ( $db_engine === 'mariadb' ) {
 			// first stable 10.x release
 			return version_compare( $db_server_version, '10.0.10', '>=' );
 		} else {

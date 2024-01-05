@@ -319,7 +319,7 @@ function zeroBSCRM_render_systemstatus_page() {
 							'corever'       => 'CRM Core Version',
 							'dbver'         => 'Database Version',
 							'dalver'        => 'DAL Version',
-							'mysql'         => 'MySQL Version',
+							'dbserver'      => 'Database Server (version)',
 							'innodb'        => 'InnoDB Storage Engine',
 							'sqlrights'     => 'SQL Permissions',
 							'locale'        => 'Locale',
