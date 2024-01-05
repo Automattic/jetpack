@@ -1,8 +1,10 @@
 import { Container, Col, Button, Text } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { useEffect, useCallback, useState } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import useWelcomeBanner from '../../hooks/use-welcome-banner';
 import { CardWrapper } from '../card';
 import styles from './style.module.scss';
@@ -16,6 +18,9 @@ const WelcomeBanner = () => {
 	const { recordEvent } = useAnalytics();
 	const { hasBeenDismissed, dismissWelcomeBanner } = useWelcomeBanner();
 	const [ bannerVisible, setBannerVisible ] = useState( ! hasBeenDismissed );
+	const { isRegistered, isUserConnected } = useConnection();
+	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
+	const shouldDisplayConnectionButton = ! isRegistered || ! isUserConnected;
 
 	useEffect( () => {
 		if ( bannerVisible ) {
@@ -28,6 +33,11 @@ const WelcomeBanner = () => {
 		setBannerVisible( false );
 		dismissWelcomeBanner();
 	}, [ recordEvent, dismissWelcomeBanner ] );
+
+	const onFinishConnectionClick = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_welcome_banner_finish_connection_click' );
+		navigateToConnectionPage();
+	}, [ recordEvent, navigateToConnectionPage ] );
 
 	if ( ! bannerVisible ) {
 		return null;
@@ -43,21 +53,26 @@ const WelcomeBanner = () => {
 						className={ styles[ 'banner-content' ] }
 					>
 						<Col sm={ 6 } md={ 8 } lg={ 6 } className={ styles[ 'banner-description' ] }>
-							<Text variant="headline-small" mb={ 4 }>
+							<Text variant="headline-small" mb={ 3 }>
 								{ __( 'Welcome to Jetpack!', 'jetpack-my-jetpack' ) }
 							</Text>
-							<Text variant="body" mb={ 3 }>
+							<Text variant="body" mb={ 2 }>
 								{ __(
 									'Jetpack is a suite of security, performance, and growth tools made for WordPress sites by the WordPress experts.',
 									'jetpack-my-jetpack'
 								) }
 							</Text>
-							<Text variant="body">
+							<Text variant="body" mb={ shouldDisplayConnectionButton ? 2 : 0 }>
 								{ __(
 									'It’s the ultimate toolkit for best-in-class websites, with everything you need to grow your business. Choose a plan below to get started.',
 									'jetpack-my-jetpack'
 								) }
 							</Text>
+							{ shouldDisplayConnectionButton && (
+								<Button variant="primary" onClick={ onFinishConnectionClick }>
+									{ __( 'Finish setting up Jetpack', 'jetpack-my-jetpack' ) }
+								</Button>
+							) }
 						</Col>
 						<Col sm={ 6 } md={ 8 } lg={ 6 } className={ styles[ 'banner-image' ] }></Col>
 					</Container>
