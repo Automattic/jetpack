@@ -201,40 +201,16 @@ function JetpackLikesMessageListener( event ) {
 			break;
 
 		case 'hideOtherGravatars': {
-			const iframe = window.document.querySelector( `iframe[name='${ data.parent }']` );
-
-			if (
-				iframe &&
-				iframe.nextElementSibling &&
-				iframe.nextElementSibling.id === 'likes-other-gravatars'
-			) {
-				iframe.nextElementSibling.remove();
-			}
-
+			hideLikersPopover();
 			break;
 		}
 
 		case 'showOtherGravatars': {
-			const basePopover = document.querySelector( '#likers-base-popover' );
+			const container = document.querySelector( '#likes-other-gravatars' );
 
-			if ( ! basePopover ) {
+			if ( ! container ) {
 				break;
 			}
-
-			const iframe = window.document.querySelector( `iframe[name='${ data.parent }']` );
-
-			// Toggle the popover off if it's already open
-			if (
-				iframe &&
-				iframe.nextElementSibling &&
-				iframe.nextElementSibling.id === 'likes-other-gravatars'
-			) {
-				iframe.nextElementSibling.remove();
-				break;
-			}
-
-			const container = basePopover.cloneNode( true );
-			container.id = 'likes-other-gravatars';
 
 			const newLayout = container.classList.contains( 'wpl-new-layout' );
 
@@ -253,7 +229,7 @@ function JetpackLikesMessageListener( event ) {
 					.forEach( item => ( item.textContent = data.total ) );
 			}
 
-			( data.likers || [] ).forEach( liker => {
+			( data.likers || [] ).forEach( async ( liker, index ) => {
 				if ( liker.profile_URL.substr( 0, 4 ) !== 'http' ) {
 					// We only display gravatars with http or https schema
 					return;
@@ -262,35 +238,50 @@ function JetpackLikesMessageListener( event ) {
 				const element = document.createElement( 'li' );
 				if ( newLayout ) {
 					element.innerHTML = `
-						<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-							<img src="${ encodeURI( liker.avatar_URL ) }"
-								alt=""
-								style="width: 28px; height: 28px;" />
-							<span></span>
-						</a>
-					`;
+					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
+						<img src="${ encodeURI( liker.avatar_URL ) }"
+							alt=""
+							style="width: 28px; height: 28px;" />
+						<span></span>
+					</a>
+				`;
 				} else {
 					element.innerHTML = `
-						<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-							<img src="${ encodeURI( liker.avatar_URL ) }"
-								alt=""
-								style="width: 30px; height: 30px; padding-right: 3px;" />
-						</a>
-					`;
+					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
+						<img src="${ encodeURI( liker.avatar_URL ) }"
+							alt=""
+							style="width: 30px; height: 30px; padding-right: 3px;" />
+					</a>
+				`;
 				}
 
 				list.append( element );
 
 				// Add some extra attributes through native methods, to ensure strings are sanitized.
 				element.classList.add( liker.css_class );
-				element.querySelector( 'img' ).alt = liker.name;
+				element.querySelector( 'img' ).alt = data.avatarAltTitle.replace( '%s', liker.name );
+
 				if ( newLayout ) {
 					element.querySelector( 'span' ).innerText = liker.name;
 				}
+
+				if ( index === data.likers.length - 1 ) {
+					element.addEventListener( 'keydown', e => {
+						if ( e.key === 'Tab' && ! e.shiftKey ) {
+							e.preventDefault();
+							hideLikersPopover();
+
+							JetpackLikesPostMessage(
+								{ event: 'focusLikesCount', parent: data.parent },
+								window.frames[ 'likes-master' ]
+							);
+						}
+					} );
+				}
 			} );
 
-			const basePopoverStyle = getComputedStyle( basePopover );
-			const isRtl = basePopoverStyle.direction === 'rtl';
+			const containerStyle = getComputedStyle( container );
+			const isRtl = containerStyle.direction === 'rtl';
 
 			const el = document.querySelector( `*[name='${ data.parent }']` );
 			const rect = el.getBoundingClientRect();
@@ -301,17 +292,16 @@ function JetpackLikesMessageListener( event ) {
 			};
 
 			if ( newLayout ) {
-				// Due to the additional title on Jetpack, we need to position the popover differently
-				let parent = el.parentElement.getBoundingClientRect();
-				container.style.top = rect.top - parent.top + 'px';
+				container.style.top = offset.top + data.position.top - 1 + 'px';
 
 				if ( isRtl ) {
 					const visibleAvatarsCount = data && data.likers ? Math.min( data.likers.length, 5 ) : 0;
 					// 24px is the width of the avatar + 4px is the padding between avatars
-					container.style.left = data.position.left + 24 * visibleAvatarsCount + 4 + 'px';
+					container.style.left =
+						offset.left + data.position.left + 24 * visibleAvatarsCount + 4 + 'px';
 					container.style.transform = 'translateX(-100%)';
 				} else {
-					container.style.left = data.position.left + 'px';
+					container.style.left = offset.left + data.position.left + 'px';
 				}
 			} else {
 				container.style.left = offset.left + data.position.left - 10 + 'px';
@@ -332,31 +322,27 @@ function JetpackLikesMessageListener( event ) {
 
 				const listWidth = rowLength * 37;
 				list.style.width = listWidth + 'px';
-
-				const scrollbarWidth = list.offsetWidth - list.clientWidth;
-				if ( scrollbarWidth > 0 ) {
-					container.style.width = containerWidth + scrollbarWidth + 'px';
-					list.style.width = listWidth + scrollbarWidth + 'px';
-				}
 			}
 
 			container.style.display = 'block';
 			container.setAttribute( 'aria-hidden', 'false' );
-
-			iframe.after( container );
+			container.focus();
 		}
 	}
 }
 
 window.addEventListener( 'message', JetpackLikesMessageListener );
 
-document.addEventListener( 'click', e => {
+function hideLikersPopover() {
 	const container = document.querySelector( '#likes-other-gravatars' );
 
-	if ( container && ! container.contains( e.target ) ) {
-		container.remove();
+	if ( container ) {
+		container.style.display = 'none';
+		container.setAttribute( 'aria-hidden', 'true' );
 	}
-} );
+}
+
+document.addEventListener( 'click', hideLikersPopover );
 
 function JetpackLikesWidgetQueueHandler() {
 	var wrapperID;
