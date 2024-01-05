@@ -10,7 +10,7 @@
         flex-direction: column;
         gap: 0.25rem;
 
-        padding: 1rem 1rem 1.5rem 1rem;
+        padding: 1rem 2rem 1.5rem 2rem;
 
         h2, p {
             margin: 0;
@@ -25,12 +25,26 @@
         p {
             font-size: 0.875rem;
             line-height: 1.7;
+            text-wrap: pretty;
         }
 
         p > strong {
             font-weight: 700;
         }
+
+        // Icon looks weird inline, need to artificially center it a bit
+        // so it looks better when rendered inline with a paragraph
+        .ai-assistant-icon {
+            position: relative;
+            top: 0.375rem;
+        }
     }
+
+}
+
+.ai-onboarding-step-image,
+.ai-onboarding-step-video {
+    min-height: 220px;
 }
 
 .components-guide {

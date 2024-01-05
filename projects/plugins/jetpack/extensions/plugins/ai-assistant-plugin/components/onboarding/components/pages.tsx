@@ -1,28 +1,32 @@
+import { getIconBySlug } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import stepEight from '../../../images/step-eight.png';
-import stepFourPlaceholder from '../../../images/step-four-placeholder.png';
-import stepOne from '../../../images/step-one.png';
-import stepSixPlaceholder from '../../../images/step-six-placeholder.png';
-import stepThreePlaceholder from '../../../images/step-three-placeholder.png';
-import stepTwo from '../../../images/step-two.png';
+import stepEightSrc from '../../../images/step-eight.png';
+import stepOneSrc from '../../../images/step-one.png';
+import stepTwoSrc from '../../../images/step-two.png';
 import { stepImage, stepVideo } from '../utils/stepAssets';
 
 const videoBaseUrl = 'https://videos.files.wordpress.com';
 
-const stepFiveSrc = `${ videoBaseUrl }/M8spKcbL/ai-onboarding-step-five-1.mp4`;
-const stepSevenSrc = `${ videoBaseUrl }/dqS0iYcM/ai-onboarding-step-seven.mp4`;
+// Video step sources
+const stepThreeSrc = `${ videoBaseUrl }/rAMPg7fJ/ai-onboarding-step-three-1.mp4`;
+const stepFourSrc = `${ videoBaseUrl }/25jTgvw2/ai-onboarding-step-four.mp4`;
+const stepFiveSrc = `${ videoBaseUrl }/1OUpa2Q0/ai-onboarding-step-five-2.mp4`;
+const stepSixSrc = `${ videoBaseUrl }/Db70vWPA/ai-onboarding-step-six.mp4`;
+const stepSevenSrc = `${ videoBaseUrl }/2RyheZNZ/ai-onboarding-step-seven-1.mp4`;
 
 export const assetSources = [
-	stepOne,
-	stepTwo,
-	stepThreePlaceholder,
-	stepFourPlaceholder,
+	stepOneSrc,
+	stepTwoSrc,
+	stepThreeSrc,
+	stepFourSrc,
 	stepFiveSrc,
-	stepSixPlaceholder,
+	stepSixSrc,
 	stepSevenSrc,
-	stepEight,
+	stepEightSrc,
 ];
+
+const AiAssistantIcon = getIconBySlug( 'ai-assistant' );
 
 export const pages = [
 	{
@@ -37,7 +41,7 @@ export const pages = [
 				</p>
 			</div>
 		),
-		image: stepImage( stepOne, '' ),
+		image: stepImage( stepOneSrc, '' ),
 	},
 	{
 		content: (
@@ -56,7 +60,7 @@ export const pages = [
 				</p>
 			</div>
 		),
-		image: stepImage( stepTwo, 'Gutenburg block search with "AI" typed out in the search box.' ),
+		image: stepImage( stepTwoSrc, 'Gutenburg block search with "AI" typed out in the search box.' ),
 	},
 	{
 		content: (
@@ -73,8 +77,7 @@ export const pages = [
 				</p>
 			</div>
 		),
-		// Placeholder image, need updated video
-		image: stepImage( stepThreePlaceholder, '' ),
+		image: stepVideo( stepThreeSrc ),
 	},
 	{
 		content: (
@@ -88,8 +91,7 @@ export const pages = [
 				</p>
 			</div>
 		),
-		// Placeholder image, need updated video
-		image: stepImage( stepFourPlaceholder, '' ),
+		image: stepVideo( stepFourSrc ),
 	},
 	{
 		content: (
@@ -97,16 +99,19 @@ export const pages = [
 				<h2>{ __( 'Effortless Content Enhancement', 'jetpack' ) }</h2>
 				<p>
 					{ createInterpolateElement(
+						// translators: &nbsp; is a non-breaking space
 						__(
 							'The AI Assistant checks spelling, translates, adjusts tone, and much more. To experience this, <strong>select a content block</strong> and <strong>click the AI Assistant symbol.</strong>',
 							'jetpack'
 						),
-						{ strong: <strong /> }
+						{
+							strong: <strong />,
+						}
 					) }
+					<AiAssistantIcon className="ai-assistant-icon" />
 				</p>
 			</div>
 		),
-		// Placeholder image, need updated video
 		image: stepVideo( stepFiveSrc ),
 	},
 	{
@@ -124,8 +129,7 @@ export const pages = [
 				</p>
 			</div>
 		),
-		// Placeholder image, need updated video
-		image: stepImage( stepSixPlaceholder, '' ),
+		image: stepVideo( stepSixSrc ),
 	},
 	{
 		content: (
@@ -139,7 +143,6 @@ export const pages = [
 				</p>
 			</div>
 		),
-		// Placeholder image, need updated video
 		image: stepVideo( stepSevenSrc ),
 	},
 	{
@@ -158,6 +161,6 @@ export const pages = [
 				</p>
 			</div>
 		),
-		image: stepImage( stepEight, '' ),
+		image: stepImage( stepEightSrc, '' ),
 	},
 ];

@@ -67,6 +67,19 @@ export const AntiSpamIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, co
 	</IconWrapper>
 );
 
+export const AiAssistantIcon: React.FC< BaseIconProps > = ( {
+	opacity = 1,
+	size,
+	color,
+	className,
+} ) => (
+	<IconWrapper className={ className } size={ size } opacity={ opacity } color={ color }>
+		<Path d="M7.00049 3.99976L7.84902 6.15123L10.0005 6.99976L7.84902 7.84828L7.00049 9.99976L6.15196 7.84828L4.00049 6.99976L6.15196 6.15123L7.00049 3.99976Z" />
+		<Path d="M16.0005 3.99976L17.1319 6.86839L20.0005 7.99976L17.1319 9.13113L16.0005 11.9998L14.8691 9.13113L12.0005 7.99976L14.8691 6.86839L16.0005 3.99976Z" />
+		<Path d="M11.0005 10L12.4147 13.5858L16.0005 15L12.4147 16.4142L11.0005 20L9.58627 16.4142L6.00049 15L9.58627 13.5858L11.0005 10Z" />
+	</IconWrapper>
+);
+
 export const BackupIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
 	<IconWrapper size={ size } opacity={ opacity } color={ color }>
 		<Path
@@ -213,6 +226,7 @@ export const ShareIcon: React.FC< BaseIconProps > = ( { size = 16, className, co
 };
 
 const jetpackIcons = {
+	'ai-assistant': AiAssistantIcon,
 	'anti-spam': AntiSpamIcon,
 	backup: BackupIcon,
 	boost: BoostIcon,
