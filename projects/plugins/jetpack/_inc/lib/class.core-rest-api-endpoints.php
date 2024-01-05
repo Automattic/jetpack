@@ -830,11 +830,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public static function set_subscriber_cookie_and_redirect( $request ) {
+		l( $request['redirect_url'] );
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$token                = $subscription_service->get_and_set_token_from_request();
-		$payload              = $subscription_service->decode_token( $token );
-		$is_valid_token       = ! empty( $payload );
+		l( $subscription_service );
+		$token = $subscription_service->get_and_set_token_from_request();
+		l( $token );
+		$payload = $subscription_service->decode_token( $token );
+		l( $payload );
+		$is_valid_token = ! empty( $payload );
 		if ( $is_valid_token ) {
 			return new WP_REST_Response( null, 302, array( 'location' => $request['redirect_url'] ) );
 		}
