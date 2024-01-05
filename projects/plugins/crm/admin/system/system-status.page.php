@@ -332,12 +332,6 @@ function zeroBSCRM_render_systemstatus_page() {
 							'fontinstalled' => 'Noto Sans Font installed',
 						);
 
-						// only show these for legacy users using DAL<3
-						// #backward-compatibility
-						if ( ! $zbs->isDAL3() ) {
-							$zbsEnvList['autodraftgarbagecollect'] = 'Auto-draft Garbage Collection';
-						}
-
 						if ( count( $zbsEnvList ) ) {
 							?>
 				<table class="table table-bordered table-striped wtab">
