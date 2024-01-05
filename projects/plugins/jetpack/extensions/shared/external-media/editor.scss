@@ -80,12 +80,7 @@ $grid-size: 8px;
 	.jetpack-app-icon {
 		width: 69px;
 	}
-	.components-modal__header {
 
-		@media ( min-width: 600px ) {
-			display: none;
-		}
-	}
 	.components-modal__content {
 		margin-top: 0;
 		padding: 32px 32px 0;
