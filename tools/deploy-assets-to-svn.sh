@@ -137,11 +137,17 @@ rm -f "$DIR/assets/README.md"
 find "$DIR/assets" -name '.git*' -exec rm -rf {} +
 find "$DIR/assets" -type d -empty -print -delete
 cd "$DIR"
-while IFS=" " read -r FLAG FILE; do
-	if [[ "$FLAG" == '!' ]]; then
-		svn rm "$FILE"
-	elif [[ "$FLAG" == "?" ]]; then
-		svn add "$FILE"
+while IFS= read -r LINE; do
+	FLAGS="${LINE:0:7}"
+	FILE="${LINE:8}"
+	if [[ "$FLAGS" != ?'      ' ]]; then
+		echo "Unexpected svn flags: $LINE"
+	fi
+	# The appending of an `@` to the filename here avoids problems with filenames containing `@` being interpreted as "peg revisions".
+	if [[ "${FLAGS:0:1}" == '!' ]]; then
+		svn rm "${FILE}@"
+	elif [[ "${FLAGS:0:1}" == "?" ]]; then
+		svn add "${FILE}@"
 	fi
 done < <( svn status )
 success "Done!"

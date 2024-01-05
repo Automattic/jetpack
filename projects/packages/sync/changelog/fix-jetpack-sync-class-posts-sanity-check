@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed a missing sanity check in Sync Posts handler logic that created failed builds.

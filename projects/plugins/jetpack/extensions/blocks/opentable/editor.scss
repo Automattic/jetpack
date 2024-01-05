@@ -26,8 +26,13 @@
 
 		form {
 			flex-direction: row;
+			flex-wrap: nowrap;
 			@media screen and ( max-width: 479px ) {
 				display: block;
+			}
+
+			.components-form-token-field {
+				flex-grow: 1;
 			}
 
 			.components-form-token-field__label {

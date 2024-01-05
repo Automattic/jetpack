@@ -1,14 +1,19 @@
 <?php
 
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Premium_Features_Entry;
+use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
@@ -218,6 +223,35 @@ jetpack_boost_register_option(
 jetpack_boost_register_option( 'premium_features', $premium_features_schema, new Premium_Features_Entry() );
 
 jetpack_boost_register_option( 'performance_history_toggle', Schema::as_boolean()->fallback( false ) );
+jetpack_boost_register_option(
+	'performance_history',
+	Schema::as_assoc_array(
+		array(
+			'periods'   => Schema::as_array(
+				Schema::as_assoc_array(
+					array(
+						'timestamp'  => Schema::as_number(),
+						'dimensions' => Schema::as_assoc_array(
+							array(
+								'desktop_overall_score' => Schema::as_number(),
+								'mobile_overall_score'  => Schema::as_number(),
+								'desktop_cls'           => Schema::as_number(),
+								'desktop_lcp'           => Schema::as_number(),
+								'desktop_tbt'           => Schema::as_number(),
+								'mobile_cls'            => Schema::as_number(),
+								'mobile_lcp'            => Schema::as_number(),
+								'mobile_tbt'            => Schema::as_number(),
+							)
+						),
+					)
+				)
+			),
+			'startDate' => Schema::as_number(),
+			'endDate'   => Schema::as_number(),
+		)
+	),
+	new Performance_History_Entry()
+);
 
 /**
  * Register Super Cache Notice Disabled store.
@@ -256,6 +290,15 @@ jetpack_boost_register_option(
 function jetpack_boost_ui_config() {
 	return array(
 		'plugin_dir_url' => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
+		'pricing'        => Premium_Pricing::get_yearly_pricing(),
+		'site'           => array(
+			'domain' => ( new Status() )->get_site_suffix(),
+			'online' => ! ( new Status() )->is_offline_mode(),
+		),
+		'is_premium'     => Premium_Features::has_any(),
+		'connection'     => ( new Connection() )->get_connection_api_response(),
 	);
 }
 jetpack_boost_register_readonly_option( 'config', 'jetpack_boost_ui_config' );
+
+jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback( false ), new Getting_Started_Entry() );

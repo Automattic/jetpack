@@ -24,7 +24,7 @@ class Jetpack_Google_Font_Face {
 	public function __construct() {
 		// Turns off hooks to print fonts
 		add_action( 'wp_loaded', array( $this, 'wp_loaded' ) );
-		add_action( 'admin_init', array( $this, 'admin_init' ), 10 );
+		add_action( 'current_screen', array( $this, 'current_screen' ), 10 );
 
 		// Collect and print fonts in use
 		add_action( 'wp_head', array( $this, 'print_font_faces' ), 50 );
@@ -40,11 +40,14 @@ class Jetpack_Google_Font_Face {
 	}
 
 	/**
-	 * Turn off hooks to print fonts on wp-admin
+	 * Turn off hooks to print fonts on wp-admin, except for GB editor pages.
 	 */
-	public function admin_init() {
+	public function current_screen() {
 		remove_action( 'admin_print_styles', 'wp_print_fonts', 50 );
-		remove_action( 'admin_print_styles', 'wp_print_font_faces', 50 );
+
+		if ( ! $this->is_block_editor() ) {
+			remove_action( 'admin_print_styles', 'wp_print_font_faces', 50 );
+		}
 	}
 
 	/**
@@ -138,7 +141,7 @@ class Jetpack_Google_Font_Face {
 		if ( ! empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
 			foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font ) {
 				$font_family_name = $this->get_font_family_name( $font );
-				$font_slug        = isset( $font['slug'] ) ? $font['slug'] : '';
+				$font_slug        = $font['slug'] ?? '';
 				if ( $font_slug && ! array_key_exists( $font_slug, $fonts ) && array_key_exists( $font_family_name, $fonts ) ) {
 					$fonts[ $font_slug ] = $fonts[ $font_family_name ];
 				}
@@ -153,7 +156,7 @@ class Jetpack_Google_Font_Face {
 	 *
 	 * @param array $font The font definition object.
 	 */
-	public function get_font_family_name( $font ) {
+	public static function get_font_family_name( $font ) {
 		$font_family = $font['fontFamily'];
 		if ( str_contains( $font_family, ',' ) ) {
 			$font_family = explode( ',', $font_family )[0];
@@ -176,6 +179,13 @@ class Jetpack_Google_Font_Face {
 
 		$font_family = $setting['typography']['fontFamily'];
 
+		// The font family may be a reference to a path to the value stored at that location,
+		// e.g.: { "ref": "styles.elements.heading.typography.fontFamily" }.
+		// Ignore it as we also get the value stored at that location from the setting.
+		if ( ! is_string( $font_family ) ) {
+			return null;
+		}
+
 		// Full string: var(--wp--preset--font-family--slug).
 		// We do not care about the origin of the font, only its slug.
 		preg_match( '/font-family--(?P<slug>.+)\)$/', $font_family, $matches );
@@ -193,5 +203,21 @@ class Jetpack_Google_Font_Face {
 		}
 
 		return $font_family;
+	}
+
+	/**
+	 * Check if the current screen is the block editor.
+	 *
+	 * @return bool
+	 */
+	public function is_block_editor() {
+		if ( function_exists( 'get_current_screen' ) ) {
+			$current_screen = get_current_screen();
+			if ( ! empty( $current_screen ) && method_exists( $current_screen, 'is_block_editor' ) && $current_screen->is_block_editor() ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

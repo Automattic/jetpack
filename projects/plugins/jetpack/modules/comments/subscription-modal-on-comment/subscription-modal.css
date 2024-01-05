@@ -1,0 +1,153 @@
+.jetpack-subscription-modal {
+    visibility: hidden;
+    position: fixed;
+    z-index: 50000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.5s ease;
+    display: flex;
+    justify-content: space-evenly;
+    align-content: center;
+    flex-wrap: wrap;
+}
+
+.jetpack-subscription-modal.open {
+    opacity: 1;
+    background-color: rgba(0,0,0,0.3);
+    visibility: visible;
+}
+
+.jetpack-subscription-modal__modal-content {
+    text-align: center;
+    background-color: #fefefe;
+    width: 100%;
+    max-width: 650px;
+    box-sizing: border-box;
+    transition: visibility 0s, opacity 0.3s linear;
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: center;
+}
+
+.jetpack-subscription-modal.open .jetpack-subscription-modal__modal-content {
+    opacity: 1;
+    top: 0;
+    visibility: visible;
+}
+
+/* Hide the modal content when iframe is present */
+.jetpack-subscription-modal.has-iframe .jetpack-subscription-modal__modal-content {
+    background: transparent;
+}
+
+.jetpack-subscription-modal.has-iframe .jetpack-subscription-modal__modal-content-form {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.jetpack-subscription-modal__modal-content .jetpack-subscription-modal__iframe-container {
+    visibility: hidden;
+    opacity: 0;
+    background-image: url( 'https://s0.wp.com/i/loading/dark-200.gif' );
+    background-size: 50px;
+    background-repeat: no-repeat;
+    background-position: center 150px;
+    margin: 0 !important;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    border: none;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    width: 100% !important;
+    height: 100%;
+    position: absolute;
+}
+
+.jetpack-subscription-modal.has-iframe .jetpack-subscription-modal__iframe-container {
+    opacity: 1;
+    visibility: visible;
+
+}
+
+.jetpack-subscription-modal__iframe {
+    margin: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/*
+ * These text-wrap properties still have limited browser
+ * support, but based on feedback still adding them for when
+ * they are supported.
+ */
+.jetpack-subscription-modal__modal-content p {
+    text-wrap: pretty;
+    text-wrap: pretty;
+}
+
+.jetpack-subscription-modal__form {
+    margin-top: 20px;
+    align-items: flex-start;
+    display: flex;
+}
+
+.jetpack-subscription-modal__form-email {
+    flex: 1;
+    font-size: 16px;
+    line-height: 28px;
+    padding: 15px 23px 15px 23px !important;
+    border-radius: 50px !important;
+    border-width: 1px !important;
+    border-color: #113AF5 !important;
+    border-end-end-radius: 0 !important;
+    border-start-end-radius: 0 !important;
+    border-style: solid !important;
+    outline: none;
+}
+.jetpack-subscription-modal__form-email:focus {
+    outline: none !important;
+}
+.jetpack-subscription-modal__form-submit {
+    font-size: 16px;
+    line-height: 28px;
+    padding: 15px 23px 15px 23px;
+    margin: 0px;
+    margin-left: 10px;
+    border-radius: 50px;
+    border-width: 1px;
+    border-end-start-radius: 0;
+    border-start-start-radius: 0;
+    margin-inline-start: 0;
+    background-color: #113AF5;
+    border-color: #113AF5;
+    border-style: solid;
+    color: #FFFFFF;
+}
+.jetpack-subscription-modal__form-submit:hover {
+    opacity: .9;
+    cursor: pointer;
+}
+.jetpack-subscription-modal__form-submit:disabled {
+    opacity: .7 !important;
+    cursor: not-allowed;
+}
+
+@media screen and (max-width: 640px) {
+    .jetpack-subscription-modal__modal-content {
+        width: 94%;
+    }
+}

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2023-12-25
+### Added
+- Stats: added passing select UTM parameters to Tracking Pixel requests. [#34431]
+
+## [0.8.0] - 2023-12-11
+### Changed
+- Permit overriding cache when retrieving top posts. [#34153]
+
 ## [0.7.2] - 2023-12-03
 ### Changed
 - Internal updates.
@@ -110,6 +118,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.9.0]: https://github.com/Automattic/jetpack-stats/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/Automattic/jetpack-stats/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/Automattic/jetpack-stats/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/Automattic/jetpack-stats/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/Automattic/jetpack-stats/compare/v0.6.6...v0.7.0

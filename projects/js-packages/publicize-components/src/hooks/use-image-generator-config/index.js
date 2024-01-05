@@ -1,7 +1,7 @@
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
-import { usePostMeta } from '../../utils';
+import { usePostMeta } from '../use-post-meta';
 
 const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
 	isEnabled: sigSettings?.enabled ?? ! isPostPublished,

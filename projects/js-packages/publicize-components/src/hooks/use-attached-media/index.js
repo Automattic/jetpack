@@ -1,4 +1,4 @@
-import { usePostMeta } from '../../utils';
+import { usePostMeta } from '../use-post-meta';
 
 /**
  * @typedef {object} AttachedMediaHook

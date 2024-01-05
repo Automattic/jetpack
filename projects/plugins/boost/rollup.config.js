@@ -19,7 +19,7 @@ const cssGenPath = path.dirname(
 	path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) )
 );
 
-const production = ! process.env.ROLLUP_WATCH;
+const production = process.env.NODE_ENV === 'production';
 const runServer = !! process.env.SERVE;
 
 const exportConditions = process.env.npm_config_jetpack_webpack_config_resolve_conditions

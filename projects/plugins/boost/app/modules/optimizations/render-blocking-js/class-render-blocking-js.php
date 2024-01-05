@@ -218,8 +218,9 @@ class Render_Blocking_JS implements Pluggable {
 			// Scripts inside HTML comments.
 			'~<!--.*?-->~si',
 
-			// Scripts with application/json type
-			'~<script\s+[^\>]*type=(?<q>["\']*)application/json\k<q>.*?>.*?</script>~si',
+			// Scripts with types that do not execute complex code. Moving them down can be dangerous
+			// and does not benefit performance. Includes types: application/json and importmap.
+			'~<script\s+[^\>]*type=(?<q>["\']*)(application/json|importmap)\k<q>.*?>.*?</script>~si',
 		);
 
 		return preg_replace_callback(

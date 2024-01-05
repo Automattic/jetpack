@@ -22,6 +22,7 @@
 		 */
 		"sourceMap": true,
 		"forceConsistentCasingInFileNames": true,
-		"lib": [ "dom", "es2021" ]
+		"lib": [ "dom", "es2021" ],
+		"strict": true
 	}
 }

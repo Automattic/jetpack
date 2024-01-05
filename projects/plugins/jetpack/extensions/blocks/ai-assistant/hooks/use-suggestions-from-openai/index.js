@@ -32,6 +32,7 @@ const useSuggestionsFromOpenAI = ( {
 	onUnclearPrompt,
 	onModeration,
 	requireUpgrade,
+	requestingState,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
@@ -41,7 +42,7 @@ const useSuggestionsFromOpenAI = ( {
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 	const { dequeueAiAssistantFeatureAyncRequest, setAiAssistantFeatureRequireUpgrade } =
 		useDispatch( 'wordpress-com/plans' );
-	const [ requestingState, setRequestingState ] = useState( 'init' );
+	const [ requestState, setRequestState ] = useState( requestingState || 'init' );
 	const source = useRef();
 
 	// Let's grab post data so that we can do something smart.
@@ -139,7 +140,7 @@ const useSuggestionsFromOpenAI = ( {
 		 * let's set the error and return an `undefined` event source.
 		 */
 		if ( requireUpgrade ) {
-			setRequestingState( 'error' );
+			setRequestState( 'error' );
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
@@ -226,7 +227,7 @@ const useSuggestionsFromOpenAI = ( {
 				debugPrompt( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
 			);
 
-			setRequestingState( 'requesting' );
+			setRequestState( 'requesting' );
 
 			source.current = await askQuestion( prompt, {
 				postId,
@@ -235,7 +236,7 @@ const useSuggestionsFromOpenAI = ( {
 				functions: options?.functions,
 			} );
 
-			setRequestingState( 'suggesting' );
+			setRequestState( 'suggesting' );
 		} catch ( err ) {
 			if ( err.message ) {
 				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );
@@ -309,7 +310,7 @@ const useSuggestionsFromOpenAI = ( {
 		const onDone = e => {
 			const { detail } = e;
 
-			setRequestingState( 'done' );
+			setRequestState( 'done' );
 
 			// Remove the delimiter from the suggestion.
 			const assistantResponse = detail.replaceAll( delimiter, '' );
@@ -355,7 +356,7 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorUnclearPrompt = () => {
-			setRequestingState( 'error' );
+			setRequestState( 'error' );
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -368,7 +369,7 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorContextTooLarge = () => {
-			setRequestingState( 'error' );
+			setRequestState( 'error' );
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -384,7 +385,7 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorNetwork = ( { detail: error } ) => {
-			setRequestingState( 'error' );
+			setRequestState( 'error' );
 			const { name: errorName, message: errorMessage } = error;
 			if ( errorName === 'TypeError' && errorMessage === 'Failed to fetch' ) {
 				/*
@@ -430,7 +431,7 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorServiceUnavailable = () => {
-			setRequestingState( 'error' );
+			setRequestState( 'error' );
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -446,7 +447,7 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorQuotaExceeded = () => {
-			setRequestingState( 'error' );
+			setRequestState( 'error' );
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -463,7 +464,7 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorModeration = () => {
-			setRequestingState( 'error' );
+			setRequestState( 'error' );
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -527,7 +528,7 @@ const useSuggestionsFromOpenAI = ( {
 		onSuggestionDone?.();
 
 		// Set requesting state to done since the suggestion stopped.
-		setRequestingState( 'done' );
+		setRequestState( 'done' );
 	}
 
 	return {
@@ -540,7 +541,7 @@ const useSuggestionsFromOpenAI = ( {
 		postTitle: currentPostTitle,
 		contentBefore: getPartialContentToBlock( clientId ),
 		wholeContent: getContentFromBlocks(),
-		requestingState,
+		requestingState: requestState,
 
 		getSuggestionFromOpenAI: getStreamedSuggestionFromOpenAI,
 		stopSuggestion,

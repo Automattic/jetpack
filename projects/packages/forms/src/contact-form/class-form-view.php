@@ -30,15 +30,14 @@ class Form_View {
 		 */
 		$max_new_fields = apply_filters( 'grunion_max_new_fields', 5 );
 
-		wp_register_script(
+		Assets::register_script(
 			'grunion',
-			Assets::get_file_url_for_environment(
-				'_inc/build/contact-form/js/grunion.min.js',
-				'modules/contact-form/js/grunion.js'
-			),
-			array( 'jquery', 'jquery-ui-sortable', 'jquery-ui-draggable' ),
-			\JETPACK__VERSION,
-			false
+			'../../dist/contact-form/js/grunion.js',
+			__FILE__,
+			array(
+				'dependencies' => array( 'jquery', 'jquery-ui-sortable', 'jquery-ui-draggable' ),
+				'version'      => \JETPACK__VERSION,
+			)
 		);
 
 		wp_localize_script(
