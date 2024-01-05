@@ -839,9 +839,9 @@ const FirewallPage = () => {
 			<Container className={ styles.container } horizontalSpacing={ 8 } horizontalGap={ 4 }>
 				{ wafSupported && ! isEnabled && <Col>{ moduleDisabledNotice } </Col> }
 				<Col>{ ! showManualRules ? mainSettings : manualRulesSettings }</Col>
+				{ /* Testing */ }
 				{ anchors ? <SampleOnboarding anchors={ anchors } /> : null }
 			</Container>
-			{ /* Testing */ }
 			{ wafSupported ? <FirewallFooter /> : <ScanFooter /> }
 		</AdminPage>
 	);

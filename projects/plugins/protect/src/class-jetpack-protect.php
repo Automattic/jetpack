@@ -444,7 +444,7 @@ class Jetpack_Protect {
 	 * @return bool Whether the current user has dismissed the onboarding popover.
 	 */
 	public static function get_scan_free_onboarding_dismissed_status() {
-		return (bool) get_user_meta( get_current_user_id(), 'jetpack_protect_free_onboarding_dismissed', true );
+		return (bool) get_user_meta( get_current_user_id(), 'jetpack_scan_free_onboarding_dismissed', true );
 	}
 
 	/**
