@@ -175,11 +175,26 @@ class Stats extends Module_Product {
 		}
 
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			// For now, only the free and pwyw subs are upgradable
+			// For now, only the free and commercial tiered subs show as upgradable
 			$upgradeable_stats_purchases = array_filter(
 				$purchases_data,
-				function ( $purchase ) {
-					return in_array( $purchase->product_slug, array( 'jetpack_stats_free', 'jetpack_stats_pwyw' ), true );
+				static function ( $purchase ) {
+					// Free plan is upgradeable
+					if ( $purchase->product_slug === 'jetpack_stats_free_yearly' ) {
+						return true;
+						// Commercial plans are upgradeable if they have a tier
+					} elseif (
+						in_array(
+							$purchase->product_slug,
+							array( 'jetpack_stats_yearly', 'jetpack_stats_monthly', 'jetpack_stats_bi_yearly' ),
+							true
+						) &&
+						! empty( $purchase->current_price_tier_slug )
+					) {
+						return true;
+					}
+
+					return false;
 				}
 			);
 
