@@ -748,8 +748,8 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 				$joinQ .= '  LEFT JOIN (
 								SELECT 
 									extsrcs.zbss_objid external_source_objid,
-									GROUP_CONCAT(extsrcs.zbss_uid SEPARATOR "\n") AS external_source_uids,
-									GROUP_CONCAT(extsrcs.zbss_source SEPARATOR "\n") AS external_source_sources
+									' . $this->DAL()->build_group_concat( 'extsrcs.zbss_uid', '\n' ) . ' AS external_source_uids,
+									' . $this->DAL()->build_group_concat( 'extsrcs.zbss_source', '\n' ) . ' AS external_source_sources
 								FROM 
 									' . $ZBSCRM_t['externalsources'] . ' extsrcs
 								WHERE 
