@@ -36,7 +36,7 @@ const defaultAdminUrl =
 export default function useProductCheckoutWorkflow( {
 	productSlug,
 	redirectUrl,
-	blogID,
+	blogID = null,
 	siteSuffix = defaultSiteSuffix,
 	adminUrl = defaultAdminUrl,
 	connectAfterCheckout = false,
