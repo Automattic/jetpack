@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fixes token redirect issue on Atomic sites
