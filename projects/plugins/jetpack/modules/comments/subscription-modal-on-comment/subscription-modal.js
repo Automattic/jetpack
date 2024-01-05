@@ -20,7 +20,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
-		localStorage.setItem( 'jetpack-subscription-modal-goto', destinationUrl.hash );
+		localStorage.setItem( 'jetpack-subscription-modal-on-comment-scroll-to', destinationUrl.hash );
 
 		// For avoiding Firefox reload, we need to force reload bypassing the cache.
 		window.location.reload( true );
@@ -158,11 +158,13 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
 	window.addEventListener( 'load', () => {
 		// Scroll to the last comment.
-		const subscriptionScroll = localStorage.getItem( 'jetpack-subscription-modal-goto' );
+		const subscriptionScroll = localStorage.getItem(
+			'jetpack-subscription-modal-on-comment-scroll-to'
+		);
 
 		if ( subscriptionScroll ) {
 			window.location.hash = subscriptionScroll;
-			localStorage.removeItem( 'jetpack-subscription-modal-goto' );
+			localStorage.removeItem( 'jetpack-subscription-modal-on-comment-scroll-to' );
 
 			const comment = document.querySelector( subscriptionScroll );
 			if ( comment ) {
