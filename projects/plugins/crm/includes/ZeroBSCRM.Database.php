@@ -396,6 +396,7 @@ function zeroBSCRM_createTables(){
   `zbsl_type` VARCHAR(200) NOT NULL,
   `zbsl_shortdesc` VARCHAR(300) NULL,
   `zbsl_longdesc` LONGTEXT NULL,
+	`zbsl_pinned` INT(1) NULL,
   `zbsl_created` INT(14) NOT NULL,
   `zbsl_lastupdated` INT(14) NOT NULL,
   PRIMARY KEY (`ID`),
