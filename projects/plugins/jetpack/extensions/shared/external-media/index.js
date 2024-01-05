@@ -1,6 +1,7 @@
 import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { addFilter } from '@wordpress/hooks';
+import { SOURCE_JETPACK_APP_MEDIA } from './constants'; // Move this import statement above the import statement for './media-button'
 import MediaButton from './media-button';
 import { addPexelsToMediaInserter, addGooglePhotosToMediaInserter } from './media-service';
 import { mediaSources } from './sources';
@@ -10,7 +11,12 @@ function insertExternalMediaBlocks( settings, name ) {
 	if ( name !== 'core/image' ) {
 		return settings;
 	}
-
+	if ( ! window?.Jetpack_Editor_Initial_State?.available_media_sources?.jetpack_app_media ) {
+		const index = 3;
+		if ( mediaSources[ index ]?.id === SOURCE_JETPACK_APP_MEDIA ) {
+			mediaSources.splice( index, 1 );
+		}
+	}
 	return {
 		...settings,
 		keywords: [ ...settings.keywords, ...mediaSources.map( source => source.keyword ) ],
