@@ -617,7 +617,7 @@ class Jetpack_Memberships {
 			return self::$user_can_view_post_cache[ $cache_key ];
 		}
 
-		$post_access_level = self::get_post_access_level();
+		$post_access_level = self::get_post_access_level( $post_id );
 		if ( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $post_access_level ) {
 			self::$user_can_view_post_cache[ $cache_key ] = true;
 			return true;

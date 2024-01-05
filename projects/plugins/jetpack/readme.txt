@@ -293,17 +293,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.0-a.7 - 2023-12-20
-#### Enhancements
-- Sharing Buttons Block: update the admin's setting screen when the sharing block is available.
-
-#### Improved compatibility
-- Sharing Buttons: add the official X button to the list of supported services.
-
+### 13.0-a.13 - 2024-01-04
 #### Bug fixes
-- My Plan: Fix JS errors due to nested anchor tags.
-- Payments Block: show an error message when unable to render payment button.
-- Subscribers: fix the subscriber count display if above 1000 subscribers.
+- Jetpack footer links are now consistent within different pages.
+- Notification Accessibility: THe notification icon is not a link.
 
 --------
 

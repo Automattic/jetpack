@@ -2,6 +2,44 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.0-a.13 - 2024-01-04
+### Bug fixes
+- Jetpack footer links are now consistent within different pages. [#34787]
+- Notification Accessibility: THe notification icon is not a link. [#34810]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added the "reblog" query param to the iframe in the Like Block when the reblog button is enabled in the block. [#34838]
+- Fix failing E2E tests [#34796]
+- In editor view, the Like block now shows or hides the reblog button according to sidebar config [#34831]
+- Social: Removed obsolete code for Tweetstorms [#34330]
+- Updated package dependencies. [#34815]
+- Updated package dependencies. [#34816]
+
+## 13.0-a.11 - 2024-01-02
+### Bug fixes
+- Editor: Fixed missing fonts issue inside the block editor. [#34776]
+- Subscriptions Block: Added compatibility for the latest Gutenberg. [#34809]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Use default store value pased from backend. [#34794]
+- Subscribe Block: Adjusted how cookies are set. [#34634]
+- Blogroll: Use blogroll item url as name if name does not exist. [#34693]
+- Removed Jetpack connection banners from WP dashboard and plugins page. [#34768]
+- Updated the design for Quick Share buttons and fixed its a11y. [#34754]
+
+## 13.0-a.9 - 2023-12-25
+### Enhancements
+- Added description and link inviting to disable legacy sharing module if block is available [#34759]
+- Social Menu & Social Media Icons: Add support for the Bluesky service. [#34738]
+
+### Bug fixes
+- Subscribe Modal: Fix fatal under exceptional conditions [#34758]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Page: remove alt attribute from decorative icon. [#34715]
+- On wpcom sites if SEO tools not supported by current plan we show upsell message. [#34725]
+- Remove the recommendations banner from non-jetpack wp-admin pages [#34769]
+
 ## 13.0-a.7 - 2023-12-20
 ### Enhancements
 - Sharing Buttons Block: update the admin's setting screen when the sharing block is available. [#34673]
@@ -101,6 +139,26 @@
 - Removed like avatar border inside the popup. [#34440]
 - Updated package dependencies. [#34416]
 - Sync: Added limit for full sync uploads. [#34390]
+
+## 12.9.1 - 2023-12-18
+### Bug fixes
+- Carousel: fix unresponsive navigation on Chrome browsers. [#34678]
+
+## 12.9 - 2023-12-05
+### Enhancements
+- Likes: Updated the likes popover design and added RTL support. [#34396]
+- My Jetpack: Added Creator to My Jetpack overview. [#34307]
+- Paid Content Block: Added support for selecting multiple plans. [#33903]
+
+### Improved compatibility
+- Block Editor: Dequeued editor assets when they aren't in use. [#34268]
+- Google Fonts: Resolved occasional bug resulting in fatal errors on PHP 8 with latest Gutenberg. [#34382]
+
+### Bug fixes
+- Block Editor: Fixed console errors being thrown for Jetpack blocks inside the Full Site Editor. [#34305]
+- Dashboard: Fixed the display of Subscriptions and WordPress.com Toolbar controls when the user is not connected to WordPress.com. [#34358]
+- Dashboard: Fixed the display of the Auto-sharing feature toggle when the user is not connected to WordPress.com. [#34203]
+- EU Cookie Widget: Moved away from deprecated jQuery methods. [#34363]
 
 ## 12.9-beta - 2023-12-03
 ### Enhancements
