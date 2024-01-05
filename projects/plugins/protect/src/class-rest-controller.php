@@ -209,10 +209,10 @@ class REST_Controller {
 
 		register_rest_route(
 			'jetpack-protect/v1',
-			'protect-onboarding-dismissed',
+			'scan-onboarding-dismissed',
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::api_set_protect_onboarding_dismissed_status',
+				'callback'            => __CLASS__ . '::api_set_scan_onboarding_dismissed_status',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
@@ -438,11 +438,11 @@ class REST_Controller {
 	}
 
 	/**
-	 * Set Protect Free and Paid Onboarding "Dismissed" Status for the API endpoint
+	 * Set Scan Free and Paid Onboarding "Dismissed" Status for the API endpoint
 	 *
 	 * @return bool True if onboarding dismissed status updated to true, false on failure.
 	 */
-	public static function api_set_protect_onboarding_dismissed_status() {
-		return Jetpack_Protect::set_protect_onboarding_dismissed_status();
+	public static function api_set_scan_onboarding_dismissed_status() {
+		return Jetpack_Protect::set_scan_onboarding_dismissed_status();
 	}
 }

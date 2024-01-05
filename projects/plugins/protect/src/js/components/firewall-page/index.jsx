@@ -18,6 +18,7 @@ import { useCallback, useEffect, useState, useMemo } from 'react';
 import API from '../../api';
 import { JETPACK_SCAN_SLUG, PLUGIN_SUPPORT_URL } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useDynamicRefs from '../../hooks/use-onboarding/use-dynamic-refs';
 import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
@@ -27,6 +28,7 @@ import ConnectedFirewallHeader from '../firewall-header';
 import FormToggle from '../form-toggle';
 import Notice from '../notice';
 import ScanFooter from '../scan-footer';
+import SampleOnboarding from '../scan-onboarding/sample-onboarding';
 import Textarea from '../textarea';
 import styles from './styles.module.scss';
 
@@ -34,6 +36,9 @@ const ADMIN_URL = window?.jetpackProtectInitialState?.adminUrl;
 const SUCCESS_NOTICE_DURATION = 5000;
 
 const FirewallPage = () => {
+	// Testing
+	const { anchors, getRef } = useDynamicRefs();
+
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 	const notice = useSelect( select => select( STORE_ID ).getNotice() );
 	const { setWafIsSeen, setWafUpgradeIsSeen, setNotice } = useDispatch( STORE_ID );
@@ -448,7 +453,8 @@ const FirewallPage = () => {
 					! canToggleAutomaticRules ? styles[ 'toggle-section--disabled' ] : ''
 				}` }
 			>
-				<div className={ styles[ 'toggle-section__control' ] }>
+				{ /* Testing */ }
+				<div ref={ getRef( 'stepOne' ) } className={ styles[ 'toggle-section__control' ] }>
 					<FormToggle
 						checked={ canToggleAutomaticRules ? formState.jetpack_waf_automatic_rules : false }
 						onChange={ handleAutomaticRulesChange }
@@ -490,7 +496,8 @@ const FirewallPage = () => {
 						</Popover>
 					) }
 				</div>
-				<div className={ styles[ 'toggle-section__content' ] }>
+				{ /* Testing */ }
+				<div ref={ getRef( 'stepTwo' ) } className={ styles[ 'toggle-section__content' ] }>
 					<div className={ styles[ 'toggle-section__title' ] }>
 						<Text variant="title-medium" mb={ 2 }>
 							{ __( 'Enable automatic firewall protection', 'jetpack-protect' ) }
@@ -505,7 +512,8 @@ const FirewallPage = () => {
 							'jetpack-protect'
 						) }
 					</Text>
-					<div className={ styles[ 'toggle-section__details' ] }>
+					{ /* Testing */ }
+					<div ref={ getRef( 'stepThree' ) } className={ styles[ 'toggle-section__details' ] }>
 						{ jetpackWafAutomaticRules &&
 							automaticRulesLastUpdated &&
 							! automaticRulesInstallationError && (
@@ -834,7 +842,9 @@ const FirewallPage = () => {
 			<Container className={ styles.container } horizontalSpacing={ 8 } horizontalGap={ 4 }>
 				{ wafSupported && ! isEnabled && <Col>{ moduleDisabledNotice } </Col> }
 				<Col>{ ! showManualRules ? mainSettings : manualRulesSettings }</Col>
+				{ anchors ? <SampleOnboarding anchors={ anchors } /> : null }
 			</Container>
+			{ /* Testing */ }
 			{ wafSupported ? <FirewallFooter /> : <ScanFooter /> }
 		</AdminPage>
 	);

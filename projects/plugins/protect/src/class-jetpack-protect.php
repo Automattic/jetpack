@@ -206,20 +206,20 @@ class Jetpack_Protect {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$refresh_status_from_wpcom = isset( $_GET['checkPlan'] );
 		$initial_state             = array(
-			'apiRoot'                 => esc_url_raw( rest_url() ),
-			'apiNonce'                => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce'       => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'status'                  => Status::get_status( $refresh_status_from_wpcom ),
-			'installedPlugins'        => Plugins_Installer::get_plugins(),
-			'installedThemes'         => Sync_Functions::get_themes(),
-			'wpVersion'               => $wp_version,
-			'adminUrl'                => 'admin.php?page=jetpack-protect',
-			'siteSuffix'              => ( new Jetpack_Status() )->get_site_suffix(),
-			'jetpackScan'             => My_Jetpack_Products::get_product( 'scan' ),
-			'hasRequiredPlan'         => Plan::has_required_plan(),
-			'freeOnboardingDismissed' => self::get_protect_free_onboarding_dismissed_status(),
-			'paidOnboardingDismissed' => self::get_protect_paid_onboarding_dismissed_status(),
-			'waf'                     => array(
+			'apiRoot'                     => esc_url_raw( rest_url() ),
+			'apiNonce'                    => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'           => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'status'                      => Status::get_status( $refresh_status_from_wpcom ),
+			'installedPlugins'            => Plugins_Installer::get_plugins(),
+			'installedThemes'             => Sync_Functions::get_themes(),
+			'wpVersion'                   => $wp_version,
+			'adminUrl'                    => 'admin.php?page=jetpack-protect',
+			'siteSuffix'                  => ( new Jetpack_Status() )->get_site_suffix(),
+			'jetpackScan'                 => My_Jetpack_Products::get_product( 'scan' ),
+			'hasRequiredPlan'             => Plan::has_required_plan(),
+			'freeScanOnboardingDismissed' => self::get_scan_free_onboarding_dismissed_status(),
+			'paidScanOnboardingDismissed' => self::get_scan_paid_onboarding_dismissed_status(),
+			'waf'                         => array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),
 				'isSeen'              => self::get_waf_seen_status(),
@@ -439,52 +439,52 @@ class Jetpack_Protect {
 	}
 
 	/**
-	 * Get Protect Free Onboarding "Dismissed" Status
+	 * Get Scan Free Onboarding "Dismissed" Status
 	 *
 	 * @return bool Whether the current user has dismissed the onboarding popover.
 	 */
-	public static function get_protect_free_onboarding_dismissed_status() {
+	public static function get_scan_free_onboarding_dismissed_status() {
 		return (bool) get_user_meta( get_current_user_id(), 'jetpack_protect_free_onboarding_dismissed', true );
 	}
 
 	/**
-	 * Get Protect Paid Onboarding "Dismissed" Status
+	 * Get Scan Paid Onboarding "Dismissed" Status
 	 *
 	 * @return bool Whether the current user has dismissed the onboarding popover.
 	 */
-	public static function get_protect_paid_onboarding_dismissed_status() {
-		return (bool) get_user_meta( get_current_user_id(), 'jetpack_protect_paid_onboarding_dismissed', true );
+	public static function get_scan_paid_onboarding_dismissed_status() {
+		return (bool) get_user_meta( get_current_user_id(), 'jetpack_scan_paid_onboarding_dismissed', true );
 	}
 
 	/**
-	 * Set Protect Free Onboarding "Dismissed"
+	 * Set Scan Free Onboarding "Dismissed"
 	 *
 	 * @return bool True if upgrade seen status updated to true, false on failure.
 	 */
-	public static function set_protect_free_onboarding_dismissed_status() {
-		return (bool) update_user_meta( get_current_user_id(), 'jetpack_protect_free_onboarding_dismissed', true );
+	public static function set_scan_free_onboarding_dismissed_status() {
+		return (bool) update_user_meta( get_current_user_id(), 'jetpack_scan_free_onboarding_dismissed', true );
 	}
 
 	/**
-	 * Set Protect Paid Onboarding "Dismissed"
+	 * Set Scan Paid Onboarding "Dismissed"
 	 *
 	 * @return bool True if upgrade seen status updated to true, false on failure.
 	 */
-	public static function set_protect_paid_onboarding_dismissed_status() {
-		return (bool) update_user_meta( get_current_user_id(), 'jetpack_protect_paid_onboarding_dismissed', true );
+	public static function set_scan_paid_onboarding_dismissed_status() {
+		return (bool) update_user_meta( get_current_user_id(), 'jetpack_scan_paid_onboarding_dismissed', true );
 	}
 
 	/**
-	 * Set Protect Onboarding "Dismissed" Status
+	 * Set Scan Onboarding "Dismissed" Status
 	 *
 	 * @return bool True if upgrade seen status updated to true, false on failure.
 	 */
-	public static function set_protect_onboarding_dismissed_status() {
+	public static function set_scan_onboarding_dismissed_status() {
 		if ( Plan::has_required_plan() ) {
-			return self::set_protect_paid_onboarding_dismissed_status();
+			return self::set_scan_paid_onboarding_dismissed_status();
 		}
 
-		return self::set_protect_free_onboarding_dismissed_status();
+		return self::set_scan_free_onboarding_dismissed_status();
 	}
 
 	/**
