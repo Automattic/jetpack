@@ -30,7 +30,6 @@ global $wpdb, $ZBSCRM_t;
   $ZBSCRM_t['tags']                   = $wpdb->prefix . "zbs_tags";
   $ZBSCRM_t['taglinks']               = $wpdb->prefix . "zbs_tags_links";
   $ZBSCRM_t['settings']               = $wpdb->prefix . "zbs_settings";
-  $ZBSCRM_t['keys']                   = $wpdb->prefix . "zbscrm_api_keys";
   $ZBSCRM_t['segments']               = $wpdb->prefix . "zbs_segments";
   $ZBSCRM_t['segmentsconditions']     = $wpdb->prefix . "zbs_segments_conditions";
   $ZBSCRM_t['adminlog']               = $wpdb->prefix . "zbs_admlog";
@@ -94,15 +93,6 @@ function zeroBSCRM_createTables(){
     // we log the last error before we start, in case another plugin has left an error in the buffer
     $zbsDB_lastError = ''; if (isset($wpdb->last_error)) $zbsDB_lastError = $wpdb->last_error;
     $zbsDB_creationErrors = array();
-    
-  #} Keys zbs_perm = {0 = revoked, 1 = read_only, 2 = read_and_write 
-  $sql = "CREATE TABLE IF NOT EXISTS ". $ZBSCRM_t['keys'] ."(
-  `zbs_id` INT NOT NULL AUTO_INCREMENT ,
-  `zbs_key` VARCHAR(200) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NULL ,
-  `zbs_perm` INT(1) NULL ,       
-  PRIMARY KEY (`zbs_id`))
-  ".$storageEngineLine.";";
-  zeroBSCRM_db_runDelta($sql);
 
   // Contacts
   $sql = "CREATE TABLE IF NOT EXISTS ". $ZBSCRM_t['contacts'] ."(
@@ -938,11 +928,6 @@ function zeroBSCRM_checkTablesExist(){
 	global $ZBSCRM_t, $wpdb;
 
 	$create = false;
-	$tablesExist = $wpdb->get_results("SHOW TABLES LIKE '".$ZBSCRM_t['keys']."'");
-
-	if ( count($tablesExist) < 1 ) {
-		$create = true;
-	}
 
 	// then we cycle through our tables :) - means all keys NEED to be kept up to date :)
 	// No need to add to this ever now :)
