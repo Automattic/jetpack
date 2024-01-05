@@ -19,6 +19,7 @@ use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
@@ -202,6 +203,7 @@ class Initializer {
 				'userIsAdmin'           => current_user_can( 'manage_options' ),
 				'userIsNewToJetpack'    => self::is_jetpack_user_new(),
 				'isStatsModuleActive'   => $modules->is_active( 'stats' ),
+				'isUserFromHostPartner' => self::is_user_from_host_partner(),
 				'welcomeBanner'         => array(
 					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
 				),
@@ -284,6 +286,23 @@ class Initializer {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Determines whether the user has come from a host partner we can recognize.
+	 *
+	 * @return string
+	 */
+	public static function is_user_from_host_partner() {
+		require_once __DIR__ . '/utils/nameservers.php';
+		$dns_records = get_nameserver_dns_records();
+		$provider    = get_hosting_provider_by_nameserver( $dns_records );
+
+		if ( 'unknown' !== $provider ) {
+			return true;
+		}
+
+		return 'unknown' !== Sync_Functions::get_hosting_provider();
 	}
 
 	/**
