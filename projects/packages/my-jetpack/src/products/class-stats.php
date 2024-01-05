@@ -222,6 +222,15 @@ class Stats extends Module_Product {
 					str_starts_with( $purchase->product_slug, static::get_wpcom_free_product_slug() )
 				) {
 					return '&productType=personal';
+				} elseif (
+					in_array(
+						$purchase->product_slug,
+						array( 'jetpack_stats_yearly', 'jetpack_stats_monthly', 'jetpack_stats_bi_yearly' ),
+						true
+					) &&
+					! empty( $purchase->current_price_tier_slug )
+				) {
+					return '&productType=commercial';
 				}
 			}
 		}
