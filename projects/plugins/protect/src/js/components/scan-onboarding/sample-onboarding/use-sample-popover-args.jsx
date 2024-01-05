@@ -2,7 +2,6 @@ import { Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import useOnboarding from '../../../hooks/use-onboarding';
 
-// This is a sample use popover args hook that can be used as a template for creating new onboarding components.
 const useSamplePopoverArgs = ( { anchors, totalSteps } ) => {
 	// Retrieve onboarding methods
 	const { incrementOnboardingStep, dismissOnboarding, createPopoverArgs } = useOnboarding();
