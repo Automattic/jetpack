@@ -1,24 +1,18 @@
-import {
-	AdminSectionHero,
-	Container,
-	Col,
-	H3,
-	Text,
-	ActionPopover,
-} from '@automattic/jetpack-components';
+import { AdminSectionHero, Container, Col, H3, Text } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useOnboarding from '../../hooks/use-onboarding';
+import useDynamicRefs from '../../hooks/use-onboarding/use-dynamic-refs';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
 import AlertSVGIcon from '../alert-icon';
 import ProgressBar from '../progress-bar';
 import ScanFooter from '../scan-footer';
+import ScanOnboarding from '../scan-onboarding';
 import SeventyFiveLayout from '../seventy-five-layout';
 import Summary from '../summary';
 import ThreatsList from '../threats-list';
@@ -28,7 +22,7 @@ import useCredentials from './use-credentials';
 import useStatusPolling from './use-status-polling';
 
 const ScanPage = () => {
-	const { anchors, onboardingPopoverArgs, getRef } = useOnboarding();
+	const { anchors, getRef } = useDynamicRefs();
 	const { lastChecked, currentStatus, errorCode, errorMessage, hasRequiredPlan } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { refreshStatus } = useDispatch( STORE_ID );
@@ -187,7 +181,7 @@ const ScanPage = () => {
 					<Col>
 						<ThreatsList getRef={ getRef } />
 					</Col>
-					{ anchors ? <ActionPopover { ...onboardingPopoverArgs } /> : null }
+					{ anchors ? <ScanOnboarding anchors={ anchors } /> : null }
 				</Container>
 			</AdminSectionHero>
 			<ScanFooter />

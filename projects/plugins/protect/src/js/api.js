@@ -33,9 +33,9 @@ const API = {
 			method: 'POST',
 		} ),
 
-	protectOnboardingDismissed: () =>
+	scanOnboardingDismissed: () =>
 		apiFetch( {
-			path: 'jetpack-protect/v1/protect-onboarding-dismissed',
+			path: 'jetpack-protect/v1/scan-onboarding-dismissed',
 			method: 'POST',
 		} ),
 };
