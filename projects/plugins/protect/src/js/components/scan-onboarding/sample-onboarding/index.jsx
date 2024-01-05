@@ -3,7 +3,6 @@ import { useMemo, useEffect } from 'react';
 import useOnboarding from '../../../hooks/use-onboarding';
 import useSamplePopoverArgs from './use-sample-popover-args';
 
-// This is a sample onboarding component that can be used as a template for creating new onboarding components.
 const SampleOnboarding = ( { anchors } ) => {
 	// Retrieve onboarding state and methods
 	const { onboardingStep, resetOnboarding, getCurrentPopoverArgs } = useOnboarding();
