@@ -264,7 +264,11 @@ class Initializer {
 		$plugin_slugs              = array_map(
 			static function ( $slug ) {
 				$parts = explode( '/', $slug );
-				return str_replace( '.php', '', $parts[ is_countable( $parts ) ? count( $parts ) - 1 : 0 ] );
+				if ( empty( $parts ) ) {
+					return '';
+				}
+				// Return the last segment of the filepath without the PHP extension
+				return str_replace( '.php', '', $parts[ count( $parts ) - 1 ] );
 			},
 			$plugin_slugs
 		);

@@ -265,8 +265,7 @@ class Wpcom_Products {
 
 		$body      = wp_remote_retrieve_body( $response );
 		$purchases = json_decode( $body );
-		// Set a transient for 30 seconds
-		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, 30 );
+		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, MINUTE_IN_SECONDS / 2 );
 
 		return $purchases;
 	}
