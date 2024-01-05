@@ -9,7 +9,7 @@
  * This function needs to get loaded after the like scripts get added to the page.
  */
 function jetpack_likes_master_iframe() {
-	$version = gmdate( 'YW' );
+	$version = gmdate( 'Ymd' );
 
 	$_locale = get_locale();
 
