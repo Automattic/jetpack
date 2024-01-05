@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+add a check to determine if a user is "new" to Jetpack
