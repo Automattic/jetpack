@@ -4,6 +4,8 @@
 .jetpack-memberships-modal #TB_title {
 	display: none;
 }
+
+#memberships-modal-window.jetpack-memberships-modal,
 #TB_window.jetpack-memberships-modal {
 	background-color: transparent;
 	background-image: url( 'https://s0.wp.com/i/loading/dark-200.gif' );
@@ -23,7 +25,12 @@
 	height: 100%;
 }
 
-.jetpack-memberships-modal #TB_iframeContent {
+#memberships-modal-window.jetpack-memberships-modal {
+	padding: 21px;
+}
+
+.jetpack-memberships-modal #TB_iframeContent,
+.jetpack-memberships-modal #memberships-modal-iframe {
 	margin: 0 !important;
 	height: 100% !important;
 	width: 100% !important;
@@ -36,4 +43,9 @@
 /* This is a class added by Thickbox on open modals. */
 BODY.modal-open {
 	overflow: hidden;
+}
+
+dialog::backdrop {
+	background-color: #000;
+	opacity: 0.7;
 }

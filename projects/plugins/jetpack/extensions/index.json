@@ -53,13 +53,13 @@
 		"ai-assistant-support",
 		"ai-assistant-form-support",
 		"paywall",
-		"ai-content-lens",
 		"blogroll",
 		"blogroll-item",
 		"nextdoor",
 		"ai-assistant-usage-panel",
 		"sharing-button",
-		"sharing-buttons"
+		"sharing-buttons",
+		"ai-content-lens"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -70,7 +70,8 @@
 		"videopress/video-chapters",
 		"create-with-voice",
 		"top-posts",
-		"ai-assistant-backend-prompts"
+		"ai-assistant-backend-prompts",
+		"ai-logo-generator"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

@@ -444,7 +444,7 @@ class Jetpack_Likes {
 		 */
 		$new_layout = apply_filters( 'likes_new_layout', true ) ? '&amp;n=1' : '';
 
-		$src      = sprintf( 'https://widgets.wp.com/likes/#blog_id=%1$d&amp;post_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s%5$s', $blog_id, $post_id, $domain, $uniqid, $new_layout );
+		$src      = sprintf( 'https://widgets.wp.com/likes/?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s', JETPACK__VERSION, $blog_id, $post_id, $domain, $uniqid, $new_layout );
 		$name     = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 		$wrapper  = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 		$headline = sprintf(
@@ -464,15 +464,7 @@ class Jetpack_Likes {
 		// Let's make sure that the script is enqueued.
 		wp_enqueue_script( 'jetpack_likes_queuehandler' );
 
-		$beta_blocks_active = defined( 'JETPACK_BLOCKS_VARIATION' ) && JETPACK_BLOCKS_VARIATION === 'beta';
-
-		// If we're using a block-based theme and the Like block (beta) is available, return content without the Like button widget.
-		// Otherwise return content with the Like button widget.
-		if ( wp_is_block_theme() && $beta_blocks_active ) {
-			return $content;
-		} else {
-			return $content . $html;
-		}
+		return $content . $html;
 	}
 
 	/** Checks if admin bar is visible.*/
@@ -529,7 +521,7 @@ class Jetpack_Likes {
 		// Make sure to include the scripts before the iframe otherwise weird things happen.
 		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
 
-		$src = sprintf( 'https://widgets.wp.com/likes/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
+		$src = sprintf( 'https://widgets.wp.com/likes/?ver=%1$s#blog_id=%3$d&amp;post_id=%4$d&amp;origin=%2$s://%5$s', JETPACK__VERSION, $protocol, $blog_id, $post_id, $domain );
 
 		$html = "<iframe class='admin-bar-likes-widget jetpack-likes-widget' scrolling='no' frameBorder='0' name='admin-bar-likes-widget' src='$src'></iframe>";
 

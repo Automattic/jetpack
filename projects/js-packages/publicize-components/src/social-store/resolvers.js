@@ -70,10 +70,9 @@ export function* getAutoConversionSettings() {
  */
 export function getConnections() {
 	return function ( { dispatch, registry } ) {
+		const editor = registry.select( editorStore );
 		// Get the initial connections from the post meta
-		const connections = registry
-			.select( editorStore )
-			.getEditedPostAttribute( 'jetpack_publicize_connections' );
+		const connections = editor.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
 		dispatch( setConnections( connections || [] ) );
 	};

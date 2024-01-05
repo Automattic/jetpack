@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -12,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require __DIR__ . '/classes/class-jetpack-woocommerce-analytics-trait.php';
 require_once __DIR__ . '/classes/class-jetpack-woocommerce-analytics-universal.php';
 require_once __DIR__ . '/classes/class-jetpack-woocommerce-analytics-my-account.php';
+require_once __DIR__ . '/classes/class-jetpack-woocommerce-analytics-checkout-flow.php';
 
 /**
  * Class Jetpack_WooCommerce_Analytics
@@ -39,6 +42,13 @@ class Jetpack_WooCommerce_Analytics {
 	 * @var Static property to hold concrete analytics implementation that does the work.
 	 */
 	private static $myaccount = false;
+
+	/**
+	 * Instance of the Checkout Flow functions
+	 *
+	 * @var Static property to hold concrete analytics implementation that does the work.
+	 */
+	private static $views = false;
 
 	/**
 	 * WooCommerce Analytics is only available to Jetpack connected WooCommerce stores with both plugins set to active
@@ -77,8 +87,39 @@ class Jetpack_WooCommerce_Analytics {
 	 * @return void
 	 */
 	private function __construct() {
+		// loading _wca.
+		add_action( 'wp_head', array( $this, 'wp_head_top' ), 1 );
+
+		// loading s.js.
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_tracking_script' ) );
+
 		self::$analytics = new Jetpack_WooCommerce_Analytics_Universal();
 		self::$myaccount = new Jetpack_WooCommerce_Analytics_My_Account();
+		if ( class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && version_compare( Automattic\WooCommerce\Blocks\Package::get_version(), '11.6.2', '>=' ) ) {
+			self::$views = new Jetpack_WooCommerce_Analytics_Checkout_Flow();
+		}
+	}
+
+		/**
+		 * Make _wca available to queue events
+		 */
+	public function wp_head_top() {
+		if ( is_cart() || is_checkout() || is_checkout_pay_page() || is_order_received_page() || is_add_payment_method_page() ) {
+			echo '<script>window._wca_prevent_referrer = true;</script>' . "\r\n";
+		}
+		echo '<script>window._wca = window._wca || [];</script>' . "\r\n";
+	}
+
+	/**
+	 * Place script to call s.js, Store Analytics.
+	 */
+	public function enqueue_tracking_script() {
+		$filename = sprintf(
+			'https://stats.wp.com/s-%d.js',
+			gmdate( 'YW' )
+		);
+
+		Assets::enqueue_async_script( 'woocommerce-analytics', esc_url( $filename ), esc_url( $filename ), array(), null, false );
 	}
 
 	/**

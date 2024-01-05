@@ -1,6 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { usePostMeta } from '../../utils';
+import { usePostMeta } from '../../hooks/use-post-meta';
 
 /**
  * Prepares the text to share.

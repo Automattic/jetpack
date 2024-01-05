@@ -2,7 +2,7 @@ import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 const apiEndpointsRegex = {
-	'modules-state': /jetpack-boost-ds\/modules-state\/merge/,
+	'modules-state': /jetpack-boost-ds\/modules-state\/set/,
 	connection: /jetpack-boost\/v1\/connection/,
 };
 
@@ -18,7 +18,7 @@ export default class JetpackBoostPage extends WpPage {
 	async chooseFreePlan() {
 		const button = this.page.locator( 'text=Start for free' );
 		await button.click();
-		await this.waitForElementToBeVisible( '.jb-section--scores' );
+		await this.waitForElementToBeVisible( '[data-testid="speed-scores"]' );
 	}
 
 	/**
@@ -39,19 +39,19 @@ export default class JetpackBoostPage extends WpPage {
 	 */
 	async isConnected() {
 		const [ showingScoreArea, isOffline ] = await Promise.all( [
-			this.isElementVisible( '.jb-site-score' ),
-			this.isElementVisible( '.jb-site-score__offline' ),
+			this.isElementVisible( '[data-testid="speed-scores"]' ),
+			this.isElementVisible( '[data-testid="speed-scores-offline"]' ),
 		] );
 
 		return showingScoreArea && ! isOffline;
 	}
 
 	async isOverallScoreHeaderShown() {
-		return await this.isElementVisible( '.jb-site-score' );
+		return await this.isElementVisible( '[data-testid="speed-scores"]' );
 	}
 
 	async isSiteScoreLoading() {
-		const selector = await this.waitForElementToBeVisible( '.jb-site-score' );
+		const selector = await this.waitForElementToBeVisible( '[data-testid="speed-scores"]' );
 		const classNames = await selector.getAttribute( 'class' );
 		return classNames.includes( 'loading' );
 	}
@@ -65,14 +65,14 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async toggleModule( moduleName ) {
-		this.page.click( `#jb-feature-toggle-${ moduleName }` );
+		this.page.click( `.jb-feature-toggle-${ moduleName }` );
 		await this.waitForApiResponse( 'modules-state' );
 	}
 
 	async isModuleEnabled( moduleName ) {
-		const toggle = await this.page.waitForSelector( `#jb-feature-toggle-${ moduleName }` );
-		const toggleParent = await toggle.waitForSelector( 'xpath=..' );
-		const classNames = await toggleParent.getAttribute( 'class' );
+		const toggle = await this.page.waitForSelector( `.jb-feature-toggle-${ moduleName }` );
+		const toggleSwitch = await toggle.waitForSelector( '.components-form-toggle' );
+		const classNames = await toggleSwitch.getAttribute( 'class' );
 
 		return classNames.includes( 'is-checked' );
 	}
@@ -131,13 +131,13 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async clickRefreshSpeedScore() {
-		const selector = '.jb-site-score__top >> text=Refresh';
+		const selector = '[data-testid="speed-scores-top"] >> text=Refresh';
 		await this.page.click( selector );
 	}
 
 	async currentPageTitleIs( expected ) {
 		const actualTitle = await this.page.evaluate( () => {
-			const selector = '.jb-site-score__top h2';
+			const selector = '[data-testid="speed-scores-top"] h2';
 			// eslint-disable-next-line no-undef
 			return document.querySelector( selector ).textContent;
 		} );
@@ -146,13 +146,14 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async waitForScoreLoadingToFinish() {
-		const selector = '.jb-site-score__top h2:text("Loading…")';
+		const selector = '[data-testid="speed-scores-top"] h2:text("Loading…")';
 		/* It needs a large timeout because speed score updates take time */
 		return this.waitForElementToBeDetached( selector, 180000 ); // 3 minutes
 	}
 
 	async isScoreDescriptionPopinVisible() {
-		const selector = '.jb-site-score__top .icon-tooltip-wrapper .components-popover__content';
+		const selector =
+			'[data-testid="speed-scores-top"] .icon-tooltip-wrapper .components-popover__content';
 		return this.page.isVisible( selector );
 	}
 

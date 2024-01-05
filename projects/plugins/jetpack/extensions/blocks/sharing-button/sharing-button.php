@@ -42,18 +42,18 @@ function render_block( $attr, $content, $block ) {
 	$post_id = $block->context['postId'];
 	$title   = $attr['label'] ?? $attr['service'];
 
-	$style_type  = $block->context['styleType'];
-	$style       = 'style-' . $style_type;
-	$data_shared = 'sharing-' . $attr['service'] . '-' . $post_id . $attr['service'];
-	$query       = 'share=' . $attr['service'] . '&nb=1';
+	$style_type = $block->context['styleType'];
+	$style      = 'style-' . $style_type;
+	$query      = 'share=' . $attr['service'] . '&nb=1';
+
+	$data_shared = 'sharing-' . $attr['service'] . '-' . $post_id;
 
 	$services   = get_services();
 	$service    = new $services[ $attr['service'] ]( $attr['service'], array() );
 	$link_props = $service->get_link( $post, $query, $data_shared );
-	$link_url   = $link_props['url'];
 
-	$icon = get_social_logo( $attr['service'] );
-
+	$link_url           = $link_props['url'];
+	$icon               = get_social_logo( $attr['service'] );
 	$sharing_link_class = 'jetpack-sharing-button__button ' . $style . ' share-' . $attr['service'];
 
 	$link_aria_label = sprintf(
@@ -65,9 +65,10 @@ function render_block( $attr, $content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$component  = '<li class="jetpack-sharing-button__list-item">';
-	$component .= '<a rel="nofollow noopener noreferrer" class="' . $sharing_link_class . '" href="' . $link_url . '" target="_blank" data-shared="' . $data_shared . '" aria-label="' . $link_aria_label . '" primary>';
+	$component .= '<a rel="nofollow noopener noreferrer" class="' . esc_attr( $sharing_link_class ) . '" href="' . esc_attr( $link_url ) . '" target="_blank" ';
+	$component .= 'data-service="' . esc_attr( $attr['service'] ) . '" data-shared="' . esc_attr( $data_shared ) . '" aria-label="' . esc_attr( $link_aria_label ) . '" primary>';
 	$component .= $icon;
-	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . $title . '</span>';
+	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . esc_html( $title ) . '</span>';
 	$component .= '</a>';
 	$component .= '</li>';
 

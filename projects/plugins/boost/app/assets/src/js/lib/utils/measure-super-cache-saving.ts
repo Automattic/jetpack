@@ -3,6 +3,20 @@ import { addGetParameter } from './add-get-parameter';
 import { recordBoostEvent } from './analytics';
 
 /**
+ * Returns true if the Super Cache plugin is installed and active.
+ */
+export function isSuperCachePluginActive(): boolean {
+	return !! Jetpack_Boost?.superCache?.pluginActive;
+}
+
+/**
+ * Returns true if the Super Cache plugin is installed, active, and enabled.
+ */
+export function isSuperCacheEnabled() {
+	return !! Jetpack_Boost?.superCache?.cacheEnabled;
+}
+
+/**
  * Measures the speed of pageloads using Super Cache, and bypassing Super Cache.
  *
  * @return {number} milliseconds difference between cached and uncached pageload.

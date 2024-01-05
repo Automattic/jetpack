@@ -136,6 +136,7 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 		usagePeriod,
 		currentTier,
 		nextTier,
+		requireUpgrade,
 	} = useAiFeature();
 	const planType = usePlanType( currentTier );
 	const daysUntilReset = useDaysUntilReset( usagePeriod?.nextStart );
@@ -186,6 +187,7 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 					requestsLimit={ requestsLimit }
 					daysUntilReset={ daysUntilReset }
 					planType={ planType }
+					requireUpgrade={ requireUpgrade }
 				/>
 
 				{ ( planType === PLAN_TYPE_FREE || planType === PLAN_TYPE_TIERED ) && canUpgrade && (

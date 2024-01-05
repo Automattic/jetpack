@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2024-01-04
+### Removed
+- Social: Removed sync option for tweetstorm. [#34330]
+
+## [2.3.0] - 2023-12-20
+### Added
+- Add wpcom_ai_site_prompt option to the site settings endpoint. [#34709]
+
+### Fixed
+- Added preemptive check to break expanding metadata for posts loop in Full Sync. [#34661]
+
+## [2.2.1] - 2023-12-13
+### Changed
+- Refactored loop to improve efficiency and code readability [#34565]
+
+## [2.2.0] - 2023-12-11
+### Added
+- Social: Add auto-conversion option to sync to WPCOM. [#34113]
+
+### Fixed
+- Fixed a missing sanity check in Sync Posts handler logic that created failed builds. [#34548]
+- Sync: Update Full Sync to limit max amount of data sent in one request. [#34390]
+
 ## [2.1.2] - 2023-12-06
 ### Changed
 - Update dependencies.
@@ -991,6 +1014,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[2.4.0]: https://github.com/Automattic/jetpack-sync/compare/v2.3.0...v2.4.0
+[2.3.0]: https://github.com/Automattic/jetpack-sync/compare/v2.2.1...v2.3.0
+[2.2.1]: https://github.com/Automattic/jetpack-sync/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/Automattic/jetpack-sync/compare/v2.1.2...v2.2.0
 [2.1.2]: https://github.com/Automattic/jetpack-sync/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/Automattic/jetpack-sync/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/Automattic/jetpack-sync/compare/v2.0.2...v2.1.0

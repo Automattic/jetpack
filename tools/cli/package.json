@@ -30,7 +30,6 @@
 		"execa": "7.0.0",
 		"glob": "7.1.6",
 		"ignore": "5.1.8",
-		"inquirer": "7.3.3",
 		"js-yaml": "4.1.0",
 		"listr": "0.14.3",
 		"listr-silent-renderer": "1.1.1",
@@ -47,6 +46,6 @@
 	},
 	"devDependencies": {
 		"jest": "29.7.0",
-		"jest-extended": "2.0.0"
+		"jest-extended": "4.0.2"
 	}
 }

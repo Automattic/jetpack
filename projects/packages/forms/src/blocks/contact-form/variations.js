@@ -1,4 +1,4 @@
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
@@ -52,33 +52,6 @@ const variations = compact( [
 				'jetpack/button',
 				{
 					text: __( 'Contact Us', 'jetpack-forms' ),
-					element: 'button',
-					lock: { remove: true },
-				},
-			],
-		],
-		attributes: {
-			...defaultBlockStyling,
-		},
-	},
-	! isSimpleSite() && {
-		name: 'newsletter-form',
-		title: __( 'Lead capture', 'jetpack-forms' ),
-		description: __( 'A simple way to collect leads using forms on your site.', 'jetpack-forms' ),
-		keywords: [
-			_x( 'subscribe', 'block search term', 'jetpack-forms' ),
-			_x( 'email', 'block search term', 'jetpack-forms' ),
-			_x( 'signup', 'block search term', 'jetpack-forms' ),
-		],
-		icon: people,
-		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-consent', {} ],
-			[
-				'jetpack/button',
-				{
-					text: __( 'Subscribe', 'jetpack-forms' ),
 					element: 'button',
 					lock: { remove: true },
 				},
@@ -327,6 +300,33 @@ const variations = compact( [
 		attributes: {
 			...defaultBlockStyling,
 			subject: __( 'New feedback received from your website', 'jetpack-forms' ),
+		},
+	},
+	! ( isAtomicSite() || isSimpleSite() ) && {
+		name: 'lead-capture-form',
+		title: __( 'Lead capture', 'jetpack-forms' ),
+		description: __( 'A simple way to collect leads using forms on your site.', 'jetpack-forms' ),
+		keywords: [
+			_x( 'subscribe', 'block search term', 'jetpack-forms' ),
+			_x( 'email', 'block search term', 'jetpack-forms' ),
+			_x( 'signup', 'block search term', 'jetpack-forms' ),
+		],
+		icon: people,
+		innerBlocks: [
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-consent', {} ],
+			[
+				'jetpack/button',
+				{
+					text: __( 'Subscribe', 'jetpack-forms' ),
+					element: 'button',
+					lock: { remove: true },
+				},
+			],
+		],
+		attributes: {
+			...defaultBlockStyling,
 		},
 	},
 	salesforceLeadFormVariation,

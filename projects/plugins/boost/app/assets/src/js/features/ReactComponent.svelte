@@ -5,10 +5,16 @@
 	import * as WPElement from '@wordpress/element';
 	let container: HTMLDivElement;
 	let root;
+	export let inline = false;
 	afterUpdate( () => {
-		const { this: component, children, ...props } = $$props;
-		root = WPElement.createRoot( container );
-		root.render( React.createElement( component, props, children ) );
+		const { this: component, children, inline: inlineProp, ...otherProps } = $$props;
+		inline = inlineProp;
+
+		if ( ! root ) {
+			root = WPElement.createRoot( container );
+		}
+
+		root.render( React.createElement( component, otherProps, children ) );
 	} );
 	onDestroy( () => {
 		if ( root ) {
@@ -17,4 +23,11 @@
 	} );
 </script>
 
-<div bind:this={container} />
+<div bind:this={container} class:inline />
+
+<style>
+	.inline {
+		display: inline;
+		display: contents;
+	}
+</style>

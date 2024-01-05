@@ -11,12 +11,9 @@
 		width: 100%;
 	}
 
-	a {
-		display: inline;
-	}
-
 	span {
 		display: block;
+		word-wrap: break-word;
 	}
 
 	&.is-list-layout .jetpack-top-posts-item {
@@ -46,9 +43,16 @@
 		.jetpack-top-posts-mock-thumbnail {
 			background-color: $gray-100;
 			height: 0;
-			padding-bottom: 65%;
+			padding-bottom: 75%;
 			position: relative;
 			width: 100%;
+		}
+
+		.jetpack-top-posts-thumbnail {
+			aspect-ratio: 4 / 3;
+			height: auto;
+			object-fit: cover;
+			max-width: 100%;
 		}
 
 		.jetpack-top-posts-item {

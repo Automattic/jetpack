@@ -24,6 +24,7 @@ import type { UsageBarProps, UsageControlProps } from './types';
 export const UsageBar: React.FC< UsageBarProps > = ( {
 	usage,
 	limitReached,
+	requireUpgrade = false,
 }: UsageBarProps ): React.ReactNode => {
 	if ( usage == null ) {
 		return null;
@@ -40,6 +41,7 @@ export const UsageBar: React.FC< UsageBarProps > = ( {
 			<div
 				className={ classNames( 'ai-assistant-usage-bar-usage', {
 					'is-limit-reached': limitReached,
+					'require-upgrade': requireUpgrade,
 				} ) }
 				style={ style }
 			></div>
@@ -53,6 +55,7 @@ function UsageControl( {
 	requestsCount,
 	requestsLimit,
 	daysUntilReset = null,
+	requireUpgrade = false,
 }: UsageControlProps ) {
 	// Trust on the isOverLimit flag, but also do a local check
 	const limitReached = isOverLimit || requestsCount >= requestsLimit;
@@ -106,7 +109,7 @@ function UsageControl( {
 			) }
 			{ planType === PLAN_TYPE_UNLIMITED && <p>{ __( 'Unlimited requests.', 'jetpack' ) }</p> }
 			{ ( planType === PLAN_TYPE_FREE || planType === PLAN_TYPE_TIERED ) && (
-				<UsageBar usage={ usage } limitReached={ limitReached } />
+				<UsageBar usage={ usage } limitReached={ limitReached } requireUpgrade={ requireUpgrade } />
 			) }
 		</BaseControl>
 	);
