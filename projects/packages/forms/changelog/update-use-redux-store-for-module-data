@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Updated use-module-status hook to use module_status redux store. This one is to make sure that package is re-built.

@@ -10,20 +10,20 @@ export default class JetpackMyPlanPage extends WpPage {
 
 	async isFree() {
 		logger.step( 'Checking if Free plan is active' );
-		const freePlanImage = ".my-plan-card__icon img[alt*='Jetpack Free']";
-		return await this.isElementVisible( freePlanImage );
+		const freePlanTitle = '//h2[@class="my-plan-card__title"][text()="Jetpack Free"]';
+		return await this.isElementVisible( freePlanTitle );
 	}
 
 	async isComplete() {
 		logger.step( 'Checking if Complete plan is active' );
-		const premiumPlanImage = ".my-plan-card__icon img[alt*='Jetpack Complete']";
-		return await this.isElementVisible( premiumPlanImage );
+		const completePlanTitle = '//h2[@class="my-plan-card__title"][text()="Jetpack Complete"]';
+		return await this.isElementVisible( completePlanTitle );
 	}
 
 	async isSecurity() {
 		logger.step( 'Checking if Security plan is active' );
-		const proPlanImage = ".my-plan-card__icon img[alt*='Jetpack Security']";
-		return await this.isElementVisible( proPlanImage );
+		const securityPlanTitle = '//h2[@class="my-plan-card__title"][text()="Jetpack Security"]';
+		return await this.isElementVisible( securityPlanTitle );
 	}
 
 	async isPlan( plan ) {

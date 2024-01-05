@@ -115,7 +115,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'setup_general'                      => array(
 			'get_title'            => function () {
-				return __( 'Set up your site', 'jetpack-mu-wpcom' );
+				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_disabled_callback' => '__return_true',
@@ -573,15 +573,6 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/site-editor/' . $data['site_slug_encoded'] . '/?canvas=edit&help-center=subscribe-block';
-			},
-		),
-		'blogname_set'                       => array(
-			'get_title'            => function () {
-				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/settings/general/' . $data['site_slug_encoded'];
 			},
 		),
 		'mobile_app_installed'               => array(
@@ -1498,6 +1489,30 @@ add_action( 'update_option_sm_enabled', 'wpcom_launchpad_mark_enable_subscribers
 add_action( 'add_option_sm_enabled', 'wpcom_launchpad_mark_enable_subscribers_modal_complete', 10, 3 );
 
 /**
+ * Mark the Sensei setup task as complete if the value is changed.
+ *
+ * @param string $old_value The old value of the option.
+ * @param string $value The new value of the option.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_sensei_setup_complete( $old_value, $value ) {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	if ( wp_installing() ) {
+		return;
+	}
+
+	if ( true === $value ) {
+		wpcom_mark_launchpad_task_complete( 'sensei_setup' );
+	}
+}
+add_action( 'update_option_sensei_home_tasks_list_is_completed', 'wpcom_launchpad_mark_sensei_setup_complete', 10, 3 );
+add_action( 'add_option_sensei_home_tasks_list_is_completed', 'wpcom_launchpad_mark_sensei_setup_complete', 10, 3 );
+
+/**
  * Determine `domain_claim` task visibility.
  *
  * @return bool True if we should show the task, false otherwise.
@@ -1880,6 +1895,27 @@ function wpcom_launchpad_mark_customize_welcome_message_complete_on_add( $value 
 	}
 }
 add_action( 'add_option_subscription_options', 'wpcom_launchpad_mark_customize_welcome_message_complete_on_add', 10, 1 );
+
+/**
+ * Mark the WooCommerce setup task as complete the setup task list is in
+ * the completed list or in the hidden list.
+ *
+ * @param string $old_value The old value of the option.
+ * @param string $value The new value of the option.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_woocommerce_setup_complete( $old_value, $value ) {
+	if ( ! in_array( 'setup', $value, true ) ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'woocommerce_setup' );
+}
+add_action( 'update_option_woocommerce_task_list_completed_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
+add_action( 'add_option_woocommerce_task_list_completed_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
+add_action( 'update_option_woocommerce_task_list_hidden_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
+add_action( 'add_option_woocommerce_task_list_hidden_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
 
 /**
  * When a page is updated, check to see if we've already completed the `add_new_page` task and mark the `edit_page` task complete accordingly.

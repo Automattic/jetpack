@@ -1,6 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Jetpack connection banner.
+ * DEPRECATED
  *
  * @package automattic/jetpack
  */
@@ -11,6 +12,7 @@ use Automattic\Jetpack\Licensing;
 
 /**
  * Jetpack connection banner.
+ * DEPRECATED - this banner has been removed as of version 13.0
  */
 class Jetpack_Connection_Banner {
 	/**

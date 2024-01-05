@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.8.0] - 2024-01-04
+### Added
+- Add WooCommerce setup task completion logic. [#34791]
+- Dashboard Link: Allow to customize the url via the query parameter. [#34836]
+
+### Changed
+- Launchpad: Rename the title of the setup_general to Give your site a name. [#34826]
+- Update launchpad methods docs. [#34829]
+- Update package dependencies. [#34815]
+- Use the Site Title task instead of the blogname_set task. [#34799]
+
+## [5.7.0] - 2024-01-02
+### Added
+- Added Sensei setup completion logic. [#34789]
+- Fixed the start page options modal still being visible. [#34824]
+
+### Changed
+- Block Patterns: Updated to use category name testimonials rather than quotes. [#34808]
+
 ## [5.6.0] - 2023-12-25
 ### Removed
 - Remove a nag for domains without a verified email [#34385]
@@ -492,6 +511,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.7.0...v5.8.0
+[5.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.6.0...v5.7.0
 [5.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.5.0...v5.6.0
 [5.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.4.0...v5.5.0
 [5.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.3.0...v5.4.0

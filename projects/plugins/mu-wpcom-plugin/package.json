@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-mu-wpcom-plugin",
-	"version": "2.0.9",
+	"version": "2.0.11",
 	"description": "Test plugin for the jetpack-mu-wpcom package",
 	"homepage": "https://jetpack.com",
 	"bugs": {
