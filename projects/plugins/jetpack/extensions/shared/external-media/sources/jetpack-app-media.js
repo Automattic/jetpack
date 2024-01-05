@@ -56,7 +56,7 @@ function JetpackAppMedia( props ) {
 
 	// Load initial results for the random example query. Only do it once.
 	useEffect( getNextPage, [] ); // eslint-disable-line react-hooks/exhaustive-deps
-	useInterval( getNextPagePull, 1000 );
+	useInterval( getNextPagePull, 2000 );
 
 	const hasImageUploaded = !! media.length;
 	return (
