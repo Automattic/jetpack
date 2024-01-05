@@ -5,9 +5,25 @@
  * @package automattic/jetpack-backup
  */
 
-namespace Automattic\Jetpack\Backup;
+// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
+// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
+// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
+// are installed, or in some other cases).
+namespace Automattic\Jetpack\Backup\V0001;
 
 use Exception;
+use WP_Error;
+use function content_url;
+use function get_site_url;
+use function is_wp_error;
+use function set_url_scheme;
+use function trailingslashit;
+use function wp_generate_password;
+use function wp_http_validate_url;
+use function wp_schedule_single_event;
+use function wp_upload_dir;
+use const ABSPATH;
+use const WP_CONTENT_DIR;
 
 /**
  * Manage installation, deletion and cleanup of Helper Scripts to assist with backing up Jetpack Sites.
@@ -95,7 +111,7 @@ class Helper_Script_Manager_Impl {
 	 * Has to be done late, i.e. can't be done in constructor, because in __construct() not all constants / functions
 	 * might be available.
 	 *
-	 * @return array<string, string|\WP_Error> Array with keys specifying the full path of install locations, and values
+	 * @return array<string, string|WP_Error> Array with keys specifying the full path of install locations, and values
 	 *   either pointing to the equivalent URL, or being WP_Error if a specific path is not accessible.
 	 */
 	public function install_locations() {
@@ -103,7 +119,7 @@ class Helper_Script_Manager_Impl {
 			return $this->custom_install_locations;
 		}
 
-		$abspath_url = \get_site_url();
+		$abspath_url = get_site_url();
 
 		$locations = array();
 
@@ -112,11 +128,11 @@ class Helper_Script_Manager_Impl {
 		// which doesn't point to document root.
 
 		try {
-			if ( Throw_On_Errors::t_is_dir( \WP_CONTENT_DIR ) ) {
-				$wp_content_dir = Throw_On_Errors::t_realpath( \WP_CONTENT_DIR );
+			if ( Throw_On_Errors::t_is_dir( WP_CONTENT_DIR ) ) {
+				$wp_content_dir = Throw_On_Errors::t_realpath( WP_CONTENT_DIR );
 
 				// Using content_url() instead of WP_CONTENT_URL as it tests for whether we're using SSL.
-				$wp_content_url = \content_url();
+				$wp_content_url = content_url();
 
 				// I think we mess up the order in which we load things somewhere in a test, so "wp-content" and
 				// "wp-content/uploads/" URLs don't actually have the scheme+host part in them.
@@ -127,14 +143,14 @@ class Helper_Script_Manager_Impl {
 				$locations[ $wp_content_dir ] = $wp_content_url;
 			}
 		} catch ( Exception $exception ) {
-			$locations[ \WP_CONTENT_DIR ] = new \WP_Error(
+			$locations[ WP_CONTENT_DIR ] = new WP_Error(
 				'content_path_missing',
-				'Unable to access content path "' . \WP_CONTENT_DIR . '"' . $exception->getMessage(),
+				'Unable to access content path "' . WP_CONTENT_DIR . '"' . $exception->getMessage(),
 				array( 'status' => 500 )
 			);
 		}
 
-		$upload_dir_info = \wp_upload_dir();
+		$upload_dir_info = wp_upload_dir();
 		$wp_uploads_dir  = $upload_dir_info['basedir'];
 
 		try {
@@ -148,7 +164,7 @@ class Helper_Script_Manager_Impl {
 				// https://core.trac.wordpress.org/ticket/25449
 				//
 				// so set the scheme manually.
-				$wp_uploads_url = \set_url_scheme( $wp_uploads_url );
+				$wp_uploads_url = set_url_scheme( $wp_uploads_url );
 
 				if ( ! wp_http_validate_url( $wp_uploads_url ) ) {
 					$wp_uploads_url = $abspath_url . $wp_uploads_url;
@@ -157,7 +173,7 @@ class Helper_Script_Manager_Impl {
 				$locations[ $wp_uploads_dir ] = $wp_uploads_url;
 			}
 		} catch ( Exception $exception ) {
-			$locations[ $wp_uploads_dir ] = new \WP_Error(
+			$locations[ $wp_uploads_dir ] = new WP_Error(
 				'uploads_path_missing',
 				'Unable to access uploads path "' . $wp_uploads_dir . '"' . $exception->getMessage(),
 				array( 'status' => 500 )
@@ -165,14 +181,14 @@ class Helper_Script_Manager_Impl {
 		}
 
 		try {
-			if ( Throw_On_Errors::t_is_dir( \ABSPATH ) ) {
-				$abspath_dir               = Throw_On_Errors::t_realpath( \ABSPATH );
+			if ( Throw_On_Errors::t_is_dir( ABSPATH ) ) {
+				$abspath_dir               = Throw_On_Errors::t_realpath( ABSPATH );
 				$locations[ $abspath_dir ] = $abspath_url;
 			}
 		} catch ( Exception $exception ) {
-			$locations[ \ABSPATH ] = new \WP_Error(
+			$locations[ ABSPATH ] = new WP_Error(
 				'abspath_missing',
-				'Unable to access WordPress root "' . \ABSPATH . '": ' . $exception->getMessage(),
+				'Unable to access WordPress root "' . ABSPATH . '": ' . $exception->getMessage(),
 				array( 'status' => 500 )
 			);
 		}
@@ -185,14 +201,14 @@ class Helper_Script_Manager_Impl {
 	 *
 	 * @param string $script_body Helper Script file contents.
 	 *
-	 * @return array|\WP_Error Either an array containing the filesystem path ("path"), the URL ("url") of the helper
+	 * @return array|WP_Error Either an array containing the filesystem path ("path"), the URL ("url") of the helper
 	 *   script, and the WordPress root ("abspath"), or an instance of WP_Error.
 	 */
 	public function install_helper_script( $script_body ) {
 		// Check that the script body contains the correct header.
 		$actual_header = static::string_starts_with_substring( $script_body, static::HELPER_HEADER );
 		if ( true !== $actual_header ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'bad_header',
 				'Bad helper script header: 0x' . bin2hex( $actual_header ),
 				array( 'status' => 400 )
@@ -202,7 +218,7 @@ class Helper_Script_Manager_Impl {
 		// Refuse to install a Helper Script that is too large.
 		$helper_script_size = strlen( $script_body );
 		if ( $helper_script_size > static::MAX_FILESIZE ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'too_big',
 				"Helper script is bigger ($helper_script_size bytes) " .
 				'than the max. size (' . static::MAX_FILESIZE . ' bytes)',
@@ -216,7 +232,7 @@ class Helper_Script_Manager_Impl {
 		try {
 			$normalized_abspath = addslashes( Throw_On_Errors::t_realpath( ABSPATH ) );
 		} catch ( Exception $exception ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'abspath_missing',
 				'Error while resolving ABSPATH "' . ABSPATH . '": ' . $exception->getMessage(),
 				array( 'status' => 500 )
@@ -229,7 +245,7 @@ class Helper_Script_Manager_Impl {
 			$wp_path_marker_replacement_count
 		);
 		if ( 0 === $wp_path_marker_replacement_count ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'no_wp_path_marker',
 				"Helper script does not have the '$wp_path_marker' marker",
 				array( 'status' => 400 )
@@ -249,7 +265,7 @@ class Helper_Script_Manager_Impl {
 				$installed = $this->install_to_location_or_throw( $script_body, $directory, $url );
 
 				// Always schedule a cleanup run shortly after EXPIRY_TIME.
-				\wp_schedule_single_event(
+				wp_schedule_single_event(
 					time() + static::EXPIRY_TIME + 60,
 					'jetpack_backup_cleanup_helper_scripts'
 				);
@@ -265,7 +281,7 @@ class Helper_Script_Manager_Impl {
 			}
 		}
 
-		return new \WP_Error(
+		return new WP_Error(
 			'all_locations_failed',
 			'Unable to write the helper script to any install locations; ' .
 			'tried: ' . implode( ';', $failure_paths_and_reasons ),
@@ -323,14 +339,14 @@ class Helper_Script_Manager_Impl {
 	 *
 	 * @param string $path Path to the helper script to delete.
 	 *
-	 * @return true|\WP_Error True if the file helper script is gone (either it got deleted, or it was never there), or
+	 * @return true|WP_Error True if the file helper script is gone (either it got deleted, or it was never there), or
 	 *   WP_Error instance on deletion failures.
 	 */
 	public function delete_helper_script( $path ) {
 		try {
 			$this->delete_helper_script_or_throw( $path );
 		} catch ( Exception $exception ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'deletion_failure',
 				"Unable to delete helper script at '$path': " . $exception->getMessage(),
 				array( 'status' => 500 )
@@ -392,14 +408,14 @@ class Helper_Script_Manager_Impl {
 	/**
 	 * Search for Helper Scripts that are suspiciously old, and clean them out.
 	 *
-	 * @return true|\WP_Error True if all expired helper scripts got cleaned up successfully, or an instance of
+	 * @return true|WP_Error True if all expired helper scripts got cleaned up successfully, or an instance of
 	 *   WP_Error if one or more expired helper scripts didn't manage to get cleaned up.
 	 */
 	public function cleanup_expired_helper_scripts() {
 		try {
 			$this->cleanup_helper_scripts( time() - static::EXPIRY_TIME );
 		} catch ( Exception $exception ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'cleanup_failed',
 				'Unable to clean up expired helper scripts: ' . $exception->getMessage(),
 				array( 'status' => 500 )
@@ -412,14 +428,14 @@ class Helper_Script_Manager_Impl {
 	/**
 	 * Search for and delete all Helper Scripts. Used during uninstallation.
 	 *
-	 * @return true|\WP_Error True if all helper scripts got deleted successfully, or an instance of WP_Error if one or
+	 * @return true|WP_Error True if all helper scripts got deleted successfully, or an instance of WP_Error if one or
 	 *   more helper scripts didn't manage to get deleted.
 	 */
 	public function delete_all_helper_scripts() {
 		try {
 			$this->cleanup_helper_scripts();
 		} catch ( Exception $exception ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'cleanup_failed',
 				'Unable to clean up all helper scripts: ' . $exception->getMessage(),
 				array( 'status' => 500 )

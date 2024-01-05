@@ -6,13 +6,23 @@
  * @package automattic/jetpack-transport-helper
  */
 
-namespace Automattic\Jetpack\Transport_Helper;
+// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
+// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
+// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
+// are installed, or in some other cases).
+namespace Automattic\Jetpack\Transport_Helper\V0001;
 
-use Automattic\Jetpack\Backup\Helper_Script_Manager;
+use Automattic\Jetpack\Backup\V0001\Helper_Script_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
+// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
+use function esc_html__;
+use function is_wp_error;
+use function register_rest_route;
+use function rest_authorization_required_code;
+use function rest_ensure_response;
 
 /**
  * Registers the REST routes.
@@ -124,7 +134,8 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @return array|\WP_Error An array with 'success' key indicating the result of the delete operation.
+	 *
+	 * @return array|WP_Error An array with 'success' key indicating the result of the delete operation.
 	 */
 	public static function delete_helper_script( $request ) {
 		$path_to_helper_script = $request->get_param( 'path' );

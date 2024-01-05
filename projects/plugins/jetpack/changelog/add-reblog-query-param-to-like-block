@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Added the "reblog" query param to the iframe in the Like Block when the reblog button is enabled in the block.
