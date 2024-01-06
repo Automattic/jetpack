@@ -1,15 +1,15 @@
 <?php
 /**
- * REST API endpoint for the External Media.
+ * REST API endpoint for the media uploaded by the Jetpack app.
  *
  * @package automattic/jetpack
- * @since 8.7.0
+ * @since 13.0.0
  */
 
 /**
- * External Media helper API.
+ * Media uploaded by the Jetpack app helper API.
  *
- * @since 8.7.0
+ * @since 13.0.0
  */
 class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 
@@ -36,17 +36,25 @@ class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 				'permission_callback' => array( $this, 'permission_callback' ),
 				'args'                => array(
 					'number'      => array(
-						'description' => __( 'Number of media items in the request', 'jetpack' ),
-						'type'        => 'number',
-						'default'     => 20,
+						'description'       => __( 'Number of media items in the request', 'jetpack' ),
+						'type'              => 'number',
+						'default'           => 20,
+						'required'          => false,
+						'sanitize_callback' => 'absint',
+
 					),
 					'page_handle' => array(
-						'type' => 'string',
+						'type'              => 'number',
+						'required'          => false,
+						'sanitize_callback' => 'absint',
+
 					),
 					'after'       => array(
-						'description' => __( 'Timestamp since the media was uploaded', 'jetpack' ),
-						'type'        => 'number',
-						'default'     => 0,
+						'description'       => __( 'Timestamp since the media was uploaded', 'jetpack' ),
+						'type'              => 'number',
+						'default'           => 0,
+						'required'          => true,
+						'sanitize_callback' => 'absint',
 					),
 				),
 			)
