@@ -458,7 +458,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
 						'subscription_options'             => (array) get_option( 'subscription_options' ),
 						'jetpack_verbum_subscription_modal' => (bool) get_option( 'jetpack_verbum_subscription_modal', true ),
-						'jetpack_header_code'              => get_option( 'jetpack_header_code', true ),
+						'jetpack_header_code'              => get_option( 'jetpack_header_code', '' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
