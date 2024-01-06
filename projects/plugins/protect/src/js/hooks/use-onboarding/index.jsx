@@ -1,43 +1,42 @@
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback } from 'react';
 import { STORE_ID } from '../../state/store';
 
 const useOnboarding = () => {
 	const { setOnboardingStep } = useDispatch( STORE_ID );
 	const onboardingStep = useSelect( select => select( STORE_ID ).getOnboardingStep() );
 
-	const incrementOnboardingStep = useCallback(
-		totalSteps => {
-			if ( onboardingStep === totalSteps ) {
-				setOnboardingStep( null );
-				return;
-			}
-			setOnboardingStep( onboardingStep + 1 );
-		},
-		[ onboardingStep, setOnboardingStep ]
-	);
-
-	const closeOnboarding = useCallback( () => {
-		setOnboardingStep( null );
-	}, [ setOnboardingStep ] );
-
-	const dismissOnboarding = useCallback(
-		onDismissCallback => {
-			if ( onDismissCallback && typeof onDismissCallback === 'function' ) {
-				// If applicable, set dismissal flags
-				onDismissCallback();
-			}
+	const incrementOnboardingStep = totalSteps => {
+		if ( onboardingStep === totalSteps ) {
 			setOnboardingStep( null );
-		},
-		[ setOnboardingStep ]
-	);
+			return;
+		}
+		setOnboardingStep( onboardingStep + 1 );
+	};
 
-	const resetOnboarding = useCallback( () => {
+	const closeOnboarding = () => {
+		setOnboardingStep( null );
+	};
+
+	const dismissOnboarding = onDismissCallback => {
+		if ( onDismissCallback && typeof onDismissCallback === 'function' ) {
+			// If applicable, set dismissal flags
+			onDismissCallback();
+		}
+		setOnboardingStep( null );
+	};
+
+	const resetOnboarding = () => {
 		// If not dismissed and not the initial step, reset
 		if ( onboardingStep !== null && onboardingStep !== 1 ) {
 			setOnboardingStep( 1 );
 		}
-	}, [ onboardingStep, setOnboardingStep ] );
+	};
+
+	const resetOnboardingOnAnchorRegeneration = anchors => {
+		if ( Object.keys( anchors ).length === 0 ) {
+			resetOnboarding();
+		}
+	};
 
 	const createPopoverArgs = ( {
 		title,
@@ -62,31 +61,19 @@ const useOnboarding = () => {
 		children,
 	} );
 
-	const getCurrentPopoverArgs = useCallback(
-		onboardingStepHandlers => {
-			const handler = onboardingStepHandlers[ onboardingStep ];
-			return handler ? handler() : null;
-		},
-		[ onboardingStep ]
-	);
-
-	const resetOnboardingOnAnchorRegeneration = useCallback(
-		anchors => {
-			if ( Object.keys( anchors ).length === 0 ) {
-				resetOnboarding();
-			}
-		},
-		[ resetOnboarding ]
-	);
+	const getCurrentPopoverArgs = onboardingStepHandlers => {
+		const handler = onboardingStepHandlers[ onboardingStep ];
+		return handler ? handler() : null;
+	};
 
 	return {
 		onboardingStep,
 		incrementOnboardingStep,
 		closeOnboarding,
 		dismissOnboarding,
+		resetOnboardingOnAnchorRegeneration,
 		createPopoverArgs,
 		getCurrentPopoverArgs,
-		resetOnboardingOnAnchorRegeneration,
 	};
 };
 
