@@ -5,7 +5,8 @@ import useSamplePopoverArgs from './use-sample-popover-args';
 
 const SampleOnboarding = ( { anchors } ) => {
 	// Retrieve onboarding state and methods
-	const { onboardingStep, resetOnboarding, getCurrentPopoverArgs } = useOnboarding();
+	const { onboardingStep, getCurrentPopoverArgs, resetOnboardingOnAnchorRegeneration } =
+		useOnboarding();
 
 	// Define total steps
 	const totalSteps = 5;
@@ -45,10 +46,8 @@ const SampleOnboarding = ( { anchors } ) => {
 
 	// Reset onboarding when anchors reset before regenerating
 	useEffect( () => {
-		if ( Object.keys( anchors ).length === 0 ) {
-			resetOnboarding();
-		}
-	}, [ anchors, resetOnboarding ] );
+		resetOnboardingOnAnchorRegeneration( anchors );
+	}, [ anchors, resetOnboardingOnAnchorRegeneration ] );
 
 	return <ActionPopover { ...sampleOnboardingPopoverArgs } />;
 };

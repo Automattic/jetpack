@@ -9,7 +9,8 @@ const ScanOnboarding = ( { anchors } ) => {
 	const { freeScanOnboardingDismissed, paidScanOnboardingDismissed } =
 		window.jetpackProtectInitialState;
 	const { hasRequiredPlan } = useProtectData();
-	const { onboardingStep, resetOnboarding, getCurrentPopoverArgs } = useOnboarding();
+	const { onboardingStep, getCurrentPopoverArgs, resetOnboardingOnAnchorRegeneration } =
+		useOnboarding();
 
 	const { list } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
@@ -87,10 +88,8 @@ const ScanOnboarding = ( { anchors } ) => {
 
 	// Reset onboarding when anchors reset before regenerating
 	useEffect( () => {
-		if ( Object.keys( anchors ).length === 0 ) {
-			resetOnboarding();
-		}
-	}, [ anchors, resetOnboarding ] );
+		resetOnboardingOnAnchorRegeneration( anchors );
+	}, [ anchors, resetOnboardingOnAnchorRegeneration ] );
 
 	return <ActionPopover { ...scanOnboardingPopoverArgs } />;
 };
