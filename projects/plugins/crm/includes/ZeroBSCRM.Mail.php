@@ -535,10 +535,6 @@ function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser=
 
 	if ($debugMail) $retDebugStr = '<h2>Debugging SMTP</h2>';
 
-	# NO BLACKLIST SENDS!
-	# global $blacklistCache;
-	# if (in_array($toEmail,$blacklistCache)) return false;
-
 	#} was going to fallback to default "sendFrom", but these should not be fired without! - for now use brand name :)
 	if (empty($sendFromName)) $sendFromName = 'Jetpack CRM';
 

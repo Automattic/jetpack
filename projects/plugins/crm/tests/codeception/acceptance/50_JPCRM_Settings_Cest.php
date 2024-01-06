@@ -208,11 +208,11 @@ class JPCRM_Settings_Cest {
 		$I->goToPageViaSlug( 'settings', '&tab=companies' );
 
 		$I->selectOption( 'jpcrm_setting_coororg', 'Domain' );
-		$I->fillField( 'jpcrm-status-companies', 'Lead,Customer,Refused,Blacklisted,Priority' );
+		$I->fillField( 'jpcrm-status-companies', 'Lead,Customer,Refused,Priority' );
 		$I->click( 'Save Settings' );
 
 		$I->seeOptionIsSelected( 'jpcrm_setting_coororg', 'Domain' );
-		$I->seeInField( 'jpcrm-status-companies', 'Lead,Customer,Refused,Blacklisted,Priority' );
+		$I->seeInField( 'jpcrm-status-companies', 'Lead,Customer,Refused,Priority' );
 	}
 
 	public function see_quotes_settings( AcceptanceTester $I ) {
