@@ -29,6 +29,9 @@ function JetpackAppMedia( props ) {
 		},
 		[ insertMedia ]
 	);
+	if ( media.length === 1 && ! multiple ) {
+		onCopy( media );
+	}
 
 	// Load initial results for the random example query. Only do it once.
 	useEffect( getNextPage, [] ); // eslint-disable-line react-hooks/exhaustive-deps
