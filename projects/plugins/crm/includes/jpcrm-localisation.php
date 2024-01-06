@@ -29,7 +29,12 @@ function jpcrm_uts_to_datetime_str( $timestamp, $format = false, $use_utc = fals
 	}
 
 	// create DateTime object from UTS
-	$date_obj = new DateTime( '@' . $timestamp );
+	try {
+		$date_obj = new DateTime( '@' . $timestamp );
+	} catch ( Exception $e ) {
+		// Unable to parse timestamp, so probably not a UTS.
+		return false;
+	}
 
 	// something's wrong, so abort
 	if ( ! $date_obj ) {
