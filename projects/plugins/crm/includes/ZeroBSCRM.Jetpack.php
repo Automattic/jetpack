@@ -92,6 +92,8 @@ function zero_bs_crm_capture_jetpack_form( $post_id, $all_field_data, $is_spam, 
 					} else {
 						$contact_data[ $data_key ] = explode( ',', $field_data->value );
 					}
+				} elseif ( $field_data->get_attribute( 'type' ) === 'date' ) {
+					$contact_data[ $data_key ] = jpcrm_date_str_wp_format_to_uts( $field_data->value, true );
 				} else {
 					$contact_data[ $data_key ] = $field_data->value;
 				}
