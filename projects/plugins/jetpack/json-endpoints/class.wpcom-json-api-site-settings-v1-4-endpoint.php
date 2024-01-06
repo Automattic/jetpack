@@ -129,6 +129,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'subscription_options'                    => '(array) Array of three options used in subscription email templates: \'invitation\', \'welcome\' and \'comment_follow\' strings.',
 			'jetpack_verbum_subscription_modal'       => '(bool) Whether Subscription modal is enabled in Verbum comments',
 			'wpcom_ai_site_prompt'                    => '(string) User input in the AI site prompt',
+			'jetpack_header_code'                     => '(string) User code to include in the site Header element',
 		),
 
 		'response_format' => array(
