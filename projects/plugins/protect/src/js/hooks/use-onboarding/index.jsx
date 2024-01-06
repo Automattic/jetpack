@@ -33,8 +33,11 @@ const useOnboarding = () => {
 	);
 
 	const resetOnboarding = useCallback( () => {
-		setOnboardingStep( 1 );
-	}, [ setOnboardingStep ] );
+		// If not dismissed and not the initial step, reset
+		if ( onboardingStep !== null && onboardingStep !== 1 ) {
+			setOnboardingStep( 1 );
+		}
+	}, [ onboardingStep, setOnboardingStep ] );
 
 	const createPopoverArgs = ( {
 		title,
@@ -67,14 +70,23 @@ const useOnboarding = () => {
 		[ onboardingStep ]
 	);
 
+	const resetOnboardingOnAnchorRegeneration = useCallback(
+		anchors => {
+			if ( Object.keys( anchors ).length === 0 ) {
+				resetOnboarding();
+			}
+		},
+		[ resetOnboarding ]
+	);
+
 	return {
 		onboardingStep,
 		incrementOnboardingStep,
 		closeOnboarding,
 		dismissOnboarding,
-		resetOnboarding,
 		createPopoverArgs,
 		getCurrentPopoverArgs,
+		resetOnboardingOnAnchorRegeneration,
 	};
 };
 
