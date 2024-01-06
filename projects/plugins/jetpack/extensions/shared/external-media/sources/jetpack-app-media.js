@@ -2,7 +2,7 @@ import { QRCode } from '@automattic/jetpack-components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { JetpackAppIcon } from '../../icons';
-import useInterval from '../../shared/use-interval';
+import useInterval from '../../use-interval';
 import MediaBrowser from '../media-browser';
 import { MediaSource } from '../media-service/types';
 import withMedia from './with-media';
