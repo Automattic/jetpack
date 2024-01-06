@@ -131,7 +131,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				}
 
 				const { noticeOperations } = this.props;
-
+				noticeOperations.removeAllNotices();
 				noticeOperations.createErrorNotice(
 					error.code === 'internal_server_error' ? 'Internal server error' : error.message
 				);
