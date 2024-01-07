@@ -51,7 +51,6 @@
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
 		"automattic/jetpack-wordads": "@dev",
-		"nojimage/twitter-text-php": "3.1.2",
 		"scssphp/scssphp": "1.12.0"
 	},
 	"require-dev": {
@@ -103,7 +102,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_0_a_10",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_0_a_14",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

@@ -1,0 +1,68 @@
+{
+	"private": false,
+	"name": "@automattic/jetpack-scan",
+	"version": "0.1.0-alpha",
+	"description": "A JS client for consuming Jetpack Scan services",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/scan/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Scan"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/scan"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run compile-ts",
+		"clean": "rm -rf build/",
+		"compile-ts": "tsc --pretty",
+		"test": "jest"
+	},
+	"type": "module",
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.23.5",
+		"@babel/plugin-transform-react-jsx": "7.23.4",
+		"@jest/globals": "29.7.0",
+		"@storybook/addon-actions": "7.4.6",
+		"@storybook/blocks": "7.4.6",
+		"@storybook/react": "7.4.6",
+		"@testing-library/react": "14.1.2",
+		"@types/jest": "29.5.10",
+		"@types/react": "18.2.33",
+		"@wordpress/babel-plugin-import-jsx-pragma": "4.31.0",
+		"babel-jest": "29.7.0",
+		"jest": "^29.7.0",
+		"jest-environment-jsdom": "29.7.0",
+		"typescript": "5.0.4"
+	},
+	"exports": {
+		".": {
+			"jetpack:src": "./src/index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		}
+	},
+	"main": "./build/index.js",
+	"types": "./build/index.d.ts",
+	"dependencies": {
+		"@automattic/jetpack-api": "workspace:*",
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@wordpress/api-fetch": "6.45.0",
+		"@wordpress/element": "5.25.0",
+		"@wordpress/i18n": "4.48.0",
+		"@wordpress/url": "3.49.0",
+		"debug": "4.3.4",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0"
+	},
+	"peerDependencies": {
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"@wordpress/i18n": "4.47.0"
+	}
+}

@@ -71,7 +71,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.40.x-dev"
+			"dev-trunk": "0.41.x-dev"
 		},
 		"version-constants": {
 			"::VERSION": "src/class-package.php"

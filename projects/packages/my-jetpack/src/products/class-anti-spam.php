@@ -93,6 +93,18 @@ class Anti_Spam extends Product {
 	}
 
 	/**
+	 * Determine if the site has an Akismet plan by checking for an API key
+	 *
+	 * @return bool - whether an API key was found
+	 */
+	public static function has_required_plan() {
+		// Check if the site has an API key for Akismet
+		$akismet_api_key = apply_filters( 'akismet_get_api_key', defined( 'WPCOM_API_KEY' ) ? constant( 'WPCOM_API_KEY' ) : get_option( 'wordpress_api_key' ) );
+
+		return ! empty( $akismet_api_key );
+	}
+
+	/**
 	 * Get the product princing details
 	 *
 	 * @return array Pricing details

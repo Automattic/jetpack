@@ -5,7 +5,14 @@
  * @package automattic/jetpack-backup-plugin
  */
 
-namespace Automattic\Jetpack\Backup;
+// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
+// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
+// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
+// are installed, or in some other cases).
+namespace Automattic\Jetpack\Backup\V0001;
+
+use function get_option;
+use function update_option;
 
 /**
  * The Upgrades class.
