@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+In modules_store we remove unused logic and cover store with tests

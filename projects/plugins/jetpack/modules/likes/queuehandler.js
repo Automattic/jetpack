@@ -201,19 +201,13 @@ function JetpackLikesMessageListener( event ) {
 			break;
 
 		case 'hideOtherGravatars': {
-			const container = document.querySelector( '#likes-other-gravatars' );
-			if ( ! container ) {
-				break;
-			}
-
-			if ( container.style.display === 'block' ) {
-				container.style.display = 'none';
-			}
+			hideLikersPopover();
 			break;
 		}
 
 		case 'showOtherGravatars': {
 			const container = document.querySelector( '#likes-other-gravatars' );
+
 			if ( ! container ) {
 				break;
 			}
@@ -235,7 +229,7 @@ function JetpackLikesMessageListener( event ) {
 					.forEach( item => ( item.textContent = data.total ) );
 			}
 
-			( data.likers || [] ).forEach( liker => {
+			( data.likers || [] ).forEach( async ( liker, index ) => {
 				if ( liker.profile_URL.substr( 0, 4 ) !== 'http' ) {
 					// We only display gravatars with http or https schema
 					return;
@@ -244,30 +238,45 @@ function JetpackLikesMessageListener( event ) {
 				const element = document.createElement( 'li' );
 				if ( newLayout ) {
 					element.innerHTML = `
-						<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-							<img src="${ encodeURI( liker.avatar_URL ) }"
-								alt=""
-								style="width: 28px; height: 28px;" />
-							<span></span>
-						</a>
-					`;
+					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
+						<img src="${ encodeURI( liker.avatar_URL ) }"
+							alt=""
+							style="width: 28px; height: 28px;" />
+						<span></span>
+					</a>
+				`;
 				} else {
 					element.innerHTML = `
-						<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-							<img src="${ encodeURI( liker.avatar_URL ) }"
-								alt=""
-								style="width: 30px; height: 30px; padding-right: 3px;" />
-						</a>
-					`;
+					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
+						<img src="${ encodeURI( liker.avatar_URL ) }"
+							alt=""
+							style="width: 30px; height: 30px; padding-right: 3px;" />
+					</a>
+				`;
 				}
 
 				list.append( element );
 
 				// Add some extra attributes through native methods, to ensure strings are sanitized.
 				element.classList.add( liker.css_class );
-				element.querySelector( 'img' ).alt = liker.name;
+				element.querySelector( 'img' ).alt = data.avatarAltTitle.replace( '%s', liker.name );
+
 				if ( newLayout ) {
 					element.querySelector( 'span' ).innerText = liker.name;
+				}
+
+				if ( index === data.likers.length - 1 ) {
+					element.addEventListener( 'keydown', e => {
+						if ( e.key === 'Tab' && ! e.shiftKey ) {
+							e.preventDefault();
+							hideLikersPopover();
+
+							JetpackLikesPostMessage(
+								{ event: 'focusLikesCount', parent: data.parent },
+								window.frames[ 'likes-master' ]
+							);
+						}
+					} );
 				}
 			} );
 
@@ -313,28 +322,27 @@ function JetpackLikesMessageListener( event ) {
 
 				const listWidth = rowLength * 37;
 				list.style.width = listWidth + 'px';
-
-				const scrollbarWidth = list.offsetWidth - list.clientWidth;
-				if ( scrollbarWidth > 0 ) {
-					container.style.width = containerWidth + scrollbarWidth + 'px';
-					list.style.width = listWidth + scrollbarWidth + 'px';
-				}
 			}
 
 			container.style.display = 'block';
+			container.setAttribute( 'aria-hidden', 'false' );
+			container.focus();
 		}
 	}
 }
 
 window.addEventListener( 'message', JetpackLikesMessageListener );
 
-document.addEventListener( 'click', e => {
+function hideLikersPopover() {
 	const container = document.querySelector( '#likes-other-gravatars' );
 
-	if ( container && ! container.contains( e.target ) ) {
+	if ( container ) {
 		container.style.display = 'none';
+		container.setAttribute( 'aria-hidden', 'true' );
 	}
-} );
+}
+
+document.addEventListener( 'click', hideLikersPopover );
 
 function JetpackLikesWidgetQueueHandler() {
 	var wrapperID;
