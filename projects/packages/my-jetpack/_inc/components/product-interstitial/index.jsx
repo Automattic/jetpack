@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -288,18 +289,21 @@ export function JetpackAIInterstitial() {
 	const slug = 'jetpack-ai';
 	const { detail } = useProduct( slug );
 	const { onClickGoBack } = useGoBack( { slug } );
+	const { isRegistered } = useConnection();
 
 	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ] || null;
 
-	if ( ! nextTier ) {
+	if ( isRegistered && ! nextTier ) {
 		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
 	}
 
 	const { hasRequiredPlan } = detail;
 	const ctaLabel = hasRequiredPlan ? __( 'Upgrade Jetpack AI', 'jetpack-my-jetpack' ) : null;
 
+	// Default to 100 requests if the site is not registered/connected.
+	const nextTierValue = isRegistered ? nextTier?.value : 100;
 	// Decide the quantity value for the upgrade, but ignore the unlimited tier.
-	const quantity = nextTier?.value !== 1 ? nextTier?.value : null;
+	const quantity = nextTierValue !== 1 ? nextTierValue : null;
 
 	// Highlight the last feature in the table for all the tiers except the unlimited one.
 	const highlightLastFeature = nextTier?.value !== 1;

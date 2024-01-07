@@ -1,0 +1,6 @@
+{
+	"parents": {
+		"readme.md": [ "docs/quick-start.md", "docs/CONTRIBUTING.md" ],
+		"docs/CONTRIBUTING.md": [ "CODE-OF-CONDUCT.md", "docs/monorepo.md", "docs/quick-start.md" ]
+	}
+}

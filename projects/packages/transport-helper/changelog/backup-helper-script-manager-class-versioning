@@ -1,0 +1,4 @@
+Significance: major
+Type: fixed
+
+Backup: Add namespace versioning to Helper_Script_Manager and other classes

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useAiContext, withAiDataProvider } from '@automattic/jetpack-ai-client';
-import { JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-extension-utils';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -39,10 +39,7 @@ export function useIsPossibleToExtendJetpackFormBlock(
 ): boolean {
 	// Check if the AI Assistant block is registered.
 	const isBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
-	const isModuleActive = useSelect(
-		selectData => selectData( JETPACK_MODULES_STORE_ID ).isModuleActive( 'contact-form' ),
-		[ JETPACK_MODULES_STORE_ID ]
-	);
+	const { isModuleActive } = useModuleStatus( 'contact-form' );
 
 	if ( ! isModuleActive ) {
 		return false;
