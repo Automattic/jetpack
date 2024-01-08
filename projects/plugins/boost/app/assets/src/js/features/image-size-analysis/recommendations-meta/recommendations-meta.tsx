@@ -32,6 +32,13 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActiv
 
 	const status = isaReport?.status;
 	const groups = isaReport?.groups || {};
+
+	const scannedPagesCount = ( isaGroups: Record< string, IsaCounts > ) => {
+		return Object.values( isaGroups )
+			.map( group => group.scanned_pages )
+			.reduce( ( a, b ) => a + b, 0 );
+	};
+
 	const scannedPages = scannedPagesCount( isaReport?.groups || {} );
 
 	useEffect( () => {
@@ -72,12 +79,6 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActiv
 			! isCdnActive && ( totalIssues > 0 || status === ISAStatus.NotFound )
 		);
 	}, [ isCdnActive, isaReport, errorCode, requestingReport, status, totalIssues ] );
-
-	const scannedPagesCount = ( isaGroups: Record< string, IsaCounts > ) => {
-		return Object.values( isaGroups )
-			.map( group => group.scanned_pages )
-			.reduce( ( a, b ) => a + b, 0 );
-	};
 
 	const getWaitNotice = ( isRequesting: boolean, currentStatus: string | undefined ) => {
 		if ( isRequesting ) {
