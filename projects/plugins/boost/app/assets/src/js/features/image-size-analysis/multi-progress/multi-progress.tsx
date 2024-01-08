@@ -20,15 +20,13 @@ interface ReportProgress {
 interface MultiProgressProps {
 	reportProgress: ReportProgress[];
 }
-type ConditionalLinkProps = typeof Link & {
+type MaybeLinkProps = typeof Link & {
 	isLink?: boolean;
 	trackEvent?: string;
 	trackEventProps?: string;
-	children: ReactNode;
-	[ x: string ]: unknown;
 };
 
-const ConditionalLink: React.FC< ConditionalLinkProps > = ( {
+const MaybeLink: React.FC< MaybeLinkProps > = ( {
 	isLink = true,
 	trackEvent = '',
 	trackEventProps = '',
@@ -63,7 +61,7 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => 
 					{ report.progress > 0 && report.progress < 100 ? (
 						<Spinner />
 					) : (
-						<ConditionalLink
+						<MaybeLink
 							isLink={ report.has_issues }
 							className="jb-navigator-link"
 							to={ `/image-size-analysis/${ report.group }/1` }
@@ -77,11 +75,11 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => 
 							>
 								{ report.has_issues ? <WarningIcon /> : report.done ? '✓' : index + 1 }
 							</span>
-						</ConditionalLink>
+						</MaybeLink>
 					) }
 
 					<div className="jb-category-name">
-						<ConditionalLink
+						<MaybeLink
 							isLink={ report.has_issues }
 							className="jb-navigator-link"
 							to={ `/image-size-analysis/${ report.group }/1` }
@@ -89,13 +87,13 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => 
 							trackEventProps={ report.group }
 						>
 							{ getGroupLabel( report.group ) }
-						</ConditionalLink>
+						</MaybeLink>
 						{ report.group === 'other' && <OtherGroupContext /> }
 					</div>
 
 					{ ( report.done || report.has_issues ) && (
 						<div className={ `jb-status ${ report.has_issues ? 'has-issues' : '' }` }>
-							<ConditionalLink
+							<MaybeLink
 								isLink={ report.has_issues }
 								className="jb-navigator-link"
 								to={ `/image-size-analysis/${ report.group }/1` }
@@ -106,7 +104,7 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => 
 									? // translators: %d: The number of issues
 									  sprintf( __( '%d issues', 'jetpack-boost' ), report.issue_count )
 									: __( 'No issues', 'jetpack-boost' ) }
-							</ConditionalLink>
+							</MaybeLink>
 						</div>
 					) }
 				</div>
