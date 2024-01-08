@@ -62,7 +62,7 @@ const WelcomeBanner = () => {
 									'jetpack-my-jetpack'
 								) }
 							</Text>
-							<Text variant="body" mb={ shouldDisplayConnectionButton ? 2 : 0 }>
+							<Text variant="body" mb={ shouldDisplayConnectionButton ? 4 : 0 }>
 								{ __(
 									'It’s the ultimate toolkit for best-in-class websites, with everything you need to grow your business. Choose a plan below to get started.',
 									'jetpack-my-jetpack'
