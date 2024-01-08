@@ -151,33 +151,10 @@ class Dedicated_Sender {
 
 		$queue_lag = $queue->lag();
 
-		// Only check if we're failing to send events if the queue lag is longer than the threshold.
-		if ( $queue_lag > $queue_send_time_threshold ) {
-			/**
-			 * Check if Dedicated Sync is healthy and revert to Default Sync if such case is detected.
-			 */
-			$last_successful_queue_send_time = get_option( Actions::LAST_SUCCESS_PREFIX . $queue->id, null );
-
-			if ( $last_successful_queue_send_time === null ) {
-				/**
-				 * No successful sync sending completed. This might be either a "new" sync site or a site that's totally stuck.
-				 */
-				self::on_dedicated_sync_lag_not_sending_threshold_reached();
-
-				return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
-			} else {
-				/**
-				 * We have recorded a successful sending of events. Let's see if that is not too long ago in the past.
-				 */
-				$time_since_last_succesful_send = time() - $last_successful_queue_send_time;
-
-				if ( $time_since_last_succesful_send > $queue_send_time_threshold ) {
-					// We haven't successfully sent stuff in more than 30 minutes. Revert to Default Sync
-					self::on_dedicated_sync_lag_not_sending_threshold_reached();
-
-					return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
-				}
-			}
+		// Check if a test request fails the queue lag is longer than the threshold. If so disable Dedicated Sync.
+		if ( ! self::can_spawn_dedicated_sync_request() && $queue_lag > $queue_send_time_threshold ) {
+			self::on_dedicated_sync_lag_not_sending_threshold_reached();
+			return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
 		}
 
 		/**
