@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import ChevronLeft from '$svg/chevron-left';
 import ChevronRight from '$svg/chevron-right';
+import { Link } from 'react-router-dom';
 
 interface PaginationProps {
 	group: string;
@@ -36,10 +37,11 @@ const PaginationArrow: React.FC< PaginationLinkProps > = ( {
 	if ( inactive ) {
 		return <span className="jb-pagination__page jb-pagination__page--inactive">{ children }</span>;
 	}
+
 	return (
-		<a href={ `#/image-size-analysis/${ group }/${ page }` } className="jb-pagination__page">
+		<Link to={ `${ group }/${ page }` } className="jb-pagination__page">
 			{ children }
-		</a>
+		</Link>
 	);
 };
 
@@ -88,14 +90,14 @@ const Pagination: React.FC< PaginationProps > = ( { group, current, total } ) =>
 								{ paginationPage === MORE_ICON ? (
 									<span className="jb-pagination__page jb-pagination__more"> ... </span>
 								) : (
-									<a
-										href={ `#/image-size-analysis/${ group }/${ paginationPage }` }
+									<Link
+										to={ `${ group }/${ paginationPage }` }
 										className={ `jb-pagination__page${
 											paginationPage === current ? ' jb-pagination__page--current' : ''
 										}` }
 									>
 										{ paginationPage }
-									</a>
+									</Link>
 								) }
 							</li>
 						) ) }
