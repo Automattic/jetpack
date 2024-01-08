@@ -7,6 +7,7 @@
 
 require __DIR__ . '/base.php';
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Main Comments class
@@ -314,6 +315,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$commenter                     = wp_get_current_commenter();
 			$params['show_cookie_consent'] = (int) has_action( 'set_comment_cookies', 'wp_set_comment_cookies' );
 			$params['has_cookie_consent']  = (int) ! empty( $commenter['comment_author_email'] );
+			// Jetpack_Memberships for logged out users only checks for the jp-premium-content-session cookie
+			$params['is_current_user_subscribed'] = class_exists( '\Jetpack_Memberships' ) ? (int) Jetpack_Memberships::is_current_user_subscribed() : 0;
 		}
 
 		list( $token_key ) = explode( '.', $blog_token->secret, 2 );
@@ -605,6 +608,72 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
+	 * Should show the subscription modal
+	 *
+	 * @return boolean
+	 */
+	public function should_show_subscription_modal() {
+
+		// Not allow it to run on self-hosted or simple sites
+		if ( ! ( new Host() )->is_wpcom_platform() || ( new Host() )->is_wpcom_simple() ) {
+			return false;
+		}
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
+
+		// Atomic sites with jetpack_verbum_subscription_modal option enabled
+		$modal_enabled = ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true );
+
+		return $modal_enabled && ! $is_current_user_subscribed;
+	}
+
+	/**
+	 * Get the data to send as an event to the parent window on subscription modal
+	 *
+	 * @param string $url url to redirect to.
+	 *
+	 * @return array
+	 */
+	public function get_subscription_modal_data_to_parent( $url ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$current_user_email = isset( $_POST['email'] ) ? filter_var( wp_unslash( $_POST['email'] ) ) : null;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$post_id = isset( $_POST['comment_post_ID'] ) ? filter_var( wp_unslash( $_POST['comment_post_ID'] ) ) : null;
+		return array(
+			'url'          => $url,
+			'email'        => $current_user_email,
+			'blog_id'      => esc_attr( \Jetpack_Options::get_option( 'id' ) ),
+			'post_id'      => esc_attr( $post_id ),
+			'lang'         => esc_attr( get_locale() ),
+			'is_logged_in' => isset( $_POST['hc_userid'] ),
+		);
+	}
+
+	/**
+	 * Track the hidden event for the subscription modal
+	 */
+	public function subscription_modal_status_track_event() {
+		$tracking_event = 'hidden_disabled';
+		// Not allow it to run on self-hosted or simple sites
+		if ( ! ( new Host() )->is_wpcom_platform() || ( new Host() )->is_wpcom_simple() ) {
+			$tracking_event = 'hidden_self_hosted';
+		}
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
+
+		if ( $is_current_user_subscribed ) {
+			$tracking_event = 'hidden_already_subscribed';
+		}
+
+		$jetpack = Jetpack::init();
+		// $jetpack->stat automatically prepends the stat group with 'jetpack-'
+		$jetpack->stat( 'subscribe-modal-comm', $tracking_event );
+		$jetpack->do_stats( 'server_side' );
+	}
+
+	/**
 	 * POST the submitted comment to the iframe
 	 *
 	 * @param string $url The comment URL origin.
@@ -612,6 +681,13 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	public function capture_comment_post_redirect_to_reload_parent_frame( $url ) {
 		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return $url;
+		}
+
+		$should_show_subscription_modal = $this->should_show_subscription_modal();
+
+		// Track event when not showing the subscription modal
+		if ( ! $should_show_subscription_modal ) {
+			$this->subscription_modal_status_track_event();
 		}
 		?>
 		<!DOCTYPE html>
@@ -680,6 +756,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			</style>
 		</head>
 		<body>
+		<?php if ( ! $should_show_subscription_modal ) { ?>
 		<h1>
 			<?php
 				wp_kses_post(
@@ -690,7 +767,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					)
 				);
 			?>
-			</h1>
+		</h1>
 		<script type="text/javascript">
 			try {
 				window.parent.location = <?php echo wp_json_encode( $url ); ?>;
@@ -707,6 +784,27 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 			setInterval(toggleEllipsis, 1200);
 		</script>
+		<?php } else { ?>
+		<h1>
+			<?php
+				wp_kses_post(
+					print __( 'Comment sent', 'jetpack' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+			?>
+		</h1>
+		<script type="text/javascript">
+			if ( window.parent && window.parent !== window ) {
+
+				window.parent.postMessage(
+					{
+						type: 'subscriptionModalShow',
+						data: <?php echo wp_json_encode( $this->get_subscription_modal_data_to_parent( $url ) ); ?>,
+					},
+					window.location.origin
+				);
+			}
+		</script>
+		<?php } ?>
 		</body>
 		</html>
 		<?php
