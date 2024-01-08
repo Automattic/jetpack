@@ -166,6 +166,20 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Check if a task list is dismissible.
+	 *
+	 * @param string $id Task List id.
+	 * @return bool True if dismissible, false if not.
+	 */
+	public function is_task_list_dismissible( $id ) {
+		$task_list = $this->get_task_list( $id );
+		if ( ! isset( $task_list['is_dismissible'] ) ) {
+			return false;
+		}
+		return $task_list['is_dismissible'];
+	}
+
+	/**
 	 * Set wether a task list is dismissed or not for a site.
 	 *
 	 * @param string $id Task List id.

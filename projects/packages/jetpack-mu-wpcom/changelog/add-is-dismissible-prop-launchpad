@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Adds the is_dismissible prop to the Launchpad task list definition
