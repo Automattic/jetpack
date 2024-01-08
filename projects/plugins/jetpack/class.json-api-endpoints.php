@@ -1257,7 +1257,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 						}
 					}
 					$type = '(' . implode( '|', $type ) . ')';
-					if ( strpos( $description, ')' ) !== false ) {
+					if ( str_contains( $description, ')' )  ) {
 						list( , $description ) = explode( ')', $description, 2 );
 					}
 					$description = trim( $description );
