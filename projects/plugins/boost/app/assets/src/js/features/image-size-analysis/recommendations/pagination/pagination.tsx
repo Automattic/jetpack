@@ -39,7 +39,7 @@ const PaginationArrow: React.FC< PaginationLinkProps > = ( {
 	}
 
 	return (
-		<Link to={ `${ group }/${ page }` } className="jb-pagination__page">
+		<Link to={ `/image-size-analysis/${ group }/${ page }` } className="jb-pagination__page">
 			{ children }
 		</Link>
 	);
@@ -91,7 +91,7 @@ const Pagination: React.FC< PaginationProps > = ( { group, current, total } ) =>
 									<span className="jb-pagination__page jb-pagination__more"> ... </span>
 								) : (
 									<Link
-										to={ `${ group }/${ paginationPage }` }
+										to={ `/image-size-analysis/${ group }/${ paginationPage }` }
 										className={ `jb-pagination__page${
 											paginationPage === current ? ' jb-pagination__page--current' : ''
 										}` }

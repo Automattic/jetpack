@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import type { IsaCounts } from '$features/image-size-analysis';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { getGroupLabel, isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 
 interface TabsProps {
@@ -75,19 +75,17 @@ const Tabs: React.FC< TabsProps > = ( {
 							>
 								<div className="jb-tab__header">
 									{ issues > 0 ? (
-										<a
+										<Link
 											className="jb-navigator-link"
-											href={ `/image-size-analysis/${ group }/1` }
-											onClick={ e => {
-												e.preventDefault();
+											href={ `${ group }/1` }
+											onClick={ () => {
 												recordBoostEvent( 'clicked_isa_report_group', { group } );
 												setActiveTab( group as isaGroupKeys );
-												navigate( `/image-size-analysis/${ group }/1` );
 											} }
 										>
 											{ label }
 											<span>{ issues }</span>
-										</a>
+										</Link>
 									) : (
 										<div className="jb-navigator-link jb-navigator-link--inactive">
 											{ label }
