@@ -23,6 +23,7 @@ import extrasImage from './extras.png';
 import { JetpackAIInterstitialMoreRequests } from './jetpack-ai/more-requests';
 import jetpackAiImage from './jetpack-ai.png';
 import searchImage from './search.png';
+import statsImage from './stats.png';
 import styles from './style.module.scss';
 import videoPressImage from './videopress.png';
 
@@ -376,6 +377,25 @@ export function SearchInterstitial() {
 			}
 		>
 			<img src={ searchImage } alt="Search" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * StatsInterstitial component
+ *
+ * @returns {object} StatsInterstitial react component.
+ */
+export function StatsInterstitial() {
+	return (
+		<ProductInterstitial slug="stats" installsPlugin={ true }>
+			<img
+				src={ statsImage }
+				alt={ __(
+					'Illustration showing the Stats feature, highlighting important statistics for your site.',
+					'jetpack-my-jetpack'
+				) }
+			/>
 		</ProductInterstitial>
 	);
 }
