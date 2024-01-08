@@ -17,10 +17,11 @@ import styles from './style.module.scss';
 const WelcomeBanner = () => {
 	const { recordEvent } = useAnalytics();
 	const { hasBeenDismissed, dismissWelcomeBanner } = useWelcomeBanner();
-	const [ bannerVisible, setBannerVisible ] = useState( ! hasBeenDismissed );
 	const { isRegistered, isUserConnected } = useConnection();
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
+	const [ bannerVisible, setBannerVisible ] = useState( ! hasBeenDismissed && isNewUser );
 	const shouldDisplayConnectionButton = ! isRegistered || ! isUserConnected;
+	const isNewUser = window.myJetpackInitialState.userIsNewToJetpack === '1';
 
 	useEffect( () => {
 		if ( bannerVisible ) {
