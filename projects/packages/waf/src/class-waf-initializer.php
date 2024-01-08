@@ -166,7 +166,7 @@ class Waf_Initializer {
 	 * @return bool|WP_Error True if the WAF is up-to-date or was sucessfully updated, WP_Error if the update failed.
 	 */
 	public static function check_for_updates() {
-		if ( get_option( self::NEEDS_UPDATE_OPTION_NAME, true ) ) {
+		if ( get_option( self::NEEDS_UPDATE_OPTION_NAME ) ) {
 			if ( Waf_Runner::is_supported_environment() ) {
 				// Compatiblity patch for cases where an outdated WAF_Constants class has been
 				// autoloaded by the standalone bootstrap execution at the beginning of the current request.
