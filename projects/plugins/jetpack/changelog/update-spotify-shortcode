@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+jetpack_spotify_shortcode: Prevent fatal error in PHP 8.1 if $atts is not an array
