@@ -990,6 +990,12 @@ function wpcom_launchpad_is_sensei_setup_visible() {
  * @return bool True if the verify domain email task should be visible.
  */
 function wpcom_launchpad_is_verify_domain_email_visible() {
+	// If the task is complete, we should show it and prevent the logic below
+	// to be executed.
+	if ( wpcom_is_checklist_task_complete( 'verify_domain_email' ) ) {
+		return true;
+	}
+
 	// For Atomic sites we need to get the domain list from
 	// the public API.
 	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
