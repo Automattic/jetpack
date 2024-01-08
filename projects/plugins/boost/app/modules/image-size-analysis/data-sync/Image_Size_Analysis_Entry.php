@@ -10,31 +10,25 @@ use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis_Fix
 
 class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get {
 
-	public function get() {
-
-		// @REACT-TODO: This could be moved to DataSync actions
-		if ( ! isset( $_GET['page'] ) || ! isset( $_GET['group'] ) ) {
-			throw new \Exception( 'Required GET parameters are missing.' );
-		}
-
+	public function get( $page = 1, $group = 'all' ) {
 		$report_id = defined( 'JETPACK_BOOST_FORCE_REPORT_ID' ) ? JETPACK_BOOST_FORCE_REPORT_ID : 'latest';
 		$data      = Boost_API::get(
 			'image-guide/reports/' . $report_id . '/issues',
 			array(
-				'page'     => (int) $_GET['page'],
-				'group'    => sanitize_title( wp_unslash( $_GET['group'] ) ),
+				'page'     => $page,
+				'group'    => sanitize_title( wp_unslash( $group ) ),
 				'per_page' => 20,
 			)
 		);
 
 		$issues = array();
 		foreach ( $data->issues as $issue ) {
-			$page  = $this->get_page( $issue );
-			$image = $this->get_image_info( $issue );
-			if ( empty( $page['edit_url'] ) ) { // archive or front page
+			$page_provider = $this->get_page( $issue );
+			$image         = $this->get_image_info( $issue );
+			if ( empty( $page_provider['edit_url'] ) ) { // archive or front page
 				$image['fixed'] = false;
 			} else {
-				$post_id        = Image_Size_Analysis_Fixer::get_post_id( $page['edit_url'] );
+				$post_id        = Image_Size_Analysis_Fixer::get_post_id( $page_provider['edit_url'] );
 				$image['fixed'] = Image_Size_Analysis_Fixer::is_fixed( $post_id, $image['url'] );
 			}
 
@@ -45,7 +39,7 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get {
 				'type'         => $issue->type,
 				'status'       => $issue->status,
 				'instructions' => $this->get_instructions( $issue ),
-				'page'         => $page,
+				'page'         => $page_provider,
 				'image'        => $image,
 			);
 		}
