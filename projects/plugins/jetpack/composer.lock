@@ -378,7 +378,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/backup",
-				"reference": "39a5a54f7c84d5446edae05d72541d060c29629c"
+				"reference": "5d79f481fb8e4b83fe62012381151b89c2beb72b"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -413,7 +413,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.0.x-dev"
+					"dev-trunk": "3.0.x-dev"
 				}
 			},
 			"autoload": {
@@ -465,7 +465,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/backup-helper-script-manager",
-				"reference": "8f11db0375d6189daadc57c615e5a74af8a345bd"
+				"reference": "ec1665a5730b66aad2b6b5744c884056de856f58"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -486,7 +486,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.1.x-dev"
+					"dev-trunk": "0.2.x-dev"
 				}
 			},
 			"autoload": {
@@ -1167,7 +1167,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "0d1ea60cf2c7a86d515ae071330395de358d3791"
+				"reference": "a27d51d101dd1ddd776afadecb0d0faf77fc634a"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1193,7 +1193,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.29.x-dev"
+					"dev-trunk": "0.30.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -2587,7 +2587,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/videopress",
-				"reference": "c839f6ca2f5d150942dee198242e303d3a45e56e"
+				"reference": "ccaf247242c5ee95ce5ac179ef65b402ed56da49"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2613,7 +2613,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.21.x-dev"
+					"dev-trunk": "0.22.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-package-version.php"

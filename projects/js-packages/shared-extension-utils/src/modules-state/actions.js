@@ -20,11 +20,7 @@ export const SET_MODULE_UPDATING = 'SET_MODULE_UPDATING';
  */
 export function* updateJetpackModuleStatus( settings ) {
 	try {
-		const originalData = select( JETPACK_MODULES_STORE_ID ).getJetpackModules();
 		yield setIsUpdating( settings.name, true );
-		if ( originalData.data?.[ settings.name ]?.activated !== settings.active ) {
-			yield setJetpackModules( originalData );
-		}
 		yield updateJetpackModuleStatusControl( settings );
 		const data = yield fetchJetpackModules();
 		yield setJetpackModules( { data } );

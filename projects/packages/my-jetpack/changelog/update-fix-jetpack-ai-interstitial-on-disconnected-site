@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Fixed a bug on how the Jetpack AI interstitial shows when the site is disconnected.

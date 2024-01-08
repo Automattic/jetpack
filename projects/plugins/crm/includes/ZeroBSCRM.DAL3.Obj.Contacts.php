@@ -562,8 +562,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 #} Aliases
                 if ($withAliases){
 
-                    #} Retrieve these as a CSV :)
-                    $extraSelect .= ",(SELECT GROUP_CONCAT(aka_alias SEPARATOR ',') FROM ".$ZBSCRM_t['aka']." WHERE aka_type = ".ZBS_TYPE_CONTACT." AND aka_id = contact.ID) aliases";
+					#} Retrieve these as a CSV :)
+					$extraSelect .= ',(SELECT ' . $this->DAL()->build_group_concat( 'aka_alias', ',' ) . ' FROM ' . $ZBSCRM_t['aka'] . ' WHERE aka_type = ' . ZBS_TYPE_CONTACT . ' AND aka_id = contact.ID) aliases'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 }
 
@@ -1182,8 +1182,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             #} Aliases
             if ($withAliases){
 
-                #} Retrieve these as a CSV :)
-                $extraSelect .= ",(SELECT GROUP_CONCAT(aka_alias SEPARATOR ',') FROM ".$ZBSCRM_t['aka']." WHERE aka_type = ".ZBS_TYPE_CONTACT." AND aka_id = contact.ID) aliases";
+				#} Retrieve these as a CSV :)
+				$extraSelect .= ',(SELECT ' . $this->DAL()->build_group_concat( 'aka_alias', ',' ) . ' FROM ' . $ZBSCRM_t['aka'] . ' WHERE aka_type = ' . ZBS_TYPE_CONTACT . ' AND aka_id = contact.ID) aliases'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             }
 

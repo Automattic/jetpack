@@ -7405,6 +7405,23 @@ class zbsDAL {
 
         }
 
+	/**
+	 * Generates GROUP_CONCAT SQL compatible with both SQLite and MySQL
+	 *
+	 * @param string $field Field that will be concatenated.
+	 * @param string $separator Separator added between concatenated fields.
+	 *
+	 * @return string
+	 */
+	public function build_group_concat( $field, $separator ) {
+		$db_engine = jpcrm_database_engine();
+		if ( $db_engine === 'sqlite' ) {
+			return sprintf( 'GROUP_CONCAT(%s, "%s")', $field, $separator );
+		} else {
+			return sprintf( 'GROUP_CONCAT(%s SEPARATOR "%s")', $field, $separator );
+		}
+	}
+
         // this returns %s etc. for common field names, will default to %s unless somt obv a date
         public function getTypeStr($fieldKey=''){
 
