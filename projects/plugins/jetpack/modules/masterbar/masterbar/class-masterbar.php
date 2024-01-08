@@ -266,7 +266,14 @@ class Masterbar {
 	 * @return string
 	 */
 	public function admin_body_class( $admin_body_classes ) {
-		return "$admin_body_classes jetpack-masterbar";
+
+		$classes = array( 'jetpack-masterbar', trim( $admin_body_classes ) );
+
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$classes[] = 'wpcom-admin-interface';
+		}
+
+		return implode( ' ', $classes );
 	}
 
 	/**
@@ -276,8 +283,9 @@ class Masterbar {
 		/*
 		 * Notifications need the admin bar styles,
 		 * so let's not remove them when the module is active.
+		 * Also, don't remove the styles if the user has opted to use wp-admin.
 		 */
-		if ( ! Jetpack::is_module_active( 'notes' ) ) {
+		if ( ! Jetpack::is_module_active( 'notes' ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 			wp_dequeue_style( 'admin-bar' );
 		}
 	}
@@ -611,6 +619,7 @@ class Masterbar {
 					'class' => 'menupop mb-trackable',
 				),
 				'parent' => 'top-secondary',
+				'href'   => 'https://wordpress.com/notifications',
 			)
 		);
 	}

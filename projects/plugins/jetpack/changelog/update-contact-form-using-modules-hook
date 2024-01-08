@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+ Use useModuleStatus hook instead of direct call of store selectors 

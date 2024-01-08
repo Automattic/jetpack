@@ -1,8 +1,14 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-namespace Automattic\Jetpack\Backup;
+// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
+// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
+// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
+// are installed, or in some other cases).
+namespace Automattic\Jetpack\Backup\V0001;
 
 use WorDBless\BaseTestCase;
+use WP_Error;
+use function get_site_url;
 
 /**
  * Unit tests for the Helper_Script_Manager_Impl class.
@@ -111,7 +117,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		$this->assertStringEndsWith( '/wordpress/wp-content/uploads', $paths[1] );
 		$this->assertStringEndsWith( '/wordpress', $paths[2] );
 
-		$site_url = \get_site_url();
+		$site_url = get_site_url();
 		$urls     = array_values( $default_install_locations );
 		$this->assertSame(
 			array(
@@ -184,7 +190,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		$script_body           = 'foobarbaz';
 		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 		$install_result        = $helper_script_manager->install_helper_script( $script_body );
-		$this->assertInstanceOf( \WP_Error::class, $install_result );
+		$this->assertInstanceOf( WP_Error::class, $install_result );
 		$this->assertSame( 'bad_header', $install_result->get_error_code() );
 		$this->assertSame(
 			'Bad helper script header: 0x' . bin2hex( $script_body ),
@@ -200,7 +206,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 								str_repeat( str_repeat( 'a', 1024 ), 1024 );
 		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 		$install_result        = $helper_script_manager->install_helper_script( $script_body );
-		$this->assertInstanceOf( \WP_Error::class, $install_result );
+		$this->assertInstanceOf( WP_Error::class, $install_result );
 		$this->assertSame( 'too_big', $install_result->get_error_code() );
 		$this->assertSame(
 			'Helper script is bigger (' . strlen( $script_body ) . ' bytes) ' .
@@ -216,7 +222,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		$script_body           = Helper_Script_Manager_Impl::HELPER_HEADER . 'hello';
 		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 		$install_result        = $helper_script_manager->install_helper_script( $script_body );
-		$this->assertInstanceOf( \WP_Error::class, $install_result );
+		$this->assertInstanceOf( WP_Error::class, $install_result );
 		$this->assertSame( 'no_wp_path_marker', $install_result->get_error_code() );
 		$this->assertSame(
 			"Helper script does not have the '[wp_path]' marker",
@@ -238,7 +244,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
 		chmod( $first_install_dir, 0777 );
 
-		$this->assertInstanceOf( \WP_Error::class, $install_result );
+		$this->assertInstanceOf( WP_Error::class, $install_result );
 		$this->assertSame( 'all_locations_failed', $install_result->get_error_code() );
 		$this->assertStringContainsString(
 			'Unable to write the helper script to any install locations; tried: ',
@@ -271,7 +277,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		$this->assertDirectoryExists( $jetpack_temp_dir );
 
 		$delete_result = $helper_script_manager->delete_helper_script( $install_result['path'] );
-		$this->assertNotInstanceOf( \WP_Error::class, $delete_result );
+		$this->assertNotInstanceOf( WP_Error::class, $delete_result );
 		$this->assertSame( true, $delete_result );
 		$this->assertFileDoesNotExist( $install_result['path'] );
 		$this->assertDirectoryDoesNotExist( $jetpack_temp_dir );
@@ -294,7 +300,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		file_put_contents( $result['path'], str_repeat( 'a', strlen( $script_body ) ) );
 
 		$delete_result = $helper_script_manager->delete_helper_script( $result['path'] );
-		$this->assertInstanceOf( \WP_Error::class, $delete_result );
+		$this->assertInstanceOf( WP_Error::class, $delete_result );
 		$this->assertStringStartsWith( 'Unable to delete helper script', $delete_result->get_error_message() );
 		$this->assertStringContainsString( 'Bad helper script header', $delete_result->get_error_message() );
 		$this->assertFileExists( $result['path'] );
@@ -331,7 +337,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		touch( $install_results[2]['path'], time() - 60 * 60 * 24 * 7 );
 
 		$cleanup_result = $helper_script_manager->cleanup_expired_helper_scripts();
-		$this->assertNotInstanceOf( \WP_Error::class, $cleanup_result );
+		$this->assertNotInstanceOf( WP_Error::class, $cleanup_result );
 		$this->assertSame( true, $cleanup_result );
 
 		$this->assertFileDoesNotExist( $install_results[0]['path'] );
@@ -368,7 +374,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		$this->assertDirectoryExists( $jetpack_temp_dir );
 
 		$cleanup_result = $helper_script_manager->cleanup_expired_helper_scripts();
-		$this->assertNotInstanceOf( \WP_Error::class, $cleanup_result );
+		$this->assertNotInstanceOf( WP_Error::class, $cleanup_result );
 		$this->assertSame( true, $cleanup_result );
 
 		foreach ( $install_results as $install_result ) {
@@ -391,7 +397,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		}
 
 		foreach ( $install_results as $install_result ) {
-			$this->assertNotInstanceOf( \WP_Error::class, $install_result );
+			$this->assertNotInstanceOf( WP_Error::class, $install_result );
 			$this->assertIsArray( $install_result );
 			$this->assertArrayHasKey( 'path', $install_result );
 			$this->assertFileExists( $install_result['path'] );
@@ -409,7 +415,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		}
 
 		$cleanup_result = $helper_script_manager->cleanup_expired_helper_scripts();
-		$this->assertInstanceOf( \WP_Error::class, $cleanup_result );
+		$this->assertInstanceOf( WP_Error::class, $cleanup_result );
 		$this->assertStringStartsWith(
 			'Unable to clean up expired helper scripts',
 			$cleanup_result->get_error_message()
@@ -441,7 +447,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		}
 
 		foreach ( $install_results as $install_result ) {
-			$this->assertNotInstanceOf( \WP_Error::class, $install_result );
+			$this->assertNotInstanceOf( WP_Error::class, $install_result );
 			$this->assertIsArray( $install_result );
 			$this->assertArrayHasKey( 'path', $install_result );
 			$this->assertFileExists( $install_result['path'] );
@@ -451,7 +457,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		$this->assertDirectoryExists( $jetpack_temp_dir );
 
 		$delete_result = $helper_script_manager->delete_all_helper_scripts();
-		$this->assertNotInstanceOf( \WP_Error::class, $delete_result );
+		$this->assertNotInstanceOf( WP_Error::class, $delete_result );
 		$this->assertSame( true, $delete_result );
 
 		foreach ( $install_results as $install_result ) {
@@ -474,7 +480,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		}
 
 		foreach ( $install_results as $install_result ) {
-			$this->assertNotInstanceOf( \WP_Error::class, $install_result );
+			$this->assertNotInstanceOf( WP_Error::class, $install_result );
 			$this->assertIsArray( $install_result );
 			$this->assertArrayHasKey( 'path', $install_result );
 			$this->assertFileExists( $install_result['path'] );
@@ -487,7 +493,7 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		file_put_contents( $install_results[1]['path'], str_repeat( 'a', strlen( $script_body ) ) );
 
 		$delete_result = $helper_script_manager->delete_all_helper_scripts();
-		$this->assertInstanceOf( \WP_Error::class, $delete_result );
+		$this->assertInstanceOf( WP_Error::class, $delete_result );
 		$this->assertStringStartsWith(
 			'Unable to clean up all helper scripts',
 			$delete_result->get_error_message()

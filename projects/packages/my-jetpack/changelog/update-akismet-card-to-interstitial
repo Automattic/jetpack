@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+update Akismet card on My Jetpack to go to interstitial screen when there is no API key

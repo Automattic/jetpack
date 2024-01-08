@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Ensure that language packs are installed after installing a new plugin

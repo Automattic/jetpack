@@ -1,153 +1,65 @@
-import { renderHook, waitFor, act } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { isSimpleSite } from '../../../site-type-utils';
 import useModuleStatus from '../index';
 
-jest.mock( '../../../site-type-utils' );
+jest.mock( '../../../site-type-utils', () => ( {
+	isSimpleSite: jest.fn(),
+} ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: jest.fn(),
+	useDispatch: jest.fn(),
+	createReduxStore: jest.fn(),
+	register: jest.fn(),
+} ) );
 
 describe( 'useModuleStatus hook', () => {
-	const originalFetch = window.fetch;
-
+	const moduleName = 'test-module';
 	beforeEach( () => {
 		isSimpleSite.mockReset();
-		// eslint-disable-next-line jest/prefer-spy-on -- Nothing to spy on.
-		window.fetch = jest.fn();
+		useSelect.mockReset();
+		useDispatch.mockReset();
 	} );
 
-	afterEach( () => {
-		window.fetch = originalFetch;
-	} );
-	test( 'should not try to fetch modules if no name is provided', () => {
-		const { result } = renderHook( name => useModuleStatus( name ), {
-			initialProps: '',
+	it( 'should return initial values', () => {
+		useSelect.mockReturnValue( {
+			isModuleActive: jest.fn().mockReturnValue( false ),
+			isChangingStatus: jest.fn().mockReturnValue( false ),
+			isLoadingModules: jest.fn().mockReturnValue( true ),
 		} );
-		const { changeStatus, ...otherProps } = result.current;
-
-		expect( otherProps ).toStrictEqual( {
-			isLoadingModules: false,
-			isChangingStatus: false,
-			isModuleActive: false,
-		} );
-	} );
-
-	test( 'jetpack module is active on not simple sites.', async () => {
-		isSimpleSite.mockReturnValueOnce( false );
-
-		window.fetch.mockReturnValueOnce(
-			Promise.resolve( {
-				status: 200,
-				json: () =>
-					Promise.resolve( {
-						subscriptions: {
-							activated: true,
-						},
-					} ),
-			} )
-		);
-
-		const { result } = renderHook( name => useModuleStatus( name ), {
-			initialProps: 'subscriptions',
+		useDispatch.mockReturnValue( {
+			updateJetpackModuleStatus: jest.fn(),
 		} );
 
-		expect( result.current.isModuleActive ).toBe( false );
-		await waitFor( async () => expect( result.current.isModuleActive ).toBe( true ) );
+		const { result } = renderHook( () => useModuleStatus( moduleName ) );
+		const { isLoadingModules, isChangingStatus, isModuleActive } = result.current;
 
-		expect( window.fetch ).toHaveBeenCalledWith(
-			'/jetpack/v4/module/all?_locale=user',
-			expect.anything()
-		);
-
-		const { changeStatus, ...otherProps } = result.current;
-
-		expect( otherProps ).toStrictEqual( {
-			isLoadingModules: false,
-			isChangingStatus: false,
-			isModuleActive: true,
-		} );
+		expect( isLoadingModules( moduleName ) ).toBe( true );
+		expect( isChangingStatus( moduleName ) ).toBe( false );
+		expect( isModuleActive( moduleName ) ).toBe( false );
 	} );
 
-	test( 'jetpack module is active on simple sites.', async () => {
-		isSimpleSite.mockReturnValueOnce( true );
-
-		window.fetch.mockReturnValueOnce(
-			Promise.resolve( {
-				status: 200,
-				json: () =>
-					Promise.resolve( {
-						subscriptions: {
-							activated: false,
-						},
-					} ),
-			} )
-		);
-
-		const { result } = renderHook( name => useModuleStatus( name ), {
-			initialProps: 'subscriptions',
+	it( 'should call updateJetpackModuleStatus when changeStatus is called', () => {
+		useSelect.mockReturnValue( {
+			isModuleActive: jest.fn(),
+			isChangingStatus: jest.fn(),
+			isLoadingModules: jest.fn(),
+		} );
+		const mockUpdateJetpackModuleStatus = jest.fn();
+		useDispatch.mockReturnValue( {
+			updateJetpackModuleStatus: mockUpdateJetpackModuleStatus,
 		} );
 
-		expect( result.current.isModuleActive ).toBe( false );
-		await waitFor( async () => expect( result.current.isModuleActive ).toBe( true ) );
-		expect( window.fetch ).not.toHaveBeenCalled();
-
-		const { changeStatus, ...otherProps } = result.current;
-
-		expect( otherProps ).toStrictEqual( {
-			isLoadingModules: false,
-			isChangingStatus: false,
-			isModuleActive: true,
-		} );
-	} );
-
-	test( 'change jetpack module status', async () => {
-		isSimpleSite.mockReturnValueOnce( false );
-
-		window.fetch.mockReturnValueOnce(
-			Promise.resolve( {
-				status: 200,
-				json: () =>
-					Promise.resolve( {
-						subscriptions: {
-							activated: true,
-						},
-					} ),
-			} )
-		);
-
-		const { result } = renderHook( name => useModuleStatus( name ), {
-			initialProps: 'subscriptions',
-		} );
-
-		await waitFor( async () => expect( result.current.isModuleActive ).toBe( true ) );
-		expect( window.fetch ).toHaveBeenCalledWith(
-			'/jetpack/v4/module/all?_locale=user',
-			expect.anything()
-		);
-		window.fetch.mockReset();
-
-		window.fetch.mockReturnValueOnce(
-			Promise.resolve( {
-				status: 200,
-				json: () => Promise.resolve( {} ),
-			} )
-		);
+		const { result } = renderHook( () => useModuleStatus( moduleName ) );
 
 		act( () => {
-			result.current.changeStatus( false );
+			result.current.changeStatus( true );
 		} );
 
-		expect( result.current.isChangingStatus ).toBe( true );
-		expect( result.current.isModuleActive ).toBe( true );
-
-		await waitFor( async () => expect( result.current.isChangingStatus ).toBe( false ) );
-		expect( result.current.isModuleActive ).toBe( false );
-
-		Promise.resolve( {
-			status: 200,
-			json: () => Promise.resolve( {} ),
+		expect( mockUpdateJetpackModuleStatus ).toHaveBeenCalledWith( {
+			name: moduleName,
+			active: true,
 		} );
-
-		expect( window.fetch ).toHaveBeenCalledWith(
-			'/jetpack/v4/module/subscriptions/active?_locale=user',
-			expect.anything()
-		);
 	} );
 } );
