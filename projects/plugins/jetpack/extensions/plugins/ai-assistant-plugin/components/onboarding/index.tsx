@@ -5,7 +5,7 @@ import './style.scss';
 
 const Onboarding = () => {
 	const urlSearchParameters = new URLSearchParams( window.location.search );
-	const shouldShowTour = urlSearchParameters.get( 'aiOnboarding' ) === 'true';
+	const shouldShowTour = urlSearchParameters.get( 'guide' ) === 'aiOnboarding';
 	const portalParent = useRef( document.createElement( 'div' ) ).current;
 
 	useEffect( () => {
