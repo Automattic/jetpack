@@ -152,7 +152,7 @@ class Dedicated_Sender {
 		$queue_lag = $queue->lag();
 
 		// Check if a test request fails the queue lag is longer than the threshold. If so disable Dedicated Sync.
-		if ( ! self::can_spawn_dedicated_sync_request() && $queue_lag > $queue_send_time_threshold ) {
+		if ( $queue_lag > $queue_send_time_threshold && ! self::can_spawn_dedicated_sync_request() ) {
 			self::on_dedicated_sync_lag_not_sending_threshold_reached();
 			return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
 		}
@@ -338,7 +338,6 @@ class Dedicated_Sender {
 				$sender->send_action( 'jetpack_sync_flow_error_enable', $data );
 			}
 		}
-
 		return self::DEDICATED_SYNC_VALIDATION_STRING === $dedicated_sync_response_body;
 	}
 
