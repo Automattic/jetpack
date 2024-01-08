@@ -1,4 +1,4 @@
-import React, { ReactNode, MouseEventHandler } from 'react';
+import React, { MouseEventHandler } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
 import OtherGroupContext from '$features/image-size-analysis/other-group-context/other-group-context';
 import { type isaGroupKeys, getGroupLabel } from '../lib/isa-groups';
