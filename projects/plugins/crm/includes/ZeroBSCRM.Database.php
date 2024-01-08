@@ -30,7 +30,6 @@ global $wpdb, $ZBSCRM_t;
   $ZBSCRM_t['tags']                   = $wpdb->prefix . "zbs_tags";
   $ZBSCRM_t['taglinks']               = $wpdb->prefix . "zbs_tags_links";
   $ZBSCRM_t['settings']               = $wpdb->prefix . "zbs_settings";
-  $ZBSCRM_t['keys']                   = $wpdb->prefix . "zbscrm_api_keys";
   $ZBSCRM_t['segments']               = $wpdb->prefix . "zbs_segments";
   $ZBSCRM_t['segmentsconditions']     = $wpdb->prefix . "zbs_segments_conditions";
   $ZBSCRM_t['adminlog']               = $wpdb->prefix . "zbs_admlog";
@@ -94,15 +93,6 @@ function zeroBSCRM_createTables(){
     // we log the last error before we start, in case another plugin has left an error in the buffer
     $zbsDB_lastError = ''; if (isset($wpdb->last_error)) $zbsDB_lastError = $wpdb->last_error;
     $zbsDB_creationErrors = array();
-    
-  #} Keys zbs_perm = {0 = revoked, 1 = read_only, 2 = read_and_write 
-  $sql = "CREATE TABLE IF NOT EXISTS ". $ZBSCRM_t['keys'] ."(
-  `zbs_id` INT NOT NULL AUTO_INCREMENT ,
-  `zbs_key` VARCHAR(200) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NULL ,
-  `zbs_perm` INT(1) NULL ,       
-  PRIMARY KEY (`zbs_id`))
-  ".$storageEngineLine.";";
-  zeroBSCRM_db_runDelta($sql);
 
   // Contacts
   $sql = "CREATE TABLE IF NOT EXISTS ". $ZBSCRM_t['contacts'] ."(
@@ -396,6 +386,7 @@ function zeroBSCRM_createTables(){
   `zbsl_type` VARCHAR(200) NOT NULL,
   `zbsl_shortdesc` VARCHAR(300) NULL,
   `zbsl_longdesc` LONGTEXT NULL,
+	`zbsl_pinned` INT(1) NULL,
   `zbsl_created` INT(14) NOT NULL,
   `zbsl_lastupdated` INT(14) NOT NULL,
   PRIMARY KEY (`ID`),
@@ -938,11 +929,6 @@ function zeroBSCRM_checkTablesExist(){
 	global $ZBSCRM_t, $wpdb;
 
 	$create = false;
-	$tablesExist = $wpdb->get_results("SHOW TABLES LIKE '".$ZBSCRM_t['keys']."'");
-
-	if ( count($tablesExist) < 1 ) {
-		$create = true;
-	}
 
 	// then we cycle through our tables :) - means all keys NEED to be kept up to date :)
 	// No need to add to this ever now :)
@@ -1002,6 +988,10 @@ function zeroBSCRM_db_runDelta($sql=''){
  */
 function zeroBSCRM_DB_canInnoDB(){
 
+	if ( jpcrm_database_engine() === 'sqlite' ) {
+		return false;
+	}
+
     global $wpdb;
 
     // attempt to cycle through MySQL's ENGINES & discern InnoDB
@@ -1016,24 +1006,40 @@ function zeroBSCRM_DB_canInnoDB(){
 
 }
 
-function zeroBSCRM_database_getVersion(){
+/**
+ * Get info about the database engine.
+ *
+ * @param boolean $pretty Retrieve a user-friendly label instead of a slug.
+ *
+ * @return string
+ */
+function jpcrm_database_engine( $pretty = false ) {
 	global $zbs;
-	return $zbs->database_server_info['raw_version'];
+	if ( $pretty ) {
+		return $zbs->database_server_info['db_engine_label'];
+	}
+	return $zbs->database_server_info['db_engine'];
 }
 
-// determine if current database server is MariaDB
-function jpcrm_database_server_is_mariadb() {
+/**
+ * Get the database version.
+ *
+ * @return string
+ */
+function zeroBSCRM_database_getVersion() {
 	global $zbs;
-	return $zbs->database_server_info['is_mariadb'];
+	return $zbs->database_server_info['raw_version'];
 }
 
 function jpcrm_database_server_has_ability( $ability_name ) {
 	global $zbs;
 	$db_server_version = zeroBSCRM_database_getVersion();
-	$is_mariadb = jpcrm_database_server_is_mariadb();
+	$db_engine         = $zbs->database_server_info['db_engine'];
 
 	if ( $ability_name === 'fulltext_index' ) {
-		if ( $is_mariadb ) {
+		if ( $db_engine === 'sqlite' ) {
+			return false;
+		} elseif ( $db_engine === 'mariadb' ) {
 			// first stable 10.x release
 			return version_compare( $db_server_version, '10.0.10', '>=' );
 		} else {
