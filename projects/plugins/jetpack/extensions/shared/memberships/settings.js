@@ -1,3 +1,4 @@
+import { numberFormat } from '@automattic/jetpack-components';
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import {
 	Button,
@@ -142,6 +143,16 @@ export function NewsletterAccessRadioButtons( {
 	const closeDialog = () => setShowDialog( false );
 
 	const setAccess = useSetAccess();
+	const subscribersReach = getReachForAccessLevelKey( {
+		accessLevel: accessOptions.subscribers.key,
+		emailSubscribers,
+		paidSubscribers,
+	} );
+	const paidSubscribersReach = getReachForAccessLevelKey( {
+		accessLevel: accessOptions.paid_subscribers.key,
+		emailSubscribers,
+		paidSubscribers,
+	} );
 
 	return (
 		<fieldset className="editor-post-visibility__fieldset">
@@ -167,19 +178,18 @@ export function NewsletterAccessRadioButtons( {
 						  ]
 						: [] ),
 					{
-						label: `${ accessOptions.subscribers.label } (${ getReachForAccessLevelKey( {
-							accessLevel: accessOptions.subscribers.key,
-							emailSubscribers,
-							paidSubscribers,
-						} ).toLocaleString() })`,
+						label: `${ accessOptions.subscribers.label } (${ numberFormat( subscribersReach, {
+							notation: 'compact',
+						} ) })`,
 						value: accessOptions.subscribers.key,
 					},
 					{
-						label: `${ accessOptions.paid_subscribers.label } (${ getReachForAccessLevelKey( {
-							accessLevel: accessOptions.paid_subscribers.key,
-							emailSubscribers,
-							paidSubscribers,
-						} ).toLocaleString() })`,
+						label: `${ accessOptions.paid_subscribers.label } (${ numberFormat(
+							paidSubscribersReach,
+							{
+								notation: 'compact',
+							}
+						) })`,
 						value: accessOptions.paid_subscribers.key,
 					},
 				] }
