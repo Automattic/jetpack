@@ -27,8 +27,12 @@ function wpcom_crawler_control() {
 		'omgili',
 		'omgilibot',
 		'Amazonbot',
-		'Bingbot', // TODO special handling.
 	);
+
+	// Special handling for Bingbot.
+	if ( strpos( strtolower( $user_agent ), 'bingbot' ) !== false ) {
+		header( 'X-Robots-Tag: nocache' );
+	}
 
 	// Send a friendly message to the user agent.
 	if ( in_array( $user_agent, $disallowed_user_agents, true ) ) {
