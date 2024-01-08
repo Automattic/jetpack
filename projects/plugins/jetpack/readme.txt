@@ -293,10 +293,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.0-a.11 - 2024-01-02
+### 13.0-a.13 - 2024-01-04
 #### Bug fixes
-- Editor: Fixed missing fonts issue inside the block editor.
-- Subscriptions Block: Added compatibility for the latest Gutenberg.
+- Jetpack footer links are now consistent within different pages.
+- Notification Accessibility: THe notification icon is not a link.
 
 --------
 

@@ -30,6 +30,20 @@ class Stats extends Module_Product {
 	public static $module_name = 'stats';
 
 	/**
+	 * The Plugin slug associated with stats
+	 *
+	 * @var string|null
+	 */
+	public static $plugin_slug = self::JETPACK_PLUGIN_SLUG;
+
+	/**
+	 * The Plugin file associated with stats
+	 *
+	 * @var string|null
+	 */
+	public static $plugin_filename = self::JETPACK_PLUGIN_FILENAME;
+
+	/**
 	 * Get the internationalized product name
 	 *
 	 * @return string
@@ -72,32 +86,29 @@ class Stats extends Module_Product {
 	 */
 	public static function get_features() {
 		return array(
-			__( 'Instant access to upcoming features', 'jetpack-my-jetpack' ),
+			__( 'Real-time data on visitors', 'jetpack-my-jetpack' ),
+			__( 'Traffic stats and trends for post and pages', 'jetpack-my-jetpack' ),
+			__( 'Detailed statistics about links leading to your site', 'jetpack-my-jetpack' ),
+			__( 'GDPR compliant', 'jetpack-my-jetpack' ),
+			__( 'Access to upcoming advanced features', 'jetpack-my-jetpack' ),
 			__( 'Priority support', 'jetpack-my-jetpack' ),
+			__( 'Commercial use', 'jetpack-my-jetpack' ),
 		);
 	}
 
 	/**
-	 * Get the product princing details
+	 * Get the product pricing details
+	 * Only showing the pricing details for the commercial product
 	 *
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
 		return array_merge(
 			array(
-				'available'               => true,
-				'wpcom_product_slug'      => static::get_wpcom_product_slug(),
-				'wpcom_free_product_slug' => static::get_wpcom_free_product_slug(),
-				'wpcom_pwyw_product_slug' => static::get_wpcom_pwyw_product_slug(),
+				'available'          => true,
+				'wpcom_product_slug' => static::get_wpcom_product_slug(),
 			),
-			// TODO: replace with `Wpcom_Products::get_product_pricing` once available.
-			// This is not yet used anywhere, so it's fine to leave it as is for now.
-			array(
-				'currency_code'  => 'USD',
-				'full_price'     => 10,
-				'discount_price' => 10,
-				'product_term'   => 'month',
-			)
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
 	}
 
@@ -107,7 +118,7 @@ class Stats extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_stats_monthly';
+		return 'jetpack_stats_yearly';
 	}
 
 	/**
@@ -162,23 +173,36 @@ class Stats extends Module_Product {
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;
 		}
+
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				if (
-					(
-						// Purchase is Jetpack Stats...
-						str_starts_with( $purchase->product_slug, 'jetpack_stats' ) &&
-						// but not Jetpack Stats Free...
-						! str_contains( $purchase->product_slug, 'free' )
-					) || str_starts_with( $purchase->product_slug, 'jetpack_complete' )
-				) {
-					// Only Jetpack Stats paid plans should be eligible for this conditional.
-					// Sample product slugs: jetpack_stats_monthly
+			// For now, only the free and commercial tiered subs show as upgradable
+			$upgradeable_stats_purchases = array_filter(
+				$purchases_data,
+				static function ( $purchase ) {
+					// Free plan is upgradeable
+					if ( $purchase->product_slug === 'jetpack_stats_free_yearly' ) {
+						return true;
+						// Commercial plans are upgradeable if they have a tier
+					} elseif (
+						in_array(
+							$purchase->product_slug,
+							array( 'jetpack_stats_yearly', 'jetpack_stats_monthly', 'jetpack_stats_bi_yearly' ),
+							true
+						) &&
+						! empty( $purchase->current_price_tier_slug )
+					) {
+						return true;
+					}
+
 					return false;
 				}
-			}
+			);
+
+			return ! empty( $upgradeable_stats_purchases );
 		}
-		return true;
+
+		// If there are no plans found, don't consider the product as upgradeable
+		return false;
 	}
 
 	/**
@@ -198,6 +222,15 @@ class Stats extends Module_Product {
 					str_starts_with( $purchase->product_slug, static::get_wpcom_free_product_slug() )
 				) {
 					return '&productType=personal';
+				} elseif (
+					in_array(
+						$purchase->product_slug,
+						array( 'jetpack_stats_yearly', 'jetpack_stats_monthly', 'jetpack_stats_bi_yearly' ),
+						true
+					) &&
+					! empty( $purchase->current_price_tier_slug )
+				) {
+					return '&productType=commercial';
 				}
 			}
 		}
