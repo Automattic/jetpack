@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { ReactNode, MouseEventHandler } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
 import OtherGroupContext from '$features/image-size-analysis/other-group-context/other-group-context';
 import { type isaGroupKeys, getGroupLabel } from '../lib/isa-groups';
-import ConditionalLink from '$features/image-size-analysis/conditional-link/conditional-link';
 import ProgressBar from '$features/image-size-analysis/progress-bar/progress-bar';
 import { Spinner } from '$features/ui';
 import WarningIcon from '$svg/warning-outline';
-
+import { recordBoostEvent } from '$lib/utils/analytics';
+import { Link } from 'react-router-dom';
 interface ReportProgress {
 	group: isaGroupKeys;
 	issue_count?: number;
@@ -20,6 +20,36 @@ interface ReportProgress {
 interface MultiProgressProps {
 	reportProgress: ReportProgress[];
 }
+type ConditionalLinkProps = typeof Link & {
+	isLink?: boolean;
+	trackEvent?: string;
+	trackEventProps?: string;
+	children: ReactNode;
+	[ x: string ]: unknown;
+};
+
+const ConditionalLink: React.FC< ConditionalLinkProps > = ( {
+	isLink = true,
+	trackEvent = '',
+	trackEventProps = '',
+	children,
+	...rest
+} ) => {
+	const handleClick: MouseEventHandler< HTMLAnchorElement > = () => {
+		if ( trackEvent !== '' ) {
+			recordBoostEvent( trackEvent, { group: trackEventProps } );
+		}
+	};
+
+	if ( isLink ) {
+		return (
+			<Link onClick={ handleClick } { ...rest }>
+				{ children }
+			</Link>
+		);
+	}
+	return <>{ children }</>;
+};
 
 const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => {
 	return (
