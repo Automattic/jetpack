@@ -30,9 +30,14 @@ class Action_Endpoint {
 	 */
 	private $nonce;
 
+
 	/**
+	 * This class handles endpoints for DataSync actions.
+	 * 
+	 *
 	 * @param $namespace
-	 * @param $route
+	 * @param $key
+	 * @param $action_name
 	 * @param $action_class
 	 */
 	public function __construct( $namespace, $key, $action_name, $action_class ) {
