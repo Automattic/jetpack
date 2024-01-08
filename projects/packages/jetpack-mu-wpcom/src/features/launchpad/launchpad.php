@@ -724,13 +724,25 @@ function wpcom_launchpad_is_task_list_dismissible( $checklist_slug ) {
 }
 
 /**
- * Sets a specific task list dismissed state.
+ * Returns the the temporary dismissed timestamps for a specific task list.
  *
  * @param string $checklist_slug The slug of the launchpad task list to check.
- * @param bool   $is_dismissed True if the task list is dismissed, false otherwise.
+ * @return int The timestamp until which the task list is dismissed.
  */
-function wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed ) {
-	wpcom_launchpad_checklists()->set_task_list_dismissed( $checklist_slug, $is_dismissed );
+function wpcom_launchpad_task_list_dismissed_until( $checklist_slug ) {
+	return wpcom_launchpad_checklists()->get_task_list_dismissed_until( $checklist_slug );
+}
+
+/**
+ * Sets a specific task list dismissed state.
+ *
+ * @param string        $checklist_slug The slug of the launchpad task list to check.
+ * @param bool          $is_dismissed True if the task list is dismissed, false otherwise.
+ * @param string | null $dismissed_until The date until which the task list is dismissed.
+ */
+function wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed, $dismissed_until ) {
+
+	wpcom_launchpad_checklists()->set_task_list_dismissed( $checklist_slug, $is_dismissed, $dismissed_until );
 }
 
 /**

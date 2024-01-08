@@ -160,9 +160,14 @@ class Launchpad_Task_Lists {
 	 */
 	public function is_task_list_dismissed( $id ) {
 		$task_list_dismissed_status = $this->get_task_list_dismissed_status();
+		$task_list_dismissed_until  = $this->get_task_list_dismissed_until();
+		$is_dismissed               = isset( $task_list_dismissed_status[ $id ] ) && true === $task_list_dismissed_status[ $id ];
 
+		if ( ! $is_dismissed && isset( $task_list_dismissed_until ) ) {
+			return new DateTime( 'now', new DateTimeZone( 'UTC' ) ) <= new DateTime( '@' . $task_list_dismissed_until, new DateTimeZone( 'UTC' ) );
+		}
 		// Return true if the task list is on the dismissed status array and its value is true.
-		return isset( $task_list_dismissed_status[ $id ] ) && true === $task_list_dismissed_status[ $id ];
+		return $is_dismissed;
 	}
 
 	/**
@@ -184,9 +189,12 @@ class Launchpad_Task_Lists {
 	 *
 	 * @param string $id Task List id.
 	 * @param bool   $is_dismissed True if dismissed, false if not.
+	 * @param string $dismissed_until Optional. DateTime object with the date until the task list is dismissed.
 	 */
-	public function set_task_list_dismissed( $id, $is_dismissed ) {
-		$task_list = $this->get_task_list( $id );
+	public function set_task_list_dismissed( $id, $is_dismissed, $dismissed_until ) {
+		$task_list        = $this->get_task_list( $id );
+		$launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+
 		if ( empty( $id ) || empty( $task_list ) ) {
 			return;
 		}
@@ -200,7 +208,12 @@ class Launchpad_Task_Lists {
 			unset( $task_list_dismissed_status[ $id ] );
 		}
 
-		$launchpad_config                               = get_option( 'wpcom_launchpad_config', array() );
+		if ( ! $is_dismissed && isset( $dismissed_until ) ) {
+			$launchpad_config['task_list_dismissed_until'] = $dismissed_until;
+		} else {
+			$launchpad_config['task_list_dismissed_until'] = null;
+		}
+
 		$launchpad_config['task_list_dismissed_status'] = $task_list_dismissed_status;
 		update_option( 'wpcom_launchpad_config', $launchpad_config );
 	}
@@ -217,6 +230,20 @@ class Launchpad_Task_Lists {
 		}
 
 		return $launchpad_config['task_list_dismissed_status'];
+	}
+
+	/**
+	 * Get the task list dismissed until date when available.
+	 *
+	 * @return int|null
+	 */
+	public function get_task_list_dismissed_until() {
+		$launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+		if ( ! isset( $launchpad_config['task_list_dismissed_until'] ) || ! is_array( $launchpad_config['task_list_dismissed_status'] ) ) {
+			return null;
+		}
+
+		return intval( $launchpad_config['task_list_dismissed_until'] );
 	}
 
 	/**

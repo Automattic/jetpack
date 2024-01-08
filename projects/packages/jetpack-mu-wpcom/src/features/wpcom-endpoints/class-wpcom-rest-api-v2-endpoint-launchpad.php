@@ -67,13 +67,18 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 							'description'          => 'Marks a checklist as dismissed by the user',
 							'type'                 => 'object',
 							'properties'           => array(
-								'slug'         => array(
+								'slug'            => array(
 									'description' => 'Checklist slug',
 									'type'        => 'string',
 									'enum'        => $this->get_checklist_slug_enums(),
 								),
-								'is_dismissed' => array(
-									'type' => 'boolean',
+								'is_dismissed'    => array(
+									'type'     => 'boolean',
+									'required' => false,
+									'default'  => false,
+								),
+								'dismissed_until' => array(
+									'type' => 'number',
 								),
 							),
 							'additionalProperties' => false,
@@ -155,6 +160,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			'is_enabled'         => wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ),
 			'is_dismissed'       => wpcom_launchpad_is_task_list_dismissed( $checklist_slug ),
 			'is_dismissible'     => wpcom_launchpad_is_task_list_dismissible( $checklist_slug ),
+			'is_dismissed_until' => wpcom_launchpad_task_list_dismissed_until( $checklist_slug ),
 			'title'              => wpcom_get_launchpad_checklist_title_by_checklist_slug( $checklist_slug ),
 		);
 	}
@@ -179,10 +185,11 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					break;
 
 				case 'is_checklist_dismissed':
-					$checklist_slug = $value['slug'];
-					$is_dismissed   = $value['is_dismissed'];
+					$checklist_slug  = $value['slug'];
+					$is_dismissed    = isset( $value['is_dismissed'] ) ? $value['is_dismissed'] : false;
+					$dismissed_until = isset( $value['dismissed_until'] ) ? $value['dismissed_until'] : null;
 
-					wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed );
+					wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed, $dismissed_until );
 					break;
 
 				case 'hide_fse_next_steps_modal':

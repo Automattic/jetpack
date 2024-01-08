@@ -106,6 +106,72 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	}
 
 	/**
+	 * Test return not dismissed task list when the date is in the future.
+	 */
+	public function test_update_checklist_temporary_dismissed_when_date_is_in_the_future() {
+		wp_set_current_user( $this->admin_id );
+
+		$date        = new DateTime();
+		$future_date = $date->modify( '+10 days' )->getTimestamp();
+
+		$values  = array(
+			'slug'            => 'intent-build',
+			'dismissed_until' => $future_date,
+		);
+		$data    = array( 'is_checklist_dismissed' => $values );
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $data ) );
+		$result = rest_do_request( $request );
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ) );
+	}
+
+	/**
+	 * Test return the task list is dismissed when the date is in the past.
+	 */
+	public function test_update_checklist_temporary_dismissed_when_date_is_in_the_past() {
+		wp_set_current_user( $this->admin_id );
+
+		$date      = new DateTime();
+		$past_date = $date->modify( '-10 days' )->getTimestamp();
+
+		$values  = array(
+			'slug'            => 'intent-build',
+			'dismissed_until' => $past_date,
+		);
+		$data    = array( 'is_checklist_dismissed' => $values );
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $data ) );
+		$result = rest_do_request( $request );
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertFalse( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ) );
+	}
+
+	/**
+	 * Test resets dismissed_until field when the there is a permanent dismissal.
+	 */
+	public function test_permanent_dismissed_resets_dismissed_until() {
+		wp_set_current_user( $this->admin_id );
+
+		$date      = new DateTime();
+		$past_date = $date->modify( '-10 days' )->getTimestamp();
+
+		$values  = array(
+			'slug'            => 'intent-build',
+			'dismissed_until' => $past_date,
+		);
+		$data    = array( 'is_checklist_dismissed' => $values );
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $data ) );
+		$result = rest_do_request( $request );
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertFalse( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ) );
+	}
+
+	/**
 	 * Test updating checklist_statuses.
 	 *
 	 * @covers ::update_site_options
