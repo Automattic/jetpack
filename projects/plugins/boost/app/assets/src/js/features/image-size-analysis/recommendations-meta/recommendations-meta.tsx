@@ -23,9 +23,6 @@ interface RecommendationsMetaProps {
 const _RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActive } ) => {
 	const [ requestingReport, setRequestingReport ] = useState< boolean >( false );
 	const [ errorCode, setErrorCode ] = useState< number | undefined >( undefined );
-	const [ status, setStatus ] = useState< ISAStatus | undefined >( undefined );
-	const [ groups, setGroups ] = useState< Record< string, IsaCounts > >( {} );
-	const [ scannedPages, setScannedPages ] = useState< number >( 0 );
 	const [ totalIssues, setTotalIssues ] = useState< number >( 0 );
 	const [ errorMessage, setErrorMessage ] = useState< string | undefined >( undefined );
 	const [ errorSuggestion, setErrorSuggestion ] = useState< string | undefined >( undefined );
@@ -34,10 +31,11 @@ const _RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActi
 	const [ { data: isaReport } ] = useIsaReport();
 	const requestNewReport = useImageAnalysisRequest();
 
+	const status = isaReport?.status;
+	const groups = isaReport?.groups || {};
+	const scannedPages = scannedPagesCount( isaReport?.groups || {} )
+
 	useEffect( () => {
-		setStatus( isaReport?.status );
-		setGroups( isaReport?.groups || {} );
-		setScannedPages( scannedPagesCount( isaReport?.groups || {} ) );
 		/**
 		 * Calculate total number of issues.
 		 */
