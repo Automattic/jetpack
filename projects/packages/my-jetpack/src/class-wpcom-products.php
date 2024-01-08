@@ -265,7 +265,8 @@ class Wpcom_Products {
 
 		$body      = wp_remote_retrieve_body( $response );
 		$purchases = json_decode( $body );
-		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, MINUTE_IN_SECONDS / 2 );
+		// Set short transient to help with repeated lookups on the same page load
+		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, 5 );
 
 		return $purchases;
 	}
