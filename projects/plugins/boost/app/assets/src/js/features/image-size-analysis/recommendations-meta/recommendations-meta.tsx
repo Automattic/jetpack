@@ -15,12 +15,11 @@ import {
 	useIsaReport,
 	useImageAnalysisRequest,
 } from '$features/image-size-analysis';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 interface RecommendationsMetaProps {
 	isCdnActive: boolean;
 }
 
-const _RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActive } ) => {
+const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActive } ) => {
 	const [ requestingReport, setRequestingReport ] = useState< boolean >( false );
 	const [ errorCode, setErrorCode ] = useState< number | undefined >( undefined );
 	const [ totalIssues, setTotalIssues ] = useState< number >( 0 );
@@ -33,7 +32,7 @@ const _RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActi
 
 	const status = isaReport?.status;
 	const groups = isaReport?.groups || {};
-	const scannedPages = scannedPagesCount( isaReport?.groups || {} )
+	const scannedPages = scannedPagesCount( isaReport?.groups || {} );
 
 	useEffect( () => {
 		/**
@@ -226,14 +225,6 @@ const _RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActi
 				</>
 			) }
 		</div>
-	);
-};
-
-const RecommendationsMeta = ( { isCdnActive }: { isCdnActive: boolean } ) => {
-	return (
-		<DataSyncProvider>
-			<_RecommendationsMeta isCdnActive={ isCdnActive } />
-		</DataSyncProvider>
 	);
 };
 
