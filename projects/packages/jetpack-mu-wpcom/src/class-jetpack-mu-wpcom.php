@@ -66,6 +66,8 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
 		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
 
+		require_once __DIR__ . '/features/crawler-control/crawler-control.php';
+
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 
 		require_once __DIR__ . '/features/media/heif-support.php';
