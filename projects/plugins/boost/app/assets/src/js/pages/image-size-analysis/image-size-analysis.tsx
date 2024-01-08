@@ -10,7 +10,6 @@ import {
 } from '$features/image-size-analysis';
 import Footer from '../../layout/footer/footer';
 import Header from '../../layout/header/header';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,7 +19,7 @@ type Props = {
 	group: isaGroupKeys;
 };
 
-const _ImageSizeAnalysis = ( { page, group, isImageCdnModuleActive }: Props ) => {
+const ImageSizeAnalysis = ( { page, group, isImageCdnModuleActive }: Props ) => {
 	const [ isaData ] = useIsaData( page, group );
 	const [ isaReport ] = useIsaReport();
 	const navigate = useNavigate();
@@ -66,11 +65,4 @@ const _ImageSizeAnalysis = ( { page, group, isImageCdnModuleActive }: Props ) =>
 	);
 };
 
-const ImageSizeAnalysis = ( props: Props ) => {
-	return (
-		<DataSyncProvider>
-			<_ImageSizeAnalysis { ...props } />
-		</DataSyncProvider>
-	);
-};
 export default ImageSizeAnalysis;
