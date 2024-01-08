@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Crawler Control: Disallow bot crawlers by default with the ability to opt-in.
