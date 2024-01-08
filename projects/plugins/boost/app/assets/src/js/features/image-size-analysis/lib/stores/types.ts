@@ -14,8 +14,8 @@ const IsaCounts = z.object( {
 } );
 
 const Dimensions = z.object( {
-	width: z.number(),
-	height: z.number(),
+	width: z.coerce.number(),
+	height: z.coerce.number(),
 } );
 
 export const IsaImage = z.object( {
@@ -25,19 +25,19 @@ export const IsaImage = z.object( {
 	thumbnail: z.string(),
 	image: z.object( {
 		url: z.string(),
-		fixed: z.boolean(),
+		fixed: z.boolean().optional(),
 		dimensions: z.object( {
 			file: Dimensions,
 			expected: Dimensions,
 			size_on_screen: Dimensions,
 		} ),
 		weight: z.object( {
-			current: z.number(),
-			potential: z.number(),
+			current: z.coerce.number(),
+			potential: z.coerce.number(),
 		} ),
 	} ),
 	page: z.object( {
-		id: z.number(),
+		id: z.coerce.number(),
 		url: z.string().url(),
 		title: z.string(),
 		edit_url: z.string().url().optional(),
@@ -46,18 +46,11 @@ export const IsaImage = z.object( {
 	instructions: z.string(),
 } );
 
-export const IsaGlobal = z
-	.object( {
-		last_updated: z.number(),
-		total_pages: z.number(),
-		images: z.array( IsaImage ),
-	} )
-	// Prevent fatal error when this module isn't available.
-	.catch( {
-		last_updated: 0,
-		total_pages: 0,
-		images: [],
-	} );
+export const IsaGlobal = z.object( {
+	images: z.array( IsaImage ),
+	last_updated: z.number(),
+	total_pages: z.number(),
+} );
 
 /**
  * Valid values for the status field.
