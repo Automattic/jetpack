@@ -16,8 +16,10 @@ class Image_Analysis_Action_Fix implements Data_Sync_Action {
 	 *
 	 * @param mixed            $data    JSON Data passed to the action.
 	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @throws \Exception
 	 */
-	public function handle( $data, $request ) {
+	public function handle( $data, $_request ) {
 
 		if ( ! Premium_Features::has_feature( Premium_Features::IMAGE_SIZE_ANALYSIS ) ) {
 			return new \WP_Error( 'not-allowed', 'Feature not enabled' );

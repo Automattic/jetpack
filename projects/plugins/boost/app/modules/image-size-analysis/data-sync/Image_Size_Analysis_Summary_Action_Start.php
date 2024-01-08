@@ -11,13 +11,7 @@ use Automattic\Jetpack_Boost\Lib\Premium_Features;
  */
 class Image_Size_Analysis_Summary_Action_Start implements Data_Sync_Action {
 
-	/**
-	 * Handles the action logic.
-	 *
-	 * @param mixed            $data    JSON Data passed to the action.
-	 * @param \WP_REST_Request $request The request object.
-	 */
-	public function handle( $data, $request ) {
+	public function handle( $_data, $_request ) {
 
 		// @TODO: Add a proper feature flag for this instead of just checking if priority support available.
 		if ( ! Premium_Features::has_feature( Premium_Features::IMAGE_SIZE_ANALYSIS ) ) {
