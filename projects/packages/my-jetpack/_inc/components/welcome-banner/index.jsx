@@ -15,13 +15,13 @@ import styles from './style.module.scss';
  * @returns {object} The WelcomeBanner component.
  */
 const WelcomeBanner = () => {
+	const isNewUser = window.myJetpackInitialState.userIsNewToJetpack === '1';
 	const { recordEvent } = useAnalytics();
 	const { hasBeenDismissed, dismissWelcomeBanner } = useWelcomeBanner();
 	const { isRegistered, isUserConnected } = useConnection();
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 	const [ bannerVisible, setBannerVisible ] = useState( ! hasBeenDismissed && isNewUser );
 	const shouldDisplayConnectionButton = ! isRegistered || ! isUserConnected;
-	const isNewUser = window.myJetpackInitialState.userIsNewToJetpack === '1';
 
 	useEffect( () => {
 		if ( bannerVisible ) {
