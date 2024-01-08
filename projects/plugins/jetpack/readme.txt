@@ -293,10 +293,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.0-a.13 - 2024-01-04
+### 13.0-beta - 2024-01-08
+#### Enhancements
+- Subscription Modal: Display thesubscription modal when a user makes a comment.
+
 #### Bug fixes
-- Jetpack footer links are now consistent within different pages.
-- Notification Accessibility: THe notification icon is not a link.
+- Likes Widget: Fix accessibility on likes popover.
+- Likes Widget: Make likes widget accessibility compatible across themes.
 
 --------
 
