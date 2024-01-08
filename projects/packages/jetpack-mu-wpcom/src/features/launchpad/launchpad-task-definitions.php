@@ -1022,7 +1022,14 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 
 	$domains = \Domain_Management::get_paid_domains_with_icann_verification_status();
 
-	return ! empty( $domains );
+	$domains_pending_icann_verification = array_filter(
+		$domains,
+		function ( $domain ) {
+			return isset( $domain['is_pending_icann_verification'] ) && $domain['is_pending_icann_verification'];
+		}
+	);
+
+	return ! empty( $domains_pending_icann_verification );
 }
 
 /**
