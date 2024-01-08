@@ -1,5 +1,3 @@
-import React from 'react';
-
 const WarningOutline = () => (
 	<svg
 		version="1.1"
