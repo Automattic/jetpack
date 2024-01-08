@@ -352,7 +352,13 @@ export function ScanInterstitial() {
 export function SocialInterstitial() {
 	return (
 		<ProductInterstitial slug="social" installsPlugin={ true }>
-			<img src={ socialImage } alt="Social" />
+			<img
+				src={ socialImage }
+				alt={ __(
+					'Image displaying logos of social media platforms supported by Jetpack Social.',
+					'jetpack-my-jetpack'
+				) }
+			/>
 		</ProductInterstitial>
 	);
 }
