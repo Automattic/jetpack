@@ -247,10 +247,6 @@ function zeroBSCRM_render_systemstatus_page() {
 
 		global $ZBSCRM_t,$wpdb;
 		$missingTables = array();
-		$tablesExist   = $wpdb->get_results( "SHOW TABLES LIKE '" . $ZBSCRM_t['keys'] . "'" );
-		if ( count( $tablesExist ) < 1 ) {
-			$missingTables[] = $ZBSCRM_t['keys'];
-		}
 
 		// then we cycle through our tables :) - means all keys NEED to be kept up to date :)
 		foreach ( $ZBSCRM_t as $tableKey => $tableName ) {
