@@ -792,10 +792,10 @@ HTML;
 		<div>
 			<h1>
 				<?php
-					echo esc_html__( 'Duplicate comment detected; it looks as though you&#8217;ve already said that!', 'jetpack' );
+					esc_html_e( 'Duplicate comment detected; it looks as though you’ve already said that!', 'jetpack' );
 				?>
 			</h1>
-			<a href="javascript:history.go(-2)"><?php echo esc_html__( '&laquo; Back', 'jetpack' ); ?></a>
+			<a href="javascript:history.go(-2)"><?php esc_html_e( '&laquo; Back', 'jetpack' ); ?></a>
 		</div>
 		</body>
 		</html>
