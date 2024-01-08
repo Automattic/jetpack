@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import PaginationArrow from '../ui/pagination-arrow/pagination-arrow';
+import { useState, useEffect, useMemo } from 'react';
 import ChevronLeft from '$svg/chevron-left';
 import ChevronRight from '$svg/chevron-right';
 
@@ -8,6 +7,41 @@ interface PaginationProps {
 	current: number;
 	total: number;
 }
+
+interface PaginationLinkProps {
+	group: string;
+	direction: 'left' | 'right';
+	current: number;
+	total: number;
+	children: React.ReactNode;
+}
+
+const PaginationArrow: React.FC< PaginationLinkProps > = ( {
+	group,
+	direction,
+	current,
+	total,
+	children,
+} ) => {
+	const inactive = useMemo(
+		() => ( direction === 'left' ? current === 1 : current === total ),
+		[ direction, current, total ]
+	);
+
+	const page = useMemo(
+		() => ( direction === 'left' ? current - 1 : current + 1 ),
+		[ direction, current ]
+	);
+
+	if ( inactive ) {
+		return <span className="jb-pagination__page jb-pagination__page--inactive">{ children }</span>;
+	}
+	return (
+		<a href={ `#/image-size-analysis/${ group }/${ page }` } className="jb-pagination__page">
+			{ children }
+		</a>
+	);
+};
 
 const Pagination: React.FC< PaginationProps > = ( { group, current, total } ) => {
 	const MORE_ICON = -1;
