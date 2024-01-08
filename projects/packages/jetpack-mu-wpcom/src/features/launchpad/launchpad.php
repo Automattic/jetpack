@@ -267,10 +267,11 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'legacy-site-setup'      => array(
-			'get_title' => function () {
+			'get_title'      => function () {
 				return __( 'Site setup', 'jetpack-mu-wpcom' );
 			},
-			'task_ids'  => array(
+			'is_dismissible' => true,
+			'task_ids'       => array(
 				'woocommerce_setup',
 				'sensei_setup',
 				'site_title',
@@ -278,7 +279,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'verify_domain_email',
 				'verify_email',
 				'mobile_app_installed',
-				'setup_professional_email',
 				'post_sharing_enabled',
 				'site_launched',
 			),
@@ -400,8 +400,8 @@ function wpcom_is_checklist_task_complete( $task_id ) {
 /**
  * Returns launchpad checklist by checklist slug.
  *
- * @param string $checklist_slug Checklist slug.
- * @param string $launchpad_context Screen where Launchpad is loading.
+ * @param string      $checklist_slug Checklist slug.
+ * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
  *
  * @return Task[] Collection of tasks for a given checklist
  */
@@ -707,6 +707,19 @@ function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ) {
  */
 function wpcom_launchpad_is_task_list_dismissed( $checklist_slug ) {
 	return wpcom_launchpad_checklists()->is_task_list_dismissed( $checklist_slug );
+}
+
+/**
+ * Checks if the Launchpad is dismissible.
+ *
+ * @param string $checklist_slug The slug of the launchpad task list to check.
+ * @return bool True if the Launchpad is dismissible, false otherwise.
+ */
+function wpcom_launchpad_is_task_list_dismissible( $checklist_slug ) {
+	if ( false === $checklist_slug ) {
+		return false;
+	}
+	return wpcom_launchpad_checklists()->is_task_list_dismissible( $checklist_slug );
 }
 
 /**
