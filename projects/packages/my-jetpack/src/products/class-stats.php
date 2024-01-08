@@ -238,16 +238,6 @@ class Stats extends Module_Product {
 	}
 
 	/**
-	 * Checks whether the product supports trial or not.
-	 * Since Jetpack Stats has been widely available as a free product in the past, it "supports" a trial.
-	 *
-	 * @return boolean
-	 */
-	public static function has_trial_support() {
-		return true;
-	}
-
-	/**
 	 * Get the WordPress.com URL for purchasing Jetpack Stats for the current site.
 	 *
 	 * @return ?string
