@@ -146,7 +146,7 @@ export type DataSyncActionConfig<
 	CurrentState extends z.infer< StateSchema >,
 > = {
 	/**
-	 * The project namespace, fore example: 'jetpack_boost_ds'
+	 * The project namespace, for example: 'jetpack_boost_ds'
 	 */
 	namespace: string;
 
