@@ -178,13 +178,13 @@ export function NewsletterAccessRadioButtons( {
 						  ]
 						: [] ),
 					{
-						label: `${ accessOptions.subscribers.label } (${ numberFormat( subscribersReach, {
+						label: `${ accessOptions.subscribers.label }\u00A0(${ numberFormat( subscribersReach, {
 							notation: 'compact',
 						} ) })`,
 						value: accessOptions.subscribers.key,
 					},
 					{
-						label: `${ accessOptions.paid_subscribers.label } (${ numberFormat(
+						label: `${ accessOptions.paid_subscribers.label }\u00A0(${ numberFormat(
 							paidSubscribersReach,
 							{
 								notation: 'compact',
