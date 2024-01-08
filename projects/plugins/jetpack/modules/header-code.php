@@ -23,6 +23,7 @@ function jetpack_insert_head_code() {
 	}
 
 	if ( ! empty( $option ) && ! is_admin() ) {
+		// No escaping because it's user-inputted code intended to allow <script> tags.
 		echo wp_unslash( $option, 'post' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
