@@ -357,7 +357,14 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			undefined,
 			nonce
 		);
-		return schema.parse( result );
+
+		try {
+			return schema.parse( result );
+		} catch ( e ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Failed to parse the response\n', { result, error: e } );
+			throw new ApiError( '', 'json_parse_error', 'Failed to parse the response' );
+		}
 	};
 	/**
 	 * Method to get the initial value from the window object.
