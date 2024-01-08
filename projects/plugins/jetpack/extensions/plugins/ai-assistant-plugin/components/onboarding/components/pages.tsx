@@ -151,12 +151,12 @@ export const pages = [
 				<h2>{ __( 'Unleash Your Full Potential', 'jetpack' ) }</h2>
 				<p>
 					{ sprintf(
-						// translators: %s is the monthly price of the AI Assistant plan
+						// translators: %s is the free limit of requests
 						__(
-							'Try AI Assistant for free to see how compelling your content can be. After 20 requests, purchase AI Assistant for %s per month and watch your productivity flourish.',
+							'Try AI Assistant for free to see how compelling your content can be. After %s requests, purchase AI Assistant for continued access and watch your productivity flourish.',
 							'jetpack'
 						),
-						'something'
+						20
 					) }
 				</p>
 			</div>

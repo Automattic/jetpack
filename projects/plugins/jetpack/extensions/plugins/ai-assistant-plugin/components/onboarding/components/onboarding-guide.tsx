@@ -35,7 +35,7 @@ const OnboardingGuide: FC = () => {
 		// Remove the onboarding query parameter from the URL
 		// so it doesn't pop back up if the page is refreshed
 		const params = new URLSearchParams( window.location.search );
-		params.delete( 'aiOnboarding' );
+		params.delete( 'guide' );
 		const newUrl = location.pathname + '?' + params.toString() + location.hash;
 		window.history.replaceState( {}, '', newUrl );
 
