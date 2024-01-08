@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: /rest/v1.1/help: Minor fix for endpoint descriptions missing close parenthesis.
+
+

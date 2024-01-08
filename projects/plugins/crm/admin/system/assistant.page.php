@@ -87,7 +87,7 @@ function jpcrm_render_system_assistant_page() {
 				'title'           => __( 'Try Invoicing II', 'zero-bs-crm' ),
 				'icon'            => 'file',
 				'desc_incomplete' => __( 'Add your first invoice to see how the CRM invoicing system works.', 'zero-bs-crm' ),
-				'desc_complete'   => __( 'Great, you\'re using Invoices.', 'zero-bs-crm' ),
+				'desc_complete'   => __( "Great, you're using Invoices.", 'zero-bs-crm' ),
 				'button_url'      => $zbs->urls['kbinvoicebuilder'],
 				'state'           => zeroBS_invCount() > 0,
 
@@ -102,7 +102,7 @@ function jpcrm_render_system_assistant_page() {
 			'desc_incomplete' => sprintf( __( 'If you have any team members who might need access to the CRM, <a href="%s">add them now</a>.', 'zero-bs-crm' ), zeroBSCRM_getAdminURL( $zbs->slugs['team'] ) ),
 			'desc_complete'   => __( 'Great, it looks like you have several users who can access the CRM.', 'zero-bs-crm' ),
 			'button_url'      => $zbs->urls['kbteam'],
-			'state'           => count( zeroBSCRM_crm_users_list() ) > 0,
+			'state'           => count( zeroBSCRM_crm_users_list() ) > 1,
 
 		);
 
@@ -146,7 +146,7 @@ function jpcrm_render_system_assistant_page() {
 
 		);
 
-		foreach ( $job_list as $job_key => $job ) {
+		foreach ( $job_list as $job ) {
 
 			jpcrm_render_system_assistant_job( $job );
 
@@ -162,6 +162,7 @@ function jpcrm_render_system_assistant_page() {
  * Render a single system assistant job
  */
 function jpcrm_render_system_assistant_job( $job = array() ) {
+	global $zbs;
 
 	// if no help txt, use default:
 	if ( empty( $job['button_txt'] ) ) {
@@ -179,8 +180,8 @@ function jpcrm_render_system_assistant_job( $job = array() ) {
 				</div>
 				<div class="fourteen wide column">
 					<h4 class="ui header"><i class="<?php echo esc_attr( $job['icon'] ); ?> icon"></i> <?php echo esc_html( $job['title'] ); ?></h4>
-					<p class="job-desc state-incomplete"><?php echo esc_html( $job['desc_incomplete'] ); ?></p>
-					<p class="job-desc state-complete"><?php echo esc_html( $job['desc_complete'] ); ?></p>
+					<p class="job-desc state-incomplete"><?php echo wp_kses( $job['desc_incomplete'], $zbs->acceptable_restricted_html ); ?></p>
+					<p class="job-desc state-complete"><?php echo wp_kses( $job['desc_complete'], $zbs->acceptable_restricted_html ); ?></p>
 					<?php
 					if ( ! empty( $job['button_txt'] ) ) {
 						?>
