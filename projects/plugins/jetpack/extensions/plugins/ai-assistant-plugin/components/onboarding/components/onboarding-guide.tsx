@@ -1,4 +1,5 @@
 import { Guide } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useAICheckout from '../../../../../blocks/ai-assistant/hooks/use-ai-checkout';
@@ -13,8 +14,17 @@ const OnboardingGuide: FC = () => {
 	const [ isOpen, setIsOpen ] = useState( true );
 	const { checkoutUrl } = useAICheckout();
 
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+	const { isFeatureActive } = useSelect( 'core/edit-post' );
+	const isWelcomeGuideActive = isFeatureActive( 'welcomeGuide' );
+
 	// Preload assets to avoid flickering as much as possible
 	usePrefetchAssets( assetSources );
+
+	if ( isWelcomeGuideActive ) {
+		return null;
+	}
 
 	const finishButtonText = __( 'Elevate your content', 'jetpack' );
 
