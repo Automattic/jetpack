@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+post images: Prevent a warning in PHP 8.1 if wp_parse_url() returns false.
