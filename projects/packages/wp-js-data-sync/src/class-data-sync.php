@@ -105,6 +105,27 @@ final class Data_Sync {
 	}
 
 	/**
+	 * Retrieve nonces for all action endpoints associated with a given entry.
+	 *
+	 * @param string $entry_key The key for the entry.
+	 * @return array An associative array of action nonces.
+	 */
+	private function get_action_nonces_for_entry( $entry_key ) {
+		// Assuming a method in Registry class to retrieve all action names for an entry
+		$action_names = $this->registry->get_action_names_for_entry( $entry_key );
+		$nonces       = array();
+
+		foreach ( $action_names as $action_name ) {
+			$nonce = $this->registry->get_action_nonce( $entry_key, $action_name );
+			if ( $nonce ) {
+				$nonces[ $action_name ] = $nonce;
+			}
+		}
+
+		return $nonces;
+	}
+
+	/**
 	 * Don't call this method directly.
 	 * It's only public so that it can be called as a hook
 	 *
@@ -127,6 +148,12 @@ final class Data_Sync {
 
 			if ( $entry->is( Lazy_Entry::class ) ) {
 				$data[ $key ]['lazy'] = true;
+			}
+
+			// Include nonces for action endpoints associated with this entry
+			$action_nonces = $this->get_action_nonces_for_entry( $key );
+			if ( ! empty( $action_nonces ) ) {
+				$data[ $key ]['actions'] = $action_nonces;
 			}
 		}
 
@@ -197,5 +224,9 @@ final class Data_Sync {
 		 */
 		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $parser );
 		$this->registry->register( $key, $entry_adapter );
+	}
+
+	public function register_action( $key, $action_name, $instance ) {
+		$this->registry->register_action( $key, $action_name, $instance );
 	}
 }
