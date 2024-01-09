@@ -1,5 +1,5 @@
-Significance: patch
+Significance: minor
 Type: changed
-Comment: Updated composer.lock.
+Comment: Update checkout URL's to use blog ID instead of site slug.
 
 
