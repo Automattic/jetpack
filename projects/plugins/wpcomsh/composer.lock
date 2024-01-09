@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ccae29ff5b71415fa28ce63b58833794",
+    "content-hash": "3ac45ce6defd9feb45ed70eaed5c4be8",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -208,16 +208,16 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v5.8.0",
+            "version": "v5.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "1d97d010ed8fba06db9fa1d4242480283f7fb81b"
+                "reference": "570ac70894fec40edd1b2265a96588697f0d3a3a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/1d97d010ed8fba06db9fa1d4242480283f7fb81b",
-                "reference": "1d97d010ed8fba06db9fa1d4242480283f7fb81b",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/570ac70894fec40edd1b2265a96588697f0d3a3a",
+                "reference": "570ac70894fec40edd1b2265a96588697f0d3a3a",
                 "shasum": ""
             },
             "require": {
@@ -257,9 +257,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.8.0"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.8.1"
             },
-            "time": "2024-01-04T15:59:49+00:00"
+            "time": "2024-01-08T18:11:33+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
@@ -2631,5 +2631,5 @@
         "php": ">=7.0.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
