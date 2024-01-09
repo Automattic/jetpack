@@ -178,18 +178,10 @@ class Jetpack_Boost {
 	}
 
 	public function init_sync() {
-		$boost_options = array(
-			JETPACK_BOOST_DATASYNC_NAMESPACE . '_getting_started',
-			JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_js_excludes',
-			JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_css_excludes',
-			JETPACK_BOOST_DATASYNC_NAMESPACE . '_image_cdn_quality',
-		);
-
 		$jetpack_config = new Jetpack_Config();
 		$jetpack_config->ensure(
 			'sync',
 			array(
-				'jetpack_sync_options_whitelist'  => $boost_options,
 				'jetpack_sync_callable_whitelist' => array(
 					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
 					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
