@@ -151,12 +151,6 @@ class Dedicated_Sender {
 
 		$queue_lag = $queue->lag();
 
-		// Check if a test request fails the queue lag is longer than the threshold. If so disable Dedicated Sync.
-		if ( $queue_lag > $queue_send_time_threshold && ! self::can_spawn_dedicated_sync_request() ) {
-			self::on_dedicated_sync_lag_not_sending_threshold_reached();
-			return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
-		}
-
 		/**
 		 * Try to acquire a request lock, so we don't spawn multiple requests at the same time.
 		 * This should prevent cases where sites might have limits on the amount of simultaneous requests.
@@ -164,6 +158,21 @@ class Dedicated_Sender {
 		$request_lock = self::try_lock_spawn_request();
 		if ( ! $request_lock ) {
 			return new WP_Error( 'dedicated_request_lock', 'Unable to acquire request lock' );
+		}
+
+		/**
+		 * If the queue lag is bigger than the threshold, we want to check if Dedicated Sync is working correctly.
+		 * We will do by sending a test request and disabling Dedicated Sync if it's not working. We will also exit early
+		 * in case we send the test request since it is a blocking request.
+		 */
+		if ( $queue_lag > $queue_send_time_threshold ) {
+			if ( false === get_transient( self::DEDICATED_SYNC_CHECK_TRANSIENT ) ) {
+				if ( ! self::can_spawn_dedicated_sync_request() ) {
+					self::on_dedicated_sync_lag_not_sending_threshold_reached();
+					return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
+				}
+				return true;
+			}
 		}
 
 		$url = rest_url( 'jetpack/v4/sync/spawn-sync' );
