@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Adjusted checkout to use blog ID instead of site slug.

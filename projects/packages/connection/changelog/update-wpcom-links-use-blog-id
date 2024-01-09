@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Adjusted the 'get_site_id()' method to return null.

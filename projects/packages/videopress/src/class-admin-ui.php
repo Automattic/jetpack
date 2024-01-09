@@ -171,6 +171,7 @@ class Admin_UI {
 			'apiRoot'                => esc_url_raw( rest_url() ),
 			'apiNonce'               => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'      => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'blogID'                 => Connection_Manager::get_site_id( true ),
 			'adminUrl'               => self::get_admin_page_url(),
 			'adminUri'               => 'admin.php?page=' . self::ADMIN_PAGE_SLUG,
 			'paidFeatures'           => array(
