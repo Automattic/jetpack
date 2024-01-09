@@ -1,7 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
-import './shared/public-path';
 import './shared/block-category';
 import './shared/plan-upgrade-notification';
 import './shared/stripe-connection-notification';
