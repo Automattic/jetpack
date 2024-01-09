@@ -223,6 +223,18 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		 * @see https://developer.wordpress.org/reference/classes/wp_rest_request/parse_json_params/
 		 * @see https://github.com/WordPress/wordpress-develop/blob/28f10e4af559c9b4dbbd1768feff0bae575d5e78/src/wp-includes/rest-api/class-wp-rest-request.php#L701
 		 */
+		if ( ! data || ! data.status ) {
+			// eslint-disable-next-line no-console
+			console.error( 'JSON response is empty.\n', { url, text, result } );
+			throw new ApiError( url.toString(), 'json_empty', 'JSON response is empty' );
+		}
+
+		if ( data.status === 'error' && 'message' in data ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Server returned an error.\n', { url, text, result } );
+			throw new ApiError( url.toString(), 'error_with_message', data.message );
+		}
+
 		if ( ! data || data.JSON === undefined ) {
 			// eslint-disable-next-line no-console
 			console.error( 'JSON response is empty.\n', { url, text, result } );

@@ -2,7 +2,13 @@ export class ApiError extends Error {
 	public name = 'ApiError';
 	constructor(
 		public location: string,
-		public status: number | 'failed_to_sync' | 'json_parse_error' | 'json_empty' | 'schema_error',
+		public status:
+			| number
+			| 'error_with_message'
+			| 'failed_to_sync'
+			| 'json_parse_error'
+			| 'json_empty'
+			| 'schema_error',
 		public message: string
 	) {
 		super( message );
