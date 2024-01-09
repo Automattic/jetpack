@@ -1,5 +1,8 @@
-export class ApiError extends Error {
-	public name = 'ApiError';
+/**
+ * DataSync Error returned by the REST API.
+ */
+export class DataSyncError extends Error {
+	public name = 'DataSyncError';
 	constructor(
 		public location: string,
 		public status:
@@ -14,12 +17,12 @@ export class ApiError extends Error {
 		super( message );
 
 		/**
-		 * This makes `foo instanceof ApiError` work.
+		 * This makes `foo instanceof DataSyncError` work.
 		 * To make instanceof work correctly
 		 * set the prototype explicitly.
 		 *
 		 * @see https://stackoverflow.com/a/41102306/1015046
 		 */
-		Object.setPrototypeOf( this, ApiError.prototype );
+		Object.setPrototypeOf( this, DataSyncError.prototype );
 	}
 }
