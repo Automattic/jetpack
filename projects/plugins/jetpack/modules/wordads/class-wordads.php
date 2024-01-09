@@ -19,6 +19,7 @@ require_once WORDADS_ROOT . '/php/class-wordads-api.php';
 require_once WORDADS_ROOT . '/php/class-wordads-cron.php';
 require_once WORDADS_ROOT . '/php/class-wordads-california-privacy.php';
 require_once WORDADS_ROOT . '/php/class-wordads-ccpa-do-not-sell-link-widget.php';
+require_once WORDADS_ROOT . '/php/class-wordads-consent-management-provider.php';
 
 /**
  * Primary WordAds class.
@@ -206,6 +207,8 @@ class WordAds {
 		if ( $this->params->options['wordads_ccpa_enabled'] ) {
 			WordAds_California_Privacy::init();
 		}
+
+		WordAds_Consent_Management_Provider::init();
 
 		if ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
 
