@@ -741,7 +741,6 @@ class Defaults {
 		'_wp_page_template',
 		'_wp_trash_meta_comments_status',
 		'_wpas_feature_enabled',
-		'_wpas_is_tweetstorm',
 		'_wpas_mess',
 		'_wpas_options',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.

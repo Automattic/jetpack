@@ -166,6 +166,20 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Check if a task list is dismissible.
+	 *
+	 * @param string $id Task List id.
+	 * @return bool True if dismissible, false if not.
+	 */
+	public function is_task_list_dismissible( $id ) {
+		$task_list = $this->get_task_list( $id );
+		if ( ! isset( $task_list['is_dismissible'] ) ) {
+			return false;
+		}
+		return $task_list['is_dismissible'];
+	}
+
+	/**
 	 * Set wether a task list is dismissed or not for a site.
 	 *
 	 * @param string $id Task List id.
@@ -290,8 +304,8 @@ class Launchpad_Task_Lists {
 	/**
 	 * Builds a collection of tasks for a given task list
 	 *
-	 * @param string $id Task list id.
-	 * @param string $launchpad_context Context/screen in which launchpad is loading.
+	 * @param string      $id Task list id.
+	 * @param string|null $launchpad_context Optional. Screen in which launchpad is loading.
 	 *
 	 * @return Task[] Collection of tasks associated with a task list.
 	 */
@@ -338,8 +352,8 @@ class Launchpad_Task_Lists {
 	/**
 	 * Builds a single task with current state
 	 *
-	 * @param Task   $task Task definition.
-	 * @param string $launchpad_context Screen where Launchpad is loading.
+	 * @param Task        $task Task definition.
+	 * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
 	 * @return Task Task with current state.
 	 */
 	private function build_task( $task, $launchpad_context = null ) {
@@ -460,8 +474,8 @@ class Launchpad_Task_Lists {
 	/**
 	 * Helper function to load the Calypso path for a task.
 	 *
-	 * @param array  $task A task definition.
-	 * @param string $launchpad_context Screen where Launchpad is loading.
+	 * @param array       $task A task definition.
+	 * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
 	 * @return string|null
 	 */
 	private function load_calypso_path( $task, $launchpad_context = null ) {

@@ -2,6 +2,47 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.0-beta - 2024-01-08
+### Enhancements
+- Subscription Modal: Display thesubscription modal when a user makes a comment. [#34659]
+
+### Bug fixes
+- Likes Widget: Fix accessibility on likes popover. [#34800]
+- Likes Widget: Make likes widget accessibility compatible across themes. [#34857]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Use useModuleStatus hook instead of direct call of store selectors. [#34856]
+- AI Excerpt: remove GPT model selector since it's not possible to change models anymore. [#34855]
+- Backup: Add namespace versioning to Helper_Script_Manager and other classes. [#34739]
+- Fix the sidebar toggle on mobile displays. [#34807]
+- Like Widget: Fix caching issue. [#34860]
+- Updated package dependencies. [#34882]
+
+## 13.0-a.13 - 2024-01-04
+### Bug fixes
+- Jetpack footer links are now consistent within different pages. [#34787]
+- Notification Accessibility: THe notification icon is not a link. [#34810]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added the "reblog" query param to the iframe in the Like Block when the reblog button is enabled in the block. [#34838]
+- Fix failing E2E tests [#34796]
+- In editor view, the Like block now shows or hides the reblog button according to sidebar config [#34831]
+- Social: Removed obsolete code for Tweetstorms [#34330]
+- Updated package dependencies. [#34815]
+- Updated package dependencies. [#34816]
+
+## 13.0-a.11 - 2024-01-02
+### Bug fixes
+- Editor: Fixed missing fonts issue inside the block editor. [#34776]
+- Subscriptions Block: Added compatibility for the latest Gutenberg. [#34809]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Use default store value pased from backend. [#34794]
+- Subscribe Block: Adjusted how cookies are set. [#34634]
+- Blogroll: Use blogroll item url as name if name does not exist. [#34693]
+- Removed Jetpack connection banners from WP dashboard and plugins page. [#34768]
+- Updated the design for Quick Share buttons and fixed its a11y. [#34754]
+
 ## 13.0-a.9 - 2023-12-25
 ### Enhancements
 - Added description and link inviting to disable legacy sharing module if block is available [#34759]

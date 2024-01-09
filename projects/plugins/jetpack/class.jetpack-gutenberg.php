@@ -699,8 +699,15 @@ class Jetpack_Gutenberg {
 			$screen_base = get_current_screen()->base;
 		}
 
+		$modules = array();
+		if ( class_exists( 'Jetpack_Core_API_Module_List_Endpoint' ) ) {
+			$module_list_endpoint = new Jetpack_Core_API_Module_List_Endpoint();
+			$modules              = $module_list_endpoint->get_modules();
+		}
+
 		$initial_state = array(
 			'available_blocks' => self::get_availability(),
+			'modules'          => $modules,
 			'jetpack'          => array(
 				'is_active'                     => Jetpack::is_connection_ready(),
 				'is_current_user_connected'     => $is_current_user_connected,

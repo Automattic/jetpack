@@ -449,7 +449,6 @@ class Jetpack_Protect {
 		return array(
 			'ipAllowListCount'          => Waf_Stats::get_ip_allow_list_count(),
 			'ipBlockListCount'          => Waf_Stats::get_ip_block_list_count(),
-			'rulesVersion'              => Waf_Stats::get_rules_version(),
 			'automaticRulesLastUpdated' => Waf_Stats::get_automatic_rules_last_updated(),
 		);
 	}

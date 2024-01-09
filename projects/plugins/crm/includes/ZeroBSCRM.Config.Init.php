@@ -306,7 +306,7 @@ $zeroBSCRM_Conf_Def = array(
 			// Remember, this'll effect other areas of the CRM
 			'status' => array(
 				1,
-				'Lead,Customer,Refused,Blacklisted,Cancelled by Customer,Cancelled by Us (Pre-Quote),Cancelled by Us (Post-Quote)',
+				'Lead,Customer,Refused,Cancelled by Customer,Cancelled by Us (Pre-Quote),Cancelled by Us (Post-Quote)',
 			),
 			'prefix' => array(
 				1,
@@ -335,7 +335,7 @@ $zeroBSCRM_Conf_Def = array(
 			// Remember, this'll effect other areas of the CRM
 			'status' => array(
 				1,
-				'Lead,Customer,Refused,Blacklisted',
+				'Lead,Customer,Refused',
 			),
 		),
 		'quotes'       => array(),

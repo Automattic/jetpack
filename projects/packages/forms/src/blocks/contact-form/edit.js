@@ -3,6 +3,7 @@ import {
 	getJetpackData,
 	isAtomicSite,
 	isSimpleSite,
+	useModuleStatus,
 } from '@automattic/jetpack-shared-extension-utils';
 import {
 	InnerBlocks,
@@ -90,10 +91,6 @@ export const JetpackContactFormEdit = forwardRef(
 			defaultVariation,
 			canUserInstallPlugins,
 			style,
-			isModuleActive,
-			isLoadingModules,
-			isChangingStatus,
-			updateJetpackModuleStatus,
 		},
 		ref
 	) => {
@@ -110,6 +107,9 @@ export const JetpackContactFormEdit = forwardRef(
 		} = attributes;
 
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
+
+		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+			useModuleStatus( 'contact-form' );
 
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
@@ -290,12 +290,7 @@ export const JetpackContactFormEdit = forwardRef(
 			}
 			return (
 				<ContactFormPlaceholder
-					changeStatus={ val => {
-						updateJetpackModuleStatus( {
-							name: 'contact-form',
-							active: val,
-						} );
-					} }
+					changeStatus={ changeStatus }
 					isModuleActive={ isModuleActive }
 					isLoading={ isChangingStatus }
 				/>
@@ -383,7 +378,6 @@ export default compose( [
 		const { getBlocks } = select( 'core/block-editor' );
 		const { getEditedPostAttribute } = select( 'core/editor' );
 		const { getSite, getUser, canUser } = select( 'core' );
-		const { isModuleActive, areModulesLoading, areModulesUpdating } = select( 'jetpack-modules' );
 		const innerBlocks = getBlocks( props.clientId );
 
 		const authorId = getEditedPostAttribute( 'author' );
@@ -408,15 +402,11 @@ export default compose( [
 			siteTitle: get( getSite && getSite(), [ 'title' ] ),
 			postTitle: postTitle,
 			postAuthorEmail: authorEmail,
-			isModuleActive: isModuleActive( 'contact-form' ),
-			isLoadingModules: areModulesLoading(),
-			isChangingStatus: areModulesUpdating(),
 		};
 	} ),
 	withDispatch( dispatch => {
 		const { replaceInnerBlocks, selectBlock } = dispatch( 'core/block-editor' );
-		const { updateJetpackModuleStatus } = dispatch( 'jetpack-modules' );
-		return { replaceInnerBlocks, selectBlock, updateJetpackModuleStatus };
+		return { replaceInnerBlocks, selectBlock };
 	} ),
 	withInstanceId,
 	withThemeProvider,

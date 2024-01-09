@@ -6,7 +6,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Backup\Helper_Script_Manager;
+use Automattic\Jetpack\Backup\V0001\Helper_Script_Manager;
 
 /**
  * API endpoint /sites/%s/delete-backup-helper-script
