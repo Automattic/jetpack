@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.0-beta - 2024-01-08
+### Enhancements
+- Subscription Modal: Display thesubscription modal when a user makes a comment. [#34659]
+
+### Bug fixes
+- Likes Widget: Fix accessibility on likes popover. [#34800]
+- Likes Widget: Make likes widget accessibility compatible across themes. [#34857]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Use useModuleStatus hook instead of direct call of store selectors. [#34856]
+- AI Excerpt: remove GPT model selector since it's not possible to change models anymore. [#34855]
+- Backup: Add namespace versioning to Helper_Script_Manager and other classes. [#34739]
+- Fix the sidebar toggle on mobile displays. [#34807]
+- Like Widget: Fix caching issue. [#34860]
+- Updated package dependencies. [#34882]
+
 ## 13.0-a.13 - 2024-01-04
 ### Bug fixes
 - Jetpack footer links are now consistent within different pages. [#34787]

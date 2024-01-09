@@ -9,10 +9,10 @@ import { STORE_ID } from '../../state/store';
 export default function useWelcomeBanner() {
 	const { dismissWelcomeBanner } = useDispatch( STORE_ID );
 	const { hasBeenDismissed } = useSelect( select => {
-		const { getWelcomeBannerHasBeen } = select( STORE_ID );
+		const { getWelcomeBannerHasBeenDismissed } = select( STORE_ID );
 
 		return {
-			hasBeenDismissed: getWelcomeBannerHasBeen(),
+			hasBeenDismissed: getWelcomeBannerHasBeenDismissed(),
 		};
 	} );
 
