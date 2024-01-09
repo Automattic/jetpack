@@ -1,6 +1,8 @@
+import { createWriteStream } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 import process from 'process';
+import util from 'util';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
 import Configstore from 'configstore';
@@ -68,17 +70,95 @@ export async function rsyncInit( argv ) {
 	}
 
 	if ( argv.watch ) {
-		console.log( 'jetpack rsync --watch is now watching for changes to:', sourcePluginPath );
-		const debouncedRsyncToDest = pDebounce(
-			() => rsyncToDest( sourcePluginPath, finalDest, argv.dest ),
-			10000 // Todo: at 10000ms, standard Jetpack build ran this twice for me, adjust further?
-		);
-		// eslint-disable-next-line no-unused-vars
-		chokidar.watch( sourcePluginPath ).on( 'change', async changedPath => {
-			await debouncedRsyncToDest();
-		} );
+		let watcher;
+		const rsyncAndUpdateWatches = async ( event, eventfile ) => {
+			if ( argv.v ) {
+				console.debug( `rsync due to event ${ event } for ${ eventfile }` );
+			}
+
+			const paths = await rsyncToDest( sourcePluginPath, finalDest );
+
+			if ( ! watcher ) {
+				watcher = chokidar.watch( [], {
+					cwd: sourcePluginPath,
+					followSymlinks: false,
+					disableGlobbing: true,
+					ignoreInitial: true,
+					depth: 0,
+				} );
+
+				// Always watch the plugin base dir.
+				watcher.add( '.' );
+
+				// Also watch the git index for changes to catch `git add`, as that may change which files are synced.
+				watcher.add( path.join( process.cwd(), '.git/index' ) );
+
+				// Watch `.gitignore` and `.gitattributes` in parent dirs, as they too may change which files are synced.
+				// Here we assume sourcePluginPath is always `projects/plugins/whatever`
+				watcher.add( '../.gitignore' );
+				watcher.add( '../.gitattributes' );
+				watcher.add( '../../.gitignore' );
+				watcher.add( '../../.gitattributes' );
+				watcher.add( '../../../.gitignore' );
+				watcher.add( '../../../.gitattributes' );
+
+				watcher.once( 'ready', () => {
+					console.log( 'jetpack rsync --watch is now watching for changes to:', sourcePluginPath );
+					watcher.on( 'all', pDebounce( rsyncAndUpdateWatches, 1000 ) );
+				} );
+			}
+
+			// Any dirs that aren't already being watched should start being watched.
+			const curPaths = watcher.getWatched();
+			for ( const dir of paths ) {
+				if ( dir.endsWith( '/' ) && ! curPaths[ dir.substring( 0, dir.length - 1 ) ]?.length ) {
+					watcher.add( dir );
+				}
+			}
+
+			// Any dirs currently being watched that aren't synced anymore should no longer be watched.
+			for ( const dir of Object.keys( curPaths ) ) {
+				if (
+					dir !== '.' &&
+					dir !== '..' &&
+					! dir.startsWith( '../' ) &&
+					curPaths[ dir ].length &&
+					! paths.has( dir + '/' )
+				) {
+					watcher.unwatch( dir );
+				}
+			}
+		};
+		await rsyncAndUpdateWatches( 'startup', 'jetpack rsync --watch' );
 	} else {
-		await rsyncToDest( sourcePluginPath, finalDest, argv.dest );
+		await rsyncToDest( sourcePluginPath, finalDest );
+
+		console.log( '\n' );
+		console.log(
+			chalk.black.bgYellow(
+				'*************************************************************************************'
+			)
+		);
+		console.log(
+			chalk.black.bgYellow(
+				'**  Make sure you have set ' +
+					chalk.bold( "define( 'JETPACK_AUTOLOAD_DEV', true );" ) +
+					' in a mu-plugin  **'
+			)
+		);
+		console.log(
+			chalk.black.bgYellow(
+				'**  on the remote site. Otherwise the wrong versions of packages may be loaded!    **'
+			)
+		);
+		console.log(
+			chalk.black.bgYellow(
+				'*************************************************************************************'
+			)
+		);
+		console.log( '\n' );
+
+		await promptForRsyncConfig( argv.dest );
 	}
 }
 
@@ -138,32 +218,46 @@ async function promptToManageConfig() {
 }
 
 /**
- * Rsync differentiates literal strings vs patterns by looking for `[`, `*`, and `?`.
- * Only patterns use backslash escapes, literal strings do not.
+ * Fetch the list of files to rsync.
+ *
+ * @param {string} source - Source path.
+ * @returns {Promise<Set>} List of paths.
+ */
+async function collectPaths( source ) {
+	const paths = new Set();
+
+	await addVendorFilesToPathSet( `${ source }/vendor/`, paths );
+	await addFilesToPathSet( source, '', paths );
+
+	return paths;
+}
+
+/**
+ * Add a file, and all directories containing it, to the set of paths.
  *
  * @param {string} file - File to add.
- * @param {Set} filters - Set to add filter rules into.
+ * @param {Set} paths - Set of paths to add to.
  * @returns {void}
  */
-async function addFileToFilter( file, filters ) {
+async function addFileToPathSet( file, paths ) {
 	// Rsync requires we also list all the directories containing the file.
 	let prev;
 	do {
-		filters.add( '+ /' + ( file.match( /[[*?]/ ) ? file.replace( /[[*?\\]/g, '\\$&' ) : file ) );
+		paths.add( file );
 		prev = file;
 		file = path.dirname( file ) + '/';
 	} while ( file !== '/' && file !== './' && file !== prev );
 }
 
 /**
- * Collect rsync filter rules based on files at a path.
+ * Collect paths to rsync.
  *
  * @param {string} source - Source path.
  * @param {string} prefix - Source path prefix.
- * @param {Set} filters - Set to add filter rules into.
+ * @param {Set} paths - Set to add paths into.
  * @returns {Promise<void>}
  */
-async function buildFilterRules( source, prefix, filters ) {
+async function addFilesToPathSet( source, prefix, paths ) {
 	// Include just the files that are published to the mirror.
 	for await ( const rfile of listProjectFiles( source, execa ) ) {
 		const file = path.join( prefix, rfile );
@@ -187,12 +281,12 @@ async function buildFilterRules( source, prefix, filters ) {
 					() => false
 				) )
 			) {
-				await buildFilterRules( target, file, filters );
+				await addFilesToPathSet( target, file, paths );
 				continue;
 			}
 		}
 
-		await addFileToFilter( file, filters );
+		await addFileToPathSet( file, paths );
 	}
 }
 
@@ -201,15 +295,15 @@ async function buildFilterRules( source, prefix, filters ) {
  * Necessary when rsyncing development builds.
  *
  * @param {string} source - Source path.
- * @param {Set} filters - Set to add filter rules into.
+ * @param {Set} paths - Set to add paths into.
  * @returns {void}
  */
-async function addVendorFilesToFilter( source, filters ) {
+async function addVendorFilesToPathSet( source, paths ) {
 	const dirents = await fs.readdir( source, { withFileTypes: true } );
 	const files = await Promise.all(
 		dirents.map( dirent => {
 			const fileSource = path.resolve( source, dirent.name );
-			return dirent.isDirectory() ? addVendorFilesToFilter( fileSource, filters ) : fileSource;
+			return dirent.isDirectory() ? addVendorFilesToPathSet( fileSource, paths ) : fileSource;
 		} )
 	);
 
@@ -227,10 +321,52 @@ async function addVendorFilesToFilter( source, filters ) {
 			// Relative file path to the project dir.
 			const relativeFilePath = file.substring( file.indexOf( '/vendor' ) + 1 );
 			if ( relativeFilePath.startsWith( 'vendor' ) ) {
-				await addFileToFilter( relativeFilePath, filters );
+				await addFileToPathSet( relativeFilePath, paths );
 			}
 		}
 	}
+}
+
+/**
+ * Create a temporary rsync filter file.
+ *
+ * @param {Set} paths - Paths to rsync.
+ * @returns {object} As from `tmp.fileSync()`.
+ */
+async function createFilterFile( paths ) {
+	const tmpFile = tmp.fileSync();
+
+	// Wrap the tmpFile fd in a stream.
+	const tmpStream = createWriteStream( null, { fd: tmpFile.fd } );
+	const writeTmp = data => {
+		return new Promise( resolve => {
+			if ( ! tmpStream.write( data ) ) {
+				tmpStream.once( 'drain', resolve );
+			} else {
+				resolve();
+			}
+		} );
+	};
+
+	// Exclude any `.git` dirs, mostly in case someone ran composer with --prefer-source (or composer fell back to that).
+	await writeTmp( '- .git\r\n' );
+
+	// Include each path.
+	for ( const file of paths ) {
+		// Rsync differentiates literal strings vs patterns by looking for `[`, `*`, and `?`.
+		// Only patterns use backslash escapes, literal strings do not.
+		await writeTmp(
+			'+ /' + ( file.match( /[[*?]/ ) ? file.replace( /[[*?\\]/g, '\\$&' ) : file ) + '\r\n'
+		);
+	}
+
+	// Exclude anything not included above.
+	await writeTmp( '- *\r\n' );
+
+	// Close the file.
+	await util.promisify( tmpStream.close ).call( tmpStream );
+
+	return tmpFile;
 }
 
 /**
@@ -238,26 +374,12 @@ async function addVendorFilesToFilter( source, filters ) {
  *
  * @param {string} source - Source path.
  * @param {string} dest - Final destination path, including plugin slug.
- * @param {string} pluginDestPath - Destination path.
- * @returns {Promise<void>}
+ * @returns {Promise<Set>} Synced path set.
  */
-async function rsyncToDest( source, dest, pluginDestPath ) {
-	// Todo: remove this early return.
-	console.log( `[${ Date.now() }] Todo: returning early from rsyncToDest() while testing.` );
-	return;
-	const filters = new Set();
+async function rsyncToDest( source, dest ) {
+	const paths = await collectPaths( source );
+	const tmpFile = await createFilterFile( paths );
 
-	// Exclude any `.git` dirs, mostly in case someone ran composer with --prefer-source (or composer fell back to that).
-	filters.add( '- .git' );
-	// To catch files required in dev builds.
-	await addVendorFilesToFilter( `${ source }/vendor/`, filters );
-	await buildFilterRules( source, '', filters );
-
-	// Exclude anything not included above.
-	filters.add( '- *' );
-
-	const tmpFileName = tmp.tmpNameSync();
-	await fs.writeFile( tmpFileName, [ ...filters ].join( '\r\n' ) );
 	try {
 		await runCommand( 'rsync', [
 			'-azLKPv',
@@ -265,42 +387,19 @@ async function rsyncToDest( source, dest, pluginDestPath ) {
 			'--delete',
 			'--delete-after',
 			'--delete-excluded',
-			`--include-from=${ tmpFileName }`,
+			`--include-from=${ tmpFile.name }`,
 			source,
 			dest,
 		] );
-
-		console.log( '\n' );
-		console.log(
-			chalk.black.bgYellow(
-				'*************************************************************************************'
-			)
-		);
-		console.log(
-			chalk.black.bgYellow(
-				'**  Make sure you have set ' +
-					chalk.bold( "define( 'JETPACK_AUTOLOAD_DEV', true );" ) +
-					' in a mu-plugin  **'
-			)
-		);
-		console.log(
-			chalk.black.bgYellow(
-				'**  on the remote site. Otherwise the wrong versions of packages may be loaded!    **'
-			)
-		);
-		console.log(
-			chalk.black.bgYellow(
-				'*************************************************************************************'
-			)
-		);
-		console.log( '\n' );
-
-		await promptForRsyncConfig( pluginDestPath );
+		tmpFile.removeCallback();
 	} catch ( e ) {
 		console.log( e );
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
+		tmpFile.removeCallback();
 		process.exit( 1 );
 	}
+
+	return paths;
 }
 
 /**
@@ -472,7 +571,8 @@ export function rsyncDefine( yargs ) {
 					type: 'boolean',
 				} )
 				.option( 'watch', {
-					describe: 'Watch the plugin for changes and rsync on change.',
+					describe:
+						'Watch the plugin for changes and rsync on change. Note this will probably not be useful if rsync prompts for a password.',
 					type: 'boolean',
 				} );
 		},
