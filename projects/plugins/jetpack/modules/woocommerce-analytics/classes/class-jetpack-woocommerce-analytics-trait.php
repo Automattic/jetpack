@@ -262,7 +262,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			'ui'                                 => $this->get_user_id(),
 			'url'                                => home_url(),
 			'woo_version'                        => WC()->version,
-			'store_admin'                        => in_array( 'administrator', wp_get_current_user()->roles, true ) ? 1 : 0,
+			'store_admin'                        => in_array( array( 'administrator', 'shop_manager' ), wp_get_current_user()->roles, true ) ? 1 : 0,
 			'device'                             => wp_is_mobile() ? 'mobile' : 'desktop',
 			'template_used'                      => $this->cart_checkout_templates_in_use ? '1' : '0',
 			'additional_blocks_on_cart_page'     => $this->additional_blocks_on_cart_page,

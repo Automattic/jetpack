@@ -293,10 +293,42 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.0-a.13 - 2024-01-04
+### 13.0-beta - 2024-01-08
+#### Enhancements
+- Added description and link inviting to disable legacy sharing module if block is available
+- AI Usage panel: Added yellow color to indicate going over the soft limit.
+- Gutenberg: Added Top Posts & Pages block.
+- Sharing Buttons Block: update the admin's setting screen when the sharing block is available.
+- Social Menu & Social Media Icons: Add support for the Bluesky service.
+- Subscription Modal: Display thesubscription modal when a user makes a comment.
+- Subscriptions: adds toggle to disable email sending.
+
+#### Improved compatibility
+- Contact Form: avoid PHP warnings in the WordPress dashboard when used alongside other plugins making changes to admin pages.
+- Patreon: Updated Patreon icon to match the updated Patreon branding guidelines.
+- Sharing Buttons: add the official X button to the list of supported services.
+- Sharing Buttons Block: Improved consistency for how the button icons are rendered on different pages.
+
 #### Bug fixes
+- Calendly Block: Fixed custom colours being stripped.
+- Dashboard: Disabled VideoPress card in offline mode.
+- Editor: Fixed missing fonts issue inside the block editor.
 - Jetpack footer links are now consistent within different pages.
+- Launchpad: Fixed the save modal not showing after saving changes in the editor.
+- Likes: Fixed popover closing area.
+- Likes Widget: Fix accessibility on likes popover.
+- Likes Widget: Make likes widget accessibility compatible across themes.
+- My Plan: Fix JS errors due to nested anchor tags.
+- Newsletter: Updated post-publish panel text for scheduled posts.
 - Notification Accessibility: THe notification icon is not a link.
+- Payments Block: show an error message when unable to render payment button.
+- Paywall: Fix stuck pending subscription state when email isn't verified.
+- Subscribe Modal: Fix fatal under exceptional conditions
+- Subscribers: fix the subscriber count display if above 1000 subscribers.
+- Subscribers: pre/post-publish panel, show correct subscription count when using paywall.
+- Subscriptions Block: Added compatibility for the latest Gutenberg.
+- Widgets: Fix console JS error in EU Cookie Widget.
+- WoA: Updated SEO Tools on Atomic sites to show only for Business plan and higher.
 
 --------
 

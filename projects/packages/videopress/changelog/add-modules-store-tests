@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-In modules_store we remove unused logic. This changelog is to make sure package is re-built.

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: This commit fixes a small bug that is mostly visual, where it was always rendering the "Activate" button for Social on My Jetpack.
+
+

@@ -1133,15 +1133,13 @@ function zeroBSCRM_migration_task_offset_fix() { // phpcs:ignore WordPress.Namin
 
 	$timezone_offset_in_secs = jpcrm_get_wp_timezone_offset_in_seconds();
 
-	if ( empty( $timezone_offset_in_secs ) ) {
-		return;
+	if ( ! empty( $timezone_offset_in_secs ) ) {
+		// remove offset from stored task dates
+		$sql = sprintf( 'UPDATE %s SET zbse_start = zbse_start - %d;', $ZBSCRM_t['events'], $timezone_offset_in_secs ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$sql = sprintf( 'UPDATE %s SET zbse_end = zbse_end - %d;', $ZBSCRM_t['events'], $timezone_offset_in_secs ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 	}
-
-	// remove offset from stored task dates
-	$sql = sprintf( 'UPDATE %s SET zbse_start = zbse_start - %d;', $ZBSCRM_t['events'], $timezone_offset_in_secs ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-	$sql = sprintf( 'UPDATE %s SET zbse_end = zbse_end - %d;', $ZBSCRM_t['events'], $timezone_offset_in_secs ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 	zeroBSCRM_migrations_markComplete( 'task_offset_fix', array( 'updated' => 1 ) );
 }
