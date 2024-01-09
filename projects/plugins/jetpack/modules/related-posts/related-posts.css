@@ -8,7 +8,10 @@
 
 .jp-related-posts-i2__row {
 	display: flex;
-	margin-top: 1.5rem;
+	margin: 1.5rem 0 0 0;
+	padding: 0;
+
+	list-style-type: none;
 }
 
 .jp-related-posts-i2__row:first-child {
@@ -42,21 +45,41 @@
 
 .jp-related-posts-i2__post-heading {
 	margin: 0.5rem 0;
+
 	font-size: 1rem;
-	line-height: 1.2em;
+	line-height: 1.2;
 }
 
 .jp-related-posts-i2__post-link {
-	display: block;
+	display: flex;
+	flex-direction: column;
+	row-gap: 0.5rem;
+
 	width: 100%;
-	line-height: 1.2em;
+	
+	line-height: 1.2;
 }
 
-.jp-related-posts-i2__post-img-link {
+.jp-related-posts-i2__post-img {
 	order: -1;
-}
-.jp-related-posts-i2__post-img-link img {
+
 	width: 100%;
+}
+
+.jp-related-posts-i2__post-defs {
+	margin: 0;
+}
+
+.jp-related-posts-i2__post-defs dt {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(1px, 1px, 1px, 1px); white-space: nowrap;
+}
+
+.jp-related-posts-i2__post-defs dd {
+	margin: 0;
 }
 
 /* List view */
