@@ -50,7 +50,6 @@ const ImageSizeAnalysis = ( { page, group, isImageCdnModuleActive }: Props ) => 
 				<div className="jb-table-wrap">
 					<Table
 						isaDataLoading={ isaData.isLoading }
-						activeGroup={ group }
 						images={ isaData.data?.images || [] }
 						isaReport={ isaReport.data || undefined }
 					/>
