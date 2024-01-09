@@ -30,7 +30,6 @@ class Action_Endpoint {
 	 */
 	private $nonce;
 
-
 	/**
 	 * This class handles endpoints for DataSync actions.
 	 *

@@ -1,6 +1,10 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-namespace Automattic\Jetpack\Backup;
+// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
+// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
+// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
+// are installed, or in some other cases).
+namespace Automattic\Jetpack\Backup\V0001;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use PHPUnit\Framework\TestCase;
@@ -8,7 +12,17 @@ use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
+use function add_action;
+use function add_filter;
+use function do_action;
+use function remove_filter;
+use function wp_delete_file;
+use function wp_insert_post;
+use function wp_insert_user;
+use function wp_json_encode;
+use function wp_set_current_user;
 
 /**
  * Unit tests for the REST_Controller class.
@@ -51,7 +65,7 @@ class Test_REST_Controller extends TestCase {
 		wp_set_current_user( 0 );
 
 		// Register REST routes.
-		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\REST_Controller', 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0001\\REST_Controller', 'register_rest_routes' ) );
 
 		do_action( 'rest_api_init' );
 	}
@@ -451,6 +465,7 @@ class Test_REST_Controller extends TestCase {
 	 * request, this would all happen earlier).
 	 *
 	 * @param WP_REST_Request $request The request to sign before dispatching.
+	 *
 	 * @return WP_REST_Response
 	 */
 	private function dispatch_request_signed_with_blog_token( $request ) {

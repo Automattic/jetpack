@@ -198,7 +198,7 @@ HTML;
 
 		// Don't show if user is subscribed to blog.
 		require_once __DIR__ . '/../views.php';
-		if ( Jetpack_Memberships::is_current_user_subscribed() ) {
+		if ( ! class_exists( 'Jetpack_Memberships' ) || Jetpack_Memberships::is_current_user_subscribed() ) {
 			return false;
 		}
 		return true;

@@ -1,6 +1,9 @@
 import {
 	JetpackEditorPanelLogo,
 	useModuleStatus,
+	isSimpleSite,
+	isAtomicSite,
+	getRequiredPlan,
 } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
@@ -9,6 +12,7 @@ import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import { SeoPlaceholder } from './components/placeholder';
 import { SeoSkeletonLoader } from './components/skeleton-loader';
+import UpsellNotice from './components/upsell';
 import SeoDescriptionPanel from './description-panel';
 import SeoNoindexPanel from './noindex-panel';
 import SeoTitlePanel from './title-panel';
@@ -21,14 +25,28 @@ const Seo = () => {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'seo-tools' );
 
+	const requiredPlan = getRequiredPlan( 'advanced-seo' );
+	const canShowUpsell = isAtomicSite() || isSimpleSite();
+
 	const jetpackSeoPanelProps = {
 		title: __( 'SEO', 'jetpack' ),
 	};
 
-	const jetpackSeoPrePublishPanelProps = {
-		icon: <JetpackEditorPanelLogo />,
-		title: __( 'SEO', 'jetpack' ),
-	};
+	if ( canShowUpsell && requiredPlan !== false ) {
+		return (
+			<Fragment>
+				<JetpackPluginSidebar>
+					<PanelBody
+						className="jetpack-seo-panel"
+						{ ...jetpackSeoPanelProps }
+						initialOpen={ false }
+					>
+						<UpsellNotice requiredPlan={ requiredPlan } />
+					</PanelBody>
+				</JetpackPluginSidebar>
+			</Fragment>
+		);
+	}
 
 	if ( ! isModuleActive ) {
 		return (
@@ -53,6 +71,11 @@ const Seo = () => {
 			</Fragment>
 		);
 	}
+
+	const jetpackSeoPrePublishPanelProps = {
+		icon: <JetpackEditorPanelLogo />,
+		title: __( 'SEO', 'jetpack' ),
+	};
 
 	return (
 		<Fragment>

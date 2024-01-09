@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.0] - 2024-01-08
+### Added
+- Add a check to determine if a user is "new" to Jetpack. [#34821]
+- Add a button that links to the connection screen to the Welcome Banner in My Jetpack. [#34858]
+
+### Changed
+- Add a product interstitial in My Jetpack for stats. [#34772]
+- Added an image to Social interstitial. [#34814]
+- Update Akismet card on My Jetpack to go to interstitial screen when there is no API key. [#34817]
+
+## [4.2.1] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815] [#34816]
+
+### Fixed
+- My Jetpack: Jetpack footer links are now consistent with footers in rest of Jetpack screens. [#34787]
+
+## [4.2.0] - 2024-01-02
+### Fixed
+- Show JP Creator as active when JP Complete is purchased. [#34806]
+
 ## [4.1.4] - 2023-12-20
 ### Changed
 - Updated package dependencies. [#34694]
@@ -1162,6 +1183,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.2.1...4.3.0
+[4.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.2.0...4.2.1
+[4.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.1.4...4.2.0
 [4.1.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.1.3...4.1.4
 [4.1.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.1.2...4.1.3
 [4.1.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.1.1...4.1.2

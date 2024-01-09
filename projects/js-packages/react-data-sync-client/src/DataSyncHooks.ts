@@ -70,7 +70,13 @@ export function useDataSync<
 	params: Record< string, string | number > = {}
 ): DataSyncHook< Schema, Value > {
 	const datasync = new DataSync( namespace, key, schema );
-	const queryKey = [ key, ...Object.values( params ).sort() ];
+	const queryKey = [
+		key,
+		...Object.entries( params )
+			.sort( ( [ a ], [ b ] ) => a.localeCompare( b ) )
+			.map( ( [ , v ] ) => v ),
+	];
+
 	/**
 	 * Defaults for `useQuery`:
 	 * - `queryKey` is the key of the value that's being synced.
