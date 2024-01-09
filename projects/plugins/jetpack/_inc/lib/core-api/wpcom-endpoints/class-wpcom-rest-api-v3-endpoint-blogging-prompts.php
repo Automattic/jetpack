@@ -276,7 +276,11 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 		}
 
 		if ( rest_is_field_included( 'label', $fields ) ) {
-			$data['label'] = __( 'Daily writing prompt', 'jetpack' );
+			if ( $this->is_in_bloganuary( $prompt->post_date_gmt ) ) {
+				$data['label'] = __( 'Bloganuary writing prompt', 'jetpack' );
+			} else {
+				$data['label'] = __( 'Daily writing prompt', 'jetpack' );
+			}
 		}
 
 		if ( rest_is_field_included( 'text', $fields ) ) {
