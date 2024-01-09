@@ -29,12 +29,7 @@ export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssS
 		throw new Error( 'Critical CSS state not available' );
 	}
 
-	const debugMutate = ( ...args ) => {
-		console.trace( 'mutate', ...args );
-		return mutate( ...args );
-	};
-
-	return [ data, debugMutate ];
+	return [ data, mutate ];
 }
 
 function errorState( message: string ): CriticalCssState {
