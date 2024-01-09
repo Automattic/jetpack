@@ -152,7 +152,7 @@ const statsCountsSelectors = {
 	isFetchingStatsCounts,
 };
 
-const getWelcomeBannerHasBeen = state => {
+const getWelcomeBannerHasBeenDismissed = state => {
 	return state.welcomeBanner?.hasBeenDismissed;
 };
 
@@ -168,7 +168,7 @@ const selectors = {
 	...backupRewindableEventsSelectors,
 	...countBackupItemsSelectors,
 	...statsCountsSelectors,
-	getWelcomeBannerHasBeen,
+	getWelcomeBannerHasBeenDismissed,
 };
 
 export default selectors;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Database: Added preliminary support for SQLite.

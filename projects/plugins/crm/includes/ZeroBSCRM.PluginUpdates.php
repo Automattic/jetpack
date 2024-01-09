@@ -981,13 +981,12 @@ class zeroBSCRM_Plugin_Updater {
 // defaults to full check as of 2.97.9
 // SELECT * FROM `zbs_app_users_licenses_requests` WHERE action = 'localcheck'
 function zeroBSCRM_isLocal($fullCheck=true) {
-
 	// quick caching
 	if (jpcrm_is_devmode_override()) return false;
 
 	// is local, unless override setting set within past 48h
-    $whitelist = array( '127.0.0.1','localhost', '::1' );
-    if (in_array( $_SERVER['REMOTE_ADDR'], $whitelist)){
+	$whitelist = array( '127.0.0.1', 'localhost', '::1' );
+	if ( in_array( zeroBSCRM_getRealIpAddr(), $whitelist, true ) ) {
 
     	if ($fullCheck){
 
