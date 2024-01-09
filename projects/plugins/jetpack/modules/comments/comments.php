@@ -795,8 +795,18 @@ HTML;
 					esc_html_e( 'Duplicate comment detected; it looks as though you’ve already said that!', 'jetpack' );
 				?>
 			</h1>
-			<a href="javascript:history.go(-2)"><?php esc_html_e( '&laquo; Back', 'jetpack' ); ?></a>
+			<a href="javascript:backToComments()"><?php esc_html_e( '&laquo; Back', 'jetpack' ); ?></a>
 		</div>
+		<script type="text/javascript">
+			function backToComments() {
+				if (history.length > 3) {
+					history.go(-2);
+					return;
+				}
+				history.back();
+			}
+		</script>
+
 		</body>
 		</html>
 		<?php
