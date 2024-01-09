@@ -1,116 +1,56 @@
-import { useState, useEffect } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import MultiProgress from '../multi-progress/multi-progress';
 import Button from '../button/button';
 import ErrorNotice from '$features/error-notice/error-notice';
 import ImageCdnRecommendation from '$features/image-size-analysis/image-cdn-recommendation/image-cdn-recommendation';
 import { recordBoostEvent, recordBoostEventAndRedirect } from '$lib/utils/analytics';
-import getIsaErrorSuggestion from '$lib/utils/get-isa-error-suggestion';
 import RefreshIcon from '$svg/refresh';
 import WarningIcon from '$svg/warning-outline';
+
 import {
-	type IsaCounts,
 	ISAStatus,
 	getReportProgress,
 	useIsaReport,
 	useImageAnalysisRequest,
 } from '$features/image-size-analysis';
-interface RecommendationsMetaProps {
+
+const getWaitNotice = ( isRequesting: boolean, currentStatus: string | undefined ) => {
+	if ( isRequesting ) {
+		return __( 'Getting ready…', 'jetpack-boost' );
+	}
+	if ( currentStatus === ISAStatus.New ) {
+		return __( 'Warming up the engine…', 'jetpack-boost' );
+	}
+	if ( currentStatus === ISAStatus.Queued ) {
+		return __( 'Give us a few minutes while we go through your images…', 'jetpack-boost' );
+	}
+	return undefined;
+};
+
+interface Props {
 	isCdnActive: boolean;
 }
 
-const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActive } ) => {
-	const [ requestingReport, setRequestingReport ] = useState< boolean >( false );
-	const [ errorCode, setErrorCode ] = useState< number | undefined >( undefined );
-	const [ totalIssues, setTotalIssues ] = useState< number >( 0 );
-	const [ errorMessage, setErrorMessage ] = useState< string | undefined >( undefined );
-	const [ errorSuggestion, setErrorSuggestion ] = useState< string | undefined >( undefined );
-	const [ waitNotice, setWaitNotice ] = useState< string | undefined >( undefined );
-	const [ showCDNRecommendation, setShowCDNRecommendation ] = useState< boolean >( false );
+const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 	const [ { data: isaReport } ] = useIsaReport();
-	const requestNewReport = useImageAnalysisRequest();
+	const isaRequest = useImageAnalysisRequest();
 
 	const status = isaReport?.status;
 	const groups = isaReport?.groups || {};
 
-	const scannedPagesCount = ( isaGroups: Record< string, IsaCounts > ) => {
-		return Object.values( isaGroups )
-			.map( group => group.scanned_pages )
-			.reduce( ( a, b ) => a + b, 0 );
-	};
+	const totalIssues = Object.entries( groups ).reduce( ( total, [ , group ] ) => {
+		const groupWithIssueCount = group as { issue_count: number };
 
-	const scannedPages = scannedPagesCount( isaReport?.groups || {} );
+		return total + groupWithIssueCount.issue_count;
+	}, 0 );
 
-	useEffect( () => {
-		/**
-		 * Calculate total number of issues.
-		 */
-		if ( isaReport?.groups ) {
-			setTotalIssues(
-				Object.entries( isaReport.groups ).reduce( ( total, [ , group ] ) => {
-					const groupWithIssueCount = group as { issue_count: number };
+	const scannedPages = Object.values( groups )
+		.map( group => group.scanned_pages )
+		.reduce( ( a, b ) => a + b, 0 );
 
-					return total + groupWithIssueCount.issue_count;
-				}, 0 )
-			);
-		}
-
-		/**
-		 * Work out if there is an error to show in the UI.
-		 */
-		if ( status === ISAStatus.Stuck ) {
-			setErrorMessage(
-				__(
-					'Your Image Size Analysis task seems to have gotten stuck, or our system is under unusual load. Please try again. If the issue persists, please contact support.',
-					'jetpack-boost'
-				)
-			);
-		}
-
-		/**
-		 * Update suggestion based on error code.
-		 */
-		setErrorSuggestion( getIsaErrorSuggestion( errorCode ) );
-		/**
-		 * Work out whether we have a 'give us a minute' notice to show.
-		 */
-		setWaitNotice( getWaitNotice( requestingReport, status ) );
-		setShowCDNRecommendation(
-			! isCdnActive && ( totalIssues > 0 || status === ISAStatus.NotFound )
-		);
-	}, [ isCdnActive, isaReport, errorCode, requestingReport, status, totalIssues ] );
-
-	const getWaitNotice = ( isRequesting: boolean, currentStatus: string | undefined ) => {
-		if ( isRequesting ) {
-			return __( 'Getting ready…', 'jetpack-boost' );
-		}
-		if ( currentStatus === ISAStatus.New ) {
-			return __( 'Warming up the engine…', 'jetpack-boost' );
-		}
-		if ( currentStatus === ISAStatus.Queued ) {
-			return __( 'Give us a few minutes while we go through your images…', 'jetpack-boost' );
-		}
-		return undefined;
-	};
-
-	/**
-	 * Start a new image analysis job.
-	 */
-	const startAnalysis = async () => {
-		try {
-			setErrorCode( undefined );
-			setErrorMessage( undefined );
-			setRequestingReport( true );
-			requestNewReport();
-			// @REACT-TODO: Add typed errors
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		} catch ( err: any ) {
-			setErrorCode( err.body?.code );
-			setErrorMessage( err.message );
-		} finally {
-			setRequestingReport( false );
-		}
-	};
+	const waitNotice = getWaitNotice( isaRequest.isPending, status );
+	const showCDNRecommendation =
+		! isCdnActive && ( totalIssues > 0 || status === ISAStatus.NotFound );
 
 	const handleAnalyzeClick = () => {
 		const eventName =
@@ -118,28 +58,30 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActiv
 				? 'clicked_restart_isa_on_report_page'
 				: 'clicked_start_isa_on_report_page';
 		recordBoostEvent( eventName, {} );
-		return startAnalysis();
+		isaRequest.requestNewReport();
 	};
-
 	return (
 		<div>
 			{ ! groups ? (
 				<div className="jb-summary">{ __( 'Loading…', 'jetpack-boost' ) }</div>
 			) : (
 				<>
-					{ errorMessage ? (
+					{ status === ISAStatus.Stuck || isaRequest.isError ? (
 						<div className="jb-error-area">
-							<ErrorNotice
-								title={ __( 'Something has gone wrong.', 'jetpack-boost' ) }
-								suggestion={ errorSuggestion }
-								error={ errorMessage }
-							/>
+							<ErrorNotice title={ __( 'Something has gone wrong.', 'jetpack-boost' ) }>
+								{ isaRequest.error instanceof Error
+									? isaRequest.error.message
+									: __(
+											'Your Image Size Analysis task seems to have gotten stuck, or our system is under unusual load. Please try again. If the issue persists, please contact support.',
+											'jetpack-boost'
+									  ) }
+							</ErrorNotice>
 						</div>
 					) : waitNotice ? (
 						<div className="jb-summary-line jb-wait-notice">{ waitNotice }</div>
 					) : null }
 
-					{ ! requestingReport && status === ISAStatus.Completed && (
+					{ ! isaRequest.isPending && status === ISAStatus.Completed && (
 						<div className="jb-summary-line">
 							{ totalIssues > 0 ? (
 								<div className="jb-has-issues jb-summary">
@@ -170,7 +112,7 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActiv
 								type="button"
 								className="components-button is-link"
 								onClick={ handleAnalyzeClick }
-								disabled={ requestingReport }
+								disabled={ isaRequest.isPending }
 							>
 								<RefreshIcon />
 								{ __( 'Analyze again', 'jetpack-boost' ) }
@@ -178,7 +120,7 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActiv
 						</div>
 					) }
 
-					{ ! requestingReport &&
+					{ ! isaRequest.isPending &&
 						status &&
 						[ ISAStatus.Completed, ISAStatus.Queued ].includes( status ) && (
 							<MultiProgress reportProgress={ getReportProgress( groups ) } />
@@ -194,10 +136,10 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActiv
 
 					{ status &&
 						[ ISAStatus.Queued, ISAStatus.Completed ].includes( status ) &&
-						! requestingReport && (
+						! isaRequest.isPending && (
 							<div className="jb-button-area">
 								<Button
-									disabled={ requestingReport }
+									disabled={ isaRequest.isPending }
 									onClick={ () =>
 										recordBoostEventAndRedirect(
 											'#image-size-analysis/all/1',
@@ -216,7 +158,7 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActiv
 					{ ( ! status ||
 						! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( status ) ) && (
 						<div className="jb-button-area">
-							<Button disabled={ requestingReport } onClick={ handleAnalyzeClick }>
+							<Button disabled={ isaRequest.isPending } onClick={ handleAnalyzeClick }>
 								{ status === ISAStatus.Completed
 									? __( 'Analyze again', 'jetpack-boost' )
 									: __( 'Start image analysis', 'jetpack-boost' ) }

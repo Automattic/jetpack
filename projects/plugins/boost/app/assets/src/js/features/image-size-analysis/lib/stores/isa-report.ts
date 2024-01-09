@@ -82,5 +82,8 @@ export function useImageAnalysisRequest() {
 		},
 	} );
 
-	return () => mutate.mutate( null );
+	return {
+		...mutate,
+		requestNewReport: () => mutate.mutate( null ),
+	};
 }
