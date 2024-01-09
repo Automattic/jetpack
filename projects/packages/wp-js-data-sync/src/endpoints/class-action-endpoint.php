@@ -33,7 +33,7 @@ class Action_Endpoint {
 
 	/**
 	 * This class handles endpoints for DataSync actions.
-	 * 
+	 *
 	 *
 	 * @param $namespace
 	 * @param $key
@@ -74,9 +74,12 @@ class Action_Endpoint {
 					'JSON'   => $result,
 				)
 			);
-		} catch ( \Error $e ) {
+		} catch ( \RuntimeException $e ) {
 			return rest_ensure_response(
-				new \WP_Error( 500, $e->getMessage(), array( 'status' => 500 ) )
+				array(
+					'status'  => 'error',
+					'message' => $e->getMessage(),
+				)
 			);
 		}
 	}
