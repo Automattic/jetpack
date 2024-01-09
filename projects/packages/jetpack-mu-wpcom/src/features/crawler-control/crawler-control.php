@@ -37,7 +37,7 @@ function wpcom_crawler_control() {
 	// Send a friendly message to the user agent.
 	if ( in_array( $user_agent, $disallowed_user_agents, true ) ) {
 		status_header( 403 );
-		header( 'Content-Type: text/plain; charset=utf-8' );
+		header( 'X-Terms: "Fun" message about where to go to crawl for AI bots.' );
 		echo 'Not allowed. TODO: Insert friendly message here.';
 		exit;
 	}
@@ -50,7 +50,11 @@ function wpcom_crawler_control() {
  */
 function wpcom_crawler_control_is_blog_crawlable() {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		return get_blog_option( get_current_blog_id(), 'wpcom_is_crawlable' );
+		$blog_id = get_current_blog_id();
+		if ( is_automattic( $blog_id ) ) {
+			return true;
+		}
+		return get_blog_option( $blog_id, 'wpcom_is_crawlable' );
 	}
 
 	return get_option( 'wpcom_is_crawlable' );
