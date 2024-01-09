@@ -19,7 +19,7 @@ class Dismissed_Notices {
 	 */
 	public function register() {
 		register_setting(
-			'general',
+			'jetpack_social',
 			self::DISMISSED_NOTICES_OPTION,
 			array(
 				'type'         => 'object',
@@ -28,17 +28,10 @@ class Dismissed_Notices {
 					'schema' => array(
 						'type'       => 'object',
 						'properties' => array(
-							'notice'            => array(
-								'description' => __( 'Name of the notice to dismiss', 'jetpack-publicize-pkg' ),
-								'type'        => 'string',
-								'enum'        => array( 'instagram', 'advanced-upgrade-nudge-admin', 'advanced-upgrade-nudge-editor', 'auto-conversion-editor-notice' ),
-								'required'    => true,
-							),
-							'reappearance_time' => array(
-								'description' => __( 'Time when the notice should reappear', 'jetpack-publicize-pkg' ),
-								'type'        => 'integer',
-								'default'     => 0,
-							),
+							'auto-conversion-editor-notice' => array( 'type' => 'number' ),
+							'instagram'                    => array( 'type' => 'number' ),
+							'advanced-upgrade-nudge-admin' => array( 'type' => 'number' ),
+							'advanced-upgrade-nudge-editor' => array( 'type' => 'number' ),
 						),
 					),
 				),
@@ -62,8 +55,8 @@ class Dismissed_Notices {
 			return $updated;
 		}
 
-		$notice            = $value['notice'];
-		$reappearance_time = $value['reappearance_time'];
+		$notice            = key( $value );
+		$reappearance_time = $value[ $notice ];
 		$dismissed_notices = self::get_dismissed_notices();
 
 		if ( ! is_array( $dismissed_notices ) ) {

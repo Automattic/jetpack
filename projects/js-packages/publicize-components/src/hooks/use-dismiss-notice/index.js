@@ -60,7 +60,7 @@ export default function useDismissNotice() {
 		apiFetch( {
 			path: `/wp/v2/settings`,
 			method: 'POST',
-			data: { jetpack_social_dismissed_notices: { notice, reappearance_time } },
+			data: { jetpack_social_dismissed_notices: { [ notice ]: reappearance_time } },
 		} );
 	}, [] );
 
