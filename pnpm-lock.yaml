@@ -3938,6 +3938,9 @@ importers:
       chalk:
         specifier: 4.1.2
         version: 4.1.2
+      chokidar:
+        specifier: 3.5.3
+        version: 3.5.3
       configstore:
         specifier: 5.0.1
         version: 5.0.1
@@ -3971,6 +3974,9 @@ importers:
       listr-verbose-renderer:
         specifier: 0.6.0
         version: 0.6.0
+      p-debounce:
+        specifier: 4.0.0
+        version: 4.0.0
       p-limit:
         specifier: 4.0.0
         version: 4.0.0
@@ -20527,6 +20533,11 @@ packages:
       wcwidth: 1.0.1
     dev: true
 
+  /p-debounce@4.0.0:
+    resolution: {integrity: sha512-4Ispi9I9qYGO4lueiLDhe4q4iK5ERK8reLsuzH6BPaXn53EGaua8H66PXIFGrW897hwjXp+pVLrm/DLxN0RF0A==}
+    engines: {node: '>=12'}
+    dev: false
+
   /p-finally@1.0.0:
     resolution: {integrity: sha512-LICb2p9CB7FS+0eR1oqWnHhp0FljGLZCWBE9aix0Uye9W8LTQPwMTYVGWQWIw9RdQiDg4+epXQODwIYJtSJaow==}
     engines: {node: '>=4'}
@@ -22026,7 +22037,7 @@ packages:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
     dependencies:
-      picomatch: 2.2.3
+      picomatch: 2.3.1
 
   /reakit-system@0.15.2(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-TvRthEz0DmD0rcJkGamMYx+bATwnGNWJpe/lc8UV2Js8nnPvkaxrHk5fX9cVASFrWbaIyegZHCWUBfxr30bmmA==}

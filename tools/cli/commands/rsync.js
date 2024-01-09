@@ -2,9 +2,11 @@ import fs from 'fs/promises';
 import path from 'path';
 import process from 'process';
 import chalk from 'chalk';
+import chokidar from 'chokidar';
 import Configstore from 'configstore';
 import enquirer from 'enquirer';
 import { execa } from 'execa';
+import pDebounce from 'p-debounce';
 import tmp from 'tmp';
 import { projectDir } from '../helpers/install.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
@@ -65,7 +67,19 @@ export async function rsyncInit( argv ) {
 		finalDest = path.join( argv.dest, '/' );
 	}
 
-	await rsyncToDest( sourcePluginPath, finalDest, argv.dest );
+	if ( argv.watch ) {
+		console.log( 'jetpack rsync --watch is now watching for changes to:', sourcePluginPath );
+		const debouncedRsyncToDest = pDebounce(
+			() => rsyncToDest( sourcePluginPath, finalDest, argv.dest ),
+			10000 // Todo: at 10000ms, standard Jetpack build ran this twice for me, adjust further?
+		);
+		// eslint-disable-next-line no-unused-vars
+		chokidar.watch( sourcePluginPath ).on( 'change', async changedPath => {
+			await debouncedRsyncToDest();
+		} );
+	} else {
+		await rsyncToDest( sourcePluginPath, finalDest, argv.dest );
+	}
 }
 
 /**
@@ -228,6 +242,9 @@ async function addVendorFilesToFilter( source, filters ) {
  * @returns {Promise<void>}
  */
 async function rsyncToDest( source, dest, pluginDestPath ) {
+	// Todo: remove this early return.
+	console.log( `[${ Date.now() }] Todo: returning early from rsyncToDest() while testing.` );
+	return;
 	const filters = new Set();
 
 	// Exclude any `.git` dirs, mostly in case someone ran composer with --prefer-source (or composer fell back to that).
@@ -452,6 +469,10 @@ export function rsyncDefine( yargs ) {
 				} )
 				.option( 'config', {
 					describe: 'List, add, or remove saved destinations in the config.',
+					type: 'boolean',
+				} )
+				.option( 'watch', {
+					describe: 'Watch the plugin for changes and rsync on change.',
 					type: 'boolean',
 				} );
 		},
