@@ -111,9 +111,9 @@ class Jetpack_Social {
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Settings_Controller(), 'register_rest_routes' ) );
 
 		// Add block editor assets
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_editor_scripts' ) );
 		// Adds the review prompt initial state
-		add_action( 'enqueue_block_editor_assets', array( $this, 'add_review_initial_state' ), 30 );
+		add_action( 'enqueue_block_assets', array( $this, 'add_review_initial_state' ), 30 );
 
 		// Add meta tags.
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );

@@ -99,6 +99,7 @@ export default function MyJetpackScreen() {
 	const { jwt, isFetchingChatAuthentication } = useChatAuthentication();
 	const shouldShowZendeskChatWidget =
 		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
+	const isNewUser = window.myJetpackInitialState.userIsNewToJetpack === '1';
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
@@ -135,12 +136,12 @@ export default function MyJetpackScreen() {
 							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
-					{ hasConnectionError && welcomeBannerHasBeenDismissed && (
+					{ hasConnectionError && ( welcomeBannerHasBeenDismissed || ! isNewUser ) && (
 						<Col>
 							<ConnectionError />
 						</Col>
 					) }
-					{ message && welcomeBannerHasBeenDismissed && (
+					{ message && ( welcomeBannerHasBeenDismissed || ! isNewUser ) && (
 						<Col>
 							<GlobalNotice message={ message } options={ options } clean={ clean } />
 						</Col>
