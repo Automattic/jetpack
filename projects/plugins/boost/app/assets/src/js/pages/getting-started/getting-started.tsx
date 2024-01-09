@@ -21,6 +21,7 @@ const GettingStarted: React.FC = () => {
 		pricing,
 		is_premium: isPremium,
 		site: { domain },
+		connection: { wpcomBlogId },
 	} = useConfig();
 
 	const { shouldGetStarted, markGettingStartedComplete } = useGettingStarted();
@@ -34,12 +35,16 @@ const GettingStarted: React.FC = () => {
 		if ( ! shouldGetStarted && selectedPlan ) {
 			// Go to the purchase flow if the user doesn't have a premium plan.
 			if ( ! isPremium && selectedPlan === 'premium' ) {
-				window.location.href = getUpgradeURL( domain, userConnected );
+				window.location.href = getUpgradeURL(
+					domain,
+					userConnected,
+					wpcomBlogId ? wpcomBlogId.toString() : null
+				);
 			} else {
 				navigate( '/', { replace: true } );
 			}
 		}
-	}, [ domain, isPremium, navigate, selectedPlan, shouldGetStarted, userConnected ] );
+	}, [ domain, isPremium, navigate, selectedPlan, shouldGetStarted, userConnected, wpcomBlogId ] );
 
 	async function initialize( plan: 'free' | 'premium' ) {
 		setSelectedPlan( plan );

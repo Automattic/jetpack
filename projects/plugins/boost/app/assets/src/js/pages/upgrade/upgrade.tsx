@@ -15,13 +15,14 @@ const Upgrade: React.FC = () => {
 	const {
 		pricing,
 		site: { domain: siteDomain },
+		connection: { wpcomBlogId },
 	} = useConfig();
 
 	const { connection } = useConnection();
 
 	const goToCheckout = () => {
 		recordBoostEventAndRedirect(
-			getUpgradeURL( siteDomain, connection.userConnected ),
+			getUpgradeURL( siteDomain, connection.userConnected, wpcomBlogId ),
 			'checkout_from_pricing_page_in_plugin'
 		);
 	};
