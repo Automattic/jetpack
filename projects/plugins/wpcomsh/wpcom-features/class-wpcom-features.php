@@ -1096,7 +1096,7 @@ class WPCOM_Features {
 		),
 		self::STATS_PAID                       => array(
 			array(
-				'before' => '2023-12-19',
+				'before' => '2024-01-09',
 				self::WPCOM_PERSONAL_PLANS,
 				self::WPCOM_ALL_SITES,
 			),
