@@ -12,6 +12,12 @@
 	text-decoration: none;
 }
 
+.jetpack-newsletter-access-radio-buttons {
+	.components-radio-control__label {
+		text-wrap: balance;
+	}
+}
+
 .jetpack-subscribe-newsletters-panel {
 	.edit-post-post-misconfiguration {
 		&__warning {

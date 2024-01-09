@@ -155,7 +155,7 @@ export function NewsletterAccessRadioButtons( {
 	} );
 
 	return (
-		<fieldset className="editor-post-visibility__fieldset">
+		<fieldset className="editor-post-visibility__fieldset jetpack-newsletter-access-radio-buttons">
 			<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
 			<RadioControl
 				onChange={ value => {
@@ -178,13 +178,13 @@ export function NewsletterAccessRadioButtons( {
 						  ]
 						: [] ),
 					{
-						label: `${ accessOptions.subscribers.label }\u00A0(${ numberFormat( subscribersReach, {
+						label: `${ accessOptions.subscribers.label } (${ numberFormat( subscribersReach, {
 							notation: 'compact',
 						} ) })`,
 						value: accessOptions.subscribers.key,
 					},
 					{
-						label: `${ accessOptions.paid_subscribers.label }\u00A0(${ numberFormat(
+						label: `${ accessOptions.paid_subscribers.label } (${ numberFormat(
 							paidSubscribersReach,
 							{
 								notation: 'compact',
