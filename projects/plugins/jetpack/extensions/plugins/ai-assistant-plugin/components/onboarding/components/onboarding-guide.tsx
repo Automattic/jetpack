@@ -19,6 +19,9 @@ const OnboardingGuide: FC = () => {
 	const { isFeatureActive } = useSelect( 'core/edit-post' );
 	const isWelcomeGuideActive = isFeatureActive( 'welcomeGuide' );
 
+	// eslint-disable-next-line no-console
+	console.log( isWelcomeGuideActive );
+
 	// Preload assets to avoid flickering as much as possible
 	usePrefetchAssets( assetSources );
 
