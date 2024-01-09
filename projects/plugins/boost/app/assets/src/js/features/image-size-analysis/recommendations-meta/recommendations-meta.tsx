@@ -12,6 +12,7 @@ import {
 	getReportProgress,
 	useIsaReport,
 	useImageAnalysisRequest,
+	IsaCounts,
 } from '$features/image-size-analysis';
 
 const getWaitNotice = ( isRequesting: boolean, currentStatus: string | undefined ) => {
@@ -44,7 +45,7 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 		return total + groupWithIssueCount.issue_count;
 	}, 0 );
 
-	const scannedPages = Object.values( groups )
+	const scannedPages = Object.values< IsaCounts >( groups )
 		.map( group => group.scanned_pages )
 		.reduce( ( a, b ) => a + b, 0 );
 
