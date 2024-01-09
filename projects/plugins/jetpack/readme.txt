@@ -293,42 +293,31 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.0-beta - 2024-01-08
+### 13.0 - 2024-01-09
 #### Enhancements
-- Added description and link inviting to disable legacy sharing module if block is available
-- AI Usage panel: Added yellow color to indicate going over the soft limit.
-- Gutenberg: Added Top Posts & Pages block.
-- Sharing Buttons Block: update the admin's setting screen when the sharing block is available.
+- AI Assistant: Update the interface on desktop and mobile to improve user experience.
+- Newsletters: Add a toggle to disable sending emails on a post-by-post basis.
 - Social Menu & Social Media Icons: Add support for the Bluesky service.
-- Subscription Modal: Display thesubscription modal when a user makes a comment.
-- Subscriptions: adds toggle to disable email sending.
+- Top Posts & Pages Block: Add a new block to replace the legacy Top Post & Pages widget.
 
 #### Improved compatibility
-- Contact Form: avoid PHP warnings in the WordPress dashboard when used alongside other plugins making changes to admin pages.
-- Patreon: Updated Patreon icon to match the updated Patreon branding guidelines.
-- Sharing Buttons: add the official X button to the list of supported services.
-- Sharing Buttons Block: Improved consistency for how the button icons are rendered on different pages.
+- Social Menu & Social Media Icons: Update the Patreon icon to match the updated Patreon branding guidelines.
+- Sharing Buttons: Add the official X button to the list of supported services and improve consistency in how buttons are rendered.
+- Subscriptions Block: Add compatibility for the latest Gutenberg version.
 
 #### Bug fixes
-- Calendly Block: Fixed custom colours being stripped.
-- Dashboard: Disabled VideoPress card in offline mode.
-- Editor: Fixed missing fonts issue inside the block editor.
-- Jetpack footer links are now consistent within different pages.
-- Launchpad: Fixed the save modal not showing after saving changes in the editor.
-- Likes: Fixed popover closing area.
-- Likes Widget: Fix accessibility on likes popover.
-- Likes Widget: Make likes widget accessibility compatible across themes.
-- My Plan: Fix JS errors due to nested anchor tags.
-- Newsletter: Updated post-publish panel text for scheduled posts.
-- Notification Accessibility: THe notification icon is not a link.
-- Payments Block: show an error message when unable to render payment button.
+- Calendly Block: Fix custom colors being stripped.
+- Contact Form: Avoid PHP warnings in the WordPress dashboard when used alongside other plugins affecting admin pages.
+- Dashboard: Disable VideoPress card in offline mode.
+- Ensure Jetpack footer links remain consistent across different pages.
+- Launchpad: Fix the save modal not showing after saving changes in the editor.
+- Likes Widget: Fix accessibility issues across different themes.
+- Newsletters: Update post-publish panel text for scheduled posts.
+- Notifications: Make the notification icon a link to improve accessibility.
+- Payments Block: Show an error message when unable to render the payment button.
 - Paywall: Fix stuck pending subscription state when email isn't verified.
-- Subscribe Modal: Fix fatal under exceptional conditions
-- Subscribers: fix the subscriber count display if above 1000 subscribers.
-- Subscribers: pre/post-publish panel, show correct subscription count when using paywall.
-- Subscriptions Block: Added compatibility for the latest Gutenberg.
-- Widgets: Fix console JS error in EU Cookie Widget.
-- WoA: Updated SEO Tools on Atomic sites to show only for Business plan and higher.
+- Subscriptions: Fix the subscriber count display in the pre- and post-publish panels when using paywalls or above 1000 subscribers.
+- Widgets: Fix console JavaScript error in EU Cookie Widget.
 
 --------
 
