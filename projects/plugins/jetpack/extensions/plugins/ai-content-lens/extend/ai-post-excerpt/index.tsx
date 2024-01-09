@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { AI_MODEL_GPT_4, useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -59,7 +59,7 @@ function AiPostExcerpt() {
 	const [ reenable, setReenable ] = useState( false );
 	const [ language, setLanguage ] = useState< LanguageProp >();
 	const [ tone, setTone ] = useState< ToneProp >();
-	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_GPT_4 );
+	const [ model, setModel ] = useState< AiModelTypeProp >( null );
 
 	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions( {
 		onDone: useCallback( () => {
