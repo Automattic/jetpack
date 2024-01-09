@@ -5,29 +5,33 @@ import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
 import { useState } from '@wordpress/element';
+import { ErrorSet } from '../lib/stores/critical-css-state-errors';
+import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
+import {
+	useCriticalCssState,
+	useRegenerateCriticalCssAction,
+} from '../lib/stores/critical-css-state';
 
 type CriticalCssMetaProps = {
-	cssState: CriticalCssState;
 	isCloudCssAvailable: boolean;
 	criticalCssProgress: number;
 	issues: CriticalCssState[ 'providers' ];
 	isFatalError: boolean;
-	primaryErrorSet;
-	suggestRegenerate;
-	regenerateCriticalCss;
+	primaryErrorSet: ErrorSet;
+	suggestRegenerate: boolean;
 };
 
 const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
-	cssState,
 	isCloudCssAvailable,
 	criticalCssProgress,
 	issues = [],
 	isFatalError,
 	primaryErrorSet,
 	suggestRegenerate,
-	regenerateCriticalCss,
 } ) => {
 	const [ hasRetried, setHasRetried ] = useState( false );
+	const cssState = useCriticalCssState();
+	const regenerate = useRegenerateCriticalCssAction();
 
 	const successCount = cssState.providers
 		? cssState.providers.filter( provider => provider.status === 'success' ).length
@@ -35,20 +39,22 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 
 	function retry() {
 		setHasRetried( true );
-		regenerateCriticalCss();
+		regenerate();
 	}
 
 	if ( cssState.status === 'pending' ) {
 		return (
-			<div className="jb-critical-css-progress">
-				<div className={ styles[ 'progress-label' ] }>
-					{ __(
-						'Generating Critical CSS. Please don’t leave this page until completed.',
-						'jetpack-boost'
-					) }
+			<>
+				<div className="jb-critical-css-progress">
+					<div className={ styles[ 'progress-label' ] }>
+						{ __(
+							'Generating Critical CSS. Please don’t leave this page until completed.',
+							'jetpack-boost'
+						) }
+					</div>
+					<ProgressBar progress={ criticalCssProgress } />
 				</div>
-				<ProgressBar progress={ criticalCssProgress } />
-			</div>
+			</>
 		);
 	} else if ( isFatalError ) {
 		return (
@@ -63,16 +69,24 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 	}
 
 	return (
-		<Status
-			isCloudCssAvailable={ isCloudCssAvailable }
-			status={ cssState.status }
-			successCount={ successCount }
-			updated={ cssState.updated }
-			issues={ issues }
-			progress={ criticalCssProgress }
-			suggestRegenerate={ suggestRegenerate }
-		/>
+		<>
+			<Status
+				isCloudCssAvailable={ isCloudCssAvailable }
+				status={ cssState.status }
+				successCount={ successCount }
+				updated={ cssState.updated }
+				issues={ issues }
+				progress={ criticalCssProgress }
+				suggestRegenerate={ suggestRegenerate }
+			/>
+		</>
 	);
 };
 
-export default CriticalCssMeta;
+export default function ( props: CriticalCssMetaProps ) {
+	return (
+		<DataSyncProvider>
+			<CriticalCssMeta { ...props } />
+		</DataSyncProvider>
+	);
+}

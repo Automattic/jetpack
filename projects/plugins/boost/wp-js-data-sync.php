@@ -12,6 +12,7 @@ use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Premium_Features_Entry;
 use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Regenerate_Action;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
@@ -31,6 +32,19 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 function jetpack_boost_register_option( $key, $parser, $entry = null ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
 			->register( $key, $parser, $entry );
+}
+
+/**
+ * Register a new Jetpack Boost Data_Sync Action
+ * @param $key string
+ * @param $action_name string
+ * @param $instance Data_Sync_Action
+ *
+ * @return void
+ */
+function jetpack_boost_register_action( $key, $action_name, $instance ) {
+	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
+			->register_action( $key, $action_name, $instance );
 }
 
 /**
@@ -157,6 +171,7 @@ $premium_features_schema = Schema::as_array( Schema::as_string() )->fallback( ar
 jetpack_boost_register_option( 'critical_css_state', $critical_css_state_schema );
 jetpack_boost_register_option( 'critical_css_meta', $critical_css_meta_schema, new Critical_CSS_Meta_Entry() );
 jetpack_boost_register_option( 'critical_css_suggest_regenerate', $critical_css_suggest_regenerate_schema );
+jetpack_boost_register_action( 'critical_css_state', 'request-regenerate', new Critical_CSS_Regenerate_Action() );
 
 $modules_state_schema = Schema::as_array(
 	Schema::as_assoc_array(

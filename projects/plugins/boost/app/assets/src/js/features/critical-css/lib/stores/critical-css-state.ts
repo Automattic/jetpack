@@ -9,6 +9,55 @@ import { suggestRegenerateDS } from './suggest-regenerate';
 import { modulesState } from '$lib/stores/modules';
 import type { CriticalCssState, Provider } from './critical-css-state-types';
 import generateCriticalCss from '../generate-critical-css';
+import { useDataSync, useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
+import { z } from 'zod';
+
+export function useCriticalCssState() {
+	const [ { data } ] = useDataSync(
+		'jetpack_boost_ds',
+		'critical_css_state',
+		CriticalCssStateSchema
+	);
+
+	if ( ! data ) {
+		throw new Error( 'Critical CSS state not available' );
+	}
+
+	return data;
+}
+
+export function useRegenerateCriticalCssAction() {
+	return useDataSyncAction( {
+		namespace: 'jetpack_boost_ds',
+		key: 'critical_css_state',
+		action_name: 'request-regenerate',
+		schema: {
+			state: CriticalCssStateSchema,
+			action_request: z.void(),
+			action_response: z.object( {
+				success: z.boolean(),
+				state: CriticalCssStateSchema,
+			} ),
+		},
+		callbacks: {
+			onResult: ( result, _state ): CriticalCssState => {
+				if ( result.success ) {
+					return result.state;
+				}
+
+				return {
+					providers: [],
+					status: 'error',
+					status_error: __( 'Critical CSS Regeneration Failed', 'jetpack-boost' ),
+				};
+			},
+		},
+	} ).mutate;
+}
+
+/**
+ * Old stuff to get rid of.
+ */
 
 const stateClient = jetpack_boost_ds.createAsyncStore(
 	'critical_css_state',

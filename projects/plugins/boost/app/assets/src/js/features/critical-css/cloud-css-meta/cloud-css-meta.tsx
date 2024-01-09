@@ -3,6 +3,7 @@ import { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import Status from '../status/status';
 import { useState } from '@wordpress/element';
+import { ErrorSet } from '../lib/stores/critical-css-state-errors';
 
 type CloudCssMetaProps = {
 	cssState: CriticalCssState;
@@ -10,9 +11,9 @@ type CloudCssMetaProps = {
 	criticalCssProgress: number;
 	issues: CriticalCssState[ 'providers' ];
 	isFatalError: boolean;
-	primaryErrorSet;
-	suggestRegenerate;
-	regenerateCriticalCss;
+	primaryErrorSet: ErrorSet;
+	suggestRegenerate: boolean;
+	regenerateCriticalCss: () => void;
 };
 
 const CloudCssMeta: React.FC< CloudCssMetaProps > = ( {

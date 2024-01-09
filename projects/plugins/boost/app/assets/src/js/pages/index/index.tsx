@@ -24,6 +24,7 @@ import styles from './index.module.scss';
 import { RecommendationsMeta } from '$features/image-size-analysis/recommendations-meta/recommendations-meta';
 import { initializeIsaSummary } from '$features/image-size-analysis/lib/stores/isa-summary';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
+import { ErrorSet } from '$features/critical-css/lib/stores/critical-css-state-errors';
 
 type IndexProps = {
 	/*
@@ -125,14 +126,12 @@ const Index = ( { criticalCss }: IndexProps ) => {
 				}
 			>
 				<CriticalCssMeta
-					cssState={ criticalCss.criticalCssState }
 					isCloudCssAvailable={ cloudCssState?.available === true }
 					criticalCssProgress={ criticalCss.criticalCssProgress }
 					issues={ criticalCss.issues }
 					isFatalError={ criticalCss.isFatalError }
-					primaryErrorSet={ criticalCss.primaryErrorSet }
-					suggestRegenerate={ suggestRegenerate }
-					regenerateCriticalCss={ criticalCss.regenerateCriticalCss }
+					primaryErrorSet={ criticalCss.primaryErrorSet as ErrorSet }
+					suggestRegenerate={ !! suggestRegenerate }
 				/>
 				<RegenerateCriticalCssSuggestion
 					show={ suggestRegenerate && criticalCss.criticalCssState.status !== 'pending' }

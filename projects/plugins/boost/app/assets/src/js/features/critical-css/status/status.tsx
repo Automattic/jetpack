@@ -12,7 +12,7 @@ type StatusTypes = {
 	status: CriticalCssState[ 'status' ];
 	updated: CriticalCssState[ 'updated' ];
 	progress: number;
-	suggestRegenerate: unknown;
+	suggestRegenerate: boolean;
 	isCloudCssAvailable?: boolean;
 	issues?: CriticalCssState[ 'providers' ];
 	successCount?: number;
