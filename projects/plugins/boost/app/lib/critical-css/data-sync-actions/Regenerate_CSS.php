@@ -1,13 +1,14 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
+namespace Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 
 /**
  * Critical CSS Action: request regeneration.
  */
-class Critical_CSS_Regenerate_Action implements Data_Sync_Action {
+class Regenerate_CSS implements Data_Sync_Action {
 
 	/**
 	 * Handles the action logic.

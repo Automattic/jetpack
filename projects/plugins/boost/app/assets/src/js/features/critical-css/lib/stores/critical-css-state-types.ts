@@ -14,14 +14,14 @@ const CriticalCssErrorType = z.enum( [
 	'XFrameDenyError',
 ] );
 
-const CriticalCssErrorDetailsSchema = z.object( {
+export const CriticalCssErrorDetailsSchema = z.object( {
 	url: z.coerce.string(),
 	message: z.coerce.string(),
 	meta: z.record( JSONSchema ).catch( {} ),
 	type: CriticalCssErrorType,
 } );
 
-const ProviderSchema = z.object( {
+export const ProviderSchema = z.object( {
 	// Unique provider key, for example "single_post"
 	key: z.coerce.string(),
 	// The label. For example "Single Post"

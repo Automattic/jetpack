@@ -9,6 +9,7 @@ import { ErrorSet } from '../lib/stores/critical-css-state-errors';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import {
 	useCriticalCssState,
+	useLocalGenerator,
 	useRegenerateCriticalCssAction,
 } from '../lib/stores/critical-css-state';
 
@@ -30,7 +31,7 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 	suggestRegenerate,
 } ) => {
 	const [ hasRetried, setHasRetried ] = useState( false );
-	const cssState = useCriticalCssState();
+	const [ cssState ] = useCriticalCssState();
 	const regenerate = useRegenerateCriticalCssAction();
 
 	const successCount = cssState.providers
@@ -42,19 +43,19 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 		regenerate();
 	}
 
+	useLocalGenerator();
+
 	if ( cssState.status === 'pending' ) {
 		return (
-			<>
-				<div className="jb-critical-css-progress">
-					<div className={ styles[ 'progress-label' ] }>
-						{ __(
-							'Generating Critical CSS. Please don’t leave this page until completed.',
-							'jetpack-boost'
-						) }
-					</div>
-					<ProgressBar progress={ criticalCssProgress } />
+			<div className="jb-critical-css-progress">
+				<div className={ styles[ 'progress-label' ] }>
+					{ __(
+						'Generating Critical CSS. Please don’t leave this page until completed.',
+						'jetpack-boost'
+					) }
 				</div>
-			</>
+				<ProgressBar progress={ criticalCssProgress } />
+			</div>
 		);
 	} else if ( isFatalError ) {
 		return (
@@ -69,17 +70,15 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 	}
 
 	return (
-		<>
-			<Status
-				isCloudCssAvailable={ isCloudCssAvailable }
-				status={ cssState.status }
-				successCount={ successCount }
-				updated={ cssState.updated }
-				issues={ issues }
-				progress={ criticalCssProgress }
-				suggestRegenerate={ suggestRegenerate }
-			/>
-		</>
+		<Status
+			isCloudCssAvailable={ isCloudCssAvailable }
+			status={ cssState.status }
+			successCount={ successCount }
+			updated={ cssState.updated }
+			issues={ issues }
+			progress={ criticalCssProgress }
+			suggestRegenerate={ suggestRegenerate }
+		/>
 	);
 };
 

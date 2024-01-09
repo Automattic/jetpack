@@ -3,17 +3,23 @@ import { derived, get, writable } from 'svelte/store';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import api from '$lib/api/api';
 import { startPollingCloudStatus } from '../cloud-css';
-import { CriticalCssStateSchema } from './critical-css-state-types';
+import { CriticalCssErrorDetailsSchema, CriticalCssStateSchema } from './critical-css-state-types';
 import { jetpack_boost_ds, JSONObject } from '$lib/stores/data-sync-client';
 import { suggestRegenerateDS } from './suggest-regenerate';
 import { modulesState } from '$lib/stores/modules';
-import type { CriticalCssState, Provider } from './critical-css-state-types';
-import generateCriticalCss from '../generate-critical-css';
+import type {
+	CriticalCssErrorDetails,
+	CriticalCssState,
+	Provider,
+} from './critical-css-state-types';
+import { runLocalGenerator } from '../generate-critical-css';
 import { useDataSync, useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
+import { __ } from '@wordpress/i18n';
+import { useEffect } from 'react';
 
-export function useCriticalCssState() {
-	const [ { data } ] = useDataSync(
+export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssState ) => void ] {
+	const [ { data }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
 		'critical_css_state',
 		CriticalCssStateSchema
@@ -23,7 +29,77 @@ export function useCriticalCssState() {
 		throw new Error( 'Critical CSS state not available' );
 	}
 
-	return data;
+	const debugMutate = ( ...args ) => {
+		console.trace( 'mutate', ...args );
+		return mutate( ...args );
+	};
+
+	return [ data, debugMutate ];
+}
+
+function errorState( message: string ): CriticalCssState {
+	return {
+		providers: [],
+		status: 'error',
+		status_error: message,
+	};
+}
+
+export function useSetProviderCss() {
+	return useDataSyncAction( {
+		namespace: 'jetpack_boost_ds',
+		key: 'critical_css_state',
+		action_name: 'set-provider-css',
+		schema: {
+			state: CriticalCssStateSchema,
+			action_request: z.object( {
+				key: z.string(),
+				css: z.string(),
+			} ),
+			action_response: z.object( {
+				success: z.boolean(),
+				state: CriticalCssStateSchema,
+			} ),
+		},
+		callbacks: {
+			onResult: ( result, _state ): CriticalCssState => {
+				console.log( { s: result.state } );
+				if ( result.success ) {
+					return result.state;
+				}
+
+				return errorState( __( 'Critical CSS state update failed', 'jetpack-boost' ) );
+			},
+		},
+	} ).mutateAsync;
+}
+
+export function useSetProviderErrors() {
+	return useDataSyncAction( {
+		namespace: 'jetpack_boost_ds',
+		key: 'critical_css_state',
+		action_name: 'set-provider-css',
+		schema: {
+			state: CriticalCssStateSchema,
+			action_request: z.object( {
+				key: z.string(),
+				errors: z.array( CriticalCssErrorDetailsSchema ),
+			} ),
+			action_response: z.object( {
+				success: z.boolean(),
+				state: CriticalCssStateSchema,
+			} ),
+		},
+		callbacks: {
+			onResult: ( result, _state ): CriticalCssState => {
+				if ( result.success ) {
+					return result.state;
+				}
+
+				return errorState( __( 'Critical CSS state update failed', 'jetpack-boost' ) );
+			},
+		},
+	} ).mutateAsync;
 }
 
 export function useRegenerateCriticalCssAction() {
@@ -41,18 +117,41 @@ export function useRegenerateCriticalCssAction() {
 		},
 		callbacks: {
 			onResult: ( result, _state ): CriticalCssState => {
+				console.log( result );
+				console.log( 'hello joe' );
 				if ( result.success ) {
 					return result.state;
 				}
 
-				return {
-					providers: [],
-					status: 'error',
-					status_error: __( 'Critical CSS Regeneration Failed', 'jetpack-boost' ),
-				};
+				return errorState( __( 'Critical CSS regeneration request failed', 'jetpack-boost' ) );
 			},
 		},
 	} ).mutate;
+}
+
+export function useLocalGenerator() {
+	const [ cssState, setCssState ] = useCriticalCssState();
+	const setProviderCss = useSetProviderCss();
+	const setProviderErrors = useSetProviderErrors();
+
+	useEffect( () => {
+		if ( cssState.status === 'pending' ) {
+			return runLocalGenerator( cssState.providers, {
+				onError: ( error: Error ) => {
+					setCssState( errorState( error.message ) );
+				},
+
+				setProviderCss: async ( key: string, css: string ) => {
+					await setProviderCss( { key, css } );
+				},
+
+				setProviderErrors: async ( key: string, errors: CriticalCssErrorDetails[] ) => {
+					await setProviderErrors( { key, errors } );
+				},
+			} );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- Only run when cssState.status changes
+	}, [ cssState.status ] );
 }
 
 /**
@@ -233,7 +332,7 @@ export const regenerateCriticalCss = async () => {
 	if ( isCloudCssEnabled ) {
 		startPollingCloudStatus();
 	} else {
-		await continueGeneratingLocalCriticalCss( freshState );
+		//await ( freshState );
 	}
 };
 
@@ -244,6 +343,7 @@ export const regenerateCriticalCss = async () => {
  * @param state
  */
 export async function continueGeneratingLocalCriticalCss( state: CriticalCssState ) {
+	return;
 	if ( state.status === 'generated' ) {
 		return;
 	}
