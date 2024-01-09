@@ -87,9 +87,8 @@ function render_block( $attr, $content, $block ) {
 		$blog_id      = get_current_blog_id();
 		$bloginfo     = get_blog_details( (int) $blog_id );
 		$domain       = $bloginfo->domain;
-		$version      = '20231201';
 		$reblog_param = $show_reblog_button ? '&amp;reblog=1' : '';
-		$src          = sprintf( '//widgets.wp.com/likes/index.html?ver=%1$d#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s&amp;block=1%7$s', $version, $blog_id, $post_id, $domain, $uniqid, $new_layout, $reblog_param );
+		$src          = sprintf( '//widgets.wp.com/likes/index.html?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s&amp;block=1%7$s', JETPACK__VERSION, $blog_id, $post_id, $domain, $uniqid, $new_layout, $reblog_param );
 		$headline     = '';
 
 		// provide the mapped domain when needed
