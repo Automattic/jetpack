@@ -77,8 +77,7 @@ class Dismissed_Notices_Test extends BaseTestCase {
 	 */
 	public function test_notice_is_dismissed() {
 		$dismissed_notices = array(
-			'notice'            => 'instagram',
-			'reappearance_time' => 0,
+			'instagram' => 0,
 		);
 		$this->notices->update_dismissed_notices( true, $this->notices::DISMISSED_NOTICES_OPTION, $dismissed_notices );
 		$this->assertEquals( array( 'instagram' => 0 ), get_option( $this->notices::DISMISSED_NOTICES_OPTION ) );
@@ -92,8 +91,7 @@ class Dismissed_Notices_Test extends BaseTestCase {
 			true,
 			$this->notices::DISMISSED_NOTICES_OPTION,
 			array(
-				'notice'            => 'instagram',
-				'reappearance_time' => 0,
+				'instagram' => 0,
 			)
 		);
 
@@ -101,8 +99,7 @@ class Dismissed_Notices_Test extends BaseTestCase {
 			true,
 			$this->notices::DISMISSED_NOTICES_OPTION,
 			array(
-				'notice'            => 'advanced-upgrade-nudge-admin',
-				'reappearance_time' => 0,
+				'advanced-upgrade-nudge-admin' => 0,
 			)
 		);
 		$this->assertEquals(
