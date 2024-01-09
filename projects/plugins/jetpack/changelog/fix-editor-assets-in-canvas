@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Gutenberg: enqueue assets for editor UI with enqueue_block_editor_assets to fix block styles
