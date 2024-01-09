@@ -147,7 +147,7 @@ class Jetpack_Subscribe_Modal {
 		<p class='has-text-align-center' style='margin-top:4px;margin-bottom:0px;font-size:15px'>$subscribe_text</p>
 		<!-- /wp:paragraph -->
 
-		<!-- wp:jetpack/subscriptions {"buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
+		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact"} /-->
 
 		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"20px"}},"typography":{"fontSize":"14px"}},"className":"jetpack-subscribe-modal__close"} -->
 		<p class="has-text-align-center jetpack-subscribe-modal__close" style="margin-top:20px;font-size:14px"><a href="#">$continue_reading</a></p>
