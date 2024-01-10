@@ -188,7 +188,29 @@ class Image_Size_Analysis_Fixer {
 	}
 
 	public static function sanitize_params( $params ) {
+
+		if ( ! isset( $params['image_url'] ) ) {
+			throw new \Exception( 'Missing image_url' );
+		}
+		if ( ! isset( $params['image_width'] ) ) {
+			throw new \Exception( 'Missing image_width' );
+		}
+		if ( ! isset( $params['image_height'] ) ) {
+			throw new \Exception( 'Missing image_height' );
+		}
+		if ( ! isset( $params['post_id'] ) ) {
+			throw new \Exception( 'Missing post_id' );
+		}
+		if ( ! isset( $params['fix'] ) ) {
+			throw new \Exception( 'Missing fix' );
+		}
+
+		if ( ! isset( $params['image_id'] ) ) {
+			throw new \Exception( 'Missing image_id' );
+		}
+
 		$out                 = array();
+		$out['image_id']     = absint( $params['image_id'] );
 		$out['image_url']    = esc_url_raw( $params['image_url'] );
 		$out['image_width']  = absint( $params['image_width'] );
 		$out['image_height'] = absint( $params['image_height'] );

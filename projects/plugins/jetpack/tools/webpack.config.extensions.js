@@ -101,6 +101,7 @@ const sharedWebpackConfig = {
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.join( __dirname, '../_inc/blocks' ),
+		publicPath: 'auto',
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,

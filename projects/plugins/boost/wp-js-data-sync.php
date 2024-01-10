@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
@@ -31,6 +32,19 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 function jetpack_boost_register_option( $key, $parser, $entry = null ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
 			->register( $key, $parser, $entry );
+}
+
+/**
+ * Register a new Jetpack Boost Data_Sync Action
+ * @param $key string
+ * @param $action_name string
+ * @param $instance Data_Sync_Action
+ *
+ * @return void
+ */
+function jetpack_boost_register_action( $key, $action_name, $instance ) {
+	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
+			->register_action( $key, $action_name, $instance );
 }
 
 /**

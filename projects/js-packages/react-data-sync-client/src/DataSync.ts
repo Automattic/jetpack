@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ApiError } from './ApiError';
+import { DataSyncError } from './DataSyncError';
 import type { JSONSchema, ParsedValue } from './types';
 
 export type RequestParams = string | JSONSchema;
@@ -213,7 +213,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		} catch ( e ) {
 			// eslint-disable-next-line no-console
 			console.error( 'Failed to parse the response\n', { url, text, result, error: e } );
-			throw new ApiError( url.toString(), 'json_parse_error', 'Failed to parse the response' );
+			throw new DataSyncError( url.toString(), 'json_parse_error', 'Failed to parse the response' );
 		}
 
 		/**
@@ -223,10 +223,22 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		 * @see https://developer.wordpress.org/reference/classes/wp_rest_request/parse_json_params/
 		 * @see https://github.com/WordPress/wordpress-develop/blob/28f10e4af559c9b4dbbd1768feff0bae575d5e78/src/wp-includes/rest-api/class-wp-rest-request.php#L701
 		 */
+		if ( ! data || ! data.status ) {
+			// eslint-disable-next-line no-console
+			console.error( 'JSON response is empty.\n', { url, text, result } );
+			throw new DataSyncError( url.toString(), 'json_empty', 'JSON response is empty' );
+		}
+
+		if ( data.status === 'error' && 'message' in data ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Server returned an error.\n', { url, text, result } );
+			throw new DataSyncError( url.toString(), 'error_with_message', data.message );
+		}
+
 		if ( ! data || data.JSON === undefined ) {
 			// eslint-disable-next-line no-console
 			console.error( 'JSON response is empty.\n', { url, text, result } );
-			throw new ApiError( url.toString(), 'json_empty', 'JSON response is empty' );
+			throw new DataSyncError( url.toString(), 'json_empty', 'JSON response is empty' );
 		}
 
 		return data.JSON;
@@ -256,7 +268,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			// Log Zod validation errors to the console.
 			// eslint-disable-next-line no-console
 			console.error( error );
-			throw new ApiError( url, 'schema_error', 'Schema validation failed' );
+			throw new DataSyncError( url, 'schema_error', 'Schema validation failed' );
 		}
 	}
 
@@ -270,12 +282,12 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		try {
 			const result = await fetch( url, args );
 			if ( ! result.ok ) {
-				throw new ApiError( url, result.status, result.statusText );
+				throw new DataSyncError( url, result.status, result.statusText );
 			}
 
 			return result;
 		} catch ( e ) {
-			throw new ApiError( url, 'failed_to_sync', e.message );
+			throw new DataSyncError( url, 'failed_to_sync', e.message );
 		}
 	}
 
@@ -357,7 +369,14 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			undefined,
 			nonce
 		);
-		return schema.parse( result );
+
+		try {
+			return schema.parse( result );
+		} catch ( e ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Failed to parse the response\n', { result, error: e } );
+			throw new DataSyncError( '', 'json_parse_error', 'Failed to parse the response' );
+		}
 	};
 	/**
 	 * Method to get the initial value from the window object.

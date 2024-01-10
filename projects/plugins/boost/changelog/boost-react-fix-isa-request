@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a bug in image generation request after purchase
