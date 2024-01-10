@@ -424,21 +424,24 @@ EOT;
 	}
 
 	/**
-	 * Render a related posts row.
+	 * Render the list of related posts.
 	 *
-	 * @param array $posts The posts to render into the row.
+	 * @param array $posts The posts to render into the list.
 	 * @param array $block_attributes Block attributes.
+	 * @return string
 	 */
-	public function render_block_row( $posts, $block_attributes ) {
-		$rows_markup = '';
+	public function render_post_list( $posts, $block_attributes ) {
+		$markup = '';
+
 		foreach ( $posts as $post ) {
-			$rows_markup .= $this->render_block_item( $post, $block_attributes );
+			$markup .= $this->render_block_item( $post, $block_attributes );
 		}
+
 		return sprintf(
 			// role="list" is required for accessibility as VoiceOver ignores unstyled lists.
 			'<ul class="jp-related-posts-i2__row" role="list" data-post-count="%1$s">%2$s</ul>',
 			count( $posts ),
-			$rows_markup
+			$markup
 		);
 	}
 
@@ -477,31 +480,11 @@ EOT;
 			)
 		);
 
-		$display_lower_row = $block_attributes['size'] > 3;
-
 		if ( empty( $related_posts ) ) {
 			return '';
 		}
 
-		switch ( count( $related_posts ) ) {
-			case 2:
-			case 4:
-			case 5:
-				$top_row_end = 2;
-				break;
-
-			default:
-				$top_row_end = 3;
-				break;
-		}
-
-		$upper_row_posts = array_slice( $related_posts, 0, $top_row_end );
-		$lower_row_posts = array_slice( $related_posts, $top_row_end );
-
-		$rows_markup = $this->render_block_row( $upper_row_posts, $block_attributes );
-		if ( $display_lower_row ) {
-			$rows_markup .= $this->render_block_row( $lower_row_posts, $block_attributes );
-		}
+		$list_markup = $this->render_post_list( $related_posts, $block_attributes );
 
 		if ( empty( $attributes['isServerRendered'] ) ) {
 			// The get_server_rendered_html() path won't register a block,
@@ -528,7 +511,7 @@ EOT;
 			! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
 			esc_attr( $block_attributes['layout'] ),
 			$headline_markup,
-			$rows_markup,
+			$list_markup,
 			empty( $headline_markup ) ? 'aria-label="' . esc_attr( __( 'Related Posts', 'jetpack' ) ) . '"' : 'aria-labelledby="' . esc_attr( $headline_id ) . '"'
 		);
 
