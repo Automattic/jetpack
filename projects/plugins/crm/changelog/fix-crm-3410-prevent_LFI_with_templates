@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Templates: Ensure file paths are valid before trying to load.
