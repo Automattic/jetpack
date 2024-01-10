@@ -180,6 +180,7 @@ export function NewsletterAccessRadioButtons( {
 					{
 						label: `${ accessOptions.subscribers.label } (${ numberFormat( subscribersReach, {
 							notation: 'compact',
+							maximumFractionDigits: 1,
 						} ) })`,
 						value: accessOptions.subscribers.key,
 					},
@@ -188,6 +189,7 @@ export function NewsletterAccessRadioButtons( {
 							paidSubscribersReach,
 							{
 								notation: 'compact',
+								maximumFractionDigits: 1,
 							}
 						) })`,
 						value: accessOptions.paid_subscribers.key,
