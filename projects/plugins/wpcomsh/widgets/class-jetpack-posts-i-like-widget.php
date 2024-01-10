@@ -181,7 +181,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 		 * Use the Like's API to load all of a user's ($instance['liker']) likes
 		 * and put them all in a posts_i_like array so we can easily output it based on grid or list
 		 */
-		$liker             = $instance['liker'];
+		$liker             = $instance['liker'] ?? null;
 		$number_to_display = $instance['number'];
 
 		$get_image_options = array(
