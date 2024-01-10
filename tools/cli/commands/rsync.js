@@ -1,4 +1,4 @@
-import { createWriteStream } from 'fs';
+import { createWriteStream, existsSync } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 import process from 'process';
@@ -95,12 +95,16 @@ export async function rsyncInit( argv ) {
 
 				// Watch `.gitignore` and `.gitattributes` in parent dirs, as they too may change which files are synced.
 				// Here we assume sourcePluginPath is always `projects/plugins/whatever`
-				watcher.add( '../.gitignore' );
-				watcher.add( '../.gitattributes' );
-				watcher.add( '../../.gitignore' );
-				watcher.add( '../../.gitattributes' );
-				watcher.add( '../../../.gitignore' );
-				watcher.add( '../../../.gitattributes' );
+				for ( const dir of [ '.', 'projects', 'projects/plugins' ] ) {
+					const ignorepath = path.join( process.cwd(), dir, '.gitignore' );
+					if ( existsSync( ignorepath ) ) {
+						watcher.add( ignorepath );
+					}
+					const attributespath = path.join( process.cwd(), dir, '.gitattributes' );
+					if ( existsSync( attributespath ) ) {
+						watcher.add( attributespath );
+					}
+				}
 
 				watcher.once( 'ready', () => {
 					console.log( 'jetpack rsync --watch is now watching for changes to:', sourcePluginPath );
