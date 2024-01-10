@@ -36,12 +36,30 @@ function processCSS( css ) {
     }
 }`;
 
+	const customRule2 = `
+	/* Overrides to fix CSS conflicts within editor. */
+.wpl-likebox {
+	// Prevents color conflict by
+	// .wp-block-post-content a:where(:not(.wp-element-button))
+	a {
+		color: #2C3338 !important;
+		text-decoration: none !important;
+	}
+
+	// Prevents focus state conflict by
+	// a:where(:not(.wp-element-button)):focus
+	a:focus {
+		text-decoration: none !important;
+	}
+}
+`;
+
 	// Get current date and time
 	const now = new Date();
 	const dateAndTime = now.toISOString();
 
 	// Combine and format with a comment
-	const finalCSS = `${ customRule.trim() }\n\n/* Fetched below from ${ url } at ${ dateAndTime } */\n${ processedCSS }`;
+	const finalCSS = `${ customRule.trim() }\n\n/* Fetched below from ${ url } at ${ dateAndTime } */\n${ processedCSS }\n\n${ customRule2.trim() }\n`;
 
 	// Path for the output file in the same directory as the script
 	const outputPath = path.join( __dirname, '..', 'editor.scss' );

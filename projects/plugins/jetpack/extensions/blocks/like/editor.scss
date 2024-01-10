@@ -5,7 +5,7 @@
     }
 }
 
-/* Fetched below from https://widgets.wp.com/likes/style.css at 2024-01-10T14:20:09.727Z */
+/* Fetched below from https://widgets.wp.com/likes/style.css at 2024-01-10T14:37:12.523Z */
 .wpl-likebox,.wpl-follow a,.wpl-count a {
   font-size:11px!important;
   font-family:"Open Sans",sans-serif!important
@@ -201,4 +201,21 @@ a.comment-like-link.loading:before {
 .rtl .wpl-likebox.wpl-new-layout .wpl-count {
   margin-left:0;
   margin-right:12px
+}
+
+
+/* Overrides to fix CSS conflicts within editor. */
+.wpl-likebox {
+	// Prevents color conflict by
+	// .wp-block-post-content a:where(:not(.wp-element-button))
+	a {
+		color: #2C3338 !important;
+		text-decoration: none !important;
+	}
+
+	// Prevents focus state conflict by
+	// a:where(:not(.wp-element-button)):focus
+	a:focus {
+		text-decoration: none !important;
+	}
 }
