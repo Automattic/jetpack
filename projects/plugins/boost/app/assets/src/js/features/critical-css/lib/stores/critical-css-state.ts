@@ -9,6 +9,7 @@ import { useDataSync, useDataSyncAction } from '@automattic/jetpack-react-data-s
 import { z } from 'zod';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
+import { useRegenerationReason } from './suggest-regenerate';
 
 export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssState ) => void ] {
 	const [ { data }, { mutate } ] = useDataSync(
@@ -124,6 +125,8 @@ export function useSetProviderErrors() {
 }
 
 export function useRegenerateCriticalCssAction() {
+	const [ , resetReason ] = useRegenerationReason();
+
 	return useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
 		key: 'critical_css_state',
@@ -139,6 +142,8 @@ export function useRegenerateCriticalCssAction() {
 		callbacks: {
 			onResult: ( result, _state ): CriticalCssState => {
 				if ( result.success ) {
+					resetReason();
+
 					return result.state;
 				}
 

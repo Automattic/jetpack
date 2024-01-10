@@ -12,19 +12,17 @@ import {
 	useRegenerateCriticalCssAction,
 } from '../lib/stores/critical-css-state';
 import { getCriticalCssIssues } from '../lib/critical-css-errors';
+import { RegenerateCriticalCssSuggestion, useRegenerationReason } from '..';
 
 type CriticalCssMetaProps = {
 	isCloudCssAvailable: boolean;
-	suggestRegenerate: boolean;
 };
 
-const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
-	isCloudCssAvailable,
-	suggestRegenerate,
-} ) => {
+const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailable } ) => {
 	const [ hasRetried, setHasRetried ] = useState( false );
 	const [ cssState ] = useCriticalCssState();
 	const regenerate = useRegenerateCriticalCssAction();
+	const [ regenerateReason ] = useRegenerationReason();
 
 	const successCount = cssState.providers
 		? cssState.providers.filter( provider => provider.status === 'success' ).length
@@ -54,15 +52,19 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 	}
 
 	return (
-		<Status
-			isCloudCssAvailable={ isCloudCssAvailable }
-			status={ cssState.status }
-			issues={ getCriticalCssIssues( cssState ) }
-			successCount={ successCount }
-			updated={ cssState.updated }
-			progress={ progress }
-			suggestRegenerate={ suggestRegenerate }
-		/>
+		<>
+			<Status
+				isCloudCssAvailable={ isCloudCssAvailable }
+				status={ cssState.status }
+				issues={ getCriticalCssIssues( cssState ) }
+				successCount={ successCount }
+				updated={ cssState.updated }
+				progress={ progress }
+				showRegenerateButton={ !! regenerateReason }
+			/>
+
+			<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />
+		</>
 	);
 };
 

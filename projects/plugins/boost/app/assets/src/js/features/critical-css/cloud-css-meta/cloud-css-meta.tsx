@@ -44,7 +44,7 @@ const CloudCssMeta: React.FC< CloudCssMetaProps > = ( { isCloudCssAvailable } ) 
 			successCount={ successCount }
 			updated={ cssState.updated }
 			progress={ progress }
-			suggestRegenerate={ false }
+			showRegenerateButton={ false }
 			generateText={ __(
 				'Jetpack Boost will generate Critical CSS for you automatically.',
 				'jetpack-boost'

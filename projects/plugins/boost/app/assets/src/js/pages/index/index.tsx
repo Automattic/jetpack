@@ -5,8 +5,7 @@ import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import { Button, Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { usePremiumFeatures, useSuggestRegenerate } from './lib/hooks';
-import { RegenerateCriticalCssSuggestion, RegenerationReason } from '$features/critical-css';
+import { usePremiumFeatures } from './lib/hooks';
 import { useEffect } from 'react';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
@@ -38,7 +37,6 @@ const Index = () => {
 				'jetpack-boost'
 		  );
 
-	const [ { data: suggestRegenerate } ] = useSuggestRegenerate();
 	const premiumFeatures = usePremiumFeatures();
 
 	useEffect( () => {
@@ -80,14 +78,8 @@ const Index = () => {
 					</>
 				}
 			>
-				<CriticalCssMeta
-					isCloudCssAvailable={ cloudCssState?.available === true }
-					suggestRegenerate={ !! suggestRegenerate }
-				/>
-				<RegenerateCriticalCssSuggestion
-					show={ !! suggestRegenerate }
-					type={ suggestRegenerate as RegenerationReason }
-				/>
+				<CriticalCssMeta isCloudCssAvailable={ cloudCssState?.available === true } />
+
 				<UpgradeCTA
 					description={ __(
 						'Save time by upgrading to Automatic Critical CSS generation.',

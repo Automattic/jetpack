@@ -12,7 +12,7 @@ type StatusTypes = {
 	status: string;
 	updated: CriticalCssState[ 'updated' ];
 	progress: number;
-	suggestRegenerate: boolean;
+	showRegenerateButton: boolean;
 	isCloudCssAvailable?: boolean;
 	issues: Provider[];
 	successCount?: number;
@@ -24,7 +24,7 @@ const Status: React.FC< StatusTypes > = ( {
 	status,
 	updated,
 	progress,
-	suggestRegenerate,
+	showRegenerateButton = false,
 	isCloudCssAvailable = false,
 	issues,
 	successCount = 0,
@@ -100,7 +100,7 @@ const Status: React.FC< StatusTypes > = ( {
 				<button
 					type="button"
 					className={ classNames( 'components-button', {
-						'is-link': ! suggestRegenerate || isCloudCssAvailable,
+						'is-link': ! showRegenerateButton || isCloudCssAvailable,
 					} ) }
 					onClick={ () => regenerate() }
 				>
