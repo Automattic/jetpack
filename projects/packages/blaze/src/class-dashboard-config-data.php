@@ -52,7 +52,7 @@ class Dashboard_Config_Data {
 			'sections'                 => array(),
 			// Features are inlined in Calypso Blaze app (wp-calypso/apps/blaze-dashboard)
 			'features'                 => array(),
-			'intial_state'             => array(
+			'initial_state'            => array(
 				'currentUser' => array(
 					'id'           => $user['ID'],
 					'user'         => $user,

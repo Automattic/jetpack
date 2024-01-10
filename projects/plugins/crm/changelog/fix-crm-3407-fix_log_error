@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Database: Ensure logs table is initiated with all columns.

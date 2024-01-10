@@ -50,7 +50,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
             'input_type' => 'select',
             'label' => 'Status',
             'placeholder'=>'',
-			'options'               => array( 'Lead', 'Customer', 'Refused', 'Blacklisted' ),
+			'options'               => array( 'Lead', 'Customer', 'Refused' ),
             'essential' => true,
             'max_len' => 50,
             'do_not_show_on_portal' => true
