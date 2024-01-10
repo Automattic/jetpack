@@ -237,24 +237,15 @@ export const JetpackLogo = ( { size = 24, border = 0, className, color = COLOR_J
 	);
 };
 
-export const JetpackAppMediaIcon = () => {
+export const JetpackMobileAppIcon = () => {
 	return (
-		<SVG enableBackground="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24">
-			<G>
-				<Rect fill="none" height="24" width="24" />
-			</G>
-			<G>
-				<Path d="M3,11h8V3H3V11z M5,5h4v4H5V5z" />
-				<Path d="M3,21h8v-8H3V21z M5,15h4v4H5V15z" />
-				<Path d="M13,3v8h8V3H13z M19,9h-4V5h4V9z" />
-				<Rect height="2" width="2" x="19" y="19" />
-				<Rect height="2" width="2" x="13" y="13" />
-				<Rect height="2" width="2" x="15" y="15" />
-				<Rect height="2" width="2" x="13" y="17" />
-				<Rect height="2" width="2" x="15" y="19" />
-				<Rect height="2" width="2" x="17" y="17" />
-				<Rect height="2" width="2" x="17" y="13" />
-				<Rect height="2" width="2" x="19" y="15" />
+		<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<Rect width="24" height="24" rx="5" fill="#069E08" />
+			<G clip-path="url(#clip0_2_1297)">
+				<Path
+					d="M11.9829 3C7.02857 3 3 7.02857 3 11.9829C3 16.9371 7.02857 20.9657 11.9829 20.9657C16.9371 20.9657 20.9657 16.9371 20.9657 11.9829C20.9657 7.02857 16.9371 3 11.9829 3ZM11.52 13.4743H7.04571L11.52 4.76571V13.4743ZM12.4286 19.1829V10.4743H16.9029L12.4286 19.1829Z"
+					fill="white"
+				/>
 			</G>
 		</SVG>
 	);

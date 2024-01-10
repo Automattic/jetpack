@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { GooglePhotosIcon, OpenverseIcon, PexelsIcon, JetpackAppMediaIcon } from '../../icons';
+import { GooglePhotosIcon, OpenverseIcon, PexelsIcon, JetpackMobileAppIcon } from '../../icons';
 import {
 	SOURCE_WORDPRESS,
 	SOURCE_GOOGLE_PHOTOS,
@@ -33,9 +33,9 @@ export const mediaSources = [
 	},
 	{
 		id: SOURCE_JETPACK_APP_MEDIA,
-		label: __( 'Jetpack App Media', 'jetpack' ),
-		icon: <JetpackAppMediaIcon className="components-menu-items__item-icon" />,
-		keyword: 'jetpack app media',
+		label: __( 'Jetpack Mobile App', 'jetpack' ),
+		icon: <JetpackMobileAppIcon className="components-menu-items__item-icon" />,
+		keyword: 'jetpack mobile app',
 	},
 ];
 
