@@ -16,6 +16,12 @@ import styles from './error-description.module.scss';
 import Suggestion from '../suggestion/suggestion';
 import { CriticalCssErrorDescriptionTypes, FormattedURL } from './types';
 
+function stripCacheParams( url: string ): string {
+	const urlObj = new URL( url );
+	urlObj.searchParams.delete( 'donotcachepage' );
+	return urlObj.toString();
+}
+
 const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > = ( {
 	errorSet,
 	showSuggestion = true,
@@ -31,7 +37,7 @@ const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > 
 		}
 		return {
 			href,
-			label: url,
+			label: stripCacheParams( url ),
 		};
 	} );
 
