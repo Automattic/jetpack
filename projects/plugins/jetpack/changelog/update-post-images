@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
+Type: compat
 
-post images: Prevent a warning in PHP 8.1 if wp_parse_url() returns false.
+Post Images: avoid PHP warnings on sites using PHP 8.1+, when a post image has a malformed URL.
