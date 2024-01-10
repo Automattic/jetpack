@@ -16,7 +16,7 @@ import { runLocalGenerator } from '../generate-critical-css';
 import { useDataSync, useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 import { __ } from '@wordpress/i18n';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssState ) => void ] {
 	const [ { data }, { mutate } ] = useDataSync(
@@ -124,10 +124,31 @@ export function useRegenerateCriticalCssAction() {
 	} ).mutate;
 }
 
+/**
+ * Given a set of CSS Provider states, and optionally the local generator progress through the current
+ * provider, calculate the overall progress of the Critical CSS generation.
+ *
+ * @param {Provider[]} providers        - The set of CSS Providers
+ * @param {number}     providerProgress - The progress through the current provider (optional).
+ */
+export function calculateCriticalCssProgress(
+	providers: Provider[],
+	providerProgress: number = 0
+): number {
+	const count = providers.length;
+	const done = providers.filter( provider => provider.status !== 'pending' ).length;
+	const totalProgress = 100 * ( done / count + providerProgress / count );
+
+	return totalProgress;
+}
+
 export function useLocalGenerator() {
 	const [ cssState, setCssState ] = useCriticalCssState();
 	const setProviderCss = useSetProviderCss();
 	const setProviderErrors = useSetProviderErrors();
+
+	// Track minor progress within each Provider.
+	const [ providerProgress, setProviderProgress ] = useState( 0 );
 
 	useEffect( () => {
 		if ( cssState.status === 'pending' ) {
@@ -143,10 +164,14 @@ export function useLocalGenerator() {
 				setProviderErrors: async ( key: string, errors: CriticalCssErrorDetails[] ) => {
 					await setProviderErrors( { key, errors } );
 				},
+
+				setProviderProgress,
 			} );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- Only run when cssState.status changes
 	}, [ cssState.status ] );
+
+	return calculateCriticalCssProgress( cssState.providers, providerProgress );
 }
 
 /**

@@ -4,11 +4,11 @@ import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import Status from '../status/status';
 import { useState } from '@wordpress/element';
 import { ErrorSet } from '../lib/stores/critical-css-state-errors';
+import { calculateCriticalCssProgress } from '../lib/stores/critical-css-state';
 
 type CloudCssMetaProps = {
 	cssState: CriticalCssState;
 	isCloudCssAvailable: boolean;
-	criticalCssProgress: number;
 	issues: CriticalCssState[ 'providers' ];
 	isFatalError: boolean;
 	primaryErrorSet: ErrorSet;
@@ -19,7 +19,6 @@ type CloudCssMetaProps = {
 const CloudCssMeta: React.FC< CloudCssMetaProps > = ( {
 	cssState,
 	isCloudCssAvailable,
-	criticalCssProgress,
 	issues = [],
 	isFatalError,
 	primaryErrorSet,
@@ -37,6 +36,8 @@ const CloudCssMeta: React.FC< CloudCssMetaProps > = ( {
 		regenerateCriticalCss();
 	}
 
+	const progress = calculateCriticalCssProgress( cssState.providers );
+
 	return isFatalError ? (
 		<ShowStopperError
 			supportLink="https://jetpackme.wordpress.com/contact-support/"
@@ -53,7 +54,7 @@ const CloudCssMeta: React.FC< CloudCssMetaProps > = ( {
 			successCount={ successCount }
 			issues={ issues }
 			updated={ cssState.updated }
-			progress={ criticalCssProgress }
+			progress={ progress }
 			suggestRegenerate={ suggestRegenerate }
 			generateText={ __(
 				'Jetpack Boost will generate Critical CSS for you automatically.',

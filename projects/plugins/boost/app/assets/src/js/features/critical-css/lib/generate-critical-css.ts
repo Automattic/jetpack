@@ -1,6 +1,5 @@
 import { get } from 'svelte/store';
 import { criticalCssMeta } from './stores/critical-css-meta';
-import { localCriticalCSSProgress } from './stores/critical-css-state';
 import { CriticalCssErrorDetails, Provider } from './stores/critical-css-state-types';
 import { JSONObject } from '$lib/stores/data-sync-client';
 import { recordBoostEvent, TracksEventProperties } from '$lib/utils/analytics';
@@ -18,6 +17,7 @@ let generatorRunning = false;
 interface ProviderCallbacks {
 	setProviderCss: ( provider: string, css: string ) => Promise< void >;
 	setProviderErrors: ( provider: string, error: CriticalCssErrorDetails[] ) => Promise< void >;
+	setProviderProgress: ( progress: number ) => void;
 }
 
 interface GeneartorCallbacks extends ProviderCallbacks {
@@ -184,7 +184,7 @@ async function generateForKeys(
 				urls,
 				viewports,
 				progressCallback: ( step: number, total: number ) => {
-					localCriticalCSSProgress.set( step / total );
+					callbacks.setProviderProgress( step / total );
 				},
 				filters: {
 					atRules: keepAtRule,
@@ -200,8 +200,7 @@ async function generateForKeys(
 			stepsPassed++;
 
 			// Reset local progress whenever a provider is finished to prevent progress bar jank.
-			// @REACT-TODO: Reactify local progress.
-			localCriticalCSSProgress.set( 0 );
+			callbacks.setProviderProgress( 0 );
 		} catch ( err ) {
 			// Success Target Errors indicate that URLs failed, but the process itself succeeded.
 			if ( err instanceof SuccessTargetError ) {

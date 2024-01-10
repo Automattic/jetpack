@@ -15,7 +15,6 @@ import {
 
 type CriticalCssMetaProps = {
 	isCloudCssAvailable: boolean;
-	criticalCssProgress: number;
 	issues: CriticalCssState[ 'providers' ];
 	isFatalError: boolean;
 	primaryErrorSet: ErrorSet;
@@ -24,7 +23,6 @@ type CriticalCssMetaProps = {
 
 const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 	isCloudCssAvailable,
-	criticalCssProgress,
 	issues = [],
 	isFatalError,
 	primaryErrorSet,
@@ -43,7 +41,7 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 		regenerate();
 	}
 
-	useLocalGenerator();
+	const progress = useLocalGenerator();
 
 	if ( cssState.status === 'pending' ) {
 		return (
@@ -54,7 +52,7 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 						'jetpack-boost'
 					) }
 				</div>
-				<ProgressBar progress={ criticalCssProgress } />
+				<ProgressBar progress={ progress } />
 			</div>
 		);
 	} else if ( isFatalError ) {
@@ -76,7 +74,7 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 			successCount={ successCount }
 			updated={ cssState.updated }
 			issues={ issues }
-			progress={ criticalCssProgress }
+			progress={ progress }
 			suggestRegenerate={ suggestRegenerate }
 		/>
 	);
