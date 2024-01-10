@@ -523,13 +523,13 @@ EOT;
 			}
 		}
 		$display_markup = sprintf(
-			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s" aria-labelledby="%6$s">%4$s%5$s</nav>',
+			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s" %6$s>%4$s%5$s</nav>',
 			! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
 			! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
 			esc_attr( $block_attributes['layout'] ),
 			$headline_markup,
 			$rows_markup,
-			esc_attr( $headline_id )
+			empty( $headline_markup ) ? 'aria-label="' . esc_attr( __( 'Related Posts', 'jetpack' ) ) . '"' : 'aria-labelledby="' . esc_attr( $headline_id ) . '"'
 		);
 
 		/**
