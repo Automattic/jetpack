@@ -11,7 +11,7 @@ import {
 	useLocalGenerator,
 	useRegenerateCriticalCssAction,
 } from '../lib/stores/critical-css-state';
-import { getCriticalCssIssues } from '../lib/stores/critical-css-state-errors';
+import { getCriticalCssIssues } from '../lib/critical-css-errors';
 
 type CriticalCssMetaProps = {
 	isCloudCssAvailable: boolean;

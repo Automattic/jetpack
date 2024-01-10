@@ -1,6 +1,6 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { type ErrorSet } from '../lib/stores/critical-css-state-errors';
+import { type ErrorSet } from '../lib/critical-css-errors';
 import { suggestion, footerComponent } from '../lib/describe-critical-css-recommendations';
 import { type InterpolateVars } from '$lib/utils/interplate-vars-types';
 import NumberedList from '../numbered-list/numbered-list';

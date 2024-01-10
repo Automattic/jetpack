@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import ErrorNotice from '$features/error-notice/error-notice';
 import FoldingElement from '../folding-element/folding-element';
 import ErrorDescription from '../error-description/error-description';
-import { getPrimaryErrorSet } from '../lib/stores/critical-css-state-errors';
+import { getPrimaryErrorSet } from '../lib/critical-css-errors';
 import { CriticalCssState } from '../lib/stores/critical-css-state-types';
 
 type ShowStopperErrorTypes = {

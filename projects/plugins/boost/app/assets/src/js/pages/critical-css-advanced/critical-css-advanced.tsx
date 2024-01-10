@@ -3,14 +3,14 @@ import {
 	useCriticalCssState,
 	useSetProviderErrorDismissed,
 } from '$features/critical-css/lib/stores/critical-css-state';
-import { groupErrorsByFrequency } from '$features/critical-css/lib/stores/critical-css-state-errors';
-import { type Provider } from '$features/critical-css/lib/stores/critical-css-state-types';
+import { groupErrorsByFrequency } from '$features/critical-css/lib/critical-css-errors';
 import { BackButton, CloseButton } from '$features/ui';
 import CriticalCssErrorDescription from '$features/critical-css/error-description/error-description';
 import InfoIcon from '$svg/info';
 import styles from './critical-css-advanced.module.scss';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Provider } from '$features/critical-css';
 
 export default function AdvancedCriticalCss() {
 	const [ cssState ] = useCriticalCssState();

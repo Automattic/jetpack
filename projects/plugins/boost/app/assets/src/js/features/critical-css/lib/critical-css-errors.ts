@@ -5,7 +5,7 @@ import {
 	CriticalCssState,
 	Critical_CSS_Error_Type,
 	Provider,
-} from './critical-css-state-types';
+} from './stores/critical-css-state-types';
 import type { JSONObject } from '$lib/stores/data-sync-client';
 
 /**
