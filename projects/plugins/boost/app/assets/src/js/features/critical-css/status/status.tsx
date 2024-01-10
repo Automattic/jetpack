@@ -1,6 +1,6 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
-import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
+import type { CriticalCssState, Provider } from '../lib/stores/critical-css-state-types';
 import TimeAgo from '../time-ago/time-ago';
 import InfoIcon from '$svg/info';
 import RefreshIcon from '$svg/refresh';
@@ -9,12 +9,12 @@ import { Link } from 'react-router-dom';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
 
 type StatusTypes = {
-	status: CriticalCssState[ 'status' ];
+	status: string;
 	updated: CriticalCssState[ 'updated' ];
 	progress: number;
 	suggestRegenerate: boolean;
 	isCloudCssAvailable?: boolean;
-	issues?: CriticalCssState[ 'providers' ];
+	issues: Provider[];
 	successCount?: number;
 	generateText?: string;
 	generateMoreText?: string;
