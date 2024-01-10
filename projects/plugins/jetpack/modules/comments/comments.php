@@ -799,8 +799,14 @@ HTML;
 		</div>
 		<script type="text/javascript">
 			function backToComments() {
-				history.back();
-				return;
+				const test = regexp => {
+					return regexp.test(navigator.userAgent);
+				};
+				if (test(/firefox|fxios/i)) {
+					history.back();
+					return;
+				}
+				history.go(-2);
 			}
 		</script>
 
