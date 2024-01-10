@@ -109,6 +109,12 @@ function jpcrm_retrieve_template( $template_file = '', $load = true ) {
 		// do we have a valid template?
 		if ( !empty( $template_file_path ) && file_exists( $template_file_path ) ){
 
+			// Prevent file traversal attacks.
+			$allowed_template_paths = jpcrm_get_allowed_template_paths();
+			if ( ! jpcrm_is_allowed_path( $template_file_path, $allowed_template_paths ) ) {
+				return __( 'Unable to load template.', 'zero-bs-crm' );
+			}
+
 			// load or return contents
 			if ( $load ){
 
