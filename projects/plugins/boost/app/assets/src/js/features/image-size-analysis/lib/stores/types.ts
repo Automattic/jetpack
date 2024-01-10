@@ -40,7 +40,7 @@ export const IsaImage = z.object( {
 		id: z.coerce.number(),
 		url: z.string().url(),
 		title: z.string(),
-		edit_url: z.string().url().optional(),
+		edit_url: z.string().url().nullable(),
 	} ),
 	device_type: z.enum( [ 'phone', 'desktop' ] ),
 	instructions: z.string(),
