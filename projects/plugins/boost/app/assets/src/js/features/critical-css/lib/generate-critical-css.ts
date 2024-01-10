@@ -1,5 +1,3 @@
-import { get } from 'svelte/store';
-import { criticalCssMeta } from './stores/critical-css-meta';
 import { CriticalCssErrorDetails, Provider } from './stores/critical-css-state-types';
 import { recordBoostEvent, TracksEventProperties } from '$lib/utils/analytics';
 import { castToNumber } from '$lib/utils/cast-to-number';
@@ -49,10 +47,15 @@ export function isLocalGeneratorRunning() {
  * The result of generation will not be returned to the caller; it will be sent to the given
  * Critical CSS state setter instead.
  *
- * @param {Provider[]} providers - List of providers to generate for.
- * @param {Object}     callbacks - Callbacks to use during generation.
+ * @param {Provider[]} providers  - List of providers to generate for.
+ * @param {string}     proxyNonce - Nonce to use when using Proxy API endpoint for fetching external stylesheets.
+ * @param {Object}     callbacks  - Callbacks to use during generation.
  */
-export function runLocalGenerator( providers: Provider[], callbacks: GeneartorCallbacks ) {
+export function runLocalGenerator(
+	providers: Provider[],
+	proxyNonce: string,
+	callbacks: GeneartorCallbacks
+) {
 	const abort = new AbortController();
 
 	if ( generatorRunning ) {
@@ -61,7 +64,7 @@ export function runLocalGenerator( providers: Provider[], callbacks: GeneartorCa
 
 	generatorRunning = true;
 
-	generateCriticalCss( providers, callbacks, abort.signal )
+	generateCriticalCss( providers, proxyNonce, callbacks, abort.signal )
 		.catch( err => {
 			callbacks.onError( standardizeError( err ) );
 		} )
@@ -76,12 +79,14 @@ export function runLocalGenerator( providers: Provider[], callbacks: GeneartorCa
  * Generate Critical CSS for this site. Will load the Critical CSS Generator
  * library dynamically as needed.
  *
- * @param {Object[]}    providers - List of providers to generate for.
- * @param {Object}      callbacks - Callbacks to use during generation.
- * @param {AbortSignal} signal    - Used to cancel the generation process.
+ * @param {Object[]}    providers  - List of providers to generate for.
+ * @param {string}      proxyNonce - Nonce to use when using Proxy API endpoint for fetching external stylesheets.
+ * @param {Object}      callbacks  - Callbacks to use during generation.
+ * @param {AbortSignal} signal     - Used to cancel the generation process.
  */
 async function generateCriticalCss(
 	providers: Provider[],
+	proxyNonce: string,
 	callbacks: ProviderCallbacks,
 	signal: AbortSignal
 ) {
@@ -105,13 +110,11 @@ async function generateCriticalCss(
 
 		logPreCriticalCSSGeneration();
 
-		// @REACT-TODO: Remove me.
-		const { proxy_nonce } = get( criticalCssMeta );
 		if ( pendingProviders.length > 0 ) {
 			await generateForKeys(
 				pendingProviders,
 				requestGetParameters,
-				proxy_nonce!,
+				proxyNonce,
 				callbacks,
 				signal
 			);

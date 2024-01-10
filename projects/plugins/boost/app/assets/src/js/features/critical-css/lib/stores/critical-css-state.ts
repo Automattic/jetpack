@@ -174,17 +174,34 @@ export function calculateCriticalCssProgress(
 	return totalProgress;
 }
 
+export function useProxyNonce() {
+	const [ { data: meta } ] = useDataSync(
+		'jetpack_boost_ds',
+		'critical_css_meta',
+		z.object( {
+			proxy_nonce: z.string().optional(),
+		} )
+	);
+
+	if ( ! meta || ! meta.proxy_nonce ) {
+		throw new Error( 'Proxy nonce not available' );
+	}
+
+	return meta?.proxy_nonce;
+}
+
 export function useLocalGenerator() {
 	const [ cssState, setCssState ] = useCriticalCssState();
 	const setProviderCss = useSetProviderCss();
 	const setProviderErrors = useSetProviderErrors();
+	const proxyNonce = useProxyNonce();
 
 	// Track minor progress within each Provider.
 	const [ providerProgress, setProviderProgress ] = useState( 0 );
 
 	useEffect( () => {
 		if ( cssState.status === 'pending' ) {
-			return runLocalGenerator( cssState.providers, {
+			return runLocalGenerator( cssState.providers, proxyNonce, {
 				onError: ( error: Error ) => {
 					setCssState( errorState( error.message ) );
 				},
