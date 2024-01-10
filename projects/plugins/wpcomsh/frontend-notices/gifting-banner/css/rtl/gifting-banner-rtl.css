@@ -1,4 +1,4 @@
-/* This file was automatically generated on Nov 16 2022 20:29:39 */
+/* This file was automatically generated on Dec 23 2022 01:06:01 */
 
 /* NOTICE! This file exists in WPCOM & WPCOMSH. Updates need to be synced to both repos. */
 
@@ -69,7 +69,6 @@
 	font-size: 16px;
 	line-height: 20px;
 	height: 32px;
-	margin-left: 12px;
 	margin-right: 12px;
 	padding: 6px 24px 6px 24px;
 }
@@ -89,7 +88,7 @@
 }
 
 .wpcom-gifting-banner__more-info-button:before {
-	background: url(../images/gridicons-help-outline.svg) no-repeat center;
+	background: url(../../images/gridicons-help-outline.svg) no-repeat center;
 	content: '';
 	height: 16px;
 	width: 16px;
