@@ -12,6 +12,7 @@ const ALLOWED_BLOCKS = [
 ];
 
 function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
+	// Placing this in a useMemo to support `useEffect` hook below.
 	const planIds = useMemo( () => {
 		return context[ 'premium-content/planIds' ] || [];
 	}, [ context ] );

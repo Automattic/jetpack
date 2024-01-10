@@ -19,6 +19,7 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 
 	// planId is a integer, planIds is an array.
 	// if planIds is set, use it, otherwise use planId. Going forward we should only use planIds.
+	// This is placed in useMemo to support the useCallback and useEffect hooks below.
 	const _planIds = useMemo( () => {
 		return planIds || ( planId ? [ planId ] : [] );
 	}, [ planId, planIds ] );
