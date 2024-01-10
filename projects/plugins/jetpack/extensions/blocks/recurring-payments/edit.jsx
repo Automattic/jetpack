@@ -17,12 +17,11 @@ const BLOCK_NAME = 'recurring-payments';
 export default function Edit( { attributes, clientId, setAttributes } ) {
 	const { align, planId, planIds, width } = attributes;
 
+	// planId is a integer, planIds is an array.
+	// if planIds is set, use it, otherwise use planId. Going forward we should only use planIds.
 	const _planIds = useMemo( () => {
 		return planIds || ( planId ? [ planId ] : [] );
 	}, [ planId, planIds ] );
-
-	// planId is a integer, planIds is a plus-separated string of integers.
-	// if planIds is set, use it, otherwise use planId. Going forward we should only use planIds.
 
 	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );

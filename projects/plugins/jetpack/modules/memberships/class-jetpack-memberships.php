@@ -365,8 +365,12 @@ class Jetpack_Memberships {
 
 		// This is string of '+` separated plan ids. Loop through them and
 		// filter out the ones that are not valid.
-		// phpcs:ignore Universal.Operators.DisallowShortTernary.Found
-		$plan_ids    = $attributes['planIds'] ?: explode( '+', $attributes['planId'] );
+		$plan_ids = array();
+		if ( ! empty( $attributes['planIds'] ) ) {
+			$plan_ids = $attributes['planIds'];
+		} elseif ( ! empty( $attributes['planId'] ) ) {
+			$plan_ids = explode( '+', $attributes['planId'] );
+		}
 		$valid_plans = array();
 		foreach ( $plan_ids as $plan_id ) {
 			if ( ! is_numeric( $plan_id ) ) {
