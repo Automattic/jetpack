@@ -1,6 +1,6 @@
 import { QRCode } from '@automattic/jetpack-components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf, _n } from '@wordpress/i18n';
 import { JetpackAppIcon } from '../../icons';
 import useInterval from '../../use-interval';
 import MediaBrowser from '../media-browser';
@@ -30,6 +30,7 @@ function JetpackAppMedia( props ) {
 		[ insertMedia ]
 	);
 	if ( media.length === 1 && ! multiple ) {
+		// replace the media right away if there's only one item and we're not in multiple mode.
 		onCopy( media );
 	}
 
@@ -38,19 +39,35 @@ function JetpackAppMedia( props ) {
 	useInterval( getNextPagePull, 2000 );
 
 	const hasImageUploaded = !! media.length;
+	const wrapperClassname = hasImageUploaded
+		? 'jetpack-external-media-wrapper__jetpack_app_media-wrapper'
+		: 'jetpack-external-media-wrapper__jetpack_app_media-wrapper has-no-image-uploaded';
+
+	const selectButtonText = selectedImages => {
+		return selectedImages
+			? sprintf(
+					/* translators: %1$d is the number of images that were selected. */
+					_n( 'Add %1$d image', 'Add %1$d images', selectedImages, 'jetpack' ),
+					selectedImages
+			  )
+			: __( 'Add images', 'jetpack' );
+	};
 	return (
-		<div className="jetpack-external-media-wrapper__jetpack_app_media">
+		<div className={ wrapperClassname }>
 			<JetpackAppIcon />
 			<h2 className="jetpack-external-media-wrapper__jetpack_app_media-title">
-				{ hasImageUploaded && __( 'Photos uploaded!', 'jetpack' ) }
-				{ ! hasImageUploaded && __( 'Upload straight from your phone.', 'jetpack' ) }
+				{ hasImageUploaded && __( 'Select images to be added', 'jetpack' ) }
+				{ ! hasImageUploaded && __( 'Upload from your phone', 'jetpack' ) }
 			</h2>
 			<p className="jetpack-external-media-wrapper__jetpack_app_media-description">
 				{ hasImageUploaded &&
-					__( 'You can continue selecting images from your device.', 'jetpack' ) }
+					__(
+						'Select the images below to add, or continue adding more from your device.',
+						'jetpack'
+					) }
 				{ ! hasImageUploaded &&
 					__(
-						'Scan the QR code with your iPhone or Android camera to upload straight from your photos.',
+						'Scan the QR code with your iPhone or Android camera to upload from your photos.',
 						'jetpack'
 					) }
 			</p>
@@ -58,7 +75,7 @@ function JetpackAppMedia( props ) {
 				<div className="jetpack-external-media-wrapper__jetpack_app_media-qr-code-wrapper">
 					<div className="jetpack-external-media-wrapper__jetpack_app_media-qr-code">
 						<QRCode
-							size="120"
+							size="100"
 							value={ `https://apps.wordpress.com/get/?campaign=qr-code-media#%2Fmedia%2F${ wpcomBlogId }` }
 						/>
 					</div>
@@ -73,17 +90,20 @@ function JetpackAppMedia( props ) {
 					</div>
 				</div>
 			) }
-			<MediaBrowser
-				key={ 'jetpack-app-media' }
-				className="jetpack-external-media-browser__jetpack_app_media_browser"
-				media={ media }
-				isCopying={ isCopying }
-				isLoading={ false }
-				nextPage={ getNextPage }
-				onCopy={ onCopy }
-				pageHandle={ false }
-				multiple={ multiple }
-			/>
+			{ hasImageUploaded && (
+				<MediaBrowser
+					key={ 'jetpack-app-media' }
+					className="jetpack-external-media-browser__jetpack_app_media_browser"
+					media={ media }
+					isCopying={ isCopying }
+					isLoading={ false }
+					nextPage={ getNextPage }
+					onCopy={ onCopy }
+					pageHandle={ false }
+					multiple={ multiple }
+					selectButtonText={ selectButtonText }
+				/>
+			) }
 		</div>
 	);
 }
