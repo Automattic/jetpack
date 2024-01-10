@@ -23,6 +23,13 @@ warning () {
 	printf "\n${YELLOW_BOLD}$1${COLOR_RESET}\n"
 }
 
+SCRIPT_DIR=$(dirname "$(realpath "$0")" || true)
+PACKAGE_JSON="$SCRIPT_DIR/../package.json"
+CURRENT_VERSION=$(grep '"version":' "$PACKAGE_JSON" | awk -F '"' '{print $4}' || true)
+if [ -n "$CURRENT_VERSION" ]; then
+    status "Current version is $CURRENT_VERSION"
+fi
+
 status "Update version"
 
 echo "Enter the version number to update to, for example 1.0.0: "
