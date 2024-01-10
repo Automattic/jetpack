@@ -50,6 +50,9 @@
 		"planId": {
 			"type": "integer"
 		},
+		"planIds": {
+			"type": "string"
+		},
 		"align": {
 			"type": "string"
 		},

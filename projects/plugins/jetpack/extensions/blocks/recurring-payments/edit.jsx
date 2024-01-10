@@ -15,17 +15,41 @@ import { getBlockStyles } from './util';
 const BLOCK_NAME = 'recurring-payments';
 
 export default function Edit( { attributes, clientId, setAttributes } ) {
-	const { align, planId, width } = attributes;
-	const planIds = useMemo( () => {
-		const _planIds = ( '' + planId ).split( '+' ).map( id => parseInt( id, 10 ) );
-		return _planIds;
-	}, [ planId ] );
+	const { align, planId, planIds, width } = attributes;
+
+	const _planIds = useMemo( () => {
+		return planIds || ( planId ? [ planId ] : [] );
+	}, [ planId, planIds ] );
+
+	// planId is a integer, planIds is a plus-separated string of integers.
+	// if planIds is set, use it, otherwise use planId. Going forward we should only use planIds.
+
 	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
 
 	const updateSubscriptionPlans = useCallback(
 		newPlanIds => {
-			const newPlanId = newPlanIds !== planIds ? newPlanIds.join( '+' ) : planId;
+			// console.log( 'updateSubscriptionPlans', planIds, newPlanIds );
+
+			// verify _planIds is a non-empty array.
+			if ( ! Array.isArray( newPlanIds ) || 0 === newPlanIds.length ) {
+				return;
+			}
+			// ensure/convert all elements to integers.
+			const validatedPlanIds = newPlanIds
+				.map( id => parseInt( id, 10 ) )
+				.filter( id => ! isNaN( id ) );
+
+			// if all the elements match the existing planIds, do nothing.
+			if (
+				Array.isArray( planIds ) &&
+				validatedPlanIds.length === planIds.length &&
+				validatedPlanIds.every( i => planIds.includes( i ) )
+			) {
+				return;
+			}
+
+			const newPlanId = validatedPlanIds.join( '+' );
 			const resolvePaymentUrl = paymentPlanId => {
 				if ( POST_EDITOR !== editorType || ! postLink ) {
 					return '#';
@@ -37,17 +61,18 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 			};
 
 			setAttributes( {
-				planId: newPlanId,
+				planId: null,
+				planIds: validatedPlanIds,
 				url: resolvePaymentUrl( newPlanId ),
 				uniqueId: `recurring-payments-${ newPlanId }`,
 			} );
 		},
-		[ editorType, planId, planIds, postLink, setAttributes ]
+		[ editorType, planIds, postLink, setAttributes ]
 	);
 
 	useEffect( () => {
-		updateSubscriptionPlans( planIds );
-	}, [ planIds, updateSubscriptionPlans ] );
+		updateSubscriptionPlans( _planIds );
+	}, [ _planIds, updateSubscriptionPlans ] );
 
 	/**
 	 * Filters the editor settings of the Payment Button block (`jetpack/recurring-payments`).
@@ -95,7 +120,7 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 				<ProductManagementControls
 					blockName={ BLOCK_NAME }
 					clientId={ clientId }
-					selectedProductIds={ planIds }
+					selectedProductIds={ _planIds }
 					setSelectedProductIds={ updateSubscriptionPlans }
 				/>
 			) }
