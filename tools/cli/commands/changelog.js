@@ -289,6 +289,12 @@ async function getProjectChangeTypes( needChangelog ) {
  * @param {argv} argv - the arguments passed.
  */
 async function changelogAdd( argv ) {
+	// If we already have all the information we need for a potentially-successful changelogger run, skip the prompts and just do it.
+	if ( argv.project && argv.s && argv.t && argv.e ) {
+		await changelogArgs( argv );
+		return;
+	}
+
 	let needChangelog;
 	const defaultProjects = [];
 	const uniqueProjects = [];
