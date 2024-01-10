@@ -598,6 +598,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( "Update your site's design", 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_front_page_updated_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				$page_on_front = get_option( 'page_on_front', false );
 				if ( $page_on_front ) {
@@ -1716,6 +1717,22 @@ function wpcom_launchpad_is_add_about_page_visible() {
 }
 
 /**
+ * Determine `front_page_updated` task visibility.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_launchpad_is_front_page_updated_visible() {
+	$show_on_front = get_option( 'show_on_front' );
+	$blog_on_front = $show_on_front === 'posts' || ( $show_on_front === 'page' && get_option( 'page_on_front' ) === '0' );
+
+	if ( $blog_on_front && ! wp_is_block_theme() ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Determine `site_title` task visibility. The task is not visible if the name was already set.
  *
  * @return bool True if we should show the task, false otherwise.
@@ -1773,6 +1790,58 @@ function wpcom_launchpad_add_about_page_check( $post_id, $post ) {
 	wpcom_mark_launchpad_task_complete( 'add_about_page' );
 }
 add_action( 'wp_insert_post', 'wpcom_launchpad_add_about_page_check', 10, 3 );
+
+/**
+ * Completion hook for the `front_page_updated` task.
+ *
+ * @param int    $post_id The post ID.
+ * @param object $post    The post object.
+ * @return void
+ */
+function wpcom_launchpad_front_page_updated_check( $post_id, $post ) {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// We only care about pages, ignore other post types.
+	if ( $post->post_type !== 'page' ) {
+		return;
+	}
+
+	// Don't do anything if the task is already complete.
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'front_page_updated' ) ) ) {
+		return;
+	}
+
+	// We only complete the task if the page is the front page.
+	$front_page_id = (int) get_option( 'page_on_front' );
+	if ( $post_id !== $front_page_id ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'front_page_updated' );
+}
+add_action( 'wp_insert_post', 'wpcom_launchpad_front_page_updated_check', 10, 3 );
+
+/**
+ * We also need to complete the `front_page_updated` task when the front page option is updated.
+ *
+ * @return void
+ */
+function wpcom_launchpad_front_page_updated_option_check() {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// Don't do anything if the task is already complete.
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'front_page_updated' ) ) ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'front_page_updated' );
+}
+add_action( 'update_option_page_on_front', 'wpcom_launchpad_front_page_updated_option_check', 10, 3 );
+add_action( 'add_option_page_on_front', 'wpcom_launchpad_front_page_updated_option_check', 10, 3 );
 
 /**
  * Determine `update_about_page` task visibility. The task is visible if there is an 'About' page on the site.
