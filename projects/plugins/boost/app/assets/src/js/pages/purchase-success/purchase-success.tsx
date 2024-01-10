@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { requestImageAnalysis } from '$features/image-size-analysis/lib/stores/isa-summary';
+import { useImageAnalysisRequest } from '$features/image-size-analysis';
 import Logo from '$svg/jetpack-green';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,7 @@ const PurchaseSuccess: React.FC = () => {
 	const [ imageGuideState ] = useSingleModuleState( 'image_guide' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const navigate = useNavigate();
+	const { requestNewReport } = useImageAnalysisRequest();
 
 	useEffect( () => {
 		setCloudCssState( true );
@@ -22,9 +23,9 @@ const PurchaseSuccess: React.FC = () => {
 			isaState?.active &&
 			false !== Jetpack_Boost.site.canResizeImages
 		) {
-			requestImageAnalysis();
+			requestNewReport();
 		}
-	}, [ imageGuideState?.active, isaState?.active, setCloudCssState ] );
+	}, [ imageGuideState?.active, isaState?.active, setCloudCssState, requestNewReport ] );
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
 

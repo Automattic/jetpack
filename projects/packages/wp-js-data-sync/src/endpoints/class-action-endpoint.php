@@ -31,8 +31,12 @@ class Action_Endpoint {
 	private $nonce;
 
 	/**
+	 * This class handles endpoints for DataSync actions.
+	 *
+	 *
 	 * @param $namespace
-	 * @param $route
+	 * @param $key
+	 * @param $action_name
 	 * @param $action_class
 	 */
 	public function __construct( $namespace, $key, $action_name, $action_class ) {
@@ -69,9 +73,12 @@ class Action_Endpoint {
 					'JSON'   => $result,
 				)
 			);
-		} catch ( \Error $e ) {
+		} catch ( \RuntimeException $e ) {
 			return rest_ensure_response(
-				new \WP_Error( 500, $e->getMessage(), array( 'status' => 500 ) )
+				array(
+					'status'  => 'error',
+					'message' => $e->getMessage(),
+				)
 			);
 		}
 	}
