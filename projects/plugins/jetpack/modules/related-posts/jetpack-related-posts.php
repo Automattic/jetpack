@@ -439,7 +439,7 @@ EOT;
 
 		return sprintf(
 			// role="list" is required for accessibility as VoiceOver ignores unstyled lists.
-			'<ul class="jp-related-posts-i2__row" role="list" data-post-count="%1$s">%2$s</ul>',
+			'<ul class="jp-related-posts-i2__list" role="list" data-post-count="%1$s">%2$s</ul>',
 			count( $posts ),
 			$markup
 		);
