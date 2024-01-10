@@ -38,28 +38,10 @@ const useOnboarding = () => {
 		}
 	};
 
-	const createPopoverArgs = ( {
-		title,
-		buttonContent,
-		anchor,
-		onClick,
-		position,
-		step,
-		totalSteps,
-		children,
-	} ) => ( {
-		title,
-		buttonContent,
-		anchor,
+	const defaultPopoverArgs = {
 		onClose: closeOnboarding,
-		onClick,
 		noArrow: false,
-		position,
-		offset: 15,
-		step,
-		totalSteps,
-		children,
-	} );
+	};
 
 	const getCurrentPopoverArgs = onboardingStepHandlers => {
 		const handler = onboardingStepHandlers[ onboardingStep ];
@@ -72,7 +54,7 @@ const useOnboarding = () => {
 		closeOnboarding,
 		dismissOnboarding,
 		resetOnboardingOnAnchorRegeneration,
-		createPopoverArgs,
+		defaultPopoverArgs,
 		getCurrentPopoverArgs,
 	};
 };

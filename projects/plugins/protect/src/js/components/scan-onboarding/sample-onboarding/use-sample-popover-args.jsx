@@ -4,11 +4,12 @@ import useOnboarding from '../../../hooks/use-onboarding';
 
 const useSamplePopoverArgs = ( { anchors, totalSteps } ) => {
 	// Retrieve onboarding methods
-	const { incrementOnboardingStep, dismissOnboarding, createPopoverArgs } = useOnboarding();
+	const { incrementOnboardingStep, dismissOnboarding, defaultPopoverArgs } = useOnboarding();
 
 	// Return args for each popover
 	return {
-		stepOne: createPopoverArgs( {
+		stepOne: {
+			...defaultPopoverArgs,
 			title: __( 'Step 1', 'jetpack-protect' ),
 			buttonContent: __( 'Next', 'jetpack-protect' ),
 			anchor: anchors.stepOne,
@@ -24,9 +25,10 @@ const useSamplePopoverArgs = ( { anchors, totalSteps } ) => {
 					) }
 				</Text>
 			),
-		} ),
+		},
 
-		stepTwo: createPopoverArgs( {
+		stepTwo: {
+			...defaultPopoverArgs,
 			title: __( 'Step 2', 'jetpack-protect' ),
 			buttonContent: __( 'Next', 'jetpack-protect' ),
 			anchor: anchors.stepTwo,
@@ -42,9 +44,10 @@ const useSamplePopoverArgs = ( { anchors, totalSteps } ) => {
 					) }
 				</Text>
 			),
-		} ),
+		},
 
-		stepThree: createPopoverArgs( {
+		stepThree: {
+			...defaultPopoverArgs,
 			title: __( 'Step 3', 'jetpack-protect' ),
 			buttonContent: __( 'Next', 'jetpack-protect' ),
 			anchor: anchors.stepThree,
@@ -60,9 +63,10 @@ const useSamplePopoverArgs = ( { anchors, totalSteps } ) => {
 					) }
 				</Text>
 			),
-		} ),
+		},
 
-		stepFour: createPopoverArgs( {
+		stepFour: {
+			...defaultPopoverArgs,
 			title: __( 'Step 4', 'jetpack-protect' ),
 			buttonContent: __( 'Next', 'jetpack-protect' ),
 			anchor: anchors.StepFour,
@@ -71,9 +75,10 @@ const useSamplePopoverArgs = ( { anchors, totalSteps } ) => {
 			step: 4,
 			totalSteps: totalSteps,
 			children: <Text>{ __( 'This is step four. Next to continue.', 'jetpack-protect' ) }</Text>,
-		} ),
+		},
 
-		stepFive: createPopoverArgs( {
+		stepFive: {
+			...defaultPopoverArgs,
 			title: __( 'Step 5', 'jetpack-protect' ),
 			buttonContent: __( 'Finish', 'jetpack-protect' ),
 			anchor: anchors.stepFive,
@@ -84,7 +89,7 @@ const useSamplePopoverArgs = ( { anchors, totalSteps } ) => {
 			children: (
 				<Text>{ __( 'Final step. Click the button below to Finish.', 'jetpack-protect' ) }</Text>
 			),
-		} ),
+		},
 	};
 };
 
