@@ -1,8 +1,7 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useState, useEffect } from 'react';
 import {
-	replaceCssState,
-	updateProvider,
+	useCriticalCssState,
+	useSetProviderErrorDismissed,
 } from '$features/critical-css/lib/stores/critical-css-state';
 import { groupErrorsByFrequency } from '$features/critical-css/lib/stores/critical-css-state-errors';
 import { type Provider } from '$features/critical-css/lib/stores/critical-css-state-types';
@@ -11,13 +10,13 @@ import CriticalCssErrorDescription from '$features/critical-css/error-descriptio
 import InfoIcon from '$svg/info';
 import styles from './critical-css-advanced.module.scss';
 
-type PropTypes = {
-	issues: Provider[];
-};
+export default function AdvancedCriticalCss() {
+	const [ cssState ] = useCriticalCssState();
+	const setDismissed = useSetProviderErrorDismissed();
 
-const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
-	const [ dismissedIssues, setDismissedIssues ] = useState( [] );
-	const [ activeIssues, setActiveIssues ] = useState( [] );
+	const issues = cssState.providers.filter( p => p.status === 'error' );
+	const activeIssues = issues.filter( issue => issue.error_status !== 'dismissed' );
+	const dismissedIssues = issues.filter( issue => issue.error_status === 'dismissed' );
 
 	const heading =
 		activeIssues.length === 0
@@ -28,22 +27,8 @@ const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
 			  );
 
 	const showDismissedIssues = () => {
-		replaceCssState( {
-			providers: issues.map( issue => {
-				issue.error_status = 'active';
-				return issue;
-			} ),
-		} );
+		dismissedIssues.forEach( issue => setDismissed( { key: issue.key, dismissed: false } ) );
 	};
-
-	const dismissProvider = ( { key }: Provider ) => {
-		updateProvider( key, { error_status: 'dismissed' } );
-	};
-
-	useEffect( () => {
-		setDismissedIssues( issues.filter( issue => issue.error_status === 'dismissed' ) );
-		setActiveIssues( issues.filter( issue => issue.error_status !== 'dismissed' ) );
-	}, [ issues ] );
 
 	return (
 		<div className="jb-container--narrow jb-critical-css__advanced">
@@ -75,7 +60,7 @@ const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
 			{ activeIssues.map( ( provider: Provider ) => (
 				// Add transition:slide|local to the div below
 				<div className="panel" key={ provider.key }>
-					<CloseButton onClick={ () => dismissProvider( provider ) } />
+					<CloseButton onClick={ () => setDismissed( { key: provider.key, dismissed: true } ) } />
 
 					<h4>
 						<InfoIcon />
@@ -89,6 +74,4 @@ const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
 			) ) }
 		</div>
 	);
-};
-
-export default AdvancedCriticalCss;
+}

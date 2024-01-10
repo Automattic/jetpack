@@ -74,6 +74,34 @@ export function useSetProviderCss() {
 	} ).mutateAsync;
 }
 
+export function useSetProviderErrorDismissed() {
+	return useDataSyncAction( {
+		namespace: 'jetpack_boost_ds',
+		key: 'critical_css_state',
+		action_name: 'set-provider-error-dismissed',
+		schema: {
+			state: CriticalCssStateSchema,
+			action_request: z.object( {
+				key: z.string(),
+				dismissed: z.boolean(),
+			} ),
+			action_response: z.object( {
+				success: z.boolean(),
+				state: CriticalCssStateSchema,
+			} ),
+		},
+		callbacks: {
+			onResult: ( result, _state ): CriticalCssState => {
+				if ( result.success ) {
+					return result.state;
+				}
+
+				return errorState( __( 'Critical CSS state update failed', 'jetpack-boost' ) );
+			},
+		},
+	} ).mutateAsync;
+}
+
 export function useSetProviderErrors() {
 	return useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
@@ -310,22 +338,3 @@ export function storeGenerateError( error: Error ): void {
 		status_error: error,
 	} );
 }
-
-export function updateProvider( providerKey: string, data: Partial< Provider > ): void {
-	return cssStateStore.update( $state => {
-		const providerIndex = $state.providers.findIndex( provider => provider.key === providerKey );
-
-		$state.providers[ providerIndex ] = {
-			...$state.providers[ providerIndex ],
-			...data,
-		};
-
-		return $state;
-	} );
-}
-
-export const refreshCriticalCssState = async () => {
-	const state = await stateClient.endpoint.GET();
-	cssStateStore.override( state );
-	return state;
-};

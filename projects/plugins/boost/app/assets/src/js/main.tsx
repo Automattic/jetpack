@@ -63,7 +63,7 @@ const useBoostRouter = ( { criticalCss }: MainProps ) => {
 			element: (
 				<SettingsPage>
 					<Tracks>
-						<AdvancedCriticalCss issues={ criticalCss.issues } />
+						<AdvancedCriticalCss />
 					</Tracks>
 				</SettingsPage>
 			),
