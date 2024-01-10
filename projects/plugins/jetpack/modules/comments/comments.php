@@ -775,7 +775,7 @@ HTML;
 					font-weight: normal;
 				}
 
-				h1 {
+				h3 {
 					text-align: center;
 					margin: 0;
 					padding: 3% 0;
@@ -790,11 +790,11 @@ HTML;
 		</head>
 		<body>
 		<div>
-			<h1>
+			<h3>
 				<?php
 					esc_html_e( 'Duplicate comment detected; it looks as though you’ve already said that!', 'jetpack' );
 				?>
-			</h1>
+			</h3>
 			<a href="javascript:backToComments()"><?php esc_html_e( '&laquo; Back', 'jetpack' ); ?></a>
 		</div>
 		<script type="text/javascript">
@@ -861,7 +861,7 @@ HTML;
 					color: #333;
 				}
 
-				h1 {
+				h3 {
 					text-align: center;
 					margin: 0;
 					padding: 0;
@@ -875,7 +875,7 @@ HTML;
 					opacity: 0;
 				}
 
-				h1 span {
+				h3 span {
 					-moz-transition-property: opacity;
 					-moz-transition-duration: 1s;
 					-moz-transition-timing-function: ease-in-out;
@@ -900,7 +900,7 @@ HTML;
 		</head>
 		<body>
 		<?php if ( ! $should_show_subscription_modal ) { ?>
-		<h1>
+		<h3>
 			<?php
 				wp_kses_post(
 					printf(
@@ -910,7 +910,7 @@ HTML;
 					)
 				);
 			?>
-		</h1>
+		</h3>
 		<script type="text/javascript">
 			try {
 				window.parent.location = <?php echo wp_json_encode( $url ); ?>;
@@ -928,13 +928,13 @@ HTML;
 			setInterval(toggleEllipsis, 1200);
 		</script>
 		<?php } else { ?>
-		<h1>
+		<h3>
 			<?php
 				wp_kses_post(
 					print __( 'Comment sent', 'jetpack' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
 			?>
-		</h1>
+		</h3>
 		<script type="text/javascript">
 			if ( window.parent && window.parent !== window ) {
 
