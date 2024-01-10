@@ -17,16 +17,16 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Yes, comment is needed here.
 	 */
-	public function setUp(): void { //phpcs:ignore
-		parent::setUp();
+	public function set_up() { //phpcs:ignore
+		parent::set_up();
 		add_filter( 'wp_die_handler', array( $this, 'wp_die_handler_filter' ) );
 	}
 
 	/**
 	 * Yes, comment is needed here.
 	 */
-	public function tearDown(): void { //phpcs:ignore
-		parent::tearDown();
+	public function tear_down() { //phpcs:ignore
+		parent::tear_down();
 		delete_option( Crawler_Control::OPTION_NAME );
 		remove_filter( 'wp_die_handler', array( $this, 'wp_die_handler_filter' ) );
 	}
