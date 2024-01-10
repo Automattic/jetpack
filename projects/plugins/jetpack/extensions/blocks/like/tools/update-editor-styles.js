@@ -59,7 +59,7 @@ function processCSS( css ) {
 	const dateAndTime = now.toISOString();
 
 	// Combine and format with a comment
-	const finalCSS = `${ customRule.trim() }\n\n/* Fetched below from ${ url } at ${ dateAndTime } */\n${ processedCSS }\n\n${ customRule2.trim() }\n`;
+	const finalCSS = `${ customRule.trim() }\n\n/* Fetched below from ${ url } at ${ dateAndTime } */\n${ processedCSS }\n${ customRule2.trim() }\n`;
 
 	// Path for the output file in the same directory as the script
 	const outputPath = path.join( __dirname, '..', 'editor.scss' );
