@@ -121,6 +121,22 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * What it says
 	 */
+	public function test_crawler_sets_special_header_for_bingbot() {
+		$cc = $this->get_crawler_control( 'bingbot', true );
+		$cc->expects( $this->exactly( 2 ) )
+		->method( 'header' )
+		->willReturnOnConsecutiveCalls(
+			$this->equalTo( 'X-Robots-Tag: nocache' ),
+			$this->equalTo( Crawler_Control::X_TERMS )
+		);
+
+		$this->expectException( CrawlerControlDieException::class );
+		$cc->exit_for_bots_unless_permitted();
+	}
+
+	/**
+	 * What it says
+	 */
 	public function test_crawler_enables_chrome() {
 		$this->expectNotToPerformAssertions();
 		$cc = $this->get_crawler_control( 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', true );

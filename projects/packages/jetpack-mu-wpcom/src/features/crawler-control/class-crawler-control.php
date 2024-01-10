@@ -26,6 +26,7 @@ class Crawler_Control {
 		'omgili',
 		'omgilibot',
 		'Amazonbot',
+		'bingbot',
 	);
 
 	/**
