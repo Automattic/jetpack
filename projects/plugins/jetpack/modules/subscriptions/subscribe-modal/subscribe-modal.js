@@ -19,7 +19,8 @@ domReady( function () {
 
 		isScrolling = setTimeout( function () {
 			if ( ! hasLoaded && ! hasModalDismissedCookie ) {
-				modal.classList.toggle( 'open' );
+				modal.classList.add( 'open' );
+				document.body.classList.add( 'jetpack-subscribe-modal-open' );
 				hasLoaded = true;
 			}
 		}, 300 );
@@ -28,17 +29,21 @@ domReady( function () {
 	// User can edit modal, and could remove close link.
 	if ( close ) {
 		close.onclick = function () {
-			modal.classList.toggle( 'open' );
-			setModalDismissedCookie();
+			closeModal();
 		};
 	}
 
 	window.onclick = function ( event ) {
 		if ( event.target === modal ) {
-			modal.style.display = 'none';
-			setModalDismissedCookie();
+			closeModal();
 		}
 	};
+
+	function closeModal() {
+		modal.classList.remove( 'open' );
+		document.body.classList.remove( 'jetpack-subscribe-modal-open' );
+		setModalDismissedCookie();
+	}
 
 	function setModalDismissedCookie() {
 		// Expires in 1 day
