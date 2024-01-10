@@ -28,9 +28,7 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 
 	const updateSubscriptionPlans = useCallback(
 		newPlanIds => {
-			// console.log( 'updateSubscriptionPlans', planIds, newPlanIds );
-
-			// verify _planIds is a non-empty array.
+			// verify newPlanIds is a non-empty array.
 			if ( ! Array.isArray( newPlanIds ) || 0 === newPlanIds.length ) {
 				return;
 			}
@@ -41,9 +39,9 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 
 			// if all the elements match the existing planIds, do nothing.
 			if (
-				Array.isArray( planIds ) &&
-				validatedPlanIds.length === planIds.length &&
-				validatedPlanIds.every( i => planIds.includes( i ) )
+				Array.isArray( _planIds ) &&
+				validatedPlanIds.length === _planIds.length &&
+				validatedPlanIds.every( i => _planIds.includes( i ) )
 			) {
 				return;
 			}
@@ -66,7 +64,7 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 				uniqueId: `recurring-payments-${ newPlanId }`,
 			} );
 		},
-		[ editorType, planIds, postLink, setAttributes ]
+		[ editorType, _planIds, postLink, setAttributes ]
 	);
 
 	useEffect( () => {

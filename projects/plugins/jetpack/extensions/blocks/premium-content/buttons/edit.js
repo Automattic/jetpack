@@ -55,7 +55,7 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 	// Keep in sync the plan selected on the Premium Content block with the plan selected on the Recurring Payments
 	// inner block acting as a subscribe button.
 	useEffect( () => {
-		if ( ! planIds || ! subscribeButton ) {
+		if ( ! planIds || planIds.length === 0 || ! subscribeButton ) {
 			return;
 		}
 
@@ -126,7 +126,7 @@ export default compose( [
 		/**
 		 * Updates the plans on the Recurring Payments block acting as a subscribe button.
 		 *
-		 * @param {number} planIds - Plan IDs.
+		 * @param {Array} planIds - Plan IDs.
 		 */
 		setSubscribeButtonPlan( planIds ) {
 			dispatch( 'core/block-editor' ).updateBlockAttributes( props.subscribeButton.clientId, {
