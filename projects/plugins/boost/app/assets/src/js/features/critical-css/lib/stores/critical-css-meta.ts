@@ -3,7 +3,6 @@ import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
 
 const CriticalCssMetaSchema = z
 	.object( {
-		callback_passthrough: z.record( z.unknown() ).optional(),
 		proxy_nonce: z.coerce.string().optional(),
 		viewports: z
 			.array(
@@ -16,7 +15,6 @@ const CriticalCssMetaSchema = z
 			.optional(),
 	} )
 	.catch( {
-		callback_passthrough: {},
 		viewports: [],
 	} );
 

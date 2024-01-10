@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
-use Automattic\Jetpack_Boost\Lib\Nonce;
 
 class Generator {
 
@@ -54,11 +53,6 @@ class Generator {
 
 		// Add a user-bound nonce to use when proxying CSS for Critical CSS generation.
 		$status['proxy_nonce'] = wp_create_nonce( CSS_Proxy::NONCE_ACTION );
-
-		// Add a passthrough block to include in all response callbacks.
-		$status['callback_passthrough'] = array(
-			'_nonce' => Nonce::create( self::CSS_CALLBACK_ACTION ),
-		);
 
 		return $status;
 	}

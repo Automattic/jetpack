@@ -1,7 +1,6 @@
 import { get } from 'svelte/store';
 import { criticalCssMeta } from './stores/critical-css-meta';
 import { CriticalCssErrorDetails, Provider } from './stores/critical-css-state-types';
-import { JSONObject } from '$lib/stores/data-sync-client';
 import { recordBoostEvent, TracksEventProperties } from '$lib/utils/analytics';
 import { castToNumber } from '$lib/utils/cast-to-number';
 import { logPreCriticalCSSGeneration } from '$lib/utils/console';
@@ -90,13 +89,12 @@ async function generateCriticalCss(
 		logPreCriticalCSSGeneration();
 
 		// @REACT-TODO: Remove me.
-		const { viewports, callback_passthrough, proxy_nonce } = get( criticalCssMeta );
+		const { viewports, proxy_nonce } = get( criticalCssMeta );
 		if ( pendingProviders.length > 0 ) {
 			await generateForKeys(
 				pendingProviders,
 				requestGetParameters,
 				viewports as Viewport[],
-				callback_passthrough as JSONObject,
 				proxy_nonce!,
 				callbacks,
 				signal
@@ -157,7 +155,6 @@ function isSuccessTargetError( err: unknown ): err is SuccessTargetError {
  * @param {Object}      providers            - Set of URLs to use for each provider key
  * @param {Object}      requestGetParameters - GET parameters to include with each request.
  * @param {Viewport[]}  viewports            - Viewports to generate with.
- * @param {JSONObject}  passthrough          - JSON data to include in callbacks to API.
  * @param {string}      proxyNonce           - Nonce to use when proxying CSS requests.
  * @param {Object}      callbacks            - Callbacks to use during generation.
  * @param {AbortSignal} signal               - Used to cancel the generation process.
@@ -166,7 +163,6 @@ async function generateForKeys(
 	providers: Provider[],
 	requestGetParameters: { [ key: string ]: string },
 	viewports: Viewport[],
-	passthrough: JSONObject, // @REACT-TODO: remove me.
 	proxyNonce: string,
 	callbacks: ProviderCallbacks,
 	signal: AbortSignal

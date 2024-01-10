@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
-import { get } from 'svelte/store';
 import { CriticalCssErrorDetailsSchema, CriticalCssStateSchema } from './critical-css-state-types';
-import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
 import type {
 	CriticalCssErrorDetails,
 	CriticalCssState,
@@ -209,30 +207,3 @@ export function useLocalGenerator() {
 
 	return calculateCriticalCssProgress( cssState.providers, providerProgress );
 }
-
-/**
- * Old stuff to get rid of.
- */
-
-const stateClient = jetpack_boost_ds.createAsyncStore(
-	'critical_css_state',
-	CriticalCssStateSchema
-);
-const cssStateStore = stateClient.store;
-
-export const criticalCssState = {
-	subscribe: cssStateStore.subscribe,
-	refresh: async () => {
-		const status = await stateClient.endpoint.GET();
-		const storeStatus = get( cssStateStore );
-
-		// This is a temporary fix.
-		// Compare status and storeStatus by serializing and update store if they differ.
-		// This is to avoid unnecessary updates to the store, which can cause rerenders.
-		if ( JSON.stringify( status ) !== JSON.stringify( storeStatus ) ) {
-			// .override will set the store values without triggering
-			// an update back to the server.
-			cssStateStore.override( status );
-		}
-	},
-};
