@@ -6,11 +6,16 @@ const url = 'https://widgets.wp.com/likes/style.css';
 
 // Function to pretty print CSS
 function prettyPrintCSS( css ) {
-	return css
-		.replace( /\{/g, '{\n  ' )
-		.replace( /\}/g, '\n}\n' )
-		.replace( /;\s*/g, ';\n  ' )
-		.replace( /\n\s*\n/g, '\n' );
+	// Adding a line break after each semicolon and opening brace
+	css = css.replace( /;/g, ';\n  ' ).replace( /\{/g, ' {\n  ' );
+
+	// Adding a line break before/after each closing brace
+	css = css.replace( /\}/g, '\n}\n' );
+
+	// Removing extra spaces and line breaks for correct indentation
+	css = css.replace( /\n\s*\n/g, '\n' );
+
+	return css;
 }
 
 // Function to process CSS
@@ -36,7 +41,7 @@ function processCSS( css ) {
 	const dateAndTime = now.toISOString();
 
 	// Combine and format with a comment
-	const finalCSS = `${ customRule.trim() }\n\n/* Fetched below from ${ url } at ${ dateAndTime } */\n\n${ processedCSS }`;
+	const finalCSS = `${ customRule.trim() }\n\n/* Fetched below from ${ url } at ${ dateAndTime } */\n${ processedCSS }`;
 
 	// Path for the output file in the same directory as the script
 	const outputPath = path.join( __dirname, '..', 'editor.scss' );
