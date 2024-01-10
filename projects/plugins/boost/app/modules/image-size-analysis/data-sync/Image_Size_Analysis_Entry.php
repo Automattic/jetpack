@@ -69,7 +69,7 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get {
 		return array(
 			'id'       => $issue->page_id,
 			'url'      => $issue->page_url,
-			'edit_url' => $edit_url,
+			'edit_url' => $edit_url ? $edit_url : null,
 			'title'    => $title,
 		);
 	}
