@@ -627,7 +627,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return site_url( '/wp-admin/admin.php?page=sensei' );
 			},
 		),
-		'verify_domain_email'                => array(
+		'verify_domain_email'             => array(
 			'get_title'            => function () {
 				return __( 'Verify the email address for your domains', 'jetpack-mu-wpcom' );
 			},
