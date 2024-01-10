@@ -111,6 +111,16 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * What it says
 	 */
+	public function test_crawler_enables_sentibot_if_not_frontend() {
+		$this->expectNotToPerformAssertions();
+		$cc = $this->get_crawler_control( 'sentibot', false );
+
+		$cc->exit_for_bots_unless_permitted();
+	}
+
+	/**
+	 * What it says
+	 */
 	public function test_crawler_enables_chrome() {
 		$this->expectNotToPerformAssertions();
 		$cc = $this->get_crawler_control( 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', true );
