@@ -16,7 +16,6 @@ const PurchaseSuccess: React.FC = () => {
 
 	useEffect( () => {
 		setCloudCssState( true );
-
 		// If image guide is enabled, request a new ISA report.
 		if (
 			imageGuideState?.active &&
@@ -25,7 +24,10 @@ const PurchaseSuccess: React.FC = () => {
 		) {
 			isaRequest.requestNewReport();
 		}
-	}, [ imageGuideState?.active, isaState?.active, setCloudCssState, isaRequest ] );
+		// We only want this effect to run on mount.
+		// Specifying the dependencies will cause it to run on every render (infinite loop).
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
 

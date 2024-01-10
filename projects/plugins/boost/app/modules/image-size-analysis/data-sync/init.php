@@ -75,8 +75,7 @@ $image_size_analysis = Schema::as_assoc_array(
 	)
 );
 
-$entry = new Image_Size_Analysis_Entry();
-jetpack_boost_register_option( 'image_size_analysis', $image_size_analysis, $entry );
+jetpack_boost_register_option( 'image_size_analysis', $image_size_analysis, new Image_Size_Analysis_Entry() );
 jetpack_boost_register_action( 'image_size_analysis', 'paginate', new Image_Size_Analysis_Summary_Action_Paginate() );
 jetpack_boost_register_action( 'image_size_analysis', 'fix', new Image_Analysis_Action_Fix() );
 
