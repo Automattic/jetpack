@@ -152,8 +152,11 @@ function formatSlackMessage( payload, channel, message ) {
 			break;
 		case 'Automattic/zero-bs-crm':
 		case 'Automattic/sensei':
-		case 'Automattic/WP-Job-Manager':
 			dris = '@heysatellite';
+			break;
+		case 'Automattic/WP-Job-Manager':
+		case 'Automattic/Crowdsignal':
+			dris = '@meteorite-team';
 			break;
 	}
 
