@@ -12,7 +12,7 @@ const PurchaseSuccess: React.FC = () => {
 	const [ imageGuideState ] = useSingleModuleState( 'image_guide' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const navigate = useNavigate();
-	const requestNewReport = useImageAnalysisRequest();
+	const { requestNewReport } = useImageAnalysisRequest();
 
 	useEffect( () => {
 		setCloudCssState( true );
