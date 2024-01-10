@@ -103,7 +103,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load the Crawler Control feature.
 	 */
 	public static function load_crawler_control() {
-		require_once __DIR__ . '/features/crawler-control/crawler-control.php';
+		require_once __DIR__ . '/features/crawler-control/class-crawler-control.php';
 	}
 
 	/**
