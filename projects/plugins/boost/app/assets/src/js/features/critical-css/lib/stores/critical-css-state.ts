@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { CriticalCssErrorDetailsSchema, CriticalCssStateSchema } from './critical-css-state-types';
 import type {
 	CriticalCssErrorDetails,
@@ -58,7 +57,6 @@ export function useSetProviderCss() {
 		},
 		callbacks: {
 			onResult: ( result, _state ): CriticalCssState => {
-				console.log( { s: result.state } );
 				if ( result.success ) {
 					return result.state;
 				}
