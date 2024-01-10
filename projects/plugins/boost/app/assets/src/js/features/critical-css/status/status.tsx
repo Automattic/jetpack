@@ -26,7 +26,7 @@ const Status: React.FC< StatusTypes > = ( {
 	progress,
 	suggestRegenerate,
 	isCloudCssAvailable = false,
-	issues = [],
+	issues,
 	successCount = 0,
 	generateText = '',
 	generateMoreText = '',

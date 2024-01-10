@@ -1,6 +1,7 @@
 import { Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { suggestRegenerateDS, RegenerationReason } from '$features/critical-css';
+import { useCriticalCssState } from '../lib/stores/critical-css-state';
 
 const GetSuggestionMessage = ( type: RegenerationReason | null ) => {
 	let message;
@@ -34,8 +35,15 @@ const GetSuggestionMessage = ( type: RegenerationReason | null ) => {
 	return message;
 };
 
-export const RegenerateCriticalCssSuggestion = ( { show, type } ) => {
-	if ( ! show ) {
+type Props = {
+	type: RegenerationReason | null;
+	show: boolean;
+};
+
+export const RegenerateCriticalCssSuggestion = ( { show, type }: Props ) => {
+	const [ cssState ] = useCriticalCssState();
+
+	if ( ! show || cssState.status === 'pending' ) {
 		return null;
 	}
 

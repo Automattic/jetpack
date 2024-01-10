@@ -1,29 +1,20 @@
 import { __ } from '@wordpress/i18n';
-import { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import Status from '../status/status';
 import { useState } from '@wordpress/element';
-import { ErrorSet } from '../lib/stores/critical-css-state-errors';
 import {
 	calculateCriticalCssProgress,
 	isFatalError,
 	useCriticalCssState,
 	useRegenerateCriticalCssAction,
 } from '../lib/stores/critical-css-state';
+import { getCriticalCssIssues } from '../lib/stores/critical-css-state-errors';
 
 type CloudCssMetaProps = {
 	isCloudCssAvailable: boolean;
-	issues: CriticalCssState[ 'providers' ];
-	primaryErrorSet: ErrorSet;
-	suggestRegenerate: boolean;
 };
 
-const CloudCssMeta: React.FC< CloudCssMetaProps > = ( {
-	isCloudCssAvailable,
-	issues = [],
-	primaryErrorSet,
-	suggestRegenerate,
-} ) => {
+const CloudCssMeta: React.FC< CloudCssMetaProps > = ( { isCloudCssAvailable } ) => {
 	const [ hasRetried, setHasRetried ] = useState( false );
 	const [ cssState ] = useCriticalCssState();
 	const regenerate = useRegenerateCriticalCssAction();
@@ -41,9 +32,7 @@ const CloudCssMeta: React.FC< CloudCssMetaProps > = ( {
 	return isFatalError( cssState ) ? (
 		<ShowStopperError
 			supportLink="https://jetpackme.wordpress.com/contact-support/"
-			status={ cssState.status }
-			primaryErrorSet={ primaryErrorSet }
-			statusError={ cssState.status_error }
+			cssState={ cssState }
 			retry={ retry }
 			showRetry={ ! hasRetried }
 		/>
@@ -51,11 +40,11 @@ const CloudCssMeta: React.FC< CloudCssMetaProps > = ( {
 		<Status
 			isCloudCssAvailable={ isCloudCssAvailable }
 			status={ cssState.status }
+			issues={ getCriticalCssIssues( cssState ) }
 			successCount={ successCount }
-			issues={ issues }
 			updated={ cssState.updated }
 			progress={ progress }
-			suggestRegenerate={ suggestRegenerate }
+			suggestRegenerate={ false }
 			generateText={ __(
 				'Jetpack Boost will generate Critical CSS for you automatically.',
 				'jetpack-boost'

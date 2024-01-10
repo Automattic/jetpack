@@ -1,5 +1,4 @@
 import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-css-meta';
-import { CriticalCssState } from '$features/critical-css/lib/stores/critical-css-state-types';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
@@ -7,7 +6,7 @@ import { Button, Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures, useSuggestRegenerate } from './lib/hooks';
-import { RegenerateCriticalCssSuggestion } from '$features/critical-css';
+import { RegenerateCriticalCssSuggestion, RegenerationReason } from '$features/critical-css';
 import { useEffect } from 'react';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
@@ -16,21 +15,8 @@ import styles from './index.module.scss';
 import { RecommendationsMeta } from '$features/image-size-analysis/recommendations-meta/recommendations-meta';
 import { initializeIsaSummary } from '$features/image-size-analysis/lib/stores/isa-summary';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
-import { ErrorSet } from '$features/critical-css/lib/stores/critical-css-state-errors';
 
-type IndexProps = {
-	/*
-	 * TODO: Move these to react DS and get them directly from DS instead of as props.
-	 * This should be done when moving the Main.svelte component to React.
-	 */
-	criticalCss: {
-		criticalCssState: CriticalCssState;
-		issues: CriticalCssState[ 'providers' ];
-		primaryErrorSet: unknown;
-	};
-};
-
-const Index = ( { criticalCss }: IndexProps ) => {
+const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
 	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
@@ -96,13 +82,11 @@ const Index = ( { criticalCss }: IndexProps ) => {
 			>
 				<CriticalCssMeta
 					isCloudCssAvailable={ cloudCssState?.available === true }
-					issues={ criticalCss.issues }
-					primaryErrorSet={ criticalCss.primaryErrorSet as ErrorSet }
 					suggestRegenerate={ !! suggestRegenerate }
 				/>
 				<RegenerateCriticalCssSuggestion
-					show={ suggestRegenerate && criticalCss.criticalCssState.status !== 'pending' }
-					type={ suggestRegenerate }
+					show={ !! suggestRegenerate }
+					type={ suggestRegenerate as RegenerationReason }
 				/>
 				<UpgradeCTA
 					description={ __(
@@ -147,12 +131,7 @@ const Index = ( { criticalCss }: IndexProps ) => {
 					</>
 				}
 			>
-				<CloudCssMeta
-					isCloudCssAvailable={ cloudCssState?.available === true }
-					issues={ criticalCss.issues }
-					primaryErrorSet={ criticalCss.primaryErrorSet }
-					suggestRegenerate={ suggestRegenerate }
-				/>
+				<CloudCssMeta isCloudCssAvailable={ cloudCssState?.available === true } />
 			</Module>
 			<Module
 				slug="render_blocking_js"

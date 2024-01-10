@@ -9,6 +9,8 @@ import { BackButton, CloseButton } from '$features/ui';
 import CriticalCssErrorDescription from '$features/critical-css/error-description/error-description';
 import InfoIcon from '$svg/info';
 import styles from './critical-css-advanced.module.scss';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdvancedCriticalCss() {
 	const [ cssState ] = useCriticalCssState();
@@ -17,6 +19,14 @@ export default function AdvancedCriticalCss() {
 	const issues = cssState.providers.filter( p => p.status === 'error' );
 	const activeIssues = issues.filter( issue => issue.error_status !== 'dismissed' );
 	const dismissedIssues = issues.filter( issue => issue.error_status === 'dismissed' );
+
+	// If there are no issues at all, redirect to the main page.
+	const navigate = useNavigate();
+	useEffect( () => {
+		if ( issues.length === 0 ) {
+			navigate( '/' );
+		}
+	}, [ issues, navigate ] );
 
 	const heading =
 		activeIssues.length === 0
