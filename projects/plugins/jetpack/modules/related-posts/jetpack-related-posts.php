@@ -348,6 +348,12 @@ EOT;
 		$img         = '';
 		$list        = '';
 
+		$item_markup = sprintf(
+			'<li id="%1$s" class="jp-related-posts-i2__post">',
+			esc_attr( $instance_id )
+		);
+
+		// Thumbnail
 		if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) {
 			$img = sprintf(
 				'<img loading="lazy" class="jp-related-posts-i2__post-img" src="%1$s" alt="%2$s" %3$s/>',
@@ -357,13 +363,9 @@ EOT;
 			);
 		}
 
-		$item_markup = sprintf(
-			'<li id="%1$s" class="jp-related-posts-i2__post">',
-			esc_attr( $instance_id )
-		);
-
+		// Link
 		$item_markup .= sprintf(
-			'<a id="%1$s" href="%2$s" class="jp-related-posts-i2__post-link" %3$s>%4$s %5$s</a>',
+			'<a id="%1$s" href="%2$s" class="jp-related-posts-i2__post-link" %3$s>%4$s%5$s</a>',
 			esc_attr( $label_id ),
 			esc_url( $url ),
 			( ! empty( $rel ) ? 'rel="' . esc_attr( $rel ) . '"' : '' ),
@@ -371,13 +373,15 @@ EOT;
 			$img
 		);
 
+		// Date
 		if ( $block_attributes['show_date'] ) {
-			$list .= '<dt>' . __( 'Publish date', 'jetpack' ) . '</dt>';
+			$list .= '<dt>' . __( 'Date', 'jetpack' ) . '</dt>';
 			$list .= '<dd class="jp-related-posts-i2__post-date">';
 			$list .= esc_html( $related_post['date'] );
 			$list .= '</dd>';
 		}
 
+		// Author
 		if ( $block_attributes['show_author'] ) {
 			$list .= '<dt>' . __( 'Author', 'jetpack' ) . '</dt>';
 			$list .= '<dd class="jp-related-posts-i2__post-author">';
@@ -385,8 +389,10 @@ EOT;
 			$list .= '</dd>';
 		}
 
+		// Context
 		if ( ( $block_attributes['show_context'] ) && ! empty( $related_post['block_context'] ) ) {
-			$list .= '<dt>' . __( 'Tag', 'jetpack' ) . '</dt>';
+			// translators: this is followed by the reason why the item is related to the current post
+			$list .= '<dt>' . __( 'In relation to', 'jetpack' ) . '</dt>';
 			$list .= '<dd class="jp-related-posts-i2__post-context">';
 
 			// Note: The original 'context' value is not used when rendering the block.
@@ -407,6 +413,7 @@ EOT;
 			$list .= '</dd>';
 		}
 
+		// Metadata
 		if ( ! empty( $list ) ) {
 			$item_markup .= '<dl class="jp-related-posts-i2__post-defs">' . $list . '</dl>';
 		}
@@ -428,7 +435,8 @@ EOT;
 			$rows_markup .= $this->render_block_item( $post, $block_attributes );
 		}
 		return sprintf(
-			'<ul class="jp-related-posts-i2__row" data-post-count="%1$s">%2$s</ul>',
+			// role="list" is required for accessibility as VoiceOver ignores unstyled lists.
+			'<ul class="jp-related-posts-i2__row" role="list" data-post-count="%1$s">%2$s</ul>',
 			count( $posts ),
 			$rows_markup
 		);
