@@ -8,6 +8,7 @@ import { useState } from '@wordpress/element';
 import { ErrorSet } from '../lib/stores/critical-css-state-errors';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import {
+	isFatalError,
 	useCriticalCssState,
 	useLocalGenerator,
 	useRegenerateCriticalCssAction,
@@ -16,7 +17,6 @@ import {
 type CriticalCssMetaProps = {
 	isCloudCssAvailable: boolean;
 	issues: CriticalCssState[ 'providers' ];
-	isFatalError: boolean;
 	primaryErrorSet: ErrorSet;
 	suggestRegenerate: boolean;
 };
@@ -24,7 +24,6 @@ type CriticalCssMetaProps = {
 const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 	isCloudCssAvailable,
 	issues = [],
-	isFatalError,
 	primaryErrorSet,
 	suggestRegenerate,
 } ) => {
@@ -55,7 +54,7 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 				<ProgressBar progress={ progress } />
 			</div>
 		);
-	} else if ( isFatalError ) {
+	} else if ( isFatalError( cssState ) ) {
 		return (
 			<ShowStopperError
 				status={ cssState.status }

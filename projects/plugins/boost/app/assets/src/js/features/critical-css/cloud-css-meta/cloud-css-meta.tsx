@@ -6,6 +6,7 @@ import { useState } from '@wordpress/element';
 import { ErrorSet } from '../lib/stores/critical-css-state-errors';
 import {
 	calculateCriticalCssProgress,
+	isFatalError,
 	useCriticalCssState,
 	useRegenerateCriticalCssAction,
 } from '../lib/stores/critical-css-state';
@@ -13,7 +14,6 @@ import {
 type CloudCssMetaProps = {
 	isCloudCssAvailable: boolean;
 	issues: CriticalCssState[ 'providers' ];
-	isFatalError: boolean;
 	primaryErrorSet: ErrorSet;
 	suggestRegenerate: boolean;
 };
@@ -21,7 +21,6 @@ type CloudCssMetaProps = {
 const CloudCssMeta: React.FC< CloudCssMetaProps > = ( {
 	isCloudCssAvailable,
 	issues = [],
-	isFatalError,
 	primaryErrorSet,
 	suggestRegenerate,
 } ) => {
@@ -39,7 +38,7 @@ const CloudCssMeta: React.FC< CloudCssMetaProps > = ( {
 		regenerate();
 	}
 
-	return isFatalError ? (
+	return isFatalError( cssState ) ? (
 		<ShowStopperError
 			supportLink="https://jetpackme.wordpress.com/contact-support/"
 			status={ cssState.status }

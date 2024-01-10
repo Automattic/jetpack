@@ -24,6 +24,10 @@ interface GeneartorCallbacks extends ProviderCallbacks {
 	onError: ( error: Error ) => void;
 }
 
+export function isLocalGeneratorRunning() {
+	return generatorRunning;
+}
+
 /**
  * Run the local Critical CSS Generator for a set of providers, if it is not already running.
  * The result of generation will not be returned to the caller; it will be sent to the given

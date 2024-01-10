@@ -25,7 +25,6 @@ type IndexProps = {
 	 */
 	criticalCss: {
 		criticalCssState: CriticalCssState;
-		isFatalError: boolean;
 		issues: CriticalCssState[ 'providers' ];
 		primaryErrorSet: unknown;
 	};
@@ -98,7 +97,6 @@ const Index = ( { criticalCss }: IndexProps ) => {
 				<CriticalCssMeta
 					isCloudCssAvailable={ cloudCssState?.available === true }
 					issues={ criticalCss.issues }
-					isFatalError={ criticalCss.isFatalError }
 					primaryErrorSet={ criticalCss.primaryErrorSet as ErrorSet }
 					suggestRegenerate={ !! suggestRegenerate }
 				/>
@@ -152,7 +150,6 @@ const Index = ( { criticalCss }: IndexProps ) => {
 				<CloudCssMeta
 					isCloudCssAvailable={ cloudCssState?.available === true }
 					issues={ criticalCss.issues }
-					isFatalError={ criticalCss.isFatalError }
 					primaryErrorSet={ criticalCss.primaryErrorSet }
 					suggestRegenerate={ suggestRegenerate }
 				/>
