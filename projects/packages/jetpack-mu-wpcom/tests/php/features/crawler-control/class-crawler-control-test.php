@@ -81,7 +81,7 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	 * What it says
 	 */
 	public function test_crawler_disables_GPTBot_by_default() {
-		$cc = $this->get_crawler_control( 'GPTBot', true );
+		$cc = $this->get_crawler_control( 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)', true );
 
 		$this->expectException( CrawlerControlDieException::class );
 		$cc->exit_for_bots_unless_permitted();
@@ -122,7 +122,7 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	 * What it says
 	 */
 	public function test_crawler_sets_special_header_for_bingbot() {
-		$cc = $this->get_crawler_control( 'bingbot', true );
+		$cc = $this->get_crawler_control( 'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)', true );
 		$cc->expects( $this->exactly( 2 ) )
 		->method( 'header' )
 		->willReturnOnConsecutiveCalls(

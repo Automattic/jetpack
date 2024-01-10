@@ -16,17 +16,15 @@ class Crawler_Control {
 	const ERROR_MESSAGE   = 'Not allowed. TODO: Insert friendly message here.';
 	const X_TERMS         = 'X-Terms: "Fun" message about where to go to crawl for AI bots.';
 	const BOT_USER_AGENTS = array(
-		'a8ctest',
-		'GPTBot',
-		'CCBot',
-		'SentiBot',
-		'sentibot',
-		'Google-Extended',
-		'FacebookBot',
-		'omgili',
-		'omgilibot',
-		'Amazonbot',
-		'bingbot',
+		'#a8ctest#is',
+		'#GPTBot#is',
+		'#CCBot#is',
+		'#sentibot#is',
+		'#Google\-Extended#is',
+		'#FacebookBot#is',
+		'#omgili#is',
+		'#Amazonbot#is',
+		'#bingbot#is',
 	);
 
 	/**
@@ -70,7 +68,12 @@ class Crawler_Control {
 	 */
 	public function is_useragent_a_bot( $user_agent ) {
 		$bots = apply_filters( 'wpcom_crawler_control_bots', self::BOT_USER_AGENTS );
-		return in_array( $user_agent, $bots, true );
+		foreach ( $bots as $bot ) {
+			if ( preg_match( $bot, $user_agent ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -93,7 +96,7 @@ class Crawler_Control {
 		$user_agent = $this->get_useragent();
 
 		// Special handling for Bingbot.
-		if ( strpos( strtolower( $user_agent ), 'bingbot' ) !== false ) {
+		if ( preg_match( '#bingbot#is', $user_agent ) ) {
 			$this->header( 'X-Robots-Tag: nocache' );
 		}
 
