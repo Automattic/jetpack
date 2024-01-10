@@ -51,7 +51,7 @@
 			"type": "integer"
 		},
 		"planIds": {
-			"type": "string"
+			"type": "array"
 		},
 		"align": {
 			"type": "string"
