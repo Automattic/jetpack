@@ -800,13 +800,13 @@ HTML;
 		<script type="text/javascript">
 			function backToComments() {
 				const test = regexp => {
-					return regexp.test(navigator.userAgent);
+						return regexp.test(navigator.userAgent);
 				};
-				if (test(/firefox|fxios/i)) {
-					history.back();
-					return;
+				if (test(/chrome|chromium|crios|safari|edg/i)) {
+						history.go(-2);
+						return;
 				}
-				history.go(-2);
+				history.back();
 			}
 		</script>
 
