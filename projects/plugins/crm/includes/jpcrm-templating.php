@@ -174,7 +174,19 @@ function jpcrm_retrieve_template( $template_file = '', $load = true ) {
 
 }
 
-
+/**
+ * Returns an array of allowed template paths.
+ */
+function jpcrm_get_allowed_template_paths() {
+	global $zbs;
+	$allowed_template_paths = array(
+		'default'      => ZEROBSCRM_PATH . 'templates/',
+		'theme'        => get_stylesheet_directory() . '/' . $zbs->template_path . '/',
+		'template'     => get_template_directory() . '/' . $zbs->template_path . '/',
+		'theme-compat' => ABSPATH . WPINC . '/theme-compat/' . $zbs->template_path . '/',
+	);
+	return $allowed_template_paths;
+}
 
 /**
  * Attempts to find variants of a template file and returns as an array
