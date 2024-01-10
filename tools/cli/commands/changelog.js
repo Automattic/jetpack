@@ -65,6 +65,11 @@ export function changelogDefine( yargs ) {
 								alias: 'e',
 								describe: 'Changelog entry',
 								type: 'string',
+							} )
+							.option( 'comment', {
+								alias: 'c',
+								describe: 'Changelog comment',
+								type: 'string',
 							} );
 					},
 					async argv => {
@@ -738,7 +743,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 		type: 'input',
 		name: 'changelogName',
 		message: 'Name your changelog file:',
-		default: gitBranch,
+		default: argv.f ?? gitBranch,
 		validate: input => {
 			const fileExists = doesFilenameExist( input, needChangelog );
 			if ( fileExists ) {
@@ -754,6 +759,9 @@ async function promptChangelog( argv, needChangelog, types ) {
 		name: 'significance',
 		message: 'Significance of the change, in the style of semantic versioning.',
 		suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
+		initial() {
+			return this.choices.findIndex( v => v.value === argv.s );
+		},
 		highlight: v => v,
 		choices: [
 			{
@@ -776,13 +784,13 @@ async function promptChangelog( argv, needChangelog, types ) {
 		name: 'userFacing',
 		message:
 			'Is this change something an end user or site administrator of a standalone Jetpack site would like to know about?',
-		initial: true,
+		initial: argv.t !== 'other',
 		skip: ! needChangelog.includes( 'plugins/jetpack' ),
 	} );
 
 	// Get the type, set it to other if this isn't a user facing change.
 	let typeResponse;
-	if ( ! userFacingResponse.userFacing ) {
+	if ( ! userFacingResponse.userFacing && typeChoices.findIndex( v => v.value === 'other' ) >= 0 ) {
 		typeResponse = { type: 'other' };
 	} else {
 		// Get the type of change.
@@ -793,6 +801,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 			suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
 			highlight: v => v,
 			choices: typeChoices,
+			initial: typeChoices.findIndex( v => v.value === argv.t ),
 		} );
 	}
 	const { type } = typeResponse;
@@ -812,6 +821,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 			type: 'input',
 			name: 'entry',
 			message: 'Changelog entry. May not be empty.',
+			initial: argv.e,
 			validate: input => {
 				if ( ! input || ! input.trim() ) {
 					return `Changelog entry can't be blank`;
@@ -824,6 +834,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 			type: 'input',
 			name: 'entry',
 			message: 'Changelog entry. May be left empty if this change is particularly insignificant.',
+			initial: argv.e,
 		} );
 	}
 	const { entry } = entryResponse;
@@ -836,6 +847,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 			name: 'comment',
 			message:
 				'You omitted the changelog entry, which is fine. But please comment as to why no entry is needed.',
+			initial: argv.c,
 		} );
 	}
 	const { comment } = commentResponse || {};
