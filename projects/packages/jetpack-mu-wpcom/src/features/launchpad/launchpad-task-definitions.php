@@ -1000,7 +1000,8 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 
 	// For Atomic sites we need to get the domain list from
 	// the public API.
-	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( $is_atomic_site ) {
 		$domains = wpcom_request_domains_list();
 
 		if ( is_wp_error( $domains ) ) {
