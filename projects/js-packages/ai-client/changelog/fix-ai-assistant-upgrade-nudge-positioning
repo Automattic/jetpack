@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+AI Client: introduce bannerComponent prop, React.Element, to render on top of the AI Control
