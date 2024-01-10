@@ -1,7 +1,5 @@
-import { derived } from 'svelte/store';
 import { castToString } from '$lib/utils/cast-to-string';
 import { sortByFrequency } from '$lib/utils/sort-by-frequency';
-import { criticalCssState } from './critical-css-state';
 import {
 	CriticalCssErrorDetails,
 	CriticalCssState,
@@ -21,10 +19,6 @@ export type ErrorSet = {
 		[ url: string ]: CriticalCssErrorDetails; // Each error keyed by URL.
 	};
 };
-
-export const criticalCssIssues = derived( criticalCssState, $status => {
-	return $status.providers.filter( provider => provider.errors?.length > 0 );
-} );
 
 /**
  * Given a CSS State object, returns all the providers that have errors.
