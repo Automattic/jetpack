@@ -12,7 +12,7 @@ const PurchaseSuccess: React.FC = () => {
 	const [ imageGuideState ] = useSingleModuleState( 'image_guide' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const navigate = useNavigate();
-	const { requestNewReport } = useImageAnalysisRequest();
+	const isaRequest = useImageAnalysisRequest();
 
 	useEffect( () => {
 		setCloudCssState( true );
@@ -23,9 +23,9 @@ const PurchaseSuccess: React.FC = () => {
 			isaState?.active &&
 			false !== Jetpack_Boost.site.canResizeImages
 		) {
-			requestNewReport();
+			isaRequest.requestNewReport();
 		}
-	}, [ imageGuideState?.active, isaState?.active, setCloudCssState, requestNewReport ] );
+	}, [ imageGuideState?.active, isaState?.active, setCloudCssState, isaRequest ] );
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
 
