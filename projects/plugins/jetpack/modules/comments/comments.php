@@ -799,11 +799,8 @@ HTML;
 		</div>
 		<script type="text/javascript">
 			function backToComments() {
-				if (history.length > 3) {
-					history.go(-2);
-					return;
-				}
 				history.back();
+				return;
 			}
 		</script>
 
