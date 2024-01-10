@@ -13,10 +13,6 @@ import {
 	regenerateCriticalCss,
 } from '$features/critical-css';
 import { useCallback, useEffect, useState } from 'react';
-import {
-	startPollingCloudStatus,
-	stopPollingCloudCssStatus,
-} from '$features/critical-css/lib/cloud-css';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import { QualitySettings } from '$features/image-cdn';
@@ -35,7 +31,6 @@ type IndexProps = {
 		criticalCssState: CriticalCssState;
 		continueGeneratingLocalCriticalCss: unknown;
 		regenerateCriticalCss: unknown;
-		criticalCssProgress: number;
 		isFatalError: boolean;
 		issues: CriticalCssState[ 'providers' ];
 		primaryErrorSet: unknown;
@@ -127,7 +122,6 @@ const Index = ( { criticalCss }: IndexProps ) => {
 			>
 				<CriticalCssMeta
 					isCloudCssAvailable={ cloudCssState?.available === true }
-					criticalCssProgress={ criticalCss.criticalCssProgress }
 					issues={ criticalCss.issues }
 					isFatalError={ criticalCss.isFatalError }
 					primaryErrorSet={ criticalCss.primaryErrorSet as ErrorSet }
@@ -179,13 +173,9 @@ const Index = ( { criticalCss }: IndexProps ) => {
 						</p>
 					</>
 				}
-				onEnable={ startPollingCloudStatus }
-				onDisable={ stopPollingCloudCssStatus }
-				onMountEnable={ startPollingCloudStatus }
 			>
 				<CloudCssMeta
 					isCloudCssAvailable={ cloudCssState?.available === true }
-					criticalCssProgress={ criticalCss.criticalCssProgress }
 					issues={ criticalCss.issues }
 					isFatalError={ criticalCss.isFatalError }
 					primaryErrorSet={ criticalCss.primaryErrorSet }

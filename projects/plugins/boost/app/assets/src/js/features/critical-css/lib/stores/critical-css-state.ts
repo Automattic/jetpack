@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
-import { derived, get, writable } from 'svelte/store';
+import { derived, get } from 'svelte/store';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import api from '$lib/api/api';
-import { startPollingCloudStatus } from '../cloud-css';
 import { CriticalCssErrorDetailsSchema, CriticalCssStateSchema } from './critical-css-state-types';
 import { jetpack_boost_ds, JSONObject } from '$lib/stores/data-sync-client';
 import { suggestRegenerateDS } from './suggest-regenerate';
@@ -353,14 +352,6 @@ export const regenerateCriticalCss = async () => {
 	// it's already saved there,
 	// This will update the store without triggering a save back to the server.
 	cssStateStore.override( freshState );
-
-	const isCloudCssEnabled = get( modulesState ).cloud_css?.active || false;
-
-	if ( isCloudCssEnabled ) {
-		startPollingCloudStatus();
-	} else {
-		//await ( freshState );
-	}
 };
 
 /**
@@ -378,31 +369,3 @@ export async function continueGeneratingLocalCriticalCss( state: CriticalCssStat
 	const status = generatingSucceeded ? 'generated' : 'error';
 	replaceCssState( { status } );
 }
-
-export const localCriticalCSSProgress = writable< undefined | number >( undefined );
-
-export const criticalCssProgress = derived(
-	[ cssStateStore, localCriticalCSSProgress ],
-	( [ $criticalCssState, $localProgress ] ) => {
-		if ( $criticalCssState.status === 'generated' ) {
-			return 100;
-		}
-
-		if ( $criticalCssState.status === 'not_generated' ) {
-			return 0;
-		}
-
-		const totalCount = Math.max( 1, $criticalCssState.providers.length );
-		const doneCount = $criticalCssState.providers.filter(
-			provider => provider.status !== 'pending'
-		).length;
-		const percentDone = ( doneCount / totalCount ) * 100;
-
-		const percentPerStep = 100 / totalCount;
-		const currentStep = $localProgress || 0;
-
-		const combinedProgress = percentDone + percentPerStep * currentStep;
-
-		return Math.round( combinedProgress );
-	}
-);
