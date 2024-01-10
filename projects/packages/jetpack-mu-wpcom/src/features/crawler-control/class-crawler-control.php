@@ -103,7 +103,7 @@ class Crawler_Control {
 		// Send a friendly message to the user agent.
 		if ( $this->is_frontend() && $this->is_useragent_a_bot( $user_agent ) ) {
 			$this->header( self::X_TERMS );
-			wp_die( 402, esc_html( self::ERROR_MESSAGE ) );
+			wp_die( esc_html( self::ERROR_MESSAGE ), 402 );
 		}
 	}
 
