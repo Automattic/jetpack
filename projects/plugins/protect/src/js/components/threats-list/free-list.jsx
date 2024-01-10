@@ -20,10 +20,11 @@ const ThreatAccordionItem = ( {
 	type,
 	version,
 } ) => {
-	const { adminUrl } = window.jetpackProtectInitialState || {};
+	const { adminUrl, blogID } = window.jetpackProtectInitialState || {};
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: adminUrl,
+		blogID,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();

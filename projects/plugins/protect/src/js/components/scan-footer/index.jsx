@@ -15,11 +15,12 @@ import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
 
 const ProductPromotion = () => {
-	const { adminUrl, siteSuffix } = window.jetpackProtectInitialState || {};
+	const { adminUrl, siteSuffix, blogID } = window.jetpackProtectInitialState || {};
 
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: adminUrl,
+		blogID,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();
