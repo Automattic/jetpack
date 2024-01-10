@@ -1078,39 +1078,3 @@ function wpcom_get_launchpad_checklist_title_by_checklist_slug( $checklist_slug 
 
 	return wpcom_launchpad_checklists()->get_task_list_title( $checklist_slug );
 }
-
-/**
- * Make a request to the WordPress.com API to get the domain list for the current site.
- *
- * @return array|WP_Error Array of domains and their verification status or WP_Error if the request fails.
- */
-function wpcom_request_domains_list() {
-	$site_id       = \Jetpack_Options::get_option( 'id' );
-	$request_path  = sprintf( '/sites/%d/domains', $site_id );
-	$wpcom_request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
-		$request_path,
-		'1.2',
-		array(
-			'method'  => 'GET',
-			'headers' => array(
-				'content-type'    => 'application/json',
-				'X-Forwarded-For' => ( new Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
-			),
-		),
-		null,
-		'rest'
-	);
-
-	$response_code = wp_remote_retrieve_response_code( $wpcom_request );
-	if ( 200 !== $response_code ) {
-		return new \WP_Error(
-			'failed_to_fetch_data',
-			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' ),
-			array( 'status' => $response_code )
-		);
-	}
-
-	$body   = wp_remote_retrieve_body( $wpcom_request );
-	$status = json_decode( $body );
-	return $status;
-}
