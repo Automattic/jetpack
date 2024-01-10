@@ -5,8 +5,6 @@ export {
 	isGenerating,
 	replaceCssState,
 	updateProvider,
-	continueGeneratingLocalCriticalCss,
-	regenerateCriticalCss,
 	isFatalError,
 } from './lib/stores/critical-css-state';
 export { suggestRegenerateDS, type RegenerationReason } from './lib/stores/suggest-regenerate';

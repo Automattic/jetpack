@@ -14,6 +14,7 @@ use Automattic\Jetpack_Boost\Data_Sync\Premium_Features_Entry;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Regenerate_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_CSS;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Errors;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
@@ -174,6 +175,7 @@ jetpack_boost_register_option( 'critical_css_meta', $critical_css_meta_schema, n
 jetpack_boost_register_option( 'critical_css_suggest_regenerate', $critical_css_suggest_regenerate_schema );
 jetpack_boost_register_action( 'critical_css_state', 'request-regenerate', new Regenerate_CSS() );
 jetpack_boost_register_action( 'critical_css_state', 'set-provider-css', new Set_Provider_CSS() );
+jetpack_boost_register_action( 'critical_css_state', 'set-provider-errors', new Set_Provider_Errors() );
 
 $modules_state_schema = Schema::as_array(
 	Schema::as_assoc_array(

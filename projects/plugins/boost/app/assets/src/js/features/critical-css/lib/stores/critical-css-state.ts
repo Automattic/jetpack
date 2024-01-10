@@ -79,7 +79,7 @@ export function useSetProviderErrors() {
 	return useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
 		key: 'critical_css_state',
-		action_name: 'set-provider-css',
+		action_name: 'set-provider-errors',
 		schema: {
 			state: CriticalCssStateSchema,
 			action_request: z.object( {
@@ -353,19 +353,3 @@ export const regenerateCriticalCss = async () => {
 	// This will update the store without triggering a save back to the server.
 	cssStateStore.override( freshState );
 };
-
-/**
- * Call generateCriticalCss if it hasn't been called before this app execution
- * (browser pageload), to verify if Critical CSS needs to be generated.
- *
- * @param state
- */
-export async function continueGeneratingLocalCriticalCss( state: CriticalCssState ) {
-	return;
-	if ( state.status === 'generated' ) {
-		return;
-	}
-	const generatingSucceeded = await generateCriticalCss( state );
-	const status = generatingSucceeded ? 'generated' : 'error';
-	replaceCssState( { status } );
-}

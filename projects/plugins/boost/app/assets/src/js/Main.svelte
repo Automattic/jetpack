@@ -3,8 +3,6 @@
 	import Main from './main';
 	import {
 		criticalCssState,
-		continueGeneratingLocalCriticalCss,
-		regenerateCriticalCss,
 		isFatalError,
 		criticalCssIssues,
 		primaryErrorSet,
@@ -16,8 +14,6 @@
 		this={Main}
 		criticalCss={{
 			criticalCssState: $criticalCssState,
-			continueGeneratingLocalCriticalCss,
-			regenerateCriticalCss,
 			isFatalError: $isFatalError,
 			issues: $criticalCssIssues,
 			primaryErrorSet: $primaryErrorSet,

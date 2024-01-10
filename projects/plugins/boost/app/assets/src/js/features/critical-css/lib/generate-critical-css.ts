@@ -65,8 +65,6 @@ async function generateCriticalCss(
 	callbacks: ProviderCallbacks,
 	signal: AbortSignal
 ) {
-	const cancelling = false;
-
 	try {
 		// Load Critical CSS gen library if not already loaded.
 		await loadCriticalCssLibrary();
@@ -102,7 +100,7 @@ async function generateCriticalCss(
 		}
 	} catch ( err ) {
 		// Swallow errors if cancelling the process.
-		if ( cancelling ) {
+		if ( signal.aborted ) {
 			// eslint-disable-next-line no-console
 			console.error( err );
 		} else {
@@ -142,6 +140,10 @@ function createBrowserInterface(
 			return fetch( url, options );
 		}
 	} )();
+}
+
+function isSuccessTargetError( err: unknown ): err is SuccessTargetError {
+	return err instanceof Error && 'isSuccessTargetError' in err;
 }
 
 /**
@@ -203,7 +205,7 @@ async function generateForKeys(
 			callbacks.setProviderProgress( 0 );
 		} catch ( err ) {
 			// Success Target Errors indicate that URLs failed, but the process itself succeeded.
-			if ( err instanceof SuccessTargetError ) {
+			if ( isSuccessTargetError( err ) ) {
 				stepsFailed++;
 
 				// Rearrange errors from CriticalCssGen from {url:details} to [{url:details:}].

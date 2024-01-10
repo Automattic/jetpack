@@ -7,12 +7,8 @@ import { Button, Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures, useSuggestRegenerate } from './lib/hooks';
-import {
-	RegenerateCriticalCssSuggestion,
-	continueGeneratingLocalCriticalCss,
-	regenerateCriticalCss,
-} from '$features/critical-css';
-import { useCallback, useEffect, useState } from 'react';
+import { RegenerateCriticalCssSuggestion } from '$features/critical-css';
+import { useEffect } from 'react';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import { QualitySettings } from '$features/image-cdn';
@@ -29,7 +25,6 @@ type IndexProps = {
 	 */
 	criticalCss: {
 		criticalCssState: CriticalCssState;
-		continueGeneratingLocalCriticalCss: unknown;
 		regenerateCriticalCss: unknown;
 		isFatalError: boolean;
 		issues: CriticalCssState[ 'providers' ];
@@ -38,22 +33,6 @@ type IndexProps = {
 };
 
 const Index = ( { criticalCss }: IndexProps ) => {
-	const [ alreadyResumed, setAlreadyResumed ] = useState( false );
-	const resume = useCallback( () => {
-		if ( alreadyResumed ) {
-			return;
-		}
-		setAlreadyResumed( true );
-
-		if (
-			! criticalCss.criticalCssState ||
-			criticalCss.criticalCssState.status === 'not_generated'
-		) {
-			return regenerateCriticalCss();
-		}
-		continueGeneratingLocalCriticalCss( criticalCss.criticalCssState );
-	}, [ alreadyResumed, criticalCss.criticalCssState ] );
-
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
 	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
@@ -89,9 +68,6 @@ const Index = ( { criticalCss }: IndexProps ) => {
 			<Module
 				slug="critical_css"
 				title={ __( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' ) }
-				onDisable={ () => setAlreadyResumed( false ) }
-				onEnable={ resume }
-				onMountEnable={ resume }
 				description={
 					<>
 						<p>
