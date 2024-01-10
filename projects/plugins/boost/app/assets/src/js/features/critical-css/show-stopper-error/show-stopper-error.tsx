@@ -9,8 +9,8 @@ type ShowStopperErrorTypes = {
 	supportLink?: string;
 	status: CriticalCssState[ 'status' ];
 	primaryErrorSet: ErrorSet;
-	statusError;
-	regenerateCriticalCss;
+	statusError?: string;
+	retry: () => void;
 	showRetry?: boolean;
 };
 
@@ -19,7 +19,7 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 	status,
 	primaryErrorSet,
 	statusError,
-	regenerateCriticalCss,
+	retry,
 	showRetry,
 } ) => {
 	const showErrorDescription = primaryErrorSet && status === 'generated';
@@ -31,7 +31,7 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 			variant="module"
 			actionButton={
 				showRetry ? (
-					<button className="secondary" onClick={ regenerateCriticalCss }>
+					<button className="secondary" onClick={ retry }>
 						{ __( 'Refresh', 'jetpack-boost' ) }
 					</button>
 				) : (

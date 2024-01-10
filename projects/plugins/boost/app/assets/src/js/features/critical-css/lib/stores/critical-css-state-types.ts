@@ -46,7 +46,7 @@ export const CriticalCssStateSchema = z
 		// Source provider information - which URLs to generate CSS for.
 		providers: z.array( ProviderSchema ),
 		status: z.enum( [ 'not_generated', 'generated', 'pending', 'error' ] ),
-		status_error: z.union( [ z.coerce.string(), CriticalCssErrorDetailsSchema ] ).optional(),
+		status_error: z.coerce.string().optional(),
 		created: z.coerce.number().optional(),
 		updated: z.coerce.number().optional(),
 	} )

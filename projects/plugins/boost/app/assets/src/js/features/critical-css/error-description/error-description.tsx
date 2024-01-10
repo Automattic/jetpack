@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { regenerateCriticalCss } from '../lib/stores/critical-css-state';
 import {
 	describeErrorSet,
 	suggestion,
@@ -15,6 +14,8 @@ import MoreList from '../more-list/more-list';
 import styles from './error-description.module.scss';
 import Suggestion from '../suggestion/suggestion';
 import { CriticalCssErrorDescriptionTypes, FormattedURL } from './types';
+import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
+import { useNavigate } from 'react-router-dom';
 
 function stripCacheParams( url: string ): string {
 	const urlObj = new URL( url );
@@ -42,9 +43,16 @@ const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > 
 	} );
 
 	const rawErrors = rawError( errorSet );
+	const regenerate = useRegenerateCriticalCssAction();
+	const navigate = useNavigate();
+
+	function retry() {
+		regenerate();
+		navigate( '/' );
+	}
 
 	const intepolateVars: InterpolateVars = {
-		...actionLinkInterpolateVar( regenerateCriticalCss, 'retry' ),
+		...actionLinkInterpolateVar( retry, 'retry' ),
 		...supportLinkInterpolateVar(),
 		b: <b />,
 	};

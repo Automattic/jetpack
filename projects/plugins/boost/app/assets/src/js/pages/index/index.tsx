@@ -25,7 +25,6 @@ type IndexProps = {
 	 */
 	criticalCss: {
 		criticalCssState: CriticalCssState;
-		regenerateCriticalCss: unknown;
 		isFatalError: boolean;
 		issues: CriticalCssState[ 'providers' ];
 		primaryErrorSet: unknown;

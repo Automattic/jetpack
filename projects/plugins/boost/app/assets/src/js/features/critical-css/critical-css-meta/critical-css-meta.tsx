@@ -61,7 +61,7 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 				status={ cssState.status }
 				primaryErrorSet={ primaryErrorSet }
 				statusError={ cssState.status_error }
-				regenerateCriticalCss={ retry }
+				retry={ retry }
 				showRetry={ ! hasRetried }
 			/>
 		);

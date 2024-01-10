@@ -4,7 +4,6 @@ import { derived, get } from 'svelte/store';
 import api from '$lib/api/api';
 import { CriticalCssErrorDetailsSchema, CriticalCssStateSchema } from './critical-css-state-types';
 import { jetpack_boost_ds, JSONObject } from '$lib/stores/data-sync-client';
-import { suggestRegenerateDS } from './suggest-regenerate';
 import { modulesState } from '$lib/stores/modules';
 import type {
 	CriticalCssErrorDetails,
@@ -118,8 +117,6 @@ export function useRegenerateCriticalCssAction() {
 		},
 		callbacks: {
 			onResult: ( result, _state ): CriticalCssState => {
-				console.log( result );
-				console.log( 'hello joe' );
 				if ( result.success ) {
 					return result.state;
 				}
@@ -331,25 +328,4 @@ export const refreshCriticalCssState = async () => {
 	const state = await stateClient.endpoint.GET();
 	cssStateStore.override( state );
 	return state;
-};
-
-export const regenerateCriticalCss = async () => {
-	// Clear regeneration suggestions
-	suggestRegenerateDS.store.set( null );
-
-	// Immediately set the status to pending to disable the regenerate button
-	replaceCssState( { status: 'pending' } );
-
-	// This will clear the CSS from the database
-	// And return fresh nonce, provider and viewport data.
-	const freshState = await generateCriticalCssRequest();
-	if ( ! freshState ) {
-		// @REFACTORING - Handle error. Currently this dies silently.
-		return false;
-	}
-
-	// We received a fresh state from the server,
-	// it's already saved there,
-	// This will update the store without triggering a save back to the server.
-	cssStateStore.override( freshState );
 };
