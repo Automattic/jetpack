@@ -7,9 +7,26 @@ import { logPreCriticalCSSGeneration } from '$lib/utils/console';
 import { isSameOrigin } from '$lib/utils/is-same-origin';
 import { loadCriticalCssLibrary } from '$lib/utils/load-critical-css-library';
 import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
-import type { Viewport } from '$lib/utils/types';
 import { standardizeError } from '$lib/utils/standardize-error';
 import { SuccessTargetError } from 'jetpack-boost-critical-css-gen';
+
+const viewports = [
+	{
+		// Phone
+		width: 414,
+		height: 896,
+	},
+	{
+		// Tablet
+		width: 1200,
+		height: 800,
+	},
+	{
+		// Desktop
+		width: 1920,
+		height: 1080,
+	},
+];
 
 let generatorRunning = false;
 
@@ -89,12 +106,11 @@ async function generateCriticalCss(
 		logPreCriticalCSSGeneration();
 
 		// @REACT-TODO: Remove me.
-		const { viewports, proxy_nonce } = get( criticalCssMeta );
+		const { proxy_nonce } = get( criticalCssMeta );
 		if ( pendingProviders.length > 0 ) {
 			await generateForKeys(
 				pendingProviders,
 				requestGetParameters,
-				viewports as Viewport[],
 				proxy_nonce!,
 				callbacks,
 				signal
@@ -154,7 +170,6 @@ function isSuccessTargetError( err: unknown ): err is SuccessTargetError {
  *
  * @param {Object}      providers            - Set of URLs to use for each provider key
  * @param {Object}      requestGetParameters - GET parameters to include with each request.
- * @param {Viewport[]}  viewports            - Viewports to generate with.
  * @param {string}      proxyNonce           - Nonce to use when proxying CSS requests.
  * @param {Object}      callbacks            - Callbacks to use during generation.
  * @param {AbortSignal} signal               - Used to cancel the generation process.
@@ -162,7 +177,6 @@ function isSuccessTargetError( err: unknown ): err is SuccessTargetError {
 async function generateForKeys(
 	providers: Provider[],
 	requestGetParameters: { [ key: string ]: string },
-	viewports: Viewport[],
 	proxyNonce: string,
 	callbacks: ProviderCallbacks,
 	signal: AbortSignal

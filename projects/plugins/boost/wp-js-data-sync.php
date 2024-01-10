@@ -143,15 +143,6 @@ $critical_css_state_schema = Schema::as_assoc_array(
 $critical_css_meta_schema = Schema::as_assoc_array(
 	array(
 		'proxy_nonce' => Schema::as_string()->nullable(),
-		'viewports'   => Schema::as_array(
-			Schema::as_assoc_array(
-				array(
-					'type'   => Schema::as_string(),
-					'width'  => Schema::as_number(),
-					'height' => Schema::as_number(),
-				)
-			)
-		)->fallback( array() ),
 	)
 );
 
