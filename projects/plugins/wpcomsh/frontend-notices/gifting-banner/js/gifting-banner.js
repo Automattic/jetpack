@@ -2,7 +2,13 @@
 
 (function () {
 	document.addEventListener("DOMContentLoaded", function () {
-	  var bumpStat = function (statName) {
+		const hostnames = ['wordpress.com', 'w.link', 'automattic.com'];
+		// Make sure we never show the banner on these hostnames.
+		if (hostnames.includes(window.location.hostname)) {
+			return;
+		}
+
+		var bumpStat = function (statName) {
 		new Image().src =
 		  document.location.protocol +
 		  "//pixel.wp.com/b.gif" +
