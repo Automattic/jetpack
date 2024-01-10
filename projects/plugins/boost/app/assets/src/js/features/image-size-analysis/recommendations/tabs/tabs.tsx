@@ -77,7 +77,7 @@ const Tabs: React.FC< TabsProps > = ( {
 									{ issues > 0 ? (
 										<Link
 											className="jb-navigator-link"
-											href={ `${ group }/1` }
+											to={ `/image-size-analysis/${ group }/1` }
 											onClick={ () => {
 												recordBoostEvent( 'clicked_isa_report_group', { group } );
 												setActiveTab( group as isaGroupKeys );
