@@ -158,7 +158,13 @@ export function isFatalError( cssState: CriticalCssState ) {
 		return true;
 	}
 
-	return ! cssState.providers.some( provider => provider.status === 'success' );
+	if ( cssState.status === 'not_generated' ) {
+		return false;
+	}
+
+	return ! cssState.providers.some( provider =>
+		[ 'success', 'pending' ].includes( provider.status )
+	);
 }
 
 /**
