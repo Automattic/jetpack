@@ -293,7 +293,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.0 - 2024-01-09
+### 13.0 - 2024-01-10
 #### Enhancements
 - AI Assistant: Update the interface on desktop and mobile to improve user experience.
 - Newsletters: Add a toggle to disable sending emails on a post-by-post basis.
@@ -315,6 +315,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Newsletters: Update post-publish panel text for scheduled posts.
 - Notifications: Make the notification icon a link to improve accessibility.
 - Payments Block: Show an error message when unable to render the payment button.
+- Payments: Fix recurring payments buttons not working with multiple plans.
 - Paywall: Fix stuck pending subscription state when email isn't verified.
 - Subscriptions: Fix the subscriber count display in the pre- and post-publish panels when using paywalls or above 1000 subscribers.
 - Widgets: Fix console JavaScript error in EU Cookie Widget.

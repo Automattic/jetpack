@@ -2,13 +2,14 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.0 - 2024-01-09
+## 13.0 - 2024-01-10
 ### Enhancements
 - Subscription Modal: Display thesubscription modal when a user makes a comment. [#34659]
 
 ### Bug fixes
 - Likes Widget: Fix accessibility on likes popover. [#34800]
 - Likes Widget: Make likes widget accessibility compatible across themes. [#34857]
+- Payments: Fix recurring payments buttons not working with multiple plans.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - AI Assistant: compose ConnectPrompt and UpgradePrompt and pass it as bannerComponent prop to AI Client [#34918]
