@@ -6,6 +6,7 @@ import {
 import { type isaGroupKeys } from '../isa-groups';
 import { IsaReport, IsaCounts } from './types';
 import { z } from 'zod';
+import { useMemo } from 'react';
 
 export const useIsaReport = () =>
 	useDataSync( 'jetpack_boost_ds', 'image_size_analysis_summary', IsaReport, {
@@ -82,8 +83,10 @@ export function useImageAnalysisRequest() {
 		},
 	} );
 
-	return {
-		...mutate,
-		requestNewReport: () => mutate.mutate( null ),
-	};
+	return useMemo( () => {
+		return {
+			...mutate,
+			requestNewReport: () => mutate.mutate( null ),
+		};
+	}, [ mutate ] );
 }
