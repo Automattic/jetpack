@@ -184,14 +184,12 @@ const Index = ( { criticalCss }: IndexProps ) => {
 				onMountEnable={ startPollingCloudStatus }
 			>
 				<CloudCssMeta
-					cssState={ criticalCss.criticalCssState }
 					isCloudCssAvailable={ cloudCssState?.available === true }
 					criticalCssProgress={ criticalCss.criticalCssProgress }
 					issues={ criticalCss.issues }
 					isFatalError={ criticalCss.isFatalError }
 					primaryErrorSet={ criticalCss.primaryErrorSet }
 					suggestRegenerate={ suggestRegenerate }
-					regenerateCriticalCss={ regenerateCriticalCss }
 				/>
 			</Module>
 			<Module

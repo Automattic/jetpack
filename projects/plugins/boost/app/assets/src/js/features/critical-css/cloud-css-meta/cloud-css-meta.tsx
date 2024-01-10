@@ -4,28 +4,31 @@ import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import Status from '../status/status';
 import { useState } from '@wordpress/element';
 import { ErrorSet } from '../lib/stores/critical-css-state-errors';
-import { calculateCriticalCssProgress } from '../lib/stores/critical-css-state';
+import {
+	calculateCriticalCssProgress,
+	useCriticalCssState,
+	useRegenerateCriticalCssAction,
+} from '../lib/stores/critical-css-state';
 
 type CloudCssMetaProps = {
-	cssState: CriticalCssState;
 	isCloudCssAvailable: boolean;
 	issues: CriticalCssState[ 'providers' ];
 	isFatalError: boolean;
 	primaryErrorSet: ErrorSet;
 	suggestRegenerate: boolean;
-	regenerateCriticalCss: () => void;
 };
 
 const CloudCssMeta: React.FC< CloudCssMetaProps > = ( {
-	cssState,
 	isCloudCssAvailable,
 	issues = [],
 	isFatalError,
 	primaryErrorSet,
 	suggestRegenerate,
-	regenerateCriticalCss,
 } ) => {
 	const [ hasRetried, setHasRetried ] = useState( false );
+	const [ cssState ] = useCriticalCssState();
+	const regenerate = useRegenerateCriticalCssAction();
+	const progress = calculateCriticalCssProgress( cssState.providers );
 
 	const successCount = cssState.providers.filter(
 		provider => provider.status === 'success'
@@ -33,10 +36,8 @@ const CloudCssMeta: React.FC< CloudCssMetaProps > = ( {
 
 	function retry() {
 		setHasRetried( true );
-		regenerateCriticalCss();
+		regenerate();
 	}
-
-	const progress = calculateCriticalCssProgress( cssState.providers );
 
 	return isFatalError ? (
 		<ShowStopperError

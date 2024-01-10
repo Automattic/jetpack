@@ -22,7 +22,14 @@ export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssS
 	const [ { data }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
 		'critical_css_state',
-		CriticalCssStateSchema
+		CriticalCssStateSchema,
+		{
+			query: {
+				refetchInterval: query => {
+					return query.state.data?.status === 'pending' ? 2000 : 30000;
+				},
+			},
+		}
 	);
 
 	if ( ! data ) {
