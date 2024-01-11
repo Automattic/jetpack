@@ -98,7 +98,7 @@ class Crawler_Control {
 			$this->header( self::X_TERMS );
 			wp_die(
 				esc_html( self::ERROR_MESSAGE ),
-				402
+				403
 			);
 		}
 	}
