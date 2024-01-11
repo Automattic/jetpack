@@ -1,16 +1,25 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "0.15.7",
+	"version": "0.16.8",
 	"description": "Jetpack Api Package",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/api/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Api"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/api"
+	},
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
 		"@automattic/jetpack-config": "workspace:*",
-		"@wordpress/url": "3.36.0"
+		"@wordpress/url": "3.49.0"
 	},
 	"devDependencies": {
-		"jest": "29.4.3",
-		"jest-environment-jsdom": "29.4.3"
+		"jest": "29.7.0",
+		"jest-environment-jsdom": "29.7.0"
 	},
 	"type": "module",
 	"exports": {
@@ -18,9 +27,5 @@
 	},
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

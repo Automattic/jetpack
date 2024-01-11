@@ -46,6 +46,9 @@ class Test_Host extends TestCase {
 		Monkey\tearDown();
 		Constants::clear_constants();
 		Cache::clear();
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		unset( $_GET['calypso_env'] );
 	}
 
 	/**
@@ -113,4 +116,61 @@ class Test_Host extends TestCase {
 		$this->assertTrue( $this->host_obj->is_woa_site() );
 	}
 
+	/**
+	 * Tests getting the correct Calypso host.
+	 *
+	 * @covers Automattic\Jetpack\Status\Host::get_calypso_env
+	 * @dataProvider get_calypso_env_data_provider
+	 *
+	 * @param string $env Calypso environment (empty string if default).
+	 */
+	public function test_get_calypso_env( $env ) {
+		if ( $env ) {
+			$_GET['calypso_env'] = $env;
+		}
+
+		$this->assertEquals( $env, $this->host_obj->get_calypso_env() );
+	}
+
+	/**
+	 * Data provider for `test_get_calypso_env()` test method.
+	 *
+	 * @return array
+	 */
+	public function get_calypso_env_data_provider() {
+		return array(
+			'development' => array( 'development' ),
+			'wpcalypso'   => array( 'wpcalypso' ),
+			'horizon'     => array( 'horizon' ),
+			'default'     => array( '' ),
+		);
+	}
+
+	/**
+	 * Test adding a source parameter to the Calypso URL.
+	 *
+	 * @covers Automattic\Jetpack\Status\Host::get_source_query
+	 * @dataProvider get_source_query_params
+	 *
+	 * @param string $source Source parameter.
+	 * @param string $expected Expected query string.
+	 */
+	public function test_get_source_query( $source, $expected ) {
+		$_GET['source'] = $source;
+		$this->assertEquals( $expected, $this->host_obj->get_source_query( $source ) );
+		unset( $_GET['source'] );
+	}
+
+	/**
+	 * Data provider for `test_get_source_query()` test method.
+	 *
+	 * @return array
+	 */
+	public function get_source_query_params() {
+			return array(
+				'empty'   => array( '', '' ),
+				'valid'   => array( 'jetpack-manage', 'jetpack-manage' ),
+				'invalid' => array( 'invalid-param', '' ),
+			);
+	}
 }

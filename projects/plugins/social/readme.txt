@@ -1,10 +1,10 @@
 === Jetpack Social  ===
-Contributors: automattic, pabline, danielpost, siddarthan, gmjuhasz
+Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk, danielpost
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
-Requires at least: 6.1
-Requires PHP: 5.6
-Tested up to: 6.2
-Stable tag: 1.11.0
+Requires at least: 6.3
+Requires PHP: 7.0
+Tested up to: 6.4
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,14 @@ Don’t have the time to keep up with social media? Jetpack Social pushes your s
 **Set it and forget it!**
 
 Jetpack Social has scheduling tools that allow you to set your posts to publish at the time and day that works for your plan. Schedule your posts in advance so you’re not chained to your desk and publish at the time of day your fans are most engaged on social media.
+
+**Social Image Generator**
+
+With the Jetpack Social Advanced plan, you can have engaging imagery created automatically using the Social Image Generator feature. You can overlay custom text onto your images and choose from a variety of styles to increase engagement on your social posts. Most importantly, you’ll save time by doing it all within the WordPress editor.
+
+**Organic Content Sharing**
+
+Boost your social media engagement with Jetpack Social's Organic Content Sharing feature. Research indicates that manually published posts receive 50% more interaction compared to shared links. Our feature allows you to select custom images, videos, and text to share your blog posts as native social media content, enhancing engagement and saving you time. This feature is available with the Jetpack Social Advanced plan only.
 
 == Installation ==
 
@@ -63,6 +71,8 @@ You can connect to any of the following networks:
 * Facebook Pages
 * Tumblr
 * LinkedIn
+* Mastodon
+* Instagram Business
 
 After you add a new connection, you have the option to make the connection ‘global’, meaning it can also be used by any other user on your site who has the ability to publish posts.
 
@@ -70,7 +80,7 @@ To make the connection available to all users, check the box labeled "Connection
 
 = To which social media platforms can I post using Jetpack Social? =
 
-You can post to Facebook, Tumblr, and Linkedin. We are working hard to increase our social share integrations.
+You can post to Facebook, Instagram Business, Tumblr, Mastodon and Linkedin. We are working hard to increase our social share integrations.
 
 = How do I share a post on social media using Jetpack Social? =
 
@@ -90,16 +100,30 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.11.0 - 2023-06-06
+### 3.0.0 - 2023-12-06
 #### Added
-- Added feature flag for Mastodon preview
-- Jetpack Social: Add a notice to let users know Instagram is available
+- Added a new post-publish panel for quick sharing
+- Added Nextdoor to Social Previews
+- Added traking for social sharing buttons
 
 #### Changed
-- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now
+- Code Modernization: Replace usage of strpos() with str_contains()
+- General: updated PHP requirement to PHP 7.0+
+- General: update WordPress version requirements to WordPress 6.3 and compatible with 6.4. [#34127]
 - Updated package dependencies.
-- Updates the enhanced publishing feature check
+- Updated screenshot to show the new connection toggles.
+- Updated Social admin pricing page
 
-#### Deprecated
-- Minor changes around upcoming functionality change in Twitter.
+#### Removed
+- Removed unused code [#34111]
 
+#### Fixed
+- Fixed an issue where initial state is not in sync
+- Fixed broken connections UI
+- Fixed pre-publish UI reactivity for Jetpack Social
+- Fixed the issue of publicize remaining ON after the post is published
+
+== Upgrade Notice ==
+
+= 3.0.0 =
+Required for compatibility with Jetpack 12.9 and later.

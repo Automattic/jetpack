@@ -1,6 +1,7 @@
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Path } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
+import { people } from '@wordpress/icons';
 import { compact } from 'lodash';
 import { salesforceLeadFormVariation } from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import { getIconColor } from './util/block-icons';
@@ -51,72 +52,6 @@ const variations = compact( [
 				'jetpack/button',
 				{
 					text: __( 'Contact Us', 'jetpack-forms' ),
-					element: 'button',
-					lock: { remove: true },
-				},
-			],
-		],
-		attributes: {
-			...defaultBlockStyling,
-		},
-	},
-	! isSimpleSite() && {
-		name: 'newsletter-form',
-		title: __( 'Newsletter Sign-up', 'jetpack-forms' ),
-		description: __(
-			'A simple way to collect information from folks visiting your site.',
-			'jetpack-forms'
-		),
-		keywords: [
-			__( 'subscribe', 'jetpack-forms' ),
-			__( 'email', 'jetpack-forms' ),
-			__( 'signup', 'jetpack-forms' ),
-		],
-		icon: renderMaterialIcon(
-			<>
-				<Path
-					fillRule="evenodd"
-					clipRule="evenodd"
-					d="M7 8C7 7.72386 7.22386 7.5 7.5 7.5H19.5C19.7761 7.5 20 7.72386 20 8V16C20 16.2761 19.7761 16.5 19.5 16.5H10.5V18H19.5C20.6046 18 21.5 17.1046 21.5 16V8C21.5 6.89543 20.6046 6 19.5 6H7.5C6.39543 6 5.5 6.89543 5.5 8V9.5H7V8Z"
-					fill={ getIconColor() }
-				/>
-				<Path
-					fillRule="evenodd"
-					clipRule="evenodd"
-					d="M9 15.25H3V13.75H9V15.25Z"
-					fill={ getIconColor() }
-				/>
-				<Path
-					fillRule="evenodd"
-					clipRule="evenodd"
-					d="M9 12.5H4V11H9V12.5Z"
-					fill={ getIconColor() }
-				/>
-				<Path
-					fillRule="evenodd"
-					clipRule="evenodd"
-					d="M9 18H2V16.5H9V18Z"
-					fill={ getIconColor() }
-				/>
-				<Path
-					fillRule="evenodd"
-					clipRule="evenodd"
-					d="M6.01196 7.56955L6.98815 6.43066L13.5001 12.0123L20.012 6.43066L20.9881 7.56955L13.5001 13.9879L6.01196 7.56955Z"
-					fill={ getIconColor() }
-				/>
-			</>,
-			24,
-			24,
-			'0 0 24 24'
-		),
-		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-consent', {} ],
-			[
-				'jetpack/button',
-				{
-					text: __( 'Subscribe', 'jetpack-forms' ),
 					element: 'button',
 					lock: { remove: true },
 				},
@@ -365,6 +300,33 @@ const variations = compact( [
 		attributes: {
 			...defaultBlockStyling,
 			subject: __( 'New feedback received from your website', 'jetpack-forms' ),
+		},
+	},
+	! ( isAtomicSite() || isSimpleSite() ) && {
+		name: 'lead-capture-form',
+		title: __( 'Lead capture', 'jetpack-forms' ),
+		description: __( 'A simple way to collect leads using forms on your site.', 'jetpack-forms' ),
+		keywords: [
+			_x( 'subscribe', 'block search term', 'jetpack-forms' ),
+			_x( 'email', 'block search term', 'jetpack-forms' ),
+			_x( 'signup', 'block search term', 'jetpack-forms' ),
+		],
+		icon: people,
+		innerBlocks: [
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-consent', {} ],
+			[
+				'jetpack/button',
+				{
+					text: __( 'Subscribe', 'jetpack-forms' ),
+					element: 'button',
+					lock: { remove: true },
+				},
+			],
+		],
+		attributes: {
+			...defaultBlockStyling,
 		},
 	},
 	salesforceLeadFormVariation,

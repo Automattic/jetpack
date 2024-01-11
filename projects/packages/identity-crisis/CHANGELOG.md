@@ -5,6 +5,107 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.1] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [0.14.0] - 2023-12-06
+### Added
+- Send a verifcation secret when URL is IP. [#34436]
+
+### Changed
+- Updated package dependencies. [#34416]
+
+## [0.13.0] - 2023-12-03
+### Added
+- Store for persistent blog ID for multi-URL purposes. [#34262]
+
+### Changed
+- Updated package dependencies. [#34411]
+
+## [0.12.1] - 2023-11-24
+
+## [0.12.0] - 2023-11-20
+### Added
+- Added idc query argument to url for tracking multisite idcs. [#34090]
+
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [0.11.3] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.11.2] - 2023-11-03
+
+## [0.11.1] - 2023-10-19
+### Changed
+- Updated package dependencies. [#33687]
+
+### Fixed
+- Fix possible use of an undefined variable. [#33668]
+
+## [0.11.0] - 2023-10-17
+### Changed
+- Updated package dependencies. [#33646]
+
+### Fixed
+- Added search and replace protection for wpcom urls stored in the database. [#33412]
+
+## [0.10.7] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429]
+
+## [0.10.6] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.10.5] - 2023-09-19
+### Changed
+- Updated package dependencies. [#33001]
+
+## [0.10.4] - 2023-09-11
+### Changed
+- General: remove WP 6.1 backwards compatibility checks [#32772]
+
+## [0.10.3] - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+## [0.10.2] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## [0.10.1] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [0.10.0] - 2023-08-07
+### Changed
+- Make IDC container ID adjustable.
+
+## [0.9.0] - 2023-08-01
+### Added
+- URL secret to detect multi-domain sites. [#32005]
+
+## [0.8.52] - 2023-07-25
+### Changed
+- Updated package dependencies. [#32040]
+
+## [0.8.51] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+## [0.8.50] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## [0.8.49] - 2023-06-26
+### Changed
+- Updated package dependencies. [#31468]
+
 ## [0.8.48] - 2023-06-06
 ### Changed
 - Updated package dependencies. [#31129]
@@ -368,6 +469,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Connection/Urls for home_url and site_url functions migrated from Sync.
 
+[0.14.1]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.13.0...v0.14.0
+[0.13.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.12.1...v0.13.0
+[0.12.1]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.11.3...v0.12.0
+[0.11.3]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.11.2...v0.11.3
+[0.11.2]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.11.1...v0.11.2
+[0.11.1]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.11.0...v0.11.1
+[0.11.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.7...v0.11.0
+[0.10.7]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.6...v0.10.7
+[0.10.6]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.5...v0.10.6
+[0.10.5]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.4...v0.10.5
+[0.10.4]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.3...v0.10.4
+[0.10.3]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.2...v0.10.3
+[0.10.2]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.1...v0.10.2
+[0.10.1]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.0...v0.10.1
+[0.10.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.52...v0.9.0
+[0.8.52]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.51...v0.8.52
+[0.8.51]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.50...v0.8.51
+[0.8.50]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.49...v0.8.50
+[0.8.49]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.48...v0.8.49
 [0.8.48]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.47...v0.8.48
 [0.8.47]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.46...v0.8.47
 [0.8.46]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.45...v0.8.46

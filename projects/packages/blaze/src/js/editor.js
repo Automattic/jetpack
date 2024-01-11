@@ -6,7 +6,7 @@ import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useEffect } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import { getPlugin, registerPlugin } from '@wordpress/plugins';
 import './editor.scss';
@@ -28,7 +28,9 @@ const BlazePostPublishPanel = () => {
 			isPublishingPost: selector( editorStore ).isPublishingPost(),
 			postId: selector( editorStore ).getCurrentPostId(),
 			postType: selector( editorStore ).getCurrentPostType(),
-			postTypeLabel: selector( editorStore ).getPostTypeLabel(),
+			postTypeLabel:
+				// Translators: default post type label.
+				selector( editorStore ).getPostTypeLabel() || _x( 'Post', 'noun', 'jetpack-blaze' ),
 			postVisibility: selector( editorStore ).getEditedPostVisibility(),
 		} ) );
 	const wasPublishing = usePrevious( isPublishingPost );
@@ -43,7 +45,7 @@ const BlazePostPublishPanel = () => {
 
 	const blazeUrl = () => {
 		if ( isDashboardEnabled ) {
-			return `${ adminUrl }tools.php?page=advertising#!/advertising/${ siteFragment }/posts/promote/post-${ postId }`;
+			return `${ adminUrl }tools.php?page=advertising#!/advertising/posts/promote/post-${ postId }/${ siteFragment }`;
 		}
 
 		return getRedirectUrl( 'jetpack-blaze', {

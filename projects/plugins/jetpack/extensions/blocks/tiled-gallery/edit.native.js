@@ -1,3 +1,4 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import {
 	store as blockEditorStore,
 	MediaPlaceholder,
@@ -12,14 +13,15 @@ import { __ } from '@wordpress/i18n';
 import { concat } from 'lodash';
 import { useWindowDimensions, View } from 'react-native';
 import { getActiveStyleName } from '../../shared/block-styles';
+import metadata from './block.json';
 import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
 import TiledGallerySettings, { DEFAULT_COLUMNS } from './settings';
 import styles from './styles.scss';
-import { icon } from '.';
 
 const TILE_SPACING = 8;
 const MAX_DISPLAYED_COLUMNS_PORTRAIT = 2;
 const MAX_DISPLAYED_COLUMNS_LANDSCAPE = 4;
+const icon = getBlockIconComponent( metadata );
 
 export function defaultColumnsNumber( images ) {
 	return Math.min( MAX_COLUMNS, images.length );
@@ -133,7 +135,7 @@ const TiledGalleryEdit = props => {
 			numColumns: displayedColumns,
 			marginHorizontal: TILE_SPACING,
 			marginVertical: TILE_SPACING,
-			__experimentalLayout: { type: 'default', alignments: [] },
+			layout: { type: 'default', alignments: [] },
 			gridProperties: {
 				numColumns: displayedColumns,
 			},

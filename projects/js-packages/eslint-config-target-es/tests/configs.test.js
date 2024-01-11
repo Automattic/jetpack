@@ -37,9 +37,9 @@ function loadConfig( name ) {
 // The part of the config that doesn't vary.
 const template = {
 	env: {
-		es2021: true,
+		es2022: true,
 	},
-	plugins: [ 'es' ],
+	plugins: [ 'es-x' ],
 };
 
 // Configs and getRules options to test.

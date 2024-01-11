@@ -29,7 +29,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$methods = get_class_methods( 'Jetpack_Cxn_Tests' );
 
 		foreach ( $methods as $method ) {
-			if ( false === strpos( $method, 'test__' ) ) {
+			if ( ! str_contains( $method, 'test__' ) ) {
 				continue;
 			}
 			$this->add_test( array( $this, $method ), $method, 'direct' );
@@ -586,7 +586,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		remove_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
 
 		if ( is_wp_error( $response ) ) {
-			if ( false !== strpos( $response->get_error_message(), 'cURL error 28' ) ) { // Timeout.
+			if ( str_contains( $response->get_error_message(), 'cURL error 28' ) ) { // Timeout.
 				$result = self::skipped_test(
 					array(
 						'name'              => $name,
@@ -957,7 +957,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 			$result = self::passing_test( array( 'name' => $name ) );
-		} elseif ( is_wp_error( $response ) && false !== strpos( $response->get_error_message(), 'cURL error 28' ) ) { // Timeout.
+		} elseif ( is_wp_error( $response ) && str_contains( $response->get_error_message(), 'cURL error 28' ) ) { // Timeout.
 			$result = self::skipped_test(
 				array(
 					'name'              => $name,

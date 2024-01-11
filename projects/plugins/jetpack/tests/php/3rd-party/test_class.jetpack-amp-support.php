@@ -86,5 +86,4 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 		// Reset global post.
 		$post = null;
 	}
-
 }

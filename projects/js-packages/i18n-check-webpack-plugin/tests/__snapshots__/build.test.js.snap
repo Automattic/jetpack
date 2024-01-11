@@ -1,5 +1,33 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Webpack \`I18nSafeMangleExportsPlugin\`: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`I18nSafeMangleExportsPlugin\`: Webpack build files 1`] = `
+[
+  "control.js",
+  "plugin.js",
+]
+`;
+
+exports[`Webpack \`I18nSafeMangleExportsPlugin\`: Webpack build stats 1`] = `
+{
+  "children": [
+    {
+      "errors": [],
+      "name": undefined,
+      "warnings": [],
+    },
+    {
+      "errors": [],
+      "name": undefined,
+      "warnings": [],
+    },
+  ],
+  "errors": [],
+  "warnings": [],
+}
+`;
+
 exports[`Webpack \`basic-test\`: Webpack build error 1`] = `null`;
 
 exports[`Webpack \`basic-test\`: Webpack build files 1`] = `

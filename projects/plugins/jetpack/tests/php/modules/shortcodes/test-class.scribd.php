@@ -61,5 +61,4 @@ class WP_Test_Jetpack_Shortcodes_Scribd extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected, $actual );
 	}
-
 }

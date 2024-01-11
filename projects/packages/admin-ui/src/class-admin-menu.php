@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.2.20';
+	const PACKAGE_VERSION = '0.3.1';
 
 	/**
 	 * Whether this class has been initialized
@@ -49,7 +49,7 @@ class Admin_Menu {
 	 * we use this method to move the menu item.
 	 */
 	private static function handle_akismet_menu() {
-		if ( ! class_exists( 'Jetpack' ) && class_exists( 'Akismet_Admin' ) ) {
+		if ( class_exists( 'Akismet_Admin' ) ) {
 			// Prevent Akismet from adding a menu item.
 			add_action(
 				'admin_menu',
@@ -60,7 +60,7 @@ class Admin_Menu {
 			);
 
 			// Add an Anti-spam menu item for Jetpack.
-			self::add_menu( __( 'Anti-Spam', 'jetpack-admin-ui' ), __( 'Anti-Spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
+			self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 
 		}
 	}
@@ -104,7 +104,13 @@ class Admin_Menu {
 			function ( $a, $b ) {
 				$position_a = empty( $a['position'] ) ? 0 : $a['position'];
 				$position_b = empty( $b['position'] ) ? 0 : $b['position'];
-				return $position_a - $position_b;
+				$result     = $position_a <=> $position_b;
+
+				if ( 0 === $result ) {
+					$result = strcmp( $a['menu_title'], $b['menu_title'] );
+				}
+
+				return $result;
 			}
 		);
 
@@ -150,7 +156,7 @@ class Admin_Menu {
 	 *                              and only include lowercase alphanumeric, dashes, and underscores characters
 	 *                              to be compatible with sanitize_key().
 	 * @param callable $function    The function to be called to output the content for this page.
-	 * @param int      $position    The position in the menu order this item should appear.
+	 * @param int      $position    The position in the menu order this item should appear. Leave empty typically.
 	 *
 	 * @return string The resulting page's hook_suffix
 	 */
@@ -198,5 +204,4 @@ class Admin_Menu {
 		$url = $fallback ? $fallback : admin_url();
 		return $url;
 	}
-
 }

@@ -2,6 +2,53 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.16.8] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [0.16.7] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411]
+- Updated package dependencies. [#34427]
+
+## [0.16.6] - 2023-11-20
+
+## [0.16.5] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.16.4] - 2023-10-19
+### Changed
+- Updated package dependencies. [#33687]
+
+## [0.16.3] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.16.2] - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+
+## [0.16.1] - 2023-08-21
+### Added
+- Publish package to npmjs.com. [#32515]
+
+## 0.16.0 - 2023-08-14
+### Added
+- Add backup undo feature. [#32442]
+
+## 0.15.10 - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## 0.15.9 - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## 0.15.8 - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
 ## 0.15.7 - 2023-06-21
 ### Changed
 - Updated package dependencies. [#31468]
@@ -242,3 +289,12 @@
 ### Added
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
+
+[0.16.8]: https://github.com/Automattic/jetpack-api/compare/v0.16.7...v0.16.8
+[0.16.7]: https://github.com/Automattic/jetpack-api/compare/v0.16.6...v0.16.7
+[0.16.6]: https://github.com/Automattic/jetpack-api/compare/v0.16.5...v0.16.6
+[0.16.5]: https://github.com/Automattic/jetpack-api/compare/v0.16.4...v0.16.5
+[0.16.4]: https://github.com/Automattic/jetpack-api/compare/v0.16.3...v0.16.4
+[0.16.3]: https://github.com/Automattic/jetpack-api/compare/v0.16.2...v0.16.3
+[0.16.2]: https://github.com/Automattic/jetpack-api/compare/v0.16.1...v0.16.2
+[0.16.1]: https://github.com/Automattic/jetpack-api/compare/v0.16.0...v0.16.1

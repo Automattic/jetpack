@@ -19,16 +19,7 @@ export default class RootChild extends React.Component {
 	componentDidMount() {
 		this.container = document.createElement( 'div' );
 		document.body.appendChild( this.container );
-		// @todo: Remove fallback when we drop support for WP 6.1
-		if ( WPElement.createRoot ) {
-			this.containerRoot = WPElement.createRoot( this.container );
-		} else {
-			const theContainer = this.container;
-			this.containerRoot = {
-				render: component => WPElement.render( component, theContainer ),
-				unmount: () => WPElement.unmountComponentAtNode( theContainer ),
-			};
-		}
+		this.containerRoot = WPElement.createRoot( this.container );
 		this.renderChildren();
 	}
 

@@ -102,8 +102,7 @@ class Dashboard {
 				_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
 				'manage_options',
 				'jetpack-search',
-				array( $this, 'render' ),
-				100
+				array( $this, 'render' )
 			);
 		} else {
 			// always add the page, but hide it from the menu.
@@ -192,11 +191,7 @@ class Dashboard {
 		);
 
 		// Connection initial state.
-		wp_add_inline_script(
-			'jp-search-dashboard',
-			Connection_Initial_State::render(),
-			'before'
-		);
+		Connection_Initial_State::render_script( 'jp-search-dashboard' );
 	}
 
 	/**
@@ -222,5 +217,4 @@ class Dashboard {
 			$this->module_control->deactivate();
 		}
 	}
-
 }

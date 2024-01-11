@@ -1,0 +1,44 @@
+@import '../../../css/main/variables';
+@import '../../../css/main/mixins';
+
+.speed-scores {
+	p {
+		margin: 1em 0;
+	}
+
+	h2 {
+		font-weight: 700;
+
+		@include breakpoint(xs) {
+			font-size: 27px;
+		}
+	}
+
+	.offline, .top {
+		margin-bottom: 2rem;
+	}
+
+	.offline p {
+		font-weight: 400;
+		max-width: 560px;
+		line-height: 1.5;
+		color: $gray_70;
+	}
+
+	.top {
+		display: flex;
+		align-items: center;
+		color: #000;
+	}
+
+	.action-button {
+		color: $gray_90;
+		margin-left: auto;
+
+		svg {
+			fill: $jetpack-green;
+		}
+	}
+}
+
+

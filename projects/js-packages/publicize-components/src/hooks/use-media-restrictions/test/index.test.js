@@ -2,45 +2,38 @@ import { renderHook } from '@testing-library/react';
 import useMediaRestrictions, {
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
-	getAllowedMediaTypes,
 	VIDEO_LENGTH_TOO_LONG_ERROR,
 	VIDEO_LENGTH_TOO_SHORT_ERROR,
 } from '../index';
 
 const DUMMY_CONNECTIONS = [
 	{
-		service_name: 'twitter',
-	},
-	{
 		service_name: 'facebook',
+		connection_id: 'facebook',
 	},
 	{
 		service_name: 'tumblr',
+		connection_id: 'tumblr',
 	},
 	{
 		service_name: 'linkedin',
+		connection_id: 'linkedin',
 	},
 	{
 		service_name: 'mastodon',
+		connection_id: 'mastodon',
+	},
+	{
+		service_name: 'instagram-business',
+		connection_id: 'instagram-business',
 	},
 ];
 
-const UNKNOWN_CONNECTION = [ { service_name: 'unknown' } ];
-
 const INVALID_TYPES = [ 'imagejpg', 'image/tgif', 'video/mp5', '', null ];
-const INVALID_LENGTH_VIDEOS = [
-	{ mime: 'video/mp4', fileSize: 1000000, length: 2 }, // Too short video
-	{ mime: 'video/mp4', fileSize: 1000000, length: 20000 }, // Too long video
-];
-const INVALID_SIZED_MEDIA = [
-	{ mime: 'image/jpg', fileSize: 10000000 }, // Too big image
-	{ mime: 'video/mp4', fileSize: 100000000000, length: 20 }, // Too big video
-	{ mime: 'video/mp4', fileSize: 10, length: 20 }, // Too small video
-];
-const VALID_MEDIA = [
-	{ mime: 'image/jpg', fileSize: 20 },
-	{ mime: 'image/png', fileSize: 3000000 },
-	{ mime: 'video/mp4', fileSize: 1000000, length: 20 },
+
+const VALID_MEDIA_ALL = [
+	{ metaData: { mime: 'image/jpg', fileSize: 40 }, mediaData: { width: 400, height: 500 } },
+	{ metaData: { mime: 'image/jpeg', fileSize: 20 }, mediaData: { width: 400, height: 500 } },
 ];
 const ALLOWED_MEDIA_TYPES_ALL = [
 	'image/jpeg',
@@ -50,169 +43,163 @@ const ALLOWED_MEDIA_TYPES_ALL = [
 	'video/videopress',
 ];
 
+const getHookProps = (
+	{
+		connections = DUMMY_CONNECTIONS,
+		media = [],
+		isSocialImageGeneratorEnabledForPost = false,
+		shouldUploadAttachedMedia = true,
+	} = {
+		connections: DUMMY_CONNECTIONS,
+		media: [],
+		isSocialImageGeneratorEnabledForPost: false,
+		shouldUploadAttachedMedia: true,
+	}
+) => [
+	connections,
+	media,
+	{
+		isSocialImageGeneratorEnabledForPost,
+		shouldUploadAttachedMedia,
+	},
+];
+
 describe( 'useMediaRestrictions hook', () => {
-	test( 'maxImageSize returns the best image size available', () => {
-		const { result, rerender } = renderHook( connections => useMediaRestrictions( connections ), {
-			initialProps: DUMMY_CONNECTIONS,
-		} );
-
-		const defaultMaxImageSize = result.current.maxImageSize;
-		rerender( [ { service_name: 'linkedin' } ] );
-		const linkedinMaxImageSize = result.current.maxImageSize;
-		rerender( DUMMY_CONNECTIONS );
-
-		expect( defaultMaxImageSize ).toBe( 4 );
-		expect( linkedinMaxImageSize ).toBe( 20 );
-	} );
-
-	test( 'Returns default video limits for unknown service', () => {
-		const { result } = renderHook( connections => useMediaRestrictions( connections ), {
-			initialProps: UNKNOWN_CONNECTION,
-		} );
-
-		const defaultVideoLimits = result.current.videoLimits;
-
-		expect( defaultVideoLimits ).toStrictEqual( {
-			minLength: 0,
-			minSize: 0,
-			maxSize: 100000,
-			maxLength: 100000,
+	test( 'should not get any errors for image that accepted by all platforms', () => {
+		VALID_MEDIA_ALL.forEach( media => {
+			const { result } = renderHook( () => useMediaRestrictions( ...getHookProps( { media } ) ) );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
 	} );
 
-	test( 'Returns correct video limits when a service and an unknown service are defined', () => {
-		const { result } = renderHook( connections => useMediaRestrictions( connections ), {
-			initialProps: UNKNOWN_CONNECTION.concat( [ { service_name: 'linkedin' } ] ),
-		} );
-
-		const defaultVideoLimits = result.current.videoLimits;
-
-		expect( defaultVideoLimits ).toStrictEqual( {
-			minSize: 0.075,
-			maxSize: 200,
-			maxLength: 600,
-			minLength: 3,
-		} );
-	} );
-
-	test( 'Returns default maxImageSize for unknown service', () => {
-		const { result } = renderHook( connections => useMediaRestrictions( connections ), {
-			initialProps: UNKNOWN_CONNECTION,
-		} );
-
-		const defaultMaxImageSize = result.current.maxImageSize;
-		expect( defaultMaxImageSize ).toBe( 4 );
-	} );
-
-	test( 'Returns correct maxImageSize when a service and an unknown service are defined', () => {
-		const { result } = renderHook( connections => useMediaRestrictions( connections ), {
-			initialProps: UNKNOWN_CONNECTION.concat( [ { service_name: 'linkedin' } ] ),
-		} );
-
-		const defaultMaxImageSize = result.current.maxImageSize;
-		expect( defaultMaxImageSize ).toBe( 4 );
-	} );
-
-	test( 'Video limits are calculated correctly', () => {
-		const { result, rerender } = renderHook( connections => useMediaRestrictions( connections ), {
-			initialProps: DUMMY_CONNECTIONS,
-		} );
-
-		const defaultVideoLimits = result.current.videoLimits;
-		rerender( [ { service_name: 'twitter' }, { service_name: 'facebook' } ] );
-		const modifiedVideoLimits = result.current.videoLimits;
-		rerender( DUMMY_CONNECTIONS );
-
-		expect( defaultVideoLimits ).toStrictEqual( {
-			maxLength: 140,
-			maxSize: 40,
-			minLength: 3,
-			minSize: 0.075,
-		} );
-		expect( modifiedVideoLimits ).toStrictEqual( {
-			maxLength: 140,
-			maxSize: 512,
-			minLength: 0,
-			minSize: 0,
-		} );
-	} );
-
-	test( 'Returns allowed media types', () => {
-		const allAllowedMediaTypes = getAllowedMediaTypes( DUMMY_CONNECTIONS );
-		const allAllowedMediaTypesTumblr = getAllowedMediaTypes( [ { service_name: 'tumblr' } ] );
-
-		expect( allAllowedMediaTypes.sort() ).toStrictEqual( ALLOWED_MEDIA_TYPES_ALL.sort() );
-		expect( allAllowedMediaTypesTumblr.sort() ).toStrictEqual(
-			ALLOWED_MEDIA_TYPES_ALL.concat( [ 'video/mov' ] ).sort()
-		);
-	} );
-
-	test( 'Returns default media types for empty connections', () => {
-		const defaultMediaTypes = getAllowedMediaTypes( [] );
-		expect( defaultMediaTypes.sort() ).toStrictEqual(
-			ALLOWED_MEDIA_TYPES_ALL.concat( [ 'video/mov' ] ).sort()
-		);
-	} );
-
-	describe( 'Validation tests', () => {
-		test( 'Too big/small media results in file size error', () => {
-			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
-				initialProps: DUMMY_CONNECTIONS,
-			} );
-
-			const validationErrors = INVALID_SIZED_MEDIA.map( media =>
-				result.current.getValidationError( media )
+	test( 'No error with empty connections', () => {
+		VALID_MEDIA_ALL.forEach( media => {
+			const { result } = renderHook( () =>
+				useMediaRestrictions( ...getHookProps( { media, connections: [] } ) )
 			);
-
-			expect( validationErrors.every( error => error === FILE_SIZE_ERROR ) ).toBe( true );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
+	} );
 
-		test( 'Invalid file type results in file type error', () => {
-			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
-				initialProps: DUMMY_CONNECTIONS,
-			} );
-
-			const validationErrors = INVALID_TYPES.map( type =>
-				result.current.getValidationError( 200, type )
+	test( 'Should be valid if SIG is enabled', () => {
+		[
+			{ media: { metaData: { mime: 'image/jpg', fileSize: 10000000 } }, error: FILE_SIZE_ERROR }, // Too big image
+		].forEach( media => {
+			const { result } = renderHook( () =>
+				useMediaRestrictions(
+					...getHookProps( { media, isSocialImageGeneratorEnabledForPost: true } )
+				)
 			);
-
-			expect( validationErrors.every( error => error === FILE_TYPE_ERROR ) ).toBe( true );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
+	} );
 
-		test( 'Too short/long videos result in video length error', () => {
-			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
-				initialProps: DUMMY_CONNECTIONS,
-			} );
-
-			const validationErrors = INVALID_LENGTH_VIDEOS.map( video =>
-				result.current.getValidationError( video )
+	test( 'Should be valid if image is not uploaded', () => {
+		[ { metaData: { mime: 'image/jpg', fileSize: 100000000 } } ].forEach( media => {
+			const { result } = renderHook( () =>
+				useMediaRestrictions(
+					...getHookProps( {
+						connections: DUMMY_CONNECTIONS.splice( 0, -1 ), // Instagram checks even if not uploaded
+						media,
+						shouldUploadAttachedMedia: false,
+					} )
+				)
 			);
-
-			expect( validationErrors ).toContain( VIDEO_LENGTH_TOO_SHORT_ERROR );
-			expect( validationErrors ).toContain( VIDEO_LENGTH_TOO_LONG_ERROR );
-			expect( validationErrors ).toHaveLength( 2 );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
+	} );
 
-		test( 'Valid media results in no error', () => {
-			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
-				initialProps: DUMMY_CONNECTIONS,
-			} );
-
-			const validationErrors = VALID_MEDIA.map( media =>
-				result.current.getValidationError( media )
+	test( 'Should not get File Type Error for the all accepted types', () => {
+		ALLOWED_MEDIA_TYPES_ALL.map( type => ( {
+			metaData: { mime: type, fileSize: 5 },
+		} ) ).forEach( media => {
+			const { result } = renderHook( () =>
+				useMediaRestrictions(
+					...getHookProps( { media, connections: DUMMY_CONNECTIONS.splice( 0, -1 ) } ) // Instagram checks even if not uploaded
+				)
 			);
-
-			expect( validationErrors.every( error => error === null ) ).toBe( true );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
+	} );
 
-		test( 'No error with empty connections', () => {
-			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
-				initialProps: [],
-			} );
+	test( 'Should get errors for invalid media types', () => {
+		INVALID_TYPES.map( type => ( {
+			metaData: { mime: type, fileSize: 5 },
+		} ) ).forEach( media => {
+			const { result } = renderHook( () =>
+				useMediaRestrictions(
+					...getHookProps( { media } ) // Instagram checks even if not uploaded
+				)
+			);
+			expect( Object.values( result.current.validationErrors ) ).toHaveLength(
+				Object.keys( DUMMY_CONNECTIONS ).length
+			);
+			expect(
+				Object.values( result.current.validationErrors ).every( error => error === FILE_TYPE_ERROR )
+			).toBe( true );
+		} );
+	} );
 
-			expect( () => {
-				expect( result.current ).toBeDefined();
-			} ).not.toThrow( TypeError );
+	test( 'Instagram should only accept good sized image', () => {
+		[
+			{
+				media: {
+					metaData: { mime: 'image/jpg', fileSize: 10000000 },
+					mediaData: { width: 400, height: 500 },
+				},
+				error: FILE_SIZE_ERROR,
+			}, // Too big image
+			{
+				media: {
+					metaData: { mime: 'image/png', fileSize: 10000000 },
+					mediaData: { width: 400, height: 500 },
+				},
+				error: FILE_TYPE_ERROR,
+			}, // Png
+			{
+				media: {
+					metaData: { mime: 'video/mp5', fileSize: 10 },
+					mediaData: { width: 320, height: 500 },
+				},
+				error: FILE_TYPE_ERROR,
+			}, // Bad Video
+		].forEach( testData => {
+			const { result } = renderHook( () =>
+				useMediaRestrictions(
+					...getHookProps( { media: testData.media, connections: [ DUMMY_CONNECTIONS[ 4 ] ] } )
+				)
+			);
+			expect( result.current.validationErrors ).toHaveProperty( 'instagram-business' );
+			expect( result.current.validationErrors[ 'instagram-business' ] ).toEqual( testData.error );
+		} );
+	} );
+
+	test( 'Can get video length error', () => {
+		[
+			{
+				media: {
+					metaData: { mime: 'video/mp4', fileSize: 1000000, length: 2 },
+					mediaData: { width: 10, height: 10 },
+				},
+				error: VIDEO_LENGTH_TOO_SHORT_ERROR,
+			}, // Too short video
+			{
+				media: {
+					metaData: { mime: 'video/mp4', fileSize: 1000000, length: 20000 },
+					mediaData: { width: 10, height: 10 },
+				},
+				error: VIDEO_LENGTH_TOO_LONG_ERROR,
+			}, // Too long video
+		].forEach( testData => {
+			const { result } = renderHook( () =>
+				useMediaRestrictions(
+					...getHookProps( {
+						media: testData.media,
+						connections: [ DUMMY_CONNECTIONS[ 2 ] ],
+					} ) // Instagram not support videos
+				)
+			);
+			expect( result.current.validationErrors.linkedin ).toEqual( testData.error );
 		} );
 	} );
 } );

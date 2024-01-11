@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Enable `MediaWiki.PHPUnit.MockBoilerplate` sniff.

@@ -3,9 +3,11 @@
 	"description": "Core functionality for boost and relevant packages to depend on",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"php": ">=7.0"
+	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.4",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "dev-master"
 	},
@@ -49,7 +51,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "0.2.x-dev"
 		},
 		"textdomain": "jetpack-boost-core"
 	},

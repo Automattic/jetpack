@@ -46,5 +46,4 @@ class Test_Threat_Model extends BaseTestCase {
 			}
 		}
 	}
-
 }

@@ -2,7 +2,7 @@
 /**
  * A class that adds a Blaze dashboard to wp-admin.
  *
- * @since $$next-version$$
+ * @since 0.7.0
  *
  * @package automattic/jetpack-blaze
  */
@@ -21,7 +21,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.7.0-alpha';
+	const PACKAGE_VERSION = '0.15.0-alpha';
 
 	/**
 	 * List of dependencies needed to render the dashboard in wp-admin.

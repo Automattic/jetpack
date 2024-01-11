@@ -17,8 +17,7 @@ use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
  */
-class Jetpack_Core_API_Module_Toggle_Endpoint
-	extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
+class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 	/**
 	 * Check if the module requires the site to be publicly accessible from WPCOM.
@@ -981,6 +980,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'stb_enabled':
 				case 'stc_enabled':
+				case 'sm_enabled':
 					// Convert the false value to 0. This allows the option to be updated if it doesn't exist yet.
 					$sub_value = $value ? $value : 0;
 					$updated   = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
@@ -1331,7 +1331,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			return false;
 		}
 		foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
-			if ( strpos( $widget, 'widget_contact_info' ) !== false ) {
+			if ( str_contains( $widget, 'widget_contact_info' ) ) {
 				return true;
 			}
 		}

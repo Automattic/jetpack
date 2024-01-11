@@ -7,9 +7,9 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Constants as Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Class Automattic\Jetpack\Modules
@@ -25,6 +25,10 @@ class Modules {
 	 * @return bool
 	 */
 	public function is_active( $module ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return true;
+		}
+
 		return in_array( $module, self::get_active(), true );
 	}
 
@@ -162,7 +166,7 @@ class Modules {
 		}
 
 		$key           = md5( $file_name . maybe_serialize( $headers ) );
-		$refresh_cache = is_admin() && isset( $_GET['page'] ) && 'jetpack' === substr( $_GET['page'], 0, 7 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+		$refresh_cache = is_admin() && isset( $_GET['page'] ) && str_starts_with( $_GET['page'], 'jetpack' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 
 		// If we don't need to refresh the cache, and already have the value, short-circuit!
 		if ( ! $refresh_cache && isset( $file_data_option[ $key ] ) ) {
@@ -194,8 +198,11 @@ class Modules {
 			$active = array_diff( $active, array( 'vaultpress' ) );
 		}
 
-		// If protect is active on the main site of a multisite, it should be active on all sites.
-		if ( ! in_array( 'protect', $active, true ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
+		// If protect is active on the main site of a multisite, it should be active on all sites. Doesn't apply to WP.com.
+		if ( ! in_array( 'protect', $active, true )
+			&& ! ( new Host() )->is_wpcom_simple()
+			&& is_multisite()
+			&& get_site_option( 'jetpack_protect_active' ) ) {
 			$active[] = 'protect';
 		}
 

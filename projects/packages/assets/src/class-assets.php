@@ -450,6 +450,7 @@ class Assets {
 		$content_dir = Jetpack_Constants::get_constant( 'WP_CONTENT_DIR' );
 		$abspath     = Jetpack_Constants::get_constant( 'ABSPATH' );
 
+		// Note: str_starts_with() is not used here, as wp-includes/compat.php may not be loaded at this point.
 		if ( strpos( $lang_dir, $content_dir ) === 0 ) {
 			$data['baseUrl'] = content_url( substr( trailingslashit( $lang_dir ), strlen( trailingslashit( $content_dir ) ) ) );
 		} elseif ( strpos( $lang_dir, $abspath ) === 0 ) {
@@ -509,7 +510,7 @@ class Assets {
 		}
 
 		// Deprecated state module: Depend on wp-i18n to ensure global `wp` exists and because anything needing this will need that too.
-		$wp_scripts->add( 'wp-jp-i18n-state', null, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) );
+		$wp_scripts->add( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) );
 		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' );
 		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' );
 	}
@@ -731,7 +732,6 @@ class Assets {
 	}
 
 	// endregion .
-
 }
 
 // Enable section folding in vim:

@@ -234,5 +234,4 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( $contains, $filtered );
 	}
-
 }

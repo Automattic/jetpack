@@ -22,5 +22,4 @@ class Type_Enum implements Parser {
 		}
 		return $data;
 	}
-
 }

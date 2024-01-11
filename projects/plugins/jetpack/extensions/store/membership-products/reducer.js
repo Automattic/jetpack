@@ -5,6 +5,16 @@ export const DEFAULT_STATE = {
 	apiState: API_STATE_LOADING,
 	connectUrl: null,
 	siteSlug: '',
+	connectedAccountDefaultCurrency: '',
+	subscriberCounts: {
+		socialFollowers: null,
+		emailSubscribers: null,
+		paidSubscribers: null,
+	},
+	newsletterCategories: {
+		enabled: false,
+		categories: [],
+	},
 };
 
 export default function reducer( state = DEFAULT_STATE, action ) {
@@ -17,6 +27,26 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 			return { ...state, apiState: action.apiState };
 		case 'SET_SITE_SLUG':
 			return { ...state, siteSlug: action.siteSlug };
+		case 'SET_CONNECTED_ACCOUNT_DEFAULT_CURRENCY':
+			return {
+				...state,
+				connectedAccountDefaultCurrency: action.connectedAccountDefaultCurrency,
+			};
+		case 'SET_SUBSCRIBER_COUNTS':
+			return {
+				...state,
+				subscriberCounts: action.subscriberCounts,
+			};
+		case 'SET_NEWSLETTER_CATEGORIES':
+			return {
+				...state,
+				newsletterCategories: action.newsletterCategories,
+			};
+		case 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT':
+			return {
+				...state,
+				newsletterCategoriesSubscriptionsCount: action.newsletterCategoriesSubscriptionsCount,
+			};
 	}
 	return state;
 }

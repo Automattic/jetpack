@@ -78,7 +78,7 @@ To automatically fix some coding standards issues on the Jetpack Boost PHP code 
   composer phpcs:fix ./projects/plugins/boost
   ```
 
-To check for PHP 5.6 code compatibility run:
+To check for PHP code compatibility run:
 
   ```sh
   composer phpcs:compatibility ./projects/plugins/boost

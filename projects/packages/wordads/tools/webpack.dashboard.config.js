@@ -3,7 +3,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		'jp-wordads-dashboard': path.join( __dirname, '../src/dashboard/index.jsx' ),
 	},

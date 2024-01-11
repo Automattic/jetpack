@@ -2,8 +2,6 @@
  * Type definitions for the global namespace. i.e.: things we expect to find in window.
  */
 
-import type { ConnectionStatus } from './stores/connection';
-import type { Optimizations } from './stores/modules';
 import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
 
 // <reference types ="@types/jquery"/>
@@ -21,47 +19,33 @@ declare global {
 
 	// Constants provided by the plugin.
 	const Jetpack_Boost: {
-		preferences: {
-			showRatingPrompt: boolean;
-			showScorePrompt: boolean;
-			prioritySupport: boolean;
-		};
-		isPremium: boolean;
+		isaFixButton: boolean;
 		version: string;
 		api: {
 			namespace: string;
 			prefix: string;
 		};
 		connectionIframeOriginUrl: string;
-		connection: ConnectionStatus;
-		showRatingPromptNonce?: string;
-		showScorePromptNonce?: string;
-		dismissedScorePrompts: string[];
+		fixImageNonce?: string;
 		superCache: {
 			pluginActive: boolean;
 			cacheEnabled: boolean;
-			disableCacheKey?: string;
+			cachePageSecret?: string;
 		};
 		site: {
 			domain: string;
 			url: string;
 			online: boolean;
 			assetPath: string;
-			getStarted: boolean;
+			staticAssetPath: string;
 			canResizeImages: boolean;
+			isAtomic: boolean;
+			postTypes: {
+				[ key: string ]: string;
+			};
 		};
-		optimizations: Optimizations;
-		shownAdminNoticeIds: string[];
 		nonces: {
 			[ key: string ]: string;
-		};
-		pricing: {
-			yearly?: {
-				priceBefore: number;
-				priceAfter: number;
-				currencyCode: string;
-				isIntroductoryOffer: boolean;
-			};
 		};
 	};
 

@@ -558,7 +558,6 @@ class Jetpack_Sitemap_Manager {
 			)
 		);
 	}
-
 } // End Jetpack_Sitemap_Manager class.
 
 new Jetpack_Sitemap_Manager();

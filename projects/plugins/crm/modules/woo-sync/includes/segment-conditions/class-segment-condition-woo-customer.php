@@ -66,5 +66,4 @@ class Segment_Condition_Woo_Customer extends zeroBSCRM_segmentCondition {
 
         return $startingArg;
     }
-    
 }

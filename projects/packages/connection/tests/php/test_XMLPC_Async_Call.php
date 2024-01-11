@@ -34,5 +34,4 @@ class XMLRPC_Async_Call_Test extends BaseTestCase {
 
 		$this->assertEquals( 10, has_action( 'shutdown', array( 'Automattic\Jetpack\Connection\XMLRPC_Async_Call', 'do_calls' ) ) );
 	}
-
 }

@@ -873,35 +873,30 @@ function zeroBS_integrations_addOrUpdateTransaction(
 
 }
 
-function zeroBS_integrations_addOrUpdateEvent(
-	$eventID = -1,  /* Req - the event ID */
-	$dataArray =array(),  /* Req: title,to, from */
-	$eventReminders = array()  /* Req: remind_at,sent (v3+) */
-	){
+// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+function zeroBS_integrations_addOrUpdateTask(
+	$task_id = -1, /* Req - the task ID */
+	$data_array = array(), /* Req: title,to, from */
+	$task_reminders = array() /* Req: remind_at,sent (v3+) */
+) {
 
 	#} Check req.
 	if (
-		is_array($dataArray) && count($dataArray) > 0 &&
-		isset($dataArray['title']) && !empty($dataArray['title']) &&
-
-			(
-				// v2
-				(isset($dataArray['to']) && !empty($dataArray['to']) && isset($dataArray['from']) && !empty($dataArray['from']))
-				||
-				// v3
-				(isset($dataArray['start']) && !empty($dataArray['start']) && isset($dataArray['end']) && !empty($dataArray['end']))
-
-			)
-		){
-
-			return zeroBS_addUpdateEvent($eventID, $dataArray, $eventReminders);
-
+		is_array( $data_array )
+		&& count( $data_array ) > 0
+		&& ! empty( $data_array['title'] )
+		&& (
+			// old params
+			( ! empty( $data_array['to'] ) && ! empty( $data_array['from'] ) )
+			||
+			// new params
+			( ! empty( $data_array['start'] ) && ! empty( $data_array['end'] ) )
+		)
+	) {
+			return zeroBS_addUpdateEvent( $task_id, $data_array, $task_reminders );
 	} else { // no source/id/fields
-
 		return false;
-
 	}
-
 }
 
 

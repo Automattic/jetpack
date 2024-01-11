@@ -497,5 +497,4 @@ class SemverVersioningTest extends TestCase {
 			),
 		);
 	}
-
 }

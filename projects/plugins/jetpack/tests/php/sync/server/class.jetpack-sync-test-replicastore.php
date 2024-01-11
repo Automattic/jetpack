@@ -741,5 +741,4 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	public function get_term_relationships() {
 		return $this->term_relationships[ get_current_blog_id() ];
 	}
-
 }

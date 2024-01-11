@@ -650,7 +650,7 @@ function jpcrm_listview_table_header() {
 		}
 
 		jQuery.each( window.zbsListViewParams.columns, function ( lvhInd, lvhEle ) {
-			if (zbsSortables && zbsSortables.indexOf( lvhEle.fieldstr ) > -1) {
+			if ( zbsSortables && zbsSortables.includes( lvhEle.fieldstr ) ) {
 				sortDirectionUrlParam = 'asc';
 				var sortDirection = 'down';
 				if (zbsListViewParams.sortorder && window.zbsListViewParams.sortorder === 'asc' && zbsListViewParams.sort && zbsListViewParams.sort === lvhEle.fieldstr) {
@@ -953,8 +953,15 @@ function zeroBSCRMJS_enactBulkAction( actionstr, idList, extraParams, successcb,
 				zeroBSCRMJS_drawListView();
 			},
 			error: function ( response ) {
-				// any error callback?
-				if ( typeof errcb === 'function' ) {
+
+				if ( response.status === 403 ) {
+					// permissions error
+					swal(
+						zeroBSCRMJS_listViewLang( 'badperms' ),
+						zeroBSCRMJS_listViewLang( 'badperms_desc' ),
+						'warning'
+					);
+				} else if ( typeof errcb === 'function' ) {
 					errcb( response );
 				}
 
@@ -1080,7 +1087,7 @@ function zeroBSCRMJS_listView_viewURL( id ) {
 				break;
 
 			case 'event':
-				return window.zbsObjectViewLinkPrefixEvent + id;
+				return window.zbsObjectViewLinkPrefixTask + id;
 				break;
 		}
 	}
@@ -3977,8 +3984,8 @@ function zeroBSCRMJS_listView_invoice_value( dataLine ) {
  */
 function zeroBSCRMJS_listView_invoice_status( dataLine ) {
 	var stat = '';
-	if ( typeof dataLine.status !== 'undefined' ) {
-		stat = dataLine.status;
+	if ( typeof dataLine.status_label !== 'undefined' ) {
+		stat = dataLine.status_label;
 	}
 	var color = '';
 	switch ( stat ) {
@@ -4780,7 +4787,7 @@ function zeroBSCRMJS_listView_form_bulkActionFire_delete() {
 ==================================================================================== */
 
 /* ====================================================================================
-=============== Field Drawing JS - Event List View ====================================
+=============== Field Drawing JS - Task List View ====================================
 ==================================================================================== */
 
 // Draw <td> for form id
@@ -5019,7 +5026,7 @@ function zeroBSCRMJS_listView_event_bulkActionFire_delete() {
 					// success ? SWAL?
 					swal(
 						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'eventsdeleted' ),
+						zeroBSCRMJS_listViewLang( 'tasks_deleted' ),
 						'success'
 					);
 				},
@@ -5027,7 +5034,7 @@ function zeroBSCRMJS_listView_event_bulkActionFire_delete() {
 					// fail ? SWAL?
 					swal(
 						zeroBSCRMJS_listViewLang( 'notdeleted' ),
-						zeroBSCRMJS_listViewLang( 'noteventsdeleted' ),
+						zeroBSCRMJS_listViewLang( 'tasks_not_deleted' ),
 						'warning'
 					);
 				}
@@ -5045,7 +5052,7 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markcomplete() {
 
 	swal( {
 		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousureeventscompleted' ) + '</div>',
+		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousure_tasks_completed' ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
@@ -5068,16 +5075,16 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markcomplete() {
 				function ( r ) {
 					// success ? SWAL?
 					swal(
-						zeroBSCRMJS_listViewLang( 'eventsmarked' ),
-						zeroBSCRMJS_listViewLang( 'eventsmarked' ),
+						zeroBSCRMJS_listViewLang( 'tasks_marked' ),
+						zeroBSCRMJS_listViewLang( 'tasks_marked' ),
 						'success'
 					);
 				},
 				function ( r ) {
 					// fail ? SWAL?
 					swal(
-						zeroBSCRMJS_listViewLang( 'noteventsmarked' ),
-						zeroBSCRMJS_listViewLang( 'noteventsmarked' ),
+						zeroBSCRMJS_listViewLang( 'tasks_not_marked' ),
+						zeroBSCRMJS_listViewLang( 'tasks_not_marked' ),
 						'warning'
 					);
 				}
@@ -5095,7 +5102,7 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markincomplete() {
 
 	swal( {
 		title: zeroBSCRMJS_listViewLang( 'areyousure' ),
-		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousureeventsincomplete' ) + '</div>',
+		html: '<div>' + zeroBSCRMJS_listViewLang( 'areyousure_tasks_incomplete' ) + '</div>',
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,

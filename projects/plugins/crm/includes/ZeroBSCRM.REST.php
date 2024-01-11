@@ -97,6 +97,21 @@ add_action( 'rest_api_init', function () {
 
       ) ); 
 
+	/**
+	 * Feature flag to conditionally load in development API.
+	 *
+	 * @ignore
+	 * @since 6.1.0
+	 *
+	 * @param bool Determine if we should initialize the new REST APIs.
+	 */
+	if ( apply_filters( 'jetpack_crm_feature_flag_api_v4', false ) ) {
+		$controller = new Automattic\Jetpack\CRM\REST_API\V4\REST_Contacts_Controller();
+		$controller->register_routes();
+
+		$automation_controller = new Automattic\Jetpack\CRM\REST_API\V4\REST_Automation_Workflows_Controller();
+		$automation_controller->register_routes();
+	}
 });
 
 //the callbacks (for the above URLS - restricted by the permission_callback above).

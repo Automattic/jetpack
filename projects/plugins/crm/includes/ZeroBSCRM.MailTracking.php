@@ -21,17 +21,17 @@
 	#2 - Quote Accepted Email
 	#3 - Email Invoice 
 	#4 - New Quote 
-	#5 - Event Notification (leave for now)...
+	#5 - Task Notification (leave for now)...
 	#6 - Client Portal Password Reset
 
-   // Define globals for EMAIL TEMPLATES
-   define('ZBSEMAIL_CLIENTPORTALWELCOME',1);
-   define('ZBSEMAIL_QUOTEACCEPTED',2);
-   define('ZBSEMAIL_EMAILINVOICE',3);
-   define('ZBSEMAIL_NEWQUOTE',4);
-   define('ZBSEMAIL_EVENTNOTIFICATION',5);
-   define('ZBSEMAIL_CLIENTPORTALPWREST',6);
-   define('ZBSEMAIL_STATEMENT',7);
+	// Define globals for EMAIL TEMPLATES
+	define( 'ZBSEMAIL_CLIENTPORTALWELCOME', 1 );
+	define( 'ZBSEMAIL_QUOTEACCEPTED', 2 );
+	define( 'ZBSEMAIL_EMAILINVOICE', 3 );
+	define( 'ZBSEMAIL_NEWQUOTE', 4 );
+	define( 'ZBSEMAIL_TASK_NOTIFICATION', 5 );
+	define( 'ZBSEMAIL_CLIENTPORTALPWREST', 6 );
+	define( 'ZBSEMAIL_STATEMENT', 7 );
 
 /* ======================================================
   Email tracking functions
@@ -97,7 +97,7 @@ function zeroBSCRM_mailTracking_track(){
 					-10 = sys email to customer,
 					-11 quote proposal accepted sent to admin,
 					-12 you have a new quote sent to contact,
-					-13 event notification sent to owner of event
+					-13 task notification sent to owner of task
 					-14 you have a new invoice sent to customer,
 					-15 you have a statement sent to customer,
 					-16 you have a new invoice sent to company,
@@ -172,7 +172,7 @@ function zeroBSCRM_mailTracking_addPixel($messageHTML='', $hash=''){
 					-10 = sys email to customer,
 					-11 quote proposal accepted sent to admin,
 					-12 you have a new quote sent to contact,
-					-13 event notification sent to owner of event
+					-13 task notification sent to owner of task
 					-14 you have a new invoice sent to customer,
 					-15 you have a statement sent to customer,
 					-16 you have a new invoice sent to company,
@@ -455,7 +455,7 @@ function zeroBSCRM_get_email_status($ID){
 	$sql = $wpdb->prepare("SELECT zbsmail_active FROM " . $ZBSCRM_t['system_mail_templates'] . " WHERE zbsmail_id = %d", $ID);
 	$r = $wpdb->get_results($sql);
 
-	if($r[0]->zbsmail_active == 1){
+	if ( isset( $r[0] ) && $r[0]->zbsmail_active == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- strict comparison breaks functionality.
 		return true;
 	}else{
 		return false;

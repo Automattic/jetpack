@@ -108,5 +108,4 @@ class Package_Version_Tracker {
 			set_transient( self::CACHED_FAILED_REQUEST_KEY, time(), self::CACHED_FAILED_REQUEST_EXPIRATION );
 		}
 	}
-
 }

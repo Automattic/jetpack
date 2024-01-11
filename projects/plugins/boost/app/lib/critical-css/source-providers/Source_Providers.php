@@ -139,5 +139,4 @@ class Source_Providers {
 
 		return $sources;
 	}
-
 }

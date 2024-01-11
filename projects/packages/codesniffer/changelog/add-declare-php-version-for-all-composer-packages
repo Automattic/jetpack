@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Declare requirement of PHP >= 7.4.

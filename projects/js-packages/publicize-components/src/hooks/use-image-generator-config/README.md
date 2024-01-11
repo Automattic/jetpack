@@ -7,12 +7,18 @@ import { TextControl } from '@wordpress/components';
 import useImageGeneratorConfig from './hooks/use-image-generator-config';
 
 function ImageGeneratorConfig() {
-	const { customText, setCustomText } = useImageGeneratorConfig();
+	const { customText, updateSettings } = useImageGeneratorConfig();
+
+	const onTextChange = useCallback( ( newValue ) => {
+		updateSettings( { customText: newValue } )
+	}, [
+		batchUpdateSettings,
+	] );
 
 	return (
 		<TextControl
 			value={ customText }
-			onChange={ setCustomText }
+			onChange={ onTextChange }
 			label={ __( 'Custom Text', 'jetpack' ) }
 		/>
 	);

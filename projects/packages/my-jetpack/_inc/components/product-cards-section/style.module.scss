@@ -50,3 +50,9 @@
 .loading-placeholder {
 	margin-top: calc( var( --spacing-base ) / 2 ); // 4px
 }
+
+.cardlist {
+	> li {
+		margin-bottom: 0; // Reset base style
+	}
+}

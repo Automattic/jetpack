@@ -10,117 +10,39 @@ To install the Jetpack AI Client, clone the repository to your local machine and
 npm install @automattic/jetpack-ai-client
 ```
 
-## Usage
+## Libraries & Components
 
-### Example
+### Requesting
 
-```
-import { requestCompletion } from '@automattic/jetpack-ai-client';
+#### [askQuestion](./src/ask-question/Readme.md) helper
+Async function that sends a question and optional configurations, retrieves a JWT token, and returns a [SuggestionsEventSource](./src/suggestions-event-source/Readme.md) instance.
 
-const MyComp = ( props ) => {
-  const [ completion, setCompletion ] = useState( '' );
+#### [SuggestionsEventSouce](./src/suggestions-event-source/Readme.md) Class
 
-  const newHaiku = async () => {
-    const eventSource = await requestCompletion( 'Write a haiku about WordPress' );
-      eventSource.addEventListener( 'suggestion',  answer => setCompletion( answer.detail ) );
-      eventSource.addEventListener( 'done', event => {
-        console.log( "Full completion", event.detail );
-      } );
+Class that connects to an AI model to receive and emit suggestion streams, using EventTarget for handling data chunks.
 
-      eventSource.addEventListener( 'suggestion', event => {
-        console.log( "Received so far", event.detail );
-      } );
+#### [useAiSuggestions](./src/hooks/use-ai-suggestions/Readme.md) hook
 
-      eventSource.addEventListener( 'error_quota_exceeded', event => {
-        console.log( "You reached the AI query quota for your current plan.", event.detail );
-      } );
-  };
+A custom React hook that obtains suggestions from an AI by hitting a specific query endpoint.
 
-  return (
-    <div>
-      <div> { completion } </div>
-      <button onClick={ newHaiku }>Get new Haiku</button>
-    </div>
-  )
-};
-```
+#### [JWT](./src/jwt/Readme.md) helper
 
-### Requesting a Completion from the Jetpack AI API
+Library to manage JWT tokens for Jetpack AI across various site types, handling acquisition, caching in localStorage, expiration, and customization of request options.
 
-You can request a completion from the Jetpack AI API using the `requestCompletion` function. This function takes a prompt and optionally a post ID as parameters and returns an instance of `SuggestionsEventSource`.
+#### [Data Flow](./src/data-flow/Readme.md) implementation
 
-```
-import { requestCompletion } from '@automattic/jetpack-ai-client';
+Data Flow offers a streamlined way to manage an AI Assistant's state and functionality within a React app, using React context, HOCs, and custom hooks to handle suggestions, errors, and requests.
 
-// postId is the post where the request is being triggered
-// It's only used for loggin purposes and can be omitted.
-const postId = 123;
-const eventSource = requestCompletion( 'A haiku', postId ))
+### [Components](./src/components/)
 
-eventSource.addEventListener('done', event => {
-  console.log( "Full completion", event.detail );
-} );
+#### [AIControl](./src/components/ai-control/Readme.md)
 
-eventSource.addEventListener('suggestion', event => {
-  console.log( "Received so far", event.detail );
-} );
-```
+#### [AiStatusIndicator](./src/components/ai-status-indicator/)
 
-### Requesting Images from the Jetpack AI API
-
-You can fetch images from Jetpack AI using the `requestImages` function. This function takes a prompt and a post ID as parameters and returns a promise that resolves to an array of base64 encoded images.
-
-```
-import { requestImages } from '@automattic/jetpack-ai-client';
-
-requestImages( 'a flower', postId )
-  .then( images => {
-    document.getElementById("imgid").src= image[0]
-  } )
-  .catch( error => {
-    // Handle the error
-  } );
-```
-
-### Using the SuggestionsEventSource Class
-
-The `SuggestionsEventSource` class is a wrapper around `EventSource` that emits events for each chunk of data received, when the stream is closed, and when a full suggestion has been received.
-
-You shouldn't need to instantiate this class. You get one of these by calling `requestCompletion()`.
-
-```
-import { requestCompletion } from '@automattic/jetpack-ai-client';
-
-const eventSource = new SuggestionsEventSource( url );
-
-eventSource.addEventListener( 'done', event => {
-  console.log( "Full completion", event.detail );
-} );
-
-eventSource.addEventListener( 'suggestion', event => {
-  console.log( "Received so far", event.detail );
-} );
-```
-
-### Requesting a Token from the Jetpack Site
-
-You can request a token from the Jetpack site using the `requestCompletionAuthToken` function. This function returns a promise that resolves to an object containing the token and the blogId.
-
-This function behaves properly whether it's called from a Jetpack environment or a WordPress.com one.
-
-```
-import { requestCompletionAuthToken } from '@automattic/jetpack-ai-client';
-
-requestCompletionAuthToken()
-  .then(tokenData => {
-    // Do something with the token data
-  })
-  .catch(error => {
-    // Handle the error
-  });
-```
-
+### [Icons](./src/icons/Readme.md)
 ## Contribute
+
+React components useful for when you need to create some UI implementations.
 
 We welcome contributions from the community. Please submit your pull requests on the GitHub repository.
 

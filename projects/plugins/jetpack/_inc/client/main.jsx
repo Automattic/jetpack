@@ -43,6 +43,7 @@ import {
 	isReconnectingSite,
 	getConnectUrl,
 	getConnectingUserFeatureLabel,
+	getConnectingUserFrom,
 	getConnectionStatus,
 	hasConnectedOwner,
 	getHasSeenWCConnectionModal,
@@ -58,6 +59,7 @@ import {
 	getRegistrationNonce,
 	userCanManageModules,
 	userCanConnectSite,
+	userCanViewStats,
 	getCurrentVersion,
 	getTracksUserData,
 	showRecommendations,
@@ -66,6 +68,7 @@ import {
 	getPartnerCoupon,
 	isAtomicSite,
 	isWoASite,
+	showMyJetpack,
 	isWooCommerceActive,
 	userIsSubscriber,
 } from 'state/initial-state';
@@ -95,6 +98,7 @@ const recommendationsRoutes = [
 	'/recommendations/agency',
 	'/recommendations/woocommerce',
 	'/recommendations/monitor',
+	'/recommendations/newsletter',
 	'/recommendations/related-posts',
 	'/recommendations/creative-mail',
 	'/recommendations/site-accelerator',
@@ -107,8 +111,24 @@ const recommendationsRoutes = [
 	'/recommendations/summary',
 	'/recommendations/vaultpress-backup',
 	'/recommendations/vaultpress-for-woocommerce',
+	'/recommendations/welcome-backup',
+	'/recommendations/welcome-complete',
+	'/recommendations/welcome-security',
+	'/recommendations/welcome-starter',
+	'/recommendations/welcome-antispam',
+	'/recommendations/welcome-videopress',
+	'/recommendations/welcome-search',
+	'/recommendations/welcome-scan',
+	'/recommendations/welcome-golden-token',
+	'/recommendations/backup-activated',
+	'/recommendations/scan-activated',
+	'/recommendations/antispam-activated',
+	'/recommendations/videopress-activated',
+	'/recommendations/search-activated',
+	'/recommendations/server-credentials',
 ];
 
+const myJetpackRoutes = [ 'my-jetpack ' ];
 const dashboardRoutes = [ '/', '/dashboard', '/reconnect', '/my-plan', '/plans' ];
 const settingsRoutes = [
 	'/settings',
@@ -117,6 +137,8 @@ const settingsRoutes = [
 	'/writing',
 	'/sharing',
 	'/discussion',
+	'/earn',
+	'/newsletter',
 	'/traffic',
 	'/privacy',
 ];
@@ -297,6 +319,8 @@ class Main extends React.Component {
 			case '/writing':
 			case '/sharing':
 			case '/discussion':
+			case '/earn':
+			case '/newsletter':
 			case '/traffic':
 			case '/privacy':
 				return (
@@ -417,7 +441,7 @@ class Main extends React.Component {
 					}
 					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
 					redirectUri="admin.php?page=jetpack"
-					from={ searchParams && searchParams.get( 'from' ) }
+					from={ ( searchParams && searchParams.get( 'from' ) ) || this.props.connectingUserFrom }
 				>
 					<ul>
 						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
@@ -539,6 +563,8 @@ class Main extends React.Component {
 			case '/writing':
 			case '/sharing':
 			case '/discussion':
+			case '/earn':
+			case '/newsletter':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (
@@ -573,6 +599,7 @@ class Main extends React.Component {
 			case '/recommendations/agency':
 			case '/recommendations/woocommerce':
 			case '/recommendations/monitor':
+			case '/recommendations/newsletter':
 			case '/recommendations/related-posts':
 			case '/recommendations/creative-mail':
 			case '/recommendations/site-accelerator':
@@ -620,6 +647,12 @@ class Main extends React.Component {
 
 		if ( this.props.isWoaSite ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 1 } );
+		} else if ( ! this.props.isLinked && ! this.props.showMyJetpack ) {
+			window.wpNavMenuClassChange( { dashboard: 1, settings: 2 } );
+		} else if ( ! this.props.isLinked && this.props.showMyJetpack ) {
+			window.wpNavMenuClassChange( { myJetpack: 1, dashboard: 2, settings: 3 } );
+		} else if ( this.props.isLinked && ! this.props.showMyJetpack ) {
+			window.wpNavMenuClassChange( { activityLog: 1, dashboard: 2, settings: 3 } );
 		} else {
 			window.wpNavMenuClassChange();
 		}
@@ -646,6 +679,7 @@ class Main extends React.Component {
 		return (
 			this.props.isSiteConnected &&
 			! this.shouldShowWooConnectionScreen() &&
+			this.props.userCanViewStats &&
 			dashboardRoutes.includes( this.props.location.pathname )
 		);
 	}
@@ -669,6 +703,7 @@ class Main extends React.Component {
 		return (
 			this.props.isSiteConnected &&
 			! this.shouldShowWooConnectionScreen() &&
+			this.props.userCanManageModules &&
 			dashboardRoutes.includes( this.props.location.pathname )
 		);
 	}
@@ -876,6 +911,7 @@ export default connect(
 			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state ),
 			userCanConnectSite: userCanConnectSite( state ),
+			userCanViewStats: userCanViewStats( state ),
 			isSiteConnected: isSiteConnected( state ),
 			isReconnectingSite: isReconnectingSite( state ),
 			rewindStatus: getRewindStatus( state ),
@@ -884,8 +920,10 @@ export default connect(
 			pluginBaseUrl: getPluginBaseUrl( state ),
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
+			connectingUserFrom: getConnectingUserFrom( state ),
 			isAtomicSite: isAtomicSite( state ),
 			isWoaSite: isWoASite( state ),
+			showMyJetpack: showMyJetpack( state ),
 			isWooCommerceActive: isWooCommerceActive( state ),
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
 			partnerCoupon: getPartnerCoupon( state ),
@@ -940,8 +978,11 @@ export default connect(
  *
  * @param pageOrder
  */
-window.wpNavMenuClassChange = function ( pageOrder = { dashboard: 1, settings: 2 } ) {
+window.wpNavMenuClassChange = function (
+	pageOrder = { myJetpack: 1, activityLog: 2, dashboard: 3, settings: 4 }
+) {
 	let hash = window.location.hash;
+	let page = new URLSearchParams( window.location.search );
 
 	// Clear currently highlighted sub-nav item
 	jQuery( '.current' ).each( function ( i, obj ) {
@@ -958,14 +999,18 @@ window.wpNavMenuClassChange = function ( pageOrder = { dashboard: 1, settings: 2
 
 	// Set the current sub-nav item according to the current hash route
 	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
-	if (
+	page = page.get( 'page' );
+
+	if ( myJetpackRoutes.includes( page ) ) {
+		getJetpackSubNavItem( pageOrder.myJetpack )?.classList.add( 'current' );
+	} else if (
 		dashboardRoutes.includes( hash ) ||
 		recommendationsRoutes.includes( hash ) ||
 		productDescriptionRoutes.includes( hash )
 	) {
-		getJetpackSubNavItem( pageOrder.dashboard ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.dashboard )?.classList.add( 'current' );
 	} else if ( settingsRoutes.includes( hash ) ) {
-		getJetpackSubNavItem( pageOrder.settings ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.settings )?.classList.add( 'current' );
 	}
 
 	const $body = jQuery( 'body' );

@@ -8,8 +8,10 @@ import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import classnames from 'classnames';
 import { uniqBy } from 'lodash';
 import { PATH_RECENT } from '../constants';
+import { authenticateMediaSource } from '../media-service';
+import { MediaSource } from '../media-service/types';
 
-export default function withMedia() {
+export default function withMedia( mediaSource = MediaSource.Unknown ) {
 	return createHigherOrderComponent( OriginalComponent => {
 		// Legacy class as it was ported from an older codebase.
 		class WithMediaComponent extends Component {
@@ -74,7 +76,10 @@ export default function withMedia() {
 				}
 			};
 
-			setAuthenticated = isAuthenticated => this.setState( { isAuthenticated } );
+			setAuthenticated = isAuthenticated => {
+				this.setState( { isAuthenticated } );
+				authenticateMediaSource( mediaSource, isAuthenticated );
+			};
 
 			mergeMedia( initial, media ) {
 				return uniqBy( initial.concat( media ), 'ID' );
@@ -112,7 +117,8 @@ export default function withMedia() {
 
 			handleApiError = error => {
 				if ( error.code === 'authorization_required' ) {
-					this.setState( { isAuthenticated: false, isLoading: false, isCopying: false } );
+					this.setAuthenticated( false );
+					this.setState( { isLoading: false, isCopying: false } );
 					return;
 				}
 
@@ -153,8 +159,6 @@ export default function withMedia() {
 				const path = this.getRequestUrl( url );
 				const method = 'GET';
 
-				this.setAuthenticated( true );
-
 				apiFetch( {
 					path,
 					method,
@@ -167,6 +171,7 @@ export default function withMedia() {
 							nextHandle: result.meta.next_page,
 							isLoading: false,
 						} );
+						this.setAuthenticated( true );
 					} )
 					.catch( this.handleApiError );
 			};
@@ -192,7 +197,7 @@ export default function withMedia() {
 							title: item.title,
 						} ) ),
 						service: source, // WPCOM.
-						post_id: this.props.postId ?? 0,
+						post_id: this.props.postId,
 					},
 				} )
 					.then( result => {
@@ -294,8 +299,12 @@ export default function withMedia() {
 		}
 
 		return withSelect( select => {
+			const currentPost = select( 'core/editor' ).getCurrentPost();
+			// Templates and template parts' numerical ID is stored in `wp_id`.
+			const currentPostId =
+				typeof currentPost?.id === 'number' ? currentPost.id : currentPost?.wp_id;
 			return {
-				postId: select( 'core/editor' ).getCurrentPostId(),
+				postId: currentPostId ?? 0,
 			};
 		} )( withNotices( WithMediaComponent ) );
 	} );

@@ -20,7 +20,6 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 	children,
 	moduleName = __( 'Jetpack', 'jetpack' ),
 	moduleNameHref,
-	a8cLogoHref,
 	showHeader = true,
 	showFooter = true,
 	showBackground = true,
@@ -43,11 +42,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 			{ showFooter && (
 				<Container horizontalSpacing={ 5 }>
 					<Col>
-						<JetpackFooter
-							moduleName={ moduleName }
-							a8cLogoHref={ a8cLogoHref }
-							moduleNameHref={ moduleNameHref }
-						/>
+						<JetpackFooter moduleName={ moduleName } moduleNameHref={ moduleNameHref } />
 					</Col>
 				</Container>
 			) }

@@ -2,7 +2,7 @@ export type SourceCallbackFn = ( node: HTMLElement ) => string | null;
 export type Dimensions = { width: number; height: number };
 export type Weight = { weight: number };
 
-type FetchFn = ( input: URL | RequestInfo, init?: RequestInit ) => Promise< Response >;
+export type FetchFn = ( input: URL | RequestInfo, init?: RequestInit ) => Promise< Response >;
 
 /**
  * A class that represents a DOM Element that
@@ -13,7 +13,7 @@ export class MeasurableImage {
 	readonly node: HTMLElement | HTMLImageElement;
 	private getURLCallback: SourceCallbackFn;
 
-	public fetch = window.fetch;
+	public fetch: FetchFn;
 
 	/**
 	 * Constructor.
@@ -25,11 +25,11 @@ export class MeasurableImage {
 	constructor(
 		node: HTMLElement | HTMLImageElement,
 		getURL: SourceCallbackFn,
-		fetchFn: FetchFn = fetch
+		fetchFn: FetchFn | null = null
 	) {
 		this.node = node;
 		this.getURLCallback = getURL;
-		this.fetch = fetchFn;
+		this.fetch = fetchFn ?? window.fetch.bind( window );
 	}
 
 	public getURL() {
@@ -82,7 +82,18 @@ export class MeasurableImage {
 	}
 
 	public getOversizedRatio( fileSize: Dimensions, sizeOnPage: Dimensions ) {
+		// The image is not loaded, we can't calculate the ratio
+		if ( fileSize.width === 0 || fileSize.height === 0 ) {
+			return 1;
+		}
+
 		const { width, height } = this.getExpectedSize( sizeOnPage );
+
+		// The image is not visible on screen, we can't calculate the ratio
+		if ( width === 0 || height === 0 ) {
+			return 1;
+		}
+
 		return ( fileSize.width * fileSize.height ) / ( width * height );
 	}
 
@@ -91,6 +102,7 @@ export class MeasurableImage {
 	 * by reading the Content-Length header.
 	 *
 	 * @param {string} url -  string The URL of the image.
+	 * @returns {number} Weight.
 	 */
 	private async fetchFileWeight( url: string ) {
 		const response = await this.fetch( url );
@@ -108,17 +120,34 @@ export class MeasurableImage {
 	 * This creates a new image element and loads the image.
 	 *
 	 * @param {string} url -  image url
+	 * @returns {object} dimensions File dimensions.
 	 */
 	private async fetchFileDimensions( url: string ) {
 		const img = new Image();
 		img.src = url;
-		return new Promise< { width: number; height: number } >( resolve => {
+		return new Promise< { width: number; height: number } >( ( resolve, reject ) => {
 			img.onload = () => {
 				resolve( { width: Math.round( img.width ), height: Math.round( img.height ) } );
 			};
 			img.onerror = () => {
-				resolve( { width: -1, height: -1 } );
+				reject( 'Unable to load image.' );
 			};
 		} );
+	}
+
+	/**
+	 * Checks if the image is too small and should be ignored. Will return true on images
+	 * that don't load at all - we can't establish they're tiny!
+	 *
+	 * @returns {boolean} - if the image is smaller than 65 pixels width and height return true
+	 */
+	public async isImageTiny(): Promise< boolean > {
+		try {
+			const minSize = 65;
+			const dimensions = await this.fetchFileDimensions( this.getURL() );
+			return dimensions.width < minSize || dimensions.height < minSize;
+		} catch ( err ) {
+			return true;
+		}
 	}
 }

@@ -266,7 +266,14 @@ class Masterbar {
 	 * @return string
 	 */
 	public function admin_body_class( $admin_body_classes ) {
-		return "$admin_body_classes jetpack-masterbar";
+
+		$classes = array( 'jetpack-masterbar', trim( $admin_body_classes ) );
+
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$classes[] = 'wpcom-admin-interface';
+		}
+
+		return implode( ' ', $classes );
 	}
 
 	/**
@@ -276,8 +283,9 @@ class Masterbar {
 		/*
 		 * Notifications need the admin bar styles,
 		 * so let's not remove them when the module is active.
+		 * Also, don't remove the styles if the user has opted to use wp-admin.
 		 */
-		if ( ! Jetpack::is_module_active( 'notes' ) ) {
+		if ( ! Jetpack::is_module_active( 'notes' ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 			wp_dequeue_style( 'admin-bar' );
 		}
 	}
@@ -286,6 +294,13 @@ class Masterbar {
 	 * Enqueue our own CSS and JS to display our custom admin bar.
 	 */
 	public function add_styles_and_scripts() {
+		// WoA sites: If wpcom_admin_interface is set to wp-admin, load the wp-admin styles.
+		// These include only styles to enable the "My Sites" and "Reader" links that will be added.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$css_file = $this->is_rtl ? 'masterbar-wp-admin-rtl.css' : 'masterbar-wp-admin.css';
+			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/' . $css_file ), array(), JETPACK__VERSION );
+			return;
+		}
 
 		if ( $this->is_rtl ) {
 			wp_enqueue_style( 'a8c-wpcom-masterbar-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/rtl/wpcom-admin-bar-rtl.css' ), array(), JETPACK__VERSION );
@@ -356,8 +371,87 @@ class Masterbar {
 			return false;
 		}
 
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$this->build_wp_admin_interface_bar( $wp_admin_bar );
+			return;
+		}
+
 		$this->clear_core_masterbar( $wp_admin_bar );
 		$this->build_wpcom_masterbar( $wp_admin_bar );
+	}
+
+	/**
+	 * This reorganizes the original wp admin bar for when an atomic site
+	 * has the wpcom_admin_interface set to wp-admin.
+	 *
+	 * The wpcom_admin_interface = wp-admin setting indicates that the users wishes
+	 * to NOT use the wpcom master bar. We do need to adjust a couple of things
+	 * though.
+	 *
+	 * @param WP_Admin_Bar $bar The admin bar object.
+	 *
+	 * @return void
+	 */
+	protected function build_wp_admin_interface_bar( $bar ) {
+
+		$nodes = array();
+
+		// First, lets gather all nodes and remove them.
+		foreach ( $bar->get_nodes() as $node ) {
+			$nodes[ $node->id ] = $node;
+			$bar->remove_node( $node->id );
+		}
+
+		// This disables a submenu from being placed under the My Sites button.
+		add_filter( 'jetpack_load_admin_menu_class', '__return_true' );
+
+		// Here we add the My sites and Reader buttons
+		$this->wpcom_adminbar_add_secondary_groups( $bar );
+		$this->add_my_sites_submenu( $bar );
+		$this->add_reader_submenu( $bar );
+
+		foreach ( $nodes as $id => $node ) {
+
+			$bar->add_node( $node );
+			// Add our custom node and change the title of the edit profile node.
+			if ( 'edit-profile' === $id ) {
+				$this->add_wpcom_profile_link( $bar );
+				$bar->add_node(
+					array(
+						'id'    => 'edit-profile',
+						'title' => __( 'Site Profile', 'jetpack' ),
+					)
+				);
+			}
+		}
+
+		// Add a menu item to the user menu
+		// Add a custom link to the user menu.
+		$this->add_wpcom_profile_link( $bar );
+
+		// Remove some things
+		$bar->remove_node( 'wp-logo' );
+	}
+
+	/**
+	 * Add a link to the user` profile on WordPress.com
+	 *
+	 * @param WP_Admin_Bar $bar The admin bar object.
+	 *
+	 * @return void
+	 */
+	protected function add_wpcom_profile_link( $bar ) {
+		$custom_node = array(
+			'parent' => 'user-actions',
+			'id'     => 'wpcom-profile-link',
+			'title'  => __( 'WordPress.com Profile', 'jetpack' ),
+			'href'   => 'https://wordpress.com/me',
+			'meta'   => array(
+				'title' => __( 'Go to your profile page on WordPress.com', 'jetpack' ), // Optional, tooltip text.
+			),
+		);
+
+		$bar->add_node( $custom_node );
 	}
 
 	/**
@@ -385,7 +479,7 @@ class Masterbar {
 		$this->add_reader_submenu( $wp_admin_bar );
 
 		// Right part.
-		if ( Jetpack::is_module_active( 'notes' ) ) {
+		if ( Jetpack::is_module_active( 'notes' ) && ! \Jetpack_Notifications::is_block_editor() ) {
 			$this->add_notifications( $wp_admin_bar );
 		}
 
@@ -393,9 +487,7 @@ class Masterbar {
 		$this->add_write_button( $wp_admin_bar );
 
 		// Recovery mode exit.
-		if ( function_exists( 'wp_admin_bar_recovery_mode_menu' ) ) {
-			wp_admin_bar_recovery_mode_menu( $wp_admin_bar );
-		}
+		wp_admin_bar_recovery_mode_menu( $wp_admin_bar );
 
 		if ( class_exists( 'Automattic\Jetpack\Scan\Admin_Bar_Notice' ) ) {
 			$scan_admin_bar_notice = Admin_Bar_Notice::instance();
@@ -527,6 +619,7 @@ class Masterbar {
 					'class' => 'menupop mb-trackable',
 				),
 				'parent' => 'top-secondary',
+				'href'   => 'https://wordpress.com/notifications',
 			)
 		);
 	}
@@ -545,84 +638,6 @@ class Masterbar {
 				'href'   => 'https://wordpress.com/read',
 				'meta'   => array(
 					'class' => 'mb-trackable',
-				),
-			)
-		);
-
-		/** This filter is documented in modules/masterbar.php */
-		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
-			return;
-		}
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'streams-header',
-				'title'  => esc_html_x(
-					'Streams',
-					'Title for Reader sub-menu that contains followed sites, likes, and search',
-					'jetpack'
-				),
-				'meta'   => array(
-					'class' => 'ab-submenu-header',
-				),
-			)
-		);
-
-		$following_title = $this->create_menu_item_pair(
-			array(
-				'url'   => Redirect::get_url( 'calypso-read' ),
-				'id'    => 'wp-admin-bar-followed-sites',
-				'label' => esc_html__( 'Followed Sites', 'jetpack' ),
-			),
-			array(
-				'url'   => Redirect::get_url( 'calypso-following-edit' ),
-				'id'    => 'wp-admin-bar-reader-followed-sites-manage',
-				'label' => esc_html__( 'Manage', 'jetpack' ),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'following',
-				'title'  => $following_title,
-				'meta'   => array( 'class' => 'inline-action' ),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'discover-discover',
-				'title'  => esc_html__( 'Discover', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-discover' ),
-				'meta'   => array(
-					'class' => 'mb-icon-spacer',
-				),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'discover-search',
-				'title'  => esc_html__( 'Search', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-read-search' ),
-				'meta'   => array(
-					'class' => 'mb-icon-spacer',
-				),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'my-activity-my-likes',
-				'title'  => esc_html__( 'My Likes', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-activities-likes' ),
-				'meta'   => array(
-					'class' => 'mb-icon-spacer',
 				),
 			)
 		);
@@ -924,12 +939,19 @@ class Masterbar {
 			$blog_name = mb_substr( html_entity_decode( $blog_name, ENT_QUOTES ), 0, 20 ) . '&hellip;';
 		}
 
+		$my_site_url   = 'https://wordpress.com/sites/' . $this->primary_site_url;
+		$my_site_title = _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' );
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			$my_site_url   = 'https://wordpress.com/sites';
+			$my_site_title = esc_html__( 'My Sites', 'jetpack' );
+		}
+
 		$wp_admin_bar->add_menu(
 			array(
 				'parent' => 'root-default',
 				'id'     => 'blog',
-				'title'  => _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' ),
-				'href'   => 'https://wordpress.com/sites/' . $this->primary_site_url,
+				'title'  => $my_site_title,
+				'href'   => $my_site_url,
 				'meta'   => array(
 					'class' => 'my-sites mb-trackable',
 				),

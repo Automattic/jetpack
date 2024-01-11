@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove use of deprecated `wikimedia/at-ease` package. PHP 7 improved error handling so `@` is ok to use now.

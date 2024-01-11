@@ -14,13 +14,6 @@ use Jetpack_Options;
 /**
  * Class to test the Main class.
  *
- * Important! All the *_with_jp_version_lt_11_5_a_2 need to run before their counterpart
- * that test the same hooks but without JP version set to `11.5-a.1`.
- * This happens because the PHP 5.6 unit tests would fail as the global $wp_filter
- * is not being properly reset between tests.
- *
- * @todo Investigate why this happens and fix it.
- *
  * @covers Automattic\Jetpack\Stats\Main
  */
 class Test_Main extends StatsBaseTestCase {
@@ -33,8 +26,6 @@ class Test_Main extends StatsBaseTestCase {
 
 	/**
 	 * Set up before each test
-	 *
-	 * @before
 	 */
 	protected function set_up() {
 		parent::set_up();
@@ -48,8 +39,6 @@ class Test_Main extends StatsBaseTestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		parent::tear_down();
@@ -59,12 +48,12 @@ class Test_Main extends StatsBaseTestCase {
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\Main' );
 		$reflected_property = $reflected_class->getProperty( 'instance' );
 		$reflected_property->setAccessible( true );
-		$reflected_property = $reflected_property->setValue( null );
+		$reflected_property = $reflected_property->setValue( null, null );
 
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\XMLRPC_Provider' );
 		$reflected_property = $reflected_class->getProperty( 'instance' );
 		$reflected_property->setAccessible( true );
-		$reflected_property = $reflected_property->setValue( null );
+		$reflected_property = $reflected_property->setValue( null, null );
 	}
 
 	/**

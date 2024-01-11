@@ -29,3 +29,4 @@ modules:
             server_host: 'localhost:8000'
             wp_path: '/path/to/test/file/must-overwrite-it-in-acceptance.suite.yml'
 step_decorators: ~
+error_level: E_ALL

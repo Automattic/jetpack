@@ -492,5 +492,4 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 				break;
 		}
 	}
-
 }

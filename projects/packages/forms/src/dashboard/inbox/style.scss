@@ -16,6 +16,11 @@ $action-bar-height: 88px;
 		}
 	}
 
+	// visual aid for focus, currently only export button
+	.button-primary.export-button:focus {
+		box-shadow: var( --jp-forms-focus-shadow );
+	}
+
 	.components-dropdown-menu {
 		.components-menu-item__button {
 			font-size: var(--jp-forms-font-size-regular);
@@ -302,6 +307,11 @@ $action-bar-height: 88px;
 			> svg {
 				width: 32px;
 				height: 32px;
+			}
+
+			// visual aid for focus
+			&:focus {
+				box-shadow: var( --jp-forms-focus-shadow );
 			}
 		}
 

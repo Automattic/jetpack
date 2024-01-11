@@ -178,5 +178,4 @@ class A8c_Mc_Stats {
 		$url      = add_query_arg( $args, $base_url );
 		return $url;
 	}
-
 }

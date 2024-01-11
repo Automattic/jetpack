@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-AI Extension: iterate over prompt to try to keep the lang of the content

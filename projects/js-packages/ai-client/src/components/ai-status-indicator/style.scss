@@ -1,0 +1,19 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-ai-status-indicator__icon-wrapper {
+	transition: opacity 0.25s ease-in-out, width 0.25s;
+	width: 0;
+	opacity: 0;
+	align-self: baseline;
+
+	> svg {
+		height: 24px;
+		width: 24px;
+		margin: 6px 0 0;
+	}
+
+	&.is-requesting, &.is-suggesting {
+		opacity: 1;
+		width: 24px;
+	}
+}

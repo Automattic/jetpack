@@ -8,7 +8,7 @@ import { image, update, check } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
-import { PROMPT_TYPE_CHANGE_TONE } from '../../lib/prompt';
+import { PROMPT_TYPE_CHANGE_TONE, PROMPT_TYPE_CHANGE_LANGUAGE } from '../../lib/prompt';
 import I18nDropdownControl from '../i18n-dropdown-control';
 import ImproveToolbarDropdownMenu from '../improve-dropdown-control';
 import PromptTemplatesControl from '../prompt-templates-control';
@@ -34,86 +34,95 @@ const ToolbarControls = ( {
 } ) => {
 	return (
 		<>
-			{ contentIsLoaded && (
-				<BlockControls group="block">
-					<ToneToolbarDropdownMenu
-						value="neutral"
-						onChange={ tone =>
-							getSuggestionFromOpenAI( PROMPT_TYPE_CHANGE_TONE, { tone, contentType: 'generated' } )
-						}
-						disabled={ contentIsLoaded }
-					/>
-
-					<I18nDropdownControl
-						value="en"
-						onChange={ language =>
-							getSuggestionFromOpenAI( 'changeLanguage', { language, contentType: 'generated' } )
-						}
-						disabled={ contentIsLoaded }
-					/>
-
-					<ImproveToolbarDropdownMenu
-						onChange={ getSuggestionFromOpenAI }
-						exclude={ isGeneratingTitle ? [ 'summarize' ] : [] }
-					/>
-				</BlockControls>
-			) }
-
 			<BlockControls>
-				{ ! showRetry && ! contentIsLoaded && (
-					<PromptTemplatesControl
-						hasContentBefore={ !! contentBefore?.length }
-						hasContent={ !! wholeContent?.length }
-						hasPostTitle={ hasPostTitle }
-						onPromptSelect={ prompt => {
-							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
-								type: 'prompt-template',
-								prompt,
-							} );
+				{ ! showRetry && (
+					<>
+						<ToolbarGroup>
+							<PromptTemplatesControl
+								hasContentBefore={ !! contentBefore?.length }
+								hasContent={ !! wholeContent?.length }
+								hasPostTitle={ hasPostTitle }
+								contentIsLoaded={ contentIsLoaded }
+								onPromptSelect={ prompt => {
+									recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+										type: 'prompt-template',
+										prompt: prompt.original,
+									} );
 
-							setUserPrompt( prompt );
-						} }
-						onSuggestionSelect={ suggestion => {
-							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
-								type: 'suggestion',
-								suggestion,
-							} );
-							getSuggestionFromOpenAI( suggestion );
-						} }
-					/>
-				) }
+									setUserPrompt( prompt.translated );
+								} }
+								onSuggestionSelect={ suggestion => {
+									recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+										type: 'suggestion',
+										suggestion,
+									} );
+									getSuggestionFromOpenAI( suggestion );
+								} }
+							/>
+						</ToolbarGroup>
 
-				<ToolbarGroup>
-					{ ! showRetry && contentIsLoaded && (
-						<ToolbarButton onClick={ handleTryAgain }>
-							{ __( 'Try Again', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-
-					{ ! showRetry && ! contentIsLoaded && !! wholeContent?.length && (
 						<BlockControls group="block">
 							<ToneToolbarDropdownMenu
 								value="neutral"
-								onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
+								onChange={ tone => {
+									recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+										type: 'suggestion',
+										suggestion: PROMPT_TYPE_CHANGE_TONE,
+									} );
+									getSuggestionFromOpenAI( PROMPT_TYPE_CHANGE_TONE, {
+										tone,
+										contentType: contentIsLoaded ? 'generated' : null,
+									} );
+								} }
+								disabled={ ! contentIsLoaded && ! wholeContent?.length }
 							/>
+
 							<I18nDropdownControl
 								value="en"
-								label={ __( 'Translate', 'jetpack' ) }
-								onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
+								onChange={ language => {
+									recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+										type: 'suggestion',
+										suggestion: PROMPT_TYPE_CHANGE_LANGUAGE,
+									} );
+									getSuggestionFromOpenAI( PROMPT_TYPE_CHANGE_LANGUAGE, {
+										language,
+										contentType: contentIsLoaded ? 'generated' : null,
+									} );
+								} }
+								disabled={ ! contentIsLoaded && ! wholeContent?.length }
+							/>
+
+							<ImproveToolbarDropdownMenu
+								onChange={ getSuggestionFromOpenAI }
+								exclude={ isGeneratingTitle ? [ 'summarize' ] : [] }
+								disabled={ ! contentIsLoaded }
 							/>
 						</BlockControls>
-					) }
-					{ showRetry && contentIsLoaded && (
-						<ToolbarButton icon={ check } onClick={ handleAcceptContent }>
-							{ __( 'Accept', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-					{ showRetry && (
-						<ToolbarButton icon={ update } onClick={ retryRequest }>
-							{ __( 'Retry', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-				</ToolbarGroup>
+					</>
+				) }
+
+				{ ( showRetry || handleTryAgain ) && (
+					<ToolbarGroup>
+						{ ! showRetry && contentIsLoaded && handleTryAgain && (
+							<ToolbarButton onClick={ handleTryAgain }>
+								{ __( 'Try Again', 'jetpack' ) }
+							</ToolbarButton>
+						) }
+
+						{ showRetry && contentIsLoaded && (
+							<ToolbarButton icon={ check } onClick={ handleAcceptContent }>
+								{ __( 'Accept', 'jetpack' ) }
+							</ToolbarButton>
+						) }
+
+						{ showRetry && (
+							<ToolbarButton icon={ update } onClick={ retryRequest }>
+								{ __( 'Retry', 'jetpack' ) }
+							</ToolbarButton>
+						) }
+					</ToolbarGroup>
+				) }
+
 				{ isImageGenerationEnabled && ! showRetry && ! contentIsLoaded && (
 					// Image/text toggle
 					<ToolbarGroup>

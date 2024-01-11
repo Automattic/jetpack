@@ -34,7 +34,7 @@
 				"/home/runner/work/jetpack/jetpack/node_modules/.pnpm/allure-playwright@2.0.0-beta.19/node_modules/allure-playwright/dist/index.js",
 				null
 			],
-			[ "/home/runner/work/jetpack/jetpack/tools/e2e-commons/reporters/reporter.cjs", null ],
+			[ "/home/runner/work/jetpack/jetpack/tools/e2e-commons/reporters/reporter.js", null ],
 			[ "github", null ]
 		],
 		"reportSlowTests": null,

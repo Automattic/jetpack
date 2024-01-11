@@ -6,306 +6,137 @@
  * sharing message.
  */
 
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-import { Button, PanelRow, Disabled, ExternalLink } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { Fragment, createInterpolateElement, useCallback } from '@wordpress/element';
-import { _n, sprintf, __ } from '@wordpress/i18n';
+import { Disabled, ExternalLink, PanelRow } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { Fragment, useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { usePublicizeConfig } from '../../..';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useDismissNotice from '../../hooks/use-dismiss-notice';
+import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
+import useMediaDetails from '../../hooks/use-media-details';
+import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions';
+import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conversion-settings';
+import useRefreshConnections from '../../hooks/use-refresh-connections';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import useSocialMediaMessage from '../../hooks/use-social-media-message';
-import useValidateFeaturedImage from '../../hooks/use-validate-featured-image';
-import PublicizeConnection from '../connection';
-import MediaSection from '../media-section';
-import MessageBoxControl from '../message-box-control';
-import Notice from '../notice';
-import PublicizeSettingsButton from '../settings-button';
-import styles from './styles.module.scss';
+import { CONNECTION_SERVICE_INSTAGRAM_BUSINESS, store as socialStore } from '../../social-store';
+import { getSupportedAdditionalConnections } from '../../utils';
+import { AdvancedPlanNudge } from './advanced-plan-nudge';
+import { AutoConversionNotice } from './auto-conversion-notice';
+import { BrokenConnectionsNotice } from './broken-connections-notice';
+import { ConnectionsList } from './connections-list';
+import { EnabledConnectionsNotice } from './enabled-connections-notice';
+import { InstagramNoMediaNotice } from './instagram-no-media-notice';
+import { InstagramSupportedNotice } from './instagram-supported-notice';
+import { ShareCountInfo } from './share-count-info';
+import { SharePostForm } from './share-post-form';
+import { UnsupportedConnectionsNotice } from './unsupported-connections-notice';
+import { ValidationNotice } from './validation-notice';
 
-const CONNECTIONS_NEED_MEDIA = [ 'instagram-business' ];
-const PUBLICIZE_STORE_ID = 'jetpack/publicize';
-
-const checkConnectionCode = ( connection, code ) =>
-	false === connection.is_healthy && code === ( connection.error_code ?? 'broken' );
-
-const isConnectionNeedMedia = connectionName => CONNECTIONS_NEED_MEDIA.includes( connectionName );
 /**
  * The Publicize form component. It contains the connection list, and the message box.
  *
- * @param {object} props                                  - The component props.
- * @param {boolean} props.isPublicizeEnabled              - Whether Publicize is enabled for this post.
- * @param {boolean} props.isPublicizeDisabledBySitePlan   - A combination of the republicize feature being enabled and/or the post not being published.
- * @param {number} props.numberOfSharesRemaining          - The number of shares remaining for the current period. Optional.
- * @param {boolean} props.isEnhancedPublishingEnabled     - Whether enhanced publishing options are available. Optional.
- * @param {boolean} props.isSocialImageGeneratorAvailable - Whether the Social Image Generator feature is available. Optional.
- * @param {string} props.connectionsAdminUrl              - URL to the Admin connections page
- * @param {string} props.adminUrl                         - URL af the plugin's admin page to redirect to after a plan upgrade
- * @returns {object}                                      - Publicize form component.
+ * @returns {object} - Publicize form component.
  */
-export default function PublicizeForm( {
-	isPublicizeEnabled,
-	isPublicizeDisabledBySitePlan,
-	numberOfSharesRemaining = null,
-	isEnhancedPublishingEnabled = false,
-	isSocialImageGeneratorAvailable = false,
-	connectionsAdminUrl,
-	adminUrl,
-} ) {
-	const { connections, toggleById, hasConnections, enabledConnections } =
-		useSocialMediaConnections();
-	const { message, updateMessage, maxLength } = useSocialMediaMessage();
+export default function PublicizeForm() {
+	const { connections, hasConnections, hasEnabledConnections } = useSocialMediaConnections();
+	const refreshConnections = useRefreshConnections();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
-	const { dismissedNotices, dismissNotice } = useDismissNotice();
-
-	const { isInstagramConnectionSupported } = useSelect( select => ( {
-		isInstagramConnectionSupported: select( PUBLICIZE_STORE_ID ).isInstagramConnectionSupported(),
-	} ) );
+	const { shouldShowNotice, NOTICES } = useDismissNotice();
+	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan, connectionsAdminUrl } =
+		usePublicizeConfig();
 
 	const hasInstagramConnection = connections.some(
 		connection => connection.service_name === 'instagram-business'
 	);
-
+	const { numberOfSharesRemaining } = useSelect( select => {
+		return {
+			showShareLimits: select( socialStore ).showShareLimits(),
+			numberOfSharesRemaining: select( socialStore ).numberOfSharesRemaining(),
+		};
+	}, [] );
 	const shouldShowInstagramNotice =
 		! hasInstagramConnection &&
-		isInstagramConnectionSupported &&
-		! dismissedNotices.includes( 'instagram' );
+		getSupportedAdditionalConnections().includes( CONNECTION_SERVICE_INSTAGRAM_BUSINESS ) &&
+		shouldShowNotice( NOTICES.instagram );
 
-	const onDismissInstagramNotice = useCallback( () => {
-		dismissNotice( 'instagram' );
-	}, [ dismissNotice ] );
-	const shouldDisableMediaPicker =
-		isSocialImageGeneratorAvailable && isSocialImageGeneratorEnabledForPost;
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
-	const brokenConnections = connections.filter( connection =>
-		checkConnectionCode( connection, 'broken' )
-	);
-	const unsupportedConnections = connections.filter( connection =>
-		checkConnectionCode( connection, 'unsupported' )
+	const isAutoConversionEnabled = useSelect(
+		select => select( socialStore ).isAutoConversionEnabled(),
+		[]
 	);
 
-	const { attachedMedia } = useAttachedMedia();
-	const { isFeaturedImageValid } = useValidateFeaturedImage(
-		CONNECTIONS_NEED_MEDIA.map( conn => ( { service_name: conn } ) )
+	const { attachedMedia, shouldUploadAttachedMedia } = useAttachedMedia();
+	const featuredImageId = useFeaturedImage();
+	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
+
+	const { validationErrors, isConvertible } = useMediaRestrictions(
+		connections,
+		useMediaDetails( mediaId )[ 0 ],
+		{
+			isSocialImageGeneratorEnabledForPost,
+			shouldUploadAttachedMedia,
+		}
 	);
-	const postHasValidImage =
-		isFeaturedImageValid || attachedMedia.length > 0 || isSocialImageGeneratorEnabledForPost;
+	const shouldAutoConvert = isAutoConversionEnabled && isConvertible;
 
-	const outOfConnections =
-		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
+	const invalidIds = useMemo( () => Object.keys( validationErrors ), [ validationErrors ] );
 
-	const { isEditedPostDirty } = useSelect( 'core/editor' );
-	const { autosave } = useDispatch( 'core/editor' );
-	const autosaveAndRedirect = useCallback(
-		async ev => {
-			const target = ev.target.getAttribute( 'target' );
-			if ( isEditedPostDirty() && ! target ) {
-				ev.preventDefault();
-				await autosave();
-				window.location.href = ev.target.href;
-			}
-			if ( target ) {
-				ev.preventDefault();
-				window.open( ev.target.href, target, 'noreferrer' );
-			}
-		},
-		[ autosave, isEditedPostDirty ]
-	);
+	const showValidationNotice = numberOfSharesRemaining !== 0 && invalidIds.length > 0;
 
-	const renderNotices = () => (
-		<>
-			{ brokenConnections.length > 0 && (
-				<Notice type={ 'error' }>
-					{ createInterpolateElement(
-						_n(
-							'One of your social connections is broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
-							'Some of your social connections are broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
-							brokenConnections.length,
-							'jetpack'
-						),
-						{
-							fixLink: <ExternalLink href={ connectionsAdminUrl } />,
-						}
-					) }
-				</Notice>
-			) }
-			{ unsupportedConnections.length > 0 && (
-				<Notice type={ 'error' }>
-					{ createInterpolateElement(
-						__(
-							'Twitter is not supported anymore. <moreInfo>Learn more here</moreInfo>.',
-							'jetpack'
-						),
-						{
-							moreInfo: <ExternalLink href={ connectionsAdminUrl } />,
-						}
-					) }
-				</Notice>
-			) }
-		</>
-	);
+	const { refreshAutoConversionSettings } = useRefreshAutoConversionSettings();
 
-	const showNoMediaMessage =
-		! postHasValidImage &&
-		numberOfSharesRemaining !== 0 &&
-		connections.some( ( { service_name } ) => isConnectionNeedMedia( service_name ) );
+	if (
+		shouldAutoConvert &&
+		showValidationNotice &&
+		mediaId &&
+		shouldShowNotice( NOTICES.autoConversion )
+	) {
+		refreshAutoConversionSettings();
+	}
+
+	refreshConnections();
 
 	return (
 		<Wrapper>
-			{ hasConnections && (
+			{ hasConnections ? (
 				<>
-					{ numberOfSharesRemaining !== null && (
-						<PanelRow>
-							<Notice type={ numberOfSharesRemaining < connections.length ? 'warning' : 'default' }>
-								<Fragment>
-									{ createInterpolateElement(
-										sprintf(
-											/* translators: %d is the number of shares remaining, upgradeLink is the link to upgrade to a different plan */
-											_n(
-												'You have %d share remaining in the next 30 days. <upgradeLink>Upgrade now</upgradeLink> to share more.',
-												'You have %d shares remaining in the next 30 days. <upgradeLink>Upgrade now</upgradeLink> to share more.',
-												numberOfSharesRemaining,
-												'jetpack'
-											),
-											numberOfSharesRemaining
-										),
-										{
-											upgradeLink: (
-												<a
-													className={ styles[ 'upgrade-link' ] }
-													href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
-														site: getSiteFragment(),
-														query: 'redirect_to=' + encodeURIComponent( window.location.href ),
-													} ) }
-													onClick={ autosaveAndRedirect }
-												/>
-											),
-										}
-									) }
-									<br />
-									<a
-										className={ styles[ 'more-link' ] }
-										href={ getRedirectUrl( 'jetpack-social-block-editor-more-info', {
-											site: getSiteFragment(),
-											...( adminUrl
-												? { query: 'redirect_to=' + encodeURIComponent( adminUrl ) }
-												: {} ),
-										} ) }
-										target="_blank"
-										rel="noopener noreferrer"
-										onClick={ autosaveAndRedirect }
-									>
-										{ __( 'More about Jetpack Social.', 'jetpack' ) }
-									</a>
-								</Fragment>
-							</Notice>
-						</PanelRow>
-					) }
-					{ renderNotices() }
 					<PanelRow>
-						<ul className={ styles[ 'connections-list' ] }>
-							{ connections.map(
-								( {
-									display_name,
-									enabled,
-									id,
-									service_name,
-									toggleable,
-									profile_picture,
-									is_healthy,
-									connection_id,
-								} ) => (
-									<PublicizeConnection
-										disabled={
-											! isPublicizeEnabled ||
-											( ! enabled && toggleable && outOfConnections ) ||
-											false === is_healthy ||
-											( isConnectionNeedMedia( service_name ) && ! postHasValidImage )
-										}
-										enabled={
-											enabled &&
-											! isPublicizeDisabledBySitePlan &&
-											false !== is_healthy &&
-											( postHasValidImage || ! isConnectionNeedMedia( service_name ) )
-										}
-										key={ connection_id ? connection_id : id }
-										id={ connection_id ? connection_id : id }
-										label={ display_name }
-										name={ service_name }
-										toggleConnection={ toggleById }
-										profilePicture={ profile_picture }
-									/>
-								)
-							) }
-						</ul>
+						<ConnectionsList />
 					</PanelRow>
-					{ showNoMediaMessage && (
-						<Notice type={ 'warning' }>
-							{ __( 'You need a valid image in your post to share to Instagram.', 'jetpack' ) }
-							<br />
-							<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
-								{ __( 'Learn more', 'jetpack' ) }
-							</ExternalLink>
-						</Notice>
-					) }
+					<EnabledConnectionsNotice />
+					<ShareCountInfo />
+					<BrokenConnectionsNotice />
+					<UnsupportedConnectionsNotice />
+					{ shouldAutoConvert && showValidationNotice && mediaId && <AutoConversionNotice /> }
+					{ showValidationNotice &&
+						( Object.values( validationErrors ).includes( NO_MEDIA_ERROR ) ? (
+							<InstagramNoMediaNotice />
+						) : (
+							<ValidationNotice
+								connectionsCount={ connections.length }
+								invalidConnectionIdsCount={ invalidIds.length }
+								shouldAutoConvert={ shouldAutoConvert }
+							/>
+						) ) }
 				</>
+			) : (
+				! shouldShowInstagramNotice && (
+					<PanelRow>
+						<ExternalLink href={ connectionsAdminUrl }>
+							{ __( 'Connect an account', 'jetpack' ) }
+						</ExternalLink>
+					</PanelRow>
+				)
 			) }
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
-					{ shouldShowInstagramNotice && (
-						<Notice
-							onDismiss={ onDismissInstagramNotice }
-							type={ 'highlight' }
-							actions={ [
-								<Button
-									key="connect"
-									href={ connectionsAdminUrl }
-									target="_blank"
-									rel="noreferrer noopener"
-									variant="primary"
-								>
-									{ __( 'Connect now', 'jetpack' ) }
-								</Button>,
-								<Button
-									key="learn-more"
-									href={ getRedirectUrl( 'jetpack-social-connecting-to-social-networks' ) }
-									target="_blank"
-									rel="noreferrer noopener"
-								>
-									{ __( 'Learn more', 'jetpack' ) }
-								</Button>,
-							] }
-						>
-							{ __( 'You can now share directly to your Instagram account!', 'jetpack' ) }
-						</Notice>
-					) }
-					<PublicizeSettingsButton />
+					{ shouldShowInstagramNotice && <InstagramSupportedNotice /> }
 
-					{ isPublicizeEnabled && connections.some( connection => connection.enabled ) && (
-						<>
-							<MessageBoxControl
-								maxLength={ maxLength }
-								onChange={ updateMessage }
-								message={ message }
-							/>
-						</>
-					) }
-					{ isEnhancedPublishingEnabled && (
-						<MediaSection
-							disabled={ shouldDisableMediaPicker }
-							notice={
-								shouldDisableMediaPicker
-									? __(
-											'It is not possible to add an image or video when Social Image Generator is enabled.',
-											'jetpack'
-									  )
-									: null
-							}
-						/>
-					) }
+					{ isPublicizeEnabled && hasEnabledConnections && <SharePostForm /> }
+					<AdvancedPlanNudge />
 				</Fragment>
 			) }
 		</Wrapper>

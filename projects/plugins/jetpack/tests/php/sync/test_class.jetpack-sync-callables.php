@@ -137,6 +137,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'wp_get_environment_type'          => wp_get_environment_type(),
 			'is_fse_theme'                     => Functions::get_is_fse_theme(),
 			'get_themes'                       => Functions::get_themes(),
+			'get_loaded_extensions'            => Functions::get_loaded_extensions(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -173,7 +174,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		// Are there any duplicate keys?
 		$unique_whitelist = array_unique( $whitelist_keys );
-		$this->assertEquals( count( $unique_whitelist ), count( $whitelist_keys ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist_keys, array_unique( $whitelist_keys ) ), 1 ) );
+		$this->assertSameSize( $unique_whitelist, $whitelist_keys, 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist_keys, array_unique( $whitelist_keys ) ), 1 ) );
 
 		remove_filter( 'jetpack_set_available_extensions', array( $this, 'add_test_block' ) );
 		Jetpack_Gutenberg::reset();
@@ -489,7 +490,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			$this->assertIsArray( get_option( Urls::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
 		}
 
+		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+
 		Sender::get_instance()->uninstall();
+
+		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 
 		foreach ( $url_callables as $callable ) {
 			$this->assertFalse( get_option( Urls::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
@@ -748,6 +755,15 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		foreach ( $wp_post_types as $post_type => $post_type_object ) {
 			$post_type_object->rest_controller_class = false;
 			$post_type_object->rest_controller       = null;
+			if ( isset( $post_type_object->revisions_rest_controller_class ) ) {
+				$post_type_object->revisions_rest_controller_class = false;
+			}
+			if ( isset( $post_type_object->autosave_rest_controller_class ) ) {
+				$post_type_object->autosave_rest_controller_class = false;
+			}
+			if ( isset( $post_type_object->late_route_registration ) ) {
+				$post_type_object->late_route_registration = false;
+			}
 			if ( ! isset( $post_type_object->supports ) ) {
 				$post_type_object->supports = array();
 			}
@@ -984,7 +1000,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'rewrite',
 		);
 		foreach ( $check_object_vars as $test ) {
-			$this->assertObjectHasAttribute( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
+			$this->assertObjectHasProperty( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
 		}
 	}
 
@@ -1356,7 +1372,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$functions = new Functions();
 		$this->assertEquals( $main_network_wpcom_id, $functions->main_network_site_wpcom_id() );
 	}
-
 }
 
 /**

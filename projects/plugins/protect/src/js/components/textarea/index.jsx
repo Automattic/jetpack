@@ -4,6 +4,7 @@ const Textarea = ( {
 	disabled = false,
 	id,
 	label = '',
+	description = '',
 	placeholder = '',
 	rows = 3,
 	value = '',
@@ -16,6 +17,7 @@ const Textarea = ( {
 					{ label }
 				</label>
 			) }
+			{ Boolean( description ) && description }
 			<textarea
 				className={ styles.textarea }
 				disabled={ disabled }

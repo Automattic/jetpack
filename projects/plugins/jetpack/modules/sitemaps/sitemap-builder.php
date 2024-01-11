@@ -1287,7 +1287,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	private function video_post_to_sitemap_item( $post ) {
 
 		/**
-		 * Filter condition to allow skipping specific image posts in the sitemap.
+		 * Filter condition to allow skipping specific video posts in the sitemap.
 		 *
 		 * @module sitemaps
 		 *

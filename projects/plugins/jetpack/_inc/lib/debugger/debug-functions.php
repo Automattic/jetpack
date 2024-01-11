@@ -1,6 +1,6 @@
 <?php
 /**
- * WP Site Health functionality temporarily stored in this file until all of Jetpack is PHP 5.3+
+ * WP Site Health debugging functions.
  *
  * @package automattic/jetpack
  */

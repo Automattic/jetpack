@@ -14,22 +14,26 @@ export default function ProductManagementControls( {
 	blockName,
 	clientId,
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
-	selectedProductId = 0,
-	setSelectedProductId = () => {},
+	selectedProductIds = [],
+	setSelectedProductIds = () => {},
 } ) {
-	const products = useSelect( select =>
-		select( membershipProductsStore )
-			?.getProducts()
-			.filter( product => ! product.subscribe_as_site_subscriber )
+	const products = useSelect(
+		select =>
+			select( membershipProductsStore ).getProducts(
+				productType,
+				selectedProductIds,
+				setSelectedProductIds
+			),
+		[]
 	);
 
-	const { connectUrl, isApiConnected, isSelectedProductInvalid } = useSelect( select => {
-		const { getConnectUrl, isApiStateConnected, isInvalidProduct } =
+	const { connectUrl, isApiConnected, areSelectedProductsInvalid } = useSelect( select => {
+		const { getConnectUrl, isApiStateConnected, hasInvalidProducts } =
 			select( membershipProductsStore );
 		return {
 			connectUrl: getConnectUrl(),
 			isApiConnected: isApiStateConnected(),
-			isSelectedProductInvalid: isInvalidProduct( selectedProductId ),
+			areSelectedProductsInvalid: hasInvalidProducts( selectedProductIds ),
 		};
 	} );
 
@@ -43,8 +47,8 @@ export default function ProductManagementControls( {
 		clientId,
 		products,
 		productType,
-		selectedProductId,
-		setSelectedProductId,
+		selectedProductIds,
+		setSelectedProductIds,
 	};
 
 	return (
@@ -60,7 +64,7 @@ export default function ProductManagementControls( {
 					<ProductManagementToolbarControl />
 				</>
 			) }
-			{ isApiConnected && isSelectedProductInvalid && <InvalidProductWarning /> }
+			{ isApiConnected && areSelectedProductsInvalid && <InvalidProductWarning /> }
 		</ProductManagementContext.Provider>
 	);
 }

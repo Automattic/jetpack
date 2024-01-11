@@ -150,7 +150,7 @@ class KeepAChangelogParser extends Parser {
 		// Extract link definitions.
 		$links     = array();
 		$usedlinks = array();
-		while ( ( $m = $this->endsInLink( $changelog ) ) ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		while ( ( $m = $this->endsInLink( $changelog ) ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			$links[ $m['id'] ]     = $m['link'];
 			$usedlinks[ $m['id'] ] = false;
 			$changelog             = (string) substr( $changelog, 0, -strlen( $m['match'] ) );
@@ -370,5 +370,4 @@ class KeepAChangelogParser extends Parser {
 
 		return $ret;
 	}
-
 }

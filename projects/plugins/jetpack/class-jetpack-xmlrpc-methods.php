@@ -137,7 +137,7 @@ class Jetpack_XMLRPC_Methods {
 		if ( 'en' !== $locale ) {
 			// .org mo files are named slightly different from .com, and all we have is this the locale -- try to guess them.
 			$new_locale = $locale;
-			if ( strpos( $locale, '-' ) !== false ) {
+			if ( str_contains( $locale, '-' ) ) {
 				$locale_pieces = explode( '-', $locale );
 				$new_locale    = $locale_pieces[0];
 				$new_locale   .= ( ! empty( $locale_pieces[1] ) ) ? '_' . strtoupper( $locale_pieces[1] ) : '';

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Critical CSS: On sites with fewer than 10 pages/posts, ensure that pages and posts are not skipped during Critical CSS generation

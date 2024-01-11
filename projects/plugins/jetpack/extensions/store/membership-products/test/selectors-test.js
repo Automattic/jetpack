@@ -1,7 +1,13 @@
-import { getNewsletterProducts, getProducts } from '../selectors';
+import {
+	getNewsletterCategories,
+	getNewsletterCategoriesEnabled,
+	getNewsletterTierProducts,
+	getNewsletterCategoriesSubscriptionsCount,
+	getProducts,
+} from '../selectors';
 
 describe( 'Membership Products Selectors', () => {
-	test( 'GetProducts and getNewsletterProducts works as expected', () => {
+	test( 'GetProducts and getNewsletterTierProducts works as expected', () => {
 		const products = [
 			{
 				id: 1,
@@ -14,6 +20,7 @@ describe( 'Membership Products Selectors', () => {
 		const newsletter_product = {
 			id: 3,
 			subscribe_as_site_subscriber: true,
+			type: 'tier',
 		};
 
 		const state = {
@@ -21,6 +28,32 @@ describe( 'Membership Products Selectors', () => {
 		};
 
 		expect( getProducts( state ) ).toStrictEqual( state.products );
-		expect( getNewsletterProducts( state ) ).toStrictEqual( [ newsletter_product ] );
+		expect( getNewsletterTierProducts( state ) ).toStrictEqual( [ newsletter_product ] );
+	} );
+
+	test( 'getNewsletterCategories and getNewsletterCategoriesEnabled works as expected', () => {
+		const state = {
+			newsletterCategories: {
+				categories: [ 'category1', 'category2' ],
+				enabled: true,
+			},
+		};
+
+		expect( getNewsletterCategories( state ) ).toStrictEqual(
+			state.newsletterCategories.categories
+		);
+		expect( getNewsletterCategoriesEnabled( state ) ).toStrictEqual(
+			state.newsletterCategories.enabled
+		);
+	} );
+
+	test( 'getNewsletterCategoriesSubscriptionsCount works as expected', () => {
+		const state = {
+			newsletterCategoriesSubscriptionsCount: 1,
+		};
+
+		expect( getNewsletterCategoriesSubscriptionsCount( state ) ).toStrictEqual(
+			state.newsletterCategoriesSubscriptionsCount
+		);
 	} );
 } );

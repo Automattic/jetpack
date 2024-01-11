@@ -68,5 +68,4 @@ class Segment_Condition_Mailpoet_Subscriber extends zeroBSCRM_segmentCondition {
 
         return $startingArg;
     }
-    
 }

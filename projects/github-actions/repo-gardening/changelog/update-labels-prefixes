@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Labels: prefix module labels with [Feature], to match new bug reporting tool.

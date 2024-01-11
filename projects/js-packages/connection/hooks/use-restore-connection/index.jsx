@@ -17,7 +17,7 @@ export default function useRestoreConnection() {
 	const [ isRestoringConnection, setIsRestoringConnection ] = useState( false );
 	const [ restoreConnectionError, setRestoreConnectionError ] = useState( null );
 
-	const { disconnectUserSuccess } = useDispatch( STORE_ID );
+	const { disconnectUserSuccess, setConnectionErrors } = useDispatch( STORE_ID );
 
 	const USER_CONNECTION_URL = '/wp-admin/admin.php?page=my-jetpack#/connection';
 
@@ -37,6 +37,7 @@ export default function useRestoreConnection() {
 				// status 'in_progress' means the user needs to re-connect their WP.com account.
 				if ( 'in_progress' === connectionStatusData.status ) {
 					disconnectUserSuccess();
+					setConnectionErrors( {} );
 					if ( autoReconnectUser ) {
 						window.location.href = USER_CONNECTION_URL;
 					}

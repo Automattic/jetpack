@@ -181,5 +181,4 @@ class Utils {
 			->setPRLinkFormat( "https://github.com/{$plugin->repo()}/pull/%d" )
 			->text( $content );
 	}
-
 }

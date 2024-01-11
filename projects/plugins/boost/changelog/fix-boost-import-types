@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Boost: Allow file extensions in TypeScript imports

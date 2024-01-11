@@ -29,7 +29,7 @@ class AssetsTest extends TestCase {
 	 */
 	public function set_up() {
 		Monkey\setUp();
-		$plugin_dir = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/';
+		$plugin_dir = dirname( __DIR__, 4 ) . '/';
 		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', $plugin_dir . 'jetpack.php' );
 
 		Functions\stubs(
@@ -180,7 +180,7 @@ class AssetsTest extends TestCase {
 	public function get_file_url_for_environment_package_path_data_provider() {
 		$min_path     = 'src/js/test.min.js';
 		$non_min_path = 'src/js/test.js';
-		$package_path = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/packages/test-package/test-package.php';
+		$package_path = dirname( __DIR__, 4 ) . '/packages/test-package/test-package.php';
 
 		return array(
 			'script-debug-true'  => array(
@@ -747,7 +747,7 @@ class AssetsTest extends TestCase {
 					),
 					array( 'wp-i18n' ),
 				),
-				array( 'wp-jp-i18n-state', null, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) )
+				array( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) )
 			);
 		$mock->expects( $this->exactly( 3 ) )->method( 'add_inline_script' )
 			->withConsecutive(
@@ -1105,5 +1105,4 @@ class AssetsTest extends TestCase {
 			),
 		);
 	}
-
 }

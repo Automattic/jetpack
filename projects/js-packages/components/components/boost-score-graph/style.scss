@@ -1,0 +1,22 @@
+.jb-score-graph {
+    height: 300px;
+
+    &__placeholder {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+
+        svg {
+            object-position: right bottom;
+            object-fit: cover;
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+}
+
+.boost-uplot-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+}

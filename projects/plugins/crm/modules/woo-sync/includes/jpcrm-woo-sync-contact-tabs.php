@@ -492,6 +492,4 @@ class Woo_Sync_Contact_Tabs {
         ));        
 
     }
-
-
 }

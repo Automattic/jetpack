@@ -22,7 +22,7 @@ async function status( state, description ) {
 		repo: repo,
 		sha: github.context.payload.pull_request.head.sha,
 		state: state,
-		target_url: `https://github.com/${ owner }/${ repo }/actions/runs/${ github.context.runId }`,
+		target_url: `${ github.context.serverUrl }/${ owner }/${ repo }/actions/runs/${ github.context.runId }`,
 		description: description,
 		context: core.getInput( 'status', { required: true } ),
 	};

@@ -2,23 +2,35 @@
 	display: flex;
 	align-items: center;
 	max-width: 1551px;
+
+	&.jpcrm-full-width {
+		max-width: none;
+	}
 }
 
 .jpcrm-learn-menu-subdiv-75 {
-	width: 75%;
+	flex-basis: 75%;
+	flex-grow: 0;
+	flex-shrink: 1;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 }
 
 .jpcrm-learn-menu-subdiv-25 {
-	width: 25%;
+	flex-basis: 25%;
+	flex-grow: 1;
+	flex-shrink: 0;
 	display: flex;
 	align-items: center;
 	flex-direction: row;
 	justify-content: flex-end;
 	padding: 10px 0px;
 	gap: 10px;
+
+	& > *:first-child {
+		margin-left: 16px; /* keep the gap between the divs when subdiv-25 is shrunk down */
+	}
 }
 
 .jpcrm-learn-page-title {
@@ -55,8 +67,13 @@
 
 	.jpcrm-learn-menu-subdiv-75,
 	.jpcrm-learn-menu-subdiv-25 {
+		flex-grow: 1;
 		flex-wrap: wrap;
 		flex-direction: column;
 		width: 100%;
+
+		& > *:first-child {
+			margin-left: 0px; /* gap not needed anymore as the divs are centered */
+		}
 	}
 }

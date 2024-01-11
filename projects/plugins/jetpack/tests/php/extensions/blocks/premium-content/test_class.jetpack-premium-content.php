@@ -7,7 +7,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-membership
 require_once __DIR__ . '/class-test-jetpack-token-subscription-service.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
-use \Tests\Automattic\Jetpack\Extensions\Premium_Content\Test_Jetpack_Token_Subscription_Service;
+use Tests\Automattic\Jetpack\Extensions\Premium_Content\Test_Jetpack_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access;
 use function Automattic\Jetpack\Extensions\Premium_Content\subscription_service;
 use const Automattic\Jetpack\Extensions\Premium_Content\PAYWALL_FILTER;
@@ -60,7 +60,7 @@ class WP_Test_Jetpack_Premium_Content extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Stubs WPCOM_Token_Subscription_Service in order to return the provided token.
+	 * Stubs Jetpack_Token_Subscription_Service in order to return the provided token.
 	 *
 	 * @param array $payload
 	 * @return mixed
@@ -152,24 +152,25 @@ class WP_Test_Jetpack_Premium_Content extends WP_UnitTestCase {
 		$regular_subscriber_id = $users_plans[1];
 		$paid_subscriber_id    = $users_plans[2];
 		$plan_id               = $users_plans[3];
+		$selected_plan_ids     = array( $plan_id );
 
 		// We setup the token for the regular user
 		wp_set_current_user( $non_subscriber_id );
 		$payload = $this->get_payload( false, false );
 		$this->set_returned_token( $payload );
-		$this->assertFalse( current_visitor_can_access( array( 'selectedPlanId' => $plan_id ), array() ) );
+		$this->assertFalse( current_visitor_can_access( array( 'selectedPlanIds' => $selected_plan_ids ), array() ) );
 
 		// We setup the token for the regular subscriber
 		wp_set_current_user( $regular_subscriber_id );
 		$payload = $this->get_payload( true, false );
 		$this->set_returned_token( $payload );
-		$this->assertFalse( current_visitor_can_access( array( 'selectedPlanId' => $plan_id ), array() ) );
+		$this->assertFalse( current_visitor_can_access( array( 'selectedPlanIds' => $selected_plan_ids ), array() ) );
 
 		// We setup the token for the paid user
 		wp_set_current_user( $paid_subscriber_id );
 		$payload = $this->get_payload( true, true );
 		$this->set_returned_token( $payload );
-		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanId' => $plan_id ), array() ) );
+		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanIds' => $selected_plan_ids ), array() ) );
 	}
 
 	/**
@@ -191,7 +192,7 @@ class WP_Test_Jetpack_Premium_Content extends WP_UnitTestCase {
 		$this->assertFalse( current_visitor_can_access( array(), array() ) );
 
 		// The plan id can be passed in 2 ways.
-		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanId' => $plan_id ), array() ) );
-		$this->assertTrue( current_visitor_can_access( array(), (object) array( 'context' => array( 'premium-content/planId' => $plan_id ) ) ) );
+		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ) );
+		$this->assertTrue( current_visitor_can_access( array(), (object) array( 'context' => array( 'premium-content/planIds' => array( $plan_id ) ) ) ) );
 	}
 }

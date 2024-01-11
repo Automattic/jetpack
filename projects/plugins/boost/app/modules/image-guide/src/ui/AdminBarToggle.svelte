@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ImageGuideAnalytics from '../analytics';
-	import { guideState, guideLabel } from '../stores/GuideState';
+	import { guideLabel, guideState } from '../stores/GuideState';
 	import JetpackLogo from './JetpackLogo.svelte';
 
 	export let href: string;

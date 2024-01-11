@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Status;
 use Jetpack_Custom_CSS;
 use JITM;
@@ -36,7 +35,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
-		add_filter( 'block_editor_settings_all', array( $this, 'site_editor_dashboard_link' ) );
 	}
 
 	/**
@@ -46,7 +44,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
-		$this->add_inbox_menu();
+		$this->add_my_mailboxes_menu();
 		$this->remove_gutenberg_menu();
 
 		// Not needed outside of wp-admin.
@@ -272,7 +270,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'edit_posts', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'read', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
 	}
 
 	/**
@@ -324,7 +322,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$user_can_customize = current_user_can( 'customize' );
 
-		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+		if ( wp_is_block_theme() ) {
 			add_filter( 'safecss_is_freetrial', '__return_false', PHP_INT_MAX );
 			if ( class_exists( 'Jetpack_Custom_CSS' ) && empty( Jetpack_Custom_CSS::get_css() ) ) {
 				$user_can_customize = false;
@@ -342,8 +340,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds Users menu.
 	 */
 	public function add_users_menu() {
-		$current_locale = get_user_locale();
-
 		$submenus_to_update = array(
 			'grofiles-editor'        => 'https://wordpress.com/me',
 			'grofiles-user-settings' => 'https://wordpress.com/me/account',
@@ -355,10 +351,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
 		$this->update_submenus( $slug, $submenus_to_update );
-		add_submenu_page( 'users.php', esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
-		if ( substr( $current_locale, 0, 2 ) === 'en' ) {
-			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
-		}
+		add_submenu_page( 'users.php', esc_attr__( 'Add New User', 'jetpack' ), __( 'Add New User', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
+		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
 	}
 
 	/**
@@ -367,10 +361,14 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
-		if ( Blaze::should_initialize() ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
-		}
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 10 );
+	}
+
+	/**
+	 * Adds My Home menu.
+	 */
+	public function add_my_home_menu() {
+		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack' ), 'read', 'dashicons-admin-home' );
 	}
 
 	/**

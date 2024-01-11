@@ -687,5 +687,4 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$this->assertNotEmpty( $images[0]['href'] );
 		$this->assertSame( '', $images[0]['alt_text'] );
 	}
-
 } // end class

@@ -37,8 +37,8 @@ class Admin {
 	 */
 	public static function add_actions() {
 		self::$hookname = Admin_Menu::add_menu(
-			'Jetpack Beta',
-			'Jetpack Beta',
+			'Beta Tester',
+			'Beta Tester',
 			'update_plugins',
 			'jetpack-beta',
 			array( self::class, 'render' )
@@ -343,5 +343,4 @@ class Admin {
 		</a>
 		<?php
 	}
-
 }

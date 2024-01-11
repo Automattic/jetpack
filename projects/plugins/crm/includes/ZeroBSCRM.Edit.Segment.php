@@ -275,7 +275,9 @@ function zeroBSCRM_segments_typeConversions( $value = '', $type = '', $operator 
             if ($direction == 'in' && $operator != 'daterange' && $operator != 'datetimerange' && $operator != 'nextdays' && $operator != 'previousdays' ) {
                 switch ($available_conditions[$type]['conversion']) {
                     case 'date-to-uts':
-
+								$local_date_time = new DateTime( $value, wp_timezone() );
+								$local_date_time->setTimezone( new DateTimeZone( 'UTC' ) );
+								$value = $local_date_time->format( 'Y-m-d H:i' );
                         // convert date to uts
                         $value = zeroBSCRM_locale_dateToUTS($value, true);
                     
@@ -302,7 +304,7 @@ function zeroBSCRM_segments_typeConversions( $value = '', $type = '', $operator 
                         }
 
                         // convert uts back to date
-                        $value = zeroBSCRM_date_i18n_plusTime(-1, $value);
+								$value = zeroBSCRM_date_i18n_plusTime( 'Y-m-d', $value );
 
                         break;
                 }

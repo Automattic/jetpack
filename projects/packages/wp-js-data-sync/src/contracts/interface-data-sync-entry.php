@@ -46,5 +46,4 @@ interface Data_Sync_Entry {
 	 * @return mixed The value of the data sync entry after deletion.
 	 */
 	public function delete();
-
 }

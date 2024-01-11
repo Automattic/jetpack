@@ -256,7 +256,7 @@ class zeroBSCRM_Plugin_Updater {
 									// ===========================
 									// Local Mods to dl obj - these are needed in get_info and all_info (here)
 
-									$newSlug = ''; //substr($pluginDetails['path'],0,strpos('/',$pluginDetails['path']));
+									$newSlug = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 									$e = false;
 									if ( is_array( $pluginDetails ) && isset( $pluginDetails['path'] ) ) {
 										$e = explode( '/', $pluginDetails['path'] );
@@ -354,7 +354,7 @@ class zeroBSCRM_Plugin_Updater {
 							// ===========================
 							// Local Mods to dl obj - these are needed in get_info and all_info (here)
 
-							$newSlug = ''; //substr($pluginDetails['path'],0,strpos('/',$pluginDetails['path']));
+							$newSlug = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							$e = explode( '/', $core['path'] );
 							if ( is_array( $e ) ) {
 								$newSlug = $e[0];
@@ -479,7 +479,9 @@ class zeroBSCRM_Plugin_Updater {
 					// ===========================
 					// Local Mods to dl obj - these are needed in get_info (here) and all_info
 
-					$newSlug = ''; $modifiedDLLink = ''; //substr($pluginDetails['path'],0,strpos('/',$pluginDetails['path']));
+					$newSlug        = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$modifiedDLLink = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 					$e = explode('/',$possibleExtension['path']);
 					if (is_array($e)) $newSlug = $e[0];
 					if (empty($newSlug)) $newSlug = $res['slug'];
@@ -643,16 +645,9 @@ class zeroBSCRM_Plugin_Updater {
 			// cycle through each, check if matches
 			foreach ( $this->installedExts as $extName => $extDeets ) {
 
-				// debug
-				//echo 'comparing '.$extDeets['slug'].' to '.$slug.'<br>';
-
-				// is slug in this arr?				
-				//if (is_array($extDeets) && isset($extDeets['path']) && $extDeets['path'] == $slug) {
-				// this WAS working, but somehow decayed. Tweaked below
-				//if (is_array($extDeets) && isset($extDeets['slug']) && (str_replace('.php','',$extDeets['slug']) == $slug || $extDeets['slug'] == $slug)) {
 				if (
 					// something else we changed, changed this. Use first part of path now, not slug.
-					(is_array($extDeets) && isset($extDeets['path']) && substr($extDeets['path'], 0,strlen($slug)) == $slug)
+					( is_array( $extDeets ) && isset( $extDeets['path'] ) && str_starts_with( $extDeets['path'], $slug ) ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					) {
 
 					// simple return.
@@ -691,7 +686,7 @@ class zeroBSCRM_Plugin_Updater {
 					// is this it?
 					if (
 					// something else we changed, changed this. Use first part of path now, not slug.
-					(is_array($core) && isset($core['path']) && substr($core['path'], 0,strlen($slug)) == $slug)
+					( is_array( $core ) && isset( $core['path'] ) && str_starts_with( $core['path'], $slug ) )
 					) {
 
 						$x = $core;
@@ -979,7 +974,6 @@ class zeroBSCRM_Plugin_Updater {
 	/* ===============================================================================================
 	==================================== / helper functions ==========================================
 	=============================================================================================== */
-
 }
 
 //https://stackoverflow.com/questions/2053245/how-can-i-detect-if-the-user-is-on-localhost-in-php
@@ -987,13 +981,12 @@ class zeroBSCRM_Plugin_Updater {
 // defaults to full check as of 2.97.9
 // SELECT * FROM `zbs_app_users_licenses_requests` WHERE action = 'localcheck'
 function zeroBSCRM_isLocal($fullCheck=true) {
-
 	// quick caching
 	if (jpcrm_is_devmode_override()) return false;
 
 	// is local, unless override setting set within past 48h
-    $whitelist = array( '127.0.0.1','localhost', '::1' );
-    if (in_array( $_SERVER['REMOTE_ADDR'], $whitelist)){
+	$whitelist = array( '127.0.0.1', 'localhost', '::1' );
+	if ( in_array( zeroBSCRM_getRealIpAddr(), $whitelist, true ) ) {
 
     	if ($fullCheck){
 
@@ -1170,5 +1163,4 @@ function zeroBSCRM_localDblCheck(){
 	    } */
 
 	    return array();
-
-	}
+}

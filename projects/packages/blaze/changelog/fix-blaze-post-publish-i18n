@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Ensure we use the translated post type name in Post-publish prompt.

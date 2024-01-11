@@ -2,6 +2,185 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.45.10] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815] [#34816]
+
+### Fixed
+- Added consistency for Jetpack footer links [#34787]
+
+## [0.45.9] - 2024-01-02
+### Changed
+- Updated the design and fixed a11y for Quick Share buttons. [#34754]
+
+## [0.45.8] - 2023-12-19
+### Changed
+- Updated package dependencies. [#34694, #34696]
+
+## [0.45.7] - 2023-12-13
+### Added
+- Added `className` prop to RecordMeterBar component [#34182]
+
+## [0.45.6] - 2023-12-11
+### Fixed
+- Fixed resizing of the performance history graph. [#34185]
+
+## [0.45.5] - 2023-12-06
+### Changed
+- Updated package dependencies. [#34416]
+
+## [0.45.4] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+
+## [0.45.3] - 2023-11-21
+### Fixed
+- Fixed ActionPopover CSS variables. [#34226]
+
+## [0.45.2] - 2023-11-20
+
+## [0.45.1] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.45.0] - 2023-11-13
+### Fixed
+- Fixed React warnings in Boost Score Graph. [#34014]
+
+## [0.44.4] - 2023-11-03
+### Changed
+- Updated package dependencies. [#33904]
+
+## [0.44.3] - 2023-10-31
+### Fixed
+- Fix IconTooltip Popover styles. [#33856]
+
+## [0.44.2] - 2023-10-30
+### Changed
+- Social: Update Nextdoor icon styling so it's round. [#33834]
+
+## [0.44.1] - 2023-10-23
+### Changed
+- Use pointer-events: None on arrow icon so its click behavior falls back to the container/underlying component. [#33733]
+
+## [0.44.0] - 2023-10-19
+### Added
+- Add a `ProgressBar` component. [#33054]
+- Social: Add the Nextdoor connection toggle [#33663]
+
+### Changed
+- Updated package dependencies. [#33687]
+
+## [0.43.4] - 2023-10-17
+### Changed
+- Updated package dependencies. [#33646]
+
+## [0.43.3] - 2023-10-16
+### Changed
+- Replaced inline social icons with social-logos package. [#33613]
+- Updated package dependencies. [#33584, #33429]
+
+## [0.43.2] - 2023-10-11
+### Changed
+- Changed Twitter icon and label to X [#33445]
+
+## [0.43.1] - 2023-10-10
+### Changed
+- Boost Score Graph: Show a straight line before the first data point. [#33133]
+- Updated package dependencies. [#33428]
+
+## [0.43.0] - 2023-10-03
+### Added
+- Added new sharing icon [#33244]
+
+## [0.42.5] - 2023-09-25
+### Added
+- Added WhatsApp social icon. [#33074]
+- Added CopyToClipboard component. [#33265]
+
+## [0.42.4] - 2023-09-19
+
+- Minor internal updates.
+
+## [0.42.3] - 2023-09-13
+### Changed
+- Updated package dependencies. [#33001]
+
+## [0.42.2] - 2023-09-11
+### Changed
+- Bump pkgs version [#32825]
+
+## [0.42.1] - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+## [0.42.0] - 2023-09-01
+### Added
+- Popover: Added new component. [#32690]
+
+### Changed
+- Renamed pricing-slider to number-slider [#32780]
+
+### Removed
+- Remove unnecessary files from mirror repo and published package. [#32674]
+
+## [0.41.2] - 2023-08-28
+### Added
+- Add uPlot library and boost score graph component [#32016]
+
+### Changed
+- UI: Improve discount elements for pricing section [#32545]
+- Updated package dependencies. [#32016]
+
+### Fixed
+- BoostScoreGraph: add mock module to avoid the mobile editor importing incompatible web dependencies. [#32672]
+
+## [0.41.1] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [0.41.0] - 2023-07-24
+### Added
+- Jetpack Footer: added generic links [#31627]
+
+### Changed
+- Updated package dependencies. [#31999]
+
+## [0.40.4] - 2023-07-18
+### Changed
+- Use Connection initial state for fetching Calypso Env. [#31906]
+- Code quality improvements. [#31684]
+
+## [0.40.3] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+## [0.40.2] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [0.40.1] - 2023-07-05
+### Changed
+- Adjust component pricing slider border and box-shadow styling. [#31593]
+- Updated package dependencies. [#31659]
+- Updated package dependencies. [#31661]
+- Update storybook mdx to use `@storybook/blocks` directly rather than `@storybook/addon-docs`. [#31607]
+
+### Fixed
+- Add tagName prop to Col and Container [#31606]
+- Fix Jetpack footer accessibility issues [#31417]
+
+## [0.40.0] - 2023-06-26
+### Added
+- Add authentication to Zendesk chat. [#31339]
+
+## [0.39.0] - 2023-06-23
+### Added
+- Add component Pricing Slider for Stat pricing page.
+- Added config values to publish mirror repo
+- Auto-publish jetpack-components package to npm
+
 ## 0.38.1 - 2023-06-21
 ### Changed
 - Updated package dependencies. [#31468]
@@ -737,3 +916,40 @@
 
 ### Changed
 - Update node version requirement to 14.16.1
+
+[0.45.10]: https://github.com/Automattic/jetpack-components/compare/0.45.9...0.45.10
+[0.45.9]: https://github.com/Automattic/jetpack-components/compare/0.45.8...0.45.9
+[0.45.8]: https://github.com/Automattic/jetpack-components/compare/0.45.7...0.45.8
+[0.45.7]: https://github.com/Automattic/jetpack-components/compare/0.45.6...0.45.7
+[0.45.6]: https://github.com/Automattic/jetpack-components/compare/0.45.5...0.45.6
+[0.45.5]: https://github.com/Automattic/jetpack-components/compare/0.45.4...0.45.5
+[0.45.4]: https://github.com/Automattic/jetpack-components/compare/0.45.3...0.45.4
+[0.45.3]: https://github.com/Automattic/jetpack-components/compare/0.45.2...0.45.3
+[0.45.2]: https://github.com/Automattic/jetpack-components/compare/0.45.1...0.45.2
+[0.45.1]: https://github.com/Automattic/jetpack-components/compare/0.45.0...0.45.1
+[0.45.0]: https://github.com/Automattic/jetpack-components/compare/0.44.4...0.45.0
+[0.44.4]: https://github.com/Automattic/jetpack-components/compare/0.44.3...0.44.4
+[0.44.3]: https://github.com/Automattic/jetpack-components/compare/0.44.2...0.44.3
+[0.44.2]: https://github.com/Automattic/jetpack-components/compare/0.44.1...0.44.2
+[0.44.1]: https://github.com/Automattic/jetpack-components/compare/0.44.0...0.44.1
+[0.44.0]: https://github.com/Automattic/jetpack-components/compare/0.43.4...0.44.0
+[0.43.4]: https://github.com/Automattic/jetpack-components/compare/0.43.3...0.43.4
+[0.43.3]: https://github.com/Automattic/jetpack-components/compare/0.43.2...0.43.3
+[0.43.2]: https://github.com/Automattic/jetpack-components/compare/0.43.1...0.43.2
+[0.43.1]: https://github.com/Automattic/jetpack-components/compare/0.43.0...0.43.1
+[0.43.0]: https://github.com/Automattic/jetpack-components/compare/0.42.5...0.43.0
+[0.42.5]: https://github.com/Automattic/jetpack-components/compare/0.42.4...0.42.5
+[0.42.4]: https://github.com/Automattic/jetpack-components/compare/0.42.3...0.42.4
+[0.42.3]: https://github.com/Automattic/jetpack-components/compare/0.42.2...0.42.3
+[0.42.2]: https://github.com/Automattic/jetpack-components/compare/0.42.1...0.42.2
+[0.42.1]: https://github.com/Automattic/jetpack-components/compare/0.42.0...0.42.1
+[0.42.0]: https://github.com/Automattic/jetpack-components/compare/0.41.2...0.42.0
+[0.41.2]: https://github.com/Automattic/jetpack-components/compare/0.41.1...0.41.2
+[0.41.1]: https://github.com/Automattic/jetpack-components/compare/0.41.0...0.41.1
+[0.41.0]: https://github.com/Automattic/jetpack-components/compare/0.40.4...0.41.0
+[0.40.4]: https://github.com/Automattic/jetpack-components/compare/0.40.3...0.40.4
+[0.40.3]: https://github.com/Automattic/jetpack-components/compare/0.40.2...0.40.3
+[0.40.2]: https://github.com/Automattic/jetpack-components/compare/0.40.1...0.40.2
+[0.40.1]: https://github.com/Automattic/jetpack-components/compare/0.40.0...0.40.1
+[0.40.0]: https://github.com/Automattic/jetpack-components/compare/0.39.0...0.40.0
+[0.39.0]: https://github.com/Automattic/jetpack-components/compare/0.38.1...0.39.0

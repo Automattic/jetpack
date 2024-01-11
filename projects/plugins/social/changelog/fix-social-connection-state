@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Social: Fixed the connection state to ensure that new connections are disabled by default when there are no shares left.

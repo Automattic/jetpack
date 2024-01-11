@@ -223,7 +223,4 @@ class Endpoint_Listener {
 		return false;
 
 	}
-
-
-
 }

@@ -243,7 +243,7 @@ class Jetpack_Podcast_Helper {
 		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $tracks_quantity ) );
 
 		// Filter out any tracks that are empty.
-		// Reset the array indicies.
+		// Reset the array indices.
 		return array_values( array_filter( $track_list ) );
 	}
 
@@ -485,7 +485,7 @@ class Jetpack_Podcast_Helper {
 	 */
 	protected function get_audio_enclosure( SimplePie_Item $episode ) {
 		foreach ( (array) $episode->get_enclosures() as $enclosure ) {
-			if ( 0 === strpos( $enclosure->type, 'audio/' ) ) {
+			if ( str_starts_with( $enclosure->type, 'audio/' ) ) {
 				return $enclosure;
 			}
 		}

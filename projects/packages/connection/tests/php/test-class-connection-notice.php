@@ -41,7 +41,7 @@ class Test_Connection_Notice extends TestCase {
 
 		$this->expectOutputRegex( '#Connect to WordPress.com#i' );
 
-		$this->expectOutputRegex( '#https:\/\/jetpack\.wordpress\.com\/jetpack\.authorize\/1\/\?response_type=code#i' ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+		$this->expectOutputRegex( '#https:\/\/jetpack\.wordpress\.com\/jetpack\.authorize\/1\/\?response_type=code#i' ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 
 		$notice->delete_user_update_connection_owner_notice();
 
@@ -117,7 +117,7 @@ class Test_Connection_Notice extends TestCase {
 		\Jetpack_Options::update_option( 'master_user', $id_admin );
 
 		$this->users_query_filter = function ( $result, $query ) {
-			if ( 0 === strpos( trim( $query ), 'SELECT wp_users.user_registered' )
+			if ( str_starts_with( trim( $query ), 'SELECT wp_users.user_registered' )
 				&& preg_match( '#wp_usermeta\.meta_value LIKE \'\{.*?\}"administrator"\{.*?\}\'#i', $query )
 			) {
 				return array( (object) array( 'user_registered' => '2012-03-19 00:00:00' ) );

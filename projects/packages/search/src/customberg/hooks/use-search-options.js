@@ -1,6 +1,9 @@
 import { useEntityProp } from '@wordpress/core-data';
 import { useMemo } from 'react';
 
+/* eslint-disable react/jsx-no-bind */
+const VALID_POST_TYPES = global.JetpackInstantSearchOptions.postTypes;
+
 /**
  * Fetches values and setters for various search configuration values.
  *
@@ -47,12 +50,13 @@ export default function useSearchOptions() {
 		'jetpack_search_excluded_post_types'
 	);
 	// Excluded Post Types is stored as a CSV string in site options. Convert into array of strings.
-	// Caveat: csv can be an empty string, which can produces [ '' ] if only csv.split is used.
+	// Caveat: csv can be an empty string, which can produce [ '' ] if only csv.split is used.
 	const excludedPostTypes = useMemo(
-		() => excludedPostTypesCsv?.split( ',' ).filter( type => type?.length > 0 ),
+		() => excludedPostTypesCsv?.split( ',' ).filter( type => type in VALID_POST_TYPES ),
 		[ excludedPostTypesCsv ]
 	);
-	const setExcludedPostTypes = postTypesArr => setExcludedPostTypesCsv( postTypesArr.join( ',' ) );
+	const setExcludedPostTypes = postTypesArr =>
+		setExcludedPostTypesCsv( postTypesArr.filter( type => type in VALID_POST_TYPES ).join( ',' ) );
 
 	return {
 		color,

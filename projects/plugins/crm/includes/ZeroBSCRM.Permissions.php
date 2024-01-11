@@ -548,56 +548,87 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 		return array();
 	}
 
+/**
+ * Determine if the current user is allowed to manage contacts.
+ *
+ * @param int $obj_type_id Object type ID.
+ *
+ * @return bool
+ */
+function zeroBSCRM_permsObjType( $obj_type_id = -1 ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
 
-	// takes an objtypeid e.g. 1 = ZBS_TYPE_CONTACT
-	// ... then checks current user has access to that type/area
-	function zeroBSCRM_permsObjType($objTypeID=-1){
+	switch ( $obj_type_id ) {
+		case ZBS_TYPE_CONTACT:
+		case ZBS_TYPE_COMPANY:
+		case ZBS_TYPE_SEGMENT:
+			return zeroBSCRM_permsCustomers();
 
-		switch ($objTypeID){
+		case ZBS_TYPE_QUOTE:
+		case ZBS_TYPE_QUOTETEMPLATE:
+			return zeroBSCRM_permsQuotes();
 
-			case ZBS_TYPE_CONTACT:
-			case ZBS_TYPE_COMPANY:
+		case ZBS_TYPE_INVOICE:
+			return zeroBSCRM_permsInvoices();
 
-				return zeroBSCRM_permsCustomers();
-				break;
+		case ZBS_TYPE_TRANSACTION:
+			return zeroBSCRM_permsTransactions();
 
-			case ZBS_TYPE_QUOTE:
-			case ZBS_TYPE_QUOTETEMPLATE:
+		case ZBS_TYPE_FORM:
+			return zeroBSCRM_permsForms();
 
-				return zeroBSCRM_permsQuotes();
-				break;
+		case ZBS_TYPE_TASK:
+			return zeroBSCRM_perms_tasks();
 
-			case ZBS_TYPE_INVOICE:
+	}
 
-				return zeroBSCRM_permsInvoices();
-				break;
+	return false;
+}
 
-			case ZBS_TYPE_TRANSACTION:
+/**
+ * Determine if a user is allowed to manage contacts.
+ *
+ * @since 6.1.0
+ *
+ * @param WP_User $user The WP User to check permission access for.
+ * @param int     $contact_id (Optional) The ID of the CRM contact.
+ * @return bool Returns a bool representing a user permission state.
+ */
+function jpcrm_can_user_manage_contacts( WP_User $user, $contact_id = null ) {
+	/**
+	 * Allow third party plugins to modify the permission conditions for contacts.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param boolean  $allowed A boolean that represents the permission state.
+	 * @param WP_User  $user The WP User to check permission access for.
+	 * @param int|null $contact_id (Optional) The ID of the CRM contact.
+	 */
+	return (bool) apply_filters(
+		'jpcrm_can_user_manage_contacts',
+		$user->has_cap( 'admin_zerobs_customers' ),
+		$user,
+		$contact_id
+	);
+}
 
-				return zeroBSCRM_permsTransactions();
-				break;
+/**
+ * Determine if the current user is allowed to manage contacts.
+ *
+ * @deprecated 6.1.0 Use jpcrm_can_user_manage_contacts()
+ *
+ * @return bool
+ *
+ * @phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+ */
+function zeroBSCRM_permsCustomers() {
+	$current_user = wp_get_current_user();
 
-			case ZBS_TYPE_FORM:
-
-				return zeroBSCRM_permsForms();
-				break;
-
-			case ZBS_TYPE_EVENT:
-
-				return zeroBSCRM_permsEvents();
-				break;			
-
-		}
-
+	if ( ! $current_user instanceof WP_User ) {
 		return false;
 	}
 
-	function zeroBSCRM_permsCustomers(){
-
-	    $cu = wp_get_current_user();
-	    if ($cu->has_cap('admin_zerobs_customers')) return true;
-	    return false;
-	}
+	return jpcrm_can_user_manage_contacts( $current_user ) === true;
+}
 
 	function zeroBSCRM_permsSendEmailContacts(){
 
@@ -667,7 +698,7 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 	    return false;
 	}
 
-	function zeroBSCRM_permsEvents(){
+	function zeroBSCRM_perms_tasks(){
 
 	    $cu = wp_get_current_user();
 	    if ($cu->has_cap('admin_zerobs_events')) return true;
@@ -686,7 +717,6 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 	    if ($cu->has_cap('admin_zerobs_customers')) return true;
 	    return false;
 	}
-
 
 	// LOGS
 
@@ -727,7 +757,7 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 	function zeroBS_getPossibleQuoteOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','zerobs_customermgr')); }
 	function zeroBS_getPossibleInvoiceOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','zerobs_customermgr')); }
 	function zeroBS_getPossibleTransactionOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','zerobs_customermgr')); }
-	function zeroBS_getPossibleEventOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','admin_zerobs_events')); }
+	function zeroBS_getPossibleTaskOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','admin_zerobs_events')); }
 
 
 	// added this because Multi-site doesn't reliably 
@@ -933,9 +963,9 @@ function jpcrm_can_wp_user_view_object( $wp_user, $obj_id, $obj_type_id ) {
       $is_invoice_admin = $wp_user->has_cap( 'admin_zerobs_invoices' );
       $obj_data = zeroBS_getInvoice( $obj_id );
       // draft invoice
-      if ( is_array($obj_data) && $obj_data['status'] == __( 'Draft', 'zero-bs-crm' ) && !$is_invoice_admin ) {
-        return false;
-      }
+			if ( is_array( $obj_data ) && $obj_data['status'] === 'Draft' && ! $is_invoice_admin ) {
+				return false;
+			}
       $assigned_contact_id = zeroBSCRM_invoice_getContactAssigned( $obj_id );
       break;
   }
@@ -1052,4 +1082,40 @@ function jpcrm_perms_error() {
 		'bad_perms'
 	);
 	die();
+}
+
+/**
+ * Verifies a given path is within allowed base paths.
+ *
+ * @param string       $path Path to check.
+ * @param array|string $allowed_base_paths Paths to check.
+ *
+ * @return bool True if it's an allowed path, false if not.
+ */
+function jpcrm_is_allowed_path( $path, $allowed_base_paths ) {
+
+	// Convert to array if not already one.
+	if ( ! is_array( $allowed_base_paths ) ) {
+		$allowed_base_paths = array( $allowed_base_paths );
+	}
+
+	$real_path = realpath( $path );
+
+	// Invalid path.
+	if ( ! $real_path ) {
+		return false;
+	}
+
+	foreach ( $allowed_base_paths as $base_path ) {
+		$real_base_path = realpath( $base_path );
+
+		// If file belongs to a valid base_path, all is well.
+		// This base path is sometimes a non-existent path, so we test for its existence as well.
+		if ( $real_base_path && strpos( $real_path, $real_base_path ) === 0 ) {
+			return true;
+		}
+	}
+
+	// doesn't match an allowed base path
+	return false;
 }

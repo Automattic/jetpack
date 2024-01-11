@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Protect;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Jetpack_Protect;
+use WP_Error;
 use WP_REST_Response;
 
 /**

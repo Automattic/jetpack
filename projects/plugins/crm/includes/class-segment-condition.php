@@ -105,5 +105,4 @@ class zeroBSCRM_segmentCondition {
         return $this->conditionArg( $startingArg, $condition, $conditionKeySuffix );
 
     }
-
 }

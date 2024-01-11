@@ -66,7 +66,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			sprintf(
-				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style=""></div><div id="PD_superContainer"></div><noscript><a href="https://polldaddy.com/p/%1$d" target="_blank">Take Our Poll</a></noscript>',
+				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style=""></div><div id="PD_superContainer"></div><noscript><a href="https://polldaddy.com/p/%1$d" target="_blank" rel="noopener noreferrer">Take Our Poll</a></noscript>',
 				$id
 			),
 			$shortcode_content
@@ -87,7 +87,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			sprintf(
-				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style=""></div><div id="PD_superContainer"></div><noscript><a href="https://poll.fm/%1$d" target="_blank">Take Our Poll</a></noscript>',
+				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style=""></div><div id="PD_superContainer"></div><noscript><a href="https://poll.fm/%1$d" target="_blank" rel="noopener noreferrer">Take Our Poll</a></noscript>',
 				$id
 			),
 			$shortcode_content
@@ -108,7 +108,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			sprintf(
-				'<div class="cs-embed pd-embed" data-settings="{&quot;type&quot;:&quot;slider&quot;,&quot;embed&quot;:&quot;poll&quot;,&quot;delay&quot;:100,&quot;visit&quot;:&quot;single&quot;,&quot;id&quot;:%1$d,&quot;site&quot;:&quot;crowdsignal.com&quot;}"></div><noscript><a href="https://poll.fm/%1$d" target="_blank">Take Our Poll</a></noscript>',
+				'<div class="cs-embed pd-embed" data-settings="{&quot;type&quot;:&quot;slider&quot;,&quot;embed&quot;:&quot;poll&quot;,&quot;delay&quot;:100,&quot;visit&quot;:&quot;single&quot;,&quot;id&quot;:%1$d,&quot;site&quot;:&quot;crowdsignal.com&quot;}"></div><noscript><a href="https://poll.fm/%1$d" target="_blank" rel="noopener noreferrer">Take Our Poll</a></noscript>',
 				$id
 			),
 			$shortcode_content

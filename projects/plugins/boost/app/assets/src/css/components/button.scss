@@ -18,7 +18,7 @@
 	color: $gray_90;
 	font-size: 14pt;
 	text-decoration: none;
-	margin-bottom: 20px;
+	margin-bottom: 8px;
 
 	&.is-link {
 		margin-left: auto;
@@ -42,6 +42,10 @@
 	padding: 10px 24px;
 	display: inline-block;
 	font-weight: 500;
+
+	&:hover {
+		cursor: pointer;
+	}
 
 	&--primary {
 		color: var(--jp-white)!important;

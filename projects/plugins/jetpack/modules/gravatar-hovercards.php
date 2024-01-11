@@ -184,7 +184,7 @@ function grofiles_get_avatar( $avatar, $author ) {
 	if ( is_numeric( $author ) ) {
 		grofiles_gravatars_to_append( $author );
 	} elseif ( is_string( $author ) ) {
-		if ( false !== strpos( $author, '@' ) ) {
+		if ( str_contains( $author, '@' ) ) {
 			grofiles_gravatars_to_append( $author );
 		} else {
 			$user = get_user_by( 'slug', $author );
@@ -201,7 +201,7 @@ function grofiles_get_avatar( $avatar, $author ) {
 
 				$response_body = wp_cache_get( $cache_key, $cache_group );
 				if ( false === $response_body ) {
-					$response = wp_remote_get( esc_url_raw( 'https://en.gravatar.com/' . $email_hash . '.json' ) );
+					$response = wp_remote_get( esc_url_raw( 'https://gravatar.com/' . $email_hash . '.json' ) );
 					if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 						$response_body = json_decode( $response['body'] );
 						wp_cache_set( $cache_key, $response_body, $cache_group, 60 * MINUTE_IN_SECONDS );

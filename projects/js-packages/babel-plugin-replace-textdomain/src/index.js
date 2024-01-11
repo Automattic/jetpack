@@ -45,9 +45,11 @@ module.exports = ( babel, opts ) => {
 		name: pluginName,
 		visitor: {
 			CallExpression( path ) {
-				const funcName = t.isMemberExpression( path.node.callee )
-					? path.node.callee.property.name
-					: path.node.callee.name;
+				let callee = path.node.callee;
+				if ( t.isSequenceExpression( callee ) ) {
+					callee = callee.expressions[ callee.expressions.length - 1 ];
+				}
+				const funcName = t.isMemberExpression( callee ) ? callee.property.name : callee.name;
 				if ( ! functions.hasOwnProperty( funcName ) ) {
 					return;
 				}

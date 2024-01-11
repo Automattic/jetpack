@@ -5,6 +5,201 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.0] - 2024-01-08
+### Changed
+- Updated useModuleStatus hook to use module_status redux store. [#34845]
+- Use useModuleStatus hook instead of direct call of store selectors. [#34856]
+
+### Fixed
+- Avoid PHP warnings when post is not set. [#34886]
+
+## [0.29.2] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [0.29.1] - 2024-01-02
+### Changed
+- Made module updates more precise in the modules store. [#34801]
+
+## [0.29.0] - 2023-12-25
+### Added
+- Contact Form: add accessible name to form [#34667]
+- Contact Form: add date format to date picker [#34743]
+
+### Fixed
+- Contact Form: suppress PHP warning [#34756]
+
+## [0.28.0] - 2023-12-20
+### Added
+- Contact Form: add extra field settings to base field. [#34704]
+
+### Changed
+- Contact Form: minify stylesheets in prod. [#34672]
+
+## [0.27.0] - 2023-12-15
+### Added
+- Contact Form: improve form error message [#34629]
+
+### Changed
+- Form block: hide 'lead capture' variation for WP.com Atomic sites [#34615]
+
+### Fixed
+- Contact Form: add missing Required toolbar button to Checkbox field [#34630]
+- Contact Form: align half-width fields on same row [#34632]
+
+## [0.26.0] - 2023-12-14
+### Added
+- Contact Form: build JS assets [#34622]
+
+### Fixed
+- Avoid PHP warnings when methods are called too early. [#34576]
+
+## [0.25.0] - 2023-12-11
+### Added
+- Contact Form: Added submitting state. [#34367]
+- Contact Form: Improved form error message. [#34520]
+- Contact Form: Added revalidation for fields on focus out. [#34401]
+- Contact Form: Added revalidation for missing value as the user types. [#34518]
+
+### Changed
+- Contact Form: Aligned checkbox and radio button baselines. [#34429]
+- Contact Form: Refactored accessible-form.js. [#34400]
+- Updated package dependencies. [#34416]
+
+### Fixed
+- Contact Form: Added margin below global error message. [#34447]
+- Contact Form: Ensured warning icons are visible. [#34455]
+- Contact Form: Fixed checkbox field layout in editor. [#34405]
+- Contact Form: Replaced jQuery UI select by native element. [#34441]
+- Contact Form: Specified version for accessible-form script. [#34457]
+- Fixed potential undefined variable access in Contact_Form_Plugin. [#34500]
+
+## [0.24.2] - 2023-12-03
+### Added
+- Made forms a screen reader region. [#34344]
+
+### Changed
+- Improved checkbox field design. [#34272]
+- Updated package dependencies. [#34411] [#34427]
+
+### Fixed
+- Fixed PHP warnings that occured when processing malformed data. [#34386]
+- Added focus state to radio buttons and checkboxes. [#34408]
+- Fixed styling issues for Outlined and Animated styles. [#34272]
+- Made Contact Form error fixing accessible. [#34173]
+
+## [0.24.1] - 2023-11-24
+### Changed
+- Replaced usage of strpos() with str_contains(). [#34137]
+- Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+- Fixed markup accessibility issues for Contact Form's single and multiple choice inputs. [#34147]
+- Updated form blocks to prioritize the use of form elements in the block inserter. [#34247]
+
+### Fixed
+- Improved Contact Form required label contrast. [#34237]
+- Updated `Admin::grunion_ajax_shortcode()` to use the correct sorting function. [#34230]
+
+## [0.24.0] - 2023-11-20
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+
+### Fixed
+- Added an accessible name to the Contact Form dropdown rendered in the front-end. [#34139]
+- Avoid errors when a saved feedback form does not have the expected WP_Post format. [#34129]
+
+## [0.23.1] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.23.0] - 2023-11-13
+### Changed
+- Updated 'useModuleStatus' to use the new Jetpack modules store. [#33397]
+
+## [0.22.6] - 2023-11-03
+
+## [0.22.5] - 2023-10-31
+### Fixed
+- Fixes style for multiple choice checkbox in Froms block. [#33827]
+
+## [0.22.4] - 2023-10-23
+### Changed
+- Updated package dependencies. [#33646] [#33687]
+
+## [0.22.3] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429]
+
+## [0.22.2] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.22.1] - 2023-09-28
+### Changed
+- Minor internal updates.
+
+## [0.22.0] - 2023-09-19
+### Changed
+- Moving block registration when plugin activated [#33050]
+- Updated package dependencies. [#33001]
+
+## [0.21.0] - 2023-09-04
+### Added
+- Add Jetpack AI Form section to new Forms landing page [#32726]
+
+### Changed
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+### Fixed
+- Fix block icons for display on wp.org [#32754]
+
+## [0.20.1] - 2023-08-28
+### Changed
+- Updated package dependencies. [#32605]
+
+## [0.20.0] - 2023-08-21
+### Added
+- Add block.json file to Contact Form block [#32583]
+- Forms block - allow transforming to a subscribe block. [#32478]
+
+### Changed
+- Forms block: rename "Newsletter Connection" to "Creative Mail" to avoid confusing with "Jetpack Newsletters" and subscription block. Call the block a "Lead Capture" block (not sign up). [#32481]
+
+## [0.19.11] - 2023-08-14
+### Changed
+- Add a unified/consistent visual aid for focused elements. [#30219]
+
+## [0.19.10] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [0.19.9] - 2023-08-07
+### Added
+- Added SIG modal ui [#31665]
+
+## [0.19.8] - 2023-07-25
+### Changed
+- Updated package dependencies. [#32040]
+- Update the name of the Newsletter Sign-up Variation. [#31998]
+
+## [0.19.7] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+### Fixed
+- Avoid Fatal errors when exporting fields that were not saved with the correct value. [#31858]
+- Fix Forms dropdown required validation [#31894]
+
+## [0.19.6] - 2023-07-05
+### Changed
+- Remove the default title ("You got a new response!") added to emails sent for new feedback received. [#31667]
+- Updated package dependencies. [#31659]
+
+## [0.19.5] - 2023-06-26
+### Changed
+- Updated package dependencies.
+
 ## [0.19.4] - 2023-06-12
 ### Removed
 - Jetpack Forms: remove the links in the response emails sent to site owners [#31270]
@@ -270,6 +465,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.30.0]: https://github.com/automattic/jetpack-forms/compare/v0.29.2...v0.30.0
+[0.29.2]: https://github.com/automattic/jetpack-forms/compare/v0.29.1...v0.29.2
+[0.29.1]: https://github.com/automattic/jetpack-forms/compare/v0.29.0...v0.29.1
+[0.29.0]: https://github.com/automattic/jetpack-forms/compare/v0.28.0...v0.29.0
+[0.28.0]: https://github.com/automattic/jetpack-forms/compare/v0.27.0...v0.28.0
+[0.27.0]: https://github.com/automattic/jetpack-forms/compare/v0.26.0...v0.27.0
+[0.26.0]: https://github.com/automattic/jetpack-forms/compare/v0.25.0...v0.26.0
+[0.25.0]: https://github.com/automattic/jetpack-forms/compare/v0.24.2...v0.25.0
+[0.24.2]: https://github.com/automattic/jetpack-forms/compare/v0.24.1...v0.24.2
+[0.24.1]: https://github.com/automattic/jetpack-forms/compare/v0.24.0...v0.24.1
+[0.24.0]: https://github.com/automattic/jetpack-forms/compare/v0.23.1...v0.24.0
+[0.23.1]: https://github.com/automattic/jetpack-forms/compare/v0.23.0...v0.23.1
+[0.23.0]: https://github.com/automattic/jetpack-forms/compare/v0.22.6...v0.23.0
+[0.22.6]: https://github.com/automattic/jetpack-forms/compare/v0.22.5...v0.22.6
+[0.22.5]: https://github.com/automattic/jetpack-forms/compare/v0.22.4...v0.22.5
+[0.22.4]: https://github.com/automattic/jetpack-forms/compare/v0.22.3...v0.22.4
+[0.22.3]: https://github.com/automattic/jetpack-forms/compare/v0.22.2...v0.22.3
+[0.22.2]: https://github.com/automattic/jetpack-forms/compare/v0.22.1...v0.22.2
+[0.22.1]: https://github.com/automattic/jetpack-forms/compare/v0.22.0...v0.22.1
+[0.22.0]: https://github.com/automattic/jetpack-forms/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/automattic/jetpack-forms/compare/v0.20.1...v0.21.0
+[0.20.1]: https://github.com/automattic/jetpack-forms/compare/v0.20.0...v0.20.1
+[0.20.0]: https://github.com/automattic/jetpack-forms/compare/v0.19.11...v0.20.0
+[0.19.11]: https://github.com/automattic/jetpack-forms/compare/v0.19.10...v0.19.11
+[0.19.10]: https://github.com/automattic/jetpack-forms/compare/v0.19.9...v0.19.10
+[0.19.9]: https://github.com/automattic/jetpack-forms/compare/v0.19.8...v0.19.9
+[0.19.8]: https://github.com/automattic/jetpack-forms/compare/v0.19.7...v0.19.8
+[0.19.7]: https://github.com/automattic/jetpack-forms/compare/v0.19.6...v0.19.7
+[0.19.6]: https://github.com/automattic/jetpack-forms/compare/v0.19.5...v0.19.6
+[0.19.5]: https://github.com/automattic/jetpack-forms/compare/v0.19.4...v0.19.5
 [0.19.4]: https://github.com/automattic/jetpack-forms/compare/v0.19.3...v0.19.4
 [0.19.3]: https://github.com/automattic/jetpack-forms/compare/v0.19.2...v0.19.3
 [0.19.2]: https://github.com/automattic/jetpack-forms/compare/v0.19.1...v0.19.2

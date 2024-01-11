@@ -1,11 +1,21 @@
 /*
  * External dependencies
  */
-import { MenuItem, MenuGroup, ToolbarDropdownMenu, DropdownMenu } from '@wordpress/components';
+import {
+	MenuItem,
+	MenuGroup,
+	ToolbarDropdownMenu,
+	DropdownMenu,
+	Button,
+	Tooltip,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { globe } from '@wordpress/icons';
 import React from 'react';
+/*
+ * Internal dependencies
+ */
 import './style.scss';
 
 const LANGUAGE_LIST = [
@@ -30,6 +40,7 @@ type LanguageDropdownControlProps = {
 	value?: LanguageProp;
 	onChange: ( value: string ) => void;
 	label?: string;
+	disabled?: boolean;
 };
 
 const defaultLanguageLocale =
@@ -44,78 +55,61 @@ export const defaultLocale = defaultLanguageLocale?.split( '-' )?.[ 1 ] || null;
 export const LANGUAGE_MAP = {
 	en: {
 		label: __( 'English', 'jetpack' ),
-		flag: '🇬🇧',
 	},
 	es: {
 		label: __( 'Spanish', 'jetpack' ),
-		flag: '🇪🇸',
 	},
 	fr: {
 		label: __( 'French', 'jetpack' ),
-		flag: '🇫🇷',
 	},
 	de: {
 		label: __( 'German', 'jetpack' ),
-		flag: '🇩🇪',
 	},
 	it: {
 		label: __( 'Italian', 'jetpack' ),
-		flag: '🇮🇹',
 	},
 	pt: {
 		label: __( 'Portuguese', 'jetpack' ),
-		flag: '🇵🇹',
 	},
 	ru: {
 		label: __( 'Russian', 'jetpack' ),
-		flag: '🇷🇺',
 	},
 	zh: {
 		label: __( 'Chinese', 'jetpack' ),
-		flag: '🇨🇳',
 	},
 	ja: {
 		label: __( 'Japanese', 'jetpack' ),
-		flag: '🇯🇵',
 	},
 	ar: {
 		label: __( 'Arabic', 'jetpack' ),
-		flag: '🇸🇦',
 	},
 	hi: {
 		label: __( 'Hindi', 'jetpack' ),
-		flag: '🇮🇳',
 	},
 	ko: {
 		label: __( 'Korean', 'jetpack' ),
-		flag: '🇰🇷',
 	},
 
 	id: {
-		label: __( 'Indonisian', 'jetpack' ),
-		flag: '🇮🇩',
+		label: __( 'Indonesian', 'jetpack' ),
 	},
-
 	tl: {
 		label: __( 'Filipino', 'jetpack' ),
-		flag: '🇵🇭',
 	},
-
 	vi: {
 		label: __( 'Vietnamese', 'jetpack' ),
-		flag: '🇻🇳',
 	},
 };
 
-const I18nMenuGroup = ( {
+export const I18nMenuGroup = ( {
 	value,
 	onChange,
 }: Pick< LanguageDropdownControlProps, 'value' | 'onChange' > ) => {
-	// Move the default language to the top of the list.
-	const languageList = [
-		defaultLanguage,
-		...LANGUAGE_LIST.filter( language => language !== defaultLanguage ),
-	];
+	const languageList = [ ...LANGUAGE_LIST.filter( language => language !== defaultLanguage ) ];
+	// Move the default language to the top of the list if it is included on LANGUAGE_LIST.
+	if ( LANGUAGE_LIST.includes( defaultLanguage ) ) {
+		languageList.unshift( defaultLanguage );
+	}
 
 	return (
 		<MenuGroup label={ __( 'Select language', 'jetpack' ) }>
@@ -138,8 +132,15 @@ export default function I18nDropdownControl( {
 	value = defaultLanguage,
 	label = defaultLabel,
 	onChange,
+	disabled = false,
 }: LanguageDropdownControlProps ) {
-	return (
+	return disabled ? (
+		<Tooltip text={ label }>
+			<Button disabled>
+				<Icon icon={ globe } />
+			</Button>
+		</Tooltip>
+	) : (
 		<ToolbarDropdownMenu
 			icon={ globe }
 			label={ label }
@@ -156,7 +157,10 @@ export function I18nMenuDropdown( {
 	value = defaultLanguage,
 	label = defaultLabel,
 	onChange,
-}: Pick< LanguageDropdownControlProps, 'label' | 'onChange' | 'value' > ) {
+	disabled = false,
+}: Pick< LanguageDropdownControlProps, 'label' | 'onChange' | 'value' | 'disabled' > & {
+	toggleProps?: Record< string, unknown >;
+} ) {
 	return (
 		<DropdownMenu
 			className="ai-assistant__i18n-dropdown"
@@ -169,9 +173,18 @@ export function I18nMenuDropdown( {
 						<Icon icon={ chevronRight } />
 					</>
 				),
+				disabled,
 			} }
 		>
-			{ () => <I18nMenuGroup onChange={ onChange } value={ value } /> }
+			{ ( { onClose } ) => (
+				<I18nMenuGroup
+					onChange={ newLanguage => {
+						onChange( newLanguage );
+						onClose();
+					} }
+					value={ value }
+				/>
+			) }
 		</DropdownMenu>
 	);
 }

@@ -8,12 +8,14 @@
 
 	<!-- We only include some rules from mediawiki/mediawiki-codesniffer. -->
 	<rule ref="MediaWiki.AlternativeSyntax.LeadingZeroInFloat" />
+	<rule ref="MediaWiki.AlternativeSyntax.UnicodeEscape" />
 	<rule ref="MediaWiki.Classes.UnsortedUseStatements" />
 	<rule ref="MediaWiki.Classes.UnusedUseStatement" />
 	<rule ref="MediaWiki.ExtraCharacters.ParenthesesAroundKeyword" />
 	<rule ref="MediaWiki.PHPUnit.AssertCount" />
 	<rule ref="MediaWiki.PHPUnit.AssertEquals" />
 	<rule ref="MediaWiki.PHPUnit.AssertionOrder" />
+	<rule ref="MediaWiki.PHPUnit.MockBoilerplate" />
 	<rule ref="MediaWiki.PHPUnit.SpecificAssertions" />
 	<rule ref="MediaWiki.Usage.DoubleNotOperator" />
 	<rule ref="MediaWiki.Usage.InArrayUsage" />
@@ -23,10 +25,8 @@
 	<rule ref="MediaWiki.Usage.ReferenceThis" />
 	<rule ref="MediaWiki.WhiteSpace.EmptyLinesBetweenUse" />
 	<rule ref="MediaWiki.WhiteSpace.MultipleEmptyLines" />
-	<rule ref="MediaWiki.WhiteSpace.SpaceAfterClosure" />
 	<rule ref="MediaWiki.Usage.IsNull" />
 	<!-- Maybe in the future
-	<rule ref="MediaWiki.AlternativeSyntax.UnicodeEscape" /> // syntax it checks requires PHP 7.0+
 	<rule ref="MediaWiki.Usage.NullableType" /> // syntax it enforces requires PHP 7.1+
 	-->
 
@@ -75,6 +75,11 @@
 	<!-- Only include select VIP rules -->
 	<rule ref="WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath" />
 
+	<!-- Re-enable this rule that was disabled by WordPress-Extra now that we're on PHP 7.0+. -->
+	<rule ref="Modernize.FunctionCalls.Dirname.Nested">
+		<severity>5</severity>
+	</rule>
+
 	<!-- Elevate undefined variables to an Error instead of a Warning. -->
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable">
 		<type>error</type>
@@ -84,6 +89,12 @@
 		<properties>
 			<property name="allowWordPressPassByRefFunctions" value="true" />
 		</properties>
+	</rule>
+
+	<!-- This is not the right way to fix the underlying issue. https://core.trac.wordpress.org/ticket/59282 is. -->
+	<!-- See also https://github.com/WordPress/WordPress-Coding-Standards/issues/2374 -->
+	<rule ref="WordPress.Security.EscapeOutput.ExceptionNotEscaped">
+		<exclude name="WordPress.Security.EscapeOutput.ExceptionNotEscaped" />
 	</rule>
 
 	<!-- Due to conversation within WPCS, we're disabling this rule for now. See https://github.com/WordPress/WordPress-Coding-Standards/issues/1624 -->
@@ -106,7 +117,7 @@
 		<exclude name="WordPress.WP.CapitalPDangit" />
 	</rule>
 
-	<!-- Not useful until we can use PHP 8's named parameters. We're currently stuck on 5.6! -->
+	<!-- Not useful until we can use PHP 8's named parameters. We're currently stuck on 7.0! -->
 	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames">
 		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames" />
 	</rule>

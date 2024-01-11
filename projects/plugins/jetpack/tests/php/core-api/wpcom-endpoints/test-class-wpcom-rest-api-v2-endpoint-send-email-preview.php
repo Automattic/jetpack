@@ -5,7 +5,9 @@
  * jetpack docker phpunit -- --filter=WP_Test_WPCOM_REST_API_V2_Endpoint_Send_Email_Preview
  */
 
-require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
+use WpOrg\Requests\Requests;
+
+require_once dirname( __DIR__, 2 ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
 
 /**
  * Class WP_Test_WPCOM_REST_API_V2_Endpoint_Send_Email_Preview
@@ -125,5 +127,4 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_Test_Jetp
 
 		$this->assertErrorResponse( 'rest_forbidden_context', $response, 403 );
 	}
-
 }

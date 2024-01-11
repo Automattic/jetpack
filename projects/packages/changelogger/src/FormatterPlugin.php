@@ -75,5 +75,4 @@ interface FormatterPlugin {
 	 * @returns ChangeEntry
 	 */
 	public function newChangeEntry( $data = array() );
-
 }

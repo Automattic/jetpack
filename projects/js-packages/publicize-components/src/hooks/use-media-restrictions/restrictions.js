@@ -10,8 +10,9 @@ const VIDEOPRESS = 'video/videopress';
 const allowedImageTypes = [ 'image/jpeg', 'image/jpg', 'image/png' ];
 const facebookImageTypes = allowedImageTypes.concat( [
 	'image/gif',
-	'image/tiff',
-	'image/tif',
+	// We do not support tiff image, because WordPress Core cannot display it.
+	// 'image/tiff',
+	// 'image/tif',
 	'image/bmp',
 ] );
 const facebookVideoTypes = [
@@ -54,20 +55,40 @@ const mastodonImageTypes = allowedImageTypes.concat( [
 	'image/avif',
 ] );
 const mastodonVideoTypes = [ 'video/webm', 'video/quicktime', 'video/ogg' ];
+const nextdoorImageTypes = allowedImageTypes.concat( [
+	'image/gif',
+	'image/jpe',
+	'image/tif',
+	'image/tiff',
+	'image/webp',
+] );
+const nextdoorVideoTypes = [ MOV, 'video/avi', 'video/mpg', 'video/mpeg', 'video/m4v' ];
 
 // Global max size: 100 GB;
 export const GLOBAL_MAX_SIZE = 100000;
 
 export const DEFAULT_RESTRICTIONS = {
+	requiresMedia: false,
 	allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS, MOV ] ),
 	image: {
 		maxSize: 4,
+		minWidth: 0,
+		maxWidth: GLOBAL_MAX_SIZE,
+		aspectRatio: {
+			min: 0,
+			max: GLOBAL_MAX_SIZE,
+		},
 	},
 	video: {
 		minLength: 0,
 		minSize: 0,
 		maxSize: GLOBAL_MAX_SIZE,
 		maxLength: GLOBAL_MAX_SIZE,
+		maxWidth: GLOBAL_MAX_SIZE,
+		aspectRatio: {
+			min: 0,
+			max: GLOBAL_MAX_SIZE,
+		},
 	},
 };
 
@@ -85,7 +106,7 @@ export const RESTRICTIONS = {
 	facebook: {
 		allowedMediaTypes: facebookImageTypes.concat( [ VIDEOPRESS, ...facebookVideoTypes ] ),
 		image: {
-			maxSize: 4,
+			maxSize: 8,
 		},
 		video: {
 			maxSize: 10000,
@@ -115,9 +136,26 @@ export const RESTRICTIONS = {
 		},
 	},
 	[ 'instagram-business' ]: {
-		allowedMediaTypes: [ 'image/jpg', 'image/jpeg' ],
+		requiresMedia: true,
+		allowedMediaTypes: [ 'image/jpg', 'image/jpeg', MP4, MOV, VIDEOPRESS ],
 		image: {
-			maxSize: 4,
+			maxSize: 8,
+			minWidth: 320,
+			maxWidth: 1440,
+			aspectRatio: {
+				min: 4 / 5,
+				max: 1.91,
+			},
+		},
+		video: {
+			maxLength: 90,
+			minLength: 3,
+			maxSize: 1000,
+			maxWidth: 1920,
+			aspectRatio: {
+				min: 0.01,
+				max: 10,
+			},
 		},
 	},
 	mastodon: {
@@ -129,4 +167,43 @@ export const RESTRICTIONS = {
 			maxSize: 40,
 		},
 	},
+	nextdoor: {
+		allowedMediaTypes: nextdoorImageTypes.concat( [ ...nextdoorVideoTypes, MP4, VIDEOPRESS ] ),
+		image: {
+			maxSize: 10,
+		},
+		video: {
+			maxSize: 500,
+		},
+	},
 };
+
+/**
+ * These types are supported by Photon, and can be converted. Any other type will be treated as invalid.
+ */
+export const PHOTON_CONVERTIBLE_TYPES = [
+	'image/png',
+	'image/jpeg',
+	'image/jpg',
+	// We do not support tiff image, because WordPress Core cannot display it.
+	// 'image/tiff',
+	// 'image/tif',
+	'image/heic',
+	'image/heif',
+	'image/webp',
+];
+
+/**
+ * These are the types that can be selected in the media picker.
+ * Contains all the allowed types, plus the Photon convertible types, plus the videos.
+ */
+export const SELECTABLE_MEDIA_TYPES = [
+	...new Set( [
+		...allowedImageTypes,
+		...facebookImageTypes,
+		...mastodonImageTypes,
+		...facebookVideoTypes,
+		...mastodonVideoTypes,
+		...PHOTON_CONVERTIBLE_TYPES,
+	] ),
+];

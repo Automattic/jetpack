@@ -197,7 +197,7 @@ class JPCRM_GiveWP {
 				default:
 					// handle any fields prefixed with $jpcrm_field_prefix as needed,
 					// though by default GiveWP doesn't support custom fields
-					if ( strpos( $k, $jpcrm_field_prefix ) === 0 ) {
+					if ( str_starts_with( $k, $jpcrm_field_prefix ) ) {
 						$data_key = substr( $k, strlen( $jpcrm_field_prefix ) );
 						if ( ! in_array( $data_key, $restricted_keys, true ) ) {
 							if ( $data_key === 'tags' ) {
@@ -312,5 +312,4 @@ class JPCRM_GiveWP {
 			'val'     => $givewp_donation_id,
 		));
 	}
-
 }

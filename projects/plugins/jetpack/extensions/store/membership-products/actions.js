@@ -17,6 +17,11 @@ export const setConnectUrl = connectUrl => ( {
 	connectUrl,
 } );
 
+export const setConnectedAccountDefaultCurrency = connectedAccountDefaultCurrency => ( {
+	type: 'SET_CONNECTED_ACCOUNT_DEFAULT_CURRENCY',
+	connectedAccountDefaultCurrency,
+} );
+
 export const setApiState = apiState => ( {
 	type: 'SET_API_STATE',
 	apiState,
@@ -31,7 +36,7 @@ export const saveProduct =
 	(
 		product,
 		productType = PRODUCT_TYPE_PAYMENT_PLAN,
-		setSelectedProductId = () => {},
+		setSelectedProductIds = () => {},
 		callback = () => {},
 		shouldDisplayProductCreationNotice = true
 	) =>
@@ -82,7 +87,8 @@ export const saveProduct =
 			const products = registry.select( STORE_NAME ).getProducts();
 
 			dispatch( setProducts( products.concat( [ newProduct ] ) ) );
-			setSelectedProductId( newProduct.id );
+			// TODO: Should we check the current selected product ids and add the new product id if it's not there?
+			setSelectedProductIds( [ newProduct.id ] );
 			if ( shouldDisplayProductCreationNotice ) {
 				onSuccess(
 					getMessageByProductType( 'successfully created product', productType ),
@@ -98,3 +104,19 @@ export const saveProduct =
 			callback( false );
 		}
 	};
+
+export const setSubscriberCounts = subscriberCounts => ( {
+	type: 'SET_SUBSCRIBER_COUNTS',
+	subscriberCounts,
+} );
+
+export const setNewsletterCategories = newsletterCategories => ( {
+	type: 'SET_NEWSLETTER_CATEGORIES',
+	newsletterCategories,
+} );
+
+export const setNewsletterCategoriesSubscriptionsCount =
+	newsletterCategoriesSubscriptionsCount => ( {
+		type: 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT',
+		newsletterCategoriesSubscriptionsCount,
+	} );

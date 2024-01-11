@@ -1,10 +1,12 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jasmussen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 12.2.1
-Requires at least: 6.1
-Requires PHP: 5.6
-Tested up to: 6.2
+Stable tag: 12.9.1
+Requires at least: 6.3
+Requires PHP: 7.0
+Tested up to: 6.4
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Improve your WP security with powerful one-click tools like backup, WAF, and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -35,7 +37,6 @@ You can purchase all of Jetpack’s security features in our [Security bundle](h
 Get blazing fast site speed with Jetpack. Jetpack’s free CDN (content delivery network) auto optimizes your images. Watch your page load times decrease — we’ll optimize your images and serve them from our own powerful global network, and speed up your site on mobile devices to reduce bandwidth usage and save money!
 
 * Image CDN for images and core static files, like CSS and JavaScript, served from our servers, not yours, which saves you money and bandwidth.
-* Lazy load images for a super fast experience, even on mobile. Jetpack’s lazy loading automatically delays the loading of media on your posts and pages until your visitors scroll down to where they appear on the page.
 * Unlimited, high speed, ad free video hosting keeps the focus on your content, not on ads or recommendations that lead people off site.
 * Custom site search is incredibly powerful and customizable. Helps your visitors instantly find the right content so they read and buy more. Works great with WooCommerce / eCommerce sites to help filter products so customers get what they want on your site faster.
 * Recommended to use with WP Super Cache for ultimate WordPress site speed.
@@ -188,7 +189,6 @@ Jetpack is the ultimate toolkit for WP for both the classic editor and the block
 * Google Analytics (GA) — Track your WordPress site statistics thanks to Google Analytics.
 * Infinite Scroll — Pulls the next posts automatically into view when the reader approaches the bottom of the page.
 * JSON API — Authorizes applications and services to securely connect to your blog, and allows them to use your content or offer you new functionality.
-* Lazy Load Images — Makes pages load faster by only lazy loading images that are on the screen, and loads other images as the user scrolls
 * Likes — Allows readers to show their appreciation for your posts with a single click.
 * Markdown — Allows you to compose posts and comments with links, lists, and other styles using regular characters and punctuation marks. Markdown is used by writers and bloggers who want a quick and easy way to write rich text without having to take their hands off the keyboard.
 * Malware detection - automatic malware scans that help protect your WP website with an automated resolution.
@@ -270,7 +270,7 @@ Jetpack has an image CDN that works by caching and serving your WordPress images
 
 = What version of PHP do I need? =
 
-Sites must be built on PHP 5.6 or greater, but Jetpack always supports the latest version of PHP.
+Sites must be built on PHP 7.0 or greater, but Jetpack always supports the latest version of PHP.
 
 = Can Jetpack help my site comply with GDPR? =
 
@@ -293,42 +293,42 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.3-a.7 - 2023-06-19
+### 13.0-beta - 2024-01-08
 #### Enhancements
-- AI Assistant: add and use ImproveToolbarDropdownMenu in block toolbar.
-- AI Assistant: add Expand option into AI Assistant dropdown menu.
-- AI Assistant: add Summarize option to the AI Assistant dropdown menu.
-- AI Assistant: add tone into AI Assistant dropdown menu.
-- AI Assistant: add translate option in extensions.
-- AI Assistant: build prompt from AI Assistant toolbar menu.
-- AI Assistant: collect, store and send prompt history.
-- AI Assistant: create function to build the post data prompt.
-- AI Assistant: extend blocks toolbar.
-- AI Assistant: extract and use block content utils.
-- AI Assistant: introduce function to create the initial system prompt.
-- AI Assistant: introduce jetpack/ai supports.
-- AI Assistant: iterate over custom hook to request suggestions.
-- AI Assistant: register ai-assistant-support beta extension.
-- AI Assistant: separate prompt text from relevant content for extensions.
-- AI Assistant: do not extend if the AI Assistant block is not registered.
-- AI Assistant: fix generating prompt when requesting suggestion.
-- AI Assistant: update block content once AI response is ready.
-- Customizer: hide the customizer submenu for block based themes. [#31353, #31376]
-- Newsletters: silence creation of the default membership product in a newsletter context.
-- Newsletters: update Paid newsletter panel designs.
-- Related Posts: add srcset for the thumbnails.
-- Social Logos: update to include a Nextdoor and a Fediverse logo.
-- Subscribers: add menu item to Calypso interface.
-- Tock Block: update the block settings interface.
+- Added description and link inviting to disable legacy sharing module if block is available
+- AI Usage panel: Added yellow color to indicate going over the soft limit.
+- Gutenberg: Added Top Posts & Pages block.
+- Sharing Buttons Block: update the admin's setting screen when the sharing block is available.
+- Social Menu & Social Media Icons: Add support for the Bluesky service.
+- Subscription Modal: Display thesubscription modal when a user makes a comment.
+- Subscriptions: adds toggle to disable email sending.
 
 #### Improved compatibility
-- Tiled Galleries: avoid PHP deprecation notices on sites using PHP 8.2.
-- WordPress.com Toolbar: avoid PHP warnings with PHP 8.2.
+- Contact Form: avoid PHP warnings in the WordPress dashboard when used alongside other plugins making changes to admin pages.
+- Patreon: Updated Patreon icon to match the updated Patreon branding guidelines.
+- Sharing Buttons: add the official X button to the list of supported services.
+- Sharing Buttons Block: Improved consistency for how the button icons are rendered on different pages.
 
 #### Bug fixes
-- Newsletters: remove Newsletter column on products post type.
-- Tock Block: fix the embed rendering on WordPress.com sites.
-- WPcom: fix output of static script path on WordPress.com sites.
+- Calendly Block: Fixed custom colours being stripped.
+- Dashboard: Disabled VideoPress card in offline mode.
+- Editor: Fixed missing fonts issue inside the block editor.
+- Jetpack footer links are now consistent within different pages.
+- Launchpad: Fixed the save modal not showing after saving changes in the editor.
+- Likes: Fixed popover closing area.
+- Likes Widget: Fix accessibility on likes popover.
+- Likes Widget: Make likes widget accessibility compatible across themes.
+- My Plan: Fix JS errors due to nested anchor tags.
+- Newsletter: Updated post-publish panel text for scheduled posts.
+- Notification Accessibility: THe notification icon is not a link.
+- Payments Block: show an error message when unable to render payment button.
+- Paywall: Fix stuck pending subscription state when email isn't verified.
+- Subscribe Modal: Fix fatal under exceptional conditions
+- Subscribers: fix the subscriber count display if above 1000 subscribers.
+- Subscribers: pre/post-publish panel, show correct subscription count when using paywall.
+- Subscriptions Block: Added compatibility for the latest Gutenberg.
+- Widgets: Fix console JS error in EU Cookie Widget.
+- WoA: Updated SEO Tools on Atomic sites to show only for Business plan and higher.
 
 --------
 

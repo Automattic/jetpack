@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
@@ -583,6 +584,8 @@ class Test_Identity_Crisis extends BaseTestCase {
 				),
 				$input
 			);
+			// Add reversed_url key
+			$expected_option['reversed_url'] = true;
 		} else {
 			$expected_option = false;
 		}
@@ -978,5 +981,112 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 */
 	public function return_string_1() {
 		return '1';
+	}
+
+	/**
+	 * Test the `add_secret_to_url_validation_response()` method.
+	 *
+	 * @return void
+	 */
+	public static function test_add_secret_to_url_validation_response() {
+		$data = array(
+			'key1' => 'value1',
+			'key2' => 'value2',
+		);
+
+		$data_updated = Identity_Crisis::add_secret_to_url_validation_response( $data );
+
+		$secret_db          = Jetpack_Options::get_option( URL_Secret::OPTION_KEY );
+		$data['url_secret'] = $secret_db['secret'];
+
+		static::assertEquals( $data, $data_updated );
+		static::assertArrayNotHasKey( 'url_secret_error', $data_updated );
+	}
+
+	/**
+	 * Test the `reverse_wpcom_urls_for_idc()` method.
+	 *
+	 * @return void
+	 */
+	public function testReverseWpcomUrlsForIdc() {
+		// Create a sample input array for testing
+		$sync_error = array(
+			'reversed_url'  => true,
+			'wpcom_siteurl' => 'example.com',
+			'wpcom_home'    => 'example.org',
+		);
+
+		// Call the method to be tested
+		$result = Identity_Crisis::reverse_wpcom_urls_for_idc( $sync_error );
+
+		// Assert that the 'wpcom_siteurl' and 'wpcom_home' keys have been reversed
+		$this->assertEquals( 'moc.elpmaxe', $result['wpcom_siteurl'] );
+		$this->assertEquals( 'gro.elpmaxe', $result['wpcom_home'] );
+
+		// Test with an array that doesn't contain 'reversed_url'
+		$sync_error2 = array(
+			'wpcom_siteurl' => 'example.com',
+			'wpcom_home'    => 'example.org',
+		);
+
+		$result2 = Identity_Crisis::reverse_wpcom_urls_for_idc( $sync_error2 );
+
+		// Assert that 'wpcom_siteurl' and 'wpcom_home' keys have been reversed
+		$this->assertEquals( 'example.com', $result2['wpcom_siteurl'] );
+		$this->assertEquals( 'example.org', $result2['wpcom_home'] );
+
+		// Assert that 'reversed_url' key is not present, and other keys are not changed
+		$this->assertArrayNotHasKey( 'reversed_url', $result2 );
+	}
+
+	/**
+	 * Test the 'register_request_body' filter.
+	 *
+	 * @return void
+	 */
+	public function test_register_request_body_ip() {
+		Identity_Crisis::init();
+
+		$body = array(
+			'key1' => 'val1',
+			'key2' => 'val2',
+		);
+		update_option( 'jetpack_persistent_blog_id', '12345' );
+
+		$new_body = apply_filters( 'jetpack_register_request_body', $body );
+
+		$secret = ( new URL_Secret() )->get_secret();
+
+		delete_option( 'jetpack_persistent_blog_id' );
+		delete_option( 'jetpack_identity_crisis_url_secret' );
+
+		$this->assertTrue( (bool) $secret );
+		$this->assertEquals(
+			array_merge(
+				$body,
+				array(
+					'persistent_blog_id' => '12345',
+					'url_secret'         => $secret,
+				)
+			),
+			$new_body
+		);
+	}
+
+	/**
+	 * Register saving the persistent blog ID on 'site_registered' action.
+	 *
+	 * @return void
+	 */
+	public function test_site_registered() {
+		Identity_Crisis::init();
+		$blog_id = 54321;
+
+		$option_before = get_option( 'jetpack_persistent_blog_id' );
+		do_action( 'jetpack_site_registered', $blog_id );
+		$option_after = get_option( 'jetpack_persistent_blog_id' );
+
+		$this->assertFalse( $option_before );
+		$this->assertSame( $blog_id, $option_after );
 	}
 }

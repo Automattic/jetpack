@@ -156,7 +156,6 @@ class WP_Super_Cache_Router {
 	public static function delete_item_permissions_check( $request ) {
 		return self::update_item_permissions_check( $request );
 	}
-
 }
 
 function wpsc_load_rest_api() {

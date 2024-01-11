@@ -91,7 +91,7 @@ class Comments extends Module {
 		add_filter( 'wp_update_comment_data', array( $this, 'handle_comment_contents_modification' ), 10, 3 );
 
 		// comment actions.
-		add_filter( 'jetpack_sync_before_enqueue_wp_insert_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_wp_insert_comment', array( $this, 'filter_jetpack_sync_before_enqueue_wp_insert_comment' ) );
 		add_filter( 'jetpack_sync_before_enqueue_deleted_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
 		add_filter( 'jetpack_sync_before_enqueue_trashed_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
 		add_filter( 'jetpack_sync_before_enqueue_untrashed_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
@@ -115,6 +115,13 @@ class Comments extends Module {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_action( $comment_action_name, $callable, 10, 2 );
+				add_filter(
+					'jetpack_sync_before_enqueue_' . $comment_action_name,
+					array(
+						$this,
+						'expand_wp_insert_comment',
+					)
+				);
 			}
 		}
 
@@ -259,6 +266,22 @@ class Comments extends Module {
 	}
 
 	/**
+	 * Prevents any comment types that are not in the whitelist from being enqueued and sent to WordPress.com.
+	 * Also expands comment data before being enqueued.
+	 *
+	 * @param array $args Arguments passed to wp_insert_comment.
+	 *
+	 * @return false or array $args Arguments passed to wp_insert_comment or false if the comment type is a blacklisted one.
+	 */
+	public function filter_jetpack_sync_before_enqueue_wp_insert_comment( $args ) {
+		if ( false === $this->only_allow_white_listed_comment_types( $args ) ) {
+			return false;
+		}
+
+		return $this->expand_wp_insert_comment( $args );
+	}
+
+	/**
 	 * Whether a comment type is allowed.
 	 * A comment type is allowed if it's present in the comment type whitelist.
 	 *
@@ -280,21 +303,6 @@ class Comments extends Module {
 	 * @access public
 	 */
 	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_send_wp_insert_comment', array( $this, 'expand_wp_insert_comment' ) );
-
-		foreach ( $this->get_whitelisted_comment_types() as $comment_type ) {
-			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
-				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
-				add_filter(
-					'jetpack_sync_before_send_' . $comment_action_name,
-					array(
-						$this,
-						'expand_wp_insert_comment',
-					)
-				);
-			}
-		}
-
 		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_comments', array( $this, 'expand_comment_ids' ) );
 	}
@@ -392,7 +400,7 @@ class Comments extends Module {
 	}
 
 	/**
-	 * Expand the comment creation before the data is serialized and sent to the server.
+	 * Expand the comment creation before the data is added to the Sync queue.
 	 *
 	 * @access public
 	 *

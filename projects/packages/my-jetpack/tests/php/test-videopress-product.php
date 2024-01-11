@@ -30,12 +30,6 @@ class Test_Videopress_Product extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
-
-		// See https://stackoverflow.com/a/41611876.
-		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
-			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
-		}
-
 		$this->install_mock_plugins();
 		wp_cache_delete( 'plugins', 'plugins' );
 
@@ -166,5 +160,4 @@ class Test_Videopress_Product extends TestCase {
 		activate_plugins( Videopress::get_installed_plugin_filename() );
 		$this->assertSame( '', Videopress::get_post_activation_url() );
 	}
-
 }

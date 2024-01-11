@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * Trait to cache HTTP requests for unit tests.
  *
@@ -8,8 +8,8 @@
 namespace Automattic\Jetpack\Tests;
 
 use ReflectionClass;
-use Requests_Utility_CaseInsensitiveDictionary;
 use UnexpectedValueException;
+use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 
 /**
  * Trait to cache HTTP requests for unit tests.
@@ -42,7 +42,7 @@ trait HttpRequestCacheTrait {
 	private static function get_http_request_cache_filename() {
 		$rc       = new ReflectionClass( static::class );
 		$filename = $rc->getFileName();
-		if ( substr( $filename, -4 ) === '.php' ) {
+		if ( str_ends_with( $filename, '.php' ) ) {
 			$filename = substr( $filename, 0, -4 );
 		}
 		return $filename . '-HttpRequestCache.json';
@@ -113,7 +113,7 @@ trait HttpRequestCacheTrait {
 							if ( is_string( $ret ) ) {
 								$ret = unserialize( $ret );
 							} elseif ( is_array( $ret ) && isset( $ret['headers'] ) ) {
-								$headers = new Requests_Utility_CaseInsensitiveDictionary();
+								$headers = new CaseInsensitiveDictionary();
 								foreach ( $ret['headers'] as $k => $v ) {
 									$headers[ $k ] = $v;
 								}

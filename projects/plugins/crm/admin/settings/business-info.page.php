@@ -21,6 +21,8 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
 	// moved from invoice builder settings -> biz info 16/7/18
 
+	$updatedSettings = array(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 	// } Invoice Chunks
 	$updatedSettings['businessname'] = '';
 	if ( isset( $_POST['businessname'] ) ) {
@@ -52,7 +54,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	// } Social
 	$updatedSettings['twitter'] = ''; if ( isset( $_POST['wpzbs_twitter'] ) ) {
 		$updatedSettings['twitter'] = sanitize_text_field( $_POST['wpzbs_twitter'] );
-		if ( substr( $updatedSettings['twitter'], 0, 1 ) == '@' ) {
+		if ( str_starts_with( $updatedSettings['twitter'], '@' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			$updatedSettings['twitter'] = substr( $updatedSettings['twitter'], 1 );
 		}
 	}

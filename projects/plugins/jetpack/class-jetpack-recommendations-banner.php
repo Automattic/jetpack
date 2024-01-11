@@ -1,6 +1,7 @@
 <?php
 /**
  * Displays the site type recommendations question as a banner.
+ * DEPRECATED in v 13.0
  *
  * @package automattic/jetpack
  */
@@ -208,7 +209,7 @@ class Jetpack_Recommendations_Banner {
 				<h1 class="jp-recommendations-banner__question">
 					<?php
 					/* translators: placeholder is the name of the website */
-					echo sprintf( esc_html__( 'Tell us more about %s?', 'jetpack' ), esc_html( $site_name ) );
+					printf( esc_html__( 'Tell us more about %s?', 'jetpack' ), esc_html( $site_name ) );
 					?>
 				</h1>
 				<p class="jp-recommendations-banner__description">

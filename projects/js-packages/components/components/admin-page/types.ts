@@ -5,11 +5,6 @@ export type AdminPageProps = {
 	children: React.ReactNode;
 
 	/**
-	 * Link for 'An Automattic Airline' in the footer.
-	 */
-	a8cLogoHref?: string;
-
-	/**
 	 * Name of the module, e.g. 'Jetpack Search' that will be displayed in the footer.
 	 */
 	moduleName?: string;
@@ -38,4 +33,9 @@ export type AdminPageProps = {
 	 * Whether or not to display the Background Color
 	 */
 	showBackground?: boolean;
+
+	/**
+	 * URL of the site WP Admin.
+	 */
+	siteAdminUrl?: string;
 };

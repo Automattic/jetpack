@@ -104,9 +104,9 @@ class Render_Blocking_JS implements Pluggable {
 		if ( isset( $_SERVER['REQUEST_URI'] ) &&
 			(
 				// phpcs:disable WordPress.Security.ValidatedSanitizedInput -- This is validating.
-				false !== strpos( $_SERVER['REQUEST_URI'], '.xsl' ) ||
-				false !== strpos( $_SERVER['REQUEST_URI'], 'sitemap-stylesheet=index' ) ||
-				false !== strpos( $_SERVER['REQUEST_URI'], 'sitemap-stylesheet=sitemap' )
+				str_contains( $_SERVER['REQUEST_URI'], '.xsl' ) ||
+				str_contains( $_SERVER['REQUEST_URI'], 'sitemap-stylesheet=index' ) ||
+				str_contains( $_SERVER['REQUEST_URI'], 'sitemap-stylesheet=sitemap' )
 				// phpcs:enable WordPress.Security.ValidatedSanitizedInput
 			) ) {
 			return;
@@ -218,8 +218,9 @@ class Render_Blocking_JS implements Pluggable {
 			// Scripts inside HTML comments.
 			'~<!--.*?-->~si',
 
-			// Scripts with application/json type
-			'~<script\s+[^\>]*type=(?<q>["\']*)application/json\k<q>.*?>.*?</script>~si',
+			// Scripts with types that do not execute complex code. Moving them down can be dangerous
+			// and does not benefit performance. Includes types: application/json and importmap.
+			'~<script\s+[^\>]*type=(?<q>["\']*)(application/json|importmap)\k<q>.*?>.*?</script>~si',
 		);
 
 		return preg_replace_callback(
@@ -264,7 +265,7 @@ class Render_Blocking_JS implements Pluggable {
 	 * @return string
 	 */
 	public function append_script_tags( $buffer ) {
-		if ( false !== strpos( $buffer, '</body>' ) ) {
+		if ( str_contains( $buffer, '</body>' ) ) {
 			return str_replace( '</body>', implode( '', $this->buffered_script_tags ) . '</body>', $buffer );
 		}
 

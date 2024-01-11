@@ -873,5 +873,4 @@ class Themes extends Module {
 
 		return array( $this->get_theme_info() );
 	}
-
 }

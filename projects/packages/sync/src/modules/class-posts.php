@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
 /**
@@ -72,6 +73,16 @@ class Posts extends Module {
 	 * @var int
 	 */
 	const MAX_POST_META_LENGTH = 2000000;
+
+	/**
+	 * Max bytes allowed for full sync upload.
+	 * Current Setting : 7MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_SIZE_FULL_SYNC = 7000000;
 
 	/**
 	 * Default previous post state.
@@ -144,11 +155,12 @@ class Posts extends Module {
 		add_filter( 'jetpack_sync_before_enqueue_deleted_post', array( $this, 'filter_blacklisted_post_types_deleted' ) );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
-		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_blacklisted_post_types' ) );
 
 		// Listen for meta changes.
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
+
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_sync_save_post' ) );
 
 		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
 		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
@@ -214,15 +226,17 @@ class Posts extends Module {
 	 * @access public
 	 */
 	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_post', array( $this, 'expand_jetpack_sync_save_post' ) );
-
 		// meta.
 		add_filter( 'jetpack_sync_before_send_added_post_meta', array( $this, 'trim_post_meta' ) );
 		add_filter( 'jetpack_sync_before_send_updated_post_meta', array( $this, 'trim_post_meta' ) );
 		add_filter( 'jetpack_sync_before_send_deleted_post_meta', array( $this, 'trim_post_meta' ) );
-
 		// Full sync.
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
+		$sync_module = Modules::get_module( 'full-sync' );
+		if ( $sync_module && str_contains( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'add_term_relationships' ) );
+		} else {
+			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_posts_with_metadata_and_terms' ) );
+		}
 	}
 
 	/**
@@ -322,6 +336,22 @@ class Posts extends Module {
 	}
 
 	/**
+	 * Filter all blacklisted post types and add filtered post content.
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
+	 */
+	public function filter_jetpack_sync_before_enqueue_jetpack_sync_save_post( $args ) {
+		list( $post_id, $post, $update, $previous_state ) = $args;
+
+		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
+			return false;
+		}
+
+		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
+	}
+
+	/**
 	 * Filter all blacklisted post types.
 	 *
 	 * @param array $args Hook arguments.
@@ -332,22 +362,6 @@ class Posts extends Module {
 		// deleted_post is called after the SQL delete but before cache cleanup.
 		// There is the potential we can't detect post_type at this point.
 		if ( ! $this->is_post_type_allowed( $args[0] ) ) {
-			return false;
-		}
-
-		return $args;
-	}
-
-	/**
-	 * Filter all blacklisted post types.
-	 *
-	 * @param array $args Hook arguments.
-	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
-	 */
-	public function filter_blacklisted_post_types( $args ) {
-		$post = $args[1];
-
-		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
 			return false;
 		}
 
@@ -376,7 +390,7 @@ class Posts extends Module {
 	 */
 	public function is_whitelisted_post_meta( $meta_key ) {
 		// The _wpas_skip_ meta key is used by Publicize.
-		return in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true ) || ( 0 === strpos( $meta_key, '_wpas_skip_' ) );
+		return in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true ) || str_starts_with( $meta_key, '_wpas_skip_' );
 	}
 
 	/**
@@ -514,9 +528,18 @@ class Posts extends Module {
 			}
 
 			array_map( 'remove_shortcode', array_keys( $removed_shortcode_callbacks ) );
+			/**
+			 * Certain modules such as Likes, Related Posts and Sharedaddy are using `Settings::is_syncing`
+			 * in order to NOT get rendered in filtered post content.
+			 * Since the current method runs now before enqueueing instead of before sending,
+			 * we are setting `is_syncing` flag to true in order to preserve the existing functionality.
+			 */
 
+			$is_syncing_current = Settings::is_syncing();
+			Settings::set_is_syncing( true );
 			$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
 			$post->post_excerpt_filtered = apply_filters( 'the_excerpt', $post->post_excerpt );
+			Settings::set_is_syncing( $is_syncing_current );
 
 			foreach ( $removed_shortcode_callbacks as $shortcode => $callback ) {
 				add_shortcode( $shortcode, $callback );
@@ -738,24 +761,46 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Expand post IDs to post objects within a hook before they are serialized and sent to the server.
+	 * Add term relationships to post objects within a hook before they are serialized and sent to the server.
+	 * This is used in Full Sync Immediately
 	 *
 	 * @access public
 	 *
 	 * @param array $args The hook parameters.
 	 * @return array $args The expanded hook parameters.
 	 */
-	public function expand_post_ids( $args ) {
-		list( $post_ids, $previous_interval_end) = $args;
+	public function add_term_relationships( $args ) {
+		list( $filtered_posts, $previous_interval_end )                       = $args;
+		list( $filtered_post_ids, $filtered_posts, $filtered_posts_metadata ) = $filtered_posts;
 
-		$posts = array_filter( array_map( array( 'WP_Post', 'get_instance' ), $post_ids ) );
-		$posts = array_map( array( $this, 'filter_post_content_and_add_links' ), $posts );
-		$posts = array_values( $posts ); // Reindex in case posts were deleted.
+		return array(
+			$filtered_posts,
+			$filtered_posts_metadata,
+			$this->get_term_relationships( $filtered_post_ids ),
+			$previous_interval_end,
+		);
+	}
+
+	/**
+	 * Expand post IDs to post objects within a hook before they are serialized and sent to the server.
+	 * This is used in Legacy Full Sync
+	 *
+	 * @access public
+	 *
+	 * @param array $args The hook parameters.
+	 * @return array $args The expanded hook parameters.
+	 */
+	public function expand_posts_with_metadata_and_terms( $args ) {
+		list( $post_ids, $previous_interval_end ) = $args;
+
+		$posts              = $this->expand_posts( $post_ids );
+		$posts_metadata     = $this->get_metadata( $post_ids, 'post', Settings::get_setting( 'post_meta_whitelist' ) );
+		$term_relationships = $this->get_term_relationships( $post_ids );
 
 		return array(
 			$posts,
-			$this->get_metadata( $post_ids, 'post', Settings::get_setting( 'post_meta_whitelist' ) ),
-			$this->get_term_relationships( $post_ids ),
+			$posts_metadata,
+			$term_relationships,
 			$previous_interval_end,
 		);
 	}
@@ -772,5 +817,116 @@ class Posts extends Module {
 	 */
 	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false ) {
 		return parent::get_min_max_object_ids_for_batches( $batch_size, $this->get_where_sql( $where_sql ) );
+	}
+
+	/**
+	 * Given the Module Configuration and Status return the next chunk of items to send.
+	 * This function also expands the posts and metadata and filters them based on the maximum size constraints.
+	 *
+	 * @param array $config This module Full Sync configuration.
+	 * @param array $status This module Full Sync status.
+	 * @param int   $chunk_size Chunk size.
+	 *
+	 * @return array
+	 */
+	public function get_next_chunk( $config, $status, $chunk_size ) {
+
+		$post_ids = parent::get_next_chunk( $config, $status, $chunk_size );
+
+		if ( empty( $post_ids ) ) {
+			return array();
+		}
+
+		$posts          = $this->expand_posts( $post_ids );
+		$posts_metadata = $this->get_metadata( $post_ids, 'post', Settings::get_setting( 'post_meta_whitelist' ) );
+
+		// Filter posts and metadata based on maximum size constraints.
+		list( $filtered_post_ids, $filtered_posts, $filtered_posts_metadata ) = $this->filter_posts_and_metadata_max_size( $posts, $posts_metadata );
+		return array(
+			$filtered_post_ids,
+			$filtered_posts,
+			$filtered_posts_metadata,
+		);
+	}
+
+	/**
+	 * Expand posts.
+	 *
+	 * @param array $post_ids Post IDs.
+	 *
+	 * @return array Expanded posts.
+	 */
+	private function expand_posts( $post_ids ) {
+		$posts = array_filter( array_map( array( 'WP_Post', 'get_instance' ), $post_ids ) );
+		$posts = array_map( array( $this, 'filter_post_content_and_add_links' ), $posts );
+		$posts = array_values( $posts ); // Reindex in case posts were deleted.
+		return $posts;
+	}
+
+	/**
+	 * Filters posts and metadata based on maximum size constraints.
+	 * It always allows the first post with its metadata even if they exceed the limit, otherwise they will never be synced.
+	 *
+	 * @access public
+	 *
+	 * @param array $posts The array of posts to filter.
+	 * @param array $metadata The array of metadata to filter.
+	 * @return array An array containing the filtered post IDs, filtered posts, and filtered metadata.
+	 */
+	public function filter_posts_and_metadata_max_size( $posts, $metadata ) {
+		$filtered_posts    = array();
+		$filtered_metadata = array();
+		$filtered_post_ids = array();
+		$current_size      = 0;
+		foreach ( $posts as $post ) {
+			$post_content_size = isset( $post->post_content ) ? strlen( $post->post_content ) : 0;
+			$current_metadata  = array();
+			$metadata_size     = 0;
+			foreach ( $metadata as $key => $metadata_item ) {
+				if ( (int) $metadata_item->post_id === $post->ID ) {
+					// Trimming metadata if it exceeds limit. Similar to trim_post_meta.
+					$metadata_item_size = strlen( maybe_serialize( $metadata_item->meta_value ) );
+					if ( $metadata_item_size >= self::MAX_POST_META_LENGTH ) {
+						$metadata_item->meta_value = '';
+					}
+					$current_metadata[] = $metadata_item;
+					$metadata_size     += $metadata_item_size >= self::MAX_POST_META_LENGTH ? 0 : $metadata_item_size;
+					if ( ! empty( $filtered_post_ids ) && ( $current_size + $post_content_size + $metadata_size ) > ( self::MAX_SIZE_FULL_SYNC ) ) {
+						break 2; // Break both foreach loops.
+					}
+					unset( $metadata[ $key ] );
+				}
+			}
+			// Always allow the first post with its metadata.
+			if ( empty( $filtered_post_ids ) || ( $current_size + $post_content_size + $metadata_size ) <= ( self::MAX_SIZE_FULL_SYNC ) ) {
+				$filtered_post_ids[] = strval( $post->ID );
+				$filtered_posts[]    = $post;
+				$filtered_metadata   = array_merge( $filtered_metadata, $current_metadata );
+				$current_size       += $post_content_size + $metadata_size;
+			} else {
+				break;
+			}
+		}
+		return array(
+			$filtered_post_ids,
+			$filtered_posts,
+			$filtered_metadata,
+		);
+	}
+
+	/**
+	 * Set the status of the full sync action based on the objects that were sent.
+	 *
+	 * @access public
+	 *
+	 * @param array $status This module Full Sync status.
+	 * @param array $objects This module Full Sync objects.
+	 *
+	 * @return array The updated status.
+	 */
+	public function set_send_full_sync_actions_status( $status, $objects ) {
+		$status['last_sent'] = end( $objects[0] );
+		$status['sent']     += count( $objects[0] );
+		return $status;
 	}
 }

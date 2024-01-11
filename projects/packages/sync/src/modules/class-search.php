@@ -231,6 +231,7 @@ class Search extends Module {
 		'age'                                    => array(),
 		'aliases'                                => array(),
 		'alternate_title'                        => array(),
+		'ama_content'                            => array(),
 		'amazon'                                 => array(),
 		'answer'                                 => array( 'searchable_in_all_content' => true ),
 		'area'                                   => array(),
@@ -288,6 +289,8 @@ class Search extends Module {
 		'fullscreen_view'                        => array(),
 		'gallery'                                => array(),
 		'genre'                                  => array( 'searchable_in_all_content' => true ),
+		'guest_bio'                              => array(),
+		'guest_name'                             => array(),
 		'guests'                                 => array( 'searchable_in_all_content' => true ),
 		'has_variations'                         => array(),
 		'hashtag'                                => array(),
@@ -344,6 +347,7 @@ class Search extends Module {
 		'panels_data'                            => array(),
 		'parking'                                => array(),
 		'pdf_upload'                             => array(),
+		'people_mentioned'                       => array(),
 		'photo'                                  => array(),
 		'play_time'                              => array(),
 		'position'                               => array(),
@@ -365,12 +369,15 @@ class Search extends Module {
 		'review_post'                            => array(),
 		'rule'                                   => array(),
 		'section'                                => array( 'searchable_in_all_content' => true ),
+		'selected_links'                         => array(),
 		'session_transcript'                     => array(),
 		'settings'                               => array(),
 		'sex'                                    => array(),
 		'shares_count'                           => array(),
 		'show_description'                       => array( 'searchable_in_all_content' => true ),
 		'show_page_title'                        => array(),
+		'show_notes'                             => array(),
+		'show_notes_preview'                     => array(),
 		'side'                                   => array(),
 		'sidebar'                                => array(),
 		'site'                                   => array(),
@@ -1733,6 +1740,7 @@ class Search extends Module {
 	 * @var array
 	 */
 	private static $options_to_sync = array(
+		'jetpack_search_ai_prompt_override',
 		'jetpack_search_color_theme',
 		'jetpack_search_result_format',
 		'jetpack_search_default_sort',
@@ -1864,5 +1872,4 @@ class Search extends Module {
 	public static function get_all_taxonomies() {
 		return self::$taxonomies_to_sync;
 	}
-
 }

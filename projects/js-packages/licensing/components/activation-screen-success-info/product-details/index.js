@@ -88,18 +88,6 @@ const JetpackProductDetails = props => {
 				'jetpack'
 			),
 		},
-		jetpack_starter: {
-			title: __( 'Jetpack Starter is active!', 'jetpack' ),
-			text: createInterpolateElement(
-				__(
-					'You can see your backups and restore your site on <a>cloud.jetpack.com</a>. If you ever lose access to your site, you can restore it there.',
-					'jetpack'
-				),
-				{
-					a: <a href={ cloudDashboardBaseUrl } />,
-				}
-			),
-		},
 		default: {
 			title: __( 'Your product is active!', 'jetpack' ),
 			text: __( "You're all set!", 'jetpack' ),

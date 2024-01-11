@@ -145,10 +145,13 @@ class REST_Controller {
 			}
 		}
 
-		try {
-			Waf_Runner::update_waf();
-		} catch ( Waf_Exception $e ) {
-			return $e->get_wp_error();
+		// Only attempt to update the WAF if the module is supported
+		if ( Waf_Runner::is_supported_environment() ) {
+			try {
+				Waf_Runner::update_waf();
+			} catch ( Waf_Exception $e ) {
+				return $e->get_wp_error();
+			}
 		}
 
 		return self::waf();

@@ -12,6 +12,7 @@ import {
 	FEATURE_WORDADS_JETPACK,
 	FEATURE_SPAM_AKISMET_PLUS,
 	FEATURE_SEARCH_JETPACK,
+	FEATURE_SIMPLE_PAYMENTS_JETPACK,
 	getJetpackProductUpsellByFeature,
 } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
@@ -302,6 +303,36 @@ export const SettingsCard = props => {
 					/>
 				);
 
+			case FEATURE_SIMPLE_PAYMENTS_JETPACK:
+				if ( props.hasSimplePayments ) {
+					return '';
+				}
+
+				return props.hasConnectedOwner ? (
+					<JetpackBanner
+						callToAction={ upgradeLabel }
+						title={ __(
+							'Start accepting PayPal payments for physical products, digital goods, or donations.',
+							'jetpack'
+						) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SIMPLE_PAYMENTS_JETPACK ) }
+						feature={ feature }
+						href={ props.simplePaymentsUpgradeUrl }
+						rna
+					/>
+				) : (
+					<JetpackBanner
+						callToAction={ connectLabel }
+						title={ __(
+							'Connect your WordPress.com account to upgrade and access PayPal features in your editor.',
+							'jetpack'
+						) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SIMPLE_PAYMENTS_JETPACK ) }
+						feature={ feature }
+						onclick={ props.doConnectUser }
+						rna
+					/>
+				);
 			default:
 				return '';
 		}
@@ -445,11 +476,12 @@ export default connect(
 			vaultPressData: getVaultPressData( state ),
 			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 			getModule: module_name => getModule( state, module_name ),
-			adsUpgradeUrl: getUpgradeUrl( state, 'settings-ads' ),
+			adsUpgradeUrl: getUpgradeUrl( state, 'jetpack-creator-cta' ),
 			securityUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
 			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 			gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
 			searchUpgradeUrl: getProductDescriptionUrl( state, 'search' ),
+			simplePaymentsUpgradeUrl: getUpgradeUrl( state, 'jetpack-creator-cta' ),
 			spamUpgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			multisite: isMultisite( state ),
 			inOfflineMode: isOfflineMode( state ),
@@ -459,6 +491,7 @@ export default connect(
 			hasGoogleAnalytics: siteHasFeature( state, 'google-analytics' ),
 			hasInstantSearch: siteHasFeature( state, 'instant-search' ),
 			hasScan: siteHasFeature( state, 'scan' ),
+			hasSimplePayments: siteHasFeature( state, 'simple-payments' ),
 			hasVideoPress: siteHasFeature( state, 'videopress' ),
 			hasWordAds: siteHasFeature( state, 'wordads' ),
 		};

@@ -1,10 +1,10 @@
 === WP Super Cache ===
-Contributors: donncha, automattic, adnan007, mikemayhem3030, ppetrov2c, pyronaur, thingalon
+Contributors: donncha, automattic, adnan007, dilirity, mikemayhem3030, pyronaur, thingalon
 Tags: performance, caching, wp-cache, wp-super-cache, cache
-Requires at least: 6.1
-Requires PHP: 5.6
-Tested up to: 6.2
-Stable tag: 1.9.3
+Requires at least: 6.3
+Requires PHP: 7.0
+Tested up to: 6.4
+Stable tag: 1.10.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -268,17 +268,23 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.9.4-beta - 2023-02-28
+### 1.11.0 - 2023-11-08
 #### Added
-- Added new filter which controls cache clearing on post edit.
-- Added a check to ensure preload cronjobs exist when updating preload settings.
+- Super Cache: fix "accept header" check, and add new "wpsc_accept_headers" filter on accept header list
 
 #### Changed
-- Updated contributors list.
+- General: indicate full compatibility with the latest version of WordPress, 6.4.
+- General: update WordPress version requirements to WordPress 6.2.
+- Overhauled visual styling to match Jetpack branding
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
 
 #### Fixed
-- Fixed undefined PHP variable when trying to delete a protected folder.
-- Fixed deprecation warnings on PHP 8.1+.
+- Caching: make sure $wp_cache_request_uri is defined to avoid warnings about "NULL" parameters.
+- super-cache: fixed null parameter warning when using $supercachedir
+- Super Cache: cancel the full preload job correctly.
 
 --------
 

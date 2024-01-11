@@ -217,7 +217,7 @@ function zeroBSCRMJS_segment_buildConditionLine( rule ) {
 		var rule_type = '';
 		if ( rule.type ) {
 			rule_type = rule.type;
-			if ( rule_type.substr( 0, 5 ) == 'zbsc_' ) {
+			if ( rule_type.startsWith( 'zbsc_' ) ) {
 				rule_type = rule_type.substr( 5 );
 			}
 		}
@@ -363,7 +363,7 @@ function zeroBSCRMJS_segment_buildConditionCascadesForEle( ele ) {
 		var html = '';
 
 		// shim for backward compatibility with Advanced segments < v1.8
-		if ( selected.substr( 0, 5 ) == 'zbsc_' ) {
+		if ( selected.startsWith( 'zbsc_' ) ) {
 			selected = selected.substr( 5 );
 		}
 
@@ -447,7 +447,7 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 		var typeselected = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ) ).val();
 
 		// shim for backward compatibility with Advanced segments < v1.8
-		if ( typeselected && typeselected.substr( 0, 5 ) == 'zbsc_' ) {
+		if ( typeselected && typeselected.startsWith( 'zbsc_' ) ) {
 			typeselected = typeselected.substr( 5 );
 		}
 
@@ -1334,7 +1334,7 @@ function jpcrm_js_show_condition_info( ele ) {
 		.val();
 
 	// shim for backward compatibility with Advanced segments < v1.8
-	if ( condition_key.substr( 0, 5 ) == 'zbsc_' ) {
+	if ( condition_key.startsWith( 'zbsc_' ) ) {
 		condition_key = condition_key.substr( 5 );
 	}
 

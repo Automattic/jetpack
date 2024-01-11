@@ -1,10 +1,10 @@
-# useAIFeature()
+# useAiFeature()
 
 React custom hook that provides valuable data about AI requests for the site.
 
 ```es6
 function UpgradePlan() {
-	const { hasFeature, count, refresh } = useAIFeature();
+	const { hasFeature, count, refresh } = useAiFeature();
 	if ( ! hasFeature ) {
 		return null;
 	}
@@ -18,11 +18,3 @@ function UpgradePlan() {
 	);
 }
 ```
-
-# getAIFeature()
-
-Async helper function that performes and returns relevant data about the AI Assistant feature
-
-# AI_Assistant_Initial_State
-
-Constant with the initial state of the AI Assistant feature

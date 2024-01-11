@@ -11,9 +11,7 @@
 
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 
-/**
- * Disable direct access/execution to/of the widget code.
- */
+// Disable direct access/execution to/of the widget code.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -152,7 +150,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 		} elseif ( $views ) {
 			printf(
 				'<ul><li>%1$s %2$s</li></ul>',
-				number_format_i18n( $views ),
+				esc_html( number_format_i18n( $views ) ),
 				isset( $instance['hits'] ) ? esc_html( $instance['hits'] ) : ''
 			);
 		} else {

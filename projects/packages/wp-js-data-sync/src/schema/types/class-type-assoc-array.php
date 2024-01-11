@@ -72,5 +72,3 @@ class Type_Assoc_Array implements Parser {
 		return array_keys( $arr ) === range( 0, count( $arr ) - 1 );
 	}
 }
-
-

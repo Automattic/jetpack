@@ -70,5 +70,3 @@ $isAssigned       = false; // ??
 $companies = zeroBS_getCompanies( true, $perPage, $page, $withInvoices, $withQuotes, $searchPhrase, $withTransactions, false, false, '', '', false, false, false, 'ID', 'DESC', false, $isAssigned );
 
 wp_send_json( $companies );
-
-

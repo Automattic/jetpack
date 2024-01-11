@@ -53,7 +53,7 @@ class Utils {
 	 * @return string
 	 */
 	public static function force_url_to_absolute( $url ) {
-		if ( substr( $url, 0, 1 ) === '/' ) {
+		if ( str_starts_with( $url, '/' ) ) {
 			return get_site_url( null, $url );
 		}
 
@@ -133,8 +133,9 @@ class Utils {
 				$code
 			);
 
-			$err_code = empty( $json->code ) ? 'http_error' : $json->code;
-			$message  = empty( $json->message ) ? $default_message : $json->message;
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$err_code = empty( $json->statusCode ) ? 'http_error' : $json->statusCode;
+			$message  = empty( $json->error ) ? $default_message : $json->error;
 
 			return new \WP_Error( $err_code, $message );
 		}

@@ -1083,7 +1083,7 @@ msgstr "Uyarı"
 
 #: wp-cache.php:1626
 msgid "GZIP compression is enabled in WordPress, wp-cache will be bypassed until you disable gzip compression."
-msgstr "GZIP sıkıştırması Wordpress için etkin durumda, onu etkisizleştirene kadar wp-cache atlanacak."
+msgstr "GZIP sıkıştırması WordPress için etkin durumda, onu etkisizleştirene kadar wp-cache atlanacak."
 
 #: wp-cache.php:1688
 #: wp-cache.php:1693

@@ -1,6 +1,7 @@
 import { once } from 'events';
 import { promisify } from 'util';
 import { jest } from '@jest/globals';
+import semver from 'semver';
 import FilterStream from '../../../helpers/filter-stream.js';
 
 describe( 'FilterStream', () => {
@@ -145,6 +146,9 @@ describe( 'FilterStream', () => {
 		ts.end( endfn );
 		await expect( errorEvent ).resolves.toEqual( [ new Error( 'nope!' ) ] );
 		// For some reason the end() callback is never called when there's an error. Only the error event.
-		expect( endfn ).not.toHaveBeenCalled();
+		// But this was apparently fixed in 20.10.0.
+		expect( endfn ).toHaveBeenCalledTimes(
+			semver.satisfies( process.versions.node, '>= 20.10.0' ) ? 1 : 0
+		);
 	} );
 } );

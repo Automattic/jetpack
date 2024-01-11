@@ -70,4 +70,3 @@ function fetch_token( $text, $image_url, $template ) {
 	);
 	return $rest_controller->make_proper_response( $response );
 }
-

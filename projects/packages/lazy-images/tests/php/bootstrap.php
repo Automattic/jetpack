@@ -5,6 +5,8 @@
  * @package automattic/jetpack-lazy-images
  */
 
+define( 'IS_JETPACK_LAZY_IMAGES_TESTS', true ); // flag for hack
+
 /**
  * Load the composer autoloader.
  */

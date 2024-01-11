@@ -32,5 +32,4 @@ class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'search', $event->args[0] );
 		$this->assertCount( 1, $events );
 	}
-
 }

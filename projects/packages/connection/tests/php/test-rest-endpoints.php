@@ -11,11 +11,11 @@ use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
-use Requests_Utility_CaseInsensitiveDictionary;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
 use WP_REST_Server;
+use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 
 /**
  * Unit tests for the REST API endpoints.
@@ -899,7 +899,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public static function intercept_register_request( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack.register' ) ) {
+		if ( ! str_contains( $url, 'jetpack.register' ) ) {
 			return $response;
 		}
 
@@ -916,7 +916,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public static function intercept_register_request_with_allow_inplace( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack.register' ) ) {
+		if ( ! str_contains( $url, 'jetpack.register' ) ) {
 			return $response;
 		}
 
@@ -933,7 +933,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public static function intercept_register_request_with_alternate_auth_url( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack.register' ) ) {
+		if ( ! str_contains( $url, 'jetpack.register' ) ) {
 			return $response;
 		}
 
@@ -949,7 +949,7 @@ class Test_REST_Endpoints extends TestCase {
 	 */
 	private static function get_register_request_mock_response( $allow_inplace_authorization = false, $alternate_authorization_url = '' ) {
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode(
 				array(
 					'jetpack_id'                  => '12345',
@@ -975,7 +975,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_validate_tokens_request_invalid_blog_token( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
@@ -992,7 +992,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_validate_tokens_request_invalid_user_token( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
@@ -1009,7 +1009,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_validate_tokens_request_valid_tokens( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
@@ -1026,12 +1026,12 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_validate_tokens_request_failed( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( array( 'dummy_error' => true ) ),
 			'response' => array(
 				'code'    => 500,
@@ -1074,7 +1074,7 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( $body ),
 			'response' => array(
 				'code'    => 200,
@@ -1093,12 +1093,12 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_refresh_blog_token_request( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-refresh-blog-token' ) ) {
+		if ( ! str_contains( $url, 'jetpack-refresh-blog-token' ) ) {
 			return $response;
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( array( 'jetpack_secret' => self::BLOG_TOKEN ) ),
 			'response' => array(
 				'code'    => 200,
@@ -1117,12 +1117,12 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_refresh_blog_token_request_fail( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-refresh-blog-token' ) ) {
+		if ( ! str_contains( $url, 'jetpack-refresh-blog-token' ) ) {
 			return $response;
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( array( 'jetpack_secret_missing' => true ) ), // Meaningless body.
 			'response' => array(
 				'code'    => 200,
@@ -1141,12 +1141,12 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_auth_token_request( $response, $args, $url ) {
-		if ( false === strpos( $url, '/jetpack.token/' ) ) {
+		if ( ! str_contains( $url, '/jetpack.token/' ) ) {
 			return $response;
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode(
 				array(
 					'access_token' => 'mock.token',
@@ -1382,5 +1382,4 @@ class Test_REST_Endpoints extends TestCase {
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
 		remove_filter( 'pre_http_request', array( $this, 'intercept_validate_tokens_request' ), 10 );
 	}
-
 }

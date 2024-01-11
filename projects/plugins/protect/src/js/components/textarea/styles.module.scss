@@ -32,7 +32,7 @@
 
 .label {
     display: block;
-    margin-bottom: calc( var( --spacing-base ) * 2 ); // 16px
+    margin-bottom: var( --spacing-base ); // 8px
     color: var( --jp-black );
     font-size: var( --font-title-small ); // 20px
     font-weight: 600;

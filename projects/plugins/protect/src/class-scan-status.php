@@ -356,5 +356,4 @@ class Scan_Status extends Status {
 
 		return $new_list;
 	}
-
 }

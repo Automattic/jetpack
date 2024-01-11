@@ -50,5 +50,4 @@ class Jetpack_Attachment_Test_Case extends WP_UnitTestCase {
 
 		return $id;
 	}
-
 }

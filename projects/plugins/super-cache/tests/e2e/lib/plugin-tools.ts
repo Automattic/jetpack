@@ -1,9 +1,10 @@
 import fsp from 'fs/promises';
 import pathLib from 'path';
 import { expect } from '@jest/globals';
-import axios, { Method } from 'axios';
+import axios from 'axios';
 import { deleteContainerDirectory } from './docker-tools';
 import { wpcli } from './wordpress-tools';
+import type { Method } from 'axios';
 
 /**
  * Returns the absolute path of a file in the plugin directory.

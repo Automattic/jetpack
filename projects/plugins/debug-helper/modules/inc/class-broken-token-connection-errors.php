@@ -13,6 +13,34 @@ use Automattic\Jetpack\Connection\Error_Handler;
 class Broken_Token_Connection_Errors {
 
 	/**
+	 * Error manager.
+	 *
+	 * @var Error_Handler
+	 */
+	private $error_manager;
+
+	/**
+	 * Stored errors.
+	 *
+	 * @var array
+	 */
+	private $stored_errors;
+
+	/**
+	 * Verified errors.
+	 *
+	 * @var array
+	 */
+	private $verified_errors;
+
+	/**
+	 * Whether JETPACK_DEV_DEBUG is set.
+	 *
+	 * @var bool
+	 */
+	private $dev_debug_on;
+
+	/**
 	 * Initialize the hooks and load initial data into the object.
 	 */
 	public function __construct() {
@@ -292,7 +320,6 @@ class Broken_Token_Connection_Errors {
 
 		$this->admin_post_redirect_referrer();
 	}
-
 }
 
 // phpcs:enable

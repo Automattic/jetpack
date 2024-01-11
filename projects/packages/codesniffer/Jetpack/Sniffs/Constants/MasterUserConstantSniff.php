@@ -41,5 +41,4 @@ class MasterUserConstantSniff implements Sniff {
 			);
 		}
 	}
-
 }

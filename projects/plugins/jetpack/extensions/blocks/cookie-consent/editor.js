@@ -1,7 +1,11 @@
-/**
- * Internal dependencies
- */
-import registerJetpackBlock from '../../shared/register-jetpack-block';
-import { name, settings } from '.';
+import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
+import metadata from './block.json';
+import edit from './edit';
+import save from './save';
 
-registerJetpackBlock( name, settings );
+import './editor.scss';
+
+registerJetpackBlockFromMetadata( metadata, {
+	edit,
+	save,
+} );

@@ -268,4 +268,3 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		return $preempt;
 	}
 }
-

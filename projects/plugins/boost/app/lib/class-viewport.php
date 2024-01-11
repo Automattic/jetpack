@@ -125,7 +125,7 @@ SCRIPT_SOURCE;
 			$script_source = Minify::js( $script_source );
 		}
 
-		echo sprintf( '<script>%s</script>', $script_source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		printf( '<script>%s</script>', $script_source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**

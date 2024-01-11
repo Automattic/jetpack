@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/i18n-check-webpack-plugin",
-	"version": "1.0.33",
+	"version": "1.1.5",
 	"description": "A Webpack plugin to check that WordPress i18n hasn't been mangled by Webpack optimizations.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/i18n-check-webpack-plugin/#readme",
 	"bugs": {
@@ -20,8 +20,8 @@
 		"debug": "^4.3.2"
 	},
 	"devDependencies": {
-		"@babel/core": "7.21.5",
-		"jest": "29.4.3",
+		"@babel/core": "7.23.5",
+		"jest": "29.7.0",
 		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1"
 	},
@@ -29,12 +29,9 @@
 		"@babel/core": "^7.0.0",
 		"webpack": "^5.0.0"
 	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	},
 	"exports": {
 		".": "./src/I18nCheckPlugin.js",
+		"./I18nSafeMangleExportsPlugin": "./src/I18nSafeMangleExportsPlugin.js",
 		"./GettextExtractor": "./src/GettextExtractor.js",
 		"./GettextEntries": "./src/GettextEntries.js",
 		"./GettextEntry": "./src/GettextEntry.js"

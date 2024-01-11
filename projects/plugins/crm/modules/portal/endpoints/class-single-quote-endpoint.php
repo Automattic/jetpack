@@ -45,7 +45,11 @@ class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 
 		// content
 		if ( isset( $quote_data['content'] ) ) {
-			$quote_content = $quote_data['content'];
+			$placeholder_templating = $zbs->get_templating();
+			// get initial replacements arr
+			$replacements              = $placeholder_templating->get_generic_replacements();
+			$replacements['quote-url'] = zeroBSCRM_portal_linkObj( $quote_id, ZBS_TYPE_QUOTE );
+			$quote_content             = $placeholder_templating->replace_placeholders( array( 'global', 'quote' ), $quote_data['content'], $replacements, array( ZBS_TYPE_QUOTE => $quote_data ) );
 		}
 
 		// hash (if not passed)
@@ -72,7 +76,7 @@ class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 					// js-exposed success/failure messages
 					?>
 						<div id="zbs-quote-accepted-<?php echo esc_attr( $quote_id ) ?>" class="alert alert-success" style="display:none;margin-bottom:5em;">
-							<?php esc_html_e( 'Quote accepted, Thank you.', 'zero-bs-crm' ); ?>
+							<?php esc_html_e( 'Quote accepted. Thank you!', 'zero-bs-crm' ); ?>
 						</div>
 						<div id="zbs-quote-failed-<?php echo esc_attr( $quote_id ) ?>" class="alert alert-warning" style="display:none;margin-bottom:5em;">
 							<?php esc_html_e( 'Quote could not be accepted at this time.', 'zero-bs-crm' ); ?>
@@ -109,5 +113,4 @@ class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 		wp_enqueue_script('jpcrm_public_proposal_js', plugins_url('/js/ZeroBSCRM.public.proposals'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version);
 
 	}
-
 }

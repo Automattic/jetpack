@@ -45,7 +45,7 @@ class Utils {
 	 */
 	public static function is_font_family_registered( $font_family_name ) {
 		// New WP Fonts API since Gutenberg 14.9
-		// Remove conditional once WP 6.2 is the minimum version (must confirm this made it into 6.2)
+		// Remove conditional once this experimental API makes it to WP Core, and after another core release.
 		// See https://github.com/Automattic/jetpack/issues/28063
 		if ( class_exists( 'WP_Fonts' ) ) {
 			if (

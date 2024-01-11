@@ -19,6 +19,9 @@ import {
 	PLUGIN_UPDATES_FETCH,
 	PLUGIN_UPDATES_FETCH_FAIL,
 	PLUGIN_UPDATES_FETCH_SUCCESS,
+	BACKUP_UNDO_EVENT_FETCH,
+	BACKUP_UNDO_EVENT_FETCH_FAILURE,
+	BACKUP_UNDO_EVENT_FETCH_SUCCESS,
 } from 'state/action-types';
 
 export const statsSwitchTab = tab => {
@@ -162,6 +165,28 @@ export const fetchPluginUpdates = () => {
 			.catch( error => {
 				dispatch( {
 					type: PLUGIN_UPDATES_FETCH_FAIL,
+					error: error,
+				} );
+			} );
+	};
+};
+
+export const fetchBackupUndoEvent = () => {
+	return dispatch => {
+		dispatch( {
+			type: BACKUP_UNDO_EVENT_FETCH,
+		} );
+		return restApi
+			.fetchBackupUndoEvent()
+			.then( undoEvent => {
+				dispatch( {
+					type: BACKUP_UNDO_EVENT_FETCH_SUCCESS,
+					payload: undoEvent,
+				} );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: BACKUP_UNDO_EVENT_FETCH_FAILURE,
 					error: error,
 				} );
 			} );

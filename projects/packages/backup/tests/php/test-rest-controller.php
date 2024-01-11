@@ -1,6 +1,10 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-namespace Automattic\Jetpack\Backup;
+// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
+// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
+// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
+// are installed, or in some other cases).
+namespace Automattic\Jetpack\Backup\V0001;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use PHPUnit\Framework\TestCase;
@@ -8,7 +12,17 @@ use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
+use function add_action;
+use function add_filter;
+use function do_action;
+use function remove_filter;
+use function wp_delete_file;
+use function wp_insert_post;
+use function wp_insert_user;
+use function wp_json_encode;
+use function wp_set_current_user;
 
 /**
  * Unit tests for the REST_Controller class.
@@ -51,7 +65,7 @@ class Test_REST_Controller extends TestCase {
 		wp_set_current_user( 0 );
 
 		// Register REST routes.
-		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\REST_Controller', 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0001\\REST_Controller', 'register_rest_routes' ) );
 
 		do_action( 'rest_api_init' );
 	}
@@ -114,7 +128,51 @@ class Test_REST_Controller extends TestCase {
 	public function test_install_backup_helper_script_success() {
 		$body = array(
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-			'helper' => base64_encode( "<?php /* Jetpack Backup Helper Script */\n" ),
+			'helper' => base64_encode( "<?php /* Jetpack Backup Helper Script */\n\$path = '[wp_path]'\n" ),
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $body ) );
+
+		$response      = $this->dispatch_request_signed_with_blog_token( $request );
+		$response_data = $response->get_data();
+		$this->assertEquals(
+			200,
+			$response->get_status(),
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			'Non-HTTP 200 response with data: ' . var_export( $response_data, true )
+		);
+		$this->assertArrayHasKey(
+			'url',
+			$response_data,
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			'Response should have "url" key: ' . var_export( $response_data, true )
+		);
+		$this->assertArrayHasKey(
+			'abspath',
+			$response_data,
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			'Response should have "abspath" key: ' . var_export( $response_data, true )
+		);
+		$this->assertArrayHasKey(
+			'path',
+			$response_data,
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			'Response should have "path" key: ' . var_export( $response_data, true )
+		);
+
+		// Cleanup.
+		wp_delete_file( $response_data['path'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/backup-helper-script` endpoint with bad helper script contents.
+	 */
+	public function test_install_backup_helper_script_bad_header() {
+		$body = array(
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			'helper' => base64_encode( 'totally not a helper script' ),
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
@@ -122,14 +180,8 @@ class Test_REST_Controller extends TestCase {
 		$request->set_body( wp_json_encode( $body ) );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
-		$this->assertEquals( 200, $response->get_status() );
-		$response_data = $response->get_data();
-		$this->assertArrayHasKey( 'url', $response_data );
-		$this->assertArrayHasKey( 'abspath', $response_data );
-		$this->assertArrayHasKey( 'path', $response_data );
-
-		// Cleanup.
-		wp_delete_file( $response_data['path'] );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertTrue( false !== strpos( $response->get_data()['message'], 'Bad helper script header' ) );
 	}
 
 	/**
@@ -177,6 +229,27 @@ class Test_REST_Controller extends TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 
 		$this->assertTrue( $response->get_data()['success'] );
+	}
+
+	/**
+	 * Testing the `DELETE /jetpack/v4/backup-helper-script` endpoint on success.
+	 */
+	public function test_delete_backup_helper_script_bad_header() {
+		$path = tempnam( sys_get_temp_dir(), 'helper-script' );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $path, str_repeat( 'a', 1024 ) );
+
+		$body = array( 'path' => $path );
+
+		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $body ) );
+
+		$response = $this->dispatch_request_signed_with_blog_token( $request );
+		$this->assertEquals( 500, $response->get_status() );
+		$this->assertTrue( false !== strpos( $response->get_data()['message'], 'Bad helper script header' ) );
+
+		wp_delete_file( $path );
 	}
 
 	/**
@@ -392,6 +465,7 @@ class Test_REST_Controller extends TestCase {
 	 * request, this would all happen earlier).
 	 *
 	 * @param WP_REST_Request $request The request to sign before dispatching.
+	 *
 	 * @return WP_REST_Response
 	 */
 	private function dispatch_request_signed_with_blog_token( $request ) {
@@ -463,5 +537,4 @@ class Test_REST_Controller extends TestCase {
 
 		return $value;
 	}
-
 }

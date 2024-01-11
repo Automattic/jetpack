@@ -30,5 +30,4 @@ class Jetpack_Connection_Status {
 
 		return $status;
 	}
-
 }

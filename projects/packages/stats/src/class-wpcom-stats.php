@@ -80,10 +80,16 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/top-posts/
 	 * @param array $args Optional query parameters.
+	 * @param bool  $override_cache Optional override cache.
 	 * @return array|WP_Error
 	 */
-	public function get_top_posts( $args = array() ) {
+	public function get_top_posts( $args = array(), $override_cache = false ) {
 		$this->resource = 'top-posts';
+
+		// Needed for the Top Posts block, so users can preview changes instantly.
+		if ( $override_cache ) {
+			return $this->fetch_remote_stats( $this->build_endpoint(), $args );
+		}
 
 		return $this->fetch_stats( $args );
 	}
@@ -405,7 +411,7 @@ class WPCOM_Stats {
 		if ( is_array( $args ) && ! empty( $args ) ) {
 			$endpoint .= '?' . http_build_query( $args );
 		}
-		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION );
+		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION, array( 'timeout' => 20 ) );
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 

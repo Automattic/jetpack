@@ -1,5 +1,5 @@
 {
-	extends: [ 'config:base', 'group:definitelyTyped' ],
+	extends: [ 'config:recommended', 'group:definitelyTyped' ],
 	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
 	prHourlyLimit: 1,
 	timezone: 'UTC',
@@ -26,16 +26,12 @@
 		// Monorepo packages are excluded in renovate-config.js, where we can read
 		// the list of them in code.
 
-		// We need to keep a wide version range to support PHP 5.6.
-		// Note for libraries used in plugins this will only work right for require-dev deps, not require.
+		// Widen PHP dev deps to maintain support for old PHP versions we still support.
+		// When we drop an old PHP version we'll manually go through and narrow any ranges.
+		// (non-dev deps are handled in renovate-config.js where we can read the correct value for `constraints.php`)
 		{
-			matchPackageNames: [
-				'johnkary/phpunit-speedtrap',
-				'symfony/console',
-				'symfony/process',
-				'wikimedia/at-ease',
-				'wikimedia/testing-access-wrapper',
-			],
+			matchDatasources: [ 'packagist' ],
+			matchDepTypes: [ 'require-dev' ],
 			rangeStrategy: 'widen',
 		},
 
@@ -65,6 +61,16 @@
 			groupName: 'GitHub API packages',
 			matchPackagePatterns: [ '^@actions/', '^@octokit/' ],
 		},
+		{
+			groupName: 'Codeception packages',
+			matchDatasources: [ 'packagist' ],
+			matchPackagePrefixes: [ 'codeception/' ],
+		},
+		{
+			groupName: 'Docker actions',
+			matchDepTypes: [ 'action' ],
+			matchPackagePrefixes: [ 'docker/' ],
+		},
 
 		// 🤷
 		{
@@ -84,10 +90,11 @@
 		},
 	],
 
-	regexManagers: [
+	customManagers: [
 		// Update the renovate-version in the action itself.
 		// See also https://github.com/renovatebot/github-action/issues/756
 		{
+			customType: 'regex',
 			fileMatch: [ '^\\.github/workflows/renovate\\.yml$' ],
 			matchStrings: [ 'renovate-version: (?<currentValue>[^\\s]+)' ],
 			datasourceTemplate: 'docker',
@@ -100,7 +107,6 @@
 		enabled: true,
 		schedule: [ 'before 3:00 am on Monday on the 7th through 13th day of the month' ],
 	},
-	dependencyDashboard: true,
 	dependencyDashboardTitle: 'Renovate Dependency Updates',
 	dependencyDashboardLabels: [ 'Primary Issue', '[Type] Janitorial' ],
 	dependencyDashboardFooter: 'The bot runs every two hours, and may be monitored or triggered ahead of schedule [here](https://github.com/Automattic/jetpack/actions/workflows/renovate.yml).',

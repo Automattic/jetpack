@@ -629,5 +629,4 @@ class SquashCommandTest extends CommandTestCase {
 		$code   = $tester->execute( array() );
 		$this->assertSame( SquashCommand::FATAL_EXIT, $code );
 	}
-
 }

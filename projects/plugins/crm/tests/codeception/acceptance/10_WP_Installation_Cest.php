@@ -44,5 +44,4 @@ class WP_Installation_Cest {
 	public function wp_login_as_admin( AcceptanceTester $I ) {
 		$I->loginAsAdmin();
 	}
-
 }

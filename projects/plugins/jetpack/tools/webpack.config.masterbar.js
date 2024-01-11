@@ -14,7 +14,7 @@ for ( const file of glob
 
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: false,
+	devtool: jetpackWebpackConfig.devtool,
 	entry: masterbarCssEntries,
 	output: {
 		...jetpackWebpackConfig.output,
@@ -33,7 +33,7 @@ module.exports = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { plugins: { autoprefixer: {} } },
+							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
 						},
 					},
 					'sass-loader',

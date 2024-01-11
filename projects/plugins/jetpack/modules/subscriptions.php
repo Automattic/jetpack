@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName)
 /**
- * Module Name: Subscriptions
+ * Module Name: Newsletter
  * Module Description: Let visitors subscribe to new posts and comments via email
  * Sort Order: 9
  * Recommendation Order: 8
@@ -10,14 +10,21 @@
  * Auto Activate: No
  * Module Tags: Social
  * Feature: Engagement
- * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup
+ * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter, creator
  */
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
+
+// Loads the User Content Link Redirection feature.
+require_once __DIR__ . '/subscriptions/jetpack-user-content-link-redirection.php';
 
 /**
  * Loads the Subscriptions module.
@@ -37,11 +44,11 @@ function jetpack_subscriptions_cherry_pick_server_data() {
 	$data = array();
 
 	foreach ( $_SERVER as $key => $value ) {
-		if ( ! is_string( $value ) || 0 === strpos( $key, 'HTTP_COOKIE' ) ) {
+		if ( ! is_string( $value ) || str_starts_with( $key, 'HTTP_COOKIE' ) ) {
 			continue;
 		}
 
-		if ( 0 === strpos( $key, 'HTTP_' ) || in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ), true ) ) {
+		if ( str_starts_with( $key, 'HTTP_' ) || in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ), true ) ) {
 			$data[ $key ] = $value;
 		}
 	}
@@ -125,6 +132,9 @@ class Jetpack_Subscriptions {
 		// Hide subscription messaging in Publish panel for posts that were published in the past
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
 		add_action( 'transition_post_status', array( $this, 'maybe_set_first_published_status' ), 10, 3 );
+
+		// Add Subscribers menu to Jetpack navigation.
+		add_action( 'jetpack_admin_menu', array( $this, 'add_subscribers_menu' ) );
 	}
 
 	/**
@@ -348,6 +358,21 @@ class Jetpack_Subscriptions {
 			'stc_enabled'
 		);
 
+		/** Enable Subscribe Modal */
+
+		add_settings_field(
+			'jetpack_subscriptions_comment_subscribe',
+			__( 'Enable Subscribe Modal', 'jetpack' ),
+			array( $this, 'subscribe_modal_setting' ),
+			'discussion',
+			'jetpack_subscriptions'
+		);
+
+		register_setting(
+			'discussion',
+			'sm_enabled'
+		);
+
 		/** Email me whenever: Someone follows my blog */
 		/* @since 8.1 */
 
@@ -399,6 +424,14 @@ class Jetpack_Subscriptions {
 			'comment-follow',
 			__( 'Comment follow email text', 'jetpack' ),
 			array( $this, 'setting_comment_follow' ),
+			'reading',
+			'email_settings'
+		);
+
+		add_settings_field(
+			'welcome',
+			__( 'Welcome email text', 'jetpack' ),
+			array( $this, 'setting_welcome' ),
 			'reading',
 			'email_settings'
 		);
@@ -456,6 +489,22 @@ class Jetpack_Subscriptions {
 				array( 'em' => array() )
 			);
 			?>
+		</p>
+
+		<?php
+	}
+
+	/**
+	 * Subscribe Modal Toggle.
+	 */
+	public function subscribe_modal_setting() {
+
+		$sm_enabled = get_option( 'sm_enabled', 1 );
+		?>
+
+		<p class="description">
+			<input type="checkbox" name="sm_enabled" id="jetpack-subscribe-modal" value="1" <?php checked( $sm_enabled, 1 ); ?> />
+			<?php esc_html_e( 'Show a popup subscribe modal to readers.', 'jetpack' ); ?>
 		</p>
 
 		<?php
@@ -577,6 +626,15 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
+	 * HTML output helper for Welcome section.
+	 */
+	public function setting_welcome() {
+		$settings = $this->get_settings();
+		echo '<textarea name="subscription_options[welcome]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['welcome'] ) . '</textarea>';
+		echo '<p><span class="description">' . esc_html__( 'Welcome text sent when someone follows your blog.', 'jetpack' ) . '</span></p>';
+	}
+
+	/**
 	 * Get default settings for the Subscriptions module.
 	 */
 	public function get_default_settings() {
@@ -587,6 +645,8 @@ class Jetpack_Subscriptions {
 			/* translators: Both %1$s and %2$s is site address */
 			'invitation'     => sprintf( __( "Howdy,\nYou recently subscribed to <a href='%1\$s'>%2\$s</a> and we need to verify the email you provided. Once you confirm below, you'll be able to receive and read new posts.\n\nIf you believe this is an error, ignore this message and nothing more will happen.", 'jetpack' ), $site_url, $display_url ),
 			'comment_follow' => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
+			/* translators: %1$s is the site address */
+			'welcome'        => sprintf( __( 'Cool, you are now subscribed to %1$s and will receive an email notification when a new post is published.', 'jetpack' ), $display_url ),
 		);
 	}
 
@@ -699,8 +759,8 @@ class Jetpack_Subscriptions {
 	 */
 	public function widget_submit() {
 		// Check the nonce.
-		if ( is_user_logged_in() ) {
-			check_admin_referer( 'blogsub_subscribe_' . get_current_blog_id() );
+		if ( ! wp_verify_nonce( isset( $_REQUEST['_wpnonce'] ) ? sanitize_key( $_REQUEST['_wpnonce'] ) : '', 'blogsub_subscribe_' . \Jetpack_Options::get_option( 'id' ) ) ) {
+			return false;
 		}
 
 		if ( empty( $_REQUEST['email'] ) || ! is_string( $_REQUEST['email'] ) ) {
@@ -1031,8 +1091,53 @@ class Jetpack_Subscriptions {
 		register_meta( 'post', '_jetpack_post_was_ever_published', $jetpack_post_was_ever_published );
 	}
 
+	/**
+	 * Create a Subscribers menu displayed on self-hosted sites.
+	 *
+	 * - It is not displayed on WordPress.com sites.
+	 * - It directs you to Calypso to the existing Subscribers page.
+	 *
+	 * @return void
+	 */
+	public function add_subscribers_menu() {
+		/*
+		 * Do not display any menu on WoA and WordPress.com Simple sites.
+		 * They already get a menu item under Users via nav-unification.
+		 */
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			return;
+		}
+
+		$status = new Status();
+
+		/*
+		 * Do not display if we're in Offline mode,
+		 * or if the user is not connected.
+		 */
+		if (
+			$status->is_offline_mode()
+			|| ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected()
+		) {
+			return;
+		}
+
+		$link = Redirect::get_url(
+			'jetpack-menu-calypso-subscribers',
+			array( 'site' => $status->get_site_suffix() )
+		);
+
+		add_submenu_page(
+			'jetpack',
+			esc_attr__( 'Subscribers', 'jetpack' ),
+			__( 'Subscribers', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+			'manage_options',
+			esc_url( $link ),
+			null
+		);
+	}
 }
 
 Jetpack_Subscriptions::init();
 
 require __DIR__ . '/subscriptions/views.php';
+require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';

@@ -26,5 +26,4 @@ class Payments_Endpoint extends Client_Portal_Endpoint {
 		// And adding the new name as post-action (this one should be used with new payments.
 		do_action('jpcrm_portal_payment');
 	}
-
 }

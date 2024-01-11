@@ -13,7 +13,8 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\JITMS\JITM as JITM;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
+use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
@@ -151,8 +152,7 @@ class Jetpack_Protect {
 			$menu_label,
 			'manage_options',
 			'jetpack-protect',
-			array( $this, 'plugin_settings_page' ),
-			99
+			array( $this, 'plugin_settings_page' )
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'enqueue_admin_scripts' ) );
@@ -183,7 +183,7 @@ class Jetpack_Protect {
 		// Required for Analytics.
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-protect', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'jetpack-protect' );
 		wp_add_inline_script( 'jetpack-protect', $this->render_initial_state(), 'before' );
 	}
 
@@ -218,7 +218,8 @@ class Jetpack_Protect {
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
 			'waf'               => array(
-				'isSupported'         => Waf_Runner::is_supported_environment(),
+				'wafSupported'        => Waf_Runner::is_supported_environment(),
+				'currentIp'           => IP_Utils::get_ip(),
 				'isSeen'              => self::get_waf_seen_status(),
 				'upgradeIsSeen'       => self::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => self::get_waf_upgrade_badge_display_status(),
@@ -448,9 +449,7 @@ class Jetpack_Protect {
 		return array(
 			'ipAllowListCount'          => Waf_Stats::get_ip_allow_list_count(),
 			'ipBlockListCount'          => Waf_Stats::get_ip_block_list_count(),
-			'rulesVersion'              => Waf_Stats::get_rules_version(),
 			'automaticRulesLastUpdated' => Waf_Stats::get_automatic_rules_last_updated(),
 		);
 	}
-
 }

@@ -2,7 +2,16 @@ import apiFetch from '@wordpress/api-fetch';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../../shared/components/product-management-controls/constants';
 import * as message from '../../../shared/components/product-management-controls/utils';
 import * as currencies from '../../../shared/currencies';
-import { saveProduct, setApiState, setConnectUrl, setProducts, setSiteSlug } from '../actions';
+import {
+	saveProduct,
+	setApiState,
+	setConnectUrl,
+	setProducts,
+	setSiteSlug,
+	setConnectedAccountDefaultCurrency,
+	setNewsletterCategories,
+	setNewsletterCategoriesSubscriptionsCount,
+} from '../actions';
 import * as utils from '../utils';
 
 const ANY_VALID_DATA = {
@@ -50,6 +59,20 @@ describe( 'Membership Products Actions', () => {
 		expect( result ).toStrictEqual( anyValidConnectUrlWithType );
 	} );
 
+	test( 'Set ConnectedAccountDefaultCurrency works as expected', () => {
+		// Given
+		const anyValidConnectedAccountDefaultCurrencyWithType = {
+			type: 'SET_CONNECTED_ACCOUNT_DEFAULT_CURRENCY',
+			connectedAccountDefaultCurrency: ANY_VALID_DATA,
+		};
+
+		// When
+		const result = setConnectedAccountDefaultCurrency( ANY_VALID_DATA );
+
+		// Then
+		expect( result ).toStrictEqual( anyValidConnectedAccountDefaultCurrencyWithType );
+	} );
+
 	test( 'Set apiState works as expected', () => {
 		// Given
 		const anyValidApiStateWithType = {
@@ -91,7 +114,7 @@ describe( 'Membership Products Actions', () => {
 
 	test.each( productsForTitleTesting )( '$name', async testCase => {
 		// Given
-		const selectedProductIdCallback = anyFunction;
+		const selectedProductIdsCallback = anyFunction;
 		const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
 		const noticeMock = jest.spyOn( utils, 'onError' ).mockImplementation( anyFunction );
 		const getMessageMock = jest
@@ -102,7 +125,7 @@ describe( 'Membership Products Actions', () => {
 		await saveProduct(
 			testCase.product,
 			paymentPlanProductType,
-			selectedProductIdCallback
+			selectedProductIdsCallback
 		)( anyFunction, anyFunction );
 
 		// Then
@@ -200,7 +223,7 @@ describe( 'Membership Products Actions', () => {
 			products: registryProductList.concat( [ apiResponseProduct ] ),
 			type: 'SET_PRODUCTS',
 		} );
-		expect( selectedProductCallback ).toHaveBeenCalledWith( apiResponseProduct.id );
+		expect( selectedProductCallback ).toHaveBeenCalledWith( [ apiResponseProduct.id ] );
 		expect( noticeMock ).toHaveBeenCalled();
 		expect( getMessageMock ).toHaveBeenCalledWith(
 			'successfully created product',
@@ -275,8 +298,36 @@ describe( 'Membership Products Actions', () => {
 			products: registryProductList.concat( [ apiResponseProduct ] ),
 			type: 'SET_PRODUCTS',
 		} );
-		expect( selectedProductCallback ).toHaveBeenCalledWith( apiResponseProduct.id );
+		expect( selectedProductCallback ).toHaveBeenCalledWith( [ apiResponseProduct.id ] );
 		expect( noticeMock ).not.toHaveBeenCalled();
 		expect( getMessageMock ).not.toHaveBeenCalled();
+	} );
+
+	test( 'Set newsletter categories works as expected', () => {
+		// Given
+		const anyValidNewsletterCategoriesWithType = {
+			type: 'SET_NEWSLETTER_CATEGORIES',
+			newsletterCategories: ANY_VALID_DATA,
+		};
+
+		// When
+		const result = setNewsletterCategories( ANY_VALID_DATA );
+
+		// Then
+		expect( result ).toStrictEqual( anyValidNewsletterCategoriesWithType );
+	} );
+
+	test( 'Set newsletter categories subscriptions count works as expected', () => {
+		// Given
+		const anyValidNewsletterCategoriesSubscriptionsCountWithType = {
+			type: 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT',
+			newsletterCategoriesSubscriptionsCount: ANY_VALID_DATA,
+		};
+
+		// When
+		const result = setNewsletterCategoriesSubscriptionsCount( ANY_VALID_DATA );
+
+		// Then
+		expect( result ).toStrictEqual( anyValidNewsletterCategoriesSubscriptionsCountWithType );
 	} );
 } );

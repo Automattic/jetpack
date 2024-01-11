@@ -4,9 +4,18 @@ import { ResponsiveWrapper, Spinner, VisuallyHidden } from '@wordpress/component
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
+import classNames from 'classnames';
 import { isVideo } from '../../hooks/use-media-restrictions';
+import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
 import VideoPreview from '../video-preview';
 import styles from './styles.module.scss';
+
+// This is to cope with the problem describeed here:
+// https://github.com/WordPress/gutenberg/blob/ebad47952fc94ce4324e989691dde2d3d7689f45/packages/block-editor/src/components/inserter/media-tab/media-tab.js#L122
+const clickHandler = open => e => {
+	e.currentTarget.focus();
+	open();
+};
 
 /**
  * Wrapper that handles media-related functionality.
@@ -17,7 +26,8 @@ import styles from './styles.module.scss';
  * @param {number} props.mediaId - The ID of the currently selected media
  * @param {object} props.mediaDetails - The details of the media for preview
  * @param {Function} props.onChange - A callback that can be passed to parent for validation
- * @param {Array} props.allowedMediaTypes - Array that contains the allowed MIME types.
+ * @param {string} props.wrapperClassName - A class name to be added to the wrapper
+ * @param {object} props.allowedMediaTypes - Custom allowed media types
  * @returns {object} The media section.
  */
 export default function MediaPicker( {
@@ -26,10 +36,14 @@ export default function MediaPicker( {
 	mediaId = null,
 	mediaDetails = {},
 	onChange,
-	allowedMediaTypes,
+	wrapperClassName,
+	allowedMediaTypes = null,
 } ) {
-	const { mediaData: { width, height, sourceUrl } = {}, metaData: { mime, length = null } = {} } =
-		mediaDetails;
+	const {
+		mediaData: { width, height, sourceUrl } = {},
+		metaData: { mime, length = null } = {},
+		previewData: { width: previewWidth, height: previewHeight, sourceUrl: previewUrl } = {},
+	} = mediaDetails;
 
 	const isImageLoading = ! sourceUrl || ! width || ! height || ! mime;
 
@@ -49,12 +63,16 @@ export default function MediaPicker( {
 			}
 
 			return (
-				<div className={ styles[ 'preview-wrapper' ] }>
+				<div className={ classNames( styles[ 'preview-wrapper' ], wrapperClassName ) }>
 					<button className={ styles.remove } onClick={ onRemoveMedia }>
 						<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
 						<Icon icon={ closeSmall } />
 					</button>
-					<button className={ styles.preview } onClick={ open }>
+					<button
+						className={ styles.preview }
+						onClick={ clickHandler( open ) }
+						data-unstable-ignore-focus-outside-for-relatedtarget=".media-modal"
+					>
 						{ renderVideoPreview ? (
 							<VideoPreview
 								sourceUrl={ sourceUrl }
@@ -62,15 +80,34 @@ export default function MediaPicker( {
 								duration={ length }
 							></VideoPreview>
 						) : (
-							<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
-								<img src={ sourceUrl } alt="" className={ styles[ 'preview-image' ] } />
+							<ResponsiveWrapper
+								naturalWidth={ previewWidth || width }
+								naturalHeight={ previewHeight || height }
+								isInline
+							>
+								<img
+									src={ previewUrl || sourceUrl }
+									alt=""
+									className={ styles[ 'preview-image' ] }
+								/>
 							</ResponsiveWrapper>
 						) }
 					</button>
 				</div>
 			);
 		},
-		[ height, length, mime, onRemoveMedia, sourceUrl, width ]
+		[
+			height,
+			length,
+			mime,
+			onRemoveMedia,
+			previewHeight,
+			previewUrl,
+			previewWidth,
+			sourceUrl,
+			width,
+			wrapperClassName,
+		]
 	);
 
 	const renderPicker = useCallback(
@@ -78,7 +115,13 @@ export default function MediaPicker( {
 			<div className={ styles.container }>
 				{ ! mediaId ? (
 					<>
-						<Button variant="secondary" size="small" className={ styles.preview } onClick={ open }>
+						<Button
+							variant="secondary"
+							size="small"
+							className={ styles.preview }
+							onClick={ clickHandler( open ) }
+							data-unstable-ignore-focus-outside-for-relatedtarget=".media-modal"
+						>
 							{ buttonLabel }
 						</Button>
 						{ subTitle && <span>{ subTitle }</span> }
@@ -106,9 +149,9 @@ export default function MediaPicker( {
 		<ThemeProvider>
 			<MediaUploadCheck>
 				<MediaUpload
+					allowedTypes={ allowedMediaTypes ?? SELECTABLE_MEDIA_TYPES }
 					title={ buttonLabel }
 					onSelect={ onUpdateMedia }
-					allowedTypes={ allowedMediaTypes }
 					render={ setMediaRender }
 					value={ mediaId }
 				/>

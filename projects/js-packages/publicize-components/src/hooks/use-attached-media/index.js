@@ -1,8 +1,4 @@
-import { useSelect, useDispatch } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
-import { useCallback } from '@wordpress/element';
-
-const PUBLICIZE_STORE = 'jetpack/publicize';
+import { usePostMeta } from '../use-post-meta';
 
 /**
  * @typedef {object} AttachedMediaHook
@@ -18,24 +14,7 @@ const PUBLICIZE_STORE = 'jetpack/publicize';
  * @returns {AttachedMediaHook} - An object with the attached media hook properties set.
  */
 export default function useAttachedMedia() {
-	const { editPost } = useDispatch( editorStore );
-
-	const { shouldUploadAttachedMedia, attachedMedia, currentOptions } = useSelect( select => ( {
-		shouldUploadAttachedMedia: select( PUBLICIZE_STORE ).shouldUploadAttachedMedia(),
-		attachedMedia: select( PUBLICIZE_STORE ).getAttachedMedia(),
-		currentOptions: select( PUBLICIZE_STORE ).getJetpackSocialOptions(),
-	} ) );
-
-	const updateJetpackSocialOptions = useCallback(
-		( key, value ) => {
-			editPost( {
-				meta: {
-					jetpack_social_options: { ...currentOptions, [ key ]: value },
-				},
-			} );
-		},
-		[ currentOptions, editPost ]
-	);
+	const { attachedMedia, shouldUploadAttachedMedia, updateJetpackSocialOptions } = usePostMeta();
 
 	return {
 		attachedMedia,

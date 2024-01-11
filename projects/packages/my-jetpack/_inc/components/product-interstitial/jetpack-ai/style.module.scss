@@ -1,0 +1,13 @@
+@import '../style.module.scss';
+
+.card {
+	background-color: var( --jp-white );
+	height: 100%;
+	padding: calc( var( --spacing-base ) * 8 );
+	position: relative;
+}
+
+.buttons-row {
+	display: flex;
+	gap: calc( var( --spacing-base ) * 2 );
+}

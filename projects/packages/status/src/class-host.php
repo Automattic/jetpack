@@ -93,4 +93,45 @@ class Host {
 		$domains[] = 'calypso.localhost';
 		return $domains;
 	}
+
+	/**
+	 * Return Calypso environment value; used for developing Jetpack and pairing
+	 * it with different Calypso environments, such as localhost.
+	 *
+	 * @since 1.18.0
+	 *
+	 * @return string Calypso environment
+	 */
+	public function get_calypso_env() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Nonce is not required; only used for changing environments.
+		if ( isset( $_GET['calypso_env'] ) ) {
+			return sanitize_key( $_GET['calypso_env'] );
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		if ( getenv( 'CALYPSO_ENV' ) ) {
+			return sanitize_key( getenv( 'CALYPSO_ENV' ) );
+		}
+
+		if ( defined( 'CALYPSO_ENV' ) && CALYPSO_ENV ) {
+			return sanitize_key( CALYPSO_ENV );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Return source query param value from the URL if exists in the allowed sources list.
+	 *
+	 * @return string "source" query param value
+	 */
+	public function get_source_query() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$allowed_sources = array( 'jetpack-manage' );
+		if ( isset( $_GET['source'] ) && in_array( $_GET['source'], $allowed_sources, true ) ) {
+			return sanitize_key( $_GET['source'] );
+		}
+
+		return '';
+	}
 }

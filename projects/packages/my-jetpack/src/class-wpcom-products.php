@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Connection\Client as Client;
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
@@ -29,6 +29,8 @@ class Wpcom_Products {
 	 * @var string
 	 */
 	const CACHE_META_NAME = 'my-jetpack-cache';
+
+	const MY_JETPACK_PURCHASES_TRANSIENT_KEY = 'my-jetpack-purchases';
 
 	/**
 	 * Fetches the list of products from WPCOM
@@ -149,11 +151,12 @@ class Wpcom_Products {
 	 * Get one product
 	 *
 	 * @param string $product_slug The product slug.
+	 * @param bool   $renew_cache A flag to force the cache to be renewed.
 	 *
 	 * @return ?Object The product details if found
 	 */
-	public static function get_product( $product_slug ) {
-		$products = self::get_products();
+	public static function get_product( $product_slug, $renew_cache = false ) {
+		$products = self::get_products( $renew_cache );
 		if ( ! empty( $products->$product_slug ) ) {
 			return $products->$product_slug;
 		}
@@ -232,8 +235,6 @@ class Wpcom_Products {
 	/**
 	 * Gets the site purchases from WPCOM.
 	 *
-	 * @todo Maybe add caching.
-	 *
 	 * @return Object|WP_Error
 	 */
 	public static function get_site_current_purchases() {
@@ -241,6 +242,12 @@ class Wpcom_Products {
 
 		if ( $purchases !== null ) {
 			return $purchases;
+		}
+
+		// Check for a cached value before doing lookup
+		$stored_purchases = get_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+		if ( $stored_purchases !== false ) {
+			return $stored_purchases;
 		}
 
 		$site_id = Jetpack_Options::get_option( 'id' );
@@ -258,6 +265,9 @@ class Wpcom_Products {
 
 		$body      = wp_remote_retrieve_body( $response );
 		$purchases = json_decode( $body );
+		// Set short transient to help with repeated lookups on the same page load
+		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, 5 );
+
 		return $purchases;
 	}
 }

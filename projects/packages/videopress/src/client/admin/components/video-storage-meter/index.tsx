@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Text } from '@automattic/jetpack-components';
+import { ProgressBar, Text } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import filesize from 'filesize';
@@ -11,7 +11,6 @@ import filesize from 'filesize';
 import { usePlan } from '../../hooks/use-plan';
 import { useVideoPressSettings } from '../../hooks/use-videopress-settings';
 import useVideos from '../../hooks/use-videos';
-import ProgressBar from '../progress-bar';
 import { SITE_TYPE_ATOMIC } from '../site-settings-section/constants';
 import styles from './style.module.scss';
 /**

@@ -1,4 +1,5 @@
 # Files to exclude from the mirror repo
+.eslintignore     production-exclude
 .gitattributes    production-exclude
 /changelog/**     production-exclude
 /tests/**         production-exclude

@@ -40,5 +40,4 @@ class Super_Cache_Info {
 
 		return $constants;
 	}
-
 }

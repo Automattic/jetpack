@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
+use Automattic\Jetpack\WP_JS_Data_Sync\Endpoints\Action_Endpoint;
 use Automattic\Jetpack\WP_JS_Data_Sync\Endpoints\Endpoint;
 
 class Registry {
@@ -28,6 +29,8 @@ class Registry {
 	 * @var Data_Sync_Entry_Adapter[]
 	 */
 	private $entries = array();
+
+	private $action_endpoints = array();
 
 	/**
 	 * Store references for every Endpoint instance.
@@ -99,6 +102,59 @@ class Registry {
 	}
 
 	/**
+	 * Register an action endpoint.
+	 *
+	 * @param string $key          The base key for the endpoint.
+	 * @param string $action_name  The name of the action.
+	 * @param mixed  $action_class The class handling the action logic.
+	 */
+	public function register_action( $key, $action_name, $action_class ) {
+		// Create and store the action endpoint instance
+		$action_endpoint = new Action_Endpoint(
+			$this->get_namespace_http(),
+			$this->sanitize_url_key( $key ),
+			$this->sanitize_url_key( $action_name ),
+			$action_class
+		);
+
+		// Store the action endpoint instance for nonce retrieval
+		$this->action_endpoints[ $key ][ $action_name ] = $action_endpoint;
+
+		// Register the REST route for the action endpoint
+		add_action( 'rest_api_init', array( $action_endpoint, 'register_rest_routes' ) );
+	}
+
+	/**
+	 * Retrieve all action names for a given entry.
+	 *
+	 * @param string $entry_key The key for the entry.
+	 *
+	 * @return array An array of action names.
+	 */
+	public function get_action_names_for_entry( $entry_key ) {
+		if ( isset( $this->action_endpoints[ $entry_key ] ) ) {
+			return array_keys( $this->action_endpoints[ $entry_key ] );
+
+		}
+		return array();
+	}
+
+	/**
+	 * Get the nonce for a specific action endpoint.
+	 *
+	 * @param string $key         The base key for the endpoint.
+	 * @param string $action_name The name of the action.
+	 *
+	 * @return false|string The nonce or false if not found.
+	 */
+	public function get_action_nonce( $key, $action_name ) {
+		if ( isset( $this->action_endpoints[ $key ][ $action_name ] ) ) {
+			return $this->action_endpoints[ $key ][ $action_name ]->create_nonce();
+		}
+		return false;
+	}
+
+	/**
 	 * Get all registered entries.
 	 *
 	 * @return Entry_Can_Get[]
@@ -152,5 +208,4 @@ class Registry {
 	public function get_namespace_http() {
 		return $this->sanitize_url_key( $this->namespace );
 	}
-
 }

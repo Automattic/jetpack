@@ -94,6 +94,11 @@
     margin-bottom: calc( var( --spacing-base ) * 4 ); // 32px
 }
 
+.brute-force-rules-section {
+    margin-top: calc( var( --spacing-base ) * 6 ); // 32px
+    margin-bottom: calc( var( --spacing-base ) * 2 ); // 32px
+}
+
 .go-back-button {
     margin: calc( var( --spacing-base ) * -1 ) calc( var( --spacing-base ) * -2 ); // -8px | -16px
 }
@@ -132,4 +137,31 @@
         display: flex;
         justify-content: flex-end;
     }
+}
+
+.status {
+    color: var( --jp-gray-50 );
+
+    &:before {
+        content: "";
+        display: inline-block;
+        border-radius: 50%;
+        height: 8px;
+        width: 8px;
+        margin-right: var(--spacing-base); // 8px
+        background: var( --jp-gray-50 );
+    }
+
+    &.active {
+        color: var( --jp-green-40 );
+
+        &:before {
+            background: var( --jp-green-40 );
+        }
+    }
+}
+
+.current-ip-text {
+    margin-top: calc( var( --spacing-base ) * 2 );
+    margin-bottom: calc( var( --spacing-base ) * 3);
 }

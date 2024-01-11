@@ -1,28 +1,35 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { addFilter, removeFilter } from '@wordpress/hooks';
 import ButtonControls from '../controls';
 
-// Mock `useSetting` from `@wordpress/block-editor` to override a setting.
-// This approach was recommended at p1667855007139489-slack-C45SNKV4Z
-jest.mock( '@wordpress/block-editor/build/components/use-setting', () => {
-	const { default: useSetting } = jest.requireActual(
-		'@wordpress/block-editor/build/components/use-setting'
-	);
-	const settings = {
-		'color.defaultGradients': true,
-		'color.defaultPalette': true,
-	};
-	const aliases = {
-		'color.palette.default': 'color.palette',
-		'color.gradients.default': 'color.gradients',
-	};
-	return path => {
-		let ret = settings.hasOwnProperty( path ) ? settings[ path ] : useSetting( path );
-		if ( ret === undefined && aliases.hasOwnProperty( path ) ) {
-			ret = useSetting( aliases[ path ] );
+// These settings need to be set. Easiest way to do that seems to be to use a hook.
+const overrideSettings = {
+	'color.defaultGradients': true,
+	'color.defaultPalette': true,
+	'color.palette.default': [ { name: 'Black', slug: 'black', color: '#000000' } ],
+	'color.gradients.default': [
+		{
+			name: 'Monochrome',
+			gradient: 'linear-gradient(135deg,rgb(0,0,0) 0%,rgb(255,255,255) 100%)',
+			slug: 'monochrome',
+		},
+	],
+};
+beforeAll( () => {
+	addFilter(
+		'blockEditor.useSetting.before',
+		'extensions/blocks/button/test/controls',
+		( value, path ) => {
+			if ( overrideSettings.hasOwnProperty( path ) ) {
+				return overrideSettings[ path ];
+			}
+			return value;
 		}
-		return ret;
-	};
+	);
+} );
+afterAll( () => {
+	removeFilter( 'blockEditor.useSetting.before', 'extensions/blocks/button/test/controls' );
 } );
 
 const defaultAttributes = {
@@ -83,12 +90,12 @@ describe( 'Inspector settings', () => {
 			const backgroundButton = screen.getByRole( 'button', { name: 'Background' } );
 			await user.click( backgroundButton );
 			// eslint-disable-next-line testing-library/no-node-access
-			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
+			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			expect(
-				within( backgroundSection ).queryByRole( 'tab', { name: 'Solid' } )
+				within( popoverContainer ).queryByRole( 'tab', { name: 'Solid' } )
 			).not.toBeInTheDocument();
 			expect(
-				within( backgroundSection ).queryByRole( 'tab', { name: 'Gradient' } )
+				within( popoverContainer ).queryByRole( 'tab', { name: 'Gradient' } )
 			).not.toBeInTheDocument();
 		} );
 
@@ -99,8 +106,10 @@ describe( 'Inspector settings', () => {
 			const textColorButton = screen.getByRole( 'button', { name: 'Text Color' } );
 			await user.click( textColorButton );
 			// eslint-disable-next-line testing-library/no-node-access
-			const textColors = textColorButton.closest( 'div.components-dropdown' );
-			await user.click( within( textColors ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ] );
+			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
+			await user.click(
+				within( popoverContainer ).getAllByRole( 'option', { name: /^Color: / } )[ 0 ]
+			);
 
 			expect( setTextColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
@@ -112,9 +121,9 @@ describe( 'Inspector settings', () => {
 			const backgroundButton = screen.getByRole( 'button', { name: 'Background' } );
 			await user.click( backgroundButton );
 			// eslint-disable-next-line testing-library/no-node-access
-			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
+			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			await user.click(
-				within( backgroundSection ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ]
+				within( popoverContainer ).getAllByRole( 'option', { name: /^Color: / } )[ 0 ]
 			);
 
 			expect( setBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
@@ -139,12 +148,12 @@ describe( 'Inspector settings', () => {
 			const backgroundButton = screen.getByRole( 'button', { name: 'Background' } );
 			await user.click( backgroundButton );
 			// eslint-disable-next-line testing-library/no-node-access
-			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
+			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			expect(
-				within( backgroundSection ).getByRole( 'tab', { name: 'Solid' } )
+				within( popoverContainer ).getByRole( 'tab', { name: 'Solid' } )
 			).toBeInTheDocument();
 			expect(
-				within( backgroundSection ).getByRole( 'tab', { name: 'Gradient' } )
+				within( popoverContainer ).getByRole( 'tab', { name: 'Gradient' } )
 			).toBeInTheDocument();
 		} );
 
@@ -155,8 +164,10 @@ describe( 'Inspector settings', () => {
 			const textColorButton = screen.getByRole( 'button', { name: 'Text Color' } );
 			await user.click( textColorButton );
 			// eslint-disable-next-line testing-library/no-node-access
-			const textColors = textColorButton.closest( 'div.components-dropdown' );
-			await user.click( within( textColors ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ] );
+			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
+			await user.click(
+				within( popoverContainer ).getAllByRole( 'option', { name: /^Color: / } )[ 0 ]
+			);
 
 			expect( setTextColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
@@ -168,10 +179,10 @@ describe( 'Inspector settings', () => {
 			const backgroundButton = screen.getByRole( 'button', { name: 'Background' } );
 			await user.click( backgroundButton );
 			// eslint-disable-next-line testing-library/no-node-access
-			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
-			await user.click( within( backgroundSection ).getByRole( 'tab', { name: 'Solid' } ) );
+			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
+			await user.click( within( popoverContainer ).getByRole( 'tab', { name: 'Solid' } ) );
 			await user.click(
-				within( backgroundSection ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ]
+				within( popoverContainer ).getAllByRole( 'option', { name: /^Color: / } )[ 0 ]
 			);
 
 			expect( setBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
@@ -184,10 +195,10 @@ describe( 'Inspector settings', () => {
 			const backgroundButton = screen.getByRole( 'button', { name: 'Background' } );
 			await user.click( backgroundButton );
 			// eslint-disable-next-line testing-library/no-node-access
-			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
-			await user.click( within( backgroundSection ).getByRole( 'tab', { name: 'Gradient' } ) );
+			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
+			await user.click( within( popoverContainer ).getByRole( 'tab', { name: 'Gradient' } ) );
 			await user.click(
-				within( backgroundSection ).getAllByRole( 'button', { name: /^Gradient: / } )[ 0 ]
+				within( popoverContainer ).getAllByRole( 'option', { name: /^Gradient: / } )[ 0 ]
 			);
 
 			expect( setGradient.mock.calls[ 0 ][ 0 ] ).toMatch( /linear-gradient\((.+)\)/ );

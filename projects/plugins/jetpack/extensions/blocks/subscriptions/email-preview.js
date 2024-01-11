@@ -1,4 +1,5 @@
 import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
@@ -10,7 +11,8 @@ import {
 	TextControl,
 	Icon,
 } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import './email-preview.scss';
@@ -22,10 +24,24 @@ export default function EmailPreview( { isModalOpen, closeModal } ) {
 	const [ emailSending, setEmailSending ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
+	const { __unstableSaveForPreview } = useDispatch( editorStore );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const { tracks } = useAnalytics();
 
-	const sendEmailPreview = () => {
+	const sendEmailPreview = async () => {
+		tracks.recordEvent( 'jetpack_send_email_preview', {
+			post_id: postId,
+		} );
+
 		setEmailSending( true );
+
+		// Save post revision so that we send what they see in the editor, and not what previous draft/revision might've saved
+		// Introduced at GB 16.3 at https://github.com/WordPress/gutenberg/pull/44971
+		// @todo Remove the `if` check once WP 6.4 is the minimum supported version
+		if ( typeof __unstableSaveForPreview === 'function' ) {
+			await __unstableSaveForPreview();
+		}
+
 		apiFetch( {
 			path: '/wpcom/v2/send-email-preview/',
 			method: 'POST',

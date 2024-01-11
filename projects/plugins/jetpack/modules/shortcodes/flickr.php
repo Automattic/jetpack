@@ -27,7 +27,7 @@ function flickr_embed_to_shortcode( $content ) {
 		return $content;
 	}
 
-	if ( false !== strpos( $content, '<div class="flickr_video"' ) && false !== strpos( $content, '<video' ) ) {
+	if ( str_contains( $content, '<div class="flickr_video"' ) && str_contains( $content, '<video' ) ) {
 		return jetpack_flickr_video_to_shortcode( $content );
 	} elseif ( preg_match( '/<iframe src="(https?:)?\/\/([\da-z\-]+\.)*?((static)?flickr\.com|flic\.kr)\/[^\"]+\"/', $content ) ) {
 		return jetpack_flickr_photo_to_shortcode( $content );
@@ -91,9 +91,9 @@ function jetpack_flickr_video_to_shortcode( $content ) {
 
 	$height = empty( $matches[4] ) ? '' : 'h=' . esc_attr( $matches[4] );
 
-	$controls = false !== strpos( $content, 'controls' ) ? 'yes' : 'no';
+	$controls = str_contains( $content, 'controls' ) ? 'yes' : 'no';
 
-	$autoplay = false !== strpos( $content, 'autoplay' ) ? 'yes' : 'no';
+	$autoplay = str_contains( $content, 'autoplay' ) ? 'yes' : 'no';
 
 	/** This action is documented in modules/shortcodes/youtube.php */
 	do_action( 'jetpack_embed_to_shortcode', 'flickr_video', $video_src );
@@ -216,6 +216,11 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 		$embed_url = $matches[1];
 
 		$embed_page = wp_remote_get( $embed_url );
+
+		// Bail if the request returns an error.
+		if ( ! is_array( $embed_page ) ) {
+			return '';
+		}
 
 		// Get the video url from embed html markup.
 

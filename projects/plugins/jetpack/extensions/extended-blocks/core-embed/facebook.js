@@ -1,12 +1,13 @@
 import { addFilter } from '@wordpress/hooks';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
+import { FacebookIcon } from '../../shared/icons';
 
 const facebookVariation = {
 	name: 'facebook',
 	title: 'Facebook',
 	icon: {
-		src: 'facebook',
+		src: FacebookIcon,
 		foreground: getIconColor(),
 	},
 	keywords: [ _x( 'social', 'block search term', 'jetpack' ) ],

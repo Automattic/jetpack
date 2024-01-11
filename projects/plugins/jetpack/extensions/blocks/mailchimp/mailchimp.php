@@ -14,9 +14,6 @@ use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Options;
 
-const FEATURE_NAME = 'mailchimp';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -28,19 +25,9 @@ function register_block() {
 		|| Jetpack::is_connection_ready()
 	) {
 		Blocks::jetpack_register_block(
-			BLOCK_NAME,
+			__DIR__,
 			array(
 				'render_callback' => __NAMESPACE__ . '\load_assets',
-				'supports'        => array(
-					'align'   => array( 'wide', 'full' ),
-					'color'   => array(
-						'gradients' => true,
-					),
-					'spacing' => array(
-						'padding' => true,
-						'margin'  => true,
-					),
-				),
 			)
 		);
 	}
@@ -65,7 +52,7 @@ function load_assets( $attr, $content ) {
 	$blog_id = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
 		? get_current_blog_id()
 		: Jetpack_Options::get_option( 'id' );
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 	$classes            = ! empty( $wrapper_attributes['class'] ) ? $wrapper_attributes['class'] : '';
 	$amp_form_action    = sprintf( 'https://public-api.wordpress.com/rest/v1.1/sites/%s/email_follow/amp/subscribe/', $blog_id );

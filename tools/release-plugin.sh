@@ -42,6 +42,13 @@ if ! version_compare "$GH_VER" "2.21.2"; then
 	die "Your version of the GH CLI is out of date. Please upgrade your version$WITH and start again"
 fi
 
+# Make sure we're signed into the GitHub CLI.
+if ! gh auth status --hostname github.com &> /dev/null; then
+	yellow "You are not signed into the GitHub CLI."
+	proceed_p "Sign in to the GitHub CLI?"
+	gh auth login
+fi
+
 # Get the options passed and parse them.
 while getopts "h" opt; do
 	case ${opt} in
@@ -193,9 +200,27 @@ done
 read -r -s -p $'Edit all the changelog entries you want (in a separate terminal or your text editor of choice (make sure to save)), then press enter when finished to continue the release process.'
 echo ""
 
+for PLUGIN in "${!PROJECTS[@]}"; do
+	# check if the plugin even has a readme.txt file.
+	if [[ ! -e "$BASE/projects/$PLUGIN/readme.txt" ]]; then
+		yellow "$PLUGIN has no readme.txt file, skipping."
+		continue
+	fi
+	yellow "Updating the readme.txt file for $PLUGIN."
+	ARGS=()
+	# Add alpha and beta flags.
+	VERSION="${PROJECTS[$PLUGIN]}"
+	case $VERSION in
+		*-a* ) ARGS+=('-a');;
+		*-beta ) ARGS+=('-b');;
+		* ) ARGS+=('-s');;
+	esac
+	pnpm jetpack release "$PLUGIN" readme "${ARGS[@]}"
+done
+
 yellow "Committing changes."
 git add --all
-git commit -am "Changelog edits."
+git commit -am "Changelog and readme.txt edits."
 
 # If we're releasing Jetpack and it's a beta, amend the readme.txt
 if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" == *-beta ]]; then
@@ -244,3 +269,37 @@ for PREFIX in "${PREFIXES[@]}"; do
 done
 
 yellow "Release branches created!"
+
+yellow "Creating a PR to merge the prerelease branch into trunk."
+git checkout prerelease
+
+# If we're releasing the Jetpack plugin, ask if we want to start a new cycle.
+if [[ -v PROJECTS["plugins/jetpack"] ]]; then
+  if proceed_p "Do you want to start a new cycle for Jetpack?"; then
+    pnpm jetpack release plugins/jetpack version -a
+    git add --all
+    git commit -am "Init new cycle"
+  fi
+fi
+
+# Handle any package changes merged into trunk while we were working.
+git fetch
+git merge origin/trunk
+tools/fixup-project-versions.sh
+git push
+PLUGINS_CHANGED=
+for PLUGIN in "${!PROJECTS[@]}"; do
+	PLUGINS_CHANGED+="$(basename "$PLUGIN") ${PROJECTS[$PLUGIN]}, "
+done
+# Remove the trailing comma and space
+PLUGINS_CHANGED=${PLUGINS_CHANGED%, }
+sed "s/%RELEASED_PLUGINS%/$PLUGINS_CHANGED/g" .github/files/BACKPORT_RELEASE_CHANGES.md > .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
+gh pr create --title "Backport $PLUGINS_CHANGED Changes" --body "$(cat .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
+rm .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
+
+yellow "Release script complete! Next steps: "
+echo -e "\t1. Merge the above PR into trunk."
+echo -e "\t2. If this is NOT the Jetpack core plugin, the release will shortly be tagged to GitHub and released to SVN."
+echo -e "\t3. You can then smoke test the release and use .tools/stable-tag.sh <plugin> to update the stable tag, and you're done!"
+echo -e "\t4. If you are releasing Jetpack-the-plugin, after the changes make it to the mirror repo, conduct a GitHub release."
+echo -e "\t5. Then run ./tools/deploy-to-svn.sh <plugin-name> <tag> to deploy to SVN, smoke test, and flip stable tag."

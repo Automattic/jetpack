@@ -15,7 +15,12 @@
 
 .jp-recommendations-question__progress-bar {
 	.progress-bar {
+		--spacing-base: 8px;
 		width: 70px;
+
+		.progress-bar__progress {
+			background-color: #00a32a;
+		}
 	}
 }
 

@@ -4,8 +4,9 @@ import {
 	getJetpackData,
 	getSiteFragment,
 } from '@automattic/jetpack-shared-extension-utils';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { usePostMeta } from '../use-post-meta';
 
 const republicizeFeatureName = 'republicize';
 
@@ -17,16 +18,12 @@ const republicizeFeatureName = 'republicize';
  * for toggling support for the current post.
  */
 export default function usePublicizeConfig() {
-	const { togglePublicizeFeature } = useDispatch( 'jetpack/publicize' );
 	const sharesData = getJetpackData()?.social?.sharesData ?? {};
 	const isShareLimitEnabled = sharesData.is_share_limit_enabled;
 	const isRePublicizeFeatureAvailable =
 		getJetpackExtensionAvailability( republicizeFeatureName )?.available || isShareLimitEnabled;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const isPostAlreadyShared = useSelect(
-		select => select( 'jetpack/publicize' ).getJetpackSocialPostAlreadyShared(),
-		[]
-	);
+
 	const connectionsRootUrl =
 		getJetpackData()?.social?.publicizeConnectionsUrl ??
 		'https://wordpress.com/marketing/connections/';
@@ -37,10 +34,11 @@ export default function usePublicizeConfig() {
 	 * and usually is handled from the UI (main toggle control),
 	 * dispathicng the togglePublicizeFeature() action (jetpack/publicize).
 	 */
-	const isPublicizeEnabledMeta = useSelect(
-		select => select( 'jetpack/publicize' ).getFeatureEnableState(),
-		[]
-	);
+	const {
+		isPublicizeEnabled: isPublicizeEnabledMeta,
+		togglePublicizeFeature,
+		isPostAlreadyShared,
+	} = usePostMeta();
 
 	/*
 	 * isRePublicizeUpgradableViaUpsell:
@@ -81,6 +79,25 @@ export default function usePublicizeConfig() {
 	 */
 	const hidePublicizeFeature = isPostPublished && ! isRePublicizeFeatureAvailable;
 
+	/**
+	 * hasPaidPlan:
+	 * Whether the site has a paid plan. This could be either the Basic or the Advanced plan.
+	 */
+	const hasPaidPlan = !! getJetpackData()?.social?.hasPaidPlan;
+
+	/**
+	 * isEnhancedPublishingEnabled:
+	 * Whether the site has the enhanced publishing feature enabled. If true, it means that
+	 * the site has the Advanced plan.
+	 */
+	const isEnhancedPublishingEnabled = !! getJetpackData()?.social?.isEnhancedPublishingEnabled;
+
+	/**
+	 * isAutoConversionEnabled:
+	 * Whether the site has the auto conversion feature enabled.
+	 */
+	const isAutoConversionEnabled = !! getJetpackData()?.social?.isAutoConversionEnabled;
+
 	return {
 		isPublicizeEnabledMeta,
 		isPublicizeEnabled,
@@ -92,11 +109,14 @@ export default function usePublicizeConfig() {
 		isShareLimitEnabled,
 		isPostAlreadyShared,
 		numberOfSharesRemaining: sharesData.shares_remaining,
-		hasPaidPlan: !! getJetpackData()?.social?.hasPaidPlan,
-		isEnhancedPublishingEnabled: !! getJetpackData()?.social?.isEnhancedPublishingEnabled,
+		shouldShowAdvancedPlanNudge: sharesData.show_advanced_plan_upgrade_nudge,
+		hasPaidPlan,
+		isEnhancedPublishingEnabled,
 		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
 		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),
 		adminUrl: getJetpackData()?.social?.adminUrl,
+		isAutoConversionEnabled,
+		jetpackSharingSettingsUrl: getJetpackData()?.social?.jetpackSharingSettingsUrl,
 	};
 }

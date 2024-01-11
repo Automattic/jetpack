@@ -34,5 +34,4 @@ class Test_Type_Number extends TestCase {
 		$this->expectException( \Error::class );
 		$validator->parse( false );
 	}
-
 }

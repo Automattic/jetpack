@@ -20,4 +20,5 @@ export type TrackFormProps = {
 	onCancel: () => void;
 	onSave: ( track: UploadTrackDataProps ) => void;
 	tracks: TrackProps[];
+	errorMessage?: string;
 };

@@ -482,5 +482,4 @@ class IgnoreFile {
 
 		return $re;
 	}
-
 }

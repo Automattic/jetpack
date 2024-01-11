@@ -1,6 +1,6 @@
 import child_process from 'child_process';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import enquirer from 'enquirer';
 import { readComposerJson } from '../helpers/json.js';
 import { allProjects } from '../helpers/projectHelpers.js';
 import promptForProject from '../helpers/promptForProject.js';
@@ -322,7 +322,7 @@ export async function getVersionBump( version, project ) {
  * @returns {string} version
  */
 export async function promptForVersion( argv ) {
-	const response = await inquirer.prompt( [
+	const response = await enquirer.prompt( [
 		{
 			type: 'input',
 			name: 'version',
@@ -341,9 +341,9 @@ export async function promptForVersion( argv ) {
  * @returns {object} argv
  */
 export async function promptDevBeta( argv ) {
-	const response = await inquirer.prompt( [
+	const response = await enquirer.prompt( [
 		{
-			type: 'list',
+			type: 'select',
 			name: 'version_type',
 			message: `What kind of release is this?`,
 			choices: [ 'alpha (including Atomic)', 'beta', 'stable' ],
@@ -373,30 +373,30 @@ export async function promptDevBeta( argv ) {
  * @returns {object} argv
  */
 export async function promptForScript( argv ) {
-	const response = await inquirer.prompt( [
+	const response = await enquirer.prompt( [
 		{
-			type: 'list',
+			type: 'select',
 			name: 'script',
 			message: `What step of the release process are you looking to do for ${ argv.project }?`,
 			choices: [
 				{
-					name: `[Create Changelog.md  ] - Compile all changelog files into ${ argv.project }'s CHANGELOG.md `,
+					message: `Compile all changelog files into ${ argv.project }'s CHANGELOG.md `,
 					value: 'changelog',
 				},
 				{
-					name: `[Update Readme.txt    ] - Update ${ argv.project }'s readme.txt file based on the updated changelog.`,
+					message: `Update ${ argv.project }'s readme.txt file based on the updated changelog.`,
 					value: 'readme',
 				},
 				{
-					name: `[Create Release Branch] - Create a release branch for ${ argv.project }`,
+					message: `Create a release branch for ${ argv.project }`,
 					value: 'release-branch',
 				},
 				{
-					name: `[Amend Changelog.md   ] - Updates changelog.md with any files cherry picked to release branch prior to release.`,
+					message: `Updates changelog.md with any files cherry picked to release branch prior to release.`,
 					value: 'amend',
 				},
 				{
-					name: `[Update Version       ] - Update version number for ${ argv.project }.`,
+					message: `Update version number for ${ argv.project }.`,
 					value: 'version',
 				},
 			],

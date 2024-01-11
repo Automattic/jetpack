@@ -35,22 +35,18 @@ class Waf_Initializer {
 		// Ensure backwards compatibility
 		Waf_Compatibility::add_compatibility_hooks();
 
-		// Register REST routes.
+		// Register REST routes
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 
-		// Run the WAF on supported environments
-		if ( Waf_Runner::is_supported_environment() ) {
-			// Update the WAF after installing or upgrading a relevant Jetpack plugin
-			add_action( 'upgrader_process_complete', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );
-			add_action( 'admin_init', __CLASS__ . '::check_for_waf_update' );
+		// Update the WAF after installing or upgrading a relevant Jetpack plugin
+		add_action( 'upgrader_process_complete', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );
 
-			// WAF activation/deactivation hooks
-			add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_waf_activation' );
-			add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_waf_deactivation' );
+		// Check for compatibility updates
+		add_action( 'admin_init', __CLASS__ . '::check_for_updates' );
 
-			// Run the WAF
-			Waf_Runner::initialize();
-		}
+		// WAF activation/deactivation hooks
+		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_waf_activation' );
+		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_waf_deactivation' );
 
 		// Brute force protection activation/deactivation hooks
 		add_action( 'jetpack_activate_module_protect', __CLASS__ . '::on_brute_force_protection_activation' );
@@ -58,6 +54,11 @@ class Waf_Initializer {
 
 		// Run brute force protection
 		Brute_Force_Protection::initialize();
+
+		// Run the WAF
+		if ( Waf_Runner::is_supported_environment() ) {
+			Waf_Runner::initialize();
+		}
 	}
 
 	/**
@@ -164,31 +165,37 @@ class Waf_Initializer {
 	 *
 	 * @return bool|WP_Error True if the WAF is up-to-date or was sucessfully updated, WP_Error if the update failed.
 	 */
-	public static function check_for_waf_update() {
+	public static function check_for_updates() {
 		if ( get_option( self::NEEDS_UPDATE_OPTION_NAME ) ) {
-			// Compatiblity patch for cases where an outdated WAF_Constants class has been
-			// autoloaded by the standalone bootstrap execution at the beginning of the current request.
-			if ( ! method_exists( Waf_Constants::class, 'define_mode' ) ) {
+			if ( Waf_Runner::is_supported_environment() ) {
+				// Compatiblity patch for cases where an outdated WAF_Constants class has been
+				// autoloaded by the standalone bootstrap execution at the beginning of the current request.
+				if ( ! method_exists( Waf_Constants::class, 'define_mode' ) ) {
+					try {
+						( new Waf_Standalone_Bootstrap() )->generate();
+					} catch ( Waf_Exception $e ) {
+						return $e->get_wp_error();
+					}
+				}
+
+				Waf_Compatibility::run_compatibility_migrations();
+
+				Waf_Constants::define_mode();
+				if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
+					return new WP_Error( 'waf_mode_invalid', 'Invalid firewall mode.' );
+				}
+
 				try {
+					Waf_Rules_Manager::generate_ip_rules();
+					Waf_Rules_Manager::generate_rules();
 					( new Waf_Standalone_Bootstrap() )->generate();
 				} catch ( Waf_Exception $e ) {
 					return $e->get_wp_error();
 				}
-			}
-
-			Waf_Compatibility::run_compatibility_migrations();
-
-			Waf_Constants::define_mode();
-			if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-				return new WP_Error( 'waf_mode_invalid', 'Invalid firewall mode.' );
-			}
-
-			try {
-				Waf_Rules_Manager::generate_ip_rules();
-				Waf_Rules_Manager::generate_rules();
-				( new Waf_Standalone_Bootstrap() )->generate();
-			} catch ( Waf_Exception $e ) {
-				return $e->get_wp_error();
+			} else {
+				// If the site doesn't support the request firewall,
+				// just migrate the IP allow list used by brute force protection.
+				Waf_Compatibility::migrate_brute_force_protection_ip_allow_list();
 			}
 		}
 

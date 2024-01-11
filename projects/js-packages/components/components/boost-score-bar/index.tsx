@@ -81,7 +81,7 @@ export const BoostScoreBar: FunctionComponent< BoostScoreBarProps > = ( {
 						<div className="jb-score-bar__score">{ score }</div>
 					) }
 
-					{ showPrevScores && prevScore && prevScore < score && (
+					{ showPrevScores && !! prevScore && prevScore < score && (
 						<div
 							className="jb-score-bar__no_boost_score"
 							style={ { left: `min(${ prevScoreOffset }%, calc( 100% - var(--clearance-space))` } }

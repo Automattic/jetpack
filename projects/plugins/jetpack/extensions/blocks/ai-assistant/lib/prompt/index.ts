@@ -6,6 +6,10 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { ToneProp } from '../../components/tone-dropdown-control';
+import {
+	buildInitialMessageForBackendPrompt,
+	buildMessagesForBackendPrompt,
+} from './backend-prompt';
 /**
  * Types & consts
  */
@@ -20,6 +24,7 @@ export const PROMPT_TYPE_CHANGE_TONE = 'changeTone' as const;
 export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
 export const PROMPT_TYPE_CHANGE_LANGUAGE = 'changeLanguage' as const;
 export const PROMPT_TYPE_USER_PROMPT = 'userPrompt' as const;
+export const PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT = 'jetpackFormCustomPrompt' as const;
 
 export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_SUMMARY_BY_TITLE,
@@ -33,13 +38,18 @@ export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
+	PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT,
 ] as const;
 
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
 
+// Enable backend prompts for all sites
+export const areBackendPromptsEnabled: boolean = true;
+
 export type PromptItemProps = {
-	role: 'system' | 'user' | 'assistant';
-	content: string;
+	role: 'system' | 'user' | 'assistant' | 'jetpack-ai';
+	content?: string;
+	context?: object;
 };
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
@@ -53,28 +63,56 @@ export const delimiter = '````';
  * @param {object} options - The options for the prompt.
  * @param {string} options.context - The context of the prompt.
  * @param {Array<string>} options.rules - The rules to follow.
+ * @param {boolean} options.useGutenbergSyntax - Enable prompts focused on layout building.
+ * @param {boolean} options.useMarkdown - Enable answer to be in markdown.
+ * @param {string} options.customSystemPrompt - Provide a custom system prompt that will override system.
  * @returns {PromptItemProps} The initial system prompt.
  */
 export function getInitialSystemPrompt( {
-	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
+	context = 'You are an advanced polyglot ghostwriter. Your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the WordPress editor',
 	rules,
+	useGutenbergSyntax = false,
+	useMarkdown = true,
+	customSystemPrompt = null,
 }: {
 	context?: string;
 	rules?: Array< string >;
+	useGutenbergSyntax?: boolean;
+	useMarkdown?: boolean;
+	customSystemPrompt?: string;
 } ): PromptItemProps {
 	// Rules
 	let extraRules = '';
+
 	if ( rules?.length ) {
 		extraRules = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
 	}
-	const prompt = `${ context }.
-Strictly follow these rules:
 
-${ extraRules }- Format your responses in Markdown syntax, ready to be published.
-- Execute the request without any acknowledgment to the user.
+	let prompt = `${ context }. Strictly follow these rules:
+
+${ extraRules }${
+		useMarkdown ? '- Format your responses in Markdown syntax, ready to be published.' : ''
+	}
+- Execute the request without any acknowledgement to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `;
+
+	// POC for layout prompts:
+	if ( useGutenbergSyntax ) {
+		prompt = `${ context }. Strictly follow these rules:
+	
+${ extraRules }- Format your responses in Gutenberg HTML format including HTML comments for WordPress blocks. All responses must be valid Gutenberg HTML.
+- Use only WordPress core blocks
+- Execute the request without any acknowledgement to the user.
+- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+`;
+	}
+
+	if ( customSystemPrompt ) {
+		prompt = customSystemPrompt;
+	}
 
 	return { role: 'system', content: prompt };
 }
@@ -104,9 +142,14 @@ type PromptOptionsProps = {
 	 * The previous messages of the same prompt. Optional.
 	 */
 	prevMessages?: Array< PromptItemProps >;
+
+	/*
+	 * A custom request prompt. Optional.
+	 */
+	request?: string;
 };
 
-function getDelimitedContent( content: string ): string {
+export function getDelimitedContent( content: string ): string {
 	return `${ delimiter }${ content.replaceAll( delimiter, '' ) }${ delimiter }`;
 }
 
@@ -196,6 +239,27 @@ function getTonePrompt( {
 	];
 }
 
+function getJetpackFormCustomPrompt( {
+	content,
+	request,
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	if ( ! request ) {
+		throw new Error( 'You must provide a custom prompt for the Jetpack Form Custom Prompt' );
+	}
+
+	// Use a jetpack-ai expandable message.
+	return [
+		{
+			role: 'jetpack-ai',
+			context: {
+				type: 'form-ai-extension',
+				content,
+				request,
+			},
+		},
+	];
+}
+
 /*
  * Builds a prompt template based on context, rules and content.
  *
@@ -221,19 +285,23 @@ export const buildPromptTemplate = ( {
 	relevantContent = null,
 	isContentGenerated = false,
 	isGeneratingTitle = false,
+	useGutenbergSyntax = false,
+	customSystemPrompt = null,
 }: {
 	rules?: Array< string >;
 	request?: string;
 	relevantContent?: string;
 	isContentGenerated?: boolean;
 	isGeneratingTitle?: boolean;
+	useGutenbergSyntax?: boolean;
+	customSystemPrompt?: string;
 } ): Array< PromptItemProps > => {
 	if ( ! request && ! relevantContent ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
 
 	// Add initial system prompt.
-	const messages = [ getInitialSystemPrompt( { rules } ) ];
+	const messages = [ getInitialSystemPrompt( { rules, useGutenbergSyntax, customSystemPrompt } ) ];
 
 	if ( relevantContent != null && relevantContent?.length ) {
 		const sanitizedContent = relevantContent.replaceAll( delimiter, '' );
@@ -264,7 +332,14 @@ export const buildPromptTemplate = ( {
 	return messages;
 };
 
-type BuildPromptOptions = {
+export type BuildPromptOptionsProps = {
+	contentType?: 'generated' | string;
+	tone?: ToneProp;
+	language?: string;
+	fromExtension?: boolean;
+};
+
+export type BuildPromptProps = {
 	generatedContent: string;
 	allPostContent?: string;
 	postContentAbove?: string;
@@ -272,11 +347,9 @@ type BuildPromptOptions = {
 	type: PromptTypeProp;
 	userPrompt?: string;
 	isGeneratingTitle?: boolean;
-	options: {
-		contentType?: 'generated' | string;
-		tone?: ToneProp;
-		language?: string;
-	};
+	useGutenbergSyntax?: boolean;
+	customSystemPrompt?: string;
+	options: BuildPromptOptionsProps;
 };
 
 type GetPromptOptionsProps = {
@@ -297,28 +370,31 @@ export function promptTextFor(
 		subject = isGenerated ? 'your last answer' : 'the content';
 	}
 
+	const languageReminder = `. Do not switch to any language other than the language of ${ subject } in your response`;
+
 	switch ( type ) {
 		case PROMPT_TYPE_SUMMARY_BY_TITLE:
-			return { request: `Write a short piece for a blog post based on ${ subject }.` };
+			return {
+				request: `Write a short piece for a blog post based on ${ subject }, keeping the same language`,
+			};
 		case PROMPT_TYPE_CONTINUE:
 			return {
-				request: `Continue writing from ${ subject }.`,
+				request: `Continue writing from ${ subject }${ languageReminder }.`,
 				rules: isGenerated
 					? []
 					: [ 'Only output the continuation of the content, without repeating it' ],
 			};
 		case PROMPT_TYPE_SIMPLIFY:
 			return {
-				request: `Simplify ${ subject }.`,
+				request: `Simplify ${ subject }${ languageReminder }.`,
 				rules: [
 					'Use words and phrases that are easier to understand for non-technical people',
-					'Output in the same language of the content',
 					'Use as much of the original language as possible',
 				],
 			};
 		case PROMPT_TYPE_CORRECT_SPELLING:
 			return {
-				request: `Repeat ${ subject }, correcting any spelling and grammar mistakes, and do not add new content.`,
+				request: `Repeat ${ subject }, correcting any spelling and grammar mistakes, and do not add new content${ languageReminder }.`,
 			};
 		case PROMPT_TYPE_GENERATE_TITLE:
 			return {
@@ -326,13 +402,23 @@ export function promptTextFor(
 				rules: [ 'Only output the raw title, without any prefix or quotes' ],
 			};
 		case PROMPT_TYPE_MAKE_LONGER:
-			return { request: `Make ${ subject } longer.` };
+			return {
+				request: `Make ${ subject } longer${ languageReminder }.`,
+			};
 		case PROMPT_TYPE_MAKE_SHORTER:
-			return { request: `Make ${ subject } shorter.` };
+			return {
+				request: `Make ${ subject } shorter${ languageReminder }.`,
+			};
 		case PROMPT_TYPE_CHANGE_TONE:
-			return { request: `Rewrite ${ subject } with a ${ options.tone } tone.` };
+			return {
+				request: `Rewrite ${ subject } with ${
+					/^[aeiou]/i.test( options.tone as string ) ? 'an' : 'a'
+				} ${ options.tone } tone${ languageReminder }.`,
+			};
 		case PROMPT_TYPE_SUMMARIZE:
-			return { request: `Summarize ${ subject }.` };
+			return {
+				request: `Summarize ${ subject }${ languageReminder }.`,
+			};
 		case PROMPT_TYPE_CHANGE_LANGUAGE:
 			return {
 				request: `Translate ${ subject } to the following language: ${ options.language }.`,
@@ -346,7 +432,7 @@ export function promptTextFor(
  * Builds a prompt based on the type of prompt.
  * Meant for use by the block, not the extensions.
  *
- * @param {BuildPromptOptions} options - The prompt options.
+ * @param {BuildPromptProps} options - The prompt options.
  * @returns {Array< PromptItemProps >} The prompt.
  * @throws {Error} If the type is not recognized.
  */
@@ -359,7 +445,29 @@ export function buildPromptForBlock( {
 	type,
 	userPrompt,
 	isGeneratingTitle,
-}: BuildPromptOptions ): Array< PromptItemProps > {
+	useGutenbergSyntax,
+	customSystemPrompt,
+}: BuildPromptProps ): Array< PromptItemProps > {
+	// Only generate backend messages if the feature is enabled.
+	if ( areBackendPromptsEnabled ) {
+		// Get the initial message to build the system prompt.
+		const initialMessage = buildInitialMessageForBackendPrompt( type, customSystemPrompt );
+
+		// Get the user messages to complete the prompt.
+		const userMessages = buildMessagesForBackendPrompt( {
+			generatedContent,
+			allPostContent,
+			postContentAbove,
+			currentPostTitle,
+			options,
+			type,
+			userPrompt,
+			isGeneratingTitle,
+		} );
+
+		return [ initialMessage, ...userMessages ];
+	}
+
 	const isContentGenerated = options?.contentType === 'generated';
 	const promptText = promptTextFor( type, isGeneratingTitle, options );
 
@@ -394,6 +502,8 @@ export function buildPromptForBlock( {
 			relevantContent,
 			isContentGenerated,
 			isGeneratingTitle,
+			useGutenbergSyntax,
+			customSystemPrompt,
 		} );
 	}
 
@@ -402,6 +512,8 @@ export function buildPromptForBlock( {
 		relevantContent: generatedContent || allPostContent,
 		isContentGenerated: !! generatedContent?.length,
 		isGeneratingTitle,
+		useGutenbergSyntax,
+		customSystemPrompt,
 	} );
 }
 
@@ -417,24 +529,20 @@ export function getPrompt(
 	options: PromptOptionsProps
 ): Array< PromptItemProps > {
 	debug( 'Addressing prompt type: %o %o', type, options );
-	const { prevMessages } = options;
-
-	const context =
-		'You are an advanced polyglot ghostwriter.' +
-		'Your task is to help the user create and modify content based on their requests.';
+	const { prevMessages = [] } = options;
 
 	const systemPrompt: PromptItemProps = {
 		role: 'system',
-		content: `${ context }
+		content: `You are an advanced polyglot ghostwriter. Your task is to help the user create and modify content based on their requests.
 Writing rules:
 - Execute the request without any acknowledgment or explanation to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `,
 	};
 
 	// Prompt starts with the previous messages, if any.
-	const prompt: Array< PromptItemProps > = prevMessages;
+	const prompt: Array< PromptItemProps > = [ ...prevMessages ];
 
 	// Then, add the `system` prompt to clarify the context.
 	prompt.push( systemPrompt );
@@ -459,9 +567,11 @@ Writing rules:
 		case PROMPT_TYPE_CHANGE_TONE:
 			return [ ...prompt, ...getTonePrompt( options ) ];
 
+		case PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT:
+			// Does not use the default system prompt.
+			return [ ...prevMessages, ...getJetpackFormCustomPrompt( options ) ];
+
 		default:
 			throw new Error( `Unknown prompt type: ${ type }` );
 	}
-
-	return prompt;
 }

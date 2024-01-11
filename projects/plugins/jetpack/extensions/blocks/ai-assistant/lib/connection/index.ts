@@ -39,3 +39,16 @@ export function isUserConnected(): boolean {
 	debugOnce( 'User is not connected ❌' );
 	return false;
 }
+
+export function canUserPurchasePlan(): boolean {
+	if ( isSimpleSite() ) {
+		// Roles on simple sites can't be inferred from the connection status.
+		return true;
+	}
+
+	const permissions =
+		initialState?.userConnectionData?.currentUser?.permissions ??
+		( {} as { manage_options?: boolean } );
+
+	return ! permissions.manage_options === false;
+}

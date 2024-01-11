@@ -387,5 +387,4 @@ class VersionCommandTest extends CommandTestCase {
 			),
 		);
 	}
-
 }

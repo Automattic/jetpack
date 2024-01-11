@@ -36,119 +36,6 @@
 	color: var( --wp--preset--color--black );
 }
 
-.jetpack-ai-assistant__input-icon-wrapper {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin-left: 8px;
-	
-	.jetpack-ai-assistant__input-icon {
-		// Brand green regardless of theme
-		color: var( --jp-green-40 );
-	}
-	
-	.jetpack-ai-assistant__input-loader-icon {
-		color: var( --wp--preset--color--foreground );
-	}
-	
-	.jetpack-ai-assistant__input-spinner {
-		margin: 0;
-		width: 24px;
-		height: 24px;
-
-		path {
-			color: var( --jp-green-40 );
-		}
-	}
-}
-
-.jetpack-ai-assistant__input-container {
-	color: var( --jp-gray-80 );
-	background-color: var( --jp-white );
-	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 8px;
-	font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-}
-
-.jetpack-ai-assistant__input-wrapper {
-	display: flex;
-	padding: 6px;
-	gap: 8px;
-
-	&.is-disconnected {
-		opacity: 0.4;
-	}
-
-	textarea.jetpack-ai-assistant__input {
-		width: 100%;
-		flex-grow: 1;
-		padding: 6px 8px;
-		margin: 1px 0px;
-		border-radius: 2px;
-
-		resize: none !important;
-		border: none;
-		box-shadow: none;
-		color: var( --jp-gray-80 );
-
-		font-size: 16px;
-		font-weight: 400;
-		line-height: 20px;
-
-		transition: box-shadow 0.1s linear 0s;
-
-		&:focus {
-			box-shadow: none;
-			color: var( --jp-gray-80 );
-		}
-
-		@media (min-width: 600px) {
-			font-size: 13px;
-		}
-
-		&::placeholder {
-			text-overflow:ellipsis;
-			white-space: nowrap;
-			opacity: 0.75;
-		}
-	}
-}
-
-.jetpack-ai-assistant__controls {
-	display: flex;
-	align-items: center;
-
-	.jetpack-ai-assistant__prompt_button_wrapper {
-		text-transform: uppercase;
-		font-size: 11px;
-		font-weight: 600;
-		line-height: 16px;
-		user-select: none;
-		white-space: nowrap;
-		display: flex;
-		align-items: center;
-	}
-
-	.jetpack-ai-assistant__prompt_button {
-		color: var( --jp-gray-80 );
-		text-transform: uppercase;
-
-		> SVG {
-			margin-right: 4px;
-		}
-
-		&:hover,
-		&:active {
-			color: var( --wp-components-color-accent, var( --wp-admin-theme-color ) );
-		}
-
-		&:disabled {
-			opacity: 0.6;
-			cursor: not-allowed;
-		}
-	}
-}
-
 .jetpack-ai-assistant__accept {
 	margin: 12px;
 	display: flex;
@@ -326,4 +213,14 @@
 			}
 		}
 	}
+}
+
+.jetpack-ai-assistant__custom-prompt {
+	width: 800px;
+}
+
+.jetpack-ai-assistant__custom-prompt__footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
 }

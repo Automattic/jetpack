@@ -1,0 +1,114 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 1,
+	"name": "jetpack/subscriptions",
+	"title": "Subscribe",
+	"description": "Subscribe to this blog's posts as a newsletter.",
+	"keywords": [ "newsletter", "email", "follow" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "grow",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='m19.02,5H4.98c-1.09,0-1.98.89-1.98,1.98v10.04c0,1.09.89,1.98,1.98,1.98h14.04c1.09,0,1.98-.89,1.98-1.98V6.98c0-1.09-.89-1.98-1.98-1.98Zm.48,11.92c0,.32-.26.58-.58.58H5.08c-.32,0-.58-.26-.58-.58V7.08c0-.32.26-.58.58-.58h13.84c.32,0,.58.26.58.58v9.84Z'/><path d='m4.38,17.69l5.71-4.79s.96,1,1.91.99,1.91-.99,1.91-.99l5.59,4.79v-2.03l-4.41-3.73,4.41-3.72v-1.91l-7.14,5.76c-.24.19-.59.19-.83,0l-7.14-5.88v1.98l4.3,3.67-4.3,3.78v2.08Z'/></svg>",
+	"supports": {
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"align": [ "wide", "full" ]
+	},
+	"styles": [
+		{
+			"name": "compact",
+			"label": "Compact"
+		},
+		{
+			"name": "split",
+			"label": "Split",
+			"isDefault": true
+		}
+	],
+	"attributes": {
+		"subscribePlaceholder": {
+			"type": "string",
+			"default": "Type your email…"
+		},
+		"showSubscribersTotal": {
+			"type": "boolean",
+			"default": false
+		},
+		"includeSocialFollowers": {
+			"type": "boolean",
+			"default": true
+		},
+		"buttonOnNewLine": {
+			"type": "boolean",
+			"default": false
+		},
+		"buttonWidth": {
+			"type": "string"
+		},
+		"submitButtonText": {
+			"type": "string",
+			"default": "Subscribe"
+		},
+		"emailFieldBackgroundColor": {
+			"type": "string"
+		},
+		"customEmailFieldBackgroundColor": {
+			"type": "string"
+		},
+		"emailFieldGradient": {
+			"type": "string"
+		},
+		"customEmailFieldGradient": {
+			"type": "string"
+		},
+		"buttonBackgroundColor": {
+			"type": "string"
+		},
+		"customButtonBackgroundColor": {
+			"type": "string"
+		},
+		"buttonGradient": {
+			"type": "string"
+		},
+		"customButtonGradient": {
+			"type": "string"
+		},
+		"textColor": {
+			"type": "string"
+		},
+		"customTextColor": {
+			"type": "string"
+		},
+		"fontSize": {
+			"type": "string"
+		},
+		"customFontSize": {
+			"type": "string"
+		},
+		"borderRadius": {
+			"type": "number"
+		},
+		"borderWeight": {
+			"type": "number"
+		},
+		"borderColor": {
+			"type": "string"
+		},
+		"customBorderColor": {
+			"type": "string"
+		},
+		"padding": {
+			"type": "number"
+		},
+		"spacing": {
+			"type": "number"
+		},
+		"successMessage": {
+			"type": "string",
+			"default": "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing."
+		}
+	},
+	"example": {}
+}

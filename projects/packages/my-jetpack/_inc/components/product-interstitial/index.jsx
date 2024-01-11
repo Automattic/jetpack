@@ -1,9 +1,17 @@
+/**
+ * External dependencies
+ */
 import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import React, { useCallback, useEffect } from 'react';
+/**
+ * Internal dependencies
+ */
 import useAnalytics from '../../hooks/use-analytics';
+import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
 import GoBackLink from '../go-back-link';
@@ -12,8 +20,11 @@ import ProductDetailTable from '../product-detail-table';
 import boostImage from './boost.png';
 import crmImage from './crm.png';
 import extrasImage from './extras.png';
+import { JetpackAIInterstitialMoreRequests } from './jetpack-ai/more-requests';
 import jetpackAiImage from './jetpack-ai.png';
 import searchImage from './search.png';
+import socialImage from './social.png';
+import statsImage from './stats.png';
 import styles from './style.module.scss';
 import videoPressImage from './videopress.png';
 
@@ -29,6 +40,11 @@ import videoPressImage from './videopress.png';
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
  * @param {boolean} props.preferProductName      - Use product name instead of title
  * @param {string} props.imageContainerClassName - Append a class to the image container
+ * @param {string} [props.ctaButtonLabel]        - The label for the Call To Action button
+ * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
+ * @param {number} [props.quantity]              - The quantity of the product to purchase
+ * @param {number} [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
+ * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature in the list of features
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -40,11 +56,17 @@ export default function ProductInterstitial( {
 	preferProductName = false,
 	children = null,
 	imageContainerClassName = '',
+	ctaButtonLabel = null,
+	hideTOS = false,
+	quantity = null,
+	directCheckout = false,
+	highlightLastFeature = false,
 } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle, tiers } = detail;
 
 	const { recordEvent } = useAnalytics();
+	const { onClickGoBack } = useGoBack( { slug } );
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -67,15 +89,13 @@ export default function ProductInterstitial( {
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
-			const activateOrCheckout = () => ( product?.isBundle ? Promise.resolve() : activate() );
+			if ( product?.isBundle || directCheckout ) {
+				// Get straight to the checkout page.
+				checkout?.();
+				return;
+			}
 
-			activateOrCheckout().finally( () => {
-				if ( product?.isBundle ) {
-					// Get straight to the checkout page.
-					checkout?.();
-					return;
-				}
-
+			activate().finally( () => {
 				const postActivationUrl = product?.postActivationUrl;
 				const hasRequiredPlan = tier
 					? product?.hasRequiredTier?.[ tier ]
@@ -100,22 +120,7 @@ export default function ProductInterstitial( {
 				checkout?.();
 			} );
 		},
-		[ navigateToMyJetpackOverviewPage, activate ]
-	);
-
-	const onClickGoBack = useCallback(
-		event => {
-			if ( slug ) {
-				recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
-			}
-
-			if ( document.referrer.includes( window.location.host ) ) {
-				// Prevent default here to minimize page change within the My Jetpack app.
-				event.preventDefault();
-				history.back();
-			}
-		},
-		[ recordEvent, slug ]
+		[ directCheckout, activate, navigateToMyJetpackOverviewPage ]
 	);
 
 	return (
@@ -166,6 +171,10 @@ export default function ProductInterstitial( {
 									className={ isUpgradableByBundle ? styles.container : null }
 									supportingInfo={ supportingInfo }
 									preferProductName={ preferProductName }
+									ctaButtonLabel={ ctaButtonLabel }
+									hideTOS={ hideTOS }
+									quantity={ quantity }
+									highlightLastFeature={ highlightLastFeature }
 								/>
 							</Col>
 							<Col
@@ -180,6 +189,8 @@ export default function ProductInterstitial( {
 										trackButtonClick={ trackBundleClick }
 										onClick={ clickHandler }
 										className={ isUpgradableByBundle ? styles.container : null }
+										quantity={ quantity }
+										highlightLastFeature={ highlightLastFeature }
 									/>
 								) : (
 									children
@@ -237,6 +248,15 @@ export function BoostInterstitial() {
 }
 
 /**
+ * CreatorInterstitial component
+ *
+ * @returns {object} CreatorInterstitial react component.
+ */
+export function CreatorInterstitial() {
+	return <ProductInterstitial slug="creator" installsPlugin={ true } />;
+}
+
+/**
  * CRMInterstitial component
  *
  * @returns {object} CRMInterstitial react component.
@@ -268,11 +288,38 @@ export function ExtrasInterstitial() {
  * @returns {object} JetpackAIInterstitial react component.
  */
 export function JetpackAIInterstitial() {
+	const slug = 'jetpack-ai';
+	const { detail } = useProduct( slug );
+	const { onClickGoBack } = useGoBack( { slug } );
+	const { isRegistered } = useConnection();
+
+	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ] || null;
+
+	if ( isRegistered && ! nextTier ) {
+		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
+	}
+
+	const { hasRequiredPlan } = detail;
+	const ctaLabel = hasRequiredPlan ? __( 'Upgrade Jetpack AI', 'jetpack-my-jetpack' ) : null;
+
+	// Default to 100 requests if the site is not registered/connected.
+	const nextTierValue = isRegistered ? nextTier?.value : 100;
+	// Decide the quantity value for the upgrade, but ignore the unlimited tier.
+	const quantity = nextTierValue !== 1 ? nextTierValue : null;
+
+	// Highlight the last feature in the table for all the tiers except the unlimited one.
+	const highlightLastFeature = nextTier?.value !== 1;
+
 	return (
 		<ProductInterstitial
 			slug="jetpack-ai"
 			installsPlugin={ true }
 			imageContainerClassName={ styles.aiImageContainer }
+			ctaButtonLabel={ ctaLabel }
+			hideTOS={ true }
+			quantity={ quantity }
+			directCheckout={ hasRequiredPlan }
+			highlightLastFeature={ highlightLastFeature }
 		>
 			<img src={ jetpackAiImage } alt="Jetpack AI" />
 		</ProductInterstitial>
@@ -303,7 +350,17 @@ export function ScanInterstitial() {
  * @returns {object} SocialInterstitial react component.
  */
 export function SocialInterstitial() {
-	return <ProductInterstitial slug="social" installsPlugin={ true } />;
+	return (
+		<ProductInterstitial slug="social" installsPlugin={ true }>
+			<img
+				src={ socialImage }
+				alt={ __(
+					'Image displaying logos of social media platforms supported by Jetpack Social.',
+					'jetpack-my-jetpack'
+				) }
+			/>
+		</ProductInterstitial>
+	);
 }
 
 /**
@@ -331,6 +388,25 @@ export function SearchInterstitial() {
 			}
 		>
 			<img src={ searchImage } alt="Search" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * StatsInterstitial component
+ *
+ * @returns {object} StatsInterstitial react component.
+ */
+export function StatsInterstitial() {
+	return (
+		<ProductInterstitial slug="stats" installsPlugin={ true }>
+			<img
+				src={ statsImage }
+				alt={ __(
+					'Illustration showing the Stats feature, highlighting important statistics for your site.',
+					'jetpack-my-jetpack'
+				) }
+			/>
 		</ProductInterstitial>
 	);
 }

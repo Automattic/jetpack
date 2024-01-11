@@ -63,13 +63,13 @@ function zerobscrm_doing_it_wrong( $function, $message, $version ) {
 		$prefix = rest_get_url_prefix( );
 		if (defined('REST_REQUEST') && REST_REQUEST // (#1)
 			|| isset($_GET['rest_route']) // (#2)
-				&& strpos( trim( $_GET['rest_route'], '\\/' ), $prefix , 0 ) === 0)
+				&& str_starts_with( trim( $_GET['rest_route'], '\\/' ), $prefix, 0 ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			return true;
 
 		// (#3)
 		$rest_url = wp_parse_url( site_url( $prefix ) );
 		$current_url = wp_parse_url( add_query_arg( array( ) ) );
-		return strpos( $current_url['path'], $rest_url['path'], 0 ) === 0;
+		return str_starts_with( $current_url['path'], $rest_url['path'], 0 );
 	}
 
 
@@ -141,15 +141,25 @@ function zerobscrm_doing_it_wrong( $function, $message, $version ) {
 
 	}
 
-
-	function zeroBSCRM_stripSlashesFromArr($value){
-	    $value = is_array($value) ?
-	                array_map('zeroBSCRM_stripSlashesFromArr', $value) :
-	                stripslashes($value);
-
-	    return $value;
+/**
+ * Recursively strips slashes from an array.
+ *
+ * Quite similar to zeroBSCRM_stripSlashes(), but that given
+ * its legacy status any changes to there and its returns may
+ * have negative implications
+ *
+ * @param array|string|null $value Some value to strip.
+ *
+ * @return array|string|null
+ */
+function zeroBSCRM_stripSlashesFromArr( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	if ( is_array( $value ) ) {
+		return array_map( 'zeroBSCRM_stripSlashesFromArr', $value );
+	} elseif ( is_string( $value ) ) {
+		return stripslashes( $value );
 	}
-
+	return $value;
+}
 
    # from http://wordpress.stackexchange.com/questions/91900/how-to-force-a-404-on-wordpress
 	function zeroBSCRM_force_404() {
@@ -407,9 +417,10 @@ function zeroBSCRM_wpb_lastlogin($uid ) {
 	    return ((float)$usec + (float)$sec);
 	}     
 
-	#} Does it's best to find the real IP for user
+	#} Does its best to find the real IP for user
 	function zeroBSCRM_getRealIpAddr()
 	{
+		$ip = false;
 		#} check ip from share internet
 		if (isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP']))
 		{
@@ -504,58 +515,61 @@ function zeroBSCRM_wpb_lastlogin($uid ) {
 	}
 
 
-	// as clean as zeroBSCRM_retrieveFile was above, we needed to wpify for .org.
-	// here's an adaptation of https://wordpress.stackexchange.com/questions/50094/wp-remote-get-downloading-and-saving-files
-	function zeroBSCRM_retrieveFile( $url, $filepath, $args = array() ){
+/**
+ * Retrieve file from remote server
+ *
+ * As clean as zeroBSCRM_retrieveFile was above, we needed to wpify for .org.
+ * Here's an adaptation of https://wordpress.stackexchange.com/questions/50094/wp-remote-get-downloading-and-saving-files
+ *
+ * @param string $url URL to retrieve the file.
+ * @param string $filepath Path to save file.
+ * @param array  $args Args for wp_remote_get.
+ */
+function zeroBSCRM_retrieveFile( $url, $filepath, $args = array() ) {
 
-		// Use wp_remote_get to fetch the data
-		$response = wp_remote_get($url, $args);
+	// Use wp_remote_get to fetch the data
+	$response = wp_remote_get( $url, $args );
 
-		// Save the body part to a variable
-		if ( is_array( $response ) && isset( $response['body'] ) ){
+	// Save the body part to a variable
+	if ( is_array( $response ) && isset( $response['body'] ) ) {
 
-			// Now use the standard PHP file functions
-			$fp = fopen($filepath, "w");
-			fwrite($fp, $response['body']);
-			fclose($fp);
+		// Now use the standard PHP file functions
+		$fp = fopen( $filepath, 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+		fwrite( $fp, $response['body'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen,WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+		fclose( $fp ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen,WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
-	     	return (filesize($filepath) > 0)? true : false;
+		return ( filesize( $filepath ) > 0 ) ? true : false;
 
-		} elseif ( get_class( $response ) == 'WP_Error' ) {
+	} elseif ( get_class( $response ) === 'WP_Error' ) {
 
-			// deal with errors
+		// deal with errors
 
-			// timeout
-			// https://wordpress.stackexchange.com/questions/240273/wp-remote-get-keeps-timing-out
-			if ( isset( $response->errors['http_request_failed'] ) ){
-				
-				if ( is_array( $response->errors['http_request_failed'] ) ){
+		// timeout
+		// https://wordpress.stackexchange.com/questions/240273/wp-remote-get-keeps-timing-out
+		if ( isset( $response->errors['http_request_failed'] ) ) {
 
-					$match_str = 'cURL error 28: Operation timed out after';
+			if ( is_array( $response->errors['http_request_failed'] ) ) {
 
-					foreach ( $response->errors['http_request_failed'] as $error ){
+				$match_str = 'cURL error 28: Operation timed out after';
 
-						if ( substr( $error, 0, strlen( $match_str ) ) == $match_str ){
+				foreach ( $response->errors['http_request_failed'] as $error ) {
 
-							// connection timeout error
-							// Add admin notification
-							zeroBSCRM_notifyme_insert_notification( get_current_user_id(), -999, -1, 'curl.timeout.error', $error );
+					if ( str_starts_with( $error, $match_str ) ) {
 
-							return false;
+						// connection timeout error
+						// Add admin notification
+						zeroBSCRM_notifyme_insert_notification( get_current_user_id(), -999, -1, 'curl.timeout.error', $error );
 
-						}
+						return false;
 
 					}
-
 				}
-
 			}
-
 		}
-
-		return false;
-
 	}
+
+	return false;
+}
 
 	# http://stackoverflow.com/questions/8889025/unzip-a-file-with-php
 	function zeroBSCRM_expandArchive($filepath,$expandTo){
@@ -748,29 +762,29 @@ function jpcrm_inject_contacts( $contacts, $args ) {
 	} 
 
 
-	// returns send-from email + name
-	// code ripped from wp_mail func 12/9/18
-	// https://developer.wordpress.org/reference/functions/wp_mail/
-	function zeroBSCRM_wp_retrieveSendFrom(){
+/**
+ * Returns send-from email + name
+ *
+ * code ripped from wp_mail func 12/9/18
+ * https://developer.wordpress.org/reference/functions/wp_mail/
+ */
+function zeroBSCRM_wp_retrieveSendFrom() {
+	$from_name = 'WordPress';
 
-	    // From email and name
-	    // If we don't have a name from the input headers
-	    //if ( !isset( $from_name ) )
-	        $from_name = 'WordPress';
-
-	    //if ( !isset( $from_email ) ) {
-	        // Get the site domain and get rid of www.
-	        $sitename = strtolower( $_SERVER['SERVER_NAME'] );
-	        if ( substr( $sitename, 0, 4 ) == 'www.' ) {
-	            $sitename = substr( $sitename, 4 );
-	        }
-	 
-	        $from_email = 'wordpress@' . $sitename;
-	    //}
-	    $from_email = apply_filters( 'wp_mail_from', $from_email );
-
-	    return array('name'=>$from_name,'email'=>$from_email);
+	// Get the site domain and get rid of www.
+	$sitename = strtolower( $_SERVER['SERVER_NAME'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+	if ( str_starts_with( $sitename, 'www.' ) ) {
+		$sitename = substr( $sitename, 4 );
 	}
+
+	$from_email = 'wordpress@' . $sitename;
+	$from_email = apply_filters( 'wp_mail_from', $from_email );
+
+	return array(
+		'name'  => $from_name,
+		'email' => $from_email,
+	);
+}
 
 
 
@@ -894,21 +908,6 @@ function zeroBSCRM_isJson( $str ) {
 
 		return $endArr;
 	}
-
-
-	// recursive utf8-ing 
-	// https://stackoverflow.com/questions/19361282/why-would-json-encode-return-an-empty-string
-	function zeroBSCRM_utf8ize($d) {
-	    if (is_array($d)) {
-	        foreach ($d as $k => $v) {
-	            $d[$k] = zeroBSCRM_utf8ize($v);
-	        }
-	    } else if (is_string ($d)) {
-	        return utf8_encode($d);
-	    }
-	    return $d;
-	}
-
 
 	// returns a filetype img if avail
 	// returns 48px from  https://github.com/redbooth/free-file-icons
@@ -1301,8 +1300,8 @@ function zeroBSCRM_portal_linkObj( $obj_id = -1, $type_int = ZBS_TYPE_INVOICE ) 
 	$use_hash        = zeroBSCRM_getSetting( 'easyaccesslinks' );
 	$portal_base_url = zeroBS_portal_link();
 	// The separator for values in invoices and quotes should be '=' when plain permalinks are being used
-	$url_separator   = ( strpos( $portal_base_url, '?' ) === false ) ? '/' : '=';
-                
+	$url_separator = ( ! str_contains( $portal_base_url, '?' ) ) ? '/' : '=';
+
 	switch ( $type_int ) {
 		case ZBS_TYPE_INVOICE:
 			$settings          = zeroBSCRM_get_invoice_settings();
@@ -1337,7 +1336,7 @@ function zeroBSCRM_portal_linkObj( $obj_id = -1, $type_int = ZBS_TYPE_INVOICE ) 
 function jpcrm_get_portal_slug() {
 	$portal_page_id   = zeroBSCRM_getSetting( 'portalpage' );
 	$portal_post      = get_post( $portal_page_id );
-	$portal_permalink = rtrim( _get_page_link( $portal_post ), '/' );
+	$portal_permalink = $portal_post ? rtrim( _get_page_link( $portal_post ), '/' ) : '';
 	$portal_slug      = str_replace( home_url(), "", $portal_permalink);
 	
 	if ( empty( $portal_slug ) ) {
@@ -1350,7 +1349,7 @@ function jpcrm_get_portal_slug() {
 function jpcrm_get_client_portal_root_url() {
 	$client_portal_root_url  = home_url( jpcrm_get_portal_slug() );
 	// The url separator should be '&' when plain permalinks are being used
-	$client_portal_root_url .= ( strpos( $client_portal_root_url, '?' ) === false ) ? '/' : '&';
+	$client_portal_root_url .= ( ! str_contains( $client_portal_root_url, '?' ) ) ? '/' : '&';
 
 	return $client_portal_root_url;
 }
@@ -1379,7 +1378,9 @@ function zeroBS_portal_link($type='dash',$objIDorHashStr=-1){
 
 			// if using a str (hash) then prefix with zh- if not already
 			if (is_string($objIDorHashStr)){
-				if (substr($objIDorHashStr, 0,3) != 'zh-') $objIDorHashStr = 'zh-'.$objIDorHashStr;
+				if ( ! str_starts_with( $objIDorHashStr, 'zh-' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$objIDorHashStr = 'zh-' . $objIDorHashStr; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				}
 			}
 
 			if (
@@ -1633,4 +1634,117 @@ function jpcrm_generate_pdf( $html, $pdf_filename ) {
  */
 function jpcrm_disable_browser_autocomplete() {
 	return time() . wp_rand( 0, 1000000 );
+}
+
+/**
+ * Retrieves the MIME type of a file.
+ *
+ * If the FileInfo extension is available, it uses finfo_file to determine the MIME type.
+ * Otherwise, if the mime_content_type function is available, it falls back to mime_content_type.
+ * If neither are available it uses a file signature/MIME type map as a fallback.
+ *
+ * @param string $file_path The path to the file.
+ * @return string|false The MIME type of the file, or false if the MIME type cannot be determined.
+ */
+function jpcrm_get_mimetype( $file_path ) {
+	if ( function_exists( 'finfo_file' ) && function_exists( 'finfo_open' ) ) {
+		$file_info = finfo_open( FILEINFO_MIME_TYPE );
+		return finfo_file( $file_info, $file_path );
+	}
+
+	if ( function_exists( 'mime_content_type' ) ) {
+		return mime_content_type( $file_path );
+	}
+
+	$signature_to_mime = array(
+		'89504e47'             => 'image/png', // PNG
+		'ffd8ffe0'             => 'image/jpeg', // JPEG
+		'47494638'             => 'image/gif', // GIF
+		'49492a00'             => 'image/tiff', // TIFF
+		'4d4d002a'             => 'image/tiff', // TIFF
+		'424d'                 => 'image/bmp', // BMP
+		'3c3f786d'             => 'application/xml', // XML
+		'3c21444f'             => 'text/html', // HTML
+		'25504446'             => 'application/pdf', // PDF
+		'd0cf11e0'             => 'application/vnd.ms-office', // Microsoft Office documents (pre 2007)
+		'504b0304'             => 'application/zip', // ZIP, Java JAR, OpenDocument Format, etc.
+		'52617221'             => 'application/x-rar-compressed', // RAR
+		'1f8b08'               => 'application/gzip', // GZIP
+		'000001ba'             => 'video/mpeg', // MPEG
+		'1a45dfa3'             => 'video/matroska', // MKV
+		'664c6143'             => 'audio/flac', // FLAC
+		'494433'               => 'audio/mpeg', // MP3
+		'4f676753'             => 'application/ogg', // OGG
+		'2e736e64'             => 'audio/basic', // AU
+		'52494646'             => 'audio/wav', // WAV
+		'435753'               => 'application/x-shockwave-flash', // SWF (Compressed)
+		'465753'               => 'application/x-shockwave-flash', // SWF (Uncompressed)
+		'38425053'             => 'image/vnd.adobe.photoshop', // PSD
+		'252150532d41646f6265' => 'application/postscript', // EPS
+		'7b5c727466'           => 'application/rtf', // RTF
+		'7b5c616e7369'         => 'application/rtf', // RTF (Another variant)
+		'efbbbf'               => 'text/plain', // TXT with UTF-8 BOM
+		'5a4d'                 => 'application/x-dosexec', // EXE
+		'2321'                 => 'application/x-sh', // Unix Shell Script
+		'2521'                 => 'application/eps', // EPS
+		'cafebabe'             => 'application/java-vm', // Java class file
+		'2f2a0a'               => 'text/x-c', // C source code
+		'4f504449'             => 'audio/opus', // OPUS
+		'4d546864'             => 'audio/midi', // MIDI
+		'0000001066747970'     => 'video/mp4', // box length 16 (0x10), box type 'ftyp'
+		'0000001466747970'     => 'video/mp4', // box length 20 (0x14), box type 'ftyp'
+		'0000001866747970'     => 'video/mp4', // box length 24 (0x18), box type 'ftyp'
+		'0000001c66747970'     => 'video/mp4', // box length 28 (0x1c), box type 'ftyp'
+		'0000002066747970'     => 'video/mp4', // box length 32 (0x20), box type 'ftyp'
+		'0000002466747970'     => 'video/mp4', // box length 36 (0x24), box type 'ftyp'
+		'0000002866747970'     => 'video/mp4', // box length 40 (0x28), box type 'ftyp'
+		'0000002c66747970'     => 'video/mp4', // box length 44 (0x2c), box type 'ftyp'
+		'0000003066747970'     => 'video/mp4', // box length 48 (0x30), box type 'ftyp'
+		'0000003466747970'     => 'video/mp4', // box length 52 (0x34), box type 'ftyp'
+		'0000003866747970'     => 'video/mp4', // box length 56 (0x38), box type 'ftyp'
+		'0000003c66747970'     => 'video/mp4', // box length 60 (0x3c), box type 'ftyp'
+		'0000004066747970'     => 'video/mp4', // box length 64 (0x40), box type 'ftyp'
+		// Add more as needed.
+	);
+
+	global $wp_filesystem;
+	if ( ! is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
+		include_once ABSPATH . 'wp-admin/includes/file.php';
+		$credentials = request_filesystem_credentials( site_url() );
+		wp_filesystem( $credentials );
+	}
+	$lines = $wp_filesystem->get_contents_array( $file_path, 8 );
+	if ( $lines === false ) {
+		return 'application/octet-stream';
+	}
+	$file_signature = bin2hex( substr( implode( '', $lines ), 0, 16 ) );
+	// We loop through different lengths because, as we can see in the above mapping, the signature size varies.
+	for ( $length = 16; $length >= 2; $length -= 2 ) {
+		$part_signature = substr( $file_signature, 0, $length );
+		if ( isset( $signature_to_mime[ $part_signature ] ) ) {
+			return $signature_to_mime[ $part_signature ];
+		}
+	}
+
+	$check_for_ascii = pack( 'H*', $file_signature );
+	if ( ctype_print( $check_for_ascii ) && ! ctype_cntrl( $check_for_ascii ) ) {
+		return 'text/plain';
+	}
+
+	return 'application/octet-stream';
+}
+
+/**
+ * Retrieve an array of quote statuses with their corresponding labels.
+ *
+ * @since 6.2.0
+ *
+ * @return array Associative array of quote statuses with labels.
+ */
+function jpcrm_get_quote_statuses() {
+	return array(
+		'draft'     => __( 'Draft', 'zero-bs-crm' ),
+		'published' => __( 'Published, Unaccepted', 'zero-bs-crm' ),
+		'accepted'  => __( 'Accepted', 'zero-bs-crm' ),
+	);
 }

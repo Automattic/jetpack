@@ -15,17 +15,24 @@ import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-c
 import { Icon, Notice, Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
+import classnames from 'classnames';
 import React, { useEffect, useState } from 'react';
 /*
  * Internal dependencies
  */
 import useAnalytics from '../../hooks/use-analytics';
+import useChatAuthentication from '../../hooks/use-chat-authentication';
 import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
+import { useProduct } from '../../hooks/use-product';
 import ConnectionsSection from '../connections-section';
+import IDCModal from '../idc-modal';
 import PlansSection from '../plans-section';
+import { PRODUCT_STATUSES } from '../product-card';
 import ProductCardsSection from '../product-cards-section';
+import StatsSection from '../stats-section';
+import WelcomeBanner from '../welcome-banner';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, options, clean } ) => {
@@ -81,10 +88,18 @@ const GlobalNotice = ( { message, options, clean } ) => {
  */
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
+	// Check using the global state instead of Redux so it only has effect after refreshing the page
+	const welcomeBannerHasBeenDismissed =
+		window?.myJetpackInitialState?.welcomeBanner.hasBeenDismissed;
+	const isStatsModuleActive = window?.myJetpackInitialState?.isStatsModuleActive === '1';
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
-	const shouldShowZendeskChatWidget = ! isFetchingChatAvailability && isAvailable;
+	const { detail: statsDetails } = useProduct( 'stats' );
+	const { jwt, isFetchingChatAuthentication } = useChatAuthentication();
+	const shouldShowZendeskChatWidget =
+		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
+	const isNewUser = window?.myJetpackInitialState?.userIsNewToJetpack === '1';
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
@@ -106,27 +121,40 @@ export default function MyJetpackScreen() {
 	}
 
 	return (
-		<AdminPage>
+		<AdminPage siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }>
+			<IDCModal />
 			<AdminSectionHero>
-				<Container horizontalSpacing={ 0 }>
-					<Col>
-						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-					</Col>
-				</Container>
+				{ ! isNewUser && (
+					<Container horizontalSpacing={ 0 }>
+						<Col>
+							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+						</Col>
+					</Container>
+				) }
+				<WelcomeBanner />
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
 						<Text variant="headline-small">
-							{ __( 'Manage your Jetpack products', 'jetpack-my-jetpack' ) }
+							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
-					{ hasConnectionError && (
+					{ hasConnectionError && ( welcomeBannerHasBeenDismissed || ! isNewUser ) && (
 						<Col>
 							<ConnectionError />
 						</Col>
 					) }
-					{ message && (
+					{ message && ( welcomeBannerHasBeenDismissed || ! isNewUser ) && (
 						<Col>
 							<GlobalNotice message={ message } options={ options } clean={ clean } />
+						</Col>
+					) }
+					{ isStatsModuleActive && (
+						<Col
+							className={ classnames( {
+								[ styles.stats ]: statsDetails?.status !== PRODUCT_STATUSES.ERROR,
+							} ) }
+						>
+							<StatsSection />
 						</Col>
 					) }
 					<Col>
@@ -146,7 +174,7 @@ export default function MyJetpackScreen() {
 				</Container>
 			</AdminSection>
 
-			{ shouldShowZendeskChatWidget && <ZendeskChat /> }
+			{ shouldShowZendeskChatWidget && <ZendeskChat jwt_token={ jwt } /> }
 		</AdminPage>
 	);
 }

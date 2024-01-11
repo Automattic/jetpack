@@ -12,14 +12,12 @@ namespace Automattic\Jetpack;
  * contain the package classes shown below. The consumer plugin
  * must require the corresponding packages to use these features.
  */
-use Automattic\Jetpack\Blaze as Blaze;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\Import\Main as Import_Main;
-use Automattic\Jetpack\JITM as JITM;
 use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
-use Automattic\Jetpack\Post_List\Post_List as Post_List;
-use Automattic\Jetpack\Publicize\Publicize_Setup as Publicize_Setup;
+use Automattic\Jetpack\Post_List\Post_List;
+use Automattic\Jetpack\Publicize\Publicize_Setup;
 use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Main;
 use Automattic\Jetpack\Stats\Main as Stats_Main;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
@@ -27,7 +25,6 @@ use Automattic\Jetpack\Sync\Main as Sync_Main;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 use Automattic\Jetpack\Waf\Waf_Initializer as Jetpack_Waf_Main;
 use Automattic\Jetpack\WordAds\Initializer as Jetpack_WordAds_Main;
-use Automattic\Jetpack\Yoast_Promo as Yoast_Promo;
 
 /**
  * The configuration class.
@@ -56,7 +53,6 @@ class Config {
 		'videopress'      => false,
 		'stats'           => false,
 		'stats_admin'     => false,
-		'blaze'           => false,
 		'yoast_promo'     => false,
 		'import'          => false,
 	);
@@ -161,10 +157,6 @@ class Config {
 		}
 		if ( $this->config['stats_admin'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Stats_Admin\Main' ) && $this->ensure_feature( 'stats_admin' );
-		}
-
-		if ( $this->config['blaze'] ) {
-			$this->ensure_class( 'Automattic\Jetpack\Blaze' ) && $this->ensure_feature( 'blaze' );
 		}
 
 		if ( $this->config['yoast_promo'] ) {
@@ -361,14 +353,6 @@ class Config {
 	}
 
 	/**
-	 * Enables Blaze.
-	 */
-	protected function enable_blaze() {
-		Blaze::init();
-		return true;
-	}
-
-	/**
 	 * Enables Yoast Promo.
 	 */
 	protected function enable_yoast_promo() {
@@ -467,5 +451,4 @@ class Config {
 	protected function get_feature_options( $feature ) {
 		return empty( $this->feature_options[ $feature ] ) ? array() : $this->feature_options[ $feature ];
 	}
-
 }

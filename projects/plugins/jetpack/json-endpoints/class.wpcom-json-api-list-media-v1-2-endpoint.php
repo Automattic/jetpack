@@ -88,4 +88,3 @@ class WPCOM_JSON_API_List_Media_v1_2_Endpoint extends WPCOM_JSON_API_List_Media_
 		return $response;
 	}
 }
-

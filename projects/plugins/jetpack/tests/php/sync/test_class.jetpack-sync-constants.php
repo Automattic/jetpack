@@ -96,5 +96,4 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 		$get_constants = $module->get_objects_by_id( 'constant', array( 'EMPTY_TRASH_DAYS' ) );
 		$this->assertEquals( $constants['EMPTY_TRASH_DAYS'], $get_constants['EMPTY_TRASH_DAYS'] );
 	}
-
 }

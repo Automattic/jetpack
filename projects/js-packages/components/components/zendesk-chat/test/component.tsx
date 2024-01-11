@@ -9,7 +9,7 @@ describe( 'ZendeskChat', () => {
 	} );
 
 	it( 'renders the zendesk chat widget', () => {
-		render( <ZendeskChat /> );
+		render( <ZendeskChat jwt_token="exampletoken" /> );
 
 		expect( screen.getByTestId( 'zendesk-chat-container' ) ).toBeInTheDocument();
 	} );

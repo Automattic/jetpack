@@ -1,11 +1,12 @@
-<?php // phpcs:ignore WordPress.Files.FileName
-
+<?php
 /**
  * Composer 304-short-circuiting plugin.
  *
  * This simple composer plugin redirects repo.packagist.org metadata URLs
  * to a proxy that will respond with a 304 response when it has already seen
  * the URL.
+ *
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Composer304Plugin;
@@ -103,5 +104,4 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			}
 		}
 	}
-
 }

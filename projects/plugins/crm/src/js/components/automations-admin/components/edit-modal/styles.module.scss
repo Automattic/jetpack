@@ -1,0 +1,76 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.modal {
+	:global(.components-modal__header) {
+		padding-bottom: 0 !important;
+	}
+
+	:global(.components-modal__header-heading) {
+		font-size: 20px !important;
+	}
+
+	:global(.components-modal__content) {
+		padding: 0 32px 32px 32px;
+		overflow-x: hidden;
+	}
+
+	:global(.components-checkbox-control__label) {
+		font-size: var(--font-body);
+		margin-bottom: 0;
+		font-weight: 400;
+	}
+
+	:global(.is-scrollable) {
+		box-shadow: none;
+	}
+}
+
+.container {
+	min-width: 500px;
+
+	h1 {
+		font-size: 20px;
+	}
+}
+
+.subheader {
+	color: var(--jp-gray-40);
+	margin-bottom: 36px;
+	font-size: 12px;
+}
+
+.step-container {
+	position: relative;
+	margin-bottom: 18px;
+	background: var(--jp-gray-0);
+	padding: 24px;
+	margin: 0 -32px var(--jp-modal-padding-large) -32px;
+}
+
+.button-container {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 32px;
+
+	:global(.components-button) {
+		padding: 8px 24px !important;
+	}
+
+	:global {
+		.components-button:not(:last-child) {
+			margin-right: 12px;
+		}
+	}
+}
+
+.step-label {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	margin-left: -35px;
+	margin-top: -13px;
+	padding: 3px 0;
+	min-width: 70px;
+	display: flex;
+	justify-content: center;
+}

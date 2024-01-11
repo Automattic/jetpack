@@ -273,5 +273,4 @@ class Woo_Sync_Woo_Admin_Integration {
 		<?php
 		
 	}
-
 }

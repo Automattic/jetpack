@@ -10,17 +10,12 @@ import ActivationModal from './portals/activation-modal';
 function initActivationModalApp() {
 	const container = document.getElementById( 'jetpack-plugin-portal-app' );
 
-	// @todo: Remove fallback when we drop support for WP 6.1
 	const component = (
 		<Provider store={ store }>
 			<ActivationModal />
 		</Provider>
 	);
-	if ( WPElement.createRoot ) {
-		WPElement.createRoot( container ).render( component );
-	} else {
-		WPElement.render( component, container );
-	}
+	WPElement.createRoot( container ).render( component );
 }
 
 if ( document.readyState !== 'loading' ) {

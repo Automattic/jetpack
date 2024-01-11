@@ -52,6 +52,7 @@ class MyPlanHeader extends React.Component {
 		}
 
 		const purchase = find( purchases, purchaseObj => purchaseObj.product_slug === productSlug );
+
 		let expiration;
 		let activation;
 		if ( purchase ) {
@@ -306,7 +307,7 @@ class MyPlanHeader extends React.Component {
 						'Automatic scanning and one-click fixes keep your site one step ahead of security threats.',
 						'jetpack'
 					),
-					title: createInterpolateElement( __( 'Jetpack Scan <em>Daily</em>', 'jetpack' ), {
+					title: createInterpolateElement( __( 'Jetpack Scan', 'jetpack' ), {
 						em: <em />,
 					} ),
 				};
@@ -319,7 +320,7 @@ class MyPlanHeader extends React.Component {
 						'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.',
 						'jetpack'
 					),
-					title: __( 'Akismet Anti-Spam', 'jetpack' ),
+					title: __( 'Akismet Anti-spam', 'jetpack' ),
 				};
 
 			// DEPRECATED: Daily and Real-time variations will soon be retired.
@@ -445,6 +446,32 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Starter', 'jetpack' ),
 				};
 
+			case 'is-jetpack-stats-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Simple, yet powerful analytics with priority support.', 'jetpack' ),
+					title: __( 'Jetpack Stats', 'jetpack' ),
+				};
+
+			case 'is-free-jetpack-stats-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Simple, yet powerful analytics.', 'jetpack' ),
+					title: __( 'Jetpack Stats Free', 'jetpack' ),
+				};
+			case 'is-jetpack-creator-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'Craft stunning content, boost your subscriber base, and monetize your online presence.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Creator', 'jetpack' ),
+				};
+
 			default:
 				return {
 					...productProps,
@@ -512,7 +539,25 @@ class MyPlanHeader extends React.Component {
 			<Card compact>
 				<div className="jp-landing__licensing-actions">
 					{ 'header' === position && (
-						<span>{ __( 'Got a license key? Activate it here.', 'jetpack' ) }</span>
+						<span>
+							{ createInterpolateElement(
+								/* translators: %s is the link to the License management page. */
+								__( 'Got a license key? <a>Activate it here.</a>', 'jetpack' ),
+								{
+									a: (
+										<a
+											href={
+												! window.Initial_State?.useMyJetpackLicensingUI
+													? siteAdminUrl + 'admin.php?page=jetpack#/license/activation'
+													: siteAdminUrl + 'admin.php?page=my-jetpack#/add-license'
+											}
+											onClick={ this.trackLicenseActivationClick }
+											className="jp-landing__licensing-actions-link"
+										/>
+									),
+								}
+							) }
+						</span>
 					) }
 					<div
 						className={ classnames( 'jp-landing__licensing-actions-item', {
@@ -521,31 +566,14 @@ class MyPlanHeader extends React.Component {
 						} ) }
 					>
 						{ showPurchasesLink && (
-							<Button
-								onClick={ this.trackAllPurchasesClick }
-								href={ getRedirectUrl( 'calypso-purchases' ) }
-								compact
-								rna
-							>
-								<ExternalLink>{ __( 'View all purchases', 'jetpack' ) }</ExternalLink>
+							<Button onClick={ this.trackAllPurchasesClick } compact rna>
+								<ExternalLink href={ getRedirectUrl( 'calypso-purchases' ) }>
+									{ __( 'View all purchases', 'jetpack' ) }
+								</ExternalLink>
 							</Button>
 						) }
 
-						{ 'header' === position ? (
-							<Button
-								href={
-									! window.Initial_State?.useMyJetpackLicensingUI
-										? siteAdminUrl + 'admin.php?page=jetpack#/license/activation'
-										: siteAdminUrl + 'admin.php?page=my-jetpack#/add-license'
-								}
-								onClick={ this.trackLicenseActivationClick }
-								primary
-								compact
-								rna
-							>
-								{ _x( 'Activate a Product', 'Navigation item.', 'jetpack' ) }
-							</Button>
-						) : (
+						{ 'footer' === position && (
 							<Button
 								href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
 								onClick={ this.trackRecommendationsClick }

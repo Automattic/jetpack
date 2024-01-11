@@ -1,10 +1,10 @@
 === Jetpack CRM - Clients, Leads, Invoices, Billing, Email Marketing, & Automation ===
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
-Tested up to: 6.2
-Stable tag: 6.0.0
-Requires at least: 5.0
-Requires PHP: 7.2
+Tested up to: 6.4
+Stable tag: 6.3.2
+Requires at least: 6.0
+Requires PHP: 7.4
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -389,26 +389,10 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.0.0 - 2023-06-21
-#### Added
-- CRM: Revamped CRM User Interface - Merge the sleek aesthetics of Jetpack’s style, bringing a new level of sophistication and seamless navigation to your CRM experience
-- API: Now it retrieves contacts with tags
-- Contacts: Allow unsubscribe flag to be removed
-
+### 6.3.2 - 2023-12-19
 #### Changed
-- User roles: Further restricted capabilities on some roles
-- Contacts: Use sha256 instead of md5 for gravatar images
+- Settings: Make support document links more consistent.
 
 #### Fixed
-- Client Portal: Fix a fatal error initializing endpoints and shortcodes
-- CRM: Fix new lines display in quote templates
-- CRM: Fix whitelabel bug with full menu layout
-- CRM: Page layout now has a max width of 1551px
-- CRM: Welcome tour now goes through all steps
-- Extensions: Catch PHP notice if offline
-- Invoices: Show assigned contact/company link
-- Listview: Per-page settings no longer reset
-- Listview: PHP notice no longer shows when saving settings
-- Quotes: Fix sort by status
-- White label: JPCRM support and resources pages no longer show
+- Segments: Fixed an issue preventing segments from being deleted.
 

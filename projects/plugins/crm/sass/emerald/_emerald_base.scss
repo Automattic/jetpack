@@ -20,6 +20,10 @@ body.jpcrm-admin {
 	}
 }
 
+body.jpcrm-admin.jpcrm-full-width #wpcontent #wpbody {
+	max-width: none;
+}
+
 @media screen and (max-width: 600px) {
 	body.jpcrm-admin {
 		#wpbody {

@@ -219,5 +219,4 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		unset( $plugins['hello.php'] );
 		return $plugins;
 	}
-
 }

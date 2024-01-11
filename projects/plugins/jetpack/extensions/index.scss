@@ -5,6 +5,10 @@
 	box-shadow: 0 0 3px var( --jp-green-30 );
 	transition: 0.5s box-shadow linear;
 
+	&.inset-shadow {
+		box-shadow: inset 0 0 3px var( --jp-green-30 );
+	}
+
 	&::before {
 		content: 'BETA';
 		position: absolute;

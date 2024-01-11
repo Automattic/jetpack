@@ -141,5 +141,4 @@ class XMLRPC_Connector_Test extends TestCase {
 			),
 		);
 	}
-
 }

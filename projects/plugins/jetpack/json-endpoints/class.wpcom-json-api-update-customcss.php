@@ -91,5 +91,3 @@ class WPCOM_JSON_API_Update_CustomCss_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return wp_parse_args( $current, $defaults );
 	}
 }
-
-

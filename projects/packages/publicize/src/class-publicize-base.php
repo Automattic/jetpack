@@ -50,13 +50,6 @@ abstract class Publicize_Base {
 	public $POST_MESS = '_wpas_mess';
 
 	/**
-	 * Post meta key for flagging when the post is a tweetstorm.
-	 *
-	 * @var string
-	 */
-	public $POST_TWEETSTORM = '_wpas_is_tweetstorm';
-
-	/**
 	 * Post meta key for the flagging when the post share feature is disabled.
 	 *
 	 * @var string
@@ -451,7 +444,7 @@ abstract class Publicize_Base {
 		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['connection_data']['meta']['link'] ) ) {
-			if ( 'facebook' === $service_name && 0 === strpos( wp_parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
+			if ( 'facebook' === $service_name && str_starts_with( wp_parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
 				// App-scoped Facebook user IDs are not usable profile links.
 				return false;
 			}
@@ -1094,17 +1087,6 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
-		$tweetstorm_args = array(
-			'type'          => 'boolean',
-			'description'   => __( 'Whether or not the post should be treated as a Twitter thread.', 'jetpack-publicize-pkg' ),
-			'single'        => true,
-			'default'       => false,
-			'show_in_rest'  => array(
-				'name' => 'jetpack_is_tweetstorm',
-			),
-			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
-		);
-
 		$publicize_feature_enable_args = array(
 			'type'          => 'boolean',
 			'description'   => __( 'Whether or not the Share Post feature is enabled.', 'jetpack-publicize-pkg' ),
@@ -1133,7 +1115,7 @@ abstract class Publicize_Base {
 			'single'        => true,
 			'default'       => array(
 				'image_generator_settings' => array(
-					'template' => ( new Social_Image_Generator\Settings() )->get_default_template(),
+					'template' => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_template(),
 					'enabled'  => false,
 				),
 			),
@@ -1147,10 +1129,13 @@ abstract class Publicize_Base {
 							'items' => array(
 								'type'       => 'object',
 								'properties' => array(
-									'id'  => array(
+									'id'   => array(
 										'type' => 'number',
 									),
-									'url' => array(
+									'url'  => array(
+										'type' => 'string',
+									),
+									'type' => array(
 										'type' => 'string',
 									),
 								),
@@ -1194,13 +1179,11 @@ abstract class Publicize_Base {
 			}
 
 			$message_args['object_subtype']                  = $post_type;
-			$tweetstorm_args['object_subtype']               = $post_type;
 			$publicize_feature_enable_args['object_subtype'] = $post_type;
 			$already_shared_flag_args['object_subtype']      = $post_type;
 			$jetpack_social_options_args['object_subtype']   = $post_type;
 
 			register_meta( 'post', $this->POST_MESS, $message_args );
-			register_meta( 'post', $this->POST_TWEETSTORM, $tweetstorm_args );
 			register_meta( 'post', self::POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
 			register_meta( 'post', $this->POST_DONE . 'all', $already_shared_flag_args );
 			register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
@@ -1250,7 +1233,7 @@ abstract class Publicize_Base {
 				APP_REQUEST
 			)
 		&&
-			0 === strpos( $post->post_title, 'Temporary Post Used For Theme Detection' )
+			str_starts_with( $post->post_title, 'Temporary Post Used For Theme Detection' )
 		) {
 			$submit_post = false;
 		}
@@ -1427,6 +1410,11 @@ abstract class Publicize_Base {
 
 		$labels = array();
 		foreach ( $services as $service_name => $display_names ) {
+			// Twitter connections do not trigger Publicize anymore. Skip.
+			if ( 'Twitter' === $service_name ) {
+				continue;
+			}
+
 			$labels[] = sprintf(
 				/* translators: Service name is %1$s, and account name is %2$s. */
 				esc_html__( '%1$s (%2$s)', 'jetpack-publicize-pkg' ),
@@ -1436,7 +1424,7 @@ abstract class Publicize_Base {
 		}
 
 		$messages['post'][6] = sprintf(
-			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack) */
 			esc_html__( 'Post published and sharing on %1$s.', 'jetpack-publicize-pkg' ),
 			implode( ', ', $labels )
 		) . $view_post_link_html;
@@ -1445,7 +1433,7 @@ abstract class Publicize_Base {
 			$subscription = \Jetpack_Subscriptions::init();
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
-					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack) */
 					esc_html__( 'Post published, sending emails to subscribers and sharing post on %1$s.', 'jetpack-publicize-pkg' ),
 					implode( ', ', $labels )
 				) . $view_post_link_html;
@@ -1453,7 +1441,7 @@ abstract class Publicize_Base {
 		}
 
 		$messages['jetpack-portfolio'][6] = sprintf(
-			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack) */
 			esc_html__( 'Project published and sharing project on %1$s.', 'jetpack-publicize-pkg' ),
 			implode( ', ', $labels )
 		) . $view_post_link_html;
@@ -1785,21 +1773,48 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Check if Instagram connection is enabled.
+	 * Check if the auto-conversion feature is one of the active features.
+	 *
+	 * @param string $type Whether image or video.
 	 *
 	 * @return bool
 	 */
-	public function has_instagram_connection_feature() {
-		return Current_Plan::supports( 'social-instagram-connection' );
+	public function has_social_auto_conversion_feature( $type ) {
+		return Current_Plan::supports( "social-$type-auto-convert" );
 	}
 
 	/**
-	 * Check if Mastodon connection is enabled.
+	 * Check if a connection is enabled.
+	 *
+	 * @param string $connection The connection name like 'instagram', 'mastodon', 'nextdoor' etc.
 	 *
 	 * @return bool
 	 */
-	public function has_mastodon_connection_feature() {
-		return Current_Plan::supports( 'social-mastodon-connection' );
+	public function has_connection_feature( $connection ) {
+		return Current_Plan::supports( "social-$connection-connection" );
+	}
+
+	/**
+	 * Get a list of additional connections that are supported by the current plan.
+	 *
+	 * @return array
+	 */
+	public function get_supported_additional_connections() {
+		$additional_connections = array();
+
+		if ( $this->has_connection_feature( 'instagram' ) ) {
+			$additional_connections[] = 'instagram-business';
+		}
+
+		if ( $this->has_connection_feature( 'mastodon' ) ) {
+			$additional_connections[] = 'mastodon';
+		}
+
+		if ( $this->has_connection_feature( 'nextdoor' ) ) {
+			$additional_connections[] = 'nextdoor';
+		}
+
+		return $additional_connections;
 	}
 
 	/**

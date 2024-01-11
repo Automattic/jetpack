@@ -154,13 +154,14 @@ EOF
 			$messages,
 			function ( $a, $b ) {
 				// @codeCoverageIgnoreStart
-				if ( $a[2] !== $b[2] ) {
-					return $a[2] - $b[2];
+				$ret = $a[2] <=> $b[2];
+				if ( ! $ret ) {
+					$ret = strcmp( $a[0], $b[0] );
 				}
-				if ( $a[0] !== $b[0] ) {
-					return strcmp( $a[0], $b[0] );
+				if ( ! $ret ) {
+					$ret = strcmp( $a[1], $b[1] );
 				}
-				return strcmp( $a[1], $b[1] );
+				return $ret;
 				// @codeCoverageIgnoreEnd
 			}
 		);

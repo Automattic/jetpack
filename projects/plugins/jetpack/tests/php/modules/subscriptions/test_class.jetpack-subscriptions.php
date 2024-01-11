@@ -6,12 +6,13 @@ require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-membership
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
-use \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
+use Tests\Automattic\Jetpack\Extensions\Premium_Content\Test_Jetpack_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Subscriptions\register_block as register_subscription_block;
-use const \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 
@@ -90,9 +91,9 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			)
 		);
 
-		unset( $_COOKIE[ WPCOM_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+		unset( $_COOKIE[ Test_Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] );
 
-		$this->assertNotContains( WPCOM_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME, $_COOKIE );
+		$this->assertNotContains( Test_Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME, $_COOKIE );
 
 		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), '' ) );
 		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'everybody' ) );
@@ -100,7 +101,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'paid_subscribers' ) );
 
 		// Now we make sure we have the cookie
-		$this->assertNotNull( $_COOKIE[ WPCOM_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+		$this->assertNotNull( $_COOKIE[ Test_Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] );
 
 		// We remove the token
 		unset( $_GET['token'] );
@@ -112,7 +113,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'paid_subscribers' ) );
 
 		// We remove the cookie
-		unset( $_COOKIE[ WPCOM_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+		unset( $_COOKIE[ Test_Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] );
 
 		// We make sure everything nothing works anymore
 		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), '' ) );
@@ -237,7 +238,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Stubs WPCOM_Token_Subscription_Service in order to return the provided token.
+	 * Stubs Test_Jetpack_Token_Subscription_Service in order to return the provided token.
 	 *
 	 * @param array $payload
 	 * @return mixed
@@ -245,7 +246,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	private function set_returned_token( $payload ) {
 		// We remove anything else
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
-		$service       = new WPCOM_Token_Subscription_Service();
+		$service       = new Test_Jetpack_Token_Subscription_Service();
 		$_GET['token'] = JWT::encode( $payload, $service->get_key() );
 		return $service;
 	}
@@ -309,7 +310,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 
 		if ( $token_set ) {
 			$this->set_returned_token( $payload );
-			$token_subscription_service = new WPCOM_Token_Subscription_Service();
+			$token_subscription_service = new Test_Jetpack_Token_Subscription_Service();
 			$result                     = $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level );
 		} else {
 			if ( $logged ) {
@@ -438,7 +439,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			setup_postdata( $post );
 			$level = get_post_meta( $current_post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 			if ( empty( $level ) ) {
-				$level = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+				$level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 			}
 
 			$this->assertEquals( $level, Jetpack_Memberships::get_post_access_level() );
@@ -465,9 +466,11 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		// Connect the plan to a product and mark the plan as a "newsletter" plan
 		update_post_meta( $this->plan_id, 'jetpack_memberships_product_id', $this->product_id );
 		update_post_meta( $this->plan_id, 'jetpack_memberships_site_subscriber', true );
+		update_post_meta( $this->plan_id, 'jetpack_memberships_interval', '1 month' );
+		update_post_meta( $this->plan_id, 'jetpack_memberships_type', Jetpack_Memberships::$type_tier );
 
 		// Connect the site to Stripe
-		update_option( Jetpack_Memberships::$connected_account_id_option_name, 123 );
+		update_option( Jetpack_Memberships::$has_connected_account_option_name, true );
 
 		// Create a post
 		return $this->factory->post->create();
@@ -486,7 +489,6 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			'earn_get_user_subscriptions_for_site_id',
 			static function ( $subscriptions, $subscriber_id ) use ( $paid_subscriber_id, $payload ) {
 				if ( $subscriber_id === $paid_subscriber_id ) {
-					//phpcs:ignore PHPCompatibility.Operators.NewOperators.t_coalesceFound
 					$subscriptions = array_merge( $subscriptions, isset( $payload['subscriptions'] ) ? $payload['subscriptions'] : array() );
 				}
 
@@ -532,6 +534,137 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		update_post_meta( $newsletter_paid_post_id, '_jetpack_newsletter_access', $post_access_level );
 
 		$GLOBALS['post'] = get_post( $newsletter_paid_post_id );
+		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+	}
+
+	/**
+	 * Create a tier
+	 *
+	 * @param int        $newsletter_product_id Plan id.
+	 * @param int        $newsletter_annual_product_id Annual plan ID.
+	 * @param float      $price plan price.
+	 * @param float|null $annual_price annual plan price.
+	 * @param string     $currency currency.
+	 * @return int post tier ID
+	 */
+	private function setup_jetpack_tier( $newsletter_product_id, $newsletter_annual_product_id, $price, $annual_price = null, $currency = 'EUR' ) {
+		/**
+		 * Create a newsletter plan
+		 */
+		$newsletter_plan_id = $this->factory->post->create(
+			array(
+				'post_type' => Jetpack_Memberships::$post_type_plan,
+			)
+		);
+		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_product_id', $newsletter_product_id );
+		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_site_subscriber', true );
+		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_price', $price );
+		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_currency', $currency );
+		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_interval', '1 month' );
+		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_type', 'tier' );
+
+		$this->factory->post->create();
+
+		if ( $annual_price !== null ) {
+			$newsletter_annual_plan_id = $this->factory->post->create(
+				array(
+					'post_type' => Jetpack_Memberships::$post_type_plan,
+				)
+			);
+			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_product_id', $newsletter_annual_product_id );
+			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_site_subscriber', true );
+			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_price', $annual_price );
+			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_currency', $currency );
+			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_interval', '1 year' );
+			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_tier', $newsletter_plan_id );
+			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_type', 'tier' );
+
+			$this->factory->post->create();
+		}
+
+		return $newsletter_plan_id;
+	}
+
+	public function test_newsletter_tiers() {
+		$bronze_tier_plan_id        = 1000;
+		$bronze_tier_annual_plan_id = 2000;
+		$silver_tier_plan_id        = 3000;
+		$silver_tier_annual_plan_id = 5000;
+		$gold_tier_plan_id          = 6000;
+		$gold_tier_annual_plan_id   = 7000;
+
+		$this->setup_jetpack_tier( $bronze_tier_plan_id, $bronze_tier_annual_plan_id, 10, 100 );
+		$silver_tier_id = $this->setup_jetpack_tier( $silver_tier_plan_id, $silver_tier_annual_plan_id, 20, 200 );
+		$this->setup_jetpack_tier( $gold_tier_plan_id, $gold_tier_annual_plan_id, 30, 300 );
+
+		/**
+		 * Setup a paid newsletter plan and post then verify a premium content customer cannot access a newsletter paid post
+		 */
+		$post_access_level       = 'paid_subscribers';
+		$newsletter_paid_post_id = $this->setup_jetpack_paid_newsletters();
+		update_post_meta( $newsletter_paid_post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $post_access_level );
+
+		$GLOBALS['post'] = get_post( $newsletter_paid_post_id );
+
+		// No subscription
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, false, null, null, 0 )
+		);
+		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+
+		// We now set the "middle" tier in price
+		update_post_meta( $newsletter_paid_post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, $silver_tier_id );
+
+		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+
+		// Let's subscribe the user to the Bronze, monthly or annual
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, true, null, null, $bronze_tier_plan_id )
+		);
+		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, true, null, null, $bronze_tier_annual_plan_id )
+		);
+		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+
+		// Let subscribe to the silver, monthly and annual
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, true, null, null, $silver_tier_plan_id )
+		);
+		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, true, null, null, $silver_tier_annual_plan_id )
+		);
+		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+
+		// Let subscribe to the gold, monthly and annual
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, true, null, null, $gold_tier_plan_id )
+		);
+		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, true, null, null, $gold_tier_annual_plan_id )
+		);
+		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+
+		// Let's make sure date is taken into account
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, true, time() - HOUR_IN_SECONDS, null, $gold_tier_annual_plan_id )
+		);
+		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+
+		// This was removed because subscriptions in JWT_token does not provide the subscription status
+		// See https://github.com/Automattic/jetpack/pull/32710/commits/7e874089416d4d0f6b27d03420055f4b55d3c1e2
+		// Let's make sure inactive subscriptions do not count
+		// $subscription_service = $this->set_returned_token(
+		// $this->get_payload( true, true, null, 'inactive', $gold_tier_annual_plan_id )
+		// );
+		// $this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+
+		// Let's make sure non-paid subscribers do not count
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, false, null, null, $gold_tier_annual_plan_id )
+		);
 		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 	}
 }

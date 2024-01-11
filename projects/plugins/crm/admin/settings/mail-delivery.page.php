@@ -427,7 +427,7 @@ if ( count( $zbsSMTPAccs ) <= 0 ) {
 									$commonSMTPSettings = jpcrm_maildelivery_common_SMTP_settings();
 									foreach ( $commonSMTPSettings as $settingPerm => $settingArr ) {
 
-										echo sprintf(
+										printf(
 											'<option value="%s">%s</option>',
 											esc_attr( $settingPerm ),
 											esc_html( $settingArr['name'] )
@@ -541,7 +541,7 @@ if ( count( $zbsSMTPAccs ) <= 0 ) {
 if ( $runningLocally ) {
 
 	?>
-	<div class="ui message"><div class="header"><div class="ui yellow label"><?php esc_html_e( 'Local Machine?', 'zero-bs-crm' ); ?></div></div><p><?php esc_html_e( 'It appears you are running Jetpack CRM locally, this may cause SMTP delivery methods to behave unexpectedly.<br />(e.g. your computer may block outgoing SMTP traffic via firewall or anti-virus software).<br />Jetpack CRM may require external web hosting to properly send via SMTP.', 'zero-bs-crm' ); ?></p></div>
+	<div class="ui message"><div class="header"><div class="ui yellow label"><?php esc_html_e( 'Local Machine?', 'zero-bs-crm' ); ?></div></div><p><?php esc_html_e( 'It appears you are running Jetpack CRM locally. This may cause SMTP delivery methods to behave unexpectedly (e.g. your computer may block outgoing SMTP traffic via firewall or antivirus software). Jetpack CRM may require external web hosting to properly send via SMTP.', 'zero-bs-crm' ); ?></p></div>
 	<?php
 
 }

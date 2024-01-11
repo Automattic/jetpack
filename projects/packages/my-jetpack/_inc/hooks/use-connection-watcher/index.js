@@ -16,10 +16,10 @@ export default function useConnectionWatcher() {
 	const productsThatRequiresUserConnection = useSelect( select =>
 		select( STORE_ID ).getProductsThatRequiresUserConnection()
 	);
-	const { isSiteConnected, hasConnectedOwner } = useMyJetpackConnection();
+	const { isSiteConnected, hasConnectedOwner, isUserConnected } = useMyJetpackConnection();
 
 	const requiresUserConnection =
-		! hasConnectedOwner && productsThatRequiresUserConnection.length > 0;
+		! hasConnectedOwner && ! isUserConnected && productsThatRequiresUserConnection.length > 0;
 
 	const oneProductMessage = sprintf(
 		/* translators: placeholder is product name. */

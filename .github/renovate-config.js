@@ -39,12 +39,9 @@ module.exports = {
 	repositories: [ 'Automattic/jetpack' ],
 
 	// Extra code to run before creating a commit.
-	allowPostUpgradeCommandTemplating: true,
 	allowedPostUpgradeCommands: [ monorepoBase + '.github/files/renovate-post-upgrade-run.sh' ],
 	postUpgradeTasks: {
 		commands: [ monorepoBase + '.github/files/renovate-post-upgrade-run.sh {{{branchName}}}' ],
-		// Anything might change thanks to version bumping.
-		fileFilters: [ '**' ],
 		executionMode: 'branch',
 	},
 	postUpdateOptions: [ 'pnpmDedupe' ],
@@ -83,6 +80,15 @@ module.exports = {
 				return monorepoPackages.sort();
 			} )(),
 			enabled: false,
+		},
+		// PHP non-dev deps need to work with the oldest PHP versions we support.
+		{
+			matchDatasources: [ 'packagist' ],
+			matchDepTypes: [ 'require' ],
+			constraintsFiltering: 'strict',
+			constraints: {
+				php: `~${ versions.MIN_PHP_VERSION }.0`,
+			},
 		},
 	],
 };

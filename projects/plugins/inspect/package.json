@@ -1,0 +1,47 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-inspect",
+	"version": "0.1.0-alpha",
+	"description": "A debugging plugin to inspect Jetpack interactions with WordPress.com.",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Inspect"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/inspect"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm build-js",
+		"build-js": "rollup -c rollup.config.js",
+		"build-production": "pnpm build-production-js",
+		"build-production-js": "rollup -c rollup.config.js",
+		"clean": "rm -rf app-ui/build/"
+	},
+	"dependencies": {
+		"tslib": "2.5.0"
+	},
+	"devDependencies": {
+		"@babel/core": "7.23.5",
+		"@babel/preset-env": "7.23.5",
+		"@rollup/plugin-commonjs": "19.0.2",
+		"@rollup/plugin-node-resolve": "13.3.0",
+		"@rollup/plugin-terser": "0.4.3",
+		"@rollup/plugin-typescript": "8.3.3",
+		"@wordpress/i18n": "4.48.0",
+		"postcss": "8.4.31",
+		"rollup": "2.79.1",
+		"rollup-plugin-livereload": "2.0.5",
+		"rollup-plugin-postcss": "4.0.2",
+		"rollup-plugin-svelte": "7.1.0",
+		"sass": "1.64.1",
+		"svelte": "3.58.0",
+		"svelte-preprocess": "5.0.4",
+		"tslib": "2.5.0",
+		"typescript": "5.0.4",
+		"zod": "3.22.3"
+	}
+}

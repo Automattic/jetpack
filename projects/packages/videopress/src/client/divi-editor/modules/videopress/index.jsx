@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 import './style.css';
 
 const REGEX =
-	/^(?:https?:\/\/)?((?:video|video\.word)press\.com\/(?:v|embed)\/)?(?<guid>[a-zA-Z\d]{7,})(?:.*)?/;
+	/^(?:(?:http(?:s)?:\/\/)?(?:www\.)?video(?:\.word)?press\.com\/(?:v|embed)\/)?([a-zA-Z\d]+)(?:.*)?/i;
 
 class VideoPress extends Component {
 	static slug = 'divi_videopress';
@@ -17,11 +17,11 @@ class VideoPress extends Component {
 		}
 
 		const matches = guid.match( REGEX );
-		if ( ! matches || ! matches[ 2 ] ) {
+		if ( ! matches || ! matches[ 1 ] ) {
 			return null;
 		}
 
-		guid = matches[ 2 ];
+		guid = matches[ 1 ];
 
 		const url =
 			'https://videopress.com/embed/' +

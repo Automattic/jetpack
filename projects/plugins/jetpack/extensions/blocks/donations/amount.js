@@ -78,6 +78,11 @@ const Amount = ( {
 		setEditedValue( formatCurrency( value, currency, { symbol: '' } ) );
 	}, [ currency, isFocused, isInvalid, setAmount, value ] );
 
+	useEffect( () => {
+		setAmount( formatCurrency( value, currency, { symbol: '' } ) );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ value ] );
+
 	return (
 		<div
 			className={ classnames( 'donations__amount', className, {
@@ -98,7 +103,6 @@ const Amount = ( {
 				<RichText
 					allowedFormats={ [] }
 					aria-label={ label }
-					multiline={ false }
 					onChange={ amount => setAmount( amount ) }
 					placeholder={ formatCurrency( defaultValue, currency, { symbol: '' } ) }
 					ref={ richTextRef }

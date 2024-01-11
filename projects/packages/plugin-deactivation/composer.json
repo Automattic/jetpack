@@ -4,10 +4,11 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"php": ">=7.0",
 		"automattic/jetpack-assets": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.4",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"suggest": {
@@ -54,7 +55,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "0.2.x-dev"
 		},
 		"textdomain": "jetpack-plugin-deactivation",
 		"version-constants": {

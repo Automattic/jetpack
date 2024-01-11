@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Fix/ignore new playwright lints. No change to the plugin itself.
+
+

@@ -12,9 +12,6 @@ namespace Automattic\Jetpack\Extensions\Tock;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'tock';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -22,7 +19,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);
 }
@@ -40,17 +37,17 @@ function render_block( $attr ) {
 			return;
 		}
 
-		$content .= Jetpack_Gutenberg::notice(
+		return Jetpack_Gutenberg::notice(
 			__( 'The block will not be shown to your site visitors until a Tock business name is set.', 'jetpack' ),
 			'warning',
-			Blocks::classes( FEATURE_NAME, $attr )
+			Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr )
 		);
 	}
 
 	wp_enqueue_script( 'tock-widget', 'https://www.exploretock.com/tock.js', array(), JETPACK__VERSION, true );
 
 	// Add CSS to hide direct link.
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	wp_add_inline_script(
 		'tock-widget',
@@ -62,7 +59,7 @@ function render_block( $attr ) {
 	);
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		$content
 	);
 }

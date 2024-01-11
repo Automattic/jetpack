@@ -5,6 +5,7 @@ import {
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
+	PLAN_JETPACK_CREATOR_YEARLY,
 	getPlanClass,
 } from 'lib/plans/constants';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
@@ -62,6 +63,7 @@ import {
 	getSitePurchases,
 	hasActiveProductPurchase,
 	hasActiveSecurityPurchase,
+	hasActiveCreatorPurchase,
 	siteHasFeature,
 	isFetchingSiteData,
 	hasActiveAntiSpamPurchase,
@@ -336,8 +338,8 @@ const stepToNextStepByPath = {
 		'product-suggestions': 'woocommerce',
 		woocommerce: 'monitor',
 		monitor: 'related-posts',
-		'related-posts': 'creative-mail',
-		'creative-mail': 'site-accelerator',
+		'related-posts': 'newsletter',
+		newsletter: 'site-accelerator',
 		'site-accelerator': 'publicize',
 		publicize: 'vaultpress-for-woocommerce',
 		'vaultpress-for-woocommerce': 'vaultpress-backup', // falls back to vaultpress-backup so it only shows one of them
@@ -419,6 +421,7 @@ export const stepToRoute = {
 	agency: '#/recommendations/agency',
 	woocommerce: '#/recommendations/woocommerce',
 	monitor: '#/recommendations/monitor',
+	newsletter: '#/recommendations/newsletter',
 	'related-posts': '#/recommendations/related-posts',
 	'creative-mail': '#/recommendations/creative-mail',
 	'site-accelerator': '#/recommendations/site-accelerator',
@@ -483,6 +486,8 @@ export const isFeatureActive = ( state, featureSlug ) => {
 			);
 		case 'monitor':
 			return !! getSetting( state, 'monitor' );
+		case 'newsletter':
+			return !! getSetting( state, 'subscriptions' );
 		case 'related-posts':
 			return !! getSetting( state, 'related-posts' );
 		case 'site-accelerator':
@@ -546,6 +551,11 @@ export const getProductSlugForStep = ( state, step ) => {
 				! isJetpackPlanWithBackup( getSitePlan( state ) )
 			) {
 				return PLAN_JETPACK_BACKUP_T1_YEARLY;
+			}
+			break;
+		case 'newsletter':
+			if ( ! hasActiveCreatorPurchase( state ) ) {
+				return PLAN_JETPACK_CREATOR_YEARLY;
 			}
 			break;
 		case 'anti-spam':
@@ -840,6 +850,7 @@ export const getSummaryFeatureSlugs = state => {
 		'monitor',
 		'related-posts',
 		'creative-mail',
+		'newsletter',
 		'site-accelerator',
 		'protect',
 		'publicize',

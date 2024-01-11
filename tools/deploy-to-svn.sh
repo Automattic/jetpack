@@ -156,12 +156,18 @@ success "Done!"
 
 info "Checking for added and removed files"
 ANY=false
-while IFS=" " read -r FLAG FILE; do
-	if [[ "$FLAG" == '!' ]]; then
-		svn rm "$FILE"
+while IFS= read -r LINE; do
+	FLAGS="${LINE:0:7}"
+	FILE="${LINE:8}"
+	if [[ "$FLAGS" != ?'      ' ]]; then
+		echo "Unexpected svn flags: $LINE"
+	fi
+	# The appending of an `@` to the filename here avoids problems with filenames containing `@` being interpreted as "peg revisions".
+	if [[ "${FLAGS:0:1}" == '!' ]]; then
+		svn rm "${FILE}@"
 		ANY=true
-	elif [[ "$FLAG" == "?" ]]; then
-		svn add "$FILE"
+	elif [[ "${FLAGS:0:1}" == "?" ]]; then
+		svn add "${FILE}@"
 		ANY=true
 	fi
 done < <( svn status )

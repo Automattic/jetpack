@@ -588,7 +588,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 										$invoice_val = $invoice['total'];
 
-										$invoice_status = $invoice['status'];
+										$invoice_status = $invoice['status_label'];
 
 										echo '<tr>';
 										echo '<td><a href="' . esc_url( $invoice_url ) . '">' . esc_html( $id_ref_str ) . '</a></td>';
@@ -765,9 +765,6 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								$hasFiles = true;
 
 								$fileLineIndx = 0; foreach ( $zbsFiles as $zbsFile ) {
-
-									// $fileFullname = basename($zbsFile['file']);
-									// $file = substr($fileFullname,strpos($fileFullname, '-')+1);
 									$file = zeroBSCRM_files_baseName( $zbsFile['file'], isset( $zbsFile['priv'] ) );
 									?>
 								<tr>
@@ -849,7 +846,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								<tbody>
 									<?php
 									// prep link to create a new task
-									$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&zbsprefillco=' . $company['id'];
+									$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TASK ) . '&zbsprefillco=' . $company['id'];
 
 									if ( isset( $company['tasks'] ) && is_array( $company['tasks'] ) && count( $company['tasks'] ) > 0 ) {
 
@@ -881,7 +878,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 											}
 
-											$taskURL   = jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_EVENT );
+											$taskURL   = jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_TASK );
 											$statusStr = __( 'Incomplete', 'zero-bs-crm' );
 											if ( isset( $task['complete'] ) && $task['complete'] === 1 ) {
 												$statusStr = __( 'Completed', 'zero-bs-crm' );

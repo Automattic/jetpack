@@ -33,7 +33,6 @@ function render() {
 		return;
 	}
 
-	// @todo: Remove fallback when we drop support for WP 6.1
 	const component = (
 		<ThemeProvider>
 			<HashRouter>
@@ -46,11 +45,7 @@ function render() {
 			<Modal />
 		</ThemeProvider>
 	);
-	if ( WPElement.createRoot ) {
-		WPElement.createRoot( container ).render( component );
-	} else {
-		WPElement.render( component, container );
-	}
+	WPElement.createRoot( container ).render( component );
 }
 
 render();
