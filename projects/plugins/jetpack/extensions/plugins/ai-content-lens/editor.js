@@ -3,6 +3,7 @@
  */
 import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
 import { dispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 /**
  * Internal dependencies
@@ -42,7 +43,7 @@ function extendAiContentLensFeatures( settings, name ) {
 	registerJetpackPlugin( aiExcerptPluginName, aiExcerptPluginSettings );
 
 	// Remove the excerpt panel by dispatching an action.
-	dispatch( 'core/edit-post' )?.removeEditorPanel( 'post-excerpt' );
+	dispatch( editorStore )?.removeEditorPanel( 'post-excerpt' );
 
 	return settings;
 }
