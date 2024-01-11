@@ -191,6 +191,7 @@ class Initializer {
 				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
+				'blogID'                => Connection_Manager::get_site_id( true ),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
 				'myJetpackFlags'        => self::get_my_jetpack_flags(),
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
