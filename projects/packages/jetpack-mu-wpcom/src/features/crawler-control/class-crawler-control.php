@@ -17,15 +17,15 @@ class Crawler_Control {
 	const ERROR_MESSAGE   = 'Howdy! We are as excited about the treasure trove of great content on this blog as you are, and we are happy to discuss data research partnerships. Please learn more and contact us at: ' . self::TERMS_URL;
 	const X_TERMS         = 'X-Terms: Howdy! We appreciate this content too. Learn more about our data research partnerships: ' . self::TERMS_URL;
 	const BOT_USER_AGENTS = array(
-		'#a8ctest#is',
-		'#GPTBot#is',
-		'#CCBot#is',
-		'#sentibot#is',
-		'#Google\-Extended#is',
-		'#FacebookBot#is',
-		'#omgili#is',
-		'#Amazonbot#is',
-		'#bingbot#is',
+		'a8ctest',
+		'GPTBot',
+		'CCBot',
+		'sentibot',
+		'Google-Extended',
+		'FacebookBot',
+		'omgili',
+		'Amazonbot',
+		'bingbot',
 	);
 
 	/**
@@ -60,7 +60,7 @@ class Crawler_Control {
 	public function is_useragent_a_bot( $user_agent ) {
 		$bots = apply_filters( 'wpcom_crawler_control_bots', self::BOT_USER_AGENTS );
 		foreach ( $bots as $bot ) {
-			if ( preg_match( $bot, $user_agent ) ) {
+			if ( stristr( $user_agent, $bot ) ) {
 				return true;
 			}
 		}
@@ -85,9 +85,12 @@ class Crawler_Control {
 			return;
 		}
 		$user_agent = $this->get_useragent();
+		if ( ! $user_agent ) {
+			return;
+		}
 
 		// Special handling for Bingbot.
-		if ( preg_match( '#bingbot#is', $user_agent ) ) {
+		if ( stristr( $user_agent, 'bingbot' ) ) {
 			$this->header( 'X-Robots-Tag: nocache' );
 		}
 
@@ -109,7 +112,7 @@ class Crawler_Control {
 	public function is_crawlable() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$blog_id = get_current_blog_id();
-			if ( is_automattic( $blog_id ) ) {
+			if ( function_exists( 'is_automattic' ) && is_automattic( $blog_id ) ) {
 				return true;
 			}
 			return get_blog_option( $blog_id, self::OPTION_NAME, false );
