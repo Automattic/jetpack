@@ -12,6 +12,7 @@ import { QualitySettings } from '$features/image-cdn';
 import styles from './index.module.scss';
 import { RecommendationsMeta } from '$features/image-size-analysis';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
+import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -25,6 +26,11 @@ const Index = () => {
 	const [ cloudCssState ] = useSingleModuleState( 'cloud_css' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
+
+	const regenerateCssAction = useRegenerateCriticalCssAction();
+	const requestRegenerateCriticalCss = () => {
+		regenerateCssAction.mutate();
+	};
 
 	const lazyLoadDeprecationMessage = lazyLoadState?.available
 		? __(
@@ -43,6 +49,7 @@ const Index = () => {
 			<Module
 				slug="critical_css"
 				title={ __( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' ) }
+				onEnable={ () => requestRegenerateCriticalCss() }
 				description={
 					<>
 						<p>
@@ -88,6 +95,7 @@ const Index = () => {
 						<span className="jb-badge">Upgraded</span>
 					</>
 				}
+				onEnable={ () => requestRegenerateCriticalCss() }
 				description={
 					<>
 						<p>
