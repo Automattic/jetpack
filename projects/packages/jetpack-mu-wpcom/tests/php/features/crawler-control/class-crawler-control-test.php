@@ -93,6 +93,11 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_crawler_disables_sentibot_by_default() {
 		$cc = $this->get_crawler_control( 'sentibot' );
+		$cc->expects( $this->once() )
+		->method( 'header' )
+		->willReturn(
+			$this->equalTo( $cc::X_TERMS )
+		);
 
 		$this->expectException( CrawlerControlDieException::class );
 		$cc->exit_for_bots_unless_permitted();
@@ -114,14 +119,12 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_crawler_sets_special_header_for_bingbot() {
 		$cc = $this->get_crawler_control( 'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)' );
-		$cc->expects( $this->exactly( 2 ) )
+		$cc->expects( $this->once() )
 		->method( 'header' )
-		->willReturnOnConsecutiveCalls(
-			$this->equalTo( 'X-Robots-Tag: nocache' ),
-			$this->equalTo( Crawler_Control::X_TERMS )
+		->willReturn(
+			$this->equalTo( 'X-Robots-Tag: nocache' )
 		);
 
-		$this->expectException( CrawlerControlDieException::class );
 		$cc->exit_for_bots_unless_permitted();
 	}
 
