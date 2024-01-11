@@ -4,7 +4,6 @@ import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
 import { useEffect, useState } from '@wordpress/element';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import {
 	useCriticalCssState,
 	useRegenerateCriticalCssAction,
@@ -75,10 +74,4 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailabl
 	);
 };
 
-export default function ( props: CriticalCssMetaProps ) {
-	return (
-		<DataSyncProvider>
-			<CriticalCssMeta { ...props } />
-		</DataSyncProvider>
-	);
-}
+export default CriticalCssMeta;
