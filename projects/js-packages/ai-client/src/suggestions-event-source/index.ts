@@ -118,8 +118,8 @@ export default class SuggestionsEventSource extends EventTarget {
 		} = {};
 
 		// Populate body data with post id
-		if ( options?.postId ) {
-			bodyData.post_id = options.postId;
+		if ( options?.postId && Number.isFinite( +options.postId ) ) {
+			bodyData.post_id = +options.postId;
 		}
 
 		// If the url is not provided, we use the default one
