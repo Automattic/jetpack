@@ -145,11 +145,11 @@ function SubscriptionsSettings( props ) {
 							disabled={ isDisabled }
 							toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
 							onChange={ handleSubscribeModalToggleChange }
-							label={ __( 'Enable subscriber pop-up', 'jetpack' ) }
+							label={ __( 'Enable subscription pop-up', 'jetpack' ) }
 						/>
 						<p className="jp-form-setting-explanation">
 							{ __(
-								'Automatically add a subscribe form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
+								'Automatically add a subscription form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
 								'jetpack'
 							) }
 							{ isBlockTheme && subscribeModalEditorUrl && (
