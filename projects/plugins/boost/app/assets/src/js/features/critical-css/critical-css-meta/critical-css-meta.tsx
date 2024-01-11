@@ -3,7 +3,7 @@ import Status from '../status/status';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import {
 	useCriticalCssState,
@@ -33,6 +33,14 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailabl
 	}
 
 	const { progress } = useLocalCriticalCssGenerator();
+
+	// On mount, check for not_generated status, and request generation if needed.
+	useEffect( () => {
+		if ( cssState.status === 'not_generated' ) {
+			regenerateAction.mutate();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- Only run on mount.
+	}, [] );
 
 	if ( cssState.status === 'pending' ) {
 		return (
