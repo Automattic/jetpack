@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Sync: Fixed buffer sanitization in Sync close endpoint
