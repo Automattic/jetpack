@@ -42,7 +42,7 @@ function extendAiContentLensFeatures( settings, name ) {
 
 	// check if the removeEditorPanel function exists in the editorStore.
 	// íf not, look for it in the editPostStore.
-	// @to-do: remove this once Jetpack requires WordPres 6.5,
+	// @todo: remove this once Jetpack requires WordPres 6.5,
 	// where the removeEditorPanel function will be available in the editorStore.
 	const removeEditorPanel = dispatch( editorStore )?.removeEditorPanel
 		? dispatch( editorStore )?.removeEditorPanel
