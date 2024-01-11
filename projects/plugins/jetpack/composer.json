@@ -13,7 +13,6 @@
 		"ext-openssl": "*",
 		"automattic/jetpack-a8c-mc-stats": "@dev",
 		"automattic/jetpack-abtest": "@dev",
-		"automattic/jetpack-action-bar": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
