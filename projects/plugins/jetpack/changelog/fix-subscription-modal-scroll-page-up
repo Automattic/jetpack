@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
+Type: bugfix
 
 Subscriptions: Fix page scrolling up after the subscription modal is dismissed
