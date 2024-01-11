@@ -51,6 +51,27 @@ class WPCOM_REST_API_V2_Endpoint_Related_Posts extends WP_REST_Controller {
 				},
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/(?P<id>[\d]+)',
+			array(
+				'args' => array(
+					'id' => array(
+						'description' => __( 'Unique identifier for the post.', 'jetpack' ),
+						'type'        => 'integer',
+					),
+				),
+				array(
+					'show_in_index'       => true,
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_related_posts' ),
+					'permission_callback' => function () {
+						return current_user_can( 'manage_options' );
+					},
+				),
+			)
+		);
 	}
 
 	/**
@@ -92,6 +113,44 @@ class WPCOM_REST_API_V2_Endpoint_Related_Posts extends WP_REST_Controller {
 				'enabled' => (bool) $enable,
 			)
 		);
+	}
+
+	/**
+	 * Get the related posts
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Response Array The related posts
+	 */
+	public function get_related_posts( $request ) {
+		$post          = $this->get_post( $request['id'] );
+		$related_posts = \Jetpack_RelatedPosts::init()->get_for_post_id( $post->ID, array( 'size' => 6 ) );
+		return rest_ensure_response( $related_posts );
+	}
+
+	/**
+	 * Gets the post, if the ID is valid.
+	 *
+	 * @param int $id Supplied ID.
+	 * @return WP_Post|WP_Error Post object if ID is valid, WP_Error otherwise.
+	 */
+	public function get_post( $id ) {
+		$error = new WP_Error(
+			'rest_post_invalid_id',
+			__( 'Invalid post ID.', 'jetpack' ),
+			array( 'status' => 404 )
+		);
+
+		if ( (int) $id <= 0 ) {
+			return $error;
+		}
+
+		$post = get_post( (int) $id );
+		if ( empty( $post ) || empty( $post->ID ) ) {
+			return $error;
+		}
+
+		return $post;
 	}
 }
 

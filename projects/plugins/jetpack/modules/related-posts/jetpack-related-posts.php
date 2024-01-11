@@ -2048,6 +2048,17 @@ EOT;
 	 * @return array
 	 */
 	public function rest_get_related_posts( $object ) {
+		// If the Related Posts option is turned off, don't get the related posts.
+		$options = \Jetpack_Options::get_option( 'relatedposts', array() );
+		if ( empty( $options['enabled'] ) || ! $options['enabled'] ) {
+			return array();
+		}
+
+		// If the current post don't contain a Related Posts block, don't get the related posts.
+		if ( ! has_block( 'jetpack/related-posts' ) ) {
+			return array();
+		}
+
 		return $this->get_for_post_id( $object['id'], array( 'size' => 6 ) );
 	}
 }
