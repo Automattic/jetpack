@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync: Dedicated sync now disabled for high queue lags only if test request fails.
