@@ -144,7 +144,7 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			<InspectorControls>
 				<PanelBody title={ _x( 'Settings', 'title of block settings sidebar section', 'jetpack' ) }>
 					<ToggleControl
-						label={ __( 'Show daily prompt label', 'jetpack' ) }
+						label={ __( 'Show prompt label', 'jetpack' ) }
 						checked={ showLabel }
 						onChange={ onShowLabelChange }
 					/>
