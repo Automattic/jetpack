@@ -179,6 +179,7 @@ class WordAds_Consent_Management_Provider {
 			'locale'             => $language_code,
 			'vendorsAll'         => $meta['meta']['vendors_encoded'],
 			'vendorsLegInterest' => $meta['meta']['vendors_legitimate_interests_encoded'],
+			'ajaxUrl'            => esc_url( admin_url( 'admin-ajax.php' ) ),
 			'ajaxNonce'          => $nonce,
 			'modulePath'         => $module_path,
 			'gvlPath'            => $gvl_path,
