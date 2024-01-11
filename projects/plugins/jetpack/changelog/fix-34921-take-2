@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: do not attempt to display the AI Excerpt assistant in the site editor and the widget editor.
