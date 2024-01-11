@@ -13,7 +13,7 @@ use Automattic\Jetpack\Sync\Settings;
  * The Jetpack_RelatedPosts class.
  */
 class Jetpack_RelatedPosts {
-	const VERSION   = '20211209';
+	const VERSION   = '20241111';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	/**
