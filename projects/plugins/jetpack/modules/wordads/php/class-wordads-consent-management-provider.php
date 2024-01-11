@@ -389,14 +389,8 @@ class WordAds_Consent_Management_Provider {
 			$meta = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
 			return $meta;
 		} else {
-			return new WP_Error(
-				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array(
-					'status'  => $response_code,
-					'request' => $wpcom_request,
-				)
-			);
+			// TODO: log error
+			return array();
 		}
 	}
 }
