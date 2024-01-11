@@ -132,7 +132,7 @@ class Jetpack_Subscribe_Modal {
 	public function get_subscribe_template_content() {
 		// translators: %s is the name of the site.
 		$discover_more_from = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
-		$continue_reading   = __( 'Continue Reading', 'jetpack' );
+		$continue_reading   = __( 'Continue reading', 'jetpack' );
 		$subscribe_text     = __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack' );
 
 		return <<<HTML
