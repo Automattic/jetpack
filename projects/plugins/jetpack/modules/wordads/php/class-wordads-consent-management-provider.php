@@ -163,7 +163,7 @@ class WordAds_Consent_Management_Provider {
 
 		$gvl_specification_version = self::get_default_gvl_specification_version();
 		$language_code             = self::get_site_language_code();
-		$meta                      = array();
+		$meta                      = self::get_vendor_meta( $language_code, $gvl_specification_version );
 		$module_path               = 'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/'; // consider version query param?
 		$gvl_path                  = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/v%d/vendors/%s/', self::get_blog_id(), $gvl_specification_version, $language_code );
 
@@ -177,8 +177,8 @@ class WordAds_Consent_Management_Provider {
 			'gvlVersion'         => $meta['vendor_list_version'],
 			'consentLanguage'    => strtoupper( substr( $language_code, 0, 2 ) ),
 			'locale'             => $language_code,
-			'vendorsAll'         => 'EGpq_4__7a_t_y9e_T9ujzGr_vsffdiGIML5Nn3AuRd635OC--wmZom3VtTBUyJAl27IJCAto5M6iKsULVECteY9jEgzkCZpRPwMkA5iL2zrAQvN8zFsfyBTPP9P7u7_Oyf_v7t_27ueefqs9-73r9zsrhETrXPto_8_7aJTf3ZD3v_f3_F-npv9cm37yat__r19_ev139v____v_v__4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAg',
-			'vendorsLegInterest' => 'EGoAsw0KiAPsiQkItBwigQAiCsICKBAAAACQNEBACQMCnYGAS6wkQAgRQADBACAAFGQAIAABIAEIgAkAKBAABAIBAAAAAAIBAAwMAA4ALQQCAAEB0DFMKABQLCBIzIiFMCEKBIICWygQSAoEFcIAixwIoBETBQAIAkAFYAAALFYDEEgJWJBAlhBtAAAQAIBRShUIpOjAEMCZstVOKJtGQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAg',
+			'vendorsAll'         => $meta['meta']['vendors_encoded'],
+			'vendorsLegInterest' => $meta['meta']['vendors_legitimate_interests_encoded'],
 			'ajaxNonce'          => $nonce,
 			'modulePath'         => $module_path,
 			'gvlPath'            => $gvl_path,
@@ -368,5 +368,35 @@ class WordAds_Consent_Management_Provider {
 		$intro = sprintf( __( 'We and our %1$s advertising partners store and/or access information on your device and also process personal data, like unique identifiers, browsing activity, and other standard information sent by your device including your IP address. This information is collected over time and used for personalised ads, ad measurement, audience insights, and product development specific to our ads program. If this sounds good to you, select "I Agree!" below. Otherwise, you can get more information, customize your consent preferences, or decline consent by selecting "Learn More". Note that your preferences apply only to this website. If you change your mind in the future you can update your preferences anytime by visiting the Privacy link displayed under each ad or by using the "Privacy" option in the Action Bar located at the bottom-right corner of the screen. One last thing, our partners may process some of your data based on legitimate interests instead of consent but you can object to that by choosing "Learn More" and then disabling the Legitimate Interests toggle under any listed Purpose or Partner.', 'jetpack' ), $vendors_count );
 
 		return $intro;
+	}
+
+	/**
+	 * Gets metadata for the vendor list.
+	 *
+	 * This metadata is output to the page as configuration in a script tag. It's used by the React front-end
+	 * to avoid having to load the full GVL data when on the happy path of accepting all consent.
+	 *
+	 * @param string $language_code The language code used for lookup.
+	 * @param int    $gvl_specification_version The GVL specification version used for lookup.
+	 *
+	 * @return array The GVL meta data.
+	 */
+	public static function get_vendor_meta( string $language_code, int $gvl_specification_version ): array {
+		$request_url   = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/v%d/vendors-meta/%s/', self::get_blog_id(), $gvl_specification_version, $language_code );
+		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			$meta = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+			return $meta;
+		} else {
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array(
+					'status'  => $response_code,
+					'request' => $wpcom_request,
+				)
+			);
+		}
 	}
 }
