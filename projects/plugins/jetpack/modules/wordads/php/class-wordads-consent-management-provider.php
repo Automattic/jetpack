@@ -165,7 +165,7 @@ class WordAds_Consent_Management_Provider {
 		$language_code             = self::get_site_language_code();
 		$meta                      = array();
 		$module_path               = 'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/'; // consider version query param?
-		$gvl_path                  = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/v%d/vendors/%s/', get_current_blog_id(), $gvl_specification_version, $language_code );
+		$gvl_path                  = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/v%d/vendors/%s/', self::get_blog_id(), $gvl_specification_version, $language_code );
 
 		// Switch to supported language or fallback to English.
 		switch_to_locale( $language_code );
@@ -239,6 +239,15 @@ class WordAds_Consent_Management_Provider {
 			self::CMP_VERSION,
 			false
 		);
+	}
+
+	/**
+	 * Get the blog ID.
+	 *
+	 * @return Object current blog id.
+	 */
+	private static function get_blog_id() {
+		return Jetpack_Options::get_option( 'id' );
 	}
 
 	/**
