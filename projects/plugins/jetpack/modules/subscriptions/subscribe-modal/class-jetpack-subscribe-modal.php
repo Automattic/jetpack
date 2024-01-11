@@ -169,6 +169,14 @@ HTML;
 			return false;
 		}
 
+		// Needed because Elementor editor makes is_admin() return false
+		// See https://coreysalzano.com/wordpress/why-elementor-disobeys-is_admin/
+		// Ignore nonce warning as just checking if is set
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['elementor-preview'] ) ) {
+			return false;
+		}
+
 		// Don't show when previewing blog posts or site's theme
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['preview'] ) || isset( $_GET['theme_preview'] ) || isset( $_GET['customize_preview'] ) || isset( $_GET['hide_banners'] ) ) {
