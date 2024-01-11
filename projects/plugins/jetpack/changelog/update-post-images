@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Post Images: avoid PHP warnings on sites using PHP 8.1+, when a post image has a malformed URL.
