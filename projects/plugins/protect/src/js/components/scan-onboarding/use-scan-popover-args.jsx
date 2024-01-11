@@ -9,7 +9,7 @@ import useOnboarding from '../../hooks/use-onboarding';
 
 const useScanPopoverArgs = ( { anchors, totalSteps } ) => {
 	const { adminUrl, siteSuffix } = window.jetpackProtectInitialState;
-	const { incrementOnboardingStep, dismissOnboarding, createPopoverArgs } = useOnboarding();
+	const { incrementOnboardingStep, dismissOnboarding } = useOnboarding();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
@@ -23,7 +23,7 @@ const useScanPopoverArgs = ( { anchors, totalSteps } ) => {
 	};
 
 	return {
-		yourScanResults: createPopoverArgs( {
+		yourScanResults: {
 			title: __( 'Your scan results', 'jetpack-protect' ),
 			buttonContent: __( 'Next', 'jetpack-protect' ),
 			anchor: anchors.yourScanResultsPopoverAnchor,
@@ -39,9 +39,9 @@ const useScanPopoverArgs = ( { anchors, totalSteps } ) => {
 					) }
 				</Text>
 			),
-		} ),
+		},
 
-		fixAllThreats: createPopoverArgs( {
+		fixAllThreats: {
 			title: __( 'Auto-fix with one click', 'jetpack-protect' ),
 			buttonContent: __( 'Next', 'jetpack-protect' ),
 			anchor: anchors.fixAllThreatsPopoverAnchor,
@@ -76,9 +76,9 @@ const useScanPopoverArgs = ( { anchors, totalSteps } ) => {
 					) }
 				</Text>
 			),
-		} ),
+		},
 
-		understandSeverity: createPopoverArgs( {
+		understandSeverity: {
 			title: __( 'Understand severity', 'jetpack-protect' ),
 			buttonContent: __( 'Next', 'jetpack-protect' ),
 			anchor: anchors.understandSeverityPopoverAnchor,
@@ -94,9 +94,9 @@ const useScanPopoverArgs = ( { anchors, totalSteps } ) => {
 					) }
 				</Text>
 			),
-		} ),
+		},
 
-		dailyAutomatedScans: createPopoverArgs( {
+		dailyAutomatedScans: {
 			title: __( 'Daily automated scans', 'jetpack-protect' ),
 			buttonContent: __( 'Finish', 'jetpack-protect' ),
 			anchor: anchors.dailyAutomatedScansPopoverAnchor,
@@ -117,9 +117,9 @@ const useScanPopoverArgs = ( { anchors, totalSteps } ) => {
 					) }
 				</Text>
 			),
-		} ),
+		},
 
-		dailyAndManualScans: createPopoverArgs( {
+		dailyAndManualScans: {
 			title: __( 'Daily & manual scanning', 'jetpack-protect' ),
 			buttonContent: __( 'Finish', 'jetpack-protect' ),
 			anchor: anchors.dailyAndManualScansPopoverAnchor,
@@ -135,7 +135,7 @@ const useScanPopoverArgs = ( { anchors, totalSteps } ) => {
 					) }
 				</Text>
 			),
-		} ),
+		},
 	};
 };
 
