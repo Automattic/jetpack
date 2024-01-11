@@ -82,7 +82,7 @@ class Assets {
 	 * @param string $handle The script's registered handle.
 	 */
 	public function script_add_async( $tag, $handle ) {
-		_deprecated_function( __METHOD__, '$$next-version$$ ' );
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		if ( empty( $this->defer_script_handles ) ) {
 			return $tag;
 		}
@@ -108,7 +108,7 @@ class Assets {
 	 * @param bool   $in_footer       Should the script be included in the footer.
 	 */
 	public static function enqueue_async_script( $handle, $min_path, $non_min_path, $deps = array(), $ver = false, $in_footer = true ) {
-		_deprecated_function( __METHOD__, '$$next-version$$ ' );
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		$assets_instance = self::instance();
 		$assets_instance->add_async_script( $handle );
 		wp_enqueue_script( $handle, self::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
@@ -305,13 +305,13 @@ class Assets {
 	 * This wrapper handles all of that.
 	 *
 	 * @since 1.12.0
-	 * @since $$next-version$$ Add a new `strategy` option to leverage >= 6.3. script strategy feature. The `async` option is deprecated.
+	 * @since $$next-version$$ Add a new `strategy` option to leverage WP >= 6.3 script strategy feature. The `async` option is deprecated.
 	 * @param string $handle      Name of the script. Should be unique across both scripts and styles.
 	 * @param string $path        Minimized script path.
 	 * @param string $relative_to File that `$path` is relative to. Pass `__FILE__`.
 	 * @param array  $options     Additional options:
 	 *  - `asset_path`:       (string|null) `.asset.php` to load. Default is to base it on `$path`.
-	 *  - `async`:            (bool) Set true to register the script as async, like `Assets::enqueue_async_script()`. Deprecated since $$next-version$$ in favor of `strategy`.
+	 *  - `async`:            (bool) Set true to register the script as deferred, like `Assets::enqueue_async_script()`. Deprecated in favor of `strategy`.
 	 *  - `css_dependencies`: (string[]) Additional style dependencies to queue.
 	 *  - `css_path`:         (string|null) `.css` to load. Default is to base it on `$path`.
 	 *  - `dependencies`:     (string[]) Additional script dependencies to queue.
@@ -331,11 +331,7 @@ class Assets {
 		}
 
 		if ( $options['async'] ) {
-			_deprecated_argument(
-				__METHOD__,
-				'$$next-version$$',
-				'The `async` option is deprecated in favor of `strategy`'
-			);
+			_deprecated_argument( __METHOD__, '$$next-version$$', 'The `async` option is deprecated in favor of `strategy`' );
 		}
 
 		$dir      = dirname( $relative_to );
@@ -350,8 +346,8 @@ class Assets {
 			'in_footer'        => false,
 			'media'            => 'all',
 			'minify'           => false,
-			'textdomain'       => null,
 			'strategy'         => '',
+			'textdomain'       => null,
 		);
 
 		if ( $options['css_path'] && substr( $options['css_path'], -4 ) !== '.css' ) {
