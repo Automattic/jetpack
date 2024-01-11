@@ -14,8 +14,8 @@ class Set_Provider_CSS implements Data_Sync_Action {
 	/**
 	 * Handles the action logic.
 	 *
-	 * @param mixed            $data    JSON Data passed to the action.
-	 * @param \WP_REST_Request $request The request object.
+	 * @param mixed            $data     JSON Data passed to the action.
+	 * @param \WP_REST_Request $_request The request object.
 	 */
 	public function handle( $data, $_request ) {
 		if ( empty( $data['key'] ) || empty( $data['css'] ) ) {
