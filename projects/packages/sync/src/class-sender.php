@@ -510,6 +510,7 @@ class Sender {
 		 */
 		foreach ( $items as $key => $item ) {
 			if ( ! is_array( $item ) ) {
+				$skipped_items_ids[] = $key;
 				continue;
 			}
 
