@@ -62,7 +62,7 @@ class Assets {
 	/**
 	 * A public method for adding the async script.
 	 *
-	 * @deprecated Since $$next-version$$, the `strategy` feature should be used instead.
+	 * @deprecated Since $$next-version$$, the `strategy` feature should be used instead, with the "defer" setting.
 	 *
 	 * @param string $script_handle Script handle.
 	 */
