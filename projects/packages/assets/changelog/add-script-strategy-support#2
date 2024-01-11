@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Stop requiring the Jetpack Assets Composer package.
