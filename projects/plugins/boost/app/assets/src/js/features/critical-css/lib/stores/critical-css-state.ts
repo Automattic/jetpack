@@ -1,14 +1,15 @@
 import { CriticalCssErrorDetailsSchema, CriticalCssStateSchema } from './critical-css-state-types';
-import type {
-	CriticalCssErrorDetails,
-	CriticalCssState,
-	Provider,
-} from './critical-css-state-types';
+import type { CriticalCssState, Provider } from './critical-css-state-types';
 import { useDataSync, useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 import { __ } from '@wordpress/i18n';
 import { useRegenerationReason } from './suggest-regenerate';
 
+/**
+ * Hook for accessing and writing to the overall Critical CSS state. Returns both the current state
+ * and a setter function. The setter function overwrites the *entire* CSS state, providers and all -
+ * so is generally only useful when resetting the state for an error or to ungenerated state.
+ */
 export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssState ) => void ] {
 	const [ { data }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
@@ -30,6 +31,11 @@ export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssS
 	return [ data, mutate ];
 }
 
+/**
+ * Helper for creating a valid Critical CSS error state object with the given message.
+ *
+ * @param {string} message - The error message.
+ */
 export function criticalCssErrorState( message: string ): CriticalCssState {
 	return {
 		providers: [],
@@ -38,138 +44,105 @@ export function criticalCssErrorState( message: string ): CriticalCssState {
 	};
 }
 
-export function useSetProviderCss() {
-	const action = useDataSyncAction( {
-		namespace: 'jetpack_boost_ds',
-		key: 'critical_css_state',
-		action_name: 'set-provider-css',
-		schema: {
-			state: CriticalCssStateSchema,
-			action_request: z.object( {
-				key: z.string(),
-				css: z.string(),
-			} ),
-			action_response: z.object( {
-				success: z.boolean(),
-				state: CriticalCssStateSchema,
-			} ),
-		},
-		callbacks: {
-			onResult: ( result, _state ): CriticalCssState => {
-				if ( result.success ) {
-					return result.state;
-				}
-
-				return criticalCssErrorState( __( 'Critical CSS state update failed', 'jetpack-boost' ) );
-			},
-		},
+/**
+ * All Critical CSS State actions return a success flag and the new state. This hook wraps the
+ * common logic for handling the result of these actions.
+ *
+ * @param {string}      action    - The name of the action.
+ * @param {z.ZodSchema} schema    - The schema for the action request.
+ * @param {Function}    onSuccess - Optional callback for handling the new state.
+ */
+function useCriticalCssAction<
+	ActionSchema extends z.ZodSchema,
+	ActionRequestData extends z.infer< ActionSchema >,
+>( action: string, schema: ActionRequestData, onSuccess?: ( state: CriticalCssState ) => void ) {
+	const responseSchema = z.object( {
+		success: z.boolean(),
+		state: CriticalCssStateSchema,
+		error: z.string().optional(),
 	} );
 
-	return async ( key: string, css: string ) => action.mutateAsync( { key, css } );
-}
-
-export function useSetProviderErrorDismissed() {
-	return useDataSyncAction( {
+	// A bit annoying: you have to specify ALL template params when specifying any.
+	// Template params must be specified here, otherwise action request schema of z.void doesn't work.
+	return useDataSyncAction<
+		typeof CriticalCssStateSchema,
+		typeof responseSchema,
+		typeof schema,
+		z.infer< typeof schema >,
+		z.infer< typeof responseSchema >,
+		CriticalCssState
+	>( {
 		namespace: 'jetpack_boost_ds',
 		key: 'critical_css_state',
-		action_name: 'set-provider-error-dismissed',
+		action_name: action,
 		schema: {
 			state: CriticalCssStateSchema,
-			action_request: z.object( {
-				key: z.string(),
-				dismissed: z.boolean(),
-			} ),
-			action_response: z.object( {
-				success: z.boolean(),
-				state: CriticalCssStateSchema,
-			} ),
+			action_request: schema,
+			action_response: responseSchema,
 		},
 		callbacks: {
 			onResult: ( result, _state ): CriticalCssState => {
 				if ( result.success ) {
+					if ( onSuccess ) {
+						onSuccess( result.state );
+					}
+
 					return result.state;
 				}
 
-				return criticalCssErrorState( __( 'Critical CSS state update failed', 'jetpack-boost' ) );
+				const message = result.error || __( 'Critical CSS action failed', 'jetpack-boost' );
+				return criticalCssErrorState( message );
 			},
 		},
 	} );
 }
 
-export function useSetProviderErrors() {
-	const action = useDataSyncAction( {
-		namespace: 'jetpack_boost_ds',
-		key: 'critical_css_state',
-		action_name: 'set-provider-errors',
-		schema: {
-			state: CriticalCssStateSchema,
-			action_request: z.object( {
-				key: z.string(),
-				errors: z.array( CriticalCssErrorDetailsSchema ),
-			} ),
-			action_response: z.object( {
-				success: z.boolean(),
-				state: CriticalCssStateSchema,
-			} ),
-		},
-		callbacks: {
-			onResult: ( result, _state ): CriticalCssState => {
-				if ( result.success ) {
-					return result.state;
-				}
-
-				return criticalCssErrorState( __( 'Critical CSS state update failed', 'jetpack-boost' ) );
-			},
-		},
-	} );
-
-	return async ( key: string, errors: CriticalCssErrorDetails[] ) =>
-		action.mutateAsync( { key, errors } );
+/**
+ * Hook which creates a callable action for writing generated CSS for a provider key. Returns a new
+ * async function that can be called directly.
+ */
+export function useSetProviderCssAction() {
+	return useCriticalCssAction(
+		'set-provider-css',
+		z.object( {
+			key: z.string(),
+			css: z.string(),
+		} )
+	);
 }
 
+/**
+ * Hook which creates a callable action for dismissing or undismissing a specific provider error.
+ */
+export function useSetProviderErrorDismissedAction() {
+	return useCriticalCssAction(
+		'set-provider-error-dismissed',
+		z.object( {
+			key: z.string(),
+			dismissed: z.boolean(),
+		} )
+	);
+}
+
+/**
+ * Hook which creates a callable action for storing a provider key error.
+ */
+export function useSetProviderErrorsAction() {
+	return useCriticalCssAction(
+		'set-provider-errors',
+		z.object( {
+			key: z.string(),
+			errors: z.array( CriticalCssErrorDetailsSchema ),
+		} )
+	);
+}
+
+/**
+ * Hook which creates a callable action for regenerating Critical CSS.
+ */
 export function useRegenerateCriticalCssAction() {
 	const [ , resetReason ] = useRegenerationReason();
-
-	return useDataSyncAction( {
-		namespace: 'jetpack_boost_ds',
-		key: 'critical_css_state',
-		action_name: 'request-regenerate',
-		schema: {
-			state: CriticalCssStateSchema,
-			action_request: z.void(),
-			action_response: z.object( {
-				success: z.boolean(),
-				state: CriticalCssStateSchema,
-			} ),
-		},
-		callbacks: {
-			onResult: ( result, _state ): CriticalCssState => {
-				if ( result.success ) {
-					resetReason();
-
-					return result.state;
-				}
-
-				return criticalCssErrorState(
-					__( 'Critical CSS regeneration request failed', 'jetpack-boost' )
-				);
-			},
-		},
-	} ).mutate;
-}
-
-export function isFatalError( cssState: CriticalCssState ) {
-	if ( cssState.status === 'error' ) {
-		return true;
-	}
-
-	if ( cssState.status === 'not_generated' ) {
-		return false;
-	}
-
-	return ! cssState.providers.some( provider =>
-		[ 'success', 'pending' ].includes( provider.status )
-	);
+	return useCriticalCssAction( 'request-regenerate', z.void(), resetReason );
 }
 
 /**

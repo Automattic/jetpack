@@ -6,11 +6,10 @@ import styles from './critical-css-meta.module.scss';
 import { useState } from '@wordpress/element';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import {
-	isFatalError,
 	useCriticalCssState,
 	useRegenerateCriticalCssAction,
 } from '../lib/stores/critical-css-state';
-import { getCriticalCssIssues } from '../lib/critical-css-errors';
+import { getCriticalCssIssues, isFatalError } from '../lib/critical-css-errors';
 import { RegenerateCriticalCssSuggestion, useRegenerationReason } from '..';
 import { useLocalCriticalCssGenerator } from '../local-generator/local-generator-provider';
 
@@ -21,7 +20,7 @@ type CriticalCssMetaProps = {
 const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailable } ) => {
 	const [ hasRetried, setHasRetried ] = useState( false );
 	const [ cssState ] = useCriticalCssState();
-	const regenerate = useRegenerateCriticalCssAction();
+	const regenerateAction = useRegenerateCriticalCssAction();
 	const [ regenerateReason ] = useRegenerationReason();
 
 	const successCount = cssState.providers
@@ -30,7 +29,7 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailabl
 
 	function retry() {
 		setHasRetried( true );
-		regenerate();
+		regenerateAction.mutate();
 	}
 
 	const { progress } = useLocalCriticalCssGenerator();

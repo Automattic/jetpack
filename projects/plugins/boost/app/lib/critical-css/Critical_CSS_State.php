@@ -152,6 +152,10 @@ class Critical_CSS_State {
 		return self::GENERATION_STATES['error'] === $this->state['status'] || $any_provider_has_error;
 	}
 
+	public function get_error_message() {
+		return $this->state['status_error'];
+	}
+
 	public function is_requesting() {
 		return self::GENERATION_STATES['pending'] === $this->state['status'];
 	}

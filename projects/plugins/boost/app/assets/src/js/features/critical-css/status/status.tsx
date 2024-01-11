@@ -31,7 +31,7 @@ const Status: React.FC< StatusTypes > = ( {
 	generateText = '',
 	generateMoreText = '',
 } ) => {
-	const regenerate = useRegenerateCriticalCssAction();
+	const regenerateAction = useRegenerateCriticalCssAction();
 
 	return (
 		<div className="jb-critical-css__meta">
@@ -102,7 +102,7 @@ const Status: React.FC< StatusTypes > = ( {
 					className={ classNames( 'components-button', {
 						'is-link': ! showRegenerateButton || isCloudCssAvailable,
 					} ) }
-					onClick={ () => regenerate() }
+					onClick={ () => regenerateAction.mutate() }
 				>
 					<RefreshIcon />
 					{ __( 'Regenerate', 'jetpack-boost' ) }

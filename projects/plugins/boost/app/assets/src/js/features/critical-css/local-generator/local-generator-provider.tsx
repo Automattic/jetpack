@@ -1,13 +1,14 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import {
 	calculateCriticalCssProgress,
 	criticalCssErrorState,
 	useCriticalCssState,
 	useProxyNonce,
-	useSetProviderCss,
-	useSetProviderErrors,
+	useSetProviderCssAction,
+	useSetProviderErrorsAction,
 } from '../lib/stores/critical-css-state';
 import { runLocalGenerator } from '../lib/generate-critical-css';
+import { CriticalCssErrorDetails } from '../lib/stores/critical-css-state-types';
 
 type LocalGeneratorContext = {
 	abortController?: AbortController;
@@ -17,11 +18,19 @@ type LocalGeneratorContext = {
 	setProviderProgress: ( progress: number ) => void;
 };
 
-export const LocalCriticalCssGeneratorContext = createContext< LocalGeneratorContext | null >(
-	null
-);
+type ProviderProps = {
+	children: ReactNode;
+};
 
-export default function LocalCriticalCssGeneratorProvider( props: { children: React.ReactNode } ) {
+const CssGeneratorContext = createContext< LocalGeneratorContext | null >( null );
+
+/**
+ * Local Critical CSS Context Provider component - provides context for any descendants that want to
+ * either initiate the local Critical CSS generator, or check its status.
+ *
+ * @param {ProviderProps} props - Component props.
+ */
+export default function LocalCriticalCssGeneratorProvider( { children }: ProviderProps ) {
 	const [ abortController, setAbortController ] = useState< AbortController | undefined >(
 		undefined
 	);
@@ -34,15 +43,14 @@ export default function LocalCriticalCssGeneratorProvider( props: { children: Re
 		setProviderProgress,
 	};
 
-	return (
-		<LocalCriticalCssGeneratorContext.Provider value={ value }>
-			{ props.children }
-		</LocalCriticalCssGeneratorContext.Provider>
-	);
+	return <CssGeneratorContext.Provider value={ value }>{ children }</CssGeneratorContext.Provider>;
 }
 
+/**
+ * Internal helper function: Use the raw Critical CSS Generator context, and verify it's inside a provider.
+ */
 function useLocalCriticalCssGeneratorContext() {
-	const status = useContext( LocalCriticalCssGeneratorContext );
+	const status = useContext( CssGeneratorContext );
 
 	if ( ! status ) {
 		throw new Error( 'Local critical CSS generator status not available' );
@@ -52,7 +60,7 @@ function useLocalCriticalCssGeneratorContext() {
 }
 
 /**
- * For consumers: Get an overview of the local critical CSS generator status. Is it running or not?
+ * For status consumers: Get an overview of the local critical CSS generator status. Is it running or not?
  */
 export function useLocalCriticalCssGeneratorStatus() {
 	const status = useLocalCriticalCssGeneratorContext();
@@ -63,7 +71,7 @@ export function useLocalCriticalCssGeneratorStatus() {
 }
 
 /**
- * For Critical CSS UI: Actually run the local generator.
+ * For Critical CSS UI: Actually run the local generator and return its status.
  */
 export function useLocalCriticalCssGenerator() {
 	// Local Generator status context.
@@ -72,8 +80,8 @@ export function useLocalCriticalCssGenerator() {
 
 	// Critical CSS state and actions.
 	const [ cssState, setCssState ] = useCriticalCssState();
-	const setProviderCss = useSetProviderCss();
-	const setProviderErrors = useSetProviderErrors();
+	const setProviderCssAction = useSetProviderCssAction();
+	const setProviderErrorsAction = useSetProviderErrorsAction();
 
 	// Proxy nonce - reqiured config for the generator.
 	const proxyNonce = useProxyNonce();
@@ -86,8 +94,10 @@ export function useLocalCriticalCssGenerator() {
 					runLocalGenerator( cssState.providers, proxyNonce, {
 						onError: ( error: Error ) => setCssState( criticalCssErrorState( error.message ) ),
 						onFinished: () => setAbortController( undefined ),
-						setProviderCss,
-						setProviderErrors,
+						setProviderCss: ( key: string, css: string ) =>
+							setProviderCssAction.mutateAsync( { key, css } ),
+						setProviderErrors: ( key: string, errors: CriticalCssErrorDetails[] ) =>
+							setProviderErrorsAction.mutateAsync( { key, errors } ),
 						setProviderProgress,
 					} )
 				);

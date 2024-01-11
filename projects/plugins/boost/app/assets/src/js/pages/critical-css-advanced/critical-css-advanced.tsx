@@ -1,7 +1,7 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import {
 	useCriticalCssState,
-	useSetProviderErrorDismissed,
+	useSetProviderErrorDismissedAction,
 } from '$features/critical-css/lib/stores/critical-css-state';
 import { groupErrorsByFrequency } from '$features/critical-css/lib/critical-css-errors';
 import { BackButton, CloseButton } from '$features/ui';
@@ -12,13 +12,20 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Provider } from '$features/critical-css';
 
+/**
+ * Page for displaying advanced critical CSS recommendations.
+ */
 export default function AdvancedCriticalCss() {
 	const [ cssState ] = useCriticalCssState();
-	const setDismissed = useSetProviderErrorDismissed();
+	const setDismissedAction = useSetProviderErrorDismissedAction();
 
 	const issues = cssState.providers.filter( p => p.status === 'error' );
 	const activeIssues = issues.filter( issue => issue.error_status !== 'dismissed' );
 	const dismissedIssues = issues.filter( issue => issue.error_status === 'dismissed' );
+
+	function setDismissed( key: string, dismissed: boolean ) {
+		setDismissedAction.mutateAsync( { key, dismissed } );
+	}
 
 	// If there are no issues at all, redirect to the main page.
 	const navigate = useNavigate();
@@ -37,7 +44,7 @@ export default function AdvancedCriticalCss() {
 			  );
 
 	const showDismissedIssues = () => {
-		dismissedIssues.forEach( issue => setDismissed( { key: issue.key, dismissed: false } ) );
+		dismissedIssues.forEach( issue => setDismissed( issue.key, false ) );
 	};
 
 	return (
@@ -70,7 +77,7 @@ export default function AdvancedCriticalCss() {
 			{ activeIssues.map( ( provider: Provider ) => (
 				// Add transition:slide|local to the div below
 				<div className="panel" key={ provider.key }>
-					<CloseButton onClick={ () => setDismissed( { key: provider.key, dismissed: true } ) } />
+					<CloseButton onClick={ () => setDismissed( provider.key, true ) } />
 
 					<h4>
 						<InfoIcon />

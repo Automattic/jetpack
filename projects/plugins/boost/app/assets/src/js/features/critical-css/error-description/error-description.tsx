@@ -43,11 +43,11 @@ const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > 
 	} );
 
 	const rawErrors = rawError( errorSet );
-	const regenerate = useRegenerateCriticalCssAction();
+	const regenerateAction = useRegenerateCriticalCssAction();
 	const navigate = useNavigate();
 
 	function retry() {
-		regenerate();
+		regenerateAction.mutate();
 		navigate( '/' );
 	}
 

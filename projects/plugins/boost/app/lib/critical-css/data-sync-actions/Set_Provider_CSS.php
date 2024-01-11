@@ -18,8 +18,14 @@ class Set_Provider_CSS implements Data_Sync_Action {
 	 * @param \WP_REST_Request $_request The request object.
 	 */
 	public function handle( $data, $_request ) {
+		$state = new Critical_CSS_State();
+
 		if ( empty( $data['key'] ) || empty( $data['css'] ) ) {
-			return WP_Error( 'invalid_data', 'Invalid data' );
+			return array(
+				'success' => false,
+				'state'   => $state->get(),
+				'error'   => 'Invalid data',
+			);
 		}
 
 		$provider_key = sanitize_key( $data['key'] );
@@ -28,13 +34,12 @@ class Set_Provider_CSS implements Data_Sync_Action {
 		$storage = new Critical_CSS_Storage();
 		$storage->store_css( $provider_key, $css );
 
-		$state = new Critical_CSS_State();
 		$state->set_provider_success( $provider_key );
 		$state->save();
 
 		return array(
 			'success' => true,
-			'state'   => jetpack_boost_ds_get( 'critical_css_state' ),
+			'state'   => $state->get(),
 		);
 	}
 }

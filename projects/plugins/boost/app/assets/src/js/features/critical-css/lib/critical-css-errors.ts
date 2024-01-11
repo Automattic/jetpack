@@ -21,6 +21,25 @@ export type ErrorSet = {
 };
 
 /**
+ * Given a Critical CSS State, returns whether or not this represents a fatal error.
+ *
+ * @param {CriticalCssState} cssState - The CSS State object.
+ */
+export function isFatalError( cssState: CriticalCssState ): boolean {
+	if ( cssState.status === 'error' ) {
+		return true;
+	}
+
+	if ( cssState.status === 'not_generated' ) {
+		return false;
+	}
+
+	return ! cssState.providers.some( provider =>
+		[ 'success', 'pending' ].includes( provider.status )
+	);
+}
+
+/**
  * Given a CSS State object, returns all the providers that have errors.
  *
  * @param cssState - The CSS State object.

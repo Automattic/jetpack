@@ -16,20 +16,25 @@ class Set_Provider_Error_Dismissed implements Data_Sync_Action {
 	 * @param \WP_REST_Request $_request The request object.
 	 */
 	public function handle( $data, $_request ) {
+		$state = new Critical_CSS_State();
+
 		if ( empty( $data['key'] ) ) {
-			return WP_Error( 'invalid_data', 'Invalid data' );
+			return array(
+				'success' => false,
+				'state'   => $state->get(),
+				'error'   => 'Invalid data',
+			);
 		}
 
 		$provider_key = sanitize_key( $data['key'] );
 		$dismissed    = ! empty( $data['dismissed'] );
 
-		$state = new Critical_CSS_State();
 		$state->set_provider_error_dismissed( $provider_key, $dismissed );
 		$state->save();
 
 		return array(
 			'success' => true,
-			'state'   => jetpack_boost_ds_get( 'critical_css_state' ),
+			'state'   => $state->get(),
 		);
 	}
 }

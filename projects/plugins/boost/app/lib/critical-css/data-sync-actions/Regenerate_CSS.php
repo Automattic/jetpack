@@ -25,6 +25,7 @@ class Regenerate_CSS implements Data_Sync_Action {
 		return array(
 			'success' => ! $state->has_errors(),
 			'state'   => $state,
+			'errors'  => $state->get_error_message(),
 		);
 	}
 }
