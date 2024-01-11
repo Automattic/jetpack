@@ -6,6 +6,7 @@ import {
 	useProxyNonce,
 	useSetProviderCssAction,
 	useSetProviderErrorsAction,
+	useRegenerateCriticalCssAction,
 } from '../lib/stores/critical-css-state';
 import { runLocalGenerator } from '../lib/generate-critical-css';
 import { CriticalCssErrorDetails } from '../lib/stores/critical-css-state-types';
@@ -82,14 +83,15 @@ export function useLocalCriticalCssGenerator() {
 	const [ cssState, setCssState ] = useCriticalCssState();
 	const setProviderCssAction = useSetProviderCssAction();
 	const setProviderErrorsAction = useSetProviderErrorsAction();
+	const generateCriticalCssAction = useRegenerateCriticalCssAction();
 
 	// Proxy nonce - reqiured config for the generator.
 	const proxyNonce = useProxyNonce();
 
-	// If autorun is on, start the generator when the status is pending.
 	useEffect(
 		() => {
 			if ( cssState.status === 'pending' && ! abortController ) {
+				// Start the local generator if the css state is pending.
 				setAbortController(
 					runLocalGenerator( cssState.providers, proxyNonce, {
 						onError: ( error: Error ) => setCssState( criticalCssErrorState( error.message ) ),
@@ -101,6 +103,9 @@ export function useLocalCriticalCssGenerator() {
 						setProviderProgress,
 					} )
 				);
+			} else if ( cssState.status === 'not_generated' ) {
+				// If there is no css generated, request that the generator start.
+				generateCriticalCssAction.mutate();
 			}
 
 			return () => {
