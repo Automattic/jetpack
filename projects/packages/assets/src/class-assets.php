@@ -330,7 +330,7 @@ class Assets {
 			throw new \InvalidArgumentException( '$path must end in ".js"' );
 		}
 
-		if ( $options['async'] ) {
+		if ( isset( $options['async'] ) ) {
 			_deprecated_argument( __METHOD__, '$$next-version$$', 'The `async` option is deprecated in favor of `strategy`' );
 		}
 
