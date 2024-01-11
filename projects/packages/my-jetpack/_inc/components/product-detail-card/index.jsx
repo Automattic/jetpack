@@ -139,6 +139,7 @@ const ProductDetailCard = ( {
 			connectAfterCheckout: true,
 			from: 'my-jetpack',
 			quantity,
+			useBlogIdSuffix: true,
 		} );
 
 	const { run: trialCheckoutRedirect, hasCheckoutStarted: hasTrialCheckoutStarted } =
@@ -148,6 +149,7 @@ const ProductDetailCard = ( {
 			siteSuffix,
 			from: 'my-jetpack',
 			quantity,
+			useBlogIdSuffix: true,
 		} );
 
 	// Suppported products icons.
