@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-07-20 20:10:09+0000\n"
+"PO-Revision-Date: 2023-12-07 09:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,35 +11,216 @@ msgstr ""
 "Language: sv_SE\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:260
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:30
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:45
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:61
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:75
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:89
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:105
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:118
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:146
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:161
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:178
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:192
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:206
+msgid "Next steps for your site"
+msgstr "Nästa steg för din webbplats"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
+msgid "Add the Subscribe Block to your site"
+msgstr "Lägg till blocket Prenumerera på din webbplats"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:563
+msgid "Import existing subscribers"
+msgstr "Importera befintliga prenumeranter"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:554
+msgid "View site metrics"
+msgstr "Visa webbplatsstatistik"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:545
+msgid "Set up ssh"
+msgstr "Ställ in SSH"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:536
+msgid "Install a custom plugin"
+msgstr "Installera ett anpassat tillägg"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
+msgid "Choose a theme"
+msgstr "Välj ett tema"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:515
+msgid "Set up an offer for your supporters"
+msgstr "Ställ in ett erbjudande för dina supportrar"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
+msgid "Connect a Stripe account to collect payments"
+msgstr "Anslut ett Stripe-konto för att samla in betalningar"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
+msgid "Add your About page"
+msgstr "Lägg till din sida för ”Om”"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:477
+msgid "Manage your paid Newsletter plan"
+msgstr "Hantera ditt betalda Newsletter-paket"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:469
+msgid "Connect your social media accounts"
+msgstr "Anslut dina konton för sociala media"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:458
+msgid "Manage your subscribers"
+msgstr "Hantera dina prenumeranter"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:448
+msgid "Write 3 posts"
+msgstr "Skriv 3 inlägg"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:436
+msgid "Get your first 10 subscribers"
+msgstr "Skaffa dina första 10 prenumeranter"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
+msgid "Enable subscribers modal"
+msgstr "Aktivera prenumerantmodal"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:418
+msgid "Customize welcome message"
+msgstr "Anpassa välkomstmeddelande"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
+msgid "Earn money with your newsletter"
+msgstr "Tjäna pengar med ditt nyhetsbrev"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:357
+msgid "Update your About page"
+msgstr "Uppdatera din ”Om”-sida"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:210
+msgid "Migrate content"
+msgstr "Migrera innehåll"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:143
+msgid "Verify domain email address"
+msgstr "Verifiera domänens e-postadress"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:133
+msgid "Verify email address"
+msgstr "Verifiera e-postadress"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/domain-email-nag/domain-email-nag.php:78
+msgid "Fix"
+msgstr "Åtgärda"
+
+#. translators: %1 User's email address, %2 current domain
+#: vendor/automattic/jetpack-mu-wpcom/src/features/domain-email-nag/domain-email-nag.php:70
+msgid "You need to confirm your domain email address to avoid having your domain <strong>%1$s</strong> suspended. Please check your inbox."
+msgstr "Du måste bekräfta din domäns  e-postadress för att undvika att din domän <strong>%1$s</strong> stängs av. Kontrollera din inkorg."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:119
+msgid "Blog Posts"
+msgstr "Blogginlägg"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:56
+msgid "Text"
+msgstr "Text"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:55
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:124
+msgid "Quotes"
+msgstr "Citat"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:118
+msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
+msgstr "Förhindrar att nya inlägg och sidor skapas såväl som befintliga inlägg och sidor från att redigeras, och stänger kommentarer på hela webbplatsen."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:117
+msgid "Enable Locked Mode"
+msgstr "Aktivera låst läge"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:100
+msgid "Locked Mode"
+msgstr "Låst läge"
+
+#. translators: link to the help page: https://wordpress.com/help
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
+msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
+msgstr "För att ta äganderätt till webbplatsen ber vi personen du utser att kontakta oss på %s med en kopia av dödsbeviset."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
+msgid "Choose someone to look after your site when you pass away."
+msgstr "Välj någon som kan ta hand om din webbplats när du går bort."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
+msgid "Legacy Contact"
+msgstr "Kontakt för arv"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:93
+msgid "Enhanced Ownership"
+msgstr "Förbättrad äganderätt"
+
+#: notices/anyone-can-register-notice.php:78
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
+msgstr "<a href=\"%2$s\">Alternativet \"Vem som helst kan registrera sig\"</a> är för närvarande aktivt. Nuvarande standardroll är %1$s. %4$s <strong>Överväg att inaktivera det här alternativet om öppen registrering inte behövs.<strong>"
+
+#: notices/anyone-can-register-notice.php:74
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\"><strong>Please consider disabling this option if open registration is not needed.</strong></a>."
+msgstr "<a href=\"%2$s\">Alternativet \"Vem som helst kan registrera sig\"</a> är för närvarande aktivt. Nuvarande standardroll är %1$s. %4$s <a href=\"%3$s\"><strong>Överväg att inaktivera det här alternativet om öppen registrering inte behövs.</strong></a>."
+
+#: imports/utils/class-fileextractor.php:82
+msgid "The TAR file could not be extracted."
+msgstr "TAR-filen kunde inte extraheras."
+
+#: imports/utils/class-fileextractor.php:43
+msgid "File type is not supported"
+msgstr "Filtyp stöds inte"
+
+#: imports/utils/class-fileextractor.php:33
+msgid "Could not create folder"
+msgstr "Kunde inte skapa mapp"
+
+#: imports/utils/class-fileextractor.php:29
+msgid "File not exists"
+msgstr "Filen finns inte"
+
+#: imports/class-backup-import-manager.php:155
+#: imports/class-backup-import-manager.php:174
+msgid "Could not determine importer type"
+msgstr "Kunde inte fastställa typ av importör"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:400
 msgid "Share your site"
 msgstr "Dela din webbplats"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:243
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:373
 msgid "Edit a page"
 msgstr "Redigera en sida"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:520
-msgid "Your site contains custom styles. Upgrade now to publish them and unlock tons of other features."
-msgstr "Din webbplats innehåller anpassade stilar. Uppgradera nu för att publicera dem och låsa upp massor av andra funktioner."
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1143
+msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "Din webbplats innehåller premiumstilar. Uppgradera nu för att publicera dem och låsa upp massor av andra funktioner."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:252
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
 msgid "Customize your domain"
 msgstr "Anpassa din domän"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:347
 msgid "Add a new page"
 msgstr "Lägg till en ny sida"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:229
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:337
 msgid "Drive traffic to your site"
 msgstr "Styr trafik till din webbplats"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:222
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:326
 msgid "Give your site a name"
 msgstr "Ge din webbplats ett namn"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:51
 msgid "Claim your free one-year domain"
 msgstr "Hävda din gratis domän i ett år."
 
@@ -63,28 +244,24 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Dela"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:454
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:535
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:876
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1158
 msgid "Upgrade plan"
 msgstr "Uppgradera paket"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:111
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:166
 msgid "Create paid Newsletter"
 msgstr "Skapa betalt nyhetsbrev"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:124
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:185
 msgid "Set up payment method"
 msgstr "Ställ in betalningsmetod"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:94
-msgid "Confirm email (check your inbox)"
-msgstr "Bekräfta e-post (kolla din inkorg)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:49
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:62
 msgid "Choose a domain"
 msgstr "Välj en domän"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:190
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:286
 msgid "Launch your blog"
 msgstr "Lansera din blogg"
 
@@ -92,63 +269,63 @@ msgstr "Lansera din blogg"
 msgid "Edit site design"
 msgstr "Redigera webbplatsdesign"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:80
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:213
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:116
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:317
 msgid "Set up your site"
 msgstr "Ställ in din webbplats"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:197
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:294
 msgid "Name your blog"
 msgstr "Ge din blogg ett namn"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:205
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:306
 msgid "Personalize your site"
 msgstr "Personifiera din webbplats"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:179
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:268
 msgid "Upload your first video"
 msgstr "Ladda upp ditt första videoklipp"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:172
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
 msgid "Set up your video site"
 msgstr "Ställ in din video-webbplats"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:139
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:126
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:222
 msgid "Launch your site"
 msgstr "Lansera din webbplats."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:147
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:230
 msgid "Add links"
 msgstr "Lägg till länkar"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:156
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:242
 msgid "Personalize Link in Bio"
 msgstr "Personifiera Link in Bio"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:28
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:34
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:31
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
 msgid "Select a design"
 msgstr "Välj en design"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:155
 msgid "Start writing"
 msgstr "Börja skriva"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
 msgid "Write your first post"
 msgstr "Skriv ditt första inlägg"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:130
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:200
 msgid "Add subscribers"
 msgstr "Lägg till prenumeranter"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:65
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:72
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:95
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:105
 msgid "Choose a plan"
 msgstr "Välj ett paket"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:176
 msgid "Personalize newsletter"
 msgstr "Personifiera nyhetsbrev"
 
@@ -524,51 +701,33 @@ msgstr "Tweets av %s"
 msgid "Next steps"
 msgstr "Nästa steg"
 
-#: notices/anyone-can-register-notice.php:70
+#: notices/anyone-can-register-notice.php:106
 msgid "This may pose a security risk to your site."
 msgstr "Detta kan utgöra en säkerhetsrisk för din webbplats."
 
-#: notices/anyone-can-register-notice.php:65
-msgid "It could result in spam users."
-msgstr "Det kan resultera till skräppostanvändare."
-
-#: notices/anyone-can-register-notice.php:60
-msgid "It allows a user to create but not post content."
-msgstr "Det tillåter en användare att skapa men inte publicera innehåll."
-
-#: notices/anyone-can-register-notice.php:55
+#: notices/anyone-can-register-notice.php:101
 msgid "It allows a user to post content."
 msgstr "Det tillåter en användare att publicera innehåll."
 
-#: notices/anyone-can-register-notice.php:50
+#: notices/anyone-can-register-notice.php:96
 msgid "It allows a user to post/modify/delete all content."
 msgstr "Det tillåter en användare att publicera/ändra/ta bort allt innehåll."
 
-#: notices/anyone-can-register-notice.php:45
+#: notices/anyone-can-register-notice.php:91
 msgid "It allows a user control over your orders and products."
 msgstr "Det tillåter en användare kontroll över dina beställningar och produkter."
 
-#: notices/anyone-can-register-notice.php:40
+#: notices/anyone-can-register-notice.php:86
 msgid "It allows a user full control over your site and its contents."
 msgstr "Det tillåter en användare full kontroll över din webbplats och dess innehåll."
 
-#: notices/anyone-can-register-notice.php:32
-msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s Please consider disabling this option."
-msgstr "Alternativet <a href=\"%2$s\">”Vem som helst kan registrera sig”</a> är för närvarande aktivt. Den nuvarande standardrollen är %1$s. %4$s Överväg att inaktivera detta alternativ."
-
-#: notices/anyone-can-register-notice.php:28
-msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\">Please consider disabling this option</a>."
-msgstr "Alternativet <a href=\"%2$s\">”Vem som helst kan registrera sig”</a> är för närvarande aktivt. Den nuvarande standardrollen är %1$s. %4$s <a href=\"%3$s\">Överväg att inaktivera detta alternativ</a>."
-
-#: feature-plugins/site-logs.php:41
-msgid "Site Logs"
-msgstr "Webbplatsloggar"
-
 #: endpoints/class-github-hosting-webhook-response.php:387
+#: imports/utils/class-fileextractor.php:64
 msgid "The ZIP file could not be extracted."
 msgstr "ZIP-filen kunde inte packas upp."
 
 #: endpoints/class-github-hosting-webhook-response.php:378
+#: imports/utils/class-fileextractor.php:57
 msgid "The ZIP file could not be opened."
 msgstr "ZIP-filen kunde inte öppnas."
 
@@ -598,19 +757,19 @@ msgstr "Ge författaren en gåva för en WordPress.com-uppgradering."
 msgid "This site's plan has expired."
 msgstr "Detta webbplatspaket har löpt ut."
 
-#: notices/plan-notices.php:134
+#: notices/plan-notices.php:135
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Ditt eCommerce-paket för <strong>%3$s</strong> löpte ut den %2$s. <a href=\"%1$s\">Återaktivera ditt paket</a> för att behålla funktionerna i eCommerce-paketet, exempelvis anpassade tillägg och teman, SFTP och phpMyAdmin-åtkomst."
 
-#: notices/plan-notices.php:108
+#: notices/plan-notices.php:109
 msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Ditt Pro-paket för <strong>%3$s</strong> löper ut den %2$s. <a href=\"%1$s\">Förnya ditt paket</a> för att behålla funktionerna i Pro-paketet, exempelvis anpassade tillägg och teman, SFTP och phpMyAdmin-åtkomst."
 
-#: notices/plan-notices.php:103
+#: notices/plan-notices.php:104
 msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Ditt eCommerce-paket för <strong>%3$s</strong> löper ut den %2$s. <a href=\"%1$s\">Förnya ditt paket</a> för att behålla funktionerna i eCommerce-paketet, exempelvis anpassade tillägg och teman, SFTP och phpMyAdmin-åtkomst."
 
-#: notices/plan-notices.php:98
+#: notices/plan-notices.php:99
 msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Ditt Business-paket för <strong>%3$s</strong> löper ut den %2$s. <a href=\"%1$s\">Förnya ditt paket</a> för att behålla funktionerna i Business-paketet, exempelvis anpassade tillägg och teman, SFTP och phpMyAdmin-åtkomst."
 
@@ -650,19 +809,19 @@ msgstr "Lansera"
 msgid "Update"
 msgstr "Uppdatera"
 
-#: notices/plan-notices.php:124
+#: notices/plan-notices.php:125
 msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr "Ditt Premium-paket för <strong>%3$s</strong> löpte ut den %2$s. <a href=\"%1$s\">Återaktivera ditt paket</a> för att behålla funktionerna i Premium-paketet, exempelvis intäktsgenerering, VideoPress och Google Analytics-stöd."
 
-#: notices/plan-notices.php:119
+#: notices/plan-notices.php:120
 msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr "Ditt Personal-paket för <strong>%3$s</strong> löpte ut den %2$s. <a href=\"%1$s\">Återaktivera ditt paket</a> för att behålla funktionerna i Personal-paketet, exempelvis 6 GB lagringsutrymme, inga WordPress.com-annonser och prenumerantexklusivt innehåll."
 
-#: notices/plan-notices.php:93
+#: notices/plan-notices.php:94
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr "Ditt Premium-paket för <strong>%3$s</strong> löper ut den %2$s. <a href=\"%1$s\">Förnya ditt paket</a> för att behålla funktionerna i Premium-paketet, exempelvis intäktsgenerering, VideoPress och Google Analytics-stöd."
 
-#: notices/plan-notices.php:88
+#: notices/plan-notices.php:89
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr "Ditt Personal-paket för <strong>%3$s</strong> löper ut den %2$s. <a href=\"%1$s\">Förnya ditt paket</a> för att behålla funktionerna i Personal-paketet, exempelvis 6 GB lagringsutrymme, inga WordPress.com-annonser och prenumerantexklusivt innehåll."
 
@@ -696,11 +855,11 @@ msgstr "Se upp! Sökmotorer är för närvarande blockerade från att indexera d
 msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
 msgstr "Se upp! Din webbplats är för närvarande i läget Kommer snart. Om du vill att sökmotorer ska visa den här webbplatsen i sina sökresultat måste du lansera webbplatsen. %1$sKlicka här%2$s för att ändra integritetsinställningarna för din webbplats."
 
-#: feature-plugins/class-template-first-themes.php:406
+#: feature-plugins/class-theme-homepage-switcher.php:108
 msgid "Home"
 msgstr "Hem"
 
-#: feature-plugins/class-template-first-themes.php:205
+#: feature-plugins/class-template-first-themes.php:170
 msgid "Blog"
 msgstr "Blogg"
 
@@ -739,11 +898,11 @@ msgstr "WordPress.com tillhandahåller funktionalitet och verktyg förinstallera
 msgid "Updates managed by WordPress.com"
 msgstr "Uppdateringar hanteras av WordPress.com"
 
-#: notices/plan-notices.php:129
+#: notices/plan-notices.php:130
 msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Ditt Business-paket för <strong>%3$s</strong> löpte ut den %2$s. <a href=\"%1$s\">Återaktivera ditt paket</a> för att behålla funktionerna i Business-paketet, exempelvis anpassade tillägg och teman, SFTP och phpMyAdmin-åtkomst."
 
-#: notices/plan-notices.php:139
+#: notices/plan-notices.php:140
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Ditt Pro-paket för <strong>%3$s</strong> löpte ut den %2$s. <a href=\"%1$s\">Återaktivera ditt paket</a> för att behålla funktionerna i Pro-paketet, exempelvis anpassade tillägg och teman, SFTP och phpMyAdmin-åtkomst."
 
@@ -819,7 +978,7 @@ msgstr "Dina mest använda kategorier i molnformat."
 msgid "Category Cloud"
 msgstr "Kategorimoln"
 
-#: private-site/private-site.php:172
+#: private-site/private-site.php:171
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "Jetpack är frånkopplat och webbplatsen är privat. Anslut Jetpack igen för att hantera webbplatsens synlighetsinställningar."
 
@@ -828,7 +987,7 @@ msgid "Update visibility"
 msgstr "Uppdatera synlighet"
 
 #: private-site/logged-in-banner.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:165
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:254
 msgid "Launch site"
 msgstr "Lansera webbplatsen"
 
@@ -1120,7 +1279,7 @@ msgstr "Spara"
 msgid "Activate &amp; Save"
 msgstr "Aktivera och spara"
 
-#: private-site/private-site.php:178
+#: private-site/private-site.php:177
 msgid "Manage your site visibility settings"
 msgstr "Hantera inställningarna för webbplatssynlighet"
 
@@ -1486,12 +1645,12 @@ msgstr "Visa profilbilder i ett rutnät av författare."
 msgid "Author Grid"
 msgstr "Författar-rutnät"
 
-#: private-site/private-site.php:664
+#: private-site/private-site.php:645
 msgid "Private Site"
 msgstr "Privat webbplats"
 
-#: private-site/private-site.php:474 private-site/private-site.php:591
-#: private-site/private-site.php:814
+#: private-site/private-site.php:455 private-site/private-site.php:572
+#: private-site/private-site.php:795
 msgid "This site is private."
 msgstr "Denna webbplats är privat."
 

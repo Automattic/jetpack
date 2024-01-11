@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-07-11 23:56:07+0000\n"
+"PO-Revision-Date: 2024-01-09 20:26:10+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,35 +11,216 @@ msgstr ""
 "Language: fa\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:260
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:30
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:45
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:61
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:75
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:89
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:105
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:118
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:146
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:161
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:178
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:192
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:206
+msgid "Next steps for your site"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
+msgid "Add the Subscribe Block to your site"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:563
+msgid "Import existing subscribers"
+msgstr "واردسازی مشترکین موجود"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:554
+msgid "View site metrics"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:545
+msgid "Set up ssh"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:536
+msgid "Install a custom plugin"
+msgstr "نصب یک افزونه سفارشی"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
+msgid "Choose a theme"
+msgstr "پوسته‌ای را برگزینید"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:515
+msgid "Set up an offer for your supporters"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
+msgid "Connect a Stripe account to collect payments"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
+msgid "Add your About page"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:477
+msgid "Manage your paid Newsletter plan"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:469
+msgid "Connect your social media accounts"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:458
+msgid "Manage your subscribers"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:448
+msgid "Write 3 posts"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:436
+msgid "Get your first 10 subscribers"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
+msgid "Enable subscribers modal"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:418
+msgid "Customize welcome message"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
+msgid "Earn money with your newsletter"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:357
+msgid "Update your About page"
+msgstr "به روزرسانی صفحه درباره"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:210
+msgid "Migrate content"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:143
+msgid "Verify domain email address"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:133
+msgid "Verify email address"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/domain-email-nag/domain-email-nag.php:78
+msgid "Fix"
+msgstr ""
+
+#. translators: %1 User's email address, %2 current domain
+#: vendor/automattic/jetpack-mu-wpcom/src/features/domain-email-nag/domain-email-nag.php:70
+msgid "You need to confirm your domain email address to avoid having your domain <strong>%1$s</strong> suspended. Please check your inbox."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:119
+msgid "Blog Posts"
+msgstr "نوشته‌های وب‌نوشت"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:56
+msgid "Text"
+msgstr "متن"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:55
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:124
+msgid "Quotes"
+msgstr "نقل قول ها"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:118
+msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:117
+msgid "Enable Locked Mode"
+msgstr "فعال کردن حالت قفل شده"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:100
+msgid "Locked Mode"
+msgstr "حالت قفل"
+
+#. translators: link to the help page: https://wordpress.com/help
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
+msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
+msgid "Choose someone to look after your site when you pass away."
+msgstr "یک نفر را انتخاب کنید تا پس از درگذشت شما به سایتتان نگاه کند."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
+msgid "Legacy Contact"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:93
+msgid "Enhanced Ownership"
+msgstr ""
+
+#: notices/anyone-can-register-notice.php:78
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
+msgstr ""
+
+#: notices/anyone-can-register-notice.php:74
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\"><strong>Please consider disabling this option if open registration is not needed.</strong></a>."
+msgstr ""
+
+#: imports/utils/class-fileextractor.php:82
+msgid "The TAR file could not be extracted."
+msgstr ""
+
+#: imports/utils/class-fileextractor.php:43
+msgid "File type is not supported"
+msgstr ""
+
+#: imports/utils/class-fileextractor.php:33
+msgid "Could not create folder"
+msgstr ""
+
+#: imports/utils/class-fileextractor.php:29
+msgid "File not exists"
+msgstr ""
+
+#: imports/class-backup-import-manager.php:155
+#: imports/class-backup-import-manager.php:174
+msgid "Could not determine importer type"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:400
 msgid "Share your site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:243
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:373
 msgid "Edit a page"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:520
-msgid "Your site contains custom styles. Upgrade now to publish them and unlock tons of other features."
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1143
+msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:252
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
 msgid "Customize your domain"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:347
 msgid "Add a new page"
 msgstr "افزودن برگهٔ تازه"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:229
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:337
 msgid "Drive traffic to your site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:222
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:326
 msgid "Give your site a name"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:51
 msgid "Claim your free one-year domain"
 msgstr ""
 
@@ -63,28 +244,24 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:454
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:535
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:876
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1158
 msgid "Upgrade plan"
 msgstr "ارتقا طرح"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:111
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:166
 msgid "Create paid Newsletter"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:124
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:185
 msgid "Set up payment method"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:94
-msgid "Confirm email (check your inbox)"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:49
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:62
 msgid "Choose a domain"
 msgstr "انتخاب یک دامنه"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:190
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:286
 msgid "Launch your blog"
 msgstr ""
 
@@ -92,63 +269,63 @@ msgstr ""
 msgid "Edit site design"
 msgstr "ویرایش طراحی سایت"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:80
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:213
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:116
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:317
 msgid "Set up your site"
-msgstr ""
+msgstr "سایت خود را راه اندازی کنید"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:197
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:294
 msgid "Name your blog"
 msgstr "نام وب‌نوشت شما"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:205
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:306
 msgid "Personalize your site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:179
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:268
 msgid "Upload your first video"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:172
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
 msgid "Set up your video site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:139
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:126
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:222
 msgid "Launch your site"
 msgstr "اجرای سایت خود"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:147
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:230
 msgid "Add links"
 msgstr "افزودن پیوندها"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:156
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:242
 msgid "Personalize Link in Bio"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:28
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:34
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:31
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
 msgid "Select a design"
 msgstr "انتخاب یک طراحی"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:155
 msgid "Start writing"
-msgstr ""
+msgstr "شروع به نوشتن کنید"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
 msgid "Write your first post"
 msgstr "نخستین نوشته خود را بنویسید"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:130
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:200
 msgid "Add subscribers"
 msgstr "افزودن مشترک جدید"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:65
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:72
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:95
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:105
 msgid "Choose a plan"
 msgstr "یک طرح را برگزینید"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:176
 msgid "Personalize newsletter"
 msgstr ""
 
@@ -357,11 +534,11 @@ msgstr ""
 
 #: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
 msgid "Lucky you! Your theme designers chose specific fonts for you that you can’t pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox below and click \"Save\" to choose other fonts."
-msgstr ""
+msgstr "خوش شانسی! طراحان پوسته شما قلم‌های خاصی را برای شما انتخاب کرده‌اند که در غیر این صورت نمی‌توانید آن‌ها را انتخاب کنید. اگر با این قلم‌ها راضی نیستید، گزینه راهنمای زیر را بردارید و برای انتخاب قلم‌های دیگر روی «ذخیره» کلیک کنید."
 
 #: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
 msgid "Uncheck to disable"
-msgstr ""
+msgstr "برای غیرفعال کردن، چک‌باکس را بردارید"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
 msgid "Spotify Feed ID"
@@ -524,51 +701,33 @@ msgstr ""
 msgid "Next steps"
 msgstr "مراحل بعد"
 
-#: notices/anyone-can-register-notice.php:70
+#: notices/anyone-can-register-notice.php:106
 msgid "This may pose a security risk to your site."
 msgstr ""
 
-#: notices/anyone-can-register-notice.php:65
-msgid "It could result in spam users."
-msgstr ""
-
-#: notices/anyone-can-register-notice.php:60
-msgid "It allows a user to create but not post content."
-msgstr ""
-
-#: notices/anyone-can-register-notice.php:55
+#: notices/anyone-can-register-notice.php:101
 msgid "It allows a user to post content."
 msgstr ""
 
-#: notices/anyone-can-register-notice.php:50
+#: notices/anyone-can-register-notice.php:96
 msgid "It allows a user to post/modify/delete all content."
 msgstr ""
 
-#: notices/anyone-can-register-notice.php:45
+#: notices/anyone-can-register-notice.php:91
 msgid "It allows a user control over your orders and products."
 msgstr ""
 
-#: notices/anyone-can-register-notice.php:40
+#: notices/anyone-can-register-notice.php:86
 msgid "It allows a user full control over your site and its contents."
 msgstr ""
 
-#: notices/anyone-can-register-notice.php:32
-msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s Please consider disabling this option."
-msgstr ""
-
-#: notices/anyone-can-register-notice.php:28
-msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\">Please consider disabling this option</a>."
-msgstr ""
-
-#: feature-plugins/site-logs.php:41
-msgid "Site Logs"
-msgstr ""
-
 #: endpoints/class-github-hosting-webhook-response.php:387
+#: imports/utils/class-fileextractor.php:64
 msgid "The ZIP file could not be extracted."
 msgstr ""
 
 #: endpoints/class-github-hosting-webhook-response.php:378
+#: imports/utils/class-fileextractor.php:57
 msgid "The ZIP file could not be opened."
 msgstr ""
 
@@ -597,19 +756,19 @@ msgstr ""
 msgid "This site's plan has expired."
 msgstr ""
 
-#: notices/plan-notices.php:134
+#: notices/plan-notices.php:135
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
-#: notices/plan-notices.php:108
+#: notices/plan-notices.php:109
 msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
-#: notices/plan-notices.php:103
+#: notices/plan-notices.php:104
 msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
-#: notices/plan-notices.php:98
+#: notices/plan-notices.php:99
 msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
@@ -649,19 +808,19 @@ msgstr "اجرا کردن"
 msgid "Update"
 msgstr "بروزرسانی"
 
-#: notices/plan-notices.php:124
+#: notices/plan-notices.php:125
 msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr ""
 
-#: notices/plan-notices.php:119
+#: notices/plan-notices.php:120
 msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr ""
 
-#: notices/plan-notices.php:93
+#: notices/plan-notices.php:94
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr ""
 
-#: notices/plan-notices.php:88
+#: notices/plan-notices.php:89
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr ""
 
@@ -695,11 +854,11 @@ msgstr ""
 msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
 msgstr ""
 
-#: feature-plugins/class-template-first-themes.php:406
+#: feature-plugins/class-theme-homepage-switcher.php:108
 msgid "Home"
 msgstr "خانه"
 
-#: feature-plugins/class-template-first-themes.php:205
+#: feature-plugins/class-template-first-themes.php:170
 msgid "Blog"
 msgstr "بلاگ"
 
@@ -738,11 +897,11 @@ msgstr ""
 msgid "Updates managed by WordPress.com"
 msgstr ""
 
-#: notices/plan-notices.php:129
+#: notices/plan-notices.php:130
 msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
-#: notices/plan-notices.php:139
+#: notices/plan-notices.php:140
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
@@ -818,7 +977,7 @@ msgstr "پراستفاده‌ترین دسته‌های شما در قالب ا�
 msgid "Category Cloud"
 msgstr "ابر دسته‌ها"
 
-#: private-site/private-site.php:172
+#: private-site/private-site.php:171
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "اتصال Jetpack قطع شده است و سایت خصوصی است. مجددا به JetPack وصل شوید تا تنظیمات نمایش سایت را مدیریت کنید."
 
@@ -827,7 +986,7 @@ msgid "Update visibility"
 msgstr "به‌روزرسانیِ رؤیت‌پذیری"
 
 #: private-site/logged-in-banner.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:165
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:254
 msgid "Launch site"
 msgstr "اجرای سایت"
 
@@ -1119,7 +1278,7 @@ msgstr "ذخیره"
 msgid "Activate &amp; Save"
 msgstr "فعال‌سازی &amp; ذخیره"
 
-#: private-site/private-site.php:178
+#: private-site/private-site.php:177
 msgid "Manage your site visibility settings"
 msgstr "مدیریت تنظیمات نمایش سایت شما"
 
@@ -1485,12 +1644,12 @@ msgstr "نمایش شبکه‌ای از تصاویر چهرک نویسندگان
 msgid "Author Grid"
 msgstr "شبکهٔ نویسندگان"
 
-#: private-site/private-site.php:664
+#: private-site/private-site.php:645
 msgid "Private Site"
 msgstr "سایت خصوصی"
 
-#: private-site/private-site.php:474 private-site/private-site.php:591
-#: private-site/private-site.php:814
+#: private-site/private-site.php:455 private-site/private-site.php:572
+#: private-site/private-site.php:795
 msgid "This site is private."
 msgstr "این سایت خصوصی است."
 

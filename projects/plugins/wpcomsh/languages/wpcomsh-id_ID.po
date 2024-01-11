@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-07-27 12:54:03+0000\n"
+"PO-Revision-Date: 2023-12-08 09:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,35 +11,216 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:260
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:30
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:45
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:61
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:75
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:89
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:105
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:118
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:146
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:161
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:178
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:192
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:206
+msgid "Next steps for your site"
+msgstr "Langkah selanjutnya untuk situs Anda"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
+msgid "Add the Subscribe Block to your site"
+msgstr "Tambahkan Blok Langganan ke situs Anda"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:563
+msgid "Import existing subscribers"
+msgstr "Impor pelanggan yang Anda punya"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:554
+msgid "View site metrics"
+msgstr "Lihat metrik situs "
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:545
+msgid "Set up ssh"
+msgstr "Siapkan SSH"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:536
+msgid "Install a custom plugin"
+msgstr "Instal plugin khusus"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
+msgid "Choose a theme"
+msgstr "Pilih tema"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:515
+msgid "Set up an offer for your supporters"
+msgstr "Siapkan penawaran untuk pendukung Anda"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
+msgid "Connect a Stripe account to collect payments"
+msgstr "Hubungkan akun Stripe untuk menerima pembayaran"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
+msgid "Add your About page"
+msgstr "Tambahkan halaman Tentang Anda"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:477
+msgid "Manage your paid Newsletter plan"
+msgstr "Kelola paket Buletin berbayar Anda"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:469
+msgid "Connect your social media accounts"
+msgstr "Sambungkan akun media sosial Anda"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:458
+msgid "Manage your subscribers"
+msgstr "Kelola pelanggan Anda"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:448
+msgid "Write 3 posts"
+msgstr "Tulis 3 pos"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:436
+msgid "Get your first 10 subscribers"
+msgstr "Dapatkan 10 pelanggan pertama Anda"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
+msgid "Enable subscribers modal"
+msgstr "Aktifkan pop-up pelanggan"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:418
+msgid "Customize welcome message"
+msgstr "Sesuaikan pesan sambutan"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
+msgid "Earn money with your newsletter"
+msgstr "Raih keuntungan lewat buletin Anda"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:357
+msgid "Update your About page"
+msgstr "Perbarui halaman Tentang Anda"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:210
+msgid "Migrate content"
+msgstr "Migrasikan konten"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:143
+msgid "Verify domain email address"
+msgstr "Verifikasi alamat email domain"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:133
+msgid "Verify email address"
+msgstr "Verifikasi alamat email"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/domain-email-nag/domain-email-nag.php:78
+msgid "Fix"
+msgstr "Perbaiki"
+
+#. translators: %1 User's email address, %2 current domain
+#: vendor/automattic/jetpack-mu-wpcom/src/features/domain-email-nag/domain-email-nag.php:70
+msgid "You need to confirm your domain email address to avoid having your domain <strong>%1$s</strong> suspended. Please check your inbox."
+msgstr "Anda perlu mengonfirmasi alamat email domain untuk menghindari penangguhan domain <strong>%1$s</strong> Anda. Harap periksa inbox Anda."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:119
+msgid "Blog Posts"
+msgstr "Pos Blog"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:56
+msgid "Text"
+msgstr "Teks"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:55
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:124
+msgid "Quotes"
+msgstr "Kutipan"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:118
+msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
+msgstr "Mencegah pembuatan pos dan halaman baru, mencegah pengeditan pos dan halaman yang sudah ada, serta menutup kolom komentar di seluruh situs."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:117
+msgid "Enable Locked Mode"
+msgstr "Aktifkan Mode Terkunci"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:100
+msgid "Locked Mode"
+msgstr "Mode Terkunci"
+
+#. translators: link to the help page: https://wordpress.com/help
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
+msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
+msgstr "Untuk mengalihkan kepemilikan situs, kami meminta orang yang Anda tunjuk untuk menghubungi kami melalui %s dan menunjukkan salinan akta kematian."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
+msgid "Choose someone to look after your site when you pass away."
+msgstr "Tentukan seseorang untuk menjaga situs Anda jika Anda meninggal dunia."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
+msgid "Legacy Contact"
+msgstr "Kontak Pewaris"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:93
+msgid "Enhanced Ownership"
+msgstr "Kepemilikan Menyeluruh"
+
+#: notices/anyone-can-register-notice.php:78
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
+msgstr "<a href=\"%2$s\">Pilihan \"Siapa pun dapat mendaftar\"</a> sedang aktif. Peran asal saat ini adalah %1$s. %4$s<strong>Pertimbangkan untuk menonaktifkan pilihan ini jika pendaftaran terbuka tidak diperlukan.<strong>"
+
+#: notices/anyone-can-register-notice.php:74
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\"><strong>Please consider disabling this option if open registration is not needed.</strong></a>."
+msgstr "<a href=\"%2$s\">Pilihan \"Siapa pun dapat mendaftar\"</a> sedang aktif. Peran asal saat ini adalah %1$s. %4$s <a href=\"%3$s\"><strong>Pertimbangkan untuk menonaktifkan pilihan ini jika pendaftaran terbuka tidak diperlukan.</strong></a>"
+
+#: imports/utils/class-fileextractor.php:82
+msgid "The TAR file could not be extracted."
+msgstr "Berkas TAR tidak dapat diekstrak."
+
+#: imports/utils/class-fileextractor.php:43
+msgid "File type is not supported"
+msgstr "Jenis berkas tidak didukung"
+
+#: imports/utils/class-fileextractor.php:33
+msgid "Could not create folder"
+msgstr "Tidak dapat membuat folder"
+
+#: imports/utils/class-fileextractor.php:29
+msgid "File not exists"
+msgstr "Berkas tidak ada"
+
+#: imports/class-backup-import-manager.php:155
+#: imports/class-backup-import-manager.php:174
+msgid "Could not determine importer type"
+msgstr "Tidak dapat menentukan jenis pengimpor"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:400
 msgid "Share your site"
 msgstr "Bagikan situs Anda"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:243
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:373
 msgid "Edit a page"
 msgstr "Edit satu halaman"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:520
-msgid "Your site contains custom styles. Upgrade now to publish them and unlock tons of other features."
-msgstr "Situs Anda berisi gaya kustom. Upgrade sekarang untuk memublikasikannya dan membuka banyak fitur lainnya."
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1143
+msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "Situs Anda memuat gaya premium. Upgrade sekarang untuk memublikasikannya dan mengakses berbagai fitur lainnya."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:252
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
 msgid "Customize your domain"
 msgstr "Buat nama domain Anda"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:347
 msgid "Add a new page"
 msgstr "Tambah halaman baru"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:229
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:337
 msgid "Drive traffic to your site"
 msgstr "Tingkatkan kunjungan ke situs Anda"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:222
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:326
 msgid "Give your site a name"
 msgstr "Beri nama untuk situs Anda"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:51
 msgid "Claim your free one-year domain"
 msgstr "Klaim domain gratis Anda untuk satu tahun"
 
@@ -63,28 +244,24 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Bagi"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:454
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:535
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:876
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1158
 msgid "Upgrade plan"
 msgstr "Upgrade Paket"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:111
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:166
 msgid "Create paid Newsletter"
 msgstr "Buat Buletin berbayar"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:124
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:185
 msgid "Set up payment method"
 msgstr "Siapkan metode pembayaran"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:94
-msgid "Confirm email (check your inbox)"
-msgstr "Konfirmasi E-mail (Cek Inbox Anda)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:49
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:62
 msgid "Choose a domain"
 msgstr "Pilih domain"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:190
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:286
 msgid "Launch your blog"
 msgstr "Luncurkan blog Anda"
 
@@ -92,63 +269,63 @@ msgstr "Luncurkan blog Anda"
 msgid "Edit site design"
 msgstr "Edit desain situs"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:80
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:213
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:116
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:317
 msgid "Set up your site"
 msgstr "Lakukan pengaturan situs Anda"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:197
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:294
 msgid "Name your blog"
 msgstr "Beri Nama Blog Anda"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:205
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:306
 msgid "Personalize your site"
 msgstr "Sesuaikan situs Anda"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:179
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:268
 msgid "Upload your first video"
 msgstr "Unggah video pertama Anda"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:172
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
 msgid "Set up your video site"
 msgstr "Siapkan situs video Anda"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:139
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:126
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:222
 msgid "Launch your site"
 msgstr "Luncurkan situs Anda"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:147
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:230
 msgid "Add links"
 msgstr "Tambahkan tautan"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:156
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:242
 msgid "Personalize Link in Bio"
 msgstr "Atur Tautan di Bio"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:28
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:34
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:31
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
 msgid "Select a design"
 msgstr "Pilih desain"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:155
 msgid "Start writing"
 msgstr "Mulai menulis"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
 msgid "Write your first post"
 msgstr "Tuliskan pos pertama Anda"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:130
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:200
 msgid "Add subscribers"
 msgstr "Tambah pelanggan"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:65
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:72
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:95
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:105
 msgid "Choose a plan"
 msgstr "Pilih paket"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:176
 msgid "Personalize newsletter"
 msgstr "Atur Buletin"
 
@@ -524,51 +701,33 @@ msgstr "Twit oleh %s"
 msgid "Next steps"
 msgstr "Langkah Berikutnya"
 
-#: notices/anyone-can-register-notice.php:70
+#: notices/anyone-can-register-notice.php:106
 msgid "This may pose a security risk to your site."
 msgstr "Ini dapat mengancam keamanan situs Anda."
 
-#: notices/anyone-can-register-notice.php:65
-msgid "It could result in spam users."
-msgstr "Ini dapat menyebabkan pengguna mengirimkan spam."
-
-#: notices/anyone-can-register-notice.php:60
-msgid "It allows a user to create but not post content."
-msgstr "Ini memungkinkan pengguna membuat konten tanpa memposkannya."
-
-#: notices/anyone-can-register-notice.php:55
+#: notices/anyone-can-register-notice.php:101
 msgid "It allows a user to post content."
 msgstr "Ini memungkinkan pengguna memposkan konten."
 
-#: notices/anyone-can-register-notice.php:50
+#: notices/anyone-can-register-notice.php:96
 msgid "It allows a user to post/modify/delete all content."
 msgstr "Ini memungkinkan pengguna memposkan/mengubah/menghapus semua konten."
 
-#: notices/anyone-can-register-notice.php:45
+#: notices/anyone-can-register-notice.php:91
 msgid "It allows a user control over your orders and products."
 msgstr "Ini memberi pengguna kendali atas pesanan dan produk Anda."
 
-#: notices/anyone-can-register-notice.php:40
+#: notices/anyone-can-register-notice.php:86
 msgid "It allows a user full control over your site and its contents."
 msgstr "Ini memberi pengguna kendali penuh atas situs Anda beserta kontennya."
 
-#: notices/anyone-can-register-notice.php:32
-msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s Please consider disabling this option."
-msgstr "<a href=\"%2$s\">Pilihan \"Siapa pun dapat mendaftar\"</a> sedang aktif. Peran default saat ini adalah %1$s. %4$s Sebaiknya, nonaktifkan pilihan ini."
-
-#: notices/anyone-can-register-notice.php:28
-msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\">Please consider disabling this option</a>."
-msgstr "<a href=\"%2$s\">Pilihan \"Siapa pun dapat mendaftar\"</a> sedang aktif. Peran default saat ini adalah %1$s. %4$s <a href=\"%3$s\">Sebaiknya, nonaktifkan pilihan ini</a>."
-
-#: feature-plugins/site-logs.php:41
-msgid "Site Logs"
-msgstr "Log Situs"
-
 #: endpoints/class-github-hosting-webhook-response.php:387
+#: imports/utils/class-fileextractor.php:64
 msgid "The ZIP file could not be extracted."
 msgstr "File ZIP tidak dapat diekstrak."
 
 #: endpoints/class-github-hosting-webhook-response.php:378
+#: imports/utils/class-fileextractor.php:57
 msgid "The ZIP file could not be opened."
 msgstr "File ZIP tidak dapat dibuka."
 
@@ -598,19 +757,19 @@ msgstr "Beri hadiah upgrade WordPress.com kepada penulis."
 msgid "This site's plan has expired."
 msgstr "Paket situs ini telah kedaluwarsa."
 
-#: notices/plan-notices.php:134
+#: notices/plan-notices.php:135
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Paket eCommerce untuk <strong>%3$s</strong> telah kedaluwarsa pada %2$s. <a href=\"%1$s\">Aktifkan ulang paket Anda</a> untuk mempertahankan fitur paket eCommerce seperti plugin dan tema kustom, SFTP, dan akses phpMyAdmin."
 
-#: notices/plan-notices.php:108
+#: notices/plan-notices.php:109
 msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Paket Pro untuk <strong>%3$s</strong> akan kedaluwarsa pada %2$s. <a href=\"%1$s\">Perpanjang paket Anda</a> untuk mempertahankan fitur paket Pro seperti plugin dan tema kustom, SFTP, dan akses phpMyAdmin."
 
-#: notices/plan-notices.php:103
+#: notices/plan-notices.php:104
 msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Paket eCommerce untuk <strong>%3$s</strong> akan kedaluwarsa pada %2$s. <a href=\"%1$s\">Perpanjang paket Anda</a> untuk mempertahankan fitur paket eCommerce seperti plugin dan tema kustom, SFTP, dan akses phpMyAdmin."
 
-#: notices/plan-notices.php:98
+#: notices/plan-notices.php:99
 msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Paket Bisnis untuk <strong>%3$s</strong> akan kedaluwarsa pada %2$s. <a href=\"%1$s\">Perpanjang paket Anda</a> untuk mempertahankan fitur paket Bisnis seperti plugin dan tema kustom, SFTP, dan akses phpMyAdmin."
 
@@ -650,19 +809,19 @@ msgstr "Luncurkan"
 msgid "Update"
 msgstr "Mutakhirkan"
 
-#: notices/plan-notices.php:124
+#: notices/plan-notices.php:125
 msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr "Paket Premium untuk <strong>%3$s</strong> telah kedaluwarsa pada %2$s. <a href=\"%1$s\">Aktifkan ulang paket Anda</a> untuk mempertahankan fitur paket Premium seperti monetisasi situs, VideoPress, dan dukungan Google Analytics."
 
-#: notices/plan-notices.php:119
+#: notices/plan-notices.php:120
 msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr "Paket Personal untuk <strong>%3$s</strong> telah kedaluwarsa pada %2$s. <a href=\"%1$s\">Aktifkan ulang paket Anda</a> untuk mempertahankan fitur paket Personal seperti ruang penyimpanan 6 GB, bebas iklan WordPress.com, dan konten khusus Pelanggan."
 
-#: notices/plan-notices.php:93
+#: notices/plan-notices.php:94
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr "Paket Premium untuk <strong>%3$s</strong> akan kedaluwarsa pada %2$s. <a href=\"%1$s\">Perpanjang paket Anda</a> untuk mempertahankan fitur paket Premium seperti monetisasi situs, VideoPress, dan dukungan Google Analytics."
 
-#: notices/plan-notices.php:88
+#: notices/plan-notices.php:89
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr "Paket Personal untuk <strong>%3$s</strong> akan kedaluwarsa pada %2$s. <a href=\"%1$s\">Perpanjang paket Anda</a> untuk mempertahankan fitur paket Personal seperti ruang penyimpanan 6 GB, bebas iklan WordPress.com, dan konten khusus Pelanggan."
 
@@ -696,11 +855,11 @@ msgstr "Harap diketahui! Saat ini mesin pencari enggan mengindeks situs Anda. Ji
 msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
 msgstr "Harap diketahui! Saat ini situs Anda dalam mode Segera Hadir.  Jika ingin mesin pencari menampilkan situs ini dalam hasil pencariannya, Anda harus meluncurkan situs. %1$sKlik di sini%2$s untuk mengubah pengaturan privasi situs Anda."
 
-#: feature-plugins/class-template-first-themes.php:406
+#: feature-plugins/class-theme-homepage-switcher.php:108
 msgid "Home"
 msgstr "Beranda"
 
-#: feature-plugins/class-template-first-themes.php:205
+#: feature-plugins/class-template-first-themes.php:170
 msgid "Blog"
 msgstr "Blog"
 
@@ -739,11 +898,11 @@ msgstr "WordPress.com menyediakan fungsionalitas & alat yang telah dipasang dan 
 msgid "Updates managed by WordPress.com"
 msgstr "Pembaruan dikelola oleh WordPress.com"
 
-#: notices/plan-notices.php:129
+#: notices/plan-notices.php:130
 msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Paket Bisnis untuk <strong>%3$s</strong> telah kedaluwarsa pada %2$s. <a href=\"%1$s\">Aktifkan ulang paket Anda</a> untuk mempertahankan fitur paket Bisnis seperti plugin dan tema kustom, SFTP, dan akses phpMyAdmin."
 
-#: notices/plan-notices.php:139
+#: notices/plan-notices.php:140
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Paket Pro untuk <strong>%3$s</strong> telah kedaluwarsa pada %2$s. <a href=\"%1$s\">Aktifkan ulang paket Anda</a> untuk mempertahankan fitur paket Pro seperti plugin dan tema kustom, SFTP, dan akses phpMyAdmin."
 
@@ -819,7 +978,7 @@ msgstr "Kategori yang paling sering digunakan dalam format cloud."
 msgid "Category Cloud"
 msgstr "Awan Kategori"
 
-#: private-site/private-site.php:172
+#: private-site/private-site.php:171
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "Jetpack terputus & situs bersifat pribadi. Hubungkan kembali Jetpack untuk mengelola pengaturan visibilitas situs."
 
@@ -828,7 +987,7 @@ msgid "Update visibility"
 msgstr "Perbarui visibilitas"
 
 #: private-site/logged-in-banner.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:165
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:254
 msgid "Launch site"
 msgstr "Luncurkan situs"
 
@@ -1120,7 +1279,7 @@ msgstr "Simpan"
 msgid "Activate &amp; Save"
 msgstr "Aktifkan & Simpan"
 
-#: private-site/private-site.php:178
+#: private-site/private-site.php:177
 msgid "Manage your site visibility settings"
 msgstr "Kelola pengaturan visibilitas situs Anda"
 
@@ -1486,12 +1645,12 @@ msgstr "Menampilkan petak gambar avatar penulis."
 msgid "Author Grid"
 msgstr "Petak Penulis"
 
-#: private-site/private-site.php:664
+#: private-site/private-site.php:645
 msgid "Private Site"
 msgstr "Situs Pribadi"
 
-#: private-site/private-site.php:474 private-site/private-site.php:591
-#: private-site/private-site.php:814
+#: private-site/private-site.php:455 private-site/private-site.php:572
+#: private-site/private-site.php:795
 msgid "This site is private."
 msgstr "Situs ini bersifat pribadi."
 

@@ -86,22 +86,22 @@ function wpcomsh_plan_notices() {
 		$plan_messages = array(
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
 			'personal'  => __(
-				'The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content.',
+				'The Starter plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content.',
 				'wpcomsh'
 			),
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
 			'premium'   => __(
-				'The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support.',
+				'The Explorer plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support.',
 				'wpcomsh'
 			),
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
 			'business'  => __(
-				'The Business plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
+				'The Creator plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
 				'wpcomsh'
 			),
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
 			'ecommerce' => __(
-				'The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
+				'The Entrepreneur plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
 				'wpcomsh'
 			),
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
@@ -117,22 +117,22 @@ function wpcomsh_plan_notices() {
 		$plan_messages = array(
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
 			'personal'  => __(
-				'The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content.',
+				'The Starter plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content.',
 				'wpcomsh'
 			),
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
 			'premium'   => __(
-				'The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support.',
+				'The Explorer plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support.',
 				'wpcomsh'
 			),
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
 			'business'  => __(
-				'The Business plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
+				'The Creator plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
 				'wpcomsh'
 			),
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
 			'ecommerce' => __(
-				'The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
+				'The Entrepreneur plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
 				'wpcomsh'
 			),
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
