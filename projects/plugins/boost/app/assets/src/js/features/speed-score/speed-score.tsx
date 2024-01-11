@@ -16,8 +16,8 @@ import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
 import styles from './speed-score.module.scss';
 import { useModulesState } from '$features/module/lib/stores';
-import { isLocalGeneratorRunning } from '$features/critical-css/lib/generate-critical-css';
 import { useCriticalCssState } from '$features/critical-css/lib/stores/critical-css-state';
+import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local-generator/local-generator-provider';
 
 const siteIsOnline = Jetpack_Boost.site.online;
 
@@ -27,6 +27,7 @@ const SpeedScore = () => {
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;
 	const [ { data } ] = useModulesState();
 	const [ cssState ] = useCriticalCssState();
+	const { isRunning: criticalCssIsGenerating } = useLocalCriticalCssGeneratorStatus();
 
 	// Construct an array of current module states
 	const moduleStates = useMemo(
@@ -52,7 +53,6 @@ const SpeedScore = () => {
 		loadScore();
 	}, [ loadScore ] );
 
-	const criticalCssIsGenerating = isLocalGeneratorRunning();
 	useDebouncedRefreshScore(
 		{ moduleStates, criticalCssCreated: cssState.created || 0, criticalCssIsGenerating },
 		loadScore

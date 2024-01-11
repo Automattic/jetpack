@@ -26,20 +26,15 @@ const viewports = [
 	},
 ];
 
-let generatorRunning = false;
-
 interface ProviderCallbacks {
-	setProviderCss: ( provider: string, css: string ) => Promise< void >;
-	setProviderErrors: ( provider: string, error: CriticalCssErrorDetails[] ) => Promise< void >;
+	setProviderCss: ( provider: string, css: string ) => Promise< unknown >;
+	setProviderErrors: ( provider: string, error: CriticalCssErrorDetails[] ) => Promise< unknown >;
 	setProviderProgress: ( progress: number ) => void;
 }
 
 interface GeneartorCallbacks extends ProviderCallbacks {
-	onError: ( error: Error ) => void;
-}
-
-export function isLocalGeneratorRunning() {
-	return generatorRunning;
+	onError: ( error: Error ) => void; // Called when the generator fails with a critical error.
+	onFinished: () => void; // Called when the generator is finished, regardless of success or failure.
 }
 
 /**
@@ -58,21 +53,11 @@ export function runLocalGenerator(
 ) {
 	const abort = new AbortController();
 
-	if ( generatorRunning ) {
-		return;
-	}
+	generateCriticalCss( providers, proxyNonce, callbacks, abort.signal ).catch( err => {
+		callbacks.onError( standardizeError( err ) );
+	} );
 
-	generatorRunning = true;
-
-	generateCriticalCss( providers, proxyNonce, callbacks, abort.signal )
-		.catch( err => {
-			callbacks.onError( standardizeError( err ) );
-		} )
-		.finally( () => ( generatorRunning = false ) );
-
-	return () => {
-		abort.abort();
-	};
+	return abort;
 }
 
 /**

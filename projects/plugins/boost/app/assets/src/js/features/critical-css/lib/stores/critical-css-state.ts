@@ -4,11 +4,9 @@ import type {
 	CriticalCssState,
 	Provider,
 } from './critical-css-state-types';
-import { runLocalGenerator } from '../generate-critical-css';
 import { useDataSync, useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 import { __ } from '@wordpress/i18n';
-import { useEffect, useState } from 'react';
 import { useRegenerationReason } from './suggest-regenerate';
 
 export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssState ) => void ] {
@@ -32,7 +30,7 @@ export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssS
 	return [ data, mutate ];
 }
 
-function errorState( message: string ): CriticalCssState {
+export function criticalCssErrorState( message: string ): CriticalCssState {
 	return {
 		providers: [],
 		status: 'error',
@@ -41,7 +39,7 @@ function errorState( message: string ): CriticalCssState {
 }
 
 export function useSetProviderCss() {
-	return useDataSyncAction( {
+	const action = useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
 		key: 'critical_css_state',
 		action_name: 'set-provider-css',
@@ -62,10 +60,12 @@ export function useSetProviderCss() {
 					return result.state;
 				}
 
-				return errorState( __( 'Critical CSS state update failed', 'jetpack-boost' ) );
+				return criticalCssErrorState( __( 'Critical CSS state update failed', 'jetpack-boost' ) );
 			},
 		},
-	} ).mutateAsync;
+	} );
+
+	return async ( key: string, css: string ) => action.mutateAsync( { key, css } );
 }
 
 export function useSetProviderErrorDismissed() {
@@ -90,14 +90,14 @@ export function useSetProviderErrorDismissed() {
 					return result.state;
 				}
 
-				return errorState( __( 'Critical CSS state update failed', 'jetpack-boost' ) );
+				return criticalCssErrorState( __( 'Critical CSS state update failed', 'jetpack-boost' ) );
 			},
 		},
-	} ).mutateAsync;
+	} );
 }
 
 export function useSetProviderErrors() {
-	return useDataSyncAction( {
+	const action = useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
 		key: 'critical_css_state',
 		action_name: 'set-provider-errors',
@@ -118,10 +118,13 @@ export function useSetProviderErrors() {
 					return result.state;
 				}
 
-				return errorState( __( 'Critical CSS state update failed', 'jetpack-boost' ) );
+				return criticalCssErrorState( __( 'Critical CSS state update failed', 'jetpack-boost' ) );
 			},
 		},
-	} ).mutateAsync;
+	} );
+
+	return async ( key: string, errors: CriticalCssErrorDetails[] ) =>
+		action.mutateAsync( { key, errors } );
 }
 
 export function useRegenerateCriticalCssAction() {
@@ -147,7 +150,9 @@ export function useRegenerateCriticalCssAction() {
 					return result.state;
 				}
 
-				return errorState( __( 'Critical CSS regeneration request failed', 'jetpack-boost' ) );
+				return criticalCssErrorState(
+					__( 'Critical CSS regeneration request failed', 'jetpack-boost' )
+				);
 			},
 		},
 	} ).mutate;
@@ -199,37 +204,4 @@ export function useProxyNonce() {
 	}
 
 	return meta?.proxy_nonce;
-}
-
-export function useLocalGenerator() {
-	const [ cssState, setCssState ] = useCriticalCssState();
-	const setProviderCss = useSetProviderCss();
-	const setProviderErrors = useSetProviderErrors();
-	const proxyNonce = useProxyNonce();
-
-	// Track minor progress within each Provider.
-	const [ providerProgress, setProviderProgress ] = useState( 0 );
-
-	useEffect( () => {
-		if ( cssState.status === 'pending' ) {
-			return runLocalGenerator( cssState.providers, proxyNonce, {
-				onError: ( error: Error ) => {
-					setCssState( errorState( error.message ) );
-				},
-
-				setProviderCss: async ( key: string, css: string ) => {
-					await setProviderCss( { key, css } );
-				},
-
-				setProviderErrors: async ( key: string, errors: CriticalCssErrorDetails[] ) => {
-					await setProviderErrors( { key, errors } );
-				},
-
-				setProviderProgress,
-			} );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- Only run when cssState.status changes
-	}, [ cssState.status ] );
-
-	return calculateCriticalCssProgress( cssState.providers, providerProgress );
 }

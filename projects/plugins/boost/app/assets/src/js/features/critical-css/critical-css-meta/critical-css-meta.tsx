@@ -8,11 +8,11 @@ import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import {
 	isFatalError,
 	useCriticalCssState,
-	useLocalGenerator,
 	useRegenerateCriticalCssAction,
 } from '../lib/stores/critical-css-state';
 import { getCriticalCssIssues } from '../lib/critical-css-errors';
 import { RegenerateCriticalCssSuggestion, useRegenerationReason } from '..';
+import { useLocalCriticalCssGenerator } from '../local-generator/local-generator-provider';
 
 type CriticalCssMetaProps = {
 	isCloudCssAvailable: boolean;
@@ -33,7 +33,7 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailabl
 		regenerate();
 	}
 
-	const progress = useLocalGenerator();
+	const { progress } = useLocalCriticalCssGenerator();
 
 	if ( cssState.status === 'pending' ) {
 		return (
@@ -44,7 +44,7 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailabl
 						'jetpack-boost'
 					) }
 				</div>
-				<ProgressBar progress={ progress } />
+				<ProgressBar progress={ progress || 0 } />
 			</div>
 		);
 	} else if ( isFatalError( cssState ) ) {
@@ -59,7 +59,7 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailabl
 				issues={ getCriticalCssIssues( cssState ) }
 				successCount={ successCount }
 				updated={ cssState.updated }
-				progress={ progress }
+				progress={ progress || 0 }
 				showRegenerateButton={ !! regenerateReason }
 			/>
 
