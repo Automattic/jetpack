@@ -9,12 +9,8 @@ const ScanOnboarding = ( { anchors } ) => {
 	const { freeScanOnboardingDismissed, paidScanOnboardingDismissed } =
 		window.jetpackProtectInitialState;
 	const { hasRequiredPlan } = useProtectData();
-	const {
-		onboardingStep,
-		commonPopoverArgs,
-		resetOnboardingOnAnchorRegeneration,
-		getCurrentPopoverArgs,
-	} = useOnboarding();
+	const { commonPopoverArgs, resetOnboardingOnAnchorRegeneration, getCurrentPopoverArgs } =
+		useOnboarding();
 
 	const { list } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
@@ -37,54 +33,55 @@ const ScanOnboarding = ( { anchors } ) => {
 	const totalSteps = useMemo( calculateTotalSteps, [ hasRequiredPlan, list, fixableList ] );
 
 	// Retrieve args defined for each popover
-	const popoverArgs = useScanPopoverArgs( { anchors, totalSteps } );
-
-	// Define logic for determining which popover args to use
-	const scanOnboardingStepHandlers = {
-		// Handle step 1
-		1: () => {
-			if (
-				( ! hasRequiredPlan && ! freeScanOnboardingDismissed ) ||
-				( hasRequiredPlan && ! paidScanOnboardingDismissed )
-			) {
-				return popoverArgs.yourScanResults;
-			}
-		},
-		// Handle step 2
-		2: () => {
-			if ( ! hasRequiredPlan && ! freeScanOnboardingDismissed ) {
-				return popoverArgs.dailyAutomatedScans;
-			} else if ( ! paidScanOnboardingDismissed ) {
-				if ( list.length === 0 ) {
-					return popoverArgs.dailyAndManualScans;
-				} else if ( fixableList.length === 0 ) {
-					return popoverArgs.understandSeverity;
-				}
-				return popoverArgs.fixAllThreats;
-			}
-		},
-		// Handle step 3
-		3: () => {
-			if ( hasRequiredPlan && ! paidScanOnboardingDismissed ) {
-				return fixableList.length === 0
-					? popoverArgs.dailyAndManualScans
-					: popoverArgs.understandSeverity;
-			}
-		},
-		// Handle step 4
-		4: () => {
-			if ( hasRequiredPlan && ! paidScanOnboardingDismissed ) {
-				return popoverArgs.dailyAndManualScans;
-			}
-		},
-	};
+	const uniquePopoverArgs = useScanPopoverArgs( { anchors, totalSteps } );
 
 	const scanOnboardingPopoverArgs = useMemo( () => {
+		// Define logic for determining which popover args to use
+		const scanOnboardingStepHandlers = {
+			// Handle step 1
+			1: () => {
+				if (
+					( ! hasRequiredPlan && ! freeScanOnboardingDismissed ) ||
+					( hasRequiredPlan && ! paidScanOnboardingDismissed )
+				) {
+					return uniquePopoverArgs.yourScanResults;
+				}
+			},
+			// Handle step 2
+			2: () => {
+				if ( ! hasRequiredPlan && ! freeScanOnboardingDismissed ) {
+					return uniquePopoverArgs.dailyAutomatedScans;
+				} else if ( ! paidScanOnboardingDismissed ) {
+					if ( list.length === 0 ) {
+						return uniquePopoverArgs.dailyAndManualScans;
+					} else if ( fixableList.length === 0 ) {
+						return uniquePopoverArgs.understandSeverity;
+					}
+					return uniquePopoverArgs.fixAllThreats;
+				}
+			},
+			// Handle step 3
+			3: () => {
+				if ( hasRequiredPlan && ! paidScanOnboardingDismissed ) {
+					return fixableList.length === 0
+						? uniquePopoverArgs.dailyAndManualScans
+						: uniquePopoverArgs.understandSeverity;
+				}
+			},
+			// Handle step 4
+			4: () => {
+				if ( hasRequiredPlan && ! paidScanOnboardingDismissed ) {
+					return uniquePopoverArgs.dailyAndManualScans;
+				}
+			},
+		};
+
 		return getCurrentPopoverArgs( scanOnboardingStepHandlers );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		list,
-		onboardingStep,
+		fixableList,
+		getCurrentPopoverArgs,
+		uniquePopoverArgs,
 		freeScanOnboardingDismissed,
 		paidScanOnboardingDismissed,
 		hasRequiredPlan,
