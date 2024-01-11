@@ -50,16 +50,15 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	 * @param string $user_agent The user agent.
 	 * @param bool   $is_frontend Whether the request is frontend or not.
 	 */
-	private function get_crawler_control( $user_agent = 'sentibot', $is_frontend = true ) {
+	private function get_crawler_control( $user_agent = 'sentibot' ) {
 		$cc = $this->getMockBuilder( Crawler_Control::class )
 		->disableOriginalConstructor()
-		->onlyMethods( array( 'get_useragent', 'is_frontend', 'header' ) )
+		->onlyMethods( array( 'get_useragent', 'header' ) )
 		->getMock(); // Mock all abstract methods.
 
 		$cc->method( 'get_useragent' )
 		->willReturn( $user_agent );
 
-		$cc->method( 'is_frontend' )->willReturn( $is_frontend ); // This needs to be mocked because the test env does not have this method.
 		return $cc;
 	}
 
@@ -84,7 +83,7 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	 * What it says
 	 */
 	public function test_crawler_disables_GPTBot_by_default() {
-		$cc = $this->get_crawler_control( 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)', true );
+		$cc = $this->get_crawler_control( 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)' );
 
 		$this->expectException( CrawlerControlDieException::class );
 		$cc->exit_for_bots_unless_permitted();
@@ -94,7 +93,7 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	 * What it says
 	 */
 	public function test_crawler_disables_sentibot_by_default() {
-		$cc = $this->get_crawler_control( 'sentibot', true );
+		$cc = $this->get_crawler_control( 'sentibot' );
 
 		$this->expectException( CrawlerControlDieException::class );
 		$cc->exit_for_bots_unless_permitted();
@@ -106,17 +105,7 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	public function test_crawler_enables_sentibot_if_permitted() {
 		$this->expectNotToPerformAssertions();
 		add_option( Crawler_Control::OPTION_NAME, 1 );
-		$cc = $this->get_crawler_control( 'sentibot', true );
-
-		$cc->exit_for_bots_unless_permitted();
-	}
-
-	/**
-	 * What it says
-	 */
-	public function test_crawler_enables_sentibot_if_not_frontend() {
-		$this->expectNotToPerformAssertions();
-		$cc = $this->get_crawler_control( 'sentibot', false );
+		$cc = $this->get_crawler_control( 'sentibot' );
 
 		$cc->exit_for_bots_unless_permitted();
 	}
@@ -125,7 +114,7 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	 * What it says
 	 */
 	public function test_crawler_sets_special_header_for_bingbot() {
-		$cc = $this->get_crawler_control( 'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)', true );
+		$cc = $this->get_crawler_control( 'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)' );
 		$cc->expects( $this->exactly( 2 ) )
 		->method( 'header' )
 		->willReturnOnConsecutiveCalls(
@@ -142,7 +131,7 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_crawler_enables_chrome() {
 		$this->expectNotToPerformAssertions();
-		$cc = $this->get_crawler_control( 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', true );
+		$cc = $this->get_crawler_control( 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' );
 
 		$cc->exit_for_bots_unless_permitted();
 	}

@@ -36,20 +36,10 @@ class Crawler_Control {
 	}
 
 	/**
-	 * Returns whether the current request is a frontend request.
-	 * We have to make it mockable due to test env.
-	 *
-	 * @return bool
-	 */
-	public function is_frontend() {
-		return jetpack_is_frontend();
-	}
-
-	/**
 	 * Hooks into WordPress.
 	 */
 	public function hooks() {
-		add_action( 'plugins_loaded', array( $this, 'exit_for_bots_unless_permitted' ) );
+		add_action( 'template_redirect', array( $this, 'exit_for_bots_unless_permitted' ) );
 	}
 
 	/**
@@ -102,7 +92,7 @@ class Crawler_Control {
 		}
 
 		// Send a friendly message to the user agent.
-		if ( $this->is_frontend() && $this->is_useragent_a_bot( $user_agent ) ) {
+		if ( $this->is_useragent_a_bot( $user_agent ) ) {
 			$this->header( self::X_TERMS );
 			wp_die(
 				esc_html( self::ERROR_MESSAGE ),
