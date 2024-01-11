@@ -1872,15 +1872,42 @@ importers:
 
   projects/packages/jetpack-mu-wpcom:
     dependencies:
+      '@automattic/typography':
+        specifier: 1.0.0
+        version: 1.0.0
       '@sentry/browser':
         specifier: 7.80.1
         version: 7.80.1
       '@wordpress/api-fetch':
         specifier: 6.45.0
         version: 6.45.0
+      '@wordpress/base-styles':
+        specifier: 4.39.0
+        version: 4.39.0
+      '@wordpress/components':
+        specifier: 25.14.0
+        version: 25.14.0(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/data':
+        specifier: 9.18.0
+        version: 9.18.0(react@18.2.0)
+      '@wordpress/dom-ready':
+        specifier: ^3.48.0
+        version: 3.48.0
+      '@wordpress/element':
+        specifier: 5.25.0
+        version: 5.25.0
       '@wordpress/hooks':
         specifier: 3.48.0
         version: 3.48.0
+      '@wordpress/i18n':
+        specifier: 4.48.0
+        version: 4.48.0
+      '@wordpress/plugins':
+        specifier: 6.16.0
+        version: 6.16.0(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/url':
+        specifier: 3.49.0
+        version: 3.49.0
     optionalDependencies:
       react:
         specifier: ^18.2.0
@@ -1892,6 +1919,18 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.23.5
+        version: 7.23.5
+      '@babel/preset-react':
+        specifier: 7.23.3
+        version: 7.23.3(@babel/core@7.23.5)
+      sass:
+        specifier: 1.64.1
+        version: 1.64.1
+      sass-loader:
+        specifier: 12.4.0
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       typescript:
         specifier: ^5.0.4
         version: 5.0.4
