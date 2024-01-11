@@ -48,6 +48,10 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	 * @param bool   $is_frontend Whether the request is frontend or not.
 	 */
 	private function get_crawler_control( $user_agent = 'sentibot', $is_frontend = true ) {
+		if ( version_compare( '7.2.0', PHP_VERSION, '>' ) ) {
+			$this->markTestSkipped( 'This test requires PHP 7.2 or higher because lower versions do not support mock builders in a sensible way.' );
+		}
+
 		$cc = $this->getMockBuilder( Crawler_Control::class )
 		->disableOriginalConstructor()
 		->onlyMethods( array( 'get_useragent', 'is_frontend', 'header' ) )
