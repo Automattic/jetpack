@@ -43,6 +43,8 @@ class Jetpack_Mu_Wpcom {
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_first_posts_stream_helpers' ) );
 
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
 
@@ -210,5 +212,13 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_first_posts_stream_helpers() {
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
+	}
+
+	/**
+	 * Load Verbum Comments.
+	 */
+	public static function load_verbum_comments() {
+		require_once __DIR__ . '/build/verbum-comments/index.php';
+		new Verbum_Comments();
 	}
 }
