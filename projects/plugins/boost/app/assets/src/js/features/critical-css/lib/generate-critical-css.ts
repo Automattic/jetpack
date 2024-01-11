@@ -32,7 +32,7 @@ interface ProviderCallbacks {
 	setProviderProgress: ( progress: number ) => void;
 }
 
-interface GeneartorCallbacks extends ProviderCallbacks {
+interface GeneratorCallbacks extends ProviderCallbacks {
 	onError: ( error: Error ) => void; // Called when the generator fails with a critical error.
 	onFinished: () => void; // Called when the generator is finished, regardless of success or failure.
 }
@@ -49,7 +49,7 @@ interface GeneartorCallbacks extends ProviderCallbacks {
 export function runLocalGenerator(
 	providers: Provider[],
 	proxyNonce: string,
-	callbacks: GeneartorCallbacks
+	callbacks: GeneratorCallbacks
 ) {
 	const abort = new AbortController();
 
