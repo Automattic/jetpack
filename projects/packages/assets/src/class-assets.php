@@ -54,23 +54,9 @@ class Assets {
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new Assets();
-			self::$instance->init_hooks();
 		}
 
 		return self::$instance;
-	}
-
-	/**
-	 * Initalize the hooks as needed.
-	 */
-	private function init_hooks() {
-		global $wp_version;
-		/*
-		 * Load some scripts asynchronously. Pre-WordPress 6.3 approach.
-		 */
-		if( version_compare( $wp_version, '6.3', '<' ) ) {
-			add_filter( 'script_loader_tag', array( $this, 'script_add_async' ), 10, 2 );
-		}
 	}
 
 	/**
@@ -81,9 +67,9 @@ class Assets {
 	 * @param string $script_handle Script handle.
 	 */
 	public static function add_async_script( $script_handle ) {
-		_deprecated_function( __METHOD__, '$$next-version$$ ' );
-		$assets_instance                         = self::instance();
-		$assets_instance->defer_script_handles[] = $script_handle;
+		_deprecated_function( __METHOD__, '$$next-version$$' );
+
+		wp_script_add_data( $script_handle, 'strategy', 'defer' );
 	}
 
 	/**
@@ -340,8 +326,6 @@ class Assets {
 	 * @throws \InvalidArgumentException If arguments are invalid.
 	 */
 	public static function register_script( $handle, $path, $relative_to, array $options = array() ) {
-		global $wp_version;
-
 		if ( substr( $path, -3 ) !== '.js' ) {
 			throw new \InvalidArgumentException( '$path must end in ".js"' );
 		}
@@ -401,27 +385,19 @@ class Assets {
 			$ver = isset( $options['version'] ) ? $options['version'] : filemtime( "$dir/$path" );
 		}
 
-		if ( version_compare( $wp_version, '6.3', '>=' ) ) {
-			if ( $options['async'] && '' === $options['strategy'] ) { // Handle the deprecated `async` option
-				$options['strategy'] = 'defer';
-			}
-			wp_register_script(
-				$handle,
-				$url,
-				$options['dependencies'],
-				$ver,
-				array(
-					'in_footer' => $options['in_footer'],
-					'strategy'  => $options['strategy'],
-				)
-			);
-		} else {
-			// Pre 6.3 approach.
-			wp_register_script( $handle, $url, $options['dependencies'], $ver, $options['in_footer'] );
-			if ( $options['async'] || 'defer' === $options['strategy'] ) {
-				static::add_async_script( $handle ); // Adds `defer` to script tag.
-			}
+		if ( $options['async'] && '' === $options['strategy'] ) { // Handle the deprecated `async` option
+			$options['strategy'] = 'defer';
 		}
+		wp_register_script(
+			$handle,
+			$url,
+			$options['dependencies'],
+			$ver,
+			array(
+				'in_footer' => $options['in_footer'],
+				'strategy'  => $options['strategy'],
+			)
+		);
 
 		if ( $options['textdomain'] ) {
 			// phpcs:ignore Jetpack.Functions.I18n.DomainNotLiteral
