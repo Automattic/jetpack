@@ -13,8 +13,9 @@
 class Crawler_Control {
 
 	const OPTION_NAME     = 'wpcom_is_crawlable';
-	const ERROR_MESSAGE   = 'Not allowed. TODO: Insert friendly message here.';
-	const X_TERMS         = 'X-Terms: "Fun" message about where to go to crawl for AI bots.';
+	const TERMS_URL       = 'https://wp.me/Pe4R-180z';
+	const ERROR_MESSAGE   = 'Howdy! We are as excited about the treasure trove of great content on this blog as you are, and we are happy to discuss data research partnerships. Please learn more and contact us at: ' . self::TERMS_URL;
+	const X_TERMS         = 'X-Terms: Howdy! We appreciate this content too. Learn more about our data research partnerships: ' . self::TERMS_URL;
 	const BOT_USER_AGENTS = array(
 		'#a8ctest#is',
 		'#GPTBot#is',
@@ -103,7 +104,10 @@ class Crawler_Control {
 		// Send a friendly message to the user agent.
 		if ( $this->is_frontend() && $this->is_useragent_a_bot( $user_agent ) ) {
 			$this->header( self::X_TERMS );
-			wp_die( esc_html( self::ERROR_MESSAGE ), 402 );
+			wp_die(
+				esc_html( self::ERROR_MESSAGE ),
+				402
+			);
 		}
 	}
 
