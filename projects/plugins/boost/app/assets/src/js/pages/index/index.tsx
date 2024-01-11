@@ -6,13 +6,11 @@ import { Button, Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures } from './lib/hooks';
-import { useEffect } from 'react';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import { QualitySettings } from '$features/image-cdn';
 import styles from './index.module.scss';
-import { RecommendationsMeta } from '$features/image-size-analysis/recommendations-meta/recommendations-meta';
-import { initializeIsaSummary } from '$features/image-size-analysis/lib/stores/isa-summary';
+import { RecommendationsMeta } from '$features/image-size-analysis';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 
 const Index = () => {
@@ -26,6 +24,7 @@ const Index = () => {
 	const [ lazyLoadState ] = useSingleModuleState( 'lazy_images' );
 	const [ cloudCssState ] = useSingleModuleState( 'cloud_css' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
+	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
 
 	const lazyLoadDeprecationMessage = lazyLoadState?.available
 		? __(
@@ -38,12 +37,6 @@ const Index = () => {
 		  );
 
 	const premiumFeatures = usePremiumFeatures();
-
-	useEffect( () => {
-		if ( isaState?.active ) {
-			initializeIsaSummary();
-		}
-	}, [ isaState?.active ] );
 
 	return (
 		<div className="jb-container--narrow">
@@ -311,7 +304,7 @@ const Index = () => {
 						</p>
 					}
 				>
-					{ isaState?.active && <RecommendationsMeta /> }
+					{ isaState?.active && <RecommendationsMeta isCdnActive={ !! imageCdn?.active } /> }
 				</Module>
 			</div>
 

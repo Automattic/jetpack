@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+AI Assistant: compose ConnectPrompt and UpgradePrompt and pass it as bannerComponent prop to AI Client

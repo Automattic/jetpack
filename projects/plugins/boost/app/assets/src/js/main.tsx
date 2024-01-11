@@ -17,11 +17,12 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useSingleModuleState } from '$features/module/lib/stores';
+import ImageSizeAnalysis from './pages/image-size-analysis/image-size-analysis';
+import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 
 const useBoostRouter = () => {
 	const { shouldGetStarted } = useGettingStarted();
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
-
 	return createHashRouter( [
 		{
 			path: '*',
@@ -127,10 +128,13 @@ const Tracks = ( { children }: { children: JSX.Element } ) => {
 
 const ISAPage = () => {
 	const { group, page } = useParams< { group: string; page: string } >();
+	const [ imageCdnState ] = useSingleModuleState( 'image_cdn' );
 	return (
-		<h1>
-			ISA Page for group: { group }, page: { page }
-		</h1>
+		<ImageSizeAnalysis
+			isImageCdnModuleActive={ !! imageCdnState?.active }
+			group={ group as isaGroupKeys }
+			page={ parseInt( page || '1', 10 ) }
+		/>
 	);
 };
 
