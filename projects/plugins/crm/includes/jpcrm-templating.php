@@ -109,6 +109,12 @@ function jpcrm_retrieve_template( $template_file = '', $load = true ) {
 		// do we have a valid template?
 		if ( !empty( $template_file_path ) && file_exists( $template_file_path ) ){
 
+			// Prevent file traversal attacks.
+			$allowed_template_paths = jpcrm_get_allowed_template_paths();
+			if ( ! jpcrm_is_allowed_path( $template_file_path, $allowed_template_paths ) ) {
+				return __( 'Unable to load template.', 'zero-bs-crm' );
+			}
+
 			// load or return contents
 			if ( $load ){
 
@@ -174,7 +180,19 @@ function jpcrm_retrieve_template( $template_file = '', $load = true ) {
 
 }
 
-
+/**
+ * Returns an array of allowed template paths.
+ */
+function jpcrm_get_allowed_template_paths() {
+	global $zbs;
+	$allowed_template_paths = array(
+		'default'      => ZEROBSCRM_PATH . 'templates/',
+		'theme'        => get_stylesheet_directory() . '/' . $zbs->template_path . '/',
+		'template'     => get_template_directory() . '/' . $zbs->template_path . '/',
+		'theme-compat' => ABSPATH . WPINC . '/theme-compat/' . $zbs->template_path . '/',
+	);
+	return $allowed_template_paths;
+}
 
 /**
  * Attempts to find variants of a template file and returns as an array

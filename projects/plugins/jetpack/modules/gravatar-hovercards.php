@@ -184,7 +184,7 @@ function grofiles_get_avatar( $avatar, $author ) {
 	if ( is_numeric( $author ) ) {
 		grofiles_gravatars_to_append( $author );
 	} elseif ( is_string( $author ) ) {
-		if ( false !== strpos( $author, '@' ) ) {
+		if ( str_contains( $author, '@' ) ) {
 			grofiles_gravatars_to_append( $author );
 		} else {
 			$user = get_user_by( 'slug', $author );

@@ -118,7 +118,7 @@ HTML;
 
 	$subscribe_button_html = '';
 	$fieldset              = '';
-	$has_subscription_form = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$has_subscription_form = defined( 'IS_WPCOM' ) && IS_WPCOM && ! $attr['is_non_wpcom_site'];
 	$classes               = Blocks::classes( FEATURE_NAME, $attr );
 
 	if ( $has_subscription_form ) {

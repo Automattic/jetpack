@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+cast_and_filter_item: Do not cast an array to a string

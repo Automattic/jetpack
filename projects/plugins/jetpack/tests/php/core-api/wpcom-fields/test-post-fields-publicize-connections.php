@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
+require_once dirname( __DIR__, 2 ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
 
 /**
  * Tests that Posts and Custom Post Types do have Publicize data in REST API

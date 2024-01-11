@@ -21,15 +21,16 @@ const defaultAdminUrl =
  * Custom hook that performs the needed steps
  * to concrete the checkout workflow.
  *
- * @param {object} props              - The props passed to the hook.
- * @param {string} props.productSlug  - The WordPress product slug.
- * @param {string} props.redirectUrl  - The URI to redirect to after checkout.
- * @param {string} [props.siteSuffix] - The site suffix.
- * @param {string} [props.adminUrl]   - The site wp-admin url.
- * @param {boolean} props.connectAfterCheckout - Whether or not to conect after checkout if not connected (default false - connect before).
+ * @param {object} props                                  - The props passed to the hook.
+ * @param {string} props.productSlug                      - The WordPress product slug.
+ * @param {string} props.redirectUrl                      - The URI to redirect to after checkout.
+ * @param {string} [props.siteSuffix]                     - The site suffix.
+ * @param {string} [props.adminUrl]                       - The site wp-admin url.
+ * @param {boolean} props.connectAfterCheckout            - Whether or not to conect after checkout if not connected (default false - connect before).
  * @param {Function} props.siteProductAvailabilityHandler - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
- * @param {Function} props.from       - The plugin slug initiated the flow.
- * @returns {Function}				  - The useEffect hook.
+ * @param {Function} props.from                           - The plugin slug initiated the flow.
+ * @param {number} [props.quantity]                       - The quantity of the product to purchase.
+ * @returns {Function}                                      The useEffect hook.
  */
 export default function useProductCheckoutWorkflow( {
 	productSlug,
@@ -38,6 +39,7 @@ export default function useProductCheckoutWorkflow( {
 	adminUrl = defaultAdminUrl,
 	connectAfterCheckout = false,
 	siteProductAvailabilityHandler = null,
+	quantity = null,
 	from,
 } = {} ) {
 	debug( 'productSlug is %s', productSlug );
@@ -61,7 +63,11 @@ export default function useProductCheckoutWorkflow( {
 			? 'checkout/jetpack/'
 			: `checkout/${ siteSuffix }/`;
 
-		const productCheckoutUrl = new URL( `${ origin }${ checkoutPath }${ productSlug }` );
+		const quantitySuffix = quantity != null ? `:-q-${ quantity }` : '';
+
+		const productCheckoutUrl = new URL(
+			`${ origin }${ checkoutPath }${ productSlug }${ quantitySuffix }`
+		);
 
 		if ( shouldConnectAfterCheckout ) {
 			productCheckoutUrl.searchParams.set( 'connect_after_checkout', true );
@@ -87,14 +93,15 @@ export default function useProductCheckoutWorkflow( {
 
 		return productCheckoutUrl;
 	}, [
-		connectAfterCheckout,
 		isRegistered,
+		isUserConnected,
+		connectAfterCheckout,
 		siteSuffix,
+		quantity,
 		productSlug,
-		adminUrl,
 		from,
 		redirectUrl,
-		isUserConnected,
+		adminUrl,
 	] );
 
 	debug( 'isRegistered is %s', isRegistered );

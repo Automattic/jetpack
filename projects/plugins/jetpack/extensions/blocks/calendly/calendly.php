@@ -84,7 +84,7 @@ function load_assets( $attr, $content ) {
 		}
 
 		// Render deprecated version of Calendly block if needed. New markup block button class before rendering here.
-		if ( false === strpos( $content, 'wp-block-jetpack-button' ) ) {
+		if ( ! str_contains( $content, 'wp-block-jetpack-button' ) ) {
 			$content = deprecated_render_button_v1( $attr, $block_id, $classes, $url );
 		} else {
 			$content = str_replace( 'calendly-widget-id', esc_attr( $block_id ), $content );
@@ -112,9 +112,19 @@ function load_assets( $attr, $content ) {
 			esc_attr( $block_id )
 		);
 		$script  = <<<JS_END
-jetpackInitCalendly( '%s', '%s' );
+jetpackInitCalendly( %s, %s );
 JS_END;
-		wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $block_id ) ) );
+		wp_add_inline_script(
+			'jetpack-calendly-external-js',
+			sprintf(
+				$script,
+				wp_json_encode(
+					esc_url_raw( $url ),
+					JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+				),
+				wp_json_encode( $block_id, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+			)
+		);
 	}
 
 	return $content;

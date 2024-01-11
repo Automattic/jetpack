@@ -210,7 +210,7 @@ function googleapps_validate_domain_and_dir( $domain, $dir ) {
 	}
 
 	// Calendars.
-	if ( ( 'www' === $domain || 'calendar' === $domain ) && 'calendar/' !== substr( $dir, 0, 9 ) ) {
+	if ( ( 'www' === $domain || 'calendar' === $domain ) && ! str_starts_with( $dir, 'calendar/' ) ) {
 		return false;
 	}
 

@@ -125,7 +125,7 @@ if (
 		 */
 		public function crowdsignal_embed_to_shortcode( $content ) {
 
-			if ( ! is_string( $content ) || false === strpos( $content, 'polldaddy.com/p/' ) ) {
+			if ( ! is_string( $content ) || ! str_contains( $content, 'polldaddy.com/p/' ) ) {
 				return $content;
 			}
 

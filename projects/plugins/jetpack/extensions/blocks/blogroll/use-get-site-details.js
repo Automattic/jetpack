@@ -6,17 +6,29 @@ export default function useGetSiteDetails( { siteURL, subscriptions, enabled = f
 
 	const { response: wpcomSite, isLoading } = useSite( validDomain, Boolean( enabled ) );
 
-	const results = subscriptions.filter( item =>
-		`${ item.name }${ item.URL }`.match( new RegExp( siteURL, 'i' ) )
-	);
+	const results = [
+		...( wpcomSite
+			? [
+					{
+						blog_id: wpcomSite?.ID.toString(),
+						description: wpcomSite?.description,
+						URL: wpcomSite?.URL,
+						site_icon: getSiteIcon( wpcomSite?.logo?.url ),
+						name: wpcomSite?.name,
+					},
+			  ]
+			: [] ),
+		...subscriptions,
+	].filter( item => `${ item.name }${ item.URL }`.match( new RegExp( siteURL, 'i' ) ) );
 
-	if ( wpcomSite ) {
+	if ( results.length === 0 && validDomain ) {
 		results.unshift( {
-			id: wpcomSite?.ID,
-			description: wpcomSite?.description,
-			URL: wpcomSite?.URL,
-			site_icon: getSiteIcon( wpcomSite?.logo?.url ),
-			name: wpcomSite?.name,
+			blog_id: validDomain,
+			description: '',
+			URL: validDomain,
+			site_icon: getSiteIcon( null ),
+			name: validDomain,
+			is_non_wpcom_site: true,
 		} );
 	}
 	return { isLoading, siteDetails: results };

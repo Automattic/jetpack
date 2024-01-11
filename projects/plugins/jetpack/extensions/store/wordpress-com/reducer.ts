@@ -1,7 +1,6 @@
 /**
  * Types & Constants
  */
-import { __ } from '@wordpress/i18n';
 import {
 	ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN,
 	ACTION_ENQUEUE_ASYNC_REQUEST,
@@ -12,6 +11,8 @@ import {
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
 	ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
 	FREE_PLAN_REQUESTS_LIMIT,
+	UNLIMITED_PLAN_REQUESTS_LIMIT,
+	ACTION_SET_TIER_PLANS_ENABLED,
 } from './constants';
 import type { PlanStateProps } from './types';
 
@@ -33,16 +34,12 @@ const INITIAL_STATE: PlanStateProps = {
 				limit: 20,
 			},
 			usagePeriod: {
-				currentStart: 'ai-assistant-tier-free',
+				currentStart: '',
 				nextStart: '',
 				requestsCount: 0,
 			},
-			nextTier: {
-				slug: 'ai-assistant-tier-unlimited',
-				value: 1,
-				limit: 922337203685477600,
-				readableLimit: __( 'Unlimited', 'jetpack' ),
-			},
+			nextTier: null,
+			tierPlansEnabled: false,
 			_meta: {
 				isRequesting: false,
 				asyncRequestCountdown: ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
@@ -116,7 +113,7 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			let requestsLimit = state.features.aiAssistant.currentTier?.limit;
 
 			if ( isUnlimitedTierPlan ) {
-				requestsLimit = Infinity;
+				requestsLimit = UNLIMITED_PLAN_REQUESTS_LIMIT;
 			} else if ( isFreeTierPlan ) {
 				requestsLimit = state.features.aiAssistant.requestsLimit;
 			}
@@ -133,7 +130,9 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			 * @see _inc/lib/class-jetpack-ai-helper.php
 			 */
 			const isOverLimit = currentCount >= requestsLimit;
-			const requireUpgrade = isOverLimit;
+
+			// highest tier holds a soft limit so requireUpgrade is false on that case (nextTier null means highest tier)
+			const requireUpgrade = isOverLimit && state.features.aiAssistant.nextTier !== null;
 
 			return {
 				...state,
@@ -183,6 +182,12 @@ export default function reducer( state = INITIAL_STATE, action ) {
 		}
 
 		case ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE: {
+			/*
+			 * If we require an upgrade, we are also over the limit;
+			 * The opposite is not true, we can be over the limit without
+			 * requiring an upgrade, for example when we are on the highest tier.
+			 * In this case, we don't want to set isOverLimit to false.
+			 */
 			return {
 				...state,
 				features: {
@@ -190,8 +195,20 @@ export default function reducer( state = INITIAL_STATE, action ) {
 					aiAssistant: {
 						...state.features.aiAssistant,
 						requireUpgrade: action.requireUpgrade,
-						hasFeature: ! action.requireUpgrade, // If we require an upgrade, we don't have the feature.
-						isOverLimit: true, // If we require an upgrade, we are over the limit.
+						...( action.requireUpgrade ? { isOverLimit: true } : {} ),
+					},
+				},
+			};
+		}
+
+		case ACTION_SET_TIER_PLANS_ENABLED: {
+			return {
+				...state,
+				features: {
+					...state.features,
+					aiAssistant: {
+						...state.features.aiAssistant,
+						tierPlansEnabled: action.tierPlansEnabled,
 					},
 				},
 			};

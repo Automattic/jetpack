@@ -5,6 +5,90 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.0] - 2024-01-08
+### Added
+- Add a check to determine if a user is "new" to Jetpack. [#34821]
+- Add a button that links to the connection screen to the Welcome Banner in My Jetpack. [#34858]
+
+### Changed
+- Add a product interstitial in My Jetpack for stats. [#34772]
+- Added an image to Social interstitial. [#34814]
+- Update Akismet card on My Jetpack to go to interstitial screen when there is no API key. [#34817]
+
+## [4.2.1] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815] [#34816]
+
+### Fixed
+- My Jetpack: Jetpack footer links are now consistent with footers in rest of Jetpack screens. [#34787]
+
+## [4.2.0] - 2024-01-02
+### Fixed
+- Show JP Creator as active when JP Complete is purchased. [#34806]
+
+## [4.1.4] - 2023-12-20
+### Changed
+- Updated package dependencies. [#34694]
+
+## [4.1.3] - 2023-12-11
+### Changed
+- Updated Jetpack AI interstitial to repeat the feature's list on all the tiers. [#34541]
+
+## [4.1.2] - 2023-12-06
+### Changed
+- Updated package dependencies. [#34416]
+
+### Fixed
+- Creator Card: fix typo. [#34478]
+
+## [4.1.1] - 2023-12-05
+### Fixed
+- My Jetpack: Fix outdated product cache issue when enabling tiers. [#34428]
+
+## [4.1.0] - 2023-12-03
+### Added
+- Added Jetpack Creator to My Jetpack. [#34307]
+- Added the welcome banner to My Jetpack. [#34384]
+- Display a "Jetpack Manage" menu item to connected users. [#34353]
+- Updated connection message to only display if the welcome banner has been dismissed. [#34420]
+
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+- Updated the API calls used for My Jetpack backup card. [#34197]
+- Updated the CTAs in My Jetpack for more clarity and to avoid inconsistencies. [#34300]
+
+### Fixed
+- Dashboard: Prevented display of any notices from third-party services. [#34364]
+- Fixed checkout error while selling the unlimited Jetpack AI plan. [#34339]
+- Fixed Jetpack AI bi-yearly plan on product card. [#34276]
+- Fixed product card menus. [#34285]
+
+## [4.0.3] - 2023-11-24
+### Changed
+- Changed Jetpack AI insterstitial contact link to Jetpack Redirect. [#34252]
+- Link Jetpack AI Contact Us button to support email on interstitial page. [#34240]
+- Removed hardcoded tiers from Jetpack AI interstitial. [#34259]
+- Trust next tier provided by the Jetpack AI feature endpoint. [#34239]
+
+## [4.0.2] - 2023-11-21
+### Changed
+- Replace usage of strpos() with str_contains(). [#34137]
+
+## [4.0.1] - 2023-11-21
+### Added
+- Marked Jetpack AI as upgradable in the interstitial page. [#34215]
+
+## [4.0.0] - 2023-11-20
+### Added
+- Display an "Activity Log" menu item to connected users. [#34174]
+- Added direct checkout support for products with quantity-based plans. [#34177]
+- Added Jetpack AI prices by tier to the interstitial page. [#34196]
+
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34126]
+- Removed condition from the backup undoable event call, this datapoint will be removed. [#33997]
+
 ## [3.12.2] - 2023-11-14
 ### Changed
 - My Jetpack: Fix a bug causing PHP fatal errors when the Jetpack AI feature information is not available. [#34095]
@@ -1099,6 +1183,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.2.1...4.3.0
+[4.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.2.0...4.2.1
+[4.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.1.4...4.2.0
+[4.1.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.1.3...4.1.4
+[4.1.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.1.2...4.1.3
+[4.1.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.1.1...4.1.2
+[4.1.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.1.0...4.1.1
+[4.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.0.3...4.1.0
+[4.0.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.0.2...4.0.3
+[4.0.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.0.1...4.0.2
+[4.0.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.0.0...4.0.1
+[4.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.12.2...4.0.0
 [3.12.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.12.1...3.12.2
 [3.12.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.12.0...3.12.1
 [3.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.11.1...3.12.0

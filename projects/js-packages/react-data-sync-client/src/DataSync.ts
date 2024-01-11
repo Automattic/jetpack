@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import { ApiError } from './ApiError';
+import { DataSyncError } from './DataSyncError';
 import type { JSONSchema, ParsedValue } from './types';
 
-type RequestParams = string | JSONSchema;
+export type RequestParams = string | JSONSchema;
 type RequestMethods = 'GET' | 'POST' | 'DELETE';
-
+type GetRequestParams = Record< string, string | number | null | Array< string | number | null > >;
 /**
  * DataSync class for synchronizing data between the client and the server.
  *
@@ -107,14 +107,16 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		 * Setup the endpoint nonce
 		 */
 		try {
-			const { nonce } = this.getWindowValue( this.key, schema );
+			// Nonces always exist, even when the values are lazy-loaded.
+			// That's why we don't care what the value schema is, we just want the nonce.
+			const { nonce } = this.getWindowValue( this.key, z.unknown() );
 			this.endpointNonce = nonce;
 		} catch ( e ) {
 			// eslint-disable-next-line no-console
 			console.error(
 				`Failed to connect to REST API because of an invalid "window.${ this.namespace }.${ this.key }" value:\n`,
 				`	Expected Example: `,
-				{ value: '<any>', nonce: 'abc123' },
+				{ value: '<any>', nonce: 'abc123', lazy: '<optional>' },
 				`\n	Received Value: `,
 				window[ namespace ]?.[ this.key ],
 				'\n\nError originated from: \n ',
@@ -159,30 +161,50 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		return result as ParsedValue< V >;
 	}
 
+	/**
+	 * Method to make a request to the endpoint.
+	 * @param method - The request method.
+	 * @param partialPathname - The request path.
+	 * @param value - Data to send when using POST.
+	 * @param params - Append query params to the URL. Takes in an object of key/value pairs.
+	 * @param abortSignal - The abort signal.
+	 * @returns The parsed value.
+	 * @throws ApiError
+	 * @throws Error
+	 */
 	private async request(
 		method: RequestMethods,
 		partialPathname: string,
-		params?: RequestParams,
-		abortSignal?: AbortSignal
+		value?: RequestParams,
+		params?: GetRequestParams,
+		abortSignal?: AbortSignal,
+		nonce?: string
 	) {
-		const url = `${ this.wpDatasyncUrl }/${ partialPathname }`;
+		const url = new URL( `${ this.wpDatasyncUrl }/${ partialPathname }` );
+
+		if ( params ) {
+			Object.keys( params ).forEach( key => {
+				url.searchParams.append( key, params[ key ].toString() );
+			} );
+		}
+
 		const args: RequestInit = {
 			method,
 			signal: abortSignal,
 			headers: {
 				'Content-Type': 'application/json',
 				'X-WP-Nonce': this.wpRestNonce,
-				'X-Jetpack-WP-JS-Sync-Nonce': this.endpointNonce,
+				'X-Jetpack-WP-JS-Sync-Nonce': nonce || this.endpointNonce,
 			},
 			credentials: 'same-origin',
 			body: null,
 		};
 
 		if ( method === 'POST' ) {
-			args.body = JSON.stringify( { JSON: params } );
+			args.body = JSON.stringify( { JSON: value } );
 		}
 
-		const result = await this.attemptRequest( url, args );
+		const result = await this.attemptRequest( url.toString(), args );
 
 		let data;
 		const text = await result.text();
@@ -191,7 +213,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		} catch ( e ) {
 			// eslint-disable-next-line no-console
 			console.error( 'Failed to parse the response\n', { url, text, result, error: e } );
-			throw new ApiError( url, 'json_parse_error', 'Failed to parse the response' );
+			throw new DataSyncError( url.toString(), 'json_parse_error', 'Failed to parse the response' );
 		}
 
 		/**
@@ -201,10 +223,22 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		 * @see https://developer.wordpress.org/reference/classes/wp_rest_request/parse_json_params/
 		 * @see https://github.com/WordPress/wordpress-develop/blob/28f10e4af559c9b4dbbd1768feff0bae575d5e78/src/wp-includes/rest-api/class-wp-rest-request.php#L701
 		 */
+		if ( ! data || ! data.status ) {
+			// eslint-disable-next-line no-console
+			console.error( 'JSON response is empty.\n', { url, text, result } );
+			throw new DataSyncError( url.toString(), 'json_empty', 'JSON response is empty' );
+		}
+
+		if ( data.status === 'error' && 'message' in data ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Server returned an error.\n', { url, text, result } );
+			throw new DataSyncError( url.toString(), 'error_with_message', data.message );
+		}
+
 		if ( ! data || data.JSON === undefined ) {
 			// eslint-disable-next-line no-console
 			console.error( 'JSON response is empty.\n', { url, text, result } );
-			throw new ApiError( url, 'json_empty', 'JSON response is empty' );
+			throw new DataSyncError( url.toString(), 'json_empty', 'JSON response is empty' );
 		}
 
 		return data.JSON;
@@ -214,17 +248,18 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 * Method to parse the request.
 	 * @param method - The request method.
 	 * @param requestPath - The request path.
-	 * @param params - The request parameters.
+	 * @param value - The request parameters.
 	 * @param abortSignal - The abort signal.
 	 * @returns The parsed value.
 	 */
 	private async parsedRequest(
 		method: RequestMethods,
 		requestPath = '',
-		params?: Value,
+		value?: Value,
+		params: GetRequestParams = {},
 		abortSignal?: AbortSignal
 	): Promise< Value > {
-		const data = await this.request( method, requestPath, params, abortSignal );
+		const data = await this.request( method, requestPath, value, params, abortSignal );
 		try {
 			const parsed = this.schema.parse( data );
 			return parsed;
@@ -233,7 +268,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			// Log Zod validation errors to the console.
 			// eslint-disable-next-line no-console
 			console.error( error );
-			throw new ApiError( url, 'schema_error', 'Schema validation failed' );
+			throw new DataSyncError( url, 'schema_error', 'Schema validation failed' );
 		}
 	}
 
@@ -247,12 +282,12 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		try {
 			const result = await fetch( url, args );
 			if ( ! result.ok ) {
-				throw new ApiError( url, result.status, result.statusText );
+				throw new DataSyncError( url, result.status, result.statusText );
 			}
 
 			return result;
 		} catch ( e ) {
-			throw new ApiError( url, 'failed_to_sync', e.message );
+			throw new DataSyncError( url, 'failed_to_sync', e.message );
 		}
 	}
 
@@ -263,22 +298,86 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 * to be bound to the class instance, to make it easier to pass them
 	 * around as callbacks without losing the `this` context.
 	 */
-	public GET = async ( abortSignal?: AbortSignal ): Promise< Value > => {
-		return await this.parsedRequest( 'GET', this.endpoint, undefined, abortSignal );
+	public GET = async (
+		params: GetRequestParams = {},
+		abortSignal?: AbortSignal
+	): Promise< Value > => {
+		return await this.parsedRequest( 'GET', this.endpoint, undefined, params, abortSignal );
 	};
 
-	public SET = async ( params: Value, abortSignal?: AbortSignal ): Promise< Value > => {
-		return await this.parsedRequest( 'POST', `${ this.endpoint }/set`, params, abortSignal );
+	public SET = async (
+		value: Value,
+		params: GetRequestParams = {},
+		abortSignal?: AbortSignal
+	): Promise< Value > => {
+		return await this.parsedRequest( 'POST', `${ this.endpoint }/set`, value, params, abortSignal );
 	};
 
-	public MERGE = async ( params: Value, abortSignal?: AbortSignal ): Promise< Value > => {
-		return await this.parsedRequest( 'POST', `${ this.endpoint }/merge`, params, abortSignal );
+	public DELETE = async ( params: GetRequestParams = {}, abortSignal?: AbortSignal ) => {
+		return await this.parsedRequest(
+			'POST',
+			`${ this.endpoint }/delete`,
+			undefined,
+			params,
+			abortSignal
+		);
 	};
 
-	public DELETE = async ( abortSignal?: AbortSignal ) => {
-		return await this.parsedRequest( 'POST', `${ this.endpoint }/delete`, undefined, abortSignal );
-	};
+	/**
+	 * Trigger an endpoint action
+	 * @param name - The name of the action.
+	 * @param value - The value to send to the endpoint.
+	 * @returns A direct response from the endpoint.
+	 */
+	public ACTION = async < T extends RequestParams, R extends z.ZodSchema >(
+		name: string,
+		value: T,
+		schema: R
+	): Promise< z.infer< R > > => {
+		if ( ! window ) {
+			throw new Error( `Window object not found` );
+		}
 
+		if ( ! window[ this.namespace ] ) {
+			throw new Error( `"${ this.namespace }" not found in window object` );
+		}
+
+		if ( ! window[ this.namespace ][ this.key ] ) {
+			throw new Error( `"${ this.key }" not found in "${ this.namespace }"` );
+		}
+
+		const actions = window[ this.namespace ][ this.key ].actions
+			? window[ this.namespace ][ this.key ].actions
+			: false;
+
+		// Check if the specific action name exists
+		if ( ! actions || ! actions[ name ] ) {
+			const errorMessage = `Nonce for Action "${ name }" not found in window.${ this.namespace }.${ this.key }.actions`;
+			// eslint-disable-next-line no-console
+			console.error( errorMessage );
+			throw new Error( errorMessage );
+		}
+
+		// Get the nonce for the specific action
+		const nonce = actions[ name ];
+
+		const result = await this.request(
+			'POST',
+			`${ this.endpoint }/action/${ name }`,
+			value,
+			{},
+			undefined,
+			nonce
+		);
+
+		try {
+			return schema.parse( result );
+		} catch ( e ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Failed to parse the response\n', { result, error: e } );
+			throw new DataSyncError( '', 'json_parse_error', 'Failed to parse the response' );
+		}
+	};
 	/**
 	 * Method to get the initial value from the window object.
 	 * @returns The initial value.

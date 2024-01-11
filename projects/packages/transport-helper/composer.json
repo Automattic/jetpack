@@ -4,6 +4,8 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"php": ">=7.0",
+		"automattic/jetpack-backup-helper-script-manager": "@dev",
 		"automattic/jetpack-connection": "@dev"
 	},
 	"require-dev": {
@@ -55,7 +57,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "0.2.x-dev"
 		},
 		"textdomain": "jetpack-transport-helper"
 	},

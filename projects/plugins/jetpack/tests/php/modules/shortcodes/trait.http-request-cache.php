@@ -42,7 +42,7 @@ trait HttpRequestCacheTrait {
 	private static function get_http_request_cache_filename() {
 		$rc       = new ReflectionClass( static::class );
 		$filename = $rc->getFileName();
-		if ( substr( $filename, -4 ) === '.php' ) {
+		if ( str_ends_with( $filename, '.php' ) ) {
 			$filename = substr( $filename, 0, -4 );
 		}
 		return $filename . '-HttpRequestCache.json';

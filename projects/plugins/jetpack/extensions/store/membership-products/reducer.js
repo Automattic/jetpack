@@ -42,6 +42,11 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 				...state,
 				newsletterCategories: action.newsletterCategories,
 			};
+		case 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT':
+			return {
+				...state,
+				newsletterCategoriesSubscriptionsCount: action.newsletterCategoriesSubscriptionsCount,
+			};
 	}
 	return state;
 }

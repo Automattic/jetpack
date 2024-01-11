@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	AI_MODEL_GPT_4,
-	ERROR_QUOTA_EXCEEDED,
-	useAiSuggestions,
-} from '@automattic/jetpack-ai-client';
+import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -18,6 +14,7 @@ import { count } from '@wordpress/wordcount';
  * Internal dependencies
  */
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
+import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { isBetaExtension } from '../../../../editor';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
@@ -62,7 +59,7 @@ function AiPostExcerpt() {
 	const [ reenable, setReenable ] = useState( false );
 	const [ language, setLanguage ] = useState< LanguageProp >();
 	const [ tone, setTone ] = useState< ToneProp >();
-	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_GPT_4 );
+	const [ model, setModel ] = useState< AiModelTypeProp >( null );
 
 	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions( {
 		onDone: useCallback( () => {
@@ -178,17 +175,17 @@ ${ postContent }
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}
 
-	function setExpert() {
+	function setExcerpt() {
 		editPost( { excerpt: suggestion } );
 		reset();
 	}
 
-	function discardExpert() {
+	function discardExcerpt() {
 		editPost( { excerpt: excerpt } );
 		reset();
 	}
 
-	const isQuotaExceeded = error?.code === ERROR_QUOTA_EXCEEDED;
+	const { requireUpgrade, isOverLimit } = useAiFeature();
 
 	// Set the docs link depending on the site type
 	const docsLink =
@@ -222,7 +219,7 @@ ${ postContent }
 					</Notice>
 				) }
 
-				{ isQuotaExceeded && <UpgradePrompt /> }
+				{ isOverLimit && <UpgradePrompt /> }
 
 				<AiExcerptControl
 					words={ excerptWordsNumber }
@@ -245,7 +242,7 @@ ${ postContent }
 						setModel( newModel );
 						setReenable( true );
 					} }
-					disabled={ isBusy || isQuotaExceeded }
+					disabled={ isBusy || requireUpgrade }
 				/>
 
 				<BaseControl
@@ -255,17 +252,17 @@ ${ postContent }
 				>
 					<div className="jetpack-generated-excerpt__generate-buttons-container">
 						<Button
-							onClick={ discardExpert }
+							onClick={ discardExcerpt }
 							variant="secondary"
 							isDestructive
-							disabled={ requestingState !== 'done' || isQuotaExceeded }
+							disabled={ requestingState !== 'done' || requireUpgrade }
 						>
 							{ __( 'Discard', 'jetpack' ) }
 						</Button>
 						<Button
-							onClick={ setExpert }
+							onClick={ setExcerpt }
 							variant="secondary"
-							disabled={ requestingState !== 'done' || isQuotaExceeded }
+							disabled={ requestingState !== 'done' || requireUpgrade }
 						>
 							{ __( 'Accept', 'jetpack' ) }
 						</Button>
@@ -273,7 +270,7 @@ ${ postContent }
 							onClick={ requestExcerpt }
 							variant="secondary"
 							isBusy={ isBusy }
-							disabled={ isGenerateButtonDisabled || isQuotaExceeded || ! postContent }
+							disabled={ isGenerateButtonDisabled || requireUpgrade || ! postContent }
 						>
 							{ __( 'Generate', 'jetpack' ) }
 						</Button>

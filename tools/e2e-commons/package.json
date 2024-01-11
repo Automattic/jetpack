@@ -20,9 +20,9 @@
 	},
 	"devDependencies": {
 		"@playwright/test": "1.39.0",
-		"@slack/web-api": "6.7.2",
+		"@slack/web-api": "6.10.0",
 		"allure-playwright": "2.9.2",
-		"axios": "1.6.0",
+		"axios": "1.6.2",
 		"chalk": "5.0.1",
 		"config": "3.3.7",
 		"localtunnel": "2.0.2",

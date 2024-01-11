@@ -34,7 +34,7 @@ require_once __DIR__ . '/functions.is-mobile.php';
  */
 function jetpack_deprecated_function( $function, $replacement, $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	// Bail early for non-Jetpack deprecations.
-	if ( 0 !== strpos( $version, 'jetpack-' ) ) {
+	if ( ! str_starts_with( $version, 'jetpack-' ) ) {
 		return;
 	}
 
@@ -74,7 +74,7 @@ add_action( 'deprecated_function_run', 'jetpack_deprecated_function', 10, 3 );
  */
 function jetpack_deprecated_file( $file, $replacement, $version, $message ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	// Bail early for non-Jetpack deprecations.
-	if ( 0 !== strpos( $version, 'jetpack-' ) ) {
+	if ( ! str_starts_with( $version, 'jetpack-' ) ) {
 		return;
 	}
 
@@ -440,12 +440,12 @@ function jetpack_get_vary_headers( $headers = array() ) {
 
 	foreach ( $headers as $header ) {
 		// Check for a Vary header.
-		if ( 'vary:' !== substr( strtolower( $header ), 0, 5 ) ) {
+		if ( ! str_starts_with( strtolower( $header ), 'vary:' ) ) {
 			continue;
 		}
 
 		// If the header is a wildcard, we'll return that.
-		if ( false !== strpos( $header, '*' ) ) {
+		if ( str_contains( $header, '*' ) ) {
 			$vary_header_parts = array( '*' );
 			break;
 		}

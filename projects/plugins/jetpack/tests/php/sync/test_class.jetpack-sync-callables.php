@@ -174,7 +174,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		// Are there any duplicate keys?
 		$unique_whitelist = array_unique( $whitelist_keys );
-		$this->assertEquals( count( $unique_whitelist ), count( $whitelist_keys ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist_keys, array_unique( $whitelist_keys ) ), 1 ) );
+		$this->assertSameSize( $unique_whitelist, $whitelist_keys, 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist_keys, array_unique( $whitelist_keys ) ), 1 ) );
 
 		remove_filter( 'jetpack_set_available_extensions', array( $this, 'add_test_block' ) );
 		Jetpack_Gutenberg::reset();

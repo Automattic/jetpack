@@ -49,8 +49,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -78,8 +78,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/summary' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/summary',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -107,8 +107,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/top-posts' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/top-posts',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -138,8 +138,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/video/' . $video_id ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/video/' . $video_id,
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -168,8 +168,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/referrers' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/referrers',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -198,8 +198,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/clicks' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/clicks',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -221,8 +221,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/tags' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/tags',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -249,8 +249,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/top-authors' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/top-authors',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -273,8 +273,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/comments' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/comments',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -303,8 +303,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/video-plays' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/video-plays',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -333,8 +333,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/file-downloads' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/file-downloads',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -358,8 +358,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/post/' . $post_id ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/post/' . $post_id,
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -388,8 +388,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/country-views' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/country-views',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -415,8 +415,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/followers' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/followers',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -440,8 +440,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/comment-followers' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/comment-followers',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -462,8 +462,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/publicize' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/publicize',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -493,8 +493,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/search-terms' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/search-terms',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -523,8 +523,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/views/posts' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/views/posts',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -564,8 +564,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/visits' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/visits',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -605,8 +605,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/highlights' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/highlights',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -661,8 +661,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/insights' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/insights',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -699,8 +699,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/streak' ),
-				$this->equalTo( array() )
+				'/sites/1234/stats/streak',
+				array()
 			)
 			->willReturn( $expected_stats );
 
@@ -785,8 +785,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 			->expects( $this->once() )
 			->method( 'fetch_remote_stats' )
 			->with(
-				$this->equalTo( '/sites/1234/stats/' ),
-				$this->equalTo( $args )
+				'/sites/1234/stats/',
+				$args
 			)
 			->willReturn( $expected_stats );
 

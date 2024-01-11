@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { RefreshJetpackSocialSettingsWrapper } from '@automattic/jetpack-publicize-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -42,7 +43,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 				activeFeatures &&
 				activeFeatures.length > 0 &&
 				isActive &&
-				! hasSocialAdvancedFeatures;
+				! hasSocialAdvancedFeatures &&
+				isLinked;
 
 			const shouldShowChildElements = isActive && ! this.props.isSavingAnyOption( 'publicize' );
 
@@ -147,17 +149,21 @@ export const Publicize = withModuleSettingsFormHelpers(
 							) }
 							<ModuleToggle
 								slug="publicize"
-								disabled={ unavailableInOfflineMode || ! this.props.isLinked }
+								disabled={ unavailableInOfflineMode }
 								activated={ isActive }
 								toggling={ this.props.isSavingAnyOption( 'publicize' ) }
 								toggleModule={ this.props.toggleModuleNow }
 							>
 								{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
 							</ModuleToggle>
-							{ shouldShowChildElements && hasAutoConversion && <AutoConversionSection /> }
-							{ shouldShowChildElements && hasSocialImageGenerator && (
-								<SocialImageGeneratorSection />
-							) }
+							<RefreshJetpackSocialSettingsWrapper
+								shouldRefresh={ ! isActive && this.props.isSavingAnyOption( 'publicize' ) }
+							>
+								{ shouldShowChildElements && hasAutoConversion && <AutoConversionSection /> }
+								{ shouldShowChildElements && hasSocialImageGenerator && (
+									<SocialImageGeneratorSection />
+								) }
+							</RefreshJetpackSocialSettingsWrapper>
 						</SettingsGroup>
 					) }
 

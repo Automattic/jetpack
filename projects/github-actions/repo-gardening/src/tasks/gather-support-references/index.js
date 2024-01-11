@@ -1,8 +1,8 @@
 const { getInput } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
 const getComments = require( '../../utils/get-comments' );
-const getLabels = require( '../../utils/get-labels' );
-const sendSlackMessage = require( '../../utils/send-slack-message' );
+const getLabels = require( '../../utils/labels/get-labels' );
+const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -87,7 +87,11 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 			const correctedId = `${ wrongId[ 1 ] }-zen`;
 			correctedSupportIds.add( correctedId );
 		} else {
-			correctedSupportIds.add( supportId.toLowerCase() );
+			// Switch to lowercase when it's not a p2 comment reference.
+			const standardizedsupportId = supportId.match( /[a-zA-Z0-9-]+-p2#comment-[0-9]*/ )
+				? supportId
+				: supportId.toLowerCase();
+			correctedSupportIds.add( standardizedsupportId );
 		}
 	} );
 
@@ -141,15 +145,18 @@ function formatSlackMessage( payload, channel, message ) {
 	const { issue, repository } = payload;
 	const { html_url, title } = issue;
 
-	let dris = '@kitkat-team';
+	let dris = '';
 	switch ( repository.full_name ) {
 		case 'Automattic/jetpack':
 			dris = '@jpop-da';
 			break;
 		case 'Automattic/zero-bs-crm':
 		case 'Automattic/sensei':
-		case 'Automattic/WP-Job-Manager':
 			dris = '@heysatellite';
+			break;
+		case 'Automattic/WP-Job-Manager':
+		case 'Automattic/Crowdsignal':
+			dris = '@meteorite-team';
 			break;
 	}
 
@@ -230,7 +237,7 @@ async function checkForEscalation( issueReferences, commentBody, escalationNote,
 	);
 	const message = `:warning: This issue has now gathered more than 10 tickets. It may be time to reconsider its priority.`;
 	const slackMessageFormat = formatSlackMessage( payload, channel, message );
-	await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
+	await sendSlackMessage( message, channel, payload, slackMessageFormat );
 
 	return true;
 }
@@ -430,9 +437,19 @@ async function addHappinessLabel( octokit, ownerLogin, repo, number ) {
  * @param {GitHub}              octokit - Initialized Octokit REST client.
  */
 async function gatherSupportReferences( payload, octokit ) {
-	const { issue, repository } = payload;
-	const { number } = issue;
+	const {
+		issue: { number, pull_request },
+		repository,
+	} = payload;
 	const { name: repo, owner } = repository;
+
+	// Do not run this task on pull requests.
+	if ( pull_request ) {
+		debug(
+			`gather-support-references: do not gather support references on Pull Requests, here #${ number }. Aborting.`
+		);
+		return;
+	}
 
 	const issueComments = await getComments( octokit, owner.login, repo, number );
 	const issueReferences = await getIssueReferences( octokit, owner, repo, number, issueComments );

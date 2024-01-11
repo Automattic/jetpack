@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: avoid deprecation notices when using a development version of WordPress.

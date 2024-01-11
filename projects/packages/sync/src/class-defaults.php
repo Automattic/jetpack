@@ -88,6 +88,7 @@ class Defaults {
 		'jetpack_publicize_options',
 		'jetpack_relatedposts',
 		'jetpack_social_settings',
+		'jetpack_social_autoconvert_images',
 		'jetpack_sso_match_by_email',
 		'jetpack_sso_require_two_step',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
@@ -177,6 +178,7 @@ class Defaults {
 		'wp_mobile_excerpt',
 		'wp_mobile_featured_images',
 		'wp_page_for_privacy_policy',
+		'wpcom_ai_site_prompt',
 		'wpcom_featured_image_in_email',
 		'wpcom_gifting_subscription',
 		'wpcom_is_fse_activated',
@@ -189,6 +191,7 @@ class Defaults {
 		'wpcom_reader_views_enabled',
 		'wpcom_site_setup',
 		'wpcom_subscription_emails_use_excerpt',
+		'jetpack_verbum_subscription_modal',
 	);
 
 	/**
@@ -738,7 +741,6 @@ class Defaults {
 		'_wp_page_template',
 		'_wp_trash_meta_comments_status',
 		'_wpas_feature_enabled',
-		'_wpas_is_tweetstorm',
 		'_wpas_mess',
 		'_wpas_options',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.

@@ -2,7 +2,7 @@
 Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk, danielpost
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
 Requires at least: 6.3
-Requires PHP: 5.6
+Requires PHP: 7.0
 Tested up to: 6.4
 Stable tag: 2.3.0
 License: GPLv2 or later
@@ -100,15 +100,30 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 2.3.0 - 2023-09-20
+### 3.0.0 - 2023-12-06
 #### Added
-- Add the change settings logic in Social for the auto conversion feature.
+- Added a new post-publish panel for quick sharing
+- Added Nextdoor to Social Previews
+- Added traking for social sharing buttons
 
 #### Changed
-- Changed logic that disables the connections based on the auto-conversion feature.
-- General: remove WP 6.1 backwards compatibility checks.
-- General: update WordPress version requirements to WordPress 6.2.
-- Updated Jetpack submenu sort order so individual features are alpha-sorted.
-- Updated package dependencies. [#32803], [#32804],
+- Code Modernization: Replace usage of strpos() with str_contains()
+- General: updated PHP requirement to PHP 7.0+
+- General: update WordPress version requirements to WordPress 6.3 and compatible with 6.4. [#34127]
 - Updated package dependencies.
+- Updated screenshot to show the new connection toggles.
+- Updated Social admin pricing page
 
+#### Removed
+- Removed unused code [#34111]
+
+#### Fixed
+- Fixed an issue where initial state is not in sync
+- Fixed broken connections UI
+- Fixed pre-publish UI reactivity for Jetpack Social
+- Fixed the issue of publicize remaining ON after the post is published
+
+== Upgrade Notice ==
+
+= 3.0.0 =
+Required for compatibility with Jetpack 12.9 and later.

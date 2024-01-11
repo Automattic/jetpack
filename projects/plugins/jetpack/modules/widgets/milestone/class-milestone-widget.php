@@ -135,9 +135,9 @@ class Milestone_Widget extends WP_Widget {
 		$hex = trim( $hex );
 
 		/* Strip recognized prefixes. */
-		if ( 0 === strpos( $hex, '#' ) ) {
+		if ( str_starts_with( $hex, '#' ) ) {
 			$hex = substr( $hex, 1 );
-		} elseif ( 0 === strpos( $hex, '%23' ) ) {
+		} elseif ( str_starts_with( $hex, '%23' ) ) {
 			$hex = substr( $hex, 3 );
 		}
 

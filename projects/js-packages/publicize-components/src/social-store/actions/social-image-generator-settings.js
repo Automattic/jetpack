@@ -20,7 +20,9 @@ export function* updateSocialImageGeneratorSettings( settings ) {
 		yield setSocialImageGeneratorSettings( settings );
 		yield updateSocialImageGeneratorSettingsControl( settings );
 		const updatedSettings = yield fetchSocialImageGeneratorSettings();
-		yield setSocialImageGeneratorSettings( updatedSettings );
+		yield setSocialImageGeneratorSettings(
+			updatedSettings.jetpack_social_image_generator_settings
+		);
 		return true;
 	} catch ( e ) {
 		const oldSettings = select( SOCIAL_STORE_ID ).getSocialImageGeneratorSettings();
@@ -69,7 +71,9 @@ export function* refreshSocialImageGeneratorSettings() {
 	try {
 		yield setUpdatingSocialImageGeneratorSettings();
 		const updatedSettings = yield fetchSocialImageGeneratorSettings();
-		yield setSocialImageGeneratorSettings( updatedSettings );
+		yield setSocialImageGeneratorSettings(
+			updatedSettings.jetpack_social_image_generator_settings
+		);
 		return true;
 	} catch ( e ) {
 		return false;

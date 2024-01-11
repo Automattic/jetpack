@@ -85,25 +85,16 @@ class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$a_is_core_role  = in_array( $a->name, $core_role_names, true );
 		$b_is_core_role  = in_array( $b->name, $core_role_names, true );
 
-		// if $a is a core_role and $b is not, $a always comes first.
-		if ( $a_is_core_role && ! $b_is_core_role ) {
-			return -1;
-		}
-
-		// if $b is a core_role and $a is not, $b always comes first.
-		if ( $b_is_core_role && ! $a_is_core_role ) {
-			return 1;
+		// Core roles always come before non-core roles.
+		if ( $a_is_core_role !== $b_is_core_role ) {
+			return $b_is_core_role <=> $a_is_core_role;
 		}
 
 		// otherwise the one with the > number of capabilities comes first.
 		$a_cap_count = is_countable( $a->capabilities ) ? count( $a->capabilities ) : 0;
 		$b_cap_count = is_countable( $b->capabilities ) ? count( $b->capabilities ) : 0;
 
-		if ( $a_cap_count === $b_cap_count ) {
-			return 0;
-		}
-
-		return ( $a_cap_count > $b_cap_count ) ? -1 : 1;
+		return $b_cap_count <=> $a_cap_count;
 	}
 
 	/**

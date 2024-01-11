@@ -9,7 +9,7 @@
  * Auto Activate: No
  * Module Tags: Fonts, Recommended
  * Feature: Writing
- * Additional Search Queries: fonts, webfonts, typography
+ * Additional Search Queries: fonts, webfonts, typography, creator
  *
  * @package automattic/jetpack
  */

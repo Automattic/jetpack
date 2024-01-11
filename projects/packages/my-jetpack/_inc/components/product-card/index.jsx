@@ -32,7 +32,6 @@ const Menu = ( {
 } ) => {
 	return (
 		<Dropdown
-			className={ styles.dropdown }
 			popoverProps={ { noArrow: false, placement: 'bottom-end' } }
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Button
@@ -207,6 +206,15 @@ const ProductCard = props => {
 	}, [ slug, recordEvent ] );
 
 	/**
+	 * Calls when the "Learn more" button is clicked
+	 */
+	const learnMoreHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_learnmore_click', {
+			product: slug,
+		} );
+	}, [ slug, recordEvent ] );
+
+	/**
 	 * Use a Tracks event to count a standalone plugin install request
 	 */
 	const installStandaloneHandler = useCallback( () => {
@@ -269,6 +277,7 @@ const ProductCard = props => {
 					onFixConnection={ fixConnectionHandler }
 					onManage={ manageHandler }
 					onAdd={ addHandler }
+					onLearnMore={ learnMoreHandler }
 					className={ styles.button }
 					additionalActions={ additionalActions }
 				/>

@@ -1038,4 +1038,55 @@ class Test_Identity_Crisis extends BaseTestCase {
 		// Assert that 'reversed_url' key is not present, and other keys are not changed
 		$this->assertArrayNotHasKey( 'reversed_url', $result2 );
 	}
+
+	/**
+	 * Test the 'register_request_body' filter.
+	 *
+	 * @return void
+	 */
+	public function test_register_request_body_ip() {
+		Identity_Crisis::init();
+
+		$body = array(
+			'key1' => 'val1',
+			'key2' => 'val2',
+		);
+		update_option( 'jetpack_persistent_blog_id', '12345' );
+
+		$new_body = apply_filters( 'jetpack_register_request_body', $body );
+
+		$secret = ( new URL_Secret() )->get_secret();
+
+		delete_option( 'jetpack_persistent_blog_id' );
+		delete_option( 'jetpack_identity_crisis_url_secret' );
+
+		$this->assertTrue( (bool) $secret );
+		$this->assertEquals(
+			array_merge(
+				$body,
+				array(
+					'persistent_blog_id' => '12345',
+					'url_secret'         => $secret,
+				)
+			),
+			$new_body
+		);
+	}
+
+	/**
+	 * Register saving the persistent blog ID on 'site_registered' action.
+	 *
+	 * @return void
+	 */
+	public function test_site_registered() {
+		Identity_Crisis::init();
+		$blog_id = 54321;
+
+		$option_before = get_option( 'jetpack_persistent_blog_id' );
+		do_action( 'jetpack_site_registered', $blog_id );
+		$option_after = get_option( 'jetpack_persistent_blog_id' );
+
+		$this->assertFalse( $option_before );
+		$this->assertSame( $blog_id, $option_after );
+	}
 }

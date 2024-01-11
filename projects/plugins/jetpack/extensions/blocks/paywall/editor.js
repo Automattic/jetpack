@@ -18,7 +18,7 @@ const unsubscribe = subscribe( () => {
 	unsubscribe();
 	// If postType is defined and not 'post', unregister the block.
 	if ( postType && postType !== 'post' ) {
-		unregisterBlockType( 'jetpack/' + name );
+		unregisterBlockType( metadata.name );
 	}
 } );
 

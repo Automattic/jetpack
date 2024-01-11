@@ -9,22 +9,16 @@ import ToggleSection from '../toggle-section';
 import { SocialStoreSelectors } from '../types/types';
 import styles from './styles.module.scss';
 
-interface SocialImageGeneratorToggleProps {
+type SocialImageGeneratorToggleProps = {
 	/**
-	 * Whether or not to refresh the settings.
+	 * If the toggle is disabled.
 	 */
-	shouldRefresh: boolean;
-}
+	disabled?: boolean;
+};
 
 const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = ( {
-	shouldRefresh,
+	disabled,
 } ) => {
-	const refreshSettings = useDispatch( SOCIAL_STORE_ID ).refreshSocialImageGeneratorSettings;
-
-	useEffect( () => {
-		shouldRefresh && refreshSettings();
-	}, [ shouldRefresh, refreshSettings ] );
-
 	const [ currentTemplate, setCurrentTemplate ] = useState< string | null >( null );
 	const { isEnabled, isUpdating, defaultTemplate } = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
@@ -46,7 +40,7 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 
 	useEffect( () => {
 		if ( currentTemplate ) {
-			const newOption = { defaults: { template: currentTemplate } };
+			const newOption = { template: currentTemplate };
 			updateOptions( newOption );
 		}
 	}, [ currentTemplate, updateOptions ] );
@@ -71,7 +65,7 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 	return (
 		<ToggleSection
 			title={ __( 'Enable Social Image Generator', 'jetpack-social' ) }
-			disabled={ isUpdating }
+			disabled={ isUpdating || disabled }
 			checked={ isEnabled }
 			onChange={ toggleStatus }
 		>

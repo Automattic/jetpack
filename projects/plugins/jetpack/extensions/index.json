@@ -53,22 +53,25 @@
 		"ai-assistant-support",
 		"ai-assistant-form-support",
 		"paywall",
-		"ai-content-lens",
 		"blogroll",
 		"blogroll-item",
-		"nextdoor"
+		"nextdoor",
+		"ai-assistant-usage-panel",
+		"ai-content-lens"
 	],
 	"beta": [
-		"amazon",
 		"google-docs-embed",
 		"launchpad-save-modal",
+		"like",
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"create-with-voice",
+		"top-posts",
 		"ai-assistant-backend-prompts",
-		"ai-assistant-usage-panel",
-		"sharing-buttons"
+		"sharing-button",
+		"sharing-buttons",
+		"ai-logo-generator"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

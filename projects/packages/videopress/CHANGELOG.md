@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.0] - 2024-01-08
+### Changed
+- Remove unused logic from the modules store. [#34835]
+- Updated useModuleStatus hook to use module_status redux store. [#34845]
+
+## [0.21.7] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815] [#34816]
+
+## [0.21.6] - 2023-12-25
+### Changed
+- Internal updates.
+
+## [0.21.5] - 2023-12-20
+### Changed
+- Updated package dependencies. [#34694]
+
+### Fixed
+- Updated name of Abstract_Token_Subscription_Service [#34723]
+
+## [0.21.4] - 2023-12-06
+### Changed
+- Updated package dependencies. [#34416]
+
+## [0.21.3.1] - 2023-12-20
+### Fixed
+- Updated name of Abstract_Token_Subscription_Service [#34723]
+
+## [0.21.3] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+
+## [0.21.2] - 2023-11-24
+
+## [0.21.1] - 2023-11-21
+### Changed
+- Replaced usage of strpos() with str_contains(). [#34137]
+
+## [0.21.0] - 2023-11-20
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+- Clarified video preview poster image selection notice in the VideoPress uploader. [#32948]
+
+### Fixed
+- Enqueued token-bridge script when processing videopress shortcode. [#34121]
+- Fixed interaction with memberships and VideoPress privacy. [#34189]
+
 ## [0.20.2] - 2023-11-14
 ### Changed
 - Updated package dependencies. [#34093]
@@ -1182,6 +1230,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.22.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.7...v0.22.0
+[0.21.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.6...v0.21.7
+[0.21.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.5...v0.21.6
+[0.21.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.4...v0.21.5
+[0.21.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.3...v0.21.4
+[0.21.3.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.3...v0.21.3.1
+[0.21.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.2...v0.21.3
+[0.21.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.1...v0.21.2
+[0.21.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.21.0...v0.21.1
+[0.21.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.20.2...v0.21.0
 [0.20.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.20.1...v0.20.2
 [0.20.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.19.3...v0.20.0

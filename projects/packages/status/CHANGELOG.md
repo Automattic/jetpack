@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2023-12-03
+### Fixed
+- Module active checks should always be true on WordPress.com simple sites. [#34248]
+
+## [2.0.1] - 2023-11-21
+### Changed
+- Added a note of non-usage of PHP8+ functions yet. [#34137]
+- Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+
+## [2.0.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
 ## [1.19.0] - 2023-11-13
 ### Added
 - Added Host::get_source_query() to return the 'source' query param from the current URL. [#33984]
@@ -289,6 +302,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[2.0.2]: https://github.com/Automattic/jetpack-status/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-status/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-status/compare/v1.19.0...v2.0.0
 [1.19.0]: https://github.com/Automattic/jetpack-status/compare/v1.18.5...v1.19.0
 [1.18.5]: https://github.com/Automattic/jetpack-status/compare/v1.18.4...v1.18.5
 [1.18.4]: https://github.com/Automattic/jetpack-status/compare/v1.18.3...v1.18.4

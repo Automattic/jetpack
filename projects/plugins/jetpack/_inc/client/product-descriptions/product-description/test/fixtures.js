@@ -28,6 +28,21 @@ export function buildInitialState() {
 							url: 'https://cloud.jetpack.com/pricing#backup-storage-limits-faq',
 						},
 					},
+					creator: {
+						title: 'Jetpack Creator',
+						slug: 'jetpack_creator_yearly',
+						description:
+							'Craft stunning content, boost your subscriber base, and monetize your online presence.',
+						show_promotion: true,
+						discount_percent: 50,
+						included_in_plans: [ 'complete' ],
+						features: [
+							'Unlimited subscriber imports',
+							'Earn more from your content',
+							'Accept payments with PayPal',
+							'Increase earnings with WordAds',
+						],
+					},
 					scan: {
 						title: 'Jetpack Scan',
 						slug: 'jetpack_scan',

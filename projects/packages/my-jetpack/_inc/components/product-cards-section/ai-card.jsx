@@ -3,7 +3,7 @@ import React from 'react';
 import ProductCard from '../connected-product-card';
 
 const AiCard = ( { admin } ) => {
-	return <ProductCard admin={ admin } slug="jetpack-ai" />;
+	return <ProductCard admin={ admin } slug="jetpack-ai" upgradeInInterstitial={ true } />;
 };
 
 AiCard.propTypes = {

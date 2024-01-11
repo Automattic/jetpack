@@ -197,7 +197,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 							title: item.title,
 						} ) ),
 						service: source, // WPCOM.
-						post_id: this.props.postId ?? 0,
+						post_id: this.props.postId,
 					},
 				} )
 					.then( result => {
@@ -299,8 +299,12 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 		}
 
 		return withSelect( select => {
+			const currentPost = select( 'core/editor' ).getCurrentPost();
+			// Templates and template parts' numerical ID is stored in `wp_id`.
+			const currentPostId =
+				typeof currentPost?.id === 'number' ? currentPost.id : currentPost?.wp_id;
 			return {
-				postId: select( 'core/editor' ).getCurrentPostId(),
+				postId: currentPostId ?? 0,
 			};
 		} )( withNotices( WithMediaComponent ) );
 	} );

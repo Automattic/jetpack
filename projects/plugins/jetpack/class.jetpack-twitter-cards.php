@@ -268,7 +268,7 @@ class Jetpack_Twitter_Cards {
 	 * @return string Result of the OG tag.
 	 */
 	public static function twitter_cards_output( $og_tag ) {
-		return ( false !== strpos( $og_tag, 'twitter:' ) ) ? preg_replace( '/property="([^"]+)"/', 'name="\1"', $og_tag ) : $og_tag;
+		return ( str_contains( $og_tag, 'twitter:' ) ) ? preg_replace( '/property="([^"]+)"/', 'name="\1"', $og_tag ) : $og_tag;
 	}
 
 	/**

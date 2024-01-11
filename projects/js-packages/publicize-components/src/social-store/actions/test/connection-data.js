@@ -1,67 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
-import { store as coreStore } from '@wordpress/core-data';
-import { createRegistry, WPDataRegistry } from '@wordpress/data';
+import { WPDataRegistry } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as socialStore } from '../../';
+import { connections, createRegistryWithStores as createRegistry } from '../../../utils/test-utils';
 import { setConnections, toggleConnection } from '../connection-data';
 
-const postId = 44;
-
-const postTypeConfig = {
-	kind: 'postType',
-	name: 'post',
-	baseURL: '/wp/v2/posts',
-	transientEdits: { blocks: true, selection: true },
-	mergedEdits: { meta: true },
-	rawAttributes: [ 'title', 'excerpt', 'content' ],
-};
-
-const postTypeEntity = {
-	slug: 'post',
-	rest_base: 'posts',
-	labels: {},
-};
-
-const connections = [
-	{
-		id: '123456789',
-		service_name: 'facebook',
-		display_name: 'Some name',
-		profile_picture: 'https://wordpress.com/some-url-of-a-picture',
-		username: 'username',
-		enabled: false,
-		connection_id: '987654321',
-		test_success: true,
-	},
-	{
-		id: '234567891',
-		service_name: 'tumblr',
-		display_name: 'Some name',
-		profile_picture: 'https://wordpress.com/some-url-of-another-picture',
-		username: 'username',
-		enabled: false,
-		connection_id: '198765432',
-		test_success: false,
-	},
-	{
-		id: '345678912',
-		service_name: 'mastodon',
-		display_name: 'somename',
-		profile_picture: 'https://wordpress.com/some-url-of-one-more-picture',
-		username: '@somename@mastodon.social',
-		enabled: false,
-		connection_id: '219876543',
-		test_success: 'must_reauth',
-	},
-];
-
 const post = {
-	id: postId,
-	type: 'post',
-	title: 'bar',
-	content: 'bar',
-	excerpt: 'crackers',
-	status: 'draft',
 	jetpack_publicize_connections: [ connections[ 0 ] ],
 };
 
@@ -74,24 +18,7 @@ const post = {
  */
 function createRegistryWithStores( initConnections = true ) {
 	// Create a registry.
-	const registry = createRegistry();
-
-	// Register stores.
-	registry.register( coreStore );
-	registry.register( editorStore );
-	registry.register( socialStore );
-
-	// Register post type entity.
-	registry.dispatch( coreStore ).addEntities( [ postTypeConfig ] );
-
-	// Store post type entity.
-	registry.dispatch( coreStore ).receiveEntityRecords( 'root', 'postType', [ postTypeEntity ] );
-
-	// Store post.
-	registry.dispatch( coreStore ).receiveEntityRecords( 'postType', 'post', post );
-
-	// Setup editor with post.
-	registry.dispatch( editorStore ).setupEditor( post );
+	const registry = createRegistry( post );
 
 	if ( initConnections ) {
 		// Set connections.

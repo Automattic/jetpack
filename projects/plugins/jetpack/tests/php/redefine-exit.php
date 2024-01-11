@@ -29,7 +29,7 @@ $exitfunc = function ( $arg = null ) {
 	$func = \Patchwork\getFunction();
 	foreach ( $bt as $i => $data ) {
 		if ( $data['function'] === $func ) {
-			if ( isset( $bt[ $i + 1 ]['class'] ) && substr( $bt[ $i + 1 ]['class'], 0, 7 ) === 'PHPUnit' ) {
+			if ( isset( $bt[ $i + 1 ]['class'] ) && str_starts_with( $bt[ $i + 1 ]['class'], 'PHPUnit' ) ) {
 				return \Patchwork\relay();
 			}
 			break;

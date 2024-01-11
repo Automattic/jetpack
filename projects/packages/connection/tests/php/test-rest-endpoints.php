@@ -899,7 +899,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public static function intercept_register_request( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack.register' ) ) {
+		if ( ! str_contains( $url, 'jetpack.register' ) ) {
 			return $response;
 		}
 
@@ -916,7 +916,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public static function intercept_register_request_with_allow_inplace( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack.register' ) ) {
+		if ( ! str_contains( $url, 'jetpack.register' ) ) {
 			return $response;
 		}
 
@@ -933,7 +933,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public static function intercept_register_request_with_alternate_auth_url( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack.register' ) ) {
+		if ( ! str_contains( $url, 'jetpack.register' ) ) {
 			return $response;
 		}
 
@@ -975,7 +975,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_validate_tokens_request_invalid_blog_token( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
@@ -992,7 +992,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_validate_tokens_request_invalid_user_token( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
@@ -1009,7 +1009,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_validate_tokens_request_valid_tokens( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
@@ -1026,7 +1026,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_validate_tokens_request_failed( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
@@ -1093,7 +1093,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_refresh_blog_token_request( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-refresh-blog-token' ) ) {
+		if ( ! str_contains( $url, 'jetpack-refresh-blog-token' ) ) {
 			return $response;
 		}
 
@@ -1117,7 +1117,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_refresh_blog_token_request_fail( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-refresh-blog-token' ) ) {
+		if ( ! str_contains( $url, 'jetpack-refresh-blog-token' ) ) {
 			return $response;
 		}
 
@@ -1141,7 +1141,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function intercept_auth_token_request( $response, $args, $url ) {
-		if ( false === strpos( $url, '/jetpack.token/' ) ) {
+		if ( ! str_contains( $url, '/jetpack.token/' ) ) {
 			return $response;
 		}
 

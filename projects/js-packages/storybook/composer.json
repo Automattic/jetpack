@@ -37,8 +37,8 @@
 				"js-packages/idc",
 				"packages/my-jetpack",
 				"packages/search",
-				"plugins/protect",
 				"plugins/boost",
+				"plugins/protect",
 				"packages/videopress"
 			]
 		},

@@ -1,0 +1,13 @@
+.jetpack-sharing-buttons__services-list {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 5px;
+}
+
+ul.jetpack-sharing-buttons__services-list.has-background {
+    padding: 1.25em 2.375em;
+}

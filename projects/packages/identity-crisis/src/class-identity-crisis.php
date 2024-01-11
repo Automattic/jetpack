@@ -27,7 +27,12 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.11.4-alpha';
+	const PACKAGE_VERSION = '0.14.1';
+
+	/**
+	 * Persistent WPCOM blog ID that stays in the options after disconnect.
+	 */
+	const PERSISTENT_BLOG_ID_OPTION_NAME = 'jetpack_persistent_blog_id';
 
 	/**
 	 * Instance of the object.
@@ -90,6 +95,9 @@ class Identity_Crisis {
 
 		add_filter( 'jetpack_options', array( static::class, 'reverse_wpcom_urls_for_idc' ) );
 
+		add_filter( 'jetpack_register_request_body', array( static::class, 'register_request_body' ) );
+		add_action( 'jetpack_site_registered', array( static::class, 'site_registered' ) );
+
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
 			return;
@@ -112,6 +120,8 @@ class Identity_Crisis {
 		} else {
 			$connection->disconnect_site( false );
 		}
+
+		delete_option( static::PERSISTENT_BLOG_ID_OPTION_NAME );
 
 		// Clear IDC options.
 		self::clear_all_idc_options();
@@ -211,6 +221,14 @@ class Identity_Crisis {
 
 		if ( \Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
 			$query_args['migrate_for_idc'] = true;
+		}
+
+		if ( self::url_is_ip() ) {
+			$query_args['url_secret'] = URL_Secret::create_secret( 'URL_argument_secret_failed' );
+		}
+
+		if ( is_multisite() ) {
+			$query_args['multisite'] = true;
 		}
 
 		return add_query_arg( $query_args, $url );
@@ -1336,5 +1354,44 @@ class Identity_Crisis {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Check if URL is an IP.
+	 *
+	 * @return bool
+	 */
+	public static function url_is_ip() {
+		$hostname = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
+		$is_ip    = filter_var( $hostname, FILTER_VALIDATE_IP ) !== false ? true : false;
+		return $is_ip;
+	}
+
+	/**
+	 * Add IDC-related data to the registration query.
+	 *
+	 * @param array $params The existing query params.
+	 *
+	 * @return array
+	 */
+	public static function register_request_body( array $params ) {
+		$persistent_blog_id = get_option( static::PERSISTENT_BLOG_ID_OPTION_NAME );
+		if ( $persistent_blog_id ) {
+			$params['persistent_blog_id'] = $persistent_blog_id;
+			$params['url_secret']         = URL_Secret::create_secret( 'registration_request_url_secret_failed' );
+		}
+
+		return $params;
+	}
+
+	/**
+	 * Set the necessary options when site gets registered.
+	 *
+	 * @param int $blog_id The blog ID.
+	 *
+	 * @return void
+	 */
+	public static function site_registered( $blog_id ) {
+		update_option( static::PERSISTENT_BLOG_ID_OPTION_NAME, (int) $blog_id, false );
 	}
 }

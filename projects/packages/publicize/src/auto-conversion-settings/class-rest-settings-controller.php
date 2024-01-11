@@ -2,11 +2,16 @@
 /**
  * Class used to register REST API auto-conversion settings endpoints.
  *
+ * Flagged to be removed after deprecation.
+ *
+ * @deprecated $$next_version$$
+ *
  * @package automattic/jetpack-publicize
  */
 
 namespace Automattic\Jetpack\Publicize\Auto_Conversion;
 
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings as Jetpack_Social_Settings;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Server;
@@ -47,21 +52,17 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_auto_coversion_settings() {
-		$settings   = new Settings();
+		$settings   = ( new Jetpack_Social_Settings() )->get_settings();
 		$response   = array();
 		$schema     = $this->get_item_schema();
 		$properties = array_keys( $schema['properties'] );
 
 		if ( in_array( 'image', $properties, true ) ) {
-			$response['image'] = $settings->is_enabled( 'image' );
-		}
-
-		if ( in_array( 'video', $properties, true ) ) {
-			$response['video'] = $settings->is_enabled( 'video' );
+			$response['image'] = $settings['autoConversionSettings']['enabled'];
 		}
 
 		if ( in_array( 'auto-conversion', $properties, true ) ) {
-			$response['auto-conversion'] = $settings->is_enabled( 'auto-conversion' );
+			$response['auto-conversion'] = $settings['autoConversionSettings']['enabled'];
 		}
 
 		return rest_ensure_response( $response );
@@ -75,18 +76,10 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function update_auto_coversion_settings( $request ) {
-		$settings = new Settings();
+		$settings = new Jetpack_Social_Settings();
 
 		if ( isset( $request['image'] ) ) {
-			$settings->set_enabled( 'image', $request['image'] );
-		}
-
-		if ( isset( $request['video'] ) ) {
-			$settings->set_enabled( 'video', $request['video'] );
-		}
-
-		if ( isset( $request['auto-conversion'] ) ) {
-			$settings->set_enabled( 'auto-conversion', $request['auto-conversion'] );
+			$settings->update_auto_conversion_setting( array( 'enabled' => $request['image'] ) );
 		}
 
 		return rest_ensure_response( $this->get_auto_coversion_settings() );

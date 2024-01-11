@@ -216,6 +216,7 @@ class Listener {
 		 * If we add any items to the queue, we should try to ensure that our script
 		 * can't be killed before they are sent.
 		 */
+		// https://plugins.trac.wordpress.org/ticket/2041
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
 		}
@@ -319,6 +320,7 @@ class Listener {
 		 * If we add any items to the queue, we should try to ensure that our script
 		 * can't be killed before they are sent.
 		 */
+		// https://plugins.trac.wordpress.org/ticket/2041
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
 		}

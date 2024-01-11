@@ -953,8 +953,15 @@ function zeroBSCRMJS_enactBulkAction( actionstr, idList, extraParams, successcb,
 				zeroBSCRMJS_drawListView();
 			},
 			error: function ( response ) {
-				// any error callback?
-				if ( typeof errcb === 'function' ) {
+
+				if ( response.status === 403 ) {
+					// permissions error
+					swal(
+						zeroBSCRMJS_listViewLang( 'badperms' ),
+						zeroBSCRMJS_listViewLang( 'badperms_desc' ),
+						'warning'
+					);
+				} else if ( typeof errcb === 'function' ) {
 					errcb( response );
 				}
 

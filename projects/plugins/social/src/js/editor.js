@@ -7,7 +7,8 @@ import {
 	useSocialMediaConnections,
 	PublicizePanel,
 	PostPublishReviewPrompt,
-	PostPublishOneClickSharing,
+	PostPublishManualSharing,
+	useSyncPostDataToStore,
 } from '@automattic/jetpack-publicize-components';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody } from '@wordpress/components';
@@ -64,6 +65,7 @@ const JetpackSocialSidebar = () => {
 			} }
 		/>
 	);
+	useSyncPostDataToStore();
 
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
@@ -111,7 +113,7 @@ const JetpackSocialSidebar = () => {
 				<SocialPreviewsPanel openModal={ openModal } />
 			</PluginPrePublishPanel>
 
-			<PostPublishOneClickSharing />
+			<PostPublishManualSharing />
 			<PostPublishReviewPrompt />
 		</PostTypeSupportCheck>
 	);

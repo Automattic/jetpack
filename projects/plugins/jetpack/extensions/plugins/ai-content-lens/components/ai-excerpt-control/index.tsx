@@ -16,7 +16,6 @@ import {
 	PROMPT_TONES_MAP,
 	ToneDropdownMenu,
 } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
-import AiModelSelectorControl from '../../../../shared/components/ai-model-selector-control';
 /**
  * Types and constants
  */
@@ -75,9 +74,6 @@ export function AiExcerptControl( {
 
 	tone,
 	onToneChange,
-
-	model,
-	onModelChange,
 }: AiExcerptControlProps ) {
 	const [ isSettingActive, setIsSettingActive ] = React.useState( false );
 
@@ -116,12 +112,11 @@ export function AiExcerptControl( {
 						label={ langLabel }
 					/>
 
-					<ToneDropdownMenu label={ toneLabel } value={ tone } onChange={ onToneChange } />
-
-					<AiModelSelectorControl
-						model={ model }
-						onModelChange={ onModelChange }
+					<ToneDropdownMenu
 						disabled={ disabled }
+						label={ toneLabel }
+						value={ tone }
+						onChange={ onToneChange }
 					/>
 				</>
 			) }

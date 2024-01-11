@@ -21,6 +21,7 @@ const ConnectedProductCard = ( {
 	Description = null,
 	additionalActions = null,
 	menuItems = [],
+	upgradeInInterstitial = false,
 } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
@@ -136,6 +137,7 @@ const ConnectedProductCard = ( {
 			onInstallStandalone={ handleInstallStandalone }
 			onActivateStandalone={ handleInstallStandalone }
 			onDeactivateStandalone={ handleDeactivateStandalone }
+			upgradeInInterstitial={ upgradeInInterstitial }
 		>
 			{ children }
 		</ProductCard>

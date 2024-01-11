@@ -255,7 +255,7 @@ class Image_CDN_Core {
 			)
 		);
 
-		if ( '.files.wordpress.com' !== substr( $image_url_parts['host'], -20 ) ) {
+		if ( ! str_ends_with( $image_url_parts['host'], '.files.wordpress.com' ) ) {
 			return $args;
 		}
 

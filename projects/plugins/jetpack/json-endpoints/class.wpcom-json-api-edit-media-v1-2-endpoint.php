@@ -163,7 +163,7 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 		if ( ! empty( $id3_meta ) ) {
 			// Before updating metadata, ensure that the item is audio.
 			$item = $this->get_media_item_v1_1( $media_id );
-			if ( 0 === strpos( $item->mime_type, 'audio/' ) ) {
+			if ( str_starts_with( $item->mime_type, 'audio/' ) ) {
 				$update_action = wp_update_attachment_metadata( $media_id, $id3_meta );
 				if ( is_wp_error( $update_action ) ) {
 					return $update_action;

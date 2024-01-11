@@ -9,7 +9,7 @@
 define( 'TEST_DIR', str_replace( '\\', '/', __DIR__ ) );
 
 // Make sure its easy to reference the test files.
-define( 'TEST_PACKAGE_DIR', dirname( dirname( TEST_DIR ) ) );
+define( 'TEST_PACKAGE_DIR', dirname( TEST_DIR, 2 ) );
 define( 'TEST_TEMP_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'tmp' );
 
 // phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged

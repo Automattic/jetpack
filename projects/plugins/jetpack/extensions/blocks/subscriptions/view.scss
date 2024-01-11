@@ -61,6 +61,7 @@
 			 */
 			white-space: nowrap !important;
 			min-width: auto !important;
+			cursor: pointer;
 		}
 
 		input[type="email"]::placeholder {
@@ -83,6 +84,7 @@
 			input[type="email"] {
 				width: 100%;
 				margin: 0;
+				height: auto;
 			}
 		}
 

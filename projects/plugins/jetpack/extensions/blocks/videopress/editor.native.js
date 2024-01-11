@@ -72,10 +72,6 @@ const addVideoPressSupport = ( settings, name ) => {
 			source: 'attribute',
 			selector: 'video',
 			attribute: 'src',
-			// Media placeholder is rendered when src is falsey.
-			// As such it's necessary to set a default to prevent empty video blocks.
-			// See: https://github.com/Automattic/jetpack/pull/34073
-			default: 'undefined',
 		},
 		useAverageColor: {
 			type: 'boolean',
