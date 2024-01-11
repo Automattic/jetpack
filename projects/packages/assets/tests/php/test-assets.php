@@ -688,7 +688,7 @@ class AssetsTest extends TestCase {
 					'is_rtl' => false,
 				),
 			),
-			'Strategy Defer'                             => array(
+			'Strategy Defer'                            => array(
 				array( 'single-file', 'test-assets-files/single-js-file.js', __FILE__, array( 'strategy' => 'defer' ) ),
 				array(
 					'wp_register_script' => array(
@@ -700,10 +700,10 @@ class AssetsTest extends TestCase {
 							'strategy' => 'defer',
 						),
 					),
-					array(),
 				),
+				array(),
 			),
-			'Strategy Async'                             => array(
+			'Strategy Async'                            => array(
 				array( 'single-file', 'test-assets-files/single-js-file.js', __FILE__, array( 'strategy' => 'async' ) ),
 				array(
 					'wp_register_script' => array(
@@ -715,9 +715,9 @@ class AssetsTest extends TestCase {
 							'strategy' => 'async',
 						),
 					),
-					array(),
 				),
-			)
+				array(),
+			),
 		);
 	}
 
