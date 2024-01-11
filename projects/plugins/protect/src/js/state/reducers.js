@@ -18,8 +18,7 @@ import {
 	CLEAR_NOTICE,
 	SET_THREATS_ARE_FIXING,
 	SET_HAS_REQUIRED_PLAN,
-	SET_ONBOARDING_STEP,
-	SET_SELECTED,
+	SET_ONBOARDING_PROGRESS,
 	SET_WAF_IS_SEEN,
 	SET_WAF_UPGRADE_IS_SEEN,
 	SET_WAF_IS_ENABLED,
@@ -155,18 +154,10 @@ const hasRequiredPlan = ( state = false, action ) => {
 	return state;
 };
 
-const onboardingStep = ( state = 1, action ) => {
+const onboardingProgress = ( state = null, action ) => {
 	switch ( action.type ) {
-		case SET_ONBOARDING_STEP:
-			return action.step;
-	}
-	return state;
-};
-
-const selected = ( state = 'all', action ) => {
-	switch ( action.type ) {
-		case SET_SELECTED:
-			return action.selected;
+		case SET_ONBOARDING_PROGRESS:
+			return action.progress;
 	}
 	return state;
 };
@@ -218,8 +209,7 @@ const reducers = combineReducers( {
 	notice,
 	setThreatsFixing,
 	hasRequiredPlan,
-	onboardingStep,
-	selected,
+	onboardingProgress,
 	waf,
 } );
 

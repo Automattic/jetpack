@@ -1,4 +1,3 @@
-import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	plugins as pluginsIcon,
 	wordpress as coreIcon,
@@ -6,9 +5,8 @@ import {
 	code as filesIcon,
 	grid as databaseIcon,
 } from '@wordpress/icons';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
-import { STORE_ID } from '../../state/store';
 
 const sortThreats = ( a, b ) => b.severity - a.severity;
 
@@ -52,9 +50,7 @@ const flattenThreats = ( data, newData ) => {
  * @returns {UseThreatsList} useThreatsList hook.
  */
 const useThreatsList = () => {
-	const selected = useSelect( select => select( STORE_ID ).getSelected() );
-	const { setSelected } = useDispatch( STORE_ID );
-
+	const [ selected, setSelected ] = useState( 'all' );
 	const { plugins, themes, core, files, database } = useProtectData();
 
 	const { unsortedList, item } = useMemo( () => {
