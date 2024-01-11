@@ -26,7 +26,7 @@ class WordAds_Consent_Management_Provider {
 	/**
 	 * The relative path of the directory containing the CMP JS build files.
 	 */
-	const CMP_JS_DIR = 'js/cmp/v2/';
+	const CMP_JS_DIR = 'jetpack/modules/wordads/js/cmp/v2/';
 
 	/**
 	 * The default [purposes](https://iabeurope.eu/iab-europe-transparency-consent-framework-policies/#A_Purposes) the CMP will surface for getting consent.
@@ -135,7 +135,7 @@ class WordAds_Consent_Management_Provider {
 		// TODO: Is there better sanitizing we can do here?
 		$consent = trim( wp_unslash( $_POST['consent'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
-		setcookie( self::COOKIE_NAME, $consent, time() + YEAR_IN_SECONDS, '/', self::get_cookie_domain() );
+		setcookie( self::COOKIE_NAME, $consent, time() + YEAR_IN_SECONDS, '/', self::get_cookie_domain(), is_ssl(), true );
 
 		// Log consent request.
 		$valid_consent_types = array( 'accept_all', 'reject_all', 'custom' );
@@ -163,8 +163,8 @@ class WordAds_Consent_Management_Provider {
 
 		$gvl_specification_version = self::get_default_gvl_specification_version();
 		$language_code             = self::get_site_language_code();
-		$meta                      = self::get_vendor_meta_by_language( $language_code, $gvl_specification_version );
-		$module_path               = plugin_dir_url( __DIR__ ) . self::CMP_JS_DIR; // TODO: Test this as a relative URL, for better caching?
+		$meta                      = array();
+		$module_path               = 'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/'; // consider version query param?
 		$gvl_path                  = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/v%d/vendors/%s/', get_current_blog_id(), $gvl_specification_version, $language_code );
 
 		// Switch to supported language or fallback to English.
@@ -177,8 +177,6 @@ class WordAds_Consent_Management_Provider {
 			'gvlVersion'         => $meta['vendor_list_version'],
 			'consentLanguage'    => strtoupper( substr( $language_code, 0, 2 ) ),
 			'locale'             => $language_code,
-			// 'vendorsAll'         => $meta['meta']['vendors_encoded'],
-			// 'vendorsLegInterest' => $meta['meta']['vendors_legitimate_interests_encoded'],
 			'vendorsAll'         => 'EGpq_4__7a_t_y9e_T9ujzGr_vsffdiGIML5Nn3AuRd635OC--wmZom3VtTBUyJAl27IJCAto5M6iKsULVECteY9jEgzkCZpRPwMkA5iL2zrAQvN8zFsfyBTPP9P7u7_Oyf_v7t_27ueefqs9-73r9zsrhETrXPto_8_7aJTf3ZD3v_f3_F-npv9cm37yat__r19_ev139v____v_v__4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAg',
 			'vendorsLegInterest' => 'EGoAsw0KiAPsiQkItBwigQAiCsICKBAAAACQNEBACQMCnYGAS6wkQAgRQADBACAAFGQAIAABIAEIgAkAKBAABAIBAAAAAAIBAAwMAA4ALQQCAAEB0DFMKABQLCBIzIiFMCEKBIICWygQSAoEFcIAixwIoBETBQAIAkAFYAAALFYDEEgJWJBAlhBtAAAQAIBRShUIpOjAEMCZstVOKJtGQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAg',
 			'ajaxNonce'          => $nonce,
@@ -207,8 +205,8 @@ class WordAds_Consent_Management_Provider {
 		wp_enqueue_script(
 			'cmp-script-stub',
 			Assets::get_file_url_for_environment(
-				'_inc/build/wordads/js/cmp/v2/cmp-stub.min.js',
-				'modules/wordads/js/cmp/v2/cmp-stub.js'
+				'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/cmp-stub.js',
+				'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/cmp-stub.js'
 			),
 			array(),
 			self::CMP_VERSION,
@@ -218,8 +216,8 @@ class WordAds_Consent_Management_Provider {
 		wp_enqueue_script(
 			'cmp-script',
 			Assets::get_file_url_for_environment(
-				'_inc/build/wordads/js/cmp/v2/cmp.bundle.min.js',
-				'modules/wordads/js/cmp/v2/cmp.bundle.js'
+				'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/cmp.bundle.js',
+				'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/cmp.bundle.js'
 			),
 			array(),
 			self::CMP_VERSION,
@@ -234,8 +232,8 @@ class WordAds_Consent_Management_Provider {
 		wp_enqueue_script(
 			'cmp-script-stub',
 			Assets::get_file_url_for_environment(
-				'_inc/build/wordads/js/cmp/v2/cmp-non-gdpr.min.js',
-				'modules/wordads/js/cmp/v2/cmp-non-gdpr.js'
+				'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/cmp-non-gdpr.js',
+				'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/cmp-non-gdpr.js'
 			),
 			array(),
 			self::CMP_VERSION,
@@ -250,11 +248,6 @@ class WordAds_Consent_Management_Provider {
 	 */
 	public static function is_feature_enabled(): bool {
 
-		// Disable if stickered.
-		// if ( has_blog_sticker( 'wordads-cmp-disable', get_current_blog_id() ) ) {
-		// 	return false;
-		// }
-
 		// Enable for all sites.
 		return true;
 	}
@@ -268,24 +261,6 @@ class WordAds_Consent_Management_Provider {
 		$country_code = self::get_country_code();
 
 		return 'none' === $country_code || wpcom_country_is_within_gdpr_zone( $country_code );
-	}
-
-	/**
-	 * Gets a list of purposes to surface through the UI.
-	 *
-	 * @return int[] A list of allowed purpose IDs (as defined by IAB).
-	 */
-	public static function get_allowed_purposes(): array {
-		return self::ALLOWED_PURPOSES;
-	}
-
-	/**
-	 * Gets a list of supported GVL specification versions.
-	 *
-	 * @return int[] The list of supported GVL specification versions.
-	 */
-	public static function get_supported_gvl_specification_versions(): array {
-		return self::SUPPORTED_GVL_SPECIFICATION_VERSIONS;
 	}
 
 	/**
@@ -318,295 +293,6 @@ class WordAds_Consent_Management_Provider {
 	}
 
 	/**
-	 * Gets GVL data along with translated UI text to be used by the front-end React application.
-	 *
-	 * @param string $language_code The language code used for lookup.
-	 * @param int    $gvl_specification_version The GVL specification version used for lookup.
-	 *
-	 * @return array GVL data and translated UI text.
-	 * @throws Exception Throws if the data lookup fails.
-	 */
-	public static function get_gvl_data( string $language_code, int $gvl_specification_version ): array {
-
-		// Grab the most recent translated purposes data for the provided language.
-		try {
-			$purposes_data = self::get_purposes_by_language( $language_code, $gvl_specification_version );
-		} catch ( Exception $e ) {
-			throw $e;
-		}
-
-		// Grab the vendor list data for the vendor list version associated with the translated purposes.
-		$vendor_list_version = $purposes_data['vendor_list_version'];
-
-		try {
-			$vendors_data = self::get_vendors_by_version( $vendor_list_version, $gvl_specification_version );
-		} catch ( Exception $e ) {
-			throw $e;
-		}
-
-		// Set the correct language for the translations.
-		switch_to_locale( $language_code );
-
-		$translated = $purposes_data['translated'];
-
-		$purpose_intro = __( '<p>As part of our advertising program, we and our advertising partners collect and use your information for the purposes listed below. For some purposes, we or our partners require your consent before we will use your information in the way described. Use the checkbox next to each purpose to customize your consent preferences. Declining consent means we will not use your data for that purpose and you may see less relevant ads.</p><p>Some of the personal data processed by us or our partners is done based on a legitimate interest in the processing. That means it does not require your consent, but you have the right to object to it. Expand each purpose below to learn more about this type of processing; if you wish to object to the processing you can use the corresponding toggle.</p>', 'jetpack' );
-		$partner_intro = __( 'Below is a list of partners we work with, or may work with in the future, for our ads program. Expand each partner to learn more about them, and use the corresponding partner checkbox to set your preference. Please note that partners you do not consent to may still process some of your personal data when they believe they have a legitimate interest in doing so; you have the right to object to this legitimate interest processing using the corresponding toggle.', 'jetpack' );
-
-		$results = array(
-			'purposes'        => $translated['purposes'],
-			'specialPurposes' => $translated['specialPurposes'],
-			'features'        => $translated['features'],
-			'specialFeatures' => $translated['specialFeatures'],
-			'vendors'         => $vendors_data['vendors'],
-			'_'               => array(
-				'purposeIntro'         => $purpose_intro,
-				'purposes'             => __( 'Purposes', 'jetpack' ),
-				'featureIntro'         => __( 'In addition to the above purposes, your personal data may be used in the following ways.', 'jetpack' ),
-				'features'             => __( 'Features', 'jetpack' ),
-				'legInterest'          => __( 'Legitimate Interest', 'jetpack' ),
-				'purposeOptOut'        => __( 'Some of your personal data may still be processed, even if you deselect this purpose, if we or our partners believe we have a legitimate interest in doing so. You can object to this legitimate interest processing using the corresponding toggle.', 'jetpack' ),
-				'partners'             => __( 'Partners', 'jetpack' ),
-				'partnerIntro'         => $partner_intro,
-				'consentPurposes'      => __( 'Consent Purposes', 'jetpack' ),
-				'requiredPurposes'     => __( 'Required Purposes', 'jetpack' ),
-				'legInterestPurposes'  => __( 'Legitimate Interest Purposes', 'jetpack' ),
-				'vendorOptOut'         => __( 'If you do not consent to this partner\'s use of your data for the above purposes, they will still process your data for the following purposes based on a legitimate interest. You can object to this legitimate interest processing using the corresponding toggle.', 'jetpack' ),
-				'acceptAll'            => __( 'Agree to All', 'jetpack' ),
-				'rejectAll'            => __( 'Disagree to All', 'jetpack' ),
-				'save'                 => __( 'Agree to Selected', 'jetpack' ),
-				'discard'              => __( 'Discard Changes', 'jetpack' ),
-				'back'                 => __( 'Back', 'jetpack' ),
-				'selectAll'            => __( 'Select All', 'jetpack' ),
-				'viewPartners'         => __( 'View Partners', 'jetpack' ),
-				'viewPurposes'         => __( 'View Purposes', 'jetpack' ),
-				'privacyPolicy'        => __( 'View Privacy Policy', 'jetpack' ),
-				'details'              => _x( 'Learn More', 'CMP banner', 'jetpack' ),
-				'deviceStorage'        => __( 'Device Storage', 'jetpack' ),
-				'usesCookies'          => __( 'Uses Cookies', 'jetpack' ),
-				'maxCookieAge'         => __( 'Maximum Cookie Age', 'jetpack' ),
-				'usesNonCookieStorage' => __( 'Uses Non-Cookie Storage', 'jetpack' ),
-				'session'              => __( 'Session', 'jetpack' ),
-				'yes'                  => __( 'Yes', 'jetpack' ),
-				'no'                   => __( 'No', 'jetpack' ),
-				'identifier'           => __( 'Identifier', 'jetpack' ),
-				'type'                 => __( 'Type', 'jetpack' ),
-				'maxAge'               => __( 'Max Age', 'jetpack' ),
-				'domain'               => __( 'Domain', 'jetpack' ),
-				'year'                 => array( __( 'year', 'jetpack' ), __( 'years', 'jetpack' ) ),
-				'day'                  => array( __( 'day', 'jetpack' ), __( 'days', 'jetpack' ) ),
-				'hour'                 => array( __( 'hour', 'jetpack' ), __( 'hours', 'jetpack' ) ),
-				'minute'               => array( __( 'minute', 'jetpack' ), __( 'minutes', 'jetpack' ) ),
-				'second'               => array( __( 'second', 'jetpack' ), __( 'seconds', 'jetpack' ) ),
-			),
-		);
-
-		// GVL v3 includes additional data.
-		if ( 3 === $gvl_specification_version ) {
-			$results['dataCategories'] = $translated['dataCategories'];
-			$results['_']              = array_merge(
-				$results['_'],
-				array(
-					// translators: %1$s - number of our partners that use the user data for the selected purpose.
-					'partnersUtilizingPurpose'            => __( '%1$s of our partners use your data for this purpose.', 'jetpack' ),
-					// translators: %1$s - number of our partners that require legitimate interest for the selected purpose.
-					'partnersUtilizingLegitimateInterest' => __( '%1$s of them rely on legitimate interest.', 'jetpack' ),
-					'dataDeclarations'                    => __( 'Types of Data Collected', 'jetpack' ),
-					'dataRetentionPeriod'                 => __( 'Data Retention Period', 'jetpack' ),
-					'duration'                            => __( 'Duration', 'jetpack' ),
-					'purpose'                             => __( 'Purpose', 'jetpack' ),
-					'illustrationsCaption'                => __( 'Example(s) of how this purpose might be used:', 'jetpack' ),
-				)
-			);
-		}
-
-		// Reset language.
-		restore_current_locale();
-
-		return $results;
-	}
-
-	/**
-	 * Clears the caches used for GVL data.
-	 *
-	 * This method is called by WordAds_CMP_GVL_Ingestion after fetching the latest GVL data to clear out old data.
-	 *
-	 * @param string $language_code The language code used for lookup.
-	 * @param int    $gvl_specification_version The GVL specification version to clear cache for.
-	 */
-	public static function clear_purpose_cache( string $language_code, int $gvl_specification_version ) {
-		$meta_cache_key     = self::get_meta_cache_key( $language_code, $gvl_specification_version );
-		$purposes_cache_key = self::get_purposes_cache_key( $language_code, $gvl_specification_version );
-
-		wp_cache_delete( $meta_cache_key, self::CACHE_GROUP );
-		wp_cache_delete( $purposes_cache_key, self::CACHE_GROUP );
-	}
-
-	/**
-	 * Used to filter the language code before we look it up in the database.
-	 *
-	 * This is useful to combine language variants for which we have only one IAB translation e.g. Portuguese and Portuguese - Brazilian.
-	 *
-	 * @param string $language_code The language code to filter.
-	 * @param int    $gvl_specification_version The GVL specification version to use.
-	 *
-	 * @return string The filtered language code.
-	 */
-	private static function filter_language_code_for_lookup( string $language_code, int $gvl_specification_version ): string {
-
-		// GVL v2.
-		if ( 2 === $gvl_specification_version ) {
-			// Special handling for Portuguese. The IAB translations should be used for both Portuguese and Portuguese - Brazilian.
-			if ( 'pt-br' === $language_code ) {
-				$language_code = 'pt';
-			}
-		}
-
-		// GVL v3.
-		if ( 3 === $gvl_specification_version ) {
-			// Special handling for Portuguese. GVL uses `pt-pt` instead of `pt`.
-			if ( 'pt' === $language_code ) {
-				$language_code = 'pt-pt';
-			}
-		}
-
-		return $language_code;
-	}
-
-	/**
-	 * Gets translated purpose text.
-	 *
-	 * @param string $language_code The language code used for lookup.
-	 * @param int    $gvl_specification_version The GVL specification version used for lookup.
-	 *
-	 * @return array Translated purposes.
-	 * @throws Exception If purposes cannot be loaded from the database.
-	 */
-	private static function get_purposes_by_language( string $language_code, int $gvl_specification_version ): array {
-
-		$language_code = self::filter_language_code_for_lookup( $language_code, $gvl_specification_version );
-
-		$cache_key = self::get_purposes_cache_key( $language_code, $gvl_specification_version );
-		$purposes  = wp_cache_get( $cache_key, self::CACHE_GROUP );
-
-		if ( false === $purposes ) {
-			global $wpdb;
-			$result = $wpdb->get_row( $wpdb->prepare( 'SELECT vendor_list_version, translated_json FROM wordads_gvl_translations WHERE language_code = %s AND gvl_specification_version = %d ORDER BY vendor_list_version DESC LIMIT 1', $language_code, $gvl_specification_version ), ARRAY_A );
-
-			if ( null === $result ) {
-				throw new Exception( sprintf( 'Could not load purposes with language code %s and GVL specification version %d from the database', $language_code, $gvl_specification_version ) );
-			}
-
-			$purposes = array(
-				'vendor_list_version' => $result['vendor_list_version'],
-				'translated'          => json_decode( $result['translated_json'], true ),
-			);
-
-			wp_cache_set( $cache_key, $purposes, self::CACHE_GROUP );
-		}
-
-		return $purposes;
-	}
-
-	/**
-	 * Gets GVL vendor data.
-	 *
-	 * @param int $vendor_list_version The version used for lookup.
-	 * @param int $gvl_specification_version The GVL specification version used for lookup.
-	 *
-	 * @return array Vendor data.
-	 * @throws Exception If the vendors cannot be loaded from the database.
-	 */
-	private static function get_vendors_by_version( int $vendor_list_version, int $gvl_specification_version ): array {
-		$cache_key = self::get_vendors_cache_key( $vendor_list_version, $gvl_specification_version );
-		$vendors   = wp_cache_get( $cache_key, self::CACHE_GROUP );
-
-		if ( false === $vendors ) {
-			global $wpdb;
-			$result = $wpdb->get_row( $wpdb->prepare( 'SELECT vendor_list_version, vendors_json FROM wordads_gvl WHERE vendor_list_version = %d AND gvl_specification_version = %d', $vendor_list_version, $gvl_specification_version ), ARRAY_A );
-
-			if ( null === $result ) {
-				throw new Exception( sprintf( 'Could not load vendors with list version %d and GVL specification version %d from the database', $vendor_list_version, $gvl_specification_version ) );
-			}
-
-			$vendors = array(
-				'vendor_list_version' => $result['vendor_list_version'],
-				'vendors'             => json_decode( $result['vendors_json'], true ),
-			);
-
-			wp_cache_set( $cache_key, $vendors, self::CACHE_GROUP );
-		}
-
-		return $vendors;
-	}
-
-	/**
-	 * Gets metadata for the vendor list.
-	 *
-	 * This metadata is output to the page as configuration in a script tag. It's used by the React front-end
-	 * to avoid having to load the full GVL data when on the happy path of accepting all consent.
-	 *
-	 * @param string $language_code The language code used for lookup.
-	 * @param int    $gvl_specification_version The GVL specification version used for lookup.
-	 *
-	 * @return array The GVL meta data.
-	 */
-	private static function get_vendor_meta_by_language( string $language_code, int $gvl_specification_version ): array {
-
-		$language_code = self::filter_language_code_for_lookup( $language_code, $gvl_specification_version );
-
-		$cache_key = self::get_meta_cache_key( $language_code, $gvl_specification_version );
-		$meta      = wp_cache_get( $cache_key, self::CACHE_GROUP );
-
-		if ( false === $meta ) {
-			global $wpdb;
-			$result = $wpdb->get_row( $wpdb->prepare( 'SELECT t.vendor_list_version, vendors_meta FROM wordads_gvl_translations t INNER JOIN wordads_gvl v ON t.vendor_list_version = v.vendor_list_version AND t.gvl_specification_version = v.gvl_specification_version  WHERE t.language_code = %s AND t.gvl_specification_version = %d ORDER BY t.vendor_list_version DESC LIMIT 1', strtoupper( $language_code ), $gvl_specification_version ), ARRAY_A );
-			$meta   = array(
-				'vendor_list_version' => $result['vendor_list_version'],
-				'meta'                => json_decode( $result['vendors_meta'], true ),
-			);
-			wp_cache_set( $cache_key, $meta, self::CACHE_GROUP );
-		}
-
-		return $meta;
-	}
-
-	/**
-	 * Gets the cache key used for reading/writing GVL metadata.
-	 *
-	 * @param string $language_code The language code used for lookup.
-	 * @param int    $gvl_specification_version The GVL specification version used for lookup.
-	 *
-	 * @return string The cache key.
-	 */
-	private static function get_meta_cache_key( string $language_code, int $gvl_specification_version ): string {
-		return sprintf( 'gvl_meta_%s_%d', $language_code, $gvl_specification_version );
-	}
-
-	/**
-	 * Gets the cache key used for reading/writing purpose data.
-	 *
-	 * @param string $language_code The language code used for lookup.
-	 * @param int    $gvl_specification_version The GVL specification version used for lookup.
-	 *
-	 * @return string The cache key.
-	 */
-	private static function get_purposes_cache_key( string $language_code, int $gvl_specification_version ): string {
-		return sprintf( 'gvl_purposes_%s_%d', $language_code, $gvl_specification_version );
-	}
-
-	/**
-	 * Gets the cache key used for reading/writing vendor data.
-	 *
-	 * @param int $vendor_list_version The version used for lookup.
-	 * @param int $gvl_specification_version The GVL specification version used for lookup.
-	 *
-	 * @return string The cache key.
-	 */
-	private static function get_vendors_cache_key( int $vendor_list_version, int $gvl_specification_version ): string {
-		return sprintf( 'gvl_vendors_%d_%d', $vendor_list_version, $gvl_specification_version );
-	}
-
-	/**
 	 * Gets the domain name to set the cookie under.  All *.wordpress.com sites will set the
 	 * cookie on the .wordpress.com domain for shared consent.
 	 *
@@ -614,6 +300,7 @@ class WordAds_Consent_Management_Provider {
 	 */
 	private static function get_cookie_domain(): string {
 
+		// Do we need this as it's .wordpress.com shared cookie?
 		$cookie_domain  = '';
 		$primary_domain = get_primary_redirect( get_current_blog_id() );
 
@@ -653,9 +340,7 @@ class WordAds_Consent_Management_Provider {
 		// 1. Set as a parameter in the query string.
 		// 2. The country code identified by the Nginx geolocation module.
 
-		if ( isset( $_GET['country'] ) && preg_match( '|^[A-Za-z]{2}$|', sanitize_text_field( wp_unslash( $_GET['country'] ) ) ) ) {
-			return strtoupper( sanitize_text_field( wp_unslash( $_GET['country'] ) ) );
-		} elseif ( isset( $_SERVER['GEOIP_COUNTRY_CODE'] ) ) {
+		if ( isset( $_SERVER['GEOIP_COUNTRY_CODE'] ) ) {
 			return sanitize_text_field( wp_unslash( $_SERVER['GEOIP_COUNTRY_CODE'] ) );
 		} else {
 			return 'none';
