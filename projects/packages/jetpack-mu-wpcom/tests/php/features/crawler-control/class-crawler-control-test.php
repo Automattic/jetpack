@@ -48,7 +48,6 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	 * Returns a mock of Crawler_Control.
 	 *
 	 * @param string $user_agent The user agent.
-	 * @param bool   $is_frontend Whether the request is frontend or not.
 	 */
 	private function get_crawler_control( $user_agent = 'sentibot' ) {
 		$cc = $this->getMockBuilder( Crawler_Control::class )
