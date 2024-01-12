@@ -441,6 +441,15 @@ class REST_Controller {
 	}
 
 	/**
+	 * Set WAF Upgrade "Seen" Status for the API endpoint
+	 *
+	 * @return bool True if upgrade seen status updated to true, false on failure.
+	 */
+	public static function api_set_waf_upgrade_seen_status() {
+		return Jetpack_Protect::set_waf_upgrade_seen_status();
+	}
+
+	/**
 	 * Gets the current user's onboarding progress for the API endpoint
 	 *
 	 * @return WP_REST_Response
