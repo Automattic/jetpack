@@ -22,7 +22,7 @@ export function annotationsPlugin( annotations: Annotation[] ) {
 
 		annotationsContainer = document.createElement( 'div' );
 
-		annotationsContainer.classList.add( 'annotations' );
+		annotationsContainer.classList.add( 'jb-graph-annotations' );
 
 		annotations.forEach( annotation => {
 			const annotationEl = document.createElement( 'div' );

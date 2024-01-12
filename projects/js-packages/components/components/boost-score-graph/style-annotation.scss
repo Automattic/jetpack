@@ -1,4 +1,4 @@
-.annotations {
+.jb-graph-annotations {
 	pointer-events: none;
 	position: absolute;
 	left: 0;
@@ -13,10 +13,7 @@
 		transform: translateX(-50%);
 		pointer-events: all;
 		width: 10px;
-
-		&:has(&::before:hover) {
-			z-index: 1000;
-		}
+		z-index: 1;
 
 		&::before {
 			content: '';
@@ -24,7 +21,6 @@
 			display: block;
 			width: 10px;
 			height: 100%;
-			z-index: 1000;
 		}
 
 		&::after {
@@ -40,7 +36,6 @@
 		&:hover {
 			&::after {
 				background: rgba(146, 175, 215, 1);
-				z-index: 1000;
 			}
 		}
 	}
