@@ -134,7 +134,7 @@ jobs:
         run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "$BUILD_BASE" --transform 's,^\.,build,' .
 
       - name: Store build as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jetpack-build
           path: build.tar.xz
@@ -143,7 +143,7 @@ jobs:
 
       - name: Store plugins.tsv as artifact
         if: steps.plugins.outputs.any == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: plugins.tsv
           path: ${{ env.BUILD_BASE }}/plugins.tsv
@@ -272,7 +272,7 @@ jobs:
           echo "any-built=$ANY_BUILT" >> "$GITHUB_OUTPUT"
 
       - name: Create plugins artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: steps.prepare.outputs.any-built == 'true'
         with:
           name: plugins
