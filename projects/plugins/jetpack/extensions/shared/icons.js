@@ -241,7 +241,7 @@ export const JetpackMobileAppIcon = () => {
 	return (
 		<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<Rect width="24" height="24" rx="5" fill="#069E08" />
-			<G clip-path="url(#clip0_2_1297)">
+			<G clipPath="url(#clip0_2_1297)">
 				<Path
 					d="M11.9829 3C7.02857 3 3 7.02857 3 11.9829C3 16.9371 7.02857 20.9657 11.9829 20.9657C16.9371 20.9657 20.9657 16.9371 20.9657 11.9829C20.9657 7.02857 16.9371 3 11.9829 3ZM11.52 13.4743H7.04571L11.52 4.76571V13.4743ZM12.4286 19.1829V10.4743H16.9029L12.4286 19.1829Z"
 					fill="white"
