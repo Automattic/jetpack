@@ -8,7 +8,12 @@ import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
 import { standardizeError } from '$lib/utils/standardize-error';
 import { SuccessTargetError } from 'jetpack-boost-critical-css-gen';
 
-const viewports = [
+type Viewport = {
+	width: number;
+	height: number;
+};
+
+const defaultViewports: Viewport[] = [
 	{
 		// Phone
 		width: 414,
@@ -45,15 +50,17 @@ interface GeneratorCallbacks extends ProviderCallbacks {
  * @param {Provider[]} providers  - List of providers to generate for.
  * @param {string}     proxyNonce - Nonce to use when using Proxy API endpoint for fetching external stylesheets.
  * @param {Object}     callbacks  - Callbacks to use during generation.
+ * @param {Viewport[]} viewports  - Viewports to use when generating Critical CSS.
  */
 export function runLocalGenerator(
 	providers: Provider[],
 	proxyNonce: string,
-	callbacks: GeneratorCallbacks
+	callbacks: GeneratorCallbacks,
+	viewports: Viewport[] = defaultViewports
 ) {
 	const abort = new AbortController();
 
-	generateCriticalCss( providers, proxyNonce, callbacks, abort.signal ).catch( err => {
+	generateCriticalCss( providers, viewports, proxyNonce, callbacks, abort.signal ).catch( err => {
 		callbacks.onError( standardizeError( err ) );
 	} );
 
@@ -65,12 +72,14 @@ export function runLocalGenerator(
  * library dynamically as needed.
  *
  * @param {Object[]}    providers  - List of providers to generate for.
+ * @param {Viewport[]}  viewports  - Viewports to use when generating Critical CSS.
  * @param {string}      proxyNonce - Nonce to use when using Proxy API endpoint for fetching external stylesheets.
  * @param {Object}      callbacks  - Callbacks to use during generation.
  * @param {AbortSignal} signal     - Used to cancel the generation process.
  */
 async function generateCriticalCss(
 	providers: Provider[],
+	viewports: Viewport[],
 	proxyNonce: string,
 	callbacks: ProviderCallbacks,
 	signal: AbortSignal
@@ -98,6 +107,7 @@ async function generateCriticalCss(
 		if ( pendingProviders.length > 0 ) {
 			await generateForKeys(
 				pendingProviders,
+				viewports,
 				requestGetParameters,
 				proxyNonce,
 				callbacks,
@@ -157,6 +167,7 @@ function isSuccessTargetError( err: unknown ): err is SuccessTargetError {
  * to the server. Throws on error or cancellation.
  *
  * @param {Object}      providers            - Set of URLs to use for each provider key
+ * @param {Viewport[]}  viewports            - Viewports to use when generating Critical CSS.
  * @param {Object}      requestGetParameters - GET parameters to include with each request.
  * @param {string}      proxyNonce           - Nonce to use when proxying CSS requests.
  * @param {Object}      callbacks            - Callbacks to use during generation.
@@ -164,6 +175,7 @@ function isSuccessTargetError( err: unknown ): err is SuccessTargetError {
  */
 async function generateForKeys(
 	providers: Provider[],
+	viewports: Viewport[],
 	requestGetParameters: { [ key: string ]: string },
 	proxyNonce: string,
 	callbacks: ProviderCallbacks,
