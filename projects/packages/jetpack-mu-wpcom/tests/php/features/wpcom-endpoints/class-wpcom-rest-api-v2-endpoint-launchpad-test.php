@@ -123,8 +123,8 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$request->set_header( 'content_type', 'application/json' );
 		$request->set_body( wp_json_encode( $data ) );
 		$result = rest_do_request( $request );
-		$this->assertSame( 200, $result->get_status() );
-		$this->assertTrue( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ) );
+		$this->assertSame( 200, $result->get_status(), 'assert status code' );
+		$this->assertTrue( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ), 'assert the dismiss state' );
 	}
 
 	/**

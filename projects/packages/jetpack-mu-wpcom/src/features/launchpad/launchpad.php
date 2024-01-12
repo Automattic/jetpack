@@ -741,7 +741,11 @@ function wpcom_launchpad_task_list_dismissed_until( $checklist_slug ) {
  */
 function wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed, $dismissed_until ) {
 
-	wpcom_launchpad_checklists()->set_task_list_dismissed( $checklist_slug, $is_dismissed, $dismissed_until );
+	if ( isset( $dismissed_until ) ) {
+		wpcom_launchpad_checklists()->set_task_list_dismissed_until( $checklist_slug, $dismissed_until );
+	} else {
+		wpcom_launchpad_checklists()->set_task_list_dismissed( $checklist_slug, $is_dismissed );
+	}
 }
 
 /**
