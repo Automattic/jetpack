@@ -45,7 +45,7 @@ export function isFatalError( cssState: CriticalCssState ): boolean {
  * @param cssState - The CSS State object.
  */
 export function getCriticalCssIssues( cssState: CriticalCssState ): Provider[] {
-	return cssState.providers.filter( provider => provider.errors?.length || 0 > 0 );
+	return cssState.providers.filter( provider => ( provider.errors?.length || 0 ) > 0 );
 }
 
 /**
