@@ -111,12 +111,11 @@ function sharing_process_requests() {
 
 	// Only process if: single post and share={service} defined
 	if ( ( is_page() || is_single() ) && isset( $_GET['share'] ) && is_string( $_GET['share'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$services                = get_services();
-		$available_service_names = array_keys( $services );
-		$service_name            = sanitize_text_field( wp_unslash( $_GET['share'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$services     = get_services();
+		$service_name = sanitize_text_field( wp_unslash( $_GET['share'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// Only allow services that have been defined in get_services().
-		if ( ! in_array( $service_name, $available_service_names, true ) ) {
+		if ( ! array_key_exists( $service_name, $services ) ) {
 			return;
 		}
 
