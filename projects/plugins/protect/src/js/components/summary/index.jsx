@@ -2,18 +2,25 @@ import { Container, Col, Text, Title, getIconBySlug, Button } from '@automattic/
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
+import React, { useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import Notice from '../notice';
+import OnboardingPopover from '../onboarding-popover';
 import styles from './styles.module.scss';
 
-const Summary = ( { getRef } ) => {
+const Summary = () => {
 	const { numThreats, lastChecked, hasRequiredPlan } = useProtectData();
 	const notice = useSelect( select => select( STORE_ID ).getNotice() );
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
 	const { scan } = useDispatch( STORE_ID );
 	const Icon = getIconBySlug( 'protect' );
+
+	// Popover anchors
+	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
+		useState( null );
+	const [ dailyAutomatedScansPopoverAnchor, setDailyAutomatedScansPopoverAnchor ] =
+		useState( null );
 
 	const handleScanClick = () => {
 		return event => {
@@ -29,13 +36,18 @@ const Summary = ( { getRef } ) => {
 					<div>
 						<Title size="small" className={ styles.summary__title }>
 							<Icon size={ 32 } className={ styles.summary__icon } />
-							<div ref={ ! hasRequiredPlan ? getRef( 'dailyAutomatedScansPopoverAnchor' ) : null }>
+							<div ref={ setDailyAutomatedScansPopoverAnchor }>
 								{ sprintf(
 									/* translators: %s: Latest check date  */
 									__( 'Latest results as of %s', 'jetpack-protect' ),
 									dateI18n( 'F jS', lastChecked )
 								) }
 							</div>
+							<OnboardingPopover
+								id="daily-scans"
+								position="middle right"
+								anchor={ dailyAutomatedScansPopoverAnchor }
+							/>
 						</Title>
 						{ numThreats > 0 && (
 							<Text variant="headline-small" component="h1">
@@ -52,15 +64,22 @@ const Summary = ( { getRef } ) => {
 						{ notice && notice.message && <Notice { ...notice } /> }
 					</div>
 					{ hasRequiredPlan && numThreats === 0 && (
-						<Button
-							ref={ getRef( 'dailyAndManualScansPopoverAnchor' ) }
-							variant="secondary"
-							className={ styles[ 'summary__scan-button' ] }
-							isLoading={ scanIsEnqueuing }
-							onClick={ handleScanClick() }
-						>
-							{ __( 'Scan now', 'jetpack-protect' ) }
-						</Button>
+						<>
+							<Button
+								ref={ setDailyAndManualScansPopoverAnchor }
+								variant="secondary"
+								className={ styles[ 'summary__scan-button' ] }
+								isLoading={ scanIsEnqueuing }
+								onClick={ handleScanClick() }
+							>
+								{ __( 'Scan now', 'jetpack-protect' ) }
+							</Button>
+							<OnboardingPopover
+								id="daily-and-manual-scans"
+								position="middle left"
+								anchor={ dailyAndManualScansPopoverAnchor }
+							/>
+						</>
 					) }
 				</div>
 			</Col>
