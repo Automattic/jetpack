@@ -83,10 +83,8 @@ function JetpackAppMedia( props ) {
 					</div>
 					<div className="jetpack-external-media-wrapper__jetpack_app_media-instructions">
 						<img
-							src={ imagePath + 'app-image-upload.png' }
-							srcSet={ `${ imagePath + 'app-image-upload.png' } 1x, ${
-								imagePath + 'app-image-upload-2x.png'
-							} 2x` }
+							src={ `${ imagePath }app-image-upload.png` }
+							srcSet={ `${ imagePath }app-image-upload.png 1x, ${ imagePath }app-image-upload-2x.png 2x` }
 							alt="Screenshot of the Jetpack mobile app with the media upload highlighted."
 						/>
 					</div>
