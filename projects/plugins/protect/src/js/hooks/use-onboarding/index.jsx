@@ -67,7 +67,7 @@ const useOnboarding = () => {
 		}, [] );
 
 		// Complete the steps immediately in the UI
-		setOnboardingProgress( [ stepIds ] );
+		setOnboardingProgress( stepIds );
 		// Save the completions in the background
 		completeOnboardingSteps( stepIds );
 	}, [ steps, setOnboardingProgress, completeOnboardingSteps ] );
