@@ -1091,7 +1091,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	}
 
 	/**
-	 * Test the `reverse_wpcom_urls_for_idc()` method.
+	 * Test the `set_ip_requester_for_idc()` method.
 	 *
 	 * @return void
 	 */
@@ -1099,9 +1099,11 @@ class Test_Identity_Crisis extends BaseTestCase {
 		Identity_Crisis::init();
 
 		update_option( 'siteurl', 'http://72.182.131.109/' );
+		$hostname      = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		$transient_key = ip2long( $hostname );
 
 		// Call the method to be tested
-		Identity_Crisis::set_ip_requester_for_idc();
+		Identity_Crisis::set_ip_requester_for_idc( $hostname, $transient_key );
 		$result = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
 
 		// Assert that the the ip was added to the option
@@ -1116,7 +1118,9 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 		// Test with another IP address
 		update_option( 'siteurl', 'http://33.182.100.200/' );
-		Identity_Crisis::set_ip_requester_for_idc();
+		$hostname      = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		$transient_key = ip2long( $hostname );
+		Identity_Crisis::set_ip_requester_for_idc( $hostname, $transient_key );
 		$result2 = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
 
 		$expected_ip2      = '33.182.100.200';
@@ -1135,7 +1139,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 		$expected_ip3 = '99.182.100.777';
 
-		Identity_Crisis::set_ip_requester_for_idc();
+		Identity_Crisis::set_ip_requester_for_idc( $hostname, $transient_key );
 		$result3 = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
 
 		foreach ( $result3 as $ip ) {
