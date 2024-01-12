@@ -160,14 +160,10 @@ class Launchpad_Task_Lists {
 	 */
 	public function is_task_list_dismissed( $id ) {
 		$task_list_dismissed_status = $this->get_task_list_dismissed_status();
-		$task_list_dismissed_until  = $this->get_task_list_dismissed_until();
 		$is_dismissed               = isset( $task_list_dismissed_status[ $id ] ) && true === $task_list_dismissed_status[ $id ];
 
-		if ( ! $is_dismissed && isset( $task_list_dismissed_until ) ) {
-			return new DateTime( 'now', new DateTimeZone( 'UTC' ) ) <= new DateTime( '@' . $task_list_dismissed_until, new DateTimeZone( 'UTC' ) );
-		}
 		// Return true if the task list is on the dismissed status array and its value is true.
-		return $is_dismissed;
+		return $is_dismissed && $this->is_temporally_dismissed();
 	}
 
 	/**
@@ -216,6 +212,23 @@ class Launchpad_Task_Lists {
 
 		$launchpad_config['task_list_dismissed_status'] = $task_list_dismissed_status;
 		update_option( 'wpcom_launchpad_config', $launchpad_config );
+	}
+
+	/**
+	 * Returns true if the task list is temporally dismissed.
+	 *
+	 * @return bool True if temporally dismissed, false if not.
+	 */
+	protected function is_temporally_dismissed(): bool {
+		$task_list_dismissed_until = $this->get_task_list_dismissed_until();
+		if ( ! isset( $task_list_dismissed_until ) ) {
+			return false;
+		}
+
+		$current_time    = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+		$dismissed_until = new DateTime( '@' . $task_list_dismissed_until, new DateTimeZone( 'UTC' ) );
+
+		return $current_time <= $dismissed_until;
 	}
 
 	/**
