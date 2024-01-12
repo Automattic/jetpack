@@ -15,7 +15,7 @@ type LocalGeneratorContext = {
 	abortController?: AbortController;
 	setAbortController: ( controller: AbortController | undefined ) => void;
 
-	providerProgress?: number;
+	providerProgress: number;
 	setProviderProgress: ( progress: number ) => void;
 };
 
@@ -35,7 +35,7 @@ export default function LocalCriticalCssGeneratorProvider( { children }: Provide
 	const [ abortController, setAbortController ] = useState< AbortController | undefined >(
 		undefined
 	);
-	const [ providerProgress, setProviderProgress ] = useState< number | undefined >( undefined );
+	const [ providerProgress, setProviderProgress ] = useState< number >( 0 );
 
 	const value = {
 		abortController,
@@ -125,8 +125,7 @@ export function useLocalCriticalCssGenerator() {
 
 	const isRunning = !! abortController;
 	const progress =
-		( isRunning && calculateCriticalCssProgress( cssState.providers, providerProgress ) ) ||
-		undefined;
+		( isRunning && calculateCriticalCssProgress( cssState.providers, providerProgress ) ) || 0;
 
 	return { isRunning, progress };
 }

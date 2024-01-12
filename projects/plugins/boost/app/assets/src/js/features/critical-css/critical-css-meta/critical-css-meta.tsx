@@ -42,7 +42,7 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailabl
 						'jetpack-boost'
 					) }
 				</div>
-				<ProgressBar progress={ progress || 0 } />
+				<ProgressBar progress={ progress } />
 			</div>
 		);
 	} else if ( isFatalError( cssState ) ) {
@@ -57,7 +57,7 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailabl
 				issues={ getCriticalCssIssues( cssState ) }
 				successCount={ successCount }
 				updated={ cssState.updated }
-				progress={ progress || 0 }
+				progress={ progress }
 				showRegenerateButton={ !! regenerateReason }
 			/>
 
