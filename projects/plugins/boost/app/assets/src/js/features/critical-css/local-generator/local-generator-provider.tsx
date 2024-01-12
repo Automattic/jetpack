@@ -116,7 +116,10 @@ export function useLocalCriticalCssGenerator() {
 			};
 		},
 
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- Only run when status changes.
+		// Only run this Effect when the Critical CSS status actually changes (e.g. from generated to pending).
+		// This effect triggers an actual process that is costly to start and stop, so we don't want to start/stop it
+		// every time an object ref like `cssState` is changed for a trivial reason.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[ cssState.status ]
 	);
 
