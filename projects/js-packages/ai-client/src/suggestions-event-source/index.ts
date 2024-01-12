@@ -32,7 +32,7 @@ type SuggestionsEventSourceConstructorArgs = {
 	question: PromptProp;
 	token?: string;
 	options?: {
-		postId?: number;
+		postId?: number | string;
 		feature?: 'ai-assistant-experimental' | string | undefined;
 		fromCache?: boolean;
 		functions?: Array< object >;
@@ -117,8 +117,8 @@ export default class SuggestionsEventSource extends EventTarget {
 			model?: AiModelTypeProp;
 		} = {};
 
-		// Populate body data with post id
-		if ( options?.postId && Number.isFinite( +options.postId ) ) {
+		// Populate body data with post id only if it is an integer
+		if ( Number.isInteger( parseInt( options.postId as string ) ) ) {
 			bodyData.post_id = +options.postId;
 		}
 
