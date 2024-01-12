@@ -20,6 +20,7 @@ const OnboardingPopover = ( { id, anchor, position } ) => {
 		<ActionPopover
 			anchor={ anchor }
 			title={ currentStep.title }
+			noArrow={ false }
 			children={ currentStep.description }
 			buttonContent={
 				currentStepCount < stepsCount
