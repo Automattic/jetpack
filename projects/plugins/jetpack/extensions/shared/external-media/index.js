@@ -14,8 +14,7 @@ function insertExternalMediaBlocks( settings, name ) {
 	if ( name !== 'core/image' ) {
 		return settings;
 	}
-
-	// Check if the Jetpack App Media source is available.
+	// Only add the Jetpack App Media button if we are in the beta variation.
 	if ( getJetpackBlocksVariation() !== 'beta' ) {
 		const index = mediaSources.findIndex(
 			mediaSource => mediaSource.id === SOURCE_JETPACK_APP_MEDIA
