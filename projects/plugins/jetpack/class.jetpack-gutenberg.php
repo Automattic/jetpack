@@ -701,7 +701,7 @@ class Jetpack_Gutenberg {
 			$is_current_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 		}
 
-		if ( Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) && $is_current_user_connected ) {
+		if ( self::blocks_variation() === 'experimental' && $is_current_user_connected ) {
 			wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 		}
 		// AI Assistant
@@ -723,7 +723,7 @@ class Jetpack_Gutenberg {
 
 		$initial_state = array(
 			'available_blocks'        => self::get_availability(),
-			'available_media_sources' => array( 'jetpack_app_media' => Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) ),
+			'available_media_sources' => array( 'jetpack_app_media' => self::blocks_variation() === 'experimental' ),
 			'modules'                 => $modules,
 			'jetpack'                 => array(
 				'is_active'                     => Jetpack::is_connection_ready(),
