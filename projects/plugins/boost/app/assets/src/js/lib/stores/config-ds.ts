@@ -15,6 +15,7 @@ export const configSchema = z.object( {
 		url: z.string().url(),
 		domain: z.string(),
 		online: z.boolean(),
+		isAtomic: z.boolean(),
 	} ),
 	is_premium: z.boolean(),
 	connection: z.object( {

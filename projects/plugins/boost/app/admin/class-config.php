@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 
@@ -35,7 +34,6 @@ class Config {
 				'online'          => ! ( new Status() )->is_offline_mode(),
 				'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 				'staticAssetPath' => plugins_url( $static_path, JETPACK_BOOST_PATH ),
-				'isAtomic'        => ( new Host() )->is_woa_site(),
 				'postTypes'       => self::get_custom_post_types(),
 			),
 		);

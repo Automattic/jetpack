@@ -6,6 +6,7 @@ import { useImageAnalysisRequest } from '$features/image-size-analysis';
 import Logo from '$svg/jetpack-green';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNavigate } from 'react-router-dom';
+import { useConfig } from '$lib/stores/config-ds';
 
 const PurchaseSuccess: React.FC = () => {
 	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
@@ -13,6 +14,7 @@ const PurchaseSuccess: React.FC = () => {
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const navigate = useNavigate();
 	const isaRequest = useImageAnalysisRequest();
+	const { site } = useConfig();
 
 	useEffect( () => {
 		setCloudCssState( true );
@@ -59,7 +61,7 @@ const PurchaseSuccess: React.FC = () => {
 							</li>
 
 							<li>
-								{ Jetpack_Boost.site.isAtomic
+								{ site.isAtomic
 									? createInterpolateElement(
 											__(
 												`Dedicated email support plus priority Live Chat if <link>your plan</link> includes <strong>Premium Support</strong>`,

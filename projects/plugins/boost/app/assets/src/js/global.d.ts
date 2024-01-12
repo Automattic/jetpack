@@ -31,13 +31,11 @@ declare global {
 			cachePageSecret?: string;
 		};
 		site: {
-			domain: string;
 			url: string;
 			online: boolean;
 			assetPath: string;
 			staticAssetPath: string;
 			canResizeImages: boolean;
-			isAtomic: boolean;
 			postTypes: {
 				[ key: string ]: string;
 			};

@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
@@ -340,9 +341,10 @@ function jetpack_boost_ui_config() {
 		'plugin_dir_url' => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
 		'pricing'        => Premium_Pricing::get_yearly_pricing(),
 		'site'           => array(
-			'url'    => get_home_url(),
-			'domain' => ( new Status() )->get_site_suffix(),
-			'online' => ! ( new Status() )->is_offline_mode(),
+			'url'      => get_home_url(),
+			'domain'   => ( new Status() )->get_site_suffix(),
+			'online'   => ! ( new Status() )->is_offline_mode(),
+			'isAtomic' => ( new Host() )->is_woa_site(),
 		),
 		'is_premium'     => Premium_Features::has_any(),
 		'connection'     => ( new Connection() )->get_connection_api_response(),
