@@ -70,7 +70,10 @@ function get_html_from_markdown( $file_path ) {
 	$contents = $parser->defaultTransform( $markdown );
 
 	$document = new DOMDocument();
-	$document->loadHTML( '<?xml encoding="UTF-8">' . $contents );
+	$document->loadHTML(
+		'<!DOCTYPE html><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
+		. $contents
+	);
 
 	$doc_title = $file_path;
 
