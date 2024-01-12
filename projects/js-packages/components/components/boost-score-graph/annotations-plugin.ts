@@ -33,6 +33,7 @@ export function annotationsPlugin( annotations: Annotation[] ) {
 			lineEl.addEventListener( 'mouseenter', () => {
 				annotationEl.innerHTML = annotation.text;
 				annotationEl.style.display = 'block';
+				annotationEl.style.left = u.valToPos( annotation.timestamp / 1000, 'x' ) + 'px';
 			} );
 			lineEl.addEventListener( 'mouseleave', () => {
 				annotationEl.style.display = 'none';
