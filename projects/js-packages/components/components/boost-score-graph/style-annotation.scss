@@ -1,12 +1,16 @@
+$black: #101517;
+$white: #ffffff;
+
 .jb-graph-annotations {
 	pointer-events: none;
-	position: absolute;
+	position: relative;
 	left: 0;
 	top: 0;
 	height: 100%;
 	width: 100%;
+	overflow: visible;
 
-	.annotation {
+	&__line {
 		position: absolute;
 		width: 10px;
 		height: 100%;
@@ -15,14 +19,9 @@
 		width: 10px;
 		z-index: 1;
 
-		&::before {
-			content: '';
-			position: absolute;
-			display: block;
-			width: 10px;
-			height: 100%;
-		}
-
+		/*
+		 * The actual line is a pseudo element because we want to give a bigger hover area.
+		 */
 		&::after {
 			position: absolute;
 			content: '';
@@ -38,5 +37,20 @@
 				background: rgba(146, 175, 215, 1);
 			}
 		}
+	}
+
+	&__annotation {
+		display: none;
+		top: 100%;
+		background-color: $black;
+		color: $white;
+		width: fit-content;
+		padding: 16px 24px;
+		border-radius: 4px;
+		font-size: 14px;
+		width: 20em;
+		position: relative;
+		box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+		text-align: center;
 	}
 }

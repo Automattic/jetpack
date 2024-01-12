@@ -20,7 +20,7 @@ export interface Period {
 export interface Annotation {
 	timestamp: number;
 	text: string;
-	element?: HTMLElement;
+	line?: HTMLElement;
 }
 export interface BoostScoreGraphProps {
 	periods?: Period[];

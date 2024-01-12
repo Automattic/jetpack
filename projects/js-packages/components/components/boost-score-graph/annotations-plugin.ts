@@ -24,14 +24,26 @@ export function annotationsPlugin( annotations: Annotation[] ) {
 
 		annotationsContainer.classList.add( 'jb-graph-annotations' );
 
+		const annotationEl = document.createElement( 'div' );
+		annotationEl.classList.add( 'jb-graph-annotations__annotation' );
+
 		annotations.forEach( annotation => {
-			const annotationEl = document.createElement( 'div' );
-			annotationEl.classList.add( 'annotation' );
-			annotation.element = annotationEl;
-			annotationsContainer.appendChild( annotationEl );
+			const lineEl = document.createElement( 'div' );
+			lineEl.classList.add( 'jb-graph-annotations__line' );
+			lineEl.addEventListener( 'mouseenter', () => {
+				annotationEl.innerHTML = annotation.text;
+				annotationEl.style.display = 'block';
+			} );
+			lineEl.addEventListener( 'mouseleave', () => {
+				annotationEl.style.display = 'none';
+			} );
+
+			annotation.line = lineEl;
+			annotationsContainer.appendChild( lineEl );
 		} );
 
 		containerEl.appendChild( annotationsContainer );
+		u.over.appendChild( annotationEl );
 	}
 
 	/**
@@ -40,7 +52,7 @@ export function annotationsPlugin( annotations: Annotation[] ) {
 	 */
 	function setSize( u: uPlot ) {
 		annotations.forEach( annotation => {
-			const annotationEl = annotation.element;
+			const annotationEl = annotation.line;
 
 			uPlot.assign( annotationEl.style, {
 				left: u.valToPos( annotation.timestamp / 1000, 'x' ) + 'px',
