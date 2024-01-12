@@ -19,14 +19,12 @@ declare global {
 
 	// Constants provided by the plugin.
 	const Jetpack_Boost: {
-		isaFixButton: boolean;
 		version: string;
 		api: {
 			namespace: string;
 			prefix: string;
 		};
 		connectionIframeOriginUrl: string;
-		fixImageNonce?: string;
 		superCache: {
 			pluginActive: boolean;
 			cacheEnabled: boolean;
@@ -43,9 +41,6 @@ declare global {
 			postTypes: {
 				[ key: string ]: string;
 			};
-		};
-		nonces: {
-			[ key: string ]: string;
 		};
 	};
 

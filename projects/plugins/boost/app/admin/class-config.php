@@ -6,7 +6,6 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
-use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
 /**
  * Handle the configuration constants.
@@ -14,11 +13,6 @@ use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
  * This is a global state of Jetpack Boost and passed on to the front-end.
  */
 class Config {
-
-	/**
-	 * Nonce action for setting the statuses of rating and score prompts.
-	 */
-	const FIX_IMAGE_DIMENSIONS_NONCE = 'fix_image_dimensions';
 
 	public function init() {
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_change' ), 10, 2 );
@@ -45,18 +39,7 @@ class Config {
 				'isAtomic'        => ( new Host() )->is_woa_site(),
 				'postTypes'       => self::get_custom_post_types(),
 			),
-			'fixImageNonce' => wp_create_nonce( self::FIX_IMAGE_DIMENSIONS_NONCE ),
-
-			/**
-			 * A bit of necessary magic,
-			 * Explained more in the Nonce class.
-			 *
-			 * Nonces are automatically generated when registering routes.
-			 */
-			'nonces'        => Nonce::get_generated_nonces(),
 		);
-
-		$constants['isaFixButton'] = defined( 'ISA_FIX_BUTTON' ) && ISA_FIX_BUTTON ? true : false;
 
 		// Give each module an opportunity to define extra constants.
 		return apply_filters( 'jetpack_boost_js_constants', $constants );
