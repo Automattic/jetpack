@@ -1,0 +1,47 @@
+.annotations {
+	pointer-events: none;
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+	width: 100%;
+
+	.annotation {
+		position: absolute;
+		width: 10px;
+		height: 100%;
+		transform: translateX(-50%);
+		pointer-events: all;
+		width: 10px;
+
+		&:has(&::before:hover) {
+			z-index: 1000;
+		}
+
+		&::before {
+			content: '';
+			position: absolute;
+			display: block;
+			width: 10px;
+			height: 100%;
+			z-index: 1000;
+		}
+
+		&::after {
+			position: absolute;
+			content: '';
+			display: block;
+			width: 2px;
+			height: 100%;
+			background: rgba(146, 175, 215, 0.5);
+			left: calc(50% - 1px);
+		}
+
+		&:hover {
+			&::after {
+				background: rgba(146, 175, 215, 1);
+				z-index: 1000;
+			}
+		}
+	}
+}

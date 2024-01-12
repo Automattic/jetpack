@@ -153,6 +153,16 @@ const exampleRawResponse = {
 				},
 			},
 		],
+		annotations: [
+			{
+				timestamp: 1690291223000,
+				text: 'Annotation text',
+			},
+			{
+				timestamp: 1689984000000,
+				text: 'Another Annotation text',
+			}
+		]
 	},
 };
 
@@ -163,6 +173,7 @@ const meta: Meta< typeof GraphComponent > = {
 		startDate: { control: 'date' },
 		endDate: { control: 'date' },
 		periods: { control: 'object' },
+		annotations: { control: 'object' },
 		isLoading: { control: 'boolean' },
 		needsUpgrade: { control: 'boolean' },
 		isFreshStart: { control: 'boolean' },
@@ -180,6 +191,7 @@ const defaultValues = {
 	startDate: exampleRawResponse.data._meta.start,
 	endDate: exampleRawResponse.data._meta.end,
 	periods: exampleRawResponse.data.periods,
+	annotations: exampleRawResponse.data.annotations,
 	isLoading: false,
 	needsUpgrade: false,
 	isFreshStart: false,
