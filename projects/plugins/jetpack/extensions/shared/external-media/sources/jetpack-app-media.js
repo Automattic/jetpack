@@ -1,4 +1,5 @@
 import { QRCode } from '@automattic/jetpack-components';
+import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { JetpackAppIcon } from '../../icons';
@@ -13,6 +14,7 @@ function JetpackAppMedia( props ) {
 	const wpcomBlogId = window?.Jetpack_Editor_Initial_State?.wpcomBlogId || 0;
 	const imagePath = window?.Jetpack_Editor_Initial_State?.pluginBasePath + '/images/';
 
+	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 	// get the current time and store it in the state
 	const [ currentTime ] = useState( Date.now() / 1000 );
 	const getNextPage = useCallback( () => {
@@ -78,7 +80,7 @@ function JetpackAppMedia( props ) {
 					<div className="jetpack-external-media-wrapper__jetpack_app_media-qr-code">
 						<QRCode
 							size="100"
-							value={ `https://apps.wordpress.com/get/?campaign=qr-code-media#%2Fmedia%2F${ wpcomBlogId }` }
+							value={ `https://apps.wordpress.com/get/?campaign=qr-code-media&postId=${ postId }#%2Fmedia%2F${ wpcomBlogId }` }
 						/>
 					</div>
 					<div className="jetpack-external-media-wrapper__jetpack_app_media-instructions">
