@@ -216,7 +216,7 @@ class Identity_Crisis {
 
 		// If request is from an IP, make sure ip_requester option is set
 		if ( self::url_is_ip( $hostname ) ) {
-			self::should_update_ip_requester( $hostname );
+			self::maybe_update_ip_requester( $hostname );
 		}
 
 		$query_args = array(
@@ -1412,7 +1412,7 @@ class Identity_Crisis {
 	 *
 	 * @return void
 	 */
-	public static function should_update_ip_requester( $hostname ) {
+	public static function maybe_update_ip_requester( $hostname ) {
 		// Check if transient exists
 		$transient_key = ip2long( $hostname );
 		if ( $transient_key && ! get_transient( 'jetpack_idc_ip_requester_' . $transient_key ) ) {
@@ -1476,10 +1476,12 @@ class Identity_Crisis {
 	 */
 	public static function update_ip_requester( $data, $transient_key ) {
 		// Update the option
-		Jetpack_Options::update_option( 'identity_crisis_ip_requester', $data );
+		$updated = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $data );
 		// Set a transient to expire in 5 minutes
-		$transient_name = 'jetpack_idc_ip_requester_' . $transient_key;
-		set_transient( $transient_name, $data, 300 );
+		if ( $updated ) {
+			$transient_name = 'jetpack_idc_ip_requester_' . $transient_key;
+			set_transient( $transient_name, $data, 300 );
+		}
 	}
 
 	/**
