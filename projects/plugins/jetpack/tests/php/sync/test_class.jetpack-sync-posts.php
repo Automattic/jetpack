@@ -910,6 +910,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		global $post;
+		$post = $this->post; // Needed to properly apply the shortcode 'the_content' filter.
 		$this->assertStringContainsString( '<form action=', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
@@ -937,6 +939,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		global $post;
+		$post = $this->post; // Needed to properly apply the shortcode 'the_content' filter.
 		$this->assertStringContainsString( 'div class=\'sharedaddy', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
@@ -964,6 +968,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		global $post;
+		$post = $this->post; // Needed to properly apply the shortcode 'the_content' filter.
 		$this->assertStringContainsString( 'class="sharedaddy sd-sharing-enabled"', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
