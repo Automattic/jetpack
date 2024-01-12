@@ -1,4 +1,7 @@
-import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isCurrentUserConnected,
+	getJetpackBlocksVariation,
+} from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { addFilter } from '@wordpress/hooks';
 import { SOURCE_JETPACK_APP_MEDIA } from './constants';
@@ -11,8 +14,9 @@ function insertExternalMediaBlocks( settings, name ) {
 	if ( name !== 'core/image' ) {
 		return settings;
 	}
+
 	// Check if the Jetpack App Media source is available.
-	if ( ! window?.Jetpack_Editor_Initial_State?.available_media_sources?.jetpack_app_media ) {
+	if ( getJetpackBlocksVariation() !== 'beta' ) {
 		const index = mediaSources.findIndex(
 			mediaSource => mediaSource.id === SOURCE_JETPACK_APP_MEDIA
 		);

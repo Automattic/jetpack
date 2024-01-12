@@ -701,7 +701,7 @@ class Jetpack_Gutenberg {
 			$is_current_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 		}
 
-		if ( self::blocks_variation() === 'experimental' && $is_current_user_connected ) {
+		if ( $blocks_variation === 'beta' && $is_current_user_connected ) {
 			wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 		}
 		// AI Assistant
@@ -722,10 +722,10 @@ class Jetpack_Gutenberg {
 		}
 
 		$initial_state = array(
-			'available_blocks'        => self::get_availability(),
-			'available_media_sources' => array( 'jetpack_app_media' => self::blocks_variation() === 'experimental' ),
-			'modules'                 => $modules,
-			'jetpack'                 => array(
+			'available_blocks' => self::get_availability(),
+			'blocks_variation' => $blocks_variation,
+			'modules'          => $modules,
+			'jetpack'          => array(
 				'is_active'                     => Jetpack::is_connection_ready(),
 				'is_current_user_connected'     => $is_current_user_connected,
 				/** This filter is documented in class.jetpack-gutenberg.php */
@@ -751,15 +751,15 @@ class Jetpack_Gutenberg {
 				 */
 				'is_form_package_enabled'       => apply_filters( 'jetpack_contact_form_use_package', true ),
 			),
-			'siteFragment'            => $status->get_site_suffix(),
-			'adminUrl'                => esc_url( admin_url() ),
-			'tracksUserData'          => $user_data,
-			'wpcomBlogId'             => $blog_id,
-			'allowedMimeTypes'        => wp_get_mime_types(),
-			'siteLocale'              => str_replace( '_', '-', get_locale() ),
-			'ai-assistant'            => $ai_assistant_state,
-			'screenBase'              => $screen_base,
-			'pluginBasePath'          => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+			'siteFragment'     => $status->get_site_suffix(),
+			'adminUrl'         => esc_url( admin_url() ),
+			'tracksUserData'   => $user_data,
+			'wpcomBlogId'      => $blog_id,
+			'allowedMimeTypes' => wp_get_mime_types(),
+			'siteLocale'       => str_replace( '_', '-', get_locale() ),
+			'ai-assistant'     => $ai_assistant_state,
+			'screenBase'       => $screen_base,
+			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
