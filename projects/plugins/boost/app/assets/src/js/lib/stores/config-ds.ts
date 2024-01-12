@@ -12,6 +12,7 @@ export const configSchema = z.object( {
 		} )
 		.nullable(),
 	site: z.object( {
+		url: z.string().url(),
 		domain: z.string(),
 		online: z.boolean(),
 	} ),

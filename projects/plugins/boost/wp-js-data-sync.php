@@ -340,6 +340,7 @@ function jetpack_boost_ui_config() {
 		'plugin_dir_url' => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
 		'pricing'        => Premium_Pricing::get_yearly_pricing(),
 		'site'           => array(
+			'url'    => get_home_url(),
 			'domain' => ( new Status() )->get_site_suffix(),
 			'online' => ! ( new Status() )->is_offline_mode(),
 		),
