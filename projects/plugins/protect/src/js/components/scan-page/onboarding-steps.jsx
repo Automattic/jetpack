@@ -62,7 +62,7 @@ export default [
 				) }
 			</Text>
 		),
-		conditional_render_callback: args => args.numberOfThreats > 0 && args.hasRequiredPlan,
+		conditional_render_callback: args => args.fixableList.length > 0 && args.hasRequiredPlan,
 	},
 	{
 		id: 'understand-severity',
@@ -75,7 +75,7 @@ export default [
 				) }
 			</Text>
 		),
-		conditional_render_callback: args => args.numberOfThreats > 0 && args.hasRequiredPlan,
+		conditional_render_callback: args => args.numThreats > 0 && args.hasRequiredPlan,
 	},
 	{
 		id: 'daily-scans',
