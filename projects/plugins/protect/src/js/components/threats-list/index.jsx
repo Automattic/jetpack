@@ -1,9 +1,10 @@
-import { Container, Col, Title, Button } from '@automattic/jetpack-components';
+import { Container, Col, Title, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
+import OnboardingPopover from '../onboarding-popover';
 import EmptyList from './empty';
 import FreeList from './free-list';
 import ThreatsNavigation from './navigation';
@@ -11,14 +12,22 @@ import PaidList from './paid-list';
 import styles from './styles.module.scss';
 import useThreatsList from './use-threats-list';
 
-const ThreatsList = ( { getRef } ) => {
+const ThreatsList = () => {
 	const { hasRequiredPlan } = useProtectData();
 	const { item, list, selected, setSelected } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
+	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	const { setModal } = useDispatch( STORE_ID );
 	const { scan } = useDispatch( STORE_ID );
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
+
+	// Popover anchors
+	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
+		useState( null );
+	const [ fixAllThreatsPopoverAnchor, setFixAllThreatsPopoverAnchor ] = useState( null );
+	const [ understandSeverityPopoverAnchor, setUnderstandSeverityPopoverAnchor ] = useState( null );
+	const [ yourScanResultsPopoverAnchor, setYourScanResultsPopoverAnchor ] = useState( null );
 
 	const handleFixAllThreatsClick = threatList => {
 		return event => {
@@ -77,9 +86,14 @@ const ThreatsList = ( { getRef } ) => {
 	return (
 		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
 			<Col lg={ 4 }>
-				<div ref={ getRef( 'yourScanResultsPopoverAnchor' ) }>
+				<div ref={ setYourScanResultsPopoverAnchor }>
 					<ThreatsNavigation selected={ selected } onSelect={ setSelected } />
 				</div>
+				<OnboardingPopover
+					id="scan-results"
+					position="middle top"
+					anchor={ yourScanResultsPopoverAnchor }
+				/>
 			</Col>
 			<Col lg={ 8 }>
 				{ list?.length > 0 ? (
@@ -89,21 +103,28 @@ const ThreatsList = ( { getRef } ) => {
 							{ hasRequiredPlan && (
 								<>
 									{ fixableList.length > 0 && (
-										<Button
-											ref={ getRef( 'fixAllThreatsPopoverAnchor' ) }
-											variant="primary"
-											className={ styles[ 'list-header-button' ] }
-											onClick={ handleFixAllThreatsClick( fixableList ) }
-										>
-											{ sprintf(
-												/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
-												__( 'Auto fix all (%s)', 'jetpack-protect' ),
-												fixableList.length
-											) }
-										</Button>
+										<>
+											<Button
+												ref={ setFixAllThreatsPopoverAnchor }
+												variant="primary"
+												className={ styles[ 'list-header-button' ] }
+												onClick={ handleFixAllThreatsClick( fixableList ) }
+											>
+												{ sprintf(
+													/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
+													__( 'Auto fix all (%s)', 'jetpack-protect' ),
+													fixableList.length
+												) }
+											</Button>
+											<OnboardingPopover
+												id="fix-all-threats"
+												position={ isSm ? 'bottom right' : 'middle left' }
+												anchor={ fixAllThreatsPopoverAnchor }
+											/>
+										</>
 									) }
 									<Button
-										ref={ getRef( 'dailyAndManualScansPopoverAnchor' ) }
+										ref={ setDailyAndManualScansPopoverAnchor }
 										variant="secondary"
 										className={ styles[ 'list-header-button' ] }
 										isLoading={ scanIsEnqueuing }
@@ -111,13 +132,25 @@ const ThreatsList = ( { getRef } ) => {
 									>
 										{ __( 'Scan now', 'jetpack-protect' ) }
 									</Button>
+									<OnboardingPopover
+										id="daily-and-manual-scans"
+										position={ isSm ? 'bottom left' : 'middle left' }
+										anchor={ dailyAndManualScansPopoverAnchor }
+									/>
 								</>
 							) }
 						</div>
 						{ hasRequiredPlan ? (
-							<div ref={ getRef( 'understandSeverityPopoverAnchor' ) }>
-								<PaidList list={ list } />
-							</div>
+							<>
+								<div ref={ setUnderstandSeverityPopoverAnchor }>
+									<PaidList list={ list } />
+								</div>
+								<OnboardingPopover
+									id="understand-severity"
+									position="top middle"
+									anchor={ understandSeverityPopoverAnchor }
+								/>
+							</>
 						) : (
 							<FreeList list={ list } />
 						) }
