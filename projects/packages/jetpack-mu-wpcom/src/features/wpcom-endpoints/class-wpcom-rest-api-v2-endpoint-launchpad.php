@@ -78,7 +78,8 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 									'default'  => false,
 								),
 								'dismissed_until' => array(
-									'type' => 'number',
+									'description' => 'Timestamp of when the checklist should be shown again',
+									'type'        => 'number',
 								),
 							),
 							'additionalProperties' => false,
