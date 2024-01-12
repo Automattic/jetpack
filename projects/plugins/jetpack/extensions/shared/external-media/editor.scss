@@ -118,18 +118,17 @@ $grid-size: 8px;
 	font-family: Recoleta, "Noto Serif", Georgia, "Times New Roman", Times, serif;
 	font-size: 24px;
 	font-weight: 400;
-	line-height: 40px;
+	line-height: 1.67;
 	letter-spacing: -0.32px;
 	margin: 0 0 14px 0;
-	color:#101517;
+	color:var( --jp-gray-100 );
 
 }
 .jetpack-external-media-wrapper__jetpack_app_media-description {
 	font-size: 14px;
 	font-weight: 400;
-	line-height: 20px;
-	letter-spacing: -0.15px;
-	color: #50575E;
+	line-height: 1.43;
+	color: var( --jp-gray-60 );
 	text-align: left;
 	margin: 0;
 }
