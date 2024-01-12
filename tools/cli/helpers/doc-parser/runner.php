@@ -61,6 +61,8 @@ function get_html_from_markdown( $file_path ) {
 		dirname( __DIR__, 4 ) . DIRECTORY_SEPARATOR . $file_path
 	);
 
+	$markdown = mb_convert_encoding( $markdown, 'UTF-8' );
+
 	if ( false === $markdown ) {
 		throw new Exception( 'Could not read Markdown from ' . $file_path );
 	}
@@ -68,7 +70,7 @@ function get_html_from_markdown( $file_path ) {
 	$contents = $parser->defaultTransform( $markdown );
 
 	$document = new DOMDocument();
-	$document->loadHTML( $contents );
+	$document->loadHTML( '<?xml encoding="UTF-8">' . $contents );
 
 	$doc_title = $file_path;
 
