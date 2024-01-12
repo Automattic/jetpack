@@ -140,6 +140,8 @@ jobs:
           path: build.tar.xz
           # Only need to retain for a day since the beta builder slurps it up to distribute.
           retention-days: 1
+          # Already compressed.
+          compression-level: 0
 
       - name: Store plugins.tsv as artifact
         if: steps.plugins.outputs.any == 'true'
@@ -279,6 +281,8 @@ jobs:
           path: zips
           # Only need to retain for a day since the beta builder slurps it up to distribute.
           retention-days: 1
+          # Already compressed.
+          compression-level: 0
 
   update_mirrors:
     name: Push to mirror repos
