@@ -226,7 +226,7 @@ final class Data_Sync {
 		$this->registry->register( $key, $entry_adapter );
 	}
 
-	public function register_action( $key, $action_name, $instance ) {
-		$this->registry->register_action( $key, $action_name, $instance );
+	public function register_action( $key, $action_name, $request_schema, $instance ) {
+		$this->registry->register_action( $key, $action_name, $request_schema, $instance );
 	}
 }
