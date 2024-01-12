@@ -81,6 +81,21 @@ $grid-size: 8px;
 		width: 69px;
 	}
 
+	.components-notice-list {
+		position: relative;
+		z-index: 1;
+	}
+
+	.components-modal__header {
+		border-bottom: 0;
+	}
+
+	.jetpack-external-media-wrapper__jetpack_app_media-instructions {
+		position: relative;
+		right: -56px;
+		bottom: -104px;
+	}
+
 	.components-modal__content {
 		margin-top: 0;
 		padding: 40px 56px 40px;
