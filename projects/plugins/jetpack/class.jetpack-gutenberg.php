@@ -464,6 +464,26 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Queue a script to set `Jetpack_Block_Assets_Base_Url`.
+	 *
+	 * In certain cases Webpack needs to know a base to load additional assets from.
+	 * Normally it can determine that itself, but when JS concatenation is involved that tends to confuse it.
+	 * We work around that by explicitly outputting a variable with the correct URL.
+	 * We set that as its own "script" so we can reliably only output it once.
+	 */
+	private static function register_blocks_assets_base_url() {
+		if ( ! wp_script_is( 'jetpack-blocks-assets-base-url', 'registered' ) ) {
+			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- No actual script, so no version needed.
+			wp_register_script( 'jetpack-blocks-assets-base-url', false, array(), null, array( 'in_footer' => false ) );
+			wp_add_inline_script(
+				'jetpack-blocks-assets-base-url',
+				'var Jetpack_Block_Assets_Base_Url=' . wp_json_encode( plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'before'
+			);
+		}
+	}
+
+	/**
 	 * Only enqueue block assets when needed.
 	 *
 	 * @param string $type Slug of the block or absolute path to the block source code directory.
@@ -544,10 +564,13 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		self::register_blocks_assets_base_url();
+
 		// Enqueue script.
 		$script_relative_path  = self::get_blocks_directory() . $type . '/view.js';
 		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
 		$script_dependencies[] = 'wp-polyfill';
+		$script_dependencies[] = 'jetpack-blocks-assets-base-url';
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
 			$script_dependencies = array_unique( array_merge( $script_dependencies, $asset_manifest['dependencies'] ) );
@@ -642,11 +665,16 @@ class Jetpack_Gutenberg {
 			$blocks_env = '';
 		}
 
+		self::register_blocks_assets_base_url();
+
 		Assets::register_script(
 			'jetpack-blocks-editor',
 			"{$blocks_dir}editor{$blocks_env}.js",
 			JETPACK__PLUGIN_FILE,
-			array( 'textdomain' => 'jetpack' )
+			array(
+				'textdomain'   => 'jetpack',
+				'dependencies' => array( 'jetpack-blocks-assets-base-url' ),
+			)
 		);
 
 		// Hack around #20357 (specifically, that the editor bundle depends on
