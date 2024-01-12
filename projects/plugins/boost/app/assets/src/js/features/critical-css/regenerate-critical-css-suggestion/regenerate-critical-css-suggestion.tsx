@@ -2,7 +2,7 @@ import { Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { RegenerationReason } from '$features/critical-css';
 
-const GetSuggestionMessage = ( type: RegenerationReason | null ) => {
+const getSuggestionMessage = ( type: RegenerationReason | null ) => {
 	let message;
 	if ( 'page_saved' === type ) {
 		message = __(
@@ -49,7 +49,7 @@ export const RegenerateCriticalCssSuggestion = ( { regenerateReason }: Props ) =
 			title={ __( 'Regenerate Critical CSS', 'jetpack-boost' ) }
 			hideCloseButton={ true }
 		>
-			<p>{ GetSuggestionMessage( regenerateReason ) }</p>
+			<p>{ getSuggestionMessage( regenerateReason ) }</p>
 			<p>
 				{ __(
 					'Please regenerate your Critical CSS to maintain optimal site performance.',
