@@ -32,13 +32,11 @@
 		flex-direction: column;
 	}
 
-	&:not(.wp-block-jetpack-subscriptions__use-newline) 
+	&:not(.wp-block-jetpack-subscriptions__use-newline)
 	{
-		.is-not-subscriber {
-			.wp-block-jetpack-subscriptions__form-elements {
-				display: flex;
-				align-items: flex-start;
-			}
+		.wp-block-jetpack-subscriptions__form-elements {
+			display: flex;
+			align-items: flex-start;
 		}
 		p#subscribe-submit {
 			justify-content: center;

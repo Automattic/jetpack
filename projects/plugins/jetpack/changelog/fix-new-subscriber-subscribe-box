@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Keeps subscribe box visible but not usable when a subscription token is found in the browser's cookie.
