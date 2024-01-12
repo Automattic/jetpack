@@ -155,7 +155,7 @@ const hasRequiredPlan = ( state = false, action ) => {
 	return state;
 };
 
-const oboardingProgress = ( state = null, action ) => {
+const onboardingProgress = ( state = null, action ) => {
 	switch ( action.type ) {
 		case SET_ONBOARDING_PROGRESS:
 			return action.progress;
@@ -218,7 +218,7 @@ const reducers = combineReducers( {
 	notice,
 	setThreatsFixing,
 	hasRequiredPlan,
-	oboardingProgress,
+	onboardingProgress,
 	selected,
 	waf,
 } );
