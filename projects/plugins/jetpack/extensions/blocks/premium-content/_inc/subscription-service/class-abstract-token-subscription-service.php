@@ -18,6 +18,7 @@ use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID
  */
 abstract class Abstract_Token_Subscription_Service implements Subscription_Service {
 
+	const JWT_AUTH_LOGOUT_REQUEST                      = 'jp-memberships-logout';
 	const JWT_AUTH_TOKEN_COOKIE_NAME                   = 'jp-premium-content-session';
 	const DECODE_EXCEPTION_FEATURE                     = 'memberships';
 	const DECODE_EXCEPTION_MESSAGE                     = 'Problem decoding provided token';
@@ -36,6 +37,20 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 */
 	public function initialize() {
 		$this->get_and_set_token_from_request();
+		$this->do_logout_from_request();
+	}
+
+	/**
+	 * Clear the token cookie and if requested.
+	 *
+	 * @return void
+	 */
+	public function do_logout_from_request() {
+		// Perform logging out
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_REQUEST[ self::JWT_AUTH_LOGOUT_REQUEST ] ) ) {
+			$this->clear_token_cookie();
+		}
 	}
 
 	/**
@@ -44,6 +59,12 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 * @return string|null
 	 */
 	public function get_and_set_token_from_request() {
+		// While logging out, don't use token anymore
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_REQUEST[ self::JWT_AUTH_LOGOUT_REQUEST ] ) ) {
+			return;
+		}
+
 		// URL token always has a precedence, so it can overwrite the cookie when new data available.
 		$token = $this->token_from_request();
 		if ( null !== $token ) {
@@ -445,6 +466,22 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 
 		if ( ! empty( $token ) && false === headers_sent() ) {
 			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
+		}
+	}
+
+	/**
+	 * Clear the auth cookie.
+	 *
+	 * @return void
+	 */
+	private function clear_token_cookie() {
+		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+			return;
+		}
+
+		if ( isset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] ) && false === headers_sent() ) {
+			unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] ); // In case cookie gets checked later in code
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
 		}
 	}
 
