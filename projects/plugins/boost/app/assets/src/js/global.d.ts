@@ -35,7 +35,6 @@ declare global {
 			online: boolean;
 			assetPath: string;
 			staticAssetPath: string;
-			canResizeImages: boolean;
 		};
 	};
 

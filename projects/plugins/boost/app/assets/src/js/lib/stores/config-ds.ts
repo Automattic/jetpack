@@ -17,6 +17,7 @@ export const configSchema = z.object( {
 		online: z.boolean(),
 		isAtomic: z.boolean(),
 		postTypes: z.record( z.string(), z.string() ),
+		canResizeImages: z.boolean(),
 	} ),
 	is_premium: z.boolean(),
 	connection: z.object( {

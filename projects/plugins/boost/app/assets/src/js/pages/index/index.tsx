@@ -13,6 +13,7 @@ import styles from './index.module.scss';
 import { RecommendationsMeta } from '$features/image-size-analysis';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
+import { useConfig } from '$lib/stores/config-ds';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -31,6 +32,7 @@ const Index = () => {
 	const requestRegenerateCriticalCss = () => {
 		regenerateCssAction.mutate();
 	};
+	const { site } = useConfig();
 
 	const lazyLoadDeprecationMessage = lazyLoadState?.available
 		? __(
@@ -266,7 +268,7 @@ const Index = () => {
 						</>
 					}
 				>
-					{ false === Jetpack_Boost.site.canResizeImages && (
+					{ false === site.canResizeImages && (
 						<Notice
 							level="warning"
 							title={ __( 'Image resizing is unavailable', 'jetpack-boost' ) }
