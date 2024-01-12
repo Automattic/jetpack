@@ -1,33 +1,26 @@
 import { __ } from '@wordpress/i18n';
-import { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import Status from '../status/status';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
 import { useState } from '@wordpress/element';
+import {
+	useCriticalCssState,
+	useRegenerateCriticalCssAction,
+} from '../lib/stores/critical-css-state';
+import { getCriticalCssIssues, isFatalError } from '../lib/critical-css-errors';
+import { RegenerateCriticalCssSuggestion, useRegenerationReason } from '..';
+import { useLocalCriticalCssGenerator } from '../local-generator/local-generator-provider';
 
 type CriticalCssMetaProps = {
-	cssState: CriticalCssState;
 	isCloudCssAvailable: boolean;
-	criticalCssProgress: number;
-	issues: CriticalCssState[ 'providers' ];
-	isFatalError: boolean;
-	primaryErrorSet;
-	suggestRegenerate;
-	regenerateCriticalCss;
 };
 
-const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
-	cssState,
-	isCloudCssAvailable,
-	criticalCssProgress,
-	issues = [],
-	isFatalError,
-	primaryErrorSet,
-	suggestRegenerate,
-	regenerateCriticalCss,
-} ) => {
+const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailable } ) => {
 	const [ hasRetried, setHasRetried ] = useState( false );
+	const [ cssState ] = useCriticalCssState();
+	const regenerateAction = useRegenerateCriticalCssAction();
+	const [ regenerateReason ] = useRegenerationReason();
 
 	const successCount = cssState.providers
 		? cssState.providers.filter( provider => provider.status === 'success' ).length
@@ -35,8 +28,10 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 
 	function retry() {
 		setHasRetried( true );
-		regenerateCriticalCss();
+		regenerateAction.mutate();
 	}
+
+	const { progress } = useLocalCriticalCssGenerator();
 
 	if ( cssState.status === 'pending' ) {
 		return (
@@ -47,31 +42,27 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 						'jetpack-boost'
 					) }
 				</div>
-				<ProgressBar progress={ criticalCssProgress } />
+				<ProgressBar progress={ progress } />
 			</div>
 		);
-	} else if ( isFatalError ) {
-		return (
-			<ShowStopperError
-				status={ cssState.status }
-				primaryErrorSet={ primaryErrorSet }
-				statusError={ cssState.status_error }
-				regenerateCriticalCss={ retry }
-				showRetry={ ! hasRetried }
-			/>
-		);
+	} else if ( isFatalError( cssState ) ) {
+		return <ShowStopperError cssState={ cssState } retry={ retry } showRetry={ ! hasRetried } />;
 	}
 
 	return (
-		<Status
-			isCloudCssAvailable={ isCloudCssAvailable }
-			status={ cssState.status }
-			successCount={ successCount }
-			updated={ cssState.updated }
-			issues={ issues }
-			progress={ criticalCssProgress }
-			suggestRegenerate={ suggestRegenerate }
-		/>
+		<>
+			<Status
+				isCloudCssAvailable={ isCloudCssAvailable }
+				status={ cssState.status }
+				issues={ getCriticalCssIssues( cssState ) }
+				successCount={ successCount }
+				updated={ cssState.updated }
+				progress={ progress }
+				showRegenerateButton={ !! regenerateReason }
+			/>
+
+			<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />
+		</>
 	);
 };
 
