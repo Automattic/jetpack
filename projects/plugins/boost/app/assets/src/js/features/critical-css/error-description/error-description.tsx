@@ -17,6 +17,12 @@ import { CriticalCssErrorDescriptionTypes, FormattedURL } from './types';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
 import { useNavigate } from 'react-router-dom';
 
+/**
+ * Remove GET parameters that are used to cache-bust from display URLs, as they add visible noise
+ * to the error output with no real benefit to users understanding which URLs are problematic.
+ *
+ * @param url The URL to strip cache parameters from.
+ */
 function stripCacheParams( url: string ): string {
 	const urlObj = new URL( url );
 	urlObj.searchParams.delete( 'donotcachepage' );
