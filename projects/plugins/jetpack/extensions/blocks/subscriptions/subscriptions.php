@@ -768,7 +768,7 @@ function render_for_email( $data, $styles ) {
 			<div>
 				<div>
 					<p ' . $submit_button_wrapper_style . '>
-						<a href="' . esc_url( get_post_permalink() ) . '" style="text-decoration: none; ' . esc_attr( $styles['submit_button'] ) . '">' . sanitize_submit_text( $button_text ) . '</a>
+						<a href="' . esc_url( get_post_permalink() ) . '" style="' . esc_attr( $styles['submit_button'] ) . ' text-decoration: none; white-space: nowrap; margin-left: 0">' . sanitize_submit_text( $button_text ) . '</a>
 					</p>
 				</div>
 			</div>
