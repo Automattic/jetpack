@@ -52,12 +52,6 @@ export function tooltipsPlugin( periods ) {
 		container.addEventListener( 'mouseenter', () => {
 			showTips();
 		} );
-
-		if ( u.cursor.left < 0 ) {
-			hideTips();
-		} else {
-			showTips();
-		}
 	}
 
 	/**
