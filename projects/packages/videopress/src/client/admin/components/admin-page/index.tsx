@@ -326,6 +326,7 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 		productSlug: product.productSlug,
 		redirectUrl: adminUrl,
 		isFetchingPurchases,
+		useBlogIdSuffix: true,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks( {} );
