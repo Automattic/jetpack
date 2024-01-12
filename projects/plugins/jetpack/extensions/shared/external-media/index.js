@@ -1,7 +1,7 @@
 import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { addFilter } from '@wordpress/hooks';
-import { SOURCE_JETPACK_APP_MEDIA } from './constants'; // Move this import statement above the import statement for './media-button'
+import { SOURCE_JETPACK_APP_MEDIA } from './constants';
 import MediaButton from './media-button';
 import { addPexelsToMediaInserter, addGooglePhotosToMediaInserter } from './media-service';
 import { mediaSources } from './sources';
