@@ -36,9 +36,6 @@ declare global {
 			assetPath: string;
 			staticAssetPath: string;
 			canResizeImages: boolean;
-			postTypes: {
-				[ key: string ]: string;
-			};
 		};
 	};
 

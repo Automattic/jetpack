@@ -7,6 +7,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
@@ -341,10 +342,11 @@ function jetpack_boost_ui_config() {
 		'plugin_dir_url' => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
 		'pricing'        => Premium_Pricing::get_yearly_pricing(),
 		'site'           => array(
-			'url'      => get_home_url(),
-			'domain'   => ( new Status() )->get_site_suffix(),
-			'online'   => ! ( new Status() )->is_offline_mode(),
-			'isAtomic' => ( new Host() )->is_woa_site(),
+			'url'       => get_home_url(),
+			'domain'    => ( new Status() )->get_site_suffix(),
+			'online'    => ! ( new Status() )->is_offline_mode(),
+			'isAtomic'  => ( new Host() )->is_woa_site(),
+			'postTypes' => (object) Config::get_custom_post_types(),
 		),
 		'is_premium'     => Premium_Features::has_any(),
 		'connection'     => ( new Connection() )->get_connection_api_response(),

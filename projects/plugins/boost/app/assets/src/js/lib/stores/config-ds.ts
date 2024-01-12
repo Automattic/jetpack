@@ -16,6 +16,7 @@ export const configSchema = z.object( {
 		domain: z.string(),
 		online: z.boolean(),
 		isAtomic: z.boolean(),
+		postTypes: z.record( z.string(), z.string() ),
 	} ),
 	is_premium: z.boolean(),
 	connection: z.object( {

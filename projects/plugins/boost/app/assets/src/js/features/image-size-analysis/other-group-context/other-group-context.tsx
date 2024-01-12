@@ -1,8 +1,12 @@
 import { IconTooltip } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import styles from './other-group-context.module.scss';
+import { useConfig } from '$lib/stores/config-ds';
 
 const OtherGroupContext = () => {
+	const {
+		site: { postTypes },
+	} = useConfig();
 	return (
 		<IconTooltip
 			title=""
@@ -18,7 +22,7 @@ const OtherGroupContext = () => {
 				) }
 			</p>
 			<ul>
-				{ Object.entries( Jetpack_Boost.site.postTypes ).map( ( [ key, value ] ) => (
+				{ Object.entries( postTypes ).map( ( [ key, value ] ) => (
 					<li key={ key }>{ value }</li>
 				) ) }
 			</ul>
