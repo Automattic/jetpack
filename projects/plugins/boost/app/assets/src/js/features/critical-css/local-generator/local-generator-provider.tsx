@@ -12,7 +12,7 @@ import { runLocalGenerator } from '../lib/generate-critical-css';
 import { CriticalCssErrorDetails } from '../lib/stores/critical-css-state-types';
 
 type LocalGeneratorContext = {
-	isGenerating?: boolean;
+	isGenerating: boolean;
 	setGenerating: ( generating: boolean ) => void;
 
 	providerProgress: number;
