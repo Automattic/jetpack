@@ -9,7 +9,7 @@ import { z } from 'zod';
  * Get the URL to upgrade boost.
  *
  * Ideally this function should not exist and
- * `getRedirectUrl( 'boost-plugin-upgrade-default', { site: config.site.domain, query, anchor: 'purchased' } )`
+ * `getRedirectUrl( 'boost-plugin-upgrade-default', { site: domain, query, anchor: 'purchased' } )`
  * should be used instead. However, the redirect changes the redirect URL in a broken manner.
  *
  * @param domain

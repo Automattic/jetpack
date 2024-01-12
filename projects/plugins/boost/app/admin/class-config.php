@@ -31,7 +31,6 @@ class Config {
 			),
 			'optimizations' => $optimizations,
 			'site'          => array(
-				'domain'          => ( new Status() )->get_site_suffix(),
 				'url'             => get_home_url(),
 				'online'          => ! ( new Status() )->is_offline_mode(),
 				'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
