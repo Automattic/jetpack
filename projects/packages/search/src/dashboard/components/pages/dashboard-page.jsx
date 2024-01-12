@@ -33,13 +33,14 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
+	const blogID = useSelect( select => select( STORE_ID ).getBlogId() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const sendPaidPlanToCart = () => {
 		const checkoutProductUrl = getProductCheckoutUrl(
 			'jetpack_search',
-			domain,
+			blogID ?? domain,
 			`${ siteAdminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
 			true
 		);

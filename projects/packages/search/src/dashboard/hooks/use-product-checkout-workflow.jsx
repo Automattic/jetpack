@@ -22,6 +22,7 @@ const {
  * @param {string} props.adminUrl     - The base URL of WP-Admin.
  * @param {string} props.redirectUri  - The URI to redirect to after checkout.
  * @param {string} [props.siteSuffix] - The site suffix.
+ * @param {string} [props.blogID]     - The blog ID.
  * @param {Function} props.siteProductAvailabilityHandler - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
  * @param {Function} props.from       - The plugin slug initiated the flow.
  * @param {Function} props.isWpcom    - Whether it's WPCOM site.
@@ -32,6 +33,7 @@ export default function useProductCheckoutWorkflow( {
 	adminUrl,
 	redirectUri,
 	siteSuffix = defaultSiteSuffix,
+	blogID = null,
 	siteProductAvailabilityHandler = null,
 	from,
 	isWpcom = false,
@@ -58,7 +60,7 @@ export default function useProductCheckoutWorkflow( {
 	// Build the checkout URL.
 	const checkoutProductUrl = getProductCheckoutUrl(
 		productSlug,
-		siteSuffix,
+		blogID ?? siteSuffix,
 		adminUrl + redirectUri,
 		isUserConnected || isWpcom
 	);
