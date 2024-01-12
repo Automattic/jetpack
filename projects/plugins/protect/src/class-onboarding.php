@@ -43,22 +43,28 @@ class Onboarding {
 	/**
 	 * Set Onboarding Items As Completed
 	 *
-	 * @param array $step_ids The onboarding step IDs.
-	 * @return bool
+	 * @param array $step_ids The IDs of the steps to complete.
+	 * @return bool True if the update was successful, false otherwise.
 	 */
 	public static function complete_steps( $step_ids ) {
 		self::init();
 
-		foreach ( $step_ids as $step_id ) {
-			if ( ! in_array( $step_id, self::$current_user_progress, true ) ) {
-				array_push( self::$current_user_progress, $step_id );
-				return (bool) update_user_meta(
-					self::$user_id,
-					self::OPTION_NAME,
-					self::$current_user_progress
-				);
-			}
+		if ( empty( self::$current_user_progress ) ) {
+			self::$current_user_progress = $step_ids;
+		} else {
+			// Find step IDs that are not already in the current user progress
+			$new_steps = array_diff( $step_ids, self::$current_user_progress );
+
+			// Merge new steps with current progress
+			self::$current_user_progress = array_merge( self::$current_user_progress, $new_steps );
 		}
+
+		// Update the user meta only once
+		return (bool) update_user_meta(
+			self::$user_id,
+			self::OPTION_NAME,
+			self::$current_user_progress
+		);
 	}
 
 	/**
