@@ -49,7 +49,7 @@ const Index = () => {
 			<Module
 				slug="critical_css"
 				title={ __( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' ) }
-				onEnable={ () => requestRegenerateCriticalCss() }
+				onEnable={ requestRegenerateCriticalCss }
 				description={
 					<>
 						<p>
@@ -95,7 +95,7 @@ const Index = () => {
 						<span className="jb-badge">Upgraded</span>
 					</>
 				}
-				onEnable={ () => requestRegenerateCriticalCss() }
+				onEnable={ requestRegenerateCriticalCss }
 				description={
 					<>
 						<p>
