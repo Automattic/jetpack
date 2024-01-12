@@ -1,6 +1,7 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createContext, useCallback, useContext, useEffect, useMemo } from 'react';
 import API from '../../api';
+import useThreatsList from '../../components/threats-list/use-threats-list';
 import { STORE_ID } from '../../state/store';
 import useProtectData from '../use-protect-data';
 
@@ -12,32 +13,9 @@ const useOnboarding = () => {
 	const { numThreats, hasRequiredPlan } = useProtectData();
 	const progress = useSelect( select => select( STORE_ID ).getOnboardingProgress() );
 	const { setOnboardingProgress } = useDispatch( STORE_ID );
-
-	/**
-	 * Should Show Step
-	 *
-	 * @param {string} step - The step object
-	 * @returns {boolean}
-	 */
-	const shouldShowStep = useCallback(
-		step => {
-			if (
-				typeof step.conditional_render_callback === 'function' &&
-				! step?.conditional_render_callback( { hasRequiredPlan, numThreats } )
-			) {
-				// do not show step - conditional requirements failed
-				return false;
-			}
-
-			if ( ! progress || progress.indexOf( step.id ) >= 0 ) {
-				// do not show step - already completed
-				return false;
-			}
-
-			return true;
-		},
-		[ progress, hasRequiredPlan, numThreats ]
-	);
+	const { list } = useThreatsList();
+	const fixableList = list.filter( obj => obj.fixable );
+	const selected = useSelect( select => select( STORE_ID ).getSelected() );
 
 	/**
 	 * Current Step
@@ -49,7 +27,7 @@ const useOnboarding = () => {
 			( carry, step ) => {
 				const stepConditionallyDisabled =
 					typeof step.conditional_render_callback === 'function' &&
-					! step.conditional_render_callback( { hasRequiredPlan, numThreats } );
+					! step.conditional_render_callback( { hasRequiredPlan, numThreats, fixableList } );
 
 				if ( ! stepConditionallyDisabled ) {
 					carry.stepsCount++;
@@ -66,7 +44,9 @@ const useOnboarding = () => {
 				stepsCount: 0,
 			}
 		);
-	}, [ steps, hasRequiredPlan, numThreats, progress ] );
+		// We want to re-render when selected changes
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ selected, steps, hasRequiredPlan, numThreats, fixableList, progress ] );
 
 	const completeCurrentStep = useCallback( () => {
 		if ( currentStep ) {
@@ -81,15 +61,16 @@ const useOnboarding = () => {
 	 * Complete All Current Steps
 	 */
 	const completeAllCurrentSteps = useCallback( () => {
-		const stepIds = steps.reduce(
-			( carry, step ) => ( shouldShowStep( step ) ? [ ...carry, step.id ] : steps ),
-			[]
-		);
+		const stepIds = steps.reduce( ( carry, step ) => {
+			carry.push( step.id );
+			return carry;
+		}, [] );
+
 		// Complete the steps immediately in the UI
-		setOnboardingProgress( [ ...progress, ...stepIds ] );
+		setOnboardingProgress( [ stepIds ] );
 		// Save the completions in the background
 		completeOnboardingSteps( stepIds );
-	}, [ steps, setOnboardingProgress, progress, completeOnboardingSteps, shouldShowStep ] );
+	}, [ steps, setOnboardingProgress, completeOnboardingSteps ] );
 
 	useEffect( () => {
 		if ( null === progress ) {
