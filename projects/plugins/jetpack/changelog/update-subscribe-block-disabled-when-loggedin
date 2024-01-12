@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Subscribe block: don't allow editing the email for subscribing for logged-in members.
