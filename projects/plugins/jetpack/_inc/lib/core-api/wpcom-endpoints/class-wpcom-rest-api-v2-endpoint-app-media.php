@@ -3,7 +3,7 @@
  * REST API endpoint for the media uploaded by the Jetpack app.
  *
  * @package automattic/jetpack
- * @since 13.0.0
+ * @since $$next-version$$
  */
 
 /**
