@@ -11,9 +11,12 @@ function insertExternalMediaBlocks( settings, name ) {
 	if ( name !== 'core/image' ) {
 		return settings;
 	}
+	// Check if the Jetpack App Media source is available.
 	if ( ! window?.Jetpack_Editor_Initial_State?.available_media_sources?.jetpack_app_media ) {
-		const index = 3;
-		if ( mediaSources[ index ]?.id === SOURCE_JETPACK_APP_MEDIA ) {
+		const index = mediaSources.findIndex(
+			mediaSource => mediaSource.id === SOURCE_JETPACK_APP_MEDIA
+		);
+		if ( index > -1 ) {
 			mediaSources.splice( index, 1 );
 		}
 	}
