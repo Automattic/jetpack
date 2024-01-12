@@ -701,7 +701,7 @@ function render_for_website( $data, $classes, $styles ) {
 							esc_attr( $data['subscribe_email'] ),
 							esc_attr( $subscribe_field_id ),
 							( ! empty( $data['subscribe_email'] )
-								? 'disabled="disabled" title="' . esc_attr__( "You're logged in with this email", 'jetpack' ) . '"'
+								? 'disabled title="' . esc_attr__( "You're logged in with this email", 'jetpack' ) . '"'
 								: ''
 							)
 						);
