@@ -28,9 +28,10 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 		}
 
 		return array(
-			'startDate' => $result->data->_meta->start,
-			'endDate'   => $result->data->_meta->end,
-			'periods'   => $result->data->periods,
+			'startDate'   => $result->data->_meta->start,
+			'endDate'     => $result->data->_meta->end,
+			'periods'     => $result->data->periods,
+			'annotations' => $result->data->annotations,
 		);
 	}
 
