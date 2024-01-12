@@ -14,14 +14,14 @@ const CriticalCssErrorType = z.enum( [
 	'XFrameDenyError',
 ] );
 
-const CriticalCssErrorDetailsSchema = z.object( {
+export const CriticalCssErrorDetailsSchema = z.object( {
 	url: z.coerce.string(),
 	message: z.coerce.string(),
 	meta: z.record( JSONSchema ).catch( {} ),
 	type: CriticalCssErrorType,
 } );
 
-const ProviderSchema = z.object( {
+export const ProviderSchema = z.object( {
 	// Unique provider key, for example "single_post"
 	key: z.coerce.string(),
 	// The label. For example "Single Post"
@@ -46,7 +46,7 @@ export const CriticalCssStateSchema = z
 		// Source provider information - which URLs to generate CSS for.
 		providers: z.array( ProviderSchema ),
 		status: z.enum( [ 'not_generated', 'generated', 'pending', 'error' ] ),
-		status_error: z.union( [ z.coerce.string(), CriticalCssErrorDetailsSchema ] ).optional(),
+		status_error: z.coerce.string().optional(),
 		created: z.coerce.number().optional(),
 		updated: z.coerce.number().optional(),
 	} )

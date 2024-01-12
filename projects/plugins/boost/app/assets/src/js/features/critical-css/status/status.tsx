@@ -1,20 +1,20 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { regenerateCriticalCss } from '../lib/stores/critical-css-state';
-import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
+import type { CriticalCssState, Provider } from '../lib/stores/critical-css-state-types';
 import TimeAgo from '../time-ago/time-ago';
 import InfoIcon from '$svg/info';
 import RefreshIcon from '$svg/refresh';
 import { createInterpolateElement } from '@wordpress/element';
 import { Link } from 'react-router-dom';
+import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
 
 type StatusTypes = {
-	status: CriticalCssState[ 'status' ];
+	status: string;
 	updated: CriticalCssState[ 'updated' ];
 	progress: number;
-	suggestRegenerate: unknown;
+	showRegenerateButton: boolean;
 	isCloudCssAvailable?: boolean;
-	issues?: CriticalCssState[ 'providers' ];
+	issues: Provider[];
 	successCount?: number;
 	generateText?: string;
 	generateMoreText?: string;
@@ -24,13 +24,15 @@ const Status: React.FC< StatusTypes > = ( {
 	status,
 	updated,
 	progress,
-	suggestRegenerate,
+	showRegenerateButton = false,
 	isCloudCssAvailable = false,
-	issues = [],
+	issues,
 	successCount = 0,
 	generateText = '',
 	generateMoreText = '',
 } ) => {
+	const regenerateAction = useRegenerateCriticalCssAction();
+
 	return (
 		<div className="jb-critical-css__meta">
 			<div className="summary">
@@ -98,9 +100,9 @@ const Status: React.FC< StatusTypes > = ( {
 				<button
 					type="button"
 					className={ classNames( 'components-button', {
-						'is-link': ! suggestRegenerate || isCloudCssAvailable,
+						'is-link': ! showRegenerateButton || isCloudCssAvailable,
 					} ) }
-					onClick={ regenerateCriticalCss }
+					onClick={ () => regenerateAction.mutate() }
 				>
 					<RefreshIcon />
 					{ __( 'Regenerate', 'jetpack-boost' ) }

@@ -1,12 +1,11 @@
-import { derived, Readable } from 'svelte/store';
 import { castToString } from '$lib/utils/cast-to-string';
 import { sortByFrequency } from '$lib/utils/sort-by-frequency';
-import { criticalCssState } from './critical-css-state';
 import {
 	CriticalCssErrorDetails,
+	CriticalCssState,
 	Critical_CSS_Error_Type,
 	Provider,
-} from './critical-css-state-types';
+} from './stores/critical-css-state-types';
 import type { JSONObject } from '$lib/stores/data-sync-client';
 
 /**
@@ -21,15 +20,46 @@ export type ErrorSet = {
 	};
 };
 
-export const criticalCssIssues = derived( criticalCssState, $status => {
-	return $status.providers.filter( provider => provider.errors?.length > 0 );
-} );
+/**
+ * Given a Critical CSS State, returns whether or not this represents a fatal error.
+ *
+ * @param {CriticalCssState} cssState - The CSS State object.
+ */
+export function isFatalError( cssState: CriticalCssState ): boolean {
+	if ( cssState.status === 'error' ) {
+		return true;
+	}
+
+	if ( cssState.status === 'not_generated' ) {
+		return false;
+	}
+
+	return ! cssState.providers.some( provider =>
+		[ 'success', 'pending' ].includes( provider.status )
+	);
+}
 
 /**
- * Derived datastore: Returns the most important Set of errors among the recommendations.
- * Used for displaying the most important error as a showstopper if no URLS succeeded.
+ * Given a CSS State object, returns all the providers that have errors.
+ *
+ * @param cssState - The CSS State object.
  */
-export const primaryErrorSet: Readable< ErrorSet > = derived( criticalCssIssues, $issues => {
+export function getCriticalCssIssues( cssState: CriticalCssState ): Provider[] {
+	return cssState.providers.filter( provider => ( provider.errors?.length || 0 ) > 0 );
+}
+
+/**
+ * Given a CSS State object, return the most important Set of errors among the recommendations.
+ *
+ * @param cssState - The CSS State object.
+ */
+export function getPrimaryErrorSet( cssState: CriticalCssState ): ErrorSet | undefined {
+	const issues = getCriticalCssIssues( cssState );
+
+	if ( ! issues.length ) {
+		return undefined;
+	}
+
 	const importantProviders = [
 		'core_front_page',
 		'core_posts_page',
@@ -38,13 +68,14 @@ export const primaryErrorSet: Readable< ErrorSet > = derived( criticalCssIssues,
 	];
 
 	for ( const key of importantProviders ) {
-		const issue = $issues.find( r => r.key === key );
+		const issue = issues.find( r => r.key === key );
 		if ( issue ) {
 			return groupErrorsByFrequency( issue )[ 0 ];
 		}
 	}
+
 	return undefined;
-} );
+}
 
 /**
  * Takes a Provider Key set of errors (in an object keyed by URL), and returns
@@ -54,6 +85,10 @@ export const primaryErrorSet: Readable< ErrorSet > = derived( criticalCssIssues,
  * @param provider The recommendation the errors belong to.
  */
 export function groupErrorsByFrequency( provider: Provider ): ErrorSet[] {
+	if ( ! provider.errors ) {
+		return [];
+	}
+
 	const { errors } = provider;
 	const groupKeys = errors.map( error => groupKey( error ) );
 	const groupOrder = sortByFrequency( groupKeys );
