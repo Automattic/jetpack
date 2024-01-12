@@ -163,7 +163,7 @@ class Launchpad_Task_Lists {
 		$is_dismissed               = isset( $task_list_dismissed_status[ $id ] ) && true === $task_list_dismissed_status[ $id ];
 
 		// Return true if the task list is on the dismissed status array and its value is true.
-		return $is_dismissed && $this->is_temporally_dismissed();
+		return $is_dismissed || $this->is_temporally_dismissed();
 	}
 
 	/**
