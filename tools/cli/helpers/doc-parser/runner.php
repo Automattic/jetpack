@@ -75,6 +75,11 @@ function get_html_from_markdown( $file_path ) {
 	$headers = $document->getElementsByTagName( 'h1' );
 	if ( count( $headers ) ) {
 		$doc_title = $headers[0]->textContent;
+
+		$parent = $headers[0]->parentNode;
+		if ( null !== $parent ) {
+			$parent->removeChild( $headers[0] );
+		}
 	}
 
 	return array(
