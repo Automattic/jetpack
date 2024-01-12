@@ -27,7 +27,7 @@ const SpeedScore = () => {
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;
 	const [ { data } ] = useModulesState();
 	const [ cssState ] = useCriticalCssState();
-	const { isRunning: criticalCssIsGenerating } = useLocalCriticalCssGeneratorStatus();
+	const { isGenerating: criticalCssIsGenerating } = useLocalCriticalCssGeneratorStatus();
 
 	// Construct an array of current module states
 	const moduleStates = useMemo(

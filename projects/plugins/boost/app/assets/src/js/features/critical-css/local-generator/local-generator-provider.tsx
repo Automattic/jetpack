@@ -12,8 +12,8 @@ import { runLocalGenerator } from '../lib/generate-critical-css';
 import { CriticalCssErrorDetails } from '../lib/stores/critical-css-state-types';
 
 type LocalGeneratorContext = {
-	abortController?: AbortController;
-	setAbortController: ( controller: AbortController | undefined ) => void;
+	isGenerating?: boolean;
+	setGenerating: ( generating: boolean ) => void;
 
 	providerProgress: number;
 	setProviderProgress: ( progress: number ) => void;
@@ -32,14 +32,12 @@ const CssGeneratorContext = createContext< LocalGeneratorContext | null >( null 
  * @param {ProviderProps} props - Component props.
  */
 export default function LocalCriticalCssGeneratorProvider( { children }: ProviderProps ) {
-	const [ abortController, setAbortController ] = useState< AbortController | undefined >(
-		undefined
-	);
+	const [ isGenerating, setGenerating ] = useState< boolean >( false );
 	const [ providerProgress, setProviderProgress ] = useState< number >( 0 );
 
 	const value = {
-		abortController,
-		setAbortController,
+		isGenerating,
+		setGenerating,
 		providerProgress,
 		setProviderProgress,
 	};
@@ -64,11 +62,9 @@ function useLocalCriticalCssGeneratorContext() {
  * For status consumers: Get an overview of the local critical CSS generator status. Is it running or not?
  */
 export function useLocalCriticalCssGeneratorStatus() {
-	const status = useLocalCriticalCssGeneratorContext();
+	const { isGenerating, providerProgress } = useLocalCriticalCssGeneratorContext();
 
-	return {
-		isRunning: !! status.abortController,
-	};
+	return { isGenerating, providerProgress };
 }
 
 /**
@@ -76,7 +72,7 @@ export function useLocalCriticalCssGeneratorStatus() {
  */
 export function useLocalCriticalCssGenerator() {
 	// Local Generator status context.
-	const { abortController, setAbortController, providerProgress, setProviderProgress } =
+	const { isGenerating, setGenerating, providerProgress, setProviderProgress } =
 		useLocalCriticalCssGeneratorContext();
 
 	// Critical CSS state and actions.
@@ -90,30 +86,33 @@ export function useLocalCriticalCssGenerator() {
 
 	useEffect(
 		() => {
-			if ( cssState.status === 'pending' && ! abortController ) {
-				// Start the local generator if the css state is pending.
-				setAbortController(
-					runLocalGenerator( cssState.providers, proxyNonce, {
-						onError: ( error: Error ) => setCssState( criticalCssErrorState( error.message ) ),
-						onFinished: () => setAbortController( undefined ),
-						setProviderCss: ( key: string, css: string ) =>
-							setProviderCssAction.mutateAsync( { key, css } ),
-						setProviderErrors: ( key: string, errors: CriticalCssErrorDetails[] ) =>
-							setProviderErrorsAction.mutateAsync( { key, errors } ),
-						setProviderProgress,
-					} )
-				);
+			if ( cssState.status === 'pending' ) {
+				let abortController: AbortController | undefined;
+
+				setGenerating( true );
+				abortController = runLocalGenerator( cssState.providers, proxyNonce, {
+					onError: ( error: Error ) => setCssState( criticalCssErrorState( error.message ) ),
+
+					onFinished: () => {
+						setGenerating( false );
+						abortController = undefined;
+					},
+
+					setProviderCss: ( key: string, css: string ) => {
+						return setProviderCssAction.mutateAsync( { key, css } );
+					},
+
+					setProviderErrors: ( key: string, errors: CriticalCssErrorDetails[] ) =>
+						setProviderErrorsAction.mutateAsync( { key, errors } ),
+
+					setProviderProgress,
+				} );
+
+				return () => abortController && abortController.abort();
 			} else if ( cssState.status === 'not_generated' ) {
 				// If there is no css generated, request that the generator start.
 				generateCriticalCssAction.mutate();
 			}
-
-			return () => {
-				if ( abortController ) {
-					abortController.abort();
-					setAbortController( undefined );
-				}
-			};
 		},
 
 		// Only run this Effect when the Critical CSS status actually changes (e.g. from generated to pending).
@@ -123,9 +122,8 @@ export function useLocalCriticalCssGenerator() {
 		[ cssState.status ]
 	);
 
-	const isRunning = !! abortController;
 	const progress =
-		( isRunning && calculateCriticalCssProgress( cssState.providers, providerProgress ) ) || 0;
+		( isGenerating && calculateCriticalCssProgress( cssState.providers, providerProgress ) ) || 0;
 
-	return { isRunning, progress };
+	return { isGenerating, progress };
 }
