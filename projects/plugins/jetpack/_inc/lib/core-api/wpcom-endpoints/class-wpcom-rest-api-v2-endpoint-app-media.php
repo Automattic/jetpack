@@ -9,7 +9,7 @@
 /**
  * Media uploaded by the Jetpack app helper API.
  *
- * @since 13.0.0
+ * @since $$next-version$$
  */
 class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 
