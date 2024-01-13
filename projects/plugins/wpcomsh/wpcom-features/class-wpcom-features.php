@@ -1280,6 +1280,8 @@ class WPCOM_Features {
 			array(
 				self::JETPACK_COMPLETE_PLANS,
 				self::JETPACK_VIDEOPRESS_PLANS,
+				self::JETPACK_PREMIUM_PLANS,
+				self::JETPACK_BUSINESS_PLANS,
 			),
 		),
 		// VIDEOPRESS_VIDEO - videopress/video requires a paid plan.
