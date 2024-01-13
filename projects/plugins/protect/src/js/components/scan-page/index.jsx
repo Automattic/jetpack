@@ -14,7 +14,7 @@ import ScanFooter from '../scan-footer';
 import SeventyFiveLayout from '../seventy-five-layout';
 import Summary from '../summary';
 import ThreatsList from '../threats-list';
-import inProgressImage from './in-progress.png';
+import inProgressImage from './in-progress.svg';
 import styles from './styles.module.scss';
 import useCredentials from './use-credentials';
 import useStatusPolling from './use-status-polling';
