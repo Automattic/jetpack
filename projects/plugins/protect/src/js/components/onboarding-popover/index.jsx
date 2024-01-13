@@ -1,6 +1,7 @@
 import { ActionPopover } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import useOnboarding from '../../hooks/use-onboarding';
+import { useContext, useEffect } from 'react';
+import useOnboarding, { OnboardingRenderedContext } from '../../hooks/use-onboarding';
 
 const OnboardingPopover = ( { id, anchor, position } ) => {
 	const {
@@ -11,7 +12,19 @@ const OnboardingPopover = ( { id, anchor, position } ) => {
 		completeAllCurrentSteps,
 	} = useOnboarding();
 
-	// do not render if this is not the current step
+	// keep track of which onboarding steps are currently being rendered
+	const { setRenderedSteps } = useContext( OnboardingRenderedContext );
+	useEffect( () => {
+		setRenderedSteps( currentRenderedSteps => [ ...currentRenderedSteps, id ] );
+
+		return () => {
+			setRenderedSteps( currentRenderedSteps =>
+				currentRenderedSteps.filter( step => step !== id )
+			);
+		};
+	}, [ id, setRenderedSteps ] );
+
+	// do not render anything if this is not the current step
 	if ( currentStep?.id !== id ) {
 		return null;
 	}

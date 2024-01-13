@@ -43,11 +43,13 @@ const Summary = () => {
 									dateI18n( 'F jS', lastChecked )
 								) }
 							</div>
-							<OnboardingPopover
-								id="daily-scans"
-								position="middle right"
-								anchor={ dailyAutomatedScansPopoverAnchor }
-							/>
+							{ ! hasRequiredPlan && (
+								<OnboardingPopover
+									id="daily-scans"
+									position="middle right"
+									anchor={ dailyAutomatedScansPopoverAnchor }
+								/>
+							) }
 						</Title>
 						{ numThreats > 0 && (
 							<Text variant="headline-small" component="h1">
@@ -74,11 +76,13 @@ const Summary = () => {
 							>
 								{ __( 'Scan now', 'jetpack-protect' ) }
 							</Button>
-							<OnboardingPopover
-								id="daily-and-manual-scans"
-								position="middle left"
-								anchor={ dailyAndManualScansPopoverAnchor }
-							/>
+							{ hasRequiredPlan && (
+								<OnboardingPopover
+									id="daily-and-manual-scans"
+									position="middle left"
+									anchor={ dailyAndManualScansPopoverAnchor }
+								/>
+							) }
 						</>
 					) }
 				</div>

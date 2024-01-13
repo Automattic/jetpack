@@ -1,21 +1,29 @@
 import { useDispatch, useSelect } from '@wordpress/data';
-import { createContext, useCallback, useContext, useEffect, useMemo } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import API from '../../api';
-import useThreatsList from '../../components/threats-list/use-threats-list';
 import { STORE_ID } from '../../state/store';
-import useProtectData from '../use-protect-data';
 
 export const OnboardingContext = createContext( [] );
+export const OnboardingRenderedContext = createContext( [] );
+
+export const OnboardingRenderedContextProvider = ( { children } ) => {
+	const [ renderedSteps, setRenderedSteps ] = useState( [] );
+
+	return (
+		<OnboardingRenderedContext.Provider value={ { renderedSteps, setRenderedSteps } }>
+			{ children }
+		</OnboardingRenderedContext.Provider>
+	);
+};
 
 const useOnboarding = () => {
 	const { completeOnboardingSteps, fetchOnboardingProgress } = API;
+
 	const steps = useContext( OnboardingContext );
-	const { numThreats, hasRequiredPlan } = useProtectData();
+	const { renderedSteps } = useContext( OnboardingRenderedContext );
+
 	const progress = useSelect( select => select( STORE_ID ).getOnboardingProgress() );
 	const { setOnboardingProgress } = useDispatch( STORE_ID );
-	const { list } = useThreatsList();
-	const fixableList = list.filter( obj => obj.fixable );
-	const selected = useSelect( select => select( STORE_ID ).getSelected() );
 
 	/**
 	 * Current Step
@@ -25,11 +33,7 @@ const useOnboarding = () => {
 	const { currentStep, currentStepCount, stepsCount } = useMemo( () => {
 		return steps.reduce(
 			( carry, step ) => {
-				const stepConditionallyDisabled =
-					typeof step.conditional_render_callback === 'function' &&
-					! step.conditional_render_callback( { hasRequiredPlan, numThreats, fixableList } );
-
-				if ( ! stepConditionallyDisabled ) {
+				if ( renderedSteps.includes( step.id ) ) {
 					carry.stepsCount++;
 					if ( ! carry.currentStep && ( progress || [] ).indexOf( step.id ) === -1 ) {
 						carry.currentStep = step;
@@ -44,9 +48,7 @@ const useOnboarding = () => {
 				stepsCount: 0,
 			}
 		);
-		// We want to re-render when selected changes
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ selected, steps, hasRequiredPlan, numThreats, fixableList, progress ] );
+	}, [ progress, renderedSteps, steps ] );
 
 	const completeCurrentStep = useCallback( () => {
 		if ( currentStep ) {

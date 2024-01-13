@@ -30,7 +30,6 @@ export default [
 				) }
 			</Text>
 		),
-		conditional_render_callback: false,
 	},
 	{
 		id: 'fix-all-threats',
@@ -62,7 +61,6 @@ export default [
 				) }
 			</Text>
 		),
-		conditional_render_callback: args => args.fixableList.length > 0 && args.hasRequiredPlan,
 	},
 	{
 		id: 'understand-severity',
@@ -75,7 +73,6 @@ export default [
 				) }
 			</Text>
 		),
-		conditional_render_callback: args => args.numThreats > 0 && args.hasRequiredPlan,
 	},
 	{
 		id: 'daily-scans',
@@ -93,7 +90,6 @@ export default [
 				) }
 			</Text>
 		),
-		conditional_render_callback: args => ! args.hasRequiredPlan,
 	},
 	{
 		id: 'daily-and-manual-scans',
@@ -106,6 +102,5 @@ export default [
 				) }
 			</Text>
 		),
-		conditional_render_callback: args => Boolean( args.hasRequiredPlan ),
 	},
 ];
