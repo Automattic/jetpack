@@ -14,6 +14,10 @@ module.exports = {
 		...jetpackConfig.output,
 		filename: '[name]/[name].js',
 		path: path.resolve( __dirname, 'src/build' ),
+		environment: {
+			module: true,
+			dynamicImport: true,
+		},
 	},
 	optimization: {
 		...jetpackConfig.optimization,
