@@ -218,7 +218,11 @@ class Jetpack_Mu_Wpcom {
 	 * Load Verbum Comments.
 	 */
 	public static function load_verbum_comments() {
-		require_once __DIR__ . '/build/verbum-comments/index.php';
-		new Verbum_Comments();
+		if ( class_exists( 'Verbum_Comments' ) ) {
+			return;
+		} else {
+			require_once __DIR__ . '/build/verbum-comments/index.php';
+			new \Automattic\Jetpack\Verbum_Comments();
+		}
 	}
 }
