@@ -30,6 +30,7 @@ const Header = () => {
 		postsCount,
 		totalShareCount,
 		siteSuffix,
+		blogID,
 		showShareLimits,
 	} = useSelect( select => {
 		const store = select( socialStore );
@@ -41,6 +42,7 @@ const Header = () => {
 			postsCount: store.getSharedPostsCount(),
 			totalShareCount: store.getTotalSharesCount(),
 			siteSuffix: store.getSiteSuffix(),
+			blogID: store.getBlogID(),
 			showShareLimits: store.showShareLimits(),
 		};
 	} );
@@ -98,7 +100,7 @@ const Header = () => {
 								) }
 								cta={ __( 'Get a Jetpack Social Plan', 'jetpack-social' ) }
 								href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
-									site: siteSuffix,
+									site: blogID ?? siteSuffix,
 									query: 'redirect_to=' + window.location.href,
 								} ) }
 								tooltipText={ __( 'Share as a post for more engagement', 'jetpack-social' ) }

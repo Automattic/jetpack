@@ -224,6 +224,7 @@ class Jetpack_Social {
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'siteSuffix'        => ( new Status() )->get_site_suffix(),
+				'blogID'            => Connection_Manager::get_site_id( true ),
 				'pluginVersion'     => $this->get_plugin_version(),
 			),
 		);
