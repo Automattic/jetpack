@@ -10,9 +10,9 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Error;
  */
 class Type_Void implements Parser {
 
-	public function parse( $data, $meta ) {
+	public function parse( $data, $_meta = null ) {
 		if ( ! empty( $data ) ) {
-			throw new Schema_Validation_Error( 'Void type cannot have any data.', $data, $meta );
+			throw new Schema_Validation_Error( 'Void type cannot have any data.', $data );
 		}
 		return null;
 	}

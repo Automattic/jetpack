@@ -101,24 +101,20 @@ class Schema implements Parser {
 	public function parse( $data, $meta = null ) {
 
 		// @TODO Expalin why this works
-		if ( $meta === null ) {
-			if ( $this->meta ) {
-				$meta = $this->meta;
-			} else {
-				$meta = new Schema_Validation_Meta( 'unknown' );
-			}
+		if ( $this->meta === null ) {
+			$this->meta = null === $meta ? new Schema_Validation_Meta( 'unknown' ) : $meta;
 		}
 
 		try {
-			return $this->parser->parse( $data, $meta );
+			return $this->parser->parse( $data, $this->meta );
 		} catch ( Schema_Validation_Error $e ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				$data           = wp_json_encode( $e->get_data(), JSON_PRETTY_PRINT );
-				$error_message  = "Failed to parse '{$meta->get_name()}' schema";
+				$error_message  = "Failed to parse '{$this->meta->get_name()}' schema";
 				$error_message .= "\n" . $e->getMessage();
-				$error_message .= "\n" . 'Data Received:';
-				$error_message .= "\n" . $data;
-				$error_message .= "\n" . 'Schema Path: ' . $meta->get_path();
+				$error_message .= "\nData Received:";
+				$error_message .= "\n$data";
+				$error_message .= "\nSchema Path: {$this->meta->get_name()}.{$this->meta->get_path()}";
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( $error_message );
 			}

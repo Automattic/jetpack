@@ -16,10 +16,10 @@ class Type_Enum implements Parser {
 		$this->valid_values = $valid_values;
 	}
 
-	public function parse( $data, $meta ) {
+	public function parse( $data, $_meta = null ) {
 		if ( ! in_array( $data, $this->valid_values, true ) ) {
 			$message = sprintf( 'Invalid value "%s". Expected one of: %s', $data, implode( ', ', $this->valid_values ) );
-			throw new Schema_Validation_Error( $message, $data, $meta );
+			throw new Schema_Validation_Error( $message, $data );
 		}
 		return $data;
 	}

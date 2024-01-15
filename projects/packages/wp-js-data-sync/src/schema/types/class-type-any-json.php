@@ -6,18 +6,18 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Error;
 
 class Type_Any_JSON implements Parser {
-	public function parse( $json_data, $meta ) {
+	public function parse( $data, $_meta = null ) {
 
-		if ( ! is_array( $json_data ) ) {
+		if ( ! is_array( $data ) ) {
 			$message = 'JSON Data must be an array';
-			throw new Schema_Validation_Error( $message, $json_data );
+			throw new Schema_Validation_Error( $message, $data );
 		}
 		// Attempt to encode the JSON data and throw errors if it fails
-		if ( false === wp_json_encode( $json_data ) ) {
+		if ( false === wp_json_encode( $data ) ) {
 			$message = 'JSON Data must be valid JSON';
-			throw new Schema_Validation_Error( $message, $json_data );
+			throw new Schema_Validation_Error( $message, $data );
 		}
 
-		return $json_data;
+		return $data;
 	}
 }

@@ -26,10 +26,10 @@ class Type_Array implements Parser {
 	 *
 	 * @return array
 	 */
-	public function parse( $data, $meta ) {
+	public function parse( $data, $_meta = null ) {
 		if ( ! is_array( $data ) ) {
 			$message = "Expected an array, received '" . gettype( $data ) . "'";
-			throw new Schema_Validation_Error( $message, $data, $meta );
+			throw new Schema_Validation_Error( $message, $data );
 		}
 
 		$parsed = array();

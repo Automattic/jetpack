@@ -21,11 +21,11 @@ interface Parser {
 	 * or throw an exception, depending on the implementation.
 	 *
 	 * @param mixed $data                           The input value to be parsed.
-	 * @param Schema_Validation_Meta $meta     Schema validation metadata.
+	 * @param Schema_Validation_Meta|null $meta     Schema validation metadata.
 	 *
 	 * @return mixed The parsed value.
 	 * @throws \RuntimeException If the input value is invalid.
 	 *
 	 */
-	public function parse( $data, $meta );
+	public function parse( $data, $meta = null );
 }

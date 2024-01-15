@@ -32,7 +32,7 @@ class Type_Assoc_Array implements Parser {
 	 * @throws Schema_Validation_Error - If the $data passed to it is not an associative array.
 	 *
 	 */
-	public function parse( $data, $meta ) {
+	public function parse( $data, $meta = null ) {
 		// Allow coercing stdClass objects (often returned from json_decode) to an assoc array.
 		if ( is_object( $data ) && get_class( $data ) === 'stdClass' ) {
 			$data = (array) $data;
@@ -40,12 +40,16 @@ class Type_Assoc_Array implements Parser {
 
 		if ( ! is_array( $data ) || $this->is_sequential_array( $data ) ) {
 			$message = "Expected an associative array, received '" . gettype( $data ) . "'";
-			throw new Schema_Validation_Error( $message, $data, $meta );
+			throw new Schema_Validation_Error( $message, $data );
 		}
 
 		$parsed = array();
 		foreach ( $this->assoc_parser_array as $key => $parser ) {
-			$meta->add_to_path( $key );
+
+			if ( null !== $meta ) {
+				$meta->add_to_path( $key );
+			}
+
 			if ( ! isset( $data[ $key ] ) ) {
 				if ( $parser instanceof Decorate_With_Default ) {
 					$value = $parser->parse( null );
@@ -63,7 +67,10 @@ class Type_Assoc_Array implements Parser {
 			} else {
 				$parsed[ $key ] = $parser->parse( $data[ $key ] );
 			}
-			$meta->remove_path( $key );
+
+			if ( null !== $meta ) {
+				$meta->remove_path( $key );
+			}
 		}
 
 		return $parsed;

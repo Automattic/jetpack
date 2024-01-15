@@ -4,14 +4,14 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
 class Schema_Validation_Meta {
 
-	private $name = '';
-	private $path = [];
-
+	private $name;
+	private $path = array();
 
 	/**
 	 * @param string $name
 	 */
-	public function __construct( $name ) { $this->name = $name; }
+	public function __construct( $name ) {
+		$this->name = $name; }
 
 	public function add_to_path( $key ) {
 		$this->path[] = $key;
@@ -33,6 +33,4 @@ class Schema_Validation_Meta {
 	public function get_name() {
 		return $this->name;
 	}
-
-
 }
