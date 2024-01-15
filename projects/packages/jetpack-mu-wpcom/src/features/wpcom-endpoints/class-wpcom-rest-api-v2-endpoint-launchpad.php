@@ -161,7 +161,6 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			'is_enabled'         => wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ),
 			'is_dismissed'       => wpcom_launchpad_is_task_list_dismissed( $checklist_slug ),
 			'is_dismissible'     => wpcom_launchpad_is_task_list_dismissible( $checklist_slug ),
-			'is_dismissed_until' => wpcom_launchpad_task_list_dismissed_until( $checklist_slug ),
 			'title'              => wpcom_get_launchpad_checklist_title_by_checklist_slug( $checklist_slug ),
 		);
 	}
