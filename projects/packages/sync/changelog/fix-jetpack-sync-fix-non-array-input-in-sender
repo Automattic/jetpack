@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Added `is_array` check to `get_items_to_send` to make sure no fatals are thrown on non-array values.
