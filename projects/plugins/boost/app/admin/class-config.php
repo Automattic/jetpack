@@ -19,7 +19,6 @@ class Config {
 	public function constants() {
 		$optimizations = ( new Modules_Setup() )->get_status();
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
-		$static_path   = 'app/assets/static/';
 
 		$constants = array(
 			'version'       => JETPACK_BOOST_VERSION,
@@ -29,9 +28,8 @@ class Config {
 			),
 			'optimizations' => $optimizations,
 			'site'          => array(
-				'url'             => get_home_url(),
-				'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
-				'staticAssetPath' => plugins_url( $static_path, JETPACK_BOOST_PATH ),
+				'url'       => get_home_url(),
+				'assetPath' => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 			),
 		);
 

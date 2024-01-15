@@ -33,7 +33,6 @@ declare global {
 		site: {
 			url: string;
 			assetPath: string;
-			staticAssetPath: string;
 		};
 	};
 
