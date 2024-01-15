@@ -13,7 +13,6 @@ export default function CloudCssMetaProps() {
 			isCloud={ true }
 			hasRetried={ hasRetried }
 			retry={ retry }
-			showRegenerateButton={ false }
 			generateText={ __(
 				'Jetpack Boost will generate Critical CSS for you automatically.',
 				'jetpack-boost'

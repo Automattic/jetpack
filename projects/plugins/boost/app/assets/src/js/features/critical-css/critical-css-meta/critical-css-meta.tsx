@@ -38,7 +38,7 @@ export default function CriticalCssMeta() {
 				isCloud={ false }
 				hasRetried={ hasRetried }
 				retry={ retry }
-				showRegenerateButton={ !! regenerateReason }
+				highlightRegenerateButton={ !! regenerateReason }
 			/>
 
 			<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />

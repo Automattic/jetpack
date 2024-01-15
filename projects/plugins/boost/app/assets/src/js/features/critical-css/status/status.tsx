@@ -19,7 +19,8 @@ type StatusTypes = {
 	hasRetried: boolean;
 	retry: () => void;
 
-	showRegenerateButton: boolean;
+	highlightRegenerateButton?: boolean;
+
 	generateText?: string;
 	generateMoreText?: string;
 };
@@ -30,7 +31,7 @@ const Status: React.FC< StatusTypes > = ( {
 	hasRetried,
 	retry,
 
-	showRegenerateButton = false,
+	highlightRegenerateButton = false,
 	generateText = '',
 	generateMoreText = '',
 } ) => {
@@ -120,12 +121,12 @@ const Status: React.FC< StatusTypes > = ( {
 				<Button
 					type="button"
 					className={ classNames( 'components-button', {
-						'is-link': ! showRegenerateButton || isCloud,
+						'is-link': ! highlightRegenerateButton || isCloud,
 					} ) }
-					isPrimary={ !! showRegenerateButton }
+					isPrimary={ highlightRegenerateButton }
 					onClick={ () => regenerateAction.mutate() }
 				>
-					{ ! showRegenerateButton && <RefreshIcon /> }
+					{ ! highlightRegenerateButton && <RefreshIcon /> }
 					{ __( 'Regenerate', 'jetpack-boost' ) }
 				</Button>
 			) }
