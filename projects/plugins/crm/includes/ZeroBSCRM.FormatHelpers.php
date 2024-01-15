@@ -481,7 +481,7 @@ function zeroBSCRM_pages_admin_display_custom_fields_table($id = -1, $objectType
 		     		break;
 
 		     	case 'date':
-		     		$html .= '<td class="zbs-view-vital-customfields-'.esc_attr($v['type']).'">' . ( $v['value'] !== '' ? zeroBSCRM_date_i18n( -1, $v['value'], false, true ) : '' )  . '</td>';
+						$html .= '<td class="zbs-view-vital-customfields-' . esc_attr( $v['type'] ) . '">' . ( $v['value'] !== '' ? jpcrm_uts_to_date_str( $v['value'], false, true ) : '' ) . '</td>';
 		     		break;
 
 		     	case 'checkbox':

@@ -40,7 +40,7 @@ export const IsaImage = z.object( {
 		id: z.coerce.number(),
 		url: z.string().url(),
 		title: z.string(),
-		edit_url: z.string().url().optional(),
+		edit_url: z.string().url().nullable(),
 	} ),
 	device_type: z.enum( [ 'phone', 'desktop' ] ),
 	instructions: z.string(),
@@ -67,13 +67,15 @@ export enum ISAStatus {
 export const IsaReport = z.object( {
 	status: z.nativeEnum( ISAStatus ).default( ISAStatus.NotFound ),
 	report_id: z.number().optional(),
-	groups: z.object( {
-		core_front_page: IsaCounts,
-		singular_page: IsaCounts.optional(),
-		singular_post: IsaCounts.optional(),
-		other: IsaCounts.optional(),
-		fixed: IsaCounts.optional(),
-	} ),
+	groups: z
+		.object( {
+			core_front_page: IsaCounts,
+			singular_page: IsaCounts.optional(),
+			singular_post: IsaCounts.optional(),
+			other: IsaCounts.optional(),
+			fixed: IsaCounts.optional(),
+		} )
+		.optional(),
 } );
 
 /**

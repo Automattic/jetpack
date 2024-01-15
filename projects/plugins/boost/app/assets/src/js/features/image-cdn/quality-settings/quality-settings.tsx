@@ -1,13 +1,10 @@
-import React from 'react';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import CollapsibleMeta from '../collapsible-meta/collapsible-meta';
 import { __, sprintf } from '@wordpress/i18n';
-
 import styles from './quality-settings.module.scss';
 import { IconTooltip } from '@automattic/jetpack-components';
 import QualityControl from '../quality-control/quality-control';
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
-import { type QualityConfig, imageCdnSettingsSchema } from '../lib/stores';
+import { type QualityConfig, imageCdnSettingsSchema, useImageCdnQuality } from '../lib/stores';
 import { z } from 'zod';
 import { Link } from 'react-router-dom';
 
@@ -25,11 +22,7 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		);
 	}
 
-	const [ { data: imageCdnQuality }, { mutate: setImageCdnQuality } ] = useDataSync(
-		'jetpack_boost_ds',
-		'image_cdn_quality',
-		imageCdnSettingsSchema
-	);
+	const [ imageCdnQuality, setImageCdnQuality ] = useImageCdnQuality();
 
 	const updateFormatQuantity = useCallback(
 		( format: 'jpg' | 'png' | 'webp', newValue: QualityConfig ) => {
