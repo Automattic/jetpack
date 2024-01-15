@@ -29,7 +29,7 @@ class Type_Assoc_Array implements Parser {
 	 * @param $data mixed[]
 	 *
 	 * @return array
-	 *@throws Schema_Validation_Error - If the $data passed to it is not an associative array.
+	 * @throws Schema_Validation_Error - If the $data passed to it is not an associative array.
 	 *
 	 */
 	public function parse( $data ) {
