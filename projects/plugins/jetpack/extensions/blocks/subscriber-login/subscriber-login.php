@@ -29,18 +29,17 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Subscriber Login block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the Subscriber Login block attributes.
- * @param string $content String containing the Subscriber Login block content.
+ * @param array $attr    Array containing the Subscriber Login block attributes.
  *
  * @return string
  */
-function load_assets( $attr, $content ) {
+function load_assets( $attr ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	if (!is_user_logged_in()) {
+	if ( ! is_user_logged_in() ) {
 		return sprintf(
 			'<div class="%1$s"><a href="#">%2$s</a></div>',
 			esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
@@ -48,7 +47,7 @@ function load_assets( $attr, $content ) {
 		);
 	}
 
-	if (Jetpack_Memberships::is_current_user_subscribed()) {
+	if ( Jetpack_Memberships::is_current_user_subscribed() ) {
 		return sprintf(
 			'<div class="%1$s"><a href="#">%2$s</a></div>',
 			esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
