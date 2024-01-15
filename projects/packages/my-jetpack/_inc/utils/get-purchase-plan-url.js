@@ -12,8 +12,8 @@ import { MY_JETPACK_MY_PLANS_PURCHASE_SOURCE } from '../constants';
 export default function () {
 	const site = window?.myJetpackInitialState?.siteSuffix;
 	const blogID = window?.myJetpackInitialState?.blogID;
-	const query = window?.myJetpackInitialState?.myJetpackUrl
-		? `redirect_to=${ window?.myJetpackInitialState?.myJetpackUrl }`
+	const query = window?.myJetpackInitialState?.myJetpackCheckoutUri
+		? `redirect_to=${ window?.myJetpackInitialState?.myJetpackCheckoutUri }`
 		: null;
 	return getRedirectUrl( MY_JETPACK_MY_PLANS_PURCHASE_SOURCE, { site: blogID ?? site, query } );
 }

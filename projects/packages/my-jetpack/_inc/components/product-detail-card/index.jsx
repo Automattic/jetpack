@@ -83,7 +83,7 @@ const ProductDetailCard = ( {
 	quantity = null,
 	highlightLastFeature = false,
 } ) => {
-	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackUrl } =
+	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackCheckoutUri } =
 		window?.myJetpackInitialState ?? {};
 
 	const { detail, isFetching } = useProduct( slug );
@@ -128,7 +128,7 @@ const ProductDetailCard = ( {
 	 */
 	const needsPurchase = ( ! isFree && ! hasRequiredPlan ) || quantity != null;
 
-	const checkoutRedirectUrl = postCheckoutUrl ? postCheckoutUrl : myJetpackUrl;
+	const checkoutRedirectUrl = postCheckoutUrl ? postCheckoutUrl : myJetpackCheckoutUri;
 
 	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
 		useProductCheckoutWorkflow( {
@@ -145,7 +145,7 @@ const ProductDetailCard = ( {
 	const { run: trialCheckoutRedirect, hasCheckoutStarted: hasTrialCheckoutStarted } =
 		useProductCheckoutWorkflow( {
 			productSlug: wpcomFreeProductSlug,
-			redirectUrl: myJetpackUrl,
+			redirectUrl: myJetpackCheckoutUri,
 			siteSuffix,
 			from: 'my-jetpack',
 			quantity,
