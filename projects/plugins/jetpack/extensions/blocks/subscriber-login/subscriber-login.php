@@ -2,7 +2,7 @@
 /**
  * Subscriber Login Block.
  *
- * @since $$next-version$$
+ * @since 0.0.1
  *
  * @package automattic/jetpack
  */
@@ -45,9 +45,6 @@ function get_current_url() {
  * @return string
  */
 function render_block( $attr ) {
-	/*
-	 * Enqueue necessary scripts and styles.
-	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	if ( ! is_user_logged_in() ) {
