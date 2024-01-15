@@ -128,7 +128,7 @@ class Schema implements Parser {
 	}
 
 	/**
-	 * @param $assoc_parser_array - An associative array of ["key" => "Parser" (or Validation_Rule)] pairs
+	 * @param $assoc_parser_array - An associative array of ["key" => "Parser"] pairs
 	 *
 	 * @return self
 	 */
