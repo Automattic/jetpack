@@ -38,7 +38,7 @@ const OnboardingPopover = ( { id, anchor, position } ) => {
 			buttonContent={
 				currentStepCount < stepsCount
 					? __( 'Next', 'jetpack-protect' )
-					: __( 'Finish', 'jetpack-protect' )
+					: __( 'Finish', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 )
 			}
 			onClick={ completeCurrentStep }
 			onClose={ completeAllCurrentSteps }
