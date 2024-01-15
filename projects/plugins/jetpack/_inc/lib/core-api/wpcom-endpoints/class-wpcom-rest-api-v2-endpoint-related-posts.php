@@ -123,7 +123,14 @@ class WPCOM_REST_API_V2_Endpoint_Related_Posts extends WP_REST_Controller {
 	 * @return WP_REST_Response Array The related posts
 	 */
 	public function get_related_posts( $request ) {
-		$post          = $this->get_post( $request['id'] );
+		$post = $this->get_post( $request['id'] );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		if ( ! class_exists( 'Jetpack_RelatedPosts' ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
+		}
 		$related_posts = \Jetpack_RelatedPosts::init()->get_for_post_id( $post->ID, array( 'size' => 6 ) );
 		return rest_ensure_response( $related_posts );
 	}
