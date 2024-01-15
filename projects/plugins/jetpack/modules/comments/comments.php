@@ -764,21 +764,21 @@ HTML;
 					left: 0;
 					overflow: hidden;
 					color: #333;
+					padding-top: 3%;
 				}
 				div {
-					text-align: center;
+					text-align: left;
 					margin: 0;
 					padding: 0;
 					display: table-cell;
-					vertical-align: middle;
+					vertical-align: top;
 					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
 					font-weight: normal;
 				}
 
 				h3 {
-					text-align: center;
 					margin: 0;
-					padding: 3% 0;
+					padding-bottom: 3%;
 					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
 					font-weight: normal;
 				}
@@ -859,6 +859,7 @@ HTML;
 					left: 0;
 					overflow: hidden;
 					color: #333;
+					padding-top: 3%;
 				}
 
 				h3 {
@@ -866,7 +867,7 @@ HTML;
 					margin: 0;
 					padding: 0;
 					display: table-cell;
-					vertical-align: middle;
+					vertical-align: top;
 					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
 					font-weight: normal;
 				}
