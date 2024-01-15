@@ -79,13 +79,15 @@ const withUpgradeBanner = createHigherOrderComponent(
 		}, [ setAttributes, hasParentBanner ] );
 
 		const blockProps = useBlockProps();
+		// Fix for alignfull cover block because otherwise the div defaults to content-size as max width
+		const cssFixForCoverBlock = { 'max-width': 'none' };
 
 		return (
 			<PaidBlockProvider
 				onBannerVisibilityChange={ setIsVisible }
 				hasParentBanner={ isBannerVisible }
 			>
-				<div ref={ blockProps.ref }>
+				<div ref={ blockProps.ref } style={ cssFixForCoverBlock }>
 					<UpgradePlanBanner
 						className={ `is-${ name.replace( /\//, '-' ) }-paid-block` }
 						title={ null }
