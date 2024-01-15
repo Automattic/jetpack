@@ -17,25 +17,6 @@ declare global {
 		ajax_url: string;
 	};
 
-	// Constants provided by the plugin.
-	const Jetpack_Boost: {
-		version: string;
-		api: {
-			namespace: string;
-			prefix: string;
-		};
-		connectionIframeOriginUrl: string;
-		superCache: {
-			pluginActive: boolean;
-			cacheEnabled: boolean;
-			cachePageSecret?: string;
-		};
-		site: {
-			url: string;
-			assetPath: string;
-		};
-	};
-
 	// Critical CSS Generator library.
 	const CriticalCSSGenerator: {
 		generateCriticalCSS: typeof generateCriticalCSS;

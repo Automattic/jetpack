@@ -7,6 +7,7 @@ import Logo from '$svg/jetpack-green';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNavigate } from 'react-router-dom';
 import { useConfig } from '$lib/stores/config-ds';
+import { getConfig } from '$lib/utils/get-config';
 
 const PurchaseSuccess: React.FC = () => {
 	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
@@ -84,7 +85,7 @@ const PurchaseSuccess: React.FC = () => {
 
 					<div className="jb-card__cta px-1 py-4">
 						<img
-							src={ `${ Jetpack_Boost.site.assetPath }../static/images/boost.png` }
+							src={ `${ getConfig( 'site.assetPath' ) }../static/images/boost.png` }
 							alt={ __( 'Optimize with Jetpack Boost', 'jetpack-boost' ) }
 						/>
 					</div>

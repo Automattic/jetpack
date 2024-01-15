@@ -1,4 +1,6 @@
 import analytics from '@automattic/jetpack-analytics';
+import { getConfig } from './get-config';
+import { ModulesState } from '$features/module/lib/stores';
 
 export type TracksEventProperties = { [ key: string ]: string | number };
 
@@ -53,18 +55,26 @@ function addBoostProps( props: TracksEventProperties ): TracksEventProperties {
 	const defaultProps: { [ key: string ]: string } = {};
 
 	/**
-	 * Jetpack Boost constant is not available on the front end.
+	 * jetpack_boost_ds constant is not available on the front end.
 	 *
 	 * So we need to check if it exists before using it in case this function is called from the front end.
 	 */
-	if ( typeof Jetpack_Boost !== 'undefined' ) {
-		if ( 'version' in Jetpack_Boost ) {
-			defaultProps.boost_version = Jetpack_Boost.version;
-		}
+	try {
+		defaultProps.boost_version = getConfig( 'version' );
+		const win = window as Window &
+			typeof globalThis & { jetpack_boost_ds?: { modules_state?: { value: ModulesState } } };
 
-		if ( 'optimizations' in Jetpack_Boost ) {
-			defaultProps.optimizations = JSON.stringify( Jetpack_Boost.optimizations );
+		if ( win.jetpack_boost_ds?.modules_state?.value ) {
+			const value = win.jetpack_boost_ds.modules_state.value as ModulesState;
+
+			defaultProps.optimizations = JSON.stringify(
+				Object.fromEntries(
+					Object.entries( value ).map( ( [ key, { active } ] ) => [ key, active ] )
+				)
+			);
 		}
+	} catch ( error ) {
+		// no-op
 	}
 
 	return { ...defaultProps, ...props };

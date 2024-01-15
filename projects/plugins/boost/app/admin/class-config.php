@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
-use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 
 /**
  * Handle the configuration constants.
@@ -17,21 +16,7 @@ class Config {
 	}
 
 	public function constants() {
-		$optimizations = ( new Modules_Setup() )->get_status();
-		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
-
-		$constants = array(
-			'version'       => JETPACK_BOOST_VERSION,
-			'api'           => array(
-				'namespace' => JETPACK_BOOST_REST_NAMESPACE,
-				'prefix'    => JETPACK_BOOST_REST_PREFIX,
-			),
-			'optimizations' => $optimizations,
-			'site'          => array(
-				'url'       => get_home_url(),
-				'assetPath' => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
-			),
-		);
+		$constants = array();
 
 		// Give each module an opportunity to define extra constants.
 		return apply_filters( 'jetpack_boost_js_constants', $constants );

@@ -2,6 +2,7 @@ import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 
 export const configSchema = z.object( {
+	version: z.string(),
 	plugin_dir_url: z.string().url(),
 	pricing: z
 		.object( {
@@ -18,12 +19,17 @@ export const configSchema = z.object( {
 		isAtomic: z.boolean(),
 		postTypes: z.record( z.string(), z.string() ),
 		canResizeImages: z.boolean(),
+		assetPath: z.string(),
 	} ),
 	is_premium: z.boolean(),
 	connection: z.object( {
 		connected: z.boolean(),
 		userConnected: z.boolean(),
 		wpcomBlogId: z.number().nullable(),
+	} ),
+	api: z.object( {
+		namespace: z.string(),
+		prefix: z.string(),
 	} ),
 } );
 

@@ -1,19 +1,15 @@
 import { __ } from '@wordpress/i18n';
 import { addGetParameter } from './add-get-parameter';
 import { recordBoostEvent } from './analytics';
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { SuperCacheInfo } from '$lib/stores/super-cache';
+import { useConfig } from '$lib/stores/config-ds';
+import { useCallback } from 'react';
 
-/**
- * Returns true if the Super Cache plugin is installed and active.
- */
-export function isSuperCachePluginActive(): boolean {
-	return !! Jetpack_Boost?.superCache?.pluginActive;
-}
+export function useSuperCacheDS() {
+	const [ { data } ] = useDataSync( 'jetpack_boost_ds', 'super_cache', SuperCacheInfo );
 
-/**
- * Returns true if the Super Cache plugin is installed, active, and enabled.
- */
-export function isSuperCacheEnabled() {
-	return !! Jetpack_Boost?.superCache?.cacheEnabled;
+	return data as SuperCacheInfo;
 }
 
 /**
@@ -21,26 +17,36 @@ export function isSuperCacheEnabled() {
  *
  * @return {number} milliseconds difference between cached and uncached pageload.
  */
-export async function measureSuperCacheSaving(): Promise< number > {
-	recordBoostEvent( 'super_cache_test_started', {} );
+export function useMeasureSuperCacheSaving() {
+	const data = useSuperCacheDS();
+	const cachePageSecret = data?.cachePageSecret;
+	const {
+		site: { url },
+	} = useConfig();
 
-	const url = Jetpack_Boost.site.url;
-	const uncachedUrl = addGetParameter(
-		url,
-		'donotcachepage',
-		Jetpack_Boost.superCache.cachePageSecret
-	);
+	if ( ! cachePageSecret ) {
+		// eslint-disable-next-line no-console
+		console.error( "Cache Page Secret is missing in `jetpack_boost_ds['super_cache']` " );
 
-	const uncachedTime = await measureFetch( uncachedUrl, false );
-	const cachedTime = await measureFetch( url, true );
+		return () => Promise.resolve( 0 );
+	}
 
-	// Calculate the results.
-	const result = Math.max( 0, Math.round( uncachedTime - cachedTime ) );
-	recordBoostEvent( 'super_cache_test_results', {
-		difference: result,
-	} );
+	return useCallback( async () => {
+		recordBoostEvent( 'super_cache_test_started', {} );
 
-	return result;
+		const uncachedUrl = addGetParameter( url, 'donotcachepage', cachePageSecret as string );
+
+		const uncachedTime = await measureFetch( uncachedUrl, false );
+		const cachedTime = await measureFetch( url, true );
+
+		// Calculate the results.
+		const result = Math.max( 0, Math.round( uncachedTime - cachedTime ) );
+		recordBoostEvent( 'super_cache_test_results', {
+			difference: result,
+		} );
+
+		return result;
+	}, [ cachePageSecret, url ] );
 }
 
 /**
@@ -49,7 +55,7 @@ export async function measureSuperCacheSaving(): Promise< number > {
  * @param {string} url - URL to fetch.
  * @return {Promise<Response>} response object.
  */
-async function blindFetch( url ): Promise< Response > {
+async function blindFetch( url: string ): Promise< Response > {
 	const request = await fetch( url, { credentials: 'omit' } );
 	await request.text();
 

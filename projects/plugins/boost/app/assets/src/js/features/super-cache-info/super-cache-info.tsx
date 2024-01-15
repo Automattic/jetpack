@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { __, sprintf } from '@wordpress/i18n';
 import { Notice, Button } from '@automattic/jetpack-components';
-import {
-	measureSuperCacheSaving,
-	isSuperCachePluginActive,
-	isSuperCacheEnabled,
-} from '$lib/utils/measure-super-cache-saving';
+import { useMeasureSuperCacheSaving, useSuperCacheDS } from '$lib/utils/measure-super-cache-saving';
 import { z } from 'zod';
 type State = {
 	status: 'idle' | 'testing' | 'error' | 'complete';
@@ -22,6 +18,9 @@ const SuperCacheInfo = () => {
 		'super_cache_notice_disabled',
 		z.boolean()
 	);
+
+	const { pluginActive, cacheEnabled } = useSuperCacheDS();
+	const measureSuperCacheSaving = useMeasureSuperCacheSaving();
 
 	const runTest = async () => {
 		setState( { status: 'testing' } );
@@ -49,11 +48,11 @@ const SuperCacheInfo = () => {
 		</Button>
 	);
 
-	if ( ! isSuperCachePluginActive() ) {
+	if ( ! pluginActive ) {
 		return null;
 	}
 
-	if ( ! isSuperCacheEnabled() ) {
+	if ( ! cacheEnabled ) {
 		if ( isNoticeDismissed ) {
 			return null;
 		}
