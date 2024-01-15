@@ -32,7 +32,6 @@ declare global {
 		};
 		site: {
 			url: string;
-			online: boolean;
 			assetPath: string;
 			staticAssetPath: string;
 		};

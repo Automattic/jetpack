@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Admin;
 
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 
@@ -31,7 +30,6 @@ class Config {
 			'optimizations' => $optimizations,
 			'site'          => array(
 				'url'             => get_home_url(),
-				'online'          => ! ( new Status() )->is_offline_mode(),
 				'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 				'staticAssetPath' => plugins_url( $static_path, JETPACK_BOOST_PATH ),
 				'postTypes'       => self::get_custom_post_types(),
