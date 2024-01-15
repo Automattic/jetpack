@@ -13,10 +13,6 @@ export default function CloudCssMetaProps() {
 
 	const progress = calculateCriticalCssProgress( cssState.providers );
 
-	const successCount = cssState.providers.filter(
-		provider => provider.status === 'success'
-	).length;
-
 	return (
 		<Status
 			cssState={ cssState }
@@ -25,7 +21,6 @@ export default function CloudCssMetaProps() {
 			retry={ retry }
 			status={ cssState.status }
 			issues={ getCriticalCssIssues( cssState ) }
-			successCount={ successCount }
 			updated={ cssState.updated }
 			progress={ progress }
 			showRegenerateButton={ false }

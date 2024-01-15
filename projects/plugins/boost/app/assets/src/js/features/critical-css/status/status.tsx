@@ -23,7 +23,6 @@ type StatusTypes = {
 	progress: number;
 	showRegenerateButton: boolean;
 	issues: Provider[];
-	successCount?: number;
 	generateText?: string;
 	generateMoreText?: string;
 };
@@ -37,11 +36,13 @@ const Status: React.FC< StatusTypes > = ( {
 	showRegenerateButton = false,
 	isCloud = false,
 	issues,
-	successCount = 0,
 	generateText = '',
 	generateMoreText = '',
 } ) => {
 	const regenerateAction = useRegenerateCriticalCssAction();
+	const successCount = cssState.providers
+		? cssState.providers.filter( provider => provider.status === 'success' ).length
+		: 0;
 
 	// If there has been a fatal error, show it.
 	if ( isFatalError( cssState ) ) {
