@@ -1,10 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import Status from '../status/status';
-import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
 import { useCriticalCssState } from '../lib/stores/critical-css-state';
-import { getCriticalCssIssues, isFatalError } from '../lib/critical-css-errors';
+import { getCriticalCssIssues } from '../lib/critical-css-errors';
 import { RegenerateCriticalCssSuggestion, useRegenerationReason } from '..';
 import { useLocalCriticalCssGenerator } from '../local-generator/local-generator-provider';
 import { useRetryRegenerate } from '../lib/use-retry-regenerate';
@@ -14,15 +13,14 @@ import { useRetryRegenerate } from '../lib/use-retry-regenerate';
  * Settings page when the feature is enabled.
  */
 export default function CriticalCssMeta() {
-	const [ hasRetried, retry ] = useRetryRegenerate();
 	const [ cssState ] = useCriticalCssState();
+	const [ hasRetried, retry ] = useRetryRegenerate();
 	const [ regenerateReason ] = useRegenerationReason();
+	const { progress } = useLocalCriticalCssGenerator();
 
 	const successCount = cssState.providers
 		? cssState.providers.filter( provider => provider.status === 'success' ).length
 		: 0;
-
-	const { progress } = useLocalCriticalCssGenerator();
 
 	if ( cssState.status === 'pending' ) {
 		return (
@@ -36,14 +34,15 @@ export default function CriticalCssMeta() {
 				<ProgressBar progress={ progress } />
 			</div>
 		);
-	} else if ( isFatalError( cssState ) ) {
-		return <ShowStopperError cssState={ cssState } retry={ retry } showRetry={ ! hasRetried } />;
 	}
 
 	return (
 		<>
 			<Status
-				isCloudCssAvailable={ false }
+				cssState={ cssState }
+				isCloud={ false }
+				hasRetried={ hasRetried }
+				retry={ retry }
 				status={ cssState.status }
 				issues={ getCriticalCssIssues( cssState ) }
 				successCount={ successCount }

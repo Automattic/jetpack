@@ -7,13 +7,21 @@ import RefreshIcon from '$svg/refresh';
 import { createInterpolateElement } from '@wordpress/element';
 import { Link } from 'react-router-dom';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
+import { isFatalError } from '../lib/critical-css-errors';
+import ShowStopperError from '../show-stopper-error/show-stopper-error';
 
 type StatusTypes = {
+	cssState: CriticalCssState;
+
+	isCloud?: boolean;
+
+	hasRetried: boolean;
+	retry: () => void;
+
 	status: string;
 	updated: CriticalCssState[ 'updated' ];
 	progress: number;
 	showRegenerateButton: boolean;
-	isCloudCssAvailable?: boolean;
 	issues: Provider[];
 	successCount?: number;
 	generateText?: string;
@@ -21,17 +29,31 @@ type StatusTypes = {
 };
 
 const Status: React.FC< StatusTypes > = ( {
+	cssState,
+
 	status,
 	updated,
 	progress,
 	showRegenerateButton = false,
-	isCloudCssAvailable = false,
+	isCloud = false,
 	issues,
 	successCount = 0,
 	generateText = '',
 	generateMoreText = '',
 } ) => {
 	const regenerateAction = useRegenerateCriticalCssAction();
+
+	// If there has been a fatal error, show it.
+	if ( isFatalError( cssState ) ) {
+		return (
+			<ShowStopperError
+				supportLink={ ( isCloud && 'https://jetpack.com/contact-support/' ) || undefined }
+				cssState={ cssState }
+				retry={ () => regenerateAction.mutate() }
+				showRetry={ true }
+			/>
+		);
+	}
 
 	return (
 		<div className="jb-critical-css__meta">
@@ -53,7 +75,7 @@ const Status: React.FC< StatusTypes > = ( {
 									{ '.' }
 								</>
 							) }
-							{ ! isCloudCssAvailable && (
+							{ ! isCloud && (
 								<>
 									{ ' ' }
 									{ __(
@@ -100,7 +122,7 @@ const Status: React.FC< StatusTypes > = ( {
 				<button
 					type="button"
 					className={ classNames( 'components-button', {
-						'is-link': ! showRegenerateButton || isCloudCssAvailable,
+						'is-link': ! showRegenerateButton || isCloud,
 					} ) }
 					onClick={ () => regenerateAction.mutate() }
 				>
