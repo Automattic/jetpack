@@ -37,13 +37,13 @@ class Image_Size_Analysis_Summary implements Lazy_Entry, Entry_Can_Get {
 			}
 
 			// add fixed group object to $report->groups
-			$report->groups->fixed                = new \stdClass();
-			$report->groups->fixed->issue_count   = $fixed_count;
-			$report->groups->fixed->scanned_pages = count( $fixes );
-			$report->groups->fixed->total_pages   = 1;
+			$report['groups']['fixed']                  = array();
+			$report['groups']['fixed']['issue_count']   = $fixed_count;
+			$report['groups']['fixed']['scanned_pages'] = count( $fixes );
+			$report['groups']['fixed']['total_pages']   = 1;
 		}
 		// disable the fixed group for now.
-		unset( $report->groups->fixed );
+		unset( $report['groups']['fixed'] );
 		return $report;
 	}
 }
