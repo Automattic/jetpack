@@ -12,12 +12,21 @@ type SuggestionTypes = {
 	showClosingParagraph: boolean;
 };
 
+/**
+ * Show a suggestion for how a user might be able to fix a Critical CSS issue.
+ *
+ * @param props                      - Properties
+ * @param props.errorSet             - The set of errors to show a suggestion for.
+ * @param props.interpolateVars      - Variables to interpolate into the suggestion.
+ * @param props.showClosingParagraph - Whether to show the closing paragraph.
+ */
 const Suggestion: React.FC< SuggestionTypes > = ( {
 	errorSet,
 	interpolateVars,
 	showClosingParagraph,
 } ) => {
 	const FooterComponent = footerComponent( errorSet );
+	const details = suggestion( errorSet );
 
 	return (
 		<>
@@ -27,13 +36,13 @@ const Suggestion: React.FC< SuggestionTypes > = ( {
 				{ createInterpolateElement( suggestion( errorSet ).paragraph, interpolateVars ) }
 			</p>
 
-			{ suggestion( errorSet ).list && (
-				<NumberedList items={ suggestion( errorSet ).list } interpolateVars={ interpolateVars } />
+			{ details.list && (
+				<NumberedList items={ details.list } interpolateVars={ interpolateVars } />
 			) }
 
-			{ showClosingParagraph && suggestion( errorSet ).closingParagraph && (
+			{ showClosingParagraph && details.closingParagraph && (
 				<p className={ styles[ 'suggestion-closing' ] }>
-					{ createInterpolateElement( suggestion( errorSet ).closingParagraph, interpolateVars ) }
+					{ createInterpolateElement( details.closingParagraph, interpolateVars ) }
 				</p>
 			) }
 
