@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0eccd3a457f658ebff33cbb3780a6ce8",
+    "content-hash": "3cddf455f8ead37b80f6c4a57655cb80",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -208,16 +208,16 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v5.8.1",
+            "version": "v5.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "570ac70894fec40edd1b2265a96588697f0d3a3a"
+                "reference": "56e4b70dba8ecb76911682e961c715f5790f69d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/570ac70894fec40edd1b2265a96588697f0d3a3a",
-                "reference": "570ac70894fec40edd1b2265a96588697f0d3a3a",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/56e4b70dba8ecb76911682e961c715f5790f69d0",
+                "reference": "56e4b70dba8ecb76911682e961c715f5790f69d0",
                 "shasum": ""
             },
             "require": {
@@ -257,9 +257,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.8.1"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.8.2"
             },
-            "time": "2024-01-08T18:11:33+00:00"
+            "time": "2024-01-15T18:18:05+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
