@@ -39,6 +39,10 @@ export default function CriticalCssMeta() {
 				hasRetried={ hasRetried }
 				retry={ retry }
 				highlightRegenerateButton={ !! regenerateReason }
+				extraText={ __(
+					'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
+					'jetpack-boost'
+				) }
 			/>
 
 			<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />

@@ -13,16 +13,12 @@ import { Button } from '@automattic/jetpack-components';
 
 type StatusTypes = {
 	cssState: CriticalCssState;
-
 	isCloud?: boolean;
-
 	hasRetried: boolean;
 	retry: () => void;
-
 	highlightRegenerateButton?: boolean;
-
-	generateText?: string;
-	generateMoreText?: string;
+	extraText?: string; // Optionally, provide a sentence to use after the main message to provide more context.
+	overrideText?: string; // Optionally, provide a custom message to display instead of the default.
 };
 
 const Status: React.FC< StatusTypes > = ( {
@@ -30,16 +26,13 @@ const Status: React.FC< StatusTypes > = ( {
 	isCloud = false,
 	hasRetried,
 	retry,
-
 	highlightRegenerateButton = false,
-	generateText = '',
-	generateMoreText = '',
+	extraText,
+	overrideText,
 } ) => {
 	const regenerateAction = useRegenerateCriticalCssAction();
 	const successCount =
 		cssState.providers.filter( provider => provider.status === 'success' ).length || 0;
-	const pendingCount =
-		cssState.providers.filter( provider => provider.status === 'pending' ).length || 0;
 	const issues = getCriticalCssIssues( cssState );
 
 	// If there has been a fatal error, show it.
@@ -54,74 +47,67 @@ const Status: React.FC< StatusTypes > = ( {
 		);
 	}
 
+	// If my parent has provided override text, show it.
+	if ( overrideText ) {
+		return (
+			<div className="jb-critical-css__meta">
+				<div className="summary">{ overrideText }</div>
+			</div>
+		);
+	}
+
+	// Otherwise, show the status.
 	return (
 		<div className="jb-critical-css__meta">
 			<div className="summary">
-				{ successCount === 0 ? (
-					<div className="generating">{ generateText }</div>
-				) : (
-					<>
-						<div className="successes">
-							{ sprintf(
-								/* translators: %d is a number of CSS Files which were successfully generated */
-								_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
-								successCount
-							) }
-							{ cssState.updated && (
-								<>
-									{ ' ' }
-									<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
-									{ '.' }
-								</>
-							) }
-							{ ! isCloud && (
-								<>
-									{ ' ' }
-									{ __(
-										'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
+				<div className="successes">
+					{ sprintf(
+						/* translators: %d is a number of CSS Files which were successfully generated */
+						_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
+						successCount
+					) }
+
+					{ cssState.updated && (
+						<>
+							{ ' ' }
+							<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
+						</>
+					) }
+
+					{ '.' }
+
+					{ extraText }
+				</div>
+
+				{ cssState.status !== 'pending' && issues.length > 0 && (
+					<div className="failures">
+						<InfoIcon />
+
+						<>
+							{ createInterpolateElement(
+								sprintf(
+									// translators: %d is a number of CSS Files which failed to generate
+									_n(
+										'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
+										'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
+										issues.length,
 										'jetpack-boost'
-									) }
-								</>
+									),
+									issues.length
+								),
+								{
+									advanced: <Link to="/critical-css-advanced" />,
+								}
 							) }
-							{ pendingCount > 0 && (
-								<>
-									{ ' ' }
-									<span>{ generateMoreText }</span>
-								</>
-							) }
-						</div>
-
-						{ cssState.status !== 'pending' && issues.length > 0 && (
-							<div className="failures">
-								<InfoIcon />
-
-								<>
-									{ createInterpolateElement(
-										sprintf(
-											// translators: %d is a number of CSS Files which failed to generate
-											_n(
-												'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
-												'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
-												issues.length,
-												'jetpack-boost'
-											),
-											issues.length
-										),
-										{
-											advanced: <Link to="/critical-css-advanced" />,
-										}
-									) }
-								</>
-							</div>
-						) }
-					</>
+						</>
+					</div>
 				) }
 			</div>
+
 			{ cssState.status !== 'pending' && (
 				<Button
-					type="button"
 					className={ classNames( 'components-button', {
-						'is-link': ! highlightRegenerateButton || isCloud,
+						'is-link': ! highlightRegenerateButton,
 					} ) }
 					isPrimary={ highlightRegenerateButton }
 					onClick={ () => regenerateAction.mutate() }
