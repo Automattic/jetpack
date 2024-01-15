@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
-use Automattic\Jetpack_Boost\Lib\Nonce;
 
 class Generator {
 
@@ -33,32 +32,8 @@ class Generator {
 	public function get_generation_metadata() {
 		$status = array();
 
-		// Add viewport sizes.
-		$status['viewports'] = array(
-			0 => array(
-				'type'   => 'phone',
-				'width'  => 414,
-				'height' => 896,
-			),
-			1 => array(
-				'type'   => 'tablet',
-				'width'  => 1200,
-				'height' => 800,
-			),
-			2 => array(
-				'type'   => 'desktop',
-				'width'  => 1920,
-				'height' => 1080,
-			),
-		);
-
 		// Add a user-bound nonce to use when proxying CSS for Critical CSS generation.
 		$status['proxy_nonce'] = wp_create_nonce( CSS_Proxy::NONCE_ACTION );
-
-		// Add a passthrough block to include in all response callbacks.
-		$status['callback_passthrough'] = array(
-			'_nonce' => Nonce::create( self::CSS_CALLBACK_ACTION ),
-		);
 
 		return $status;
 	}

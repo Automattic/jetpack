@@ -11,12 +11,8 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
-use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
-use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Insert;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Start;
 
-class Critical_CSS implements Pluggable, Has_Endpoints {
+class Critical_CSS implements Pluggable {
 
 	/**
 	 * Critical CSS storage class instance.
@@ -123,17 +119,6 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 			// Turn off display of admin bar.
 			add_filter( 'show_admin_bar', '__return_false', PHP_INT_MAX );
 		}
-	}
-
-	/**
-	 * @return Endpoint::class[]
-	 *
-	 */
-	public function get_endpoints() {
-		return array(
-			Critical_CSS_Insert::class,
-			Critical_CSS_Start::class,
-		);
 	}
 
 	public function update_total_problem_count( $count ) {

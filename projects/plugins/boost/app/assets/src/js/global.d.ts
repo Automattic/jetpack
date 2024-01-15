@@ -2,7 +2,6 @@
  * Type definitions for the global namespace. i.e.: things we expect to find in window.
  */
 
-import type { Optimizations } from './stores/modules';
 import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
 
 // <reference types ="@types/jquery"/>
@@ -45,7 +44,6 @@ declare global {
 				[ key: string ]: string;
 			};
 		};
-		optimizations: Optimizations;
 		nonces: {
 			[ key: string ]: string;
 		};

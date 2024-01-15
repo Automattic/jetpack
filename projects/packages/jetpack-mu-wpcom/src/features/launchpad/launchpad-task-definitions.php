@@ -598,6 +598,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( "Update your site's design", 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_front_page_updated_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				$page_on_front = get_option( 'page_on_front', false );
 				if ( $page_on_front ) {
@@ -624,6 +625,16 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_visible_callback'  => 'wpcom_launchpad_is_sensei_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=sensei' );
+			},
+		),
+		'verify_domain_email'             => array(
+			'get_title'            => function () {
+				return __( 'Verify the email address for your domains', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_verify_domain_email_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/domains/manage/' . $data['site_slug_encoded'];
 			},
 		),
 	);
@@ -971,6 +982,101 @@ function wpcom_launchpad_is_sensei_setup_visible() {
 	}
 
 	return is_plugin_active( 'sensei-lms/sensei-lms.php' );
+}
+
+/**
+ * Determines whether or not the verify domain email task should be visible.
+ *
+ * @return bool True if the verify domain email task should be visible.
+ */
+function wpcom_launchpad_is_verify_domain_email_visible() {
+	// If the task is complete, we should show it and prevent the logic below
+	// to be executed.
+	if ( wpcom_is_checklist_task_complete( 'verify_domain_email' ) ) {
+		return true;
+	}
+
+	$domains_pending_icann_verification = array();
+
+	// For Atomic sites we need to get the domain list from
+	// the public API.
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( $is_atomic_site ) {
+		$domains = wpcom_request_domains_list();
+
+		if ( is_wp_error( $domains ) ) {
+			// logs the erro
+			return false;
+		}
+
+		$domains_pending_icann_verification = array_filter(
+			$domains,
+			function ( $domain ) {
+				return $domain->is_pending_icann_verification;
+			}
+		);
+
+		return ! empty( $domains_pending_icann_verification );
+	} else {
+		if ( ! class_exists( 'Domain_Management' ) ) {
+			return false;
+		}
+
+		$domains = \Domain_Management::get_paid_domains_with_icann_verification_status();
+
+		$domains_pending_icann_verification = array_filter(
+			$domains,
+			function ( $domain ) {
+				return isset( $domain['is_pending_icann_verification'] ) && $domain['is_pending_icann_verification'];
+			}
+		);
+	}
+
+	return ! empty( $domains_pending_icann_verification );
+}
+
+/**
+ * Make a request to the WordPress.com API to get the domain list for the current site.
+ *
+ * @return array|WP_Error Array of domains and their verification status or WP_Error if the request fails.
+ */
+function wpcom_request_domains_list() {
+	$site_id       = \Jetpack_Options::get_option( 'id' );
+	$request_path  = sprintf( '/sites/%d/domains', $site_id );
+	$wpcom_request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+		$request_path,
+		'1.2',
+		array(
+			'method'  => 'GET',
+			'headers' => array(
+				'content-type'    => 'application/json',
+				'X-Forwarded-For' => ( new Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
+			),
+		),
+		null,
+		'rest'
+	);
+
+	$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+	if ( 200 !== $response_code ) {
+		return new \WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' ),
+			array( 'status' => $response_code )
+		);
+	}
+
+	$body         = wp_remote_retrieve_body( $wpcom_request );
+	$decoded_body = json_decode( $body );
+
+	if ( ! isset( $decoded_body->domains ) ) {
+		return new \WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
+		);
+	}
+
+	return $decoded_body->domains;
 }
 
 /**
@@ -1716,6 +1822,22 @@ function wpcom_launchpad_is_add_about_page_visible() {
 }
 
 /**
+ * Determine `front_page_updated` task visibility.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_launchpad_is_front_page_updated_visible() {
+	$show_on_front = get_option( 'show_on_front' );
+	$blog_on_front = $show_on_front === 'posts' || ( $show_on_front === 'page' && get_option( 'page_on_front' ) === '0' );
+
+	if ( $blog_on_front && ! wp_is_block_theme() ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Determine `site_title` task visibility. The task is not visible if the name was already set.
  *
  * @return bool True if we should show the task, false otherwise.
@@ -1773,6 +1895,58 @@ function wpcom_launchpad_add_about_page_check( $post_id, $post ) {
 	wpcom_mark_launchpad_task_complete( 'add_about_page' );
 }
 add_action( 'wp_insert_post', 'wpcom_launchpad_add_about_page_check', 10, 3 );
+
+/**
+ * Completion hook for the `front_page_updated` task.
+ *
+ * @param int    $post_id The post ID.
+ * @param object $post    The post object.
+ * @return void
+ */
+function wpcom_launchpad_front_page_updated_check( $post_id, $post ) {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// We only care about pages, ignore other post types.
+	if ( $post->post_type !== 'page' ) {
+		return;
+	}
+
+	// Don't do anything if the task is already complete.
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'front_page_updated' ) ) ) {
+		return;
+	}
+
+	// We only complete the task if the page is the front page.
+	$front_page_id = (int) get_option( 'page_on_front' );
+	if ( $post_id !== $front_page_id ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'front_page_updated' );
+}
+add_action( 'wp_insert_post', 'wpcom_launchpad_front_page_updated_check', 10, 3 );
+
+/**
+ * We also need to complete the `front_page_updated` task when the front page option is updated.
+ *
+ * @return void
+ */
+function wpcom_launchpad_front_page_updated_option_check() {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// Don't do anything if the task is already complete.
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'front_page_updated' ) ) ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'front_page_updated' );
+}
+add_action( 'update_option_page_on_front', 'wpcom_launchpad_front_page_updated_option_check', 10, 3 );
+add_action( 'add_option_page_on_front', 'wpcom_launchpad_front_page_updated_option_check', 10, 3 );
 
 /**
  * Determine `update_about_page` task visibility. The task is visible if there is an 'About' page on the site.
