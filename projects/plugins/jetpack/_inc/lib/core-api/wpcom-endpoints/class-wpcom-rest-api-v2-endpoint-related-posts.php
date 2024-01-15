@@ -66,9 +66,7 @@ class WPCOM_REST_API_V2_Endpoint_Related_Posts extends WP_REST_Controller {
 					'show_in_index'       => true,
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_related_posts' ),
-					'permission_callback' => function () {
-						return current_user_can( 'manage_options' );
-					},
+					'permission_callback' => array( $this, 'get_related_posts_permissions_check' ),
 				),
 			)
 		);
@@ -116,10 +114,34 @@ class WPCOM_REST_API_V2_Endpoint_Related_Posts extends WP_REST_Controller {
 	}
 
 	/**
+	 * Checks if a given request has access to get the related posts.
+	 *
+	 * @since 4.7.0
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return bool|WP_Error True if the request has read access for the related posts, WP_Error object or false otherwise.
+	 */
+	public function get_related_posts_permissions_check( $request ) {
+		$post = $this->get_post( $request['id'] );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to get the related post.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get the related posts
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
-	 *
 	 * @return WP_REST_Response Array The related posts
 	 */
 	public function get_related_posts( $request ) {
