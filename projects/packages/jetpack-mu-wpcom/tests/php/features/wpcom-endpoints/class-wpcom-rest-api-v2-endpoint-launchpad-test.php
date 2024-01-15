@@ -108,7 +108,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	/**
 	 * Test return not dismissed task list when the date is in the future.
 	 */
-	public function test_update_checklist_temporally_dismissed_when_date_is_in_the_future() {
+	public function test_update_checklist_set_temporary_dismissed_when_date_is_in_the_future() {
 		wp_set_current_user( $this->admin_id );
 
 		$values = array(
@@ -128,7 +128,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	/**
 	 * Test return not dismissed task list when the date is in the future.
 	 */
-	public function test_update_checklist_temporally_dismiss_with_wrong_args() {
+	public function test_update_checklist_doesnt_set_temporary_dismiss_with_invalid_args() {
 		wp_set_current_user( $this->admin_id );
 
 		$values = array(

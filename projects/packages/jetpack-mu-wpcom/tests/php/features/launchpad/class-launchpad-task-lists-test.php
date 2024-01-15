@@ -518,7 +518,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @covers wpcom_launchpad_is_task_list_dismissed
 	 */
-	public function test_temporally_dismiss_task_when_date_is_in_the_future() {
+	public function test_temporary_dismiss_task_when_date_is_in_the_future() {
 		wpcom_register_launchpad_task(
 			array(
 				'id'    => 'task_0',
@@ -528,7 +528,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 
 		wpcom_register_launchpad_task_list(
 			array(
-				'id'       => 'test-task-list-with-temporally-dismiss',
+				'id'       => 'test-task-list-with-temporary-dismiss',
 				'title'    => 'test-task-list',
 				'task_ids' => array(
 					'task_0',
@@ -539,16 +539,16 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 		$date        = new DateTime();
 		$future_date = $date->modify( '+10 days' )->getTimestamp();
 
-		wpcom_launchpad_set_task_list_dismissed( 'test-task-list-with-temporally-dismiss', null, $future_date );
-		$this->assertTrue( wpcom_launchpad_is_task_list_dismissed( 'test-task-list-with-temporally-dismiss' ) );
+		wpcom_launchpad_set_task_list_dismissed( 'test-task-list-with-temporary-dismiss', null, $future_date );
+		$this->assertTrue( wpcom_launchpad_is_task_list_dismissed( 'test-task-list-with-temporary-dismiss' ) );
 	}
 
 	/**
-	 * Test remove the dismiss status when the temporally dismiss date is expired
+	 * Test remove the dismiss status when the temporary dismiss date is expired
 	 *
 	 * @covers wpcom_launchpad_is_task_list_dismissed
 	 */
-	public function test_remove_temporally_dismissed_when_date_is_in_the_past() {
+	public function test_remove_temporary_dismiss_when_date_is_in_the_past() {
 		wpcom_register_launchpad_task(
 			array(
 				'id'    => 'task_0',
@@ -558,7 +558,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 
 		wpcom_register_launchpad_task_list(
 			array(
-				'id'       => 'test-task-list-with-temporally-dismiss-removed',
+				'id'       => 'test-task-list-with-the-temporary-dismiss-removed',
 				'title'    => 'test-task-list',
 				'task_ids' => array(
 					'task_0',
@@ -569,7 +569,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 		$date      = new DateTime();
 		$past_date = $date->modify( '-10 days' )->getTimestamp();
 
-		wpcom_launchpad_set_task_list_dismissed( 'test-task-list-with-temporally-dismiss-removed', null, $past_date );
-		$this->assertFalse( wpcom_launchpad_is_task_list_dismissed( 'test-task-list-with-temporally-dismiss-removed' ) );
+		wpcom_launchpad_set_task_list_dismissed( 'test-task-list-with-temporary-dismiss-removed', null, $past_date );
+		$this->assertFalse( wpcom_launchpad_is_task_list_dismissed( 'test-task-list-with-temporary-dismiss-removed' ) );
 	}
 }
