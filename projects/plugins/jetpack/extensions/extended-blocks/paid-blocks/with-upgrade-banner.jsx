@@ -79,8 +79,8 @@ const withUpgradeBanner = createHigherOrderComponent(
 		}, [ setAttributes, hasParentBanner ] );
 
 		const blockProps = useBlockProps();
-		// Fix for alignfull cover block because otherwise the div defaults to content-size as max width
-		const cssFixForCoverBlock = { 'max-width': 'none' };
+		// Fix for width of cover block because otherwise the div defaults to content-size as max width
+		const cssFixForCoverBlock = { 'max-width': 'unset' };
 
 		return (
 			<PaidBlockProvider
