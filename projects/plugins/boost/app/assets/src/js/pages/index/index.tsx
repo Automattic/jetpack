@@ -14,6 +14,7 @@ import { RecommendationsMeta } from '$features/image-size-analysis';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import { useConfig } from '$lib/stores/config-ds';
+import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -24,7 +25,6 @@ const Index = () => {
 	};
 
 	const [ lazyLoadState ] = useSingleModuleState( 'lazy_images' );
-	const [ cloudCssState ] = useSingleModuleState( 'cloud_css' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
 
@@ -76,11 +76,13 @@ const Index = () => {
 									b: <b />,
 								}
 							) }
+
+							<PremiumTooltip />
 						</p>
 					</>
 				}
 			>
-				<CriticalCssMeta isCloudCssAvailable={ cloudCssState?.available === true } />
+				<CriticalCssMeta />
 
 				<UpgradeCTA
 					description={ __(
@@ -126,7 +128,7 @@ const Index = () => {
 					</>
 				}
 			>
-				<CloudCssMeta isCloudCssAvailable={ cloudCssState?.available === true } />
+				<CloudCssMeta />
 			</Module>
 			<Module
 				slug="render_blocking_js"

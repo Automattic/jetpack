@@ -687,6 +687,7 @@ function render_for_website( $data, $classes, $styles ) {
 								placeholder="%3$s"
 								value="%4$s"
 								id="%5$s"
+								%6$s
 							/>',
 							( ! empty( $classes['email_field'] )
 								? 'class="' . esc_attr( $classes['email_field'] ) . '"'
@@ -698,7 +699,11 @@ function render_for_website( $data, $classes, $styles ) {
 							),
 							esc_attr( $data['subscribe_placeholder'] ),
 							esc_attr( $data['subscribe_email'] ),
-							esc_attr( $subscribe_field_id )
+							esc_attr( $subscribe_field_id ),
+							( ! empty( $data['subscribe_email'] )
+								? 'disabled title="' . esc_attr__( "You're logged in with this email", 'jetpack' ) . '"'
+								: ''
+							)
 						);
 						?>
 					</p>
