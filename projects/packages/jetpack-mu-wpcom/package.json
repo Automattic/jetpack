@@ -43,7 +43,6 @@
 		"@wordpress/components": "25.14.0",
 		"@wordpress/dom-ready": "^3.48.0",
 		"@wordpress/data": "9.18.0",
-		"@wordpress/element": "5.25.0",
 		"@wordpress/hooks": "3.48.0",
 		"@wordpress/i18n": "4.48.0",
 		"@wordpress/plugins": "6.16.0",

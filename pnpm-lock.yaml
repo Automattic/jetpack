@@ -1893,9 +1893,6 @@ importers:
       '@wordpress/dom-ready':
         specifier: ^3.48.0
         version: 3.48.0
-      '@wordpress/element':
-        specifier: 5.25.0
-        version: 5.25.0
       '@wordpress/hooks':
         specifier: 3.48.0
         version: 3.48.0

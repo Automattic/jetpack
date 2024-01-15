@@ -1,6 +1,5 @@
 import { Button, Modal } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import { getPreviewedThemeStylesheet } from './utils';
@@ -21,14 +20,6 @@ export default function BlockThemePreviewsModal() {
 		[]
 	);
 	const { dismissModal } = useDispatch( 'automattic/wpcom-block-theme-previews' );
-	const { suppressLivePreviewModal } = useDispatch( 'automattic/wpcom-welcome-guide' );
-
-	useEffect( () => {
-		if ( isInSiteEditor ) {
-			// Hide the legacy modal from the WordPress Editing Toolkit plugin.
-			suppressLivePreviewModal?.();
-		}
-	}, [ isInSiteEditor, suppressLivePreviewModal ] );
 
 	if ( ! isInSiteEditor || ! isModalVisible ) {
 		return null;
