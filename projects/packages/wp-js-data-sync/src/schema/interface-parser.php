@@ -26,5 +26,5 @@ interface Parser {
 	 * @throws \RuntimeException If the input value is invalid.
 	 *
 	 */
-	public function parse( $input_value );
+	public function parse( $data );
 }

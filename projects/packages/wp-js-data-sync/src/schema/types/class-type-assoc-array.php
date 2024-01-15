@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Error;
 
 class Type_Assoc_Array implements Parser {
 	private $assoc_parser_array;
@@ -25,25 +26,26 @@ class Type_Assoc_Array implements Parser {
 	 * It will then loop over each key that was provided in the constructor
 	 * and pull the value based on that key from the $data array.
 	 *
-	 * @param $input_value mixed[]
-	 * @throws \RuntimeException - If the $data passed to it is not an associative array.
+	 * @param $data mixed[]
 	 *
 	 * @return array
+	 *@throws Schema_Validation_Error - If the $data passed to it is not an associative array.
+	 *
 	 */
-	public function parse( $input_value ) {
+	public function parse( $data ) {
 		// Allow coercing stdClass objects (often returned from json_decode) to an assoc array.
-		if ( is_object( $input_value ) && get_class( $input_value ) === 'stdClass' ) {
-			$input_value = (array) $input_value;
+		if ( is_object( $data ) && get_class( $data ) === 'stdClass' ) {
+			$data = (array) $data;
 		}
 
-		if ( ! is_array( $input_value ) || $this->is_sequential_array( $input_value ) ) {
-			$message = "Expected an associative array, received '" . gettype( $input_value ) . "'";
-			throw new \RuntimeException( $message );
+		if ( ! is_array( $data ) || $this->is_sequential_array( $data ) ) {
+			$message = "Expected an associative array, received '" . gettype( $data ) . "'";
+			throw new Schema_Validation_Error( $message, $data );
 		}
 
 		$parsed = array();
 		foreach ( $this->assoc_parser_array as $key => $parser ) {
-			if ( ! isset( $input_value[ $key ] ) ) {
+			if ( ! isset( $data[ $key ] ) ) {
 				if ( $parser instanceof Decorate_With_Default ) {
 					$value = $parser->parse( null );
 
@@ -55,10 +57,10 @@ class Type_Assoc_Array implements Parser {
 					}
 				} else {
 					$message = "Expected key '$key' in associative array";
-					throw new \RuntimeException( $message );
+					throw new Schema_Validation_Error( $message, $data );
 				}
 			} else {
-				$parsed[ $key ] = $parser->parse( $input_value[ $key ] );
+				$parsed[ $key ] = $parser->parse( $data[ $key ] );
 			}
 		}
 

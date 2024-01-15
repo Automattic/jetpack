@@ -103,7 +103,6 @@ class Schema implements Parser {
 	}
 
 	public function nullable() {
-
 		return $this->fallback( null );
 	}
 
