@@ -101,7 +101,7 @@ const Header = () => {
 								cta={ __( 'Get a Jetpack Social Plan', 'jetpack-social' ) }
 								href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
 									site: blogID ?? siteSuffix,
-									query: 'redirect_to=' + window.location.href,
+									query: 'redirect_to=admin.php?page=jetpack-social',
 								} ) }
 								tooltipText={ __( 'Share as a post for more engagement', 'jetpack-social' ) }
 							/>
