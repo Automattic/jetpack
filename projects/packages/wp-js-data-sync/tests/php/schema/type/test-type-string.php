@@ -20,7 +20,7 @@ class Test_Type_String extends TestCase {
 
 	public function test_fail_sanitize_array() {
 		$validator = new Type_String();
-		$this->expectException( \Error::class );
+		$this->expectException( \RuntimeException::class );
 		$validator->parse( array() );
 	}
 }

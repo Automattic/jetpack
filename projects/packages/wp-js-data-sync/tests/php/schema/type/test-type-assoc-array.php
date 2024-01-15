@@ -30,7 +30,7 @@ class Type_Assoc_Array_Test extends TestCase {
 		$assoc_schema = Schema::as_assoc_array();
 
 		// This should throw an exception on failure
-		$this->expectException( \Error::class );
+		$this->expectException( \RuntimeException::class );
 		$assoc_schema->parse( 'not_an_array' );
 	}
 }

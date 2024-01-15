@@ -178,9 +178,9 @@ class Test_Integration_Fallback_Values extends TestCase {
 			$schema->parse( null );
 			// If the exception is not thrown, fail the test
 			$this->fail( 'Expected \Error exception was not thrown' );
-		} catch ( \Error $e ) {
+		} catch ( \RuntimeException $e ) {
 			// If the exception is thrown, assert that it's the expected exception
-			$this->assertInstanceOf( \Error::class, $e );
+			$this->assertInstanceOf( \RuntimeException::class, $e );
 		}
 
 		// -------

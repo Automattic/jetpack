@@ -21,7 +21,7 @@ class Type_Array_Test extends TestCase {
 
 		// Test with non-array data
 		$non_array_data = 'not an array';
-		$this->expectException( \Error::class );
+		$this->expectException( \RuntimeException::class );
 		$sanitized_array = $type_array->parse( $non_array_data );
 	}
 

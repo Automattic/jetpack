@@ -12,7 +12,7 @@ class Test_Type_Number extends TestCase {
 
 	public function expect_errors_on_non_numeric_values() {
 		$type = new Type_Number();
-		$this->expectException( \Error::class );
+		$this->expectException( \RuntimeException::class );
 		$type->parse( 'abc' );
 	}
 
@@ -28,10 +28,10 @@ class Test_Type_Number extends TestCase {
 
 	public function test_parse_boolean() {
 		$validator = new Type_Number();
-		$this->expectException( \Error::class );
+		$this->expectException( \RuntimeException::class );
 		$validator->parse( true );
 
-		$this->expectException( \Error::class );
+		$this->expectException( \RuntimeException::class );
 		$validator->parse( false );
 	}
 }

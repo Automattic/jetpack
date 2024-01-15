@@ -12,7 +12,7 @@ class Test_Type_Enum extends TestCase {
 
 	public function test_parse_invalid_enum() {
 		$validator = new Type_Enum( array( 'foo', 'bar', 'baz' ) );
-		$this->expectException( \Error::class );
+		$this->expectException( \RuntimeException::class );
 		$validator->parse( 'invalid' );
 	}
 }
