@@ -512,4 +512,64 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 			$this->assertSame( $expected_path, $first_task['calypso_path'] );
 		}
 	}
+
+	/**
+	 * Test dismiss temporally a task list when a date in future is used
+	 *
+	 * @covers wpcom_launchpad_is_task_list_dismissed
+	 */
+	public function test_temporally_dismiss_task_when_date_is_in_the_future() {
+		wpcom_register_launchpad_task(
+			array(
+				'id'    => 'task_0',
+				'title' => 'task_0',
+			)
+		);
+
+		wpcom_register_launchpad_task_list(
+			array(
+				'id'       => 'test-task-list-with-temporally-dismiss',
+				'title'    => 'test-task-list',
+				'task_ids' => array(
+					'task_0',
+				),
+			)
+		);
+
+		$date        = new DateTime();
+		$future_date = $date->modify( '+10 days' )->getTimestamp();
+
+		wpcom_launchpad_set_task_list_dismissed( 'test-task-list-with-temporally-dismiss', null, $future_date );
+		$this->assertTrue( wpcom_launchpad_is_task_list_dismissed( 'test-task-list-with-temporally-dismiss' ) );
+	}
+
+	/**
+	 * Test remove the dismiss status when the temporally dismiss date is expired
+	 *
+	 * @covers wpcom_launchpad_is_task_list_dismissed
+	 */
+	public function test_remove_temporally_dismissed_when_date_is_in_the_past() {
+		wpcom_register_launchpad_task(
+			array(
+				'id'    => 'task_0',
+				'title' => 'task_0',
+			)
+		);
+
+		wpcom_register_launchpad_task_list(
+			array(
+				'id'       => 'test-task-list-with-temporally-dismiss-removed',
+				'title'    => 'test-task-list',
+				'task_ids' => array(
+					'task_0',
+				),
+			)
+		);
+
+		$date      = new DateTime();
+		$past_date = $date->modify( '-10 days' )->getTimestamp();
+
+		wpcom_launchpad_set_task_list_dismissed( 'test-task-list-with-temporally-dismiss-removed', null, $past_date );
+		$this->assertFalse( wpcom_launchpad_is_task_list_dismissed( 'test-task-list-with-temporally-dismiss-removed' ) );
+	}
 }

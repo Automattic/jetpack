@@ -67,19 +67,20 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 							'description'          => 'Marks a checklist as dismissed by the user',
 							'type'                 => 'object',
 							'properties'           => array(
-								'slug'            => array(
+								'slug'         => array(
 									'description' => 'Checklist slug',
 									'type'        => 'string',
 									'enum'        => $this->get_checklist_slug_enums(),
 								),
-								'is_dismissed'    => array(
+								'is_dismissed' => array(
 									'type'     => 'boolean',
 									'required' => false,
 									'default'  => false,
 								),
-								'dismissed_until' => array(
+								'dismiss_by'   => array(
 									'description' => 'Timestamp of when the checklist should be shown again',
-									'type'        => 'number',
+									'type'        => 'string',
+									'enum'        => array( '+ 1 day', '+ 1 week' ),
 								),
 							),
 							'additionalProperties' => false,
@@ -166,6 +167,19 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	}
 
 	/**
+	 * Parses the relative date string and returns the timestamp
+	 *
+	 * @param string $relative_date The string to parse.
+	 *
+	 * @return int The timestamp of when the checklist should be shown again.
+	 */
+	public function parse_relative_date( $relative_date ) {
+		$date = new \DateTime( 'now', new \DateTimeZone( 'UTC' ) );
+
+		return $date->modify( $relative_date )->getTimestamp();
+	}
+
+	/**
 	 * Updates Launchpad-related options and returns the result
 	 *
 	 * @param WP_REST_Request $request Request object.
@@ -187,7 +201,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 				case 'is_checklist_dismissed':
 					$checklist_slug  = $value['slug'];
 					$is_dismissed    = isset( $value['is_dismissed'] ) ? $value['is_dismissed'] : false;
-					$dismissed_until = isset( $value['dismissed_until'] ) ? $value['dismissed_until'] : null;
+					$dismissed_until = isset( $value['dismiss_by'] ) ? $this->parse_relative_date( $value['dismiss_by'] ) : null;
 
 					wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed, $dismissed_until );
 					break;
