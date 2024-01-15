@@ -573,6 +573,7 @@ class Main extends React.Component {
 					<SearchableSettings
 						siteAdminUrl={ this.props.siteAdminUrl }
 						siteRawUrl={ this.props.siteRawUrl }
+						blogID={ this.props.blogID }
 						searchTerm={ this.props.searchTerm }
 						rewindStatus={ this.props.rewindStatus }
 						userCanManageModules={ this.props.userCanManageModules }
