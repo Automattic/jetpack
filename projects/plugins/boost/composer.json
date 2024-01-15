@@ -28,6 +28,7 @@
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-plugin-deactivation": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
+		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-wp-js-data-sync": "@dev",
 		"tedivm/jshrink": "1.4.0",
 		"tubalmartin/cssmin": "^4.1"

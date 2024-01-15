@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { requestImageAnalysis } from '$features/image-size-analysis/lib/stores/isa-summary';
+import { useImageAnalysisRequest } from '$features/image-size-analysis';
 import Logo from '$svg/jetpack-green';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNavigate } from 'react-router-dom';
@@ -12,19 +12,22 @@ const PurchaseSuccess: React.FC = () => {
 	const [ imageGuideState ] = useSingleModuleState( 'image_guide' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const navigate = useNavigate();
+	const isaRequest = useImageAnalysisRequest();
 
 	useEffect( () => {
 		setCloudCssState( true );
-
 		// If image guide is enabled, request a new ISA report.
 		if (
 			imageGuideState?.active &&
 			isaState?.active &&
 			false !== Jetpack_Boost.site.canResizeImages
 		) {
-			requestImageAnalysis();
+			isaRequest.requestNewReport();
 		}
-	}, [ imageGuideState?.active, isaState?.active, setCloudCssState ] );
+		// We only want this effect to run on mount.
+		// Specifying the dependencies will cause it to run on every render (infinite loop).
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
 

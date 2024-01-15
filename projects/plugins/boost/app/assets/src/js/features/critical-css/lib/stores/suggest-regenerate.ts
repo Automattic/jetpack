@@ -1,4 +1,4 @@
-import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 
 const allowedSuggestions = [
@@ -11,7 +11,19 @@ const allowedSuggestions = [
 
 export type RegenerationReason = ( typeof allowedSuggestions )[ number ];
 
-export const suggestRegenerateDS = jetpack_boost_ds.createAsyncStore(
-	'critical_css_suggest_regenerate',
-	z.enum( allowedSuggestions ).nullable()
-);
+/**
+ * Hook to get the reason why (if any) we should recommend users regenerate their Critical CSS.
+ */
+export function useRegenerationReason(): [ RegenerationReason | null, () => void ] {
+	const [ { data }, { mutate } ] = useDataSync(
+		'jetpack_boost_ds',
+		'critical_css_suggest_regenerate',
+		z.enum( allowedSuggestions ).nullable()
+	);
+
+	function reset() {
+		mutate( null );
+	}
+
+	return [ data || null, reset ];
+}
