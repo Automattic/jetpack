@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { regenerateCriticalCss } from '../lib/stores/critical-css-state';
 import {
 	describeErrorSet,
 	suggestion,
@@ -15,6 +14,20 @@ import MoreList from '../more-list/more-list';
 import styles from './error-description.module.scss';
 import Suggestion from '../suggestion/suggestion';
 import { CriticalCssErrorDescriptionTypes, FormattedURL } from './types';
+import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
+import { useNavigate } from 'react-router-dom';
+
+/**
+ * Remove GET parameters that are used to cache-bust from display URLs, as they add visible noise
+ * to the error output with no real benefit to users understanding which URLs are problematic.
+ *
+ * @param url The URL to strip cache parameters from.
+ */
+function stripCacheParams( url: string ): string {
+	const urlObj = new URL( url );
+	urlObj.searchParams.delete( 'donotcachepage' );
+	return urlObj.toString();
+}
 
 const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > = ( {
 	errorSet,
@@ -31,14 +44,21 @@ const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > 
 		}
 		return {
 			href,
-			label: url,
+			label: stripCacheParams( url ),
 		};
 	} );
 
 	const rawErrors = rawError( errorSet );
+	const regenerateAction = useRegenerateCriticalCssAction();
+	const navigate = useNavigate();
+
+	function retry() {
+		regenerateAction.mutate();
+		navigate( '/' );
+	}
 
 	const intepolateVars: InterpolateVars = {
-		...actionLinkInterpolateVar( regenerateCriticalCss, 'retry' ),
+		...actionLinkInterpolateVar( retry, 'retry' ),
 		...supportLinkInterpolateVar(),
 		b: <b />,
 	};

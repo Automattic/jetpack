@@ -2701,9 +2701,6 @@ importers:
       '@automattic/jetpack-react-data-sync-client':
         specifier: workspace:*
         version: link:../../js-packages/react-data-sync-client
-      '@automattic/jetpack-svelte-data-sync-client':
-        specifier: workspace:*
-        version: link:../../js-packages/svelte-data-sync-client
       '@svgr/rollup':
         specifier: 8.1.0
         version: 8.1.0(rollup@2.79.1)(typescript@5.0.4)

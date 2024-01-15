@@ -1,29 +1,26 @@
 import { __ } from '@wordpress/i18n';
-import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import ErrorNotice from '$features/error-notice/error-notice';
 import FoldingElement from '../folding-element/folding-element';
 import ErrorDescription from '../error-description/error-description';
-import type { ErrorSet } from '../lib/stores/critical-css-state-errors';
+import { getPrimaryErrorSet } from '../lib/critical-css-errors';
+import { CriticalCssState } from '../lib/stores/critical-css-state-types';
 
 type ShowStopperErrorTypes = {
 	supportLink?: string;
-	status: CriticalCssState[ 'status' ];
-	primaryErrorSet: ErrorSet;
-	statusError;
-	regenerateCriticalCss;
+	cssState: CriticalCssState;
+	retry: () => void;
 	showRetry?: boolean;
 };
 
 const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 	supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/',
-	status,
-	primaryErrorSet,
-	statusError,
-	regenerateCriticalCss,
+	cssState,
+	retry,
 	showRetry,
 } ) => {
-	const showErrorDescription = primaryErrorSet && status === 'generated';
-	const showFoldingElement = showErrorDescription || statusError;
+	const primaryErrorSet = getPrimaryErrorSet( cssState );
+	const showErrorDescription = primaryErrorSet && cssState.status === 'generated';
+	const showFoldingElement = showErrorDescription || cssState.status_error;
 
 	return (
 		<ErrorNotice
@@ -31,7 +28,7 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 			variant="module"
 			actionButton={
 				showRetry ? (
-					<button className="secondary" onClick={ regenerateCriticalCss }>
+					<button className="secondary" onClick={ retry }>
 						{ __( 'Refresh', 'jetpack-boost' ) }
 					</button>
 				) : (
@@ -71,7 +68,7 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 								foldRawErrors={ false }
 							/>
 						) : (
-							statusError
+							cssState.status_error
 						) }
 					</div>
 				</FoldingElement>
