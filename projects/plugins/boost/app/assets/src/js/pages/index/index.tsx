@@ -13,6 +13,7 @@ import styles from './index.module.scss';
 import { RecommendationsMeta } from '$features/image-size-analysis';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
+import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -73,6 +74,8 @@ const Index = () => {
 									b: <b />,
 								}
 							) }
+
+							<PremiumTooltip />
 						</p>
 					</>
 				}
