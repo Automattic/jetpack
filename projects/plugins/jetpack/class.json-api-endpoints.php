@@ -608,6 +608,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 						$next_type = array_shift( $types );
 						return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );
 					}
+					if ( is_array( $value ) ) {
+						// Give up rather than setting the value to the string 'Array'.
+						break;
+					}
 				}
 				$return[ $key ] = (string) $value;
 				break;

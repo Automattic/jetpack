@@ -99,7 +99,7 @@ export default function MyJetpackScreen() {
 	const { jwt, isFetchingChatAuthentication } = useChatAuthentication();
 	const shouldShowZendeskChatWidget =
 		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
-	const isNewUser = window.myJetpackInitialState.userIsNewToJetpack === '1';
+	const isNewUser = window?.myJetpackInitialState?.userIsNewToJetpack === '1';
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
@@ -124,11 +124,13 @@ export default function MyJetpackScreen() {
 		<AdminPage siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }>
 			<IDCModal />
 			<AdminSectionHero>
-				<Container horizontalSpacing={ 0 }>
-					<Col>
-						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-					</Col>
-				</Container>
+				{ ! isNewUser && (
+					<Container horizontalSpacing={ 0 }>
+						<Col>
+							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+						</Col>
+					</Container>
+				) }
 				<WelcomeBanner />
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>

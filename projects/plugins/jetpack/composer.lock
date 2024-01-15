@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "d3605b44f0c618fb88035e626973c64e",
+	"content-hash": "34f68474053d8ca8db42a4fea83e3b25",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -111,72 +111,6 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Provides an interface to the WP.com A/B tests.",
-			"transport-options": {
-				"relative": true
-			}
-		},
-		{
-			"name": "automattic/jetpack-action-bar",
-			"version": "dev-trunk",
-			"dist": {
-				"type": "path",
-				"url": "../../packages/action-bar",
-				"reference": "4ab8aee797ebef95c710fdec0df7bf301d0b67d9"
-			},
-			"require": {
-				"automattic/jetpack-assets": "@dev",
-				"automattic/jetpack-constants": "@dev",
-				"php": ">=7.0"
-			},
-			"require-dev": {
-				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "dev-master",
-				"yoast/phpunit-polyfills": "1.1.0"
-			},
-			"suggest": {
-				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-			},
-			"type": "jetpack-library",
-			"extra": {
-				"mirror-repo": "Automattic/jetpack-action-bar",
-				"changelogger": {
-					"link-template": "https://github.com/Automattic/jetpack-action-bar/compare/v${old}...v${new}"
-				},
-				"autotagger": true,
-				"branch-alias": {
-					"dev-trunk": "0.2.x-dev"
-				},
-				"textdomain": "jetpack-action-bar"
-			},
-			"autoload": {
-				"classmap": [
-					"src/"
-				]
-			},
-			"scripts": {
-				"phpunit": [
-					"./vendor/phpunit/phpunit/phpunit --colors=always"
-				],
-				"test-php": [
-					"@composer phpunit"
-				],
-				"build-production": [
-					"pnpm run build-production"
-				],
-				"build-development": [
-					"pnpm run build"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				]
-			},
-			"license": [
-				"GPL-2.0-or-later"
-			],
-			"description": "An easy way for visitors to follow, like, and comment on your site.",
 			"transport-options": {
 				"relative": true
 			}
@@ -522,7 +456,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/blaze",
-				"reference": "dbee783c181ceab5904b0171581ee18d1b47cbef"
+				"reference": "a5c46dc3b1d15cf3ed299f1b7021b9fed418173e"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -550,7 +484,7 @@
 					"link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.14.x-dev"
+					"dev-trunk": "0.15.x-dev"
 				},
 				"textdomain": "jetpack-blaze",
 				"version-constants": {
@@ -5687,7 +5621,6 @@
 	"stability-flags": {
 		"automattic/jetpack-a8c-mc-stats": 20,
 		"automattic/jetpack-abtest": 20,
-		"automattic/jetpack-action-bar": 20,
 		"automattic/jetpack-admin-ui": 20,
 		"automattic/jetpack-assets": 20,
 		"automattic/jetpack-autoloader": 20,

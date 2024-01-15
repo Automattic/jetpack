@@ -12,6 +12,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Enum;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Float;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Number;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_String;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Void;
 
 /**
  * The Schema class is a factory for creating and managing validation rules based on specific
@@ -158,6 +159,14 @@ class Schema implements Parser {
 
 	public static function any_json_data() {
 		return new self( new Type_Any_JSON() );
+	}
+
+	/**
+	 * Mark a schema as void - it should have no data worth keeping, and
+	 * will always parse to null.
+	 */
+	public static function as_void() {
+		return new self( new Type_Void() );
 	}
 
 	/**

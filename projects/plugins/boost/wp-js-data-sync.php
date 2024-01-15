@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
@@ -12,6 +13,10 @@ use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Premium_Features_Entry;
 use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Regenerate_CSS;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_CSS;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Error_Dismissed;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Errors;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
@@ -31,6 +36,19 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 function jetpack_boost_register_option( $key, $parser, $entry = null ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
 			->register( $key, $parser, $entry );
+}
+
+/**
+ * Register a new Jetpack Boost Data_Sync Action
+ * @param $key string
+ * @param $action_name string
+ * @param $instance Data_Sync_Action
+ *
+ * @return void
+ */
+function jetpack_boost_register_action( $key, $action_name, $request_schema, $instance ) {
+	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
+			->register_action( $key, $action_name, $request_schema, $instance );
 }
 
 /**
@@ -85,6 +103,18 @@ function jetpack_boost_initialize_datasync() {
 
 add_action( 'admin_init', 'jetpack_boost_initialize_datasync' );
 
+// Represents a set of errors that can be stored for a single Provider Key in a Critical CSS state block.
+$critical_css_provider_error_set_schema = Schema::as_array(
+	Schema::as_assoc_array(
+		array(
+			'url'     => Schema::as_string(),
+			'message' => Schema::as_string(),
+			'type'    => Schema::as_string(),
+			'meta'    => Schema::any_json_data()->nullable(),
+		)
+	)->fallback( array() )
+);
+
 $critical_css_state_schema = Schema::as_assoc_array(
 	array(
 		'providers'    => Schema::as_array(
@@ -96,16 +126,7 @@ $critical_css_state_schema = Schema::as_assoc_array(
 					'success_ratio' => Schema::as_float(),
 					'status'        => Schema::enum( array( 'success', 'pending', 'error', 'validation-error' ) )->fallback( 'validation-error' ),
 					'error_status'  => Schema::enum( array( 'active', 'dismissed' ) )->nullable(),
-					'errors'        => Schema::as_array(
-						Schema::as_assoc_array(
-							array(
-								'url'     => Schema::as_string(),
-								'message' => Schema::as_string(),
-								'type'    => Schema::as_string(),
-								'meta'    => Schema::any_json_data()->nullable(),
-							)
-						)->fallback( array() )
-					)->nullable(),
+					'errors'        => $critical_css_provider_error_set_schema->nullable(),
 				)
 			)
 		)->nullable(),
@@ -125,17 +146,7 @@ $critical_css_state_schema = Schema::as_assoc_array(
 
 $critical_css_meta_schema = Schema::as_assoc_array(
 	array(
-		'callback_passthrough' => Schema::any_json_data()->nullable(),
-		'proxy_nonce'          => Schema::as_string()->nullable(),
-		'viewports'            => Schema::as_array(
-			Schema::as_assoc_array(
-				array(
-					'type'   => Schema::as_string(),
-					'width'  => Schema::as_number(),
-					'height' => Schema::as_number(),
-				)
-			)
-		)->fallback( array() ),
+		'proxy_nonce' => Schema::as_string()->nullable(),
 	)
 );
 
@@ -157,6 +168,43 @@ $premium_features_schema = Schema::as_array( Schema::as_string() )->fallback( ar
 jetpack_boost_register_option( 'critical_css_state', $critical_css_state_schema );
 jetpack_boost_register_option( 'critical_css_meta', $critical_css_meta_schema, new Critical_CSS_Meta_Entry() );
 jetpack_boost_register_option( 'critical_css_suggest_regenerate', $critical_css_suggest_regenerate_schema );
+jetpack_boost_register_action( 'critical_css_state', 'request-regenerate', Schema::as_void(), new Regenerate_CSS() );
+
+jetpack_boost_register_action(
+	'critical_css_state',
+	'set-provider-css',
+	Schema::as_assoc_array(
+		array(
+			'key' => Schema::as_string(),
+			'css' => Schema::as_string(),
+		)
+	),
+	new Set_Provider_CSS()
+);
+
+jetpack_boost_register_action(
+	'critical_css_state',
+	'set-provider-errors',
+	Schema::as_assoc_array(
+		array(
+			'key'    => Schema::as_string(),
+			'errors' => $critical_css_provider_error_set_schema,
+		)
+	),
+	new Set_Provider_Errors()
+);
+
+jetpack_boost_register_action(
+	'critical_css_state',
+	'set-provider-error-dismissed',
+	Schema::as_assoc_array(
+		array(
+			'key'       => Schema::as_string(),
+			'dismissed' => Schema::as_boolean(),
+		)
+	),
+	new Set_Provider_Error_Dismissed()
+);
 
 $modules_state_schema = Schema::as_array(
 	Schema::as_assoc_array(

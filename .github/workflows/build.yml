@@ -134,16 +134,18 @@ jobs:
         run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "$BUILD_BASE" --transform 's,^\.,build,' .
 
       - name: Store build as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jetpack-build
           path: build.tar.xz
           # Only need to retain for a day since the beta builder slurps it up to distribute.
           retention-days: 1
+          # Already compressed.
+          compression-level: 0
 
       - name: Store plugins.tsv as artifact
         if: steps.plugins.outputs.any == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: plugins.tsv
           path: ${{ env.BUILD_BASE }}/plugins.tsv
@@ -206,7 +208,7 @@ jobs:
           path: monorepo
 
       - name: Download build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: jetpack-build
       - name: Extract build archive
@@ -272,13 +274,15 @@ jobs:
           echo "any-built=$ANY_BUILT" >> "$GITHUB_OUTPUT"
 
       - name: Create plugins artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: steps.prepare.outputs.any-built == 'true'
         with:
           name: plugins
           path: zips
           # Only need to retain for a day since the beta builder slurps it up to distribute.
           retention-days: 1
+          # Already compressed.
+          compression-level: 0
 
   update_mirrors:
     name: Push to mirror repos
@@ -295,7 +299,7 @@ jobs:
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
 
       - name: Download build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: jetpack-build
         timeout-minutes: 2  # 2022-03-15: Successful runs normally take a few seconds, but on occasion they've been taking 60+ recently.
