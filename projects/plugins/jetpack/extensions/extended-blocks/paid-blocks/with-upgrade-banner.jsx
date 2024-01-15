@@ -4,7 +4,6 @@ import {
 	getUsableBlockProps,
 	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { useState, useEffect, useMemo, useContext } from '@wordpress/element';
@@ -78,28 +77,22 @@ const withUpgradeBanner = createHigherOrderComponent(
 			setAttributes( { shouldDisplayFrontendBanner: ! hasParentBanner } );
 		}, [ setAttributes, hasParentBanner ] );
 
-		const blockProps = useBlockProps();
-		// Fix for width of cover block because otherwise the div defaults to content-size as max width
-		const cssFixForCoverBlock = { 'max-width': 'unset' };
-
 		return (
 			<PaidBlockProvider
 				onBannerVisibilityChange={ setIsVisible }
 				hasParentBanner={ isBannerVisible }
 			>
-				<div ref={ blockProps.ref } style={ cssFixForCoverBlock }>
-					<UpgradePlanBanner
-						className={ `is-${ name.replace( /\//, '-' ) }-paid-block` }
-						title={ null }
-						align={ attributes?.align }
-						visible={ isBannerVisible }
-						description={ usableBlocksProps?.description }
-						requiredPlan={ requiredPlan }
-						context={ bannerContext }
-						onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
-					/>
-					<BlockEdit { ...props } />
-				</div>
+				<UpgradePlanBanner
+					className={ `is-${ name.replace( /\//, '-' ) }-paid-block` }
+					title={ null }
+					align={ attributes?.align }
+					visible={ isBannerVisible }
+					description={ usableBlocksProps?.description }
+					requiredPlan={ requiredPlan }
+					context={ bannerContext }
+					onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
+				/>
+				<BlockEdit { ...props } />
 			</PaidBlockProvider>
 		);
 	},
