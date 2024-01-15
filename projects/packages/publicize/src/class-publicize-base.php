@@ -1607,6 +1607,72 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Returns the image size in bytes of a remote image.
+	 *
+	 * @param  string  $image_url  Image URL.
+	 * @return integer $bytes      Image size in bytes.
+	 */
+	public function get_remote_filesize( $image_url ) {
+		$ch = curl_init( $image_url );
+		curl_setopt( $ch, CURLOPT_NOBODY, true );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_HEADER, true );
+		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, true );
+		$data = curl_exec( $ch );
+		$size = curl_getinfo( $ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD );
+		curl_close( $ch );
+
+		if ( false === $size ) {
+			return strlen( file_get_contents( $image_url ) );
+		}
+		return $size;
+	}
+
+	/**
+	 * Reduce the filesize of an image by reducing the dimensions. Uses Photon.
+	 * Returns null if the image cannot be reduced enough.
+	 *
+	 * @param string $url Image URL.
+	 * @param int    $width Image width.
+	 * @param int    $height Image height.
+	 * @param int    $max_filesize Maximum filesize in bytes. Default is 4MB.
+	 * @param int    $tries Number of times to try reducing the image size. Default is 5.
+	 * @return array|null
+	 */
+	public function reduce_file_size( $url, $width, $height, $max_filesize = 4000000, $tries = 5 ) {
+		$filesize = $this->get_remote_filesize( $url );
+		if ( $filesize <= $max_filesize ) {
+			return $url;
+		}
+		while ( $tries > 0 && $filesize > $max_filesize ) {
+			$width   *= 0.75;
+			$height  *= 0.75;
+			$url      = jetpack_photon_url(
+				$url,
+				array(
+					'w' => $width,
+					'h' => $height,
+				)
+			);
+			$filesize = $this->get_remote_filesize( $url );
+			--$tries;
+		}
+
+		// we bailed, can't make this image small enough so return nada
+		if ( $filesize > $max_filesize ) {
+			// Track this to see if blank images in shared posts may be due to this code path.
+			bump_stats_extras( 'publicize_error_condition', 'overlarge-image-' . wpcom_blog_site_id_label() );
+			return null;
+		}
+
+		return array(
+			'url'    => $url,
+			'width'  => $width,
+			'height' => $height,
+		);
+	}
+
+	/**
 	 * Add the Jetpack Social images (attached media, SIG image) to the OpenGraph tags.
 	 *
 	 * @param array $tags Current tags.
@@ -1615,6 +1681,18 @@ abstract class Publicize_Base {
 		$opengraph_image = $this->get_social_opengraph_image( get_the_ID() );
 
 		if ( empty( $opengraph_image ) ) {
+			// If we do not have a SIG or attached image, but we have an image in post body
+			// we need to check that the image is not too large for the social sites.
+			if ( ! empty( $tags['og:image'] ) ) {
+				$reduced_image = $this->reduce_file_size( $tags['og:image'], $tags['og:image:width'], $tags['og:image:height'] );
+
+				if ( ! empty( $reduced_image ) ) {
+					$tags['og:image']        = $reduced_image['url'];
+					$tags['og:image:width']  = $reduced_image['width'];
+					$tags['og:image:height'] = $reduced_image['height'];
+				}
+			}
+
 			return $tags;
 		}
 
