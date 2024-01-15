@@ -3,7 +3,6 @@ import Status from '../status/status';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
 import { useCriticalCssState } from '../lib/stores/critical-css-state';
-import { getCriticalCssIssues } from '../lib/critical-css-errors';
 import { RegenerateCriticalCssSuggestion, useRegenerationReason } from '..';
 import { useLocalCriticalCssGenerator } from '../local-generator/local-generator-provider';
 import { useRetryRegenerate } from '../lib/use-retry-regenerate';
@@ -17,10 +16,6 @@ export default function CriticalCssMeta() {
 	const [ hasRetried, retry ] = useRetryRegenerate();
 	const [ regenerateReason ] = useRegenerationReason();
 	const { progress } = useLocalCriticalCssGenerator();
-
-	const successCount = cssState.providers
-		? cssState.providers.filter( provider => provider.status === 'success' ).length
-		: 0;
 
 	if ( cssState.status === 'pending' ) {
 		return (
@@ -43,11 +38,6 @@ export default function CriticalCssMeta() {
 				isCloud={ false }
 				hasRetried={ hasRetried }
 				retry={ retry }
-				status={ cssState.status }
-				issues={ getCriticalCssIssues( cssState ) }
-				successCount={ successCount }
-				updated={ cssState.updated }
-				progress={ progress }
 				showRegenerateButton={ !! regenerateReason }
 			/>
 

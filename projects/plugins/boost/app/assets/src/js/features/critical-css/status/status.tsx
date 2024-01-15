@@ -1,13 +1,13 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
-import type { CriticalCssState, Provider } from '../lib/stores/critical-css-state-types';
+import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import TimeAgo from '../time-ago/time-ago';
 import InfoIcon from '$svg/info';
 import RefreshIcon from '$svg/refresh';
 import { createInterpolateElement } from '@wordpress/element';
 import { Link } from 'react-router-dom';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
-import { isFatalError } from '../lib/critical-css-errors';
+import { getCriticalCssIssues, isFatalError } from '../lib/critical-css-errors';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 
 type StatusTypes = {
@@ -18,31 +18,27 @@ type StatusTypes = {
 	hasRetried: boolean;
 	retry: () => void;
 
-	status: string;
-	updated: CriticalCssState[ 'updated' ];
-	progress: number;
 	showRegenerateButton: boolean;
-	issues: Provider[];
 	generateText?: string;
 	generateMoreText?: string;
 };
 
 const Status: React.FC< StatusTypes > = ( {
 	cssState,
-
-	status,
-	updated,
-	progress,
-	showRegenerateButton = false,
 	isCloud = false,
-	issues,
+	hasRetried,
+	retry,
+
+	showRegenerateButton = false,
 	generateText = '',
 	generateMoreText = '',
 } ) => {
 	const regenerateAction = useRegenerateCriticalCssAction();
-	const successCount = cssState.providers
-		? cssState.providers.filter( provider => provider.status === 'success' ).length
-		: 0;
+	const successCount =
+		cssState.providers.filter( provider => provider.status === 'success' ).length || 0;
+	const pendingCount =
+		cssState.providers.filter( provider => provider.status === 'pending' ).length || 0;
+	const issues = getCriticalCssIssues( cssState );
 
 	// If there has been a fatal error, show it.
 	if ( isFatalError( cssState ) ) {
@@ -50,8 +46,8 @@ const Status: React.FC< StatusTypes > = ( {
 			<ShowStopperError
 				supportLink={ ( isCloud && 'https://jetpack.com/contact-support/' ) || undefined }
 				cssState={ cssState }
-				retry={ () => regenerateAction.mutate() }
-				showRetry={ true }
+				retry={ retry }
+				showRetry={ ! hasRetried }
 			/>
 		);
 	}
@@ -69,10 +65,10 @@ const Status: React.FC< StatusTypes > = ( {
 								_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
 								successCount
 							) }
-							{ updated && (
+							{ cssState.updated && (
 								<>
 									{ ' ' }
-									<TimeAgo time={ new Date( updated * 1000 ) } />
+									<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
 									{ '.' }
 								</>
 							) }
@@ -85,7 +81,7 @@ const Status: React.FC< StatusTypes > = ( {
 									) }
 								</>
 							) }
-							{ progress < 100 && (
+							{ pendingCount > 0 && (
 								<>
 									{ ' ' }
 									<span>{ generateMoreText }</span>
@@ -93,7 +89,7 @@ const Status: React.FC< StatusTypes > = ( {
 							) }
 						</div>
 
-						{ status !== 'pending' && issues.length > 0 && (
+						{ cssState.status !== 'pending' && issues.length > 0 && (
 							<div className="failures">
 								<InfoIcon />
 
@@ -119,7 +115,7 @@ const Status: React.FC< StatusTypes > = ( {
 					</>
 				) }
 			</div>
-			{ status !== 'pending' && (
+			{ cssState.status !== 'pending' && (
 				<button
 					type="button"
 					className={ classNames( 'components-button', {
