@@ -1,32 +1,21 @@
 import { __ } from '@wordpress/i18n';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import Status from '../status/status';
-import { useState } from '@wordpress/element';
 import {
 	calculateCriticalCssProgress,
 	useCriticalCssState,
-	useRegenerateCriticalCssAction,
 } from '../lib/stores/critical-css-state';
 import { getCriticalCssIssues, isFatalError } from '../lib/critical-css-errors';
+import { useRetryRegenerate } from '../lib/use-retry-regenerate';
 
-type CloudCssMetaProps = {
-	isCloudCssAvailable: boolean;
-};
-
-const CloudCssMeta: React.FC< CloudCssMetaProps > = ( { isCloudCssAvailable } ) => {
-	const [ hasRetried, setHasRetried ] = useState( false );
+export default function CloudCssMetaProps() {
+	const [ hasRetried, retry ] = useRetryRegenerate();
 	const [ cssState ] = useCriticalCssState();
-	const regenerateAction = useRegenerateCriticalCssAction();
 	const progress = calculateCriticalCssProgress( cssState.providers );
 
 	const successCount = cssState.providers.filter(
 		provider => provider.status === 'success'
 	).length;
-
-	function retry() {
-		setHasRetried( true );
-		regenerateAction.mutate();
-	}
 
 	return isFatalError( cssState ) ? (
 		<ShowStopperError
@@ -37,7 +26,7 @@ const CloudCssMeta: React.FC< CloudCssMetaProps > = ( { isCloudCssAvailable } ) 
 		/>
 	) : (
 		<Status
-			isCloudCssAvailable={ isCloudCssAvailable }
+			isCloudCssAvailable={ true }
 			status={ cssState.status }
 			issues={ getCriticalCssIssues( cssState ) }
 			successCount={ successCount }
@@ -51,6 +40,4 @@ const CloudCssMeta: React.FC< CloudCssMetaProps > = ( { isCloudCssAvailable } ) 
 			generateMoreText={ __( 'Jetpack Boost is generating more Critical CSS.', 'jetpack-boost' ) }
 		/>
 	);
-};
-
-export default CloudCssMeta;
+}

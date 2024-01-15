@@ -3,33 +3,24 @@ import Status from '../status/status';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
-import { useState } from '@wordpress/element';
-import {
-	useCriticalCssState,
-	useRegenerateCriticalCssAction,
-} from '../lib/stores/critical-css-state';
+import { useCriticalCssState } from '../lib/stores/critical-css-state';
 import { getCriticalCssIssues, isFatalError } from '../lib/critical-css-errors';
 import { RegenerateCriticalCssSuggestion, useRegenerationReason } from '..';
 import { useLocalCriticalCssGenerator } from '../local-generator/local-generator-provider';
+import { useRetryRegenerate } from '../lib/use-retry-regenerate';
 
-type CriticalCssMetaProps = {
-	isCloudCssAvailable: boolean;
-};
-
-const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailable } ) => {
-	const [ hasRetried, setHasRetried ] = useState( false );
+/**
+ * Critical CSS Meta - the information and options displayed under the Critical CSS toggle on the
+ * Settings page when the feature is enabled.
+ */
+export default function CriticalCssMeta() {
+	const [ hasRetried, retry ] = useRetryRegenerate();
 	const [ cssState ] = useCriticalCssState();
-	const regenerateAction = useRegenerateCriticalCssAction();
 	const [ regenerateReason ] = useRegenerationReason();
 
 	const successCount = cssState.providers
 		? cssState.providers.filter( provider => provider.status === 'success' ).length
 		: 0;
-
-	function retry() {
-		setHasRetried( true );
-		regenerateAction.mutate();
-	}
 
 	const { progress } = useLocalCriticalCssGenerator();
 
@@ -52,7 +43,7 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailabl
 	return (
 		<>
 			<Status
-				isCloudCssAvailable={ isCloudCssAvailable }
+				isCloudCssAvailable={ false }
 				status={ cssState.status }
 				issues={ getCriticalCssIssues( cssState ) }
 				successCount={ successCount }
@@ -64,6 +55,4 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( { isCloudCssAvailabl
 			<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />
 		</>
 	);
-};
-
-export default CriticalCssMeta;
+}
