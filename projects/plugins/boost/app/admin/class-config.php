@@ -32,7 +32,6 @@ class Config {
 				'url'             => get_home_url(),
 				'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 				'staticAssetPath' => plugins_url( $static_path, JETPACK_BOOST_PATH ),
-				'postTypes'       => self::get_custom_post_types(),
 			),
 		);
 
