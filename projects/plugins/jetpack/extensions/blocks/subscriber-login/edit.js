@@ -29,15 +29,8 @@ function SubscriberLoginEdit( {
 	};
 
 	return (
-		<div className={ className }>
-			<Placeholder
-				label={ __( 'Subscriber Login', 'jetpack' ) }
-				instructions={ __( 'Instructions go here.', 'jetpack' ) }
-				icon={ <BlockIcon icon={ icon } /> }
-				notices={ noticeUI }
-			>
-				{ __( 'User input goes here?', 'jetpack' ) }
-			</Placeholder>
+		<div>
+			<a href="#">{ __( 'Log out', 'jetpack' ) }</a>
 		</div>
 	);
 }
