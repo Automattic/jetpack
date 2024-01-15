@@ -28,6 +28,8 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
  * Returns current URL
+ *
+ * @return string
  */
 function get_current_url() {
 	if ( ! isset( $_SERVER['HTTP_HOST'] ) || ! isset( $_SERVER['REQUEST_URI'] ) ) {
