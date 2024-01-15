@@ -69,13 +69,9 @@ function jetpack_featured_images_remove_post_thumbnail( $metadata, $object_id, $
 			&& in_the_loop()
 		)
 	) {
-
 		// Do not override thumbnail settings within blocks (eg. Latest Posts block).
-		$trace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
-		foreach ( $trace as $frame ) {
-			if ( ! empty( $frame['class'] ) && class_exists( $frame['class'], false ) && is_a( $frame['class'], WP_Block::class, true ) ) {
-					return $metadata;
-			}
+		if ( doing_filter( 'the_content' ) ) {
+			return $metadata;
 		}
 
 		return false;
