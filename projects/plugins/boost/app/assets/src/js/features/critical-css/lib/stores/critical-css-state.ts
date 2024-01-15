@@ -4,6 +4,7 @@ import { useDataSync, useDataSyncAction } from '@automattic/jetpack-react-data-s
 import { z } from 'zod';
 import { __ } from '@wordpress/i18n';
 import { useRegenerationReason } from './suggest-regenerate';
+import { useSingleModuleState } from '$features/module/lib/stores';
 
 /**
  * Hook for accessing and writing to the overall Critical CSS state. Returns both the current state
@@ -11,6 +12,10 @@ import { useRegenerationReason } from './suggest-regenerate';
  * so is generally only useful when resetting the state for an error or to ungenerated state.
  */
 export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssState ) => void ] {
+	const [ cloudCss ] = useSingleModuleState( 'cloud_css' );
+	const [ criticalCss ] = useSingleModuleState( 'critical_css' );
+	const enabled = cloudCss?.active || criticalCss?.active;
+
 	const [ { data }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
 		'critical_css_state',
@@ -18,6 +23,10 @@ export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssS
 		{
 			query: {
 				refetchInterval: query => {
+					if ( ! enabled ) {
+						return false;
+					}
+
 					return query.state.data?.status === 'pending' ? 2000 : 30000;
 				},
 			},
