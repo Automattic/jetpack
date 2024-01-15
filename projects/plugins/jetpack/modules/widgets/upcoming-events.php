@@ -120,6 +120,10 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/icalendar-reader.php';
 
+		if ( empty( $instance['feed-url'] ) ) {
+			return;
+		}
+
 		$ical           = new iCalendarReader();
 		$events         = $ical->get_events( $instance['feed-url'], $instance['count'] );
 		$events         = $this->apply_timezone_offset( $events );
