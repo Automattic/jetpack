@@ -51,7 +51,7 @@ function render_block( $attr ) {
 		return sprintf(
 			'<div class="%1$s"><a href="%2$s">%3$s</a></div>',
 			esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
-			wp_loginout( get_current_url(), false ),
+			wp_login_url( get_current_url() ),
 			__( 'Log in', 'jetpack' )
 		);
 	}
@@ -68,7 +68,7 @@ function render_block( $attr ) {
 	return sprintf(
 		'<div class="%1$s"><a href="%2$s">%3$s</a></div>',
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
-		wp_loginout( get_current_url(), false ),
+		wp_logout_url( get_current_url() ),
 		__( 'Log out', 'jetpack' )
 	);
 }
