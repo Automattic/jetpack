@@ -19,6 +19,10 @@ use Jetpack_Memberships;
  * registration if we need to.
  */
 function register_block() {
+	if ( ! \Jetpack::is_module_active( 'subscriptions' ) || ! class_exists( '\Jetpack_Memberships' ) ) {
+		return;
+	}
+
 	Blocks::jetpack_register_block(
 		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
