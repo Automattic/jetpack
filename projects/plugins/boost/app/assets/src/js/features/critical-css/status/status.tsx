@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
 import { getCriticalCssIssues, isFatalError } from '../lib/critical-css-errors';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
+import { Button } from '@automattic/jetpack-components';
 
 type StatusTypes = {
 	cssState: CriticalCssState;
@@ -116,16 +117,17 @@ const Status: React.FC< StatusTypes > = ( {
 				) }
 			</div>
 			{ cssState.status !== 'pending' && (
-				<button
+				<Button
 					type="button"
 					className={ classNames( 'components-button', {
 						'is-link': ! showRegenerateButton || isCloud,
 					} ) }
+					isPrimary={ !! showRegenerateButton }
 					onClick={ () => regenerateAction.mutate() }
 				>
-					<RefreshIcon />
+					{ ! showRegenerateButton && <RefreshIcon /> }
 					{ __( 'Regenerate', 'jetpack-boost' ) }
-				</button>
+				</Button>
 			) }
 		</div>
 	);
