@@ -6,6 +6,11 @@ $icon-background-color: #fff;
 
 // Upgrade Banner.
 .jetpack-upgrade-plan-banner {
+	// Moved so it's not be overlapped by the block toolbar
+	bottom: -60px; // The nudge height + margin top
+	position: relative;
+	z-index: 2;
+
 	.jetpack-upgrade-plan-banner__wrapper {
 		display: flex;
 		justify-content: space-between;
