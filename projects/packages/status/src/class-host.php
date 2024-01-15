@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Status;
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 
 /**
  * Hosting provider class.
@@ -142,7 +141,7 @@ class Host {
 	 * @param string $domain The domain of the site to check.
 	 * @return string
 	 */
-	private function get_nameserver_dns_records( $domain ) {
+	public function get_nameserver_dns_records( $domain ) {
 		$dns_records = dns_get_record( $domain, DNS_NS ); // Fetches the DNS records of type NS (Name Server)
 		$nameservers = array();
 
@@ -162,7 +161,7 @@ class Host {
 	 * @param string $domain The domain of the site to check.
 	 * @return string The hosting provider of 'unknown'.
 	 */
-	private function get_hosting_provider_by_nameserver( $domain ) {
+	public function get_hosting_provider_by_nameserver( $domain ) {
 		$known_nameservers = array(
 			'bluehost'     => array(
 				'.bluehost.com',
@@ -217,9 +216,13 @@ class Host {
 		$dns_records = $this->get_nameserver_dns_records( $domain );
 		$dns_records = array_map( 'strtolower', $dns_records );
 
-		foreach ( $known_nameservers as $host => $nameservers ) {
-			if ( ! empty( array_intersect( $dns_records, $nameservers ) ) ) {
-				return $host;
+		foreach ( $known_nameservers as $host => $ns_patterns ) {
+			foreach ( $ns_patterns as $ns_pattern ) {
+				foreach ( $dns_records as $record ) {
+					if ( false !== strpos( $record, $ns_pattern ) ) {
+						return $host;
+					}
+				}
 			}
 		}
 
@@ -265,11 +268,6 @@ class Host {
 		$domain = isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '';
 		if ( $provider === 'unknown' && ! empty( $domain ) ) {
 			$provider = $this->get_hosting_provider_by_nameserver( $domain );
-		}
-
-		// Third, if we couldn't determine the provider, let's use legacy method:
-		if ( $provider === 'unknown' ) {
-			$provider = Sync_Functions::get_hosting_provider();
 		}
 
 		Cache::set( 'host_guess', $provider );
