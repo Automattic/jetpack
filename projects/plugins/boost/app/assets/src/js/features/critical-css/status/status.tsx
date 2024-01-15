@@ -74,7 +74,7 @@ const Status: React.FC< StatusTypes > = ( {
 						</>
 					) }
 
-					{ '.' }
+					{ '. ' }
 
 					{ extraText }
 				</div>
