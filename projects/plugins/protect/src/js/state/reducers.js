@@ -19,7 +19,6 @@ import {
 	SET_THREATS_ARE_FIXING,
 	SET_HAS_REQUIRED_PLAN,
 	SET_ONBOARDING_PROGRESS,
-	SET_SELECTED,
 	SET_WAF_IS_SEEN,
 	SET_WAF_UPGRADE_IS_SEEN,
 	SET_WAF_IS_ENABLED,
@@ -163,14 +162,6 @@ const onboardingProgress = ( state = null, action ) => {
 	return state;
 };
 
-const selected = ( state = 'all', action ) => {
-	switch ( action.type ) {
-		case SET_SELECTED:
-			return action.selected;
-	}
-	return state;
-};
-
 const defaultWaf = {
 	wafSupported: null,
 	bruteForceSupported: null,
@@ -219,7 +210,6 @@ const reducers = combineReducers( {
 	setThreatsFixing,
 	hasRequiredPlan,
 	onboardingProgress,
-	selected,
 	waf,
 } );
 
