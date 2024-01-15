@@ -74,8 +74,20 @@ class Schema implements Parser {
 	 */
 	private $parser;
 
+	/**
+	 * @var Schema_Validation_Meta
+	 */
+	private $meta;
+
+	/**
+	 * @param Parser                        $parser
+	 */
 	public function __construct( Parser $parser ) {
 		$this->parser = $parser;
+	}
+
+	public function set_meta( Schema_Validation_Meta $meta ) {
+		$this->meta = $meta;
 	}
 
 	/**
@@ -86,17 +98,27 @@ class Schema implements Parser {
 	 * @return mixed The parsed data according to the schema type.
 	 * @throws \RuntimeException When the input data is invalid.
 	 */
-	public function parse( $data ) {
+	public function parse( $data, $meta = null ) {
+
+		// @TODO Expalin why this works
+		if ( $meta === null ) {
+			if ( $this->meta ) {
+				$meta = $this->meta;
+			} else {
+				$meta = new Schema_Validation_Meta( 'unknown' );
+			}
+		}
 
 		try {
-			return $this->parser->parse( $data );
+			return $this->parser->parse( $data, $meta );
 		} catch ( Schema_Validation_Error $e ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				$data           = wp_json_encode( $e->get_data(), JSON_PRETTY_PRINT );
-				$error_message  = 'Failed to parse schema';
+				$error_message  = "Failed to parse '{$meta->get_name()}' schema";
 				$error_message .= "\n" . $e->getMessage();
 				$error_message .= "\n" . 'Data Received:';
 				$error_message .= "\n" . $data;
+				$error_message .= "\n" . 'Schema Path: ' . $meta->get_path();
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( $error_message );
 			}

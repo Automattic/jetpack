@@ -6,7 +6,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Error;
 
 class Type_Boolean implements Parser {
-	public function parse( $data ) {
+	public function parse( $data, $meta ) {
 		if ( is_bool( $data ) ) {
 			return $data;
 		}
@@ -21,7 +21,7 @@ class Type_Boolean implements Parser {
 			'',
 		);
 		if ( ! in_array( $data, $loose_values, true ) ) {
-			throw new Schema_Validation_Error( 'Invalid boolean value', $data );
+			throw new Schema_Validation_Error( 'Invalid boolean value', $data, $meta );
 		}
 		return filter_var( $data, FILTER_VALIDATE_BOOLEAN );
 	}

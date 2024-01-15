@@ -20,11 +20,12 @@ interface Parser {
 	 * If the input value is invalid, the method should return a default value.
 	 * or throw an exception, depending on the implementation.
 	 *
-	 * @param mixed $input_value The input value to be parsed.
+	 * @param mixed $data                           The input value to be parsed.
+	 * @param Schema_Validation_Meta $meta     Schema validation metadata.
 	 *
 	 * @return mixed The parsed value.
 	 * @throws \RuntimeException If the input value is invalid.
 	 *
 	 */
-	public function parse( $data );
+	public function parse( $data, $meta );
 }

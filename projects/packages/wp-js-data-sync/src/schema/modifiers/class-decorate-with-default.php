@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Meta;
 
 /**
  * This takes in a Schema Type (like a String/Number/Boolean) and a default value.
@@ -18,10 +19,15 @@ class Decorate_With_Default implements Parser {
 		$this->default_value = $default_value;
 	}
 
-	public function parse( $input_value ) {
+	public function parse( $data, $meta = null ) {
+
+		if ( $meta === null ) {
+			$meta = new Schema_Validation_Meta( 'unknown' );
+		}
+
 		try {
-			return $this->parser->parse( $input_value );
-		} catch ( \RuntimeException $e ) {
+			return $this->parser->parse( $data, $meta );
+		} catch ( \Exception $e ) {
 			return $this->default_value;
 		}
 	}

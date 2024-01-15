@@ -6,7 +6,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Error;
 
 class Type_Any_JSON implements Parser {
-	public function parse( $json_data ) {
+	public function parse( $json_data, $meta ) {
 
 		if ( ! is_array( $json_data ) ) {
 			$message = 'JSON Data must be an array';
