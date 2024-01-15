@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Notice, Button } from '@automattic/jetpack-components';
 import { useMeasureSuperCacheSaving, useSuperCacheDS } from '$lib/utils/measure-super-cache-saving';
 import { z } from 'zod';
+
 type State = {
 	status: 'idle' | 'testing' | 'error' | 'complete';
 	error?: string;
@@ -28,7 +29,7 @@ const SuperCacheInfo = () => {
 			const saving = await measureSuperCacheSaving();
 			setState( { status: 'complete', saving } );
 		} catch ( error ) {
-			setState( { status: 'error', error } );
+			setState( { status: 'error', error: error instanceof Error ? error.message : undefined } );
 		}
 	};
 

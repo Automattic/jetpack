@@ -7,7 +7,6 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
@@ -19,6 +18,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Regenerate_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Error_Dismissed;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Errors;
+use Automattic\Jetpack_Boost\Lib\Post_Types;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
@@ -349,7 +349,7 @@ function jetpack_boost_ui_config() {
 			'domain'          => ( new Status() )->get_site_suffix(),
 			'online'          => ! ( new Status() )->is_offline_mode(),
 			'isAtomic'        => ( new Host() )->is_woa_site(),
-			'postTypes'       => (object) Config::get_custom_post_types(),
+			'postTypes'       => (object) Post_Types::get_custom_post_types(),
 			'canResizeImages' => wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) ),
 			'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 		),

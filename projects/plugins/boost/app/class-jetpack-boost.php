@@ -30,7 +30,6 @@ use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Config_State;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -171,7 +170,6 @@ class Jetpack_Boost {
 	 * Initialize the admin experience.
 	 */
 	public function init_admin( $modules ) {
-		REST_API::register( Config_State::class );
 		REST_API::register( List_Site_Urls::class );
 		$this->connection->ensure_connection();
 		new Admin( $modules );
