@@ -28,7 +28,7 @@ class Type_Array implements Parser {
 	public function parse( $data ) {
 		if ( ! is_array( $data ) ) {
 			$message = "Expected an array, received '" . gettype( $data ) . "'";
-			throw new \Error( $message );
+			throw new \RuntimeException( $message );
 		}
 
 		$parsed = array();

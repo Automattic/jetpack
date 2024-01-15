@@ -9,12 +9,12 @@ class Type_Any_JSON implements Parser {
 
 		if ( ! is_array( $json_data ) ) {
 			$message = 'JSON Data must be an array';
-			throw new \Error( $message );
+			throw new \RuntimeException( $message );
 		}
 		// Attempt to encode the JSON data and throw errors if it fails
 		if ( false === wp_json_encode( $json_data ) ) {
 			$message = 'JSON Data must be valid JSON';
-			throw new \Error( $message );
+			throw new \RuntimeException( $message );
 		}
 
 		return $json_data;

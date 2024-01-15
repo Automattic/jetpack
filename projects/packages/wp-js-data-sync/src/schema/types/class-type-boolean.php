@@ -20,7 +20,7 @@ class Type_Boolean implements Parser {
 			'',
 		);
 		if ( ! in_array( $input_value, $loose_values, true ) ) {
-			throw new \Error( 'Invalid boolean value' );
+			throw new \RuntimeException( 'Invalid boolean value' );
 		}
 		return filter_var( $input_value, FILTER_VALIDATE_BOOLEAN );
 	}

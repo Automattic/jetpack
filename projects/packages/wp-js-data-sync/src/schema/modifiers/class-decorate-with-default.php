@@ -21,7 +21,7 @@ class Decorate_With_Default implements Parser {
 	public function parse( $input_value ) {
 		try {
 			return $this->parser->parse( $input_value );
-		} catch ( \Error $e ) {
+		} catch ( \RuntimeException $e ) {
 			return $this->default_value;
 		}
 	}

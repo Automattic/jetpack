@@ -26,7 +26,7 @@ class Type_Assoc_Array implements Parser {
 	 * and pull the value based on that key from the $data array.
 	 *
 	 * @param $input_value mixed[]
-	 * @throws \Error - If the $data passed to it is not an associative array.
+	 * @throws \RuntimeException - If the $data passed to it is not an associative array.
 	 *
 	 * @return array
 	 */
@@ -38,7 +38,7 @@ class Type_Assoc_Array implements Parser {
 
 		if ( ! is_array( $input_value ) || $this->is_sequential_array( $input_value ) ) {
 			$message = "Expected an associative array, received '" . gettype( $input_value ) . "'";
-			throw new \Error( $message );
+			throw new \RuntimeException( $message );
 		}
 
 		$parsed = array();
@@ -55,7 +55,7 @@ class Type_Assoc_Array implements Parser {
 					}
 				} else {
 					$message = "Expected key '$key' in associative array";
-					throw new \Error( $message );
+					throw new \RuntimeException( $message );
 				}
 			} else {
 				$parsed[ $key ] = $parser->parse( $input_value[ $key ] );

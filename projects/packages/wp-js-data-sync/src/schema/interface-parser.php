@@ -23,7 +23,7 @@ interface Parser {
 	 * @param mixed $input_value The input value to be parsed.
 	 *
 	 * @return mixed The parsed value.
-	 * @throws \Error If the input value is invalid.
+	 * @throws \RuntimeException If the input value is invalid.
 	 *
 	 */
 	public function parse( $input_value );

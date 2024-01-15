@@ -8,7 +8,7 @@ class Type_Number implements Parser {
 
 	public function parse( $data ) {
 		if ( ! is_numeric( $data ) ) {
-			throw new \Error( 'Invalid number' );
+			throw new \RuntimeException( 'Invalid number' );
 		}
 		return (int) $data;
 	}
