@@ -128,12 +128,13 @@ function render_block( $attr, $content, $block ) {
  * Helper function to determine whether the Like module has been disabled
  */
 function is_legacy_likes_disabled() {
+	$settings = new \Jetpack_Likes_Settings();
+
 	$is_wpcom                 = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	$is_likes_module_inactive = ! \Jetpack::is_module_active( 'likes' );
 	$is_disabled_on_wpcom     = $is_wpcom && get_option( 'disabled_likes' ) && get_option( 'disabled_reblogs' );
 	$is_disabled_on_non_wpcom = ! $is_wpcom && get_option( 'disabled_likes' );
-
-	return $is_likes_module_inactive || $is_disabled_on_wpcom || $is_disabled_on_non_wpcom;
+	return $is_likes_module_inactive || $is_disabled_on_wpcom || $is_disabled_on_non_wpcom || ! $settings->is_likes_module_enabled();
 }
 
 /**
