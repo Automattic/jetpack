@@ -1,4 +1,5 @@
 import { castToString } from '$lib/utils/cast-to-string';
+import { JSONObject } from '$lib/utils/json-types';
 import { sortByFrequency } from '$lib/utils/sort-by-frequency';
 import {
 	CriticalCssErrorDetails,
@@ -6,7 +7,6 @@ import {
 	Critical_CSS_Error_Type,
 	Provider,
 } from './stores/critical-css-state-types';
-import type { JSONObject } from '$lib/stores/data-sync-client';
 
 /**
  * Specification for a set of errors that can appear as a part of a recommendation.
