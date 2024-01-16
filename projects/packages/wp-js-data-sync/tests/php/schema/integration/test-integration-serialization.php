@@ -1,53 +1,75 @@
 <?php
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Meta;
 use PHPUnit\Framework\TestCase;
 
-class Test_Intrgration_Serialization extends TestCase {
+class Test_Integration_Serialization extends TestCase {
+
 
 	public function test_serialization_to_string() {
 
 		// String
 		$string = Schema::as_string();
 		$this->assertSame( 'string', (string) $string );
+		$this->assertSame( array( 'type' => 'string' ), $string->schema() );
 
 		// Numbers
 		$integer = Schema::as_number();
 		$this->assertSame( 'number', (string) $integer );
+		$this->assertSame( array( 'type' => 'number' ), $integer->schema() );
 
 		// Boolean
 		$boolean = Schema::as_boolean();
 		$this->assertSame( 'boolean', (string) $boolean );
+		$this->assertSame( array( 'type' => 'boolean' ), $boolean->schema() );
 
 		// Any
 		$any = Schema::as_unsafe_any();
 		$this->assertSame( 'any', (string) $any );
+		$this->assertSame( array( 'type' => 'any' ), $any->schema() );
 
 		// Any JSON
 		$any_json = Schema::any_json_data();
 		$this->assertSame( 'any_json', (string) $any_json );
+		$this->assertSame( array( 'type' => 'any_json' ), $any_json->schema() );
 
 		// Float
 		$float = Schema::as_float();
 		$this->assertSame( 'float', (string) $float );
+		$this->assertSame( array( 'type' => 'float' ), $float->schema() );
 
 		// Array
 		$array = Schema::as_array( Schema::as_string() );
 		$this->assertSame( 'array(string)', (string) $array );
+		$this->assertSame( array( 'type' => 'array', 'value' => array( 'type' => 'string' ) ), $array->schema() );
 
 		// Enum
 		$enum = Schema::enum( array( 'a', 'b', 'c' ) );
 		$this->assertSame( 'enum(a,b,c)', (string) $enum );
+		$this->assertSame(
+			array(
+				'type'  => 'enum',
+				'value' => array( 'a', 'b', 'c' ),
+			),
+			$enum->schema() );
 
 		// Enum with Schemas
 		$enum = Schema::enum( array( Schema::as_string(), Schema::as_number() ) );
-		$this->assertSame( "enum(string,number)", (string) $enum );
+		$this->assertSame( 'enum(string,number)', (string) $enum );
+		$this->assertSame(
+			array(
+				'type'  => 'enum',
+				'value' => array(
+					array( 'type' => 'string' ),
+					array( 'type' => 'number' ),
+				),
+			),
+			$enum->schema() );
 
 		// Void
 		$void = Schema::as_void();
 		$this->assertSame( 'void', (string) $void );
+		$this->assertSame( array( 'type' => 'void' ), $void->schema() );
 
 		// With Fallback
 		$with_fallback        = Schema::as_string()->fallback( 'fallback' );
@@ -56,14 +78,13 @@ class Test_Intrgration_Serialization extends TestCase {
 			'default' => 'fallback',
 		);
 
-		// Test fallbacks in both directions
-		$this->assertSame( json_encode( $expect_with_fallback ), (string) $with_fallback );
-		$this->assertSame( $expect_with_fallback, json_decode( $with_fallback, true ) );
+		$this->assertSame( $expect_with_fallback, $with_fallback->schema() );
+		$this->assertSame( json_encode( $expect_with_fallback ), json_encode( $with_fallback ) );
 	}
 
-	public function test_serialization_assoc_values() {
+	public function test_serialization_assoc_value() {
 
-		$schema              = Schema::as_assoc_array(
+		$schema = Schema::as_assoc_array(
 			array(
 				'string'          => Schema::as_string(),
 				'number'          => Schema::as_number(),
@@ -81,23 +102,60 @@ class Test_Intrgration_Serialization extends TestCase {
 				),
 			)
 		);
+
 		$expect_schema_to_be = array(
-			'string'          => 'string',
-			'number'          => 'number',
-			'array'           => 'array(string)',
-			'enum'            => 'enum(a,b,c)',
-			'enum_types'      => 'enum(string,number)',
-			'void'            => 'void',
-			'any'             => 'any',
-			'float'           => 'float',
-			'bool'            => 'boolean',
-			'array_of_arrays' => 'array(array(string))',
+			'string'          => array(
+				'type' => 'string',
+			),
+			'number'          => array(
+				'type' => 'number',
+			),
+			'array'           => array(
+				'type'  => 'array',
+				'value' => array(
+					'type' => 'string',
+				),
+			),
+			'enum'            => array(
+				'type'  => 'enum',
+				'value' => array( 'a', 'b', 'c' ),
+			),
+			'enum_types'      => array(
+				'type'  => 'enum',
+				'value' => array(
+					array(
+						'type' => 'string',
+					),
+					array(
+						'type' => 'number',
+					),
+				),
+			),
+			'void'            => array(
+				'type' => 'void',
+			),
+			'any'             => array(
+				'type' => 'any',
+			),
+			'float'           => array(
+				'type' => 'float',
+			),
+			'bool'            => array(
+				'type' => 'boolean',
+			),
+			'array_of_arrays' => array(
+				'type'  => 'array',
+				'value' => array(
+					'type'  => 'array',
+					'value' => array(
+						'type' => 'string',
+					),
+				),
+			),
 		);
-
 		// Test in both directions
-		$this->assertSame( json_encode( $expect_schema_to_be ), (string) $schema );
-		$this->assertSame( $expect_schema_to_be, json_decode( $schema, true ) );
-
+		$this->assertSame( $expect_schema_to_be, $schema->schema() );
+		$this->assertSame( $expect_schema_to_be, json_decode( json_encode( $schema ), true ) );
 	}
 
 	public function test_serialization_assoc_nested() {
@@ -118,39 +176,66 @@ class Test_Intrgration_Serialization extends TestCase {
 		$expect_schema_to_be = array(
 			'level_1' => array(
 				'level_2' => array(
-					'level_3' => 'string',
+					'level_3' => array(
+						'type' => 'string',
+					),
 				),
 			),
 		);
 
-		// Test in both directions
-		$this->assertSame( json_encode( $expect_schema_to_be ), (string) $schema );
-		$this->assertSame( $expect_schema_to_be, json_decode( $schema, true ) );
+		$this->assertSame( $expect_schema_to_be, $schema->schema() );
+		$this->assertSame( json_encode( $expect_schema_to_be ), json_encode( $schema ) );
 	}
 
 	public function test_serialization_array_fallbacks() {
-		$this->assertTrue( true );
-		// Array values with fallback
-//		$array_value_fallback        = Schema::as_array(
-//			Schema::as_string()->fallback( 'fallback' )
-//		);
-//		$expect_array_value_fallback = array(
-//			'type'    => 'string',
-//			'default' => 'fallback',
-//		);
-//		$expect_array_value_fallback = json_encode( $expect_array_value_fallback );
-//		$this->assertSame( $expect_array_value_fallback, (string) $array_value_fallback );
 
+		// Fallback in an array item
+		$array_value_fallback        = Schema::as_array(
+			Schema::as_string()->fallback( 'fallback' )
+		);
+		$expect_array_value_fallback = array(
+			'type'  => 'array',
+			'value' => array(
+				'type'    => 'string',
+				'default' => 'fallback',
+			),
+		);
 
-		// Array with array fallback
-//		$array_group_fallback        = Schema::as_array(
-//			Schema::as_string()
-//		)->fallback( array( 'fallback' ) );
-//		$expect_array_group_fallback = array(
-//			'type'    => 'array("string")',
-//			'default' => array( 'fallback' ),
-//		);
-//		$expect_array_group_fallback = json_encode( $expect_array_group_fallback );
-//		$this->assertSame( $expect_array_group_fallback, json_encode( $array_group_fallback ) );
+		$this->assertSame( $expect_array_value_fallback, $array_value_fallback->schema() );
+		$this->assertSame( json_encode( $expect_array_value_fallback ), json_encode( $array_value_fallback ) );
+
+		// Fallback on Array
+		$array_group_fallback        = Schema::as_array(
+			Schema::as_string()
+		)->fallback( array( 'fallback' ) );
+		$expect_array_group_fallback = array(
+			'type'    => 'array',
+			'value'   => array( 'type' => 'string' ),
+			'default' => array( 'fallback' ),
+		);
+
+		$this->assertSame( $expect_array_group_fallback, $array_group_fallback->schema() );
+		$this->assertSame( json_encode( $expect_array_group_fallback ), json_encode( $array_group_fallback ) );
+
+		// Fallback on Array of Arrays
+		$array_group_fallback = Schema::as_array(
+			Schema::as_array(
+				Schema::as_string()
+			)
+		)->fallback( array( array( 'fallback' ) ) );
+
+		$expect_array_group_fallback = array(
+			'type'    => 'array',
+			'value'   => array(
+				'type'  => 'array',
+				'value' => array(
+					'type' => 'string',
+				),
+			),
+			'default' => array( array( 'fallback' ) ),
+		);
+
+		$this->assertSame( $expect_array_group_fallback, $array_group_fallback->schema() );
+		$this->assertSame( json_encode( $expect_array_group_fallback ), json_encode( $array_group_fallback ) );
 	}
 }

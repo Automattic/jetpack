@@ -50,6 +50,13 @@ class Type_Array implements Parser {
 	 * @return string
 	 */
 	public function jsonSerialize() {
-		return (string) $this;
+		return $this->schema();
+	}
+	
+	public function schema() {
+		return array(
+			'type' => 'array',
+			'value' => $this->parser->schema()
+		);
 	}
 }

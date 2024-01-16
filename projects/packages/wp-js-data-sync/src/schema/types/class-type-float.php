@@ -17,6 +17,11 @@ class Type_Float implements Parser {
 	}
 
 	public function jsonSerialize() {
-		return "\"{$this->__toString()}\"";
+		return $this->schema();
+	}
+	public function schema() {
+		return array(
+			'type' => (string) $this
+		);
 	}
 }

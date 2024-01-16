@@ -84,7 +84,16 @@ class Type_Assoc_Array implements Parser {
 	}
 
 	public function __toString() {
-		$str = $this->jsonSerialize();
+		$results = array();
+		foreach ( $this->parser as $key => $parser ) {
+			$value = json_decode( $parser->jsonSerialize(), ARRAY_A );
+			if ( $value ) {
+				$results[ $key ] = $value;
+			} else {
+				$results[ $key ] = $parser;
+			}
+		}
+		$str = json_encode( $results );
 		if ( $str ) {
 			return $str;
 		}
@@ -95,15 +104,13 @@ class Type_Assoc_Array implements Parser {
 	 * @return string
 	 */
 	public function jsonSerialize() {
-		$results = array();
+		return $this->schema();
+	}
+
+	public function schema() {
 		foreach ( $this->parser as $key => $parser ) {
-			$value = json_decode( $parser->jsonSerialize(), ARRAY_A );
-			if ( $value ) {
-				$results[ $key ] = $value;
-			} else {
-				$results[ $key ] = $parser;
-			}
+			$results[ $key ] = $parser->schema();
 		}
-		return json_encode( $results );
+		return $results;
 	}
 }

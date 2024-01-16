@@ -30,6 +30,20 @@ class Type_Enum implements Parser {
 	}
 
 	public function jsonSerialize() {
-		return "\"{$this->__toString()}\"";
+		return $this->schema();
+	}
+
+	public function schema() {
+		$valid_values = $this->valid_values;
+		foreach( $valid_values as $key => $value ) {
+			if( is_object($value) && method_exists($value, 'schema') ) {
+				$valid_values[$key] = $value->schema();
+			}
+		}
+		
+		return array(
+			'type' => 'enum',
+			'value' => $valid_values,
+		);
 	}
 }

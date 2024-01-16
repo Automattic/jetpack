@@ -28,4 +28,10 @@ interface Parser extends \JsonSerializable, \Stringable {
 	 *
 	 */
 	public function parse( $value, $meta = null );
+
+	/**
+	 * The describe method is responsible for returning a description of the schema.
+	 * @return array
+	 */
+	public function schema();
 }

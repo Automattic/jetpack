@@ -31,30 +31,16 @@ class Decorate_With_Default implements Parser {
 	}
 
 	public function __toString() {
-		$str = $this->parser->__toString();
-
-		// Avoid double JSON Encoding.
-		$value = json_decode( $str, ARRAY_A );
-		if ( ! $value ) {
-			// unquoted string
-			$value = trim( $str, '"');
-		}
-
-		$result = json_encode(
-			array(
-				'type'    => $value,
-				'default' => $this->default_value,
-			)
-		);
-
-		if ( $result ) {
-			return $result;
-		}
-
-		return $str;
+		return $this->parser->__toString() . ' (default: ' . $this->default_value . ')';
 	}
 
 	public function jsonSerialize() {
-		return $this->__toString();
+		return $this->schema();
+	}
+
+	public function schema() {
+		return $this->parser->schema() + array(
+			'default' => $this->default_value,
+		);
 	}
 }
