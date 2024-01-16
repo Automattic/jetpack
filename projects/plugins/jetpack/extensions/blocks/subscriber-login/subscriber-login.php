@@ -11,8 +11,10 @@ namespace Automattic\Jetpack\Extensions\Subscriber_Login;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
+use Jetpack_Options;
 
 /**
  * Registers the block for use in Gutenberg
@@ -56,6 +58,31 @@ function get_current_url() {
 }
 
 /**
+ * Returns subscriber log in URL.
+ *
+ * @return string
+ */
+function get_subscriber_login_url() {
+	// Copied from projects/plugins/jetpack/extensions/blocks/subscriptions/subscriptions.php
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		// On WPCOM we will redirect directly to the current page
+		$redirect_url = get_current_url();
+	} else {
+		// On self-hosted we will save and hide the token
+		$redirect_url = get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
+		$redirect_url = add_query_arg( 'redirect_url', get_current_url(), $redirect_url );
+	}
+
+	return add_query_arg(
+		array(
+			'site_id'      => intval( Jetpack_Options::get_option( 'id' ) ),
+			'redirect_url' => rawurlencode( $redirect_url ),
+		),
+		'https://subscribe.wordpress.com/memberships/jwt'
+	);
+}
+
+/**
  * Renders Subscriber Login block.
  *
  * @param array $attr    Array containing the Subscriber Login block attributes.
@@ -69,7 +96,7 @@ function render_block( $attr ) {
 		return sprintf(
 			'<div class="%1$s"><a href="%2$s">%3$s</a></div>',
 			esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
-			wp_login_url( get_current_url() ),
+			get_subscriber_login_url(),
 			__( 'Log in', 'jetpack' )
 		);
 	}
