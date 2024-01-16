@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-To avoid displaying the Welcome banner to every user, now we only display it to new users.

@@ -28,7 +28,8 @@ domReady( function () {
 
 	// User can edit modal, and could remove close link.
 	if ( close ) {
-		close.onclick = function () {
+		close.onclick = function ( event ) {
+			event.preventDefault();
 			closeModal();
 		};
 	}

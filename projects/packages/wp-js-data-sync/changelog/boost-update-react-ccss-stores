@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added schema validation to datasync actions
