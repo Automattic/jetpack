@@ -28,24 +28,8 @@ class Jetpack_Manage {
 	 * @return void|null|string The resulting page's hook_suffix
 	 */
 	public static function add_submenu_jetpack() {
-		// Only proceed if the user is connected to WordPress.com.
-		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
-			return;
-		}
-
-		// Do not display the menu if Jetpack plugin is not installed.
-		if ( ! class_exists( 'Jetpack' ) ) {
-			return;
-		}
-
-		// Do not display the menu on Multisite.
-		if ( is_multisite() ) {
-			return;
-		}
-
-		// Do not display the menu if the user has <= 2 sites.
-		$user_data = ( new Connection_Manager() )->get_connected_user_data( get_current_user_id() );
-		if ( ! isset( $user_data['site_count'] ) || $user_data['site_count'] < 2 ) {
+		// Do not display the menu if the user has < 2 sites.
+		if ( ! self::could_use_jp_manage( 2 ) ) {
 			return;
 		}
 
@@ -57,5 +41,37 @@ class Jetpack_Manage {
 			null,
 			100
 		);
+	}
+
+	/**
+	 * Check if the user has enough sites to be able to use Jetpack Manage.
+	 *
+	 * @param int $min_sites Minimum number of sites to be able to use Jetpack Manage.
+	 *
+	 * @return bool Return true if the user has enough sites to be able to use Jetpack Manage.
+	 */
+	public static function could_use_jp_manage( $min_sites = 2 ) {
+		// Only proceed if the user is connected to WordPress.com.
+		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
+			return false;
+		}
+
+		// Do not display the menu if Jetpack plugin is not installed.
+		if ( ! class_exists( 'Jetpack' ) ) {
+			return false;
+		}
+
+		// Do not display the menu on Multisite.
+		if ( is_multisite() ) {
+			return false;
+		}
+
+		// Check if the user has the minimum number of sites.
+		$user_data = ( new Connection_Manager() )->get_connected_user_data( get_current_user_id() );
+		if ( ! isset( $user_data['site_count'] ) || $user_data['site_count'] < $min_sites ) {
+			return false;
+		}
+
+		return true;
 	}
 }
