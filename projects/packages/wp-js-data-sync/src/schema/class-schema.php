@@ -105,7 +105,8 @@ class Schema implements Parser {
 
 		// 1 - If the meta is null, then this is maybe the root.
 		if ( $meta === null && $this->meta === null ) {
-			$this->meta    = new Schema_Validation_Meta( 'unknown' );
+			$this->meta = new Schema_Validation_Meta( 'unknown' );
+			$this->meta->set_data( $data );
 			$this->is_root = true;
 		}
 		// 2 - If the meta is not null, then this is not the root.
@@ -121,7 +122,7 @@ class Schema implements Parser {
 				return $this->parser->parse( $data, $this->meta );
 			} catch ( Schema_Internal_Error $e ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					$data           = wp_json_encode( $e->get_data(), JSON_PRETTY_PRINT );
+					$data           = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
 					$error_message  = "Failed to parse '{$this->meta->get_name()}' schema";
 					$error_message .= "\n" . $e->getMessage();
 					$error_message .= "\nData Received:";
@@ -131,7 +132,7 @@ class Schema implements Parser {
 					error_log( $error_message );
 				}
 
-				throw new Schema_Parsing_Error( $e->getMessage(), $e->get_data(), $this->meta );
+				throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $this->meta );
 			}
 		} else {
 			return $this->parser->parse( $data, $this->meta );

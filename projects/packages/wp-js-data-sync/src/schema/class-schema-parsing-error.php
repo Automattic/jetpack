@@ -3,17 +3,17 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
 class Schema_Parsing_Error extends \RuntimeException {
-	private $data;
+	private $value;
 	private $meta;
 
-	public function __construct( $message, $data, $meta ) {
-		$this->data = $data;
-		$this->meta = $meta;
+	public function __construct( $message, $value, $meta ) {
+		$this->value = $value;
+		$this->meta  = $meta;
 		parent::__construct( $message );
 	}
 
-	public function get_data() {
-		return $this->data;
+	public function get_value() {
+		return $this->value;
 	}
 	public function get_meta() {
 		return $this->meta;
