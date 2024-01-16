@@ -30,7 +30,7 @@ const defaultAdminUrl =
  * @param {Function} props.siteProductAvailabilityHandler - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
  * @param {Function} props.from                           - The plugin slug initiated the flow.
  * @param {number} [props.quantity]                       - The quantity of the product to purchase.
- * @param {boolean} [props.useBlogIdSuffix] - Use blog ID instead of site suffix in the checkout URL.
+ * @param {boolean} [props.useBlogIdSuffix]               - Use blog ID instead of site suffix in the checkout URL.
  * @returns {Function}                                      The useEffect hook.
  */
 export default function useProductCheckoutWorkflow( {
