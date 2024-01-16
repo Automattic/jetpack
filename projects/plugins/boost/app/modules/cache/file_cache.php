@@ -27,7 +27,7 @@ class Boost_File_Cache extends Boost_Cache {
 		}
 
 		if ( file_exists( $this->cache_file ) ) {
-			error_log( 'got cache from ' . $this->path . ' for ' . $this->request_uri ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'got cache from ' . $this->cache_file . ' for ' . $this->request_uri ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo file_get_contents( $this->cache_file ) . '<!-- cached -->';
 			die();
