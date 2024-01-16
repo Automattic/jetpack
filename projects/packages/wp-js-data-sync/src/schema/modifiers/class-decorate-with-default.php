@@ -36,19 +36,21 @@ class Decorate_With_Default implements Parser {
 		// Avoid double JSON Encoding.
 		$value = json_decode( $str, ARRAY_A );
 		if ( ! $value ) {
-			$value = array();
+			// unquoted string
+			$value = trim( $str, '"');
 		}
 
-		$default_value = is_array( $this->default_value ) ? json_encode( $this->default_value ) : $this->default_value;
-		$result        = json_encode(
+		$result = json_encode(
 			array(
 				'type'    => $value,
-				'default' => $default_value,
+				'default' => $this->default_value,
 			)
 		);
+
 		if ( $result ) {
 			return $result;
 		}
+
 		return $str;
 	}
 

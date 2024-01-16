@@ -40,7 +40,7 @@ class Type_Array implements Parser {
 	}
 
 	public function __toString() {
-		return '"array<' . $this->parser->__toString() . '>"';
+		return '"array(' . $this->parser->__toString() . ')"';
 	}
 
 	public function jsonSerialize() {
