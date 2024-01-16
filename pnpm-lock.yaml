@@ -1872,15 +1872,39 @@ importers:
 
   projects/packages/jetpack-mu-wpcom:
     dependencies:
+      '@automattic/typography':
+        specifier: 1.0.0
+        version: 1.0.0
       '@sentry/browser':
         specifier: 7.80.1
         version: 7.80.1
       '@wordpress/api-fetch':
         specifier: 6.45.0
         version: 6.45.0
+      '@wordpress/base-styles':
+        specifier: 4.39.0
+        version: 4.39.0
+      '@wordpress/components':
+        specifier: 25.14.0
+        version: 25.14.0(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/data':
+        specifier: 9.18.0
+        version: 9.18.0(react@18.2.0)
+      '@wordpress/dom-ready':
+        specifier: ^3.48.0
+        version: 3.48.0
       '@wordpress/hooks':
         specifier: 3.48.0
         version: 3.48.0
+      '@wordpress/i18n':
+        specifier: 4.48.0
+        version: 4.48.0
+      '@wordpress/plugins':
+        specifier: 6.16.0
+        version: 6.16.0(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/url':
+        specifier: 3.49.0
+        version: 3.49.0
     optionalDependencies:
       react:
         specifier: ^18.2.0
@@ -1892,6 +1916,18 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.23.5
+        version: 7.23.5
+      '@babel/preset-react':
+        specifier: 7.23.3
+        version: 7.23.3(@babel/core@7.23.5)
+      sass:
+        specifier: 1.64.1
+        version: 1.64.1
+      sass-loader:
+        specifier: 12.4.0
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       typescript:
         specifier: ^5.0.4
         version: 5.0.4
@@ -2701,6 +2737,12 @@ importers:
       '@automattic/jetpack-react-data-sync-client':
         specifier: workspace:*
         version: link:../../js-packages/react-data-sync-client
+      '@react-spring/core':
+        specifier: 9.7.3
+        version: 9.7.3(react@18.2.0)
+      '@react-spring/web':
+        specifier: 9.7.3
+        version: 9.7.3(react-dom@18.2.0)(react@18.2.0)
       '@svgr/rollup':
         specifier: 8.1.0
         version: 8.1.0(rollup@2.79.1)(typescript@5.0.4)
@@ -2731,6 +2773,9 @@ importers:
       react-router-dom:
         specifier: 6.21.0
         version: 6.21.0(react-dom@18.2.0)(react@18.2.0)
+      react-use-measure:
+        specifier: 2.1.1
+        version: 2.1.1(react-dom@18.2.0)(react@18.2.0)
       svelte-navigator:
         specifier: 3.2.2
         version: 3.2.2(svelte@3.58.0)(typescript@5.0.4)
@@ -15554,6 +15599,10 @@ packages:
   /date-fns@3.1.0:
     resolution: {integrity: sha512-ZO7yefXV/wCWzd3I9haCHmfzlfA3i1a2HHO7ZXjtJrRjXt8FULKJ2Vl8wji3XYF4dQ0ZJ/tokXDZeYlFvgms9Q==}
 
+  /debounce@1.2.1:
+    resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
+    dev: false
+
   /debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
     peerDependencies:
@@ -21987,6 +22036,17 @@ packages:
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+
+  /react-use-measure@2.1.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-nocZhN26cproIiIduswYpV5y5lQpSQS1y/4KuvUCjSKmw7ZWIS/+g3aFnX3WdBkyuGUtTLif3UTqnLLhbDoQig==}
+    peerDependencies:
+      react: '>=16.13'
+      react-dom: '>=16.13'
+    dependencies:
+      debounce: 1.2.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /react@17.0.2:
     resolution: {integrity: sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==}
