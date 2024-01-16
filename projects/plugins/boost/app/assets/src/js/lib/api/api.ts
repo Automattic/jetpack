@@ -6,10 +6,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { ApiError } from './api-error';
 import { JSONObject } from '$lib/utils/json-types';
 import { standardizeError } from '$lib/utils/standardize-error';
-import { getConfig } from '$lib/utils/get-config';
 
 function getEndpointUrl( path: string ): string {
-	return wpApiSettings.root + getConfig( 'api.namespace' ) + getConfig( 'api.prefix' ) + path;
+	return wpApiSettings.root + Jetpack_Boost.api.namespace + Jetpack_Boost.api.prefix + path;
 }
 
 async function sendRequest(

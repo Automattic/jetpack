@@ -1,11 +1,10 @@
 <?php
 
-use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
@@ -16,7 +15,6 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Regenerate_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Error_Dismissed;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Errors;
-use Automattic\Jetpack_Boost\Lib\Post_Types;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
@@ -327,32 +325,7 @@ jetpack_boost_register_option(
 	Schema::as_array( Schema::as_string() )->fallback( array() )
 );
 
-/**
- * Deliver static, read-only values to the UI.
- * @return array
- */
-function jetpack_boost_ui_config() {
-	$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
-
-	return array(
-		'version'         => JETPACK_BOOST_VERSION,
-		'pluginDirUrl'    => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
-		'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
-		'canResizeImages' => wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) ),
-		'site'            => array(
-			'url'      => get_home_url(),
-			'domain'   => ( new Status() )->get_site_suffix(),
-			'online'   => ! ( new Status() )->is_offline_mode(),
-			'isAtomic' => ( new Host() )->is_woa_site(),
-		),
-		'api'             => array(
-			'namespace' => JETPACK_BOOST_REST_NAMESPACE,
-			'prefix'    => JETPACK_BOOST_REST_PREFIX,
-		),
-		'postTypes'       => (object) Post_Types::get_custom_post_types(),
-	);
-}
-jetpack_boost_register_readonly_option( 'config', 'jetpack_boost_ui_config' );
+jetpack_boost_register_readonly_option( 'config', array( new Config(), 'constants' ) );
 jetpack_boost_register_readonly_option( 'connection', array( new Connection(), 'get_connection_api_response' ) );
 jetpack_boost_register_readonly_option( 'pricing', array( Premium_Pricing::class, 'get_yearly_pricing' ) );
 jetpack_boost_register_readonly_option( 'premium_features', array( Premium_Features::class, 'get_features' ) );

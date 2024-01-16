@@ -17,6 +17,27 @@ declare global {
 		ajax_url: string;
 	};
 
+	// Constants provided by the plugin.
+	const Jetpack_Boost: {
+		version: string;
+		api: {
+			namespace: string;
+			prefix: string;
+		};
+		site: {
+			domain: string;
+			url: string;
+			online: boolean;
+			isAtomic: boolean;
+		};
+		assetPath: string;
+		pluginDirUrl: string;
+		canResizeImages: boolean;
+		postTypes: {
+			[ key: string ]: string;
+		};
+	};
+
 	// Critical CSS Generator library.
 	const CriticalCSSGenerator: {
 		generateCriticalCSS: typeof generateCriticalCSS;

@@ -38,8 +38,16 @@ class Admin {
 	 */
 	private $speed_score;
 
+	/**
+	 * Configuration constants.
+	 *
+	 * @param Config $config
+	 */
+	private $config;
+
 	public function __construct( Modules_Setup $modules ) {
 		$this->modules     = $modules;
+		$this->config      = new Config();
 		$this->speed_score = new Speed_Score( $modules, 'boost-plugin' );
 		Environment_Change_Detector::init();
 
@@ -111,6 +119,12 @@ class Admin {
 			array( 'wp-i18n', 'wp-components' ),
 			JETPACK_BOOST_VERSION,
 			true
+		);
+
+		wp_localize_script(
+			$admin_js_handle,
+			'Jetpack_Boost',
+			$this->config->constants()
 		);
 
 		wp_set_script_translations( $admin_js_handle, 'jetpack-boost' );

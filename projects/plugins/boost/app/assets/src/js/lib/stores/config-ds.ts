@@ -3,19 +3,19 @@ import { z } from 'zod';
 
 export const configSchema = z.object( {
 	version: z.string(),
-	pluginDirUrl: z.string().url(),
-	assetPath: z.string(),
-	canResizeImages: z.boolean(),
+	api: z.object( {
+		namespace: z.string(),
+		prefix: z.string(),
+	} ),
 	site: z.object( {
 		url: z.string().url(),
 		domain: z.string(),
 		online: z.boolean(),
 		isAtomic: z.boolean(),
 	} ),
-	api: z.object( {
-		namespace: z.string(),
-		prefix: z.string(),
-	} ),
+	pluginDirUrl: z.string().url(),
+	assetPath: z.string(),
+	canResizeImages: z.boolean(),
 	postTypes: z.record( z.string(), z.string() ),
 } );
 

@@ -1,5 +1,4 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { getConfig } from './get-config';
 
 let loadLibraryPromise: Promise< void >;
 
@@ -12,9 +11,7 @@ export async function loadCriticalCssLibrary(): Promise< void > {
 	}
 
 	loadLibraryPromise = new Promise< void >( ( resolve, reject ) => {
-		const scriptUrl = `${ getConfig( 'assetPath' ) }/critical-css-gen.js?ver=${ getConfig(
-			'version'
-		) }`;
+		const scriptUrl = `${ Jetpack_Boost.assetPath }/critical-css-gen.js?ver=${ Jetpack_Boost.version }`;
 		const scriptTag = document.createElement( 'script' );
 		scriptTag.src = scriptUrl;
 

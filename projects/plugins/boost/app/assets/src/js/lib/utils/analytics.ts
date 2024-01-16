@@ -1,5 +1,4 @@
 import analytics from '@automattic/jetpack-analytics';
-import { getConfig } from './get-config';
 
 export type TracksEventProperties = { [ key: string ]: string | number };
 
@@ -58,10 +57,8 @@ function addBoostProps( props: TracksEventProperties ): TracksEventProperties {
 	 *
 	 * So we need to check if it exists before using it in case this function is called from the front end.
 	 */
-	try {
-		defaultProps.boost_version = getConfig( 'version' );
-	} catch ( error ) {
-		// no-op
+	if ( typeof Jetpack_Boost === 'object' ) {
+		defaultProps.boost_version = Jetpack_Boost.version;
 	}
 
 	return { ...defaultProps, ...props };
