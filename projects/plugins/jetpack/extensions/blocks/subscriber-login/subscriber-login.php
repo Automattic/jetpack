@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\Subscriber_Login;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 
@@ -27,11 +28,22 @@ function register_block() {
 		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);
+
+	add_action( 'wp_logout', __NAMESPACE__ . '\subscriber_logout' );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Returns current URL
+ * Logout subscriber.
+ *
+ * @return void
+ */
+function subscriber_logout() {
+	Abstract_Token_Subscription_Service::clear_token_cookie();
+}
+
+/**
+ * Returns current URL.
  *
  * @return string
  */
@@ -44,7 +56,7 @@ function get_current_url() {
 }
 
 /**
- * Renders Subscriber Login block
+ * Renders Subscriber Login block.
  *
  * @param array $attr    Array containing the Subscriber Login block attributes.
  *
