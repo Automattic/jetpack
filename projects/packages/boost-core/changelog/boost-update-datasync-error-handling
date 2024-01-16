@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Jetpack Boost: Use ARRAY_A when decoding from JSON
