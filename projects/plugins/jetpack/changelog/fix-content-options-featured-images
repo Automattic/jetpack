@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Theme Tools: Ensure that Content Options does not override the Featured Images options set within blocks.
