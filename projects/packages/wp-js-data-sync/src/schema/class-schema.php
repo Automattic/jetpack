@@ -249,12 +249,12 @@ class Schema implements Parser {
 
 	private static function process_schema( $item ) {
 		// If the item is an associative array with 'type' as a key, return its value directly
-		if ( is_array( $item ) && isset( $item['type'] ) && count( $item ) == 1 ) {
+		if ( is_array( $item ) && isset( $item['type'] ) && count( $item ) === 1 ) {
 			return $item['type'];
 		}
 
 		// If the item is an associative array with 'type' and 'value', process the value
-		if ( is_array( $item ) && isset( $item['type'] ) && isset( $item['value'] ) ) {
+		if ( isset( $item['type'], $item['value'] ) && is_array( $item ) ) {
 			return self::process_schema( $item['value'] );
 		}
 
