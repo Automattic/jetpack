@@ -333,7 +333,7 @@ class Dashboard_REST_Controller {
 		foreach ( $res['posts'] as $key => $post ) {
 			$product = wc_get_product( $post['ID'] );
 			if ( $product !== false ) {
-				$res['posts'][ $key ]['price'] = wc_price( $product->get_price() );
+				$res['posts'][ $key ]['price'] = wp_strip_all_tags( wc_price( $product->price ) );
 			}
 		}
 
