@@ -4,8 +4,6 @@ import { useContext, useEffect } from 'react';
 import useOnboarding, { OnboardingRenderedContext } from '../../hooks/use-onboarding';
 
 const OnboardingPopover = ( { id, anchor, position, paid } ) => {
-	const completeAllCurrentSteps = paid ? completeAllPaidSteps : completeAllFreeSteps;
-
 	const {
 		stepsCount,
 		currentStep,
@@ -14,6 +12,8 @@ const OnboardingPopover = ( { id, anchor, position, paid } ) => {
 		completeAllFreeSteps,
 		completeAllPaidSteps,
 	} = useOnboarding();
+
+	const completeAllCurrentSteps = paid ? completeAllPaidSteps : completeAllFreeSteps;
 
 	// keep track of which onboarding steps are currently being rendered
 	const { setRenderedSteps } = useContext( OnboardingRenderedContext );
