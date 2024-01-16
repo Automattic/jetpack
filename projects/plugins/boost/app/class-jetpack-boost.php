@@ -28,7 +28,6 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
-use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Config_State;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
@@ -111,7 +110,6 @@ class Jetpack_Boost {
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
 		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ), 10, 2 );
-		add_action( 'jetpack_boost_connection_established', array( $this, 'handle_jetpack_connection' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -142,20 +140,6 @@ class Jetpack_Boost {
 		// Make sure user sees the "Get Started" when first time opening.
 		( new Getting_Started_Entry() )->set( true );
 		Analytics::record_user_event( 'activate_plugin' );
-	}
-
-	/**
-	 * Plugin connected to Jetpack handler.
-	 */
-	public function handle_jetpack_connection() {
-		$getting_started = new Getting_Started_Entry();
-		if ( $getting_started->get() === true ) {
-			// Special case: when getting started, ensure that the Critical CSS module is enabled.
-			$status = new Status( 'critical_css' );
-			$status->update( true );
-		}
-
-		$getting_started->set( false );
 	}
 
 	/**
