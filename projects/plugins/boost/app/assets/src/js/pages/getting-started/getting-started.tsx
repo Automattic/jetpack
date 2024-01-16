@@ -7,7 +7,6 @@ import ActivateLicense from '$features/activate-license/activate-license';
 import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import styles from './getting-started.module.scss';
-import { useConfig } from '$lib/stores/config-ds';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useNavigate } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
@@ -21,7 +20,7 @@ const GettingStarted: React.FC = () => {
 
 	const {
 		site: { domain },
-	} = useConfig();
+	} = Jetpack_Boost;
 
 	const pricing = usePricing();
 	const premiumFeatures = usePremiumFeatures();

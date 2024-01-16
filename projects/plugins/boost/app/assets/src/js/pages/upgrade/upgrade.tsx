@@ -9,14 +9,13 @@ import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import JetpackLogo from '$svg/jetpack-green';
 import styles from './upgrade.module.scss';
-import { useConfig } from '$lib/stores/config-ds';
 import Forward from '$svg/forward';
 import { usePricing } from '$lib/stores/pricing';
 
 const Upgrade: React.FC = () => {
 	const {
 		site: { domain: siteDomain },
-	} = useConfig();
+	} = Jetpack_Boost;
 
 	const pricing = usePricing();
 

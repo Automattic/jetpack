@@ -4,7 +4,6 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
@@ -325,7 +324,6 @@ jetpack_boost_register_option(
 	Schema::as_array( Schema::as_string() )->fallback( array() )
 );
 
-jetpack_boost_register_readonly_option( 'config', array( new Config(), 'constants' ) );
 jetpack_boost_register_readonly_option( 'connection', array( new Connection(), 'get_connection_api_response' ) );
 jetpack_boost_register_readonly_option( 'pricing', array( Premium_Pricing::class, 'get_yearly_pricing' ) );
 jetpack_boost_register_readonly_option( 'premium_features', array( Premium_Features::class, 'get_features' ) );

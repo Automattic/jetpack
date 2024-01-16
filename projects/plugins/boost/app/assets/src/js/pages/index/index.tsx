@@ -13,7 +13,6 @@ import styles from './index.module.scss';
 import { RecommendationsMeta } from '$features/image-size-analysis';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
-import { useConfig } from '$lib/stores/config-ds';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 
 const Index = () => {
@@ -32,7 +31,7 @@ const Index = () => {
 	const requestRegenerateCriticalCss = () => {
 		regenerateCssAction.mutate();
 	};
-	const { canResizeImages } = useConfig();
+	const { canResizeImages } = Jetpack_Boost;
 
 	const lazyLoadDeprecationMessage = lazyLoadState?.available
 		? __(

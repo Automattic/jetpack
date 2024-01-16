@@ -6,7 +6,6 @@ import { useImageAnalysisRequest } from '$features/image-size-analysis';
 import Logo from '$svg/jetpack-green';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNavigate } from 'react-router-dom';
-import { useConfig } from '$lib/stores/config-ds';
 
 const PurchaseSuccess: React.FC = () => {
 	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
@@ -14,7 +13,7 @@ const PurchaseSuccess: React.FC = () => {
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const navigate = useNavigate();
 	const isaRequest = useImageAnalysisRequest();
-	const { site, canResizeImages } = useConfig();
+	const { site, canResizeImages } = Jetpack_Boost;
 
 	useEffect( () => {
 		setCloudCssState( true );

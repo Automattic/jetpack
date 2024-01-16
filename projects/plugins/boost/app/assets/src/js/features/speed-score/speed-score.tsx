@@ -18,10 +18,9 @@ import styles from './speed-score.module.scss';
 import { useModulesState } from '$features/module/lib/stores';
 import { useCriticalCssState } from '$features/critical-css/lib/stores/critical-css-state';
 import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local-generator/local-generator-provider';
-import { useConfig } from '$lib/stores/config-ds';
 
 const SpeedScore = () => {
-	const { site } = useConfig();
+	const { site } = Jetpack_Boost;
 	const [ { status, error, scores }, loadScore ] = useSpeedScores( site.url );
 	const scoreLetter = scores ? getScoreLetter( scores.current.mobile, scores.current.desktop ) : '';
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;

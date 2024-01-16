@@ -3,7 +3,6 @@ import { addGetParameter } from '$lib/utils/add-get-parameter';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { SuperCacheInfo } from '$lib/stores/super-cache';
-import { useConfig } from '$lib/stores/config-ds';
 import { useCallback } from 'react';
 
 export function useSuperCacheDS() {
@@ -22,7 +21,7 @@ export function useMeasureSuperCacheSaving() {
 	const cachePageSecret = data?.cachePageSecret;
 	const {
 		site: { url },
-	} = useConfig();
+	} = Jetpack_Boost;
 
 	if ( ! cachePageSecret ) {
 		// eslint-disable-next-line no-console
