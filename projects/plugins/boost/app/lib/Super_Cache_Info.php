@@ -15,7 +15,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 class Super_Cache_Info {
 
 	public static function init() {
-		jetpack_boost_register_readonly_option( 'super-cache', array( static::class, 'add_super_cache_constants' ) );
+		jetpack_boost_register_readonly_option( 'super_cache', array( static::class, 'add_super_cache_constants' ) );
 	}
 
 	private static function is_super_cache_enabled() {
