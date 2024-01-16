@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
  * different schema types, ensuring that all schema type classes have a common
  * method to perform the necessary data handling.
  */
-interface Parser extends \JsonSerializable, \Stringable {
+interface Parser extends \JsonSerializable {
 	/**
 	 * The parse method t is responsible for parsing input value.
 	 *
@@ -34,4 +34,10 @@ interface Parser extends \JsonSerializable, \Stringable {
 	 * @return array
 	 */
 	public function schema();
+
+	/**
+	 * The __toString method is responsible for returning a string representation of the schema.
+	 * @return string
+	 */
+	public function __toString();
 }
