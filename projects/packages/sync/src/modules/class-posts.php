@@ -95,6 +95,15 @@ class Posts extends Module {
 	const DEFAULT_PREVIOUS_STATE = 'new';
 
 	/**
+	* The meta key used to store the Jetpack featured image URL.
+	*
+	* @access public
+	*
+	* @var string
+	*/
+	const JETPACK_FEATURED_IMAGE_META_KEY = '_jetpack_featured_image';
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -559,13 +568,6 @@ class Posts extends Module {
 
 		$this->add_embed();
 
-		if ( has_post_thumbnail( $post->ID ) ) {
-			$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
-			if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) ) {
-				$post->featured_image = $image_attributes[0];
-			}
-		}
-
 		$post->permalink = get_permalink( $post->ID );
 		$post->shortlink = wp_get_shortlink( $post->ID );
 
@@ -683,6 +685,35 @@ class Posts extends Module {
 		}
 
 		$this->send_published( $post_ID, $post );
+
+		$this->update_jetpack_featured_image_meta( $post_ID );
+	}
+
+	/**
+	 * Update the Jetpack featured image meta for a post based on the thumbnail ID.
+	 *
+	 * @param int $post_id  Post ID.
+	 */
+	public function update_jetpack_featured_image_meta( $post_id ) {
+
+		$url = '';
+		if ( has_post_thumbnail( $post_id ) ) {
+			$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post_id ), 'full' );
+			if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) ) {
+				$url = $image_attributes[0];
+			}
+		}
+		$metadata_exists = get_post_meta( $post_id, self::JETPACK_FEATURED_IMAGE_META_KEY );
+
+		if ( '' !== $url ) {
+			if ( $metadata_exists ) {
+				update_post_meta( $post_id, self::JETPACK_FEATURED_IMAGE_META_KEY, $url );
+			} else {
+				add_post_meta( $post_id, self::JETPACK_FEATURED_IMAGE_META_KEY, $url );
+			}
+		} elseif ( $metadata_exists ) {
+			delete_post_meta( $post_id, self::JETPACK_FEATURED_IMAGE_META_KEY );
+		}
 	}
 
 	/**
