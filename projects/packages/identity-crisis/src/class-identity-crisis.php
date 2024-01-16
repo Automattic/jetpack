@@ -559,9 +559,6 @@ class Identity_Crisis {
 			$default = ! Constants::is_defined( 'SUNRISE' ) && ! is_multisite();
 		}
 
-		// Add a callback which uses the legacy filter 'jetpack_sync_idc_optin'.
-		add_filter( 'jetpack_should_handle_idc', array( __CLASS__, 'legacy_jetpack_sync_idc_optin_filter' ) );
-
 		/**
 		 * Allows sites to opt in for IDC mitigation which blocks the site from syncing to WordPress.com when the home
 		 * URL or site URL do not match what WordPress.com expects. The default value is either true, or the value of
