@@ -32,6 +32,23 @@ export default [
 		),
 	},
 	{
+		id: 'free-daily-scans',
+		title: __( 'Daily automated scans', 'jetpack-protect' ),
+		description: (
+			<Text>
+				{ createInterpolateElement(
+					__(
+						'We run daily automated scans. Do you want ot be able to scan manually? <upgradeLink>Upgrade</upgradeLink>',
+						'jetpack-protect'
+					),
+					{
+						upgradeLink: <UpgradeButton />,
+					}
+				) }
+			</Text>
+		),
+	},
+	{
 		id: 'paid-fix-all-threats',
 		title: __( 'Auto-fix with one click', 'jetpack-protect' ),
 		description: (
@@ -70,23 +87,6 @@ export default [
 				{ __(
 					'Learn how critical these threats are for the security of your site by glancing at the severity labels.',
 					'jetpack-protect'
-				) }
-			</Text>
-		),
-	},
-	{
-		id: 'free-daily-scans',
-		title: __( 'Daily automated scans', 'jetpack-protect' ),
-		description: (
-			<Text>
-				{ createInterpolateElement(
-					__(
-						'We run daily automated scans. Do you want ot be able to scan manually? <upgradeLink>Upgrade</upgradeLink>',
-						'jetpack-protect'
-					),
-					{
-						upgradeLink: <UpgradeButton />,
-					}
 				) }
 			</Text>
 		),
