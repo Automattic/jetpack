@@ -725,13 +725,13 @@ XSL;
 		}
 
 		#description {
-			background-color: #81a844;
-			color: #FFF;
+			background-color: #f0f2eb;
+			color: #000;
 			padding: 30px 30px 20px;
 		}
 
 		#description a {
-			color: #fff;
+			color: #008710;
 		}
 
 		#content {
@@ -757,7 +757,7 @@ XSL;
 		}
 
 		.odd {
-			background-color: #E7F1D4;
+			background: linear-gradient( 159.87deg, #f6f6f4 7.24%, #f7f4ea 64.73%, #ddedd5 116.53% );
 		}
 
 		#footer {

@@ -16,12 +16,6 @@ Available slugs are:
 * star
 * videopress
 * jetpack
-* facebook
-* twitter
-* linkedin
-* tumblr
-* google
-* mastodon
 
 ```es6
 import {
@@ -48,12 +42,7 @@ return (
 * StarIcon
 * VideopressIcon
 * JetpackIcon
-* FacebookIcon
-* TwitterIcon
-* LinkedinIcon
-* TumblrIcon
-* GoogleIcon
-* MastodonIcon
+* ShareIcon
 
 ```es6
 import {
@@ -67,12 +56,7 @@ import {
 	StarIcon,
 	VideoPressIcon,
 	JetpackIcon,
-	FacebookIcon,
-	TwitterIcon,
-	LinkedinIcon,
-	TumblrIcon,
-	GoogleIcon,
-	MastodonIcon
+	ShareIcon,
 } from '@automattic/jetpack-components';
 
 return (
@@ -87,12 +71,7 @@ return (
 		<StarIcon />
 		<VideoPressIcon />
 		<JetpackIcon />
-		<FacebookIcon />
-		<TwitterIcon />
-		<LinkedinIcon />
-		<TumblrIcon />
-		<GoogleIcon />
-		<MastodonIcon />
+		<ShareIcon />
 	</div>
 )
 ```

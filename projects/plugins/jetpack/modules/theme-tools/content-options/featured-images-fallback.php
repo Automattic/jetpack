@@ -63,9 +63,10 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 
 			$image_sizes = '';
 
-			if ( $image['src_width'] && $image['src_height'] && $image['width'] && $image['height'] ) {
-				$width      = intval( $image['width'] );
-				$height     = intval( $image['height'] );
+			$width  = isset( $image['width'] ) ? intval( $image['width'] ) : null;
+			$height = isset( $image['height'] ) ? intval( $image['height'] ) : null;
+
+			if ( ! empty( $image['src_width'] ) && ! empty( $image['src_height'] ) && ! empty( $image['width'] ) && ! empty( $image['height'] ) ) {
 				$src_width  = intval( $image['src_width'] );
 				$src_height = intval( $image['src_height'] );
 
@@ -93,6 +94,9 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 
 				// Use the theme's crop setting rather than forcing to true.
 				$image_src = add_query_arg( 'crop', $image['crop'], $image_src );
+
+				$image_srcset = null;
+				$image_sizes  = null;
 			}
 
 			$default_attr = array(

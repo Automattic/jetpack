@@ -1,7 +1,14 @@
 /*
  * External dependencies
  */
-import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
+import {
+	MenuItem,
+	MenuGroup,
+	ToolbarDropdownMenu,
+	Button,
+	Icon,
+	Tooltip,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
 import React from 'react';
@@ -64,19 +71,28 @@ type ImproveToolbarDropdownMenuProps = {
 	 */
 	exclude?: ImproveKeyProp[];
 
+	disabled?: boolean;
+
 	onChange: ( item: ImproveSuggestionProp, options: { contentType: string } ) => void;
 };
 
 export default function ImproveToolbarDropdownMenu( {
 	key,
-	label,
+	label = __( 'Improve', 'jetpack' ),
 	exclude = [],
 	onChange,
+	disabled = false,
 }: ImproveToolbarDropdownMenuProps ) {
-	return (
+	return disabled ? (
+		<Tooltip text={ label }>
+			<Button disabled>
+				<Icon icon={ pencil } />
+			</Button>
+		</Tooltip>
+	) : (
 		<ToolbarDropdownMenu
 			icon={ pencil }
-			label={ label || __( 'Improve', 'jetpack' ) }
+			label={ label }
 			popoverProps={ {
 				variant: 'toolbar',
 			} }

@@ -21,23 +21,25 @@ const AdminPage: React.FC< AdminPageProps > = props => {
 	const { children, headline, subHeadline } = props;
 
 	return (
-		<JetpackAdminPage { ...props }>
-			<AdminSectionHero>
-				{ ( headline || subHeadline ) && (
-					<Container horizontalSpacing={ 2 }>
-						<Col>
-							{ headline && <Text variant="headline-small">{ headline }</Text> }
-							{ subHeadline && (
-								<Text className={ styles[ 'sub-headline' ] } variant="body-small">
-									{ subHeadline }
-								</Text>
-							) }
-						</Col>
-					</Container>
-				) }
-			</AdminSectionHero>
-			{ children }
-		</JetpackAdminPage>
+		<div className={ styles[ 'admin-page' ] }>
+			<JetpackAdminPage { ...props }>
+				<AdminSectionHero>
+					{ ( headline || subHeadline ) && (
+						<Container horizontalSpacing={ 5 }>
+							<Col>
+								{ headline && <Text variant="headline-small">{ headline }</Text> }
+								{ subHeadline && (
+									<Text className={ styles[ 'sub-headline' ] } variant="body-small">
+										{ subHeadline }
+									</Text>
+								) }
+							</Col>
+						</Container>
+					) }
+				</AdminSectionHero>
+				{ children }
+			</JetpackAdminPage>
+		</div>
 	);
 };
 
@@ -47,6 +49,7 @@ AdminPage.defaultProps = {
 	 */
 	showHeader: false,
 	showFooter: false,
+	showBackground: false,
 };
 
 export default AdminPage;

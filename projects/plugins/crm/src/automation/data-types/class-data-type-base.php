@@ -3,7 +3,7 @@
  * Base Data Type class.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
@@ -13,92 +13,88 @@ use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 /**
  * Abstract Data Type base class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
-abstract class Data_Type_Base {
+abstract class Data_Type_Base implements Data_Type {
 
 	/**
-	 * An entity that represents an instance of the data type.
+	 * The data that represents an instance of the data type.
 	 *
-	 * @since $$next-version$$
+	 * This could be of any shape: a class, object, array, or a simple value.
 	 *
+	 * @since 6.2.0
 	 * @var mixed
 	 */
-	protected $entity = null;
+	protected $data = null;
+
+	/**
+	 * The previous data that represents an instance of the data type.
+	 * This could be of any shape: a class, object, array, or a simple value.
+	 *
+	 * @since 6.2.0
+	 * @var mixed
+	 */
+	protected $previous_data = null;
 
 	/**
 	 * Constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
-	 * @param mixed $entity An entity that represents the data type.
+	 * @param mixed $data A data that represents the data type.
+	 * @param mixed $previous_data A data that represents the previous data.
 	 *
-	 * @throws Data_Type_Exception If the entity do not look valid.
+	 * @throws Data_Type_Exception If the data do not look valid.
 	 */
-	public function __construct( $entity ) {
-		if ( ! $this->validate_entity( $entity ) ) {
+	public function __construct( $data, $previous_data = null ) {
+		if ( ! $this->validate_data( $data ) || ( $previous_data !== null && ! $this->validate_data( $previous_data ) ) ) {
 			throw new Data_Type_Exception(
-				sprintf( 'Invalid entity for data type: %s', static::get_slug() ),
-				Data_Type_Exception::INVALID_ENTITY
+				sprintf( 'Invalid data for data type: %s', static::class ),
+				Data_Type_Exception::INVALID_DATA
 			);
 		}
-
-		$this->entity = $entity;
+		$this->data          = $data;
+		$this->previous_data = $previous_data;
 	}
 
 	/**
-	 * Get the slug of the data type.
+	 * Validate the data.
 	 *
-	 * This is meant to be unique and is used to make it easier for third
-	 * parties to identify the data type in filters.
-	 *
-	 * Example: 'contact', 'invoice', 'order', etc.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The slug of the data type.
-	 */
-	abstract public static function get_slug(): string;
-
-	/**
-	 * Validate the entity.
-	 *
-	 * This method is meant to validate if the entity has the expected inheritance
+	 * This method is meant to validate if the data has the expected inheritance
 	 * or structure and will be used to throw a fatal error if not.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
-	 * @param mixed $entity The entity to validate.
-	 * @return bool Whether the entity is valid.
+	 * @param mixed $data The data to validate.
+	 * @return bool Whether the data is valid.
 	 */
-	abstract public function validate_entity( $entity ): bool;
+	abstract public function validate_data( $data ): bool;
 
 	/**
-	 * Get the entity identifier.
-	 *
-	 * We allow both integers AND strings as our return value since we
-	 * don't know how future integrations will handle their IDs.
-	 * E.g.: Stripe uses "cus_*" for customer specific IDs.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return int|string The entity identifier value.
-	 *
-	 * @throws Data_Type_Exception If the entity do not look valid.
-	 */
-	abstract public function get_id();
-
-	/**
-	 * Get the entity.
+	 * Get the data.
 	 *
 	 * We do not know what shape this takes. It could be a class, object,
 	 * or array. We leave it up to the data type to decide.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return mixed
 	 */
-	public function get_entity() {
-		return $this->entity;
+	public function get_data() {
+		return $this->data;
+	}
+
+	/**
+	 * Get the previous data.
+	 *
+	 * We do not know what shape this takes. It could be a class, object,
+	 * or array. We leave it up to the data type to decide.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @return mixed
+	 */
+	public function get_previous_data() {
+		return $this->previous_data;
 	}
 }

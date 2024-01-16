@@ -11,6 +11,10 @@ concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}
   cancel-in-progress: true
 
+env:
+  # Work around a bug in node 18.18.0. See https://github.com/webpack-contrib/thread-loader/issues/191 for details.
+  UV_USE_IO_URING: 0
+
 jobs:
   create-test-matrix:
     name: "Determine tests matrix"
@@ -246,7 +250,7 @@ jobs:
           echo "TEST_SITE=${SITE}" >> $GITHUB_ENV
 
           # Wait for the site to pick up latest tag version (DISPATCH_REF_NAME)
-          TEST_SITE="${SITE}" node "$GITHUB_WORKSPACE/tools/e2e-commons/bin/update-beta-version.cjs" $DISPATCH_REF_TYPE $DISPATCH_REF_NAME
+          TEST_SITE="${SITE}" node "$GITHUB_WORKSPACE/tools/e2e-commons/bin/update-beta-version.js" $DISPATCH_REF_TYPE $DISPATCH_REF_NAME
 
       - name: Set up VIP site
         if: ${{ matrix.suite == 'vip' }}
@@ -286,7 +290,7 @@ jobs:
       - name: Upload test artifacts
         if: ${{ always() }}
         continue-on-error: true
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-output-${{ matrix.project }}
           path: ${{ matrix.path }}/output
@@ -350,7 +354,7 @@ jobs:
         working-directory: ./projects/github-actions/test-results-to-slack
 
       - name: Download test artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: test-output
 

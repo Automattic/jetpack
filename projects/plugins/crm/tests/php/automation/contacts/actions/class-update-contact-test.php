@@ -6,7 +6,7 @@ use Automattic\Jetpack\CRM\Automation\Actions\Update_Contact;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
 
@@ -20,7 +20,7 @@ class Update_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 	/**
 	 * A helper class to generate data for the automation tests.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var Automation_Faker
 	 */
@@ -48,22 +48,20 @@ class Update_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 			)
 		);
 		$contact    = $this->get_contact( $contact_id );
-		$this->assertSame( 'This is definitely not a real first name', $contact['fname'] );
+		$this->assertSame( 'This is definitely not a real first name', $contact->fname );
 
 		// Define what happens when the action is executed.
 		$action = new Update_Contact(
 			array(
 				'slug'       => Update_Contact::get_slug(),
 				'attributes' => array(
-					'data' => array(
-						'fname' => 'Samantha',
-					),
+					'fname' => 'Samantha',
 				),
 			)
 		);
 
 		// Execute action.
-		$action->execute( $contact );
+		$action->validate_and_execute( new Contact_Data( $contact ) );
 
 		// Fetch the contact again and verify the update was successful.
 		$contact = $zbs->DAL->contacts->getContact( $contact_id );
@@ -81,7 +79,6 @@ class Update_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 		$automation->register_trigger( Contact_Created::class );
 		$automation->register_step( Contact_Field_Changed::class );
 		$automation->register_step( Update_Contact::class );
-		$automation->register_data_type( Data_Type_Contact::class );
 
 		// Setup action that is supposed to update newly created contacts.
 		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action(
@@ -89,10 +86,8 @@ class Update_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 			array(
 				'slug'       => Update_Contact::get_slug(),
 				'attributes' => array(
-					'data' => array(
-						'fname'  => 'Samantha',
-						'prefix' => 'Ms',
-					),
+					'fname'  => 'Samantha',
+					'prefix' => 'Ms',
 				),
 			)
 		);

@@ -151,16 +151,13 @@ const GsuiteBlockEdit = props => {
 			<Fragment>
 				<Embed
 					icon={ icon.src }
-					instructions={
-						<p>
-							{ __( 'Copy and paste your document link below.', 'jetpack' ) }
-							<br />
-							{ __(
-								'If your document is private, only readers logged into a Google account with shared access to the document may view it.',
-								'jetpack'
-							) }
-						</p>
-					}
+					instructions={ [
+						__( 'Copy and paste your document link below.', 'jetpack' ),
+						__(
+							'If your document is private, only readers logged into a Google account with shared access to the document may view it.',
+							'jetpack'
+						),
+					].join( ' ' ) }
 					label={ title }
 					patterns={ patterns }
 					placeholder={ _x( 'Enter the link here…', 'Embed block placeholder', 'jetpack' ) }

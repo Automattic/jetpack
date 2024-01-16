@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Add VideoPress assets enqueuing logic after the revert c9fa94de7886af75b65b8c75e642fb529144eb31 (reverted d5ca47d8de53df832e67ac8b9d6bda3663c3e8df). This time P2s should not be affected.

@@ -13,28 +13,15 @@ import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
+import { ManualSharing } from '../manual-sharing';
 import { SharePostRow } from '../share-post';
-import PublicizeTwitterOptions from '../twitter/options';
+import styles from './styles.module.scss';
 
-const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
+const PublicizePanel = ( { prePublish, children } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
-	const {
-		isPublicizeEnabled,
-		hidePublicizeFeature,
-		isPublicizeDisabledBySitePlan,
-		togglePublicizeFeature,
-		isShareLimitEnabled,
-		numberOfSharesRemaining,
-		hasPaidPlan,
-		connectionsAdminUrl,
-		adminUrl,
-		isEnhancedPublishingEnabled,
-		isSocialImageGeneratorAvailable,
-		shouldShowAdvancedPlanNudge,
-		jetpackSharingSettingsUrl,
-	} = usePublicizeConfig();
+	const { isPublicizeEnabled, hidePublicizeFeature, togglePublicizeFeature } = usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
@@ -50,7 +37,9 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 
 	// Panel wrapper.
 	const PanelWrapper = prePublish ? Fragment : PanelBody;
-	const wrapperProps = prePublish ? {} : { title: __( 'Share this post', 'jetpack' ) };
+	const wrapperProps = prePublish
+		? {}
+		: { title: __( 'Share this post', 'jetpack' ), className: styles.panel };
 
 	return (
 		<PanelWrapper { ...wrapperProps }>
@@ -75,25 +64,11 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 					) }
 
 					<PublicizeConnectionVerify />
-					<PublicizeForm
-						isPublicizeEnabled={ isPublicizeEnabled }
-						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
-						connectionsAdminUrl={ connectionsAdminUrl }
-						numberOfSharesRemaining={
-							isShareLimitEnabled && ! hasPaidPlan ? numberOfSharesRemaining : null
-						}
-						isEnhancedPublishingEnabled={ isEnhancedPublishingEnabled }
-						isSocialImageGeneratorAvailable={ isSocialImageGeneratorAvailable }
-						adminUrl={ adminUrl }
-						shouldShowAdvancedPlanNudge={ shouldShowAdvancedPlanNudge }
-						jetpackSharingSettingsUrl={ jetpackSharingSettingsUrl }
-					/>
-					{ enableTweetStorm && isPublicizeEnabled && (
-						<PublicizeTwitterOptions prePublish={ prePublish } />
-					) }
+					<PublicizeForm />
 					<SharePostRow />
 				</Fragment>
 			) }
+			{ isPostPublished && <ManualSharing /> }
 		</PanelWrapper>
 	);
 };

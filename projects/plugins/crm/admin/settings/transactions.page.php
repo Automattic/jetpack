@@ -57,7 +57,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 		$transactionStatusStr = sanitize_text_field( $_POST['jpcrm-status-transactions'] );
 	}
 
-	if ( strpos( $transactionStatusStr, ',' ) > -1 ) {
+	if ( str_contains( $transactionStatusStr, ',' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// } Trim them...
 		$statusArr        = array();

@@ -119,4 +119,19 @@ class Host {
 
 		return '';
 	}
+
+	/**
+	 * Return source query param value from the URL if exists in the allowed sources list.
+	 *
+	 * @return string "source" query param value
+	 */
+	public function get_source_query() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$allowed_sources = array( 'jetpack-manage' );
+		if ( isset( $_GET['source'] ) && in_array( $_GET['source'], $allowed_sources, true ) ) {
+			return sanitize_key( $_GET['source'] );
+		}
+
+		return '';
+	}
 }

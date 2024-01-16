@@ -53,7 +53,7 @@ type AiDataContextProviderProps = {
 	/*
 	 * Children
 	 */
-	children: React.ReactNode;
+	children: React.ReactElement;
 };
 
 /**
@@ -67,7 +67,7 @@ export const AiDataContext = createContext( {} as AiDataContextProps );
  * AI Data Context Provider
  *
  * @param {AiDataContextProviderProps} props - Component props.
- * @returns {React.ReactNode}                           Context provider.
+ * @returns {React.ReactElement}                           Context provider.
  * @example
  * <AiDataContextProvider value={ value }>
  * 	{ children }
@@ -76,6 +76,6 @@ export const AiDataContext = createContext( {} as AiDataContextProps );
 export const AiDataContextProvider = ( {
 	value,
 	children,
-}: AiDataContextProviderProps ): React.ReactNode => (
+}: AiDataContextProviderProps ): React.ReactElement => (
 	<AiDataContext.Provider value={ value } children={ children } />
 );

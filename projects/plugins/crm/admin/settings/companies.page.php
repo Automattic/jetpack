@@ -40,7 +40,7 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editcompanysettings'] ) ) {
 	}
 
 	// } any here? or 1?
-	if ( strpos( $companyStatusStr, ',' ) > -1 ) {
+	if ( str_contains( $companyStatusStr, ',' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// } Trim them...
 		$zbsStatusArr        = array();
@@ -171,7 +171,7 @@ if ( isset( $sbupdated ) ) {
 
 								?>
 								<input type="text" name="jpcrm-status-companies" id="jpcrm-status-companies" value="<?php echo esc_attr( $companyStatusStr ); ?>" class="form-control" />
-								<p style="margin-top:4px"><?php esc_html_e( 'Default is', 'zero-bs-crm' ); ?>:<br /><span style="background:#ceeaea;padding:0 4px">Lead,Customer,Refused,Blacklisted</span></p>
+								<p style="margin-top:4px"><?php esc_html_e( 'Default is', 'zero-bs-crm' ); ?>:<br /><span style="background:#ceeaea;padding:0 4px">Lead,Customer,Refused</span></p>
 							</td>
 						</tr>
 

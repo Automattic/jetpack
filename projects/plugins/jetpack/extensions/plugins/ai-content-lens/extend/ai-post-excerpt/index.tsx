@@ -1,23 +1,21 @@
 /**
  * External dependencies
  */
-import {
-	AI_MODEL_GPT_4,
-	ERROR_QUOTA_EXCEEDED,
-	useAiSuggestions,
-} from '@automattic/jetpack-ai-client';
-import { TextareaControl, ExternalLink, Button, Notice } from '@wordpress/components';
+import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
-import { useState, useEffect } from '@wordpress/element';
+import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
+import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
-import React from 'react';
 /**
  * Internal dependencies
  */
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
-import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
+import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import { isBetaExtension } from '../../../../editor';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
  * Types and constants
@@ -41,16 +39,19 @@ type ContentLensMessageContextProps = {
 };
 
 function AiPostExcerpt() {
-	const excerpt = useSelect(
-		select => select( 'core/editor' ).getEditedPostAttribute( 'excerpt' ),
-		[]
-	);
+	const { excerpt, postId } = useSelect( select => {
+		const { getEditedPostAttribute, getCurrentPostId } = select( editorStore );
 
-	// Use the hook only to get the autosave function. It won't be used for redirect.
-	const { autosave } = useAutosaveAndRedirect();
+		return {
+			excerpt: getEditedPostAttribute( 'excerpt' ) ?? '',
+			postId: getCurrentPostId() ?? 0,
+		};
+	}, [] );
 
-	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 	const { editPost } = useDispatch( 'core/editor' );
+
+	const { dequeueAiAssistantFeatureAyncRequest, increaseAiAssistantRequestsCount } =
+		useDispatch( 'wordpress-com/plans' );
 
 	// Post excerpt words number
 	const [ excerptWordsNumber, setExcerptWordsNumber ] = useState( 50 );
@@ -58,11 +59,36 @@ function AiPostExcerpt() {
 	const [ reenable, setReenable ] = useState( false );
 	const [ language, setLanguage ] = useState< LanguageProp >();
 	const [ tone, setTone ] = useState< ToneProp >();
-	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_GPT_4 );
+	const [ model, setModel ] = useState< AiModelTypeProp >( null );
 
-	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions(
-		{}
-	);
+	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions( {
+		onDone: useCallback( () => {
+			/*
+			 * Increase the AI Suggestion counter.
+			 * @todo: move this at store level.
+			 */
+			increaseAiAssistantRequestsCount();
+		}, [ increaseAiAssistantRequestsCount ] ),
+		onError: useCallback(
+			suggestionError => {
+				/*
+				 * Incrses AI Suggestion counter
+				 * only for valid errors.
+				 * @todo: move this at store level.
+				 */
+				if (
+					suggestionError.code === 'error_network' ||
+					suggestionError.code === 'error_quota_exceeded'
+				) {
+					return;
+				}
+
+				// Increase the AI Suggestion counter.
+				increaseAiAssistantRequestsCount();
+			},
+			[ increaseAiAssistantRequestsCount ]
+		),
+	} );
 
 	// Cancel and reset AI suggestion when the component is unmounted
 	useEffect( () => {
@@ -75,7 +101,7 @@ function AiPostExcerpt() {
 	// Pick raw post content
 	const postContent = useSelect(
 		select => {
-			const content = select( 'core/editor' ).getEditedPostContent();
+			const content = select( editorStore ).getEditedPostContent();
 			if ( ! content ) {
 				return '';
 			}
@@ -111,12 +137,9 @@ function AiPostExcerpt() {
 	/**
 	 * Request AI for a new excerpt.
 	 *
-	 * @param {React.MouseEvent} ev - The click event.
 	 * @returns {void}
 	 */
-	async function requestExcerpt( ev: React.MouseEvent ): Promise< void > {
-		await autosave( ev );
-
+	function requestExcerpt(): void {
 		// Enable Generate button
 		setReenable( false );
 
@@ -142,20 +165,33 @@ ${ postContent }
 			},
 		];
 
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
+
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}
 
-	function setExpert() {
+	function setExcerpt() {
 		editPost( { excerpt: suggestion } );
 		reset();
 	}
 
-	function discardExpert() {
+	function discardExcerpt() {
 		editPost( { excerpt: excerpt } );
 		reset();
 	}
 
-	const isQuotaExceeded = error?.code === ERROR_QUOTA_EXCEEDED;
+	const { requireUpgrade, isOverLimit } = useAiFeature();
+
+	// Set the docs link depending on the site type
+	const docsLink =
+		isAtomicSite() || isSimpleSite()
+			? __( 'https://wordpress.com/support/excerpts/', 'jetpack' )
+			: __( 'https://jetpack.com/support/create-better-post-excerpts-with-ai/', 'jetpack' );
 
 	return (
 		<div className="jetpack-ai-post-excerpt">
@@ -168,12 +204,7 @@ ${ postContent }
 				disabled={ isTextAreaDisabled }
 			/>
 
-			<ExternalLink
-				href={ __(
-					'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt',
-					'jetpack'
-				) }
-			>
+			<ExternalLink href={ docsLink }>
 				{ __( 'Learn more about manual excerpts', 'jetpack' ) }
 			</ExternalLink>
 
@@ -188,7 +219,7 @@ ${ postContent }
 					</Notice>
 				) }
 
-				{ isQuotaExceeded && <UpgradePrompt /> }
+				{ isOverLimit && <UpgradePrompt /> }
 
 				<AiExcerptControl
 					words={ excerptWordsNumber }
@@ -211,43 +242,53 @@ ${ postContent }
 						setModel( newModel );
 						setReenable( true );
 					} }
-					disabled={ isBusy || isQuotaExceeded }
+					disabled={ isBusy || requireUpgrade }
 				/>
 
-				<div className="jetpack-generated-excerpt__generate-buttons-container">
-					<Button
-						onClick={ discardExpert }
-						variant="secondary"
-						isDestructive
-						disabled={ requestingState !== 'done' || isQuotaExceeded }
-					>
-						{ __( 'Discard', 'jetpack' ) }
-					</Button>
-
-					<Button
-						onClick={ setExpert }
-						variant="secondary"
-						disabled={ requestingState !== 'done' || isQuotaExceeded }
-					>
-						{ __( 'Accept', 'jetpack' ) }
-					</Button>
-
-					<Button
-						onClick={ requestExcerpt }
-						variant="secondary"
-						isBusy={ isBusy }
-						disabled={ isGenerateButtonDisabled || isQuotaExceeded }
-					>
-						{ __( 'Generate', 'jetpack' ) }
-					</Button>
-				</div>
+				<BaseControl
+					help={
+						! postContent?.length ? __( 'Add content to generate an excerpt.', 'jetpack' ) : null
+					}
+				>
+					<div className="jetpack-generated-excerpt__generate-buttons-container">
+						<Button
+							onClick={ discardExcerpt }
+							variant="secondary"
+							isDestructive
+							disabled={ requestingState !== 'done' || requireUpgrade }
+						>
+							{ __( 'Discard', 'jetpack' ) }
+						</Button>
+						<Button
+							onClick={ setExcerpt }
+							variant="secondary"
+							disabled={ requestingState !== 'done' || requireUpgrade }
+						>
+							{ __( 'Accept', 'jetpack' ) }
+						</Button>
+						<Button
+							onClick={ requestExcerpt }
+							variant="secondary"
+							isBusy={ isBusy }
+							disabled={ isGenerateButtonDisabled || requireUpgrade || ! postContent }
+						>
+							{ __( 'Generate', 'jetpack' ) }
+						</Button>
+					</div>
+				</BaseControl>
 			</div>
 		</div>
 	);
 }
 
 export const PluginDocumentSettingPanelAiExcerpt = () => (
-	<PluginDocumentSettingPanel name="ai-content-lens-plugin" title={ __( 'Excerpt', 'jetpack' ) }>
-		<AiPostExcerpt />
-	</PluginDocumentSettingPanel>
+	<PostTypeSupportCheck supportKeys="excerpt">
+		<PluginDocumentSettingPanel
+			className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
+			name="ai-content-lens-plugin"
+			title={ __( 'Excerpt', 'jetpack' ) }
+		>
+			<AiPostExcerpt />
+		</PluginDocumentSettingPanel>
+	</PostTypeSupportCheck>
 );

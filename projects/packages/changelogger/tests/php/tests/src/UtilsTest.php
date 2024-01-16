@@ -18,7 +18,6 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
-use function Wikimedia\quietCall;
 
 /**
  * Tests for the changelogger utils.
@@ -27,21 +26,9 @@ use function Wikimedia\quietCall;
  */
 class UtilsTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertObjectProperty;
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
-
-	/**
-	 * Test error_clear_last.
-	 */
-	public function test_error_clear_last() {
-		quietCall( 'trigger_error', 'Test', E_USER_NOTICE );
-		$err = error_get_last();
-		$this->assertSame( 'Test', $err['message'] );
-
-		Utils::error_clear_last();
-		$err = error_get_last();
-		$this->assertTrue( empty( $err['message'] ) ); // phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertEmpty -- We need the potential error suppression, behavior varies by PHP version.
-	}
 
 	/**
 	 * Test runCommand.
@@ -179,7 +166,7 @@ class UtilsTest extends TestCase {
 				} catch ( LoadChangeFileException $ex ) {
 					$this->assertInstanceOf( get_class( $expect ), $ex );
 					$this->assertMatchesRegularExpression( $expect->getMessage(), $ex->getMessage() );
-					$this->assertObjectHasAttribute( 'fileLine', $ex );
+					$this->assertObjectHasProperty( 'fileLine', $ex );
 					$this->assertSame( $expect->fileLine, $ex->fileLine );
 				}
 			}

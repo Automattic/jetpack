@@ -12,6 +12,7 @@ import requestJwt from '../jwt';
  * Types & constants
  */
 import {
+	ERROR_CONTEXT_TOO_LARGE,
 	ERROR_MODERATION,
 	ERROR_NETWORK,
 	ERROR_QUOTA_EXCEEDED,
@@ -31,7 +32,7 @@ type SuggestionsEventSourceConstructorArgs = {
 	question: PromptProp;
 	token?: string;
 	options?: {
-		postId?: number;
+		postId?: number | string;
 		feature?: 'ai-assistant-experimental' | string | undefined;
 		fromCache?: boolean;
 		functions?: Array< object >;
@@ -53,22 +54,26 @@ const debug = debugFactory( 'jetpack-ai-client:suggestions-event-source' );
  * It also emits a 'suggestion' event with the full suggestion received so far
  *
  * @returns {EventSource} The event source
- * @fires suggestion                - The full suggestion has been received so far
- * @fires message                   - A message has been received
- * @fires chunk                     - A chunk of data has been received
- * @fires done                      - The stream has been closed. No more data will be received
- * @fires error                     - An error has occurred
- * @fires error_network             - The EventSource connection to the server returned some error
- * @fires error_service_unavailable - The server returned a 503 error
- * @fires error_quota_exceeded      - The server returned a 429 error
- * @fires error_moderation          - The server returned a 422 error
- * @fires error_unclear_prompt      - The server returned a message starting with JETPACK_AI_ERROR
+ * @fires SuggestionsEventSource#suggestion                - The full suggestion has been received so far
+ * @fires SuggestionsEventSource#message                   - A message has been received
+ * @fires SuggestionsEventSource#chunk                     - A chunk of data has been received
+ * @fires SuggestionsEventSource#done                      - The stream has been closed. No more data will be received
+ * @fires SuggestionsEventSource#error                     - An error has occurred
+ * @fires SuggestionsEventSource#error_network             - The EventSource connection to the server returned some error
+ * @fires SuggestionsEventSource#error_context_too_large   - The server returned a 413 error
+ * @fires SuggestionsEventSource#error_moderation          - The server returned a 422 error
+ * @fires SuggestionsEventSource#error_quota_exceeded      - The server returned a 429 error
+ * @fires SuggestionsEventSource#error_service_unavailable - The server returned a 503 error
+ * @fires SuggestionsEventSource#error_unclear_prompt      - The server returned a message starting with JETPACK_AI_ERROR
  */
 export default class SuggestionsEventSource extends EventTarget {
 	fullMessage: string;
 	fullFunctionCall: FunctionCallProps;
 	isPromptClear: boolean;
 	controller: AbortController;
+
+	// Flag to detect if the unclear prompt event was already dispatched
+	errorUnclearPromptTriggered: boolean;
 
 	constructor( data: SuggestionsEventSourceConstructorArgs ) {
 		super();
@@ -112,9 +117,9 @@ export default class SuggestionsEventSource extends EventTarget {
 			model?: AiModelTypeProp;
 		} = {};
 
-		// Populate body data with post id
-		if ( options?.postId ) {
-			bodyData.post_id = options.postId;
+		// Populate body data with post id only if it is an integer
+		if ( Number.isInteger( parseInt( options.postId as string ) ) ) {
+			bodyData.post_id = +options.postId;
 		}
 
 		// If the url is not provided, we use the default one
@@ -155,6 +160,9 @@ export default class SuggestionsEventSource extends EventTarget {
 			bodyData.model = options.model;
 		}
 
+		// Clean the unclear prompt trigger flag
+		this.errorUnclearPromptTriggered = false;
+
 		await fetchEventSource( url, {
 			openWhenHidden: true,
 			method: 'POST',
@@ -187,7 +195,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				if (
 					response.status >= 400 &&
 					response.status <= 500 &&
-					! [ 422, 429 ].includes( response.status )
+					! [ 413, 422, 429 ].includes( response.status )
 				) {
 					this.processConnectionError( response );
 				}
@@ -202,12 +210,12 @@ export default class SuggestionsEventSource extends EventTarget {
 				}
 
 				/*
-				 * error code 429
-				 * you exceeded your current quota please check your plan and billing details
+				 * error code 413
+				 * request context too large
 				 */
-				if ( response.status === 429 ) {
-					errorCode = ERROR_QUOTA_EXCEEDED;
-					this.dispatchEvent( new CustomEvent( ERROR_QUOTA_EXCEEDED ) );
+				if ( response.status === 413 ) {
+					errorCode = ERROR_CONTEXT_TOO_LARGE;
+					this.dispatchEvent( new CustomEvent( ERROR_CONTEXT_TOO_LARGE ) );
 				}
 
 				/*
@@ -217,6 +225,15 @@ export default class SuggestionsEventSource extends EventTarget {
 				if ( response.status === 422 ) {
 					errorCode = ERROR_MODERATION;
 					this.dispatchEvent( new CustomEvent( ERROR_MODERATION ) );
+				}
+
+				/*
+				 * error code 429
+				 * you exceeded your current quota please check your plan and billing details
+				 */
+				if ( response.status === 429 ) {
+					errorCode = ERROR_QUOTA_EXCEEDED;
+					this.dispatchEvent( new CustomEvent( ERROR_QUOTA_EXCEEDED ) );
 				}
 
 				// Always dispatch a global ERROR_RESPONSE event
@@ -246,8 +263,19 @@ export default class SuggestionsEventSource extends EventTarget {
 		 */
 		const replacedMessage = this.fullMessage.replace( /__|(\*\*)/g, '' );
 		if ( replacedMessage.startsWith( 'JETPACK_AI_ERROR' ) ) {
+			/*
+			 * Check if the unclear prompt event was already dispatched,
+			 * to ensure that it is dispatched only once per request.
+			 */
+			if ( this.errorUnclearPromptTriggered ) {
+				return;
+			}
+			this.errorUnclearPromptTriggered = true;
+
 			// The unclear prompt marker was found, so we dispatch an error event
 			this.dispatchEvent( new CustomEvent( ERROR_UNCLEAR_PROMPT ) );
+			debug( 'Unclear error prompt dispatched' );
+
 			this.dispatchEvent(
 				new CustomEvent( ERROR_RESPONSE, {
 					detail: getErrorData( ERROR_UNCLEAR_PROMPT ),
@@ -268,6 +296,14 @@ export default class SuggestionsEventSource extends EventTarget {
 
 	processEvent( e: EventSourceMessage ) {
 		if ( e.data === '[DONE]' ) {
+			/*
+			 * Check if the unclear prompt event was already dispatched,
+			 * to ensure that it is dispatched only once per request.
+			 */
+			if ( this.errorUnclearPromptTriggered ) {
+				return;
+			}
+
 			if ( this.fullMessage.length ) {
 				// Dispatch an event with the full content
 				this.dispatchEvent( new CustomEvent( 'done', { detail: this.fullMessage } ) );

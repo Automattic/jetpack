@@ -9,6 +9,8 @@ namespace Automattic\JetpackBeta;
 
 use Composer\Semver\Comparator as Semver;
 use InvalidArgumentException;
+use Plugin_Upgrader;
+use WP_Ajax_Upgrader_Skin;
 use WP_Error;
 
 /**
@@ -243,7 +245,7 @@ class Plugin {
 	 */
 	protected function is_valid_url( &$v ) {
 		$v = filter_var( $v, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED );
-		return $v && substr( $v, 0, 8 ) === 'https://';
+		return $v && str_starts_with( $v, 'https://' );
 	}
 
 	/**
@@ -838,35 +840,33 @@ class Plugin {
 	 * @return null|WP_Error
 	 */
 	private function install( $which, $info ) {
-		// Download the required version of the plugin.
-		$temp_path = download_url( $info->download_url );
-		if ( is_wp_error( $temp_path ) ) {
-			return new WP_Error(
-				'download_error',
-				// translators: %1$s: download url, %2$s: error message.
-				sprintf( __( 'Error Downloading: <a href="%1$s">%1$s</a> - Error: %2$s', 'jetpack-beta' ), $info->download_url, $temp_path->get_error_message() )
-			);
-		}
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
-		// Init the WP_Filesystem API.
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
-		if ( ! WP_Filesystem( $creds ) ) {
-			return new WP_Error( 'fs_api_error', __( 'Jetpack Beta: No File System access', 'jetpack-beta' ) );
-		}
+		$skin     = new WP_Ajax_Upgrader_Skin();
+		$upgrader = new Plugin_Upgrader( $skin );
+		$upgrader->init();
+		$result = $upgrader->install(
+			$info->download_url,
+			array(
+				'overwrite_package' => true,
+			)
+		);
 
-		// Unzip the downloaded plugin.
-		global $wp_filesystem;
-		$plugin_path = str_replace( ABSPATH, $wp_filesystem->abspath(), WP_PLUGIN_DIR );
-		$result      = unzip_file( $temp_path, $plugin_path );
 		if ( is_wp_error( $result ) ) {
-			// translators: %1$s: error message.
-			return new WP_Error( 'unzip_error', sprintf( __( 'Error Unziping file: Error: %1$s', 'jetpack-beta' ), $result->get_error_message() ) );
+			return $result;
+		}
+		$errors = $upgrader->skin->get_errors();
+		if ( is_wp_error( $errors ) && $errors->get_error_code() ) {
+			return $errors;
+		}
+		if ( $result === false ) {
+			return new WP_Error( 'install_error', __( 'There was an error installing your plugin.', 'jetpack-beta' ) );
 		}
 
 		// Record the source info, if it's a dev version.
 		if ( 'dev' === $which ) {
-			$wp_filesystem->put_contents( "$plugin_path/{$this->dev_plugin_slug()}/.jpbeta.json", wp_json_encode( $info, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
+			global $wp_filesystem; // Should have been set up by the upgrader already.
+			$wp_filesystem->put_contents( WP_PLUGIN_DIR . '/' . $this->dev_plugin_slug() . '/.jpbeta.json', wp_json_encode( $info, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 		}
 
 		return null;

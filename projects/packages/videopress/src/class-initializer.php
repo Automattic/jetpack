@@ -7,15 +7,11 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\Assets;
-
 /**
  * Initialized the VideoPress package
  */
 class Initializer {
 
-	const JETPACK_VIDEOPRESS_VIDEO_HANDLER      = 'jetpack-videopress-video-block';
-	const JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER = 'jetpack-videopress-video-block-view';
 	const JETPACK_VIDEOPRESS_IFRAME_API_HANDLER = 'jetpack-videopress-iframe-api';
 
 	/**
@@ -187,11 +183,13 @@ class Initializer {
 	/**
 	 * VideoPress video block render method
 	 *
-	 * @param array  $block_attributes - Block attributes.
-	 * @param string $content          - Current block markup.
+	 * @param array    $block_attributes - Block attributes.
+	 * @param string   $content          - Current block markup.
+	 * @param WP_Block $block            - Current block.
+	 *
 	 * @return string                    Block markup.
 	 */
-	public static function render_videopress_video_block( $block_attributes, $content ) {
+	public static function render_videopress_video_block( $block_attributes, $content, $block ) {
 		global $wp_embed;
 
 		// CSS classes
@@ -237,7 +235,7 @@ class Initializer {
 
 		// Try to get the custom anchor from the block attributes.
 		if ( isset( $block_attributes['anchor'] ) && $block_attributes['anchor'] ) {
-			$id_attribute = sprintf( 'id="%s"', $block_attributes['anchor'] );
+			$id_attribute = sprintf( 'id="%s"', esc_attr( $block_attributes['anchor'] ) );
 		} elseif ( preg_match( '/<figure[^>]*id="([^"]+)"/', $content, $matches ) ) {
 			// Othwerwise, try to get the custom anchor from the <figure /> element.
 			$id_attribute = sprintf( 'id="%s"', $matches[1] );
@@ -266,9 +264,8 @@ class Initializer {
 			$inline_style = '';
 			if ( $poster ) {
 				$inline_style = sprintf(
-					'style="background-image: url(%s); background-size: cover;
-				background-position: center center;"',
-					$poster
+					'style="background-image: url(%s); background-size: cover; background-position: center center;"',
+					esc_attr( $poster )
 				);
 			}
 
@@ -288,6 +285,7 @@ class Initializer {
 		<figure class="%1$s" style="%2$s" %3$s>
 			%4$s
 			%5$s
+			%6$s
 		</figure>
 		';
 
@@ -309,13 +307,26 @@ class Initializer {
 			);
 		}
 
+		// Get premium content from block context
+		$premium_block_plan_id    = isset( $block->context['premium-content/planId'] ) ? intval( $block->context['premium-content/planId'] ) : 0;
+		$is_premium_content_child = isset( $block->context['isPremiumContentChild'] ) ? (bool) $block->context['isPremiumContentChild'] : false;
+		$maybe_premium_script     = '';
+		if ( $is_premium_content_child ) {
+			Access_Control::instance()->set_guid_subscription( $guid, $premium_block_plan_id );
+			$escaped_guid         = esc_js( $guid );
+			$script_content       = "if ( ! window.__guidsToPlanIds ) { window.__guidsToPlanIds = {}; }; window.__guidsToPlanIds['$escaped_guid'] = $premium_block_plan_id;";
+			$maybe_premium_script = '<script>' . $script_content . '</script>';
+		}
+
+		// $id_attribute, $video_wrapper, $figcaption properly escaped earlier on the code
 		return sprintf(
 			$figure_template,
 			esc_attr( $classes ),
 			esc_attr( $style ),
 			$id_attribute,
 			$video_wrapper,
-			$figcaption
+			$figcaption,
+			$maybe_premium_script
 		);
 	}
 
@@ -340,74 +351,49 @@ class Initializer {
 		// Pick the block name straight from the block metadata .json file.
 		$videopress_video_block_name = $videopress_video_metadata->name;
 
-		// Register and enqueue scripts used by the VideoPress video block.
-		Block_Editor_Extensions::init( self::JETPACK_VIDEOPRESS_VIDEO_HANDLER );
+		// Is the block already registered?
+		$is_block_registered = \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name );
 
 		// Do not register if the block is already registered.
-		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name ) ) {
+		if ( $is_block_registered ) {
 			return;
 		}
 
-		// check current theme
-		$is_block_theme = wp_get_theme()->is_block_theme();
+		// Is this a REST API request?
+		$is_rest = defined( 'REST_API_REQUEST' ) && REST_API_REQUEST;
 
-		// Check if the site is a P2 site
-		$is_p2_site = function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( get_current_blog_id() );
-
-		// for non block themes frontend, we defer the enqueuing to the frontend, so we're able to tell if we need the assets
-		// If site is p2, load the assets in the frontend
-		if ( ! $is_block_theme && ! is_admin() && ! $is_p2_site ) {
-			add_action(
-				'wp_enqueue_scripts',
-				function () use ( $videopress_video_metadata_file ) {
-					$post_content = get_the_content();
-
-					if ( ! has_block( 'videopress/video', $post_content ) && ! has_shortcode( $post_content, 'videopress' ) ) {
-						return;
-					}
-					self::enqueue_block_assets( $videopress_video_metadata_file );
-				}
+		if ( $is_rest ) {
+			register_block_type(
+				$videopress_video_metadata_file,
+				array(
+					'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
+				)
 			);
 			return;
 		}
-		self::enqueue_block_assets( $videopress_video_metadata_file );
-	}
 
-	/**
-	 * Enqueue scripts used by the VideoPress video block and register block type.
-	 *
-	 * @param string $videopress_video_metadata_file Path to the block metadata file.
-	 */
-	public static function enqueue_block_assets( $videopress_video_metadata_file ) {
-		// Register script used by the VideoPress video block in the editor.
-		Assets::register_script(
-			self::JETPACK_VIDEOPRESS_VIDEO_HANDLER,
-			'../build/block-editor/blocks/video/index.js',
-			__FILE__,
-			array(
-				'in_footer'  => false,
-				'textdomain' => 'jetpack-videopress-pkg',
-			)
-		);
-
-		// Register script used by the VideoPress video block in the front-end.
-		Assets::register_script(
-			self::JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER,
-			'../build/block-editor/blocks/video/view.js',
-			__FILE__,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-videopress-pkg',
-			)
-		);
-
-		// Register VideoPress video block.
-		register_block_type(
+		$registration = register_block_type(
 			$videopress_video_metadata_file,
 			array(
 				'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
+				'uses_context'    => array( 'premium-content/planId', 'isPremiumContentChild', 'selectedPlanId' ),
 			)
 		);
+
+		// Do not enqueue scripts if the block could not be registered.
+		if ( empty( $registration ) || empty( $registration->editor_script_handles ) ) {
+			return;
+		}
+
+		// Extensions use Connection_Initial_State::render_script with script handle as parameter.
+		if ( is_array( $registration->editor_script_handles ) ) {
+			$script_handle = $registration->editor_script_handles[0];
+		} else {
+			$script_handle = $registration->editor_script_handles;
+		}
+
+		// Register and enqueue scripts used by the VideoPress video block.
+		Block_Editor_Extensions::init( $script_handle );
 	}
 
 	/**

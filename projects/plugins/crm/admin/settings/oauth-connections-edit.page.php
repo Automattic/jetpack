@@ -1,7 +1,7 @@
 <?php
 /*
 !
- * Admin Page: Settings: OAuth Connections: edit
+ * Admin Page: Settings: OAuth Connection: edit
  */
 
 // stop direct access
@@ -144,7 +144,7 @@ if ( isset( $_GET['edit-provider'] ) && $zbs->oauth->legitimate_provider( $_GET[
 								<?php
 							}
 							?>
-							<a href="<?php echo jpcrm_esc_link( $zbs->slugs['settings'] . '&tab=oauth' ); ?>" class="ui button"><?php esc_html_e( 'Return to OAuth Connections', 'zero-bs-crm' ); ?></a>
+							<a href="<?php echo jpcrm_esc_link( $zbs->slugs['settings'] . '&tab=oauth' ); ?>" class="ui button"><?php esc_html_e( 'Return to OAuth Connection', 'zero-bs-crm' ); ?></a>
 						</p>
 					</td>
 				</tr>

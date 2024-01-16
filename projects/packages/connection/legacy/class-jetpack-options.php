@@ -129,6 +129,7 @@ class Jetpack_Options {
 			'dismissed_backup_review_restore',     // (bool) Determines if the component review request is dismissed for successful restore requests.
 			'dismissed_backup_review_backups',     // (bool) Determines if the component review request is dismissed for successful backup requests.
 			'identity_crisis_url_secret',          // (array) The IDC URL secret and its expiration date.
+			'dismissed_welcome_banner',            // (bool) Determines if the welcome banner has been dismissed or not.
 		);
 	}
 

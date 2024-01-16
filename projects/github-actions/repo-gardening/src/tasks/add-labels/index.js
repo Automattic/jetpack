@@ -14,74 +14,27 @@ const getFiles = require( '../../utils/get-files' );
  * @returns {string} Cleaned up feature name.
  */
 function cleanName( name ) {
-	// Sharedaddy is a legacy codename.
-	if ( name === 'sharedaddy' ) {
-		name = 'Sharing';
-	}
+	const name_exceptions = {
+		'custom-post-types': 'Custom Content Types', // We name our CPTs "Custom Content Types" to avoid confusion with WordPress's CPT.
+		'instagram-gallery': 'Latest Instagram Posts', // Latest Instagram Posts used to be named "Instagram Gallery".
+		'mu-wpcom-plugin': 'mu-wpcom', // [Plugin] mu wpcom plugin is a bit too long.
+		'premium-content': 'Paid content', // Premium Content was renamed into Paid content.
+		'rating-star': 'Star Rating', // Rating Star was renamed into Star Rating.
+		'recurring-payments': 'Payments', // Payments used to be called Recurring Payments.
+		'render-blocking-js': 'Defer JS', // render-blocking-js is a Boost feature.
+		sharedaddy: 'Sharing', // Sharedaddy is a legacy codename.
+		shortcodes: 'Shortcodes / Embeds', // Our Shortcodes feature includes shortcodes and embeds.
+		'simple-payments': 'Pay With Paypal', // Simple Payments was renamed to "Pay With Paypal".
+		stats: 'Stats Data', // We customize the Stats module's name to differentiate from the Stats UI (Stats dashboard).
+		widgets: 'Extra Sidebar Widgets', // Our widgets are "Extra Sidebar Widgets".
+		'woo-sync': 'WooSync', // The WooSync module does not have a space, despite legacy naming
+		wordads: 'Ad', // WordAds is a codename. We name the feature just "Ad" or "Ads".
+		'wpcom-block-editor': 'WordPress.com Block Editor', // WordPress.com Block Editor lives under 'wpcom-block-editor'.
+	};
 
-	// Our Shortcodes feature includes shortcodes and embeds.
-	if ( name === 'shortcodes' ) {
-		name = 'Shortcodes / Embeds';
-	}
-
-	// We customize the Stats module's name to differentiate from the Stats UI (Stats dashboard).
-	if ( name === 'stats' ) {
-		name = 'Stats Data';
-	}
-
-	// We name our CPTs "Custom Content Types" to avoid confusion with WordPress's CPT.
-	if ( name === 'custom-post-types' ) {
-		name = 'Custom Content Types';
-	}
-
-	// Our widgets are "Extra Sidebar Widgets".
-	if ( name === 'widgets' ) {
-		name = 'Extra Sidebar Widgets';
-	}
-
-	// Simple Payments was renamed into "Pay With Paypal".
-	if ( name === 'simple-payments' ) {
-		name = 'Pay With Paypal';
-	}
-
-	// WordPress.com Block Editor lives under 'wpcom-block-editor'.
-	if ( name === 'wpcom-block-editor' ) {
-		name = 'WordPress.com Block Editor';
-	}
-
-	// WordAds is a codename. We name the feature just "Ad" or "Ads".
-	if ( name === 'wordads' ) {
-		name = 'Ad';
-	}
-
-	// Latest Instagram Posts used to be named Instagram Gallery.
-	if ( name === 'instagram-gallery' ) {
-		name = 'Latest Instagram Posts';
-	}
-
-	// Payments used to be called Recurring Payments.
-	if ( name === 'recurring-payments' ) {
-		name = 'Payments';
-	}
-
-	// Premium Content was renamed into Paid content.
-	if ( name === 'premium-content' ) {
-		name = 'Paid content';
-	}
-
-	// Rating Star was renamed into Star Rating.
-	if ( name === 'rating-star' ) {
-		name = 'Star Rating';
-	}
-
-	// render-blocking-js is a Boost feature.
-	if ( name === 'render-blocking-js' ) {
-		name = 'Defer JS';
-	}
-
-	// [Plugin] mu wpcom plugin is a bit too long.
-	if ( name === 'mu-wpcom-plugin' ) {
-		name = 'mu-wpcom';
+	if ( name_exceptions[ name ] ) {
+		// don't return here, as at least of the above (mu-wpcom) is further changed below
+		name = name_exceptions[ name ];
 	}
 
 	return (
@@ -103,9 +56,10 @@ function cleanName( name ) {
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
  * @param {boolean} isDraft  - Whether the pull request is a draft.
+ * @param {boolean} isRevert  - Whether the pull request is a revert.
  * @returns {Promise<Array>} Promise resolving to an array of keywords we'll search for.
  */
-async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
+async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert ) {
 	const keywords = new Set();
 
 	// Get next valid milestone.
@@ -173,6 +127,15 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		const actions = file.match( /^\.github\/(actions|workflows|files)\// );
 		if ( actions !== null ) {
 			keywords.add( 'Actions' );
+		}
+
+		// The Contact Form feature now lives in both a package and a Jetpack module.
+		const contactForm = file.match( /^projects\/packages\/forms\/(?<blocks>src\/blocks)?/ );
+		if ( contactForm !== null ) {
+			keywords.add( '[Feature] Contact Form' );
+			if ( contactForm.groups.blocks ) {
+				keywords.add( '[Block] Contact Form' );
+			}
 		}
 
 		// Docker.
@@ -289,6 +252,11 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		keywords.add( '[Status] In Progress' );
 	}
 
+	// Add '[Type] Revert' for revert PRs
+	if ( isRevert ) {
+		keywords.add( '[Type] Revert' );
+	}
+
 	return [ ...keywords ];
 }
 
@@ -301,10 +269,15 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 async function addLabels( payload, octokit ) {
 	const { number, repository, pull_request } = payload;
 	const { owner, name } = repository;
+	const { draft, title } = pull_request;
 
 	// Get labels to add to the PR.
-	const isDraft = !! ( pull_request && pull_request.draft );
-	const labels = await getLabelsToAdd( octokit, owner.login, name, number, isDraft );
+	const isDraft = !! ( pull_request && draft );
+
+	// If the PR title includes the word "revert", mark it as such.
+	const isRevert = title.toLowerCase().includes( 'revert' );
+
+	const labels = await getLabelsToAdd( octokit, owner.login, name, number, isDraft, isRevert );
 
 	if ( ! labels.length ) {
 		debug( 'add-labels: Could not find labels to add to that PR. Aborting' );

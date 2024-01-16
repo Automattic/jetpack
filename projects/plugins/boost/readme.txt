@@ -3,9 +3,9 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dili
 Donate link: https://automattic.com
 Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
-Tested up to: 6.3
+Tested up to: 6.4
 Requires PHP: 7.0
-Stable tag: 2.1.1
+Stable tag: 2.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -187,22 +187,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 2.1.1 - 2023-09-13
-#### Added
-- Image CDN: Added quality settings for premium users.
-- Performance History: New section to display historical performance.
-
-#### Changed
-- Image Size Analyzer: Removed get parameters from image URLs on ISA report details page.
-- UI: Improved discount elements for pricing section.
-- UI: Updated Image Size Analyzer error feedback.
-- General: Removed WP 6.1 backwards compatibility checks.
-
+### 2.2.1 - 2023-12-21
 #### Fixed
-- UI: Added the footer back on the getting started page.
-- Critical CSS: Improved the regenerate button to eliminate the possibility of accidental parallel regeneration.
-- Image Guide: Fixed oversize ratio in some cases.
-- Image Guide: Fixed grammar issue in the feature description on the Boost dashboard.
+- Defer JS: added importmap to the exclusion list to fix compatibility issues.
 
 --------
 

@@ -5,6 +5,7 @@ import {
 	isJetpackBoost,
 	isJetpackProduct,
 	isJetpackSearch,
+	isJetpackCreator,
 	isJetpackSecurityBundle,
 	isJetpackAntiSpam,
 	isSecurityComparableJetpackLegacyPlan,
@@ -430,6 +431,31 @@ export function getActiveSearchPurchase( state ) {
 export function hasActiveSearchPurchase( state ) {
 	return (
 		!! getActiveSearchPurchase( state ) ||
+		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
+	);
+}
+
+/**
+ * Searches active products for Creator product
+ *
+ * @param {object} state - Global state tree
+ * @returns {object}       An active Creator product if one was found, undefined otherwise.
+ */
+export function getActiveCreatorPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackCreator( product.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active Creator product purchase
+ *
+ * @param {object} state - Global state tree
+ * @returns {boolean}      True if the site has an active Creator product purchase, false otherwise.
+ */
+export function hasActiveCreatorPurchase( state ) {
+	return (
+		!! getActiveCreatorPurchase( state ) ||
 		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
 	);
 }

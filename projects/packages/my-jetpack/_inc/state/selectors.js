@@ -77,6 +77,16 @@ const productSelectors = {
 	getProductsThatRequiresUserConnection,
 };
 
+const backupRewindableEventsSelectors = {
+	getBackupRewindableEvents: state => state.backupRewindableEvents?.items || {},
+	isFetchingBackupRewindableEvents: state => state.backupRewindableEvents?.isFetching || false,
+};
+
+const countBackupItemsSelectors = {
+	getCountBackupItems: state => state.countBackupItems?.items || {},
+	isFetchingCountBackupItems: state => state.countBackupItems.isFetching || false,
+};
+
 const purchasesSelectors = {
 	getPurchases: state => state.purchases?.items || [],
 	isRequestingPurchases: state => state.purchases?.isFetching || false,
@@ -129,6 +139,23 @@ const productStatsSelectors = {
 	isFetchingProductStats,
 };
 
+const getStatsCounts = state => {
+	return state.statsCounts?.data;
+};
+
+const isFetchingStatsCounts = state => {
+	return state.statsCounts?.isFetching || false;
+};
+
+const statsCountsSelectors = {
+	getStatsCounts,
+	isFetchingStatsCounts,
+};
+
+const getWelcomeBannerHasBeenDismissed = state => {
+	return state.welcomeBanner?.hasBeenDismissed;
+};
+
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
@@ -138,6 +165,10 @@ const selectors = {
 	...noticeSelectors,
 	...pluginSelectors,
 	...productStatsSelectors,
+	...backupRewindableEventsSelectors,
+	...countBackupItemsSelectors,
+	...statsCountsSelectors,
+	getWelcomeBannerHasBeenDismissed,
 };
 
 export default selectors;

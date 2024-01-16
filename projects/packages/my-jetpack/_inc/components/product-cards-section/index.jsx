@@ -4,6 +4,7 @@ import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
 import BoostCard from './boost-card';
+import CreatorCard from './creator-card';
 import CrmCard from './crm-card';
 import ScanAndProtectCard from './scan-protect-card';
 import SearchCard from './search-card';
@@ -21,21 +22,19 @@ const { showJetpackStatsCard = false } = window.myJetpackInitialState?.myJetpack
  * @returns {object} ProductCardsSection React component.
  */
 const ProductCardsSection = () => {
-	const items = [
-		BackupCard,
-		ScanAndProtectCard,
-		AntiSpamCard,
-		BoostCard,
-		SearchCard,
-		VideopressCard,
-		CrmCard,
-		SocialCard,
-		AiCard,
-	];
-
-	if ( showJetpackStatsCard ) {
-		items.splice( 6, 0, StatsCard );
-	}
+	const items = {
+		backups: BackupCard,
+		scan: ScanAndProtectCard,
+		antispam: AntiSpamCard,
+		boost: BoostCard,
+		search: SearchCard,
+		videopress: VideopressCard,
+		stats: showJetpackStatsCard ? StatsCard : null,
+		crm: CrmCard,
+		creator: CreatorCard,
+		social: SocialCard,
+		ai: AiCard,
+	};
 
 	return (
 		<Container
@@ -45,11 +44,17 @@ const ProductCardsSection = () => {
 			horizontalSpacing={ 0 }
 			horizontalGap={ 3 }
 		>
-			{ items.map( ( Item, index ) => (
-				<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ index }>
-					<Item admin={ !! window?.myJetpackInitialState?.userIsAdmin } />
-				</Col>
-			) ) }
+			{ Object.entries( items ).map( ( [ key, Item ] ) => {
+				if ( ! Item ) {
+					return null;
+				}
+
+				return (
+					<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ key }>
+						<Item admin={ !! window?.myJetpackInitialState?.userIsAdmin } />
+					</Col>
+				);
+			} ) }
 		</Container>
 	);
 };

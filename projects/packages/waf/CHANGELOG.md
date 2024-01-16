@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.3] - 2024-01-02
+### Changed
+- Internal updates.
+
+## [0.12.2] - 2023-12-25
+### Changed
+- Improve top-level WP-CLI command description [#34745]
+
+## [0.12.1] - 2023-11-21
+
+## [0.12.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [0.11.15] - 2023-11-14
+
+## [0.11.14] - 2023-10-30
+
+## [0.11.13] - 2023-10-10
+### Fixed
+- Escape email address when output in HTML. [#33536]
+
+## [0.11.12] - 2023-09-28
+### Changed
+- Minor internal updates.
+
+## [0.11.11] - 2023-09-19
+
+- Minor internal updates.
+
 ## [0.11.10] - 2023-09-11
 ### Changed
 - General: remove backwards-compatible functions now that package relies on WordPress 6.2. [#32772]
@@ -223,6 +253,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.12.3]: https://github.com/Automattic/jetpack-waf/compare/v0.12.2...v0.12.3
+[0.12.2]: https://github.com/Automattic/jetpack-waf/compare/v0.12.1...v0.12.2
+[0.12.1]: https://github.com/Automattic/jetpack-waf/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-waf/compare/v0.11.15...v0.12.0
+[0.11.15]: https://github.com/Automattic/jetpack-waf/compare/v0.11.14...v0.11.15
+[0.11.14]: https://github.com/Automattic/jetpack-waf/compare/v0.11.13...v0.11.14
+[0.11.13]: https://github.com/Automattic/jetpack-waf/compare/v0.11.12...v0.11.13
+[0.11.12]: https://github.com/Automattic/jetpack-waf/compare/v0.11.11...v0.11.12
+[0.11.11]: https://github.com/Automattic/jetpack-waf/compare/v0.11.10...v0.11.11
 [0.11.10]: https://github.com/Automattic/jetpack-waf/compare/v0.11.9...v0.11.10
 [0.11.9]: https://github.com/Automattic/jetpack-waf/compare/v0.11.8...v0.11.9
 [0.11.8]: https://github.com/Automattic/jetpack-waf/compare/v0.11.7...v0.11.8

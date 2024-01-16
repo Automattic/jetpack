@@ -233,7 +233,7 @@ class Hooks {
 	 */
 	public function get_plugin_info( $result, $action, $args ) {
 		// Check if this is a 'plugin_information' request for a '-dev' plugin.
-		if ( 'plugin_information' !== $action || substr( $args->slug, -4 ) !== '-dev' ) {
+		if ( 'plugin_information' !== $action || ! str_ends_with( $args->slug, '-dev' ) ) {
 			return $result;
 		}
 

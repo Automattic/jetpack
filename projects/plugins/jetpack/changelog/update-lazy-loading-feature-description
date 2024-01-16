@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Discourage enabling of Lazy loading images as now 90% of browser support the feature natively and this version in Jetpack can conflict with the upcoming WordPress interactivity API'

@@ -381,7 +381,7 @@
       ===================================================================================================== */
 
    /* ======================================================================================================
-      ======================== Events
+      ======================== Tasks
       ===================================================================================================== */
 
 
@@ -421,71 +421,40 @@
 
 
    /* ======================================================================================================
-      ======================== / Events
+      ======================== / Tasks
       ===================================================================================================== */
 
+// phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
+// Used for quickfilters in listviews
+global $zeroBSCRM_filterbuttons_customer; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
+$zeroBSCRM_filterbuttons_customer['default'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	'status_lead'     => array( __( 'Lead', 'zero-bs-crm' ) ),
+	'status_customer' => array( __( 'Customer', 'zero-bs-crm' ) ),
+	'assigned_to_me'  => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
+);
 
+$zeroBSCRM_filterbuttons_customer['all'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	'status_lead'     => array( __( 'Lead', 'zero-bs-crm' ) ),
+	'status_customer' => array( __( 'Customer', 'zero-bs-crm' ) ),
+	'assigned_to_me'  => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
+	'not_assigned'    => array( __( 'Not assigned', 'zero-bs-crm' ) ),
+);
 
+// Used for quickfilters in listviews
+global $zeroBSCRM_filterbuttons_company; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
+$zeroBSCRM_filterbuttons_company['default'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	'status_lead'     => array( __( 'Lead', 'zero-bs-crm' ) ),
+	'status_customer' => array( __( 'Customer', 'zero-bs-crm' ) ),
+);
 
+$zeroBSCRM_filterbuttons_company['all'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	'status_lead'     => array( __( 'Lead', 'zero-bs-crm' ) ),
+	'status_customer' => array( __( 'Customer', 'zero-bs-crm' ) ),
+);
 
-
-
-
-   /* ======================================================================================================
-      ======================== CUSTOMER filters
-      ===================================================================================================== */
-
-  // Also home to filter button choices
-  global $zeroBSCRM_filterbuttons_customer;
-
-  $zeroBSCRM_filterbuttons_customer['default'] = array(
-
-                              'lead' => array(__('Lead',"zero-bs-crm")),
-								'customer'     => array( __( 'Customer', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
-                              'assigned_to_me' => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
-                              
-                        );
-  $zeroBSCRM_filterbuttons_customer['all'] = array(
-
-        'lead' => array( __( 'Lead', 'zero-bs-crm' ) ),
-		'customer'       => array( __( 'Customer', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
-        'assigned_to_me' => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
-        'not_assigned' => array( __( 'Not assigned', 'zero-bs-crm' ) ),
-
-    );
-
-
-
-   /* ======================================================================================================
-      ======================== / CUSTOMER filters
-      ===================================================================================================== */
-
-   /* ======================================================================================================
-      ======================== Company filters
-      ===================================================================================================== */
-
-      global $zeroBSCRM_filterbuttons_company;
-
-      $zeroBSCRM_filterbuttons_company['default'] = array(
-
-                                  'lead' => array(__('Lead',"zero-bs-crm")),
-									'customer' => array( __( 'Customer', 'zero-bs-crm' ) ),  // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
-                            );
-      $zeroBSCRM_filterbuttons_company['all'] = array(
-
-            'lead' => array(__('Lead',"zero-bs-crm")),
-			'customer' => array( __( 'Customer', 'zero-bs-crm' ) ),  // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
-
-        );
-
-   /* ======================================================================================================
-      ======================== / Company filters
-      ===================================================================================================== */
-
-
-
+// phpcs:enable Generic.WhiteSpace.ScopeIndent.Incorrect
 
    /* ======================================================================================================
       ======================== Quote filters
@@ -680,52 +649,100 @@
     //global $zbs;
     //$zeroBSCRM_columns_customer['current'] = $zbs->settings->get('customviews2');
 
+// phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect, Generic.WhiteSpace.ScopeIndent.IncorrectExact
+/**
+ * Adds custom statuses as quickfilters
+ *
+ * This is a light refactor of some legacy code to make things a bit more modular,
+ * but obviously would benefit once we reduce our dependency on excessive globals.
+ */
+function jpcrm_add_custom_statuses_as_quickfilters() {
 
+	$obj_types_with_custom_statuses = array( ZBS_TYPE_CONTACT, ZBS_TYPE_COMPANY, ZBS_TYPE_TRANSACTION );
 
-    function zeroBSCRM_unpackListViewSettings(){
+	foreach ( $obj_types_with_custom_statuses as $obj_type_id ) {
 
-      global $zbs;
+		switch ( $obj_type_id ) {
+			case ZBS_TYPE_CONTACT:
+				$quickfilter_globalname             = 'zeroBSCRM_filterbuttons_customer';
+				$customised_fields_status_field_key = 'customers';
+				break;
 
-      // Auto-add status filters
+			case ZBS_TYPE_COMPANY:
+				$quickfilter_globalname             = 'zeroBSCRM_filterbuttons_company';
+				$customised_fields_status_field_key = 'companies';
+				break;
 
-        global $zeroBSCRM_filterbuttons_customer;
+			case ZBS_TYPE_TRANSACTION:
+				$quickfilter_globalname             = 'zeroBSCRM_filterbuttons_transaction';
+				$customised_fields_status_field_key = 'transactions';
+				break;
+		}
 
-        // if setting on, append these :) - temp fix really :)
-        #} 2.17 - filters from status
-        if (zeroBSCRM_getSetting('filtersfromstatus') == "1"){
+		// grab any existing quickfilters if they exist (e.g. segments + custom segments)
+		if ( ! empty( $GLOBALS[ $quickfilter_globalname ] ) && is_array( $GLOBALS[ $quickfilter_globalname ] ) ) {
+			$quickfilters = $GLOBALS[ $quickfilter_globalname ];
+		} else {
+			$quickfilters = array(
+				'default' => array(),
+				'all'     => array(),
+			);
+		}
 
-            // get statuses - ripped from settings
-            $customisedfields = zeroBSCRM_getSetting('customisedfields');
-            if (isset($customisedfields['customers']['status']) && is_array($customisedfields['customers']['status'])) $zbsStatusStr = $customisedfields['customers']['status'][1];                                        
-            if (empty($zbsStatusStr)) {
-              #} Defaults:
-              global $zbsCustomerFields; if (is_array($zbsCustomerFields)) $zbsStatusStr = implode(',',$zbsCustomerFields['status'][3]);
-            }                                        
+		// get statuses from settings
+		global $zbs;
+		$customised_fields_setting = $zbs->settings->get( 'customisedfields' );
 
+		if ( ! empty( $customised_fields_setting[ $customised_fields_status_field_key ]['status'] ) && is_array( $customised_fields_setting[ $customised_fields_status_field_key ]['status'] ) ) {
+			$statuses_csv = $customised_fields_setting[ $customised_fields_status_field_key ]['status'][1];
 
-            // split + add to "All" list
-            $statuses = explode(',',$zbsStatusStr);
+			if ( ! empty( $statuses_csv ) ) {
+				$statuses = explode( ',', $statuses_csv );
+			} else {
+				// use defaults if possible
+				global $zbsCustomerFields; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				if ( ! empty( $zbsCustomerFields ) && is_array( $zbsCustomerFields ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$statuses = $zbsCustomerFields['status'][3]; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				} else {
+					// fallback in really broken state
+					$statuses = array();
+				}
+			}
 
-            // add one for each :)
-            foreach ($statuses as $s){
+			foreach ( $statuses as $status ) {
 
-              // note this doesn't allow for peeps inclusion of special characters in statuses...
-              $permS = str_replace(' ','_',strtolower($s));
+				// Legacy logic, which doesn't allow for special chars
+				// Note: these are custom statuses, so should not be translated
+				$status_slug = 'status_' . str_replace( ' ', '_', strtolower( $status ) );
 
-              if (
-                  // if isn't already directly set
-                    !isset($zeroBSCRM_filterbuttons_customer['all']['status_'.strtolower($permS)]) &&
-                  // and isn't "lead" or "customer" defaults
-                    !isset($zeroBSCRM_filterbuttons_customer['all'][strtolower($permS)])
-                  ) {
+				// prevent duplicates
+				if ( ! isset( $quickfilters['all'][ $status_slug ] ) ) {
+					$quickfilters['all'][ $status_slug ] = array( $status );
+				}
+			}
+		}
 
-                    // add it
-                    $zeroBSCRM_filterbuttons_customer['all']['status_'.$permS] = array(__($s,"zero-bs-crm"));
+		// filter for additional quickfilters
+		$quickfilters['all'] = apply_filters( 'jpcrm_add_custom_quickfilter', $quickfilters['all'], $obj_type_id );
 
-              }
-            }
+		// save to the legacy global var
+		$GLOBALS[ $quickfilter_globalname ] = $quickfilters;
+	}
+}
 
-        }
+/**
+ * Unpacks listview settings
+ */
+function zeroBSCRM_unpackListViewSettings() {
+
+	global $zbs;
+
+	// Auto-add status quickfilters
+	if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
+		jpcrm_add_custom_statuses_as_quickfilters();
+	}
+
+	global $zeroBSCRM_filterbuttons_customer; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// add segments to quickfilters if setting enabled
 			if ( zeroBSCRM_getSetting( 'filtersfromsegments' ) === 1 ) {
@@ -740,6 +757,7 @@
 				}
 			}
 
+// phpcs:enable Generic.WhiteSpace.ScopeIndent.Incorrect
       // ALL FIELD TYPES
       global $zeroBSCRM_columns_customer, $zbsCustomerFields;
       global $zeroBSCRM_columns_company, $zbsCompanyFields;
@@ -747,9 +765,6 @@
       global $zeroBSCRM_columns_invoice, $zbsCustomerInvoiceFields;
       global $zeroBSCRM_columns_transaction, $zbsTransactionFields;
       global $zeroBSCRM_columns_form, $zbsFormFields;
-
-
-        if ($zbs->isDAL2()){
 
           $useSecondAddress = zeroBSCRM_getSetting('secondaddress');
           $second_address_label = zeroBSCRM_getSetting( 'secondaddresslabel' );
@@ -787,7 +802,7 @@
                         $cfTitle = $fKey; if (is_array($fDetail) && isset($fDetail[1])) $cfTitle = $fDetail[1];
 
                         // secaddr get's dealt with:
-                        if (substr($fKey,0,8) == 'secaddr_') {
+												if ( str_starts_with( $fKey, 'secaddr_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                           $cfTitle .= ' (' . esc_html( $second_address_label ) . ')';
                           if ($useSecondAddress !== 1) $skip = true;
                         }
@@ -801,51 +816,9 @@
 
             }
 
-        }
-
-
         // Auto-add status filters - COMPANY
 
         global $zeroBSCRM_filterbuttons_company;
-
-        // if setting on, append these :) - temp fix really :)
-        #} 2.17 - filters from status
-        if (zeroBSCRM_getSetting('filtersfromstatus') == "1"){
-
-            // get statuses - ripped from settings
-            $customisedfields = zeroBSCRM_getSetting('customisedfields');
-            if (isset($customisedfields['companies']['status']) && is_array($customisedfields['companies']['status'])) $zbsStatusStr = $customisedfields['companies']['status'][1];                                        
-            if (empty($zbsStatusStr)) {
-              #} Defaults:
-              global $zbsCompanyFields; if (is_array($zbsCompanyFields)) $zbsStatusStr = implode(',',$zbsCompanyFields['status'][3]);
-            }                                        
-
-
-            // split + add to "All" list
-            $statuses = explode(',',$zbsStatusStr);
-
-            // add one for each :)
-            foreach ($statuses as $s){
-
-              // note this doesn't allow for peeps inclusion of special characters in statuses...
-              $permS = str_replace(' ','_',strtolower($s));
-
-              if (
-                  // if isn't already directly set
-                    !isset($zeroBSCRM_filterbuttons_company['all']['status_'.strtolower($permS)]) &&
-                  // and isn't "lead" or "customer" defaults
-                    !isset($zeroBSCRM_filterbuttons_company['all'][strtolower($permS)])
-                  ) {
-
-                    // add it
-                    $zeroBSCRM_filterbuttons_company['all']['status_'.$permS] = array(__($s,"zero-bs-crm"));
-
-              }
-            }
-
-        }
-
-
 
         // Auto-add 'not-contacted-in-x-days' (based on listview settings no 30 e.g.)
         $quickFilterListViewSettings = zeroBSCRM_getSetting('quickfiltersettings');
@@ -881,10 +854,6 @@
 
         }
 
-
-        // only DB2 peeps
-        if ($zbs->isDAL2()){
-
             // Auto-add 'olderthan-x-days' (based on listview settings no 30 e.g.)
             if (isset($quickFilterListViewSettings['olderthanx']) && !empty($quickFilterListViewSettings['olderthanx']) && $quickFilterListViewSettings['olderthanx'] > 0){
 
@@ -905,10 +874,6 @@
                   }
 
             }
-
-        }
-
-        
 
         // Auto-add 'edit link' to quotes invs (somehow it wasn't always adding)
         $customviews2 = zeroBSCRM_getSetting('customviews2'); $cv2Changed = false;

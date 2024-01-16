@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/tock",
 	"title": "Tock",
-	"description": "Allow visitors to reserve a table at your restaurant with Tock.",
+	"description": "Reserve a table at your restaurant with Tock.",
 	"keywords": [ "booking", "reservation", "restaurant" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
@@ -19,5 +19,10 @@
 			"type": "string"
 		}
 	},
-	"editorScript": "file:../editor.js"
+	"example": {
+		"attributes": {
+			"url": "roister"
+		},
+		"viewportWidth": 250
+	}
 }

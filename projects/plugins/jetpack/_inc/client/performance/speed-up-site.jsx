@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import { isOfflineMode } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
+import { getGutenbergState } from '../state/initial-state';
 
 const SpeedUpSite = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -147,13 +148,10 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 		render() {
 			const foundPhoton = this.props.isModuleFound( 'photon' );
 			const foundAssetCdn = this.props.isModuleFound( 'photon-cdn' );
-			const foundLazyImages = this.props.isModuleFound( 'lazy-images' );
 
-			if ( ! foundPhoton && ! foundLazyImages && ! foundAssetCdn ) {
+			if ( ! foundPhoton && ! foundAssetCdn ) {
 				return null;
 			}
-
-			const lazyImages = this.props.module( 'lazy-images' );
 
 			// Check if any of the CDN options are on.
 			const siteAcceleratorStatus =
@@ -286,34 +284,6 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 							</FormFieldset>
 						</SettingsGroup>
 					) }
-
-					{ foundLazyImages && (
-						<SettingsGroup
-							hasChild
-							module={ lazyImages }
-							support={ {
-								link: getRedirectUrl( 'jetpack-support-lazy-images' ),
-							} }
-						>
-							<p>
-								{ __(
-									'Most modern browsers already support lazy loading. With over 90% of current browsers offering native support, enabling this feature may be unnecessary',
-									'jetpack'
-								) }
-							</p>
-							<ModuleToggle
-								slug="lazy-images"
-								disabled={ this.props.isUnavailableInOfflineMode( 'lazy-images' ) }
-								activated={ this.props.getOptionValue( 'lazy-images' ) }
-								toggling={ this.props.isSavingAnyOption( 'lazy-images' ) }
-								toggleModule={ this.toggleModule }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Enable Lazy Loading for images', 'jetpack' ) }
-								</span>
-							</ModuleToggle>
-						</SettingsGroup>
-					) }
 				</SettingsCard>
 			);
 		}
@@ -326,5 +296,6 @@ export default connect( state => {
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		gutenbergInfo: getGutenbergState( state ),
 	};
 } )( SpeedUpSite );

@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/repeat-visitor",
 	"title": "Repeat Visitor",
 	"description": "Control block visibility based on how often a visitor has viewed the page.",
@@ -34,6 +34,5 @@
 				"attributes": "This block will only appear to a visitor who visited the page three or more times."
 			}
 		]
-	},
-	"editorScript": "file:../editor.js"
+	}
 }

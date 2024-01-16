@@ -32,6 +32,31 @@ Parameters recognized by the plugin are:
    - `babelOptions`: Supply options for Babel.
    - `functions`: Supply a custom list of i18n functions to recognize.
 
+## Export mangling
+
+Webpack's [optimization.mangleExports option](https://webpack.js.org/configuration/optimization/#optimizationmangleexports), enabled by default in production mode, can on occasion mangle an export to the name of one of the i18n functions this module looks for.
+
+If you want export mangling and run into this issue, a slightly modified copy of Webpack's internal `MangleExportsPlugin` is provided. Require it as
+```
+const I18nSafeMangleExportsPlugin = require( '@automattic/i18n-check-webpack-plugin/I18nSafeMangleExportsPlugin' );
+```
+or
+```
+import I18nSafeMangleExportsPlugin from '@automattic/i18n-check-webpack-plugin/I18nSafeMangleExportsPlugin';
+```
+and add it to the `plugins` section of your Webpack config like
+```js
+{
+	plugins: [
+		new I18nSafeMangleExportsPlugin(),
+	],
+};
+```
+
+Parameters recognized by the plugin are:
+
+- `deterministic`: Set false to use the 'size' mode.
+
 ## Known problematic code patterns
 
 These are some code patterns that are known to cause translations to be mangled.

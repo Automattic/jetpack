@@ -5,8 +5,8 @@ import { AiStatusIndicator, useAiSuggestions } from '@automattic/jetpack-ai-clie
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { serialize } from '@wordpress/blocks';
 import { Modal, Button } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import TurndownService from 'turndown';
@@ -55,6 +55,9 @@ export default function Proofread( {
 		setIsProofreadModalVisible( ! isProofreadModalVisible );
 	};
 
+	const { increaseAiAssistantRequestsCount, dequeueAiAssistantFeatureAyncRequest } =
+		useDispatch( 'wordpress-com/plans' );
+
 	const handleSuggestion = ( content: string ) => {
 		const text = content.split( '\n' ).map( ( line, idx ) => {
 			return line?.length ? <p key={ `line-${ idx }` }>{ line }</p> : null;
@@ -67,9 +70,9 @@ export default function Proofread( {
 		/// TODO: Handle Error
 	};
 
-	const handleDone = () => {
-		// TODO: Handle Done
-	};
+	const handleDone = useCallback( () => {
+		increaseAiAssistantRequestsCount();
+	}, [ increaseAiAssistantRequestsCount ] );
 
 	const { request, requestingState } = useAiSuggestions( {
 		askQuestionOptions: {
@@ -92,7 +95,14 @@ export default function Proofread( {
 			},
 		];
 
-		request( messages );
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
+
+		request( messages, { feature: 'jetpack-ai-proofread-plugin' } );
 		toggleProofreadModal();
 		tracks.recordEvent( 'jetpack_ai_get_feedback', {
 			post_id: postId,

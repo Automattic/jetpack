@@ -5,8 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.4.1 - 2023-07-18
+## 1.4.2 - 2023-10-19
+### Changed
+- General: update WordPress version requirements to WordPress 6.2. [#32762] [#32772]
+- Updated Jetpack submenu sort order so individual features are alpha-sorted. [#32958]
+- Updated method used to render Connection initial state. [#32499]
+- Updated package dependencies. [#33692]
 
+## 1.4.1 - 2023-07-18
 ### Changed
 - Brute Force Protection: add access to feature in environments that otherwise do not support the WAF. [#31952]
 - General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]

@@ -2,8 +2,8 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "jetpack/blogroll",
-	"title": "Blogroll (Beta)",
-	"description": "Select the sites you follow and share them with your users.",
+	"title": "Blogroll",
+	"description": "Share the sites you follow with your users.",
 	"keywords": [],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
@@ -40,10 +40,6 @@
 			"type": "boolean",
 			"default": true
 		},
-		"show_subscribe_button": {
-			"type": "boolean",
-			"default": true
-		},
 		"open_links_new_window": {
 			"type": "boolean",
 			"default": true
@@ -60,7 +56,6 @@
 	"providesContext": {
 		"showAvatar": "show_avatar",
 		"showDescription": "show_description",
-		"showSubscribeButton": "show_subscribe_button",
 		"openLinksNewWindow": "open_links_new_window"
 	}
 }

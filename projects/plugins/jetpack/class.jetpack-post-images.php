@@ -266,6 +266,10 @@ class Jetpack_PostImages {
 
 		foreach ( $html_images as $html_image ) {
 			$src = wp_parse_url( $html_image['src'] );
+			if ( ! $src ) {
+				continue;
+			}
+
 			// strip off any query strings from src.
 			if ( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) ) {
 				$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path'];
@@ -837,7 +841,7 @@ class Jetpack_PostImages {
 
 		// If WPCOM hosted image use native transformations.
 		$img_host = wp_parse_url( $src, PHP_URL_HOST );
-		if ( '.files.wordpress.com' === substr( $img_host, -20 ) ) {
+		if ( str_ends_with( $img_host, '.files.wordpress.com' ) ) {
 			return add_query_arg(
 				array(
 					'w'    => $width,

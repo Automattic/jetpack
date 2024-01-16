@@ -6,8 +6,6 @@
  * @author Automattic
  */
 
-use Automattic\Jetpack\Assets;
-
 /**
  * Bail if accessed directly
  */
@@ -20,24 +18,25 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Filters and Actions added to Store pages to perform analytics
  */
 class Jetpack_WooCommerce_Analytics_Universal {
+
+	/**
+	 * Trait to handle common analytics functions.
+	 */
+	use Jetpack_WooCommerce_Analytics_Trait;
+
 	/**
 	 * Jetpack_WooCommerce_Analytics_Universal constructor.
 	 */
 	public function __construct() {
-		// loading _wca.
-		add_action( 'wp_head', array( $this, 'wp_head_top' ), 1 );
+		$this->find_cart_checkout_content_sources();
+		$this->additional_blocks_on_cart_page     = $this->get_additional_blocks_on_page( 'cart' );
+		$this->additional_blocks_on_checkout_page = $this->get_additional_blocks_on_page( 'checkout' );
 
 		// add to carts from non-product pages or lists -- search, store etc.
 		add_action( 'wp_head', array( $this, 'loop_session_events' ), 2 );
 
-		// loading s.js.
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_tracking_script' ) );
-
 		// Capture cart events.
 		add_action( 'woocommerce_add_to_cart', array( $this, 'capture_add_to_cart' ), 10, 6 );
-
-		// single product page view.
-		add_action( 'woocommerce_after_single_product', array( $this, 'capture_product_view' ) );
 
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart' ) );
 		add_action( 'woocommerce_after_mini_cart', array( $this, 'remove_from_cart' ) );
@@ -55,123 +54,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart_via_quantity' ), 10, 1 );
 
 		add_filter( 'woocommerce_checkout_posted_data', array( $this, 'save_checkout_post_data' ), 10, 1 );
-	}
 
-	/**
-	 * Make _wca available to queue events
-	 */
-	public function wp_head_top() {
-		if ( is_cart() || is_checkout() || is_checkout_pay_page() || is_order_received_page() || is_add_payment_method_page() ) {
-			echo '<script>window._wca_prevent_referrer = true;</script>' . "\r\n";
-		}
-		echo '<script>window._wca = window._wca || [];</script>' . "\r\n";
-	}
-
-	/**
-	 * Place script to call s.js, Store Analytics.
-	 */
-	public function enqueue_tracking_script() {
-		$filename = sprintf(
-			'https://stats.wp.com/s-%d.js',
-			gmdate( 'YW' )
-		);
-
-		Assets::enqueue_async_script( 'woocommerce-analytics', esc_url( $filename ), esc_url( $filename ), array(), null, false );
-	}
-
-	/**
-	 * Default event properties which should be included with all events.
-	 *
-	 * @return array Array of standard event props.
-	 */
-	public function get_common_properties() {
-		$site_info          = array(
-			'blog_id'     => Jetpack::get_option( 'id' ),
-			'ui'          => $this->get_user_id(),
-			'url'         => home_url(),
-			'woo_version' => WC()->version,
-			'store_admin' => in_array( 'administrator', wp_get_current_user()->roles, true ) ? 1 : 0,
-		);
-		$cart_checkout_info = self::get_cart_checkout_info();
-		return array_merge( $site_info, $cart_checkout_info );
-	}
-
-	/**
-	 * Render tracks event properties as string of JavaScript object props.
-	 *
-	 * @param  array $properties Array of key/value pairs.
-	 * @return string String of the form "key1: value1, key2: value2, " (etc).
-	 */
-	private function render_properties_as_js( $properties ) {
-		$js_args_string = '';
-		foreach ( $properties as $key => $value ) {
-			if ( is_array( $value ) ) {
-				$js_args_string = $js_args_string . "'$key': " . wp_json_encode( $value ) . ',';
-			} else {
-				$js_args_string = $js_args_string . "'$key': '" . esc_js( $value ) . "', ";
-			}
-		}
-		return $js_args_string;
-	}
-
-	/**
-	 * Record an event with optional custom properties.
-	 *
-	 * @param string  $event_name The name of the event to record.
-	 * @param integer $product_id The id of the product relating to the event.
-	 * @param array   $properties Optional array of (key => value) event properties.
-	 *
-	 * @return string|void
-	 */
-	public function record_event( $event_name, $product_id, $properties = array() ) {
-		$js = $this->process_event_properties( $event_name, $product_id, $properties );
-		wc_enqueue_js( "_wca.push({$js});" );
-	}
-
-	/**
-	 * Compose event properties.
-	 *
-	 * @param string  $event_name The name of the event to record.
-	 * @param integer $product_id The id of the product relating to the event.
-	 * @param array   $properties Optional array of (key => value) event properties.
-	 *
-	 * @return string|void
-	 */
-	public function process_event_properties( $event_name, $product_id, $properties = array() ) {
-		$product = wc_get_product( $product_id );
-		if ( ! $product instanceof WC_Product ) {
-			return;
-		}
-		$product_details = $this->get_product_details( $product );
-
-		/**
-		 * Allow defining custom event properties in WooCommerce Analytics.
-		 *
-		 * @module woocommerce-analytics
-		 *
-		 * @since 12.5
-		 *
-		 * @param array $all_props Array of event props to be filtered.
-		 */
-		$all_props = apply_filters(
-			'jetpack_woocommerce_analytics_event_props',
-			array_merge(
-				$properties,
-				$this->get_common_properties()
-			)
-		);
-
-		$js = "{
-			'_en': '" . esc_js( $event_name ) . "',
-			'pi': '" . esc_js( $product_id ) . "',
-			'pn': '" . esc_js( $product_details['name'] ) . "',
-			'pc': '" . esc_js( $product_details['category'] ) . "',
-			'pp': '" . esc_js( $product_details['price'] ) . "',
-			'pt': '" . esc_js( $product_details['type'] ) . "'," .
-			$this->render_properties_as_js( $all_props ) . '
-		}';
-
-		return $js;
+		add_action( 'woocommerce_created_customer', array( $this, 'capture_created_customer' ), 10, 2 );
 	}
 
 	/**
@@ -185,10 +69,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				foreach ( $data as $data_instance ) {
 					$this->record_event(
 						$data_instance['event'],
-						$data_instance['product_id'],
 						array(
 							'pq' => $data_instance['quantity'],
-						)
+						),
+						$data_instance['product_id']
 					);
 				}
 				// Clear data, now that these events have been recorded.
@@ -235,7 +119,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @return mixed.
 	 */
 	public function remove_from_cart_attributes( $url, $key ) {
-		if ( false !== strpos( $url, 'data-product_id' ) ) {
+		if ( str_contains( $url, 'data-product_id' ) ) {
 			return $url;
 		}
 
@@ -252,34 +136,47 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
-	 * Gather relevant product information
+	 * Get the selected shipping option for a cart item. If the name cannot be found in the options table, the method's
+	 * ID will be used.
 	 *
-	 * @param array $product product.
-	 * @return array
+	 * @param string $cart_item_key the cart item key.
+	 *
+	 * @return mixed|bool
 	 */
-	public function get_product_details( $product ) {
-		return array(
-			'id'       => $product->get_id(),
-			'name'     => $product->get_title(),
-			'category' => $this->get_product_categories_concatenated( $product ),
-			'price'    => $product->get_price(),
-			'type'     => $product->get_type(),
-		);
-	}
+	public function get_shipping_option_for_item( $cart_item_key ) {
+		$packages         = wc()->shipping()->get_packages();
+		$selected_options = wc()->session->get( 'chosen_shipping_methods' );
 
-	/**
-	 * Track a product page view
-	 */
-	public function capture_product_view() {
-		global $product;
-		if ( ! $product instanceof WC_Product ) {
-			return;
+		if ( ! is_array( $packages ) || ! is_array( $selected_options ) ) {
+			return false;
 		}
 
-		$this->record_event(
-			'woocommerceanalytics_product_view',
-			$product->get_id()
-		);
+		foreach ( $packages as $package_id => $package ) {
+
+			if ( ! isset( $package['contents'] ) || ! is_array( $package['contents'] ) ) {
+				return false;
+			}
+
+			foreach ( $package['contents'] as $package_item ) {
+				if ( ! isset( $package_item['key'] ) || $package_item['key'] !== $cart_item_key || ! isset( $selected_options[ $package_id ] ) ) {
+					continue;
+				}
+				$selected_rate_id = $selected_options[ $package_id ];
+				$method_key_id    = sanitize_text_field( str_replace( ':', '_', $selected_rate_id ) );
+				$option_name      = 'woocommerce_' . $method_key_id . '_settings';
+				$option_value     = get_option( $option_name );
+				$title            = '';
+				if ( is_array( $option_value ) && isset( $option_value['title'] ) ) {
+					$title = $option_value['title'];
+				}
+				if ( ! $title ) {
+					return $selected_rate_id;
+				}
+				return $title;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -287,9 +184,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	public function checkout_process() {
 		$cart = WC()->cart->get_cart();
-
-		$guest_checkout = ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) );
-		$create_account = ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) );
 
 		$enabled_payment_options = array_filter(
 			WC()->payment_gateways->get_available_payment_gateways(),
@@ -325,19 +219,25 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				continue;
 			}
 
+			$data = $this->get_cart_checkout_shared_data();
+
+			if ( ! empty( $data['products'] ) ) {
+				unset( $data['products'] );
+			}
+
+			if ( ! empty( $data['shipping_options_count'] ) ) {
+				unset( $data['shipping_options_count'] );
+			}
+
+			$data['pq'] = $cart_item['quantity'];
+
+			$properties = $this->process_event_properties(
+				'woocommerceanalytics_product_checkout',
+				$data,
+				$product->get_id()
+			);
+
 			if ( true === $include_express_payment ) {
-				$properties = $this->process_event_properties(
-					'woocommerceanalytics_product_checkout',
-					$product->get_id(),
-					array(
-						'pq'               => $cart_item['quantity'],
-						'payment_options'  => $enabled_payment_options,
-						'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
-						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
-						'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
-						'express_checkout' => 'null',
-					)
-				);
 				wc_enqueue_js(
 					"
 					// wcpay.payment-request.availability event gets fired twice.
@@ -357,15 +257,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			} else {
 				$this->record_event(
 					'woocommerceanalytics_product_checkout',
-					$product->get_id(),
-					array(
-						'pq'               => $cart_item['quantity'],
-						'payment_options'  => $enabled_payment_options,
-						'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
-						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
-						'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
-						'express_checkout' => 'null',
-					)
+					$data,
+					$product->get_id()
 				);
 			}
 		}
@@ -389,12 +282,12 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$payment_option = $order->get_payment_method();
 
 		if ( is_object( WC()->session ) ) {
-			$create_account = true === WC()->session->get( 'wc_checkout_createaccount_used' ) ? 'Y' : 'N';
+			$create_account = true === WC()->session->get( 'wc_checkout_createaccount_used' ) ? 'Yes' : 'No';
 		} else {
-			$create_account = 'N';
+			$create_account = 'No';
 		}
 
-		$guest_checkout = $order->get_user() ? 'N' : 'Y';
+		$guest_checkout = $order->get_user() ? 'No' : 'Yes';
 
 		$express_checkout = 'null';
 		// When the payment option is woocommerce_payment
@@ -412,18 +305,30 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		foreach ( $order->get_items() as $order_item ) {
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
 
+			$order_items       = $order->get_items();
+			$order_items_count = 0;
+			if ( is_array( $order_items ) ) {
+				$order_items_count = count( $order_items );
+			}
+			$order_coupons       = $order->get_coupons();
+			$order_coupons_count = 0;
+			if ( is_array( $order_coupons ) ) {
+				$order_coupons_count = count( $order_coupons );
+			}
 			$this->record_event(
 				'woocommerceanalytics_product_purchase',
-				$product_id,
 				array(
 					'oi'               => $order->get_order_number(),
 					'pq'               => $order_item->get_quantity(),
-					'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
 					'payment_option'   => $payment_option,
 					'create_account'   => $create_account,
 					'guest_checkout'   => $guest_checkout,
 					'express_checkout' => $express_checkout,
-				)
+					'products_count'   => $order_items_count,
+					'coupon_used'      => $order_coupons_count,
+					'order_value'      => $order->get_total(),
+				),
+				$product_id
 			);
 		}
 	}
@@ -457,17 +362,21 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
-	 * Get the current user id
+	 * Gets the inner blocks of a block.
 	 *
-	 * @return int
+	 * @param array $inner_blocks The inner blocks.
+	 *
+	 * @return array
 	 */
-	public function get_user_id() {
-		if ( is_user_logged_in() ) {
-			$blogid = Jetpack::get_option( 'id' );
-			$userid = get_current_user_id();
-			return $blogid . ':' . $userid;
+	private function get_inner_blocks( $inner_blocks ) {
+		$block_names = array();
+		if ( ! empty( $inner_blocks['blockName'] ) ) {
+			$block_names[] = $inner_blocks['blockName'];
 		}
-		return 'null';
+		if ( isset( $inner_blocks['innerBlocks'] ) && is_array( $inner_blocks['innerBlocks'] ) ) {
+			$block_names = array_merge( $block_names, $this->get_inner_blocks( $inner_blocks['innerBlocks'] ) );
+		}
+		return $block_names;
 	}
 
 	/**
@@ -532,107 +441,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
-	 * Gets product categories or varation attributes as a formatted concatenated string
-	 *
-	 * @param object $product WC_Product.
-	 * @return string
-	 */
-	public function get_product_categories_concatenated( $product ) {
-
-		if ( ! $product instanceof WC_Product ) {
-			return '';
-		}
-
-		$variation_data = $product->is_type( 'variation' ) ? wc_get_product_variation_attributes( $product->get_id() ) : '';
-		if ( is_array( $variation_data ) && ! empty( $variation_data ) ) {
-			$line = wc_get_formatted_variation( $variation_data, true );
-		} else {
-			$out        = array();
-			$categories = get_the_terms( $product->get_id(), 'product_cat' );
-			if ( $categories ) {
-				foreach ( $categories as $category ) {
-					$out[] = $category->name;
-				}
-			}
-			$line = implode( '/', $out );
-		}
-		return $line;
-	}
-
-	/**
-	 * Search a specific post for text content.
-	 *
-	 * Note: similar code is in a WooCommerce core PR:
-	 * https://github.com/woocommerce/woocommerce/pull/25932
-	 *
-	 * @param integer $post_id The id of the post to search.
-	 * @param string  $text    The text to search for.
-	 * @return integer 1 if post contains $text (otherwise 0).
-	 */
-	public static function post_contains_text( $post_id, $text ) {
-		global $wpdb;
-
-		// Search for the text anywhere in the post.
-		$wildcarded = "%{$text}%";
-
-		$result = $wpdb->get_var(
-			$wpdb->prepare(
-				"
-				SELECT COUNT( * ) FROM {$wpdb->prefix}posts
-				WHERE ID=%d
-				AND {$wpdb->prefix}posts.post_content LIKE %s
-				",
-				array( $post_id, $wildcarded )
-			)
-		);
-
-		return ( '0' !== $result ) ? 1 : 0;
-	}
-
-	/**
-	 * Get info about the cart & checkout pages, in particular
-	 * whether the store is using shortcodes or Gutenberg blocks.
-	 * This info is cached in a transient.
-	 *
-	 * Note: similar code is in a WooCommerce core PR:
-	 * https://github.com/woocommerce/woocommerce/pull/25932
-	 *
-	 * @return array
-	 */
-	public static function get_cart_checkout_info() {
-		$transient_name = 'jetpack_woocommerce_analytics_cart_checkout_info_cache';
-
-		$info = get_transient( $transient_name );
-		if ( false === $info ) {
-			$cart_page_id     = wc_get_page_id( 'cart' );
-			$checkout_page_id = wc_get_page_id( 'checkout' );
-
-			$info = array(
-				'cart_page_contains_cart_block'         => self::post_contains_text(
-					$cart_page_id,
-					'<!-- wp:woocommerce/cart'
-				),
-				'cart_page_contains_cart_shortcode'     => self::post_contains_text(
-					$cart_page_id,
-					'[woocommerce_cart]'
-				),
-				'checkout_page_contains_checkout_block' => self::post_contains_text(
-					$checkout_page_id,
-					'<!-- wp:woocommerce/checkout'
-				),
-				'checkout_page_contains_checkout_shortcode' => self::post_contains_text(
-					$checkout_page_id,
-					'[woocommerce_checkout]'
-				),
-			);
-
-			set_transient( $transient_name, $info, DAY_IN_SECONDS );
-		}
-
-		return $info;
-	}
-
-	/**
 	 * Save createaccount post data to be used in $this->order_process.
 	 *
 	 * @param array $data post data from the checkout page.
@@ -648,5 +456,21 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			}
 		}
 		return $data;
+	}
+
+	/**
+	 * Capture the create account event. Similar to save_checkout_post_data but works with Store API.
+	 *
+	 * @param int   $customer_id Customer ID.
+	 * @param array $new_customer_data New customer data.
+	 */
+	public function capture_created_customer( $customer_id, $new_customer_data ) {
+		$session = WC()->session;
+		if ( is_object( $session ) ) {
+			if ( str_contains( $new_customer_data['source'], 'store-api' ) ) {
+				$session->set( 'wc_checkout_createaccount_used', true );
+				$session->save_data();
+			}
+		}
 	}
 }

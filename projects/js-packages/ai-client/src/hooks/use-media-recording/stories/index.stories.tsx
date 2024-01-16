@@ -69,7 +69,12 @@ const RecorderComponent = ( { timeslice } ) => {
 	);
 };
 
-export default {
+interface AIControlStoryMeta extends Meta< typeof RecorderComponent > {
+	title?: string;
+	component?: React.ReactElement;
+}
+
+const meta: AIControlStoryMeta = {
 	title: 'JS Packages/AI Client/useMediaRecording',
 	component: RecorderComponent,
 	argTypes: {
@@ -89,3 +94,5 @@ const DefaultArgs = {
 
 export const Default = Template.bind( {} );
 Default.args = DefaultArgs;
+
+export default meta;

@@ -1,21 +1,24 @@
-import { Button, Popover } from '@wordpress/components';
+import { Button, Popover, Spinner } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
-import { useState, useEffect } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plus } from '@wordpress/icons';
-import { debounce } from '../../../../shared/debounce';
+import useGetSiteDetails from '../../use-get-site-details';
 import { createBlockFromSubscription } from '../../utils';
 import BlogrollAppenderResults from '../blogroll-appender-results';
 import BlogrollAppenderSearch from '../blogroll-appender-search';
 
 import './style.scss';
-
-export default function BlogrollAppender( { subscriptions, clientId } ) {
+export default function BlogrollAppender( { isLoading, subscriptions, clientId } ) {
 	const [ isVisible, setIsVisible ] = useState( false );
-	const [ results, setResults ] = useState( [] );
 	const [ popoverAnchor, setPopoverAnchor ] = useState();
 	const [ searchInput, setSearchInput ] = useState( '' );
 	const { insertBlock } = dispatch( 'core/block-editor' );
+	const { siteDetails, isLoading: isLoadingSiteDetails } = useGetSiteDetails( {
+		siteURL: searchInput,
+		subscriptions,
+		enabled: searchInput,
+	} );
 
 	const toggleVisible = () => {
 		setIsVisible( state => ! state );
@@ -26,22 +29,9 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 		setIsVisible( false );
 	};
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	useEffect(
-		debounce( () => {
-			const query = searchInput.toLowerCase();
-
-			setResults(
-				subscriptions.filter( item => {
-					const nameContainsSearch = item.name.toLowerCase().includes( query.toLowerCase() );
-					const urlContainsSearch = item.URL.toLowerCase().includes( query.toLowerCase() );
-
-					return nameContainsSearch || urlContainsSearch;
-				} )
-			);
-		}, 250 ),
-		[ searchInput ]
-	);
+	if ( isLoading ) {
+		return <Spinner className="jetpack-blogroll__appender-spinner" />;
+	}
 
 	return (
 		<>
@@ -54,22 +44,14 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 			/>
 
 			{ isVisible && (
-				<Popover anchor={ popoverAnchor }>
-					<form
-						className="jetpack-blogroll__appender"
-						role="search"
-						onSubmit={ event => {
-							event.preventDefault();
-							setIsVisible( false );
-						} }
-					>
-						<BlogrollAppenderSearch value={ searchInput } onChange={ setSearchInput } />
-						<BlogrollAppenderResults
-							showPlaceholder={ ! searchInput.trim() }
-							subscriptions={ results }
-							onSelect={ onSelect }
-						/>
-					</form>
+				<Popover anchor={ popoverAnchor } className="jetpack-blogroll__appender">
+					<BlogrollAppenderSearch value={ searchInput } onChange={ setSearchInput } />
+					<BlogrollAppenderResults
+						results={ siteDetails }
+						onSelect={ onSelect }
+						searchInput={ searchInput }
+						isLoading={ isLoadingSiteDetails }
+					/>
 				</Popover>
 			) }
 		</>

@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import enquirer from 'enquirer';
 import yaml from 'js-yaml';
 import pluralize from 'pluralize';
 import semver from 'semver';
@@ -133,7 +133,7 @@ async function promptForGenerate( options ) {
 	}
 
 	// Give the list of questions
-	const finalAnswers = await inquirer.prompt( questions );
+	const finalAnswers = await enquirer.prompt( questions );
 
 	return {
 		...options,
@@ -158,18 +158,17 @@ export function getQuestions( type ) {
 			message: 'Succinctly describe your project:',
 		},
 		{
-			type: 'checkbox',
+			type: 'multiselect',
 			name: 'buildScripts',
 			message: 'Select production and/or development build steps to generate:',
+			initial: [ 'production', 'development' ],
 			choices: [
 				{
-					name: 'Production Build Step',
-					checked: true,
+					message: 'Production Build Step',
 					value: 'production',
 				},
 				{
-					name: 'Development or Generic Build Step',
-					checked: true,
+					message: 'Development or Generic Build Step',
 					value: 'development',
 				},
 			],
@@ -178,19 +177,20 @@ export function getQuestions( type ) {
 			type: 'confirm',
 			name: 'wordbless',
 			message: 'Do you plan to use WordPress core functions in your PHPUnit tests?',
-			default: false,
+			initial: false,
 		},
 		{
 			type: 'confirm',
 			name: 'mirrorrepo',
 			message: 'Does this project need to be deployed publicly? (Create a mirror repo?)',
+			initial: true,
 		},
 	];
 	const packageQuestions = [];
 	const jsPackageQuestions = [];
 	const pluginQuestions = [
 		{
-			type: 'list',
+			type: 'select',
 			name: 'versioningMethod',
 			message: 'How do you want versioning to work for your plugin?',
 			choices: [
@@ -204,13 +204,13 @@ export function getQuestions( type ) {
 				//
 				// But everyone else wants to make an arbitrary recommendation anyway, so 🤷.
 				{
-					name: 'WordPress-style ("recommended"): Like 1.2, with each non-bugfix release always incrementing by 0.1.',
-					checked: true,
+					message:
+						'WordPress-style ("recommended"): Like 1.2, with each non-bugfix release always incrementing by 0.1.',
 					value: 'wordpress',
 				},
 				{
-					name: 'Semver: Like 1.2.3, with the next version depending on what kinds of changes are included.',
-					checked: true,
+					message:
+						'Semver: Like 1.2.3, with the next version depending on what kinds of changes are included.',
 					value: 'semver',
 				},
 			],
@@ -219,19 +219,21 @@ export function getQuestions( type ) {
 			type: 'input',
 			name: 'version',
 			message: "What is the plugin's starting version?:",
-			default: answers => ( answers.versioningMethod === 'semver' ? '0.1.0-alpha' : '0.0-alpha' ),
+			initial() {
+				return this.state.answers.versioningMethod === 'semver' ? '0.1.0-alpha' : '0.0-alpha';
+			},
 		},
 		{
-			type: 'list',
+			type: 'select',
 			name: 'pluginTemplate',
 			message: 'Create a blank plugin or use the Starter plugin?',
 			choices: [
 				{
-					name: 'Blank plugin',
+					message: 'Blank plugin',
 					value: 'blank',
 				},
 				{
-					name: 'Use Jetpack Starter plugin',
+					message: 'Use Jetpack Starter plugin',
 					value: 'starter',
 				},
 			],
@@ -548,6 +550,8 @@ async function createComposerJson( composerJson, answers ) {
 
 	switch ( answers.type ) {
 		case 'package':
+			composerJson.require = composerJson.require || {};
+			composerJson.require.php = '>=7.0';
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
 			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
@@ -599,38 +603,42 @@ async function renameClassFile( projDir, name ) {
 async function mirrorRepo( composerJson, name, type, org = 'Automattic' ) {
 	const repo = org + '/' + name;
 	const exists = await doesRepoExist( name, org );
-	const answers = await inquirer.prompt( [
+	const answers = await enquirer.prompt( [
 		{
 			type: 'confirm',
 			name: 'useExisting',
-			default: false,
+			initial: false,
 			message:
 				'The repo ' +
 				repo +
 				' already exists. Do you want to use it? THIS WILL OVERRIDE ANYTHING ALREADY IN THIS REPO.',
-			when: exists, // If the repo exists, confirm we want to use it.
+			skip: ! exists, // If the repo exists, confirm we want to use it.
 		},
 		{
-			type: 'string',
+			type: 'input',
 			name: 'newName',
 			message: 'What name do you want to use for the repo?',
-			when: newAnswers => exists && ! newAnswers.useExisting, // When there is an existing repo, but we don't want to use it.
+			skip() {
+				return ! exists || this.state.answers.useExisting; // When there is an existing repo, but we don't want to use it.
+			},
 		},
 		// Code for auto-adding repo to be added later.
 		/* 		{
 			type: 'confirm',
 			name: 'createNew',
-			default: false,
+			initial: false,
 			message: 'There is not an ' + repo + ' repo already. Shall I create one?',
-			when: ! exists, // When the repo does not exist, do we want to ask to make it.
+			skip: exists, // When the repo does not exist, do we want to ask to make it.
 		}, */
 
 		{
 			type: 'confirm',
 			name: 'autotagger',
-			default: true,
+			initial: true,
 			message: 'Configure mirror repo to create new tags automatically (based on CHANGELOG.md)?',
-			when: type !== 'plugin',
+			skip() {
+				return type === 'plugin' || this.state.answers.newName;
+			},
 		},
 	] );
 
@@ -750,9 +758,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.2\n' +
-		'Requires PHP: 5.6\n' +
-		'Tested up to: 6.3\n' +
+		'Requires at least: 6.3\n' +
+		'Requires PHP: 7.0\n' +
+		'Tested up to: 6.4\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

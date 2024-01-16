@@ -178,15 +178,4 @@ class Jetpack_SEO_Posts {
 		register_meta( 'post', self::HTML_TITLE_META_KEY, $html_title_args );
 		register_meta( 'post', self::NOINDEX_META_KEY, $noindex_args );
 	}
-
-	/**
-	 * Register the Advanced SEO Gutenberg extension
-	 */
-	public static function register_gutenberg_extension() {
-		if ( Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
-			Jetpack_Gutenberg::set_extension_available( 'jetpack-seo' );
-		} else {
-			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack-seo', 'jetpack_seo_disabled' );
-		}
-	}
 }

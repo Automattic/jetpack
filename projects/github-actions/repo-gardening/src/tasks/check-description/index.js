@@ -5,10 +5,10 @@ const debug = require( '../../utils/debug' );
 const getAffectedChangeloggerProjects = require( '../../utils/get-affected-changelogger-projects' );
 const getComments = require( '../../utils/get-comments' );
 const getFiles = require( '../../utils/get-files' );
-const getLabels = require( '../../utils/get-labels' );
 const getNextValidMilestone = require( '../../utils/get-next-valid-milestone' );
 const getPluginNames = require( '../../utils/get-plugin-names' );
 const getPrWorkspace = require( '../../utils/get-pr-workspace' );
+const getLabels = require( '../../utils/labels/get-labels' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -103,8 +103,21 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 ******
 
 **${ capitalizedName } plugin:**
+
+${
+	'Jetpack' === capitalizedName
+		? `The Jetpack plugin has different release cadences depending on the platform:
+
+- WordPress.com Simple releases happen daily.
+- WoA releases happen weekly.
+- Releases to self-hosted sites happen monthly. The next release is scheduled for _${ releaseDate }_ (scheduled code freeze on _${ codeFreezeDate }_).`
+		: `
 - Next scheduled release: _${ releaseDate }_.
 - Scheduled code freeze: _${ codeFreezeDate }_.
+`
+}
+
+If you have any questions about the release process, please ask in the #jetpack-releases channel on Slack.
 `;
 }
 
@@ -128,10 +141,11 @@ async function buildMilestoneInfo( octokit, owner, repo, number ) {
 		const nextMilestone = await getNextValidMilestone( octokit, owner, repo, plugin );
 		debug( `check-description: Milestone found: ${ JSON.stringify( nextMilestone ) }` );
 
-		debug( `check-description: getting milestone info for ${ plugin }` );
-		const info = await getMilestoneDates( plugin, nextMilestone );
-
-		pluginInfo += info;
+		if ( 'crm' !== plugin ) {
+			debug( `check-description: getting milestone info for ${ plugin }` );
+			const info = await getMilestoneDates( plugin, nextMilestone );
+			pluginInfo += info;
+		}
 	}
 
 	return pluginInfo;
@@ -481,7 +495,7 @@ The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e
 	if ( statusChecks.isFromContributor ) {
 		comment += `
 
-Once your PR is ready for review, check one last time that all required checks (other than "Required review") appearing at the bottom of this PR are passing or skipped.
+Once your PR is ready for review, check one last time that all required checks appearing at the bottom of this PR are passing or skipped.
 Then, add the "[Status] Needs Team Review" label and ask someone from your team review the code. Once reviewed, it can then be merged.
 If you need an extra review from someone familiar with the codebase, you can update the labels from "[Status] Needs Team Review" to "[Status] Needs Review", and in that case Jetpack Approvers will do a final review of your PR.`;
 	}

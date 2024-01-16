@@ -58,6 +58,29 @@ class Jetpack_SSO {
 		add_action( 'login_form_jetpack-sso', '__return_true' );
 
 		add_filter( 'wp_login_errors', array( $this, 'sso_reminder_logout_wpcom' ) );
+
+		/**
+		 * Filter to include Force 2FA feature.
+		 *
+		 * By default, `manage_options` users are forced when enable. The capability can be modified
+		 * with the `jetpack_force_2fa_cap` filter.
+		 *
+		 * To enable the feature, add the following code:
+		 * add_filter( 'jetpack_force_2fa', '__return_true' );
+		 *
+		 * @param bool $force_2fa Whether to force 2FA or not.
+		 *
+		 * @todo Provide a UI to enable/disable the feature.
+		 *
+		 * @since 12.7
+		 * @module SSO
+		 * @return bool
+		 */
+		if ( ! class_exists( 'Jetpack_Force_2FA' ) && apply_filters( 'jetpack_force_2fa', false ) ) {
+			// Checking for the class to avoid collisions with existing standalone Jetpack Force 2FA plugin and break out if so.
+			require_once JETPACK__PLUGIN_DIR . 'modules/sso/class-jetpack-force-2fa.php';
+			new Jetpack_Force_2FA();
+		}
 	}
 
 	/**
@@ -377,6 +400,13 @@ class Jetpack_SSO {
 	}
 
 	/**
+	 * Checks to determine if the user has indicated they want to use the wp-admin interface.
+	 */
+	private function use_wp_admin_interface() {
+		return 'wp-admin' === get_option( 'wpcom_admin_interface' );
+	}
+
+	/**
 	 * Initialization for a SSO request.
 	 */
 	public function login_init() {
@@ -433,7 +463,7 @@ class Jetpack_SSO {
 			 * to the WordPress.com login page AND  that the request to wp-login.php
 			 * is not something other than login (Like logout!)
 			 */
-			if ( Jetpack_SSO_Helpers::bypass_login_forward_wpcom() && $this->wants_to_login() ) {
+			if ( ! $this->use_wp_admin_interface() && Jetpack_SSO_Helpers::bypass_login_forward_wpcom() && $this->wants_to_login() ) {
 				add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
 				$reauth  = ! empty( $_GET['force_reauth'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$sso_url = $this->get_sso_url_or_die( $reauth );

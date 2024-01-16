@@ -26,7 +26,7 @@ function requestToExternal( request ) {
 
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		'jp-search': path.join( __dirname, '../src/instant-search/loader.js' ),
 	},

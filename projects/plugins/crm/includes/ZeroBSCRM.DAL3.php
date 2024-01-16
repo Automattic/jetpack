@@ -77,19 +77,21 @@
     // ===============================================================================
     // ===========  TYPES ============================================================
 
-        define('ZBS_TYPE_CONTACT',      1);
-        define('ZBS_TYPE_COMPANY',      2);
-        define('ZBS_TYPE_QUOTE',        3);
-        define('ZBS_TYPE_INVOICE',      4);
-        define('ZBS_TYPE_TRANSACTION',  5);
-        define('ZBS_TYPE_EVENT',        6);
-        define('ZBS_TYPE_FORM',         7);
-        define('ZBS_TYPE_LOG',          8);
-        define('ZBS_TYPE_SEGMENT',      9);
-        define('ZBS_TYPE_LINEITEM',     10);
-        define('ZBS_TYPE_EVENTREMINDER', 11);
-        define('ZBS_TYPE_QUOTETEMPLATE', 12);
-        define('ZBS_TYPE_ADDRESS',      13); // this is a precursor to v4 where we likely need to split out addresses from current in-object model (included here as custom fields now managed as if obj)
+define( 'ZBS_TYPE_CONTACT', 1 );
+define( 'ZBS_TYPE_COMPANY', 2 );
+define( 'ZBS_TYPE_QUOTE', 3 );
+define( 'ZBS_TYPE_INVOICE', 4 );
+define( 'ZBS_TYPE_TRANSACTION', 5 );
+define( 'ZBS_TYPE_EVENT', 6 ); // legacy, use ZBS_TYPE_TASK instead
+define( 'ZBS_TYPE_TASK', 6 );
+define( 'ZBS_TYPE_FORM', 7 );
+define( 'ZBS_TYPE_LOG', 8 );
+define( 'ZBS_TYPE_SEGMENT', 9 );
+define( 'ZBS_TYPE_LINEITEM', 10 );
+define( 'ZBS_TYPE_EVENTREMINDER', 11 ); // legacy, use ZBS_TYPE_TASK_REMINDER instead
+define( 'ZBS_TYPE_TASK_REMINDER', 11 );
+define( 'ZBS_TYPE_QUOTETEMPLATE', 12 );
+define( 'ZBS_TYPE_ADDRESS', 13 ); // this is a precursor to v4 where we likely need to split out addresses from current in-object model (included here as custom fields now managed as if obj)
 
     // =========== /  TYPES  =========================================================
     // ===============================================================================
@@ -155,12 +157,12 @@ class zbsDAL {
             ZBS_TYPE_QUOTE => 'quote',
             ZBS_TYPE_INVOICE => 'invoice',
             ZBS_TYPE_TRANSACTION => 'transaction',
-            ZBS_TYPE_EVENT => 'event',
+            ZBS_TYPE_TASK => 'event',
             ZBS_TYPE_FORM => 'form',
             ZBS_TYPE_SEGMENT => 'segment',
             ZBS_TYPE_LOG => 'log',
             ZBS_TYPE_LINEITEM => 'lineitem',
-            ZBS_TYPE_EVENTREMINDER => 'eventreminder',
+            ZBS_TYPE_TASK_REMINDER => 'eventreminder',
             ZBS_TYPE_QUOTETEMPLATE => 'quotetemplate',
             ZBS_TYPE_ADDRESS => 'address'
 
@@ -174,13 +176,13 @@ class zbsDAL {
             ZBS_TYPE_QUOTE => 'zerobs_quote',
             ZBS_TYPE_INVOICE => 'zerobs_invoice',
             ZBS_TYPE_TRANSACTION => 'zerobs_transaction',
-            ZBS_TYPE_EVENT => 'zerobs_event',
+            ZBS_TYPE_TASK => 'zerobs_event',
             ZBS_TYPE_FORM => 'zerobs_form',
             // these never existed:
             //ZBS_TYPE_SEGMENT => 'zerobs_segment',
             //ZBS_TYPE_LOG => 'zerobs_log',
             //ZBS_TYPE_LINEITEM => 'lineitem'
-            //ZBS_TYPE_EVENTREMINDER => 'eventreminder'
+            //ZBS_TYPE_TASK_REMINDER => 'eventreminder'
             ZBS_TYPE_QUOTETEMPLATE => 'zerobs_quo_template',
     );
 
@@ -195,12 +197,12 @@ class zbsDAL {
 		ZBS_TYPE_QUOTE         => array( 'Quote', 'Quotes' ),
 		ZBS_TYPE_INVOICE       => array( 'Invoice', 'Invoices' ),
 		ZBS_TYPE_TRANSACTION   => array( 'Transaction', 'Transactions' ),
-		ZBS_TYPE_EVENT         => array( 'Task', 'Tasks' ),
+		ZBS_TYPE_TASK         => array( 'Task', 'Tasks' ),
 		ZBS_TYPE_FORM          => array( 'Form', 'Forms' ),
 		ZBS_TYPE_SEGMENT       => array( 'Segment', 'Segments' ),
 		ZBS_TYPE_LOG           => array( 'Log', 'Logs' ),
 		ZBS_TYPE_LINEITEM      => array( 'Line Item', 'Line Items' ),
-		ZBS_TYPE_EVENTREMINDER => array( 'Task Reminder', 'Task Reminders' ),
+		ZBS_TYPE_TASK_REMINDER => array( 'Task Reminder', 'Task Reminders' ),
 		ZBS_TYPE_QUOTETEMPLATE => array( 'Quote Template', 'Quote Templates' ),
 		ZBS_TYPE_ADDRESS       => array( 'Address', 'Addresses' ),
 	);
@@ -214,12 +216,12 @@ class zbsDAL {
             ZBS_TYPE_QUOTE =>           'managequotes',
             ZBS_TYPE_INVOICE =>         'manageinvoices',
             ZBS_TYPE_TRANSACTION =>     'managetransactions',
-            ZBS_TYPE_EVENT =>           'manage-events',
+            ZBS_TYPE_TASK =>           'manage-tasks',
             ZBS_TYPE_FORM =>            'manageformscrm',
             ZBS_TYPE_SEGMENT =>         'segments',
             //no list page ZBS_TYPE_LOG =>             'managecontacts',
             //no list page ZBS_TYPE_LINEITEM =>        'managecontacts',
-            //no list page ZBS_TYPE_EVENTREMINDER =>   'managecontacts',
+            //no list page ZBS_TYPE_TASK_REMINDER =>   'managecontacts',
             ZBS_TYPE_QUOTETEMPLATE =>   'quote-templates'
     );
 
@@ -234,7 +236,7 @@ class zbsDAL {
             ZBS_TYPE_QUOTE =>           'zbsCustomerQuoteFields',
             ZBS_TYPE_INVOICE =>         'zbsCustomerInvoiceFields',
             ZBS_TYPE_TRANSACTION =>     'zbsTransactionFields',
-            //ZBS_TYPE_EVENT =>           'zbsFormFields',
+            //ZBS_TYPE_TASK =>           'zbsFormFields',
             ZBS_TYPE_FORM =>            'zbsFormFields',
             ZBS_TYPE_ADDRESS =>         'zbsAddressFields'
 
@@ -374,9 +376,9 @@ class zbsDAL {
                 return $this->transactions; break;
             case ZBS_TYPE_FORM:
                 return $this->forms; break;
-            case ZBS_TYPE_EVENT:
+            case ZBS_TYPE_TASK:
                 return $this->events; break;
-            case ZBS_TYPE_EVENTREMINDER:
+            case ZBS_TYPE_TASK_REMINDER:
                 return $this->eventreminders; break;
             case ZBS_TYPE_LOG:
                 return $this->logs; break;
@@ -628,7 +630,7 @@ class zbsDAL {
 				$table_name = $ZBSCRM_t['transactions'];
 				break;
 
-			case ZBS_TYPE_EVENT:
+			case ZBS_TYPE_TASK:
 				$table_name = $ZBSCRM_t['events'];
 				break;
 
@@ -973,7 +975,7 @@ class zbsDAL {
                         return $this->transactions->getTransactions(array('inArr'=>$idArray));
                         break;
 
-                    case ZBS_TYPE_EVENT:
+                    case ZBS_TYPE_TASK:
                         return $this->events->getEvents(array('inArr'=>$idArray));
                         break;
 
@@ -990,7 +992,7 @@ class zbsDAL {
                         return $this->events->getEvents(array('inArr'=>$idArray));
                         break;
 
-                    case ZBS_TYPE_EVENTREMINDER:
+                    case ZBS_TYPE_TASK_REMINDER:
                         return $this->events->getEvents(array('inArr'=>$idArray));
                         break;
                     */
@@ -3199,16 +3201,16 @@ class zbsDAL {
             if (!isset($data['name']) || empty($data['name'])) return false;
 		if ( empty( $data['slug'] ) ) {
 
-			$potential_slug = $this->makeSlug( $data['name'] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$potential_slug = sanitize_key( $data['name'] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 			// catch empty slugs as per gh-462, chinese characters, for example
 			if ( empty( $potential_slug ) ) {
-				$potential_slug = 'tag';
+				$this->get_new_tag_slug( $data['objtype'], 'tag', true ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			} else {
+				$data['slug'] = $this->get_new_tag_slug( $data['objtype'], $potential_slug ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 			}
 
-			$data['slug'] = $this->get_new_tag_slug( $data['objtype'], $potential_slug ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-
-			// if slug STILL empty, return false for now..
+			// if slug STILL empty (e.g. database error?), return false for now...
 			if ( empty( $data['slug'] ) ) {
 				return false;
 			}
@@ -3734,19 +3736,20 @@ class zbsDAL {
 	}
 
 	/**
-	 * Checks if a tag slug exists
+	 * Get a unique tag slug
 	 *
 	 * @param int    $obj_type_id Object type id.
 	 * @param string $slug Tag slug to check.
+	 * @param bool   $force_iteration Force iteration to occur (e.g. use `slug-N` instead of `slug`).
 	 *
-	 * @return string tag slug
+	 * @return string unique tag slug
 	 */
-	public function get_new_tag_slug( int $obj_type_id, string $slug ) {
+	public function get_new_tag_slug( int $obj_type_id, string $slug, bool $force_iteration = false ) {
 		global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		$slug_exists = $this->tag_slug_exists( $obj_type_id, $slug );
 
 		// slug as provided doesn't exist, so use that
-		if ( ! $slug_exists && $slug !== 'tag' ) {
+		if ( ! $slug_exists && ! $force_iteration ) {
 			return $slug;
 		}
 
@@ -5767,32 +5770,27 @@ class zbsDAL {
 
     }
 
-    /**
-     * Returns an origin string and type from a prefixed origin string
-     *
-     * @param string $string - prefixed origin string
-     *
-     * @return array|bool(false) - origin string and type, or false
-     */
-    public function hydrate_origin( $string ){
+	/**
+	 * Returns an origin string and type from a prefixed origin string
+	 *
+	 * @param string $string Prefixed origin string.
+	 *
+	 * @return array|bool(false) - origin string and type, or false
+	 */
+	public function hydrate_origin( $string ) {
 
-        // domain
-        if ( substr( $string, 0, 2 ) == 'd:' ){
+		// domain
+		if ( str_starts_with( $string, 'd:' ) ) {
 
-            return array(
-                'origin'      => $this->remove_origin_prefix( $string ),
-                'origin_type' => 'domain'
-            );
+			return array(
+				'origin'      => $this->remove_origin_prefix( $string ),
+				'origin_type' => 'domain',
+			);
 
-        }
+		}
 
-        return false;
-
-    }
-
-
-    
-
+		return false;
+	}
 
     // =========== / Origin Helpers      =============================================
     // ===============================================================================
@@ -7014,7 +7012,7 @@ class zbsDAL {
                 case ZBS_TYPE_TRANSACTION:
                     return $ZBSCRM_t['transactions'];
                     break;
-                case ZBS_TYPE_EVENT:
+                case ZBS_TYPE_TASK:
                     return $ZBSCRM_t['events'];
                     break;
                 case ZBS_TYPE_FORM:
@@ -7029,7 +7027,7 @@ class zbsDAL {
                 case ZBS_TYPE_LINEITEM:
                     return $ZBSCRM_t['lineitems'];
                     break;
-                case ZBS_TYPE_EVENTREMINDER:
+                case ZBS_TYPE_TASK_REMINDER:
                     return $ZBSCRM_t['eventreminders'];
                     break;
                 case ZBS_TYPE_QUOTETEMPLATE:
@@ -7063,7 +7061,7 @@ class zbsDAL {
                 case ZBS_TYPE_TRANSACTION:
                     return $this->transactions->tidy_transaction($obj);
                     break;
-                case ZBS_TYPE_EVENT:
+                case ZBS_TYPE_TASK:
                     return $this->events->tidy_event($obj);
                     break;
                 case ZBS_TYPE_FORM:
@@ -7078,7 +7076,7 @@ class zbsDAL {
                 case ZBS_TYPE_LINEITEM:
                     return $this->lineitems->tidy_lineitem($obj);
                     break;
-                case ZBS_TYPE_EVENTREMINDER:
+                case ZBS_TYPE_TASK_REMINDER:
                     return $this->eventreminders->tidy_eventreminder($obj);
                     break;
                 case ZBS_TYPE_QUOTETEMPLATE:
@@ -7406,6 +7404,23 @@ class zbsDAL {
             return false;
 
         }
+
+	/**
+	 * Generates GROUP_CONCAT SQL compatible with both SQLite and MySQL
+	 *
+	 * @param string $field Field that will be concatenated.
+	 * @param string $separator Separator added between concatenated fields.
+	 *
+	 * @return string
+	 */
+	public function build_group_concat( $field, $separator ) {
+		$db_engine = jpcrm_database_engine();
+		if ( $db_engine === 'sqlite' ) {
+			return sprintf( 'GROUP_CONCAT(%s, "%s")', $field, $separator );
+		} else {
+			return sprintf( 'GROUP_CONCAT(%s SEPARATOR "%s")', $field, $separator );
+		}
+	}
 
         // this returns %s etc. for common field names, will default to %s unless somt obv a date
         public function getTypeStr($fieldKey=''){

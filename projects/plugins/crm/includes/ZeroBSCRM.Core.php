@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '6.1.0';
+	public $version = '6.3.2';
 
 	/**
 	 * WordPress version tested with.
@@ -211,7 +211,7 @@ final class ZeroBSCRM {
 	public $hide_admin_pages = array(
 
 		// hidden due to #gh-1442
-		'manage-events',
+		'manage-tasks',
 		'zerobscrm-csvimporterlite-app',
 
 	);
@@ -564,28 +564,12 @@ final class ZeroBSCRM {
 			do_action( 'zerobscrm_loaded' );
 
 		} else {
+			// used by some extensions to determine if current page is an admin page
+			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.AdminPages.Checks.php';
 
-			// fails minimum requirements, show warnings
-
-			// we need urls
-			$this->setupUrlsSlugsEtc();
-
-			// build message
-			$message_html = '<p>' . sprintf( __( 'This version of CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use CRM you will need to install version 4 of CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>';
-
-			##WLREMOVE
-			$message_html  = '<p>' . sprintf( __( 'This version of Jetpack CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use Jetpack CRM you will need to install version 4 of Jetpack CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>';
-			$message_html .= '<p><a href="' . esc_url( $this->urls['kb-pre-v5-migration-todo'] ) . '" target="_blank" class="button">' . __( 'Read the guide on migrating', 'zero-bs-crm' ) . '<a></p>';
-			##/WLREMOVE
-
-			$this->add_wp_admin_notice(
-				'',
-				array(
-					'class' => 'warning',
-					'html'  => $message_html,
-				)
-			);
-
+			// extensions use the dependency checker functions
+			require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-dependency-checker.php';
+			$this->dependency_checker = new JPCRM_DependencyChecker();
 		}
 
 		// display any wp admin notices in the stack
@@ -613,8 +597,41 @@ final class ZeroBSCRM {
 		// v5.0+ JPCRM requires DAL3+
 		if ( ! $this->isDAL3() ) {
 
+			// we need urls
+			$this->setupUrlsSlugsEtc();
+
+			// build message
+			$message_html = '<p>' . sprintf( esc_html__( 'This version of CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use CRM you will need to install version 4 of CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+
+			##WLREMOVE
+			$message_html  = '<p>' . sprintf( esc_html__( 'This version of Jetpack CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use Jetpack CRM you will need to install version 4 of Jetpack CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+			$message_html .= '<p><a href="' . esc_url( $this->urls['kb-pre-v5-migration-todo'] ) . '" target="_blank" class="button">' . __( 'Read the guide on migrating', 'zero-bs-crm' ) . '</a></p>';
+			##/WLREMOVE
+
+			$this->add_wp_admin_notice(
+				'',
+				array(
+					'class' => 'warning',
+					'html'  => $message_html,
+				)
+			);
+
 			return false;
 
+		} elseif ( ! function_exists( 'openssl_get_cipher_methods' ) ) {
+
+			// build message
+			$message_html  = '<p>' . sprintf( __( 'Jetpack CRM uses the OpenSSL extension for PHP to properly protect sensitive data. Most PHP environments have this installed by default, but it seems yours does not; we recommend contacting your host for further help.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>';
+			$message_html .= '<p><a href="' . esc_url( 'https://www.php.net/manual/en/book.openssl.php' ) . '" target="_blank" class="button">' . __( 'PHP docs on OpenSSL', 'zero-bs-crm' ) . '</a></p>';
+
+			$this->add_wp_admin_notice(
+				'',
+				array(
+					'class' => 'warning',
+					'html'  => $message_html,
+				)
+			);
+			return false;
 		}
 
 		return true;
@@ -784,19 +801,37 @@ final class ZeroBSCRM {
 	 * Retrieves MySQL/MariaDB/Percona database server info
 	 */
 	public function get_database_server_info() {
-
 		if ( empty( $this->database_server_info ) ) {
-			global $wpdb;
-			$raw_version                = $wpdb->get_var( 'SELECT VERSION()' );
-			$version                    = preg_replace( '/[^0-9.].*/', '', $raw_version );
-			$is_mariadb                 = ! ( stripos( $raw_version, 'mariadb' ) === false );
+
+			// Adapted from proposed SQLite integration for core
+			// https://github.com/WordPress/sqlite-database-integration/blob/4a687709bb16a569a7d1ecabfcce433c0e471de8/health-check.php
+			if ( defined( 'DB_ENGINE' ) && DB_ENGINE === 'sqlite' ) {
+				$db_engine       = DB_ENGINE;
+				$db_engine_label = 'SQLite';
+				$raw_version     = class_exists( 'SQLite3' ) ? SQLite3::version()['versionString'] : null;
+				$version         = $raw_version;
+			} else {
+				global $wpdb;
+				$raw_version = $wpdb->get_var( 'SELECT VERSION()' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$version     = preg_replace( '/[^0-9.].*/', '', $raw_version );
+				if ( stripos( $raw_version, 'mariadb' ) !== false ) {
+					$db_engine       = 'mariadb';
+					$db_engine_label = 'MariaDB';
+				} else {
+					$db_engine       = 'mysql';
+					$db_engine_label = 'MySQL';
+				}
+			}
+
 			$database_server_info       = array(
-				'raw_version' => $raw_version,
-				'version'     => $version,
-				'is_mariadb'  => $is_mariadb,
+				'raw_version'     => $raw_version,
+				'version'         => $version,
+				'db_engine'       => $db_engine,
+				'db_engine_label' => $db_engine_label,
 			);
 			$this->database_server_info = $database_server_info;
 		}
+
 		return $this->database_server_info;
 	}
 
@@ -954,6 +989,7 @@ final class ZeroBSCRM {
 		$this->urls['kb-pre-v5-migration-todo'] = 'https://kb.jetpackcrm.com/knowledge-base/upgrading-to-jetpack-crm-v5-0/';
 		$this->urls['kb-mailpoet']              = 'https://kb.jetpackcrm.com/knowledge-base/mailpoet-crm-sync/';
 		$this->urls['kb-automations']           = 'https://kb.jetpackcrm.com/knowledge-base/automations/';
+		$this->urls['kb-contact-fields']        = 'https://kb.jetpackcrm.com/knowledge-base/contact-field-list/';
 
 		// coming soon
 		$this->urls['soon'] = 'https://jetpackcrm.com/coming-soon/';
@@ -1019,9 +1055,9 @@ final class ZeroBSCRM {
 		$this->slugs['manageformscrm']          = 'manage-forms';
 		$this->slugs['segments']                = 'manage-segments';
 		$this->slugs['quote-templates']         = 'manage-quote-templates';
-		$this->slugs['manage-events']           = 'manage-events';
-		$this->slugs['manage-events-completed'] = 'manage-events-completed';
-		$this->slugs['manage-events-list']      = 'manage-events-list';
+		$this->slugs['manage-tasks']           = 'manage-tasks';
+		$this->slugs['manage-tasks-completed'] = 'manage-tasks-completed';
+		$this->slugs['manage-tasks-list']      = 'manage-tasks-list';
 		$this->slugs['managecontactsprev']      = 'manage-customers-crm';
 		$this->slugs['managequotesprev']        = 'manage-quotes-crm';
 		$this->slugs['managetransactionsprev']  = 'manage-transactions-crm';
@@ -1060,8 +1096,7 @@ final class ZeroBSCRM {
 		// tag manager
 		$this->slugs['tagmanager'] = 'tag-manager';
 
-		// } Deletion and no access
-		$this->slugs['zbs-deletion'] = 'zbs-deletion';
+		// no access
 		$this->slugs['zbs-noaccess'] = 'zbs-noaccess';
 
 		// } File Editor
@@ -1191,7 +1226,7 @@ final class ZeroBSCRM {
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.QuoteTemplates.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Invoices.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Ownership.php';
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Events.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Tasks.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Transactions.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Forms.php';
 
@@ -1265,7 +1300,7 @@ final class ZeroBSCRM {
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Page.Controller.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Edit.Segment.php';
 
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Events.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Tasks.php';
 
 		// } Semantic UI Helper + columns list
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.SemanticUIHelpers.php';
@@ -1502,7 +1537,7 @@ final class ZeroBSCRM {
 	 * @return array
 	 */
 	public static function plugin_row_meta( $links_array, $plugin ) {
-		if ( strpos( $plugin, plugin_basename( ZBS_ROOTFILE ) ) === false ) {
+		if ( ! str_contains( $plugin, plugin_basename( ZBS_ROOTFILE ) ) ) {
 			return $links_array;
 		}
 
@@ -1675,15 +1710,6 @@ final class ZeroBSCRM {
 		// If usage tracking is active - include the tracking code.
 		$this->load_usage_tracking();
 
-		// } Ownership
-		$usingOwnership = $this->settings->get( 'perusercustomers' );
-		if ( $usingOwnership && ! $this->isDAL3() ) {
-			if ( ! class_exists( 'zeroBS__Metabox' ) ) {
-				require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBox.php';
-			}
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes.Ownership.php';
-		}
-
 		if ( $this->isDAL3() && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ) ) {
 			// } Jetpack - can condition this include on detection of Jetpack - BUT the code in Jetpack.php only fires on actions so will be OK to just include
 			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Jetpack.php';
@@ -1762,14 +1788,6 @@ final class ZeroBSCRM {
 
 		// } JUST before cpt, we do any install/uninstall of extensions, so that cpt's can adjust instantly:
 		zeroBSCRM_extensions_init_install();
-
-		// stuff pre DAL3 needs CPTs etc.
-		if ( ! $this->isDAL3() ) {
-
-			// COMMENT} setup post types
-			zeroBSCRM_setupPostTypes();
-
-		}
 
 		// } Here we do any 'default content' installs (quote templates) (In CPT <DAL3, In DAL3.Helpers DAL3+)
 		zeroBSCRM_installDefaultContent();

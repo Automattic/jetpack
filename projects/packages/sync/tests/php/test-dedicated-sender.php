@@ -75,7 +75,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	 * Tests Dedicated_Sender::spawn_sync with dedicated_sync_enabled set to 0.
 	 */
 	public function test_spawn_sync_with_dedicated_sync_disabled() {
-		$this->queue->method( 'size' )->will( $this->returnValue( 0 ) );
+		$this->queue->method( 'size' )->willReturn( 0 );
 
 		$result = Dedicated_Sender::spawn_sync( $this->queue );
 
@@ -89,7 +89,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	public function test_spawn_sync_with_empty_queue() {
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 
-		$this->queue->method( 'size' )->will( $this->returnValue( 0 ) );
+		$this->queue->method( 'size' )->willReturn( 0 );
 
 		$result = Dedicated_Sender::spawn_sync( $this->queue );
 
@@ -103,7 +103,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	public function test_spawn_sync_with_locked_queue() {
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 
-		$this->queue->method( 'is_locked' )->will( $this->returnValue( true ) );
+		$this->queue->method( 'is_locked' )->willReturn( true );
 
 		$result = Dedicated_Sender::spawn_sync( $this->queue );
 
@@ -112,14 +112,17 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	}
 
 	/**
-	 * Tests Dedicated_Sender::spawn_sync with a laggy queue.
+	 * Tests Dedicated_Sender::spawn_sync with no transient laggy queue and failed spawn sync test disables dedicated sync.
 	 */
-	public function test_spawn_sync_with_laggy_queue_disable_dedicated_sync() {
+	public function test_spawn_sync_with_laggy_queue_no_transient_and_failed_spawn_sync_test_disables_dedicated_sync() {
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 
-		$this->queue->method( 'lag' )->will( $this->returnValue( 33 * MINUTE_IN_SECONDS ) );
+		$this->queue->method( 'lag' )->willReturn( 33 * MINUTE_IN_SECONDS );
 
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_failure' ), 10, 3 );
 		$result = Dedicated_Sender::spawn_sync( $this->queue );
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_failure' ) );
 
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertSame( 'dedicated_sync_not_sending', $result->get_error_code() );
@@ -129,26 +132,41 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	}
 
 	/**
-	 * Tests Dedicated_Sender::spawn_sync when Sync has not been sending for a while.
+	 * Tests Dedicated_Sender::spawn_sync with a laggy queue but successful spawn sync test does not disable dedicated sync.
 	 */
-	public function test_spawn_sync_with_sync_not_sending_disable_dedicated_sync() {
+	public function test_spawn_sync_with_lagging_queue_no_transient_and_succesfull_spawn_sync_test_not_sending_disable_dedicated_sync() {
+
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
 
-		$this->queue->method( 'lag' )->will( $this->returnValue( 33 * MINUTE_IN_SECONDS ) );
+		$this->queue->method( 'lag' )->willReturn( 33 * MINUTE_IN_SECONDS );
 
-		// Set the last succesful sync time to be 3 hours ago, since the threshold is 1 hour.
-		update_option( Actions::LAST_SUCCESS_PREFIX . 'sync', time() - 3 * HOUR_IN_SECONDS, false );
-
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ), 10, 3 );
 		$result = Dedicated_Sender::spawn_sync( $this->queue );
-
-		$this->assertTrue( is_wp_error( $result ) );
-		$this->assertSame( 'dedicated_sync_not_sending', $result->get_error_code() );
-
-		$dedicated_sync_status = Settings::get_setting( 'dedicated_sync_enabled' );
-		$this->assertFalse( (bool) $dedicated_sync_status );
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 
 		$dedicated_sync_transient = get_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
-		$this->assertTrue( $dedicated_sync_transient );
+		$this->assertFalse( $dedicated_sync_transient );
+
+		$this->assertTrue( $result );
+		$this->assertTrue( $this->dedicated_sync_request_spawned );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::spawn_sync with a laggy queue and transient does not spawn test request but it does spawn sync.
+	 */
+	public function test_spawn_sync_with_laggy_queue_and_transient_does_not_spawn_test_request_and_spawns_sync() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+
+		$this->queue->method( 'lag' )->willReturn( 33 * MINUTE_IN_SECONDS );
+
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, '' );
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ), 10, 3 );
+		$result = Dedicated_Sender::spawn_sync( $this->queue );
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+
+		$this->assertTrue( $result );
+		$this->assertTrue( $this->dedicated_sync_request_spawned );
 	}
 
 	/**
@@ -218,7 +236,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	public function test_spawn_sync_will_spawn_dedicated_sync_request() {
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 
-		$this->queue->method( 'size' )->will( $this->returnValue( 1 ) );
+		$this->queue->method( 'size' )->willReturn( 1 );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ), 10, 3 );
 		$result = Dedicated_Sender::spawn_sync( $this->queue );

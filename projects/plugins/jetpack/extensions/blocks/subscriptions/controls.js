@@ -51,6 +51,8 @@ export default function SubscriptionControls( {
 	subscriberCount,
 	textColor,
 	buttonWidth,
+	subscribePlaceholder,
+	submitButtonText,
 	successMessage,
 } ) {
 	const { isPublicizeEnabled } = usePublicizeConfig();
@@ -68,7 +70,7 @@ export default function SubscriptionControls( {
 								subscriberCount,
 								'jetpack'
 							),
-							numberFormat( subscriberCount )
+							numberFormat( subscriberCount, { notation: 'compact', maximumFractionDigits: 1 } )
 						),
 						{ span: <span style={ { fontWeight: 'bold' } } /> }
 					) }
@@ -257,6 +259,19 @@ export default function SubscriptionControls( {
 					onChange={ () => {
 						setAttributes( { buttonOnNewLine: ! buttonOnNewLine } );
 					} }
+				/>
+
+				<TextareaControl
+					value={ subscribePlaceholder }
+					label={ __( 'Input placeholder text', 'jetpack' ) }
+					help={ __( 'Edit the placeholder text of the email address input.', 'jetpack' ) }
+					onChange={ placeholder => setAttributes( { subscribePlaceholder: placeholder } ) }
+				/>
+				<TextareaControl
+					value={ submitButtonText }
+					label={ __( 'Submit button label', 'jetpack' ) }
+					help={ __( 'Edit the label of the button a user clicks to subscribe.', 'jetpack' ) }
+					onChange={ text => setAttributes( { submitButtonText: text } ) }
 				/>
 				{ ! isSimpleSite() && (
 					<TextareaControl

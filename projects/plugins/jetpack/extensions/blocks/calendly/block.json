@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/calendly",
 	"title": "Calendly",
-	"description": "Embed a calendar for customers to schedule appointments",
+	"description": "Embed a calendar for customers to schedule appointments.",
 	"keywords": [ "calendar", "schedule", "appointments", "events", "dates" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
@@ -14,5 +14,48 @@
 		"alignWide": false,
 		"html": false
 	},
-	"editorScript": "file:../editor.js"
+	"attributes": {
+		"backgroundColor": {
+			"type": "string",
+			"default": "ffffff"
+		},
+		"hideEventTypeDetails": {
+			"type": "boolean",
+			"default": false
+		},
+		"primaryColor": {
+			"type": "string",
+			"default": "00A2FF"
+		},
+		"textColor": {
+			"type": "string",
+			"default": "4D5055"
+		},
+		"style": {
+			"type": "string",
+			"default": "inline",
+			"enum": [ "inline", "link" ]
+		},
+		"url": {
+			"type": "string"
+		}
+	},
+	"example": {
+		"attributes": {
+			"hideEventTypeDetails": false,
+			"style": "inline",
+			"url": "https://calendly.com/wpcom/jetpack-block-example"
+		},
+		"innerBlocks": [
+			{
+				"name": "jetpack/button",
+				"attributes": {
+					"element": "a",
+					"text": "Schedule time with me",
+					"uniqueId": "calendly-widget-id",
+					"url": "https://calendly.com/wpcom/jetpack-block-example"
+				}
+			}
+		]
+	}
 }

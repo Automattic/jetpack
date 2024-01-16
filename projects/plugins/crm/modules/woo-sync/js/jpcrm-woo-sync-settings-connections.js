@@ -77,7 +77,7 @@ function jpcrm_woosync_bind_add_connection() {
 					// disallow duplicate URL
 					else if (
 						window.zbs_root.woosync_connections &&
-						window.zbs_root.woosync_connections.indexOf( site_url ) >= 0
+						window.zbs_root.woosync_connections.includes( site_url )
 					) {
 						// error, show notice
 						jQuery( '#jpcrm-woosync-connect-to-store-invalid-url-duplicate' ).removeClass(
@@ -88,7 +88,7 @@ function jpcrm_woosync_bind_add_connection() {
 					}
 
 					// disallow http
-					else if ( site_url.substring( 0, 5 ) == 'http:' ) {
+					else if ( site_url.startsWith( 'http:' ) ) {
 						// error, show notice
 						jQuery( '#jpcrm-woosync-connect-to-store-invalid-url-http' ).removeClass( 'hidden' );
 						reject();
@@ -96,7 +96,7 @@ function jpcrm_woosync_bind_add_connection() {
 					}
 
 					// catch protocol-less urls by adding https://
-					if ( site_url.substring( 0, 8 ) !== 'https://' ) {
+					if ( ! site_url.startsWith( 'https://' ) ) {
 						site_url = 'https://' + site_url;
 					}
 

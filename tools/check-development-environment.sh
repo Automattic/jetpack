@@ -363,7 +363,7 @@ else
 	if [[ -z "$BIN" ]]; then
 		warning "no" 'docker-supported-recommended'
 	else
-		VER="$(docker-compose --version 2>/dev/null | sed -n -E 's/^docker-compose version ([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+), .*/\1/p')"
+		VER="$(docker-compose --version 2>/dev/null | sed -n -E 's/^(docker-compose|Docker Compose) version v?([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+)(, .*)?$/\2/p')"
 		if [[ -z "$VER" ]]; then
 			warning "yes (version unknown)"
 		elif version_compare "$VER" "1.28"; then

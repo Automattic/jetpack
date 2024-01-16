@@ -11,6 +11,8 @@ use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Sync\Modules\WooCommerce_HPOS_Orders;
+use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
 use WP_Error;
 
 /**
@@ -108,7 +110,7 @@ class Actions {
 		// rely on 'jetpack_sync_before_send_queue_sync' are picked up and added to the queue if needed.
 		if ( Settings::is_dedicated_sync_enabled() && Dedicated_Sender::is_dedicated_sync_request() ) {
 			self::initialize_listener();
-			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 90 );
+			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 200 );
 			return;
 		}
 
@@ -744,6 +746,14 @@ class Actions {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_sync_module' ) );
+
+		if ( ! class_exists( CustomOrdersTableController::class ) ) {
+			return;
+		}
+		$cot_controller = wc_get_container()->get( CustomOrdersTableController::class );
+		if ( $cot_controller->custom_orders_table_usage_is_enabled() ) {
+			add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_hpos_order_sync_module' ) );
+		}
 	}
 
 	/**
@@ -787,6 +797,21 @@ class Actions {
 	 */
 	public static function add_woocommerce_sync_module( $sync_modules ) {
 		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce';
+		return $sync_modules;
+	}
+
+	/**
+	 * Adds Woo's HPOS sync modules to existing modules for sending.
+	 *
+	 * @param array $sync_modules The list of sync modules declared prior to this filter.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array A list of sync modules that now includes Woo's HPOS modules.
+	 */
+	public static function add_woocommerce_hpos_order_sync_module( $sync_modules ) {
+		$sync_modules[] = WooCommerce_HPOS_Orders::class;
 		return $sync_modules;
 	}
 
@@ -1034,7 +1059,7 @@ class Actions {
 		);
 
 		// Verify $sync_module is not false.
-		if ( ( $sync_module ) && false === strpos( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+		if ( ( $sync_module ) && ! str_contains( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
 			$result['full_queue_size'] = $full_queue->size();
 			$result['full_queue_lag']  = $full_queue->lag();
 		}

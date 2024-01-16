@@ -16,7 +16,7 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 	 * This can be used to always reset to the original state.
 	 * Use-case: someone has to mock part of ZBS for a specific outcome. E.g.: returning a fatal error?
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var ?ZeroBSCRM
 	 */
@@ -25,7 +25,7 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 	/**
 	 * Store the initial state of ZBS.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */
@@ -42,7 +42,7 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 	/**
 	 * Restore the original state of ZBS.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */
@@ -64,9 +64,11 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 		return wp_parse_args(
 			$args,
 			array(
+				'id'       => -1,
 				'fname'    => 'John',
 				'lname'    => 'Doe',
 				'email'    => 'dev@domain.null',
+				'status'   => 'Lead',
 				'addr1'    => 'My Street 1',
 				'addr2'    => 'First floor',
 				'city'     => 'New York',
@@ -75,6 +77,137 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 				'hometel'  => '11111111',
 				'worktel'  => '22222222',
 				'mobtel'   => '33333333',
+			)
+		);
+	}
+
+	/**
+	 * Generate default invoice data.
+	 *
+	 * @param array $args (Optional) A list of arguments we should use for the invoice.
+	 *
+	 * @return array An array of basic contact data.
+	 */
+	public function generate_invoice_data( $args = array() ): array {
+		return wp_parse_args(
+			$args,
+			array(
+				'id_override' => '1',
+				'parent'      => 0,
+				'status'      => 'Draft',
+				'due_date'    => 1690840800,
+				'hash'        => 'ISSQndSUjlhJ8feWj2v',
+				'lineitems'   => array(
+					array(
+						'net'      => 3.75,
+						'desc'     => 'Dummy product',
+						'quantity' => '3',
+						'price'    => '1.25',
+						'total'    => 3.75,
+					),
+				),
+				'contacts'    => array( 1 ),
+				'created'     => -1,
+			)
+		);
+	}
+
+	/**
+	 * Generate default transaction data.
+	 *
+	 * @param array $args (Optional) A list of arguments we should use for the transaction.
+	 *
+	 * @return array An array of basic transaction data.
+	 */
+	public function generate_transaction_data( $args = array() ): array {
+		return wp_parse_args(
+			$args,
+			array(
+				'title'          => 'Some transaction title',
+				'desc'           => 'Some desc',
+				'ref'            => 'TransactionReference_1',
+				'hash'           => 'mASOpAnf334Pncl1px4',
+				'status'         => 'Completed',
+				'type'           => 'Sale',
+				'currency'       => 'USD',
+				'total'          => '150.00',
+				'tax'            => '10.00',
+				'lineitems'      => false,
+				'date'           => 1676000000,
+				'date_completed' => 1676923766,
+				'created'        => 1675000000,
+				'lastupdated'    => 1675000000,
+			)
+		);
+	}
+
+	/**
+	 * Generate default company data.
+	 *
+	 * @param array $args (Optional) A list of arguments we should use for the company.
+	 *
+	 * @return array An array of basic company data.
+	 */
+	public function generate_company_data( $args = array() ): array {
+		return wp_parse_args(
+			$args,
+			array(
+				'name'     => 'My Company',
+				'email'    => 'my@companyemail.com',
+				'status'   => 'Lead',
+				'addr1'    => 'My Street 1',
+				'addr2'    => 'First floor',
+				'city'     => 'New York',
+				'country'  => 'US',
+				'postcode' => '10001',
+				'maintel'  => '11111111',
+				'sectel'   => '22222222',
+			)
+		);
+	}
+
+	/**
+	 * Generate default quote data.
+	 *
+	 * @param array $args (Optional) A list of arguments we should use for the quote.
+	 *
+	 * @return array An array of basic quote data.
+	 */
+	public function generate_quote_data( $args = array() ): array {
+		return wp_parse_args(
+			$args,
+			array(
+				'id_override'      => '1',
+				'title'            => 'Some quote title',
+				'value'            => '150.00',
+				'hash'             => 'mASOpAnf334Pncl1px4',
+				'template'         => 0,
+				'currency'         => 'USD',
+				'date'             => 1676000000,
+				'notes'            => 'Some notes',
+				'send_attachments' => false,
+			)
+		);
+	}
+
+	/**
+	 * Generate default task data.
+	 *
+	 * @param array $args (Optional) A list of arguments we should use for the task.
+	 *
+	 * @return array An array of basic task data.
+	 */
+	public function generate_task_data( $args = array() ): array {
+		return wp_parse_args(
+			$args,
+			array(
+				'title'            => 'Some task title',
+				'desc'             => 'Some description',
+				'start'            => 1675000000,
+				'end'              => 1676000000,
+				'complete'         => false,
+				'show_on_portal'   => false,
+				'show_on_calendar' => false,
 			)
 		);
 	}

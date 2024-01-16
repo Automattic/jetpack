@@ -13,6 +13,7 @@
 		"testing"
 	],
 	"require": {
+		"php": ">=7.0",
 		"automattic/ignorefile": "@dev",
 		"squizlabs/php_codesniffer": "^3.6.1"
 	},
@@ -50,7 +51,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"branch-alias": {
-			"dev-trunk": "1.0.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		}
 	}
 }

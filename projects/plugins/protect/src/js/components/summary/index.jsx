@@ -5,12 +5,10 @@ import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
-import Notice from '../notice';
 import styles from './styles.module.scss';
 
 const Summary = () => {
 	const { numThreats, lastChecked, hasRequiredPlan } = useProtectData();
-	const notice = useSelect( select => select( STORE_ID ).getNotice() );
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
 	const { scan } = useDispatch( STORE_ID );
 	const Icon = getIconBySlug( 'protect' );
@@ -45,9 +43,6 @@ const Summary = () => {
 								) }
 							</Text>
 						) }
-					</div>
-					<div className={ styles.summary__notice }>
-						{ notice && notice.message && <Notice { ...notice } /> }
 					</div>
 					{ hasRequiredPlan && numThreats === 0 && (
 						<Button

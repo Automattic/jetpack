@@ -15,6 +15,27 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 	if ( ! class_exists( 'Photon_OpenCV' ) ) {
 		return false;
 	}
+
+	if ( empty( $filename ) ) {
+		jetpack_wpcom_maybe_log_heif_to_jpg(
+			array(
+				'message'  => 'file path is empty',
+				'severity' => 'error',
+			)
+		);
+		return false;
+	}
+
+	if ( ! file_exists( $filename ) ) {
+		jetpack_wpcom_maybe_log_heif_to_jpg(
+			array(
+				'message'  => sprintf( 'file does not exist: %s', $filename ),
+				'severity' => 'error',
+			)
+		);
+		return false;
+	}
+
 	$valid_magic_bytes = array(
 		'ftypheic',
 		'ftypheix',
@@ -34,6 +55,14 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 		return false;
 	}
 
+	// Log that we found a HEIF image.
+	jetpack_wpcom_maybe_log_heif_to_jpg(
+		array(
+			'message'  => sprintf( 'Found HEIF image: %s with magic bytes: %s', $filename, $magic_bytes ),
+			'severity' => 'info',
+		)
+	);
+
 	$img = new Photon_OpenCV();
 	try {
 		$img->readimage( $filename );
@@ -41,6 +70,13 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 		// Bad detection or malformed image
 		/** This action is documented in modules/widgets/social-media-icons.php */
 		do_action( 'jetpack_bump_stats_extras', 'heif2jpg', 'failed-to-read' );
+		jetpack_wpcom_maybe_log_heif_to_jpg(
+			array(
+				'message'    => sprintf( 'failed to read image: %s', $e->getMessage() ),
+				'error_code' => $e->getCode(),
+				'severity'   => 'error',
+			)
+		);
 		return false;
 	}
 
@@ -52,13 +88,35 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 }
 
 /**
+ * Log information about HEIF/HEIC conversions.
+ *
+ * @param array $params The parameters to log.
+ *
+ * @return void
+ */
+function jetpack_wpcom_maybe_log_heif_to_jpg( $params = array() ) {
+
+	if ( ! file_exists( WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php' ) ) {
+		return;
+	}
+
+	require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+
+	$default = array(
+		'feature' => 'heif2jpg',
+		'blog_id' => get_current_blog_id(),
+	);
+
+	log2logstash( wp_parse_args( $params, $default ) );
+}
+
+/**
  * Attempts to convert HEIF/HEIC uploads to JPEG.
  *
  * @param array $file The file array.
  * @return array The file array.
  */
 function jetpack_wpcom_transparently_convert_heif_upload_to_jpg( $file ) {
-
 	if ( ! class_exists( 'Photon_OpenCV' ) ) {
 		return $file;
 	}

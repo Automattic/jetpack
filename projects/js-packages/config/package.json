@@ -1,7 +1,6 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-config",
-	"version": "0.1.21",
+	"version": "0.1.24",
 	"description": "Handles Jetpack global configuration shared across all packages",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/config/#readme",
 	"bugs": {
@@ -18,12 +17,8 @@
 		"test": "jest"
 	},
 	"devDependencies": {
-		"jest": "29.4.3",
-		"jest-environment-jsdom": "29.4.3"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+		"jest": "29.7.0",
+		"jest-environment-jsdom": "29.7.0"
 	},
 	"exports": {
 		".": "./src/index.js"

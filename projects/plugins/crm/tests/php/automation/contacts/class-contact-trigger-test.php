@@ -3,12 +3,14 @@
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Before_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Email_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated;
+use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
@@ -47,18 +49,21 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$trigger->init( $workflow );
 
 		// Fake event data.
-		$contact_data = $this->automation_faker->contact_data();
+		/** @var Contact $contact */
+		$contact = $this->automation_faker->contact();
+
+		$contact_data = new Contact_Data( $contact );
 
 		// We expect the workflow to be executed on contact_update event with the contact data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_update action.
-		do_action( 'jpcrm_contact_updated', $contact_data );
+		do_action( 'jpcrm_contact_updated', $contact );
 	}
 
 	/**
@@ -80,23 +85,24 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$trigger->init( $workflow );
 
 		// Fake event data.
-		$contact    = $this->automation_faker->contact_data();
-		$old_status = 'Blacklisted';
-		$expected   = array(
-			'contact'          => $contact,
-			'old_status_value' => $old_status,
-		);
+		/** @var Contact $contact */
+		$contact          = $this->automation_faker->contact();
+		$previous_contact = clone $contact;
+
+		$contact_data = new Contact_Data( $contact, $previous_contact );
+
+		$previous_contact->status = 'Refused';
 
 		// We expect the workflow to be executed on contact_status_update event with the contact data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $expected )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_status_update action.
-		do_action( 'jpcrm_contact_status_updated', $contact, $old_status );
+		do_action( 'jpcrm_contact_status_updated', $contact, $previous_contact );
 	}
 
 	/**
@@ -118,18 +124,21 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$trigger->init( $workflow );
 
 		// Fake event data.
-		$contact_data = $this->automation_faker->contact_data();
+		/** @var Contact $contact */
+		$contact = $this->automation_faker->contact();
+
+		$contact_data = new Contact_Data( $contact );
 
 		// We expect the workflow to be executed on contact_created event with the contact data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_created action.
-		do_action( 'jpcrm_contact_created', $contact_data );
+		do_action( 'jpcrm_contact_created', $contact );
 	}
 
 	/**
@@ -150,19 +159,22 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		// Init the Contact_Email_Updated trigger.
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$contact_data = $this->automation_faker->contact_data();
+		// Fake contact data
+		/** @var Contact $contact */
+		$contact = $this->automation_faker->contact();
+
+		$contact_data = new Contact_Data( $contact );
 
 		// We expect the workflow to be executed on contact_email_update event with the contact data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_email_update action.
-		do_action( 'jpcrm_contact_email_updated', $contact_data );
+		do_action( 'jpcrm_contact_email_updated', $contact );
 	}
 
 	/**
@@ -184,18 +196,21 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$trigger->init( $workflow );
 
 		// Fake event data.
-		$contact_data = $this->automation_faker->contact_data();
+		/** @var Contact $contact */
+		$contact = $this->automation_faker->contact();
+
+		$contact_data = new Contact_Data( $contact );
 
 		// We expect the workflow to be executed on contact_deleted event with the contact data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_deleted action.
-		do_action( 'jpcrm_contact_deleted', $contact_data );
+		do_action( 'jpcrm_contact_deleted', $contact );
 	}
 
 	/**
@@ -216,18 +231,20 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		// Init the Contact_Before_Deleted trigger.
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$contact_data = $this->automation_faker->contact_data();
+		/** @var Contact $contact */
+		$contact = $this->automation_faker->contact();
+
+		$contact_data = new Contact_Data( $contact );
 
 		// We expect the workflow to be executed on contact_before_deleted event with the contact data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_before_deleted action.
-		do_action( 'jpcrm_contact_before_deleted', $contact_data );
+		do_action( 'jpcrm_contact_before_deleted', $contact );
 	}
 }

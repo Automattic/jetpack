@@ -99,7 +99,6 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint(
 			Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The SEO meta description for the site.',
 			Jetpack_SEO_Titles::TITLE_FORMATS_OPTION  => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 			'verification_services_codes'             => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex, facebook',
-			'amp_is_enabled'                          => '(bool) Whether AMP is enabled for this site',
 			'podcasting_archive'                      => '(string) The post category, if any, used for publishing podcasts',
 			'site_icon'                               => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 			'api_cache'                               => '(bool) Turn on/off the Jetpack JSON API cache',

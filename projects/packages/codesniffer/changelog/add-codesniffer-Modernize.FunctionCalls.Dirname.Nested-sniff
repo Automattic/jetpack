@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Enable `Modernize.FunctionCalls.Dirname.Nested` sniff that is currently being disabled by WordPress-Extra.

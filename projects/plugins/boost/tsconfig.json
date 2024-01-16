@@ -5,16 +5,25 @@
 		"node_modules/*",
 		"app/assets/dist/*",
 		"tests/e2e/*",
-		"app/assets/src/js/react-components/stories/*"
+		"app/assets/src/js/**/stories/*"
 	],
 	"compilerOptions": {
 		"target": "es6",
 		"types": [ "svelte" ],
+		"allowImportingTsExtensions": true,
 		"typeRoots": [ "./node_modules/@types/", "./app/assets/src/js" ],
+		"paths": {
+			"$lib/*": [ "./app/assets/src/js/lib/*" ],
+			"$features/*": [ "./app/assets/src/js/features/*" ],
+			"$layout/*": [ "./app/assets/src/js/layout/*" ],
+			"$svg/*": [ "./app/assets/src/js/svg/*" ]
+		},
 		/**
 		 * Values from "@tsconfig/svelte/tsconfig.json"
 		 */
 		"sourceMap": true,
-		"forceConsistentCasingInFileNames": true
+		"forceConsistentCasingInFileNames": true,
+		"lib": [ "dom", "es2021" ],
+		"strict": true
 	}
 }

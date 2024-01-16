@@ -45,6 +45,7 @@ jobs:
       PHP_VERSION: ${{ matrix.php }}
       NODE_VERSION: ${{ matrix.node }}
       MONOREPO_BASE: ${{ github.workspace }}
+      WITH_WOOCOMMERCE: ${{ matrix.with-woocommerce }}
     strategy:
       fail-fast: false
       matrix:
@@ -80,11 +81,21 @@ jobs:
         id: changed
         run: |
           CHANGED="$(EXTRA=test .github/files/list-changed-projects.sh)"
+
+          # Only test certain plugins in combination with WC
+          if [[ "$WITH_WOOCOMMERCE" == true ]]; then
+            echo "Testing with WooCommerce, filtering for projects that have WooCommerce-specific tests."
+            CHANGED=$( jq -c 'with_entries( select( .key == "plugins/jetpack" ) )' <<<"$CHANGED" )
+          fi
+
           ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
           echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
           echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
 
       - name: Setup WordPress environment for plugin tests
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+          CHANGED: ${{ steps.changed.outputs.projects }}
         if: steps.changed.outputs.any-plugins == 'true' && matrix.wp != 'none'
         run: .github/files/setup-wordpress-env.sh
 
@@ -124,6 +135,8 @@ jobs:
               echo "Skipping $SLUG, no changes in it or its dependencies"
             elif ! jq --arg script "$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
               echo "Skipping $SLUG, no test script is defined in composer.json"
+            elif php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$P" )"; then
+              echo "Skipping $SLUG, requires PHP $( jq -r '.require.php // ""' "$P" ) but PHP version is $( php -r 'echo PHP_VERSION;' )"
             else
               if jq --arg script "skip-$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
                 { composer --working-dir="$DIR" run "skip-$TEST_SCRIPT"; CODE=$?; } || true
@@ -194,7 +207,7 @@ jobs:
           fi
       - name: Upload artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: artifacts

@@ -210,15 +210,16 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wordads_custom_adstxt_enabled'                => false,
 			'wordads_ccpa_enabled'                         => false,
 			'wordads_ccpa_privacy_policy_url'              => 'pineapple',
+			'woocommerce_custom_orders_table_enabled'      => false,
 			'site_user_type'                               => wp_json_encode( array( 1 => 'pineapple' ) ),
 			'site_segment'                                 => 'pineapple',
 			'site_vertical'                                => 'pineapple',
 			'jetpack_excluded_extensions'                  => 'pineapple',
-			'jetpack-memberships-connected-account-id'     => '340',
 			'jetpack-memberships-has-connected-account'    => true,
 			'jetpack_publicize_options'                    => array(),
 			'jetpack_connection_active_plugins'            => array( 'jetpack' ),
 			'jetpack_social_settings'                      => array( 'image' => true ),
+			'jetpack_social_autoconvert_images'            => array( 'enabled' => true ),
 			'jetpack_sync_non_blocking'                    => false,
 			'jetpack_sync_settings_dedicated_sync_enabled' => false,
 			'jetpack_sync_settings_custom_queue_table_enabled' => false,
@@ -230,14 +231,20 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wpcom_is_fse_activated'                       => '1',
 			'videopress_private_enabled_for_site'          => false,
 			'wpcom_featured_image_in_email'                => false,
+			'wpcom_newsletter_categories'                  => array(),
 			'wpcom_newsletter_categories_enabled'          => false,
 			'wpcom_gifting_subscription'                   => true,
 			'launch-status'                                => 'unlaunched',
 			'wpcom_subscription_emails_use_excerpt'        => false,
 			'launchpad_checklist_tasks_statuses'           => array(),
 			'launchpad_screen'                             => 'full',
+			'wpcom_legacy_contact'                         => '',
+			'wpcom_locked_mode'                            => false,
 			'wpcom_reader_views_enabled'                   => true,
 			'wpcom_site_setup'                             => '',
+			'jetpack_verbum_subscription_modal'            => true,
+			'jetpack_blocks_disabled'                      => false,
+			'wpcom_ai_site_prompt'                         => '',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
@@ -260,7 +267,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		// Are we testing all the options
 		$unique_whitelist = array_unique( $whitelist );
 
-		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
+		$this->assertSameSize( $unique_whitelist, $whitelist, 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
 		$this->assertEmpty( $whitelist_and_option_keys_difference, 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
 	}
 
@@ -289,9 +296,9 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		// Are we testing all the options
 		$unique_contentless_options = array_unique( $contentless_options );
 
-		$this->assertEquals(
-			count( $unique_contentless_options ),
-			count( $contentless_options ),
+		$this->assertSameSize(
+			$unique_contentless_options,
+			$contentless_options,
 			'The duplicate keys are: ' . print_r( array_diff_key( $contentless_options, array_unique( $contentless_options ) ), 1 )
 		);
 		$this->assertEmpty(

@@ -125,11 +125,5 @@ describe( 'Navigation', () => {
 			expect( screen.getByRole( 'menuitem', { name: 'Recommendations 1' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'Recommendations 1' } ) ).toBeInTheDocument();
 		} );
-
-		it( 'renders My Jetpack tab', () => {
-			render( <Navigation { ...currentTestProps } showMyJetpack={ true } /> );
-			expect( screen.getByRole( 'menuitem', { name: 'My Jetpack' } ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'option', { name: 'My Jetpack' } ) ).toBeInTheDocument();
-		} );
 	} );
 } );

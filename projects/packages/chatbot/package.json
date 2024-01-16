@@ -22,9 +22,5 @@
 		"watch": "echo 'Not implemented.'",
 		"clean": "true"
 	},
-	"devDependencies": {},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	}
+	"devDependencies": {}
 }

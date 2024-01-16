@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import React, { useMemo } from 'react';
 import numberFormat from '../number-format';
 
@@ -36,6 +37,26 @@ export type RecordMeterBarProps = {
 	 * The sort style for legend item. If not provided, it defaults to no sorting.
 	 */
 	sortByCount?: 'ascending' | 'descending';
+	/**
+	 * Additional class name to be added to the component
+	 */
+	className?: string;
+	/**
+	 * Table caption
+	 */
+	tableCaption?: string;
+	/**
+	 * Title/label for the legend
+	 */
+	legendTitle?: string;
+	/**
+	 * Recorc type label for screen readers
+	 */
+	recordTypeLabel?: string;
+	/**
+	 * Record count label for screen readers
+	 */
+	recordCountLabel?: string;
 };
 
 /**
@@ -49,6 +70,11 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 	items = [],
 	showLegendLabelBeforeCount = false,
 	sortByCount,
+	className,
+	tableCaption,
+	legendTitle,
+	recordTypeLabel,
+	recordCountLabel,
 } ) => {
 	const total = useMemo( () => {
 		// If total count is not given, then compute it from items' count
@@ -71,7 +97,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 	}, [ items, sortByCount ] );
 
 	return (
-		<div className="record-meter-bar">
+		<div className={ classNames( 'record-meter-bar', className ) }>
 			<div className="record-meter-bar__items" aria-hidden="true">
 				{ itemsToRender.map( ( { count, label, backgroundColor } ) => {
 					const widthPercent = ( ( count / total ) * 100 ).toPrecision( 2 );
@@ -81,6 +107,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 				} ) }
 			</div>
 			<div className="record-meter-bar__legend" aria-hidden="true">
+				{ legendTitle && <div className="record-meter-bar__legend--title">{ legendTitle }</div> }
 				<ul className="record-meter-bar__legend--items">
 					{ itemsToRender.map( ( { count, label, backgroundColor } ) => {
 						const formattedCount = numberFormat( count );
@@ -112,11 +139,11 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 				</ul>
 			</div>
 			<table className="screen-reader-text">
-				<caption>{ __( 'Summary of the records', 'jetpack' ) }</caption>
+				<caption>{ tableCaption || __( 'Summary of the records', 'jetpack' ) }</caption>
 				<tbody>
 					<tr>
-						<th scope="col">{ __( 'Record type', 'jetpack' ) }</th>
-						<th scope="col">{ __( 'Record count', 'jetpack' ) }</th>
+						<th scope="col">{ recordTypeLabel || __( 'Record type', 'jetpack' ) }</th>
+						<th scope="col">{ recordCountLabel || __( 'Record count', 'jetpack' ) }</th>
 					</tr>
 					{ itemsToRender.map( ( { label, count } ) => {
 						return (

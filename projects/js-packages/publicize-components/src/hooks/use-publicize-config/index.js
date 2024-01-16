@@ -4,8 +4,9 @@ import {
 	getJetpackData,
 	getSiteFragment,
 } from '@automattic/jetpack-shared-extension-utils';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { usePostMeta } from '../use-post-meta';
 
 const republicizeFeatureName = 'republicize';
 
@@ -17,16 +18,12 @@ const republicizeFeatureName = 'republicize';
  * for toggling support for the current post.
  */
 export default function usePublicizeConfig() {
-	const { togglePublicizeFeature } = useDispatch( 'jetpack/publicize' );
 	const sharesData = getJetpackData()?.social?.sharesData ?? {};
 	const isShareLimitEnabled = sharesData.is_share_limit_enabled;
 	const isRePublicizeFeatureAvailable =
 		getJetpackExtensionAvailability( republicizeFeatureName )?.available || isShareLimitEnabled;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const isPostAlreadyShared = useSelect(
-		select => select( 'jetpack/publicize' ).getJetpackSocialPostAlreadyShared(),
-		[]
-	);
+
 	const connectionsRootUrl =
 		getJetpackData()?.social?.publicizeConnectionsUrl ??
 		'https://wordpress.com/marketing/connections/';
@@ -37,10 +34,11 @@ export default function usePublicizeConfig() {
 	 * and usually is handled from the UI (main toggle control),
 	 * dispathicng the togglePublicizeFeature() action (jetpack/publicize).
 	 */
-	const isPublicizeEnabledMeta = useSelect(
-		select => select( 'jetpack/publicize' ).getFeatureEnableState(),
-		[]
-	);
+	const {
+		isPublicizeEnabled: isPublicizeEnabledMeta,
+		togglePublicizeFeature,
+		isPostAlreadyShared,
+	} = usePostMeta();
 
 	/*
 	 * isRePublicizeUpgradableViaUpsell:

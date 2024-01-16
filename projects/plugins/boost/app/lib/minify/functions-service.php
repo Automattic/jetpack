@@ -129,7 +129,7 @@ function jetpack_boost_strip_parent_path( $parent_path, $path ) {
 		$trimmed_path = substr( $trimmed_path, strlen( $trimmed_parent ) );
 	}
 
-	return substr( $trimmed_path, 0, 1 ) === '/' ? $trimmed_path : '/' . $trimmed_path;
+	return str_starts_with( $trimmed_path, '/' ) ? $trimmed_path : '/' . $trimmed_path;
 }
 
 /**
@@ -159,7 +159,7 @@ function jetpack_boost_page_optimize_build_output() {
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $utils->unslash( $_SERVER['REQUEST_URI'] ) : '';
 	$args        = $utils->parse_url( $request_uri, PHP_URL_QUERY );
-	if ( ! $args || false === strpos( $args, '?' ) ) {
+	if ( ! $args || ! str_contains( $args, '?' ) ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 
@@ -267,11 +267,11 @@ function jetpack_boost_page_optimize_build_output() {
 			);
 
 			// The @charset rules must be on top of the output
-			if ( 0 === strpos( $buf, '@charset' ) ) {
+			if ( str_starts_with( $buf, '@charset' ) ) {
 				preg_replace_callback(
 					'/(?P<charset_rule>@charset\s+[\'"][^\'"]+[\'"];)/i',
 					function ( $match ) use ( &$pre_output ) {
-						if ( 0 === strpos( $pre_output, '@charset' ) ) {
+						if ( str_starts_with( $pre_output, '@charset' ) ) {
 							return '';
 						}
 
@@ -285,11 +285,11 @@ function jetpack_boost_page_optimize_build_output() {
 
 			// Move the @import rules on top of the concatenated output.
 			// Only @charset rule are allowed before them.
-			if ( false !== strpos( $buf, '@import' ) ) {
+			if ( str_contains( $buf, '@import' ) ) {
 				$buf = preg_replace_callback(
 					'/(?P<pre_path>@import\s+(?:url\s*\()?[\'"\s]*)(?P<path>[^\'"\s](?:https?:\/\/.+\/?)?.+?)(?P<post_path>[\'"\s\)]*;)/i',
 					function ( $match ) use ( $dirpath, &$pre_output ) {
-						if ( 0 !== strpos( $match['path'], 'http' ) && '/' !== $match['path'][0] ) {
+						if ( ! str_starts_with( $match['path'], 'http' ) && '/' !== $match['path'][0] ) {
 							$pre_output .= $match['pre_path'] . ( $dirpath === '/' ? '/' : $dirpath . '/' ) .
 											$match['path'] . $match['post_path'] . "\n";
 						} else {
@@ -365,7 +365,7 @@ function jetpack_boost_page_optimize_get_path( $uri ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 
-	if ( false !== strpos( $uri, '..' ) || false !== strpos( $uri, "\0" ) ) {
+	if ( str_contains( $uri, '..' ) || str_contains( $uri, "\0" ) ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 

@@ -65,6 +65,10 @@ function Price( { value, currency, isOld } ) {
  * @param {string} props.className               - A className to be concat with default ones
  * @param {boolean} props.preferProductName      - Use product name instead of title
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
+ * @param {string} [props.ctaButtonLabel]        - The label for the Call To Action button
+ * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
+ * @param {number} [props.quantity]              - The quantity of the product to purchase
+ * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature of the list of features
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( {
@@ -74,8 +78,13 @@ const ProductDetailCard = ( {
 	className,
 	preferProductName,
 	supportingInfo,
+	ctaButtonLabel = null,
+	hideTOS = false,
+	quantity = null,
+	highlightLastFeature = false,
 } ) => {
-	const { fileSystemWriteAccess, siteSuffix, myJetpackUrl } = window?.myJetpackInitialState ?? {};
+	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackUrl } =
+		window?.myJetpackInitialState ?? {};
 
 	const { detail, isFetching } = useProduct( slug );
 	const {
@@ -113,8 +122,11 @@ const ProductDetailCard = ( {
 	 * Product needs purchase when:
 	 * - it's not free
 	 * - it does not have a required plan
+	 *
+	 * Or when:
+	 * - it's a quantity-based product
 	 */
-	const needsPurchase = ! isFree && ! hasRequiredPlan;
+	const needsPurchase = ( ! isFree && ! hasRequiredPlan ) || quantity != null;
 
 	const checkoutRedirectUrl = postCheckoutUrl ? postCheckoutUrl : myJetpackUrl;
 
@@ -123,7 +135,10 @@ const ProductDetailCard = ( {
 			productSlug: wpcomProductSlug,
 			redirectUrl: checkoutRedirectUrl,
 			siteSuffix,
+			adminUrl,
+			connectAfterCheckout: true,
 			from: 'my-jetpack',
+			quantity,
 		} );
 
 	const { run: trialCheckoutRedirect, hasCheckoutStarted: hasTrialCheckoutStarted } =
@@ -132,6 +147,7 @@ const ProductDetailCard = ( {
 			redirectUrl: myJetpackUrl,
 			siteSuffix,
 			from: 'my-jetpack',
+			quantity,
 		} );
 
 	// Suppported products icons.
@@ -218,7 +234,7 @@ const ProductDetailCard = ( {
 
 	// If we prefer the product name, use that everywhere instead of the title
 	const productMoniker = name && preferProductName ? name : title;
-	const ctaLabel =
+	const defaultCtaLabel =
 		! isBundle && hasRequiredPlan
 			? sprintf(
 					/* translators: placeholder is product name. */
@@ -230,6 +246,8 @@ const ProductDetailCard = ( {
 					__( 'Get %s', 'jetpack-my-jetpack' ),
 					productMoniker
 			  );
+	const ctaLabel = ctaButtonLabel || defaultCtaLabel;
+
 	return (
 		<div
 			className={ classnames( styles.card, className, {
@@ -250,7 +268,11 @@ const ProductDetailCard = ( {
 				<H3>{ productMoniker }</H3>
 				<Text mb={ 3 }>{ longDescription }</Text>
 
-				<ul className={ styles.features }>
+				<ul
+					className={ classnames( styles.features, {
+						[ styles[ 'highlight-last-feature' ] ]: highlightLastFeature,
+					} ) }
+				>
 					{ features.map( ( feature, id ) => (
 						<Text component="li" key={ `feature-${ id }` } variant="body">
 							<Icon icon={ check } size={ 24 } />
@@ -259,7 +281,7 @@ const ProductDetailCard = ( {
 					) ) }
 				</ul>
 
-				{ needsPurchase && (
+				{ needsPurchase && discountPrice && (
 					<>
 						<div className={ styles[ 'price-container' ] }>
 							{ discountPrice < price && (
@@ -292,19 +314,21 @@ const ProductDetailCard = ( {
 					</Alert>
 				) }
 
-				<div className={ styles[ 'tos-container' ] }>
-					<TermsOfService
-						agreeButtonLabel={
-							hasTrialButton
-								? sprintf(
-										/* translators: placeholder is cta label. */
-										__( '%s or Start for free', 'jetpack-my-jetpack' ),
-										ctaLabel
-								  )
-								: ctaLabel
-						}
-					/>
-				</div>
+				{ ! hideTOS && (
+					<div className={ styles[ 'tos-container' ] }>
+						<TermsOfService
+							agreeButtonLabel={
+								hasTrialButton
+									? sprintf(
+											/* translators: placeholder is cta label. */
+											__( '%s or Start for free', 'jetpack-my-jetpack' ),
+											ctaLabel
+									  )
+									: ctaLabel
+							}
+						/>
+					</div>
+				) }
 
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Text

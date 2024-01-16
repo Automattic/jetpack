@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Social
  * Feature: Engagement
- * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter
+ * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter, creator
  */
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
@@ -22,6 +22,9 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
+
+// Loads the User Content Link Redirection feature.
+require_once __DIR__ . '/subscriptions/jetpack-user-content-link-redirection.php';
 
 /**
  * Loads the Subscriptions module.
@@ -41,11 +44,11 @@ function jetpack_subscriptions_cherry_pick_server_data() {
 	$data = array();
 
 	foreach ( $_SERVER as $key => $value ) {
-		if ( ! is_string( $value ) || 0 === strpos( $key, 'HTTP_COOKIE' ) ) {
+		if ( ! is_string( $value ) || str_starts_with( $key, 'HTTP_COOKIE' ) ) {
 			continue;
 		}
 
-		if ( 0 === strpos( $key, 'HTTP_' ) || in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ), true ) ) {
+		if ( str_starts_with( $key, 'HTTP_' ) || in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ), true ) ) {
 			$data[ $key ] = $value;
 		}
 	}
@@ -357,21 +360,18 @@ class Jetpack_Subscriptions {
 
 		/** Enable Subscribe Modal */
 
-		/** This filter is documented in plugins/jetpack/modules/subscriptions/subscribe-module/class-jetpack-subscribe-module.php */
-		if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
-			add_settings_field(
-				'jetpack_subscriptions_comment_subscribe',
-				__( 'Enable Subscribe Modal', 'jetpack' ),
-				array( $this, 'subscribe_modal_setting' ),
-				'discussion',
-				'jetpack_subscriptions'
-			);
+		add_settings_field(
+			'jetpack_subscriptions_comment_subscribe',
+			__( 'Enable Subscribe Modal', 'jetpack' ),
+			array( $this, 'subscribe_modal_setting' ),
+			'discussion',
+			'jetpack_subscriptions'
+		);
 
-			register_setting(
-				'discussion',
-				'sm_enabled'
-			);
-		}
+		register_setting(
+			'discussion',
+			'sm_enabled'
+		);
 
 		/** Email me whenever: Someone follows my blog */
 		/* @since 8.1 */
@@ -424,6 +424,14 @@ class Jetpack_Subscriptions {
 			'comment-follow',
 			__( 'Comment follow email text', 'jetpack' ),
 			array( $this, 'setting_comment_follow' ),
+			'reading',
+			'email_settings'
+		);
+
+		add_settings_field(
+			'welcome',
+			__( 'Welcome email text', 'jetpack' ),
+			array( $this, 'setting_welcome' ),
 			'reading',
 			'email_settings'
 		);
@@ -618,6 +626,15 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
+	 * HTML output helper for Welcome section.
+	 */
+	public function setting_welcome() {
+		$settings = $this->get_settings();
+		echo '<textarea name="subscription_options[welcome]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['welcome'] ) . '</textarea>';
+		echo '<p><span class="description">' . esc_html__( 'Welcome text sent when someone follows your blog.', 'jetpack' ) . '</span></p>';
+	}
+
+	/**
 	 * Get default settings for the Subscriptions module.
 	 */
 	public function get_default_settings() {
@@ -628,6 +645,8 @@ class Jetpack_Subscriptions {
 			/* translators: Both %1$s and %2$s is site address */
 			'invitation'     => sprintf( __( "Howdy,\nYou recently subscribed to <a href='%1\$s'>%2\$s</a> and we need to verify the email you provided. Once you confirm below, you'll be able to receive and read new posts.\n\nIf you believe this is an error, ignore this message and nothing more will happen.", 'jetpack' ), $site_url, $display_url ),
 			'comment_follow' => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
+			/* translators: %1$s is the site address */
+			'welcome'        => sprintf( __( 'Cool, you are now subscribed to %1$s and will receive an email notification when a new post is published.', 'jetpack' ), $display_url ),
 		);
 	}
 
@@ -740,8 +759,8 @@ class Jetpack_Subscriptions {
 	 */
 	public function widget_submit() {
 		// Check the nonce.
-		if ( is_user_logged_in() ) {
-			check_admin_referer( 'blogsub_subscribe_' . get_current_blog_id() );
+		if ( ! wp_verify_nonce( isset( $_REQUEST['_wpnonce'] ) ? sanitize_key( $_REQUEST['_wpnonce'] ) : '', 'blogsub_subscribe_' . \Jetpack_Options::get_option( 'id' ) ) ) {
+			return false;
 		}
 
 		if ( empty( $_REQUEST['email'] ) || ! is_string( $_REQUEST['email'] ) ) {
@@ -830,6 +849,11 @@ class Jetpack_Subscriptions {
 	 */
 	public function comment_subscribe_init( $submit_button ) {
 		global $post;
+
+		// Subscriptions are only available for posts so far.
+		if ( ! $post || 'post' !== $post->post_type ) {
+			return $submit_button;
+		}
 
 		$comments_checked = '';
 		$blog_checked     = '';
@@ -1102,9 +1126,11 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
+		$blog_id = Connection_Manager::get_site_id( true );
+
 		$link = Redirect::get_url(
 			'jetpack-menu-calypso-subscribers',
-			array( 'site' => $status->get_site_suffix() )
+			array( 'site' => $blog_id ? $blog_id : $status->get_site_suffix() )
 		);
 
 		add_submenu_page(

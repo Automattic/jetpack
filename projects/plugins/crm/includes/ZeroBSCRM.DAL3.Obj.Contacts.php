@@ -77,7 +77,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 					'input_type'            => 'select',
 					'label'                 => __( 'Status', 'zero-bs-crm' ),
 					'placeholder'           => '',
-					'options'               => array( 'Lead', 'Customer', 'Refused', 'Blacklisted' ),
+					'options'               => array( 'Lead', 'Customer', 'Refused' ),
 					'essential'             => true,
 					'max_len'               => 100,
 					'do_not_show_on_portal' => true,
@@ -562,8 +562,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 #} Aliases
                 if ($withAliases){
 
-                    #} Retrieve these as a CSV :)
-                    $extraSelect .= ",(SELECT GROUP_CONCAT(aka_alias SEPARATOR ',') FROM ".$ZBSCRM_t['aka']." WHERE aka_type = ".ZBS_TYPE_CONTACT." AND aka_id = contact.ID) aliases";
+					#} Retrieve these as a CSV :)
+					$extraSelect .= ',(SELECT ' . $this->DAL()->build_group_concat( 'aka_alias', ',' ) . ' FROM ' . $ZBSCRM_t['aka'] . ' WHERE aka_type = ' . ZBS_TYPE_CONTACT . ' AND aka_id = contact.ID) aliases'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 }
 
@@ -911,7 +911,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                 'assignedContact'   => $potentialRes->ID, // assigned to company id (int)
                                 'page'              => $objs_page,
                                 'perPage'           => $objs_per_page,
-                                'ignoreowner'       => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT),                                    
+                                'ignoreowner'       => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK),                                    
                                 'sortByField'       => 'zbse_start',
                                 'sortOrder'         => 'DESC',
                                 'withAssigned'      => false // no need, it's assigned to this obj already
@@ -1182,8 +1182,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             #} Aliases
             if ($withAliases){
 
-                #} Retrieve these as a CSV :)
-                $extraSelect .= ",(SELECT GROUP_CONCAT(aka_alias SEPARATOR ',') FROM ".$ZBSCRM_t['aka']." WHERE aka_type = ".ZBS_TYPE_CONTACT." AND aka_id = contact.ID) aliases";
+				#} Retrieve these as a CSV :)
+				$extraSelect .= ',(SELECT ' . $this->DAL()->build_group_concat( 'aka_alias', ',' ) . ' FROM ' . $ZBSCRM_t['aka'] . ' WHERE aka_type = ' . ZBS_TYPE_CONTACT . ' AND aka_id = contact.ID) aliases'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             }
 
@@ -1539,7 +1539,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                         // where status = x
                         // USE hasStatus above now...
-                        if (substr($qFilter,0,7) == 'status_'){
+					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                             $qFilterStatus = substr($qFilter,7);
                             $qFilterStatus = str_replace('_',' ',$qFilterStatus);
@@ -1547,27 +1547,27 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                             // check status
                             $wheres['quickfilterstatus'] = array('zbsc_status','LIKE','%s',ucwords($qFilterStatus));
 
-                        } elseif ($qFilter == 'assigned_to_me'){
+					} elseif ( $qFilter === 'assigned_to_me' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                             $wheres['assigned_to_me'] = array( 'zbs_owner', '=', zeroBSCRM_user() );
 
-                        } elseif ($qFilter == 'not_assigned'){
+					} elseif ( $qFilter === 'not_assigned' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                             $wheres['not_assigned'] = array( 'zbs_owner', '<=', '0' );
 
-                        } elseif (substr($qFilter,0,14) == 'notcontactedin'){
+					} elseif ( str_starts_with( $qFilter, 'notcontactedin' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                                 // check
                                 $notcontactedinDays = (int)substr($qFilter,14);
                                 $notcontactedinDaysSeconds = $notcontactedinDays*86400;
                                 $wheres['notcontactedinx'] = array('zbsc_lastcontacted','<','%d',time()-$notcontactedinDaysSeconds);
 
-                        } elseif (substr($qFilter,0,9) == 'olderthan'){
+					} elseif ( str_starts_with( $qFilter, 'olderthan' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                                 // check
                                 $olderThanDays = (int)substr($qFilter,9);
                                 $olderThanDaysSeconds = $olderThanDays*86400;
                                 $wheres['olderthanx'] = array('zbsc_created','<','%d',time()-$olderThanDaysSeconds);
 
-                        } elseif (substr($qFilter,0,8) == 'segment_'){
+					} elseif ( str_starts_with( $qFilter, 'segment_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                             // a SEGMENT
                             $qFilterSegmentSlug = substr($qFilter,8);
@@ -1615,7 +1615,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                     }
 
 
-                        } else {
+					} else {
 
                                 // normal/hardtyped
 
@@ -1649,7 +1649,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 
 
-                            } // / hardtyped
+					} // / hardtyped
 
                         }
 
@@ -2168,7 +2168,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                         'assignedContact'   => $resDataLine->ID, // assigned to company id (int)
                                         'page'       => -1,
                                         'perPage'       => -1,
-                                        'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT),                                    
+                                        'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK),                                    
                                         'sortByField'   => 'zbse_start',
                                         'sortOrder'     => 'DESC',
                                         'withAssigned'  => false // no need, it's assigned to this obj already
@@ -2351,7 +2351,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                         // some weird case where getting empties, so added check
                         if (isset($field['key']) && !empty($field['key'])){ 
 
-                            $dePrefixed = ''; if (substr($field['key'],0,strlen('zbsc_')) === 'zbsc_') $dePrefixed = substr($field['key'], strlen('zbsc_'));
+						$dePrefixed = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $field['key'], 'zbsc_' ) ) {
+							$dePrefixed = substr( $field['key'], strlen( 'zbsc_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 
                             if (isset($customFields[$field['key']])){
 
@@ -3960,7 +3963,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
     /**
      * Returns an ownerid against a contact
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id Contact ID
      *
@@ -5019,56 +5021,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 $resArr['transactions_total_value'] = $contact['transactions_total'];
 
             }
-
-            #} Tags
-            //if (in_array('tagged', $columnsRequired)){
-
-            //    $resArr['tags'] = $contact['tags'];
-
-            //}
-
-            #} Quotes
-            //if (in_array('hasquote', $columnsRequired)){
-
-            //    $resArr['quotes'] = $contact['quotes'];
-
-            //}
-
-            #} Invoices
-            //if (in_array('hasinvoice', $columnsRequired)){
-
-            //    $resArr['invoices'] = $contact['invoices'];
-
-            //}
-
-            // DAL2 :)
-            //if (isset($customer['lastcontacted'])){
-
-            //    $resArr['lastcontacted'] = $contact['lastcontacted'];
-
-            //}
-
-            #} latest log
-            //if (in_array('latestlog', $columnsRequired)){
-            //if (isset($contact['lastlog'])){
-
-            //    $resArr['lastlog'] = $contact['lastlog'];
-
-            //}
-
-
-            #} Assigned to
-            /* no longer needed, is dealt with by withOwner
-            if (in_array('assigned', $columnsRequired)){
-
-                $resArr['owner'] = $contact['owner'];
-
-                // Actually needs owner obj!
-                if ($zbs->isDAL2() && isset($resArr['owner']) && !empty($resArr['owner'])) {
-
-                    $resArr['owner'] = zeroBS_getOwnerObj($resArr['owner']);
-                }
-            } */
 
             #} Company
             if (in_array('company',$columnsRequired)){

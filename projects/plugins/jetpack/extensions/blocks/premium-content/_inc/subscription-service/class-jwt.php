@@ -317,7 +317,7 @@ class JWT {
 
 		$errno = json_last_error();
 
-		if ( $errno && function_exists( 'json_last_error' ) ) {
+		if ( $errno ) {
 			static::handle_json_error( $errno );
 		} elseif ( null === $obj && 'null' !== $input ) {
 			throw new DomainException( 'Null result with non-null input' );
@@ -338,7 +338,7 @@ class JWT {
 		$json  = wp_json_encode( $input );
 		$errno = json_last_error();
 
-		if ( $errno && function_exists( 'json_last_error' ) ) {
+		if ( $errno ) {
 			static::handle_json_error( $errno );
 		} elseif ( 'null' === $json && null !== $input ) {
 			throw new DomainException( 'Null result with non-null input' );

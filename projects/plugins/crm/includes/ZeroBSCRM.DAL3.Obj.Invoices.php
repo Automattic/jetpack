@@ -17,7 +17,7 @@
   / Breaking Checks
    ====================================================== */
 
-
+use Automattic\Jetpack\CRM\Event_Manager\Events_Manager;
 
 /**
 * ZBS DAL >> Invoices
@@ -161,6 +161,14 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
         );
 
+		/**
+		 * Events_Manager instance. Manages CRM events.
+		 *
+		 * @since 6.2.0
+		 *
+		 * @var Events_Manager
+		 */
+		private $events_manager;
 
     function __construct($args=array()) {
 
@@ -173,7 +181,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
         ); foreach ($defaultArgs as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS =============
 
-
+			$this->events_manager = new Events_Manager();
     }
 
 
@@ -776,7 +784,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
                     // where status = x
                     // USE hasStatus above now...
-                    if (substr($qFilter,0,7) == 'status_'){
+					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                         $qFilterStatus = substr($qFilter,7);
                         $qFilterStatus = str_replace('_',' ',$qFilterStatus);
@@ -784,14 +792,13 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                         // check status
                         $wheres['quickfilterstatus'] = array('zbsi_status','LIKE','%s',ucwords($qFilterStatus));
 
-                    } else {
+					} else {
 
                         // if we've hit no filter query, let external logic hook in to provide alternatives
                         // First used in WooSync module
                         $wheres = apply_filters( 'jpcrm_invoice_query_quickfilter', $wheres, $qFilter );
 
-                    }
-
+					}
                 }
             } // / quickfilters
 
@@ -1204,7 +1211,10 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                         // some weird case where getting empties, so added check
                         if (isset($field['key']) && !empty($field['key'])){ 
 
-                            $dePrefixed = ''; if (substr($field['key'],0,strlen('zbsi_')) === 'zbsi_') $dePrefixed = substr($field['key'], strlen('zbsi_'));
+						$dePrefixed = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $field['key'], 'zbsi_' ) ) {
+							$dePrefixed = substr( $field['key'], strlen( 'zbsi_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 
                             if (isset($customFields[$field['key']])){
 
@@ -1741,7 +1751,10 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 									'prev_invoice'   => $previous_invoice_obj,
                                     ));
 
-                                
+											$data['id']                 = $id;
+											$previous_invoice_obj['id'] = $id;
+
+											$this->events_manager->invoice()->updated( $data, $previous_invoice_obj );
 
                             }
 
@@ -1900,6 +1913,8 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                             'extraMeta'=>$confirmedExtraMeta #} This is the "extraMeta" passed (as saved)
                         ));
 
+												$data['id'] = $newID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+												$this->events_manager->invoice()->created( $data );
                     }
                     
                     return $newID;
@@ -2512,7 +2527,6 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
     
     /**
      * Returns an ownerid against a invoice
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id invoice ID
      *

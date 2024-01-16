@@ -65,6 +65,10 @@ jobs:
 
       - name: Wait for prior instances of the workflow to finish
         uses: ./.github/actions/turnstile
+        with:
+          # Split issues and issue_comment triggers from the rest. Otherwise a lot of issue work can result in pushes to trunk timing out.
+          events: ${{ ( github.event_name == 'issues' || github.event_name == 'issue_comment' ) && 'issues issue_comment' || '' }}
+          ignore-events: ${{ ( github.event_name == 'issues' || github.event_name == 'issue_comment' ) && '' || 'issues issue_comment' }}
 
       - name: "Run the action (assign, manage milestones, for issues and PRs)"
         uses: ./projects/github-actions/repo-gardening
@@ -78,3 +82,5 @@ jobs:
           slack_editorial_channel: ${{ secrets.SLACK_EDITORIAL_CHANNEL }}
           slack_he_triage_channel: ${{ secrets.SLACK_HE_TRIAGE_CHANNEL }}
           slack_quality_channel: ${{ secrets.SLACK_QUALITY_CHANNEL }}
+          triage_projects_token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
+          project_board_url: ${{ secrets.PROJECT_BOARD_URL }}

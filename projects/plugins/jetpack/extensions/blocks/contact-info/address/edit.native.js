@@ -22,6 +22,7 @@ const AddressEdit = props => {
 		isSelected,
 		setAttributes,
 		onFocus,
+		style: { baseColors: { color: editorColors = {} } = {} } = {},
 	} = props;
 
 	const textData = [
@@ -98,10 +99,10 @@ const AddressEdit = props => {
 		styles.placeholder,
 		styles.placeholderDark
 	);
-	const textColors = usePreferredColorSchemeStyle(
-		styles.blockEditorPlainText,
-		styles.blockEditorPlainTextDark
-	);
+	const textColors = {
+		...usePreferredColorSchemeStyle( styles.blockEditorPlainText, styles.blockEditorPlainTextDark ),
+		...( editorColors?.text && { color: editorColors.text } ),
+	};
 
 	const onFocusTextInput = index => () => {
 		if ( index < textInputsSelected.length ) {

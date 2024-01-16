@@ -1,4 +1,4 @@
-import ProgressBar from '@automattic/components/dist/esm/progress-bar';
+import { ProgressBar } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import './style.scss';
 
@@ -15,7 +15,11 @@ export const StepProgressBar = ( { currentStepIndex, totalSteps }: Props ) => {
 
 	return (
 		<div className="step-progress-bar">
-			<ProgressBar color={ '#00A32A' } value={ progressValue } />
+			<ProgressBar
+				className={ 'progress-bar' }
+				progressClassName={ 'progress-bar__progress' }
+				progress={ progressValue / 100 }
+			/>
 			<span className="step-progress-bar__label">
 				{ sprintf(
 					/* Translators: %1$s is the current step number, %2$s are total steps */

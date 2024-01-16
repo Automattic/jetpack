@@ -9,13 +9,6 @@ function swiperInit( swiper ) {
 	swiperResize( swiper );
 	swiperApplyAria( swiper );
 
-	/*
-	 * Dispatch the jetpack-lazy-images-load event to set up lazy loading for
-	 * the slideshow's duplicate first and last images.
-	 */
-	const bodyEl = document.querySelector( 'body' );
-	bodyEl.dispatchEvent( new Event( 'jetpack-lazy-images-load' ) );
-
 	swiper.el
 		.querySelector( '.wp-block-jetpack-slideshow_button-pause' )
 		.addEventListener( 'click', function () {

@@ -679,7 +679,7 @@ class REST_Endpoints {
 		}
 
 		// Limit to A-Z,a-z,0-9,_,- .
-		$request_body['buffer_id'] = preg_replace( '/[^A-Za-z0-9]/', '', $request_body['buffer_id'] );
+		$request_body['buffer_id'] = preg_replace( '/[^A-Za-z0-9\-_\.]/', '', $request_body['buffer_id'] );
 		$request_body['item_ids']  = array_filter( array_map( array( 'Automattic\Jetpack\Sync\REST_Endpoints', 'sanitize_item_ids' ), $request_body['item_ids'] ) );
 
 		$queue = new Queue( $queue_name );
@@ -862,7 +862,7 @@ class REST_Endpoints {
 	 */
 	protected static function sanitize_item_ids( $item ) {
 		// lets not delete any options that don't start with jpsq_sync- .
-		if ( ! is_string( $item ) || substr( $item, 0, 5 ) !== 'jpsq_' ) {
+		if ( ! is_string( $item ) || ! str_starts_with( $item, 'jpsq_' ) ) {
 			return null;
 		}
 		// Limit to A-Z,a-z,0-9,_,-,. .

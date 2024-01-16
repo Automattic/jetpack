@@ -4,7 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [2.2-beta] - 2023-09-11
+## [2.4] - 2024-01-04
+### Fixed
+- Backup: Add namespace versioning to Helper_Script_Manager and other classes [#34739]
+
+## [2.3] - 2023-12-13
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+- General: update WordPress version requirements to WordPress 6.3. [#34127]
+- Updated package dependencies. [#33498]
+- Update lockfile [#33607]
+
+### Fixed
+- Improved helper script installer logging. [#34297]
+
+## [2.2] - 2023-09-20
 ### Changed
 - General: update WordPress version requirements to WordPress 6.2. [#32762]
 - Updated package dependencies. [#32966]
@@ -189,6 +204,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
 
 [2.2-beta]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.1...2.2-beta
+[2.4]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.3...2.4
+[2.3]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.2...2.3
+[2.2]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.2-beta...2.2
 [2.1]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.0...2.1
 [2.0]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.9...2.0
 [1.9]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.8...1.9-beta

@@ -4,12 +4,12 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 12.6-a.6
+ * Version: 13.1-a.2
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
- * Requires at least: 6.2
- * Requires PHP: 5.6
+ * Requires at least: 6.3
+ * Requires PHP: 7.0
  *
  * @package automattic/jetpack
  */
@@ -32,9 +32,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '6.2' );
-define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
-define( 'JETPACK__VERSION', '12.6-a.6' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '6.3' );
+define( 'JETPACK__MINIMUM_PHP_VERSION', '7.0' );
+define( 'JETPACK__VERSION', '13.1-a.2' );
 
 /**
  * Constant used to fetch the connection owner token
@@ -169,13 +169,14 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 				printf(
 					wp_kses(
 						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack must have Composer dependencies installed and built via the build command.', 'jetpack' ),
+						__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack must have Composer dependencies installed and built via the build command: <code>jetpack build plugins/jetpack --with-deps</code>', 'jetpack' ),
 						array(
-							'a' => array(
+							'a'    => array(
 								'href'   => array(),
-								'target' => array(),
 								'rel'    => array(),
+								'target' => array(),
 							),
+							'code' => array(),
 						)
 					),
 					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'

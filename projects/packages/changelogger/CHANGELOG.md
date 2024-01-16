@@ -3,6 +3,43 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.5] - 2023-12-11
+### Changed
+- Updated package dependencies. [#34492]
+
+## [4.0.4] - 2023-11-30
+### Changed
+- Internal updates.
+
+## [4.0.3] - 2023-11-24
+
+## [4.0.2] - 2023-11-21
+### Removed
+- Removed `Utils::error_clear_last()`, the function can be called directly now. [#34222]
+
+## [4.0.1] - 2023-11-21
+### Added
+- Added `symfony/*` v4.4 as an option, for use with PHP 7.1. [#34217]
+
+### Removed
+- Removed use of `wikimedia/at-ease` package as PHP 7 improved the behavior of `@`. [#34217]
+
+## [4.0.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34126]
+
+## [3.3.11] - 2023-09-28
+### Changed
+- Minor internal updates.
+
+## [3.3.10] - 2023-09-25
+
+- Minor internal updates.
+
+## [3.3.9] - 2023-09-19
+
+- Minor internal updates.
+
 ## [3.3.8] - 2023-08-23
 ### Changed
 - Updated package dependencies. [#32605]
@@ -167,6 +204,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[4.0.5]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.4...4.0.5
+[4.0.4]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.3...4.0.4
+[4.0.3]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.2...4.0.3
+[4.0.2]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.1...4.0.2
+[4.0.1]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.0...4.0.1
+[4.0.0]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.11...4.0.0
+[3.3.11]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.10...3.3.11
+[3.3.10]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.9...3.3.10
+[3.3.9]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.8...3.3.9
 [3.3.8]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.7...3.3.8
 [3.3.7]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.6...3.3.7
 [3.3.6]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.5...3.3.6

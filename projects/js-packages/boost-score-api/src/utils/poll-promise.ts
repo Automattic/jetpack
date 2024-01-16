@@ -34,9 +34,12 @@ export default async function pollPromise< RetType = void >( {
 		intervalHandle: ReturnType< typeof setInterval >;
 
 	return new Promise< RetType >( ( resolve, reject ) => {
-		timeoutHandle = setTimeout( () => {
-			reject( new Error( timeoutError || __( 'Timed out', 'boost-score-api' ) ) );
-		}, timeout || 2 * 60 * 1000 );
+		timeoutHandle = setTimeout(
+			() => {
+				reject( new Error( timeoutError || __( 'Timed out', 'boost-score-api' ) ) );
+			},
+			timeout || 2 * 60 * 1000
+		);
 
 		intervalHandle = setInterval( async () => {
 			try {

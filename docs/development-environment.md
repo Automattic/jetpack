@@ -18,6 +18,7 @@
 			- [Composer](#composer)
 			- [jetpack CLI](#jetpack-cli)
 		- [Check if your environment is ready for Jetpack development](#check-if-your-environment-is-ready-for-jetpack-development)
+		- [Testing Jetpack cloud features](#testing-jetpack-cloud-features)
 - [Development workflow](#development-workflow)
 	- [Building your project](#building-your-project)
 		- [Syncing local changes with Unison](#syncing-local-changes-with-unison)
@@ -160,6 +161,18 @@ tools/check-development-environment.sh
 Running the script will tell you if you have your environment already set up and what you need to do in order to get it ready for Jetpack development.
 
 If you're ready to start, you should see all green `SUCCESS` messages. If the script detect issues, you will see a red `FAILED` note and a link that will help you figure out what you need to change/fix to address the issue.
+
+Once you're all set here, you can continue developing. If you're setting up an local environment and want to start testing immediately, please ensure you build the projects you need.
+
+`jetpack build` will provide prompts to determine the project you need or you can pass it a complete command, like `jetpack build plugins/jetpack --with-deps`
+
+### Testing Jetpack cloud features
+
+In order to test features that require a WordPress.com connection and other network related Jetpack features, you'll need a test site that can create local HTTP tunnels.
+
+If you're an Automattician, we recommend using [Jurassic Tube](./quick-start.md#setting-up-jurassic-tube).
+
+For other methods, check out [ngrok](../tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
 
 # Development workflow
 
@@ -371,9 +384,9 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	composer phpcs:lint
 	```
 
-* ### Checking Jetpack's PHP for compatibility with different versions of PHP since 5.6
+* ### Checking Jetpack's PHP for compatibility with different versions of PHP since 7.0
 
-	We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 5.6
+	We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 7.0
 
 	```sh
 	composer phpcs:compatibility

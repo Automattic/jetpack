@@ -6,7 +6,7 @@ use Automattic\Jetpack\CRM\Automation\Actions\Update_Contact_Status;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
 
@@ -20,7 +20,7 @@ class Update_Contact_Status_Test extends JPCRM_Base_Integration_Test_Case {
 	/**
 	 * A helper class to generate data for the automation tests.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var Automation_Faker
 	 */
@@ -43,7 +43,7 @@ class Update_Contact_Status_Test extends JPCRM_Base_Integration_Test_Case {
 
 		$contact_id = $this->add_contact( array( 'status' => 'Lead' ) );
 		$contact    = $this->get_contact( $contact_id );
-		$this->assertSame( 'Lead', $contact['status'] );
+		$this->assertSame( 'Lead', $contact->status );
 
 		$action_update_contact = new Update_Contact_Status(
 			array(
@@ -54,7 +54,7 @@ class Update_Contact_Status_Test extends JPCRM_Base_Integration_Test_Case {
 			)
 		);
 
-		$action_update_contact->execute( $contact );
+		$action_update_contact->validate_and_execute( new Contact_Data( $contact ) );
 
 		$contact = $zbs->DAL->contacts->getContact( $contact_id );
 		$this->assertSame( 'Customer', $contact['status'] );
@@ -70,7 +70,6 @@ class Update_Contact_Status_Test extends JPCRM_Base_Integration_Test_Case {
 		$automation->register_trigger( Contact_Created::class );
 		$automation->register_step( Contact_Field_Changed::class );
 		$automation->register_step( Update_Contact_Status::class );
-		$automation->register_data_type( Data_Type_Contact::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action(
 			Contact_Created::get_slug(),

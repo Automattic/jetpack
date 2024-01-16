@@ -28,6 +28,7 @@
 	border-radius: 10px;
 	box-sizing: border-box;
 	transition: all 0.4s;
+	text-wrap: balance;
 }
 
 .jetpack-subscribe-modal.open .jetpack-subscribe-modal__modal-content {
@@ -49,4 +50,8 @@
 	.jetpack-subscribe-modal__modal-content {
 		width: 94%;
 	}
+}
+
+body.jetpack-subscribe-modal-open {
+	overflow: hidden;
 }

@@ -54,7 +54,7 @@ if ( isset( $_POST['editwplf'] ) ) {
 	// } Update
 
 	// } any here? or 1?
-	if ( strpos( $zbsStatusStr, ',' ) > -1 ) {
+	if ( str_contains( $zbsStatusStr, ',' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// } Trim them...
 		$zbsStatusArr        = array();
@@ -77,7 +77,7 @@ if ( isset( $_POST['editwplf'] ) ) {
 	}
 
 	// } any here? or 1?
-	if ( strpos( $zbsPrefixStr, ',' ) > -1 ) {
+	if ( str_contains( $zbsPrefixStr, ',' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// } Trim them...
 		$zbsPrefixArr        = array();
@@ -292,7 +292,7 @@ if ( isset( $sbupdated ) ) {
 
 								?>
 								<input type="text" name="zbs-status" id="zbs-status" value="<?php echo esc_attr( $zbsStatusStr ); ?>" class="form-control" />
-								<p style="margin-top:4px"><?php esc_html_e( 'Default is', 'zero-bs-crm' ); ?>:<br /><span style="background:#ceeaea;padding:0 4px">Lead,Customer,Refused,Blacklisted</span></p>
+								<p style="margin-top:4px"><?php esc_html_e( 'Default is', 'zero-bs-crm' ); ?>:<br /><span style="background:#ceeaea;padding:0 4px">Lead,Customer,Refused</span></p>
 							</td>
 						</tr>
 

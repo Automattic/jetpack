@@ -473,9 +473,8 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		// TODO: ideally we would do wp_logout to trigger this event, but it tries to send headers and
 		// causes an error.
-
 		wp_set_current_user( $user_id );
-		do_action( 'wp_logout' );
+		do_action( 'wp_logout', $user_id );
 
 		$this->sender->do_sync();
 
@@ -489,7 +488,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	public function test_syncs_user_logout_event_without_user() {
 		$current_user_id = get_current_user_id();
 		wp_set_current_user( 0 );
-		do_action( 'wp_logout' );
+		do_action( 'wp_logout', 0 );
 
 		$this->sender->do_sync();
 

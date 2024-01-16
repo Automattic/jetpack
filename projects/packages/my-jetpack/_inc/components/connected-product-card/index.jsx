@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
@@ -11,7 +12,17 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
 import ProductCard, { PRODUCT_STATUSES } from '../product-card';
 
-const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuItems = [] } ) => {
+const ConnectedProductCard = ( {
+	admin,
+	slug,
+	children,
+	isDataLoading,
+	showMenu = false,
+	Description = null,
+	additionalActions = null,
+	menuItems = [],
+	upgradeInInterstitial = false,
+} ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
 	const {
@@ -22,7 +33,13 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 		installStandalonePlugin,
 		deactivateStandalonePlugin,
 	} = useProduct( slug );
-	const { name, description, requiresUserConnection, standalonePluginInfo, status } = detail;
+	const {
+		name,
+		description: defaultDescription,
+		requiresUserConnection,
+		standalonePluginInfo,
+		status,
+	} = detail;
 	const [ installingStandalone, setInstallingStandalone ] = useState( false );
 	const [ deactivatingStandalone, setDeactivatingStandalone ] = useState( false );
 
@@ -92,16 +109,24 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			} );
 	}, [ deactivateStandalonePlugin ] );
 
+	const DefaultDescription = () => (
+		<Text variant="body-small" style={ { flexGrow: 1 } }>
+			{ defaultDescription }
+		</Text>
+	);
+
 	return (
 		<ProductCard
 			name={ name }
-			description={ description }
+			Description={ Description ? Description : DefaultDescription }
 			status={ status }
 			admin={ admin }
 			isFetching={ isFetching }
+			isDataLoading={ isDataLoading }
 			isInstallingStandalone={ installingStandalone }
 			isDeactivatingStandalone={ deactivatingStandalone }
 			onDeactivate={ deactivate }
+			additionalActions={ additionalActions }
 			slug={ slug }
 			onActivate={ handleActivate }
 			showMenu={ menuIsActive }
@@ -112,6 +137,7 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			onInstallStandalone={ handleInstallStandalone }
 			onActivateStandalone={ handleInstallStandalone }
 			onDeactivateStandalone={ handleDeactivateStandalone }
+			upgradeInInterstitial={ upgradeInInterstitial }
 		>
 			{ children }
 		</ProductCard>
@@ -122,6 +148,10 @@ ConnectedProductCard.propTypes = {
 	children: PropTypes.node,
 	admin: PropTypes.bool.isRequired,
 	slug: PropTypes.string.isRequired,
+	isDataLoading: PropTypes.bool,
+	showMenu: PropTypes.bool,
+	additionalActions: PropTypes.array,
+	menuItems: PropTypes.array,
 };
 
 export default ConnectedProductCard;

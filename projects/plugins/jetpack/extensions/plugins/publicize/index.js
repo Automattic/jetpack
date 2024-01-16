@@ -7,69 +7,46 @@
  * It also hooks into our dedicated Jetpack plugin sidebar and
  * displays the Publicize UI there.
  */
-
-import {
-	TwitterThreadListener,
-	PublicizePanel,
-	useSocialMediaConnections,
-	usePublicizeConfig,
-	SocialImageGeneratorPanel,
-	PostPublishReviewPrompt,
-} from '@automattic/jetpack-publicize-components';
-import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
-import { PluginPrePublishPanel } from '@wordpress/edit-post';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { PostTypeSupportCheck } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
-import UpsellNotice from './components/upsell';
+import { PublicizePlaceholder } from './components/placeholder';
+import PublicizeSkeletonLoader from './components/skeleton-loader';
+import { Settings } from './settings';
 
 import './editor.scss';
 
 export const name = 'publicize';
 
 const PublicizeSettings = () => {
-	const { hasEnabledConnections } = useSocialMediaConnections();
-	const { isSocialImageGeneratorAvailable } = usePublicizeConfig();
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( name );
 
-	return (
-		<PostTypeSupportCheck supportKeys="publicize">
-			<TwitterThreadListener />
+	if ( isLoadingModules ) {
+		return (
+			<PostTypeSupportCheck supportKeys="publicize">
+				<JetpackPluginSidebar>
+					<PublicizeSkeletonLoader />
+				</JetpackPluginSidebar>
+			</PostTypeSupportCheck>
+		);
+	}
 
-			<JetpackPluginSidebar>
-				<PublicizePanel enableTweetStorm={ true }>
-					<UpsellNotice />
-				</PublicizePanel>
-				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
-			</JetpackPluginSidebar>
+	if ( ! isModuleActive ) {
+		return (
+			<PostTypeSupportCheck supportKeys="publicize">
+				<JetpackPluginSidebar>
+					<PublicizePlaceholder
+						changeStatus={ changeStatus }
+						isModuleActive={ isModuleActive }
+						isLoading={ isChangingStatus }
+					/>
+				</JetpackPluginSidebar>
+			</PostTypeSupportCheck>
+		);
+	}
 
-			<PluginPrePublishPanel
-				initialOpen={ hasEnabledConnections }
-				id="publicize-title"
-				title={
-					<span id="publicize-defaults" key="publicize-title-span">
-						{ __( 'Share this post', 'jetpack' ) }
-					</span>
-				}
-				icon={ <JetpackEditorPanelLogo /> }
-			>
-				<PublicizePanel prePublish={ true } enableTweetStorm={ true }>
-					<UpsellNotice />
-				</PublicizePanel>
-			</PluginPrePublishPanel>
-
-			{ isSocialImageGeneratorAvailable && (
-				<PluginPrePublishPanel
-					initialOpen
-					title={ __( 'Social Image Generator', 'jetpack' ) }
-					icon={ <JetpackEditorPanelLogo /> }
-				>
-					<SocialImageGeneratorPanel prePublish={ true } />
-				</PluginPrePublishPanel>
-			) }
-
-			<PostPublishReviewPrompt />
-		</PostTypeSupportCheck>
-	);
+	return <Settings />;
 };
 
 export const settings = {

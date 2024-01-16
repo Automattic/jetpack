@@ -8,19 +8,19 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Transaction_Data;
 
 /**
  * Adds the Transaction_Updated class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Transaction_Updated extends Base_Trigger {
 
 	/**
 	 * Get the slug name of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug.
 	 */
@@ -31,7 +31,7 @@ class Transaction_Updated extends Base_Trigger {
 	/**
 	 * Get the title of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title.
 	 */
@@ -42,7 +42,7 @@ class Transaction_Updated extends Base_Trigger {
 	/**
 	 * Get the description of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description.
 	 */
@@ -53,7 +53,7 @@ class Transaction_Updated extends Base_Trigger {
 	/**
 	 * Get the category of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The category.
 	 */
@@ -67,20 +67,17 @@ class Transaction_Updated extends Base_Trigger {
 	 * @return string The type of the step
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Transaction::get_slug();
+		return Transaction_Data::class;
 	}
 
 	/**
 	 * Listen to this trigger's target event.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */
-	protected function listen_to_event() {
-		add_action(
-			'jpcrm_transaction_updated',
-			array( $this, 'execute_workflow' )
-		);
+	protected function listen_to_event(): void {
+		$this->listen_to_wp_action( 'jpcrm_transaction_updated' );
 	}
 }

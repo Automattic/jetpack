@@ -10,7 +10,7 @@ const projects = [
 	'../../../packages/my-jetpack/_inc/components',
 	'../../../packages/search/src/dashboard/components',
 	'../../../plugins/protect/src/js/components',
-	'../../../plugins/boost/app/assets/src',
+	'../../../plugins/boost/app/assets/src/js',
 	'../../../packages/videopress/src/client/admin/components',
 	'../../../packages/videopress/src/client/components',
 	'../../../packages/videopress/src/client/block-editor',

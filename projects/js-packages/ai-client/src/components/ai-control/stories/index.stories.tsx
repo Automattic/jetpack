@@ -14,7 +14,12 @@ import AIControl from '../index';
  */
 import type { Meta } from '@storybook/react';
 
-export default {
+interface AIControlStoryMeta extends Meta< typeof AIControl > {
+	title?: string;
+	component?: React.ReactElement;
+}
+
+const meta: AIControlStoryMeta = {
 	title: 'JS Packages/AI Client/AI Control',
 	component: AIControl,
 	decorators: [
@@ -25,7 +30,7 @@ export default {
 		),
 	],
 	argTypes: {
-		requestingState: {
+		state: {
 			control: {
 				type: 'select',
 			},
@@ -51,10 +56,9 @@ const Template = args => {
 };
 
 const DefaultArgs = {
-	loading: false,
 	isTransparent: false,
 	placeholder: '',
-	requestingState: 'init',
+	state: 'init',
 	showButtonLabels: true,
 	showAccept: false,
 	acceptLabel: 'Accept',
@@ -66,3 +70,5 @@ const DefaultArgs = {
 
 export const Default = Template.bind( {} );
 Default.args = DefaultArgs;
+
+export default meta;

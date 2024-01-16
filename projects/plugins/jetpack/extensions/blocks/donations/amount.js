@@ -103,7 +103,6 @@ const Amount = ( {
 				<RichText
 					allowedFormats={ [] }
 					aria-label={ label }
-					multiline={ false }
 					onChange={ amount => setAmount( amount ) }
 					placeholder={ formatCurrency( defaultValue, currency, { symbol: '' } ) }
 					ref={ richTextRef }

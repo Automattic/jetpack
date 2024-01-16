@@ -9,7 +9,7 @@
  * Auto Activate: No
  * Module Tags: Photos and Videos
  * Feature: Appearance
- * Additional Search Queries: gallery, carousel, diaporama, slideshow, images, lightbox, exif, metadata, image
+ * Additional Search Queries: gallery, carousel, diaporama, slideshow, images, lightbox, exif, metadata, image, creator
  *
  * @package automattic/jetpack
  */

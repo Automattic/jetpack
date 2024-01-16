@@ -39,6 +39,8 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	popoverAnchorStyle = 'icon',
 	forceShow = false,
 	wide = false,
+	inline = true,
+	shift = false,
 } ) => {
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
@@ -57,6 +59,8 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		focusOnMount: 'container' as const,
 		onClose: hideTooltip,
 		className: 'icon-tooltip-container',
+		inline,
+		shift,
 	};
 
 	const isAnchorWrapper = popoverAnchorStyle === 'wrapper';
@@ -75,7 +79,6 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 					<Gridicon className={ iconClassName } icon={ iconCode } size={ iconSize } />
 				</Button>
 			) }
-
 			<div
 				className={ classNames( 'icon-tooltip-helper', { 'is-wide': wide } ) }
 				style={ iconShiftBySize }

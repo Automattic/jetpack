@@ -53,12 +53,14 @@ import {
 import {
 	setInitialState,
 	getSiteRawUrl,
+	getSiteId,
 	getSiteAdminUrl,
 	getApiNonce,
 	getApiRootUrl,
 	getRegistrationNonce,
 	userCanManageModules,
 	userCanConnectSite,
+	userCanViewStats,
 	getCurrentVersion,
 	getTracksUserData,
 	showRecommendations,
@@ -67,6 +69,7 @@ import {
 	getPartnerCoupon,
 	isAtomicSite,
 	isWoASite,
+	showMyJetpack,
 	isWooCommerceActive,
 	userIsSubscriber,
 } from 'state/initial-state';
@@ -109,6 +112,21 @@ const recommendationsRoutes = [
 	'/recommendations/summary',
 	'/recommendations/vaultpress-backup',
 	'/recommendations/vaultpress-for-woocommerce',
+	'/recommendations/welcome-backup',
+	'/recommendations/welcome-complete',
+	'/recommendations/welcome-security',
+	'/recommendations/welcome-starter',
+	'/recommendations/welcome-antispam',
+	'/recommendations/welcome-videopress',
+	'/recommendations/welcome-search',
+	'/recommendations/welcome-scan',
+	'/recommendations/welcome-golden-token',
+	'/recommendations/backup-activated',
+	'/recommendations/scan-activated',
+	'/recommendations/antispam-activated',
+	'/recommendations/videopress-activated',
+	'/recommendations/search-activated',
+	'/recommendations/server-credentials',
 ];
 
 const myJetpackRoutes = [ 'my-jetpack ' ];
@@ -319,7 +337,7 @@ class Main extends React.Component {
 				}
 		}
 
-		return <Navigation routeName={ this.props.routeName } />;
+		return <Navigation routeName={ this.props.routeName } blogID={ this.props.blogID } />;
 	};
 
 	renderMainContent = route => {
@@ -529,6 +547,7 @@ class Main extends React.Component {
 				pageComponent = (
 					<MyPlan
 						siteRawUrl={ this.props.siteRawUrl }
+						blogID={ this.props.blogID }
 						siteAdminUrl={ this.props.siteAdminUrl }
 						rewindStatus={ this.props.rewindStatus }
 					/>
@@ -554,6 +573,7 @@ class Main extends React.Component {
 					<SearchableSettings
 						siteAdminUrl={ this.props.siteAdminUrl }
 						siteRawUrl={ this.props.siteRawUrl }
+						blogID={ this.props.blogID }
 						searchTerm={ this.props.searchTerm }
 						rewindStatus={ this.props.rewindStatus }
 						userCanManageModules={ this.props.userCanManageModules }
@@ -630,6 +650,12 @@ class Main extends React.Component {
 
 		if ( this.props.isWoaSite ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 1 } );
+		} else if ( ! this.props.isLinked && ! this.props.showMyJetpack ) {
+			window.wpNavMenuClassChange( { dashboard: 1, settings: 2 } );
+		} else if ( ! this.props.isLinked && this.props.showMyJetpack ) {
+			window.wpNavMenuClassChange( { myJetpack: 1, dashboard: 2, settings: 3 } );
+		} else if ( this.props.isLinked && ! this.props.showMyJetpack ) {
+			window.wpNavMenuClassChange( { activityLog: 1, dashboard: 2, settings: 3 } );
 		} else {
 			window.wpNavMenuClassChange();
 		}
@@ -656,6 +682,7 @@ class Main extends React.Component {
 		return (
 			this.props.isSiteConnected &&
 			! this.shouldShowWooConnectionScreen() &&
+			this.props.userCanViewStats &&
 			dashboardRoutes.includes( this.props.location.pathname )
 		);
 	}
@@ -679,6 +706,7 @@ class Main extends React.Component {
 		return (
 			this.props.isSiteConnected &&
 			! this.shouldShowWooConnectionScreen() &&
+			this.props.userCanManageModules &&
 			dashboardRoutes.includes( this.props.location.pathname )
 		);
 	}
@@ -877,6 +905,7 @@ export default connect(
 			hasConnectedOwner: hasConnectedOwner( state ),
 			isConnectionOwner: isConnectionOwner( state ),
 			siteRawUrl: getSiteRawUrl( state ),
+			blogID: getSiteId( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			searchTerm: getSearchTerm( state ),
 			apiRoot: getApiRootUrl( state ),
@@ -886,6 +915,7 @@ export default connect(
 			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state ),
 			userCanConnectSite: userCanConnectSite( state ),
+			userCanViewStats: userCanViewStats( state ),
 			isSiteConnected: isSiteConnected( state ),
 			isReconnectingSite: isReconnectingSite( state ),
 			rewindStatus: getRewindStatus( state ),
@@ -897,6 +927,7 @@ export default connect(
 			connectingUserFrom: getConnectingUserFrom( state ),
 			isAtomicSite: isAtomicSite( state ),
 			isWoaSite: isWoASite( state ),
+			showMyJetpack: showMyJetpack( state ),
 			isWooCommerceActive: isWooCommerceActive( state ),
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
 			partnerCoupon: getPartnerCoupon( state ),
@@ -951,7 +982,9 @@ export default connect(
  *
  * @param pageOrder
  */
-window.wpNavMenuClassChange = function ( pageOrder = { myJetpack: 1, dashboard: 2, settings: 3 } ) {
+window.wpNavMenuClassChange = function (
+	pageOrder = { myJetpack: 1, activityLog: 2, dashboard: 3, settings: 4 }
+) {
 	let hash = window.location.hash;
 	let page = new URLSearchParams( window.location.search );
 
@@ -973,15 +1006,15 @@ window.wpNavMenuClassChange = function ( pageOrder = { myJetpack: 1, dashboard: 
 	page = page.get( 'page' );
 
 	if ( myJetpackRoutes.includes( page ) ) {
-		getJetpackSubNavItem( pageOrder.myJetpack ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.myJetpack )?.classList.add( 'current' );
 	} else if (
 		dashboardRoutes.includes( hash ) ||
 		recommendationsRoutes.includes( hash ) ||
 		productDescriptionRoutes.includes( hash )
 	) {
-		getJetpackSubNavItem( pageOrder.dashboard ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.dashboard )?.classList.add( 'current' );
 	} else if ( settingsRoutes.includes( hash ) ) {
-		getJetpackSubNavItem( pageOrder.settings ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.settings )?.classList.add( 'current' );
 	}
 
 	const $body = jQuery( 'body' );

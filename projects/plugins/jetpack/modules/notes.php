@@ -105,6 +105,9 @@ class Jetpack_Notifications {
 	 * @return void
 	 */
 	public function styles_and_scripts() {
+		if ( self::is_block_editor() ) {
+			return;
+		}
 		$is_rtl = is_rtl();
 
 		if ( Jetpack::is_module_active( 'masterbar' ) ) {
@@ -163,6 +166,10 @@ class Jetpack_Notifications {
 			return;
 		}
 
+		if ( self::is_block_editor() ) {
+			return;
+		}
+
 		$wpcom_locale = get_locale();
 
 		if ( ! class_exists( 'GP_Locales' ) ) {
@@ -185,6 +192,7 @@ class Jetpack_Notifications {
 			array(
 				'id'     => 'notes',
 				'title'  => '<span id="wpnt-notes-unread-count" class="' . esc_attr( $classes ) . '">
+					<span class="screen-reader-text">' . esc_html__( 'Notifications', 'jetpack' ) . '</span>
 					<span class="noticon noticon-notification"></span>
 					</span>',
 				'meta'   => array(
@@ -192,6 +200,7 @@ class Jetpack_Notifications {
 					'class' => 'menupop',
 				),
 				'parent' => 'top-secondary',
+				'href'   => 'https://wordpress.com/notifications',
 			)
 		);
 	}
@@ -229,6 +238,19 @@ class Jetpack_Notifications {
 	}, false );
 </script>
 		<?php
+	}
+
+	/**
+	 * Checks to see if we're in the block editor.
+	 */
+	public static function is_block_editor() {
+		if ( function_exists( 'get_current_screen' ) ) {
+			$current_screen = get_current_screen();
+			if ( ! empty( $current_screen ) && $current_screen->is_block_editor() ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 

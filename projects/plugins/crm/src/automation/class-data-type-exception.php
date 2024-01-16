@@ -10,14 +10,14 @@ namespace Automattic\Jetpack\CRM\Automation;
 /**
  * Adds a Data_Type specific exception.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Data_Type_Exception extends \Exception {
 
 	/**
 	 * Error code for when the class doesn't exist.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var int
 	 */
@@ -26,7 +26,7 @@ class Data_Type_Exception extends \Exception {
 	/**
 	 * Error code for when a transformer is passed, but doesn't extend the base class.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var int
 	 */
@@ -35,7 +35,7 @@ class Data_Type_Exception extends \Exception {
 	/**
 	 * Error code for when a slug is already being used.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var int
 	 */
@@ -44,7 +44,7 @@ class Data_Type_Exception extends \Exception {
 	/**
 	 * Error code for when a workflow tries to call a data type that doesn't exist.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var int
 	 */
@@ -53,9 +53,9 @@ class Data_Type_Exception extends \Exception {
 	/**
 	 * Error code for when the passed data do not match expected format/type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var int
 	 */
-	const INVALID_ENTITY = 20;
+	const INVALID_DATA = 20;
 }

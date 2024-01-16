@@ -34,7 +34,7 @@
  * @return string The content with YouTube embeds replaced with YouTube shortcodes.
  */
 function youtube_embed_to_short_code( $content ) {
-	if ( ! is_string( $content ) || false === strpos( $content, 'youtube.com' ) ) {
+	if ( ! is_string( $content ) || ! str_contains( $content, 'youtube.com' ) ) {
 		return $content;
 	}
 
@@ -342,7 +342,7 @@ function youtube_id( $url ) {
 		$layout = $is_amp ? 'layout="responsive" ' : '';
 
 		$html = sprintf(
-			'<iframe class="youtube-player" width="%s" height="%s" %ssrc="%s" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"></iframe>',
+			'<iframe class="youtube-player" width="%s" height="%s" %ssrc="%s" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe>',
 			esc_attr( $w ),
 			esc_attr( $h ),
 			$layout,

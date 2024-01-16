@@ -3,7 +3,7 @@
  * Defines the Jetpack CRM Automation logger.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -11,14 +11,14 @@ namespace Automattic\Jetpack\CRM\Automation;
 /**
  * Adds the Automation_Logger class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Automation_Logger {
 
 	/**
 	 * Instance singleton.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Automation_Logger
 	 */
 	private static $instance = null;
@@ -33,7 +33,7 @@ class Automation_Logger {
 	/**
 	 * Whether or not the log is set to output.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var bool
 	 */
 	private $output = false;
@@ -41,7 +41,7 @@ class Automation_Logger {
 	/**
 	 * Whether or not the logger is set to be active.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var bool
 	 */
 	private $is_active = true;
@@ -49,7 +49,7 @@ class Automation_Logger {
 	/**
 	 * Initialize the logger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param bool $force Force a new instance.
 	 * @return Automation_Logger An instance of the Automation_Logger class.
@@ -65,7 +65,7 @@ class Automation_Logger {
 	/**
 	 * Set is_active to true to indicate the logger is active.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 */
 	public function turn_on() {
 		$this->is_active = true;
@@ -74,7 +74,7 @@ class Automation_Logger {
 	/**
 	 * Set is_active to false to indicate the logger is not active.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 */
 	public function turn_off() {
 		$this->is_active = false;
@@ -83,7 +83,7 @@ class Automation_Logger {
 	/**
 	 * Set if output the log or not.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param bool $output Whether or not the log is set to output.
 	 */
@@ -94,7 +94,7 @@ class Automation_Logger {
 	/**
 	 * Get log list.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string[] The log list.
 	 */
@@ -103,9 +103,34 @@ class Automation_Logger {
 	}
 
 	/**
+	 * Get formatted log.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @param bool $output Whether or not the log is set to output.
+	 * @return string[]|null The formatted log as array.
+	 */
+	public function formatted_log( $output = false ): ?array {
+		if ( $output ) {
+			echo "***** LOGS *****\n";
+			foreach ( $this->log as $log ) {
+				echo $log[0] . ' - ' . $log[1] . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
+			echo "***** END LOGS *****\n";
+		} else {
+			$output = array();
+			foreach ( $this->log as $log ) {
+				$output[] = $log[0] . ' - ' . $log[1]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
+			return $output;
+		}
+		return null;
+	}
+
+	/**
 	 * Add a log entry.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $message The message to be output in the log.
 	 */
@@ -122,7 +147,7 @@ class Automation_Logger {
 	/**
 	 * Reset the log.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 */
 	public function reset_log() {
 		$this->log = array();

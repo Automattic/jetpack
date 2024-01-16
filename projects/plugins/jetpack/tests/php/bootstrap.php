@@ -69,6 +69,11 @@ if ( ! is_readable( $jp_autoloader ) || ! is_readable( __DIR__ . '/../../modules
 	exit( 1 );
 }
 
+// If we're running under `jetpack docker phpunit --php`, load the autoloader for that.
+if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
+	require getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) . '/vendor/autoload.php';
+}
+
 require $jp_autoloader;
 
 if ( '1' !== getenv( 'WP_MULTISITE' ) && ( ! defined( 'WP_TESTS_MULTISITE' ) || ! WP_TESTS_MULTISITE ) ) {
@@ -99,7 +104,7 @@ function _manually_install_woocommerce() {
 	// clean existing install first
 	define( 'WP_UNINSTALL_PLUGIN', true );
 	define( 'WC_REMOVE_ALL_DATA', true );
-	include JETPACK_WOOCOMMERCE_INSTALL_DIR . '/uninstall.php';
+	require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/uninstall.php';
 
 	WC_Install::install();
 
@@ -151,9 +156,6 @@ require __DIR__ . '/attachment_test_case.php';
 
 // Load WPCOM-shared helper functions.
 require __DIR__ . '/lib/class-wpcom-features.php';
-
-// Load the Tweetstorm Requests override class.
-require __DIR__ . '/_inc/lib/class-tweetstorm-requests-transport-override.php';
 
 function in_running_uninstall_group() {
 	global  $argv;

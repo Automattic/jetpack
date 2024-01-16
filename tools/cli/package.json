@@ -25,12 +25,11 @@
 		"@octokit/rest": "19.0.13",
 		"chalk": "4.1.2",
 		"configstore": "5.0.1",
+		"enquirer": "2.4.1",
 		"envfile": "6.17.0",
 		"execa": "7.0.0",
-		"tmp": "0.2.1",
 		"glob": "7.1.6",
 		"ignore": "5.1.8",
-		"inquirer": "7.3.3",
 		"js-yaml": "4.1.0",
 		"listr": "0.14.3",
 		"listr-silent-renderer": "1.1.1",
@@ -42,14 +41,11 @@
 		"process": "0.11.10",
 		"semver": "7.5.2",
 		"sprintf-js": "1.1.2",
+		"tmp": "0.2.1",
 		"yargs": "17.6.2"
 	},
 	"devDependencies": {
-		"jest": "29.4.3",
-		"jest-extended": "2.0.0"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+		"jest": "29.7.0",
+		"jest-extended": "4.0.2"
 	}
 }

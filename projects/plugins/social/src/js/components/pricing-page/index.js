@@ -80,22 +80,20 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 				},
 				{
 					name: __( 'Video sharing', 'jetpack-social' ),
-					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
 					tooltipInfo: __( 'Upload and share videos to your social platforms.', 'jetpack-social' ),
+				},
+				{
+					name: __( 'Image generator', 'jetpack-social' ),
+					tooltipInfo: __(
+						'Automatically create custom images, saving you hours of tedious work.',
+						'jetpack-social'
+					),
 				},
 				{
 					name: __( 'Multi-image sharing', 'jetpack-social' ),
 					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
 					tooltipInfo: __(
 						'Share multiple images at once on social media platforms.',
-						'jetpack-social'
-					),
-				},
-				{
-					name: __( 'Image generator', 'jetpack-social' ),
-					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
-					tooltipInfo: __(
-						'Automatically create custom images, saving you hours of tedious work.',
 						'jetpack-social'
 					),
 				},
@@ -139,8 +137,8 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
-				<PricingTableItem isComingSoon />
-				<PricingTableItem isComingSoon />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
 				<PricingTableItem isComingSoon />
 			</PricingTableColumn>
 			<PricingTableColumn primary>

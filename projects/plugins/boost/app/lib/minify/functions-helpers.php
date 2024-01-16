@@ -87,7 +87,7 @@ function jetpack_boost_page_optimize_uninstall() {
  * generating concatenated URLs.
  */
 function jetpack_boost_enqueued_to_absolute_url( $url ) {
-	if ( substr( $url, 0, 1 ) === '/' ) {
+	if ( str_starts_with( $url, '/' ) ) {
 		return home_url( $url );
 	}
 
@@ -224,7 +224,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 	static $dependency_path_mapping;
 
 	// Absolute paths should dump the path component of siteurl.
-	if ( substr( $path, 0, 1 ) === '/' ) {
+	if ( str_starts_with( $path, '/' ) ) {
 		$parts   = wp_parse_url( $siteurl );
 		$siteurl = $parts['scheme'] . '://' . $parts['host'];
 	}
@@ -255,7 +255,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 		return $url;
 	}
 
-	if ( false === strpos( $url, '?' ) ) {
+	if ( ! str_contains( $url, '?' ) ) {
 		$q = '';
 	} else {
 		list( $url, $q ) = explode( '?', $url, 2 );
@@ -274,7 +274,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 function jetpack_boost_get_static_prefix() {
 	$prefix = defined( 'JETPACK_BOOST_STATIC_PREFIX' ) ? JETPACK_BOOST_STATIC_PREFIX : '/_jb_static/';
 
-	if ( substr( $prefix, 0, 1 ) !== '/' ) {
+	if ( ! str_starts_with( $prefix, '/' ) ) {
 		$prefix = '/' . $prefix;
 	}
 

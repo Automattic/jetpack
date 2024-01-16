@@ -153,7 +153,7 @@ class Jetpack_Gutenberg {
 	 * @return string The unprefixed extension name.
 	 */
 	public static function remove_extension_prefix( $extension_name ) {
-		if ( 0 === strpos( $extension_name, 'jetpack/' ) || 0 === strpos( $extension_name, 'jetpack-' ) ) {
+		if ( str_starts_with( $extension_name, 'jetpack/' ) || str_starts_with( $extension_name, 'jetpack-' ) ) {
 			return substr( $extension_name, strlen( 'jetpack/' ) );
 		}
 		return $extension_name;
@@ -464,6 +464,26 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Queue a script to set `Jetpack_Block_Assets_Base_Url`.
+	 *
+	 * In certain cases Webpack needs to know a base to load additional assets from.
+	 * Normally it can determine that itself, but when JS concatenation is involved that tends to confuse it.
+	 * We work around that by explicitly outputting a variable with the correct URL.
+	 * We set that as its own "script" so we can reliably only output it once.
+	 */
+	private static function register_blocks_assets_base_url() {
+		if ( ! wp_script_is( 'jetpack-blocks-assets-base-url', 'registered' ) ) {
+			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- No actual script, so no version needed.
+			wp_register_script( 'jetpack-blocks-assets-base-url', false, array(), null, array( 'in_footer' => false ) );
+			wp_add_inline_script(
+				'jetpack-blocks-assets-base-url',
+				'var Jetpack_Block_Assets_Base_Url=' . wp_json_encode( plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'before'
+			);
+		}
+	}
+
+	/**
 	 * Only enqueue block assets when needed.
 	 *
 	 * @param string $type Slug of the block or absolute path to the block source code directory.
@@ -479,7 +499,7 @@ class Jetpack_Gutenberg {
 		}
 
 		// Retrieve the feature from block.json if a path is passed.
-		if ( '/' === substr( $type, 0, 1 ) ) {
+		if ( path_is_absolute( $type ) ) {
 			$metadata = Blocks::get_block_metadata_from_file( Blocks::get_path_to_block_metadata( $type ) );
 			$feature  = Blocks::get_block_feature_from_metadata( $metadata );
 
@@ -544,10 +564,13 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		self::register_blocks_assets_base_url();
+
 		// Enqueue script.
 		$script_relative_path  = self::get_blocks_directory() . $type . '/view.js';
 		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
 		$script_dependencies[] = 'wp-polyfill';
+		$script_dependencies[] = 'jetpack-blocks-assets-base-url';
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
 			$script_dependencies = array_unique( array_merge( $script_dependencies, $asset_manifest['dependencies'] ) );
@@ -576,14 +599,6 @@ class Jetpack_Gutenberg {
 				}
 			}
 		}
-
-		wp_localize_script(
-			'jetpack-block-' . $type,
-			'Jetpack_Block_Assets_Base_Url',
-			array(
-				'url' => plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE ),
-			)
-		);
 	}
 
 	/**
@@ -622,6 +637,18 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		/**
+		 * This can be called multiple times per page load in the admin, during the `enqueue_block_assets` action.
+		 * These assets are necessary for the admin for editing but are not necessary for each pattern preview.
+		 * Therefore we dequeue them, so they don't load for each pattern preview iframe.
+		 */
+		if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
+			wp_dequeue_script( 'jp-tracks' );
+			wp_dequeue_script( 'jetpack-blocks-editor' );
+
+			return;
+		}
+
 		$status = new Status();
 
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
@@ -638,11 +665,16 @@ class Jetpack_Gutenberg {
 			$blocks_env = '';
 		}
 
+		self::register_blocks_assets_base_url();
+
 		Assets::register_script(
 			'jetpack-blocks-editor',
 			"{$blocks_dir}editor{$blocks_env}.js",
 			JETPACK__PLUGIN_FILE,
-			array( 'textdomain' => 'jetpack' )
+			array(
+				'textdomain'   => 'jetpack',
+				'dependencies' => array( 'jetpack-blocks-assets-base-url' ),
+			)
 		);
 
 		// Hack around #20357 (specifically, that the editor bundle depends on
@@ -652,14 +684,6 @@ class Jetpack_Gutenberg {
 		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
 
 		Assets::enqueue_script( 'jetpack-blocks-editor' );
-
-		wp_localize_script(
-			'jetpack-blocks-editor',
-			'Jetpack_Block_Assets_Base_Url',
-			array(
-				'url' => plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE ),
-			)
-		);
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$user                      = wp_get_current_user();
@@ -677,24 +701,25 @@ class Jetpack_Gutenberg {
 		}
 
 		// AI Assistant
-		$ai_assistant_state = Jetpack_AI_Helper::get_ai_assistance_feature();
-
-		if ( is_wp_error( $ai_assistant_state ) ) {
-			$ai_assistant_state = array(
-				'error-message' => $ai_assistant_state->get_error_message(),
-				'error-code'    => $ai_assistant_state->get_error_code(),
-			);
-		} else {
-			$ai_assistant_state['is-playground-visible'] = Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' );
-		}
+		$ai_assistant_state = array(
+			'is-enabled'            => apply_filters( 'jetpack_ai_enabled', true ),
+			'is-playground-visible' => Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' ),
+		);
 
 		$screen_base = null;
 		if ( function_exists( 'get_current_screen' ) ) {
 			$screen_base = get_current_screen()->base;
 		}
 
+		$modules = array();
+		if ( class_exists( 'Jetpack_Core_API_Module_List_Endpoint' ) ) {
+			$module_list_endpoint = new Jetpack_Core_API_Module_List_Endpoint();
+			$modules              = $module_list_endpoint->get_modules();
+		}
+
 		$initial_state = array(
 			'available_blocks' => self::get_availability(),
+			'modules'          => $modules,
 			'jetpack'          => array(
 				'is_active'                     => Jetpack::is_connection_ready(),
 				'is_current_user_connected'     => $is_current_user_connected,
@@ -732,23 +757,19 @@ class Jetpack_Gutenberg {
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
-			$publicize                = publicize_init();
-			$sig_settings             = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
-			$auto_conversion_settings = new Automattic\Jetpack\Publicize\Auto_Conversion\Settings();
+			$publicize               = publicize_init();
+			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
+			$settings                = $jetpack_social_settings->get_settings( true );
 
 			$initial_state['social'] = array(
 				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
 				'hasPaidPlan'                     => $publicize->has_paid_plan(),
 				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
-				'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
-				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
+				'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
+				'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
 				'dismissedNotices'                => $publicize->get_dismissed_notices(),
-				'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
-				'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
-				'autoConversionSettings'          => array(
-					'available' => $auto_conversion_settings->is_available( 'image' ),
-					'image'     => $auto_conversion_settings->is_enabled( 'image' ),
-				),
+				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
+				'autoConversionSettings'          => $settings['autoConversionSettings'],
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
 			);
 		}

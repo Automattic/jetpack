@@ -58,6 +58,7 @@ const ConnectScreen = ( {
 
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
+	const errorCode = registrationError?.response?.code;
 
 	return (
 		<ConnectScreenVisual
@@ -67,6 +68,7 @@ const ConnectScreen = ( {
 			buttonLabel={ buttonLabel }
 			handleButtonClick={ handleRegisterSite }
 			displayButtonError={ displayButtonError }
+			errorCode={ errorCode }
 			buttonIsLoading={ buttonIsLoading }
 			footer={ footer }
 			isOfflineMode={ isOfflineMode }

@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\CRM\Event_Manager;
 /**
  * Interface for events.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 interface Event {
 }
