@@ -210,7 +210,7 @@ class WPCOM_JSON_API {
 	 */
 	public static function is_truthy( $value ) {
 		if ( ! is_string( $value ) ) {
-			return true;
+			return false;
 		}
 
 		switch ( strtolower( (string) $value ) ) {
@@ -230,6 +230,10 @@ class WPCOM_JSON_API {
 	 * @return bool
 	 */
 	public static function is_falsy( $value ) {
+		if ( ! is_string( $value ) ) {
+			return false;
+		}
+
 		switch ( strtolower( (string) $value ) ) {
 			case '0':
 			case 'f':
