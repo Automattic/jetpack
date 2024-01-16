@@ -65,7 +65,7 @@ const initForm = form => {
 	// Hold references to the input event listeners.
 	let inputListenerMap = {};
 
-	form.addEventListener( 'submit', e => {
+	const onSubmit = e => {
 		e.preventDefault();
 
 		// Prevent multiple submissions.
@@ -78,11 +78,14 @@ const initForm = form => {
 		if ( isFormValid( form ) ) {
 			inputListenerMap = {};
 
+			form.removeEventListener( 'submit', onSubmit );
 			submitForm( form );
 		} else {
 			inputListenerMap = invalidateForm( form, opts );
 		}
-	} );
+	};
+
+	form.addEventListener( 'submit', onSubmit );
 };
 
 /******************************************************************************
