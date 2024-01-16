@@ -21,7 +21,7 @@ class Boost_Cache {
 		$this->request_uri = esc_url_raw( wp_unslash( $this->request_uri ) );
 	}
 
-	public function is_ok_to_cache() {
+	public function is_cacheable() {
 		if ( $this->is_backend() ) {
 			error_log( "not caching a backend request: {$this->request_uri}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			return false;
