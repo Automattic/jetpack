@@ -9,13 +9,10 @@
 namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
-use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
-use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 
 class Admin {
 
@@ -25,30 +22,14 @@ class Admin {
 	const MENU_SLUG = 'jetpack-boost';
 
 	/**
-	 * Main plugin instance.
-	 *
-	 * @var Jetpack_Boost Plugin.
-	 */
-	private $modules;
-
-	/**
-	 * Speed_Score class instance.
-	 *
-	 * @var Speed_Score instance.
-	 */
-	private $speed_score;
-
-	/**
 	 * Configuration constants.
 	 *
 	 * @param Config $config
 	 */
 	private $config;
 
-	public function __construct( Modules_Setup $modules ) {
-		$this->modules     = $modules;
-		$this->config      = new Config();
-		$this->speed_score = new Speed_Score( $modules, 'boost-plugin' );
+	public function __construct() {
+		$this->config = new Config();
 		Environment_Change_Detector::init();
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
