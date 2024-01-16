@@ -17,6 +17,7 @@ function jetpack_author_bio() {
 	$options            = get_theme_support( 'jetpack-content-options' );
 	$author_bio         = ( ! empty( $options[0]['author-bio'] ) ) ? $options[0]['author-bio'] : null;
 	$author_bio_default = ( isset( $options[0]['author-bio-default'] ) && false === $options[0]['author-bio-default'] ) ? '' : 1;
+	$avatar_default     = ( isset( $options[0]['avatar-default'] ) && false === $options[0]['avatar-default'] ) ? '' : 1;
 
 	// If the theme doesn't support 'jetpack-content-options[ 'author-bio' ]', don't continue.
 	if ( true !== $author_bio ) {
@@ -32,8 +33,16 @@ function jetpack_author_bio() {
 	if ( ! is_single() ) {
 		return;
 	}
+
+	// Define class for entry-author.
+	if ( ! $avatar_default && ! jetpack_has_gravatar( get_the_author_meta( 'user_email' ) ) ) {
+		$class = 'author-avatar-hide';
+	} else {
+		$class = 'author-avatar-show';
+	}
 	?>
-	<div class="entry-author">
+	<div class="entry-author <?php echo esc_attr( $class ); ?>">
+		<?php if ( 'author-avatar-show' === $class ) : ?>
 		<div class="author-avatar">
 			<?php
 			/**
@@ -50,6 +59,7 @@ function jetpack_author_bio() {
 			echo get_avatar( get_the_author_meta( 'user_email' ), $author_bio_avatar_size );
 			?>
 		</div><!-- .author-avatar -->
+		<?php endif; ?>
 
 		<div class="author-heading">
 			<h2 class="author-title">
@@ -71,4 +81,19 @@ function jetpack_author_bio() {
 		</p><!-- .author-bio -->
 	</div><!-- .entry-auhtor -->
 	<?php
+}
+
+/**
+ * Checks to see if the specified email address has a Gravatar image.
+ *
+ * @param string $email The email of the address of the user to check.
+ * @return bool Whether or not the user has a gravatar
+ */
+function jetpack_has_gravatar( $email ) {
+
+	$url     = get_avatar_url( $email, array( 'default' => '404' ) );
+	$headers = get_headers( $url );
+
+	// If 200 is found, the user has a Gravatar; otherwise, they don't.
+	return preg_match( '|200|', $headers[0] ) ? true : false;
 }
