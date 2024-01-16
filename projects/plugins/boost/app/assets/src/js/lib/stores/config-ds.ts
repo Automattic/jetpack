@@ -4,14 +4,6 @@ import { z } from 'zod';
 export const configSchema = z.object( {
 	version: z.string(),
 	plugin_dir_url: z.string().url(),
-	pricing: z
-		.object( {
-			priceBefore: z.number(),
-			priceAfter: z.number(),
-			currencyCode: z.string(),
-			isIntroductoryOffer: z.boolean(),
-		} )
-		.nullable(),
 	site: z.object( {
 		url: z.string().url(),
 		domain: z.string(),

@@ -11,12 +11,14 @@ import JetpackLogo from '$svg/jetpack-green';
 import styles from './upgrade.module.scss';
 import { useConfig } from '$lib/stores/config-ds';
 import Forward from '$svg/forward';
+import { usePricing } from '$lib/stores/pricing';
 
 const Upgrade: React.FC = () => {
 	const {
-		pricing,
 		site: { domain: siteDomain },
 	} = useConfig();
+
+	const pricing = usePricing();
 
 	const { connection } = useConnection();
 

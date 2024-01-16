@@ -11,6 +11,7 @@ import { useConfig } from '$lib/stores/config-ds';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useNavigate } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
+import { usePricing } from '$lib/stores/pricing';
 
 const GettingStarted: React.FC = () => {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
@@ -18,10 +19,11 @@ const GettingStarted: React.FC = () => {
 	const navigate = useNavigate();
 
 	const {
-		pricing,
 		is_premium: isPremium,
 		site: { domain },
 	} = useConfig();
+
+	const pricing = usePricing();
 
 	const { shouldGetStarted, markGettingStartedComplete } = useGettingStarted();
 

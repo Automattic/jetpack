@@ -2,7 +2,6 @@
 
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
@@ -343,7 +342,6 @@ function jetpack_boost_ui_config() {
 	return array(
 		'version'        => JETPACK_BOOST_VERSION,
 		'plugin_dir_url' => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
-		'pricing'        => Premium_Pricing::get_yearly_pricing(),
 		'site'           => array(
 			'url'             => get_home_url(),
 			'domain'          => ( new Status() )->get_site_suffix(),
@@ -362,5 +360,6 @@ function jetpack_boost_ui_config() {
 }
 jetpack_boost_register_readonly_option( 'config', 'jetpack_boost_ui_config' );
 jetpack_boost_register_readonly_option( 'connection', array( new Connection(), 'get_connection_api_response' ) );
+jetpack_boost_register_readonly_option( 'pricing', array( Premium_Pricing::class, 'get_yearly_pricing' ) );
 
 jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback( false ), new Getting_Started_Entry() );
