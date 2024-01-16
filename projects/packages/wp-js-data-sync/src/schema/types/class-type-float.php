@@ -13,10 +13,10 @@ class Type_Float implements Parser {
 		return (float) $value;
 	}
 	public function __toString() {
-		return '"float"';
+		return 'float';
 	}
 
 	public function jsonSerialize() {
-		return $this->__toString();
+		return "\"{$this->__toString()}\"";
 	}
 }

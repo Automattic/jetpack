@@ -17,10 +17,10 @@ class Type_Void implements Parser {
 		return null;
 	}
 	public function __toString() {
-		return '"void"';
+		return 'void';
 	}
 
 	public function jsonSerialize() {
-		return $this->__toString();
+		return "\"{$this->__toString()}\"";
 	}
 }

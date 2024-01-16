@@ -25,11 +25,11 @@ class Type_Enum implements Parser {
 	}
 
 	public function __toString() {
-		$valid_values = implode( ', ', $this->valid_values );
-		return "\"enum($valid_values)\"";
+		$valid_values = implode( ',', $this->valid_values );
+		return "enum($valid_values)";
 	}
 
 	public function jsonSerialize() {
-		return $this->__toString();
+		return "\"{$this->__toString()}\"";
 	}
 }

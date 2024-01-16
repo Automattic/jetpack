@@ -14,9 +14,9 @@ class Type_Number implements Parser {
 		return (int) $value;
 	}
 	public function __toString() {
-		return '"number"';
+		return 'number';
 	}
 	public function jsonSerialize() {
-		return $this->__toString();
+		return "\"{$this->__toString()}\"";
 	}
 }

@@ -22,10 +22,10 @@ class Type_Any_JSON implements Parser {
 	}
 
 	public function __toString() {
-		return '"any_json"';
+		return 'any_json';
 	}
 
 	public function jsonSerialize() {
-		return $this->__toString();
+		return "\"{$this->__toString()}\"";
 	}
 }

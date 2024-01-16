@@ -39,11 +39,17 @@ class Type_Array implements Parser {
 		return $parsed;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString() {
-		return '"array(' . $this->parser->__toString() . ')"';
+		return "array({$this->parser})";
 	}
 
+	/**
+	 * @return string
+	 */
 	public function jsonSerialize() {
-		return $this->parser->jsonSerialize();
+		return (string) $this;
 	}
 }

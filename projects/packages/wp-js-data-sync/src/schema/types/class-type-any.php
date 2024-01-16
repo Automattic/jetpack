@@ -15,10 +15,10 @@ class Type_Any implements Parser {
 	}
 
 	public function __toString() {
-		return '"any"';
+		return 'any';
 	}
 
 	public function jsonSerialize() {
-		return $this->__toString();
+		return "\"{$this->__toString()}\"";
 	}
 }

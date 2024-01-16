@@ -17,9 +17,9 @@ class Type_String implements Parser {
 	}
 
 	public function __toString() {
-		return '"string"';
+		return 'string';
 	}
 	public function jsonSerialize() {
-		return $this->__toString();
+		return "\"{$this->__toString()}\"";
 	}
 }

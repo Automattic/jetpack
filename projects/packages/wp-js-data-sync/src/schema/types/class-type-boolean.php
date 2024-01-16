@@ -27,10 +27,10 @@ class Type_Boolean implements Parser {
 	}
 
 	public function __toString() {
-		return '"boolean"';
+		return 'boolean';
 	}
 
 	public function jsonSerialize() {
-		return $this->__toString();
+		return "\"{$this->__toString()}\"";
 	}
 }
