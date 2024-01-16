@@ -65,15 +65,12 @@ const useOnboarding = () => {
 	 * Complete All Current Steps
 	 */
 	const completeAllCurrentSteps = useCallback( () => {
-		const stepIds = steps
-			.filter( step => {
-				// If hasRequiredPlan is true, include paid steps, else include free steps
-				return hasRequiredPlan ? step.id.startsWith( 'paid-' ) : step.id.startsWith( 'free-' );
-			} )
-			.reduce( ( carry, step ) => {
+		const stepIds = steps.reduce( ( carry, step ) => {
+			if ( hasRequiredPlan ? step.id.startsWith( 'paid-' ) : step.id.startsWith( 'free-' ) ) {
 				carry.push( step.id );
-				return carry;
-			}, [] );
+			}
+			return carry;
+		}, [] );
 
 		// Complete the steps immediately in the UI
 		setOnboardingProgress( stepIds );
