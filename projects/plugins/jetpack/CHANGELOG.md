@@ -2,21 +2,63 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.0-beta - 2024-01-08
+## 13.1-a.1 - 2024-01-15
+### Enhancements
+- GIF Block: Accept Giphy shortlinks as a valid embed. [#34786]
+- GIF Block: fix styling of the search bar input. [#34779]
+- Subscribe block: don't allow editing the email for subscribing for logged-in members. [#34982]
+
+### Improved compatibility
+- Post Images: avoid PHP warnings on sites using PHP 8.1+, when a post image has a malformed URL. [#34926]
+
+### Bug fixes
+- AI Assistant: avoid deprecation notices when using a development version of WordPress. [#34921]
+- AI Assistant: do not attempt to display the AI Excerpt assistant in the site editor and the widget editor. [#34970]
+- Fixes recurring payments buttons multiple plan support. [#34928]
+- Subscribe modal: Don't show in Elementor editor [#34955]
+- Subscriptions: do not display subscription checkboxes in comment forms displayed on Custom Post Type pages. [#34912]
+- Subscriptions: Fix broken subscribe button in email [#34966]
+- Subscriptions: Fix page scrolling up after the subscription modal is dismissed [#34963]
+- Theme Tools: Ensure that Content Options does not override the Featured Images options set within blocks. [#34805]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Action Bar: remove experimental module. [#34939]
+- add label to prompt blog for bloganuary [#34913]
+- AI Assistant: compose ConnectPrompt and UpgradePrompt and pass it as bannerComponent prop to AI Client [#34918]
+- cast_and_filter_item: Do not cast an array to a string [#34942]
+- Extensions: auto-generate public path [#34923]
+- Extensions: Don't auto-generate public path after all. But improve the way the manual path is being set. [#34969]
+- External media: provide default numerical post id for uploads. [#34795]
+- Jetpack AI: include feature name as a parameter on the content feedback tool. [#34972]
+- Like block: Set index.html version based on the current Jetpack version [#34920]
+- Newsletter settings: update copy for subscription pop-up toggle [#34959]
+- Recommendations: update link in summary upsell [#34898]
+- Sharing: be more defensive when fetching sharing service to avoid errors. [#34991]
+- Spotify shortcode: Prevent a fatal error in PHP 8.1 if no attributes are passed. [#34891]
+- Subscriptions: Fix subscriber pop-up button text color [#34915]
+- Subscriptions: Fix subscriber popup background scrolling [#34933]
+- Subscriptions: Format subscribers reach numbers [#34887]
+- Subscriptions: Show subscription numbers more elegantly [#34919]
+- Sync: synchronize block status option. [#34989]
+- Track store managers actions in WooCommerce analytics. [#34827]
+
+## [13.0] - 2024-01-10
 ### Enhancements
 - Subscription Modal: Display thesubscription modal when a user makes a comment. [#34659]
 
 ### Bug fixes
 - Likes Widget: Fix accessibility on likes popover. [#34800]
 - Likes Widget: Make likes widget accessibility compatible across themes. [#34857]
+- Payments: Fix recurring payments buttons not working with multiple plans.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Use useModuleStatus hook instead of direct call of store selectors. [#34856]
+- AI Assistant: compose ConnectPrompt and UpgradePrompt and pass it as bannerComponent prop to AI Client [#34918]
 - AI Excerpt: remove GPT model selector since it's not possible to change models anymore. [#34855]
 - Backup: Add namespace versioning to Helper_Script_Manager and other classes. [#34739]
 - Fix the sidebar toggle on mobile displays. [#34807]
 - Like Widget: Fix caching issue. [#34860]
 - Updated package dependencies. [#34882]
+- Use useModuleStatus hook instead of direct call of store selectors. [#34856]
 
 ## 13.0-a.13 - 2024-01-04
 ### Bug fixes
@@ -160,7 +202,7 @@
 ### Bug fixes
 - Carousel: fix unresponsive navigation on Chrome browsers. [#34678]
 
-## 12.9 - 2023-12-05
+## [12.9] - 2023-12-05
 ### Enhancements
 - Likes: Updated the likes popover design and added RTL support. [#34396]
 - My Jetpack: Added Creator to My Jetpack overview. [#34307]
@@ -377,7 +419,7 @@
 - Removed scssc 0.0.12 and replaced it with with ScssPhp 1.1.11. [#33928]
 - Rollback change. [#33973]
 
-## 12.8 - 2023-11-06
+## [12.8] - 2023-11-06
 ### Enhancements
 - Added a notice for wp-admin settings pages when the wpcom_admin_interface option is set to wp-admin. [#33933]
 - Added nextdoor block to production blocks. [#33950]
@@ -9533,6 +9575,9 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[13.0]: https://wp.me/p1moTy-10Xp
+[12.9]: https://wp.me/p1moTy-YJA
+[12.8]: https://wp.me/p1moTy-Xdz
 [12.7]: https://wp.me/p1moTy-Wfx
 [12.6]: https://wp.me/p1moTy-VLL
 [12.5]: https://wp.me/p1moTy-Vab

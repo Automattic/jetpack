@@ -13,6 +13,8 @@
 namespace Automattic\Jetpack_Boost;
 
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
+use Automattic\Jetpack\Config as Jetpack_Config;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
@@ -22,6 +24,7 @@ use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
@@ -102,6 +105,9 @@ class Jetpack_Boost {
 		// Initialize the Admin experience.
 		$this->init_admin( $modules_setup );
 
+		// Initiate jetpack sync.
+		$this->init_sync();
+
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
 		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ), 10, 2 );
@@ -169,6 +175,21 @@ class Jetpack_Boost {
 		REST_API::register( List_Site_Urls::class );
 		$this->connection->ensure_connection();
 		new Admin( $modules );
+	}
+
+	public function init_sync() {
+		$jetpack_config = new Jetpack_Config();
+		$jetpack_config->ensure(
+			'sync',
+			array(
+				'jetpack_sync_callable_whitelist' => array(
+					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
+					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
+					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( 'jb-disable-modules', 'all', get_home_url() ) ), 'latest' ),
+					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),
+				),
+			)
+		);
 	}
 
 	/**

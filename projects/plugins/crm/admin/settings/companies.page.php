@@ -171,7 +171,7 @@ if ( isset( $sbupdated ) ) {
 
 								?>
 								<input type="text" name="jpcrm-status-companies" id="jpcrm-status-companies" value="<?php echo esc_attr( $companyStatusStr ); ?>" class="form-control" />
-								<p style="margin-top:4px"><?php esc_html_e( 'Default is', 'zero-bs-crm' ); ?>:<br /><span style="background:#ceeaea;padding:0 4px">Lead,Customer,Refused,Blacklisted</span></p>
+								<p style="margin-top:4px"><?php esc_html_e( 'Default is', 'zero-bs-crm' ); ?>:<br /><span style="background:#ceeaea;padding:0 4px">Lead,Customer,Refused</span></p>
 							</td>
 						</tr>
 

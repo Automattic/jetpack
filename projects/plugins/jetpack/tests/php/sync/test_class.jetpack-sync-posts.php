@@ -511,6 +511,23 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '<p>[foo]</p>', trim( $post_on_server->post_content_filtered ) );
 	}
 
+	public function test_sync_post_filter_restores_global_post() {
+		global $post;
+
+		$post_id = self::factory()->post->create();
+		$post    = get_post( $post_id );
+
+		$post_sync_module = Modules::get_module( 'posts' );
+		$post_sync_module->filter_post_content_and_add_links( $this->post );
+
+		$this->assertSame( $post_id, $post->ID );
+
+		// Test with post global not set.
+		$post = null;
+		$post_sync_module->filter_post_content_and_add_links( $this->post );
+		$this->assertNull( $post );
+	}
+
 	public function do_not_expand_shortcode( $shortcodes ) {
 		$shortcodes[] = 'foo';
 		return $shortcodes;
@@ -893,6 +910,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		global $post;
+		$post = $this->post; // Needed to properly apply the shortcode 'the_content' filter.
 		$this->assertStringContainsString( '<form action=', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
@@ -920,6 +939,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		global $post;
+		$post = $this->post; // Needed to properly apply the shortcode 'the_content' filter.
 		$this->assertStringContainsString( 'div class=\'sharedaddy', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
@@ -947,6 +968,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		global $post;
+		$post = $this->post; // Needed to properly apply the shortcode 'the_content' filter.
 		$this->assertStringContainsString( 'class="sharedaddy sd-sharing-enabled"', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();

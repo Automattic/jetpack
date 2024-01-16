@@ -48,6 +48,21 @@ type DataSyncHook< Schema extends z.ZodSchema, Value extends z.infer< Schema > >
 ];
 
 /**
+ * Build a query key from a key and params.
+ *
+ * @param {string} key    - The key of the value that's being synced.
+ * @param {Object} params - key/value pairs to be used as arguments to the query parameters.
+ */
+function buildQueryKey( key: string, params: Record< string, string | number > ) {
+	return [
+		key,
+		...Object.entries( params )
+			.sort( ( [ a ], [ b ] ) => a.localeCompare( b ) )
+			.map( ( [ , v ] ) => v ),
+	];
+}
+
+/**
  * React Query hook for DataSync.
  * @param namespace - The namespace of the endpoint.
  * @param key - The key of the value that's being synced.
@@ -70,12 +85,7 @@ export function useDataSync<
 	params: Record< string, string | number > = {}
 ): DataSyncHook< Schema, Value > {
 	const datasync = new DataSync( namespace, key, schema );
-	const queryKey = [
-		key,
-		...Object.entries( params )
-			.sort( ( [ a ], [ b ] ) => a.localeCompare( b ) )
-			.map( ( [ , v ] ) => v ),
-	];
+	const queryKey = buildQueryKey( key, params );
 
 	/**
 	 * Defaults for `useQuery`:
@@ -152,7 +162,7 @@ export type DataSyncActionConfig<
 	CurrentState extends z.infer< StateSchema >,
 > = {
 	/**
-	 * The project namespace, fore example: 'jetpack_boost_ds'
+	 * The project namespace, for example: 'jetpack_boost_ds'
 	 */
 	namespace: string;
 
@@ -224,7 +234,7 @@ export function useDataSyncAction<
 	key,
 	action_name,
 	schema,
-	callbacks,
+	callbacks = {},
 	mutationOptions,
 	params = {},
 }: DataSyncActionConfig<
@@ -235,9 +245,7 @@ export function useDataSyncAction<
 	ActionResult,
 	CurrentState
 > ) {
-	// @REACT-TODO: order sensitive bug is hiding in Object.values
-	// This `sort` of fixes it, but I'd like a more elegant solution.
-	const mutationKey = [ key, ...Object.values( params ).sort() ];
+	const mutationKey = buildQueryKey( key, params );
 	const datasync = new DataSync( namespace, key, schema.state );
 	const mutationConfigDefaults: UseMutationOptions<
 		ActionResult,

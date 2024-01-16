@@ -1,0 +1,92 @@
+@import "@automattic/typography/styles/fonts";
+@import "@wordpress/base-styles/breakpoints";
+@import "@wordpress/base-styles/mixins";
+
+.wpcom-block-theme-previews-modal {
+	&.components-modal__frame {
+		margin: auto;
+
+		@media (max-width: #{ ($break-small) }) {
+			max-width: 500px;
+		}
+
+		@media (max-width: 540px) {
+			max-width: calc(100% - 40px);
+		}
+	}
+
+	.components-modal__content {
+		padding: 0;
+		margin-top: 0;
+	}
+
+	.components-modal__header {
+		height: auto;
+		position: absolute;
+		border-bottom-width: 0;
+	}
+
+	.wpcom-block-theme-previews-modal__content {
+		display: flex;
+		flex-direction: column-reverse;
+		justify-content: flex-end;
+
+		@include break-small {
+			flex-direction: row;
+			align-items: stretch;
+		}
+	}
+
+	.wpcom-block-theme-previews-modal__text {
+		display: flex;
+		flex-direction: column;
+		padding: 48px;
+
+		@include break-small {
+			max-width: 400px;
+		}
+	}
+
+	.wpcom-block-theme-previews-modal__heading {
+		margin-top: 0;
+		font-family: $brand-serif;
+		font-weight: 400;
+		font-size: 32px;
+		line-height: 40px;
+		margin-bottom: 16px;
+	}
+
+	.wpcom-block-theme-previews-modal__description {
+		margin-top: 0;
+		margin-bottom: 16px;
+
+		p {
+			font-size: 16px;
+			line-height: 24px;
+			text-wrap: pretty;
+		}
+	}
+
+	.wpcom-block-theme-previews-modal__actions {
+		width: unset;
+	}
+
+	.wpcom-block-theme-previews-modal__video {
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		background-color: rgba(56, 88, 233, 0.40);
+		padding-left: 48px;
+		overflow: hidden;
+
+		@include break-small {
+			max-width: 500px;
+		}
+
+		video {
+			max-width: unset;
+			width: 527px;
+			border-radius: 6px 0px 0px 0px;
+		}
+	}
+}

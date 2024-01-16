@@ -134,7 +134,6 @@
 	"projects/plugins/crm/includes/ZeroBSCRM.InternalAutomatorRecipes.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.Inventory.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.InvoiceBuilder.php",
-	"projects/plugins/crm/includes/ZeroBSCRM.Jetpack.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.List.Columns.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.List.Tasks.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.List.php",

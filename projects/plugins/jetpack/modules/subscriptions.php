@@ -850,6 +850,11 @@ class Jetpack_Subscriptions {
 	public function comment_subscribe_init( $submit_button ) {
 		global $post;
 
+		// Subscriptions are only available for posts so far.
+		if ( ! $post || 'post' !== $post->post_type ) {
+			return $submit_button;
+		}
+
 		$comments_checked = '';
 		$blog_checked     = '';
 
