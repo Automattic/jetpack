@@ -354,7 +354,6 @@ function jetpack_boost_ui_config() {
 			'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 		),
 		'is_premium'     => Premium_Features::has_any(),
-		'connection'     => ( new Connection() )->get_connection_api_response(),
 		'api'            => array(
 			'namespace' => JETPACK_BOOST_REST_NAMESPACE,
 			'prefix'    => JETPACK_BOOST_REST_PREFIX,
@@ -362,5 +361,6 @@ function jetpack_boost_ui_config() {
 	);
 }
 jetpack_boost_register_readonly_option( 'config', 'jetpack_boost_ui_config' );
+jetpack_boost_register_readonly_option( 'connection', array( new Connection(), 'get_connection_api_response' ) );
 
 jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback( false ), new Getting_Started_Entry() );

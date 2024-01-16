@@ -22,11 +22,6 @@ export const configSchema = z.object( {
 		assetPath: z.string(),
 	} ),
 	is_premium: z.boolean(),
-	connection: z.object( {
-		connected: z.boolean(),
-		userConnected: z.boolean(),
-		wpcomBlogId: z.number().nullable(),
-	} ),
 	api: z.object( {
 		namespace: z.string(),
 		prefix: z.string(),

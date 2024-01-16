@@ -1,6 +1,5 @@
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import api from '../api/api';
-import { configSchema } from './config-ds';
 import { useModulesState } from '$features/module/lib/stores';
 import { useCallback } from 'react';
 import { z } from 'zod';
@@ -37,28 +36,34 @@ export function getUpgradeURL( domain: string, isUserConnected = false ) {
 	return checkoutProductUrl.toString();
 }
 
+const ConnectionSchema = z.object( {
+	connected: z.boolean(),
+	userConnected: z.boolean(),
+	wpcomBlogId: z.number().nullable(),
+} );
+
+type ConnectionSchema = z.infer< typeof ConnectionSchema >;
+
 export const useConnection = () => {
-	const [ { data, refetch: reloadConfig } ] = useDataSync(
+	const [ { data: connection, refetch } ] = useDataSync(
 		'jetpack_boost_ds',
-		'config',
-		configSchema
+		'connection',
+		ConnectionSchema
 	);
 	const [ { refetch: reloadModules } ] = useModulesState();
 
-	const connection = data?.connection as z.infer< typeof configSchema >[ 'connection' ];
-
 	return {
-		connection,
+		connection: connection as ConnectionSchema,
 		initializeConnection: useCallback( async () => {
 			if ( connection?.connected ) {
 				return;
 			}
 			return api.post( '/connection' ).then( results => {
 				if ( results.connected ) {
-					reloadConfig();
+					refetch();
 					reloadModules();
 				}
 			} );
-		}, [ connection, reloadConfig, reloadModules ] ),
+		}, [ connection?.connected, refetch, reloadModules ] ),
 	};
 };
