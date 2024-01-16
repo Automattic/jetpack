@@ -11,7 +11,6 @@ use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
-use Automattic\Jetpack_Boost\Data_Sync\Premium_Features_Entry;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Regenerate_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_CSS;
@@ -161,8 +160,6 @@ $critical_css_suggest_regenerate_schema = Schema::enum(
 	)
 )->nullable();
 
-$premium_features_schema = Schema::as_array( Schema::as_string() )->fallback( array() );
-
 /**
  * Register Data Sync Stores
  */
@@ -269,8 +266,6 @@ jetpack_boost_register_option(
 	)
 );
 
-jetpack_boost_register_option( 'premium_features', $premium_features_schema, new Premium_Features_Entry() );
-
 jetpack_boost_register_option( 'performance_history_toggle', Schema::as_boolean()->fallback( false ) );
 jetpack_boost_register_option(
 	'performance_history',
@@ -351,7 +346,6 @@ function jetpack_boost_ui_config() {
 			'canResizeImages' => wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) ),
 			'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 		),
-		'is_premium'     => Premium_Features::has_any(),
 		'api'            => array(
 			'namespace' => JETPACK_BOOST_REST_NAMESPACE,
 			'prefix'    => JETPACK_BOOST_REST_PREFIX,
@@ -361,5 +355,6 @@ function jetpack_boost_ui_config() {
 jetpack_boost_register_readonly_option( 'config', 'jetpack_boost_ui_config' );
 jetpack_boost_register_readonly_option( 'connection', array( new Connection(), 'get_connection_api_response' ) );
 jetpack_boost_register_readonly_option( 'pricing', array( Premium_Pricing::class, 'get_yearly_pricing' ) );
+jetpack_boost_register_readonly_option( 'premium_features', array( Premium_Features::class, 'get_features' ) );
 
 jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback( false ), new Getting_Started_Entry() );

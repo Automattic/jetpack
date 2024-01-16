@@ -5,7 +5,7 @@ import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import { Button, Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { usePremiumFeatures } from './lib/hooks';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import { QualitySettings } from '$features/image-cdn';

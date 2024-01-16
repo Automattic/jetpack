@@ -8,5 +8,5 @@ export const usePremiumFeatures = () => {
 		z.array( z.string() )
 	);
 
-	return premiumFeatures;
+	return premiumFeatures as Array< string >;
 };

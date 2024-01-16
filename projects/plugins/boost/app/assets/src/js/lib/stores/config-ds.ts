@@ -13,7 +13,6 @@ export const configSchema = z.object( {
 		canResizeImages: z.boolean(),
 		assetPath: z.string(),
 	} ),
-	is_premium: z.boolean(),
 	api: z.object( {
 		namespace: z.string(),
 		prefix: z.string(),
