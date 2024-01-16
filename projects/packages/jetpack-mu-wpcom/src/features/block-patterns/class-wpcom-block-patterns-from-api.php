@@ -55,7 +55,7 @@ class Wpcom_Block_Patterns_From_Api {
 			$patterns_cache_key = $this->utils->get_patterns_cache_key( $patterns_source );
 
 			$pattern_categories = array();
-			$block_patterns     = $this->get_patterns( $patterns_cache_key, $patterns_source );
+			$block_patterns     = $this->get_patterns( $patterns_cache_key );
 
 			foreach ( (array) $block_patterns as $pattern ) {
 				foreach ( (array) $pattern['categories'] as $slug => $category ) {
@@ -151,10 +151,9 @@ class Wpcom_Block_Patterns_From_Api {
 	 * Returns a list of patterns.
 	 *
 	 * @param string $patterns_cache_key Key to store responses to and fetch responses from cache.
-	 * @param string $patterns_source    Slug for valid patterns source site, e.g., `block_patterns`.
 	 * @return array                      The list of translated patterns.
 	 */
-	private function get_patterns( $patterns_cache_key, $patterns_source ) {
+	private function get_patterns( $patterns_cache_key ) {
 		$override_source_site = apply_filters( 'a8c_override_patterns_source_site', false );
 		if ( $override_source_site ) {
 			// Skip caching and request all patterns from a specified source site.
@@ -186,8 +185,8 @@ class Wpcom_Block_Patterns_From_Api {
 			$request_url = esc_url_raw(
 				add_query_arg(
 					array(
-						'post_type'       => 'wp_block',
-						'patterns_source' => $patterns_source,
+						'site'      => 'assemblerv2patterns.wordpress.com',
+						'post_type' => 'wp_block',
 					),
 					'https://public-api.wordpress.com/rest/v1/ptk/patterns/' . $this->utils->get_block_patterns_locale()
 				)
