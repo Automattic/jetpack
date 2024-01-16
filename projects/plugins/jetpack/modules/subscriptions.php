@@ -1126,9 +1126,11 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
+		$blog_id = Connection_Manager::get_site_id( true );
+
 		$link = Redirect::get_url(
 			'jetpack-menu-calypso-subscribers',
-			array( 'site' => $status->get_site_suffix() )
+			array( 'site' => $blog_id ? $blog_id : $status->get_site_suffix() )
 		);
 
 		add_submenu_page(
