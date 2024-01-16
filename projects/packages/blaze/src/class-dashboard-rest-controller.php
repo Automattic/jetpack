@@ -320,11 +320,24 @@ class Dashboard_REST_Controller {
 			unset( $req['sub_path'] );
 		}
 
-		return $this->request_as_user(
+		$res = $this->request_as_user(
 			sprintf( '/sites/%d/blaze/posts%s', $site_id, $this->build_subpath_with_query_strings( $req->get_params() ) ),
 			'v2',
 			array( 'method' => 'GET' )
 		);
+
+		if ( ! function_exists( 'wc_get_product' ) || ! function_exists( 'wc_price' ) ) {
+			return $res;
+		}
+
+		foreach ( $res['posts'] as $key => $post ) {
+			$product = wc_get_product( $post['ID'] );
+			if ( $product !== false ) {
+				$res['posts'][ $key ]['price'] = wc_price( $product->get_price() );
+			}
+		}
+
+		return $res;
 	}
 
 	/**
