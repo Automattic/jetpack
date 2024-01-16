@@ -4,7 +4,7 @@ import { animated, useSpring } from '@react-spring/web';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { __, sprintf } from '@wordpress/i18n';
 import { Notice, Button } from '@automattic/jetpack-components';
-import { useMeasureSuperCacheSaving, useSuperCacheDS } from '$lib/utils/measure-super-cache-saving';
+import { useMeasureSuperCacheSaving, useSuperCacheDS } from './lib/hooks';
 import { z } from 'zod';
 
 type State = {

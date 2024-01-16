@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import { addGetParameter } from './add-get-parameter';
-import { recordBoostEvent } from './analytics';
+import { addGetParameter } from '$lib/utils/add-get-parameter';
+import { recordBoostEvent } from '$lib/utils/analytics';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { SuperCacheInfo } from '$lib/stores/super-cache';
 import { useConfig } from '$lib/stores/config-ds';
@@ -13,9 +13,9 @@ export function useSuperCacheDS() {
 }
 
 /**
- * Measures the speed of pageloads using Super Cache, and bypassing Super Cache.
+ * Creates a callback which measures the speed of pageloads using Super Cache, and bypassing Super Cache.
  *
- * @return {number} milliseconds difference between cached and uncached pageload.
+ * @return {() => Promise<number>} milliseconds difference between cached and uncached pageload.
  */
 export function useMeasureSuperCacheSaving() {
 	const data = useSuperCacheDS();
