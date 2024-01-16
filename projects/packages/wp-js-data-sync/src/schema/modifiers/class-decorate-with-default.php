@@ -18,9 +18,9 @@ class Decorate_With_Default implements Parser {
 		$this->default_value = $default_value;
 	}
 
-	public function parse( $data, $meta = null ) {
+	public function parse( $value, $meta = null ) {
 		try {
-			return $this->parser->parse( $data, $meta );
+			return $this->parser->parse( $value, $meta );
 		} catch ( \Exception $e ) {
 			return $this->default_value;
 		}
@@ -28,5 +28,31 @@ class Decorate_With_Default implements Parser {
 
 	public function get_default_value() {
 		return $this->default_value;
+	}
+
+	public function __toString() {
+		$str = $this->parser->__toString();
+
+		// Avoid double JSON Encoding.
+		$value = json_decode( $str, ARRAY_A );
+		if ( ! $value ) {
+			$value = array();
+		}
+
+		$default_value = is_array( $this->default_value ) ? json_encode( $this->default_value ) : $this->default_value;
+		$result        = json_encode(
+			array(
+				'type'    => $value,
+				'default' => $default_value,
+			)
+		);
+		if ( $result ) {
+			return $result;
+		}
+		return $str;
+	}
+
+	public function jsonSerialize() {
+		return $this->__toString();
 	}
 }

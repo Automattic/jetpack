@@ -96,17 +96,17 @@ class Schema implements Parser {
 	/**
 	 * Parses the input data according to the schema type.
 	 *
-	 * @param mixed $data The input data to be parsed.
+	 * @param mixed $value The input data to be parsed.
 	 *
 	 * @return mixed The parsed data according to the schema type.
-	 * @throws \RuntimeException When the input data is invalid.
+	 * @throws \Schema_Parsing_Error When the input data is invalid.
 	 */
-	public function parse( $data, $meta = null ) {
+	public function parse( $value, $meta = null ) {
 
 		// 1 - If the meta is null, then this is maybe the root.
 		if ( $meta === null && $this->meta === null ) {
 			$this->meta = new Schema_Validation_Meta( 'unknown' );
-			$this->meta->set_data( $data );
+			$this->meta->set_data( $value );
 			$this->is_root = true;
 		}
 		// 2 - If the meta is not null, then this is not the root.
@@ -119,14 +119,14 @@ class Schema implements Parser {
 		 */
 		if ( $this->is_root ) {
 			try {
-				return $this->parser->parse( $data, $this->meta );
+				return $this->parser->parse( $value, $this->meta );
 			} catch ( Schema_Internal_Error $e ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					$data           = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
+					$value          = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
 					$error_message  = "Failed to parse '{$this->meta->get_name()}' schema";
 					$error_message .= "\n" . $e->getMessage();
 					$error_message .= "\nData Received:";
-					$error_message .= "\n$data";
+					$error_message .= "\n$value";
 					$error_message .= "\nSchema Path: {$this->meta->get_name()}.{$this->meta->get_path()}";
 					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					error_log( $error_message );
@@ -135,8 +135,16 @@ class Schema implements Parser {
 				throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $this->meta );
 			}
 		} else {
-			return $this->parser->parse( $data, $this->meta );
+			return $this->parser->parse( $value, $this->meta );
 		}
+	}
+
+	public function __toString() {
+		return $this->parser->__toString();
+	}
+
+	public function jsonSerialize() {
+		return $this->parser->__toString();
 	}
 
 	/**

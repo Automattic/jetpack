@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
  * different schema types, ensuring that all schema type classes have a common
  * method to perform the necessary data handling.
  */
-interface Parser {
+interface Parser extends \JsonSerializable, \Stringable {
 	/**
 	 * The parse method t is responsible for parsing input value.
 	 *
@@ -20,12 +20,12 @@ interface Parser {
 	 * If the input value is invalid, the method should return a default value.
 	 * or throw an exception, depending on the implementation.
 	 *
-	 * @param mixed $data                           The input value to be parsed.
-	 * @param Schema_Validation_Meta|null $meta     Schema validation metadata.
+	 * @param mixed                       $value The input value to be parsed.
+	 * @param Schema_Validation_Meta|null $meta  Schema validation metadata.
 	 *
 	 * @return mixed The parsed value.
 	 * @throws \RuntimeException If the input value is invalid.
 	 *
 	 */
-	public function parse( $data, $meta = null );
+	public function parse( $value, $meta = null );
 }

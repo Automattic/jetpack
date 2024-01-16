@@ -5,7 +5,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Meta;
 use PHPUnit\Framework\TestCase;
 
-class Test_Integration_Errors extends TestCase {
+class Test_Integration_Parsing_Errors extends TestCase {
 
 	/**
 	 * This unit test has internal methods defined for array creation - test them first.

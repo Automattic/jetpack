@@ -7,7 +7,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
 
 class Type_Assoc_Array implements Parser {
-	private $assoc_parser_array;
+	private $parser;
 
 	/**
 	 * Assoc Array type takes in a parser in the constructor and
@@ -16,7 +16,7 @@ class Type_Assoc_Array implements Parser {
 	 * @param Parser[] $assoc_parser_array - An associative array of parsers to use.
 	 */
 	public function __construct( array $assoc_parser_array ) {
-		$this->assoc_parser_array = $assoc_parser_array;
+		$this->parser = $assoc_parser_array;
 	}
 
 	/**
@@ -26,31 +26,31 @@ class Type_Assoc_Array implements Parser {
 	 * It will then loop over each key that was provided in the constructor
 	 * and pull the value based on that key from the $data array.
 	 *
-	 * @param $data mixed[]
+	 * @param $value mixed[]
 	 *
 	 * @return array
 	 * @throws Schema_Internal_Error - If the $data passed to it is not an associative array.
 	 *
 	 */
-	public function parse( $data, $meta = null ) {
+	public function parse( $value, $meta = null ) {
 		// Allow coercing stdClass objects (often returned from json_decode) to an assoc array.
-		if ( is_object( $data ) && get_class( $data ) === 'stdClass' ) {
-			$data = (array) $data;
+		if ( is_object( $value ) && get_class( $value ) === 'stdClass' ) {
+			$value = (array) $value;
 		}
 
-		if ( ! is_array( $data ) || $this->is_sequential_array( $data ) ) {
-			$message = "Expected an associative array, received '" . gettype( $data ) . "'";
-			throw new Schema_Internal_Error( $message, $data );
+		if ( ! is_array( $value ) || $this->is_sequential_array( $value ) ) {
+			$message = "Expected an associative array, received '" . gettype( $value ) . "'";
+			throw new Schema_Internal_Error( $message, $value );
 		}
 
 		$parsed = array();
-		foreach ( $this->assoc_parser_array as $key => $parser ) {
+		foreach ( $this->parser as $key => $parser ) {
 
 			if ( null !== $meta ) {
 				$meta->add_to_path( $key );
 			}
 
-			if ( ! isset( $data[ $key ] ) ) {
+			if ( ! isset( $value[ $key ] ) ) {
 				if ( $parser instanceof Decorate_With_Default ) {
 					$value = $parser->parse( null );
 
@@ -62,10 +62,10 @@ class Type_Assoc_Array implements Parser {
 					}
 				} else {
 					$message = "Expected key '$key' in associative array";
-					throw new Schema_Internal_Error( $message, $data );
+					throw new Schema_Internal_Error( $message, $value );
 				}
 			} else {
-				$parsed[ $key ] = $parser->parse( $data[ $key ], $meta );
+				$parsed[ $key ] = $parser->parse( $value[ $key ], $meta );
 			}
 
 			if ( null !== $meta ) {
@@ -81,5 +81,17 @@ class Type_Assoc_Array implements Parser {
 			return false;
 		}
 		return array_keys( $arr ) === range( 0, count( $arr ) - 1 );
+	}
+
+	public function __toString() {
+		$results = array();
+		foreach ( $this->parser as $key => $parser ) {
+			$results[] = "\"$key\"" . ': ' . $parser->__toString();
+		}
+		return '{' . implode( ', ', $results ) . '}';
+	}
+
+	public function jsonSerialize() {
+		return $this->__toString();
 	}
 }

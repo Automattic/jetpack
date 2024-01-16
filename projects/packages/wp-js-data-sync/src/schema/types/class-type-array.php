@@ -26,16 +26,24 @@ class Type_Array implements Parser {
 	 *
 	 * @return array
 	 */
-	public function parse( $data, $_meta = null ) {
-		if ( ! is_array( $data ) ) {
-			$message = "Expected an array, received '" . gettype( $data ) . "'";
-			throw new Schema_Internal_Error( $message, $data );
+	public function parse( $value, $_meta = null ) {
+		if ( ! is_array( $value ) ) {
+			$message = "Expected an array, received '" . gettype( $value ) . "'";
+			throw new Schema_Internal_Error( $message, $value );
 		}
 
 		$parsed = array();
-		foreach ( $data as $key => $value ) {
-			$parsed[ $key ] = $this->parser->parse( $value );
+		foreach ( $value as $key => $item ) {
+			$parsed[ $key ] = $this->parser->parse( $item );
 		}
 		return $parsed;
+	}
+
+	public function __toString() {
+		return '"array<' . $this->parser->__toString() . '>"';
+	}
+
+	public function jsonSerialize() {
+		return $this->parser->jsonSerialize();
 	}
 }

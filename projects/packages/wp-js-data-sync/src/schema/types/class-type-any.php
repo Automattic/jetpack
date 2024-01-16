@@ -10,7 +10,15 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
  * For example - this can be used to deliver readonly data to the client.
  */
 class Type_Any implements Parser {
-	public function parse( $data, $_meta = null ) {
-		return $data;
+	public function parse( $value, $_meta = null ) {
+		return $value;
+	}
+
+	public function __toString() {
+		return '"any"';
+	}
+
+	public function jsonSerialize() {
+		return $this->__toString();
 	}
 }

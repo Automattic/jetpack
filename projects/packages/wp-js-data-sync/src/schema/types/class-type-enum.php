@@ -16,11 +16,20 @@ class Type_Enum implements Parser {
 		$this->valid_values = $valid_values;
 	}
 
-	public function parse( $data, $_meta = null ) {
-		if ( ! in_array( $data, $this->valid_values, true ) ) {
-			$message = sprintf( 'Invalid value "%s". Expected one of: %s', $data, implode( ', ', $this->valid_values ) );
-			throw new Schema_Internal_Error( $message, $data );
+	public function parse( $value, $_meta = null ) {
+		if ( ! in_array( $value, $this->valid_values, true ) ) {
+			$message = sprintf( 'Invalid value "%s". Expected one of: %s', $value, implode( ', ', $this->valid_values ) );
+			throw new Schema_Internal_Error( $message, $value );
 		}
-		return $data;
+		return $value;
+	}
+
+	public function __toString() {
+		$valid_values = implode( ', ', $this->valid_values );
+		return "\"enum($valid_values)\"";
+	}
+
+	public function jsonSerialize() {
+		return $this->__toString();
 	}
 }
