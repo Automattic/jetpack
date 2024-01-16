@@ -3,13 +3,16 @@ import { __ } from '@wordpress/i18n';
 import { useContext, useEffect } from 'react';
 import useOnboarding, { OnboardingRenderedContext } from '../../hooks/use-onboarding';
 
-const OnboardingPopover = ( { id, anchor, position } ) => {
+const OnboardingPopover = ( { id, anchor, position, paid } ) => {
+	const completeAllCurrentSteps = paid ? completeAllPaidSteps : completeAllFreeSteps;
+
 	const {
 		stepsCount,
 		currentStep,
 		currentStepCount,
 		completeCurrentStep,
-		completeAllCurrentSteps,
+		completeAllFreeSteps,
+		completeAllPaidSteps,
 	} = useOnboarding();
 
 	// keep track of which onboarding steps are currently being rendered

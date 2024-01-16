@@ -2,7 +2,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import API from '../../api';
 import { STORE_ID } from '../../state/store';
-import useProtectData from '../use-protect-data';
 
 export const OnboardingContext = createContext( [] );
 export const OnboardingRenderedContext = createContext( [] );
@@ -18,7 +17,6 @@ export const OnboardingRenderedContextProvider = ( { children } ) => {
 };
 
 const useOnboarding = () => {
-	const { hasRequiredPlan } = useProtectData();
 	const { completeOnboardingSteps, fetchOnboardingProgress } = API;
 
 	const steps = useContext( OnboardingContext );
@@ -62,21 +60,38 @@ const useOnboarding = () => {
 	}, [ currentStep, setOnboardingProgress, progress, completeOnboardingSteps ] );
 
 	/**
-	 * Complete All Current Steps
+	 * Complete All Free Steps
 	 */
-	const completeAllCurrentSteps = useCallback( () => {
-		const stepIds = steps.reduce( ( carry, step ) => {
-			if ( hasRequiredPlan ? step.id.startsWith( 'paid-' ) : step.id.startsWith( 'free-' ) ) {
+	const completeAllFreeSteps = useCallback( () => {
+		const freeStepIds = steps.reduce( ( carry, step ) => {
+			if ( step.id.startsWith( 'free-' ) ) {
 				carry.push( step.id );
 			}
 			return carry;
 		}, [] );
 
-		// Complete the steps immediately in the UI
-		setOnboardingProgress( stepIds );
+		// Complete the free steps immediately in the UI
+		setOnboardingProgress( freeStepIds );
 		// Save the completions in the background
-		completeOnboardingSteps( stepIds );
-	}, [ steps, setOnboardingProgress, completeOnboardingSteps, hasRequiredPlan ] );
+		completeOnboardingSteps( freeStepIds );
+	}, [ steps, setOnboardingProgress, completeOnboardingSteps ] );
+
+	/**
+	 * Complete All Paid Steps
+	 */
+	const completeAllPaidSteps = useCallback( () => {
+		const paidStepIds = steps.reduce( ( carry, step ) => {
+			if ( step.id.startsWith( 'paid-' ) ) {
+				carry.push( step.id );
+			}
+			return carry;
+		}, [] );
+
+		// Complete the paid steps immediately in the UI
+		setOnboardingProgress( paidStepIds );
+		// Save the completions in the background
+		completeOnboardingSteps( paidStepIds );
+	}, [ steps, setOnboardingProgress, completeOnboardingSteps ] );
 
 	useEffect( () => {
 		if ( null === progress ) {
@@ -90,7 +105,8 @@ const useOnboarding = () => {
 		currentStep,
 		currentStepCount,
 		completeCurrentStep,
-		completeAllCurrentSteps,
+		completeAllFreeSteps,
+		completeAllPaidSteps,
 	};
 };
 

@@ -93,6 +93,7 @@ const ThreatsList = () => {
 					id={ hasRequiredPlan ? 'paid-scan-results' : 'free-scan-results' }
 					position="middle top"
 					anchor={ yourScanResultsPopoverAnchor }
+					paid={ hasRequiredPlan }
 				/>
 			</Col>
 			<Col lg={ 8 }>
@@ -120,6 +121,7 @@ const ThreatsList = () => {
 												id="paid-fix-all-threats"
 												position={ isSm ? 'bottom right' : 'middle left' }
 												anchor={ fixAllThreatsPopoverAnchor }
+												paid={ true }
 											/>
 										</>
 									) }
@@ -136,6 +138,7 @@ const ThreatsList = () => {
 										id="paid-daily-and-manual-scans"
 										position={ isSm ? 'bottom left' : 'middle left' }
 										anchor={ dailyAndManualScansPopoverAnchor }
+										paid={ true }
 									/>
 								</>
 							) }
@@ -149,6 +152,7 @@ const ThreatsList = () => {
 									id="paid-understand-severity"
 									position="top middle"
 									anchor={ understandSeverityPopoverAnchor }
+									paid={ true }
 								/>
 							</>
 						) : (

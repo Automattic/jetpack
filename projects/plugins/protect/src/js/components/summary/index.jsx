@@ -46,6 +46,7 @@ const Summary = () => {
 									id="free-daily-scans"
 									position="middle right"
 									anchor={ dailyAutomatedScansPopoverAnchor }
+									paid={ false }
 								/>
 							) }
 						</Title>
@@ -71,13 +72,12 @@ const Summary = () => {
 							>
 								{ __( 'Scan now', 'jetpack-protect' ) }
 							</Button>
-							{ hasRequiredPlan && (
-								<OnboardingPopover
-									id="paid-daily-and-manual-scans"
-									position="middle left"
-									anchor={ dailyAndManualScansPopoverAnchor }
-								/>
-							) }
+							<OnboardingPopover
+								id="paid-daily-and-manual-scans"
+								position="middle left"
+								anchor={ dailyAndManualScansPopoverAnchor }
+								paid={ true }
+							/>
 						</>
 					) }
 				</div>
