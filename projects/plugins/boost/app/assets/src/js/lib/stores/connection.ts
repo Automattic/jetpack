@@ -23,15 +23,15 @@ export function getUpgradeURL(
 ) {
 	const product = 'jetpack_boost_yearly';
 
-	const redirectUrl = new URL( window.location.href );
-	redirectUrl.hash = '#/purchase-successful';
-
 	const checkoutProductUrl = new URL(
 		`https://wordpress.com/checkout/${ blogID ?? domain }/${ product }`
 	);
 
 	// Add redirect_to parameter
-	checkoutProductUrl.searchParams.set( 'redirect_to', redirectUrl.toString() );
+	checkoutProductUrl.searchParams.set(
+		'redirect_to',
+		'admin.php?page=jetpack-boost#/purchase-successful'
+	);
 
 	// Add site to query string.
 	checkoutProductUrl.searchParams.set( 'site', domain );
