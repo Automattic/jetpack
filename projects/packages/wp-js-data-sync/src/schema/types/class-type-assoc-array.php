@@ -86,18 +86,9 @@ class Type_Assoc_Array implements Parser {
 	public function __toString() {
 		$results = array();
 		foreach ( $this->parser as $key => $parser ) {
-			$value = json_decode( $parser->jsonSerialize(), ARRAY_A );
-			if ( $value ) {
-				$results[ $key ] = $value;
-			} else {
-				$results[ $key ] = $parser;
-			}
+			$results[ $key ] = $parser;
 		}
-		$str = wp_json_encode( $results );
-		if ( $str ) {
-			return $str;
-		}
-		return 'assoc_array()';
+		return 'assoc_array(' . wp_json_encode( $results, JSON_PRETTY_PRINT ) . ')';
 	}
 
 	/**
