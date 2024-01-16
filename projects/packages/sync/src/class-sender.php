@@ -509,6 +509,11 @@ class Sender {
 		 * This is expensive, but the only way to really know :/
 		 */
 		foreach ( $items as $key => $item ) {
+			if ( ! is_array( $item ) ) {
+				$skipped_items_ids[] = $key;
+				continue;
+			}
+
 			// Suspending cache addition help prevent overloading in memory cache of large sites.
 			wp_suspend_cache_addition( true );
 			/**

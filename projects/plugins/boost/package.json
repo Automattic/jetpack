@@ -10,7 +10,6 @@
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-react-data-sync-client": "workspace:*",
-		"@automattic/jetpack-svelte-data-sync-client": "workspace:*",
 		"@svgr/rollup": "8.1.0",
 		"@types/react": "18.2.33",
 		"@types/react-router-dom": "5.3.3",
