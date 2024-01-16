@@ -109,7 +109,7 @@ class Schema implements Parser {
 			$this->meta->set_data( $value );
 			$this->is_root = true;
 		} // 2 - If the meta is not null, then this is not the root.
-		else if ( $this->meta === null ) {
+		elseif ( $this->meta === null ) {
 			$this->meta = $meta;
 		}
 
@@ -121,8 +121,8 @@ class Schema implements Parser {
 				return $this->parser->parse( $value, $this->meta );
 			} catch ( Schema_Internal_Error $e ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					$value         = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
-					$error_message = "Failed to parse '{$this->meta->get_name()}' schema";
+					$value          = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
+					$error_message  = "Failed to parse '{$this->meta->get_name()}' schema";
 					$error_message .= "\n" . $e->getMessage();
 					$error_message .= "\nData Received:";
 					$error_message .= "\n$value";
@@ -244,7 +244,7 @@ class Schema implements Parser {
 		$description = self::process_schema( $parser->schema() );
 
 		// Convert the processed schema to a JSON-like string
-		return json_encode( $description, JSON_PRETTY_PRINT );
+		return wp_json_encode( $description, JSON_PRETTY_PRINT );
 	}
 
 	private static function process_schema( $item ) {
@@ -260,7 +260,7 @@ class Schema implements Parser {
 
 		// If the item is any other kind of array, process each sub-item
 		if ( is_array( $item ) ) {
-			$result = [];
+			$result = array();
 			foreach ( $item as $key => $value ) {
 				$result[ $key ] = self::process_schema( $value );
 			}

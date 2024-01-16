@@ -5,7 +5,6 @@ use PHPUnit\Framework\TestCase;
 
 class Test_Integration_Serialization extends TestCase {
 
-
 	public function test_serialization_to_string() {
 
 		// String
@@ -41,7 +40,13 @@ class Test_Integration_Serialization extends TestCase {
 		// Array
 		$array = Schema::as_array( Schema::as_string() );
 		$this->assertSame( 'array(string)', (string) $array );
-		$this->assertSame( array( 'type' => 'array', 'value' => array( 'type' => 'string' ) ), $array->schema() );
+		$this->assertSame(
+			array(
+				'type'  => 'array',
+				'value' => array( 'type' => 'string' ),
+			),
+			$array->schema()
+		);
 
 		// Enum
 		$enum = Schema::enum( array( 'a', 'b', 'c' ) );
@@ -51,7 +56,8 @@ class Test_Integration_Serialization extends TestCase {
 				'type'  => 'enum',
 				'value' => array( 'a', 'b', 'c' ),
 			),
-			$enum->schema() );
+			$enum->schema()
+		);
 
 		// Enum with Schemas
 		$enum = Schema::enum( array( Schema::as_string(), Schema::as_number() ) );
@@ -64,7 +70,8 @@ class Test_Integration_Serialization extends TestCase {
 					array( 'type' => 'number' ),
 				),
 			),
-			$enum->schema() );
+			$enum->schema()
+		);
 
 		// Void
 		$void = Schema::as_void();
@@ -79,7 +86,7 @@ class Test_Integration_Serialization extends TestCase {
 		);
 
 		$this->assertSame( $expect_with_fallback, $with_fallback->schema() );
-		$this->assertSame( json_encode( $expect_with_fallback ), json_encode( $with_fallback ) );
+		$this->assertSame( wp_json_encode( $expect_with_fallback ), wp_json_encode( $with_fallback ) );
 	}
 
 	public function test_serialization_assoc_value() {
@@ -169,10 +176,10 @@ class Test_Integration_Serialization extends TestCase {
 				),
 			),
 		);
-		
+
 		// Test in both directions
 		$this->assertSame( $expect_schema_to_be, $schema->schema() );
-		$this->assertSame( $expect_schema_to_be, json_decode( json_encode( $schema ), true ) );
+		$this->assertSame( $expect_schema_to_be, json_decode( wp_json_encode( $schema ), true ) );
 	}
 
 	public function test_serialization_assoc_nested() {
@@ -210,7 +217,7 @@ class Test_Integration_Serialization extends TestCase {
 		);
 
 		$this->assertSame( $expect_schema_to_be, $schema->schema() );
-		$this->assertSame( json_encode( $expect_schema_to_be ), json_encode( $schema ) );
+		$this->assertSame( wp_json_encode( $expect_schema_to_be ), wp_json_encode( $schema ) );
 	}
 
 	public function test_serialization_array_fallbacks() {
@@ -228,7 +235,7 @@ class Test_Integration_Serialization extends TestCase {
 		);
 
 		$this->assertSame( $expect_array_value_fallback, $array_value_fallback->schema() );
-		$this->assertSame( json_encode( $expect_array_value_fallback ), json_encode( $array_value_fallback ) );
+		$this->assertSame( wp_json_encode( $expect_array_value_fallback ), wp_json_encode( $array_value_fallback ) );
 
 		// Fallback on Array
 		$array_group_fallback        = Schema::as_array(
@@ -241,7 +248,7 @@ class Test_Integration_Serialization extends TestCase {
 		);
 
 		$this->assertSame( $expect_array_group_fallback, $array_group_fallback->schema() );
-		$this->assertSame( json_encode( $expect_array_group_fallback ), json_encode( $array_group_fallback ) );
+		$this->assertSame( wp_json_encode( $expect_array_group_fallback ), wp_json_encode( $array_group_fallback ) );
 
 		// Fallback on Array of Arrays
 		$array_group_fallback = Schema::as_array(
@@ -262,6 +269,6 @@ class Test_Integration_Serialization extends TestCase {
 		);
 
 		$this->assertSame( $expect_array_group_fallback, $array_group_fallback->schema() );
-		$this->assertSame( json_encode( $expect_array_group_fallback ), json_encode( $array_group_fallback ) );
+		$this->assertSame( wp_json_encode( $expect_array_group_fallback ), wp_json_encode( $array_group_fallback ) );
 	}
 }

@@ -23,7 +23,7 @@ class Type_Any implements Parser {
 	}
 	public function schema() {
 		return array(
-			'type' => (string) $this
+			'type' => (string) $this,
 		);
 	}
 }

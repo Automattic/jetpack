@@ -35,14 +35,14 @@ class Type_Enum implements Parser {
 
 	public function schema() {
 		$valid_values = $this->valid_values;
-		foreach( $valid_values as $key => $value ) {
-			if( is_object($value) && method_exists($value, 'schema') ) {
-				$valid_values[$key] = $value->schema();
+		foreach ( $valid_values as $key => $value ) {
+			if ( is_object( $value ) && method_exists( $value, 'schema' ) ) {
+				$valid_values[ $key ] = $value->schema();
 			}
 		}
-		
+
 		return array(
-			'type' => 'enum',
+			'type'  => 'enum',
 			'value' => $valid_values,
 		);
 	}

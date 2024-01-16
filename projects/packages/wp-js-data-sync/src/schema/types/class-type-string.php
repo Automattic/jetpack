@@ -25,7 +25,7 @@ class Type_String implements Parser {
 	}
 	public function schema() {
 		return array(
-			'type' => (string) $this
+			'type' => (string) $this,
 		);
 	}
 }

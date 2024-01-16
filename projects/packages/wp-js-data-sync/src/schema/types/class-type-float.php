@@ -21,7 +21,7 @@ class Type_Float implements Parser {
 	}
 	public function schema() {
 		return array(
-			'type' => (string) $this
+			'type' => (string) $this,
 		);
 	}
 }

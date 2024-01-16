@@ -93,7 +93,7 @@ class Type_Assoc_Array implements Parser {
 				$results[ $key ] = $parser;
 			}
 		}
-		$str = json_encode( $results );
+		$str = wp_json_encode( $results );
 		if ( $str ) {
 			return $str;
 		}
@@ -108,6 +108,7 @@ class Type_Assoc_Array implements Parser {
 	}
 
 	public function schema() {
+		$results = array();
 		foreach ( $this->parser as $key => $parser ) {
 			$results[ $key ] = $parser->schema();
 		}

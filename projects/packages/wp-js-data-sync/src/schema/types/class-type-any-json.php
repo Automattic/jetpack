@@ -30,7 +30,7 @@ class Type_Any_JSON implements Parser {
 	}
 	public function schema() {
 		return array(
-			'type' => (string) $this
+			'type' => (string) $this,
 		);
 	}
 }

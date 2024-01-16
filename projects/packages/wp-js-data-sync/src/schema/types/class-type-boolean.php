@@ -33,10 +33,10 @@ class Type_Boolean implements Parser {
 	public function jsonSerialize() {
 		return $this->schema();
 	}
-	
+
 	public function schema() {
 		return array(
-			'type' => (string) $this
+			'type' => (string) $this,
 		);
 	}
 }

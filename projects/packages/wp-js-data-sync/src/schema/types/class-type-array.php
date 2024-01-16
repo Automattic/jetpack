@@ -52,11 +52,11 @@ class Type_Array implements Parser {
 	public function jsonSerialize() {
 		return $this->schema();
 	}
-	
+
 	public function schema() {
 		return array(
-			'type' => 'array',
-			'value' => $this->parser->schema()
+			'type'  => 'array',
+			'value' => $this->parser->schema(),
 		);
 	}
 }
