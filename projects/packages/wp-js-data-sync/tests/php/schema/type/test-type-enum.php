@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
 use PHPUnit\Framework\TestCase;
 
 class Test_Type_Enum extends TestCase {
@@ -12,7 +13,7 @@ class Test_Type_Enum extends TestCase {
 
 	public function test_parse_invalid_enum() {
 		$validator = Schema::enum( array( 'foo', 'bar', 'baz' ) );
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( Schema_Parsing_Error::class );
 		$validator->parse( 'invalid' );
 	}
 }

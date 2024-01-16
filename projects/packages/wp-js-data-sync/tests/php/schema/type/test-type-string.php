@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
 use PHPUnit\Framework\TestCase;
 
 class Test_Type_String extends TestCase {
@@ -20,7 +21,7 @@ class Test_Type_String extends TestCase {
 
 	public function test_fail_sanitize_array() {
 		$validator = Schema::as_string();
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( Schema_Parsing_Error::class );
 		$validator->parse( array() );
 	}
 }

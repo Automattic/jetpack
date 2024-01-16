@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
 use PHPUnit\Framework\TestCase;
 
 class Type_Assoc_Array_Test extends TestCase {
@@ -30,7 +31,7 @@ class Type_Assoc_Array_Test extends TestCase {
 		$assoc_schema = Schema::as_assoc_array();
 
 		// This should throw an exception on failure
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( Schema_Parsing_Error::class );
 		$assoc_schema->parse( 'not_an_array' );
 	}
 }

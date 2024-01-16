@@ -3,6 +3,7 @@
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry_Adapter;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Option;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
 use PHPUnit\Framework\TestCase;
 
 class Test_Integration_Fallback_Values extends TestCase {
@@ -178,9 +179,9 @@ class Test_Integration_Fallback_Values extends TestCase {
 			$schema->parse( null );
 			// If the exception is not thrown, fail the test
 			$this->fail( 'Expected \Error exception was not thrown' );
-		} catch ( \RuntimeException $e ) {
+		} catch ( Schema_Parsing_Error $e ) {
 			// If the exception is thrown, assert that it's the expected exception
-			$this->assertInstanceOf( \RuntimeException::class, $e );
+			$this->assertInstanceOf( Schema_Parsing_Error::class, $e );
 		}
 
 		// -------

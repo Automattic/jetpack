@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
-class Schema_Validation_Error extends \RuntimeException {
+class Schema_Internal_Error extends \RuntimeException {
 	private $data;
 
 	public function __construct( $message, $data ) {

@@ -75,19 +75,22 @@ class Schema implements Parser {
 	private $parser;
 
 	/**
-	 * @var Schema_Validation_Meta
+	 * @var Schema_Validation_Meta | null
 	 */
-	private $meta;
+	private $meta = null;
+
+	private $is_root = false;
 
 	/**
-	 * @param Parser                        $parser
+	 * @param Parser $parser
 	 */
 	public function __construct( Parser $parser ) {
 		$this->parser = $parser;
 	}
 
 	public function set_meta( Schema_Validation_Meta $meta ) {
-		$this->meta = $meta;
+		$this->meta    = $meta;
+		$this->is_root = true;
 	}
 
 	/**
@@ -100,26 +103,38 @@ class Schema implements Parser {
 	 */
 	public function parse( $data, $meta = null ) {
 
-		// @TODO Expalin why this works
-		if ( $this->meta === null ) {
-			$this->meta = null === $meta ? new Schema_Validation_Meta( 'unknown' ) : $meta;
+		// 1 - If the meta is null, then this is maybe the root.
+		if ( $meta === null && $this->meta === null ) {
+			$this->meta    = new Schema_Validation_Meta( 'unknown' );
+			$this->is_root = true;
+		}
+		// 2 - If the meta is not null, then this is not the root.
+		elseif ( $this->meta === null ) {
+			$this->meta = $meta;
 		}
 
-		try {
-			return $this->parser->parse( $data, $this->meta );
-		} catch ( Schema_Validation_Error $e ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				$data           = wp_json_encode( $e->get_data(), JSON_PRETTY_PRINT );
-				$error_message  = "Failed to parse '{$this->meta->get_name()}' schema";
-				$error_message .= "\n" . $e->getMessage();
-				$error_message .= "\nData Received:";
-				$error_message .= "\n$data";
-				$error_message .= "\nSchema Path: {$this->meta->get_name()}.{$this->meta->get_path()}";
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( $error_message );
-			}
+		/**
+		 * If this is the root, then we need to catch any errors and log them.
+		 */
+		if ( $this->is_root ) {
+			try {
+				return $this->parser->parse( $data, $this->meta );
+			} catch ( Schema_Internal_Error $e ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					$data           = wp_json_encode( $e->get_data(), JSON_PRETTY_PRINT );
+					$error_message  = "Failed to parse '{$this->meta->get_name()}' schema";
+					$error_message .= "\n" . $e->getMessage();
+					$error_message .= "\nData Received:";
+					$error_message .= "\n$data";
+					$error_message .= "\nSchema Path: {$this->meta->get_name()}.{$this->meta->get_path()}";
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log( $error_message );
+				}
 
-			throw new \RuntimeException( $e->getMessage() );
+				throw new Schema_Parsing_Error( $e->getMessage(), $e->get_data(), $this->meta );
+			}
+		} else {
+			return $this->parser->parse( $data, $this->meta );
 		}
 	}
 
@@ -205,6 +220,7 @@ class Schema implements Parser {
 	/**
 	 * Use With Caution! This will not parse the data - it will simply return it as-is.
 	 * This is useful for delivering read-only data that we don't need to parse server-side.
+	 *
 	 * @see Type_Any
 	 */
 	public static function as_unsafe_any() {

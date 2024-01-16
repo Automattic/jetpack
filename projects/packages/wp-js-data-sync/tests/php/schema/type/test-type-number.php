@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
 use PHPUnit\Framework\TestCase;
 
 class Test_Type_Number extends TestCase {
@@ -12,7 +13,7 @@ class Test_Type_Number extends TestCase {
 
 	public function expect_errors_on_non_numeric_values() {
 		$type = Schema::as_number();
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( Schema_Parsing_Error::class );
 		$type->parse( 'abc' );
 	}
 
@@ -28,10 +29,10 @@ class Test_Type_Number extends TestCase {
 
 	public function test_parse_boolean() {
 		$validator = Schema::as_number();
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( Schema_Parsing_Error::class );
 		$validator->parse( true );
 
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( Schema_Parsing_Error::class );
 		$validator->parse( false );
 	}
 }
