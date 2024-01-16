@@ -4386,7 +4386,7 @@ function wpsc_render_footer() {
 			<span class="wpsc-name"><?php echo esc_html( 'WP Super Cache' ); ?></span>
 		</div>
 		<div class="automattic-airline">
-			<img class="wpsc-icon" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/automattic-airline.png' ); ?>" />
+			<img class="wpsc-icon" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/automattic-airline.svg' ); ?>" />
 		</div>
 	</div>
 	<?php

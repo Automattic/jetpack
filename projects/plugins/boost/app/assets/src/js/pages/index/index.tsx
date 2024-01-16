@@ -64,19 +64,20 @@ const Index = () => {
 								}
 							) }
 						</p>
-						<p>
-							{ createInterpolateElement(
-								__(
-									`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
-									'jetpack-boost'
-								),
-								{
-									b: <b />,
-								}
-							) }
-
+						<div className={ styles[ 'tooltip-wrapper' ] }>
+							<p>
+								{ createInterpolateElement(
+									__(
+										`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+										'jetpack-boost'
+									),
+									{
+										b: <b />,
+									}
+								) }
+							</p>
 							<PremiumTooltip />
-						</p>
+						</div>
 					</>
 				}
 			>

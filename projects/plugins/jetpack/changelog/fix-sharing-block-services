@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Sharing: be more defensive when fetching sharing service to avoid errors.
