@@ -14,7 +14,7 @@ type SettingsPageProps = {
 
 const SettingsPage = ( { children }: SettingsPageProps ) => {
 	const premiumFeatures = usePremiumFeatures();
-	const hasPrioritySupport = premiumFeatures?.includes( 'support' );
+	const hasPrioritySupport = premiumFeatures && premiumFeatures.includes( 'support' );
 
 	return (
 		<LocalCriticalCssGeneratorProvider>

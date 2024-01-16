@@ -24,7 +24,7 @@ const GettingStarted: React.FC = () => {
 
 	const pricing = usePricing();
 	const premiumFeatures = usePremiumFeatures();
-	const isPremium = premiumFeatures?.length > 0;
+	const isPremium = premiumFeatures !== false;
 
 	const { shouldGetStarted, markGettingStartedComplete } = useGettingStarted();
 

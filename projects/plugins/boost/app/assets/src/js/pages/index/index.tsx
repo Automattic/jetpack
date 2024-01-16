@@ -44,6 +44,7 @@ const Index = () => {
 		  );
 
 	const premiumFeatures = usePremiumFeatures();
+	const isPremium = premiumFeatures !== false;
 
 	return (
 		<div className="jb-container--narrow">
@@ -239,7 +240,7 @@ const Index = () => {
 					</p>
 				}
 			>
-				<QualitySettings isPremium={ premiumFeatures?.includes( 'image-cdn-quality' ) ?? false } />
+				<QualitySettings isPremium={ isPremium } />
 			</Module>
 
 			<div className={ styles.settings }>
