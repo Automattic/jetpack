@@ -37,8 +37,18 @@ class Boost_Cache {
 
 	public function key() {
 		if ( ! $this->key ) {
-			$cookies   = isset( $_COOKIE ) ? $_COOKIE : array();
-			$this->key = md5( json_encode( $cookies ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+			$cookies = isset( $_COOKIE ) ? $_COOKIE : array();
+			$get     = isset( $_GET ) ? $_GET : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+			$key_components = apply_filters(
+				'boost_cache_key_components',
+				array(
+					'cookies' => $cookies,
+					'get'     => $get,
+				)
+			);
+
+			$this->key = md5( json_encode( $key_components ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 		}
 		return $this->key;
 	}
