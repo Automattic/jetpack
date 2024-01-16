@@ -176,12 +176,13 @@ class Wpcom_Block_Patterns_From_Api {
 		}
 
 		$block_patterns = $this->utils->cache_get( $patterns_cache_key, 'ptk_patterns' );
+		$disable_cache  = function_exists( 'is_automattician' ) ? is_automattician() : false;
 
 		// Enable testing v2 patterns on sites with Assembler theme active
 		$enable_testing_v2_patterns = in_array( get_stylesheet(), array( 'pub/assembler', 'assembler' ), true );
 
 		// Load fresh data if we don't have any patterns.
-		if ( is_automattician() && false === $block_patterns || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE ) ) {
+		if ( $disable_cache && false === $block_patterns || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE ) ) {
 			$request_url = esc_url_raw(
 				add_query_arg(
 					array(
@@ -194,7 +195,7 @@ class Wpcom_Block_Patterns_From_Api {
 
 			$block_patterns = $this->utils->remote_get( $request_url );
 
-			if ( ! is_automattician() ) {
+			if ( ! $disable_cache ) {
 				$this->utils->cache_add( $patterns_cache_key, $block_patterns, 'ptk_patterns', DAY_IN_SECONDS );
 			}
 		}
