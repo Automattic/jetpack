@@ -160,9 +160,8 @@ class Wpcom_Block_Patterns_From_Api {
 			$request_url = esc_url_raw(
 				add_query_arg(
 					array(
-						'site'         => $override_source_site,
-						'tags'         => 'pattern',
-						'pattern_meta' => 'is_web',
+						'site'      => $override_source_site,
+						'post_type' => 'wp_block',
 					),
 					'https://public-api.wordpress.com/rest/v1/ptk/patterns/' . $this->utils->get_block_patterns_locale()
 				)
@@ -178,8 +177,7 @@ class Wpcom_Block_Patterns_From_Api {
 			$request_url = esc_url_raw(
 				add_query_arg(
 					array(
-						'tags'            => 'pattern',
-						'pattern_meta'    => 'is_web',
+						'post_type'       => 'wp_block',
 						'patterns_source' => $patterns_source,
 					),
 					'https://public-api.wordpress.com/rest/v1/ptk/patterns/' . $this->utils->get_block_patterns_locale()
