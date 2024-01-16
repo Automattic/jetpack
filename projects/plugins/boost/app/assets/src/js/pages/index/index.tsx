@@ -13,6 +13,7 @@ import styles from './index.module.scss';
 import { RecommendationsMeta } from '$features/image-size-analysis';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
+import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -23,7 +24,6 @@ const Index = () => {
 	};
 
 	const [ lazyLoadState ] = useSingleModuleState( 'lazy_images' );
-	const [ cloudCssState ] = useSingleModuleState( 'cloud_css' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
 
@@ -64,21 +64,24 @@ const Index = () => {
 								}
 							) }
 						</p>
-						<p>
-							{ createInterpolateElement(
-								__(
-									`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
-									'jetpack-boost'
-								),
-								{
-									b: <b />,
-								}
-							) }
-						</p>
+						<div className={ styles[ 'tooltip-wrapper' ] }>
+							<p>
+								{ createInterpolateElement(
+									__(
+										`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+										'jetpack-boost'
+									),
+									{
+										b: <b />,
+									}
+								) }
+							</p>
+							<PremiumTooltip />
+						</div>
 					</>
 				}
 			>
-				<CriticalCssMeta isCloudCssAvailable={ cloudCssState?.available === true } />
+				<CriticalCssMeta />
 
 				<UpgradeCTA
 					description={ __(
@@ -124,7 +127,7 @@ const Index = () => {
 					</>
 				}
 			>
-				<CloudCssMeta isCloudCssAvailable={ cloudCssState?.available === true } />
+				<CloudCssMeta />
 			</Module>
 			<Module
 				slug="render_blocking_js"

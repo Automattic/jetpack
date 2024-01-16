@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+iCalendarReader: Support BYDAY recurrence rules for last, second-to-last, or third-to-last weekdays

@@ -6,8 +6,16 @@ const url = 'https://widgets.wp.com/likes/style.css';
 
 // Function to pretty print CSS
 function prettyPrintCSS( css ) {
+	// Adding a semicolon to the last rule of each selector
+	css = css.replace( /((?:[^;{}]|;\s*})+})/g, function ( match ) {
+		if ( match && ! match.trim().endsWith( ';' ) ) {
+			return match.replace( /}$/, ';}' );
+		}
+		return match;
+	} );
+
 	// Adding a line break after each semicolon and opening brace
-	css = css.replace( /;/g, ';\n  ' ).replace( /\{/g, ' {\n  ' );
+	css = css.replace( /;/g, ';\n\t' ).replace( /\{/g, ' {\n\t' );
 
 	// Adding a line break before/after each closing brace
 	css = css.replace( /\}/g, '\n}\n' );
