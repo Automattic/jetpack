@@ -19,7 +19,6 @@ const {
  *
  * @param {object} props              - The props passed to the hook.
  * @param {string} props.productSlug  - The WordPress product slug.
- * @param {string} props.adminUrl     - The base URL of WP-Admin.
  * @param {string} props.redirectUri  - The URI to redirect to after checkout.
  * @param {string} [props.siteSuffix] - The site suffix.
  * @param {string} [props.blogID]     - The blog ID.
@@ -30,7 +29,6 @@ const {
  */
 export default function useProductCheckoutWorkflow( {
 	productSlug,
-	adminUrl,
 	redirectUri,
 	siteSuffix = defaultSiteSuffix,
 	blogID = null,
@@ -61,7 +59,7 @@ export default function useProductCheckoutWorkflow( {
 	const checkoutProductUrl = getProductCheckoutUrl(
 		productSlug,
 		blogID ?? siteSuffix,
-		adminUrl + redirectUri,
+		redirectUri,
 		isUserConnected || isWpcom
 	);
 

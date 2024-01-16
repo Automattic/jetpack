@@ -41,7 +41,7 @@ export default function DashboardPage( { isLoading = false } ) {
 		const checkoutProductUrl = getProductCheckoutUrl(
 			'jetpack_search',
 			blogID ?? domain,
-			`${ siteAdminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
+			`admin.php?page=jetpack-search&just_upgraded=1`,
 			true
 		);
 
