@@ -53,6 +53,7 @@ import {
 import {
 	setInitialState,
 	getSiteRawUrl,
+	getSiteId,
 	getSiteAdminUrl,
 	getApiNonce,
 	getApiRootUrl,
@@ -336,7 +337,7 @@ class Main extends React.Component {
 				}
 		}
 
-		return <Navigation routeName={ this.props.routeName } />;
+		return <Navigation routeName={ this.props.routeName } blogID={ this.props.blogID } />;
 	};
 
 	renderMainContent = route => {
@@ -546,6 +547,7 @@ class Main extends React.Component {
 				pageComponent = (
 					<MyPlan
 						siteRawUrl={ this.props.siteRawUrl }
+						blogID={ this.props.blogID }
 						siteAdminUrl={ this.props.siteAdminUrl }
 						rewindStatus={ this.props.rewindStatus }
 					/>
@@ -571,6 +573,7 @@ class Main extends React.Component {
 					<SearchableSettings
 						siteAdminUrl={ this.props.siteAdminUrl }
 						siteRawUrl={ this.props.siteRawUrl }
+						blogID={ this.props.blogID }
 						searchTerm={ this.props.searchTerm }
 						rewindStatus={ this.props.rewindStatus }
 						userCanManageModules={ this.props.userCanManageModules }
@@ -902,6 +905,7 @@ export default connect(
 			hasConnectedOwner: hasConnectedOwner( state ),
 			isConnectionOwner: isConnectionOwner( state ),
 			siteRawUrl: getSiteRawUrl( state ),
+			blogID: getSiteId( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			searchTerm: getSearchTerm( state ),
 			apiRoot: getApiRootUrl( state ),
