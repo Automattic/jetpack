@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Spotify shortcode: Prevent a fatal error in PHP 8.1 if no attributes are passed.
