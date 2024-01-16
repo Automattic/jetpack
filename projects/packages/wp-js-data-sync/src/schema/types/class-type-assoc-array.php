@@ -103,6 +103,7 @@ class Type_Assoc_Array implements Parser {
 	/**
 	 * @return string
 	 */
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->schema();
 	}

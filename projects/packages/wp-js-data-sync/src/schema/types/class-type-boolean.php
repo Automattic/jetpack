@@ -30,6 +30,7 @@ class Type_Boolean implements Parser {
 		return 'boolean';
 	}
 
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->schema();
 	}

@@ -16,10 +16,12 @@ class Type_String implements Parser {
 		return (string) $value;
 	}
 
+
 	public function __toString() {
 		return 'string';
 	}
 
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->schema();
 	}

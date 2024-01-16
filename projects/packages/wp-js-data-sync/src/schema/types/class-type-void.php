@@ -20,6 +20,7 @@ class Type_Void implements Parser {
 		return 'void';
 	}
 
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->schema();
 	}

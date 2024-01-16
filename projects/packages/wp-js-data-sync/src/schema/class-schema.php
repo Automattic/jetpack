@@ -142,6 +142,7 @@ class Schema implements Parser {
 		return $this->parser->__toString();
 	}
 
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->schema();
 	}

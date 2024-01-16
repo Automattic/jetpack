@@ -18,6 +18,7 @@ class Type_Any implements Parser {
 		return 'any';
 	}
 
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->schema();
 	}

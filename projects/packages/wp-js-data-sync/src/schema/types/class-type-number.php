@@ -17,6 +17,7 @@ class Type_Number implements Parser {
 		return 'number';
 	}
 
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->schema();
 	}

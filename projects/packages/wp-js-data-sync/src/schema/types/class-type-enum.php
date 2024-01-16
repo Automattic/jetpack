@@ -29,6 +29,7 @@ class Type_Enum implements Parser {
 		return "enum($valid_values)";
 	}
 
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->schema();
 	}

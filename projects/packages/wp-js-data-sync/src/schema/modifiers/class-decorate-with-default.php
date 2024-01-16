@@ -34,13 +34,14 @@ class Decorate_With_Default implements Parser {
 		return $this->parser->__toString() . ' (default: ' . $this->default_value . ')';
 	}
 
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->schema();
 	}
 
 	public function schema() {
 		return $this->parser->schema() + array(
-			'default' => $this->default_value,
-		);
+				'default' => $this->default_value,
+			);
 	}
 }

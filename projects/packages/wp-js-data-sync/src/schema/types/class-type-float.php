@@ -16,6 +16,7 @@ class Type_Float implements Parser {
 		return 'float';
 	}
 
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->schema();
 	}
