@@ -1100,6 +1100,12 @@ function wpcom_launchpad_verify_domain_email_task_displayed() {
  * @return array|WP_Error Array of domains and their verification status or WP_Error if the request fails.
  */
 function wpcom_request_domains_list() {
+	static $cached_domains = null;
+
+	if ( $cached_domains !== null ) {
+		return $cached_domains;
+	}
+
 	$site_id       = \Jetpack_Options::get_option( 'id' );
 	$request_path  = sprintf( '/sites/%d/domains', $site_id );
 	$wpcom_request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
@@ -1128,14 +1134,16 @@ function wpcom_request_domains_list() {
 	$body         = wp_remote_retrieve_body( $wpcom_request );
 	$decoded_body = json_decode( $body );
 
-	if ( ! isset( $decoded_body->domains ) ) {
+	if ( ! isset( $decoded_body->domains ) || ! is_array( $decoded_body->domains ) ) {
 		return new \WP_Error(
 			'failed_to_fetch_data',
 			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
 		);
 	}
 
-	return $decoded_body->domains;
+	$cached_domains = $decoded_body->domains;
+
+	return $cached_domains;
 }
 
 /**
