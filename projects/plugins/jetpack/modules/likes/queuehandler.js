@@ -236,6 +236,22 @@ function JetpackLikesMessageListener( event ) {
 				}
 
 				const element = document.createElement( 'li' );
+				// Appending element before fetching avatar_URL to avoid racing conditions on the list order
+				list.append( element );
+
+				try {
+					const response = await fetch( liker.avatar_URL, { method: 'HEAD' } );
+					if ( ! response.ok ) {
+						// Image doesn't exist, remove the element
+						element.remove();
+						return;
+					}
+				} catch ( error ) {
+					// Error occurred while checking image existence, remove the element
+					element.remove();
+					return;
+				}
+
 				if ( newLayout ) {
 					element.innerHTML = `
 					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
@@ -254,8 +270,6 @@ function JetpackLikesMessageListener( event ) {
 					</a>
 				`;
 				}
-
-				list.append( element );
 
 				// Add some extra attributes through native methods, to ensure strings are sanitized.
 				element.classList.add( liker.css_class );
