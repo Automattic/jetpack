@@ -359,13 +359,18 @@ class Jetpack_Memberships {
 			return $this->render_button_preview( $attributes, $content );
 		}
 
-		if ( empty( $attributes['planId'] ) ) {
+		if ( empty( $attributes['planId'] ) && empty( $attributes['planIds'] ) ) {
 			return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npi', __( 'No plan was configured for this button.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that an existing payment plan is selected for this block.', 'jetpack' ) ) );
 		}
 
 		// This is string of '+` separated plan ids. Loop through them and
 		// filter out the ones that are not valid.
-		$plan_ids    = explode( '+', $attributes['planId'] );
+		$plan_ids = array();
+		if ( ! empty( $attributes['planIds'] ) ) {
+			$plan_ids = $attributes['planIds'];
+		} elseif ( ! empty( $attributes['planId'] ) ) {
+			$plan_ids = explode( '+', $attributes['planId'] );
+		}
 		$valid_plans = array();
 		foreach ( $plan_ids as $plan_id ) {
 			if ( ! is_numeric( $plan_id ) ) {
@@ -617,7 +622,7 @@ class Jetpack_Memberships {
 			return self::$user_can_view_post_cache[ $cache_key ];
 		}
 
-		$post_access_level = self::get_post_access_level();
+		$post_access_level = self::get_post_access_level( $post_id );
 		if ( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $post_access_level ) {
 			self::$user_can_view_post_cache[ $cache_key ] = true;
 			return true;

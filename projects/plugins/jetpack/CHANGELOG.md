@@ -2,6 +2,127 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.1-a.1 - 2024-01-15
+### Enhancements
+- GIF Block: Accept Giphy shortlinks as a valid embed. [#34786]
+- GIF Block: fix styling of the search bar input. [#34779]
+- Subscribe block: don't allow editing the email for subscribing for logged-in members. [#34982]
+
+### Improved compatibility
+- Post Images: avoid PHP warnings on sites using PHP 8.1+, when a post image has a malformed URL. [#34926]
+
+### Bug fixes
+- AI Assistant: avoid deprecation notices when using a development version of WordPress. [#34921]
+- AI Assistant: do not attempt to display the AI Excerpt assistant in the site editor and the widget editor. [#34970]
+- Fixes recurring payments buttons multiple plan support. [#34928]
+- Subscribe modal: Don't show in Elementor editor [#34955]
+- Subscriptions: do not display subscription checkboxes in comment forms displayed on Custom Post Type pages. [#34912]
+- Subscriptions: Fix broken subscribe button in email [#34966]
+- Subscriptions: Fix page scrolling up after the subscription modal is dismissed [#34963]
+- Theme Tools: Ensure that Content Options does not override the Featured Images options set within blocks. [#34805]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Action Bar: remove experimental module. [#34939]
+- add label to prompt blog for bloganuary [#34913]
+- AI Assistant: compose ConnectPrompt and UpgradePrompt and pass it as bannerComponent prop to AI Client [#34918]
+- cast_and_filter_item: Do not cast an array to a string [#34942]
+- Extensions: auto-generate public path [#34923]
+- Extensions: Don't auto-generate public path after all. But improve the way the manual path is being set. [#34969]
+- External media: provide default numerical post id for uploads. [#34795]
+- Jetpack AI: include feature name as a parameter on the content feedback tool. [#34972]
+- Like block: Set index.html version based on the current Jetpack version [#34920]
+- Newsletter settings: update copy for subscription pop-up toggle [#34959]
+- Recommendations: update link in summary upsell [#34898]
+- Sharing: be more defensive when fetching sharing service to avoid errors. [#34991]
+- Spotify shortcode: Prevent a fatal error in PHP 8.1 if no attributes are passed. [#34891]
+- Subscriptions: Fix subscriber pop-up button text color [#34915]
+- Subscriptions: Fix subscriber popup background scrolling [#34933]
+- Subscriptions: Format subscribers reach numbers [#34887]
+- Subscriptions: Show subscription numbers more elegantly [#34919]
+- Sync: synchronize block status option. [#34989]
+- Track store managers actions in WooCommerce analytics. [#34827]
+
+## [13.0] - 2024-01-10
+### Enhancements
+- Subscription Modal: Display thesubscription modal when a user makes a comment. [#34659]
+
+### Bug fixes
+- Likes Widget: Fix accessibility on likes popover. [#34800]
+- Likes Widget: Make likes widget accessibility compatible across themes. [#34857]
+- Payments: Fix recurring payments buttons not working with multiple plans.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: compose ConnectPrompt and UpgradePrompt and pass it as bannerComponent prop to AI Client [#34918]
+- AI Excerpt: remove GPT model selector since it's not possible to change models anymore. [#34855]
+- Backup: Add namespace versioning to Helper_Script_Manager and other classes. [#34739]
+- Fix the sidebar toggle on mobile displays. [#34807]
+- Like Widget: Fix caching issue. [#34860]
+- Updated package dependencies. [#34882]
+- Use useModuleStatus hook instead of direct call of store selectors. [#34856]
+
+## 13.0-a.13 - 2024-01-04
+### Bug fixes
+- Jetpack footer links are now consistent within different pages. [#34787]
+- Notification Accessibility: THe notification icon is not a link. [#34810]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added the "reblog" query param to the iframe in the Like Block when the reblog button is enabled in the block. [#34838]
+- Fix failing E2E tests [#34796]
+- In editor view, the Like block now shows or hides the reblog button according to sidebar config [#34831]
+- Social: Removed obsolete code for Tweetstorms [#34330]
+- Updated package dependencies. [#34815]
+- Updated package dependencies. [#34816]
+
+## 13.0-a.11 - 2024-01-02
+### Bug fixes
+- Editor: Fixed missing fonts issue inside the block editor. [#34776]
+- Subscriptions Block: Added compatibility for the latest Gutenberg. [#34809]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Use default store value pased from backend. [#34794]
+- Subscribe Block: Adjusted how cookies are set. [#34634]
+- Blogroll: Use blogroll item url as name if name does not exist. [#34693]
+- Removed Jetpack connection banners from WP dashboard and plugins page. [#34768]
+- Updated the design for Quick Share buttons and fixed its a11y. [#34754]
+
+## 13.0-a.9 - 2023-12-25
+### Enhancements
+- Added description and link inviting to disable legacy sharing module if block is available [#34759]
+- Social Menu & Social Media Icons: Add support for the Bluesky service. [#34738]
+
+### Bug fixes
+- Subscribe Modal: Fix fatal under exceptional conditions [#34758]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Page: remove alt attribute from decorative icon. [#34715]
+- On wpcom sites if SEO tools not supported by current plan we show upsell message. [#34725]
+- Remove the recommendations banner from non-jetpack wp-admin pages [#34769]
+
+## 13.0-a.7 - 2023-12-20
+### Enhancements
+- Sharing Buttons Block: update the admin's setting screen when the sharing block is available. [#34673]
+
+### Improved compatibility
+- Sharing Buttons: add the official X button to the list of supported services. [#34719]
+
+### Bug fixes
+- My Plan: Fix JS errors due to nested anchor tags. [#34707]
+- Payments Block: show an error message when unable to render payment button. [#34380]
+- Subscribers: fix the subscriber count display if above 1000 subscribers. [#34689]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add wpcom_ai_site_prompt option to the site settings endpoint [#34709]
+- AI Assistant: handle new AI Control UI/UX improvements, fix DOM manipulation, remove "Try Again" toolbar button [#34383]
+- Carousel: fix unresponsive navigation [#34678]
+- Dashboard: avoid React warning when loading the VideoPress card. [#34713]
+- Jetpack Google Fonts: Don't print font definition if the font is provided by the active theme. [#34608]
+- Remove like block dependency on Like module and insert iframe once. [#34664]
+- Small refactor Subscription services [#34635]
+- Subscriptions: localize number format in access panel [#34691]
+- Subscriptions: update "verify your email" wall copy [#34716]
+- Updated package dependencies. [#34694]
+- update feature not released yet [#34724]
+
 ## 13.0-a.5 - 2023-12-15
 ### Enhancements
 - Subscriptions: adds toggle to disable email sending. [#34592]
@@ -76,6 +197,26 @@
 - Removed like avatar border inside the popup. [#34440]
 - Updated package dependencies. [#34416]
 - Sync: Added limit for full sync uploads. [#34390]
+
+## 12.9.1 - 2023-12-18
+### Bug fixes
+- Carousel: fix unresponsive navigation on Chrome browsers. [#34678]
+
+## [12.9] - 2023-12-05
+### Enhancements
+- Likes: Updated the likes popover design and added RTL support. [#34396]
+- My Jetpack: Added Creator to My Jetpack overview. [#34307]
+- Paid Content Block: Added support for selecting multiple plans. [#33903]
+
+### Improved compatibility
+- Block Editor: Dequeued editor assets when they aren't in use. [#34268]
+- Google Fonts: Resolved occasional bug resulting in fatal errors on PHP 8 with latest Gutenberg. [#34382]
+
+### Bug fixes
+- Block Editor: Fixed console errors being thrown for Jetpack blocks inside the Full Site Editor. [#34305]
+- Dashboard: Fixed the display of Subscriptions and WordPress.com Toolbar controls when the user is not connected to WordPress.com. [#34358]
+- Dashboard: Fixed the display of the Auto-sharing feature toggle when the user is not connected to WordPress.com. [#34203]
+- EU Cookie Widget: Moved away from deprecated jQuery methods. [#34363]
 
 ## 12.9-beta - 2023-12-03
 ### Enhancements
@@ -278,7 +419,7 @@
 - Removed scssc 0.0.12 and replaced it with with ScssPhp 1.1.11. [#33928]
 - Rollback change. [#33973]
 
-## 12.8 - 2023-11-06
+## [12.8] - 2023-11-06
 ### Enhancements
 - Added a notice for wp-admin settings pages when the wpcom_admin_interface option is set to wp-admin. [#33933]
 - Added nextdoor block to production blocks. [#33950]
@@ -9434,6 +9575,9 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[13.0]: https://wp.me/p1moTy-10Xp
+[12.9]: https://wp.me/p1moTy-YJA
+[12.8]: https://wp.me/p1moTy-Xdz
 [12.7]: https://wp.me/p1moTy-Wfx
 [12.6]: https://wp.me/p1moTy-VLL
 [12.5]: https://wp.me/p1moTy-Vab

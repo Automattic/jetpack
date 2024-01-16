@@ -228,6 +228,66 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `/jetpack/v4/identity-crisis/compare-url-secret` endpoint.
+	 */
+	public function test_compare_url_secret_match() {
+		$secret_data = array(
+			'secret'     => 'asdf12345',
+			'expires_at' => time() + URL_Secret::LIFESPAN,
+		);
+		Jetpack_Options::update_option( URL_Secret::OPTION_KEY, $secret_data );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/compare-url-secret' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'secret' => $secret_data['secret'] ) ) );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( $data['match'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/identity-crisis/compare-url-secret` endpoint for non-matching secret.
+	 */
+	public function test_compare_url_secret_no_match() {
+		$secret_data = array(
+			'secret'     => 'asdf12345',
+			'expires_at' => time() + URL_Secret::LIFESPAN,
+		);
+		Jetpack_Options::update_option( URL_Secret::OPTION_KEY, $secret_data );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/compare-url-secret' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'secret' => '54321fdsa' ) ) );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( $data['match'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/identity-crisis/compare-url-secret` endpoint for non-matching secret.
+	 */
+	public function test_compare_url_secret_no_access() {
+		Jetpack_Options::update_option( 'blog_token', 'new.blogtoken' );
+		Jetpack_Options::update_option( 'id', 42 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/compare-url-secret' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'secret' => '54321fdsa' ) ) );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 'invalid_connection_status', $data['code'] );
+	}
+
+	/**
 	 * Mock blog token authorization for API requests.
 	 *
 	 * @return void

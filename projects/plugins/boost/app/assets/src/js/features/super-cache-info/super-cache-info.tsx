@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { DataSyncProvider, useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { useState } from 'react';
+import useMeasure from 'react-use-measure';
+import { animated, useSpring } from '@react-spring/web';
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { __, sprintf } from '@wordpress/i18n';
 import { Notice, Button } from '@automattic/jetpack-components';
 import {
@@ -22,6 +24,12 @@ const SuperCacheInfo = () => {
 		'super_cache_notice_disabled',
 		z.boolean()
 	);
+
+	const [ ref, { height } ] = useMeasure();
+	const animationStyles = useSpring( {
+		height: isNoticeDismissed ? 0 : height,
+		immediate: ! isNoticeDismissed,
+	} );
 
 	const runTest = async () => {
 		setState( { status: 'testing' } );
@@ -54,24 +62,33 @@ const SuperCacheInfo = () => {
 	}
 
 	if ( ! isSuperCacheEnabled() ) {
-		if ( isNoticeDismissed ) {
-			return null;
-		}
-
 		return (
-			<Notice
-				level="warning"
-				title={ __( 'Super Cache is installed but not enabled', 'jetpack-boost' ) }
-				actions={ [
-					renderActionButton( 'start', __( 'Set up', 'jetpack-boost' ), navToSuperCacheSettings ),
-				] }
-				hideCloseButton={ false }
-				onClose={ () => {
-					setNoticeDismissed( true );
+			<animated.div
+				style={ {
+					overflow: 'hidden',
+					...animationStyles,
 				} }
 			>
-				{ __( 'Enable Super Cache to speed your site up further.', 'jetpack-boost' ) }
-			</Notice>
+				<div ref={ ref }>
+					<Notice
+						level="warning"
+						title={ __( 'Super Cache is installed but not enabled', 'jetpack-boost' ) }
+						actions={ [
+							renderActionButton(
+								'start',
+								__( 'Set up', 'jetpack-boost' ),
+								navToSuperCacheSettings
+							),
+						] }
+						hideCloseButton={ false }
+						onClose={ () => {
+							setNoticeDismissed( true );
+						} }
+					>
+						{ __( 'Enable Super Cache to speed your site up further.', 'jetpack-boost' ) }
+					</Notice>
+				</div>
+			</animated.div>
 		);
 	}
 
@@ -139,10 +156,4 @@ const SuperCacheInfo = () => {
 	);
 };
 
-export default function () {
-	return (
-		<DataSyncProvider>
-			<SuperCacheInfo />
-		</DataSyncProvider>
-	);
-}
+export default SuperCacheInfo;

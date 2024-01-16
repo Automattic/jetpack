@@ -55,4 +55,24 @@ describe( 'siteDataSelectors', () => {
 			expect( output ).toBe( 'Dummy title' );
 		} );
 	} );
+
+	describe( 'getBlogId()', () => {
+		it( 'should return null when siteData state is an empty object', () => {
+			const state = {
+				siteData: {},
+			};
+			const output = selectors.getBlogId( state );
+			expect( output ).toBeNull();
+		} );
+
+		it( 'should return title when includes siteData with a blog ID', () => {
+			const state = {
+				siteData: {
+					id: '123456',
+				},
+			};
+			const output = selectors.getBlogId( state );
+			expect( output ).toBe( '123456' );
+		} );
+	} );
 } );

@@ -2,16 +2,18 @@ import { getCurrencyObject } from '@automattic/format-currency';
 import { __, sprintf } from '@wordpress/i18n';
 import RightArrow from '$svg/right-arrow';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { navigate } from '$lib/utils/navigate';
 import { useEffect } from 'react';
 import styles from './upgrade-cta.module.scss';
 import { useConfig } from '$lib/stores/config-ds';
+import { useNavigate } from 'react-router-dom';
 
 type UpgradeCTAProps = {
 	description: string;
 };
 
 const UpgradeCTA = ( { description }: UpgradeCTAProps ) => {
+	const navigate = useNavigate();
+
 	const showBenefits = () => {
 		recordBoostEvent( 'upsell_cta_from_settings_page_in_plugin', {} );
 		navigate( '/upgrade' );

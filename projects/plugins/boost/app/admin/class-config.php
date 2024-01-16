@@ -4,7 +4,7 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
@@ -36,7 +36,6 @@ class Config {
 				'prefix'    => JETPACK_BOOST_REST_PREFIX,
 			),
 			'optimizations' => $optimizations,
-			'locale'        => get_locale(),
 			'site'          => array(
 				'domain'          => ( new Status() )->get_site_suffix(),
 				'url'             => get_home_url(),
@@ -45,10 +44,6 @@ class Config {
 				'staticAssetPath' => plugins_url( $static_path, JETPACK_BOOST_PATH ),
 				'isAtomic'        => ( new Host() )->is_woa_site(),
 				'postTypes'       => self::get_custom_post_types(),
-			),
-			'isPremium'     => Premium_Features::has_any(),
-			'preferences'   => array(
-				'prioritySupport' => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
 			),
 			'fixImageNonce' => wp_create_nonce( self::FIX_IMAGE_DIMENSIONS_NONCE ),
 
@@ -84,34 +79,8 @@ class Config {
 	 */
 	public function on_module_status_change( $module, $status ) {
 		if ( $status ) {
-			self::set_getting_started( false );
+			( new Getting_Started_Entry() )->set( false );
 		}
-	}
-
-	/**
-	 * Enable of disable getting started page.
-	 *
-	 * If enabled, trying to open boost dashboard will take a user to the getting started page.
-	 */
-	public static function set_getting_started( $value ) {
-		return \update_option( 'jb_get_started', $value, false );
-	}
-
-	/**
-	 * Check if force redirect to getting started page is enabled.
-	 */
-	public static function is_getting_started() {
-		// Aside from the boolean flag in the database, we also assume site already got started if they have premium features.
-		return ! Premium_Features::has_feature( Premium_Features::CLOUD_CSS ) && ! ( new Status() )->is_offline_mode();
-	}
-
-	/**
-	 * Clear the getting started option.
-	 * @deprecated - This option is no longer used.
-	 * We'll keep the value cleaning here for a while, but it should be removed in the future.
-	 */
-	public static function clear_getting_started() {
-		\delete_option( 'jb_get_started' );
 	}
 
 	/**

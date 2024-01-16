@@ -1,7 +1,6 @@
 import { ToggleControl } from '@automattic/jetpack-components';
 import { useEffect } from 'react';
 import { useSingleModuleState } from './lib/stores';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import styles from './module.module.scss';
 
 type ModuleProps = {
@@ -76,10 +75,4 @@ const Module = ( {
 	);
 };
 
-export default ( props: ModuleProps ) => {
-	return (
-		<DataSyncProvider>
-			<Module { ...props } />
-		</DataSyncProvider>
-	);
-};
+export default Module;

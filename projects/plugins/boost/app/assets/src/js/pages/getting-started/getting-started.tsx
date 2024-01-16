@@ -1,38 +1,47 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Snackbar } from '@wordpress/components';
-import { initializeConnection, getUpgradeURL } from '$lib/stores/connection';
+import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { navigate } from '$lib/utils/navigate';
 import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
 import ActivateLicense from '$features/activate-license/activate-license';
 import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import styles from './getting-started.module.scss';
 import { useConfig } from '$lib/stores/config-ds';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
+import { useGettingStarted } from '$lib/stores/getting-started';
+import { useNavigate } from 'react-router-dom';
+import { __ } from '@wordpress/i18n';
 
-type GettingStartedProps = {
-	userConnected: boolean;
-	isPremium: boolean;
-	domain: string;
-};
-
-const GettingStarted: React.FC< GettingStartedProps > = ( {
-	userConnected,
-	isPremium,
-	domain,
-} ) => {
+const GettingStarted: React.FC = () => {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
+	const navigate = useNavigate();
 
-	const { pricing } = useConfig();
+	const {
+		pricing,
+		is_premium: isPremium,
+		site: { domain },
+	} = useConfig();
 
-	async function initialize(
-		plan: 'free' | 'premium',
-		isPremiumValue: boolean,
-		domainValue: string,
-		userConnectedValue: boolean
-	) {
+	const { shouldGetStarted, markGettingStartedComplete } = useGettingStarted();
+
+	const {
+		connection: { userConnected },
+		initializeConnection,
+	} = useConnection();
+
+	useEffect( () => {
+		if ( ! shouldGetStarted && selectedPlan ) {
+			// Go to the purchase flow if the user doesn't have a premium plan.
+			if ( ! isPremium && selectedPlan === 'premium' ) {
+				window.location.href = getUpgradeURL( domain, userConnected );
+			} else {
+				navigate( '/', { replace: true } );
+			}
+		}
+	}, [ domain, isPremium, navigate, selectedPlan, shouldGetStarted, userConnected ] );
+
+	async function initialize( plan: 'free' | 'premium' ) {
 		setSelectedPlan( plan );
 
 		try {
@@ -45,18 +54,13 @@ const GettingStarted: React.FC< GettingStartedProps > = ( {
 			// * premium_cta_from_getting_started_page_in_plugin
 			await recordBoostEvent( `${ plan }_cta_from_getting_started_page_in_plugin`, {} );
 
-			// Go to the purchase flow if the user doesn't have a premium plan.
-			if ( ! isPremiumValue && plan === 'premium' ) {
-				window.location.href = getUpgradeURL( domainValue, userConnectedValue );
-			} else {
-				// Otherwise go to dashboard home.
-				// @todo - fix when react routing
-				// navigate( '/', { replace: true } );
-				navigate( '/' );
-			}
+			markGettingStartedComplete();
 		} catch ( e ) {
 			// Display the error in a snackbar message
-			setSnackbarMessage( e.message || 'Unknown error occurred during the plan selection.' );
+			setSnackbarMessage(
+				( e as Error ).message ||
+					__( 'Unknown error occurred. Please reload the page and try again.', 'jetpack-boost' )
+			);
 		}
 	}
 
@@ -71,8 +75,8 @@ const GettingStarted: React.FC< GettingStartedProps > = ( {
 					<div className={ styles[ 'pricing-table' ] }>
 						<BoostPricingTable
 							pricing={ pricing }
-							onPremiumCTA={ () => initialize( 'premium', isPremium, domain, userConnected ) }
-							onFreeCTA={ () => initialize( 'free', isPremium, domain, userConnected ) }
+							onPremiumCTA={ () => initialize( 'premium' ) }
+							onFreeCTA={ () => initialize( 'free' ) }
 							chosenFreePlan={ selectedPlan === 'free' }
 							chosenPaidPlan={ selectedPlan === 'premium' }
 						/>
@@ -88,10 +92,4 @@ const GettingStarted: React.FC< GettingStartedProps > = ( {
 	);
 };
 
-export default ( props: GettingStartedProps ) => {
-	return (
-		<DataSyncProvider>
-			<GettingStarted { ...props } />
-		</DataSyncProvider>
-	);
-};
+export default GettingStarted;

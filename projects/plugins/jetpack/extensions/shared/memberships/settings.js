@@ -1,3 +1,4 @@
+import { numberFormat } from '@automattic/jetpack-components';
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import {
 	Button,
@@ -6,8 +7,11 @@ import {
 	PanelRow,
 	RadioControl,
 	Spinner,
-	ToggleControl,
 	VisuallyHidden,
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useEntityProp } from '@wordpress/core-data';
@@ -139,9 +143,19 @@ export function NewsletterAccessRadioButtons( {
 	const closeDialog = () => setShowDialog( false );
 
 	const setAccess = useSetAccess();
+	const subscribersReach = getReachForAccessLevelKey( {
+		accessLevel: accessOptions.subscribers.key,
+		emailSubscribers,
+		paidSubscribers,
+	} );
+	const paidSubscribersReach = getReachForAccessLevelKey( {
+		accessLevel: accessOptions.paid_subscribers.key,
+		emailSubscribers,
+		paidSubscribers,
+	} );
 
 	return (
-		<fieldset className="editor-post-visibility__fieldset">
+		<fieldset className="editor-post-visibility__fieldset jetpack-newsletter-access-radio-buttons">
 			<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
 			<RadioControl
 				onChange={ value => {
@@ -164,19 +178,20 @@ export function NewsletterAccessRadioButtons( {
 						  ]
 						: [] ),
 					{
-						label: `${ accessOptions.subscribers.label } (${ getReachForAccessLevelKey( {
-							accessLevel: accessOptions.subscribers.key,
-							emailSubscribers,
-							paidSubscribers,
-						} ).toLocaleString() })`,
+						label: `${ accessOptions.subscribers.label } (${ numberFormat( subscribersReach, {
+							notation: 'compact',
+							maximumFractionDigits: 1,
+						} ) })`,
 						value: accessOptions.subscribers.key,
 					},
 					{
-						label: `${ accessOptions.paid_subscribers.label } (${ getReachForAccessLevelKey( {
-							accessLevel: accessOptions.paid_subscribers.key,
-							emailSubscribers,
-							paidSubscribers,
-						} ).toLocaleString() })`,
+						label: `${ accessOptions.paid_subscribers.label } (${ numberFormat(
+							paidSubscribersReach,
+							{
+								notation: 'compact',
+								maximumFractionDigits: 1,
+							}
+						) })`,
 						value: accessOptions.paid_subscribers.key,
 					},
 				] }
@@ -312,12 +327,15 @@ export function NewsletterEmailDocumentSettings() {
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => {
 				return (
-					<ToggleControl
-						checked={ isSendEmailEnabled }
+					<ToggleGroupControl
+						value={ isSendEmailEnabled }
 						disabled={ isPostPublished || ! canEdit }
-						label={ __( 'Send an email', 'jetpack' ) }
 						onChange={ toggleSendEmail }
-					/>
+						isBlock
+					>
+						<ToggleGroupControlOption label={ __( 'Post & email', 'jetpack' ) } value={ true } />
+						<ToggleGroupControlOption label={ __( 'Post only', 'jetpack' ) } value={ false } />
+					</ToggleGroupControl>
 				);
 			} }
 		/>

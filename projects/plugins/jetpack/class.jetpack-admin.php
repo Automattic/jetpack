@@ -599,22 +599,6 @@ class Jetpack_Admin {
 			return false;
 		}
 
-		// Disable all JITMs on pages where the recommendations banner is displaying.
-		if (
-			in_array(
-				$screen_id,
-				array(
-					'dashboard',
-					'plugins',
-					'jetpack_page_stats',
-				),
-				true
-			)
-			&& \Jetpack_Recommendations_Banner::can_be_displayed()
-		) {
-			return false;
-		}
-
 		return $value;
 	}
 }

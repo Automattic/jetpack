@@ -1,64 +1,21 @@
 import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-css-meta';
-import { CriticalCssState } from '$features/critical-css/lib/stores/critical-css-state-types';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import { Button, Notice, getRedirectUrl } from '@automattic/jetpack-components';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { usePremiumFeatures, useSuggestRegenerate } from './lib/hooks';
-import {
-	RegenerateCriticalCssSuggestion,
-	continueGeneratingLocalCriticalCss,
-	regenerateCriticalCss,
-} from '$features/critical-css';
-import { useCallback, useEffect, useState } from 'react';
-import {
-	startPollingCloudStatus,
-	stopPollingCloudCssStatus,
-} from '$features/critical-css/lib/cloud-css';
+import { usePremiumFeatures } from './lib/hooks';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import { QualitySettings } from '$features/image-cdn';
 import styles from './index.module.scss';
-import { RecommendationsMeta } from '$features/image-size-analysis/recommendations-meta/recommendations-meta';
-import { initializeIsaSummary } from '$features/image-size-analysis/lib/stores/isa-summary';
+import { RecommendationsMeta } from '$features/image-size-analysis';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
+import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
+import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 
-type IndexProps = {
-	/*
-	 * TODO: Move these to react DS and get them directly from DS instead of as props.
-	 * This should be done when moving the Main.svelte component to React.
-	 */
-	criticalCss: {
-		criticalCssState: CriticalCssState;
-		continueGeneratingLocalCriticalCss: unknown;
-		regenerateCriticalCss: unknown;
-		criticalCssProgress: number;
-		isFatalError: boolean;
-		criticalCssIssues: CriticalCssState[ 'providers' ];
-		primaryErrorSet: unknown;
-	};
-};
-
-const Index = ( { criticalCss }: IndexProps ) => {
-	const [ alreadyResumed, setAlreadyResumed ] = useState( false );
-	const resume = useCallback( () => {
-		if ( alreadyResumed ) {
-			return;
-		}
-		setAlreadyResumed( true );
-
-		if (
-			! criticalCss.criticalCssState ||
-			criticalCss.criticalCssState.status === 'not_generated'
-		) {
-			return regenerateCriticalCss();
-		}
-		continueGeneratingLocalCriticalCss( criticalCss.criticalCssState );
-	}, [ alreadyResumed, criticalCss.criticalCssState ] );
-
+const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
 	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
@@ -67,8 +24,13 @@ const Index = ( { criticalCss }: IndexProps ) => {
 	};
 
 	const [ lazyLoadState ] = useSingleModuleState( 'lazy_images' );
-	const [ cloudCssState ] = useSingleModuleState( 'cloud_css' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
+	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
+
+	const regenerateCssAction = useRegenerateCriticalCssAction();
+	const requestRegenerateCriticalCss = () => {
+		regenerateCssAction.mutate();
+	};
 
 	const lazyLoadDeprecationMessage = lazyLoadState?.available
 		? __(
@@ -80,23 +42,14 @@ const Index = ( { criticalCss }: IndexProps ) => {
 				'jetpack-boost'
 		  );
 
-	const [ { data: suggestRegenerate } ] = useSuggestRegenerate();
 	const premiumFeatures = usePremiumFeatures();
-
-	useEffect( () => {
-		if ( isaState?.active ) {
-			initializeIsaSummary();
-		}
-	}, [ isaState?.active ] );
 
 	return (
 		<div className="jb-container--narrow">
 			<Module
 				slug="critical_css"
 				title={ __( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' ) }
-				onDisable={ () => setAlreadyResumed( false ) }
-				onEnable={ resume }
-				onMountEnable={ resume }
+				onEnable={ requestRegenerateCriticalCss }
 				description={
 					<>
 						<p>
@@ -111,34 +64,25 @@ const Index = ( { criticalCss }: IndexProps ) => {
 								}
 							) }
 						</p>
-						<p>
-							{ createInterpolateElement(
-								__(
-									`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
-									'jetpack-boost'
-								),
-								{
-									b: <b />,
-								}
-							) }
-						</p>
+						<div className={ styles[ 'tooltip-wrapper' ] }>
+							<p>
+								{ createInterpolateElement(
+									__(
+										`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+										'jetpack-boost'
+									),
+									{
+										b: <b />,
+									}
+								) }
+							</p>
+							<PremiumTooltip />
+						</div>
 					</>
 				}
 			>
-				<CriticalCssMeta
-					cssState={ criticalCss.criticalCssState }
-					isCloudCssAvailable={ cloudCssState?.available === true }
-					criticalCssProgress={ criticalCss.criticalCssProgress }
-					issues={ criticalCss.criticalCssIssues }
-					isFatalError={ criticalCss.isFatalError }
-					primaryErrorSet={ criticalCss.primaryErrorSet }
-					suggestRegenerate={ suggestRegenerate }
-					regenerateCriticalCss={ criticalCss.regenerateCriticalCss }
-				/>
-				<RegenerateCriticalCssSuggestion
-					show={ suggestRegenerate && criticalCss.criticalCssState.status !== 'pending' }
-					type={ suggestRegenerate }
-				/>
+				<CriticalCssMeta />
+
 				<UpgradeCTA
 					description={ __(
 						'Save time by upgrading to Automatic Critical CSS generation.',
@@ -154,6 +98,7 @@ const Index = ( { criticalCss }: IndexProps ) => {
 						<span className="jb-badge">Upgraded</span>
 					</>
 				}
+				onEnable={ requestRegenerateCriticalCss }
 				description={
 					<>
 						<p>
@@ -181,20 +126,8 @@ const Index = ( { criticalCss }: IndexProps ) => {
 						</p>
 					</>
 				}
-				onEnable={ startPollingCloudStatus }
-				onDisable={ stopPollingCloudCssStatus }
-				onMountEnable={ startPollingCloudStatus }
 			>
-				<CloudCssMeta
-					cssState={ criticalCss.criticalCssState }
-					isCloudCssAvailable={ cloudCssState?.available === true }
-					criticalCssProgress={ criticalCss.criticalCssProgress }
-					issues={ criticalCss.criticalCssIssues }
-					isFatalError={ criticalCss.isFatalError }
-					primaryErrorSet={ criticalCss.primaryErrorSet }
-					suggestRegenerate={ suggestRegenerate }
-					regenerateCriticalCss={ regenerateCriticalCss }
-				/>
+				<CloudCssMeta />
 			</Module>
 			<Module
 				slug="render_blocking_js"
@@ -382,7 +315,7 @@ const Index = ( { criticalCss }: IndexProps ) => {
 						</p>
 					}
 				>
-					{ isaState?.active && <RecommendationsMeta /> }
+					{ isaState?.active && <RecommendationsMeta isCdnActive={ !! imageCdn?.active } /> }
 				</Module>
 			</div>
 
@@ -391,10 +324,4 @@ const Index = ( { criticalCss }: IndexProps ) => {
 	);
 };
 
-export default function ( props: IndexProps ) {
-	return (
-		<DataSyncProvider>
-			<Index { ...props } />
-		</DataSyncProvider>
-	);
-}
+export default Index;

@@ -108,7 +108,9 @@ class MyPlanBody extends React.Component {
 						<p>{ description }</p>
 						<Button onClick={ this.handleButtonClickForTracking( 'view_backup_dash' ) } compact rna>
 							<ExternalLink
-								href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
+								href={ getRedirectUrl( 'calypso-activity-log', {
+									site: this.props.blogID ?? this.props.siteRawUrl,
+								} ) }
 							>
 								{ __( 'View your backups', 'jetpack' ) }
 							</ExternalLink>
@@ -149,7 +151,9 @@ class MyPlanBody extends React.Component {
 								rna
 							>
 								<ExternalLink
-									href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
+									href={ getRedirectUrl( 'calypso-activity-log', {
+										site: this.props.blogID ?? this.props.siteRawUrl,
+									} ) }
 								>
 									{ __( 'View your security activity', 'jetpack' ) }
 								</ExternalLink>
@@ -217,7 +221,7 @@ class MyPlanBody extends React.Component {
 							>
 								<ExternalLink
 									href={ getRedirectUrl( 'calypso-plugins-setup', {
-										site: this.props.siteRawUrl,
+										site: this.props.blogID ?? this.props.siteRawUrl,
 										query: 'only=vaultpress',
 									} ) }
 								>
@@ -376,7 +380,7 @@ class MyPlanBody extends React.Component {
 									>
 										<ExternalLink
 											href={ getRedirectUrl( 'calypso-plugins-setup', {
-												site: this.props.siteRawUrl,
+												site: this.props.blogID ?? this.props.siteRawUrl,
 												query: 'only=akismet',
 											} ) }
 										>
@@ -461,7 +465,7 @@ class MyPlanBody extends React.Component {
 								>
 									<ExternalLink
 										href={ getRedirectUrl( 'calypso-activity-log', {
-											site: this.props.siteRawUrl,
+											site: this.props.blogID ?? this.props.siteRawUrl,
 										} ) }
 									>
 										{ __( 'View your site activity', 'jetpack' ) }
@@ -497,7 +501,7 @@ class MyPlanBody extends React.Component {
 										>
 											<ExternalLink
 												href={ getRedirectUrl( 'wpcom-ads-earnings', {
-													site: this.props.siteRawUrl,
+													site: this.props.blogID ?? this.props.siteRawUrl,
 												} ) }
 											>
 												{ __( 'View your earnings', 'jetpack' ) }
@@ -548,7 +552,7 @@ class MyPlanBody extends React.Component {
 											>
 												<ExternalLink
 													href={ getRedirectUrl( 'calypso-marketing-traffic', {
-														site: this.props.siteRawUrl,
+														site: this.props.blogID ?? this.props.siteRawUrl,
 													} ) }
 												>
 													{ __( 'Configure Google Analytics', 'jetpack' ) }
@@ -596,7 +600,7 @@ class MyPlanBody extends React.Component {
 											>
 												<ExternalLink
 													href={ getRedirectUrl( 'calypso-edit-posts', {
-														site: this.props.siteRawUrl,
+														site: this.props.blogID ?? this.props.siteRawUrl,
 													} ) }
 												>
 													{ __( 'Schedule posts', 'jetpack' ) }
@@ -661,7 +665,7 @@ class MyPlanBody extends React.Component {
 								>
 									<ExternalLink
 										href={ getRedirectUrl( 'calypso-settings-security', {
-											site: this.props.siteRawUrl,
+											site: this.props.blogID ?? this.props.siteRawUrl,
 										} ) }
 									>
 										{ __( 'Set up your site security', 'jetpack' ) }
@@ -719,7 +723,9 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button onClick={ this.handleButtonClickForTracking( 'free_themes' ) } compact rna>
 									<ExternalLink
-										href={ getRedirectUrl( 'calypso-themes', { site: this.props.siteRawUrl } ) }
+										href={ getRedirectUrl( 'calypso-themes', {
+											site: this.props.blogID ?? this.props.siteRawUrl,
+										} ) }
 									>
 										{ __( 'Explore themes', 'jetpack' ) }
 									</ExternalLink>
@@ -757,7 +763,7 @@ class MyPlanBody extends React.Component {
 										>
 											<ExternalLink
 												href={ getRedirectUrl( 'calypso-marketing-connections', {
-													site: this.props.siteRawUrl,
+													site: this.props.blogID ?? this.props.siteRawUrl,
 												} ) }
 											>
 												{ __( 'Start sharing', 'jetpack' ) }
@@ -805,7 +811,7 @@ class MyPlanBody extends React.Component {
 								>
 									<ExternalLink
 										href={ getRedirectUrl( 'calypso-activity-log', {
-											site: this.props.siteRawUrl,
+											site: this.props.blogID ?? this.props.siteRawUrl,
 										} ) }
 									>
 										{ __( 'View your site activity', 'jetpack' ) }

@@ -12,28 +12,22 @@ import PerformanceHistory from '$features/performance-history/performance-histor
 import ErrorNotice from '$features/error-notice/error-notice';
 import classNames from 'classnames';
 import { useState, useEffect, useMemo } from 'react';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
 import styles from './speed-score.module.scss';
 import { useModulesState } from '$features/module/lib/stores';
+import { useCriticalCssState } from '$features/critical-css/lib/stores/critical-css-state';
+import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local-generator/local-generator-provider';
 
 const siteIsOnline = Jetpack_Boost.site.online;
 
-type SpeedScoreProps = {
-	criticalCssCreated: number;
-	criticalCssIsGenerating: boolean;
-	performanceHistoryNeedsUpgrade: boolean;
-};
-const SpeedScore = ( {
-	criticalCssCreated,
-	criticalCssIsGenerating,
-	performanceHistoryNeedsUpgrade,
-}: SpeedScoreProps ) => {
+const SpeedScore = () => {
 	const [ { status, error, scores }, loadScore ] = useSpeedScores();
 	const scoreLetter = scores ? getScoreLetter( scores.current.mobile, scores.current.desktop ) : '';
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;
 	const [ { data } ] = useModulesState();
+	const [ cssState ] = useCriticalCssState();
+	const { isGenerating: criticalCssIsGenerating } = useLocalCriticalCssGeneratorStatus();
 
 	// Construct an array of current module states
 	const moduleStates = useMemo(
@@ -60,7 +54,7 @@ const SpeedScore = ( {
 	}, [ loadScore ] );
 
 	useDebouncedRefreshScore(
-		{ moduleStates, criticalCssCreated, criticalCssIsGenerating },
+		{ moduleStates, criticalCssCreated: cssState.created || 0, criticalCssIsGenerating },
 		loadScore
 	);
 
@@ -139,7 +133,7 @@ const SpeedScore = ( {
 						noBoostScoreTooltip={ __( 'Your desktop score without Boost', 'jetpack-boost' ) }
 					/>
 				</div>
-				{ siteIsOnline && <PerformanceHistory needsUpgrade={ performanceHistoryNeedsUpgrade } /> }
+				{ siteIsOnline && <PerformanceHistory /> }
 			</div>
 
 			<PopOut scoreChange={ showScoreChangePopOut } onClose={ () => setClosePopOut( true ) } />
@@ -147,10 +141,4 @@ const SpeedScore = ( {
 	);
 };
 
-export default function ( props: SpeedScoreProps ) {
-	return (
-		<DataSyncProvider>
-			<SpeedScore { ...props } />
-		</DataSyncProvider>
-	);
-}
+export default SpeedScore;

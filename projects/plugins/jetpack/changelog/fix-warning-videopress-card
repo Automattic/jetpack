@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Dashboard: avoid React warning when loading the VideoPress card.
