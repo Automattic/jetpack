@@ -147,7 +147,7 @@ function render_iframe() {
 
 	if ( ! $main_iframe_added ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			Jetpack_Likes::likes_master();
+			\Jetpack_Likes::likes_master();
 		} else {
 			require_once JETPACK__PLUGIN_DIR . 'modules/likes.php';
 			jetpack_likes_master_iframe();
