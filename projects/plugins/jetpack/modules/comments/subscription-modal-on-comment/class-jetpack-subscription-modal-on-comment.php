@@ -139,17 +139,6 @@ class Jetpack_Subscription_Modal_On_Comment {
 		$continue_reading   = __( 'Continue reading', 'jetpack' );
 
 		return <<<HTML
-	<!-- wp:group -->
-	<div class="jetpack-subscription-modal__iframe-container">
-		<iframe
-			class="jetpack-subscription-modal__iframe"
-			frameBorder="0"
-			allowTransparency="1"
-			src="about:blank"
-			id="jetpack-subscription-modal__iframe"
-		></iframe>
-	</div>
-	<!-- /wp:group -->
 	<!-- wp:group {"style":{"spacing":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
 	<div class="wp-block-group has-border-color jetpack-subscription-modal__modal-content-form" style="border-color:#dddddd;border-width:1px;margin-top:0;margin-bottom:0;padding:32px">
 
@@ -163,7 +152,9 @@ class Jetpack_Subscription_Modal_On_Comment {
 
 		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact","appSource":"atomic-subscription-modal-lo"} /-->
 
+		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"20px"}},"typography":{"fontSize":"14px"}},"className":"jetpack-subscription-modal__close"} -->
 		<p class="has-text-align-center jetpack-subscription-modal__close" style="margin-top:20px;font-size:14px"><a href="#">$continue_reading</a></p>
+		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
 HTML;
