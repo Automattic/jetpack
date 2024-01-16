@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 
-const { adminUrl, siteSuffix, hasRequiredPlan } = window.jetpackProtectInitialState;
+const { adminUrl, siteSuffix } = window.jetpackProtectInitialState;
 
 const UpgradeButton = props => {
 	const { run } = useProductCheckoutWorkflow( {
@@ -20,7 +20,7 @@ const UpgradeButton = props => {
 
 export default [
 	{
-		id: hasRequiredPlan ? 'paid-scan-results' : 'free-scan-results',
+		id: 'free-scan-results',
 		title: __( 'Your scan results', 'jetpack-protect' ),
 		description: (
 			<Text>
@@ -44,6 +44,18 @@ export default [
 					{
 						upgradeLink: <UpgradeButton />,
 					}
+				) }
+			</Text>
+		),
+	},
+	{
+		id: 'paid-scan-results',
+		title: __( 'Your scan results', 'jetpack-protect' ),
+		description: (
+			<Text>
+				{ __(
+					'Navigate through the results of the scan on your WordPress installation, plugins, themes and other files',
+					'jetpack-protect'
 				) }
 			</Text>
 		),
