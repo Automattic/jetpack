@@ -388,6 +388,13 @@ function hideLikersPopover() {
 	if ( container ) {
 		container.style.display = 'none';
 		container.setAttribute( 'aria-hidden', 'true' );
+
+		// Remove the resize event listener and cleanup.
+		const resizeHandler = container.__resizeHandler;
+		if ( resizeHandler ) {
+			window.removeEventListener( 'resize', resizeHandler );
+			delete container.__resizeHandler;
+		}
 	}
 }
 
