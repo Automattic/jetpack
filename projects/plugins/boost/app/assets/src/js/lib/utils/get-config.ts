@@ -10,7 +10,9 @@ type NestedKeyOf< ObjectType extends object > = {
 }[ keyof ObjectType & ( string | number ) ];
 
 /**
- * Infer the type of a nested property of `T` given the path `P` to access it.
+ * Infer the type of a nested property in object of type `T` given the dot-noted path `P` to access it.
+ *
+ * Example: InferType< { foo: { bar: boolean } }, 'foo.bar' > = boolean
  */
 type InferType< T, P extends string > = P extends `${ infer K }.${ infer Rest }`
 	? K extends keyof T
@@ -25,6 +27,8 @@ type InferType< T, P extends string > = P extends `${ infer K }.${ infer Rest }`
  *
  * This is a helper function to get values from jetpack_boost_ds. It works
  * outside of the React context. So, the values loaded during page load will not update.
+ * This function skips both data-sync and React Query.
+ *
  * @param {string} path Config to get using the dot notation. Example: getConfig( 'site.url' ).
  */
 export const getConfig = < P extends NestedKeyOf< ConfigType > >(
