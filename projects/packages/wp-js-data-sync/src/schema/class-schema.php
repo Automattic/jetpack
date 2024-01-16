@@ -103,14 +103,13 @@ class Schema implements Parser {
 	 */
 	public function parse( $value, $meta = null ) {
 
-		// 1 - If the meta is null, then this is maybe the root.
 		if ( $meta === null && $this->meta === null ) {
+			// 1 - If the meta is null, then this is maybe the root.
 			$this->meta = new Schema_Validation_Meta( 'unknown' );
 			$this->meta->set_data( $value );
 			$this->is_root = true;
-		}
-		// 2 - If the meta is not null, then this is not the root.
-		elseif ( $this->meta === null ) {
+		} elseif ( $this->meta === null ) {
+			// 2 - If the meta is not null, then this is not the root.
 			$this->meta = $meta;
 		}
 
