@@ -1,6 +1,10 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
-	"include": [ "app/assets/src/js/**/*", "app/modules/image-guide/src/**/*" ],
+	"include": [
+		"app/assets/src/js/**/*",
+		"app/modules/image-guide/src/**/*",
+		"../../js-packages/image-guide/src/boost-ui/stores"
+	],
 	"exclude": [
 		"node_modules/*",
 		"app/assets/dist/*",

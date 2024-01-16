@@ -1,7 +1,7 @@
 import { MeasurableImageStore } from './stores/MeasurableImageStore';
 import Main from './ui/Main.svelte';
+import type { MeasurableImage } from './MeasurableImage';
 import type { ImageGuideConfig } from './types';
-import type { MeasurableImage } from '@automattic/jetpack-image-guide';
 
 /**
  * Returns the closest parent element that is able to contain the image guide component.
@@ -10,8 +10,8 @@ import type { MeasurableImage } from '@automattic/jetpack-image-guide';
  * within the DOM tree, and to prevent it from  being obscured
  * by other elements with a higher z-index.
  *
- * @param node The node to start searching from
- * @return The closest parent element that is able to contain the image guide component
+ * @param node - The node to start searching from
+ * @returns The closest parent element that is able to contain the image guide component
  */
 function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
 	let current: HTMLElement | null = node.parentElement;
@@ -56,6 +56,10 @@ function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
  *
  */
 let wrapperID = 0;
+/**
+ *
+ * @param image
+ */
 function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 	const node = image.node;
 
@@ -67,8 +71,8 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 		! ( image.node instanceof HTMLImageElement ) &&
 		[ 'static', 'relative' ].includes( getComputedStyle( node ).position )
 	) {
-		/* 
-		 Since we are only taking static and relative, let's convert it to relative 
+		/*
+		 Since we are only taking static and relative, let's convert it to relative
 		 and mark it as a wrapper so that we can position the guide component properly.
 		*/
 		if ( ! node.classList.contains( 'jetpack-boost-guide' ) ) {

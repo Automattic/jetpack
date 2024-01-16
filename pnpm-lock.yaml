@@ -634,6 +634,33 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../webpack-config
+      '@babel/core':
+        specifier: ^7.0.0
+        version: 7.23.5
+      '@babel/preset-react':
+        specifier: 7.23.3
+        version: 7.23.3(@babel/core@7.23.5)
+      '@rollup/plugin-babel':
+        specifier: 5.3.1
+        version: 5.3.1(@babel/core@7.23.5)(rollup@2.79.1)
+      '@rollup/plugin-commonjs':
+        specifier: 19.0.2
+        version: 19.0.2(rollup@2.79.1)
+      '@rollup/plugin-json':
+        specifier: 4.1.0
+        version: 4.1.0(rollup@2.79.1)
+      '@rollup/plugin-node-resolve':
+        specifier: 13.3.0
+        version: 13.3.0(rollup@2.79.1)
+      '@rollup/plugin-replace':
+        specifier: 5.0.2
+        version: 5.0.2(rollup@2.79.1)
+      '@rollup/plugin-terser':
+        specifier: 0.4.3
+        version: 0.4.3(rollup@2.79.1)
+      '@rollup/plugin-typescript':
+        specifier: 8.3.3
+        version: 8.3.3(rollup@2.79.1)(tslib@2.5.0)(typescript@5.0.4)
       '@typescript-eslint/parser':
         specifier: 6.7.5
         version: 6.7.5(eslint@8.51.0)(typescript@5.0.4)
@@ -643,9 +670,36 @@ importers:
       jest:
         specifier: 29.7.0
         version: 29.7.0
+      postcss:
+        specifier: 8.4.31
+        version: 8.4.31
+      rollup:
+        specifier: 2.79.1
+        version: 2.79.1
+      rollup-plugin-postcss:
+        specifier: 4.0.2
+        version: 4.0.2(postcss@8.4.31)
+      rollup-plugin-svelte:
+        specifier: 7.1.0
+        version: 7.1.0(rollup@2.79.1)(svelte@3.58.0)
+      rollup-plugin-svelte-svg:
+        specifier: 0.2.3
+        version: 0.2.3(svelte@3.58.0)
+      sass:
+        specifier: 1.64.1
+        version: 1.64.1
+      svelte:
+        specifier: 3.58.0
+        version: 3.58.0
+      svelte-preprocess:
+        specifier: 5.0.4
+        version: 5.0.4(@babel/core@7.23.5)(postcss@8.4.31)(sass@1.64.1)(svelte@3.58.0)(typescript@5.0.4)
       ts-loader:
         specifier: 9.4.2
         version: 9.4.2(typescript@5.0.4)(webpack@5.76.0)
+      tslib:
+        specifier: 2.5.0
+        version: 2.5.0
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -4458,7 +4512,7 @@ packages:
     dependencies:
       '@babel/compat-data': 7.23.5
       '@babel/helper-validator-option': 7.23.5
-      browserslist: 4.22.1
+      browserslist: 4.22.2
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -9101,7 +9155,7 @@ packages:
     dependencies:
       '@types/estree': 0.0.39
       estree-walker: 1.0.1
-      picomatch: 2.2.3
+      picomatch: 2.3.1
       rollup: 2.79.1
     dev: true
 
@@ -14106,7 +14160,7 @@ packages:
     engines: {node: '>= 8'}
     dependencies:
       normalize-path: 3.0.0
-      picomatch: 2.2.3
+      picomatch: 2.3.1
 
   /app-root-dir@1.0.2:
     resolution: {integrity: sha512-jlpIfsOoNoafl92Sz//64uQHGSyMrD2vYG5d8o2a4qGvyNCvXur7bzIsWtAC/6flI2RYAp3kv8rsfBtaLm7w0g==}
@@ -14732,7 +14786,7 @@ packages:
   /caniuse-api@3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
     dependencies:
-      browserslist: 4.22.1
+      browserslist: 4.22.2
       caniuse-lite: 1.0.30001576
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
@@ -22105,7 +22159,7 @@ packages:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
     dependencies:
-      picomatch: 2.2.3
+      picomatch: 2.3.1
 
   /reakit-system@0.15.2(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-TvRthEz0DmD0rcJkGamMYx+bATwnGNWJpe/lc8UV2Js8nnPvkaxrHk5fX9cVASFrWbaIyegZHCWUBfxr30bmmA==}

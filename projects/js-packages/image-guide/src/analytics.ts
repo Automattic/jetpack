@@ -1,5 +1,4 @@
 import { get } from 'svelte/store';
-import { recordBoostPixelEvent } from '../../../assets/src/js/lib/utils/analytics';
 import { guideState } from './stores/GuideState';
 import { MeasurableImageStore } from './stores/MeasurableImageStore';
 
@@ -20,8 +19,15 @@ type ImageProperties = {
 	image_url: string;
 };
 
+export type TracksCallback = ( event: string, props: { [ key: string ]: string | number } ) => void;
+
 export default class ImageGuideAnalytics {
 	static trackingComplete = false;
+	static tracksCallback: TracksCallback;
+
+	public static setTracksCallback( callback ) {
+		ImageGuideAnalytics.tracksCallback = callback;
+	}
 
 	/**
 	 * Track the image guide analytics for a single image.
@@ -57,7 +63,7 @@ export default class ImageGuideAnalytics {
 						image_url: imageURL,
 					};
 
-					recordBoostPixelEvent( 'image_guide_image_outcome', {
+					this.tracksCallback( 'image_guide_image_outcome', {
 						...props,
 						window_width: window.innerWidth,
 						window_height: window.innerHeight,
@@ -94,7 +100,7 @@ export default class ImageGuideAnalytics {
 			return total + ( result.potential_savings || 0 );
 		}, 0 );
 
-		recordBoostPixelEvent( 'image_guide_page_outcome', {
+		this.tracksCallback( 'image_guide_page_outcome', {
 			total_potential_savings: totalPotentialSavings,
 			red_severity_count: results.filter( result => result.severity === 'red' ).length,
 			yellow_severity_count: results.filter( result => result.severity === 'yellow' ).length,
@@ -109,7 +115,7 @@ export default class ImageGuideAnalytics {
 	 * Track the state of the UI when the user loads a page.
 	 */
 	public static trackInitialState() {
-		recordBoostPixelEvent( 'image_guide_initial_ui_state', {
+		this.tracksCallback( 'image_guide_initial_ui_state', {
 			image_guide_state: get( guideState ),
 		} );
 	}
@@ -118,7 +124,7 @@ export default class ImageGuideAnalytics {
 	 * Track the state of the UI when the user changes it.
 	 */
 	public static trackUIStateChange() {
-		recordBoostPixelEvent( 'image_guide_ui_state_change', {
+		this.tracksCallback( 'image_guide_ui_state_change', {
 			image_guide_state: get( guideState ),
 		} );
 	}
