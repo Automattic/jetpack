@@ -26,7 +26,7 @@ const PurchaseSuccess: React.FC = () => {
 		// We only want this effect to run on mount.
 		// Specifying the dependencies will cause it to run on every render (infinite loop).
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ site.canResizeImages ] );
+	}, [] );
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
 
