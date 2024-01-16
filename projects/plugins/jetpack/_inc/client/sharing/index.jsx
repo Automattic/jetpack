@@ -15,6 +15,7 @@ import {
 	userCanManageModules,
 	isAtomicSite,
 	isSharingBlockAvailable,
+	getSiteId,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -33,6 +34,7 @@ class Sharing extends Component {
 			isLinked: this.props.isLinked,
 			connectUrl: this.props.connectUrl,
 			siteRawUrl: this.props.siteRawUrl,
+			blogID: this.props.blogID,
 			siteAdminUrl: this.props.siteAdminUrl,
 			userCanManageModules: this.props.userCanManageModules,
 			activeFeatures: this.props.activeFeatures,
@@ -87,6 +89,7 @@ export default connect( state => {
 		isLinked: isCurrentUserLinked( state ),
 		connectUrl: getConnectUrl( state ),
 		siteRawUrl: getSiteRawUrl( state ),
+		blogID: getSiteId( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 		hasSocialBasicFeatures: siteHasFeature( state, 'social-shares-1000' ),
 		activeFeatures: getActiveFeatures( state ),
