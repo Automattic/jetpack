@@ -78,6 +78,10 @@ export async function rsyncInit( argv ) {
 
 			const paths = await rsyncToDest( sourcePluginPath, finalDest );
 
+			// On some systems, using multiple 'watcher.add()' calls breaks the firing of the 'ready' event.
+			// Instead, we add all the paths to an array and call add() once.
+			const pathsToAdd = [];
+
 			if ( ! watcher ) {
 				watcher = chokidar.watch( [], {
 					cwd: sourcePluginPath,
@@ -88,21 +92,21 @@ export async function rsyncInit( argv ) {
 				} );
 
 				// Always watch the plugin base dir.
-				watcher.add( '.' );
+				pathsToAdd.push( '.' );
 
 				// Also watch the git index for changes to catch `git add`, as that may change which files are synced.
-				watcher.add( path.join( process.cwd(), '.git/index' ) );
+				pathsToAdd.push( path.join( process.cwd(), '.git/index' ) );
 
 				// Watch `.gitignore` and `.gitattributes` in parent dirs, as they too may change which files are synced.
 				// Here we assume sourcePluginPath is always `projects/plugins/whatever`
 				for ( const dir of [ '.', 'projects', 'projects/plugins' ] ) {
 					const ignorepath = path.join( process.cwd(), dir, '.gitignore' );
 					if ( existsSync( ignorepath ) ) {
-						watcher.add( ignorepath );
+						pathsToAdd.push( ignorepath );
 					}
 					const attributespath = path.join( process.cwd(), dir, '.gitattributes' );
 					if ( existsSync( attributespath ) ) {
-						watcher.add( attributespath );
+						pathsToAdd.push( attributespath );
 					}
 				}
 
@@ -116,7 +120,7 @@ export async function rsyncInit( argv ) {
 			const curPaths = watcher.getWatched();
 			for ( const dir of paths ) {
 				if ( dir.endsWith( '/' ) && ! curPaths[ dir.substring( 0, dir.length - 1 ) ]?.length ) {
-					watcher.add( dir );
+					pathsToAdd.push( dir );
 				}
 			}
 
@@ -132,6 +136,8 @@ export async function rsyncInit( argv ) {
 					watcher.unwatch( dir );
 				}
 			}
+
+			watcher.add( pathsToAdd );
 		};
 		await rsyncAndUpdateWatches( 'startup', 'jetpack rsync --watch' );
 	} else {
