@@ -108,7 +108,8 @@ class Schema implements Parser {
 			$this->meta = new Schema_Validation_Meta( 'unknown' );
 			$this->meta->set_data( $value );
 			$this->is_root = true;
-		} // 2 - If the meta is not null, then this is not the root.
+		}
+		// 2 - If the meta is not null, then this is not the root.
 		elseif ( $this->meta === null ) {
 			$this->meta = $meta;
 		}

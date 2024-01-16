@@ -41,7 +41,7 @@ class Decorate_With_Default implements Parser {
 
 	public function schema() {
 		return $this->parser->schema() + array(
-				'default' => $this->default_value,
-			);
+			'default' => $this->default_value,
+		);
 	}
 }

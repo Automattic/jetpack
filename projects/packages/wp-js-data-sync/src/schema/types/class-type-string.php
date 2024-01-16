@@ -16,7 +16,6 @@ class Type_String implements Parser {
 		return (string) $value;
 	}
 
-
 	public function __toString() {
 		return 'string';
 	}
@@ -25,6 +24,7 @@ class Type_String implements Parser {
 	public function jsonSerialize() {
 		return $this->schema();
 	}
+
 	public function schema() {
 		return array(
 			'type' => (string) $this,
