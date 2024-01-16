@@ -7,7 +7,7 @@ It has been modified to work with Preact, and only includes the icons that we ne
 
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { Component } from 'react';
+import React, { Component } from 'react';
 import './style.scss';
 import { GridiconProps } from './types';
 
@@ -271,6 +271,12 @@ class Gridicon extends Component< GridiconProps > {
 						</g>
 						<g id="Layer_1"></g>
 					</>
+				);
+			case 'gridicons-external':
+				return (
+					<g>
+						<path d="M19 13v6c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V7c0-1.105.895-2 2-2h6v2H5v12h12v-6h2zM13 3v2h4.586l-7.793 7.793 1.414 1.414L19 6.414V11h2V3h-8z" />
+					</g>
 				);
 		}
 	}
