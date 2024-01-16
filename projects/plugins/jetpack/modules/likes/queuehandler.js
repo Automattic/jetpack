@@ -280,52 +280,101 @@ function JetpackLikesMessageListener( event ) {
 				}
 			} );
 
-			const containerStyle = getComputedStyle( container );
-			const isRtl = containerStyle.direction === 'rtl';
+			const positionPopup = function () {
+				const containerStyle = getComputedStyle( container );
+				const isRtl = containerStyle.direction === 'rtl';
 
-			const el = document.querySelector( `*[name='${ data.parent }']` );
-			const rect = el.getBoundingClientRect();
-			const win = el.ownerDocument.defaultView;
-			const offset = {
-				top: rect.top + win.pageYOffset,
-				left: rect.left + win.pageXOffset,
+				const el = document.querySelector( `*[name='${ data.parent }']` );
+				const rect = el.getBoundingClientRect();
+				const win = el.ownerDocument.defaultView;
+				const offset = {
+					top: rect.top + win.pageYOffset,
+					left: rect.left + win.pageXOffset,
+				};
+
+				let containerLeft = 0;
+				if ( newLayout ) {
+					container.style.top = offset.top + data.position.top - 1 + 'px';
+
+					if ( isRtl ) {
+						const visibleAvatarsCount = data && data.likers ? Math.min( data.likers.length, 5 ) : 0;
+						// 24px is the width of the avatar + 4px is the padding between avatars
+						containerLeft = offset.left + data.position.left + 24 * visibleAvatarsCount + 4;
+						container.style.transform = 'translateX(-100%)';
+					} else {
+						containerLeft = offset.left + data.position.left;
+					}
+					container.style.left = containerLeft + 'px';
+				} else {
+					container.style.left = offset.left + data.position.left - 10 + 'px';
+					container.style.top = offset.top + data.position.top - 33 + 'px';
+				}
+
+				// Container width - padding
+				const initContainerWidth = data.width - 20;
+				const rowLength = Math.floor( initContainerWidth / 37 );
+				// # of rows + (avatar + avatar padding) + text above + container padding
+				let height = Math.ceil( data.likers.length / rowLength ) * 37 + 17 + 22;
+				if ( height > 204 ) {
+					height = 204;
+				}
+
+				if ( ! newLayout ) {
+					// Avatars + padding
+					const containerWidth = rowLength * 37 + 13;
+					container.style.height = height + 'px';
+					container.style.width = containerWidth + 'px';
+
+					const listWidth = rowLength * 37;
+					list.style.width = listWidth + 'px';
+				}
+
+				// If the popup is overflows viewport width, we should show it on the next line
+				if ( newLayout ) {
+					// Push it offscreen to calculated rendered width
+					container.style.left = '-9999px';
+					container.style.display = 'block';
+
+					// If the popup exceeds the viewport width,
+					// flip the position of the popup.
+					const containerWidth = container.offsetWidth;
+					const containerRight = containerLeft + containerWidth;
+					if ( containerRight > win.innerWidth ) {
+						containerLeft = rect.right - containerWidth;
+					}
+
+					// Set the container left
+					container.style.left = containerLeft + 'px';
+				} else {
+					container.style.display = 'block';
+				}
+				container.setAttribute( 'aria-hidden', 'false' );
 			};
 
-			if ( newLayout ) {
-				container.style.top = offset.top + data.position.top - 1 + 'px';
+			positionPopup();
+			container.focus();
 
-				if ( isRtl ) {
-					const visibleAvatarsCount = data && data.likers ? Math.min( data.likers.length, 5 ) : 0;
-					// 24px is the width of the avatar + 4px is the padding between avatars
-					container.style.left =
-						offset.left + data.position.left + 24 * visibleAvatarsCount + 4 + 'px';
-					container.style.transform = 'translateX(-100%)';
-				} else {
-					container.style.left = offset.left + data.position.left + 'px';
-				}
-			} else {
-				container.style.left = offset.left + data.position.left - 10 + 'px';
-				container.style.top = offset.top + data.position.top - 33 + 'px';
-			}
+			const debounce = function ( func, wait ) {
+				var timeout;
+				return function () {
+					var context = this;
+					var args = arguments;
+					clearTimeout( timeout );
+					timeout = setTimeout( function () {
+						func.apply( context, args );
+					}, wait );
+				};
+			};
 
-			const rowLength = Math.floor( data.width / 37 );
-			let height = Math.ceil( data.likers.length / rowLength ) * 37 + 13;
-			if ( height > 204 ) {
-				height = 204;
-			}
+			const debouncedPositionPopup = debounce( positionPopup, 100 );
 
-			if ( ! newLayout ) {
-				// Avatars + padding
-				const containerWidth = rowLength * 37 - 7;
-				container.style.height = height + 'px';
-				container.style.width = containerWidth + 'px';
+			// Keep a reference of this function in the element itself
+			// so that we can destroy it later
+			container.__resizeHandler = debouncedPositionPopup;
 
-				const listWidth = rowLength * 37;
-				list.style.width = listWidth + 'px';
-			}
+			// When window is resized, resize the popup.
+			window.addEventListener( 'resize', debouncedPositionPopup );
 
-			container.style.display = 'block';
-			container.setAttribute( 'aria-hidden', 'false' );
 			container.focus();
 		}
 	}
@@ -339,6 +388,13 @@ function hideLikersPopover() {
 	if ( container ) {
 		container.style.display = 'none';
 		container.setAttribute( 'aria-hidden', 'true' );
+
+		// Remove the resize event listener and cleanup.
+		const resizeHandler = container.__resizeHandler;
+		if ( resizeHandler ) {
+			window.removeEventListener( 'resize', resizeHandler );
+			delete container.__resizeHandler;
+		}
 	}
 }
 
