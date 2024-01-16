@@ -687,6 +687,7 @@ function render_for_website( $data, $classes, $styles ) {
 								placeholder="%3$s"
 								value="%4$s"
 								id="%5$s"
+								%6$s
 							/>',
 							( ! empty( $classes['email_field'] )
 								? 'class="' . esc_attr( $classes['email_field'] ) . '"'
@@ -698,7 +699,11 @@ function render_for_website( $data, $classes, $styles ) {
 							),
 							esc_attr( $data['subscribe_placeholder'] ),
 							esc_attr( $data['subscribe_email'] ),
-							esc_attr( $subscribe_field_id )
+							esc_attr( $subscribe_field_id ),
+							( ! empty( $data['subscribe_email'] )
+								? 'disabled title="' . esc_attr__( "You're logged in with this email", 'jetpack' ) . '"'
+								: ''
+							)
 						);
 						?>
 					</p>
@@ -768,7 +773,7 @@ function render_for_email( $data, $styles ) {
 			<div>
 				<div>
 					<p ' . $submit_button_wrapper_style . '>
-						<a href="' . esc_url( get_post_permalink() ) . '" style="text-decoration: none; ' . esc_attr( $styles['submit_button'] ) . '">' . sanitize_submit_text( $button_text ) . '</a>
+						<a href="' . esc_url( get_post_permalink() ) . '" style="' . esc_attr( $styles['submit_button'] ) . ' text-decoration: none; white-space: nowrap; margin-left: 0">' . sanitize_submit_text( $button_text ) . '</a>
 					</p>
 				</div>
 			</div>

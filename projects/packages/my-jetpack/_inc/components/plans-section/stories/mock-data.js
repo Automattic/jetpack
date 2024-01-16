@@ -1,6 +1,7 @@
 window.myJetpackInitialState = {
 	siteSuffix: 'my-jetpack-mock-site.com',
 	myJetpackUrl: 'https://my-jetpack-mock-site.com/wp-admin/?page=my-jetpack',
+	myJetpackCheckoutUri: 'index.php?page=my-jetpack',
 };
 
 export const siteWithSecurityPlanResponseBody = {

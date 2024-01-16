@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
+import { getSiteId } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
@@ -60,6 +61,7 @@ export class Security extends Component {
 			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			rewindStatus: this.props.rewindStatus,
 			siteRawUrl: this.props.siteRawUrl,
+			blogID: this.props.blogID,
 			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
@@ -127,5 +129,6 @@ export default connect( state => {
 		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
 		vaultPressData: getVaultPressData( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
+		blogID: getSiteId( state ),
 	};
 } )( Security );
