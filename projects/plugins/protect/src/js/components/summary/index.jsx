@@ -43,7 +43,7 @@ const Summary = () => {
 							</div>
 							{ ! hasRequiredPlan && (
 								<OnboardingPopover
-									id="daily-scans"
+									id="free-daily-scans"
 									position="middle right"
 									anchor={ dailyAutomatedScansPopoverAnchor }
 								/>
@@ -73,7 +73,7 @@ const Summary = () => {
 							</Button>
 							{ hasRequiredPlan && (
 								<OnboardingPopover
-									id="daily-and-manual-scans"
+									id="paid-daily-and-manual-scans"
 									position="middle left"
 									anchor={ dailyAndManualScansPopoverAnchor }
 								/>

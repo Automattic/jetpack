@@ -90,7 +90,7 @@ const ThreatsList = () => {
 					<ThreatsNavigation selected={ selected } onSelect={ setSelected } />
 				</div>
 				<OnboardingPopover
-					id="scan-results"
+					id={ hasRequiredPlan ? 'paid-scan-results' : 'free-scan-results' }
 					position="middle top"
 					anchor={ yourScanResultsPopoverAnchor }
 				/>
@@ -117,7 +117,7 @@ const ThreatsList = () => {
 												) }
 											</Button>
 											<OnboardingPopover
-												id="fix-all-threats"
+												id="paid-fix-all-threats"
 												position={ isSm ? 'bottom right' : 'middle left' }
 												anchor={ fixAllThreatsPopoverAnchor }
 											/>
@@ -133,7 +133,7 @@ const ThreatsList = () => {
 										{ __( 'Scan now', 'jetpack-protect' ) }
 									</Button>
 									<OnboardingPopover
-										id="daily-and-manual-scans"
+										id="paid-daily-and-manual-scans"
 										position={ isSm ? 'bottom left' : 'middle left' }
 										anchor={ dailyAndManualScansPopoverAnchor }
 									/>
@@ -146,7 +146,7 @@ const ThreatsList = () => {
 									<PaidList list={ list } />
 								</div>
 								<OnboardingPopover
-									id="understand-severity"
+									id="paid-understand-severity"
 									position="top middle"
 									anchor={ understandSeverityPopoverAnchor }
 								/>

@@ -2,6 +2,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import API from '../../api';
 import { STORE_ID } from '../../state/store';
+import useProtectData from '../use-protect-data';
 
 export const OnboardingContext = createContext( [] );
 export const OnboardingRenderedContext = createContext( [] );
@@ -17,6 +18,7 @@ export const OnboardingRenderedContextProvider = ( { children } ) => {
 };
 
 const useOnboarding = () => {
+	const { hasRequiredPlan } = useProtectData();
 	const { completeOnboardingSteps, fetchOnboardingProgress } = API;
 
 	const steps = useContext( OnboardingContext );
@@ -63,16 +65,21 @@ const useOnboarding = () => {
 	 * Complete All Current Steps
 	 */
 	const completeAllCurrentSteps = useCallback( () => {
-		const stepIds = steps.reduce( ( carry, step ) => {
-			carry.push( step.id );
-			return carry;
-		}, [] );
+		const stepIds = steps
+			.filter( step => {
+				// If hasRequiredPlan is true, include paid steps, else include free steps
+				return hasRequiredPlan ? step.id.startsWith( 'paid-' ) : step.id.startsWith( 'free-' );
+			} )
+			.reduce( ( carry, step ) => {
+				carry.push( step.id );
+				return carry;
+			}, [] );
 
 		// Complete the steps immediately in the UI
 		setOnboardingProgress( stepIds );
 		// Save the completions in the background
 		completeOnboardingSteps( stepIds );
-	}, [ steps, setOnboardingProgress, completeOnboardingSteps ] );
+	}, [ steps, setOnboardingProgress, completeOnboardingSteps, hasRequiredPlan ] );
 
 	useEffect( () => {
 		if ( null === progress ) {

@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 
-const { adminUrl, siteSuffix } = window.jetpackProtectInitialState;
+const { adminUrl, siteSuffix, hasRequiredPlan } = window.jetpackProtectInitialState;
 
 const UpgradeButton = props => {
 	const { run } = useProductCheckoutWorkflow( {
@@ -20,7 +20,7 @@ const UpgradeButton = props => {
 
 export default [
 	{
-		id: 'scan-results',
+		id: hasRequiredPlan ? 'paid-scan-results' : 'free-scan-results',
 		title: __( 'Your scan results', 'jetpack-protect' ),
 		description: (
 			<Text>
@@ -32,7 +32,7 @@ export default [
 		),
 	},
 	{
-		id: 'fix-all-threats',
+		id: 'paid-fix-all-threats',
 		title: __( 'Auto-fix with one click', 'jetpack-protect' ),
 		description: (
 			<Text>
@@ -63,7 +63,7 @@ export default [
 		),
 	},
 	{
-		id: 'understand-severity',
+		id: 'paid-understand-severity',
 		title: __( 'Understand severity', 'jetpack-protect' ),
 		description: (
 			<Text>
@@ -75,7 +75,7 @@ export default [
 		),
 	},
 	{
-		id: 'daily-scans',
+		id: 'free-daily-scans',
 		title: __( 'Daily automated scans', 'jetpack-protect' ),
 		description: (
 			<Text>
@@ -92,7 +92,7 @@ export default [
 		),
 	},
 	{
-		id: 'daily-and-manual-scans',
+		id: 'paid-daily-and-manual-scans',
 		title: __( 'Daily & manual scanning', 'jetpack-protect' ),
 		description: (
 			<Text>
