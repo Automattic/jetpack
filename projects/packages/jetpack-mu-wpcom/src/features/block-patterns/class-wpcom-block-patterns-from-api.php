@@ -175,7 +175,7 @@ class Wpcom_Block_Patterns_From_Api {
 		}
 
 		$block_patterns = $this->utils->cache_get( $patterns_cache_key, 'ptk_patterns' );
-		$disable_cache  = function_exists( 'is_automattician' ) ? is_automattician() : false;
+		$disable_cache  = true;
 
 		// Enable testing v2 patterns on sites with Assembler theme active
 		$enable_testing_v2_patterns = in_array( get_stylesheet(), array( 'pub/assembler', 'assembler' ), true );
