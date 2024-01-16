@@ -13,7 +13,7 @@ use Automattic\Jetpack\Sync\Settings;
  * The Jetpack_RelatedPosts class.
  */
 class Jetpack_RelatedPosts {
-	const VERSION   = '20241111';
+	const VERSION   = '20240116';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	/**
@@ -342,96 +342,106 @@ EOT;
 	public function render_block_item( $related_post, $block_attributes ) {
 		$instance_id = 'related-posts-item-' . uniqid();
 		$label_id    = $instance_id . '-label';
+		$title       = $related_post['title'];
+		$url         = $related_post['url'];
+		$rel         = $related_post['rel'];
+		$img         = '';
+		$list        = '';
 
 		$item_markup = sprintf(
-			'<ul id="%1$s" aria-labelledby="%2$s" class="jp-related-posts-i2__post" role="menuitem">',
-			esc_attr( $instance_id ),
-			esc_attr( $label_id )
+			'<li id="%1$s" class="jp-related-posts-i2__post">',
+			esc_attr( $instance_id )
 		);
 
-		$item_markup .= sprintf(
-			'<li class="jp-related-posts-i2__post-link"><a id="%1$s" href="%2$s" %4$s>%3$s</a></li>',
-			esc_attr( $label_id ),
-			esc_url( $related_post['url'] ),
-			esc_attr( $related_post['title'] ),
-			( ! empty( $related_post['rel'] ) ? 'rel="' . esc_attr( $related_post['rel'] ) . '"' : '' )
-		);
-
+		// Thumbnail
 		if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) {
-			$img_link = sprintf(
-				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" %2$s><img loading="lazy" src="%3$s" width="%4$s" height="%5$s" alt="%6$s" %7$s/></a></li>',
-				esc_url( $related_post['url'] ),
-				( ! empty( $related_post['rel'] ) ? 'rel="' . esc_attr( $related_post['rel'] ) . '"' : '' ),
+			$img = sprintf(
+				'<img loading="lazy" class="jp-related-posts-i2__post-img" src="%1$s" alt="%2$s" %3$s/>',
 				esc_url( $related_post['img']['src'] ),
-				esc_attr( $related_post['img']['width'] ),
-				esc_attr( $related_post['img']['height'] ),
 				esc_attr( $related_post['img']['alt_text'] ),
 				( ! empty( $related_post['img']['srcset'] ) ? 'srcset="' . esc_attr( $related_post['img']['srcset'] ) . '"' : '' )
 			);
-
-			$item_markup .= $img_link;
 		}
 
+		// Link
+		$item_markup .= sprintf(
+			'<a id="%1$s" href="%2$s" class="jp-related-posts-i2__post-link" %3$s>%4$s%5$s</a>',
+			esc_attr( $label_id ),
+			esc_url( $url ),
+			( ! empty( $rel ) ? 'rel="' . esc_attr( $rel ) . '"' : '' ),
+			esc_html( $title ),
+			$img
+		);
+
+		// Date
 		if ( $block_attributes['show_date'] ) {
-			$date_tag = sprintf(
-				'<li class="jp-related-posts-i2__post-date">%1$s</li>',
-				esc_html( $related_post['date'] )
-			);
-
-			$item_markup .= $date_tag;
+			$list .= '<dt>' . __( 'Date', 'jetpack' ) . '</dt>';
+			$list .= '<dd class="jp-related-posts-i2__post-date">';
+			$list .= esc_html( $related_post['date'] );
+			$list .= '</dd>';
 		}
 
+		// Author
 		if ( $block_attributes['show_author'] ) {
-			$author_tag = sprintf(
-				'<li class="jp-related-posts-i2__post-author">%1$s</li>',
-				esc_html( $related_post['author'] )
-			);
-
-			$item_markup .= $author_tag;
+			$list .= '<dt>' . __( 'Author', 'jetpack' ) . '</dt>';
+			$list .= '<dd class="jp-related-posts-i2__post-author">';
+			$list .= esc_html( $related_post['author'] );
+			$list .= '</dd>';
 		}
 
+		// Context
 		if ( ( $block_attributes['show_context'] ) && ! empty( $related_post['block_context'] ) ) {
+			// translators: this is followed by the reason why the item is related to the current post
+			$list .= '<dt>' . __( 'In relation to', 'jetpack' ) . '</dt>';
+			$list .= '<dd class="jp-related-posts-i2__post-context">';
+
 			// Note: The original 'context' value is not used when rendering the block.
 			// It is still generated and available for the legacy rendering code path though.
 			// See './related-posts.js' for that usage.
-			$context_tag   = '';
 			$block_context = $related_post['block_context'];
+
 			if ( ! empty( $block_context['link'] ) ) {
-				$context_tag = sprintf(
-					'<li class="jp-related-posts-i2__post-context"><a href="%1$s">%2$s</a></li>',
+				$list .= sprintf(
+					'<a href="%1$s">%2$s</a>',
 					esc_url( $block_context['link'] ),
 					esc_html( $block_context['text'] )
 				);
 			} else {
-				$context_tag = sprintf(
-					'<li class="jp-related-posts-i2__post-context">%1$s</li>',
-					esc_html( $block_context['text'] )
-				);
+				$list .= esc_html( $block_context['text'] );
 			}
 
-			$item_markup .= $context_tag;
+			$list .= '</dd>';
 		}
 
-		$item_markup .= '</ul>';
+		// Metadata
+		if ( ! empty( $list ) ) {
+			$item_markup .= '<dl class="jp-related-posts-i2__post-defs">' . $list . '</dl>';
+		}
+
+		$item_markup .= '</li>';
 
 		return $item_markup;
 	}
 
 	/**
-	 * Render a related posts row.
+	 * Render the list of related posts.
 	 *
-	 * @param array $posts The posts to render into the row.
+	 * @param array $posts The posts to render into the list.
 	 * @param array $block_attributes Block attributes.
+	 * @return string
 	 */
-	public function render_block_row( $posts, $block_attributes ) {
-		$rows_markup = '';
+	public function render_post_list( $posts, $block_attributes ) {
+		$markup = '';
+
 		foreach ( $posts as $post ) {
-			$rows_markup .= $this->render_block_item( $post, $block_attributes );
+			$markup .= $this->render_block_item( $post, $block_attributes );
 		}
+
 		return sprintf(
-			'<div class="jp-related-posts-i2__row" data-post-count="%1$s">%2$s</div>',
+			// role="list" is required for accessibility as VoiceOver ignores unstyled lists.
+			'<ul class="jp-related-posts-i2__list" role="list" data-post-count="%1$s">%2$s</ul>',
 			count( $posts ),
-			$rows_markup
+			$markup
 		);
 	}
 
@@ -470,31 +480,11 @@ EOT;
 			)
 		);
 
-		$display_lower_row = $block_attributes['size'] > 3;
-
 		if ( empty( $related_posts ) ) {
 			return '';
 		}
 
-		switch ( count( $related_posts ) ) {
-			case 2:
-			case 4:
-			case 5:
-				$top_row_end = 2;
-				break;
-
-			default:
-				$top_row_end = 3;
-				break;
-		}
-
-		$upper_row_posts = array_slice( $related_posts, 0, $top_row_end );
-		$lower_row_posts = array_slice( $related_posts, $top_row_end );
-
-		$rows_markup = $this->render_block_row( $upper_row_posts, $block_attributes );
-		if ( $display_lower_row ) {
-			$rows_markup .= $this->render_block_row( $lower_row_posts, $block_attributes );
-		}
+		$list_markup = $this->render_post_list( $related_posts, $block_attributes );
 
 		if ( empty( $attributes['isServerRendered'] ) ) {
 			// The get_server_rendered_html() path won't register a block,
@@ -502,23 +492,27 @@ EOT;
 			$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 		}
 
+		$headline_id     = 'relatedposts-headline-' . uniqid();
 		$headline_markup = '';
+
 		if ( $block_attributes['show_headline'] === true ) {
 			$headline = $block_attributes['headline'];
 			if ( strlen( trim( $headline ) ) !== 0 ) {
 				$headline_markup = sprintf(
-					'<h3 class="jp-relatedposts-headline">%1$s</h3>',
-					esc_html( $headline )
+					'<h3 id="%2$s" class="jp-relatedposts-headline">%1$s</h3>',
+					esc_html( $headline ),
+					esc_attr( $headline_id )
 				);
 			}
 		}
 		$display_markup = sprintf(
-			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s">%4$s%5$s</nav>',
+			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s" %6$s>%4$s%5$s</nav>',
 			! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
 			! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
 			esc_attr( $block_attributes['layout'] ),
 			$headline_markup,
-			$rows_markup
+			$list_markup,
+			empty( $headline_markup ) ? 'aria-label="' . esc_attr( __( 'Related Posts', 'jetpack' ) ) . '"' : 'aria-labelledby="' . esc_attr( $headline_id ) . '"'
 		);
 
 		/**
