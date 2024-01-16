@@ -111,6 +111,9 @@ class Type_Assoc_Array implements Parser {
 		foreach ( $this->parser as $key => $parser ) {
 			$results[ $key ] = $parser->schema();
 		}
-		return $results;
+		return array(
+			'type'  => 'assoc_array',
+			'value' => $results,
+		);
 	}
 }

@@ -95,6 +95,11 @@ class Test_Integration_Serialization extends TestCase {
 				'any'             => Schema::as_unsafe_any(),
 				'float'           => Schema::as_float(),
 				'bool'            => Schema::as_boolean(),
+				'nested_assoc'    => Schema::as_assoc_array(
+					array(
+						'level_2' => Schema::as_string(),
+					)
+				),
 				'array_of_arrays' => Schema::as_array(
 					Schema::as_array(
 						Schema::as_string()
@@ -104,55 +109,67 @@ class Test_Integration_Serialization extends TestCase {
 		);
 
 		$expect_schema_to_be = array(
-			'string'          => array(
-				'type' => 'string',
-			),
-			'number'          => array(
-				'type' => 'number',
-			),
-			'array'           => array(
-				'type'  => 'array',
-				'value' => array(
+			'type'  => 'assoc_array',
+			'value' => array(
+				'string'          => array(
 					'type' => 'string',
 				),
-			),
-			'enum'            => array(
-				'type'  => 'enum',
-				'value' => array( 'a', 'b', 'c' ),
-			),
-			'enum_types'      => array(
-				'type'  => 'enum',
-				'value' => array(
-					array(
-						'type' => 'string',
-					),
-					array(
-						'type' => 'number',
-					),
+				'number'          => array(
+					'type' => 'number',
 				),
-			),
-			'void'            => array(
-				'type' => 'void',
-			),
-			'any'             => array(
-				'type' => 'any',
-			),
-			'float'           => array(
-				'type' => 'float',
-			),
-			'bool'            => array(
-				'type' => 'boolean',
-			),
-			'array_of_arrays' => array(
-				'type'  => 'array',
-				'value' => array(
+				'array'           => array(
 					'type'  => 'array',
 					'value' => array(
 						'type' => 'string',
 					),
 				),
+				'enum'            => array(
+					'type'  => 'enum',
+					'value' => array( 'a', 'b', 'c' ),
+				),
+				'enum_types'      => array(
+					'type'  => 'enum',
+					'value' => array(
+						array(
+							'type' => 'string',
+						),
+						array(
+							'type' => 'number',
+						),
+					),
+				),
+				'void'            => array(
+					'type' => 'void',
+				),
+				'any'             => array(
+					'type' => 'any',
+				),
+				'float'           => array(
+					'type' => 'float',
+				),
+				'bool'            => array(
+					'type' => 'boolean',
+				),
+				'nested_assoc'    => array(
+					'type'  => 'assoc_array',
+					'value' => array(
+						'level_2' => array(
+							'type' => 'string',
+						),
+					),
+				),
+				'array_of_arrays' => array(
+					'type'  => 'array',
+					'value' => array(
+						'type'  => 'array',
+						'value' => array(
+							'type' => 'string',
+						),
+					),
+				),
 			),
 		);
+		
 		// Test in both directions
 		$this->assertSame( $expect_schema_to_be, $schema->schema() );
 		$this->assertSame( $expect_schema_to_be, json_decode( json_encode( $schema ), true ) );
@@ -174,10 +191,19 @@ class Test_Integration_Serialization extends TestCase {
 		);
 
 		$expect_schema_to_be = array(
-			'level_1' => array(
-				'level_2' => array(
-					'level_3' => array(
-						'type' => 'string',
+			'type'  => 'assoc_array',
+			'value' => array(
+				'level_1' => array(
+					'type'  => 'assoc_array',
+					'value' => array(
+						'level_2' => array(
+							'type'  => 'assoc_array',
+							'value' => array(
+								'level_3' => array(
+									'type' => 'string',
+								),
+							),
+						),
 					),
 				),
 			),
