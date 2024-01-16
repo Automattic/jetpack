@@ -12,7 +12,7 @@ export async function loadCriticalCssLibrary(): Promise< void > {
 	}
 
 	loadLibraryPromise = new Promise< void >( ( resolve, reject ) => {
-		const scriptUrl = `${ getConfig( 'site.assetPath' ) }/critical-css-gen.js?ver=${ getConfig(
+		const scriptUrl = `${ getConfig( 'assetPath' ) }/critical-css-gen.js?ver=${ getConfig(
 			'version'
 		) }`;
 		const scriptTag = document.createElement( 'script' );

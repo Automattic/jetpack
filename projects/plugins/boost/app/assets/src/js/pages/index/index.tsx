@@ -32,7 +32,7 @@ const Index = () => {
 	const requestRegenerateCriticalCss = () => {
 		regenerateCssAction.mutate();
 	};
-	const { site } = useConfig();
+	const { canResizeImages } = useConfig();
 
 	const lazyLoadDeprecationMessage = lazyLoadState?.available
 		? __(
@@ -271,7 +271,7 @@ const Index = () => {
 						</>
 					}
 				>
-					{ false === site.canResizeImages && (
+					{ false === canResizeImages && (
 						<Notice
 							level="warning"
 							title={ __( 'Image resizing is unavailable', 'jetpack-boost' ) }

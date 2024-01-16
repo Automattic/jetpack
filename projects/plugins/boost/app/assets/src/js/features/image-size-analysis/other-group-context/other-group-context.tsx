@@ -4,9 +4,7 @@ import styles from './other-group-context.module.scss';
 import { useConfig } from '$lib/stores/config-ds';
 
 const OtherGroupContext = () => {
-	const {
-		site: { postTypes },
-	} = useConfig();
+	const { postTypes } = useConfig();
 	return (
 		<IconTooltip
 			title=""

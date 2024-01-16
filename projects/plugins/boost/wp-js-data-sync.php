@@ -335,21 +335,21 @@ function jetpack_boost_ui_config() {
 	$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 	return array(
-		'version'        => JETPACK_BOOST_VERSION,
-		'plugin_dir_url' => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
-		'site'           => array(
-			'url'             => get_home_url(),
-			'domain'          => ( new Status() )->get_site_suffix(),
-			'online'          => ! ( new Status() )->is_offline_mode(),
-			'isAtomic'        => ( new Host() )->is_woa_site(),
-			'postTypes'       => (object) Post_Types::get_custom_post_types(),
-			'canResizeImages' => wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) ),
-			'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
+		'version'         => JETPACK_BOOST_VERSION,
+		'pluginDirUrl'    => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
+		'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
+		'canResizeImages' => wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) ),
+		'site'            => array(
+			'url'      => get_home_url(),
+			'domain'   => ( new Status() )->get_site_suffix(),
+			'online'   => ! ( new Status() )->is_offline_mode(),
+			'isAtomic' => ( new Host() )->is_woa_site(),
 		),
-		'api'            => array(
+		'api'             => array(
 			'namespace' => JETPACK_BOOST_REST_NAMESPACE,
 			'prefix'    => JETPACK_BOOST_REST_PREFIX,
 		),
+		'postTypes'       => (object) Post_Types::get_custom_post_types(),
 	);
 }
 jetpack_boost_register_readonly_option( 'config', 'jetpack_boost_ui_config' );

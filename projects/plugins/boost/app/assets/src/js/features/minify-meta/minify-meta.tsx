@@ -4,7 +4,7 @@ import { type Props, useMetaQuery } from '$lib/stores/minify';
 import { useConfig } from '$lib/stores/config-ds';
 
 const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Props ) => {
-	const config = useConfig();
+	const { pluginDirUrl } = useConfig();
 	const [ values, updateValues ] = useMetaQuery( datasyncKey );
 	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
 	const [ isEditing, setIsEditing ] = useState( false );
@@ -62,7 +62,7 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 					>
 						<img
 							className="edit-icon"
-							src={ `${ config.plugin_dir_url }/app/assets/static/images/pencil.svg` }
+							src={ `${ pluginDirUrl }/app/assets/static/images/pencil.svg` }
 							alt={ __( 'Edit', 'jetpack-boost' ) }
 						/>
 						{ buttonText }

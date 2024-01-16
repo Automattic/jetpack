@@ -15,12 +15,12 @@ const PurchaseSuccess: React.FC = () => {
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const navigate = useNavigate();
 	const isaRequest = useImageAnalysisRequest();
-	const { site } = useConfig();
+	const { site, canResizeImages } = useConfig();
 
 	useEffect( () => {
 		setCloudCssState( true );
 		// If image guide is enabled, request a new ISA report.
-		if ( imageGuideState?.active && isaState?.active && false !== site.canResizeImages ) {
+		if ( imageGuideState?.active && isaState?.active && false !== canResizeImages ) {
 			isaRequest.requestNewReport();
 		}
 		// We only want this effect to run on mount.
@@ -85,7 +85,7 @@ const PurchaseSuccess: React.FC = () => {
 
 					<div className="jb-card__cta px-1 py-4">
 						<img
-							src={ `${ getConfig( 'site.assetPath' ) }../static/images/boost.png` }
+							src={ `${ getConfig( 'assetPath' ) }../static/images/boost.png` }
 							alt={ __( 'Optimize with Jetpack Boost', 'jetpack-boost' ) }
 						/>
 					</div>
