@@ -783,7 +783,7 @@ HTML;
 					font-weight: normal;
 				}
 				a {
-					text-decoration: none;
+					text-decoration: underline;
 					color: #333 !important;
 				}
 			</style>
