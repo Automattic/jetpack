@@ -10,6 +10,8 @@
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-react-data-sync-client": "workspace:*",
+		"@react-spring/core": "9.7.3",
+		"@react-spring/web": "9.7.3",
 		"@svgr/rollup": "8.1.0",
 		"@types/react": "18.2.33",
 		"@types/react-router-dom": "5.3.3",
@@ -20,6 +22,7 @@
 		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.11",
 		"prettier": "npm:wp-prettier@3.0.3",
 		"react-router-dom": "6.21.0",
+		"react-use-measure": "2.1.1",
 		"svelte-navigator": "3.2.2",
 		"zod": "3.22.3"
 	},
