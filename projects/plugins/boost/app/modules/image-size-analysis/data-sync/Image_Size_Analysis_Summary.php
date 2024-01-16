@@ -17,9 +17,7 @@ class Image_Size_Analysis_Summary implements Lazy_Entry, Entry_Can_Get {
 		if ( is_wp_error( $report ) ) {
 			// If no report is found, return it as a status.
 			if ( $report->get_error_code() === 'report-not-found' ) {
-				return array(
-					'status' => 'not-found',
-				);
+				throw new \RuntimeException( 'Report not found' );
 			}
 
 			// Other kinds of errors are a problem.
