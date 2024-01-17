@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.32
+// @version      1.31
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
-// @connect      jurassic.ninja
+// @connect      betadownload.jetpack.me
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
 // ==/UserScript==
@@ -99,7 +99,7 @@
 				<p><a target="_blank" rel="nofollow noopener" href="${ getLink( host )[ 0 ] }">
 					Test with <code>trunk</code> branch instead.
 				</a><br/>
-				<a target="_blank" rel="nofollow noopener" href="${ getLink( host2 )[ 0 ] }">
+                <a target="_blank" rel="nofollow noopener" href="${ getLink( host2 )[ 0 ] }">
 					Test with <code>trunk</code> branch instead on Atomic.
 				</a></p>
 			`;
@@ -112,19 +112,19 @@
 		} else {
 			if ( ! pluginsList ) {
 				pluginsList = dofetch(
-					`${ host }/wp-json/jurassic.ninja/jetpack-beta/branches/${ repo }/${ currentBranch }`
+					`https://betadownload.jetpack.me/query-branch.php?repo=${ repo }&branch=${ currentBranch }`
 				);
 			}
 			pluginsList
 				.then( body => {
 					const plugins = [];
 
-					if ( body.status === 'ok' ) {
+					if ( body.hasOwnProperty( 'plugins' ) ) {
 						const labels = new Set(
 							$.map( $( '.js-issue-labels a.IssueLabel' ), e => $( e ).data( 'name' ) )
 						);
-						Object.keys( body.data.plugins ).forEach( k => {
-							const data = body.data.plugins[ k ];
+						Object.keys( body.plugins ).forEach( k => {
+							const data = body.plugins[ k ];
 							plugins.push( {
 								name: `branches.${ k }`,
 								value: currentBranch,
@@ -147,7 +147,7 @@
 							);
 							return;
 						}
-					} else if ( body.code === 'rest_no_route' ) {
+					} else {
 						plugins.push( {
 							name: 'branch',
 							value: currentBranch,
@@ -155,8 +155,6 @@
 							checked: true,
 							disabled: true,
 						} );
-					} else {
-						throw new Error( 'Invalid response from server' );
 					}
 
 					const contents = `
@@ -282,8 +280,8 @@
 					<p>
 						<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
 					</p>
-					<p><h3>JurassicNinja on Atomic</h3></p>
-					<p>
+                    <p><h3>JurassicNinja on Atomic</h3></p>
+                    <p>
 						<a id="jetpack-beta-branch-link2" target="_blank" rel="nofollow noopener" href="#">…</a>
 					</p>
 					`;
