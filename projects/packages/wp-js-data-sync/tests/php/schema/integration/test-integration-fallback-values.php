@@ -178,7 +178,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		try {
 			$schema->parse( null );
 			// If the exception is not thrown, fail the test
-			$this->fail( 'Expected \Error exception was not thrown' );
+			$this->fail( 'Expected \Schema_Parsing_Error exception was not thrown' );
 		} catch ( Schema_Parsing_Error $e ) {
 			// If the exception is thrown, assert that it's the expected exception
 			$this->assertInstanceOf( Schema_Parsing_Error::class, $e );
