@@ -631,15 +631,6 @@ importers:
 
   projects/js-packages/image-guide:
     devDependencies:
-      '@automattic/jetpack-analytics':
-        specifier: workspace:*
-        version: link:../analytics
-      '@automattic/jetpack-components':
-        specifier: workspace:0.46.0-alpha
-        version: link:../components
-      '@automattic/jetpack-webpack-config':
-        specifier: workspace:*
-        version: link:../webpack-config
       '@babel/core':
         specifier: ^7.0.0
         version: 7.23.5
