@@ -15,7 +15,6 @@ export const EditorPlaceholder = ( { onClick, loading } ) => {
 					loading,
 				} ) }
 			>
-				<CustomLoadingSpinner />
 				<div
 					class="block-list-appender block-editor-block-list__layout"
 					style={ { padding: '10px 20px' } }
