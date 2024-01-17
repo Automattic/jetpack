@@ -1,8 +1,8 @@
 <?php
 
 class Boost_Cache {
-	public $key         = false;
-	public $request_uri = false;
+	private $key           = false;
+	protected $request_uri = false;
 
 	public function __construct() {
 		$this->key();
