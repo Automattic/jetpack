@@ -32,6 +32,11 @@ class Boost_Cache {
 			return false;
 		}
 
+		if ( isset( $_SERVER['HTTP_ACCEPT'] ) && strpos( $_SERVER['HTTP_ACCEPT'], 'text/html' ) === false ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			error_log( "not caching a non-html request: {$this->request_uri}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			return false;
+		}
+
 		return apply_filters( 'boost_cache_cacheable', $this->request_uri );
 	}
 
