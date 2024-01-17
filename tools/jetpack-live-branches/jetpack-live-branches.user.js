@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.31
+// @version      1.33
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      betadownload.jetpack.me
@@ -99,7 +99,7 @@
 				<p><a target="_blank" rel="nofollow noopener" href="${ getLink( host )[ 0 ] }">
 					Test with <code>trunk</code> branch instead.
 				</a><br/>
-                <a target="_blank" rel="nofollow noopener" href="${ getLink( host2 )[ 0 ] }">
+				<a target="_blank" rel="nofollow noopener" href="${ getLink( host2 )[ 0 ] }">
 					Test with <code>trunk</code> branch instead on Atomic.
 				</a></p>
 			`;
@@ -280,8 +280,8 @@
 					<p>
 						<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
 					</p>
-                    <p><h3>JurassicNinja on Atomic</h3></p>
-                    <p>
+					<p><h3>JurassicNinja on Atomic</h3></p>
+					<p>
 						<a id="jetpack-beta-branch-link2" target="_blank" rel="nofollow noopener" href="#">…</a>
 					</p>
 					`;
