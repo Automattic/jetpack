@@ -101,7 +101,7 @@ class Jetpack_Boost {
 		Setup::add( $modules_setup );
 
 		// Initialize the Admin experience.
-		$this->init_admin();
+		$this->init_admin( $modules_setup );
 
 		// Initiate jetpack sync.
 		$this->init_sync();
@@ -153,10 +153,10 @@ class Jetpack_Boost {
 	/**
 	 * Initialize the admin experience.
 	 */
-	public function init_admin() {
+	public function init_admin( $modules_setup ) {
 		REST_API::register( List_Site_Urls::class );
 		$this->connection->ensure_connection();
-		new Admin();
+		( new Admin() )->init( $modules_setup );
 	}
 
 	public function init_sync() {

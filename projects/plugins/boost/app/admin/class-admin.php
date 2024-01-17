@@ -9,27 +9,23 @@
 namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 
 class Admin {
-
 	/**
 	 * Menu slug.
 	 */
 	const MENU_SLUG = 'jetpack-boost';
 
-	/**
-	 * Configuration constants.
-	 *
-	 * @param Config $config
-	 */
-	private $config;
-
-	public function __construct() {
-		$this->config = new Config();
+	public function init( Modules_Setup $modules ) {
 		Environment_Change_Detector::init();
+
+		// Initiate speed scores.
+		new Speed_Score( $modules, 'boost-plugin' );
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
@@ -101,7 +97,7 @@ class Admin {
 		wp_localize_script(
 			$admin_js_handle,
 			'Jetpack_Boost',
-			$this->config->constants()
+			( new Config() )->constants()
 		);
 
 		wp_set_script_translations( $admin_js_handle, 'jetpack-boost' );
