@@ -1,4 +1,12 @@
-import { Container, Col, Text, Title, getIconBySlug, Button } from '@automattic/jetpack-components';
+import {
+	Container,
+	Col,
+	Text,
+	Title,
+	getIconBySlug,
+	Button,
+	useBreakpointMatch,
+} from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
@@ -9,6 +17,7 @@ import OnboardingPopover from '../onboarding-popover';
 import styles from './styles.module.scss';
 
 const Summary = () => {
+	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { numThreats, lastChecked, hasRequiredPlan } = useProtectData();
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
 	const { scan } = useDispatch( STORE_ID );
@@ -44,7 +53,7 @@ const Summary = () => {
 							{ ! hasRequiredPlan && (
 								<OnboardingPopover
 									id="free-daily-scans"
-									position="middle right"
+									position={ isSm ? 'bottom' : 'middle right' }
 									anchor={ dailyAutomatedScansPopoverAnchor }
 								/>
 							) }

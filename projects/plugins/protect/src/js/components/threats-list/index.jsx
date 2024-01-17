@@ -91,7 +91,7 @@ const ThreatsList = () => {
 				</div>
 				<OnboardingPopover
 					id={ hasRequiredPlan ? 'paid-scan-results' : 'free-scan-results' }
-					position="middle top"
+					position="top"
 					anchor={ yourScanResultsPopoverAnchor }
 				/>
 			</Col>
@@ -147,7 +147,7 @@ const ThreatsList = () => {
 								</div>
 								<OnboardingPopover
 									id="paid-understand-severity"
-									position="top middle"
+									position="top"
 									anchor={ understandSeverityPopoverAnchor }
 								/>
 							</>

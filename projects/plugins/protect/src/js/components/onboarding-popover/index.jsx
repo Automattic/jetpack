@@ -45,6 +45,8 @@ const OnboardingPopover = ( { id, anchor, position } ) => {
 			position={ position }
 			step={ currentStepCount }
 			totalSteps={ stepsCount }
+			offset={ 15 }
+			flip={ false }
 		/>
 	);
 };
