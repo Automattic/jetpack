@@ -2,7 +2,7 @@
 /**
  * Subscriber Login Block.
  *
- * @since 0.0.1
+ * @since $$next-version$$
  *
  * @package automattic/jetpack
  */
