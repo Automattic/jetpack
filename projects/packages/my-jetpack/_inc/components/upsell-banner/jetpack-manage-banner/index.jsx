@@ -17,10 +17,11 @@ const JetpackManageBanner = props => {
 	const cta1WithIcon = true;
 	const cta1URL = getRedirectUrl( 'my-jetpack-jetpack-manage-learn-more' );
 
+	const manageSitesBtnLabel = __( 'Manage sites', 'jetpack-my-jetpack' );
+	const signUpForFreeBtnLabel = __( 'Sign up for free', 'jetpack-my-jetpack' );
+
 	// Set up the second CTA
-	const cta2Label = isAgencyAccount
-		? __( 'Manage sites', 'jetpack-my-jetpack' )
-		: __( 'Sign up for free', 'jetpack-my-jetpack' );
+	const cta2Label = isAgencyAccount ? manageSitesBtnLabel : signUpForFreeBtnLabel;
 	const cta2WithIcon = true;
 	const cta2URL = isAgencyAccount
 		? getRedirectUrl( 'my-jetpack-jetpack-manage-dashboard' )
