@@ -90,12 +90,12 @@ function get_subscriber_login_url() {
 function render_block() {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	$escaped_block_wrapper_attributes = str_replace( '%', '%%', get_block_wrapper_attributes() );
-	$block_template                   = '<div ' . $escaped_block_wrapper_attributes . '><a href="%1$s">%2$s</a></div>';
+	$block_template = '<div %1$s><a href="%2$s">%3$s</a></div>';
 
 	if ( ! is_user_logged_in() ) {
 		return sprintf(
 			$block_template,
+			get_block_wrapper_attributes(),
 			get_subscriber_login_url(),
 			__( 'Log in', 'jetpack' )
 		);
@@ -104,6 +104,7 @@ function render_block() {
 	if ( Jetpack_Memberships::is_current_user_subscribed() ) {
 		return sprintf(
 			$block_template,
+			get_block_wrapper_attributes(),
 			'https://wordpress.com/read/subscriptions',
 			__( 'Manage subscriptions', 'jetpack' )
 		);
@@ -111,6 +112,7 @@ function render_block() {
 
 	return sprintf(
 		$block_template,
+		get_block_wrapper_attributes(),
 		wp_logout_url( get_current_url() ),
 		__( 'Log out', 'jetpack' )
 	);
