@@ -102,7 +102,6 @@ class Schema implements Parser {
 	 * @throws \Schema_Parsing_Error When the input data is invalid.
 	 */
 	public function parse( $value, $meta = null ) {
-
 		if ( $meta === null && $this->meta === null ) {
 			// 1 - If the meta is null, then this is maybe the root.
 			$this->meta = new Schema_Validation_Meta( 'unknown' );
