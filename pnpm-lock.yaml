@@ -634,7 +634,13 @@ importers:
       '@babel/core':
         specifier: ^7.0.0
         version: 7.23.5
+      '@babel/preset-env':
+        specifier: 7.23.5
+        version: 7.23.5(@babel/core@7.23.5)
       '@babel/preset-react':
+        specifier: 7.23.3
+        version: 7.23.3(@babel/core@7.23.5)
+      '@babel/preset-typescript':
         specifier: 7.23.3
         version: 7.23.3(@babel/core@7.23.5)
       '@rollup/plugin-babel':
