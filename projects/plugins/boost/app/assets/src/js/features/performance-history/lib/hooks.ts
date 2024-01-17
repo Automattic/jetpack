@@ -49,7 +49,7 @@ export const usePerformanceHistoryPanelQuery = () => {
 type AlertIds = 'performance_history_fresh_start' | 'score_increase' | 'score_decrease';
 
 /**
- * A store that
+ * A hook that handles permanent dismissals of alerts.
  *
  * @param {AlertIds} alertId
  * @return {[ boolean, () => void ]} - A tuple with the state and a method to dismiss the alert.
