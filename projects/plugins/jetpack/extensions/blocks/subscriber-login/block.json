@@ -26,7 +26,8 @@
 			"lineHeight": true
 		},
 		"color": {
-			"link": false,
+			"text": false,
+			"link": true,
 			"gradients": true
 		}
 	},
