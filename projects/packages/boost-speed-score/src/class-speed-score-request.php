@@ -302,11 +302,11 @@ class Speed_Score_Request extends Cacheable {
 		$current_theme = wp_get_theme()->get( 'Name' );
 
 		// Only change if there is a difference from last score or the theme changed.
-		if ( $last_scores !== $response->scores || $current_theme !== $last_theme ) {
+		if ( $last_scores !== $response['scores'] || $current_theme !== $last_theme ) {
 			$history->push(
 				array(
 					'timestamp' => time(),
-					'scores'    => $response->scores,
+					'scores'    => $response['scores'],
 					'theme'     => $current_theme,
 				)
 			);
