@@ -87,11 +87,11 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'task_ids'            => array(
 				'setup_newsletter',
 				'plan_selected',
-				'subscribers_added',
 				'verify_email',
+				'subscribers_added',
+				'migrate_content',
 				'set_up_payments',
 				'newsletter_plan_created',
-				'migrate_content',
 				'first_post_published_newsletter',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
