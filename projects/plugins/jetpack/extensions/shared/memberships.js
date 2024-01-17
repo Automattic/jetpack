@@ -15,7 +15,8 @@ export function handleIframeResult( eventFromIframe ) {
 		}
 		if ( data && data.action === 'close' && premiumContentJWTTokenForCookie ) {
 			// The token was set during the purchase flow, we want to reload the whole page so the content is displayed
-			window.location.reload();
+			// For avoiding Firefox reload, we need to force reload bypassing the cache.
+			window.location.reload( true );
 		} else if ( data && data.action === 'close' ) {
 			// User just aborted.
 			window.removeEventListener( 'message', handleIframeResult );
