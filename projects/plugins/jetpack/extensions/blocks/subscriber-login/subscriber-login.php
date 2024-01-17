@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Extensions\Subscriber_Login;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
+use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Options;
@@ -22,7 +23,7 @@ use Jetpack_Options;
  * registration if we need to.
  */
 function register_block() {
-	if ( ! \Jetpack::is_module_active( 'subscriptions' ) || ! class_exists( '\Jetpack_Memberships' ) ) {
+	if ( ! Jetpack::is_module_active( 'subscriptions' ) || ! class_exists( '\Jetpack_Memberships' ) ) {
 		return;
 	}
 
@@ -41,7 +42,9 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return void
  */
 function subscriber_logout() {
-	Abstract_Token_Subscription_Service::clear_token_cookie();
+	if ( class_exists( '\Abstract_Token_Subscription_Service' ) ) {
+		Abstract_Token_Subscription_Service::clear_token_cookie();
+	}
 }
 
 /**
@@ -101,7 +104,7 @@ function render_block() {
 		);
 	}
 
-	if ( Jetpack_Memberships::is_current_user_subscribed() ) {
+	if ( class_exists( '\Jetpack_Memberships' ) && Jetpack_Memberships::is_current_user_subscribed() ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
