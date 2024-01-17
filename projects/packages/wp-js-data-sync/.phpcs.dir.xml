@@ -26,7 +26,11 @@
 			<property name="ignoreUnusedRegexp" value="/^_/"/>
 		</properties>
 	</rule>
-	
+
+	<rule ref="MediaWiki.Usage.ForbiddenFunctions.isset">
+		<severity>0</severity>
+	</rule>
+
 	<rule ref="Squiz.Commenting.FunctionComment.MissingParamComment">
 		<severity>0</severity>
 	</rule>
