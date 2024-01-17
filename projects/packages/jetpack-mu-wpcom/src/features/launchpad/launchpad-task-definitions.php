@@ -1037,7 +1037,10 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 	}
 
 	if ( $has_domains_pending_icann_verification ) {
-		wpcom_set_launchpad_config_option( 'verify_domain_email_task_displayed', true );
+		if ( ! wpcom_launchpad_verify_domain_email_task_displayed() ) {
+			wpcom_set_launchpad_config_option( 'verify_domain_email_task_displayed', true );
+		}
+		return true;
 	}
 
 	return false;
