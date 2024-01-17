@@ -1,11 +1,11 @@
 <?php
 
 class Boost_Cache {
-	private $key           = false;
+	private $cache_key     = false;
+	private $path_key      = false;
 	protected $request_uri = false;
 
 	public function __construct() {
-		$this->key();
 		$this->request_uri = isset( $_SERVER['REQUEST_URI'] )
 			? $_SERVER['REQUEST_URI'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			: false;
@@ -40,24 +40,45 @@ class Boost_Cache {
 		return apply_filters( 'boost_cache_cacheable', $this->request_uri );
 	}
 
-	public function key() {
-		if ( ! $this->key ) {
-			$cookies = isset( $_COOKIE ) ? $_COOKIE : array();
-			$request = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$get     = isset( $_GET ) ? $_GET : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-			$key_components = apply_filters(
-				'boost_cache_key_components',
-				array(
-					'cookies' => $cookies,
-					'request' => $request,
-					'get'     => $get,
-				)
-			);
-
-			$this->key = md5( json_encode( $key_components ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+	private function calculate_cache_key( $request_uri = '' ) {
+		if ( $request_uri === '' ) {
+			$request_uri = $this->request_uri;
 		}
-		return $this->key;
+		$cookies = isset( $_COOKIE ) ? $_COOKIE : array();
+		$get     = isset( $_GET ) ? $_GET : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$key_components = apply_filters(
+			'boost_cache_key_components',
+			array(
+				'cookies'     => $cookies,
+				'request_uri' => $request_uri,
+				'get'         => $get,
+			)
+		);
+
+		return md5( json_encode( $key_components ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+	}
+
+	public function cache_key( $request_uri = '' ) {
+		if ( $request_uri !== '' ) {
+			return $this->calculate_cache_key( $request_uri );
+		}
+
+		if ( ! $this->cache_key ) {
+			$this->cache_key = $this->calculate_cache_key();
+		}
+		return $this->cache_key;
+	}
+
+	public function path_key( $request_uri = '' ) {
+		if ( $request_uri !== '' ) {
+			return md5( $request_uri );
+		}
+
+		if ( ! $this->path_key ) {
+			$this->path_key = md5( $this->request_uri );
+		}
+		return $this->path_key;
 	}
 
 	public function get() {
