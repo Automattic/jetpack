@@ -35,13 +35,13 @@ const API = {
 
 	fetchOnboardingProgress: () =>
 		apiFetch( {
-			path: `jetpack-protect/v1/onboarding-progress`,
+			path: 'jetpack-protect/v1/onboarding-progress',
 			method: 'GET',
 		} ),
 
 	completeOnboardingSteps: stepIds =>
 		apiFetch( {
-			path: `jetpack-protect/v1/onboarding-progress`,
+			path: 'jetpack-protect/v1/onboarding-progress',
 			method: 'POST',
 			data: { step_ids: stepIds },
 		} ),
