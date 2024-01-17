@@ -1,6 +1,5 @@
 import { Button } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { CardWrapper } from '../card';
 
