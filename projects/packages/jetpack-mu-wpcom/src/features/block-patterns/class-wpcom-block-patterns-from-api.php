@@ -55,7 +55,7 @@ class Wpcom_Block_Patterns_From_Api {
 			$patterns_cache_key = $this->utils->get_patterns_cache_key( $patterns_source );
 
 			$pattern_categories = array();
-			$block_patterns     = $this->get_patterns( $patterns_cache_key );
+			$block_patterns     = $this->get_patterns( $patterns_cache_key, $patterns_source );
 
 			foreach ( (array) $block_patterns as $pattern ) {
 				foreach ( (array) $pattern['categories'] as $slug => $category ) {
@@ -151,9 +151,10 @@ class Wpcom_Block_Patterns_From_Api {
 	 * Returns a list of patterns.
 	 *
 	 * @param string $patterns_cache_key Key to store responses to and fetch responses from cache.
+	 * @param string $patterns_source    Slug for valid patterns source site, e.g., `block_patterns`.
 	 * @return array                      The list of translated patterns.
 	 */
-	private function get_patterns( $patterns_cache_key ) {
+	private function get_patterns( $patterns_cache_key, $patterns_source ) {
 		$override_source_site = apply_filters( 'a8c_override_patterns_source_site', false );
 		if ( $override_source_site ) {
 			// Skip caching and request all patterns from a specified source site.
@@ -175,18 +176,27 @@ class Wpcom_Block_Patterns_From_Api {
 		}
 
 		$block_patterns = $this->utils->cache_get( $patterns_cache_key, 'ptk_patterns' );
-		$disable_cache  = true;
+
+		// Enable testing v2 patterns for Automatticians and Jurassic sites
+		$enable_testing_v2_patterns = function_exists( 'is_automattician' ) ? is_automattician() : ! defined( 'IS_WPCOM' );
 
 		// Enable testing v2 patterns on sites with Assembler theme active
 		$enable_testing_v2_patterns = in_array( get_stylesheet(), array( 'pub/assembler', 'assembler' ), true );
 
 		// Load fresh data if we don't have any patterns.
-		if ( $disable_cache && false === $block_patterns || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE ) ) {
+		if ( $enable_testing_v2_patterns || false === $block_patterns || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE ) ) {
+			if ( $enable_testing_v2_patterns ) {
+				$request_params = array(
+					'site'      => 'assemblerv2patterns.wordpress.com',
+					'post_type' => 'wp_block',
+				);
+			}
 			$request_url = esc_url_raw(
 				add_query_arg(
-					array(
-						'site'      => 'assemblerv2patterns.wordpress.com',
-						'post_type' => 'wp_block',
+					$request_params ?? array(
+						'tags'            => 'pattern',
+						'pattern_meta'    => 'is_web',
+						'patterns_source' => $patterns_source,
 					),
 					'https://public-api.wordpress.com/rest/v1/ptk/patterns/' . $this->utils->get_block_patterns_locale()
 				)
@@ -194,7 +204,7 @@ class Wpcom_Block_Patterns_From_Api {
 
 			$block_patterns = $this->utils->remote_get( $request_url );
 
-			if ( ! $disable_cache ) {
+			if ( ! $enable_testing_v2_patterns ) {
 				$this->utils->cache_add( $patterns_cache_key, $block_patterns, 'ptk_patterns', DAY_IN_SECONDS );
 			}
 		}
