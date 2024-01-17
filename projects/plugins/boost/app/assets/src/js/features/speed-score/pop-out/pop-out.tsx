@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { ReactNode, useState } from 'react';
 import { Button } from '@wordpress/components';
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 type Props = {
 	scoreChange: number | false; // Speed score shift to show, or false if none.
@@ -49,7 +50,7 @@ const slowerMessage: ScoreChangeMessage = {
 		</>
 	),
 	cta: __( 'Read the guide', 'jetpack-boost' ),
-	ctaLink: 'https://jetpack.com/support/speed-up-your-site/',
+	ctaLink: getRedirectUrl( 'boost-improve-site-speed-score' ),
 };
 
 function PopOut( { scoreChange }: Props ) {
