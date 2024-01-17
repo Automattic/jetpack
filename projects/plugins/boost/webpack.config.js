@@ -88,7 +88,7 @@ module.exports = [
 		externals: {
 			...jetpackWebpackConfig.externals,
 			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'jetpack-starter-plugin',
+				consumer_slug: 'jetpack-boost',
 			} ),
 		},
 	},
@@ -134,7 +134,7 @@ module.exports = [
 		externals: {
 			...jetpackWebpackConfig.externals,
 			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'jetpack-starter-plugin',
+				consumer_slug: 'jetpack-boost',
 			} ),
 		},
 	},

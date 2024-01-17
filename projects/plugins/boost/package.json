@@ -49,6 +49,7 @@
 		"concurrently": "7.6.0",
 		"livereload": "0.9.3",
 		"postcss": "8.4.31",
+		"preset": "link:@automattic/jetpack-webpack-config/babel/preset",
 		"prettier-plugin-svelte": "3.0.3",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
