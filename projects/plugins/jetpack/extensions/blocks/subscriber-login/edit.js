@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import './editor.scss';
 
 function SubscriberLoginEdit() {
 	return (
