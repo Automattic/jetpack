@@ -21,7 +21,12 @@
 		</properties>
 	</rule>
 
-
+	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
+		<properties>
+			<property name="ignoreUnusedRegexp" value="/^_/"/>
+		</properties>
+	</rule>
+	
 	<rule ref="Squiz.Commenting.FunctionComment.MissingParamComment">
 		<severity>0</severity>
 	</rule>
