@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Sync:Added _jetpack_featured_image as metadata in the remote site for postmetadata.
