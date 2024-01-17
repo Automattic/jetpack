@@ -23,11 +23,11 @@ const ThreatsList = () => {
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
 
 	// Popover anchors
-	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
-		useState( null );
+	const [ yourScanResultsPopoverAnchor, setYourScanResultsPopoverAnchor ] = useState( null );
 	const [ fixAllThreatsPopoverAnchor, setFixAllThreatsPopoverAnchor ] = useState( null );
 	const [ understandSeverityPopoverAnchor, setUnderstandSeverityPopoverAnchor ] = useState( null );
-	const [ yourScanResultsPopoverAnchor, setYourScanResultsPopoverAnchor ] = useState( null );
+	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
+		useState( null );
 
 	const handleFixAllThreatsClick = threatList => {
 		return event => {

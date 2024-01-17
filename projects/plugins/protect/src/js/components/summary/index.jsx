@@ -24,9 +24,8 @@ const Summary = () => {
 	const Icon = getIconBySlug( 'protect' );
 
 	// Popover anchors
+	const [ dailyScansPopoverAnchor, setDailyScansPopoverAnchor ] = useState( null );
 	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
-		useState( null );
-	const [ dailyAutomatedScansPopoverAnchor, setDailyAutomatedScansPopoverAnchor ] =
 		useState( null );
 
 	const handleScanClick = () => {
@@ -43,7 +42,7 @@ const Summary = () => {
 					<div>
 						<Title size="small" className={ styles.summary__title }>
 							<Icon size={ 32 } className={ styles.summary__icon } />
-							<div ref={ setDailyAutomatedScansPopoverAnchor }>
+							<div ref={ setDailyScansPopoverAnchor }>
 								{ sprintf(
 									/* translators: %s: Latest check date  */
 									__( 'Latest results as of %s', 'jetpack-protect' ),
@@ -54,7 +53,7 @@ const Summary = () => {
 								<OnboardingPopover
 									id="free-daily-scans"
 									position={ isSm ? 'bottom' : 'middle right' }
-									anchor={ dailyAutomatedScansPopoverAnchor }
+									anchor={ dailyScansPopoverAnchor }
 								/>
 							) }
 						</Title>
