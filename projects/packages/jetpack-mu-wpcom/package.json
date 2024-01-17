@@ -31,14 +31,17 @@
 		"sass-loader": "12.4.0",
 		"typescript": "^5.0.4",
 		"webpack": "5.76.0",
-		"webpack-cli": "4.9.1"
+		"webpack-cli": "4.9.1",
+		"copy-webpack-plugin": "11.0.0",
+		"@babel/core": "7.23.5",
+		"@babel/plugin-transform-react-jsx": "7.23.4"
 	},
 	"dependencies": {
-		"@babel/core": "7.23.5",
-		"@babel/plugin-transform-react-jsx": "7.23.4",
 		"@sentry/browser": "7.80.1",
 		"@wordpress/api-fetch": "6.45.0",
 		"@wordpress/hooks": "3.48.0",
-		"copy-webpack-plugin": "11.0.0"
+		"preact": "^10.13.1",
+		"@preact/signals": "^1.2.2",
+		"wpcom-proxy-request": "^7.0.3"
 	}
 }

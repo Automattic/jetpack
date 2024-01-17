@@ -1872,12 +1872,9 @@ importers:
 
   projects/packages/jetpack-mu-wpcom:
     dependencies:
-      '@babel/core':
-        specifier: 7.23.5
-        version: 7.23.5
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.23.4
-        version: 7.23.4(@babel/core@7.23.5)
+      '@preact/signals':
+        specifier: ^1.2.2
+        version: 1.2.2(preact@10.19.3)
       '@sentry/browser':
         specifier: 7.80.1
         version: 7.80.1
@@ -1887,9 +1884,12 @@ importers:
       '@wordpress/hooks':
         specifier: 3.48.0
         version: 3.48.0
-      copy-webpack-plugin:
-        specifier: 11.0.0
-        version: 11.0.0(webpack@5.76.0)
+      preact:
+        specifier: ^10.13.1
+        version: 10.19.3
+      wpcom-proxy-request:
+        specifier: ^7.0.3
+        version: 7.0.5
     optionalDependencies:
       react:
         specifier: ^18.2.0
@@ -1901,6 +1901,15 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.23.5
+        version: 7.23.5
+      '@babel/plugin-transform-react-jsx':
+        specifier: 7.23.4
+        version: 7.23.4(@babel/core@7.23.5)
+      copy-webpack-plugin:
+        specifier: 11.0.0
+        version: 11.0.0(webpack@5.76.0)
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -14637,6 +14646,10 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
+  /builtin-status-codes@2.0.0:
+    resolution: {integrity: sha512-8KPx+JfZWi0K8L5sycIOA6/ZFZbaFKXDeUIXaqwUnhed1Ge1cB0wyq+bNDjKnL9AR2Uj3m/khkF6CDolsyMitA==}
+    dev: false
+
   /bytes-iec@3.1.1:
     resolution: {integrity: sha512-fey6+4jDK7TFtFg/klGSvNKJctyU7n2aQdnM+CO0ruLPbqqMOM8Tio0Pc+deqUeVKX1tL5DQep1zQ7+37aTAsA==}
     engines: {node: '>= 0.8'}
@@ -14673,6 +14686,11 @@ packages:
     dependencies:
       pascal-case: 3.1.2
       tslib: 2.5.0
+
+  /camelcase@1.2.1:
+    resolution: {integrity: sha512-wzLkDa4K/mzI1OSITC+DUyjgIl/ETNHE9QvYgy6J6Jvqyyz4C0Xfd+lQhb19sX2jMpZV4IssUn0VDVmglV+s4g==}
+    engines: {node: '>=0.10.0'}
+    dev: false
 
   /camelcase@5.3.1:
     resolution: {integrity: sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==}
@@ -24140,6 +24158,12 @@ packages:
     dependencies:
       tslib: 2.5.0
 
+  /uppercamelcase@1.1.0:
+    resolution: {integrity: sha512-C7YEMvhgrvTEKEEVqA7LXNID/1TvvIwYZqNIKLquS6y/MGSkRQAav9LnTTILlC1RqUM8eTVBOe1U/fnB652PRA==}
+    dependencies:
+      camelcase: 1.2.1
+    dev: false
+
   /uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
     dependencies:
@@ -24707,10 +24731,27 @@ packages:
     resolution: {integrity: sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==}
     dev: true
 
+  /wp-error@1.3.0:
+    resolution: {integrity: sha512-6Mn8fIBgWYgKJveRpB5oR+T9JEXxUawq5Om35ZE0yvCh5p3SQ+2OCH+KH39k0ZMxvNh9CI7LyfihtQH6itHbdQ==}
+    dependencies:
+      builtin-status-codes: 2.0.0
+      uppercamelcase: 1.1.0
+    dev: false
+
   /wp-prettier@3.0.3:
     resolution: {integrity: sha512-X4UlrxDTH8oom9qXlcjnydsjAOD2BmB6yFmvS4Z2zdTzqqpRWb+fbqrH412+l+OUXmbzJlSXjlMFYPgYG12IAA==}
     engines: {node: '>=14'}
     hasBin: true
+
+  /wpcom-proxy-request@7.0.5:
+    resolution: {integrity: sha512-IJ0AYAxA6zOaIt8mD3aKDcaTQrOQiaV41/AKU42fL+GkH2chV7MGYf02hQrtMifLAjdAg0Xwm7IlGCfv+cy9XQ==}
+    dependencies:
+      debug: 4.3.4
+      uuid: 8.3.2
+      wp-error: 1.3.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /wrap-ansi@3.0.1:
     resolution: {integrity: sha512-iXR3tDXpbnTpzjKSylUJRkLuOrEC7hwEB221cgn6wtF8wpmz28puFXAEfPT5zrjM3wahygB//VuWEr1vTkDcNQ==}
@@ -24970,7 +25011,6 @@ packages:
     resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/56adf5a550475fd30962cd4e8f8bfcaf71f84177}
     name: jetpack-boost-critical-css-gen
     version: 0.0.11
-    prepare: true
     requiresBuild: true
     dependencies:
       clean-css: 5.3.3
