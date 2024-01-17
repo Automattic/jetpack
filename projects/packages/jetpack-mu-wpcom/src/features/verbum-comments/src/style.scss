@@ -531,6 +531,28 @@
 			}
 		}
 	}
+
+	.custom-loading-spinner {
+        border: 2px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 2px solid #3498db;
+        width: 16px;
+        height: 16px;
+        -webkit-animation: customLoadingSpinner 2s linear infinite;
+        animation: customLoadingSpinner 2s linear infinite;
+    }
+
+	@keyframes customLoadingSpinner {
+        to {
+          -webkit-transform: rotate(360deg);
+        }
+    }
+
+    @-webkit-keyframes customLoadingSpinner {
+        to {
+          -webkit-transform: rotate(360deg);
+        }
+    }
 }
 
 @keyframes button__busy-animation {

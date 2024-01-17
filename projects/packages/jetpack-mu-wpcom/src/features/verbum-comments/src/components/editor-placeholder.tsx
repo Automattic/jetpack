@@ -1,6 +1,6 @@
-import { Spinner } from '@wordpress/components';
 import { classNames } from '../utils';
 import { translate } from '../i18n';
+import { CustomLoadingSpinner } from './custom-loading-spinner';
 
 export const EditorPlaceholder = ( { onClick, loading } ) => {
 	return (
@@ -15,12 +15,13 @@ export const EditorPlaceholder = ( { onClick, loading } ) => {
 					loading,
 				} ) }
 			>
+				<CustomLoadingSpinner />
 				<div
 					class="block-list-appender block-editor-block-list__layout"
 					style={ { padding: '10px 20px' } }
 				>
 					{ loading ? (
-						<Spinner style={ { display: 'block', margin: '0 auto' } } />
+						<CustomLoadingSpinner />
 					) : (
 						<p
 							class="block-editor-block-list__layout__content"
