@@ -674,7 +674,12 @@ class Dashboard_REST_Controller {
 		foreach ( $posts as $key => $post ) {
 			$product = wc_get_product( $post['ID'] );
 			if ( $product !== false ) {
-				$posts[ $key ]['price'] = html_entity_decode( wp_strip_all_tags( wc_price( $product->get_price() ) ) );
+				$posts[ $key ]['price'] = html_entity_decode(
+					wp_strip_all_tags(
+						wc_price( $product->get_price() )
+					),
+					ENT_QUOTES
+				);
 			} else {
 				$posts[ $key ]['price'] = '';
 			}
