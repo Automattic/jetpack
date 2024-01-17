@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
 
-function SubscriberLoginEdit() {
+function SubscriberLoginEdit( { className } ) {
 	return (
-		<div>
+		<div className={ className }>
 			<a href="#logout-pseudo-link">{ __( 'Log out', 'jetpack' ) }</a>
 		</div>
 	);
