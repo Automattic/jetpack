@@ -13,7 +13,6 @@
 	],
 	"compilerOptions": {
 		"target": "es6",
-		"types": [ "svelte" ],
 		"allowImportingTsExtensions": true,
 		"typeRoots": [ "./node_modules/@types/", "./app/assets/src/js" ],
 		"paths": {
@@ -22,9 +21,6 @@
 			"$layout/*": [ "./app/assets/src/js/layout/*" ],
 			"$svg/*": [ "./app/assets/src/js/svg/*" ]
 		},
-		/**
-		 * Values from "@tsconfig/svelte/tsconfig.json"
-		 */
 		"sourceMap": true,
 		"forceConsistentCasingInFileNames": true,
 		"lib": [ "dom", "es2021" ],
