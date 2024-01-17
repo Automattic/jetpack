@@ -16,33 +16,15 @@ import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAnalytics from '../../../../blocks/ai-assistant/hooks/use-analytics';
 import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
 import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
+import {
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_TIERED,
+	usePlanType,
+	PlanType,
+} from '../../../../shared/use-plan-type';
 import UsageControl from '../usage-bar';
 import './style.scss';
-import { PLAN_TYPE_FREE, PLAN_TYPE_TIERED, PLAN_TYPE_UNLIMITED } from '../usage-bar/types';
 import type { UsagePanelProps } from './types';
-import type { PlanType } from '../usage-bar/types';
-
-/**
- * Simple hook to get the plan type from the current tier
- *
- * @param {object} currentTier - the current tier from the AI Feature data
- * @returns {PlanType} the plan type
- */
-const usePlanType = ( currentTier ): PlanType => {
-	if ( ! currentTier ) {
-		return null;
-	}
-
-	if ( currentTier?.value === 0 ) {
-		return PLAN_TYPE_FREE;
-	}
-
-	if ( currentTier?.value === 1 ) {
-		return PLAN_TYPE_UNLIMITED;
-	}
-
-	return PLAN_TYPE_TIERED;
-};
 
 /**
  * Simple hook to get the days until the next reset
