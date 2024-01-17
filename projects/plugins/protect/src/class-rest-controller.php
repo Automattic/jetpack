@@ -468,7 +468,7 @@ class REST_Controller {
 	 */
 	public static function api_complete_onboarding_steps( $request ) {
 		if ( empty( $request['step_ids'] ) || ! is_array( $request['step_ids'] ) ) {
-			return new WP_REST_RESPONSE( 'Missing or invalid onboarding step IDs.', 400 );
+			return new WP_REST_Response( 'Missing or invalid onboarding step IDs.', 400 );
 		}
 
 		$completed = Onboarding::complete_steps( $request['step_ids'] );
