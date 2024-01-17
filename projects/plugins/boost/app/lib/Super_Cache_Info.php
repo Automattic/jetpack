@@ -13,11 +13,6 @@ namespace Automattic\Jetpack_Boost\Lib;
  * Class Super_Cache_Info
  */
 class Super_Cache_Info {
-
-	public static function init() {
-		jetpack_boost_register_readonly_option( 'super_cache', array( static::class, 'add_super_cache_constants' ) );
-	}
-
 	private static function is_super_cache_enabled() {
 		return self::is_super_cache_plugin_active() && \wp_cache_is_enabled();
 	}
@@ -26,7 +21,7 @@ class Super_Cache_Info {
 		return \function_exists( 'wp_cache_is_enabled' );
 	}
 
-	public static function add_super_cache_constants() {
+	public static function get_info() {
 		global $cache_page_secret;
 
 		$constants = array(

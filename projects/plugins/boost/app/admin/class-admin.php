@@ -12,7 +12,6 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
-use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
 
 class Admin {
 
@@ -35,9 +34,6 @@ class Admin {
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
 		add_action( 'admin_menu', array( $this, 'handle_admin_menu' ) );
-
-		// Set up Super Cache info system if WP Super Cache available.
-		Super_Cache_Info::init();
 	}
 
 	public function handle_admin_menu() {
