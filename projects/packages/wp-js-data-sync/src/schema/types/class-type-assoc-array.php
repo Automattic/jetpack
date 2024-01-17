@@ -34,7 +34,7 @@ class Type_Assoc_Array implements Parser {
 	 */
 	public function parse( $value, $meta = null ) {
 		// Allow coercing stdClass objects (often returned from json_decode) to an assoc array.
-		if ( is_object( $value ) && get_class( $value ) === 'stdClass' ) {
+		if ( is_object( $value ) && $value instanceof \stdClass ) {
 			$value = (array) $value;
 		}
 
@@ -43,7 +43,7 @@ class Type_Assoc_Array implements Parser {
 			throw new Schema_Internal_Error( $message, $value );
 		}
 
-		$parsed = array();
+		$output = array();
 		foreach ( $this->parser as $key => $parser ) {
 
 			if ( null !== $meta ) {
@@ -51,21 +51,16 @@ class Type_Assoc_Array implements Parser {
 			}
 
 			if ( ! isset( $value[ $key ] ) ) {
-				if ( $parser instanceof Decorate_With_Default ) {
-					$value = $parser->parse( null );
+				$value[ $key ] = null;
+			}
 
-					// @TODO Document this behavior.
-					// At the moment, values that are null are dropped from assoc arrays.
-					// to match the Zod behavior.
-					if ( $value !== null ) {
-						$parsed[ $key ] = $value;
-					}
-				} else {
-					$message = "Expected key '$key' in associative array";
-					throw new Schema_Internal_Error( $message, $value );
-				}
-			} else {
-				$parsed[ $key ] = $parser->parse( $value[ $key ], $meta );
+
+			$parsed = $parser->parse( $value[ $key ], $meta );
+			// @TODO Document this behavior.
+			// At the moment, values that are null are dropped from assoc arrays.
+			// to match the Zod behavior.
+			if ( $parsed !== null ) {
+				$output[ $key ] = $parsed;
 			}
 
 			if ( null !== $meta ) {
@@ -73,7 +68,7 @@ class Type_Assoc_Array implements Parser {
 			}
 		}
 
-		return $parsed;
+		return $output;
 	}
 
 	private function is_sequential_array( $arr ) {
