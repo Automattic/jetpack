@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+jetpack-mu-wpcom: prevent get_plugin_data indirectly calling wptexturize.
