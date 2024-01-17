@@ -104,6 +104,7 @@ export function useDataSync<
 		queryKey,
 		queryFn: ( { signal } ) => datasync.GET( params, signal ),
 		initialData: () => datasync.getInitialValue(),
+		staleTime: Infinity,
 	};
 
 	/**
@@ -138,8 +139,8 @@ export function useDataSync<
 		onError: ( _, __, context ) => {
 			queryClient.setQueryData( queryKey, context.previousValue );
 		},
-		onSettled: () => {
-			queryClient.invalidateQueries( { queryKey } );
+		onSuccess: ( data: Schema ) => {
+			queryClient.setQueryData( queryKey, data );
 		},
 	};
 
