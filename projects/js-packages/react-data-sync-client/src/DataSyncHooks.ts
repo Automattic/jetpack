@@ -92,6 +92,7 @@ export function useDataSync<
 	 * - `queryKey` is the key of the value that's being synced.
 	 * - `queryFn` is wired up to DataSync `GET` method.
 	 * - `initialData` gets the value from the global window object.
+	 * - `staleTime` is set to 1 second by default; to prevent immediate re-fetching after setting a value.
 	 *
 	 * If your property is lazy-loaded, you should populate `initialData` with a value manually.
 	 * ```js
@@ -104,7 +105,7 @@ export function useDataSync<
 		queryKey,
 		queryFn: ( { signal } ) => datasync.GET( params, signal ),
 		initialData: () => datasync.getInitialValue(),
-		staleTime: Infinity,
+		staleTime: 1 * 1000,
 	};
 
 	/**
