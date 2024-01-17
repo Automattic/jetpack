@@ -24,6 +24,10 @@
 		"typography": {
 			"fontSize": true,
 			"lineHeight": true
+		},
+		"color": {
+			"link": false,
+			"gradients": true
 		}
 	},
 	"attributes": {}

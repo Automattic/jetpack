@@ -90,7 +90,8 @@ function get_subscriber_login_url() {
 function render_block() {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	$block_template = '<div ' . get_block_wrapper_attributes() . '><a href="%1$s">%2$s</a></div>';
+	$escaped_block_wrapper_attributes = str_replace( '%', '%%', get_block_wrapper_attributes() );
+	$block_template                   = '<div ' . $escaped_block_wrapper_attributes . '><a href="%1$s">%2$s</a></div>';
 
 	if ( ! is_user_logged_in() ) {
 		return sprintf(
