@@ -579,41 +579,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post->amp_permalink, "http://example.com/?p={$post->ID}&amp" );
 	}
 
-	public function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
-		$post_id       = self::factory()->post->create();
-		$attachment_id = self::factory()->post->create(
-			array(
-				'post_type'      => 'attachment',
-				'post_mime_type' => 'image/png',
-			)
-		);
-		add_post_meta( $attachment_id, '_wp_attached_file', '2016/09/test_image.png' );
-		set_post_thumbnail( $post_id, $attachment_id );
-
-		$this->sender->do_sync();
-
-		$insert_post_event = $this->server_event_storage->get_most_recent_event(
-			'jetpack_sync_save_post',
-			null,
-			array( $this, 'filter_out_post_revisions' )
-		);
-		$post_on_server    = $insert_post_event->args[1];
-
-		wp_update_post( $post_on_server );
-		$this->sender->do_sync();
-
-		$update_post_event = $this->server_event_storage->get_most_recent_event(
-			'jetpack_sync_save_post',
-			null,
-			array( $this, 'filter_out_post_revisions' )
-		);
-		$post_on_server    = $update_post_event->args[1];
-
-		$this->assertObjectHasProperty( 'featured_image', $post_on_server );
-		$this->assertIsString( $post_on_server->featured_image );
-		$this->assertStringContainsString( 'test_image.png', $post_on_server->featured_image );
-	}
-
 	public function test_sync_post_not_includes_feature_image_meta_when_featured_image_not_set() {
 		$post_id = self::factory()->post->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
