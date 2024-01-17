@@ -1,5 +1,4 @@
 import { get } from 'svelte/store';
-import { recordBoostPixelEvent } from '../../../assets/src/js/lib/utils/analytics';
 import { guideState } from './stores/GuideState';
 import { MeasurableImageStore } from './stores/MeasurableImageStore';
 
@@ -20,13 +19,37 @@ type ImageProperties = {
 	image_url: string;
 };
 
+export type TracksCallback = ( event: string, props: { [ key: string ]: string | number } ) => void;
+
+/**
+ * Return a 'red', 'green' or 'yellow' severity based on the oversized ratio.
+ *
+ * @param { number } oversizedRatio - The ratio of the image size to the expected size.
+ * @return { 'red' | 'yellow' | 'green' } The severity of the image.
+ */
+function getSeverity( oversizedRatio: number ) {
+	if ( oversizedRatio > 4 ) {
+		return 'red';
+	} else if ( oversizedRatio > 2.5 ) {
+		return 'yellow';
+	}
+
+	return 'green';
+}
+
 export default class ImageGuideAnalytics {
 	static trackingComplete = false;
+	static tracksCallback: TracksCallback;
+
+	public static setTracksCallback( callback ) {
+		ImageGuideAnalytics.tracksCallback = callback;
+	}
 
 	/**
 	 * Track the image guide analytics for a single image.
 	 *
-	 * @param { MeasurableImageStore } imageStore
+	 * @param { MeasurableImageStore } imageStore - The image store to track.
+	 * @return { Promise< ImageProperties > } Promise that resolves with the properties of the image.
 	 */
 	public static async trackImageOutcome(
 		imageStore: MeasurableImageStore
@@ -36,7 +59,7 @@ export default class ImageGuideAnalytics {
 			imageStore.loading.subscribe( loading => {
 				if ( ! loading ) {
 					const oversizedRatio = get( imageStore.oversizedRatio );
-					const severity = oversizedRatio > 4 ? 'red' : oversizedRatio > 2.5 ? 'yellow' : 'green';
+					const severity = getSeverity( oversizedRatio );
 					const fileSize = get( imageStore.fileSize );
 					const sizeOnPage = get( imageStore.sizeOnPage );
 					const expectedSize = get( imageStore.expectedSize );
@@ -57,7 +80,7 @@ export default class ImageGuideAnalytics {
 						image_url: imageURL,
 					};
 
-					recordBoostPixelEvent( 'image_guide_image_outcome', {
+					ImageGuideAnalytics.tracksCallback( 'image_guide_image_outcome', {
 						...props,
 						window_width: window.innerWidth,
 						window_height: window.innerHeight,
@@ -73,7 +96,7 @@ export default class ImageGuideAnalytics {
 	/**
 	 * Track events to record the outcome of the image guide for the current page.
 	 *
-	 * @param imageStores
+	 * @param {MeasurableImageStore[]} imageStores - The image stores to track.
 	 */
 	public static async trackPage( imageStores: MeasurableImageStore[] ) {
 		if ( ! imageStores.length || ImageGuideAnalytics.trackingComplete ) {
@@ -94,7 +117,7 @@ export default class ImageGuideAnalytics {
 			return total + ( result.potential_savings || 0 );
 		}, 0 );
 
-		recordBoostPixelEvent( 'image_guide_page_outcome', {
+		ImageGuideAnalytics.tracksCallback( 'image_guide_page_outcome', {
 			total_potential_savings: totalPotentialSavings,
 			red_severity_count: results.filter( result => result.severity === 'red' ).length,
 			yellow_severity_count: results.filter( result => result.severity === 'yellow' ).length,
@@ -109,7 +132,7 @@ export default class ImageGuideAnalytics {
 	 * Track the state of the UI when the user loads a page.
 	 */
 	public static trackInitialState() {
-		recordBoostPixelEvent( 'image_guide_initial_ui_state', {
+		ImageGuideAnalytics.tracksCallback( 'image_guide_initial_ui_state', {
 			image_guide_state: get( guideState ),
 		} );
 	}
@@ -118,7 +141,7 @@ export default class ImageGuideAnalytics {
 	 * Track the state of the UI when the user changes it.
 	 */
 	public static trackUIStateChange() {
-		recordBoostPixelEvent( 'image_guide_ui_state_change', {
+		ImageGuideAnalytics.tracksCallback( 'image_guide_ui_state_change', {
 			image_guide_state: get( guideState ),
 		} );
 	}

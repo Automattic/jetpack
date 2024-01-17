@@ -1,9 +1,12 @@
 <script lang="ts">
-	import ImageGuideAnalytics from '../analytics';
+	import ImageGuideAnalytics, { type TracksCallback } from '../analytics';
 	import { guideLabel, guideState } from '../stores/GuideState';
 	import JetpackLogo from './JetpackLogo.svelte';
 
 	export let href: string;
+	export let tracksCallback: TracksCallback;
+
+	$: ImageGuideAnalytics.setTracksCallback( tracksCallback );
 
 	function toggleUI() {
 		guideState.cycle();
