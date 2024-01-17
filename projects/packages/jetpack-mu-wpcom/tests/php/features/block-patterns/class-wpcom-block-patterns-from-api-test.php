@@ -86,10 +86,6 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 		$block_patterns_from_api = new Wpcom_Block_Patterns_From_Api( $utils_mock );
 
 		$utils_mock->expects( $this->once() )
-			->method( 'remote_get' )
-			->with( 'https://public-api.wordpress.com/rest/v1/ptk/patterns/fr?site=assemblerv2patterns.wordpress.com&post_type=wp_block' );
-
-		$utils_mock->expects( $this->once() )
 			->method( 'cache_add' )
 			->with( $this->stringContains( 'key-largo' ), array( $this->pattern_mock_object ), 'ptk_patterns', DAY_IN_SECONDS );
 
@@ -106,7 +102,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 		$utils_mock->expects( $this->once() )
 			->method( 'remote_get' )
 			->withConsecutive(
-				array( 'https://public-api.wordpress.com/rest/v1/ptk/patterns/fr?site=assemblerv2patterns.wordpress.com&post_type=wp_block' )
+				array( 'https://public-api.wordpress.com/rest/v1/ptk/patterns/fr?tags=pattern&pattern_meta=is_web&patterns_source=block_patterns' )
 			);
 
 		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
