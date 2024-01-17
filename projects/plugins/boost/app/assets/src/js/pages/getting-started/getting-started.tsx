@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
 import { usePricing } from '$lib/stores/pricing';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
+import { useSingleModuleState } from '$features/module/lib/stores';
 
 const GettingStarted: React.FC = () => {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
@@ -27,6 +28,7 @@ const GettingStarted: React.FC = () => {
 	const isPremium = premiumFeatures !== false;
 
 	const { shouldGetStarted, markGettingStartedComplete } = useGettingStarted();
+	const [ , setCriticalCssState ] = useSingleModuleState( 'critical_css' );
 
 	const {
 		connection: { userConnected },
@@ -39,10 +41,19 @@ const GettingStarted: React.FC = () => {
 			if ( ! isPremium && selectedPlan === 'premium' ) {
 				window.location.href = getUpgradeURL( domain, userConnected );
 			} else {
+				setCriticalCssState( true );
 				navigate( '/', { replace: true } );
 			}
 		}
-	}, [ domain, isPremium, navigate, selectedPlan, shouldGetStarted, userConnected ] );
+	}, [
+		domain,
+		isPremium,
+		navigate,
+		selectedPlan,
+		setCriticalCssState,
+		shouldGetStarted,
+		userConnected,
+	] );
 
 	async function initialize( plan: 'free' | 'premium' ) {
 		setSelectedPlan( plan );
@@ -57,7 +68,7 @@ const GettingStarted: React.FC = () => {
 			// * premium_cta_from_getting_started_page_in_plugin
 			await recordBoostEvent( `${ plan }_cta_from_getting_started_page_in_plugin`, {} );
 
-			markGettingStartedComplete();
+			await markGettingStartedComplete();
 		} catch ( e ) {
 			// Display the error in a snackbar message
 			setSnackbarMessage(

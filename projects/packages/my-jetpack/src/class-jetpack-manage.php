@@ -49,11 +49,18 @@ class Jetpack_Manage {
 			return;
 		}
 
+		$args = array();
+
+		$blog_id = Connection_Manager::get_site_id( true );
+		if ( $blog_id ) {
+			$args = array( 'site' => $blog_id );
+		}
+
 		return Admin_Menu::add_menu(
 			__( 'Jetpack Manage', 'jetpack-my-jetpack' ),
 			_x( 'Jetpack Manage', 'product name shown in menu', 'jetpack-my-jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
 			'manage_options',
-			esc_url( Redirect::get_url( 'cloud-manage-dashboard-wp-menu' ) ),
+			esc_url( Redirect::get_url( 'cloud-manage-dashboard-wp-menu', $args ) ),
 			null,
 			100
 		);

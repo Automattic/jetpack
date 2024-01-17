@@ -33,7 +33,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.4.0';
+	const PACKAGE_VERSION = '4.5.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -189,8 +189,10 @@ class Initializer {
 				),
 				'plugins'               => Plugins_Installer::get_plugins(),
 				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
+				'myJetpackCheckoutUri'  => 'admin.php?page=my-jetpack',
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
+				'blogID'                => Connection_Manager::get_site_id( true ),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
 				'myJetpackFlags'        => self::get_my_jetpack_flags(),
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),

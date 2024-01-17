@@ -5,7 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Sync\Modules;
 /**
  * Test runner for Core's Site Health module.
  *
@@ -116,78 +115,4 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 	);
 
 	return $core_tests;
-}
-
-/**
- * Loads site health scripts if we are on the site health page.
- *
- * @param string $hook The current admin page hook.
- */
-function jetpack_debugger_enqueue_site_health_scripts( $hook ) {
-	if ( 'site-health.php' === $hook ) {
-		$full_sync_module = Modules::get_module( 'full-sync' );
-		$progress_percent = $full_sync_module ? $full_sync_module->get_sync_progress_percentage() : false;
-
-		$ajax_nonce = wp_create_nonce( 'jetpack-site-health' );
-
-		$wp_scripts = wp_scripts();
-		wp_enqueue_script( 'jquery-ui-progressbar' );
-		wp_enqueue_script(
-			'jetpack_debug_site_health_script',
-			plugins_url( 'jetpack-debugger-site-health.js', __FILE__ ),
-			array( 'jquery', 'jquery-ui-progressbar' ),
-			JETPACK__VERSION,
-			false
-		);
-		wp_enqueue_style(
-			'jetpack_debug_site_health_styles',
-			plugins_url( 'jetpack-debugger-site-health.css', __FILE__ ),
-			false,
-			JETPACK__VERSION,
-			false
-		);
-		/* WordPress is not bundled with jquery UI styles - we need to grab them from the Google API. */
-		wp_enqueue_style(
-			'jetpack-jquery-ui-styles',
-			'https://code.jquery.com/ui/' . $wp_scripts->registered['jquery-ui-core']->ver . '/themes/smoothness/jquery-ui.min.css',
-			false,
-			JETPACK__VERSION,
-			false
-		);
-		wp_localize_script(
-			'jetpack_debug_site_health_script',
-			'jetpackSiteHealth',
-			array(
-				'ajaxUrl'             => admin_url( 'admin-ajax.php' ),
-				'syncProgressHeading' => __( 'Jetpack is performing a sync of your site', 'jetpack' ),
-				'progressPercent'     => $progress_percent,
-				'fullSyncNonce'       => $ajax_nonce,
-			)
-		);
-	}
-}
-
-/**
- * Responds to ajax calls from the site health page. Echos a full sync percantage to update progress bar.
- */
-function jetpack_debugger_sync_progress_ajax() {
-	$full_sync_module = Modules::get_module( 'full-sync' );
-	$progress_percent = $full_sync_module ? $full_sync_module->get_sync_progress_percentage() : null;
-	if ( ! $progress_percent ) {
-		echo 'done';
-		wp_die();
-	}
-	echo (int) $progress_percent;
-	wp_die();
-}
-
-/**
- * Responds to ajax calls from the site health page. Triggers a Full Sync
- */
-function jetpack_debugger_full_sync_start() {
-	check_ajax_referer( 'jetpack-site-health', 'site-health-nonce' );
-	$full_sync_module = Modules::get_module( 'full-sync' );
-	$full_sync_module->start();
-	echo 'requested';
-	wp_die();
 }
