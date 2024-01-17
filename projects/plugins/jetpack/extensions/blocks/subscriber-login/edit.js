@@ -4,7 +4,7 @@ import './editor.scss';
 function SubscriberLoginEdit() {
 	return (
 		<div>
-			<a href="#">{ __( 'Log out', 'jetpack' ) }</a>
+			<a href="#logout-pseudo-link">{ __( 'Log out', 'jetpack' ) }</a>
 		</div>
 	);
 }
