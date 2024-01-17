@@ -29,14 +29,10 @@ export default {
 	input: `./src/index.ts`,
 	output: {
 		sourcemap: ! production,
-		format: 'iife',
+		format: 'esm',
 		name: 'app',
 		file: `./build/index.js`,
-		globals: {
-			'@wordpress/components': 'wp.components',
-		},
 	},
-	external: [ '@wordpress/components' ],
 	plugins: [
 		replace( {
 			preventAssignment: true,

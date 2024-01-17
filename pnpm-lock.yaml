@@ -631,6 +631,12 @@ importers:
 
   projects/js-packages/image-guide:
     devDependencies:
+      '@automattic/jetpack-analytics':
+        specifier: workspace:*
+        version: link:../analytics
+      '@automattic/jetpack-components':
+        specifier: workspace:0.46.0-alpha
+        version: link:../components
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../webpack-config
@@ -2782,15 +2788,15 @@ importers:
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
-      '@automattic/jetpack-analytics':
-        specifier: workspace:*
-        version: link:../../js-packages/analytics
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
       '@automattic/jetpack-react-data-sync-client':
         specifier: workspace:*
         version: link:../../js-packages/react-data-sync-client
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
       '@react-spring/core':
         specifier: 9.7.3
         version: 9.7.3(react@18.2.0)
@@ -2815,6 +2821,9 @@ importers:
       classnames:
         specifier: 2.3.2
         version: 2.3.2
+      copy-webpack-plugin:
+        specifier: 11.0.0
+        version: 11.0.0(webpack@5.76.0)
       history:
         specifier: 5.3.0
         version: 5.3.0
@@ -2837,6 +2846,9 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
+      '@automattic/jetpack-analytics':
+        specifier: workspace:*
+        version: link:../../js-packages/analytics
       '@automattic/jetpack-boost-score-api':
         specifier: workspace:*
         version: link:../../js-packages/boost-score-api
@@ -2930,6 +2942,9 @@ importers:
       sass:
         specifier: 1.64.1
         version: 1.64.1
+      sass-loader:
+        specifier: 12.4.0
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       svelte:
         specifier: 3.58.0
         version: 3.58.0
@@ -2942,6 +2957,12 @@ importers:
       typescript:
         specifier: 5.0.4
         version: 5.0.4
+      webpack:
+        specifier: 5.76.0
+        version: 5.76.0(webpack-cli@4.9.1)
+      webpack-cli:
+        specifier: 4.9.1
+        version: 4.9.1(webpack@5.76.0)
 
   projects/plugins/boost/tests/e2e:
     devDependencies:
@@ -17652,7 +17673,7 @@ packages:
       dir-glob: 3.0.1
       fast-glob: 3.3.2
       glob: 7.1.6
-      ignore: 5.1.8
+      ignore: 5.3.0
       merge2: 1.4.1
       slash: 3.0.0
     dev: true
@@ -24633,7 +24654,7 @@ packages:
       '@webassemblyjs/wasm-parser': 1.11.1
       acorn: 8.11.3
       acorn-import-assertions: 1.9.0(acorn@8.11.3)
-      browserslist: 4.22.1
+      browserslist: 4.22.2
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.15.0
       es-module-lexer: 0.9.3
@@ -24674,7 +24695,7 @@ packages:
       '@webassemblyjs/wasm-parser': 1.11.1
       acorn: 8.11.3
       acorn-import-assertions: 1.9.0(acorn@8.11.3)
-      browserslist: 4.22.1
+      browserslist: 4.22.2
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.15.0
       es-module-lexer: 0.9.3

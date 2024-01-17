@@ -1,7 +1,82 @@
+import ImageGuideAnalytics from './analytics';
+import { getMeasurableImages } from './find-image-elements';
+import { guideState } from './stores/GuideState';
 import { MeasurableImageStore } from './stores/MeasurableImageStore';
 import Main from './ui/Main.svelte';
-import type { MeasurableImage } from './MeasurableImage';
+import type { FetchFn, MeasurableImage } from './MeasurableImage';
 import type { ImageGuideConfig } from './types';
+
+const measurableImageStores: MeasurableImageStore[] = [];
+let fetchFunction: FetchFn | undefined;
+
+/**
+ * Set up a listener to initialize stuff on window load.
+ *
+ * @param {Function} fetchFn - An optional custom function to use when fetching the URL weights.
+ */
+export function setupLoadListener( fetchFn?: FetchFn ) {
+	if ( window.frameElement ) {
+		return;
+	}
+
+	fetchFunction = fetchFn;
+	window.addEventListener( 'load', onWindowLoad );
+}
+
+/**
+ * Handler for window load event.
+ */
+function onWindowLoad() {
+	window.addEventListener( 'resize', debounceDimensionUpdates() );
+
+	// Track the initial state of the Image Guide onload.
+	ImageGuideAnalytics.trackInitialState();
+
+	// Watch for the guide being turned on/off
+	guideState.subscribe( async $state => {
+		if ( $state === 'paused' ) {
+			return;
+		}
+		const measurableImages = await getMeasurableImages(
+			Array.from(
+				document.querySelectorAll(
+					'body *:not(.jetpack-boost-guide > *):not(.jetpack-boost-guide)'
+				)
+			),
+			fetchFunction
+		);
+
+		// wait for isImageTiny() to return true/false for each image.
+		const tinyImages = await Promise.all( measurableImages.map( image => image.isImageTiny() ) );
+		measurableImageStores.push(
+			...attachGuides( measurableImages.filter( ( _, index ) => ! tinyImages[ index ] ) )
+		);
+
+		ImageGuideAnalytics.trackPage( measurableImageStores );
+	} );
+}
+
+/**
+ * Guides need to recalculate dimensions and possibly weights.
+ * This is done when the window is resized,
+ * but because that event is fired multiple times,
+ * it's better to debounce it.
+ *
+ * @return {Function} A debounced function that recalculates dimensions and weights.
+ */
+function debounceDimensionUpdates() {
+	let debounce: number;
+	return () => {
+		if ( debounce ) {
+			clearTimeout( debounce );
+		}
+		debounce = setTimeout( () => {
+			measurableImageStores.forEach( store => {
+				store.updateDimensions();
+			} );
+		}, 500 );
+	};
+}
 
 /**
  * Returns the closest parent element that is able to contain the image guide component.
@@ -10,8 +85,8 @@ import type { ImageGuideConfig } from './types';
  * within the DOM tree, and to prevent it from  being obscured
  * by other elements with a higher z-index.
  *
- * @param node - The node to start searching from
- * @returns The closest parent element that is able to contain the image guide component
+ * @param {HTMLElement} node - The node to start searching from
+ * @return {HTMLElement} The closest parent element that is able to contain the image guide component
  */
 function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
 	let current: HTMLElement | null = node.parentElement;
@@ -56,9 +131,12 @@ function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
  *
  */
 let wrapperID = 0;
+
 /**
+ * Find the container for the image guide component.
  *
- * @param image
+ * @param {MeasurableImage} image - The image to find the container for.
+ * @return {HTMLElement | undefined} The container for the image guide component.
  */
 function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 	const node = image.node;
@@ -134,7 +212,8 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
  *
  * This function attempts to attach the Svelte Components to the DOM in a non-destructive way.
  *
- * @param measuredImages
+ * @param {MeasurableImage[]} measuredImages - The images to attach the guides to.
+ * @return {MeasurableImageStore[]} The stores for the attached images.
  */
 export function attachGuides( measuredImages: MeasurableImage[] ) {
 	const componentConfiguration = measuredImages.reduce(

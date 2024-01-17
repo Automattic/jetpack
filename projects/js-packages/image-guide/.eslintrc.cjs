@@ -1,17 +1,11 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
-
 module.exports = {
 	root: true,
 	extends: [
 		require.resolve( 'jetpack-js-tools/eslintrc/base' ),
 		require.resolve( 'jetpack-js-tools/eslintrc/wp-eslint-plugin/recommended' ),
+		require.resolve( 'jetpack-js-tools/eslintrc/svelte' ),
 	],
-	ignorePatterns: [ '**/stories/*.stories.tsx', ...loadIgnorePatterns( __dirname ) ],
 	parserOptions: {
-		babelOptions: {
-			configFile: require.resolve( './babel.config.js' ),
-		},
 		sourceType: 'module',
 		tsconfigRootDir: __dirname,
 		project: [ './tsconfig.json' ],

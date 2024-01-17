@@ -1,24 +1,34 @@
-import { Dimensions, MeasurableImage, Weight } from './MeasurableImage';
+import { Dimensions, FetchFn, MeasurableImage, Weight } from './MeasurableImage';
 import { TracksCallback } from './analytics';
 import { getMeasurableImages } from './find-image-elements';
+import { setupLoadListener } from './initialize';
 import AdminBarToggle from './ui/AdminBarToggle.svelte';
 
 export { MeasurableImage, getMeasurableImages };
 export type { Weight, Dimensions };
 
+type ImageGuideUIOptions = {
+	href: string;
+	tracksCallback: TracksCallback;
+	fetchFunction: FetchFn;
+};
+
 /**
  * Set up the Image Guide UI in the given target parent.
  *
- * @param {string} target           - The parent element to mount the UI in.
- * @param {string} href             - The URL to link to when the admin bar toggle is clicked.
- * @param {Function} tracksCallback - The callback to call when the admin bar toggle is clicked.
- * @returns The Svelte component instance.
+ * @param {string}   target              - The parent element to mount the UI in.
+ * @param {object}   args                - The arguments to pass to the UI.
+ * @param {string}   args.href           - The URL to the image guide.
+ * @param {Function} args.tracksCallback - The callback to call when tracking an event.
+ * @param {Function} args.fetchFunction  - The function to use to fetch the image weight.
+ * @return {object} The Svelte component instance.
  */
-export function mountAdminBarToggle(
+export function setupImageGuideUI(
 	target: HTMLElement,
-	href: string,
-	tracksCallback: TracksCallback
+	{ href, tracksCallback, fetchFunction }: ImageGuideUIOptions
 ) {
+	setupLoadListener( fetchFunction );
+
 	return new AdminBarToggle( {
 		target,
 		props: {
