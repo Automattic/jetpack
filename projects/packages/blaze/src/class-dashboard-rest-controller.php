@@ -320,24 +320,21 @@ class Dashboard_REST_Controller {
 			unset( $req['sub_path'] );
 		}
 
-		$res = $this->request_as_user(
+		$response = $this->request_as_user(
 			sprintf( '/sites/%d/blaze/posts%s', $site_id, $this->build_subpath_with_query_strings( $req->get_params() ) ),
 			'v2',
 			array( 'method' => 'GET' )
 		);
 
-		if ( ! function_exists( 'wc_get_product' ) || ! function_exists( 'wc_price' ) ) {
-			return $res;
+		if ( is_wp_error( $response ) ) {
+			return $response;
 		}
 
-		foreach ( $res['posts'] as $key => $post ) {
-			$product = wc_get_product( $post['ID'] );
-			if ( $product !== false ) {
-				$res['posts'][ $key ]['price'] = wp_strip_all_tags( wc_price( $product->price ) );
-			}
+		if ( isset( $response['posts'] ) && count( $response['posts'] ) > 0 ) {
+			$response['posts'] = $this->add_prices_in_posts( $response['posts'] );
 		}
 
-		return $res;
+		return $response;
 	}
 
 	/**
@@ -381,7 +378,17 @@ class Dashboard_REST_Controller {
 			unset( $req['sub_path'] );
 		}
 
-		return $this->get_dsp_generic( sprintf( 'v1/wpcom/sites/%d/blaze/posts', $site_id ), $req );
+		$response = $this->get_dsp_generic( sprintf( 'v1/wpcom/sites/%d/blaze/posts', $site_id ), $req );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( isset( $response['results'] ) && count( $response['results'] ) > 0 ) {
+			$response['results'] = $this->add_prices_in_posts( $response['results'] );
+		}
+
+		return $response;
 	}
 
 	/**
@@ -650,6 +657,30 @@ class Dashboard_REST_Controller {
 			),
 			$req->get_body()
 		);
+	}
+
+	/**
+	 * Will check the posts for prices and add them to the posts array
+	 *
+	 * @param WP_REST_Request $posts The posts object.
+	 * @return array|WP_Error
+	 */
+	protected function add_prices_in_posts( $posts ) {
+
+		if ( ! function_exists( 'wc_get_product' ) || ! function_exists( 'wc_price' ) ) {
+			return $posts;
+		}
+
+		foreach ( $posts as $key => $post ) {
+			$product = wc_get_product( $post['ID'] );
+			if ( $product !== false ) {
+				$posts[ $key ]['price'] = html_entity_decode( wp_strip_all_tags( wc_price( $product->get_price() ) ) );
+			} else {
+				$posts[ $key ]['price'] = '';
+			}
+		}
+
+		return $posts;
 	}
 
 	/**
