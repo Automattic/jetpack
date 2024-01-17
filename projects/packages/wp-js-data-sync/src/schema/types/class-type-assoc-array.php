@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
 
@@ -53,7 +52,6 @@ class Type_Assoc_Array implements Parser {
 			if ( ! isset( $value[ $key ] ) ) {
 				$value[ $key ] = null;
 			}
-
 
 			$parsed = $parser->parse( $value[ $key ], $meta );
 			// @TODO Document this behavior.

@@ -25,8 +25,7 @@ class Decorate_With_Default implements Parser {
 			return $this->parser->parse( $value, $meta );
 		} catch ( Schema_Internal_Error $e ) {
 			return $this->default_value;
-		}
-		catch( Schema_Parsing_Error $e ) {
+		} catch ( Schema_Parsing_Error $e ) {
 			return $this->default_value;
 		}
 	}
