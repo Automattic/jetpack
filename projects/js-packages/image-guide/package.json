@@ -63,6 +63,5 @@
 			"default": "./build/index.js"
 		}
 	},
-	"main": "./build/index.js",
-	"types": "./build/index.d.ts"
+	"main": "./src/index.ts"
 }
