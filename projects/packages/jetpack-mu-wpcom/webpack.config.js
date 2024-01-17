@@ -2,6 +2,7 @@ const path = require( 'path' );
 const jetpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const CopyPlugin = require( 'copy-webpack-plugin' );
 const webpack = require( 'webpack' );
+const GetVerbumBundleSizePlugin = require( './utils/get-verbum-bundle-size-plugin' );
 
 module.exports = {
 	entry: {
@@ -47,6 +48,7 @@ module.exports = {
 				},
 			],
 		} ),
+		new GetVerbumBundleSizePlugin( {} ),
 	],
 	module: {
 		strictExportPresence: true,
