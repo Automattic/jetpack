@@ -112,7 +112,9 @@
 		} else {
 			if ( ! pluginsList ) {
 				pluginsList = dofetch(
-					`https://betadownload.jetpack.me/query-branch.php?repo=${ repo }&branch=${ currentBranch }`
+					`https://betadownload.jetpack.me/query-branch.php?repo=${ encodeURIComponent(
+						repo
+					) }&branch=${ encodeURIComponent( currentBranch ) }`
 				);
 			}
 			pluginsList
@@ -148,13 +150,7 @@
 							return;
 						}
 					} else {
-						plugins.push( {
-							name: 'branch',
-							value: currentBranch,
-							label: 'Jetpack',
-							checked: true,
-							disabled: true,
-						} );
+						throw new Error( 'Invalid response from server' );
 					}
 
 					const contents = `
