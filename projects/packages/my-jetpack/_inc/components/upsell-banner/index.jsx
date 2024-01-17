@@ -1,4 +1,4 @@
-import { Gridicon, Button } from '@automattic/jetpack-components';
+import { Button } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
@@ -20,13 +20,11 @@ const UpsellBanner = props => {
 		description,
 		cta1Label,
 		cta1URL,
-		cta1Target,
-		cta1WithIcon,
+		cta1IsExternalLink,
 		cta1OnClick,
 		cta2Label,
 		cta2URL,
-		cta2Target,
-		cta2WithIcon,
+		cta2IsExternalLink,
 		cta2OnClick,
 	} = props;
 
@@ -55,10 +53,9 @@ const UpsellBanner = props => {
 							className="upsell-banner--content-cta-button primary"
 							href={ cta1URL }
 							onClick={ cta1OnClick ?? null }
-							target={ cta1Target ? cta1Target : '_blank' }
+							isExternalLink={ cta1IsExternalLink }
 						>
 							{ cta1Label }
-							{ cta1WithIcon && <Gridicon icon="external" size={ 18 } /> }
 						</Button>
 					) }
 					{ cta2Label && cta2URL && (
@@ -67,10 +64,9 @@ const UpsellBanner = props => {
 							href={ cta2URL }
 							onClick={ cta2OnClick ?? null }
 							rel="noopener noreferrer"
-							target={ cta2Target ? cta2Target : '_blank' }
+							isExternalLink={ cta2IsExternalLink }
 						>
 							{ cta2Label }
-							{ cta2WithIcon && <Gridicon icon="external" size={ 18 } /> }
 						</Button>
 					) }
 				</div>
