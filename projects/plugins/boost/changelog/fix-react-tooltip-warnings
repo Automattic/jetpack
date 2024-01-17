@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed react warnings caused by element nesting.
+
+

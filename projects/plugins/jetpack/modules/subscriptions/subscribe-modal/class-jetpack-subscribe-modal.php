@@ -6,7 +6,7 @@
  * @since 12.4
  */
 
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 /**
@@ -132,7 +132,7 @@ class Jetpack_Subscribe_Modal {
 	public function get_subscribe_template_content() {
 		// translators: %s is the name of the site.
 		$discover_more_from = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
-		$continue_reading   = __( 'Continue Reading', 'jetpack' );
+		$continue_reading   = __( 'Continue reading', 'jetpack' );
 		$subscribe_text     = __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack' );
 
 		return <<<HTML
@@ -147,7 +147,7 @@ class Jetpack_Subscribe_Modal {
 		<p class='has-text-align-center' style='margin-top:4px;margin-bottom:0px;font-size:15px'>$subscribe_text</p>
 		<!-- /wp:paragraph -->
 
-		<!-- wp:jetpack/subscriptions {"buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
+		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact"} /-->
 
 		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"20px"}},"typography":{"fontSize":"14px"}},"className":"jetpack-subscribe-modal__close"} -->
 		<p class="has-text-align-center jetpack-subscribe-modal__close" style="margin-top:20px;font-size:14px"><a href="#">$continue_reading</a></p>
@@ -166,6 +166,14 @@ HTML;
 	public function should_user_see_modal() {
 		// Only show when viewing frontend single post.
 		if ( is_admin() || ! is_singular( 'post' ) ) {
+			return false;
+		}
+
+		// Needed because Elementor editor makes is_admin() return false
+		// See https://coreysalzano.com/wordpress/why-elementor-disobeys-is_admin/
+		// Ignore nonce warning as just checking if is set
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['elementor-preview'] ) ) {
 			return false;
 		}
 
@@ -191,14 +199,14 @@ HTML;
 			$access_level = get_post_meta( $post->ID, '_jetpack_newsletter_access', true );
 		}
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-		$is_accessible_by_everyone = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level || empty( $access_level );
+		$is_accessible_by_everyone = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level || empty( $access_level );
 		if ( ! $is_accessible_by_everyone ) {
 			return false;
 		}
 
 		// Don't show if user is subscribed to blog.
 		require_once __DIR__ . '/../views.php';
-		if ( Jetpack_Memberships::is_current_user_subscribed() ) {
+		if ( ! class_exists( 'Jetpack_Memberships' ) || Jetpack_Memberships::is_current_user_subscribed() ) {
 			return false;
 		}
 		return true;

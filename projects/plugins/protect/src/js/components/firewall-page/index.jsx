@@ -9,7 +9,7 @@ import {
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { ExternalLink, Popover } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { Icon, arrowLeft, closeSmall } from '@wordpress/icons';
@@ -25,7 +25,6 @@ import AdminPage from '../admin-page';
 import FirewallFooter from '../firewall-footer';
 import ConnectedFirewallHeader from '../firewall-header';
 import FormToggle from '../form-toggle';
-import Notice from '../notice';
 import ScanFooter from '../scan-footer';
 import Textarea from '../textarea';
 import styles from './styles.module.scss';
@@ -35,7 +34,6 @@ const SUCCESS_NOTICE_DURATION = 5000;
 
 const FirewallPage = () => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-	const notice = useSelect( select => select( STORE_ID ).getNotice() );
 	const { setWafIsSeen, setWafUpgradeIsSeen, setNotice } = useDispatch( STORE_ID );
 	const {
 		config: {
@@ -53,7 +51,7 @@ const FirewallPage = () => {
 		displayUpgradeBadge,
 		wafSupported,
 		isUpdating,
-		stats: { ipAllowListCount, ipBlockListCount, rulesVersion, automaticRulesLastUpdated },
+		stats: { ipAllowListCount, ipBlockListCount, automaticRulesLastUpdated },
 		toggleAutomaticRules,
 		toggleManualRules,
 		toggleBruteForceProtection,
@@ -506,21 +504,16 @@ const FirewallPage = () => {
 						) }
 					</Text>
 					<div className={ styles[ 'toggle-section__details' ] }>
-						{ jetpackWafAutomaticRules && ! automaticRulesInstallationError && (
-							<div className={ styles[ 'automatic-rules-stats' ] }>
-								{ rulesVersion && (
+						{ jetpackWafAutomaticRules &&
+							automaticRulesLastUpdated &&
+							! automaticRulesInstallationError && (
+								<div className={ styles[ 'automatic-rules-stats' ] }>
 									<Text
 										className={ styles[ 'automatic-rules-stats__version' ] }
 										variant={ 'body-small' }
 									>
-										{ sprintf(
-											// translators: placeholder is the latest rules version i.e. "v2.0".
-											__( 'Automatic security rules v%s installed.', 'jetpack-protect' ),
-											rulesVersion
-										) }
+										{ __( 'Automatic security rules installed.', 'jetpack-protect' ) }
 									</Text>
-								) }
-								{ automaticRulesLastUpdated && (
 									<Text
 										className={ styles[ 'automatic-rules-stats__last-updated' ] }
 										variant={ 'body-small' }
@@ -531,9 +524,8 @@ const FirewallPage = () => {
 											moment.unix( automaticRulesLastUpdated ).format( 'MMMM D, YYYY' )
 										) }
 									</Text>
-								) }
-							</div>
-						) }
+								</div>
+							) }
 						{ automaticRulesInstallationError && (
 							<>
 								<Text
@@ -835,8 +827,7 @@ const FirewallPage = () => {
 	 */
 	return (
 		<AdminPage>
-			{ notice.message && <Notice floating={ true } dismissable={ true } { ...notice } /> }
-			{ <ConnectedFirewallHeader /> }
+			<ConnectedFirewallHeader />
 			<Container className={ styles.container } horizontalSpacing={ 8 } horizontalGap={ 4 }>
 				{ wafSupported && ! isEnabled && <Col>{ moduleDisabledNotice } </Col> }
 				<Col>{ ! showManualRules ? mainSettings : manualRulesSettings }</Col>

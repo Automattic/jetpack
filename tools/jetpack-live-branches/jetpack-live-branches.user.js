@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.30
+// @version      1.32
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      jurassic.ninja
@@ -88,24 +88,22 @@
 		}
 
 		const host = 'https://jurassic.ninja';
+		const host2 = 'https://jurassicninja1.wordpress.com';
 		const currentBranch = jQuery( '.head-ref:first' ).text();
-		const branchIsForked = currentBranch.includes( ':' );
 		const branchStatus = $( '.gh-header-meta .State' ).text().trim();
 		const repo = determineRepo();
 
 		if ( branchStatus === 'Merged' ) {
 			const contents = `
 				<p><strong>This branch is already merged.</strong></p>
-				<p><a target="_blank" rel="nofollow noopener" href="${ getLink()[ 0 ] }">
+				<p><a target="_blank" rel="nofollow noopener" href="${ getLink( host )[ 0 ] }">
 					Test with <code>trunk</code> branch instead.
+				</a><br/>
+				<a target="_blank" rel="nofollow noopener" href="${ getLink( host2 )[ 0 ] }">
+					Test with <code>trunk</code> branch instead on Atomic.
 				</a></p>
 			`;
 			appendHtml( markdownBody, contents );
-		} else if ( branchIsForked ) {
-			appendHtml(
-				markdownBody,
-				"<p><strong>This branch can't be tested live because it comes from a forked version of this repo.</strong></p>"
-			);
 		} else if ( ! repo ) {
 			appendHtml(
 				markdownBody,
@@ -284,9 +282,14 @@
 					<p>
 						<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
 					</p>
+					<p><h3>JurassicNinja on Atomic</h3></p>
+					<p>
+						<a id="jetpack-beta-branch-link2" target="_blank" rel="nofollow noopener" href="#">…</a>
+					</p>
 					`;
 					appendHtml( markdownBody, contents );
 					updateLink();
+					updateLink2();
 				} )
 				.catch( e => {
 					pluginsList = null;
@@ -344,9 +347,10 @@
 		/**
 		 * Build the JN create URI.
 		 *
+		 * @param {string} which_host - Host/domain to use for link.
 		 * @returns {string} URI.
 		 */
-		function getLink() {
+		function getLink( which_host ) {
 			const query = [ 'jetpack-beta' ];
 			$(
 				'#jetpack-live-branches input[type=checkbox]:checked:not([data-invert]), #jetpack-live-branches input[type=checkbox][data-invert]:not(:checked)'
@@ -364,7 +368,7 @@
 				}
 			} );
 			// prettier-ignore
-			return [ `${ host }/create?${ query.join( '&' ).replace( /%(2F|5[BD])/g, m => decodeURIComponent( m ) ) }`, query ];
+			return [ `${ which_host }/create?${ query.join( '&' ).replace( /%(2F|5[BD])/g, m => decodeURIComponent( m ) ) }`, query ];
 		}
 
 		/**
@@ -445,6 +449,7 @@
 				e.target.removeAttribute( 'checked' );
 			}
 			updateLink();
+			updateLink2();
 		}
 
 		/**
@@ -467,7 +472,38 @@
 		 */
 		function updateLink() {
 			const $link = $( '#jetpack-beta-branch-link' );
-			const [ url, query ] = getLink();
+			const [ url, query ] = getLink( host );
+
+			if ( url.match( /[?&]branch(es\.[^&=]*)?=/ ) ) {
+				if (
+					query.includes( 'jpcrm-populate-crm-data' ) &&
+					! url.match( /[?&]branches\.zero-bs-crm/ )
+				) {
+					// /jpcrm-populate-crm-data/
+					$link
+						.attr( 'href', null )
+						.text( 'Select the Jetpack CRM plugin in order to populate with CRM data' );
+				} else if (
+					query.includes( 'jpcrm-populate-woo-data' ) &&
+					! query.includes( 'woocommerce' )
+				) {
+					$link
+						.attr( 'href', null )
+						.text( 'Select the WooCommerce plugin in order to populate with CRM Woo data' );
+				} else {
+					$link.attr( 'href', url ).text( url );
+				}
+			} else {
+				$link.attr( 'href', null ).text( 'Select at least one plugin to test' );
+			}
+		}
+
+		/**
+		 * Update the link.
+		 */
+		function updateLink2() {
+			const $link = $( '#jetpack-beta-branch-link2' );
+			const [ url, query ] = getLink( host2 );
 
 			if ( url.match( /[?&]branch(es\.[^&=]*)?=/ ) ) {
 				if (

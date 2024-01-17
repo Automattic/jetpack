@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.0] - 2024-01-08
+### Changed
+- Updated useModuleStatus hook to use module_status redux store. [#34845]
+- Use useModuleStatus hook instead of direct call of store selectors. [#34856]
+
+### Fixed
+- Avoid PHP warnings when post is not set. [#34886]
+
+## [0.29.2] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [0.29.1] - 2024-01-02
+### Changed
+- Made module updates more precise in the modules store. [#34801]
+
+## [0.29.0] - 2023-12-25
+### Added
+- Contact Form: add accessible name to form [#34667]
+- Contact Form: add date format to date picker [#34743]
+
+### Fixed
+- Contact Form: suppress PHP warning [#34756]
+
+## [0.28.0] - 2023-12-20
+### Added
+- Contact Form: add extra field settings to base field. [#34704]
+
+### Changed
+- Contact Form: minify stylesheets in prod. [#34672]
+
+## [0.27.0] - 2023-12-15
+### Added
+- Contact Form: improve form error message [#34629]
+
+### Changed
+- Form block: hide 'lead capture' variation for WP.com Atomic sites [#34615]
+
+### Fixed
+- Contact Form: add missing Required toolbar button to Checkbox field [#34630]
+- Contact Form: align half-width fields on same row [#34632]
+
+## [0.26.0] - 2023-12-14
+### Added
+- Contact Form: build JS assets [#34622]
+
+### Fixed
+- Avoid PHP warnings when methods are called too early. [#34576]
+
 ## [0.25.0] - 2023-12-11
 ### Added
 - Contact Form: Added submitting state. [#34367]
@@ -416,6 +465,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.30.0]: https://github.com/automattic/jetpack-forms/compare/v0.29.2...v0.30.0
+[0.29.2]: https://github.com/automattic/jetpack-forms/compare/v0.29.1...v0.29.2
+[0.29.1]: https://github.com/automattic/jetpack-forms/compare/v0.29.0...v0.29.1
+[0.29.0]: https://github.com/automattic/jetpack-forms/compare/v0.28.0...v0.29.0
+[0.28.0]: https://github.com/automattic/jetpack-forms/compare/v0.27.0...v0.28.0
+[0.27.0]: https://github.com/automattic/jetpack-forms/compare/v0.26.0...v0.27.0
+[0.26.0]: https://github.com/automattic/jetpack-forms/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/automattic/jetpack-forms/compare/v0.24.2...v0.25.0
 [0.24.2]: https://github.com/automattic/jetpack-forms/compare/v0.24.1...v0.24.2
 [0.24.1]: https://github.com/automattic/jetpack-forms/compare/v0.24.0...v0.24.1

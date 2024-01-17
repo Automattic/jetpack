@@ -7,11 +7,18 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  * @param {string} siteAdminUrl - Site admin URL
  * @param {string} siteRawUrl - Site URL
  * @param {string} couponCode - Coupon code
+ * @param {string} blogID - Site URL
  * @returns {string} Checkout URL
  */
-export const generateCheckoutLink = ( productSlug, siteAdminUrl, siteRawUrl, couponCode ) => {
+export const generateCheckoutLink = (
+	productSlug,
+	siteAdminUrl,
+	siteRawUrl,
+	couponCode,
+	blogID
+) => {
 	return getRedirectUrl( 'jetpack-recommendations-product-checkout', {
-		site: siteRawUrl,
+		site: blogID ?? siteRawUrl,
 		path: productSlug,
 		query: `coupon=${
 			couponCode || ''

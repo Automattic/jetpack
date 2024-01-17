@@ -3,6 +3,9 @@
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync\Image_Size_Analysis_Entry;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync\Image_Size_Analysis_Summary;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Image_Analysis_Action_Fix;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Image_Size_Analysis_Summary_Action_Paginate;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Image_Size_Analysis_Summary_Action_Start;
 
 $image_data = Schema::as_assoc_array(
 	array(
@@ -66,25 +69,41 @@ $image_data = Schema::as_assoc_array(
 
 $image_size_analysis = Schema::as_assoc_array(
 	array(
-		'query' => Schema::as_assoc_array(
-			array(
-				'page'   => Schema::as_number(),
-				'group'  => Schema::as_string(),
-				'search' => Schema::as_string(),
-			)
-		),
-		'data'  => Schema::as_assoc_array(
-			array(
-				'last_updated' => Schema::as_number(),
-				'total_pages'  => Schema::as_number(),
-				'images'       => Schema::as_array( $image_data ),
-			)
-		),
+		'last_updated' => Schema::as_number(),
+		'total_pages'  => Schema::as_number(),
+		'images'       => Schema::as_array( $image_data ),
 	)
 );
 
-$entry = new Image_Size_Analysis_Entry();
-jetpack_boost_register_option( 'image_size_analysis', $image_size_analysis, $entry );
+jetpack_boost_register_option( 'image_size_analysis', $image_size_analysis, new Image_Size_Analysis_Entry() );
+
+jetpack_boost_register_action(
+	'image_size_analysis',
+	'paginate',
+	Schema::as_assoc_array(
+		array(
+			'page'  => Schema::as_number(),
+			'group' => Schema::as_string(),
+		)
+	),
+	new Image_Size_Analysis_Summary_Action_Paginate()
+);
+
+jetpack_boost_register_action(
+	'image_size_analysis',
+	'fix',
+	Schema::as_assoc_array(
+		array(
+			'image_id'     => Schema::as_number(),
+			'image_url'    => Schema::as_string(),
+			'image_width'  => Schema::as_number(),
+			'image_height' => Schema::as_number(),
+			'post_id'      => Schema::as_number(),
+			'fix'          => Schema::as_boolean(),
+		)
+	),
+	new Image_Analysis_Action_Fix()
+);
 
 $group_schema = Schema::as_assoc_array(
 	array(
@@ -129,3 +148,5 @@ jetpack_boost_register_option(
 	$summary_schema,
 	new Image_Size_Analysis_Summary()
 );
+
+jetpack_boost_register_action( 'image_size_analysis_summary', 'start', Schema::as_void(), new Image_Size_Analysis_Summary_Action_Start() );

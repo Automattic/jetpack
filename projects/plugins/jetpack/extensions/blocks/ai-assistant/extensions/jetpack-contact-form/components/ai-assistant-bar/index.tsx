@@ -230,42 +230,44 @@ export default function AiAssistantBar( {
 
 	// Assistant bar component.
 	const AiAssistantBarComponent = (
-		<KeyboardShortcuts
-			bindGlobal
-			shortcuts={ {
-				esc: () => {
-					if ( [ 'requesting', 'suggesting' ].includes( requestingState ) ) {
-						handleStopSuggestion();
-					}
-				},
-			} }
-		>
-			<div
-				ref={ wrapperRef }
-				className={ classNames( 'jetpack-ai-assistant__bar', {
-					[ className ]: className,
-					'is-fixed': isAssistantBarFixed,
-					'is-mobile-mode': isMobileMode,
-				} ) }
-				tabIndex={ -1 }
+		<div className="jetpack-ai-assistant__bar-wrapper">
+			<KeyboardShortcuts
+				bindGlobal
+				shortcuts={ {
+					esc: () => {
+						if ( [ 'requesting', 'suggesting' ].includes( requestingState ) ) {
+							handleStopSuggestion();
+						}
+					},
+				} }
 			>
-				{ siteRequireUpgrade && <UpgradePrompt /> }
-				{ ! connected && <ConnectPrompt /> }
-				<AIControl
-					ref={ inputRef }
-					disabled={ siteRequireUpgrade || ! connected }
-					value={ isLoading ? undefined : inputValue }
-					placeholder={ isLoading ? loadingPlaceholder : placeholder }
-					onChange={ setInputValue }
-					onSend={ handleSend }
-					onStop={ handleStopSuggestion }
-					state={ requestingState }
-					isTransparent={ siteRequireUpgrade || ! connected }
-					showButtonLabels={ ! isMobileMode }
-					showGuideLine={ showGuideLine }
-				/>
-			</div>
-		</KeyboardShortcuts>
+				<div
+					ref={ wrapperRef }
+					className={ classNames( 'jetpack-ai-assistant__bar', {
+						[ className ]: className,
+						'is-fixed': isAssistantBarFixed,
+						'is-mobile-mode': isMobileMode,
+					} ) }
+					tabIndex={ -1 }
+				>
+					{ siteRequireUpgrade && <UpgradePrompt /> }
+					{ ! connected && <ConnectPrompt /> }
+					<AIControl
+						ref={ inputRef }
+						disabled={ siteRequireUpgrade || ! connected }
+						value={ inputValue }
+						placeholder={ isLoading ? loadingPlaceholder : placeholder }
+						onChange={ setInputValue }
+						onSend={ handleSend }
+						onStop={ handleStopSuggestion }
+						state={ requestingState }
+						isTransparent={ siteRequireUpgrade || ! connected }
+						showButtonLabels={ ! isMobileMode }
+						showGuideLine={ showGuideLine }
+					/>
+				</div>
+			</KeyboardShortcuts>
+		</div>
 	);
 
 	// Check if the Assistant bar should be rendered in the Assistant anchor (fixed mode)

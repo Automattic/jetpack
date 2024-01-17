@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.13 - 2024-01-15
+### Changed
+- Internal updates.
+
+## 2.0.12 - 2024-01-08
+### Changed
+- Updated package dependencies. [#34882]
+
+## 2.0.11 - 2024-01-04
+### Changed
+- Internal updates.
+
+## 2.0.10 - 2024-01-02
+### Added
+- Bumped the composer version. [#34789]
+
+## 2.0.9 - 2023-12-25
+
+- Internal updates.
+
+## 2.0.8 - 2023-12-20
+### Changed
+- Internal updates.
+
+## 2.0.7 - 2023-12-15
+### Changed
+- Version bump [#34648]
+
+## 2.0.6 - 2023-12-14
+### Changed
+- Updated package dependencies. [#34559]
+
 ## 2.0.5 - 2023-12-11
 ### Changed
 - Internal updates.

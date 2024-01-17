@@ -31,15 +31,6 @@ class Wpcom_Block_Patterns_From_Api {
 	private $utils;
 
 	/**
-	 * A dictionary to map existing WPCOM pattern categories to core patterns.
-	 * These should match the categories in $patterns_sources,
-	 * which are registered in $this->register_patterns()
-	 *
-	 * @var array
-	 */
-	private $core_to_wpcom_categories_dictionary;
-
-	/**
 	 * Block_Patterns constructor.
 	 *
 	 * @param Wpcom_Block_Patterns_Utils|null $utils       A class dependency containing utils methods.
@@ -48,14 +39,6 @@ class Wpcom_Block_Patterns_From_Api {
 		$this->patterns_sources = array( 'block_patterns' );
 
 		$this->utils = empty( $utils ) ? new Wpcom_Block_Patterns_Utils() : $utils;
-
-		// Add categories to this array using the core pattern name as the key for core patterns we wish to "recategorize".
-		$this->core_to_wpcom_categories_dictionary = array(
-			'core/quote' => array(
-				'quotes' => __( 'Quotes', 'jetpack-mu-wpcom' ),
-				'text'   => __( 'Text', 'jetpack-mu-wpcom' ),
-			),
-		);
 	}
 
 	/**
@@ -119,11 +102,6 @@ class Wpcom_Block_Patterns_From_Api {
 						'Blog Posts',
 						'jetpack-mu-wpcom'
 					);
-				} elseif ( 'testimonials' === $slug ) {
-					$category_properties['label'] = __(
-						'Quotes',
-						'jetpack-mu-wpcom'
-					);
 				}
 				register_block_pattern_category( $slug, $category_properties );
 			}
@@ -157,7 +135,6 @@ class Wpcom_Block_Patterns_From_Api {
 			}
 		}
 
-		$this->update_core_patterns_with_wpcom_categories();
 		$this->update_pattern_block_types();
 
 		// Temporarily removing the call to `update_pattern_post_types` while we investigate
@@ -196,11 +173,20 @@ class Wpcom_Block_Patterns_From_Api {
 
 		$block_patterns = $this->utils->cache_get( $patterns_cache_key, 'ptk_patterns' );
 
+		// Enable testing v2 patterns on sites with Assembler theme active
+		$enable_testing_v2_patterns = in_array( get_stylesheet(), array( 'pub/assembler', 'assembler' ), true );
+
 		// Load fresh data if we don't have any patterns.
-		if ( false === $block_patterns || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE ) ) {
+		if ( $enable_testing_v2_patterns || false === $block_patterns || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE ) ) {
+			if ( $enable_testing_v2_patterns ) {
+				$request_params = array(
+					'site'      => 'assemblerv2patterns.wordpress.com',
+					'post_type' => 'wp_block',
+				);
+			}
 			$request_url = esc_url_raw(
 				add_query_arg(
-					array(
+					$request_params ?? array(
 						'tags'            => 'pattern',
 						'pattern_meta'    => 'is_web',
 						'patterns_source' => $patterns_source,
@@ -211,7 +197,9 @@ class Wpcom_Block_Patterns_From_Api {
 
 			$block_patterns = $this->utils->remote_get( $request_url );
 
-			$this->utils->cache_add( $patterns_cache_key, $block_patterns, 'ptk_patterns', DAY_IN_SECONDS );
+			if ( ! $enable_testing_v2_patterns ) {
+				$this->utils->cache_add( $patterns_cache_key, $block_patterns, 'ptk_patterns', DAY_IN_SECONDS );
+			}
 		}
 
 		return $block_patterns;
@@ -249,33 +237,6 @@ class Wpcom_Block_Patterns_From_Api {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Update categories for core patterns if a records exists in $this->core_to_wpcom_categories_dictionary
-	 * and re-registers them.
-	 */
-	private function update_core_patterns_with_wpcom_categories() {
-		if ( class_exists( 'WP_Block_Patterns_Registry' ) ) {
-			foreach ( \WP_Block_Patterns_Registry::get_instance()->get_all_registered() as $pattern ) {
-				$wpcom_categories =
-					$pattern['name'] && isset( $this->core_to_wpcom_categories_dictionary[ $pattern['name'] ] )
-					? $this->core_to_wpcom_categories_dictionary[ $pattern['name'] ]
-					: null;
-				if ( $wpcom_categories ) {
-					unregister_block_pattern( $pattern['name'] );
-					$pattern_properties = array_merge(
-						$pattern,
-						array( 'categories' => array_keys( $wpcom_categories ) )
-					);
-					unset( $pattern_properties['name'] );
-					register_block_pattern(
-						$pattern['name'],
-						$pattern_properties
-					);
-				}
-			}
-		}
 	}
 
 	/**
@@ -318,8 +279,8 @@ class Wpcom_Block_Patterns_From_Api {
 			if ( $post_content_offset !== false ) {
 				unregister_block_pattern( $pattern['name'] );
 
-				$pattern['blockTypes'] = array_splice( $pattern['blockTypes'], $post_content_offset, 1 );
-				$pattern_name          = $pattern['name'];
+				array_splice( $pattern['blockTypes'], $post_content_offset, 1 );
+				$pattern_name = $pattern['name'];
 				unset( $pattern['name'] );
 				register_block_pattern( $pattern_name, $pattern );
 			}

@@ -50,6 +50,14 @@
 		"customSystemPrompt": {
 			"type": "string",
 			"default": ""
+		},
+		"userPrompt": {
+			"type": "string",
+			"default": ""
+		},
+		"requestingState": {
+			"type": "string",
+			"default": "init"
 		}
 	},
 	"example": {

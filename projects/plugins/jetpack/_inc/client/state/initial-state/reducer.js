@@ -525,13 +525,14 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 	const uid = userId || getUserId( state );
 	const purchaseToken = getPurchaseToken( state );
 	const calypsoEnv = getCalypsoEnv( state );
+	const blogID = getSiteId( state );
 
 	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
 		source += '-monthly';
 	}
 
 	const redirectArgs = {
-		site: getSiteRawUrl( state ),
+		site: blogID ?? getSiteRawUrl( state ),
 	};
 
 	if ( affiliateCode ) {
@@ -718,4 +719,14 @@ export function arePreConnectionHelpersEnabled( state ) {
  */
 export function getGutenbergState( state ) {
 	return state.jetpack.initialState.gutenbergInitialState;
+}
+
+/**
+ * Check if the Sharing block is available on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the Sharing block is available on the site.
+ */
+export function isSharingBlockAvailable( state ) {
+	return !! state.jetpack.initialState.siteData.isSharingBlockAvailable;
 }

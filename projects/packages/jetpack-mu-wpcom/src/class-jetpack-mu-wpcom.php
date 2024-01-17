@@ -13,8 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-
-	const PACKAGE_VERSION = '5.4.0-alpha';
+	const PACKAGE_VERSION = '5.9.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -42,7 +41,6 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_marketplace_products_updater' ) );
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_first_posts_stream_helpers' ) );
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_domain_email_nag' ) );
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
@@ -103,12 +101,6 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_launchpad() {
 		require_once __DIR__ . '/features/launchpad/launchpad.php';
-	}
-	/**
-	 * Load the domain email nag feature.
-	 */
-	public static function load_domain_email_nag() {
-		require_once __DIR__ . '/features/domain-email-nag/domain-email-nag.php';
 	}
 
 	/**

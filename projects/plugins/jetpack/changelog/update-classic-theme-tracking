@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Ensure block use, shortcode use, and additional blocks in use are tracked correctly on classic themes

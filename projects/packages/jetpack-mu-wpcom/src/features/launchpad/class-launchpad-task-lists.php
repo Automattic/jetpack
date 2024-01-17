@@ -160,9 +160,24 @@ class Launchpad_Task_Lists {
 	 */
 	public function is_task_list_dismissed( $id ) {
 		$task_list_dismissed_status = $this->get_task_list_dismissed_status();
+		$is_dismissed               = isset( $task_list_dismissed_status[ $id ] ) && true === $task_list_dismissed_status[ $id ];
 
 		// Return true if the task list is on the dismissed status array and its value is true.
-		return isset( $task_list_dismissed_status[ $id ] ) && true === $task_list_dismissed_status[ $id ];
+		return $is_dismissed || $this->is_temporally_dismissed( $id );
+	}
+
+	/**
+	 * Check if a task list is dismissible.
+	 *
+	 * @param string $id Task List id.
+	 * @return bool True if dismissible, false if not.
+	 */
+	public function is_task_list_dismissible( $id ) {
+		$task_list = $this->get_task_list( $id );
+		if ( ! isset( $task_list['is_dismissible'] ) ) {
+			return false;
+		}
+		return $task_list['is_dismissible'];
 	}
 
 	/**
@@ -172,7 +187,9 @@ class Launchpad_Task_Lists {
 	 * @param bool   $is_dismissed True if dismissed, false if not.
 	 */
 	public function set_task_list_dismissed( $id, $is_dismissed ) {
-		$task_list = $this->get_task_list( $id );
+		$task_list        = $this->get_task_list( $id );
+		$launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+
 		if ( empty( $id ) || empty( $task_list ) ) {
 			return;
 		}
@@ -186,9 +203,54 @@ class Launchpad_Task_Lists {
 			unset( $task_list_dismissed_status[ $id ] );
 		}
 
-		$launchpad_config                               = get_option( 'wpcom_launchpad_config', array() );
 		$launchpad_config['task_list_dismissed_status'] = $task_list_dismissed_status;
 		update_option( 'wpcom_launchpad_config', $launchpad_config );
+	}
+
+	/**
+	 * Set the date until a task list is dismissed.
+	 *
+	 * @param string $checklist_slug Checklist slug.
+	 * @param int    $dismissed_until Timestamp with the date until the task list is dismissed.
+	 */
+	public function set_task_list_dismissed_until( $checklist_slug, $dismissed_until ) {
+
+		if ( empty( $checklist_slug ) ) {
+			return;
+		}
+
+		$task_list_dismissed_until = $this->get_task_list_dismissed_until();
+
+		if ( isset( $dismissed_until ) ) {
+			$task_list_dismissed_until[ $checklist_slug ] = $dismissed_until;
+		} else {
+			unset( $task_list_dismissed_until[ $checklist_slug ] );
+		}
+
+		$launchpad_config                              = get_option( 'wpcom_launchpad_config', array() );
+		$launchpad_config['task_list_dismissed_until'] = $task_list_dismissed_until;
+
+		update_option( 'wpcom_launchpad_config', $launchpad_config );
+	}
+
+	/**
+	 * Returns true if the task list is temporally dismissed.
+	 *
+	 * @param string $checklist_slug Checklist slug.
+	 * @return bool True if temporally dismissed, false if not.
+	 */
+	protected function is_temporally_dismissed( $checklist_slug ): bool {
+		$task_list_dismissed_until = $this->get_task_list_dismissed_until();
+
+		if ( ! isset( $task_list_dismissed_until ) || ! isset( $task_list_dismissed_until[ $checklist_slug ] ) ) {
+			return false;
+		}
+
+		$task_list_dismissed_until = $task_list_dismissed_until[ $checklist_slug ];
+		$current_time              = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+		$dismissed_until           = new DateTime( '@' . $task_list_dismissed_until, new DateTimeZone( 'UTC' ) );
+
+		return $current_time <= $dismissed_until;
 	}
 
 	/**
@@ -203,6 +265,21 @@ class Launchpad_Task_Lists {
 		}
 
 		return $launchpad_config['task_list_dismissed_status'];
+	}
+
+	/**
+	 * Get the task list dismissed until date when available.
+	 *
+	 * @return array
+	 */
+	public function get_task_list_dismissed_until() {
+		$launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+
+		if ( ! isset( $launchpad_config['task_list_dismissed_until'] ) || ! is_array( $launchpad_config['task_list_dismissed_until'] ) ) {
+			return array();
+		}
+
+		return $launchpad_config['task_list_dismissed_until'];
 	}
 
 	/**
@@ -290,8 +367,8 @@ class Launchpad_Task_Lists {
 	/**
 	 * Builds a collection of tasks for a given task list
 	 *
-	 * @param string $id Task list id.
-	 * @param string $launchpad_context Context/screen in which launchpad is loading.
+	 * @param string      $id Task list id.
+	 * @param string|null $launchpad_context Optional. Screen in which launchpad is loading.
 	 *
 	 * @return Task[] Collection of tasks associated with a task list.
 	 */
@@ -338,8 +415,8 @@ class Launchpad_Task_Lists {
 	/**
 	 * Builds a single task with current state
 	 *
-	 * @param Task   $task Task definition.
-	 * @param string $launchpad_context Screen where Launchpad is loading.
+	 * @param Task        $task Task definition.
+	 * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
 	 * @return Task Task with current state.
 	 */
 	private function build_task( $task, $launchpad_context = null ) {
@@ -460,8 +537,8 @@ class Launchpad_Task_Lists {
 	/**
 	 * Helper function to load the Calypso path for a task.
 	 *
-	 * @param array  $task A task definition.
-	 * @param string $launchpad_context Screen where Launchpad is loading.
+	 * @param array       $task A task definition.
+	 * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
 	 * @return string|null
 	 */
 	private function load_calypso_path( $task, $launchpad_context = null ) {

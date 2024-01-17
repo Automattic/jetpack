@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.8.2] - 2024-01-15
+### Added
+- Add the completion logic for the `front_page_updated` task [#34837]
+- Add the Verify Domain Email task [#34893]
+
+### Removed
+- Removes the `Set up your Professional Email` task [#34865]
+
+## [5.8.1] - 2024-01-08
+### Added
+- Adds the is_dismissible prop to the Launchpad task list definition. [#34839]
+
+## [5.8.0] - 2024-01-04
+### Added
+- Add WooCommerce setup task completion logic. [#34791]
+- Dashboard Link: Allow to customize the url via the query parameter. [#34836]
+
+### Changed
+- Launchpad: Rename the title of the setup_general to Give your site a name. [#34826]
+- Update launchpad methods docs. [#34829]
+- Update package dependencies. [#34815]
+- Use the Site Title task instead of the blogname_set task. [#34799]
+
+## [5.7.0] - 2024-01-02
+### Added
+- Added Sensei setup completion logic. [#34789]
+- Fixed the start page options modal still being visible. [#34824]
+
+### Changed
+- Block Patterns: Updated to use category name testimonials rather than quotes. [#34808]
+
+## [5.6.0] - 2023-12-25
+### Removed
+- Remove a nag for domains without a verified email [#34385]
+- Removed Launchpad task for domain email verification. [#34387]
+
+## [5.5.0] - 2023-12-15
+### Changed
+- Updates the WC visibility check to use the `is_plugin_active` function. [#34648]
+
+## [5.4.0] - 2023-12-14
+### Added
+- Add the Sensei and WooCommerce Setup Task, to allow us to retire the old checklist card. [#34551] [#34564]
+- Launchpad: Add context param to endpoint. [#34498]
+
+### Changed
+- Mark the setup_general task as complete based on whether blogname or blog description options changed. [#34579]
+
 ## [5.3.0] - 2023-12-11
 ### Added
 - Added editor error handling from ETK. [#34158]
@@ -475,6 +523,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.8.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.1...v5.8.2
+[5.8.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.0...v5.8.1
+[5.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.7.0...v5.8.0
+[5.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.6.0...v5.7.0
+[5.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.5.0...v5.6.0
+[5.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.4.0...v5.5.0
+[5.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.3.0...v5.4.0
 [5.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.2.0...v5.3.0
 [5.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.1.1...v5.2.0
 [5.1.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.1.0...v5.1.1

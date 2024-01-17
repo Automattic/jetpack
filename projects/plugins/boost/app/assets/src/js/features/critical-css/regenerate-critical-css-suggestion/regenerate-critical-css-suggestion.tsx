@@ -1,8 +1,8 @@
 import { Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { suggestRegenerateDS, RegenerationReason } from '$features/critical-css';
+import { RegenerationReason } from '$features/critical-css';
 
-const GetSuggestionMessage = ( type: RegenerationReason | null ) => {
+const getSuggestionMessage = ( type: RegenerationReason | null ) => {
 	let message;
 	if ( 'page_saved' === type ) {
 		message = __(
@@ -34,8 +34,12 @@ const GetSuggestionMessage = ( type: RegenerationReason | null ) => {
 	return message;
 };
 
-export const RegenerateCriticalCssSuggestion = ( { show, type } ) => {
-	if ( ! show ) {
+type Props = {
+	regenerateReason: RegenerationReason | null;
+};
+
+export const RegenerateCriticalCssSuggestion = ( { regenerateReason }: Props ) => {
+	if ( ! regenerateReason ) {
 		return null;
 	}
 
@@ -43,12 +47,9 @@ export const RegenerateCriticalCssSuggestion = ( { show, type } ) => {
 		<Notice
 			level="info"
 			title={ __( 'Regenerate Critical CSS', 'jetpack-boost' ) }
-			onClose={ () => {
-				suggestRegenerateDS.store.set( null );
-			} }
 			hideCloseButton={ true }
 		>
-			<p>{ GetSuggestionMessage( type ) }</p>
+			<p>{ getSuggestionMessage( regenerateReason ) }</p>
 			<p>
 				{ __(
 					'Please regenerate your Critical CSS to maintain optimal site performance.',

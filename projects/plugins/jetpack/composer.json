@@ -13,7 +13,6 @@
 		"ext-openssl": "*",
 		"automattic/jetpack-a8c-mc-stats": "@dev",
 		"automattic/jetpack-abtest": "@dev",
-		"automattic/jetpack-action-bar": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
@@ -51,7 +50,6 @@
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
 		"automattic/jetpack-wordads": "@dev",
-		"nojimage/twitter-text-php": "3.1.2",
 		"scssphp/scssphp": "1.12.0"
 	},
 	"require-dev": {
@@ -103,7 +101,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_0_a_2",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_1_a_2",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

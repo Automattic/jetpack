@@ -1,16 +1,25 @@
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
-import { usePerformanceHistoryPanelQuery, usePerformanceHistoryQuery } from './lib/stores/store';
+import {
+	usePerformanceHistoryFreshStartState,
+	usePerformanceHistoryPanelQuery,
+	usePerformanceHistoryQuery,
+} from './lib/hooks';
 import GraphComponent from './graph-component/graph-component';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { __ } from '@wordpress/i18n';
 import { Panel, PanelBody, PanelRow } from '@wordpress/components';
-import { navigate } from '$lib/utils/navigate';
 import { PerformanceHistoryData } from './lib/types';
-
+import { Button } from '@automattic/jetpack-components';
+import { useNavigate } from 'react-router-dom';
+import { useSingleModuleState } from '$features/module/lib/stores';
 import styles from './performance-history.module.scss';
 
-const PerformanceHistoryBody = ( { isFreshStart, onDismissFreshStart, needsUpgrade } ) => {
+const PerformanceHistoryBody = () => {
+	const [ performanceHistoryState ] = useSingleModuleState( 'performance_history' );
+	const needsUpgrade = ! performanceHistoryState?.available;
+
 	const { data, isFetching, isError, error, refetch } = usePerformanceHistoryQuery();
+	const [ isFreshStart, dismissFreshStart ] = usePerformanceHistoryFreshStartState();
+	const navigate = useNavigate();
 
 	if ( isError && ! isFetching ) {
 		return (
@@ -20,16 +29,7 @@ const PerformanceHistoryBody = ( { isFreshStart, onDismissFreshStart, needsUpgra
 				data={ JSON.stringify( error, null, 2 ) }
 				suggestion={ __( '<action>Try again</action>', 'jetpack-boost' ) }
 				vars={ {
-					action: (
-						// eslint-disable-next-line jsx-a11y/anchor-is-valid, jsx-a11y/anchor-has-content
-						<a
-							onClick={ event => {
-								event.preventDefault();
-								refetch();
-							} }
-							href="#"
-						/>
-					),
+					action: <Button variant="link" onClick={ refetch } />,
 				} }
 			/>
 		);
@@ -41,13 +41,13 @@ const PerformanceHistoryBody = ( { isFreshStart, onDismissFreshStart, needsUpgra
 			isFreshStart={ isFreshStart }
 			needsUpgrade={ needsUpgrade }
 			handleUpgrade={ () => navigate( '/upgrade' ) }
-			handleDismissFreshStart={ onDismissFreshStart }
+			handleDismissFreshStart={ dismissFreshStart }
 			isLoading={ isFetching }
 		/>
 	);
 };
 
-const PerformanceHistory = ( { needsUpgrade, isFreshStart, onDismissFreshStart } ) => {
+const PerformanceHistory = () => {
 	const [ isPanelOpen, setPanelOpen ] = usePerformanceHistoryPanelQuery();
 
 	return (
@@ -56,18 +56,14 @@ const PerformanceHistory = ( { needsUpgrade, isFreshStart, onDismissFreshStart }
 				<PanelBody
 					title={ __( 'Historical Performance', 'jetpack-boost' ) }
 					initialOpen={ isPanelOpen }
-					onToggle={ value => {
+					onToggle={ ( value: boolean ) => {
 						setPanelOpen( value );
 					} }
 					className={ styles[ 'performance-history-body' ] }
 				>
 					<PanelRow>
 						<div style={ { flexGrow: 1, minHeight: '300px' } }>
-							<PerformanceHistoryBody
-								isFreshStart={ isFreshStart }
-								onDismissFreshStart={ onDismissFreshStart }
-								needsUpgrade={ needsUpgrade }
-							/>
+							<PerformanceHistoryBody />
 						</div>
 					</PanelRow>
 				</PanelBody>
@@ -76,10 +72,4 @@ const PerformanceHistory = ( { needsUpgrade, isFreshStart, onDismissFreshStart }
 	);
 };
 
-export default function ( props ) {
-	return (
-		<DataSyncProvider>
-			<PerformanceHistory { ...props } />
-		</DataSyncProvider>
-	);
-}
+export default PerformanceHistory;
