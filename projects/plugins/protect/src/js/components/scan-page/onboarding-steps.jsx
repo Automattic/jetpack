@@ -7,6 +7,15 @@ import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 
 const { adminUrl, siteSuffix } = window.jetpackProtectInitialState;
 
+const scanResultsTitle = __( 'Your scan results', 'jetpack-protect' );
+const scanResultsDescription = (
+	<Text>
+		{ __(
+			'Navigate through the results of the scan on your WordPress installation, plugins, themes, and other files',
+			'jetpack-protect'
+		) }
+	</Text>
+);
 const UpgradeButton = props => {
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
@@ -21,15 +30,8 @@ const UpgradeButton = props => {
 export default [
 	{
 		id: 'free-scan-results',
-		title: __( 'Your scan results', 'jetpack-protect' ),
-		description: (
-			<Text>
-				{ __(
-					'Navigate through the results of the scan on your WordPress installation, plugins, themes and other files',
-					'jetpack-protect'
-				) }
-			</Text>
-		),
+		title: scanResultsTitle,
+		description: scanResultsDescription,
 	},
 	{
 		id: 'free-daily-scans',
@@ -50,15 +52,8 @@ export default [
 	},
 	{
 		id: 'paid-scan-results',
-		title: __( 'Your scan results', 'jetpack-protect' ),
-		description: (
-			<Text>
-				{ __(
-					'Navigate through the results of the scan on your WordPress installation, plugins, themes and other files',
-					'jetpack-protect'
-				) }
-			</Text>
-		),
+		title: scanResultsTitle,
+		description: scanResultsDescription,
 	},
 	{
 		id: 'paid-fix-all-threats',
