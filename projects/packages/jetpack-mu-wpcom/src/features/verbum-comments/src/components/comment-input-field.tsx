@@ -22,7 +22,7 @@ const resizeTextarea = ( event: TargetedEvent< HTMLTextAreaElement > ) => {
 const embedContentCallback = ( embedUrl: string ) => {
 	return {
 		path: '/verbum/embed',
-		query: `embed_url=${ embedUrl }&embed_nonce=${ encodeURIComponent(
+		query: `embed_url=${ encodeURIComponent( embedUrl ) }&embed_nonce=${ encodeURIComponent(
 			VerbumComments.embedNonce
 		) }`,
 		apiNamespace: 'wpcom/v2',
@@ -53,7 +53,11 @@ export const CommentInputField = forwardRef(
 			try {
 				// Dynamically load the editor.
 				// import requires an absolute URL when fetching from a CDN (cross origin fetch).
-				await import( 'https://widgets.wp.com/verbum-block-editor/block-editor.min.js' );
+				await import(
+					/* webpackIgnore: true */
+					'https://widgets.wp.com/verbum-block-editor/block-editor.min.js?ver=' +
+						VerbumComments.vbeCacheBuster
+				);
 				verbumBlockEditor.attachGutenberg(
 					ref.current,
 					content => {

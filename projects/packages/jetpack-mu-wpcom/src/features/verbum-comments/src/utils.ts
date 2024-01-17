@@ -57,10 +57,6 @@ export const canWeAccessCookies = () => {
  * Uses the current bundle's size and the time it took to download and excute to estimate connection speed.
  */
 export function isFastConnection() {
-	// TODO: Need to get bundle size in webpack.
-	// Temporarily setting to true
-	return true;
-
 	const bytes = verbumBundleSize;
 	const bytesPerMs = bytes / VerbumComments.fullyLoadedTime;
 

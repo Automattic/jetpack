@@ -25,7 +25,7 @@ class Verbum_Comments {
 		// Selfishly remove everything from the existing comment form
 		add_filter( 'comment_form_field_comment', '__return_false', 11 );
 		add_filter( 'comment_form_logged_in', '__return_empty_string' );
-		add_filter( 'comment_form_defaults', array( $this, 'comment_form_defaults' ) );
+		add_filter( 'comment_form_defaults', array( $this, 'comment_form_defaults' ), 20 );
 		remove_action( 'comment_form', 'subscription_comment_form' );
 		remove_all_filters( 'comment_form_default_fields' );
 		add_filter( 'comment_form_default_fields', array( $this, 'comment_form_default_fields' ) );
@@ -152,6 +152,8 @@ class Verbum_Comments {
 		$post_id                      = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
 		$locale                       = get_locale();
 
+		$vbe_cache_buster = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/build_meta.json' );
+
 		wp_add_inline_script(
 			'verbum-settings',
 			'window.VerbumComments = ' . json_encode(
@@ -212,6 +214,7 @@ class Verbum_Comments {
 					'embedNonce'                        => wp_create_nonce( 'embed_nonce' ),
 					'verbumBundleUrl'                   => plugins_url( 'dist/index.js', __FILE__ ),
 					'isRTL'                             => is_rtl( $locale ),
+					'vbeCacheBuster'                    => $vbe_cache_buster,
 				)
 			),
 			'before'
@@ -243,7 +246,7 @@ class Verbum_Comments {
 				'logged_in_as'         => '',
 				'comment_notes_before' => '',
 				'comment_notes_after'  => '',
-				'title_reply'          => '',
+				'title_reply'          => __( 'Leave a Reply' ),
 				/* translators: % is the original posters name */
 				'title_reply_to'       => __( 'Leave a Reply to %s' ),
 				'cancel_reply_link'    => __( 'Cancel reply' ),

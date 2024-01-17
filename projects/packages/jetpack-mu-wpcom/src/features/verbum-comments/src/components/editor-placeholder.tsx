@@ -1,5 +1,6 @@
+import { Spinner } from '@wordpress/components';
 import { classNames } from '../utils';
-import { CustomLoadingSpinner } from './custom-loading-spinner';
+import { translate } from '../i18n';
 
 export const EditorPlaceholder = ( { onClick, loading } ) => {
 	return (
@@ -19,10 +20,13 @@ export const EditorPlaceholder = ( { onClick, loading } ) => {
 					style={ { padding: '10px 20px' } }
 				>
 					{ loading ? (
-						<CustomLoadingSpinner />
+						<Spinner style={ { display: 'block', margin: '0 auto' } } />
 					) : (
-						<p class="block-editor-block-list__layout__content" style={ { margin: '18px 0' } }>
-							Leave a comment
+						<p
+							class="block-editor-block-list__layout__content"
+							style={ { margin: '18px 0', fontSize: '16px' } }
+						>
+							{ translate( 'Leave a comment' ) }
 						</p>
 					) }
 				</div>

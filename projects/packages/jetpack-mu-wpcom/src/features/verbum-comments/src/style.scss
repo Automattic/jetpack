@@ -1,5 +1,4 @@
 @use "sass:meta";
-@import 'https://widgets.wp.com/verbum-block-editor/block-editor.css';
 
 // Expanding Animation
 @mixin sliding-animation {
@@ -57,9 +56,7 @@
 }
 
 #respond {
-	&.wp-block-post-comments-form * {
-		pointer-events: all;
-	}
+
 
 	&.comment-respond.wp-block-post-comments-form h3#reply-title.comment-reply-title {
 		margin-bottom: 0.5em;
@@ -116,6 +113,7 @@
 				}
 
 				textarea {
+					grid-area: 1/1;
 					all: initial;
 					color: var(--verbum-font-color);
 					display: block;
@@ -145,8 +143,12 @@
 					}
 
 					&.editor-enabled {
-						display: none
+						display: none;
 					}
+				}
+
+				.verbum-editor-wrapper {
+					grid-area: 1/1;
 				}
 			}
 
@@ -528,26 +530,6 @@
 				}
 			}
 		}
-	}
-
-	.custom-loading-spinner {
-		border: 3px solid #f3f3f3;
-		border-radius: 50%;
-		border-top: 3px solid #3498db;
-		width: 20px;
-		height: 20px;
-		-webkit-animation: customSpin 2s linear infinite;
-		animation: spin 2s linear infinite;
-	}
-	
-	@-webkit-keyframes customSpin {
-		0% { -webkit-transform: rotate(0deg); }
-		100% { -webkit-transform: rotate(360deg); }
-	}
-	
-	@keyframes customSpin {
-		0% { transform: rotate(0deg); }
-		100% { transform: rotate(360deg); }
 	}
 }
 

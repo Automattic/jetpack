@@ -6,7 +6,7 @@ type ScriptLoader = {
 
 declare global {
 	const VerbumComments: VerbumComments;
-	const VITE_CACHE_BUSTER: string;
+	const vbeCacheBuster: string;
 	const WP_Enqueue_Dynamic_Script: ScriptLoader;
 	const wp: {};
 

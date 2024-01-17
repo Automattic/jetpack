@@ -20,6 +20,18 @@ class Verbum_Gutenberg_Editor {
 		);
 		add_filter( 'comment_text', array( $this, 'render_verbum_blocks' ) );
 		add_filter( 'pre_comment_content', [ $this, 'remove_blocks' ] );
+		add_filter( 'wp_enqueue_scripts', [ $this, 'enqueue_assets' ] );
+	}
+
+	public function enqueue_assets() {
+		$vbe_cache_buster = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/build_meta.json' );
+
+		wp_enqueue_style(
+			'verbum-gutenberg-css',
+			'https://widgets.wp.com/verbum-block-editor/block-editor.css',
+			array(),
+			$vbe_cache_buster
+		);
 	}
 
 	public function render_verbum_blocks( $comment_content ) {
