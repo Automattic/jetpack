@@ -100,8 +100,28 @@ class Anti_Spam extends Product {
 	public static function has_required_plan() {
 		// Check if the site has an API key for Akismet
 		$akismet_api_key = apply_filters( 'akismet_get_api_key', defined( 'WPCOM_API_KEY' ) ? constant( 'WPCOM_API_KEY' ) : get_option( 'wordpress_api_key' ) );
+		$fallback        = ! empty( $akismet_api_key );
 
-		return ! empty( $akismet_api_key );
+		// Check for existing plans
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return $fallback;
+		}
+
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				// Anti-spam is available as standalone bundle and as part of the Security and Complete plans.
+				if (
+					strpos( $purchase->product_slug, 'jetpack_anti_spam' ) !== false ||
+					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_security' )
+				) {
+					return true;
+				}
+			}
+		}
+
+		return $fallback;
 	}
 
 	/**

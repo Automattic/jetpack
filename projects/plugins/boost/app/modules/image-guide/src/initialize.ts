@@ -133,42 +133,45 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
  * @param measuredImages
  */
 export function attachGuides( measuredImages: MeasurableImage[] ) {
-	const componentConfiguration = measuredImages.reduce( ( acc, image ) => {
-		if ( ! image.node.parentNode ) {
-			// eslint-disable-next-line no-console
-			console.error( `Image has no parent`, image.node );
+	const componentConfiguration = measuredImages.reduce(
+		( acc, image ) => {
+			if ( ! image.node.parentNode ) {
+				// eslint-disable-next-line no-console
+				console.error( `Image has no parent`, image.node );
+				return acc;
+			}
+
+			const container = findContainer( image );
+
+			if ( ! container ) {
+				// eslint-disable-next-line no-console
+				console.error( `Could not find a parent for image`, image );
+				return acc;
+			}
+
+			// Don't create new entry for Svelte component configuration.
+			// Use the index in the array as a unique identifier.
+			const id = parseInt( container.dataset.jetpackBoostGuideId || '' );
+			const stores = acc[ id ]?.props.stores || [];
+			const store = new MeasurableImageStore( image );
+			stores.push( store );
+
+			// If there's only one image, assume a new Svelte component needs to be created.
+			if ( stores.length === 1 ) {
+				acc[ id ] = {
+					target: container,
+					// This triggers the nice fade-in animation as soon as the component is attached.
+					intro: true,
+					props: {
+						stores,
+					},
+				};
+			}
+
 			return acc;
-		}
-
-		const container = findContainer( image );
-
-		if ( ! container ) {
-			// eslint-disable-next-line no-console
-			console.error( `Could not find a parent for image`, image );
-			return acc;
-		}
-
-		// Don't create new entry for Svelte component configuration.
-		// Use the index in the array as a unique identifier.
-		const id = parseInt( container.dataset.jetpackBoostGuideId || '' );
-		const stores = acc[ id ]?.props.stores || [];
-		const store = new MeasurableImageStore( image );
-		stores.push( store );
-
-		// If there's only one image, assume a new Svelte component needs to be created.
-		if ( stores.length === 1 ) {
-			acc[ id ] = {
-				target: container,
-				// This triggers the nice fade-in animation as soon as the component is attached.
-				intro: true,
-				props: {
-					stores,
-				},
-			};
-		}
-
-		return acc;
-	}, {} as Record< number, ImageGuideConfig > );
+		},
+		{} as Record< number, ImageGuideConfig >
+	);
 
 	// Take the component configuration and create the Svelte components.
 	return Object.values( componentConfiguration )

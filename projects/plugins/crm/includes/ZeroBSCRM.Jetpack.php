@@ -4,7 +4,6 @@
  * https://jetpackcrm.com
  * V1.20
  *
- *
  * Date: 24th January 2020
  *
  * This file will house any functionality related to Jetpack
@@ -80,22 +79,22 @@ function zero_bs_crm_capture_jetpack_form( $post_id, $all_field_data, $is_spam, 
 	 */
 	$jpcrm_field_prefix = 'jetpackcrm-';
 
-	foreach ( (array) $all_field_data as $field => $field_data ) {
+	foreach ( (array) $all_field_data as $field_data ) {
 		$field_id = $field_data->get_attribute( 'id' );
 
-		if ( str_starts_with( $field_id, $jpcrm_field_prefix ) && ! empty( $field_data->value ) ) {
+		if ( str_starts_with( $field_id, $jpcrm_field_prefix ) && isset( $field_data->value ) && $field_data->value !== '' ) {
 			$data_key = substr( $field_id, strlen( $jpcrm_field_prefix ) );
 
 			if ( ! in_array( $data_key, $restricted_keys, true ) ) {
-				if ( $data_key == 'tags' ) {
+				if ( $data_key === 'tags' ) {
 					if ( is_array( $field_data->value ) ) {
 						$contact_data[ $data_key ] = $field_data->value;
-					}
-					else {
+					} else {
 						$contact_data[ $data_key ] = explode( ',', $field_data->value );
 					}
-				}
-				else {
+				} elseif ( $field_data->get_attribute( 'type' ) === 'date' ) {
+					$contact_data[ $data_key ] = jpcrm_date_str_wp_format_to_uts( $field_data->value, true );
+				} else {
 					$contact_data[ $data_key ] = $field_data->value;
 				}
 			}
@@ -107,7 +106,7 @@ function zero_bs_crm_capture_jetpack_form( $post_id, $all_field_data, $is_spam, 
 		 * If the field ids aren't prefixed with 'jetpackcrm-', try to get an
 		 * email, phone, and name using the field types.
 		 */
-		foreach ( (array) $all_field_data as $field => $field_data ) {
+		foreach ( (array) $all_field_data as $field_data ) {
 			if ( 'email' === $field_data->get_attribute( 'type' )
 				&& ! isset( $contact_data['email'] )
 				&& ! empty( $field_data->value )
@@ -131,7 +130,7 @@ function zero_bs_crm_capture_jetpack_form( $post_id, $all_field_data, $is_spam, 
 				// Use the first name field that's found.
 				$name                  = explode( ' ', $field_data->value, 2 );
 				$contact_data['fname'] = $name[0];
-				if ( !empty( $name[1] ) ) {
+				if ( ! empty( $name[1] ) ) {
 					$contact_data['lname'] = $name[1];
 				}
 			}
@@ -147,7 +146,7 @@ function zero_bs_crm_capture_jetpack_form( $post_id, $all_field_data, $is_spam, 
 	$contact_data['externalSources'] = array(
 		array(
 			'source' => 'jetpack_form',
-			'origin' => $zbs->DAL->add_origin_prefix( site_url(), 'domain' ),
+			'origin' => $zbs->DAL->add_origin_prefix( site_url(), 'domain' ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			'uid'    => $contact_data['email'],
 		),
 	);

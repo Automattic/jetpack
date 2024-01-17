@@ -290,7 +290,7 @@ jobs:
       - name: Upload test artifacts
         if: ${{ always() }}
         continue-on-error: true
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-output-${{ matrix.project }}
           path: ${{ matrix.path }}/output
@@ -354,7 +354,7 @@ jobs:
         working-directory: ./projects/github-actions/test-results-to-slack
 
       - name: Download test artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: test-output
 

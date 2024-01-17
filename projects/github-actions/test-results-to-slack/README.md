@@ -41,7 +41,7 @@ jobs:
         run: [...] # Run tests for suite ${{ matrix.suite }}
 
       - name: Upload test artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-output-${{ matrix.suite }}
 
