@@ -40,17 +40,17 @@ export function showModal( url ) {
 	const dialog = document.createElement( 'dialog' );
 	dialog.setAttribute( 'id', 'memberships-modal-window' );
 
-	const iframe = document.createElement( 'iframe' );
-	const siteLanguage = document.documentElement.lang;
-	iframe.setAttribute( 'id', 'memberships-modal-iframe' );
-	iframe.innerText =
-		'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
-	iframe.src =
-		url + '&display=alternate&language=' + siteLanguage + '&jwt_token=' + getTokenFromCookie();
-	iframe.setAttribute( 'frameborder', '0' );
-	iframe.setAttribute( 'allowtransparency', 'true' );
-	iframe.setAttribute( 'allowfullscreen', 'true' );
-	dialog.classList.add( 'jetpack-memberships-modal' );
+		const iframe = document.createElement( 'iframe' );
+		const siteLanguage = document.documentElement.lang;
+		iframe.setAttribute( 'id', 'memberships-modal-iframe' );
+		iframe.innerText =
+			'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
+		iframe.src =
+			url + '&display=alternate&lang=' + siteLanguage + '&jwt_token=' + getTokenFromCookie();
+		iframe.setAttribute( 'frameborder', '0' );
+		iframe.setAttribute( 'allowtransparency', 'true' );
+		iframe.setAttribute( 'allowfullscreen', 'true' );
+		dialog.classList.add( 'jetpack-memberships-modal' );
 
 	document.body.appendChild( dialog );
 	dialog.appendChild( iframe );
