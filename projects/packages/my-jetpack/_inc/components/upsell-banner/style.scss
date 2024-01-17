@@ -70,11 +70,11 @@
 				font-weight: normal;
 				padding: 8px 16px;
               
-                &.primary {
+                &.secondary {
 					background-color: var( --jp-white );
 					color: var( --jp-black );
 				}
-				&.secondary {
+				&.primary {
 					margin-left: 8px;
 				}
 			}

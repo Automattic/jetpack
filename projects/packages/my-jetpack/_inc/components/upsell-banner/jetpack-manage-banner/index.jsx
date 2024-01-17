@@ -31,12 +31,12 @@ const JetpackManageBanner = props => {
 				'Jetpack Manage has the tools you need to manage multiple WordPress sites. Monitor site security, performance, and traffic, and get alerted if a site needs attention.',
 				'jetpack-my-jetpack'
 			) }
-			cta1Label={ ctaLearnMoreLabel }
-			cta1URL={ ctaLearnMoreUrl }
-			cta1IsExternalLink={ true }
-			cta2Label={ isAgencyAccount ? ctaManageSitesLabel : ctaSignUpForFreeLabel }
-			cta2URL={ isAgencyAccount ? ctaManageSitesUrl : ctaSignUpForFreeUrl }
-			cta2IsExternalLink={ true }
+			secondaryCtaLabel={ ctaLearnMoreLabel }
+			secondaryCtaURL={ ctaLearnMoreUrl }
+			secondaryCtaIsExternalLink={ true }
+			primaryCtaLabel={ isAgencyAccount ? ctaManageSitesLabel : ctaSignUpForFreeLabel }
+			primaryCtaURL={ isAgencyAccount ? ctaManageSitesUrl : ctaSignUpForFreeUrl }
+			primaryCtaIsExternalLink={ true }
 		/>
 	);
 };

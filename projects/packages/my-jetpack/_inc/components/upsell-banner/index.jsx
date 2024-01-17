@@ -8,6 +8,9 @@ import './style.scss';
 /**
  * Upsell banner component.
  *
+ * - The primary CTA is the second button, at the right position.
+ * - The secondary CTA is the first button, at the left position.
+ *
  * @param {object} props - Component props.
  * @returns {object} UpsellBanner React component.
  */
@@ -17,14 +20,14 @@ const UpsellBanner = props => {
 		icon,
 		title,
 		description,
-		cta1Label,
-		cta1URL,
-		cta1IsExternalLink,
-		cta1OnClick,
-		cta2Label,
-		cta2URL,
-		cta2IsExternalLink,
-		cta2OnClick,
+		primaryCtaLabel,
+		primaryCtaURL,
+		primaryCtaIsExternalLink,
+		primaryCtaOnClick,
+		secondaryCtaLabel,
+		secondaryCtaURL,
+		secondaryCtaIsExternalLink,
+		secondaryCtaOnClick,
 	} = props;
 
 	return (
@@ -44,25 +47,24 @@ const UpsellBanner = props => {
 					</p>
 				</div>
 				<div className="upsell-banner--content-cta">
-					{ cta1Label && cta1URL && (
-						<Button
-							className="upsell-banner--content-cta-button primary"
-							href={ cta1URL }
-							onClick={ cta1OnClick ?? null }
-							isExternalLink={ cta1IsExternalLink }
-						>
-							{ cta1Label }
-						</Button>
-					) }
-					{ cta2Label && cta2URL && (
+					{ secondaryCtaLabel && secondaryCtaURL && (
 						<Button
 							className="upsell-banner--content-cta-button secondary"
-							href={ cta2URL }
-							onClick={ cta2OnClick ?? null }
-							rel="noopener noreferrer"
-							isExternalLink={ cta2IsExternalLink }
+							href={ secondaryCtaURL }
+							onClick={ secondaryCtaOnClick ?? null }
+							isExternalLink={ secondaryCtaIsExternalLink }
 						>
-							{ cta2Label }
+							{ secondaryCtaLabel }
+						</Button>
+					) }
+					{ primaryCtaLabel && primaryCtaURL && (
+						<Button
+							className="upsell-banner--content-cta-button primary"
+							href={ primaryCtaURL }
+							onClick={ primaryCtaOnClick ?? null }
+							isExternalLink={ primaryCtaIsExternalLink }
+						>
+							{ primaryCtaLabel }
 						</Button>
 					) }
 				</div>
