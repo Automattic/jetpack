@@ -1101,7 +1101,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "a27d51d101dd1ddd776afadecb0d0faf77fc634a"
+				"reference": "6c60ae09eacb2aa2ce16c8f1590d884ed2f2c1d4"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1145,6 +1145,9 @@
 				],
 				"test-php": [
 					"@composer phpunit"
+				],
+				"test-js": [
+					"pnpm run test:contact-form"
 				],
 				"build-production": [
 					"pnpm run build-production"
