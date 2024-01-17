@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Likes: Flip likers popup when overflowing viewport.

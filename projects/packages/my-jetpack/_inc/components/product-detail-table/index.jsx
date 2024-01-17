@@ -37,7 +37,7 @@ const ProductDetailTableColumn = ( {
 	tier,
 	trackProductButtonClick,
 } ) => {
-	const { siteSuffix, myJetpackUrl } = window?.myJetpackInitialState ?? {};
+	const { siteSuffix, myJetpackCheckoutUri } = window?.myJetpackInitialState ?? {};
 
 	// Extract the product details.
 	const {
@@ -61,8 +61,9 @@ const ProductDetailTableColumn = ( {
 	const { run: runCheckout, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
 		productSlug: wpcomProductSlug,
-		redirectUrl: postActivationUrl || myJetpackUrl,
+		redirectUrl: postActivationUrl.replace( /(^.*\/wp-admin\/)/i, '' ) || myJetpackCheckoutUri,
 		siteSuffix,
+		useBlogIdSuffix: true,
 	} );
 
 	// Register the click handler for the product button.
