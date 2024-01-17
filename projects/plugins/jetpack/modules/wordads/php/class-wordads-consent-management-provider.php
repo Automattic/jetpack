@@ -158,45 +158,68 @@ class WordAds_Consent_Management_Provider {
 	 * Outputs the frontend Javascript framework configuration.
 	 */
 	public static function insert_head() {
+		$output = self::get_config_string();
+		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
 
-		$nonce = wp_create_nonce( 'gdpr_set_consent' );
+	/**
+	 * Outputs the frontend cmp initialization configuration.
+	 *
+	 * @return string output string.
+	 */
+	private static function get_config_string() {
+		$language_code = self::get_site_language_code();
+		$request_url   = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/configuration/%s/', self::get_blog_id(), $language_code );
 
-		$gvl_specification_version = self::get_default_gvl_specification_version();
-		$language_code             = self::get_site_language_code();
-		$meta                      = self::get_vendor_meta( $language_code, $gvl_specification_version );
-		$module_path               = 'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/'; // consider version query param?
-		$gvl_path                  = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/v%d/vendors/%s/', self::get_blog_id(), $gvl_specification_version, $language_code );
+		$config_script = <<<JS
+<script id="cmp-config-loader">
+	function init() {
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', "$request_url", true);
+		xhr.onload = function() {
+			if (xhr.status >= 200 && xhr.status < 300) {
+				var response = JSON.parse(xhr.responseText);
+				if (response && response.scripts && Array.isArray(response.scripts)) {
+					var scripts = response.scripts;
+					// remove before injecting configuration
+					delete response.scripts;
 
-		// Switch to supported language or fallback to English.
-		switch_to_locale( $language_code );
+					var configurationScript = document.createElement('script');
+					configurationScript.id = 'cmp-configuration';
+					configurationScript.type = 'application/configuration';
+					configurationScript.innerHTML = JSON.stringify(response);
 
-		$vendors_count = $meta['meta']['vendors_count'] ?? 0;
-		$intro         = self::get_intro( $vendors_count );
+					// Add the cmp-configuration script element to the document's body
+					document.body.appendChild(configurationScript);
 
-		$output = array(
-			'gvlVersion'         => $meta['vendor_list_version'],
-			'consentLanguage'    => strtoupper( substr( $language_code, 0, 2 ) ),
-			'locale'             => $language_code,
-			'vendorsAll'         => $meta['meta']['vendors_encoded'],
-			'vendorsLegInterest' => $meta['meta']['vendors_legitimate_interests_encoded'],
-			'ajaxUrl'            => esc_url( admin_url( 'admin-ajax.php' ) ),
-			'ajaxNonce'          => $nonce,
-			'modulePath'         => $module_path,
-			'gvlPath'            => $gvl_path,
-			'_'                  => array(
-				'title'        => __( 'Privacy & Cookies', 'jetpack' ),
-				'intro'        => $intro,
-				'config'       => _x( 'Learn More', 'CMP banner', 'jetpack' ),
-				'accept'       => __( 'I Agree!', 'jetpack' ),
-				'viewPartners' => __( 'View Partners', 'jetpack' ),
-				'error'        => __( 'We\'re sorry but an unexpected error occurred. Please try again later.', 'jetpack' ),
-			),
-		);
+					// Load each cmp script
+					scripts.forEach(function(scriptUrl) {
+						var script = document.createElement('script');
+						script.src = scriptUrl;
+						document.body.appendChild(script);
+					});
+				} else {
+					console.error('Invalid API response format or missing scripts property.');
+				}
+			} else {
+				console.error('Error making API request. Status code: ' + xhr.status);
+			}
+		};
 
-		echo '<script id="cmp-configuration" type="application/configuration">' . wp_json_encode( $output ) . '</script>';
+		xhr.onerror = function() {
+			console.error('Network error occurred while making the API request.');
+		};
 
-		// Restore locale.
-		restore_current_locale();
+		// Send the GET request
+		xhr.send();
+	}
+
+	document.addEventListener('DOMContentLoaded', function() {
+		init();
+	});
+</script>
+JS;
+		return $config_script;
 	}
 
 	/**
