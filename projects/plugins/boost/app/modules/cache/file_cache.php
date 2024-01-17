@@ -35,7 +35,7 @@ class Boost_File_Cache extends Boost_Cache {
 		return false;
 	}
 
-	private function createCacheDirectory( $path ) {
+	private function create_cache_directory( $path ) {
 		if ( ! is_dir( $path ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.dir_mkdir_dirname, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
 			mkdir( $path, 0755, true );
@@ -48,7 +48,7 @@ class Boost_File_Cache extends Boost_Cache {
 		}
 
 		error_log( 'saving: ' . $this->path . ' for ' . $this->request_uri ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		$this->createCacheDirectory( dirname( $this->cache_file ) );
+		$this->create_cache_directory( dirname( $this->cache_file ) );
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $this->cache_file, $data );
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- cached page that has already been escaped
