@@ -112,9 +112,8 @@
 		} else {
 			if ( ! pluginsList ) {
 				pluginsList = dofetch(
-					`https://betadownload.jetpack.me/query-branch.php?repo=${ encodeURIComponent(
-						repo
-					) }&branch=${ encodeURIComponent( currentBranch ) }`
+					// prettier-ignore
+					`https://betadownload.jetpack.me/query-branch.php?repo=${ encodeURIComponent( repo ) }&branch=${ encodeURIComponent( currentBranch ) }`
 				);
 			}
 			pluginsList
