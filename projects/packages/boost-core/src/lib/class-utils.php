@@ -122,10 +122,10 @@ class Utils {
 			return $response;
 		}
 
-		$response = json_decode( wp_remote_retrieve_body( $response ), ARRAY_A );
-
 		// Check for HTTP errors.
 		$code = wp_remote_retrieve_response_code( $response );
+		$data = json_decode( wp_remote_retrieve_body( $response ), ARRAY_A );
+
 		if ( 200 !== $code ) {
 			$default_message = sprintf(
 				/* translators: %d is a numeric HTTP error code */
@@ -134,12 +134,12 @@ class Utils {
 			);
 
 			// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$err_code = empty( $response['statusCode'] ) ? 'http_error' : $response['statusCode'];
-			$message  = empty( $response['error'] ) ? $default_message : $response['error'];
+			$err_code = empty( $data['statusCode'] ) ? 'http_error' : $data['statusCode'];
+			$message  = empty( $data['error'] ) ? $default_message : $data['error'];
 
 			return new \WP_Error( $err_code, $message );
 		}
 
-		return $response;
+		return $data;
 	}
 }
