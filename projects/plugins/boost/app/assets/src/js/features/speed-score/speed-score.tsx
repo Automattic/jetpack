@@ -11,7 +11,7 @@ import PopOut from './pop-out/pop-out';
 import PerformanceHistory from '$features/performance-history/performance-history';
 import ErrorNotice from '$features/error-notice/error-notice';
 import classNames from 'classnames';
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
 import styles from './speed-score.module.scss';
@@ -41,12 +41,8 @@ const SpeedScore = () => {
 		[ data ]
 	);
 
-	const [ closedScorePopOut, setClosePopOut ] = useState( false );
 	const showScoreChangePopOut =
-		status === 'loaded' &&
-		! scores.isStale &&
-		! closedScorePopOut &&
-		getScoreMovementPercentage( scores );
+		status === 'loaded' && ! scores.isStale && getScoreMovementPercentage( scores );
 
 	// Always load the score on mount.
 	useEffect( () => {
@@ -136,7 +132,7 @@ const SpeedScore = () => {
 				{ siteIsOnline && <PerformanceHistory /> }
 			</div>
 
-			<PopOut scoreChange={ showScoreChangePopOut } onClose={ () => setClosePopOut( true ) } />
+			<PopOut scoreChange={ showScoreChangePopOut } />
 		</>
 	);
 };

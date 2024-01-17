@@ -314,21 +314,17 @@ jetpack_boost_register_option(
 	Schema::as_assoc_array(
 		array(
 			'performance_history_fresh_start' => Schema::as_boolean(),
+			'score_increase'                  => Schema::as_boolean(),
+			'score_decrease'                  => Schema::as_boolean(),
 		)
 	)->fallback(
 		array(
 			'performance_history_fresh_start' => false,
+			'score_increase'                  => false,
+			'score_decrease'                  => false,
 		)
 	),
 	new Mergeable_Array_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE . '_dismissed_alerts' )
-);
-
-/**
- * Register Score Prompt store.
- */
-jetpack_boost_register_option(
-	'dismissed_score_prompt',
-	Schema::as_array( Schema::as_string() )->fallback( array() )
 );
 
 /**
