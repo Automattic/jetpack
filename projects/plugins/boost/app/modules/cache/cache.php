@@ -38,12 +38,14 @@ class Boost_Cache {
 	public function key() {
 		if ( ! $this->key ) {
 			$cookies = isset( $_COOKIE ) ? $_COOKIE : array();
+			$request = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$get     = isset( $_GET ) ? $_GET : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 			$key_components = apply_filters(
 				'boost_cache_key_components',
 				array(
 					'cookies' => $cookies,
+					'request' => $request,
 					'get'     => $get,
 				)
 			);
