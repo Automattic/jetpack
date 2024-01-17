@@ -109,7 +109,6 @@ class Test_Integration_Fallback_Values extends TestCase {
 		// because the fallback is set.
 		$entry->delete();
 		$this->assertSame( true, $entry->get() );
-
 	}
 
 	public function test_wordpress_option_no_fallback() {
@@ -151,12 +150,20 @@ class Test_Integration_Fallback_Values extends TestCase {
 			)
 		);
 
+		$schema_no_fallbacks = Schema::as_assoc_array(
+			array(
+				'one'          => Schema::as_number(),
+				'array_of_two' => Schema::as_array( Schema::as_number() ),
+			)
+		);
+
 		$valid_array = array(
 			'one'          => 100,
 			'array_of_two' => array( 200 ),
 		);
 
 		$this->assertSame( $valid_array, $schema->parse( $valid_array ) );
+		$this->assertSame( $valid_array, $schema_no_fallbacks->parse( $valid_array ) );
 
 		// If the values are empty, fallback is going to work
 		$invalid_array = array(
@@ -196,6 +203,9 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$schema_with_parent_fallback = $schema->fallback( array() )->parse( null );
 		$this->assertSame( array(), $schema_with_parent_fallback );
 
+		$schema_empty_array = $schema_no_fallbacks->fallback( array() )->parse( array() );
+		$this->assertSame( array(), $schema_empty_array );
+
 		// So right now, to fallback to a full-value when the parent schema parsing fails
 		// you have to do this:
 		$schema_with_top_level_defaults = $schema->fallback( $schema_fallback )->parse( null );
@@ -212,5 +222,44 @@ class Test_Integration_Fallback_Values extends TestCase {
 
 		$incorrect_schema = Schema::as_string()->fallback( $schema_fallback );
 		$this->assertSame( $schema_fallback, $incorrect_schema->parse( null ) );
+
+		$this->expectException( Schema_Parsing_Error::class );
+		$schema_no_fallbacks->parse( $invalid_array );
+	}
+
+	/**
+	 * This test describes a bug that was discovered during the refactor here:
+	 * https://github.com/Automattic/jetpack/pull/35062
+	 * Fallbacks disappeared when parsing a nested assoc array,
+	 * but only if `BUG` key is missing and nullable.
+	 * `SAFE` key is nullable, but the tests passed even if it's missing.
+	 *
+	 * @return void
+	 */
+	public function test_fallbacks_dont_disappear() {
+		$data = array(
+			'url'  => 'ONE',
+			'SAFE' => 'ONE',
+			'meta' => array(
+				'status' => 'ONE',
+			),
+		);
+
+		$schema = Schema::as_assoc_array(
+			array(
+				'url'  => Schema::as_string(),
+				'SAFE' => Schema::as_string()->nullable(),
+				'meta' => Schema::as_assoc_array(
+					array(
+						'status' => Schema::as_string(),
+					)
+				)->nullable(),
+				'BUG'  => Schema::as_string()->nullable(),
+			)
+		)->fallback( array() );
+
+		$this->assertSame( $data, $schema->parse( $data ) );
+		unset( $data['SAFE'] );
+		$this->assertSame( $data, $schema->parse( $data ) );
 	}
 }
