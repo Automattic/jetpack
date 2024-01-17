@@ -1609,23 +1609,14 @@ abstract class Publicize_Base {
 	/**
 	 * Returns the image size in bytes of a remote image.
 	 *
-	 * @param  string  $image_url  Image URL.
-	 * @return integer $bytes      Image size in bytes.
+	 * @param  string $image_url       Image URL.
+	 * @return integer|null $bytes      Image size in bytes, or null if request failed.
 	 */
 	public function get_remote_filesize( $image_url ) {
-		$ch = curl_init( $image_url );
-		curl_setopt( $ch, CURLOPT_NOBODY, true );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $ch, CURLOPT_HEADER, true );
-		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, true );
-		$data = curl_exec( $ch );
-		$size = curl_getinfo( $ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD );
-		curl_close( $ch );
+		$response = wp_remote_get( $image_url, array( 'method' => 'HEAD' ) );
+		$size     = wp_remote_retrieve_header( $response, 'content-length' );
 
-		if ( false === $size ) {
-			return strlen( file_get_contents( $image_url ) );
-		}
-		return $size;
+		return $size ? $size : null;
 	}
 
 	/**
@@ -1641,9 +1632,11 @@ abstract class Publicize_Base {
 	 */
 	public function reduce_file_size( $url, $width, $height, $max_filesize = 4000000, $tries = 5 ) {
 		$filesize = $this->get_remote_filesize( $url );
-		if ( $filesize <= $max_filesize ) {
-			return $url;
+		// If we cannot get the size, or it's small enough, we bail.
+		if ( empty( $filesize ) || $filesize <= $max_filesize ) {
+			return null;
 		}
+
 		while ( $tries > 0 && $filesize > $max_filesize ) {
 			$width   *= 0.75;
 			$height  *= 0.75;
@@ -1658,7 +1651,7 @@ abstract class Publicize_Base {
 			--$tries;
 		}
 
-		// we bailed, can't make this image small enough so return nada
+		// If the image is still too large, we failed.
 		if ( $filesize > $max_filesize ) {
 			// Track this to see if blank images in shared posts may be due to this code path.
 			bump_stats_extras( 'publicize_error_condition', 'overlarge-image-' . wpcom_blog_site_id_label() );
