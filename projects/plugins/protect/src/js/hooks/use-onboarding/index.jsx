@@ -71,10 +71,11 @@ const useOnboarding = () => {
 		}, [] );
 
 		// Complete the free steps immediately in the UI
-		setOnboardingProgress( freeStepIds );
+		const combinedProgress = [ ...progress, ...freeStepIds ];
+		setOnboardingProgress( [ ...new Set( combinedProgress ) ] );
 		// Save the completions in the background
 		completeOnboardingSteps( freeStepIds );
-	}, [ steps, setOnboardingProgress, completeOnboardingSteps ] );
+	}, [ steps, progress, setOnboardingProgress, completeOnboardingSteps ] );
 
 	/**
 	 * Complete All Paid Steps
@@ -88,10 +89,11 @@ const useOnboarding = () => {
 		}, [] );
 
 		// Complete the paid steps immediately in the UI
-		setOnboardingProgress( paidStepIds );
+		const combinedProgress = [ ...progress, ...paidStepIds ];
+		setOnboardingProgress( [ ...new Set( combinedProgress ) ] );
 		// Save the completions in the background
 		completeOnboardingSteps( paidStepIds );
-	}, [ steps, setOnboardingProgress, completeOnboardingSteps ] );
+	}, [ steps, progress, setOnboardingProgress, completeOnboardingSteps ] );
 
 	/**
 	 * Complete All Current Steps
