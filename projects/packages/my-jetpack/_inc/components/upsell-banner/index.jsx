@@ -32,10 +32,7 @@ const UpsellBanner = props => {
 		<CardWrapper className="upsell-banner">
 			{ icon && (
 				<div className="upsell-banner--icon">
-					<img
-						src={ icon }
-						alt={ __( 'A control panel representing Jetpack Manage', 'jetpack-my-jetpack' ) }
-					/>
+					<img src={ icon } alt="" />
 				</div>
 			) }
 			<div className="upsell-banner--content">
