@@ -93,6 +93,18 @@ const useOnboarding = () => {
 		completeOnboardingSteps( paidStepIds );
 	}, [ steps, setOnboardingProgress, completeOnboardingSteps ] );
 
+	/**
+	 * Complete All Current Steps
+	 */
+	const completeAllCurrentSteps = useCallback( () => {
+		// Check if currentStep is a paid step and run the appropriate function
+		if ( currentStep.id.startsWith( 'paid-' ) ) {
+			completeAllPaidSteps();
+		} else {
+			completeAllFreeSteps();
+		}
+	}, [ completeAllFreeSteps, completeAllPaidSteps, currentStep ] );
+
 	useEffect( () => {
 		if ( null === progress ) {
 			fetchOnboardingProgress().then( latestProgress => setOnboardingProgress( latestProgress ) );
@@ -105,8 +117,7 @@ const useOnboarding = () => {
 		currentStep,
 		currentStepCount,
 		completeCurrentStep,
-		completeAllFreeSteps,
-		completeAllPaidSteps,
+		completeAllCurrentSteps,
 	};
 };
 
