@@ -177,11 +177,8 @@ class Wpcom_Block_Patterns_From_Api {
 
 		$block_patterns = $this->utils->cache_get( $patterns_cache_key, 'ptk_patterns' );
 
-		// Enable testing v2 patterns for Automatticians and Jurassic sites
-		$enable_testing_v2_patterns = function_exists( 'is_automattician' ) ? is_automattician() : ! defined( 'IS_WPCOM' );
-
-		// Enable testing v2 patterns on sites with Assembler theme active
-		$enable_testing_v2_patterns = in_array( get_stylesheet(), array( 'pub/assembler', 'assembler' ), true );
+		// Enable testing v2 patterns for Automatticians
+		$enable_testing_v2_patterns = function_exists( 'is_automattician' ) ? is_automattician() : false;
 
 		// Load fresh data if we don't have any patterns.
 		if ( $enable_testing_v2_patterns || false === $block_patterns || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE ) ) {
