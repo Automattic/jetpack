@@ -98,6 +98,7 @@
 				<p><a target="_blank" rel="nofollow noopener" href="${ getLink()[ 0 ] }">
 					Test with <code>trunk</code> branch instead.
 				</a></p>
+				<p>Note: You need to be Logged in to WordPress.com to create a test site.</p>
 			`;
 			appendHtml( markdownBody, contents );
 		} else if ( ! repo ) {
@@ -271,6 +272,7 @@
 					<p>
 						<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
 					</p>
+					<p>Note: You need to be Logged in to WordPress.com to create a test site.</p>
 					`;
 					appendHtml( markdownBody, contents );
 					updateLink();
