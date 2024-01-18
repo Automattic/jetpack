@@ -13,6 +13,11 @@ class Boost_Cache {
 		add_action( 'wp', array( $this, 'sanitize' ), 0 );
 	}
 
+	/*
+	 * Sanitize the request_uri.
+	 *
+	 * This is called on the wp action, because sanitization functions are not available before that.
+	 */
 	public function sanitize() {
 		if ( ! $this->request_uri ) {
 			return;
@@ -21,6 +26,16 @@ class Boost_Cache {
 		$this->request_uri = esc_url_raw( wp_unslash( $this->request_uri ) );
 	}
 
+	/*
+	 * Returns true if the request is cacheable.
+	 *
+	 * If a request is in the backend, or is a POST request, or is not an
+	 * html request, it is not cacheable.
+	 * The filter boost_cache_cacheable can be used to override this, as
+	 * long as the previous checks pass.
+	 *
+	 * @return bool
+	 */
 	public function is_cacheable() {
 		if ( $this->is_backend() ) {
 			error_log( "not caching a backend request: {$this->request_uri}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -40,6 +55,14 @@ class Boost_Cache {
 		return apply_filters( 'boost_cache_cacheable', $this->request_uri );
 	}
 
+	/*
+	 * Returns a key to identify the visitor's cache file.
+	 * It is based on the REQUEST_URI, the cookies and the page GET parameters.
+	 *
+	 * @param string $request_uri (optional) The request uri to use to calculate the cache key. Defaults to the current request uri.
+	 *
+	 * @return string
+	 */
 	private function calculate_cache_key( $request_uri = '' ) {
 		if ( $request_uri === '' ) {
 			$request_uri = $this->request_uri;
@@ -59,6 +82,15 @@ class Boost_Cache {
 		return md5( json_encode( $key_components ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 	}
 
+	/*
+	 * Returns a key to identify the visitor's cache file.
+	 * It uses calculate_cache_key() to calculate the key.
+	 * Without a parameter, it will use the current request uri, and cache that
+	 * value in $this->cache_key.
+	 *
+	 * @param string $request_uri (optional) The request uri to use to calculate the cache key. Defaults to the current request uri.
+	 * @return string
+	 */
 	public function cache_key( $request_uri = '' ) {
 		if ( $request_uri !== '' ) {
 			return $this->calculate_cache_key( $request_uri );
@@ -70,6 +102,14 @@ class Boost_Cache {
 		return $this->cache_key;
 	}
 
+	/*
+	 * Returns a key to identify the path to the visitor's cache file.
+	 * Without a parameter it uses the current request uri, and caches that in
+	 * $this->path_key.
+	 *
+	 * @param string $request_uri (optional) The request uri to use to calculate the path key. Defaults to the current request uri.
+	 * @return string
+	 */
 	public function path_key( $request_uri = '' ) {
 		if ( $request_uri !== '' ) {
 			return md5( $request_uri );
@@ -94,6 +134,15 @@ class Boost_Cache {
 		return false;
 	}
 
+	/*
+	 * Returns true if the current request is one of the following:
+	 * 1. wp-admin
+	 * 2. wp-login.php, xmlrpc.php or wp-cron.php/cron request
+	 * 3. WP_CLI
+	 * 4. REST request.
+	 *
+	 * @return bool
+	 */
 	public function is_backend() {
 
 		$is_backend = is_admin();
