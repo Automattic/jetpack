@@ -146,7 +146,7 @@ function register_block() {
 	// Gate the excerpt for a post
 	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
 
-	// Add a 'Newsletter access' column to the Edit posts page
+	// Add a 'Newsletter' column to the Edit posts page
 	// We only display the "Newsletter" column if we have configured the paid newsletter plan
 	if ( Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
 		add_action( 'manage_post_posts_columns', __NAMESPACE__ . '\register_newsletter_access_column' );
