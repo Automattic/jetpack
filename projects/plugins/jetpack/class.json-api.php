@@ -209,6 +209,10 @@ class WPCOM_JSON_API {
 	 * @return bool
 	 */
 	public static function is_truthy( $value ) {
+		if ( true === $value ) {
+			return true;
+		}
+
 		if ( ! is_string( $value ) ) {
 			return false;
 		}
@@ -230,6 +234,10 @@ class WPCOM_JSON_API {
 	 * @return bool
 	 */
 	public static function is_falsy( $value ) {
+		if ( false === $value ) {
+			return true;
+		}
+
 		if ( ! is_string( $value ) ) {
 			return false;
 		}
