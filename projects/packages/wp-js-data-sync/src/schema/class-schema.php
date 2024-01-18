@@ -99,7 +99,7 @@ class Schema implements Parser {
 	 * @param mixed $value The input data to be parsed.
 	 *
 	 * @return mixed The parsed data according to the schema type.
-	 * @throws \Schema_Parsing_Error When the input data is invalid.
+	 * @throws Schema_Parsing_Error When the input data is invalid.
 	 */
 	public function parse( $value, $meta = null ) {
 		if ( $meta === null && $this->meta === null ) {
@@ -237,35 +237,5 @@ class Schema implements Parser {
 	 */
 	public static function as_unsafe_any() {
 		return new self( new Type_Any() );
-	}
-
-	public static function describe( $parser ) {
-		// Process the top-level schema array
-		$description = self::process_schema( $parser->schema() );
-
-		// Convert the processed schema to a JSON-like string
-		return wp_json_encode( $description, JSON_PRETTY_PRINT );
-	}
-
-	private static function process_schema( $item ) {
-		// If the item is an associative array with 'type' as a key, return its value directly
-		if ( is_array( $item ) && isset( $item['type'] ) && count( $item ) === 1 ) {
-			return $item['type'];
-		}
-
-		// If the item is an associative array with 'type' and 'value', process the value
-		if ( isset( $item['type'], $item['value'] ) && is_array( $item ) ) {
-			return self::process_schema( $item['value'] );
-		}
-
-		// If the item is any other kind of array, process each sub-item
-		if ( is_array( $item ) ) {
-			$result = array();
-			foreach ( $item as $key => $value ) {
-				$result[ $key ] = self::process_schema( $value );
-			}
-			return $result;
-		}
-		return $item;
 	}
 }
