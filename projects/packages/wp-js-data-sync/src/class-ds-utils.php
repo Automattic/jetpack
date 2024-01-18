@@ -6,12 +6,30 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 
 class DS_Utils {
 
+	private static $mode;
+
 	/**
 	 * Is the current environment a development environment?
+	 *
 	 * @return bool
 	 */
 	public static function is_debug_enabled(): bool {
-		return defined( 'WP_DEBUG' ) && WP_DEBUG;
+		return (
+			( defined( 'WP_DEBUG' ) && WP_DEBUG )
+			||
+			self::$mode === "debug"
+		);
+	}
+
+	public static function set_mode( $mode ) {
+		$valid_modes = array( "debug", null );
+
+		if ( ! in_array( $mode, $valid_modes, true ) ) {
+			self::$mode = null;
+			return false;
+		}
+
+		self::$mode = $mode;
 	}
 
 	/**
