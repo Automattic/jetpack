@@ -2,11 +2,18 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
+
 class Schema_Validation_Meta {
 
 	private $name;
 	private $data;
 	private $path = array();
+
+	/**
+	 * @var array $log Log of notable actions taken during parsing.
+	 */
+	private $log = array();
 
 	/**
 	 * @param string $name
@@ -17,6 +24,20 @@ class Schema_Validation_Meta {
 
 	public function add_to_path( $key ) {
 		$this->path[] = $key;
+	}
+
+	public function log( $message, $data ) {
+		if ( ! DS_Utils::is_debug_enabled() ) {
+			return;
+		}
+		$this->log[] = array(
+			'message' => $message,
+			'data'    => $data,
+		);
+	}
+
+	public function get_log() {
+		return $this->log;
 	}
 
 	public function get_path() {
