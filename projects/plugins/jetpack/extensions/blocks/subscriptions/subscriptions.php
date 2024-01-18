@@ -632,6 +632,7 @@ function get_post_access_level_for_current_post() {
  * @return string
  */
 function render_for_website( $data, $classes, $styles ) {
+	$lang              = get_locale();
 	$blog_id           = \Jetpack_Options::get_option( 'id' );
 	$widget_id_suffix  = Jetpack_Subscriptions_Widget::$instance_count > 1 ? '-' . Jetpack_Subscriptions_Widget::$instance_count : '';
 	$form_id           = 'subscribe-blog' . $widget_id_suffix;
@@ -724,6 +725,7 @@ function render_for_website( $data, $classes, $styles ) {
 						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
+						<input type="hidden" name="lang" value="<?php echo esc_attr( $lang ); ?>"/>
 						<?php
 						wp_nonce_field( 'blogsub_subscribe_' . $blog_id );
 
