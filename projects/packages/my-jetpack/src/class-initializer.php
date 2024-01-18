@@ -19,6 +19,7 @@ use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
@@ -202,6 +203,7 @@ class Initializer {
 				'userIsAdmin'           => current_user_can( 'manage_options' ),
 				'userIsNewToJetpack'    => self::is_jetpack_user_new(),
 				'isStatsModuleActive'   => $modules->is_active( 'stats' ),
+				'isUserFromKnownHost'   => self::is_user_from_known_host(),
 				'welcomeBanner'         => array(
 					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
 				),
@@ -284,6 +286,16 @@ class Initializer {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Determines whether the user has come from a host we can recognize.
+	 *
+	 * @return string
+	 */
+	public static function is_user_from_known_host() {
+		// Known (external) host is the one that has been determined and is not dotcom.
+		return ! in_array( ( new Status_Host() )->get_known_host_guess(), array( 'unknown', 'wpcom' ), true );
 	}
 
 	/**
