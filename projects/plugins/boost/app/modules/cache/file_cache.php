@@ -59,8 +59,11 @@ class Boost_File_Cache extends Boost_Cache {
 		}
 
 		$this->create_cache_directory( dirname( $this->cache_filename() ) );
+		$tmp_filename = $this->cache_filename() . uniqid( wp_rand(), true ) . '.tmp';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $this->cache_filename(), $data );
+		file_put_contents( $tmp_filename, $data );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
+		rename( $tmp_filename, $this->cache_filename() );
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- cached page that has already been escaped
 		echo $data;
 		die();
