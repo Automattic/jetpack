@@ -1052,7 +1052,7 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 		$domains_pending_icann_verification = array_filter(
 			$domains,
 			function ( $domain ) {
-				return $domain->is_pending_icann_verification;
+				return isset( $domain->is_pending_icann_verification ) && $domain->is_pending_icann_verification;
 			}
 		);
 	} else {
