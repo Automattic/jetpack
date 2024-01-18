@@ -297,7 +297,6 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$this->expectException( Schema_Parsing_Error::class );
 		Schema::as_string()->fallback( null );
 		DS_Utils::set_mode( null );
-
 	}
 
 	public function test_debug_mode_invalid_fallback_assoc_array() {
@@ -321,7 +320,6 @@ class Test_Integration_Fallback_Values extends TestCase {
 			)
 		)->fallback( null );
 		DS_Utils::set_mode( null );
-
 	}
 
 	public function test_debug_mode_nullable_works_on_assoc_arrays() {

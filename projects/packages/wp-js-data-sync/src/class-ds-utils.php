@@ -17,12 +17,12 @@ class DS_Utils {
 		return (
 			( defined( 'WP_DEBUG' ) && WP_DEBUG )
 			||
-			self::$mode === "debug"
+			self::$mode === 'debug'
 		);
 	}
 
 	public static function set_mode( $mode ) {
-		$valid_modes = array( "debug", null );
+		$valid_modes = array( 'debug', null );
 
 		if ( ! in_array( $mode, $valid_modes, true ) ) {
 			self::$mode = null;

@@ -9,7 +9,7 @@ class Type_Or implements Parser {
 	private $conditions;
 
 	public function __construct( Parser $parser ) {
-		$this->conditions = [ $parser ];
+		$this->conditions = array( $parser );
 	}
 
 	public function add_condition( Parser $parser ) {
@@ -35,9 +35,12 @@ class Type_Or implements Parser {
 	public function schema() {
 		return array(
 			'type'    => 'or',
-			'parsers' => array_map( function( $parser ) {
-				return $parser->schema();
-			}, $this->conditions ),
+			'parsers' => array_map(
+				function ( $parser ) {
+					return $parser->schema();
+				},
+				$this->conditions
+			),
 		);
 	}
 
