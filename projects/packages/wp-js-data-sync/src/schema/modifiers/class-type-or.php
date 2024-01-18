@@ -52,6 +52,7 @@ class Type_Or implements Parser {
 		return implode( ' OR ', $result );
 	}
 
+	#[\ReturnTypeWillChange]
 	function jsonSerialize() {
 		return $this->schema();
 	}
