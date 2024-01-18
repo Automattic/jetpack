@@ -58,7 +58,10 @@ class Schema_Validation_Meta {
 	}
 
 	public function set_data( $data ) {
-		$this->data = $data;
+		if ( ! isset( $this->data ) ) {
+			$this->data = $data;
+		}
+
 	}
 
 	public function get_data() {

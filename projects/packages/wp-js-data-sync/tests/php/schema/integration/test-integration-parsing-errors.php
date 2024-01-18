@@ -56,7 +56,7 @@ class Test_Integration_Parsing_Errors extends TestCase {
 		$invalid_data = $this->get_assoc_data( 'hello world', 2 );
 
 		// Set meta to a known value
-		$schema->set_meta( new Schema_Validation_Meta( 'known-meta' ) );
+		$schema->override_meta( new Schema_Validation_Meta( 'known-meta' ) );
 
 		try {
 			$schema->parse( $invalid_data );
@@ -67,6 +67,7 @@ class Test_Integration_Parsing_Errors extends TestCase {
 			$this->fail( 'Expected "Schema_Parsing_Error", but received ' . get_class( $e ) );
 		}
 	}
+
 	public function test_parsing_errors_meta_has_late_known_meta() {
 		// Expect 3 level schema.
 		$schema = $this->get_assoc_schema( Schema::as_string(), 3 );
@@ -91,7 +92,7 @@ class Test_Integration_Parsing_Errors extends TestCase {
 		// Second run.
 		// Expect "known-meta"
 		try {
-			$schema->set_meta( new Schema_Validation_Meta( 'known-meta' ) );
+			$schema->override_meta( new Schema_Validation_Meta( 'known-meta' ) );
 			$schema->parse( $invalid_data );
 			$this->fail( 'Expected Schema_Validation_Error was not thrown' );
 		} catch ( Schema_Parsing_Error $e ) {
@@ -105,9 +106,9 @@ class Test_Integration_Parsing_Errors extends TestCase {
 	 * Creates a schema for an associative array with nested levels.
 	 *
 	 * @param Parser $schema The schema to use for the last level
-	 * @param int $levels The depth of nesting in the associative array.
-	 *                    Defaults to 3.
-	 * @param int $i The current level of nesting. Defaults to 1.
+	 * @param int    $levels The depth of nesting in the associative array.
+	 *                       Defaults to 3.
+	 * @param int    $i      The current level of nesting. Defaults to 1.
 	 */
 	private function get_assoc_schema( $schema, $levels = 3, $i = 1 ) {
 		if ( $i > $levels ) {

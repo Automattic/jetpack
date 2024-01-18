@@ -224,8 +224,8 @@ final class Data_Sync {
 		 *      $Data_Sync->get_registry()->register(...)` instead of `$Data_Sync->register(...)
 		 * ```
 		 */
-		if ( method_exists( $parser, 'set_meta' ) ) {
-			$parser->set_meta( new Schema_Validation_Meta( $key ) );
+		if ( method_exists( $parser, 'override_meta' ) ) {
+			$parser->override_meta( new Schema_Validation_Meta( $key ) );
 		}
 		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $parser );
 		$this->registry->register( $key, $entry_adapter );

@@ -18,11 +18,9 @@ class Schema_State implements Parser {
 	private $parser;
 
 	/**
-	 * @var Schema_Validation_Meta | null
+	 * @var Schema_Validation_Meta
 	 */
-	private $meta = null;
-
-	private $is_root = false;
+	private $meta;
 
 	/**
 	 * @param Parser $parser
@@ -31,9 +29,12 @@ class Schema_State implements Parser {
 		$this->parser = $parser;
 	}
 
-	public function set_meta( Schema_Validation_Meta $meta ) {
-		$this->meta    = $meta;
-		$this->is_root = true;
+	public function unwrap() {
+		return $this->parser;
+	}
+
+	public function override_meta( Schema_Validation_Meta $meta ) {
+		$this->meta = $meta;
 	}
 
 	public function get_log() {
@@ -53,10 +54,16 @@ class Schema_State implements Parser {
 	 * @return $this
 	 */
 	public function or( Parser $parser ) {
+
+		if ( $parser instanceof self ) {
+			$parser = $parser->unwrap();
+		}
+
 		if ( $this->parser instanceof Type_Or ) {
 			$this->parser->add_condition( $parser );
 			return $this;
 		}
+
 		$this->parser = new Type_Or( $this->parser );
 		$this->parser->add_condition( $parser );
 		return $this;
@@ -91,16 +98,6 @@ class Schema_State implements Parser {
 		return new Decorate_With_Default( $this->parser, null );
 	}
 
-	#[\ReturnTypeWillChange]
-	public function jsonSerialize() {
-		return $this->schema();
-	}
-
-	public function schema() {
-		return $this->parser->schema();
-	}
-
-
 	/**
 	 * Parses the input data according to the schema type.
 	 *
@@ -110,39 +107,38 @@ class Schema_State implements Parser {
 	 * @throws Schema_Parsing_Error When the input data is invalid.
 	 */
 	public function parse( $value, $meta = null ) {
-		if ( $meta === null && $this->meta === null ) {
-			// 1 - If the meta is null, then this is maybe the root.
-			$this->meta = new Schema_Validation_Meta( 'unknown' );
-			$this->meta->set_data( $value );
-			$this->is_root = true;
-		} else if ( $this->meta === null ) {
-			// 2 - If the meta is not null, then this is not the root.
-			$this->meta = $meta;
-		}
 
-		/**
-		 * If this is the root, then we need to catch any errors and log them.
-		 */
-		if ( $this->is_root ) {
-			try {
-				return $this->parser->parse( $value, $this->meta );
-			} catch ( Schema_Internal_Error $e ) {
+		$meta   = $meta ?? $this->meta ?? new Schema_Validation_Meta( 'unknown' );
+		$meta->set_data( $value );
 
-				if ( DS_Utils::is_debug_enabled() ) {
-					$value         = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
-					$error_message = "Failed to parse '{$this->meta->get_name()}' schema";
-					$error_message .= "\n" . $e->getMessage();
-					$error_message .= "\nData Received:";
-					$error_message .= "\n$value";
-					$error_message .= "\nSchema Path: {$this->meta->get_name()}.{$this->meta->get_path()}";
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					error_log( $error_message );
-				}
+		$parser = $this->parser instanceof self ? $this->parser->unwrap() : $this->parser;
+		
+		try {
+			return $parser->parse( $value, $meta );
+		} catch ( Schema_Internal_Error $e ) {
 
-				throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $this->meta );
+			if ( DS_Utils::is_debug_enabled() ) {
+				$value         = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
+				$error_message = "Failed to parse '{$meta->get_name()}' schema";
+				$error_message .= "\n" . $e->getMessage();
+				$error_message .= "\nData Received:";
+				$error_message .= "\n$value";
+				$error_message .= "\nSchema Path: {$meta->get_name()}.{$meta->get_path()}";
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( $error_message );
 			}
-		} else {
-			return $this->parser->parse( $value, $this->meta );
+
+			throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $meta );
 		}
 	}
+
+	#[\ReturnTypeWillChange]
+	public function jsonSerialize() {
+		return $this->schema();
+	}
+
+	public function schema() {
+		return $this->parser->schema();
+	}
+
 }
