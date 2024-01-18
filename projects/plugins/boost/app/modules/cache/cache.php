@@ -41,17 +41,14 @@ class Boost_Cache {
 		}
 
 		if ( $this->is_backend() ) {
-			error_log( "not caching a backend request: {$this->request_uri}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			return false;
 		}
 
 		if ( ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'POST' ) ) {
-			error_log( "not caching a POST request: {$this->request_uri}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			return false;
 		}
 
 		if ( isset( $_SERVER['HTTP_ACCEPT'] ) && strpos( $_SERVER['HTTP_ACCEPT'], 'text/html' ) === false ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			error_log( "not caching a non-html request: {$this->request_uri}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			return false;
 		}
 

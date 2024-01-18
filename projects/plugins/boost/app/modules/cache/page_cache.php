@@ -37,10 +37,8 @@ class Page_Cache implements Pluggable, Is_Always_On {
 		if ( $wp_filesystem->exists( $advanced_cache_filename ) ) {
 			$content = $wp_filesystem->get_contents( $advanced_cache_filename );
 			if ( strpos( $content, 'Boost Cache Plugin 0.1' ) !== false ) {
-				error_log( 'Boost Cache Plugin 0.1 found in advanced-cache.php' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				return true;
 			} else {
-				error_log( 'advanced-cache.php exists but is not the correct file' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				return new \WP_Error( 'advanced-cache.php exists but is not the correct file' );
 			}
 		} else {
@@ -49,7 +47,6 @@ class Page_Cache implements Pluggable, Is_Always_On {
 require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/file_cache.php\' );
 ';
 			$wp_filesystem->put_contents( $advanced_cache_filename, $contents, FS_CHMOD_FILE );
-			error_log( 'created wp-content/advanced-cache.php' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 
 		return true;
@@ -63,7 +60,6 @@ require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/file_cache
 
 		$content = $wp_filesystem->get_contents( ABSPATH . 'wp-config.php' );
 		if ( strpos( $content, 'define( \'WP_CACHE\', true );' ) !== false ) {
-			error_log( 'WP_CACHE already added to wp-config.php' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			return; // WP_CACHE already added.
 		}
 		$content = str_replace(
@@ -73,7 +69,6 @@ define( \'WP_CACHE\', true );',
 			$content
 		);
 		$wp_filesystem->put_contents( ABSPATH . 'wp-config.php', $content, FS_CHMOD_FILE );
-		error_log( "Added define( 'WP_CACHE', true ); to wp-config.php" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	}
 
 	public static function is_available() {

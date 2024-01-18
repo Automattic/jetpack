@@ -6,11 +6,6 @@ class Boost_File_Cache extends Boost_Cache {
 	private $path           = false;
 	private $cache_filename = false;
 
-	public function __construct() {
-		parent::__construct();
-		error_log( 'request_uri: ' . $this->request_uri ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-	}
-
 	private function calculate_path( $request_uri ) {
 		$key  = md5( $request_uri );
 		$path = WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'boost-cache' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR;
@@ -44,7 +39,6 @@ class Boost_File_Cache extends Boost_Cache {
 		}
 
 		if ( file_exists( $this->cache_filename() ) ) {
-			error_log( 'got cache from ' . $this->cache_filename() . ' for ' . $this->request_uri ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo file_get_contents( $this->cache_filename() ) . '<!-- cached -->';
 			die();
@@ -64,7 +58,6 @@ class Boost_File_Cache extends Boost_Cache {
 			return false;
 		}
 
-		error_log( 'saving: ' . $this->cache_filename() . ' for ' . $this->request_uri ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$this->create_cache_directory( dirname( $this->cache_filename() ) );
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $this->cache_filename(), $data );
