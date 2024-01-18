@@ -26,7 +26,7 @@ class Type_Array implements Parser {
 	 *
 	 * @return array
 	 */
-	public function parse( $value, $_meta = null ) {
+	public function parse( $value, $meta = null ) {
 		if ( ! is_array( $value ) ) {
 			$message = "Expected an array, received '" . gettype( $value ) . "'";
 			throw new Schema_Internal_Error( $message, $value );
@@ -34,7 +34,7 @@ class Type_Array implements Parser {
 
 		$parsed = array();
 		foreach ( $value as $key => $item ) {
-			$parsed[ $key ] = $this->parser->parse( $item );
+			$parsed[ $key ] = $this->parser->parse( $item, $meta );
 		}
 		return $parsed;
 	}
@@ -45,10 +45,7 @@ class Type_Array implements Parser {
 	public function __toString() {
 		return "array({$this->parser})";
 	}
-
-	/**
-	 * @return string
-	 */
+	
 	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->schema();
