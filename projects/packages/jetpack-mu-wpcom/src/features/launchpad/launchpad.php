@@ -278,7 +278,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'front_page_updated',
 				'verify_domain_email',
 				'verify_email',
-				'mobile_app_installed',
 				'post_sharing_enabled',
 				'site_launched',
 			),
