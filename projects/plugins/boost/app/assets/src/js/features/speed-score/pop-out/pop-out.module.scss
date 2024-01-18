@@ -12,21 +12,12 @@
 .card {
 	box-shadow: 0 0 20px 0 rgb(170 170 170 / 28%);
 
-	transition: right 0.5s ease-in-out;
-
 	position: relative;
 	right: -100%;
 	padding: 24px;
 
 	background-color: white;
 	pointer-events: all;
-}
-
-/**
- * Styles applied by CSSTransition when the component is fully visible.
- */
-.appearDone, .enterDone {
-	right: 0%;
 }
 
 .dismiss-button {

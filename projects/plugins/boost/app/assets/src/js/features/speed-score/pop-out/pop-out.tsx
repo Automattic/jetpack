@@ -1,4 +1,4 @@
-import { CSSTransition } from 'react-transition-group';
+import { animated, useSpring } from '@react-spring/web';
 import CloseButton from '$features/ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
@@ -70,40 +70,48 @@ function PopOut( { scoreChange }: Props ) {
 
 	const hideAlert = () => setClose( true );
 
+	const animationStyles = useSpring( {
+		from: {
+			right: '-100%',
+		},
+		to: {
+			right: hasScoreChanged && ! isDismissed && ! isClosed ? '0%' : '-100%',
+		},
+	} );
+
 	return (
 		<div id="parent" className={ styles.wrapper }>
-			<CSSTransition
-				in={ hasScoreChanged && ! isDismissed && ! isClosed }
-				appear={ true }
-				classNames={ { ...styles } }
+			<animated.div
+				className={ styles.card }
+				style={ {
+					...animationStyles,
+				} }
 			>
-				<div className={ styles.card }>
-					<CloseButton onClick={ hideAlert } />
+				<CloseButton onClick={ hideAlert } />
 
-					<h3 className={ styles.headline }>{ message.title }</h3>
+				<h3 className={ styles.headline }>{ message.title }</h3>
 
-					<>{ message.body }</>
+				<>{ message.body }</>
 
-					<a
-						className="jb-button--primary"
-						href={ message?.ctaLink }
-						target="_blank"
-						rel="noreferrer"
-						onClick={ dismissAlert }
-					>
-						{ message.cta }
-					</a>
+				<a
+					className="jb-button--primary"
+					href={ message?.ctaLink }
+					target="_blank"
+					rel="noreferrer"
+					onClick={ dismissAlert }
+				>
+					{ message.cta }
+				</a>
 
-					<Button
-						variant="link"
-						size="small"
-						className={ styles[ 'dismiss-button' ] }
-						onClick={ dismissAlert }
-					>
-						{ __( 'Do not show me again', 'jetpack-boost' ) }
-					</Button>
-				</div>
-			</CSSTransition>
+				<Button
+					variant="link"
+					size="small"
+					className={ styles[ 'dismiss-button' ] }
+					onClick={ dismissAlert }
+				>
+					{ __( 'Do not show me again', 'jetpack-boost' ) }
+				</Button>
+			</animated.div>
 		</div>
 	);
 }
