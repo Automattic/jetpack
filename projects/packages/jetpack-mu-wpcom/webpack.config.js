@@ -41,7 +41,7 @@ module.exports = {
 		new CopyPlugin( {
 			patterns: [
 				{
-					from: './src/features/verbum-comments/index.php',
+					from: './src/features/verbum-comments/class-verbum-comments.php',
 					to: './verbum-comments',
 				},
 				{
