@@ -79,7 +79,6 @@ class Atomic_Wp_Admin_Menu extends Admin_Menu {
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
-			$this->add_site_card_menu();
 			$this->add_new_site_link();
 		}
 
@@ -209,74 +208,6 @@ class Atomic_Wp_Admin_Menu extends Admin_Menu {
 		}
 
 		add_menu_page( __( 'Add New Site', 'jetpack' ), __( 'Add New Site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt' );
-	}
-
-	/**
-	 * Adds site card component.
-	 */
-	public function add_site_card_menu() {
-		$default        = plugins_url( 'globe-icon.svg', __FILE__ );
-		$icon           = get_site_icon_url( 32, $default );
-		$blog_name      = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
-		$is_coming_soon = ( new Status() )->is_coming_soon();
-
-		$badge = '';
-
-		if ( get_option( 'wpcom_is_staging_site' ) ) {
-			$badge .= '<span class="site__badge site__badge-staging">' . esc_html__( 'Staging', 'jetpack' ) . '</span>';
-		}
-
-		if ( ( function_exists( 'site_is_private' ) && site_is_private() ) || $is_coming_soon ) {
-			$badge .= sprintf(
-				'<span class="site__badge site__badge-private">%s</span>',
-				$is_coming_soon ? esc_html__( 'Coming Soon', 'jetpack' ) : esc_html__( 'Private', 'jetpack' )
-			);
-		}
-
-		$site_card = '
-<div class="site__info">
-	<div class="site__title">%1$s</div>
-	<div class="site__domain">%2$s</div>
-	%3$s
-</div>';
-
-		$site_card = sprintf(
-			$site_card,
-			$blog_name,
-			$this->domain,
-			$badge
-		);
-
-		add_menu_page( 'site-card', $site_card, 'read', get_home_url(), null, $icon, 1 );
-		add_filter( 'add_menu_classes', array( $this, 'set_site_card_menu_class' ) );
-	}
-
-	/**
-	 * Adds a custom element class and id for Site Card's menu item.
-	 *
-	 * @param array $menu Associative array of administration menu items.
-	 *
-	 * @return array
-	 */
-	public function set_site_card_menu_class( array $menu ) {
-		foreach ( $menu as $key => $menu_item ) {
-			if ( 'site-card' !== $menu_item[3] ) {
-				continue;
-			}
-
-			$classes = ' toplevel_page_site-card';
-
-			// webclip.png is the default on WoA sites. Anything other than that means we have a custom site icon.
-			if ( has_site_icon() && 'https://s0.wp.com/i/webclip.png' !== get_site_icon_url( 512 ) ) {
-				$classes .= ' has-site-icon';
-			}
-
-			$menu[ $key ][4] = $menu_item[4] . $classes;
-			$menu[ $key ][5] = 'toplevel_page_site_card';
-			break;
-		}
-
-		return $menu;
 	}
 
 	/**
