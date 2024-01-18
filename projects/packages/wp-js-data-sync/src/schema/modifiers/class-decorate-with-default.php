@@ -23,7 +23,7 @@ class Decorate_With_Default implements Parser {
 
 	public function parse( $value, $meta = null ) {
 		// @TODO: This shouldn't actually be this way. WIP.
-		$meta = $meta ?? new Schema_Validation_Meta('decorated_with_default');
+		$meta = $meta ?? new Schema_Validation_Meta( 'decorated_with_default' );
 		try {
 			return $this->parser->parse( $value, $meta );
 		} catch ( Schema_Internal_Error $e ) {
@@ -52,7 +52,7 @@ class Decorate_With_Default implements Parser {
 	}
 
 	public function __toString() {
-		return $this->parser->__toString() . ' (default: ' . $this->default_value . ')';
+		return $this->parser->__toString() . ' (default: ' . json_encode( $this->default_value, true ) . ')';
 	}
 
 	#[\ReturnTypeWillChange]
@@ -62,7 +62,7 @@ class Decorate_With_Default implements Parser {
 
 	public function schema() {
 		return $this->parser->schema() + array(
-			'default' => $this->default_value,
-		);
+				'default' => $this->default_value,
+			);
 	}
 }
