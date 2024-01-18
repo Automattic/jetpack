@@ -5,7 +5,7 @@ import Support from './support/support';
 import Tips from './tips/tips';
 import classNames from 'classnames';
 import styles from './settings-page.module.scss';
-import { usePremiumFeatures } from '../../pages/index/lib/hooks';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
 import LocalCriticalCssGeneratorProvider from '$features/critical-css/local-generator/local-generator-provider';
 
 type SettingsPageProps = {
@@ -14,7 +14,7 @@ type SettingsPageProps = {
 
 const SettingsPage = ( { children }: SettingsPageProps ) => {
 	const premiumFeatures = usePremiumFeatures();
-	const hasPrioritySupport = premiumFeatures?.includes( 'support' );
+	const hasPrioritySupport = premiumFeatures && premiumFeatures.includes( 'support' );
 
 	return (
 		<LocalCriticalCssGeneratorProvider>

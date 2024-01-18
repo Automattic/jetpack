@@ -1,4 +1,4 @@
-import { ConfigType, useConfig } from '$lib/stores/config-ds';
+import { type PricingSchema, usePricing } from '$lib/stores/pricing';
 import {
 	Button,
 	getRedirectUrl,
@@ -105,7 +105,7 @@ const isaContext = __(
 );
 
 type BoostPricingTableProps = {
-	pricing: ConfigType[ 'pricing' ];
+	pricing: PricingSchema;
 	onPremiumCTA: () => void;
 	onFreeCTA: () => void;
 	chosenFreePlan: boolean;
@@ -118,7 +118,7 @@ export const BoostPricingTable = ( {
 	chosenFreePlan,
 	chosenPaidPlan,
 }: BoostPricingTableProps ) => {
-	const { pricing } = useConfig();
+	const pricing = usePricing();
 
 	// If the first year discount ends, we want to show the default label.
 	const legend = pricing?.isIntroductoryOffer

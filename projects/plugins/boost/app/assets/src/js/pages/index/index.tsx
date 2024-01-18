@@ -5,7 +5,7 @@ import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { usePremiumFeatures } from './lib/hooks';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import { QualitySettings } from '$features/image-cdn';
@@ -14,6 +14,16 @@ import { RecommendationsMeta } from '$features/image-size-analysis';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
+
+const availableLazyLoadingDeprecation = __(
+	'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature will consequently be removed from Jetpack Boost.',
+	'jetpack-boost'
+);
+
+const unavailableLazyLoadingDeprecation = __(
+	'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature has been disabled to avoid potential conflicts with Gutenberg 16.6.0+ or WordPress 6.4+. This feature will consequently be removed from Jetpack Boost.',
+	'jetpack-boost'
+);
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -26,8 +36,10 @@ const Index = () => {
 	const requestRegenerateCriticalCss = () => {
 		regenerateCssAction.mutate();
 	};
+	const { canResizeImages } = Jetpack_Boost;
 
 	const premiumFeatures = usePremiumFeatures();
+	const isPremium = premiumFeatures !== false;
 
 	return (
 		<div className="jb-container--narrow">
@@ -185,7 +197,7 @@ const Index = () => {
 					</p>
 				}
 			>
-				<QualitySettings isPremium={ premiumFeatures?.includes( 'image-cdn-quality' ) ?? false } />
+				<QualitySettings isPremium={ isPremium } />
 			</Module>
 
 			<div className={ styles.settings }>
@@ -216,7 +228,7 @@ const Index = () => {
 						</>
 					}
 				>
-					{ false === Jetpack_Boost.site.canResizeImages && (
+					{ false === canResizeImages && (
 						<Notice
 							level="warning"
 							title={ __( 'Image resizing is unavailable', 'jetpack-boost' ) }

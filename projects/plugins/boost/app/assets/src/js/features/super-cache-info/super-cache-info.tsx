@@ -4,12 +4,9 @@ import { animated, useSpring } from '@react-spring/web';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { __, sprintf } from '@wordpress/i18n';
 import { Notice, Button } from '@automattic/jetpack-components';
-import {
-	measureSuperCacheSaving,
-	isSuperCachePluginActive,
-	isSuperCacheEnabled,
-} from '$lib/utils/measure-super-cache-saving';
+import { useMeasureSuperCacheSaving, useSuperCacheDS } from './lib/hooks';
 import { z } from 'zod';
+
 type State = {
 	status: 'idle' | 'testing' | 'error' | 'complete';
 	error?: string;
@@ -25,6 +22,8 @@ const SuperCacheInfo = () => {
 		z.boolean()
 	);
 
+	const { pluginActive, cacheEnabled } = useSuperCacheDS();
+	const measureSuperCacheSaving = useMeasureSuperCacheSaving();
 	const [ ref, { height } ] = useMeasure();
 	const animationStyles = useSpring( {
 		height: isNoticeDismissed ? 0 : height,
@@ -37,7 +36,7 @@ const SuperCacheInfo = () => {
 			const saving = await measureSuperCacheSaving();
 			setState( { status: 'complete', saving } );
 		} catch ( error ) {
-			setState( { status: 'error', error } );
+			setState( { status: 'error', error: error instanceof Error ? error.message : undefined } );
 		}
 	};
 
@@ -57,11 +56,11 @@ const SuperCacheInfo = () => {
 		</Button>
 	);
 
-	if ( ! isSuperCachePluginActive() ) {
+	if ( ! pluginActive ) {
 		return null;
 	}
 
-	if ( ! isSuperCacheEnabled() ) {
+	if ( ! cacheEnabled ) {
 		return (
 			<animated.div
 				style={ {
