@@ -247,9 +247,23 @@ function JetpackLikesMessageListener( event ) {
 						return;
 					}
 				} catch ( error ) {
-					// Error occurred while checking image existence, remove the element
-					element.remove();
-					return;
+					// Error occurred, but we check if there is a default image to be used in case the error were CORS
+					const url = new URL( liker.avatar_URL );
+					const defaultImageUrl = decodeURI( url.searchParams.get( 'd' ) );
+					if ( defaultImageUrl ) {
+						const defaultImageResponse = await fetch( defaultImageUrl, { method: 'HEAD' } );
+						if ( defaultImageResponse.ok ) {
+							liker.avatar_URL = defaultImageUrl;
+						} else {
+							// Default image doesn't exist, remove the element
+							element.remove();
+							return;
+						}
+					} else {
+						// Error occurred while checking image existence, remove the element
+						element.remove();
+						return;
+					}
 				}
 
 				if ( newLayout ) {
