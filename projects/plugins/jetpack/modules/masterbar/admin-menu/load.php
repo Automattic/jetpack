@@ -56,6 +56,11 @@ function get_admin_menu_class() {
 			return Domain_Only_Admin_Menu::class;
 		}
 
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			require_once __DIR__ . '/class-atomic-wp-admin-menu.php';
+			return Atomic_Wp_Admin_Menu::class;
+		}
+
 		require_once __DIR__ . '/class-atomic-admin-menu.php';
 		return Atomic_Admin_Menu::class;
 	}
