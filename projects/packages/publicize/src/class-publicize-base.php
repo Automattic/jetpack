@@ -1616,7 +1616,7 @@ abstract class Publicize_Base {
 		$response = wp_remote_get( $image_url, array( 'method' => 'HEAD' ) );
 		$size     = wp_remote_retrieve_header( $response, 'content-length' );
 
-		return $size ? $size : null;
+		return ! empty( $size ) ? $size : null;
 	}
 
 	/**
