@@ -165,7 +165,13 @@ class Schema implements Parser {
 	public function fallback( $default_value ) {
 		$fallback = new Decorate_With_Default( $this, $default_value );
 		if ( DS_Utils::is_debug_enabled() ) {
-			$this->parser->parse( $default_value );
+			try {
+				$this->parser->parse( $default_value );
+			} catch ( Schema_Internal_Error $e ) {
+				// Convert the internal error to a parsing error.
+				throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $this->meta );
+			}
+
 		}
 		return $fallback;
 	}

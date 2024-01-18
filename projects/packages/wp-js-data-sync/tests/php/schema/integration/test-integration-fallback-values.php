@@ -4,7 +4,6 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry_Adapter;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Option;
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
 use PHPUnit\Framework\TestCase;
 
@@ -211,7 +210,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		if ( DS_Utils::is_debug_enabled() ) {
 			// We're expecting an exception because $schema_empty_array defines an incorrect fallback shape.
 			// This throws an error in debug mode.
-			$this->expectException( Schema_Internal_Error::class );
+			$this->expectException( Schema_Parsing_Error::class );
 		}
 		$schema_empty_array = $schema_no_fallbacks->fallback( array() )->parse( array() );
 		$this->assertSame( array(), $schema_empty_array );
@@ -295,7 +294,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 
 		// In debug mode, defining an incorrect schema will throw an exception
 		DS_Utils::set_mode( 'debug' );
-		$this->expectException( Schema_Internal_Error::class );
+		$this->expectException( Schema_Parsing_Error::class );
 		Schema::as_string()->fallback( null );
 		DS_Utils::set_mode( null );
 
@@ -315,7 +314,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		// In debug mode, defining an incorrect schema will throw an exception
 		DS_Utils::set_mode( 'debug' );
 		// @TODO: No internal exceptions!
-		$this->expectException( Schema_Internal_Error::class );
+		$this->expectException( Schema_Parsing_Error::class );
 		Schema::as_assoc_array(
 			array(
 				'one' => Schema::as_string(),
