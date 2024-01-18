@@ -213,7 +213,7 @@ class Verbum_Comments {
 					'requireNameEmail'                  => boolval( get_blog_option( $this->blog_id, 'require_name_email' ) ),
 					'commentRegistration'               => $comment_registration_enabled,
 					'connectURL'                        => $connect_url,
-					'logoutURL'                         => html_entity_decode( wp_logout_url() ),
+					'logoutURL'                         => html_entity_decode( wp_logout_url(), ENT_COMPAT ),
 					'homeURL'                           => home_url( '/' ),
 					'subscribeToBlog'                   => $subscribe_to_blog,
 					'subscribeToComment'                => $subscribe_to_comment,
