@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.31
+// @version      1.33
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
-// @connect      jurassic.ninja
+// @connect      betadownload.jetpack.me
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
 // ==/UserScript==
@@ -88,6 +88,7 @@
 		}
 
 		const host = 'https://jurassic.ninja';
+		const host2 = 'https://jurassicninja1.wordpress.com';
 		const currentBranch = jQuery( '.head-ref:first' ).text();
 		const branchStatus = $( '.gh-header-meta .State' ).text().trim();
 		const repo = determineRepo();
@@ -95,8 +96,11 @@
 		if ( branchStatus === 'Merged' ) {
 			const contents = `
 				<p><strong>This branch is already merged.</strong></p>
-				<p><a target="_blank" rel="nofollow noopener" href="${ getLink()[ 0 ] }">
+				<p><a target="_blank" rel="nofollow noopener" href="${ getLink( host )[ 0 ] }">
 					Test with <code>trunk</code> branch instead.
+				</a><br/>
+				<a target="_blank" rel="nofollow noopener" href="${ getLink( host2 )[ 0 ] }">
+					Test with <code>trunk</code> branch instead on Atomic.
 				</a></p>
 			`;
 			appendHtml( markdownBody, contents );
@@ -108,19 +112,20 @@
 		} else {
 			if ( ! pluginsList ) {
 				pluginsList = dofetch(
-					`${ host }/wp-json/jurassic.ninja/jetpack-beta/branches/${ repo }/${ currentBranch }`
+					// prettier-ignore
+					`https://betadownload.jetpack.me/query-branch.php?repo=${ encodeURIComponent( repo ) }&branch=${ encodeURIComponent( currentBranch ) }`
 				);
 			}
 			pluginsList
 				.then( body => {
 					const plugins = [];
 
-					if ( body.status === 'ok' ) {
+					if ( body.hasOwnProperty( 'plugins' ) ) {
 						const labels = new Set(
 							$.map( $( '.js-issue-labels a.IssueLabel' ), e => $( e ).data( 'name' ) )
 						);
-						Object.keys( body.data.plugins ).forEach( k => {
-							const data = body.data.plugins[ k ];
+						Object.keys( body.plugins ).forEach( k => {
+							const data = body.plugins[ k ];
 							plugins.push( {
 								name: `branches.${ k }`,
 								value: currentBranch,
@@ -143,14 +148,6 @@
 							);
 							return;
 						}
-					} else if ( body.code === 'rest_no_route' ) {
-						plugins.push( {
-							name: 'branch',
-							value: currentBranch,
-							label: 'Jetpack',
-							checked: true,
-							disabled: true,
-						} );
 					} else {
 						throw new Error( 'Invalid response from server' );
 					}
@@ -278,9 +275,14 @@
 					<p>
 						<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
 					</p>
+					<p><h3>JurassicNinja on Atomic</h3></p>
+					<p>
+						<a id="jetpack-beta-branch-link2" target="_blank" rel="nofollow noopener" href="#">…</a>
+					</p>
 					`;
 					appendHtml( markdownBody, contents );
 					updateLink();
+					updateLink2();
 				} )
 				.catch( e => {
 					pluginsList = null;
@@ -338,9 +340,10 @@
 		/**
 		 * Build the JN create URI.
 		 *
+		 * @param {string} which_host - Host/domain to use for link.
 		 * @returns {string} URI.
 		 */
-		function getLink() {
+		function getLink( which_host ) {
 			const query = [ 'jetpack-beta' ];
 			$(
 				'#jetpack-live-branches input[type=checkbox]:checked:not([data-invert]), #jetpack-live-branches input[type=checkbox][data-invert]:not(:checked)'
@@ -358,7 +361,7 @@
 				}
 			} );
 			// prettier-ignore
-			return [ `${ host }/create?${ query.join( '&' ).replace( /%(2F|5[BD])/g, m => decodeURIComponent( m ) ) }`, query ];
+			return [ `${ which_host }/create?${ query.join( '&' ).replace( /%(2F|5[BD])/g, m => decodeURIComponent( m ) ) }`, query ];
 		}
 
 		/**
@@ -439,6 +442,7 @@
 				e.target.removeAttribute( 'checked' );
 			}
 			updateLink();
+			updateLink2();
 		}
 
 		/**
@@ -461,7 +465,38 @@
 		 */
 		function updateLink() {
 			const $link = $( '#jetpack-beta-branch-link' );
-			const [ url, query ] = getLink();
+			const [ url, query ] = getLink( host );
+
+			if ( url.match( /[?&]branch(es\.[^&=]*)?=/ ) ) {
+				if (
+					query.includes( 'jpcrm-populate-crm-data' ) &&
+					! url.match( /[?&]branches\.zero-bs-crm/ )
+				) {
+					// /jpcrm-populate-crm-data/
+					$link
+						.attr( 'href', null )
+						.text( 'Select the Jetpack CRM plugin in order to populate with CRM data' );
+				} else if (
+					query.includes( 'jpcrm-populate-woo-data' ) &&
+					! query.includes( 'woocommerce' )
+				) {
+					$link
+						.attr( 'href', null )
+						.text( 'Select the WooCommerce plugin in order to populate with CRM Woo data' );
+				} else {
+					$link.attr( 'href', url ).text( url );
+				}
+			} else {
+				$link.attr( 'href', null ).text( 'Select at least one plugin to test' );
+			}
+		}
+
+		/**
+		 * Update the link.
+		 */
+		function updateLink2() {
+			const $link = $( '#jetpack-beta-branch-link2' );
+			const [ url, query ] = getLink( host2 );
 
 			if ( url.match( /[?&]branch(es\.[^&=]*)?=/ ) ) {
 				if (

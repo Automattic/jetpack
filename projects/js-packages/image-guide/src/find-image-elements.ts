@@ -3,8 +3,8 @@ import { FetchFn, MeasurableImage } from './MeasurableImage';
 /**
  * Get elements that either are image tags or have a background image.
  *
- * @param {Element[]} nodes -  A list of nodes to filter
- * @returns {HTMLElement[] | HTMLImageElement[]} - A list of nodes that are either image tags or have a background image.
+ * @param {Element[]} nodes - A list of nodes to filter
+ * @return {HTMLElement[] | HTMLImageElement[]} - A list of nodes that are either image tags or have a background image.
  */
 export function findMeasurableElements( nodes: Element[] ): HTMLElement[] | HTMLImageElement[] {
 	return nodes.filter( ( el ): el is HTMLElement | HTMLImageElement => {
@@ -22,8 +22,8 @@ export function findMeasurableElements( nodes: Element[] ): HTMLElement[] | HTML
 /**
  * Get the current image source from a node.
  *
- * @param {HTMLImageElement} node -  HTMLImageElement
- * @returns {string | null} - The URL of the image or null if it can't be determined.
+ * @param {HTMLImageElement} node - HTMLImageElement
+ * @return {string | null} - The URL of the image or null if it can't be determined.
  */
 export function imageTagSource( node: HTMLImageElement ) {
 	if ( imageLikeURL( node.currentSrc ) ) {
@@ -40,7 +40,7 @@ export function imageTagSource( node: HTMLImageElement ) {
  * Get the background image URL from a node.
  *
  * @param {HTMLImageElement} node - HTMLElement
- * @returns {string | null} - The URL of the image or null if it can't be determined.
+ * @return {string | null} - The URL of the image or null if it can't be determined.
  */
 export function backgroundImageSource( node: HTMLElement ) {
 	const src = getComputedStyle( node ).backgroundImage;
@@ -59,9 +59,9 @@ export function backgroundImageSource( node: HTMLElement ) {
  * Create MeasurableImage objects from a list of nodes
  * and remove any nodes that can't be measured.
  *
- * @param {Element[]} domNodes - A list of nodes to measure
- * @param {(input: string, init?: Array) => Promise<Response>} fetchFn -  A function that fetches a URL and returns a Promise.
- * @returns {MeasurableImage[]} - A list of MeasurableImage objects.
+ * @param {Element[]}                                          domNodes - A list of nodes to measure
+ * @param {(input: string, init?: Array) => Promise<Response>} fetchFn  - A function that fetches a URL and returns a Promise.
+ * @return {MeasurableImage[]} - A list of MeasurableImage objects.
  */
 export async function getMeasurableImages(
 	domNodes: Element[],
@@ -104,7 +104,7 @@ export async function getMeasurableImages(
  * we also don't consider SVGs to be images.
  *
  * @param {string} value - string to check
- * @returns {boolean} - true if the value looks like a URL
+ * @return {boolean} - true if the value looks like a URL
  */
 function imageLikeURL( value: string ): boolean {
 	// Look for relative URLs that are not SVGs

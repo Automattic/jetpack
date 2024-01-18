@@ -74,7 +74,7 @@ export class Navigation extends React.Component {
 		const jetpackPlansPath = getRedirectUrl(
 			this.props.hasConnectedOwner ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
 			{
-				site: this.props.siteUrl,
+				site: this.props.blogID ?? this.props.siteUrl,
 				...( this.props.purchaseToken
 					? { query: `purchasetoken=${ this.props.purchaseToken }` }
 					: {} ),

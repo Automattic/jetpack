@@ -2,11 +2,11 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
 
 class Type_Assoc_Array implements Parser {
-	private $assoc_parser_array;
+	private $parser;
 
 	/**
 	 * Assoc Array type takes in a parser in the constructor and
@@ -15,7 +15,7 @@ class Type_Assoc_Array implements Parser {
 	 * @param Parser[] $assoc_parser_array - An associative array of parsers to use.
 	 */
 	public function __construct( array $assoc_parser_array ) {
-		$this->assoc_parser_array = $assoc_parser_array;
+		$this->parser = $assoc_parser_array;
 	}
 
 	/**
@@ -25,44 +25,48 @@ class Type_Assoc_Array implements Parser {
 	 * It will then loop over each key that was provided in the constructor
 	 * and pull the value based on that key from the $data array.
 	 *
-	 * @param $input_value mixed[]
-	 * @throws \Error - If the $data passed to it is not an associative array.
+	 * @param $value mixed[]
 	 *
 	 * @return array
+	 * @throws Schema_Internal_Error - If the $data passed to it is not an associative array.
+	 *
 	 */
-	public function parse( $input_value ) {
+	public function parse( $value, $meta = null ) {
 		// Allow coercing stdClass objects (often returned from json_decode) to an assoc array.
-		if ( is_object( $input_value ) && get_class( $input_value ) === 'stdClass' ) {
-			$input_value = (array) $input_value;
+		if ( is_object( $value ) && $value instanceof \stdClass ) {
+			$value = (array) $value;
 		}
 
-		if ( ! is_array( $input_value ) || $this->is_sequential_array( $input_value ) ) {
-			$message = "Expected an associative array, received '" . gettype( $input_value ) . "'";
-			throw new \Error( $message );
+		if ( ! is_array( $value ) || $this->is_sequential_array( $value ) ) {
+			$message = "Expected an associative array, received '" . gettype( $value ) . "'";
+			throw new Schema_Internal_Error( $message, $value );
 		}
 
-		$parsed = array();
-		foreach ( $this->assoc_parser_array as $key => $parser ) {
-			if ( ! isset( $input_value[ $key ] ) ) {
-				if ( $parser instanceof Decorate_With_Default ) {
-					$value = $parser->parse( null );
+		$output = array();
+		foreach ( $this->parser as $key => $parser ) {
 
-					// @TODO Document this behavior.
-					// At the moment, values that are null are dropped from assoc arrays.
-					// to match the Zod behavior.
-					if ( $value !== null ) {
-						$parsed[ $key ] = $value;
-					}
-				} else {
-					$message = "Expected key '$key' in associative array";
-					throw new \Error( $message );
-				}
-			} else {
-				$parsed[ $key ] = $parser->parse( $input_value[ $key ] );
+			if ( null !== $meta ) {
+				$meta->add_to_path( $key );
+			}
+
+			if ( ! isset( $value[ $key ] ) ) {
+				$value[ $key ] = null;
+			}
+
+			$parsed = $parser->parse( $value[ $key ], $meta );
+			// @TODO Document this behavior.
+			// At the moment, values that are null are dropped from assoc arrays.
+			// to match the Zod behavior.
+			if ( $parsed !== null ) {
+				$output[ $key ] = $parsed;
+			}
+
+			if ( null !== $meta ) {
+				$meta->remove_path( $key );
 			}
 		}
 
-		return $parsed;
+		return $output;
 	}
 
 	private function is_sequential_array( $arr ) {
@@ -70,5 +74,32 @@ class Type_Assoc_Array implements Parser {
 			return false;
 		}
 		return array_keys( $arr ) === range( 0, count( $arr ) - 1 );
+	}
+
+	public function __toString() {
+		$results = array();
+		foreach ( $this->parser as $key => $parser ) {
+			$results[ $key ] = $parser;
+		}
+		return 'assoc_array(' . wp_json_encode( $results, JSON_PRETTY_PRINT ) . ')';
+	}
+
+	/**
+	 * @return string
+	 */
+	#[\ReturnTypeWillChange]
+	public function jsonSerialize() {
+		return $this->schema();
+	}
+
+	public function schema() {
+		$results = array();
+		foreach ( $this->parser as $key => $parser ) {
+			$results[ $key ] = $parser->schema();
+		}
+		return array(
+			'type'  => 'assoc_array',
+			'value' => $results,
+		);
 	}
 }
