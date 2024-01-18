@@ -9,11 +9,6 @@ use Automattic\Jetpack_Boost\Lib\Analytics;
 class Image_Guide implements Pluggable {
 
 	public function setup() {
-
-		if ( is_admin() ) {
-			add_filter( 'jetpack_boost_js_constants', array( $this, 'can_resize_images' ) );
-		}
-
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$override = isset( $_GET['jb-debug-ig'] );
 
@@ -35,14 +30,6 @@ class Image_Guide implements Pluggable {
 		 * The priority determines where the admin bar menu item is placed.
 		 */
 		add_action( 'admin_bar_menu', array( $this, 'add_to_adminbar' ), 500 );
-	}
-
-	public function can_resize_images( $constants ) {
-		if ( ! isset( $constants['site'] ) ) {
-			$constants['site'] = array();
-		}
-		$constants['site']['canResizeImages'] = wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) );
-		return $constants;
 	}
 
 	public static function get_slug() {
