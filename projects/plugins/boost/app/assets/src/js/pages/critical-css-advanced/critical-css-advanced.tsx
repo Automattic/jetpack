@@ -15,6 +15,11 @@ import { useNavigate } from 'react-router-dom';
 import { Provider } from '$features/critical-css';
 import classNames from 'classnames';
 
+type HeadingMetaProps = {
+	dismissedIssues: Provider[];
+	showDismissedIssues: () => void;
+};
+
 type RecommendationProps = {
 	provider: Provider;
 	setDismissed: ( dismissedItems: { key: string; dismissed: boolean }[] ) => void;
@@ -65,20 +70,10 @@ export default function AdvancedCriticalCss() {
 				<Heading heading={ heading } />
 
 				{ dismissedIssues.length > 0 && (
-					<p>
-						<button className="components-button is-link" onClick={ showDismissedIssues }>
-							{ sprintf(
-								/* translators: %d is a number of recommendations which were previously hidden by the user */
-								_n(
-									'Show %d hidden recommendation.',
-									'Show %d hidden recommendations.',
-									dismissedIssues.length,
-									'jetpack-boost'
-								),
-								dismissedIssues.length
-							) }
-						</button>
-					</p>
+					<HeadingMeta
+						dismissedIssues={ dismissedIssues }
+						showDismissedIssues={ showDismissedIssues }
+					/>
 				) }
 			</section>
 
@@ -102,6 +97,44 @@ const Heading = ( { heading }: { heading: string } ) => {
 	);
 };
 
+const HeadingMeta = ( { dismissedIssues, showDismissedIssues }: HeadingMetaProps ) => {
+	const [ showHidden, setShowHidden ] = useState( dismissedIssues.length === 0 );
+
+	const [ ref, { height } ] = useMeasure();
+	const animationStyles = useSpring( {
+		height: showHidden ? 0 : height,
+		onRest: showHidden ? () => showDismissedIssues() : undefined,
+	} );
+
+	return (
+		<animated.div
+			style={ {
+				overflow: 'hidden',
+				marginTop: 24,
+				marginBottom: 24,
+				...animationStyles,
+			} }
+		>
+			<div ref={ ref }>
+				<p style={ { margin: 0 } }>
+					<button className="components-button is-link" onClick={ () => setShowHidden( true ) }>
+						{ sprintf(
+							/* translators: %d is a number of recommendations which were previously hidden by the user */
+							_n(
+								'Show %d hidden recommendation.',
+								'Show %d hidden recommendations.',
+								dismissedIssues.length,
+								'jetpack-boost'
+							),
+							dismissedIssues.length
+						) }
+					</button>
+				</p>
+			</div>
+		</animated.div>
+	);
+};
+
 const Recommendation = ( { provider, setDismissed }: RecommendationProps ) => {
 	const [ isDismissed, setIsDismissed ] = useState( provider.error_status === 'dismissed' );
 
@@ -119,9 +152,7 @@ const Recommendation = ( { provider, setDismissed }: RecommendationProps ) => {
 	return (
 		<animated.div
 			className={ styles[ 'recommendation-animation-wrapper' ] }
-			style={ {
-				...animationStyles,
-			} }
+			style={ animationStyles }
 		>
 			<div ref={ ref } className={ classNames( 'panel', styles.panel ) }>
 				<CloseButton onClick={ () => setIsDismissed( true ) } />
