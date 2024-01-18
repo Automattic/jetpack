@@ -166,7 +166,8 @@ class Schema implements Parser {
 		$fallback = new Decorate_With_Default( $this, $default_value );
 		if ( DS_Utils::is_debug_enabled() ) {
 			try {
-				$this->parser->parse( $default_value );
+				$debug_meta = new Schema_Validation_Meta( 'debug-mode' );
+				$this->parser->parse( $default_value, $this->meta ?? $debug_meta );
 			} catch ( Schema_Internal_Error $e ) {
 				// Convert the internal error to a parsing error.
 				throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $this->meta );
