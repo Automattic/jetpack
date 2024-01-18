@@ -86,7 +86,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
-		$this->add_woocommerce_installation_menu();
 		ksort( $GLOBALS['menu'] );
 	}
 
