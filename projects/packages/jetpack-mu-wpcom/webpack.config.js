@@ -34,9 +34,6 @@ module.exports = {
 		...jetpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: { injectPolyfill: true },
 			MiniCssExtractPlugin: { filename: '[name]/[name].css' },
-			I18nCheckPlugin: {
-				filter: [ 'node_modules/**', 'src/build/verbum-comments/verbum-comments.js' ],
-			},
 		} ),
 		new webpack.ProvidePlugin( {
 			h: [ 'preact', 'h' ],
