@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
-use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -73,7 +72,8 @@ class Atomic_Wp_Admin_Menu extends Admin_Menu {
 
 		$this->remove_gutenberg_menu();
 
-		if ( ! get_option( 'wpcom_is_staging_site' ) /* todo: && mailboxes exist */ ) {
+		// Toadd: && mailboxes exist
+		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
 			$this->add_my_mailboxes_menu();
 		}
 
