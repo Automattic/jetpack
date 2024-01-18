@@ -2,7 +2,9 @@
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry_Adapter;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Option;
+use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
 use PHPUnit\Framework\TestCase;
 
@@ -203,6 +205,14 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$schema_with_parent_fallback = $schema->fallback( array() )->parse( null );
 		$this->assertSame( array(), $schema_with_parent_fallback );
 
+		// This looks valid code and will not break in production.
+		// However, an empty array does not match $schema_no_fallbacks as a fallback.
+		// It should have a fallback of `null` instead.
+		if ( DS_Utils::is_debug_enabled() ) {
+			// We're expecting an exception because $schema_empty_array defines an incorrect fallback shape.
+			// This throws an error in debug mode.
+			$this->expectException( Schema_Internal_Error::class );
+		}
 		$schema_empty_array = $schema_no_fallbacks->fallback( array() )->parse( array() );
 		$this->assertSame( array(), $schema_empty_array );
 
@@ -261,5 +271,68 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$this->assertSame( $data, $schema->parse( $data ) );
 		unset( $data['SAFE'] );
 		$this->assertSame( $data, $schema->parse( $data ) );
+	}
+
+	public function test_debug_mode_fallbacks() {
+		DS_Utils::set_mode( 'debug' );
+		$this->test_fallback();
+		$this->test_nullable();
+		$this->test_parent_fallback();
+		$this->test_boolean_fallback();
+		$this->test_wordpress_option_fallback_true();
+		$this->test_wordpress_option_no_fallback();
+		$this->test_nested_fallbacks();
+		$this->test_fallbacks_dont_disappear();
+		DS_Utils::set_mode( null );
+	}
+
+	public function test_debug_mode_invalid_fallback_string() {
+
+		// Define an incorrect Schema
+		DS_Utils::set_mode( null );
+		$schema = Schema::as_string()->fallback( null );
+		$this->assertSame( null, $schema->parse( null ) );
+
+		// In debug mode, defining an incorrect schema will throw an exception
+		DS_Utils::set_mode( 'debug' );
+		$this->expectException( Schema_Internal_Error::class );
+		Schema::as_string()->fallback( null );
+		DS_Utils::set_mode( null );
+
+	}
+
+	public function test_debug_mode_invalid_fallback_assoc_array() {
+
+		// Define an incorrect Schema
+		DS_Utils::set_mode( null );
+		$schema = Schema::as_assoc_array(
+			array(
+				'one' => Schema::as_string(),
+			)
+		)->fallback( null );
+		$this->assertSame( null, $schema->parse( null ) );
+
+		// In debug mode, defining an incorrect schema will throw an exception
+		DS_Utils::set_mode( 'debug' );
+		// @TODO: No internal exceptions!
+		$this->expectException( Schema_Internal_Error::class );
+		Schema::as_assoc_array(
+			array(
+				'one' => Schema::as_string(),
+			)
+		)->fallback( null );
+		DS_Utils::set_mode( null );
+
+	}
+
+	public function test_debug_mode_nullable_works_on_assoc_arrays() {
+		DS_Utils::set_mode( 'debug' );
+		$schema = Schema::as_assoc_array(
+			array(
+				'one' => Schema::as_string()->nullable(),
+			)
+		)->nullable();
+		$this->assertSame( null, $schema->parse( null ) );
+		DS_Utils::set_mode( null );
 	}
 }

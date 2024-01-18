@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Type_Or;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any_JSON;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Array;
@@ -108,7 +109,7 @@ class Schema implements Parser {
 			$this->meta = new Schema_Validation_Meta( 'unknown' );
 			$this->meta->set_data( $value );
 			$this->is_root = true;
-		} elseif ( $this->meta === null ) {
+		} else if ( $this->meta === null ) {
 			// 2 - If the meta is not null, then this is not the root.
 			$this->meta = $meta;
 		}
@@ -120,9 +121,10 @@ class Schema implements Parser {
 			try {
 				return $this->parser->parse( $value, $this->meta );
 			} catch ( Schema_Internal_Error $e ) {
+
 				if ( DS_Utils::is_debug_enabled() ) {
-					$value          = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
-					$error_message  = "Failed to parse '{$this->meta->get_name()}' schema";
+					$value         = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
+					$error_message = "Failed to parse '{$this->meta->get_name()}' schema";
 					$error_message .= "\n" . $e->getMessage();
 					$error_message .= "\nData Received:";
 					$error_message .= "\n$value";
@@ -161,11 +163,27 @@ class Schema implements Parser {
 	 * @return Decorate_With_Default A new instance with the fallback value applied.
 	 */
 	public function fallback( $default_value ) {
-		return new Decorate_With_Default( $this->parser, $default_value );
+		$fallback = new Decorate_With_Default( $this, $default_value );
+		if ( DS_Utils::is_debug_enabled() ) {
+			$this->parser->parse( $default_value );
+		}
+		return $fallback;
 	}
 
 	public function nullable() {
-		return $this->fallback( null );
+		$this->or( new Type_Void() );
+		return new Decorate_With_Default( $this->parser, null );
+	}
+
+
+	public function or( Parser $parser ): Schema {
+		if ( $this->parser instanceof Type_Or ) {
+			$this->parser->add_condition( $parser );
+			return $this;
+		}
+		$this->parser = new Type_Or( $this->parser );
+		$this->parser->add_condition( $parser );
+		return $this;
 	}
 
 	/**
@@ -174,6 +192,7 @@ class Schema implements Parser {
 	 *      This section defines the static methods for creating instances quickly.
 	 * ==================================================================================
 	 */
+
 
 	public static function as_string() {
 		return new self( new Type_String() );
