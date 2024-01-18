@@ -32,6 +32,29 @@ registerJetpackBlockFromMetadata( metadata, {
 					} );
 				},
 			},
+			{
+				type: 'block',
+				isMultiBlock: false,
+				blocks: [ 'core/buttons' ],
+				transform: ( props, children ) => {
+					if ( ! children?.length ) {
+						return createBlock( 'jetpack/subscriptions' );
+					}
+
+					const blocks = [];
+
+					children?.forEach( button => {
+						const text = button?.attributes?.text;
+						blocks.push(
+							createBlock( 'jetpack/subscriptions', {
+								...( text ? { submitButtonText: text } : {} ),
+							} )
+						);
+					} );
+
+					return blocks;
+				},
+			},
 		],
 	},
 	deprecated,
