@@ -31,12 +31,15 @@ class Boost_Cache {
 	 *
 	 * If a request is in the backend, or is a POST request, or is not an
 	 * html request, it is not cacheable.
-	 * The filter boost_cache_cacheable can be used to override this, as
-	 * long as the previous checks pass.
+	 * The filter boost_cache_cacheable can be used to override this.
 	 *
 	 * @return bool
 	 */
 	public function is_cacheable() {
+		if ( ! apply_filters( 'boost_cache_cacheable', $this->request_uri ) ) {
+			return false;
+		}
+
 		if ( $this->is_backend() ) {
 			error_log( "not caching a backend request: {$this->request_uri}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			return false;
@@ -52,7 +55,7 @@ class Boost_Cache {
 			return false;
 		}
 
-		return apply_filters( 'boost_cache_cacheable', $this->request_uri );
+		return true;
 	}
 
 	/*
