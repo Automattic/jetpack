@@ -1,12 +1,23 @@
 <?php
+/**
+ * Verbum Gutenberg Editor
+ *
+ * @package automattic/jetpack-mu-plugins
+ */
+
 declare( strict_types = 1 );
+
 /**
  * Verbum_Gutenberg_Editor is responsible for loading the Gutenberg editor for comments.
  *
  * This loads the isolated editor, and sets up the editor to be used for Verbum_Comments.
+ *
  * @see https://github.com/Automattic/isolated-block-editor
  */
 class Verbum_Gutenberg_Editor {
+	/**
+	 * Class constructor
+	 */
 	public function __construct() {
 		define( 'VERBUM_USING_GUTENBERG', true );
 
@@ -14,15 +25,18 @@ class Verbum_Gutenberg_Editor {
 		add_filter(
 			'write_your_story',
 			function () {
-				return __( 'Write a comment...' );
+				return __( 'Write a comment...', 'jetpack-mu-wpcom' );
 			},
 			9999
 		);
 		add_filter( 'comment_text', array( $this, 'render_verbum_blocks' ) );
-		add_filter( 'pre_comment_content', [ $this, 'remove_blocks' ] );
-		add_filter( 'wp_enqueue_scripts', [ $this, 'enqueue_assets' ] );
+		add_filter( 'pre_comment_content', array( $this, 'remove_blocks' ) );
+		add_filter( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
 
+	/**
+	 * Enqueue the assets for the Gutenberg editor
+	 */
 	public function enqueue_assets() {
 		$vbe_cache_buster = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/build_meta.json' );
 
@@ -34,12 +48,19 @@ class Verbum_Gutenberg_Editor {
 		);
 	}
 
+	/**
+	 * Render blocks in the comment content
+	 * Filters blocks that aren't allowed
+	 *
+	 * @param string $comment_content - Text of the comment.
+	 * @return string
+	 */
 	public function render_verbum_blocks( $comment_content ) {
 		if ( ! has_blocks( $comment_content ) ) {
 			return $comment_content;
 		}
 
-		$blocks = parse_blocks( $comment_content );
+		$blocks          = parse_blocks( $comment_content );
 		$comment_content = '';
 
 		$allowed_blocks = self::get_allowed_blocks();
@@ -55,7 +76,7 @@ class Verbum_Gutenberg_Editor {
 	/**
 	 * Remove blocks that aren't allowed
 	 *
-	 * @param string $content
+	 * @param string $content - Text of the comment.
 	 * @return string
 	 */
 	public function remove_blocks( $content ) {
@@ -87,15 +108,15 @@ class Verbum_Gutenberg_Editor {
 		global $allowedtags;
 
 		$allowed_blocks = array( 'core/paragraph', 'core/list', 'core/code', 'core/list-item', 'core/quote', 'core/image', 'core/embed' );
-		$convert = array(
+		$convert        = array(
 			'blockquote' => 'core/quote',
-			'h1' => 'core/heading',
-			'h2' => 'core/heading',
-			'h3' => 'core/heading',
-			'img' => 'core/image',
-			'ul' => 'core/list',
-			'ol' => 'core/list',
-			'pre' => 'core/code',
+			'h1'         => 'core/heading',
+			'h2'         => 'core/heading',
+			'h3'         => 'core/heading',
+			'img'        => 'core/image',
+			'ul'         => 'core/list',
+			'ol'         => 'core/list',
+			'pre'        => 'core/code',
 			// 'table' => 'core/table',
 			// 'video' => 'core/video',
 		);

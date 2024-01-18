@@ -12,7 +12,7 @@ namespace Automattic\Jetpack;
 
 require_once __DIR__ . '/assets/verbum-auth.php';
 require_once __DIR__ . '/assets/verbum-embed.php';
-require_once __DIR__ . '/assets/gutenberg-comments.php';
+require_once __DIR__ . '/assets/class-verbum-gutenberg-editor.php';
 
 /**
  * Verbum Comments Experience
