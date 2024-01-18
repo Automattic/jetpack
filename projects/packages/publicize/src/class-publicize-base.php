@@ -1653,8 +1653,7 @@ abstract class Publicize_Base {
 
 		// If the image is still too large, we failed.
 		if ( $filesize > $max_filesize ) {
-			// Track this to see if blank images in shared posts may be due to this code path.
-			bump_stats_extras( 'publicize_error_condition', 'overlarge-image-' . wpcom_blog_site_id_label() );
+			// TODO: Track this to see if conversion failed.
 			return null;
 		}
 
