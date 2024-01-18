@@ -64,6 +64,9 @@ module.exports = {
 				includeNodeModules: [ '@automattic/jetpack-' ],
 			} ),
 
+			// preact has some `__` internal methods, which confuse i18n-check-webpack-plugin. Hack around that.
+			jetpackConfig.I18nHackRule( [ 'preact' ] ),
+
 			// Handle CSS.
 			jetpackConfig.CssRule( {
 				extensions: [ 'css', 'scss' ],
