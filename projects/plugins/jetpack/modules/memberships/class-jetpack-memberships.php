@@ -202,7 +202,6 @@ class Jetpack_Memberships {
 	public function init_hook_action() {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
-		\switch_to_locale( get_locale() );
 		$this->setup_cpts();
 	}
 
