@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
 
@@ -14,8 +15,12 @@ class Type_Assoc_Array implements Parser {
 	 *
 	 * @param Parser[] $assoc_parser_array - An associative array of parsers to use.
 	 */
-	public function __construct( array $assoc_parser_array ) {
+	public function __construct( $assoc_parser_array ) {
 		$this->parser = $assoc_parser_array;
+		if ( ! is_array( $assoc_parser_array ) && DS_Utils::is_debug_enabled() ) {
+			$message = "Expected an associative array of parsers, received '" . gettype( $assoc_parser_array ) . "'";
+			throw new Schema_Internal_Error( $message, $assoc_parser_array );
+		}
 	}
 
 	/**
