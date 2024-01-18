@@ -4,7 +4,7 @@ const path = require( 'path' );
 const jetpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const CopyPlugin = require( 'copy-webpack-plugin' );
 const webpack = require( 'webpack' );
-const GetVerbumBundleSizePlugin = require( './utils/get-verbum-bundle-size-plugin' );
+const GetVerbumBundleSizePlugin = require( './custom-plugins/get-verbum-bundle-size-plugin' );
 
 module.exports = {
 	entry: {

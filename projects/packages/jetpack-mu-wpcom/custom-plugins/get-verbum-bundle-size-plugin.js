@@ -4,10 +4,10 @@ const webpack = require( 'webpack' );
 
 class GetVerbumBundleSizePlugin {
 	apply( compiler ) {
-		compiler.hooks.compilation.tap( 'AfterBuildPlugin', compilation => {
+		compiler.hooks.compilation.tap( 'GetVerbumBundleSizePlugin', compilation => {
 			compilation.hooks.processAssets.tapPromise(
 				{
-					name: 'AfterBuildPlugin',
+					name: 'GetVerbumBundleSizePlugin',
 					stage: compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
 				},
 				async () => {
