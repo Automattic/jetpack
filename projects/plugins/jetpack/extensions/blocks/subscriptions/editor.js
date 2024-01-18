@@ -43,7 +43,7 @@ registerJetpackBlockFromMetadata( metadata, {
 
 					const blocks = [];
 
-					children?.forEach( button => {
+					children.forEach( button => {
 						const text = button?.attributes?.text;
 						blocks.push(
 							createBlock( 'jetpack/subscriptions', {
