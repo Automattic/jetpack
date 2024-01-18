@@ -73,7 +73,7 @@ class Atomic_Wp_Admin_Menu extends Admin_Menu {
 
 		$this->remove_gutenberg_menu();
 
-		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
+		if ( ! get_option( 'wpcom_is_staging_site' ) /* todo: && mailboxes exist */ ) {
 			$this->add_my_mailboxes_menu();
 		}
 
