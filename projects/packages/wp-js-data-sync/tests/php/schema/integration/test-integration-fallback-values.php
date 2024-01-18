@@ -3,6 +3,7 @@
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry_Adapter;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Option;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
 use PHPUnit\Framework\TestCase;
 
 class Test_Integration_Fallback_Values extends TestCase {
@@ -96,13 +97,13 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$entry  = new Data_Sync_Entry_Adapter( new Data_Sync_Option( $key ), $schema );
 
 		// Test with a valid value
-		$this->assertSame( true, $entry->set( true ) );
-		$this->assertSame( true, $entry->set( 1 ) );
-		$this->assertSame( true, $entry->set( '1' ) );
-		$this->assertSame( false, $entry->set( false ) );
-		$this->assertSame( false, $entry->set( '' ) );
-		$this->assertSame( false, $entry->set( '0' ) );
-		$this->assertSame( false, $entry->set( 0 ) );
+		$this->assertTrue( $entry->set( true ) );
+		$this->assertTrue( $entry->set( 1 ) );
+		$this->assertTrue( $entry->set( '1' ) );
+		$this->assertFalse( $entry->set( false ) );
+		$this->assertFalse( $entry->set( '' ) );
+		$this->assertFalse( $entry->set( '0' ) );
+		$this->assertFalse( $entry->set( 0 ) );
 
 		// Entry should default to true
 		// because the fallback is set.
@@ -149,12 +150,20 @@ class Test_Integration_Fallback_Values extends TestCase {
 			)
 		);
 
+		$schema_no_fallbacks = Schema::as_assoc_array(
+			array(
+				'one'          => Schema::as_number(),
+				'array_of_two' => Schema::as_array( Schema::as_number() ),
+			)
+		);
+
 		$valid_array = array(
 			'one'          => 100,
 			'array_of_two' => array( 200 ),
 		);
 
 		$this->assertSame( $valid_array, $schema->parse( $valid_array ) );
+		$this->assertSame( $valid_array, $schema_no_fallbacks->parse( $valid_array ) );
 
 		// If the values are empty, fallback is going to work
 		$invalid_array = array(
@@ -177,10 +186,10 @@ class Test_Integration_Fallback_Values extends TestCase {
 		try {
 			$schema->parse( null );
 			// If the exception is not thrown, fail the test
-			$this->fail( 'Expected \Error exception was not thrown' );
-		} catch ( \Error $e ) {
+			$this->fail( 'Expected \Schema_Parsing_Error exception was not thrown' );
+		} catch ( Schema_Parsing_Error $e ) {
 			// If the exception is thrown, assert that it's the expected exception
-			$this->assertInstanceOf( \Error::class, $e );
+			$this->assertInstanceOf( Schema_Parsing_Error::class, $e );
 		}
 
 		// -------
@@ -193,6 +202,9 @@ class Test_Integration_Fallback_Values extends TestCase {
 		// it will fall back to an empty array
 		$schema_with_parent_fallback = $schema->fallback( array() )->parse( null );
 		$this->assertSame( array(), $schema_with_parent_fallback );
+
+		$schema_empty_array = $schema_no_fallbacks->fallback( array() )->parse( array() );
+		$this->assertSame( array(), $schema_empty_array );
 
 		// So right now, to fallback to a full-value when the parent schema parsing fails
 		// you have to do this:
@@ -210,5 +222,44 @@ class Test_Integration_Fallback_Values extends TestCase {
 
 		$incorrect_schema = Schema::as_string()->fallback( $schema_fallback );
 		$this->assertSame( $schema_fallback, $incorrect_schema->parse( null ) );
+
+		$this->expectException( Schema_Parsing_Error::class );
+		$schema_no_fallbacks->parse( $invalid_array );
+	}
+
+	/**
+	 * This test describes a bug that was discovered during the refactor here:
+	 * https://github.com/Automattic/jetpack/pull/35062
+	 * Fallbacks disappeared when parsing a nested assoc array,
+	 * but only if `BUG` key is missing and nullable.
+	 * `SAFE` key is nullable, but the tests passed even if it's missing.
+	 *
+	 * @return void
+	 */
+	public function test_fallbacks_dont_disappear() {
+		$data = array(
+			'url'  => 'ONE',
+			'SAFE' => 'ONE',
+			'meta' => array(
+				'status' => 'ONE',
+			),
+		);
+
+		$schema = Schema::as_assoc_array(
+			array(
+				'url'  => Schema::as_string(),
+				'SAFE' => Schema::as_string()->nullable(),
+				'meta' => Schema::as_assoc_array(
+					array(
+						'status' => Schema::as_string(),
+					)
+				)->nullable(),
+				'BUG'  => Schema::as_string()->nullable(),
+			)
+		)->fallback( array() );
+
+		$this->assertSame( $data, $schema->parse( $data ) );
+		unset( $data['SAFE'] );
+		$this->assertSame( $data, $schema->parse( $data ) );
 	}
 }

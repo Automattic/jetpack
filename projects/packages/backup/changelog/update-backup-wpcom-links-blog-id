@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Use blog ID instead site slug for checkout and WPCOM links.

@@ -13,8 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-
-	const PACKAGE_VERSION = '5.6.0-alpha';
+	const PACKAGE_VERSION = '5.9.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -84,7 +83,15 @@ class Jetpack_Mu_Wpcom {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
-		$invalid_fse_version_active = is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) && version_compare( get_plugin_data( WP_PLUGIN_DIR . '/full-site-editing/full-site-editing-plugin.php' )['Version'], '3.56084', '<' );
+
+		/**
+		 * Explicitly pass $markup = false in get_plugin_data to avoid indirectly calling wptexturize that could cause unintended side effects.
+		 * See: https://developer.wordpress.org/reference/functions/get_plugin_data/
+		 */
+		$invalid_fse_version_active =
+			is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) &&
+			version_compare( get_plugin_data( WP_PLUGIN_DIR . '/full-site-editing/full-site-editing-plugin.php', false )['Version'], '3.56084', '<' );
+
 		if ( $invalid_fse_version_active ) {
 			return;
 		}

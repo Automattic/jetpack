@@ -7,6 +7,7 @@ import {
 import { JETPACK_MODULES_STORE_ID } from '.';
 
 export const SET_JETPACK_MODULES = 'SET_JETPACK_MODULES';
+export const SET_MODULE_UPDATING = 'SET_MODULE_UPDATING';
 
 /**
  * Yield actions to update module status
@@ -19,11 +20,7 @@ export const SET_JETPACK_MODULES = 'SET_JETPACK_MODULES';
  */
 export function* updateJetpackModuleStatus( settings ) {
 	try {
-		const originalData = select( JETPACK_MODULES_STORE_ID ).getJetpackModules();
-		yield setIsUpdating( true );
-		if ( originalData.data?.[ settings.name ]?.activated !== settings.active ) {
-			yield setJetpackModules( originalData );
-		}
+		yield setIsUpdating( settings.name, true );
 		yield updateJetpackModuleStatusControl( settings );
 		const data = yield fetchJetpackModules();
 		yield setJetpackModules( { data } );
@@ -33,7 +30,7 @@ export function* updateJetpackModuleStatus( settings ) {
 		yield setJetpackModules( oldSettings );
 		return false;
 	} finally {
-		yield setIsUpdating( false );
+		yield setIsUpdating( settings.name, false );
 	}
 }
 
@@ -74,11 +71,12 @@ function setIsLoading( isLoading ) {
 /**
  * Set modules as updating action
  *
+ * @param {string} name - Name of the module.
  * @param {boolean} isUpdating - If the modules are updating or not.
  * @returns {object} - an action object.
  */
-function setIsUpdating( isUpdating ) {
-	return setJetpackModules( { isUpdating } );
+function setIsUpdating( name, isUpdating ) {
+	return { type: SET_MODULE_UPDATING, name, isUpdating };
 }
 
 /**

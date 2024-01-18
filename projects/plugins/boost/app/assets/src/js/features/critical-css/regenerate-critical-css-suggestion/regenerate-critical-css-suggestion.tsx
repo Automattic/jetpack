@@ -1,41 +1,43 @@
 import { Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { suggestRegenerateDS, RegenerationReason } from '$features/critical-css';
+import { RegenerationReason } from '$features/critical-css';
 
-const GetSuggestionMessage = ( type: RegenerationReason | null ) => {
-	let message;
-	if ( 'page_saved' === type ) {
-		message = __(
-			"We noticed you've recently published a new page on your site that may affect its HTML/CSS structure.",
-			'jetpack-boost'
-		);
-	} else if ( 'post_saved' === type ) {
-		message = __(
-			"We noticed you've recently published a new post on your site that may affect its HTML/CSS structure.",
-			'jetpack-boost'
-		);
-	} else if ( 'switched_theme' === type ) {
-		message = __(
-			"We noticed you've recently updated your theme that may affect your site's HTML/CSS structure.",
-			'jetpack-boost'
-		);
-	} else if ( 'plugin_change' === type ) {
-		message = __(
-			"We noticed you've recently updated a plugin that may affect your site's HTML/CSS structure.",
-			'jetpack-boost'
-		);
-	} else {
-		message = __(
-			'We noticed some updates to your site that may have changed your HTML/CSS structure.',
-			'jetpack-boost'
-		);
-	}
-
-	return message;
+const suggestionMap: { [ key: string ]: string } = {
+	page_saved: __(
+		"We noticed you've recently published a new page on your site that may affect its HTML/CSS structure.",
+		'jetpack-boost'
+	),
+	post_saved: __(
+		"We noticed you've recently published a new post on your site that may affect its HTML/CSS structure.",
+		'jetpack-boost'
+	),
+	switched_theme: __(
+		"We noticed you've recently updated your theme that may affect your site's HTML/CSS structure.",
+		'jetpack-boost'
+	),
+	plugin_change: __(
+		"We noticed you've recently updated a plugin that may affect your site's HTML/CSS structure.",
+		'jetpack-boost'
+	),
 };
 
-export const RegenerateCriticalCssSuggestion = ( { show, type } ) => {
-	if ( ! show ) {
+const getSuggestionMessage = ( type: RegenerationReason | null ) => {
+	if ( typeof type === 'string' && type in suggestionMap ) {
+		return suggestionMap[ type ];
+	}
+
+	return __(
+		'We noticed some updates to your site that may have changed your HTML/CSS structure.',
+		'jetpack-boost'
+	);
+};
+
+type Props = {
+	regenerateReason: RegenerationReason | null;
+};
+
+export const RegenerateCriticalCssSuggestion = ( { regenerateReason }: Props ) => {
+	if ( ! regenerateReason ) {
 		return null;
 	}
 
@@ -43,12 +45,9 @@ export const RegenerateCriticalCssSuggestion = ( { show, type } ) => {
 		<Notice
 			level="info"
 			title={ __( 'Regenerate Critical CSS', 'jetpack-boost' ) }
-			onClose={ () => {
-				suggestRegenerateDS.store.set( null );
-			} }
 			hideCloseButton={ true }
 		>
-			<p>{ GetSuggestionMessage( type ) }</p>
+			<p>{ getSuggestionMessage( regenerateReason ) }</p>
 			<p>
 				{ __(
 					'Please regenerate your Critical CSS to maintain optimal site performance.',

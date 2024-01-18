@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jasmussen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 12.9.1
+Stable tag: 13.0
 Requires at least: 6.3
 Requires PHP: 7.0
 Tested up to: 6.4
@@ -293,17 +293,24 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.0-a.7 - 2023-12-20
+### 13.1-a.1 - 2024-01-15
 #### Enhancements
-- Sharing Buttons Block: update the admin's setting screen when the sharing block is available.
+- GIF Block: Accept Giphy shortlinks as a valid embed.
+- GIF Block: fix styling of the search bar input.
+- Subscribe block: don't allow editing the email for subscribing for logged-in members.
 
 #### Improved compatibility
-- Sharing Buttons: add the official X button to the list of supported services.
+- Post Images: avoid PHP warnings on sites using PHP 8.1+, when a post image has a malformed URL.
 
 #### Bug fixes
-- My Plan: Fix JS errors due to nested anchor tags.
-- Payments Block: show an error message when unable to render payment button.
-- Subscribers: fix the subscriber count display if above 1000 subscribers.
+- AI Assistant: avoid deprecation notices when using a development version of WordPress.
+- AI Assistant: do not attempt to display the AI Excerpt assistant in the site editor and the widget editor.
+- Fixes recurring payments buttons multiple plan support.
+- Subscribe modal: Don't show in Elementor editor
+- Subscriptions: do not display subscription checkboxes in comment forms displayed on Custom Post Type pages.
+- Subscriptions: Fix broken subscribe button in email
+- Subscriptions: Fix page scrolling up after the subscription modal is dismissed
+- Theme Tools: Ensure that Content Options does not override the Featured Images options set within blocks.
 
 --------
 

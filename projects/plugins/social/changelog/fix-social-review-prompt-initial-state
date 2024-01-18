@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed a bug with the initial state script

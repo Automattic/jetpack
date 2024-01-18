@@ -56,7 +56,8 @@
 		"blogroll",
 		"blogroll-item",
 		"nextdoor",
-		"ai-assistant-usage-panel"
+		"ai-assistant-usage-panel",
+		"ai-content-lens"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -71,7 +72,7 @@
 		"sharing-button",
 		"sharing-buttons",
 		"ai-logo-generator",
-		"ai-content-lens"
+		"subscriber-login"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

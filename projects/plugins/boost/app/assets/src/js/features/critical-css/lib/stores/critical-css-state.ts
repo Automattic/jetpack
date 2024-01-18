@@ -1,232 +1,189 @@
-/* eslint-disable no-console */
-import { derived, get, writable } from 'svelte/store';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import api from '$lib/api/api';
-import { startPollingCloudStatus } from '../cloud-css';
-import { CriticalCssStateSchema } from './critical-css-state-types';
-import { jetpack_boost_ds, JSONObject } from '$lib/stores/data-sync-client';
-import { suggestRegenerateDS } from './suggest-regenerate';
-import { modulesState } from '$lib/stores/modules';
+import { CriticalCssErrorDetailsSchema, CriticalCssStateSchema } from './critical-css-state-types';
 import type { CriticalCssState, Provider } from './critical-css-state-types';
-import generateCriticalCss from '../generate-critical-css';
-
-const stateClient = jetpack_boost_ds.createAsyncStore(
-	'critical_css_state',
-	CriticalCssStateSchema
-);
-const cssStateStore = stateClient.store;
-
-export const criticalCssState = {
-	subscribe: cssStateStore.subscribe,
-	refresh: async () => {
-		const status = await stateClient.endpoint.GET();
-		const storeStatus = get( cssStateStore );
-
-		// This is a temporary fix.
-		// Compare status and storeStatus by serializing and update store if they differ.
-		// This is to avoid unnecessary updates to the store, which can cause rerenders.
-		if ( JSON.stringify( status ) !== JSON.stringify( storeStatus ) ) {
-			// .override will set the store values without triggering
-			// an update back to the server.
-			cssStateStore.override( status );
-		}
-	},
-};
-
-export const criticalCssStateCreated = get( criticalCssState ).created ?? 0;
-
-export const replaceCssState = ( value: CriticalCssState ) => {
-	cssStateStore.update( oldValue => {
-		return { ...oldValue, ...value };
-	} );
-};
+import { useDataSync, useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
+import { z } from 'zod';
+import { __ } from '@wordpress/i18n';
+import { useRegenerationReason } from './suggest-regenerate';
+import { useSingleModuleState } from '$features/module/lib/stores';
 
 /**
- * Derived datastore: Returns whether to show an error.
- * Show an error if in error state, or if a success has 0 results.
+ * Hook for accessing and writing to the overall Critical CSS state. Returns both the current state
+ * and a setter function. The setter function overwrites the *entire* CSS state, providers and all -
+ * so is generally only useful when resetting the state for an error or to ungenerated state.
  */
-export const showError = derived( cssStateStore, $criticalCssState => {
-	if ( $criticalCssState.status === 'generated' ) {
-		return (
-			$criticalCssState.providers.filter( ( provider: Provider ) => provider.status === 'error' )
-				.length > 0
-		);
-	}
+export function useCriticalCssState(): [ CriticalCssState, ( state: CriticalCssState ) => void ] {
+	const [ cloudCss ] = useSingleModuleState( 'cloud_css' );
+	const [ criticalCss ] = useSingleModuleState( 'critical_css' );
+	const enabled = cloudCss?.active || criticalCss?.active;
 
-	return $criticalCssState.status === 'error';
-} );
-
-/**
- * Fatal error when no providers are successful.
- */
-export const isFatalError = derived(
-	[ cssStateStore, showError ],
-	( [ $criticalCssState, $showError ] ) => {
-		if ( ! $showError ) {
-			return false;
-		}
-		return ! $criticalCssState.providers.some( provider => provider.status === 'success' );
-	}
-);
-
-export const isGenerating = derived(
-	[ cssStateStore, modulesState ],
-	( [ $criticalCssState, $modulesState ] ) => {
-		const statusIsRequesting = $criticalCssState.status === 'pending';
-
-		return (
-			statusIsRequesting &&
-			( $modulesState.cloud_css.active || $modulesState.critical_css.available )
-		);
-	}
-);
-
-type GenerationResponse = {
-	status: 'success';
-	data: CriticalCssState;
-};
-export async function generateCriticalCssRequest(): Promise< CriticalCssState | false > {
-	// @REFACTOR: Use the WP JS Stores API instead and ensure that the CSS has indeed been reset.
-	const result = await api.post< GenerationResponse >( '/critical-css/start' );
-	if ( result.status !== 'success' ) {
-		throw new Error( JSON.stringify( result ) );
-	}
-	return result.data as Partial< CriticalCssState >;
-}
-
-export function criticalCssFatalError(): void {
-	replaceCssState( { status: 'error' } );
-}
-
-type CriticalCssInsertResponse = {
-	status: 'success' | 'error' | 'module-unavailable';
-	code: string;
-};
-export async function saveCriticalCssChunk(
-	providerKey: string,
-	css: string,
-	passthrough: JSONObject
-): Promise< boolean > {
-	const response = await api.post< CriticalCssInsertResponse >(
-		`/critical-css/${ providerKey }/insert`,
+	const [ { data }, { mutate } ] = useDataSync(
+		'jetpack_boost_ds',
+		'critical_css_state',
+		CriticalCssStateSchema,
 		{
-			data: css,
-			passthrough,
+			query: {
+				refetchInterval: query => {
+					if ( ! enabled ) {
+						return false;
+					}
+
+					return query.state.data?.status === 'pending' ? 2000 : 30000;
+				},
+			},
 		}
 	);
 
-	if ( response.status === 'module-unavailable' ) {
-		return false;
+	if ( ! data ) {
+		throw new Error( 'Critical CSS state not available' );
 	}
 
-	if ( response.status !== 'success' ) {
-		throw new Error(
-			response.code ||
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				( response as any ).message ||
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				( response as any ).error ||
-				JSON.stringify( response )
-		);
-	}
-
-	return true;
+	return [ data, mutate ];
 }
-
-export function storeGenerateError( error: Error ): void {
-	replaceCssState( {
-		status: 'error',
-		status_error: error,
-	} );
-}
-
-export function updateProvider( providerKey: string, data: Partial< Provider > ): void {
-	return cssStateStore.update( $state => {
-		const providerIndex = $state.providers.findIndex( provider => provider.key === providerKey );
-
-		$state.providers[ providerIndex ] = {
-			...$state.providers[ providerIndex ],
-			...data,
-		};
-
-		return $state;
-	} );
-}
-
-export const refreshCriticalCssState = async () => {
-	const state = await stateClient.endpoint.GET();
-	cssStateStore.override( state );
-	return state;
-};
-
-export const regenerateCriticalCss = async () => {
-	// Clear regeneration suggestions
-	suggestRegenerateDS.store.set( null );
-
-	// Immediately set the status to pending to disable the regenerate button
-	replaceCssState( { status: 'pending' } );
-
-	// This will clear the CSS from the database
-	// And return fresh nonce, provider and viewport data.
-	const freshState = await generateCriticalCssRequest();
-	if ( ! freshState ) {
-		// @REFACTORING - Handle error. Currently this dies silently.
-		return false;
-	}
-
-	// We received a fresh state from the server,
-	// it's already saved there,
-	// This will update the store without triggering a save back to the server.
-	cssStateStore.override( freshState );
-
-	const isCloudCssEnabled = get( modulesState ).cloud_css?.active || false;
-
-	if ( isCloudCssEnabled ) {
-		startPollingCloudStatus();
-	} else {
-		await continueGeneratingLocalCriticalCss( freshState );
-	}
-};
 
 /**
- * Call generateCriticalCss if it hasn't been called before this app execution
- * (browser pageload), to verify if Critical CSS needs to be generated.
+ * Helper for creating a valid Critical CSS error state object with the given message.
  *
- * @param state
+ * @param {string} message - The error message.
  */
-export async function continueGeneratingLocalCriticalCss( state: CriticalCssState ) {
-	if ( state.status === 'generated' ) {
-		return;
-	}
-	const generatingSucceeded = await generateCriticalCss( state );
-	const status = generatingSucceeded ? 'generated' : 'error';
-	replaceCssState( { status } );
+export function criticalCssErrorState( message: string ): CriticalCssState {
+	return {
+		providers: [],
+		status: 'error',
+		status_error: message,
+	};
 }
 
-export const localCriticalCSSProgress = writable< undefined | number >( undefined );
+/**
+ * All Critical CSS State actions return a success flag and the new state. This hook wraps the
+ * common logic for handling the result of these actions.
+ *
+ * @param {string}      action    - The name of the action.
+ * @param {z.ZodSchema} schema    - The schema for the action request.
+ * @param {Function}    onSuccess - Optional callback for handling the new state.
+ */
+function useCriticalCssAction<
+	ActionSchema extends z.ZodSchema,
+	ActionRequestData extends z.infer< ActionSchema >,
+>( action: string, schema: ActionRequestData, onSuccess?: ( state: CriticalCssState ) => void ) {
+	const responseSchema = z.object( {
+		success: z.boolean(),
+		state: CriticalCssStateSchema,
+		error: z.string().optional(),
+	} );
 
-export const criticalCssProgress = derived(
-	[ cssStateStore, localCriticalCSSProgress ],
-	( [ $criticalCssState, $localProgress ] ) => {
-		if ( $criticalCssState.status === 'generated' ) {
-			return 100;
-		}
+	// A bit annoying: you have to specify ALL template params when specifying any.
+	// Template params must be specified here, otherwise action request schema of z.void doesn't work.
+	return useDataSyncAction<
+		typeof CriticalCssStateSchema,
+		typeof responseSchema,
+		typeof schema,
+		z.infer< typeof schema >,
+		z.infer< typeof responseSchema >,
+		CriticalCssState
+	>( {
+		namespace: 'jetpack_boost_ds',
+		key: 'critical_css_state',
+		action_name: action,
+		schema: {
+			state: CriticalCssStateSchema,
+			action_request: schema,
+			action_response: responseSchema,
+		},
+		callbacks: {
+			onResult: ( result, _state ): CriticalCssState => {
+				if ( result.success ) {
+					if ( onSuccess ) {
+						onSuccess( result.state );
+					}
 
-		if ( $criticalCssState.status === 'not_generated' ) {
-			return 0;
-		}
+					return result.state;
+				}
 
-		const totalCount = Math.max( 1, $criticalCssState.providers.length );
-		const doneCount = $criticalCssState.providers.filter(
-			provider => provider.status !== 'pending'
-		).length;
-		const percentDone = ( doneCount / totalCount ) * 100;
+				const message = result.error || __( 'Critical CSS action failed', 'jetpack-boost' );
+				return criticalCssErrorState( message );
+			},
+		},
+	} );
+}
 
-		const percentPerStep = 100 / totalCount;
-		const currentStep = $localProgress || 0;
+/**
+ * Hook which creates a callable action for writing generated CSS for a provider key. Returns a new
+ * async function that can be called directly.
+ */
+export function useSetProviderCssAction() {
+	return useCriticalCssAction(
+		'set-provider-css',
+		z.object( {
+			key: z.string(),
+			css: z.string(),
+		} )
+	);
+}
 
-		const combinedProgress = percentDone + percentPerStep * currentStep;
+/**
+ * Hook which creates a callable action for dismissing or undismissing a specific provider error.
+ */
+export function useSetProviderErrorDismissedAction() {
+	return useCriticalCssAction(
+		'set-provider-error-dismissed',
+		z.object( {
+			key: z.string(),
+			dismissed: z.boolean(),
+		} )
+	);
+}
 
-		return Math.round( combinedProgress );
+/**
+ * Hook which creates a callable action for storing a provider key error.
+ */
+export function useSetProviderErrorsAction() {
+	return useCriticalCssAction(
+		'set-provider-errors',
+		z.object( {
+			key: z.string(),
+			errors: z.array( CriticalCssErrorDetailsSchema ),
+		} )
+	);
+}
+
+/**
+ * Hook which creates a callable action for regenerating Critical CSS.
+ */
+export function useRegenerateCriticalCssAction() {
+	const [ , resetReason ] = useRegenerationReason();
+	return useCriticalCssAction( 'request-regenerate', z.void(), resetReason );
+}
+
+/**
+ * Given a set of CSS Provider states, and optionally the local generator progress through the current
+ * provider, calculate the overall progress of the Critical CSS generation.
+ *
+ * @param {Provider[]} providers        - The set of CSS Providers
+ * @param {number}     providerProgress - The progress through the current provider (optional).
+ */
+export function calculateCriticalCssProgress(
+	providers: Provider[],
+	providerProgress: number = 0
+): number {
+	const count = providers.length;
+	const done = providers.filter( provider => provider.status !== 'pending' ).length;
+	const totalProgress = 100 * ( done / count + providerProgress / count );
+
+	return totalProgress;
+}
+
+export function useProxyNonce() {
+	const [ { data: meta } ] = useDataSync(
+		'jetpack_boost_ds',
+		'critical_css_meta',
+		z.object( {
+			proxy_nonce: z.string().optional(),
+		} )
+	);
+
+	if ( ! meta || ! meta.proxy_nonce ) {
+		throw new Error( 'Proxy nonce not available' );
 	}
-);
+
+	return meta?.proxy_nonce;
+}
