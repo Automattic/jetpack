@@ -22,5 +22,36 @@ class Test_Type_Or extends TestCase {
 		$schema->parse( null );
 	}
 
+	public function test_parse_with_empty_string() {
+		$schema = Schema::as_string()->or( Schema::as_array( Schema::as_string() ) );
+		$this->assertSame( '', $schema->parse( '' ) );
+	}
+
+	public function test_parse_with_valid_array() {
+		$schema = Schema::as_string()->or( Schema::as_array( Schema::as_string() ) );
+		$this->assertSame( [ 'test1', 'test2' ], $schema->parse( [ 'test1', 'test2' ] ) );
+	}
+
+	public function test_parse_with_invalid_array() {
+		$schema = Schema::as_string()->or( Schema::as_array( Schema::as_string() ) );
+		$this->expectException( Schema_Parsing_Error::class );
+		$schema->parse( [ 'test', null ] );
+	}
+
+	public function test_parse_invalid_boolean() {
+		$schema = Schema::as_boolean()->or( Schema::as_array( Schema::as_boolean() ) );
+		$this->assertSame( true, $schema->parse( true ) );
+		$this->assertSame( [ true, true, true ], $schema->parse( [ true, 1, '1' ] ) );
+		$this->assertSame( false, $schema->parse( false ) );
+		$this->assertSame( [ false, false, false ], $schema->parse( [ false, 0, '0' ] ) );
+		$this->expectException( Schema_Parsing_Error::class );
+		$schema->parse( 99 );
+	}
+
+	public function test_parse_invalid_array_of_booleans() {
+		$schema = Schema::as_boolean()->or( Schema::as_array( Schema::as_boolean() ) );
+		$this->expectException( Schema_Parsing_Error::class );
+		$schema->parse( [ true, false, 99 ] );
+	}
 	
 }
