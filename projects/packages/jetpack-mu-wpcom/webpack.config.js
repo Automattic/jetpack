@@ -31,7 +31,27 @@ module.exports = {
 	},
 	node: false,
 	plugins: [
-		...jetpackConfig.StandardPlugins( { MiniCssExtractPlugin: { filename: '[name]/[name].css' } } ),
+		...jetpackConfig.StandardPlugins( {
+			DependencyExtractionPlugin: { injectPolyfill: true },
+			MiniCssExtractPlugin: { filename: '[name]/[name].css' },
+		} ),
+		new webpack.ProvidePlugin( {
+			h: [ 'preact', 'h' ],
+			Fragment: [ 'preact', 'Fragment' ],
+		} ),
+		new CopyPlugin( {
+			patterns: [
+				{
+					from: './src/features/verbum-comments/index.php',
+					to: './verbum-comments',
+				},
+				{
+					from: './src/features/verbum-comments/assets',
+					to: './verbum-comments/assets',
+				},
+			],
+		} ),
+		new GetVerbumBundleSizePlugin( {} ),
 	],
 	module: {
 		strictExportPresence: true,
