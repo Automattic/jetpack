@@ -41,13 +41,10 @@ export function showModal( url ) {
 	dialog.setAttribute( 'id', 'memberships-modal-window' );
 
 	const iframe = document.createElement( 'iframe' );
-	const fullLang = document.documentElement.lang.toLowerCase();
-	const parts = fullLang.split( '-' );
-	const siteLanguage = parts[ 0 ] === parts[ 1 ] ? parts[ 0 ] : fullLang;
 	iframe.setAttribute( 'id', 'memberships-modal-iframe' );
 	iframe.innerText =
 		'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
-	iframe.src = url + '&lang=' + siteLanguage + '&jwt_token=' + getTokenFromCookie();
+	iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
 	iframe.setAttribute( 'frameborder', '0' );
 	iframe.setAttribute( 'allowtransparency', 'true' );
 	iframe.setAttribute( 'allowfullscreen', 'true' );
