@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add `I18nHackRule` to help handle npm packages that use `__` and the like internally.

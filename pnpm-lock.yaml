@@ -2006,6 +2006,9 @@ importers:
       '@types/react-dom':
         specifier: 18.2.0
         version: 18.2.0
+      babel-plugin-transform-rename-properties:
+        specifier: 0.1.0
+        version: 0.1.0(@babel/core@7.23.5)
       copy-webpack-plugin:
         specifier: 11.0.0
         version: 11.0.0(webpack@5.76.0)
@@ -14361,6 +14364,14 @@ packages:
       strip-indent: 3.0.0
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /babel-plugin-transform-rename-properties@0.1.0(@babel/core@7.23.5):
+    resolution: {integrity: sha512-uBSvAC8qH81TsXsWYD20ME4qg9ICflMLjsNfeuSxrKkJkym4Riqne1BrCCW15lcM/t9lfEiz4FJbVeUoaOVGWA==}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.23.5
     dev: true
 
   /babel-preset-current-node-syntax@1.0.1(@babel/core@7.23.5):

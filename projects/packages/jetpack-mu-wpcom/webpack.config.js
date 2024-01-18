@@ -65,7 +65,14 @@ module.exports = {
 			} ),
 
 			// preact has some `__` internal methods, which confuse i18n-check-webpack-plugin. Hack around that.
-			jetpackConfig.I18nHackRule( [ 'preact' ] ),
+			jetpackConfig.TranspileRule( {
+				includeNodeModules: [ 'preact' ],
+				babelOpts: {
+					configFile: false,
+					plugins: [ [ 'babel-plugin-transform-rename-properties', { rename: { __: '__ǃ' } } ] ],
+					presets: [],
+				},
+			} ),
 
 			// Handle CSS.
 			jetpackConfig.CssRule( {

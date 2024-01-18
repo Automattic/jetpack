@@ -222,12 +222,6 @@ Options are:
   - `cacheCompression`: `true`.
   - If `path.resolve( 'babel.config.js' )` exists, `configFile` will default to that. Otherwise, `presets` will default to set some appropriate defaults (which will require the peer dependencies on [@babel/core](https://www.npmjs.com/package/@babel/core) and [@babel/runtime](https://www.npmjs.com/package/@babel/runtime)).
 
-##### `I18nHackRule( modules )`
-
-Adds a transpilation rule that renames identifiers `__`, `_n`, `_x`, and `_nx` in an npm module. This is for use with packages such as preact v10.19.3 that happen to use those internally for function calls and so confuse I18nCheckWebpackPlugin.
-
-The `modules` parameter is a list of npm package names to process.
-
 ##### `CssRule( options )`
 
 Handles CSS using [mini-css-extract-plugin](https://www.npmjs.com/package/mini-css-extract-plugin) and [css-loader](https://www.npmjs.com/package/css-loader)
