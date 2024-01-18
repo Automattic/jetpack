@@ -15,6 +15,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Meta;
 class Decorate_With_Default implements Parser {
 	private $parser;
 	private $default_value;
+	private $meta;
 
 	public function __construct( Parser $parser, $default_value ) {
 		$this->parser        = $parser;
@@ -24,6 +25,7 @@ class Decorate_With_Default implements Parser {
 	public function parse( $value, $meta = null ) {
 		// @TODO: This shouldn't actually be this way. WIP.
 		$meta = $meta ?? new Schema_Validation_Meta( 'decorated_with_default' );
+		$this->meta = $meta;
 		try {
 			return $this->parser->parse( $value, $meta );
 		} catch ( Schema_Internal_Error $e ) {
@@ -49,6 +51,10 @@ class Decorate_With_Default implements Parser {
 
 	public function get_default_value() {
 		return $this->default_value;
+	}
+
+	public function get_log() {
+		return $this->meta->get_log();
 	}
 
 	public function __toString() {

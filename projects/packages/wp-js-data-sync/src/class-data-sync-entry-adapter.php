@@ -89,4 +89,11 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 		}
 		return $this->get();
 	}
+
+	/**
+	 * @return Parser
+	 */
+	public function get_parser() {
+		return $this->parser;
+	}
 }
