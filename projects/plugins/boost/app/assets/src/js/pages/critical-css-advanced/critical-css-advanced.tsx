@@ -15,6 +15,11 @@ import { useNavigate } from 'react-router-dom';
 import { Provider } from '$features/critical-css';
 import classNames from 'classnames';
 
+type RecommendationProps = {
+	provider: Provider;
+	setDismissed: ( dismissedItems: { key: string; dismissed: boolean }[] ) => void;
+};
+
 /**
  * Page for displaying advanced critical CSS recommendations.
  */
@@ -56,8 +61,8 @@ export default function AdvancedCriticalCss() {
 
 			<h3>{ __( 'Critical CSS advanced recommendations', 'jetpack-boost' ) }</h3>
 
-			<section key={ heading }>
-				<p>{ heading }</p>
+			<section>
+				<Heading heading={ heading } />
 
 				{ dismissedIssues.length > 0 && (
 					<p>
@@ -84,9 +89,17 @@ export default function AdvancedCriticalCss() {
 	);
 }
 
-type RecommendationProps = {
-	provider: Provider;
-	setDismissed: ( dismissedItems: { key: string; dismissed: boolean }[] ) => void;
+const Heading = ( { heading }: { heading: string } ) => {
+	const [ ref, { height } ] = useMeasure();
+	const animationStyles = useSpring( {
+		height,
+	} );
+
+	return (
+		<animated.div style={ animationStyles }>
+			<p ref={ ref }>{ heading }</p>
+		</animated.div>
+	);
 };
 
 const Recommendation = ( { provider, setDismissed }: RecommendationProps ) => {
@@ -105,7 +118,7 @@ const Recommendation = ( { provider, setDismissed }: RecommendationProps ) => {
 
 	return (
 		<animated.div
-			className={ styles['recommendation-animation-wrapper'] }
+			className={ styles[ 'recommendation-animation-wrapper' ] }
 			style={ {
 				...animationStyles,
 			} }
