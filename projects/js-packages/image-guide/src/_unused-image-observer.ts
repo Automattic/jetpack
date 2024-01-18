@@ -87,6 +87,10 @@ const onChange =
 		}
 	};
 
+/**
+ *
+ * @param callback
+ */
 export async function createImageObserver( callback: ImageCallback ) {
 	const target = document.body;
 	const config = { childList: true, characterData: false, subtree: true, attributes: true };

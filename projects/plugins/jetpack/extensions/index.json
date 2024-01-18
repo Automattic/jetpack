@@ -71,7 +71,8 @@
 		"ai-assistant-backend-prompts",
 		"sharing-button",
 		"sharing-buttons",
-		"ai-logo-generator"
+		"ai-logo-generator",
+		"subscriber-login"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

@@ -65,6 +65,7 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Meta;
 
 final class Data_Sync {
 
@@ -108,6 +109,7 @@ final class Data_Sync {
 	 * Retrieve nonces for all action endpoints associated with a given entry.
 	 *
 	 * @param string $entry_key The key for the entry.
+	 *
 	 * @return array An associative array of action nonces.
 	 */
 	private function get_action_nonces_for_entry( $entry_key ) {
@@ -222,11 +224,19 @@ final class Data_Sync {
 		 *      $Data_Sync->get_registry()->register(...)` instead of `$Data_Sync->register(...)
 		 * ```
 		 */
+		if ( method_exists( $parser, 'set_meta' ) ) {
+			$parser->set_meta( new Schema_Validation_Meta( $key ) );
+		}
 		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $parser );
 		$this->registry->register( $key, $entry_adapter );
 	}
 
-	public function register_action( $key, $action_name, $request_schema, $instance ) {
+	public function register_action(
+		$key,
+		$action_name,
+		$request_schema,
+		$instance
+	) {
 		$this->registry->register_action( $key, $action_name, $request_schema, $instance );
 	}
 }

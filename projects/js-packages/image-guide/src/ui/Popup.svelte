@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { onMount } from 'svelte';
 	import { backOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
@@ -67,7 +66,7 @@
 	} );
 	$: repositionOnScroll( scrollY );
 
-	const DOCUMENTATION_URL = getRedirectUrl( 'jetpack-support-boost-image-performance-guide' );
+	const DOCUMENTATION_URL = 'https://jetpack.com/support/jetpack-boost/image-performance-guide/';
 </script>
 
 <svelte:window bind:scrollY />

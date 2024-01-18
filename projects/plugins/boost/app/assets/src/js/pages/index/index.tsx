@@ -15,6 +15,16 @@ import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 
+const availableLazyLoadingDeprecation = __(
+	'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature will consequently be removed from Jetpack Boost.',
+	'jetpack-boost'
+);
+
+const unavailableLazyLoadingDeprecation = __(
+	'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature has been disabled to avoid potential conflicts with Gutenberg 16.6.0+ or WordPress 6.4+. This feature will consequently be removed from Jetpack Boost.',
+	'jetpack-boost'
+);
+
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
@@ -34,14 +44,8 @@ const Index = () => {
 	const { canResizeImages } = Jetpack_Boost;
 
 	const lazyLoadDeprecationMessage = lazyLoadState?.available
-		? __(
-				'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature will consequently be removed from Jetpack Boost.',
-				'jetpack-boost'
-		  )
-		: __(
-				'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature has been disabled to avoid potential conflicts with Gutenberg 16.6.0+ or WordPress 6.4+. This feature will consequently be removed from Jetpack Boost.',
-				'jetpack-boost'
-		  );
+		? availableLazyLoadingDeprecation
+		: unavailableLazyLoadingDeprecation;
 
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures !== false;
