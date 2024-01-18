@@ -1819,6 +1819,9 @@ importers:
       '@babel/runtime':
         specifier: 7.23.5
         version: 7.23.5
+      '@testing-library/dom':
+        specifier: 9.3.3
+        version: 9.3.3
       '@wordpress/api-fetch':
         specifier: 6.45.0
         version: 6.45.0
@@ -1844,6 +1847,9 @@ importers:
         specifier: 7.1.6
         version: 7.1.6
       jest:
+        specifier: 29.7.0
+        version: 29.7.0
+      jest-environment-jsdom:
         specifier: 29.7.0
         version: 29.7.0
       jquery:
@@ -18749,7 +18755,7 @@ packages:
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
-      picomatch: 2.2.3
+      picomatch: 2.3.1
 
   /jest-validate@29.7.0:
     resolution: {integrity: sha512-ZB7wHqaRGVw/9hST/OuFUReG7M8vKeq0/J2egIGLdvjHCmYqGARhzXmtgi+gVeZ5uXFF219aOc3Ls2yLg27tkw==}

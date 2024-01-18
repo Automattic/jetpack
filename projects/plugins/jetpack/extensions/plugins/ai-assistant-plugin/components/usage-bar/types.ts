@@ -1,3 +1,5 @@
+import { PlanType } from '../../../../shared/use-plan-type';
+
 export type UsageBarProps = {
 	/**
 	 * The current usage, as a percentage represented by a number between 0 and 1.
@@ -23,9 +25,3 @@ export type UsageControlProps = {
 	daysUntilReset: number;
 	requireUpgrade: boolean;
 };
-
-export const PLAN_TYPE_FREE = 'free';
-export const PLAN_TYPE_TIERED = 'tiered';
-export const PLAN_TYPE_UNLIMITED = 'unlimited';
-
-export type PlanType = typeof PLAN_TYPE_FREE | typeof PLAN_TYPE_TIERED | typeof PLAN_TYPE_UNLIMITED;
