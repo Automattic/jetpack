@@ -130,7 +130,7 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 	const trackUpgradeClick = useCallback(
 		( event: React.MouseEvent< HTMLElement > ) => {
 			event.preventDefault();
-			tracks.recordEvent( 'jetpack_ai_usage_panel_upgrade_button_click', {
+			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
 				current_tier_slug: currentTier?.slug,
 				requests_count: requestsCount,
 				...( placement ? { placement } : {} ),
@@ -143,7 +143,7 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 	const trackContactUsClick = useCallback(
 		( event: React.MouseEvent< HTMLElement > ) => {
 			event.preventDefault();
-			tracks.recordEvent( 'jetpack_ai_usage_panel_upgrade_button_click', {
+			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
 				current_tier_slug: currentTier?.slug,
 				requests_count: requestsCount,
 				...( placement ? { placement } : {} ),
