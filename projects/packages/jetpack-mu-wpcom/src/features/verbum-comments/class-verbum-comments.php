@@ -3,6 +3,9 @@
  * Plugin Name: Verbum Comments Experience
  * Description: Preact app for commenting on WordPress.com sites
  * Author: Vertex
+ * Text Domain: jetpack-mu-wpcom
+ *
+ * @package automattic/jetpack-mu-wpcom
  */
 
 namespace Automattic\Jetpack;
@@ -11,9 +14,22 @@ require_once __DIR__ . '/assets/verbum-auth.php';
 require_once __DIR__ . '/assets/verbum-embed.php';
 require_once __DIR__ . '/assets/gutenberg-comments.php';
 
+/**
+ * Verbum Comments Experience
+ *
+ * This file loads the Verbum Comment user experience on WordPress.com and Jetpack sites.
+ */
 class Verbum_Comments {
+	/**
+	 * Internal reference for the current blog id.
+	 *
+	 * @var int
+	 */
 	public $blog_id;
 
+	/**
+	 * Class constructor
+	 */
 	public function __construct() {
 		$this->blog_id = get_current_blog_id();
 
@@ -158,39 +174,39 @@ class Verbum_Comments {
 			'verbum-settings',
 			'window.VerbumComments = ' . json_encode(
 				array(
-					'Log in or provide your name and email to leave a reply.' => __( 'Log in or provide your name and email to leave a reply.' ),
-					'Receive web and mobile notifications for posts on this site.' => __( 'Receive web and mobile notifications for posts on this site.' ),
-					'Name'                              => __( 'Name' ),
-					'Email (address never made public)' => __( 'Email (address never made public)' ),
-					'Website (optional)'                => __( 'Website (optional)' ),
-					'Leave a reply. (log in optional)'  => __( 'Leave a reply. (log in optional)' ),
-					'Log in to leave a reply.'          => __( 'Log in to leave a reply.' ),
+					'Log in or provide your name and email to leave a reply.' => __( 'Log in or provide your name and email to leave a reply.', 'jetpack-mu-wpcom' ),
+					'Receive web and mobile notifications for posts on this site.' => __( 'Receive web and mobile notifications for posts on this site.', 'jetpack-mu-wpcom' ),
+					'Name'                              => __( 'Name', 'jetpack-mu-wpcom' ),
+					'Email (address never made public)' => __( 'Email (address never made public)', 'jetpack-mu-wpcom' ),
+					'Website (optional)'                => __( 'Website (optional)', 'jetpack-mu-wpcom' ),
+					'Leave a reply. (log in optional)'  => __( 'Leave a reply. (log in optional)', 'jetpack-mu-wpcom' ),
+					'Log in to leave a reply.'          => __( 'Log in to leave a reply.', 'jetpack-mu-wpcom' ),
 					/* translators: %s is the name of the provider (WordPress, Facebook, Twitter) */
-					'Logged in via %s'                  => __( 'Logged in via %s' ),
-					'Log out'                           => __( 'Log out' ),
-					'Email'                             => __( 'Email' ),
-					'(Address never made public)'       => __( '(Address never made public)'), // phpcs:ignore PEAR.Functions.FunctionCallSignature.SpaceBeforeCloseBracket
-					'Instantly'                         => __( 'Instantly' ),
-					'Daily'                             => __( 'Daily' ),
-					'Reply'                             => __( 'Reply' ),
-					'WordPress'                         => __( 'WordPress' ),
-					'Weekly'                            => __( 'Weekly' ),
-					'Notify me of new posts'            => __( 'Notify me of new posts' ),
-					'Email me new posts'                => __( 'Email me new posts' ),
-					'Email me new comments'             => __( 'Email me new comments' ),
-					'Cancel'                            => __( 'Cancel' ),
-					'Write a comment...'                => __( 'Write a Comment...' ),
-					'Website'                           => __( 'Website' ),
-					'Optional'                          => __( 'Optional' ),
+					'Logged in via %s'                  => __( 'Logged in via %s', 'jetpack-mu-wpcom' ),
+					'Log out'                           => __( 'Log out', 'jetpack-mu-wpcom' ),
+					'Email'                             => __( 'Email', 'jetpack-mu-wpcom' ),
+					'(Address never made public)'       => __( '(Address never made public)', 'jetpack-mu-wpcom'), // phpcs:ignore PEAR.Functions.FunctionCallSignature.SpaceBeforeCloseBracket
+					'Instantly'                         => __( 'Instantly', 'jetpack-mu-wpcom' ),
+					'Daily'                             => __( 'Daily', 'jetpack-mu-wpcom' ),
+					'Reply'                             => __( 'Reply', 'jetpack-mu-wpcom' ),
+					'WordPress'                         => __( 'WordPress', 'jetpack-mu-wpcom' ),
+					'Weekly'                            => __( 'Weekly', 'jetpack-mu-wpcom' ),
+					'Notify me of new posts'            => __( 'Notify me of new posts', 'jetpack-mu-wpcom' ),
+					'Email me new posts'                => __( 'Email me new posts', 'jetpack-mu-wpcom' ),
+					'Email me new comments'             => __( 'Email me new comments', 'jetpack-mu-wpcom' ),
+					'Cancel'                            => __( 'Cancel', 'jetpack-mu-wpcom' ),
+					'Write a comment...'                => __( 'Write a Comment...', 'jetpack-mu-wpcom' ),
+					'Website'                           => __( 'Website', 'jetpack-mu-wpcom' ),
+					'Optional'                          => __( 'Optional', 'jetpack-mu-wpcom' ),
 					/* translators: Success message of a modal when user subscribes */
-					'We\'ll keep you in the loop!'      => __( 'We\'ll keep you in the loop!' ),
-					'Loading your comment...'           => __( 'Loading your comment...' ),
-					'Never miss a beat!'                => __( 'Never miss a beat!' ),
-					'Interested in getting blog post updates? Simply click the button below to stay in the loop!' => __( 'Interested in getting blog post updates? Simply click the button below to stay in the loop!' ),
-					'Enter your email address'          => __( 'Enter your email address' ),
-					'Subscribe'                         => __( 'Subscribe' ),
-					'Comment sent successfully'         => __( 'Comment sent successfully' ),
-					'Save my name, email, and website in this browser for the next time I comment.' => __( 'Save my name, email, and website in this browser for the next time I comment.' ),
+					'We\'ll keep you in the loop!'      => __( 'We\'ll keep you in the loop!', 'jetpack-mu-wpcom' ),
+					'Loading your comment...'           => __( 'Loading your comment...', 'jetpack-mu-wpcom' ),
+					'Never miss a beat!'                => __( 'Never miss a beat!', 'jetpack-mu-wpcom' ),
+					'Interested in getting blog post updates? Simply click the button below to stay in the loop!' => __( 'Interested in getting blog post updates? Simply click the button below to stay in the loop!', 'jetpack-mu-wpcom' ),
+					'Enter your email address'          => __( 'Enter your email address', 'jetpack-mu-wpcom' ),
+					'Subscribe'                         => __( 'Subscribe', 'jetpack-mu-wpcom' ),
+					'Comment sent successfully'         => __( 'Comment sent successfully', 'jetpack-mu-wpcom' ),
+					'Save my name, email, and website in this browser for the next time I comment.' => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-mu-wpcom' ),
 					'siteId'                            => $this->blog_id,
 					'postId'                            => $post_id,
 					'mustLogIn'                         => $comment_registration_enabled && ! is_user_logged_in(),
@@ -236,6 +252,8 @@ class Verbum_Comments {
 
 	/**
 	 * Remove some of the default comment_form args because they are not needed.
+	 *
+	 * @param  array $args - The default comment form arguments.
 	 */
 	public function comment_form_defaults( $args ) {
 		return array_merge(
@@ -246,10 +264,10 @@ class Verbum_Comments {
 				'logged_in_as'         => '',
 				'comment_notes_before' => '',
 				'comment_notes_after'  => '',
-				'title_reply'          => __( 'Leave a Reply' ),
+				'title_reply'          => __( 'Leave a Reply', 'jetpack-mu-wpcom' ),
 				/* translators: % is the original posters name */
-				'title_reply_to'       => __( 'Leave a Reply to %s' ),
-				'cancel_reply_link'    => __( 'Cancel reply' ),
+				'title_reply_to'       => __( 'Leave a Reply to %s', 'jetpack-mu-wpcom' ),
+				'cancel_reply_link'    => __( 'Cancel reply', 'jetpack-mu-wpcom' ),
 			)
 		);
 	}
@@ -257,6 +275,11 @@ class Verbum_Comments {
 	/**
 	 * Set comment reply link.
 	 * This is to fix the reply link when comment registration is required.
+	 *
+	 * @param  string $reply_link - HTML for reply link.
+	 * @param  array  $args - Default options for reply link.
+	 * @param  object $comment - Comment being replied to.
+	 * @param  object $post - PostID or WP_Post object comment is going to be displayed on.
 	 */
 	public function comment_reply_link( $reply_link, $args, $comment, $post ) {
 		// This is only necessary if comment_registration is required to post comments
@@ -296,7 +319,7 @@ class Verbum_Comments {
 			$before_link
 			<a class="comment-reply-link" href="$reply_url" onclick="return addComment.moveForm( '$add_below-$comment->comment_ID', '$comment->comment_ID', '$respond_id', '$post->ID' )">$reply_text</a>
 			$after_link
-			HTML;
+HTML;
 
 		return $link;
 	}
@@ -304,7 +327,7 @@ class Verbum_Comments {
 	/**
 	 * Loop through all available fields and remove them.
 	 *
-	 * @param  array $fields
+	 * @param  array $fields - Default comment fields.
 	 * @return array $fields with no HTML.
 	 */
 	public function comment_form_default_fields( $fields ) {
@@ -329,23 +352,23 @@ class Verbum_Comments {
 	 * Check Facebook token and return the user data.
 	 */
 	public static function verify_facebook_identity() {
-		$data = wp_parse_args( isset( $_COOKIE['wpc_fbc'] ) ? sanitize_text_field( wp_unslash( $_COOKIE['wpc_fbc'] ) ) : array() );
+		$data = isset( $_COOKIE['wpc_fbc'] ) ? wp_parse_args( sanitize_text_field( wp_unslash( $_COOKIE['wpc_fbc'] ) ) ) : array();
 
 		if ( empty( $data['access_token'] ) ) {
-			return new \WP_Error( 'facebook', __( 'Error: your Facebook login has expired.' ) );
+			return new \WP_Error( 'facebook', __( 'Error: your Facebook login has expired.', 'jetpack-mu-wpcom' ) );
 		}
 
 		// Make a new request using the access token we were given.
 		$request = wp_remote_get( 'https://graph.facebook.com/v6.0/me?fields=name,email,picture,id&access_token=' . urlencode( $data['access_token'] ) );
-		if ( 200 != wp_remote_retrieve_response_code( $request ) ) {
-			return new \WP_Error( 'facebook', __( 'Error: your Facebook login has expired.' ) );
+		if ( 200 !== wp_remote_retrieve_response_code( $request ) ) {
+			return new \WP_Error( 'facebook', __( 'Error: your Facebook login has expired.', 'jetpack-mu-wpcom' ) );
 		}
 
 		$body = wp_remote_retrieve_body( $request );
 		$json = json_decode( $body );
 
 		if ( ! $body || ! $json ) {
-			return new \WP_Error( 'facebook', __( 'Error: your Facebook login has expired.' ) );
+			return new \WP_Error( 'facebook', __( 'Error: your Facebook login has expired.', 'jetpack-mu-wpcom' ) );
 		}
 
 		return $json;
@@ -369,6 +392,7 @@ class Verbum_Comments {
 	/**
 	 * Check if the comment is allowed by verifying the Facebook token.
 	 *
+	 * @param array $comment_data - The comment data.
 	 * @return WP_Error|comment_data The comment data if the comment is allowed, or a WP_Error if not.
 	 */
 	public function verify_external_account( $comment_data ) {
@@ -406,11 +430,13 @@ class Verbum_Comments {
 			return;
 		}
 
-		return new \WP_Error( 'verbum', __( 'Error: please try commenting again.' ) );
+		return new \WP_Error( 'verbum', __( 'Error: please try commenting again.', 'jetpack-mu-wpcom' ) );
 	}
 
 	/**
 	 * Add all our custom fields to the comment meta after it is saved.
+	 *
+	 * @param int $comment_id The comment ID.
 	 */
 	public function add_verbum_meta_data( $comment_id ) {
 		$comment_meta = array();
@@ -514,13 +540,13 @@ class Verbum_Comments {
 		$has_blocks_flag       = has_blog_sticker( 'verbum-block-comments', $blog_id );
 		$gutenberg_query_param = isset( $_GET['verbum_gutenberg'] ) ? intval( $_GET['verbum_gutenberg'] ) : null;
 		// This will release to 10% of sites.
-		$blog_in_10_percent    = $blog_id % 100 >= 90;
-		$is_proxied            = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
+		$blog_in_10_percent = $blog_id % 100 >= 90;
+		$is_proxied         = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
 			? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
 			: defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
 
 		// Check if the parameter is set and its value is either 0 or 1, if any random value is passed, it is ignored.
-		if ( ! is_null( $gutenberg_query_param ) ) {
+		if ( $gutenberg_query_param !== null ) {
 			return $gutenberg_query_param === 1;
 		}
 
@@ -528,11 +554,17 @@ class Verbum_Comments {
 		return $has_blocks_flag || $e2e_tests || $blog_in_10_percent;
 	}
 
+	/**
+	 * Check if we should show the subscription modal.
+	 */
 	public function should_show_subscription_modal() {
 		$modal_enabled = get_option( 'jetpack_verbum_subscription_modal', true );
 		return ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
 	}
 
+	/**
+	 * Get the status of the subscription modal.
+	 */
 	public function subscription_modal_status() {
 		if ( is_user_member_of_blog( '', $this->blog_id ) ) {
 			return 'hidden_is_blog_member';
