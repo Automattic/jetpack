@@ -205,6 +205,10 @@ class Initializer {
 				'welcomeBanner'         => array(
 					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
 				),
+				'jetpackManage'         => array(
+					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
+					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
+				),
 			)
 		);
 
