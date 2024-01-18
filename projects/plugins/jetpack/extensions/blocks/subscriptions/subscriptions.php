@@ -146,9 +146,13 @@ function register_block() {
 	// Gate the excerpt for a post
 	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
 
-	// Add a 'Newsletter access' column to the Edit posts page
-	add_action( 'manage_post_posts_columns', __NAMESPACE__ . '\register_newsletter_access_column' );
-	add_action( 'manage_post_posts_custom_column', __NAMESPACE__ . '\render_newsletter_access_rows', 10, 2 );
+	// Add a 'Newsletter' column to the Edit posts page
+	// We only display the "Newsletter" column if we have configured the paid newsletter plan
+	if ( Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
+		add_action( 'manage_post_posts_columns', __NAMESPACE__ . '\register_newsletter_access_column' );
+		add_action( 'manage_post_posts_custom_column', __NAMESPACE__ . '\render_newsletter_access_rows', 10, 2 );
+		add_action( 'admin_head', __NAMESPACE__ . '\newsletter_access_column_styles' );
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
@@ -168,13 +172,8 @@ function is_wpcom() {
  * @return array An array of column names.
  */
 function register_newsletter_access_column( $columns ) {
-	if ( ! Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
-		// We only display the "NL access" column if we have published one paid-newsletter
-		return $columns;
-	}
-
 	$position   = array_search( 'title', array_keys( $columns ), true );
-	$new_column = array( NEWSLETTER_COLUMN_ID => '<span>' . __( 'Newsletter', 'jetpack' ) . '</span>' );
+	$new_column = array( NEWSLETTER_COLUMN_ID => __( 'Newsletter', 'jetpack' ) );
 	return array_merge(
 		array_slice( $columns, 0, $position + 1, true ),
 		$new_column,
@@ -211,6 +210,13 @@ function render_newsletter_access_rows( $column_id, $post_id ) {
 		default:
 			echo '';
 	}
+}
+
+/**
+ * Adds the Newsletter column styles
+ */
+function newsletter_access_column_styles() {
+	echo '<style id="jetpack-newsletter-newsletter-access-column"> table.fixed .column-newsletter_access { width: 10%; } </style>';
 }
 
 /**
