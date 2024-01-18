@@ -241,21 +241,7 @@ class Atomic_Wp_Admin_Menu extends Admin_Menu {
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
-		$menu_title = __( 'Stats', 'jetpack' );
-		if (
-			! $this->is_api_request &&
-			\Jetpack::is_module_active( 'stats' ) &&
-			function_exists( 'stats_get_image_chart_src' )
-		) {
-			$img_src = esc_attr(
-				stats_get_image_chart_src( 'admin-bar-hours-scale-2x', array( 'masterbar' => '' ) )
-			);
-			$alt     = esc_attr__( 'Hourly views', 'jetpack' );
-
-			$menu_title .= "<img class='sidebar-unified__sparkline' src='$img_src' width='80' height='20' alt='$alt'>";
-		}
-
-		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+		return null;
 	}
 
 	/**
