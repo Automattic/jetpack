@@ -978,6 +978,10 @@ function wpcom_launchpad_is_mobile_app_installed_visible() {
  * @return bool True if the Mobile App is installed for the current user.
  */
 function wpcom_launchpad_is_mobile_app_installed() {
+	if ( wpcom_is_checklist_task_complete( 'mobile_app_installed' ) ) {
+		return true;
+	}
+
 	$user_id          = get_current_user_id();
 	$mobile_last_seen = get_user_attribute( $user_id, 'jp_mobile_app_last_seen' );
 
