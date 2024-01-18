@@ -10,7 +10,7 @@
 
 namespace Automattic\Jetpack;
 
-require_once __DIR__ . '/assets/verbum-auth.php';
+require_once __DIR__ . '/assets/class-wpcom-rest-api-v2-verbum-auth.php';
 require_once __DIR__ . '/assets/class-wpcom-rest-api-v2-verbum-oembed.php';
 require_once __DIR__ . '/assets/class-verbum-gutenberg-editor.php';
 
