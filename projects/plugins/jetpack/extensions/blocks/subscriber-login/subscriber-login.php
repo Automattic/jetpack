@@ -23,7 +23,11 @@ use Jetpack_Options;
  * registration if we need to.
  */
 function register_block() {
-	if ( ! Jetpack::is_module_active( 'subscriptions' ) || ! class_exists( '\Jetpack_Memberships' ) ) {
+	if (
+		! Jetpack::is_module_active( 'subscriptions' ) ||
+		! class_exists( 'Jetpack_Memberships' ) ||
+		! class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service' )
+	) {
 		return;
 	}
 
@@ -42,9 +46,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return void
  */
 function subscriber_logout() {
-	if ( class_exists( '\Abstract_Token_Subscription_Service' ) ) {
-		Abstract_Token_Subscription_Service::clear_token_cookie();
-	}
+	Abstract_Token_Subscription_Service::clear_token_cookie();
 }
 
 /**
@@ -104,7 +106,7 @@ function render_block() {
 		);
 	}
 
-	if ( class_exists( '\Jetpack_Memberships' ) && Jetpack_Memberships::is_current_user_subscribed() ) {
+	if ( Jetpack_Memberships::is_current_user_subscribed() ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
