@@ -28,6 +28,7 @@
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-plugin-deactivation": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
+		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-wp-js-data-sync": "@dev",
 		"tedivm/jshrink": "1.4.0",
 		"tubalmartin/cssmin": "^4.1"
@@ -45,15 +46,15 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"build-production": [
-			"pnpm run build-production"
-		],
 		"build-development": [
-			"pnpm run build-development"
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production-concurrently"
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
-			"pnpm run dev"
+			"pnpm run watch"
 		],
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"

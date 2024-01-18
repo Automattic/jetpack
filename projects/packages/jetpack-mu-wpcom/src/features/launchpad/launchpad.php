@@ -87,11 +87,11 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'task_ids'            => array(
 				'setup_newsletter',
 				'plan_selected',
-				'subscribers_added',
 				'verify_email',
+				'subscribers_added',
+				'migrate_content',
 				'set_up_payments',
 				'newsletter_plan_created',
-				'migrate_content',
 				'first_post_published_newsletter',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
@@ -723,13 +723,29 @@ function wpcom_launchpad_is_task_list_dismissible( $checklist_slug ) {
 }
 
 /**
- * Sets a specific task list dismissed state.
+ * Returns the the temporary dismissed timestamps for a specific task list.
  *
  * @param string $checklist_slug The slug of the launchpad task list to check.
- * @param bool   $is_dismissed True if the task list is dismissed, false otherwise.
+ * @return int The timestamp until which the task list is dismissed.
  */
-function wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed ) {
-	wpcom_launchpad_checklists()->set_task_list_dismissed( $checklist_slug, $is_dismissed );
+function wpcom_launchpad_task_list_dismissed_until( $checklist_slug ) {
+	return wpcom_launchpad_checklists()->get_task_list_dismissed_until( $checklist_slug );
+}
+
+/**
+ * Sets a specific task list dismissed state.
+ *
+ * @param string        $checklist_slug The slug of the launchpad task list to check.
+ * @param bool          $is_dismissed True if the task list is dismissed, false otherwise.
+ * @param string | null $dismissed_until The date until which the task list is dismissed.
+ */
+function wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed, $dismissed_until ) {
+
+	if ( isset( $dismissed_until ) ) {
+		wpcom_launchpad_checklists()->set_task_list_dismissed_until( $checklist_slug, $dismissed_until );
+	} else {
+		wpcom_launchpad_checklists()->set_task_list_dismissed( $checklist_slug, $is_dismissed );
+	}
 }
 
 /**

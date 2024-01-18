@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix regrassion: Critical CSS stopped being auto-enabled on getting started
+
+

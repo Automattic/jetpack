@@ -12,6 +12,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Enum;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Float;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Number;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_String;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Void;
 
 /**
  * The Schema class is a factory for creating and managing validation rules based on specific
@@ -73,19 +74,80 @@ class Schema implements Parser {
 	 */
 	private $parser;
 
+	/**
+	 * @var Schema_Validation_Meta | null
+	 */
+	private $meta = null;
+
+	private $is_root = false;
+
+	/**
+	 * @param Parser $parser
+	 */
 	public function __construct( Parser $parser ) {
 		$this->parser = $parser;
+	}
+
+	public function set_meta( Schema_Validation_Meta $meta ) {
+		$this->meta    = $meta;
+		$this->is_root = true;
 	}
 
 	/**
 	 * Parses the input data according to the schema type.
 	 *
-	 * @param mixed $data The input data to be parsed.
+	 * @param mixed $value The input data to be parsed.
 	 *
 	 * @return mixed The parsed data according to the schema type.
+	 * @throws \Schema_Parsing_Error When the input data is invalid.
 	 */
-	public function parse( $data ) {
-		return $this->parser->parse( $data );
+	public function parse( $value, $meta = null ) {
+		if ( $meta === null && $this->meta === null ) {
+			// 1 - If the meta is null, then this is maybe the root.
+			$this->meta = new Schema_Validation_Meta( 'unknown' );
+			$this->meta->set_data( $value );
+			$this->is_root = true;
+		} elseif ( $this->meta === null ) {
+			// 2 - If the meta is not null, then this is not the root.
+			$this->meta = $meta;
+		}
+
+		/**
+		 * If this is the root, then we need to catch any errors and log them.
+		 */
+		if ( $this->is_root ) {
+			try {
+				return $this->parser->parse( $value, $this->meta );
+			} catch ( Schema_Internal_Error $e ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					$value          = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
+					$error_message  = "Failed to parse '{$this->meta->get_name()}' schema";
+					$error_message .= "\n" . $e->getMessage();
+					$error_message .= "\nData Received:";
+					$error_message .= "\n$value";
+					$error_message .= "\nSchema Path: {$this->meta->get_name()}.{$this->meta->get_path()}";
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log( $error_message );
+				}
+
+				throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $this->meta );
+			}
+		} else {
+			return $this->parser->parse( $value, $this->meta );
+		}
+	}
+
+	public function __toString() {
+		return $this->parser->__toString();
+	}
+
+	#[\ReturnTypeWillChange]
+	public function jsonSerialize() {
+		return $this->schema();
+	}
+
+	public function schema() {
+		return $this->parser->schema();
 	}
 
 	/**
@@ -102,7 +164,6 @@ class Schema implements Parser {
 	}
 
 	public function nullable() {
-
 		return $this->fallback( null );
 	}
 
@@ -127,7 +188,7 @@ class Schema implements Parser {
 	}
 
 	/**
-	 * @param $assoc_parser_array - An associative array of ["key" => "Parser" (or Validation_Rule)] pairs
+	 * @param $assoc_parser_array - An associative array of ["key" => "Parser"] pairs
 	 *
 	 * @return self
 	 */
@@ -161,11 +222,50 @@ class Schema implements Parser {
 	}
 
 	/**
+	 * Mark a schema as void - it should have no data worth keeping, and
+	 * will always parse to null.
+	 */
+	public static function as_void() {
+		return new self( new Type_Void() );
+	}
+
+	/**
 	 * Use With Caution! This will not parse the data - it will simply return it as-is.
 	 * This is useful for delivering read-only data that we don't need to parse server-side.
+	 *
 	 * @see Type_Any
 	 */
 	public static function as_unsafe_any() {
 		return new self( new Type_Any() );
+	}
+
+	public static function describe( $parser ) {
+		// Process the top-level schema array
+		$description = self::process_schema( $parser->schema() );
+
+		// Convert the processed schema to a JSON-like string
+		return wp_json_encode( $description, JSON_PRETTY_PRINT );
+	}
+
+	private static function process_schema( $item ) {
+		// If the item is an associative array with 'type' as a key, return its value directly
+		if ( is_array( $item ) && isset( $item['type'] ) && count( $item ) === 1 ) {
+			return $item['type'];
+		}
+
+		// If the item is an associative array with 'type' and 'value', process the value
+		if ( isset( $item['type'], $item['value'] ) && is_array( $item ) ) {
+			return self::process_schema( $item['value'] );
+		}
+
+		// If the item is any other kind of array, process each sub-item
+		if ( is_array( $item ) ) {
+			$result = array();
+			foreach ( $item as $key => $value ) {
+				$result[ $key ] = self::process_schema( $value );
+			}
+			return $result;
+		}
+		return $item;
 	}
 }

@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { requestImageAnalysis } from '$features/image-size-analysis/lib/stores/isa-summary';
+import { useImageAnalysisRequest } from '$features/image-size-analysis';
 import Logo from '$svg/jetpack-green';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNavigate } from 'react-router-dom';
@@ -12,19 +12,19 @@ const PurchaseSuccess: React.FC = () => {
 	const [ imageGuideState ] = useSingleModuleState( 'image_guide' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const navigate = useNavigate();
+	const isaRequest = useImageAnalysisRequest();
+	const { site, canResizeImages } = Jetpack_Boost;
 
 	useEffect( () => {
 		setCloudCssState( true );
-
 		// If image guide is enabled, request a new ISA report.
-		if (
-			imageGuideState?.active &&
-			isaState?.active &&
-			false !== Jetpack_Boost.site.canResizeImages
-		) {
-			requestImageAnalysis();
+		if ( imageGuideState?.active && isaState?.active && false !== canResizeImages ) {
+			isaRequest.requestNewReport();
 		}
-	}, [ imageGuideState?.active, isaState?.active, setCloudCssState ] );
+		// We only want this effect to run on mount.
+		// Specifying the dependencies will cause it to run on every render (infinite loop).
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
 
@@ -56,7 +56,7 @@ const PurchaseSuccess: React.FC = () => {
 							</li>
 
 							<li>
-								{ Jetpack_Boost.site.isAtomic
+								{ site.isAtomic
 									? createInterpolateElement(
 											__(
 												`Dedicated email support plus priority Live Chat if <link>your plan</link> includes <strong>Premium Support</strong>`,
@@ -83,7 +83,7 @@ const PurchaseSuccess: React.FC = () => {
 
 					<div className="jb-card__cta px-1 py-4">
 						<img
-							src={ `${ Jetpack_Boost.site.assetPath }../static/images/boost.png` }
+							src={ `${ Jetpack_Boost.assetPath }../static/images/boost.png` }
 							alt={ __( 'Optimize with Jetpack Boost', 'jetpack-boost' ) }
 						/>
 					</div>

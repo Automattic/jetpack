@@ -1,8 +1,16 @@
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
-import { jetpack_boost_ds } from './data-sync-client';
 
-export const premiumFeaturesClient = jetpack_boost_ds.createAsyncStore(
-	'premium_features',
-	z.array( z.string() )
-);
-export const premiumFeatures = premiumFeaturesClient.store;
+const premiumFeaturesSchema = z.array( z.string() ).or( z.literal( false ) );
+
+type PremiumFeatures = z.infer< typeof premiumFeaturesSchema >;
+
+export const usePremiumFeatures = () => {
+	const [ { data: premiumFeatures } ] = useDataSync(
+		'jetpack_boost_ds',
+		'premium_features',
+		premiumFeaturesSchema
+	);
+
+	return premiumFeatures as PremiumFeatures;
+};
