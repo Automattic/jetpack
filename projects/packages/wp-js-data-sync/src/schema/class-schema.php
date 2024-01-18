@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any_JSON;
@@ -119,7 +120,7 @@ class Schema implements Parser {
 			try {
 				return $this->parser->parse( $value, $this->meta );
 			} catch ( Schema_Internal_Error $e ) {
-				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				if ( DS_Utils::is_debug_enabled() ) {
 					$value          = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
 					$error_message  = "Failed to parse '{$this->meta->get_name()}' schema";
 					$error_message .= "\n" . $e->getMessage();
