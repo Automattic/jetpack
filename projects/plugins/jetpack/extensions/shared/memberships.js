@@ -41,7 +41,7 @@ export function showModal( url ) {
 	dialog.setAttribute( 'id', 'memberships-modal-window' );
 
 	const iframe = document.createElement( 'iframe' );
-	const siteLanguage = document.documentElement.lang.split( '-' )[ 0 ];
+	const siteLanguage = document.documentElement.lang.toLowerCase();
 	iframe.setAttribute( 'id', 'memberships-modal-iframe' );
 	iframe.innerText =
 		'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
