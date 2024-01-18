@@ -1,5 +1,5 @@
 import {
-	usePerformanceHistoryFreshStartState,
+	useDismissibleAlertState,
 	usePerformanceHistoryPanelQuery,
 	usePerformanceHistoryQuery,
 } from './lib/hooks';
@@ -18,7 +18,9 @@ const PerformanceHistoryBody = () => {
 	const needsUpgrade = ! performanceHistoryState?.available;
 
 	const { data, isFetching, isError, error, refetch } = usePerformanceHistoryQuery();
-	const [ isFreshStart, dismissFreshStart ] = usePerformanceHistoryFreshStartState();
+	const [ freshStartCompleted, dismissFreshStart ] = useDismissibleAlertState(
+		'performance_history_fresh_start'
+	);
 	const navigate = useNavigate();
 
 	if ( isError && ! isFetching ) {
@@ -38,7 +40,7 @@ const PerformanceHistoryBody = () => {
 	return (
 		<GraphComponent
 			{ ...( data as PerformanceHistoryData ) }
-			isFreshStart={ isFreshStart }
+			isFreshStart={ ! freshStartCompleted }
 			needsUpgrade={ needsUpgrade }
 			handleUpgrade={ () => navigate( '/upgrade' ) }
 			handleDismissFreshStart={ dismissFreshStart }
