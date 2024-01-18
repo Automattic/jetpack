@@ -15,6 +15,7 @@ class Schema_Parsing_Error extends \RuntimeException {
 	public function get_value() {
 		return $this->value;
 	}
+	
 	public function get_meta() {
 		return $this->meta;
 	}

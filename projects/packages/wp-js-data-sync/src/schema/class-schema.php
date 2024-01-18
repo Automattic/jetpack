@@ -109,7 +109,7 @@ class Schema implements Parser {
 			$this->meta = new Schema_Validation_Meta( 'unknown' );
 			$this->meta->set_data( $value );
 			$this->is_root = true;
-		} else if ( $this->meta === null ) {
+		} elseif ( $this->meta === null ) {
 			// 2 - If the meta is not null, then this is not the root.
 			$this->meta = $meta;
 		}
@@ -123,8 +123,8 @@ class Schema implements Parser {
 			} catch ( Schema_Internal_Error $e ) {
 
 				if ( DS_Utils::is_debug_enabled() ) {
-					$value         = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
-					$error_message = "Failed to parse '{$this->meta->get_name()}' schema";
+					$value          = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
+					$error_message  = "Failed to parse '{$this->meta->get_name()}' schema";
 					$error_message .= "\n" . $e->getMessage();
 					$error_message .= "\nData Received:";
 					$error_message .= "\n$value";
@@ -171,7 +171,6 @@ class Schema implements Parser {
 				// Convert the internal error to a parsing error.
 				throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $this->meta );
 			}
-
 		}
 		return $fallback;
 	}
@@ -181,8 +180,13 @@ class Schema implements Parser {
 		return new Decorate_With_Default( $this->parser, null );
 	}
 
-
-	public function or( Parser $parser ): Schema {
+	/**
+	 * Allow combining multiple types of schemas.
+	 * @param Parser $parser
+	 *
+	 * @return $this
+	 */
+	public function or( Parser $parser ) {
 		if ( $this->parser instanceof Type_Or ) {
 			$this->parser->add_condition( $parser );
 			return $this;
@@ -199,7 +203,6 @@ class Schema implements Parser {
 	 * ==================================================================================
 	 */
 
-
 	public static function as_string() {
 		return new self( new Type_String() );
 	}
@@ -214,7 +217,7 @@ class Schema implements Parser {
 	}
 
 	/**
-	 * @param $assoc_parser_array - An associative array of ["key" => "Parser"] pairs
+	 * @param array $assoc_parser_array - An associative array of ["key" => "Parser"] pairs
 	 *
 	 * @return self
 	 */
@@ -235,7 +238,7 @@ class Schema implements Parser {
 	}
 
 	/**
-	 * @param $allowed_values mixed[] - An array of values that are allowed for this enum.
+	 * @param array $allowed_values - An array of values that are allowed for this enum.
 	 *
 	 * @return Schema
 	 */
