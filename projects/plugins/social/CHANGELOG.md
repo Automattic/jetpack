@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.0.0 - 2024-01-18
+### Changed
+- Changed dismissed notices endpoint to be a core endpoint [#34544]
+- Social: Changed the illustration on the admin page [#34454]
+- Social: Refactored storing of feature options to use core functions [#34113]
+- Split PublicizeForm component into smaller ones [#34612]
+- Updated Jetpack Social activation landing page [#34778]
+- Updated package dependencies. [#34559] [#34815] [#34882]
+- Updated the design for Quick Share buttons and fixed its a11y [#34754]
+
+### Fixed
+- Fixed a bug with the initial state script [#34861]
+- Fixed Jetpack Social scheduled post messaging [#34182]
+
 ## 3.0.0 - 2023-12-06
 ### Added
 - Added a new post-publish panel for quick sharing [#33231]
