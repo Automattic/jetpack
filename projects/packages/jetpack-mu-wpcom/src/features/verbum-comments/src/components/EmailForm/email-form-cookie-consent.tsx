@@ -2,6 +2,10 @@ import { translate } from '../../i18n';
 import { shouldStoreEmailData } from '../../state';
 import { ToggleControl } from '../ToggleControl';
 
+const handleChange = ( e: boolean ) => {
+	shouldStoreEmailData.value = e;
+};
+
 export const EmailFormCookieConsent = () => {
 	const label = (
 		<div className="verbum-toggle-control__label">
@@ -20,9 +24,7 @@ export const EmailFormCookieConsent = () => {
 				id="verbum-mail-form-cookie-consent-toggle"
 				checked={ shouldStoreEmailData.value }
 				label={ label }
-				onChange={ ( e: boolean ) => {
-					shouldStoreEmailData.value = e;
-				} }
+				onChange={ handleChange }
 			/>
 		</div>
 	);
