@@ -1,4 +1,4 @@
-import type { ComponentChildren } from 'preact';
+import type { ComponentChildren, FunctionComponent } from 'preact';
 import './style.scss';
 
 type Props = {
@@ -8,17 +8,13 @@ type Props = {
 	onChange: ( checked: boolean ) => void;
 	disabled: boolean;
 };
-
-/**
- *
- * @param root0
- * @param root0.id
- * @param root0.checked
- * @param root0.onChange
- * @param root0.label
- * @param root0.disabled
- */
-export function ToggleControl( { id, checked, onChange, label, disabled }: Props ) {
+export const ToggleControl: FunctionComponent< Props > = ( {
+	id,
+	checked,
+	onChange,
+	label,
+	disabled,
+} ) => {
 	return (
 		<label htmlFor={ id } className="verbum-toggle-control">
 			<input
@@ -32,4 +28,4 @@ export function ToggleControl( { id, checked, onChange, label, disabled }: Props
 			<span className="verbum-toggle-control__text">{ label }</span>
 		</label>
 	);
-}
+};
