@@ -349,12 +349,6 @@ class AssetsTest extends TestCase {
 		}
 
 		Assets::register_script( ...$args );
-
-		// Check whether $options['async'] was honored.
-		$this->assertSame(
-			isset( $extra['async'] ) ? $extra['async'] : array(),
-			TestingAccessWrapper::newFromObject( Assets::instance() )->defer_script_handles
-		);
 	}
 
 	/** Data provider for `test_register_script` */
@@ -369,7 +363,10 @@ class AssetsTest extends TestCase {
 						"$url_base/single-js-file.js?minify=false",
 						array(),
 						2883865438,
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
 				),
@@ -391,7 +388,10 @@ class AssetsTest extends TestCase {
 						"$url_base/single-js-file.js?minify=false",
 						array( 'xyz' ),
 						'foobar',
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_set_script_translations' => array( 'single-file', 'foobaz' ),
 					'wp_script_add_data'         => array( 'single-file', 'Jetpack::Assets::hascss', false ),
@@ -406,7 +406,10 @@ class AssetsTest extends TestCase {
 						"$url_base/js-and-css.js?minify=false",
 						array( 'wp-polyfill' ),
 						'ver-from-js-and-css',
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_register_style'  => array( 'handle', "$url_base/js-and-css.css?minify=false", array(), 'ver-from-js-and-css', 'all' ),
 					'wp_script_add_data' => array( 'handle', 'Jetpack::Assets::hascss', true ),
@@ -433,7 +436,10 @@ class AssetsTest extends TestCase {
 						"$url_base/js-and-css.js",
 						array( 'wp-polyfill', 'qwerty', 'uiop' ),
 						'foobaz',
-						true,
+						array(
+							'in_footer' => true,
+							'strategy'  => '',
+						),
 					),
 					'wp_register_style'  => array( 'handle', "$url_base/js-and-css.css", array( 'asdf' ), 'foobaz', 'screen' ),
 					'wp_script_add_data' => array( 'handle', 'Jetpack::Assets::hascss', true ),
@@ -457,7 +463,10 @@ class AssetsTest extends TestCase {
 						"$url_base/everything.js?minify=false",
 						array( 'wp-polyfill', 'wp-components', 'wp-i18n' ),
 						'ver-from-everything',
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_set_script_translations' => array( 'handle', 'foobar' ),
 					'wp_register_style'          => array( 'handle', "$url_base/everything.css?minify=false", array( 'wp-components' ), 'ver-from-everything', 'all' ),
@@ -487,7 +496,10 @@ class AssetsTest extends TestCase {
 						"$url_base/everything.src.js?minify=true",
 						array( 'wp-polyfill', 'wp-components', 'wp-i18n', 'qwerty', 'uiop' ),
 						'foobaz',
-						true,
+						array(
+							'in_footer' => true,
+							'strategy'  => '',
+						),
 					),
 					'wp_set_script_translations' => array( 'handle', 'foobar' ),
 					'wp_register_style'          => array( 'handle', "$url_base/everything.rtl.css?minify=true", array( 'wp-components', 'asdf' ), 'foobaz', 'screen' ),
@@ -515,7 +527,10 @@ class AssetsTest extends TestCase {
 						"$url_base/single-js-file.js?minify=false",
 						array( 'wp-polyfill' ),
 						'ver-from-js-and-css',
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_register_style'  => array( 'single-file', "$url_base/everything.rtl.css?minify=false", array(), 'ver-from-js-and-css', 'all' ),
 					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', true ),
@@ -526,14 +541,18 @@ class AssetsTest extends TestCase {
 			'Async'                                     => array(
 				array( 'single-file', 'test-assets-files/single-js-file.js', __FILE__, array( 'async' => true ) ),
 				array(
-					'wp_register_script' => array(
+					'wp_register_script'   => array(
 						'single-file',
 						"$url_base/single-js-file.js?minify=false",
 						array(),
 						2883865438,
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => 'defer',
+						),
 					),
-					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
+					'wp_script_add_data'   => array( 'single-file', 'Jetpack::Assets::hascss', false ),
+					'_deprecated_argument' => array( 'Automattic\Jetpack\Assets::register_script', self::isType( 'string' ), 'The `async` option is deprecated in favor of `strategy`' ),
 				),
 				array( 'async' => array( 'single-file' ) ),
 			),
@@ -546,7 +565,10 @@ class AssetsTest extends TestCase {
 						"$url_base/single-js-file.js?minify=false",
 						array(),
 						2883865438,
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
 					'wp_enqueue_script'  => array( 'single-file' ),
@@ -569,7 +591,10 @@ class AssetsTest extends TestCase {
 						"$url_base/everything.js?minify=false",
 						array( 'wp-polyfill', 'wp-components', 'wp-i18n' ),
 						'ver-from-everything',
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'wp_set_script_translations' => array( 'everything', 'foobar' ),
 					'wp_register_style'          => array( 'everything', "$url_base/everything.css?minify=false", array( 'wp-components' ), 'ver-from-everything', 'all' ),
@@ -601,7 +626,10 @@ class AssetsTest extends TestCase {
 						"$url_base/everything.js?minify=false",
 						array( 'wp-polyfill', 'wp-components', 'wp-i18n' ),
 						'ver-from-everything',
-						false,
+						array(
+							'in_footer' => false,
+							'strategy'  => '',
+						),
 					),
 					'_doing_it_wrong'    => array( Assets::class . '::register_script', 'Script &quot;everything&quot; depends on wp-i18n but does not specify &quot;textdomain&quot;', '' ),
 					'wp_register_style'  => array( 'everything', "$url_base/everything.css?minify=false", array( 'wp-components' ), 'ver-from-everything', 'all' ),
@@ -620,9 +648,11 @@ class AssetsTest extends TestCase {
 						array(),
 						2883865438,
 						array(
-							'strategy' => 'defer',
+							'in_footer' => false,
+							'strategy'  => 'defer',
 						),
 					),
+					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
 				),
 				array(),
 			),
@@ -635,9 +665,11 @@ class AssetsTest extends TestCase {
 						array(),
 						2883865438,
 						array(
-							'strategy' => 'async',
+							'in_footer' => false,
+							'strategy'  => 'async',
 						),
 					),
+					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
 				),
 				array(),
 			),
