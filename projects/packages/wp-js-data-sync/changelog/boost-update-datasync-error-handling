@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+DataSync: Improved exception handling and JSON decoding consistency across multiple classe

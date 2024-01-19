@@ -1005,7 +1005,6 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 		$domains = wpcom_request_domains_list();
 
 		if ( is_wp_error( $domains ) ) {
-			// logs the erro
 			return false;
 		}
 
@@ -1015,8 +1014,6 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 				return $domain->is_pending_icann_verification;
 			}
 		);
-
-		return ! empty( $domains_pending_icann_verification );
 	} else {
 		if ( ! class_exists( 'Domain_Management' ) ) {
 			return false;
@@ -1032,7 +1029,28 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 		);
 	}
 
-	return ! empty( $domains_pending_icann_verification );
+	$has_domains_pending_icann_verification = ! empty( $domains_pending_icann_verification );
+
+	if ( ! $has_domains_pending_icann_verification && wpcom_launchpad_verify_domain_email_task_displayed() ) {
+		wpcom_mark_launchpad_task_complete( 'verify_domain_email' );
+		return true;
+	}
+
+	if ( $has_domains_pending_icann_verification ) {
+		if ( ! wpcom_launchpad_verify_domain_email_task_displayed() ) {
+			wpcom_set_launchpad_config_option( 'verify_domain_email_task_displayed', true );
+		}
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Checks if the Verify Email Domain task was displayed to the user.
+ */
+function wpcom_launchpad_verify_domain_email_task_displayed() {
+	return wpcom_get_launchpad_config_option( 'verify_domain_email_task_displayed', false );
 }
 
 /**

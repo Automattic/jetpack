@@ -525,13 +525,14 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 	const uid = userId || getUserId( state );
 	const purchaseToken = getPurchaseToken( state );
 	const calypsoEnv = getCalypsoEnv( state );
+	const blogID = getSiteId( state );
 
 	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
 		source += '-monthly';
 	}
 
 	const redirectArgs = {
-		site: getSiteRawUrl( state ),
+		site: blogID ?? getSiteRawUrl( state ),
 	};
 
 	if ( affiliateCode ) {

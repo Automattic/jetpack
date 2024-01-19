@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed a bug where the post body images weren't used for social previews
