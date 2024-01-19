@@ -1,14 +1,14 @@
-import { VerbumComments } from '../types';
+import type { VerbumComments as VerbumCommentsType } from '../types';
 
 type ScriptLoader = {
 	loadScript: ( url: string ) => Promise< void >;
 };
 
 declare global {
-	const VerbumComments: VerbumComments;
+	const VerbumComments: VerbumCommentsType;
 	const vbeCacheBuster: string;
 	const WP_Enqueue_Dynamic_Script: ScriptLoader;
-	const wp: {};
+	const wp: Record< string, unknown >;
 
 	interface Window {
 		wpApiSettings: {

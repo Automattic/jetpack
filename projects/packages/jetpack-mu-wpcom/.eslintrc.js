@@ -15,5 +15,6 @@ module.exports = {
 			},
 		],
 		'testing-library/prefer-screen-queries': 'off',
+		'react/jsx-no-bind': 'off',
 	},
 };

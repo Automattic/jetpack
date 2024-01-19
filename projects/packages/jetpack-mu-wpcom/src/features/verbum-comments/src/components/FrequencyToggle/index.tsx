@@ -17,13 +17,12 @@ type Option = {
 
 /**
  * Frequency toggle component.
- * @param root0
- * @param root0.name
- * @param {string} name
- * @param root0.initialOptions
- * @param root0.onChange
- * @param root0.selectedOption
- * @param root0.disabled
+ * @param {FrequencyToggleProps} props - props
+ * @param {string} props.name - name of the radio group
+ * @param {Option[]} props.initialOptions - the options to pick one from
+ * @param {Function} props.onChange - callback when the selected option changes
+ * @param {Option[]} props.selectedOption - the currently selected option
+ * @param {boolean} props.disabled - whether the toggle is disabled
  */
 export function FrequencyToggle( {
 	name = 'frequency-toggle',
@@ -49,7 +48,7 @@ export function FrequencyToggle( {
 							disabled={ disabled }
 						/>
 						<label aria-label={ option.value } htmlFor={ option.value } className="label-wrapper">
-							<span className="text" role="radio">
+							<span className="text" role="radio" aria-checked={ option.value === selectedOption }>
 								{ option.label }
 							</span>
 						</label>
