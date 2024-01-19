@@ -19,18 +19,16 @@ interface Boost_API_Client {
 	 *
 	 * @param string  $path - Request path.
 	 * @param mixed[] $payload - Request arguments.
-	 * @param mixed[] $args - Request arguments.
 	 * @return mixed
 	 */
-	public function post( $path, $payload = array(), $args = null );
+	public function post( $path, $payload = array() );
 
 	/**
 	 * Make a get request to boost API and return response.
 	 *
 	 * @param string  $path - Request path.
 	 * @param mixed[] $query - Query parameters.
-	 * @param mixed[] $args - Request arguments.
 	 * @return mixed
 	 */
-	public function get( $path, $query = array(), $args = null );
+	public function get( $path, $query = array() );
 }

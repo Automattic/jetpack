@@ -111,10 +111,9 @@ class Cloud_CSS implements Pluggable, Has_Endpoints {
 		}
 
 		// Send the request to the Cloud.
-		$client               = Boost_API::get_client();
 		$payload              = array( 'providers' => $grouped_urls );
 		$payload['requestId'] = md5( wp_json_encode( $payload ) . time() );
-		return $client->post( 'cloud-css', $payload );
+		return Boost_API::post( 'cloud-css', $payload );
 	}
 
 	/**
