@@ -23,8 +23,8 @@ export default function AdvancedCriticalCss() {
 	const activeIssues = issues.filter( issue => issue.error_status !== 'dismissed' );
 	const dismissedIssues = issues.filter( issue => issue.error_status === 'dismissed' );
 
-	function setDismissed( key: string, dismissed: boolean ) {
-		setDismissedAction.mutateAsync( { key, dismissed } );
+	function setDismissed( data: { key: string; dismissed: boolean }[] ) {
+		setDismissedAction.mutate( data );
 	}
 
 	// If there are no issues at all, redirect to the main page.
@@ -44,7 +44,7 @@ export default function AdvancedCriticalCss() {
 			  );
 
 	const showDismissedIssues = () => {
-		dismissedIssues.forEach( issue => setDismissed( issue.key, false ) );
+		setDismissed( dismissedIssues.map( issue => ( { key: issue.key, dismissed: false } ) ) );
 	};
 
 	return (
@@ -77,7 +77,9 @@ export default function AdvancedCriticalCss() {
 			{ activeIssues.map( ( provider: Provider ) => (
 				// Add transition:slide|local to the div below
 				<div className="panel" key={ provider.key }>
-					<CloseButton onClick={ () => setDismissed( provider.key, true ) } />
+					<CloseButton
+						onClick={ () => setDismissed( [ { key: provider.key, dismissed: true } ] ) }
+					/>
 
 					<h4>
 						<InfoIcon />

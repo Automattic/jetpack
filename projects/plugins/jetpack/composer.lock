@@ -1101,7 +1101,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "a27d51d101dd1ddd776afadecb0d0faf77fc634a"
+				"reference": "6c60ae09eacb2aa2ce16c8f1590d884ed2f2c1d4"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1145,6 +1145,9 @@
 				],
 				"test-php": [
 					"@composer phpunit"
+				],
+				"test-js": [
+					"pnpm run test:contact-form"
 				],
 				"build-production": [
 					"pnpm run build-production"
@@ -1678,7 +1681,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "56d30ebcc1e186ce13d1976506ca3c0aa099faeb"
+				"reference": "0ee01ddf6b05477477f92987e200d72431580389"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1710,7 +1713,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.5.x-dev"
+					"dev-trunk": "4.6.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2004,7 +2007,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "ae862be42c35e44bb0853201b21807c506793c9c"
+				"reference": "e9497a68f7a2a5c5eb6ec3988f91ab8c4bc176d5"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2032,7 +2035,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.39.x-dev"
+					"dev-trunk": "0.40.x-dev"
 				}
 			},
 			"autoload": {
@@ -2400,7 +2403,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/status",
-				"reference": "0582c2d414697f58f416ac91719df4a097481c4d"
+				"reference": "462582ef61f3f6be46574acb34c8d7f59adcdae9"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -2423,7 +2426,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.0.x-dev"
+					"dev-trunk": "2.1.x-dev"
 				}
 			},
 			"autoload": {

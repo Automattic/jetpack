@@ -41,7 +41,7 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Logout subscriber.
+ * Logs the subscriber out by clearing out the premium content cookie.
  *
  * @return void
  */
@@ -88,6 +88,15 @@ function get_subscriber_login_url() {
 }
 
 /**
+ * Determines whether the current visitor is a logged in user or a subscriber.
+ *
+ * @return bool
+ */
+function is_subscriber_logged_in() {
+	return is_user_logged_in() || Abstract_Token_Subscription_Service::has_token_from_cookie();
+}
+
+/**
  * Renders Subscriber Login block.
  *
  * @return string
@@ -97,7 +106,7 @@ function render_block() {
 
 	$block_template = '<div %1$s><a href="%2$s">%3$s</a></div>';
 
-	if ( ! is_user_logged_in() ) {
+	if ( ! is_subscriber_logged_in() ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),

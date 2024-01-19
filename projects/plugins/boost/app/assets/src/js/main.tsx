@@ -19,6 +19,7 @@ import { useGettingStarted } from '$lib/stores/getting-started';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import ImageSizeAnalysis from './pages/image-size-analysis/image-size-analysis';
 import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
+import '../css/admin-style.scss';
 
 const useBoostRouter = () => {
 	const { shouldGetStarted } = useGettingStarted();

@@ -7,10 +7,11 @@ import ActivateLicense from '$features/activate-license/activate-license';
 import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import styles from './getting-started.module.scss';
-import { useConfig } from '$lib/stores/config-ds';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useNavigate } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
+import { usePricing } from '$lib/stores/pricing';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useSingleModuleState } from '$features/module/lib/stores';
 
 const GettingStarted: React.FC = () => {
@@ -19,10 +20,12 @@ const GettingStarted: React.FC = () => {
 	const navigate = useNavigate();
 
 	const {
-		pricing,
-		is_premium: isPremium,
 		site: { domain },
-	} = useConfig();
+	} = Jetpack_Boost;
+
+	const pricing = usePricing();
+	const premiumFeatures = usePremiumFeatures();
+	const isPremium = premiumFeatures !== false;
 
 	const { shouldGetStarted, markGettingStartedComplete } = useGettingStarted();
 	const [ , setCriticalCssState ] = useSingleModuleState( 'critical_css' );
