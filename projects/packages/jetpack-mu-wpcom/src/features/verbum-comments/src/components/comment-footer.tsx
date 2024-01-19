@@ -1,7 +1,7 @@
 import { translate } from '../i18n';
+import { isReplyDisabled, isSavingComment, isTrayOpen, userLoggedIn } from '../state';
 import { classNames } from '../utils';
 import { SettingsButton } from './settings-button';
-import { isReplyDisabled, isSavingComment, isTrayOpen, userLoggedIn } from '../state';
 
 interface CommentFooterProps {
 	toggleTray: ( event: MouseEvent ) => void;

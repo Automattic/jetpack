@@ -9,6 +9,15 @@ type Props = {
 	disabled: boolean;
 };
 
+/**
+ *
+ * @param root0
+ * @param root0.id
+ * @param root0.checked
+ * @param root0.onChange
+ * @param root0.label
+ * @param root0.disabled
+ */
 export function ToggleControl( { id, checked, onChange, label, disabled }: Props ) {
 	return (
 		<label htmlFor={ id } className="verbum-toggle-control">

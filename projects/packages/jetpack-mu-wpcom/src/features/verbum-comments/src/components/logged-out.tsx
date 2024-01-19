@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
-import { classNames, serviceData } from '../utils';
 import { translate } from '../i18n';
+import { classNames, serviceData } from '../utils';
 import { EmailForm } from './EmailForm';
 
 interface LoggedOutProps {

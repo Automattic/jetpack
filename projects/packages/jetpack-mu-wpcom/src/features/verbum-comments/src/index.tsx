@@ -1,21 +1,14 @@
-import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
-import { render } from 'preact';
 import { effect } from '@preact/signals';
-import { LoggedIn } from './components/logged-in';
-import { LoggedOut } from './components/logged-out';
+import { render } from 'preact';
+import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
+import { SimpleSubscribeModal } from './components/SimpleSubscribeModal';
 import { CommentFooter } from './components/comment-footer';
 import { CommentInputField } from './components/comment-input-field';
 import { CommentMessage } from './components/comment-message';
+import { LoggedIn } from './components/logged-in';
+import { LoggedOut } from './components/logged-out';
 import useSocialLogin from './hooks/useSocialLogin';
-import {
-	classNames,
-	canWeAccessCookies,
-	setUserInfoCookie,
-	addWordPressDomain,
-	hasSubscriptionOptionsVisible,
-} from './utils';
-import type { VerbumComments } from './types';
-import { SimpleSubscribeModal } from './components/SimpleSubscribeModal';
+import { translate } from './i18n';
 import {
 	hasOpenedTrayOnce,
 	isEmptyComment,
@@ -26,8 +19,14 @@ import {
 	userInfo,
 	userLoggedIn,
 } from './state';
-
-import { translate } from './i18n';
+import {
+	classNames,
+	canWeAccessCookies,
+	setUserInfoCookie,
+	addWordPressDomain,
+	hasSubscriptionOptionsVisible,
+} from './utils';
+import type { VerbumComments } from './types';
 
 import './style.scss';
 

@@ -1,6 +1,12 @@
+/**
+ * Create a random email
+ */
 export function createRandomEmail() {
 	return `${ Math.random().toString( 36 ).substring( 7 ) }@example.com`;
 }
+/**
+ * Create a random name
+ */
 export function createRandomName() {
 	return ` ${ Math.random().toString( 36 ).substring( 7 ) } ${ Math.random()
 		.toString( 36 )
@@ -58,6 +64,9 @@ const commonWords = [
 	'young',
 ];
 
+/**
+ * Create a random comment
+ */
 export function createRandomComment() {
 	const sentence = [];
 	for ( let i = 0; i < 15; i++ ) {

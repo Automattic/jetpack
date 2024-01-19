@@ -1,16 +1,16 @@
+import { useEffect, useState, useRef } from 'preact/hooks';
 import { translate } from '../../i18n';
+import { Close } from '../../images';
+import { userInfo, userLoggedIn } from '../../state';
+import { SimpleSubscribeModalProps } from '../../types';
 import {
 	getSubscriptionModalViewCount,
 	setSubscriptionModalViewCount,
 	shouldShowSubscriptionModal,
 	classNames,
 } from '../../utils';
-import { SimpleSubscribeModalProps } from '../../types';
-import { useEffect, useState, useRef } from 'preact/hooks';
-import { Close } from '../../images';
 import { SimpleSubscribeModalLoggedIn, SimpleSubscribeSetModalShowLoggedIn } from './logged-in';
 import { SimpleSubscribeModalLoggedOut } from './logged-out';
-import { userInfo, userLoggedIn } from '../../state';
 import './style.scss';
 
 export const SimpleSubscribeModal = ( {
@@ -72,6 +72,10 @@ export const SimpleSubscribeModal = ( {
 		return null;
 	}
 
+	/**
+	 * Close the modal
+	 * @param event - MouseEvent
+	 */
 	function handleClose( event: MouseEvent ) {
 		event.preventDefault();
 		closeModalStateHandler();

@@ -1,6 +1,6 @@
 import { translate } from '../../i18n';
-import { ToggleControl } from '../ToggleControl';
 import { shouldStoreEmailData } from '../../state';
+import { ToggleControl } from '../ToggleControl';
 
 export const EmailFormCookieConsent = () => {
 	const label = (

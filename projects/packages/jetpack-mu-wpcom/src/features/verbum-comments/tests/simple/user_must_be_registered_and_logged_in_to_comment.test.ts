@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { createRandomComment, testingUser } from '../utils';
 import sites from '../sites';
+import { createRandomComment, testingUser } from '../utils';
 
 test( 'Simple: user_must_be_registered_and_logged_in_to_comment - Anonymous', async ( {
 	page,

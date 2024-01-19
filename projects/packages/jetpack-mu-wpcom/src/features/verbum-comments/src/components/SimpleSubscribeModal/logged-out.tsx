@@ -1,8 +1,8 @@
-import { translate } from '../../i18n';
 import { useEffect, useState } from 'preact/hooks';
+import { translate } from '../../i18n';
 import { SimpleSubscribeModalProps } from '../../types';
-import type { ChangeEvent } from 'preact/compat';
 import SubscriptionModal from './subscription-modal';
+import type { ChangeEvent } from 'preact/compat';
 
 // Subscription modal for logged-out users.
 export const SimpleSubscribeModalLoggedOut = ( {
@@ -32,6 +32,10 @@ export const SimpleSubscribeModalLoggedOut = ( {
 		setSubscribeDisabled( false );
 	};
 
+	/**
+	 * Handle the iframe result.
+	 * @param eventFromIframe
+	 */
 	function handleIframeResult( eventFromIframe ) {
 		if ( eventFromIframe.origin === 'https://subscribe.wordpress.com' && eventFromIframe.data ) {
 			const data = JSON.parse( eventFromIframe.data );
@@ -44,6 +48,9 @@ export const SimpleSubscribeModalLoggedOut = ( {
 		}
 	}
 
+	/**
+	 * Handle the subscribe button click.
+	 */
 	async function handleOnSubscribeClick() {
 		const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 		if ( Boolean( emailRegex.test( userEmail ) ) === false ) {

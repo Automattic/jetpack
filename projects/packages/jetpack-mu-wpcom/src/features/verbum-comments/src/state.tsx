@@ -1,7 +1,7 @@
 import { signal, computed } from '@preact/signals';
 import { canWeAccessCookies, getUserInfoCookie, isAuthRequired, isEmptyEditor } from './utils';
-import type { Signal } from '@preact/signals';
 import type { UserInfo, SubscriptionDetails } from './types';
+import type { Signal } from '@preact/signals';
 
 /*
  * In userInfo we store the user data for logged-in users.

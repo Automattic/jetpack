@@ -1,7 +1,7 @@
-import wpcomRequest from 'wpcom-proxy-request';
 import { useState, useEffect } from 'preact/hooks';
-import { SubscriptionDetails, EmailPostsChange, EmailSubscriptionResponse } from '../types';
+import wpcomRequest from 'wpcom-proxy-request';
 import { subscriptionSettings } from '../state';
+import { SubscriptionDetails, EmailPostsChange, EmailSubscriptionResponse } from '../types';
 
 const getSubscriptionDetails = async () => {
 	const { siteId } = VerbumComments;
@@ -19,6 +19,9 @@ const getSubscriptionDetails = async () => {
 	} );
 };
 
+/**
+ * Hook to handle subscription API calls.
+ */
 export default function useSubscriptionApi() {
 	const { siteId } = VerbumComments;
 	const [ subscriptionSettingsIsLoading, setSubscriptionSettingsIsLoading ] = useState( true );

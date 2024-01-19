@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { createRandomComment } from '../utils';
 import sites from '../sites';
+import { createRandomComment } from '../utils';
 
 test( 'Atomic: open_comments_for_everyone - Anonymous', async ( { page } ) => {
 	const randomComment = createRandomComment();

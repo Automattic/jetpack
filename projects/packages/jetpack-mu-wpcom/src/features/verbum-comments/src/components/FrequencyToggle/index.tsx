@@ -15,6 +15,16 @@ type Option = {
 	label: string;
 };
 
+/**
+ * Frequency toggle component.
+ * @param root0
+ * @param root0.name
+ * @param {string} name
+ * @param root0.initialOptions
+ * @param root0.onChange
+ * @param root0.selectedOption
+ * @param root0.disabled
+ */
 export function FrequencyToggle( {
 	name = 'frequency-toggle',
 	initialOptions,

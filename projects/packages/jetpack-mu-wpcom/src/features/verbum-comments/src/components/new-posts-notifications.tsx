@@ -1,5 +1,5 @@
-import { ToggleControl } from './ToggleControl';
 import { translate } from '../i18n';
+import { ToggleControl } from './ToggleControl';
 
 interface NewPostsNotificationsProps {
 	isChecked: boolean;

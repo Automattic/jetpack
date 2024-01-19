@@ -1,9 +1,9 @@
-import { translate } from '../i18n';
 import { forwardRef, type TargetedEvent } from 'preact/compat';
 import { useEffect, useState } from 'preact/hooks';
+import { translate } from '../i18n';
+import { commentValue } from '../state';
 import { classNames, isFastConnection } from '../utils';
 import { EditorPlaceholder } from './editor-placeholder';
-import { commentValue } from '../state';
 
 type CommentInputFieldProps = {
 	handleOnKeyUp: () => void;
@@ -12,7 +12,7 @@ type CommentInputFieldProps = {
 /**
  * Resize the textarea to fit the content.
  *
- * @param event Event object.
+ * @param event - Event object.
  */
 const resizeTextarea = ( event: TargetedEvent< HTMLTextAreaElement > ) => {
 	event.currentTarget.style.height = 'auto';
@@ -43,6 +43,9 @@ export const CommentInputField = forwardRef(
 			} );
 		}, [] );
 
+		/**
+		 * Download the block editor.
+		 */
 		async function downloadEditor() {
 			if ( editorState ) {
 				return;

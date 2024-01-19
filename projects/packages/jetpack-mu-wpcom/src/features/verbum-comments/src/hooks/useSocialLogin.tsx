@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'preact/hooks';
-import { serviceData, setUserInfoCookie } from '../utils';
-import { UserInfo } from '../types';
 import wpcomRequest from 'wpcom-proxy-request';
 import { userInfo } from '../state';
+import { UserInfo } from '../types';
+import { serviceData, setUserInfoCookie } from '../utils';
 
 export const addIframe = ( src: string ) => {
 	const iframe = document.createElement( 'iframe' );
@@ -23,6 +23,9 @@ const addWordPressDomain = window.location.hostname.endsWith( '.wordpress.com' )
 	? ' Domain=.wordpress.com'
 	: '';
 
+/**
+ *
+ */
 export default function useSocialLogin() {
 	const [ loginWindowRef, setLoginWindowRef ] = useState< Window >();
 

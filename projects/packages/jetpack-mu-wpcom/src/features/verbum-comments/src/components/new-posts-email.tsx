@@ -1,7 +1,7 @@
+import { translate } from '../i18n';
+import { EmailPostsChange } from '../types';
 import { ToggleControl } from './ToggleControl';
 import { EmailFrequencyGroup } from './email-frequency-group';
-import { EmailPostsChange } from '../types';
-import { translate } from '../i18n';
 
 interface NewPostsEmailProps {
 	handleOnChange: ( props: EmailPostsChange ) => void;

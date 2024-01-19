@@ -1,5 +1,5 @@
-import { classNames, hasSubscriptionOptionsVisible } from '../utils';
 import { userInfo } from '../state';
+import { classNames, hasSubscriptionOptionsVisible } from '../utils';
 
 interface SettingsButtonProps {
 	expanded: boolean;

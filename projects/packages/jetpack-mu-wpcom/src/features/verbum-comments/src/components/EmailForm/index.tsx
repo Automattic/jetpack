@@ -1,14 +1,14 @@
-import { classNames, getUserInfoCookie, isAuthRequired } from '../../utils';
-import { translate } from '../../i18n';
-import { useState, useEffect } from 'preact/hooks';
-import { NewPostsEmail } from '../new-posts-email';
-import { NewCommentEmail } from '../new-comment-email';
-import type { ChangeEvent } from 'preact/compat';
-import { Name, Website, Email } from '../../images';
-import './style.scss';
-import { EmailFormCookieConsent } from './email-form-cookie-consent';
 import { signal, effect, batch, computed } from '@preact/signals';
+import { useState, useEffect } from 'preact/hooks';
+import { translate } from '../../i18n';
+import { Name, Website, Email } from '../../images';
 import { mailLoginData, isMailFormInvalid, shouldStoreEmailData } from '../../state';
+import { classNames, getUserInfoCookie, isAuthRequired } from '../../utils';
+import { NewCommentEmail } from '../new-comment-email';
+import { NewPostsEmail } from '../new-posts-email';
+import { EmailFormCookieConsent } from './email-form-cookie-consent';
+import type { ChangeEvent } from 'preact/compat';
+import './style.scss';
 
 interface EmailFormProps {
 	shouldShowEmailForm: boolean;

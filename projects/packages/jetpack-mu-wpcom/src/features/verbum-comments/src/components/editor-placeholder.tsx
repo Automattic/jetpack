@@ -1,5 +1,5 @@
-import { classNames } from '../utils';
 import { translate } from '../i18n';
+import { classNames } from '../utils';
 import { CustomLoadingSpinner } from './custom-loading-spinner';
 
 export const EditorPlaceholder = ( { onClick, loading } ) => {

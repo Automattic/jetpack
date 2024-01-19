@@ -1,9 +1,9 @@
-import { translate } from '../../i18n';
-import { shouldShowSubscriptionModal } from '../../utils';
 import useSubscriptionApi from '../../hooks/useSubscriptionApi';
-import { SimpleSubscribeModalProps } from '../../types';
-import SubscriptionModal from './subscription-modal';
+import { translate } from '../../i18n';
 import { subscriptionSettings, userInfo } from '../../state';
+import { SimpleSubscribeModalProps } from '../../types';
+import { shouldShowSubscriptionModal } from '../../utils';
+import SubscriptionModal from './subscription-modal';
 
 // This determines if the modal should be shown to the user.
 // It's called before the modal is rendered.
@@ -30,6 +30,9 @@ export const SimpleSubscribeModalLoggedIn = ( {
 }: SimpleSubscribeModalProps ) => {
 	const { setEmailPostsSubscription } = useSubscriptionApi();
 
+	/**
+	 * Handle the subscribe button click.
+	 */
 	async function handleOnSubscribeClick() {
 		setSubscribeState( 'SUBSCRIBING' );
 		await setEmailPostsSubscription( {

@@ -1,6 +1,5 @@
-import type { ChangeEvent } from 'preact/compat';
 import { translate } from '../../i18n';
-import { classNames } from '../../utils';
+import type { ChangeEvent } from 'preact/compat';
 
 interface SubscriptionModalProps {
 	userEmail: string;

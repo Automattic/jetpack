@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { createRandomComment, createRandomEmail, createRandomName } from '../utils';
 import sites from '../sites';
+import { createRandomComment, createRandomEmail, createRandomName } from '../utils';
 
 test( 'Atomic: author_must_fill_name_and_email', async ( { page } ) => {
 	const randomComment = createRandomComment();

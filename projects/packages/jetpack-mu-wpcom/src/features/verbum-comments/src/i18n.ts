@@ -4,6 +4,10 @@ declare global {
 	}
 }
 
+/**
+ * Translates a string.
+ * @param string
+ */
 export function translate( string: string ) {
 	return window.VerbumComments?.[ string ] ?? string;
 }

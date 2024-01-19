@@ -1,6 +1,6 @@
+import { useState, useEffect } from 'preact/hooks';
 import { translate } from '../i18n';
 import { FrequencyToggle } from './FrequencyToggle';
-import { useState, useEffect } from 'preact/hooks';
 
 const options = [
 	{ value: 'instantly', label: translate( 'Instantly' ), checked: true },
@@ -19,8 +19,8 @@ interface EmailFrequencyGroupProps {
 /**
  * Runs a media query and returns its value when it changes.
  *
- * @param [query] Media Query.
- * @return return value of the media query.
+ * @param [query] - Media Query.
+ * @returns return value of the media query.
  */
 export default function useMediaQuery( query: string ) {
 	const [ match, setMatch ] = useState( window.matchMedia( query ).matches );

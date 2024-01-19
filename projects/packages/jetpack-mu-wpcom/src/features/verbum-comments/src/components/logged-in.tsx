@@ -1,13 +1,17 @@
-import { Close } from '../images';
+import useSubscriptionApi from '../hooks/useSubscriptionApi';
 import { translate } from '../i18n';
-import { UserInfo, SubscriptionDetails } from '../types';
+import { Close } from '../images';
+import { isTrayOpen, subscriptionSettings, userInfo } from '../state';
+import { serviceData, classNames, isFastConnection } from '../utils';
+import { NewCommentEmail } from './new-comment-email';
 import { NewPostsEmail } from './new-posts-email';
 import { NewPostsNotifications } from './new-posts-notifications';
-import { NewCommentEmail } from './new-comment-email';
-import useSubscriptionApi from '../hooks/useSubscriptionApi';
-import { serviceData, classNames, isFastConnection } from '../utils';
-import { isTrayOpen, subscriptionSettings, userInfo } from '../state';
 
+/**
+ * Replace the first occurrence of %s in a string with a parameter.
+ * @param s
+ * @param param
+ */
 function sprintf( s: string, param: string ) {
 	return s.replace( '%s', param );
 }
