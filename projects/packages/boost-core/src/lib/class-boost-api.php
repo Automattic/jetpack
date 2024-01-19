@@ -40,11 +40,12 @@ class Boost_API {
 	 * Make a get request to boost API and return response.
 	 *
 	 * @param string  $path - Request path.
-	 * @param mixed[] $args - Query parameters.
+	 * @param mixed[] $query - Query parameters.
+	 * @param mixed[] $args - Request arguments.
 	 * @return array|\WP_Error
 	 */
-	public static function get( $path, $args = array() ) {
-		return self::get_client()->get( $path, $args );
+	public static function get( $path, $query = array(), $args = null ) {
+		return self::get_client()->get( $path, $query, $args );
 	}
 
 	/**
@@ -52,9 +53,10 @@ class Boost_API {
 	 *
 	 * @param string  $path - Request path.
 	 * @param mixed[] $payload - Request arguments.
+	 * @param mixed[] $args - Request arguments.
 	 * @return mixed
 	 */
-	public static function post( $path, $payload = array() ) {
-		return self::get_client()->post( $path, $payload );
+	public static function post( $path, $payload = array(), $args = null ) {
+		return self::get_client()->post( $path, $payload, $args );
 	}
 }
