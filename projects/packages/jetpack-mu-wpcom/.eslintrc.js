@@ -18,5 +18,6 @@ module.exports = {
 		'react/jsx-no-bind': 'off',
 		// Not needed for TypeScript.
 		'jsdoc/require-param-type': 'off',
+		'jsdoc/require-returns-type': 'off',
 	},
 };

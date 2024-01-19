@@ -19,7 +19,7 @@ interface EmailFrequencyGroupProps {
 /**
  * Runs a media query and returns its value when it changes.
  *
- * @param [query] - Media Query.
+ * @param query - the media query to run.
  * @returns return value of the media query.
  */
 export default function useMediaQuery( query: string ) {
