@@ -1088,7 +1088,7 @@ function wpcom_get_launchpad_checklist_title_by_checklist_slug( $checklist_slug 
 function wpcom_get_launchpad_config_option( $option, $default = null ) {
 	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
 
-	if ( ! isset( $wpcom_launchpad_config[ $option ] ) ) {
+	if ( ! is_array( $wpcom_launchpad_config ) || ! isset( $wpcom_launchpad_config[ $option ] ) ) {
 		return $default;
 	}
 
