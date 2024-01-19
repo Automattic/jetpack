@@ -55,6 +55,11 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		}
 	} );
 
+	const handleBeforeUnload = useCallback( ( event: BeforeUnloadEvent ) => {
+		event.preventDefault();
+		event.returnValue = '';
+	}, [] );
+
 	effect( () => {
 		if ( ! isEmptyComment.value ) {
 			window.addEventListener( 'beforeunload', handleBeforeUnload );
@@ -204,11 +209,6 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 			window.location.reload();
 		}
 	};
-
-	const handleBeforeUnload = useCallback( ( event: BeforeUnloadEvent ) => {
-		event.preventDefault();
-		event.returnValue = '';
-	}, [] );
 
 	return (
 		<>

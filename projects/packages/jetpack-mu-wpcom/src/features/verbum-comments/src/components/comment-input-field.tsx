@@ -58,7 +58,7 @@ export const CommentInputField = forwardRef(
 				// import requires an absolute URL when fetching from a CDN (cross origin fetch).
 				await import(
 					/* webpackIgnore: true */
-					'https://widgets.wp.com/verbum-block-editor/block-editor.min.js?ver=' +
+					'https://widgets.wp.com/verbum-block-editor/block-editor.min.js?from=jetpack&ver=' +
 						VerbumComments.vbeCacheBuster
 				);
 				verbumBlockEditor.attachGutenberg(
