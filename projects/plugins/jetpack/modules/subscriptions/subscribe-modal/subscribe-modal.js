@@ -18,7 +18,7 @@ domReady( function () {
 		window.clearTimeout( isScrolling );
 
 		isScrolling = setTimeout( function () {
-			if ( ! hasLoaded && ! hasModalDismissedCookie ) {
+			if ( ! hasLoaded ) {
 				openModal();
 			}
 		}, 300 );
