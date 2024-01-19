@@ -45,8 +45,8 @@ const Module = ( {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	// Don't show unavailable modules, except for lazy_images.
-	if ( ! isModuleAvailable && slug !== 'lazy_images' ) {
+	// Don't show unavailable modules
+	if ( ! isModuleAvailable ) {
 		return null;
 	}
 

@@ -4,9 +4,6 @@ import { castToString } from '$lib/utils/cast-to-string';
 import debounce from '$lib/utils/debounce';
 import { useState, useCallback, useEffect, useMemo, useReducer } from 'react';
 
-const siteIsOnline = Jetpack_Boost.site.online;
-const siteUrl = Jetpack_Boost.site.url;
-
 type SpeedScoreState = {
 	status: 'loading' | 'loaded' | 'error';
 	error?: Error;
@@ -28,9 +25,10 @@ type RefreshFunction = ( regenerate?: boolean ) => Promise< void >;
 /**
  * A hook that gives you the speed scores and a method to refresh them.
  *
+ * @param  siteUrl
  * @return {[ SpeedScoreState, RefreshFunction ]} - A tuple with the state and a method to refresh the scores.
  */
-export const useSpeedScores = () => {
+export const useSpeedScores = ( siteUrl: string ) => {
 	const [ state, updateState ] = useReducer(
 		( oldState, newState ) => ( { ...oldState, ...newState } ),
 		{
@@ -44,36 +42,34 @@ export const useSpeedScores = () => {
 		}
 	);
 
-	const loadScore = useCallback( async ( regenerate = false ) => {
-		// Don't run in offline mode.
-		if ( ! siteIsOnline ) {
-			return;
-		}
-
-		try {
-			updateState( {
-				status: 'loading',
-			} );
-			const results = await requestSpeedScores(
-				regenerate,
-				wpApiSettings.root,
-				siteUrl,
-				wpApiSettings.nonce
-			);
-			updateState( {
-				scores: results,
-				status: 'loaded',
-			} );
-		} catch ( err ) {
-			recordBoostEvent( 'speed_score_request_error', {
-				error_message: castToString( err.message ),
-			} );
-			updateState( {
-				status: 'error',
-				error: err,
-			} );
-		}
-	}, [] );
+	const loadScore = useCallback(
+		async ( regenerate = false ) => {
+			try {
+				updateState( {
+					status: 'loading',
+				} );
+				const results = await requestSpeedScores(
+					regenerate,
+					wpApiSettings.root,
+					siteUrl,
+					wpApiSettings.nonce
+				);
+				updateState( {
+					scores: results,
+					status: 'loaded',
+				} );
+			} catch ( err ) {
+				recordBoostEvent( 'speed_score_request_error', {
+					error_message: castToString( err.message ),
+				} );
+				updateState( {
+					status: 'error',
+					error: err,
+				} );
+			}
+		},
+		[ siteUrl ]
+	);
 
 	return [ state as SpeedScoreState, loadScore as RefreshFunction ] as const;
 };
@@ -107,7 +103,7 @@ export const useDebouncedRefreshScore = (
 			debounce( async ( newConfig, oldConfig ) => {
 				if ( oldConfig !== newConfig ) {
 					setScoreConfigString( newConfig );
-					await loadScore( true );
+					await loadScore();
 				}
 			}, 2000 ),
 		[ loadScore, setScoreConfigString ]

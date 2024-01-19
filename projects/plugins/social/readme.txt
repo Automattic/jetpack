@@ -100,28 +100,19 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 3.0.0 - 2023-12-06
-#### Added
-- Added a new post-publish panel for quick sharing
-- Added Nextdoor to Social Previews
-- Added traking for social sharing buttons
-
+### 4.0.0 - 2024-01-18
 #### Changed
-- Code Modernization: Replace usage of strpos() with str_contains()
-- General: updated PHP requirement to PHP 7.0+
-- General: update WordPress version requirements to WordPress 6.3 and compatible with 6.4. [#34127]
-- Updated package dependencies.
-- Updated screenshot to show the new connection toggles.
-- Updated Social admin pricing page
-
-#### Removed
-- Removed unused code [#34111]
+- Changed dismissed notices endpoint to be a core endpoint
+- Social: Changed the illustration on the admin page
+- Social: Refactored storing of feature options to use core functions
+- Split PublicizeForm component into smaller ones
+- Updated Jetpack Social activation landing page
+- Updated package dependencies. [#34559] [#34815]
+- Updated the design for Quick Share buttons and fixed its a11y
 
 #### Fixed
-- Fixed an issue where initial state is not in sync
-- Fixed broken connections UI
-- Fixed pre-publish UI reactivity for Jetpack Social
-- Fixed the issue of publicize remaining ON after the post is published
+- Fixed a bug with the initial state script
+- Fixed Jetpack Social scheduled post messaging
 
 == Upgrade Notice ==
 
