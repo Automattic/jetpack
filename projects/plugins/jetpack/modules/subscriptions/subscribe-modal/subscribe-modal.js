@@ -19,9 +19,7 @@ domReady( function () {
 
 		isScrolling = setTimeout( function () {
 			if ( ! hasLoaded && ! hasModalDismissedCookie ) {
-				modal.classList.add( 'open' );
-				document.body.classList.add( 'jetpack-subscribe-modal-open' );
-				hasLoaded = true;
+				openModal();
 			}
 		}, 300 );
 	};
@@ -40,10 +38,16 @@ domReady( function () {
 		}
 	};
 
+	function openModal() {
+		modal.classList.add( 'open' );
+		document.body.classList.add( 'jetpack-subscribe-modal-open' );
+		hasLoaded = true;
+		setModalDismissedCookie();
+	}
+
 	function closeModal() {
 		modal.classList.remove( 'open' );
 		document.body.classList.remove( 'jetpack-subscribe-modal-open' );
-		setModalDismissedCookie();
 	}
 
 	function setModalDismissedCookie() {
