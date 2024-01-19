@@ -1,17 +1,33 @@
 # Coding Standards & Guidelines
 
-These are some things to keep in mind when writing code for Jetpack plugin. Please follow them to speed up the review process and get your code merged faster.
+These are some things to keep in mind when writing code for the Jetpack Monorepo ecosystem. Please follow them to speed up the review process and get your code merged faster.
 
-## Versions supported
+## Language and tools
 
-- Jetpack supports PHP 7.0, as per WordPress' own requirements. Keep that in mind when developing for Jetpack.
-- Jetpack follows [WordPress Core's standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/), with a few additions. The best way to ensure that you adhere to those standards is to set up your IDE [as per the recommendations here](./development-environment.md#use-php-codesniffer-and-eslint-to-make-sure-your-code-respects-coding-standards).
-- Jetpack supports the WP current version and the immediate previous version. So if WP version is 4.6, Jetpack will support it, as well as 4.5. It's desirable that when Jetpack is installed in older versions, it doesn't fail in a severe way.
-- We support the latest two versions of all major browsers, except IE, where we currently only support 11 and Edge. (see [Browse Happy](http://browsehappy.com) for current latest versions).
+- **PHP**: Jetpack Monorepo projects rely on WordPress minimum PHP version requirements by default. There are several exceptions, however, which we will get to later in this document.
+- **PHP Standards**: Jetpack follows [WordPress Core's standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/), with a few additions. The best way to ensure that you adhere to those standards is to set up your IDE [as per the recommendations here](./development-environment.md#use-php-codesniffer-and-eslint-to-make-sure-your-code-respects-coding-standards).
+- **WordPress**: Jetpack supports the current version of WordPress and the immediate previous version. So if the current version is 4.6, Jetpack will support it, as well as 4.5. It's desirable that when Jetpack is installed in older versions, it doesn't fail in a severe way.
+- **JavaScript**: TODO.
+- **Browsers**: We support the latest two versions of all major browsers, except IE, where we currently only support 11 and Edge. (see [Browse Happy](http://browsehappy.com) for current latest versions).
 
-## General
+### Project based language and tool versions 
 
-- Install PHP Code Sniffer [Code Sniffer rules for Jetpack Coding Standards.](https://github.com/Automattic/jetpack-codesniffer#usage) They will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it easy to inspect your code.
+If you take a look at the contents of the `projects` folder, you can see that the Monorepo has several types of projects. Some of them can have specific requirements that further extend the base requirements. The most obvious examples of that are plugins that require later PHP versions than what is required by default. For instance, Jetpack CRM's `.phpcs.dir.phpcompatibility.xml` file states that [the minimum PHP version is 7.4](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/crm/.phpcs.dir.phpcompatibility.xml). 
+
+## The Jetpack Monorepo and its CLI
+
+Jetpack CLI supports latest stable PHP and latest stable Node JS versions. Sometimes the version update lags behind for a while to make sure that [Calypso is using the same version](https://github.com/Automattic/wp-calypso/blob/trunk/.nvmrc).
+
+Jetpack CLI is a requirement to work with Jetpack Monorepo, and it depends on the following tools:
+
+- **Composer**: [the PHP dependency management tool](https://getcomposer.org/) is required to work with the Monorepo.
+- **PNPM**: [the drop-in replacement for NPM](https://pnpm.io/) is also a requirement.
+
+This is all you need to get going, please check the [Quick Start][quick-start.md] guide if you need help getting the correct versions installed. 
+
+## General guidelines
+
+- **PHPCS**: The PHP Code Sniffer [Code Sniffer rules for Jetpack Coding Standards.](https://github.com/Automattic/jetpack-codesniffer#usage) should be installed for you as a Monorepo dependency. They will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it easy to inspect your code.
 - If coding a module, make sure you declare the module in the inline doc, [like this](https://github.com/Automattic/jetpack/blob/16bc2fce3ace760ff402f656dcf05255888f23f4/modules/sitemaps/sitemaps.php#L92-L101). The same applies for filters or actions, [as shown here](https://github.com/Automattic/jetpack/blob/16bc2fce3ace760ff402f656dcf05255888f23f4/modules/sitemaps/sitemaps.php#L143-L151).
 - Sanitize URLs, attributes, everything. WordPress.com VIP has this nice [article about the topic](https://wpvip.com/documentation/vip-go/validating-sanitizing-and-escaping/).
 - Create unit tests if you can ([here are the Jetpack plugin tests for reference](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/jetpack/tests)). If you're not familiar with Unit Testing, you can check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/).
@@ -59,9 +75,15 @@ For more information on how to use `$$next-version$$`, please see the [packages 
 
 ## Translations
 
+### PHP
+
 - Where it applies, make strings available for translation.
 - Instead of `__`, `_e`, `_x` and similar functions, use their safe versions `esc_html__`, `esc_html_e`, `esc_html_x` and others where possible.
 - Add the `jetpack` text domain to the translation functions.
+
+### JavaScript and TypeScript
+
+- TODO.
 
 ## Where should my code live? 
 
