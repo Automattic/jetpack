@@ -50,6 +50,7 @@ module.exports = [
 				$features: path.resolve( './app/assets/src/js/features' ),
 				$layout: path.resolve( './app/assets/src/js/layout' ),
 				$svg: path.resolve( './app/assets/src/js/svg' ),
+				$css: path.resolve( './app/assets/src/css' ),
 			},
 		},
 		node: false,
