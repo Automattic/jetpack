@@ -2,15 +2,15 @@ const { domReady } = wp;
 
 domReady( function () {
 	const modal = document.getElementsByClassName( 'jetpack-subscribe-modal' )[ 0 ];
+	const modalDismissedCookie = 'jetpack_post_subscribe_modal_dismissed';
+	const hasModalDismissedCookie =
+		document.cookie && document.cookie.indexOf( modalDismissedCookie ) > -1;
 
-	if ( ! modal ) {
+	if ( ! modal || hasModalDismissedCookie ) {
 		return;
 	}
 
 	const close = document.getElementsByClassName( 'jetpack-subscribe-modal__close' )[ 0 ];
-	const modalDismissedCookie = 'jetpack_post_subscribe_modal_dismissed';
-	const hasModalDismissedCookie =
-		document.cookie && document.cookie.indexOf( modalDismissedCookie ) > -1;
 	let hasLoaded = false;
 	let isScrolling;
 
