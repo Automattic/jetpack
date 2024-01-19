@@ -38,7 +38,7 @@ domReady( function () {
 		}
 	};
 
-	function closeModalOnEscapeKeypress( event ) {
+	function closeModalOnEscapeKeydown( event ) {
 		if ( event.key === 'Escape' ) {
 			closeModal();
 		}
@@ -49,13 +49,13 @@ domReady( function () {
 		document.body.classList.add( 'jetpack-subscribe-modal-open' );
 		hasLoaded = true;
 		setModalDismissedCookie();
-		window.addEventListener( 'keydown', closeModalOnEscapeKeypress );
+		window.addEventListener( 'keydown', closeModalOnEscapeKeydown );
 	}
 
 	function closeModal() {
 		modal.classList.remove( 'open' );
 		document.body.classList.remove( 'jetpack-subscribe-modal-open' );
-		window.removeEventListener( 'keydown', closeModalOnEscapeKeypress );
+		window.removeEventListener( 'keydown', closeModalOnEscapeKeydown );
 	}
 
 	function setModalDismissedCookie() {
