@@ -41,6 +41,7 @@ class Boost_API {
 	 *
 	 * @param string  $path - Request path.
 	 * @param mixed[] $args - Query parameters.
+	 * @return array|\WP_Error
 	 */
 	public static function get( $path, $args = array() ) {
 		return self::get_client()->get( $path, $args );

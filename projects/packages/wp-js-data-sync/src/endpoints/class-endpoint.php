@@ -148,7 +148,7 @@ class Endpoint {
 
 		if ( ! $this->entry->is( $available_methods[ $entry_method ] ) ) {
 			// Set Status 500 because the method is valid but is missing in Data_Sync_Entry.
-			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method. "' . $entry_method . '" ', array( 'status' => 500 ) ) );
+			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method. "' . $entry_method . '" ' ) );
 		}
 
 		try {
@@ -161,9 +161,12 @@ class Endpoint {
 					'JSON'   => $result,
 				)
 			);
-		} catch ( \Error $e ) {
+		} catch ( \RuntimeException $e ) {
 			return rest_ensure_response(
-				new \WP_Error( 500, $e->getMessage(), array( 'status' => 500 ) )
+				array(
+					'status'  => 'error',
+					'message' => $e->getMessage(),
+				)
 			);
 		}
 	}

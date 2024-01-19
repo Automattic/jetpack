@@ -10,3 +10,4 @@
 /wordpress
 .yalc
 yalc.lock
+.cache/
