@@ -1,6 +1,6 @@
 import { effect } from '@preact/signals';
 import { render } from 'preact';
-import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
+import { useState, useRef, useCallback } from 'preact/hooks';
 import { SimpleSubscribeModal } from './components/SimpleSubscribeModal';
 import { CommentFooter } from './components/comment-footer';
 import { CommentInputField } from './components/comment-input-field';
@@ -52,6 +52,15 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		// It's also needed to log out. Without this, the user will have to type to reveal the tray and they won't guess they need to type to logout.
 		if ( ! hasSubscriptionOptionsVisible() && userLoggedIn.value ) {
 			isTrayOpen.value = true;
+		}
+	} );
+
+	effect( () => {
+		if ( ! isEmptyComment.value ) {
+			window.addEventListener( 'beforeunload', handleBeforeUnload );
+			return () => {
+				window.removeEventListener( 'beforeunload', handleBeforeUnload );
+			};
 		}
 	} );
 
@@ -200,15 +209,6 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		event.preventDefault();
 		event.returnValue = '';
 	}, [] );
-
-	useEffect( () => {
-		if ( ! isEmptyComment.value ) {
-			window.addEventListener( 'beforeunload', handleBeforeUnload );
-			return () => {
-				window.removeEventListener( 'beforeunload', handleBeforeUnload );
-			};
-		}
-	}, [ isEmptyComment.value ] );
 
 	return (
 		<>
