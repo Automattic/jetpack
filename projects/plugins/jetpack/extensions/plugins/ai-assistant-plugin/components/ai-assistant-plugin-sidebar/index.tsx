@@ -12,9 +12,7 @@ import React from 'react';
  * Internal dependencies
  */
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
-import useAiFeature, {
-	UpgradeTypeProp,
-} from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import Proofread from '../proofread';
 import UsagePanel from '../usage-panel';
@@ -31,7 +29,7 @@ const Upgrade = ( {
 }: {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	onClick: ( event: any ) => void;
-	type: UpgradeTypeProp;
+	type: string;
 } ) => {
 	const { tracks } = useAnalytics();
 

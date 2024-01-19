@@ -32,6 +32,7 @@ import PlansSection from '../plans-section';
 import { PRODUCT_STATUSES } from '../product-card';
 import ProductCardsSection from '../product-cards-section';
 import StatsSection from '../stats-section';
+import JetpackManageBanner from '../upsell-banner/jetpack-manage-banner';
 import WelcomeBanner from '../welcome-banner';
 import styles from './styles.module.scss';
 
@@ -92,6 +93,7 @@ export default function MyJetpackScreen() {
 	const welcomeBannerHasBeenDismissed =
 		window?.myJetpackInitialState?.welcomeBanner.hasBeenDismissed;
 	const isStatsModuleActive = window?.myJetpackInitialState?.isStatsModuleActive === '1';
+	const jetpackManage = window?.myJetpackInitialState?.jetpackManage;
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
@@ -160,6 +162,11 @@ export default function MyJetpackScreen() {
 					<Col>
 						<ProductCardsSection />
 					</Col>
+					{ jetpackManage.isEnabled && (
+						<Col>
+							<JetpackManageBanner isAgencyAccount={ jetpackManage.isAgencyAccount } />
+						</Col>
+					) }
 				</Container>
 			</AdminSectionHero>
 
