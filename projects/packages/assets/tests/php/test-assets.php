@@ -12,6 +12,7 @@ use Brain\Monkey;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use InvalidArgumentException;
+use Mockery;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\TestingAccessWrapper;
 
@@ -552,7 +553,7 @@ class AssetsTest extends TestCase {
 						),
 					),
 					'wp_script_add_data'   => array( 'single-file', 'Jetpack::Assets::hascss', false ),
-					'_deprecated_argument' => array( 'Automattic\Jetpack\Assets::register_script', self::isType( 'string' ), 'The `async` option is deprecated in favor of `strategy`' ),
+					'_deprecated_argument' => array( 'Automattic\Jetpack\Assets::register_script', Mockery::type( 'string' ), 'The `async` option is deprecated in favor of `strategy`' ),
 				),
 				array( 'async' => array( 'single-file' ) ),
 			),
