@@ -24,10 +24,21 @@ const addWordPressDomain = window.location.hostname.endsWith( '.wordpress.com' )
 	: '';
 
 /**
+ * Hook to retrieve user info from server, handle social login, and logout functionality.
  *
+ * @returns {object} login, loginWindowRef, logout - login is a function to open the social login popup, loginWindowRef is a reference to the login popup window, and logout is a function to logout the user.
  */
 export default function useSocialLogin() {
 	const [ loginWindowRef, setLoginWindowRef ] = useState< Window >();
+
+	useEffect( () => {
+		wpcomRequest< UserInfo >( {
+			path: '/verbum/auth',
+			apiNamespace: 'wpcom/v2',
+		} ).then( res => {
+			userInfo.value = res;
+		} );
+	}, [] );
 
 	if ( VerbumComments.isJetpackCommentsLoggedIn ) {
 		userInfo.value = {
@@ -52,15 +63,6 @@ export default function useSocialLogin() {
 		// Firefox: Logout from Verbum UI and clear cookies
 		document.cookie = `${ cookieName }=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=None; Secure=True;${ addWordPressDomain }`;
 	};
-
-	useEffect( () => {
-		wpcomRequest< UserInfo >( {
-			path: '/verbum/auth',
-			apiNamespace: 'wpcom/v2',
-		} ).then( res => {
-			userInfo.value = res;
-		} );
-	}, [] );
 
 	const login = async ( service: string ) => {
 		const { connectURL } = VerbumComments;
