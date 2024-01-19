@@ -2,18 +2,9 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
-
 class Generator {
 
 	const GENERATE_QUERY_ACTION = 'jb-generate-critical-css';
-	const CSS_CALLBACK_ACTION   = 'jb-critical-css-callback';
-
-	private $paths;
-
-	public function __construct() {
-		$this->paths = new Source_Providers();
-	}
 
 	/**
 	 * Return true if page is loaded to generate critical CSS
