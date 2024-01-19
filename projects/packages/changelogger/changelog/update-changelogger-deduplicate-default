@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Default for `--deduplicate` is now 0, as 1 caused unexpected behavior for some cases and so should be opted in to.
