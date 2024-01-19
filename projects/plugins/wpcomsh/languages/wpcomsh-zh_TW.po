@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-12-13 09:54:03+0000\n"
+"PO-Revision-Date: 2024-01-17 11:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,127 +11,208 @@ msgstr ""
 "Language: zh_TW\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:271
+msgid "Site setup"
+msgstr "網站設定"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:639
+msgid "Finish Sensei setup"
+msgstr "完成 Sensei 設定"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
+msgid "Finish store setup"
+msgstr "完成商店設定"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:616
+msgid "Update your site's design"
+msgstr "更新你網站的設計"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+msgid "Enable post sharing"
+msgstr "啟用文章分享功能"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
+msgid "Set up professional email"
+msgstr "設定專業版電子郵件服務"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
+msgid "Install the mobile app"
+msgstr "安裝行動應用程式"
+
+#: imports/utils/class-filerestorer.php:168
+msgid "No files are restored."
+msgstr "無檔案還原。"
+
+#: imports/utils/class-filerestorer.php:98
+msgid "No files are queued."
+msgstr "無檔案排入佇列。"
+
+#: imports/playground/class-sql-postprocessor.php:383
+msgid "Missing temporary tables."
+msgstr "缺少臨時表格。"
+
+#: imports/playground/class-sql-postprocessor.php:376
+msgid "Temporary prefix is equals to current prefix."
+msgstr "臨時前綴等同目前前綴。"
+
+#: imports/playground/class-sql-postprocessor.php:314
+msgid "Error update links."
+msgstr "更新連結時發生錯誤。"
+
+#: imports/playground/class-sql-postprocessor.php:304
+msgid "Error update posts."
+msgstr "更新文章時發生錯誤。"
+
+#: imports/playground/class-sql-postprocessor.php:296
+msgid "The site is not connected."
+msgstr "網站尚未完成連結！"
+
+#: imports/playground/class-sql-postprocessor.php:288
+msgid "Jetpack is not installed."
+msgstr "未安裝 Jetpack。"
+
+#: imports/playground/class-sql-postprocessor.php:250
+msgid "Error saving whitelist options."
+msgstr "儲存允許清單選項時發生錯誤。"
+
+#: imports/playground/class-sql-postprocessor.php:174
+msgid "Missing home URL."
+msgstr "缺少首頁 URL。"
+
+#: imports/playground/class-sql-postprocessor.php:164
+msgid "Missing site URL."
+msgstr "缺少網站 URL。"
+
+#: imports/playground/class-sql-postprocessor.php:155
+msgid "The site URL is not valid."
+msgstr "網站 URL 無效。"
+
+#: imports/playground/class-sql-postprocessor.php:151
+msgid "The home URL is not valid."
+msgstr "首頁 URL 無效。"
+
+#: imports/playground/class-sql-importer.php:45
+msgid "SQL import failed"
+msgstr "SQL 匯入失敗"
+
+#: imports/playground/class-sql-importer.php:27
+msgid "SQL file not exists"
+msgstr "SQL 檔案不存在"
+
+#: imports/class-backup-import-manager.php:389
+#: imports/class-backup-import-manager.php:430
+msgid "No backup import found."
+msgstr "找不到匯入備份。"
+
+#: imports/class-backup-import-manager.php:375
+msgid "An import is already running."
+msgstr "已在執行一項匯入作業。"
+
+#: imports/class-backup-import-manager.php:233
+msgid "The backup import has been cancelled."
+msgstr "已取消匯入備份。"
+
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:30
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:45
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:61
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:75
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:89
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:105
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:118
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:146
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:161
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:178
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:192
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:206
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:44
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:59
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:72
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:85
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:101
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:113
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:126
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:139
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:153
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:170
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:184
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:198
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:239
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:255
 msgid "Next steps for your site"
 msgstr "你網站的下一步驟"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:570
 msgid "Add the Subscribe Block to your site"
 msgstr "將訂閱區塊新增至網站"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:563
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
 msgid "Import existing subscribers"
 msgstr "匯入已有的訂戶"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:554
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:550
 msgid "View site metrics"
 msgstr "檢視網站指標"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:545
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:541
 msgid "Set up ssh"
 msgstr "設定 SSH"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:536
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:532
 msgid "Install a custom plugin"
 msgstr "安裝自訂外掛程式"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:523
 msgid "Choose a theme"
 msgstr "選擇佈景主題"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:515
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:511
 msgid "Set up an offer for your supporters"
 msgstr "為支持者設定折扣"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:494
 msgid "Connect a Stripe account to collect payments"
 msgstr "連結 Stripe 帳號收取款項"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:482
 msgid "Add your About page"
 msgstr "新增「關於」頁面"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:477
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:472
 msgid "Manage your paid Newsletter plan"
 msgstr "管理付費電子報方案"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:469
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:464
 msgid "Connect your social media accounts"
 msgstr "連結你的社交媒體帳號"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:458
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:453
 msgid "Manage your subscribers"
 msgstr "管理訂閱者"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:448
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:443
 msgid "Write 3 posts"
 msgstr "撰寫 3 篇文章"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:436
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:431
 msgid "Get your first 10 subscribers"
 msgstr "獲得前 10 位訂閱者"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:422
 msgid "Enable subscribers modal"
 msgstr "啟用訂閱者互動視窗"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:418
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:413
 msgid "Customize welcome message"
 msgstr "自訂歡迎訊息"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:403
 msgid "Earn money with your newsletter"
 msgstr "用電子報賺取收益"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:357
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:352
 msgid "Update your About page"
 msgstr "更新「關於」頁面"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:210
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:205
 msgid "Migrate content"
 msgstr "搬移內容"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:143
-msgid "Verify domain email address"
-msgstr "驗證網域電子郵件地址"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:133
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:135
 msgid "Verify email address"
 msgstr "驗證電子郵件地址"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/domain-email-nag/domain-email-nag.php:78
-msgid "Fix"
-msgstr "修正"
-
-#. translators: %1 User's email address, %2 current domain
-#: vendor/automattic/jetpack-mu-wpcom/src/features/domain-email-nag/domain-email-nag.php:70
-msgid "You need to confirm your domain email address to avoid having your domain <strong>%1$s</strong> suspended. Please check your inbox."
-msgstr "請確認你的網域電子郵件地址，避免網域 <strong>%1$s</strong> 停用。 請檢查你的收件匣。"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:102
 msgid "Blog Posts"
 msgstr "文章"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:56
-msgid "Text"
-msgstr "文字"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:55
-#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:124
-msgid "Quotes"
-msgstr "引文"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:118
 msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
@@ -187,36 +268,37 @@ msgstr "無法建立資料夾"
 msgid "File not exists"
 msgstr "檔案不存在"
 
-#: imports/class-backup-import-manager.php:155
-#: imports/class-backup-import-manager.php:174
-msgid "Could not determine importer type"
+#: imports/class-backup-import-manager.php:326
+#: imports/class-backup-import-manager.php:349
+msgid "Could not determine importer type."
 msgstr "無法判斷匯入工具類型"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:400
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
 msgid "Share your site"
 msgstr "分享你的網站"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:373
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:368
 msgid "Edit a page"
 msgstr "編輯頁面"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1143
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1236
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "你的網站包含進階版樣式。 立即升級，即可發佈這些樣式，並解鎖多種其他功能。"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:380
 msgid "Customize your domain"
 msgstr "自訂你的網域"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:347
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:342
 msgid "Add a new page"
 msgstr "新增頁面"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:337
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:332
 msgid "Drive traffic to your site"
 msgstr "刺激網站流量"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:326
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Give your site a name"
 msgstr "為你的網站取個名字"
 
@@ -244,16 +326,16 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "分享"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:876
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1158
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:941
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1251
 msgid "Upgrade plan"
 msgstr "方案升級"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:166
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
 msgid "Create paid Newsletter"
 msgstr "建立付費電子報"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:185
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:178
 msgid "Set up payment method"
 msgstr "設定付款方式"
 
@@ -261,7 +343,7 @@ msgstr "設定付款方式"
 msgid "Choose a domain"
 msgstr "選擇網域"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:286
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
 msgid "Launch your blog"
 msgstr "推出你的網誌"
 
@@ -269,37 +351,37 @@ msgstr "推出你的網誌"
 msgid "Edit site design"
 msgstr "編輯網站設計"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:116
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:317
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
 msgid "Set up your site"
 msgstr "設定你的網站"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:294
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:289
 msgid "Name your blog"
 msgstr "為你的網誌命名"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:306
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:301
 msgid "Personalize your site"
 msgstr "網站個人化"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:268
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:263
 msgid "Upload your first video"
 msgstr "上傳你的第一支影片"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:256
 msgid "Set up your video site"
 msgstr "設定你的影音網站"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:126
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:222
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:128
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:217
 msgid "Launch your site"
 msgstr "推出你的網站"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:230
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:225
 msgid "Add links"
 msgstr "新增連結"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:242
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:237
 msgid "Personalize Link in Bio"
 msgstr "個人化自介連結"
 
@@ -308,7 +390,7 @@ msgstr "個人化自介連結"
 msgid "Select a design"
 msgstr "選取設計"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:155
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:148
 msgid "Start writing"
 msgstr "開始撰寫"
 
@@ -316,16 +398,16 @@ msgstr "開始撰寫"
 msgid "Write your first post"
 msgstr "撰寫第一篇文章"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:200
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:195
 msgid "Add subscribers"
 msgstr "新增訂戶"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:95
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:105
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:107
 msgid "Choose a plan"
 msgstr "選擇方案"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:176
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:169
 msgid "Personalize newsletter"
 msgstr "個人化電子報"
 
@@ -757,20 +839,20 @@ msgid "This site's plan has expired."
 msgstr "此網站的方案已過期。"
 
 #: notices/plan-notices.php:135
-msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "<strong>%3$s</strong> 的電子商務版方案已於 %2$s 到期。 <a href=\"%1$s\">重新啟用你的方案</a>以保留自訂外掛程式和佈景主題、SFTP 和 phpMyAdmin 存取權限等電子商務版方案功能。"
+msgid "The Entrepreneur plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> 的 Entrepreneur 方案已於 %2$s過期。 <a href=\"%1$s\">重新啟用方案</a>，以便保留自訂外掛程式、佈景主題、SFTP 和 phpMyAdmin 存取權等 Entrepreneur 方案功能。"
 
 #: notices/plan-notices.php:109
 msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> 的專業版方案將於 %2$s 到期。 <a href=\"%1$s\">續訂你的方案</a>以保留自訂外掛程式、佈景主題、SFTP 和 phpMyAdmin 存取權限等專業版方案功能。"
 
 #: notices/plan-notices.php:104
-msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "<strong>%3$s</strong> 的電子商務版方案將於 %2$s 到期。 <a href=\"%1$s\">續訂你的方案</a>以保留自訂外掛程式、佈景主題、SFTP 和 phpMyAdmin 存取權限等電子商務版方案功能。"
+msgid "The Entrepreneur plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> 的 Entrepreneur 方案會在 %2$s過期。 <a href=\"%1$s\">續訂方案</a>，以便保留自訂外掛程式、佈景主題、SFTP 和 phpMyAdmin 存取權等 Entrepreneur 方案功能。"
 
 #: notices/plan-notices.php:99
-msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "<strong>%3$s</strong> 的商用版方案將於 %2$s 到期。 <a href=\"%1$s\">續訂你的方案</a>以保留自訂外掛程式、佈景主題、SFTP 和 phpMyAdmin 存取權限等商用版方案功能。"
+msgid "The Creator plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> 的 Creator 方案會在 %2$s過期。 <a href=\"%1$s\">續訂方案</a>，以便保留自訂外掛程式、佈景主題、SFTP 和 phpMyAdmin 存取權等 Creator 方案功能。"
 
 #: storage/storage.php:33
 msgid "You have used your space quota. Please delete files before uploading."
@@ -809,20 +891,20 @@ msgid "Update"
 msgstr "更新"
 
 #: notices/plan-notices.php:125
-msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr "<strong>%3$s</strong> 的進階版方案已於 %2$s 到期。 <a href=\"%1$s\">重新啟用你的方案</a>以保留網站營收、VideoPress 和 Google Analytics (分析) 支援等進階版方案功能。"
+msgid "The Explorer plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "<strong>%3$s</strong> 的 Explorer 方案已於 %2$s過期。 <a href=\"%1$s\">重新啟用方案</a>，以便保留網站營收、VideoPress 和 Google Analytics (分析) 支援等 Explorer 方案功能。"
 
 #: notices/plan-notices.php:120
-msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr "<strong>%3$s</strong> 的個人版方案已於 %2$s 到期。 <a href=\"%1$s\">重新啟用你的方案</a>以保留 6 GB 儲存空間、WordPress.com 不含廣告和付費訂戶專屬內容等個人版方案功能。"
+msgid "The Starter plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "<strong>%3$s</strong> 的 Starter 方案已於 %2$s過期。 <a href=\"%1$s\">重新啟用方案</a>，以便保留 6 GB 儲存空間、WordPress.com 不含廣告和付費訂戶專屬內容等 Starter 方案功能。"
 
 #: notices/plan-notices.php:94
-msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr "<strong>%3$s</strong> 的進階版方案將於 %2$s 到期。 <a href=\"%1$s\">續訂你的方案</a>以保留網站營收、VideoPress 和 Google Analytics (分析) 支援等進階版方案功能。"
+msgid "The Explorer plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "<strong>%3$s</strong> 的 Explorer 方案會在 %2$s過期。 <a href=\"%1$s\">續訂方案</a>，以便保留網站營收、VideoPress 和 Google Analytics (分析) 支援等 Explorer 方案功能。"
 
 #: notices/plan-notices.php:89
-msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr "<strong>%3$s</strong> 的個人版方案將於 %2$s 到期。 <a href=\"%1$s\">續訂你的方案</a>以保留 6 GB 儲存空間、WordPress.com 不含廣告和付費訂戶專屬內容等個人版方案功能。"
+msgid "The Starter plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "<strong>%3$s</strong> 的 Starter 方案會在 %2$s過期。 <a href=\"%1$s\">續訂方案</a>，以便保留 6 GB 儲存空間、WordPress.com 不含廣告和付費訂戶專屬內容等 Starter 方案功能。"
 
 #: notices/php-version-notices.php:30
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
@@ -831,18 +913,6 @@ msgstr "你目前使用的 PHP <strong>%1$s</strong> 自 %2$s 起將不再接收
 #: frontend-notices/gifting-banner/gifting-banner.php:190
 msgid "Enjoy this site?"
 msgstr "喜歡這個網站嗎？"
-
-#: frontend-notices/class-wpcomsh-frontend-notices.php:152
-msgid "Continue to site"
-msgstr "繼續前往網站"
-
-#: frontend-notices/class-wpcomsh-frontend-notices.php:151
-msgid "If you enjoy the site, please let the site owner know their plan has expired. Maybe their contact information is on the site?"
-msgstr "如果你喜歡該網站，請告訴網站擁有者他們的方案已過期。 網站上或許有他們的聯絡資訊？"
-
-#: frontend-notices/class-wpcomsh-frontend-notices.php:150
-msgid "This site is going offline soon."
-msgstr "此網站即將下線。"
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:130
@@ -898,8 +968,8 @@ msgid "Updates managed by WordPress.com"
 msgstr "由 WordPress.com 管理更新"
 
 #: notices/plan-notices.php:130
-msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "<strong>%3$s</strong> 的商用版方案已於 %2$s 到期。 <a href=\"%1$s\">重新啟用你的方案</a>以保留自訂外掛程式、佈景主題、SFTP 和 phpMyAdmin 存取權限等商用版方案功能。"
+msgid "The Creator plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> 的 Creator 方案已於 %2$s過期。 <a href=\"%1$s\">重新啟用方案</a>，以便保留自訂外掛程式、佈景主題、SFTP 和 phpMyAdmin 存取權等 Creator 方案功能。"
 
 #: notices/plan-notices.php:140
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -979,14 +1049,14 @@ msgstr "分類雲"
 
 #: private-site/private-site.php:171
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr ""
+msgstr "Jetpack 已中斷連線，且網站為私人網站。 重新連線 Jetpack 以管理網站的能見度設定。"
 
 #: private-site/logged-in-banner.php:81
 msgid "Update visibility"
-msgstr ""
+msgstr "更新能見度"
 
 #: private-site/logged-in-banner.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:254
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:249
 msgid "Launch site"
 msgstr "推出網站"
 

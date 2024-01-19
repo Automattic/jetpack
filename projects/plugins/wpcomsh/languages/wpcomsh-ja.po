@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-12-13 11:54:04+0000\n"
+"PO-Revision-Date: 2024-01-17 09:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,127 +11,208 @@ msgstr ""
 "Language: ja_JP\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:271
+msgid "Site setup"
+msgstr "サイトのセットアップ"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:639
+msgid "Finish Sensei setup"
+msgstr "Sensei の設定を行う"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
+msgid "Finish store setup"
+msgstr "ストアの設定を完了"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:616
+msgid "Update your site's design"
+msgstr "サイトのデザインを更新する"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+msgid "Enable post sharing"
+msgstr "投稿のシェアを有効化"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
+msgid "Set up professional email"
+msgstr "ビジネス用メールアドレスを設定"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
+msgid "Install the mobile app"
+msgstr "モバイルアプリをインストール"
+
+#: imports/utils/class-filerestorer.php:168
+msgid "No files are restored."
+msgstr "復元されたファイルはありません。"
+
+#: imports/utils/class-filerestorer.php:98
+msgid "No files are queued."
+msgstr "待機リストにファイルはありません。"
+
+#: imports/playground/class-sql-postprocessor.php:383
+msgid "Missing temporary tables."
+msgstr "一時的なテーブルが不足しています。"
+
+#: imports/playground/class-sql-postprocessor.php:376
+msgid "Temporary prefix is equals to current prefix."
+msgstr "一時的な接頭辞が現在の接頭辞と同じです。"
+
+#: imports/playground/class-sql-postprocessor.php:314
+msgid "Error update links."
+msgstr "リンクの更新でエラーが発生しました。"
+
+#: imports/playground/class-sql-postprocessor.php:304
+msgid "Error update posts."
+msgstr "投稿の更新でエラーが発生しました。"
+
+#: imports/playground/class-sql-postprocessor.php:296
+msgid "The site is not connected."
+msgstr "サイトは連携されていません。"
+
+#: imports/playground/class-sql-postprocessor.php:288
+msgid "Jetpack is not installed."
+msgstr "Jetpack がインストールされていません。"
+
+#: imports/playground/class-sql-postprocessor.php:250
+msgid "Error saving whitelist options."
+msgstr "ホワイトリストオプションの保存時にエラーが発生しました。"
+
+#: imports/playground/class-sql-postprocessor.php:174
+msgid "Missing home URL."
+msgstr "ホームの URL が不足しています。"
+
+#: imports/playground/class-sql-postprocessor.php:164
+msgid "Missing site URL."
+msgstr "サイトの URL が不足しています。"
+
+#: imports/playground/class-sql-postprocessor.php:155
+msgid "The site URL is not valid."
+msgstr "サイトの URL が有効ではありません。"
+
+#: imports/playground/class-sql-postprocessor.php:151
+msgid "The home URL is not valid."
+msgstr "ホームの URL が有効ではありません。"
+
+#: imports/playground/class-sql-importer.php:45
+msgid "SQL import failed"
+msgstr "SQL インポートに失敗しました"
+
+#: imports/playground/class-sql-importer.php:27
+msgid "SQL file not exists"
+msgstr "SQL ファイルが存在しません"
+
+#: imports/class-backup-import-manager.php:389
+#: imports/class-backup-import-manager.php:430
+msgid "No backup import found."
+msgstr "バックアップインポートが見つかりません。"
+
+#: imports/class-backup-import-manager.php:375
+msgid "An import is already running."
+msgstr "インポートはすでに実行中です。"
+
+#: imports/class-backup-import-manager.php:233
+msgid "The backup import has been cancelled."
+msgstr "バックアップインポートがキャンセルされました。"
+
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:30
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:45
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:61
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:75
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:89
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:105
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:118
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:146
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:161
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:178
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:192
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:206
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:44
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:59
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:72
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:85
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:101
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:113
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:126
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:139
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:153
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:170
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:184
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:198
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:239
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:255
 msgid "Next steps for your site"
 msgstr "サイトの次のステップ"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:570
 msgid "Add the Subscribe Block to your site"
 msgstr "購読ブロックをサイトに追加"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:563
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
 msgid "Import existing subscribers"
 msgstr "既存の購読者をインポート"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:554
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:550
 msgid "View site metrics"
 msgstr "サイトメトリクスを表示"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:545
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:541
 msgid "Set up ssh"
 msgstr "SSH を設定"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:536
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:532
 msgid "Install a custom plugin"
 msgstr "カスタムプラグインをインストールする"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:523
 msgid "Choose a theme"
 msgstr "テーマを選択"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:515
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:511
 msgid "Set up an offer for your supporters"
 msgstr "サポーターへのオファーを設定する"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:494
 msgid "Connect a Stripe account to collect payments"
 msgstr "Stripe アカウントを接続して支払いを受け取る"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:482
 msgid "Add your About page"
 msgstr "「サイトについて」固定ページを追加"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:477
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:472
 msgid "Manage your paid Newsletter plan"
 msgstr "有料ニュースレタープランを管理する"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:469
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:464
 msgid "Connect your social media accounts"
 msgstr "ソーシャルメディアアカウントを接続する"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:458
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:453
 msgid "Manage your subscribers"
 msgstr "購読者を管理"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:448
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:443
 msgid "Write 3 posts"
 msgstr "投稿を3件作成"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:436
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:431
 msgid "Get your first 10 subscribers"
 msgstr "最初の購読者10人を獲得する"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:422
 msgid "Enable subscribers modal"
 msgstr "購読者モーダルを有効にする"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:418
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:413
 msgid "Customize welcome message"
 msgstr "ウェルカムメッセージをカスタマイズ"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:403
 msgid "Earn money with your newsletter"
 msgstr "ニュースレターで収入を得る"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:357
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:352
 msgid "Update your About page"
 msgstr "About ページを更新"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:210
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:205
 msgid "Migrate content"
 msgstr "コンテンツを移行"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:143
-msgid "Verify domain email address"
-msgstr "ドメインメールアドレスを検証"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:133
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:135
 msgid "Verify email address"
 msgstr "メールアドレスを確認"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/domain-email-nag/domain-email-nag.php:78
-msgid "Fix"
-msgstr "修正"
-
-#. translators: %1 User's email address, %2 current domain
-#: vendor/automattic/jetpack-mu-wpcom/src/features/domain-email-nag/domain-email-nag.php:70
-msgid "You need to confirm your domain email address to avoid having your domain <strong>%1$s</strong> suspended. Please check your inbox."
-msgstr "ドメイン <strong>%1$s</strong> が一時停止にならないようにメールアドレスを確認する必要があります。 受信トレイを確認してください。"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:102
 msgid "Blog Posts"
 msgstr "ブログ投稿"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:56
-msgid "Text"
-msgstr "テキスト"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:55
-#: vendor/automattic/jetpack-mu-wpcom/src/features/block-patterns/class-wpcom-block-patterns-from-api.php:124
-msgid "Quotes"
-msgstr "引用"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:118
 msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
@@ -187,36 +268,37 @@ msgstr "フォルダーを作成できませんでした"
 msgid "File not exists"
 msgstr "ファイルが存在しません"
 
-#: imports/class-backup-import-manager.php:155
-#: imports/class-backup-import-manager.php:174
-msgid "Could not determine importer type"
+#: imports/class-backup-import-manager.php:326
+#: imports/class-backup-import-manager.php:349
+msgid "Could not determine importer type."
 msgstr "インポーターのタイプを特定できませんでした"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:400
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
 msgid "Share your site"
 msgstr "サイトを共有"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:373
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:368
 msgid "Edit a page"
 msgstr "ページを編集"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1143
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1236
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "サイトにはプレミアムスタイルが含まれています。 今すぐアップグレードして、そのスタイルで公開し、他のさまざまな機能を活用しましょう。"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:380
 msgid "Customize your domain"
 msgstr "ドメインをカスタマイズ"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:347
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:342
 msgid "Add a new page"
 msgstr "新規固定ページを追加"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:337
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:332
 msgid "Drive traffic to your site"
 msgstr "サイトのトラフィックを増やす"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:326
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Give your site a name"
 msgstr "サイトに名前を付けてください。"
 
@@ -244,16 +326,16 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "共有"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:876
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1158
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:941
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1251
 msgid "Upgrade plan"
 msgstr "プランをアップグレード"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:166
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
 msgid "Create paid Newsletter"
 msgstr "有料ニュースレターを作成"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:185
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:178
 msgid "Set up payment method"
 msgstr "支払い方法を設定"
 
@@ -261,7 +343,7 @@ msgstr "支払い方法を設定"
 msgid "Choose a domain"
 msgstr "ドメインを選択"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:286
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
 msgid "Launch your blog"
 msgstr "ブログを開始"
 
@@ -269,37 +351,37 @@ msgstr "ブログを開始"
 msgid "Edit site design"
 msgstr "サイトの設計を編集"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:116
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:317
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
 msgid "Set up your site"
 msgstr "サイトを設定"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:294
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:289
 msgid "Name your blog"
 msgstr "ブログのタイトルを選択"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:306
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:301
 msgid "Personalize your site"
 msgstr "サイトをカスタマイズする"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:268
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:263
 msgid "Upload your first video"
 msgstr "最初の動画をアップロード"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:256
 msgid "Set up your video site"
 msgstr "動画サイトを設定"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:126
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:222
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:128
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:217
 msgid "Launch your site"
 msgstr "サイトを公開"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:230
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:225
 msgid "Add links"
 msgstr "リンクを追加"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:242
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:237
 msgid "Personalize Link in Bio"
 msgstr "プロフィールのリンクをカスタマイズ"
 
@@ -308,7 +390,7 @@ msgstr "プロフィールのリンクをカスタマイズ"
 msgid "Select a design"
 msgstr "デザインを選択"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:155
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:148
 msgid "Start writing"
 msgstr "執筆を開始"
 
@@ -316,16 +398,16 @@ msgstr "執筆を開始"
 msgid "Write your first post"
 msgstr "最初の投稿を書く"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:200
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:195
 msgid "Add subscribers"
 msgstr "購読者を追加"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:95
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:105
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:107
 msgid "Choose a plan"
 msgstr "プランを選択"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:176
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:169
 msgid "Personalize newsletter"
 msgstr "ニュースレターをカスタマイズ"
 
@@ -757,20 +839,20 @@ msgid "This site's plan has expired."
 msgstr "このサイトのプランは終了しました。"
 
 #: notices/plan-notices.php:135
-msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "<strong>%3$s</strong> の eコマースプランは%2$sに期限が切れました。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどの eコマースプランの機能を保持するには、<a href=\"%1$s\">プランを再度有効化</a>します。"
+msgid "The Entrepreneur plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> の Entrepreneur プランは%2$sに有効期限が切れました。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどの Entrepreneur プランの機能を保持するには、<a href=\"%1$s\">プランを再度有効化</a>します。"
 
 #: notices/plan-notices.php:109
 msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> の Pro プランは%2$sに期限が切れます。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどの Pro プランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
 
 #: notices/plan-notices.php:104
-msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "<strong>%3$s</strong> の eコマースプランは%2$sに期限が切れます。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどの eコマースプランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
+msgid "The Entrepreneur plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> の Entrepreneur プランは%2$sに有効期限が切れます。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどの Entrepreneur プランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
 
 #: notices/plan-notices.php:99
-msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "<strong>%3$s</strong> のビジネスプランは%2$sに期限が切れます。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどのビジネスプランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
+msgid "The Creator plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> の Creator プランは%2$sに有効期限が切れます。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどの Creator プランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
 
 #: storage/storage.php:33
 msgid "You have used your space quota. Please delete files before uploading."
@@ -809,20 +891,20 @@ msgid "Update"
 msgstr "更新"
 
 #: notices/plan-notices.php:125
-msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr "<strong>%3$s</strong> のプレミアムプランは%2$sに期限が切れました。 サイトの収益化、VideoPress、Google アナリティクスのサポートなどのプレミアムプランの機能を保持するには、<a href=\"%1$s\">プランを再度有効化</a>します。"
+msgid "The Explorer plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "<strong>%3$s</strong> の Explorer プランは%2$sに有効期限が切れました。 サイトの収益化、VideoPress、Google アナリティクスのサポートなどの Explorer プランの機能を保持するには、<a href=\"%1$s\">プランを再度有効化</a>します。"
 
 #: notices/plan-notices.php:120
-msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr "<strong>%3$s</strong> のパーソナルプランは%2$sに期限が切れました。 6GB の保存スペース、WordPress.com の広告非表示、購読者限定コンテンツなどのパーソナルプランの機能を保持するには、<a href=\"%1$s\">プランを再度有効化</a>します。"
+msgid "The Starter plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "<strong>%3$s</strong> の Starter プランは%2$sに有効期限が切れました。 6GB の保存スペース、WordPress.com の広告非表示、購読者限定コンテンツなどの Starter プランの機能を保持するには、<a href=\"%1$s\">プランを再度有効化</a>します。"
 
 #: notices/plan-notices.php:94
-msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr "<strong>%3$s</strong> のプレミアムプランは%2$sに期限が切れます。 サイトの収益化、VideoPress、Google アナリティクスのサポートなどのプレミアムプランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
+msgid "The Explorer plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "<strong>%3$s</strong> の Explorer プランは%2$sに有効期限が切れます。 サイトの収益化、VideoPress、Google アナリティクスのサポートなどの Explorer プランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
 
 #: notices/plan-notices.php:89
-msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr "<strong>%3$s</strong> のパーソナルプランは%2$sに期限が切れます。 6GB の保存スペース、WordPress.com の広告非表示、購読者限定コンテンツなどのパーソナルプランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
+msgid "The Starter plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "<strong>%3$s</strong> の Starter プランは%2$sに有効期限が切れます。 6GB の保存スペース、WordPress.com の広告非表示、購読者限定コンテンツなどの Starter プランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
 
 #: notices/php-version-notices.php:30
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
@@ -831,18 +913,6 @@ msgstr "現在使用している PHP <strong>%1$s</strong> は、%2$s以降、�
 #: frontend-notices/gifting-banner/gifting-banner.php:190
 msgid "Enjoy this site?"
 msgstr "このサイトを楽しめましたか ?"
-
-#: frontend-notices/class-wpcomsh-frontend-notices.php:152
-msgid "Continue to site"
-msgstr "サイトに移動"
-
-#: frontend-notices/class-wpcomsh-frontend-notices.php:151
-msgid "If you enjoy the site, please let the site owner know their plan has expired. Maybe their contact information is on the site?"
-msgstr "サイトをお楽しみいただけましたら、サイトの所有者にプランの期限が切れたことをお知らせください。 連絡先情報はサイトに掲載されているはずです。"
-
-#: frontend-notices/class-wpcomsh-frontend-notices.php:150
-msgid "This site is going offline soon."
-msgstr "このサイトは間もなくオフラインになります。"
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:130
@@ -898,8 +968,8 @@ msgid "Updates managed by WordPress.com"
 msgstr "WordPress.com が管理する更新"
 
 #: notices/plan-notices.php:130
-msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "<strong>%3$s</strong> のビジネスプランは%2$sに期限が切れました。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどのビジネスプランの機能を保持するには、<a href=\"%1$s\">プランを再度有効化</a>します。"
+msgid "The Creator plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> の Creator プランは%2$sに有効期限が切れました。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどの Creator プランの機能を保持するには、<a href=\"%1$s\">プランを再度有効化</a>します。"
 
 #: notices/plan-notices.php:140
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -986,7 +1056,7 @@ msgid "Update visibility"
 msgstr "公開状態を更新"
 
 #: private-site/logged-in-banner.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:254
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:249
 msgid "Launch site"
 msgstr "サイトの立ち上げ"
 

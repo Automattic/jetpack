@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2024-01-10 09:09+0200\n"
+"POT-Creation-Date: 2024-01-19 11:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -194,25 +194,25 @@ msgstr ""
 msgid "Create a free website or blog at WordPress.com"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:144
+#: frontend-notices/gifting-banner/gifting-banner.php:148
+#: frontend-notices/gifting-banner/gifting-banner.php:173
 msgctxt "verb"
 msgid "Gift"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:184
+#: frontend-notices/gifting-banner/gifting-banner.php:213
 msgid "This site's plan has expired."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:219
 msgid "Enjoy this site?"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:211
+#: frontend-notices/gifting-banner/gifting-banner.php:240
 msgid "Gift the author a WordPress.com upgrade."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:222
+#: frontend-notices/gifting-banner/gifting-banner.php:251
 #, php-format
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural ""
@@ -220,7 +220,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:234
+#: frontend-notices/gifting-banner/gifting-banner.php:263
 msgid "Gift the author a WordPress.com plan."
 msgstr ""
 
@@ -615,6 +615,8 @@ msgid "Private Site"
 msgstr ""
 
 #: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1064
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1075
 msgid "Unable to fetch the requested data."
 msgstr ""
 
@@ -1074,8 +1076,8 @@ msgid "Choose a plan"
 msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
-msgid "Set up your site"
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
+msgid "Give your site a name"
 msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:128
@@ -1139,9 +1141,8 @@ msgstr ""
 msgid "Personalize your site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:321
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
-msgid "Give your site a name"
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:312
+msgid "Set up your site"
 msgstr ""
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:332
@@ -1236,36 +1237,36 @@ msgstr ""
 msgid "Add the Subscribe Block to your site"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:580
 msgid "Install the mobile app"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
-msgid "Set up professional email"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:607
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:589
 msgid "Enable post sharing"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:616
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:598
 msgid "Update your site's design"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:612
 msgid "Finish store setup"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:639
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:622
 msgid "Finish Sensei setup"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:941
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1251
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:632
+msgid "Verify the email address for your domains"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:934
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1339
 msgid "Upgrade plan"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1236
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1324
 msgid ""
 "Your site contains premium styles. Upgrade now to publish them and unlock "
 "tons of other features."
