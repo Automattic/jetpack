@@ -38,16 +38,24 @@ domReady( function () {
 		}
 	};
 
+	function closeModalOnEscapeKeypress( event ) {
+		if ( event.key === 'Escape' ) {
+			closeModal();
+		}
+	}
+
 	function openModal() {
 		modal.classList.add( 'open' );
 		document.body.classList.add( 'jetpack-subscribe-modal-open' );
 		hasLoaded = true;
 		setModalDismissedCookie();
+		window.addEventListener( 'keydown', closeModalOnEscapeKeypress );
 	}
 
 	function closeModal() {
 		modal.classList.remove( 'open' );
 		document.body.classList.remove( 'jetpack-subscribe-modal-open' );
+		window.removeEventListener( 'keydown', closeModalOnEscapeKeypress );
 	}
 
 	function setModalDismissedCookie() {
