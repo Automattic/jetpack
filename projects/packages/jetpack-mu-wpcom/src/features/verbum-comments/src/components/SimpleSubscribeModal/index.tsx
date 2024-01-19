@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from 'preact/hooks';
 import { translate } from '../../i18n';
-import { Close } from '../../images';
 import { userInfo, userLoggedIn } from '../../state';
 import { SimpleSubscribeModalProps } from '../../types';
 import {
@@ -103,12 +102,6 @@ export const SimpleSubscribeModal = ( {
 					'has-iframe': hasIframe,
 				} ) }
 			>
-				<div className="verbum-simple-subscribe-modal__close-button-container">
-					<button onClick={ handleClose } className="verbum-simple-subscribe-modal__close-button">
-						<span className="screen-reader-text">{ translate( 'Close' ) }</span>
-						<Close />
-					</button>
-				</div>
 				<SimpleSubscribeModalComponent
 					commentUrl={ commentUrl }
 					subscribeState={ subscribeState }

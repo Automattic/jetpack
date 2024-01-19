@@ -8,6 +8,7 @@ interface SubscriptionModalProps {
 	onInput?: ( event: ChangeEvent< HTMLInputElement > ) => void;
 	disabled?: boolean;
 	subscribeDisabled?: boolean;
+	closeModalHandler: () => void;
 }
 
 export const SubscriptionModal = ( {
@@ -17,15 +18,12 @@ export const SubscriptionModal = ( {
 	onInput,
 	disabled,
 	subscribeDisabled,
+	closeModalHandler,
 }: SubscriptionModalProps ) => {
 	return (
 		<>
-			<h2>{ translate( 'Never miss a beat!' ) }</h2>
-			<p>
-				{ translate(
-					'Interested in getting blog post updates? Simply click the button below to stay in the loop!'
-				) }
-			</p>
+			<h2>{ translate( 'Discover more from' ) }</h2>
+			<p>{ translate( 'Subscribe now to keep reading and get access to the full archive.' ) }</p>
 			<div className="verbum-simple-subscribe-modal__action">
 				<input
 					className="verbum-verbum-simple-subscribe-modal__action-input"
@@ -52,6 +50,14 @@ export const SubscriptionModal = ( {
 					disabled={ subscribeDisabled || subscribeState === 'SUBSCRIBING' }
 				>
 					{ translate( 'Subscribe' ) }
+				</button>
+			</div>
+			<div className="verbum-simple-subscribe-modal__close-button-container">
+				<button
+					onClick={ closeModalHandler }
+					className="verbum-simple-subscribe-modal__close-button"
+				>
+					{ translate( 'Continue reading' ) }
 				</button>
 			</div>
 		</>

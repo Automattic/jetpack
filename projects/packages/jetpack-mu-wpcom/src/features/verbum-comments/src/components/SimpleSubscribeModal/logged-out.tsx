@@ -104,6 +104,7 @@ export const SimpleSubscribeModalLoggedOut = ( {
 			onInput={ setSubscriptionEmail }
 			disabled={ false }
 			subscribeDisabled={ subscribeDisabled }
+			closeModalHandler={ closeModalHandler }
 		/>
 	);
 };

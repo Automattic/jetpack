@@ -207,6 +207,10 @@ class Verbum_Comments {
 					/* translators: Success message of a modal when user subscribes */
 					'We\'ll keep you in the loop!'      => __( 'We\'ll keep you in the loop!', 'jetpack-mu-wpcom' ),
 					'Loading your comment...'           => __( 'Loading your comment...', 'jetpack-mu-wpcom' ),
+					/* translators: %s is the name of the site */
+					'Discover more from'                => sprintf( __( 'Discover more from %s', 'jetpack-mu-wpcom' ), get_bloginfo( 'name' ) ),
+					'Subscribe now to keep reading and get access to the full archive.' => __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack-mu-wpcom' ),
+					'Continue reading'                  => __( 'Continue reading', 'jetpack-mu-wpcom' ),
 					'Never miss a beat!'                => __( 'Never miss a beat!', 'jetpack-mu-wpcom' ),
 					'Interested in getting blog post updates? Simply click the button below to stay in the loop!' => __( 'Interested in getting blog post updates? Simply click the button below to stay in the loop!', 'jetpack-mu-wpcom' ),
 					'Enter your email address'          => __( 'Enter your email address', 'jetpack-mu-wpcom' ),

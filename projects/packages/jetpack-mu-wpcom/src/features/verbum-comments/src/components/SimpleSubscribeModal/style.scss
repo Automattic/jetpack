@@ -20,7 +20,7 @@
 		max-width: 650px;
 		box-sizing: border-box;
 		transition: all .4s;
-		padding: 55px;
+		padding: 32px;
 		display: flex;
 		flex-direction: column;
 		gap: 5px;
@@ -81,13 +81,15 @@
 			font-size: 16px;
 			line-height: 28px;
 			padding: 15px 23px 15px 23px;
+			background-color: #fefefe;
 			border-radius: 50px;
-			border-width: 1px;
-			border-color: #113AF5;
+			border-width: 1px !important;
+			border-color: var(--wp--preset--color--primary) !important;
 			border-end-end-radius: 0;
     		border-start-end-radius: 0;
-			border-style: solid;
+			border-style: solid !important;
 			outline: none;
+			color: var(--wp--preset--color--primary) !important;
 			
 			&::placeholder {
 				color: currentColor;
@@ -102,14 +104,14 @@
 			margin: 0px;
 			margin-left: 10px;
 			border-radius: 50px;
-			border-width: 1px;
+			border-width: 1px !important;
 			border-end-start-radius: 0;
 			border-start-start-radius: 0;
 			margin-inline-start: 0;
-			background-color: #113AF5;
-			border-color: #113AF5;
+			background-color: var(--wp--preset--color--primary);
+			border-color: var(--wp--preset--color--primary);
 			border-style: solid;
-			color: #FFFFFF;
+			color: var(--verbum-content-background-color);
 
 			&:hover {
 				opacity: .9;
@@ -123,21 +125,16 @@
 	}
 
 	.verbum-simple-subscribe-modal__close-button-container {
-		display: flex;
-		align-self: flex-end;
-		margin-top: -30px;
-		margin-right: -30px;
+		display: block;
+		text-align: center;
+		margin-top: 20px;
+		color: var(--wp--preset--color--primary);
 
 		.verbum-simple-subscribe-modal__close-button {
 			background-color: transparent;
 			cursor: pointer;
 			border: none;
-			padding: 0;
-			height: 24px;
-			width: 24px;
-			right: 10px;
-			top: 10px;
-			scale: 1.5;
+			text-decoration: underline;
 		}	
 	}
 }

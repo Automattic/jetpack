@@ -27,6 +27,7 @@ export const SimpleSubscribeModalLoggedIn = ( {
 	commentUrl,
 	subscribeState,
 	setSubscribeState,
+	closeModalHandler,
 }: SimpleSubscribeModalProps ) => {
 	const { setEmailPostsSubscription } = useSubscriptionApi();
 
@@ -50,12 +51,23 @@ export const SimpleSubscribeModalLoggedIn = ( {
 	return (
 		<>
 			{ subscribeState === 'SUBSCRIBED' ? (
-				<h2>{ translate( "We'll keep you in the loop!" ) }</h2>
+				<>
+					<h2>{ translate( "We'll keep you in the loop!" ) }</h2>
+					<div className="verbum-simple-subscribe-modal__close-button-container">
+						<button
+							onClick={ closeModalHandler }
+							className="verbum-simple-subscribe-modal__close-button"
+						>
+							{ translate( 'Continue reading' ) }
+						</button>
+					</div>
+				</>
 			) : (
 				<SubscriptionModal
 					userEmail={ userInfo.value?.email }
 					subscribeState={ subscribeState }
 					handleOnSubscribeClick={ handleOnSubscribeClick }
+					closeModalHandler={ closeModalHandler }
 					disabled={ true }
 				/>
 			) }
