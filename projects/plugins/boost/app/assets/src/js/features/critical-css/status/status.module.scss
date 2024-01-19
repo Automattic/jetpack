@@ -2,6 +2,7 @@
 @import "../../../../css/main/variables.scss";
 
 .status {
+	margin-bottom: 32px;
 	font-size: 14px;
 	line-height: 22px;
 	display: flex;
@@ -23,7 +24,12 @@
 		}
 
 		.failures {
+			margin-top: 1em;
 			color: $gray_100;
+
+			@include breakpoint(xs) {
+				margin-bottom: 1em;
+			}
 
 			svg {
 				position: absolute;
