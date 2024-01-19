@@ -34,7 +34,9 @@ class Verbum_Comments {
 		$this->blog_id = get_current_blog_id();
 
 		// Jetpack loads the app via an iframe, so we need to get the blog id from the query string.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['blogid'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$this->blog_id = intval( $_GET['blogid'] );
 		}
 
@@ -148,7 +150,9 @@ class Verbum_Comments {
 		$is_blog_atomic  = is_blog_atomic( $blog_details );
 		$is_blog_jetpack = is_blog_jetpack( $blog_details );
 
-		$subscribe_to_blog    = isset( $_GET['stb_enabled'] ) ? boolval( $_GET['stb_enabled'] ) : false;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$subscribe_to_blog = isset( $_GET['stb_enabled'] ) ? boolval( $_GET['stb_enabled'] ) : false;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$subscribe_to_comment = isset( $_GET['stc_enabled'] ) ? boolval( $_GET['stc_enabled'] ) : false;
 
 		// If it is simple, we set it to true. Simple sites return inconsistent results.
@@ -158,6 +162,7 @@ class Verbum_Comments {
 		}
 
 		// Jetpack Comments client side logged in user data
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$__get                        = stripslashes_deep( $_GET );
 		$email_hash                   = isset( $__get['hc_useremail'] ) && is_string( $__get['hc_useremail'] ) ? $__get['hc_useremail'] : '';
 		$jetpack_username             = isset( $__get['hc_username'] ) && is_string( $__get['hc_username'] ) ? $__get['hc_username'] : '';
@@ -165,14 +170,15 @@ class Verbum_Comments {
 		$jetpack_signature            = isset( $__get['sig'] ) && is_string( $__get['sig'] ) ? $__get['sig'] : '';
 		list( $jetpack_avatar )       = wpcom_get_avatar_url( "$email_hash@md5.gravatar.com" );
 		$comment_registration_enabled = boolval( get_blog_option( $this->blog_id, 'comment_registration' ) );
-		$post_id                      = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
-		$locale                       = get_locale();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
+		$locale  = get_locale();
 
 		$vbe_cache_buster = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/build_meta.json' );
 
 		wp_add_inline_script(
 			'verbum-settings',
-			'window.VerbumComments = ' . json_encode(
+			'window.VerbumComments = ' . wp_json_encode(
 				array(
 					'Log in or provide your name and email to leave a reply.' => __( 'Log in or provide your name and email to leave a reply.', 'jetpack-mu-wpcom' ),
 					'Receive web and mobile notifications for posts on this site.' => __( 'Receive web and mobile notifications for posts on this site.', 'jetpack-mu-wpcom' ),
@@ -345,7 +351,7 @@ HTML;
 	 * @return void
 	 */
 	public function clear_fb_cookies() {
-		setcookie( 'wpc_fbc', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( 'wpc_fbc', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
 	}
 
 	/**
@@ -359,7 +365,7 @@ HTML;
 		}
 
 		// Make a new request using the access token we were given.
-		$request = wp_remote_get( 'https://graph.facebook.com/v6.0/me?fields=name,email,picture,id&access_token=' . urlencode( $data['access_token'] ) );
+		$request = wp_remote_get( 'https://graph.facebook.com/v6.0/me?fields=name,email,picture,id&access_token=' . rawurlencode( $data['access_token'] ) );
 		if ( 200 !== wp_remote_retrieve_response_code( $request ) ) {
 			return new \WP_Error( 'facebook', __( 'Error: your Facebook login has expired.', 'jetpack-mu-wpcom' ) );
 		}
@@ -449,7 +455,7 @@ HTML;
 		$verbum_subscription_modal_show      = isset( $_POST['verbum_show_subscription_modal'] ) && in_array( $_POST['verbum_show_subscription_modal'], $allowed_subscription_modal_statuses, true ) ? sanitize_text_field( wp_unslash( $_POST['verbum_show_subscription_modal'] ) ) : '';
 		// phpcs:enable WordPress.Security.NonceVerification.Missing -- nonce checked before saving comment
 		$allowed_comments_sources = array( 'gutenberg', 'textarea', 'textarea-slow-connection' );
-		if ( in_array( $verbum_loaded_editor, $allowed_comments_sources ) ) {
+		if ( in_array( $verbum_loaded_editor, $allowed_comments_sources, true ) ) {
 			bump_stats_extras( 'verbum-comment-editor', $verbum_loaded_editor );
 		}
 		if ( $verbum_subscription_modal_show ) {
@@ -464,11 +470,11 @@ HTML;
 				bump_stats_extras( 'verbum-comment-posted', 'facebook' );
 				break;
 
-			case 'wordpress': // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+			case 'wordpress': // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 				if ( 'wpcom' === wpcom_blog_site_id_label() ) {
 					do_action( 'highlander_wpcom_post_comment_bump_stat', $comment_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 				}
-				bump_stats_extras( 'verbum-comment-posted', 'wordpress' ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+				bump_stats_extras( 'verbum-comment-posted', 'wordpress' ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 				break;
 
 			case 'jetpack':
@@ -501,7 +507,9 @@ HTML;
 	 * Get the hidden fields for the comment form.
 	 */
 	public function hidden_fields() {
-		$post_id                    = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$is_current_user_subscribed = isset( $_GET['is_current_user_subscribed'] ) ? intval( $_GET['is_current_user_subscribed'] ) : 0;
 		$nonce                      = wp_create_nonce( 'highlander_comment' );
 		$hidden_fields              = get_comment_id_fields( $post_id ) . '
@@ -514,6 +522,7 @@ HTML;
 				<input type="hidden" name="jetpack-remote-action" value="comment-post" />
 				<input type="hidden" name="is_current_user_subscribed" value="' . $is_current_user_subscribed . '" />';
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$jetpack_nonce = isset( $_GET['jetpack_comments_nonce'] ) ? sanitize_text_field( wp_unslash( $_GET['jetpack_comments_nonce'] ) ) : false;
 			if ( $jetpack_nonce ) {
 				$hidden_fields .= '<input type="hidden" name="jetpack_comments_nonce" value="' . esc_attr( $jetpack_nonce ) . '" />';
@@ -535,13 +544,15 @@ HTML;
 			return false;
 		}
 
-		$blog_id               = verbum_get_blog_id();
-		$e2e_tests             = has_blog_sticker( 'a8c-e2e-test-blog', $blog_id );
-		$has_blocks_flag       = has_blog_sticker( 'verbum-block-comments', $blog_id );
+		$blog_id         = verbum_get_blog_id();
+		$e2e_tests       = has_blog_sticker( 'a8c-e2e-test-blog', $blog_id );
+		$has_blocks_flag = has_blog_sticker( 'verbum-block-comments', $blog_id );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$gutenberg_query_param = isset( $_GET['verbum_gutenberg'] ) ? intval( $_GET['verbum_gutenberg'] ) : null;
 		// This will release to 10% of sites.
 		$blog_in_10_percent = $blog_id % 100 >= 90;
-		$is_proxied         = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
+		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
 			? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
 			: defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
 
@@ -550,7 +561,6 @@ HTML;
 			return $gutenberg_query_param === 1;
 		}
 
-		// return $is_proxied || $blog_id_in_percent || $e2e_tests || $has_blocks_flag;
 		return $has_blocks_flag || $e2e_tests || $blog_in_10_percent;
 	}
 

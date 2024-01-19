@@ -65,7 +65,7 @@ class Verbum_Gutenberg_Editor {
 
 		$allowed_blocks = self::get_allowed_blocks();
 		foreach ( $blocks as $block ) {
-			if ( in_array( $block['blockName'], $allowed_blocks ) ) {
+			if ( in_array( $block['blockName'], $allowed_blocks, true ) ) {
 				$comment_content .= render_block( $block );
 			}
 		}
@@ -117,8 +117,6 @@ class Verbum_Gutenberg_Editor {
 			'ul'         => 'core/list',
 			'ol'         => 'core/list',
 			'pre'        => 'core/code',
-			// 'table' => 'core/table',
-			// 'video' => 'core/video',
 		);
 
 		foreach ( array_keys( $allowedtags ) as $tag ) {
