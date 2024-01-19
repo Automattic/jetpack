@@ -978,10 +978,6 @@ function wpcom_launchpad_is_mobile_app_installed_visible() {
  * @return bool True if the Mobile App is installed for the current user.
  */
 function wpcom_launchpad_is_mobile_app_installed() {
-	if ( wpcom_is_checklist_task_complete( 'mobile_app_installed' ) ) {
-		return true;
-	}
-
 	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
 	if ( $is_atomic_site ) {
 		return false;
