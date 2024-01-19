@@ -192,11 +192,13 @@ jetpack_boost_register_action(
 
 jetpack_boost_register_action(
 	'critical_css_state',
-	'set-provider-error-dismissed',
-	Schema::as_assoc_array(
-		array(
-			'key'       => Schema::as_string(),
-			'dismissed' => Schema::as_boolean(),
+	'set-provider-errors-dismissed',
+	Schema::as_array(
+		Schema::as_assoc_array(
+			array(
+				'key'       => Schema::as_string(),
+				'dismissed' => Schema::as_boolean(),
+			)
 		)
 	),
 	new Set_Provider_Error_Dismissed()
