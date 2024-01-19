@@ -14,5 +14,6 @@ module.exports = {
 				allowedTextDomain: 'jetpack-mu-wpcom',
 			},
 		],
+		'testing-library/prefer-screen-queries': 'off',
 	},
 };
