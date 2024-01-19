@@ -4,7 +4,7 @@
 	"name": "jetpack/subscriber-login",
 	"title": "Subscriber Login",
 	"description": "Subscriber Login",
-	"keywords": [ "login", "logout", "subscription" ],
+	"keywords": [ "login", "logout", "subscription", "member", "account", "user" ],
 	"version": "0.0.1",
 	"textdomain": "jetpack",
 	"category": "grow",
