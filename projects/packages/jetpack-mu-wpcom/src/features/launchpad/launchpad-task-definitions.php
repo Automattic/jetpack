@@ -579,7 +579,8 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Install the mobile app', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_mobile_app_installed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_mobile_app_installed_visible',
 			'get_calypso_path'     => function () {
 				return '/me/get-apps';
 			},
@@ -954,6 +955,46 @@ function wpcom_launchpad_is_domain_upsell_task_visible() {
 	);
 
 	return empty( $bundle_purchases );
+}
+
+/**
+ * Determines whether or not the Install the mobile app task should be visible.
+ *
+ * @return bool True if the Install the mobile app task should be visible.
+ */
+function wpcom_launchpad_is_mobile_app_installed_visible() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	// If the site is an Atomic site, we should not show the task.
+	if ( $is_atomic_site ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Verifies if the Mobile App is installed for the current user.
+ *
+ * @return bool True if the Mobile App is installed for the current user.
+ */
+function wpcom_launchpad_is_mobile_app_installed() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( $is_atomic_site ) {
+		return false;
+	}
+
+	if ( ! function_exists( 'get_user_attribute' ) ) {
+		return false;
+	}
+
+	$user_id          = get_current_user_id();
+	$mobile_last_seen = get_user_attribute( $user_id, 'jp_mobile_app_last_seen' );
+
+	if ( empty( $mobile_last_seen ) ) {
+		return false;
+	}
+
+	return true;
 }
 
 /**
