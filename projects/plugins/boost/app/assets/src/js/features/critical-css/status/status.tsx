@@ -59,7 +59,7 @@ const Status: React.FC< StatusTypes > = ( {
 
 	// Otherwise, show the status.
 	return (
-		<div className={ styles.status }>
+		<div className={ classNames( 'jb-critical-css__meta', styles.status ) }>
 			<div className={ styles.summary }>
 				<div className={ styles.successes }>
 					{ sprintf(
@@ -81,7 +81,7 @@ const Status: React.FC< StatusTypes > = ( {
 				</div>
 
 				{ cssState.status !== 'pending' && issues.length > 0 && (
-					<div className={ styles.failures }>
+					<div className={ classNames( 'failures', styles.failures ) }>
 						<InfoIcon />
 
 						<>
