@@ -2,7 +2,7 @@ import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-c
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
-import { Button, Notice, getRedirectUrl } from '@automattic/jetpack-components';
+import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
@@ -15,25 +15,10 @@ import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 
-const availableLazyLoadingDeprecation = __(
-	'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature will consequently be removed from Jetpack Boost.',
-	'jetpack-boost'
-);
-
-const unavailableLazyLoadingDeprecation = __(
-	'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature has been disabled to avoid potential conflicts with Gutenberg 16.6.0+ or WordPress 6.4+. This feature will consequently be removed from Jetpack Boost.',
-	'jetpack-boost'
-);
-
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
-	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
-	const learnLazyLoadDeprecation = () => {
-		window.open( getRedirectUrl( 'jetpack-boost-lazy-load-deprecation' ), '_blank' );
-	};
 
-	const [ lazyLoadState ] = useSingleModuleState( 'lazy_images' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
 
@@ -42,10 +27,6 @@ const Index = () => {
 		regenerateCssAction.mutate();
 	};
 	const { canResizeImages } = Jetpack_Boost;
-
-	const lazyLoadDeprecationMessage = lazyLoadState?.available
-		? availableLazyLoadingDeprecation
-		: unavailableLazyLoadingDeprecation;
 
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures !== false;
@@ -151,44 +132,6 @@ const Index = () => {
 							}
 						) }
 					</p>
-				}
-			></Module>
-			<Module
-				slug="lazy_images"
-				title={ __( 'Lazy Image Loading', 'jetpack-boost' ) }
-				description={
-					<>
-						<p>
-							{ createInterpolateElement(
-								__(
-									`Improve page loading speed by only loading images when they are required. Read more on <link>web.dev</link>.`,
-									'jetpack-boost'
-								),
-								{
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									link: <a href={ lazyLoadLink } target="_blank" rel="noopener noreferrer" />,
-								}
-							) }
-						</p>
-						<Notice
-							level="info"
-							title={ __( 'Lazy image loading is going away', 'jetpack-boost' ) }
-							hideCloseButton={ true }
-							actions={ [
-								<Button
-									key="learn-more"
-									isPrimary={ true }
-									onClick={ learnLazyLoadDeprecation }
-									isExternalLink={ true }
-									variant="link"
-								>
-									{ __( 'Learn more', 'jetpack-boost' ) }
-								</Button>,
-							] }
-						>
-							{ lazyLoadDeprecationMessage }
-						</Notice>
-					</>
 				}
 			></Module>
 			<Module

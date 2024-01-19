@@ -1,10 +1,9 @@
 import { __ } from '@wordpress/i18n';
-import './editor.scss';
 
-function SubscriberLoginEdit() {
+function SubscriberLoginEdit( { className } ) {
 	return (
-		<div>
-			<a href="#">{ __( 'Log out', 'jetpack' ) }</a>
+		<div className={ className }>
+			<a href="#logout-pseudo-link">{ __( 'Log out', 'jetpack' ) }</a>
 		</div>
 	);
 }

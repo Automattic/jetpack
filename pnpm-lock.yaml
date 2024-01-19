@@ -2824,9 +2824,6 @@ importers:
       '@automattic/jetpack-react-data-sync-client':
         specifier: workspace:*
         version: link:../../js-packages/react-data-sync-client
-      '@automattic/jetpack-webpack-config':
-        specifier: workspace:*
-        version: link:../../js-packages/webpack-config
       '@react-spring/core':
         specifier: 9.7.3
         version: 9.7.3(react@18.2.0)
@@ -2882,6 +2879,9 @@ importers:
       '@automattic/jetpack-image-guide':
         specifier: workspace:*
         version: link:../../js-packages/image-guide
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
       '@babel/core':
         specifier: 7.23.5
         version: 7.23.5
@@ -2909,18 +2909,12 @@ importers:
       postcss:
         specifier: 8.4.31
         version: 8.4.31
-      preset:
-        specifier: link:@automattic/jetpack-webpack-config/babel/preset
-        version: link:@automattic/jetpack-webpack-config/babel/preset
       react:
         specifier: 18.2.0
         version: 18.2.0
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
-      react-transition-group:
-        specifier: ^4.4.5
-        version: 4.4.5(react-dom@18.2.0)(react@18.2.0)
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -15782,6 +15776,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.23.5
       csstype: 3.1.3
+    dev: false
 
   /dom-scroll-into-view@1.2.1:
     resolution: {integrity: sha512-LwNVg3GJOprWDO+QhLL1Z9MMgWe/KAFLxVWKzjRTxNSPn8/LLDIfmuG71YHznXCqaqTjvHJDYO1MEAgX6XCNbQ==}
@@ -21908,6 +21903,7 @@ packages:
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /react-use-measure@2.1.1(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-nocZhN26cproIiIduswYpV5y5lQpSQS1y/4KuvUCjSKmw7ZWIS/+g3aFnX3WdBkyuGUtTLif3UTqnLLhbDoQig==}
