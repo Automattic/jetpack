@@ -197,17 +197,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		);
 
 		$enabled_payment_options = array_keys( $enabled_payment_options );
-		$include_express_payment = false;
-
-		$wcpay_version              = get_option( 'woocommerce_woocommerce_payments_version' );
-		$has_required_wcpay_version = version_compare( $wcpay_version, '2.9.0', '>=' );
-		// Check express payment availablity only if WC Pay is enabled and express checkout (payment request) is enabled.
-		if ( in_array( 'woocommerce_payments', $enabled_payment_options, true ) && $has_required_wcpay_version ) {
-			$wcpay_settings = get_option( 'woocommerce_woocommerce_payments_settings', array() );
-			if ( array_key_exists( 'payment_request', $wcpay_settings ) && 'yes' === $wcpay_settings['payment_request'] ) {
-				$include_express_payment = true;
-			}
-		}
 
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			/**
@@ -237,30 +226,55 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				$product->get_id()
 			);
 
-			if ( true === $include_express_payment ) {
-				wc_enqueue_js(
-					"
-					// wcpay.payment-request.availability event gets fired twice.
-					// make sure we push only one event.
-					var cartItem_{$cart_item_key}_logged = false;
-				    wp.hooks.addAction('wcpay.payment-request.availability', 'wcpay', function(args) {
-				        if ( true === cartItem_{$cart_item_key}_logged ) {
-				            return;
-				        }
-				        var properties = {$properties};
-				        properties.express_checkout = args.paymentRequestType;
-				        _wca.push(properties);
-						cartItem_{$cart_item_key}_logged = true;
-				    });
+			wc_enqueue_js(
 				"
-				);
-			} else {
-				$this->record_event(
-					'woocommerceanalytics_product_checkout',
-					$data,
-					$product->get_id()
-				);
-			}
+				var cartItem_{$cart_item_key}_logged = false;
+				var properties = {$properties};
+				// Check if jQuery is available
+				if ( typeof jQuery !== 'undefined' ) {
+					// This is only triggered on the checkout shortcode.
+					console.log('running here');
+					jQuery( document.body ).on( 'init_checkout', function () {
+						console.log('but not here');
+						if ( true === cartItem_{$cart_item_key}_logged ) {
+							return;
+						}
+						wp.hooks.addAction( 'wcpay.payment-request.availability', 'wcpay', function ( args ) {
+							properties.express_checkout = args.paymentRequestType;
+						} );
+							properties.checkout_page_contains_checkout_block = '0';
+							properties.checkout_page_contains_checkout_shortcode = '1';
+
+							_wca.push( properties );
+							cartItem_{$cart_item_key}_logged = true;
+
+					} );
+				}
+
+				if (
+					typeof wp !== 'undefined' &&
+					typeof wp.data !== 'undefined' &&
+					typeof wp.data.subscribe !== 'undefined'
+				) {
+					wp.data.subscribe( function () {
+						if ( true === cartItem_{$cart_item_key}_logged ) {
+							return;
+						}
+
+						const checkoutDataStore = wp.data.select( 'wc/store/checkout' );
+						if ( undefined !== checkoutDataStore && checkoutDataStore.getOrderId() !== 0 ) {
+							properties.express_checkout = Object.keys( wc.wcBlocksRegistry.getExpressPaymentMethods() );
+							properties.checkout_page_contains_checkout_block = '1';
+							properties.checkout_page_contains_checkout_shortcode = '0';
+
+							_wca.push( properties );
+							cartItem_{$cart_item_key}_logged = true;
+						}
+					} );
+				}
+			"
+			);
+
 		}
 	}
 
@@ -301,6 +315,17 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			}
 		}
 
+		$order_source = $order->get_created_via();
+		if ( 'store-api' === $order_source ) {
+			$checkout_page_contains_checkout_block     = '1';
+			$checkout_page_contains_checkout_shortcode = '0';
+		} elseif ( 'checkout' === $order_source ) {
+			$checkout_page_contains_checkout_block     = '0';
+			$checkout_page_contains_checkout_shortcode = '1';
+		} else {
+			$checkout_page_contains_checkout_block     = '0';
+			$checkout_page_contains_checkout_shortcode = '0';
+		}
 		// loop through products in the order and queue a purchase event.
 		foreach ( $order->get_items() as $order_item ) {
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
@@ -327,6 +352,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'products_count'   => $order_items_count,
 					'coupon_used'      => $order_coupons_count,
 					'order_value'      => $order->get_total(),
+					'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
+					'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
 				),
 				$product_id
 			);

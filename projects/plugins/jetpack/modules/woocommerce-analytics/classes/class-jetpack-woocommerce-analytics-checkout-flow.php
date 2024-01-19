@@ -73,6 +73,18 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 
 		$order = wc_get_order( $order_id );
 
+		$order_source = $order->get_created_via();
+		if ( 'store-api' === $order_source ) {
+			$checkout_page_contains_checkout_block     = '1';
+			$checkout_page_contains_checkout_shortcode = '0';
+		} elseif ( 'checkout' === $order_source ) {
+			$checkout_page_contains_checkout_block     = '0';
+			$checkout_page_contains_checkout_shortcode = '1';
+		} else {
+			$checkout_page_contains_checkout_block     = '0';
+			$checkout_page_contains_checkout_shortcode = '0';
+		}
+
 		$coupons     = $order->get_coupons();
 		$coupon_used = 0;
 		if ( is_countable( $coupons ) ) {
@@ -88,17 +100,19 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 		$this->record_event(
 			'woocommerceanalytics_order_confirmation_view',
 			array(
-				'coupon_used'      => $coupon_used,
-				'create_account'   => $create_account,
-				'express_checkout' => 'null', // TODO: not solved yet.
-				'guest_checkout'   => $order->get_customer_id() ? 'No' : 'Yes',
-				'oi'               => $order->get_id(),
-				'order_value'      => $order->get_total(),
-				'payment_option'   => $order->get_payment_method(),
-				'products_count'   => $order->get_item_count(),
-				'products'         => $this->format_items_to_json( $order->get_items() ),
-				'order_note'       => $order->get_customer_note(),
-				'shipping_option'  => $order->get_shipping_method(),
+				'coupon_used'                           => $coupon_used,
+				'create_account'                        => $create_account,
+				'express_checkout'                      => 'null', // TODO: not solved yet.
+				'guest_checkout'                        => $order->get_customer_id() ? 'No' : 'Yes',
+				'oi'                                    => $order->get_id(),
+				'order_value'                           => $order->get_total(),
+				'payment_option'                        => $order->get_payment_method(),
+				'products_count'                        => $order->get_item_count(),
+				'products'                              => $this->format_items_to_json( $order->get_items() ),
+				'order_note'                            => $order->get_customer_note(),
+				'shipping_option'                       => $order->get_shipping_method(),
+				'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
+				'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
 			)
 		);
 	}
