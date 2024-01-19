@@ -964,7 +964,7 @@ function wpcom_launchpad_is_domain_upsell_task_visible() {
  */
 function wpcom_launchpad_is_mobile_app_installed_visible() {
 	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
-	// If the site is not an Atomic site, we should not show the task.
+	// If the site is an Atomic site, we should not show the task.
 	if ( $is_atomic_site ) {
 		return false;
 	}
@@ -980,6 +980,15 @@ function wpcom_launchpad_is_mobile_app_installed_visible() {
 function wpcom_launchpad_is_mobile_app_installed() {
 	if ( wpcom_is_checklist_task_complete( 'mobile_app_installed' ) ) {
 		return true;
+	}
+
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( $is_atomic_site ) {
+		return false;
+	}
+
+	if ( ! function_exists( 'get_user_attribute' ) ) {
+		return false;
 	}
 
 	$user_id          = get_current_user_id();
