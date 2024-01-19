@@ -10,7 +10,7 @@ import SubscriptionModal from './subscription-modal';
 export const SimpleSubscribeSetModalShowLoggedIn = ( {
 	setSubscribeModalStatus,
 }: {
-	setSubscribeModalStatus: ( value: boolean ) => void;
+	setSubscribeModalStatus: ( value: string ) => void;
 } ) => {
 	const { email } = subscriptionSettings.value ?? {
 		email: {

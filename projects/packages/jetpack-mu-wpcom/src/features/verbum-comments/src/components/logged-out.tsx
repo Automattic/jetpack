@@ -3,13 +3,14 @@ import { translate } from '../i18n';
 import { classNames, serviceData } from '../utils';
 import { EmailForm } from './EmailForm';
 
+const { mustLogIn, requireNameEmail, commentRegistration } = VerbumComments;
 interface LoggedOutProps {
 	login: ( service: string ) => void;
 	canWeAccessCookies: boolean;
 	loginWindow: Window | null;
 }
 
-const getLoginCommentText = ( requireNameEmail, commentRegistration ) => {
+const getLoginCommentText = () => {
 	const defaultText = translate( 'Log in to leave a reply.' );
 	const optionalText = translate( 'Leave a reply. (log in optional)' );
 	const nameAndEmailRequired = translate(
@@ -30,7 +31,6 @@ const getLoginCommentText = ( requireNameEmail, commentRegistration ) => {
 
 export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOutProps ) => {
 	const [ activeService, setActiveService ] = useState( '' );
-	const { mustLogIn, requireNameEmail, commentRegistration } = VerbumComments;
 	const closeLoginPopupService = requireNameEmail && ! mustLogIn ? 'mail' : '';
 
 	// Handle window closing without login
@@ -38,16 +38,16 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 		if ( ! loginWindow && activeService && activeService !== 'mail' ) {
 			setActiveService( closeLoginPopupService );
 		}
-	}, [ loginWindow, activeService ] );
+	}, [ loginWindow, activeService, closeLoginPopupService ] );
 
 	useEffect( () => {
 		// Handle cases when name and email are required but without login.
 		if ( requireNameEmail && ! commentRegistration ) {
 			setActiveService( 'mail' );
 		}
-	}, [] );
+	}, [ setActiveService ] );
 
-	const handleClick = ( event, service: string ) => {
+	const handleClick = ( event: MouseEvent, service: string ) => {
 		event.preventDefault();
 
 		if ( activeService === service ) {
@@ -77,9 +77,7 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 				<div className="verbum-subscriptions__login">
 					{ canWeAccessCookies && (
 						<>
-							<div className="verbum-subscriptions__login-header">
-								{ getLoginCommentText( requireNameEmail, commentRegistration ) }
-							</div>
+							<div className="verbum-subscriptions__login-header">{ getLoginCommentText() }</div>
 							<div
 								className={ classNames( 'verbum-logins', {
 									'logging-in': activeService,

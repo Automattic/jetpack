@@ -34,9 +34,9 @@ export const SimpleSubscribeModalLoggedOut = ( {
 
 	/**
 	 * Handle the iframe result.
-	 * @param eventFromIframe
+	 * @param eventFromIframe - the event from the iframe
 	 */
-	function handleIframeResult( eventFromIframe ) {
+	function handleIframeResult( eventFromIframe: MessageEvent ) {
 		if ( eventFromIframe.origin === 'https://subscribe.wordpress.com' && eventFromIframe.data ) {
 			const data = JSON.parse( eventFromIframe.data );
 			if ( data && data.action === 'close' ) {

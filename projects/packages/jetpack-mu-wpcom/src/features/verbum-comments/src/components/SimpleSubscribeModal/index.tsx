@@ -37,6 +37,22 @@ export const SimpleSubscribeModal = ( {
 		closeModalHandler();
 	};
 
+	const handleOutsideClick = ( event: MouseEvent ) => {
+		// Check if the clicked element is the modal container itself
+		if ( modalContainerRef.current && modalContainerRef.current === event.target ) {
+			handleClose( event );
+		}
+	};
+
+	useEffect( () => {
+		document.addEventListener( 'click', handleOutsideClick );
+
+		return () => {
+			document.removeEventListener( 'click', handleOutsideClick );
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
 	if ( ! commentUrl ) {
 		// When not showing the modal, we check for modal conditions to show it.
 		// This is done to avoid subscriptionApi calls for logged out users.
@@ -51,35 +67,16 @@ export const SimpleSubscribeModal = ( {
 		return null;
 	}
 
-	const handleOutsideClick = ( event: MouseEvent ) => {
-		// Check if the clicked element is the modal container itself
-		if ( modalContainerRef.current && modalContainerRef.current === event.target ) {
-			handleClose( event );
-		}
-	};
-
-	useEffect( () => {
-		document.addEventListener( 'click', handleOutsideClick );
-
-		return () => {
-			document.removeEventListener( 'click', handleOutsideClick );
-		};
-	}, [] );
-
 	// We use the same logic as in the comment footer to know if the user is already subscribed.
 	if ( subscribeModalStatus !== 'showed' && commentUrl ) {
 		closeModalHandler();
 		return null;
 	}
 
-	/**
-	 * Close the modal
-	 * @param event - MouseEvent
-	 */
-	function handleClose( event: MouseEvent ) {
+	const handleClose = ( event: MouseEvent ) => {
 		event.preventDefault();
 		closeModalStateHandler();
-	}
+	};
 
 	// This is used to track how many times the modal was shown to the user.
 	// eslint-disable-next-line react-hooks/rules-of-hooks
@@ -87,7 +84,7 @@ export const SimpleSubscribeModal = ( {
 		const userId = userInfo.value?.uid || 0;
 		const currentViewCount = getSubscriptionModalViewCount( userId );
 		setSubscriptionModalViewCount( currentViewCount + 1, userId );
-	}, [ userInfo.value?.uid ] );
+	}, [] );
 
 	if ( subscribeState === 'LOADING' ) {
 		return (
