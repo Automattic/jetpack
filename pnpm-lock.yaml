@@ -2797,9 +2797,6 @@ importers:
       '@automattic/jetpack-react-data-sync-client':
         specifier: workspace:*
         version: link:../../js-packages/react-data-sync-client
-      '@automattic/jetpack-webpack-config':
-        specifier: workspace:*
-        version: link:../../js-packages/webpack-config
       '@react-spring/core':
         specifier: 9.7.3
         version: 9.7.3(react@18.2.0)
@@ -2855,6 +2852,9 @@ importers:
       '@automattic/jetpack-image-guide':
         specifier: workspace:*
         version: link:../../js-packages/image-guide
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
       '@babel/core':
         specifier: 7.23.5
         version: 7.23.5
@@ -2882,9 +2882,6 @@ importers:
       postcss:
         specifier: 8.4.31
         version: 8.4.31
-      preset:
-        specifier: link:@automattic/jetpack-webpack-config/babel/preset
-        version: link:@automattic/jetpack-webpack-config/babel/preset
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -24792,7 +24789,6 @@ packages:
     resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/56adf5a550475fd30962cd4e8f8bfcaf71f84177}
     name: jetpack-boost-critical-css-gen
     version: 0.0.11
-    prepare: true
     requiresBuild: true
     dependencies:
       clean-css: 5.3.3
