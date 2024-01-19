@@ -224,8 +224,14 @@ export const getUserInfoCookie = () => {
 		const cookie = cookies[ i ].trim();
 		if ( cookie.startsWith( 'wpc_' ) ) {
 			const service = cookie.slice( 0, 7 );
-			const serviceName =
-				service === 'wpc_wpc' ? 'wordpress' : service === 'wpc_fbc' ? 'facebook' : 'guest';
+
+			let serviceName = 'guest';
+			if ( service === 'wpc_wpc' ) {
+				serviceName = 'wordpress';
+			} else if ( service === 'wpc_fbc' ) {
+				serviceName = 'facebook';
+			}
+
 			const data = cookie.slice( 8 );
 			userData = data && {
 				service: serviceName,
