@@ -25,7 +25,7 @@ function jetpack_user_content_link_redirection() {
 <html>
 <head>
 <script>
-	var messageReceived = false;
+	let messageReceived = false;
 	window.addEventListener( 'message', function(event) {
 		if ( event.origin !== 'https://subscribe.wordpress.com' || messageReceived ) {
 			return;
