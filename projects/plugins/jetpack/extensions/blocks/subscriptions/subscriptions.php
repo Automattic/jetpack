@@ -599,6 +599,7 @@ function render_block( $attributes ) {
 			( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' )
 		),
 		'source'                        => 'subscribe-block',
+		'app_source'                    => get_attribute( $attributes, 'appSource', null ),
 	);
 
 	if ( ! jetpack_is_frontend() ) {
@@ -724,6 +725,7 @@ function render_for_website( $data, $classes, $styles ) {
 						<input type="hidden" name="blog_id" value="<?php echo (int) $blog_id; ?>"/>
 						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
+						<input type="hidden" name="app_source" value="<?php echo esc_attr( $data['app_source'] ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 						<input type="hidden" name="lang" value="<?php echo esc_attr( $lang ); ?>"/>
 						<?php
