@@ -41,7 +41,7 @@ async function getListComment( issueComments ) {
  * - xxx-zd
  * - xxxx-xxx-p2#comment-xxx
  *
- * They can also be a forums link:
+ * They could also be forum links:
  * - https://wordpress.com/forums/topic/xxx
  * - https://wordpress.com/xxx/forums/topic/xxx (for non-English forums)
  *
