@@ -41,6 +41,10 @@ async function getListComment( issueComments ) {
  * - xxx-zd
  * - xxxx-xxx-p2#comment-xxx
  *
+ * It can also be a forums link:
+ * - https://wordpress.com/forums/topic/xxx
+ * - https://wordpress.com/xxx/forums/topic/xxx (for non-English forums)
+ *
  * @param {GitHub} octokit      - Initialized Octokit REST client.
  * @param {string} owner        - Repository owner.
  * @param {string} repo         - Repository name.
@@ -50,7 +54,8 @@ async function getListComment( issueComments ) {
  */
 async function getIssueReferences( octokit, owner, repo, number, issueComments ) {
 	const ticketReferences = [];
-	const referencesRegexP = /[0-9]*-(?:zen|zd)|[a-zA-Z0-9-]+-p2#comment-[0-9]*/gim;
+	const referencesRegexP =
+		/[0-9]*-(?:zen|zd)|[a-zA-Z0-9-]+-p2#comment-[0-9]*|https:\/\/wordpress\.com\/(?:[a-z]+\/)?forums\/topic\/([a-zA-Z0-9-]+)/gim;
 
 	debug( `gather-support-references: Getting references from issue body.` );
 	const {
