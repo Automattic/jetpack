@@ -31,7 +31,11 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_testimonials_menu();
 		$this->add_portfolio_menu();
 		$this->add_comments_menu();
-		$this->add_appearance_menu();
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			add_submenu_page( 'themes.php', esc_attr__( 'Add new theme', 'jetpack' ), __( 'Add new theme', 'jetpack' ), 'read', 'https://wordpress.com/themes/' . $this->domain );
+		} else {
+			$this->add_appearance_menu();
+		}
 		$this->add_plugins_menu();
 		$this->add_users_menu();
 		$this->add_tools_menu();
