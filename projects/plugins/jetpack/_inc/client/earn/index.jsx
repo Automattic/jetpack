@@ -15,7 +15,7 @@ import {
 	isOfflineMode,
 	isUnavailableInOfflineMode as isUnavailableInOfflineModeSelector,
 } from 'state/connection';
-import { isAtomicSite as isAtomicSiteSelector } from 'state/initial-state';
+import { isAtomicSite as isAtomicSiteSelector, getSiteId } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
 import { Ads } from './ads';
@@ -81,7 +81,8 @@ function EarnFeatureButton( props ) {
  * @returns {React.Component} Earn settings component.
  */
 function Earn( props ) {
-	const { active, hasConnectedOwner, isModuleFound, isOffline, searchTerm, siteRawUrl } = props;
+	const { active, hasConnectedOwner, isModuleFound, isOffline, searchTerm, siteRawUrl, blogID } =
+		props;
 
 	const foundAds = isModuleFound( 'wordads' ),
 		foundEarnBlocks = isModuleFound( 'earn' );
@@ -129,7 +130,7 @@ function Earn( props ) {
 					title={ __( 'Collect payments', 'jetpack' ) }
 					supportLink={ getRedirectUrl( 'jetpack-support-jetpack-blocks-payments-block' ) }
 					infoLink={ getRedirectUrl( 'wpcom-earn-payments', {
-						site: siteRawUrl,
+						site: blogID ?? siteRawUrl,
 					} ) }
 					infoDescription={ __(
 						'Let visitors pay for digital goods and services or make quick, pre-set donations by enabling the Payment Button block.',
@@ -143,7 +144,7 @@ function Earn( props ) {
 					title={ __( 'Accept donations and tips', 'jetpack' ) }
 					supportLink={ getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' ) }
 					infoLink={ getRedirectUrl( 'wpcom-earn-payments', {
-						site: siteRawUrl,
+						site: blogID ?? siteRawUrl,
 					} ) }
 					infoDescription={ __(
 						'Accept one-time and recurring donations by enabling the Donations Form block.',
@@ -185,7 +186,7 @@ function Earn( props ) {
 				<Ads
 					{ ...props }
 					configureUrl={ getRedirectUrl( 'calypso-stats-ads-day', {
-						site: siteRawUrl,
+						site: blogID ?? siteRawUrl,
 					} ) }
 				/>
 			) }
@@ -203,5 +204,6 @@ export default connect( state => {
 		isUnavailableInOfflineMode: module_name =>
 			isUnavailableInOfflineModeSelector( state, module_name ),
 		isAtomicSite: isAtomicSiteSelector( state ),
+		blogID: getSiteId( state ),
 	};
 } )( Earn );

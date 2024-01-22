@@ -133,28 +133,14 @@ class Jetpack_Subscription_Modal_On_Comment {
 	 * @return string
 	 */
 	public function get_subscribe_template_content() {
-		$discover_more_from = __( 'Never miss a beat!', 'default' ); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
-		$subscribe_text     = __( 'Interested in getting blog post updates? Simply click the button below to stay in the loop!', 'default' ); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
-		$subscribe_button   = __( 'Subscribe', 'default' ); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
+		// translators: %s is the name of the site.
+		$discover_more_from = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
+		$subscribe_text     = __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack' );
+		$continue_reading   = __( 'Continue reading', 'jetpack' );
 
 		return <<<HTML
-	<!-- wp:group -->
-	<div class="jetpack-subscription-modal__iframe-container">
-		<iframe
-			class="jetpack-subscription-modal__iframe"
-			frameBorder="0"
-			allowTransparency="1"
-			src="about:blank"
-			id="jetpack-subscription-modal__iframe"
-		></iframe>
-	</div>
-	<!-- /wp:group -->
 	<!-- wp:group {"style":{"spacing":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
-	<div class="wp-block-group has-border-color jetpack-subscription-modal__modal-content-form" style="border-color:#dddddd;border-width:1px;margin-top:0;margin-bottom:0;padding-top:0;padding-right:32px;padding-bottom:32px;padding-left:32px">
-
-		<!-- wp:paragraph {"align":"right","style":{"spacing":{"margin":{"top":"0"}},"typography":{"fontSize":"14px"}},"className":"jetpack-subscription-modal__close"} -->
-		<p class="has-text-align-center jetpack-subscription-modal__close" style="margin-top:20px;font-size:14px;text-align:right"><a href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" width="24" height="24" focusable="false"><path d="M12 13.06l3.712 3.713 1.061-1.06L13.061 12l3.712-3.712-1.06-1.06L12 10.938 8.288 7.227l-1.061 1.06L10.939 12l-3.712 3.712 1.06 1.061L12 13.061z"></path></svg></a></p>
-		<!-- /wp:paragraph -->
+	<div class="wp-block-group has-border-color jetpack-subscription-modal__modal-content-form" style="border-color:#dddddd;border-width:1px;margin-top:0;margin-bottom:0;padding:32px">
 
 		<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
 		<h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px;font-size:26px;font-style:normal;font-weight:600">$discover_more_from</h2>
@@ -164,21 +150,11 @@ class Jetpack_Subscription_Modal_On_Comment {
 		<p class='has-text-align-center' style='margin-top:4px;margin-bottom:0px;font-size:15px'>$subscribe_text</p>
 		<!-- /wp:paragraph -->
 
-		<!-- wp:group {"style":{"spacing":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
-		<form class="jetpack-subscription-modal__form">
-			<input
-				class="jetpack-subscription-modal__form-email"
-				required="required"
-				type="email"
-				name="email"
-				style="border-width: 1px !important;"
-				/>
-			<button
-				class="jetpack-subscription-modal__form-submit"
-				type="submit"
-				name="jetpack_subscriptions_widget" >$subscribe_button</button>
-		</form>
-		<!-- /wp:group -->
+		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact","appSource":"atomic-subscription-modal-lo"} /-->
+
+		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"20px"}},"typography":{"fontSize":"14px"}},"className":"jetpack-subscription-modal__close"} -->
+		<p class="has-text-align-center jetpack-subscription-modal__close" style="margin-top:20px;font-size:14px"><a href="#">$continue_reading</a></p>
+		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
 HTML;

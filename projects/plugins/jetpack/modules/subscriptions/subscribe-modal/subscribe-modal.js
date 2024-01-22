@@ -2,15 +2,15 @@ const { domReady } = wp;
 
 domReady( function () {
 	const modal = document.getElementsByClassName( 'jetpack-subscribe-modal' )[ 0 ];
+	const modalDismissedCookie = 'jetpack_post_subscribe_modal_dismissed';
+	const hasModalDismissedCookie =
+		document.cookie && document.cookie.indexOf( modalDismissedCookie ) > -1;
 
-	if ( ! modal ) {
+	if ( ! modal || hasModalDismissedCookie ) {
 		return;
 	}
 
 	const close = document.getElementsByClassName( 'jetpack-subscribe-modal__close' )[ 0 ];
-	const modalDismissedCookie = 'jetpack_post_subscribe_modal_dismissed';
-	const hasModalDismissedCookie =
-		document.cookie && document.cookie.indexOf( modalDismissedCookie ) > -1;
 	let hasLoaded = false;
 	let isScrolling;
 
@@ -18,10 +18,8 @@ domReady( function () {
 		window.clearTimeout( isScrolling );
 
 		isScrolling = setTimeout( function () {
-			if ( ! hasLoaded && ! hasModalDismissedCookie ) {
-				modal.classList.add( 'open' );
-				document.body.classList.add( 'jetpack-subscribe-modal-open' );
-				hasLoaded = true;
+			if ( ! hasLoaded ) {
+				openModal();
 			}
 		}, 300 );
 	};
@@ -40,10 +38,24 @@ domReady( function () {
 		}
 	};
 
+	function closeModalOnEscapeKeydown( event ) {
+		if ( event.key === 'Escape' ) {
+			closeModal();
+		}
+	}
+
+	function openModal() {
+		modal.classList.add( 'open' );
+		document.body.classList.add( 'jetpack-subscribe-modal-open' );
+		hasLoaded = true;
+		setModalDismissedCookie();
+		window.addEventListener( 'keydown', closeModalOnEscapeKeydown );
+	}
+
 	function closeModal() {
 		modal.classList.remove( 'open' );
 		document.body.classList.remove( 'jetpack-subscribe-modal-open' );
-		setModalDismissedCookie();
+		window.removeEventListener( 'keydown', closeModalOnEscapeKeydown );
 	}
 
 	function setModalDismissedCookie() {

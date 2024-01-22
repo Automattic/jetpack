@@ -144,6 +144,13 @@ class Jetpack_Google_Analytics_Universal {
 			return $command_array;
 		}
 
+		$hpos_enabled =
+			class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' )
+			&& \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
+		if ( $hpos_enabled ) {
+			return $this->maybe_track_hpos_purchases( $command_array );
+		}
+
 		// A 1 indicates we've already tracked this order - don't do it again
 		if ( 1 === (int) get_post_meta( $order_id, '_ga_tracked', true ) ) {
 			return $command_array;
@@ -184,6 +191,76 @@ class Jetpack_Google_Analytics_Universal {
 		array_push( $command_array, $command );
 
 		update_post_meta( $order_id, '_ga_tracked', 1 );
+
+		return $command_array;
+	}
+
+	/**
+	 * Process purchase tracking options for the universal Google Analytics queue (ga) commands.
+	 *
+	 * May also update post meta to indicate the order has been tracked.
+	 *
+	 * This method is different from maybe_track_purchases in HPOS support.
+	 *
+	 * @see https://github.com/woocommerce/woocommerce/wiki/High-Performance-Order-Storage-Upgrade-Recipe-Book
+	 *
+	 * @since 13.1
+	 * @param array $command_array Array of commands.
+	 * @return array `$command_array` with additional commands conditionally added.
+	 */
+	public function maybe_track_hpos_purchases( $command_array ) {
+		global $wp;
+
+		$order_id = isset( $wp->query_vars['order-received'] ) ? $wp->query_vars['order-received'] : 0;
+		if ( 0 === (int) $order_id ) {
+			return $command_array;
+		}
+		$order = wc_get_order( $order_id );
+
+		if ( false === $order ) {
+			return $command_array;
+		}
+
+		// A 1 indicates we've already tracked this order - don't do it again
+		if ( 1 === (int) $order->get_meta( '_ga_tracked', true ) ) {
+			return $command_array;
+		}
+
+		$order_currency = $order->get_currency();
+		$command        = "ga( 'set', '&cu', '" . esc_js( $order_currency ) . "' );";
+		array_push( $command_array, $command );
+
+		// Order items
+		if ( $order->get_items() ) {
+			foreach ( $order->get_items() as $item ) {
+				$product           = $order->get_product_from_item( $item );
+				$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
+
+				$item_details = array(
+					'id'       => $product_sku_or_id,
+					'name'     => $item['name'],
+					'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
+					'price'    => $order->get_item_total( $item ),
+					'quantity' => $item['qty'],
+				);
+				$command      = "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . ' );';
+				array_push( $command_array, $command );
+			}
+		}
+
+		// Order summary
+		$summary = array(
+			'id'          => $order->get_order_number(),
+			'affiliation' => get_bloginfo( 'name' ),
+			'revenue'     => $order->get_total(),
+			'tax'         => $order->get_total_tax(),
+			'shipping'    => $order->get_shipping_total(),
+		);
+		$command = "ga( 'ec:setAction', 'purchase', " . wp_json_encode( $summary ) . ' );';
+		array_push( $command_array, $command );
+
+		$order->update_meta_data( '_ga_tracked', 1 );
+		$order->save();
 
 		return $command_array;
 	}
