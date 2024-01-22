@@ -76,8 +76,34 @@ $image_size_analysis = Schema::as_assoc_array(
 );
 
 jetpack_boost_register_option( 'image_size_analysis', $image_size_analysis, new Image_Size_Analysis_Entry() );
-jetpack_boost_register_action( 'image_size_analysis', 'paginate', new Image_Size_Analysis_Summary_Action_Paginate() );
-jetpack_boost_register_action( 'image_size_analysis', 'fix', new Image_Analysis_Action_Fix() );
+
+jetpack_boost_register_action(
+	'image_size_analysis',
+	'paginate',
+	Schema::as_assoc_array(
+		array(
+			'page'  => Schema::as_number(),
+			'group' => Schema::as_string(),
+		)
+	),
+	new Image_Size_Analysis_Summary_Action_Paginate()
+);
+
+jetpack_boost_register_action(
+	'image_size_analysis',
+	'fix',
+	Schema::as_assoc_array(
+		array(
+			'image_id'     => Schema::as_number(),
+			'image_url'    => Schema::as_string(),
+			'image_width'  => Schema::as_number(),
+			'image_height' => Schema::as_number(),
+			'post_id'      => Schema::as_number(),
+			'fix'          => Schema::as_boolean(),
+		)
+	),
+	new Image_Analysis_Action_Fix()
+);
 
 $group_schema = Schema::as_assoc_array(
 	array(
@@ -122,4 +148,5 @@ jetpack_boost_register_option(
 	$summary_schema,
 	new Image_Size_Analysis_Summary()
 );
-jetpack_boost_register_action( 'image_size_analysis_summary', 'start', new Image_Size_Analysis_Summary_Action_Start() );
+
+jetpack_boost_register_action( 'image_size_analysis_summary', 'start', Schema::as_void(), new Image_Size_Analysis_Summary_Action_Start() );

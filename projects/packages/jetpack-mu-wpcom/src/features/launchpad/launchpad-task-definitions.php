@@ -579,7 +579,8 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Install the mobile app', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_mobile_app_installed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_mobile_app_installed_visible',
 			'get_calypso_path'     => function () {
 				return '/me/get-apps';
 			},
@@ -625,6 +626,16 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_visible_callback'  => 'wpcom_launchpad_is_sensei_setup_visible',
 			'get_calypso_path'     => function () {
 				return site_url( '/wp-admin/admin.php?page=sensei' );
+			},
+		),
+		'verify_domain_email'             => array(
+			'get_title'            => function () {
+				return __( 'Verify the email address for your domains', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_verify_domain_email_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/domains/manage/' . $data['site_slug_encoded'];
 			},
 		),
 	);
@@ -947,6 +958,46 @@ function wpcom_launchpad_is_domain_upsell_task_visible() {
 }
 
 /**
+ * Determines whether or not the Install the mobile app task should be visible.
+ *
+ * @return bool True if the Install the mobile app task should be visible.
+ */
+function wpcom_launchpad_is_mobile_app_installed_visible() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	// If the site is an Atomic site, we should not show the task.
+	if ( $is_atomic_site ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Verifies if the Mobile App is installed for the current user.
+ *
+ * @return bool True if the Mobile App is installed for the current user.
+ */
+function wpcom_launchpad_is_mobile_app_installed() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( $is_atomic_site ) {
+		return false;
+	}
+
+	if ( ! function_exists( 'get_user_attribute' ) ) {
+		return false;
+	}
+
+	$user_id          = get_current_user_id();
+	$mobile_last_seen = get_user_attribute( $user_id, 'jp_mobile_app_last_seen' );
+
+	if ( empty( $mobile_last_seen ) ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Determines whether or not the WooCommerce setup task should be visible.
  *
  * @return bool True if the site is a WOA site and WooCommerce is active.
@@ -972,6 +1023,119 @@ function wpcom_launchpad_is_sensei_setup_visible() {
 	}
 
 	return is_plugin_active( 'sensei-lms/sensei-lms.php' );
+}
+
+/**
+ * Determines whether or not the verify domain email task should be visible.
+ *
+ * @return bool True if the verify domain email task should be visible.
+ */
+function wpcom_launchpad_is_verify_domain_email_visible() {
+	// If the task is complete, we should show it and prevent the logic below
+	// to be executed.
+	if ( wpcom_is_checklist_task_complete( 'verify_domain_email' ) ) {
+		return true;
+	}
+
+	$domains_pending_icann_verification = array();
+
+	// For Atomic sites we need to get the domain list from
+	// the public API.
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( $is_atomic_site ) {
+		$domains = wpcom_request_domains_list();
+
+		if ( is_wp_error( $domains ) ) {
+			return false;
+		}
+
+		$domains_pending_icann_verification = array_filter(
+			$domains,
+			function ( $domain ) {
+				return $domain->is_pending_icann_verification;
+			}
+		);
+	} else {
+		if ( ! class_exists( 'Domain_Management' ) ) {
+			return false;
+		}
+
+		$domains = \Domain_Management::get_paid_domains_with_icann_verification_status();
+
+		$domains_pending_icann_verification = array_filter(
+			$domains,
+			function ( $domain ) {
+				return isset( $domain['is_pending_icann_verification'] ) && $domain['is_pending_icann_verification'];
+			}
+		);
+	}
+
+	$has_domains_pending_icann_verification = ! empty( $domains_pending_icann_verification );
+
+	if ( ! $has_domains_pending_icann_verification && wpcom_launchpad_verify_domain_email_task_displayed() ) {
+		wpcom_mark_launchpad_task_complete( 'verify_domain_email' );
+		return true;
+	}
+
+	if ( $has_domains_pending_icann_verification ) {
+		if ( ! wpcom_launchpad_verify_domain_email_task_displayed() ) {
+			wpcom_set_launchpad_config_option( 'verify_domain_email_task_displayed', true );
+		}
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Checks if the Verify Email Domain task was displayed to the user.
+ */
+function wpcom_launchpad_verify_domain_email_task_displayed() {
+	return wpcom_get_launchpad_config_option( 'verify_domain_email_task_displayed', false );
+}
+
+/**
+ * Make a request to the WordPress.com API to get the domain list for the current site.
+ *
+ * @return array|WP_Error Array of domains and their verification status or WP_Error if the request fails.
+ */
+function wpcom_request_domains_list() {
+	$site_id       = \Jetpack_Options::get_option( 'id' );
+	$request_path  = sprintf( '/sites/%d/domains', $site_id );
+	$wpcom_request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+		$request_path,
+		'1.2',
+		array(
+			'method'  => 'GET',
+			'headers' => array(
+				'content-type'    => 'application/json',
+				'X-Forwarded-For' => ( new Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
+			),
+		),
+		null,
+		'rest'
+	);
+
+	$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+	if ( 200 !== $response_code ) {
+		return new \WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' ),
+			array( 'status' => $response_code )
+		);
+	}
+
+	$body         = wp_remote_retrieve_body( $wpcom_request );
+	$decoded_body = json_decode( $body );
+
+	if ( ! isset( $decoded_body->domains ) ) {
+		return new \WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
+		);
+	}
+
+	return $decoded_body->domains;
 }
 
 /**

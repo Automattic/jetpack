@@ -250,7 +250,7 @@ export default function AiAssistantBar( {
 					} ) }
 					tabIndex={ -1 }
 				>
-					{ siteRequireUpgrade && <UpgradePrompt /> }
+					{ siteRequireUpgrade && <UpgradePrompt placement="jetpack-form-block" /> }
 					{ ! connected && <ConnectPrompt /> }
 					<AIControl
 						ref={ inputRef }
