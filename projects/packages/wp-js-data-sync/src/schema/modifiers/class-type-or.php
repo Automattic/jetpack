@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
 class Type_Or implements Parser {
 	private $conditions;
@@ -22,14 +22,14 @@ class Type_Or implements Parser {
 			try {
 				// Attempt to parse the value with the current parser
 				return $parser->parse( $value, $context );
-			} catch ( Schema_Internal_Error $e ) {
+			} catch ( Schema_Error $e ) {
 				$parsers_failed[] = (string) $parser;
 				continue;
 			}
 		}
 		$message = 'Failed to parse value using: ' . implode( ' or ', $parsers_failed );
 		// If none of the parsers succeeded, throw an exception
-		throw new Schema_Internal_Error( $message, $value );
+		throw new Schema_Error( $message, $value );
 	}
 
 	public function schema() {

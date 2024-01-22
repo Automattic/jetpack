@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
 /**
  * This schema represents no data whatsoever. It will always return null.
@@ -13,7 +13,7 @@ class Type_Void implements Parser {
 
 	public function parse( $value, $_context = null ) {
 		if ( ! empty( $value ) && DS_Utils::is_debug_enabled() ) {
-			throw new Schema_Internal_Error( 'Void type cannot have any data.', $value );
+			throw new Schema_Error( 'Void type cannot have any data.', $value );
 		}
 		return null;
 	}

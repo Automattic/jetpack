@@ -1,8 +1,8 @@
 <?php
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 use PHPUnit\Framework\TestCase;
 
 class Test_Integration_Parsing_Errors extends TestCase {
@@ -38,7 +38,7 @@ class Test_Integration_Parsing_Errors extends TestCase {
 		try {
 			$schema->parse( $invalid_data );
 			$this->fail( 'Expected Schema_Error was not thrown' );
-		} catch ( Schema_Parsing_Error $e ) {
+		} catch ( Schema_Error $e ) {
 
 			$this->assertEquals( 'level_1.level_2.level_3', $e->get_context()->get_path() );
 			$this->assertEquals( 'hello world', $e->get_value() );
@@ -61,10 +61,10 @@ class Test_Integration_Parsing_Errors extends TestCase {
 		try {
 			$schema->parse( $invalid_data );
 			$this->fail( 'Expected Schema_Error was not thrown' );
-		} catch ( Schema_Parsing_Error $e ) {
+		} catch ( Schema_Error $e ) {
 			$this->assertEquals( 'known-meta', $e->get_context()->get_name() );
 		} catch ( Exception $e ) {
-			$this->fail( 'Expected "Schema_Parsing_Error", but received ' . get_class( $e ) );
+			$this->fail( 'Expected "Schema_Error", but received ' . get_class( $e ) );
 		}
 	}
 
@@ -83,10 +83,10 @@ class Test_Integration_Parsing_Errors extends TestCase {
 		try {
 			$schema->parse( $invalid_data );
 			$this->fail( 'Expected Schema_Error was not thrown' );
-		} catch ( Schema_Parsing_Error $e ) {
+		} catch ( Schema_Error $e ) {
 			$this->assertEquals( 'unknown', $e->get_context()->get_name() );
 		} catch ( Exception $e ) {
-			$this->fail( 'Expected "Schema_Parsing_Error", but received ' . get_class( $e ) );
+			$this->fail( 'Expected "Schema_Error", but received ' . get_class( $e ) );
 		}
 
 		// Second run.
@@ -95,10 +95,10 @@ class Test_Integration_Parsing_Errors extends TestCase {
 			$schema->set_context( new Schema_Context( 'known-meta' ) );
 			$schema->parse( $invalid_data );
 			$this->fail( 'Expected Schema_Error was not thrown' );
-		} catch ( Schema_Parsing_Error $e ) {
+		} catch ( Schema_Error $e ) {
 			$this->assertEquals( 'known-meta', $e->get_context()->get_name() );
 		} catch ( Exception $e ) {
-			$this->fail( 'Expected "Schema_Parsing_Error", but received ' . get_class( $e ) );
+			$this->fail( 'Expected "Schema_Error", but received ' . get_class( $e ) );
 		}
 	}
 

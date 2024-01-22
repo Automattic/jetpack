@@ -2,11 +2,11 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
-class Schema_Parsing_Error extends \RuntimeException {
+class Schema_Error extends \RuntimeException {
 	private $value;
 	private $context;
 
-	public function __construct( $message, $value, $context ) {
+	public function __construct( $message, $value, $context = null ) {
 		$this->value   = $value;
 		$this->context = $context;
 		parent::__construct( $message );

@@ -3,9 +3,8 @@
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Type_Or;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Void;
 
 class Schema_State implements Parser {
@@ -36,7 +35,6 @@ class Schema_State implements Parser {
 		return $this->context->get_log();
 	}
 
-
 	public function __toString() {
 		return $this->parser->__toString();
 	}
@@ -59,21 +57,21 @@ class Schema_State implements Parser {
 		return $this;
 	}
 
-
 	/**
 	 * Sets a fallback value for the schema type when the input data is invalid.
 	 * This method returns a new instance of Decorate_With_Default, which wraps
 	 * the current schema type and applies the fallback value.
 	 *
 	 * @param mixed $default_value The fallback value to use when the input data is invalid.
+	 * @throws Schema_Error When the input data is invalid and debug mode is enabled.
 	 */
 	public function fallback( $default_value ) {
 		if ( DS_Utils::is_debug_enabled() ) {
 			try {
 				$this->parser->parse( $default_value, $this->context ?? new Schema_Context( 'debug-mode' ) );
-			} catch ( Schema_Internal_Error $e ) {
+			} catch ( Schema_Error $e ) {
 				// Convert the internal error to a parsing error.
-				throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $this->context );
+				throw new Schema_Error( $e->getMessage(), $e->get_value(), $this->context );
 			}
 		}
 
@@ -92,7 +90,7 @@ class Schema_State implements Parser {
 	 * @param mixed $value The input data to be parsed.
 	 *
 	 * @return mixed The parsed data according to the schema type.
-	 * @throws Schema_Parsing_Error When the input data is invalid.
+	 * @throws Schema_Error When the input data is invalid.
 	 */
 	public function parse( $value, $context = null ) {
 
@@ -101,13 +99,12 @@ class Schema_State implements Parser {
 		$parser = $this->parser;
 
 		try {
-			$value = $parser->parse( $value, $context );
-			return $value;
-		} catch ( Schema_Parsing_Error | Schema_Internal_Error $e ) {
+			return $parser->parse( $value, $context );
+		} catch ( Schema_Error $e ) {
 
 			if ( DS_Utils::is_debug_enabled() ) {
-				$value         = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
-				$error_message = "Failed to parse '{$context->get_name()}' schema";
+				$value          = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
+				$error_message  = "Failed to parse '{$context->get_name()}' schema";
 				$error_message .= "\n" . $e->getMessage();
 				$error_message .= "\nData Received:";
 				$error_message .= "\n$value";
@@ -120,7 +117,7 @@ class Schema_State implements Parser {
 				return $this->fallback;
 			}
 
-			throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $context );
+			throw new Schema_Error( $e->getMessage(), $e->get_value(), $context );
 		}
 	}
 
@@ -144,5 +141,4 @@ class Schema_State implements Parser {
 	public function get_fallback() {
 		return $this->fallback;
 	}
-
 }

@@ -1,7 +1,7 @@
 <?php
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 use PHPUnit\Framework\TestCase;
 
 class Test_Type_Or extends TestCase {
@@ -18,7 +18,7 @@ class Test_Type_Or extends TestCase {
 
 	public function test_parse_failure() {
 		$schema = Schema::as_string()->or( Schema::as_array( Schema::as_string() ) );
-		$this->expectException( Schema_Parsing_Error::class );
+		$this->expectException( Schema_Error::class );
 		$schema->parse( null );
 	}
 
@@ -34,7 +34,7 @@ class Test_Type_Or extends TestCase {
 
 	public function test_parse_with_invalid_array() {
 		$schema = Schema::as_string()->or( Schema::as_array( Schema::as_string() ) );
-		$this->expectException( Schema_Parsing_Error::class );
+		$this->expectException( Schema_Error::class );
 		$schema->parse( array( 'test', null ) );
 	}
 
@@ -44,13 +44,13 @@ class Test_Type_Or extends TestCase {
 		$this->assertSame( array( true, true, true ), $schema->parse( array( true, 1, '1' ) ) );
 		$this->assertSame( false, $schema->parse( false ) );
 		$this->assertSame( array( false, false, false ), $schema->parse( array( false, 0, '0' ) ) );
-		$this->expectException( Schema_Parsing_Error::class );
+		$this->expectException( Schema_Error::class );
 		$schema->parse( 99 );
 	}
 
 	public function test_parse_invalid_array_of_booleans() {
 		$schema = Schema::as_boolean()->or( Schema::as_array( Schema::as_boolean() ) );
-		$this->expectException( Schema_Parsing_Error::class );
+		$this->expectException( Schema_Error::class );
 		$schema->parse( array( true, false, 99 ) );
 	}
 }

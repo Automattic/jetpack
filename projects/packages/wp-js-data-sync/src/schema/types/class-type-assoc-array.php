@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
 class Type_Assoc_Array implements Parser {
 	private $parser;
@@ -19,7 +19,7 @@ class Type_Assoc_Array implements Parser {
 		$this->parser = $assoc_parser_array;
 		if ( ! is_array( $assoc_parser_array ) && DS_Utils::is_debug_enabled() ) {
 			$message = "Expected an associative array of parsers, received '" . gettype( $assoc_parser_array ) . "'";
-			throw new Schema_Internal_Error( $message, $assoc_parser_array );
+			throw new Schema_Error( $message, $assoc_parser_array );
 		}
 	}
 
@@ -33,7 +33,7 @@ class Type_Assoc_Array implements Parser {
 	 * @param $value mixed[]
 	 *
 	 * @return array
-	 * @throws Schema_Internal_Error - If the $data passed to it is not an associative array.
+	 * @throws Schema_Error - If the $data passed to it is not an associative array.
 	 *
 	 */
 	public function parse( $value, $context = null ) {
@@ -44,7 +44,7 @@ class Type_Assoc_Array implements Parser {
 
 		if ( ! is_array( $value ) || $this->is_sequential_array( $value ) ) {
 			$message = "Expected an associative array, received '" . gettype( $value ) . "'";
-			throw new Schema_Internal_Error( $message, $value );
+			throw new Schema_Error( $message, $value );
 		}
 
 		$output = array();

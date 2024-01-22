@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
 class Type_Boolean implements Parser {
 	public function parse( $value, $_context = null ) {
@@ -21,7 +21,7 @@ class Type_Boolean implements Parser {
 			'',
 		);
 		if ( ! in_array( $value, $loose_values, true ) ) {
-			throw new Schema_Internal_Error( 'Invalid boolean value', $value );
+			throw new Schema_Error( 'Invalid boolean value', $value );
 		}
 		return filter_var( $value, FILTER_VALIDATE_BOOLEAN );
 	}

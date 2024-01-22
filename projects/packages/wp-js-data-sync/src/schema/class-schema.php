@@ -2,9 +2,6 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Type_Or;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any_JSON;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Array;

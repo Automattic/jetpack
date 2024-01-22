@@ -2,8 +2,7 @@
 
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 use PHPUnit\Framework\TestCase;
 
 class Type_Assoc_Array_Test extends TestCase {
@@ -33,7 +32,7 @@ class Type_Assoc_Array_Test extends TestCase {
 		$assoc_schema = Schema::as_assoc_array( array() );
 
 		// This should throw an exception on failure
-		$this->expectException( Schema_Parsing_Error::class );
+		$this->expectException( Schema_Error::class );
 		$assoc_schema->parse( 'not_an_array' );
 	}
 
@@ -45,7 +44,7 @@ class Type_Assoc_Array_Test extends TestCase {
 
 		// But will error in debug mode:
 		DS_Utils::set_mode( 'debug' );
-		$this->expectException( Schema_Internal_Error::class );
+		$this->expectException( Schema_Error::class );
 		Schema::as_assoc_array( null );
 	}
 }

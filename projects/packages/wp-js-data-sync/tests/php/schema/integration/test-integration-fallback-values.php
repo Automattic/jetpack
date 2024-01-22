@@ -4,8 +4,8 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry_Adapter;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Option;
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 use PHPUnit\Framework\TestCase;
 
 class Test_Integration_Fallback_Values extends TestCase {
@@ -31,25 +31,22 @@ class Test_Integration_Fallback_Values extends TestCase {
 		// I expect this same meta to be thrown in the exception.
 		try {
 			$schema->parse( null );
-		} catch ( Schema_Parsing_Error $e ) {
+		} catch ( Schema_Error $e ) {
 			$this->assertSame( 'custom_name', $e->get_context()->get_name() );
 		}
-
 
 		// I've set the meta for the schema.
 		// I expect this same meta to be thrown in the exception.
 		// I also expect that parsing null with an invalid fallback is going to throw an error.
 		try {
-			DS_Utils::set_mode("debug");
+			DS_Utils::set_mode( 'debug' );
 			$schema->fallback( array( 'Invalid Fallback' ) )->parse( null );
-			$this->fail( 'Expected "Schema_Parsing_Error" exception, but no expection was thrown.' );
-		} catch ( Schema_Parsing_Error $e ) {
+			$this->fail( 'Expected "Schema_Error" exception, but no expection was thrown.' );
+		} catch ( Schema_Error $e ) {
 			$this->assertSame( 'custom_name', $e->get_context()->get_name() );
 		} finally {
-			DS_Utils::set_mode(null);
+			DS_Utils::set_mode( null );
 		}
-
-
 	}
 
 	public function test_nullable() {
@@ -72,7 +69,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$expected_result = array(
 			'child' => 'default_value',
 		);
-		$test_schema = Schema::as_assoc_array(
+		$test_schema     = Schema::as_assoc_array(
 			array(
 				'child' => Schema::as_string(),
 			)
@@ -219,10 +216,10 @@ class Test_Integration_Fallback_Values extends TestCase {
 		try {
 			$schema->parse( null );
 			// If the exception is not thrown, fail the test
-			$this->fail( 'Expected \Schema_Parsing_Error exception was not thrown' );
-		} catch ( Schema_Parsing_Error $e ) {
+			$this->fail( 'Expected \Schema_Error exception was not thrown' );
+		} catch ( Schema_Error $e ) {
 			// If the exception is thrown, assert that it's the expected exception
-			$this->assertInstanceOf( Schema_Parsing_Error::class, $e );
+			$this->assertInstanceOf( Schema_Error::class, $e );
 		}
 
 		// -------
@@ -242,7 +239,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		if ( DS_Utils::is_debug_enabled() ) {
 			// We're expecting an exception because $schema_empty_array defines an incorrect fallback shape.
 			// This throws an error in debug mode.
-			$this->expectException( Schema_Parsing_Error::class );
+			$this->expectException( Schema_Error::class );
 		}
 		$schema_empty_array = $this->get_schema_no_fallbacks()->fallback( array() )->parse( array() );
 		$this->assertSame( array(), $schema_empty_array );
@@ -264,8 +261,8 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$incorrect_schema = Schema::as_string()->fallback( $schema_fallback );
 		$this->assertSame( $schema_fallback, $incorrect_schema->parse( null ) );
 
-		$this->expectException( Schema_Parsing_Error::class );
-		$result = $this->get_schema_no_fallbacks()->parse( $invalid_array );
+		$this->expectException( Schema_Error::class );
+		$this->get_schema_no_fallbacks()->parse( $invalid_array );
 	}
 
 	/**
@@ -326,7 +323,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 
 		// In debug mode, defining an incorrect schema will throw an exception
 		DS_Utils::set_mode( 'debug' );
-		$this->expectException( Schema_Parsing_Error::class );
+		$this->expectException( Schema_Error::class );
 		Schema::as_string()->fallback( null );
 		DS_Utils::set_mode( null );
 	}
@@ -345,7 +342,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		// In debug mode, defining an incorrect schema will throw an exception
 		DS_Utils::set_mode( 'debug' );
 		// @TODO: No internal exceptions!
-		$this->expectException( Schema_Parsing_Error::class );
+		$this->expectException( Schema_Error::class );
 		Schema::as_assoc_array(
 			array(
 				'one' => Schema::as_string(),
