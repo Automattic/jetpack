@@ -471,7 +471,7 @@ class WriteCommandTest extends CommandTestCase {
 				true,
 				"# Changelog\n\n## 1.0.2 - $date\n### Added\n- Initial release.\n- Stuff. And more stuff.\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
-			'Deduplication, --dedupliacte default 0'       => array(
+			'Deduplication, --deduplicate default 0'       => array(
 				array(),
 				array(
 					'changes' => array(
