@@ -68,13 +68,18 @@ function get_html_from_markdown( $file_path ) {
 	$contents = $parser->defaultTransform( $markdown );
 
 	$document = new DOMDocument();
-	$document->loadHTML( $contents );
+	$document->loadHTML(
+		'<!DOCTYPE html><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
+		. $contents
+	);
 
 	$doc_title = $file_path;
 
 	$headers = $document->getElementsByTagName( 'h1' );
 	if ( count( $headers ) ) {
 		$doc_title = $headers[0]->textContent;
+
+		$headers[0]->remove();
 	}
 
 	return array(

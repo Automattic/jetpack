@@ -11,7 +11,7 @@ import PopOut from './pop-out/pop-out';
 import PerformanceHistory from '$features/performance-history/performance-history';
 import ErrorNotice from '$features/error-notice/error-notice';
 import classNames from 'classnames';
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
 import styles from './speed-score.module.scss';
@@ -19,10 +19,9 @@ import { useModulesState } from '$features/module/lib/stores';
 import { useCriticalCssState } from '$features/critical-css/lib/stores/critical-css-state';
 import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local-generator/local-generator-provider';
 
-const siteIsOnline = Jetpack_Boost.site.online;
-
 const SpeedScore = () => {
-	const [ { status, error, scores }, loadScore ] = useSpeedScores();
+	const { site } = Jetpack_Boost;
+	const [ { status, error, scores }, loadScore ] = useSpeedScores( site.url );
 	const scoreLetter = scores ? getScoreLetter( scores.current.mobile, scores.current.desktop ) : '';
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;
 	const [ { data } ] = useModulesState();
@@ -41,21 +40,23 @@ const SpeedScore = () => {
 		[ data ]
 	);
 
-	const [ closedScorePopOut, setClosePopOut ] = useState( false );
 	const showScoreChangePopOut =
-		status === 'loaded' &&
-		! scores.isStale &&
-		! closedScorePopOut &&
-		getScoreMovementPercentage( scores );
+		status === 'loaded' && ! scores.isStale && getScoreMovementPercentage( scores );
 
 	// Always load the score on mount.
 	useEffect( () => {
-		loadScore();
-	}, [ loadScore ] );
+		if ( site.online ) {
+			loadScore();
+		}
+	}, [ loadScore, site.online ] );
 
 	useDebouncedRefreshScore(
 		{ moduleStates, criticalCssCreated: cssState.created || 0, criticalCssIsGenerating },
-		loadScore
+		async () => {
+			if ( site.online ) {
+				await loadScore( true ); // Force a refresh.
+			}
+		}
 	);
 
 	// translators: %s is a letter grade, e.g. "A" or "B"
@@ -74,7 +75,7 @@ const SpeedScore = () => {
 					data-testid="speed-scores"
 					className={ classNames( styles[ 'speed-scores' ], { loading: status === 'loading' } ) }
 				>
-					{ siteIsOnline ? (
+					{ site.online ? (
 						<div className={ styles.top } data-testid="speed-scores-top">
 							<h2>{ heading }</h2>
 							{ status === 'loaded' && <ContextTooltip /> }
@@ -116,7 +117,7 @@ const SpeedScore = () => {
 					<BoostScoreBar
 						prevScore={ scores.noBoost?.mobile }
 						score={ scores.current.mobile }
-						active={ siteIsOnline }
+						active={ site.online }
 						isLoading={ status === 'loading' }
 						showPrevScores={ showPrevScores }
 						scoreBarType="mobile"
@@ -126,17 +127,17 @@ const SpeedScore = () => {
 					<BoostScoreBar
 						prevScore={ scores.noBoost?.desktop }
 						score={ scores.current.desktop }
-						active={ siteIsOnline }
+						active={ site.online }
 						isLoading={ status === 'loading' }
 						showPrevScores={ showPrevScores }
 						scoreBarType="desktop"
 						noBoostScoreTooltip={ __( 'Your desktop score without Boost', 'jetpack-boost' ) }
 					/>
 				</div>
-				{ siteIsOnline && <PerformanceHistory /> }
+				{ site.online && <PerformanceHistory /> }
 			</div>
 
-			<PopOut scoreChange={ showScoreChangePopOut } onClose={ () => setClosePopOut( true ) } />
+			<PopOut scoreChange={ showScoreChangePopOut } />
 		</>
 	);
 };
