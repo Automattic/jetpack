@@ -65,17 +65,21 @@ function get_current_url() {
 /**
  * Returns subscriber log in URL.
  *
+ * @param string $redirect Path to redirect to on logout.
+ *
  * @return string
  */
-function get_subscriber_login_url() {
+function get_subscriber_login_url( $redirect ) {
+	$redirect = boolval( $redirect ) ? $redirect : get_site_url();
+
 	// Copied from projects/plugins/jetpack/extensions/blocks/subscriptions/subscriptions.php
 	if ( ( new Host() )->is_wpcom_simple() ) {
-		// On WPCOM we will redirect directly to the current page
-		$redirect_url = get_current_url();
+		// On WPCOM we will redirect immediately
+		$redirect_url = $redirect;
 	} else {
 		// On self-hosted we will save and hide the token
 		$redirect_url = get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
-		$redirect_url = add_query_arg( 'redirect_url', get_current_url(), $redirect_url );
+		$redirect_url = add_query_arg( 'redirect_url', $redirect, $redirect_url );
 	}
 
 	return add_query_arg(
@@ -99,18 +103,21 @@ function is_subscriber_logged_in() {
 /**
  * Renders Subscriber Login block.
  *
+ * @param array $attributes The block attributes.
+ *
  * @return string
  */
-function render_block() {
+function render_block( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	$block_template = '<div %1$s><a href="%2$s">%3$s</a></div>';
+	$block_template      = '<div %1$s><a href="%2$s">%3$s</a></div>';
+	$redirect_to_current = isset( $attributes['redirectToCurrent'] ) && $attributes['redirectToCurrent'];
 
 	if ( ! is_subscriber_logged_in() ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
-			get_subscriber_login_url(),
+			get_subscriber_login_url( $redirect_to_current ? get_current_url() : '' ),
 			__( 'Log in', 'jetpack' )
 		);
 	}
@@ -127,7 +134,7 @@ function render_block() {
 	return sprintf(
 		$block_template,
 		get_block_wrapper_attributes(),
-		wp_logout_url( get_current_url() ),
+		wp_logout_url( $redirect_to_current ? get_current_url() : '' ),
 		__( 'Log out', 'jetpack' )
 	);
 }
