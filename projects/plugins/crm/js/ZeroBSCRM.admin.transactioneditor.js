@@ -185,7 +185,7 @@ function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
 							retHTML += ' selected="selected"';
 						}
 
-						retHTML += '>' + invStr + '</option>';
+						retHTML += '>' + jpcrm.esc_html(invStr) + '</option>';
 					} );
 				} else {
 					// no invs
