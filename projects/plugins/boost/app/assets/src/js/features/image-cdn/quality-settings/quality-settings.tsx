@@ -1,12 +1,11 @@
-import { createInterpolateElement, useCallback } from '@wordpress/element';
+import { createInterpolateElement } from '@wordpress/element';
 import CollapsibleMeta from '../collapsible-meta/collapsible-meta';
 import { __, sprintf } from '@wordpress/i18n';
 import styles from './quality-settings.module.scss';
 import { IconTooltip } from '@automattic/jetpack-components';
 import QualityControl from '../quality-control/quality-control';
 import Upgraded from '$features/ui/upgraded/upgraded';
-import { type QualityConfig, imageCdnSettingsSchema, useImageCdnQuality } from '../lib/stores';
-import { z } from 'zod';
+import { useImageCdnQuality } from '../lib/stores';
 import { Link } from 'react-router-dom';
 
 type QualitySettingsProps = {
@@ -23,65 +22,37 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		);
 	}
 
-	const [ imageCdnQuality, setImageCdnQuality ] = useImageCdnQuality();
-
-	const updateFormatQuantity = useCallback(
-		( format: 'jpg' | 'png' | 'webp', newValue: QualityConfig ) => {
-			setImageCdnQuality( { ...imageCdnQuality, [ format ]: newValue } );
-		},
-		[ imageCdnQuality, setImageCdnQuality ]
-	);
-
 	return (
 		<CollapsibleMeta
 			editText={ __( 'Change Image Quality', 'jetpack-boost' ) }
 			closeEditText={ __( 'Close', 'jetpack-boost' ) }
 			header={ <Header /> }
-			summary={ <Summary imageCdnQuality={ imageCdnQuality } /> }
+			summary={ <Summary /> }
 		>
-			<QualityControl
-				label={ __( 'JPEG', 'jetpack-boost' ) }
-				config={ imageCdnQuality.jpg as QualityConfig }
-				maxValue={ 89 }
-				onChange={ newValue => updateFormatQuantity( 'jpg', newValue ) }
-			/>
-			<QualityControl
-				label={ __( 'PNG', 'jetpack-boost' ) }
-				config={ imageCdnQuality.png as QualityConfig }
-				maxValue={ 80 }
-				onChange={ newValue => updateFormatQuantity( 'png', newValue ) }
-			/>
-			<QualityControl
-				label={ __( 'WEBP', 'jetpack-boost' ) }
-				config={ imageCdnQuality.webp as QualityConfig }
-				maxValue={ 80 }
-				onChange={ newValue => updateFormatQuantity( 'webp', newValue ) }
-			/>
+			<QualityControl label={ __( 'JPEG', 'jetpack-boost' ) } format="jpg" maxValue={ 89 } />
+			<QualityControl label={ __( 'PNG', 'jetpack-boost' ) } format="png" maxValue={ 80 } />
+			<QualityControl label={ __( 'WEBP', 'jetpack-boost' ) } format="webp" maxValue={ 80 } />
 		</CollapsibleMeta>
 	);
 };
 
-const Summary = ( {
-	imageCdnQuality,
-}: {
-	imageCdnQuality: z.infer< typeof imageCdnSettingsSchema >;
-} ) => (
-	<div>
-		{ sprintf(
-			/* translators: %1$s is the JPEG quality value, %2$s is PNG quality value, and %3$s is WEBP quality value. Each value may also say 'lossless' */
-			__( 'JPEG Quality: %1$s, PNG Quality: %2$s, WEBP Quality: %3$s', 'jetpack-boost' ),
-			imageCdnQuality.jpg.lossless
-				? __( 'lossless', 'jetpack-boost' )
-				: imageCdnQuality.jpg.quality.toString(),
-			imageCdnQuality.png.lossless
-				? __( 'lossless', 'jetpack-boost' )
-				: imageCdnQuality.png.quality.toString(),
-			imageCdnQuality.webp.lossless
-				? __( 'lossless', 'jetpack-boost' )
-				: imageCdnQuality.webp.quality.toString()
-		) }
-	</div>
-);
+const Summary = () => {
+	const [ jpgQuality ] = useImageCdnQuality( 'jpg' );
+	const [ pngQuality ] = useImageCdnQuality( 'png' );
+	const [ webpQuality ] = useImageCdnQuality( 'webp' );
+
+	return (
+		<div>
+			{ sprintf(
+				/* translators: %1$s is the JPEG quality value, %2$s is PNG quality value, and %3$s is WEBP quality value. Each value may also say 'lossless' */
+				__( 'JPEG Quality: %1$s, PNG Quality: %2$s, WEBP Quality: %3$s', 'jetpack-boost' ),
+				jpgQuality.lossless ? __( 'lossless', 'jetpack-boost' ) : jpgQuality.quality.toString(),
+				pngQuality.lossless ? __( 'lossless', 'jetpack-boost' ) : pngQuality.quality.toString(),
+				webpQuality.lossless ? __( 'lossless', 'jetpack-boost' ) : webpQuality.quality.toString()
+			) }
+		</div>
+	);
+};
 
 const Header = () => (
 	<div className={ styles[ 'section-title' ] }>

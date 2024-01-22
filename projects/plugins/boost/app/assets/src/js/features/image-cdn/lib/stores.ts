@@ -1,5 +1,6 @@
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
+import { useCallback } from 'react';
 
 export const qualityConfigSchema = z.object( {
 	lossless: z.boolean(),
@@ -14,17 +15,27 @@ export const imageCdnSettingsSchema = z.object( {
 
 export type ImageCdnSettings = z.infer< typeof imageCdnSettingsSchema >;
 export type QualityConfig = z.infer< typeof qualityConfigSchema >;
+export type ImageFormat = keyof ImageCdnSettings;
 
-export function useImageCdnQuality(): [ ImageCdnSettings, ( newValue: ImageCdnSettings ) => void ] {
-	const [ { data: imageCdnQuality }, { mutate: setImageCdnQuality } ] = useDataSync(
+export function useImageCdnQuality(
+	format: ImageFormat
+): [ QualityConfig, ( newValue: QualityConfig ) => void ] {
+	const [ { data }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
 		'image_cdn_quality',
 		imageCdnSettingsSchema
 	);
 
-	if ( ! imageCdnQuality ) {
+	if ( ! data ) {
 		throw new Error( 'Image CDN Quality not loaded' );
 	}
 
-	return [ imageCdnQuality, setImageCdnQuality ];
+	const updateFormatQuantity = useCallback(
+		( newValue: QualityConfig ) => {
+			mutate( { ...data, [ format ]: newValue } );
+		},
+		[ data, format, mutate ]
+	);
+
+	return [ data[ format ], updateFormatQuantity ];
 }
