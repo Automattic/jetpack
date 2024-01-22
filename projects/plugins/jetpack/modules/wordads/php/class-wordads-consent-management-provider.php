@@ -281,18 +281,4 @@ JS;
 			return 'none';
 		}
 	}
-
-	/**
-	 * Returns the intro text.
-	 *
-	 * @param int|null $vendors_count The number of vendors.
-	 *
-	 * @return string The intro text.
-	 */
-	private static function get_intro( int $vendors_count ): string {
-		/* translators: 1: Total number of partners. */
-		$intro = sprintf( __( 'We and our %1$s advertising partners store and/or access information on your device and also process personal data, like unique identifiers, browsing activity, and other standard information sent by your device including your IP address. This information is collected over time and used for personalised ads, ad measurement, audience insights, and product development specific to our ads program. If this sounds good to you, select "I Agree!" below. Otherwise, you can get more information, customize your consent preferences, or decline consent by selecting "Learn More". Note that your preferences apply only to this website. If you change your mind in the future you can update your preferences anytime by visiting the Privacy link displayed under each ad or by using the "Privacy" option in the Action Bar located at the bottom-right corner of the screen. One last thing, our partners may process some of your data based on legitimate interests instead of consent but you can object to that by choosing "Learn More" and then disabling the Legitimate Interests toggle under any listed Purpose or Partner.', 'jetpack' ), $vendors_count );
-
-		return $intro;
-	}
 }
