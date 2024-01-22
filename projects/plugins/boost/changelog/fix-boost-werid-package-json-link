@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Remove odd package.json `link` that pnpm complains about. And move `@automattic/jetpack-webpack-config` to a dev dep.
-
-

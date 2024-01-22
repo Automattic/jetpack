@@ -579,7 +579,8 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Install the mobile app', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_mobile_app_installed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_mobile_app_installed_visible',
 			'get_calypso_path'     => function () {
 				return '/me/get-apps';
 			},
@@ -957,6 +958,46 @@ function wpcom_launchpad_is_domain_upsell_task_visible() {
 }
 
 /**
+ * Determines whether or not the Install the mobile app task should be visible.
+ *
+ * @return bool True if the Install the mobile app task should be visible.
+ */
+function wpcom_launchpad_is_mobile_app_installed_visible() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	// If the site is an Atomic site, we should not show the task.
+	if ( $is_atomic_site ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Verifies if the Mobile App is installed for the current user.
+ *
+ * @return bool True if the Mobile App is installed for the current user.
+ */
+function wpcom_launchpad_is_mobile_app_installed() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( $is_atomic_site ) {
+		return false;
+	}
+
+	if ( ! function_exists( 'get_user_attribute' ) ) {
+		return false;
+	}
+
+	$user_id          = get_current_user_id();
+	$mobile_last_seen = get_user_attribute( $user_id, 'jp_mobile_app_last_seen' );
+
+	if ( empty( $mobile_last_seen ) ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Determines whether or not the WooCommerce setup task should be visible.
  *
  * @return bool True if the site is a WOA site and WooCommerce is active.
@@ -1005,7 +1046,6 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 		$domains = wpcom_request_domains_list();
 
 		if ( is_wp_error( $domains ) ) {
-			// logs the erro
 			return false;
 		}
 
@@ -1015,8 +1055,6 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 				return $domain->is_pending_icann_verification;
 			}
 		);
-
-		return ! empty( $domains_pending_icann_verification );
 	} else {
 		if ( ! class_exists( 'Domain_Management' ) ) {
 			return false;
@@ -1032,7 +1070,28 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 		);
 	}
 
-	return ! empty( $domains_pending_icann_verification );
+	$has_domains_pending_icann_verification = ! empty( $domains_pending_icann_verification );
+
+	if ( ! $has_domains_pending_icann_verification && wpcom_launchpad_verify_domain_email_task_displayed() ) {
+		wpcom_mark_launchpad_task_complete( 'verify_domain_email' );
+		return true;
+	}
+
+	if ( $has_domains_pending_icann_verification ) {
+		if ( ! wpcom_launchpad_verify_domain_email_task_displayed() ) {
+			wpcom_set_launchpad_config_option( 'verify_domain_email_task_displayed', true );
+		}
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Checks if the Verify Email Domain task was displayed to the user.
+ */
+function wpcom_launchpad_verify_domain_email_task_displayed() {
+	return wpcom_get_launchpad_config_option( 'verify_domain_email_task_displayed', false );
 }
 
 /**
