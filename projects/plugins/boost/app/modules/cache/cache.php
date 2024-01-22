@@ -1,6 +1,6 @@
 <?php
 
-class Boost_Cache {
+abstract class Boost_Cache {
 	/*
 	 * @var string - The cache key used to identify the cache file for the current request. MD5 of the request uri, cookies and page GET parameters.
 	 */
@@ -170,18 +170,11 @@ class Boost_Cache {
 		return $this->path_key;
 	}
 
-	public function get() {
-		return false;
-	}
+	abstract public function get();
 
-	public function set( $data ) {
-		echo esc_html( $data );
-		return false;
-	}
+	abstract public function set( $data );
 
-	public function ob_start() {
-		return false;
-	}
+	abstract public function ob_start();
 
 	/*
 	 * Returns true if the current request is one of the following:
