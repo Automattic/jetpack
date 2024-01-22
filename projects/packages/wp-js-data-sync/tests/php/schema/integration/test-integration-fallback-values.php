@@ -23,14 +23,6 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$this->assertSame( 'default_value', $parsed );
 	}
 
-	public function test_consistent_schema_interface() {
-
-		$string = Schema::as_string();
-		$this->assertInstanceOf( Type_String::class, $string->unwrap() );
-		$this->assertInstanceOf( Type_String::class, $string->fallback( 'yes')->unwrap() );
-
-	}
-
 	public function test_meta_type_on_fallback() {
 		$meta   = new Schema_Validation_Meta( 'custom_meta' );
 		$schema = Schema::as_string();

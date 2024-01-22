@@ -28,13 +28,6 @@ class Schema_State implements Parser {
 		$this->parser = $parser;
 	}
 
-	public function unwrap() {
-		if ( $this->parser instanceof self ) {
-			return $this->parser->unwrap();
-		}
-		return $this->parser;
-	}
-
 	public function override_meta( Schema_Validation_Meta $meta ) {
 		$this->meta = $meta;
 	}
@@ -56,11 +49,6 @@ class Schema_State implements Parser {
 	 * @return $this
 	 */
 	public function or( Parser $parser ) {
-
-		if ( $parser instanceof self ) {
-			$parser = $parser->unwrap();
-		}
-
 		if ( $this->parser instanceof Type_Or ) {
 			$this->parser->add_condition( $parser );
 			return $this;
