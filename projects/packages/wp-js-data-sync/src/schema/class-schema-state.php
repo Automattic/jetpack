@@ -30,6 +30,9 @@ class Schema_State implements Parser {
 	}
 
 	public function unwrap() {
+		if( $this->parser instanceof self ) {
+			return $this->parser->unwrap();
+		}
 		return $this->parser;
 	}
 
