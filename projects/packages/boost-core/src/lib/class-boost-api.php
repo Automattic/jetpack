@@ -87,7 +87,9 @@ class Boost_API {
 	 * @return string[]
 	 */
 	public static function default_headers() {
-		$headers = array();
+		$headers = array(
+			'Content-Type' => 'application/json; charset=utf-8',
+		);
 
 		if ( defined( 'JETPACK_BOOST_VERSION' ) ) {
 			$headers['X-Jetpack-Boost-Version'] = JETPACK_BOOST_VERSION;
