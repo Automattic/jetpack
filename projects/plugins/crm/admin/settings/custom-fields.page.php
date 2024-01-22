@@ -204,12 +204,9 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 				in_array( $potential_slug, array( 'id', 'status' ) )
 			) {
 
-				$n = 0;
-
-				while ( $n <= 20 ) {
+				for ( $n = 1; $n < $max_custom_fields_per_object; $n++ ) {
 
 					// Search for alternative slugs, n+1
-					++$n;
 					$alternative_slug = "$potential_slug-$n";
 
 					// Check in custom fields
