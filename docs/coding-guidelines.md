@@ -7,7 +7,17 @@ These are some things to keep in mind when writing code for the Jetpack Monorepo
 - **PHP**: Jetpack Monorepo projects rely on WordPress' minimum PHP version requirements by default. There are several exceptions, however, which we will get to later in this document.
 - **PHP Standards**: Jetpack follows [WordPress Core's standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/), with a few additions. The best way to ensure that you adhere to those standards is to set up your IDE [as per the recommendations here](./development-environment.md#use-php-codesniffer-and-eslint-to-make-sure-your-code-respects-coding-standards).
 - **WordPress**: Jetpack supports the current version of WordPress and the immediate previous version. So if the current version is 4.6, Jetpack will support it, as well as 4.5. It's desirable that when Jetpack is installed in older versions, it doesn't fail in a severe way.
-- **JavaScript**: TODO.
+- **JavaScript**: Jetpack Monorepo uses NodeJS as the engine, and version wise it follows Calypso, usually meaning staying on the current LTS version. The package manager is the latest version of PNPM. 
+- **Frontend JavaScript**: The Jetpack Monorepo standard is Webpack, Babel, Gutenberg, and React stack. (The preferred configuration)[https://github.com/Automattic/jetpack/blob/e8a2b42d645e5ddd9029efdd5c3538e26dc8a7da/projects/js-packages/webpack-config/README.md] that is shared among all projects is in the `projects/js-packages/webpack-config` project. This is done to make sure that Babel handles browser compatibility.
+- **Other JavaScript**: Teams are free to use other stacks for their projects, and we do have projects that use Svelte with Rollup, for example. In practice it usually means that they team is largely responsible for supporting custom solutions like this, including i18n and updates. There's a notable "conflict" where we would like to avoid bringing in `18n-calypso` for i18n, since Jetpack generally uses translate.wordpress.org which requires Gutenberg's `@wordpress/i18n`.
+- **Lintint and testing JavaScript**: We have generally settled on `jest` and `@testing-library/*` for unit testing.  Linting is done with `eslint`, with most configuration at the Monorepo level. Ideally projects should be sparing in overriding the eslint config beyond selecting the appropriate presets for `react/typescript/etc` (same goes for phpcs for that matter).
+- **E2E tests**: The situation is a bit complicated:
+  - We've settled on `playwright` for standalone E2E tests. `allure-playwright` is the direct dependency that brings in `pflaywright` as a sub-dependency.
+  - For tests against Simple and Atomic, however, those live in the Calypso repo.
+- **General dependencies**: When it comes to dependencies in general, and particularly large ones, it's good practice to choose options already used in the Monorepo and to try to match the versions too.
+  - If some other option is better that what we're currently using, it may be worth starting a project to switch everything to the new option.
+  - When consuming monorepo `js-packages` within the Monorepo, the package should provide `jetpack:src` entries in `.exports` in `package.json` to avoid having to build before `eslint` can run.
+  - Do not use `.scripts.prepare` or the like to try to compile on installation, as that slows down and complicates installation for everyone even if they're not using that js-package.
 - **Browsers**: We support the latest two versions of all major browsers, except IE, where we currently only support 11 and Edge. (see [Browse Happy](http://browsehappy.com) for current latest versions).
 
 ### Project based language and tool versions 
