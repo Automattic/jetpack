@@ -326,6 +326,7 @@ class Jetpack_Social {
 			'Jetpack_Editor_Initial_State',
 			array(
 				'siteFragment' => ( new Status() )->get_site_suffix(),
+				'wpcomBlogId'  => Connection_Manager::get_site_id( true ),
 				'social'       => array(
 					'adminUrl'                        => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
 					'sharesData'                      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
