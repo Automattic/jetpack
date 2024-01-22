@@ -30,6 +30,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_page_menu();
 		$this->add_testimonials_menu();
 		$this->add_portfolio_menu();
+		$this->add_comments_menu();
 		$this->add_appearance_menu();
 		$this->add_plugins_menu();
 		$this->add_users_menu();
