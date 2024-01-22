@@ -337,6 +337,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// This is supposed to be the same as class-admin-menu but with a different position specified for the Jetpack menu.
 		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
 			parent::create_jetpack_menu( 2, false );
+			$this->update_submenus(
+				'jetpack',
+				array(
+					'stats' => 'https://wordpress.com/stats/day/' . $this->domain,
+				)
+			);
 		} else {
 			parent::add_jetpack_menu();
 		}
