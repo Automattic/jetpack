@@ -13,11 +13,11 @@ class Page_Cache implements Pluggable, Is_Always_On {
 	 * WordPress is loaded.
 	 */
 	public function setup() {
-		if ( is_admin() ) {
+		if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'jetpack-boost' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			require_once ABSPATH . '/wp-admin/includes/file.php';
 			WP_Filesystem();
-			$error = $this->create_advanced_cache();
-			if ( $error === true ) {
+			$result = $this->create_advanced_cache();
+			if ( $result === true ) {
 				$this->add_wp_cache_define();
 			}
 			// do something with $error
