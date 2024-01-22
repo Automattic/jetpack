@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Cloud CSS: Added custom query parameter support for more reliable cloud CSS generation
