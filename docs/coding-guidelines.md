@@ -12,7 +12,7 @@ These are some things to keep in mind when writing code for the Jetpack Monorepo
 
 ### Project based language and tool versions 
 
-If you take a look at the contents of the `projects` folder, you can see that the Monorepo has several types of projects. Some of them can have specific requirements that further extend the base requirements. The most obvious examples of that are plugins that require later PHP versions than what is required by default. For instance, Jetpack CRM's `.phpcs.dir.phpcompatibility.xml` file states that [the minimum PHP version is 7.4](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/crm/.phpcs.dir.phpcompatibility.xml). 
+If you take a look at the contents of the `projects` folder, you can see that the Monorepo has several types of projects. Some of them can have specific requirements that further extend the base requirements. The most obvious examples of that are plugins that require later PHP versions than what is required by default. For instance, Jetpack CRM's `readme.txt` file states that [the minimum PHP version is 7.4](https://github.com/Automattic/jetpack/blob/a8b161eb5c6b23972d728271e0b210df4f9e586c/projects/plugins/crm/readme.txt#L7). 
 
 ## The Jetpack Monorepo and its CLI
 
