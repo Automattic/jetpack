@@ -4,11 +4,6 @@ namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
 abstract class Boost_Cache {
 	/*
-	 * @var string - The cache key used to identify the cache file for the current request. MD5 of the request uri, cookies and page GET parameters.
-	 */
-	private $cache_key = false;
-
-	/*
 	 * @var string - The path key used to identify the cache directory for the current request. MD5 of the request uri.
 	 */
 	protected $path_key = false;
@@ -73,6 +68,7 @@ abstract class Boost_Cache {
 	 * It removes the query string and the trailing slash, and characters
 	 * that might cause problems with the filesystem.
 	 *
+	 * @param string $request_uri - The request uri to sanitize.
 	 * @return string - The sanitized request uri.
 	 */
 	protected function sanitize_request_uri( $request_uri ) {
@@ -101,53 +97,33 @@ abstract class Boost_Cache {
 	}
 
 	/*
-	 * Returns a key to identify the visitor's cache file.
-	 * It is based on the REQUEST_URI, the cookies and the page GET parameters.
+	 * Returns a key to identify the visitor's cache file from the request uri,
+	 * cookies and get parameters.
+	 * Without a parameter, it will use the current request uri.
 	 *
-	 * @param string $request_uri (optional) The request uri to use to calculate the cache key. Defaults to the current request uri.
-	 *
+	 * @param array $args (optional) An array containing the request uri, cookies and get parameters to calculate the cache key. Defaults to the current request uri, cookies and get parameters.
 	 * @return string
 	 */
-	private function calculate_cache_key( $request_uri = '' ) {
-		if ( $request_uri === '' ) {
-			$request_uri = $this->request_uri;
-		} else {
-			$request_uri = $this->sanitize_request_uri( $request_uri );
-		}
+	public function cache_key( $args = array() ) {
+		$defaults = array(
+			'request_uri' => $this->request_uri,
+			'cookies'     => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			'get'         => $_GET, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
+		);
+		$args     = array_merge( $defaults, $args );
 
-		$cookies = isset( $_COOKIE ) ? $_COOKIE : array();
-		$get     = isset( $_GET ) ? $_GET : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $args['request_uri'] === '' ) {
+			$args['request_uri'] = $this->request_uri;
+		} else {
+			$args['request_uri'] = $this->sanitize_request_uri( $args['request_uri'] );
+		}
 
 		$key_components = apply_filters(
 			'boost_cache_key_components',
-			array(
-				'cookies'     => $cookies,
-				'request_uri' => $request_uri,
-				'get'         => $get,
-			)
+			$args
 		);
 
 		return md5( json_encode( $key_components ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-	}
-
-	/*
-	 * Returns a key to identify the visitor's cache file.
-	 * It uses calculate_cache_key() to calculate the key.
-	 * Without a parameter, it will use the current request uri, and cache that
-	 * value in $this->cache_key.
-	 *
-	 * @param string $request_uri (optional) The request uri to use to calculate the cache key. Defaults to the current request uri.
-	 * @return string
-	 */
-	public function cache_key( $request_uri = '' ) {
-		if ( $request_uri !== '' ) {
-			return $this->calculate_cache_key( $this->sanitize_request_uri( $request_uri ) );
-		}
-
-		if ( ! $this->cache_key ) {
-			$this->cache_key = $this->calculate_cache_key();
-		}
-		return $this->cache_key;
 	}
 
 	/*
