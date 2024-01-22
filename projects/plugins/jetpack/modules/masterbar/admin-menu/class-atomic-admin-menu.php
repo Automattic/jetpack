@@ -523,4 +523,15 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		add_action( 'admin_notices', $admin_notices );
 	}
+
+	/**
+	 * Adds Appearance menu.
+	 */
+	public function add_appearance_menu() {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			add_submenu_page( 'themes.php', esc_attr__( 'Add new theme', 'jetpack' ), __( 'Add new theme', 'jetpack' ), 'read', 'https://wordpress.com/themes/' . $this->domain );
+		} else {
+			parent::add_appearance_menu();
+		}
+	}
 }
