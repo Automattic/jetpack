@@ -49,10 +49,13 @@ class Test_Integration_Fallback_Values extends TestCase {
 		// I expect this same meta to be thrown in the exception.
 		// I also expect that parsing null with an invalid fallback is going to throw an error.
 		try {
+			DS_Utils::set_mode("debug");
 			$schema->fallback( array( 'Invalid Fallback' ) )->parse( null );
-			$this->fail( 'Expected \Schema_Parsing_Error exception was not thrown' );
+			$this->fail( 'Expected "Schema_Parsing_Error" exception, but no expection was thrown.' );
 		} catch ( Schema_Parsing_Error $e ) {
 			$this->assertSame( 'custom_meta', $e->get_meta()->get_name() );
+		} finally {
+			DS_Utils::set_mode(null);
 		}
 
 
