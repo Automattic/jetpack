@@ -9,6 +9,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
@@ -46,13 +47,9 @@ class Critical_CSS implements Pluggable {
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
-		add_filter( 'query_vars', array( '\Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Generator', 'add_generate_query_action_to_list' ) );
+		add_filter( 'query_vars', array( '\Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator', 'add_generate_query_action_to_list' ) );
 
-		if ( Generator::is_generating_critical_css() ) {
-			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
-			$this->force_logged_out_render();
-		}
-
+		Generator::init();
 		Critical_CSS_Invalidator::init();
 		CSS_Proxy::init();
 
@@ -64,15 +61,6 @@ class Critical_CSS implements Pluggable {
 
 	public static function get_slug() {
 		return 'critical_css';
-	}
-
-	/**
-	 * Renders a <meta> tag used to verify this is a valid page to generate Critical CSS with.
-	 */
-	public function display_generate_meta() {
-		?>
-		<meta name="<?php echo esc_attr( Generator::GENERATE_QUERY_ACTION ); ?>" content="true"/>
-		<?php
 	}
 
 	public function display_critical_css() {
@@ -103,22 +91,6 @@ class Critical_CSS implements Pluggable {
 
 		// Ensure admin bar compatibility.
 		Admin_Bar_Compatibility::init();
-	}
-
-	/**
-	 * Force the current page to render as viewed by a logged out user. Useful when generating
-	 * Critical CSS.
-	 */
-	private function force_logged_out_render() {
-		$current_user_id = get_current_user_id();
-
-		if ( 0 !== $current_user_id ) {
-			// Force current user to 0 to ensure page is rendered as a non-logged-in user.
-			wp_set_current_user( 0 );
-
-			// Turn off display of admin bar.
-			add_filter( 'show_admin_bar', '__return_false', PHP_INT_MAX );
-		}
 	}
 
 	public function update_total_problem_count( $count ) {

@@ -3,6 +3,8 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
 
 /**
  * This takes in a Schema Type (like a String/Number/Boolean) and a default value.
@@ -18,15 +20,32 @@ class Decorate_With_Default implements Parser {
 		$this->default_value = $default_value;
 	}
 
-	public function parse( $input_value ) {
+	public function parse( $value, $meta = null ) {
 		try {
-			return $this->parser->parse( $input_value );
-		} catch ( \Error $e ) {
+			return $this->parser->parse( $value, $meta );
+		} catch ( Schema_Internal_Error $e ) {
+			return $this->default_value;
+		} catch ( Schema_Parsing_Error $e ) {
 			return $this->default_value;
 		}
 	}
 
 	public function get_default_value() {
 		return $this->default_value;
+	}
+
+	public function __toString() {
+		return $this->parser->__toString() . ' (default: ' . $this->default_value . ')';
+	}
+
+	#[\ReturnTypeWillChange]
+	public function jsonSerialize() {
+		return $this->schema();
+	}
+
+	public function schema() {
+		return $this->parser->schema() + array(
+			'default' => $this->default_value,
+		);
 	}
 }

@@ -286,6 +286,9 @@ fi
 git fetch
 git merge origin/trunk
 tools/fixup-project-versions.sh
+if [[ -n "$(git status --porcelain)" ]]; then
+	git commit -am 'Version bumps'
+fi
 git push
 PLUGINS_CHANGED=
 for PLUGIN in "${!PROJECTS[@]}"; do

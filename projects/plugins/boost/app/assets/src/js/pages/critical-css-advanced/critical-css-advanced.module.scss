@@ -4,3 +4,12 @@
 		display: block;
 	}
 }
+
+.recommendation-animation-wrapper {
+	margin-top: 32px;
+	overflow: hidden;
+}
+
+:global(.jb-critical-css__advanced) .panel {
+	margin-top: 0 !important;
+}

@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Dismissed_Notices;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -767,7 +768,7 @@ class Jetpack_Gutenberg {
 				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 				'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
 				'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
-				'dismissedNotices'                => $publicize->get_dismissed_notices(),
+				'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
 				'autoConversionSettings'          => $settings['autoConversionSettings'],
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),

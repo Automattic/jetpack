@@ -123,7 +123,7 @@ const weirdRtlEntries = {
 		// When making changes to that list, you must also update $concatenated_style_handles in class.jetpack.php.
 		'modules/carousel/swiper-bundle.css',
 		'modules/carousel/jetpack-carousel.css',
-		'modules/contact-form/css/grunion.css',
+		'jetpack_vendor/automattic/jetpack-forms/src/contact-form/css/grunion.css',
 		'modules/infinite-scroll/infinity.css',
 		'modules/likes/style.css',
 		'modules/related-posts/related-posts.css',
