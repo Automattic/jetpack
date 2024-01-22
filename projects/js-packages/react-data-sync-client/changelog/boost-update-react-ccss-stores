@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Added default param for callbacks to prevent crashes when none provided

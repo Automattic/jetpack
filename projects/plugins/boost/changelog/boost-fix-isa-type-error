@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Allow ISA Report object without groups - to account for errors
