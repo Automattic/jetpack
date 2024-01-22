@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Move global styles to their respective components. Add upgrade badge component.
+
+

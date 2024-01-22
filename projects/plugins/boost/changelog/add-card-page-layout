@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Add CardPage layout and move styles related to it to a local stylesheet module.
+
+

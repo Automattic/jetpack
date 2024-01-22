@@ -160,7 +160,7 @@
 	}
 
 	.arrows {
-		border-image: url( '../../static/images/arrows.png' );
+		border-image: url( '$images/arrows.png' );
 		border-image-slice: 22;
 		border-bottom: solid 16px transparent;
 		border-left: solid 16px transparent;
