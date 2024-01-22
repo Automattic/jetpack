@@ -4,7 +4,7 @@ These are some things to keep in mind when writing code for the Jetpack Monorepo
 
 ## Language and tools
 
-- **PHP**: Jetpack Monorepo projects rely on WordPress's minimum PHP version requirements by default. There are several exceptions, however, which we will get to later in this document.
+- **PHP**: Jetpack Monorepo projects rely on WordPress' minimum PHP version requirements by default. There are several exceptions, however, which we will get to later in this document.
 - **PHP Standards**: Jetpack follows [WordPress Core's standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/), with a few additions. The best way to ensure that you adhere to those standards is to set up your IDE [as per the recommendations here](./development-environment.md#use-php-codesniffer-and-eslint-to-make-sure-your-code-respects-coding-standards).
 - **WordPress**: Jetpack supports the current version of WordPress and the immediate previous version. So if the current version is 4.6, Jetpack will support it, as well as 4.5. It's desirable that when Jetpack is installed in older versions, it doesn't fail in a severe way.
 - **JavaScript**: TODO.
