@@ -16,12 +16,12 @@ class Type_Or implements Parser {
 		$this->conditions[] = $parser;
 	}
 
-	public function parse( $value, $meta = null ) {
+	public function parse( $value, $context = null ) {
 		$parsers_failed = array();
 		foreach ( $this->conditions as $parser ) {
 			try {
 				// Attempt to parse the value with the current parser
-				return $parser->parse( $value, $meta );
+				return $parser->parse( $value, $context );
 			} catch ( Schema_Internal_Error $e ) {
 				$parsers_failed[] = (string) $parser;
 				continue;

@@ -6,7 +6,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
 
 class Type_Boolean implements Parser {
-	public function parse( $value, $_meta = null ) {
+	public function parse( $value, $_context = null ) {
 		if ( is_bool( $value ) ) {
 			return $value;
 		}

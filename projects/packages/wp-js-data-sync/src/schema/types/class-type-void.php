@@ -11,7 +11,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
  */
 class Type_Void implements Parser {
 
-	public function parse( $value, $_meta = null ) {
+	public function parse( $value, $_context = null ) {
 		if ( ! empty( $value ) && DS_Utils::is_debug_enabled() ) {
 			throw new Schema_Internal_Error( 'Void type cannot have any data.', $value );
 		}

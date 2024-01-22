@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 
-class Schema_Validation_Meta {
+class Schema_Context {
 
 	private $name;
 	private $data;

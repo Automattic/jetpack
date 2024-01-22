@@ -5,8 +5,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Option;
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Meta;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_String;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
 use PHPUnit\Framework\TestCase;
 
 class Test_Integration_Fallback_Values extends TestCase {
@@ -24,16 +23,16 @@ class Test_Integration_Fallback_Values extends TestCase {
 	}
 
 	public function test_meta_type_on_fallback() {
-		$meta   = new Schema_Validation_Meta( 'custom_meta' );
+		$meta   = new Schema_Context( 'custom_name' );
 		$schema = Schema::as_string();
-		$schema->override_meta( $meta );
+		$schema->set_context( $meta );
 
 		// I've set the meta for the schema.
 		// I expect this same meta to be thrown in the exception.
 		try {
 			$schema->parse( null );
 		} catch ( Schema_Parsing_Error $e ) {
-			$this->assertSame( 'custom_meta', $e->get_meta()->get_name() );
+			$this->assertSame( 'custom_name', $e->get_context()->get_name() );
 		}
 
 
@@ -45,7 +44,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 			$schema->fallback( array( 'Invalid Fallback' ) )->parse( null );
 			$this->fail( 'Expected "Schema_Parsing_Error" exception, but no expection was thrown.' );
 		} catch ( Schema_Parsing_Error $e ) {
-			$this->assertSame( 'custom_meta', $e->get_meta()->get_name() );
+			$this->assertSame( 'custom_name', $e->get_context()->get_name() );
 		} finally {
 			DS_Utils::set_mode(null);
 		}

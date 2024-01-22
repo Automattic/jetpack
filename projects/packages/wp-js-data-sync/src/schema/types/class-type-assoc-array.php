@@ -36,7 +36,7 @@ class Type_Assoc_Array implements Parser {
 	 * @throws Schema_Internal_Error - If the $data passed to it is not an associative array.
 	 *
 	 */
-	public function parse( $value, $meta = null ) {
+	public function parse( $value, $context = null ) {
 		// Allow coercing stdClass objects (often returned from json_decode) to an assoc array.
 		if ( is_object( $value ) && $value instanceof \stdClass ) {
 			$value = (array) $value;
@@ -50,15 +50,15 @@ class Type_Assoc_Array implements Parser {
 		$output = array();
 		foreach ( $this->parser as $key => $parser ) {
 
-			if ( null !== $meta ) {
-				$meta->add_to_path( $key );
+			if ( null !== $context ) {
+				$context->add_to_path( $key );
 			}
 
 			if ( ! isset( $value[ $key ] ) ) {
 				$value[ $key ] = null;
 			}
 
-			$parsed = $parser->parse( $value[ $key ], $meta );
+			$parsed = $parser->parse( $value[ $key ], $context );
 			// @TODO Document this behavior.
 			// At the moment, values that are null are dropped from assoc arrays.
 			// to match the Zod behavior.
@@ -66,8 +66,8 @@ class Type_Assoc_Array implements Parser {
 				$output[ $key ] = $parsed;
 			}
 
-			if ( null !== $meta ) {
-				$meta->remove_path( $key );
+			if ( null !== $context ) {
+				$context->remove_path( $key );
 			}
 		}
 

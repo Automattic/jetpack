@@ -7,7 +7,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
 
 class Type_Number implements Parser {
 
-	public function parse( $value, $_meta = null ) {
+	public function parse( $value, $_context = null ) {
 		if ( ! is_numeric( $value ) ) {
 			throw new Schema_Internal_Error( 'Invalid number', $value );
 		}

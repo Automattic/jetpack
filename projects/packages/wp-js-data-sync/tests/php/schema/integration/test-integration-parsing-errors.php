@@ -2,7 +2,7 @@
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Meta;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
 use PHPUnit\Framework\TestCase;
 
 class Test_Integration_Parsing_Errors extends TestCase {
@@ -37,15 +37,15 @@ class Test_Integration_Parsing_Errors extends TestCase {
 
 		try {
 			$schema->parse( $invalid_data );
-			$this->fail( 'Expected Schema_Validation_Error was not thrown' );
+			$this->fail( 'Expected Schema_Error was not thrown' );
 		} catch ( Schema_Parsing_Error $e ) {
 
-			$this->assertEquals( 'level_1.level_2.level_3', $e->get_meta()->get_path() );
+			$this->assertEquals( 'level_1.level_2.level_3', $e->get_context()->get_path() );
 			$this->assertEquals( 'hello world', $e->get_value() );
-			$this->assertEquals( $invalid_data, $e->get_meta()->get_data() );
+			$this->assertEquals( $invalid_data, $e->get_context()->get_data() );
 
 		} catch ( Exception $e ) {
-			$this->fail( 'Expected Schema_Validation_Error was not thrown' );
+			$this->fail( 'Expected Schema_Error was not thrown' );
 		}
 	}
 
@@ -56,13 +56,13 @@ class Test_Integration_Parsing_Errors extends TestCase {
 		$invalid_data = $this->get_assoc_data( 'hello world', 2 );
 
 		// Set meta to a known value
-		$schema->override_meta( new Schema_Validation_Meta( 'known-meta' ) );
+		$schema->set_context( new Schema_Context( 'known-meta' ) );
 
 		try {
 			$schema->parse( $invalid_data );
-			$this->fail( 'Expected Schema_Validation_Error was not thrown' );
+			$this->fail( 'Expected Schema_Error was not thrown' );
 		} catch ( Schema_Parsing_Error $e ) {
-			$this->assertEquals( 'known-meta', $e->get_meta()->get_name() );
+			$this->assertEquals( 'known-meta', $e->get_context()->get_name() );
 		} catch ( Exception $e ) {
 			$this->fail( 'Expected "Schema_Parsing_Error", but received ' . get_class( $e ) );
 		}
@@ -82,9 +82,9 @@ class Test_Integration_Parsing_Errors extends TestCase {
 		// Expect "unknown"
 		try {
 			$schema->parse( $invalid_data );
-			$this->fail( 'Expected Schema_Validation_Error was not thrown' );
+			$this->fail( 'Expected Schema_Error was not thrown' );
 		} catch ( Schema_Parsing_Error $e ) {
-			$this->assertEquals( 'unknown', $e->get_meta()->get_name() );
+			$this->assertEquals( 'unknown', $e->get_context()->get_name() );
 		} catch ( Exception $e ) {
 			$this->fail( 'Expected "Schema_Parsing_Error", but received ' . get_class( $e ) );
 		}
@@ -92,11 +92,11 @@ class Test_Integration_Parsing_Errors extends TestCase {
 		// Second run.
 		// Expect "known-meta"
 		try {
-			$schema->override_meta( new Schema_Validation_Meta( 'known-meta' ) );
+			$schema->set_context( new Schema_Context( 'known-meta' ) );
 			$schema->parse( $invalid_data );
-			$this->fail( 'Expected Schema_Validation_Error was not thrown' );
+			$this->fail( 'Expected Schema_Error was not thrown' );
 		} catch ( Schema_Parsing_Error $e ) {
-			$this->assertEquals( 'known-meta', $e->get_meta()->get_name() );
+			$this->assertEquals( 'known-meta', $e->get_context()->get_name() );
 		} catch ( Exception $e ) {
 			$this->fail( 'Expected "Schema_Parsing_Error", but received ' . get_class( $e ) );
 		}
