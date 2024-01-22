@@ -176,7 +176,13 @@ abstract class Boost_Cache {
 
 	abstract public function set( $data );
 
-	abstract public function ob_start();
+	public function ob_start() {
+		if ( ! $this->is_cacheable() ) {
+			return false;
+		}
+
+		ob_start( array( $this, 'set' ) );
+	}
 
 	/*
 	 * Returns true if the current request is one of the following:

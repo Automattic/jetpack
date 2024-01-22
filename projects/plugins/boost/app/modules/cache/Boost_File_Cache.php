@@ -83,12 +83,4 @@ class Boost_File_Cache extends Boost_Cache {
 		echo $data;
 		die();
 	}
-
-	public function ob_start() {
-		if ( ! $this->is_cacheable() ) {
-			return false;
-		}
-
-		ob_start( array( $this, 'set' ) );
-	}
 }
