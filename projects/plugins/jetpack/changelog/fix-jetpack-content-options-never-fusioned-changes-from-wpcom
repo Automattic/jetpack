@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Content Options: Allow themes to hide the default avatar (when author has no custom Gravatar) via `'avatar-default' => false`.

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.6.2] - 2024-01-22
+### Added
+- My Jetpack: add contact us event for Jetpack AI [#35136]
+
 ## [4.6.1] - 2024-01-22
 ### Changed
 - Display Jetpack Protect product card for all users. [#35142]
@@ -1203,6 +1207,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.6.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.6.1...4.6.2
 [4.6.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.6.0...4.6.1
 [4.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.5.0...4.6.0
 [4.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.4.0...4.5.0
