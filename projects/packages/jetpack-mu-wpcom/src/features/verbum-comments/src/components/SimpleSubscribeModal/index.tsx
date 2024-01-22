@@ -36,6 +36,11 @@ export const SimpleSubscribeModal = ( {
 		closeModalHandler();
 	};
 
+	const handleClose = ( event: MouseEvent ) => {
+		event.preventDefault();
+		closeModalStateHandler();
+	};
+
 	const handleOutsideClick = ( event: MouseEvent ) => {
 		// Check if the clicked element is the modal container itself
 		if ( modalContainerRef.current && modalContainerRef.current === event.target ) {
@@ -71,11 +76,6 @@ export const SimpleSubscribeModal = ( {
 		closeModalHandler();
 		return null;
 	}
-
-	const handleClose = ( event: MouseEvent ) => {
-		event.preventDefault();
-		closeModalStateHandler();
-	};
 
 	// This is used to track how many times the modal was shown to the user.
 	// eslint-disable-next-line react-hooks/rules-of-hooks
