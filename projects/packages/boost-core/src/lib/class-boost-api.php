@@ -28,7 +28,7 @@ class Boost_API {
 	 *
 	 * @return Boost_API_Client
 	 */
-	public static function get_client() {
+	private static function get_client() {
 		if ( ! self::$api_client ) {
 			$class            = apply_filters( 'jetpack_boost_api_client_class', WPCOM_Boost_API_Client::class );
 			self::$api_client = new $class();
@@ -40,11 +40,12 @@ class Boost_API {
 	 * Make a get request to boost API and return response.
 	 *
 	 * @param string  $path - Request path.
-	 * @param mixed[] $args - Query parameters.
+	 * @param mixed[] $query - Query parameters.
+	 * @param mixed[] $args - Request arguments.
 	 * @return array|\WP_Error
 	 */
-	public static function get( $path, $args = array() ) {
-		return self::get_client()->get( $path, $args );
+	public static function get( $path, $query = array(), $args = null ) {
+		return self::get_client()->get( $path, $query, self::merge_args( $args ) );
 	}
 
 	/**
@@ -52,9 +53,48 @@ class Boost_API {
 	 *
 	 * @param string  $path - Request path.
 	 * @param mixed[] $payload - Request arguments.
+	 * @param mixed[] $args - Request arguments.
 	 * @return mixed
 	 */
-	public static function post( $path, $payload = array() ) {
-		return self::get_client()->post( $path, $payload );
+	public static function post( $path, $payload = array(), $args = null ) {
+		return self::get_client()->post( $path, $payload, self::merge_args( $args ) );
+	}
+
+	/**
+	 * Merge the arguments with the defaults.
+	 *
+	 * @param mixed[] $args - Provided arguments.
+	 * @return mixed[]
+	 */
+	private static function merge_args( $args ) {
+		if ( ! is_array( $args ) ) {
+			$args = wp_parse_args(
+				$args,
+				array(
+					'headers' => self::default_headers(),
+				)
+			);
+		} else {
+			$args['headers'] = wp_parse_args( $args['headers'] ?? array(), self::default_headers() );
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Get the default headers to include with each request.
+	 *
+	 * @return string[]
+	 */
+	public static function default_headers() {
+		$headers = array(
+			'Content-Type' => 'application/json; charset=utf-8',
+		);
+
+		if ( defined( 'JETPACK_BOOST_VERSION' ) ) {
+			$headers['X-Jetpack-Boost-Version'] = JETPACK_BOOST_VERSION;
+		}
+
+		return $headers;
 	}
 }

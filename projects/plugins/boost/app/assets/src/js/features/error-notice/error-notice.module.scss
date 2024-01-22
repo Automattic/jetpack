@@ -1,5 +1,5 @@
-@import "../../../css/main/mixins.scss";
-@import "../../../css/main/variables.scss";
+@import "$css/main/mixins.scss";
+@import "$css/main/variables.scss";
 
 .error-notice {
 	position: relative;
@@ -41,11 +41,11 @@
 		top: 0;
 		width: 20px;
 	}
-	
+
 	&:not(.variant-module) .offset {
 		padding-left: 0.5em;
 	}
-	
+
 	.main-action:not( :empty ) {
 		margin-left: auto;
 		button {
@@ -55,13 +55,13 @@
 			}
 		}
 	}
-	
+
 	.description {
 		color: $red_50;
 		font-weight: bold;
 		margin-bottom: .5em;
 	}
-	
+
 	.message {
 		list-style-type: disc;
 		color: $red_50;
@@ -70,13 +70,13 @@
 			margin: .25em 0;
 			color: $red_50;
 		}
-	
+
 		button {
 			color: $primary-black;
 			font-size: 16px;
 			margin: 16px auto;
 		}
-	
+
 		li {
 			@include word-wrap();
 		}

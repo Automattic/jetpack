@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { type Props, useMetaQuery } from '$lib/stores/minify';
+import styles from './minify-meta.module.scss';
 
 const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Props ) => {
 	const { pluginDirUrl } = Jetpack_Boost;
@@ -20,9 +21,9 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 	const htmlId = `jb-minify-meta-${ datasyncKey }`;
 
 	return (
-		<div className="jb-critical-css__meta">
+		<div className={ styles[ 'minify-meta' ] }>
 			{ isEditing ? (
-				<div className="manage-excludes">
+				<div className={ styles[ 'manage-excludes' ] }>
 					<label htmlFor={ htmlId }>{ inputLabel }</label>
 					<input
 						type="text"
@@ -31,7 +32,7 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 						id={ htmlId }
 						onChange={ e => setInputValue( e.target.value ) }
 					/>
-					<div className="buttons-container">
+					<div className={ styles[ 'buttons-container' ] }>
 						<button disabled={ values.join( ', ' ) === inputValue } onClick={ save }>
 							{ __( 'Save', 'jetpack-boost' ) }
 						</button>
@@ -42,7 +43,7 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 				</div>
 			) : (
 				<>
-					<div className="summary">
+					<div className={ styles.summary }>
 						{ values.length > 0 && (
 							<div className="successes">
 								{ sprintf(
