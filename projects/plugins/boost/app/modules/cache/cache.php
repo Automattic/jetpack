@@ -1,29 +1,20 @@
 <?php
 
 class Boost_Cache {
-	private $cache_key     = false;
-	private $path_key      = false;
+	/*
+	 * @var string - The cache key used to identify the cache file for the current request. MD5 of the request uri, cookies and page GET parameters.
+	 */
+	private $cache_key = false;
+
+	/*
+	 * @var string - The sanitized path for the current request.
+	 */
 	protected $request_uri = false;
 
 	public function __construct() {
 		$this->request_uri = isset( $_SERVER['REQUEST_URI'] )
-			? $_SERVER['REQUEST_URI'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			? $this->sanitize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			: false;
-
-		add_action( 'wp', array( $this, 'sanitize' ), 0 );
-	}
-
-	/*
-	 * Sanitize the request_uri.
-	 *
-	 * This is called on the wp action, because sanitization functions are not available before that.
-	 */
-	public function sanitize() {
-		if ( ! $this->request_uri ) {
-			return;
-		}
-
-		$this->request_uri = esc_url_raw( wp_unslash( $this->request_uri ) );
 	}
 
 	/*
@@ -56,6 +47,53 @@ class Boost_Cache {
 	}
 
 	/*
+	 * copy of _deep_replace() to be used before WordPress loads
+	 * @see https://developer.wordpress.org/reference/functions/deep_replace/
+	 */
+	private function deep_replace( $search, $subject ) {
+		$subject = (string) $subject;
+
+		$count = 1;
+		while ( $count ) {
+			$subject = str_replace( $search, '', $subject, $count );
+		}
+
+		return $subject;
+	}
+
+	/*
+	 * Sanitize the request uri so it can be used for caching purposes.
+	 * It removes the query string and the trailing slash, and characters
+	 * that might cause problems with the filesystem.
+	 *
+	 * @return string - The sanitized request uri.
+	 */
+	protected function sanitize_request_uri( $request_uri ) {
+		// get path from request uri
+		$request_uri = parse_url( $request_uri, PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+
+		// Remove the trailing slash
+		if ( substr( $request_uri, -1 ) === '/' ) {
+			$request_uri = substr( $request_uri, 0, -1 );
+		}
+
+		$request_uri = $this->deep_replace(
+			array( '..', '\\', 'index.php' ),
+			preg_replace(
+				'/[ <>\'\"\r\n\t\(\)]/',
+				'',
+				preg_replace(
+					'/(\?.*)?(#.*)?$/',
+					'',
+					$request_uri
+				)
+			)
+		);
+
+		return $request_uri;
+	}
+
+	/*
 	 * Returns a key to identify the visitor's cache file.
 	 * It is based on the REQUEST_URI, the cookies and the page GET parameters.
 	 *
@@ -66,7 +104,10 @@ class Boost_Cache {
 	private function calculate_cache_key( $request_uri = '' ) {
 		if ( $request_uri === '' ) {
 			$request_uri = $this->request_uri;
+		} else {
+			$request_uri = $this->sanitize_request_uri( $request_uri );
 		}
+
 		$cookies = isset( $_COOKIE ) ? $_COOKIE : array();
 		$get     = isset( $_GET ) ? $_GET : array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
@@ -93,32 +134,13 @@ class Boost_Cache {
 	 */
 	public function cache_key( $request_uri = '' ) {
 		if ( $request_uri !== '' ) {
-			return $this->calculate_cache_key( $request_uri );
+			return $this->calculate_cache_key( $this->sanitize_request_uri( $request_uri ) );
 		}
 
 		if ( ! $this->cache_key ) {
 			$this->cache_key = $this->calculate_cache_key();
 		}
 		return $this->cache_key;
-	}
-
-	/*
-	 * Returns a key to identify the path to the visitor's cache file.
-	 * Without a parameter it uses the current request uri, and caches that in
-	 * $this->path_key.
-	 *
-	 * @param string $request_uri (optional) The request uri to use to calculate the path key. Defaults to the current request uri.
-	 * @return string
-	 */
-	public function path_key( $request_uri = '' ) {
-		if ( $request_uri !== '' ) {
-			return md5( $request_uri );
-		}
-
-		if ( ! $this->path_key ) {
-			$this->path_key = md5( $this->request_uri );
-		}
-		return $this->path_key;
 	}
 
 	public function get() {
