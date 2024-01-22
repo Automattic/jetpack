@@ -18,9 +18,15 @@ class Page_Cache implements Pluggable, Is_Always_On {
 			WP_Filesystem();
 			$result = $this->create_advanced_cache();
 			if ( $result === true ) {
-				$this->add_wp_cache_define();
+				$result = $this->add_wp_cache_define();
+				if ( $result !== true ) {
+					return $result;
+				}
+			} else {
+				return $result;
 			}
-			// do something with $error
+
+			return true;
 		}
 	}
 
@@ -48,7 +54,11 @@ require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File
 
 ( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_File_Cache() )->serve();
 ';
-			$wp_filesystem->put_contents( $advanced_cache_filename, $contents, FS_CHMOD_FILE );
+
+			$result = $wp_filesystem->put_contents( $advanced_cache_filename, $contents, FS_CHMOD_FILE );
+			if ( $result === false ) {
+				return new \WP_Error( 'Could not write to advanced-cache.php' );
+			}
 		}
 
 		return true;
@@ -70,7 +80,11 @@ require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File
 define( \'WP_CACHE\', true );',
 			$content
 		);
-		$wp_filesystem->put_contents( ABSPATH . 'wp-config.php', $content, FS_CHMOD_FILE );
+
+		$result = $wp_filesystem->put_contents( ABSPATH . 'wp-config.php', $content, FS_CHMOD_FILE );
+		if ( $result === false ) {
+			return new \WP_Error( 'Could not write to wp-config.php' );
+		}
 	}
 
 	public static function is_available() {
