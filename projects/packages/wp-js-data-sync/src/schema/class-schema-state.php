@@ -70,8 +70,7 @@ class Schema_State implements Parser {
 	public function fallback( $default_value ) {
 		if ( DS_Utils::is_debug_enabled() ) {
 			try {
-				$debug_meta = new Schema_Validation_Meta( 'debug-mode' );
-				$this->parser->parse( $default_value, $this->meta ?? $debug_meta );
+				$this->parser->parse( $default_value, $this->meta ?? new Schema_Validation_Meta( 'debug-mode' ) );
 			} catch ( Schema_Internal_Error $e ) {
 				// Convert the internal error to a parsing error.
 				throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $this->meta );
