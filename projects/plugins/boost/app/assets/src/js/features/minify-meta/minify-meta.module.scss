@@ -1,5 +1,19 @@
 @import "../../../css/main/variables.scss";
 
+.minify-meta {
+	width: 100%;
+	margin-bottom: 32px;
+    font-size: 14px;
+    line-height: 22px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.summary {
+	flex-grow: 1;
+}
+
 .manage-excludes {
 	display: flex;
 	flex-direction: column;
