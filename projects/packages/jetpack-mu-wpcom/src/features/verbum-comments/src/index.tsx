@@ -1,6 +1,6 @@
 import { effect } from '@preact/signals';
 import { render } from 'preact';
-import { useState, useRef, useCallback } from 'preact/hooks';
+import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import { SimpleSubscribeModal } from './components/SimpleSubscribeModal';
 import { CommentFooter } from './components/comment-footer';
 import { CommentInputField } from './components/comment-input-field';
@@ -47,7 +47,7 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 	const [ ignoreSubscriptionModal, setIgnoreSubscriptionModal ] = useState( false );
 	const { login, loginWindowRef, logout } = useSocialLogin();
 
-	effect( () => {
+	const dispose = effect( () => {
 		// The tray, when there is no sub options, is pretty minimal.
 		// It's also needed to log out. Without this, the user will have to type to reveal the tray and they won't guess they need to type to logout.
 		if ( ! hasSubscriptionOptionsVisible() && userLoggedIn.value ) {
@@ -60,13 +60,16 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		event.returnValue = '';
 	}, [] );
 
-	effect( () => {
-		if ( isEmptyComment.value ) {
+	useEffect( () => {
+		if ( ! isEmptyComment.value ) {
 			window.addEventListener( 'beforeunload', handleBeforeUnload );
-		} else {
-			window.removeEventListener( 'beforeunload', handleBeforeUnload );
+			return () => {
+				dispose();
+				window.removeEventListener( 'beforeunload', handleBeforeUnload );
+			};
 		}
-	} );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ isEmptyComment.value ] );
 
 	const subscriptionTraySeen = () => {
 		try {
