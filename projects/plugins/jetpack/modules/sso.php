@@ -81,6 +81,37 @@ class Jetpack_SSO {
 			require_once JETPACK__PLUGIN_DIR . 'modules/sso/class-jetpack-force-2fa.php';
 			new Jetpack_Force_2FA();
 		}
+		add_filter( 'manage_users_columns', array( $this, 'jetpack_icon_user_connected' ) );
+		add_action( 'admin_print_styles', array( $this, 'jetpack_user_row_style' ) );
+		add_action( 'admin_print_styles', array( $this, 'jetpack_user_col_style' ) );
+		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_user_connected_icon' ), 10, 3 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_invitations_script' ) );
+		add_action( 'wp_ajax_jetpack_invite_user_to_wpcom', array( $this, 'ajax_invite_user_to_wpcom' ) );
+	}
+
+	/**
+	 * Enqueue the script that manages inviting a user from WordPress.com.
+	 */
+	public function enqueue_invitations_script() {
+		wp_enqueue_script( 'jetpack-sso-wpcom-invitations', plugins_url( 'modules/sso/jetpack-sso-invitations.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), time(), false );
+		wp_add_inline_script(
+			'jetpack-sso-wpcom-invitations',
+			'const jetpack_sso_wpcom_invitations = ' . wp_json_encode(
+				array(
+					'nonce'    => wp_create_nonce( 'jetpack-sso-invite-user' ),
+					'ajax_url' => admin_url( 'admin-ajax.php' ),
+				)
+			) . ';'
+		);
+	}
+
+	/**
+	 * Invites a user to connect to WordPress.com to allow them to log in via SSO.
+	 *
+	 * @param int $user_id The user ID.
+	 */
+	public function ajax_invite_user_to_wpcom( $user_id ) {
+		return $user_id;
 	}
 
 	/**
@@ -96,6 +127,137 @@ class Jetpack_SSO {
 
 		self::$instance = new Jetpack_SSO();
 		return self::$instance;
+	}
+
+	/**
+	 * Adds a "blank" column in the user admin table to display indication of user connection.
+	 *
+	 * @param array $columns User list table columns.
+	 *
+	 * @return array
+	 */
+	public function jetpack_icon_user_connected( $columns ) {
+		$columns['user_jetpack'] = sprintf(
+			'<span title="%1$s">[?]</span>',
+			esc_attr__( 'Connected users can log-in to this site using their WordPress.com account.', 'jetpack' )
+		);
+		return $columns;
+	}
+
+	/**
+	 * Check if a given user is invited to the site.
+	 *
+	 * @access private
+	 * @static
+	 * @param int $user_id The user ID.
+	 *
+	 * @return array An array of capabilities
+	 */
+	private static function get_is_user_invited( $user_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return false;
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+		// $blog_id = Jetpack_Options::get_option( 'id' );
+
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+		// $response = Client::wpcom_json_api_request_as_user(
+		// '/sites/' . $blog_id . '/invites',
+		// 'v2',
+		// array(),
+		// null,
+		// 'wpcom'
+		// );
+		// if ( is_wp_error( $response ) ) {
+		// return null;
+		// }
+		// if ( 200 !== $response['response']['code'] ) {
+		// return null;
+		// }
+		// return rest_ensure_response(
+		// json_decode( $response['body'], true )
+		// );
+	}
+
+	/**
+	 * Show Jetpack icon if the user is linked.
+	 *
+	 * @param string $val HTML for the icon.
+	 * @param string $col User list table column.
+	 * @param int    $user_id User ID.
+	 *
+	 * @return string
+	 */
+	public function jetpack_show_user_connected_icon( $val, $col, $user_id ) {
+		if ( 'user_jetpack' === $col && Jetpack::connection()->is_user_connected( $user_id ) ) {
+			$emblem_html = sprintf(
+				'<button disabled title="%1$s" class="jetpack-sso-invitation">%2$s</button>',
+				esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack' ),
+				esc_attr__( 'Connected', 'jetpack' )
+			);
+			return $emblem_html;
+		} else {
+			$has_pending_invite = self::get_is_user_invited( $user_id );
+			if ( $has_pending_invite ) {
+				$emblem_html = sprintf(
+					'<button disabled title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</button>',
+					esc_attr__( 'This user didn\'t accept the invitation to join this site yet.', 'jetpack' ),
+					esc_attr__( 'Pending invite', 'jetpack' )
+				);
+				return $emblem_html;
+			}
+			$emblem_html = sprintf(
+				'<button type="button" href="#" data-user-id="%1$s" title="%2$s" class="jetpack-sso-invitation sso-disconnected-user">%3$s</button>',
+				esc_attr( $user_id ),
+				esc_attr__( 'This user is disconnected and may not be able to log in. Please invite them to connect them to the site.', 'jetpack' ),
+				esc_attr__( 'Invite', 'jetpack' )
+			);
+			return $emblem_html;
+		}
+
+		return $val;
+	}
+	/**
+	 * Style the Jetpack user column
+	 */
+	public function jetpack_user_col_style() {
+		global $current_screen;
+		if ( ! empty( $current_screen->base ) && 'users' === $current_screen->base ) {
+			?>
+			<style>
+				.fixed .column-user_jetpack {
+					width: 80px;
+				}
+				.jetpack-sso-invitation {
+					background: none;
+					border: none;
+					padding: 0;
+					text-decoration: underline;
+					cursor: pointer;
+					color: #0073aa;
+				}
+				button.sso-disconnected-user {
+					
+				}
+			</style>
+			<?php
+		}
+	}
+	/**
+	 * Style the Jetpack user row.
+	 */
+	public function jetpack_user_row_style() {
+		global $current_screen;
+		if ( ! empty( $current_screen->base ) && 'users' === $current_screen->base ) {
+			?>
+			<style>
+				#the-list tr:has(.sso-disconnected-user) {
+					background: #ffd1d8;
+				}
+				#the-list tr:has(.sso-pending-invite) {
+					background: #ccedef;
+				}
+			</style>
+			<?php
+		}
 	}
 
 	/**
