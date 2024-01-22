@@ -9,6 +9,10 @@
 	flex-direction: row;
 	align-items: flex-start;
 
+	&:last-child {
+		margin-bottom: 0;
+	}
+
 	@include breakpoint(xs) {
 		display: block;
 	}
