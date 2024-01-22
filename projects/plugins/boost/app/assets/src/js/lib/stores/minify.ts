@@ -19,5 +19,5 @@ export const useMetaQuery = ( key: MinifyMetaKeys ) => {
 		mutate( text.split( ',' ).map( item => item.trim() ) );
 	}
 
-	return [ data, updateValues ] as const;
+	return [ data || [], updateValues ] as const;
 };

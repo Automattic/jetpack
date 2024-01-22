@@ -21,7 +21,7 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 	const htmlId = `jb-minify-meta-${ datasyncKey }`;
 
 	return (
-		<div className="jb-critical-css__meta">
+		<div className={ styles[ 'minify-meta' ] }>
 			{ isEditing ? (
 				<div className={ styles[ 'manage-excludes' ] }>
 					<label htmlFor={ htmlId }>{ inputLabel }</label>
@@ -43,7 +43,7 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 				</div>
 			) : (
 				<>
-					<div className="summary">
+					<div className={ styles.summary }>
 						{ values.length > 0 && (
 							<div className="successes">
 								{ sprintf(
