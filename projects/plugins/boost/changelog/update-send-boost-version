@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Send current boost version with API requests to handle requests accordingly

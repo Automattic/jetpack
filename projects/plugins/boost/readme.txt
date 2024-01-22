@@ -180,9 +180,26 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 2.2.1 - 2023-12-21
+### 3.0.0-beta - 2024-01-22
+#### Added
+- Cloud CSS: Added internal support for custom CSS Generation parametr for more reliable Cloud CSS generation.
+- General: Added Jetpack Sync to allow for better support.
+
+#### Changed
+- Code Modernization: Replace usage of strpos() with str_contains(), str_starts_with, and std_ends.
+- Code Modernization: Replace usage of strpos() with str_starts_with().
+- Code Modernization: Replace usage of substr() with str_starts_with() and str_ends_with().
+- General: Cleanup unused JS constants on Boost admin page.
+- General: Migrated Admin UI from Svlete to React, for consistency with the rest of Jetpack.
+- General: Updated PHP requirement to PHP 7.0+
+
+#### Removed
+- Removed Boost setup prompt/banner on wp-admin plugins page.
+- Removed lazy-loading module.
+
 #### Fixed
-- Defer JS: added importmap to the exclusion list to fix compatibility issues.
+- Concatenate JS: Output inline before/after scripts for handles with `src` false.
+- Critical CSS: Exclude @charset and @import statements from Critical CSS.
 
 --------
 
