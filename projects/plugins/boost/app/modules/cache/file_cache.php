@@ -14,7 +14,7 @@ class Boost_File_Cache extends Boost_Cache {
 	private $cache_filename = false;
 
 	private function calculate_path( $request_uri ) {
-		$key  = md5( $request_uri );
+		$key  = $this->path_key( $request_uri );
 		$path = WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'boost-cache' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR;
 		for ( $i = 0; $i <= 5; $i++ ) {
 			$path .= substr( $key, $i, 1 ) . DIRECTORY_SEPARATOR;

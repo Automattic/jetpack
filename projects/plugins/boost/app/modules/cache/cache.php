@@ -7,6 +7,11 @@ class Boost_Cache {
 	private $cache_key = false;
 
 	/*
+	 * @var string - The path key used to identify the cache directory for the current request. MD5 of the request uri.
+	 */
+	protected $path_key = false;
+
+	/*
 	 * @var string - The sanitized path for the current request.
 	 */
 	protected $request_uri = false;
@@ -141,6 +146,28 @@ class Boost_Cache {
 			$this->cache_key = $this->calculate_cache_key();
 		}
 		return $this->cache_key;
+	}
+
+	/*
+	 * Returns a key to identify the path to the visitor's cache file.
+	 * Without a parameter it uses the current request uri, and caches that in
+	 * $this->path_key.
+	 * A URL like "/2024/01/01/hello-world/" on your site will have one path_key,
+	 * but the cache_filename to identify the cache file for a visitor is based
+	 * on the path_key + cache_key. Can have multiple cache files for one path_key.
+	 *
+	 * @param string $request_uri (optional) The sanitized request uri to calculate the path key. Defaults to the current request uri.
+	 * @return string
+	 */
+	public function path_key( $request_uri = '' ) {
+		if ( $request_uri !== '' ) {
+			return md5( $request_uri );
+		}
+
+		if ( ! $this->path_key ) {
+			$this->path_key = md5( $this->request_uri );
+		}
+		return $this->path_key;
 	}
 
 	public function get() {
