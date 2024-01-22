@@ -15,6 +15,14 @@ class Boost_File_Cache extends Boost_Cache {
 	 */
 	private $cache_filename = false;
 
+	public function __construct() {
+		parent::__construct();
+
+		if ( ! $this->get() ) {
+			$this->ob_start();
+		}
+	}
+
 	private function calculate_path( $request_uri ) {
 		$key  = $this->path_key( $request_uri );
 		$path = WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'boost-cache' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR;
@@ -85,9 +93,4 @@ class Boost_File_Cache extends Boost_Cache {
 
 		ob_start( array( $this, 'set' ) );
 	}
-}
-
-$boost_cache = new Boost_File_Cache();
-if ( ! $boost_cache->get() ) {
-	$boost_cache->ob_start();
 }
