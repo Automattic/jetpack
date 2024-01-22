@@ -38,7 +38,7 @@ class Utils {
 		if ( is_object( $error ) ) {
 			return array(
 				'name'    => 'Error',
-				'message' => json_decode( wp_json_encode( $error ), true ),
+				'message' => json_decode( wp_json_encode( $error ), ARRAY_A ),
 			);
 		}
 
@@ -102,7 +102,7 @@ class Utils {
 	 * @param array  $args     Request args.
 	 * @param array  $body     Request body.
 	 *
-	 * @return \WP_Error|object
+	 * @return \WP_Error|array
 	 */
 	public static function send_wpcom_request( $method, $endpoint, $args = null, $body = null ) {
 		$default_args = array(
@@ -122,10 +122,10 @@ class Utils {
 			return $response;
 		}
 
-		$json = json_decode( wp_remote_retrieve_body( $response ) );
-
 		// Check for HTTP errors.
 		$code = wp_remote_retrieve_response_code( $response );
+		$data = json_decode( wp_remote_retrieve_body( $response ), ARRAY_A );
+
 		if ( 200 !== $code ) {
 			$default_message = sprintf(
 				/* translators: %d is a numeric HTTP error code */
@@ -134,12 +134,12 @@ class Utils {
 			);
 
 			// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$err_code = empty( $json->statusCode ) ? 'http_error' : $json->statusCode;
-			$message  = empty( $json->error ) ? $default_message : $json->error;
+			$err_code = empty( $data['statusCode'] ) ? 'http_error' : $data['statusCode'];
+			$message  = empty( $data['error'] ) ? $default_message : $data['error'];
 
 			return new \WP_Error( $err_code, $message );
 		}
 
-		return $json;
+		return $data;
 	}
 }

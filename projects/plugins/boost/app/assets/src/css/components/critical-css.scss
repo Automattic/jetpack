@@ -78,65 +78,6 @@
 	}
 }
 
-.jb-critical-css__meta {
-	font-size: 14px;
-	line-height: 22px;
-	display: flex;
-	flex-direction: row;
-	align-items: flex-start;
-
-	@include breakpoint(xs) {
-		display: block;
-	}
-
-	.summary {
-		margin-right: 5px;
-		flex-grow: 1;
-		position: relative;
-
-		.successes, .generating {
-			color: $gray_40;
-			margin-right: 115px;
-		}
-
-		.failures {
-			color: $gray_100;
-
-			svg {
-				position: absolute;
-				width: 1.4rem;
-				height: 1.4rem;
-				left: -60px;
-			}
-		}
-	}
-
-	button {
-		font-size: 14px;
-		color: $gray_90;
-
-		&.components-button.is-link {
-			margin-left: 8px;
-			font-weight: normal;
-
-			&:hover {
-				color: $gray_90;
-				background: none;
-				text-decoration-thickness: inherit;
-			}
-
-			@include breakpoint(xs) {
-				margin-left: 0;
-			}
-		}
-
-		svg {
-			margin: 4px 4px 2px 0;
-			fill: $jetpack-green;
-		}
-	}
-}
-
 .url-container {
 	margin-top: 20px;
 	display: flex;
@@ -160,7 +101,7 @@
 	}
 
 	.arrows {
-		border-image: url( '../static/images/arrows.png' );
+		border-image: url( '$images/arrows.png' );
 		border-image-slice: 22;
 		border-bottom: solid 16px transparent;
 		border-left: solid 16px transparent;

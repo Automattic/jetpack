@@ -95,6 +95,8 @@ const sbconfig = {
 			$features: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/features' ),
 			$layout: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/layout' ),
 			$svg: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/svg' ),
+			$css: path.join( __dirname, '../../../plugins/boost/app/assets/src/css' ),
+			$images: path.join( __dirname, '../../../plugins/boost/app/assets/static/images' ),
 		};
 
 		return config;
