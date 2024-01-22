@@ -1,13 +1,11 @@
 @import "../../../css/main/variables.scss";
 
 .minify-meta {
-	width: 100%;
-	margin-bottom: 32px;
-    font-size: 14px;
-    line-height: 22px;
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
+	align-items: flex-start;
+	display: flex;
+	flex-direction: row;
+	font-size: 14px;
+	line-height: 22px;
 }
 
 .summary {
