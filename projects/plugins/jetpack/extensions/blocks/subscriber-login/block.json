@@ -37,16 +37,13 @@
 			"default": true
 		},
 		"logInLabel": {
-			"type": "string",
-			"default": "Log in"
+			"type": "string"
 		},
 		"logOutLabel": {
-			"type": "string",
-			"default": "Log out"
+			"type": "string"
 		},
 		"manageSubscriptionsLabel": {
-			"type": "string",
-			"default": "Manage subscriptions"
+			"type": "string"
 		}
 	}
 }

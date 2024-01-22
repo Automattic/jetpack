@@ -16,30 +16,22 @@ function SubscriberLoginEdit( { attributes, setAttributes, className } ) {
 					/>
 					<BaseControl label={ __( 'Log in label', 'jetpack' ) }>
 						<TextControl
-							placeholder={ __( 'Log in link label', 'jetpack' ) }
-							onChange={ value =>
-								setAttributes( { logInLabel: value || __( 'Log in', 'jetpack' ) } )
-							}
+							placeholder={ __( 'Log in', 'jetpack' ) }
+							onChange={ value => setAttributes( { logInLabel: value } ) }
 							value={ logInLabel }
 						/>
 					</BaseControl>
 					<BaseControl label={ __( 'Log out label', 'jetpack' ) }>
 						<TextControl
-							placeholder={ __( 'Log out link label', 'jetpack' ) }
-							onChange={ value =>
-								setAttributes( { logOutLabel: value || __( 'Log out', 'jetpack' ) } )
-							}
+							placeholder={ __( 'Log out', 'jetpack' ) }
+							onChange={ value => setAttributes( { logOutLabel: value } ) }
 							value={ logOutLabel }
 						/>
 					</BaseControl>
 					<BaseControl label={ __( 'Manage subscriptions label', 'jetpack' ) }>
 						<TextControl
-							placeholder={ __( 'Manage subscriptions link label', 'jetpack' ) }
-							onChange={ value =>
-								setAttributes( {
-									manageSubscriptionsLabel: value || __( 'Manage subscriptions', 'jetpack' ),
-								} )
-							}
+							placeholder={ __( 'Manage subscriptions', 'jetpack' ) }
+							onChange={ value => setAttributes( { manageSubscriptionsLabel: value } ) }
 							value={ manageSubscriptionsLabel }
 						/>
 					</BaseControl>
