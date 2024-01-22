@@ -5,9 +5,12 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Option;
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Meta;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_String;
 use PHPUnit\Framework\TestCase;
 
 class Test_Integration_Fallback_Values extends TestCase {
+
 	public function test_fallback() {
 		$string = Schema::as_string()->fallback( 'default_value' );
 
@@ -18,6 +21,41 @@ class Test_Integration_Fallback_Values extends TestCase {
 		// Test with an invalid value
 		$parsed = $string->parse( null );
 		$this->assertSame( 'default_value', $parsed );
+	}
+
+	public function test_consistent_schema_interface() {
+
+		$string = Schema::as_string();
+		$this->assertInstanceOf( Type_String::class, $string->unwrap() );
+		$this->assertInstanceOf( Type_String::class, $string->fallback( 'yes')->unwrap() );
+
+	}
+
+	public function test_meta_type_on_fallback() {
+		$meta   = new Schema_Validation_Meta( 'custom_meta' );
+		$schema = Schema::as_string();
+		$schema->override_meta( $meta );
+
+		// I've set the meta for the schema.
+		// I expect this same meta to be thrown in the exception.
+		try {
+			$schema->parse( null );
+		} catch ( Schema_Parsing_Error $e ) {
+			$this->assertSame( 'custom_meta', $e->get_meta()->get_name() );
+		}
+
+
+		// I've set the meta for the schema.
+		// I expect this same meta to be thrown in the exception.
+		// I also expect that parsing null with an invalid fallback is going to throw an error.
+		try {
+			$schema->fallback( array( 'Invalid Fallback' ) )->parse( null );
+			$this->fail( 'Expected \Schema_Parsing_Error exception was not thrown' );
+		} catch ( Schema_Parsing_Error $e ) {
+			$this->assertSame( 'custom_meta', $e->get_meta()->get_name() );
+		}
+
+
 	}
 
 	public function test_nullable() {
@@ -38,7 +76,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 	public function test_parent_fallback() {
 		$test_schema = Schema::as_assoc_array(
 			array(
-				'child' => Schema::as_string()
+				'child' => Schema::as_string(),
 			)
 		)->fallback(
 			array(
