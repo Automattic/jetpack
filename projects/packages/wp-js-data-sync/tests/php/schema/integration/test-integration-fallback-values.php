@@ -173,6 +173,15 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$this->assertSame( false, $entry->get() );
 	}
 
+	private function get_schema_no_fallbacks() {
+		return Schema::as_assoc_array(
+			array(
+				'one'          => Schema::as_number(),
+				'array_of_two' => Schema::as_array( Schema::as_number() ),
+			)
+		);
+	}
+
 	public function test_nested_fallbacks() {
 
 		// This is what the full fallback array should look like
@@ -188,12 +197,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 			)
 		);
 
-		$schema_no_fallbacks = Schema::as_assoc_array(
-			array(
-				'one'          => Schema::as_number(),
-				'array_of_two' => Schema::as_array( Schema::as_number() ),
-			)
-		);
+		$schema_no_fallbacks = $this->get_schema_no_fallbacks();
 
 		$valid_array = array(
 			'one'          => 100,
@@ -249,7 +253,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 			// This throws an error in debug mode.
 			$this->expectException( Schema_Parsing_Error::class );
 		}
-		$schema_empty_array = $schema_no_fallbacks->fallback( array() )->parse( array() );
+		$schema_empty_array = $this->get_schema_no_fallbacks()->fallback( array() )->parse( array() );
 		$this->assertSame( array(), $schema_empty_array );
 
 		// So right now, to fallback to a full-value when the parent schema parsing fails
@@ -270,7 +274,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$this->assertSame( $schema_fallback, $incorrect_schema->parse( null ) );
 
 		$this->expectException( Schema_Parsing_Error::class );
-		$schema_no_fallbacks->parse( $invalid_array );
+		$result = $this->get_schema_no_fallbacks()->parse( $invalid_array );
 	}
 
 	/**
