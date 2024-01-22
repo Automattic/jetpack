@@ -6,11 +6,6 @@ require_once __DIR__ . '/Boost_Cache.php';
 
 class Boost_File_Cache extends Boost_Cache {
 	/*
-	 * @var string - The path to the cache directory for the current request. MD5 of the request_uri.
-	 */
-	private $path = false;
-
-	/*
 	 * Serve the cached page if it exists, otherwise start output buffering.
 	 */
 	public function serve() {
