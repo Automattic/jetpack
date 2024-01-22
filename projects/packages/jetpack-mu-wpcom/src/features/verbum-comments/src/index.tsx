@@ -61,11 +61,10 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 	}, [] );
 
 	effect( () => {
-		if ( ! isEmptyComment.value ) {
+		if ( isEmptyComment.value ) {
 			window.addEventListener( 'beforeunload', handleBeforeUnload );
-			return () => {
-				window.removeEventListener( 'beforeunload', handleBeforeUnload );
-			};
+		} else {
+			window.removeEventListener( 'beforeunload', handleBeforeUnload );
 		}
 	} );
 
