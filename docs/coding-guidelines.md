@@ -83,7 +83,10 @@ For more information on how to use `$$next-version$$`, please see the [packages 
 
 ### JavaScript and TypeScript
 
-- TODO.
+- Where it applies, make strings available for translation.
+- Use Gutenberg's [@wordpress/i18n](https://www.npmjs.com/package/@wordpress/i18n) package.
+- Use an appropriate unique text domain in your JS code.
+- Make use of [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain) when bundling to ensure i18n works in the published plugin.
 
 ## Where should my code live? 
 
