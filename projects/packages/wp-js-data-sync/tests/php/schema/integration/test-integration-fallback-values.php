@@ -74,27 +74,19 @@ class Test_Integration_Fallback_Values extends TestCase {
 	 * Check that a failure in a child schema uses the parent schema's fallback.
 	 */
 	public function test_parent_fallback() {
+
+		$expected_result = array(
+			'child' => 'default_value',
+		);
 		$test_schema = Schema::as_assoc_array(
 			array(
 				'child' => Schema::as_string(),
 			)
-		)->fallback(
-			array(
-				'child' => 'default_value',
-			)
-		);
-
-		$expect = array(
-			'child' => 'default_value',
-		);
-
-		// Test with a valid value.
-		$parsed = $test_schema->parse( array( 'child' => 'default_value' ) );
-		$this->assertSame( $expect, $parsed );
+		)->fallback( $expected_result );
 
 		// Test with an invald value.
 		$parsed = $test_schema->parse( array( 'child' => null ) );
-		$this->assertSame( $expect, $parsed );
+		$this->assertSame( $expected_result, $parsed );
 	}
 
 	/**
