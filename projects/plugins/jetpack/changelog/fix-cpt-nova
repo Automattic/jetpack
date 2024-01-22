@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Check the return value of `get_menu_item_menu_leaf()`
