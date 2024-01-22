@@ -38,7 +38,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 	public function test_parent_fallback() {
 		$test_schema = Schema::as_assoc_array(
 			array(
-				'child' => Schema::as_string(),
+				'child' => Schema::as_string()
 			)
 		)->fallback(
 			array(
@@ -46,13 +46,17 @@ class Test_Integration_Fallback_Values extends TestCase {
 			)
 		);
 
+		$expect = array(
+			'child' => 'default_value',
+		);
+
 		// Test with a valid value.
-		$parsed = $test_schema->parse( array( 'child' => 'test_value' ) );
-		$this->assertSame( 'test_value', $parsed['child'] );
+		$parsed = $test_schema->parse( array( 'child' => 'default_value' ) );
+		$this->assertSame( $expect, $parsed );
 
 		// Test with an invald value.
 		$parsed = $test_schema->parse( array( 'child' => null ) );
-		$this->assertSame( 'default_value', $parsed['child'] );
+		$this->assertSame( $expect, $parsed );
 	}
 
 	/**
