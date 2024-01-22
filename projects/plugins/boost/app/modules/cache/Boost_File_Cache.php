@@ -15,9 +15,7 @@ class Boost_File_Cache extends Boost_Cache {
 	 */
 	private $cache_filename = false;
 
-	public function __construct() {
-		parent::__construct();
-
+	public function serve() {
 		if ( ! $this->get() ) {
 			$this->ob_start();
 		}
