@@ -30,7 +30,7 @@ const QualityControl = ( {
 					value={ config.quality }
 					minValue={ minValue }
 					maxValue={ maxValue }
-					onChange={ newValue => onChange( { ...config, quality: newValue } ) }
+					onAfterChange={ newValue => onChange( { ...config, quality: newValue } ) }
 				/>
 			</div>
 			<label className={ styles.lossless } htmlFor={ checkboxId }>
