@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Assets;
-
 /**
  * Class WordAds_Consent_Management_Provider
  *
@@ -17,26 +15,6 @@ use Automattic\Jetpack\Assets;
  * Build with `yarn build` then create a Phabricator patch to deploy the assets in the `/dist` folder to WPCOM.
  */
 class WordAds_Consent_Management_Provider {
-
-	/**
-	 * The build version of the JS files to use.
-	 */
-	const CMP_VERSION = '2.1.0';
-
-	/**
-	 * The relative path of the directory containing the CMP JS build files.
-	 */
-	const CMP_JS_DIR = 'jetpack/modules/wordads/js/cmp/v2/';
-
-	/**
-	 * The default [purposes](https://iabeurope.eu/iab-europe-transparency-consent-framework-policies/#A_Purposes) the CMP will surface for getting consent.
-	 */
-	const ALLOWED_PURPOSES = array( 1, 2, 3, 4, 7, 9, 10 );
-
-	/**
-	 * The versions for which we have the GVL records.
-	 */
-	const SUPPORTED_GVL_SPECIFICATION_VERSIONS = array( 2, 3 );
 
 	/**
 	 * IAB specified cookie name for storing the consent string.
@@ -77,19 +55,11 @@ class WordAds_Consent_Management_Provider {
 			return;
 		}
 
-		// Only display the banner if the visitor is from a GDPR country.
-		if ( ! self::does_gdpr_apply() ) {
-			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_non_gdpr_frontend_scripts' ) );
-
-			return;
-		}
-
 		// Prevent Cookies & Consent banner from displaying when the CMP is active.
 		add_filter( 'jetpack_disable_eu_cookie_law_widget', '__return_true' );
 
 		// Enqueue scripts.
 		add_action( 'wp_head', array( __CLASS__, 'insert_head' ) );
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_frontend_scripts' ) );
 	}
 
 	/**
@@ -223,49 +193,6 @@ JS;
 	}
 
 	/**
-	 * Enqueues the main frontend Javascript.
-	 */
-	public static function enqueue_frontend_scripts() {
-		wp_enqueue_script(
-			'cmp-script-stub',
-			Assets::get_file_url_for_environment(
-				'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/cmp-stub.js',
-				'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/cmp-stub.js'
-			),
-			array(),
-			self::CMP_VERSION,
-			false
-		);
-
-		wp_enqueue_script(
-			'cmp-script',
-			Assets::get_file_url_for_environment(
-				'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/cmp.bundle.js',
-				'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/cmp.bundle.js'
-			),
-			array(),
-			self::CMP_VERSION,
-			true
-		);
-	}
-
-	/**
-	 * Enqueues the frontend Javascript for a minimal CMP that always sets gdprApplies = false.
-	 */
-	public static function enqueue_non_gdpr_frontend_scripts() {
-		wp_enqueue_script(
-			'cmp-script-stub',
-			Assets::get_file_url_for_environment(
-				'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/cmp-non-gdpr.js',
-				'https://s0.wp.com/wp-content/blog-plugins/wordads-classes/js/cmp/v2/cmp-non-gdpr.js'
-			),
-			array(),
-			self::CMP_VERSION,
-			false
-		);
-	}
-
-	/**
 	 * Get the blog ID.
 	 *
 	 * @return Object current blog id.
@@ -314,15 +241,6 @@ JS;
 	 */
 	public static function is_supported_language( string $language_code ): bool {
 		return in_array( strtolower( $language_code ), self::get_supported_languages(), true );
-	}
-
-	/**
-	 * Get the default GVL specification version.
-	 *
-	 * @return int The minimal GVL specification version.
-	 */
-	public static function get_default_gvl_specification_version(): int {
-		return max( self::SUPPORTED_GVL_SPECIFICATION_VERSIONS );
 	}
 
 	/**
@@ -392,29 +310,5 @@ JS;
 		$intro = sprintf( __( 'We and our %1$s advertising partners store and/or access information on your device and also process personal data, like unique identifiers, browsing activity, and other standard information sent by your device including your IP address. This information is collected over time and used for personalised ads, ad measurement, audience insights, and product development specific to our ads program. If this sounds good to you, select "I Agree!" below. Otherwise, you can get more information, customize your consent preferences, or decline consent by selecting "Learn More". Note that your preferences apply only to this website. If you change your mind in the future you can update your preferences anytime by visiting the Privacy link displayed under each ad or by using the "Privacy" option in the Action Bar located at the bottom-right corner of the screen. One last thing, our partners may process some of your data based on legitimate interests instead of consent but you can object to that by choosing "Learn More" and then disabling the Legitimate Interests toggle under any listed Purpose or Partner.', 'jetpack' ), $vendors_count );
 
 		return $intro;
-	}
-
-	/**
-	 * Gets metadata for the vendor list.
-	 *
-	 * This metadata is output to the page as configuration in a script tag. It's used by the React front-end
-	 * to avoid having to load the full GVL data when on the happy path of accepting all consent.
-	 *
-	 * @param string $language_code The language code used for lookup.
-	 * @param int    $gvl_specification_version The GVL specification version used for lookup.
-	 *
-	 * @return array The GVL meta data.
-	 */
-	public static function get_vendor_meta( string $language_code, int $gvl_specification_version ): array {
-		$request_url   = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/v%d/vendors-meta/%s/', self::get_blog_id(), $gvl_specification_version, $language_code );
-		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
-		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
-		if ( 200 === $response_code ) {
-			$meta = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
-			return $meta;
-		} else {
-			// TODO: log error
-			return array();
-		}
 	}
 }
