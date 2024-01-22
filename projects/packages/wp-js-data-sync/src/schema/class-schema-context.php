@@ -61,7 +61,6 @@ class Schema_Context {
 		if ( ! isset( $this->data ) ) {
 			$this->data = $data;
 		}
-
 	}
 
 	public function get_data() {

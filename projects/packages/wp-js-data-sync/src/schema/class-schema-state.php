@@ -59,8 +59,6 @@ class Schema_State implements Parser {
 
 	/**
 	 * Sets a fallback value for the schema type when the input data is invalid.
-	 * This method returns a new instance of Decorate_With_Default, which wraps
-	 * the current schema type and applies the fallback value.
 	 *
 	 * @param mixed $default_value The fallback value to use when the input data is invalid.
 	 * @throws Schema_Error When the input data is invalid and debug mode is enabled.

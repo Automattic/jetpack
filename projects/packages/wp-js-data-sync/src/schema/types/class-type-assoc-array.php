@@ -14,6 +14,7 @@ class Type_Assoc_Array implements Parser {
 	 * will parse each keyed value in the array using the parser.
 	 *
 	 * @param Parser[] $assoc_parser_array - An associative array of parsers to use.
+	 * @throws Schema_Error - Only in Debug mode: if the $assoc_parser_array is not an associative array.
 	 */
 	public function __construct( $assoc_parser_array ) {
 		$this->parser = $assoc_parser_array;

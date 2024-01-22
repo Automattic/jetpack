@@ -164,7 +164,7 @@ class Endpoint {
 				$response['log'] = $this->entry->get_parser()->get_log();
 			}
 			return rest_ensure_response( $response );
-			
+
 		} catch ( \RuntimeException $e ) {
 			return rest_ensure_response(
 				array(

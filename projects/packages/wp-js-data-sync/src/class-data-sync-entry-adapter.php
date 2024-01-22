@@ -7,7 +7,6 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Delete;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 
 /**
@@ -72,7 +71,7 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 	public function merge( $partial_value ) {
 		if ( $this->is( Entry_Can_Merge::class ) ) {
 			if ( $this->parser->has_fallback() ) {
-				$default = $this->parser->get_fallback();
+				$default        = $this->parser->get_fallback();
 				$existing_value = $this->entry->get( $default );
 			} else {
 				$existing_value = $this->entry->get();
