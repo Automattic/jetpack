@@ -142,6 +142,10 @@ if ( ! function_exists( 'youtube_sanitize_url' ) ) :
 	 * @param string $url Youtube URL.
 	 */
 	function youtube_sanitize_url( $url ) {
+		if ( is_array( $url ) && isset( $url['url'] ) ) {
+			$url = $url['url'];
+		}
+
 		$url = trim( $url, ' "' );
 		$url = trim( $url );
 		$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
