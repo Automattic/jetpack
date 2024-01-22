@@ -116,8 +116,7 @@ class Boost_File_Cache extends Boost_Cache {
 		file_put_contents( $tmp_filename, $data );
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
 		rename( $tmp_filename, $cache_filename );
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- cached page that has already been escaped
-		echo $data;
+		$this->get( $args );
 		die();
 	}
 }
