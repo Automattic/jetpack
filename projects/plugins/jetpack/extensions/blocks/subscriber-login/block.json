@@ -35,6 +35,18 @@
 		"redirectToCurrent": {
 			"type": "boolean",
 			"default": true
+		},
+		"logInLabel": {
+			"type": "string",
+			"default": "Log in"
+		},
+		"logOutLabel": {
+			"type": "string",
+			"default": "Log out"
+		},
+		"manageSubscriptionsLabel": {
+			"type": "string",
+			"default": "Manage subscriptions"
 		}
 	}
 }
