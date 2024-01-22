@@ -79,7 +79,8 @@ For more information on how to use `$$next-version$$`, please see the [packages 
 
 - Where it applies, make strings available for translation.
 - Instead of `__`, `_e`, `_x` and similar functions, use their safe versions `esc_html__`, `esc_html_e`, `esc_html_x` and others where possible.
-- Add the `jetpack` text domain to the translation functions.
+- Use an appropriate unique text domain in your plugin or Composer package.
+- Make use of our [automattic/jetpack-composer-plugin](https://packagist.org/packages/automattic/jetpack-composer-plugin) and related packages to ensure i18n works in the published plugin.
 
 ### JavaScript and TypeScript
 
