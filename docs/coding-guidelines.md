@@ -12,7 +12,7 @@ These are some things to keep in mind when writing code for the Jetpack Monorepo
 - **Other JavaScript**: Teams are free to use other stacks for their projects, and we do have projects that use Svelte with Rollup, for example. In practice it usually means that the team is largely responsible for supporting custom solutions like this, including i18n and updates. There's a notable "conflict" where we would like to avoid bringing in `18n-calypso` for i18n, since Jetpack generally uses translate.wordpress.org which requires Gutenberg's `@wordpress/i18n`.
 - **Linting and testing JavaScript**: We have generally settled on `jest` and `@testing-library/*` for unit testing.  Linting is done with `eslint`, with most configuration at the Monorepo level. Ideally projects should be sparing in overriding the eslint config beyond selecting the appropriate presets for `react`/`typescript`/etc.
 - **E2E tests**: The situation is a bit complicated:
-  - We've settled on `playwright` for standalone E2E tests. `allure-playwright` is the direct dependency that brings in `pflaywright` as a sub-dependency.
+  - We've settled on `playwright` for standalone E2E tests. `allure-playwright` is the direct dependency that brings in `playwright` as a sub-dependency.
   - For tests against Simple and Atomic, however, those live in the Calypso repo.
 - **General dependencies**: When it comes to dependencies in general, and particularly large ones, it's good practice to choose options already used in the Monorepo and to try to match the versions too.
   - If some other option is better that what we're currently using, it may be worth starting a project to switch everything to the new option.
