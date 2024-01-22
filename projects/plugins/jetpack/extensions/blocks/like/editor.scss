@@ -5,6 +5,11 @@
     }
 }
 
+// Hide the Like block if it tries to load in the editor (e.g. as a part of the Query Loop block).
+.wp-block-jetpack-like .sharedaddy {
+	display: none;
+}
+
 /* Fetched below from https://widgets.wp.com/likes/style.css at 2024-01-15T08:02:21.397Z */
 .wpl-likebox,.wpl-follow a,.wpl-count a {
 	font-size:11px!important;

@@ -3,13 +3,27 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
 
 class Type_Number implements Parser {
 
-	public function parse( $data ) {
-		if ( ! is_numeric( $data ) ) {
-			throw new \Error( 'Invalid number' );
+	public function parse( $value, $_meta = null ) {
+		if ( ! is_numeric( $value ) ) {
+			throw new Schema_Internal_Error( 'Invalid number', $value );
 		}
-		return (int) $data;
+		return (int) $value;
+	}
+	public function __toString() {
+		return 'number';
+	}
+
+	#[\ReturnTypeWillChange]
+	public function jsonSerialize() {
+		return $this->schema();
+	}
+	public function schema() {
+		return array(
+			'type' => (string) $this,
+		);
 	}
 }
