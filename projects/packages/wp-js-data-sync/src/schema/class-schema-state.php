@@ -1,7 +1,6 @@
 <?php
 
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Type_Or;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
@@ -30,7 +29,7 @@ class Schema_State implements Parser {
 	}
 
 	public function unwrap() {
-		if( $this->parser instanceof self ) {
+		if ( $this->parser instanceof self ) {
 			return $this->parser->unwrap();
 		}
 		return $this->parser;
@@ -79,11 +78,8 @@ class Schema_State implements Parser {
 	 * the current schema type and applies the fallback value.
 	 *
 	 * @param mixed $default_value The fallback value to use when the input data is invalid.
-	 *
-	 * @return Decorate_With_Default A new instance with the fallback value applied.
 	 */
 	public function fallback( $default_value ) {
-		$fallback = new Decorate_With_Default( $this, $default_value );
 		if ( DS_Utils::is_debug_enabled() ) {
 			try {
 				$debug_meta = new Schema_Validation_Meta( 'debug-mode' );
@@ -93,12 +89,14 @@ class Schema_State implements Parser {
 				throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $this->meta );
 			}
 		}
-		return $fallback;
+
+		$this->fallback = $default_value;
+		return $this;
 	}
 
 	public function nullable() {
 		$this->or( new Type_Void() );
-		return new Decorate_With_Default( $this->parser, null );
+		return $this->fallback( null );
 	}
 
 	/**
@@ -111,13 +109,14 @@ class Schema_State implements Parser {
 	 */
 	public function parse( $value, $meta = null ) {
 
-		$meta   = $meta ?? $this->meta ?? new Schema_Validation_Meta( 'unknown' );
+		$meta = $meta ?? $this->meta ?? new Schema_Validation_Meta( 'unknown' );
 		$meta->set_data( $value );
-		$parser = $this->parser instanceof self ? $this->unwrap() : $this->parser;
+		$parser = $this->parser;
 
 		try {
-			return $parser->parse( $value, $meta );
-		} catch ( Schema_Internal_Error $e ) {
+			$value = $parser->parse( $value, $meta );
+			return $value;
+		} catch ( Schema_Parsing_Error | Schema_Internal_Error $e ) {
 
 			if ( DS_Utils::is_debug_enabled() ) {
 				$value         = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
@@ -130,6 +129,10 @@ class Schema_State implements Parser {
 				error_log( $error_message );
 			}
 
+			if ( property_exists( $this, 'fallback' ) ) {
+				return $this->fallback;
+			}
+
 			throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $meta );
 		}
 	}
@@ -140,7 +143,19 @@ class Schema_State implements Parser {
 	}
 
 	public function schema() {
-		return $this->parser->schema();
+		$schema = $this->parser->schema();
+		if ( $this->has_fallback() ) {
+			$schema['default'] = $this->fallback;
+		}
+		return $schema;
+	}
+
+	public function has_fallback() {
+		return property_exists( $this, 'fallback' );
+	}
+
+	public function get_fallback() {
+		return $this->fallback;
 	}
 
 }

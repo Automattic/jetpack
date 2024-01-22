@@ -53,8 +53,8 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 	}
 
 	public function get() {
-		if ( $this->parser instanceof Decorate_With_Default ) {
-			$default = $this->parser->get_default_value();
+		if ( $this->parser->has_fallback() ) {
+			$default = $this->parser->get_fallback();
 			$value   = $this->entry->get( $default );
 			return $this->parser->parse( $value );
 		}
@@ -71,8 +71,8 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 
 	public function merge( $partial_value ) {
 		if ( $this->is( Entry_Can_Merge::class ) ) {
-			if ( $this->parser instanceof Decorate_With_Default ) {
-				$default        = $this->parser->get_default_value();
+			if ( $this->parser->has_fallback() ) {
+				$default = $this->parser->get_fallback();
 				$existing_value = $this->entry->get( $default );
 			} else {
 				$existing_value = $this->entry->get();
