@@ -200,6 +200,8 @@ class Test_Integration_Fallback_Values extends TestCase {
 			'one'          => null,
 			'array_of_two' => null,
 		);
+
+
 		$this->assertSame( $schema_fallback, $schema->parse( $invalid_array ) );
 
 		// Passing an empty array also works
@@ -241,13 +243,32 @@ class Test_Integration_Fallback_Values extends TestCase {
 			// This throws an error in debug mode.
 			$this->expectException( Schema_Error::class );
 		}
+
 		$schema_empty_array = $this->get_schema_no_fallbacks()->fallback( array() )->parse( array() );
 		$this->assertSame( array(), $schema_empty_array );
 
 		// So right now, to fallback to a full-value when the parent schema parsing fails
 		// you have to do this:
-		$schema_with_top_level_defaults = $schema->fallback( $schema_fallback )->parse( null );
+		$schema_with_top_level_defaults = Schema::as_assoc_array(
+			array(
+				'one'          => Schema::as_number()->fallback( 999999 ),
+				'array_of_two' => Schema::as_array( Schema::as_number() )->fallback( array( 999999 ) ),
+			)
+		)->fallback( $schema_fallback )->parse( null );
 		$this->assertSame( $schema_fallback, $schema_with_top_level_defaults );
+
+		// But keep in mind that parsing an array will work trigger the keys to use their fallbacks
+		$schema_with_top_level_defaults = Schema::as_assoc_array(
+			array(
+				'one'          => Schema::as_number()->fallback( 999999 ),
+				'array_of_two' => Schema::as_array( Schema::as_number() )->fallback( array( 999999 ) ),
+			)
+		)->fallback( $schema_fallback )->parse( array() );
+		$this->assertSame( array(
+			                   'one'          => 999999,
+			                   'array_of_two' => array( 999999 ),
+		                   ),
+		                   $schema_with_top_level_defaults );
 
 		// -------
 		// -------

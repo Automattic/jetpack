@@ -5,6 +5,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Type_Or;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Literal;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Void;
 
 class Schema_State implements Parser {
@@ -57,6 +58,7 @@ class Schema_State implements Parser {
 	 * Sets a fallback value for the schema type when the input data is invalid.
 	 *
 	 * @param mixed $default_value The fallback value to use when the input data is invalid.
+	 *
 	 * @throws Schema_Error When the input data is invalid and debug mode is enabled.
 	 */
 	public function fallback( $default_value ) {
@@ -69,13 +71,13 @@ class Schema_State implements Parser {
 			}
 		}
 
-		$this->fallback = $default_value;
+		$this->or( new Type_Literal( $default_value ) );
 		return $this;
 	}
 
 	public function nullable() {
 		$this->or( new Type_Void() );
-		return $this->fallback( null );
+		return $this;
 	}
 
 	/**
@@ -97,8 +99,8 @@ class Schema_State implements Parser {
 		} catch ( Schema_Error $e ) {
 
 			if ( DS_Utils::is_debug_enabled() ) {
-				$value          = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
-				$error_message  = "Failed to parse '{$context->get_name()}' schema";
+				$value         = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
+				$error_message = "Failed to parse '{$context->get_name()}' schema";
 				$error_message .= "\n" . $e->getMessage();
 				$error_message .= "\nData Received:";
 				$error_message .= "\n$value";
@@ -107,8 +109,8 @@ class Schema_State implements Parser {
 				error_log( $error_message );
 			}
 
-			if ( property_exists( $this, 'fallback' ) ) {
-				return $this->fallback;
+			if ( $this->has_fallback() ) {
+				return $this->get_fallback();
 			}
 
 			throw new Schema_Error( $e->getMessage(), $e->get_value(), $context );
@@ -121,18 +123,27 @@ class Schema_State implements Parser {
 	}
 
 	public function schema() {
-		$schema = $this->parser->schema();
-		if ( $this->has_fallback() ) {
-			$schema['default'] = $this->fallback;
-		}
-		return $schema;
+		return $this->parser->schema();
 	}
 
 	public function has_fallback() {
-		return property_exists( $this, 'fallback' );
+		try {
+			$this->get_fallback();
+			return true;
+		} catch ( Schema_Error $e ) {
+			return false;
+		}
 	}
 
 	public function get_fallback() {
-		return $this->fallback;
+		if ( $this->parser instanceof Type_Or ) {
+			$parsers = $this->parser->get_parsers();
+			foreach ( $parsers as $parser ) {
+				if ( $parser instanceof Type_Literal ) {
+					return $parser;
+				}
+			}
+		}
+		throw new Schema_Error( 'No fallback value defined for this schema', null, $this->context );
 	}
 }

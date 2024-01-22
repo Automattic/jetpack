@@ -32,10 +32,14 @@ class Type_Or implements Parser {
 		throw new Schema_Error( $message, $value );
 	}
 
+	public function get_parsers() {
+		return $this->parsers;
+	}
+
 	public function schema() {
 		return array(
 			'type'    => 'or',
-			'parsers' => array_map(
+			'value' => array_map(
 				function ( $parser ) {
 					return $parser->schema();
 				},
