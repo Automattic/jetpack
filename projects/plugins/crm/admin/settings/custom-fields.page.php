@@ -204,6 +204,7 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 				in_array( $potential_slug, array( 'id', 'status' ) )
 			) {
 
+				// Ideally we could do something like gh-33096-jetpack, but custom field definitions are in a JSON-encoded settings field.
 				for ( $n = 1; $n < $max_custom_fields_per_object; $n++ ) {
 
 					// Search for alternative slugs, n+1
