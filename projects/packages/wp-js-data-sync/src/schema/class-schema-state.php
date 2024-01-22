@@ -113,9 +113,8 @@ class Schema_State implements Parser {
 
 		$meta   = $meta ?? $this->meta ?? new Schema_Validation_Meta( 'unknown' );
 		$meta->set_data( $value );
+		$parser = $this->parser instanceof self ? $this->unwrap() : $this->parser;
 
-		$parser = $this->parser instanceof self ? $this->parser->unwrap() : $this->parser;
-		
 		try {
 			return $parser->parse( $value, $meta );
 		} catch ( Schema_Internal_Error $e ) {
