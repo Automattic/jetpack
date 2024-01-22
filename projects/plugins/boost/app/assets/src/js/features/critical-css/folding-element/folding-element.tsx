@@ -37,6 +37,7 @@ const FoldingElement: React.FC< PropTypes > = ( {
 			</button>
 
 			<animated.div
+				className={ expanded ? styles.expanded : '' }
 				style={ {
 					overflow: 'hidden',
 					...animationStyles,
