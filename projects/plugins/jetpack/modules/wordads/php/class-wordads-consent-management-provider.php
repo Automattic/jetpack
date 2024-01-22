@@ -107,20 +107,6 @@ class WordAds_Consent_Management_Provider {
 
 		setcookie( self::COOKIE_NAME, $consent, time() + YEAR_IN_SECONDS, '/', self::get_cookie_domain(), is_ssl(), true );
 
-		// Log consent request.
-		$valid_consent_types = array( 'accept_all', 'reject_all', 'custom' );
-		$type                = 'unknown';
-
-		if ( isset( $_POST['type'] ) ) {
-			$post_type = strtolower( sanitize_text_field( wp_unslash( $_POST['type'] ) ) );
-
-			if ( in_array( $post_type, $valid_consent_types, true ) ) {
-				$type = $post_type;
-			}
-		}
-
-		bump_stats_extras( 'wordads_cmp_consent', $type );
-
 		wp_send_json_success( true );
 	}
 
@@ -140,6 +126,7 @@ class WordAds_Consent_Management_Provider {
 	private static function get_config_string() {
 		$language_code = self::get_site_language_code();
 		$request_url   = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/configuration/%s/', self::get_blog_id(), $language_code );
+		$nonce         = wp_create_nonce( 'gdpr_set_consent' );
 
 		$config_script = <<<JS
 <script id="cmp-config-loader">
@@ -153,6 +140,7 @@ class WordAds_Consent_Management_Provider {
 					var scripts = response.scripts;
 					// remove before injecting configuration
 					delete response.scripts;
+					response['ajaxNonce'] = "$nonce";
 
 					var configurationScript = document.createElement('script');
 					configurationScript.id = 'cmp-configuration';
@@ -244,23 +232,19 @@ JS;
 	}
 
 	/**
-	 * Gets the domain name to set the cookie under.  All *.wordpress.com sites will set the
-	 * cookie on the .wordpress.com domain for shared consent.
+	 * Gets the domain to be used for the opt-out cookie.
+	 * Use the site's custom domain, or if the site has a wordpress.com subdomain, use .wordpress.com to share the cookie.
 	 *
-	 * @return string The domain name used to set the cookie.
+	 * @return string The domain to set for the opt-out cookie.
 	 */
-	private static function get_cookie_domain(): string {
+	public static function get_cookie_domain() {
+		$host = 'localhost';
 
-		// Do we need this as it's .wordpress.com shared cookie?
-		$cookie_domain  = '';
-		$primary_domain = get_primary_redirect( get_current_blog_id() );
-
-		// If this is a *.wordpress.com domain use shared consent -- unless it's a WordAds site.
-		if ( '' !== $primary_domain && '.wordpress.com' === substr( $primary_domain, - strlen( '.wordpress.com' ) ) && ! has_blog_sticker( 'wordads', get_current_blog_id() ) ) {
-			$cookie_domain = '.wordpress.com';
+		if ( isset( $_SERVER['HTTP_HOST'] ) ) {
+			$host = filter_var( wp_unslash( $_SERVER['HTTP_HOST'] ) );
 		}
 
-		return $cookie_domain;
+		return '.wordpress.com' === substr( $host, -strlen( '.wordpress.com' ) ) ? '.wordpress.com' : '.' . $host;
 	}
 
 	/**

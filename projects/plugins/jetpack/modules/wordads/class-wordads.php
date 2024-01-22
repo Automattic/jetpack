@@ -180,6 +180,7 @@ class WordAds {
 
 		if ( is_admin() ) {
 			WordAds_California_Privacy::init_ajax_actions();
+			WordAds_Consent_Management_Provider::init_ajax_actions();
 		}
 	}
 
