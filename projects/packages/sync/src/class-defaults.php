@@ -757,7 +757,7 @@ class Defaults {
 		'videopress_guid',
 		'vimeo_poster_image',
 		'_jetpack_blogging_prompt_key',
-		'_jetpack_featured_image',
+		'_jetpack_featured_image_url',
 	);
 
 	/**

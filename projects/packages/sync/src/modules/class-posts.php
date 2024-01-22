@@ -101,7 +101,7 @@ class Posts extends Module {
 	*
 	* @var string
 	*/
-	const JETPACK_FEATURED_IMAGE_META_KEY = '_jetpack_featured_image';
+	const JETPACK_FEATURED_IMAGE_URL_META_KEY = '_jetpack_featured_image_url';
 
 	/**
 	 * Sync module name.
@@ -380,10 +380,14 @@ class Posts extends Module {
 	/**
 	 * Filter all meta that is not blacklisted, or is stored for a disallowed post type.
 	 *
-	 * @param array $args Hook arguments.
+	 * @param array $args Hook arguments. [ $meta_id, $post_id, $meta_key, $_meta_value ].
 	 * @return array|false Hook arguments, or false if meta was filtered.
 	 */
 	public function filter_meta( $args ) {
+
+		if ( '_thumbnail_id' === $args[2] ) {
+			$this->update_jetpack_featured_image_url( $args[1], $args[3] );
+		}
 		if ( $this->is_post_type_allowed( $args[1] ) && $this->is_whitelisted_post_meta( $args[2] ) ) {
 			return $args;
 		}
@@ -685,34 +689,33 @@ class Posts extends Module {
 		}
 
 		$this->send_published( $post_ID, $post );
-
-		$this->update_jetpack_featured_image_meta( $post_ID );
 	}
 
 	/**
 	 * Update the Jetpack featured image meta for a post based on the thumbnail ID.
 	 *
 	 * @param int $post_id  Post ID.
+	 * @param int $thumbnail_id Thumbnail ID.
 	 */
-	public function update_jetpack_featured_image_meta( $post_id ) {
+	public function update_jetpack_featured_image_url( $post_id, $thumbnail_id ) {
 
 		$url = '';
-		if ( has_post_thumbnail( $post_id ) ) {
+		if ( $thumbnail_id ) {
 			$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post_id ), 'full' );
 			if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) ) {
 				$url = $image_attributes[0];
 			}
 		}
-		$metadata_exists = get_post_meta( $post_id, self::JETPACK_FEATURED_IMAGE_META_KEY );
+		$metadata_exists = get_post_meta( $post_id, self::JETPACK_FEATURED_IMAGE_URL_META_KEY );
 
 		if ( '' !== $url ) {
 			if ( $metadata_exists ) {
-				update_post_meta( $post_id, self::JETPACK_FEATURED_IMAGE_META_KEY, $url );
+				update_post_meta( $post_id, self::JETPACK_FEATURED_IMAGE_URL_META_KEY, $url );
 			} else {
-				add_post_meta( $post_id, self::JETPACK_FEATURED_IMAGE_META_KEY, $url );
+				add_post_meta( $post_id, self::JETPACK_FEATURED_IMAGE_URL_META_KEY, $url );
 			}
 		} elseif ( $metadata_exists ) {
-			delete_post_meta( $post_id, self::JETPACK_FEATURED_IMAGE_META_KEY );
+			delete_post_meta( $post_id, self::JETPACK_FEATURED_IMAGE_URL_META_KEY );
 		}
 	}
 
