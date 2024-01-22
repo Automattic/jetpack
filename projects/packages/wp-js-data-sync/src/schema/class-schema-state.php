@@ -16,7 +16,7 @@ class Schema_State implements Parser {
 	private $parser;
 
 	/**
-	 * @var Schema_Context
+	 * @var Schema_Context|null
 	 */
 	private $context;
 
