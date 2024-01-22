@@ -53,7 +53,7 @@ class Type_Or implements Parser {
 	}
 
 	#[\ReturnTypeWillChange]
-	function jsonSerialize() {
+	public function jsonSerialize() {
 		return $this->schema();
 	}
 }
