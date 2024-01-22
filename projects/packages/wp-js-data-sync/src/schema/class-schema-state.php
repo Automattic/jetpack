@@ -31,10 +31,6 @@ class Schema_State implements Parser {
 		$this->context = $context;
 	}
 
-	public function get_log() {
-		return $this->context->get_log();
-	}
-
 	public function __toString() {
 		return $this->parser->__toString();
 	}
@@ -48,12 +44,12 @@ class Schema_State implements Parser {
 	 */
 	public function or( Parser $parser ) {
 		if ( $this->parser instanceof Type_Or ) {
-			$this->parser->add_condition( $parser );
+			$this->parser->add_fallback_parser( $parser );
 			return $this;
 		}
 
 		$this->parser = new Type_Or( $this->parser );
-		$this->parser->add_condition( $parser );
+		$this->parser->add_fallback_parser( $parser );
 		return $this;
 	}
 

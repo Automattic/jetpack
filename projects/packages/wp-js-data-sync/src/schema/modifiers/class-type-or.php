@@ -6,19 +6,19 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
 class Type_Or implements Parser {
-	private $conditions;
+	private $parsers;
 
 	public function __construct( Parser $parser ) {
-		$this->conditions = array( $parser );
+		$this->parsers = array( $parser );
 	}
 
-	public function add_condition( Parser $parser ) {
-		$this->conditions[] = $parser;
+	public function add_fallback_parser( Parser $parser ) {
+		$this->parsers[] = $parser;
 	}
 
 	public function parse( $value, $context = null ) {
 		$parsers_failed = array();
-		foreach ( $this->conditions as $parser ) {
+		foreach ( $this->parsers as $parser ) {
 			try {
 				// Attempt to parse the value with the current parser
 				return $parser->parse( $value, $context );
@@ -39,14 +39,14 @@ class Type_Or implements Parser {
 				function ( $parser ) {
 					return $parser->schema();
 				},
-				$this->conditions
+				$this->parsers
 			),
 		);
 	}
 
 	public function __toString() {
 		$result = array();
-		foreach ( $this->conditions as $parser ) {
+		foreach ( $this->parsers as $parser ) {
 			$result[] = (string) $parser;
 		}
 		return implode( ' OR ', $result );
