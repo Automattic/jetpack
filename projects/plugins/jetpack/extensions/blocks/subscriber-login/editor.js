@@ -10,8 +10,8 @@ registerJetpackBlockFromMetadata( metadata, {
 			{
 				type: 'block',
 				blocks: [ 'core/loginout' ],
-				transform: () => {
-					return createBlock( 'jetpack/subscriber-login' );
+				transform: ( { fontSize, redirectToCurrent } ) => {
+					return createBlock( 'jetpack/subscriber-login', { fontSize, redirectToCurrent } );
 				},
 			},
 		],
@@ -19,8 +19,8 @@ registerJetpackBlockFromMetadata( metadata, {
 			{
 				type: 'block',
 				blocks: [ 'core/loginout' ],
-				transform: () => {
-					return createBlock( 'core/loginout' );
+				transform: ( { fontSize, redirectToCurrent } ) => {
+					return createBlock( 'core/loginout', { fontSize, redirectToCurrent } );
 				},
 			},
 		],
