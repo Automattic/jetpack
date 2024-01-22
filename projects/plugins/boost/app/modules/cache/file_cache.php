@@ -3,7 +3,14 @@
 require_once __DIR__ . '/cache.php';
 
 class Boost_File_Cache extends Boost_Cache {
-	private $path           = false;
+	/*
+	 * @var string - The path to the cache directory for the current request. MD5 of the request_uri.
+	 */
+	private $path = false;
+
+	/*
+	 * @var string - The path + cache filename for the current request.
+	 */
 	private $cache_filename = false;
 
 	private function calculate_path( $request_uri ) {
@@ -18,7 +25,7 @@ class Boost_File_Cache extends Boost_Cache {
 
 	private function path( $request_uri = false ) {
 		if ( $request_uri !== false ) {
-			return $this->calculate_path( $request_uri );
+			return $this->calculate_path( $this->sanitize_request_uri( $request_uri ) );
 		}
 		if ( $this->path === false ) {
 			$this->path = $this->calculate_path( $this->request_uri );
