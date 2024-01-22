@@ -71,10 +71,10 @@ class Boost_Cache {
 	protected function sanitize_request_uri( $request_uri ) {
 		// get path from request uri
 		$request_uri = parse_url( $request_uri, PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-
-		// Remove the trailing slash
-		if ( substr( $request_uri, -1 ) === '/' ) {
-			$request_uri = substr( $request_uri, 0, -1 );
+		if ( $request_uri === '' ) {
+			$request_uri = '/';
+		} elseif ( substr( $request_uri, -1 ) !== '/' ) {
+			$request_uri .= '/';
 		}
 
 		$request_uri = $this->deep_replace(
