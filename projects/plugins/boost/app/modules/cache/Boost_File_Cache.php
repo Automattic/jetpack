@@ -43,7 +43,7 @@ class Boost_File_Cache extends Boost_Cache {
 
 	private function cache_filename() {
 		if ( $this->cache_filename === false ) {
-			$this->cache_filename = $this->path() . $this->cache_key() . '.php';
+			$this->cache_filename = $this->path() . $this->cache_key() . '.html';
 		}
 		return $this->cache_filename;
 	}
