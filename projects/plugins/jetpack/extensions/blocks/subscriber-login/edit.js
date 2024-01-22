@@ -17,28 +17,36 @@ function SubscriberLoginEdit( { attributes, setAttributes, className } ) {
 					<BaseControl label={ __( 'Log in label', 'jetpack' ) }>
 						<TextControl
 							placeholder={ __( 'Log in link label', 'jetpack' ) }
-							onChange={ value => setAttributes( { logInLabel: value } ) }
+							onChange={ value =>
+								setAttributes( { logInLabel: value || __( 'Log in', 'jetpack' ) } )
+							}
 							value={ logInLabel }
 						/>
 					</BaseControl>
 					<BaseControl label={ __( 'Log out label', 'jetpack' ) }>
 						<TextControl
 							placeholder={ __( 'Log out link label', 'jetpack' ) }
-							onChange={ value => setAttributes( { logOutLabel: value } ) }
+							onChange={ value =>
+								setAttributes( { logOutLabel: value || __( 'Log out', 'jetpack' ) } )
+							}
 							value={ logOutLabel }
 						/>
 					</BaseControl>
 					<BaseControl label={ __( 'Manage subscriptions label', 'jetpack' ) }>
 						<TextControl
 							placeholder={ __( 'Manage subscriptions link label', 'jetpack' ) }
-							onChange={ value => setAttributes( { manageSubscriptionsLabel: value } ) }
+							onChange={ value =>
+								setAttributes( {
+									manageSubscriptionsLabel: value || __( 'Manage subscriptions', 'jetpack' ),
+								} )
+							}
 							value={ manageSubscriptionsLabel }
 						/>
 					</BaseControl>
 				</PanelBody>
 			</InspectorControls>
 			<div className={ className }>
-				<a href="#logout-pseudo-link">{ __( 'Log out', 'jetpack' ) }</a>
+				<a href="#logout-pseudo-link">{ logOutLabel || __( 'Log out', 'jetpack' ) }</a>
 			</div>
 		</>
 	);
