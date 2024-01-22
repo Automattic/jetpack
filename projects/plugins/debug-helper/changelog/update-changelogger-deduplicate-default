@@ -1,5 +1,3 @@
-Significance: patch
-Type: changed
-Comment: Updated composer.lock.
-
-
+Significance: minor
+Type: added
+Comment: Added price as default sorting option for Jetpack Search
