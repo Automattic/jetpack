@@ -44,7 +44,7 @@ class Page_Cache implements Pluggable, Is_Always_On {
 		} else {
 			$contents = '<?php
 // Boost Cache Plugin 0.1
-require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/file_cache.php\' );
+require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File_Cache.php\' );
 ';
 			$wp_filesystem->put_contents( $advanced_cache_filename, $contents, FS_CHMOD_FILE );
 		}

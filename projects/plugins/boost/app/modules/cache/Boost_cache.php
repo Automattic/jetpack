@@ -1,5 +1,7 @@
 <?php
 
+namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
+
 abstract class Boost_Cache {
 	/*
 	 * @var string - The cache key used to identify the cache file for the current request. MD5 of the request uri, cookies and page GET parameters.

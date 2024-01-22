@@ -1,6 +1,8 @@
 <?php
 
-require_once __DIR__ . '/cache.php';
+namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
+
+require_once __DIR__ . '/Boost_Cache.php';
 
 class Boost_File_Cache extends Boost_Cache {
 	/*
