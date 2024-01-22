@@ -72,9 +72,16 @@ export const variations = [
 	{
 		name: 'x',
 		attributes: { service: 'x', label: 'X' },
-		keywords: [ 'twitter' ],
+		keywords: [ 'twitter', 'x' ],
 		title: 'X',
 		icon: <SocialIcon icon={ 'x' } size={ 24 } />,
+	},
+	{
+		name: 'twitter',
+		attributes: { service: 'twitter', label: 'twitter' },
+		keywords: [ 'twitter' ],
+		title: 'Twitter',
+		icon: <SocialIcon icon={ 'twitter' } size={ 24 } />,
 	},
 	{
 		name: 'nextdoor',
