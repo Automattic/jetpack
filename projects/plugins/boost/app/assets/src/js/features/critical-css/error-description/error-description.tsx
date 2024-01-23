@@ -90,7 +90,9 @@ const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > 
 						labelExpandedText={ __( 'See error message', 'jetpack-boost' ) }
 						labelCollapsedText={ __( 'Hide error message', 'jetpack-boost' ) }
 					>
-						<p className={ styles[ 'raw-error' ] }>{ rawErrors }</p>
+						<p className={ classNames( styles[ 'raw-error' ], styles[ 'no-spacing' ] ) }>
+							{ rawErrors }
+						</p>
 					</FoldingElement>
 				) : (
 					<p className={ classNames( styles[ 'raw-error' ], styles[ 'fade-in' ] ) }>

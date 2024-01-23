@@ -2,6 +2,56 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.1-a.5 - 2024-01-23
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Jetpack AI: Expose Jetpack AI cost of features on the feature endpoint. [#35178]
+- Subscribe block: simplify access panel CSS [#35163]
+- There was a problem with likers without avatar images not appearing in the likers popup. Now they appear with their default avatar images. [#35123]
+- WPCOM_JSON_API_Endpoint document(): Prevent warning when fetching the rest_api_documentation row returns no results [#35173]
+
+## 13.1-a.3 - 2024-01-22
+### Enhancements
+- Add support for WooCommerce HPOS to the Google Analytics module. [#33152]
+- Changed dismissed notices endpoint to be a core endpoint [#34544]
+- Like block: Move the block from beta to production [#34930]
+- Related Posts: Get the related posts only when the option is turned on and the current post contains a Related Posts block [#34958]
+- Subscribe block: add buttons transform [#35115]
+
+### Improved compatibility
+- Likes: Flip likers popup when overflowing viewport. [#35065]
+
+### Bug fixes
+- Enhanced WordPress.com API compatibility with third party plugin data. [#34770]
+- iCalendarReader: Support BYDAY recurrence rules for last, second-to-last, or third-to-last weekdays [#35050]
+- Subscribe block: fix spacing of "pending email confirmation" message in some themes [#35133]
+- Subscriptions: Fix subscribtion modal appear right after subscribing [#35128]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: add contact us event for upgrades over 1000 [#35136]
+- AI Assistant: move usePlanType to shared directory [#35093]
+- AI Assistant: rename upgrade event name, provide placement prop for metrics [#35116]
+- AI Assistant: trigger event on panel uncollapse [#35124]
+- Blogroll block: avoid PHP notices on specific sites. [#35125]
+- Contact Form: add frontend tests [#35074]
+- Contact Form: fix source for concatenated stylesheet [#35091]
+- Content Options: Add new class to post when using the featured images fallback. [#35073]
+- Content Options: Allow themes to hide the default avatar (when author has no custom Gravatar) via `'avatar-default' => false`. [#35073]
+- Filters out deprecated jetpack-google-fonts provider when reading the theme's theme.json. [#35029]
+- In the tracking user link url, the parent of the iframe only listens one redirection post message from its child [#35090]
+- Jetpack Debug: Update Sync related debugging info [#35060]
+- Jetpack plugin: Add 5-star review link in the Jetpack Plugin meta, in the plugins list table (on the plugins page). [#34998]
+- Jetpack_Upcoming_Events_Widget: Return early if no feed url set [#35041]
+- Memberships: Adds translation to paid content modal. [#35092]
+- Payment blocks: Fix cover block alignments on free sites [#35028]
+- Recreate purchase form dialog on openModal(). [#35077]
+- Related Posts: fix accessibility issues [#34925]
+- Subscriber Login: Add styling support to the Subscriber Login block [#35085]
+- Subscriber Login: Allow to transform it to/from core Login/out block [#35161]
+- Subscriber Login: Check also the premium content cookie to determine if user is logged in or not [#35113]
+- Subscriptions: Add Subscriber Login block [#34981]
+- Subscriptions: Fix Newsletter column width [#35101]
+- Update Subscription Modal on comment to use Subscribe Block [#35051]
+
 ## 13.1-a.1 - 2024-01-15
 ### Enhancements
 - GIF Block: Accept Giphy shortlinks as a valid embed. [#34786]

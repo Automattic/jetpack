@@ -31,7 +31,11 @@ function processCSS( css ) {
 	// Remove body and HTML styles
 	let processedCSS = css.replace( /body[^{]*\{[^}]*\}/g, '' );
 	processedCSS = processedCSS.replace( /html[^{]*\{[^}]*\}/g, '' );
-
+	// Convert media queries to container queries
+	processedCSS = processedCSS.replace(
+		/@media(?:\s+only\s+screen)?\s*(and)?\s*\(([^)]+)\)/g,
+		'@container ($2)'
+	);
 	// Pretty print the CSS
 	processedCSS = prettyPrintCSS( processedCSS );
 
@@ -42,7 +46,13 @@ function processCSS( css ) {
         padding: 0 16px 16px 52px;
         margin-top: -12px;
     }
-}`;
+}
+
+// Hide the Like block if it tries to load in the editor (e.g. as a part of the Query Loop block).
+.wp-block-jetpack-like .sharedaddy {
+	display: none;
+}
+`;
 
 	const customRule2 = `
 	/* Overrides to fix CSS conflicts within editor. */

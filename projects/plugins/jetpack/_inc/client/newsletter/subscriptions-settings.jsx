@@ -47,6 +47,7 @@ function SubscriptionsSettings( props ) {
 		isBlockTheme,
 		siteAdminUrl,
 		themeStylesheet,
+		blogID,
 	} = props;
 
 	const subscribeModalEditorUrl =
@@ -81,7 +82,7 @@ function SubscriptionsSettings( props ) {
 				className="jp-settings-card__configure-link"
 				onClick={ trackViewSubsClick }
 				href={ getRedirectUrl( 'calypso-subscribers', {
-					site: siteRawUrl,
+					site: blogID ?? siteRawUrl,
 				} ) }
 				target="_blank"
 				rel="noopener noreferrer"

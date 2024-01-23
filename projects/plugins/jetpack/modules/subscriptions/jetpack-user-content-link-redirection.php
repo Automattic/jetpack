@@ -25,11 +25,13 @@ function jetpack_user_content_link_redirection() {
 <html>
 <head>
 <script>
+	let messageReceived = false;
 	window.addEventListener( 'message', function(event) {
-		if ( event.origin !== 'https://subscribe.wordpress.com' ) {
+		if ( event.origin !== 'https://subscribe.wordpress.com' || messageReceived ) {
 			return;
 		}
 		if ( event.data.redirectUrl ) {
+			messageReceived = true;
 			window.location.href = event.data.redirectUrl;
 		}
 	} );

@@ -412,7 +412,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const banner = (
 		<>
-			{ isOverLimit && isSelected && <UpgradePrompt /> }
+			{ isOverLimit && isSelected && <UpgradePrompt placement="ai-assistant-block" /> }
 			{ ! connected && <ConnectPrompt /> }
 		</>
 	);

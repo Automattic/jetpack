@@ -28,9 +28,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
-use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Config_State;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -111,7 +109,6 @@ class Jetpack_Boost {
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
 		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ), 10, 2 );
-		add_action( 'jetpack_boost_connection_established', array( $this, 'handle_jetpack_connection' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -145,20 +142,6 @@ class Jetpack_Boost {
 	}
 
 	/**
-	 * Plugin connected to Jetpack handler.
-	 */
-	public function handle_jetpack_connection() {
-		$getting_started = new Getting_Started_Entry();
-		if ( $getting_started->get() === true ) {
-			// Special case: when getting started, ensure that the Critical CSS module is enabled.
-			$status = new Status( 'critical_css' );
-			$status->update( true );
-		}
-
-		$getting_started->set( false );
-	}
-
-	/**
 	 * Plugin deactivation handler. Clear cache, and reset admin notices.
 	 */
 	public function deactivate() {
@@ -170,11 +153,10 @@ class Jetpack_Boost {
 	/**
 	 * Initialize the admin experience.
 	 */
-	public function init_admin( $modules ) {
-		REST_API::register( Config_State::class );
+	public function init_admin( $modules_setup ) {
 		REST_API::register( List_Site_Urls::class );
 		$this->connection->ensure_connection();
-		new Admin( $modules );
+		( new Admin() )->init( $modules_setup );
 	}
 
 	public function init_sync() {

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.45.1] - 2024-01-22
+### Changed
+- Update dependencies. [#35126]
+
+### Fixed
+- Fixed a bug where the post body images weren't used for social previews [#35111]
+
+## [0.45.0] - 2024-01-18
+### Changed
+- Changed dismissed notices endpoint to be a core endpoint [#34544]
+
 ## [0.44.2] - 2024-01-04
 ### Changed
 - Updated package dependencies. [#34815] [#34816]
@@ -560,6 +571,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.45.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.45.0...v0.45.1
+[0.45.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.44.2...v0.45.0
 [0.44.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.44.1...v0.44.2
 [0.44.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.44.0...v0.44.1
 [0.44.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.43.0...v0.44.0
