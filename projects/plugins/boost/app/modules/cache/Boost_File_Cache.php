@@ -60,7 +60,6 @@ class Boost_File_Cache extends Boost_Cache {
 			'get'         => $_GET, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		);
 		$args     = array_merge( $defaults, $args );
-
 		if ( file_exists( $this->cache_filename( $args ) ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo file_get_contents( $this->cache_filename( $args ) ) . '<!-- cached -->';
@@ -107,7 +106,6 @@ class Boost_File_Cache extends Boost_Cache {
 		file_put_contents( $tmp_filename, $data );
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
 		rename( $tmp_filename, $cache_filename );
-		$this->get( $args );
-		die();
+		return $data;
 	}
 }
