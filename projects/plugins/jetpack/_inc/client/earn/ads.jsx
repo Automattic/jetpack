@@ -139,6 +139,9 @@ export const Ads = withModuleSettingsFormHelpers(
 				'wordads_ccpa_privacy_policy_url',
 				'wordads'
 			);
+
+			const wordads_cmp_enabled = this.props.getOptionValue( 'wordads_cmp_enabled', 'wordads' );
+
 			const isSubDirSite = this.props.siteRawUrl.indexOf( '::' ) !== -1;
 			return (
 				<SettingsCard
@@ -356,6 +359,30 @@ export const Ads = withModuleSettingsFormHelpers(
 						) }
 					</SettingsGroup>
 					{ ! isSubDirSite && this.renderAdsTxtSection() }
+					<SettingsGroup
+						support={ {
+							text: __(
+								'This enables our GDPR Consent banner in the EU where this is legally required. This allows your site visitors to provide consent for personalized ads.',
+								'jetpack'
+							),
+							// TODO: Activate with EU/CMP support link?
+							// link: this.props.isAtomicSite
+							// 	? getRedirectUrl( 'wpcom-support-us-privacy' )
+							// 	: getRedirectUrl( 'jetpack-support-ads' ),
+						} }
+					>
+						<ToggleControl
+							checked={ wordads_cmp_enabled }
+							disabled={
+								! isAdsActive ||
+								unavailableInOfflineMode ||
+								this.props.isSavingAnyOption( [ 'wordads' ] )
+							}
+							toggling={ this.props.isSavingAnyOption( [ 'wordads_cmp_enabled' ] ) }
+							onChange={ this.handleChange( 'wordads_cmp_enabled' ) }
+							label={ __( 'Enable EU Consent Banner', 'jetpack' ) }
+						/>
+					</SettingsGroup>
 					{ ! unavailableInOfflineMode && isAdsActive && (
 						<Card
 							compact
