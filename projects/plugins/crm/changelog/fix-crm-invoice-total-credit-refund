@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Invoices: Fixed total amount in preview and pdf when refunds or credit notes are applied.
