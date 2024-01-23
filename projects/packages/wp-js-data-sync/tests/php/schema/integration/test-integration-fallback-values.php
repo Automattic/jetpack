@@ -23,8 +23,8 @@ class Test_Integration_Fallback_Values extends TestCase {
 	}
 
 	public function test_context_on_fallback() {
-		$context   = new Schema_Context( 'custom_name' );
-		$schema = Schema::as_string();
+		$context = new Schema_Context( 'custom_name' );
+		$schema  = Schema::as_string();
 		$schema->set_context( $context );
 
 		// I've set the meta for the schema.
@@ -201,7 +201,6 @@ class Test_Integration_Fallback_Values extends TestCase {
 			'array_of_two' => null,
 		);
 
-
 		$this->assertSame( $schema_fallback, $schema->parse( $invalid_array ) );
 
 		// Passing an empty array also works
@@ -264,11 +263,13 @@ class Test_Integration_Fallback_Values extends TestCase {
 				'array_of_two' => Schema::as_array( Schema::as_number() )->fallback( array( 999999 ) ),
 			)
 		)->fallback( $schema_fallback )->parse( array() );
-		$this->assertSame( array(
-			                   'one'          => 999999,
-			                   'array_of_two' => array( 999999 ),
-		                   ),
-		                   $schema_with_top_level_defaults );
+		$this->assertSame(
+			array(
+				'one'          => 999999,
+				'array_of_two' => array( 999999 ),
+			),
+			$schema_with_top_level_defaults
+		);
 
 		// -------
 		// -------

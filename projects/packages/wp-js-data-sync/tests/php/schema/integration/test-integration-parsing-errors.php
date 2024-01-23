@@ -34,7 +34,7 @@ class Test_Integration_Parsing_Errors extends TestCase {
 	public function test_parsing_errors_meta_data() {
 		$schema       = $this->get_assoc_schema( Schema::as_boolean(), 3 );
 		$invalid_data = $this->get_assoc_data( 'hello world', 3, 1 );
-		$schema->set_context( new Schema_Context("test-levels") );
+		$schema->set_context( new Schema_Context( 'test-levels' ) );
 		try {
 			$schema->parse( $invalid_data );
 			$this->fail( 'Expected Schema_Error was not thrown' );

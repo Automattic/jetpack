@@ -37,11 +37,11 @@ class Schema_Context {
 			if ( isset( $stack_frame['line'], $stack_frame['file'] ) ) {
 				$filename_pieces = explode( '.', basename( $stack_frame['file'] ), 2 );
 				$trace[]         = $filename_pieces[0] . ':' . $stack_frame['line'];
-			} else if ( isset( $stack_frame['class'], $stack_frame['function'] ) ) {
+			} elseif ( isset( $stack_frame['class'], $stack_frame['function'] ) ) {
 				$trace[] = $stack_frame['class'] . '::' . $stack_frame['function'];
 			}
 
-			$depth_limit --;
+			--$depth_limit;
 			if ( $depth_limit <= 0 ) {
 				break;
 			}
@@ -93,7 +93,6 @@ class Schema_Context {
 		}
 		return $path;
 	}
-
 
 	public function remove_path( $key ) {
 		$index = array_search( $key, $this->path, true );

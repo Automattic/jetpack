@@ -142,5 +142,4 @@ class Schema {
 		}
 		return new Schema_Parser( $or );
 	}
-
 }

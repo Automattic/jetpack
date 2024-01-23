@@ -51,7 +51,7 @@ class Modifier_Fallback implements Parser {
 		return array(
 			'type'  => 'or',
 			'value' => array_map(
-				function( $parser ) {
+				function ( $parser ) {
 					return $parser->schema();
 				},
 				$this->parsers

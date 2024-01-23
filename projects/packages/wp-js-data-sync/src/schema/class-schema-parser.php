@@ -58,7 +58,7 @@ class Schema_Parser implements Parser {
 		$this->parser = new Modifier_Fallback();
 		// Add the current parser back
 		$this->parser->add_fallback_parser( $current_parser );
-		/// Add the new parser
+		// Add the new parser
 		$this->parser->add_fallback_parser( $parser );
 		return $this;
 	}
@@ -107,12 +107,15 @@ class Schema_Parser implements Parser {
 		$parser = $this->parser;
 
 		try {
-			$context->verbose_log( "Parse: {$parser}", [
-				'value' => $value,
-			] );
+			$context->verbose_log(
+				"Parse: {$parser}",
+				array(
+					'value' => $value,
+				)
+			);
 			return $parser->parse( $value, $context );
 		} catch ( Schema_Error $e ) {
-			$context->log( "Schema_Error: {$this}->parse failed.", [], $e );
+			$context->log( "Schema_Error: {$this}->parse failed.", array(), $e );
 			throw new Schema_Error( $e->getMessage(), $e->get_value(), $context );
 		}
 	}
@@ -148,6 +151,6 @@ class Schema_Parser implements Parser {
 	}
 
 	public function get_log() {
-		return $this->context->get_log() ?? [];
+		return $this->context->get_log() ?? array();
 	}
 }
