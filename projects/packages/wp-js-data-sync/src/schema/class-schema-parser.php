@@ -1,10 +1,9 @@
 <?php
 
+namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
+
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Modifier_Fallback;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Literal;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Void;
 

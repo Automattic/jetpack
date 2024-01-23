@@ -13,7 +13,6 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Float;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Number;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_String;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Void;
-use Schema_Parser;
 
 /**
  * The Schema class is a factory for creating and managing validation rules based on specific
@@ -134,7 +133,7 @@ class Schema {
 	}
 
 	/**
-	 * @var Parser $parser - The parser to apply to each array item when $data is parsed.
+	 * @var \Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser $parser - The parser to apply to each array item when $data is parsed.
 	 */
 	public static function either( ...$parsers ) {
 		$or = new Modifier_Fallback();
