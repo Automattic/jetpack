@@ -33,6 +33,8 @@ class Schema_Context {
 		}
 
 		$trace = array();
+		// This is fine, it's guarded by `DATASYNC_TRACE` constant.
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 		foreach ( debug_backtrace() as $stack_frame ) {
 			if ( isset( $stack_frame['line'], $stack_frame['file'] ) ) {
 				$filename_pieces = explode( '.', basename( $stack_frame['file'] ), 2 );
