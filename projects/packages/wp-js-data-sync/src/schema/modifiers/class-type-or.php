@@ -6,12 +6,8 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
 class Type_Or implements Parser {
-	private $parsers;
-
-	public function __construct( Parser $parser ) {
-		$this->parsers = array( $parser );
-	}
-
+	private $parsers = array();
+	
 	public function add_fallback_parser( Parser $parser ) {
 		$this->parsers[] = $parser;
 	}

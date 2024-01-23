@@ -37,19 +37,28 @@ class Schema_State implements Parser {
 	}
 
 	/**
-	 * Allow combining multiple types of schemas.
+	 * Allow combining multiple types of schemas internally.
+	 * For a public or API,
 	 *
 	 * @param Parser $parser
 	 *
 	 * @return $this
+	 * @see Schema::either()
+	 *
 	 */
-	public function or( Parser $parser ) {
+	private function or( Parser $parser ) {
 		if ( $this->parser instanceof Type_Or ) {
 			$this->parser->add_fallback_parser( $parser );
 			return $this;
 		}
 
-		$this->parser = new Type_Or( $this->parser );
+		// Keep track of the current parser
+		$current_parser = $this->parser;
+		// Replace the current parser with a new Type_Or parser
+		$this->parser = new Type_Or();
+		// Add the current parser back
+		$this->parser->add_fallback_parser( $current_parser );
+		/// Add the new parser
 		$this->parser->add_fallback_parser( $parser );
 		return $this;
 	}
