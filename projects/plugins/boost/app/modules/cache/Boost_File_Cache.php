@@ -92,6 +92,10 @@ class Boost_File_Cache extends Boost_Cache {
 			return $data;
 		}
 
+		if ( strlen( $data ) === 0 ) {
+			return false;
+		}
+
 		$cache_filename = $this->cache_filename();
 		$this->create_cache_directory( dirname( $cache_filename ) );
 		$tmp_filename = $cache_filename . uniqid( wp_rand(), true ) . '.tmp';
