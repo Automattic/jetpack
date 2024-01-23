@@ -1660,7 +1660,8 @@ function zbscrm_JS_calculatediscount() {
  */
 function zbscrm_JS_invoice_typeahead_bind() {
 	// endpoint - pass nonce this was as before send wasn't working weirdly in Bloodhound.
-	endpoint = wpApiSettings.root + 'zbscrm/v1/concom?_wpnonce=' + wpApiSettings.nonce;
+	param_separator = wpApiSettings.root.indexOf('?rest_route=/') === -1 ? '?' : '&';
+	endpoint = wpApiSettings.root + 'zbscrm/v1/concom' + param_separator + '_wpnonce=' + wpApiSettings.nonce;
 
 	var zbsInvoiceTo = new Bloodhound( {
 		datumTokenizer: function ( d ) {
@@ -1684,7 +1685,7 @@ function zbscrm_JS_invoice_typeahead_bind() {
 		},
 		remote: {
 			// this checks when users type, via ajax search ... useful addition to (cached) prefetch
-			url: wpApiSettings.root + 'zbscrm/v1/concom?_wpnonce=' + wpApiSettings.nonce + '&s=%QUERY',
+			url: wpApiSettings.root + 'zbscrm/v1/concom' + param_separator + '_wpnonce=' + wpApiSettings.nonce + '&s=%QUERY',
 			wildcard: '%QUERY',
 		},
 	} );
