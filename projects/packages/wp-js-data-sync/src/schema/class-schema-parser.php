@@ -107,8 +107,16 @@ class Schema_Parser implements Parser {
 		$parser = $this->parser;
 
 		try {
+			$context->log( "Parse: {$parser}", [
+				'value' => $value,
+			] );
 			return $parser->parse( $value, $context );
 		} catch ( Schema_Error $e ) {
+
+			$context->log( "Error: {$parser}", [
+				'value' => $value,
+				'error' => $e->getMessage(),
+			] );
 
 			if ( DS_Utils::is_debug_enabled() ) {
 				$value         = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
