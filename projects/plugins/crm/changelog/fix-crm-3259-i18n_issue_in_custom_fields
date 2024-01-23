@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Custom fields: More robust fallbacks for slug creation.

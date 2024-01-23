@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-In the tracking user link url, the parent of the iframe only listens one redirection post message from its child 
