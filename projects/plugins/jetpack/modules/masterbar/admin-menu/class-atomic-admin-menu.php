@@ -237,6 +237,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds site card component.
 	 */
 	public function add_site_card_menu() {
+		// When the interface is set to wp-admin, we not add the site_card.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			return;
+		}
 		$default        = plugins_url( 'globe-icon.svg', __FILE__ );
 		$icon           = get_site_icon_url( 32, $default );
 		$blog_name      = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
