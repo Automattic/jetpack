@@ -32,6 +32,19 @@ const API = {
 			path: 'jetpack-protect/v1/waf-upgrade-seen',
 			method: 'POST',
 		} ),
+
+	fetchOnboardingProgress: () =>
+		apiFetch( {
+			path: 'jetpack-protect/v1/onboarding-progress',
+			method: 'GET',
+		} ),
+
+	completeOnboardingSteps: stepIds =>
+		apiFetch( {
+			path: 'jetpack-protect/v1/onboarding-progress',
+			method: 'POST',
+			data: { step_ids: stepIds },
+		} ),
 };
 
 export default API;
