@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
@@ -14,17 +15,31 @@ class Modifier_Fallback implements Parser {
 
 	public function parse( $value, $context ) {
 		$parsers_failed = array();
-		foreach ( $this->parsers as $parser ) {
+		foreach ( $this->parsers as $key => $parser ) {
 			try {
 				// Attempt to parse the value with the current parser
 				return $parser->parse( $value, $context );
-			} catch ( Schema_Error $e ) {
+			} catch ( Schema_Error $error ) {
+
+				if ( DS_Utils::is_debug() ) {
+					$next_parser = $this->parsers[ $key + 1 ] ?? 'none';
+					$data        = array(
+						'parser'            => (string) $parser,
+						'next_parser'       => (string) $next_parser,
+						'parsers_available' => $this->parsers,
+					);
+					$value_type  = gettype( $value );
+					$context->log( "Fallback($parser): Failed to parse $value_type.", $data, $error );
+				}
+
 				$parsers_failed[] = (string) $parser;
 				continue;
 			}
 		}
+
 		$message = 'Failed to parse value using: ' . implode( ' or ', $parsers_failed );
-		// If none of the parsers succeeded, throw an exception
+
+		// If none of the parsers succeed, throw Schema_Error
 		throw new Schema_Error( $message, $value );
 	}
 
@@ -36,7 +51,7 @@ class Modifier_Fallback implements Parser {
 		return array(
 			'type'  => 'or',
 			'value' => array_map(
-				function ( $parser ) {
+				function( $parser ) {
 					return $parser->schema();
 				},
 				$this->parsers

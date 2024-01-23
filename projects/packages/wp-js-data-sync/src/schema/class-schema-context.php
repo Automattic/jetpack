@@ -26,15 +26,52 @@ class Schema_Context {
 		$this->path[] = $key;
 	}
 
-	public function log( $message, $data ) {
+	private function trace( $depth_limit = 15 ) {
+
 		if ( ! DS_Utils::is_debug() ) {
 			return;
 		}
-		$key         = $this->get_path();
+
+		$trace = array();
+		foreach ( debug_backtrace() as $stack_frame ) {
+			if ( isset( $stack_frame['line'], $stack_frame['file'] ) ) {
+				$filename_pieces = explode( '.', basename( $stack_frame['file'] ), 2 );
+				$trace[]         = $filename_pieces[0] . ':' . $stack_frame['line'];
+			} else if ( isset( $stack_frame['class'], $stack_frame['function'] ) ) {
+				$trace[] = $stack_frame['class'] . '::' . $stack_frame['function'];
+			}
+
+			$depth_limit --;
+			if ( $depth_limit <= 0 ) {
+				break;
+			}
+		}
+		return $trace;
+	}
+
+	public function log( $message, $data, $error = null ) {
+		if ( ! DS_Utils::is_debug() ) {
+			return;
+		}
+
+		$meta = array(
+			'name' => $this->get_name(),
+			'path' => $this->get_path(),
+		);
+
+		$trace = defined( 'DATASYNC_TRACE' ) && DATASYNC_TRACE > 0 ? $this->trace( DATASYNC_TRACE ) : null;
+		if ( $trace ) {
+			$meta['trace'] = $trace;
+		}
+
+		if ( $error instanceof Schema_Error ) {
+			$meta['error_message'] = $error->getMessage();
+			$meta['value']         = $error->get_value();
+		}
+
 		$this->log[] = array(
-			'key'     => $key,
 			'message' => $message,
-			'data'    => $data,
+			'meta'    => $meta,
 		);
 	}
 
