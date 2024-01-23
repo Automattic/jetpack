@@ -19,9 +19,9 @@ class Boost_File_Cache extends Boost_Cache {
 		}
 
 		$key  = $this->path_key( $request_uri );
-		$path = WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'boost-cache' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR;
+		$path = WP_CONTENT_DIR . '/boost-cache/cache/';
 		for ( $i = 0; $i <= 5; $i++ ) {
-			$path .= substr( $key, $i, 1 ) . DIRECTORY_SEPARATOR;
+			$path .= substr( $key, $i, 1 ) . '/';
 		}
 
 		return $path;
