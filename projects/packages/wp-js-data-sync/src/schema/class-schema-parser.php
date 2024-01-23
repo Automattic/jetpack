@@ -8,7 +8,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Literal;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Void;
 
-class Schema_State implements Parser {
+class Schema_Parser implements Parser {
 	/**
 	 * Each Schema entry has a Parser that's able to parse a value.
 	 *

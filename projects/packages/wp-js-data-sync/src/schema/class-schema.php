@@ -13,7 +13,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Float;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Number;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_String;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Void;
-use Schema_State;
+use Schema_Parser;
 
 /**
  * The Schema class is a factory for creating and managing validation rules based on specific
@@ -69,50 +69,50 @@ use Schema_State;
 class Schema {
 
 	public static function as_string() {
-		return new Schema_State( new Type_String() );
+		return new Schema_Parser( new Type_String() );
 	}
 
 	/**
 	 * @param Parser $parser - The parser to apply to each array item when $data is parsed.
 	 *
-	 * @return Schema_State
+	 * @return Schema_Parser
 	 */
 	public static function as_array( Parser $parser ) {
-		return new Schema_State( new Type_Array( $parser ) );
+		return new Schema_Parser( new Type_Array( $parser ) );
 	}
 
 	/**
 	 * @param array $assoc_parser_array - An associative array of ["key" => "Parser"] pairs
 	 *
-	 * @return Schema_State
+	 * @return Schema_Parser
 	 */
 	public static function as_assoc_array( $assoc_parser_array ) {
-		return new Schema_State( new Type_Assoc_Array( $assoc_parser_array ) );
+		return new Schema_Parser( new Type_Assoc_Array( $assoc_parser_array ) );
 	}
 
 	public static function as_boolean() {
-		return new Schema_State( new Type_Boolean() );
+		return new Schema_Parser( new Type_Boolean() );
 	}
 
 	public static function as_number() {
-		return new Schema_State( new Type_Number() );
+		return new Schema_Parser( new Type_Number() );
 	}
 
 	public static function as_float() {
-		return new Schema_State( new Type_Float( true ) );
+		return new Schema_Parser( new Type_Float( true ) );
 	}
 
 	/**
 	 * @param array $allowed_values - An array of values that are allowed for this enum.
 	 *
-	 * @return Schema_State
+	 * @return Schema_Parser
 	 */
 	public static function enum( $allowed_values ) {
-		return new Schema_State( new Type_Enum( $allowed_values ) );
+		return new Schema_Parser( new Type_Enum( $allowed_values ) );
 	}
 
 	public static function any_json_data() {
-		return new Schema_State( new Type_Any_JSON() );
+		return new Schema_Parser( new Type_Any_JSON() );
 	}
 
 	/**
@@ -120,7 +120,7 @@ class Schema {
 	 * will always parse to null.
 	 */
 	public static function as_void() {
-		return new Schema_State( new Type_Void() );
+		return new Schema_Parser( new Type_Void() );
 	}
 
 	/**
@@ -130,7 +130,7 @@ class Schema {
 	 * @see Type_Any
 	 */
 	public static function as_unsafe_any() {
-		return new Schema_State( new Type_Any() );
+		return new Schema_Parser( new Type_Any() );
 	}
 
 	/**
@@ -141,7 +141,7 @@ class Schema {
 		foreach ( $parsers as $parser ) {
 			$or->add_fallback_parser( $parser );
 		}
-		return new Schema_State( $or );
+		return new Schema_Parser( $or );
 	}
 
 }

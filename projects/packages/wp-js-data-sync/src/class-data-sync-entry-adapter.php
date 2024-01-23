@@ -8,6 +8,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
+use Schema_Parser;
 
 /**
  * Data Sync Entry Adapter:
@@ -29,7 +30,7 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 	private $entry;
 
 	/**
-	 * @var Parser $parser - The schema for the data sync entry.
+	 * @var Schema_Parser $parser - The schema for the data sync entry.
 	 */
 	private $parser;
 
