@@ -14,8 +14,9 @@ class Page_Cache implements Pluggable, Is_Always_On {
 	 */
 	public function setup() {
 		if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'jetpack-boost' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			require_once ABSPATH . '/wp-admin/includes/file.php';
-			WP_Filesystem();
+			if ( ! $this->is_writeable() ) {
+				return new \WP_Error( 'wp-content directory is not writeable' );
+			}
 			$result = $this->create_advanced_cache();
 			if ( $result === true ) {
 				$result = $this->add_wp_cache_define();
@@ -31,17 +32,25 @@ class Page_Cache implements Pluggable, Is_Always_On {
 	}
 
 	/*
+	 * Returns true if the wp-content directory is writeable.
+	 */
+	private function is_writeable() {
+		$filename = WP_CONTENT_DIR . '/boost-cache-test.txt';
+		$result   = file_put_contents( $filename, 'test' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		wp_delete_file( $filename );
+		return $result;
+	}
+
+	/*
 	 * Creates the advanced-cache.php file.
 	 *
 	 * Returns true if the files were setup correctly, or WP_Error if there was a problem.
 	 * @return bool|WP_Error
 	 */
 	private function create_advanced_cache() {
-		global $wp_filesystem;
-
-		$advanced_cache_filename = ABSPATH . 'wp-content/advanced-cache.php';
-		if ( $wp_filesystem->exists( $advanced_cache_filename ) ) {
-			$content = $wp_filesystem->get_contents( $advanced_cache_filename );
+		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
+		if ( file_exists( $advanced_cache_filename ) ) {
+			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			if ( strpos( $content, 'Boost Cache Plugin 0.1' ) !== false ) {
 				return true;
 			} else {
@@ -55,7 +64,7 @@ require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File
 ( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_File_Cache() )->serve();
 ';
 
-			$result = $wp_filesystem->put_contents( $advanced_cache_filename, $contents, FS_CHMOD_FILE );
+			$result = file_put_contents( $advanced_cache_filename, $contents ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			if ( $result === false ) {
 				return new \WP_Error( 'Could not write to advanced-cache.php' );
 			}
@@ -68,9 +77,7 @@ require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File
 	 * Adds the WP_CACHE define to wp-config.php
 	 */
 	private function add_wp_cache_define() {
-		global $wp_filesystem;
-
-		$content = $wp_filesystem->get_contents( ABSPATH . 'wp-config.php' );
+		$content = file_get_contents( ABSPATH . 'wp-config.php' );
 		if ( strpos( $content, 'define( \'WP_CACHE\', true );' ) !== false ) {
 			return; // WP_CACHE already added.
 		}
@@ -81,7 +88,7 @@ define( \'WP_CACHE\', true );',
 			$content
 		);
 
-		$result = $wp_filesystem->put_contents( ABSPATH . 'wp-config.php', $content, FS_CHMOD_FILE );
+		$result = file_put_contents( ABSPATH . 'wp-config.php', $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		if ( $result === false ) {
 			return new \WP_Error( 'Could not write to wp-config.php' );
 		}
