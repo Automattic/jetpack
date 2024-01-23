@@ -182,7 +182,7 @@ abstract class Boost_Cache {
 				$is_backend = true;
 			} elseif ( defined( 'DOING_CRON' ) && DOING_CRON ) {
 				$is_backend = true;
-			} elseif ( PHP_SAPI === 'cli' || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+			} elseif ( PHP_SAPI === 'cli' || ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) ) {
 				$is_backend = true;
 			}
 		} elseif ( defined( 'REST_REQUEST' ) ) {
