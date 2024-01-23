@@ -2,7 +2,7 @@
 	"name": "automattic/jetpackcrm",
 	"description": "[Jetpack CRM](https://jetpackcrm.com) Core CRM Plugin - WordPress.org Hosted",
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-changelogger": "^4.1.0",
 		"codeception/codeception": "^4.1 || ^5.0",
 		"codeception/module-asserts": "^2.0 || ^3.0",
 		"codeception/module-phpbrowser": "^2.0 || ^3.0",
@@ -50,21 +50,13 @@
 		}
 	},
 	"require": {
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-assets": "^2.0.4",
+		"automattic/jetpack-autoloader": "^3.0.2",
+		"automattic/jetpack-composer-plugin": "^2.0.0",
 		"automattic/woocommerce": "^3.0",
 		"dompdf/dompdf": "2.0.3"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"autoload": {
 		"classmap": [
 			"src/"
