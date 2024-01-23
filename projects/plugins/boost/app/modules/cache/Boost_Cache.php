@@ -50,8 +50,18 @@ abstract class Boost_Cache {
 			return false;
 		}
 
-		if ( isset( $_SERVER['HTTP_ACCEPT'] ) && strpos( $_SERVER['HTTP_ACCEPT'], 'text/html' ) === false ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			return false;
+		$accept_headers = apply_filters( 'boost_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
+		$accept_headers = array_map( 'strtolower', $accept_headers );
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- $accept is checked and set below.
+		$accept = isset( $_SERVER['HTTP_ACCEPT'] ) ? strtolower( filter_var( $_SERVER['HTTP_ACCEPT'] ) ) : '';
+
+		if ( $accept !== '' ) {
+			foreach ( $accept_headers as $header ) {
+				if ( str_contains( $accept, $header ) ) {
+					return false;
+				}
+			}
 		}
 
 		return true;
