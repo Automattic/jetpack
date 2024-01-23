@@ -97,7 +97,7 @@ const PurchaseSuccess: React.FC = () => {
 				</li>
 
 				<li>
-					{ ! site.isAtomic
+					{ site.isAtomic
 						? createInterpolateElement(
 								__(
 									`Dedicated email support plus priority Live Chat if <link>your plan</link> includes <strong>Premium Support</strong>`,
