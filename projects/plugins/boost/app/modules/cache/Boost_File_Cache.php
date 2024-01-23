@@ -76,8 +76,10 @@ class Boost_File_Cache extends Boost_Cache {
 	private function create_cache_directory( $path ) {
 		if ( ! is_dir( $path ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.dir_mkdir_dirname, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-			mkdir( $path, 0755, true );
+			return mkdir( $path, 0755, true );
 		}
+
+		return true;
 	}
 
 	/*
@@ -97,7 +99,10 @@ class Boost_File_Cache extends Boost_Cache {
 		}
 
 		$cache_filename = $this->cache_filename();
-		$this->create_cache_directory( dirname( $cache_filename ) );
+		if ( ! $this->create_cache_directory( dirname( $cache_filename ) ) ) {
+			// TODO: log error for site owner
+			return $data;
+		}
 		$tmp_filename = $cache_filename . uniqid( wp_rand(), true ) . '.tmp';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $tmp_filename, $data );
