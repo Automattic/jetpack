@@ -9,13 +9,13 @@ abstract class Boost_Cache {
 	protected $path_key = false;
 
 	/*
-	 * @var string - The sanitized path for the current request.
+	 * @var string - The normalized path for the current request. This is not sanitized. Only to be used for comparison purposes.
 	 */
 	protected $request_uri = false;
 
 	public function __construct() {
 		$this->request_uri = isset( $_SERVER['REQUEST_URI'] )
-			? $this->sanitize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			? $this->normalize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			: false;
 	}
 
@@ -68,29 +68,17 @@ abstract class Boost_Cache {
 	}
 
 	/*
-	 * copy of _deep_replace() to be used before WordPress loads
-	 * @see https://developer.wordpress.org/reference/functions/_deep_replace/
-	 */
-	private function deep_replace( $search, $subject ) {
-		$subject = (string) $subject;
-
-		$count = 1;
-		while ( $count ) {
-			$subject = str_replace( $search, '', $subject, $count );
-		}
-
-		return $subject;
-	}
-
-	/*
-	 * Sanitize the request uri so it can be used for caching purposes.
+	 * Normalize the request uri so it can be used for caching purposes.
 	 * It removes the query string and the trailing slash, and characters
 	 * that might cause problems with the filesystem.
 	 *
-	 * @param string $request_uri - The request uri to sanitize.
-	 * @return string - The sanitized request uri.
+	 * **THIS DOES NOT SANITIZE THE VARIABLE IN ANY WAY.**
+	 * Only use it for comparison purposes or to generate an MD5 hash.
+	 *
+	 * @param string $request_uri - The request uri to normalize.
+	 * @return string - The normalized request uri.
 	 */
-	protected function sanitize_request_uri( $request_uri ) {
+	protected function normalize_request_uri( $request_uri ) {
 		// get path from request uri
 		$request_uri = parse_url( $request_uri, PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 		if ( $request_uri === '' ) {
@@ -98,19 +86,6 @@ abstract class Boost_Cache {
 		} elseif ( substr( $request_uri, -1 ) !== '/' ) {
 			$request_uri .= '/';
 		}
-
-		$request_uri = $this->deep_replace(
-			array( '..', '\\' ),
-			preg_replace(
-				'/[ <>\'\"\r\n\t\(\)]/',
-				'',
-				preg_replace(
-					'/(\?.*)?(#.*)?$/',
-					'',
-					$request_uri
-				)
-			)
-		);
 
 		return $request_uri;
 	}
@@ -125,7 +100,7 @@ abstract class Boost_Cache {
 	 */
 	public function cache_key( $args = array() ) {
 		if ( isset( $args['request_uri'] ) ) {
-			$args['request_uri'] = $this->sanitize_request_uri( $args['request_uri'] );
+			$args['request_uri'] = $this->normalize_request_uri( $args['request_uri'] );
 		}
 
 		$defaults = array(

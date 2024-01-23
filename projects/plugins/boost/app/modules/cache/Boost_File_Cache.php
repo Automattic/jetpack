@@ -13,7 +13,7 @@ class Boost_File_Cache extends Boost_Cache {
 	 */
 	private function path( $request_uri = false ) {
 		if ( $request_uri !== false ) {
-			$request_uri = $this->sanitize_request_uri( $request_uri );
+			$request_uri = $this->normalize_request_uri( $request_uri );
 		} else {
 			$request_uri = $this->request_uri;
 		}
