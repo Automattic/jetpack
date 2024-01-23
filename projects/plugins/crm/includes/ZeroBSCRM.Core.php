@@ -367,6 +367,16 @@ final class ZeroBSCRM {
 	public $acceptable_mime_types;
 
 	/**
+	 * Acceptable fields to be included in the Total Value of contacts and companies
+	 *
+	 * @var Jetpack CRM Acceptable fields to be included in the Total Value
+	 */
+	public $acceptable_total_value_fields = array(
+		'transactions' => 'Transactions',
+		'invoices'     => 'Invoices',
+	);
+
+	/**
 	 * Acceptable html array
 	 *
 	 * @var Jetpack CRM Acceptable html types list
