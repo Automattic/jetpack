@@ -16,6 +16,7 @@ const QualityControl = ( { label, format, maxValue, minValue = 20 }: QualityCont
 	const checkboxId = useId();
 	const [ config, setConfig ] = useImageCdnQuality( format );
 
+	// Cache the config locally, as the NumberSlider component is extremely sensitive to any gap between calling onAfterChange and the value mutating.
 	const [ cachedConfig, setCachedConfig ] = useState( config );
 
 	useEffect( () => {
