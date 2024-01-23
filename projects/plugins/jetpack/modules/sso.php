@@ -111,6 +111,9 @@ class Jetpack_SSO {
 	 * @param int $user_id The user ID.
 	 */
 	public function ajax_invite_user_to_wpcom( $user_id ) {
+		// check the nonce
+		// invite the user
+		// respond with success
 		return $user_id;
 	}
 
@@ -155,26 +158,27 @@ class Jetpack_SSO {
 	 */
 	private static function get_is_user_invited( $user_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return false;
-		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-		// $blog_id = Jetpack_Options::get_option( 'id' );
 
-		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-		// $response = Client::wpcom_json_api_request_as_user(
-		// '/sites/' . $blog_id . '/invites',
-		// 'v2',
-		// array(),
-		// null,
-		// 'wpcom'
-		// );
-		// if ( is_wp_error( $response ) ) {
-		// return null;
-		// }
-		// if ( 200 !== $response['response']['code'] ) {
-		// return null;
-		// }
-		// return rest_ensure_response(
-		// json_decode( $response['body'], true )
-		// );
+		/*
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/invites',
+			'v1.1',
+			array(),
+			null,
+			'wpcom'
+		);
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+		if ( 200 !== $response['response']['code'] ) {
+			return null;
+		}
+		return rest_ensure_response(
+			json_decode( $response['body'], true )
+		);
+		*/
 	}
 
 	/**
