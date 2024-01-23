@@ -7,8 +7,10 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -325,6 +327,35 @@ class Atomic_Admin_Menu extends Admin_Menu {
 				'feature_class'                => $message->feature_class,
 				'id'                           => $message->id,
 			);
+		}
+	}
+
+	/**
+	 * Adds Jetpack menu.
+	 */
+	public function add_jetpack_menu() {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$icon            = ( new Logo() )->get_base64_logo();
+			$is_menu_updated = $this->update_menu( 'jetpack', null, null, null, $icon, 2 );
+			if ( ! $is_menu_updated ) {
+				add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'jetpack', null, $icon, 2 );
+			}
+
+			add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 2 );
+			add_submenu_page( 'jetpack', esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 3 );
+
+			if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'jetpack' ) ) {
+				$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
+				$this->hide_submenu_page( 'jetpack', 'stats' );
+				$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+				$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+			}
+			if ( ! $is_menu_updated ) {
+				// Remove the submenu auto-created by Core just to be sure that there no issues on non-admin roles.
+				remove_submenu_page( 'jetpack', 'jetpack' );
+			}
+		} else {
+			parent::add_jetpack_menu();
 		}
 	}
 
