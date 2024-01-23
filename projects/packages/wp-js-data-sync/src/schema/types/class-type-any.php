@@ -11,7 +11,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
  */
 class Type_Any implements Parser {
 
-	public function parse( $value, $context ) {
+	public function parse( $value, $_context ) {
 		return $value;
 	}
 

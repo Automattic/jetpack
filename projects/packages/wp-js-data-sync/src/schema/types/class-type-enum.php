@@ -16,7 +16,7 @@ class Type_Enum implements Parser {
 		$this->valid_values = $valid_values;
 	}
 
-	public function parse( $value, $context ) {
+	public function parse( $value, $_context ) {
 		if ( ! in_array( $value, $this->valid_values, true ) ) {
 			$message = sprintf( 'Invalid value \'%s\'. Expected one of: %s', $value, implode( ', ', $this->valid_values ) );
 			throw new Schema_Error( $message, $value );
