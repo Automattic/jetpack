@@ -99,7 +99,7 @@ abstract class Boost_Cache {
 	 * @return string
 	 */
 	public function cache_key( $args = array() ) {
-		if ( isset( $args['request_uri'] ) ) {
+		if ( isset( $args['request_uri'] ) && $args['request_uri'] !== $this->request_uri ) {
 			$args['request_uri'] = $this->normalize_request_uri( $args['request_uri'] );
 		}
 
