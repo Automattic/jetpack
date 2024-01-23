@@ -23,23 +23,25 @@ const MoreList: React.FC< MoreListTypes > = ( { entries = [], showLimit = 2 } ) 
 						</a>
 					</li>
 				) ) }
+
+				{ showExpandButton && (
+					<li>
+						<a
+							onClick={ event => {
+								event.preventDefault();
+								setExpanded( ! expanded );
+							} }
+							href="#expand"
+						>
+							{ sprintf(
+								/* translators: %d is the number of items in this list hidden behind this link */
+								__( '…and %d more', 'jetpack-boost' ),
+								entries.length - showLimit
+							) }
+						</a>
+					</li>
+				) }
 			</ul>
-			{ showExpandButton && (
-				// eslint-disable-next-line jsx-a11y/anchor-is-valid
-				<a
-					onClick={ event => {
-						event.preventDefault();
-						setExpanded( ! expanded );
-					} }
-					href="#"
-				>
-					{ sprintf(
-						/* translators: %d is the number of items in this list hidden behind this link */
-						__( '…and %d more', 'jetpack-boost' ),
-						entries.length - showLimit
-					) }
-				</a>
-			) }
 		</>
 	);
 };

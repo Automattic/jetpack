@@ -175,6 +175,7 @@ git checkout -b prerelease
 if ! git push -u origin HEAD; then
 	die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
 fi
+GITBASE=$( git rev-parse --verify HEAD )
 
 # Loop through the projects and update the changelogs after building the arguments.
 for PLUGIN in "${!PROJECTS[@]}"; do
@@ -254,6 +255,25 @@ if ! gh run watch "${BUILDID[0]}" --exit-status; then
 fi
 
 yellow "Build is complete."
+
+# Wait for new versions of any composer packages to be up.
+# We expect a new version when (1) the package is touched in this release and (2) it has no change entry files remaining.
+POLL_ARGS=()
+cd "$BASE"
+for PKGDIR in $(git -c core.quotepath=off diff --name-only "$GITBASE..HEAD" projects/packages/ | sed 's!^\(projects/packages/[^/]*\)/.*!\1!' | sort -u); do
+	cd "$BASE/$PKGDIR"
+	CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
+	if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
+		POLL_ARGS+=( "$( jq -r .name composer.json )=$( changelogger version current )" )
+	fi
+done
+cd "$BASE"
+if [[ ${#POLL_ARGS[@]} -gt 0 ]]; then
+	yellow "Waiting for packagist to get updated packages..."
+	tools/js-tools/await-packagist-updates.mjs "${POLL_ARGS[@]}"
+	yellow "Packagist is updated!"
+fi
+
 # Run tools/create-release-branch.sh to create a release branch for each project.
 for PREFIX in "${PREFIXES[@]}"; do
 	git checkout prerelease
@@ -286,6 +306,9 @@ fi
 git fetch
 git merge origin/trunk
 tools/fixup-project-versions.sh
+if [[ -n "$(git status --porcelain)" ]]; then
+	git commit -am 'Version bumps'
+fi
 git push
 PLUGINS_CHANGED=
 for PLUGIN in "${!PROJECTS[@]}"; do

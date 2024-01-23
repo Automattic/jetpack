@@ -2435,7 +2435,7 @@ function zeroBS_addUpdateLog(
 		}
 
 		// no TYPE
-		zeroBSCRM_DEPRECATEDMSG('zeroBS_addUpdateLog has been replaced by DAL3 logging. Please do no use, or at least pass an object type');
+		zeroBSCRM_DEPRECATEDMSG( 'zeroBS_addUpdateLog has been replaced by DAL3 logging. Please do not use, or at least pass an object type.' );
 		return false;
 
 
@@ -2523,7 +2523,7 @@ function zeroBS_addUpdateObjLog(
 // still used in bulk-tagger and groove-connect extensions as of 9 May 1923
 function zeroBSCRM_DAL2_set_post_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$append=true,$usingTagIDS=true){
 
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_set_post_terms has been replaced by DAL3 tagging. Please do no use');		
+	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_set_post_terms has been replaced by DAL3 tagging. Please do not use.' );
 	
 	global $zbs;
 
@@ -2555,7 +2555,7 @@ function zeroBSCRM_DAL2_set_post_terms($cID=-1,$tags=array(),$taxonomy='zerobscr
 // still used in several extensions as of 9 May 1923
 function zeroBSCRM_DAL2_set_object_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$append=true,$usingTagIDS=true){
 
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_set_object_terms has been replaced by DAL3 tagging. Please do no use');		
+	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_set_object_terms has been replaced by DAL3 tagging. Please do not use.' );
 	
 	global $zbs;
 
@@ -2610,7 +2610,7 @@ function zeroBSCRM_DAL2_set_object_terms($cID=-1,$tags=array(),$taxonomy='zerobs
 // still used in csv-importer-pro as of 9 May 1923
 function zeroBSCRM_DAL2_remove_object_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$usingTagIDS=true){
 
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_remove_object_terms has been replaced by DAL3 tagging. Please do no use');		
+	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_remove_object_terms has been replaced by DAL3 tagging. Please do not use.' );
 	
 	global $zbs;
 

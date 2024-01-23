@@ -9,6 +9,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
@@ -40,7 +41,9 @@ class Cloud_CSS implements Pluggable, Has_Endpoints {
 		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
 		add_filter( 'critical_css_invalidated', array( $this, 'handle_critical_css_invalidated' ) );
+		add_filter( 'query_vars', array( '\Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator', 'add_generate_query_action_to_list' ) );
 
+		Generator::init();
 		Critical_CSS_Invalidator::init();
 		Cloud_CSS_Followup::init();
 
@@ -70,6 +73,11 @@ class Cloud_CSS implements Pluggable, Has_Endpoints {
 
 		// Don't show Critical CSS in customizer previews.
 		if ( is_customize_preview() ) {
+			return;
+		}
+
+		// Don't display Critical CSS, if current page load is by the Critical CSS generator.
+		if ( Generator::is_generating_critical_css() ) {
 			return;
 		}
 
@@ -111,10 +119,9 @@ class Cloud_CSS implements Pluggable, Has_Endpoints {
 		}
 
 		// Send the request to the Cloud.
-		$client               = Boost_API::get_client();
 		$payload              = array( 'providers' => $grouped_urls );
 		$payload['requestId'] = md5( wp_json_encode( $payload ) . time() );
-		return $client->post( 'cloud-css', $payload );
+		return Boost_API::post( 'cloud-css', $payload );
 	}
 
 	/**

@@ -80,6 +80,9 @@ class Current_Plan {
 				'value_bundle-monthly',
 				'value_bundle-2y',
 				'value_bundle-3y',
+				'jetpack_creator_yearly',
+				'jetpack_creator_bi_yearly',
+				'jetpack_creator_monthly',
 			),
 			'supports' => array(
 				'simple-payments',
