@@ -22,10 +22,10 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$this->assertSame( 'default_value', $parsed );
 	}
 
-	public function test_meta_type_on_fallback() {
-		$meta   = new Schema_Context( 'custom_name' );
+	public function test_context_on_fallback() {
+		$context   = new Schema_Context( 'custom_name' );
 		$schema = Schema::as_string();
-		$schema->set_context( $meta );
+		$schema->set_context( $context );
 
 		// I've set the meta for the schema.
 		// I expect this same meta to be thrown in the exception.

@@ -55,7 +55,7 @@ class Schema_State implements Parser {
 
 		// Keep track of the current parser
 		$current_parser = $this->parser;
-		// Replace the current parser with a new Type_Or parser
+		// Replace the current parser with a new Modifier_Fallback parser
 		$this->parser = new Modifier_Fallback();
 		// Add the current parser back
 		$this->parser->add_fallback_parser( $current_parser );
@@ -75,7 +75,7 @@ class Schema_State implements Parser {
 
 		// In debug mode: Ensure that the fallback value can be parsed.
 		if ( DS_Utils::is_debug_enabled() ) {
-			$this->parser->parse( $default_value, $this->context ?? new Schema_Context( 'debug-mode' ) );
+			$this->parse( $default_value );
 		}
 
 		$this->or( new Type_Literal( $default_value ) );

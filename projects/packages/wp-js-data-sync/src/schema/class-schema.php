@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Type_Or;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Modifier_Fallback;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any_JSON;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Array;
@@ -137,7 +137,7 @@ class Schema {
 	 * @var Parser $parser - The parser to apply to each array item when $data is parsed.
 	 */
 	public static function either( ...$parsers ) {
-		$or = new Type_Or();
+		$or = new Modifier_Fallback();
 		foreach ( $parsers as $parser ) {
 			$or->add_fallback_parser( $parser );
 		}
