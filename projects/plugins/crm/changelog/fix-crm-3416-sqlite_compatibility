@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Adjust queries for SQLite compatibility.
-REST API: Allow calls when not using pretty permalinks.
