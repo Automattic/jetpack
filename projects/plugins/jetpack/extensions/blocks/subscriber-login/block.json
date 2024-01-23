@@ -31,5 +31,10 @@
 			"gradients": true
 		}
 	},
-	"attributes": {}
+	"attributes": {
+		"redirectToCurrent": {
+			"type": "boolean",
+			"default": true
+		}
+	}
 }
