@@ -4,7 +4,6 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 
-
 class Type_Literal implements Parser {
 	/**
 	 * @var mixed
@@ -15,7 +14,7 @@ class Type_Literal implements Parser {
 		$this->literal_value = $literal_value;
 	}
 
-	public function parse( $value, $_context = null ) {
+	public function parse( $value, $context ) {
 		return $this->literal_value;
 	}
 
@@ -37,8 +36,4 @@ class Type_Literal implements Parser {
 			'type' => (string) $this,
 		);
 	}
-
-
-
-
 }

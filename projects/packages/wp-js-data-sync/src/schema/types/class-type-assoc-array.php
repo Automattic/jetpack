@@ -37,7 +37,7 @@ class Type_Assoc_Array implements Parser {
 	 * @throws Schema_Error - If the $data passed to it is not an associative array.
 	 *
 	 */
-	public function parse( $value, $context = null ) {
+	public function parse( $value, $context ) {
 		// Allow coercing stdClass objects (often returned from json_decode) to an assoc array.
 		if ( is_object( $value ) && $value instanceof \stdClass ) {
 			$value = (array) $value;

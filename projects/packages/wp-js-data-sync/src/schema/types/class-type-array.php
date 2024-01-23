@@ -26,7 +26,7 @@ class Type_Array implements Parser {
 	 *
 	 * @return array
 	 */
-	public function parse( $value, $context = null ) {
+	public function parse( $value, $context ) {
 		if ( ! is_array( $value ) ) {
 			$message = "Expected an array, received '" . gettype( $value ) . "'";
 			throw new Schema_Error( $message, $value );

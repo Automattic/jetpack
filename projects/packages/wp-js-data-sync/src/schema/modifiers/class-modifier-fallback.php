@@ -12,7 +12,7 @@ class Modifier_Fallback implements Parser {
 		$this->parsers[] = $parser;
 	}
 
-	public function parse( $value, $context = null ) {
+	public function parse( $value, $context ) {
 		$parsers_failed = array();
 		foreach ( $this->parsers as $parser ) {
 			try {
@@ -34,7 +34,7 @@ class Modifier_Fallback implements Parser {
 
 	public function schema() {
 		return array(
-			'type'    => 'or',
+			'type'  => 'or',
 			'value' => array_map(
 				function ( $parser ) {
 					return $parser->schema();
