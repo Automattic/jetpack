@@ -61,7 +61,7 @@ export default function AdvancedCriticalCss() {
 	};
 
 	return (
-		<div className="jb-container--narrow">
+		<div className="jb-container--narrow jb-critical-css__advanced">
 			<BackButton />
 
 			<h3>{ __( 'Critical CSS advanced recommendations', 'jetpack-boost' ) }</h3>
