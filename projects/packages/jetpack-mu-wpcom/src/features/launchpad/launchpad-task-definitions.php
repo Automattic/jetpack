@@ -1043,7 +1043,7 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 	// the public API.
 	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
 	if ( $is_atomic_site ) {
-		$domains = wpcom_request_domains_list();
+		$domains = wpcom_launchpad_request_domains_list();
 
 		if ( is_wp_error( $domains ) ) {
 			return false;
@@ -1099,7 +1099,13 @@ function wpcom_launchpad_verify_domain_email_task_displayed() {
  *
  * @return array|WP_Error Array of domains and their verification status or WP_Error if the request fails.
  */
-function wpcom_request_domains_list() {
+function wpcom_launchpad_request_domains_list() {
+	// Use a static variable as a temporary in-memory cache to avoid multiple outbound
+	// HTTP requests within a single incoming request.
+	// We don't expect this to be triggered multiple times, but it's worth adding some
+	// light caching to avoid multiple, possibly slow HTTP requests where the underlying data
+	// is highly unlikely to change.
+	// The "cache" only lasts as long as the current request/memory space, so we don't need to invalidate it.
 	static $cached_domains = null;
 
 	if ( $cached_domains !== null ) {
