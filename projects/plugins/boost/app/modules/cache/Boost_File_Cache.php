@@ -89,7 +89,7 @@ class Boost_File_Cache extends Boost_Cache {
 	 */
 	public function set( $data ) {
 		if ( ! $this->is_cacheable() ) {
-			return false;
+			return $data;
 		}
 
 		$cache_filename = $this->cache_filename();
