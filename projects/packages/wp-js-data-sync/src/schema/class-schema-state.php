@@ -159,4 +159,8 @@ class Schema_State implements Parser {
 		}
 		throw new Schema_Error( 'No fallback value defined for this schema', null, $this->context );
 	}
+
+	public function get_log() {
+		return $this->context->get_log() ?? [];
+	}
 }
