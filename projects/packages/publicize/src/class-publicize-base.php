@@ -1620,33 +1620,68 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Returns the resized Photon URL for a given image.
+	 *
+	 * @param string $image_url Image URL.
+	 * @param int    $width Image width.
+	 * @param int    $height Image height.
+	 * @return string
+	 */
+	public function get_resized_image_url( $image_url, $width, $height ) {
+		return jetpack_photon_url(
+			$image_url,
+			array(
+				'w' => $width,
+				'h' => $height,
+			)
+		);
+	}
+
+	/**
 	 * Reduce the filesize of an image by reducing the dimensions. Uses Photon.
 	 * Returns null if the image cannot be reduced enough.
 	 *
 	 * @param string $url Image URL.
 	 * @param int    $width Image width.
 	 * @param int    $height Image height.
-	 * @param int    $max_filesize Maximum filesize in bytes. Default is 4MB.
+	 * @param int    $max_filesize Maximum filesize in bytes. Default is 2MB.
 	 * @param int    $tries Number of times to try reducing the image size. Default is 5.
 	 * @return array|null
 	 */
-	public function reduce_file_size( $url, $width, $height, $max_filesize = 4000000, $tries = 5 ) {
+	public function reduce_file_size( $url, $width, $height, $max_filesize = 2000000, $tries = 5 ) {
 		$filesize = $this->get_remote_filesize( $url );
 		// If we cannot get the size, or it's small enough, we bail.
 		if ( empty( $filesize ) || $filesize <= $max_filesize ) {
 			return null;
 		}
 
+		// First we scale it down to 1200x and see if that's enough.
+		if ( $height > $width ) {
+			// Portrait.
+			$width  = 1200 * $width / $height;
+			$height = 1200;
+		} else {
+			// Landscape.
+			$height = 1200 * $height / $width;
+			$width  = 1200;
+		}
+
+		$url      = $this->get_resized_image_url( $url, $width, $height );
+		$filesize = $this->get_remote_filesize( $url );
+
+		if ( $filesize <= $max_filesize ) {
+			return array(
+				'url'    => $url,
+				'width'  => $width,
+				'height' => $height,
+			);
+		}
+
+		// If the image is still too large, we try to reduce it by 25% each time.
 		while ( $tries > 0 && $filesize > $max_filesize ) {
 			$width   *= 0.75;
 			$height  *= 0.75;
-			$url      = jetpack_photon_url(
-				$url,
-				array(
-					'w' => $width,
-					'h' => $height,
-				)
-			);
+			$url      = $this->get_resized_image_url( $url, $width, $height );
 			$filesize = $this->get_remote_filesize( $url );
 			--$tries;
 		}
@@ -1675,7 +1710,9 @@ abstract class Publicize_Base {
 		if ( empty( $opengraph_image ) ) {
 			// If we do not have a SIG or attached image, but we have an image in post body
 			// we need to check that the image is not too large for the social sites.
-			if ( ! empty( $tags['og:image'] ) ) {
+			if ( ! empty( $tags['og:image'] ) &&
+				! empty( $tags['og:image:width'] ) &&
+				! empty( $tags['og:image:height'] ) ) {
 				$reduced_image = $this->reduce_file_size( $tags['og:image'], $tags['og:image:width'], $tags['og:image:height'] );
 
 				if ( ! empty( $reduced_image ) ) {
