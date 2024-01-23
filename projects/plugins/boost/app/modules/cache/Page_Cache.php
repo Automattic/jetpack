@@ -35,7 +35,7 @@ class Page_Cache implements Pluggable, Is_Always_On {
 	 * Returns true if the wp-content directory is writeable.
 	 */
 	private function is_writeable() {
-		$filename = WP_CONTENT_DIR . '/boost-cache-test.txt';
+		$filename = WP_CONTENT_DIR . '/' . uniqid() . '.txt';
 		$result   = file_put_contents( $filename, 'test' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		wp_delete_file( $filename );
 		return $result;
