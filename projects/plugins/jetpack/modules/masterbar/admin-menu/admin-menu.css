@@ -7,23 +7,23 @@
  */
 #wpcontent,
 #wpfooter {
-	margin-left: 272px;
+	margin-left: 160px;
 }
 
 #adminmenuback,
 #adminmenuwrap,
 #adminmenu,
 #adminmenu .wp-submenu {
-	width: 272px;
+	width: 160px;
 }
 
 #adminmenu .wp-submenu {
-	left: 272px;
+	left: 160px;
 }
 
 #adminmenu .wp-not-current-submenu .wp-submenu,
 .folded #adminmenu .wp-has-current-submenu .wp-submenu {
-	min-width: 272px;
+	min-width: 160px;
 }
 
 /**
@@ -32,7 +32,7 @@
  @media (min-width: 783px) {
 	.interface-interface-skeleton,
 	.edit-post-layout .components-editor-notices__snackbar {
-		left: 272px;
+		left: 160px;
 	}
 }
 
@@ -41,11 +41,11 @@
 	.auto-fold .edit-post-layout .components-editor-notices__snackbar,
 	.components-snackbar-list.edit-widgets-notices__snackbar,
 	.jp-dialogue-modern-full__container {
-		left: 272px;
+		left: 160px;
 	}
 
 	.global-notices {
-		max-width: calc( 100% - 48px - 272px );
+		max-width: calc( 100% - 48px - 160px );
 	}
 }
 
@@ -309,7 +309,7 @@
 	#adminmenu,
 	#adminmenuwrap,
 	#adminmenuback {
-		width: 272px;
+		width: 160px;
 	}
 
 	.auto-fold #adminmenu a[class*="toplevel_page_http"].wp-first-item {
@@ -347,11 +347,11 @@
 	}
 
 	.wp-responsive-open #wpcontent {
-		margin-left: 272px;
+		margin-left: 160px;
 	}
 
 	.auto-fold #adminmenu, .auto-fold #adminmenuback, .auto-fold #adminmenuwrap {
-		width: 272px;
+		width: 160px;
 	}
 
 	.auto-fold #adminmenu a.site-switcher,
