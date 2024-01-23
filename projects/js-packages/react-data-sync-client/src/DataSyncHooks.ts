@@ -12,6 +12,14 @@ import React from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 
+type QueryKey = Array< string | number >;
+
+/**
+ * Keep track of the latest id of each mutation that has been dispatched, so we can only
+ * react to the latest one.
+ */
+const mutationIds = new Map< string, number >();
+
 /**
  * @REACT-TODO This is temporary. We need to allow each app to define their own QueryClient.
  * All of the functions below will have to be moved to a factory wrapper
@@ -135,13 +143,19 @@ export function useDataSync<
 			queryClient.setQueryData( queryKey, value );
 
 			// Return a context object with the snapshotted value
-			return { previousValue };
+			return { previousValue, setId: incrementMutationId( queryKey ) };
 		},
 		onError: ( _, __, context ) => {
-			queryClient.setQueryData( queryKey, context.previousValue );
+			// Only update the cached value if this is the latest mutation
+			if ( getLatestMutationId( queryKey ) === context.setId ) {
+				queryClient.setQueryData( queryKey, context.previousValue );
+			}
 		},
-		onSuccess: ( data: Schema ) => {
-			queryClient.setQueryData( queryKey, data );
+		onSuccess: ( data: Schema, _, context ) => {
+			// Only update the cached value if this is the latest mutation
+			if ( getLatestMutationId( queryKey ) === context.setId ) {
+				queryClient.setQueryData( queryKey, data );
+			}
 		},
 	};
 
@@ -306,4 +320,26 @@ export function useDataSyncAction<
 		...mutationConfigDefaults,
 		...mutationOptions,
 	} );
+}
+
+/**
+ * Increase the mutation id for the given query key, and return the new id.
+ *
+ * @param {QueryKey} key - The query key to increment the mutation id for.
+ * @returns {number} - The new mutation id for the key.
+ */
+function incrementMutationId( key: QueryKey ): number {
+	const id = mutationIds.get( key.join( ':' ) ) || 0;
+	mutationIds.set( key.join( ':' ), id + 1 );
+	return id + 1;
+}
+
+/**
+ * Get the latest mutation id for the given query key.
+ *
+ * @param {QueryKey} key - The query key to get the latest mutation id for.
+ * @returns {number} - The latest mutation id for the key.
+ */
+function getLatestMutationId( key: QueryKey ): number {
+	return mutationIds.get( key.join( ':' ) ) || 0;
 }
