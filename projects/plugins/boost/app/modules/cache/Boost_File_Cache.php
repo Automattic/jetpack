@@ -60,12 +60,6 @@ class Boost_File_Cache extends Boost_Cache {
 		if ( ! $this->is_cacheable() ) {
 			return false;
 		}
-		$defaults = array(
-			'request_uri' => $this->request_uri,
-			'cookies'     => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			'get'         => $_GET, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
-		);
-		$args     = array_merge( $defaults, $args );
 		if ( file_exists( $this->cache_filename( $args ) ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo file_get_contents( $this->cache_filename( $args ) ) . '<!-- cached -->';
@@ -98,14 +92,7 @@ class Boost_File_Cache extends Boost_Cache {
 			return false;
 		}
 
-		$args = array(
-			'request_uri' => $this->request_uri,
-			'cookies'     => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			'get'         => $_GET, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
-		);
-
-		$cache_filename = $this->cache_filename( $args );
-
+		$cache_filename = $this->cache_filename();
 		$this->create_cache_directory( dirname( $cache_filename ) );
 		$tmp_filename = $cache_filename . uniqid( wp_rand(), true ) . '.tmp';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
