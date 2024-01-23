@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'preact/hooks';
 import { translate } from '../../i18n';
-import { userInfo, userLoggedIn } from '../../state';
+import { userInfo, userLoggedIn, commentUrl } from '../../state';
 import { SimpleSubscribeModalProps } from '../../types';
 import {
 	getSubscriptionModalViewCount,
@@ -13,7 +13,6 @@ import { SimpleSubscribeModalLoggedOut } from './logged-out';
 import './style.scss';
 
 export const SimpleSubscribeModal = ( {
-	commentUrl,
 	setSubscribeModalStatus,
 	subscribeModalStatus,
 	closeModalHandler,
@@ -57,7 +56,7 @@ export const SimpleSubscribeModal = ( {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	if ( ! commentUrl ) {
+	if ( ! commentUrl.value ) {
 		// When not showing the modal, we check for modal conditions to show it.
 		// This is done to avoid subscriptionApi calls for logged out users.
 		if ( userLoggedIn.value ) {
@@ -72,7 +71,7 @@ export const SimpleSubscribeModal = ( {
 	}
 
 	// We use the same logic as in the comment footer to know if the user is already subscribed.
-	if ( subscribeModalStatus !== 'showed' && commentUrl ) {
+	if ( subscribeModalStatus !== 'showed' && commentUrl.value ) {
 		closeModalHandler();
 		return null;
 	}
@@ -103,7 +102,6 @@ export const SimpleSubscribeModal = ( {
 				} ) }
 			>
 				<SimpleSubscribeModalComponent
-					commentUrl={ commentUrl }
 					subscribeState={ subscribeState }
 					setSubscribeState={ setSubscribeState }
 					closeModalHandler={ closeModalStateHandler }

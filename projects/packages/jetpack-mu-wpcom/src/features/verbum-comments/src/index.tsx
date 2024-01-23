@@ -18,6 +18,7 @@ import {
 	shouldStoreEmailData,
 	userInfo,
 	userLoggedIn,
+	commentUrl,
 } from './state';
 import {
 	classNames,
@@ -40,7 +41,6 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		| 'hidden_views_limit'
 		| 'hidden_already_subscribed'
 	>();
-	const [ commentUrl, setCommentUrl ] = useState( '' );
 
 	const commentTextarea = useRef< HTMLTextAreaElement >();
 	const [ email, setEmail ] = useState( '' );
@@ -130,9 +130,8 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		} );
 
 		if ( response.redirected ) {
-			setCommentUrl(
-				response.url + ( parentCommentId > 0 ? '#comment-' + parentCommentId : '#respond' )
-			);
+			commentUrl.value =
+				response.url + ( parentCommentId > 0 ? '#comment-' + parentCommentId : '#respond' );
 			setShowMessage( translate( 'Comment sent successfully' ) );
 			setIsErrorMessage( false );
 			return;
@@ -198,13 +197,13 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 	};
 
 	const closeModalHandler = () => {
-		const destinationUrl = new URL( commentUrl );
+		const destinationUrl = new URL( commentUrl.value );
 
 		// current URL without hash
 		const currentUrlWithoutHash = location.href.replace( location.hash, '' );
 		// destination URL without hash
 		const destinationUrlWithoutHash = destinationUrl.href.replace( destinationUrl.hash, '' );
-		window.location.href = commentUrl;
+		window.location.href = commentUrl.value;
 
 		// reload the page if the user is already on the comment page
 		if ( currentUrlWithoutHash === destinationUrlWithoutHash ) {
@@ -234,7 +233,6 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 			<CommentMessage message={ showMessage } isError={ isErrorMessage } />
 			{ VerbumComments.enableSubscriptionModal && (
 				<SimpleSubscribeModal
-					commentUrl={ commentUrl }
 					setSubscribeModalStatus={ setSubscribeModalStatus }
 					subscribeModalStatus={ subscribeModalStatus }
 					closeModalHandler={ closeModalHandler }

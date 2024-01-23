@@ -1,6 +1,6 @@
 import useSubscriptionApi from '../../hooks/useSubscriptionApi';
 import { translate } from '../../i18n';
-import { subscriptionSettings, userInfo } from '../../state';
+import { subscriptionSettings, userInfo, commentUrl } from '../../state';
 import { SimpleSubscribeModalProps } from '../../types';
 import { shouldShowSubscriptionModal } from '../../utils';
 import SubscriptionModal from './subscription-modal';
@@ -24,7 +24,6 @@ export const SimpleSubscribeSetModalShowLoggedIn = ( {
 
 // Subscription modal for logged in users.
 export const SimpleSubscribeModalLoggedIn = ( {
-	commentUrl,
 	subscribeState,
 	setSubscribeState,
 	closeModalHandler,
@@ -44,7 +43,7 @@ export const SimpleSubscribeModalLoggedIn = ( {
 		setSubscribeState( 'SUBSCRIBED' );
 	}
 
-	if ( ! commentUrl ) {
+	if ( ! commentUrl.value ) {
 		return;
 	}
 

@@ -85,6 +85,12 @@ export const isReplyDisabled = computed( () => {
 } );
 
 /*
+ * commentUrl is used to store the url of the comment page.
+ * This is used to redirect the user to the comment page after the comment is saved.
+ */
+export const commentUrl = signal( '' );
+
+/*
  * Indicate whether we need to store the email data. If set we use this to store the user info cookie.
  */
 export const shouldStoreEmailData = signal( false );

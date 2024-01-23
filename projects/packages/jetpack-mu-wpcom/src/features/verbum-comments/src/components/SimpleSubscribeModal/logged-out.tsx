@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'preact/hooks';
 import { translate } from '../../i18n';
+import { commentUrl } from '../../state';
 import { SimpleSubscribeModalProps } from '../../types';
 import SubscriptionModal from './subscription-modal';
 import type { ChangeEvent } from 'preact/compat';
 
 // Subscription modal for logged-out users.
 export const SimpleSubscribeModalLoggedOut = ( {
-	commentUrl,
 	subscribeState,
 	setSubscribeState,
 	closeModalHandler,
@@ -76,7 +76,7 @@ export const SimpleSubscribeModalLoggedOut = ( {
 		window.addEventListener( 'message', handleIframeResult, false );
 	}
 
-	if ( ! commentUrl ) {
+	if ( ! commentUrl.value ) {
 		return;
 	}
 

@@ -81,7 +81,6 @@ export type EmailSubscriptionResponse = {
 };
 
 export interface SimpleSubscribeModalProps {
-	commentUrl: string;
 	closeModalHandler: () => void;
 	email: string;
 	setSubscribeModalStatus?: ( string ) => void;
@@ -95,6 +94,7 @@ export interface SimpleSubscribeModalProps {
 	setSubscribeState?: ( boolean ) => void;
 	setHasIframe?: ( boolean ) => void;
 }
+
 export type MailLoginData = {
 	service: string;
 	email?: string;
