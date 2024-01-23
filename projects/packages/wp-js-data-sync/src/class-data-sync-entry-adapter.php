@@ -53,6 +53,7 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 	}
 
 	public function get() {
+
 		if ( $this->parser->has_fallback() ) {
 			$default = $this->parser->get_fallback();
 			$value   = $this->entry->get( $default );

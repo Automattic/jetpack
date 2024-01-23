@@ -33,7 +33,7 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
  */
 function jetpack_boost_register_option( $key, $parser, $entry = null ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-	         ->register( $key, $parser, $entry );
+			->register( $key, $parser, $entry );
 }
 
 /**
@@ -45,9 +45,10 @@ function jetpack_boost_register_option( $key, $parser, $entry = null ) {
  *
  * @return void
  */
+
 function jetpack_boost_register_action( $key, $action_name, $request_schema, $instance ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-	         ->register_action( $key, $action_name, $request_schema, $instance );
+			->register_action( $key, $action_name, $request_schema, $instance );
 }
 
 /**
@@ -64,8 +65,8 @@ function jetpack_boost_register_readonly_option( $key, $callback ) {
  */
 function jetpack_boost_ds_entry( $key ) {
 	return Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-	                ->get_registry()
-	                ->get_entry( $key );
+					->get_registry()
+					->get_entry( $key );
 }
 
 function jetpack_boost_ds_get( $key ) {
