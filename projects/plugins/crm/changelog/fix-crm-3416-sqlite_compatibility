@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Adjust queries for SQLite compatibility
