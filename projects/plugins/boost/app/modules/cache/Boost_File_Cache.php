@@ -6,15 +6,6 @@ require_once __DIR__ . '/Boost_Cache.php';
 
 class Boost_File_Cache extends Boost_Cache {
 	/*
-	 * Serve the cached page if it exists, otherwise start output buffering.
-	 */
-	public function serve() {
-		if ( ! $this->get() ) {
-			$this->ob_start();
-		}
-	}
-
-	/*
 	 * Returns the path to the cache directory for the given request, or current request
 	 *
 	 * @param string $request_uri - The request uri to get the path for. Defaults to current request.

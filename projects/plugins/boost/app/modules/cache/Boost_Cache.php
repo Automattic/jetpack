@@ -20,6 +20,15 @@ abstract class Boost_Cache {
 	}
 
 	/*
+	 * Serve the cached page if it exists, otherwise start output buffering.
+	 */
+	public function serve() {
+		if ( ! $this->get() ) {
+			$this->ob_start();
+		}
+	}
+
+	/*
 	 * Returns true if the request is cacheable.
 	 *
 	 * If a request is in the backend, or is a POST request, or is not an
