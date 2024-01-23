@@ -39,8 +39,9 @@ class Schema_State implements Parser {
 	/**
 	 * Allow combining multiple types of schemas internally for easier fallbacks.
 	 * For a public or API, use `Schema::either()` instead.
+	 *
 	 * @param Parser $parser
-	 *                      
+	 *
 	 *
 	 * @return $this
 	 * @see Schema::either()
@@ -71,19 +72,22 @@ class Schema_State implements Parser {
 	 * @throws Schema_Error When the input data is invalid and debug mode is enabled.
 	 */
 	public function fallback( $default_value ) {
+
+		// In debug mode: Ensure that the fallback value can be parsed.
 		if ( DS_Utils::is_debug_enabled() ) {
-			try {
-				$this->parser->parse( $default_value, $this->context ?? new Schema_Context( 'debug-mode' ) );
-			} catch ( Schema_Error $e ) {
-				// Convert the internal error to a parsing error.
-				throw new Schema_Error( $e->getMessage(), $e->get_value(), $this->context );
-			}
+			$this->parser->parse( $default_value, $this->context ?? new Schema_Context( 'debug-mode' ) );
 		}
 
 		$this->or( new Type_Literal( $default_value ) );
 		return $this;
 	}
 
+	/**
+	 * Turn this schema into a nullable schema.
+	 * This means that the schema will accept `null` as a valid value.
+	 *
+	 * @return $this
+	 */
 	public function nullable() {
 		$this->or( new Type_Void() );
 		return $this;
