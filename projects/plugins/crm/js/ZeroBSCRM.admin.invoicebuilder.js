@@ -1581,14 +1581,10 @@ function zbscrm_JS_calc_amount_due() {
 			}
 			v = parseFloat( v ) * multiplier;
 
-			// if v is a negative number and also a Credit or Refund, add to amount_due, otherwise, deduct.
-			// if ( v < 0 && ( label.includes( 'Refund' ) || label.includes( 'Credit' ) ) ) {
-			// 	amount_due += v;
-			// } else {
-			// 	amount_due -= v;
-			// }
 			if (  label.includes( 'Refund' ) || label.includes( 'Credit' ) ) {
 				amount_due -= Math.abs( v );
+			} else {
+				amount_due -= v;
 			}
 		} );
 
