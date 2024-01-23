@@ -112,28 +112,7 @@ class Schema_Parser implements Parser {
 			] );
 			return $parser->parse( $value, $context );
 		} catch ( Schema_Error $e ) {
-
-			$context->log( "Error: {$parser}", [
-				'value' => $value,
-				'error' => $e->getMessage(),
-			] );
-
-
-			if ( DS_Utils::is_debug() ) {
-				$value         = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
-				$error_message = "Failed to parse '{$context->get_name()}' schema";
-				$error_message .= "\n" . $e->getMessage();
-				$error_message .= "\nData Received:";
-				$error_message .= "\n$value";
-				$error_message .= "\nSchema Path: {$context->get_name()}.{$context->get_path()}";
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( $error_message );
-			}
-
-			if ( $this->has_fallback() ) {
-				return $this->get_fallback();
-			}
-
+			$context->log( "Schema_Error: {$this}->parse failed.", [], $e );
 			throw new Schema_Error( $e->getMessage(), $e->get_value(), $context );
 		}
 	}
