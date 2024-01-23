@@ -238,7 +238,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		// This looks valid code and will not break in production.
 		// However, an empty array does not match $schema_no_fallbacks as a fallback.
 		// It should have a fallback of `null` instead.
-		if ( DS_Utils::is_debug_enabled() ) {
+		if ( DS_Utils::is_debug() ) {
 			// We're expecting an exception because $schema_empty_array defines an incorrect fallback shape.
 			// This throws an error in debug mode.
 			$this->expectException( Schema_Error::class );

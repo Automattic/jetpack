@@ -18,7 +18,7 @@ class Type_Assoc_Array implements Parser {
 	 */
 	public function __construct( $assoc_parser_array ) {
 		$this->parser = $assoc_parser_array;
-		if ( ! is_array( $assoc_parser_array ) && DS_Utils::is_debug_enabled() ) {
+		if ( ! is_array( $assoc_parser_array ) && DS_Utils::is_debug() ) {
 			$message = "Expected an associative array of parsers, received '" . gettype( $assoc_parser_array ) . "'";
 			throw new Schema_Error( $message, $assoc_parser_array );
 		}

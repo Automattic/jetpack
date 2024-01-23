@@ -12,7 +12,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 class Type_Void implements Parser {
 
 	public function parse( $value, $context ) {
-		if ( ! empty( $value ) && DS_Utils::is_debug_enabled() ) {
+		if ( ! empty( $value ) && DS_Utils::is_debug() ) {
 			throw new Schema_Error( 'Void type cannot have any data.', $value );
 		}
 		return null;

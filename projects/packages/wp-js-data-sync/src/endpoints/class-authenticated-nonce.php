@@ -23,14 +23,14 @@ class Authenticated_Nonce {
 
 	public function create() {
 
-		if ( DS_Utils::is_debug_enabled() && ! did_action( 'set_current_user' ) ) {
+		if ( DS_Utils::is_debug() && ! did_action( 'set_current_user' ) ) {
 			throw new \RuntimeException( "Debug: Attempting to create {$this->action} nonce before the user is set." );
 		}
 		return wp_create_nonce( $this->action );
 	}
 
 	public function verify( $nonce ) {
-		if ( DS_Utils::is_debug_enabled() && ! did_action( 'set_current_user' ) ) {
+		if ( DS_Utils::is_debug() && ! did_action( 'set_current_user' ) ) {
 			throw new \RuntimeException( "Debug: Attempting to validate {$this->action} nonce before the user is set." );
 		}
 

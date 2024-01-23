@@ -13,16 +13,30 @@ class DS_Utils {
 	 *
 	 * @return bool
 	 */
-	public static function is_debug_enabled(): bool {
+	public static function is_debug(): bool {
 		return (
-			( defined( 'WP_DEBUG' ) && WP_DEBUG )
+			( defined( 'DATASYNC_DEBUG' ) && DATASYNC_DEBUG )
 			||
 			self::$mode === 'debug'
+			||
+			self::$mode === 'debug-verbose'
+		);
+	}
+
+	public static function is_verbose() {
+		return (
+			self::is_debug()
+			&&
+			(
+				self::$mode === 'debug-verbose'
+				||
+				( defined( 'DATASYNC_VERBOSE' ) && DATASYNC_VERBOSE )
+			)
 		);
 	}
 
 	public static function set_mode( $mode ) {
-		$valid_modes = array( 'debug', null );
+		$valid_modes = array( 'debug', 'debug-verbose', null );
 
 		if ( ! in_array( $mode, $valid_modes, true ) ) {
 			self::$mode = null;

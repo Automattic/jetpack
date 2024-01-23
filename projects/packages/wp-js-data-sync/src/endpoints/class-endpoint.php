@@ -160,7 +160,7 @@ class Endpoint {
 				'status' => 'success',
 				'JSON'   => $result,
 			);
-			if ( DS_Utils::is_debug_enabled() ) {
+			if ( DS_Utils::is_debug() ) {
 				$response['log'] = $this->entry->get_parser()->get_log();
 			}
 			return rest_ensure_response( $response );

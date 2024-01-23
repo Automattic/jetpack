@@ -73,7 +73,7 @@ class Schema_Parser implements Parser {
 	public function fallback( $default_value ) {
 
 		// In debug mode: Ensure that the fallback value can be parsed.
-		if ( DS_Utils::is_debug_enabled() ) {
+		if ( DS_Utils::is_debug() ) {
 			$this->parse( $default_value );
 		}
 
@@ -107,7 +107,7 @@ class Schema_Parser implements Parser {
 		$parser = $this->parser;
 
 		try {
-			$context->log( "Parse: {$parser}", [
+			$context->verbose_log( "Parse: {$parser}", [
 				'value' => $value,
 			] );
 			return $parser->parse( $value, $context );
@@ -118,7 +118,8 @@ class Schema_Parser implements Parser {
 				'error' => $e->getMessage(),
 			] );
 
-			if ( DS_Utils::is_debug_enabled() ) {
+
+			if ( DS_Utils::is_debug() ) {
 				$value         = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
 				$error_message = "Failed to parse '{$context->get_name()}' schema";
 				$error_message .= "\n" . $e->getMessage();

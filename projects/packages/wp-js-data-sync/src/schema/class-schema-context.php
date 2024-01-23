@@ -27,13 +27,22 @@ class Schema_Context {
 	}
 
 	public function log( $message, $data ) {
-		if ( ! DS_Utils::is_debug_enabled() ) {
+		if ( ! DS_Utils::is_debug() ) {
 			return;
 		}
+		$key         = $this->get_path();
 		$this->log[] = array(
+			'key'     => $key,
 			'message' => $message,
 			'data'    => $data,
 		);
+	}
+
+	public function verbose_log( $message, $data ) {
+		if ( ! DS_Utils::is_verbose() ) {
+			return;
+		}
+		$this->log( $message, $data );
 	}
 
 	public function get_log() {
@@ -41,8 +50,13 @@ class Schema_Context {
 	}
 
 	public function get_path() {
-		return implode( '.', $this->path );
+		$path = $this->name;
+		if ( ! empty( $this->path ) ) {
+			$path .= '.' . implode( '.', $this->path );
+		}
+		return $path;
 	}
+
 
 	public function remove_path( $key ) {
 		$index = array_search( $key, $this->path, true );

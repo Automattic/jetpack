@@ -148,7 +148,7 @@ final class Data_Sync {
 				'nonce' => $this->registry->get_endpoint( $key )->create_nonce(),
 			);
 
-			if ( DS_Utils::is_debug_enabled() ) {
+			if ( DS_Utils::is_debug() ) {
 				$data[ $key ]['log'] = $entry->get_parser()->get_log();
 			}
 
