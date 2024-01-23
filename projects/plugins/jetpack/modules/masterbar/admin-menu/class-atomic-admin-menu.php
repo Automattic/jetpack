@@ -334,6 +334,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Jetpack menu.
 	 */
 	public function add_jetpack_menu() {
+		// This is supposed to be the same as class-admin-menu but with a different position specified for the Jetpack menu.
 		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 			$icon            = ( new Logo() )->get_base64_logo();
 			$is_menu_updated = $this->update_menu( 'jetpack', null, null, null, $icon, 2 );
