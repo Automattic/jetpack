@@ -50,7 +50,7 @@ abstract class Boost_Cache {
 
 	/*
 	 * copy of _deep_replace() to be used before WordPress loads
-	 * @see https://developer.wordpress.org/reference/functions/deep_replace/
+	 * @see https://developer.wordpress.org/reference/functions/_deep_replace/
 	 */
 	private function deep_replace( $search, $subject ) {
 		$subject = (string) $subject;
