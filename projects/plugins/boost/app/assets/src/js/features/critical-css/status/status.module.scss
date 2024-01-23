@@ -1,0 +1,67 @@
+@import "../../../../css/main/mixins.scss";
+@import "../../../../css/main/variables.scss";
+
+.status {
+	margin-bottom: 32px;
+	font-size: 14px;
+	line-height: 22px;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+
+	@include breakpoint(xs) {
+		display: block;
+	}
+
+	.summary {
+		margin-right: 5px;
+		flex-grow: 1;
+		position: relative;
+
+		.successes, .generating {
+			color: $gray_40;
+			margin-right: 115px;
+		}
+
+		.failures {
+			margin-top: 1em;
+			color: $gray_100;
+
+			@include breakpoint(xs) {
+				margin-bottom: 1em;
+			}
+
+			svg {
+				position: absolute;
+				width: 1.4rem;
+				height: 1.4rem;
+				left: -60px;
+			}
+		}
+	}
+
+	button {
+		font-size: 14px;
+		color: $gray_90;
+
+		&:global(.components-button.is-link) {
+			margin-left: 8px;
+			font-weight: normal;
+
+			&:hover {
+				color: $gray_90;
+				background: none;
+				text-decoration-thickness: inherit;
+			}
+
+			@include breakpoint(xs) {
+				margin-left: 0;
+			}
+		}
+
+		svg {
+			margin: 4px 4px 2px 0;
+			fill: $jetpack-green;
+		}
+	}
+}

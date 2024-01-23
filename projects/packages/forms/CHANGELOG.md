@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.1] - 2024-01-22
+### Added
+- Contact Form: test setup for front end script [#35074]
+
+## [0.30.0] - 2024-01-08
+### Changed
+- Updated useModuleStatus hook to use module_status redux store. [#34845]
+- Use useModuleStatus hook instead of direct call of store selectors. [#34856]
+
+### Fixed
+- Avoid PHP warnings when post is not set. [#34886]
+
 ## [0.29.2] - 2024-01-04
 ### Changed
 - Updated package dependencies. [#34815]
@@ -457,6 +469,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.30.1]: https://github.com/automattic/jetpack-forms/compare/v0.30.0...v0.30.1
+[0.30.0]: https://github.com/automattic/jetpack-forms/compare/v0.29.2...v0.30.0
 [0.29.2]: https://github.com/automattic/jetpack-forms/compare/v0.29.1...v0.29.2
 [0.29.1]: https://github.com/automattic/jetpack-forms/compare/v0.29.0...v0.29.1
 [0.29.0]: https://github.com/automattic/jetpack-forms/compare/v0.28.0...v0.29.0

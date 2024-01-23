@@ -1,0 +1,14 @@
+# Files not needed to be distributed in the package.
+.gitattributes    export-ignore
+node_modules      export-ignore
+
+# Files to include in the mirror repo, but excluded via gitignore
+# Remember to end all directories with `/**` to properly tag every file.
+/build/**         production-include
+
+# Files to exclude from the mirror repo
+/changelog/**     production-exclude
+/.eslintrc.cjs    production-exclude
+/jest.config.cjs  production-exclude
+**/stories/**     production-exclude
+/tests/**         production-exclude

@@ -151,7 +151,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		parent::setup_filters();
 
 		add_filter( 'comment_post_redirect', array( $this, 'capture_comment_post_redirect_to_reload_parent_frame' ), 100 );
+		add_filter( 'comment_duplicate_trigger', array( $this, 'capture_comment_duplicate_trigger' ), 100 );
 		add_filter( 'get_avatar', array( $this, 'get_avatar' ), 10, 4 );
+		// Fix comment reply link when `comment_registration` is required.
+		add_filter( 'comment_reply_link', array( $this, 'comment_reply_link' ), 10, 4 );
 	}
 
 	/**
@@ -183,6 +186,57 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		// Return the Facebook or Twitter avatar.
 		return preg_replace( '#src=([\'"])[^\'"]+\\1#', 'src=\\1' . esc_url( set_url_scheme( $this->photon_avatar( $foreign_avatar, $size ), 'https' ) ) . '\\1', $avatar );
+	}
+
+	/**
+	 * Set comment reply link.
+	 * This is to fix the reply link when comment registration is required.
+	 *
+	 * @param string     $reply_link The HTML markup for the comment reply link.
+	 * @param array      $args An array of arguments overriding the defaults.
+	 * @param WP_Comment $comment The object of the comment being replied.
+	 * @param WP_Post    $post    The WP_Post object.
+	 *
+	 * @return string New reply link.
+	 */
+	public function comment_reply_link( $reply_link, $args, $comment, $post ) {
+		// This is only necessary if comment_registration is required to post comments
+		if ( ! get_option( 'comment_registration' ) ) {
+			return $reply_link;
+		}
+
+		$respond_id = esc_attr( $args['respond_id'] );
+		$add_below  = esc_attr( $args['add_below'] );
+		/* This is to accommodate some themes that add an SVG to the Reply link like twenty-seventeen. */
+		$reply_text  = wp_kses(
+			$args['reply_text'],
+			array(
+				'svg' => array(
+					'class'           => true,
+					'aria-hidden'     => true,
+					'aria-labelledby' => true,
+					'role'            => true,
+					'xmlns'           => true,
+					'width'           => true,
+					'height'          => true,
+					'viewbox'         => true,
+				),
+				'use' => array(
+					'href'       => true,
+					'xlink:href' => true,
+				),
+			)
+		);
+		$before_link = wp_kses( $args['before'], wp_kses_allowed_html( 'post' ) );
+		$after_link  = wp_kses( $args['after'], wp_kses_allowed_html( 'post' ) );
+
+		$reply_url = esc_url( add_query_arg( 'replytocom', $comment->comment_ID . '#' . $respond_id ) );
+
+		return <<<HTML
+			$before_link
+			<a class="comment-reply-link" href="$reply_url" onclick="return addComment.moveForm( '$add_below-$comment->comment_ID', '$comment->comment_ID', '$respond_id', '$post->ID' )">$reply_text</a>
+			$after_link
+HTML;
 	}
 
 	/**
@@ -674,6 +728,95 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
+	 * Catch the duplicated comment error and show a custom error page
+	 *
+	 * @return void
+	 */
+	public function capture_comment_duplicate_trigger() {
+		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			exit;
+		}
+
+		?>
+		<!DOCTYPE html>
+		<html <?php language_attributes(); ?>>
+		<!--<![endif]-->
+		<head>
+			<meta charset="<?php bloginfo( 'charset' ); ?>" />
+			<title>
+				<?php
+					wp_kses_post(
+						printf(
+							/* translators: %s is replaced by an ellipsis */
+							__( 'Submitting Comment%s', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							'&hellip;'
+						)
+					);
+				?>
+				</title>
+			<style type="text/css">
+				body {
+					display: table;
+					width: 100%;
+					height: 60%;
+					position: absolute;
+					top: 0;
+					left: 0;
+					overflow: hidden;
+					color: #333;
+					padding-top: 3%;
+				}
+				div {
+					text-align: left;
+					margin: 0;
+					padding: 0;
+					display: table-cell;
+					vertical-align: top;
+					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
+					font-weight: normal;
+				}
+
+				h3 {
+					margin: 0;
+					padding-bottom: 3%;
+					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
+					font-weight: normal;
+				}
+				a {
+					text-decoration: underline;
+					color: #333 !important;
+				}
+			</style>
+		</head>
+		<body>
+		<div>
+			<h3>
+				<?php
+					esc_html_e( 'Duplicate comment detected; it looks as though you’ve already said that!', 'jetpack' );
+				?>
+			</h3>
+			<a href="javascript:backToComments()"><?php esc_html_e( '&laquo; Back', 'jetpack' ); ?></a>
+		</div>
+		<script type="text/javascript">
+			function backToComments() {
+				const test = regexp => {
+						return regexp.test(navigator.userAgent);
+				};
+				if (test(/chrome|chromium|crios|safari|edg/i)) {
+						history.go(-2);
+						return;
+				}
+				history.back();
+			}
+		</script>
+
+		</body>
+		</html>
+		<?php
+		exit;
+	}
+
+	/**
 	 * POST the submitted comment to the iframe
 	 *
 	 * @param string $url The comment URL origin.
@@ -716,14 +859,15 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					left: 0;
 					overflow: hidden;
 					color: #333;
+					padding-top: 3%;
 				}
 
-				h1 {
+				h3 {
 					text-align: center;
 					margin: 0;
 					padding: 0;
 					display: table-cell;
-					vertical-align: middle;
+					vertical-align: top;
 					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
 					font-weight: normal;
 				}
@@ -732,7 +876,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					opacity: 0;
 				}
 
-				h1 span {
+				h3 span {
 					-moz-transition-property: opacity;
 					-moz-transition-duration: 1s;
 					-moz-transition-timing-function: ease-in-out;
@@ -757,7 +901,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		</head>
 		<body>
 		<?php if ( ! $should_show_subscription_modal ) { ?>
-		<h1>
+		<h3>
 			<?php
 				wp_kses_post(
 					printf(
@@ -767,7 +911,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					)
 				);
 			?>
-		</h1>
+		</h3>
 		<script type="text/javascript">
 			try {
 				window.parent.location = <?php echo wp_json_encode( $url ); ?>;
@@ -785,13 +929,13 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			setInterval(toggleEllipsis, 1200);
 		</script>
 		<?php } else { ?>
-		<h1>
+		<h3>
 			<?php
 				wp_kses_post(
 					print __( 'Comment sent', 'jetpack' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
 			?>
-		</h1>
+		</h3>
 		<script type="text/javascript">
 			if ( window.parent && window.parent !== window ) {
 

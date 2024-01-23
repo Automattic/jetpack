@@ -59,7 +59,7 @@ function zeroBSCRM_checkSystemFeat( $key = '', $with_info = false ) {
 		'sqlrights',
 		'devmode',
 		'permalinks',
-		'mysql',
+		'dbserver',
 		'innodb',
 		'fontinstalled',
 		'encryptionmethod',
@@ -309,15 +309,18 @@ function zeroBSCRM_checkSystemFeat( $key = '', $with_info = false ) {
 		}
 	}
 
-	// what mysql we running
-	function zeroBSCRM_checkSystemFeat_mysql($withInfo=false){
-
-		if (!$withInfo)
-			return zeroBSCRM_database_getVersion();
-		else
-			return array(1, zeroBSCRM_database_getVersion());
-
+/**
+ * Get info about the database server engine and version.
+ *
+ * @param boolean $with_info Provides extra info.
+ */
+function zeroBSCRM_checkSystemFeat_dbserver( $with_info = false ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	if ( ! $with_info ) {
+		return zeroBSCRM_database_getVersion();
+	} else {
+		return array( 1, jpcrm_database_engine( true ) . ' (' . zeroBSCRM_database_getVersion() . ')' );
 	}
+}
 
 	// got InnoDB?
 	function zeroBSCRM_checkSystemFeat_innodb($withInfo=false){

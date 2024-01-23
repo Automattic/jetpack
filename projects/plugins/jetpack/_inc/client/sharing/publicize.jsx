@@ -28,6 +28,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				isLinked = this.props.isLinked,
 				isOfflineMode = this.props.isOfflineMode,
 				siteRawUrl = this.props.siteRawUrl,
+				blogID = this.props.blogID,
 				siteAdminUrl = this.props.siteAdminUrl,
 				isActive = this.props.getOptionValue( 'publicize' ),
 				hasSocialBasicFeatures = this.props.hasSocialBasicFeatures,
@@ -63,7 +64,9 @@ export const Publicize = withModuleSettingsFormHelpers(
 							onClick={ this.trackClickConfigure }
 							target="_blank"
 							rel="noopener noreferrer"
-							href={ getRedirectUrl( 'calypso-marketing-connections', { site: siteRawUrl } ) }
+							href={ getRedirectUrl( 'calypso-marketing-connections', {
+								site: blogID ?? siteRawUrl,
+							} ) }
 						>
 							{ __( 'Connect your social media accounts', 'jetpack' ) }
 						</Card>

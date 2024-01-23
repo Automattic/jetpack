@@ -1,9 +1,12 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const jetpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
 module.exports = {
 	entry: {
 		'error-reporting': './src/features/error-reporting/index.js',
+		'block-theme-previews': './src/features/block-theme-previews/index.js',
 	},
 	mode: jetpackConfig.mode,
 	devtool: jetpackConfig.devtool,
@@ -19,7 +22,9 @@ module.exports = {
 		...jetpackConfig.resolve,
 	},
 	node: false,
-	plugins: [ ...jetpackConfig.StandardPlugins() ],
+	plugins: [
+		...jetpackConfig.StandardPlugins( { MiniCssExtractPlugin: { filename: '[name]/[name].css' } } ),
+	],
 	module: {
 		strictExportPresence: true,
 		rules: [
@@ -34,7 +39,10 @@ module.exports = {
 			} ),
 
 			// Handle CSS.
-			jetpackConfig.CssRule(),
+			jetpackConfig.CssRule( {
+				extensions: [ 'css', 'scss' ],
+				extraLoaders: [ 'sass-loader' ],
+			} ),
 
 			// Handle images.
 			jetpackConfig.FileRule(),

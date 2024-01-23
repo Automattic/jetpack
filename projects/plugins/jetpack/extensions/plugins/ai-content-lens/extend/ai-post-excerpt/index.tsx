@@ -219,7 +219,7 @@ ${ postContent }
 					</Notice>
 				) }
 
-				{ isOverLimit && <UpgradePrompt /> }
+				{ isOverLimit && <UpgradePrompt placement="excerpt-panel" /> }
 
 				<AiExcerptControl
 					words={ excerptWordsNumber }
