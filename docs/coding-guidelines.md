@@ -17,7 +17,7 @@ These are some things to keep in mind when writing code for the Jetpack Monorepo
 - **General dependencies**: When it comes to dependencies in general, and particularly large ones, it's good practice to choose options already used in the Monorepo and to try to match the versions too.
   - If some other option is better that what we're currently using, it may be worth starting a project to switch everything to the new option.
   - When consuming monorepo `js-packages` within the Monorepo, the package should provide `jetpack:src` entries in `.exports` in `package.json` to avoid having to build before `eslint` can run. Do not use `.scripts.prepare` or the like to try to compile on installation, as that slows down and complicates installation for everyone even if they're not using that js-package.
-- **Browsers**: We support the latest two versions of all major browsers, except IE, where we currently only support 11 and Edge. (see [Browse Happy](http://browsehappy.com) for current latest versions).
+- **Browsers**: Jetpack Monorepo follows Gutenberg's browser support guidelines by [relying on the `browserlist-config` package](https://make.wordpress.org/core/handbook/best-practices/browser-support/).
 
 ### Project based language and tool versions 
 
