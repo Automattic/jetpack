@@ -81,7 +81,7 @@ abstract class Boost_Cache {
 		}
 
 		$request_uri = $this->deep_replace(
-			array( '..', '\\', 'index.php' ),
+			array( '..', '\\' ),
 			preg_replace(
 				'/[ <>\'\"\r\n\t\(\)]/',
 				'',
