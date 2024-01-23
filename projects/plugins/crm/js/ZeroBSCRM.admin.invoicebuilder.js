@@ -1783,12 +1783,12 @@ function zbscrm_JS_invoice_typeahead_bind() {
 						var name = r.name.trim()
 							? r.name
 							: zeroBSCRMJS_globViewLang( 'contact' ) + ' #' + r.id;
-						var email = r.email ? r.email : '<i>' + zbscrm_JS_invoice_lang( 'noemail' ) + '</i>';
+						var email = r.email ? jpcrm.esc_html(r.email) : '<i>' + zbscrm_JS_invoice_lang( 'noemail' ) + '</i>';
 						sug =
 							'<div class="sug-wrap"><div class="ico">' +
 							ico +
 							'</div><div class="inner"><div class="name">' +
-							name +
+							jpcrm.esc_html(name) +
 							'</div><div class="email">' +
 							email +
 							'</div></div><div class="clear"</div></div>';
