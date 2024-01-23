@@ -20,6 +20,12 @@ class Boost_File_Cache extends Boost_Cache {
 
 		$key  = $this->path_key( $request_uri );
 		$path = WP_CONTENT_DIR . '/boost-cache/cache/';
+
+		/*
+		 * The cache directory is split into 5 levels of subdirectories.
+		 * 2 characters of the md5 hash of the request uri are used for each level.
+		 * This is done to prevent having too many files in a single directory.
+		 */
 		for ( $i = 0; $i < 10; $i += 2 ) {
 			$path .= substr( $key, $i, 2 ) . '/';
 		}
