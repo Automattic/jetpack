@@ -867,6 +867,9 @@ class Jetpack {
 
 		// Actions for conditional recommendations.
 		add_action( 'plugins_loaded', array( 'Jetpack_Recommendations', 'init_conditional_recommendation_actions' ) );
+
+		// Add 5-star
+		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );
 	}
 
 	/**
@@ -6898,5 +6901,25 @@ endif;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Add 5-star review link on the Jetpack Plugin meta, in the plugins list table (on the plugins page).
+	 *
+	 * @param array  $plugin_meta An array of the plugin's metadata.
+	 * @param string $plugin_file Path to the plugin file.
+	 *
+	 * @return array $plugin_meta An array of the plugin's metadata.
+	 */
+	public function add_5_star_review_link( $plugin_meta, $plugin_file ) {
+		if ( $plugin_file !== 'jetpack/jetpack.php' ) {
+			return $plugin_meta;
+		}
+
+		$plugin_meta[] = '<a href="https://wordpress.org/support/plugin/jetpack/reviews/?filter=5" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Rate Jetpack on WordPress.org', 'jetpack' ) . '" style="color: #ffb900">'
+			. str_repeat( '<span class="dashicons dashicons-star-filled" style="font-size: 16px; width:16px; height: 16px"></span>', 5 )
+			. '</a>';
+
+		return $plugin_meta;
 	}
 }

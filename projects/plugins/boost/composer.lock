@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6c80eb9df8a2be7ae2d2935ad58659e1",
+    "content-hash": "fd241c30e6f21482ba888653acd84365",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -489,7 +489,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "4fd8bc081e357da1c38738db38da5e8750db3535"
+                "reference": "e86b44dea170b4c686715e5937ca404d259bf622"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -521,7 +521,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.1.x-dev"
+                    "dev-trunk": "2.2.x-dev"
                 }
             },
             "autoload": {
@@ -666,7 +666,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "e7f53dc4d861086ba733fc32571824c19350b9ca"
+                "reference": "a0250717669c335a2696024c473a306309765ee7"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -696,7 +696,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.14.x-dev"
+                    "dev-trunk": "0.15.x-dev"
                 }
             },
             "autoload": {
@@ -933,73 +933,6 @@
             }
         },
         {
-            "name": "automattic/jetpack-lazy-images",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/lazy-images",
-                "reference": "bdd6d73891afabc4b5c6a23172bcf62c6dee1d9a"
-            },
-            "require": {
-                "automattic/jetpack-assets": "@dev",
-                "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-status": "@dev",
-                "php": ">=7.0"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "dev-master",
-                "yoast/phpunit-polyfills": "1.1.0"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-lazy-images",
-                "textdomain": "jetpack-lazy-images",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "3.0.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "build-production": [
-                    "pnpm run build-production"
-                ],
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "post-install-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "post-update-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once. Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos. This feature will consequently be deprecated in November 2023.",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
             "name": "automattic/jetpack-licensing",
             "version": "dev-trunk",
             "dist": {
@@ -1114,7 +1047,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "bdb032cdc3057d67cce902ff0ea9e060aab02a4a"
+                "reference": "0ee01ddf6b05477477f92987e200d72431580389"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1146,7 +1079,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.4.x-dev"
+                    "dev-trunk": "4.6.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1546,7 +1479,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "0582c2d414697f58f416ac91719df4a097481c4d"
+                "reference": "462582ef61f3f6be46574acb34c8d7f59adcdae9"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1569,7 +1502,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.0.x-dev"
+                    "dev-trunk": "2.1.x-dev"
                 }
             },
             "autoload": {
@@ -4979,7 +4912,6 @@
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-image-cdn": 20,
-        "automattic/jetpack-lazy-images": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-plugin-deactivation": 20,
         "automattic/jetpack-plugins-installer": 20,

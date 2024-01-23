@@ -8,7 +8,6 @@ use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Image_CDN;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
@@ -19,7 +18,7 @@ class Modules_Index {
 	/**
 	 * @var Module[] - Associative array of all Jetpack Boost modules.
 	 *
-	 * Example: [ 'critical_css' => Module, 'lazy_images' => Module ]
+	 * Example: [ 'critical_css' => Module, 'image_cdn' => Module ]
 	 */
 	protected $modules = array();
 
@@ -30,7 +29,6 @@ class Modules_Index {
 		Critical_CSS::class,
 		Cloud_CSS::class,
 		Image_Size_Analysis::class,
-		Lazy_Images::class,
 		Minify_JS::class,
 		Minify_CSS::class,
 		Render_Blocking_JS::class,

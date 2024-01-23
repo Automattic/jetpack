@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { type Props, useMetaQuery } from '$lib/stores/minify';
-import { useConfig } from '$lib/stores/config-ds';
+import styles from './minify-meta.module.scss';
 
 const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Props ) => {
-	const config = useConfig();
+	const { pluginDirUrl } = Jetpack_Boost;
 	const [ values, updateValues ] = useMetaQuery( datasyncKey );
 	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
 	const [ isEditing, setIsEditing ] = useState( false );
@@ -23,7 +23,7 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 	return (
 		<div className="jb-critical-css__meta">
 			{ isEditing ? (
-				<div className="manage-excludes">
+				<div className={ styles[ 'manage-excludes' ] }>
 					<label htmlFor={ htmlId }>{ inputLabel }</label>
 					<input
 						type="text"
@@ -32,7 +32,7 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 						id={ htmlId }
 						onChange={ e => setInputValue( e.target.value ) }
 					/>
-					<div className="buttons-container">
+					<div className={ styles[ 'buttons-container' ] }>
 						<button disabled={ values.join( ', ' ) === inputValue } onClick={ save }>
 							{ __( 'Save', 'jetpack-boost' ) }
 						</button>
@@ -62,7 +62,7 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 					>
 						<img
 							className="edit-icon"
-							src={ `${ config.plugin_dir_url }/app/assets/static/images/pencil.svg` }
+							src={ `${ pluginDirUrl }/app/assets/static/images/pencil.svg` }
 							alt={ __( 'Edit', 'jetpack-boost' ) }
 						/>
 						{ buttonText }
