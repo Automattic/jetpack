@@ -47,7 +47,6 @@ class Type_Assoc_Array implements Parser {
 			$message = "Expected an associative array, received '" . gettype( $value ) . "'";
 			throw new Schema_Error( $message, $value );
 		}
-
 		$output = array();
 		foreach ( $this->parser as $key => $parser ) {
 
@@ -83,11 +82,7 @@ class Type_Assoc_Array implements Parser {
 	}
 
 	public function __toString() {
-		$results = array();
-		foreach ( $this->parser as $key => $parser ) {
-			$results[ $key ] = $parser;
-		}
-		return 'assoc_array(' . wp_json_encode( $results, JSON_PRETTY_PRINT ) . ')';
+		return 'assoc_array';
 	}
 
 	/**
