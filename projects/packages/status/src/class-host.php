@@ -134,4 +134,143 @@ class Host {
 
 		return '';
 	}
+
+	/**
+	 * Returns an array of nameservers for the current site.
+	 *
+	 * @param string $domain The domain of the site to check.
+	 * @return string
+	 */
+	public function get_nameserver_dns_records( $domain ) {
+		$dns_records = dns_get_record( $domain, DNS_NS ); // Fetches the DNS records of type NS (Name Server)
+		$nameservers = array();
+
+		foreach ( $dns_records as $record ) {
+			if ( isset( $record['target'] ) ) {
+				$nameservers[] = $record['target']; // Adds the nameserver to the array
+			}
+		}
+
+		return $nameservers; // Returns an array of nameserver names
+	}
+
+	/**
+	 * Given a DNS entry, will return a hosting provider if one can be determined. Otherwise, will return 'unknown'.
+	 * Sourced from: fbhepr%2Skers%2Sjcpbz%2Sjc%2Qpbagrag%2Syvo%2Subfgvat%2Qcebivqre%2Sanzrfreiref.cuc-og
+	 *
+	 * @param string $domain The domain of the site to check.
+	 * @return string The hosting provider of 'unknown'.
+	 */
+	public function get_hosting_provider_by_nameserver( $domain ) {
+		$known_nameservers = array(
+			'bluehost'     => array(
+				'.bluehost.com',
+			),
+			'dreamhost'    => array(
+				'.dreamhost.com',
+			),
+			'mediatemple'  => array(
+				'.mediatemple.net',
+			),
+			'xserver'      => array(
+				'.xserver.jp',
+			),
+			'namecheap'    => array(
+				'.namecheaphosting.com',
+			),
+			'hostmonster'  => array(
+				'.hostmonster.com',
+			),
+			'justhost'     => array(
+				'.justhost.com',
+			),
+			'digitalocean' => array(
+				'.digitalocean.com',
+			),
+			'one'          => array(
+				'.one.com',
+			),
+			'hostpapa'     => array(
+				'.hostpapa.com',
+			),
+			'siteground'   => array(
+				'.sgcloud.net',
+				'.sgedu.site',
+				'.sgsrv1.com',
+				'.sgvps.net',
+				'.siteground.biz',
+				'.siteground.net',
+				'.siteground.eu',
+			),
+			'inmotion'     => array(
+				'.inmotionhosting.com',
+			),
+			'ionos'        => array(
+				'.ui-dns.org',
+				'.ui-dns.de',
+				'.ui-dns.biz',
+				'.ui-dns.com',
+			),
+		);
+
+		$dns_records = $this->get_nameserver_dns_records( $domain );
+		$dns_records = array_map( 'strtolower', $dns_records );
+
+		foreach ( $known_nameservers as $host => $ns_patterns ) {
+			foreach ( $ns_patterns as $ns_pattern ) {
+				foreach ( $dns_records as $record ) {
+					if ( false !== strpos( $record, $ns_pattern ) ) {
+						return $host;
+					}
+				}
+			}
+		}
+
+		return 'unknown';
+	}
+
+	/**
+	 * Returns a guess of the hosting provider for the current site based on various checks.
+	 *
+	 * @return string
+	 */
+	public function get_known_host_guess() {
+		$host = Cache::get( 'host_guess' );
+
+		if ( null !== $host ) {
+			return $host;
+		}
+
+		// First, let's check if we can recognize provider manually:
+		switch ( true ) {
+			case $this->is_woa_site():
+				$provider = 'woa';
+				break;
+			case $this->is_atomic_platform():
+				$provider = 'atomic';
+				break;
+			case $this->is_newspack_site():
+				$provider = 'newspack';
+				break;
+			case $this->is_vip_site():
+				$provider = 'vip';
+				break;
+			case $this->is_wpcom_simple():
+			case $this->is_wpcom_platform():
+				$provider = 'wpcom';
+				break;
+			default:
+				$provider = 'unknown';
+				break;
+		}
+
+		// Second, let's check if we can recognize provider by nameservers:
+		$domain = isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '';
+		if ( $provider === 'unknown' && ! empty( $domain ) ) {
+			$provider = $this->get_hosting_provider_by_nameserver( $domain );
+		}
+
+		Cache::set( 'host_guess', $provider );
+		return $provider;
+	}
 }

@@ -31,6 +31,9 @@
 		"test-php": [
 			"@composer phpunit"
 		],
+		"test-js": [
+			"pnpm run test:contact-form"
+		],
 		"build-production": [
 			"pnpm run build-production"
 		],

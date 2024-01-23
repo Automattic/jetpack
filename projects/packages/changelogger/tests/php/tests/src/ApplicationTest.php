@@ -45,7 +45,7 @@ class ApplicationTest extends TestCase {
 
 		$app->setAutoExit( false );
 		$tester = new ApplicationTester( $app );
-		$tester->run( array( 'command' => 'list' ) );
+		$tester->run( array( 'command' => 'list' ), array( 'decorated' => false ) );
 		$output = $tester->getDisplay();
 		$this->assertMatchesRegularExpression( '/Available commands:/', $output );
 		$this->assertMatchesRegularExpression( '/add\s*Adds a change file/', $output );
@@ -85,7 +85,7 @@ class ApplicationTest extends TestCase {
 			unset( $options['inputs'] );
 		}
 
-		$options[] = 'decorated';
+		$options['decorated'] = false;
 		$tester->run( array( 'command' => 'testDoRun' ), $options );
 		return $tester;
 	}

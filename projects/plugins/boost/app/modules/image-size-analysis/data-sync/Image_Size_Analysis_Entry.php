@@ -22,7 +22,7 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get {
 		);
 
 		$issues = array();
-		foreach ( $data->issues as $issue ) {
+		foreach ( $data['issues'] as $issue ) {
 			$page_provider = $this->get_page( $issue );
 			$image         = $this->get_image_info( $issue );
 			if ( empty( $page_provider['edit_url'] ) ) { // archive or front page
@@ -33,11 +33,11 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get {
 			}
 
 			$issues[] = array(
-				'id'           => $issue->id,
-				'thumbnail'    => $issue->url,
-				'device_type'  => $issue->device,
-				'type'         => $issue->type,
-				'status'       => $issue->status,
+				'id'           => $issue['id'],
+				'thumbnail'    => $issue['url'],
+				'device_type'  => $issue['device'],
+				'type'         => $issue['type'],
+				'status'       => $issue['status'],
 				'instructions' => $this->get_instructions( $issue ),
 				'page'         => $page_provider,
 				'image'        => $image,
@@ -45,8 +45,8 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get {
 		}
 
 		return array(
-			'last_updated' => strtotime( $data->last_updated ) * 1000,
-			'total_pages'  => $data->pagination->total_pages,
+			'last_updated' => strtotime( $data['last_updated'] ) * 1000,
+			'total_pages'  => $data['pagination']['total_pages'],
 			'images'       => $issues,
 		);
 	}
@@ -57,18 +57,18 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get {
 	 * @todo: Implement
 	 */
 	private function get_page( $issue ) {
-		$key      = $issue->page_provider;
+		$key      = $issue['page_provider'];
 		$provider = $this->get_provider( $key );
 		$title    = empty( $provider ) ? $key : $provider::describe_key( $key );
 		$edit_url = empty( $provider ) ? null : $provider::get_edit_url( $key );
 
 		if ( empty( $title ) ) {
-			$title = $issue->page_provider;
+			$title = $issue['page_provider'];
 		}
 
 		return array(
-			'id'       => $issue->page_id,
-			'url'      => $issue->page_url,
+			'id'       => $issue['page_id'],
+			'url'      => $issue['page_url'],
 			'edit_url' => $edit_url ? $edit_url : null,
 			'title'    => $title,
 		);
@@ -88,24 +88,24 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get {
 	 */
 	private function get_image_info( $issue ) {
 		return array(
-			'url'        => $issue->url,
+			'url'        => $issue['url'],
 			'dimensions' => array(
 				'file'           => array(
-					'width'  => $issue->meta->fileSize_width,
-					'height' => $issue->meta->fileSize_height,
+					'width'  => $issue['meta']['fileSize_width'],
+					'height' => $issue['meta']['fileSize_height'],
 				),
 				'expected'       => array(
-					'width'  => $issue->meta->expectedSize_width,
-					'height' => $issue->meta->expectedSize_height,
+					'width'  => $issue['meta']['expectedSize_width'],
+					'height' => $issue['meta']['expectedSize_height'],
 				),
 				'size_on_screen' => array(
-					'width'  => $issue->meta->sizeOnPage_width,
-					'height' => $issue->meta->sizeOnPage_height,
+					'width'  => $issue['meta']['sizeOnPage_width'],
+					'height' => $issue['meta']['sizeOnPage_height'],
 				),
 			),
 			'weight'     => array(
-				'current'   => $issue->meta->fileSize_weight,
-				'potential' => (int) $issue->meta->potentialSavings,
+				'current'   => $issue['meta']['fileSize_weight'],
+				'potential' => (int) $issue['meta']['potentialSavings'],
 			),
 		);
 	}

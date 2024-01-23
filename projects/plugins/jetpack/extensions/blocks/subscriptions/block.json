@@ -108,6 +108,9 @@
 		"successMessage": {
 			"type": "string",
 			"default": "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing."
+		},
+		"appSource": {
+			"type": "string"
 		}
 	},
 	"example": {}
