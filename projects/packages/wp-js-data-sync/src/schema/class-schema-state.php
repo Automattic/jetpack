@@ -1,7 +1,7 @@
 <?php
 
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Type_Or;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Modifier_Fallback;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
@@ -37,17 +37,17 @@ class Schema_State implements Parser {
 	}
 
 	/**
-	 * Allow combining multiple types of schemas internally.
-	 * For a public or API,
-	 *
+	 * Allow combining multiple types of schemas internally for easier fallbacks.
+	 * For a public or API, use `Schema::either()` instead.
 	 * @param Parser $parser
+	 *                      
 	 *
 	 * @return $this
 	 * @see Schema::either()
 	 *
 	 */
 	private function or( Parser $parser ) {
-		if ( $this->parser instanceof Type_Or ) {
+		if ( $this->parser instanceof Modifier_Fallback ) {
 			$this->parser->add_fallback_parser( $parser );
 			return $this;
 		}
@@ -55,7 +55,7 @@ class Schema_State implements Parser {
 		// Keep track of the current parser
 		$current_parser = $this->parser;
 		// Replace the current parser with a new Type_Or parser
-		$this->parser = new Type_Or();
+		$this->parser = new Modifier_Fallback();
 		// Add the current parser back
 		$this->parser->add_fallback_parser( $current_parser );
 		/// Add the new parser
@@ -145,7 +145,7 @@ class Schema_State implements Parser {
 	}
 
 	public function get_fallback() {
-		if ( $this->parser instanceof Type_Or ) {
+		if ( $this->parser instanceof Modifier_Fallback ) {
 			$parsers = $this->parser->get_parsers();
 			foreach ( $parsers as $parser ) {
 				if ( $parser instanceof Type_Literal ) {

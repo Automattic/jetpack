@@ -4,7 +4,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 use PHPUnit\Framework\TestCase;
 
-class Test_Type_Or extends TestCase {
+class Test_Modifier_Fallback extends TestCase {
 
 	public function test_parse_with_first_parser() {
 		$schema = Schema::either( Schema::as_string(), Schema::as_array( Schema::as_string() ) );
