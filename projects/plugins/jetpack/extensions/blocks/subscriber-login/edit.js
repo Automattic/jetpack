@@ -1,9 +1,13 @@
 import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl, BaseControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import metadata from './block.json';
 
 function SubscriberLoginEdit( { attributes, setAttributes, className } ) {
-	const { redirectToCurrent, logInLabel, logOutLabel, manageSubscriptionsLabel } = attributes;
+	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
+	const { redirectToCurrent, logInLabel, logOutLabel, manageSubscriptionsLabel } =
+		validatedAttributes;
 
 	return (
 		<>
