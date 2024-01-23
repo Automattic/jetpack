@@ -23,14 +23,13 @@ export function useMeasureSuperCacheSaving() {
 		site: { url },
 	} = Jetpack_Boost;
 
-	if ( ! cachePageSecret ) {
-		// eslint-disable-next-line no-console
-		console.error( "Cache Page Secret is missing in `jetpack_boost_ds['super_cache']` " );
-
-		return () => Promise.resolve( 0 );
-	}
-
 	return useCallback( async () => {
+		if ( ! cachePageSecret ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Cache Page Secret is missing.' );
+			return 0;
+		}
+
 		recordBoostEvent( 'super_cache_test_started', {} );
 
 		const uncachedUrl = addGetParameter( url, 'donotcachepage', cachePageSecret as string );

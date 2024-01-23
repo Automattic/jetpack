@@ -15,7 +15,8 @@ export function handleIframeResult( eventFromIframe ) {
 		}
 		if ( data && data.action === 'close' && premiumContentJWTTokenForCookie ) {
 			// The token was set during the purchase flow, we want to reload the whole page so the content is displayed
-			window.location.reload();
+			// For avoiding Firefox reload, we need to force reload bypassing the cache.
+			window.location.reload( true );
 		} else if ( data && data.action === 'close' ) {
 			// User just aborted.
 			window.removeEventListener( 'message', handleIframeResult );
@@ -41,10 +42,12 @@ export function showModal( url ) {
 	dialog.setAttribute( 'id', 'memberships-modal-window' );
 
 	const iframe = document.createElement( 'iframe' );
+	const siteLanguage = document.querySelector( 'input[name="lang"]' ).value;
 	iframe.setAttribute( 'id', 'memberships-modal-iframe' );
 	iframe.innerText =
 		'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
-	iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
+	iframe.src =
+		url + '&display=alternate&lang=' + siteLanguage + '&jwt_token=' + getTokenFromCookie();
 	iframe.setAttribute( 'frameborder', '0' );
 	iframe.setAttribute( 'allowtransparency', 'true' );
 	iframe.setAttribute( 'allowfullscreen', 'true' );

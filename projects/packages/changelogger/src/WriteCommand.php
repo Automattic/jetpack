@@ -70,7 +70,7 @@ class WriteCommand extends Command {
 			->addOption( 'buildinfo', 'b', InputOption::VALUE_REQUIRED, 'When fetching the next version, include this buildinfo suffix' )
 			->addOption( 'release-date', null, InputOption::VALUE_REQUIRED, 'Release date, as a valid PHP date or "unreleased"', 'now' )
 			->addOption( 'default-first-version', null, InputOption::VALUE_NONE, 'If the changelog is currently empty, guess a "first" version instead of erroring' )
-			->addOption( 'deduplicate', null, InputOption::VALUE_REQUIRED, 'Deduplicate new changes against the last N versions. Set -1 to disable deduplication entirely.', 1 )
+			->addOption( 'deduplicate', null, InputOption::VALUE_REQUIRED, 'Deduplicate new changes against the last N versions. Set -1 to disable deduplication entirely.', 0 )
 			->addOption( 'prologue', null, InputOption::VALUE_REQUIRED, 'Prologue text for the new changelog entry' )
 			->addOption( 'epilogue', null, InputOption::VALUE_REQUIRED, 'Epilogue text for the new changelog entry' )
 			->addOption( 'link', null, InputOption::VALUE_REQUIRED, 'Link for the new changelog entry' )
