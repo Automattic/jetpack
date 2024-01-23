@@ -56,7 +56,7 @@ $image_data = Schema::as_assoc_array(
 					)
 				),
 			)
-		)->nullable()
+		)->nullable(),
 
 	)
 )->nullable();
