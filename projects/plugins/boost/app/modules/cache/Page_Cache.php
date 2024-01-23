@@ -78,7 +78,7 @@ require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File
 	 */
 	private function add_wp_cache_define() {
 		$content = file_get_contents( ABSPATH . 'wp-config.php' );
-		if ( strpos( $content, 'define( \'WP_CACHE\', true );' ) !== false ) {
+		if ( preg_match( '#define\s*\(\s*[\'"]WP_CACHE[\'"]\s*,\s*(?:\'true\'|\"true\"|true)\s*\);#', $content ) === 1 ) {
 			return; // WP_CACHE already added.
 		}
 		$content = str_replace(
