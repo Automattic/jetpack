@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added tracking for mutations, so only the latest affects the cached value onSuccess
