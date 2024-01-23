@@ -530,7 +530,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_appearance_menu() {
 		// When the interface is set to wp-admin, we need to add a link to the Marketplace and rest of the menu keeps like core.
 		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-			add_submenu_page( 'themes.php', esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'read', 'https://wordpress.com/themes/' . $this->domain );
+			add_submenu_page( 'themes.php', esc_attr__( 'Theme Showcase', 'jetpack' ), __( 'Theme Showcase', 'jetpack' ), 'read', 'https://wordpress.com/themes/' . $this->domain );
 		} else {
 			parent::add_appearance_menu();
 		}
