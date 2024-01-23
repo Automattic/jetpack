@@ -14,7 +14,7 @@ class Type_Literal implements Parser {
 		$this->literal_value = $literal_value;
 	}
 
-	public function parse( $value, $_context ) {
+	public function parse( $_value, $_context ) {
 		return $this->literal_value;
 	}
 
