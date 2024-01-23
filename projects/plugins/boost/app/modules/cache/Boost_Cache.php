@@ -114,18 +114,16 @@ abstract class Boost_Cache {
 	 * @return string
 	 */
 	public function cache_key( $args = array() ) {
+		if ( isset( $args['request_uri'] ) ) {
+			$args['request_uri'] = $this->sanitize_request_uri( $args['request_uri'] );
+		}
+
 		$defaults = array(
 			'request_uri' => $this->request_uri,
 			'cookies'     => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			'get'         => $_GET, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		);
 		$args     = array_merge( $defaults, $args );
-
-		if ( $args['request_uri'] === '' ) {
-			$args['request_uri'] = $this->request_uri;
-		} else {
-			$args['request_uri'] = $this->sanitize_request_uri( $args['request_uri'] );
-		}
 
 		$key_components = apply_filters(
 			'boost_cache_key_components',
