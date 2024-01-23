@@ -25,7 +25,7 @@ If you take a look at the contents of the `projects` folder, you can see that th
 
 ## The Jetpack Monorepo and its CLI
 
-Jetpack CLI supports latest stable PHP and latest stable Node JS versions. Sometimes the version update lags behind for a while to make sure that [Calypso is using the same version](https://github.com/Automattic/wp-calypso/blob/trunk/.nvmrc).
+Jetpack CLI requires PHP 8.2 and latest stable Node JS versions. Sometimes the version update lags behind for a while to make sure that [Calypso is using the same version](https://github.com/Automattic/wp-calypso/blob/trunk/.nvmrc).
 
 Jetpack CLI is a requirement to work with Jetpack Monorepo, and it depends on the following tools:
 
