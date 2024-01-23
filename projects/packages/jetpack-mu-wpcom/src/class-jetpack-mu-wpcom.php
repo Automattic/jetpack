@@ -227,8 +227,13 @@ class Jetpack_Mu_Wpcom {
 	 * @param int $blog_id The blog ID.
 	 * @return boolean
 	 */
-	private function should_disable_comment_experience( $blog_id ) {
-		require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
+	private static function should_disable_comment_experience( $blog_id ) {
+		$path_wp_for_teams = WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
+
+		if ( is_file( $path_wp_for_teams ) ) {
+			require_once $path_wp_for_teams;
+		}
+
 		// This covers both P2 and P2020 themes.
 		$is_p2     = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $blog_id );
 		$is_forums = str_contains( get_stylesheet(), 'a8c/supportforums' ); // Not in /forums
@@ -251,7 +256,7 @@ class Jetpack_Mu_Wpcom {
 			if ( isset( $_GET['blogid'] ) ) {
 				$blog_id = intval( $_GET['blogid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			}
-			if ( should_disable_comment_experience( $blog_id ) ) {
+			if ( self::should_disable_comment_experience( $blog_id ) ) {
 				return false;
 			}
 			require_once __DIR__ . '/build/verbum-comments/class-verbum-comments.php';
