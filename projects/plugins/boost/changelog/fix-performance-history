@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed empty performance history on initial page load. Introduced during react migration
+
+
