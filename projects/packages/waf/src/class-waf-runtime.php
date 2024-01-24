@@ -290,6 +290,10 @@ class Waf_Runtime {
 		$log_data['reason']    = $reason;
 		$log_data['timestamp'] = gmdate( 'Y-m-d H:i:s' );
 
+		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+			$log_data['request_uri'] = $_SERVER['REQUEST_URI']; //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		}
+
 		if ( defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA ) {
 			$file_path   = JETPACK_WAF_DIR . '/waf-blocklog';
 			$file_exists = file_exists( $file_path );
