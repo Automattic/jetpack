@@ -167,8 +167,8 @@
 									name: 'wp-debug-log',
 								},
 								{
-									label: 'Multisite based on subdomains',
-									name: 'subdomain_multisite',
+									label: 'Enable Sandbox Access',
+									name: 'dev-pool',
 								},
 								{
 									label: 'Multisite based on subdirectories',
