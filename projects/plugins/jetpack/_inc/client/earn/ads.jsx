@@ -359,18 +359,7 @@ export const Ads = withModuleSettingsFormHelpers(
 						) }
 					</SettingsGroup>
 					{ ! isSubDirSite && this.renderAdsTxtSection() }
-					<SettingsGroup
-						support={ {
-							text: __(
-								'This enables our GDPR Consent banner in the EU where this is legally required. This allows your site visitors to provide consent for personalized ads.',
-								'jetpack'
-							),
-							// TODO: Activate with EU/CMP support link?
-							// link: this.props.isAtomicSite
-							// 	? getRedirectUrl( 'wpcom-support-us-privacy' )
-							// 	: getRedirectUrl( 'jetpack-support-ads' ),
-						} }
-					>
+					<SettingsGroup>
 						<ToggleControl
 							checked={ wordads_cmp_enabled }
 							disabled={
