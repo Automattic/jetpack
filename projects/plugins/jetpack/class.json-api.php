@@ -231,7 +231,7 @@ class WPCOM_JSON_API {
 	/**
 	 * Determine if a string is falsey.
 	 *
-	 * @param mixed $value 0, "0", "f", and "false" (case insensitive) are falsey, everything else isn't.
+	 * @param mixed $value false, 0, "0", "f", and "false" (case insensitive) are falsey, everything else isn't.
 	 * @return bool
 	 */
 	public static function is_falsy( $value ) {
