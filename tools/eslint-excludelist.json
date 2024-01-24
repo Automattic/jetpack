@@ -48,7 +48,6 @@
 	"projects/plugins/jetpack/_inc/client/writing/composing.jsx",
 	"projects/plugins/jetpack/_inc/jetpack-deactivate-dialog.js",
 	"projects/plugins/jetpack/_inc/jetpack-modules.js",
-	"projects/plugins/jetpack/_inc/lib/debugger/jetpack-debugger-site-health.js",
 	"projects/plugins/jetpack/_inc/twitter-timeline.js",
 	"projects/plugins/jetpack/extensions/blocks/eventbrite/utils.js",
 	"projects/plugins/jetpack/extensions/blocks/image-compare/edit.js",

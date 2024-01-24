@@ -27,3 +27,8 @@
 .tooltip button svg {
 	fill: var( --gray-30 );
 }
+
+.last-updated {
+	display: flex;
+	gap: .5em;
+}

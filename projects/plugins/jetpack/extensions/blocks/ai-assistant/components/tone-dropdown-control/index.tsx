@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { speakToneIcon } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	MenuItem,
 	MenuGroup,
@@ -195,6 +196,13 @@ export default function ToneToolbarDropdownMenu( {
 	disabled = false,
 }: ToneToolbarDropdownMenuProps ) {
 	const label = __( 'Change tone', 'jetpack' );
+	const { tracks } = useAnalytics();
+
+	const toggleHandler = isOpen => {
+		if ( isOpen ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_toolbar_menu_show', { tool: 'tone' } );
+		}
+	};
 
 	return disabled ? (
 		<Tooltip text={ label }>
@@ -210,6 +218,7 @@ export default function ToneToolbarDropdownMenu( {
 				variant: 'toolbar',
 			} }
 			disabled={ disabled }
+			onToggle={ toggleHandler }
 		>
 			{ () => <ToneMenuGroup value={ value } onChange={ onChange } /> }
 		</ToolbarDropdownMenu>

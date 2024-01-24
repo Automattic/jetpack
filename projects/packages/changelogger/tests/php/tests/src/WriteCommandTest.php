@@ -132,7 +132,7 @@ class WriteCommandTest extends CommandTestCase {
 				array(
 					'{^Reading changelog from /.*/CHANGELOG.md\\.\\.\\.$}m',
 					'{^Reading changes from /.*/changelog\\.\\.\\.$}m',
-					'{^Deduplicating changes from the last 1 version\\(s\\)\\.\\.\\.$}m',
+					'{^Deduplicating changes in the current version\\.\\.\\.$}m',
 					'{^Checking if any changes have content\\.\\.\\.$}m',
 					'{^Yes, a-change has content\\.$}m',
 					'{^Latest version from changelog is 1\\.0\\.1\\.$}m',
@@ -455,8 +455,8 @@ class WriteCommandTest extends CommandTestCase {
 				"# Changelog\n\n## 1.0.2 - $date\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
 
-			'Deduplication'                                => array(
-				array(),
+			'Deduplication, --deduplicate=1'               => array(
+				array( '--deduplicate' => '1' ),
 				array(
 					'changes' => array(
 						'initial-release' => "Significance: patch\nType: added\n\nInitial release.\n",
@@ -471,8 +471,8 @@ class WriteCommandTest extends CommandTestCase {
 				true,
 				"# Changelog\n\n## 1.0.2 - $date\n### Added\n- Initial release.\n- Stuff. And more stuff.\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
-			'Deduplication, --dedupliacte=0'               => array(
-				array( '--deduplicate' => '0' ),
+			'Deduplication, --deduplicate default 0'       => array(
+				array(),
 				array(
 					'changes' => array(
 						'initial-release' => "Significance: patch\nType: added\n\nInitial release.\n",
@@ -520,7 +520,7 @@ class WriteCommandTest extends CommandTestCase {
 			),
 
 			'Deduplication removes all changes'            => array(
-				array(),
+				array( '--deduplicate' => '1' ),
 				array(
 					'changes' => array(
 						'added-stuff' => "Significance: patch\nType: added\n\nStuff.\n",
@@ -531,7 +531,7 @@ class WriteCommandTest extends CommandTestCase {
 				array( '{^All changes were duplicates\. Proceed\? \[y/N\]}m' ),
 			),
 			'Deduplication removes all changes (2)'        => array(
-				array(),
+				array( '--deduplicate' => '1' ),
 				array(
 					'changes' => array(
 						'added-stuff' => "Significance: patch\nType: added\n\nStuff.\n",
@@ -544,7 +544,7 @@ class WriteCommandTest extends CommandTestCase {
 				"# Changelog\n\n## 1.0.2 - $date\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
 			'Deduplication removes all changes, non-interactive' => array(
-				array(),
+				array( '--deduplicate' => '1' ),
 				array(
 					'interactive' => false,
 					'changes'     => array(
@@ -556,7 +556,10 @@ class WriteCommandTest extends CommandTestCase {
 				array( '{^All changes were duplicates\.$}m' ),
 			),
 			'Deduplication removes all changes, non-interactive, --yes' => array(
-				array( '--yes' => true ),
+				array(
+					'--deduplicate' => '1',
+					'--yes'         => true,
+				),
 				array(
 					'interactive' => false,
 					'changes'     => array(
@@ -571,7 +574,7 @@ class WriteCommandTest extends CommandTestCase {
 			),
 
 			'All changes are empty'                        => array(
-				array(),
+				array( '--deduplicate' => '1' ),
 				array(
 					'changes' => array(
 						'duplicate' => "Significance: patch\nType: added\n\nStuff.\n",
@@ -584,7 +587,7 @@ class WriteCommandTest extends CommandTestCase {
 				array( '{There are no changes with content for this write\. Proceed\? \[y/N\]}m' ),
 			),
 			'All changes are empty (2)'                    => array(
-				array(),
+				array( '--deduplicate' => '1' ),
 				array(
 					'changes' => array(
 						'duplicate' => "Significance: patch\nType: added\n\nStuff.\n",
@@ -599,7 +602,7 @@ class WriteCommandTest extends CommandTestCase {
 				"# Changelog\n\n## 1.0.2 - $date\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
 			'All changes are empty, non-interactive'       => array(
-				array(),
+				array( '--deduplicate' => '1' ),
 				array(
 					'interactive' => false,
 					'changes'     => array(
@@ -612,7 +615,10 @@ class WriteCommandTest extends CommandTestCase {
 				array( '{^There are no changes with content for this write\.$}m' ),
 			),
 			'All changes are empty, non-interactive, --yes' => array(
-				array( '--yes' => true ),
+				array(
+					'--deduplicate' => '1',
+					'--yes'         => true,
+				),
 				array(
 					'interactive' => false,
 					'changes'     => array(

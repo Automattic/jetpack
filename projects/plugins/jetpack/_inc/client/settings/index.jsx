@@ -25,6 +25,7 @@ class Settings extends React.Component {
 			searchTerm,
 			siteAdminUrl,
 			siteRawUrl,
+			blogID,
 			userCanManageModules,
 		} = this.props;
 		const { pathname } = location;
@@ -61,6 +62,7 @@ class Settings extends React.Component {
 					/>
 					<Subscriptions
 						siteRawUrl={ siteRawUrl }
+						blogID={ blogID }
 						active={ '/newsletter' === pathname }
 						{ ...commonProps }
 					/>

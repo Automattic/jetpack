@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.6.2] - 2024-01-22
+### Added
+- My Jetpack: add contact us event for Jetpack AI [#35136]
+
+## [4.6.1] - 2024-01-22
+### Changed
+- Display Jetpack Protect product card for all users. [#35142]
+- Ensure that interstitial tables go straight to checkout just like insterstitial cards [#35049]
+
+## [4.6.0] - 2024-01-18
+### Added
+- Add hosting provider check. [#34864]
+- Add Jetpack Manage banner. [#35078]
+
+## [4.5.0] - 2024-01-18
+### Changed
+- Use blog ID instead of site slug in checkout URL. [#34976]
+
+## [4.4.0] - 2024-01-15
+### Changed
+- add plan check to My Jetpack Akismet product card [#34905]
+- Prevent new users from seeing JITMs [#34927]
+- To avoid displaying the Welcome banner to every user, now we only display it to new users. [#34883]
+
+## [4.3.0] - 2024-01-08
+### Added
+- Add a check to determine if a user is "new" to Jetpack. [#34821]
+- Add a button that links to the connection screen to the Welcome Banner in My Jetpack. [#34858]
+
+### Changed
+- Add a product interstitial in My Jetpack for stats. [#34772]
+- Added an image to Social interstitial. [#34814]
+- Update Akismet card on My Jetpack to go to interstitial screen when there is no API key. [#34817]
+
 ## [4.2.1] - 2024-01-04
 ### Changed
 - Updated package dependencies. [#34815] [#34816]
@@ -1173,6 +1207,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.6.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.6.1...4.6.2
+[4.6.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.6.0...4.6.1
+[4.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.5.0...4.6.0
+[4.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.4.0...4.5.0
+[4.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.3.0...4.4.0
+[4.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.2.1...4.3.0
 [4.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.2.0...4.2.1
 [4.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.1.4...4.2.0
 [4.1.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.1.3...4.1.4

@@ -17,6 +17,7 @@
 		"google-calendar",
 		"image-compare",
 		"instagram-gallery",
+		"like",
 		"likes",
 		"mailchimp",
 		"map",
@@ -64,14 +65,14 @@
 	"beta": [
 		"google-docs-embed",
 		"launchpad-save-modal",
-		"like",
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"create-with-voice",
 		"top-posts",
 		"ai-assistant-backend-prompts",
-		"ai-logo-generator"
+		"ai-logo-generator",
+		"subscriber-login"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

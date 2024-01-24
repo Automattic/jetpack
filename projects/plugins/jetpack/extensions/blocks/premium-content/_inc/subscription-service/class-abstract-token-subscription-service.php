@@ -449,6 +449,22 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	}
 
 	/**
+	 * Clear the auth cookie.
+	 *
+	 * @return void
+	 */
+	public static function clear_token_cookie() {
+		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+			return;
+		}
+
+		if ( self::has_token_from_cookie() ) {
+			unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', time() - DAY_IN_SECONDS, '/', COOKIE_DOMAIN, is_ssl(), true );
+		}
+	}
+
+	/**
 	 * Get the token if present in the current request.
 	 *
 	 * @return ?string

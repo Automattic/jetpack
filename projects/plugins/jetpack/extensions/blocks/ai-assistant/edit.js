@@ -409,6 +409,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const promptPlaceholder = __( 'Ask Jetpack AI…', 'jetpack' );
 	const promptPlaceholderWithSamples = __( 'Write about… Make a table for…', 'jetpack' );
+
+	const banner = (
+		<>
+			{ isOverLimit && isSelected && <UpgradePrompt placement="ai-assistant-block" /> }
+			{ ! connected && <ConnectPrompt /> }
+		</>
+	);
+
 	return (
 		<KeyboardShortcuts
 			bindGlobal
@@ -514,8 +522,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					</InspectorControls>
 				) }
 
-				{ isOverLimit && isSelected && <UpgradePrompt /> }
-				{ ! connected && <ConnectPrompt /> }
 				{ ! isWaitingState && connected && ! requireUpgrade && (
 					<ToolbarControls
 						isWaitingState={ isWaitingState }
@@ -565,6 +571,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					acceptLabel={ acceptLabel }
 					showGuideLine={ contentIsLoaded }
 					showRemove={ attributes?.content?.length > 0 }
+					bannerComponent={ banner }
 				/>
 
 				{ ! loadingImages && resultImages.length > 0 && (

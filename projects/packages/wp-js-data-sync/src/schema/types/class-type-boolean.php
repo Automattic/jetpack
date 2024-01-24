@@ -3,11 +3,12 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
 class Type_Boolean implements Parser {
-	public function parse( $input_value ) {
-		if ( is_bool( $input_value ) ) {
-			return $input_value;
+	public function parse( $value, $_context ) {
+		if ( is_bool( $value ) ) {
+			return $value;
 		}
 
 		$loose_values = array(
@@ -19,9 +20,24 @@ class Type_Boolean implements Parser {
 			// WordPress can return empty string for false.
 			'',
 		);
-		if ( ! in_array( $input_value, $loose_values, true ) ) {
-			throw new \Error( 'Invalid boolean value' );
+		if ( ! in_array( $value, $loose_values, true ) ) {
+			throw new Schema_Error( 'Invalid boolean value', $value );
 		}
-		return filter_var( $input_value, FILTER_VALIDATE_BOOLEAN );
+		return filter_var( $value, FILTER_VALIDATE_BOOLEAN );
+	}
+
+	public function __toString() {
+		return 'boolean';
+	}
+
+	#[\ReturnTypeWillChange]
+	public function jsonSerialize() {
+		return $this->schema();
+	}
+
+	public function schema() {
+		return array(
+			'type' => (string) $this,
+		);
 	}
 }

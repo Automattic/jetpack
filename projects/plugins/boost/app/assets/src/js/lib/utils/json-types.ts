@@ -1,14 +1,22 @@
 /* eslint-disable no-use-before-define */
+
+import { z } from 'zod';
+
 /**
- * Generic type for handling JSON-like objects.
- *
- * Use this as a last resort if you can't reasonably describe the possible shapes an object can take.
+ * JSONSchema: A zod description of a JSON object.
  */
-export type JSONObject = {
-	[ key: string ]: JSONValue;
-};
+const d = z.union( [ z.string(), z.number(), z.boolean(), z.null() ] );
+type Literal = z.infer< typeof d >;
+export const JSONSchema: z.ZodType< JSONValue > = z.lazy( () =>
+	z.union( [ d, z.array( JSONSchema ), z.record( JSONSchema ) ] )
+);
+
+/**
+ * TypeScript types for JSON values.
+ */
+export type JSONValue = Literal | JSONObject | JSONValue[];
+export type JSONObject = { [ key: string ]: JSONValue };
 export type JSONArray = JSONValue[];
-export type JSONValue = string | number | boolean | JSONObject | JSONArray | null | undefined;
 
 /**
  * Returns true if the given JSONValue is a JSONObject.

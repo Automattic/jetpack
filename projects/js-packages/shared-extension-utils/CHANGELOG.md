@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.10] - 2024-01-18
+### Changed
+- Minor internal updates.
+
+## [0.13.9] - 2024-01-18
+### Changed
+- Update dependencies.
+
+## [0.13.8] - 2024-01-08
+### Added
+- Remove unused logic from the modules store and cover store with tests. [#34835]
+
+### Changed
+- Updated useModuleStatus hook to use module_status redux store. [#34845]
+
 ## [0.13.7] - 2024-01-04
 ### Changed
 - Updated package dependencies. [#34815] [#34816]
@@ -313,6 +328,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.13.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.9...0.13.10
+[0.13.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.8...0.13.9
+[0.13.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.7...0.13.8
 [0.13.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.6...0.13.7
 [0.13.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.5...0.13.6
 [0.13.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.4...0.13.5

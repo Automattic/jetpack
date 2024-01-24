@@ -17,6 +17,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Dismissed_Notices;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
@@ -110,9 +111,9 @@ class Jetpack_Social {
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Settings_Controller(), 'register_rest_routes' ) );
 
 		// Add block editor assets
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_editor_scripts' ) );
 		// Adds the review prompt initial state
-		add_action( 'enqueue_block_editor_assets', array( $this, 'add_review_initial_state' ), 30 );
+		add_action( 'enqueue_block_assets', array( $this, 'add_review_initial_state' ), 30 );
 
 		// Add meta tags.
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
@@ -240,7 +241,7 @@ class Jetpack_Social {
 						'show_pricing_page'              => self::should_show_pricing_page(),
 						'showNudge'                      => ! $publicize->has_paid_plan( true ),
 						'isEnhancedPublishingEnabled'    => $publicize->has_enhanced_publishing_feature(),
-						'dismissedNotices'               => $publicize->get_dismissed_notices(),
+						'dismissedNotices'               => Dismissed_Notices::get_dismissed_notices(),
 						'supportedAdditionalConnections' => $publicize->get_supported_additional_connections(),
 					),
 					'connectionData'  => array(
@@ -337,7 +338,7 @@ class Jetpack_Social {
 					'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
 					'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
 					'autoConversionSettings'          => $settings['autoConversionSettings'],
-					'dismissedNotices'                => $publicize->get_dismissed_notices(),
+					'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 					'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
 				),
 			)
