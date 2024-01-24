@@ -24,6 +24,9 @@ const PerformanceHistoryBody = () => {
 	);
 	const navigate = useNavigate();
 
+	/*
+	 * Fetch new data on initial page-load. This is a lazy data-sync and initially empty.
+	 */
 	useEffect( () => {
 		refetch();
 	}, [ refetch ] );
