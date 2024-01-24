@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import styles from './quality-control.module.scss';
 import { useId } from 'react';
 import { QualityConfig } from '../lib/stores';
+import { useDebouncedState } from '$lib/utils/debounce';
 
 type QualityControlProps = {
 	label: string;
@@ -21,24 +22,31 @@ const QualityControl = ( {
 	onChange,
 }: QualityControlProps ) => {
 	const checkboxId = useId();
+	const [quality, setQuality] = useDebouncedState( config.quality, (value) => {
+		onChange( { ...config, quality: value } );
+	});
+
+	const [lossless, setLossless] = useDebouncedState( config.lossless, (value) => {
+		onChange( { ...config, lossless: value } );
+	});
 
 	return (
 		<div className={ styles[ 'quality-control' ] }>
 			<div className={ styles.label }>{ label }</div>
 			<div className={ classNames( styles.slider, { [ styles.disabled ]: config.lossless } ) }>
 				<NumberSlider
-					value={ config.quality }
+					value={ quality }
+					onChange={setQuality}
 					minValue={ minValue }
 					maxValue={ maxValue }
-					onChange={ newValue => onChange( { ...config, quality: newValue } ) }
 				/>
 			</div>
 			<label className={ styles.lossless } htmlFor={ checkboxId }>
 				<input
 					type="checkbox"
-					checked={ config.lossless }
+					checked={ lossless }
 					id={ checkboxId }
-					onChange={ event => onChange( { ...config, lossless: event.target.checked } ) }
+					onChange={ event => setLossless( event.target.checked )}
 				/>
 				{ __( 'Lossless', 'jetpack-boost' ) }
 			</label>
