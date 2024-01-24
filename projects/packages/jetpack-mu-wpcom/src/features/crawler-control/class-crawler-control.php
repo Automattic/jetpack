@@ -18,7 +18,6 @@ class Crawler_Control {
 	const X_TERMS         = 'X-Terms: Howdy! We appreciate this content too. Learn more about our data research partnerships: ' . self::TERMS_URL;
 	const BOT_USER_AGENTS = array(
 		'a8ctest',
-		'GPTBot',
 		'CCBot',
 		'sentibot',
 		'Google-Extended',
