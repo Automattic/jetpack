@@ -919,3 +919,11 @@ function jetpack_more_info_blaze() {
 	esc_html_e( 'Grow your audience by promoting your content across Tumblr and WordPress.com.', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_blaze', 'jetpack_more_info_blaze' );
+
+/**
+ * Custom importers for Atomic sites.
+ */
+function jetpack_register_importers() {
+	esc_html_e( 'Import your data from Wix, Squarespace, Medium, and more.', 'jetpack' );
+}
+add_action( 'jetpack_module_register_custom_importer', 'jetpack_register_custom_importer' );

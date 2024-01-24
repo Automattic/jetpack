@@ -798,9 +798,7 @@ abstract class Base_Admin_Menu {
 	 * @return bool
 	 */
 	protected function is_excluded_wp_admin_interface_screen( $screen ) {
-		$excluded_screens = array(
-			'import.php',
-		);
+		$excluded_screens = array();
 		return in_array( $screen, $excluded_screens, true );
 	}
 
