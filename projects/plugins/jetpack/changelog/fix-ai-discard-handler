@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+AI Assistant: fix discard handler so we don't need to call discard + accept
