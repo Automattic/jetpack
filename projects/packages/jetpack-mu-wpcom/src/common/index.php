@@ -29,3 +29,26 @@ function get_iso_639_locale( $language ) {
 
 	return $language;
 }
+
+/**
+ * Add Woo specific options to Jetpack Sync.
+ *
+ * @param array $allowed_options The allowed options.
+ */
+function add_woo_options_to_jetpack_sync( $allowed_options ) {
+	// We are not either in Simple or Atomic
+	if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
+		return $allowed_options;
+	}
+
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
+		return $allowed_options;
+	}
+
+	if ( ! is_array( $allowed_options ) ) {
+		return $allowed_options;
+	}
+
+	return array_merge( $allowed_options, array( 'woocommerce_should_run_headstart_for_theme' ) );
+}
+add_filter( 'jetpack_sync_options_whitelist', 'add_woo_options_to_jetpack_sync', 10, 1 );
