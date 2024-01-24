@@ -4,7 +4,6 @@ import { __ } from '@wordpress/i18n';
 import styles from './quality-control.module.scss';
 import { useId } from 'react';
 import { QualityConfig } from '../lib/stores';
-import { useDebouncedState } from '$lib/utils/debounce';
 
 type QualityControlProps = {
 	label: string;
