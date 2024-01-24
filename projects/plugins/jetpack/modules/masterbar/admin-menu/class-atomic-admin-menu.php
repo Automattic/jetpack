@@ -414,6 +414,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Tools menu entries.
 	 */
 	public function add_tools_menu() {
+		// Do not modify the Tools menu if the user wants to use the wp-admin interface.
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			return;
+		}
+
 		parent::add_tools_menu();
 
 		/**
