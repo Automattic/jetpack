@@ -213,12 +213,15 @@ class WPCOM_JSON_API {
 			return true;
 		}
 
-		if ( ! is_string( $value ) && ! is_int( $value ) ) {
+		if ( 1 === $value ) {
+			return true;
+		}
+
+		if ( ! is_string( $value ) ) {
 			return false;
 		}
 
 		switch ( strtolower( (string) $value ) ) {
-			case 1:
 			case '1':
 			case 't':
 			case 'true':
@@ -239,12 +242,15 @@ class WPCOM_JSON_API {
 			return true;
 		}
 
-		if ( ! is_string( $value ) && ! is_int( $value ) ) {
+		if ( 0 === $value ) {
+			return true;
+		}
+
+		if ( ! is_string( $value ) ) {
 			return false;
 		}
 
 		switch ( strtolower( (string) $value ) ) {
-			case 0:
 			case '0':
 			case 'f':
 			case 'false':
