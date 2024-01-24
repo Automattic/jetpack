@@ -30,7 +30,7 @@ const CardPage = ( {
 					{ showBackButton && <BackButton /> }
 					<div className={ styles.card }>
 						<div className={ styles.content }>
-							<JetpackLogo className="my-2" />
+							<JetpackLogo />
 							{ children }
 						</div>
 

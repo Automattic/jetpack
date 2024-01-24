@@ -293,23 +293,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.1-a.3 - 2024-01-22
-#### Enhancements
-- Add support for WooCommerce HPOS to the Google Analytics module.
-- Changed dismissed notices endpoint to be a core endpoint
-- Like block: Move the block from beta to production
-- Related Posts: Get the related posts only when the option is turned on and the current post contains a Related Posts block
-- Subscribe block: add buttons transform
-
-#### Improved compatibility
-- Likes: Flip likers popup when overflowing viewport.
-
-#### Bug fixes
-- Enhanced WordPress.com API compatibility with third party plugin data.
-- iCalendarReader: Support BYDAY recurrence rules for last, second-to-last, or third-to-last weekdays
-- Subscribe block: fix spacing of "pending email confirmation" message in some themes
-- Subscriptions: Fix subscribtion modal appear right after subscribing
-
+### 13.1-a.5 - 2024-01-23
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

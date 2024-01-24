@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Move critical css styles to their component. Move url container styles to their component. Remove unused spacing below Critical status when last.
+
+
