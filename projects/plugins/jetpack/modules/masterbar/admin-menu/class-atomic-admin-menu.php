@@ -133,7 +133,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
 
 		// When the interface is set to wp-admin, we replace the Profile submenu.
-		if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+		if ( 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
 			remove_submenu_page( 'users.php', 'profile.php' );
 			add_submenu_page( 'users.php', esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me/', null );
 		}
