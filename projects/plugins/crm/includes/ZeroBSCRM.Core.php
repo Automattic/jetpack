@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '6.3.2';
+	public $version = '6.4.0';
 
 	/**
 	 * WordPress version tested with.
@@ -365,6 +365,16 @@ final class ZeroBSCRM {
 	 * @var Jetpack CRM Acceptable mime types list
 	 */
 	public $acceptable_mime_types;
+
+	/**
+	 * Acceptable fields to be included in the Total Value of contacts and companies
+	 *
+	 * @var Jetpack CRM Acceptable fields to be included in the Total Value
+	 */
+	public $acceptable_total_value_fields = array(
+		'transactions' => 'Transactions',
+		'invoices'     => 'Invoices',
+	);
 
 	/**
 	 * Acceptable html array
