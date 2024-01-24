@@ -209,7 +209,10 @@ class WordAds {
 			WordAds_California_Privacy::init();
 		}
 
-		WordAds_Consent_Management_Provider::init();
+		// Include GDPR banner if enabled
+		if ( $this->params->options['wordads_cmp_enabled'] ) {
+			WordAds_Consent_Management_Provider::init();
+		}
 
 		if ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
 
