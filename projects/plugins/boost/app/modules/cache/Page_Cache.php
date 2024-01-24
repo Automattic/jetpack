@@ -78,7 +78,17 @@ require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File
 	 */
 	private function add_wp_cache_define() {
 		$content = file_get_contents( ABSPATH . 'wp-config.php' );
-		if ( preg_match( '#define\s*\(\s*[\'"]WP_CACHE[\'"]\s*,\s*(?:\'true\'|\"true\"|true)\s*\);#', $content ) === 1 ) {
+		if ( preg_match( '#define\s*\(\s*[\'"]WP_CACHE[\'"]#', $content ) === 1 ) {
+			/*
+			 * wp-settings.php checks "if ( WP_CACHE )" so it may be truthy and
+			 * not === true to pass that check.
+			 * Later, it is defined as false in default-constants.php, but
+			 * it may have been defined manually as true using "true", 1, or "1"
+			 * in wp-config.php.
+			 */
+			if ( defined( 'WP_CACHE' ) && ! WP_CACHE ) {
+				return new \WP_Error( 'WP_CACHE is defined but not true' );
+			}
 			return; // WP_CACHE already added.
 		}
 		$content = str_replace(
