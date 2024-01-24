@@ -144,7 +144,7 @@ class Jetpack_SSO {
 			);
 
 			// Make your array as json
-			wp_send_json( son_decode( $response['body'], true ) );
+			wp_send_json( json_decode( $response['body'], true ) );
 		} else {
 			wp_send_json_error( __( 'Invalid user ID.', 'jetpack' ) );
 		}
