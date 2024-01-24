@@ -56,6 +56,7 @@ class Jetpack_SSO {
 		add_action( 'wp_login', array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
 		add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'intercept_core_invitation_email' ), 10, 2 );
 		add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
+
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
 
@@ -129,6 +130,7 @@ class Jetpack_SSO {
 				),
 			)
 		);
+
 		return false;
 	}
 
