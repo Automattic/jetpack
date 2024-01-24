@@ -27,7 +27,7 @@ const JetpackManageBanner = props => {
 			icon={ jetpackManageIcon }
 			title={ __( 'Jetpack Manage', 'jetpack-my-jetpack' ) }
 			description={ __(
-				'Jetpack Manage has the tools you need to manage multiple WordPress sites. Monitor site security, performance, and traffic, and get alerted if a site needs attention.',
+				'Jetpack Manage has the tools you need to manage multiple WordPress sites. Monitor site security, performance, and traffic, and get alerted if a site needs attention. Plus, get bulk discounts.',
 				'jetpack-my-jetpack'
 			) }
 			secondaryCtaLabel={ ctaLearnMoreLabel }
