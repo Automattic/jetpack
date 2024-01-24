@@ -112,9 +112,9 @@ function render_block( $attributes ) {
 
 	$block_template             = '<div %1$s><a href="%2$s">%3$s</a></div>';
 	$redirect_to_current        = ! empty( $attributes['redirectToCurrent'] );
-	$log_in_label               = ! empty( $attributes['logInLabel'] ) ? sanitize_text_field( $attributes['logInLabel'] ) : __( 'Log in', 'jetpack' );
-	$log_out_label              = ! empty( $attributes['logOutLabel'] ) ? sanitize_text_field( $attributes['logOutLabel'] ) : __( 'Log out', 'jetpack' );
-	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : __( 'Manage subscriptions', 'jetpack' );
+	$log_in_label               = ! empty( $attributes['logInLabel'] ) ? sanitize_text_field( $attributes['logInLabel'] ) : esc_html__( 'Log in', 'jetpack' );
+	$log_out_label              = ! empty( $attributes['logOutLabel'] ) ? sanitize_text_field( $attributes['logOutLabel'] ) : esc_html__( 'Log out', 'jetpack' );
+	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscriptions', 'jetpack' );
 
 	if ( ! is_subscriber_logged_in() ) {
 		return sprintf(
