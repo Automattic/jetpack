@@ -2,6 +2,10 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
+/*
+ * This file is loaded by advanced-cache.php and bypasses WordPress.
+ * As it is loaded before WordPress is loaded, it is not autoloaded by Boost.
+ */
 require_once __DIR__ . '/Boost_Cache.php';
 
 class Boost_File_Cache extends Boost_Cache {

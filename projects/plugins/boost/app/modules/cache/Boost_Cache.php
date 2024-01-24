@@ -2,6 +2,11 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
+/*
+ * This file is loaded by advanced-cache.php when it loads Boost_File_Cache.php
+ * As it is loaded before WordPress is loaded, it is not autoloaded by Boost.
+ */
+
 abstract class Boost_Cache {
 	/*
 	 * @var string - The path key used to identify the cache directory for the current request. MD5 of the request uri.
