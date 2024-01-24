@@ -1,6 +1,7 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
+const { ModuleFederationPlugin } = require( 'webpack' ).container;
 
 module.exports = [
 	{
@@ -38,6 +39,7 @@ module.exports = [
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				DependencyExtractionPlugin: { injectPolyfill: true },
+				I18nLoaderPlugin: { textdomain: 'jetpack-videopress' },
 			} ),
 			new CopyWebpackPlugin( {
 				patterns: [
@@ -51,6 +53,15 @@ module.exports = [
 						to: './block-editor/extensions/index.json',
 					},
 				],
+			} ),
+			new ModuleFederationPlugin( {
+				shared: {
+					'@automattic/jetpack-shared-extension-utils': {
+						singleton: true,
+						import: '@automattic/jetpack-share-extension-utils',
+						eager: true,
+					},
+				},
 			} ),
 		],
 		module: {

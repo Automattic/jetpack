@@ -6,6 +6,7 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const glob = require( 'glob' );
+const { ModuleFederationPlugin } = require( 'webpack' ).container;
 
 const scriptSrcDir = path.join( __dirname, '../src/contact-form/js' );
 const styleSrcDir = path.join( __dirname, '../src/contact-form/css' );
@@ -86,6 +87,15 @@ const sharedWebpackConfig = {
 		new RemoveAssetWebpackPlugin( {
 			assets: name =>
 				name.startsWith( 'css' ) && ( name.endsWith( '.js' ) || name.endsWith( 'map' ) ),
+		} ),
+		new ModuleFederationPlugin( {
+			shared: {
+				'@automattic/jetpack-shared-extension-utils': {
+					singleton: true,
+					import: '@automattic/jetpack-share-extension-utils',
+					eager: true,
+				},
+			},
 		} ),
 	],
 };
