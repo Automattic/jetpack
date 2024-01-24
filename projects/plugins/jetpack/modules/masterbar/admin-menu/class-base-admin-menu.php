@@ -81,7 +81,7 @@ abstract class Base_Admin_Menu {
 			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
 			add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
-			// Do not add these actions when the user wants to use the WP Admin interface.
+			// Do not inject core mobile toggle when the user wants to use the WP Admin interface.
 			if ( ! $this->use_wp_admin_interface( 'jetpack' ) ) {
 				add_action( 'adminmenu', array( $this, 'inject_core_mobile_toggle' ) );
 			}
