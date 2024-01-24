@@ -1,6 +1,5 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { UpsellBanner, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import UpsellBanner from '../';
 import jetpackManageIcon from './jetpack-manage.svg';
 
 /**
