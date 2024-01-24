@@ -9,6 +9,7 @@ const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extrac
 const CssMinimizerPlugin = require( 'css-minimizer-webpack-plugin' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const webpack = require( 'webpack' );
+const { ModuleFederationPlugin } = require( 'webpack' ).container;
 const CssRule = require( './webpack/css-rule' );
 const FileRule = require( './webpack/file-rule' );
 const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
@@ -141,6 +142,19 @@ const MyPnpmDeterministicModuleIdsPlugin = options => [
 
 const MyI18nSafeMangleExportsPlugin = options => [ new I18nSafeMangleExportsPlugin( options ) ];
 
+const MyModuleFederationPlugin = ( options = {} ) => {
+	const config = {
+		shared: {
+			'@automattic/jetpack-shared-extension-utils': {
+				singleton: true,
+			},
+		},
+		...options,
+	};
+
+	return [ new ModuleFederationPlugin( config ) ];
+};
+
 const StandardPlugins = ( options = {} ) => {
 	if ( typeof options.I18nCheckPlugin === 'undefined' && isDevelopment ) {
 		options.I18nCheckPlugin = false;
@@ -150,6 +164,9 @@ const StandardPlugins = ( options = {} ) => {
 	}
 	if ( typeof options.I18nSafeMangleExportsPlugin === 'undefined' && isDevelopment ) {
 		options.I18nSafeMangleExportsPlugin = false;
+	}
+	if ( typeof options.ModuleFederationPlugin === 'undefined' ) {
+		options.ModuleFederationPlugin = false;
 	}
 
 	return [
@@ -178,6 +195,9 @@ const StandardPlugins = ( options = {} ) => {
 		...( options.I18nSafeMangleExportsPlugin === false
 			? []
 			: MyI18nSafeMangleExportsPlugin( options.I18nSafeMangleExportsPlugin ) ),
+		...( options.ModuleFederationPlugin === false
+			? []
+			: MyModuleFederationPlugin( options.ModuleFederationPlugin ) ),
 	];
 };
 

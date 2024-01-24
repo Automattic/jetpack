@@ -2,7 +2,6 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const glob = require( 'glob' );
-const { ModuleFederationPlugin } = require( 'webpack' ).container;
 const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plugin' );
 
 const sharedWebpackConfig = {
@@ -28,16 +27,7 @@ const sharedWebpackConfig = {
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: false,
-			I18nLoaderPlugin: { textdomain: 'jetpack' },
-			eager: true,
-		} ),
-		new ModuleFederationPlugin( {
-			shared: {
-				'@automattic/jetpack-shared-extension-utils': {
-					singleton: true,
-					import: '@automattic/jetpack-shared-extension-utils',
-				},
-			},
+			ModuleFederationPlugin: true,
 		} ),
 	],
 	externals: {
