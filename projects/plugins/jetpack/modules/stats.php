@@ -242,7 +242,7 @@ function stats_admin_menu() {
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' && ( ( new Host() )->is_woa_site() || ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) ) {
+	if ( (  get_option( 'wpcom_admin_interface' ) !== 'wp-admin' && ( new Host() )->is_woa_site() ) || ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) ) {
 		// Show old Jetpack Stats interface for:
 		// - Interfaces other than wp-admin on WOA sites.
 		// - Atomic sites.
