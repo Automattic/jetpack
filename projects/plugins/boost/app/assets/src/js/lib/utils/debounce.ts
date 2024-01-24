@@ -1,3 +1,6 @@
+import { useCallback, useState } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CallbackFunction = ( ...args: any[] ) => void;
 
@@ -18,4 +21,25 @@ export function debounce( callback: CallbackFunction, wait: number ): CallbackFu
 		clearTimeout( timer );
 		timer = setTimeout( () => callback(...args), wait );
 	};
+}
+
+
+/**
+ * State hook that debounces a side effect on state change.
+ * This is useful for side effects like mutations (API Calls) when the UI is changing rapidly.
+ *
+ * @param initialValue - initial value for the state
+ * @param sideEffect   - side effect function that should run only after the state has not changed for the delay
+ * @param delay        - debounce delay in milliseconds
+ */
+export function useDebouncedState<T>(initialValue: T, sideEffect: (v: T) => void, delay: number = 1000): [T, (v: T) => void] {
+	const [value, setValueState] = useState<T>(initialValue);
+	const debouncedSetValue = useDebouncedCallback(sideEffect, delay, { leading: true, trailing: true });
+
+	const setValue = useCallback( (newValue: T) => {
+		setValueState(newValue);
+		debouncedSetValue(newValue);
+	}, [debouncedSetValue]);
+
+	return [value, setValue];
 }
