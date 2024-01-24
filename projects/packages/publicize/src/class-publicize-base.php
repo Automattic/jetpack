@@ -124,6 +124,13 @@ abstract class Publicize_Base {
 	const OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES = 'jetpack_social_dismissed_notices';
 
 	/**
+	 * The maximum size of an image that can be used as an Open Graph image.
+	 *
+	 * @var string
+	 */
+	const OG_IMAGE_MAX_FILESIZE = 2000000; // 2MB.
+
+	/**
 	 * Default pieces of the message used in constructing the
 	 * content pushed out to other social networks.
 	 */
@@ -1638,24 +1645,23 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Reduce the filesize of an image by reducing the dimensions. Uses Photon.
-	 * Returns null if the image cannot be reduced enough.
+	 * This function runs the image through Proton to compress it, and also scales it down if needed.
 	 *
 	 * @param string $url Image URL.
 	 * @param int    $width Image width.
 	 * @param int    $height Image height.
-	 * @param int    $max_filesize Maximum filesize in bytes. Default is 2MB.
-	 * @param int    $tries Number of times to try reducing the image size. Default is 5.
-	 * @return array|null
+	 * @return array The compressed image data.
 	 */
-	public function reduce_file_size( $url, $width, $height, $max_filesize = 2000000, $tries = 5 ) {
-		$filesize = $this->get_remote_filesize( $url );
-		// If we cannot get the size, or it's small enough, we bail.
-		if ( empty( $filesize ) || $filesize <= $max_filesize ) {
-			return null;
+	public function compress_and_scale_og_image( $url, $width, $height ) {
+		// If the dimensions are fine we just run it through Proton to compress it.
+		if ( 1200 >= $width && 1200 >= $height ) {
+			return array(
+				'url'    => $this->get_resized_image_url( $url, $width, $height ),
+				'width'  => $width,
+				'height' => $height,
+			);
 		}
 
-		// First we scale it down to 1200x and see if that's enough.
 		if ( $height > $width ) {
 			// Portrait.
 			$width  = 1200 * $width / $height;
@@ -1666,19 +1672,26 @@ abstract class Publicize_Base {
 			$width  = 1200;
 		}
 
-		$url      = $this->get_resized_image_url( $url, $width, $height );
-		$filesize = $this->get_remote_filesize( $url );
+		return array(
+			'url'    => $this->get_resized_image_url( $url, $width, $height ),
+			'width'  => $width,
+			'height' => $height,
+		);
+	}
 
-		if ( $filesize <= $max_filesize ) {
-			return array(
-				'url'    => $url,
-				'width'  => $width,
-				'height' => $height,
-			);
-		}
-
-		// If the image is still too large, we try to reduce it by 25% each time.
-		while ( $tries > 0 && $filesize > $max_filesize ) {
+	/**
+	 * Reduce the filesize of an image by reducing the dimensions. Uses Photon.
+	 * Returns null if the image cannot be reduced enough.
+	 *
+	 * @param string $url Image URL.
+	 * @param int    $width Image width.
+	 * @param int    $height Image height.
+	 * @param int    $filesize Image filesize.
+	 * @param int    $tries Number of times to try reducing the image size. Default is 5.
+	 * @return array|null
+	 */
+	public function reduce_file_size( $url, $width, $height, $filesize, $tries = 5 ) {
+		while ( $tries > 0 && $filesize > self::OG_IMAGE_MAX_FILESIZE ) {
 			$width   *= 0.75;
 			$height  *= 0.75;
 			$url      = $this->get_resized_image_url( $url, $width, $height );
@@ -1687,7 +1700,7 @@ abstract class Publicize_Base {
 		}
 
 		// If the image is still too large, we failed.
-		if ( $filesize > $max_filesize ) {
+		if ( $filesize > self::OG_IMAGE_MAX_FILESIZE ) {
 			// TODO: Track this to see if conversion failed.
 			return null;
 		}
@@ -1710,11 +1723,24 @@ abstract class Publicize_Base {
 		if ( empty( $opengraph_image ) ) {
 			// If we do not have a SIG or attached image, but we have an image in post body
 			// we need to check that the image is not too large for the social sites.
-			if ( ! empty( $tags['og:image'] ) &&
-				! empty( $tags['og:image:width'] ) &&
-				! empty( $tags['og:image:height'] ) ) {
-				$reduced_image = $this->reduce_file_size( $tags['og:image'], $tags['og:image:width'], $tags['og:image:height'] );
+			if ( ! empty( $tags['og:image'] ) && ! empty( $tags['og:image:width'] ) && ! empty( $tags['og:image:height'] ) ) {
+				$filesize = $this->get_remote_filesize( $tags['og:image'] );
+				// If the image is small enough, we do not need to do anything.
+				if ( empty( $filesize ) || $filesize <= self::OG_IMAGE_MAX_FILESIZE ) {
+					return $tags;
+				}
 
+				$compressed_image = $this->compress_and_scale_og_image( $tags['og:image'], $tags['og:image:width'], $tags['og:image:height'] );
+				$filesize         = $this->get_remote_filesize( $compressed_image['url'] );
+				// If the compressed image is small enough, we use it.
+				if ( $filesize <= self::OG_IMAGE_MAX_FILESIZE ) {
+					$tags['og:image']        = $compressed_image['url'];
+					$tags['og:image:width']  = $compressed_image['width'];
+					$tags['og:image:height'] = $compressed_image['height'];
+					return $tags;
+				}
+
+				$reduced_image = $this->reduce_file_size( $compressed_image['url'], $compressed_image['width'], $compressed_image['height'] );
 				if ( ! empty( $reduced_image ) ) {
 					$tags['og:image']        = $reduced_image['url'];
 					$tags['og:image:width']  = $reduced_image['width'];
