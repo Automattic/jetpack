@@ -361,7 +361,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_stats_menu() {
 		// When the interface is set to wp-admin, we not add the Stats menu.
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
 			return;
 		}
 		$menu_title = __( 'Stats', 'jetpack' );
