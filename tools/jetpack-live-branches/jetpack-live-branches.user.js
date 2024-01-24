@@ -167,7 +167,7 @@
 									name: 'wp-debug-log',
 								},
 								{
-									label: 'Enable Sandbox Access',
+									label: 'Enable WordPress.com Sandbox Access',
 									name: 'dev-pool',
 								},
 								{
