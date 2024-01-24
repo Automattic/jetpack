@@ -1,14 +1,20 @@
-# jetpack-action-bar
+# Jetpack Action Bar
 
 An easy way for visitors to follow, like, and comment on your site.
 
+**Note**
+
+This package is not actively maintained, and is not currently used in any Jetpack plugin.
+
 ## How to install jetpack-action-bar
 
-### Installation From Git Repo
+You can start using the package and initiate the Action bar like so:
 
-## Contribute
+```php
+use Automattic\Jetpack\Action_Bar;
 
-## Get Help
+( new Action_Bar() )->init();
+```
 
 ## Using this package in your WordPress plugin
 

@@ -13,7 +13,7 @@ import SubscriptionsSettings from './subscriptions-settings';
  * @returns {React.Component} Newsletter settings component.
  */
 function Subscriptions( props ) {
-	const { active, isModuleFound, searchTerm, siteRawUrl } = props;
+	const { active, isModuleFound, searchTerm, siteRawUrl, blogID } = props;
 
 	const foundSubscriptions = isModuleFound( 'subscriptions' );
 
@@ -38,7 +38,9 @@ function Subscriptions( props ) {
 							/* dummy arg to avoid bad minification */ 0
 					  ) }
 			</h2>
-			{ foundSubscriptions && <SubscriptionsSettings siteRawUrl={ siteRawUrl } /> }
+			{ foundSubscriptions && (
+				<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
+			) }
 		</div>
 	);
 }

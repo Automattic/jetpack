@@ -60,7 +60,7 @@ class Registry {
 	private function sanitize_key( $key ) {
 		$sanitized_key = sanitize_key( $key );
 		$sanitized_key = str_replace( '-', '_', $sanitized_key );
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && $sanitized_key !== $key ) {
+		if ( DS_Utils::is_debug() && $sanitized_key !== $key ) {
 			// If the key is invalid,
 			// Log an error during development
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -104,16 +104,18 @@ class Registry {
 	/**
 	 * Register an action endpoint.
 	 *
-	 * @param string $key          The base key for the endpoint.
-	 * @param string $action_name  The name of the action.
-	 * @param mixed  $action_class The class handling the action logic.
+	 * @param string $key            The base key for the endpoint.
+	 * @param string $action_name    The name of the action.
+	 * @param Schema $request_schema The schema for the action's request body.
+	 * @param mixed  $action_class   The class handling the action logic.
 	 */
-	public function register_action( $key, $action_name, $action_class ) {
+	public function register_action( $key, $action_name, $request_schema, $action_class ) {
 		// Create and store the action endpoint instance
 		$action_endpoint = new Action_Endpoint(
 			$this->get_namespace_http(),
 			$this->sanitize_url_key( $key ),
 			$this->sanitize_url_key( $action_name ),
+			$request_schema,
 			$action_class
 		);
 

@@ -48,6 +48,21 @@ type DataSyncHook< Schema extends z.ZodSchema, Value extends z.infer< Schema > >
 ];
 
 /**
+ * Build a query key from a key and params.
+ *
+ * @param {string} key    - The key of the value that's being synced.
+ * @param {Object} params - key/value pairs to be used as arguments to the query parameters.
+ */
+function buildQueryKey( key: string, params: Record< string, string | number > ) {
+	return [
+		key,
+		...Object.entries( params )
+			.sort( ( [ a ], [ b ] ) => a.localeCompare( b ) )
+			.map( ( [ , v ] ) => v ),
+	];
+}
+
+/**
  * React Query hook for DataSync.
  * @param namespace - The namespace of the endpoint.
  * @param key - The key of the value that's being synced.
@@ -70,18 +85,14 @@ export function useDataSync<
 	params: Record< string, string | number > = {}
 ): DataSyncHook< Schema, Value > {
 	const datasync = new DataSync( namespace, key, schema );
-	const queryKey = [
-		key,
-		...Object.entries( params )
-			.sort( ( [ a ], [ b ] ) => a.localeCompare( b ) )
-			.map( ( [ , v ] ) => v ),
-	];
+	const queryKey = buildQueryKey( key, params );
 
 	/**
 	 * Defaults for `useQuery`:
 	 * - `queryKey` is the key of the value that's being synced.
 	 * - `queryFn` is wired up to DataSync `GET` method.
 	 * - `initialData` gets the value from the global window object.
+	 * - `staleTime` is set to 1 second by default; to prevent immediate re-fetching after setting a value.
 	 *
 	 * If your property is lazy-loaded, you should populate `initialData` with a value manually.
 	 * ```js
@@ -94,6 +105,7 @@ export function useDataSync<
 		queryKey,
 		queryFn: ( { signal } ) => datasync.GET( params, signal ),
 		initialData: () => datasync.getInitialValue(),
+		staleTime: 1 * 1000,
 	};
 
 	/**
@@ -128,8 +140,8 @@ export function useDataSync<
 		onError: ( _, __, context ) => {
 			queryClient.setQueryData( queryKey, context.previousValue );
 		},
-		onSettled: () => {
-			queryClient.invalidateQueries( { queryKey } );
+		onSuccess: ( data: Schema ) => {
+			queryClient.setQueryData( queryKey, data );
 		},
 	};
 
@@ -224,7 +236,7 @@ export function useDataSyncAction<
 	key,
 	action_name,
 	schema,
-	callbacks,
+	callbacks = {},
 	mutationOptions,
 	params = {},
 }: DataSyncActionConfig<
@@ -235,9 +247,7 @@ export function useDataSyncAction<
 	ActionResult,
 	CurrentState
 > ) {
-	// @REACT-TODO: order sensitive bug is hiding in Object.values
-	// This `sort` of fixes it, but I'd like a more elegant solution.
-	const mutationKey = [ key, ...Object.values( params ).sort() ];
+	const mutationKey = buildQueryKey( key, params );
 	const datasync = new DataSync( namespace, key, schema.state );
 	const mutationConfigDefaults: UseMutationOptions<
 		ActionResult,

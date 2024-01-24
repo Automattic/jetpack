@@ -67,13 +67,15 @@ export enum ISAStatus {
 export const IsaReport = z.object( {
 	status: z.nativeEnum( ISAStatus ).default( ISAStatus.NotFound ),
 	report_id: z.number().optional(),
-	groups: z.object( {
-		core_front_page: IsaCounts,
-		singular_page: IsaCounts.optional(),
-		singular_post: IsaCounts.optional(),
-		other: IsaCounts.optional(),
-		fixed: IsaCounts.optional(),
-	} ),
+	groups: z
+		.object( {
+			core_front_page: IsaCounts,
+			singular_page: IsaCounts.optional(),
+			singular_post: IsaCounts.optional(),
+			other: IsaCounts.optional(),
+			fixed: IsaCounts.optional(),
+		} )
+		.optional(),
 } );
 
 /**

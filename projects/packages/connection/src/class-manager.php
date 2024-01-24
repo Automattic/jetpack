@@ -2559,17 +2559,21 @@ class Manager {
 	/**
 	 * Get the WPCOM or self-hosted site ID.
 	 *
-	 * @return int|WP_Error
+	 * @param bool $quiet Return null instead of an error.
+	 *
+	 * @return int|WP_Error|null
 	 */
-	public static function get_site_id() {
+	public static function get_site_id( $quiet = false ) {
 		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 		$site_id  = $is_wpcom ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
 		if ( ! $site_id ) {
-			return new \WP_Error(
-				'unavailable_site_id',
-				__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack-connection' ),
-				403
-			);
+			return $quiet
+				? null
+				: new \WP_Error(
+					'unavailable_site_id',
+					__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack-connection' ),
+					403
+				);
 		}
 		return (int) $site_id;
 	}

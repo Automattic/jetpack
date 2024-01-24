@@ -1,6 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import { getCalypsoOrigin } from '@automattic/jetpack-connection';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import debugFactory from 'debug';
 import { useEffect, useState, useMemo } from 'react';
 import useConnection from '../../components/use-connection';
@@ -30,6 +30,7 @@ const defaultAdminUrl =
  * @param {Function} props.siteProductAvailabilityHandler - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
  * @param {Function} props.from                           - The plugin slug initiated the flow.
  * @param {number} [props.quantity]                       - The quantity of the product to purchase.
+ * @param {boolean} [props.useBlogIdSuffix]               - Use blog ID instead of site suffix in the checkout URL.
  * @returns {Function}                                      The useEffect hook.
  */
 export default function useProductCheckoutWorkflow( {
@@ -41,6 +42,7 @@ export default function useProductCheckoutWorkflow( {
 	siteProductAvailabilityHandler = null,
 	quantity = null,
 	from,
+	useBlogIdSuffix = false,
 } = {} ) {
 	debug( 'productSlug is %s', productSlug );
 	debug( 'redirectUrl is %s', redirectUrl );
@@ -48,6 +50,11 @@ export default function useProductCheckoutWorkflow( {
 	debug( 'from is %s', from );
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
+
+	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [ STORE_ID ] );
+	debug( 'blogID is %s', blogID ?? 'undefined' );
+
+	useBlogIdSuffix = useBlogIdSuffix && !! blogID;
 
 	const { isUserConnected, isRegistered, handleConnectUser } = useConnection( {
 		redirectUri: redirectUrl,
@@ -61,7 +68,7 @@ export default function useProductCheckoutWorkflow( {
 
 		const checkoutPath = shouldConnectAfterCheckout
 			? 'checkout/jetpack/'
-			: `checkout/${ siteSuffix }/`;
+			: `checkout/${ useBlogIdSuffix ? blogID.toString() : siteSuffix }/`;
 
 		const quantitySuffix = quantity != null ? `:-q-${ quantity }` : '';
 
@@ -102,6 +109,8 @@ export default function useProductCheckoutWorkflow( {
 		from,
 		redirectUrl,
 		adminUrl,
+		useBlogIdSuffix,
+		blogID,
 	] );
 
 	debug( 'isRegistered is %s', isRegistered );

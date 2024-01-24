@@ -45,6 +45,7 @@ class Regenerate {
 
 		// Dismiss admin notices
 		Regenerate_Admin_Notice::dismiss();
+		jetpack_boost_ds_delete( 'critical_css_suggest_regenerate', null );
 
 		return $data;
 	}
