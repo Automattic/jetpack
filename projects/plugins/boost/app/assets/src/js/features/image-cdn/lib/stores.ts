@@ -1,3 +1,4 @@
+import { useDebouncedState } from '$lib/utils/debounce';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 
@@ -25,6 +26,5 @@ export function useImageCdnQuality(): [ ImageCdnSettings, ( newValue: ImageCdnSe
 	if ( ! imageCdnQuality ) {
 		throw new Error( 'Image CDN Quality not loaded' );
 	}
-
-	return [ imageCdnQuality, setImageCdnQuality ];
+	return useDebouncedState( imageCdnQuality, setImageCdnQuality );
 }

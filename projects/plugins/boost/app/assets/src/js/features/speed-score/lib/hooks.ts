@@ -1,7 +1,7 @@
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { castToString } from '$lib/utils/cast-to-string';
-import debounce from '$lib/utils/debounce';
+import { debounce } from '$lib/utils/debounce';
 import { useState, useCallback, useEffect, useMemo, useReducer } from 'react';
 
 type SpeedScoreState = {
