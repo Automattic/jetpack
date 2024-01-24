@@ -18,6 +18,7 @@ import styles from './speed-score.module.scss';
 import { useModulesState } from '$features/module/lib/stores';
 import { useCriticalCssState } from '$features/critical-css/lib/stores/critical-css-state';
 import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local-generator/local-generator-provider';
+import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 
 const SpeedScore = () => {
 	const { site } = Jetpack_Boost;
@@ -49,6 +50,13 @@ const SpeedScore = () => {
 			loadScore();
 		}
 	}, [ loadScore, site.online ] );
+
+	// Mark performance history data as stale when speed scores are loaded.
+	useEffect( () => {
+		if ( site.online && status === 'loaded' ) {
+			queryClient.invalidateQueries( { queryKey: [ 'performance_history' ] } );
+		}
+	}, [ site.online, status ] );
 
 	useDebouncedRefreshScore(
 		{ moduleStates, criticalCssCreated: cssState.created || 0, criticalCssIsGenerating },
