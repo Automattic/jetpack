@@ -88,6 +88,26 @@ const JetpackProductDetails = props => {
 				'jetpack'
 			),
 		},
+		jetpack_social_advanced: {
+			title: __( 'Jetpack Social Advanced is active!', 'jetpack' ),
+			text: createInterpolateElement(
+				__(
+					'Create amazing link previews for your posts using Social Image Generator. Learn more <a>here</a>.<p/>Enjoy unlimited shares to your Jetpack Social connections. Learn more about auto-sharing <link>here</link>.<p/>',
+					'jetpack'
+				),
+				{
+					a: (
+						<a
+							href={ 'https://jetpack.com/support/jetpack-social/jetpack-social-image-generator/' }
+						/>
+					),
+					p: <p />,
+					link: (
+						<a href={ 'https://jetpack.com/support/jetpack-social/social-sharing-new-posts/' } />
+					),
+				}
+			),
+		},
 		default: {
 			title: __( 'Your product is active!', 'jetpack' ),
 			text: __( "You're all set!", 'jetpack' ),
