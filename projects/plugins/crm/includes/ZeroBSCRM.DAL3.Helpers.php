@@ -2435,7 +2435,7 @@ function zeroBS_addUpdateLog(
 		}
 
 		// no TYPE
-		zeroBSCRM_DEPRECATEDMSG('zeroBS_addUpdateLog has been replaced by DAL3 logging. Please do no use, or at least pass an object type');
+		zeroBSCRM_DEPRECATEDMSG( 'zeroBS_addUpdateLog has been replaced by DAL3 logging. Please do not use, or at least pass an object type.' );
 		return false;
 
 
@@ -2523,7 +2523,7 @@ function zeroBS_addUpdateObjLog(
 // still used in bulk-tagger and groove-connect extensions as of 9 May 1923
 function zeroBSCRM_DAL2_set_post_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$append=true,$usingTagIDS=true){
 
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_set_post_terms has been replaced by DAL3 tagging. Please do no use');		
+	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_set_post_terms has been replaced by DAL3 tagging. Please do not use.' );
 	
 	global $zbs;
 
@@ -2555,7 +2555,7 @@ function zeroBSCRM_DAL2_set_post_terms($cID=-1,$tags=array(),$taxonomy='zerobscr
 // still used in several extensions as of 9 May 1923
 function zeroBSCRM_DAL2_set_object_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$append=true,$usingTagIDS=true){
 
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_set_object_terms has been replaced by DAL3 tagging. Please do no use');		
+	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_set_object_terms has been replaced by DAL3 tagging. Please do not use.' );
 	
 	global $zbs;
 
@@ -2610,7 +2610,7 @@ function zeroBSCRM_DAL2_set_object_terms($cID=-1,$tags=array(),$taxonomy='zerobs
 // still used in csv-importer-pro as of 9 May 1923
 function zeroBSCRM_DAL2_remove_object_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$usingTagIDS=true){
 
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_remove_object_terms has been replaced by DAL3 tagging. Please do no use');		
+	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_remove_object_terms has been replaced by DAL3 tagging. Please do not use.' );
 	
 	global $zbs;
 
@@ -6554,6 +6554,43 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 /* ======================================================
   	Value Calculator / helpers
    ====================================================== */
+
+/**
+ * Calculates the total value associated with a contact or company entity.
+ *
+ * This function sums the total of invoices and transactions associated with a given entity.
+ * It also accounts for the 'jpcrm_total_value_fields' settings to determine whether to include
+ * invoices and transactions in the total value. Additionally, if both invoices and transactions
+ * are included, and the 'transactions_paid_total' is set and greater than 0, it subtracts this
+ * value from the total.
+ *
+ * @param array $entity The entity array containing 'invoices_total', 'transactions_total', and optionally 'transactions_paid_total'.
+ *
+ * @return float The calculated total value. It includes the invoices and transactions totals based on the settings,
+ *               and adjusts for 'transactions_paid_total' if applicable.
+ */
+function jpcrm_get_total_value_from_contact_or_company( $entity ) {
+	global $zbs;
+	$total_value        = 0.0;
+	$invoices_total     = isset( $entity['invoices_total'] ) ? $entity['invoices_total'] : 0.0;
+	$transactions_total = isset( $entity['transactions_total'] ) ? $entity['transactions_total'] : 0.0;
+	// For compatibility reasons we include all values if the jpcrm_total_value_fields setting is inexistent.
+	$settings                     = $zbs->settings->getAll();
+	$include_invoices_in_total    = true;
+	$include_transations_in_total = true;
+	if ( isset( $settings['jpcrm_total_value_fields'] ) ) {
+				$include_invoices_in_total    = isset( $settings['jpcrm_total_value_fields']['invoices'] ) && $settings['jpcrm_total_value_fields']['invoices'] === 1;
+				$include_transations_in_total = isset( $settings['jpcrm_total_value_fields']['transactions'] ) && $settings['jpcrm_total_value_fields']['transactions'] === 1;
+	}
+	$total_value  = 0;
+	$total_value += $include_invoices_in_total ? $invoices_total : 0;
+	$total_value += $include_transations_in_total ? $transactions_total : 0;
+	if ( $include_invoices_in_total && $include_transations_in_total && isset( $entity['transactions_paid_total'] ) && $entity['transactions_paid_total'] > 0 ) {
+				$total_value -= $entity['transactions_paid_total'];
+	}
+
+	return $total_value;
+}
 
    // evolved for dal3.0
    // left in place + translated, but FAR better to just use 'withValues' => true on a getContact call directly.

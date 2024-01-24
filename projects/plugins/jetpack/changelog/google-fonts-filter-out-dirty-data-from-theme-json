@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Filters out deprecated jetpack-google-fonts provider when reading the theme's theme.json.

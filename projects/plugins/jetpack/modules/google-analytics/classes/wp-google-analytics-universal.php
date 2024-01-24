@@ -204,7 +204,7 @@ class Jetpack_Google_Analytics_Universal {
 	 *
 	 * @see https://github.com/woocommerce/woocommerce/wiki/High-Performance-Order-Storage-Upgrade-Recipe-Book
 	 *
-	 * @since $$next-version$$
+	 * @since 13.1
 	 * @param array $command_array Array of commands.
 	 * @return array `$command_array` with additional commands conditionally added.
 	 */
