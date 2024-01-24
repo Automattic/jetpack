@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CallbackFunction = ( ...args: any[] ) => void;
 
@@ -18,4 +20,9 @@ export default function debounce( callback: CallbackFunction, wait: number ): Ca
 		clearTimeout( timer );
 		timer = setTimeout( () => callback.apply( this, args ), wait );
 	};
+}
+
+export function useDebounce( callback: CallbackFunction, wait: number ): CallbackFunction {
+	const debouncedCallback = useMemo( () => debounce( callback, wait ), [ callback, wait ] );
+	return debouncedCallback;
 }
