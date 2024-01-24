@@ -109,7 +109,7 @@ class Boost_File_Cache extends Boost_Cache {
 
 		$tmp_filename = $cache_filename . uniqid( wp_rand(), true ) . '.tmp';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		if ( ! file_put_contents( $tmp_filename, $buffer ) ) {
+		if ( false === file_put_contents( $tmp_filename, $buffer ) ) {
 			return new \WP_Error( 'Could not write to tmp file' );
 		}
 

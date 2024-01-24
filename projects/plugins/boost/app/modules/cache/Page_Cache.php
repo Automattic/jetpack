@@ -14,7 +14,7 @@ class Page_Cache implements Pluggable, Is_Always_On {
 	 */
 	public function setup() {
 		if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'jetpack-boost' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( ! $this->is_writeable() ) {
+			if ( false === $this->is_writeable() ) {
 				return new \WP_Error( 'wp-content directory is not writeable' );
 			}
 			$result = $this->create_advanced_cache();
