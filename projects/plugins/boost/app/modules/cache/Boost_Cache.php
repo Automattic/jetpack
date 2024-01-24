@@ -157,12 +157,35 @@ abstract class Boost_Cache {
 
 	abstract public function set( $data );
 
+	/*
+	 * Starts output buffering and sets the callback to save the cache file.
+	 *
+	 * @return bool - false if page is not cacheable.
+	 */
 	public function ob_start() {
 		if ( ! $this->is_cacheable() ) {
 			return false;
 		}
 
-		ob_start( array( $this, 'set' ) );
+		ob_start( array( $this, 'ob_callback' ) );
+	}
+
+	/*
+	 * Callback function from output buffer. This function saves the output
+	 * buffer to a cache file and then returns the buffer so PHP will send it
+	 * to the browser.
+	 *
+	 * @param string $buffer - The output buffer to save to the cache file.
+	 * @return string - The output buffer.
+	 */
+	public function ob_callback( $buffer ) {
+		$result = $this->set( $buffer );
+
+		if ( is_wp_error( $result ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+			// TODO: log error for site owner
+		}
+
+		return $buffer;
 	}
 
 	/*

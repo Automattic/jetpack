@@ -90,28 +90,34 @@ class Boost_File_Cache extends Boost_Cache {
 	 * Saves the output buffer to the cache file for the given request, or current request.
 	 * Then outputs the buffer to the browser.
 	 *
-	 * @param string $data - The output buffer to save to the cache file.
-	 * @return bool - false if page was not cacheable.
+	 * @param string $buffer - The output buffer to save to the cache file.
+	 * @return bool|WP_Error - WP_Error if page was not cacheable.
 	 */
-	public function set( $data ) {
+	public function set( $buffer ) {
 		if ( ! $this->is_cacheable() ) {
-			return $data;
+			return new \WP_Error( 'Page is not cacheable' );
 		}
 
-		if ( strlen( $data ) === 0 ) {
-			return false;
+		if ( strlen( $buffer ) === 0 ) {
+			return new \WP_Error( 'Empty buffer' );
 		}
 
 		$cache_filename = $this->cache_filename();
 		if ( ! $this->create_cache_directory( dirname( $cache_filename ) ) ) {
-			// TODO: log error for site owner
-			return $data;
+			return new \WP_Error( 'Could not create cache directory' );
 		}
+
 		$tmp_filename = $cache_filename . uniqid( wp_rand(), true ) . '.tmp';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $tmp_filename, $data );
+		if ( ! file_put_contents( $tmp_filename, $buffer ) ) {
+			return new \WP_Error( 'Could not write to tmp file' );
+		}
+
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
-		rename( $tmp_filename, $cache_filename );
-		return $data;
+		if ( ! rename( $tmp_filename, $cache_filename ) ) {
+			return new \WP_Error( 'Could not rename tmp file' );
+		}
+
+		return true;
 	}
 }
