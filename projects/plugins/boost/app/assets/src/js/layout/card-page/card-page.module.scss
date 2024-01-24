@@ -11,12 +11,6 @@
 		@extend .p-4;
 		color: $primary-black;
 
-		p {
-			font-size: 24px;
-			line-height: 32px;
-			font-weight: 500;
-		}
-
 		ul li {
 			padding-top: 2px;
 			padding-bottom: 6px;
@@ -44,7 +38,7 @@
 
 	@include breakpoint( lg ) {
 		display: grid;
-		grid-template-columns: auto 400px;
+		grid-template-columns: auto 460px;
 	}
 }
 
