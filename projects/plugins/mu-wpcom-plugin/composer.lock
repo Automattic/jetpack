@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "e680986f807f26c9aea852decad5b9f6fff63c30"
+                "reference": "4cbfebf77f0369a8c15b1a745c1e9d481b93315b"
             },
             "require": {
                 "php": ">=7.0"
@@ -33,7 +33,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.9.x-dev"
+                    "dev-trunk": "5.10.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {

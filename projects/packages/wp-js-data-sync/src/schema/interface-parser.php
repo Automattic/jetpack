@@ -20,14 +20,14 @@ interface Parser extends \JsonSerializable {
 	 * If the input value is invalid, the method should return a default value.
 	 * or throw an exception, depending on the implementation.
 	 *
-	 * @param mixed                       $value The input value to be parsed.
-	 * @param Schema_Validation_Meta|null $meta  Schema validation metadata.
+	 * @param mixed                 $value   The input value to be parsed.
+	 * @param Schema_Context        $context Schema validation metadata.
 	 *
 	 * @return mixed The parsed value.
 	 * @throws \RuntimeException If the input value is invalid.
 	 *
 	 */
-	public function parse( $value, $meta = null );
+	public function parse( $value, $context );
 
 	/**
 	 * The describe method is responsible for returning a description of the schema.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-WPCOM_JSON_API_Endpoint document(): Prevent warning when fetching the rest_api_documentation row returns no results
