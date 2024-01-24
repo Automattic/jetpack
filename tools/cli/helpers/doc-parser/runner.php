@@ -12,9 +12,9 @@ use Michelf\Markdown;
  */
 require __DIR__ . '/vendor/autoload.php';
 
-$args   = array_slice( $argv, 1 );
-$parser = new \Automattic\Jetpack\Doc_Parser();
-$parser->generate( array( $args, 'phpdoc.json' ) );
+$args = array_slice( $argv, 1 );
+// $parser = new \Automattic\Jetpack\Doc_Parser();
+// $parser->generate( array( $args, 'phpdoc.json' ) );
 
 $docs_json = json_decode( file_get_contents( __DIR__ . '/docs.json' ), true );
 
@@ -74,7 +74,47 @@ function get_html_from_markdown( $file_path ) {
 	);
 
 	$doc_title = $file_path;
+	$anchors   = $document->getElementsByTagName( 'a' );
+	foreach ( $anchors as $anchor ) {
+		$link = parse_url( $anchor->getAttribute( 'href' ) );
+		if ( ! $link || isset( $link['host'] ) || ! isset( $link['path'] ) ) {
+			continue;
+		}
 
+		// Replace any relative links with absolute links to the GitHub repo.
+		if ( str_starts_with( $link['path'], '../' ) ) {
+			$link['path'] = str_replace( '../', 'https://github.com/Automattic/jetpack/blob/trunk/', $link['path'] );
+		}
+
+		// If the Path starts with /projects/, it's a link to a project in the Github repo.
+		if ( str_starts_with( $link['path'], '/projects/' ) ) {
+			$link['path'] = 'https://github.com/Automattic/jetpack/blob/trunk' . $link['path'];
+		}
+
+		// If the Path starts with ./docs/ or /docs/ and contains more than 2 slashes, it's a relative link to another doc.
+		// We need to replace it with a link to the Github repo.
+		if ( ( str_starts_with( $link['path'], './docs/' ) ||
+			str_starts_with( $link['path'], '/docs/' ) )
+			&& substr_count( $link['path'], '/' ) > 2 ) {
+				$link['path'] = str_replace( './', '/', $link['path'] );
+				$link['path'] = 'https://github.com/Automattic/jetpack/blob/trunk' . $link['path'];
+		}
+
+		// If the Path starts with ./docs/ and contains 2 slashes, it's a relative link to another doc.
+		if ( ( str_starts_with( $link['path'], './docs' ) ||
+			str_starts_with( $link['path'], '/docs/' ) ) &&
+			substr_count( $link['path'], '/' ) <= 2 ) {
+				$link['path'] = str_replace( array( './docs/', '/docs/' ), 'docs-', $link['path'] );
+		}
+
+		if ( ! str_starts_with( $link['path'], 'http' ) ) {
+			$link['path'] = str_replace( '.md', '-md', $link['path'] );
+		}
+
+		// This is unfinished, there are still many variations in the kind of slugs we might have.
+
+		echo( $link['path'] . ( isset( $link['fragment'] ) ? '#' . $link['fragment'] : '' ) . PHP_EOL );
+	}
 	$headers = $document->getElementsByTagName( 'h1' );
 	if ( count( $headers ) ) {
 		$doc_title = $headers[0]->textContent;
