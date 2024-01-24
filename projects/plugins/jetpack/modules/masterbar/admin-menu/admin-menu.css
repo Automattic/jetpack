@@ -2,6 +2,16 @@
 	margin: 0;
 }
 
+@media (min-width: 961px) {
+	.jp-dialogue-modern-full__container {
+		left: 160px;
+	}
+
+	.global-notices {
+		max-width: calc( 100% - 48px - 160px );
+	}
+}
+
 /**
  * Jetpack logo
  */
