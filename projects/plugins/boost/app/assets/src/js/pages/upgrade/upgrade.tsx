@@ -48,13 +48,13 @@ const Upgrade: React.FC = () => {
 				'jetpack-boost'
 			) }
 		>
-			<h1 className="my-2">{ __( "Optimize your website's performance", 'jetpack-boost' ) }</h1>
-			<p className="my-2">
+			<h1 className="my-3">{ __( "Optimize your website's performance", 'jetpack-boost' ) }</h1>
+			<h3 className="my-2">
 				{ __(
 					'Automatically regenerate critical CSS after site changes, and hunt down image issues with ease.',
 					'jetpack-boost'
 				) }
-			</p>
+			</h3>
 			<ul className="my-2">
 				<li>{ __( 'Automatic critical CSS regeneration', 'jetpack-boost' ) }</li>
 				<li>{ __( 'Performance scores are recalculated after each change', 'jetpack-boost' ) }</li>

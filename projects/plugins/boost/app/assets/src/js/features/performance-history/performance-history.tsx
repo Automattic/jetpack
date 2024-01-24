@@ -12,6 +12,7 @@ import { Button } from '@automattic/jetpack-components';
 import { useNavigate } from 'react-router-dom';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import styles from './performance-history.module.scss';
+import { useEffect } from 'react';
 
 const PerformanceHistoryBody = () => {
 	const [ performanceHistoryState ] = useSingleModuleState( 'performance_history' );
@@ -22,6 +23,13 @@ const PerformanceHistoryBody = () => {
 		'performance_history_fresh_start'
 	);
 	const navigate = useNavigate();
+
+	/*
+	 * Fetch new data on initial page-load. This is a lazy data-sync and initially empty.
+	 */
+	useEffect( () => {
+		refetch();
+	}, [ refetch ] );
 
 	if ( isError && ! isFetching ) {
 		return (
@@ -44,7 +52,7 @@ const PerformanceHistoryBody = () => {
 			needsUpgrade={ needsUpgrade }
 			handleUpgrade={ () => navigate( '/upgrade' ) }
 			handleDismissFreshStart={ dismissFreshStart }
-			isLoading={ isFetching }
+			isLoading={ isFetching && ( ! data || data.periods.length === 0 ) }
 		/>
 	);
 };

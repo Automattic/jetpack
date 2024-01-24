@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix not showing Speed Score increase/decrease popup when a user closed it.
+
+

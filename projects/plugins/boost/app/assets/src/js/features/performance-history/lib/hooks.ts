@@ -27,7 +27,12 @@ export const usePerformanceHistoryQuery = () => {
 	const [ query ] = useDataSync(
 		'jetpack_boost_ds',
 		'performance_history',
-		performanceHistoryDataSchema
+		performanceHistoryDataSchema,
+		{
+			query: {
+				staleTime: 12 * 60 * 60 * 1000, // 12 hours
+			},
+		}
 	);
 
 	return query;

@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { title, postContent, postExcerpt, termDescription, post, pencil } from '@wordpress/icons';
@@ -90,12 +91,23 @@ export default function PromptTemplatesControl( {
 }: PromptTemplatesControlProps ) {
 	const label = __( 'Write with AI…', 'jetpack' );
 
+	const { tracks } = useAnalytics();
+
+	const toggleHandler = isOpen => {
+		if ( isOpen ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_toolbar_menu_show', {
+				tool: 'prompt-template',
+			} );
+		}
+	};
+
 	return (
 		<ToolbarDropdownMenu
 			className="jetpack-ai-assistant__templates-control"
 			icon={ null }
 			label={ label }
 			text={ label }
+			onToggle={ toggleHandler }
 		>
 			{ ( { onClose } ) => {
 				return contentIsLoaded ? (
