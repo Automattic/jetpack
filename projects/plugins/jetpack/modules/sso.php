@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
@@ -81,10 +82,10 @@ class Jetpack_SSO {
 			require_once JETPACK__PLUGIN_DIR . 'modules/sso/class-jetpack-force-2fa.php';
 			new Jetpack_Force_2FA();
 		}
-		add_filter( 'manage_users_columns', array( $this, 'jetpack_icon_user_connected' ) );
+		add_filter( 'manage_users_columns', array( $this, 'jetpack_user_connected_th' ) );
 		add_action( 'admin_print_styles', array( $this, 'jetpack_user_row_style' ) );
 		add_action( 'admin_print_styles', array( $this, 'jetpack_user_col_style' ) );
-		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_user_connected_icon' ), 10, 3 );
+		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_connection_status' ), 10, 3 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_invitations_script' ) );
 		add_action( 'wp_ajax_jetpack_invite_user_to_wpcom', array( $this, 'ajax_invite_user_to_wpcom' ) );
 	}
@@ -107,14 +108,47 @@ class Jetpack_SSO {
 
 	/**
 	 * Invites a user to connect to WordPress.com to allow them to log in via SSO.
-	 *
-	 * @param int $user_id The user ID.
 	 */
-	public function ajax_invite_user_to_wpcom( $user_id ) {
-		// check the nonce
-		// invite the user
-		// respond with success
-		return $user_id;
+	public function ajax_invite_user_to_wpcom() {
+		check_ajax_referer( 'jetpack-sso-invite-user' );
+
+		if ( isset( $_POST['user_id'] ) ) {
+			$user_id    = intval( wp_unslash( $_POST['user_id'] ) );
+			$user       = get_user_by( 'id', $user_id );
+			$user_email = $user->user_email;
+
+			if ( ! $user || ! $user_email ) {
+				wp_send_json_error( __( 'Invalid user ID.', 'jetpack' ) );
+			}
+
+			$blog_id   = Jetpack_Options::get_option( 'id' );
+			$roles     = new Roles();
+			$user_role = $roles->translate_user_to_role( $user );
+
+			$url      = '/sites/' . $blog_id . '/invites/new';
+			$response = Client::wpcom_json_api_request_as_user(
+				$url,
+				'v2',
+				array(
+					'method' => 'POST',
+				),
+				array(
+					'invitees' => array(
+						array(
+							'email_or_username' => $user_email,
+							'role'              => $user_role,
+						),
+					),
+				),
+				'wpcom'
+			);
+
+			// Make your array as json
+			wp_send_json( son_decode( $response['body'], true ) );
+		} else {
+			wp_send_json_error( __( 'Invalid user ID.', 'jetpack' ) );
+		}
+		wp_die();
 	}
 
 	/**
@@ -139,7 +173,7 @@ class Jetpack_SSO {
 	 *
 	 * @return array
 	 */
-	public function jetpack_icon_user_connected( $columns ) {
+	public function jetpack_user_connected_th( $columns ) {
 		$columns['user_jetpack'] = sprintf(
 			'<span title="%1$s">[?]</span>',
 			esc_attr__( 'Connected users can log-in to this site using their WordPress.com account.', 'jetpack' )
@@ -157,28 +191,32 @@ class Jetpack_SSO {
 	 * @return array An array of capabilities
 	 */
 	private static function get_is_user_invited( $user_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return false;
-
-		/*
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
+		$user     = get_user_by( 'id', $user_id );
+		$url      = '/sites/' . $blog_id . '/invites/is-invited';
+		$url      = add_query_arg(
+			array(
+				'email_or_username' => $user->user_email,
+			),
+			$url
+		);
 		$response = Client::wpcom_json_api_request_as_user(
-			'/sites/' . $blog_id . '/invites',
-			'v1.1',
+			$url,
+			'v2',
 			array(),
 			null,
 			'wpcom'
 		);
 		if ( is_wp_error( $response ) ) {
-			return null;
+			return false;
 		}
+
 		if ( 200 !== $response['response']['code'] ) {
-			return null;
+			return false;
 		}
-		return rest_ensure_response(
-			json_decode( $response['body'], true )
-		);
-		*/
+
+		return json_decode( $response['body'], true )['slug'];
 	}
 
 	/**
@@ -190,31 +228,31 @@ class Jetpack_SSO {
 	 *
 	 * @return string
 	 */
-	public function jetpack_show_user_connected_icon( $val, $col, $user_id ) {
+	public function jetpack_show_connection_status( $val, $col, $user_id ) {
 		if ( 'user_jetpack' === $col && Jetpack::connection()->is_user_connected( $user_id ) ) {
-			$emblem_html = sprintf(
+			$connection_html = sprintf(
 				'<button disabled title="%1$s" class="jetpack-sso-invitation">%2$s</button>',
 				esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack' ),
 				esc_attr__( 'Connected', 'jetpack' )
 			);
-			return $emblem_html;
+			return $connection_html;
 		} else {
 			$has_pending_invite = self::get_is_user_invited( $user_id );
 			if ( $has_pending_invite ) {
-				$emblem_html = sprintf(
+				$connection_html = sprintf(
 					'<button disabled title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</button>',
 					esc_attr__( 'This user didn\'t accept the invitation to join this site yet.', 'jetpack' ),
 					esc_attr__( 'Pending invite', 'jetpack' )
 				);
-				return $emblem_html;
+				return $connection_html;
 			}
-			$emblem_html = sprintf(
+			$connection_html = sprintf(
 				'<button type="button" href="#" data-user-id="%1$s" title="%2$s" class="jetpack-sso-invitation sso-disconnected-user">%3$s</button>',
 				esc_attr( $user_id ),
 				esc_attr__( 'This user is disconnected and may not be able to log in. Please invite them to connect them to the site.', 'jetpack' ),
 				esc_attr__( 'Invite', 'jetpack' )
 			);
-			return $emblem_html;
+			return $connection_html;
 		}
 
 		return $val;
@@ -228,7 +266,7 @@ class Jetpack_SSO {
 			?>
 			<style>
 				.fixed .column-user_jetpack {
-					width: 80px;
+					width: 100px;
 				}
 				.jetpack-sso-invitation {
 					background: none;
@@ -237,6 +275,7 @@ class Jetpack_SSO {
 					text-decoration: underline;
 					cursor: pointer;
 					color: #0073aa;
+					text-align: unset;
 				}
 				button.sso-disconnected-user {
 					
@@ -254,7 +293,7 @@ class Jetpack_SSO {
 			?>
 			<style>
 				#the-list tr:has(.sso-disconnected-user) {
-					background: #ffd1d8;
+					background: #ffe8eb;
 				}
 				#the-list tr:has(.sso-pending-invite) {
 					background: #ccedef;
@@ -1182,7 +1221,7 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Retreive the admin profile page URL.
+	 * Retrieve the admin profile page URL.
 	 */
 	public static function profile_page_url() {
 		return admin_url( 'profile.php' );

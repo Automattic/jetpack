@@ -8,7 +8,7 @@ jQuery( document ).ready( function ( $ ) {
 		$this.html( 'Inviting' );
 		$this.prop( 'disabled', true );
 		e.preventDefault();
-		var data = { action: 'jetpack_invite_user_to_wpcom', user_id, 'ajax-nonce': nonce };
+		var data = { action: 'jetpack_invite_user_to_wpcom', user_id, _ajax_nonce: nonce };
 		$.post( ajax_url, data ).done( function () {
 			window.location.reload();
 		} );
