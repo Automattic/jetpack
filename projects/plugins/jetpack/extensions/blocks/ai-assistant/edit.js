@@ -371,6 +371,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			promptType: undefined,
 			messages: attributes?.originalMessages,
 		} );
+		replaceContent();
+		if ( isDismiss ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_dismiss' );
+		} else {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_discard', { feature: 'ai-assistant' } );
+		}
 	};
 
 	const handleStopSuggestion = () => {
