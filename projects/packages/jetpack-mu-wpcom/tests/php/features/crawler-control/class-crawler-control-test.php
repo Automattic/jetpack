@@ -81,16 +81,6 @@ class Crawler_Control_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * What it says
 	 */
-	public function test_crawler_disables_GPTBot_by_default() {
-		$cc = $this->get_crawler_control( 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)' );
-
-		$this->expectException( CrawlerControlDieException::class );
-		$cc->exit_for_bots_unless_permitted();
-	}
-
-	/**
-	 * What it says
-	 */
 	public function test_crawler_disables_sentibot_by_default() {
 		$cc = $this->get_crawler_control( 'sentibot' );
 		$cc->expects( $this->once() )
