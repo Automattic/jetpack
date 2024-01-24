@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Modifier_Fallback;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any_JSON;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Array;
@@ -65,160 +65,53 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Void;
  * $parsed_data = $my_schema->parse($input_data);
  *
  */
-class Schema implements Parser {
-
-	/**
-	 * Each Schema entry has a Parser that's able to parse a value.
-	 *
-	 * @var Parser
-	 */
-	private $parser;
-
-	/**
-	 * @var Schema_Validation_Meta | null
-	 */
-	private $meta = null;
-
-	private $is_root = false;
-
-	/**
-	 * @param Parser $parser
-	 */
-	public function __construct( Parser $parser ) {
-		$this->parser = $parser;
-	}
-
-	public function set_meta( Schema_Validation_Meta $meta ) {
-		$this->meta    = $meta;
-		$this->is_root = true;
-	}
-
-	/**
-	 * Parses the input data according to the schema type.
-	 *
-	 * @param mixed $value The input data to be parsed.
-	 *
-	 * @return mixed The parsed data according to the schema type.
-	 * @throws \Schema_Parsing_Error When the input data is invalid.
-	 */
-	public function parse( $value, $meta = null ) {
-		if ( $meta === null && $this->meta === null ) {
-			// 1 - If the meta is null, then this is maybe the root.
-			$this->meta = new Schema_Validation_Meta( 'unknown' );
-			$this->meta->set_data( $value );
-			$this->is_root = true;
-		} elseif ( $this->meta === null ) {
-			// 2 - If the meta is not null, then this is not the root.
-			$this->meta = $meta;
-		}
-
-		/**
-		 * If this is the root, then we need to catch any errors and log them.
-		 */
-		if ( $this->is_root ) {
-			try {
-				return $this->parser->parse( $value, $this->meta );
-			} catch ( Schema_Internal_Error $e ) {
-				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					$value          = wp_json_encode( $e->get_value(), JSON_PRETTY_PRINT );
-					$error_message  = "Failed to parse '{$this->meta->get_name()}' schema";
-					$error_message .= "\n" . $e->getMessage();
-					$error_message .= "\nData Received:";
-					$error_message .= "\n$value";
-					$error_message .= "\nSchema Path: {$this->meta->get_name()}.{$this->meta->get_path()}";
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					error_log( $error_message );
-				}
-
-				throw new Schema_Parsing_Error( $e->getMessage(), $e->get_value(), $this->meta );
-			}
-		} else {
-			return $this->parser->parse( $value, $this->meta );
-		}
-	}
-
-	public function __toString() {
-		return $this->parser->__toString();
-	}
-
-	#[\ReturnTypeWillChange]
-	public function jsonSerialize() {
-		return $this->schema();
-	}
-
-	public function schema() {
-		return $this->parser->schema();
-	}
-
-	/**
-	 * Sets a fallback value for the schema type when the input data is invalid.
-	 * This method returns a new instance of Decorate_With_Default, which wraps
-	 * the current schema type and applies the fallback value.
-	 *
-	 * @param mixed $default_value The fallback value to use when the input data is invalid.
-	 *
-	 * @return Decorate_With_Default A new instance with the fallback value applied.
-	 */
-	public function fallback( $default_value ) {
-		return new Decorate_With_Default( $this->parser, $default_value );
-	}
-
-	public function nullable() {
-		return $this->fallback( null );
-	}
-
-	/**
-	 * ==================================================================================
-	 *      Static Utilities below:
-	 *      This section defines the static methods for creating instances quickly.
-	 * ==================================================================================
-	 */
+class Schema {
 
 	public static function as_string() {
-		return new self( new Type_String() );
+		return new Schema_Parser( new Type_String() );
 	}
 
 	/**
 	 * @param Parser $parser - The parser to apply to each array item when $data is parsed.
 	 *
-	 * @return self
+	 * @return Schema_Parser
 	 */
 	public static function as_array( Parser $parser ) {
-		return new self( new Type_Array( $parser ) );
+		return new Schema_Parser( new Type_Array( $parser ) );
 	}
 
 	/**
-	 * @param $assoc_parser_array - An associative array of ["key" => "Parser"] pairs
+	 * @param array $assoc_parser_array - An associative array of ["key" => "Parser"] pairs
 	 *
-	 * @return self
+	 * @return Schema_Parser
 	 */
 	public static function as_assoc_array( $assoc_parser_array ) {
-		return new self( new Type_Assoc_Array( $assoc_parser_array ) );
+		return new Schema_Parser( new Type_Assoc_Array( $assoc_parser_array ) );
 	}
 
 	public static function as_boolean() {
-		return new self( new Type_Boolean() );
+		return new Schema_Parser( new Type_Boolean() );
 	}
 
 	public static function as_number() {
-		return new self( new Type_Number() );
+		return new Schema_Parser( new Type_Number() );
 	}
 
 	public static function as_float() {
-		return new self( new Type_Float( true ) );
+		return new Schema_Parser( new Type_Float( true ) );
 	}
 
 	/**
-	 * @param $allowed_values mixed[] - An array of values that are allowed for this enum.
+	 * @param array $allowed_values - An array of values that are allowed for this enum.
 	 *
-	 * @return Schema
+	 * @return Schema_Parser
 	 */
 	public static function enum( $allowed_values ) {
-		return new self( new Type_Enum( $allowed_values ) );
+		return new Schema_Parser( new Type_Enum( $allowed_values ) );
 	}
 
 	public static function any_json_data() {
-		return new self( new Type_Any_JSON() );
+		return new Schema_Parser( new Type_Any_JSON() );
 	}
 
 	/**
@@ -226,7 +119,7 @@ class Schema implements Parser {
 	 * will always parse to null.
 	 */
 	public static function as_void() {
-		return new self( new Type_Void() );
+		return new Schema_Parser( new Type_Void() );
 	}
 
 	/**
@@ -236,36 +129,17 @@ class Schema implements Parser {
 	 * @see Type_Any
 	 */
 	public static function as_unsafe_any() {
-		return new self( new Type_Any() );
+		return new Schema_Parser( new Type_Any() );
 	}
 
-	public static function describe( $parser ) {
-		// Process the top-level schema array
-		$description = self::process_schema( $parser->schema() );
-
-		// Convert the processed schema to a JSON-like string
-		return wp_json_encode( $description, JSON_PRETTY_PRINT );
-	}
-
-	private static function process_schema( $item ) {
-		// If the item is an associative array with 'type' as a key, return its value directly
-		if ( is_array( $item ) && isset( $item['type'] ) && count( $item ) === 1 ) {
-			return $item['type'];
+	/**
+	 * @var \Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser $parser - The parser to apply to each array item when $data is parsed.
+	 */
+	public static function either( ...$parsers ) {
+		$or = new Modifier_Fallback();
+		foreach ( $parsers as $parser ) {
+			$or->add_fallback_parser( $parser );
 		}
-
-		// If the item is an associative array with 'type' and 'value', process the value
-		if ( isset( $item['type'], $item['value'] ) && is_array( $item ) ) {
-			return self::process_schema( $item['value'] );
-		}
-
-		// If the item is any other kind of array, process each sub-item
-		if ( is_array( $item ) ) {
-			$result = array();
-			foreach ( $item as $key => $value ) {
-				$result[ $key ] = self::process_schema( $value );
-			}
-			return $result;
-		}
-		return $item;
+		return new Schema_Parser( $or );
 	}
 }

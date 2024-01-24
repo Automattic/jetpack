@@ -65,11 +65,11 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Meta;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
 
 final class Data_Sync {
 
-	const PACKAGE_VERSION = '0.4.0';
+	const PACKAGE_VERSION = '0.4.1-alpha';
 
 	/**
 	 * @var Registry
@@ -148,6 +148,10 @@ final class Data_Sync {
 				'nonce' => $this->registry->get_endpoint( $key )->create_nonce(),
 			);
 
+			if ( DS_Utils::is_debug() ) {
+				$data[ $key ]['log'] = $entry->get_parser()->get_log();
+			}
+
 			if ( $entry->is( Lazy_Entry::class ) ) {
 				$data[ $key ]['lazy'] = true;
 			}
@@ -224,8 +228,8 @@ final class Data_Sync {
 		 *      $Data_Sync->get_registry()->register(...)` instead of `$Data_Sync->register(...)
 		 * ```
 		 */
-		if ( method_exists( $parser, 'set_meta' ) ) {
-			$parser->set_meta( new Schema_Validation_Meta( $key ) );
+		if ( method_exists( $parser, 'set_context' ) ) {
+			$parser->set_context( new Schema_Context( $key ) );
 		}
 		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $parser );
 		$this->registry->register( $key, $entry_adapter );

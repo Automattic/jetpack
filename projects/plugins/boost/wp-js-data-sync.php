@@ -38,12 +38,14 @@ function jetpack_boost_register_option( $key, $parser, $entry = null ) {
 
 /**
  * Register a new Jetpack Boost Data_Sync Action
- * @param $key string
+ *
+ * @param $key         string
  * @param $action_name string
- * @param $instance Data_Sync_Action
+ * @param $instance    Data_Sync_Action
  *
  * @return void
  */
+
 function jetpack_boost_register_action( $key, $action_name, $request_schema, $instance ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
 			->register_action( $key, $action_name, $request_schema, $instance );
@@ -110,7 +112,13 @@ $critical_css_provider_error_set_schema = Schema::as_array(
 			'type'    => Schema::as_string(),
 			'meta'    => Schema::any_json_data()->nullable(),
 		)
-	)->fallback( array() )
+	)->fallback(
+		array(
+			'url'     => '',
+			'message' => '',
+			'type'    => '',
+		)
+	)
 );
 
 $critical_css_state_schema = Schema::as_assoc_array(
