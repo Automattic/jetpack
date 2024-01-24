@@ -22,21 +22,13 @@ const QualityControl = ( {
 	onChange,
 }: QualityControlProps ) => {
 	const checkboxId = useId();
-	const [quality, setQuality] = useDebouncedState( config.quality, (value) => {
-		onChange( { ...config, quality: value } );
-	});
-
-	const [lossless, setLossless] = useDebouncedState( config.lossless, (value) => {
-		onChange( { ...config, lossless: value } );
-	});
-
 	return (
 		<div className={ styles[ 'quality-control' ] }>
 			<div className={ styles.label }>{ label }</div>
 			<div className={ classNames( styles.slider, { [ styles.disabled ]: config.lossless } ) }>
 				<NumberSlider
-					value={ quality }
-					onChange={setQuality}
+					value={ config.quality }
+					onChange={ (value) => onChange( { ...config, quality: value } )}
 					minValue={ minValue }
 					maxValue={ maxValue }
 				/>
@@ -44,9 +36,9 @@ const QualityControl = ( {
 			<label className={ styles.lossless } htmlFor={ checkboxId }>
 				<input
 					type="checkbox"
-					checked={ lossless }
+					checked={ config.lossless }
 					id={ checkboxId }
-					onChange={ event => setLossless( event.target.checked )}
+					onChange={ event => onChange( { ...config, lossless: event.target.checked } ) }
 				/>
 				{ __( 'Lossless', 'jetpack-boost' ) }
 			</label>
