@@ -34,7 +34,12 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_appearance_menu();
 		$this->add_plugins_menu();
 		$this->add_users_menu();
-		$this->add_tools_menu();
+
+		// Do not modify the Tools menu if the user wants to use the wp-admin interface.
+		if ( 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
+			$this->add_tools_menu();
+		}
+
 		$this->add_options_menu();
 		$this->add_jetpack_menu();
 
