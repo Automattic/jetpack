@@ -1,3 +1,5 @@
 Significance: patch
 Type: other
-Comment: Register custom Calypso importers for wp-admin/import.php.
+Comment: Updated composer.lock.
+
+
