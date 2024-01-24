@@ -3,53 +3,6 @@
 }
 
 /**
- * Menu width
- */
-#wpcontent,
-#wpfooter {
-	margin-left: 160px;
-}
-
-#adminmenuback,
-#adminmenuwrap,
-#adminmenu,
-#adminmenu .wp-submenu {
-	width: 160px;
-}
-
-#adminmenu .wp-submenu {
-	left: 160px;
-}
-
-#adminmenu .wp-not-current-submenu .wp-submenu,
-.folded #adminmenu .wp-has-current-submenu .wp-submenu {
-	min-width: 160px;
-}
-
-/**
- * Fixes Gutenberg in not fullscreen mode.
- */
- @media (min-width: 783px) {
-	.interface-interface-skeleton,
-	.edit-post-layout .components-editor-notices__snackbar {
-		left: 160px;
-	}
-}
-
-@media (min-width: 961px) {
-	body:not(.folded).auto-fold .interface-interface-skeleton,
-	.auto-fold .edit-post-layout .components-editor-notices__snackbar,
-	.components-snackbar-list.edit-widgets-notices__snackbar,
-	.jp-dialogue-modern-full__container {
-		left: 160px;
-	}
-
-	.global-notices {
-		max-width: calc( 100% - 48px - 160px );
-	}
-}
-
-/**
  * Jetpack logo
  */
 #adminmenu [class*="activity-log"] .wp-menu-image img {
@@ -306,12 +259,6 @@
 
 /* Auto-folding of the admin menu */
 @media only screen and (max-width: 960px) {
-	#adminmenu,
-	#adminmenuwrap,
-	#adminmenuback {
-		width: 160px;
-	}
-
 	.auto-fold #adminmenu a[class*="toplevel_page_http"].wp-first-item {
 		height: auto;
 	}
@@ -344,14 +291,6 @@
 
 	.wp-responsive-open #wpbody {
 		right: inherit;
-	}
-
-	.wp-responsive-open #wpcontent {
-		margin-left: 160px;
-	}
-
-	.auto-fold #adminmenu, .auto-fold #adminmenuback, .auto-fold #adminmenuwrap {
-		width: 160px;
 	}
 
 	.auto-fold #adminmenu a.site-switcher,
