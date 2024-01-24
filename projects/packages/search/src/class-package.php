@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\Search;
  * Search package general information
  */
 class Package {
-	const VERSION = '0.41.2-alpha';
+	const VERSION = '0.42.0-alpha';
 	const SLUG    = 'search';
 
 	/**
