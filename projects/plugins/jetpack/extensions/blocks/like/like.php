@@ -42,6 +42,10 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attr, $content, $block ) {
+	if ( ! jetpack_is_frontend() ) {
+		return;
+	}
+
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
