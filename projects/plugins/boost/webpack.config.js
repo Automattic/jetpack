@@ -24,6 +24,15 @@ if ( ! isProduction ) {
 	} );
 }
 
+const imageGuideCopyPatterns = [
+	{
+		from: path.join(
+			path.dirname( require.resolve( '@automattic/jetpack-image-guide' ) ),
+			'guide.css'
+		),
+	},
+];
+
 module.exports = [
 	/**
 	 * The Boost plugin
@@ -123,6 +132,7 @@ module.exports = [
 			...jetpackWebpackConfig.StandardPlugins( {
 				DependencyExtractionPlugin: { injectPolyfill: true },
 			} ),
+			new CopyPlugin( { patterns: imageGuideCopyPatterns } ),
 		],
 		module: {
 			strictExportPresence: true,

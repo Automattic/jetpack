@@ -1569,8 +1569,10 @@ function zbscrm_JS_calc_amount_due() {
 			// get
 			var v = jQuery( '.zbs-partial-value', ele ).text();
 
+			var label = jQuery( '.zlabel', ele ).text();
+
 			// detect +-
-			var multiplier = 1; // gets turned to -1 if negotive ()
+			var multiplier = 1; // gets turned to -1 if negative ()
 
 			// got -?
 			if ( v.includes( '(' ) ) {
@@ -1579,10 +1581,11 @@ function zbscrm_JS_calc_amount_due() {
 			}
 			v = parseFloat( v ) * multiplier;
 
-			// debug console.log('amount:',[jQuery('.zbs-partial-value',ele).text(),amount_due,v]);
-
-			// do it :)
-			amount_due -= v;
+			if (  label.includes( 'Refund' ) || label.includes( 'Credit' ) ) {
+				amount_due -= Math.abs( v );
+			} else {
+				amount_due -= v;
+			}
 		} );
 
 		jQuery( '#inv-amount-due' ).html( amount_due.toFixed( zbs_root.currencyOptions.noOfDecimals ) );
@@ -1660,7 +1663,8 @@ function zbscrm_JS_calculatediscount() {
  */
 function zbscrm_JS_invoice_typeahead_bind() {
 	// endpoint - pass nonce this was as before send wasn't working weirdly in Bloodhound.
-	endpoint = wpApiSettings.root + 'zbscrm/v1/concom?_wpnonce=' + wpApiSettings.nonce;
+	param_separator = wpApiSettings.root.indexOf('?rest_route=/') === -1 ? '?' : '&';
+	endpoint = wpApiSettings.root + 'zbscrm/v1/concom' + param_separator + '_wpnonce=' + wpApiSettings.nonce;
 
 	var zbsInvoiceTo = new Bloodhound( {
 		datumTokenizer: function ( d ) {
@@ -1684,7 +1688,7 @@ function zbscrm_JS_invoice_typeahead_bind() {
 		},
 		remote: {
 			// this checks when users type, via ajax search ... useful addition to (cached) prefetch
-			url: wpApiSettings.root + 'zbscrm/v1/concom?_wpnonce=' + wpApiSettings.nonce + '&s=%QUERY',
+			url: wpApiSettings.root + 'zbscrm/v1/concom' + param_separator + '_wpnonce=' + wpApiSettings.nonce + '&s=%QUERY',
 			wildcard: '%QUERY',
 		},
 	} );
@@ -1783,12 +1787,12 @@ function zbscrm_JS_invoice_typeahead_bind() {
 						var name = r.name.trim()
 							? r.name
 							: zeroBSCRMJS_globViewLang( 'contact' ) + ' #' + r.id;
-						var email = r.email ? r.email : '<i>' + zbscrm_JS_invoice_lang( 'noemail' ) + '</i>';
+						var email = r.email ? jpcrm.esc_html(r.email) : '<i>' + zbscrm_JS_invoice_lang( 'noemail' ) + '</i>';
 						sug =
 							'<div class="sug-wrap"><div class="ico">' +
 							ico +
 							'</div><div class="inner"><div class="name">' +
-							name +
+							jpcrm.esc_html(name) +
 							'</div><div class="email">' +
 							email +
 							'</div></div><div class="clear"</div></div>';

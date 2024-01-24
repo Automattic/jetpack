@@ -42,12 +42,18 @@ export function showModal( url ) {
 	dialog.setAttribute( 'id', 'memberships-modal-window' );
 
 	const iframe = document.createElement( 'iframe' );
-	const siteLanguage = document.querySelector( 'input[name="lang"]' ).value;
+	const inputLanguage = document.querySelector( 'input[name="lang"]' );
+	let siteLanguage = null;
+	if ( inputLanguage ) {
+		siteLanguage = inputLanguage.value;
+	}
 	iframe.setAttribute( 'id', 'memberships-modal-iframe' );
 	iframe.innerText =
 		'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
-	iframe.src =
-		url + '&display=alternate&lang=' + siteLanguage + '&jwt_token=' + getTokenFromCookie();
+	iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
+	if ( siteLanguage ) {
+		iframe.src = iframe.src + '&lang=' + siteLanguage;
+	}
 	iframe.setAttribute( 'frameborder', '0' );
 	iframe.setAttribute( 'allowtransparency', 'true' );
 	iframe.setAttribute( 'allowfullscreen', 'true' );
