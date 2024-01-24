@@ -58,9 +58,9 @@ export default function useDismissNotice() {
 		setDismissedNotices( notices => ( { ...notices, ...{ [ notice ]: reappearance_time } } ) );
 
 		apiFetch( {
-			path: `jetpack/v4/social/dismiss-notice`,
+			path: `/wp/v2/settings`,
 			method: 'POST',
-			data: { notice, reappearance_time },
+			data: { jetpack_social_dismissed_notices: { [ notice ]: reappearance_time } },
 		} );
 	}, [] );
 

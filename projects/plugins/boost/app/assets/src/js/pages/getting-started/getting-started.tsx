@@ -7,10 +7,12 @@ import ActivateLicense from '$features/activate-license/activate-license';
 import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import styles from './getting-started.module.scss';
-import { useConfig } from '$lib/stores/config-ds';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useNavigate } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
+import { usePricing } from '$lib/stores/pricing';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
+import { useSingleModuleState } from '$features/module/lib/stores';
 
 const GettingStarted: React.FC = () => {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
@@ -18,16 +20,18 @@ const GettingStarted: React.FC = () => {
 	const navigate = useNavigate();
 
 	const {
-		pricing,
-		is_premium: isPremium,
 		site: { domain },
-		connection: { wpcomBlogId },
-	} = useConfig();
+	} = Jetpack_Boost;
+
+	const pricing = usePricing();
+	const premiumFeatures = usePremiumFeatures();
+	const isPremium = premiumFeatures !== false;
 
 	const { shouldGetStarted, markGettingStartedComplete } = useGettingStarted();
+	const [ , setCriticalCssState ] = useSingleModuleState( 'critical_css' );
 
 	const {
-		connection: { userConnected },
+		connection: { userConnected, wpcomBlogId },
 		initializeConnection,
 	} = useConnection();
 
@@ -41,10 +45,20 @@ const GettingStarted: React.FC = () => {
 					wpcomBlogId ? wpcomBlogId.toString() : null
 				);
 			} else {
+				setCriticalCssState( true );
 				navigate( '/', { replace: true } );
 			}
 		}
-	}, [ domain, isPremium, navigate, selectedPlan, shouldGetStarted, userConnected, wpcomBlogId ] );
+	}, [
+		domain,
+		isPremium,
+		navigate,
+		selectedPlan,
+		setCriticalCssState,
+		shouldGetStarted,
+		userConnected,
+		wpcomBlogId,
+	] );
 
 	async function initialize( plan: 'free' | 'premium' ) {
 		setSelectedPlan( plan );
@@ -59,7 +73,7 @@ const GettingStarted: React.FC = () => {
 			// * premium_cta_from_getting_started_page_in_plugin
 			await recordBoostEvent( `${ plan }_cta_from_getting_started_page_in_plugin`, {} );
 
-			markGettingStartedComplete();
+			await markGettingStartedComplete();
 		} catch ( e ) {
 			// Display the error in a snackbar message
 			setSnackbarMessage(

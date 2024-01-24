@@ -53,18 +53,12 @@ function addBoostProps( props: TracksEventProperties ): TracksEventProperties {
 	const defaultProps: { [ key: string ]: string } = {};
 
 	/**
-	 * Jetpack Boost constant is not available on the front end.
+	 * The config might not always be available, i.e. image-guide in the front-end.
 	 *
 	 * So we need to check if it exists before using it in case this function is called from the front end.
 	 */
-	if ( typeof Jetpack_Boost !== 'undefined' ) {
-		if ( 'version' in Jetpack_Boost ) {
-			defaultProps.boost_version = Jetpack_Boost.version;
-		}
-
-		if ( 'optimizations' in Jetpack_Boost ) {
-			defaultProps.optimizations = JSON.stringify( Jetpack_Boost.optimizations );
-		}
+	if ( typeof Jetpack_Boost === 'object' ) {
+		defaultProps.boost_version = Jetpack_Boost.version;
 	}
 
 	return { ...defaultProps, ...props };

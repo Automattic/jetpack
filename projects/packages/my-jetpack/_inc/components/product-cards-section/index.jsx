@@ -6,7 +6,7 @@ import BackupCard from './backup-card';
 import BoostCard from './boost-card';
 import CreatorCard from './creator-card';
 import CrmCard from './crm-card';
-import ScanAndProtectCard from './scan-protect-card';
+import ProtectCard from './protect-card';
 import SearchCard from './search-card';
 import SocialCard from './social-card';
 import StatsCard from './stats-card';
@@ -24,7 +24,7 @@ const { showJetpackStatsCard = false } = window.myJetpackInitialState?.myJetpack
 const ProductCardsSection = () => {
 	const items = {
 		backups: BackupCard,
-		scan: ScanAndProtectCard,
+		protect: ProtectCard,
 		antispam: AntiSpamCard,
 		boost: BoostCard,
 		search: SearchCard,
