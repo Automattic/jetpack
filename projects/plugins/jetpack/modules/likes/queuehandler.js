@@ -236,26 +236,12 @@ function JetpackLikesMessageListener( event ) {
 				}
 
 				const element = document.createElement( 'li' );
-				// Appending element before fetching avatar_URL to avoid racing conditions on the list order
 				list.append( element );
-
-				try {
-					const response = await fetch( liker.avatar_URL, { method: 'HEAD' } );
-					if ( ! response.ok ) {
-						// Image doesn't exist, remove the element
-						element.remove();
-						return;
-					}
-				} catch ( error ) {
-					// Error occurred while checking image existence, remove the element
-					element.remove();
-					return;
-				}
 
 				if ( newLayout ) {
 					element.innerHTML = `
 					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-						<img src="${ encodeURI( liker.avatar_URL ) }"
+						<img src="${ liker.avatar_URL }"
 							alt=""
 							style="width: 28px; height: 28px;" />
 						<span></span>
@@ -264,7 +250,7 @@ function JetpackLikesMessageListener( event ) {
 				} else {
 					element.innerHTML = `
 					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-						<img src="${ encodeURI( liker.avatar_URL ) }"
+						<img src="${ liker.avatar_URL }"
 							alt=""
 							style="width: 30px; height: 30px; padding-right: 3px;" />
 					</a>
