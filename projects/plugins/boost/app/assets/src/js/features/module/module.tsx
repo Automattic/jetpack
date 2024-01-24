@@ -1,7 +1,6 @@
 import { ToggleControl } from '@automattic/jetpack-components';
 import { useEffect } from 'react';
 import { useSingleModuleState } from './lib/stores';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import styles from './module.module.scss';
 
 type ModuleProps = {
@@ -46,8 +45,8 @@ const Module = ( {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	// Don't show unavailable modules, except for lazy_images.
-	if ( ! isModuleAvailable && slug !== 'lazy_images' ) {
+	// Don't show unavailable modules
+	if ( ! isModuleAvailable ) {
 		return null;
 	}
 
@@ -76,10 +75,4 @@ const Module = ( {
 	);
 };
 
-export default ( props: ModuleProps ) => {
-	return (
-		<DataSyncProvider>
-			<Module { ...props } />
-		</DataSyncProvider>
-	);
-};
+export default Module;

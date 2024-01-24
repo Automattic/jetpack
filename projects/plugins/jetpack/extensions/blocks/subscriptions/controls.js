@@ -70,7 +70,7 @@ export default function SubscriptionControls( {
 								subscriberCount,
 								'jetpack'
 							),
-							numberFormat( subscriberCount )
+							numberFormat( subscriberCount, { notation: 'compact', maximumFractionDigits: 1 } )
 						),
 						{ span: <span style={ { fontWeight: 'bold' } } /> }
 					) }

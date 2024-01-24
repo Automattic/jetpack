@@ -12,11 +12,12 @@ import {
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import useAnalytics from '../../../hooks/use-analytics';
 import GoBackLink from '../../go-back-link';
 import jetpackAiImage from '../jetpack-ai.png';
 import styles from './style.module.scss';
@@ -35,6 +36,10 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 		'jetpack-my-jetpack'
 	);
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
+	const { recordEvent } = useAnalytics();
+	const trackClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_ai_upgrade_contact_us', { placement: 'insterstitial' } );
+	}, [ recordEvent ] );
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
@@ -55,7 +60,7 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 									<H3>{ title }</H3>
 									<Text mb={ 3 }>{ longDescription }</Text>
 									<div className={ styles[ 'buttons-row' ] }>
-										<Button href={ contactHref }>
+										<Button href={ contactHref } onClick={ trackClickHandler }>
 											{ __( 'Contact Us', 'jetpack-my-jetpack' ) }
 										</Button>
 										<Link to={ '/' } onClick={ onClickGoBack }>

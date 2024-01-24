@@ -1,102 +1,43 @@
 import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-css-meta';
-import { CriticalCssState } from '$features/critical-css/lib/stores/critical-css-state-types';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
-import { Button, Notice, getRedirectUrl } from '@automattic/jetpack-components';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
+import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { usePremiumFeatures, useSuggestRegenerate } from './lib/hooks';
-import {
-	RegenerateCriticalCssSuggestion,
-	continueGeneratingLocalCriticalCss,
-	regenerateCriticalCss,
-} from '$features/critical-css';
-import { useCallback, useEffect, useState } from 'react';
-import {
-	startPollingCloudStatus,
-	stopPollingCloudCssStatus,
-} from '$features/critical-css/lib/cloud-css';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import { QualitySettings } from '$features/image-cdn';
 import styles from './index.module.scss';
-import { RecommendationsMeta } from '$features/image-size-analysis/recommendations-meta/recommendations-meta';
-import { initializeIsaSummary } from '$features/image-size-analysis/lib/stores/isa-summary';
+import { RecommendationsMeta } from '$features/image-size-analysis';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
+import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
+import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
+import Upgraded from '$features/ui/upgraded/upgraded';
 
-type IndexProps = {
-	/*
-	 * TODO: Move these to react DS and get them directly from DS instead of as props.
-	 * This should be done when moving the Main.svelte component to React.
-	 */
-	criticalCss: {
-		criticalCssState: CriticalCssState;
-		continueGeneratingLocalCriticalCss: unknown;
-		regenerateCriticalCss: unknown;
-		criticalCssProgress: number;
-		isFatalError: boolean;
-		criticalCssIssues: CriticalCssState[ 'providers' ];
-		primaryErrorSet: unknown;
-	};
-};
-
-const Index = ( { criticalCss }: IndexProps ) => {
-	const [ alreadyResumed, setAlreadyResumed ] = useState( false );
-	const resume = useCallback( () => {
-		if ( alreadyResumed ) {
-			return;
-		}
-		setAlreadyResumed( true );
-
-		if (
-			! criticalCss.criticalCssState ||
-			criticalCss.criticalCssState.status === 'not_generated'
-		) {
-			return regenerateCriticalCss();
-		}
-		continueGeneratingLocalCriticalCss( criticalCss.criticalCssState );
-	}, [ alreadyResumed, criticalCss.criticalCssState ] );
-
+const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
-	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
-	const learnLazyLoadDeprecation = () => {
-		window.open( getRedirectUrl( 'jetpack-boost-lazy-load-deprecation' ), '_blank' );
-	};
 
-	const [ lazyLoadState ] = useSingleModuleState( 'lazy_images' );
-	const [ cloudCssState ] = useSingleModuleState( 'cloud_css' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
+	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
 
-	const lazyLoadDeprecationMessage = lazyLoadState?.available
-		? __(
-				'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature will consequently be removed from Jetpack Boost.',
-				'jetpack-boost'
-		  )
-		: __(
-				'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature has been disabled to avoid potential conflicts with Gutenberg 16.6.0+ or WordPress 6.4+. This feature will consequently be removed from Jetpack Boost.',
-				'jetpack-boost'
-		  );
+	const regenerateCssAction = useRegenerateCriticalCssAction();
+	const requestRegenerateCriticalCss = () => {
+		regenerateCssAction.mutate();
+	};
+	const { canResizeImages } = Jetpack_Boost;
 
-	const [ { data: suggestRegenerate } ] = useSuggestRegenerate();
 	const premiumFeatures = usePremiumFeatures();
-
-	useEffect( () => {
-		if ( isaState?.active ) {
-			initializeIsaSummary();
-		}
-	}, [ isaState?.active ] );
+	const isPremium = premiumFeatures !== false;
 
 	return (
 		<div className="jb-container--narrow">
 			<Module
 				slug="critical_css"
 				title={ __( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' ) }
-				onDisable={ () => setAlreadyResumed( false ) }
-				onEnable={ resume }
-				onMountEnable={ resume }
+				onEnable={ requestRegenerateCriticalCss }
 				description={
 					<>
 						<p>
@@ -111,34 +52,25 @@ const Index = ( { criticalCss }: IndexProps ) => {
 								}
 							) }
 						</p>
-						<p>
-							{ createInterpolateElement(
-								__(
-									`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
-									'jetpack-boost'
-								),
-								{
-									b: <b />,
-								}
-							) }
-						</p>
+						<div className={ styles[ 'tooltip-wrapper' ] }>
+							<p>
+								{ createInterpolateElement(
+									__(
+										`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+										'jetpack-boost'
+									),
+									{
+										b: <b />,
+									}
+								) }
+							</p>
+							<PremiumTooltip />
+						</div>
 					</>
 				}
 			>
-				<CriticalCssMeta
-					cssState={ criticalCss.criticalCssState }
-					isCloudCssAvailable={ cloudCssState?.available === true }
-					criticalCssProgress={ criticalCss.criticalCssProgress }
-					issues={ criticalCss.criticalCssIssues }
-					isFatalError={ criticalCss.isFatalError }
-					primaryErrorSet={ criticalCss.primaryErrorSet }
-					suggestRegenerate={ suggestRegenerate }
-					regenerateCriticalCss={ criticalCss.regenerateCriticalCss }
-				/>
-				<RegenerateCriticalCssSuggestion
-					show={ suggestRegenerate && criticalCss.criticalCssState.status !== 'pending' }
-					type={ suggestRegenerate }
-				/>
+				<CriticalCssMeta />
+
 				<UpgradeCTA
 					description={ __(
 						'Save time by upgrading to Automatic Critical CSS generation.',
@@ -151,9 +83,10 @@ const Index = ( { criticalCss }: IndexProps ) => {
 				title={
 					<>
 						{ __( 'Automatically Optimize CSS Loading', 'jetpack-boost' ) }
-						<span className="jb-badge">Upgraded</span>
+						<Upgraded />
 					</>
 				}
+				onEnable={ requestRegenerateCriticalCss }
 				description={
 					<>
 						<p>
@@ -181,20 +114,8 @@ const Index = ( { criticalCss }: IndexProps ) => {
 						</p>
 					</>
 				}
-				onEnable={ startPollingCloudStatus }
-				onDisable={ stopPollingCloudCssStatus }
-				onMountEnable={ startPollingCloudStatus }
 			>
-				<CloudCssMeta
-					cssState={ criticalCss.criticalCssState }
-					isCloudCssAvailable={ cloudCssState?.available === true }
-					criticalCssProgress={ criticalCss.criticalCssProgress }
-					issues={ criticalCss.criticalCssIssues }
-					isFatalError={ criticalCss.isFatalError }
-					primaryErrorSet={ criticalCss.primaryErrorSet }
-					suggestRegenerate={ suggestRegenerate }
-					regenerateCriticalCss={ regenerateCriticalCss }
-				/>
+				<CloudCssMeta />
 			</Module>
 			<Module
 				slug="render_blocking_js"
@@ -212,44 +133,6 @@ const Index = ( { criticalCss }: IndexProps ) => {
 							}
 						) }
 					</p>
-				}
-			></Module>
-			<Module
-				slug="lazy_images"
-				title={ __( 'Lazy Image Loading', 'jetpack-boost' ) }
-				description={
-					<>
-						<p>
-							{ createInterpolateElement(
-								__(
-									`Improve page loading speed by only loading images when they are required. Read more on <link>web.dev</link>.`,
-									'jetpack-boost'
-								),
-								{
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									link: <a href={ lazyLoadLink } target="_blank" rel="noopener noreferrer" />,
-								}
-							) }
-						</p>
-						<Notice
-							level="info"
-							title={ __( 'Lazy image loading is going away', 'jetpack-boost' ) }
-							hideCloseButton={ true }
-							actions={ [
-								<Button
-									key="learn-more"
-									isPrimary={ true }
-									onClick={ learnLazyLoadDeprecation }
-									isExternalLink={ true }
-									variant="link"
-								>
-									{ __( 'Learn more', 'jetpack-boost' ) }
-								</Button>,
-							] }
-						>
-							{ lazyLoadDeprecationMessage }
-						</Notice>
-					</>
 				}
 			></Module>
 			<Module
@@ -305,7 +188,7 @@ const Index = ( { criticalCss }: IndexProps ) => {
 					</p>
 				}
 			>
-				<QualitySettings isPremium={ premiumFeatures?.includes( 'image-cdn-quality' ) ?? false } />
+				<QualitySettings isPremium={ isPremium } />
 			</Module>
 
 			<div className={ styles.settings }>
@@ -336,7 +219,7 @@ const Index = ( { criticalCss }: IndexProps ) => {
 						</>
 					}
 				>
-					{ false === Jetpack_Boost.site.canResizeImages && (
+					{ false === canResizeImages && (
 						<Notice
 							level="warning"
 							title={ __( 'Image resizing is unavailable', 'jetpack-boost' ) }
@@ -382,7 +265,7 @@ const Index = ( { criticalCss }: IndexProps ) => {
 						</p>
 					}
 				>
-					{ isaState?.active && <RecommendationsMeta /> }
+					{ isaState?.active && <RecommendationsMeta isCdnActive={ !! imageCdn?.active } /> }
 				</Module>
 			</div>
 
@@ -391,10 +274,4 @@ const Index = ( { criticalCss }: IndexProps ) => {
 	);
 };
 
-export default function ( props: IndexProps ) {
-	return (
-		<DataSyncProvider>
-			<Index { ...props } />
-		</DataSyncProvider>
-	);
-}
+export default Index;

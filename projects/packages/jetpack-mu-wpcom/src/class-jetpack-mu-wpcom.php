@@ -13,8 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-
-	const PACKAGE_VERSION = '5.5.0';
+	const PACKAGE_VERSION = '5.10.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -42,7 +41,11 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_marketplace_products_updater' ) );
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_first_posts_stream_helpers' ) );
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_domain_email_nag' ) );
+
+		// This feature runs only on simple sites
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
@@ -85,7 +88,15 @@ class Jetpack_Mu_Wpcom {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
-		$invalid_fse_version_active = is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) && version_compare( get_plugin_data( WP_PLUGIN_DIR . '/full-site-editing/full-site-editing-plugin.php' )['Version'], '3.56084', '<' );
+
+		/**
+		 * Explicitly pass $markup = false in get_plugin_data to avoid indirectly calling wptexturize that could cause unintended side effects.
+		 * See: https://developer.wordpress.org/reference/functions/get_plugin_data/
+		 */
+		$invalid_fse_version_active =
+			is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) &&
+			version_compare( get_plugin_data( WP_PLUGIN_DIR . '/full-site-editing/full-site-editing-plugin.php', false )['Version'], '3.56084', '<' );
+
 		if ( $invalid_fse_version_active ) {
 			return;
 		}
@@ -103,12 +114,6 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_launchpad() {
 		require_once __DIR__ . '/features/launchpad/launchpad.php';
-	}
-	/**
-	 * Load the domain email nag feature.
-	 */
-	public static function load_domain_email_nag() {
-		require_once __DIR__ . '/features/domain-email-nag/domain-email-nag.php';
 	}
 
 	/**
@@ -217,5 +222,48 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_first_posts_stream_helpers() {
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
+	}
+
+	/**
+	 * Determine whether to disable the comment experience.
+	 *
+	 * @param int $blog_id The blog ID.
+	 * @return boolean
+	 */
+	private static function should_disable_comment_experience( $blog_id ) {
+		$path_wp_for_teams = WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
+
+		if ( file_exists( $path_wp_for_teams ) ) {
+			require_once $path_wp_for_teams;
+		}
+
+		// This covers both P2 and P2020 themes.
+		$is_p2     = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $blog_id );
+		$is_forums = str_contains( get_stylesheet(), 'a8c/supportforums' ); // Not in /forums
+
+		// Don't load any comment experience in the Reader, GlotPress, wp-admin, or P2.
+		return ( 1 === $blog_id || TRANSLATE_BLOG_ID === $blog_id || is_admin() || $is_p2 || $is_forums );
+	}
+
+	/**
+	 * Load Verbum Comments.
+	 */
+	public static function load_verbum_comments() {
+		if ( class_exists( 'Verbum_Comments' ) ) {
+			return;
+		} else {
+			$blog_id = get_current_blog_id();
+			// Jetpack loads Verbum though an iframe from jetpack.wordpress.com.
+			// So we need to check the GET request for the blogid.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET['blogid'] ) ) {
+				$blog_id = intval( $_GET['blogid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			}
+			if ( self::should_disable_comment_experience( $blog_id ) ) {
+				return false;
+			}
+			require_once __DIR__ . '/build/verbum-comments/class-verbum-comments.php';
+			new \Automattic\Jetpack\Verbum_Comments();
+		}
 	}
 }

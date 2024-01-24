@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Modifier_Fallback;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any_JSON;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Array;
@@ -12,6 +12,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Enum;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Float;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Number;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_String;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Void;
 
 /**
  * The Schema class is a factory for creating and managing validation rules based on specific
@@ -64,108 +65,81 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_String;
  * $parsed_data = $my_schema->parse($input_data);
  *
  */
-class Schema implements Parser {
-
-	/**
-	 * Each Schema entry has a Parser that's able to parse a value.
-	 *
-	 * @var Parser
-	 */
-	private $parser;
-
-	public function __construct( Parser $parser ) {
-		$this->parser = $parser;
-	}
-
-	/**
-	 * Parses the input data according to the schema type.
-	 *
-	 * @param mixed $data The input data to be parsed.
-	 *
-	 * @return mixed The parsed data according to the schema type.
-	 */
-	public function parse( $data ) {
-		return $this->parser->parse( $data );
-	}
-
-	/**
-	 * Sets a fallback value for the schema type when the input data is invalid.
-	 * This method returns a new instance of Decorate_With_Default, which wraps
-	 * the current schema type and applies the fallback value.
-	 *
-	 * @param mixed $default_value The fallback value to use when the input data is invalid.
-	 *
-	 * @return Decorate_With_Default A new instance with the fallback value applied.
-	 */
-	public function fallback( $default_value ) {
-		return new Decorate_With_Default( $this->parser, $default_value );
-	}
-
-	public function nullable() {
-
-		return $this->fallback( null );
-	}
-
-	/**
-	 * ==================================================================================
-	 *      Static Utilities below:
-	 *      This section defines the static methods for creating instances quickly.
-	 * ==================================================================================
-	 */
+class Schema {
 
 	public static function as_string() {
-		return new self( new Type_String() );
+		return new Schema_Parser( new Type_String() );
 	}
 
 	/**
 	 * @param Parser $parser - The parser to apply to each array item when $data is parsed.
 	 *
-	 * @return self
+	 * @return Schema_Parser
 	 */
 	public static function as_array( Parser $parser ) {
-		return new self( new Type_Array( $parser ) );
+		return new Schema_Parser( new Type_Array( $parser ) );
 	}
 
 	/**
-	 * @param $assoc_parser_array - An associative array of ["key" => "Parser" (or Validation_Rule)] pairs
+	 * @param array $assoc_parser_array - An associative array of ["key" => "Parser"] pairs
 	 *
-	 * @return self
+	 * @return Schema_Parser
 	 */
 	public static function as_assoc_array( $assoc_parser_array ) {
-		return new self( new Type_Assoc_Array( $assoc_parser_array ) );
+		return new Schema_Parser( new Type_Assoc_Array( $assoc_parser_array ) );
 	}
 
 	public static function as_boolean() {
-		return new self( new Type_Boolean() );
+		return new Schema_Parser( new Type_Boolean() );
 	}
 
 	public static function as_number() {
-		return new self( new Type_Number() );
+		return new Schema_Parser( new Type_Number() );
 	}
 
 	public static function as_float() {
-		return new self( new Type_Float( true ) );
+		return new Schema_Parser( new Type_Float( true ) );
 	}
 
 	/**
-	 * @param $allowed_values mixed[] - An array of values that are allowed for this enum.
+	 * @param array $allowed_values - An array of values that are allowed for this enum.
 	 *
-	 * @return Schema
+	 * @return Schema_Parser
 	 */
 	public static function enum( $allowed_values ) {
-		return new self( new Type_Enum( $allowed_values ) );
+		return new Schema_Parser( new Type_Enum( $allowed_values ) );
 	}
 
 	public static function any_json_data() {
-		return new self( new Type_Any_JSON() );
+		return new Schema_Parser( new Type_Any_JSON() );
+	}
+
+	/**
+	 * Mark a schema as void - it should have no data worth keeping, and
+	 * will always parse to null.
+	 */
+	public static function as_void() {
+		return new Schema_Parser( new Type_Void() );
 	}
 
 	/**
 	 * Use With Caution! This will not parse the data - it will simply return it as-is.
 	 * This is useful for delivering read-only data that we don't need to parse server-side.
+	 *
 	 * @see Type_Any
 	 */
 	public static function as_unsafe_any() {
-		return new self( new Type_Any() );
+		return new Schema_Parser( new Type_Any() );
+	}
+
+	/**
+	 * @var \Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser $parser - The parser to apply to each array item when $data is parsed.
+	 */
+	public static function either( ...$parsers ) {
+		$or = new Modifier_Fallback();
+		foreach ( $parsers as $parser ) {
+			$or->add_fallback_parser( $parser );
+		}
+		return new Schema_Parser( $or );
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Board triage: ensure the task works when the organization name is capitalized

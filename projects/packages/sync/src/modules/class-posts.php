@@ -444,6 +444,10 @@ class Posts extends Module {
 	 */
 	public function filter_post_content_and_add_links( $post_object ) {
 		global $post;
+
+		// Used to restore the post global.
+		$current_post = $post;
+
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$post = $post_object;
 
@@ -456,6 +460,9 @@ class Posts extends Module {
 			$non_existant_post->post_modified_gmt = $post->post_modified_gmt;
 			$non_existant_post->post_status       = 'jetpack_sync_non_registered_post_type';
 			$non_existant_post->post_type         = $post->post_type;
+			// Restore global post.
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$post = $current_post;
 
 			return $non_existant_post;
 		}
@@ -482,6 +489,10 @@ class Posts extends Module {
 			$blocked_post->post_modified_gmt = $post->post_modified_gmt;
 			$blocked_post->post_status       = 'jetpack_sync_blocked';
 			$blocked_post->post_type         = $post->post_type;
+
+			// Restore global post.
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$post = $current_post;
 
 			return $blocked_post;
 		}
@@ -562,7 +573,13 @@ class Posts extends Module {
 			$post->amp_permalink = amp_get_permalink( $post->ID );
 		}
 
-		return $post;
+		$filtered_post = $post;
+
+		// Restore global post.
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$post = $current_post;
+
+		return $filtered_post;
 	}
 
 	/**

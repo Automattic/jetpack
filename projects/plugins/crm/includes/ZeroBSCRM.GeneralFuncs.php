@@ -417,9 +417,10 @@ function zeroBSCRM_wpb_lastlogin($uid ) {
 	    return ((float)$usec + (float)$sec);
 	}     
 
-	#} Does it's best to find the real IP for user
+	#} Does its best to find the real IP for user
 	function zeroBSCRM_getRealIpAddr()
 	{
+		$ip = false;
 		#} check ip from share internet
 		if (isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP']))
 		{

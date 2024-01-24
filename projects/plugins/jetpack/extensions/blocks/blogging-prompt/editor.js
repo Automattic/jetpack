@@ -28,6 +28,7 @@ registerJetpackBlockFromMetadata( metadata, {
 			showResponses: true,
 			showLabel: true,
 			tagsAdded: true,
+			isBloganuary: false,
 		},
 	},
 } );

@@ -23,6 +23,8 @@ const L10N = {
 	invalidForm: __( 'Please make sure all fields are valid.', 'jetpack-forms' ),
 	/* translators: error message shown when a multiple choice field requires at least one option to be selected. */
 	checkboxMissingValue: __( 'Please select at least one option.', 'jetpack-forms' ),
+	/* translators: error message shown when a user enters an invalid date */
+	invalidDate: __( 'The date is not valid.', 'jetpack-forms' ),
 	/* translators: text read by a screen reader when a form is being submitted */
 	submittingForm: __( 'Submitting form', 'jetpack-forms' ),
 	/* translators: generic error message */
@@ -63,7 +65,7 @@ const initForm = form => {
 	// Hold references to the input event listeners.
 	let inputListenerMap = {};
 
-	form.addEventListener( 'submit', e => {
+	const onSubmit = e => {
 		e.preventDefault();
 
 		// Prevent multiple submissions.
@@ -76,11 +78,14 @@ const initForm = form => {
 		if ( isFormValid( form ) ) {
 			inputListenerMap = {};
 
+			form.removeEventListener( 'submit', onSubmit );
 			submitForm( form );
 		} else {
 			inputListenerMap = invalidateForm( form, opts );
 		}
-	} );
+	};
+
+	form.addEventListener( 'submit', onSubmit );
 };
 
 /******************************************************************************
@@ -105,6 +110,15 @@ const isFormValid = form => {
 
 	for ( const field of multipleChoiceFields ) {
 		if ( isMultipleChoiceFieldRequired( field ) && ! isMultipleChoiceFieldValid( field ) ) {
+			return false;
+		}
+	}
+
+	// Handle Date Picker fields
+	const datePickerFields = getDatePickerFields( form );
+
+	for ( const field of datePickerFields ) {
+		if ( ! isDateFieldValid( field ) ) {
 			return false;
 		}
 	}
@@ -145,6 +159,15 @@ const isSingleChoiceField = elt => {
 };
 
 /**
+ * Check if an element is Date Picker field
+ * @param {HTMLElement} elt Element
+ * @returns {boolean}
+ */
+const isDatePickerField = elt => {
+	return elt.tagName.toLowerCase() === 'input' && elt.classList.contains( 'jp-contact-form-date' );
+};
+
+/**
  * Check if a Multiple Choice field is required.
  * @param {HTMLFieldSetElementi} fieldset Fieldset element
  * @returns {boolean}
@@ -171,6 +194,10 @@ const isSingleChoiceFieldRequired = fieldset => {
  * @returns {boolean}
  */
 const isSimpleFieldValid = input => {
+	if ( isDatePickerField( input ) && input.value ) {
+		return isDateFieldValid( input );
+	}
+
 	return input.validity.valid;
 };
 
@@ -206,6 +233,29 @@ const isMultipleChoiceFieldValid = fieldset => {
 	}
 
 	return false;
+};
+
+/**
+ * Check if a Date Picker field is valid.
+ * @param {HTMLInputElement} input Input element
+ * @returns {boolean}
+ */
+const isDateFieldValid = input => {
+	const format = input.getAttribute( 'data-format' );
+	const value = input.value;
+	const $ = window.jQuery;
+
+	if ( value && format && typeof $ !== 'undefined' ) {
+		try {
+			$.datepicker.parseDate( format, value );
+		} catch ( e ) {
+			input.setCustomValidity( L10N.invalidDate );
+
+			return false;
+		}
+	}
+
+	return true;
 };
 
 /**
@@ -250,6 +300,15 @@ const getFormSubmitBtn = form => {
  */
 const getMultipleChoiceFields = form => {
 	return Array.from( form.querySelectorAll( '.grunion-checkbox-multiple-options' ) );
+};
+
+/**
+ * Return the Date Picker fields of a form.
+ * @param {HTMLFormElement} form Form element
+ * @returns {HTMLInputElement[]} Input elements
+ */
+const getDatePickerFields = form => {
+	return Array.from( form.querySelectorAll( 'input.jp-contact-form-date' ) );
 };
 
 /**

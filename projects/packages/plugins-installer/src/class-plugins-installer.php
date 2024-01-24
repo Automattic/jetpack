@@ -74,6 +74,9 @@ class Plugins_Installer {
 			return new WP_Error( 'not_allowed', __( 'You are not allowed to install plugins on this site.', 'jetpack-plugins-installer' ) );
 		}
 
+		// Initialize admin filters to make sure WordPress post-install hooks run. Handles things like language packs.
+		include_once ABSPATH . '/wp-admin/includes/admin-filters.php';
+
 		$skin     = new Automatic_Install_Skin();
 		$upgrader = new Plugin_Upgrader( $skin );
 		$zip_url  = self::generate_wordpress_org_plugin_download_link( $slug );
