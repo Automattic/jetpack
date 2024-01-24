@@ -380,7 +380,7 @@ export const Ads = withModuleSettingsFormHelpers(
 							}
 							toggling={ this.props.isSavingAnyOption( [ 'wordads_cmp_enabled' ] ) }
 							onChange={ this.handleChange( 'wordads_cmp_enabled' ) }
-							label={ __( 'Enable EU Consent Banner', 'jetpack' ) }
+							label={ __( 'Enable GDPR Consent Banner', 'jetpack' ) }
 						/>
 					</SettingsGroup>
 					{ ! unavailableInOfflineMode && isAdsActive && (
