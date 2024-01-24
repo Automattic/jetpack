@@ -24,7 +24,11 @@ class Admin_Menu extends Base_Admin_Menu {
 		// Remove separators.
 		remove_menu_page( 'separator1' );
 		$this->add_stats_menu();
-		$this->add_upgrades_menu();
+
+		// Do not inject the Upgrades menu when the user wants to use the WP Admin interface.
+		if ( ! $this->use_wp_admin_interface( 'jetpack' ) ) {
+			$this->add_upgrades_menu();
+		}
 		$this->add_posts_menu();
 		$this->add_media_menu();
 		$this->add_page_menu();
