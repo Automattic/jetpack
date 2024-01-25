@@ -317,7 +317,7 @@ class Jetpack_SSO {
 	 * Style the Jetpack user rows and columns.
 	 */
 	public function jetpack_user_table_styles() {
-		global $current_screen;
+		$current_screen = get_current_screen();
 		if ( ! empty( $current_screen->base ) && 'users' === $current_screen->base ) {
 			?>
 			<style>
