@@ -19,6 +19,7 @@ import classnames from 'classnames';
 import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import { useProduct } from '../../hooks/use-product';
+import { useRedirectTo } from '../../hooks/use-redirect-to';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
 
@@ -128,7 +129,28 @@ const ProductDetailCard = ( {
 	 */
 	const needsPurchase = ( ! isFree && ! hasRequiredPlan ) || quantity != null;
 
-	const checkoutRedirectUrl = postCheckoutUrl ? postCheckoutUrl : myJetpackCheckoutUri;
+	// Check for a possible redirect_to URL from the URL query params
+	const providedRedirectToURL = useRedirectTo();
+
+	/*
+	 * Function to handle the redirect URL selection.
+	 * - postCheckoutUrl is the URL provided by the product API and is the preferred URL
+	 * - providedRedirectToURL is the URL provided by the URL query params
+	 * - myJetpackCheckoutUri is the default URL
+	 */
+	const getCheckoutRedirectUrl = useCallback( () => {
+		if ( postCheckoutUrl ) {
+			return postCheckoutUrl;
+		}
+
+		if ( providedRedirectToURL ) {
+			return providedRedirectToURL;
+		}
+
+		return myJetpackCheckoutUri;
+	}, [ postCheckoutUrl, providedRedirectToURL, myJetpackCheckoutUri ] );
+
+	const checkoutRedirectUrl = getCheckoutRedirectUrl();
 
 	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
 		useProductCheckoutWorkflow( {
