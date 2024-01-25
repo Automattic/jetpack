@@ -31,7 +31,10 @@ export default function useAICheckout(): {
 	const checkoutUrl =
 		isAtomicSite() || isSimpleSite()
 			? wpcomCheckoutUrl
-			: `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/add-jetpack-ai`;
+			: `${ window?.Jetpack_Editor_Initial_State
+					?.adminUrl }admin.php?redirect_to=${ encodeURIComponent(
+					window.location.href
+			  ) }&page=my-jetpack#/add-jetpack-ai`;
 
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( checkoutUrl );
 
