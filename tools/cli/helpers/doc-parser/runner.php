@@ -82,29 +82,31 @@ function get_html_from_markdown( $file_path ) {
 		}
 
 		// Replace any relative links with absolute links to the GitHub repo.
-		if ( str_starts_with( $link['path'], '../' ) ) {
-			$link['path'] = str_replace( '../', 'https://github.com/Automattic/jetpack/blob/trunk/', $link['path'] );
+		if ( str_starts_with( $link['path'], '../' ) ||
+			str_starts_with( $link['path'], '/projects/' ) ||
+			( substr_count( $link['path'], '/' ) > 2 ) ) {
+				$link['path'] = preg_replace( '~^(\./|../)~', '', $link['path'], 1 );
+				$link['path'] = 'https://github.com/Automattic/jetpack/blob/trunk' .
+					( ! str_starts_with( $link['path'], '/' ) ? '/' : '' ) .
+					$link['path'];
 		}
 
-		// If the Path starts with /projects/, it's a link to a project in the Github repo.
-		if ( str_starts_with( $link['path'], '/projects/' ) ) {
-			$link['path'] = 'https://github.com/Automattic/jetpack/blob/trunk' . $link['path'];
-		}
-
-		// If the Path starts with ./docs/ or /docs/ and contains more than 2 slashes, it's a relative link to another doc.
-		// We need to replace it with a link to the Github repo.
-		if ( ( str_starts_with( $link['path'], './docs/' ) ||
-			str_starts_with( $link['path'], '/docs/' ) )
-			&& substr_count( $link['path'], '/' ) > 2 ) {
-				$link['path'] = str_replace( './', '/', $link['path'] );
-				$link['path'] = 'https://github.com/Automattic/jetpack/blob/trunk' . $link['path'];
+		$extension = pathinfo( $link['path'], PATHINFO_EXTENSION );
+		if ( ( $extension !== 'md' || $extension === '' ) &&
+			! str_starts_with( $link['path'], 'http' ) ) {
+				$link['path'] = preg_replace( '~^(\./|/)~', '', $link['path'], 1 );
+				$link['path'] = 'https://github.com/Automattic/jetpack/blob/trunk/' .
+					( str_contains( $link['path'], 'examples/' ) ? 'docs/' : '' ) .
+					$link['path'];
 		}
 
 		// If the Path starts with ./docs/ and contains 2 slashes, it's a relative link to another doc.
 		if ( ( str_starts_with( $link['path'], './docs' ) ||
-			str_starts_with( $link['path'], '/docs/' ) ) &&
+			str_starts_with( $link['path'], '/docs/' ) ||
+			str_starts_with( $file_path, 'docs/' ) ) &&
 			substr_count( $link['path'], '/' ) <= 2 ) {
-				$link['path'] = str_replace( array( './docs/', '/docs/' ), 'docs-', $link['path'] );
+				$link['path'] = str_replace( array( './docs/', '/docs/', './' ), '', $link['path'] );
+				$link['path'] = 'docs-' . $link['path'];
 		}
 
 		if ( ! str_starts_with( $link['path'], 'http' ) ) {
