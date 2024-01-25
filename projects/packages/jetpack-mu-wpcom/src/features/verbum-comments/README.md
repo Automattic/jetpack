@@ -88,16 +88,16 @@ count.value = count.peek() + delta.value;
 
 ## Development
 
-Verbum is built and managed inside the `jetpack-mu-wpcom` package developed in the Jetpack Monorepo. Changes for Verbum will specifically made in the `jetpack-mu-wpcom/src/features/verbum-comments` directory. The Verbum block editor is now managed in Calypso under `packages/verbum-block-editor`[https://github.com/Automattic/wp-calypso/tree/trunk/packages/verbum-block-editor]. Changes for the block editor will be deployed separately and will be automatically imported in Verbum through our existing logic.
+Verbum is built and managed inside the `jetpack-mu-wpcom` package developed in the Jetpack Monorepo. Changes for Verbum will specifically made in the `projects/packages/jetpack-mu-wpcom/src/features/verbum-comments` directory. The Verbum block editor is now managed in Calypso under `packages/verbum-block-editor`[https://github.com/Automattic/wp-calypso/tree/trunk/packages/verbum-block-editor]. Changes for the block editor will be deployed separately and will be automatically imported in Verbum through our existing logic.
 
 ### Commands
 
-Note: These command should be ran from `/jetpack-mu-wpcom` root directory.
+Note: These commands should be ran from `/jetpack-mu-wpcom` root directory.
 
 * `pnpm build-js` - Build Verbum development code.
 * `pnpm build-production-js` - Build Verbum production code.
 * `pnpm lint` - Check for lint issues in the code.
-* `jetpack rsync mu-wpcom-plugin` - Sync local files to development evironment. This command tool will ask you for the remote destination after your input it in the command line. Ensure the remote path is correct depending on the environment you're targetting. If you're targetting your sandbox, the remote destination should look like this: `USERNAME@HOSTNAME:~/public_html/wp-content/mu-plugins/jetpack-plugin/production`. More details for Simple site testing: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#simple-testing]. You will also need to add `define( 'JETPACK_AUTOLOAD_DEV', true );` to mu-plugins/0-sandbox.php. If you're targetting your WoA site, the remote destination should look like this: `mywoadevsite.wordpress.com@sftp.wp.com:htdocs/wp-content/plugins/jetpack-mu-wpcom-plugin-dev`. More details for WoA testing: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#woa].
+* `jetpack rsync mu-wpcom-plugin` - Sync local files to development environment. This command tool will ask you for the remote destination after your input it in the command line. Ensure the remote path is correct depending on the environment you're targetting. If you're targetting your sandbox, the remote destination should look like this: `USERNAME@HOSTNAME:~/public_html/wp-content/mu-plugins/jetpack-plugin/production`. More details for Simple site testing: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#simple-testing]. If you're targetting your WoA site, the remote destination should look like this: `mywoadevsite.wordpress.com@sftp.wp.com:htdocs/wp-content/plugins/jetpack-mu-wpcom-plugin-dev`. More details for WoA testing: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#woa].
 
 ### Local Development:
 
