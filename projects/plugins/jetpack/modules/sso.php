@@ -276,7 +276,7 @@ class Jetpack_SSO {
 			$connection_html = sprintf(
 				'<button disabled title="%1$s" class="jetpack-sso-invitation">%2$s</button>',
 				esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack' ),
-				esc_attr__( 'Connected', 'jetpack' )
+				esc_html__( 'Connected', 'jetpack' )
 			);
 			return $connection_html;
 		} else {
@@ -284,8 +284,8 @@ class Jetpack_SSO {
 			if ( $has_pending_invite ) {
 				$connection_html = sprintf(
 					'<button disabled title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</button>',
-					esc_attr__( 'This user didn\'t accept the invitation to join this site yet.', 'jetpack' ),
-					esc_attr__( 'Pending invite', 'jetpack' )
+					esc_attr__( 'This user didn&#8217;t accept the invitation to join this site yet.', 'jetpack' ),
+					esc_html__( 'Pending invite', 'jetpack' )
 				);
 				return $connection_html;
 			}
@@ -300,7 +300,7 @@ class Jetpack_SSO {
 				admin_url( 'admin-post.php' ),
 				esc_attr( $user_id ),
 				wp_nonce_field( 'jetpack-sso-invite-user', '_wpnonce', true, false ),
-				esc_attr__( 'This user didn\'t accept the invitation to join this site yet.', 'jetpack' ),
+				esc_attr__( 'This user didn&#8217;t accept the invitation to join this site yet.', 'jetpack' ),
 				esc_html__( 'Invite', 'jetpack' )
 			);
 			return $connection_html;
