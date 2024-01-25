@@ -115,7 +115,9 @@ function get_html_from_markdown( $file_path ) {
 			$link['path'] = str_replace( '.md', '-md', $link['path'] );
 		}
 
-		echo( $link['path'] . ( isset( $link['fragment'] ) ? '#' . $link['fragment'] : '' ) . PHP_EOL );
+		// Set the parsed attribute.
+		$anchor->setAttribute( 'href', $link['path'] . ( isset( $link['fragment'] ) ? '#' . $link['fragment'] : '' ) );
+
 	}
 	$headers = $document->getElementsByTagName( 'h1' );
 	if ( count( $headers ) ) {
