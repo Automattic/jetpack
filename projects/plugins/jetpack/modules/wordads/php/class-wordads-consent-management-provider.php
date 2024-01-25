@@ -22,18 +22,9 @@ class WordAds_Consent_Management_Provider {
 	const COOKIE_NAME = 'euconsent-v2';
 
 	/**
-	 * Group name for retrieving data from the cache. This is set as a global group for shared access across blogs.
-	 */
-	const CACHE_GROUP = 'wordads_cmp';
-
-	/**
 	 * Initializes loading of the frontend framework.
 	 */
 	public static function init() {
-
-		// Need separate Batcache cached pages for GDPR/non-GDPR countries.
-		self::enable_caching();
-
 		// Early out if not a test blog.
 		if ( ! self::is_feature_enabled() ) {
 			return;
@@ -44,24 +35,6 @@ class WordAds_Consent_Management_Provider {
 
 		// Enqueue scripts.
 		add_action( 'wp_head', array( __CLASS__, 'insert_head' ) );
-	}
-
-	/**
-	 * Vary cache for GDPR/Non-GDPR visitors.
-	 */
-	public static function enable_caching() {
-		if ( function_exists( 'vary_cache_on_function' ) ) {
-			vary_cache_on_function(
-				'return in_array( $_SERVER[ "GEOIP_COUNTRY_CODE" ], array(' .
-				'"AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", ' .
-				'"FR", "DE", "GR", "HU", "IS", "IE", "IT", "LV", "LI", ' .
-				'"LT", "LU", "MT", "NL", "NO", "PL", "PT", "RO", "SK", ' .
-				'"SI", "ES", "SE", "GB", "AX", "IC", "EA", "GF", "PF", ' .
-				'"TF", "GI", "GP", "GG", "JE", "MQ", "YT", "NC", "RE", ' .
-				'"BL", "MF", "PM", "SJ", "VA", "WF", "EZ", "CH" ' .
-				') );'
-			);
-		}
 	}
 
 	/**
