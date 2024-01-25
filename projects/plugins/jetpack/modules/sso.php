@@ -104,7 +104,9 @@ class Jetpack_SSO {
 		if ( $_GET['jetpack-sso-invite-user'] === 'failed' && isset( $_GET['jetpack-sso-invite-error'] ) ) {
 			switch ( $_GET['jetpack-sso-invite-error'] ) {
 				case 'invalid-user':
-					return wp_admin_notice( __( 'Tried to invite a user that either doesn&#8217;t exist or doesn&#8217;t have an email address.', 'jetpack' ), array( 'type' => 'error' ) );
+					return wp_admin_notice( __( 'Tried to invite a user that either doesn&#8217;t exist.', 'jetpack' ), array( 'type' => 'error' ) );
+				case 'invalid-email':
+					return wp_admin_notice( __( 'Tried to invite a user that doesn&#8217;t have an email address.', 'jetpack' ), array( 'type' => 'error' ) );
 				default:
 					// render whatever error we got from the API. It's escaped and nonce-checked.
 					return wp_admin_notice( esc_html( sanitize_text_field( wp_unslash( $_GET['jetpack-sso-invite-error'] ) ) ), array( 'type' => 'error' ) );
@@ -126,10 +128,13 @@ class Jetpack_SSO {
 
 			if ( ! $user || ! $user_email ) {
 				$ref = wp_get_referer();
+
+				$reason = ! $user ? 'invalid-user' : 'invalid-email';
+
 				$url = add_query_arg(
 					array(
 						'jetpack-sso-invite-user'  => 'failed',
-						'jetpack-sso-invite-error' => 'invalid-user',
+						'jetpack-sso-invite-error' => $reason,
 						'_wpnonce'                 => $nonce,
 					),
 					$ref
