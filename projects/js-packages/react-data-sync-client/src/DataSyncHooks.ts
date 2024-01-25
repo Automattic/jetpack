@@ -86,6 +86,9 @@ export function useDataSync<
 	config: DataSyncConfig< Schema, Value > = {},
 	params: Record< string, string | number > = {}
 ): DataSyncHook< Schema, Value > {
+	// AbortController is used to track rapid value mutations
+	// and will cancel in-flight requests and prevent
+	// the optimistic value from being reverted.
 	const abortController = useRef< AbortController | null >( null );
 	const datasync = new DataSync( namespace, key, schema );
 	const queryKey = buildQueryKey( key, params );
@@ -125,10 +128,13 @@ export function useDataSync<
 		mutationKey: queryKey,
 		mutationFn: value => datasync.SET( value, params, abortController.current.signal ),
 		onMutate: async data => {
+			// If there's an existing mutation in progress, cancel it
 			if ( abortController.current ) {
 				abortController.current.abort();
 			}
+			// Create a new AbortController for the upcoming request
 			abortController.current = new AbortController();
+
 			const value = schema.parse( data );
 
 			// Cancel any outgoing refetches
@@ -146,8 +152,13 @@ export function useDataSync<
 		},
 		onError: ( err, _, context ) => {
 			if ( err instanceof DataSyncError && err.status === 'aborted' ) {
+				// If the request was aborted, this means that another mutation
+				// has already been dispatched and has already updated
+				// the optimistic value, so there's nothing to revert.
 				return;
 			}
+
+			// Revert the optimistic update to the previous value on error
 			queryClient.setQueryData( queryKey, context.previousValue );
 		},
 		onSuccess: ( data: Value, _, context ) => {
