@@ -11,6 +11,7 @@ import {
 import React from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
+import { DataSyncError } from './DataSyncError';
 
 /**
  * @REACT-TODO This is temporary. We need to allow each app to define their own QueryClient.
@@ -73,6 +74,7 @@ function buildQueryKey( key: string, params: Record< string, string | number > )
  * @see https://tanstack.com/query/v5/docs/react/reference/useQuery
  * @see https://tanstack.com/query/v5/docs/react/reference/useMutation
  */
+let abortController: AbortController | null = null;
 export function useDataSync<
 	Schema extends z.ZodSchema,
 	Value extends z.infer< Schema >,
@@ -120,8 +122,12 @@ export function useDataSync<
 	 */
 	const mutationConfigDefaults = {
 		mutationKey: queryKey,
-		mutationFn: value => datasync.SET( value, params ),
+		mutationFn: value => datasync.SET( value, params, abortController.signal ),
 		onMutate: async data => {
+			if ( abortController ) {
+				abortController.abort();
+			}
+			abortController = new AbortController();
 			const value = schema.parse( data );
 
 			// Cancel any outgoing refetches
@@ -135,13 +141,19 @@ export function useDataSync<
 			queryClient.setQueryData( queryKey, value );
 
 			// Return a context object with the snapshotted value
-			return { previousValue };
+			return { previousValue, optimisticValue: value };
 		},
-		onError: ( _, __, context ) => {
+		onError: ( err, _, context ) => {
+			if ( err instanceof DataSyncError && err.status === 'aborted' ) {
+				return;
+			}
 			queryClient.setQueryData( queryKey, context.previousValue );
 		},
-		onSuccess: ( data: Value ) => {
-			queryClient.setQueryData( queryKey, data );
+		onSuccess: ( data: Value, _, context ) => {
+			abortController = null;
+			if ( context.optimisticValue !== data ) {
+				queryClient.setQueryData( queryKey, data );
+			}
 		},
 	};
 
