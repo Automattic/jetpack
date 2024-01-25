@@ -22,22 +22,6 @@ class WordAds_Consent_Management_Provider {
 	const COOKIE_NAME = 'euconsent-v2';
 
 	/**
-	 * Locales for which we have translated languages.
-	 */
-	const SUPPORTED_LANGUAGES = array(
-		'English'                => 'en',
-		'German'                 => 'de',
-		'Spanish'                => 'es',
-		'French'                 => 'fr',
-		'Italian'                => 'it',
-		'Dutch'                  => 'nl',
-		'Polish'                 => 'pl',
-		'Portuguese'             => 'pt',
-		'Portuguese - Brazilian' => 'pt-br',
-		'Russian'                => 'ru',
-	);
-
-	/**
 	 * Group name for retrieving data from the cache. This is set as a global group for shared access across blogs.
 	 */
 	const CACHE_GROUP = 'wordads_cmp';
@@ -124,9 +108,9 @@ class WordAds_Consent_Management_Provider {
 	 * @return string output string.
 	 */
 	private static function get_config_string() {
-		$language_code = self::get_site_language_code();
-		$request_url   = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/configuration/%s/', self::get_blog_id(), $language_code );
-		$nonce         = wp_create_nonce( 'gdpr_set_consent' );
+		$locale      = strtolower( get_locale() ); // defaults to en_US not en
+		$request_url = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/configuration/%s/', self::get_blog_id(), $locale );
+		$nonce       = wp_create_nonce( 'gdpr_set_consent' );
 
 		$config_script = <<<JS
 <script id="cmp-config-loader">
@@ -212,26 +196,6 @@ JS;
 	}
 
 	/**
-	 * Gets a list of supported languages for which the UI is translated.
-	 *
-	 * @return string[] An array of valid Language => Language codes.
-	 */
-	public static function get_supported_languages(): array {
-		return self::SUPPORTED_LANGUAGES;
-	}
-
-	/**
-	 * Checks if the language is supported.
-	 *
-	 * @param string $language_code The language code to check.
-	 *
-	 * @return bool True if the language is supported.
-	 */
-	public static function is_supported_language( string $language_code ): bool {
-		return in_array( strtolower( $language_code ), self::get_supported_languages(), true );
-	}
-
-	/**
 	 * Gets the domain to be used for the opt-out cookie.
 	 * Use the site's custom domain, or if the site has a wordpress.com subdomain, use .wordpress.com to share the cookie.
 	 *
@@ -245,23 +209,6 @@ JS;
 		}
 
 		return '.wordpress.com' === substr( $host, -strlen( '.wordpress.com' ) ) ? '.wordpress.com' : '.' . $host;
-	}
-
-	/**
-	 * Gets the language code used by the site.
-	 *
-	 * @return string The language code set for this site.
-	 */
-	private static function get_site_language_code(): string {
-
-		$language_code = strtolower( get_locale() );
-
-		// Default to English if language is not supported.
-		if ( ! self::is_supported_language( $language_code ) ) {
-			return 'en';
-		}
-
-		return $language_code;
 	}
 
 	/**
