@@ -107,9 +107,10 @@ class Jetpack_SSO {
 		if ( ! $user instanceof WP_User ) {
 			return $user;
 		}
+		$roles = new Roles();
 
 		$email   = $user->user_email;
-		$role    = $user->roles[0];
+		$role    = $roles->translate_user_to_role( $user );
 		$locale  = get_user_locale( $user->ID );
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		$url     = '/sites/' . $blog_id . '/invites/new';
