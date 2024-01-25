@@ -84,6 +84,7 @@ class Jetpack_SSO {
 		}
 		add_filter( 'manage_users_columns', array( $this, 'jetpack_user_connected_th' ) );
 		add_action( 'admin_print_styles', array( $this, 'jetpack_user_table_styles' ) );
+		// Add custom column in wp-admin/users.php to show whether user is linked.
 		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_connection_status' ), 10, 3 );
 		add_action( 'admin_post_jetpack_invite_user_to_wpcom', array( $this, 'invite_user_to_wpcom' ) );
 		add_action( 'admin_notices', array( $this, 'handle_invitation_results' ) );
@@ -210,7 +211,7 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Adds a "blank" column in the user admin table to display indication of user connection.
+	 * Adds a column in the user admin table to display user connection status and actions.
 	 *
 	 * @param array $columns User list table columns.
 	 *
@@ -231,9 +232,9 @@ class Jetpack_SSO {
 	 * @static
 	 * @param int $user_id The user ID.
 	 *
-	 * @return array An array of capabilities
+	 * @return {false|slug} returns either false or the invitation slug.
 	 */
-	private static function get_is_user_invited( $user_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	private static function get_is_user_invited( $user_id ) {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$user     = get_user_by( 'id', $user_id );
@@ -263,9 +264,9 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Show Jetpack icon if the user is linked.
+	 * Show Jetpack SSO user connection status.
 	 *
-	 * @param string $val HTML for the icon.
+	 * @param string $val HTML for the column.
 	 * @param string $col User list table column.
 	 * @param int    $user_id User ID.
 	 *
@@ -283,18 +284,26 @@ class Jetpack_SSO {
 			$has_pending_invite = self::get_is_user_invited( $user_id );
 			if ( $has_pending_invite ) {
 				$connection_html = sprintf(
-					'<button disabled title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</button>',
+					'<form method="post" action="%s">
+						<input type="hidden" name="user_id" value="%s" />
+						%s
+						<input type="hidden" name="action" value="jetpack_invite_user_to_wpcom" />
+						<input type="hidden" name="request" value="invite" />
+						<button type="submit" class="jetpack-sso-invitation sso-disconnected-user" title="%s">%s</button>
+					</form>',
+					admin_url( 'admin-post.php' ),
+					esc_attr( $user_id ),
+					wp_nonce_field( 'jetpack-sso-invite-user', '_wpnonce', true, false ),
 					esc_attr__( 'This user didn\'t accept the invitation to join this site yet.', 'jetpack' ),
-					esc_attr__( 'Pending invite', 'jetpack' )
+					esc_html__( 'Invite', 'jetpack' )
 				);
-				return $connection_html;
 			}
 			$connection_html = sprintf(
 				'<form method="post" action="%s">
 					<input type="hidden" name="user_id" value="%s" />
 					%s
 					<input type="hidden" name="action" value="jetpack_invite_user_to_wpcom" />
-					<input type="hidden" name="request" value="reinvite" />
+					<input type="hidden" name="request" value="invite" />
 					<button type="submit" class="jetpack-sso-invitation sso-disconnected-user" title="%s">%s</button>
 				</form>',
 				admin_url( 'admin-post.php' ),
@@ -309,7 +318,7 @@ class Jetpack_SSO {
 		return $val;
 	}
 	/**
-	 * Style the Jetpack user column
+	 * Style the Jetpack user row and column.
 	 */
 	public function jetpack_user_table_styles() {
 		global $current_screen;
@@ -336,19 +345,6 @@ class Jetpack_SSO {
 					cursor: pointer;
 					text-decoration: underline;
 				}
-			</style>
-			<?php
-		}
-	}
-	/**
-	 * Style the Jetpack user row.
-	 */
-	public function jetpack_user_row_style() {
-		global $current_screen;
-		if ( ! empty( $current_screen->base ) && 'users' === $current_screen->base ) {
-			?>
-			<style>
-				
 			</style>
 			<?php
 		}
