@@ -12,9 +12,9 @@ use Michelf\Markdown;
  */
 require __DIR__ . '/vendor/autoload.php';
 
-$args = array_slice( $argv, 1 );
-// $parser = new \Automattic\Jetpack\Doc_Parser();
-// $parser->generate( array( $args, 'phpdoc.json' ) );
+$args   = array_slice( $argv, 1 );
+$parser = new \Automattic\Jetpack\Doc_Parser();
+$parser->generate( array( $args, 'phpdoc.json' ) );
 
 $docs_json = json_decode( file_get_contents( __DIR__ . '/docs.json' ), true );
 
@@ -112,8 +112,6 @@ function get_html_from_markdown( $file_path ) {
 		if ( ! str_starts_with( $link['path'], 'http' ) ) {
 			$link['path'] = str_replace( '.md', '-md', $link['path'] );
 		}
-
-		// This is unfinished, there are still many variations in the kind of slugs we might have.
 
 		echo( $link['path'] . ( isset( $link['fragment'] ) ? '#' . $link['fragment'] : '' ) . PHP_EOL );
 	}
