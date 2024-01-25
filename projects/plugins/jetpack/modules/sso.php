@@ -233,7 +233,7 @@ class Jetpack_SSO {
 	 *
 	 * @return {false|string} returns the user slug if the user is invited, false otherwise.
 	 */
-	private static function get_is_user_invited( $user_id ) {
+	private static function has_pending_wpcom_invite( $user_id ) {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$user     = get_user_by( 'id', $user_id );
@@ -280,7 +280,7 @@ class Jetpack_SSO {
 			);
 			return $connection_html;
 		} else {
-			$has_pending_invite = self::get_is_user_invited( $user_id );
+			$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
 			if ( $has_pending_invite ) {
 				$connection_html = sprintf(
 					'<button disabled title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</button>',
