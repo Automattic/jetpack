@@ -126,7 +126,11 @@ export function useDataSync<
 	 */
 	const mutationConfigDefaults = {
 		mutationKey: queryKey,
+
+		// Mutation function that's called when the mutation is triggered
 		mutationFn: value => datasync.SET( value, params, abortController.current.signal ),
+
+		// Mutation actions that occur before the mutationFn is called
 		onMutate: async data => {
 			// If there's an existing mutation in progress, cancel it
 			if ( abortController.current ) {
@@ -157,7 +161,6 @@ export function useDataSync<
 				// the optimistic value, so there's nothing to revert.
 				return;
 			}
-
 			// Revert the optimistic update to the previous value on error
 			queryClient.setQueryData( queryKey, context.previousValue );
 		},
@@ -166,6 +169,10 @@ export function useDataSync<
 			if ( context.optimisticValue !== data ) {
 				queryClient.setQueryData( queryKey, data );
 			}
+		},
+		onSettled: () => {
+			// Clear the abortController on success or failure
+			abortController.current = null;
 		},
 	};
 
