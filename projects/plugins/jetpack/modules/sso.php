@@ -86,7 +86,7 @@ class Jetpack_SSO {
 		add_action( 'admin_print_styles', array( $this, 'jetpack_user_table_styles' ) );
 		// Add custom column in wp-admin/users.php to show whether user is linked.
 		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_connection_status' ), 10, 3 );
-		add_action( 'admin_post_jetpack_invite_user_to_wpcom', array( $this, 'invite_user_to_wpcom' ) );
+		add_action( 'admin_post_jetpack_handle_sso_invitation_request', array( $this, 'handle_sso_invitation_request' ) );
 		add_action( 'admin_notices', array( $this, 'handle_invitation_results' ) );
 	}
 
@@ -114,9 +114,9 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Invites a user to connect to WordPress.com to allow them to log in via SSO.
+	 * Sends/resends/revokes an invitation to connect a user to WordPress.com to allow them to log in via SSO.
 	 */
-	public function invite_user_to_wpcom() {
+	public function handle_sso_invitation_request() {
 		check_ajax_referer( 'jetpack-sso-invite-user' );
 		$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
 
@@ -141,22 +141,55 @@ class Jetpack_SSO {
 			$blog_id   = Jetpack_Options::get_option( 'id' );
 			$roles     = new Roles();
 			$user_role = $roles->translate_user_to_role( $user );
+			$url       = '/sites/' . $blog_id . '/invites/new';
+			$body      = array();
 
-			$url      = '/sites/' . $blog_id . '/invites/new';
+			switch ( $_POST['request'] ?? '' ) {
+				case 'invite':
+					$url  = '/sites/' . $blog_id . '/invites/new';
+					$body = array(
+						'invitees' => array(
+							array(
+								'email_or_username' => $user_email,
+								'role'              => $user_role,
+							),
+						),
+					);
+					break;
+				case 'resend':
+					$slug = sanitize_key( wp_unslash( $_POST['invite_slug'] ?? '' ) );
+					$url  = '/sites/' . $blog_id . '/invites/resend';
+					$url  = add_query_arg(
+						array(
+							'invite_slug' => $slug,
+						),
+						$url
+					);
+					$body = null;
+					break;
+				case 'revoke':
+					$url = '/sites/' . $blog_id . '/invites/revoke';
+					break;
+				default:
+					$ref = wp_get_referer();
+					$url = add_query_arg(
+						array(
+							'jetpack-sso-invite-user'  => 'failed',
+							'jetpack-sso-invite-error' => 'invalid-request',
+							'_wpnonce'                 => $nonce,
+						),
+						$ref
+					);
+					return wp_safe_redirect( $url );
+			}
+
 			$response = Client::wpcom_json_api_request_as_user(
 				$url,
 				'v2',
 				array(
 					'method' => 'POST',
 				),
-				array(
-					'invitees' => array(
-						array(
-							'email_or_username' => $user_email,
-							'role'              => $user_role,
-						),
-					),
-				),
+				$body,
 				'wpcom'
 			);
 
@@ -287,22 +320,32 @@ class Jetpack_SSO {
 					'<form method="post" action="%s">
 						<input type="hidden" name="user_id" value="%s" />
 						%s
-						<input type="hidden" name="action" value="jetpack_invite_user_to_wpcom" />
-						<input type="hidden" name="request" value="invite" />
-						<button type="submit" class="jetpack-sso-invitation sso-disconnected-user" title="%s">%s</button>
+						<input type="hidden" name="action" value="jetpack_handle_sso_invitation_request" />
+						<div class="sso-pending-invite-actions">
+							<button type="submit" name="request" value="resend" class="jetpack-sso-invitation" title="%s">%s</button>
+							<button type="submit" name="request" value="revoke" class="jetpack-sso-invitation" title="%s">%s</button>
+						</div>
+						<div class="sso-pending-invite-status">
+							<button type="button" disabled class="jetpack-sso-invitation" title="%s">%s</button>
+						</div>
 					</form>',
 					admin_url( 'admin-post.php' ),
 					esc_attr( $user_id ),
 					wp_nonce_field( 'jetpack-sso-invite-user', '_wpnonce', true, false ),
-					esc_attr__( 'This user didn\'t accept the invitation to join this site yet.', 'jetpack' ),
-					esc_html__( 'Invite', 'jetpack' )
+					esc_html__( 'Resend the invitation to the user', 'jetpack' ),
+					esc_html__( 'Resend', 'jetpack' ),
+					esc_html__( 'Revoke the invitation to the user', 'jetpack' ),
+					esc_html__( 'Revoke', 'jetpack' ),
+					esc_html__( 'This user didn\'t accept the invitation to join this site yet.', 'jetpack' ),
+					esc_html__( 'Pending invite', 'jetpack' )
 				);
+				return $connection_html;
 			}
 			$connection_html = sprintf(
 				'<form method="post" action="%s">
 					<input type="hidden" name="user_id" value="%s" />
 					%s
-					<input type="hidden" name="action" value="jetpack_invite_user_to_wpcom" />
+					<input type="hidden" name="action" value="jetpack_handle_sso_invitation_request" />
 					<input type="hidden" name="request" value="invite" />
 					<button type="submit" class="jetpack-sso-invitation sso-disconnected-user" title="%s">%s</button>
 				</form>',
@@ -328,7 +371,7 @@ class Jetpack_SSO {
 				#the-list tr:has(.sso-disconnected-user) {
 					background: #ffe8eb;
 				}
-				#the-list tr:has(.sso-pending-invite) {
+				#the-list tr:has(.sso-pending-invite-actions) {
 					background: #ccedef;
 				}
 				.fixed .column-user_jetpack {
@@ -341,9 +384,23 @@ class Jetpack_SSO {
 					color: #0073aa;
 					text-align: unset;
 				}
-				button.sso-disconnected-user {
+				button.jetpack-sso-invitation:hover:not(:disabled) {
 					cursor: pointer;
 					text-decoration: underline;
+				}
+				.sso-pending-invite-actions {
+					display: none;
+					gap: 8px;
+					flex-direction: column;
+				}
+				.sso-pending-invite-actions button:hover {
+					display: block;
+				}
+				.column-user_jetpack:hover .sso-pending-invite-actions {
+					display: flex;
+				}
+				.column-user_jetpack:hover .sso-pending-invite-status {
+					display: none;
 				}
 			</style>
 			<?php
