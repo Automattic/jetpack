@@ -118,6 +118,16 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Whether the current user has is using the wp-admin interface.
+	 *
+	 * @param string $screen Dummy to match parent method signature.
+	 * @return bool
+	 */
+	public function use_wp_admin_interface( $screen = '' ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return 'wp-admin' === get_option( 'wpcom_admin_interface' );
+	}
+
+	/**
 	 * Adds Users menu.
 	 */
 	public function add_users_menu() {
@@ -132,7 +142,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
 
 		// When the interface is not set to wp-admin, we replace the Profile submenu.
-		if ( 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
+		if ( $this->use_wp_admin_interface() ) {
 			remove_submenu_page( 'users.php', 'profile.php' );
 			add_submenu_page( 'users.php', esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me/', null );
 		}
