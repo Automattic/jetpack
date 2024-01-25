@@ -1,3 +1,4 @@
+import { useDebouncedState } from '$lib/utils/debounce';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { useCallback } from 'react';
 import { z } from 'zod';
@@ -46,5 +47,10 @@ export const useSingleModuleState = (
 		[ data, moduleSlug, mutate, onSuccess ]
 	);
 
-	return [ data?.[ moduleSlug ], setModuleState ] as const;
+	const [ active, setActive ] = useDebouncedState(
+		data?.[ moduleSlug ]?.active || false,
+		setModuleState
+	);
+
+	return [ { ...data?.[ moduleSlug ], active }, setActive ] as const;
 };

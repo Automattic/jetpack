@@ -24,7 +24,7 @@ const Module = ( {
 	onDisable,
 	onMountEnable,
 }: ModuleProps ) => {
-	const [ status, setStatus ] = useSingleModuleState( slug, active => {
+	const [ status, setActive ] = useSingleModuleState( slug, active => {
 		if ( active ) {
 			onEnable?.();
 		} else {
@@ -35,7 +35,7 @@ const Module = ( {
 	const isModuleAvailable = status?.available ?? false;
 
 	const handleToggle = () => {
-		setStatus( ! isModuleActive );
+		setActive( ! isModuleActive );
 	};
 
 	useEffect( () => {
