@@ -3359,8 +3359,6 @@ p {
 			// Artificially throw errors in certain specific cases during plugin activation.
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
 		}
-
-		// Add custom column in wp-admin/users.php to show whether user is linked.
 	}
 
 	/**

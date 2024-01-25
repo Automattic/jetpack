@@ -210,7 +210,7 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Adds a "blank" column in the user admin table to display indication of user connection.
+	 * Adds a column in the user admin table to display user connection status and actions.
 	 *
 	 * @param array $columns User list table columns.
 	 *
@@ -231,9 +231,9 @@ class Jetpack_SSO {
 	 * @static
 	 * @param int $user_id The user ID.
 	 *
-	 * @return array An array of capabilities
+	 * @return {false|string} returns the user slug if the user is invited, false otherwise.
 	 */
-	private static function get_is_user_invited( $user_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	private static function get_is_user_invited( $user_id ) {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$user     = get_user_by( 'id', $user_id );
@@ -263,9 +263,9 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Show Jetpack icon if the user is linked.
+	 * Show Jetpack SSO user connection status.
 	 *
-	 * @param string $val HTML for the icon.
+	 * @param string $val HTML for the column.
 	 * @param string $col User list table column.
 	 * @param int    $user_id User ID.
 	 *
@@ -309,7 +309,7 @@ class Jetpack_SSO {
 		return $val;
 	}
 	/**
-	 * Style the Jetpack user column
+	 * Style the Jetpack user rows and columns.
 	 */
 	public function jetpack_user_table_styles() {
 		global $current_screen;
@@ -336,19 +336,6 @@ class Jetpack_SSO {
 					cursor: pointer;
 					text-decoration: underline;
 				}
-			</style>
-			<?php
-		}
-	}
-	/**
-	 * Style the Jetpack user row.
-	 */
-	public function jetpack_user_row_style() {
-		global $current_screen;
-		if ( ! empty( $current_screen->base ) && 'users' === $current_screen->base ) {
-			?>
-			<style>
-				
 			</style>
 			<?php
 		}
