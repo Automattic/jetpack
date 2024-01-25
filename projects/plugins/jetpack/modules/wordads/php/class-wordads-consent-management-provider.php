@@ -25,11 +25,6 @@ class WordAds_Consent_Management_Provider {
 	 * Initializes loading of the frontend framework.
 	 */
 	public static function init() {
-		// Early out if not a test blog.
-		if ( ! self::is_feature_enabled() ) {
-			return;
-		}
-
 		// Prevent Cookies & Consent banner from displaying when the CMP is active.
 		add_filter( 'jetpack_disable_eu_cookie_law_widget', '__return_true' );
 
@@ -144,17 +139,6 @@ JS;
 	 */
 	private static function get_blog_id() {
 		return Jetpack_Options::get_option( 'id' );
-	}
-
-	/**
-	 * Works as a feature flag to enable the GDPR banner.  Can remove after testing.
-	 *
-	 * @return bool True if the feature should be enabled on selected test blogs.
-	 */
-	public static function is_feature_enabled(): bool {
-
-		// Enable for all sites.
-		return true;
 	}
 
 	/**
