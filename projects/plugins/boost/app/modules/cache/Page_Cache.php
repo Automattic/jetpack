@@ -5,7 +5,18 @@ namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
+require_once __DIR__ . '/Boost_Cache_Settings.php';
+
 class Page_Cache implements Pluggable, Is_Always_On {
+	/*
+	 * @var array - The settings for the page cache.
+	 */
+	private $settings = array();
+
+	public function __construct() {
+		$this->settings = new Boost_Cache_Settings();
+	}
+
 	/*
 	 * Sets up the advanced-cache.php file and if that works, adds the WP_CACHE
 	 * define to wp-config.php

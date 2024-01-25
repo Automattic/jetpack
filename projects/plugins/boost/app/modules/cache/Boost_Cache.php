@@ -6,8 +6,14 @@ namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
  * This file is loaded by advanced-cache.php when it loads Boost_File_Cache.php
  * As it is loaded before WordPress is loaded, it is not autoloaded by Boost.
  */
+require_once __DIR__ . '/Boost_Cache_Settings.php';
 
 abstract class Boost_Cache {
+	/*
+	 * @var array - The settings for the page cache.
+	 */
+	private $settings = array();
+
 	/*
 	 * @var string - The path key used to identify the cache directory for the current request. MD5 of the request uri.
 	 */
@@ -19,6 +25,7 @@ abstract class Boost_Cache {
 	protected $request_uri = false;
 
 	public function __construct() {
+		$this->settings    = new Boost_Cache_Settings();
 		$this->request_uri = isset( $_SERVER['REQUEST_URI'] )
 			? $this->normalize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			: false;
