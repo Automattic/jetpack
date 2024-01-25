@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-REST API: fixed the way we treat 0 and 1 integers in boolean context.
