@@ -662,9 +662,9 @@ HTML;
 			return false;
 		}
 
-		$blog_id         = verbum_get_blog_id();
-		$e2e_tests       = has_blog_sticker( 'a8c-e2e-test-blog', $blog_id );
-		$has_blocks_flag = has_blog_sticker( 'verbum-block-comments', $blog_id );
+		$blog_id         = $this->blog_id;
+		$e2e_tests       = function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'a8c-e2e-test-blog', $blog_id );
+		$has_blocks_flag = function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'verbum-block-comments', $blog_id );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$gutenberg_query_param = isset( $_GET['verbum_gutenberg'] ) ? intval( $_GET['verbum_gutenberg'] ) : null;
 		// This will release to 10% of sites.
