@@ -26,5 +26,6 @@ export function useImageCdnQuality(): [ ImageCdnSettings, ( newValue: ImageCdnSe
 	if ( ! imageCdnQuality ) {
 		throw new Error( 'Image CDN Quality not loaded' );
 	}
-	return useDebouncedState( imageCdnQuality, setImageCdnQuality );
+
+	return [ imageCdnQuality, setImageCdnQuality ];
 }
