@@ -3,7 +3,7 @@ import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { JetpackAppIcon } from '../../icons';
-import useInterval from '../../use-interval';
+import useRefInterval from '../../use-ref-interval';
 import MediaBrowser from '../media-browser';
 import { MediaSource } from '../media-service/types';
 import withMedia from './with-media';
@@ -40,7 +40,7 @@ function JetpackAppMedia( props ) {
 
 	// Load initial results for the random example query. Only do it once.
 	useEffect( getNextPage, [] ); // eslint-disable-line react-hooks/exhaustive-deps
-	useInterval( getNextPagePull, 2000 );
+	useRefInterval( getNextPagePull, 2000 );
 
 	const hasImageUploaded = !! media.length;
 	const wrapperClassname = hasImageUploaded
