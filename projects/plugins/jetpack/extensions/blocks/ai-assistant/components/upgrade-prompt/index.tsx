@@ -59,6 +59,13 @@ const DefaultUpgradePrompt = ( { placement = null }: UpgradePromptProps ): React
 		[ autosaveAndRedirect, currentTier, requestsCount, tracks, placement ]
 	);
 
+	const handleContactUsClick = useCallback( () => {
+		debug( 'contact us', placement );
+		tracks.recordEvent( 'jetpack_ai_upgrade_contact_us', {
+			placement: placement,
+		} );
+	}, [ tracks, placement ] );
+
 	if ( ! canUpgrade ) {
 		return (
 			<Nudge
@@ -97,6 +104,7 @@ const DefaultUpgradePrompt = ( { placement = null }: UpgradePromptProps ): React
 					align={ null }
 					title={ null }
 					context={ null }
+					goToCheckoutPage={ handleContactUsClick }
 				/>
 			);
 		}

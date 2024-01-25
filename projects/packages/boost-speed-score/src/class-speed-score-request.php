@@ -162,7 +162,7 @@ class Speed_Score_Request extends Cacheable {
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
 	public function execute() {
-		$response = $this->get_client()->post(
+		$response = Boost_API::post(
 			'speed-scores',
 			array(
 				'request_id'     => $this->get_cache_id(),
@@ -210,7 +210,7 @@ class Speed_Score_Request extends Cacheable {
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
 	public function poll_update() {
-		$response = $this->get_client()->get(
+		$response = Boost_API::get(
 			sprintf(
 				'speed-scores/%s',
 				$this->get_cache_id()
@@ -311,14 +311,5 @@ class Speed_Score_Request extends Cacheable {
 				)
 			);
 		}
-	}
-
-	/**
-	 * Instantiate the API client.
-	 *
-	 * @return Boost_API_Client
-	 */
-	private function get_client() {
-		return Boost_API::get_client();
 	}
 }

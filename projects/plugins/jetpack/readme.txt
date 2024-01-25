@@ -293,25 +293,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.1-a.1 - 2024-01-15
-#### Enhancements
-- GIF Block: Accept Giphy shortlinks as a valid embed.
-- GIF Block: fix styling of the search bar input.
-- Subscribe block: don't allow editing the email for subscribing for logged-in members.
-
-#### Improved compatibility
-- Post Images: avoid PHP warnings on sites using PHP 8.1+, when a post image has a malformed URL.
-
-#### Bug fixes
-- AI Assistant: avoid deprecation notices when using a development version of WordPress.
-- AI Assistant: do not attempt to display the AI Excerpt assistant in the site editor and the widget editor.
-- Fixes recurring payments buttons multiple plan support.
-- Subscribe modal: Don't show in Elementor editor
-- Subscriptions: do not display subscription checkboxes in comment forms displayed on Custom Post Type pages.
-- Subscriptions: Fix broken subscribe button in email
-- Subscriptions: Fix page scrolling up after the subscription modal is dismissed
-- Theme Tools: Ensure that Content Options does not override the Featured Images options set within blocks.
-
+### 13.1-a.5 - 2024-01-23
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

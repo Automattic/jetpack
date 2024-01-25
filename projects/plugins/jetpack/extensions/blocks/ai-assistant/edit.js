@@ -316,7 +316,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		}
 	};
 
-	const handleAcceptContent = async () => {
+	const replaceContent = async () => {
 		let newGeneratedBlocks = [];
 		if ( ! useGutenbergSyntax ) {
 			/*
@@ -350,6 +350,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		}
 	};
 
+	const handleAcceptContent = () => {
+		replaceContent();
+		tracks.recordEvent( 'jetpack_ai_assistant_block_accept', { feature: 'ai-assistant' } );
+	};
+
 	const handleAcceptTitle = () => {
 		if ( isInBlockEditor ) {
 			editPost( { title: attributes.content ? attributes.content.trim() : '' } );
@@ -359,12 +364,19 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		}
 	};
 
-	const handleTryAgain = () => {
+	const handleDiscard = () => {
+		const isDismiss = attributes?.content === getBlock( clientId ).attributes?.content;
 		setAttributes( {
 			content: attributes?.originalContent,
 			promptType: undefined,
 			messages: attributes?.originalMessages,
 		} );
+		replaceContent();
+		if ( isDismiss ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_dismiss' );
+		} else {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_discard', { feature: 'ai-assistant' } );
+		}
 	};
 
 	const handleStopSuggestion = () => {
@@ -563,7 +575,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					onSend={ handleSend }
 					onStop={ handleStopSuggestion }
 					onAccept={ handleAccept }
-					onDiscard={ handleTryAgain }
+					onDiscard={ handleDiscard }
 					state={ requestingState }
 					isTransparent={ requireUpgrade || ! connected }
 					showButtonLabels={ ! isMobileViewport }

@@ -14,6 +14,7 @@ import { RecommendationsMeta } from '$features/image-size-analysis';
 import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
+import Upgraded from '$features/ui/upgraded/upgraded';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -82,7 +83,7 @@ const Index = () => {
 				title={
 					<>
 						{ __( 'Automatically Optimize CSS Loading', 'jetpack-boost' ) }
-						<span className="jb-badge">Upgraded</span>
+						<Upgraded />
 					</>
 				}
 				onEnable={ requestRegenerateCriticalCss }
