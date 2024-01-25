@@ -165,14 +165,15 @@ export function useDataSync<
 			queryClient.setQueryData( queryKey, context.previousValue );
 		},
 		onSuccess: ( data: Value, _, context ) => {
-			abortController.current = null;
 			if ( context.optimisticValue !== data ) {
 				queryClient.setQueryData( queryKey, data );
 			}
 		},
-		onSettled: () => {
-			// Clear the abortController on success or failure
-			abortController.current = null;
+		onSettled: ( _, error ) => {
+			// Clear the abortController on either success or failure that is not an abort
+			if ( ! error || ( error instanceof DataSyncError && error.status !== 'aborted' ) ) {
+				abortController.current = null;
+			}
 		},
 	};
 
