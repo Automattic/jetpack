@@ -140,7 +140,7 @@ export function useDataSync<
 		onError: ( _, __, context ) => {
 			queryClient.setQueryData( queryKey, context.previousValue );
 		},
-		onSuccess: ( data: Schema ) => {
+		onSuccess: ( data: Value ) => {
 			queryClient.setQueryData( queryKey, data );
 		},
 	};
