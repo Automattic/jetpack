@@ -158,17 +158,6 @@ JS;
 	}
 
 	/**
-	 * Check if the visitor is from a country that requires GDPR.
-	 *
-	 * @return bool True if the visitor's country requires GDPR.
-	 */
-	public static function does_gdpr_apply(): bool {
-		$country_code = self::get_country_code();
-
-		return 'none' === $country_code || wpcom_country_is_within_gdpr_zone( $country_code );
-	}
-
-	/**
 	 * Gets the domain to be used for the opt-out cookie.
 	 * Use the site's custom domain, or if the site has a wordpress.com subdomain, use .wordpress.com to share the cookie.
 	 *
@@ -182,23 +171,5 @@ JS;
 		}
 
 		return '.wordpress.com' === substr( $host, -strlen( '.wordpress.com' ) ) ? '.wordpress.com' : '.' . $host;
-	}
-
-	/**
-	 * Gets the visitor's country code.
-	 *
-	 * @return string The two-letter country code (uppercase) or 'none'.
-	 */
-	private static function get_country_code(): string {
-
-		// Try to find the country code in the following order:
-		// 1. Set as a parameter in the query string.
-		// 2. The country code identified by the Nginx geolocation module.
-
-		if ( isset( $_SERVER['GEOIP_COUNTRY_CODE'] ) ) {
-			return sanitize_text_field( wp_unslash( $_SERVER['GEOIP_COUNTRY_CODE'] ) );
-		} else {
-			return 'none';
-		}
 	}
 }
