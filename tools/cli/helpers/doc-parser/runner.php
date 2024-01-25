@@ -81,7 +81,7 @@ function get_html_from_markdown( $file_path ) {
 			continue;
 		}
 
-		// Replace any relative links with absolute links to the GitHub repo.
+		// Replace any relative links with absolute links to the GitHub repo. If it's deeper than 2 levels, it's a link to a file in the repo.
 		if ( str_starts_with( $link['path'], '../' ) ||
 			str_starts_with( $link['path'], '/projects/' ) ||
 			( substr_count( $link['path'], '/' ) > 2 ) ) {
@@ -91,6 +91,7 @@ function get_html_from_markdown( $file_path ) {
 					$link['path'];
 		}
 
+		// Handle docs that just live in github, ending in anything other than .md.
 		$extension = pathinfo( $link['path'], PATHINFO_EXTENSION );
 		if ( ( $extension !== 'md' || $extension === '' ) &&
 			! str_starts_with( $link['path'], 'http' ) ) {
@@ -109,6 +110,7 @@ function get_html_from_markdown( $file_path ) {
 				$link['path'] = 'docs-' . $link['path'];
 		}
 
+		// Replace any non-github path endings with -md to link to the correct document page.
 		if ( ! str_starts_with( $link['path'], 'http' ) ) {
 			$link['path'] = str_replace( '.md', '-md', $link['path'] );
 		}
