@@ -5,7 +5,17 @@ namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
+/*
+ * This code is shared between the autoloaded Module and advanced-cache.php loaded code.
+ */
+require_once __DIR__ . '/Boost_Cache_Utils.php';
+
 class Page_Cache implements Pluggable, Is_Always_On {
+
+	public function __construct() {
+		add_action( 'jetpack_boost_deactivate', array( $this, 'deactivate' ) );
+	}
+
 	/*
 	 * Sets up the advanced-cache.php file and if that works, adds the WP_CACHE
 	 * define to wp-config.php
@@ -99,6 +109,55 @@ define( \'WP_CACHE\', true );',
 		);
 
 		$result = file_put_contents( ABSPATH . 'wp-config.php', $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		if ( $result === false ) {
+			return new \WP_Error( 'Could not write to wp-config.php' );
+		}
+	}
+
+	/*
+	 * Removes the advanced-cache.php file and the WP_CACHE define from wp-config.php
+	 * Fired when the plugin is deactivated.
+	 */
+	public function deactivate() {
+		$this->delete_advanced_cache(); // how do we handle errors?
+		$this->delete_wp_cache_constant(); // how do we handle errors?
+
+		$result = Boost_Cache_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache' );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		return true;
+	}
+
+	/*
+	 * Deletes the file advanced-cache.php if it exists.
+	 */
+	public function delete_advanced_cache() {
+		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
+
+		if ( ! file_exists( $advanced_cache_filename ) ) {
+			return;
+		}
+
+		$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		if ( strpos( $content, 'Boost Cache Plugin 0.1' ) !== false ) {
+			wp_delete_file( $advanced_cache_filename );
+		}
+	}
+
+	/*
+	 * Deletes the WP_CACHE define from wp-config.php
+	 * @return WP_Error if an error occurred.
+	 */
+	public function delete_wp_cache_constant() {
+		$lines = file( ABSPATH . 'wp-config.php' );
+		foreach ( $lines as $key => $line ) {
+			if ( strpos( $line, 'WP_CACHE' ) !== false ) {
+				unset( $lines[ $key ] );
+			}
+		}
+		$content = implode( '', $lines );
+		$result  = file_put_contents( ABSPATH . 'wp-config.php', $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		if ( $result === false ) {
 			return new \WP_Error( 'Could not write to wp-config.php' );
 		}
