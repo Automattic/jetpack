@@ -174,7 +174,9 @@ class Verbum_Comments {
 		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
 		$locale  = get_locale();
 
-		$vbe_cache_buster = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/build_meta.json' );
+		$js_mtime         = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.css' );
+		$css_mtime        = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.min.js' );
+		$vbe_cache_buster = max( $js_mtime, $css_mtime );
 
 		wp_add_inline_script(
 			'verbum-settings',
