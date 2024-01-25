@@ -116,11 +116,11 @@ class Jetpack_SSO {
 	 * Invites a user to connect to WordPress.com to allow them to log in via SSO.
 	 */
 	public function invite_user_to_wpcom() {
-		check_ajax_referer( 'jetpack-sso-invite-user' );
+		check_ajax_referer( 'jetpack-sso-invite-user', 'invite_nonce' );
 		$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
 
-		if ( isset( $_POST['user_id'] ) ) {
-			$user_id    = intval( wp_unslash( $_POST['user_id'] ) );
+		if ( isset( $_GET['user_id'] ) ) {
+			$user_id    = intval( wp_unslash( $_GET['user_id'] ) );
 			$user       = get_user_by( 'id', $user_id );
 			$user_email = $user->user_email;
 
@@ -289,17 +289,17 @@ class Jetpack_SSO {
 				);
 				return $connection_html;
 			}
+			$nonce           = wp_create_nonce( 'jetpack-sso-invite-user' );
 			$connection_html = sprintf(
-				'<form method="post" action="%s">
-					<input type="hidden" name="user_id" value="%s" />
-					%s
-					<input type="hidden" name="action" value="jetpack_invite_user_to_wpcom" />
-					<input type="hidden" name="request" value="reinvite" />
-					<button type="submit" class="jetpack-sso-invitation sso-disconnected-user" title="%s">%s</button>
-				</form>',
-				admin_url( 'admin-post.php' ),
-				esc_attr( $user_id ),
-				wp_nonce_field( 'jetpack-sso-invite-user', '_wpnonce', true, false ),
+				// Using formmethod and formaction because we can't nest forms and have to submit using the main form.
+				'<button type="submit" formmethod="post" name="action" value="jetpack_invite_user_to_wpcom" formaction="%s" class="jetpack-sso-invitation sso-disconnected-user" title="%s">%s</button>',
+				add_query_arg(
+					array(
+						'user_id'      => $user_id,
+						'invite_nonce' => $nonce,
+					),
+					admin_url( 'admin-post.php' )
+				),
 				esc_attr__( 'This user didn&#8217;t accept the invitation to join this site yet.', 'jetpack' ),
 				esc_html__( 'Invite', 'jetpack' )
 			);
