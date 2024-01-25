@@ -143,13 +143,14 @@ const MyPnpmDeterministicModuleIdsPlugin = options => [
 const MyI18nSafeMangleExportsPlugin = options => [ new I18nSafeMangleExportsPlugin( options ) ];
 
 const MyModuleFederationPlugin = ( options = {} ) => {
+	const myOptions = typeof options === 'object' ? options : {};
 	const config = {
 		shared: {
 			'@automattic/jetpack-shared-extension-utils': {
-				singleton: true,
+				singleton: true, // only a single version of the shared module is allowed
 			},
 		},
-		...options,
+		...myOptions,
 	};
 
 	return [ new ModuleFederationPlugin( config ) ];
