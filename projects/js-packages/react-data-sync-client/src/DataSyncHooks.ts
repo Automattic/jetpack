@@ -9,6 +9,7 @@ import {
 	QueryClientProvider,
 } from '@tanstack/react-query';
 import React from 'react';
+import { useRef } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 import { DataSyncError } from './DataSyncError';
@@ -74,7 +75,6 @@ function buildQueryKey( key: string, params: Record< string, string | number > )
  * @see https://tanstack.com/query/v5/docs/react/reference/useQuery
  * @see https://tanstack.com/query/v5/docs/react/reference/useMutation
  */
-let abortController: AbortController | null = null;
 export function useDataSync<
 	Schema extends z.ZodSchema,
 	Value extends z.infer< Schema >,
@@ -86,6 +86,7 @@ export function useDataSync<
 	config: DataSyncConfig< Schema, Value > = {},
 	params: Record< string, string | number > = {}
 ): DataSyncHook< Schema, Value > {
+	const abortController = useRef< AbortController | null >( null );
 	const datasync = new DataSync( namespace, key, schema );
 	const queryKey = buildQueryKey( key, params );
 
@@ -122,12 +123,12 @@ export function useDataSync<
 	 */
 	const mutationConfigDefaults = {
 		mutationKey: queryKey,
-		mutationFn: value => datasync.SET( value, params, abortController.signal ),
+		mutationFn: value => datasync.SET( value, params, abortController.current.signal ),
 		onMutate: async data => {
-			if ( abortController ) {
-				abortController.abort();
+			if ( abortController.current ) {
+				abortController.current.abort();
 			}
-			abortController = new AbortController();
+			abortController.current = new AbortController();
 			const value = schema.parse( data );
 
 			// Cancel any outgoing refetches
@@ -150,7 +151,7 @@ export function useDataSync<
 			queryClient.setQueryData( queryKey, context.previousValue );
 		},
 		onSuccess: ( data: Value, _, context ) => {
-			abortController = null;
+			abortController.current = null;
 			if ( context.optimisticValue !== data ) {
 				queryClient.setQueryData( queryKey, data );
 			}
