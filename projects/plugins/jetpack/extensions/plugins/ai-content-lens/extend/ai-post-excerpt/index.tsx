@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -47,6 +48,8 @@ function AiPostExcerpt() {
 			postId: getCurrentPostId() ?? 0,
 		};
 	}, [] );
+
+	const { tracks } = useAnalytics();
 
 	const { editPost } = useDispatch( 'core/editor' );
 
@@ -173,15 +176,24 @@ ${ postContent }
 		dequeueAiAssistantFeatureAyncRequest();
 
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
+			feature: 'jetpack-ai-content-lens',
+		} );
 	}
 
 	function setExcerpt() {
 		editPost( { excerpt: suggestion } );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_accept', {
+			feature: 'jetpack-ai-content-lens',
+		} );
 		reset();
 	}
 
 	function discardExcerpt() {
 		editPost( { excerpt: excerpt } );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_discard', {
+			feature: 'jetpack-ai-content-lens',
+		} );
 		reset();
 	}
 
