@@ -306,6 +306,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const handleSend = () => {
 		handleGetSuggestion( 'userPrompt' );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', { feature: 'ai-assistant' } );
 	};
 
 	const handleAccept = () => {
@@ -382,6 +383,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const handleStopSuggestion = () => {
 		stopSuggestion();
 		focusOnPrompt();
+		tracks.recordEvent( 'jetpack_ai_assistant_block_stop', { feature: 'ai-assistant' } );
 	};
 
 	const handleImageRequest = () => {
