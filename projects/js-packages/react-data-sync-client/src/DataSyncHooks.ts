@@ -164,10 +164,8 @@ export function useDataSync<
 			// Revert the optimistic update to the previous value on error
 			queryClient.setQueryData( queryKey, context.previousValue );
 		},
-		onSuccess: ( data: Value, _, context ) => {
-			if ( context.optimisticValue !== data ) {
-				queryClient.setQueryData( queryKey, data );
-			}
+		onSuccess: ( data: Value ) => {
+			queryClient.setQueryData( queryKey, data );
 		},
 		onSettled: ( _, error ) => {
 			// Clear the abortController on either success or failure that is not an abort
