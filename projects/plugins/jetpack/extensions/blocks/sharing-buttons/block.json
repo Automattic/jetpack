@@ -31,6 +31,16 @@
 			"type": "string",
 			"default": "icon-text",
 			"validValues": [ "icon-text", "icon", "text", "official" ]
+		},
+		"size": {
+			"type": "string",
+			"default": "has-normal-icon-size",
+			"validValues": [
+				"has-small-icon-size",
+				"has-normal-icon-size",
+				"has-large-icon-size",
+				"has-huge-icon-size"
+			]
 		}
 	},
 	"providesContext": {

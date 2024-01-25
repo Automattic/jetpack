@@ -1,20 +1,52 @@
-import { useInnerBlocksProps, useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, MenuItemsChoice } from '@wordpress/components';
+import {
+	useInnerBlocksProps,
+	useBlockProps,
+	InspectorControls,
+	BlockControls,
+} from '@wordpress/block-editor';
+import {
+	PanelBody,
+	MenuItemsChoice,
+	ToolbarDropdownMenu,
+	MenuGroup,
+	MenuItem,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import './style.scss';
+import { check } from '@wordpress/icons';
+import classNames from 'classnames';
 
 const ALLOWED_BLOCKS = [ 'jetpack/sharing-button' ];
+
+const sizeOptions = [
+	{
+		name: __( 'Small', 'jetpack' ),
+		value: 'has-small-icon-size',
+	},
+	{
+		name: __( 'Normal', 'jetpack' ),
+		value: 'has-normal-icon-size',
+	},
+	{
+		name: __( 'Large', 'jetpack' ),
+		value: 'has-large-icon-size',
+	},
+	{
+		name: __( 'Huge', 'jetpack' ),
+		value: 'has-huge-icon-size',
+	},
+];
 
 export function SharingButtonsEdit( props ) {
 	const { attributes, setAttributes } = props;
 
-	const { styleType } = attributes;
+	const { styleType, size } = attributes;
 
 	const SharingButtonsPlaceholder = (
 		<li>{ __( 'Click plus to add a Sharing Button', 'jetpack' ) }</li>
 	);
 
-	const className = 'jetpack-sharing-buttons__services-list';
+	const className = classNames( size, 'jetpack-sharing-buttons__services-list' );
 
 	const blockProps = useBlockProps( { className } );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
@@ -28,6 +60,41 @@ export function SharingButtonsEdit( props ) {
 
 	return (
 		<>
+			<BlockControls group="other">
+				<ToolbarDropdownMenu
+					label={ __( 'Size', 'jetpack' ) }
+					text={ __( 'Size', 'jetpack' ) }
+					icon={ null }
+					popoverProps={ { position: 'bottom right' } }
+				>
+					{ ( { onClose } ) => (
+						<MenuGroup>
+							{ sizeOptions.map( entry => {
+								return (
+									<MenuItem
+										icon={
+											( size === entry.value ||
+												( ! size && entry.value === 'has-normal-icon-size' ) ) &&
+											check
+										}
+										isSelected={ size === entry.value }
+										key={ entry.value }
+										onClick={ () => {
+											setAttributes( {
+												size: entry.value,
+											} );
+										} }
+										onClose={ onClose }
+										role="menuitemradio"
+									>
+										{ entry.name }
+									</MenuItem>
+								);
+							} ) }
+						</MenuGroup>
+					) }
+				</ToolbarDropdownMenu>
+			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<MenuItemsChoice
