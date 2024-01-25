@@ -158,7 +158,7 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 			return {
 				displayName: __( 'Advanced Social Sharing', 'jetpack' ),
 				ctaLabel: __( 'Manage', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-social',
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
 			};
 		case 'antispam-activated':
 			return {
@@ -537,7 +537,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-social',
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
 				illustration: 'assistant-jetpack-social',
 				skipText: __( 'Next', 'jetpack' ),
 			};
@@ -588,7 +588,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-social',
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
 				illustration: 'assistant-jetpack-social',
 				skipText: __( 'Next', 'jetpack' ),
 			};
