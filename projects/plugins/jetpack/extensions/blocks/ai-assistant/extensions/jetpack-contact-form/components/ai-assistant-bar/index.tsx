@@ -136,6 +136,9 @@ export default function AiAssistantBar( {
 		dequeueAiAssistantFeatureAyncRequest();
 
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
+			feature: 'jetpack-form-ai-extension',
+		} );
 		wrapperRef?.current?.focus();
 	}, [
 		clientId,
@@ -143,12 +146,16 @@ export default function AiAssistantBar( {
 		inputValue,
 		removeNotice,
 		requestSuggestion,
+		tracks,
 	] );
 
 	const handleStopSuggestion = useCallback( () => {
 		stopSuggestion();
 		focusOnPrompt();
-	}, [ stopSuggestion ] );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_stop', {
+			feature: 'jetpack-form-ai-extension',
+		} );
+	}, [ stopSuggestion, tracks ] );
 
 	/*
 	 * Fix the assistant bar when the viewport is mobile,
