@@ -54,6 +54,8 @@ class Jetpack_SSO {
 		add_action( 'jetpack_unlinked_user', array( $this, 'delete_connection_for_user' ) );
 		add_action( 'jetpack_site_before_disconnected', array( static::class, 'disconnect' ) );
 		add_action( 'wp_login', array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
+
+		// When adding a new user via the admin, we want to intercept the core invitation email and send it via WordPress.com.
 		add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'intercept_core_invitation_email' ), 10, 2 );
 		add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
 
@@ -99,25 +101,23 @@ class Jetpack_SSO {
 	 * @param bool    $notify Whether to notify the user or not.
 	 * @param WP_User $user   The user object.
 	 *
-	 * @return bool Whether to notify the user or not.
+	 * @return bool Whether to notify the user or not via core email.
 	 */
 	public function intercept_core_invitation_email( $notify, $user ) {
 		if ( ! $user instanceof WP_User ) {
 			return $user;
 		}
 
-		$email = $user->user_email;
-		$role  = $user->roles[0];
-
-		$locale = get_user_locale( $user->ID );
-
+		$email   = $user->user_email;
+		$role    = $user->roles[0];
+		$locale  = get_user_locale( $user->ID );
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		$url     = '/sites/' . $blog_id . '/invites/new';
 		$url     = add_query_arg( 'locale', $locale, $url );
 
 		Client::wpcom_json_api_request_as_user(
 			$url,
-			'2',
+			'2', // Api version
 			array(
 				'method' => 'POST',
 			),
@@ -130,7 +130,7 @@ class Jetpack_SSO {
 				),
 			)
 		);
-
+		// returning false prevents the user to be notified by the core email.
 		return false;
 	}
 
