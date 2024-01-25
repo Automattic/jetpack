@@ -317,7 +317,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_users_menu();
 
-		$this->assertSame( 'https://wordpress.com/me', $submenu['profile.php'][0][2] );
+		$this->assertSame( 'profile.php', $submenu['profile.php'][0][2] );
 		$this->assertSame( 'https://wordpress.com/me/account', $submenu['profile.php'][2][2] );
 
 		// Reset.
