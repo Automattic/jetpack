@@ -22,6 +22,7 @@ import {
 	SUMMARY_SECTION_BY_ONBOARDING_NAME,
 	RECOMMENDATION_WIZARD_STEP,
 	ONBOARDING_SUPPORT_START_TIMESTAMP,
+	ONBOARDING_JETPACK_SOCIAL_ADVANCED,
 } from 'recommendations/constants';
 import { combineReducers } from 'redux';
 import {
@@ -405,6 +406,9 @@ const stepToNextStepByPath = {
 			monitor: 'site-accelerator',
 			'site-accelerator': 'summary',
 		},
+		[ ONBOARDING_JETPACK_SOCIAL_ADVANCED ]: {
+			welcome__social_advanced: 'summary',
+		},
 		[ ONBOARDING_JETPACK_GOLDEN_TOKEN ]: {
 			welcome__golden_token: 'backup-activated',
 			'backup-activated': 'scan-activated',
@@ -443,9 +447,11 @@ export const stepToRoute = {
 	welcome__videopress: '#/recommendations/welcome-videopress',
 	welcome__search: '#/recommendations/welcome-search',
 	welcome__scan: '#/recommendations/welcome-scan',
+	welcome__social_advanced: '#/recommendations/welcome-social-advanced',
 	welcome__golden_token: '#/recommendations/welcome-golden-token',
 	'backup-activated': '#/recommendations/backup-activated',
 	'scan-activated': '#/recommendations/scan-activated',
+	'social-advanced-activated': '#/recommendations/social-advanced-activated',
 	'antispam-activated': '#/recommendations/antispam-activated',
 	'videopress-activated': '#/recommendations/videopress-activated',
 	'search-activated': '#/recommendations/search-activated',
@@ -634,6 +640,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		// Onboarding specific steps (`-activated` and `welcome__`):
 		case 'backup-activated':
 		case 'scan-activated':
+		case 'social-advanced-activated':
 		case 'search-activated':
 		case 'welcome__complete':
 		case 'welcome__security':
@@ -642,6 +649,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'welcome__videopress':
 		case 'welcome__search':
 		case 'welcome__scan':
+		case 'welcome__social_advanced':
 		case 'welcome__backup':
 		case 'welcome__golden_token':
 			return true;
@@ -833,6 +841,7 @@ export const isOnboardingEligibleToShowInSummary = ( state, onboardingName ) => 
 		case ONBOARDING_JETPACK_BACKUP:
 		case ONBOARDING_JETPACK_ANTI_SPAM:
 		case ONBOARDING_JETPACK_SCAN:
+		case ONBOARDING_JETPACK_SOCIAL_ADVANCED:
 			// Don't show plans that overlap with either active plans: Complete or Security
 			return (
 				! viewedOnboardings.includes( ONBOARDING_JETPACK_COMPLETE ) &&

@@ -78,7 +78,7 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 			};
 		case 'publicize':
 			return {
-				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				configureButtonLabel: __( 'Manage connections', 'jetpack' ),
 				displayName: __( 'Social Media Sharing', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: getRedirectUrl( 'calypso-marketing-connections', {
@@ -153,6 +153,12 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 				displayName: __( 'Real-time Malware Scanning', 'jetpack' ),
 				ctaLabel: __( 'Manage', 'jetpack' ),
 				ctaLink: getJetpackCloudUrl( state, 'scan' ),
+			};
+		case 'social-advanced-activated':
+			return {
+				displayName: __( 'Advanced Social Sharing', 'jetpack' ),
+				ctaLabel: __( 'Manage', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-social',
 			};
 		case 'antispam-activated':
 			return {
@@ -523,6 +529,18 @@ export const getStepContent = ( state, stepSlug ) => {
 				illustration: 'assistant-backup-welcome',
 				skipText: __( 'Next', 'jetpack' ),
 			};
+		case 'welcome__social_advanced':
+			return {
+				question: __( 'Welcome to Jetpack Social Advanced!', 'jetpack' ),
+				description: __(
+					'With your new advanced plan you unlocked unlimited sharing, access to upload photos and videos with your posts, and usage of Social Image Generator. To use these features, just head to the post editor and start creating your post!',
+					'jetpack'
+				),
+				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-social',
+				illustration: 'assistant-jetpack-social',
+				skipText: __( 'Next', 'jetpack' ),
+			};
 		case 'welcome__golden_token':
 			return {
 				question: __( 'Congratulations, you have been gifted a Jetpack Golden Token!', 'jetpack' ),
@@ -560,6 +578,18 @@ export const getStepContent = ( state, stepSlug ) => {
 				ctaText: __( 'View Security Dashboard', 'jetpack' ),
 				ctaLink: getJetpackCloudUrl( state, 'scan' ),
 				illustration: 'assistant-malware-scanning',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'social-advanced-activated':
+			return {
+				question: __( 'Jetpack Social Advanced', 'jetpack' ),
+				description: __(
+					'Use your unlocked unlimited sharing, upload photos and videos with your posts, and create previews with Social Image Generator. To use these features, just head to the post editor and start creating your post!',
+					'jetpack'
+				),
+				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-social',
+				illustration: 'assistant-jetpack-social',
 				skipText: __( 'Next', 'jetpack' ),
 			};
 		case 'antispam-activated':
