@@ -83,7 +83,7 @@ class Jetpack_SSO {
 			new Jetpack_Force_2FA();
 		}
 		add_filter( 'manage_users_columns', array( $this, 'jetpack_user_connected_th' ) );
-		add_action( 'admin_print_styles', array( $this, 'jetpack_user_table_styles' ) );
+		add_action( 'admin_print_styles-users.php', array( $this, 'jetpack_user_table_styles' ) );
 		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_connection_status' ), 10, 3 );
 		add_action( 'admin_post_jetpack_invite_user_to_wpcom', array( $this, 'invite_user_to_wpcom' ) );
 		add_action( 'admin_notices', array( $this, 'handle_invitation_results' ) );
@@ -317,33 +317,30 @@ class Jetpack_SSO {
 	 * Style the Jetpack user rows and columns.
 	 */
 	public function jetpack_user_table_styles() {
-		$current_screen = get_current_screen();
-		if ( ! empty( $current_screen->base ) && 'users' === $current_screen->base ) {
-			?>
-			<style>
-				#the-list tr:has(.sso-disconnected-user) {
-					background: #ffe8eb;
-				}
-				#the-list tr:has(.sso-pending-invite) {
-					background: #ccedef;
-				}
-				.fixed .column-user_jetpack {
-					width: 100px;
-				}
-				.jetpack-sso-invitation {
-					background: none;
-					border: none;
-					padding: 0;
-					color: #0073aa;
-					text-align: unset;
-				}
-				button.sso-disconnected-user {
-					cursor: pointer;
-					text-decoration: underline;
-				}
-			</style>
-			<?php
-		}
+		?>
+		<style>
+			#the-list tr:has(.sso-disconnected-user) {
+				background: #ffe8eb;
+			}
+			#the-list tr:has(.sso-pending-invite) {
+				background: #ccedef;
+			}
+			.fixed .column-user_jetpack {
+				width: 100px;
+			}
+			.jetpack-sso-invitation {
+				background: none;
+				border: none;
+				padding: 0;
+				color: #0073aa;
+				text-align: unset;
+			}
+			button.sso-disconnected-user {
+				cursor: pointer;
+				text-decoration: underline;
+			}
+		</style>
+		<?php
 	}
 
 	/**
