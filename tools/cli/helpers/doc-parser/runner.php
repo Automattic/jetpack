@@ -85,7 +85,7 @@ function get_html_from_markdown( $file_path ) {
 		if ( str_starts_with( $link['path'], '../' ) ||
 			str_starts_with( $link['path'], '/projects/' ) ||
 			( substr_count( $link['path'], '/' ) > 2 ) ) {
-				$link['path'] = preg_replace( '~^(\./|../)~', '', $link['path'], 1 );
+				$link['path'] = preg_replace( '~^(\./|../)~', '', $link['path'], 1 ); // Remove leading ./ or ../
 				$link['path'] = 'https://github.com/Automattic/jetpack/blob/trunk' .
 					( ! str_starts_with( $link['path'], '/' ) ? '/' : '' ) .
 					$link['path'];
@@ -95,7 +95,7 @@ function get_html_from_markdown( $file_path ) {
 		$extension = pathinfo( $link['path'], PATHINFO_EXTENSION );
 		if ( ( $extension !== 'md' || $extension === '' ) &&
 			! str_starts_with( $link['path'], 'http' ) ) {
-				$link['path'] = preg_replace( '~^(\./|/)~', '', $link['path'], 1 );
+				$link['path'] = preg_replace( '~^(\./|/)~', '', $link['path'], 1 ); // Remove leading ./ or /
 				$link['path'] = 'https://github.com/Automattic/jetpack/blob/trunk/' .
 					( str_contains( $link['path'], 'examples/' ) ? 'docs/' : '' ) .
 					$link['path'];
@@ -119,6 +119,7 @@ function get_html_from_markdown( $file_path ) {
 		$anchor->setAttribute( 'href', $link['path'] . ( isset( $link['fragment'] ) ? '#' . $link['fragment'] : '' ) );
 
 	}
+
 	$headers = $document->getElementsByTagName( 'h1' );
 	if ( count( $headers ) ) {
 		$doc_title = $headers[0]->textContent;
