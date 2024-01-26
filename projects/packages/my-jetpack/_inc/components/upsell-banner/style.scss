@@ -1,13 +1,21 @@
+.components-surface.components-card {
+  border-radius: var(--jp-border-radius-rna);
+}
+
 .upsell-banner {
 	display: flex;
 	flex-direction: column;
-	padding: 36px;
 
 	background: rgb(249, 249, 246);
 	background: linear-gradient(133deg, rgb(206, 217, 242) 0%, rgb(249, 249, 246) 10%, rgb(249, 249, 246) 80%, rgb(245, 230, 179) 100%);
   
     @media screen and (min-width: 660px) {
 		flex-direction: row;
+	}
+
+    &.components-card__body.components-card-body {
+		border-radius: var(--jp-border-radius-rna);
+		padding: 36px;
 	}
 
 	.upsell-banner--icon {
