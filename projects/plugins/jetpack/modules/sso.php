@@ -118,7 +118,7 @@ class Jetpack_SSO {
 	 * Invites a user to connect to WordPress.com to allow them to log in via SSO.
 	 */
 	public function invite_user_to_wpcom() {
-		check_ajax_referer( 'jetpack-sso-invite-user', 'invite_nonce' );
+		check_admin_referer( 'jetpack-sso-invite-user', 'invite_nonce' );
 		$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
 
 		if ( isset( $_GET['user_id'] ) ) {
