@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { castToString } from '$lib/utils/cast-to-string';
@@ -102,9 +101,7 @@ export const useDebouncedRefreshScore = (
 	// Debounced function: Refresh the speed score if the config has changed.
 	const debouncedRefreshScore = useDebouncedCallback(
 		( newConfig: string, generating: boolean ) => {
-			console.log( 'debouncedRefreshScore', newConfig, lastScoreConfigString.current, generating );
 			if ( lastScoreConfigString.current !== newConfig && ! generating ) {
-				console.log( 'debouncedRefreshScore: refreshing' );
 				lastScoreConfigString.current = newConfig;
 				loadScore();
 			}
@@ -113,12 +110,6 @@ export const useDebouncedRefreshScore = (
 	);
 
 	useEffect( () => {
-		console.log(
-			'useDebouncedRefreshScore',
-			currentConfigString,
-			lastScoreConfigString.current,
-			criticalCssIsGenerating
-		);
 		debouncedRefreshScore( currentConfigString, criticalCssIsGenerating );
 	}, [ currentConfigString, debouncedRefreshScore, criticalCssIsGenerating ] );
 };
