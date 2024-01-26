@@ -128,7 +128,7 @@ class Jetpack_SSO {
 		check_admin_referer( 'jetpack-sso-revoke-user-invite', 'revoke_invite_nonce' );
 		$nonce = wp_create_nonce( 'jetpack-sso-revoke-user-invite' );
 
-		if ( ! current_user_can( 'create_users' ) ) {
+		if ( ! current_user_can( 'promote_users' ) ) {
 			$ref = wp_get_referer();
 			$url = add_query_arg(
 				array(
@@ -282,7 +282,7 @@ class Jetpack_SSO {
 		check_admin_referer( 'jetpack-sso-invite-user', 'invite_nonce' );
 		$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
 
-		if ( ! current_user_can( 'create_users' ) ) {
+		if ( ! current_user_can( 'promote_users' ) ) {
 			$query_params = array(
 				'jetpack-sso-invite-user'  => 'failed',
 				'jetpack-sso-invite-error' => 'invalid-user-permissions',
