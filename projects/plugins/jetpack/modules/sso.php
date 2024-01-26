@@ -95,7 +95,7 @@ class Jetpack_SSO {
 	public function handle_invitation_results() {
 		$valid_nonce = isset( $_GET['_wpnonce'] ) ? wp_verify_nonce( $_GET['_wpnonce'], 'jetpack-sso-invite-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
 
-		if ( ! isset( $_GET['jetpack-sso-invite-user'] ) || ! $valid_nonce ) {
+		if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) || ! isset( $_GET['jetpack-sso-invite-error'] ) ) {
 			return;
 		}
 		if ( $_GET['jetpack-sso-invite-user'] === 'success' ) {
@@ -110,8 +110,7 @@ class Jetpack_SSO {
 				case 'invalid-user-permissions':
 					return wp_admin_notice( __( 'You don&#8217;t have permission to invite users.', 'jetpack' ), array( 'type' => 'error' ) );
 				default:
-					// render whatever error we got from the API. It's escaped and nonce-checked.
-					return wp_admin_notice( esc_html( sanitize_text_field( wp_unslash( $_GET['jetpack-sso-invite-error'] ) ) ), array( 'type' => 'error' ) );
+					return wp_admin_notice( __( 'An error has occurred when inviting the user to the site.', 'jetpack' ), array( 'type' => 'error' ) );
 			}
 		}
 	}
@@ -287,7 +286,7 @@ class Jetpack_SSO {
 	public function jetpack_show_connection_status( $val, $col, $user_id ) {
 		if ( 'user_jetpack' === $col && Jetpack::connection()->is_user_connected( $user_id ) ) {
 			$connection_html = sprintf(
-				'<button disabled title="%1$s" class="jetpack-sso-invitation">%2$s</button>',
+				'<a title="%1$s" class="jetpack-sso-invitation">%2$s</a>',
 				esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack' ),
 				esc_html__( 'Connected', 'jetpack' )
 			);
@@ -296,7 +295,7 @@ class Jetpack_SSO {
 			$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
 			if ( $has_pending_invite ) {
 				$connection_html = sprintf(
-					'<button disabled title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</button>',
+					'<a title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</a>',
 					esc_attr__( 'This user didn&#8217;t accept the invitation to join this site yet.', 'jetpack' ),
 					esc_html__( 'Pending invite', 'jetpack' )
 				);
@@ -305,15 +304,16 @@ class Jetpack_SSO {
 			$nonce           = wp_create_nonce( 'jetpack-sso-invite-user' );
 			$connection_html = sprintf(
 				// Using formmethod and formaction because we can't nest forms and have to submit using the main form.
-				'<button type="submit" formmethod="post" name="action" value="jetpack_invite_user_to_wpcom" formaction="%s" class="jetpack-sso-invitation sso-disconnected-user" title="%s">%s</button>',
+				'<a href="%s" class="jetpack-sso-invitation sso-disconnected-user" title="%s">%s</a>',
 				add_query_arg(
 					array(
 						'user_id'      => $user_id,
 						'invite_nonce' => $nonce,
+						'action'       => 'jetpack_invite_user_to_wpcom',
 					),
 					admin_url( 'admin-post.php' )
 				),
-				esc_attr__( 'This user didn&#8217;t accept the invitation to join this site yet.', 'jetpack' ),
+				esc_attr__( 'Invite the user to this site so they can login via SSO.', 'jetpack' ),
 				esc_html__( 'Invite', 'jetpack' )
 			);
 			return $connection_html;
