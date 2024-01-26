@@ -982,11 +982,11 @@ function wpcom_launchpad_is_mobile_app_installed() {
 			return false;
 		}
 
-		if ( ! isset( $user_attributes['jp_mobile_app_last_seen'] ) ) {
+		if ( ! isset( $user_attributes->jp_mobile_app_last_seen ) ) {
 			return false;
 		}
 
-		$mobile_last_seen = $user_attributes['jp_mobile_app_last_seen'];
+		$mobile_last_seen = $user_attributes->jp_mobile_app_last_seen;
 	} else {
 		if ( ! function_exists( 'get_user_attribute' ) ) {
 			return false;
@@ -1185,17 +1185,15 @@ function wpcom_launchpad_request_user_attributes( $attributes ) {
 		);
 	}
 
-	$wpcom_request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
-		'/jetpack-user-attributes',
+	$query_params  = build_query( array( 'attributes' => $attributes ) );
+	$wpcom_request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+		'/jetpack-user-attributes?' . $query_params,
 		'v2',
 		array(
 			'method'  => 'GET',
 			'headers' => array(
 				'X-Forwarded-For' => ( new Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
 			),
-		),
-		array(
-			'attributes' => $attributes,
 		)
 	);
 
