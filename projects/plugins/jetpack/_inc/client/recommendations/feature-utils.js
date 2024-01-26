@@ -531,7 +531,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'welcome__social_advanced':
 			return {
-				question: __( 'Welcome to Jetpack Social Advanced!', 'jetpack' ),
+				question: __( 'Welcome to Jetpack Social!', 'jetpack' ),
 				description: __(
 					"With your new advanced plan you unlocked unlimited sharing, access to upload photos and videos with your posts, and usage of Social Image Generator.<br/><br/>Let's start with connecting your social media accounts, if you haven't already.",
 					'jetpack'
@@ -596,7 +596,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'social-advanced-activated':
 			return {
-				question: __( 'Jetpack Social Advanced', 'jetpack' ),
+				question: __( 'Jetpack Social', 'jetpack' ),
 				description: __(
 					'Use your unlocked unlimited sharing, upload photos and videos with your posts, and create previews with Social Image Generator. To use these features, just head to the post editor and start creating your post!<br/><br/>You can turn on Social Image Generator for individual posts from the post editor, or turn it on by default for all future posts from the Jetpack Social Settings.',
 					'jetpack'

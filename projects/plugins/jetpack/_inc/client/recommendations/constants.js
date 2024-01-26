@@ -102,6 +102,7 @@ export const SUMMARY_SECTION_BY_ONBOARDING_NAME = {
 			'scan-activated',
 			'antispam-activated',
 			'videopress-activated',
+			'social-advanced-activated',
 			'search-activated',
 		],
 	},

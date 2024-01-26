@@ -358,7 +358,8 @@ const stepToNextStepByPath = {
 			'backup-activated': 'scan-activated',
 			'scan-activated': 'antispam-activated',
 			'antispam-activated': 'videopress-activated',
-			'videopress-activated': 'search-activated',
+			'videopress-activated': 'social-advanced-activated',
+			'social-advanced-activated': 'search-activated',
 			'search-activated': 'server-credentials',
 			'server-credentials': 'summary',
 		},
@@ -408,7 +409,9 @@ const stepToNextStepByPath = {
 		},
 		[ ONBOARDING_JETPACK_SOCIAL_ADVANCED ]: {
 			welcome__social_advanced: 'welcome__social_image_generator',
-			welcome__social_image_generator: 'summary',
+			welcome__social_image_generator: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'summary',
 		},
 		[ ONBOARDING_JETPACK_GOLDEN_TOKEN ]: {
 			welcome__golden_token: 'backup-activated',
