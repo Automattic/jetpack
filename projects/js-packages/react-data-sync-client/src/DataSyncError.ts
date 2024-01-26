@@ -7,6 +7,7 @@ export class DataSyncError extends Error {
 		public location: string,
 		public status:
 			| number
+			| 'aborted'
 			| 'error_with_message'
 			| 'failed_to_sync'
 			| 'json_parse_error'

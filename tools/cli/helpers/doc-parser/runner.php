@@ -74,12 +74,71 @@ function get_html_from_markdown( $file_path ) {
 	);
 
 	$doc_title = $file_path;
+	$anchors   = $document->getElementsByTagName( 'a' );
+	foreach ( $anchors as $anchor ) {
+		$link = parse_url( $anchor->getAttribute( 'href' ) );
+		if ( ! $link || isset( $link['host'] ) || ! isset( $link['path'] ) ) {
+			continue;
+		}
+
+		// Replace any relative links with absolute links to the GitHub repo. If it's deeper than 2 levels, it's a link to a file in the repo.
+		if ( str_starts_with( $link['path'], '../' ) ||
+			str_starts_with( $link['path'], '/projects/' ) ||
+			( substr_count( $link['path'], '/' ) > 2 ) ) {
+				$link['path'] = preg_replace( '~^(\./|../)~', '', $link['path'], 1 ); // Remove leading ./ or ../
+				$link['path'] = 'https://github.com/Automattic/jetpack/blob/trunk' .
+					( ! str_starts_with( $link['path'], '/' ) ? '/' : '' ) .
+					$link['path'];
+		}
+
+		// Handle docs that just live in github, ending in anything other than .md.
+		$extension = pathinfo( $link['path'], PATHINFO_EXTENSION );
+		if ( ( $extension !== 'md' || $extension === '' ) &&
+			! str_starts_with( $link['path'], 'http' ) ) {
+				$link['path'] = preg_replace( '~^(\./|/)~', '', $link['path'], 1 ); // Remove leading ./ or /
+				$link['path'] = 'https://github.com/Automattic/jetpack/blob/trunk/' .
+					( str_contains( $link['path'], 'examples/' ) ? 'docs/' : '' ) .
+					$link['path'];
+		}
+
+		// If the Path starts with ./docs/ and contains 2 slashes, it's a relative link to another doc.
+		if ( ( str_starts_with( $link['path'], './docs' ) ||
+			str_starts_with( $link['path'], '/docs/' ) ||
+			str_starts_with( $file_path, 'docs/' ) ) &&
+			substr_count( $link['path'], '/' ) <= 2 ) {
+				$link['path'] = str_replace( array( './docs/', '/docs/', './' ), '', $link['path'] );
+				$link['path'] = '/docs-' . $link['path'];
+		}
+
+		// Replace any non-github path endings with -md to link to the correct document page.
+		if ( ! str_starts_with( $link['path'], 'http' ) ) {
+			$link['path'] = str_replace( '.md', '-md', $link['path'] );
+		}
+
+		// Set the parsed attribute.
+		$anchor->setAttribute( 'href', $link['path'] . ( isset( $link['fragment'] ) ? '#' . $link['fragment'] : '' ) );
+
+	}
 
 	$headers = $document->getElementsByTagName( 'h1' );
 	if ( count( $headers ) ) {
 		$doc_title = $headers[0]->textContent;
 
 		$headers[0]->remove();
+	}
+
+	// Add IDs to all headers.
+	$headers_ids = array();
+	for ( $i = 1; $i <= 6; $i++ ) {
+		$elements = $document->getElementsByTagName( 'h' . $i );
+		foreach ( $elements as $element ) {
+			$headers_ids[] = $element;
+		}
+	}
+	foreach ( $headers_ids as $header ) {
+		$header_id = strtolower( str_replace( ' ', '-', $header->textContent ) );
+		$header_id = preg_replace( '/[^A-Za-z0-9\-]/', '', $header_id );
+		$header->setAttribute( 'id', $header_id );
 	}
 
 	return array(

@@ -174,7 +174,9 @@ class Verbum_Comments {
 		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
 		$locale  = get_locale();
 
-		$vbe_cache_buster = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/build_meta.json' );
+		$css_mtime        = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.css' );
+		$js_mtime         = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.min.js' );
+		$vbe_cache_buster = max( $js_mtime, $css_mtime );
 
 		wp_add_inline_script(
 			'verbum-settings',
@@ -553,8 +555,8 @@ HTML;
 		$has_blocks_flag = has_blog_sticker( 'verbum-block-comments', $blog_id );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$gutenberg_query_param = isset( $_GET['verbum_gutenberg'] ) ? intval( $_GET['verbum_gutenberg'] ) : null;
-		// This will release to 10% of sites.
-		$blog_in_10_percent = $blog_id % 100 >= 90;
+		// This will release to 30% of sites.
+		$blog_in_10_percent = $blog_id % 100 >= 70;
 		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
 			? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
