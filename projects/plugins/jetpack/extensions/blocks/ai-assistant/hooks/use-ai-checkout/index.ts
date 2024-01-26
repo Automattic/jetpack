@@ -7,6 +7,7 @@ import {
 	isSimpleSite,
 	getSiteFragment,
 } from '@automattic/jetpack-shared-extension-utils';
+import { useEffect, useState } from '@wordpress/element';
 import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import useAiFeature from '../use-ai-feature';
 
@@ -17,12 +18,19 @@ export default function useAICheckout(): {
 	isRedirecting: boolean;
 } {
 	const { nextTier, tierPlansEnabled } = useAiFeature();
+	const [ currentLocation, setCurrentLocation ] = useState( window.location.href );
+
+	useEffect( () => {
+		if ( currentLocation !== window.location.href ) {
+			setCurrentLocation( window.location.href );
+		}
+	}, [ currentLocation ] );
 
 	const wpcomCheckoutUrl = tierPlansEnabled
 		? getRedirectUrl( 'jetpack-ai-yearly-tier-upgrade-nudge', {
 				site: getSiteFragment(),
 				path: `jetpack_ai_yearly:-q-${ nextTier?.limit }`,
-				query: `redirect_to=${ window.location.href }`,
+				query: `redirect_to=${ encodeURIComponent( currentLocation ) }`,
 		  } )
 		: getRedirectUrl( 'jetpack-ai-monthly-plan-ai-assistant-block-banner', {
 				site: getSiteFragment(),
@@ -33,7 +41,7 @@ export default function useAICheckout(): {
 			? wpcomCheckoutUrl
 			: `${ window?.Jetpack_Editor_Initial_State
 					?.adminUrl }admin.php?redirect_to=${ encodeURIComponent(
-					window.location.href
+					currentLocation
 			  ) }&page=my-jetpack#/add-jetpack-ai`;
 
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( checkoutUrl );
