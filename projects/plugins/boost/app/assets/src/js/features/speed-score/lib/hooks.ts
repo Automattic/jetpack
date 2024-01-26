@@ -2,7 +2,7 @@ import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { castToString } from '$lib/utils/cast-to-string';
 import { debounce } from '$lib/utils/debounce';
-import { useState, useCallback, useEffect, useMemo, useReducer } from 'react';
+import { useCallback, useEffect, useReducer, useRef } from 'react';
 
 type SpeedScoreState = {
 	status: 'loading' | 'loaded' | 'error';
@@ -30,7 +30,8 @@ type RefreshFunction = ( regenerate?: boolean ) => Promise< void >;
  */
 export const useSpeedScores = ( siteUrl: string ) => {
 	const [ state, updateState ] = useReducer(
-		( oldState: SpeedScoreState, newState: Partial<SpeedScoreState> ) => ( { ...oldState, ...newState } as SpeedScoreState ),
+		( oldState: SpeedScoreState, newState: Partial< SpeedScoreState > ) =>
+			( { ...oldState, ...newState } ) as SpeedScoreState,
 		{
 			status: 'loading', // 'loading' | 'loaded' | 'error'
 			error: undefined,
@@ -94,32 +95,24 @@ export const useDebouncedRefreshScore = (
 	{ moduleStates, criticalCssCreated, criticalCssIsGenerating }: RefreshDependencies,
 	loadScore: RefreshFunction
 ) => {
-	const [ scoreConfigString, setScoreConfigString ] = useState(
-		JSON.stringify( [ moduleStates, criticalCssCreated ] )
-	);
+	const lastScoreConfigString = useRef( JSON.stringify( [ moduleStates, criticalCssCreated ] ) );
 
 	// Debounced function: Refresh the speed score if the config has changed.
-	const debouncedRefreshScore = useMemo(
-		() =>
-			debounce( async ( newConfig, oldConfig ) => {
-				if ( oldConfig !== newConfig ) {
-					setScoreConfigString( newConfig );
-					await loadScore();
-				}
-			}, 2000 ),
-		[ loadScore, setScoreConfigString ]
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const debouncedRefreshScore = useCallback(
+		debounce( async newConfig => {
+			if ( lastScoreConfigString.current !== newConfig ) {
+				lastScoreConfigString.current = newConfig;
+				await loadScore();
+			}
+		}, 2000 ),
+		[ loadScore ]
 	);
 
 	useEffect( () => {
 		if ( ! criticalCssIsGenerating ) {
 			const newScoreConfigString = JSON.stringify( [ moduleStates, criticalCssCreated ] );
-			debouncedRefreshScore( newScoreConfigString, scoreConfigString );
+			debouncedRefreshScore( newScoreConfigString );
 		}
-	}, [
-		moduleStates,
-		criticalCssCreated,
-		criticalCssIsGenerating,
-		debouncedRefreshScore,
-		scoreConfigString,
-	] );
+	}, [ moduleStates, criticalCssCreated, criticalCssIsGenerating, debouncedRefreshScore ] );
 };

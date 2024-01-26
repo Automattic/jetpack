@@ -11,7 +11,7 @@ import PopOut from './pop-out/pop-out';
 import PerformanceHistory from '$features/performance-history/performance-history';
 import ErrorNotice from '$features/error-notice/error-notice';
 import classNames from 'classnames';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
 import styles from './speed-score.module.scss';
@@ -44,10 +44,9 @@ const SpeedScore = () => {
 	const showScoreChangePopOut =
 		status === 'loaded' && ! scores.isStale && getScoreMovementPercentage( scores );
 
-	// Always load the score on mount.
-	useEffect( () => {
+	const refreshScore = useCallback( async () => {
 		if ( site.online ) {
-			loadScore();
+			await loadScore( true );
 		}
 	}, [ loadScore, site.online ] );
 
@@ -60,11 +59,7 @@ const SpeedScore = () => {
 
 	useDebouncedRefreshScore(
 		{ moduleStates, criticalCssCreated: cssState.created || 0, criticalCssIsGenerating },
-		async () => {
-			if ( site.online ) {
-				await loadScore( true ); // Force a refresh.
-			}
-		}
+		refreshScore
 	);
 
 	// translators: %s is a letter grade, e.g. "A" or "B"
