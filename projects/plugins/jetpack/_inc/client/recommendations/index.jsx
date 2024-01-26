@@ -148,6 +148,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__SOCIAL_ADVANCED:
 			redirectPath = '/welcome-social-advanced';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__SOCIAL_IMAGE_GENERATOR:
+			redirectPath = 'welcome-social-image-generator';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN:
 			redirectPath = '/welcome-golden-token';
 			break;
@@ -285,6 +288,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/welcome-social-advanced">
 						<ResourcePrompt stepSlug="welcome__social_advanced" />
+					</Route>
+					<Route path="/recommendations/welcome-social-image-generator">
+						<ResourcePrompt stepSlug="welcome__social_image_generator" />
 					</Route>
 					<Route path="/recommendations/welcome-golden-token">
 						<ResourcePrompt stepSlug="welcome__golden_token" />

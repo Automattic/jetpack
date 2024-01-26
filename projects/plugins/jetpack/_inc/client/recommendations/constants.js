@@ -40,6 +40,7 @@ export const RECOMMENDATION_WIZARD_STEP = {
 	WELCOME__SEARCH: 'welcome__search',
 	WELCOME__SCAN: 'welcome__scan',
 	WELCOME__SOCIAL_ADVANCED: 'welcome__social_advanced',
+	WELCOME__SOCIAL_IMAGE_GENERATOR: 'welcome__social_image_generator',
 	WELCOME__GOLDEN_TOKEN: 'welcome__golden_token',
 	BACKUP_ACTIVATED: 'backup-activated',
 	SCAN_ACTIVATED: 'scan-activated',
@@ -134,7 +135,7 @@ export const SUMMARY_SECTION_BY_ONBOARDING_NAME = {
 	},
 	[ ONBOARDING_JETPACK_SOCIAL_ADVANCED ]: {
 		name: 'Social Advanced',
-		slugs: [ 'social-advanced-activated' ],
+		slugs: [ RECOMMENDATION_WIZARD_STEP.SOCIAL_ADVANCED_ACTIVATED ],
 	},
 	[ ONBOARDING_JETPACK_GOLDEN_TOKEN ]: {
 		name: __( 'Jetpack Golden Token', 'jetpack' ),

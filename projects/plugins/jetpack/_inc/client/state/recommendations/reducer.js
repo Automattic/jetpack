@@ -407,7 +407,8 @@ const stepToNextStepByPath = {
 			'site-accelerator': 'summary',
 		},
 		[ ONBOARDING_JETPACK_SOCIAL_ADVANCED ]: {
-			welcome__social_advanced: 'summary',
+			welcome__social_advanced: 'welcome__social_image_generator',
+			welcome__social_image_generator: 'summary',
 		},
 		[ ONBOARDING_JETPACK_GOLDEN_TOKEN ]: {
 			welcome__golden_token: 'backup-activated',
@@ -448,6 +449,7 @@ export const stepToRoute = {
 	welcome__search: '#/recommendations/welcome-search',
 	welcome__scan: '#/recommendations/welcome-scan',
 	welcome__social_advanced: '#/recommendations/welcome-social-advanced',
+	welcome__social_image_generator: '#/recommendations/welcome-social-image-generator',
 	welcome__golden_token: '#/recommendations/welcome-golden-token',
 	'backup-activated': '#/recommendations/backup-activated',
 	'scan-activated': '#/recommendations/scan-activated',
@@ -650,6 +652,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'welcome__search':
 		case 'welcome__scan':
 		case 'welcome__social_advanced':
+		case 'welcome__social_image_generator':
 		case 'welcome__backup':
 		case 'welcome__golden_token':
 			return true;
