@@ -24,19 +24,19 @@ class Verbum_Block_Utils {
 			if ( in_array( $block['blockName'], $allowed_blocks, true ) ) {
 				$filtered_block = $block;
 
-				// Filter possible NULL values from innerContent to avoid parsing issues
-				if ( isset( $block['innerContent'] ) && is_array( $block['innerContent'] ) ) {
-					$filtered_block['innerContent'] = array_filter(
-						$filtered_block['innerContent'],
-						function ( $value ) {
-							return $value !== null;
-						}
-					);
-				}
-
 				// Recursively apply the filtering to innerBlocks
 				if ( isset( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
 					$filtered_block['innerBlocks'] = self::filter_blocks_recursive( $block['innerBlocks'] );
+
+					// Filter possible NULL values from innerContent to avoid parsing issues
+					if ( empty( $filtered_block['innerBlocks'] ) && ! empty( $filtered_block['innerContent'] ) ) {
+						$filtered_block['innerContent'] = array_filter(
+							$filtered_block['innerContent'],
+							function ( $value ) {
+								return $value !== null;
+							}
+						);
+					}
 				}
 
 				$filtered_blocks[] = $filtered_block;
