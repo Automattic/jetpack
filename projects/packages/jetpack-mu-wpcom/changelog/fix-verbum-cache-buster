@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Verbum cache buster depended on build_meta, which is only updated on production builds. It doesn't refresh during development, giving you a stale block-editor bundle. 
