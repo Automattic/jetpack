@@ -104,7 +104,7 @@ class Jetpack_SSO {
 		if ( $_GET['jetpack-sso-invite-user'] === 'failed' && isset( $_GET['jetpack-sso-invite-error'] ) ) {
 			switch ( $_GET['jetpack-sso-invite-error'] ) {
 				case 'invalid-user':
-					return wp_admin_notice( __( 'Tried to invite a user that either doesn&#8217;t exist.', 'jetpack' ), array( 'type' => 'error' ) );
+					return wp_admin_notice( __( 'Tried to invite a user that doesn&#8217;t exist.', 'jetpack' ), array( 'type' => 'error' ) );
 				case 'invalid-email':
 					return wp_admin_notice( __( 'Tried to invite a user that doesn&#8217;t have an email address.', 'jetpack' ), array( 'type' => 'error' ) );
 				case 'invalid-user-permissions':
