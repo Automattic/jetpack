@@ -32,7 +32,7 @@ jobs:
       changed_projects: ${{ steps.changed.outputs.projects }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
@@ -56,7 +56,7 @@ jobs:
 
       - name: Check if a WordPress.com test reminder comment is needed.
         id: check-test-reminder-comment
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
@@ -154,7 +154,7 @@ jobs:
 
       - name: Update reminder with testing instructions
         id: update-reminder-comment
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
@@ -203,7 +203,7 @@ jobs:
     if: needs.build.outputs.any_plugins == 'true'
     timeout-minutes: 10  # 2021-06-24: Successful runs should take just a few seconds now. But sometimes the upload is slow.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: monorepo
 
@@ -293,7 +293,7 @@ jobs:
 
     # Not setting a job-level timeout because it would be kind of pointless with the blocking step. Set a step timeout for all other steps instead.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: monorepo
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds

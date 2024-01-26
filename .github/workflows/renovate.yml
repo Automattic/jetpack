@@ -28,7 +28,7 @@ jobs:
     name: Renovate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: monorepo
       - run: mv monorepo /tmp/monorepo
