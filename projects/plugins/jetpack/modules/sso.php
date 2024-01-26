@@ -317,6 +317,7 @@ class Jetpack_SSO {
 
 	/**
 	 * Adds 'Revoke invite' link to user table row actions.
+	 * Removes 'Reset password' link.
 	 *
 	 * @param array   $actions - User row actions.
 	 * @param WP_User $user_object - User object.
@@ -340,6 +341,8 @@ class Jetpack_SSO {
 				esc_html__( 'Revoke invite', 'jetpack' )
 			);
 		}
+
+		unset( $actions['resetpassword'] );
 
 		return $actions;
 	}
