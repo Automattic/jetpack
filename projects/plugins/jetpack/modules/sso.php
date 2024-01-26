@@ -86,7 +86,10 @@ class Jetpack_SSO {
 		add_action( 'admin_print_styles-users.php', array( $this, 'jetpack_user_table_styles' ) );
 		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_connection_status' ), 10, 3 );
 		add_action( 'admin_post_jetpack_invite_user_to_wpcom', array( $this, 'invite_user_to_wpcom' ) );
+		add_action( 'admin_post_jetpack_revoke_invite_user_to_wpcom', array( $this, 'revoke_user_invite_to_wpcom' ) );
 		add_action( 'admin_notices', array( $this, 'handle_invitation_results' ) );
+		add_action( 'admin_notices', array( $this, 'handle_revoke_invite_results' ) );
+		add_action( 'user_row_actions', array( $this, 'jetpack_user_table_row_actions' ), 10, 2 );
 	}
 
 	/**
@@ -111,6 +114,32 @@ class Jetpack_SSO {
 					return wp_admin_notice( __( 'You don&#8217;t have permission to invite users.', 'jetpack' ), array( 'type' => 'error' ) );
 				default:
 					return wp_admin_notice( __( 'An error has occurred when inviting the user to the site.', 'jetpack' ), array( 'type' => 'error' ) );
+			}
+		}
+	}
+
+	/**
+	 * Renders errors/success messages for invite revocations.
+	 */
+	public function handle_revoke_invite_results() {
+		$valid_nonce = isset( $_GET['_wpnonce'] ) ? wp_verify_nonce( $_GET['_wpnonce'], 'jetpack-sso-revoke-user-invite' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+
+		if ( ! isset( $_GET['jetpack-sso-revoke-user-invite'] ) || ! $valid_nonce ) {
+			return;
+		}
+		if ( $_GET['jetpack-sso-revoke-user-invite'] === 'success' ) {
+			return wp_admin_notice( __( 'User invite revoked successfully.', 'jetpack' ), array( 'type' => 'success' ) );
+		}
+		if ( $_GET['jetpack-sso-revoke-user-invite'] === 'failed' && isset( $_GET['jetpack-sso-revoke-user-invite-error'] ) ) {
+			switch ( $_GET['jetpack-sso-revoke-user-invite-error'] ) {
+				case 'invalid-user':
+					return wp_admin_notice( __( 'Tried to revoke an invite for a user that doesn&#8217;t exist.', 'jetpack' ), array( 'type' => 'error' ) );
+				case 'invalid-email':
+					return wp_admin_notice( __( 'Tried to revoke an invite for a user that doesn&#8217;t have an email address.', 'jetpack' ), array( 'type' => 'error' ) );
+				case 'invalid-invite-revocation':
+					return wp_admin_notice( __( 'Tried to revoke an invite that doesn&#8217;t exist.', 'jetpack' ), array( 'type' => 'error' ) );
+				case 'invalid-permissions':
+					return wp_admin_notice( __( 'You don&#8217;t have permission to revoke invites.', 'jetpack' ), array( 'type' => 'error' ) );
 			}
 		}
 	}
@@ -193,6 +222,108 @@ class Jetpack_SSO {
 	}
 
 	/**
+	 * Handles logic to revoke user invite.
+	 */
+	public function revoke_user_invite_to_wpcom() {
+		check_admin_referer( 'jetpack-sso-revoke-user-invite', 'revoke_invite_nonce' );
+		$nonce = wp_create_nonce( 'jetpack-sso-revoke-user-invite' );
+
+		if ( ! current_user_can( 'promote_users' ) ) {
+			$ref = wp_get_referer();
+			$url = add_query_arg(
+				array(
+					'jetpack-sso-revoke-user-invite-error' => 'invalid-permissions',
+					'_wpnonce'                             => $nonce,
+				),
+				$ref
+			);
+			return wp_safe_redirect( $url );
+		} elseif ( isset( $_GET['user_id'] ) ) {
+			$user_id    = intval( wp_unslash( $_GET['user_id'] ) );
+			$user       = get_user_by( 'id', $user_id );
+			$user_email = $user->user_email;
+
+			if ( ! $user || ! $user_email ) {
+				$ref = wp_get_referer();
+
+				$reason = ! $user ? 'invalid-user' : 'invalid-email';
+
+				$url = add_query_arg(
+					array(
+						'jetpack-sso-revoke-user-invite' => 'failed',
+						'jetpack-sso-revoke-user-invite-error' => $reason,
+						'_wpnonce'                       => $nonce,
+					),
+					$ref
+				);
+				return wp_safe_redirect( $url );
+			}
+
+			$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
+
+			if ( ! $has_pending_invite ) {
+				$ref = wp_get_referer();
+				$url = add_query_arg(
+					array(
+						'jetpack-sso-revoke-user-invite' => 'failed',
+						'jetpack-sso-revoke-user-invite-error' => 'invalid-invite-revocation',
+						'_wpnonce'                       => $nonce,
+					),
+					$ref
+				);
+				return wp_safe_redirect( $url );
+			}
+
+			$blog_id = Jetpack_Options::get_option( 'id' );
+
+			$url      = '/sites/' . $blog_id . '/invites/delete';
+			$response = Client::wpcom_json_api_request_as_user(
+				$url,
+				'v2',
+				array(
+					'method' => 'POST',
+				),
+				array(
+					'invite_ids' => array( $has_pending_invite ),
+				),
+				'wpcom'
+			);
+
+			$body = json_decode( $response['body'] );
+
+			$ref = wp_get_referer();
+			$url = add_query_arg(
+				array(
+					'jetpack-sso-revoke-user-invite' => $body->deleted ? 'success' : 'failed',
+					'_wpnonce'                       => $nonce,
+				),
+				$ref
+			);
+			if ( ! $body->deleted ) {
+				$url = add_query_arg(
+					array(
+						'jetpack-sso-revoke-user-invite-error' => 'invalid-invite-revocation',
+					),
+					$ref
+				);
+			}
+			return wp_safe_redirect( $url );
+		} else {
+			$ref = wp_get_referer();
+			$url = add_query_arg(
+				array(
+					'jetpack-sso-revoke-user-invite'       => 'failed',
+					'jetpack-sso-revoke-user-invite-error' => 'invalid-user',
+					'_wpnonce'                             => $nonce,
+				),
+				$ref
+			);
+			return wp_safe_redirect( $url );
+		}
+		wp_die();
+	}
+
+	/**
 	 * Creates error notices and redirects the user to the previous page.
 	 *
 	 * @param array $query_params - query parameters added to redirection URL.
@@ -204,6 +335,35 @@ class Jetpack_SSO {
 			$ref
 		);
 		return wp_safe_redirect( $url );
+	}
+
+	/**
+	 * Adds 'Revoke invite' link to user table row actions.
+	 *
+	 * @param array   $actions - User row actions.
+	 * @param WP_User $user_object - User object.
+	 */
+	public function jetpack_user_table_row_actions( $actions, $user_object ) {
+		$user_id            = $user_object->ID;
+		$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
+
+		if ( current_user_can( 'promote_users' ) && $has_pending_invite ) {
+			$nonce                        = wp_create_nonce( 'jetpack-sso-revoke-user-invite' );
+			$actions['sso_revoke_invite'] = sprintf(
+				'<a class="jetpack-sso-revoke-invite-action" href="%s">%s</a>',
+				add_query_arg(
+					array(
+						'action'              => 'jetpack_revoke_invite_user_to_wpcom',
+						'user_id'             => $user_id,
+						'revoke_invite_nonce' => $nonce,
+					),
+					admin_url( 'admin-post.php' )
+				),
+				esc_html__( 'Revoke invite', 'jetpack' )
+			);
+		}
+
+		return $actions;
 	}
 
 	/**
