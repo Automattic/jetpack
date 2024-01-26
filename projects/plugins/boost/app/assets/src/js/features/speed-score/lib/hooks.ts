@@ -3,6 +3,8 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import { castToString } from '$lib/utils/cast-to-string';
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+import { standardizeError } from '$lib/utils/standardize-error';
+import { __ } from '@wordpress/i18n';
 
 type SpeedScoreState = {
 	status: 'loading' | 'loaded' | 'error';
@@ -60,7 +62,11 @@ export const useSpeedScores = ( siteUrl: string ) => {
 					status: 'loaded',
 				} );
 			} catch ( err ) {
-				const error = err ? ( err as Error ) : new Error( 'Unknown error' );
+				const error = standardizeError(
+					err,
+					__( 'Error requesting speed scores', 'jetpack-boost' )
+				);
+
 				recordBoostEvent( 'speed_score_request_error', {
 					error_message: castToString( error.message ),
 				} );
