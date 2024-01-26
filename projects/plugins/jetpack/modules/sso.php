@@ -95,7 +95,7 @@ class Jetpack_SSO {
 	public function handle_invitation_results() {
 		$valid_nonce = isset( $_GET['_wpnonce'] ) ? wp_verify_nonce( $_GET['_wpnonce'], 'jetpack-sso-invite-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
 
-		if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) || ! isset( $_GET['jetpack-sso-invite-error'] ) ) {
+		if ( ! $valid_nonce || ! isset( $_GET['jetpack-sso-invite-user'] ) ) {
 			return;
 		}
 		if ( $_GET['jetpack-sso-invite-user'] === 'success' ) {
@@ -286,7 +286,7 @@ class Jetpack_SSO {
 	public function jetpack_show_connection_status( $val, $col, $user_id ) {
 		if ( 'user_jetpack' === $col && Jetpack::connection()->is_user_connected( $user_id ) ) {
 			$connection_html = sprintf(
-				'<a title="%1$s" class="jetpack-sso-invitation">%2$s</a>',
+				'<span title="%1$s" class="jetpack-sso-invitation">%2$s</span>',
 				esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack' ),
 				esc_html__( 'Connected', 'jetpack' )
 			);
@@ -295,7 +295,7 @@ class Jetpack_SSO {
 			$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
 			if ( $has_pending_invite ) {
 				$connection_html = sprintf(
-					'<a title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</a>',
+					'<span title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</span>',
 					esc_attr__( 'This user didn&#8217;t accept the invitation to join this site yet.', 'jetpack' ),
 					esc_html__( 'Pending invite', 'jetpack' )
 				);
