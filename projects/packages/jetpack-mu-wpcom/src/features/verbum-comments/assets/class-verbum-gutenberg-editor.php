@@ -7,6 +7,8 @@
 
 declare( strict_types = 1 );
 
+require_once __DIR__ . '/class-verbum-block-utils.php';
+
 /**
  * Verbum_Gutenberg_Editor is responsible for loading the Gutenberg editor for comments.
  *
@@ -30,6 +32,9 @@ class Verbum_Gutenberg_Editor {
 			9999
 		);
 		add_filter( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+
+		add_filter( 'comment_text', array( \Verbum_Block_Utils::class, 'render_verbum_blocks' ) );
+		add_filter( 'pre_comment_content', array( \Verbum_Block_Utils::class, 'remove_blocks' ) );
 	}
 
 	/**
