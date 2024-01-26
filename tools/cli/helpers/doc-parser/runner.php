@@ -107,7 +107,7 @@ function get_html_from_markdown( $file_path ) {
 			str_starts_with( $file_path, 'docs/' ) ) &&
 			substr_count( $link['path'], '/' ) <= 2 ) {
 				$link['path'] = str_replace( array( './docs/', '/docs/', './' ), '', $link['path'] );
-				$link['path'] = 'docs-' . $link['path'];
+				$link['path'] = '/docs-' . $link['path'];
 		}
 
 		// Replace any non-github path endings with -md to link to the correct document page.
