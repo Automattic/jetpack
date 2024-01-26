@@ -89,7 +89,7 @@ import {
 	fetchSiteData as fetchSiteDataAction,
 	fetchSitePurchases as fetchSitePurchasesAction,
 } from 'state/site';
-import AgenciesCard from './components/agencies-card';
+import JetpackManageBanner from './components/jetpack-manage-banner';
 
 const recommendationsRoutes = [
 	'/recommendations',
@@ -687,7 +687,7 @@ class Main extends React.Component {
 		);
 	}
 
-	shouldShowAgenciesCard() {
+	shouldShowJetpackManageBanner() {
 		const { site_count } = this.props.connectedWpComUser;
 
 		// Only show on dashboard when users are managing 2 or more sites
@@ -880,8 +880,8 @@ class Main extends React.Component {
 					/>
 
 					{ this.renderMainContent( this.props.location.pathname ) }
-					{ this.shouldShowAgenciesCard() && (
-						<AgenciesCard path={ this.props.location.pathname } discountPercentage={ 60 } />
+					{ this.shouldShowJetpackManageBanner() && (
+						<JetpackManageBanner path={ this.props.location.pathname } />
 					) }
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
