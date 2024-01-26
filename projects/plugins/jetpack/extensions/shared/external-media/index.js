@@ -1,6 +1,10 @@
-import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isCurrentUserConnected,
+	getJetpackBlocksVariation,
+} from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { addFilter } from '@wordpress/hooks';
+import { SOURCE_JETPACK_APP_MEDIA } from './constants';
 import MediaButton from './media-button';
 import { addPexelsToMediaInserter, addGooglePhotosToMediaInserter } from './media-service';
 import { mediaSources } from './sources';
@@ -10,7 +14,15 @@ function insertExternalMediaBlocks( settings, name ) {
 	if ( name !== 'core/image' ) {
 		return settings;
 	}
-
+	// Only add the Jetpack App Media button if we are in the beta variation.
+	if ( getJetpackBlocksVariation() !== 'beta' ) {
+		const index = mediaSources.findIndex(
+			mediaSource => mediaSource.id === SOURCE_JETPACK_APP_MEDIA
+		);
+		if ( index > -1 ) {
+			mediaSources.splice( index, 1 );
+		}
+	}
 	return {
 		...settings,
 		keywords: [ ...settings.keywords, ...mediaSources.map( source => source.keyword ) ],

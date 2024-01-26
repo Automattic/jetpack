@@ -42,6 +42,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attr, $content, $block ) {
+	// Do not render the Like block in other context than front-end (i.e. feed, emails, API, etc.).
+	if ( ! jetpack_is_frontend() ) {
+		return;
+	}
+
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */

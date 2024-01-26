@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useAiContext, AIControl, ERROR_QUOTA_EXCEEDED } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { serialize } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
@@ -79,6 +80,7 @@ export default function AiAssistantBar( {
 } ) {
 	const wrapperRef = useRef< HTMLDivElement >( null );
 	const inputRef = useRef< HTMLInputElement >( null );
+	const { tracks } = useAnalytics();
 
 	const connected = isUserConnected();
 
@@ -134,6 +136,9 @@ export default function AiAssistantBar( {
 		dequeueAiAssistantFeatureAyncRequest();
 
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
+			feature: 'jetpack-form-ai-extension',
+		} );
 		wrapperRef?.current?.focus();
 	}, [
 		clientId,
@@ -141,12 +146,16 @@ export default function AiAssistantBar( {
 		inputValue,
 		removeNotice,
 		requestSuggestion,
+		tracks,
 	] );
 
 	const handleStopSuggestion = useCallback( () => {
 		stopSuggestion();
 		focusOnPrompt();
-	}, [ stopSuggestion ] );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_stop', {
+			feature: 'jetpack-form-ai-extension',
+		} );
+	}, [ stopSuggestion, tracks ] );
 
 	/*
 	 * Fix the assistant bar when the viewport is mobile,
@@ -200,6 +209,14 @@ export default function AiAssistantBar( {
 			observerRef?.current?.disconnect();
 		};
 	}, [ isAssistantBarFixed, isVisible ] );
+
+	useEffect( () => {
+		if ( isVisible ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_prompt_show', {
+				block_type: 'jetpack/contact-form',
+			} );
+		}
+	}, [ isVisible, tracks ] );
 
 	// focus input on first render only (for a11y reasons, toggling on/off should not focus the input)
 	useEffect( () => {

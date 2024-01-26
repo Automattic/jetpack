@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
 class Type_Enum implements Parser {
 
@@ -16,10 +16,10 @@ class Type_Enum implements Parser {
 		$this->valid_values = $valid_values;
 	}
 
-	public function parse( $value, $_meta = null ) {
+	public function parse( $value, $_context ) {
 		if ( ! in_array( $value, $this->valid_values, true ) ) {
-			$message = sprintf( 'Invalid value "%s". Expected one of: %s', $value, implode( ', ', $this->valid_values ) );
-			throw new Schema_Internal_Error( $message, $value );
+			$message = sprintf( 'Invalid value \'%s\'. Expected one of: %s', $value, implode( ', ', $this->valid_values ) );
+			throw new Schema_Error( $message, $value );
 		}
 		return $value;
 	}

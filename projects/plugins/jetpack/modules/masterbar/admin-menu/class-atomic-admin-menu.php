@@ -494,10 +494,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// Show the notice for the following screens and map them to the Calypso page.
 		$screen_map = array(
-			'options-general'    => 'general',
-			'options-writing'    => 'writing',
-			'options-reading'    => 'reading',
-			'options-discussion' => 'discussion',
+			'options-general' => 'general',
+			'options-reading' => 'reading',
 		);
 
 		$mapped_screen = isset( $screen_map[ $current_screen->id ] )
