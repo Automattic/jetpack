@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Wait until 'admin_menu' action to call `add_menu()`, to avoid triggering the l10n load too early.
