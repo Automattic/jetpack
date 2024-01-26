@@ -55,8 +55,10 @@ class Jetpack_SSO {
 		add_action( 'jetpack_site_before_disconnected', array( static::class, 'disconnect' ) );
 		add_action( 'wp_login', array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
 
-		// When adding a new user via the admin, we want to intercept the core invitation email and send it via WordPress.com.
-		add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'intercept_core_invitation_email' ), 10, 2 );
+		// If the user has no errors on creation, send an invite to WordPress.com.
+		add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
+		// Don't send core invitation email when adding a new user via the admin.
+		add_filter( 'wp_send_new_user_notification_to_user', '__return_false' );
 		add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
@@ -96,27 +98,27 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Intercept the core invitation email.
+	 * Send user invitation to WordPress.com if user has no errors.
 	 *
-	 * @param bool    $notify Whether to notify the user or not.
-	 * @param WP_User $user   The user object.
-	 *
-	 * @return bool Whether to notify the user or not via core email.
+	 * @param WP_Error $errors The WP_Error object.
+	 * @param bool     $update Whether the user is being updated or not.
+	 * @param stdClass $user   The User object about to be created.
+	 * @return WP_Error The modified or not WP_Error object.
 	 */
-	public function intercept_core_invitation_email( $notify, $user ) {
-		if ( ! $user instanceof WP_User ) {
-			return $user;
+	public function send_wpcom_mail_user_invite( $errors, $update, $user ) {
+
+		if ( $errors->has_errors() ) {
+			return $errors;
 		}
-		$roles = new Roles();
 
 		$email   = $user->user_email;
-		$role    = $roles->translate_user_to_role( $user );
+		$role    = $user->role;
 		$locale  = get_user_locale( $user->ID );
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		$url     = '/sites/' . $blog_id . '/invites/new';
 		$url     = add_query_arg( 'locale', $locale, $url );
 
-		Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_user(
 			$url,
 			'2', // Api version
 			array(
@@ -131,8 +133,12 @@ class Jetpack_SSO {
 				),
 			)
 		);
-		// returning false prevents the user to be notified by the core email.
-		return false;
+
+		if ( 200 !== $response['response']['code'] ) {
+			$errors->add( 'invitation_not_sent', __( '<strong>Error</strong>: "The user invitation email could not be sent, the user account was not created.', 'jetpack' ) );
+		}
+
+		return $errors;
 	}
 
 	/**
