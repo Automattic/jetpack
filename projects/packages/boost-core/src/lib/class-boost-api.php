@@ -24,11 +24,21 @@ class Boost_API {
 	private static $api_client;
 
 	/**
+	 * Get the API client instance.
+	 *
+	 * @return Boost_API_Client
+	 * @deprecated $$next_version$$ Use get(), and post() directly instead.
+	 */
+	public static function get_client() {
+		return self::get_api_client();
+	}
+
+	/**
 	 * Instantiate the API client.
 	 *
 	 * @return Boost_API_Client
 	 */
-	private static function get_client() {
+	private static function get_api_client() {
 		if ( ! self::$api_client ) {
 			$class            = apply_filters( 'jetpack_boost_api_client_class', WPCOM_Boost_API_Client::class );
 			self::$api_client = new $class();
@@ -45,7 +55,7 @@ class Boost_API {
 	 * @return array|\WP_Error
 	 */
 	public static function get( $path, $query = array(), $args = null ) {
-		return self::get_client()->get( $path, $query, self::merge_args( $args ) );
+		return self::get_api_client()->get( $path, $query, self::merge_args( $args ) );
 	}
 
 	/**
@@ -57,7 +67,7 @@ class Boost_API {
 	 * @return mixed
 	 */
 	public static function post( $path, $payload = array(), $args = null ) {
-		return self::get_client()->post( $path, $payload, self::merge_args( $args ) );
+		return self::get_api_client()->post( $path, $payload, self::merge_args( $args ) );
 	}
 
 	/**

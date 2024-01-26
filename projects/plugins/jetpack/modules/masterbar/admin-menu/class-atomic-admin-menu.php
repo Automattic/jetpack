@@ -526,10 +526,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// Show the notice for the following screens and map them to the Calypso page.
 		$screen_map = array(
-			'options-general'    => 'general',
-			'options-writing'    => 'writing',
-			'options-reading'    => 'reading',
-			'options-discussion' => 'discussion',
+			'options-general' => 'general',
+			'options-reading' => 'reading',
 		);
 
 		$mapped_screen = isset( $screen_map[ $current_screen->id ] )
@@ -554,5 +552,29 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		};
 
 		add_action( 'admin_notices', $admin_notices );
+	}
+
+	/**
+	 * Adds Appearance menu.
+	 */
+	public function add_appearance_menu() {
+		// When the interface is set to wp-admin, we need to add a link to the Marketplace and rest of the menu keeps like core.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			add_submenu_page( 'themes.php', esc_attr__( 'Theme Showcase', 'jetpack' ), __( 'Theme Showcase', 'jetpack' ), 'read', 'https://wordpress.com/themes/' . $this->domain );
+		} else {
+			parent::add_appearance_menu();
+		}
+	}
+
+	/**
+	 * Adds a dashboard switcher to the list of screen meta links of the current page.
+	 */
+	public function add_dashboard_switcher() {
+		// When the interface is set to wp-admin, do not show the dashboard switcher.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			return;
+		}
+
+		parent::add_dashboard_switcher();
 	}
 }

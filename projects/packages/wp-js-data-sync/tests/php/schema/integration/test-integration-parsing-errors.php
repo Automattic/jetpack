@@ -1,8 +1,8 @@
 <?php
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parsing_Error;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Validation_Meta;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 use PHPUnit\Framework\TestCase;
 
 class Test_Integration_Parsing_Errors extends TestCase {
@@ -34,18 +34,18 @@ class Test_Integration_Parsing_Errors extends TestCase {
 	public function test_parsing_errors_meta_data() {
 		$schema       = $this->get_assoc_schema( Schema::as_boolean(), 3 );
 		$invalid_data = $this->get_assoc_data( 'hello world', 3, 1 );
-
+		$schema->set_context( new Schema_Context( 'test-levels' ) );
 		try {
 			$schema->parse( $invalid_data );
-			$this->fail( 'Expected Schema_Validation_Error was not thrown' );
-		} catch ( Schema_Parsing_Error $e ) {
+			$this->fail( 'Expected Schema_Error was not thrown' );
+		} catch ( Schema_Error $e ) {
 
-			$this->assertEquals( 'level_1.level_2.level_3', $e->get_meta()->get_path() );
+			$this->assertEquals( 'test-levels.level_1.level_2.level_3', $e->get_context()->get_path() );
 			$this->assertEquals( 'hello world', $e->get_value() );
-			$this->assertEquals( $invalid_data, $e->get_meta()->get_data() );
+			$this->assertEquals( $invalid_data, $e->get_context()->get_data() );
 
 		} catch ( Exception $e ) {
-			$this->fail( 'Expected Schema_Validation_Error was not thrown' );
+			$this->fail( 'Expected Schema_Error was not thrown' );
 		}
 	}
 
@@ -56,17 +56,18 @@ class Test_Integration_Parsing_Errors extends TestCase {
 		$invalid_data = $this->get_assoc_data( 'hello world', 2 );
 
 		// Set meta to a known value
-		$schema->set_meta( new Schema_Validation_Meta( 'known-meta' ) );
+		$schema->set_context( new Schema_Context( 'known-meta' ) );
 
 		try {
 			$schema->parse( $invalid_data );
-			$this->fail( 'Expected Schema_Validation_Error was not thrown' );
-		} catch ( Schema_Parsing_Error $e ) {
-			$this->assertEquals( 'known-meta', $e->get_meta()->get_name() );
+			$this->fail( 'Expected Schema_Error was not thrown' );
+		} catch ( Schema_Error $e ) {
+			$this->assertEquals( 'known-meta', $e->get_context()->get_name() );
 		} catch ( Exception $e ) {
-			$this->fail( 'Expected "Schema_Parsing_Error", but received ' . get_class( $e ) );
+			$this->fail( 'Expected "Schema_Error", but received ' . get_class( $e ) );
 		}
 	}
+
 	public function test_parsing_errors_meta_has_late_known_meta() {
 		// Expect 3 level schema.
 		$schema = $this->get_assoc_schema( Schema::as_string(), 3 );
@@ -81,23 +82,23 @@ class Test_Integration_Parsing_Errors extends TestCase {
 		// Expect "unknown"
 		try {
 			$schema->parse( $invalid_data );
-			$this->fail( 'Expected Schema_Validation_Error was not thrown' );
-		} catch ( Schema_Parsing_Error $e ) {
-			$this->assertEquals( 'unknown', $e->get_meta()->get_name() );
+			$this->fail( 'Expected Schema_Error was not thrown' );
+		} catch ( Schema_Error $e ) {
+			$this->assertEquals( 'unknown', $e->get_context()->get_name() );
 		} catch ( Exception $e ) {
-			$this->fail( 'Expected "Schema_Parsing_Error", but received ' . get_class( $e ) );
+			$this->fail( 'Expected "Schema_Error", but received ' . get_class( $e ) );
 		}
 
 		// Second run.
 		// Expect "known-meta"
 		try {
-			$schema->set_meta( new Schema_Validation_Meta( 'known-meta' ) );
+			$schema->set_context( new Schema_Context( 'known-meta' ) );
 			$schema->parse( $invalid_data );
-			$this->fail( 'Expected Schema_Validation_Error was not thrown' );
-		} catch ( Schema_Parsing_Error $e ) {
-			$this->assertEquals( 'known-meta', $e->get_meta()->get_name() );
+			$this->fail( 'Expected Schema_Error was not thrown' );
+		} catch ( Schema_Error $e ) {
+			$this->assertEquals( 'known-meta', $e->get_context()->get_name() );
 		} catch ( Exception $e ) {
-			$this->fail( 'Expected "Schema_Parsing_Error", but received ' . get_class( $e ) );
+			$this->fail( 'Expected "Schema_Error", but received ' . get_class( $e ) );
 		}
 	}
 
@@ -105,9 +106,9 @@ class Test_Integration_Parsing_Errors extends TestCase {
 	 * Creates a schema for an associative array with nested levels.
 	 *
 	 * @param Parser $schema The schema to use for the last level
-	 * @param int $levels The depth of nesting in the associative array.
-	 *                    Defaults to 3.
-	 * @param int $i The current level of nesting. Defaults to 1.
+	 * @param int    $levels The depth of nesting in the associative array.
+	 *                       Defaults to 3.
+	 * @param int    $i      The current level of nesting. Defaults to 1.
 	 */
 	private function get_assoc_schema( $schema, $levels = 3, $i = 1 ) {
 		if ( $i > $levels ) {
