@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-AI Control: do not call onAccept from the discard handler. A fix has been put in place on #35236
