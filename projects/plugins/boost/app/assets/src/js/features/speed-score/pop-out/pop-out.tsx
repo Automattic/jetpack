@@ -2,7 +2,7 @@ import { animated, useSpring } from '@react-spring/web';
 import CloseButton from '$features/ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { Button } from '@wordpress/components';
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
 import { getRedirectUrl } from '@automattic/jetpack-components';
@@ -65,11 +65,6 @@ function PopOut( { scoreChange }: Props ) {
 	const message = scoreChange && scoreChange < 0 ? slowerMessage : fasterMessage;
 
 	/*
-	 * Track the last message shown so we can detect when it changes.
-	 */
-	const [ lastMessage, setLastMessage ] = useState< ScoreChangeMessage | null >( null );
-
-	/*
 	 * Use datasync to track which score alerts have been dismissed.
 	 * Dismissed means that the user asked to never show us this alert again.
 	 */
@@ -79,16 +74,6 @@ function PopOut( { scoreChange }: Props ) {
 	 * Hide the alert for now. The alert will show up again if the user refreshes the page.
 	 */
 	const [ isClosed, setClose ] = useState( false );
-
-	/*
-	 * If the message has changed, reset the close state.
-	 */
-	useEffect( () => {
-		if ( message.id !== lastMessage?.id ) {
-			setLastMessage( message );
-			setClose( false );
-		}
-	}, [ message, lastMessage ] );
 
 	const hideAlert = () => setClose( true );
 
