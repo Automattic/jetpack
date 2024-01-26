@@ -15,7 +15,7 @@ type SpeedScoreState = {
 		noBoost: {
 			mobile: number;
 			desktop: number;
-		};
+		} | null;
 		isStale: boolean;
 	};
 };
@@ -30,7 +30,7 @@ type RefreshFunction = ( regenerate?: boolean ) => Promise< void >;
  */
 export const useSpeedScores = ( siteUrl: string ) => {
 	const [ state, updateState ] = useReducer(
-		( oldState, newState ) => ( { ...oldState, ...newState } ),
+		( oldState: SpeedScoreState, newState: Partial<SpeedScoreState> ) => ( { ...oldState, ...newState } as SpeedScoreState ),
 		{
 			status: 'loading', // 'loading' | 'loaded' | 'error'
 			error: undefined,
@@ -60,7 +60,7 @@ export const useSpeedScores = ( siteUrl: string ) => {
 				} );
 			} catch ( err ) {
 				recordBoostEvent( 'speed_score_request_error', {
-					error_message: castToString( err.message ),
+					error_message: castToString( (err as Error).message ),
 				} );
 				updateState( {
 					status: 'error',
