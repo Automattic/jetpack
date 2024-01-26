@@ -2,6 +2,7 @@ import { Button } from '@automattic/jetpack-components';
 import { Card, CardBody } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import React from 'react';
+import { UpsellBannerProps } from './types';
 
 import './style.scss';
 
@@ -11,11 +12,10 @@ import './style.scss';
  * - The primary CTA is the second button, at the right position.
  * - The secondary CTA is the first button, at the left position.
  *
- * @param {object} props - Component props.
- * @returns {object} UpsellBanner React component.
+ * @param {UpsellBannerProps} props - Component props.
+ * @returns {React.ReactNode} - UpsellBanner component.
  */
-const UpsellBanner = props => {
-	// todo: This component could be extracted into js-packages/components. And also the Jetpack Card component
+const UpsellBanner: React.FC< UpsellBannerProps > = props => {
 	const {
 		icon,
 		title,
@@ -52,7 +52,7 @@ const UpsellBanner = props => {
 							<Button
 								className="upsell-banner--content-cta-button secondary"
 								href={ secondaryCtaURL }
-								onClick={ secondaryCtaOnClick ?? null }
+								onClick={ secondaryCtaOnClick ?? undefined }
 								isExternalLink={ secondaryCtaIsExternalLink }
 							>
 								{ secondaryCtaLabel }
@@ -62,7 +62,7 @@ const UpsellBanner = props => {
 							<Button
 								className="upsell-banner--content-cta-button primary"
 								href={ primaryCtaURL }
-								onClick={ primaryCtaOnClick ?? null }
+								onClick={ primaryCtaOnClick ?? undefined }
 								isExternalLink={ primaryCtaIsExternalLink }
 							>
 								{ primaryCtaLabel }
