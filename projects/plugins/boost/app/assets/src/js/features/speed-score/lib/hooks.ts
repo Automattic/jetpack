@@ -100,17 +100,25 @@ export const useDebouncedRefreshScore = (
 	const lastScoreConfigString = useRef( currentConfigString );
 
 	// Debounced function: Refresh the speed score if the config has changed.
-	const debouncedRefreshScore = useDebouncedCallback( ( newConfig: string ) => {
-		console.log( 'debouncedRefreshScore', newConfig );
-		if ( lastScoreConfigString.current !== newConfig && ! criticalCssIsGenerating ) {
-			console.log( 'debouncedRefreshScore: refreshing' );
-			lastScoreConfigString.current = newConfig;
-			loadScore();
-		}
-	}, 2000 );
+	const debouncedRefreshScore = useDebouncedCallback(
+		( newConfig: string, generating: boolean ) => {
+			console.log( 'debouncedRefreshScore', newConfig, lastScoreConfigString.current, generating );
+			if ( lastScoreConfigString.current !== newConfig && ! generating ) {
+				console.log( 'debouncedRefreshScore: refreshing' );
+				lastScoreConfigString.current = newConfig;
+				loadScore();
+			}
+		},
+		2000
+	);
 
 	useEffect( () => {
-		console.log( 'useDebouncedRefreshScore', currentConfigString );
-		debouncedRefreshScore( currentConfigString );
-	}, [ currentConfigString, debouncedRefreshScore ] );
+		console.log(
+			'useDebouncedRefreshScore',
+			currentConfigString,
+			lastScoreConfigString.current,
+			criticalCssIsGenerating
+		);
+		debouncedRefreshScore( currentConfigString, criticalCssIsGenerating );
+	}, [ currentConfigString, debouncedRefreshScore, criticalCssIsGenerating ] );
 };
