@@ -184,7 +184,7 @@ class Wpcom_Block_Patterns_From_Api {
 		if ( $enable_testing_v2_patterns || false === $block_patterns || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE ) ) {
 			if ( $enable_testing_v2_patterns ) {
 				$request_params = array(
-					'site'      => 'assemblerv2patterns.wordpress.com',
+					'site'      => 'dotcompatterns.wordpress.com',
 					'post_type' => 'wp_block',
 				);
 			}
