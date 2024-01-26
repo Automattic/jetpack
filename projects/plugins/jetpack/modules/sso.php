@@ -107,6 +107,8 @@ class Jetpack_SSO {
 					return wp_admin_notice( __( 'Tried to invite a user that either doesn&#8217;t exist.', 'jetpack' ), array( 'type' => 'error' ) );
 				case 'invalid-email':
 					return wp_admin_notice( __( 'Tried to invite a user that doesn&#8217;t have an email address.', 'jetpack' ), array( 'type' => 'error' ) );
+				case 'invalid-user-permissions':
+					return wp_admin_notice( __( 'You don&#8217;t have permission to invite users.', 'jetpack' ), array( 'type' => 'error' ) );
 				default:
 					// render whatever error we got from the API. It's escaped and nonce-checked.
 					return wp_admin_notice( esc_html( sanitize_text_field( wp_unslash( $_GET['jetpack-sso-invite-error'] ) ) ), array( 'type' => 'error' ) );
@@ -121,7 +123,18 @@ class Jetpack_SSO {
 		check_admin_referer( 'jetpack-sso-invite-user', 'invite_nonce' );
 		$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
 
-		if ( isset( $_GET['user_id'] ) ) {
+		if ( ! current_user_can( 'create_users' ) ) {
+			$ref = wp_get_referer();
+			$url = add_query_arg(
+				array(
+					'jetpack-sso-invite-user'  => 'failed',
+					'jetpack-sso-invite-error' => 'invalid-user-permissions',
+					'_wpnonce'                 => $nonce,
+				),
+				$ref
+			);
+			return wp_safe_redirect( $url );
+		} elseif ( isset( $_GET['user_id'] ) ) {
 			$user_id    = intval( wp_unslash( $_GET['user_id'] ) );
 			$user       = get_user_by( 'id', $user_id );
 			$user_email = $user->user_email;
