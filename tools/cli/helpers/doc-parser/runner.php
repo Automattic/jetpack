@@ -127,6 +127,20 @@ function get_html_from_markdown( $file_path ) {
 		$headers[0]->remove();
 	}
 
+	// Add IDs to all headers.
+	$headers_ids = array();
+	for ( $i = 1; $i <= 6; $i++ ) {
+		$elements = $document->getElementsByTagName( 'h' . $i );
+		foreach ( $elements as $element ) {
+			$headers_ids[] = $element;
+		}
+	}
+	foreach ( $headers_ids as $header ) {
+		$header_id = strtolower( str_replace( ' ', '-', $header->textContent ) );
+		$header_id = preg_replace( '/[^A-Za-z0-9\-]/', '', $header_id );
+		$header->setAttribute( 'id', $header_id );
+	}
+
 	return array(
 		'path'    => $file_path,
 		'title'   => $doc_title,
