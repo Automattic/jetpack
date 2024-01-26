@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Speed Scores: Fix score auto-refresh
+Fix TypeScript type for a Boost Score prop
