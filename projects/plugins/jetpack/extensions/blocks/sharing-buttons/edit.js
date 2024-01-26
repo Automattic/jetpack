@@ -58,6 +58,8 @@ export function SharingButtonsEdit( props ) {
 		__experimentalAppenderTagName: 'li',
 	} );
 
+	const isSelectedValue = value => size === value || ( ! size && value === 'has-normal-icon-size' );
+
 	return (
 		<>
 			<BlockControls group="other">
@@ -67,27 +69,22 @@ export function SharingButtonsEdit( props ) {
 					icon={ null }
 					popoverProps={ { position: 'bottom right' } }
 				>
-					{ ( { onClose } ) => (
+					{ () => (
 						<MenuGroup>
-							{ sizeOptions.map( entry => {
+							{ sizeOptions.map( ( { name, value } ) => {
 								return (
 									<MenuItem
-										icon={
-											( size === entry.value ||
-												( ! size && entry.value === 'has-normal-icon-size' ) ) &&
-											check
-										}
-										isSelected={ size === entry.value }
-										key={ entry.value }
+										icon={ isSelectedValue( value ) && check }
+										isSelected={ isSelectedValue( value ) }
+										key={ value }
+										role="menuitemradio"
 										onClick={ () => {
 											setAttributes( {
-												size: entry.value,
+												size: value,
 											} );
 										} }
-										onClose={ onClose }
-										role="menuitemradio"
 									>
-										{ entry.name }
+										{ name }
 									</MenuItem>
 								);
 							} ) }
