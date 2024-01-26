@@ -139,23 +139,9 @@ class Jetpack_SSO {
 			);
 			return wp_safe_redirect( $url );
 		} elseif ( isset( $_GET['user_id'] ) ) {
-			$user_id            = intval( wp_unslash( $_GET['user_id'] ) );
-			$user               = get_user_by( 'id', $user_id );
-			$user_email         = $user->user_email;
-			$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
-
-			if ( ! $has_pending_invite ) {
-				$ref = wp_get_referer();
-				$url = add_query_arg(
-					array(
-						'jetpack-sso-revoke-user-invite' => 'failed',
-						'jetpack-sso-revoke-user-invite-error' => 'invalid-invite-revocation',
-						'_wpnonce'                       => $nonce,
-					),
-					$ref
-				);
-				return wp_safe_redirect( $url );
-			}
+			$user_id    = intval( wp_unslash( $_GET['user_id'] ) );
+			$user       = get_user_by( 'id', $user_id );
+			$user_email = $user->user_email;
 
 			if ( ! $user || ! $user_email ) {
 				$ref = wp_get_referer();
@@ -166,6 +152,21 @@ class Jetpack_SSO {
 					array(
 						'jetpack-sso-revoke-user-invite' => 'failed',
 						'jetpack-sso-revoke-user-invite-error' => $reason,
+						'_wpnonce'                       => $nonce,
+					),
+					$ref
+				);
+				return wp_safe_redirect( $url );
+			}
+
+			$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
+
+			if ( ! $has_pending_invite ) {
+				$ref = wp_get_referer();
+				$url = add_query_arg(
+					array(
+						'jetpack-sso-revoke-user-invite' => 'failed',
+						'jetpack-sso-revoke-user-invite-error' => 'invalid-invite-revocation',
 						'_wpnonce'                       => $nonce,
 					),
 					$ref
