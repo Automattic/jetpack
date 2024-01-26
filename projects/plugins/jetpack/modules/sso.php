@@ -94,7 +94,14 @@ class Jetpack_SSO {
 	 * Render the invitation email message.
 	 */
 	public function render_invitation_email_message() {
-		printf( '<div class="notice inline notice-large notice-info">%1s</div>', esc_html__( 'The user will be automatically invited to WordPress.com.', 'jetpack' ) );
+		wp_admin_notice(
+			__( 'New users will receive an invite to join WordPress.com.', 'jetpack' ),
+			array(
+				'id'          => 'invitation_message',
+				'type'        => 'info',
+				'dismissible' => false,
+			)
+		);
 	}
 
 	/**
