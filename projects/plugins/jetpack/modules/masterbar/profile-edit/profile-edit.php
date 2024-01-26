@@ -14,7 +14,10 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  */
 function jetpack_masterbar_hide_profile_fields( $user ) {
 	$connection_manager = new Connection_Manager( 'jetpack' );
-	if ( ! $connection_manager->is_user_connected( $user->ID ) ) {
+	if (
+		! $connection_manager->is_user_connected( $user->ID ) ||
+		'wp-admin' === get_option( 'wpcom_admin_interface' )
+	) {
 		// If this is a local user, show the default UX.
 		return;
 	}

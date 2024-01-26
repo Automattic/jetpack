@@ -30,6 +30,9 @@ class WPCOM_User_Profile_Fields_Revert {
 	 */
 	public function __construct( Connection_Manager $connection_manager ) {
 		$this->connection_manager = $connection_manager;
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			return;
+		}
 
 		\add_filter( 'wp_pre_insert_user_data', array( $this, 'revert_user_data_on_wp_admin_profile_update' ), 10, 3 );
 		\add_filter( 'insert_user_meta', array( $this, 'revert_user_meta_on_wp_admin_profile_change' ), 10, 3 );
@@ -120,7 +123,11 @@ class WPCOM_User_Profile_Fields_Revert {
 	public function revert_user_meta_on_wp_admin_profile_change( $meta, $user, $update ) {
 
 		// bail if not in update context.
-		if ( ! $update || ! $this->connection_manager->is_user_connected( $user->ID ) ) {
+		if (
+			! $update ||
+			! $this->connection_manager->is_user_connected( $user->ID ) ||
+			'wp-admin' === get_option( 'wpcom_admin_interface' )
+		) {
 			return $meta;
 		}
 
