@@ -217,6 +217,7 @@ function AiAssistantDropdownContent( {
 		);
 
 		removeBlocks( otherBlocksIds );
+		tracks.recordEvent( 'jetpack_ai_assistant_prompt_show', { block_type: blockType } );
 	};
 
 	return (

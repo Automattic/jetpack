@@ -67,6 +67,6 @@ For more information on how to use `$$next-version$$`, please see the [packages 
 
 Here are some general guidelines when considering adding new functionality: 
 
-- [Packages](../packages/README.md#should-my-code-be-in-a-package)
+- [Packages](../projects/packages/README.md#should-my-code-be-in-a-package)
 - Modules (@todo)
 - module-extras.php (@todo)
