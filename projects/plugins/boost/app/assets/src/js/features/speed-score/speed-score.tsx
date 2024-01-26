@@ -44,12 +44,6 @@ const SpeedScore = () => {
 	const showScoreChangePopOut =
 		status === 'loaded' && ! scores.isStale && getScoreMovementPercentage( scores );
 
-	const refreshScore = useCallback( async () => {
-		if ( site.online ) {
-			await loadScore( true );
-		}
-	}, [ loadScore, site.online ] );
-
 	// Mark performance history data as stale when speed scores are loaded.
 	useEffect( () => {
 		if ( site.online && status === 'loaded' ) {
@@ -57,6 +51,21 @@ const SpeedScore = () => {
 		}
 	}, [ site.online, status ] );
 
+	// Ask the API to recompute the score.
+	const refreshScore = useCallback( async () => {
+		if ( site.online ) {
+			loadScore( true );
+		}
+	}, [ loadScore, site.online ] );
+
+	// Load speed scores on mount.
+	useEffect( () => {
+		if ( site.online ) {
+			loadScore();
+		}
+	}, [ loadScore, site.online ] );
+
+	// Refresh the score when something that can affect the score changes.
 	useDebouncedRefreshScore(
 		{ moduleStates, criticalCssCreated: cssState.created || 0, criticalCssIsGenerating },
 		refreshScore
