@@ -66,14 +66,6 @@ class Verbum_Comments {
 		// After the comment is saved, we add meta data to the comment.
 		add_action( 'comment_post', array( $this, 'add_verbum_meta_data' ) );
 
-		// Target public api comments to sanitize when necessary
-		if ( ! empty( $_SERVER['SERVER_NAME'] ) && ! empty( $_SERVER['REQUEST_URI'] )
-			&& $_SERVER['SERVER_NAME'] === 'public-api.wordpress.com'
-			&& preg_match( '/\/sites\/\d+\/comments/', $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		) {
-			add_filter( 'comment_text', array( \Verbum_Block_Utils::class, 'render_verbum_blocks' ) );
-		}
-
 		// Load the Gutenberg editor for comments.
 		if (
 			$this->should_load_gutenberg_comments()
