@@ -96,7 +96,7 @@ export default function PromptTemplatesControl( {
 	const toggleHandler = isOpen => {
 		if ( isOpen ) {
 			tracks.recordEvent( 'jetpack_ai_assistant_block_toolbar_menu_show', {
-				tool: 'prompt-template',
+				tool: 'write-with-ai',
 			} );
 		}
 	};
