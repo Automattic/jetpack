@@ -280,18 +280,25 @@ add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
 
 
 /**
- * Ensure that when getting the wpcom_admin_interface option, we return
- * a value from the persistent data store.
+ * Ensure that when getting the wpcom_admin_interface option, we return a value from the persistent data store if
+ * available, otherwise fall back to the option value.
  *
  * @return false|string|null
  */
 function wpcomsh_get_wpcom_admin_interface_option() {
-	if ( ! class_exists( '\Atomic_Persistent_Data' ) ) {
-		return false;
+
+	if ( class_exists( '\Atomic_Persistent_Data' ) ) {
+		$persistent_data = new \Atomic_Persistent_Data();
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		if ( isset( $persistent_data->WPCOM_ADMIN_INTERFACE ) ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			return $persistent_data->WPCOM_ADMIN_INTERFACE;
+		}
 	}
 
-	$persistent_data = new \Atomic_Persistent_Data();
-
-	return $persistent_data->WPCOM_ADMIN_INTERFACE; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	// Fallback to the current option value.
+	return false;
 }
+// This pre_option_{$option} hook runs before the option is retrieved from the database with get_option().
 add_filter( 'pre_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interface_option' );
