@@ -27,6 +27,19 @@ if ( ! defined( 'FONT_LIBRARY_DISABLED' ) ) {
 }
 
 /**
+ * With Gutenberg 17.6 and above, it allows us to disable the Font Library UI by the editor settings.
+ *
+ * For more context, see: https://github.com/WordPress/gutenberg/pull/57818/.
+ */
+add_filter(
+	'block_editor_settings_all',
+	function ( $settings ) {
+		$settings['fontLibraryEnabled'] = isset( $_GET['enable_font_library_ui'] ); // phpcs:ignore WordPress.Security.NonceVerification
+		return $settings;
+	}
+);
+
+/**
  * Force-enable the Google fonts module
  * If you use a version of Jetpack that supports it,
  * and if it is not already enabled.
