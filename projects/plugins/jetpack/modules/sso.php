@@ -99,7 +99,7 @@ class Jetpack_SSO {
 			return;
 		}
 		if ( $_GET['jetpack-sso-invite-user'] === 'success' ) {
-			return wp_admin_notice( __( 'Hooray! User was invited successfully!', 'jetpack' ), array( 'type' => 'success' ) );
+			return wp_admin_notice( __( 'User was invited successfully!', 'jetpack' ), array( 'type' => 'success' ) );
 		}
 		if ( $_GET['jetpack-sso-invite-user'] === 'failed' && isset( $_GET['jetpack-sso-invite-error'] ) ) {
 			switch ( $_GET['jetpack-sso-invite-error'] ) {
