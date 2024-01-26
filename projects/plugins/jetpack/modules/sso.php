@@ -271,8 +271,6 @@ class Jetpack_SSO {
 					return wp_admin_notice( __( 'Tried to revoke an invite that doesn&#8217;t exist.', 'jetpack' ), array( 'type' => 'error' ) );
 				case 'invalid-permissions':
 					return wp_admin_notice( __( 'You don&#8217;t have permission to revoke invites.', 'jetpack' ), array( 'type' => 'error' ) );
-				default:
-					return;
 			}
 		}
 	}
