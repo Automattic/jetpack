@@ -1,8 +1,8 @@
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { castToString } from '$lib/utils/cast-to-string';
-import { debounce } from '$lib/utils/debounce';
 import { useCallback, useEffect, useReducer, useRef } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 
 type SpeedScoreState = {
 	status: 'loading' | 'loaded' | 'error';
@@ -95,24 +95,20 @@ export const useDebouncedRefreshScore = (
 	{ moduleStates, criticalCssCreated, criticalCssIsGenerating }: RefreshDependencies,
 	loadScore: RefreshFunction
 ) => {
-	const lastScoreConfigString = useRef( JSON.stringify( [ moduleStates, criticalCssCreated ] ) );
+	const currentConfigString = JSON.stringify( [ moduleStates, criticalCssCreated ] );
+	const lastScoreConfigString = useRef( currentConfigString );
 
 	// Debounced function: Refresh the speed score if the config has changed.
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const debouncedRefreshScore = useCallback(
-		debounce( async newConfig => {
-			if ( lastScoreConfigString.current !== newConfig ) {
-				lastScoreConfigString.current = newConfig;
-				await loadScore();
-			}
-		}, 2000 ),
-		[ loadScore ]
-	);
+	const debouncedRefreshScore = useDebouncedCallback( ( newConfig: string ) => {
+		if ( lastScoreConfigString.current !== newConfig ) {
+			lastScoreConfigString.current = newConfig;
+			loadScore();
+		}
+	}, 2000 );
 
 	useEffect( () => {
 		if ( ! criticalCssIsGenerating ) {
-			const newScoreConfigString = JSON.stringify( [ moduleStates, criticalCssCreated ] );
-			debouncedRefreshScore( newScoreConfigString );
+			debouncedRefreshScore( currentConfigString );
 		}
-	}, [ moduleStates, criticalCssCreated, criticalCssIsGenerating, debouncedRefreshScore ] );
+	}, [ criticalCssIsGenerating, currentConfigString, debouncedRefreshScore ] );
 };
