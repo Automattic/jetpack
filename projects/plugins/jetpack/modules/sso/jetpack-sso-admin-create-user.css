@@ -1,0 +1,9 @@
+
+.jetpack-sso-admin-create-user-invite-message {
+	width: 550px;
+}
+/* Select the second-to-last tr in the table */
+#createuser .form-table tr:nth-last-child(2) {
+	display: none;
+}
+  

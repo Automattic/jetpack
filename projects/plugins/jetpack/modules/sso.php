@@ -94,12 +94,16 @@ class Jetpack_SSO {
 	 * Render the invitation email message.
 	 */
 	public function render_invitation_email_message() {
+		// Enqueue the CSS for the admin create user page.
+		wp_enqueue_style( 'jetpack-sso-admin-create-user', plugins_url( 'modules/sso/jetpack-sso-admin-create-user.css', JETPACK__PLUGIN_FILE ), array(), time() );
+
 		wp_admin_notice(
-			__( 'New users will receive an invite to join WordPress.com.', 'jetpack' ),
+			__( 'New users will receive an invite to join WordPress.com, so they can log in securely using [Secure Sign On].', 'jetpack' ),
 			array(
-				'id'          => 'invitation_message',
-				'type'        => 'info',
-				'dismissible' => false,
+				'id'                 => 'invitation_message',
+				'type'               => 'info',
+				'dismissible'        => false,
+				'additional_classes' => array( 'jetpack-sso-admin-create-user-invite-message' ),
 			)
 		);
 	}
