@@ -59,12 +59,13 @@ export const useSpeedScores = ( siteUrl: string ) => {
 					status: 'loaded',
 				} );
 			} catch ( err ) {
+				const error = err ? ( err as Error ) : new Error( 'Unknown error' );
 				recordBoostEvent( 'speed_score_request_error', {
-					error_message: castToString( (err as Error).message ),
+					error_message: castToString( error.message ),
 				} );
 				updateState( {
 					status: 'error',
-					error: err,
+					error,
 				} );
 			}
 		},
