@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 60  # 2021-10-26: Build for arm64 is S-L-O-W. Sigh.
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up qemu
         uses: docker/setup-qemu-action@v2

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Boost: Remove DataSync Debouncing, instead use abortControllers
