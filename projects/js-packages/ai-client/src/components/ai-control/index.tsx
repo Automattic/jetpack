@@ -118,7 +118,6 @@ export function AIControl(
 
 	const discardHandler = useCallback( () => {
 		onDiscard?.();
-		onAccept?.();
 	}, [] );
 
 	const cancelEdit = useCallback( () => {
