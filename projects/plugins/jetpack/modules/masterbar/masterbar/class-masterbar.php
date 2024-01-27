@@ -133,7 +133,6 @@ class Masterbar {
 		// request. Although `get_connected_user_data` tries to save the data for
 		// future uses on a transient, the data is not guaranteed to be cached.
 		update_user_option( $this->user_id, 'jetpack_wpcom_is_rtl', $this->is_rtl ? '1' : '0' );
-		update_user_option( $this->user_id, 'admin_color', get_user_meta( $this->user_id, 'admin_color', true ) );
 		if ( isset( $this->user_data['use_wp_admin_links'] ) ) {
 			update_user_option( $this->user_id, 'jetpack_admin_menu_link_destination', $this->user_data['use_wp_admin_links'] ? '1' : '0' );
 		}
@@ -142,8 +141,11 @@ class Masterbar {
 			$this->user_locale = $this->get_jetpack_locale( $this->user_locale );
 			$this->install_locale( $this->user_locale );
 			update_user_option( $this->user_id, 'locale', $this->user_locale, true );
+			update_user_option( $this->user_id, 'admin_color', $this->user_data['color_scheme'] );
 		}
-
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			update_user_option( $this->user_id, 'admin_color', get_user_meta( $this->user_id, 'admin_color', true ) );
+		}
 		add_action( 'admin_bar_init', array( $this, 'init' ) );
 
 		if ( ! empty( $this->user_data['ID'] ) ) {
