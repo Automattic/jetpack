@@ -133,6 +133,7 @@ class Masterbar {
 		// request. Although `get_connected_user_data` tries to save the data for
 		// future uses on a transient, the data is not guaranteed to be cached.
 		update_user_option( $this->user_id, 'jetpack_wpcom_is_rtl', $this->is_rtl ? '1' : '0' );
+		update_user_option( $this->user_id, 'admin_color', get_user_meta( $this->user_id, 'admin_color', true ) );
 		if ( isset( $this->user_data['use_wp_admin_links'] ) ) {
 			update_user_option( $this->user_id, 'jetpack_admin_menu_link_destination', $this->user_data['use_wp_admin_links'] ? '1' : '0' );
 		}
