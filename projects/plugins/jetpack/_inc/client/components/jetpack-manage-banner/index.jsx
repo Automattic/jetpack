@@ -5,78 +5,81 @@ import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import jetpackManageIcon from './jetpack-manage.svg';
 
-class JetpackManageBanner extends React.Component {
-	static propTypes = {
-		path: PropTypes.string,
-		isUserLinked: PropTypes.bool,
-		isOwner: PropTypes.bool,
-		isFetchingData: PropTypes.bool,
-		isAgencyAccount: PropTypes.bool,
-	};
+const JetpackManageBanner = props => {
+	const trackEvent = useCallback(
+		target => {
+			analytics.tracks.recordJetpackClick( {
+				target: target,
+				feature: 'agencies',
+				page: props.path,
+				is_user_wpcom_connected: props.isUserLinked ? 'yes' : 'no',
+				is_connection_owner: props.isOwner ? 'yes' : 'no',
+			} );
+		},
+		[ props.path, props.isUserLinked, props.isOwner ]
+	);
 
-	static defaultProps = {
-		isUserLinked: false,
-		isOwner: false,
-		isAgencyAccount: false,
-	};
+	const handleLearnMoreClick = useCallback( () => {
+		trackEvent( 'jp-manage-learn-more-click' );
+	}, [ trackEvent ] );
 
-	trackEvent = target => {
-		analytics.tracks.recordJetpackClick( {
-			target: target,
-			feature: 'agencies',
-			page: this.props.path,
-			is_user_wpcom_connected: this.props.isUserLinked ? 'yes' : 'no',
-			is_connection_owner: this.props.isOwner ? 'yes' : 'no',
-		} );
-	};
+	const handleManageSitesClick = useCallback( () => {
+		trackEvent( 'jp-manage-sites-click' );
+	}, [ trackEvent ] );
 
-	handleLearnMoreClick = useCallback( () => {
-		this.trackEvent( 'jp-manage-learn-more-click' );
-	}, [ this.trackEvent ] );
+	const handleSignUpForFreeClick = useCallback( () => {
+		trackEvent( 'jp-manage-sign-up' );
+	}, [ trackEvent ] );
 
-	handleManageSitesClick = useCallback( () => {
-		this.trackEvent( 'jp-manage-sites-click' );
-	}, [ this.trackEvent ] );
+	const redirectOrigin = 'jetpack-at-a-glance';
 
-	handleSignUpForFreeClick = useCallback( () => {
-		this.trackEvent( 'jp-manage-sign-up' );
-	}, [ this.trackEvent ] );
+	// Set up the first CTA
+	const ctaLearnMoreLabel = __( 'Learn more', 'jetpack' );
+	const ctaLearnMoreUrl = getRedirectUrl( `${ redirectOrigin }-to-jetpack-manage-learn-more` );
 
-	render() {
-		const redirectOrigin = 'jetpack-at-a-glance';
+	// Set up the second CTA
+	const ctaManageSitesLabel = __( 'Manage sites', 'jetpack' );
+	const ctaManageSitesUrl = getRedirectUrl( `${ redirectOrigin }-to-jetpack-manage-dashboard` );
 
-		// Set up the first CTA
-		const ctaLearnMoreLabel = __( 'Learn more', 'jetpack' );
-		const ctaLearnMoreUrl = getRedirectUrl( `${ redirectOrigin }-to-jetpack-manage-learn-more` );
+	const ctaSignUpForFreeLabel = __( 'Sign up for free', 'jetpack' );
+	const ctaSignUpForFreeUrl = getRedirectUrl( `${ redirectOrigin }-to-jetpack-manage-sign-up` );
 
-		// Set up the second CTA
-		const ctaManageSitesLabel = __( 'Manage sites', 'jetpack' );
-		const ctaManageSitesUrl = getRedirectUrl( `${ redirectOrigin }-to-jetpack-manage-dashboard` );
+	return (
+		<UpsellBanner
+			icon={ jetpackManageIcon }
+			title={ __( "Manage your clients' sites with ease", 'jetpack' ) }
+			description={ __(
+				'Jetpack Manage has the tools you need to manage multiple WordPress sites. Monitor site security, performance, and traffic, and get alerted if a site needs attention. Plus, get bulk discounts.',
+				'jetpack'
+			) }
+			secondaryCtaLabel={ ctaLearnMoreLabel }
+			secondaryCtaURL={ ctaLearnMoreUrl }
+			secondaryCtaIsExternalLink={ true }
+			secondaryCtaOnClick={ handleLearnMoreClick }
+			primaryCtaLabel={ props.isAgencyAccount ? ctaManageSitesLabel : ctaSignUpForFreeLabel }
+			primaryCtaURL={ props.isAgencyAccount ? ctaManageSitesUrl : ctaSignUpForFreeUrl }
+			primaryCtaIsExternalLink={ true }
+			primaryCtaOnClick={
+				props.isAgencyAccount ? handleManageSitesClick : handleSignUpForFreeClick
+			}
+		/>
+	);
+};
 
-		const ctaSignUpForFreeLabel = __( 'Sign up for free', 'jetpack' );
-		const ctaSignUpForFreeUrl = getRedirectUrl( `${ redirectOrigin }-to-jetpack-manage-sign-up` );
+JetpackManageBanner.propTypes = {
+	path: PropTypes.string,
+	isUserLinked: PropTypes.bool,
+	isOwner: PropTypes.bool,
+	isFetchingData: PropTypes.bool,
+	isAgencyAccount: PropTypes.bool,
+};
 
-		return (
-			<UpsellBanner
-				icon={ jetpackManageIcon }
-				title={ __( "Manage your clients' sites with ease", 'jetpack' ) }
-				description={ __(
-					'Jetpack Manage has the tools you need to manage multiple WordPress sites. Monitor site security, performance, and traffic, and get alerted if a site needs attention. Plus, get bulk discounts.',
-					'jetpack'
-				) }
-				secondaryCtaLabel={ ctaLearnMoreLabel }
-				secondaryCtaURL={ ctaLearnMoreUrl }
-				secondaryCtaIsExternalLink={ true }
-				secondaryCtaOnClick={ this.handleLearnMoreClick }
-				primaryCtaLabel={ this.props.isAgencyAccount ? ctaManageSitesLabel : ctaSignUpForFreeLabel }
-				primaryCtaURL={ this.props.isAgencyAccount ? ctaManageSitesUrl : ctaSignUpForFreeUrl }
-				primaryCtaIsExternalLink={ true }
-				primaryCtaOnClick={
-					this.props.isAgencyAccount ? this.handleManageSitesClick : this.handleSignUpForFreeClick
-				}
-			/>
-		);
-	}
-}
+JetpackManageBanner.defaultProps = {
+	path: '',
+	isUserLinked: false,
+	isOwner: false,
+	isFetchingData: false,
+	isAgencyAccount: false,
+};
 
 export default JetpackManageBanner;
