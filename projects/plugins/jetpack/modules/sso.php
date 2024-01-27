@@ -57,7 +57,7 @@ class Jetpack_SSO {
 
 		// If the user has no errors on creation, send an invite to WordPress.com.
 		add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
-		// Don't send core invitation email when adding a new user via the admin.
+		// Don't send core invitation email when SSO is activated. They will get an email from WP.com.
 		add_filter( 'wp_send_new_user_notification_to_user', '__return_false' );
 		add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
 
@@ -219,8 +219,15 @@ class Jetpack_SSO {
 		// Enqueue the CSS for the admin create user page.
 		wp_enqueue_style( 'jetpack-sso-admin-create-user', plugins_url( 'modules/sso/jetpack-sso-admin-create-user.css', JETPACK__PLUGIN_FILE ), array(), time() );
 
+		$message = sprintf(
+			'%s<a class="%s" rel="noopener noreferrer" target="_blank" href="%s">%s</a>',
+			__( 'New users will receive an invite to join WordPress.com, so they can log in securely using', 'jetpack' ),
+			'jetpack-sso-admin-create-user-invite-message-link-sso',
+			esc_url( 'https://jetpack.com/support/sso/' ),
+			__( 'Secure Sign On.', 'jetpack' )
+		);
 		wp_admin_notice(
-			__( 'New users will receive an invite to join WordPress.com, so they can log in securely using [Secure Sign On].', 'jetpack' ),
+			$message,
 			array(
 				'id'                 => 'invitation_message',
 				'type'               => 'info',

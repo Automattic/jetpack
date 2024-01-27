@@ -6,4 +6,7 @@
 #createuser .form-table tr:has( #send_user_notification )  {
 	display: none;
 }
-  
+.jetpack-sso-admin-create-user-invite-message-link-sso {
+	margin-left: 3px;
+    text-decoration: none;
+}
