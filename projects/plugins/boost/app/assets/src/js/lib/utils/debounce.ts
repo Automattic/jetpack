@@ -11,11 +11,11 @@ type CallbackFunction = ( ...args: any[] ) => void;
  * @param {number}   wait     Number of milliseconds to wait.
  * @return {Function} Debounced function.
  */
-export default function debounce( callback: CallbackFunction, wait: number ): CallbackFunction {
+export function debounce( callback: CallbackFunction, wait: number ): CallbackFunction {
 	let timer: number;
 
 	return function ( ...args ) {
 		clearTimeout( timer );
-		timer = setTimeout( () => callback.apply( this, args ), wait );
+		timer = setTimeout( () => callback( ...args ), wait );
 	};
 }

@@ -9,6 +9,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
+import debugFactory from 'debug';
 import React from 'react';
 /**
  * Internal dependencies
@@ -33,6 +34,8 @@ import './style.scss';
 import type { ExtendedBlockProp } from '../../extensions/ai-assistant';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { ToneProp } from '../tone-dropdown-control';
+
+const debug = debugFactory( 'jetpack-ai-assistant:dropdown' );
 
 // Quick edits option: "Correct spelling and grammar"
 const QUICK_EDIT_KEY_CORRECT_SPELLING = 'correct-spelling' as const;
@@ -149,7 +152,7 @@ function AiAssistantDropdownContent( {
 		const content = getBlocksContent( blocks );
 
 		onClose();
-
+		debug( 'requestSuggestion', promptType, options );
 		tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
 			suggestion: promptType,
 			block_type: blockType,
@@ -214,6 +217,7 @@ function AiAssistantDropdownContent( {
 		);
 
 		removeBlocks( otherBlocksIds );
+		tracks.recordEvent( 'jetpack_ai_assistant_prompt_show', { block_type: blockType } );
 	};
 
 	return (
@@ -270,6 +274,15 @@ function AiAssistantDropdownContent( {
 }
 
 export default function AiAssistantDropdown( { blockType }: AiAssistantControlComponentProps ) {
+	const { tracks } = useAnalytics();
+
+	const toggleHandler = isOpen => {
+		if ( isOpen ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_extension_toolbar_menu_show', {
+				block_type: blockType,
+			} );
+		}
+	};
 	return (
 		<Dropdown
 			popoverProps={ {
@@ -288,6 +301,7 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 					/>
 				);
 			} }
+			onToggle={ toggleHandler }
 			renderContent={ ( { onClose: onClose } ) => (
 				<AiAssistantDropdownContent onClose={ onClose } blockType={ blockType } />
 			) }
