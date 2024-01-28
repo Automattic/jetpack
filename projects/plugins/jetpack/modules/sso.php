@@ -235,7 +235,7 @@ class Jetpack_SSO {
 				return self::create_error_notice_and_redirect( $query_params );
 			}
 
-			$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
+			$has_pending_invite = $_GET['invite_id'];
 
 			if ( ! $has_pending_invite ) {
 				$query_params = array(
@@ -316,6 +316,7 @@ class Jetpack_SSO {
 						'action'              => 'jetpack_revoke_invite_user_to_wpcom',
 						'user_id'             => $user_id,
 						'revoke_invite_nonce' => $nonce,
+						'invite_id'           => $has_pending_invite,
 					),
 					admin_url( 'admin-post.php' )
 				),
