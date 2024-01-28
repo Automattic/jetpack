@@ -235,9 +235,7 @@ class Jetpack_SSO {
 				return self::create_error_notice_and_redirect( $query_params );
 			}
 
-			$has_pending_invite = $_GET['invite_id'];
-
-			if ( ! $has_pending_invite ) {
+			if ( ! isset( $_GET['invite_id'] ) ) {
 				$query_params = array(
 					'jetpack-sso-invite-user'  => 'failed',
 					'jetpack-sso-invite-error' => 'invalid-invite-revoke',
@@ -245,6 +243,8 @@ class Jetpack_SSO {
 				);
 				return self::create_error_notice_and_redirect( $query_params );
 			}
+
+			$has_pending_invite = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
 
 			$blog_id = Jetpack_Options::get_option( 'id' );
 
