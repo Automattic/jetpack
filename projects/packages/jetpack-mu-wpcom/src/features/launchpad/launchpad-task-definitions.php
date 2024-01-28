@@ -971,9 +971,14 @@ function wpcom_launchpad_is_mobile_app_installed_visible() {
 /**
  * Verifies if the Mobile App is installed for the current user.
  *
+ * @param bool $is_complete The current task status.
  * @return bool True if the Mobile App is installed for the current user.
  */
-function wpcom_launchpad_is_mobile_app_installed() {
+function wpcom_launchpad_is_mobile_app_installed( $is_complete ) {
+	if ( $is_complete ) {
+		return true;
+	}
+
 	$mobile_last_seen = null;
 	$is_atomic_site   = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
 	if ( $is_atomic_site ) {
@@ -982,11 +987,11 @@ function wpcom_launchpad_is_mobile_app_installed() {
 			return false;
 		}
 
-		if ( ! isset( $user_attributes->jp_mobile_app_last_seen ) ) {
+		if ( ! isset( $user_attributes['jp_mobile_app_last_seen'] ) ) {
 			return false;
 		}
 
-		$mobile_last_seen = $user_attributes->jp_mobile_app_last_seen;
+		$mobile_last_seen = $user_attributes['jp_mobile_app_last_seen'];
 	} else {
 		if ( ! function_exists( 'get_user_attribute' ) ) {
 			return false;
@@ -999,6 +1004,8 @@ function wpcom_launchpad_is_mobile_app_installed() {
 	if ( empty( $mobile_last_seen ) ) {
 		return false;
 	}
+
+	wpcom_mark_launchpad_task_complete( 'mobile_app_installed' );
 
 	return true;
 }
@@ -1162,31 +1169,33 @@ function wpcom_launchpad_request_domains_list() {
  * Make a request to the WordPress.com API to get the values of the user
  * attributes sent by the client.
  *
- * @param array $attributes The attributes to request.
+ * @param string[]                                  $attributes The attributes to request.
+ * @param Automattic\Jetpack\Connection\Client|null $client_wrapper Optional client wrapper to use, this is only used for testing.
  * @return array|WP_Error Array of user attributes or WP_Error if the request fails.
  */
-function wpcom_launchpad_request_user_attributes( $attributes ) {
+function wpcom_launchpad_request_user_attributes( $attributes, $client_wrapper = null ) {
+	if ( ! is_array( $attributes ) || $attributes === array() ) {
+		return array();
+	}
 	// Use a static variable as a temporary in-memory cache to avoid multiple outbound
 	// HTTP requests within a single incoming request.
 	// We don't expect this to be triggered multiple times, but it's worth adding some
 	// light caching to avoid multiple, possibly slow HTTP requests where the underlying data
 	// is highly unlikely to change.
 	// The "cache" only lasts as long as the current request/memory space, so we don't need to invalidate it.
-	static $cached_attributes = null;
+	static $cached_attributes = array();
 
-	if ( null !== $cached_attributes ) {
-		return $cached_attributes;
+	// Check if all requested attributes are available in the cache
+	$resolved_values = array_intersect_key( $cached_attributes, array_flip( $attributes ) );
+	if ( count( $resolved_values ) === count( $attributes ) ) {
+		return $resolved_values;
 	}
 
-	if ( ! is_array( $attributes ) ) {
-		return new \WP_Error(
-			'invalid_attributes',
-			esc_html__( 'Invalid attributes.', 'jetpack-mu-wpcom' )
-		);
-	}
+	$attributes_to_fetch = array_diff( $attributes, array_keys( $resolved_values ) );
 
-	$query_params  = build_query( array( 'attributes' => $attributes ) );
-	$wpcom_request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+	$query_params  = build_query( array( 'attributes' => $attributes_to_fetch ) );
+	$client        = $client_wrapper ? $client_wrapper : new Automattic\Jetpack\Connection\Client();
+	$wpcom_request = $client->wpcom_json_api_request_as_user(
 		'/jetpack-user-attributes?' . $query_params,
 		'v2',
 		array(
@@ -1209,14 +1218,22 @@ function wpcom_launchpad_request_user_attributes( $attributes ) {
 	$body         = wp_remote_retrieve_body( $wpcom_request );
 	$decoded_body = json_decode( $body );
 
-	if ( ! is_array( $decoded_body->user_attributes ) && ! isset( $decoded_body->user_attributes ) ) {
+	if ( ! isset( $decoded_body->user_attributes ) ) {
 		return new \WP_Error(
 			'failed_to_fetch_data',
 			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
 		);
 	}
 
-	$cached_attributes = $decoded_body->user_attributes;
+	$user_attributes = get_object_vars( $decoded_body->user_attributes );
+	if ( ! is_array( $user_attributes ) ) {
+		return new \WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
+		);
+	}
+
+	$cached_attributes = array_merge( $cached_attributes, $user_attributes );
 
 	return $cached_attributes;
 }
