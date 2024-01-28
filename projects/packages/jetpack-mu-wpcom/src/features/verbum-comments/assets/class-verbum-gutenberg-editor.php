@@ -29,9 +29,21 @@ class Verbum_Gutenberg_Editor {
 			},
 			9999
 		);
+		add_filter( 'init', array( $this, 'remove_strict_kses_filters' ) );
 		add_filter( 'comment_text', array( $this, 'render_verbum_blocks' ) );
 		add_filter( 'pre_comment_content', array( $this, 'remove_blocks' ) );
 		add_filter( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+	}
+
+	/**
+	 * Default KSES filters on wpcom only allow HTML for admins and people who can post "posts" to the blog they're commenting on.
+	 * See: wp-includes/kses.php (this one adds the restrictions).
+	 * See: wp-content/mu-plugins/misc.php (this one removes it, but only has_cap('publish_posts')).
+	 */
+	public function remove_strict_kses_filters() {
+		// Allow HTML when blocks are enabled.
+		remove_filter( 'pre_comment_content', 'wp_filter_kses' );
+		add_filter( 'pre_comment_content', 'wp_filter_post_kses' );
 	}
 
 	/**

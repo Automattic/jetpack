@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Allow users to post HTML when blocks are enabled
