@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { z } from 'zod';
 
-const DEBUG = true;
 /**
  * DataSync Error returned by the REST API.
  */
@@ -30,7 +29,7 @@ export class DataSyncError extends Error {
 	) {
 		super( message );
 
-		if ( DEBUG ) {
+		if ( 'datasync_debug' in window && window.datasync_debug ) {
 			this.debugMessage();
 		}
 
