@@ -20,7 +20,7 @@ function jetpack_shortcode_get_youtube_id( $url ) {
 /**
  * Extract video ID from a YouTube url.
  *
- * @param string $url YouTube URL.
+ * @param string|array $url YouTube URL.
  * @return bool|mixed The Youtube video ID
  */
 function jetpack_get_youtube_id( $url ) {
@@ -58,10 +58,14 @@ if ( ! function_exists( 'youtube_sanitize_url' ) ) :
 	/**
 	 * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
 	 *
-	 * @param string $url YouTube URL.
+	 * @param string|array $url YouTube URL.
 	 * @return string The normalized URL
 	 */
 	function youtube_sanitize_url( $url ) {
+		if ( is_array( $url ) && isset( $url['url'] ) ) {
+			$url = $url['url'];
+		}
+
 		$url = trim( $url, ' "' );
 		$url = trim( $url );
 		$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
