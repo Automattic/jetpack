@@ -2,6 +2,28 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.1-a.7 - 2024-01-25
+### Enhancements
+- Jetpack Search: Add 'price' as the default sorting option. [#35167]
+- Subscribe Block: Don't include social followers on counts by default. [#34617]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: add UI events when menus are displayed [#35203]
+- AI Assistant: fix discard handler so we don't need to call discard + accept [#35236]
+- Like block: Remove block rendering in contexts different from front-end [#35226]
+- Not showing sharing buttons in notifications, emails, etc. [#35206]
+- REST API: fixed the way we treat 0 and 1 integers in boolean context. [#35190]
+- Subscriber Login: Add icon, description and redirect to home page by default [#35221]
+- Subscriber Login: Allow custom link labels [#35179]
+- Untangle Calypso from Themes & new sub-menu to Marketplace [#35145]
+
+## 13.1-a.5 - 2024-01-23
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Jetpack AI: Expose Jetpack AI cost of features on the feature endpoint. [#35178]
+- Subscribe block: simplify access panel CSS [#35163]
+- There was a problem with likers without avatar images not appearing in the likers popup. Now they appear with their default avatar images. [#35123]
+- WPCOM_JSON_API_Endpoint document(): Prevent warning when fetching the rest_api_documentation row returns no results [#35173]
+
 ## 13.1-a.3 - 2024-01-22
 ### Enhancements
 - Add support for WooCommerce HPOS to the Google Analytics module. [#33152]

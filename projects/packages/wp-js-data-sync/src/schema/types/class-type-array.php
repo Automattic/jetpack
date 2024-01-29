@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
 class Type_Array implements Parser {
 	private $parser;
@@ -26,15 +26,15 @@ class Type_Array implements Parser {
 	 *
 	 * @return array
 	 */
-	public function parse( $value, $_meta = null ) {
+	public function parse( $value, $context ) {
 		if ( ! is_array( $value ) ) {
 			$message = "Expected an array, received '" . gettype( $value ) . "'";
-			throw new Schema_Internal_Error( $message, $value );
+			throw new Schema_Error( $message, $value );
 		}
 
 		$parsed = array();
 		foreach ( $value as $key => $item ) {
-			$parsed[ $key ] = $this->parser->parse( $item );
+			$parsed[ $key ] = $this->parser->parse( $item, $context );
 		}
 		return $parsed;
 	}
@@ -46,9 +46,6 @@ class Type_Array implements Parser {
 		return "array({$this->parser})";
 	}
 
-	/**
-	 * @return string
-	 */
 	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->schema();

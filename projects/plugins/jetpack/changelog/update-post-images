@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack_PostImages::from_attachment: Prevent warning when $thumb_post_data cannot be found

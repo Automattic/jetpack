@@ -22,7 +22,7 @@ jobs:
     if: ${{ github.repository == 'Automattic/jetpack' && github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.event != 'issues' && github.event.workflow_run.event != 'issue_comment' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Generate message
         id: message
         run: |

@@ -2,8 +2,9 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Internal_Error;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
 class Type_Assoc_Array implements Parser {
 	private $parser;
@@ -13,9 +14,14 @@ class Type_Assoc_Array implements Parser {
 	 * will parse each keyed value in the array using the parser.
 	 *
 	 * @param Parser[] $assoc_parser_array - An associative array of parsers to use.
+	 * @throws Schema_Error - Only in Debug mode: if the $assoc_parser_array is not an associative array.
 	 */
-	public function __construct( array $assoc_parser_array ) {
+	public function __construct( $assoc_parser_array ) {
 		$this->parser = $assoc_parser_array;
+		if ( ! is_array( $assoc_parser_array ) && DS_Utils::is_debug() ) {
+			$message = "Expected an associative array of parsers, received '" . gettype( $assoc_parser_array ) . "'";
+			throw new Schema_Error( $message, $assoc_parser_array );
+		}
 	}
 
 	/**
@@ -28,10 +34,10 @@ class Type_Assoc_Array implements Parser {
 	 * @param $value mixed[]
 	 *
 	 * @return array
-	 * @throws Schema_Internal_Error - If the $data passed to it is not an associative array.
+	 * @throws Schema_Error - If the $data passed to it is not an associative array.
 	 *
 	 */
-	public function parse( $value, $meta = null ) {
+	public function parse( $value, $context ) {
 		// Allow coercing stdClass objects (often returned from json_decode) to an assoc array.
 		if ( is_object( $value ) && $value instanceof \stdClass ) {
 			$value = (array) $value;
@@ -39,21 +45,20 @@ class Type_Assoc_Array implements Parser {
 
 		if ( ! is_array( $value ) || $this->is_sequential_array( $value ) ) {
 			$message = "Expected an associative array, received '" . gettype( $value ) . "'";
-			throw new Schema_Internal_Error( $message, $value );
+			throw new Schema_Error( $message, $value );
 		}
-
 		$output = array();
 		foreach ( $this->parser as $key => $parser ) {
 
-			if ( null !== $meta ) {
-				$meta->add_to_path( $key );
+			if ( null !== $context ) {
+				$context->add_to_path( $key );
 			}
 
 			if ( ! isset( $value[ $key ] ) ) {
 				$value[ $key ] = null;
 			}
 
-			$parsed = $parser->parse( $value[ $key ], $meta );
+			$parsed = $parser->parse( $value[ $key ], $context );
 			// @TODO Document this behavior.
 			// At the moment, values that are null are dropped from assoc arrays.
 			// to match the Zod behavior.
@@ -61,8 +66,8 @@ class Type_Assoc_Array implements Parser {
 				$output[ $key ] = $parsed;
 			}
 
-			if ( null !== $meta ) {
-				$meta->remove_path( $key );
+			if ( null !== $context ) {
+				$context->remove_path( $key );
 			}
 		}
 
@@ -77,11 +82,7 @@ class Type_Assoc_Array implements Parser {
 	}
 
 	public function __toString() {
-		$results = array();
-		foreach ( $this->parser as $key => $parser ) {
-			$results[ $key ] = $parser;
-		}
-		return 'assoc_array(' . wp_json_encode( $results, JSON_PRETTY_PRINT ) . ')';
+		return 'assoc_array';
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix TypeScript type for a Boost Score prop
