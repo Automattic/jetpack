@@ -205,11 +205,15 @@ class WPCOM_JSON_API {
 	 * Determine if a string is truthy. If it's not a string, which can happen with
 	 * not well-formed data coming from Jetpack sites, we still consider it a truthy value.
 	 *
-	 * @param string $value "1", "t", and "true" (case insensitive) are truthy, everything else isn't.
+	 * @param mixed $value true, 1, "1", "t", and "true" (case insensitive) are truthy, everything else isn't.
 	 * @return bool
 	 */
 	public static function is_truthy( $value ) {
 		if ( true === $value ) {
+			return true;
+		}
+
+		if ( 1 === $value ) {
 			return true;
 		}
 
@@ -230,11 +234,15 @@ class WPCOM_JSON_API {
 	/**
 	 * Determine if a string is falsey.
 	 *
-	 * @param string $value "0", "f", and "false" (case insensitive) are falsey, everything else isn't.
+	 * @param mixed $value false, 0, "0", "f", and "false" (case insensitive) are falsey, everything else isn't.
 	 * @return bool
 	 */
 	public static function is_falsy( $value ) {
 		if ( false === $value ) {
+			return true;
+		}
+
+		if ( 0 === $value ) {
 			return true;
 		}
 

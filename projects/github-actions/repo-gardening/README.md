@@ -49,10 +49,10 @@ jobs:
 
     steps:
      - name: Checkout
-       uses: actions/checkout@v3
+       uses: actions/checkout@v4
 
      - name: Setup Node
-       uses: actions/setup-node@v3
+       uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
@@ -107,7 +107,7 @@ Certain tasks require filesystem access to the PR, which `pull_request_target` d
 ```yaml
      - name: Checkout the PR
        if: github.event_name == 'pull_request_target'
-       uses: actions/checkout@v3
+       uses: actions/checkout@v4
        with:
          ref: ${{ github.event.pull_request.head.ref }}
          repository: ${{ github.event.pull_request.head.repo.full_name }}

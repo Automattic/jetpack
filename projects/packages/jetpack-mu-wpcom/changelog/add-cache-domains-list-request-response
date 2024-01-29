@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Cache the response of the Domain List request, and harden the code
