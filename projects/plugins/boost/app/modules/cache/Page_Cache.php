@@ -58,17 +58,20 @@ class Page_Cache implements Pluggable, Is_Always_On {
 	 * @return bool|WP_Error
 	 */
 	private function create_advanced_cache() {
+
+		$cache_version           = 'Boost Cache Plugin 0.1';
 		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
+
 		if ( file_exists( $advanced_cache_filename ) ) {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			if ( strpos( $content, 'Boost Cache Plugin 0.1' ) !== false ) {
+			if ( strpos( $content, $cache_version ) !== false ) {
 				return true;
 			} else {
 				return new \WP_Error( 'advanced-cache.php exists but is not the correct file' );
 			}
 		} else {
 			$contents = '<?php
-// Boost Cache Plugin 0.1
+// ' . $cache_version . '
 require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File_Cache.php\' );
 
 ( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_File_Cache() )->serve();
