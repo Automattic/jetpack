@@ -34,11 +34,36 @@ class Boost_Cache_Utils {
 	}
 
 	/*
+	 * Returns a sanitized directory path.
+	 * @param string $path - The path to sanitize.
+	 * @return string
+	 */
+	public static function sanitize_file_path( $path ) {
+		$path = trailingslashit( $path );
+
+		$path = _deep_replace(
+			array( '..', '\\' ),
+			preg_replace(
+				'/[ <>\'\"\r\n\t\(\)]/',
+				'',
+				preg_replace(
+					'/(\?.*)?(#.*)?$/',
+					'',
+					$path
+				)
+			)
+		);
+
+		return $path;
+	}
+
+	/*
 	 * Returns true if the given directory is inside the boost-cache directory.
 	 * @param string $dir - The directory to check.
 	 * @return bool
 	 */
 	public static function is_boost_cache_directory( $dir ) {
+		$dir = self::sanitize_file_path( $dir );
 		return strpos( $dir, WP_CONTENT_DIR . '/boost-cache' ) !== false;
 	}
 }
