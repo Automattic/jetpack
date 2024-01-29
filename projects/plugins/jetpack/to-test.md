@@ -1,37 +1,33 @@
-## Jetpack 13.0
+## Jetpack 13.1
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### AI Assistant
-NOTE: keep in mind, all the following should be tested on mobile views as well.
+### Like Block 
 
-- Have AI enabled on your site
-- Insert an AI Assistant block, confirm:
-  - Initially it shows a single "Cancel" button, clicking it will remove the block
-  - Once text is typed in the input, "Cancel" button will toggle for main prompt action "Generate"
-  - Once AI has responded, suggestion actions (icon buttons) show:
-    - "Back to edit": focus back at the text input (also triggered by simply editing the input text)
-    - "Discard": rejects the AI suggestion and removes the AI Assistant block
-    - "Regenerate": requests the same prompt to the AI
-    - "Accept": accepts the suggestion (turning it into its own block) and removes the AI Assistant
-- Invoke the AI Assistant on already existing content, see that it behaves consistently with the above
-- Use some of the one-click AI actions on already existing content (translate, summarize, etc)
-  - Once action is done the described suggestion actions show, but there is no "Back to edit" and "Regenerate" is disabled
-- When content is larger than viewport, AI Assistant block will remain floating at the bottom of the viewport (desktop only, on mobile it remains fixed at the top)
+The existing Like & Reblog button features are now available as a block. With the new Like block, users are be able to add the Like & Reblog features not just to posts and pages, but also to block templates and block patterns. You can give the new Like block a try by adding it from within the editor just like any other block. For testing purposes, consider trying:
 
-### WooCommerce Analytics
+- adding multiple Like blocks to a single page or post
+- adding the Like block to a page template
+- adding the Like block nested within other blocks (e.g., Group or Columns)
+- creating a block pattern where the Like block is present
+- testing with different site themes
+- testing with different site languages
+- testing both frontend and editor views
+- test accross different screen sizes
 
-Remove logic that prevents site admins being tracked and add store_admin property to WooCommerce analytics events
-- Ensure site is connected, WooCommerce is installed, products, payment methods, and shipping methods are available. (Cash on Delivery and Free shipping will be fine).
-- Ensure WooCommerce analytics is running.
-- As a shop manager user: add an item to your cart and go to the checkout.
-- Check out and then visit Tracks and find your event. (I spoofed my user agent so I could find the event easily)
-- Check the event for the `store_admin` property, which should be `1`
-- Repeat as a logged _out_ (e.g. guest) user, the event should be logged, and should have the `store_admin` property but it should be `0`
-- Repeat as a logged in, but _not_ admin user, (e.g. a customer), the event should be logged, and should have the `store_admin` property but it should be `0`
+### Sharing Buttons Block
+
+Similar to the Like block above, the existing Sharing Buttons feature is now available as a block. For testing purposes, consider trying:
+
+- adding the Sharing Buttons block to a page template
+- adding the Sharing Buttons block nested within other blocks (e.g., Group or Columns)
+- creating a block pattern where the Sharing Buttons block is present
+- testing both frontend and editor views
+- test accross different screen sizes
+- with a block-based theme active, navigate to Jetpack > Setting > Sharing and test with the existing Sharing Buttons toggle setting & functionality
 
 ### And More!
 
