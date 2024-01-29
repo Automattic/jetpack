@@ -598,7 +598,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			return {
 				question: __( 'Jetpack Social', 'jetpack' ),
 				description: __(
-					'Use your unlocked unlimited sharing, upload photos and videos with your posts, and create previews with Social Image Generator. To use these features, just head to the post editor and start creating your post!<br/><br/>You can turn on Social Image Generator for individual posts from the post editor, or turn it on by default for all future posts from the Jetpack Social Settings.',
+					'Use your unlocked unlimited sharing, upload photos and videos with your posts, and create previews with Social Image Generator. To use these features, just head to the post editor and start creating your post!<br/><br/>You can manage your connections, and tweak features like Social Image Generator from the Jetpack Social Settings.',
 					'jetpack'
 				),
 				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
