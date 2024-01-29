@@ -115,6 +115,6 @@ On Atomic Sites: Sync the Verbum code changes to your sandbox and sandbox `jetpa
 2. To initiate a Simple Site deployment, follow these instructions: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#simple-deployment]. The Jetpack release team (#jetpack-release) will also do a daily deployment for any merged changes, if you do not initiate a manual deployment.
 3. To initate a WoA deployment, follow these instructions: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#woa-deployment]. A new version of `jetpack-mu-wpcom` will be released weekly, if you do not initiate a manual deployment.
 
-### Where to add new Verbum Issues
+### Where to track new Verbum Issues
 
 If you stumble upon any issues or have any suggestions for possible changes to Verbum, you can find the relevant project board here: https://github.com/Automattic/jetpack/projects/45.
