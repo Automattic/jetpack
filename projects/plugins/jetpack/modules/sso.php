@@ -55,6 +55,12 @@ class Jetpack_SSO {
 		add_action( 'jetpack_site_before_disconnected', array( static::class, 'disconnect' ) );
 		add_action( 'wp_login', array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
 
+		// If the user has no errors on creation, send an invite to WordPress.com.
+		add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
+		// Don't send core invitation email when SSO is activated. They will get an email from WP.com.
+		add_filter( 'wp_send_new_user_notification_to_user', '__return_false' );
+		add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
+
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
 
@@ -330,6 +336,77 @@ class Jetpack_SSO {
 	}
 
 	/**
+	 * Render the invitation email message.
+	 */
+	public function render_invitation_email_message() {
+		// Enqueue the CSS for the admin create user page.
+		wp_enqueue_style( 'jetpack-sso-admin-create-user', plugins_url( 'modules/sso/jetpack-sso-admin-create-user.css', JETPACK__PLUGIN_FILE ), array(), time() );
+
+		$message = sprintf(
+			// translators: %s is a link to jetpack support site.
+			__( 'New users will receive an invite to join WordPress.com, so they can log in securely using %s', 'jetpack' ),
+			sprintf(
+				'<a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="%s">%s</a>',
+				'https://jetpack.com/support/sso/',
+				__( 'Secure Sign On.', 'jetpack' )
+			)
+		);
+		wp_admin_notice(
+			$message,
+			array(
+				'id'                 => 'invitation_message',
+				'type'               => 'info',
+				'dismissible'        => false,
+				'additional_classes' => array( 'jetpack-sso-admin-create-user-invite-message' ),
+			)
+		);
+	}
+
+	/**
+	 * Send user invitation to WordPress.com if user has no errors.
+	 *
+	 * @param WP_Error $errors The WP_Error object.
+	 * @param bool     $update Whether the user is being updated or not.
+	 * @param stdClass $user   The User object about to be created.
+	 * @return WP_Error The modified or not WP_Error object.
+	 */
+	public function send_wpcom_mail_user_invite( $errors, $update, $user ) {
+
+		if ( $errors->has_errors() ) {
+			return $errors;
+		}
+
+		$email   = $user->user_email;
+		$role    = $user->role;
+		$locale  = get_user_locale( $user->ID );
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		$url     = '/sites/' . $blog_id . '/invites/new';
+		$url     = add_query_arg( 'locale', $locale, $url );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$url,
+			'2', // Api version
+			array(
+				'method' => 'POST',
+			),
+			array(
+				'invitees' => array(
+					array(
+						'email_or_username' => $email,
+						'role'              => $role,
+					),
+				),
+			)
+		);
+
+		if ( 200 !== $response['response']['code'] ) {
+			$errors->add( 'invitation_not_sent', __( '<strong>Error</strong>: "The user invitation email could not be sent, the user account was not created.', 'jetpack' ) );
+		}
+
+		return $errors;
+	}
+
+	/**
 	 * Returns the single instance of the Jetpack_SSO object
 	 *
 	 * @since 2.8
@@ -495,7 +572,7 @@ class Jetpack_SSO {
 		if ( ! empty( $errors->errors['loggedout'] ) ) {
 			$logout_message = wp_kses(
 				sprintf(
-					/* translators: %1$s is a link to the WordPress.com account settings page. */
+				/* translators: %1$s is a link to the WordPress.com account settings page. */
 					__( 'If you are on a shared computer, remember to also <a href="%1$s">log out of WordPress.com</a>.', 'jetpack' ),
 					'https://wordpress.com/me'
 				),
@@ -696,8 +773,8 @@ class Jetpack_SSO {
 			<input
 				type="checkbox"
 				name="jetpack_sso_require_two_step"
-			<?php checked( Jetpack_SSO_Helpers::is_two_step_required() ); ?>
-			<?php disabled( Jetpack_SSO_Helpers::is_require_two_step_checkbox_disabled() ); ?>
+		<?php checked( Jetpack_SSO_Helpers::is_two_step_required() ); ?>
+		<?php disabled( Jetpack_SSO_Helpers::is_require_two_step_checkbox_disabled() ); ?>
 			>
 		<?php esc_html_e( 'Require Two-Step Authentication', 'jetpack' ); ?>
 		</label>
@@ -728,10 +805,10 @@ class Jetpack_SSO {
 				<input
 					type="checkbox"
 					name="jetpack_sso_match_by_email"
-				<?php checked( Jetpack_SSO_Helpers::match_by_email() ); ?>
-				<?php disabled( Jetpack_SSO_Helpers::is_match_by_email_checkbox_disabled() ); ?>
+			<?php checked( Jetpack_SSO_Helpers::match_by_email() ); ?>
+			<?php disabled( Jetpack_SSO_Helpers::is_match_by_email_checkbox_disabled() ); ?>
 				>
-			<?php esc_html_e( 'Match by Email', 'jetpack' ); ?>
+		<?php esc_html_e( 'Match by Email', 'jetpack' ); ?>
 			</label>
 		<?php
 	}
@@ -925,14 +1002,14 @@ class Jetpack_SSO {
 		?>
 		<div id="jetpack-sso-wrap">
 		<?php
-			/**
-			 * Allow extension above Jetpack's SSO form.
-			 *
-			 * @module sso
-			 *
-			 * @since 8.6.0
-			 */
-			do_action( 'jetpack_sso_login_form_above_wpcom' );
+		/**
+		 * Allow extension above Jetpack's SSO form.
+		 *
+		 * @module sso
+		 *
+		 * @since 8.6.0
+		 */
+		do_action( 'jetpack_sso_login_form_above_wpcom' );
 
 		if ( $display_name && $gravatar ) :
 			?>
@@ -940,17 +1017,17 @@ class Jetpack_SSO {
 					<img width="72" height="72" src="<?php echo esc_html( $gravatar ); ?>" />
 
 					<h2>
-					<?php
-					echo wp_kses(
-						/* translators: %s a user display name. */
-						sprintf( __( 'Log in as <span>%s</span>', 'jetpack' ), esc_html( $display_name ) ),
-						array( 'span' => true )
-					);
-					?>
+				<?php
+				echo wp_kses(
+					/* translators: %s a user display name. */
+					sprintf( __( 'Log in as <span>%s</span>', 'jetpack' ), esc_html( $display_name ) ),
+					array( 'span' => true )
+				);
+				?>
 					</h2>
 				</div>
 
-			<?php endif; ?>
+				<?php endif; ?>
 
 
 			<div id="jetpack-sso-wrap__action">
@@ -986,18 +1063,18 @@ class Jetpack_SSO {
 				<?php endif; ?>
 			</div>
 
-				<?php
-				/**
-				 * Allow extension below Jetpack's SSO form.
-				 *
-				 * @module sso
-				 *
-				 * @since 8.6.0
-				 */
-				do_action( 'jetpack_sso_login_form_below_wpcom' );
+					<?php
+					/**
+					 * Allow extension below Jetpack's SSO form.
+					 *
+					 * @module sso
+					 *
+					 * @since 8.6.0
+					 */
+					do_action( 'jetpack_sso_login_form_below_wpcom' );
 
-				if ( ! Jetpack_SSO_Helpers::should_hide_login_form() ) :
-					?>
+					if ( ! Jetpack_SSO_Helpers::should_hide_login_form() ) :
+						?>
 					<div class="jetpack-sso-or">
 						<span><?php esc_html_e( 'Or', 'jetpack' ); ?></span>
 					</div>
@@ -1013,9 +1090,9 @@ class Jetpack_SSO {
 						esc_html_e( 'Log in with WordPress.com', 'jetpack' )
 						?>
 					</a>
-				<?php endif; ?>
+					<?php endif; ?>
 		</div>
-			<?php
+				<?php
 	}
 
 	/**
