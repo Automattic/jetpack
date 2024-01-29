@@ -177,4 +177,21 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 
 		return $extra_data;
 	}
+
+	/**
+	 * Converts all elements of an array to strings, recursively handling nested arrays.
+	 *
+	 * @param array $array The array to process.
+	 * @return array The array with all values converted to strings.
+	 */
+	public static function stringify_array_values( $array ) {
+		foreach ( $array as $key => $value ) {
+			if ( is_array( $value ) ) {
+				$array[ $key ] = self::stringify_array_values( $value );
+			} else {
+				$array[ $key ] = strval( $value );
+			}
+		}
+		return $array;
+	}
 }
