@@ -307,8 +307,9 @@ class Jetpack_SSO {
 	 */
 	public function jetpack_user_connected_th( $columns ) {
 		$columns['user_jetpack'] = sprintf(
-			'<span title="%1$s">[?]</span>',
-			esc_attr__( 'Connected users can log-in to this site using their WordPress.com account.', 'jetpack' )
+			'<span title="%1$s">%2$s</span>',
+			esc_attr__( 'Connected users can log-in to this site using their WordPress.com account.', 'jetpack' ),
+			esc_html__( 'Status', 'jetpack' )
 		);
 		return $columns;
 	}

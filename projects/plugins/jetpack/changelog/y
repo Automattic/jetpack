@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-SSO: improve messaging and account binding between local and wp.com users
+SSO: update the user status column heading and change the color of not connected users
