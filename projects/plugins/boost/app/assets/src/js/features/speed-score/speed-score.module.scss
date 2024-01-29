@@ -6,14 +6,6 @@
 		margin: 1em 0;
 	}
 
-	h2 {
-		font-weight: 700;
-
-		@include breakpoint(xs) {
-			font-size: 27px;
-		}
-	}
-
 	.offline, .top {
 		margin-bottom: 2rem;
 	}
@@ -29,10 +21,6 @@
 		display: flex;
 		align-items: center;
 		color: #000;
-
-		@include breakpoint(xs) {
-			display: block;
-		}
 	}
 
 	.action-button {
@@ -46,4 +34,24 @@
 	}
 }
 
+:global(.jb-dashboard) .speed-scores h2 {
+	font-weight: 700;
 
+	@include breakpoint(xs) {
+		font-size: 27px;
+	}
+}
+
+@include breakpoint(xs) {
+	.speed-scores :global(.icon-tooltip-helper.is-wide .components-popover) {
+		left: -60px !important;
+	}
+
+	.speed-scores :global(.icon-tooltip-helper.is-wide .components-popover__content) {
+		width: 304px;
+	}
+
+	.speed-scores :global(.icon-tooltip-helper.is-wide .components-popover__arrow) {
+		left: 215px !important;
+	}
+}
