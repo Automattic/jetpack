@@ -85,8 +85,10 @@ const SpeedScore = () => {
 				>
 					{ site.online ? (
 						<div className={ styles.top } data-testid="speed-scores-top">
-							<h2>{ heading }</h2>
-							{ status === 'loaded' && <ContextTooltip /> }
+							<h2>
+								{ heading }
+								{ status === 'loaded' && <ContextTooltip /> }
+							</h2>
 							<Button
 								variant="link"
 								size="small"
