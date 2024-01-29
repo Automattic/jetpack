@@ -167,7 +167,7 @@ define( \'WP_CACHE\', true );',
 	public function delete_wp_cache_constant() {
 		$lines = file( ABSPATH . 'wp-config.php' );
 		foreach ( $lines as $key => $line ) {
-			if ( strpos( $line, 'WP_CACHE' ) !== false ) {
+			if ( preg_match( '#define\s*\(\s*[\'"]WP_CACHE[\'"]#', $line ) === 1 ) {
 				unset( $lines[ $key ] );
 			}
 		}
