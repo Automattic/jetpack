@@ -360,7 +360,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
-		// When the interface is set to wp-admin, we not add the Stats menu.
+		// When the interface is set to wp-admin, we don't add the Stats menu.
 		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
 			return;
 		}
