@@ -96,7 +96,9 @@ Note: These commands should be ran from `/jetpack-mu-wpcom` root directory.
 * `pnpm build-production-js` - Build Verbum production code.
 * `pnpm lint` - Check for lint issues in the code.
 * `pnpm run watch` - Watch file changes
-* `jetpack rsync mu-wpcom-plugin` - Sync local files to development environment. This command tool will ask you for the remote destination after your input it in the command line. Ensure the remote path is correct depending on the environment you're targetting. If you're targetting your sandbox, the remote destination should look like this: `USERNAME@HOSTNAME:~/public_html/wp-content/mu-plugins/jetpack-plugin/production`. You will also need to add `define( 'JETPACK_AUTOLOAD_DEV', true );` to mu-plugins/0-sandbox.php. More details for Simple site testing: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#simple-testing]. If you're targetting your WoA site, the remote destination should look like this: `mywoadevsite.wordpress.com@sftp.wp.com:htdocs/wp-content/plugins/jetpack-mu-wpcom-plugin-dev`. More details for WoA testing: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#woa]. In most cases you will not need to sync the Verbum code to 
+* `jetpack rsync mu-wpcom-plugin` - Sync local files to development environment. This command tool will ask you for the remote destination after your input it in the command line. Ensure the remote path is correct depending on the environment you're targetting. If you're targetting your sandbox, the remote destination should look like this: `USERNAME@HOSTNAME:~/public_html/wp-content/mu-plugins/jetpack-plugin/production`. You will also need to add `define( 'JETPACK_AUTOLOAD_DEV', true );` to mu-plugins/0-sandbox.php. More details for Simple site testing: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#simple-testing]. If you're targetting your WoA site, the remote destination should look like this: `mywoadevsite.wordpress.com@sftp.wp.com:htdocs/wp-content/plugins/jetpack-mu-wpcom-plugin-dev`. More details for WoA testing: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#woa]. 
+
+In most cases you will only need to sync the code to your sandbox, since Verbum is loaded through and on a simple site in all scenarios. There may be a case where you want to confirm that your PHP changes are not negatively affecting WoA sites (although Verbum will only load on Simple Sites, it doesn't hurt to be safe ). In this case, you will want to sync the code directly to your WoA using the steps above. 
 
 ### Local Development:
 
@@ -105,10 +107,14 @@ To test your changes, you will first need to build the Verbum code using one of 
 Reminder:
 
 On Simple Sites: Sync the Verbum code changes to your sandbox and sandbox the site your testing.
-On Atomic Sites: Sync the Verbum code changes to your sandbox and sandbox jetpack.wordpress.com
+On Atomic Sites: Sync the Verbum code changes to your sandbox and sandbox `jetpack.wordpress.com`.
 
 ### After Merge - Deploy process
 
 1. Create a Jetpack PR, review it, and merge.
 2. To initiate a Simple Site deployment, follow these instructions: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#simple-deployment]. The Jetpack release team (#jetpack-release) will also do a daily deployment for any merged changes, if you do not initiate a manual deployment.
 3. To initate a WoA deployment, follow these instructions: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#woa-deployment]. A new version of `jetpack-mu-wpcom` will be released weekly, if you do not initiate a manual deployment.
+
+### Where to add new Verbum Issues
+
+If you stumble upon any issues or have any suggestions for possible changes to Verbum, you can find the relevant project board here: https://github.com/Automattic/jetpack/projects/45.
