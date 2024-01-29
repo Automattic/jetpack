@@ -112,8 +112,9 @@ const Status: React.FC< StatusTypes > = ( {
 					} ) }
 					isPrimary={ highlightRegenerateButton }
 					onClick={ () => regenerateAction.mutate() }
+					icon={ highlightRegenerateButton ? undefined : <RefreshIcon /> }
+					iconSize={ 15 }
 				>
-					{ ! highlightRegenerateButton && <RefreshIcon /> }
 					{ __( 'Regenerate', 'jetpack-boost' ) }
 				</Button>
 			) }

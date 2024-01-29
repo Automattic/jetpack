@@ -24,7 +24,10 @@
 
 		.successes, .generating {
 			color: $gray_40;
-			margin-right: 115px;
+
+			@include breakpoint(md) {
+				margin-right: 115px;
+			}
 		}
 
 		.failures {
@@ -45,7 +48,6 @@
 	}
 
 	button {
-		font-size: 14px;
 		color: $gray_90;
 
 		&:global(.components-button.is-link) {
@@ -61,6 +63,10 @@
 			@include breakpoint(xs) {
 				margin-left: 0;
 			}
+		}
+
+		&:global(.components-button.has-icon) {
+			min-width: auto;
 		}
 
 		svg {
