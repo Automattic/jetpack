@@ -364,7 +364,7 @@ class Jetpack_SSO {
 	public function jetpack_show_connection_status( $val, $col, $user_id ) {
 		if ( 'user_jetpack' === $col && Jetpack::connection()->is_user_connected( $user_id ) ) {
 			$connection_html = sprintf(
-				'<span title="%1$s" class="jetpack-sso-invitation">%2$s</span>',
+				'<span title="%1$s" class="jetpack-sso-invitatio sso-connected-user">%2$s</span>',
 				esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack' ),
 				esc_html__( 'Connected', 'jetpack' )
 			);
@@ -421,7 +421,10 @@ class Jetpack_SSO {
 				color: #0073aa;
 				text-align: unset;
 			}
-			button.sso-disconnected-user {
+			.jetpack-sso-invitation.sso-connected-user {
+				color: #50575e;
+			}
+			.jetpack-sso-invitation.sso-disconnected-user {
 				cursor: pointer;
 				text-decoration: underline;
 			}
