@@ -19,7 +19,7 @@ import classnames from 'classnames';
 import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import { useProduct } from '../../hooks/use-product';
-import { useRedirectTo } from '../../hooks/use-redirect-to';
+import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
 
@@ -129,13 +129,13 @@ const ProductDetailCard = ( {
 	 */
 	const needsPurchase = ( ! isFree && ! hasRequiredPlan ) || quantity != null;
 
-	// Check for a possible redirect_to URL from the URL query params
-	const providedRedirectToURL = useRedirectTo();
+	// Redirect to the referrer URL when the `redirect_to_referrer` query param is present.
+	const referrerURL = useRedirectToReferrer();
 
 	/*
 	 * Function to handle the redirect URL selection.
 	 * - postCheckoutUrl is the URL provided by the product API and is the preferred URL
-	 * - providedRedirectToURL is the URL provided by the URL query params
+	 * - referrerURL is the referrer URL, in case the redirect_to_referrer flag was provided
 	 * - myJetpackCheckoutUri is the default URL
 	 */
 	const getCheckoutRedirectUrl = useCallback( () => {
@@ -143,12 +143,12 @@ const ProductDetailCard = ( {
 			return postCheckoutUrl;
 		}
 
-		if ( providedRedirectToURL ) {
-			return providedRedirectToURL;
+		if ( referrerURL ) {
+			return referrerURL;
 		}
 
 		return myJetpackCheckoutUri;
-	}, [ postCheckoutUrl, providedRedirectToURL, myJetpackCheckoutUri ] );
+	}, [ postCheckoutUrl, referrerURL, myJetpackCheckoutUri ] );
 
 	const checkoutRedirectUrl = getCheckoutRedirectUrl();
 
