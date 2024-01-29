@@ -360,6 +360,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		if ( isInBlockEditor ) {
 			editPost( { title: attributes.content ? attributes.content.trim() : '' } );
 			removeBlock( clientId );
+			tracks.recordEvent( 'jetpack_ai_assistant_block_accept', { feature: 'ai-assistant' } );
 		} else {
 			handleAcceptContent();
 		}
