@@ -36,11 +36,11 @@ class Boost_Cache_Settings {
 		}
 
 		$lines = file( $this->config_file );
-		if ( count( $lines ) < 2 ) {
+		if ( count( $lines ) < 4 ) {
 			$this->last_error = 'Invalid config file';
 			return false;
 		}
-		$settings = json_decode( $lines[1], true );
+		$settings = json_decode( $lines[3], true );
 		if ( ! is_array( $settings ) ) {
 			$this->last_error = 'Invalid config file';
 			return false;
@@ -79,7 +79,7 @@ class Boost_Cache_Settings {
 
 		$this->settings = array_merge( $this->settings, $settings );
 
-		$contents     = "<?php die();\n" . json_encode( $this->settings ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+		$contents     = "<?php die();\n/*\n * Configuration data for Jetpack Boost Cache.\n" . json_encode( $this->settings ) . "\n */"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 		$tmp_filename = $this->config_file . uniqid( uniqid(), true ) . '.tmp';
 		if ( false === file_put_contents( $tmp_filename, $contents ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			$this->last_error = 'Could not write to tmp config file';
