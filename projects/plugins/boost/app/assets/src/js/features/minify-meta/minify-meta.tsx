@@ -4,7 +4,6 @@ import { type Props, useMetaQuery } from '$lib/stores/minify';
 import styles from './minify-meta.module.scss';
 import { Button } from '@automattic/jetpack-components';
 import Pencil from '$svg/pencil';
-import classNames from 'classnames';
 
 const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Props ) => {
 	const [ values, updateValues ] = useMetaQuery( datasyncKey );
