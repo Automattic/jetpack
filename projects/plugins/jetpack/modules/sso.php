@@ -219,9 +219,19 @@ class Jetpack_SSO {
 		// Enqueue the CSS for the admin create user page.
 		wp_enqueue_style( 'jetpack-sso-admin-create-user', plugins_url( 'modules/sso/jetpack-sso-admin-create-user.css', JETPACK__PLUGIN_FILE ), array(), time() );
 
-		$message = __(
-			'New users will receive an invite to join WordPress.com, so they can log in securely using <a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="https://jetpack.com/support/sso/">Secure Sign On</a>.',
-			'jetpack'
+		$message = wp_kses(
+			__(
+				'New users will receive an invite to join WordPress.com, so they can log in securely using <a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="https://jetpack.com/support/sso/">Secure Sign On</a>.',
+				'jetpack'
+			),
+			array(
+				'a' => array(
+					'class'  => array(),
+					'href'   => array(),
+					'rel'    => array(),
+					'target' => array(),
+				),
+			)
 		);
 		wp_admin_notice(
 			$message,
