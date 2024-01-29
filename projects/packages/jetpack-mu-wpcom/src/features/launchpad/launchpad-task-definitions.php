@@ -1040,7 +1040,7 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 	// the public API.
 	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
 	if ( $is_atomic_site ) {
-		$domains = wpcom_request_domains_list();
+		$domains = wpcom_launchpad_request_domains_list();
 
 		if ( is_wp_error( $domains ) ) {
 			return false;
@@ -1049,7 +1049,7 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 		$domains_pending_icann_verification = array_filter(
 			$domains,
 			function ( $domain ) {
-				return $domain->is_pending_icann_verification;
+				return isset( $domain->is_pending_icann_verification ) && $domain->is_pending_icann_verification;
 			}
 		);
 	} else {
@@ -1096,7 +1096,19 @@ function wpcom_launchpad_verify_domain_email_task_displayed() {
  *
  * @return array|WP_Error Array of domains and their verification status or WP_Error if the request fails.
  */
-function wpcom_request_domains_list() {
+function wpcom_launchpad_request_domains_list() {
+	// Use a static variable as a temporary in-memory cache to avoid multiple outbound
+	// HTTP requests within a single incoming request.
+	// We don't expect this to be triggered multiple times, but it's worth adding some
+	// light caching to avoid multiple, possibly slow HTTP requests where the underlying data
+	// is highly unlikely to change.
+	// The "cache" only lasts as long as the current request/memory space, so we don't need to invalidate it.
+	static $cached_domains = null;
+
+	if ( $cached_domains !== null ) {
+		return $cached_domains;
+	}
+
 	$site_id       = \Jetpack_Options::get_option( 'id' );
 	$request_path  = sprintf( '/sites/%d/domains', $site_id );
 	$wpcom_request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
@@ -1125,14 +1137,16 @@ function wpcom_request_domains_list() {
 	$body         = wp_remote_retrieve_body( $wpcom_request );
 	$decoded_body = json_decode( $body );
 
-	if ( ! isset( $decoded_body->domains ) ) {
+	if ( ! isset( $decoded_body->domains ) || ! is_array( $decoded_body->domains ) ) {
 		return new \WP_Error(
 			'failed_to_fetch_data',
 			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
 		);
 	}
 
-	return $decoded_body->domains;
+	$cached_domains = $decoded_body->domains;
+
+	return $cached_domains;
 }
 
 /**
