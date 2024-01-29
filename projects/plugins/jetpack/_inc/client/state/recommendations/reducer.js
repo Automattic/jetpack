@@ -842,12 +842,12 @@ export const isOnboardingEligibleToShowInSummary = ( state, onboardingName ) => 
 		case ONBOARDING_JETPACK_VIDEOPRESS:
 		case ONBOARDING_JETPACK_SEARCH:
 		case ONBOARDING_JETPACK_SECURITY:
+		case ONBOARDING_JETPACK_SOCIAL_ADVANCED:
 			// Don't show plans that overlap with active plan: Complete
 			return ! viewedOnboardings.includes( ONBOARDING_JETPACK_COMPLETE );
 		case ONBOARDING_JETPACK_BACKUP:
 		case ONBOARDING_JETPACK_ANTI_SPAM:
 		case ONBOARDING_JETPACK_SCAN:
-		case ONBOARDING_JETPACK_SOCIAL_ADVANCED:
 			// Don't show plans that overlap with either active plans: Complete or Security
 			return (
 				! viewedOnboardings.includes( ONBOARDING_JETPACK_COMPLETE ) &&
