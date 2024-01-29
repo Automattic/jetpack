@@ -360,6 +360,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		if ( isInBlockEditor ) {
 			editPost( { title: attributes.content ? attributes.content.trim() : '' } );
 			removeBlock( clientId );
+			tracks.recordEvent( 'jetpack_ai_assistant_block_accept', { feature: 'ai-assistant' } );
 		} else {
 			handleAcceptContent();
 		}
@@ -431,6 +432,20 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		</>
 	);
 
+	const error = (
+		<>
+			{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
+				<Notice
+					status={ errorData.status }
+					isDismissible={ false }
+					className="jetpack-ai-assistant__error"
+				>
+					{ errorData.message }
+				</Notice>
+			) }
+		</>
+	);
+
 	return (
 		<KeyboardShortcuts
 			bindGlobal
@@ -443,16 +458,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			} }
 		>
 			<div { ...blockProps }>
-				{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
-					<Notice
-						status={ errorData.status }
-						isDismissible={ false }
-						className="jetpack-ai-assistant__error"
-					>
-						{ errorData.message }
-					</Notice>
-				) }
-
 				{ contentIsLoaded && ! useGutenbergSyntax && (
 					<div className="jetpack-ai-assistant__content">
 						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
@@ -586,6 +591,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					showGuideLine={ contentIsLoaded }
 					showRemove={ attributes?.content?.length > 0 }
 					bannerComponent={ banner }
+					errorComponent={ error }
 				/>
 
 				{ ! loadingImages && resultImages.length > 0 && (
