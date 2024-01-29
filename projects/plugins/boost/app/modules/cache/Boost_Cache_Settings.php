@@ -24,6 +24,11 @@ class Boost_Cache_Settings {
 	 * Load the settings from the config file, if available.
 	 */
 	private function init_settings() {
+
+		if ( ! file_exists( $this->config_file_path ) ) {
+			mkdir( $this->config_file_path, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		}
+
 		if ( ! file_exists( $this->config_file ) ) {
 			$result = $this->set( array( 'enabled' => true ) );
 			// TODO: handle $result if it's false
