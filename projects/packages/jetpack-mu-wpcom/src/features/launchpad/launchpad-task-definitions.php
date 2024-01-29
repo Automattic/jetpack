@@ -971,10 +971,11 @@ function wpcom_launchpad_is_mobile_app_installed_visible() {
 /**
  * Verifies if the Mobile App is installed for the current user.
  *
- * @param bool $is_complete The current task status.
+ * @param array $task The task object.
+ * @param bool  $is_complete The current task status.
  * @return bool True if the Mobile App is installed for the current user.
  */
-function wpcom_launchpad_is_mobile_app_installed( $is_complete ) {
+function wpcom_launchpad_is_mobile_app_installed( $task, $is_complete ) {
 	if ( $is_complete ) {
 		return true;
 	}
