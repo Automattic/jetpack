@@ -406,7 +406,7 @@ class Jetpack_SSO {
 		?>
 		<style>
 			#the-list tr:has(.sso-disconnected-user) {
-				background: #ffe8eb;
+				background: #F5E6B3;
 			}
 			#the-list tr:has(.sso-pending-invite) {
 				background: #ccedef;
