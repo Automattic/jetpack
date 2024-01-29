@@ -963,13 +963,10 @@ function wpcom_launchpad_is_domain_upsell_task_visible() {
  * @return bool True if the Install the mobile app task should be visible.
  */
 function wpcom_launchpad_is_mobile_app_installed_visible() {
-	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
-	// If the site is an Atomic site, we should not show the task.
-	if ( $is_atomic_site ) {
-		return false;
-	}
-
-	return true;
+	// TODO: We are hidding the task for now because we the completion logic
+	// is not fully implemented yet. We should make it return true for simple sites
+	// once we get the completion logic in place.
+	return false;
 }
 
 /**
