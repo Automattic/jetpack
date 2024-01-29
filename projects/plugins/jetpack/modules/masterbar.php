@@ -28,7 +28,9 @@ new Admin_Color_Schemes();
 if ( ( new Host() )->is_woa_site() ) {
 	new Inline_Help();
 	require_once __DIR__ . '/masterbar/wp-posts-list/bootstrap.php';
-	require_once __DIR__ . '/masterbar/profile-edit/bootstrap.php';
+	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+		require_once __DIR__ . '/masterbar/profile-edit/bootstrap.php';
+	}
 	require_once __DIR__ . '/masterbar/nudges/bootstrap.php';
 }
 
