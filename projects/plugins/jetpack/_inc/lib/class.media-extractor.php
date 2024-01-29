@@ -437,7 +437,7 @@ class Jetpack_Media_Meta_Extractor {
 	}
 
 	/**
-	 * Given an extracted image array reduce to src and alt_text.
+	 * Given an extracted image array reduce to src,  alt_text, src_width, and src_height.
 	 *
 	 * @param array $images extracted image array.
 	 *
@@ -450,10 +450,12 @@ class Jetpack_Media_Meta_Extractor {
 			if ( empty( $image['src'] ) ) {
 				continue;
 			}
-			if ( ! empty( $image['alt_text'] ) ) {
+			if ( ! empty( $image['alt_text'] ) || ! empty( $image['src_height'] ) || ! empty( $image['src_width'] ) ) {
 				$ret_images[] = array(
-					'url'      => $image['src'],
-					'alt_text' => $image['alt_text'],
+					'url'        => $image['src'],
+					'alt_text'   => $image['alt_text'] ? $image['alt_text'] : '',
+					'src_width'  => $image['src_width'] ? $image['src_width'] : '',
+					'src_height' => $image['src_height'] ? $image['src_height'] : '',
 				);
 			} else {
 				$ret_images[] = $image['src'];
@@ -543,10 +545,12 @@ class Jetpack_Media_Meta_Extractor {
 			}
 
 			if ( ! in_array( $queryless, $image_list, true ) ) {
-				if ( $extract_alt_text && ! empty( $extracted_image['alt_text'] ) ) {
+				if ( $extract_alt_text ) {
 					$image_list[] = array(
-						'url'      => $queryless,
-						'alt_text' => $extracted_image['alt_text'],
+						'url'        => $queryless,
+						'alt_text'   => $extracted_image['alt_text'],
+						'src_width'  => $extracted_image['src_width'],
+						'src_height' => $extracted_image['src_height'],
 					);
 				} else {
 					$image_list[] = $queryless;
