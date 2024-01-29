@@ -969,7 +969,10 @@ function wpcom_launchpad_is_mobile_app_installed_visible() {
 		return false;
 	}
 
-	return true;
+	// TODO: We are hidding the task for now because we the completion logic
+	// is not fully implemented yet. We should make it return true once the
+	// completion logic is shipped.
+	return false;
 }
 
 /**
