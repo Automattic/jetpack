@@ -34,6 +34,6 @@ function jetpack_likes_master_iframe() {
 		$likers_text = wp_kses( '<span>%d</span>', array( 'span' => array() ) );
 	?>
 	<iframe src='<?php echo esc_url( $src ); ?>' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
-	<div id='likes-other-gravatars' class='<?php echo esc_attr( 'wpl-new-layout' ); ?>' role="dialog" aria-hidden="true" tabindex="-1"><div class="likes-text"><?php echo $likers_text; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
+	<div id='likes-other-gravatars' class='wpl-new-layout' role="dialog" aria-hidden="true" tabindex="-1"><div class="likes-text"><?php echo $likers_text; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
 	<?php
 }
