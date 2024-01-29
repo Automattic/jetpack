@@ -12,11 +12,9 @@ const JetpackManageBanner = props => {
 				target: target,
 				feature: 'manage',
 				page: props.path,
-				is_user_wpcom_connected: props.isUserLinked ? 'yes' : 'no',
-				is_connection_owner: props.isOwner ? 'yes' : 'no',
 			} );
 		},
-		[ props.path, props.isUserLinked, props.isOwner ]
+		[ props.path ]
 	);
 
 	const handleLearnMoreClick = useCallback( () => {
