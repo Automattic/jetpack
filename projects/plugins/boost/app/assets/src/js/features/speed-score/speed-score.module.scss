@@ -29,6 +29,10 @@
 		display: flex;
 		align-items: center;
 		color: #000;
+
+		@include breakpoint(xs) {
+			display: block;
+		}
 	}
 
 	.action-button {

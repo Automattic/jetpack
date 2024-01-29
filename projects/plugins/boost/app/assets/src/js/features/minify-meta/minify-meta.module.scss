@@ -1,4 +1,5 @@
-@import "$css/main/variables.scss";
+@import "$css/main/variables";
+@import "$css/main/mixins";
 
 .minify-meta {
 	align-items: flex-start;
@@ -6,6 +7,10 @@
 	flex-direction: row;
 	font-size: 14px;
 	line-height: 22px;
+
+	@include breakpoint(xs) {
+		display: block;
+	}
 }
 
 .summary {
