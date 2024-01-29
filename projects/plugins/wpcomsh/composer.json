@@ -13,7 +13,7 @@
     "wordpress/classic-editor-plugin": "1.5",
     "automattic/jetpack-config": "^1.5",
     "automattic/jetpack-post-list": "^0.2.4",
-    "automattic/jetpack-mu-wpcom": "^5.9.0"
+    "automattic/jetpack-mu-wpcom": "^5.11.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^9",
