@@ -112,7 +112,6 @@ const Status: React.FC< StatusTypes > = ( {
 					weight="regular"
 					onClick={ () => regenerateAction.mutate() }
 					icon={ highlightRegenerateButton ? undefined : <RefreshIcon /> }
-					iconSize={ 15 }
 				>
 					{ __( 'Regenerate', 'jetpack-boost' ) }
 				</Button>
