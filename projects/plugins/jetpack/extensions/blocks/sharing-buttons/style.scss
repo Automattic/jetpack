@@ -6,6 +6,22 @@
     flex-wrap: wrap;
     gap: 0;
     margin: 5px;
+
+	&.has-small-icon-size {
+		font-size: 12px;
+	}
+
+	&.has-normal-icon-size {
+		font-size: 16px;
+	}
+
+	&.has-large-icon-size {
+		font-size: 24px;
+	}
+
+	&.has-huge-icon-size {
+		font-size: 36px;
+	}
 }
 
 ul.jetpack-sharing-buttons__services-list.has-background {
