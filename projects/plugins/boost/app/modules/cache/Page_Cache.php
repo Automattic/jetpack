@@ -13,7 +13,8 @@ require_once __DIR__ . '/Boost_Cache_Utils.php';
 class Page_Cache implements Pluggable, Is_Always_On {
 
 	public function __construct() {
-		add_action( 'jetpack_boost_deactivate', array( $this, 'deactivate' ) );
+		register_deactivation_hook( JETPACK_BOOST_PATH, array( $this, 'deactivate' ) );
+		register_uninstall_hook( JETPACK_BOOST_PATH, array( $this, 'uninstall' ) );
 	}
 
 	/*
@@ -125,10 +126,21 @@ define( \'WP_CACHE\', true );',
 		$this->delete_advanced_cache(); // how do we handle errors?
 		$this->delete_wp_cache_constant(); // how do we handle errors?
 
+		return true;
+	}
+
+	/*
+	 * Removes the boost-cache directory, removing all cached files and the config file.
+	 * Fired when the plugin is uninstalled.
+	 */
+	public function uninstall() {
+		$this->deactivate();
+
 		$result = Boost_Cache_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache' );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
+
 		return true;
 	}
 
