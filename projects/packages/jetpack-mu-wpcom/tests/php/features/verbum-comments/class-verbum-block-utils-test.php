@@ -42,10 +42,10 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 	 * @covers Verbum_Block_Utils::render_verbum_blocks
 	 */
 	public function test_comment_text_block_sanitization_sanity_check() {
-		$comment_content  = "<!-- wp:paragraph -->\r\n<p>test</p>\r\n<!-- /wp:paragraph --><!-- wp:list -->\r\n<ul><!-- wp:list-item -->\r\n<li>1</li>\r\n<!-- /wp:list-item -->\r\n\r\n<!-- wp:list-item -->\r\n<li>2</li>\r\n<!-- /wp:list-item -->\r\n\r\n<!-- wp:list-item -->\r\n<li>3</li>\r\n<!-- /wp:list-item --></ul>\r\n<!-- /wp:list --><!-- wp:quote -->\r\n<blockquote class=\"wp-block-quote\"><!-- wp:paragraph -->\r\n<p>something</p>\r\n<!-- /wp:paragraph --><cite>someone</cite></blockquote>\r\n<!-- /wp:quote -->";
-		$filtered_content = Verbum_Block_Utils::render_verbum_blocks( $comment_content );
+		$comment_content  = '<!-- wp:paragraph --><p>test</p><!-- /wp:paragraph --><!-- wp:list --><ul><!-- wp:list-item --><li>1</li><!-- /wp:list-item --><!-- wp:list-item --><li>2</li><!-- /wp:list-item --><!-- wp:list-item --><li>3</li><!-- /wp:list-item --></ul><!-- /wp:list --><!-- wp:quote --><blockquote class="wp-block-quote"><!-- wp:paragraph --><p>something</p><!-- /wp:paragraph --><cite>someone</cite></blockquote><!-- /wp:quote -->';
+		$filtered_content = preg_replace( '/\R+/', '', Verbum_Block_Utils::render_verbum_blocks( $comment_content ) );
 
-		$expected_content = "\r\n<p>test</p>\r\n\r\n<ul>\r\n<li>1</li>\r\n\r\n\r\n\r\n<li>2</li>\r\n\r\n\r\n\r\n<li>3</li>\r\n</ul>\r\n\r\n<blockquote class=\"wp-block-quote\">\r\n<p>something</p>\r\n<cite>someone</cite></blockquote>\r\n";
+		$expected_content = '<p>test</p><ul><li>1</li><li>2</li><li>3</li></ul><blockquote class="wp-block-quote"><p>something</p><cite>someone</cite></blockquote>';
 		$this->assertEquals( $expected_content, $filtered_content );
 	}
 

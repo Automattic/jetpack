@@ -26,16 +26,17 @@ class Verbum_Block_Utils {
 
 				// Recursively apply the filtering to innerBlocks
 				if ( isset( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
-					$filtered_block['innerBlocks'] = self::filter_blocks_recursive( $block['innerBlocks'] );
+					$filtered_inner_blocks = self::filter_blocks_recursive( $block['innerBlocks'] );
 
-					// Filter possible NULL values from innerContent to avoid parsing issues
-					if ( empty( $filtered_block['innerBlocks'] ) && ! empty( $filtered_block['innerContent'] ) ) {
-						$filtered_block['innerContent'] = array_filter(
-							$filtered_block['innerContent'],
-							function ( $value ) {
-								return $value !== null;
-							}
-						);
+					if ( count( $filtered_inner_blocks ) !== count( $block['innerBlocks'] ) ) {
+						$filtered_block['innerBlocks'] = $filtered_inner_blocks;
+
+						// Prevent malformed content by serializing and parsing the block again
+						// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+						$processed_blocks = @parse_blocks( serialize_block( $filtered_block ) );
+						if ( ! empty( $processed_blocks ) ) {
+							$filtered_block = $processed_blocks[0];
+						}
 					}
 				}
 
