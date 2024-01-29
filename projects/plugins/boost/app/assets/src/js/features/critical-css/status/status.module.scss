@@ -48,29 +48,11 @@
 	}
 
 	button {
-		color: $gray_90;
-
-		&:global(.components-button.is-link) {
-			margin-left: 8px;
-			font-weight: normal;
-
-			&:hover {
-				color: $gray_90;
-				background: none;
-				text-decoration-thickness: inherit;
-			}
-
-			@include breakpoint(xs) {
-				margin-left: 0;
-			}
-		}
-
 		&:global(.components-button.has-icon) {
 			min-width: auto;
 		}
 
 		svg {
-			margin: 4px 4px 2px 0;
 			fill: $jetpack-green;
 		}
 	}

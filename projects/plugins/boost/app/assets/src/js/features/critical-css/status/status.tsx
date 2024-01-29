@@ -107,10 +107,9 @@ const Status: React.FC< StatusTypes > = ( {
 
 			{ cssState.status !== 'pending' && (
 				<Button
-					className={ classNames( {
-						'is-link': ! highlightRegenerateButton,
-					} ) }
-					isPrimary={ highlightRegenerateButton }
+					variant={ highlightRegenerateButton ? 'primary' : 'link' }
+					size="small"
+					weight="regular"
 					onClick={ () => regenerateAction.mutate() }
 					icon={ highlightRegenerateButton ? undefined : <RefreshIcon /> }
 					iconSize={ 15 }
