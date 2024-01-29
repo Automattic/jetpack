@@ -102,11 +102,25 @@ export const useDebouncedRefreshScore = (
 	loadScore: RefreshFunction
 ) => {
 	const currentConfigString = JSON.stringify( [ moduleStates, criticalCssCreated ] );
+
+	/*
+	 * Keep track of the config string that was responsible for the last score refresh.
+	 *
+	 * By maintaining this value and comparing it to the current config string, we can
+	 * avoid refreshing the score when the config change was undone by the user quickly.
+	 * Example: The user toggles on a module, then toggles it off again within debounce
+	 * duration. We don't want to refresh the score in this case.
+	 */
 	const lastScoreConfigString = useRef( currentConfigString );
 
 	// Debounced function: Refresh the speed score if the config has changed.
 	const debouncedRefreshScore = useDebouncedCallback(
 		( newConfig: string, generating: boolean ) => {
+			/*
+			 * Trigger a refresh if config is different from last speed score refresh.
+			 * While critical CSS is currently generating, skip refreshing the score as
+			 * the impact of the config change won't be visible until the CSS is done.
+			 */
 			if ( lastScoreConfigString.current !== newConfig && ! generating ) {
 				lastScoreConfigString.current = newConfig;
 				loadScore();
