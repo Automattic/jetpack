@@ -554,6 +554,11 @@ class Jetpack_SSO {
 				cursor: pointer;
 				text-decoration: underline;
 			}
+			.jetpack-sso-invitation.sso-disconnected-user:hover,
+			.jetpack-sso-invitation.sso-disconnected-user:focus,
+			.jetpack-sso-invitation.sso-disconnected-user:active {
+				color: #0096dd;
+			}
 		</style>
 		<?php
 	}
