@@ -16,7 +16,7 @@ The existing Like & Reblog button features are now available as a block. With th
 - testing with different site themes
 - testing with different site languages
 - testing both frontend and editor views
-- test accross different screen sizes
+- test across different screen sizes
 
 ### Sharing Buttons Block
 
@@ -26,7 +26,7 @@ Similar to the Like block above, the existing Sharing Buttons feature is now ava
 - adding the Sharing Buttons block nested within other blocks (e.g., Group or Columns)
 - creating a block pattern where the Sharing Buttons block is present
 - testing both frontend and editor views
-- test accross different screen sizes
+- test across different screen sizes
 - with a block-based theme active, navigate to Jetpack > Setting > Sharing and test with the existing Sharing Buttons toggle setting & functionality
 
 ### And More!
