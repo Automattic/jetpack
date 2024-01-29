@@ -10,7 +10,7 @@ const JetpackManageBanner = props => {
 		target => {
 			analytics.tracks.recordJetpackClick( {
 				target: target,
-				feature: 'agencies',
+				feature: 'manage',
 				page: props.path,
 				is_user_wpcom_connected: props.isUserLinked ? 'yes' : 'no',
 				is_connection_owner: props.isOwner ? 'yes' : 'no',
@@ -24,11 +24,11 @@ const JetpackManageBanner = props => {
 	}, [ trackEvent ] );
 
 	const handleManageSitesClick = useCallback( () => {
-		trackEvent( 'jp-manage-sites-click' );
+		trackEvent( 'jp-manage-dashboard-sites-click' );
 	}, [ trackEvent ] );
 
 	const handleSignUpForFreeClick = useCallback( () => {
-		trackEvent( 'jp-manage-sign-up' );
+		trackEvent( 'jp-manage-sign-up-click' );
 	}, [ trackEvent ] );
 
 	const redirectOrigin = 'jetpack-at-a-glance';
