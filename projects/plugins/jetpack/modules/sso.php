@@ -435,8 +435,9 @@ class Jetpack_SSO {
 	 */
 	public function jetpack_user_connected_th( $columns ) {
 		$columns['user_jetpack'] = sprintf(
-			'<span title="%1$s">[?]</span>',
-			esc_attr__( 'Connected users can log-in to this site using their WordPress.com account.', 'jetpack' )
+			'<span title="%1$s">%2$s</span>',
+			esc_attr__( 'Connected users can log-in to this site using their WordPress.com account.', 'jetpack' ),
+			esc_html__( 'Status', 'jetpack' )
 		);
 		return $columns;
 	}
@@ -533,7 +534,7 @@ class Jetpack_SSO {
 		?>
 		<style>
 			#the-list tr:has(.sso-disconnected-user) {
-				background: #ffe8eb;
+				background: #F5E6B3;
 			}
 			#the-list tr:has(.sso-pending-invite) {
 				background: #ccedef;
@@ -544,13 +545,19 @@ class Jetpack_SSO {
 			.jetpack-sso-invitation {
 				background: none;
 				border: none;
+				color: #50575e;
 				padding: 0;
-				color: #0073aa;
 				text-align: unset;
 			}
-			button.sso-disconnected-user {
+			.jetpack-sso-invitation.sso-disconnected-user {
+				color: #0073aa;
 				cursor: pointer;
 				text-decoration: underline;
+			}
+			.jetpack-sso-invitation.sso-disconnected-user:hover,
+			.jetpack-sso-invitation.sso-disconnected-user:focus,
+			.jetpack-sso-invitation.sso-disconnected-user:active {
+				color: #0096dd;
 			}
 		</style>
 		<?php
