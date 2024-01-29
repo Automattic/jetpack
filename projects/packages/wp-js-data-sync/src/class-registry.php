@@ -60,7 +60,7 @@ class Registry {
 	private function sanitize_key( $key ) {
 		$sanitized_key = sanitize_key( $key );
 		$sanitized_key = str_replace( '-', '_', $sanitized_key );
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && $sanitized_key !== $key ) {
+		if ( DS_Utils::is_debug() && $sanitized_key !== $key ) {
 			// If the key is invalid,
 			// Log an error during development
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log

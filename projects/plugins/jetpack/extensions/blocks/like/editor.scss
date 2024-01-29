@@ -10,7 +10,10 @@
 	display: none;
 }
 
-/* Fetched below from https://widgets.wp.com/likes/style.css at 2024-01-15T08:02:21.397Z */
+/* Fetched below from https://widgets.wp.com/likes/style.css at 2024-01-23T11:29:16.073Z */
+.wpl-likebox {
+	container-type:inline-size;
+}
 .wpl-likebox,.wpl-follow a,.wpl-count a {
 	font-size:11px!important;
 	font-family:"Open Sans",sans-serif!important;
@@ -77,8 +80,21 @@
 .wpl-button.like a span,.wpl-button.liked a span,.wpl-button.reblog a span {
 	margin-left:3px;
 }
+@container (max-width:320px) {
+	.wpl-button {
+		min-width:auto;
+	}
+	.wpl-button a {
+		padding-bottom:10px;
+	}
+	.wpl-button a span {
+		display:none;
+	}
+}
 .wpl-count {
 	clear:both;
+	text-overflow:ellipsis;
+	overflow:hidden;
 }
 .wpl-count-text {
 	line-height:1.6;
