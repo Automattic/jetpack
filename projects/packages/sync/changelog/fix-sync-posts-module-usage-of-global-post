@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Jetpack Sync: Fix restoring post global before enqueuing a post action.

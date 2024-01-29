@@ -287,7 +287,9 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 
 			return result;
 		} catch ( e ) {
-			throw new DataSyncError( url, 'failed_to_sync', e.message );
+			const status =
+				e instanceof DOMException && e.name === 'AbortError' ? 'aborted' : 'failed_to_sync';
+			throw new DataSyncError( url, status, e.message );
 		}
 	}
 

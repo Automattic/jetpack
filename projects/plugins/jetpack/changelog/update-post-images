@@ -1,4 +1,4 @@
 Significance: patch
-Type: compat
+Type: other
 
-Post Images: avoid PHP warnings on sites using PHP 8.1+, when a post image has a malformed URL.
+Jetpack_PostImages::from_attachment: Prevent warning when $thumb_post_data cannot be found

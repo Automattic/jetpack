@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.10.0] - 2024-01-25
+### Added
+- Add Verbum Comments in jetpack-mu-wpcom plugin. [#35196]
+
+## [5.9.0] - 2024-01-22
+### Added
+- Added the completion logic for the 'Install the mobile app' task [#35110]
+- Adds the completion logic for the Verify Domain Email task [#35068]
+- Block theme previews: show an education modal when previewing a theme. [#34935]
+- Launchpad: Enabled to temporary dismiss a dismissible launchpad [#34889]
+
+### Changed
+- Dotcom patterns: use assembler v2 patterns in editor [#35081]
+- Newsletter launchpad: move email verify task above subscriber task [#35084]
+
+### Fixed
+- jetpack-mu-wpcom: Prevent get_plugin_data indirectly calling wptexturize. [#35087]
+
+## [5.8.2] - 2024-01-15
+### Added
+- Add the completion logic for the `front_page_updated` task [#34837]
+- Add the Verify Domain Email task [#34893]
+
+### Removed
+- Removes the `Set up your Professional Email` task [#34865]
+
 ## [5.8.1] - 2024-01-08
 ### Added
 - Adds the is_dismissible prop to the Launchpad task list definition. [#34839]
@@ -515,6 +541,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.10.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.9.0...v5.10.0
+[5.9.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.2...v5.9.0
+[5.8.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.1...v5.8.2
 [5.8.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.0...v5.8.1
 [5.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.7.0...v5.8.0
 [5.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.6.0...v5.7.0

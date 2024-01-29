@@ -162,7 +162,7 @@ class Speed_Score_Request extends Cacheable {
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
 	public function execute() {
-		$response = $this->get_client()->post(
+		$response = Boost_API::post(
 			'speed-scores',
 			array(
 				'request_id'     => $this->get_cache_id(),
@@ -210,7 +210,7 @@ class Speed_Score_Request extends Cacheable {
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
 	public function poll_update() {
-		$response = $this->get_client()->get(
+		$response = Boost_API::get(
 			sprintf(
 				'speed-scores/%s',
 				$this->get_cache_id()
@@ -226,7 +226,7 @@ class Speed_Score_Request extends Cacheable {
 			return $response;
 		}
 
-		switch ( $response->status ) {
+		switch ( $response['status'] ) {
 			case 'pending':
 				// The initial job probably failed, dispatch again if so.
 				if ( $this->created <= strtotime( '-15 mins' ) ) {
@@ -236,7 +236,7 @@ class Speed_Score_Request extends Cacheable {
 
 			case 'error':
 				$this->status = 'error';
-				$this->error  = $response->error;
+				$this->error  = $response['error'];
 				$this->store();
 				break;
 
@@ -292,7 +292,7 @@ class Speed_Score_Request extends Cacheable {
 	/**
 	 * Save the speed score record to history.
 	 *
-	 * @param object $response Response from api.
+	 * @param array $response Response from api.
 	 */
 	private function record_history( $response ) {
 		$history       = new Speed_Score_History( $this->url );
@@ -302,23 +302,14 @@ class Speed_Score_Request extends Cacheable {
 		$current_theme = wp_get_theme()->get( 'Name' );
 
 		// Only change if there is a difference from last score or the theme changed.
-		if ( $last_scores !== $response->scores || $current_theme !== $last_theme ) {
+		if ( $last_scores !== $response['scores'] || $current_theme !== $last_theme ) {
 			$history->push(
 				array(
 					'timestamp' => time(),
-					'scores'    => $response->scores,
+					'scores'    => $response['scores'],
 					'theme'     => $current_theme,
 				)
 			);
 		}
-	}
-
-	/**
-	 * Instantiate the API client.
-	 *
-	 * @return Boost_API_Client
-	 */
-	private function get_client() {
-		return Boost_API::get_client();
 	}
 }

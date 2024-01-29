@@ -1,7 +1,5 @@
 <?php
 
-use Automattic\Jetpack\Status;
-use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
@@ -11,7 +9,6 @@ use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
-use Automattic\Jetpack_Boost\Data_Sync\Premium_Features_Entry;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Regenerate_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_CSS;
@@ -19,6 +16,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Err
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Errors;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
+use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
@@ -40,12 +38,14 @@ function jetpack_boost_register_option( $key, $parser, $entry = null ) {
 
 /**
  * Register a new Jetpack Boost Data_Sync Action
- * @param $key string
+ *
+ * @param $key         string
  * @param $action_name string
- * @param $instance Data_Sync_Action
+ * @param $instance    Data_Sync_Action
  *
  * @return void
  */
+
 function jetpack_boost_register_action( $key, $action_name, $request_schema, $instance ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
 			->register_action( $key, $action_name, $request_schema, $instance );
@@ -112,7 +112,13 @@ $critical_css_provider_error_set_schema = Schema::as_array(
 			'type'    => Schema::as_string(),
 			'meta'    => Schema::any_json_data()->nullable(),
 		)
-	)->fallback( array() )
+	)->fallback(
+		array(
+			'url'     => '',
+			'message' => '',
+			'type'    => '',
+		)
+	)
 );
 
 $critical_css_state_schema = Schema::as_assoc_array(
@@ -160,8 +166,6 @@ $critical_css_suggest_regenerate_schema = Schema::enum(
 	)
 )->nullable();
 
-$premium_features_schema = Schema::as_array( Schema::as_string() )->fallback( array() );
-
 /**
  * Register Data Sync Stores
  */
@@ -196,11 +200,13 @@ jetpack_boost_register_action(
 
 jetpack_boost_register_action(
 	'critical_css_state',
-	'set-provider-error-dismissed',
-	Schema::as_assoc_array(
-		array(
-			'key'       => Schema::as_string(),
-			'dismissed' => Schema::as_boolean(),
+	'set-provider-errors-dismissed',
+	Schema::as_array(
+		Schema::as_assoc_array(
+			array(
+				'key'       => Schema::as_string(),
+				'dismissed' => Schema::as_boolean(),
+			)
 		)
 	),
 	new Set_Provider_Error_Dismissed()
@@ -268,8 +274,6 @@ jetpack_boost_register_option(
 	)
 );
 
-jetpack_boost_register_option( 'premium_features', $premium_features_schema, new Premium_Features_Entry() );
-
 jetpack_boost_register_option( 'performance_history_toggle', Schema::as_boolean()->fallback( false ) );
 jetpack_boost_register_option(
 	'performance_history',
@@ -314,39 +318,22 @@ jetpack_boost_register_option(
 	Schema::as_assoc_array(
 		array(
 			'performance_history_fresh_start' => Schema::as_boolean(),
+			'score_increase'                  => Schema::as_boolean(),
+			'score_decrease'                  => Schema::as_boolean(),
 		)
 	)->fallback(
 		array(
 			'performance_history_fresh_start' => false,
+			'score_increase'                  => false,
+			'score_decrease'                  => false,
 		)
 	),
 	new Mergeable_Array_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE . '_dismissed_alerts' )
 );
 
-/**
- * Register Score Prompt store.
- */
-jetpack_boost_register_option(
-	'dismissed_score_prompt',
-	Schema::as_array( Schema::as_string() )->fallback( array() )
-);
-
-/**
- * Deliver static, read-only values to the UI.
- * @return array
- */
-function jetpack_boost_ui_config() {
-	return array(
-		'plugin_dir_url' => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
-		'pricing'        => Premium_Pricing::get_yearly_pricing(),
-		'site'           => array(
-			'domain' => ( new Status() )->get_site_suffix(),
-			'online' => ! ( new Status() )->is_offline_mode(),
-		),
-		'is_premium'     => Premium_Features::has_any(),
-		'connection'     => ( new Connection() )->get_connection_api_response(),
-	);
-}
-jetpack_boost_register_readonly_option( 'config', 'jetpack_boost_ui_config' );
+jetpack_boost_register_readonly_option( 'connection', array( new Connection(), 'get_connection_api_response' ) );
+jetpack_boost_register_readonly_option( 'pricing', array( Premium_Pricing::class, 'get_yearly_pricing' ) );
+jetpack_boost_register_readonly_option( 'premium_features', array( Premium_Features::class, 'get_features' ) );
+jetpack_boost_register_readonly_option( 'super_cache', array( Super_Cache_Info::class, 'get_info' ) );
 
 jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback( false ), new Getting_Started_Entry() );
