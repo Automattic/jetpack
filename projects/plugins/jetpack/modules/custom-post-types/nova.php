@@ -1587,7 +1587,11 @@ class Nova_Restaurant {
 	public function menu_item_loop_each_post( $post ) {
 		$this->menu_item_loop_current_term = $this->get_menu_item_menu_leaf( $post->ID );
 
-		if ( false === $this->menu_item_loop_current_term ) {
+		if (
+			false === $this->menu_item_loop_current_term
+			|| null === $this->menu_item_loop_current_term
+			|| is_wp_error( $this->menu_item_loop_current_term )
+		) {
 			return;
 		}
 
