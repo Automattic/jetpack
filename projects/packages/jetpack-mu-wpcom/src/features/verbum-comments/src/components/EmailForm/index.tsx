@@ -15,17 +15,12 @@ interface EmailFormProps {
 }
 
 const isValidEmail = signal( true );
+const isEmailTouched = signal( false );
+const isNameTouched = signal( false );
 const isValidAuthor = signal( true );
 const userEmail = computed( () => mailLoginData.value.email || '' );
 const userName = computed( () => mailLoginData.value.author || '' );
 const userUrl = computed( () => mailLoginData.value.url || '' );
-
-const setFormData = ( event: ChangeEvent< HTMLInputElement > ) => {
-	mailLoginData.value = {
-		...mailLoginData.peek(),
-		[ event.currentTarget.name ]: event.currentTarget.value,
-	};
-};
 
 const validateFormData = () => {
 	const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
@@ -34,6 +29,14 @@ const validateFormData = () => {
 			Boolean( userEmail.value ) && Boolean( emailRegex.test( userEmail.value ) );
 		isValidAuthor.value = Boolean( userName.value.length > 0 );
 	} );
+};
+
+const setFormData = ( event: ChangeEvent< HTMLInputElement > ) => {
+	mailLoginData.value = {
+		...mailLoginData.peek(),
+		[ event.currentTarget.name ]: event.currentTarget.value,
+	};
+	validateFormData();
 };
 
 export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
@@ -84,15 +87,17 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 							<Email />
 							<input
 								className={ classNames( 'verbum-form__email', {
-									'invalid-form-data': isValidEmail.value === false,
+									'invalid-form-data': isValidEmail.value === false && isEmailTouched.value,
 								} ) }
 								type="email"
 								spellCheck={ false }
 								autoCorrect="off"
 								autoComplete="email"
 								required={ authRequired }
-								onInput={ setFormData }
-								onBlur={ validateFormData }
+								onInput={ event => {
+									isEmailTouched.value = true;
+									setFormData( event );
+								} }
 								value={ userEmail }
 								name="email"
 								placeholder={ `${ translate( 'Email' ) } ${ translate(
@@ -105,15 +110,17 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 							<Name />
 							<input
 								className={ classNames( 'verbum-form__name', {
-									'invalid-form-data': isValidAuthor.value === false,
+									'invalid-form-data': isValidAuthor.value === false && isNameTouched.value,
 								} ) }
 								type="text"
 								spellCheck={ false }
 								autoCorrect="off"
 								autoComplete="name"
 								required={ authRequired }
-								onInput={ setFormData }
-								onBlur={ validateFormData }
+								onInput={ event => {
+									isNameTouched.value = true;
+									setFormData( event );
+								} }
 								value={ userName }
 								name="author"
 								placeholder={ translate( 'Name' ) }

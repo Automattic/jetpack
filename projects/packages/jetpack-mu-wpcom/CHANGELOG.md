@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.11.0] - 2024-01-29
+### Security
+- Allow users to post HTML when blocks are enabled [#35276]
+
+### Added
+- Cache the response of the Domain List request, and harden the code [#35070]
+
+### Changed
+- Change Verbum Blocks sample size to 30% [#35255]
+- Hides the "Install the mobile app" task while the completion logic is not fully implemented [#35302]
+- Update Verbum README [#35252]
+
+### Fixed
+- Verbum cache buster depended on build_meta, which is only updated on production builds. It doesn't refresh during development, giving you a stale block-editor bundle. [#35243]
+
 ## [5.10.0] - 2024-01-25
 ### Added
 - Add Verbum Comments in jetpack-mu-wpcom plugin. [#35196]
@@ -541,6 +556,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.11.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.10.0...v5.11.0
 [5.10.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.9.0...v5.10.0
 [5.9.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.2...v5.9.0
 [5.8.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.1...v5.8.2
