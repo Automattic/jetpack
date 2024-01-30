@@ -12,7 +12,7 @@ abstract class Boost_Cache {
 	/*
 	 * @var array - The settings for the page cache.
 	 */
-	private $settings = array();
+	private $settings;
 
 	/*
 	 * @var string - The path key used to identify the cache directory for the current request. MD5 of the request uri.
