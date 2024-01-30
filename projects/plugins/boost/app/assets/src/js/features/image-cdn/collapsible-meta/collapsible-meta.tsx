@@ -27,6 +27,7 @@ const CollapsibleMeta = ( {
 				<Button
 					variant="link"
 					size="small"
+					weight="regular"
 					icon={
 						isEditing ? (
 							<CloseIcon className={ styles[ 'edit-icon' ] } />
