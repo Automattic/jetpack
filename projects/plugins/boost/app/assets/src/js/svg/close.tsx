@@ -2,13 +2,12 @@ export default function ( { className }: { className?: string } ) {
 	return (
 		<svg
 			className={ className }
-			width="24"
-			height="24"
-			viewBox="0 0 24 24"
-			fill="#000000"
 			xmlns="http://www.w3.org/2000/svg"
+			width="10"
+			height="10"
+			viewBox="7.23 7.23 9.55 9.55"
 		>
-			<path d="M12 13.06L15.712 16.773L16.773 15.713L13.061 12L16.773 8.288L15.713 7.228L12 10.938L8.28799 7.227L7.22699 8.287L10.939 12L7.22699 15.712L8.28699 16.773L12 13.061V13.06Z" />
+			<path d="M12 13.06l3.712 3.713 1.061-1.06L13.061 12l3.712-3.712-1.06-1.06L12 10.938 8.288 7.227l-1.061 1.06L10.939 12l-3.712 3.712 1.06 1.061L12 13.061z"></path>
 		</svg>
 	);
 }
