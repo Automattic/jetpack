@@ -73,12 +73,30 @@ class Boost_Cache_Settings {
 	 * @param string $setting - The setting to get.
 	 * @return mixed - The value of the setting, or false if the setting does not exist. Call get_last_error() to get the error message.
 	 */
-	public function get( $setting ) {
+	public function get( $setting, $default = false ) {
 		if ( ! isset( $this->settings[ $setting ] ) ) {
 			$this->last_error = 'Setting not found';
-			return false;
+			return $default;
 		}
 		return $this->settings[ $setting ];
+	}
+
+	/*
+	 * Returns true if the cache is enabled.
+	 *
+	 * @return bool
+	 */
+	public function get_enabled() {
+		return $this->get( 'enabled', false );
+	}
+
+	/*
+	 * Returns an array of URLs that should not be cached.
+	 *
+	 * @return array
+	 */
+	public function get_excluded_urls() {
+		return $this->get( 'excluded_urls', array() );
 	}
 
 	/*
