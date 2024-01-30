@@ -262,7 +262,7 @@ class Jetpack_Mu_Wpcom {
 			if ( self::should_disable_comment_experience( $blog_id ) ) {
 				return false;
 			}
-			require_once __DIR__ . '/build/verbum-comments/class-verbum-comments.php';
+			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
 		}
 	}
