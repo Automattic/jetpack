@@ -41,7 +41,14 @@ class Boost_Cache_Settings {
 			$this->last_error = 'Invalid config file';
 			return false;
 		}
-		$settings = json_decode( $lines[3], true );
+
+		$settings = null;
+		foreach ( $lines as $line ) {
+			if ( strpos( $line, '{' ) !== false ) {
+				$settings = json_decode( $line, true );
+				break;
+			}
+		}
 		if ( ! is_array( $settings ) ) {
 			$this->last_error = 'Invalid config file';
 			return false;
