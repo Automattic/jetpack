@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a552949fc156128fe4cfdcc6127ddaa0",
+    "content-hash": "ebfff4bf37d86cb205e9fcda9c5c7813",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -234,23 +234,23 @@
         },
         {
             "name": "automattic/jetpack-boost-core",
-            "version": "v0.2.3",
+            "version": "v0.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-boost-core.git",
-                "reference": "7ca1e47e9ae908aa4ad2fd40acde3744be1cdff3"
+                "reference": "7d771cf8b99a5e88da473ddad019d608feeaf6c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-boost-core/zipball/7ca1e47e9ae908aa4ad2fd40acde3744be1cdff3",
-                "reference": "7ca1e47e9ae908aa4ad2fd40acde3744be1cdff3",
+                "url": "https://api.github.com/repos/Automattic/jetpack-boost-core/zipball/7d771cf8b99a5e88da473ddad019d608feeaf6c4",
+                "reference": "7d771cf8b99a5e88da473ddad019d608feeaf6c4",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^4.0.5",
+                "automattic/jetpack-changelogger": "^4.1.0",
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
@@ -280,9 +280,9 @@
             ],
             "description": "Core functionality for boost and relevant packages to depend on",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-boost-core/tree/v0.2.3"
+                "source": "https://github.com/Automattic/jetpack-boost-core/tree/v0.2.4"
             },
-            "time": "2024-01-22T05:06:34+00:00"
+            "time": "2024-01-25T11:59:45+00:00"
         },
         {
             "name": "automattic/jetpack-boost-speed-score",
