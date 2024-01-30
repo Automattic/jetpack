@@ -37,6 +37,54 @@ function register_block() {
 	);
 
 	add_action( 'wp_logout', __NAMESPACE__ . '\subscriber_logout' );
+
+	function spray_block_hook_positions( $hooked_blocks, $relative_position, $anchor_block, $context ) {
+		$suffix = $anchor_block;
+
+		l( $relative_position );
+
+		if ( $context instanceof \WP_Block_Template ) {
+				$prefix = $context->slug;
+				$suffix = empty( $anchor_block ) ? 'template' : $anchor_block;
+		}
+
+		if ( is_array( $context ) ) {
+				$prefix = $context['slug'];
+				$suffix = $context['blockTypes'][0];
+		}
+
+		$block_id   = '[' . $prefix . ' | ' . $relative_position . ' | ' . $suffix . ']';
+		$block_hash = md5( $block_id );
+
+		$block_name = 'debug/' . $block_hash;
+		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( $block_name ) ) {
+				register_block_type(
+					$block_name,
+					array(
+						'api_version'     => 3,
+						'attributes'      => array(),
+						'render_callback' => function () use ( $block_id ) {
+								return '<span style="background: yellow;">' . $block_id . '</span>';
+						},
+					)
+				);
+		}
+
+		$hooked_blocks[] = $block_name;
+		return $hooked_blocks;
+	}
+
+	add_filter( 'hooked_block_types', __NAMESPACE__ . '\spray_block_hook_positions', 10, 4 );
+
+	function register_logout_block_as_navigation_last_child( $hooked_blocks, $position, $anchor_block, $context ) {
+		if ( $anchor_block === 'core/navigation' && $position === 'last_child' ) {
+						$hooked_blocks[] = 'core/loginout';
+		}
+
+		return $hooked_blocks;
+	}
+
+	add_filter( 'hooked_block_types', __NAMESPACE__ . '\register_logout_block_as_navigation_last_child', 10, 4 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
