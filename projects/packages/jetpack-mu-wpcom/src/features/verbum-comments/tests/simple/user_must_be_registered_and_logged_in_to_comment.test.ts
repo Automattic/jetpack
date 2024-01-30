@@ -23,7 +23,6 @@ test( 'Simple: user_must_be_registered_and_logged_in_to_comment - Anonymous', as
 		.locator( 'p[contenteditable="true"]' )
 		.pressSequentially( randomComment );
 
-	// await page.getByPlaceholder( 'Write a comment...' ).pressSequentially( randomComment );
 	await expect( page.locator( '#comment-form__verbum' ) ).toContainText(
 		'Log in to leave a comment.'
 	);
