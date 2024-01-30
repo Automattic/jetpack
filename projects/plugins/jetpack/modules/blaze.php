@@ -6,7 +6,7 @@
  * Recommendation Order: 12
  * First Introduced: 12.3
  * Requires Connection: Yes
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Traffic, Social
  * Additional Search Queries: advertising, ads
  *
