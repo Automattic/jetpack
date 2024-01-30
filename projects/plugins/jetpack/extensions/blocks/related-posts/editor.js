@@ -1,6 +1,7 @@
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import metadata from './block.json';
+import { default as deprecated } from './deprecated';
 import edit from './edit';
 
 import './style.scss';
@@ -24,4 +25,5 @@ registerJetpackBlockFromMetadata( metadata, {
 			},
 		],
 	},
+	deprecated,
 } );

@@ -207,16 +207,8 @@ export default function RelatedPostsEdit( props ) {
 		);
 	}
 
-	const {
-		displayAuthor,
-		displayContext,
-		displayDate,
-		displayHeadline,
-		displayThumbnails,
-		headline,
-		postLayout,
-		postsToShow,
-	} = attributes;
+	const { displayAuthor, displayContext, displayDate, displayThumbnails, postLayout, postsToShow } =
+		attributes;
 
 	// To prevent the block from crashing, we need to limit ourselves to the
 	// posts returned by the backend - so if we want 6 posts, but only 3 are
@@ -274,7 +266,6 @@ export default function RelatedPostsEdit( props ) {
 					/>
 				</div>
 
-				{ displayHeadline && <h3>{ headline }</h3> }
 				<div className={ previewClassName } data-layout={ postLayout }>
 					<RelatedPostsPreviewRows posts={ displayPosts } />
 				</div>
