@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import MultiProgress from '../multi-progress/multi-progress';
-import Button from '../button/button';
+import { Button } from '@automattic/jetpack-components';
 import ErrorNotice from '$features/error-notice/error-notice';
 import ImageCdnRecommendation from '$features/image-size-analysis/image-cdn-recommendation/image-cdn-recommendation';
 import { recordBoostEvent, recordBoostEventAndRedirect } from '$lib/utils/analytics';
@@ -14,6 +14,8 @@ import {
 	useImageAnalysisRequest,
 	IsaCounts,
 } from '$features/image-size-analysis';
+import classNames from 'classnames';
+import styles from './recommendations-meta.module.scss';
 
 const getWaitNotice = ( isRequesting: boolean, currentStatus: string | undefined ) => {
 	if ( isRequesting ) {
@@ -64,11 +66,11 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 	return (
 		<div>
 			{ ! groups ? (
-				<div className="jb-summary">{ __( 'Loading…', 'jetpack-boost' ) }</div>
+				<div className={ styles.summary }>{ __( 'Loading…', 'jetpack-boost' ) }</div>
 			) : (
 				<>
 					{ status === ISAStatus.Stuck || isaRequest.isError ? (
-						<div className="jb-error-area">
+						<div className={ styles[ 'error-area' ] }>
 							<ErrorNotice title={ __( 'Something has gone wrong.', 'jetpack-boost' ) }>
 								{ isaRequest.error instanceof Error
 									? isaRequest.error.message
@@ -79,13 +81,15 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 							</ErrorNotice>
 						</div>
 					) : waitNotice ? (
-						<div className="jb-summary-line jb-wait-notice">{ waitNotice }</div>
+						<div className={ classNames( styles[ 'summary-line' ], styles[ 'wait-notice' ] ) }>
+							{ waitNotice }
+						</div>
 					) : null }
 
 					{ ! isaRequest.isPending && status === ISAStatus.Completed && (
-						<div className="jb-summary-line">
+						<div className={ styles[ 'summary-line' ] }>
 							{ totalIssues > 0 ? (
-								<div className="jb-has-issues jb-summary">
+								<div className={ classNames( styles[ 'has-issues' ], styles.summary ) }>
 									<WarningIcon />
 									{ sprintf(
 										// translators: 1: Number of scanned issues found 2: Number of scanned pages
@@ -98,7 +102,7 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 									) }
 								</div>
 							) : (
-								<div className="jb-summary">
+								<div className={ styles.summary }>
 									{ sprintf(
 										// translators: %d: Number of pages scanned
 										__(
@@ -109,15 +113,16 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 									) }
 								</div>
 							) }
-							<button
-								type="button"
-								className="components-button is-link"
+							<Button
+								variant="link"
+								size="small"
+								weight="regular"
+								icon={ <RefreshIcon /> }
 								onClick={ handleAnalyzeClick }
 								disabled={ isaRequest.isPending }
 							>
-								<RefreshIcon />
 								{ __( 'Analyze again', 'jetpack-boost' ) }
-							</button>
+							</Button>
 						</div>
 					) }
 
@@ -128,8 +133,8 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 						) }
 
 					{ showCDNRecommendation && (
-						<div className="jb-notice">
-							<div className="jb-notice__content">
+						<div className={ styles.notice }>
+							<div>
 								<ImageCdnRecommendation />
 							</div>
 						</div>
@@ -138,8 +143,9 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 					{ status &&
 						[ ISAStatus.Queued, ISAStatus.Completed ].includes( status ) &&
 						! isaRequest.isPending && (
-							<div className="jb-button-area">
+							<div className={ styles[ 'button-area' ] }>
 								<Button
+									variant="secondary"
 									disabled={ isaRequest.isPending }
 									onClick={ () =>
 										recordBoostEventAndRedirect(
@@ -158,8 +164,12 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 
 					{ ( ! status ||
 						! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( status ) ) && (
-						<div className="jb-button-area">
-							<Button disabled={ isaRequest.isPending } onClick={ handleAnalyzeClick }>
+						<div className={ styles[ 'button-area' ] }>
+							<Button
+								variant="secondary"
+								disabled={ isaRequest.isPending }
+								onClick={ handleAnalyzeClick }
+							>
 								{ status === ISAStatus.Completed
 									? __( 'Analyze again', 'jetpack-boost' )
 									: __( 'Start image analysis', 'jetpack-boost' ) }

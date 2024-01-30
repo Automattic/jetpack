@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.7.0] - 2024-01-29
+### Changed
+- Update the UpsellBanner to use the Card component from WP components. [#35223]
+
+### Removed
+- UpsellBanner component moved to js-packages/components [#35228]
+
+## [4.6.2] - 2024-01-22
+### Added
+- My Jetpack: add contact us event for Jetpack AI [#35136]
+
+## [4.6.1] - 2024-01-22
+### Changed
+- Display Jetpack Protect product card for all users. [#35142]
+- Ensure that interstitial tables go straight to checkout just like insterstitial cards [#35049]
+
 ## [4.6.0] - 2024-01-18
 ### Added
 - Add hosting provider check. [#34864]
@@ -1198,6 +1214,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.6.2...4.7.0
+[4.6.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.6.1...4.6.2
+[4.6.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.6.0...4.6.1
 [4.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.5.0...4.6.0
 [4.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.4.0...4.5.0
 [4.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.3.0...4.4.0

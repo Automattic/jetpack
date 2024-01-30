@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { type Props, useMetaQuery } from '$lib/stores/minify';
+import styles from './minify-meta.module.scss';
+import { Button } from '@automattic/jetpack-components';
+import Pencil from '$svg/pencil';
 
 const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Props ) => {
-	const { pluginDirUrl } = Jetpack_Boost;
 	const [ values, updateValues ] = useMetaQuery( datasyncKey );
 	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
 	const [ isEditing, setIsEditing ] = useState( false );
@@ -20,9 +22,9 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 	const htmlId = `jb-minify-meta-${ datasyncKey }`;
 
 	return (
-		<div className="jb-critical-css__meta">
+		<div className={ styles[ 'minify-meta' ] }>
 			{ isEditing ? (
-				<div className="manage-excludes">
+				<div className={ styles[ 'manage-excludes' ] }>
 					<label htmlFor={ htmlId }>{ inputLabel }</label>
 					<input
 						type="text"
@@ -31,7 +33,7 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 						id={ htmlId }
 						onChange={ e => setInputValue( e.target.value ) }
 					/>
-					<div className="buttons-container">
+					<div className={ styles[ 'buttons-container' ] }>
 						<button disabled={ values.join( ', ' ) === inputValue } onClick={ save }>
 							{ __( 'Save', 'jetpack-boost' ) }
 						</button>
@@ -42,7 +44,7 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 				</div>
 			) : (
 				<>
-					<div className="summary">
+					<div className={ styles.summary }>
 						{ values.length > 0 && (
 							<div className="successes">
 								{ sprintf(
@@ -54,18 +56,16 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 						) }
 					</div>
 
-					<button
-						type="button"
-						className="jb-collapsible-meta__edit-button components-button is-link"
+					<Button
+						variant="link"
+						size="small"
+						weight="regular"
+						className={ styles[ 'edit-button' ] }
 						onClick={ () => setIsEditing( true ) }
+						icon={ <Pencil /> }
 					>
-						<img
-							className="edit-icon"
-							src={ `${ pluginDirUrl }/app/assets/static/images/pencil.svg` }
-							alt={ __( 'Edit', 'jetpack-boost' ) }
-						/>
 						{ buttonText }
-					</button>
+					</Button>
 				</>
 			) }
 		</div>

@@ -2,7 +2,7 @@
 /**
  * Subscriber Login Block.
  *
- * @since $$next-version$$
+ * @since 13.1
  *
  * @package automattic/jetpack
  */
@@ -65,17 +65,21 @@ function get_current_url() {
 /**
  * Returns subscriber log in URL.
  *
+ * @param string $redirect Path to redirect to on login.
+ *
  * @return string
  */
-function get_subscriber_login_url() {
+function get_subscriber_login_url( $redirect ) {
+	$redirect = ! empty( $redirect ) ? $redirect : get_site_url();
+
 	// Copied from projects/plugins/jetpack/extensions/blocks/subscriptions/subscriptions.php
 	if ( ( new Host() )->is_wpcom_simple() ) {
-		// On WPCOM we will redirect directly to the current page
-		$redirect_url = get_current_url();
+		// On WPCOM we will redirect immediately
+		$redirect_url = $redirect;
 	} else {
 		// On self-hosted we will save and hide the token
 		$redirect_url = get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
-		$redirect_url = add_query_arg( 'redirect_url', get_current_url(), $redirect_url );
+		$redirect_url = add_query_arg( 'redirect_url', $redirect, $redirect_url );
 	}
 
 	return add_query_arg(
@@ -99,19 +103,25 @@ function is_subscriber_logged_in() {
 /**
  * Renders Subscriber Login block.
  *
+ * @param array $attributes The block attributes.
+ *
  * @return string
  */
-function render_block() {
+function render_block( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	$block_template = '<div %1$s><a href="%2$s">%3$s</a></div>';
+	$block_template             = '<div %1$s><a href="%2$s">%3$s</a></div>';
+	$redirect_url               = ! empty( $attributes['redirectToCurrent'] ) ? get_current_url() : get_site_url();
+	$log_in_label               = ! empty( $attributes['logInLabel'] ) ? sanitize_text_field( $attributes['logInLabel'] ) : esc_html__( 'Log in', 'jetpack' );
+	$log_out_label              = ! empty( $attributes['logOutLabel'] ) ? sanitize_text_field( $attributes['logOutLabel'] ) : esc_html__( 'Log out', 'jetpack' );
+	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscriptions', 'jetpack' );
 
 	if ( ! is_subscriber_logged_in() ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
-			get_subscriber_login_url(),
-			__( 'Log in', 'jetpack' )
+			get_subscriber_login_url( $redirect_url ),
+			$log_in_label
 		);
 	}
 
@@ -120,14 +130,14 @@ function render_block() {
 			$block_template,
 			get_block_wrapper_attributes(),
 			'https://wordpress.com/read/subscriptions',
-			__( 'Manage subscriptions', 'jetpack' )
+			$manage_subscriptions_label
 		);
 	}
 
 	return sprintf(
 		$block_template,
 		get_block_wrapper_attributes(),
-		wp_logout_url( get_current_url() ),
-		__( 'Log out', 'jetpack' )
+		wp_logout_url( $redirect_url ),
+		$log_out_label
 	);
 }

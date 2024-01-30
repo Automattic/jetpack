@@ -1,6 +1,6 @@
 export interface BoostScoreBarProps {
 	score: number;
-	prevScore: number;
+	prevScore?: number;
 	isLoading: boolean;
 	showPrevScores: boolean;
 	active: boolean;

@@ -579,7 +579,8 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Install the mobile app', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_mobile_app_installed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_mobile_app_installed_visible',
 			'get_calypso_path'     => function () {
 				return '/me/get-apps';
 			},
@@ -957,6 +958,43 @@ function wpcom_launchpad_is_domain_upsell_task_visible() {
 }
 
 /**
+ * Determines whether or not the Install the mobile app task should be visible.
+ *
+ * @return bool True if the Install the mobile app task should be visible.
+ */
+function wpcom_launchpad_is_mobile_app_installed_visible() {
+	// TODO: We are hidding the task for now because we the completion logic
+	// is not fully implemented yet. We should make it return true for simple sites
+	// once we get the completion logic in place.
+	return false;
+}
+
+/**
+ * Verifies if the Mobile App is installed for the current user.
+ *
+ * @return bool True if the Mobile App is installed for the current user.
+ */
+function wpcom_launchpad_is_mobile_app_installed() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( $is_atomic_site ) {
+		return false;
+	}
+
+	if ( ! function_exists( 'get_user_attribute' ) ) {
+		return false;
+	}
+
+	$user_id          = get_current_user_id();
+	$mobile_last_seen = get_user_attribute( $user_id, 'jp_mobile_app_last_seen' );
+
+	if ( empty( $mobile_last_seen ) ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Determines whether or not the WooCommerce setup task should be visible.
  *
  * @return bool True if the site is a WOA site and WooCommerce is active.
@@ -1002,21 +1040,18 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 	// the public API.
 	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
 	if ( $is_atomic_site ) {
-		$domains = wpcom_request_domains_list();
+		$domains = wpcom_launchpad_request_domains_list();
 
 		if ( is_wp_error( $domains ) ) {
-			// logs the erro
 			return false;
 		}
 
 		$domains_pending_icann_verification = array_filter(
 			$domains,
 			function ( $domain ) {
-				return $domain->is_pending_icann_verification;
+				return isset( $domain->is_pending_icann_verification ) && $domain->is_pending_icann_verification;
 			}
 		);
-
-		return ! empty( $domains_pending_icann_verification );
 	} else {
 		if ( ! class_exists( 'Domain_Management' ) ) {
 			return false;
@@ -1032,7 +1067,28 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
 		);
 	}
 
-	return ! empty( $domains_pending_icann_verification );
+	$has_domains_pending_icann_verification = ! empty( $domains_pending_icann_verification );
+
+	if ( ! $has_domains_pending_icann_verification && wpcom_launchpad_verify_domain_email_task_displayed() ) {
+		wpcom_mark_launchpad_task_complete( 'verify_domain_email' );
+		return true;
+	}
+
+	if ( $has_domains_pending_icann_verification ) {
+		if ( ! wpcom_launchpad_verify_domain_email_task_displayed() ) {
+			wpcom_set_launchpad_config_option( 'verify_domain_email_task_displayed', true );
+		}
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Checks if the Verify Email Domain task was displayed to the user.
+ */
+function wpcom_launchpad_verify_domain_email_task_displayed() {
+	return wpcom_get_launchpad_config_option( 'verify_domain_email_task_displayed', false );
 }
 
 /**
@@ -1040,7 +1096,19 @@ function wpcom_launchpad_is_verify_domain_email_visible() {
  *
  * @return array|WP_Error Array of domains and their verification status or WP_Error if the request fails.
  */
-function wpcom_request_domains_list() {
+function wpcom_launchpad_request_domains_list() {
+	// Use a static variable as a temporary in-memory cache to avoid multiple outbound
+	// HTTP requests within a single incoming request.
+	// We don't expect this to be triggered multiple times, but it's worth adding some
+	// light caching to avoid multiple, possibly slow HTTP requests where the underlying data
+	// is highly unlikely to change.
+	// The "cache" only lasts as long as the current request/memory space, so we don't need to invalidate it.
+	static $cached_domains = null;
+
+	if ( $cached_domains !== null ) {
+		return $cached_domains;
+	}
+
 	$site_id       = \Jetpack_Options::get_option( 'id' );
 	$request_path  = sprintf( '/sites/%d/domains', $site_id );
 	$wpcom_request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
@@ -1069,14 +1137,16 @@ function wpcom_request_domains_list() {
 	$body         = wp_remote_retrieve_body( $wpcom_request );
 	$decoded_body = json_decode( $body );
 
-	if ( ! isset( $decoded_body->domains ) ) {
+	if ( ! isset( $decoded_body->domains ) || ! is_array( $decoded_body->domains ) ) {
 		return new \WP_Error(
 			'failed_to_fetch_data',
 			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
 		);
 	}
 
-	return $decoded_body->domains;
+	$cached_domains = $decoded_body->domains;
+
+	return $cached_domains;
 }
 
 /**

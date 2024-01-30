@@ -9,8 +9,8 @@ import {
 	useIsaData,
 	useIsaReport,
 } from '$features/image-size-analysis';
-import Footer from '../../layout/footer/footer';
-import Header from '../../layout/header/header';
+import Footer from '$layout/footer/footer';
+import Header from '$layout/header/header';
 import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
