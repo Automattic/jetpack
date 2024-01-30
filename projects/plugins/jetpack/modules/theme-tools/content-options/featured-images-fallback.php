@@ -218,6 +218,7 @@ function jetpack_featured_images_post_class( $classes, $class, $post_id ) {
 
 	if ( jetpack_has_featured_image( $post_id ) && (bool) 1 === (bool) $opts['fallback-option'] && ! is_attachment() && ! $post_password_required && 'post' === get_post_type() ) {
 		$classes[] = 'has-post-thumbnail';
+		$classes[] = 'fallback-thumbnail';
 	}
 
 	return $classes;

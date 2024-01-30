@@ -12,6 +12,12 @@
 	text-decoration: none;
 }
 
+.jetpack-newsletter-access-radio-buttons {
+	label {
+		text-wrap: balance;
+	}
+}
+
 .jetpack-subscribe-newsletters-panel {
 	.edit-post-post-misconfiguration {
 		&__warning {
@@ -21,28 +27,6 @@
 			.components-notice__content {
 				margin-right: 0;
 			}
-		}
-	}
-
-	.edit-post-post-visibility {
-		display: block;
-		* {
-			text-wrap: pretty;
-		}
-
-		&__notice {
-			&.is-info {
-				background: #e9f0f5;
-				border-left-color: #e9f0f5;
-			}
-		}
-
-		.components-notice__content {
-			margin-right: 0;
-		}
-
-		.components-button {
-			margin-top: 10px;
 		}
 	}
 }

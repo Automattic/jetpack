@@ -424,7 +424,7 @@ async function setTeamField( octokit, projectInfo, projectItemId, team ) {
  */
 async function loadTeamAssignments( ownerLogin ) {
 	// If we're in an Automattic repo, we can use the team assignments file that ships with this action.
-	if ( 'automattic' === ownerLogin ) {
+	if ( 'automattic' === ownerLogin.toLowerCase() ) {
 		return automatticAssignments;
 	}
 

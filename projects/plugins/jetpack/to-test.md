@@ -22,6 +22,17 @@ NOTE: keep in mind, all the following should be tested on mobile views as well.
   - Once action is done the described suggestion actions show, but there is no "Back to edit" and "Regenerate" is disabled
 - When content is larger than viewport, AI Assistant block will remain floating at the bottom of the viewport (desktop only, on mobile it remains fixed at the top)
 
+### WooCommerce Analytics
+
+Remove logic that prevents site admins being tracked and add store_admin property to WooCommerce analytics events
+- Ensure site is connected, WooCommerce is installed, products, payment methods, and shipping methods are available. (Cash on Delivery and Free shipping will be fine).
+- Ensure WooCommerce analytics is running.
+- As a shop manager user: add an item to your cart and go to the checkout.
+- Check out and then visit Tracks and find your event. (I spoofed my user agent so I could find the event easily)
+- Check the event for the `store_admin` property, which should be `1`
+- Repeat as a logged _out_ (e.g. guest) user, the event should be logged, and should have the `store_admin` property but it should be `0`
+- Repeat as a logged in, but _not_ admin user, (e.g. a customer), the event should be logged, and should have the `store_admin` property but it should be `0`
+
 ### And More!
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!

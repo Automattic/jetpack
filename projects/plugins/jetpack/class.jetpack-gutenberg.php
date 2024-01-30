@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Dismissed_Notices;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -464,6 +465,26 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Queue a script to set `Jetpack_Block_Assets_Base_Url`.
+	 *
+	 * In certain cases Webpack needs to know a base to load additional assets from.
+	 * Normally it can determine that itself, but when JS concatenation is involved that tends to confuse it.
+	 * We work around that by explicitly outputting a variable with the correct URL.
+	 * We set that as its own "script" so we can reliably only output it once.
+	 */
+	private static function register_blocks_assets_base_url() {
+		if ( ! wp_script_is( 'jetpack-blocks-assets-base-url', 'registered' ) ) {
+			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- No actual script, so no version needed.
+			wp_register_script( 'jetpack-blocks-assets-base-url', false, array(), null, array( 'in_footer' => false ) );
+			wp_add_inline_script(
+				'jetpack-blocks-assets-base-url',
+				'var Jetpack_Block_Assets_Base_Url=' . wp_json_encode( plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'before'
+			);
+		}
+	}
+
+	/**
 	 * Only enqueue block assets when needed.
 	 *
 	 * @param string $type Slug of the block or absolute path to the block source code directory.
@@ -544,10 +565,13 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		self::register_blocks_assets_base_url();
+
 		// Enqueue script.
 		$script_relative_path  = self::get_blocks_directory() . $type . '/view.js';
 		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
 		$script_dependencies[] = 'wp-polyfill';
+		$script_dependencies[] = 'jetpack-blocks-assets-base-url';
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
 			$script_dependencies = array_unique( array_merge( $script_dependencies, $asset_manifest['dependencies'] ) );
@@ -576,14 +600,6 @@ class Jetpack_Gutenberg {
 				}
 			}
 		}
-
-		wp_localize_script(
-			'jetpack-block-' . $type,
-			'Jetpack_Block_Assets_Base_Url',
-			array(
-				'url' => plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE ),
-			)
-		);
 	}
 
 	/**
@@ -650,11 +666,16 @@ class Jetpack_Gutenberg {
 			$blocks_env = '';
 		}
 
+		self::register_blocks_assets_base_url();
+
 		Assets::register_script(
 			'jetpack-blocks-editor',
 			"{$blocks_dir}editor{$blocks_env}.js",
 			JETPACK__PLUGIN_FILE,
-			array( 'textdomain' => 'jetpack' )
+			array(
+				'textdomain'   => 'jetpack',
+				'dependencies' => array( 'jetpack-blocks-assets-base-url' ),
+			)
 		);
 
 		// Hack around #20357 (specifically, that the editor bundle depends on
@@ -664,14 +685,6 @@ class Jetpack_Gutenberg {
 		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
 
 		Assets::enqueue_script( 'jetpack-blocks-editor' );
-
-		wp_localize_script(
-			'jetpack-blocks-editor',
-			'Jetpack_Block_Assets_Base_Url',
-			array(
-				'url' => plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE ),
-			)
-		);
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$user                      = wp_get_current_user();
@@ -688,6 +701,9 @@ class Jetpack_Gutenberg {
 			$is_current_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 		}
 
+		if ( $blocks_variation === 'beta' && $is_current_user_connected ) {
+			wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), Constants::get_constant( 'JETPACK__VERSION' ) );
+		}
 		// AI Assistant
 		$ai_assistant_state = array(
 			'is-enabled'            => apply_filters( 'jetpack_ai_enabled', true ),
@@ -707,6 +723,7 @@ class Jetpack_Gutenberg {
 
 		$initial_state = array(
 			'available_blocks' => self::get_availability(),
+			'blocks_variation' => $blocks_variation,
 			'modules'          => $modules,
 			'jetpack'          => array(
 				'is_active'                     => Jetpack::is_connection_ready(),
@@ -742,6 +759,7 @@ class Jetpack_Gutenberg {
 			'siteLocale'       => str_replace( '_', '-', get_locale() ),
 			'ai-assistant'     => $ai_assistant_state,
 			'screenBase'       => $screen_base,
+			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
@@ -755,7 +773,7 @@ class Jetpack_Gutenberg {
 				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 				'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
 				'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
-				'dismissedNotices'                => $publicize->get_dismissed_notices(),
+				'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
 				'autoConversionSettings'          => $settings['autoConversionSettings'],
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),

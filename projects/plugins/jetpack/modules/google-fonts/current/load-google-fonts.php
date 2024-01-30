@@ -186,12 +186,13 @@ function jetpack_google_fonts_filter_out_deprecated_font_data( $font_families ) 
 }
 
 /**
- * Unregister the google fonts data from user's theme json data that were stored by accident.
+ * Unregister the deprecated jetpack-google-fonts provider from theme json data that were stored
+ * before we moved to the Font Library.
  *
- * @param WP_Theme_JSON_Data $theme_json The theme json data of user.
+ * @param WP_Theme_JSON_Data $theme_json The theme json data.
  * @return WP_Theme_JSON_Data The filtered theme json data.
  */
-function jetpack_unregister_deprecated_google_fonts_from_theme_json_data_user( $theme_json ) {
+function jetpack_unregister_deprecated_google_fonts_from_theme_json_data( $theme_json ) {
 	$raw_data = $theme_json->get_data();
 	$origin   = 'theme';
 	if ( empty( $raw_data['settings']['typography']['fontFamilies'][ $origin ] ) ) {
@@ -207,7 +208,8 @@ function jetpack_unregister_deprecated_google_fonts_from_theme_json_data_user( $
 	return new $theme_json_class( $raw_data, 'custom' );
 }
 
-add_filter( 'wp_theme_json_data_user', 'jetpack_unregister_deprecated_google_fonts_from_theme_json_data_user' );
+add_filter( 'wp_theme_json_data_theme', 'jetpack_unregister_deprecated_google_fonts_from_theme_json_data' );
+add_filter( 'wp_theme_json_data_user', 'jetpack_unregister_deprecated_google_fonts_from_theme_json_data' );
 
 // Initialize Jetpack Google Font Face to avoid printing **ALL** google fonts provided by this module.
 // See p1700040028362329-slack-C4GAQ900P and p7DVsv-jib-p2

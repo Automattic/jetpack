@@ -5,7 +5,7 @@
 	flex-direction: row;
 	margin: 4px;
 	cursor: default;
-	font-size: 13px; /* stylelint-disable-line declaration-property-unit-allowed-list */
+	font-size: inherit;
 	font-weight: 500;
 	border-radius: 4px;
 	color: var(--color-neutral-80);
@@ -15,6 +15,13 @@
 	padding: 4px 11px 3px 9px;
 	justify-content: center;
 	text-decoration: none;
+	height: auto;
+	align-items: center;
+
+	& svg {
+		width: 1.5em;
+		height: 1.5em;
+	}
 
 	&:hover {
 		cursor: pointer;

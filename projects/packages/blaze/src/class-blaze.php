@@ -248,10 +248,10 @@ class Blaze {
 			$admin_url = admin_url( 'tools.php?page=advertising' );
 			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
 			$blaze_url = sprintf(
-				'%1$s#!/advertising/%2$s/posts/promote/post-%3$s',
+				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',
 				$admin_url,
-				$hostname,
-				esc_attr( $post_id )
+				esc_attr( $post_id ),
+				$hostname
 			);
 
 			return array(

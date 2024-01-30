@@ -189,6 +189,15 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 		}
 	}
 
+	$total_value_fields = isset( $settings['jpcrm_total_value_fields'] ) ? $settings['jpcrm_total_value_fields'] : array();
+	foreach ( $zbs->acceptable_total_value_fields as $field_name => $field_label ) {
+		$total_value_fields[ $field_name ] = 0;
+		if ( isset( $_POST[ 'wpzbscrm_total_value_field_' . $field_name ] ) && ! empty( $_POST[ 'wpzbscrm_total_value_field_' . $field_name ] ) ) {
+			$total_value_fields[ $field_name ] = 1;
+		}
+	}
+	$updatedSettings['jpcrm_total_value_fields'] = $total_value_fields; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 	// } Brutal update
 	foreach ( $updatedSettings as $k => $v ) {
 		$zbs->settings->update( $k, $v );
@@ -473,6 +482,25 @@ if ( ! $confirmAct ) {
 						echo ' checked="checked"';}
 					?>
 					/></td>
+				</tr>
+
+				<tr>
+					<td class="wfieldname"><label for="wpzbscrm_useaka"><?php esc_html_e( 'Total Value Field', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Include these values in the Total Value field for contacts and companies.', 'zero-bs-crm' ); ?></td>
+					<td style="width:540px">
+						<?php
+						foreach ( $zbs->acceptable_total_value_fields as $field_name => $field_label ) {
+							?>
+							<input type="checkbox" class="winput form-control" name="<?php echo esc_attr( 'wpzbscrm_total_value_field_' . $field_name ); ?>" id="<?php echo esc_attr( 'wpzbscrm_total_value_field_' . $field_name ); ?>" value="1"
+																								<?php
+																								// For compatibility with previous versions we consider the field selected (checked) if the setting is inexistent.
+																								if ( ! isset( $settings['jpcrm_total_value_fields'] ) || ( isset( $settings['jpcrm_total_value_fields'][ $field_name ] ) && $settings['jpcrm_total_value_fields'][ $field_name ] === 1 ) ) {
+																									echo ' checked="checked"';
+																								}
+																								?>
+							/> <?php echo esc_html_e( $field_label, 'zero-bs-crm' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText ?><br />
+						<?php } ?>
+					</td>
+
 				</tr>
 
 				<tr>

@@ -192,6 +192,7 @@ class Defaults {
 		'wpcom_site_setup',
 		'wpcom_subscription_emails_use_excerpt',
 		'jetpack_verbum_subscription_modal',
+		'jetpack_blocks_disabled',
 	);
 
 	/**
@@ -741,7 +742,6 @@ class Defaults {
 		'_wp_page_template',
 		'_wp_trash_meta_comments_status',
 		'_wpas_feature_enabled',
-		'_wpas_is_tweetstorm',
 		'_wpas_mess',
 		'_wpas_options',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.

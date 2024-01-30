@@ -41,6 +41,10 @@ async function getListComment( issueComments ) {
  * - xxx-zd
  * - xxxx-xxx-p2#comment-xxx
  *
+ * They could also be forum links:
+ * - https://wordpress.com/forums/topic/xxx
+ * - https://wordpress.com/xxx/forums/topic/xxx (for non-English forums)
+ *
  * @param {GitHub} octokit      - Initialized Octokit REST client.
  * @param {string} owner        - Repository owner.
  * @param {string} repo         - Repository name.
@@ -50,7 +54,8 @@ async function getListComment( issueComments ) {
  */
 async function getIssueReferences( octokit, owner, repo, number, issueComments ) {
 	const ticketReferences = [];
-	const referencesRegexP = /[0-9]*-(?:zen|zd)|[a-zA-Z0-9-]+-p2#comment-[0-9]*/gim;
+	const referencesRegexP =
+		/[0-9]*-(?:zen|zd)|[a-zA-Z0-9-]+-p2#comment-[0-9]*|https:\/\/wordpress\.com\/(?:[a-z]+\/)?forums\/topic\/(?:[a-zA-Z0-9-]+)/gim;
 
 	debug( `gather-support-references: Getting references from issue body.` );
 	const {
@@ -78,21 +83,21 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 	// Let's build a array with unique and correct support IDs, formatted properly.
 	const correctedSupportIds = new Set();
 	ticketReferences.map( reference => {
-		const supportId = reference[ 0 ];
+		let supportId = reference[ 0 ];
 
 		// xxx-zen is the preferred format for tickets.
 		// xxx-zd, as well as its uppercase version, is considered an alternate version.
 		const wrongId = supportId.match( /^([0-9]*)-zd$/i );
 		if ( wrongId ) {
-			const correctedId = `${ wrongId[ 1 ] }-zen`;
-			correctedSupportIds.add( correctedId );
-		} else {
-			// Switch to lowercase when it's not a p2 comment reference.
-			const standardizedsupportId = supportId.match( /[a-zA-Z0-9-]+-p2#comment-[0-9]*/ )
-				? supportId
-				: supportId.toLowerCase();
-			correctedSupportIds.add( standardizedsupportId );
+			supportId = `${ wrongId[ 1 ] }-zen`;
 		}
+
+		// Zendesk tickets should be all lowercase.
+		if ( supportId.toLowerCase().endsWith( '-zen' ) ) {
+			supportId = supportId.toLowerCase();
+		}
+
+		correctedSupportIds.add( supportId );
 	} );
 
 	return [ ...correctedSupportIds ];
@@ -152,8 +157,11 @@ function formatSlackMessage( payload, channel, message ) {
 			break;
 		case 'Automattic/zero-bs-crm':
 		case 'Automattic/sensei':
-		case 'Automattic/WP-Job-Manager':
 			dris = '@heysatellite';
+			break;
+		case 'Automattic/WP-Job-Manager':
+		case 'Automattic/Crowdsignal':
+			dris = '@meteorite-team';
 			break;
 	}
 
