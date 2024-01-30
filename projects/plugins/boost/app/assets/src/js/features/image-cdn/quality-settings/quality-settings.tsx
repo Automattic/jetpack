@@ -106,6 +106,8 @@ const Header = () => (
 	<div className={ styles[ 'section-title' ] }>
 		{ __( 'Image Quality', 'jetpack-boost' ) }
 		<IconTooltip
+			offset={ 8 }
+			placement={ 'bottom' }
 			className={ styles[ 'info-icon' ] }
 			title={ __( 'Image Quality', 'jetpack-boost' ) }
 		>
