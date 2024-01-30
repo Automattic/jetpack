@@ -1506,7 +1506,7 @@ class Identity_Crisis {
 					break;
 				}
 			}
-			return $response;
 		}
+		return $response;
 	}
 }
