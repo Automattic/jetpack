@@ -41,6 +41,7 @@
 		"slideshow",
 		"social-previews",
 		"story",
+		"subscriber-login",
 		"subscriptions",
 		"tiled-gallery",
 		"tock",
@@ -71,8 +72,7 @@
 		"ai-assistant-backend-prompts",
 		"sharing-button",
 		"sharing-buttons",
-		"ai-logo-generator",
-		"subscriber-login"
+		"ai-logo-generator"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
