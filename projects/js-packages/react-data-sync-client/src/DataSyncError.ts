@@ -43,6 +43,10 @@ export class DataSyncError extends Error {
 		Object.setPrototypeOf( this, DataSyncError.prototype );
 	}
 
+	/**
+	 * This is a helper method to log and format DataSync errors in the console.
+	 * It's only called when `window.datasync_debug` is set to `true`.
+	 */
 	private debugMessage() {
 		const info = this.info;
 		const key = `${ info.namespace }.${ info.key }`;
