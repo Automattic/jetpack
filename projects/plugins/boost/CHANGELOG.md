@@ -5,26 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.0.0-beta] - 2024-01-22
+## [3.0.0-beta] - 2024-01-30
 ### Added
-- Cloud CSS: Added internal support for custom CSS Generation parametr for more reliable Cloud CSS generation. [#35129]
+- Cloud CSS: Improve reliability. [#35129]
 - General: Added Jetpack Sync to allow for better support. [#34825]
 
 ### Changed
-- Code Modernization: Replace usage of strpos() with str_contains(), str_starts_with, and std_ends. [#34137]
-- Code Modernization: Replace usage of strpos() with str_starts_with(). [#34135]
-- Code Modernization: Replace usage of substr() with str_starts_with() and str_ends_with(). [#34207]
-- General: Cleanup unused JS constants on Boost admin page. [#34823]
 - General: Migrated Admin UI from Svlete to React, for consistency with the rest of Jetpack.
 - General: Updated PHP requirement to PHP 7.0+ [#34126]
+- Update cloud css regenerate button to always be visible, but disable it when generation is running.
+- Update Purchase Successful page copy and layout.
+- Made various PHP code improvements.
 
 ### Removed
 - Removed Boost setup prompt/banner on wp-admin plugins page. [#34771]
 - Removed lazy-loading module. [#35100]
+- Speed Scores: Temporarily removed the score change popout.
 
 ### Fixed
 - Concatenate JS: Output inline before/after scripts for handles with `src` false. [#35121]
 - Critical CSS: Exclude @charset and @import statements from Critical CSS. [#34660]
+- Site Health: Fixed showing critical CSS issue in site-health if module is disabled
+- Speed Scores: Fix score auto-refresh
 
 ## [2.2.1] - 2023-12-21
 ### Fixed
