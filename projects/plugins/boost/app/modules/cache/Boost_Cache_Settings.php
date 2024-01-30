@@ -9,15 +9,29 @@ namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
  */
 
 class Boost_Cache_Settings {
-	private $settings   = array();
-	private $last_error = '';
+	private static $instance = null;
+	private $settings        = array();
+	private $last_error      = '';
 	private $config_file_path;
 	private $config_file;
 
-	public function __construct() {
+	private function __construct() {
 		$this->config_file_path = WP_CONTENT_DIR . '/boost-cache/';
 		$this->config_file      = $this->config_file_path . 'config.php';
 		$this->init_settings();
+	}
+
+	/*
+	 * Gets the instance of the class.
+	 *
+	 * @return Boost_Cache_Settings The instance of the class.
+	 */
+	public static function get_instance() {
+		if ( self::$instance === null ) {
+			self::$instance = new Boost_Cache_Settings();
+		}
+
+		return self::$instance;
 	}
 
 	/*

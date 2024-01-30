@@ -25,7 +25,7 @@ abstract class Boost_Cache {
 	protected $request_uri = false;
 
 	public function __construct() {
-		$this->settings    = new Boost_Cache_Settings();
+		$this->settings    = Boost_Cache_Settings::get_instance();
 		$this->request_uri = isset( $_SERVER['REQUEST_URI'] )
 			? $this->normalize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			: false;

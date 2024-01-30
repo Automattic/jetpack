@@ -14,7 +14,7 @@ class Page_Cache implements Pluggable, Is_Always_On {
 	private $settings;
 
 	public function __construct() {
-		$this->settings = new Boost_Cache_Settings();
+		$this->settings = Boost_Cache_Settings::get_instance();
 	}
 
 	/*
