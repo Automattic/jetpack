@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Register wp_block patterns from Dotcompatterns with blockTypes

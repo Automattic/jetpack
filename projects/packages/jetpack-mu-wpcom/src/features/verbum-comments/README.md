@@ -4,15 +4,13 @@ A word, discourse, or reason; connoting an appeal to rational discourse.
 
 ## Description
 
-Verbum is the comment UX for WordPress.com and Jetpack and is the successor to [Highlander Comments](../highlander-comments/highlander-comments.php). It is built with [Preact](https://preactjs.com/) and uses [Vite](https://vitejs.dev/) for bundling. This was chosen to limit the size of the bundle and minimize impact on the page performance metrics.
+Verbum is the comment UX for WordPress.com and Jetpack and is the successor to [Highlander Comments](../highlander-comments/highlander-comments.php). It is built with [Preact](https://preactjs.com/) and uses [Webpack](https://webpack.js.org/) for bundling. This was chosen to limit the size of the bundle and minimize impact on the page performance metrics.
 
 ## Technical Details
 
 ### Basics
 
-Page performance impact was highly considered in this plugin. For that reason Preact was chosen to minimize the bundle size as the basic ReactDOM modules needed for rendering were very large. Preact is best utilized with Vite which compiles and bundles everything into the `dist` directory.
-
-From a developer experience it functions the same as React with Webpack. You can use all the typical npm scripts like `start`, `build`, and `lint`.
+Page performance impact was highly considered in this plugin. For that reason Preact was chosen to minimize the bundle size as the basic ReactDOM modules needed for rendering were very large.
 
 Because we are using a Preact based plugin to manage the user experience, we overwrite and remove any of the basic WordPress comment section hooks. We remove everything that is not needed and output our plugin in place of the submit button. This also means that we do not utilize any of the default settings for the comment section that would allow others to overwrite them. These are typically used to change the wording on buttons and headings or inject your own custom components. If someone were to selfishly overwrite the submit button it would prevent the entire comment form from loading.
 
@@ -98,17 +96,24 @@ Note: These commands should be ran from `/jetpack-mu-wpcom` root directory.
 * `pnpm build-production-js` - Build Verbum production code.
 * `pnpm lint` - Check for lint issues in the code.
 * `pnpm run watch` - Watch file changes
-* `jetpack rsync mu-wpcom-plugin` - Sync local files to development environment. This command tool will ask you for the remote destination after your input it in the command line. Ensure the remote path is correct depending on the environment you're targetting. If you're targetting your sandbox, the remote destination should look like this: `USERNAME@HOSTNAME:~/public_html/wp-content/mu-plugins/jetpack-plugin/production`. You will also need to add `define( 'JETPACK_AUTOLOAD_DEV', true );` to mu-plugins/0-sandbox.php. More details for Simple site testing: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#simple-testing]. If you're targetting your WoA site, the remote destination should look like this: `mywoadevsite.wordpress.com@sftp.wp.com:htdocs/wp-content/plugins/jetpack-mu-wpcom-plugin-dev`. More details for WoA testing: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#woa].
+* `jetpack rsync mu-wpcom-plugin` - Sync local files to development environment. This command tool will ask you for the remote destination after your input it in the command line. Ensure the remote path is correct depending on the environment you're targetting. If you're targetting your sandbox, the remote destination should look like this: `USERNAME@HOSTNAME:~/public_html/wp-content/mu-plugins/jetpack-plugin/production`. You will also need to add `define( 'JETPACK_AUTOLOAD_DEV', true );` to mu-plugins/0-sandbox.php. More details for Simple site testing: [PCYsg-Osp-p2#simple-testing]. If you're targetting your WoA site, the remote destination should look like this: `mywoadevsite.wordpress.com@sftp.wp.com:htdocs/wp-content/plugins/jetpack-mu-wpcom-plugin-dev`. More details for WoA testing: [PCYsg-Osp-p2#woa]. 
+
+In most cases you will only need to sync the code to your sandbox, since Verbum is loaded through a Simple Site in all scenarios. There may be a case where you want to confirm that your PHP changes are not negatively impacting WoA sites (for example, checking for any errors/warning on wp-admin pages). In this case, you will want to sync the code directly to your WoA using the steps above.
 
 ### Local Development:
 
 To test your changes, you will first need to build the Verbum code using one of the build commands above and sync the changes to your development environment. The build commands will clean the `jetpack-mu-wpcom/src/build` directory and output the newly bundled files (`/build/verbum-comments`). One method to quickly sync and test changes is to use the `jetpack rsync mu-wpcom-plugin` command. After syncing the files, make sure that you sandbox your testing site to see your latest changes.
 
+Reminder:
+
+On Simple Sites: Sync the Verbum code changes to your sandbox and sandbox the site your testing.
+On Atomic Sites: Sync the Verbum code changes to your sandbox and sandbox `jetpack.wordpress.com`.
+
 ### After Merge - Deploy process
 
 1. Create a Jetpack PR, review it, and merge.
-2. To initiate a Simple Site deployment, follow these instructions: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#simple-deployment]. The Jetpack release team (#jetpack-release) will also do a daily deployment for any merged changes, if you do not initiate a manual deployment.
-3. To initate a WoA deployment, follow these instructions: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#woa-deployment]. A new version of `jetpack-mu-wpcom` will be released weekly, if you do not initiate a manual deployment.
+2. To initiate a Simple Site deployment, follow these instructions: [PCYsg-Osp-p2#simple-deployment]. The Jetpack release team (#jetpack-release) will also do a daily deployment for any merged changes, if you do not initiate a manual deployment.
+3. To initate a WoA deployment, follow these instructions: [PCYsg-Osp-p2#woa-deployment]. A new version of `jetpack-mu-wpcom` will be released weekly, if you do not initiate a manual deployment.
 
 ### Testing
 
@@ -125,3 +130,8 @@ To test your changes, you will first need to build the Verbum code using one of 
 The tests live in /tests folder. To run them, you can run `npm run e2e-tests`.
 
 If you want to watch the tests unfold, you can run `npx playwright test --ui --config src/features/verbum-comments/playwright.config.ts`.
+
+### Where to track new Verbum Issues
+
+If you stumble upon any issues or have any suggestions for possible changes to Verbum, you can find the relevant project board here: https://github.com/orgs/Automattic/projects/908/views/1.
+
