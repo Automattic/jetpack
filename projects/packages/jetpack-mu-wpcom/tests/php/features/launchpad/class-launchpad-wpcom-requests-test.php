@@ -34,7 +34,19 @@ class Launchpad_WPCOM_Requests_Test extends \WorDBless\BaseTestCase {
 
 		// Mocking Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user
 		$client_mock = $this->getMockBuilder( Launchpad_Jetpack_Connection_Client_Mock::class )->getMock();
-		$client_mock->expects( $this->exactly( 2 ) )->method( 'wpcom_json_api_request_as_user' )->willReturn( $response );
+		$client_mock->expects( $this->once() )
+			->method( 'wpcom_json_api_request_as_user' )
+			->with(
+				'/jetpack-user-attributes?attributes%5B0%5D=attribute1&attributes%5B1%5D=attribute2',
+				'v2',
+				array(
+					'method'  => 'GET',
+					'headers' => array(
+						'X-Forwarded-For' => '',
+					),
+				)
+			)
+			->willReturn( $response );
 
 		$result = wpcom_launchpad_request_user_attributes( $attributes, $client_mock );
 
@@ -46,6 +58,20 @@ class Launchpad_WPCOM_Requests_Test extends \WorDBless\BaseTestCase {
 			$result
 		);
 
+		$client_mock = $this->getMockBuilder( Launchpad_Jetpack_Connection_Client_Mock::class )->getMock();
+		$client_mock->expects( $this->once() )
+			->method( 'wpcom_json_api_request_as_user' )
+			->with(
+				'/jetpack-user-attributes?attributes%5B1%5D=attribute3',
+				'v2',
+				array(
+					'method'  => 'GET',
+					'headers' => array(
+						'X-Forwarded-For' => '',
+					),
+				)
+			)
+			->willReturn( $response );
 		// Test that a new request is made because the attribute3 is not cached.
 		$second_attributes = array( 'attribute1', 'attribute3' );
 		wpcom_launchpad_request_user_attributes( $second_attributes, $client_mock );

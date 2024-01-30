@@ -968,29 +968,29 @@ function wpcom_launchpad_is_mobile_app_installed( $task, $is_complete ) {
 		return true;
 	}
 
-	$mobile_last_seen = null;
-	$is_atomic_site   = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	$has_used_jetpack_app = null;
+	$is_atomic_site       = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
 	if ( $is_atomic_site ) {
-		$user_attributes = wpcom_launchpad_request_user_attributes( array( 'jp_mobile_app_last_seen' ) );
+		$user_attributes = wpcom_launchpad_request_user_attributes( array( 'has_used_jetpack_app' ) );
 		if ( is_wp_error( $user_attributes ) ) {
 			return false;
 		}
 
-		if ( ! isset( $user_attributes['jp_mobile_app_last_seen'] ) ) {
+		if ( ! isset( $user_attributes['has_used_jetpack_app'] ) ) {
 			return false;
 		}
 
-		$mobile_last_seen = $user_attributes['jp_mobile_app_last_seen'];
+		$has_used_jetpack_app = $user_attributes['has_used_jetpack_app'];
 	} else {
 		if ( ! function_exists( 'get_user_attribute' ) ) {
 			return false;
 		}
 
-		$user_id          = get_current_user_id();
-		$mobile_last_seen = get_user_attribute( $user_id, 'jp_mobile_app_last_seen' );
+		$user_id              = get_current_user_id();
+		$has_used_jetpack_app = get_user_attribute( $user_id, 'jp_mobile_app_last_seen' );
 	}
 
-	if ( empty( $mobile_last_seen ) ) {
+	if ( empty( $has_used_jetpack_app ) ) {
 		return false;
 	}
 
