@@ -31,7 +31,7 @@ const GettingStarted: React.FC = () => {
 	const [ , setCriticalCssState ] = useSingleModuleState( 'critical_css' );
 
 	const {
-		connection: { userConnected },
+		connection: { userConnected, wpcomBlogId },
 		initializeConnection,
 	} = useConnection();
 
@@ -39,7 +39,11 @@ const GettingStarted: React.FC = () => {
 		if ( ! shouldGetStarted && selectedPlan ) {
 			// Go to the purchase flow if the user doesn't have a premium plan.
 			if ( ! isPremium && selectedPlan === 'premium' ) {
-				window.location.href = getUpgradeURL( domain, userConnected );
+				window.location.href = getUpgradeURL(
+					domain,
+					userConnected,
+					wpcomBlogId ? wpcomBlogId.toString() : null
+				);
 			} else {
 				setCriticalCssState( true );
 				navigate( '/', { replace: true } );
@@ -53,6 +57,7 @@ const GettingStarted: React.FC = () => {
 		setCriticalCssState,
 		shouldGetStarted,
 		userConnected,
+		wpcomBlogId,
 	] );
 
 	async function initialize( plan: 'free' | 'premium' ) {
