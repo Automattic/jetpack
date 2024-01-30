@@ -25,6 +25,15 @@ class Sender {
 	const NEXT_SYNC_TIME_OPTION_NAME = 'jetpack_next_sync_time';
 
 	/**
+	 * Name of the transient responsible for temprorarily disabling Sync sending during Pulls.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
+	const TEMP_SYNC_DISABLE_TRANSIENT_NAME = 'jetpack_disable_sync_sending';
+
+	/**
 	 * Sync timeout after a WPCOM error.
 	 *
 	 * @access public
@@ -438,6 +447,10 @@ class Sender {
 
 		if ( ! Settings::is_sender_enabled( $queue->id ) ) {
 			return new WP_Error( 'sender_disabled_for_queue_' . $queue->id );
+		}
+
+		if ( get_transient( self::TEMP_SYNC_DISABLE_TRANSIENT_NAME ) ) {
+			return new WP_Error( 'sender_temporarily_disabled_while_pulling' );
 		}
 
 		// Return early if we've gotten a retry-after header response.
