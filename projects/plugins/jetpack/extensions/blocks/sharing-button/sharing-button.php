@@ -66,7 +66,7 @@ function render_block( $attr, $content, $block ) {
 	if ( array_key_exists( 'iconColorValue', $block->context ) ) {
 		$styles .= 'color: ' . $block->context['iconColorValue'] . '; ';
 	} else {
-		$default_icon_color = $style_type == 'icon' ? '#fff' : '#000';
+		$default_icon_color = $style_type === 'icon' ? '#fff' : '#000';
 		$styles            .= 'color: ' . $default_icon_color . '; ';
 	}
 	if ( array_key_exists( 'iconBackgroundColorValue', $block->context ) ) {
