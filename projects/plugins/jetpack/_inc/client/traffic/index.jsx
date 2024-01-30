@@ -9,7 +9,7 @@ import {
 	isUnavailableInOfflineMode,
 	hasConnectedOwner,
 } from 'state/connection';
-import { getLastPostUrl, currentThemeIsBlockTheme } from 'state/initial-state';
+import { getLastPostUrl, currentThemeIsBlockTheme, getSiteId } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
@@ -83,7 +83,7 @@ export class Traffic extends React.Component {
 					<SEO
 						{ ...commonProps }
 						configureUrl={ getRedirectUrl( 'calypso-marketing-traffic', {
-							site: this.props.siteRawUrl,
+							site: this.props.blogID ?? this.props.siteRawUrl,
 							anchor: 'seo',
 						} ) }
 					/>
@@ -93,7 +93,7 @@ export class Traffic extends React.Component {
 					<GoogleAnalytics
 						{ ...commonProps }
 						configureUrl={ getRedirectUrl( 'calypso-marketing-traffic', {
-							site: this.props.siteRawUrl,
+							site: this.props.blogID ?? this.props.siteRawUrl,
 							anchor: 'analytics',
 						} ) }
 					/>
@@ -119,5 +119,6 @@ export default connect( state => {
 		lastPostUrl: getLastPostUrl( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		hasConnectedOwner: hasConnectedOwner( state ),
+		blogID: getSiteId( state ),
 	};
 } )( Traffic );

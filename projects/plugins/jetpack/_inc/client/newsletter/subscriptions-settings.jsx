@@ -47,6 +47,7 @@ function SubscriptionsSettings( props ) {
 		isBlockTheme,
 		siteAdminUrl,
 		themeStylesheet,
+		blogID,
 	} = props;
 
 	const subscribeModalEditorUrl =
@@ -81,7 +82,7 @@ function SubscriptionsSettings( props ) {
 				className="jp-settings-card__configure-link"
 				onClick={ trackViewSubsClick }
 				href={ getRedirectUrl( 'calypso-subscribers', {
-					site: siteRawUrl,
+					site: blogID ?? siteRawUrl,
 				} ) }
 				target="_blank"
 				rel="noopener noreferrer"
@@ -145,11 +146,11 @@ function SubscriptionsSettings( props ) {
 							disabled={ isDisabled }
 							toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
 							onChange={ handleSubscribeModalToggleChange }
-							label={ __( 'Enable subscriber pop-up', 'jetpack' ) }
+							label={ __( 'Enable subscription pop-up', 'jetpack' ) }
 						/>
 						<p className="jp-form-setting-explanation">
 							{ __(
-								'Automatically add a subscribe form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
+								'Automatically add a subscription form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
 								'jetpack'
 							) }
 							{ isBlockTheme && subscribeModalEditorUrl && (

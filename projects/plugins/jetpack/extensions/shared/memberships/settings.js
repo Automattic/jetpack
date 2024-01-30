@@ -1,3 +1,4 @@
+import { numberFormat } from '@automattic/jetpack-components';
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import {
 	Button,
@@ -142,10 +143,20 @@ export function NewsletterAccessRadioButtons( {
 	const closeDialog = () => setShowDialog( false );
 
 	const setAccess = useSetAccess();
+	const subscribersReach = getReachForAccessLevelKey( {
+		accessLevel: accessOptions.subscribers.key,
+		emailSubscribers,
+		paidSubscribers,
+	} );
+	const paidSubscribersReach = getReachForAccessLevelKey( {
+		accessLevel: accessOptions.paid_subscribers.key,
+		emailSubscribers,
+		paidSubscribers,
+	} );
 
 	return (
-		<fieldset className="editor-post-visibility__fieldset">
-			<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
+		<fieldset className="jetpack-newsletter-access-radio-buttons">
+			<VisuallyHidden as="legend">{ __( 'Access', 'jetpack' ) } </VisuallyHidden>
 			<RadioControl
 				onChange={ value => {
 					if (
@@ -167,19 +178,20 @@ export function NewsletterAccessRadioButtons( {
 						  ]
 						: [] ),
 					{
-						label: `${ accessOptions.subscribers.label } (${ getReachForAccessLevelKey( {
-							accessLevel: accessOptions.subscribers.key,
-							emailSubscribers,
-							paidSubscribers,
-						} ).toLocaleString() })`,
+						label: `${ accessOptions.subscribers.label } (${ numberFormat( subscribersReach, {
+							notation: 'compact',
+							maximumFractionDigits: 1,
+						} ) })`,
 						value: accessOptions.subscribers.key,
 					},
 					{
-						label: `${ accessOptions.paid_subscribers.label } (${ getReachForAccessLevelKey( {
-							accessLevel: accessOptions.paid_subscribers.key,
-							emailSubscribers,
-							paidSubscribers,
-						} ).toLocaleString() })`,
+						label: `${ accessOptions.paid_subscribers.label } (${ numberFormat(
+							paidSubscribersReach,
+							{
+								notation: 'compact',
+								maximumFractionDigits: 1,
+							}
+						) })`,
 						value: accessOptions.paid_subscribers.key,
 					},
 				] }
@@ -264,20 +276,18 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 							</div>
 						</>
 					) }
-					<PanelRow className="edit-post-post-visibility">
+					<PanelRow>
 						<Flex direction="column">
 							{ showMisconfigurationWarning && <MisconfigurationWarning /> }
 							<FlexBlock direction="row" justify="flex-start">
 								{ canEdit && (
-									<div className="editor-post-visibility">
-										<NewsletterAccessRadioButtons
-											isEditorPanel={ true }
-											accessLevel={ _accessLevel }
-											stripeConnectUrl={ stripeConnectUrl }
-											hasTierPlans={ hasTierPlans }
-											postHasPaywallBlock={ foundPaywallBlock }
-										/>
-									</div>
+									<NewsletterAccessRadioButtons
+										isEditorPanel={ true }
+										accessLevel={ _accessLevel }
+										stripeConnectUrl={ stripeConnectUrl }
+										hasTierPlans={ hasTierPlans }
+										postHasPaywallBlock={ foundPaywallBlock }
+									/>
 								) }
 
 								{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }

@@ -77,7 +77,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 					'input_type'            => 'select',
 					'label'                 => __( 'Status', 'zero-bs-crm' ),
 					'placeholder'           => '',
-					'options'               => array( 'Lead', 'Customer', 'Refused', 'Blacklisted' ),
+					'options'               => array( 'Lead', 'Customer', 'Refused' ),
 					'essential'             => true,
 					'max_len'               => 100,
 					'do_not_show_on_portal' => true,
@@ -562,8 +562,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 #} Aliases
                 if ($withAliases){
 
-                    #} Retrieve these as a CSV :)
-                    $extraSelect .= ",(SELECT GROUP_CONCAT(aka_alias SEPARATOR ',') FROM ".$ZBSCRM_t['aka']." WHERE aka_type = ".ZBS_TYPE_CONTACT." AND aka_id = contact.ID) aliases";
+					#} Retrieve these as a CSV :)
+					$extraSelect .= ',(SELECT ' . $this->DAL()->build_group_concat( 'aka_alias', ',' ) . ' FROM ' . $ZBSCRM_t['aka'] . ' WHERE aka_type = ' . ZBS_TYPE_CONTACT . ' AND aka_id = contact.ID) aliases'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 }
 
@@ -603,11 +603,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                 // Calculate total vals etc. with SQL 
                 if ($withValues && !$onlyID){
-
-                    // arguably, if getting $withInvoices etc. may be more performant to calc this in php in AFTER loop, 
-                    // ... for now as a fair guess, this'll be most performant:
-                    // ... we calc total by adding invs + trans below :)
-
                     // only include transactions with statuses which should be included in total value:
 					$transStatusQueryAdd = $this->DAL()->transactions->getTransactionStatusesToIncludeQuery(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					// include invoices without deleted status in the total value for invoices_total_inc_deleted:
@@ -1182,8 +1177,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             #} Aliases
             if ($withAliases){
 
-                #} Retrieve these as a CSV :)
-                $extraSelect .= ",(SELECT GROUP_CONCAT(aka_alias SEPARATOR ',') FROM ".$ZBSCRM_t['aka']." WHERE aka_type = ".ZBS_TYPE_CONTACT." AND aka_id = contact.ID) aliases";
+				#} Retrieve these as a CSV :)
+				$extraSelect .= ',(SELECT ' . $this->DAL()->build_group_concat( 'aka_alias', ',' ) . ' FROM ' . $ZBSCRM_t['aka'] . ' WHERE aka_type = ' . ZBS_TYPE_CONTACT . ' AND aka_id = contact.ID) aliases'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             }
 
@@ -3657,12 +3652,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 // and if have invs + trans totals, add to make total val
                 // This now accounts for "part payments" where trans are part/whole payments against invs
                 if (isset($res['invoices_total']) || isset($res['transactions_total'])){
-                    
-                    $invTotal = 0.0; if (isset($res['invoices_total'])) $invTotal = $res['invoices_total'];
-                    $transTotal = 0.0; if (isset($res['transactions_total'])) $transTotal = $res['transactions_total'];
-
-                    $res['total_value'] = $invTotal + $transTotal;
-                    if (isset($res['transactions_paid_total']) && $res['transactions_paid_total'] > 0) $res['total_value'] -= $res['transactions_paid_total'];
+							$res['total_value'] = jpcrm_get_total_value_from_contact_or_company( $res );
                 }
                 
             // custom fields - tidy any that are present:

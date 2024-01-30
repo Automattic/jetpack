@@ -9,7 +9,11 @@ import React from 'react';
  * Internal dependencies
  */
 import './style.scss';
-import { PLAN_TYPE_FREE, PLAN_TYPE_TIERED, PLAN_TYPE_UNLIMITED } from './types';
+import {
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_TIERED,
+	PLAN_TYPE_UNLIMITED,
+} from '../../../../shared/use-plan-type';
 /**
  * Types
  */

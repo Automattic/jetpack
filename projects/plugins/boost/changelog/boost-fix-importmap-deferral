@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Defer JS: added importmap to the exclusion list to fix compatibility issues.

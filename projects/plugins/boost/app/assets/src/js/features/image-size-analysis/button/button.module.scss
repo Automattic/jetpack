@@ -1,0 +1,36 @@
+.button {
+	:global(#jb-dashboard) & {
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+		padding: 0 24px;
+
+		background: #ffffff;
+
+		color: #000;
+		border: 1px solid currentColor;
+		border-radius: 4px;
+
+		font-weight: 600;
+		font-size: 1rem;
+		letter-spacing: -0.01em;
+	}
+}
+
+.small {
+	:global(#jb-dashboard) & {
+		padding: 4px 10px;
+		line-height: 1.1;
+		width: auto;
+		height: auto;
+		font-size: 0.875rem;
+		border-radius: 6px;
+	}
+}
+
+.fill {
+	:global(#jb-dashboard) & {
+		color: #ffffff;
+		background: #000;
+	}
+}

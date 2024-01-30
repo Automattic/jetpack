@@ -28,7 +28,7 @@ jobs:
     name: Renovate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: monorepo
       - run: mv monorepo /tmp/monorepo
@@ -37,12 +37,12 @@ jobs:
           TOKEN: ${{ secrets.RENOVATE_TOKEN }}
         run: |
           curl --no-progress-meter --header "Authorization: Bearer $TOKEN" https://api.github.com/rate_limit
-      - uses: renovatebot/github-action@v39.0.0
+      - uses: renovatebot/github-action@v40.0.2
         with:
           configurationFile: /tmp/monorepo/.github/renovate-config.js
           token: ${{ secrets.RENOVATE_TOKEN }}
           mount-docker-socket: true
-          renovate-version: 37.26.4
+          renovate-version: 37.146.0
         env:
           LOG_LEVEL: ${{ github.event.inputs.logLevel || 'debug' }}
           RENOVATE_DRY_RUN: ${{ github.event.inputs.dryRun == 'no' && 'null' || github.event.inputs.dryRun || 'null' }}

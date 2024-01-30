@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Boost: Enhanced image quality control behavior and wrapped main component in StrictMode

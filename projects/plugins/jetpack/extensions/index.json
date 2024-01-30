@@ -17,6 +17,7 @@
 		"google-calendar",
 		"image-compare",
 		"instagram-gallery",
+		"like",
 		"likes",
 		"mailchimp",
 		"map",
@@ -56,12 +57,12 @@
 		"blogroll",
 		"blogroll-item",
 		"nextdoor",
-		"ai-assistant-usage-panel"
+		"ai-assistant-usage-panel",
+		"ai-content-lens"
 	],
 	"beta": [
 		"google-docs-embed",
 		"launchpad-save-modal",
-		"like",
 		"recipe",
 		"goodreads",
 		"v6-video-frame-poster",
@@ -72,7 +73,7 @@
 		"sharing-button",
 		"sharing-buttons",
 		"ai-logo-generator",
-		"ai-content-lens"
+		"subscriber-login"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
