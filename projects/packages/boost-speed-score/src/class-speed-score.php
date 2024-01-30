@@ -320,7 +320,7 @@ class Speed_Score {
 			);
 
 			// Only include noBoost scores if at least one module is enabled.
-			if ( $this->modules->have_enabled_modules() ) {
+			if ( $score_request->active_modules ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
 			}
 

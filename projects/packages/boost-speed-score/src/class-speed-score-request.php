@@ -103,6 +103,15 @@ class Speed_Score_Request extends Cacheable {
 	}
 
 	/**
+	 * Get the list of active modules while this request was created.
+	 *
+	 * @return string
+	 */
+	public function get_active_modules() {
+		return $this->active_modules;
+	}
+
+	/**
 	 * Convert this object to a plain array for JSON serialization.
 	 */
 	#[\ReturnTypeWillChange]
