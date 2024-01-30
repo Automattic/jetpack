@@ -306,6 +306,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const handleSend = () => {
 		handleGetSuggestion( 'userPrompt' );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', { feature: 'ai-assistant' } );
 	};
 
 	const handleAccept = () => {
@@ -316,7 +317,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		}
 	};
 
-	const handleAcceptContent = async () => {
+	const replaceContent = async () => {
 		let newGeneratedBlocks = [];
 		if ( ! useGutenbergSyntax ) {
 			/*
@@ -350,26 +351,40 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		}
 	};
 
+	const handleAcceptContent = () => {
+		replaceContent();
+		tracks.recordEvent( 'jetpack_ai_assistant_block_accept', { feature: 'ai-assistant' } );
+	};
+
 	const handleAcceptTitle = () => {
 		if ( isInBlockEditor ) {
 			editPost( { title: attributes.content ? attributes.content.trim() : '' } );
 			removeBlock( clientId );
+			tracks.recordEvent( 'jetpack_ai_assistant_block_accept', { feature: 'ai-assistant' } );
 		} else {
 			handleAcceptContent();
 		}
 	};
 
-	const handleTryAgain = () => {
+	const handleDiscard = () => {
+		const isDismiss = attributes?.content === getBlock( clientId ).attributes?.content;
 		setAttributes( {
 			content: attributes?.originalContent,
 			promptType: undefined,
 			messages: attributes?.originalMessages,
 		} );
+		replaceContent();
+		if ( isDismiss ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_dismiss' );
+		} else {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_discard', { feature: 'ai-assistant' } );
+		}
 	};
 
 	const handleStopSuggestion = () => {
 		stopSuggestion();
 		focusOnPrompt();
+		tracks.recordEvent( 'jetpack_ai_assistant_block_stop', { feature: 'ai-assistant' } );
 	};
 
 	const handleImageRequest = () => {
@@ -417,6 +432,20 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		</>
 	);
 
+	const error = (
+		<>
+			{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
+				<Notice
+					status={ errorData.status }
+					isDismissible={ false }
+					className="jetpack-ai-assistant__error"
+				>
+					{ errorData.message }
+				</Notice>
+			) }
+		</>
+	);
+
 	return (
 		<KeyboardShortcuts
 			bindGlobal
@@ -429,16 +458,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			} }
 		>
 			<div { ...blockProps }>
-				{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
-					<Notice
-						status={ errorData.status }
-						isDismissible={ false }
-						className="jetpack-ai-assistant__error"
-					>
-						{ errorData.message }
-					</Notice>
-				) }
-
 				{ contentIsLoaded && ! useGutenbergSyntax && (
 					<div className="jetpack-ai-assistant__content">
 						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
@@ -563,7 +582,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					onSend={ handleSend }
 					onStop={ handleStopSuggestion }
 					onAccept={ handleAccept }
-					onDiscard={ handleTryAgain }
+					onDiscard={ handleDiscard }
 					state={ requestingState }
 					isTransparent={ requireUpgrade || ! connected }
 					showButtonLabels={ ! isMobileViewport }
@@ -572,6 +591,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					showGuideLine={ contentIsLoaded }
 					showRemove={ attributes?.content?.length > 0 }
 					bannerComponent={ banner }
+					errorComponent={ error }
 				/>
 
 				{ ! loadingImages && resultImages.length > 0 && (

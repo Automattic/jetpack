@@ -1,11 +1,11 @@
-import { createInterpolateElement, useCallback } from '@wordpress/element';
+import { createInterpolateElement } from '@wordpress/element';
 import CollapsibleMeta from '../collapsible-meta/collapsible-meta';
 import { __, sprintf } from '@wordpress/i18n';
 import styles from './quality-settings.module.scss';
 import { IconTooltip } from '@automattic/jetpack-components';
 import QualityControl from '../quality-control/quality-control';
 import Upgraded from '$features/ui/upgraded/upgraded';
-import { type QualityConfig, imageCdnSettingsSchema, useImageCdnQuality } from '../lib/stores';
+import { imageCdnSettingsSchema, useImageCdnQuality } from '../lib/stores';
 import { z } from 'zod';
 import { Link } from 'react-router-dom';
 
@@ -25,12 +25,25 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 
 	const [ imageCdnQuality, setImageCdnQuality ] = useImageCdnQuality();
 
-	const updateFormatQuantity = useCallback(
-		( format: 'jpg' | 'png' | 'webp', newValue: QualityConfig ) => {
-			setImageCdnQuality( { ...imageCdnQuality, [ format ]: newValue } );
-		},
-		[ imageCdnQuality, setImageCdnQuality ]
-	);
+	const setQuality = ( format: 'jpg' | 'png' | 'webp', newValue: number ) => {
+		setImageCdnQuality( {
+			...imageCdnQuality,
+			[ format ]: {
+				...imageCdnQuality[ format ],
+				quality: newValue,
+			},
+		} );
+	};
+
+	const setLossless = ( format: 'jpg' | 'png' | 'webp', newValue: boolean ) => {
+		setImageCdnQuality( {
+			...imageCdnQuality,
+			[ format ]: {
+				...imageCdnQuality[ format ],
+				lossless: newValue,
+			},
+		} );
+	};
 
 	return (
 		<CollapsibleMeta
@@ -41,21 +54,27 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		>
 			<QualityControl
 				label={ __( 'JPEG', 'jetpack-boost' ) }
-				config={ imageCdnQuality.jpg as QualityConfig }
 				maxValue={ 89 }
-				onChange={ newValue => updateFormatQuantity( 'jpg', newValue ) }
+				quality={ imageCdnQuality.jpg.quality }
+				lossless={ imageCdnQuality.jpg.lossless }
+				setQuality={ value => setQuality( 'jpg', value ) }
+				setLossless={ value => setLossless( 'jpg', value ) }
 			/>
 			<QualityControl
 				label={ __( 'PNG', 'jetpack-boost' ) }
-				config={ imageCdnQuality.png as QualityConfig }
 				maxValue={ 80 }
-				onChange={ newValue => updateFormatQuantity( 'png', newValue ) }
+				quality={ imageCdnQuality.png.quality }
+				lossless={ imageCdnQuality.png.lossless }
+				setQuality={ value => setQuality( 'png', value ) }
+				setLossless={ value => setLossless( 'png', value ) }
 			/>
 			<QualityControl
 				label={ __( 'WEBP', 'jetpack-boost' ) }
-				config={ imageCdnQuality.webp as QualityConfig }
 				maxValue={ 80 }
-				onChange={ newValue => updateFormatQuantity( 'webp', newValue ) }
+				quality={ imageCdnQuality.webp.quality }
+				lossless={ imageCdnQuality.webp.lossless }
+				setQuality={ value => setQuality( 'webp', value ) }
+				setLossless={ value => setLossless( 'webp', value ) }
 			/>
 		</CollapsibleMeta>
 	);

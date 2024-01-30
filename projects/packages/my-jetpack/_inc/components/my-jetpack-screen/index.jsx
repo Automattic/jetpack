@@ -28,11 +28,11 @@ import useGlobalNotice from '../../hooks/use-notice';
 import { useProduct } from '../../hooks/use-product';
 import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
+import JetpackManageBanner from '../jetpack-manage-banner';
 import PlansSection from '../plans-section';
 import { PRODUCT_STATUSES } from '../product-card';
 import ProductCardsSection from '../product-cards-section';
 import StatsSection from '../stats-section';
-import JetpackManageBanner from '../upsell-banner/jetpack-manage-banner';
 import WelcomeBanner from '../welcome-banner';
 import styles from './styles.module.scss';
 

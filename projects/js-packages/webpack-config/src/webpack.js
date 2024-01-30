@@ -81,7 +81,43 @@ const DuplicatePackageCheckerPlugin = options => [
 
 const DependencyExtractionPlugin = options => [ new DependencyExtractionWebpackPlugin( options ) ];
 
-const I18nLoaderPlugin = options => [ new I18nLoaderWebpackPlugin( options ) ];
+let loadTextDomainFromComposerJson = () => {
+	let dir = process.cwd(),
+		olddir,
+		ret;
+	do {
+		const file = path.join( dir, 'composer.json' );
+		if ( fs.existsSync( file ) ) {
+			const cfg = JSON.parse( fs.readFileSync( file, { encoding: 'utf8' } ) );
+			if ( cfg.extra ) {
+				if ( cfg.extra.textdomain ) {
+					ret = cfg.extra.textdomain;
+				} else if ( cfg.extra[ 'wp-plugin-slug' ] ) {
+					ret = cfg.extra[ 'wp-plugin-slug' ];
+				} else if ( cfg.extra[ 'wp-theme-slug' ] ) {
+					ret = cfg.extra[ 'wp-theme-slug' ];
+				}
+			}
+			break;
+		}
+
+		olddir = dir;
+		dir = path.dirname( dir );
+	} while ( dir !== olddir );
+
+	// thunk it
+	loadTextDomainFromComposerJson = () => ret;
+
+	return ret;
+};
+
+const I18nLoaderPlugin = options => {
+	const opts = { ...options };
+	if ( typeof opts.textdomain === 'undefined' ) {
+		opts.textdomain = loadTextDomainFromComposerJson();
+	}
+	return [ new I18nLoaderWebpackPlugin( opts ) ];
+};
 
 const i18nFilterFunction = file => {
 	if ( ! /\.(?:jsx?|tsx?|cjs|mjs|svelte)$/.test( file ) ) {
@@ -93,27 +129,7 @@ const i18nFilterFunction = file => {
 const I18nCheckPlugin = options => {
 	const opts = { filter: i18nFilterFunction, ...options };
 	if ( typeof opts.expectDomain === 'undefined' ) {
-		let dir = process.cwd(),
-			olddir;
-		do {
-			const file = path.join( dir, 'composer.json' );
-			if ( fs.existsSync( file ) ) {
-				const cfg = JSON.parse( fs.readFileSync( file, { encoding: 'utf8' } ) );
-				if ( cfg.extra ) {
-					if ( cfg.extra.textdomain ) {
-						opts.expectDomain = cfg.extra.textdomain;
-					} else if ( cfg.extra[ 'wp-plugin-slug' ] ) {
-						opts.expectDomain = cfg.extra[ 'wp-plugin-slug' ];
-					} else if ( cfg.extra[ 'wp-theme-slug' ] ) {
-						opts.expectDomain = cfg.extra[ 'wp-theme-slug' ];
-					}
-				}
-				break;
-			}
-
-			olddir = dir;
-			dir = path.dirname( dir );
-		} while ( dir !== olddir );
+		opts.expectDomain = loadTextDomainFromComposerJson();
 	}
 	return [ new I18nCheckWebpackPlugin( opts ) ];
 };
