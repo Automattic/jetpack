@@ -157,8 +157,21 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			? window[ this.namespace ][ valueName ]
 			: { value: undefined, nonce: '' };
 
-		const result = validator.parse( source );
-		return result as ParsedValue< V >;
+		try {
+			return validator.parse( source ) as ParsedValue< V >;
+		} catch ( error ) {
+			throw new DataSyncError(
+				`Failed to parse the window.${ this.namespace }.${ valueName } value`,
+				{
+					...this.describeSelf(),
+					url: 'window',
+					method: '',
+					status: 'schema_error',
+					error,
+					data: source,
+				}
+			);
+		}
 	}
 
 	/**
