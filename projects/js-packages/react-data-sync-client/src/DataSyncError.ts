@@ -51,7 +51,10 @@ export class DataSyncError extends Error {
 	private debugMessage() {
 		const info = this.info;
 		const key = `${ info.namespace }.${ info.key }`;
-		console.groupCollapsed( `DataSync Debug: %c${ key }`, 'color: #dc362e; font-weight: normal;' );
+		console.groupCollapsed(
+			`🔄 DataSync Debug: %c${ key }`,
+			'color: #dc362e; font-weight: normal;'
+		);
 		console.error( this.message );
 		if ( info.error instanceof z.ZodError ) {
 			const msg: string[] = [];
