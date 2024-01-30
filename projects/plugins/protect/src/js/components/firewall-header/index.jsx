@@ -250,12 +250,12 @@ const ConnectedFirewallHeader = () => {
 		config: {
 			jetpackWafAutomaticRules,
 			jetpackWafIpList,
+			standaloneMode,
 			automaticRulesAvailable,
 			bruteForceProtection,
 		},
 		isToggling,
 		wafSupported,
-		standaloneMode,
 		isEnabled,
 	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
