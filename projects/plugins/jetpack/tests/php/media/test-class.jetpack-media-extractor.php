@@ -28,19 +28,43 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_image() {
-		$img_title = 'title.jpg';
+		$img_title = 'alt_title.jpg';
 
 		$post_id = self::factory()->post->create(
 			array(
-				'post_content' => "<img src='$img_title' width='200' height='200'>",
+				'post_content' => "<img src='$img_title' width='250' height='200'>",
 			)
 		);
 
-		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
+		$extract = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id );
 
 		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'image', $extract );
 		$this->assertEquals( $extract['image'][0]['url'], $img_title );
+	}
+
+	/**
+	 * @author robfelty
+	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @since 13.2
+	 */
+	public function test_mediaextractor_extract_image_with_alttext() {
+		$img_title = 'title.jpg';
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content' => "<img alt='alt text' src='$img_title' width='250' height='200'>",
+			)
+		);
+
+		$extract = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::ALL, true );
+
+		$this->assertIsArray( $extract );
+		$this->assertArrayHasKey( 'image', $extract );
+		$this->assertEquals( $extract['image'][0]['url'], $img_title );
+		$this->assertEquals( 'alt text', $extract['image'][0]['alt_text'] );
+		$this->assertEquals( 250, $extract['image'][0]['src_width'] );
+		$this->assertEquals( 200, $extract['image'][0]['src_height'] );
 	}
 
 	public function shortcode_nop() {

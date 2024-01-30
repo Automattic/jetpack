@@ -450,16 +450,19 @@ class Jetpack_Media_Meta_Extractor {
 			if ( empty( $image['src'] ) ) {
 				continue;
 			}
-			if ( ! empty( $image['alt_text'] ) || ! empty( $image['src_height'] ) || ! empty( $image['src_width'] ) ) {
-				$ret_images[] = array(
-					'url'        => $image['src'],
-					'alt_text'   => $image['alt_text'] ? $image['alt_text'] : '',
-					'src_width'  => $image['src_width'] ? $image['src_width'] : '',
-					'src_height' => $image['src_height'] ? $image['src_height'] : '',
-				);
-			} else {
-				$ret_images[] = $image['src'];
+			$ret_image = array(
+				'url' => $image['src'],
+			);
+			if ( ! empty( $image['src_height'] ) || ! empty( $image['src_width'] ) ) {
+				$ret_image['src_width']  = $image['src_width'] ?? '';
+				$ret_image['src_height'] = $image['src_height'] ?? '';
 			}
+			if ( ! empty( $image['alt_text'] ) ) {
+				$ret_image['alt_text'] = $image['alt_text'];
+			} else {
+				$ret_image = $image['src'];
+			}
+			$ret_images[] = $ret_image;
 		}
 		return $ret_images;
 	}
@@ -545,16 +548,21 @@ class Jetpack_Media_Meta_Extractor {
 			}
 
 			if ( ! in_array( $queryless, $image_list, true ) ) {
+				$image_to_add = array(
+					'url' => $queryless,
+				);
 				if ( $extract_alt_text ) {
-					$image_list[] = array(
-						'url'        => $queryless,
-						'alt_text'   => $extracted_image['alt_text'],
-						'src_width'  => $extracted_image['src_width'],
-						'src_height' => $extracted_image['src_height'],
-					);
+					if ( ! empty( $extracted_image['alt_text'] ) ) {
+						$image_to_add['alt_text'] = $extracted_image['alt_text'];
+					}
+					if ( ! empty( $extracted_image['src_width'] ) || ! empty( $extracted_image['src_width'] ) ) {
+							$image_to_add['src_width']  = $extracted_image['src_width'];
+							$image_to_add['src_height'] = $extracted_image['src_height'];
+					}
 				} else {
-					$image_list[] = $queryless;
+					$image_to_add = $queryless;
 				}
+				$image_list[] = $image_to_add;
 			}
 		}
 		return $image_list;

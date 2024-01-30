@@ -207,8 +207,8 @@ class Jetpack_PostImages {
 							'type'       => 'image',
 							'from'       => 'gallery',
 							'src'        => $raw_src,
-							'src_width'  => $meta['width'] ? $meta['width'] : 0,
-							'src_height' => $meta['height'] ? $meta['height'] : 0,
+							'src_width'  => $meta['width'] ?? 0,
+							'src_height' => $meta['height'] ?? 0,
 							'href'       => $permalink,
 							'alt_text'   => self::get_alt_text( $image_id ),
 						);
@@ -520,10 +520,10 @@ class Jetpack_PostImages {
 			$height = (int) $image_tag->getAttribute( 'height' );
 			if ( 0 === $width && 0 === $height ) {
 				preg_match( '/-([0-9]+)x([0-9]+)\.(?:jpg|jpeg|png|gif|webp)$/i', $img_src, $matches );
-				if ( isset( $matches[1] ) && ! empty( $matches[1] ) ) {
+				if ( ! empty( $matches[1] ) ) {
 					$width = (int) $matches[1];
 				}
-				if ( isset( $matches[2] ) && ! empty( $matches[2] ) ) {
+				if ( ! empty( $matches[2] ) ) {
 					$height = (int) $matches[2];
 				}
 			}
@@ -531,11 +531,11 @@ class Jetpack_PostImages {
 			if ( 0 === $width && 0 === $height ) {
 
 				preg_match( '/wp-image-([0-9]+)/', $image_tag->getAttribute( 'class' ), $matches );
-				if ( isset( $matches[1] ) && ! empty( $matches[1] ) ) {
+				if ( ! empty( $matches[1] ) ) {
 					$attachment_id = $matches[1];
 					$meta          = wp_get_attachment_metadata( $attachment_id );
-					$height        = $meta['height'] ? $meta['height'] : 0;
-					$width         = $meta['width'] ? $meta['width'] : 0;
+					$height        = $meta['height'] ?? 0;
+					$width         = $meta['width'] ?? 0;
 				}
 			}
 
@@ -570,15 +570,18 @@ class Jetpack_PostImages {
 				continue;
 			}
 
-			$images[] = array(
+			$image = array(
 				'type'       => 'image',
 				'from'       => 'html',
 				'src'        => $img_src,
 				'src_width'  => $meta['width'],
 				'src_height' => $meta['height'],
 				'href'       => $html_info['post_url'],
-				'alt_text'   => $meta['alt_text'],
 			);
+			if ( ! empty( $meta['alt_text'] ) ) {
+				$image['alt_text'] = $meta['alt_text'];
+			}
+			$images[] = $image;
 		}
 		return $images;
 	}
