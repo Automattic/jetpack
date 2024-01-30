@@ -215,12 +215,18 @@ abstract class Boost_Cache {
 		if ( $script !== 'index.php' ) {
 			if ( in_array( $script, array( 'wp-login.php', 'xmlrpc.php', 'wp-cron.php' ), true ) ) {
 				$is_backend = true;
-			} elseif ( defined( 'DOING_CRON' ) && DOING_CRON ) {
-				$is_backend = true;
-			} elseif ( PHP_SAPI === 'cli' || ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) ) {
-				$is_backend = true;
 			}
-		} elseif ( defined( 'REST_REQUEST' ) ) {
+		}
+
+		if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+			$is_backend = true;
+		}
+
+		if ( PHP_SAPI === 'cli' || ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) ) {
+			$is_backend = true;
+		}
+
+		if ( defined( 'REST_REQUEST' ) ) {
 			$is_backend = true;
 		}
 
