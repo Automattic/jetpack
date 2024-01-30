@@ -109,3 +109,19 @@ To test your changes, you will first need to build the Verbum code using one of 
 1. Create a Jetpack PR, review it, and merge.
 2. To initiate a Simple Site deployment, follow these instructions: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#simple-deployment]. The Jetpack release team (#jetpack-release) will also do a daily deployment for any merged changes, if you do not initiate a manual deployment.
 3. To initate a WoA deployment, follow these instructions: [https://fieldguide.automattic.com/developing-jetpack/jetpack-mu-wpcom/#woa-deployment]. A new version of `jetpack-mu-wpcom` will be released weekly, if you do not initiate a manual deployment.
+
+### Testing
+
+#### Setup
+
+1. Please sandbox the following sites before running the tests
+	- jetpack.wordpress.com
+	- e2esiteopencommentstoeveryone.wordpress.com
+	- e2ecommentauthormustfilloutnameandemail.wordpress.com
+	- e2eusersmustberegisteredandloggedintocomment.wordpress.com
+
+2. Run `npx playwright install` to install the browsers needed.
+
+The tests live in /tests folder. To run them, you can run `npm run e2e-tests`.
+
+If you want to watch the tests unfold, you can run `npx playwright test --ui --config src/features/verbum-comments/playwright.config.ts`.
