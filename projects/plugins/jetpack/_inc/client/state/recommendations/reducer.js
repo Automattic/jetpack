@@ -23,6 +23,7 @@ import {
 	RECOMMENDATION_WIZARD_STEP,
 	ONBOARDING_SUPPORT_START_TIMESTAMP,
 	ONBOARDING_JETPACK_SOCIAL_ADVANCED,
+	ONBOARDING_JETPACK_SOCIAL_BASIC,
 } from 'recommendations/constants';
 import { combineReducers } from 'redux';
 import {
@@ -71,6 +72,7 @@ import {
 	hasSecurityComparableLegacyPlan,
 	hasActiveBackupPurchase,
 	hasActiveSocialPurchase,
+	hasActiveCompletePurchase,
 } from 'state/site';
 import { isPluginActive } from 'state/site/plugins';
 import { sortByOnboardingPriority, getOnboardingNameByProductSlug } from './onboarding-utils';
@@ -408,6 +410,11 @@ const stepToNextStepByPath = {
 			monitor: 'site-accelerator',
 			'site-accelerator': 'summary',
 		},
+		[ ONBOARDING_JETPACK_SOCIAL_BASIC ]: {
+			welcome__social_basic: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'summary',
+		},
 		[ ONBOARDING_JETPACK_SOCIAL_ADVANCED ]: {
 			welcome__social_advanced: 'welcome__social_image_generator',
 			welcome__social_image_generator: 'monitor',
@@ -452,11 +459,13 @@ export const stepToRoute = {
 	welcome__videopress: '#/recommendations/welcome-videopress',
 	welcome__search: '#/recommendations/welcome-search',
 	welcome__scan: '#/recommendations/welcome-scan',
+	welcome__social_basic: '#/recommendations/welcome-social-basic',
 	welcome__social_advanced: '#/recommendations/welcome-social-advanced',
 	welcome__social_image_generator: '#/recommendations/welcome-social-image-generator',
 	welcome__golden_token: '#/recommendations/welcome-golden-token',
 	'backup-activated': '#/recommendations/backup-activated',
 	'scan-activated': '#/recommendations/scan-activated',
+	'unlimited-sharing-activated': '#/recommendations/unlimited-sharing-activated',
 	'social-advanced-activated': '#/recommendations/social-advanced-activated',
 	'antispam-activated': '#/recommendations/antispam-activated',
 	'videopress-activated': '#/recommendations/videopress-activated',
@@ -646,6 +655,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		// Onboarding specific steps (`-activated` and `welcome__`):
 		case 'backup-activated':
 		case 'scan-activated':
+		case 'unlimited-sharing-activated':
 		case 'social-advanced-activated':
 		case 'search-activated':
 		case 'welcome__complete':
@@ -655,6 +665,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'welcome__videopress':
 		case 'welcome__search':
 		case 'welcome__scan':
+		case 'welcome__social_basic':
 		case 'welcome__social_advanced':
 		case 'welcome__social_image_generator':
 		case 'welcome__backup':
@@ -815,7 +826,7 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 		case 'boost':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'publicize':
-			return ! hasActiveSocialPurchase( state );
+			return ! hasActiveSocialPurchase( state ) && ! hasActiveCompletePurchase( state );
 		case 'protect':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'anti-spam':
@@ -844,6 +855,7 @@ export const isOnboardingEligibleToShowInSummary = ( state, onboardingName ) => 
 		case ONBOARDING_JETPACK_VIDEOPRESS:
 		case ONBOARDING_JETPACK_SEARCH:
 		case ONBOARDING_JETPACK_SECURITY:
+		case ONBOARDING_JETPACK_SOCIAL_BASIC:
 		case ONBOARDING_JETPACK_SOCIAL_ADVANCED:
 			// Don't show plans that overlap with active plan: Complete
 			return ! viewedOnboardings.includes( ONBOARDING_JETPACK_COMPLETE );

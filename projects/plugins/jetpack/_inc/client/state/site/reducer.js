@@ -412,6 +412,16 @@ export function hasActiveSecurityPurchase( state ) {
 }
 
 /**
+ * Determines if the site has an active Jetpack Complete plan
+ *
+ * @param {object} state - Global state tree
+ * @returns {boolean}      True if the site has an active Jetpack Complete plan, false otherwise.
+ */
+export function hasActiveCompletePurchase( state ) {
+	return 'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug );
+}
+
+/**
  * Searches active products for Search product
  *
  * @param {object} state - Global state tree
