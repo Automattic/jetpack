@@ -118,6 +118,13 @@ export class DataSyncError extends Error {
 					'',
 					value.log.length > 0 ? value.log : 'No log messages.'
 				);
+			} else {
+				console.log(
+					`%cPHP Log%c: PHP Log is disabled. To enable it, place the debug code in your wp-config.php:\n%cdefine( 'DATASYNC_DEBUG', true );`,
+					'font-weight: bold; margin-top: 5px; margin-bottom: 2px;',
+					'',
+					'font-style: italic; border-left: 3px solid #e9e9e3; margin: 3px 0px 3px 7px; background-color: #f9f9f6; padding: 7px;'
+				);
 			}
 		}
 		if ( info.data !== undefined ) {
