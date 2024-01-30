@@ -1,13 +1,8 @@
-import {
-	getScoreLetter,
-	didScoresChange,
-	getScoreMovementPercentage,
-} from '@automattic/jetpack-boost-score-api';
+import { getScoreLetter, didScoresChange } from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, Button } from '@automattic/jetpack-components';
 import { sprintf, __ } from '@wordpress/i18n';
 import ContextTooltip from './context-tooltip/context-tooltip';
 import RefreshIcon from '$svg/refresh';
-import PopOut from './pop-out/pop-out';
 import PerformanceHistory from '$features/performance-history/performance-history';
 import ErrorNotice from '$features/error-notice/error-notice';
 import classNames from 'classnames';
@@ -40,9 +35,6 @@ const SpeedScore = () => {
 			}, [] ),
 		[ data ]
 	);
-
-	const showScoreChangePopOut =
-		status === 'loaded' && ! scores.isStale && getScoreMovementPercentage( scores );
 
 	// Mark performance history data as stale when speed scores are loaded.
 	useEffect( () => {
@@ -148,8 +140,6 @@ const SpeedScore = () => {
 				</div>
 				{ site.online && <PerformanceHistory /> }
 			</div>
-
-			<PopOut scoreChange={ showScoreChangePopOut } />
 		</>
 	);
 };
