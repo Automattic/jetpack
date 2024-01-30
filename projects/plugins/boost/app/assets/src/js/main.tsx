@@ -12,7 +12,7 @@ import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-adva
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
 import SettingsPage from '$layout/settings-page/settings-page';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
@@ -141,10 +141,8 @@ const ISAPage = () => {
 
 export default () => {
 	return (
-		<React.StrictMode>
-			<DataSyncProvider>
-				<Main />
-			</DataSyncProvider>
-		</React.StrictMode>
+		<DataSyncProvider>
+			<Main />
+		</DataSyncProvider>
 	);
 };
