@@ -149,6 +149,12 @@ export const automatticAssignments = {
 		slack_id: 'C016BBAFHHS',
 		board_id: 'https://github.com/orgs/Automattic/projects/548',
 	},
+	Verbum: {
+		team: 'Vertex',
+		labels: [ '[mu wpcom Feature] Verbum Comments' ],
+		slack_id: 'C02T4NVL4JJ',
+		board_id: 'https://github.com/orgs/Automattic/projects/908/views/1',
+	},
 	VideoPress: {
 		team: 'Agora',
 		labels: [ '[Package] VideoPress', '[Feature] VideoPress', '[Plugin] VideoPress' ],

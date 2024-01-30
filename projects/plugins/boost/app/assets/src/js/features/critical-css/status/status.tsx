@@ -103,11 +103,13 @@ const Status: React.FC< StatusTypes > = ( {
 						[ styles[ 'regenerate-button' ] ]: true,
 						'is-link': ! highlightRegenerateButton,
 					} ) }
-					isPrimary={ highlightRegenerateButton }
+					variant={ highlightRegenerateButton ? 'primary' : 'link' }
+					size="small"
+					weight="regular"
 					onClick={ () => regenerateAction.mutate() }
+					icon={ highlightRegenerateButton ? undefined : <RefreshIcon /> }
 					disabled={ cssState.status === 'pending' }
 				>
-					{ ! highlightRegenerateButton && <RefreshIcon /> }
 					{ __( 'Regenerate', 'jetpack-boost' ) }
 				</Button>
 			) }
