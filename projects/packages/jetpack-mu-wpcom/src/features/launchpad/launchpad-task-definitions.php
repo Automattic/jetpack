@@ -957,18 +957,6 @@ function wpcom_launchpad_is_domain_upsell_task_visible() {
 }
 
 /**
- * Determines whether or not the Install the mobile app task should be visible.
- *
- * @return bool True if the Install the mobile app task should be visible.
- */
-function wpcom_launchpad_is_mobile_app_installed_visible() {
-	// TODO: We are hidding the task for now because we the completion logic
-	// is not fully implemented yet. We should make it return true for simple sites
-	// once we get the completion logic in place.
-	return false;
-}
-
-/**
  * Verifies if the Mobile App is installed for the current user.
  *
  * @param array $task The task object.
