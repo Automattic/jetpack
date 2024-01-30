@@ -11,13 +11,14 @@ import PopOut from './pop-out/pop-out';
 import PerformanceHistory from '$features/performance-history/performance-history';
 import ErrorNotice from '$features/error-notice/error-notice';
 import classNames from 'classnames';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
 import styles from './speed-score.module.scss';
 import { useModulesState } from '$features/module/lib/stores';
 import { useCriticalCssState } from '$features/critical-css/lib/stores/critical-css-state';
 import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local-generator/local-generator-provider';
+import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 
 const SpeedScore = () => {
 	const { site } = Jetpack_Boost;
@@ -43,20 +44,31 @@ const SpeedScore = () => {
 	const showScoreChangePopOut =
 		status === 'loaded' && ! scores.isStale && getScoreMovementPercentage( scores );
 
-	// Always load the score on mount.
+	// Mark performance history data as stale when speed scores are loaded.
+	useEffect( () => {
+		if ( site.online && status === 'loaded' ) {
+			queryClient.invalidateQueries( { queryKey: [ 'performance_history' ] } );
+		}
+	}, [ site.online, status ] );
+
+	// Ask the API to recompute the score.
+	const refreshScore = useCallback( async () => {
+		if ( site.online ) {
+			loadScore( true );
+		}
+	}, [ loadScore, site.online ] );
+
+	// Load speed scores on mount.
 	useEffect( () => {
 		if ( site.online ) {
 			loadScore();
 		}
 	}, [ loadScore, site.online ] );
 
+	// Refresh the score when something that can affect the score changes.
 	useDebouncedRefreshScore(
 		{ moduleStates, criticalCssCreated: cssState.created || 0, criticalCssIsGenerating },
-		async () => {
-			if ( site.online ) {
-				await loadScore( true ); // Force a refresh.
-			}
-		}
+		refreshScore
 	);
 
 	// translators: %s is a letter grade, e.g. "A" or "B"

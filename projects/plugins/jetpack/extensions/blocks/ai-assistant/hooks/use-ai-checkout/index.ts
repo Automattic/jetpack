@@ -22,7 +22,7 @@ export default function useAICheckout(): {
 		? getRedirectUrl( 'jetpack-ai-yearly-tier-upgrade-nudge', {
 				site: getSiteFragment(),
 				path: `jetpack_ai_yearly:-q-${ nextTier?.limit }`,
-				query: `redirect_to=${ window.location.href }`,
+				query: `redirect_to=${ encodeURIComponent( window.location.href ) }`,
 		  } )
 		: getRedirectUrl( 'jetpack-ai-monthly-plan-ai-assistant-block-banner', {
 				site: getSiteFragment(),
@@ -31,7 +31,7 @@ export default function useAICheckout(): {
 	const checkoutUrl =
 		isAtomicSite() || isSimpleSite()
 			? wpcomCheckoutUrl
-			: `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/add-jetpack-ai`;
+			: `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?redirect_to_referrer=1&page=my-jetpack#/add-jetpack-ai`;
 
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( checkoutUrl );
 

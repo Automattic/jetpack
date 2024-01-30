@@ -68,7 +68,7 @@ const Status: React.FC< StatusTypes > = ( {
 						successCount
 					) }
 
-					{ cssState.updated && (
+					{ !! cssState.updated && (
 						<>
 							{ ' ' }
 							<TimeAgo time={ new Date( cssState.updated * 1000 ) } />

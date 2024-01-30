@@ -60,9 +60,13 @@ export function runLocalGenerator(
 ) {
 	const abort = new AbortController();
 
-	generateCriticalCss( providers, viewports, proxyNonce, callbacks, abort.signal ).catch( err => {
-		callbacks.onError( standardizeError( err ) );
-	} );
+	generateCriticalCss( providers, viewports, proxyNonce, callbacks, abort.signal )
+		.catch( err => {
+			callbacks.onError( standardizeError( err ) );
+		} )
+		.finally( () => {
+			callbacks.onFinished();
+		} );
 
 	return abort;
 }

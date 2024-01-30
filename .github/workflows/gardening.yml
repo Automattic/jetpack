@@ -16,23 +16,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # review-crew-afk:
-  #   name: "Review check"
-  #   runs-on: ubuntu-latest
-  #   if: github.event_name == 'pull_request_target' && github.event.action == 'labeled' && github.event.label.name == '[Status] Needs Review'
-  #   timeout-minutes: 1  # 2021-01-18: Successful runs probably take a few seconds
-  #   steps:
-  #     - name: Comment
-  #       uses: actions/github-script@0.8.0
-  #       with:
-  #         github-token: ${{ secrets.GITHUB_TOKEN }}
-  #         script: |
-  #           github.issues.createComment({
-  #             issue_number: context.issue.number,
-  #             owner: context.repo.owner,
-  #             repo: context.repo.repo,
-  #             body: 'Howdy! The Jetpack team has disappeared for a few days to a secret island lair to concoct new ways to make Jetpack one hundred billion percent better. As a result, your Pull Request may not be reviewed right away. Do not worry, we will be back next week to look at your work! Thank you for your understanding.'
-  #           })
   repo-gardening:
     name: "Manage labels and assignees"
     runs-on: ubuntu-latest
@@ -40,7 +23,7 @@ jobs:
     timeout-minutes: 10  # 2021-03-12: Successful runs seem to take a few seconds, but can sometimes take a lot longer since we wait for previous runs to complete.
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -56,7 +39,7 @@ jobs:
 
       - name: Checkout the PR
         if: github.event_name == 'pull_request_target' && github.event.pull_request.state != 'closed'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}

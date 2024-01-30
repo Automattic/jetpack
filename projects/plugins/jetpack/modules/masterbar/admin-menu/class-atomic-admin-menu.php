@@ -329,6 +329,18 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds Jetpack menu.
+	 */
+	public function add_jetpack_menu() {
+		// This is supposed to be the same as class-admin-menu but with a different position specified for the Jetpack menu.
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			parent::create_jetpack_menu( 2, false );
+		} else {
+			parent::add_jetpack_menu();
+		}
+	}
+
+	/**
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
@@ -499,10 +511,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// Show the notice for the following screens and map them to the Calypso page.
 		$screen_map = array(
-			'options-general'    => 'general',
-			'options-writing'    => 'writing',
-			'options-reading'    => 'reading',
-			'options-discussion' => 'discussion',
+			'options-general' => 'general',
+			'options-reading' => 'reading',
 		);
 
 		$mapped_screen = isset( $screen_map[ $current_screen->id ] )
@@ -539,5 +549,17 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		} else {
 			parent::add_appearance_menu();
 		}
+	}
+
+	/**
+	 * Adds a dashboard switcher to the list of screen meta links of the current page.
+	 */
+	public function add_dashboard_switcher() {
+		// When the interface is set to wp-admin, do not show the dashboard switcher.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			return;
+		}
+
+		parent::add_dashboard_switcher();
 	}
 }

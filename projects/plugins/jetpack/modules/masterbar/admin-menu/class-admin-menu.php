@@ -387,15 +387,21 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Adds Jetpack menu.
+	 * Create Jetpack menu.
+	 *
+	 * @param int  $position  Menu position.
+	 * @param bool $separator Whether to add a separator before the menu.
 	 */
-	public function add_jetpack_menu() {
-		$this->add_admin_menu_separator( 50, 'manage_options' );
+	public function create_jetpack_menu( $position = 50, $separator = true ) {
+		if ( $separator ) {
+			$this->add_admin_menu_separator( $position, 'manage_options' );
+			++$position;
+		}
 
 		$icon            = ( new Logo() )->get_base64_logo();
-		$is_menu_updated = $this->update_menu( 'jetpack', null, null, null, $icon, 51 );
+		$is_menu_updated = $this->update_menu( 'jetpack', null, null, null, $icon, $position );
 		if ( ! $is_menu_updated ) {
-			add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'jetpack', null, $icon, 51 );
+			add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'jetpack', null, $icon, $position );
 		}
 
 		add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 2 );
@@ -412,6 +418,13 @@ class Admin_Menu extends Base_Admin_Menu {
 			// Remove the submenu auto-created by Core just to be sure that there no issues on non-admin roles.
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
+	}
+
+	/**
+	 * Adds Jetpack menu.
+	 */
+	public function add_jetpack_menu() {
+		$this->create_jetpack_menu();
 	}
 
 	/**
