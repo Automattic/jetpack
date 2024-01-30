@@ -97,22 +97,17 @@ const Status: React.FC< StatusTypes > = ( {
 				) }
 			</div>
 
-			{ cssState.status !== 'error' && (
-				<Button
-					className={ classNames( {
-						[ styles[ 'regenerate-button' ] ]: true,
-						'is-link': ! highlightRegenerateButton,
-					} ) }
-					variant={ highlightRegenerateButton ? 'primary' : 'link' }
-					size="small"
-					weight="regular"
-					onClick={ () => regenerateAction.mutate() }
-					icon={ highlightRegenerateButton ? undefined : <RefreshIcon /> }
-					disabled={ cssState.status === 'pending' }
-				>
-					{ __( 'Regenerate', 'jetpack-boost' ) }
-				</Button>
-			) }
+			<Button
+				className={ styles[ 'regenerate-button' ] }
+				variant={ highlightRegenerateButton ? 'primary' : 'link' }
+				size="small"
+				weight="regular"
+				onClick={ () => regenerateAction.mutate() }
+				icon={ highlightRegenerateButton ? undefined : <RefreshIcon /> }
+				disabled={ cssState.status === 'pending' }
+			>
+				{ __( 'Regenerate', 'jetpack-boost' ) }
+			</Button>
 		</div>
 	);
 };
