@@ -396,28 +396,31 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		value: T,
 		schema: R
 	): Promise< z.infer< R > > => {
-		if ( ! window ) {
-			throw new Error( `Window object not found` );
+		if ( ! ( this.namespace in window ) || ! ( this.key in window[ this.namespace ] ) ) {
+			throw new DataSyncError( `"${ this.namespace }.${ this.key }" not found in window object`, {
+				...this.describeSelf(),
+				location: 'ACTION()',
+				status: 'schema_error',
+				data: null,
+			} );
 		}
 
-		if ( ! window[ this.namespace ] ) {
-			throw new Error( `"${ this.namespace }" not found in window object` );
-		}
-
-		if ( ! window[ this.namespace ][ this.key ] ) {
-			throw new Error( `"${ this.key }" not found in "${ this.namespace }"` );
-		}
-
-		const actions = window[ this.namespace ][ this.key ].actions
-			? window[ this.namespace ][ this.key ].actions
-			: false;
+		const actions =
+			'actions' in window[ this.namespace ][ this.key ]
+				? window[ this.namespace ][ this.key ].actions
+				: false;
 
 		// Check if the specific action name exists
 		if ( ! actions || ! actions[ name ] ) {
-			const errorMessage = `Nonce for Action "${ name }" not found in window.${ this.namespace }.${ this.key }.actions`;
-			// eslint-disable-next-line no-console
-			console.error( errorMessage );
-			throw new Error( errorMessage );
+			throw new DataSyncError(
+				`Nonce for Action "${ name }" not found in window.${ this.namespace }.${ this.key }.actions`,
+				{
+					...this.describeSelf(),
+					location: 'ACTION()',
+					status: 'schema_error',
+					data: actions,
+				}
+			);
 		}
 
 		// Get the nonce for the specific action
