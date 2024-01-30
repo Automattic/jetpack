@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Removed the flow to reconnect a broken social connection from the editor.
