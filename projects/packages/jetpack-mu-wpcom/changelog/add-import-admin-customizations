@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Import: adds a banner to wp-admin linking to the Calypso import tool
