@@ -1997,6 +1997,9 @@ importers:
       '@babel/preset-react':
         specifier: 7.23.3
         version: 7.23.3(@babel/core@7.23.5)
+      '@playwright/test':
+        specifier: 1.39.0
+        version: 1.39.0
       '@types/node':
         specifier: ^20.4.2
         version: 20.10.7
