@@ -180,7 +180,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.0.0-beta - 2024-01-30
+### 3.0.0 - 2024-01-30
 #### Added
 - Cloud CSS: Improve reliability.
 - General: Added Jetpack Sync to allow for better support.
