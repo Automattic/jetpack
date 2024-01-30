@@ -72,6 +72,7 @@ import {
 	showMyJetpack,
 	isWooCommerceActive,
 	userIsSubscriber,
+	getJetpackManageInfo,
 } from 'state/initial-state';
 import {
 	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
@@ -933,6 +934,7 @@ export default connect(
 			partnerCoupon: getPartnerCoupon( state ),
 			currentRecommendationsStep: getInitialRecommendationsStep( state ),
 			isSubscriber: userIsSubscriber( state ),
+			jetpackManage: getJetpackManageInfo( state ),
 		};
 	},
 	dispatch => ( {
