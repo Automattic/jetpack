@@ -9,6 +9,7 @@ import {
 	isJetpackSecurityBundle,
 	isJetpackAntiSpam,
 	isSecurityComparableJetpackLegacyPlan,
+	isJetpackSocial,
 } from 'lib/plans/constants';
 import { assign, find, get, merge } from 'lodash';
 import { combineReducers } from 'redux';
@@ -517,6 +518,18 @@ export function getActiveBackupPurchase( state ) {
 }
 
 /**
+ * Determines if the site has an active social product purchase
+ *
+ * @param {object} state - Global state tree
+ * @returns {boolean}      True if the site has an active backup product purchase, false otherwise.
+ */
+export function getActiveSocialPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackSocial( product.product_slug )
+	);
+}
+
+/**
  * Determines if the site has an active backup product purchase
  *
  * @param {object} state - Global state tree
@@ -524,6 +537,16 @@ export function getActiveBackupPurchase( state ) {
  */
 export function hasActiveBackupPurchase( state ) {
 	return !! getActiveBackupPurchase( state );
+}
+
+/**
+ * Searches active products for an active Social product.
+ *
+ * @param {object} state - Global state tree
+ * @returns {object}       An active Social product if one was found, undefined otherwise.
+ */
+export function hasActiveSocialPurchase( state ) {
+	return !! getActiveSocialPurchase( state );
 }
 
 /**

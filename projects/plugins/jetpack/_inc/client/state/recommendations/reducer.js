@@ -70,6 +70,7 @@ import {
 	hasActiveAntiSpamPurchase,
 	hasSecurityComparableLegacyPlan,
 	hasActiveBackupPurchase,
+	hasActiveSocialPurchase,
 } from 'state/site';
 import { isPluginActive } from 'state/site/plugins';
 import { sortByOnboardingPriority, getOnboardingNameByProductSlug } from './onboarding-utils';
@@ -814,6 +815,7 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 		case 'boost':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'publicize':
+			return ! hasActiveSocialPurchase( state );
 		case 'protect':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'anti-spam':
