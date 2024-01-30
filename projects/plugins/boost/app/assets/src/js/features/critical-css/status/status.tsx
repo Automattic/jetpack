@@ -49,7 +49,7 @@ const Status: React.FC< StatusTypes > = ( {
 	}
 
 	return (
-		<div className={ styles.status }>
+		<div className={ styles.status } data-testid="critical-css-meta">
 			<div className={ styles.summary }>
 				{ overrideText || (
 					<div className={ styles.successes }>
