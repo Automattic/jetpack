@@ -8,11 +8,10 @@
  * not render anything.
  */
 
-import { Button, Notice } from '@wordpress/components';
+import { Notice } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { Component, Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { SOCIAL_STORE_ID } from '../../social-store';
 
 class PublicizeConnectionVerify extends Component {
@@ -42,37 +41,6 @@ class PublicizeConnectionVerify extends Component {
 		}, 500 );
 	};
 
-	renderRefreshableConnections() {
-		const { failedConnections } = this.props;
-		const refreshableConnections = failedConnections.filter( connection => connection.can_refresh );
-
-		if ( refreshableConnections.length ) {
-			return (
-				<Notice className="jetpack-publicize-notice" isDismissible={ false } status="error">
-					<p>
-						{ __(
-							'Before you hit Publish, please refresh the following connection(s) to make sure we can share your post:',
-							'jetpack'
-						) }
-					</p>
-					{ refreshableConnections.map( connection => (
-						<Button
-							href={ connection.refresh_url }
-							isSmall
-							key={ connection.id }
-							onClick={ this.refreshConnectionClick }
-							title={ connection.refresh_text }
-						>
-							{ connection.refresh_text }
-						</Button>
-					) ) }
-				</Notice>
-			);
-		}
-
-		return null;
-	}
-
 	renderNonRefreshableConnections() {
 		const { failedConnections } = this.props;
 		const nonRefreshableConnections = failedConnections.filter(
@@ -91,12 +59,7 @@ class PublicizeConnectionVerify extends Component {
 	}
 
 	render() {
-		return (
-			<Fragment>
-				{ this.renderRefreshableConnections() }
-				{ this.renderNonRefreshableConnections() }
-			</Fragment>
-		);
+		return <Fragment>{ this.renderNonRefreshableConnections() }</Fragment>;
 	}
 }
 
