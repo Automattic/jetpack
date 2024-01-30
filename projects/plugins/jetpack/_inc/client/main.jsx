@@ -696,6 +696,7 @@ class Main extends React.Component {
 			this.props.userCanConnectSite &&
 			site_count >= 2 &&
 			this.props.isSiteConnected &&
+			this.props.jetpackManage.isAgencyAccount &&
 			! this.props.isAtomicSite &&
 			! this.shouldShowWooConnectionScreen() &&
 			dashboardRoutes.includes( this.props.location.pathname )
