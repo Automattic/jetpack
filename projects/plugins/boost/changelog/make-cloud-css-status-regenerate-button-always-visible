@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update cloud css regenerate button to always be visible, but disable it when generation is running.

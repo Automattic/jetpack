@@ -3,13 +3,13 @@
  * REST API endpoint for the media uploaded by the Jetpack app.
  *
  * @package automattic/jetpack
- * @since $$next-version$$
+ * @since 13.1
  */
 
 /**
  * Media uploaded by the Jetpack app helper API.
  *
- * @since $$next-version$$
+ * @since 13.1
  */
 class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 

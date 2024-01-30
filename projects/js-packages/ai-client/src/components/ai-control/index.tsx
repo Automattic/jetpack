@@ -43,6 +43,7 @@ type AiControlProps = {
 	onDiscard?: () => void;
 	showRemove?: boolean;
 	bannerComponent?: React.ReactElement;
+	errorComponent?: React.ReactElement;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -74,6 +75,7 @@ export function AIControl(
 		onDiscard = null,
 		showRemove = false,
 		bannerComponent = null,
+		errorComponent = null,
 	}: AiControlProps,
 	ref: React.MutableRefObject< null > // eslint-disable-line @typescript-eslint/ban-types
 ): React.ReactElement {
@@ -153,6 +155,7 @@ export function AIControl(
 
 	return (
 		<div className="jetpack-components-ai-control__container-wrapper">
+			{ errorComponent }
 			<div className="jetpack-components-ai-control__container">
 				{ bannerComponent }
 				<div

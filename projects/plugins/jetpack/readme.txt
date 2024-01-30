@@ -293,10 +293,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.1-a.7 - 2024-01-25
+### 13.1-a.9 - 2024-01-29
 #### Enhancements
-- Jetpack Search: Add 'price' as the default sorting option.
-- Subscribe Block: Don't include social followers on counts by default.
+- Subject: A new way to upload media via the Jetpack App
+
+#### Improved compatibility
+- RNMobile: Disable Story block
 
 --------
 
