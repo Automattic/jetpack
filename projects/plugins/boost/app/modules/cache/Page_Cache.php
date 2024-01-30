@@ -60,6 +60,9 @@ class Page_Cache implements Pluggable, Is_Always_On {
 			$plugin_name = basename( dirname( plugin_dir_path( __FILE__ ), 3 ) );
 			$contents    = '<?php
 // Boost Cache Plugin 0.1
+if ( ! file_exists( ABSPATH . \'/wp-content/plugins/' . $plugin_name . '/app/modules/cache/Boost_File_Cache.php\' ) ) {
+	return;
+}
 require_once( ABSPATH . \'/wp-content/plugins/' . $plugin_name . '/app/modules/cache/Boost_File_Cache.php\' );
 
 ( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_File_Cache() )->serve();
