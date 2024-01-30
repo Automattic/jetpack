@@ -117,4 +117,4 @@ On Atomic Sites: Sync the Verbum code changes to your sandbox and sandbox `jetpa
 
 ### Where to track new Verbum Issues
 
-If you stumble upon any issues or have any suggestions for possible changes to Verbum, you can find the relevant project board here: https://github.com/Automattic/jetpack/projects/45.
+If you stumble upon any issues or have any suggestions for possible changes to Verbum, you can find the relevant project board here: https://github.com/orgs/Automattic/projects/908/views/1.
