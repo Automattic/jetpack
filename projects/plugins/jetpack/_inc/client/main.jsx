@@ -696,7 +696,6 @@ class Main extends React.Component {
 			this.props.userCanConnectSite &&
 			site_count >= 2 &&
 			this.props.isSiteConnected &&
-			this.props.jetpackManage.isAgencyAccount &&
 			! this.props.isAtomicSite &&
 			! this.shouldShowWooConnectionScreen() &&
 			dashboardRoutes.includes( this.props.location.pathname )
@@ -883,7 +882,10 @@ class Main extends React.Component {
 
 					{ this.renderMainContent( this.props.location.pathname ) }
 					{ this.shouldShowJetpackManageBanner() && (
-						<JetpackManageBanner path={ this.props.location.pathname } />
+						<JetpackManageBanner
+							path={ this.props.location.pathname }
+							isAgencyAccount={ this.props.jetpackManage.isAgencyAccount }
+						/>
 					) }
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
