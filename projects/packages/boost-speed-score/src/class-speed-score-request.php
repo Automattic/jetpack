@@ -108,7 +108,18 @@ class Speed_Score_Request extends Cacheable {
 	 * @return string
 	 */
 	public function get_active_modules() {
-		return $this->active_modules;
+
+		// List of modules that affect the speed score.
+		$performance_modules = array(
+			'cloud_css',
+			'critical_css',
+			'image_cdn',
+			'minify_css',
+			'minify_js',
+			'render_blocking_js',
+		);
+
+		return array_intersect( $this->active_modules, $performance_modules );
 	}
 
 	/**
@@ -119,7 +130,7 @@ class Speed_Score_Request extends Cacheable {
 		return array(
 			'id'             => $this->get_cache_id(),
 			'url'            => $this->url,
-			'active_modules' => $this->active_modules,
+			'active_modules' => $this->get_active_modules(),
 			'created'        => $this->created,
 			'status'         => $this->status,
 			'error'          => $this->error,
