@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { translate } from '../i18n';
+import { commentParent } from '../state';
 import { classNames, serviceData } from '../utils';
 import { EmailForm } from './EmailForm';
 
@@ -11,8 +12,12 @@ interface LoggedOutProps {
 }
 
 const getLoginCommentText = () => {
-	const defaultText = translate( 'Log in to leave a reply.' );
-	const optionalText = translate( 'Leave a reply. (log in optional)' );
+	const defaultText = commentParent.value
+		? translate( 'Log in to leave a reply.' )
+		: translate( 'Log in to leave a comment.' );
+	const optionalText = commentParent.value
+		? translate( 'Leave a reply. (log in optional)' )
+		: translate( 'Leave a comment. (log in optional)' );
 	const nameAndEmailRequired = translate(
 		'Log in or provide your name and email to leave a reply.'
 	);
