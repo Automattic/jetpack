@@ -28,8 +28,8 @@ const defaultProps = {
 beforeEach( () => {
 	apiFetch.mockReturnValue(
 		Promise.resolve( {
-			'post-views': 25,
-			'blog-views': 30,
+			'post-views': null,
+			'blog-views': null,
 		} )
 	);
 
