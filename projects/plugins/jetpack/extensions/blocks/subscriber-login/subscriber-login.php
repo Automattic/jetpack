@@ -74,7 +74,27 @@ function register_block() {
 		return $hooked_blocks;
 	}
 
-	add_filter( 'hooked_block_types', __NAMESPACE__ . '\spray_block_hook_positions', 10, 4 );
+	// add_filter( 'hooked_block_types', __NAMESPACE__ . '\spray_block_hook_positions', 10, 4 );
+
+	// Subscribe block after post content
+	function register_subscriber_block_after_post_content( $hooked_blocks, $position, $anchor_block ) {
+		if ( $anchor_block === 'core/post-content' && $position === 'after' ) {
+			$hooked_blocks[] = 'jetpack/subscriptions';
+		}
+
+		return $hooked_blocks;
+	}
+	add_filter( 'hooked_block_types', __NAMESPACE__ . '\register_subscriber_block_after_post_content', 10, 4 );
+
+	function the_content_filter( $content ) {
+		return $content . '<!-- wp:jetpack/subscriptions {"showSubscribersTotal":true} /-->';
+	}
+	add_filter( 'the_content', __NAMESPACE__ . '\the_content_filter', 1 );
+
+	// function wp_list_pages_filter( $output ) {
+	// return $output . '<li>AAAA</li>';
+	// }
+	// add_filter( 'wp_list_pages', __NAMESPACE__ . '\wp_list_pages_filter', 1 );
 
 	function register_logout_block_as_navigation_last_child( $hooked_blocks, $position, $anchor_block, $context ) {
 		if ( $anchor_block === 'core/navigation' && $position === 'last_child' ) {
@@ -84,7 +104,7 @@ function register_block() {
 		return $hooked_blocks;
 	}
 
-	add_filter( 'hooked_block_types', __NAMESPACE__ . '\register_logout_block_as_navigation_last_child', 10, 4 );
+	// add_filter( 'hooked_block_types', __NAMESPACE__ . '\register_logout_block_as_navigation_last_child', 10, 4 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
