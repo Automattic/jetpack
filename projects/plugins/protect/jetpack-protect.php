@@ -32,11 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-<<<<<<< HEAD
-define( 'JETPACK_PROTECT_VERSION', '2.0.1-alpha' );
-=======
 define( 'JETPACK_PROTECT_VERSION', '2.1.0-alpha' );
->>>>>>> origin/trunk
 define( 'JETPACK_PROTECT_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_PROTECT_ROOT_FILE', __FILE__ );
 define( 'JETPACK_PROTECT_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
