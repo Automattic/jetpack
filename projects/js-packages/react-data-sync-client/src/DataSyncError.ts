@@ -5,7 +5,7 @@ import { z } from 'zod';
  * DataSync Error returned by the REST API.
  */
 type ErrorData = {
-	url: string | URL;
+	location: string | URL;
 	status:
 		| number
 		| 'aborted'
@@ -13,9 +13,10 @@ type ErrorData = {
 		| 'failed_to_sync'
 		| 'json_parse_error'
 		| 'json_empty'
+		| 'response_not_ok'
 		| 'schema_error';
 	namespace: string;
-	method: string;
+	method?: string;
 	key: string;
 	error?: unknown;
 	data: unknown;
@@ -98,7 +99,7 @@ export class DataSyncError extends Error {
 		console.groupCollapsed( `%c🪲 Debug`, 'color: #6e6e6e; font-weight: 600; font-size: 14px;' );
 
 		console.log(
-			`%cEndpoint%c:\n${ info.method } ${ info.url }`,
+			`%cEndpoint%c:\n${ info.method } ${ info.location }`,
 			'font-weight: bold; margin-top: 5px; margin-bottom: 2px;',
 			''
 		);

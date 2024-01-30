@@ -161,11 +161,10 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			return validator.parse( source ) as ParsedValue< V >;
 		} catch ( error ) {
 			throw new DataSyncError(
-				`Failed to parse the window.${ this.namespace }.${ valueName } value`,
+				`Failed to parse global value at 'window.${ this.namespace }.${ valueName }'`,
 				{
 					...this.describeSelf(),
-					url: 'window',
-					method: '',
+					location: 'getWindowValue()',
 					status: 'schema_error',
 					error,
 					data: source,
@@ -225,9 +224,9 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			data = JSON.parse( text );
 		} catch ( error ) {
 			// eslint-disable-next-line no-console
-			throw new DataSyncError( 'Failed to parse the response', {
+			throw new DataSyncError( 'Failed to JSON.parse() the response from the server.', {
 				...this.describeSelf(),
-				url: url,
+				location: url,
 				method: args.method,
 				status: 'json_parse_error',
 				error,
@@ -243,36 +242,30 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		 * @see https://github.com/WordPress/wordpress-develop/blob/28f10e4af559c9b4dbbd1768feff0bae575d5e78/src/wp-includes/rest-api/class-wp-rest-request.php#L701
 		 */
 		if ( ! data || ! data.status ) {
-			// eslint-disable-next-line no-console
-			console.error( 'JSON response is empty.\n', { url, text, result } );
-			throw new DataSyncError( 'JSON response is empty', {
+			throw new DataSyncError( 'JSON response was empty', {
 				...this.describeSelf(),
 				method,
 				data,
-				url,
+				location: url,
 				status: 'json_empty',
 			} );
 		}
 
 		if ( data.status === 'error' && 'message' in data ) {
-			// eslint-disable-next-line no-console
-			console.error( 'Server returned an error.\n', { url, text, result } );
 			throw new DataSyncError( data.message, {
 				...this.describeSelf(),
 				method,
-				url,
+				location: url,
 				status: 'error_with_message',
 				data,
 			} );
 		}
 
 		if ( ! data || data.JSON === undefined ) {
-			// eslint-disable-next-line no-console
-			console.error( 'JSON response is empty.\n', { url, text, result } );
-			throw new DataSyncError( 'JSON response is empty', {
+			throw new DataSyncError( 'JSON response was empty', {
 				...this.describeSelf(),
 				method,
-				url,
+				location: url,
 				status: 'json_empty',
 				data,
 			} );
@@ -301,10 +294,10 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			return this.schema.parse( data );
 		} catch ( error ) {
 			const url = `${ this.wpDatasyncUrl }/${ requestPath }`;
-			throw new DataSyncError( `Error parsing the request response.`, {
+			throw new DataSyncError( `Failed to validate response schema.`, {
 				...this.describeSelf(),
 				data,
-				url,
+				location: url,
 				method,
 				status: 'schema_error',
 				error,
@@ -333,26 +326,26 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 				throw new DataSyncError( result.statusText, {
 					...this.describeSelf(),
 					method: args.method,
-					url,
-					status: 'schema_error',
+					location: url,
+					status: 'response_not_ok',
 					data: result,
 				} );
 			}
 
 			return result;
 		} catch ( error ) {
-			const status =
-				error instanceof DOMException && error.name === 'AbortError' ? 'aborted' : 'failed_to_sync';
-
 			// Re-throw DataSyncErrors
 			if ( error instanceof DataSyncError ) {
 				throw error;
 			}
 
+			const aborted = error instanceof DOMException && error.name === 'AbortError';
+			const status = aborted ? 'aborted' : 'failed_to_sync';
+
 			throw new DataSyncError( error.message, {
 				...this.describeSelf(),
 				method: args.method,
-				url,
+				location: url,
 				status,
 				data: null,
 				error,
@@ -436,7 +429,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			return schema.parse( result );
 		} catch ( error ) {
 			throw new DataSyncError( 'Failed to parse the response', {
-				url,
+				location: url,
 				...this.describeSelf(),
 				method: 'POST',
 				error,
