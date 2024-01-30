@@ -101,11 +101,16 @@ export class DataSyncError extends Error {
 
 		console.groupCollapsed( `%c🪲 Debug`, 'color: #6e6e6e; font-weight: 600; font-size: 14px;' );
 
+		let location = info.location;
+		if ( info.method ) {
+			location = `${ info.method } ${ location }`;
+		}
 		console.log(
-			`%cEndpoint%c:\n${ info.method } ${ info.location }`,
+			`%cLocation%c:\n${ location }`,
 			'font-weight: bold; margin-top: 5px; margin-bottom: 2px;',
 			''
 		);
+
 		if ( this.info.namespace in window && this.info.key in window[ this.info.namespace ] ) {
 			const value = window[ this.info.namespace ][ this.info.key ];
 

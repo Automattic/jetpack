@@ -164,7 +164,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 				`Failed to parse global value at 'window.${ this.namespace }.${ valueName }'`,
 				{
 					...this.describeSelf(),
-					location: 'getWindowValue()',
+					location: `window.${ this.namespace }.${ valueName }`,
 					status: 'schema_error',
 					error,
 					data: source,
@@ -399,7 +399,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		if ( ! ( this.namespace in window ) || ! ( this.key in window[ this.namespace ] ) ) {
 			throw new DataSyncError( `"${ this.namespace }.${ this.key }" not found in window object`, {
 				...this.describeSelf(),
-				location: 'ACTION()',
+				location: `window.${ this.namespace }.${ this.key }`,
 				status: 'schema_error',
 				data: null,
 			} );
@@ -416,7 +416,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 				`Nonce for Action "${ name }" not found in window.${ this.namespace }.${ this.key }.actions`,
 				{
 					...this.describeSelf(),
-					location: 'ACTION()',
+					location: `window.${ this.namespace }.${ this.key }.actions`,
 					status: 'schema_error',
 					data: actions,
 				}
