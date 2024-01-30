@@ -62,10 +62,28 @@ function render_block( $attr, $content, $block ) {
 		esc_html( $title )
 	);
 
+	$styles = '';
+	if ( array_key_exists( 'iconColorValue', $block->context ) ) {
+		$styles .= 'color: ' . $block->context['iconColorValue'] . '; ';
+	}
+	if ( array_key_exists( 'iconBackgroundColorValue', $block->context ) ) {
+		$styles .= 'background-color: ' . $block->context['iconBackgroundColorValue'] . '; ';
+	}
+
+	$attributes            = array(
+		'class' => $sharing_link_class,
+		'style' => $styles,
+	);
+	$normalized_attributes = array();
+	foreach ( $attributes as $key => $value ) {
+		$normalized_attributes[] = $key . '="' . esc_attr( $value ) . '"';
+	}
+	$button_attributes = implode( ' ', $normalized_attributes );
+
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$component  = '<li class="jetpack-sharing-button__list-item">';
-	$component .= '<a rel="nofollow noopener noreferrer" class="' . esc_attr( $sharing_link_class ) . '" href="' . esc_url( $link_url ) . '" target="_blank" ';
+	$component .= '<a rel="nofollow noopener noreferrer"' . $button_attributes . '" href="' . esc_url( $link_url ) . '" target="_blank" ';
 	$component .= 'data-service="' . esc_attr( $attr['service'] ) . '" data-shared="' . esc_attr( $data_shared ) . '" aria-label="' . esc_attr( $link_aria_label ) . '" primary>';
 	$component .= $icon;
 	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . esc_html( $title ) . '</span>';

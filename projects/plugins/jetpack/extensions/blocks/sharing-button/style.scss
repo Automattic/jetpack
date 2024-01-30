@@ -21,6 +21,7 @@
 	& svg {
 		width: 1.5em;
 		height: 1.5em;
+		fill: currentColor;
 	}
 
 	&:hover {
@@ -55,8 +56,6 @@
 		&.share-whatsapp { background: var( --color-whatsapp ); }
 		&.share-mastodon { background: var( --color-mastodon ); }
 		&.share-nextdoor { background: var( --color-nextdoor ); }
-
-		.social-logo { fill: #fff; }
 	}
 
 	&.style-icon.is-custom {
