@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ebfff4bf37d86cb205e9fcda9c5c7813",
+    "content-hash": "848105f4c09abad38220e49aaa06d4b0",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1447,16 +1447,16 @@
         },
         {
             "name": "automattic/jetpack-wp-js-data-sync",
-            "version": "v0.4.0",
+            "version": "v0.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-wp-js-data-sync.git",
-                "reference": "45a785231ea0b8d3c9384dffea3f9e5d4833b859"
+                "reference": "53f734c970e547b47ca6673ffaa39696b9b6a4e9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-wp-js-data-sync/zipball/45a785231ea0b8d3c9384dffea3f9e5d4833b859",
-                "reference": "45a785231ea0b8d3c9384dffea3f9e5d4833b859",
+                "url": "https://api.github.com/repos/Automattic/jetpack-wp-js-data-sync/zipball/53f734c970e547b47ca6673ffaa39696b9b6a4e9",
+                "reference": "53f734c970e547b47ca6673ffaa39696b9b6a4e9",
                 "shasum": ""
             },
             "require": {
@@ -1496,9 +1496,9 @@
             ],
             "description": "A package to setup REST API and script localization to pass data to a JavaScript client.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-wp-js-data-sync/tree/v0.4.0"
+                "source": "https://github.com/Automattic/jetpack-wp-js-data-sync/tree/v0.4.1"
             },
-            "time": "2024-01-22T05:06:40+00:00"
+            "time": "2024-01-30T19:41:02+00:00"
         },
         {
             "name": "tedivm/jshrink",
