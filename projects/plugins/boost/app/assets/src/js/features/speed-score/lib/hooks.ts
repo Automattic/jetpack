@@ -1,8 +1,10 @@
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { castToString } from '$lib/utils/cast-to-string';
-import debounce from '$lib/utils/debounce';
-import { useState, useCallback, useEffect, useMemo, useReducer } from 'react';
+import { useCallback, useEffect, useReducer, useRef } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
+import { standardizeError } from '$lib/utils/standardize-error';
+import { __ } from '@wordpress/i18n';
 
 type SpeedScoreState = {
 	status: 'loading' | 'loaded' | 'error';
@@ -15,7 +17,7 @@ type SpeedScoreState = {
 		noBoost: {
 			mobile: number;
 			desktop: number;
-		};
+		} | null;
 		isStale: boolean;
 	};
 };
@@ -30,7 +32,8 @@ type RefreshFunction = ( regenerate?: boolean ) => Promise< void >;
  */
 export const useSpeedScores = ( siteUrl: string ) => {
 	const [ state, updateState ] = useReducer(
-		( oldState, newState ) => ( { ...oldState, ...newState } ),
+		( oldState: SpeedScoreState, newState: Partial< SpeedScoreState > ) =>
+			( { ...oldState, ...newState } ) as SpeedScoreState,
 		{
 			status: 'loading', // 'loading' | 'loaded' | 'error'
 			error: undefined,
@@ -59,12 +62,17 @@ export const useSpeedScores = ( siteUrl: string ) => {
 					status: 'loaded',
 				} );
 			} catch ( err ) {
+				const error = standardizeError(
+					err,
+					__( 'Error requesting speed scores', 'jetpack-boost' )
+				);
+
 				recordBoostEvent( 'speed_score_request_error', {
-					error_message: castToString( err.message ),
+					error_message: castToString( error.message ),
 				} );
 				updateState( {
 					status: 'error',
-					error: err,
+					error,
 				} );
 			}
 		},
@@ -93,32 +101,35 @@ export const useDebouncedRefreshScore = (
 	{ moduleStates, criticalCssCreated, criticalCssIsGenerating }: RefreshDependencies,
 	loadScore: RefreshFunction
 ) => {
-	const [ scoreConfigString, setScoreConfigString ] = useState(
-		JSON.stringify( [ moduleStates, criticalCssCreated ] )
-	);
+	const currentConfigString = JSON.stringify( [ moduleStates, criticalCssCreated ] );
+
+	/*
+	 * Keep track of the config string that was responsible for the last score refresh.
+	 *
+	 * By maintaining this value and comparing it to the current config string, we can
+	 * avoid refreshing the score when the config change was undone by the user quickly.
+	 * Example: The user toggles on a module, then toggles it off again within debounce
+	 * duration. We don't want to refresh the score in this case.
+	 */
+	const lastScoreConfigString = useRef( currentConfigString );
 
 	// Debounced function: Refresh the speed score if the config has changed.
-	const debouncedRefreshScore = useMemo(
-		() =>
-			debounce( async ( newConfig, oldConfig ) => {
-				if ( oldConfig !== newConfig ) {
-					setScoreConfigString( newConfig );
-					await loadScore();
-				}
-			}, 2000 ),
-		[ loadScore, setScoreConfigString ]
+	const debouncedRefreshScore = useDebouncedCallback(
+		( newConfig: string, generating: boolean ) => {
+			/*
+			 * Trigger a refresh if config is different from last speed score refresh.
+			 * While critical CSS is currently generating, skip refreshing the score as
+			 * the impact of the config change won't be visible until the CSS is done.
+			 */
+			if ( lastScoreConfigString.current !== newConfig && ! generating ) {
+				lastScoreConfigString.current = newConfig;
+				loadScore();
+			}
+		},
+		2000
 	);
 
 	useEffect( () => {
-		if ( ! criticalCssIsGenerating ) {
-			const newScoreConfigString = JSON.stringify( [ moduleStates, criticalCssCreated ] );
-			debouncedRefreshScore( newScoreConfigString, scoreConfigString );
-		}
-	}, [
-		moduleStates,
-		criticalCssCreated,
-		criticalCssIsGenerating,
-		debouncedRefreshScore,
-		scoreConfigString,
-	] );
+		debouncedRefreshScore( currentConfigString, criticalCssIsGenerating );
+	}, [ currentConfigString, debouncedRefreshScore, criticalCssIsGenerating ] );
 };

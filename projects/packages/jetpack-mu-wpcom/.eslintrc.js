@@ -14,5 +14,10 @@ module.exports = {
 				allowedTextDomain: 'jetpack-mu-wpcom',
 			},
 		],
+		'testing-library/prefer-screen-queries': 'off',
+		'react/jsx-no-bind': 'off',
+		// Not needed for TypeScript.
+		'jsdoc/require-param-type': 'off',
+		'jsdoc/require-returns-type': 'off',
 	},
 };

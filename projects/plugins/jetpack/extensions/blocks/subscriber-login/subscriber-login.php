@@ -65,12 +65,12 @@ function get_current_url() {
 /**
  * Returns subscriber log in URL.
  *
- * @param string $redirect Path to redirect to on logout.
+ * @param string $redirect Path to redirect to on login.
  *
  * @return string
  */
 function get_subscriber_login_url( $redirect ) {
-	$redirect = boolval( $redirect ) ? $redirect : get_site_url();
+	$redirect = ! empty( $redirect ) ? $redirect : get_site_url();
 
 	// Copied from projects/plugins/jetpack/extensions/blocks/subscriptions/subscriptions.php
 	if ( ( new Host() )->is_wpcom_simple() ) {
@@ -111,7 +111,7 @@ function render_block( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$block_template             = '<div %1$s><a href="%2$s">%3$s</a></div>';
-	$redirect_to_current        = ! empty( $attributes['redirectToCurrent'] );
+	$redirect_url               = ! empty( $attributes['redirectToCurrent'] ) ? get_current_url() : get_site_url();
 	$log_in_label               = ! empty( $attributes['logInLabel'] ) ? sanitize_text_field( $attributes['logInLabel'] ) : esc_html__( 'Log in', 'jetpack' );
 	$log_out_label              = ! empty( $attributes['logOutLabel'] ) ? sanitize_text_field( $attributes['logOutLabel'] ) : esc_html__( 'Log out', 'jetpack' );
 	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscriptions', 'jetpack' );
@@ -120,7 +120,7 @@ function render_block( $attributes ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
-			get_subscriber_login_url( $redirect_to_current ? get_current_url() : '' ),
+			get_subscriber_login_url( $redirect_url ),
 			$log_in_label
 		);
 	}
@@ -137,7 +137,7 @@ function render_block( $attributes ) {
 	return sprintf(
 		$block_template,
 		get_block_wrapper_attributes(),
-		wp_logout_url( $redirect_to_current ? get_current_url() : '' ),
+		wp_logout_url( $redirect_url ),
 		$log_out_label
 	);
 }

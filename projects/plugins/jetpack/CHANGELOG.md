@@ -2,6 +2,44 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.1-a.9 - 2024-01-29
+### Enhancements
+- Subject: A new way to upload media via the Jetpack App [#34179]
+
+### Improved compatibility
+- RNMobile: Disable Story block [#35202]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adding serivce to a feature which is not live for the users yet. [#35183]
+- AI Assistant: add accept event on title suggestion request [#35281]
+- AI Assistant: add events on block control [#35254]
+- AI Assistant: add menu show events on both control and extension (form) [#35256]
+- AI Assistant: change tool property on event [#35280]
+- AI Content Lens (excerpt): add events on generate, discard and accept [#35251]
+- AI Forms Extension: add events on ai actions [#35257]
+- Feature is not yet released. [#35184]
+- Jetpack_PostImages::from_attachment: Prevent warning when $thumb_post_data cannot be found [#35264]
+- Move Jetpack to the same menu position as standalone Jetpack site. [#35154]
+- Remove the dashboard swither for the wp-admin interface. [#35210]
+- Remove the dotcom warning for wp-admin in Writing and Discussion settings page [#35241]
+- Sharing Buttons Block: Add size controls to the block [#35267]
+- youtube-shortcode: Handle being given an array with a 'url' key insteadad of the URL as a string [#35181]
+
+## 13.1-a.7 - 2024-01-25
+### Enhancements
+- Jetpack Search: Add 'price' as the default sorting option. [#35167]
+- Subscribe Block: Don't include social followers on counts by default. [#34617]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: add UI events when menus are displayed [#35203]
+- AI Assistant: fix discard handler so we don't need to call discard + accept [#35236]
+- Like block: Remove block rendering in contexts different from front-end [#35226]
+- Not showing sharing buttons in notifications, emails, etc. [#35206]
+- REST API: fixed the way we treat 0 and 1 integers in boolean context. [#35190]
+- Subscriber Login: Add icon, description and redirect to home page by default [#35221]
+- Subscriber Login: Allow custom link labels [#35179]
+- Untangle Calypso from Themes & new sub-menu to Marketplace [#35145]
+
 ## 13.1-a.5 - 2024-01-23
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Jetpack AI: Expose Jetpack AI cost of features on the feature endpoint. [#35178]
