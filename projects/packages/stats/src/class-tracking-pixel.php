@@ -127,11 +127,11 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 			'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js',
 			array(),
 			null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- The version is set in the URL.
-			true
+			array(
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			)
 		);
-
-		// Make sure the script loads asynchronously (add a defer attribute).
-		wp_script_add_data( 'jetpack-stats', 'strategy', 'defer' );
 
 		$data = self::build_view_data();
 
