@@ -5,7 +5,7 @@ const jetpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const verbumConfig = require( './verbum.webpack.config.js' );
 
 module.exports = [
-	verbumConfig,
+	...verbumConfig,
 	{
 		entry: {
 			'error-reporting': './src/features/error-reporting/index.js',

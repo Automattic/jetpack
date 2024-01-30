@@ -2,7 +2,7 @@ import { NumberSlider } from '@automattic/jetpack-components';
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import styles from './quality-control.module.scss';
-import { useId } from 'react';
+import { useEffect, useId, useState } from 'react';
 
 type QualityControlProps = {
 	label: string;
@@ -24,13 +24,20 @@ const QualityControl = ( {
 	minValue = 20,
 }: QualityControlProps ) => {
 	const checkboxId = useId();
+	const [ value, setValue ] = useState( quality );
+	useEffect( () => {
+		setValue( quality );
+	}, [ quality ] );
 	return (
 		<div className={ styles[ 'quality-control' ] }>
 			<div className={ styles.label }>{ label }</div>
 			<div className={ classNames( styles.slider, { [ styles.disabled ]: lossless } ) }>
 				<NumberSlider
-					value={ quality }
-					onChange={ setQuality }
+					value={ value }
+					onAfterChange={ updatedValue => {
+						setValue( updatedValue );
+						setQuality( updatedValue );
+					} }
 					minValue={ minValue }
 					maxValue={ maxValue }
 				/>
