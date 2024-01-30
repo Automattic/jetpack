@@ -448,13 +448,25 @@ EOT;
 	/**
 	 * Render the related posts markup.
 	 *
-	 * @param array  $attributes Block attributes.
-	 * @param string $content    String containing the related Posts block content.
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content    String containing the related Posts block content.
+	 * @param WP_Block $block    The block object.
 	 * @return string
 	 */
-	public function render_block( $attributes, $content ) {
+	public function render_block( $attributes, $content, $block ) {
 		if ( ! jetpack_is_frontend() ) {
 			return $content;
+		}
+
+		$headline = '';
+
+		if ( isset( $block ) ) {
+			foreach ( $block->inner_blocks as $inner_block ) {
+				if ( 'core/heading' === $inner_block->name ) {
+					$headline = $inner_block->inner_html;
+					break;
+				}
+			}
 		}
 
 		$wrapper_attributes = array();
@@ -493,9 +505,9 @@ EOT;
 		}
 
 		$headline_id     = 'relatedposts-headline-' . uniqid();
-		$headline_markup = '';
+		$headline_markup = empty( $headline ) ? '' : $headline;
 
-		if ( $block_attributes['show_headline'] === true ) {
+		if ( empty( $headline_markup ) && $block_attributes['show_headline'] === true ) {
 			$headline = $block_attributes['headline'];
 			if ( strlen( trim( $headline ) ) !== 0 ) {
 				$headline_markup = sprintf(

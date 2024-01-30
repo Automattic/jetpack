@@ -1,5 +1,10 @@
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	InspectorControls,
+	InnerBlocks,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import { Path, SVG } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -171,6 +176,7 @@ export default function RelatedPostsEdit( props ) {
 		useModuleStatus( featureName );
 	// They can also be toggled via an option on WordPress.com Simple.
 	const { isEnabled, enable, isFetchingStatus, isUpdatingStatus } = useRelatedPostsStatus();
+	const blockProps = useBlockProps();
 
 	const isChangingRelatedPostsStatus = isChangingStatus || isUpdatingStatus;
 
@@ -261,6 +267,13 @@ export default function RelatedPostsEdit( props ) {
 			</BlockControls>
 
 			<div className={ className } id={ `related-posts-${ instanceId }` }>
+				<div { ...blockProps }>
+					<InnerBlocks
+						allowedBlocks={ [ 'core/heading' ] }
+						template={ [ [ 'core/heading', { placeholder: __( 'Add a headline', 'jetpack' ) } ] ] }
+					/>
+				</div>
+
 				{ displayHeadline && <h3>{ headline }</h3> }
 				<div className={ previewClassName } data-layout={ postLayout }>
 					<RelatedPostsPreviewRows posts={ displayPosts } />
