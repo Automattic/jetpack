@@ -15,8 +15,8 @@
 	},
 	"attributes": {
 		"bookNumber": {
-			"type": "number",
-			"default": 5
+			"type": "string",
+			"default": "5"
 		},
 		"class": {
 			"type": "string"

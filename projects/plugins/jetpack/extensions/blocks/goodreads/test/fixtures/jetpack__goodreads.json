@@ -4,7 +4,7 @@
 		"name": "jetpack/goodreads",
 		"isValid": true,
 		"attributes": {
-			"bookNumber": 5,
+			"bookNumber": "5",
 			"customTitle": "My Bookshelf",
 			"goodreadsId": "1176283",
 			"id": "gr_custom_widget_4529663",
