@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add standalone mode status for WAF config
+Add standalone mode status to WAF config
