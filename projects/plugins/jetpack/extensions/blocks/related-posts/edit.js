@@ -265,7 +265,6 @@ export default function RelatedPostsEdit( props ) {
 						template={ [ [ 'core/heading', { placeholder: __( 'Add a headline', 'jetpack' ) } ] ] }
 					/>
 				</div>
-
 				<div className={ previewClassName } data-layout={ postLayout }>
 					<RelatedPostsPreviewRows posts={ displayPosts } />
 				</div>
