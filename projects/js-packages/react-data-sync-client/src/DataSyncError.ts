@@ -56,94 +56,95 @@ export class DataSyncError extends Error {
 			'color: #dc362e; font-weight: normal;'
 		);
 
-		// Styles
-		const highlightBox = `font-style: italic; solid #e9e9e3; line-height: 1.8;`;
+		// Group common styles into a single object
+		const styles = {
+			group: 'color: #6e6e6e; font-weight: 700; font-size: 14px;',
+			bold: 'font-weight: bold;',
+			value: 'color: #827171; font-weight: bold;',
+			spacing: 'margin-top: 5px; margin-bottom: 2px;',
+			arrow: 'margin-left: 5px; margin-right: 5px; font-size: 15px;',
+			highlight: 'font-style: italic; solid #e9e9e3; line-height: 1.8;',
+		};
 
 		console.error( this.message );
 		if ( info.error instanceof z.ZodError ) {
-			const msg: string[] = [];
-			const styles: string[] = [];
+			const msg = [];
+			const stylesArray = [];
 
-			// Shortcut for adding a message and style.
-			const add = ( m: string, s?: string ) => {
+			// Shortcut for adding a message and style
+			const add = ( m, s = '' ) => {
 				if ( s ) {
 					msg.push( `%c${ m }%c` );
-					styles.push( s );
-					styles.push( '' );
+					stylesArray.push( s, '' ); // Reset style after custom
 				} else {
 					msg.push( m );
 				}
 			};
 
 			if ( info.error.issues.length > 0 ) {
-				console.groupCollapsed(
-					`%c🦸 Zod Issues(${ info.error.issues.length })`,
-					'color: #6e6e6e; font-weight: 700; font-size: 14px;'
-				);
+				console.groupCollapsed( `%c🦸 Zod Issues(${ info.error.issues.length })`, styles.group );
 				for ( const issue of info.error.issues ) {
-					const issuePath = `${ issue.path.join( '.' ) }`;
+					const issuePath = issue.path.join( '.' );
 					const issueMessage = issue.message;
-					add( `\nZod Error: `, 'padding-top: 5px;' );
-					add( `${ issue.code }`, 'font-weight: bold;' );
-					add( ` in ` );
-					add( `${ key }`, 'color: #827171; font-weight: bold;' );
+
+					add( '\nZod Error: ', 'padding-top: 5px;' );
+					add( `${ issue.code }`, styles.bold );
+					add( ' in ' );
+					add( `${ key }`, styles.value );
 					if ( issuePath ) {
-						add( `.${ issuePath }`, 'font-weight: bold;' );
+						add( `.${ issuePath }`, styles.bold );
 					}
 
 					add( '\n' );
-					add( '⇢', 'margin-left: 5px; margin-right: 5px; font-size: 15px;' );
-					add( `${ issueMessage }`, highlightBox );
+					add( '⇢', styles.arrow );
+					add( `${ issueMessage }`, styles.highlight );
 					add( `\n\n` );
-					console.log( msg.join( '' ), ...styles );
+
+					console.log( msg.join( '' ), ...stylesArray );
 					msg.length = 0;
-					styles.length = 0;
+					stylesArray.length = 0;
 				}
 				console.groupEnd();
 			}
 		}
 
-		console.groupCollapsed( `%c🪲 Debug`, 'color: #6e6e6e; font-weight: 600; font-size: 14px;' );
+		console.groupCollapsed( `%c🪲 Debug`, styles.group );
 
 		let location = info.location;
 		if ( info.method ) {
 			location = `${ info.method } ${ location }`;
 		}
-		console.log(
-			`%cLocation%c:\n${ location }`,
-			'font-weight: bold; margin-top: 5px; margin-bottom: 2px;',
-			''
-		);
+		console.log( `%cLocation%c:\n${ location }`, `${ styles.bold } ${ styles.spacing }`, '' );
 
 		if ( this.info.namespace in window && this.info.key in window[ this.info.namespace ] ) {
 			const value = window[ this.info.namespace ][ this.info.key ];
 
 			console.log(
 				`%cInitial Data%c:\nwindow.${ key }.value =`,
-				'font-weight: bold; margin-top: 5px; margin-bottom: 2px;',
+				`${ styles.bold } ${ styles.spacing }`,
 				'',
 				value.value
 			);
 			if ( 'log' in value ) {
 				console.log(
 					`%cPHP Log%c:`,
-					'font-weight: bold; margin-top: 5px; margin-bottom: 2px;',
+					`${ styles.bold } ${ styles.spacing }`,
 					'',
 					value.log.length > 0 ? value.log : 'No log messages.'
 				);
 			} else {
 				console.log(
-					`%cPHP Log%c: PHP Log is disabled. To enable it, place the debug code in your wp-config.php:\n%cdefine( 'DATASYNC_DEBUG', true );`,
-					'font-weight: bold; margin-top: 5px; margin-bottom: 2px;',
+					`%cPHP Log%c: PHP Log is disabled. To enable it, place the debug code in your wp-config.php:\n%cdefine('DATASYNC_DEBUG', true);`,
+					`${ styles.bold } ${ styles.spacing }`,
 					'',
-					highlightBox
+					styles.highlight
 				);
 			}
 		}
 		if ( info.data !== undefined ) {
 			console.log(
 				`%cRaw Data Received:%c\n`,
-				'font-weight: bold; margin-top: 5px; margin-bottom: 2px;',
+				`${ styles.bold } ${ styles.spacing }`,
 				'',
 				info.data
 			);
