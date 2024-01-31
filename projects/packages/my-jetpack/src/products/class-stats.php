@@ -140,29 +140,6 @@ class Stats extends Module_Product {
 	}
 
 	/**
-	 * Checks whether the site already supports this product through an existing plan or purchase
-	 *
-	 * @return boolean
-	 */
-	public static function has_required_plan() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				if ( str_starts_with( $purchase->product_slug, 'jetpack_stats' ) ) {
-					return true;
-				}
-				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Checks whether the product can be upgraded to a different product.
 	 * Only Jetpack Stats Commercial plan is not upgradable.
 	 *
