@@ -10,8 +10,11 @@
  */
 function import_page_customizations_init() {
 	if ( $GLOBALS['pagenow'] === 'import.php' ) {
-		add_action( 'admin_notices', 'import_admin_banner' );
-		add_action( 'admin_enqueue_scripts', 'import_admin_banner_css' );
+		// Only add the banner if the user is using the wp-admin interface.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			add_action( 'admin_notices', 'import_admin_banner' );
+			add_action( 'admin_enqueue_scripts', 'import_admin_banner_css' );
+		}
 	}
 }
 add_action( 'admin_init', 'import_page_customizations_init' );
