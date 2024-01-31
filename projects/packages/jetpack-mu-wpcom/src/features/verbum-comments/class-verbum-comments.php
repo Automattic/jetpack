@@ -179,6 +179,7 @@ class Verbum_Comments {
 			'window.VerbumComments = ' . wp_json_encode(
 				array(
 					'Log in or provide your name and email to leave a reply.' => __( 'Log in or provide your name and email to leave a reply.', 'jetpack-mu-wpcom' ),
+					'Log in or provide your name and email to leave a comment.' => __( 'Log in or provide your name and email to leave a comment.', 'jetpack-mu-wpcom' ),
 					'Receive web and mobile notifications for posts on this site.' => __( 'Receive web and mobile notifications for posts on this site.', 'jetpack-mu-wpcom' ),
 					'Name'                               => __( 'Name', 'jetpack-mu-wpcom' ),
 					'Email (address never made public)'  => __( 'Email (address never made public)', 'jetpack-mu-wpcom' ),
