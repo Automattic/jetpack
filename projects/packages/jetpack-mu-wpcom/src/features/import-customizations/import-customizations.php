@@ -9,7 +9,9 @@
  * Only add_action if the current screen is the wp-admin/import.php page.
  */
 function import_page_customizations_init() {
-	if ( $GLOBALS['pagenow'] === 'import.php' ) {
+	$screen = get_current_screen();
+
+	if ( $screen && $screen->id === 'import' ) {
 		// Only add the banner if the user is using the wp-admin interface.
 		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 			add_action( 'admin_notices', 'import_admin_banner' );
@@ -17,7 +19,7 @@ function import_page_customizations_init() {
 		}
 	}
 }
-add_action( 'admin_init', 'import_page_customizations_init' );
+add_action( 'current_screen', 'import_page_customizations_init' );
 
 /**
  * Displays a banner on the wp-admin/import.php page that links to the Calypso importer.
