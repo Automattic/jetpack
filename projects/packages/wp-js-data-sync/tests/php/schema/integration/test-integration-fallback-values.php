@@ -96,7 +96,6 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$parsed = $true->parse( true );
 		$this->assertSame( true, $parsed );
 
-
 		$parsed = $true->parse( '1' );
 		$this->assertSame( true, $parsed );
 
@@ -194,7 +193,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$valid_array = array(
 			'one'          => 100,
 			'array_of_two' => array( 200 ),
-		); 
+		);
 		$this->assertSame( $valid_array, $schema->parse( $valid_array ) );
 		$this->assertSame( $valid_array, $schema_no_fallbacks->parse( $valid_array ) );
 
