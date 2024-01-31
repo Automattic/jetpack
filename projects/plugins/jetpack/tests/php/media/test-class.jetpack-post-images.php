@@ -233,16 +233,10 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 				'post_content' => $img_html,
 			)
 		);
-		l();
-		l( 'post id' );
-		l( $post_id );
 
 		add_filter( 'jetpack_postimages_ignore_minimum_dimensions', '__return_true', 66 );
 		$images = Jetpack_PostImages::from_html( $post_id );
 		remove_filter( 'jetpack_postimages_ignore_minimum_dimensions', '__return_true', 66 );
-		l();
-		l( 'IMAGES' );
-		l( $images );
 
 		$this->assertCount( 1, $images );
 		$this->assertEquals( $img_url, $images[0]['src'] );
