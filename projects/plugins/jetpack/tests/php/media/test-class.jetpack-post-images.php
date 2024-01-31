@@ -200,6 +200,58 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @author robfelty
+	 * @covers Jetpack_PostImages::from_attachment
+	 * @since 13.2
+	 */
+	public function test_from_attachment_without_meta_is_correct_array() {
+		$img_name = 'image-250x200.jpg';
+		$alt_text = '250 x 200 image.';
+
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_object(
+			$img_name,
+			$post_id,
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+			)
+		);
+		$img_meta      = array(
+			'width'  => 1024,
+			'height' => 768,
+		);
+		wp_update_attachment_metadata( $attachment_id, $img_meta );
+		update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
+
+		$img_url  = wp_get_attachment_url( $attachment_id );
+		$img_html = '<img src="' . $img_url . '" alt="' . $alt_text . '"/>';
+
+		wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => $img_html,
+			)
+		);
+		l();
+		l( 'post id' );
+		l( $post_id );
+
+		add_filter( 'jetpack_postimages_ignore_minimum_dimensions', '__return_true', 66 );
+		$images = Jetpack_PostImages::from_html( $post_id );
+		remove_filter( 'jetpack_postimages_ignore_minimum_dimensions', '__return_true', 66 );
+		l();
+		l( 'IMAGES' );
+		l( $images );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( $img_url, $images[0]['src'] );
+		$this->assertEquals( 250, $images[0]['src_width'] );
+		$this->assertEquals( 200, $images[0]['src_height'] );
+		$this->assertEquals( $alt_text, $images[0]['alt_text'] );
+	}
+
+	/**
 	 * Create a post with an image block containing a large image attached to another post.
 	 *
 	 * @since 6.9.0

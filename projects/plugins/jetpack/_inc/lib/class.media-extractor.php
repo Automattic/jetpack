@@ -472,11 +472,12 @@ class Jetpack_Media_Meta_Extractor {
 	 *
 	 * @param string $content HTML content.
 	 * @param array  $image_list Array of already found images.
+	 * @param string $extract_alt_text Whether or not to extract the alt text.
 	 *
 	 * @return array|array[] Array of images.
 	 */
-	public static function extract_images_from_content( $content, $image_list ) {
-		$image_list = self::get_images_from_html( $content, $image_list );
+	public static function extract_images_from_content( $content, $image_list, $extract_alt_text = false ) {
+		$image_list = self::get_images_from_html( $content, $image_list, $extract_alt_text );
 		return self::build_image_struct( $image_list, array() );
 	}
 

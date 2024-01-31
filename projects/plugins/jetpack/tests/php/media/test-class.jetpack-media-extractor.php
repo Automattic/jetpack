@@ -192,6 +192,28 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @author robfelty
+	 * @covers Jetpack_Media_Meta_Extractor::extract_images_from_content
+	 * @since 13.2
+	 */
+	public function test_mediaextractor_extract_images_from_content_with_alttext_return_correct_image_struct() {
+		$img_name = 'image.jpg';
+		$content  = "<img src='$img_name' width='250' height='200' alt='alternative image'>";
+
+		$image_struct = Jetpack_Media_Meta_Extractor::extract_images_from_content( $content, array(), true );
+
+		$this->assertIsArray( $image_struct );
+		$this->assertArrayHasKey( 'has', $image_struct );
+		$this->assertArrayHasKey( 'image', $image_struct );
+		$this->assertCount( 1, $image_struct['image'] );
+		$this->assertEquals( $image_struct['image'][0]['url'], $img_name );
+		$this->assertEquals( 'alternative image', $image_struct['image'][0]['alt_text'] );
+		$this->assertEquals( 250, $image_struct['image'][0]['src_width'] );
+		$this->assertEquals( 200, $image_struct['image'][0]['src_height'] );
+		$this->assertSame( 1, $image_struct['has']['image'] );
+	}
+
+	/**
 	 * @author scotchfield
 	 * @covers Jetpack_Media_Meta_Extractor::get_images_from_html
 	 * @since 3.2
