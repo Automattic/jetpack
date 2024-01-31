@@ -12,15 +12,18 @@ interface LoggedOutProps {
 }
 
 const getLoginCommentText = () => {
-	const defaultText = commentParent.value
-		? translate( 'Log in to leave a reply.' )
-		: translate( 'Log in to leave a comment.' );
-	const optionalText = commentParent.value
-		? translate( 'Leave a reply. (log in optional)' )
-		: translate( 'Leave a comment. (log in optional)' );
-	const nameAndEmailRequired = translate(
-		'Log in or provide your name and email to leave a reply.'
+	let defaultText = translate( 'Log in to leave a comment.' );
+	let optionalText = translate( 'Leave a comment. (log in optional)' );
+	let nameAndEmailRequired = translate(
+		'Log in or provide your name and email to leave a comment.'
 	);
+
+	if ( commentParent.value ) {
+		defaultText = translate( 'Log in to leave a reply.' );
+		optionalText = translate( 'Leave a reply. (log in optional)' );
+		nameAndEmailRequired = translate( 'Log in or provide your name and email to leave a reply.' );
+	}
+
 	const allowCommentsWithoutLogin = ! requireNameEmail && ! commentRegistration;
 	const requiresEmailandNameToComment = requireNameEmail && ! commentRegistration;
 
