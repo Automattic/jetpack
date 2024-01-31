@@ -24,6 +24,47 @@ function wpcom_reorder_curated_core_patterns() {
 }
 
 /**
+ * Unregister Jetpack patterns (from the Forms category).
+ * The reason is that Dotcom curate the pattern list based on their look.
+ */
+function wpcom_unregister_jetpack_patterns() {
+	$pattern_names = array(
+		'contact-form',
+		'newsletter-form',
+		'rsvp-form',
+		'registration-form',
+		'appointment-form',
+		'feedback-form',
+	);
+	foreach ( $pattern_names as $pattern_name ) {
+		$pattern = \WP_Block_Patterns_Registry::get_instance()->get_registered( $pattern_name );
+		if ( $pattern ) {
+			unregister_block_pattern( $pattern_name );
+		}
+	}
+}
+
+/**
+ * Remove theme support for core patterns.
+ * Avoids registering the patterns bundles in WordPress and patterns coming from the Dotorg pattern directory.
+ * The reason is that Dotcom curate the pattern list based on their look.
+ */
+function remove_theme_support_for_core_patterns() {
+	$is_automattician = function_exists( 'is_automattician' ) ? is_automattician() : false;
+	// Only for Automatticians when testing v2 patterns.
+	if ( $is_automattician ) {
+		add_action(
+			'init',
+			function () {
+				remove_theme_support( 'core-block-patterns' );
+			},
+			9
+		);
+	}
+}
+remove_theme_support_for_core_patterns();
+
+/**
  * Return a function that loads and register block patterns from the API. This
  * function can be registered to the `rest_dispatch_request` filter.
  *
@@ -41,25 +82,24 @@ function register_patterns_on_api_request( $register_patterns_func ) {
 	 * @param WP_REST_Request $request
 	 */
 	return function ( $response, $request ) use ( $register_patterns_func ) {
-		/**
-		 * Do nothing if it is loaded in the ETK.
-		 */
-		if ( class_exists( 'A8C\FSE\Block_Patterns_From_API' ) ) {
-			return $response;
-		}
-
 		$route = $request->get_route();
 		// Matches either /wp/v2/sites/123/block-patterns/patterns or /wp/v2/block-patterns/patterns
 		// to handle the API format of both WordPress.com and WordPress core.
 		$request_allowed = preg_match( '/^\/wp\/v2\/(sites\/[0-9]+\/)?block\-patterns\/(patterns|categories)$/', $route );
 
-		if ( ! $request_allowed || ! apply_filters( 'a8c_enable_block_patterns_api', false ) ) {
+		if ( ! $request_allowed ) {
 			return $response;
 		}
 
 		$register_patterns_func();
 
 		wpcom_reorder_curated_core_patterns();
+
+		$is_automattician = function_exists( 'is_automattician' ) ? is_automattician() : false;
+		if ( $is_automattician ) {
+			// Only for Automatticians when testing v2 patterns.
+			wpcom_unregister_jetpack_patterns();
+		}
 
 		return $response;
 	};
