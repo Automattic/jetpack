@@ -462,7 +462,7 @@ EOT;
 
 		if ( isset( $block ) ) {
 			foreach ( $block->inner_blocks as $inner_block ) {
-				if ( 'core/heading' === $inner_block->name ) {
+				if ( 'core/heading' === $inner_block->name && ! empty( trim( wp_strip_all_tags( $inner_block->inner_html ) ) ) ) {
 					$headline = $inner_block->inner_html;
 					break;
 				}
