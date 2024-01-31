@@ -109,8 +109,6 @@ class Verbum_Comments {
 			return;
 		}
 
-		$version_js       = filemtime( __DIR__ . '/verbum-comments.js' );
-		$version_css      = filemtime( __DIR__ . '/verbum-comments.css' );
 		$connect_url      = site_url( '/public.api/connect/?action=request' );
 		$primary_redirect = get_primary_redirect();
 
@@ -118,20 +116,18 @@ class Verbum_Comments {
 			$connect_url = add_query_arg( 'domain', $primary_redirect, $connect_url );
 		}
 
-		// Enqueue styles
-		wp_enqueue_style( 'verbum', plugins_url( '/verbum-comments.css', __FILE__ ), array(), $version_css );
-
-		// Enqueue scripts
-		wp_register_script(
+		// Enqueue styles and scripts
+		Assets::register_script(
 			'verbum',
-			plugins_url( 'verbum-comments.js', __FILE__ ),
-			array(),
-			$version_js,
+			'../../build/verbum-comments/verbum-comments.js',
+			__FILE__,
 			array(
 				'strategy'  => 'defer',
 				'in_footer' => true,
 			)
 		);
+
+		wp_enqueue_style( 'verbum' );
 		\WP_Enqueue_Dynamic_Script::enqueue_script( 'verbum' );
 
 		// Enqueue settings separately since the main script is dynamic.
@@ -140,7 +136,7 @@ class Verbum_Comments {
 			'verbum-settings',
 			false,
 			array(),
-			$version_js,
+			null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- No script, so no version needed.
 			array(
 				'strategy'  => 'defer',
 				'in_footer' => true,
@@ -251,14 +247,14 @@ class Verbum_Comments {
 
 		wp_enqueue_script( 'verbum-settings' );
 
-		wp_enqueue_script(
+		Assets::register_script(
 			'verbum-dynamic-loader',
-			plugins_url( 'assets/dynamic-loader.js', __FILE__ ),
-			array(),
-			$version_js,
+			'../../build/verbum-comments/assets/dynamic-loader.js',
+			__FILE__,
 			array(
 				'strategy'  => 'defer',
 				'in_footer' => true,
+				'enqueue'   => true,
 			)
 		);
 	}
