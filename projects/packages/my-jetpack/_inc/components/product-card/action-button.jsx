@@ -103,7 +103,10 @@ const ActionButton = ( {
 					onClick: onAdd,
 				};
 			case PRODUCT_STATUSES.ACTIVE: {
-				const buttonText = __( 'View', 'jetpack-my-jetpack' );
+				const buttonText =
+					slug === 'stats'
+						? __( 'View detailed stats', 'jetpack-my-jetpack' )
+						: __( 'View', 'jetpack-my-jetpack' );
 
 				return {
 					...buttonState,
