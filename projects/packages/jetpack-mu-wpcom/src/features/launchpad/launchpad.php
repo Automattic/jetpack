@@ -280,7 +280,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'verify_email',
 				'mobile_app_installed',
 				'post_sharing_enabled',
-				'legacy_site_launched',
+				'site_launched',
 			),
 		),
 	);

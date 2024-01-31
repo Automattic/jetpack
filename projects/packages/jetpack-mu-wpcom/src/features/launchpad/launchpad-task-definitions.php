@@ -638,24 +638,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/domains/manage/' . $data['site_slug_encoded'];
 			},
 		),
-		'blogname_set'                    => array(
-			'get_title'            => function () {
-				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => 'wpcom_launchpad_is_legacy_task_option_completed',
-			'is_visible_callback'  => 'wpcom_launchpad_is_blogname_set_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/settings/general/' . $data['site_slug_encoded'];
-			},
-		),
-		'legacy_site_launched'            => array(
-			'get_title'             => function () {
-				return __( 'Launch your site', 'jetpack-mu-wpcom' );
-			},
-			'isLaunchTask'          => true,
-			'is_complete_callback'  => 'wpcom_launchpad_is_legacy_site_launched_task_completed',
-			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
-		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
