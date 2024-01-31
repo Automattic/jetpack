@@ -51,100 +51,112 @@ export class DataSyncError extends Error {
 	private debugMessage() {
 		const info = this.info;
 		const key = `${ info.namespace }.${ info.key }`;
-		console.groupCollapsed(
-			`🔄 DataSync Debug: %c${ key }`,
-			'color: #dc362e; font-weight: normal;'
-		);
 
 		// Group common styles into a single object
-		const styles = {
-			group: 'color: #6e6e6e; font-weight: 700; font-size: 14px;',
+		const darkStyles = {
+			group: 'color: #d3d3d3; font-weight: 700; font-size: 14px;',
 			bold: 'font-weight: bold;',
-			value: 'color: #827171; font-weight: bold;',
+			dim: 'color: #737373;',
 			spacing: 'margin-top: 5px; margin-bottom: 2px;',
 			arrow: 'margin-left: 5px; margin-right: 5px; font-size: 15px;',
-			highlight: 'font-style: italic; solid #e9e9e3; line-height: 1.8;',
+			highlight: 'font-style: italic; line-height: 1.8; color: #a5aeb5;',
+			key: 'color: #ffa280; font-weight: normal;',
 		};
 
+		const lightStyles = {
+			group: 'color: #1d2327; font-weight: 700; font-size: 14px;',
+			bold: 'font-weight: bold;',
+			dim: 'color: #a89e9e;',
+			spacing: 'margin-top: 5px; margin-bottom: 2px;',
+			arrow: 'margin-left: 5px; margin-right: 5px; font-size: 15px;',
+			highlight: 'font-style: italic; line-height: 1.8; color: #606467;',
+			key: 'color: #dc362e; font-weight: normal;',
+		};
+
+		const isDarkMode =
+			window.matchMedia && window.matchMedia( '(prefers-color-scheme: dark)' ).matches;
+		const style = isDarkMode ? darkStyles : lightStyles;
+
+		console.groupCollapsed( `🔄 DataSync Debug: %c${ key }`, style.key );
 		console.error( this.message );
 		if ( info.error instanceof z.ZodError ) {
 			const msg = [];
-			const stylesArray = [];
+			const messageStyle = [];
 
 			// Shortcut for adding a message and style
 			const add = ( m, s = '' ) => {
 				if ( s ) {
 					msg.push( `%c${ m }%c` );
-					stylesArray.push( s, '' ); // Reset style after custom
+					messageStyle.push( s, '' );
 				} else {
 					msg.push( m );
 				}
 			};
 
 			if ( info.error.issues.length > 0 ) {
-				console.groupCollapsed( `%c🦸 Zod Issues(${ info.error.issues.length })`, styles.group );
+				console.groupCollapsed( `%c🦸 Zod Issues(${ info.error.issues.length })`, style.group );
 				for ( const issue of info.error.issues ) {
 					const issuePath = issue.path.join( '.' );
 					const issueMessage = issue.message;
 
 					add( '\nZod Error: ', 'padding-top: 5px;' );
-					add( `${ issue.code }`, styles.bold );
+					add( `${ issue.code }`, style.bold );
 					add( ' in ' );
-					add( `${ key }`, styles.value );
+					add( `${ key }`, style.dim );
 					if ( issuePath ) {
-						add( `.${ issuePath }`, styles.bold );
+						add( `.${ issuePath }`, style.bold );
 					}
 
 					add( '\n' );
-					add( '⇢', styles.arrow );
-					add( `${ issueMessage }`, styles.highlight );
+					add( '⇢', style.arrow );
+					add( `${ issueMessage }`, style.highlight );
 					add( `\n\n` );
 
-					console.log( msg.join( '' ), ...stylesArray );
+					console.log( msg.join( '' ), ...messageStyle );
 					msg.length = 0;
-					stylesArray.length = 0;
+					messageStyle.length = 0;
 				}
 				console.groupEnd();
 			}
 		}
 
-		console.groupCollapsed( `%c🪲 Debug`, styles.group );
+		console.groupCollapsed( `%c🪲 Debug`, style.group );
 
 		let location = info.location;
 		if ( info.method ) {
 			location = `${ info.method } ${ location }`;
 		}
-		console.log( `%cLocation%c:\n${ location }`, `${ styles.bold } ${ styles.spacing }`, '' );
+		console.log( `%cLocation%c:\n${ location }`, `${ style.bold } ${ style.spacing }`, '' );
 
 		if ( this.info.namespace in window && this.info.key in window[ this.info.namespace ] ) {
 			const value = window[ this.info.namespace ][ this.info.key ];
 
 			console.log(
 				`%cInitial Data%c:\nwindow.${ key }.value =`,
-				`${ styles.bold } ${ styles.spacing }`,
+				`${ style.bold } ${ style.spacing }`,
 				'',
 				value.value
 			);
 			if ( 'log' in value ) {
 				console.log(
 					`%cPHP Log%c:`,
-					`${ styles.bold } ${ styles.spacing }`,
+					`${ style.bold } ${ style.spacing }`,
 					'',
 					value.log.length > 0 ? value.log : 'No log messages.'
 				);
 			} else {
 				console.log(
 					`%cPHP Log%c: PHP Log is disabled. To enable it, place the debug code in your wp-config.php:\n%cdefine('DATASYNC_DEBUG', true);`,
-					`${ styles.bold } ${ styles.spacing }`,
+					`${ style.bold } ${ style.spacing }`,
 					'',
-					styles.highlight
+					style.highlight
 				);
 			}
 		}
 		if ( info.data !== undefined ) {
 			console.log(
 				`%cRaw Data Received:%c\n`,
-				`${ styles.bold } ${ styles.spacing }`,
+				`${ style.bold } ${ style.spacing }`,
 				'',
 				info.data
 			);
