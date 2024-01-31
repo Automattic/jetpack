@@ -1,6 +1,7 @@
 import { createBlock } from '@wordpress/blocks';
 
 export { default as attributes } from './attributes';
+export { default as supports } from './supports';
 
 export const migrate = ( attrs, innerBlocks ) => {
 	return [
