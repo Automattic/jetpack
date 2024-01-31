@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: added
 
-
+Add standalone mode status for WAF config
