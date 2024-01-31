@@ -107,6 +107,12 @@ class Masterbar {
 	 * @var bool
 	 */
 	private $site_woa;
+	/**
+	 * If the new global navbar should be used;
+	 *
+	 * @var bool
+	 */
+	private $use_new_global_navbar;
 
 	/**
 	 * Constructor
@@ -127,6 +133,8 @@ class Masterbar {
 		$this->is_rtl          = isset( $this->user_data['text_direction'] ) && 'rtl' === $this->user_data['text_direction'];
 		$this->user_locale     = isset( $this->user_data['user_locale'] ) ? $this->user_data['user_locale'] : '';
 		$this->site_woa        = ( new Host() )->is_woa_site();
+		// true for simplicity right now, this chould check user meta or something else...
+		$this->use_new_global_navbar = $this->site_woa && true;
 
 		// Store part of the connected user data as user options so it can be used
 		// by other files of the masterbar module without making another XMLRPC
@@ -269,7 +277,7 @@ class Masterbar {
 
 		$classes = array( 'jetpack-masterbar', trim( $admin_body_classes ) );
 
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || $this->use_new_global_navbar ) {
 			$classes[] = 'wpcom-admin-interface';
 		}
 
@@ -285,9 +293,10 @@ class Masterbar {
 		 * so let's not remove them when the module is active.
 		 * Also, don't remove the styles if the user has opted to use wp-admin.
 		 */
-		if ( ! Jetpack::is_module_active( 'notes' ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+		if ( ! Jetpack::is_module_active( 'notes' ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' && ! $this->use_new_global_navbar ) {
 			wp_dequeue_style( 'admin-bar' );
 		}
+		wp_dequeue_style( 'admin-bar' );
 	}
 
 	/**
@@ -296,7 +305,7 @@ class Masterbar {
 	public function add_styles_and_scripts() {
 		// WoA sites: If wpcom_admin_interface is set to wp-admin, load the wp-admin styles.
 		// These include only styles to enable the "My Sites" and "Reader" links that will be added.
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || $this->use_new_global_navbar ) {
 			$css_file = $this->is_rtl ? 'masterbar-wp-admin-rtl.css' : 'masterbar-wp-admin.css';
 			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/' . $css_file ), array(), JETPACK__VERSION );
 			return;
@@ -371,7 +380,7 @@ class Masterbar {
 			return false;
 		}
 
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || $this->use_new_global_navbar ) {
 			$this->build_wp_admin_interface_bar( $wp_admin_bar );
 			return;
 		}
@@ -403,12 +412,17 @@ class Masterbar {
 		}
 
 		// This disables a submenu from being placed under the My Sites button.
-		add_filter( 'jetpack_load_admin_menu_class', '__return_true' );
+		if ( ! $this->use_new_global_navbar ) {
+			add_filter( 'jetpack_load_admin_menu_class', '__return_true' );
+		}
 
 		// Here we add the My sites and Reader buttons
 		$this->wpcom_adminbar_add_secondary_groups( $bar );
 		$this->add_my_sites_submenu( $bar );
-		$this->add_reader_submenu( $bar );
+
+		if ( ! $this->use_new_global_navbar ) {
+			$this->add_reader_submenu( $bar );
+		}
 
 		foreach ( $nodes as $id => $node ) {
 
@@ -686,15 +700,17 @@ class Masterbar {
 			)
 		);
 
-		$wp_admin_bar->add_group(
-			array(
-				'parent' => 'blog',
-				'id'     => 'blog-secondary',
-				'meta'   => array(
-					'class' => 'ab-sub-secondary',
-				),
-			)
-		);
+		// This seems unused...
+
+		// $wp_admin_bar->add_group(
+		// array(
+		// 'parent' => 'blog',
+		// 'id'     => 'blog-secondary',
+		// 'meta'   => array(
+		// 'class' => 'ab-sub-secondary',
+		// ),
+		// )
+		// );
 
 		$wp_admin_bar->add_group(
 			array(
@@ -946,7 +962,7 @@ class Masterbar {
 
 		$my_site_url   = 'https://wordpress.com/sites/' . $this->primary_site_url;
 		$my_site_title = _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' );
-		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) || $this->use_new_global_navbar ) {
 			$my_site_url   = 'https://wordpress.com/sites';
 			$my_site_title = esc_html__( 'My Sites', 'jetpack' );
 		}
@@ -964,7 +980,7 @@ class Masterbar {
 		);
 
 		/** This filter is documented in modules/masterbar.php */
-		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
+		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) && ! $this->use_new_global_navbar ) {
 			return;
 		}
 
