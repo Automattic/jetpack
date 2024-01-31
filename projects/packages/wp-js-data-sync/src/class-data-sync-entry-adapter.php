@@ -8,6 +8,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parser;
 
 /**
@@ -59,7 +60,18 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 			$value   = $this->entry->get( $default );
 			return $this->parser->parse( $value );
 		}
-		return $this->parser->parse( $this->entry->get() );
+
+		// If WordPress debug is enabled, don't hide exceptions.
+		if( defined('WP_DEBUG') && WP_DEBUG ) {
+			return $this->parser->parse( $this->entry->get() );
+		}
+
+		// If WordPress debug is disabled, attempt to recover by just returning the value
+		try {
+			return $this->parser->parse( $this->entry->get() );
+		} catch( Schema_Error $error ) {
+			return $this->entry->get();
+		}
 	}
 
 	public function set( $value ) {
