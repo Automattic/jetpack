@@ -1,3 +1,9 @@
+const JETPACK_PLUGIN_FILE_NAME = 'jetpack/jetpack.php';
+const JETPACK_PLUGIN_DEV_FILE_NAME = 'jetpack-dev/jetpack.php';
+const JETPACK_SOCIAL_PLUGIN_FILE_NAME = 'jetpack-social/jetpack-social.php';
+const JETPACK_SOCIAL_PLUGIN_DEV_FILE_NAME = 'jetpack-social-dev/jetpack-social.php';
+const JETPACK_SOCIAL_PLUGIN_LOCAL_FILE_NAME = 'social/jetpack-social.php';
+
 const JETPACK_ANTI_SPAM_PRODUCT_IDS = [ 2110, 2111 ];
 
 const JETPACK_BACKUP_PRODUCT_IDS = [
@@ -65,11 +71,35 @@ export function getProductGroup( productId ) {
 }
 
 /**
- * Check if a plugin is active.
+ * Check if the Social plugin is active.
  *
- * @param {string} plugin -- The name of the plugin such as jetpack/jetpack.php, social/jetpack-social.php, backup/jetpack-backup.php.
  * @returns {boolean} -- True or False.
  */
-export function isPluginActive( plugin ) {
+export function isSocialPluginActive() {
+	return (
+		isPluginActive( JETPACK_SOCIAL_PLUGIN_FILE_NAME ) ||
+		isPluginActive( JETPACK_SOCIAL_PLUGIN_DEV_FILE_NAME ) ||
+		isPluginActive( JETPACK_SOCIAL_PLUGIN_LOCAL_FILE_NAME )
+	);
+}
+
+/**
+ * Check if the Jetpack plugin is active.
+ *
+ * @returns {boolean} -- True or False.
+ */
+export function isJetpackPluginActive() {
+	return (
+		isPluginActive( JETPACK_PLUGIN_FILE_NAME ) || isPluginActive( JETPACK_PLUGIN_DEV_FILE_NAME )
+	);
+}
+
+/**
+ * Check if a plugin is active.
+ *
+ * @param {string} plugin -- Plugin filename.
+ * @returns {boolean} -- True or False.
+ */
+function isPluginActive( plugin ) {
 	return window.myJetpackInitialState?.plugins?.[ plugin ]?.active;
 }
