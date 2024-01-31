@@ -76,6 +76,7 @@ const supportedModules = [
 	'publicize',
 	'custom-post-types',
 	'sharedaddy',
+	'sso',
 	'contact-form',
 	'carousel',
 	'related-posts',
