@@ -9,20 +9,19 @@
  * Only add_action if the current screen is the wp-admin/import.php page.
  */
 function import_page_customizations_init() {
-	$screen = get_current_screen();
-	if ( $screen->id === 'import' ) {
+	if ( $GLOBALS['pagenow'] === 'import.php' ) {
 		add_action( 'admin_notices', 'import_admin_banner' );
 		add_action( 'admin_enqueue_scripts', 'import_admin_banner_css' );
 	}
 }
-add_action( 'current_screen', 'import_page_customizations_init' );
+add_action( 'admin_init', 'import_page_customizations_init' );
 
 /**
  * Displays a banner on the wp-admin/import.php page that links to the Calypso importer.
  */
 function import_admin_banner() {
 	require_once __DIR__ . '/../../utils.php';
-	$import_url = 'https://wordpress.com/setup/import-focused/import?siteSlug=' . wpcom_get_site_slug();
+	$import_url = '/setup/import-focused/import?siteSlug=' . wpcom_get_site_slug();
 	echo '<div id="wpcom-import-banner" class="notice">';
 	echo '<p>Import your content with WordPress.com’s guided importer. Designed for seamless integration from multiple platforms.</p>';
 	echo '<a href="' . esc_url( $import_url ) . '" class="button">Start Importing</a>';
