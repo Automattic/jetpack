@@ -21,7 +21,7 @@ add_action( 'admin_init', 'import_page_customizations_init' );
  */
 function import_admin_banner() {
 	require_once __DIR__ . '/../../utils.php';
-	$import_url = '/setup/import-focused/import?siteSlug=' . wpcom_get_site_slug();
+	$import_url = 'https://wordpress.com/setup/import-focused/import?siteSlug=' . wpcom_get_site_slug();
 	echo '<div id="wpcom-import-banner" class="notice">';
 	echo '<p>Import your content with WordPress.com’s guided importer. Designed for seamless integration from multiple platforms.</p>';
 	echo '<a href="' . esc_url( $import_url ) . '" class="button">Start Importing</a>';
