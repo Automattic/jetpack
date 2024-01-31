@@ -53,6 +53,11 @@ function render_subscriber_view_block( $attributes, $content, $block = null ) {
 	if ( $visitor_has_access ) {
 		Jetpack_Gutenberg::load_styles_as_required( SUBSCRIBER_VIEW_NAME );
 
+		// Prevent batcache to cache premium content
+		if ( function_exists( 'batcache_cancel' ) ) {
+			batcache_cancel();
+		}
+
 		// The viewer has access to premium content, so the viewer can see the subscriber view content.
 		return $content;
 	}
