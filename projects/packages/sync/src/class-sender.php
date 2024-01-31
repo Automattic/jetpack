@@ -34,6 +34,15 @@ class Sender {
 	const TEMP_SYNC_DISABLE_TRANSIENT_NAME = 'jetpack_disable_sync_sending';
 
 	/**
+	 * Expiry of the transient responsible for temprorarily disabling Sync sending during Pulls.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const TEMP_SYNC_DISABLE_TRANSIENT_EXPIRY = MINUTE_IN_SECONDS;
+
+	/**
 	 * Sync timeout after a WPCOM error.
 	 *
 	 * @access public

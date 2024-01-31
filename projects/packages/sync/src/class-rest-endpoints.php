@@ -622,10 +622,16 @@ class REST_Endpoints {
 			return rest_ensure_response( $sender->immediate_full_sync_pull( $number_of_items ) );
 		}
 
+		$response = $sender->queue_pull( $queue_name, $number_of_items, $args );
 		// Disable sending while pulling.
-		set_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME, time(), HOUR_IN_SECONDS );
+		if ( ! is_wp_error( $response ) ) {
+			set_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME, time(), Sender::TEMP_SYNC_DISABLE_TRANSIENT_EXPIRY );
+		} elseif ( 'queue_size' === $response->get_error_code() ) {
+			// Re-enable sending if the queue is empty.
+			delete_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME );
+		}
 
-		return rest_ensure_response( $sender->queue_pull( $queue_name, $number_of_items, $args ) );
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -697,9 +703,6 @@ class REST_Endpoints {
 
 		$buffer   = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
 		$response = $queue->close( $buffer, $request_body['item_ids'] );
-
-		// Re-enable sending in case it was disabled while pulling.
-		delete_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME );
 
 		// Perform another checkout?
 		if ( isset( $request_body['continue'] ) && $request_body['continue'] ) {
