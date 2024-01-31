@@ -38,7 +38,7 @@ function import_admin_banner() {
 		</div>',
 		esc_html__( 'Import your content with WordPress.com’s guided importer. Designed for seamless integration from multiple platforms.', 'jetpack-mu-wpcom' ),
 		esc_url( $import_url ),
-		esc_html__( 'Start Importing', 'jetpack-mu-wpcom' )
+		esc_html__( 'Get started', 'jetpack-mu-wpcom' )
 	);
 
 	echo wp_kses_post( $banner_content );
