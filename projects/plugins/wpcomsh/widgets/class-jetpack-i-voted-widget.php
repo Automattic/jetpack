@@ -39,7 +39,8 @@ class Jetpack_I_Voted_Widget extends WP_Widget {
 	function widget( $args, $instance ) {
 		echo $args['before_widget'];
 
-		$title = apply_filters( 'widget_title', $instance['title'] );
+		$title = isset( $instance['title'] ) ? $instance['title'] : null;
+		$title = apply_filters( 'widget_title', $title );
 
 		if ( $title ) {
 			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
