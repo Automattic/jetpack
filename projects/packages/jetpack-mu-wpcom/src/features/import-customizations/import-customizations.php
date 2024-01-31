@@ -23,12 +23,23 @@ add_action( 'admin_init', 'import_page_customizations_init' );
  * Displays a banner on the wp-admin/import.php page that links to the Calypso importer.
  */
 function import_admin_banner() {
-	require_once __DIR__ . '/../../utils.php';
+	if ( ! function_exists( 'wpcom_get_site_slug' ) ) {
+		require_once __DIR__ . '/../../utils.php';
+	}
+
 	$import_url = 'https://wordpress.com/setup/import-focused/import?siteSlug=' . wpcom_get_site_slug();
-	echo '<div id="wpcom-import-banner" class="notice">';
-	echo '<p>Import your content with WordPress.com’s guided importer. Designed for seamless integration from multiple platforms.</p>';
-	echo '<a href="' . esc_url( $import_url ) . '" class="button">Start Importing</a>';
-	echo '</div>';
+
+	$banner_content = sprintf(
+		'<div id="wpcom-import-banner" class="notice">
+			<p>%s</p>
+			<a href="%s" class="button">%s</a>
+		</div>',
+		esc_html__( 'Import your content with WordPress.com’s guided importer. Designed for seamless integration from multiple platforms.', 'jetpack-mu-wpcom' ),
+		esc_url( $import_url ),
+		esc_html__( 'Start Importing', 'jetpack-mu-wpcom' )
+	);
+
+	echo wp_kses_post( $banner_content );
 }
 
 /**
