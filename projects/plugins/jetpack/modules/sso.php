@@ -202,7 +202,15 @@ class Jetpack_SSO {
 			wp_enqueue_style( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.css', JETPACK__PLUGIN_FILE ), array( 'login', 'genericons' ), JETPACK__VERSION );
 		}
 
-		wp_enqueue_script( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, false );
+		Assets::register_script(
+			'jetpack-sso-login',
+			'_inc/build/sso/jetpack-sso-login.js',
+			JETPACK__PLUGIN_FILE,
+			array(
+				'enqueue'      => true,
+				'dependencies' => array( 'jquery' ),
+			)
+		);
 	}
 
 	/**
