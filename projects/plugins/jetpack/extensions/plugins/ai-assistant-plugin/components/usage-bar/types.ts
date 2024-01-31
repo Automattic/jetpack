@@ -24,4 +24,5 @@ export type UsageControlProps = {
 	planType: PlanType;
 	daysUntilReset: number;
 	requireUpgrade: boolean;
+	loading?: boolean;
 };
