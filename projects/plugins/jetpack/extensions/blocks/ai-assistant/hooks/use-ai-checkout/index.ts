@@ -18,8 +18,8 @@ const getWPComRedirectToURL = () => {
 		// When there is an explicit post, use it as the destination
 		return `https://wordpress.com/post/${ site }/${ searchParams.get( 'post' ) }`;
 	}
-	// When there is no explicit post, use the post list as the destination
-	return `https://wordpress.com/posts/${ site }`;
+	// When there is no explicit post, or the site is not Simple, use the home page as the destination
+	return `https://wordpress.com/home/${ site }`;
 };
 
 export default function useAICheckout(): {
