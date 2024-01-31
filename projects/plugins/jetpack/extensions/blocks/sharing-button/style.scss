@@ -17,6 +17,8 @@
 	text-decoration: none;
 	height: auto;
 	align-items: center;
+	color: inherit;
+
 
 	& svg {
 		width: 1.5em;
@@ -40,6 +42,7 @@
 		width: auto;
 		height: auto;
 		margin-bottom: 0;
+		color: #fff;
 
 		&.share-x { background: #000; }
 		&.share-print { background: #c5c2c2; }

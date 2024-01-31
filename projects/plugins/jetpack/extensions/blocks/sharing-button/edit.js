@@ -21,10 +21,8 @@ const SharingButtonEdit = ( { attributes, context } ) => {
 		className: 'jetpack-sharing-button__list-item',
 	} );
 
-	const defaultIconColor = styleType === 'icon' ? '#fff' : '#000';
-
 	const buttonStyle = {
-		color: iconColorValue || defaultIconColor,
+		color: iconColorValue,
 		backgroundColor: iconBackgroundColorValue,
 	};
 
