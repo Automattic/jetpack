@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dotcom patterns: remove theme support for core patterns and unregister Jetpack form patterns
