@@ -23,7 +23,7 @@ const SharingButtonEdit = ( { attributes, context } ) => {
 
 	const defaultIconColor = styleType === 'icon' ? '#fff' : '#000';
 
-	const buttonStype = {
+	const buttonStyle = {
 		color: iconColorValue || defaultIconColor,
 		backgroundColor: iconBackgroundColorValue,
 	};
@@ -31,7 +31,7 @@ const SharingButtonEdit = ( { attributes, context } ) => {
 	return (
 		<>
 			<li { ...blockProps }>
-				<Button className={ sharingButtonClass } style={ buttonStype }>
+				<Button className={ sharingButtonClass } style={ buttonStyle }>
 					<SocialIcon icon={ service } size={ 24 } />
 					<span className={ 'jetpack-sharing-button__service-label' }>{ socialLinkLabel }</span>
 				</Button>
