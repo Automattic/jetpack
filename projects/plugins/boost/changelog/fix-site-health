@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Site Health: Fixed showing critical CSS issue in site-health if module is disabled

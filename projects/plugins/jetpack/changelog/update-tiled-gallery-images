@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+tiled gallery: carousel-image-args.php: Fix PHP warnings from nested arrays in image meta
