@@ -55,6 +55,10 @@ export class DataSyncError extends Error {
 			`🔄 DataSync Debug: %c${ key }`,
 			'color: #dc362e; font-weight: normal;'
 		);
+
+		// Styles
+		const highlightBox = `font-style: italic; solid #e9e9e3; line-height: 1.8;`;
+
 		console.error( this.message );
 		if ( info.error instanceof z.ZodError ) {
 			const msg: string[] = [];
@@ -86,11 +90,11 @@ export class DataSyncError extends Error {
 					if ( issuePath ) {
 						add( `.${ issuePath }`, 'font-weight: bold;' );
 					}
-					add( `\n` );
-					add(
-						`${ issueMessage }`,
-						'font-style: italic; border-left: 3px solid #e9e9e3; margin: 3px 0px 3px 7px; background-color: #f9f9f6; padding: 7px;'
-					);
+
+					add( '\n' );
+					add( '⇢', 'margin-left: 5px; margin-right: 5px; font-size: 15px;' );
+					add( `${ issueMessage }`, highlightBox );
+					add( `\n\n` );
 					console.log( msg.join( '' ), ...styles );
 					msg.length = 0;
 					styles.length = 0;
@@ -132,7 +136,7 @@ export class DataSyncError extends Error {
 					`%cPHP Log%c: PHP Log is disabled. To enable it, place the debug code in your wp-config.php:\n%cdefine( 'DATASYNC_DEBUG', true );`,
 					'font-weight: bold; margin-top: 5px; margin-bottom: 2px;',
 					'',
-					'font-style: italic; border-left: 3px solid #e9e9e3; margin: 3px 0px 3px 7px; background-color: #f9f9f6; padding: 7px;'
+					highlightBox
 				);
 			}
 		}
