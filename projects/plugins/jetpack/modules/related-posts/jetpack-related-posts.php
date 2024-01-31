@@ -458,17 +458,6 @@ EOT;
 			return $content;
 		}
 
-		$headline = '';
-
-		if ( isset( $block ) ) {
-			foreach ( $block->inner_blocks as $inner_block ) {
-				if ( 'core/heading' === $inner_block->name && ! empty( trim( wp_strip_all_tags( $inner_block->inner_html ) ) ) ) {
-					$headline = $inner_block->inner_html;
-					break;
-				}
-			}
-		}
-
 		$wrapper_attributes = array();
 		$post_id            = get_the_ID();
 		$block_attributes   = array(
@@ -504,27 +493,35 @@ EOT;
 			$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 		}
 
-		$headline_id     = 'relatedposts-headline-' . uniqid();
-		$headline_markup = empty( $headline ) ? '' : $headline;
+		$headline_markup = '';
+
+		if ( isset( $block ) ) {
+			foreach ( $block->inner_blocks as $inner_block ) {
+				if ( 'core/heading' === $inner_block->name && ! empty( trim( wp_strip_all_tags( $inner_block->inner_html ) ) ) ) {
+					$headline_markup = $inner_block->inner_html;
+					break;
+				}
+			}
+		}
 
 		if ( empty( $headline_markup ) && $block_attributes['show_headline'] === true ) {
 			$headline = $block_attributes['headline'];
 			if ( strlen( trim( $headline ) ) !== 0 ) {
 				$headline_markup = sprintf(
-					'<h3 id="%2$s" class="jp-relatedposts-headline">%1$s</h3>',
-					esc_html( $headline ),
-					esc_attr( $headline_id )
+					'<h3 class="jp-relatedposts-headline">%1$s</h3>',
+					esc_html( $headline )
 				);
 			}
 		}
+
 		$display_markup = sprintf(
-			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s" %6$s>%4$s%5$s</nav>',
+			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s" aria-label="%6$s">%4$s%5$s</nav>',
 			! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
 			! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
 			esc_attr( $block_attributes['layout'] ),
 			$headline_markup,
 			$list_markup,
-			empty( $headline_markup ) ? 'aria-label="' . esc_attr( __( 'Related Posts', 'jetpack' ) ) . '"' : 'aria-labelledby="' . esc_attr( $headline_id ) . '"'
+			empty( $headline_markup ) ? esc_attr( __( 'Related Posts', 'jetpack' ) ) : esc_attr( wp_strip_all_tags( $headline_markup ) )
 		);
 
 		/**
