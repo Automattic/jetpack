@@ -127,7 +127,7 @@ On Atomic Sites: Sync the Verbum code changes to your sandbox and sandbox `jetpa
 
 2. Run `npx playwright install` to install the browsers needed.
 
-The tests live in /tests folder. To run them, you can run `npm run e2e-tests`.
+The tests live in /tests folder. To run them, you can run `pnpm run e2e-tests`.
 
 If you want to watch the tests unfold, you can run `npx playwright test --ui --config src/features/verbum-comments/playwright.config.ts`.
 
