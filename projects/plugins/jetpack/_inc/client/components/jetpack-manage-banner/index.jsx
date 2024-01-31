@@ -18,15 +18,15 @@ const JetpackManageBanner = props => {
 	);
 
 	const handleLearnMoreClick = useCallback( () => {
-		trackEvent( 'jp-manage-learn-more-click' );
+		trackEvent( 'jp-manage-learn-more' );
 	}, [ trackEvent ] );
 
 	const handleManageSitesClick = useCallback( () => {
-		trackEvent( 'jp-manage-dashboard-sites-click' );
+		trackEvent( 'jp-manage-dashboard-sites' );
 	}, [ trackEvent ] );
 
 	const handleSignUpForFreeClick = useCallback( () => {
-		trackEvent( 'jp-manage-sign-up-click' );
+		trackEvent( 'jp-manage-sign-up' );
 	}, [ trackEvent ] );
 
 	// Set up the secondary CTA
