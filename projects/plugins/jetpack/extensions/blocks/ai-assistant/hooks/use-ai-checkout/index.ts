@@ -14,7 +14,7 @@ const getWPComRedirectToURL = () => {
 	const searchParams = new URLSearchParams( window.location.search );
 	const site = getSiteFragment();
 
-	if ( searchParams.has( 'post' ) ) {
+	if ( isSimpleSite() && searchParams.has( 'post' ) ) {
 		// When there is an explicit post, use it as the destination
 		return `https://wordpress.com/post/${ site }/${ searchParams.get( 'post' ) }`;
 	}
