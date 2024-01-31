@@ -20,6 +20,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		// Test with an invalid value
 		$parsed = $string->parse( null );
 		$this->assertSame( 'default_value', $parsed );
+		$this->assertSame( 'default_value', $string->get_fallback() );
 	}
 
 	public function test_context_on_fallback() {
@@ -78,6 +79,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		// Test with an invald value.
 		$parsed = $test_schema->parse( array( 'child' => null ) );
 		$this->assertSame( $expected_result, $parsed );
+		$this->assertSame( $expected_result, $test_schema->get_fallback() );
 	}
 
 	/**
@@ -89,6 +91,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 	 */
 	public function test_boolean_fallback() {
 		$true = Schema::as_boolean()->fallback( true );
+		$this->assertSame( true, $true->get_fallback() );
 
 		$parsed = $true->parse( true );
 		$this->assertSame( true, $parsed );
@@ -191,7 +194,6 @@ class Test_Integration_Fallback_Values extends TestCase {
 			'one'          => 100,
 			'array_of_two' => array( 200 ),
 		);
-
 		$this->assertSame( $valid_array, $schema->parse( $valid_array ) );
 		$this->assertSame( $valid_array, $schema_no_fallbacks->parse( $valid_array ) );
 

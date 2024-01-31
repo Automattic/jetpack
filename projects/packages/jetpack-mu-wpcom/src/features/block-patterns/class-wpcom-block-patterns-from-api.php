@@ -116,6 +116,10 @@ class Wpcom_Block_Patterns_From_Api {
 					$viewport_width = $viewport_width < 320 ? 320 : $viewport_width;
 					$pattern_name   = self::PATTERN_NAMESPACE . $pattern['name'];
 					$block_types    = $this->utils->maybe_get_pattern_block_types_from_pattern_meta( $pattern );
+					if ( empty( $block_types ) ) {
+						// For wp_block patterns because don't use pattern meta for block types.
+						$block_types = $this->utils->get_block_types_from_categories( $pattern );
+					}
 
 					$results[ $pattern_name ] = register_block_pattern(
 						$pattern_name,
@@ -180,7 +184,7 @@ class Wpcom_Block_Patterns_From_Api {
 		if ( $enable_testing_v2_patterns || false === $block_patterns || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE ) ) {
 			if ( $enable_testing_v2_patterns ) {
 				$request_params = array(
-					'site'      => 'assemblerv2patterns.wordpress.com',
+					'site'      => 'dotcompatterns.wordpress.com',
 					'post_type' => 'wp_block',
 				);
 			}

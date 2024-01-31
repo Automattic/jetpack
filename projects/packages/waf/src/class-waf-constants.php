@@ -61,9 +61,10 @@ class Waf_Constants {
 	 */
 	public static function define_killswitch() {
 		if ( ! defined( 'DISABLE_JETPACK_WAF' ) ) {
-			$is_wpcom  = defined( 'IS_WPCOM' ) && IS_WPCOM;
-			$is_atomic = ( new Host() )->is_atomic_platform();
-			define( 'DISABLE_JETPACK_WAF', $is_wpcom || $is_atomic );
+			$is_wpcom        = defined( 'IS_WPCOM' ) && IS_WPCOM;
+			$is_atomic       = ( new Host() )->is_atomic_platform();
+			$is_atomic_on_jn = defined( 'IS_ATOMIC_JN' ) ?? IS_ATOMIC_JN;
+			define( 'DISABLE_JETPACK_WAF', $is_wpcom || ( $is_atomic && ! $is_atomic_on_jn ) );
 		}
 	}
 
