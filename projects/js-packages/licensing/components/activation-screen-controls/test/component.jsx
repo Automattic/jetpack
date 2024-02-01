@@ -12,6 +12,7 @@ describe( 'ActivationScreenControls', () => {
 			license: 'test',
 			onLicenseChange: () => null,
 			siteUrl: 'jetpack.com',
+			activePluginSlugs: 'jetpack',
 		};
 
 		it( 'correct license is shown', () => {

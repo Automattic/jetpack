@@ -64,6 +64,7 @@ const ActivationScreen = props => {
 		siteRawUrl,
 		startingLicense,
 		displayName = '',
+		activePluginSlugs,
 	} = props;
 
 	const [ license, setLicense ] = useState( startingLicense ?? '' );
@@ -137,6 +138,7 @@ const ActivationScreen = props => {
 				productId={ activatedProduct }
 				siteAdminUrl={ siteAdminUrl }
 				currentRecommendationsStep={ currentRecommendationsStep }
+				activePluginSlugs={ activePluginSlugs }
 			/>
 			<ActivationScreenIllustration imageUrl={ successImage } showSupportLink={ false } />
 		</div>
@@ -178,6 +180,7 @@ ActivationScreen.propTypes = {
 	siteRawUrl: PropTypes.string.isRequired,
 	startingLicense: PropTypes.string,
 	displayName: PropTypes.string,
+	activePluginSlugs: PropTypes.array,
 };
 
 export default ActivationScreen;

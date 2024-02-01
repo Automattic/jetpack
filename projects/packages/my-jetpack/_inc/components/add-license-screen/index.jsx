@@ -44,6 +44,8 @@ export default function AddLicenseScreen() {
 		setHasActivatedLicense( true );
 	}, [] );
 
+	const activePluginSlugs = window?.myJetpackInitialState?.activePluginSlugs;
+
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -59,6 +61,7 @@ export default function AddLicenseScreen() {
 						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
 						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
 						displayName={ displayName }
+						activePluginSlugs={ activePluginSlugs }
 					/>
 				</Col>
 			</Container>

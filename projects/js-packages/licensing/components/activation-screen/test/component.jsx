@@ -12,6 +12,7 @@ describe( 'ActivationScreen', () => {
 		siteAdminUrl: 'jetpack.com/wp-admin',
 		siteRawUrl: 'jetpack.com',
 		successImage: '/success.png',
+		activePluginSlugs: [ 'jetpack' ],
 	};
 
 	const apiStub = jest.spyOn( restApi, 'attachLicenses' ).mockReturnValue();

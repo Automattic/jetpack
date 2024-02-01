@@ -590,6 +590,7 @@ class Main extends React.Component {
 				if ( this.props.isLinked && this.props.isConnectionOwner ) {
 					pageComponent = (
 						<ActivationScreen
+							activePluginSlugs={ [ 'jetpack' ] }
 							siteRawUrl={ this.props.siteRawUrl }
 							onActivationSuccess={ this.onLicenseActivationSuccess }
 							siteAdminUrl={ this.props.siteAdminUrl }

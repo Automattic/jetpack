@@ -7,6 +7,7 @@ describe( 'ActivationSuccessInfo', () => {
 		productId: 2100,
 		siteAdminUrl: 'http://test-site.jurassic.ninja/wp-admin',
 		siteRawUrl: 'http://test-site.jurassic.ninja',
+		activePluginSlugs: [ 'jetpack' ],
 	};
 
 	describe( 'Render the ActivationSuccessInfo component', () => {

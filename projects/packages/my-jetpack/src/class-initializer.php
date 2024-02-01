@@ -189,6 +189,7 @@ class Initializer {
 					'items' => array(),
 				),
 				'plugins'               => Plugins_Installer::get_plugins(),
+				'activePluginSlugs'     => static::get_active_plugin_slugs(),
 				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
 				'myJetpackCheckoutUri'  => 'admin.php?page=my-jetpack',
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
@@ -286,6 +287,36 @@ class Initializer {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Returns an array of plugin slugs.
+	 *
+	 * @return array
+	 */
+	public static function get_active_plugin_slugs() {
+		$plugins = Plugins_Installer::get_plugins();
+
+		$active_plugin_slugs = array_values(
+			array_filter(
+				array_keys( $plugins ),
+				function ( $plugin ) use( $plugins ) {
+					return $plugins[ $plugin ]['active'];
+				}
+			)
+		);
+
+		return array_map(
+			function ( $plugin_file_name ) {
+				$parts = explode( '/', $plugin_file_name );
+				if ( empty( $parts ) ) {
+					return '';
+				}
+				// Return the last segment of the filepath without the PHP extension
+				return str_replace( '.php', '', $parts[ count( $parts ) - 1 ] );
+			},
+			$active_plugin_slugs
+		);
 	}
 
 	/**
