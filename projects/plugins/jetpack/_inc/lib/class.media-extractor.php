@@ -294,12 +294,14 @@ class Jetpack_Media_Meta_Extractor {
 						}
 					}
 
-					// @todo Check unique before adding
-					$links[] = array(
+					$link = array(
 						'url'           => $link_all_but_proto,
 						'host_reversed' => $host_reversed,
 						'host'          => $url['host'],
 					);
+					if ( ! in_array( $link, $links, true ) ) {
+						$links[] = $link;
+					}
 				}
 			}
 
