@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Fix issue where most products are not installing their standalone product upon purchase
