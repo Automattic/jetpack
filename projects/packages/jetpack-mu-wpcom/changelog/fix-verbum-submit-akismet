@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Esnsure the submit event is fired by the comments form
