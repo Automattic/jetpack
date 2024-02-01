@@ -424,7 +424,7 @@ class Jetpack_SSO {
 			'role'              => $role,
 		);
 
-		if ( $valid_nonce && isset( $_POST['custom_email_message'] ) ) {
+		if ( $valid_nonce && isset( $_POST['custom_email_message'] ) && strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) > 0 ) ) {
 			$new_user_request['message'] = sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) );
 		}
 
