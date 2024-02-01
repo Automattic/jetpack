@@ -2187,7 +2187,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/search",
-				"reference": "426240f92e4c83d9d82b815aa64a0ca2b97932e0"
+				"reference": "b21497d346a5032e99bf9786ed70469543cf1e73"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2215,7 +2215,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.42.x-dev"
+					"dev-trunk": "0.43.x-dev"
 				},
 				"version-constants": {
 					"::VERSION": "src/class-package.php"
@@ -2456,7 +2456,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "4177bb100fe6147574606715814e4254840459b2"
+				"reference": "881ee276f976f70720788b61cf3bde923ec8008d"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2488,7 +2488,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.4.x-dev"
+					"dev-trunk": "2.5.x-dev"
 				}
 			},
 			"autoload": {
@@ -2524,7 +2524,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/videopress",
-				"reference": "ccaf247242c5ee95ce5ac179ef65b402ed56da49"
+				"reference": "bcc9957ec6dfe80f5f59072218bd3a15df0bfedd"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2550,7 +2550,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.22.x-dev"
+					"dev-trunk": "0.23.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-package-version.php"
@@ -2603,7 +2603,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/waf",
-				"reference": "1e38ee4c6afc2a82ebf1581bd0acd417f72cbd94"
+				"reference": "4362023301be15998e60f2caca661f86c45c70f9"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2630,7 +2630,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.12.x-dev"
+					"dev-trunk": "0.13.x-dev"
 				}
 			},
 			"autoload": {

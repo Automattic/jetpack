@@ -56,4 +56,11 @@
 			fill: $jetpack-green;
 		}
 	}
+
+	.regenerate-button:global(.components-button) {
+		&:disabled {
+			background: transparent;
+			opacity: .5;
+		}
+	}
 }
