@@ -121,9 +121,14 @@ const recommendationsRoutes = [
 	'/recommendations/welcome-videopress',
 	'/recommendations/welcome-search',
 	'/recommendations/welcome-scan',
+	'/recommendations/welcome-social-basic',
+	'/recommendations/welcome-social-advanced',
+	'/recommendations/welcome-social-image-generator',
 	'/recommendations/welcome-golden-token',
 	'/recommendations/backup-activated',
 	'/recommendations/scan-activated',
+	'/recommendations/unlimited-sharing-activated',
+	'/recommendations/social-advanced-activated',
 	'/recommendations/antispam-activated',
 	'/recommendations/videopress-activated',
 	'/recommendations/search-activated',
@@ -624,9 +629,14 @@ class Main extends React.Component {
 			case '/recommendations/welcome-videopress':
 			case '/recommendations/welcome-search':
 			case '/recommendations/welcome-scan':
+			case '/recommendations/welcome-social-basic':
+			case '/recommendations/welcome-social-advanced':
 			case '/recommendations/welcome-golden-token':
 			case '/recommendations/backup-activated':
 			case '/recommendations/scan-activated':
+			case '/recommendations/unlimited-sharing-activated':
+			case '/recommendations/social-advanced-activated':
+			case '/recommendations/welcome-social-image-generator':
 			case '/recommendations/antispam-activated':
 			case '/recommendations/videopress-activated':
 			case '/recommendations/search-activated':
