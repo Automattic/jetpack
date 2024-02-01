@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Sharing: update block markup to simplify output and escape as late as possible.
