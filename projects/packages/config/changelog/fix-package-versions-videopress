@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load Waf the last to allow other packages to properly load. 

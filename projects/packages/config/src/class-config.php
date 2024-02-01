@@ -144,11 +144,6 @@ class Config {
 				&& $this->ensure_feature( 'wordads' );
 		}
 
-		if ( $this->config['waf'] ) {
-			$this->ensure_class( 'Automattic\Jetpack\Waf\Waf_Initializer' )
-				&& $this->ensure_feature( 'waf' );
-		}
-
 		if ( $this->config['videopress'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\VideoPress\Initializer' ) && $this->ensure_feature( 'videopress' );
 		}
@@ -166,6 +161,11 @@ class Config {
 		if ( $this->config['import'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Import\Main' )
 				&& $this->ensure_feature( 'import' );
+		}
+
+		if ( $this->config['waf'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Waf\Waf_Initializer' )
+			&& $this->ensure_feature( 'waf' );
 		}
 	}
 
