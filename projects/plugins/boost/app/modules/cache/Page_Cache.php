@@ -15,11 +15,6 @@ class Page_Cache implements Pluggable, Is_Always_On {
 
 	private $removal_errors = array();
 
-	public function __construct() {
-		register_deactivation_hook( JETPACK_BOOST_PATH, array( $this, 'deactivate' ) );
-		register_uninstall_hook( JETPACK_BOOST_PATH, array( $this, 'uninstall' ) );
-	}
-
 	/*
 	 * @var array - The settings for the page cache.
 	 */
@@ -27,6 +22,8 @@ class Page_Cache implements Pluggable, Is_Always_On {
 
 	public function __construct() {
 		$this->settings = Boost_Cache_Settings::get_instance();
+		register_deactivation_hook( JETPACK_BOOST_PATH, array( $this, 'deactivate' ) );
+		register_uninstall_hook( JETPACK_BOOST_PATH, 'Page_Cache::uninstall' );
 	}
 
 	/*
@@ -145,9 +142,9 @@ define( \'WP_CACHE\', true );',
 	 * Removes the boost-cache directory, removing all cached files and the config file.
 	 * Fired when the plugin is uninstalled.
 	 */
-	public function uninstall() {
-		$this->delete_advanced_cache();
-		$this->delete_wp_cache_constant();
+	public static function uninstall() {
+		self::delete_advanced_cache();
+		self::delete_wp_cache_constant();
 
 		$result = Boost_Cache_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache' );
 		if ( is_wp_error( $result ) ) {
@@ -160,7 +157,7 @@ define( \'WP_CACHE\', true );',
 	/*
 	 * Deletes the file advanced-cache.php if it exists.
 	 */
-	public function delete_advanced_cache() {
+	public static function delete_advanced_cache() {
 		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
 
 		if ( ! file_exists( $advanced_cache_filename ) ) {
@@ -170,11 +167,7 @@ define( \'WP_CACHE\', true );',
 		$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		if ( strpos( $content, 'Boost Cache Plugin 0.1' ) !== false ) {
 			wp_delete_file( $advanced_cache_filename );
-			if ( file_exists( $advanced_cache_filename ) ) {
-				$this->removal_errors[] = 'Could not delete advanced-cache.php';
-			}
-		} else {
-			$this->removal_errors[] = 'wp-content/advanced-cache.php did not belong to Jetpack Boost';
+
 		}
 	}
 
@@ -182,7 +175,7 @@ define( \'WP_CACHE\', true );',
 	 * Deletes the WP_CACHE define from wp-config.php
 	 * @return WP_Error if an error occurred.
 	 */
-	public function delete_wp_cache_constant() {
+	public static function delete_wp_cache_constant() {
 		$lines = file( ABSPATH . 'wp-config.php' );
 		$found = false;
 		foreach ( $lines as $key => $line ) {
@@ -195,10 +188,7 @@ define( \'WP_CACHE\', true );',
 			return;
 		}
 		$content = implode( '', $lines );
-		$result  = file_put_contents( ABSPATH . 'wp-config.php', $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		if ( $result === false ) {
-			$this->removal_errors[] = 'Could not write to wp-config.php';
-		}
+		file_put_contents( ABSPATH . 'wp-config.php', $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 	}
 
 	public static function is_available() {
