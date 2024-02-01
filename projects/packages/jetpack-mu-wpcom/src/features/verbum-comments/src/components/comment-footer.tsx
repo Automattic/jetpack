@@ -5,10 +5,9 @@ import { SettingsButton } from './settings-button';
 
 interface CommentFooterProps {
 	toggleTray: ( event: MouseEvent ) => void;
-	handleOnSubmitClick: ( event: MouseEvent ) => void;
 }
 
-export const CommentFooter = ( { toggleTray, handleOnSubmitClick }: CommentFooterProps ) => {
+export const CommentFooter = ( { toggleTray }: CommentFooterProps ) => {
 	return (
 		<div
 			className={ classNames( 'verbum-footer', {
@@ -30,7 +29,6 @@ export const CommentFooter = ( { toggleTray, handleOnSubmitClick }: CommentFoote
 					} ) }
 					disabled={ isReplyDisabled.value }
 					aria-disabled={ isReplyDisabled.value }
-					onClick={ handleOnSubmitClick }
 				>
 					{ translate( 'Reply' ) }
 				</button>
