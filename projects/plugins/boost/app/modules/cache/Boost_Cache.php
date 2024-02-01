@@ -41,6 +41,28 @@ abstract class Boost_Cache {
 	}
 
 	/*
+	 * Returns true if the current request has a fatal error.
+	 *
+	 * @return bool
+	 */
+	private function is_fatal_error() {
+		$error = error_get_last();
+		if ( $error === null ) {
+			return false;
+		}
+
+		$fatal_errors = array(
+			E_ERROR,
+			E_PARSE,
+			E_CORE_ERROR,
+			E_COMPILE_ERROR,
+			E_USER_ERROR,
+		);
+
+		return in_array( $error['type'], $fatal_errors, true );
+	}
+
+	/*
 	 * Returns true if the request is cacheable.
 	 *
 	 * If a request is in the backend, or is a POST request, or is not an
@@ -51,6 +73,10 @@ abstract class Boost_Cache {
 	 */
 	public function is_cacheable() {
 		if ( ! apply_filters( 'boost_cache_cacheable', $this->request_uri ) ) {
+			return false;
+		}
+
+		if ( $this->is_fatal_error() ) {
 			return false;
 		}
 

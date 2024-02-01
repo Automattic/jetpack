@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Chaged get_client() visibility so that older versions of boost do not break

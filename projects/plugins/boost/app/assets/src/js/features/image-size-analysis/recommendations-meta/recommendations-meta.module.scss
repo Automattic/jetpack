@@ -14,7 +14,6 @@
 
 	button {
 		svg {
-			margin: 4px 4px 2px 0;
 			fill: $jetpack-green;
 		}
 
@@ -32,12 +31,14 @@
 }
 
 .has-issues {
+	display: flex;
+	align-items: center;
 	color: var(--jp-orange-20);
 
 	svg {
-		width: 22px;
-		height: 22px;
-		top: 4px;
+		width: 1.2em;
+		height: 1.2em;
+		margin-right: 0.5em;
 		position: relative;
 	}
 }

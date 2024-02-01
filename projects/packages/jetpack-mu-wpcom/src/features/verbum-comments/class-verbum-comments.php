@@ -108,8 +108,6 @@ class Verbum_Comments {
 			return;
 		}
 
-		$version_js       = filemtime( __DIR__ . '/verbum-comments.js' );
-		$version_css      = filemtime( __DIR__ . '/verbum-comments.css' );
 		$connect_url      = site_url( '/public.api/connect/?action=request' );
 		$primary_redirect = get_primary_redirect();
 
@@ -117,20 +115,18 @@ class Verbum_Comments {
 			$connect_url = add_query_arg( 'domain', $primary_redirect, $connect_url );
 		}
 
-		// Enqueue styles
-		wp_enqueue_style( 'verbum', plugins_url( '/verbum-comments.css', __FILE__ ), array(), $version_css );
-
-		// Enqueue scripts
-		wp_register_script(
+		// Enqueue styles and scripts
+		Assets::register_script(
 			'verbum',
-			plugins_url( 'verbum-comments.js', __FILE__ ),
-			array(),
-			$version_js,
+			'../../build/verbum-comments/verbum-comments.js',
+			__FILE__,
 			array(
 				'strategy'  => 'defer',
 				'in_footer' => true,
 			)
 		);
+
+		wp_enqueue_style( 'verbum' );
 		\WP_Enqueue_Dynamic_Script::enqueue_script( 'verbum' );
 
 		// Enqueue settings separately since the main script is dynamic.
@@ -139,7 +135,7 @@ class Verbum_Comments {
 			'verbum-settings',
 			false,
 			array(),
-			$version_js,
+			null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- No script, so no version needed.
 			array(
 				'strategy'  => 'defer',
 				'in_footer' => true,
@@ -174,7 +170,9 @@ class Verbum_Comments {
 		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
 		$locale  = get_locale();
 
-		$vbe_cache_buster = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/build_meta.json' );
+		$css_mtime        = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.css' );
+		$js_mtime         = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.min.js' );
+		$vbe_cache_buster = max( $js_mtime, $css_mtime );
 
 		wp_add_inline_script(
 			'verbum-settings',
@@ -248,14 +246,14 @@ class Verbum_Comments {
 
 		wp_enqueue_script( 'verbum-settings' );
 
-		wp_enqueue_script(
+		Assets::register_script(
 			'verbum-dynamic-loader',
-			plugins_url( 'assets/dynamic-loader.js', __FILE__ ),
-			array(),
-			$version_js,
+			'../../build/verbum-comments/assets/dynamic-loader.js',
+			__FILE__,
 			array(
 				'strategy'  => 'defer',
 				'in_footer' => true,
+				'enqueue'   => true,
 			)
 		);
 	}
@@ -553,8 +551,8 @@ HTML;
 		$has_blocks_flag = has_blog_sticker( 'verbum-block-comments', $blog_id );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$gutenberg_query_param = isset( $_GET['verbum_gutenberg'] ) ? intval( $_GET['verbum_gutenberg'] ) : null;
-		// This will release to 10% of sites.
-		$blog_in_10_percent = $blog_id % 100 >= 90;
+		// This will release to 30% of sites.
+		$blog_in_10_percent = $blog_id % 100 >= 70;
 		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
 			? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
