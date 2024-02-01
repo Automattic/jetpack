@@ -69,6 +69,10 @@ abstract class Boost_Cache {
 			return false;
 		}
 
+		if ( defined( 'DONOTCACHEPAGE' ) ) {
+			return false;
+		}
+
 		if ( $this->is_fatal_error() ) {
 			return false;
 		}
