@@ -130,8 +130,7 @@ class Package_Version_Tracker {
 	 * @return bool
 	 */
 	private function is_rate_limiting() {
-		$last_version_check = get_transient( static::RATE_LIMITER_KEY );
-		if ( $last_version_check ) {
+		if ( get_transient( static::RATE_LIMITER_KEY ) ) {
 			return true;
 		}
 
