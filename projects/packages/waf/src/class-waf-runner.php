@@ -96,6 +96,10 @@ class Waf_Runner {
 			return false;
 		}
 
+		if ( defined( 'IS_ATOMIC_JN' ) && IS_ATOMIC_JN ) {
+			return true;
+		}
+
 		// Do not run in the WPCOM context
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return false;

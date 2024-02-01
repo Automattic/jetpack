@@ -789,6 +789,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form :is([type="submit"],button:not([type="reset"])) {
 	display: inline-flex;
+	justify-content: center;
 	align-items: center;
 	gap: 0.5em;
 }

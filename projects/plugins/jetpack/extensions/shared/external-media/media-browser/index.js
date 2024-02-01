@@ -26,6 +26,7 @@ function MediaBrowser( props ) {
 		setPath,
 		nextPage,
 		onCopy,
+		selectButtonText,
 	} = props;
 	const [ selected, setSelected ] = useState( [] );
 	const [ focused, setFocused ] = useState( -1 );
@@ -161,11 +162,13 @@ function MediaBrowser( props ) {
 		}
 	};
 
-	const SelectButton = () => {
+	const SelectButton = selectProps => {
 		const disabled = selected.length === 0 || isCopying;
-		const label = isCopying
-			? __( 'Inserting…', 'jetpack' )
-			: __( 'Select', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+		const defaultLabel = selectProps?.labelText
+			? selectProps?.labelText( selected.length )
+			: __( 'Selecting', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+
+		const label = isCopying ? __( 'Inserting…', 'jetpack' ) : defaultLabel;
 
 		return (
 			<div className="jetpack-external-media-browser__media__toolbar">
@@ -212,7 +215,7 @@ function MediaBrowser( props ) {
 				) }
 			</ul>
 
-			{ hasMediaItems && <SelectButton /> }
+			{ hasMediaItems && <SelectButton labelText={ selectButtonText } /> }
 		</div>
 	);
 }

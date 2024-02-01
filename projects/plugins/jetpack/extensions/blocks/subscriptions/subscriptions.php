@@ -572,6 +572,11 @@ function render_block( $attributes ) {
 	$classes = get_element_class_names_from_attributes( $attributes );
 	$styles  = get_element_styles_from_attributes( $attributes );
 
+	// The default value was previously "true" in block.json. We don't want to rely setting "default" in block.json to falsy,
+	// because it would change the setting for previously saved blocks. Block editor doesn't store default values in attributes at all.
+	// Hence users without this set will still get social counts included in the subscriber counter.
+	// Lowering the subscriber count on their behalf with code change would be controversial.
+	// We want to disencourage including social count as it's misleading.
 	$include_social_followers = isset( $attributes['includeSocialFollowers'] ) ? (bool) get_attribute( $attributes, 'includeSocialFollowers' ) : true;
 
 	$data = array(

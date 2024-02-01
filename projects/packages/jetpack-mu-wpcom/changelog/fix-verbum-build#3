@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Verbum: Use jetpack-assets package to register scripts using `.asset.php` file data.

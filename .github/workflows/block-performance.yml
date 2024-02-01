@@ -14,13 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90  # 2023-04-18: Some runs exceeded 50 minutes
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 16
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: 'WordPress/gutenberg'
           path: 'gutenberg'
@@ -32,7 +32,7 @@ jobs:
           npx playwright install chromium --with-deps
           npm run build:packages
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('gutenberg/**/package-lock.json') }}
@@ -96,7 +96,7 @@ jobs:
 
     steps:
       - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v2
+        uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
           repository: automattic/jetpack-e2e-reports
@@ -110,7 +110,7 @@ jobs:
     needs: [block-performance]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up tools
         uses: ./.github/actions/tool-setup

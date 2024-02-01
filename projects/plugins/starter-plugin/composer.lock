@@ -352,7 +352,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "e86b44dea170b4c686715e5937ca404d259bf622"
+                "reference": "3f9a903de20b3f0ed6414839beeaf17a21a86960"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -384,7 +384,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.2.x-dev"
+                    "dev-trunk": "2.3.x-dev"
                 }
             },
             "autoload": {
@@ -841,7 +841,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "0ee01ddf6b05477477f92987e200d72431580389"
+                "reference": "800ea60c7c03b2caf037d0cd0ccb7e08eeb2786e"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -873,7 +873,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.6.x-dev"
+                    "dev-trunk": "4.7.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1261,7 +1261,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "4177bb100fe6147574606715814e4254840459b2"
+                "reference": "881ee276f976f70720788b61cf3bde923ec8008d"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1293,7 +1293,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.4.x-dev"
+                    "dev-trunk": "2.5.x-dev"
                 }
             },
             "autoload": {
