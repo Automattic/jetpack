@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Jetpack_Options;
@@ -42,6 +43,20 @@ class Stats extends Module_Product {
 	 * @var string|null
 	 */
 	public static $plugin_filename = self::JETPACK_PLUGIN_FILENAME;
+
+	/**
+	 * Stats only requires site connection, not user connection
+	 *
+	 * @var boolean
+	 */
+	public static $requires_user_connection = false;
+
+	/**
+	 * Stats does not have a standalone plugin (yet?)
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = false;
 
 	/**
 	 * Get the internationalized product name
@@ -137,6 +152,20 @@ class Stats extends Module_Product {
 	 */
 	public static function get_wpcom_free_product_slug() {
 		return 'jetpack_stats_free_yearly';
+	}
+
+	/**
+	 * Checks whether the site already supports this product through an existing plan or purchase
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		// The only requirement for Stats is a connection.
+		$connection = new Connection_Manager();
+		if ( ! $connection->is_connected() || ! $connection->is_user_connected() ) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
