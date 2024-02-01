@@ -2,10 +2,18 @@ import { getRedirectUrl, UpsellBanner } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import jetpackManageIcon from './jetpack-manage.svg';
 
 const JetpackManageBanner = props => {
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_manage_banner_view', {
+			feature: 'manage',
+			page: props.path,
+		} );
+	}, [ props.path ] );
+
+	// Handle click events
 	const trackEvent = useCallback(
 		target => {
 			analytics.tracks.recordJetpackClick( {
