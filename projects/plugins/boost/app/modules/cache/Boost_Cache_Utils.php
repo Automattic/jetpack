@@ -76,5 +76,6 @@ class Boost_Cache_Utils {
 		if ( ! rename( $tmp_filename, $filename ) ) {
 			return new \WP_Error( 'Could not rename tmp file' );
 		}
+		return true;
 	}
 }
