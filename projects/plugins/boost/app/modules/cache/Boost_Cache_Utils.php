@@ -28,7 +28,7 @@ class Boost_Cache_Utils {
 				wp_delete_file( $file );
 			}
 		}
-		return rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+		return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 	}
 
 	/*
