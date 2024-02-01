@@ -437,6 +437,13 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
 		 */
 		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
+
+		/**
+		 * Adds the WordPress.com Github Deployments submenu under the main Tools menu.
+		 */
+		if ( apply_filters( 'jetpack_show_wpcom_github_deployments_menu', false ) ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Github Deployments', 'jetpack' ), __( 'Github Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 7 );
+		}
 	}
 
 	/**
