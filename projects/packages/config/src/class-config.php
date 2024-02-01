@@ -164,7 +164,7 @@ class Config {
 		}
 
 		/*
-		Ensure that waf is loaded last. Failure to do so can result in only some of the modules
+		 * Ensure that waf is loaded last. Failure to do so can result in only some of the modules
 		 * loading when waf exits early which can result in faulty requests to the
 		 * jetpack-package-versions endpoint.
 		 *
