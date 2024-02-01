@@ -64,4 +64,17 @@ class Boost_Cache_Utils {
 		$dir = self::sanitize_file_path( $dir );
 		return strpos( $dir, WP_CONTENT_DIR . '/boost-cache' ) !== false;
 	}
+
+	public static function write_to_file( $filename, $data ) {
+		$tmp_filename = $filename . uniqid( uniqid(), true ) . '.tmp';
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		if ( false === file_put_contents( $tmp_filename, $data ) ) {
+			return new \WP_Error( 'Could not write to tmp file' );
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
+		if ( ! rename( $tmp_filename, $filename ) ) {
+			return new \WP_Error( 'Could not rename tmp file' );
+		}
+	}
 }

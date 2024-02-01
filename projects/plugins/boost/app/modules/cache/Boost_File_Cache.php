@@ -107,16 +107,7 @@ class Boost_File_Cache extends Boost_Cache {
 			return new \WP_Error( 'Could not create cache directory' );
 		}
 
-		$tmp_filename = $cache_filename . uniqid( wp_rand(), true ) . '.tmp';
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		if ( false === file_put_contents( $tmp_filename, $buffer ) ) {
-			return new \WP_Error( 'Could not write to tmp file' );
-		}
-
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
-		if ( ! rename( $tmp_filename, $cache_filename ) ) {
-			return new \WP_Error( 'Could not rename tmp file' );
-		}
+		Boost_Cache_Utils::write_to_file( $cache_filename, $buffer );
 
 		return true;
 	}
