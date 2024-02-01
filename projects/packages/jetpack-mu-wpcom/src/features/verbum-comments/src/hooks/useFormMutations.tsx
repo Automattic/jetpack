@@ -13,6 +13,8 @@ export default function useFormMutations() {
 			return;
 		}
 
+		commentParent.value = Number( commentParentInput.getAttribute( 'value' ) );
+
 		const mutationObserver = new MutationObserver( mutations => {
 			mutations.forEach( mutation => {
 				if ( mutation.type === 'attributes' && mutation.target === commentParentInput ) {
