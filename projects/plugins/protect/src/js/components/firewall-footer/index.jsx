@@ -43,6 +43,67 @@ const StandaloneMode = () => {
 	);
 };
 
+const ShareDebugData = () => {
+	const { config, isUpdating, toggleShareDebugData } = useWafData();
+	const { jetpackWafShareDebugData } = config || {};
+	const { setNotice } = useDispatch( STORE_ID );
+
+	const [ settings, setSettings ] = useState( {
+		jetpack_waf_share_debug_data: jetpackWafShareDebugData,
+	} );
+
+	const handleShareDebugDataChange = useCallback( () => {
+		setSettings( {
+			...settings,
+			jetpack_waf_share_debug_data: ! settings.jetpack_waf_share_debug_data,
+		} );
+		toggleShareDebugData()
+			.then( () =>
+				setNotice( {
+					type: 'success',
+					duration: 5000,
+					dismissable: true,
+					message: __( 'Changes saved.', 'jetpack-protect' ),
+				} )
+			)
+			.catch( () => {
+				setNotice( {
+					type: 'error',
+					dismissable: true,
+					message: createInterpolateElement(
+						__(
+							'An error ocurred. Please try again or <supportLink>contact support</supportLink>.',
+							'jetpack-protect'
+						),
+						{
+							supportLink: <ExternalLink href={ PLUGIN_SUPPORT_URL } />,
+						}
+					),
+				} );
+			} );
+	}, [ settings, toggleShareDebugData, setNotice ] );
+
+	useEffect( () => {
+		setSettings( {
+			jetpack_waf_share_debug_data: jetpackWafShareDebugData,
+		} );
+	}, [ jetpackWafShareDebugData ] );
+
+	return (
+		<div className={ styles[ 'share-data-section' ] }>
+			<Title mb={ 2 }>{ __( ' Share debug data with Jetpack', 'jetpack-protect' ) }</Title>
+			<div className={ styles[ 'footer-checkbox' ] }>
+				<CheckboxControl
+					checked={ Boolean( settings.jetpack_waf_share_debug_data ) }
+					onChange={ handleShareDebugDataChange }
+					disabled={ isUpdating }
+				/>
+				<Text>{ __( 'Allow Jetpack to collect advanced debug data.', 'jetpack-protect' ) }</Text>
+			</div>
+		</div>
+	);
+};
+
 const ShareData = () => {
 	const { config, isUpdating, toggleShareData } = useWafData();
 	const { jetpackWafShareData } = config || {};
@@ -113,7 +174,14 @@ const FirewallFooter = () => {
 		<AdminSectionHero>
 			<SeventyFiveLayout
 				main={ <StandaloneMode /> }
-				secondary={ isEnabled && <ShareData /> }
+				secondary={
+					isEnabled && (
+						<>
+							<ShareData />
+							<ShareDebugData />
+						</>
+					)
+				}
 				preserveSecondaryOnMobile={ true }
 			/>
 		</AdminSectionHero>

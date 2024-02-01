@@ -285,10 +285,17 @@ class Waf_Runtime {
 	 * @param string $reason Block reason.
 	 */
 	public function write_blocklog( $rule_id, $reason ) {
-		$log_data              = array();
-		$log_data['rule_id']   = $rule_id;
-		$log_data['reason']    = $reason;
-		$log_data['timestamp'] = gmdate( 'Y-m-d H:i:s' );
+		$log_data                = array();
+		$log_data['rule_id']     = $rule_id;
+		$log_data['reason']      = $reason;
+		$log_data['timestamp']   = gmdate( 'Y-m-d H:i:s' );
+		$log_data['request_uri'] = $_SERVER['REQUEST_URI'];
+		$log_data['user_agent']  = $_SERVER['HTTP_USER_AGENT'];
+
+		if ( defined( 'JETPACK_WAF_SHARE_DEBUG_DATA' ) && JETPACK_WAF_SHARE_DEBUG_DATA ) {
+			$log_data['post_params'] = json_encode( $_POST );
+			$log_data['get_params']  = json_encode( $_GET );
+		}
 
 		if ( defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA ) {
 			$file_path   = JETPACK_WAF_DIR . '/waf-blocklog';
