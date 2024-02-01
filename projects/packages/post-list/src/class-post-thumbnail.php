@@ -67,46 +67,27 @@ class Post_Thumbnail {
 	 */
 	public static function get_first_image_id_from_post_content( $post_content ) {
 		// If $post_content does not contain a value of substance, return null right away and avoid trying to parse it.
-		if ( empty( $post_content ) ) {
+		if ( empty( $post_content ) || false === strpos( $post_content, 'wp-image-' ) ) {
 			return null;
 		}
 
-		$attachment_id = null;
-		$dom           = new \DOMDocument();
-
-		// libxml_use_internal_errors(true) silences PHP warnings and errors from malformed HTML in loadHTML().
-		// you can consult libxml_get_last_error() or libxml_get_errors() to check for errors if needed.
-		libxml_use_internal_errors( true );
-		$dom->loadHTML( $post_content );
-
-		// Media library images have a class attribute value containing 'wp-image-{$attachment_id}'.
-		// Use DomXPath to parse the post content and get the first img tag containing 'wp-image-' as a class value.
-		$class_name = 'wp-image-';
-		$dom_x_path = new \DomXPath( $dom );
-		$nodes      = $dom_x_path->query( "//img[contains(@class, '$class_name')]/@class" );
-
-		if ( $nodes->length > 0 ) {
-			// Get the class attribute value of the 1st image node (aka index 0).
-			$class_value = $nodes[0]->value;
-
-			// Ignore all class attribute values except 'wp-image{$attachment_id}'.
-			// Regex english translation: Look for a word \b, that does not start or end with a hyphen (?!-), that
-			// starts with 'wp-image-', and ends with a number of any length \d+.
-			$class_name_found = preg_match( '/\b(?!-)wp-image-\d+(?!-)\b/', $class_value, $class_value );
-
-			if ( $class_name_found ) {
-				// Get the $attachment_id from the end of the class name value.
-				$attachment_id = str_replace( $class_name, '', $class_value[0] );
-
-				// If the ID we found is numeric, cast it as an int. Else, make it null.
-				if ( is_numeric( $attachment_id ) ) {
-					$attachment_id = (int) $attachment_id;
-				} else {
-					$attachment_id = null;
-				}
+		$processor = new \WP_HTML_Tag_Processor( $post_content );
+		while ( $processor->next_tag( 'img' ) ) {
+			$class = $processor->get_attribute( 'class' );
+			if ( ! is_string( $class ) ) {
+				continue;
 			}
-		}
 
-		return $attachment_id;
+			// A class name must be separated from other class names by HTML whitespace.
+			$id_pattern = "~(?:^|[ \t\f\r\n])wp-image-(?P<attachment_id>[1-9]\d*)(?:[ \t\f\r\n]|$)~";
+			if ( 1 !== preg_match( $id_pattern, $class, $id_match ) ) {
+				continue;
+			}
+
+			list( /* full match */, $attachment_id ) = $id_match;
+
+			// The pattern matched a non-zero positive integer, so it's safe to cast to (int).
+			return (int) $attachment_id;
+		}
 	}
 }

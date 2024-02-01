@@ -800,11 +800,19 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$grouped_options_current = (array) get_option( 'verification_services_codes' );
 					$grouped_options         = $grouped_options_current;
 
-					// Extracts the content attribute from the HTML meta tag if needed.
-					if ( preg_match( '#.*<meta name="(?:[^"]+)" content="([^"]+)" />.*#i', $value, $matches ) ) {
-						$grouped_options[ $option ] = $matches[1];
-					} else {
-						$grouped_options[ $option ] = $value;
+					// Default to the raw HTML.
+					$grouped_options[ $option ] = $value;
+
+					// Extracts the content attribute from the HTML meta tag if available.
+					$processor = new \WP_HTML_Tag_Processor( $value );
+					while ( $processor->next_tag( 'meta' ) ) {
+						$meta_name    = $processor->get_attribute( 'name' );
+						$meta_content = $processor->get_attribute( 'content' );
+
+						if ( is_string( $meta_name ) && is_string( $meta_content ) ) {
+							$grouped_options[ $option ] = $meta_content;
+							break;
+						}
 					}
 
 					// If option value was the same, consider it done.

@@ -88,16 +88,20 @@ class Assets {
 	 * @param string $handle The script's registered handle.
 	 */
 	public function script_add_async( $tag, $handle ) {
-		if ( empty( $this->defer_script_handles ) ) {
+		if (
+			empty( $this->defer_script_handles ) ||
+			! in_array( $handle, $this->defer_script_handles, true )
+		) {
 			return $tag;
 		}
 
-		if ( in_array( $handle, $this->defer_script_handles, true ) ) {
-			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-			return preg_replace( '/<script( [^>]*)? src=/i', '<script defer$1 src=', $tag );
+		$processor = new \WP_HTML_Tag_Processor( $tag );
+
+		if ( $processor->next_tag( 'script' ) ) {
+			$processor->set_attribute( 'defer', true );
 		}
 
-		return $tag;
+		return $processor->get_updated_html();
 	}
 
 	/**
