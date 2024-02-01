@@ -6,8 +6,8 @@
  * @since 4.7.0
  */
 
-require_jetpack_file( 'modules/sitemaps/sitemap-constants.php' );
-require_jetpack_file( 'modules/sitemaps/sitemap-librarian.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-constants.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-librarian.php';
 
 /**
  * Test class for Jetpack_Sitemap_Librarian.
@@ -152,5 +152,4 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 		$this->assertTrue( $librarian->read_sitemap_data( 'name-2', 'type' ) === null );
 		$this->assertTrue( $librarian->read_sitemap_data( 'name-3', 'type' ) === null );
 	}
-
 }

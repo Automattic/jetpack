@@ -19,14 +19,14 @@ const webpack = jetpackWebpackConfig.webpack;
 function requestToExternal( request ) {
 	// Ensure that React will be aliased to preact/compat by preventing externalization.
 	if ( request === 'react' || request === 'react-dom' ) {
-		return;
+		return undefined;
 	}
 	return defaultRequestToExternal( request );
 }
 
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		'jp-search': path.join( __dirname, '../src/instant-search/loader.js' ),
 	},
@@ -64,7 +64,6 @@ module.exports = {
 				requestToExternal,
 				requestToHandle: defaultRequestToHandle,
 			},
-			I18nLoaderPlugin: { textdomain: 'jetpack-search-pkg' },
 		} ),
 		// Replace 'debug' module with a dummy implementation in production
 		...( jetpackWebpackConfig.isDevelopment

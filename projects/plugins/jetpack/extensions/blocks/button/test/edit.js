@@ -1,10 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
-// this is necessary because block editor store becomes unregistered during jest initialization
-import { store as blockEditorStore, __experimentalUseGradient } from '@wordpress/block-editor'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
-import { register } from '@wordpress/data';
+import { __experimentalUseGradient } from '@wordpress/block-editor'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 import { ButtonEdit } from '../edit';
-
-register( blockEditorStore );
 
 const defaultAttributes = {
 	borderRadius: 15,
@@ -20,6 +16,7 @@ const defaultProps = {
 		color: '#000000',
 	},
 	className: 'className',
+	context: {},
 	fallbackBackgroundColor: 'rgba(0, 0, 0, 0)',
 	fallbackTextColor: 'rgba(0, 0, 0, 0)',
 	setAttributes: jest.fn(),
@@ -48,13 +45,6 @@ jest.mock( '@wordpress/block-editor', () => ( {
 		gradientValue: undefined,
 		setGradient: jest.fn(),
 	} ),
-} ) );
-
-// Temporarily mock out the ButtonWidthControl, which is causing errors due to missing
-// dependencies in the jest test runner.
-jest.mock( '../button-width-panel', () => ( {
-	...jest.requireActual( '../button-width-panel' ),
-	ButtonWidthControl: () => <div>Mocked Width Control</div>,
 } ) );
 
 beforeEach( () => {

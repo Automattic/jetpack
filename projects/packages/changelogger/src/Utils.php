@@ -11,27 +11,11 @@ use Automattic\Jetpack\Changelog\ChangeEntry;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
-use function error_clear_last; // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.error_clear_lastFound
-use function Wikimedia\quietCall;
 
 /**
  * Utilities for the changelogger tool.
  */
 class Utils {
-
-	/**
-	 * Calls `error_clear_last()` or emulates it.
-	 */
-	public static function error_clear_last() {
-		if ( is_callable( 'error_clear_last' ) ) {
-			// phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.error_clear_lastFound
-			error_clear_last();
-		} else {
-			// @codeCoverageIgnoreStart
-			quietCall( 'trigger_error', '', E_USER_NOTICE );
-			// @codeCoverageIgnoreEnd
-		}
-	}
 
 	/**
 	 * Helper to run a process.
@@ -84,7 +68,7 @@ class Utils {
 	 *   - warnings: An array of warning messages and applicable lines.
 	 *   - lines: An array mapping headers to line numbers.
 	 * @return array
-	 * @throws \RuntimeException On error.
+	 * @throws LoadChangeFileException On error.
 	 */
 	public static function loadChangeFile( $filename, &$diagnostics = null ) {
 		$diagnostics = array(
@@ -93,29 +77,30 @@ class Utils {
 		);
 
 		if ( ! file_exists( $filename ) ) {
-			$ex           = new \RuntimeException( 'File does not exist.' );
+			$ex           = new LoadChangeFileException( 'File does not exist.' );
 			$ex->fileLine = null;
 			throw $ex;
 		}
 
 		$fileinfo = new \SplFileInfo( $filename );
 		if ( $fileinfo->getType() !== 'file' ) {
-			$ex           = new \RuntimeException( "Expected a file, got {$fileinfo->getType()}." );
+			$ex           = new LoadChangeFileException( "Expected a file, got {$fileinfo->getType()}." );
 			$ex->fileLine = null;
 			throw $ex;
 		}
 		if ( ! $fileinfo->isReadable() ) {
-			$ex           = new \RuntimeException( 'File is not readable.' );
+			$ex           = new LoadChangeFileException( 'File is not readable.' );
 			$ex->fileLine = null;
 			throw $ex;
 		}
 
-		self::error_clear_last();
-		$contents = quietCall( 'file_get_contents', $filename );
+		error_clear_last();
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$contents = @file_get_contents( $filename );
 		// @codeCoverageIgnoreStart
 		if ( false === $contents ) {
 			$err          = error_get_last();
-			$ex           = new \RuntimeException( "Failed to read file: {$err['message']}" );
+			$ex           = new LoadChangeFileException( "Failed to read file: {$err['message']}" );
 			$ex->fileLine = null;
 			throw $ex;
 		}
@@ -138,7 +123,7 @@ class Utils {
 		}
 
 		if ( '' !== $contents && "\n" !== $contents[0] ) {
-			$ex           = new \RuntimeException( 'Invalid header.' );
+			$ex           = new LoadChangeFileException( 'Invalid header.' );
 			$ex->fileLine = $line;
 			throw $ex;
 		}
@@ -176,7 +161,7 @@ class Utils {
 		);
 
 		try {
-			$process = self::runCommand( array( 'git', 'log', '-1', "--format=%cI\n%s", $file ), $output, $formatter );
+			$process = self::runCommand( array( 'git', 'log', '-1', '--first-parent', "--format=%cI\n%s", $file ), $output, $formatter );
 			if ( $process->isSuccessful() ) {
 				$cmd_output = explode( "\n", trim( $process->getOutput() ) );
 
@@ -188,9 +173,12 @@ class Utils {
 				// PR number.
 				if ( isset( $cmd_output[1] ) ) {
 					$matches = array();
-					preg_match( '/\(#(\d+)\)$/', $cmd_output[1], $matches );
-					if ( isset( $matches[1] ) ) {
+					preg_match( '/(?:^Merge pull request #(\d+))|(?:\(#(\d+)\)$)/', $cmd_output[1], $matches );
+					if ( ! empty( $matches[1] ) ) {
 						$repo_data['pr-num'] = $matches[1];
+					}
+					if ( ! empty( $matches[2] ) ) {
+						$repo_data['pr-num'] = $matches[2];
 					}
 				}
 			}
@@ -200,7 +188,8 @@ class Utils {
 		}
 
 		if ( ! $repo_data['timestamp'] ) {
-			$mtime = quietCall( 'filemtime', $file );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$mtime = @filemtime( $file );
 			if ( false !== $mtime ) {
 				$repo_data['timestamp'] = gmdate( 'Y-m-d\\TH:i:s\\Z', $mtime );
 			}
@@ -240,7 +229,7 @@ class Utils {
 			$files[ $name ] = 0;
 			try {
 				$data = self::loadChangeFile( $path, $diagnostics );
-			} catch ( \RuntimeException $ex ) {
+			} catch ( LoadChangeFileException $ex ) {
 				$output->writeln( "<error>$name: {$ex->getMessage()}</>" );
 				$files[ $name ] = 2;
 				continue;
@@ -270,6 +259,4 @@ class Utils {
 
 		return $ret;
 	}
-
 }
-

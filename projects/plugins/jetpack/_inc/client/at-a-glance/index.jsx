@@ -1,6 +1,8 @@
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { __ } from '@wordpress/i18n';
 import DashSectionHeader from 'components/dash-section-header';
+import QueryRecommendationsData from 'components/data/query-recommendations-data';
 import QueryScanStatus from 'components/data/query-scan-status';
 import QuerySite from 'components/data/query-site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
@@ -29,7 +31,6 @@ import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import DashActivity from './activity';
 import DashAkismet from './akismet';
 import DashBackups from './backups';
-import DashBlocks from './blocks';
 import DashBoost from './boost';
 import DashConnections from './connections';
 import DashCRM from './crm';
@@ -125,6 +126,7 @@ class AtAGlance extends Component {
 			const canDisplaybundleCard =
 				! this.props.multisite && ! this.props.isOfflineMode && this.props.hasConnectedOwner;
 			const performanceCards = [];
+
 			if ( 'inactive' !== this.props.getModuleOverride( 'photon' ) ) {
 				performanceCards.push( <DashPhoton { ...settingsProps } /> );
 			}
@@ -146,14 +148,8 @@ class AtAGlance extends Component {
 			}
 
 			if ( this.props.userCanManagePlugins ) {
-				performanceCards.push(
-					<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />,
-					<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
-				);
+				performanceCards.push( <DashCRM siteAdminUrl={ this.props.siteAdminUrl } /> );
 			}
-
-			// Add Blocks card.
-			performanceCards.push( <DashBlocks /> );
 
 			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
 				<PartnerCouponRedeem
@@ -182,24 +178,37 @@ class AtAGlance extends Component {
 				</div>
 			) : null;
 
-			return (
-				<div className="jp-at-a-glance">
-					<QuerySitePlugins />
-					<QuerySite />
-					<QueryScanStatus />
-					{ redeemPartnerCoupon }
-					<DashStats { ...settingsProps } { ...urls } />
-					<Section
-						header={ securityHeader }
-						cards={ securityCards }
-						pinnedBundle={ pinnedBundle }
-					/>
-					<Section
-						header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
-						cards={ performanceCards }
-					/>
-					{ connections }
+			const boostSpeedScore = this.props.userCanManagePlugins ? (
+				<div className="jp-at-a-glance__pinned-bundle">
+					<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />
 				</div>
+			) : undefined;
+
+			return (
+				<ThemeProvider>
+					<div className="jp-at-a-glance">
+						<h1 className="screen-reader-text">
+							{ __( 'Jetpack At A Glance Dashboard', 'jetpack' ) }
+						</h1>
+						<QuerySitePlugins />
+						<QuerySite />
+						<QueryRecommendationsData />
+						<QueryScanStatus />
+						{ redeemPartnerCoupon }
+						<DashStats { ...settingsProps } { ...urls } />
+						<Section
+							header={ securityHeader }
+							cards={ securityCards }
+							pinnedBundle={ pinnedBundle }
+						/>
+						<Section
+							header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
+							cards={ performanceCards }
+							pinnedBundle={ boostSpeedScore }
+						/>
+						{ connections }
+					</div>
+				</ThemeProvider>
 			);
 		}
 

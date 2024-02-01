@@ -3,18 +3,26 @@
 	"description": "Jetpack Coding Standards. Based on the WordPress Coding Standards, with some additions.",
 	"type": "phpcodesniffer-standard",
 	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"phpcs",
+		"codesniffer",
+		"standards",
+		"jetpack",
+		"dev",
+		"testing"
+	],
 	"require": {
-		"dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-		"mediawiki/mediawiki-codesniffer": "^39.0",
+		"php": ">=7.4",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"mediawiki/mediawiki-codesniffer": "^42.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-variable-analysis": "^2.10",
-		"wp-coding-standards/wpcs": "^2.3",
-		"automattic/vipwpcs": "^2.3"
+		"wp-coding-standards/wpcs": "^3.0",
+		"automattic/vipwpcs": "^3.0"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.1",
-		"wp-coding-standards/wpcs": "2022-02-07 as 2.3.1",
-		"yoast/phpunit-polyfills": "1.0.3"
+		"automattic/jetpack-changelogger": "@dev",
+		"yoast/phpunit-polyfills": "1.1.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -28,12 +36,6 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
-		"skip-test-php": [
-			"./tests/action-skip-test-php.sh"
-		],
 		"test-php": [
 			"@composer phpunit"
 		]
@@ -45,10 +47,6 @@
 			"options": {
 				"monorepo": true
 			}
-		},
-		{
-			"type": "vcs",
-			"url": "https://github.com/Automattic/WordPress-Coding-Standards"
 		}
 	],
 	"minimum-stability": "dev",
@@ -60,7 +58,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.6.x-dev"
+			"dev-trunk": "3.0.x-dev"
 		}
 	},
 	"config": {

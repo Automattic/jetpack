@@ -112,9 +112,10 @@ class Themes extends Module {
 	 */
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$all_enabled_theme_slugs = array_keys( $value );
+		$old_value_count         = is_countable( $old_value ) ? count( $old_value ) : 0;
+		$value_count             = is_countable( $value ) ? count( $value ) : 0;
 
-		if ( count( $old_value ) > count( $value ) ) {
-
+		if ( $old_value_count > $value_count ) {
 			// Suppress jetpack_network_disabled_themes sync action when theme is deleted.
 			$delete_theme_call = $this->get_delete_theme_call();
 			if ( ! empty( $delete_theme_call ) ) {
@@ -307,16 +308,17 @@ class Themes extends Module {
 			}
 		}
 
-		if ( ! is_writeable( $real_file ) ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+		if ( ! is_writable( $real_file ) ) {
 			return;
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 		$file_pointer = fopen( $real_file, 'w+' );
 		if ( false === $file_pointer ) {
 			return;
 		}
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		fclose( $file_pointer );
 
 		$theme_data = array(
@@ -677,7 +679,6 @@ class Themes extends Module {
 			}
 		}
 		return $moved_to_inactive;
-
 	}
 
 	/**
@@ -715,7 +716,6 @@ class Themes extends Module {
 			 */
 			do_action( 'jetpack_widget_reordered', $sidebar, $sidebar_name );
 		}
-
 	}
 
 	/**
@@ -873,5 +873,4 @@ class Themes extends Module {
 
 		return array( $this->get_theme_info() );
 	}
-
 }

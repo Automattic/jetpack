@@ -8,10 +8,70 @@
 	&__pinned-bundle {
 		margin-bottom: 1rem;
 	}
+
+	.dops-card.is-compact {
+		box-shadow: none;
+		margin-top: 0;
+
+		&.is-card-link {
+			padding-top: 0;
+
+			.gridicon {
+				width: 1em;
+				position: relative;
+				margin-left: 5px;
+			}
+		}
+	}
+
+	.dops-button .dashicons-no {
+		color: $black;
+	}
+
+	.dops-banner__title {
+		padding: 0 rem( 8px );
+	}
+
+	.dops-banner__description {
+		padding-left: 8px;
+
+		.jp-link-button {
+			padding: 0;
+		}
+	}
+
+	.jp-dash-item__content .jp-support-info {
+		top: auto;
+	}
+}
+
+.jp-dash-section-header.jp-dash-section-header-stats {
+	margin-bottom: 0;
+
+	.jp-dash-section-header__name {
+		margin-bottom: rem(12px);
+	}
 }
 
 .jp-at-a-glance__stats-card {
 	padding: 0;
+	@include dashboard-card-shadow;
+	margin-bottom: 24px;
+
+	.jp-link-button {
+		background: $white;
+		border: none;
+		padding: 2px 0;
+	}
+}
+
+.dops-banner__content {
+	.jp-link-button {
+		background: $white;
+		border: none;
+		font-size: 0.75rem;
+		padding: 1px 0;
+	}
 }
 
 .jp-at-a-glance__stats-empty {
@@ -20,7 +80,7 @@
 
 	p {
 		font-size: $font-body-small;
-		color: $gray-text-min;
+		color: $gray-80;
 	}
 }
 
@@ -36,18 +96,29 @@
 }
 
 .jp-at-a-glance__stats-inactive-icon {
+	padding: 0;
+	display: flex;
+	flex-grow: 0;
+
 	@include breakpoint( '<660px' ) {
 		display: none;
-	}
-
-	@include breakpoint( '>660px' ) {
-		flex-basis: 10%;
 	}
 }
 
 .jp-at-a-glance__stats-inactive-text {
 	font-size: $font-body-small;
 	line-height: 1.5;
+	letter-spacing: -0.3px;
+	color: $gray-80;
+	flex-grow: 1;
+
+	h3 {
+		margin: 0;
+		font-size: 15px;
+		font-weight: 700;
+		line-height: 136%;
+		color: $black;
+	}
 
 	@include breakpoint( '<660px' ) {
 		padding: 0 0 rem( 16px );
@@ -62,14 +133,24 @@
 .jp-at-a-glance__stats-inactive-button {
 	text-align: left;
 
+	button.dops-button.is-primary {
+		padding: 4px 20px;
+		font-size: $font-body-small;
+
+		&:focus {
+			border: 1px solid $white;
+			box-shadow: 0 0 0 1px $black;
+		}
+	}
+
 	@include breakpoint( '>660px' ) {
-		flex-basis: 40%;
-		text-align: right;
+		flex-grow: 0;
+		margin-left: 64px;
 	}
 }
 
 .jp-at-a-glance__stats-chart {
-	padding: rem( 16px );
+	padding: rem( 16px ) 0;
 	position: relative;
 }
 
@@ -81,16 +162,41 @@
 }
 
 .jp-at-a-glance__stats-bottom {
-	margin: rem( 32px ) 0 0;
+	margin: rem( 8px ) 0 0;
 
 	@include breakpoint( '<480px' ) {
 		box-shadow: 0 0 0 1px $light-gray-700;
 	}
 }
 
+.jp-at-a-glance__stats-container-empty {
+	position: relative;
+
+	.jp-at-a-glance__stats-empty-container {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		z-index: 999;
+		background: none;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		.jp-at-a-glance__stats-empty {
+			background: white;
+			border-radius: 4px;
+			box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+			padding: 30px;
+		}
+	}
+
+	.jp-at-a-glance__stats-chart-container {
+		filter: blur( 2px );
+	}
+}
+
 .jp-at-a-glance__stats-summary {
 	text-align: center;
-	border-bottom: 1px $light-gray-700 solid;
 
 	@include breakpoint( '>660px' ) {
 		flex-wrap: nowrap;
@@ -103,52 +209,55 @@
 }
 
 .jp-at-a-glance__stats-summary-today,
-.jp-at-a-glance__stats-summary-bestday {
+.jp-at-a-glance__stats-summary-bestday,
+.jp-at-a-glance__stats-summary-alltime-views,
+.jp-at-a-glance__stats-summary-alltime-comments {
 	flex-basis: 25%;
-	padding: rem( 16px );
-	box-shadow: 0 0 0 1px $light-gray-700;
+	padding: rem( 13px ) 0 rem( 17px );
 }
 
 .jp-at-a-glance__stats-summary-today {
+	border-width: 1px 1px 1px 0;
+	border-style: solid;
+	border-color: #DCDCDE;
+
 	@include breakpoint( '<660px' ) {
 		margin-top: rem( -1px );
 	}
 }
 
 .jp-at-a-glance__stats-summary-bestday {
+	border-width: 1px 1px 1px 0;
+	border-style: solid;
+	border-color: #DCDCDE;
+
 	@include breakpoint( '>660px' ) {
 		margin: 0 rem( 1px );
 	}
 }
 
+.jp-at-a-glance__stats-summary-alltime-views {
+	border-width: 1px 0;
+	border-style: solid;
+	border-color: #DCDCDE;
+}
+
+.jp-at-a-glance__stats-summary-alltime-comments {
+	border-width: 1px 0 1px 1px;
+	border-style: solid;
+	border-color: #DCDCDE;
+}
+
 .jp-at-a-glance__stats-summary-bestday,
-.jp-at-a-glance__stats-summary-alltime {
+.jp-at-a-glance__stats-summary-alltime-views,
+.jp-at-a-glance__stats-summary-alltime-comments {
 	@include breakpoint( '<660px' ) {
 		margin-top: rem( 1px );
 	}
 }
 
-.jp-at-a-glance__stats-summary-alltime {
-	flex-basis: 50%;
-	padding: rem( 16px );
-	box-shadow: 0 0 0 1px $light-gray-700;
-
-	@include breakpoint( '>660px' ) {
-		max-width: 50%; // for IE 10 since it doesn't recognize flex-basis
-		display: flex;
-		flex-grow: 1;
-		flex-shrink: 1;
-	}
-}
-
-.jp-at-a-glance__stats-alltime-views,
-.jp-at-a-glance__stats-alltime-comments {
-	flex-basis: 50%;
-}
-
 .jp-at-a-glance__stats-cta {
-	padding: rem( 16px );
-	background-color: lighten( $gray, 35% );
+	padding: rem( 12px );
 
 	@include breakpoint( '>660px' ) {
 		display: flex;
@@ -169,13 +278,18 @@
 
 .jp-at-a-glance__stat-details {
 	margin: 0;
-	font-size: $font-body-small;
+	font-size: $font-body;
+	line-height: 24px;
+	color: $gray-80;
+	letter-spacing: -0.02em;
 }
 
 .jp-at-a-glance__stat-number {
-	font-size: $font-title-medium;
-	font-weight: 400;
-	margin: rem( 8px ) 0;
+	color: $black;
+	font-size: $font-title-small;
+	line-height: 30px;
+	font-weight: 500;
+	margin: rem( 6px ) 0 rem( 4px );
 }
 
 .jp-at-a-glance__stats-ctas {
@@ -200,11 +314,12 @@
 	}
 
 	.jp-at-a-glance__stats-ctas-wpcom-stats {
-		margin-right: rem( 8px );
+		margin-left: 16px;
 	}
 
 	.dops-button {
 		text-align: center;
+		text-decoration: none;
 		margin: rem( 4px );
 	}
 }
@@ -218,34 +333,41 @@
 	display: inline-block;
 	margin-top: 0;
 	margin-bottom: 0;
-	margin-left: rem( 16px );
+	margin-left: rem(12px);
 
 	&:focus {
 		outline: 0;
 	}
 
-	@include breakpoint( '<480px' ) {
+	@include breakpoint('<480px') {
 		margin-left: 0;
-		margin-right: rem( 16px );
+		margin-right: rem(16px);
 	}
-}
 
-.jp-at-a-glance__stats-view-link,
-.jp-at-a-glance__stats-view-link:visited {
-	color: $gray;
-	text-decoration: underline;
-
-	&.is-current,
-	&:visited.is-current,
-	&:focus.is-current {
-		color: #1d2327;
+	.jp-at-a-glance__stats-view-link,
+	.jp-at-a-glance__stats-view-link:hover,
+	.jp-at-a-glance__stats-view-link:visited {
+		color: $gray-60;
 		text-decoration: none;
+		font-size: 16px;
+		line-height: 24px;
+		letter-spacing: -0.02em;
+		padding: 0 4px;
+
+		&.is-current,
+		&:visited.is-current,
+		&:focus.is-current {
+			color: $black;
+			text-decoration: none;
+			padding-bottom: rem(11px);
+			border-bottom: 2px solid $black;
+		}
 	}
 }
 
 .jp-at-a-glance__stats-view-link:focus {
 	outline: 0;
-	box-shadow: 0 0 0 1px #4f94d4, 0 0 2px 1px rgba( 30, 140, 190, 0.8 );
+	box-shadow: none;
 }
 
 // heavy flexbox nesting below, careful! – @jeffgolenski
@@ -325,27 +447,30 @@
 .jp-connection-type {
 	.jp-dash-item__card {
 		align-items: flex-start;
+		padding: 24px;
 	}
 }
 .jp-connection-settings__info {
 	display: flex;
 }
 
-.jp-connection-settings__actions {
-	margin: 1em 0 0;
-
-	a {
-		cursor: pointer;
-	}
-}
-
 .jp-connection-settings__text {
 	margin-left: rem( 16px );
 	word-break: break-word;
+	color: $gray-80;
+	font-size: $font-body-small;
+	line-height: 24px;
+	letter-spacing: -0.02em;
+
+	.jp-connection-settings__is-owner {
+		display: block;
+	}
 }
+
 .jp-connection-settings__info {
 	.gridicon {
 		opacity: 0.6;
+		margin: 4px 0;
 	}
 	.gridicon,
 	.jp-connection-settings__site-icon {
@@ -360,17 +485,6 @@
 		border-radius: 50%;
 		margin-bottom: 0;
 	}
-}
-
-.jp-connection-settings__username {
-	font-weight: 600;
-}
-
-.jp-connection-settings__email {
-	color: $gray;
-	font-size: $font-body-small;
-	font-style: italic;
-	font-weight: 400;
 }
 
 .jp-connection-settings__modal.dops-modal {
@@ -449,9 +563,11 @@
 	width: 100%;
 }
 
-.jp-dash-item .dops-banner.dops-banner {
+.jp-dash-item .dops-banner {
 	width: 100%;
 	margin-bottom: 0;
+	border: 0;
+	box-shadow: none;
 }
 
 .jp-dash-item__videopress .jp-dash-item__card {
@@ -466,4 +582,129 @@
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px 26px;
+}
+
+.jp-dash-item__action-links a,
+a.jp-dash-item__manage-in-wpcom,
+.dops-banner__title a,
+.jp-connection-settings__actions a,
+.jp-dash-item a:not( .dops-button ),
+.dops-banner__description .jp-link-button,
+.jp-at-a-glance__stats-inactive-text a.components-external-link {
+	&, &:active, &:visited, &:hover, &:focus {
+		cursor: pointer;
+		font-weight: 400;
+		font-size: $font-body-small;
+		line-height: 24px;
+		letter-spacing: -0.02em;
+		text-decoration: underline;
+		color: $black;
+
+		&:hover {
+			text-decoration-thickness: 3px;
+		}
+
+		&:focus {
+			text-decoration-line: none;
+			border-radius: 2px;
+			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+			outline: 3px solid transparent;
+		}
+	}
+}
+
+.jp-connection-settings__actions a {
+	&, &:active, &:visited, &:hover, &:focus {
+		color: $gray-80;
+	}
+}
+
+.jp-dash-item.dash-backups {
+	@include dashboard-card-shadow;
+
+	.dops-section-header {
+		box-shadow: none;
+		border: 0;
+		border-bottom: 1px solid $gray-5;
+		margin: 0;
+	}
+
+	.jp-dash-upgrade-backup {
+		box-shadow: none;
+		border: 0;
+	}
+
+	.dops-banner {
+		box-shadow: none;
+		border: 0;
+		border-top: 1px solid $gray-5;
+	}
+
+	.dash-backup-undo {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		border-bottom: 1px solid $gray-5;
+	}
+
+	.dash-backup-undo__activity-log {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		justify-content: space-between;
+		font-size: 0.75rem;
+
+		.dash-backup-undo__activity-log-date {
+			color: $gray-60;
+		}
+		.dash-backup-undo__activity-log-action,
+		.dash-backup-undo__activity-log-description,
+		.dash-backup-undo__activity-log-user-meta {
+			margin-top: 8px;
+		}
+
+		.dash-backup-undo__activity-log-action {
+			font-size: $font-body;
+			font-weight: 600;
+		}
+
+		.dash-backup-undo__activity-log-description {
+			font-size: $font-body-small;
+		}
+
+		.dash-backup-undo__activity-log-user-meta {
+			display: flex;
+			flex-direction: row;
+		}
+
+		.dash-backup-undo__activity-log-user-meta-avatar {
+			display: flex;
+			margin-right: 8px;
+
+			img {
+				border-radius: 100%;
+				width: 30px;
+				height: 30px;
+			}
+		}
+
+		.dash-backup-undo__activity-log-user-meta-name {
+			display: flex;
+    		align-items: center;
+		}
+	}
+
+	.dash-backup-undo__cta svg {
+		fill: $white;
+		position: relative;
+		top: 5px;
+		margin-top: -6px;
+	}
+}
+
+.jp-support-card {
+	.dops-banner {
+		margin-bottom: 0;
+		border-top: 1px solid $gray-5;
+	}
 }

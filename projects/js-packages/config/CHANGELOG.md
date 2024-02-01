@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.24] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34427]
+
+## [0.1.23] - 2023-11-20
+
+## [0.1.22] - 2023-10-24
+### Fixed
+- Remove "private" flag from package.json so package can be published. [#33744]
+
+## [0.1.21] - 2023-08-21
+### Added
+- Publish package to npmjs.com. [#32515]
+
+## 0.1.20 - 2023-03-08
+### Changed
+- Updated package dependencies. [#29289]
+
+## 0.1.19 - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## 0.1.18 - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## 0.1.17 - 2023-01-11
+### Fixed
+- Config: Metro JS cannot resolve `./src/index.sj` without adding the path as the `main` property in package.json [#28154]
+
+## 0.1.16 - 2022-11-28
+### Changed
+- Updated package dependencies. [#27576]
+
+## 0.1.15 - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## 0.1.14 - 2022-09-20
+### Changed
+- Updated package dependencies. [#26072]
+
+## 0.1.13 - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
 ## 0.1.12 - 2022-07-12
 ### Changed
 - Updated package dependencies.
@@ -53,3 +99,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - fixed and improved README
+
+[0.1.24]: https://github.com/Automattic/jetpack-config-js/compare/v0.1.23...v0.1.24
+[0.1.23]: https://github.com/Automattic/jetpack-config-js/compare/v0.1.22...v0.1.23
+[0.1.22]: https://github.com/Automattic/jetpack-config-js/compare/v0.1.21...v0.1.22
+[0.1.21]: https://github.com/Automattic/jetpack-config-js/compare/v0.1.20...v0.1.21

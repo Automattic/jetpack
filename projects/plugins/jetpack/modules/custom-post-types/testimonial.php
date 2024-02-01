@@ -7,6 +7,8 @@
  * @phpcs:disable MediaWiki.Usage.NestedFunctions.NestedFunction
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * Add a Testimonial CPT, and display it with a shortcode
  */
@@ -82,7 +84,9 @@ class Jetpack_Testimonial {
 		add_filter( 'enter_title_here', array( $this, 'change_default_title' ) );
 		add_filter( sprintf( 'manage_%s_posts_columns', self::CUSTOM_POST_TYPE ), array( $this, 'edit_title_column_label' ) );
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
-		add_action( 'customize_register', array( $this, 'customize_register' ) );
+		if ( ! wp_is_block_theme() ) {
+			add_action( 'customize_register', array( $this, 'customize_register' ) );
+		}
 
 		// Only add the 'Customize' sub-menu if the theme supports it.
 		if ( is_admin() && current_theme_supports( self::CUSTOM_POST_TYPE ) && ! empty( self::count_testimonials() ) ) {
@@ -757,7 +761,7 @@ class Jetpack_Testimonial {
 						?>
 					</div><!-- close .testimonial-entry -->
 					<?php
-					$testimonial_index_number++;
+					++$testimonial_index_number;
 				} // end of while loop
 
 				wp_reset_postdata();

@@ -12,7 +12,6 @@ use InvalidArgumentException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use function Wikimedia\quietCall;
 
 /**
  * "Squash" command for the changelogger tool CLI.
@@ -161,7 +160,8 @@ EOF
 			$regex = $input->getOption( 'regex' );
 			$output->writeln( "Looking for entries matching regex $regex", OutputInterface::VERBOSITY_DEBUG );
 			while ( $inEntries ) {
-				$ret = quietCall( 'preg_match', $regex, $inEntries[0]->getVersion() );
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				$ret = @preg_match( $regex, $inEntries[0]->getVersion() );
 				if ( false === $ret ) {
 					$err = error_get_last()['message'];
 					if ( substr( $err, 0, 14 ) === 'preg_match(): ' ) {
@@ -255,10 +255,10 @@ EOF
 			$input->setOption( 'link', $entries[0]->getLink() );
 		}
 		if ( $input->getOption( 'prologue' ) === null ) {
-			$input->setOption( 'prologue', join( "\n\n", $prologues ) );
+			$input->setOption( 'prologue', implode( "\n\n", $prologues ) );
 		}
 		if ( $input->getOption( 'epilogue' ) === null ) {
-			$input->setOption( 'epilogue', join( "\n\n", $epilogues ) );
+			$input->setOption( 'epilogue', implode( "\n\n", $epilogues ) );
 		}
 
 		// Add the new changelog entry.

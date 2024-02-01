@@ -8,8 +8,10 @@ import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import classnames from 'classnames';
 import { uniqBy } from 'lodash';
 import { PATH_RECENT } from '../constants';
+import { authenticateMediaSource } from '../media-service';
+import { MediaSource } from '../media-service/types';
 
-export default function withMedia() {
+export default function withMedia( mediaSource = MediaSource.Unknown ) {
 	return createHigherOrderComponent( OriginalComponent => {
 		// Legacy class as it was ported from an older codebase.
 		class WithMediaComponent extends Component {
@@ -74,7 +76,10 @@ export default function withMedia() {
 				}
 			};
 
-			setAuthenticated = isAuthenticated => this.setState( { isAuthenticated } );
+			setAuthenticated = isAuthenticated => {
+				this.setState( { isAuthenticated } );
+				authenticateMediaSource( mediaSource, isAuthenticated );
+			};
 
 			mergeMedia( initial, media ) {
 				return uniqBy( initial.concat( media ), 'ID' );
@@ -90,7 +95,7 @@ export default function withMedia() {
 				return base;
 			}
 
-			getMedia = ( url, resetMedia = false ) => {
+			getMedia = ( url, resetMedia = false, isLoading = true ) => {
 				if ( this.state.isLoading ) {
 					return;
 				}
@@ -102,7 +107,7 @@ export default function withMedia() {
 				this.setState(
 					{
 						account: resetMedia ? this.defaultAccount : this.state.account,
-						isLoading: true,
+						isLoading: isLoading,
 						media: resetMedia ? [] : this.state.media,
 						nextHandle: resetMedia ? false : this.state.nextHandle,
 					},
@@ -112,7 +117,8 @@ export default function withMedia() {
 
 			handleApiError = error => {
 				if ( error.code === 'authorization_required' ) {
-					this.setState( { isAuthenticated: false, isLoading: false, isCopying: false } );
+					this.setAuthenticated( false );
+					this.setState( { isLoading: false, isCopying: false } );
 					return;
 				}
 
@@ -125,7 +131,7 @@ export default function withMedia() {
 				}
 
 				const { noticeOperations } = this.props;
-
+				noticeOperations.removeAllNotices();
 				noticeOperations.createErrorNotice(
 					error.code === 'internal_server_error' ? 'Internal server error' : error.message
 				);
@@ -153,8 +159,6 @@ export default function withMedia() {
 				const path = this.getRequestUrl( url );
 				const method = 'GET';
 
-				this.setAuthenticated( true );
-
 				apiFetch( {
 					path,
 					method,
@@ -167,6 +171,7 @@ export default function withMedia() {
 							nextHandle: result.meta.next_page,
 							isLoading: false,
 						} );
+						this.setAuthenticated( true );
 					} )
 					.catch( this.handleApiError );
 			};
@@ -192,7 +197,7 @@ export default function withMedia() {
 							title: item.title,
 						} ) ),
 						service: source, // WPCOM.
-						post_id: this.props.postId ?? 0,
+						post_id: this.props.postId,
 					},
 				} )
 					.then( result => {
@@ -222,11 +227,49 @@ export default function withMedia() {
 						}
 
 						this.props.onClose();
-
 						// Select the image(s). This will close the modal
 						this.props.onSelect( addToGallery ? value.concat( result ) : media );
 					} )
 					.catch( this.handleApiError );
+			};
+
+			insertMedia = items => {
+				this.setState( { isCopying: items } );
+				this.props.noticeOperations.removeAllNotices();
+
+				// If we have a modal element set, focus it.
+				// Otherwise focus is reset to the body instead of staying within the Modal.
+				if ( this.modalElement ) {
+					this.modalElement.focus();
+				}
+				let result = [];
+				// insert media
+				if ( items.length !== 0 ) {
+					result = items.map( image => ( {
+						alt: image.name,
+						caption: image.caption,
+						id: image.ID,
+						type: 'image',
+						url: image.guid,
+					} ) );
+				} else {
+					result = [
+						{
+							alt: items.name,
+							caption: items.caption,
+							id: items.ID,
+							type: 'image',
+							url: items.guid,
+						},
+					];
+				}
+
+				const { value, multiple, addToGallery } = this.props;
+				const media = multiple ? result : result[ 0 ];
+
+				this.props.onClose();
+				this.props.onSelect( addToGallery ? value.concat( result ) : media );
+				// end insert media
 			};
 
 			onChangePath = ( path, cb ) => {
@@ -234,20 +277,17 @@ export default function withMedia() {
 			};
 
 			render() {
-				const {
-					account,
-					isAuthenticated,
-					isCopying,
-					isLoading,
-					media,
-					nextHandle,
-					path,
-				} = this.state;
+				const { account, isAuthenticated, isCopying, isLoading, media, nextHandle, path } =
+					this.state;
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
-				const title = isCopying
-					? __( 'Inserting media', 'jetpack' )
-					: __( 'Select media', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+				// eslint-disable-next-line no-nested-ternary
+
+				const defaultTitle =
+					mediaSource !== 'jetpack_app_media' ? __( 'Select media', 'jetpack' ) : '';
+
+				const title = isCopying ? __( 'Inserting media', 'jetpack' ) : defaultTitle;
+
 				const description = isCopying
 					? __(
 							'When the media is finished copying and inserting, you will be returned to the editor.',
@@ -263,6 +303,7 @@ export default function withMedia() {
 				const classes = classnames( {
 					'jetpack-external-media-browser': true,
 					'jetpack-external-media-browser--is-copying': isCopying,
+					'is-jetpack-app-media': mediaSource === 'jetpack_app_media',
 				} );
 
 				return (
@@ -283,6 +324,7 @@ export default function withMedia() {
 								account={ account }
 								getMedia={ this.getMedia }
 								copyMedia={ this.copyMedia }
+								insertMedia={ this.insertMedia }
 								isCopying={ isCopying }
 								isLoading={ isLoading }
 								media={ media }
@@ -301,8 +343,12 @@ export default function withMedia() {
 		}
 
 		return withSelect( select => {
+			const currentPost = select( 'core/editor' ).getCurrentPost();
+			// Templates and template parts' numerical ID is stored in `wp_id`.
+			const currentPostId =
+				typeof currentPost?.id === 'number' ? currentPost.id : currentPost?.wp_id;
 			return {
-				postId: select( 'core/editor' ).getCurrentPostId(),
+				postId: currentPostId ?? 0,
 			};
 		} )( withNotices( WithMediaComponent ) );
 	} );

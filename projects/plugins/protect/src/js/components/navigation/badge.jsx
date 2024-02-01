@@ -9,15 +9,15 @@ import styles from './styles.module.scss';
 /**
  * Gets the Badge element
  *
- * @param {number} count - The number of vulnerabilities found for this item.
- * @param {boolean} checked - Whether this item was checked for vulnerabilities yet.
+ * @param {number} count - The number of threats found for this item.
+ * @param {boolean} checked - Whether this item was checked for threats yet.
  * @returns {object} The badge element
  */
 const getBadgeElement = ( count, checked ) => {
 	if ( ! checked ) {
 		return {
 			popoverText: __(
-				'This item was added to your site after the most recent scan. We will check for vulnerabilities during the next scheduled one.',
+				'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
 				'jetpack-protect'
 			),
 			badgeElement: (
@@ -28,7 +28,7 @@ const getBadgeElement = ( count, checked ) => {
 
 	if ( count === 0 ) {
 		return {
-			popoverText: __( 'No known vulnerabilities found to affect this version', 'jetpack-protect' ),
+			popoverText: __( 'No known threats found to affect this version', 'jetpack-protect' ),
 			badgeElement: (
 				<Icon icon={ check } size={ 28 } className={ styles[ 'navigation-item-check-badge' ] } />
 			),
@@ -72,7 +72,7 @@ const ItemBadge = ( { count, checked } ) => {
 		>
 			{ badgeElement }
 			{ showPopover && (
-				<Popover noArrow={ false }>
+				<Popover noArrow={ false } inline={ true }>
 					<Text variant="body-small" className={ styles[ 'popover-text' ] }>
 						{ popoverText }
 					</Text>
@@ -83,9 +83,9 @@ const ItemBadge = ( { count, checked } ) => {
 };
 
 ItemBadge.propTypes = {
-	/* The number of vulnerabilities found for this item */
+	/* The number of threats found for this item */
 	count: PropTypes.number,
-	/* Whether this item was checked for vulnerabilities yet */
+	/* Whether this item was checked for threats yet */
 	checked: PropTypes.bool,
 };
 

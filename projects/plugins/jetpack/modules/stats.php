@@ -1,32 +1,46 @@
 <?php
 /**
- * Module Name: Site Stats
+ * Module Name: Jetpack Stats
  * Module Description: Collect valuable traffic stats and insights.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: 1.1
  * Requires Connection: Yes
  * Auto Activate: Yes
- * Module Tags: Site Stats, Recommended
+ * Module Tags: Jetpack Stats, Site Stats, Recommended
  * Feature: Engagement
  * Additional Search Queries: statistics, tracking, analytics, views, traffic, stats
  *
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Stats\Main as Stats;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
+use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
+use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
+use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
+use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
+use Automattic\Jetpack\Stats_Admin\Notices as Stats_Notices;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
-if ( defined( 'STATS_VERSION' ) ) {
+if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
 	return;
 }
 
-define( 'STATS_VERSION', '9' );
-defined( 'STATS_DASHBOARD_SERVER' ) || define( 'STATS_DASHBOARD_SERVER', 'dashboard.wordpress.com' );
+define( 'STATS_DASHBOARD_SERVER', 'dashboard.wordpress.com' );
+
+/**
+ * Stats content markers.
+ * Used to test for content vs script when parsing server-generated HTML.
+ */
+const STATS_BODY_MARKER    = '<div id="statchart"';
+const STATS_CONTENT_MARKER = '<div class="gotonewdash">';
 
 add_action( 'jetpack_modules_loaded', 'stats_load' );
 
@@ -39,22 +53,9 @@ add_action( 'jetpack_modules_loaded', 'stats_load' );
 function stats_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 
-	// Generate the tracking code after wp() has queried for posts.
-	add_action( 'template_redirect', 'stats_template_redirect', 1 );
-
 	add_action( 'wp_head', 'stats_admin_bar_head', 100 );
 
-	add_action( 'wp_head', 'stats_hide_smile_css' );
-	add_action( 'embed_head', 'stats_hide_smile_css' );
-
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
-
-	// Map stats caps.
-	add_filter( 'map_meta_cap', 'stats_map_meta_caps', 10, 3 );
-
-	add_action( 'admin_init', 'stats_merged_widget_admin_init' );
-
-	add_filter( 'jetpack_xmlrpc_unauthenticated_methods', 'stats_xmlrpc_methods' );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
@@ -64,59 +65,22 @@ function stats_load() {
 	add_filter( 'manage_pages_columns', 'jetpack_stats_post_table' );
 	add_action( 'manage_posts_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
 	add_action( 'manage_pages_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
+	// Filter for adding the Jetpack plugin version to tracking stats.
+	add_filter( 'stats_array', 'filter_stats_array_add_jp_version' );
 
 	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
 	add_action( 'updating_jetpack_version', array( 'Jetpack_Stats_Upgrade_Nudges', 'unset_nudges_setting' ) );
 }
 
 /**
- * Delay conditional for current_user_can to after init.
- *
- * @access public
- * @return void
- */
-function stats_merged_widget_admin_init() {
-	if ( current_user_can( 'view_stats' ) ) {
-		add_action( 'load-index.php', 'stats_enqueue_dashboard_head' );
-		add_action( 'jetpack_dashboard_widget', 'stats_jetpack_dashboard_widget' );
-	}
-}
-
-/**
- * Enqueue Stats Dashboard
- *
- * @access public
- * @return void
- */
-function stats_enqueue_dashboard_head() {
-	add_action( 'admin_head', 'stats_dashboard_head' );
-}
-
-/**
  * Checks if filter is set and dnt is enabled.
  *
+ * @deprecated 11.5
  * @return bool
  */
 function jetpack_is_dnt_enabled() {
-	/**
-	 * Filter the option which decides honor DNT or not.
-	 *
-	 * @module stats
-	 * @since 6.1.0
-	 *
-	 * @param bool false Honors DNT for clients who don't want to be tracked. Defaults to false. Set to true to enable.
-	 */
-	if ( false === apply_filters( 'jetpack_honor_dnt_header_for_stats', false ) ) {
-		return false;
-	}
-
-	foreach ( $_SERVER as $name => $value ) {
-		if ( 'http_dnt' === strtolower( $name ) && 1 === (int) $value ) {
-			return true;
-		}
-	}
-
-	return false;
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Main::jetpack_is_dnt_enabled' );
+	return Stats::jetpack_is_dnt_enabled();
 }
 
 /**
@@ -142,6 +106,8 @@ function stats_ignore_db_version( $version ) {
 /**
  * Maps view_stats cap to read cap as needed.
  *
+ * @deprecated 11.5
+ *
  * @access public
  * @param mixed $caps Caps.
  * @param mixed $cap Cap.
@@ -149,239 +115,65 @@ function stats_ignore_db_version( $version ) {
  * @return array Possibly mapped capabilities for meta capability.
  */
 function stats_map_meta_caps( $caps, $cap, $user_id ) {
-	// Map view_stats to exists.
-	if ( 'view_stats' === $cap ) {
-		$user        = new WP_User( $user_id );
-		$user_role   = array_shift( $user->roles );
-		$stats_roles = stats_get_option( 'roles' );
-
-		// Is the users role in the available stats roles?
-		if ( is_array( $stats_roles ) && in_array( $user_role, $stats_roles, true ) ) {
-			$caps = array( 'read' );
-		}
-	}
-
-	return $caps;
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Main::map_meta_caps' );
+	return Stats::map_meta_caps( $caps, $cap, $user_id );
 }
 
 /**
  * Stats Template Redirect.
  *
+ * @deprecated 11.5
  * @access public
  * @return void
  */
 function stats_template_redirect() {
-	global $current_user;
-
-	if (
-		is_feed()
-		|| is_robots()
-		|| is_embed()
-		|| is_trackback()
-		|| is_preview()
-		|| jetpack_is_dnt_enabled()
-	) {
-		return;
-	}
-
-	// Staging Sites should not generate tracking stats.
-	$status = new Status();
-	if ( $status->is_staging_site() ) {
-		return;
-	}
-
-	// Should we be counting this user's views?
-	if ( ! empty( $current_user->ID ) ) {
-		$count_roles = stats_get_option( 'count_roles' );
-		if ( ! is_array( $count_roles ) || ! array_intersect( $current_user->roles, $count_roles ) ) {
-			return;
-		}
-	}
-
-	/**
-	 * Allow excluding specific IP addresses from being tracked in Stats.
-	 * Note: for this to work well, visitors' IP addresses must:
-	 * - be stored and returned properly in IP address headers;
-	 * - not be impacted by any caching setup on your site.
-	 *
-	 * @module stats
-	 *
-	 * @since 10.6
-	 *
-	 * @param array $excluded_ips An array of IP address strings to exclude from tracking.
-	 */
-	$excluded_ips = (array) apply_filters( 'jetpack_stats_excluded_ips', array() );
-
-	// Should we be counting views for this IP address?
-	if (
-		! empty( $excluded_ips )
-		&& in_array( Jetpack::current_user_ip( true ), $excluded_ips, true )
-	) {
-		return;
-	}
-
-	add_action( 'wp_footer', 'stats_footer', 101 );
-	add_action( 'web_stories_print_analytics', 'stats_footer' );
-
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Main::template_redirect' );
+	Stats::template_redirect();
 }
 
 /**
  * Stats Build View Data.
  *
+ * @deprecated 11.5
  * @access public
  * @return array.
  */
 function stats_build_view_data() {
-	global $wp_the_query;
-
-	$blog     = Jetpack_Options::get_option( 'id' );
-	$tz       = get_option( 'gmt_offset' );
-	$v        = 'ext';
-	$blog_url = wp_parse_url( site_url() );
-	$srv      = $blog_url['host'];
-	$j        = sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION );
-	if ( $wp_the_query->is_single || $wp_the_query->is_page || $wp_the_query->is_posts_page ) {
-		// Store and reset the queried_object and queried_object_id
-		// Otherwise, redirect_canonical() will redirect to home_url( '/' ) for show_on_front = page sites where home_url() is not all lowercase.
-		// Repro:
-		// 1. Set home_url = https://ExamPle.com/
-		// 2. Set show_on_front = page
-		// 3. Set page_on_front = something
-		// 4. Visit https://example.com/ !
-		$queried_object    = isset( $wp_the_query->queried_object ) ? $wp_the_query->queried_object : null;
-		$queried_object_id = isset( $wp_the_query->queried_object_id ) ? $wp_the_query->queried_object_id : null;
-		try {
-			$post_obj = $wp_the_query->get_queried_object();
-			$post     = $post_obj instanceof WP_Post ? $post_obj->ID : '0';
-		} finally {
-			$wp_the_query->queried_object    = $queried_object;
-			$wp_the_query->queried_object_id = $queried_object_id;
-		}
-	} else {
-		$post = '0';
-	}
-
-	return compact( 'v', 'j', 'blog', 'post', 'tz', 'srv' );
-}
-
-/**
- * Stats Footer.
- *
- * @access public
- * @return void
- */
-function stats_footer() {
-	$data = stats_build_view_data();
-	if ( Jetpack_AMP_Support::is_amp_request() ) {
-
-		/**
-		 * Filter the parameters added to the AMP pixel tracking code.
-		 *
-		 * @module stats
-		 *
-		 * @since 10.9
-		 *
-		 * @param array $data Array of options about the site and page you're on.
-		 */
-		$data = (array) apply_filters( 'jetpack_stats_footer_amp_data', $data );
-		stats_render_amp_footer( $data );
-	} else {
-
-		/**
-		 * Filter the parameters added to the JavaScript stats tracking code.
-		 *
-		 * @module stats
-		 *
-		 * @since 10.9
-		 *
-		 * @param array $data Array of options about the site and page you're on.
-		 */
-		$data = (array) apply_filters( 'jetpack_stats_footer_js_data', $data );
-		stats_render_footer( $data );
-	}
-
-}
-
-/**
- * Render the stats footer
- *
- * @param array $data Array of data for the JS stats tracker.
- */
-function stats_render_footer( $data ) {
-	// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
-	// When there is a way to use defer with enqueue, we can move to it and inline the custom data.
-	$script           = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
-	$data_stats_array = stats_array( $data );
-
-	$stats_footer = <<<END
-<script src='{$script}' defer></script>
-<script>
-	_stq = window._stq || [];
-	_stq.push([ 'view', {{$data_stats_array}} ]);
-	_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);
-</script>
-
-END;
-	// phpcs:enable
-	print $stats_footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-}
-
-/**
- * Render the stats footer for AMP output.
- *
- * @param array $data Array of data for the AMP pixel tracker.
- */
-function stats_render_amp_footer( $data ) {
-	$data['host'] = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : ''; // input var ok.
-	$data['rand'] = 'RANDOM'; // AMP placeholder.
-	$data['ref']  = 'DOCUMENT_REFERRER'; // AMP placeholder.
-	$data         = array_map( 'rawurlencode', $data );
-	$pixel_url    = add_query_arg( $data, 'https://pixel.wp.com/g.gif' );
-
-	?>
-	<amp-pixel src="<?php echo esc_url( $pixel_url ); ?>"></amp-pixel>
-	<?php
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data' );
+	return Stats_Tracking_Pixel::build_view_data();
 }
 
 /**
  * Stats Get Options.
  *
+ * @deprecated 11.5
+ *
  * @access public
  * @return array.
  */
 function stats_get_options() {
-	$options = get_option( 'stats_options' );
-
-	if ( ! isset( $options['version'] ) || $options['version'] < STATS_VERSION ) {
-		$options = stats_upgrade_options( $options );
-	}
-
-	return $options;
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::get_options' );
+	return Stats_Options::get_options();
 }
 
 /**
  * Get Stats Options.
+ *
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $option Option.
  * @return mixed|null.
  */
 function stats_get_option( $option ) {
-	$options = stats_get_options();
-
-	if ( 'blog_id' === $option ) {
-		return Jetpack_Options::get_option( 'id' );
-	}
-
-	if ( isset( $options[ $option ] ) ) {
-		return $options[ $option ];
-	}
-
-	return null;
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::get_option' );
+	return Stats_Options::get_option( $option );
 }
 
 /**
  * Stats Set Options.
+ *
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $option Option.
@@ -389,89 +181,36 @@ function stats_get_option( $option ) {
  * @return bool.
  */
 function stats_set_option( $option, $value ) {
-	$options = stats_get_options();
-
-	$options[ $option ] = $value;
-
-	return stats_set_options( $options );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::set_option' );
+	return Stats_Options::set_option( $option, $value );
 }
 
 /**
  * Stats Set Options.
+ *
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $options Options.
  * @return bool
  */
 function stats_set_options( $options ) {
-	return update_option( 'stats_options', $options );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::set_options' );
+	return Stats_Options::set_options( $options );
 }
 
 /**
  * Stats Upgrade Options.
+ *
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $options Options.
  * @return array|bool
  */
 function stats_upgrade_options( $options ) {
-	$defaults = array(
-		'admin_bar'    => true,
-		'roles'        => array( 'administrator' ),
-		'count_roles'  => array(),
-		'blog_id'      => Jetpack_Options::get_option( 'id' ),
-		'do_not_track' => true, // @todo
-	);
-
-	if ( isset( $options['reg_users'] ) ) {
-		if ( ! function_exists( 'get_editable_roles' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/user.php';
-		}
-		if ( $options['reg_users'] ) {
-			$options['count_roles'] = array_keys( get_editable_roles() );
-		}
-		unset( $options['reg_users'] );
-	}
-
-	if ( is_array( $options ) && ! empty( $options ) ) {
-		$new_options = array_merge( $defaults, $options );
-	} else {
-		$new_options = $defaults;
-	}
-
-	$new_options['version'] = STATS_VERSION;
-
-	if ( ! stats_set_options( $new_options ) ) {
-		return false;
-	}
-
-	return $new_options;
-}
-
-/**
- * Creates the "array" string used as part of the JS tracker.
- *
- * @access public
- * @param array $kvs KVS.
- * @return string
- */
-function stats_array( $kvs ) {
-	/**
-	 * Filter the options added to the JavaScript Stats tracking code.
-	 *
-	 * @module stats
-	 *
-	 * @since 1.1.0
-	 *
-	 * @param array $kvs Array of options about the site and page you're on.
-	 */
-	$kvs   = (array) apply_filters( 'stats_array', $kvs );
-	$kvs   = array_map( 'addslashes', $kvs );
-	$jskvs = array();
-	foreach ( $kvs as $k => $v ) {
-		$jskvs[] = "$k:'$v'";
-	}
-	return join( ',', $jskvs );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::upgrade_options' );
+	return Stats_Options::upgrade_options( $options );
 }
 
 /**
@@ -494,8 +233,27 @@ function stats_admin_menu() {
 		}
 	}
 
-	$hook = add_submenu_page( 'jetpack', __( 'Site Stats', 'jetpack' ), __( 'Site Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
-	add_action( "load-$hook", 'stats_reports_load' );
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! ( new Host() )->is_woa_site() && isset( $_GET['enable_new_stats'] ) && '1' === $_GET['enable_new_stats'] ) {
+		// Passing true enables Odyssey Stats.
+		// We're ignorning the return value for now.
+		Stats_Main::update_new_stats_status( true );
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ( new Host() )->is_woa_site() || ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) {
+		// Show old Jetpack Stats interface for:
+		// - Atomic sites.
+		// - When the "enable_odyssey_stats" option is disabled.
+		// - When being shown in the adminbar outside of wp-admin.
+		$hook = Admin_Menu::add_menu( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
+		add_action( "load-$hook", 'stats_reports_load' );
+	} else {
+		// Enable the new Odyssey Stats experience.
+		$stats_dashboard = new Stats_Dashboard();
+		$hook            = Admin_Menu::add_menu( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', array( $stats_dashboard, 'render' ) );
+		add_action( "load-$hook", array( $stats_dashboard, 'admin_init' ) );
+	}
 }
 
 /**
@@ -537,7 +295,41 @@ function stats_reports_load() {
 	} elseif ( ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		// Normal page load.  Load page content via JS.
 		add_action( 'admin_print_footer_scripts', 'stats_js_load_page_via_ajax' );
+		add_action( 'admin_print_footer_scripts', 'stats_script_dismiss_nudge_handler' );
 	}
+}
+
+/**
+ * JavaScript to dismiss the Odyssey nudge.
+ *
+ * @access public
+ * @return void
+ */
+function stats_script_dismiss_nudge_handler() {
+	?>
+	<script type="text/javascript">
+	function stats_odyssey_dismiss_nudge() {
+		// Hide the nudge UI, effectively dismissing it.
+		var element = document.getElementById( "stats-odyssey-nudge-main" );
+		element.classList.toggle( "is-hidden" );
+		// Send an AJAX request.
+		// Note we can provide a 'postponed_for' parameter to set the delay.
+		// Without a parameter it defaults to 30 days which is what we want here.
+		let nonce = <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ) ); ?>;
+		let url = <?php echo wp_json_encode( rest_url( '/jetpack/v4/stats-app/stats/notices' ) ); ?>;
+		let data = {
+			id: 'opt_in_new_stats',
+			status: 'postponed',
+		};
+		jQuery.ajax({
+			type: "POST",
+			url: url,
+			data: data,
+			headers: { "x-wp-nonce": nonce },
+		});
+	}
+	</script>
+	<?php
 }
 
 /**
@@ -558,7 +350,7 @@ function stats_reports_css() {
 #stats-loading-wrap p {
 	text-align: center;
 	font-size: 2em;
-	margin: 7.5em 15px 0 0;
+	margin-bottom: 3em;
 	height: 64px;
 	line-height: 64px;
 }
@@ -595,7 +387,9 @@ function stats_js_load_page_via_ajax() {
 /* <![CDATA[ */
 if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 	jQuery( function( $ ) {
-		$.get( document.location.href + '&noheader', function( responseText ) {
+		const loadStatsUrl = new URL( document.location.href );
+		loadStatsUrl.searchParams.append( 'noheader', 1 );
+		$.get( loadStatsUrl.toString(), function( responseText ) {
 			$( '#stats-loading-wrap' ).replaceWith( responseText );
 			$( '#jp-stats-wrap' )[0].dispatchEvent( new Event( 'stats-loaded' ) );
 		} );
@@ -615,7 +409,6 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
 	} else {
 		stats_reports_page();
 	}
-
 }
 
 /**
@@ -625,13 +418,11 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
  * @param bool $main_chart_only (default: false) Main Chart Only.
  */
 function stats_reports_page( $main_chart_only = false ) {
-
 	if ( isset( $_GET['dashboard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return stats_dashboard_widget_content();
 	}
 
-	$blog_id   = stats_get_option( 'blog_id' );
-	$stats_url = Redirect::get_url( 'calypso-stats' );
+	$blog_id = Stats_Options::get_option( 'blog_id' );
 
 	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$nojs_url = add_query_arg( 'nojs', '1' );
@@ -641,7 +432,7 @@ function stats_reports_page( $main_chart_only = false ) {
 
 	<div id="jp-stats-wrap">
 		<div class="wrap">
-			<h2><?php esc_html_e( 'Site Stats', 'jetpack' ); ?>
+			<h1><?php esc_html_e( 'Jetpack Stats', 'jetpack' ); ?>
 			<?php
 			if ( current_user_can( 'jetpack_manage_modules' ) ) :
 				$i18n_headers = jetpack_get_module_i18n( 'stats' );
@@ -671,9 +462,8 @@ function stats_reports_page( $main_chart_only = false ) {
 		</div>
 		<div id="stats-loading-wrap" class="wrap">
 		<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></p>
-		<p style="font-size: 11pt; margin: 0;"><a href="<?php echo esc_url( $stats_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
-		<p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
-		<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without JavaScript', 'jetpack' ); ?></a>.</p>
+		<p class="hide-if-js"><?php esc_html_e( 'Jetpack Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
+		<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Jetpack Stats without JavaScript', 'jetpack' ); ?></a>.</p>
 		</div>
 	</div>
 		<?php
@@ -733,7 +523,7 @@ function stats_reports_page( $main_chart_only = false ) {
 		} elseif ( null === $vals ) {
 			$q[ $var ] = '';
 		} elseif ( 'data' === $vals ) {
-			if ( 'index.php' === substr( $val, 0, 9 ) ) {
+			if ( str_starts_with( $val, 'index.php' ) ) {
 				$q[ $var ] = $val;
 			}
 		}
@@ -760,7 +550,7 @@ function stats_reports_page( $main_chart_only = false ) {
 	} else {
 		if ( ! empty( $get['headers']['content-type'] ) ) {
 			$type = $get['headers']['content-type'];
-			if ( substr( $type, 0, 5 ) === 'image' ) {
+			if ( str_starts_with( $type, 'image' ) ) {
 				$img = $get['body'];
 				header( 'Content-Type: ' . $type );
 				header( 'Content-Length: ' . strlen( $img ) );
@@ -772,7 +562,15 @@ function stats_reports_page( $main_chart_only = false ) {
 		$body = stats_convert_chart_urls( $body );
 		$body = stats_convert_image_urls( $body );
 		$body = stats_convert_admin_urls( $body );
-		echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		// The response can contain either the content to display OR
+		// the scripts for the chart UI. The following calls inspect the
+		// response, insert the Odyssey nudge as needed, and make sure
+		// everything is output correctly.
+		stats_print_header_section( $body );
+		stats_print_odyssey_nudge( $body );
+		stats_print_content_section( $body );
+		stats_print_chart_scripts( $body );
 	}
 
 	if ( isset( $_GET['page'] ) && 'stats' === $_GET['page'] && ! isset( $_GET['chart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -783,6 +581,228 @@ function stats_reports_page( $main_chart_only = false ) {
 	if ( isset( $_GET['noheader'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		die;
 	}
+}
+
+/**
+ * Legacy Stats: Print Header Section
+ *
+ * @access public
+ * @param mixed $html HTML.
+ * @return void
+ */
+function stats_print_header_section( $html ) {
+	$header = stats_parse_header_section( $html );
+	if ( $header !== '' ) {
+		echo $header; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+}
+
+/**
+ * Legacy Stats: Print Content Section
+ *
+ * @access public
+ * @param mixed $html HTML.
+ * @return void
+ */
+function stats_print_content_section( $html ) {
+	$content = stats_parse_content_section( $html );
+	if ( $content !== '' ) {
+		echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+}
+
+/**
+ * Legacy Stats: Print Chart Scripts
+ *
+ * @access public
+ * @param mixed $html HTML.
+ * @return void
+ */
+function stats_print_chart_scripts( $html ) {
+	if ( is_chart_scripts( $html ) ) {
+		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+}
+
+/**
+ * Legacy Stats: Test for presence of chart scripts
+ *
+ * @access public
+ * @param mixed $html Input HTML that may or may not include the chart scripts.
+ * @return bool
+ */
+function is_chart_scripts( $html ) {
+	$pos = strpos( $html, STATS_CONTENT_MARKER );
+	return $pos === false;
+}
+
+/**
+ * Legacy Stats: Parse Header Section
+ *
+ * Returns the section of the content up to and including the date header.
+ *
+ * @access public
+ * @param mixed $html HTML.
+ * @return string
+ */
+function stats_parse_header_section( $html ) {
+	$head = strstr( $html, STATS_CONTENT_MARKER, true );
+	// Enforce a string result instead of string|false.
+	if ( $head === false ) {
+		return '';
+	}
+	return $head;
+}
+
+/**
+ * Legacy Stats: Print Content Section
+ *
+ * Returns the section of the content excluding the date header.
+ *
+ * @access public
+ * @param mixed $html HTML.
+ * @return string
+ */
+function stats_parse_content_section( $html ) {
+	$body = strstr( $html, STATS_BODY_MARKER );
+	// Enforce a string result instead of string|false.
+	if ( $body === false ) {
+		return '';
+	}
+	return $body;
+}
+
+/**
+ * Legacy Stats: Determine if we need to show the Odyssey upgrade nudge.
+ *
+ * @access public
+ * @return boolean
+ */
+function stats_should_show_odyssey_nudge() {
+	$stats_notices = ( new Stats_Notices() )->get_notices_to_show();
+	return isset( $stats_notices[ Stats_Notices::OPT_IN_NEW_STATS_NOTICE_ID ] )
+		&& $stats_notices[ Stats_Notices::OPT_IN_NEW_STATS_NOTICE_ID ];
+}
+
+/**
+ * Legacy Stats: Print the Odyssey upgrade nudge.
+ *
+ * @access public
+ * @param mixed $html HTML.
+ * @return void
+ */
+function stats_print_odyssey_nudge( $html ) {
+	if ( ! stats_should_show_odyssey_nudge() ) {
+		return;
+	}
+	$pos = strpos( $html, STATS_CONTENT_MARKER );
+	if ( $pos === false ) {
+		return;
+	}
+	$learn_url    = Redirect::get_url( 'jetpack-stats-learn-more' );
+	$redirect_url = admin_url( 'admin.php?page=stats&enable_new_stats=1' );
+	?>
+	<style>
+		.stats-odyssey-notice {
+			display: flex;
+			font-size: var( --font-body );
+
+			border: 1px solid var( --jp-gray-5 );
+			border-left-color: var( --jp-black );
+			border-left-width: 6px;
+			border-radius: 4px;
+
+			margin-top: 24px;
+			background: white;
+			position: relative;
+		}
+		.stats-odyssey-notice--content {
+			padding: 24px 0 24px 30px;
+			font-size: 2em;
+			width: 100%;
+		}
+		.stats-odyssey-notice--content-header {
+			font-size: 24px;
+			line-height: 32px;
+			margin: 0;
+			margin-bottom: 8px;
+		}
+		.stats-odyssey-notice--content-text {
+			font-size: 16px;
+			margin: 0;
+		}
+		.stats-odyssey-notice--image-container {
+			background-image: url("/wp-content/plugins/jetpack/images/odyssey-upgrade/background.png"), url("/wp-content/plugins/jetpack/images/odyssey-upgrade/gradient.png");
+			background-size: cover;
+			padding-right: 28px;
+			width: 100%;
+		}
+		.stats-odyssey-notice--close-button {
+			position: absolute;
+			top: 1rem;
+			right: 1rem;
+			background-color: transparent;
+			border: none;
+			cursor: pointer;
+		}
+		.stats-odyssey-notice--action-bar {
+			display: flex;
+			align-items: center;
+			margin-top: 24px;
+		}
+		.stats-odyssey-notice--primary-button {
+			margin-right: 18px;
+			padding-left: 20px;
+			padding-right: 20px;
+			font-size: 16px;
+			border-color: black;
+			background-color: black;
+		}
+		.stats-odyssey-notice--primary-button:hover {
+			border-color: #3c434a;
+			background-color: #3c434a;
+		}
+		.is-primary-link {
+			color: white;
+			text-decoration: none;
+		}
+		.is-primary-link:active {
+			color: white;
+		}
+		.is-primary-link:focus {
+			color: white;
+			box-shadow: none;
+			outline: none;
+		}
+		.is-primary-link:hover {
+			color: white;
+		}
+		.is-secondary-link {
+			color: black;
+			font-size: var( --font-body );
+		}
+		.is-secondary-link:hover {
+			color: black;
+		}
+		.is-hidden {
+			display: none;
+		}
+	</style>
+	<div id="stats-odyssey-nudge-main" class="stats-odyssey-notice">
+		<div class="stats-odyssey-notice--content">
+			<h2 class="stats-odyssey-notice--content-header"><?php esc_html_e( 'Explore the new Jetpack Stats', 'jetpack' ); ?></h2>
+			<p class="stats-odyssey-notice--content-text"><?php esc_html_e( "We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.", 'jetpack' ); ?></p>
+			<div class="stats-odyssey-notice--action-bar">
+				<button class="dops-button stats-odyssey-notice--primary-button">
+					<a class="is-primary-link" href="<?php echo esc_url( $redirect_url ); ?>"><?php esc_html_e( 'Switch to new Stats', 'jetpack' ); ?></a>
+				</button>
+				<a class="is-secondary-link" href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Learn about Stats', 'jetpack' ); ?> <svg xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg></a>
+			</div>
+		</div>
+		<div class="stats-odyssey-notice--image-container"></div>
+		<button class="stats-odyssey-notice--close-button" onclick="stats_odyssey_dismiss_nudge()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg></button>
+	</div>
+	<?php
 }
 
 /**
@@ -903,7 +923,7 @@ function stats_hide_smile_css() {
  * @return void
  */
 function stats_admin_bar_head() {
-	if ( ! stats_get_option( 'admin_bar' ) ) {
+	if ( ! Stats_Options::get_option( 'admin_bar' ) ) {
 		return;
 	}
 
@@ -980,7 +1000,7 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 	$img_src    = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale' ) );
 	$img_src_2x = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale-2x' ) );
 	$alt        = esc_attr( __( 'Stats', 'jetpack' ) );
-	$title      = esc_attr( __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' ) );
+	$title      = esc_attr( __( 'Views over 48 hours. Click for more Jetpack Stats.', 'jetpack' ) );
 
 	$menu = array(
 		'id'    => 'stats',
@@ -1003,77 +1023,27 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
  * @deprecated since 10.3.
  */
 function stats_update_blog() {
-	deprecated_function( __METHOD__, 'jetpack-10.3' );
+	_deprecated_function( __METHOD__, 'jetpack-10.3' );
 	XMLRPC_Async_Call::add_call( 'jetpack.updateBlog', 0, stats_get_blog() );
 }
 
 /**
  * Stats Get Blog.
  *
+ * @deprecated 11.5
+ *
  * @access public
  * @return string
  */
 function stats_get_blog() {
-	$home = wp_parse_url( trailingslashit( get_option( 'home' ) ) );
-	$blog = array(
-		'host'                => $home['host'],
-		'path'                => $home['path'],
-		'blogname'            => get_option( 'blogname' ),
-		'blogdescription'     => get_option( 'blogdescription' ),
-		'siteurl'             => get_option( 'siteurl' ),
-		'gmt_offset'          => get_option( 'gmt_offset' ),
-		'timezone_string'     => get_option( 'timezone_string' ),
-		'stats_version'       => STATS_VERSION,
-		'stats_api'           => 'jetpack',
-		'page_on_front'       => get_option( 'page_on_front' ),
-		'permalink_structure' => get_option( 'permalink_structure' ),
-		'category_base'       => get_option( 'category_base' ),
-		'tag_base'            => get_option( 'tag_base' ),
-	);
-	$blog = array_merge( stats_get_options(), $blog );
-	unset( $blog['roles'], $blog['blog_id'] );
-	return stats_esc_html_deep( $blog );
-}
-
-/**
- * Modified from stripslashes_deep()
- *
- * @access public
- * @param mixed $value Value.
- * @return string
- */
-function stats_esc_html_deep( $value ) {
-	if ( is_array( $value ) ) {
-		$value = array_map( 'stats_esc_html_deep', $value );
-	} elseif ( is_object( $value ) ) {
-		$vars = get_object_vars( $value );
-		foreach ( $vars as $key => $data ) {
-			$value->{$key} = stats_esc_html_deep( $data );
-		}
-	} elseif ( is_string( $value ) ) {
-		$value = esc_html( $value );
-	}
-
-	return $value;
-}
-
-/**
- * Stats xmlrpc_methods function.
- *
- * @access public
- * @param mixed $methods Methods.
- * @return array
- */
-function stats_xmlrpc_methods( $methods ) {
-	$my_methods = array(
-		'jetpack.getBlog' => 'stats_get_blog',
-	);
-
-	return array_merge( $methods, $my_methods );
+	_deprecated_function( __METHOD__, 'jetpack-11.5' );
+	return Stats_XMLRPC::init()->get_blog();
 }
 
 /**
  * Stats Dashboard Widget Options.
+ *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
  *
  * @access public
  * @return array
@@ -1097,16 +1067,19 @@ function stats_dashboard_widget_options() {
 		}
 	}
 
-		return array_merge( $defaults, $options );
+	return array_merge( $defaults, $options );
 }
 
 /**
  * Stats Dashboard Widget Control.
  *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
  * @access public
  * @return void
  */
 function stats_dashboard_widget_control() {
+	stats_dashboard_widget_controls_handle_submission();
 	$periods   = array(
 		'1'  => __( 'day', 'jetpack' ),
 		'7'  => __( 'week', 'jetpack' ),
@@ -1119,26 +1092,54 @@ function stats_dashboard_widget_control() {
 		'90'  => __( 'the past quarter', 'jetpack' ),
 		'365' => __( 'the past year', 'jetpack' ),
 	);
-	$defaults  = array(
+	stats_dashboard_widget_controls_html( $intervals, $periods, stats_dashboard_widget_options() );
+}
+
+/**
+ * Handle widget controls form submission.
+ *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
+ * @access public
+ * @return void
+ */
+function stats_dashboard_widget_controls_handle_submission() {
+	$options  = stats_dashboard_widget_options();
+	$defaults = array(
 		'top'    => 1,
 		'search' => 7,
 	);
 
-	$options = stats_dashboard_widget_options();
-
-	if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'post' === strtolower( filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) && isset( $_POST['stats_id'] ) && 'dashboard_stats' === $_POST['stats_id'] ) { // phpcs:ignore WordPress.Security.NonceVerification
-		if ( isset( $periods[ $_POST['chart'] ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-			$options['chart'] = filter_var( wp_unslash( $_POST['chart'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
-		}
-		foreach ( array( 'top', 'search' ) as $key ) {
-			if ( isset( $intervals[ $_POST[ $key ] ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-				$options[ $key ] = filter_var( wp_unslash( $_POST[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification
-			} else {
-				$options[ $key ] = $defaults[ $key ];
+	// Check if the correct form was submitted.
+	if ( isset( $_POST['stats_id'] ) && 'dashboard_stats' === $_POST['stats_id'] ) {
+		// Perform nonce verification.
+		if (
+			isset( $_POST['dashboard-widget-nonce'] ) &&
+			wp_verify_nonce( filter_var( wp_unslash( $_POST['dashboard-widget-nonce'] ) ), 'edit-dashboard-widget_dashboard_stats' )
+		) {
+			// Update options.
+			$options['chart'] = isset( $_POST['chart'] ) ? (int) $_POST['chart'] : 1;
+			foreach ( array( 'top', 'search' ) as $key ) {
+				$options[ $key ] = isset( $_POST[ $key ] ) ? (int) $_POST[ $key ] : $defaults[ $key ];
 			}
+			update_option( 'stats_dashboard_widget', $options );
 		}
-		update_option( 'stats_dashboard_widget', $options );
 	}
+}
+
+/**
+ * Output HTML for widget controls.
+ *
+ * @param array $intervals Array of intervals.
+ * @param array $periods Array of periods.
+ * @param array $options Array of options.
+ *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
+ * @access public
+ * @return void
+ */
+function stats_dashboard_widget_controls_html( $intervals, $periods, $options ) {
 	?>
 	<p>
 	<label for="chart"><?php esc_html_e( 'Chart stats by', 'jetpack' ); ?></label>
@@ -1184,6 +1185,8 @@ function stats_dashboard_widget_control() {
 /**
  * Jetpack Stats Dashboard Widget.
  *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
  * @access public
  * @return void
  */
@@ -1199,7 +1202,7 @@ function stats_jetpack_dashboard_widget() {
 		<span class="screen-reader-text"><?php esc_html_e( 'Configure', 'jetpack' ); ?></span>
 		<span class="toggle-indicator" aria-hidden="true"></span>
 	</button>
-	<div id="dashboard_stats">
+	<div id="dashboard_stats" class="is-loading">
 		<div class="inside">
 			<div style="height: 250px;"></div>
 		</div>
@@ -1208,64 +1211,9 @@ function stats_jetpack_dashboard_widget() {
 }
 
 /**
- * JavaScript and CSS for dashboard widget.
- *
- * @access public
- * @return void
- */
-function stats_dashboard_head() {
-	?>
-<script type="text/javascript">
-/* <![CDATA[ */
-jQuery( function($) {
-	var dashStats = jQuery( '#dashboard_stats div.inside' );
-
-	if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
-		return;
-	}
-
-	if ( ! dashStats.length ) {
-		dashStats = jQuery( '#dashboard_stats div.dashboard-widget-content' );
-		var h = parseInt( dashStats.parent().height() ) - parseInt( dashStats.prev().height() );
-		var args = 'width=' + dashStats.width() + '&height=' + h.toString();
-	} else {
-		if ( jQuery('#dashboard_stats' ).hasClass('postbox') ) {
-			var args = 'width=' + ( dashStats.prev().width() * 2 ).toString();
-		} else {
-			var args = 'width=' + ( dashStats.width() * 2 ).toString();
-		}
-	}
-
-	dashStats
-		.not( '.dashboard-widget-control' )
-		.load( 'admin.php?page=stats&noheader&dashboard&' + args );
-
-	jQuery( window ).one( 'resize', function() {
-		jQuery( '#stat-chart' ).css( 'width', 'auto' );
-	} );
-
-
-	// Widget settings toggle container.
-	var toggle = $( '.js-toggle-stats_dashboard_widget_control' );
-
-	// Move the toggle in the widget header.
-	toggle.appendTo( '#jetpack_summary_widget .handle-actions' );
-
-	// Toggle settings when clicking on it.
-	toggle.show().click( function( e ) {
-		e.preventDefault();
-		e.stopImmediatePropagation();
-		$( this ).parent().toggleClass( 'controlVisible' );
-		$( '#stats_dashboard_widget_control' ).slideToggle();
-	} );
-} );
-/* ]]> */
-</script>
-	<?php
-}
-
-/**
  * Stats Dashboard Widget Content.
+ *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
  *
  * @access public
  * @return void
@@ -1322,7 +1270,7 @@ function stats_dashboard_widget_content() {
 
 	$csv_end_date = current_time( 'Y-m-d' );
 	$csv_args     = array(
-		'top'    => "&limit=8&end=$csv_end_date",
+		'top'    => "&limit=6&end=$csv_end_date",
 		'search' => "&limit=5&end=$csv_end_date",
 	);
 
@@ -1336,7 +1284,7 @@ function stats_dashboard_widget_content() {
 	}
 
 	// Cache.
-	get_posts( array( 'include' => join( ',', array_unique( $post_ids ) ) ) );
+	get_posts( array( 'include' => implode( ',', array_unique( $post_ids ) ) ) );
 
 	$searches     = array();
 	$search_terms = stats_get_csv( 'searchterms', "days=$options[search]$csv_args[search]" );
@@ -1349,70 +1297,70 @@ function stats_dashboard_widget_content() {
 
 	?>
 <div id="stats-info">
-	<div id="top-posts" class='stats-section'>
-		<div class="stats-section-inner">
-		<h3 class="heading"><?php esc_html_e( 'Top Posts', 'jetpack' ); ?></h3>
-		<?php
-		if ( empty( $top_posts ) ) {
-			?>
-			<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
-			<?php
-		} else {
-			foreach ( $top_posts as $post ) {
-				if ( ! get_post( $post['post_id'] ) ) {
-					continue;
+	<div id="stats-info-container">
+		<div class="stats-info-header">
+			<h2><?php esc_html_e( 'Highlights', 'jetpack' ); ?></h2>
+			<div class="stats-info-header-right">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=stats' ) ); ?>" class="button button-primary">
+					<?php esc_html_e( 'View detailed stats', 'jetpack' ); ?>
+				</a>
+			</div>
+		</div>
+		<div class="stats-info-content">
+			<div id="top-posts" class="stats-section">
+				<div class="stats-section-inner">
+				<h3 class="heading"><?php esc_html_e( 'Top Posts', 'jetpack' ); ?></h3>
+				<?php
+				if ( empty( $top_posts ) ) {
+					?>
+					<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+					<?php
+				} else {
+					foreach ( $top_posts as $post ) {
+						if ( ! get_post( $post['post_id'] ) ) {
+							continue;
+						}
+						?>
+						<p>
+						<?php
+						printf(
+							esc_html(
+								/* Translators: Stats dashboard widget Post list with view count: "Post Title 1 View (or Views if plural)". */
+								_n( '%1$s %2$s View', '%1$s %2$s Views', $post['views'], 'jetpack' )
+							),
+							'<a href="' . esc_url( get_permalink( $post['post_id'] ) ) . '">' . esc_html( get_the_title( $post['post_id'] ) ) . '</a>',
+							esc_html( number_format_i18n( $post['views'] ) )
+						);
+						?>
+					</p>
+						<?php
+					}
 				}
 				?>
-				<p>
+				</div>
+			</div>
+			<div id="top-search" class="stats-section">
+				<div class="stats-section-inner">
+				<h3 class="heading"><?php esc_html_e( 'Top Searches', 'jetpack' ); ?></h3>
 				<?php
-				printf(
-					esc_html(
-						/* Translators: Stats dashboard widget Post list with view count: "Post Title 1 View (or Views if plural)". */
-						_n( '%1$s %2$s View', '%1$s %2$s Views', $post['views'], 'jetpack' )
-					),
-					'<a href="' . esc_url( get_permalink( $post['post_id'] ) ) . '">' . esc_html( get_the_title( $post['post_id'] ) ) . '</a>',
-					esc_html( number_format_i18n( $post['views'] ) )
-				);
+				if ( empty( $searches ) ) {
+					?>
+					<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+					<?php
+				} else {
+					foreach ( $searches as $search_term_item ) {
+						printf(
+							'<p>%s</p>',
+							esc_html( $search_term_item )
+						);
+					}
+				}
 				?>
-			</p>
-				<?php
-			}
-		}
-		?>
-		</div>
-	</div>
-	<div id="top-search" class='stats-section'>
-		<div class="stats-section-inner">
-		<h3 class="heading"><?php esc_html_e( 'Top Searches', 'jetpack' ); ?></h3>
-		<?php
-		if ( empty( $searches ) ) {
-			?>
-			<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
-			<?php
-		} else {
-			foreach ( $searches as $search_term_item ) {
-				printf(
-					'<p>%s</p>',
-					esc_html( $search_term_item )
-				);
-			}
-		}
-		?>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
-<div class="clear"></div>
-<div class="stats-view-all">
-	<?php
-	$stats_day_url = Redirect::get_url( 'calypso-stats-day' );
-	printf(
-		'<a class="button" target="_blank" rel="noopener noreferrer" href="%1$s">%2$s</a>',
-		esc_url( $stats_day_url ),
-		esc_html__( 'View all stats', 'jetpack' )
-	);
-	?>
-</div>
-<div class="clear"></div>
 	<?php
 	exit;
 }
@@ -1432,50 +1380,46 @@ function stats_print_wp_remote_error( $get, $url ) {
 	Jetpack::state( $state_name, $error );
 	if ( $error !== $previous_error ) {
 		?>
-	<div class="wrap">
-	<p><?php esc_html_e( 'We were unable to get your stats just now. Please reload this page to try again.', 'jetpack' ); ?></p>
-	</div>
+			<div class="wrap">
+				<p><?php esc_html_e( 'We were unable to get your stats just now. Please reload this page to try again.', 'jetpack' ); ?></p>
+			</div>
 		<?php
 		return;
 	}
 	?>
 	<div class="wrap">
 	<p>
-	<?php
-		printf(
-			/* translators: placeholder is an a href for a support site. */
-			esc_html__( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please contact %1$s. In your report, please include the information below.', 'jetpack' ),
-			sprintf(
-				'<a href="https://support.wordpress.com/contact/?jetpack=needs-service">%s</a>',
-				esc_html__( 'Jetpack Support', 'jetpack' )
-			)
-		);
-	?>
-		</p>
-	<pre>
-	User Agent: "<?php echo isset( $_SERVER['HTTP_USER_AGENT'] ) ? esc_html( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
-	Page URL: "http<?php echo ( is_ssl() ? 's' : '' ) . '://' . esc_html( ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
-	API URL: "<?php echo esc_url( $url ); ?>"
-	<?php
-	if ( is_wp_error( $get ) ) {
-		foreach ( $get->get_error_codes() as $code ) {
-			foreach ( $get->get_error_messages( $code ) as $message ) {
-				?>
-				<?php print esc_html( $code ) . ': "' . esc_html( $message ) . '"'; ?>
-
-				<?php
-			}
-		}
-	} else {
-		$get_code       = wp_remote_retrieve_response_code( $get );
-		$content_length = strlen( wp_remote_retrieve_body( $get ) );
-		?>
-Response code: "<?php print esc_html( $get_code ); ?>"
-Content length: "<?php print esc_html( $content_length ); ?>"
-
 		<?php
-	}
-	?>
+			printf(
+				/* translators: placeholder is an a href for a support site. */
+				esc_html__( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please contact %1$s. In your report, please include the information below.', 'jetpack' ),
+				sprintf(
+					'<a href="https://support.wordpress.com/contact/?jetpack=needs-service">%s</a>',
+					esc_html__( 'Jetpack Support', 'jetpack' )
+				)
+			);
+		?>
+	</p>
+	<pre class="stats-widget-error">
+		User Agent: "<?php echo isset( $_SERVER['HTTP_USER_AGENT'] ) ? esc_html( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
+		Page URL: "http<?php echo ( is_ssl() ? 's' : '' ) . '://' . esc_html( ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
+		API URL: "<?php echo esc_url( $url ); ?>"
+		<?php
+		if ( is_wp_error( $get ) ) {
+			foreach ( $get->get_error_codes() as $code ) {
+				foreach ( $get->get_error_messages( $code ) as $message ) {
+					print esc_html( $code ) . ': "' . esc_html( $message ) . '"';
+				}
+			}
+		} else {
+			$get_code       = wp_remote_retrieve_response_code( $get );
+			$content_length = strlen( wp_remote_retrieve_body( $get ) );
+			?>
+				Response code: "<?php print esc_html( $get_code ); ?>"
+				Content length: "<?php print esc_html( $content_length ); ?>"
+			<?php
+		}
+		?>
 	</pre>
 	</div>
 	<?php
@@ -1621,7 +1565,7 @@ function stats_str_getcsv( $csv ) {
  */
 function jetpack_stats_api_path( $resource = '' ) {
 	$resource = ltrim( $resource, '/' );
-	return sprintf( '/sites/%d/stats/%s', stats_get_option( 'blog_id' ), $resource );
+	return sprintf( '/sites/%d/stats/%s', Stats_Options::get_option( 'blog_id' ), $resource );
 }
 
 /**
@@ -1629,11 +1573,13 @@ function jetpack_stats_api_path( $resource = '' ) {
  *
  * @link: https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
  * @access public
+ * @deprecated 11.5 Use WPCOM_Stats available methodsinstead.
  * @param array  $args (default: array())  The args that are passed to the endpoint.
  * @param string $resource (default: '') Optional sub-endpoint following /stats/.
  * @return array|WP_Error.
  */
 function stats_get_from_restapi( $args = array(), $resource = '' ) {
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Please checkout the methods available in Automattic\Jetpack\Stats\WPCOM_Stats' );
 	$endpoint    = jetpack_stats_api_path( $resource );
 	$api_version = '1.1';
 	$args        = wp_parse_args( $args, array() );
@@ -1691,7 +1637,7 @@ function jetpack_stats_load_admin_css() {
 }
 
 /**
- * Set header for column that allows to go to WordPress.com to see an entry's stats.
+ * Set header for column that allows to view an entry's stats.
  *
  * @param array $columns An array of column names.
  *
@@ -1700,8 +1646,22 @@ function jetpack_stats_load_admin_css() {
  * @return mixed
  */
 function jetpack_stats_post_table( $columns ) {
-	// Adds a stats link on the edit posts page.
-	if ( ! current_user_can( 'view_stats' ) || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
+	/*
+	 * Stats can be accessed in wp-admin or in Calypso,
+	 * depending on what version of the stats screen is enabled on your site.
+	 *
+	 * In both cases, the user must be allowed to access stats.
+	 *
+	 * If the Odyssey Stats experience isn't enabled, the user will need to go to Calypso,
+	 * so they need to be connected to WordPress.com to be able to access that page.
+	 */
+	if (
+		! current_user_can( 'view_stats' )
+		|| (
+			! Stats_Options::get_option( 'enable_odyssey_stats' )
+			&& ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected()
+		)
+	) {
 		return $columns;
 	}
 
@@ -1725,7 +1685,7 @@ function jetpack_stats_post_table( $columns ) {
 }
 
 /**
- * Set content for cell with link to an entry's stats in WordPress.com.
+ * Set content for cell with link to an entry's stats in Odyssey Stats.
  *
  * @param string $column  The name of the column to display.
  * @param int    $post_id The current post ID.
@@ -1742,17 +1702,50 @@ function jetpack_stats_post_table_cell( $column, $post_id ) {
 				esc_html__( 'No stats', 'jetpack' )
 			);
 		} else {
-			$stats_post_url = Redirect::get_url(
+			$stats_post_url = ! ( new Host() )->is_woa_site() && Stats_Options::get_option( 'enable_odyssey_stats' )
+			? admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, Jetpack_Options::get_option( 'id', 0 ) ) )
+			: Redirect::get_url(
 				'calypso-stats-post',
 				array(
 					'path' => $post_id,
 				)
 			);
+
 			printf(
 				'<a href="%s" title="%s" class="dashicons dashicons-chart-bar" target="_blank"></a>',
 				esc_url( $stats_post_url ),
-				esc_html__( 'View stats for this post in WordPress.com', 'jetpack' )
+				esc_html__( 'View stats for this post', 'jetpack' )
 			);
 		}
 	}
+}
+
+/**
+ * Add the Jetpack plugin version to the stats tracking data.
+ *
+ * @param  array $kvs The stats array in key values.
+ * @return array
+ */
+function filter_stats_array_add_jp_version( $kvs ) {
+	$kvs['j'] = sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION );
+
+	return $kvs;
+}
+
+/**
+ * Convert stats array to object after sanity checking the array is valid.
+ *
+ * @param  array $stats_array The stats array.
+ * @return WP_Error|Object|null
+ */
+function convert_stats_array_to_object( $stats_array ) {
+
+	if ( is_wp_error( $stats_array ) ) {
+		return $stats_array;
+	}
+	$encoded_array = wp_json_encode( $stats_array );
+	if ( ! $encoded_array ) {
+		return new WP_Error( 'stats_encoding_error', 'Failed to encode stats array' );
+	}
+	return json_decode( $encoded_array );
 }

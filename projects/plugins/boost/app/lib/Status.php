@@ -2,8 +2,9 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 
 class Status {
 
@@ -31,23 +32,25 @@ class Status {
 		);
 	}
 
-	public function is_enabled() {
-		return '1' === get_option( $this->get_option_name( $this->slug ) );
-	}
-
 	public function update( $new_status ) {
-
-		if ( update_option( $this->get_option_name( $this->slug ), (bool) $new_status ) ) {
-			$this->update_mapped_modules( $new_status );
-			// Only record analytics event if the config update succeeds.
-			$this->track_module_status( (bool) $new_status );
-			return true;
-		}
-		return false;
+		$entry                          = jetpack_boost_ds_get( 'modules_state' );
+		$entry[ $this->slug ]['active'] = $new_status;
+		jetpack_boost_ds_set( 'modules_state', $entry );
 	}
 
-	protected function get_option_name( $module_slug ) {
-		return 'jetpack_boost_status_' . $module_slug;
+	public function is_enabled() {
+		$modules_state = jetpack_boost_ds_get( 'modules_state' );
+		return $modules_state[ $this->slug ]['active'];
+	}
+
+	/**
+	 * Called when the module is toggled.
+	 *
+	 * Called by Modules and triggered by the `jetpack_ds_set` action.
+	 */
+	public function on_update( $new_status ) {
+		$this->update_mapped_modules( $new_status );
+		$this->track_module_status( (bool) $new_status );
 	}
 
 	/**
@@ -63,8 +66,22 @@ class Status {
 			return;
 		}
 
+		$modules_instance = Setup::get_instance_of( Modules_Setup::class );
+
+		// The moduleInstance will be there. But check just in case.
+		if ( $modules_instance !== null ) {
+			// Remove the action temporarily to avoid infinite loop.
+			remove_action( 'jetpack_boost_module_status_updated', array( $modules_instance, 'on_module_status_update' ) );
+		}
+
 		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module ) {
-			update_option( $this->get_option_name( $mapped_module ), (bool) $new_status );
+			$mapped_status = new Status( $mapped_module );
+			$mapped_status->update( $new_status );
+		}
+
+		// The moduleInstance will be there. But check just in case.
+		if ( $modules_instance !== null ) {
+			add_action( 'jetpack_boost_module_status_updated', array( $modules_instance, 'on_module_status_update' ), 10, 2 );
 		}
 	}
 
@@ -77,5 +94,4 @@ class Status {
 			)
 		);
 	}
-
 }

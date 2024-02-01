@@ -1,12 +1,12 @@
-import logger from '../logger.cjs';
+import logger from '../logger.js';
 import { syncJetpackPlanData, loginToWpCom, loginToWpSite } from '../flows/index.js';
 import {
 	execWpCommand,
 	getDotComCredentials,
 	isLocalSite,
-	provisionJetpackStartConnection,
 	resetWordpressInstall,
-} from '../helpers/utils-helper.cjs';
+} from '../helpers/utils-helper.js';
+import { provisionJetpackStartConnection } from '../helpers/partner-provisioning.js';
 import fs from 'fs';
 import config from 'config';
 import assert from 'assert';
@@ -117,8 +117,16 @@ async function connect() {
 	const creds = getDotComCredentials();
 	await execWpCommand( `user update wordpress --user_email=${ creds.email }` );
 
-	provisionJetpackStartConnection( creds.userId, 'free' );
-
+	try {
+		provisionJetpackStartConnection( creds.userId, 'free' );
+	} catch ( error ) {
+		// Let's try to re-try the provisioning if it fails the first time.
+		if ( error.message.startsWith( 'Jetpack Start provisioning failed' ) ) {
+			provisionJetpackStartConnection( creds.userId, 'free' );
+		} else {
+			throw error;
+		}
+	}
 	assert.ok( await isBlogTokenSet() );
 
 	// We are connected. Let's save the existing connection options just in case.

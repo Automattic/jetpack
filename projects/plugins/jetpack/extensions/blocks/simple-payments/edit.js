@@ -163,16 +163,8 @@ export class SimplePaymentsEdit extends Component {
 
 	toApi() {
 		const { attributes } = this.props;
-		const {
-			content,
-			currency,
-			email,
-			featuredMediaId,
-			multiple,
-			price,
-			productId,
-			title,
-		} = attributes;
+		const { content, currency, email, featuredMediaId, multiple, price, productId, title } =
+			attributes;
 
 		return {
 			id: productId,
@@ -631,7 +623,7 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 		),
 		simplePayment,
 		featuredMedia: featuredMediaId ? getMedia( featuredMediaId ) : null,
-		postLinkUrl: post?.link,
+		postLinkUrl: post?.guid?.raw,
 		isPostEditor: Object.keys( getCurrentPost() ).length > 0,
 	};
 } );

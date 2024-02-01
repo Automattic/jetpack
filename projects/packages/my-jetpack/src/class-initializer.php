@@ -9,14 +9,20 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Client as Client;
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Constants as Jetpack_Constants;
+use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
-use Automattic\Jetpack\Status as Status;
+use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Jetpack;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -28,10 +34,26 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '1.8.0-alpha';
+	const PACKAGE_VERSION = '4.7.1-alpha';
 
 	/**
-	 * Initialize My Jetapack
+	 * HTML container ID for the IDC screen on My Jetpack page.
+	 */
+	const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
+
+	const JETPACK_PLUGIN_SLUGS = array(
+		'jetpack-backup',
+		'jetpack-boost',
+		'zerobscrm',
+		'jetpack',
+		'jetpack-protect',
+		'jetpack-social',
+		'jetpack-videopress',
+		'jetpack-search',
+	);
+
+	/**
+	 * Initialize My Jetpack
 	 *
 	 * @return void
 	 */
@@ -56,13 +78,22 @@ class Initializer {
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			'manage_options',
+			'edit_posts',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
-			999
+			-1
 		);
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+
+		// Sets up JITMS.
+		JITM::configure();
+
+		// Add "Activity Log" menu item.
+		Activitylog::init();
+
+		// Add "Jetpack Manage" menu item.
+		Jetpack_Manage::init();
 
 		/**
 		 * Fires after the My Jetpack package is initialized
@@ -80,6 +111,17 @@ class Initializer {
 	 * @return boolean
 	 */
 	public static function is_licensing_ui_enabled() {
+		// Default changed to true in 1.5.0.
+		$is_enabled = true;
+
+		/*
+		 * Bail if My Jetpack is not enabled,
+		 * and thus the licensing UI shouldn't be enabled either.
+		 */
+		if ( ! self::should_initialize() ) {
+			$is_enabled = false;
+		}
+
 		/**
 		 * Acts as a feature flag, returning a boolean for whether we should show the licensing UI.
 		 *
@@ -90,7 +132,7 @@ class Initializer {
 		 */
 		return apply_filters(
 			'jetpack_my_jetpack_should_enable_add_license_screen',
-			true
+			$is_enabled
 		);
 	}
 
@@ -100,6 +142,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_init() {
+		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 		// Product statuses are constantly changing, so we never want to cache the page.
 		header( 'Cache-Control: no-cache, no-store, must-revalidate' );
@@ -134,6 +177,7 @@ class Initializer {
 				'textdomain' => 'jetpack-my-jetpack',
 			)
 		);
+		$modules = new Modules();
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
@@ -144,13 +188,29 @@ class Initializer {
 				'purchases'             => array(
 					'items' => array(),
 				),
+				'plugins'               => Plugins_Installer::get_plugins(),
 				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
+				'myJetpackCheckoutUri'  => 'admin.php?page=my-jetpack',
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
+				'blogID'                => Connection_Manager::get_site_id( true ),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
+				'myJetpackFlags'        => self::get_my_jetpack_flags(),
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
 				'loadAddLicenseScreen'  => self::is_licensing_ui_enabled(),
 				'adminUrl'              => esc_url( admin_url() ),
+				'IDCContainerID'        => static::get_idc_container_id(),
+				'userIsAdmin'           => current_user_can( 'manage_options' ),
+				'userIsNewToJetpack'    => self::is_jetpack_user_new(),
+				'isStatsModuleActive'   => $modules->is_active( 'stats' ),
+				'isUserFromKnownHost'   => self::is_user_from_known_host(),
+				'welcomeBanner'         => array(
+					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
+				),
+				'jetpackManage'         => array(
+					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
+					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
+				),
 			)
 		);
 
@@ -164,12 +224,92 @@ class Initializer {
 		);
 
 		// Connection Initial State.
-		wp_add_inline_script( 'my_jetpack_main_app', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'my_jetpack_main_app' );
 
 		// Required for Analytics.
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * Determine if the current user is "new" to Jetpack
+	 * This is used to vary some messaging in My Jetpack
+	 *
+	 * On the front-end, purchases are also taken into account
+	 *
+	 * @return bool
+	 */
+	public static function is_jetpack_user_new() {
+		// is the user connected?
+		$connection = new Connection_Manager();
+		if ( $connection->is_user_connected() ) {
+			return false;
+		}
+
+		// TODO: add a data point for the last known connection/ disconnection time
+
+		// are any modules active?
+		$modules        = new Modules();
+		$active_modules = $modules->get_active();
+		// if the Jetpack plugin is active, filter out the modules that are active by default
+		if ( class_exists( 'Jetpack' ) && ! empty( $active_modules ) ) {
+			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
+		}
+		if ( ! empty( $active_modules ) ) {
+			return false;
+		}
+
+		// check for other Jetpack plugins that are installed on the site (active or not)
+		// If there's more than one Jetpack plugin active, this user is not "new"
+		$plugin_slugs              = array_keys( Plugins_Installer::get_plugins() );
+		$plugin_slugs              = array_map(
+			static function ( $slug ) {
+				$parts = explode( '/', $slug );
+				if ( empty( $parts ) ) {
+					return '';
+				}
+				// Return the last segment of the filepath without the PHP extension
+				return str_replace( '.php', '', $parts[ count( $parts ) - 1 ] );
+			},
+			$plugin_slugs
+		);
+		$installed_jetpack_plugins = array_intersect( self::JETPACK_PLUGIN_SLUGS, $plugin_slugs );
+		if ( is_countable( $installed_jetpack_plugins ) && count( $installed_jetpack_plugins ) >= 2 ) {
+			return false;
+		}
+
+		// Does the site have any purchases?
+		$purchases = Wpcom_Products::get_site_current_purchases();
+		if ( ! empty( $purchases ) && ! is_wp_error( $purchases ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines whether the user has come from a host we can recognize.
+	 *
+	 * @return string
+	 */
+	public static function is_user_from_known_host() {
+		// Known (external) host is the one that has been determined and is not dotcom.
+		return ! in_array( ( new Status_Host() )->get_known_host_guess(), array( 'unknown', 'wpcom' ), true );
+	}
+
+	/**
+	 *  Build flags for My Jetpack UI
+	 *
+	 *  @return array
+	 */
+	public static function get_my_jetpack_flags() {
+		$flags = array(
+			'videoPressStats'      => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
+			'showJetpackStatsCard' => class_exists( 'Jetpack' ),
+		);
+
+		return $flags;
 	}
 
 	/**
@@ -189,6 +329,9 @@ class Initializer {
 	public static function register_rest_endpoints() {
 		new REST_Products();
 		new REST_Purchases();
+		new REST_Zendesk_Chat();
+		new REST_Product_Data();
+		new REST_AI();
 
 		register_rest_route(
 			'my-jetpack/v1',
@@ -196,6 +339,16 @@ class Initializer {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'site/dismiss-welcome-banner',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::dismiss_welcome_banner',
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
@@ -220,11 +373,6 @@ class Initializer {
 		$should = true;
 
 		if ( is_multisite() ) {
-			$should = false;
-		}
-
-		// Do not initialize My Jetpack if site is not connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			$should = false;
 		}
 
@@ -256,6 +404,16 @@ class Initializer {
 		}
 
 		return rest_ensure_response( $body, 200 );
+	}
+
+	/**
+	 * Dismiss the welcome banner.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function dismiss_welcome_banner() {
+		\Jetpack_Options::update_option( 'dismissed_welcome_banner', true );
+		return rest_ensure_response( array( 'success' => true ), 200 );
 	}
 
 	/**
@@ -299,4 +457,12 @@ class Initializer {
 		return $write_access;
 	}
 
+	/**
+	 * Get container IDC for the IDC screen.
+	 *
+	 * @return string
+	 */
+	public static function get_idc_container_id() {
+		return static::IDC_CONTAINER_ID;
+	}
 }

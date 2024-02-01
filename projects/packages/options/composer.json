@@ -4,11 +4,15 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.41"
+		"php": ">=7.0",
+		"automattic/jetpack-connection": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.1"
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -33,7 +37,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-options/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.16.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		}
 	},
 	"abandoned": "automattic/jetpack-connection"

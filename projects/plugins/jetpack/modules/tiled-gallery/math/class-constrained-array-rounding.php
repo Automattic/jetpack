@@ -69,17 +69,17 @@ class Jetpack_Constrained_Array_Rounding {
 	 * @param int   $adjustment - how much we're adjusting the array.
 	 */
 	private static function adjust_constrained_array( &$bound_array_int, $adjustment ) {
-		usort( $bound_array_int, array( 'self', 'cmp_desc_fraction' ) );
+		usort( $bound_array_int, array( self::class, 'cmp_desc_fraction' ) );
 
 		$start  = 0;
 		$end    = $adjustment - 1;
 		$length = count( $bound_array_int );
 
 		for ( $i = $start; $i <= $end; $i++ ) {
-			$bound_array_int[ $i % $length ]['floor']++;
+			++$bound_array_int[ $i % $length ]['floor'];
 		}
 
-		usort( $bound_array_int, array( 'self', 'cmp_asc_index' ) );
+		usort( $bound_array_int, array( self::class, 'cmp_asc_index' ) );
 	}
 
 	/**
@@ -91,10 +91,7 @@ class Jetpack_Constrained_Array_Rounding {
 	 * @return int
 	 */
 	private static function cmp_desc_fraction( $a, $b ) {
-		if ( $a['fraction'] === $b['fraction'] ) {
-			return 0;
-		}
-		return $a['fraction'] > $b['fraction'] ? -1 : 1;
+		return $b['fraction'] <=> $a['fraction'];
 	}
 
 	/**
@@ -106,9 +103,6 @@ class Jetpack_Constrained_Array_Rounding {
 	 * @return int
 	 */
 	private static function cmp_asc_index( $a, $b ) {
-		if ( $a['index'] === $b['index'] ) {
-			return 0;
-		}
-		return $a['index'] < $b['index'] ? -1 : 1;
+		return $a['index'] <=> $b['index'];
 	}
 }

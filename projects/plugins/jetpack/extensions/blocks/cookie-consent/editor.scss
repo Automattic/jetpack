@@ -1,0 +1,48 @@
+/**
+ * Editor styles for Cookie Consent
+ */
+
+@import './common';
+
+.wp-block-jetpack-cookie-consent {
+	position: initial;
+	/* Required to capture clicks */
+	background-color: transparent;
+	bottom: unset;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	/* when users first click the block, we don't want them to select child blocks */
+	&:not(.is-selected) {
+		* {
+			pointer-events: none;
+		}
+
+		&::before {
+			content: unset;
+		}
+	}
+
+	&.alignright,
+	&.alignleft {
+		max-width: 50%;
+		flex-wrap: nowrap;
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+	}
+
+	&.alignright {
+		margin-left: auto !important;
+	}
+
+	&.alignwide {
+		width: unset;
+		max-width: unset;
+		left: unset;
+	}
+
+	.wp-block-button__link {
+		white-space: nowrap !important;
+	}
+}

@@ -14,12 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2021-03-23: The run on push to the tag might take a minute or two.
     steps:
-      - name: Checkout trunk
-        uses: actions/checkout@v3
+
+      # We basically have two workflows in one here, one for pushes to trunk and one for PRs and pushes to tags.
+      # The reason we don't separate them into two is because GitHub's UI would then always be showing a skipped job
+      # in the PR check list, which is kind of annoying.
+
+      # First, the "PR or tag" job.
+
+      - name: Checkout trunk for tag push or PR
+        uses: actions/checkout@v4
+        if: github.event_name != 'push' || github.ref != 'refs/heads/trunk'
         with:
           ref: trunk
-          # The "Check whether the tag needs updating for trunk commit" needs the previous commit for diffing.
-          fetch-depth: 2
           token: ${{ secrets.API_TOKEN_GITHUB }}
 
       # On a PR, we need to fetch (but not check out) the actual PR too.
@@ -48,9 +54,9 @@ jobs:
             mapfile -t TAGS <<<"$TMP"
             TAGS+=( pr-update-to )
           fi
-          echo "::set-output name=pr-tags::${TAGS[*]}"
-          echo "::set-output name=push-tag::$TAG"
-          echo "::set-output name=push-paths::$PATHS"
+          echo "pr-tags=${TAGS[*]}" >> "$GITHUB_OUTPUT"
+          echo "push-tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "push-paths=$PATHS" >> "$GITHUB_OUTPUT"
 
       - name: Check PR or tag push
         if: github.event_name != 'push' || github.ref != 'refs/heads/trunk'
@@ -62,11 +68,19 @@ jobs:
           token: ${{ secrets.API_TOKEN_GITHUB }}
           status: PR is up to date
 
+      # Second, the "push to trunk" job.
+
+      - name: Checkout push to trunk
+        uses: actions/checkout@v4
+        if: github.event_name == 'push' && github.ref == 'refs/heads/trunk'
+        with:
+          # The "Check whether the tag needs updating for trunk commit" needs the previous commit for diffing.
+          fetch-depth: 2
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+
       - name: Wait for prior instances of the workflow to finish
         if: github.event_name == 'push' && github.ref == 'refs/heads/trunk'
-        uses: softprops/turnstyle@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./.github/actions/turnstile
 
       - name: Check whether the tag needs updating for trunk commit
         if: github.event_name == 'push' && github.ref == 'refs/heads/trunk'

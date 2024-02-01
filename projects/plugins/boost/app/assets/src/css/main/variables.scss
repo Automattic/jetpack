@@ -1,11 +1,11 @@
-$light-border: #EEEEEE;
+$light-border: #eeeeee;
 $jetpack-green: #069e08;
-$primary-black: #23282D;
-$primary-white: #FFFFFF;
+$primary-black: #23282d;
+$primary-white: #ffffff;
 $primary-grey: #444444;
 $secondary-grey: #888888;
-$color_warning: #CC1818;
-$alt_white: #F9F9F6;
+$color_warning: #cc1818;
+$alt_white: #f9f9f6;
 
 // Color Studio Colors:
 
@@ -23,6 +23,9 @@ $gray_90: #1d2327;
 $gray_100: #101517;
 $gray: $gray_50;
 
+$blue_50: #2271b1;
+$blue_60: #135e96;
+
 $jetpack_green_0: #f0f2eb;
 $jetpack_green_5: #d0e6b8;
 $jetpack_green_10: #9dd977;
@@ -36,11 +39,49 @@ $jetpack_green_80: #004515;
 $jetpack_green_90: #003010;
 $jetpack_green_100: #001c09;
 
-$red_50: #D63638;
-$orange_20: #FAA754;
+$red_50: #d63638;
+$orange_20: #faa754;
 $jetpack_green: $jetpack_green_50;
 
 $padding: 48px;
 $halfling: 24px;
 $border-radius: 4px;
 $spacing-unit: 8px;
+
+:root {
+	--light-border: #{$light-border};
+	--jetpack-green: #{$jetpack-green};
+	--primary-black: #{$primary-black};
+	--primary-white: #{$primary-white};
+	--primary-grey: #{$primary-grey};
+	--secondary-grey: #{$secondary-grey};
+	--color_warning: #{$color_warning};
+	--alt-white: #{$alt_white};
+	--gray-0: #{$gray_0};
+	--gray-5: #{$gray_5};
+	--gray-10: #{$gray_10};
+	--gray-20: #{$gray_20};
+	--gray-30: #{$gray_30};
+	--gray-40: #{$gray_40};
+	--gray-50: #{$gray_50};
+	--gray-60: #{$gray_60};
+	--gray-70: #{$gray_70};
+	--gray-80: #{$gray_80};
+	--gray-90: #{$gray_90};
+	--gray-100: #{$gray_100};
+	--gray: #{$gray};
+	--blue-50: #{$blue_50};
+	--blue-60: #{$blue_60};
+	--jetpack-green-0: #{$jetpack_green_0};
+	--jetpack-green-5: #{$jetpack_green_5};
+	--jetpack-green-10: #{$jetpack_green_10};
+	--jetpack-green-20: #{$jetpack_green_20};
+	--jetpack-green-30: #{$jetpack_green_30};
+	--jetpack-green-40: #{$jetpack_green_40};
+	--jetpack-green-50: #{$jetpack_green_50};
+	--jetpack-green-60: #{$jetpack_green_60};
+	--jetpack-green-70: #{$jetpack_green_70};
+	--jetpack-green-80: #{$jetpack_green_80};
+	--jetpack-green-90: #{$jetpack_green_90};
+	--jetpack-green-100: #{$jetpack_green_100};
+}

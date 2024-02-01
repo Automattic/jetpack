@@ -18,6 +18,7 @@ use WP_Error;
  * Connection Manager functionality testing.
  */
 class ManagerTest extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Temporary stack for `wp_redirect`.
@@ -32,6 +33,20 @@ class ManagerTest extends TestCase {
 	 * @var int
 	 */
 	protected $user_id;
+
+	/**
+	 * Connection manager mock object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Manager
+	 */
+	protected $manager;
+
+	/**
+	 * Tokens mock object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Tokens
+	 */
+	protected $tokens;
 
 	const DEFAULT_TEST_CAPS = array( 'default_test_caps' );
 
@@ -49,7 +64,7 @@ class ManagerTest extends TestCase {
 			->setMethods( array( 'get_access_token', 'disconnect_user' ) )
 			->getMock();
 
-		$this->manager->method( 'get_tokens' )->will( $this->returnValue( $this->tokens ) );
+		$this->manager->method( 'get_tokens' )->willReturn( $this->tokens );
 
 		$this->user_id = wp_insert_user(
 			array(
@@ -86,7 +101,7 @@ class ManagerTest extends TestCase {
 		);
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( $access_token ) );
+			->willReturn( $access_token );
 
 		$this->assertTrue( $this->manager->is_active() );
 	}
@@ -99,9 +114,44 @@ class ManagerTest extends TestCase {
 	public function test_is_active_when_not_connected() {
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$this->assertFalse( $this->manager->is_active() );
+	}
+
+	/**
+	 * Test the `has_connected_owner` functionality when connected.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
+	 */
+	public function test_has_connected_owner_when_connected() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( $admin_id );
+
+		$this->assertTrue( $this->manager->has_connected_owner() );
+	}
+
+	/**
+	 * Test the `has_connected_owner` functionality when not connected.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
+	 */
+	public function test_has_connected_owner_when_not_connected() {
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( false );
+
+		$this->assertFalse( $this->manager->has_connected_owner() );
 	}
 
 	/**
@@ -197,7 +247,7 @@ class ManagerTest extends TestCase {
 	public function test_is_user_connected_with_user_id_logged_out_not_connected() {
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$this->assertFalse( $this->manager->is_user_connected( $this->user_id ) );
 	}
@@ -216,7 +266,7 @@ class ManagerTest extends TestCase {
 		);
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( $access_token ) );
+			->willReturn( $access_token );
 
 		$this->assertTrue( $this->manager->is_user_connected() );
 	}
@@ -233,7 +283,7 @@ class ManagerTest extends TestCase {
 		);
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( $access_token ) );
+			->willReturn( $access_token );
 
 		$this->assertTrue( $this->manager->is_user_connected( $this->user_id ) );
 	}
@@ -354,10 +404,11 @@ class ManagerTest extends TestCase {
 		$access_token->secret = 'abcd.1234';
 
 		$signed_token = ( new Tokens() )->get_signed_token( $access_token );
-		$this->assertTrue( strpos( $signed_token, 'token' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'timestamp' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'nonce' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'signature' ) !== false );
+
+		$this->assertStringContainsString( 'token', $signed_token );
+		$this->assertStringContainsString( 'timestamp', $signed_token );
+		$this->assertStringContainsString( 'nonce', $signed_token );
+		$this->assertStringContainsString( 'signature', $signed_token );
 	}
 
 	/**
@@ -382,10 +433,10 @@ class ManagerTest extends TestCase {
 		( new Tokens() )->update_user_token( $editor_id, sprintf( '%s.%s.%d', 'key', 'private', $editor_id ), false );
 
 		$this->manager->method( 'unlink_user_from_wpcom' )
-			->will( $this->returnValue( $remote ) );
+			->willReturn( $remote );
 
 		$this->tokens->method( 'disconnect_user' )
-			->will( $this->returnValue( $local ) );
+			->willReturn( $local );
 
 		$result = $this->manager->disconnect_user( $editor_id );
 
@@ -508,7 +559,7 @@ class ManagerTest extends TestCase {
 		);
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( $access_token ) );
+			->willReturn( $access_token );
 
 		$this->manager->method( 'get_connection_owner_id' )
 			->withAnyParameters()
@@ -544,7 +595,7 @@ class ManagerTest extends TestCase {
 		);
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( $access_token ) );
+			->willReturn( $access_token );
 
 		$this->manager->method( 'get_connection_owner_id' )
 			->withAnyParameters()
@@ -595,4 +646,45 @@ class ManagerTest extends TestCase {
 		return constant( __NAMESPACE__ . "\Utils::DEFAULT_$name" );
 	}
 
+	/**
+	 * Test the `is_ready_for_cleanup()` method with the negative result (has other connected plugins).
+	 *
+	 * @return void
+	 */
+	public function test_is_ready_for_cleanup_no() {
+		$option_filter = function () {
+			return array(
+				'jetpack-backup' => array(
+					'name' => 'Jetpack Backup',
+				),
+			);
+		};
+
+		add_filter( 'pre_option_jetpack_connection_active_plugins', $option_filter );
+		$is_ready = Manager::is_ready_for_cleanup( 'jetpack' );
+		remove_filter( 'pre_option_jetpack_connection_active_plugins', $option_filter );
+
+		$this->assertFalse( $is_ready );
+	}
+
+	/**
+	 * Test the `is_ready_for_cleanup()` method with the positive result (no other connected plugins).
+	 *
+	 * @return void
+	 */
+	public function test_is_ready_for_cleanup_yes() {
+		$option_filter = function () {
+			return array(
+				'jetpack' => array(
+					'name' => 'Jetpack',
+				),
+			);
+		};
+
+		add_filter( 'pre_option_jetpack_connection_active_plugins', $option_filter );
+		$is_ready = Manager::is_ready_for_cleanup( 'jetpack' );
+		remove_filter( 'pre_option_jetpack_connection_active_plugins', $option_filter );
+
+		$this->assertTrue( $is_ready );
+	}
 }

@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
 
 /**
  * Test class for Grunion_Contact_Form
@@ -13,6 +13,9 @@ require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
  * @covers Grunion_Contact_Form
  */
 class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
+
+	private $post;
+	private $plugin;
 
 	/**
 	 * Sets up the test environment before the class tests begin.
@@ -44,13 +47,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$this->set_globals();
 
-		$author_id = $this->factory->user->create(
+		$author_id = self::factory()->user->create(
 			array(
 				'user_email' => 'john@example.com',
 			)
 		);
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_status' => 'draft',
 				'post_author' => (string) $author_id,
@@ -303,10 +306,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Default metadata should be saved.
 		$submission = $feedback[0];
 
-		$this->assertStringContainsString( '[1_Name] =&gt; John Doe', $submission->post_content, 'Post content did not contain the name label and/or value' );
-		$this->assertStringContainsString( '[2_Dropdown] =&gt; First option', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
-		$this->assertStringContainsString( '[3_Radio] =&gt; Second option', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
-		$this->assertStringContainsString( '[4_Text] =&gt; Texty text', $submission->post_content, 'Post content did not contain the text field label and/or value' );
+		$this->assertStringContainsString( '"1_Name":"John Doe"', $submission->post_content, 'Post content did not contain the name label and/or value' );
+		$this->assertStringContainsString( '"2_Dropdown":"First option"', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
+		$this->assertStringContainsString( '"3_Radio":"Second option"', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
+		$this->assertStringContainsString( '"4_Text":"Texty text"', $submission->post_content, 'Post content did not contain the text field label and/or value' );
 	}
 
 	/**
@@ -340,16 +343,12 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$submission = $feedback[0];
 		$email      = get_post_meta( $submission->ID, '_feedback_email', true );
 
-		$expected  = '<b>Name:</b> John Doe<br /><br />';
-		$expected .= '<b>Dropdown:</b> First option<br /><br />';
-		$expected .= '<b>Radio:</b> Second option<br /><br />';
-		$expected .= '<b>Text:</b> Texty text<br /><br />';
+		$expected  = '<p><strong>Name:</strong><br /><span>John Doe</span></p>';
+		$expected .= '<p><strong>Dropdown:</strong><br /><span>First option</span></p>';
+		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
+		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
 
-		$email_body = explode( PHP_EOL . PHP_EOL, $email['message'] );
-
-		$email_body = $email_body[1];
-
-		$this->assertStringStartsWith( $expected, $email_body );
+		$this->assertStringContainsString( $expected, $email['message'] );
 	}
 
 	/**
@@ -393,16 +392,46 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertContains( 'john <john@example.com>', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
 
-		$expected  = '<b>Name:</b> John Doe<br /><br />';
-		$expected .= '<b>Dropdown:</b> First option<br /><br />';
-		$expected .= '<b>Radio:</b> Second option<br /><br />';
-		$expected .= '<b>Text:</b> Texty text<br /><br />';
+		$expected  = '<p><strong>Name:</strong><br /><span>John Doe</span></p>';
+		$expected .= '<p><strong>Dropdown:</strong><br /><span>First option</span></p>';
+		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
+		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
 
-		// Divides email by the first empty line.
-		$email_body = explode( PHP_EOL . PHP_EOL, $args['message'] );
-		$email_body = $email_body[1];
+		$this->assertStringContainsString( $expected, $args['message'] );
+	}
 
-		$this->assertStringStartsWith( $expected, $email_body );
+	/**
+	 * Tests that the response template is generated correctly
+	 */
+	public function test_wrap_message_in_html_tags() {
+		// Fill field values.
+		$this->add_field_values(
+			array(
+				'name'     => 'John Doe',
+				'dropdown' => 'First option',
+				'radio'    => 'Second option',
+				'text'     => 'Texty text',
+			)
+		);
+
+		// Initialize a form with name, dropdown and radiobutton (first, second
+		// and third option), text field.
+		$form = new Grunion_Contact_Form(
+			array(
+				'to'      => 'john@example.com, jane@example.com',
+				'subject' => 'Hello there!',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]"
+		);
+
+		$title  = 'You got a new response!';
+		$body   = 'Here are the details:';
+		$footer = 'This is the footer';
+		$result = $form->wrap_message_in_html_tags( $title, $body, $footer );
+
+		$this->assertStringContainsString( $title, $result );
+		$this->assertStringContainsString( $body, $result );
+		$this->assertStringContainsString( $footer, $result );
 	}
 
 	/**
@@ -525,7 +554,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers ::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_deletes_an_old_post_marked_as_spam() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_type'     => 'feedback',
 				'post_status'   => 'spam',
@@ -544,7 +573,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers ::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_does_not_delete_a_new_post_marked_as_spam() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_type'   => 'feedback',
 				'post_status' => 'spam',
@@ -736,7 +765,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'id'          => 'funID',
 		);
 
-		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'url' ) );
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
 		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
 	}
 
@@ -926,9 +955,16 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		if ( 'date' === $attributes['type'] ) {
 			$attributes['class'] = 'jp-contact-form-date';
 		}
+
+		$css_class = "grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap grunion-field-wrap";
+
+		if ( 'select' === $attributes['type'] ) {
+			$css_class .= ' contact-form-dropdown-wrap ui-front';
+		}
+
 		$this->assertEquals(
 			$wrapper_div->getAttribute( 'class' ),
-			"grunion-field-wrap grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap",
+			$css_class,
 			'div class attribute doesn\'t match'
 		);
 
@@ -990,13 +1026,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		if ( 'date' === $attributes['type'] ) {
 			$this->assertEquals(
 				$input->getAttribute( 'class' ),
-				"{$attributes['type']} jp-contact-form-date",
+				"{$attributes['type']} jp-contact-form-date grunion-field",
 				'input class attribute doesn\'t match'
 			);
 		} else {
 			$this->assertEquals(
 				$input->getAttribute( 'class' ),
-				"{$attributes['type']} {$attributes['class']}",
+				"{$attributes['type']} {$attributes['class']} grunion-field",
 				'input class attribute doesn\'t match'
 			);
 		}
@@ -1025,7 +1061,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			$this->assertEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 		}
 
-		$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'], 'Input class doesn\'t match' );
+		$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'] . ' grunion-field', 'Input class doesn\'t match' );
 	}
 
 	/**
@@ -1059,7 +1095,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				'label for does not equal input name!'
 			);
 
-			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'], ' select class does not match expected' );
+			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' grunion-field contact-form-dropdown', ' select class does not match expected' );
 
 			// Options.
 			$options = $select->getElementsByTagName( 'option' );
@@ -1072,7 +1108,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				if ( 0 === $i ) {
 					$this->assertEquals( 'selected', $option->getAttribute( 'selected' ), 'Input is not selected' );
 				} else {
-					$this->assertNotEquals( $option->getAttribute( 'selected' ), 'selected', 'Input is selected' );
+					$this->assertNotEquals( 'selected', $option->getAttribute( 'selected' ), 'Input is selected' );
 				}
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$this->assertEquals( $option->nodeValue, $attributes['options'][ $i ], 'Input does not match the option' );
@@ -1097,11 +1133,11 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'] . '[]', 'Input name doesn\'t match' );
 				}
 				$this->assertEquals( $input->getAttribute( 'value' ), $attributes['values'][ $i ], 'Input value doesn\'t match' );
-				$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'], 'Input class doesn\'t match' );
+				$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'] . ' grunion-field', 'Input class doesn\'t match' );
 				if ( 0 === $i ) {
 					$this->assertEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 				} else {
-					$this->assertNotEquals( $input->getAttribute( 'checked' ), 'checked', 'Input checked doesn\'t match' );
+					$this->assertNotEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 				}
 			}
 		}
@@ -1206,19 +1242,19 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_post_meta_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
+			->willReturnMap( $get_post_meta_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_parsed_field_contents_of_post' )
-			->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+			->willReturnMap( $get_parsed_field_contents_of_post_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_post_content_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_content_for_csv_export_map ) );
+			->willReturnMap( $get_post_content_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->will( $this->returnValueMap( $mapped_fields_contents_map ) );
+			->willReturnMap( $mapped_fields_contents_map );
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
@@ -1291,7 +1327,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj1',
-					'4_Comment'    => 'This is my test 15',
+					'Comment'      => 'This is my test 15',
 				),
 			),
 			array(
@@ -1301,7 +1337,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj2',
-					'4_Comment'    => 'This is my test 16',
+					'Comment'      => 'This is my test 16',
 				),
 			),
 		);
@@ -1310,19 +1346,19 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// and each mock expects two calls.
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_post_meta_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
+			->willReturnMap( $get_post_meta_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_parsed_field_contents_of_post' )
-			->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+			->willReturnMap( $get_parsed_field_contents_of_post_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_post_content_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_content_for_csv_export_map ) );
+			->willReturnMap( $get_post_content_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->will( $this->returnValueMap( $mapped_fields_contents_map ) );
+			->willReturnMap( $mapped_fields_contents_map );
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
@@ -1332,7 +1368,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'key4'         => array( '', 'value4' ),
 			'key5'         => array( '', 'value5' ),
 			'key6'         => array( '', 'value6' ),
-			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
+			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1385,7 +1421,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj1',
-					'4_Comment'    => 'This is my test 15',
+					'Comment'      => 'This is my test 15',
 				),
 			),
 			array(
@@ -1395,32 +1431,32 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj2',
-					'4_Comment'    => 'This is my test 16',
+					'Comment'      => 'This is my test 16',
 				),
 			),
 		);
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_post_meta_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
+			->willReturnMap( $get_post_meta_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_parsed_field_contents_of_post' )
-			->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+			->willReturnMap( $get_parsed_field_contents_of_post_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_post_content_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_content_for_csv_export_map ) );
+			->willReturnMap( $get_post_content_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->will( $this->returnValueMap( $mapped_fields_contents_map ) );
+			->willReturnMap( $mapped_fields_contents_map );
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
 		$expected_result = array(
 			'Contact Form' => array( 'subj1', 'subj2' ),
-			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
+			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1490,7 +1526,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj1',
-					'4_Comment'    => 'This is my test 15',
+					'Comment'      => 'This is my test 15',
 				),
 			),
 			array(
@@ -1500,26 +1536,26 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj2',
-					'4_Comment'    => 'This is my test 16',
+					'Comment'      => 'This is my test 16',
 				),
 			),
 		);
 
-		$mock->expects( $this->exactly( 1 ) )
+		$mock->expects( $this->once() )
 			->method( 'get_post_meta_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
+			->willReturnMap( $get_post_meta_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_parsed_field_contents_of_post' )
-			->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+			->willReturnMap( $get_parsed_field_contents_of_post_map );
 
-		$mock->expects( $this->exactly( 1 ) )
+		$mock->expects( $this->once() )
 			->method( 'get_post_content_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_content_for_csv_export_map ) );
+			->willReturnMap( $get_post_content_for_csv_export_map );
 
-		$mock->expects( $this->exactly( 1 ) )
+		$mock->expects( $this->once() )
 			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->will( $this->returnValueMap( $mapped_fields_contents_map ) );
+			->willReturnMap( $mapped_fields_contents_map );
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
@@ -1529,7 +1565,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'key4'         => array( 'value4' ),
 			'key5'         => array( 'value5' ),
 			'key6'         => array( 'value6' ),
-			'4_Comment'    => array( 'This is my test 16' ),
+			'Comment'      => array( 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1569,7 +1605,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_parsed_field_contents_of_post' )
-			->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+			->willReturnMap( $get_parsed_field_contents_of_post_map );
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
@@ -1601,10 +1637,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$result = $plugin->map_parsed_field_contents_of_post_to_field_names( $input_data );
 
 		$expected_result = array(
-			'Contact Form' => 'This is my form',
-			'1_Name'       => 'John Smith',
-			'3_Website'    => 'http://example.com',
-			'4_Comment'    => 'This is my comment!',
+			'1_Name'    => 'John Smith',
+			'3_Website' => 'http://example.com',
+			'4_Comment' => 'This is my comment!',
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1656,7 +1691,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			$this->assertSame( 'feedback', $data['group_id'], 'group_id matches' );
 			$this->assertSame( 'Feedback', $data['group_label'], 'group_label matches' );
 			$this->assertSame( true, ! empty( $data['item_id'] ), 'has item_id key' );
-			$this->assertCount( 9, $data['data'], 'has total expected data keys' );
+			$this->assertCount( 10, $data['data'], 'has total expected data keys' );
 		}
 	}
 

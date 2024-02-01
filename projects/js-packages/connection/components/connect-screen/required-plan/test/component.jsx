@@ -4,8 +4,10 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import ConnectScreenRequiredPlan from '../visual';
 
+const CONNECTION_BUTTON_LABEL = 'Setup Jetpack';
+
 const requiredProps = {
-	buttonLabel: 'Setup Jetpack',
+	buttonLabel: CONNECTION_BUTTON_LABEL,
 	pricingTitle: 'Jetpack Backup',
 	priceBefore: 9,
 	priceAfter: 4.5,
@@ -21,18 +23,20 @@ describe( 'ConnectScreenRequiredPlan', () => {
 		expect( screen.getByText( 'Connect children' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows button, tos and subscription', () => {
+	it( 'displays required terms of service text, a prompt for existing subscriptions,and a clickable connection button with the proper label text', () => {
 		render( <ConnectScreenRequiredPlan { ...requiredProps } /> );
-		expect( screen.getByRole( 'button', { name: 'Setup Jetpack' } ) ).toBeInTheDocument();
-		expect( screen.getByText( /By clicking the button above/i ) ).toBeInTheDocument();
-		expect( screen.getByText( /Already have a subscription?/i ) ).toBeInTheDocument();
-	} );
 
-	it( 'remove button, tos and subscription', () => {
-		render( <ConnectScreenRequiredPlan { ...requiredProps } showConnectButton={ false } /> );
-		expect( screen.queryByRole( 'button', { name: 'Setup Jetpack' } ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( /By clicking the button above/i ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( /Already have a subscription?/i ) ).not.toBeInTheDocument();
+		expect(
+			screen.getByText(
+				( content, { textContent } ) =>
+					content !== '' && // filter out parent/wrapper elements
+					textContent.startsWith(
+						`By clicking the ${ CONNECTION_BUTTON_LABEL } button, you agree to our Terms of Service`
+					)
+			)
+		).toBeInTheDocument();
+		expect( screen.getByText( 'Already have a subscription?' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: CONNECTION_BUTTON_LABEL } ) ).toBeEnabled();
 	} );
 
 	it( 'applies correct href to terms of service', () => {

@@ -4,7 +4,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "3.1.x-dev"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"scripts": {
 		"build-production": [
@@ -15,9 +15,6 @@
 		],
 		"test-js": [
 			"pnpm run test"
-		],
-		"test-coverage": [
-			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [
@@ -28,5 +25,13 @@
 				"monorepo": true
 			}
 		}
-	]
+	],
+	"extra": {
+		"autotagger": true,
+		"npmjs-autopublish": true,
+		"mirror-repo": "Automattic/jetpack-components",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-components/compare/${old}...${new}"
+		}
+	}
 }

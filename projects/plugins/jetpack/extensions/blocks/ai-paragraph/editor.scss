@@ -1,0 +1,18 @@
+/**
+ * Editor styles for Jetpack AI Paragraph
+ */
+
+.wp-block-ai-generate-suggestion {
+	padding: 0;
+}
+
+.wp-block-ai-generate-suggestion .content {}
+
+.wp-block-ai-generate-suggestion .components-text-control__input {
+	margin: 10px;
+	width:80%;
+}
+
+.wp-block-ai-generate-suggestion .components-button.is-primary {
+	margin: 10px;
+}

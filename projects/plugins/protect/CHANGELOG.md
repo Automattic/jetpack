@@ -5,6 +5,120 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.0 - 2024-01-18
+### Changed
+- Firewall: use datetime versioning for rules file updates. [#34698]
+- General: unify display of notifications across Scan and Firewall screens [#34702]
+- General: indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
+- General: update PHP requirement to PHP 7.0+ [#34126]
+- General: update WordPress version requirements to WordPress 6.3. [#34127]
+- General: update package dependencies. [#34882]
+- General: update lockfile. [#33607]
+
+### Fixed
+- Fix Modal component overflow scrolling. [#34475]
+- Fix Popover component styling. [#34424]
+- Improved helper script installer logging. [#34297]
+
+## 1.4.2 - 2023-10-19
+### Changed
+- General: update WordPress version requirements to WordPress 6.2. [#32762] [#32772]
+- Updated Jetpack submenu sort order so individual features are alpha-sorted. [#32958]
+- Updated method used to render Connection initial state. [#32499]
+- Updated package dependencies. [#33692]
+
+## 1.4.1 - 2023-07-18
+### Changed
+- Brute Force Protection: add access to feature in environments that otherwise do not support the WAF. [#31952]
+- General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
+- Update WordPress version requirements. Now requires version 6.1. [#30120]
+- Update package dependencies. [#31952]
+
+### Fixed
+- Scan: Fixed sorting of threats by severity. [#31124]
+- License Activation: add filtering for unattached and unrevoked licenses within upgrade flow check. [#31086]
+
+## 1.4.0 - 2023-05-05
+### Added
+- Add brute force protection. [#28401]
+
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.2. [#29341]
+- Improve the firewall status heading to provide more information based on the current configuration. [#28401]
+- Updated package dependencies. [#29480]
+
+## 1.3.0 - 2023-03-13
+### Added
+- Add ability to toggle automatic and manual firewall rules independently. [#27726]
+- Add improved messaging for currently enabled firewall features. [#27845]
+- Disable Jetpack Firewall on unsupported environments. [#27939]
+- Add link to pricing page for getting started with an existing plan or license key. [#27745]
+
+### Changed
+- Updated package dependencies. [#29297]
+- Update to React 18. [#28710]
+- Use `flex-start`/`flex-end` instead of `start`/`end` for better browser compatibility. [#28530]
+
+### Fixed
+- Fix connection button loading indicators. [#28514]
+- Fix Protect status report caching. [#28766]
+- Remove unnecessary full path from example in UI. [#29037]
+- Other assorted fixes for minor bugs and grammar. [#27846] [#28091] [#28397] [#28273]
+
+## 1.2.0 - 2023-01-16
+### Added
+- Add web application firewall (WAF) features [#27528]
+- Add progress bar to site scannnig screen [#27171]
+
+### Fixed
+- Poll for scan status while scanner is provisioning [#28275]
+- Bug fixes
+
+## 1.1.2 - 2022-11-30
+### Changed
+- changed description and author [#27618]
+- Updated package dependencies. [#27043]
+
+## 1.1.1 - 2022-11-18
+### Fixed
+- Fix issue with plugin activation.
+
+## 1.1.0 - 2022-11-17
+### Added
+- Add features for paid Jetpack Scan users, including file and database threats, on-demand scanning, and threat auto-fixers.
+
+### Changed
+- Compatibility: WordPress 6.1 compatibility
+
+### Fixed
+- Adjust alignment of spinner icon and loading text on the in-progress scan screen.
+
+## 1.0.4 - 2022-08-29
+### Fixed
+- Fixed NaN error that prevented the pricing interstitial from rendering.
+
+## 1.0.3 - 2022-08-26
+### Added
+- Added a default 'See all results' label to the mobile navigation button.
+- Added a spinner to the in progress scan page in admin
+- Added JITM functionality
+- Added threat descriptions.
+- My Jetpack includes JITMs
+
+### Changed
+- Add condition to check plugin activation context before redirecting
+
+### Fixed
+- Fixed alignment of long navigation item labels on mobile screen sizes.
+
+## 1.0.2 - 2022-07-27
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fix protect admin toolbar icon display when Jetpack enabled and connected
+- Minor bug fix - added isset() checks for report data properties
+
 ## 1.0.1 - 2022-07-07
 ### Added
 - Added two new FAQ entries

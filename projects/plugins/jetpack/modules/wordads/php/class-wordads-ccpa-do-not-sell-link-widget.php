@@ -17,9 +17,9 @@ class WordAds_Ccpa_Do_Not_Sell_Link_Widget extends WP_Widget {
 		parent::__construct(
 			'wordads_ccpa_do_not_sell_link_widget',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
-			apply_filters( 'jetpack_widget_name', __( 'Do Not Sell Link (CCPA)', 'jetpack' ) ),
+			apply_filters( 'jetpack_widget_name', __( 'Do Not Sell Link (US Privacy)', 'jetpack' ) ),
 			array(
-				'description'                 => __( 'Inserts "Do Not Sell My Personal Information" link required by the California Consumer Privacy Act (CCPA)', 'jetpack' ),
+				'description'                 => __( 'Inserts "Do Not Sell or Share My Personal Information" link required by some US states to opt-out of targeted advertising', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -33,7 +33,7 @@ class WordAds_Ccpa_Do_Not_Sell_Link_Widget extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo do_shortcode( '[ccpa-do-not-sell-link]' );
+		echo do_shortcode( '[privacy-do-not-sell-link]' );
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }

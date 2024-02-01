@@ -37,7 +37,7 @@
 	} );
 
 	$( document ).keyup( function ( e ) {
-		if ( 27 === e.keyCode ) {
+		if ( e.code === 'Escape' ) {
 			$( fullScreenDismiss ).click();
 		}
 	} );

@@ -80,12 +80,10 @@ function jetpack_embed_medium_shortcode( $atts ) {
 	if ( ! empty( $atts['url'] ) ) {
 		global $wp_embed;
 		return $wp_embed->shortcode( $atts, $atts['url'] );
+	} elseif ( current_user_can( 'edit_posts' ) ) {
+		return esc_html__( 'You did not provide a valid Medium URL.', 'jetpack' );
 	} else {
-		if ( current_user_can( 'edit_posts' ) ) {
-			return esc_html__( 'You did not provide a valid Medium URL.', 'jetpack' );
-		} else {
-			return '<!-- Missing Medium URL -->';
-		}
+		return '<!-- Missing Medium URL -->';
 	}
 }
 add_shortcode( 'medium', 'jetpack_embed_medium_shortcode' );

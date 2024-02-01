@@ -3,12 +3,21 @@
 	"description": "Creates a custom autoloader for a plugin or theme.",
 	"type": "composer-plugin",
 	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"autoload",
+		"autoloader",
+		"composer",
+		"plugin",
+		"jetpack",
+		"wordpress"
+	],
 	"require": {
+		"php": ">=7.0",
 		"composer-plugin-api": "^1.1 || ^2.0"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.1"
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -21,10 +30,6 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
-			"php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -48,8 +53,11 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
 		},
+		"version-constants": {
+			"::VERSION": "src/AutoloadGenerator.php"
+		},
 		"branch-alias": {
-			"dev-trunk": "2.11.x-dev"
+			"dev-trunk": "3.0.x-dev"
 		}
 	}
 }

@@ -1,0 +1,60 @@
+.connection-status-card {
+	.status {
+		display: flex;
+		align-items: center;
+		gap: var( --spacing-base );
+		margin-bottom: calc( var(--spacing-base) * 3); // 24px
+
+		.avatar-wrapper {
+			position: relative;
+		}
+
+		.cloud {
+			width: 32px;
+		}
+
+		.jetpack {
+			width: 30px;
+		}
+
+		.avatar {
+			width: 32px;
+			position: absolute;
+			margin-left: -10px;
+			border-radius: 50%;
+		}
+
+		.line {
+			width: 67px;
+			height: 0;
+			border-top: 2px solid var( --jp-black );
+			border-top-style: dashed;
+		}
+
+		.disconnected {
+			border-color: var( --jp-red );
+		}
+	}
+
+	.info {
+		transform: rotate( 180deg );
+	}
+
+	.list-item {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-base);
+		margin-bottom: var(--spacing-base);
+
+		&-text {
+			display: flex;
+			align-items: center;
+			gap: var(--spacing-base);
+
+			&.error {
+				color: var( --jp-red );
+				fill: var( --jp-red );
+			}
+		}
+	}
+}

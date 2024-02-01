@@ -59,5 +59,4 @@ class Simple_Codec extends JSON_Deflate_Array_Codec {
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		return $this->json_unserialize( base64_decode( $input ) );
 	}
-
 }

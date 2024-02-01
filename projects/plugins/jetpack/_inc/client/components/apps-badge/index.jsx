@@ -16,8 +16,8 @@ const APP_STORE_BADGE_URLS = {
 		src: 'https://linkmaker.itunes.apple.com/assets/shared/badges/{localeSlug}/appstore-lrg.svg',
 		tracksEvent: 'calypso_app_download_ios_click',
 		getStoreLink: utm_source =>
-			`https://apps.apple.com/app/apple-store/id335703880?pt=299112&ct=${ utm_source }&mt=8`,
-		getTitleText: () => __( 'Download the WordPress iOS mobile app.', 'jetpack' ),
+			`https://apps.apple.com/app/apple-store/id1565481562?pt=299112&ct=${ utm_source }&mt=8`,
+		getTitleText: () => __( 'Download the Jetpack iOS mobile app.', 'jetpack' ),
 		getAltText: () => __( 'Apple App Store download badge', 'jetpack' ),
 		getLocaleSlug: function () {
 			const localeSlug = getLocaleSlug();
@@ -27,16 +27,15 @@ const APP_STORE_BADGE_URLS = {
 	},
 	android: {
 		defaultSrc: imagePath + '/get-apps-google-play.png',
-		src:
-			'https://play.google.com/intl/en_us/badges/images/generic/{localeSlug}_badge_web_generic.png',
+		src: 'https://play.google.com/intl/en_us/badges/images/generic/{localeSlug}_badge_web_generic.png',
 		tracksEvent: 'calypso_app_download_android_click',
 		getStoreLink: (
 			utm_source,
 			utm_medium = 'web',
 			utm_campaign = 'mobile-download-promo-pages'
 		) =>
-			`https://play.google.com/store/apps/details?id=org.wordpress.android&referrer=utm_source%3D%${ utm_source }%26utm_medium%3D${ utm_medium }%26utm_campaign%3D${ utm_campaign }`,
-		getTitleText: () => __( 'Download the WordPress Android mobile app.', 'jetpack' ),
+			`https://play.google.com/store/apps/details?id=com.jetpack.android&referrer=utm_source%3D%${ utm_source }%26utm_medium%3D${ utm_medium }%26utm_campaign%3D${ utm_campaign }`,
+		getTitleText: () => __( 'Download the Jetpack Android mobile app.', 'jetpack' ),
 		getAltText: () => __( 'Google Play Store download badge', 'jetpack' ),
 		getLocaleSlug: function () {
 			const localeSlug = getLocaleSlug();
@@ -109,15 +108,8 @@ class AppsBadge extends PureComponent {
 	};
 
 	render() {
-		const {
-			altText,
-			titleText,
-			storeLink,
-			storeName,
-			utm_source,
-			utm_medium,
-			utm_campaign,
-		} = this.props;
+		const { altText, titleText, storeLink, storeName, utm_source, utm_medium, utm_campaign } =
+			this.props;
 		const { imageSrc, hasExternalImageLoaded } = this.state;
 
 		const figureClassNames = classNames( 'apps-badge', {

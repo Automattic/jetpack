@@ -7,7 +7,7 @@ import onKeyDownCallback from 'utils/onkeydown-callback';
 
 class ModernOverlay extends Component {
 	maybeDismiss = e => {
-		if ( this.props.showDismiss && ( ! e.keyCode || e.keyCode === 27 ) ) {
+		if ( this.props.showDismiss && ( ! e.code || e.code === 'Escape' ) ) {
 			this.props.dismiss( e );
 		}
 	};

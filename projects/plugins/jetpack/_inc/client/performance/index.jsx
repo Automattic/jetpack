@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -20,7 +19,7 @@ class Performance extends Component {
 			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
-		const found = [ 'photon', 'videopress', 'lazy-images', 'photon-cdn', 'search' ].some(
+		const found = [ 'photon', 'videopress', 'photon-cdn', 'search' ].some(
 			this.props.isModuleFound
 		);
 
@@ -35,17 +34,15 @@ class Performance extends Component {
 		return (
 			<div>
 				<QuerySite />
-				<Card
-					title={
-						this.props.searchTerm
-							? __( 'Performance', 'jetpack' )
-							: __(
-									'Load pages faster, optimize images, and speed up your visitors’ experience.',
-									'jetpack'
-							  )
-					}
-					className="jp-settings-description"
-				/>
+				<h1 className="screen-reader-text">{ __( 'Jetpack Performance Settings', 'jetpack' ) }</h1>
+				<h2 className="jp-settings__section-title">
+					{ this.props.searchTerm
+						? __( 'Performance', 'jetpack' )
+						: __(
+								'Load pages faster, optimize images, and speed up your visitors’ experience.',
+								'jetpack'
+						  ) }
+				</h2>
 				<Search { ...commonProps } />
 				<SpeedUpSite { ...commonProps } />
 				<Media { ...commonProps } />

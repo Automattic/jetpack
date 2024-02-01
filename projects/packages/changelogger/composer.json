@@ -3,15 +3,20 @@
 	"description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
 	"type": "project",
 	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"changelog",
+		"keepachangelog",
+		"cli",
+		"dev"
+	],
 	"require": {
-		"php": ">=5.6",
-		"symfony/console": "^3.4 || ^5.2",
-		"symfony/process": "^3.4 || ^5.2",
-		"wikimedia/at-ease": "^1.2 || ^2.0"
+		"php": ">=7.0",
+		"symfony/console": "^3.4 || ^4.4 || ^5.2 || ^6.0",
+		"symfony/process": "^3.4 || ^4.4 || ^5.2 || ^6.0"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.3",
-		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0"
+		"yoast/phpunit-polyfills": "1.1.0",
+		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0"
 	},
 	"autoload": {
 		"psr-4": {
@@ -31,9 +36,6 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -55,7 +57,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "3.1.x-dev"
+			"dev-trunk": "4.1.x-dev"
 		},
 		"mirror-repo": "Automattic/jetpack-changelogger",
 		"version-constants": {

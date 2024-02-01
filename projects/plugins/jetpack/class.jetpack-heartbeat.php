@@ -142,5 +142,4 @@ class Jetpack_Heartbeat {
 
 		return array_merge( $stats, $jetpack_stats );
 	}
-
 }

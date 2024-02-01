@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Project Board automations: do not run any automation on closed issues.

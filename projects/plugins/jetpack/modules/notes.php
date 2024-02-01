@@ -17,7 +17,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 if ( ! defined( 'JETPACK_NOTES__CACHE_BUSTER' ) ) {
-	define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) );
+	define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) . '-lite' );
 }
 
 /**
@@ -82,8 +82,15 @@ class Jetpack_Notifications {
 
 		// Do not show notifications in the Site Editor, which is always in fullscreen mode.
 		global $pagenow;
-		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page'] ) {
+
+		// Pre 13.7 pages that still need to be supported if < 13.7 is
+		// still installed.
+		$allowed_old_pages       = array( 'admin.php', 'themes.php' );
+		$is_old_site_editor_page = in_array( $pagenow, $allowed_old_pages, true ) && isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// For Gutenberg > 13.7, the core `site-editor.php` route is used instead
+		$is_site_editor_page = 'site-editor.php' === $pagenow;
+
+		if ( $is_site_editor_page || $is_old_site_editor_page ) {
 			return;
 		}
 
@@ -98,6 +105,9 @@ class Jetpack_Notifications {
 	 * @return void
 	 */
 	public function styles_and_scripts() {
+		if ( self::is_block_editor() ) {
+			return;
+		}
 		$is_rtl = is_rtl();
 
 		if ( Jetpack::is_module_active( 'masterbar' ) ) {
@@ -123,26 +133,9 @@ class Jetpack_Notifications {
 
 		$this->print_js();
 
-		// attempt to use core or plugin libraries if registered.
 		$script_handles = array();
-		if ( ! wp_script_is( 'mustache', 'registered' ) ) {
-			wp_register_script( 'mustache', $this->wpcom_static_url( '/wp-content/js/mustache.js' ), null, JETPACK_NOTES__CACHE_BUSTER, true );
-		}
-		$script_handles[] = 'mustache';
-		if ( ! wp_script_is( 'underscore', 'registered' ) ) {
-			wp_register_script( 'underscore', $this->wpcom_static_url( '/wp-includes/js/underscore.min.js' ), null, JETPACK_NOTES__CACHE_BUSTER, true );
-		}
-		$script_handles[] = 'underscore';
-		if ( ! wp_script_is( 'backbone', 'registered' ) ) {
-			wp_register_script( 'backbone', $this->wpcom_static_url( '/wp-includes/js/backbone.min.js' ), array( 'underscore' ), JETPACK_NOTES__CACHE_BUSTER, true );
-		}
-		$script_handles[] = 'backbone';
-
-		wp_register_script( 'wpcom-notes-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-common-v2.js' ), array( 'jquery', 'underscore', 'backbone', 'mustache' ), JETPACK_NOTES__CACHE_BUSTER, true );
+		wp_register_script( 'wpcom-notes-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-common-lite.min.js' ), array(), JETPACK_NOTES__CACHE_BUSTER, true );
 		$script_handles[] = 'wpcom-notes-common';
-		$script_handles[] = 'jquery';
-		$script_handles[] = 'jquery-migrate';
-		$script_handles[] = 'jquery-core';
 		wp_enqueue_script( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.js' ), array( 'wpcom-notes-common' ), JETPACK_NOTES__CACHE_BUSTER, true );
 		$script_handles[] = 'wpcom-notes-admin-bar';
 
@@ -173,6 +166,10 @@ class Jetpack_Notifications {
 			return;
 		}
 
+		if ( self::is_block_editor() ) {
+			return;
+		}
+
 		$wpcom_locale = get_locale();
 
 		if ( ! class_exists( 'GP_Locales' ) ) {
@@ -188,18 +185,22 @@ class Jetpack_Notifications {
 			}
 		}
 
+		$third_party_cookie_check_iframe = '<span style="display:none;"><iframe class="jetpack-notes-cookie-check" src="https://widgets.wp.com/3rd-party-cookie-check/index.html"></iframe></span>';
+
 		$classes = 'wpnt-loading wpn-read';
 		$wp_admin_bar->add_menu(
 			array(
 				'id'     => 'notes',
 				'title'  => '<span id="wpnt-notes-unread-count" class="' . esc_attr( $classes ) . '">
+					<span class="screen-reader-text">' . esc_html__( 'Notifications', 'jetpack' ) . '</span>
 					<span class="noticon noticon-notification"></span>
 					</span>',
 				'meta'   => array(
-					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $wpcom_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>',
+					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $wpcom_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
 					'class' => 'menupop',
 				),
 				'parent' => 'top-secondary',
+				'href'   => 'https://wordpress.com/notifications',
 			)
 		);
 	}
@@ -220,10 +221,37 @@ class Jetpack_Notifications {
 	var wpNotesLinkAccountsURL = '<?php echo esc_url( $link_accounts_url ); ?>';
 <?php endif; ?>
 /* ]]> */
+	window.addEventListener('message', function ( event ) {
+		// Confirm that the message is from the right origin.
+		if ('https://widgets.wp.com' !== event.origin) {
+			return;
+		}
+		// Check whether 3rd Party Cookies are blocked
+		var has3PCBlocked = 'WPCOM:3PC:blocked' === event.data;
+
+		var tagerElement = document.getElementById('wp-admin-bar-notes');
+
+		if ( has3PCBlocked && tagerElement ) {
+			// Hide the notification button/icon
+			tagerElement.style.display = 'none';
+		}
+	}, false );
 </script>
 		<?php
 	}
 
+	/**
+	 * Checks to see if we're in the block editor.
+	 */
+	public static function is_block_editor() {
+		if ( function_exists( 'get_current_screen' ) ) {
+			$current_screen = get_current_screen();
+			if ( ! empty( $current_screen ) && $current_screen->is_block_editor() ) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
 
 Jetpack_Notifications::init();

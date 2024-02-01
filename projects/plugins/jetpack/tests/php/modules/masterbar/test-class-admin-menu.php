@@ -9,8 +9,8 @@ use Automattic\Jetpack\Dashboard_Customizations\Admin_Menu;
 use Automattic\Jetpack\Dashboard_Customizations\Base_Admin_Menu;
 use Automattic\Jetpack\Status;
 
-require_jetpack_file( 'modules/masterbar/admin-menu/class-admin-menu.php' );
-require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-menu/class-admin-menu.php';
+require_once JETPACK__PLUGIN_DIR . 'tests/php/modules/masterbar/data/admin-menu.php';
 
 /**
  * Class Test_Admin_Menu
@@ -297,7 +297,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		global $menu, $submenu;
 
 		// Current user can't list users.
-		wp_set_current_user( $this->factory->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 		$menu    = array(
 			70 => array(
 				'Profile',
@@ -384,33 +384,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][3][2] );
 		$this->assertSame( 'https://wordpress.com/backup/' . static::$domain, $submenu['jetpack'][4][2] );
-		$this->assertSame( 'https://wordpress.com/jetpack-search/' . static::$domain, $submenu['jetpack'][5][2] );
-	}
-
-	/**
-	 * Tests add_gutenberg_menus
-	 *
-	 * @covers ::add_gutenberg_menus
-	 */
-	public function test_add_gutenberg_menus() {
-		global $menu;
-		static::$admin_menu->add_gutenberg_menus();
-
-		// FSE is no longer where it was put by default.
-		$this->assertArrayNotHasKey( 100, $menu );
-		$this->assertArrayHasKey( 59, $menu );
-
-		$fse_link = 'https://wordpress.com/site-editor/' . static::$domain;
-		$fse_menu = array(
-			'Site Editor <span class="awaiting-mod">beta</span>',
-			'edit_theme_options',
-			$fse_link,
-			'Site Editor (beta)',
-			'menu-top toplevel_page_gutenberg-edit-site',
-			'toplevel_page_gutenberg-edit-site',
-			'dashicons-layout',
-		);
-		$this->assertSame( $menu[59], $fse_menu );
 	}
 
 	/**
@@ -434,7 +407,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][0][4] );
 		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][2][4] );
 
-		$this->assertEquals( $submenu['options-general.php'][3], array( '', 'read', 'test-slug', '' ) );
+		$this->assertEquals( array( '', 'read', 'test-slug', '' ), $submenu['options-general.php'][3] );
 
 		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][5][4] );
 
@@ -515,7 +488,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Tests test_add_woocommerce_installation_menu
 	 *
-	 * @covers ::test_add_woocommerce_installation_menu
+	 * @covers ::add_woocommerce_installation_menu
 	 */
 	public function test_add_woocommerce_installation_menu() {
 		global $menu;

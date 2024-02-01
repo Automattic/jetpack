@@ -1,0 +1,19 @@
+<?php
+/**
+ * A dummy file to test the Jetpack-NoWP ruleset.
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+/**
+ * A function.
+ *
+ * Without Jetpack-NoWP, the function name would be complained about but the call to `array_key_first` is ok.
+ * With it, vice versa.
+ *
+ * @param array $value Value.
+ * @return mixed
+ */
+function doTheThing( $value ) {
+	return array_key_first( $value );
+}

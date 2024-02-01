@@ -37,6 +37,7 @@ Jetpack E2E tests relies on 2 encrypted configuration files, one included in thi
 To decrypt the config files (a8c only):
 
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
+- Go to the e2e directory you want to test: `cd projects/plugins/jetpack/tests/e2e`
 - Run `CONFIG_KEY=YOUR_KEY pnpm config:decrypt`. This command should create a new file [`config/local.cjs`](./config/local.cjs)
 
 ### Docker environment
@@ -106,8 +107,8 @@ pnpm test:run --debug
 # One test file
 pnpm test:run ./specs/some.test.js
 
-# All tests having 'blocks' in their name
-pnpm test:run blocks
+# All tests having 'connection' in their name
+pnpm test:run connection
 
 # Run only run tests matching a regular expression.
 pnpm test:run --grep "mailchimp"

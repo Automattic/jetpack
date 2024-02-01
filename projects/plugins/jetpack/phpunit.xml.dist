@@ -12,12 +12,6 @@
 		<testsuite name="media">
 			<directory prefix="test" suffix=".php">tests/php/media</directory>
 		</testsuite>
-		<testsuite name="photon">
-			<file>tests/php/test_class.jetpack_photon.php</file>
-			<file>tests/php/test_functions.photon.php</file>
-			<directory prefix="test_" suffix=".php">tests/php/modules/photon</directory>
-			<file>tests/php/test_class.functions.opengraph.php</file>
-		</testsuite>
 		<testsuite name="json-api">
 			<directory prefix="test" suffix=".php">tests/php/json-api</directory>
 		</testsuite>
@@ -30,14 +24,14 @@
 		<testsuite name="likes">
 			<directory prefix="test_" suffix=".php">tests/php/modules/likes</directory>
 		</testsuite>
+		<testsuite name="markdown">
+			<directory prefix="test_" suffix=".php">tests/php/modules/markdown</directory>
+		</testsuite>
 		<testsuite name="publicize">
 			<directory prefix="test_" suffix=".php">tests/php/modules/publicize</directory>
 		</testsuite>
 		<testsuite name="post-by-email">
 			<directory prefix="test" suffix=".php">tests/php/modules/post-by-email</directory>
-		</testsuite>
-		<testsuite name="protect">
-			<directory prefix="test" suffix=".php">tests/php/modules/protect</directory>
 		</testsuite>
 		<testsuite name="related-posts">
 			<directory prefix="test_" suffix=".php">tests/php/modules/related-posts</directory>
@@ -126,6 +120,12 @@
 		<testsuite name="csstidy">
 			<directory prefix="test" suffix=".php">tests/php/modules/csstidy</directory>
 		</testsuite>
+		<testsuite name="compatfunctions">
+			<file>tests/php/test_functions.compat.php</file>
+		</testsuite>
+		<testsuite name="autoloaded">
+			<directory prefix="test" suffix=".php">tests/php/src</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
@@ -136,14 +136,14 @@
 	</groups>
 	<filter>
 		<whitelist>
-			<directory suffix=".php">.</directory>
-			<exclude>
-				<directory suffix=".php">tests</directory>
-				<directory suffix=".php">views</directory>
-				<directory suffix=".php">tools</directory>
-				<directory suffix=".php">node_modules</directory>
-				<directory suffix=".php">vendor</directory>
-			</exclude>
+			<file>./*.php</file>
+			<directory suffix=".php">3rd-party</directory>
+			<directory suffix=".php">extensions</directory>
+			<directory suffix=".php">_inc</directory>
+			<directory suffix=".php">json-endpoints</directory>
+			<directory suffix=".php">modules</directory>
+			<directory suffix=".php">sal</directory>
+			<directory suffix=".php">src</directory>
 		</whitelist>
 	</filter>
 	<listeners>

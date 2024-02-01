@@ -17,8 +17,7 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 describe( 'GoogleCalendarEdit', () => {
 	const defaultClassName = 'wp-block-jetpack-google-calendar';
 	const defaultAttributes = {
-		url:
-			'https://calendar.google.com/calendar/embed?src=test.user%40a8c.com&ctz=Pacific%2FAuckland',
+		url: 'https://calendar.google.com/calendar/embed?src=test.user%40a8c.com&ctz=Pacific%2FAuckland',
 		height: '600',
 		width: '800',
 	};

@@ -1,9 +1,5 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
-.iconWrapper {
-	fill: #2C3338;
-}
-
 .star-icon {
 	fill: black;
 }
@@ -16,8 +12,11 @@
 .socialIcon {
 	fill: $gray-700;
 	&.facebook {
-		border-radius: 50% !important;
 		fill: var( --color-facebook );
+		border-radius: 50% !important;
+	}
+	&.instagram {
+		fill: var( --color-instagram );
 	}
 	&.twitter {
 		fill: var( --color-twitter );
@@ -30,6 +29,19 @@
 	}
 	&.google {
 		fill: var( --color-gplus );
+	}
+	&.mastodon {
+		fill: var( --color-mastodon );
+	}
+	&.nextdoor {
+		fill: var( --color-nextdoor );
+		border-radius: 50%;
+	}
+	&.instagram {
+		fill: var( --color-instagram );
+	}
+	&.whatsapp {
+		fill: var( --color-whatsapp );
 	}
 }
 

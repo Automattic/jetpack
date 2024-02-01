@@ -212,5 +212,4 @@ class SemverTest extends TestCase {
 			array( '1.1.1+beta.9.1', '==', '1.1.1+beta.9' ),
 		);
 	}
-
 }

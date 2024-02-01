@@ -6,7 +6,11 @@ import debounce from 'lodash/debounce';
 import React, { Component, Fragment } from 'react';
 import { createPortal } from 'react-dom';
 import { connect } from 'react-redux';
-import { MULTISITE_NO_GROUP_VALUE, RESULT_FORMAT_EXPANDED } from '../lib/constants';
+import {
+	MULTISITE_NO_GROUP_VALUE,
+	RESULT_FORMAT_EXPANDED,
+	SERVER_OBJECT_NAME,
+} from '../lib/constants';
 import { getAvailableStaticFilters } from '../lib/filters';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
@@ -79,11 +83,15 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
-		// The condition can only occur in the Customberg preview context.
-		if ( this.props.initialShowResults && this.props.initialIsVisible ) {
+		// This condition can only occur within Customberg or the Customizer.
+		if (
+			( this.props.initialShowResults && this.props.initialIsVisible ) ||
+			this.props.isInCustomizer
+		) {
 			this.getResults();
 		}
-		if ( this.props.hasActiveQuery ) {
+
+		if ( this.props.hasActiveQuery && this.props.overlayOptions.enableFilteringOpensOverlay ) {
 			this.showResults();
 		}
 	}
@@ -113,7 +121,7 @@ class SearchApp extends Component {
 
 	initializeAnalytics() {
 		initializeTracks();
-		resetTrackingCookies();
+		! window[ SERVER_OBJECT_NAME ].preventTrackingCookiesReset && resetTrackingCookies();
 		identifySite( this.props.options.siteId );
 	}
 
@@ -217,6 +225,7 @@ class SearchApp extends Component {
 			query: this.props.searchQuery,
 			resultFormat: this.getResultFormat(),
 			siteId: this.props.options.siteId,
+			additionalBlogIds: this.props.options.additionalBlogIds,
 			sort: this.props.sort,
 			postsPerPage: this.props.options.postsPerPage,
 			adminQueryFilter: this.props.options.adminQueryFilter,
@@ -273,6 +282,7 @@ class SearchApp extends Component {
 						<SearchResults
 							closeOverlay={ this.hideResults }
 							enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
+							enableFilteringOpensOverlay={ this.state.overlayOptions.enableFilteringOpensOverlay }
 							enableSort={ this.state.overlayOptions.enableSort }
 							filters={ this.props.filters }
 							staticFilters={ this.props.staticFilters }
@@ -297,6 +307,8 @@ class SearchApp extends Component {
 							widgets={ this.props.options.widgets }
 							widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
 							hasNonSearchWidgets={ this.props.options.hasNonSearchWidgets }
+							additionalBlogIds={ this.props.options.additionalBlogIds }
+							showPostDate={ this.state.overlayOptions.enablePostDate }
 						/>
 					</Overlay>,
 					document.body

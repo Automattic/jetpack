@@ -1,5 +1,5 @@
-import logger from 'jetpack-e2e-commons/logger.cjs';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import logger from 'jetpack-e2e-commons/logger.js';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 import { expect } from '@playwright/test';
 import { JetpackBoostPage } from '../pages/index.js';
@@ -109,7 +109,7 @@ export async function deactivateModules( modules ) {
 	}
 }
 
-export async function ensureConnectedState( requiredConnected = undefined, page ) {
+export async function ensureConnectedState( requiredConnected, page ) {
 	const isConnected = await checkIfConnected();
 
 	if ( requiredConnected && isConnected ) {
@@ -126,19 +126,16 @@ export async function ensureConnectedState( requiredConnected = undefined, page 
 }
 
 export async function connect( page ) {
-	logger.prerequisites( `Connecting Boost plugin to WP.com` );
-	// Boost cannot be connected to WP.com using the WP-CLI because the site is considered
-	// as a localhost site. The only solution is to do it via the site itself running under the localtunnel.
 	const jetpackBoostPage = await JetpackBoostPage.visit( page );
-	await jetpackBoostPage.connect();
+	await jetpackBoostPage.chooseFreePlan();
 	await jetpackBoostPage.isOverallScoreHeaderShown();
 }
 
 export async function disconnect() {
 	logger.prerequisites( `Disconnecting Boost plugin to WP.com` );
-	const cliCmd = 'jetpack-boost connection deactivate';
+	const cliCmd = 'jetpack disconnect blog';
 	const result = await execWpCommand( cliCmd );
-	expect( result ).toEqual( 'Success: Boost is disconnected from WP.com' );
+	expect( result ).toContain( 'Success: Jetpack has been successfully disconnected' );
 }
 
 export async function checkIfConnected() {

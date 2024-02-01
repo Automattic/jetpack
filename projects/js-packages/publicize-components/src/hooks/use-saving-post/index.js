@@ -30,7 +30,7 @@ export function usePostJustSaved( fn, deps ) {
  * Additionally, it accepts a dependency array which is passed to useEffect hook.
  *
  * @param {Function} fn - Callback function to run when the post is just published.
- * @param {Array} deps  - Depencency array.
+ * @param {Array} [deps]  - Depencency array.
  */
 export function usePostJustPublished( fn, deps ) {
 	const isPublishing = useSelect( select => select( editorStore ).isPublishingPost(), [] );
@@ -38,6 +38,27 @@ export function usePostJustPublished( fn, deps ) {
 
 	useEffect( () => {
 		if ( ! ( wasPublishing && ! isPublishing ) ) {
+			return;
+		}
+
+		fn();
+	}, [ isPublishing, wasPublishing, fn, deps ] );
+}
+
+/**
+ * React hook to detect when a post just started publishing,
+ * running the callback when it happens.
+ * Additionally, it accepts a dependency array which is passed to useEffect hook.
+ *
+ * @param {Function} fn - Callback function to run when the post starts publishing.
+ * @param {Array} deps  - Dependency array.
+ */
+export function usePostStartedPublishing( fn, deps ) {
+	const isPublishing = useSelect( select => select( editorStore ).isPublishingPost(), [] );
+	const wasPublishing = usePrevious( isPublishing );
+
+	useEffect( () => {
+		if ( ! ( ! wasPublishing && isPublishing ) ) {
 			return;
 		}
 

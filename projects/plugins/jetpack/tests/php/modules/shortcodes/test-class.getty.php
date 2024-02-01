@@ -61,7 +61,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 	}
 
 	public function getty_oembed_response( $html, $url ) {
-		if ( 0 !== strpos( $url, 'https://gty.im/' ) ) {
+		if ( ! str_starts_with( $url, 'https://gty.im/' ) ) {
 			return $html;
 		}
 
@@ -76,7 +76,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 	 * @since  4.5.0
 	 */
 	public function test_shortcodes_getty_exists() {
-		$this->assertEquals( shortcode_exists( 'getty' ), true );
+		$this->assertTrue( shortcode_exists( 'getty' ) );
 	}
 
 	public function test_getty_shortcode() {

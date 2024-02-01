@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SubscriptionEdit } from '../edit';
 
@@ -7,9 +8,11 @@ const setAttributes = jest.fn();
 const defaultAttributes = {
 	borderRadius: 0,
 	borderWeight: 0,
+	includeSocialFollowers: true,
 	padding: 0,
 	spacing: 0,
 	submitButtonText: 'Submit',
+	subscriptionPlaceholderText: 'Activate Subscriptions',
 	subscribePlaceholder: 'Do it',
 	showSubscribersTotal: false,
 	buttonOnNewLine: false,
@@ -30,10 +33,14 @@ const defaultProps = {
 	fontSize: 12,
 };
 
-jest.mock( '../api', () => ( {
+jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	__esModule: true,
-	getSubscriberCount: jest.fn( successCallback => {
-		successCallback( 100 );
+	...jest.requireActual( '@automattic/jetpack-shared-extension-utils' ),
+	useModuleStatus: jest.fn().mockReturnValue( {
+		isModuleActive: true,
+		isLoadingModules: false,
+		isChangingStatus: false,
+		changeStatus: jest.fn(),
 	} ),
 } ) );
 
@@ -50,10 +57,25 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	} ),
 } ) );
 
+beforeEach( () => {
+	useModuleStatus.mockReturnValue( {
+		isModuleActive: true,
+		changeStatus: jest.fn(),
+	} );
+} );
+jest.mock( '@wordpress/element', () => ( {
+	...jest.requireActual( '@wordpress/element' ),
+	useSelect: () => ( {
+		subscriberCounts: 100,
+		subscriberCountString: 'Join 100 other subscribers',
+	} ),
+} ) );
+
+jest.mock( '@wordpress/notices', () => {}, { virtual: true } );
+
 describe( 'SubscriptionEdit', () => {
 	test( 'adds correct classes to container', async () => {
 		const { container } = render( <SubscriptionEdit { ...defaultProps } /> );
-
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelector( `.${ defaultProps.className }` ) ).toBeInTheDocument();
 	} );
@@ -89,6 +111,34 @@ describe( 'SubscriptionEdit', () => {
 		).toBeInTheDocument();
 	} );
 
+	test( 'renders subscription placeholder when module is disabled', async () => {
+		useModuleStatus.mockReturnValue( {
+			isModuleActive: false,
+			changeStatus: jest.fn(),
+		} );
+
+		render( <SubscriptionEdit { ...defaultProps } /> );
+
+		const button = screen.getByText( defaultAttributes.subscriptionPlaceholderText );
+		fireEvent.submit( button );
+		expect( screen.getByText( defaultAttributes.subscriptionPlaceholderText ) ).toBeInTheDocument();
+	} );
+
+	test( 'calls subscription activation when placeholder button is clicked', async () => {
+		const user = userEvent.setup();
+		const onChangeStatus = jest.fn();
+		useModuleStatus.mockReturnValue( {
+			isModuleActive: false,
+			changeStatus: onChangeStatus,
+		} );
+
+		render( <SubscriptionEdit { ...defaultProps } /> );
+
+		const actionButton = screen.getByText( defaultAttributes.subscriptionPlaceholderText );
+		await user.click( actionButton );
+		expect( onChangeStatus ).toHaveBeenCalledWith( true );
+	} );
+
 	test( 'renders button with default text', async () => {
 		render( <SubscriptionEdit { ...defaultProps } /> );
 
@@ -113,8 +163,10 @@ describe( 'SubscriptionEdit', () => {
 
 	test( 'displays subscriber total after update', async () => {
 		const { container, rerender } = render( <SubscriptionEdit { ...defaultProps } /> );
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		expect( container.querySelector( 'p' ) ).not.toBeInTheDocument();
+		expect(
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			container.querySelector( '.wp-block-jetpack-subscriptions__subscount' )
+		).not.toBeInTheDocument();
 		expect(
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			container.querySelector( '.wp-block-jetpack-subscriptions__show-subs' )
@@ -133,7 +185,9 @@ describe( 'SubscriptionEdit', () => {
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			container.querySelector( '.wp-block-jetpack-subscriptions__show-subs' )
 		).toBeInTheDocument();
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		expect( container.querySelector( 'p' ) ).toBeInTheDocument();
+		expect(
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			container.querySelector( '.wp-block-jetpack-subscriptions__subscount' )
+		).toBeInTheDocument();
 	} );
 } );

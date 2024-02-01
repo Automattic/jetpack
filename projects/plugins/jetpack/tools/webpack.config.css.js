@@ -14,7 +14,7 @@ const glob = require( 'glob' );
 const webpack = jetpackWebpackConfig.webpack;
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: jetpackWebpackConfig.devtool,
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.join( __dirname, '..' ),
@@ -47,7 +47,7 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { plugins: { autoprefixer: {} } },
+							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
 						},
 					},
 					{
@@ -123,7 +123,7 @@ const weirdRtlEntries = {
 		// When making changes to that list, you must also update $concatenated_style_handles in class.jetpack.php.
 		'modules/carousel/swiper-bundle.css',
 		'modules/carousel/jetpack-carousel.css',
-		'modules/contact-form/css/grunion.css',
+		'jetpack_vendor/automattic/jetpack-forms/src/contact-form/css/grunion.css',
 		'modules/infinite-scroll/infinity.css',
 		'modules/likes/style.css',
 		'modules/related-posts/related-posts.css',
@@ -151,6 +151,7 @@ const weirdRtlEntries = {
 		'modules/widgets/simple-payments/style.css',
 		'modules/widgets/social-icons/social-icons.css',
 		'modules/widgets/milestone/milestone-widget.css',
+		'modules/subscriptions/subscribe-modal/subscribe-modal.css',
 	].map( n => path.join( __dirname, '..', n ) ),
 };
 
@@ -169,10 +170,7 @@ for ( const name of [
 	'modules/custom-css/csstidy/cssparse',
 	'modules/custom-css/csstidy/cssparsed',
 	'modules/custom-css/custom-css/css/codemirror',
-	'modules/custom-css/custom-css/css/css-editor',
-	'modules/custom-css/custom-css/css/use-codemirror',
 	'modules/post-by-email/post-by-email',
-	'modules/protect/protect-dashboard-widget',
 	'modules/sharedaddy/admin-sharing',
 	'modules/videopress/videopress-admin',
 	'modules/videopress/css/editor',
@@ -181,6 +179,7 @@ for ( const name of [
 	'modules/widgets/gallery/css/admin',
 	'modules/sso/jetpack-sso-login',
 	'modules/masterbar/admin-menu/admin-menu',
+	'modules/masterbar/admin-menu/admin-menu-nav-unification',
 ] ) {
 	weirdRtlNominEntries[ name ] = path.join( __dirname, '..', name + '.css' );
 	weirdRtlEntries[ name + '.min' ] = path.join( __dirname, '..', name + '.css' );

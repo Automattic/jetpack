@@ -17,6 +17,8 @@ require_once __DIR__ . '/class-test-helpers-query.php';
  * Helpers for Classic and Instant Search tests
  */
 class Test_Helpers extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
+
 	/**
 	 * Request URI
 	 *
@@ -105,36 +107,6 @@ class Test_Helpers extends TestCase {
 	}
 
 	/**
-	 * Shimmed assertion for older Phpunit versions.
-	 *
-	 * @param {string} $needle - Needle.
-	 * @param {string} $haystack - Haystack.
-	 * @param {string} $message - Error message.
-	 */
-	public static function assertStringContainsStringShimmed( $needle, $haystack, $message = '' ) {
-		if ( method_exists( 'self', 'assertStringContainsString' ) ) {
-			self::assertStringContainsString( $needle, $haystack, $message );
-		} else {
-			self::assertTrue( strpos( $haystack, $needle ) !== false, $message );
-		}
-	}
-
-	/**
-	 * Shimmed assertion for older Phpunit versions.
-	 *
-	 * @param {string} $needle - Needle.
-	 * @param {string} $haystack - Haystack.
-	 * @param {string} $message - Error message.
-	 */
-	public static function assertStringNotContainsStringShimmed( $needle, $haystack, $message = '' ) {
-		if ( method_exists( 'self', 'assertStringNotContainsString' ) ) {
-			self::assertStringNotContainsString( $needle, $haystack, $message );
-		} else {
-			self::assertTrue( strpos( $haystack, $needle ) === false, $message );
-		}
-	}
-
-	/**
 	 * Test case
 	 */
 	public function test_get_search_url_removes_page_when_no_query_s() {
@@ -143,9 +115,9 @@ class Test_Helpers extends TestCase {
 
 		$url = Helper::get_search_url();
 
-		$this->assertStringNotContainsStringShimmed( '/search/test/', $url );
-		$this->assertStringNotContainsStringShimmed( '/page/', $url );
-		$this->assertStringContainsStringShimmed( 's=test', $url );
+		$this->assertStringNotContainsString( '/search/test/', $url );
+		$this->assertStringNotContainsString( '/page/', $url );
+		$this->assertStringContainsString( 's=test', $url );
 	}
 
 	/**
@@ -157,8 +129,8 @@ class Test_Helpers extends TestCase {
 
 		$url = Helper::get_search_url();
 
-		$this->assertStringNotContainsStringShimmed( '/page/', $url );
-		$this->assertStringContainsStringShimmed( 's=test', $url );
+		$this->assertStringNotContainsString( '/page/', $url );
+		$this->assertStringContainsString( 's=test', $url );
 	}
 
 	/**
@@ -171,8 +143,8 @@ class Test_Helpers extends TestCase {
 
 		$url = Helper::get_search_url();
 
-		$this->assertStringNotContainsStringShimmed( 'paged=', $url );
-		$this->assertStringContainsStringShimmed( 's=test', $url );
+		$this->assertStringNotContainsString( 'paged=', $url );
+		$this->assertStringContainsString( 's=test', $url );
 	}
 
 	/**
@@ -189,9 +161,9 @@ class Test_Helpers extends TestCase {
 			)
 		);
 
-		$this->assertStringContainsStringShimmed( 's=test', $url );
-		$this->assertStringContainsStringShimmed( 'post_type=page', $url );
-		$this->assertStringContainsStringShimmed( 'category=uncategorized', $url );
+		$this->assertStringContainsString( 's=test', $url );
+		$this->assertStringContainsString( 'post_type=page', $url );
+		$this->assertStringContainsString( 'category=uncategorized', $url );
 	}
 
 	/**
@@ -203,8 +175,8 @@ class Test_Helpers extends TestCase {
 
 		$url = Helper::add_query_arg( 'post_type', 'page' );
 
-		$this->assertStringNotContainsStringShimmed( '/page/', $url );
-		$this->assertStringContainsStringShimmed( 's=test', $url );
+		$this->assertStringNotContainsString( '/page/', $url );
+		$this->assertStringContainsString( 's=test', $url );
 	}
 
 	/**
@@ -216,9 +188,9 @@ class Test_Helpers extends TestCase {
 
 		$url = Helper::remove_query_arg( 'post_type' );
 
-		$this->assertStringNotContainsStringShimmed( '/page/', $url );
-		$this->assertStringContainsStringShimmed( 's=test', $url );
-		$this->assertStringNotContainsStringShimmed( 'post_type=', $url );
+		$this->assertStringNotContainsString( '/page/', $url );
+		$this->assertStringContainsString( 's=test', $url );
+		$this->assertStringNotContainsString( 'post_type=', $url );
 	}
 
 	/**
@@ -300,7 +272,6 @@ class Test_Helpers extends TestCase {
 		$widget_id = Helper::build_widget_id( $number );
 
 		$this->assertSame( $expected, Helper::is_active_widget( $widget_id ) );
-
 	}
 
 	/**

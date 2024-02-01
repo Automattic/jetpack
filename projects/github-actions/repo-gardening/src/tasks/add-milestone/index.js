@@ -1,7 +1,7 @@
-const debug = require( '../../debug' );
-const getAssociatedPullRequest = require( '../../get-associated-pull-request' );
-const getNextValidMilestone = require( '../../get-next-valid-milestone' );
-const getPluginNames = require( '../../get-plugin-names' );
+const debug = require( '../../utils/debug' );
+const getAssociatedPullRequest = require( '../../utils/get-associated-pull-request' );
+const getNextValidMilestone = require( '../../utils/get-next-valid-milestone' );
+const getPluginNames = require( '../../utils/get-plugin-names' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 

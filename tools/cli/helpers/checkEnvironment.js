@@ -4,8 +4,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import * as envfile from 'envfile';
-import execa from 'execa';
+import { execaNode } from 'execa';
 import semver from 'semver';
+
+let monorepoVersions = null;
 
 /**
  * Get a list of monorepo tooling version requirements to check which versions we need.
@@ -13,8 +15,123 @@ import semver from 'semver';
  * @returns {object} - a list of monorepo version requirements.
  */
 export function getVersions() {
-	const versions = envfile.parse( fs.readFileSync( `./.github/versions.sh`, 'utf8' ) );
-	return versions;
+	if ( monorepoVersions === null ) {
+		monorepoVersions = envfile.parse( fs.readFileSync( `./.github/versions.sh`, 'utf8' ) );
+		Object.freeze( monorepoVersions );
+	}
+	return monorepoVersions;
+}
+
+/**
+ * Returns the current dev environment's node version.
+ *
+ * @returns {string} - the node version of the current dev environment.
+ */
+export async function getNodeVersion() {
+	return process.versions.node;
+}
+
+/**
+ * Compares node versions.
+ *
+ * @returns {boolean} Whether the version matched.
+ */
+export async function compareNodeVersion() {
+	const currentNodeVersion = await getNodeVersion();
+	const monorepoNodeVersion = getVersions().NODE_VERSION;
+	if (
+		! process.env.CI &&
+		currentNodeVersion &&
+		! semver.satisfies( currentNodeVersion, '^' + monorepoNodeVersion )
+	) {
+		console.log(
+			chalk.yellow(
+				`Node version ${ currentNodeVersion } does not satisfy the monorepo's required version of ^${ monorepoNodeVersion }! This may cause issues when working with monorepo tooling.`
+			)
+		);
+		return false;
+	}
+	return true;
+}
+
+/**
+ * Returns the current dev environment's pnpm version.
+ *
+ * @returns {string} - the pnpm version of the current dev environment.
+ */
+export async function getPnpmVersion() {
+	const res = await child_process.spawnSync( 'pnpm', [ '--version' ] );
+	// Bail if we don't detect pnpm is installed.
+	if ( ! res.stdout ) {
+		if ( res.error?.code === 'ENOENT' ) {
+			return '<not found>';
+		}
+		return;
+	}
+	return res.stdout.toString().trim();
+}
+
+/**
+ * Compares pnpm versions.
+ *
+ * @returns {boolean} Whether the version matched.
+ */
+export async function comparePnpmVersion() {
+	const currentPnpmVersion = await getPnpmVersion();
+	const monorepoPnpmVersion = getVersions().PNPM_VERSION;
+	if (
+		! process.env.CI &&
+		currentPnpmVersion &&
+		! semver.satisfies( currentPnpmVersion, '^' + monorepoPnpmVersion )
+	) {
+		console.log(
+			chalk.yellow(
+				`Pnpm version ${ currentPnpmVersion } does not satisfy the monorepo's required version of ^${ monorepoPnpmVersion }! This may cause issues when working with monorepo tooling.`
+			)
+		);
+		return false;
+	}
+	return true;
+}
+
+/**
+ * Returns the current dev environment's php version.
+ *
+ * @returns {string} - the php version of the current dev environment.
+ */
+export async function getPhpVersion() {
+	const res = await child_process.spawnSync( 'php', [ '-r', 'echo PHP_VERSION;' ] );
+	// Bail if we don't detect composer is installed.
+	if ( ! res.stdout ) {
+		if ( res.error?.code === 'ENOENT' ) {
+			return '<not found>';
+		}
+		return;
+	}
+	return res.stdout.toString().trim();
+}
+
+/**
+ * Compares php versions.
+ *
+ * @returns {boolean} Whether the version matched.
+ */
+export async function comparePhpVersion() {
+	const currentPhpVersion = await getPhpVersion();
+	const monorepoPhpVersion = getVersions().PHP_VERSION;
+	if (
+		! process.env.CI &&
+		currentPhpVersion &&
+		! semver.satisfies( currentPhpVersion, '^' + monorepoPhpVersion )
+	) {
+		console.log(
+			chalk.yellow(
+				`PHP version ${ currentPhpVersion } does not satisfy the monorepo's required version of ^${ monorepoPhpVersion }! This may cause issues when working with monorepo tooling.`
+			)
+		);
+		return false;
+	}
+	return true;
 }
 
 /**
@@ -23,18 +140,25 @@ export function getVersions() {
  * @returns {string} - the composer version of the current dev environment.
  */
 export async function getComposerVersion() {
-	let composerString = await child_process.spawnSync( 'composer', [ '--version' ] ).stdout;
+	const res = await child_process.spawnSync( 'composer', [ '--version' ] );
 	// Bail if we don't detect composer is installed.
-	if ( ! composerString ) {
+	if ( ! res.stdout ) {
+		if ( res.error?.code === 'ENOENT' ) {
+			return '<not installed>';
+		}
 		return;
 	}
-	composerString = composerString.toString().trim();
-	const composerVersion = composerString.match( /\d+\.\d+\.\d+/ );
-	return composerVersion[ 0 ];
+	const composerVersion = res.stdout
+		.toString()
+		.trim()
+		.match( /\d+\.\d+\.\d+/ );
+	return composerVersion?.[ 0 ];
 }
 
 /**
- * Compares composer versions and exit if it doesn't match.
+ * Compares composer versions.
+ *
+ * @returns {boolean} Whether the version matched.
  */
 export async function compareComposerVersion() {
 	const currentComposerVersion = await getComposerVersion();
@@ -42,6 +166,7 @@ export async function compareComposerVersion() {
 	if (
 		! process.env.CI &&
 		currentComposerVersion &&
+		// Tilde rather than caret because API version bumps in minor updates sometimes cause issues.
 		! semver.satisfies( currentComposerVersion, '~' + monorepoComposerVersion )
 	) {
 		console.log(
@@ -52,8 +177,24 @@ export async function compareComposerVersion() {
 		console.log(
 			chalk.yellow( `To fix, you can run 'composer self-update ${ monorepoComposerVersion }'` )
 		);
-		process.exit( 1 );
+		return false;
 	}
+	return true;
+}
+
+/**
+ * Compares versions of various tools.
+ *
+ * @returns {boolean} Whether all tools matched.
+ */
+export async function compareToolVersions() {
+	let ok = true;
+	// Run each function and accumulate results, without short-circuiting.
+	ok = ( await compareNodeVersion() ) && ok;
+	ok = ( await comparePhpVersion() ) && ok;
+	ok = ( await compareComposerVersion() ) && ok;
+	ok = ( await comparePnpmVersion() ) && ok;
+	return ok;
 }
 
 /**
@@ -91,7 +232,7 @@ export async function checkCliLocation() {
 		);
 
 		// Alas node doesn't expose `execve()` or the like, so this seems the best we can do without messing with native function call stuff.
-		const res = await execa.node( exe, process.argv.slice( 2 ), {
+		const res = await execaNode( exe, process.argv.slice( 2 ), {
 			env: {
 				JETPACK_CLI_DID_REEXEC: thisRoot,
 			},

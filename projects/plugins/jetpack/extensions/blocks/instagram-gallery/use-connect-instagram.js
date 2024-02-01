@@ -1,9 +1,9 @@
+import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import PopupMonitor from '@automattic/popup-monitor';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { find } from 'lodash';
-import isCurrentUserConnected from '../../shared/is-current-user-connected';
 import { NEW_INSTAGRAM_CONNECTION } from './constants';
 
 export default function useConnectInstagram( {

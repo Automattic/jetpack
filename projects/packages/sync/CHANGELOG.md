@@ -5,6 +5,352 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.2] - 2024-01-18
+### Changed
+- Update dependencies.
+
+## [2.4.1] - 2024-01-15
+### Added
+- Options: synchronize block status option. [#34989]
+
+### Changed
+- Sync: Dedicated sync now disabled for high queue lags only if test request fails. [#34888]
+
+### Fixed
+- Added `is_array` check to `get_items_to_send` to make sure no fatals are thrown on non-array values. [#31552]
+- Jetpack Sync: Fixed buffer sanitization in Sync close endpoint [#34961]
+- Jetpack Sync: Fix restoring post global before enqueuing a post action. [#34990]
+
+## [2.4.0] - 2024-01-04
+### Removed
+- Social: Removed sync option for tweetstorm. [#34330]
+
+## [2.3.0] - 2023-12-20
+### Added
+- Add wpcom_ai_site_prompt option to the site settings endpoint. [#34709]
+
+### Fixed
+- Added preemptive check to break expanding metadata for posts loop in Full Sync. [#34661]
+
+## [2.2.1] - 2023-12-13
+### Changed
+- Refactored loop to improve efficiency and code readability [#34565]
+
+## [2.2.0] - 2023-12-11
+### Added
+- Social: Add auto-conversion option to sync to WPCOM. [#34113]
+
+### Fixed
+- Fixed a missing sanity check in Sync Posts handler logic that created failed builds. [#34548]
+- Sync: Update Full Sync to limit max amount of data sent in one request. [#34390]
+
+## [2.1.2] - 2023-12-06
+### Changed
+- Update dependencies.
+
+## [2.1.1] - 2023-12-03
+### Changed
+- Internal updates.
+
+## [2.1.0] - 2023-11-24
+### Added
+- Added jetpack_verbum_subscription_modal setting to manage subscription modal show/hide on Verbum. [#34258]
+
+### Fixed
+- Silenced the call to `gzinflate` to avoid a few PHP warnings. [#34186]
+
+## [2.0.2] - 2023-11-21
+### Changed
+- Replaced usage of strpos() with str_contains(). [#34137]
+- Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+
+## [2.0.1] - 2023-11-21
+
+## [2.0.0] - 2023-11-20
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [1.60.1] - 2023-10-31
+
+## [1.60.0] - 2023-10-26
+### Removed
+- Remove Jetpack option jetpack-memberships-connected-account-id. [#32354]
+
+## [1.59.2] - 2023-10-24
+### Changed
+- Update sync version.
+
+## [1.59.1] - 2023-10-24
+### Added
+- Sync: Add missing support for supplying additional columns to do checksum on. [#33440]
+
+## [1.59.0] - 2023-10-23
+### Changed
+- Dedicated Sync: Update 'init' hook priority on Dedicated Sync requests to 0, in order to start sending Sync actions to WPCOM and exit as early as possible. [#33594]
+
+## [1.58.1] - 2023-10-18
+### Fixed
+- Update dependencies.
+
+## [1.58.0] - 2023-10-16
+### Changed
+- Migrated 'jetpack_sync_before_send*' actions for Sync queue to 'jetpack_sync_before_enqueue' instead. [#33384]
+
+## [1.57.4] - 2023-10-10
+
+- Minor internal updates.
+
+## [1.57.3] - 2023-09-28
+### Removed
+- Remove compatibility code for PHP <5.5. [#33288]
+
+## [1.57.2] - 2023-09-25
+### Added
+- Site Settings Endpoint: Allow for updating and retrieving of the wpcom_newsletter_categories site option. [#33234]
+
+## [1.57.1] - 2023-09-20
+### Added
+- Adds legacy contact and locked mode options for 100-year plan [#33081]
+
+## [1.57.0] - 2023-09-19
+### Added
+- Added a definition of a WooCommerce HPOS table to Jetpack Sync. [#32774]
+- Jetpack Sync: Drop Sync custom queue table when Jetpack is disconnected [#32940]
+- Woo: add HPOS (custom order tables) events to sync module. [#32530]
+
+## [1.56.0] - 2023-09-04
+### Added
+- Add wpcom_newsletter_categories_enabled site option [#32569]
+- Whitelist the blog option for auto conversion settings. [#32693]
+
+## [1.55.2] - 2023-08-28
+### Fixed
+- Re-adds the jetpack-memberships-connected-account-id option to whitelist. [#32632]
+
+## [1.55.1] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## [1.55.0] - 2023-08-21
+### Removed
+- Remove Jetpack option jetpack-memberships-connected-account-id [#32125]
+
+## [1.54.0] - 2023-08-15
+### Added
+- Extract Sync Queue storage handling to an external class to prepare for Custom Table migration [#32275]
+
+## [1.53.0] - 2023-08-09
+### Added
+- Jetpack Sync: Custom table initialization and migration functionality [#32135]
+- Jetpack Sync: Drop custom table on sender uninstall [#32335]
+
+## [1.52.0] - 2023-08-01
+### Added
+- Add support for a custom database table for Sync Queue. [#32111]
+- Extract Sync Queue storage handling to an external class to prepare for Custom Table migration. [#32089]
+- Sync: Add feature flag for enabling custom queue table. [#31681]
+
+## [1.51.0] - 2023-07-17
+### Added
+- Jetpack & Jetpack Sync: Added cache check when trying to spawn dedicated sync or update JETPACK__VERSION to avoid additional requests to the DB if external cache is available. [#31645]
+- Newsletters: Add option to enable subscribe modal. [#31393]
+- Sync: Add support for additional guest and note meta fields [#31810]
+
+## [1.50.2] - 2023-07-05
+### Added
+- Sync wpcom_site_setup site option [#31662]
+
+## [1.50.1] - 2023-07-04
+### Changed
+- Revert dedicated hook endpoint to later in the 'init' hook, as it broke existing code that registers post statuses and such during 'init'. [#31685]
+
+## [1.50.0] - 2023-06-26
+### Added
+- Added a new callable to the whitelist for get_loaded_extensions(). [#31333]
+- CPT Exclusion: do not sync Jetpack Inspect Log entries. [#31535]
+
+### Fixed
+- Initialize dedicated hook endpoint earlier in the 'init' hook to avoid cookie conflicts. [#31423]
+
+## [1.49.0] - 2023-05-29
+### Added
+- Added `wpcom_reader_views_enabled` option to default sync list [#30800]
+
+### Changed
+- FSE: remove usage of `gutenberg_is_fse_theme` for modern `wp_is_block_theme` [#30806]
+
+## [1.48.1] - 2023-05-15
+### Changed
+- PHP 8 compatibility updates. [#30599]
+- PHP 8.1 compatibility updates [#30523]
+
+## [1.48.0] - 2023-05-08
+### Changed
+- Use Jetpack Constants to check the value of REST_API_REQUEST in Settings:is_syncing function so we're able to overwrite the value and render some jetpack blocks via the rest api endpoint [#30400]
+
+## [1.47.9] - 2023-05-02
+### Changed
+- Internal updates.
+
+## [1.47.8] - 2023-05-01
+### Changed
+- Internal updates.
+
+## [1.47.7] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.47.6] - 2023-04-04
+### Changed
+- Sync: Lowered priority to sync so that the hook is run at the end. [#29804]
+
+## [1.47.5] - 2023-04-03
+### Changed
+- Minor internal updates.
+
+## [1.47.4] - 2023-03-28
+### Changed
+- Move brute force protection into WAF package. [#28401]
+
+## [1.47.3] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29480]
+
+## [1.47.2] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [1.47.1] - 2023-01-23
+### Added
+- Close PHP Session if it's active when running a Dedicated Sync request. [#28515]
+
+### Fixed
+- Jetpack Sync: prevent syncing user update when corresponding flags are not set. [#28385]
+
+## [1.47.0] - 2023-01-18
+### Removed
+- Removed the deprecated option jetpack_blogging_prompts_enabled from defaults [#28387]
+
+## [1.46.1] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## [1.46.0] - 2022-12-27
+### Added
+- Added woocommerce_cod_settings to the options whitelist. [#27988]
+
+## [1.45.0] - 2022-12-19
+### Added
+- Adding new boolean site option of 'wpcom-subscription-emails-use-excerpt'. [#27908]
+- Sync Launchpad-related options: `launchpad_screen` and `launchpad_checklist_tasks_statuses`. [#27843]
+
+### Changed
+- Option: Update featured_image_email_enabled option name to wpcom_featured_image_in_email. [#27955]
+
+### Fixed
+- Improve PHP 8.2 compatibility. [#27968]
+
+## [1.44.2] - 2022-12-06
+### Changed
+- Updated package dependencies.
+
+## [1.44.1] - 2022-12-02
+### Changed
+- Updated package dependencies. [#27688]
+
+## [1.44.0] - 2022-11-30
+### Added
+- Added full response logging for failed Sync data requests. [#27644]
+
+### Fixed
+- Make sure Dedicated Sync can revert back to Default Sync if it stops sending events for one reason or another. [#27632]
+
+## [1.43.2] - 2022-11-28
+### Changed
+- Sync: Limit next_sync_time lock to be at most 1 hour in the future [#27606]
+
+## [1.43.1] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## [1.43.0] - 2022-11-17
+### Added
+- Added new sync option for launch-status [#27434]
+- Jetpack Sync: Add new endpoint for resetting Sync locks. [#27446]
+
+## [1.42.0] - 2022-11-14
+### Changed
+- Save attached media to post meta [#26930]
+
+## [1.41.0] - 2022-11-07
+### Changed
+- Jetpack Sync: add Updates module in required Sync modules. [#27182]
+- Updated package dependencies. [#27278]
+
+## [1.40.3] - 2022-11-01
+### Added
+- Adds wpcom_gifting_subscription option for syncing [#27116]
+
+## [1.40.2] - 2022-10-27
+### Fixed
+- Check $action_links is still array after plugin_action_links filter has been applied. [#27076]
+
+## [1.40.1] - 2022-10-25
+### Added
+- Added featured_image_email_enabled option for syncing [#27009]
+
+### Changed
+- Search Sync Settings :: Add Marketplace product extra fields meta to allow list [#26927]
+- Updated package dependencies. [#26705]
+
+## [1.40.0] - 2022-10-17
+### Added
+- Adding the `sl-insta-media` post type to the Sync blacklist as the post type data isn't relevant to Sync and takes up non-trivial resources. [#26826]
+
+## [1.39.0] - 2022-10-11
+### Added
+- Added some taxonomies to be indexed by Search. [#26683]
+
+## [1.38.4] - 2022-09-20
+### Added
+- Gutenberg Support: add additional theme_supports items to our synced allowlist. [#26239]
+
+### Changed
+- Default Theme Support: Add support for new feature added in WP 6.1 [#26236]
+- Theme Supports: updated allowed values list to align with a Core change r54159-core [#26220]
+
+## [1.38.3] - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+## [1.38.2] - 2022-08-29
+### Changed
+- Updated package dependencies.
+
+## [1.38.1] - 2022-08-25
+### Changed
+- Search Sync Settings :: Add Marketplace related meta fields and taxonomies to allow list [#25376]
+
+## [1.38.0] - 2022-08-23
+### Added
+- Search: add product-brand to taxonomy sync list to support WooCommerce Brands plugin. [#25665]
+
+### Changed
+- Updated package dependencies. [#25628]
+
+## [1.37.1] - 2022-08-03
+### Changed
+- Updated package dependencies. [#25300, #25315]
+
+## [1.37.0] - 2022-07-26
+### Changed
+- Jetpack Sync: Add Sync lock related info in Sync debug details. [#25140]
+- Updated package dependencies. [#25158]
+
+### Fixed
+- Dedicated Sync: Enable sending of callables outside of admin context, since Dedicated Sync requests always work outside of admin scope. [#25143]
+
 ## [1.36.1] - 2022-07-06
 ### Added
 - Add new WordPress core `block-templates` theme feature to `Defaults::$default_theme_support_whitelist` [#24960]
@@ -684,6 +1030,77 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[2.4.2]: https://github.com/Automattic/jetpack-sync/compare/v2.4.1...v2.4.2
+[2.4.1]: https://github.com/Automattic/jetpack-sync/compare/v2.4.0...v2.4.1
+[2.4.0]: https://github.com/Automattic/jetpack-sync/compare/v2.3.0...v2.4.0
+[2.3.0]: https://github.com/Automattic/jetpack-sync/compare/v2.2.1...v2.3.0
+[2.2.1]: https://github.com/Automattic/jetpack-sync/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/Automattic/jetpack-sync/compare/v2.1.2...v2.2.0
+[2.1.2]: https://github.com/Automattic/jetpack-sync/compare/v2.1.1...v2.1.2
+[2.1.1]: https://github.com/Automattic/jetpack-sync/compare/v2.1.0...v2.1.1
+[2.1.0]: https://github.com/Automattic/jetpack-sync/compare/v2.0.2...v2.1.0
+[2.0.2]: https://github.com/Automattic/jetpack-sync/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-sync/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-sync/compare/v1.60.1...v2.0.0
+[1.60.1]: https://github.com/Automattic/jetpack-sync/compare/v1.60.0...v1.60.1
+[1.60.0]: https://github.com/Automattic/jetpack-sync/compare/v1.59.2...v1.60.0
+[1.59.2]: https://github.com/Automattic/jetpack-sync/compare/v1.59.1...v1.59.2
+[1.59.1]: https://github.com/Automattic/jetpack-sync/compare/v1.59.0...v1.59.1
+[1.59.0]: https://github.com/Automattic/jetpack-sync/compare/v1.58.1...v1.59.0
+[1.58.1]: https://github.com/Automattic/jetpack-sync/compare/v1.58.0...v1.58.1
+[1.58.0]: https://github.com/Automattic/jetpack-sync/compare/v1.57.4...v1.58.0
+[1.57.4]: https://github.com/Automattic/jetpack-sync/compare/v1.57.3...v1.57.4
+[1.57.3]: https://github.com/Automattic/jetpack-sync/compare/v1.57.2...v1.57.3
+[1.57.2]: https://github.com/Automattic/jetpack-sync/compare/v1.57.1...v1.57.2
+[1.57.1]: https://github.com/Automattic/jetpack-sync/compare/v1.57.0...v1.57.1
+[1.57.0]: https://github.com/Automattic/jetpack-sync/compare/v1.56.0...v1.57.0
+[1.56.0]: https://github.com/Automattic/jetpack-sync/compare/v1.55.2...v1.56.0
+[1.55.2]: https://github.com/Automattic/jetpack-sync/compare/v1.55.1...v1.55.2
+[1.55.1]: https://github.com/Automattic/jetpack-sync/compare/v1.55.0...v1.55.1
+[1.55.0]: https://github.com/Automattic/jetpack-sync/compare/v1.54.0...v1.55.0
+[1.54.0]: https://github.com/Automattic/jetpack-sync/compare/v1.53.0...v1.54.0
+[1.53.0]: https://github.com/Automattic/jetpack-sync/compare/v1.52.0...v1.53.0
+[1.52.0]: https://github.com/Automattic/jetpack-sync/compare/v1.51.0...v1.52.0
+[1.51.0]: https://github.com/Automattic/jetpack-sync/compare/v1.50.2...v1.51.0
+[1.50.2]: https://github.com/Automattic/jetpack-sync/compare/v1.50.1...v1.50.2
+[1.50.1]: https://github.com/Automattic/jetpack-sync/compare/v1.50.0...v1.50.1
+[1.50.0]: https://github.com/Automattic/jetpack-sync/compare/v1.49.0...v1.50.0
+[1.49.0]: https://github.com/Automattic/jetpack-sync/compare/v1.48.1...v1.49.0
+[1.48.1]: https://github.com/Automattic/jetpack-sync/compare/v1.48.0...v1.48.1
+[1.48.0]: https://github.com/Automattic/jetpack-sync/compare/v1.47.9...v1.48.0
+[1.47.9]: https://github.com/Automattic/jetpack-sync/compare/v1.47.8...v1.47.9
+[1.47.8]: https://github.com/Automattic/jetpack-sync/compare/v1.47.7...v1.47.8
+[1.47.7]: https://github.com/Automattic/jetpack-sync/compare/v1.47.6...v1.47.7
+[1.47.6]: https://github.com/Automattic/jetpack-sync/compare/v1.47.5...v1.47.6
+[1.47.5]: https://github.com/Automattic/jetpack-sync/compare/v1.47.4...v1.47.5
+[1.47.4]: https://github.com/Automattic/jetpack-sync/compare/v1.47.3...v1.47.4
+[1.47.3]: https://github.com/Automattic/jetpack-sync/compare/v1.47.2...v1.47.3
+[1.47.2]: https://github.com/Automattic/jetpack-sync/compare/v1.47.1...v1.47.2
+[1.47.1]: https://github.com/Automattic/jetpack-sync/compare/v1.47.0...v1.47.1
+[1.47.0]: https://github.com/Automattic/jetpack-sync/compare/v1.46.1...v1.47.0
+[1.46.1]: https://github.com/Automattic/jetpack-sync/compare/v1.46.0...v1.46.1
+[1.46.0]: https://github.com/Automattic/jetpack-sync/compare/v1.45.0...v1.46.0
+[1.45.0]: https://github.com/Automattic/jetpack-sync/compare/v1.44.2...v1.45.0
+[1.44.2]: https://github.com/Automattic/jetpack-sync/compare/v1.44.1...v1.44.2
+[1.44.1]: https://github.com/Automattic/jetpack-sync/compare/v1.44.0...v1.44.1
+[1.44.0]: https://github.com/Automattic/jetpack-sync/compare/v1.43.2...v1.44.0
+[1.43.2]: https://github.com/Automattic/jetpack-sync/compare/v1.43.1...v1.43.2
+[1.43.1]: https://github.com/Automattic/jetpack-sync/compare/v1.43.0...v1.43.1
+[1.43.0]: https://github.com/Automattic/jetpack-sync/compare/v1.42.0...v1.43.0
+[1.42.0]: https://github.com/Automattic/jetpack-sync/compare/v1.41.0...v1.42.0
+[1.41.0]: https://github.com/Automattic/jetpack-sync/compare/v1.40.3...v1.41.0
+[1.40.3]: https://github.com/Automattic/jetpack-sync/compare/v1.40.2...v1.40.3
+[1.40.2]: https://github.com/Automattic/jetpack-sync/compare/v1.40.1...v1.40.2
+[1.40.1]: https://github.com/Automattic/jetpack-sync/compare/v1.40.0...v1.40.1
+[1.40.0]: https://github.com/Automattic/jetpack-sync/compare/v1.39.0...v1.40.0
+[1.39.0]: https://github.com/Automattic/jetpack-sync/compare/v1.38.4...v1.39.0
+[1.38.4]: https://github.com/Automattic/jetpack-sync/compare/v1.38.3...v1.38.4
+[1.38.3]: https://github.com/Automattic/jetpack-sync/compare/v1.38.2...v1.38.3
+[1.38.2]: https://github.com/Automattic/jetpack-sync/compare/v1.38.1...v1.38.2
+[1.38.1]: https://github.com/Automattic/jetpack-sync/compare/v1.38.0...v1.38.1
+[1.38.0]: https://github.com/Automattic/jetpack-sync/compare/v1.37.1...v1.38.0
+[1.37.1]: https://github.com/Automattic/jetpack-sync/compare/v1.37.0...v1.37.1
+[1.37.0]: https://github.com/Automattic/jetpack-sync/compare/v1.36.1...v1.37.0
 [1.36.1]: https://github.com/Automattic/jetpack-sync/compare/v1.36.0...v1.36.1
 [1.36.0]: https://github.com/Automattic/jetpack-sync/compare/v1.35.2...v1.36.0
 [1.35.2]: https://github.com/Automattic/jetpack-sync/compare/v1.35.1...v1.35.2

@@ -1,4 +1,8 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
+
 /**
  * Disable direct access/execution to/of the widget code.
  */
@@ -71,13 +75,13 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 				 * Parse the URL, and rebuild a URL that's sure to display images.
 				 * Some Flickr Feeds do not display images by default.
 				 */
-				$flickr_parameters = wp_parse_url( htmlspecialchars_decode( $instance['flickr_rss_url'] ) );
+				$flickr_parameters = wp_parse_url( htmlspecialchars_decode( $instance['flickr_rss_url'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) );
 
 				// Is it a Flickr Feed.
 				if (
 					! empty( $flickr_parameters['host'] )
 					&& ! empty( $flickr_parameters['query'] )
-					&& false !== strpos( $flickr_parameters['host'], 'flickr' )
+					&& str_contains( $flickr_parameters['host'], 'flickr' )
 				) {
 					parse_str( $flickr_parameters['query'], $vars );
 
@@ -87,7 +91,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 						// Flickr Feeds can be used for groups or for individuals.
 						if (
 							! empty( $flickr_parameters['path'] )
-							&& false !== strpos( $flickr_parameters['path'], 'groups' )
+							&& str_contains( $flickr_parameters['path'], 'groups' )
 						) {
 							$feed_url = 'https://api.flickr.com/services/feeds/groups_pool.gne';
 						} else {
@@ -136,8 +140,8 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 					$photos .= 'title="' . esc_attr( $photo->get_title() ) . '" ';
 					$photos .= ' /></a>';
 				}
-				if ( ! empty( $photos ) && class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) ) {
-					$photos = Jetpack_Photon::filter_the_content( $photos );
+				if ( ! empty( $photos ) ) {
+					$photos = apply_filters( 'jetpack_image_cdn_content', $photos );
 				}
 
 				$flickr_home = $rss->get_link(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Used in flickr/widget.php template file.

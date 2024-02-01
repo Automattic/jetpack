@@ -1,6 +1,6 @@
 import { IDCScreen } from '@automattic/jetpack-idc';
+import * as WPElement from '@wordpress/element';
 import React from 'react';
-import ReactDOM from 'react-dom';
 
 import './admin-bar.scss';
 import './style.scss';
@@ -9,9 +9,15 @@ import './style.scss';
  * The initial renderer function.
  */
 function render() {
-	const container = document.getElementById( 'jp-identity-crisis-container' );
+	if ( ! window.hasOwnProperty( 'JP_IDENTITY_CRISIS__INITIAL_STATE' ) ) {
+		return;
+	}
 
-	if ( null === container || ! window.hasOwnProperty( 'JP_IDENTITY_CRISIS__INITIAL_STATE' ) ) {
+	const container = document.getElementById(
+		window.JP_IDENTITY_CRISIS__INITIAL_STATE.containerID || 'jp-identity-crisis-container'
+	);
+
+	if ( null === container ) {
 		return;
 	}
 
@@ -30,7 +36,7 @@ function render() {
 	} = window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 
 	if ( ! isSafeModeConfirmed ) {
-		ReactDOM.render(
+		const component = (
 			<IDCScreen
 				wpcomHomeUrl={ wpcomHomeUrl }
 				currentUrl={ currentUrl }
@@ -45,10 +51,10 @@ function render() {
 				isAdmin={ isAdmin }
 				logo={ consumerData.hasOwnProperty( 'logo' ) ? consumerData.logo : undefined }
 				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
-			/>,
-			container
+			/>
 		);
+		WPElement.createRoot( container ).render( component );
 	}
 }
 
-render();
+window.addEventListener( 'load', () => render() );

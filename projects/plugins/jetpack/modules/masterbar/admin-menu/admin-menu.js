@@ -1,6 +1,6 @@
 /* global ajaxurl, jetpackAdminMenu */
 
-( function () {
+( function ( $ ) {
 	function init() {
 		var adminbar = document.querySelector( '#wpadminbar' );
 		var wpwrap = document.querySelector( '#wpwrap' );
@@ -21,29 +21,59 @@
 		setFocusOnActiveMenuItem();
 		setAriaExpanded( 'false' );
 
-		var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog' );
+		var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog.my-sites > a' );
+
 		// Toggle sidebar when toggle is clicked.
-		if ( adminbarBlog ) {
-			adminbarBlog.addEventListener( 'click', function ( event ) {
-				event.preventDefault();
+		if ( adminbarBlog && ! document.body.classList.contains( 'wpcom-admin-interface' ) ) {
+			// We need to remove an event listener and attribute from the my sites button to prevent default behavior of the wp-responsive-overlay.
+			$( '#wp-admin-bar-blog.my-sites > a' ).off( 'click.wp-responsive' );
+			adminbarBlog.removeAttribute( 'aria-haspopup' );
+			// Toggle the sidebar when the 'My Sites' button is clicked in a mobile view.
+			adminbarBlog.addEventListener( 'click', toggleSidebar );
+			// Detect a click outside the sidebar and close it if its open.
+			document.addEventListener( 'click', closeSidebarWhenClickedOutside );
+		}
 
-				// Close any open toolbar submenus.
-				var hovers = adminbar.querySelectorAll( '.hover' );
-				for ( var i = 0; i < hovers.length; i++ ) {
-					hovers[ i ].classList.remove( 'hover' );
-				}
+		function closeSidebarWhenClickedOutside( event ) {
+			const isClickOnToggle = !! event.target.closest( '#wp-admin-bar-blog > a' );
+			const isClickInsideMenu = document.getElementById( 'adminmenu' ).contains( event.target );
+			const sidebarIsOpen = wpwrap.classList.contains( 'wp-responsive-open' );
+			const shouldCloseSidebar = sidebarIsOpen && ! isClickOnToggle && ! isClickInsideMenu;
+			if ( shouldCloseSidebar ) {
+				toggleSidebar( event );
+			}
+		}
 
-				wpwrap.classList.toggle( 'wp-responsive-open' );
-				if ( wpwrap.classList.contains( 'wp-responsive-open' ) ) {
-					setAriaExpanded( 'true' );
-					var first = document.querySelector( '#adminmenu a' );
-					if ( first ) {
-						first.focus();
-					}
-				} else {
-					setAriaExpanded( 'false' );
+		function toggleSidebar( event ) {
+			// Prevent the menu toggle from being triggered when the screen is not in mobile view.
+			// This allows the toggle to function as a link to the site's dashboard the same way it works in Calypso.
+			if ( $( window ).width() > 782 ) {
+				event.stopImmediatePropagation(); // Prevent propagation to conflicting event handlers.
+				return true;
+			}
+
+			event.preventDefault();
+
+			// Remove event handlers from the original toggle as its hidden and conflicts with the new toggle.
+			$( '#wp-admin-bar-menu-toggle' ).off( 'click.wp-responsive' );
+
+			// Close any open toolbar submenus.
+			var hovers = adminbar.querySelectorAll( '.hover' );
+
+			const hoverLength = hovers.length;
+			for ( var i = 0; i < hoverLength; i++ ) {
+				hovers[ i ].classList.remove( 'hover' );
+			}
+			wpwrap.classList.toggle( 'wp-responsive-open' );
+			if ( wpwrap.classList.contains( 'wp-responsive-open' ) ) {
+				setAriaExpanded( 'true' );
+				var first = document.querySelector( '#adminmenu a' );
+				if ( first ) {
+					first.focus();
 				}
-			} );
+			} else {
+				setAriaExpanded( 'false' );
+			}
 		}
 
 		if ( adminMenu ) {
@@ -55,7 +85,7 @@
 				collapseButton.addEventListener( 'click', function ( event ) {
 					// Let's the core event listener be triggered first.
 					setTimeout( function () {
-						saveSidebarIsExpanded( event.target.parentNode.ariaExpanded );
+						saveSidebarIsExpanded( event.target.parentNode.getAttribute( 'aria-expanded' ) );
 					}, 50 );
 				} );
 			}
@@ -143,7 +173,7 @@
 			return;
 		}
 
-		currentMenuItem.focus();
+		currentMenuItem.focus( { preventScroll: true } );
 	}
 
 	if ( document.readyState === 'loading' ) {
@@ -151,4 +181,4 @@
 	} else {
 		init();
 	}
-} )();
+} )( jQuery );

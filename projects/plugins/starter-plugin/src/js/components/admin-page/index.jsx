@@ -29,6 +29,9 @@ const Admin = () => {
 					</Container>
 				) : (
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+						<Col>
+							<div id="jp-admin-notices" className="jetpack-starter-plugin-jitm-card" />
+						</Col>
 						<Col sm={ 4 } md={ 6 } lg={ 6 }>
 							<h1 className={ styles.heading }>
 								{ __( 'The plugin headline.', 'jetpack-starter-plugin' ) }

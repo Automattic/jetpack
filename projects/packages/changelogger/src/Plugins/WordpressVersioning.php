@@ -151,7 +151,7 @@ class WordpressVersioning implements VersioningPlugin {
 		);
 
 		if ( $this->input->getOption( 'point-release' ) ) {
-			$info['point']++;
+			++$info['point'];
 		} else {
 			$info['point']  = 0;
 			$info['major'] += 0.1;
@@ -193,11 +193,13 @@ class WordpressVersioning implements VersioningPlugin {
 	public function compareVersions( $a, $b ) {
 		$aa = $this->parseVersion( $a );
 		$bb = $this->parseVersion( $b );
-		if ( $aa['major'] !== $bb['major'] ) {
-			return $aa['major'] < $bb['major'] ? -1 : 1;
+
+		$ret = $aa['major'] <=> $bb['major'];
+		if ( ! $ret ) {
+			$ret = $aa['point'] <=> $bb['point'];
 		}
-		if ( $aa['point'] !== $bb['point'] ) {
-			return $aa['point'] - $bb['point'];
+		if ( $ret ) {
+			return $ret;
 		}
 
 		$avalues = $this->parsePrerelease( $aa['prerelease'] );
@@ -206,11 +208,11 @@ class WordpressVersioning implements VersioningPlugin {
 		$l = min( count( $avalues ), count( $bvalues ) );
 		for ( $i = 0; $i < $l; $i++ ) {
 			if ( $avalues[ $i ] !== $bvalues[ $i ] ) {
-				return $avalues[ $i ] - $bvalues[ $i ];
+				return $avalues[ $i ] <=> $bvalues[ $i ];
 			}
 		}
 
-		return count( $avalues ) - count( $bvalues );
+		return count( $avalues ) <=> count( $bvalues );
 	}
 
 	/**
@@ -227,5 +229,4 @@ class WordpressVersioning implements VersioningPlugin {
 			) + $this->validateExtra( $extra )
 		);
 	}
-
 }

@@ -21,7 +21,7 @@ export const getJWT = function ( key ) {
 
 const jwtsForKeys = {};
 
-export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
+export const resumableUploader = ( { onUploadUuidRetrieved, onError, onProgress, onSuccess } ) => {
 	return ( file, data ) => {
 		const upload = new tus.Upload( file, {
 			onError: onError,
@@ -40,7 +40,8 @@ export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
 			retryDelays: [ 0, 1000, 3000, 5000, 10000 ],
 			onAfterResponse: function ( req, res ) {
 				// Why is this not showing the x-headers?
-				if ( res.getStatus() >= 400 ) {
+				const responseStatus = res.getStatus();
+				if ( responseStatus >= 400 ) {
 					return;
 				}
 
@@ -72,6 +73,10 @@ export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
 
 				if ( tokenData.key && tokenData.token ) {
 					jwtsForKeys[ tokenData.key ] = tokenData.token;
+				}
+
+				if ( tokenData.key ) {
+					onUploadUuidRetrieved( tokenData.key );
 				}
 			},
 			onBeforeRequest: function ( req ) {

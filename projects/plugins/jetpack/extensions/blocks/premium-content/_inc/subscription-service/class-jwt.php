@@ -8,10 +8,10 @@
 
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
-use \DateTime;
-use \DomainException;
-use \InvalidArgumentException;
-use \UnexpectedValueException;
+use DateTime;
+use DomainException;
+use InvalidArgumentException;
+use UnexpectedValueException;
 
 /**
  * JSON Web Token implementation, based on this spec:
@@ -193,12 +193,12 @@ class JWT {
 		}
 
 		$segments      = array();
-		$segments[]    = static::urlsafe_b64_decode( static::json_encode( $header ) );
-		$segments[]    = static::urlsafe_b64_decode( static::json_encode( $payload ) );
+		$segments[]    = static::urlsafe_b64_encode( static::json_encode( $header ) );
+		$segments[]    = static::urlsafe_b64_encode( static::json_encode( $payload ) );
 		$signing_input = implode( '.', $segments );
 
 		$signature  = static::sign( $signing_input, $key, $alg );
-		$segments[] = static::urlsafe_b64_decode( $signature );
+		$segments[] = static::urlsafe_b64_encode( $signature );
 
 		return implode( '.', $segments );
 	}
@@ -317,7 +317,7 @@ class JWT {
 
 		$errno = json_last_error();
 
-		if ( $errno && function_exists( 'json_last_error' ) ) {
+		if ( $errno ) {
 			static::handle_json_error( $errno );
 		} elseif ( null === $obj && 'null' !== $input ) {
 			throw new DomainException( 'Null result with non-null input' );
@@ -338,7 +338,7 @@ class JWT {
 		$json  = wp_json_encode( $input );
 		$errno = json_last_error();
 
-		if ( $errno && function_exists( 'json_last_error' ) ) {
+		if ( $errno ) {
 			static::handle_json_error( $errno );
 		} elseif ( 'null' === $json && null !== $input ) {
 			throw new DomainException( 'Null result with non-null input' );

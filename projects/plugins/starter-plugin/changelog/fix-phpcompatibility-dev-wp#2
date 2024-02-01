@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove no-longer-needed `phpcs:ignore` comment.
+
+

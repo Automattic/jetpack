@@ -29,15 +29,16 @@ const ConnectScreenRequiredPlan = props => {
 		pricingCurrencyCode,
 		wpcomProductSlug,
 		siteProductAvailabilityHandler,
+		logo,
+		rna = false,
 	} = props;
 
 	const {
 		handleRegisterSite,
-		isRegistered,
-		isUserConnected,
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
+		isOfflineMode,
 	} = useConnection( {
 		registrationNonce,
 		redirectUri,
@@ -56,7 +57,6 @@ const ConnectScreenRequiredPlan = props => {
 		from,
 	} );
 
-	const showConnectButton = ! isRegistered || ! isUserConnected;
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;
 	const handleButtonClick = productSlug ? handleCheckoutWorkflow : handleRegisterSite;
@@ -71,9 +71,11 @@ const ConnectScreenRequiredPlan = props => {
 			pricingTitle={ pricingTitle }
 			pricingCurrencyCode={ pricingCurrencyCode }
 			handleButtonClick={ handleButtonClick }
-			showConnectButton={ showConnectButton }
 			displayButtonError={ displayButtonError }
 			buttonIsLoading={ buttonIsLoading }
+			logo={ logo }
+			isOfflineMode={ isOfflineMode }
+			rna={ rna }
 		>
 			{ children }
 		</ConnectScreenRequiredPlanVisual>
@@ -100,7 +102,7 @@ ConnectScreenRequiredPlan.propTypes = {
 	/** The Pricing Card Title. */
 	pricingTitle: PropTypes.string.isRequired,
 	/** The Pricing Card Icon. */
-	icon: PropTypes.string,
+	pricingIcon: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	/** Price before discount. */
 	priceBefore: PropTypes.number.isRequired,
 	/** Price after discount. */
@@ -111,6 +113,8 @@ ConnectScreenRequiredPlan.propTypes = {
 	wpcomProductSlug: PropTypes.string,
 	/** A callback that will be used to check whether the site already has the wpcomProductSlug. This will be checked after registration and the checkout will be skipped if it returns true. */
 	checkSiteHasWpcomProduct: PropTypes.func,
+	/** The logo to display at the top of the component. */
+	logo: PropTypes.element,
 };
 
 ConnectScreenRequiredPlan.defaultProps = {

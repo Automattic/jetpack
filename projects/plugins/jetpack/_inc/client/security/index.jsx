@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import Card from 'components/card';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import QuerySite from 'components/data/query-site';
 import { get } from 'lodash';
@@ -7,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
+import { getSiteId } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
@@ -61,6 +61,7 @@ export class Security extends Component {
 			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			rewindStatus: this.props.rewindStatus,
 			siteRawUrl: this.props.siteRawUrl,
+			blogID: this.props.blogID,
 			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
@@ -90,18 +91,16 @@ export class Security extends Component {
 		return (
 			<div>
 				<QuerySite />
-				<Card
-					title={
-						isSearchTerm
-							? __( 'Security', 'jetpack' )
-							: __(
-									'Your site is protected by Jetpack. You’ll be notified if anything needs attention.',
-									'jetpack',
-									/* dummy arg to avoid bad minification */ 0
-							  )
-					}
-					className="jp-settings-description"
-				/>
+				<h1 className="screen-reader-text">{ __( 'Jetpack Security Settings', 'jetpack' ) }</h1>
+				<h2 className="jp-settings__section-title">
+					{ isSearchTerm
+						? __( 'Security', 'jetpack' )
+						: __(
+								'Your site is protected by Jetpack. You’ll be notified if anything needs attention.',
+								'jetpack',
+								/* dummy arg to avoid bad minification */ 0
+						  ) }
+				</h2>
 				{ foundBackups && backupsContent }
 				{ foundMonitor && <Monitor { ...commonProps } /> }
 				{ foundAkismet && (
@@ -130,5 +129,6 @@ export default connect( state => {
 		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
 		vaultPressData: getVaultPressData( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
+		blogID: getSiteId( state ),
 	};
 } )( Security );

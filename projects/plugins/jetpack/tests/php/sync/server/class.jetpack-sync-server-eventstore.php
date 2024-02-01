@@ -24,30 +24,48 @@ class Jetpack_Sync_Server_Eventstore {
 		);
 	}
 
-	public function get_all_events( $action_name = null, $blog_id = null ) {
+	/**
+	 * Returns all Sync events of a certain action type, of a certain blog, and filtered if necessary.
+	 *
+	 * @param String   $action_name Sync action slug, e.g. jetpack_sync_save_post.
+	 * @param Integer  $blog_id Blog ID filter - only return events for a given blog ID, defaults to current blog.
+	 * @param Callable $filter a custom callable to pass the event object to to be filtered.
+	 **/
+	public function get_all_events( $action_name = null, $blog_id = null, $filter = null ) {
 		$blog_id = isset( $blog_id ) ? $blog_id : get_current_blog_id();
 
-		if ( ! isset( $this->events, $this->events[ $blog_id ] ) ) {
+		if ( ! isset( $this->events[ $blog_id ] ) ) {
 			return array();
 		}
 
-		if ( $action_name ) {
-			$events = array();
+		$events = array();
 
+		if ( $action_name ) {
 			foreach ( $this->events[ $blog_id ] as $event ) {
 				if ( $event->action === $action_name ) {
 					$events[] = $event;
 				}
 			}
-
-			return $events;
+		} else {
+			$events = $this->events[ $blog_id ];
 		}
 
-		return $this->events[ $blog_id ];
+		if ( is_callable( $filter ) ) {
+			$events = array_values( array_filter( $events, $filter ) );
+		}
+
+		return $events;
 	}
 
-	public function get_most_recent_event( $action_name = null, $blog_id = null ) {
-		$events_list = $this->get_all_events( $action_name, $blog_id );
+	/**
+	 * Returns a most recent event of a certain action type, of a certain blog, and filtered if necessary.
+	 *
+	 * @param String   $action_name Sync action slug, e.g. jetpack_sync_save_post.
+	 * @param Integer  $blog_id Blog ID filter - only return events for a given blog ID, defaults to current blog.
+	 * @param Callable $filter a custom callable to pass the event object to to be filtered.
+	 **/
+	public function get_most_recent_event( $action_name = null, $blog_id = null, $filter = null ) {
+		$events_list = $this->get_all_events( $action_name, $blog_id, $filter );
 
 		if ( count( $events_list ) > 0 ) {
 			return $events_list[ count( $events_list ) - 1 ];

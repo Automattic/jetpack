@@ -59,6 +59,24 @@ describe( 'Membership products reducer testing', () => {
 		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, connectUrl: anyConnectUrl } );
 	} );
 
+	test( 'set default connected account currency action type adds the currency to the state object.', () => {
+		// Given
+		const defaultCurrency = 'usd';
+		const anySetConnectedAcccountDefaultCurrencyAction = {
+			type: 'SET_CONNECTED_ACCOUNT_DEFAULT_CURRENCY',
+			connectedAccountDefaultCurrency: defaultCurrency,
+		};
+
+		// When
+		const returnedState = reducer( DEFAULT_STATE, anySetConnectedAcccountDefaultCurrencyAction );
+
+		// Then
+		expect( returnedState ).toStrictEqual( {
+			...DEFAULT_STATE,
+			connectedAccountDefaultCurrency: defaultCurrency,
+		} );
+	} );
+
 	test( 'set api state action type adds the api state to the returned state.', () => {
 		// Given
 		const anyApiState = 'anyApiState';
@@ -72,21 +90,6 @@ describe( 'Membership products reducer testing', () => {
 
 		// Then
 		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, apiState: anyApiState } );
-	} );
-
-	test( 'set should upgrade action type adds the should upgrade property to the returned state.', () => {
-		// Given
-		const anyShouldUpgrade = 'anyUpgrade';
-		const anySetShouldUpgradeAction = {
-			type: 'SET_SHOULD_UPGRADE',
-			shouldUpgrade: anyShouldUpgrade,
-		};
-
-		// When
-		const returnedState = reducer( DEFAULT_STATE, anySetShouldUpgradeAction );
-
-		// Then
-		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, shouldUpgrade: anyShouldUpgrade } );
 	} );
 
 	test( 'set site slug action type adds the update site property to the returned state.', () => {
@@ -104,18 +107,45 @@ describe( 'Membership products reducer testing', () => {
 		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, siteSlug: anySiteSlug } );
 	} );
 
-	test( 'set upgrade url action type adds the update site property to the returned state.', () => {
+	test( 'set newsletter categories action type adds the newsletter categories to the returned state.', () => {
 		// Given
-		const anyUpgradeUrl = 'anyUpgradeUrl';
-		const anyUpgradeUrlAction = {
-			type: 'SET_UPGRADE_URL',
-			upgradeUrl: anyUpgradeUrl,
+		const anyNewsletterCategories = {
+			enabled: true,
+			categories: [ { name: 'Any Category' } ],
+		};
+		const anySetNewsletterCategoriesAction = {
+			type: 'SET_NEWSLETTER_CATEGORIES',
+			newsletterCategories: anyNewsletterCategories,
 		};
 
 		// When
-		const returnedState = reducer( DEFAULT_STATE, anyUpgradeUrlAction );
+		const returnedState = reducer( DEFAULT_STATE, anySetNewsletterCategoriesAction );
 
 		// Then
-		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, upgradeUrl: anyUpgradeUrl } );
+		expect( returnedState ).toStrictEqual( {
+			...DEFAULT_STATE,
+			newsletterCategories: anyNewsletterCategories,
+		} );
+	} );
+
+	test( 'set newsletter categories subscriptions count action type adds the newsletter categories subscriptions count to the returned state.', () => {
+		// Given
+		const anyNewsletterCategoriesSubscriptionsCount = 1;
+		const anySetNewsletterCategoriesSubscriptionsCountAction = {
+			type: 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT',
+			newsletterCategoriesSubscriptionsCount: anyNewsletterCategoriesSubscriptionsCount,
+		};
+
+		// When
+		const returnedState = reducer(
+			DEFAULT_STATE,
+			anySetNewsletterCategoriesSubscriptionsCountAction
+		);
+
+		// Then
+		expect( returnedState ).toStrictEqual( {
+			...DEFAULT_STATE,
+			newsletterCategoriesSubscriptionsCount: anyNewsletterCategoriesSubscriptionsCount,
+		} );
 	} );
 } );

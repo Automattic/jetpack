@@ -6,7 +6,7 @@ import { handleRowResize } from './layout/mosaic/resize';
 /**
  * Handler for Gallery ResizeObserver
  *
- * @param {Array<ResizeObserverEntry>} galleries Resized galleries
+ * @param {Array<ResizeObserverEntry>} galleries - Resized galleries
  */
 function handleObservedResize( galleries ) {
 	if ( handleObservedResize.pendingRaf ) {
@@ -16,7 +16,7 @@ function handleObservedResize( galleries ) {
 		handleObservedResize.pendingRaf = null;
 		for ( const gallery of galleries ) {
 			const { width: galleryWidth } = gallery.contentRect;
-			// We can't use childNodes becuase post content may contain unexpected text nodes
+			// We can't use childNodes because post content may contain unexpected text nodes
 			const rows = Array.from( gallery.target.querySelectorAll( '.tiled-gallery__row' ) );
 			rows.forEach( row => handleRowResize( row, galleryWidth ) );
 		}
@@ -26,7 +26,7 @@ function handleObservedResize( galleries ) {
 /**
  * Get all the galleries on the document
  *
- * @return {Array} List of gallery nodes
+ * @returns {Array} List of gallery nodes
  */
 function getGalleries() {
 	return Array.from(

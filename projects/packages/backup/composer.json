@@ -4,22 +4,25 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "^1.17",
-		"automattic/jetpack-admin-ui": "^0.2",
-		"automattic/jetpack-autoloader": "^2.11",
-		"automattic/jetpack-composer-plugin": "^1.1",
-		"automattic/jetpack-config": "^1.9",
-		"automattic/jetpack-connection": "^1.41",
-		"automattic/jetpack-connection-ui": "^2.4",
-		"automattic/jetpack-identity-crisis": "^0.8",
-		"automattic/jetpack-my-jetpack": "^1.8",
-		"automattic/jetpack-sync": "^1.36",
-		"automattic/jetpack-status": "^1.14"
+		"php": ">=7.0",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-backup-helper-script-manager": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-identity-crisis": "@dev",
+		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.1",
-		"yoast/phpunit-polyfills": "1.0.3",
+		"automattic/jetpack-changelogger": "@dev",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/wordbless": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"files": [
@@ -33,13 +36,14 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		"test-js": [
+			"pnpm run test"
 		],
 		"test-php": [
 			"@composer phpunit"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"build-development": [
 			"pnpm run build"
 		],
@@ -73,7 +77,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.5.x-dev"
+			"dev-trunk": "3.1.x-dev"
 		}
 	},
 	"config": {

@@ -3,12 +3,17 @@
 	"description": "Analyze differences between Jetpack versions",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"jetpack",
+		"static analysis"
+	],
 	"require": {
+		"php": ">=7.0",
 		"nikic/php-parser": "4.13.2"
 	},
 	"require-dev": {
 		"php": "^7.4 || ^8.0",
-		"automattic/jetpack-changelogger": "^3.1"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -45,7 +50,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-analyzer/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.7.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		}
 	}
 }

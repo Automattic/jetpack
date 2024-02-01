@@ -230,7 +230,6 @@ class Test_REST_Endpoints extends TestCase {
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertFalse( get_option( 'jpsq_sync_checkout' ) );
-
 	}
 
 	/**
@@ -245,6 +244,23 @@ class Test_REST_Endpoints extends TestCase {
 
 		$this->assertEquals( 422, $response->get_status() );
 		$this->assertEquals( 'dedicated_sync_disabled', $data['code'] );
+	}
+
+	/**
+	 * Testing the `DELETE /jetpack/v4/sync/locks` endpoint.
+	 */
+	public function test_sync_reset_locks() {
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/sync/locks' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$response = $this->server->dispatch( $request );
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 200, $response->get_status() );
 	}
 
 	/**
@@ -267,6 +283,7 @@ class Test_REST_Endpoints extends TestCase {
 			array( 'sync/object-id-range', 'GET', '{ "sync_module": "posts", "batch_size": "10" }' ),
 			array( 'sync/data-check', 'GET', null ),
 			array( 'sync/data-histogram', 'POST', null ),
+			array( 'sync/locks', 'DELETE', null ),
 		);
 	}
 
@@ -288,7 +305,5 @@ class Test_REST_Endpoints extends TestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 401, $response->get_status() );
-
 	}
-
 }

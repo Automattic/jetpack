@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	 * @since 6.6.0
 	 */
 	public function test_shortcodes_gist_exists() {
-		$this->assertEquals( shortcode_exists( 'gist' ), true );
+		$this->assertTrue( shortcode_exists( 'gist' ) );
 	}
 
 	/**
@@ -63,7 +63,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	public function test_gist_embeds( $content, $expected, $expected_amp ) {
 		global $post;
 
-		$post = $this->factory()->post->create_and_get( array( 'post_content' => $content ) );
+		$post = self::factory()->post->create_and_get( array( 'post_content' => $content ) );
 		setup_postdata( $post );
 
 		// Test HTML version.

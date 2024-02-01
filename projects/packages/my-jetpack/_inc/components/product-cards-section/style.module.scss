@@ -1,0 +1,58 @@
+.single-contextual-info {
+	display: flex;
+	align-items: baseline;
+	margin-top: calc( var( --spacing-base ) / 2 ); // 4px
+
+	.main-value {
+		font-weight: 400;
+		font-size: 32px;
+		line-height: 36px;
+		margin-right: var( --spacing-base );;
+	}
+}
+
+.single-contextual-info-placeholder :last-child {
+	margin-top: 4px;
+}
+
+.contextual-percentage-change {
+	display: flex;
+	align-items: baseline;
+
+	&.neutral {
+		color: var( --jp-gray-10 );
+		fill: var( --jp-gray-10 );
+	}
+
+	&.positive {
+		color: var( --jp-green-50 );
+		fill: var( --jp-green-50 );
+	}
+
+	&.negative {
+		color: var( --jp-red-40 );
+		fill: var( --jp-red-40 );
+	}
+
+	.change-icon {
+		position: relative;
+		top: 2px;
+		left: 2px;
+	}
+
+	.change-values {
+		font-weight: 600;
+		font-size: 14px;
+		line-height: 24px;
+	}
+}
+
+.loading-placeholder {
+	margin-top: calc( var( --spacing-base ) / 2 ); // 4px
+}
+
+.cardlist {
+	> li {
+		margin-bottom: 0; // Reset base style
+	}
+}

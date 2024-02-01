@@ -19,8 +19,8 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	public function set_up() {
 		parent::set_up();
 
-		$this->post_id     = $this->factory->post->create();
-		$this->comment_ids = $this->factory->comment->create_post_comments( $this->post_id );
+		$this->post_id     = self::factory()->post->create();
+		$this->comment_ids = self::factory()->comment->create_post_comments( $this->post_id );
 		$this->comment     = get_comment( $this->comment_ids[0] );
 
 		$this->sender->do_sync();
@@ -454,7 +454,6 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$deleted_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_comment_meta' );
 		$this->assertEquals( 'deleted_comment_meta', $deleted_comment_meta_event->action );
-
 	}
 
 	/**
@@ -475,7 +474,6 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$deleted_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_comment_meta' );
 		$this->assertFalse( $deleted_comment_meta_event );
-
 	}
 
 	/**
@@ -613,8 +611,8 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		);
 		register_post_type( 'snitch', $args );
 
-		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
-		$this->factory->comment->create_post_comments( $post_id );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'snitch' ) );
+		self::factory()->comment->create_post_comments( $post_id );
 
 		$this->sender->do_sync();
 		$this->server_event_storage->reset();
@@ -633,5 +631,4 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$untrash_post_comments_event = $this->server_event_storage->get_most_recent_event( 'untrash_post_comments' );
 		$this->assertFalse( $untrash_post_comments_event );
 	}
-
 }

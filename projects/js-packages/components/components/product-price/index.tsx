@@ -1,4 +1,11 @@
+/*
+ * External dependencies
+ */
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
+/*
+ * Internal dependencies
+ */
 import Text from '../text';
 import { Price } from './price';
 import styles from './style.module.scss';
@@ -16,22 +23,65 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	offPrice,
 	currency = '',
 	showNotOffPrice = true,
-	leyend = __( '/month, paid yearly', 'jetpack' ),
+	hideDiscountLabel = true,
+	promoLabel = '',
+	legend = __( '/month, paid yearly', 'jetpack' ),
 	isNotConvenientPrice = false,
+	hidePriceFraction = false,
+	children,
 } ) => {
-	if ( ! ( price || offPrice ) || ! currency ) {
+	if ( ( price == null && offPrice == null ) || ! currency ) {
 		return null;
 	}
 
-	showNotOffPrice = showNotOffPrice && Boolean( offPrice );
+	showNotOffPrice = showNotOffPrice && offPrice != null;
+
+	const discount =
+		typeof price === 'number' && typeof offPrice === 'number'
+			? Math.floor( ( ( price - offPrice ) / price ) * 100 )
+			: 0;
+
+	const showDiscountLabel = ! hideDiscountLabel && discount && discount > 0;
+
+	const discountElt = showDiscountLabel ? discount + __( '% off', 'jetpack' ) : null;
 
 	return (
 		<>
 			<div className={ styles.container }>
-				{ showNotOffPrice && <Price value={ price } currency={ currency } isOff={ false } /> }
-				<Price value={ offPrice || price } currency={ currency } isOff={ ! isNotConvenientPrice } />
+				<div className={ classnames( styles[ 'price-container' ], 'product-price_container' ) }>
+					<Price
+						value={ offPrice ?? price }
+						currency={ currency }
+						isOff={ ! isNotConvenientPrice }
+						hidePriceFraction={ hidePriceFraction }
+					/>
+					{ showNotOffPrice && (
+						<Price
+							value={ price }
+							currency={ currency }
+							isOff={ false }
+							hidePriceFraction={ hidePriceFraction }
+						/>
+					) }
+					{ discountElt && (
+						<Text className={ classnames( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
+							{ discountElt }
+						</Text>
+					) }
+				</div>
 			</div>
-			{ leyend && <Text className={ styles.leyend }>{ leyend }</Text> }
+			<div className={ styles.footer }>
+				{ children ? (
+					children
+				) : (
+					<Text className={ classnames( styles.legend, 'product-price_legend' ) }>{ legend }</Text>
+				) }
+				{ promoLabel && (
+					<Text className={ classnames( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
+						{ promoLabel }
+					</Text>
+				) }
+			</div>
 		</>
 	);
 };

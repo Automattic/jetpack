@@ -6,17 +6,25 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Blaze;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+use Automattic\Jetpack\Image_CDN\Image_CDN_Image;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -31,8 +39,12 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_minimal_state() {
 		return array(
-			'WP_API_root'  => esc_url_raw( rest_url() ),
-			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
+			'pluginBaseUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			/* This filter is documented in class.jetpack-connection-banner.php */
+			'preConnectionHelpers' => apply_filters( 'jetpack_pre_connection_prompt_helpers', false ),
+			'registrationNonce'    => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'WP_API_root'          => esc_url_raw( rest_url() ),
+			'WP_API_nonce'         => wp_create_nonce( 'wp_rest' ),
 		);
 	}
 
@@ -53,19 +65,23 @@ class Jetpack_Redux_State_Helper {
 		// Preparing translated fields for JSON encoding by transforming all HTML entities to
 		// respective characters.
 		foreach ( $modules as $slug => $data ) {
-			$modules[ $slug ]['name']              = html_entity_decode( $data['name'] );
-			$modules[ $slug ]['description']       = html_entity_decode( $data['description'] );
-			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'] );
-			$modules[ $slug ]['long_description']  = html_entity_decode( $data['long_description'] );
+			$modules[ $slug ]['name']              = html_entity_decode( $data['name'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+			$modules[ $slug ]['description']       = html_entity_decode( $data['description'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+			$modules[ $slug ]['long_description']  = html_entity_decode( $data['long_description'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 		}
 
 		// "mock" a block module in order to get it searchable in the settings.
 		$modules['blocks']['module']                    = 'blocks';
 		$modules['blocks']['additional_search_queries'] = esc_html_x( 'blocks, block, gutenberg', 'Search terms', 'jetpack' );
 
+		// "mock" an Earn module in order to get it searchable in the settings.
+		$modules['earn']['module']                    = 'earn';
+		$modules['earn']['additional_search_queries'] = esc_html_x( 'earn, paypal, stripe, payments, pay', 'Search terms', 'jetpack' );
+
 		// Collecting roles that can view site stats.
 		$stats_roles   = array();
-		$enabled_roles = function_exists( 'stats_get_option' ) ? stats_get_option( 'roles' ) : array( 'administrator' );
+		$enabled_roles = Stats_Options::get_option( 'roles' );
 
 		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/user.php';
@@ -118,6 +134,10 @@ class Jetpack_Redux_State_Helper {
 
 		$host = new Host();
 
+		$speed_score_history = new Speed_Score_History( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
+
+		$block_availability = Jetpack_Gutenberg::get_cached_availability();
+
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
@@ -150,7 +170,7 @@ class Jetpack_Redux_State_Helper {
 			),
 			'aff'                         => Partner::init()->get_partner_code( Partner::AFFILIATE_CODE ),
 			'partnerSubsidiaryId'         => Partner::init()->get_partner_code( Partner::SUBSIDIARY_CODE ),
-			'settings'                    => self::get_flattened_settings( $modules ),
+			'settings'                    => self::get_flattened_settings(),
 			'userData'                    => array(
 				'currentUser' => $current_user_data,
 			),
@@ -178,14 +198,20 @@ class Jetpack_Redux_State_Helper {
 				'showMyJetpack'              => My_Jetpack_Initializer::should_initialize(),
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
+				'latestBoostSpeedScores'     => $speed_score_history->latest(),
+				'isSharingBlockAvailable'    => (bool) isset( $block_availability['sharing-buttons'] )
+					&& $block_availability['sharing-buttons']['available'],
 			),
 			'themeData'                   => array(
-				'name'      => $current_theme->get( 'Name' ),
-				'hasUpdate' => (bool) get_theme_update_available( $current_theme ),
-				'support'   => array(
+				'name'         => $current_theme->get( 'Name' ),
+				'stylesheet'   => $current_theme->get_stylesheet(),
+				'hasUpdate'    => (bool) get_theme_update_available( $current_theme ),
+				'isBlockTheme' => (bool) $current_theme->is_block_theme(),
+				'support'      => array(
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
 					'widgets'         => current_theme_supports( 'widgets' ),
-					'webfonts'        => WP_Theme_JSON_Resolver::theme_has_support() && function_exists( 'wp_register_webfont_provider' ) && function_exists( 'wp_register_webfonts' ),
+					'webfonts'        => wp_theme_has_theme_json()
+						&& ( function_exists( 'wp_register_webfont_provider' ) || function_exists( 'wp_register_webfonts' ) ),
 				),
 			),
 			'jetpackStateNotices'         => array(
@@ -195,10 +221,10 @@ class Jetpack_Redux_State_Helper {
 				'messageContent'   => Jetpack::state( 'display_update_modal' ) ? self::get_update_modal_data() : null,
 			),
 			'tracksUserData'              => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'currentIp'                   => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
+			'currentIp'                   => IP_Utils::get_ip(),
 			'lastPostUrl'                 => esc_url( $last_post ),
 			'externalServicesConnectUrls' => self::get_external_services_connect_urls(),
-			'calypsoEnv'                  => Jetpack::get_calypso_env(),
+			'calypsoEnv'                  => ( new Host() )->get_calypso_env(),
 			'products'                    => Jetpack::get_products_for_purchase(),
 			'recommendationsStep'         => Jetpack_Core_Json_Api_Endpoints::get_recommendations_step()['step'],
 			'isSafari'                    => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.
@@ -209,12 +235,77 @@ class Jetpack_Redux_State_Helper {
 				'userCounts'              => Licensing_Endpoints::get_user_license_counts(),
 				'activationNoticeDismiss' => Licensing::instance()->get_license_activation_notice_dismiss(),
 			),
+			'jetpackManage'               => array(
+				'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
+				'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
+			),
 			'hasSeenWCConnectionModal'    => Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false ),
 			'newRecommendations'          => Jetpack_Recommendations::get_new_conditional_recommendations(),
 			// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
 			'isWooCommerceActive'         => in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ),
 			'useMyJetpackLicensingUI'     => My_Jetpack_Initializer::is_licensing_ui_enabled(),
+			'isOdysseyStatsEnabled'       => Stats_Options::get_option( 'enable_odyssey_stats' ),
+			'shouldInitializeBlaze'       => Blaze::should_initialize(),
+			'isBlazeDashboardEnabled'     => Blaze::is_dashboard_enabled(),
+			'socialInitialState'          => self::get_publicize_initial_state(),
+			'gutenbergInitialState'       => self::get_gutenberg_initial_state(),
 		);
+	}
+
+	/**
+	 * Get information about the Gutenberg plugin and its Interactivity API support.
+	 *
+	 * @see https://make.wordpress.org/core/tag/interactivity-api/
+	 *
+	 * @return array
+	 */
+	private static function get_gutenberg_initial_state() {
+		// If Gutenberg is not installed,
+		// check if we run a version of WP that would include support.
+		if ( ! Constants::is_true( 'IS_GUTENBERG_PLUGIN' ) ) {
+			global $wp_version;
+			return array(
+				'isAvailable'         => false,
+				'hasInteractivityApi' => version_compare( $wp_version, '6.4', '>=' ),
+			);
+		}
+
+		// If we're running a dev version, assume it's the latest.
+		if ( Constants::is_true( 'GUTENBERG_DEVELOPMENT_MODE' ) ) {
+			return array(
+				'isAvailable'         => true,
+				'hasInteractivityApi' => true,
+			);
+		}
+
+		$gutenberg_version = Constants::get_constant( 'GUTENBERG_VERSION' );
+		if ( ! $gutenberg_version ) {
+			return array(
+				'isAvailable'         => false,
+				'hasInteractivityApi' => false,
+			);
+		}
+
+		return array(
+			'isAvailable'         => true,
+			'hasInteractivityApi' => version_compare( $gutenberg_version, '16.6.0', '>=' ),
+		);
+	}
+
+	/**
+	 * Gets the initial state for the Publicize module.
+	 *
+	 * @return array|null
+	 */
+	public static function get_publicize_initial_state() {
+		$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
+		$settings                = $jetpack_social_settings->get_settings( true );
+
+		if ( empty( $settings ) ) {
+			return null;
+		}
+
+		return $settings;
 	}
 
 	/**
@@ -271,10 +362,9 @@ class Jetpack_Redux_State_Helper {
 
 		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
 		if ( ! empty( $post_thumbnail ) ) {
-			jetpack_require_lib( 'class.jetpack-photon-image' );
-			$photon_image = new Jetpack_Photon_Image(
+			$photon_image = new Image_CDN_Image(
 				array(
-					'file'   => jetpack_photon_url( $post_thumbnail['URL'] ),
+					'file'   => Image_CDN_Core::cdn_url( $post_thumbnail['URL'] ),
 					'width'  => $post_thumbnail['width'],
 					'height' => $post_thumbnail['height'],
 				),
@@ -359,7 +449,7 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_external_services_connect_urls() {
 		$connect_urls = array();
-		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 		// phpcs:disable
 		foreach ( Jetpack_Keyring_Service_Helper::SERVICES as $service_name => $service_info ) {
 			// phpcs:enable
@@ -400,6 +490,8 @@ class Jetpack_Redux_State_Helper {
 		return wp_generate_password( 12, false );
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
 
 /**
  * Gather data about the current user.

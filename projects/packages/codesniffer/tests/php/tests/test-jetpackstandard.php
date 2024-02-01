@@ -38,6 +38,8 @@ class JetpackStandardTest extends TestCase {
 
 		if ( file_exists( "$file.ruleset.xml" ) ) {
 			$config->standards = array( "$file.ruleset.xml" );
+		} elseif ( file_exists( "$file.dirruleset.xml" ) ) {
+			$config->standards = array( __DIR__ . '/files/default.xml', "$file.dirruleset.xml" );
 		} else {
 			$config->standards = array( __DIR__ . '/files/default.xml' );
 		}
@@ -138,5 +140,4 @@ class JetpackStandardTest extends TestCase {
 
 		return $ret;
 	}
-
 }

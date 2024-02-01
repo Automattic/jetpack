@@ -1,28 +1,24 @@
 import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 const apiEndpointsRegex = {
-	'critical-css-status': /jetpack-boost\/v1\/module\/critical-css\/status/,
-	'lazy-images-status': /jetpack-boost\/v1\/module\/lazy-images\/status/,
-	'render-blocking-js-status': /jetpack-boost\/v1\/module\/render-blocking-js\/status/,
-	'speed-scores-update': /jetpack-boost\/v1\/speed-scores\/\w*\/update/,
+	'modules-state': /jetpack-boost-ds\/modules-state\/set/,
 	connection: /jetpack-boost\/v1\/connection/,
 };
 
 export default class JetpackBoostPage extends WpPage {
 	constructor( page ) {
 		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack-boost';
-		super( page, { expectedSelectors: [ '#jb-settings' ], url } );
+		super( page, { expectedSelectors: [ '#jb-dashboard' ], url } );
 	}
 
 	/**
-	 * Tries to connect Jetpack Boost to WordPress.com, and waits for the connection API call to complete.
+	 * Select the free plan from getting started page.
 	 */
-	async connect() {
-		const button = await this.page.$( '.jb-connection button' );
+	async chooseFreePlan() {
+		const button = this.page.locator( 'text=Start for free' );
 		await button.click();
-		await this.waitForApiResponse( 'connection' );
-		await this.waitForApiResponse( 'optimizations/status' );
+		await this.waitForElementToBeVisible( '[data-testid="speed-scores"]' );
 	}
 
 	/**
@@ -43,19 +39,19 @@ export default class JetpackBoostPage extends WpPage {
 	 */
 	async isConnected() {
 		const [ showingScoreArea, isOffline ] = await Promise.all( [
-			this.isElementVisible( '.jb-site-score' ),
-			this.isElementVisible( '.jb-site-score__offline' ),
+			this.isElementVisible( '[data-testid="speed-scores"]' ),
+			this.isElementVisible( '[data-testid="speed-scores-offline"]' ),
 		] );
 
 		return showingScoreArea && ! isOffline;
 	}
 
 	async isOverallScoreHeaderShown() {
-		return await this.isElementVisible( '.jb-site-score' );
+		return await this.isElementVisible( '[data-testid="speed-scores"]' );
 	}
 
 	async isSiteScoreLoading() {
-		const selector = await this.waitForElementToBeVisible( '.jb-site-score' );
+		const selector = await this.waitForElementToBeVisible( '[data-testid="speed-scores"]' );
 		const classNames = await selector.getAttribute( 'class' );
 		return classNames.includes( 'loading' );
 	}
@@ -69,27 +65,31 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async toggleModule( moduleName ) {
-		this.page.click( `#jb-feature-toggle-${ moduleName }` );
-		await this.waitForApiResponse( `${ moduleName }-status` );
+		this.page.click( `.jb-feature-toggle-${ moduleName }` );
+		await this.waitForApiResponse( 'modules-state' );
 	}
 
 	async isModuleEnabled( moduleName ) {
-		const toggle = await this.page.waitForSelector( `#jb-feature-toggle-${ moduleName }` );
-		const toggleParent = await toggle.waitForSelector( 'xpath=..' );
-		const classNames = await toggleParent.getAttribute( 'class' );
+		const toggle = await this.page.waitForSelector( `.jb-feature-toggle-${ moduleName }` );
+		const toggleSwitch = await toggle.waitForSelector( '.components-form-toggle' );
+		const classNames = await toggleSwitch.getAttribute( 'class' );
 
 		return classNames.includes( 'is-checked' );
 	}
 
 	async getSpeedScore( platform ) {
-		const speedBar = await this.page.waitForSelector(
-			`div.jb-score-bar--${ platform }  .jb-score-bar__filler`
-		);
-		await this.page.waitForSelector( '.jb-score-bar__score', {
+		const parent = `div.jb-score-bar--${ platform }  .jb-score-bar__filler`;
+
+		await this.page.waitForSelector( parent + ' .jb-score-bar__score', {
 			state: 'visible',
 			timeout: 40 * 1000,
 		} );
-		return Number( await speedBar.$eval( '.jb-score-bar__score', e => e.textContent ) );
+
+		return Number(
+			await this.page.evaluate(
+				"document.querySelector( '" + parent + " .jb-score-bar__score' ).textContent"
+			)
+		);
 	}
 
 	async isScorebarLoading( platform ) {
@@ -98,12 +98,12 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async isTheCriticalCssMetaInformationVisible() {
-		const selector = '.jb-critical-css__meta';
+		const selector = '[data-testid="critical-css-meta"]';
 		return this.page.isVisible( selector );
 	}
 
 	async waitForCriticalCssMetaInfoVisibility() {
-		const selector = '.jb-critical-css__meta';
+		const selector = '[data-testid="critical-css-meta"]';
 		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
 	}
 
@@ -113,7 +113,7 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async isTheCriticalCssFailureMessageVisible() {
-		const selector = '.jb-critical-css__meta .failures';
+		const selector = '[data-testid="critical-css-meta"] .failures';
 		return this.page.isVisible( selector );
 	}
 
@@ -131,13 +131,13 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async clickRefreshSpeedScore() {
-		const selector = '.jb-site-score__top >> text=Refresh';
+		const selector = '[data-testid="speed-scores-top"] >> text=Refresh';
 		await this.page.click( selector );
 	}
 
 	async currentPageTitleIs( expected ) {
 		const actualTitle = await this.page.evaluate( () => {
-			const selector = '.jb-site-score__top h2';
+			const selector = '[data-testid="speed-scores-top"] h2';
 			// eslint-disable-next-line no-undef
 			return document.querySelector( selector ).textContent;
 		} );
@@ -146,13 +146,14 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async waitForScoreLoadingToFinish() {
-		const selector = '.jb-site-score__top h2:text("Loading…")';
+		const selector = '[data-testid="speed-scores-top"] h2:text("Loading…")';
 		/* It needs a large timeout because speed score updates take time */
 		return this.waitForElementToBeDetached( selector, 180000 ); // 3 minutes
 	}
 
 	async isScoreDescriptionPopinVisible() {
-		const selector = '.jb-score-context__info-container';
+		const selector =
+			'[data-testid="speed-scores-top"] .icon-tooltip-wrapper .components-popover__content';
 		return this.page.isVisible( selector );
 	}
 
@@ -168,7 +169,7 @@ export default class JetpackBoostPage extends WpPage {
 		return (
 			( await this.getSpeedScore( 'mobile' ) ) > 0 &&
 			( await this.getSpeedScore( 'desktop' ) ) > 0 &&
-			( await this.currentPageTitleIs( /Overall score: [A-Z]/ ) )
+			( await this.currentPageTitleIs( /Overall Score: [A-Z]/i ) )
 		);
 	}
 }

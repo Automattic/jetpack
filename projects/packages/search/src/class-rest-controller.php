@@ -9,8 +9,9 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Products\Search as Search_Product;
+use Automattic\Jetpack\My_Jetpack\Products\Search_Stats as Search_Product_Stats;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -20,6 +21,14 @@ use WP_REST_Server;
  * Registers the REST routes for Search.
  */
 class REST_Controller {
+	/**
+	 * Namespace for the REST API.
+	 *
+	 * This is overriden with value `wpcom-orgin/jetpack/v4` for WPCOM.
+	 *
+	 * @var string
+	 */
+	public static $namespace = 'jetpack/v4';
 	/**
 	 * Whether it's run on WPCOM.
 	 *
@@ -33,6 +42,13 @@ class REST_Controller {
 	 * @var Module_Control
 	 */
 	protected $search_module;
+
+	/**
+	 * Plan object.
+	 *
+	 * @var Plan
+	 */
+	public $plan;
 
 	/**
 	 * Constructor
@@ -54,8 +70,20 @@ class REST_Controller {
 	 * @static
 	 */
 	public function register_rest_routes() {
+		$this->register_common_rest_routes();
+		if ( ! Helper::is_wpcom() ) {
+			$this->register_jetpack_only_rest_routes();
+		} else {
+			$this->register_wpcom_only_rest_routes();
+		}
+	}
+
+	/**
+	 * Routes both existing in Jetpack and WPCOM simple sites.
+	 */
+	protected function register_common_rest_routes() {
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/plan',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -64,7 +92,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/settings',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -73,7 +101,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/settings',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -82,7 +110,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/stats',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -91,16 +119,22 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
-			'/search',
+			static::$namespace,
+			'/search/pricing',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_search_results' ),
+				'callback'            => array( $this, 'product_pricing' ),
 				'permission_callback' => 'is_user_logged_in',
 			)
 		);
+	}
+
+	/**
+	 * Routes only existing in Jetpack.
+	 */
+	protected function register_jetpack_only_rest_routes() {
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/plan/activate',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -109,7 +143,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/plan/deactivate',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -118,14 +152,32 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
-			'/search/pricing',
+			static::$namespace,
+			'/search',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'product_pricing' ),
+				'callback'            => array( $this, 'get_search_results' ),
 				'permission_callback' => 'is_user_logged_in',
 			)
 		);
+		register_rest_route(
+			static::$namespace,
+			'/search/local-stats',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_local_stats' ),
+				'permission_callback' => array( $this, 'require_valid_blog_token_callback' ),
+			)
+		);
+	}
+
+	/**
+	 * Routes only existing in WPCOM.
+	 *
+	 * We currently don't have any.
+	 */
+	protected function register_wpcom_only_rest_routes() {
+		return true;
 	}
 
 	/**
@@ -138,6 +190,29 @@ class REST_Controller {
 			return true;
 		}
 
+		return $this->get_forbidden_error();
+	}
+
+	/**
+	 * The corresponding endpoints can only be accessible from WPCOM.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
+	 */
+	public function require_valid_blog_token_callback() {
+		if ( Rest_Authentication::is_signed_with_blog_token() ) {
+			return true;
+		}
+
+		return $this->get_forbidden_error();
+	}
+
+	/**
+	 * Return a WP_Error object with a forbidden error.
+	 */
+	protected function get_forbidden_error() {
 		$error_msg = esc_html__(
 			'You are not allowed to perform this action.',
 			'jetpack-search-pkg'
@@ -180,7 +255,7 @@ class REST_Controller {
 
 		$errors = array();
 		if ( $module_active !== null ) {
-			$module_active_updated = ( new Modules() )->update_status( Package::SLUG, $module_active, false, false );
+			$module_active_updated = $this->search_module->update_status( $module_active );
 			if ( is_wp_error( $module_active_updated ) ) {
 				$errors['module_active'] = $module_active_updated;
 			}
@@ -340,10 +415,24 @@ class REST_Controller {
 	}
 
 	/**
+	 * Return post type breakdown for the site.
+	 */
+	public function get_local_stats() {
+		return array(
+			'post_count'          => Search_Product_Stats::estimate_count(),
+			'post_type_breakdown' => Search_Product_Stats::get_post_type_breakdown(),
+		);
+	}
+
+	/**
 	 * Pricing for record count of the site
 	 */
 	public function product_pricing() {
 		$tier_pricing = Search_Product::get_pricing_for_ui();
+		// we can force the plugin to use the new pricing by appending `new_pricing_202208=1` to URL.
+		if ( Helper::is_forced_new_pricing_202208() ) {
+			$tier_pricing['pricing_version'] = Plan::JETPACK_SEARCH_NEW_PRICING_VERSION;
+		}
 		return rest_ensure_response( $tier_pricing );
 	}
 
@@ -377,5 +466,4 @@ class REST_Controller {
 	protected function get_blog_id() {
 		return $this->is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
 	}
-
 }

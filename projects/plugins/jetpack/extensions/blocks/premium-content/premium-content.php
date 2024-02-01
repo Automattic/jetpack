@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
 require_once __DIR__ . '/_inc/access-check.php';
@@ -17,38 +16,27 @@ require_once __DIR__ . '/subscriber-view/subscriber-view.php';
 require_once __DIR__ . '/buttons/buttons.php';
 require_once __DIR__ . '/login-button/login-button.php';
 
-const FEATURE_NAME = 'premium-content/container';
-
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
  * registration if we need to.
  */
 function register_block() {
-	// Only load this block on WordPress.com.
-	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Host() )->is_woa_site() ) {
-		// Determine required `context` key based on Gutenberg version.
-		$deprecated = function_exists( 'gutenberg_get_post_from_context' );
-		$provides   = $deprecated ? 'providesContext' : 'provides_context';
+	// Determine required `context` key based on Gutenberg version.
+	$deprecated = function_exists( 'gutenberg_get_post_from_context' );
+	$provides   = $deprecated ? 'providesContext' : 'provides_context';
 
-		Blocks::jetpack_register_block(
-			FEATURE_NAME,
-			array(
-				'render_callback' => __NAMESPACE__ . '\render_block',
-				'plan_check'      => true,
-				'attributes'      => array(
-					'isPremiumContentChild' => array(
-						'type'    => 'boolean',
-						'default' => true,
-					),
-				),
-				$provides         => array(
-					'premium-content/planId' => 'selectedPlanId',
-					'isPremiumContentChild'  => 'isPremiumContentChild',
-				),
-			)
-		);
-	}
+	Blocks::jetpack_register_block(
+		__DIR__,
+		array(
+			'render_callback' => __NAMESPACE__ . '\render_block',
+			$provides         => array(
+				'premium-content/planId'  => 'selectedPlanId', // Deprecated.
+				'premium-content/planIds' => 'selectedPlanIds',
+				'isPremiumContentChild'   => 'isPremiumContentChild',
+			),
+		)
+	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
@@ -65,11 +53,8 @@ function render_block( $attributes, $content ) {
 		return '';
 	}
 
-	if (
-		! membership_checks()
-		// Only display Stripe nudge if Upgrade nudge isn't displaying.
-		&& required_plan_checks()
-	) {
+	// Render the Stripe nudge when Stripe is unconnected
+	if ( ! membership_checks() ) {
 		$stripe_nudge = render_stripe_nudge();
 		return $stripe_nudge . $content;
 	}
@@ -86,7 +71,7 @@ function render_block( $attributes, $content ) {
  */
 function render_stripe_nudge() {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		\jetpack_require_lib( 'memberships' );
+		\require_lib( 'memberships' );
 		$blog_id  = get_current_blog_id();
 		$settings = (array) \get_memberships_settings_for_site( $blog_id );
 
@@ -95,7 +80,7 @@ function render_stripe_nudge() {
 			__( 'Connect to Stripe to use this block on your site.', 'jetpack' ),
 			__( 'Connect', 'jetpack' )
 		);
-	} elseif ( ( new Host() )->is_woa_site() ) {
+	} else {
 		// On WoA sites, the Stripe connection url is not easily available
 		// server-side, so we redirect them to the post in the editor in order
 		// to connect.
@@ -105,9 +90,6 @@ function render_stripe_nudge() {
 			__( 'Edit post', 'jetpack' )
 		);
 	}
-
-	// The Premium Content block is not supported on Jetpack sites.
-	return '';
 }
 
 /**
@@ -120,7 +102,7 @@ function render_stripe_nudge() {
  * @return string Final content to render.
  */
 function stripe_nudge( $checkout_url, $description, $button_text ) {
-	\jetpack_require_lib( 'components' );
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/components.php';
 	return \Jetpack_Components::render_frontend_nudge(
 		array(
 			'checkoutUrl' => $checkout_url,

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
@@ -18,7 +19,6 @@ use GP_Locale;
 use GP_Locales;
 use Jetpack;
 use Jetpack_AMP_Support;
-use Jetpack_Plan;
 use WP_Admin_Bar;
 
 /**
@@ -84,6 +84,12 @@ class Masterbar {
 	 */
 	private $primary_site_slug;
 	/**
+	 * Site URL displayed in the UI.
+	 *
+	 * @var string
+	 */
+	private $primary_site_url;
+	/**
 	 * Whether the text direction is RTL (based on connected WordPress.com user's interface settings).
 	 *
 	 * @var boolean
@@ -114,12 +120,12 @@ class Masterbar {
 		}
 
 		$this->user_data       = $connection_manager->get_connected_user_data( $this->user_id );
-		$this->user_login      = $this->user_data['login'];
-		$this->user_email      = $this->user_data['email'];
-		$this->display_name    = $this->user_data['display_name'];
-		$this->user_site_count = $this->user_data['site_count'];
-		$this->is_rtl          = 'rtl' === $this->user_data['text_direction'];
-		$this->user_locale     = $this->user_data['user_locale'];
+		$this->user_login      = isset( $this->user_data['login'] ) ? $this->user_data['login'] : '';
+		$this->user_email      = isset( $this->user_data['email'] ) ? $this->user_data['email'] : '';
+		$this->display_name    = isset( $this->user_data['display_name'] ) ? $this->user_data['display_name'] : '';
+		$this->user_site_count = isset( $this->user_data['site_count'] ) ? $this->user_data['site_count'] : '';
+		$this->is_rtl          = isset( $this->user_data['text_direction'] ) && 'rtl' === $this->user_data['text_direction'];
+		$this->user_locale     = isset( $this->user_data['user_locale'] ) ? $this->user_data['user_locale'] : '';
 		$this->site_woa        = ( new Host() )->is_woa_site();
 
 		// Store part of the connected user data as user options so it can be used
@@ -260,7 +266,14 @@ class Masterbar {
 	 * @return string
 	 */
 	public function admin_body_class( $admin_body_classes ) {
-		return "$admin_body_classes jetpack-masterbar";
+
+		$classes = array( 'jetpack-masterbar', trim( $admin_body_classes ) );
+
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$classes[] = 'wpcom-admin-interface';
+		}
+
+		return implode( ' ', $classes );
 	}
 
 	/**
@@ -270,8 +283,9 @@ class Masterbar {
 		/*
 		 * Notifications need the admin bar styles,
 		 * so let's not remove them when the module is active.
+		 * Also, don't remove the styles if the user has opted to use wp-admin.
 		 */
-		if ( ! Jetpack::is_module_active( 'notes' ) ) {
+		if ( ! Jetpack::is_module_active( 'notes' ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 			wp_dequeue_style( 'admin-bar' );
 		}
 	}
@@ -280,6 +294,13 @@ class Masterbar {
 	 * Enqueue our own CSS and JS to display our custom admin bar.
 	 */
 	public function add_styles_and_scripts() {
+		// WoA sites: If wpcom_admin_interface is set to wp-admin, load the wp-admin styles.
+		// These include only styles to enable the "My Sites" and "Reader" links that will be added.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$css_file = $this->is_rtl ? 'masterbar-wp-admin-rtl.css' : 'masterbar-wp-admin.css';
+			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/' . $css_file ), array(), JETPACK__VERSION );
+			return;
+		}
 
 		if ( $this->is_rtl ) {
 			wp_enqueue_style( 'a8c-wpcom-masterbar-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/rtl/wpcom-admin-bar-rtl.css' ), array(), JETPACK__VERSION );
@@ -350,8 +371,87 @@ class Masterbar {
 			return false;
 		}
 
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$this->build_wp_admin_interface_bar( $wp_admin_bar );
+			return;
+		}
+
 		$this->clear_core_masterbar( $wp_admin_bar );
 		$this->build_wpcom_masterbar( $wp_admin_bar );
+	}
+
+	/**
+	 * This reorganizes the original wp admin bar for when an atomic site
+	 * has the wpcom_admin_interface set to wp-admin.
+	 *
+	 * The wpcom_admin_interface = wp-admin setting indicates that the users wishes
+	 * to NOT use the wpcom master bar. We do need to adjust a couple of things
+	 * though.
+	 *
+	 * @param WP_Admin_Bar $bar The admin bar object.
+	 *
+	 * @return void
+	 */
+	protected function build_wp_admin_interface_bar( $bar ) {
+
+		$nodes = array();
+
+		// First, lets gather all nodes and remove them.
+		foreach ( $bar->get_nodes() as $node ) {
+			$nodes[ $node->id ] = $node;
+			$bar->remove_node( $node->id );
+		}
+
+		// This disables a submenu from being placed under the My Sites button.
+		add_filter( 'jetpack_load_admin_menu_class', '__return_true' );
+
+		// Here we add the My sites and Reader buttons
+		$this->wpcom_adminbar_add_secondary_groups( $bar );
+		$this->add_my_sites_submenu( $bar );
+		$this->add_reader_submenu( $bar );
+
+		foreach ( $nodes as $id => $node ) {
+
+			$bar->add_node( $node );
+			// Add our custom node and change the title of the edit profile node.
+			if ( 'edit-profile' === $id ) {
+				$this->add_wpcom_profile_link( $bar );
+				$bar->add_node(
+					array(
+						'id'    => 'edit-profile',
+						'title' => __( 'Site Profile', 'jetpack' ),
+					)
+				);
+			}
+		}
+
+		// Add a menu item to the user menu
+		// Add a custom link to the user menu.
+		$this->add_wpcom_profile_link( $bar );
+
+		// Remove some things
+		$bar->remove_node( 'wp-logo' );
+	}
+
+	/**
+	 * Add a link to the user` profile on WordPress.com
+	 *
+	 * @param WP_Admin_Bar $bar The admin bar object.
+	 *
+	 * @return void
+	 */
+	protected function add_wpcom_profile_link( $bar ) {
+		$custom_node = array(
+			'parent' => 'user-actions',
+			'id'     => 'wpcom-profile-link',
+			'title'  => __( 'WordPress.com Profile', 'jetpack' ),
+			'href'   => 'https://wordpress.com/me',
+			'meta'   => array(
+				'title' => __( 'Go to your profile page on WordPress.com', 'jetpack' ), // Optional, tooltip text.
+			),
+		);
+
+		$bar->add_node( $custom_node );
 	}
 
 	/**
@@ -379,7 +479,7 @@ class Masterbar {
 		$this->add_reader_submenu( $wp_admin_bar );
 
 		// Right part.
-		if ( Jetpack::is_module_active( 'notes' ) ) {
+		if ( Jetpack::is_module_active( 'notes' ) && ! \Jetpack_Notifications::is_block_editor() ) {
 			$this->add_notifications( $wp_admin_bar );
 		}
 
@@ -387,9 +487,7 @@ class Masterbar {
 		$this->add_write_button( $wp_admin_bar );
 
 		// Recovery mode exit.
-		if ( function_exists( 'wp_admin_bar_recovery_mode_menu' ) ) {
-			wp_admin_bar_recovery_mode_menu( $wp_admin_bar );
-		}
+		wp_admin_bar_recovery_mode_menu( $wp_admin_bar );
 
 		if ( class_exists( 'Automattic\Jetpack\Scan\Admin_Bar_Notice' ) ) {
 			$scan_admin_bar_notice = Admin_Bar_Notice::instance();
@@ -474,7 +572,7 @@ class Masterbar {
 	 * Hide language dropdown on user edit form.
 	 */
 	public function hide_language_dropdown() {
-		add_filter( 'get_available_languages', '__return_null' );
+		add_filter( 'get_available_languages', '__return_empty_array' );
 	}
 
 	/**
@@ -521,6 +619,7 @@ class Masterbar {
 					'class' => 'menupop mb-trackable',
 				),
 				'parent' => 'top-secondary',
+				'href'   => 'https://wordpress.com/notifications',
 			)
 		);
 	}
@@ -542,85 +641,6 @@ class Masterbar {
 				),
 			)
 		);
-
-		/** This filter is documented in modules/masterbar.php */
-		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
-			return;
-		}
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'streams-header',
-				'title'  => esc_html_x(
-					'Streams',
-					'Title for Reader sub-menu that contains followed sites, likes, and search',
-					'jetpack'
-				),
-				'meta'   => array(
-					'class' => 'ab-submenu-header',
-				),
-			)
-		);
-
-		$following_title = $this->create_menu_item_pair(
-			array(
-				'url'   => Redirect::get_url( 'calypso-read' ),
-				'id'    => 'wp-admin-bar-followed-sites',
-				'label' => esc_html__( 'Followed Sites', 'jetpack' ),
-			),
-			array(
-				'url'   => Redirect::get_url( 'calypso-following-edit' ),
-				'id'    => 'wp-admin-bar-reader-followed-sites-manage',
-				'label' => esc_html__( 'Manage', 'jetpack' ),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'following',
-				'title'  => $following_title,
-				'meta'   => array( 'class' => 'inline-action' ),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'discover-discover',
-				'title'  => esc_html__( 'Discover', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-discover' ),
-				'meta'   => array(
-					'class' => 'mb-icon-spacer',
-				),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'discover-search',
-				'title'  => esc_html__( 'Search', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-read-search' ),
-				'meta'   => array(
-					'class' => 'mb-icon-spacer',
-				),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'my-activity-my-likes',
-				'title'  => esc_html__( 'My Likes', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-activities-likes' ),
-				'meta'   => array(
-					'class' => 'mb-icon-spacer',
-				),
-			)
-		);
-
 	}
 
 	/**
@@ -726,8 +746,6 @@ class Masterbar {
 			)
 		);
 
-		$settings_url = Redirect::get_url( 'calypso-me-account' );
-
 		$logout_url = wp_logout_url();
 		$logout_url = add_query_arg( 'context', 'masterbar', $logout_url );
 
@@ -740,6 +758,13 @@ class Masterbar {
 			$logout_url,
 			esc_html__( 'Sign Out', 'jetpack' )
 		);
+
+		$blog_id = Connection_Manager::get_site_id( true );
+
+		$args = array();
+		if ( $blog_id ) {
+			$args['site'] = $blog_id;
+		}
 
 		$wp_admin_bar->add_menu(
 			array(
@@ -769,7 +794,7 @@ class Masterbar {
 				'parent' => $id,
 				'id'     => 'my-profile',
 				'title'  => esc_html__( 'My Profile', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-me' ),
+				'href'   => Redirect::get_url( 'calypso-me', $args ),
 				'meta'   => array(
 					'class' => 'mb-icon',
 				),
@@ -781,7 +806,7 @@ class Masterbar {
 				'parent' => $id,
 				'id'     => 'account-settings',
 				'title'  => esc_html__( 'Account Settings', 'jetpack' ),
-				'href'   => $settings_url,
+				'href'   => Redirect::get_url( 'calypso-me-account', $args ),
 				'meta'   => array(
 					'class' => 'mb-icon',
 				),
@@ -793,7 +818,7 @@ class Masterbar {
 				'parent' => $id,
 				'id'     => 'billing',
 				'title'  => esc_html__( 'Manage Purchases', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-me-purchases' ),
+				'href'   => Redirect::get_url( 'calypso-me-purchases', $args ),
 				'meta'   => array(
 					'class' => 'mb-icon',
 				),
@@ -805,7 +830,7 @@ class Masterbar {
 				'parent' => $id,
 				'id'     => 'security',
 				'title'  => esc_html__( 'Security', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-me-security' ),
+				'href'   => Redirect::get_url( 'calypso-me-security', $args ),
 				'meta'   => array(
 					'class' => 'mb-icon',
 				),
@@ -817,7 +842,7 @@ class Masterbar {
 				'parent' => $id,
 				'id'     => 'notifications',
 				'title'  => esc_html__( 'Notifications', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-me-notifications' ),
+				'href'   => Redirect::get_url( 'calypso-me-notifications', $args ),
 				'meta'   => array(
 					'class' => 'mb-icon',
 				),
@@ -844,17 +869,17 @@ class Masterbar {
 				'parent' => $id,
 				'id'     => 'get-apps',
 				'title'  => esc_html__( 'Get Apps', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-me-get-apps' ),
+				'href'   => Redirect::get_url( 'calypso-me-get-apps', $args ),
 				'meta'   => array(
 					'class' => 'mb-icon user-info-item',
 				),
 			)
 		);
 
-		$help_link = Redirect::get_url( 'jetpack-support' );
+		$help_link = Redirect::get_url( 'jetpack-support', $args );
 
 		if ( $this->site_woa ) {
-			$help_link = Redirect::get_url( 'calypso-help' );
+			$help_link = Redirect::get_url( 'calypso-help', $args );
 		}
 
 		$wp_admin_bar->add_menu(
@@ -919,12 +944,19 @@ class Masterbar {
 			$blog_name = mb_substr( html_entity_decode( $blog_name, ENT_QUOTES ), 0, 20 ) . '&hellip;';
 		}
 
+		$my_site_url   = 'https://wordpress.com/sites/' . $this->primary_site_url;
+		$my_site_title = _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' );
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			$my_site_url   = 'https://wordpress.com/sites';
+			$my_site_title = esc_html__( 'My Sites', 'jetpack' );
+		}
+
 		$wp_admin_bar->add_menu(
 			array(
 				'parent' => 'root-default',
 				'id'     => 'blog',
-				'title'  => _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' ),
-				'href'   => 'https://wordpress.com/sites/' . $this->primary_site_url,
+				'title'  => $my_site_title,
+				'href'   => $my_site_url,
 				'meta'   => array(
 					'class' => 'my-sites mb-trackable',
 				),
@@ -936,13 +968,20 @@ class Masterbar {
 			return;
 		}
 
+		$blog_id = Connection_Manager::get_site_id( true );
+
+		$args = array();
+		if ( $blog_id ) {
+			$args['site'] = $blog_id;
+		}
+
 		if ( $this->user_site_count > 1 ) {
 			$wp_admin_bar->add_menu(
 				array(
 					'parent' => 'blog',
 					'id'     => 'switch-site',
 					'title'  => esc_html__( 'Switch Site', 'jetpack' ),
-					'href'   => Redirect::get_url( 'calypso-sites' ),
+					'href'   => Redirect::get_url( 'calypso-sites', $args ),
 				)
 			);
 		} else {
@@ -951,7 +990,7 @@ class Masterbar {
 					'parent' => 'blog',
 					'id'     => 'new-site',
 					'title'  => esc_html__( '+ Add New WordPress', 'jetpack' ),
-					'href'   => Redirect::get_url( 'calypso-start', array( 'query' => 'ref=admin-bar-logged-in' ) ),
+					'href'   => Redirect::get_url( 'calypso-start', array_merge( $args, array( 'query' => 'ref=admin-bar-logged-in' ) ) ),
 				)
 			);
 		}
@@ -1008,7 +1047,7 @@ class Masterbar {
 					'parent' => 'blog',
 					'id'     => 'blog-stats',
 					'title'  => esc_html__( 'Stats', 'jetpack' ),
-					'href'   => Redirect::get_url( 'calypso-stats' ),
+					'href'   => Redirect::get_url( 'calypso-stats', $args ),
 					'meta'   => array(
 						'class' => 'mb-icon',
 					),
@@ -1022,7 +1061,7 @@ class Masterbar {
 					'parent' => 'blog',
 					'id'     => 'activity',
 					'title'  => esc_html__( 'Activity', 'jetpack' ),
-					'href'   => Redirect::get_url( 'calypso-activity-log' ),
+					'href'   => Redirect::get_url( 'calypso-activity-log', $args ),
 					'meta'   => array(
 						'class' => 'mb-icon',
 					),
@@ -1032,7 +1071,7 @@ class Masterbar {
 
 		// Add Calypso plans link and plan type indicator.
 		if ( is_user_member_of_blog( $current_user->ID ) && current_user_can( 'manage_options' ) ) {
-			$plans_url = Redirect::get_url( 'calypso-plans' );
+			$plans_url = Redirect::get_url( 'calypso-plans', $args );
 			$label     = esc_html__( 'Plan', 'jetpack' );
 			$plan      = Jetpack_Plan::get();
 
@@ -1084,12 +1123,12 @@ class Masterbar {
 		// Pages.
 		$pages_title = $this->create_menu_item_pair(
 			array(
-				'url'   => Redirect::get_url( 'calypso-edit-pages' ),
+				'url'   => Redirect::get_url( 'calypso-edit-pages', $args ),
 				'id'    => 'wp-admin-bar-edit-page',
 				'label' => esc_html__( 'Site Pages', 'jetpack' ),
 			),
 			array(
-				'url'   => Redirect::get_url( 'calypso-edit-page' ),
+				'url'   => Redirect::get_url( 'calypso-edit-page', $args ),
 				'id'    => 'wp-admin-bar-new-page-badge',
 				'label' => esc_html_x( 'Add', 'admin bar menu new item label', 'jetpack' ),
 			)
@@ -1098,7 +1137,7 @@ class Masterbar {
 		if ( ! current_user_can( 'edit_pages' ) ) {
 			$pages_title = $this->create_menu_item_anchor(
 				'ab-item ab-primary mb-icon',
-				Redirect::get_url( 'calypso-edit-pages' ),
+				Redirect::get_url( 'calypso-edit-pages', $args ),
 				esc_html__( 'Site Pages', 'jetpack' ),
 				'wp-admin-bar-edit-page'
 			);
@@ -1118,12 +1157,12 @@ class Masterbar {
 		// Blog Posts.
 		$posts_title = $this->create_menu_item_pair(
 			array(
-				'url'   => Redirect::get_url( 'calypso-edit-posts' ),
+				'url'   => Redirect::get_url( 'calypso-edit-posts', $args ),
 				'id'    => 'wp-admin-bar-edit-post',
 				'label' => esc_html__( 'Blog Posts', 'jetpack' ),
 			),
 			array(
-				'url'   => Redirect::get_url( 'calypso-edit-post' ),
+				'url'   => Redirect::get_url( 'calypso-edit-post', $args ),
 				'id'    => 'wp-admin-bar-new-post-badge',
 				'label' => esc_html_x( 'Add', 'admin bar menu new item label', 'jetpack' ),
 			)
@@ -1132,7 +1171,7 @@ class Masterbar {
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			$posts_title = $this->create_menu_item_anchor(
 				'ab-item ab-primary mb-icon',
-				Redirect::get_url( 'calypso-edit-posts' ),
+				Redirect::get_url( 'calypso-edit-posts', $args ),
 				esc_html__( 'Blog Posts', 'jetpack' ),
 				'wp-admin-bar-edit-post'
 			);
@@ -1156,7 +1195,7 @@ class Masterbar {
 					'parent' => 'publish',
 					'id'     => 'comments',
 					'title'  => __( 'Comments', 'jetpack' ),
-					'href'   => Redirect::get_url( 'calypso-comments' ),
+					'href'   => Redirect::get_url( 'calypso-comments', $args ),
 					'meta'   => array(
 						'class' => 'mb-icon',
 					),
@@ -1168,12 +1207,12 @@ class Masterbar {
 		if ( Jetpack::is_module_active( 'custom-content-types' ) && get_option( 'jetpack_testimonial' ) ) {
 			$testimonials_title = $this->create_menu_item_pair(
 				array(
-					'url'   => Redirect::get_url( 'calypso-list-jetpack-testimonial' ),
+					'url'   => Redirect::get_url( 'calypso-list-jetpack-testimonial', $args ),
 					'id'    => 'wp-admin-bar-edit-testimonial',
 					'label' => esc_html__( 'Testimonials', 'jetpack' ),
 				),
 				array(
-					'url'   => Redirect::get_url( 'calypso-edit-jetpack-testimonial' ),
+					'url'   => Redirect::get_url( 'calypso-edit-jetpack-testimonial', $args ),
 					'id'    => 'wp-admin-bar-new-testimonial',
 					'label' => esc_html_x( 'Add', 'Button label for adding a new item via the toolbar menu', 'jetpack' ),
 				)
@@ -1182,7 +1221,7 @@ class Masterbar {
 			if ( ! current_user_can( 'edit_pages' ) ) {
 				$testimonials_title = $this->create_menu_item_anchor(
 					'ab-item ab-primary mb-icon',
-					Redirect::get_url( 'calypso-list-jetpack-testimonial' ),
+					Redirect::get_url( 'calypso-list-jetpack-testimonial', $args ),
 					esc_html__( 'Testimonials', 'jetpack' ),
 					'wp-admin-bar-edit-testimonial'
 				);
@@ -1204,12 +1243,12 @@ class Masterbar {
 		if ( Jetpack::is_module_active( 'custom-content-types' ) && get_option( 'jetpack_portfolio' ) ) {
 			$portfolios_title = $this->create_menu_item_pair(
 				array(
-					'url'   => Redirect::get_url( 'calypso-list-jetpack-portfolio' ),
+					'url'   => Redirect::get_url( 'calypso-list-jetpack-portfolio', $args ),
 					'id'    => 'wp-admin-bar-edit-portfolio',
 					'label' => esc_html__( 'Portfolio', 'jetpack' ),
 				),
 				array(
-					'url'   => Redirect::get_url( 'calypso-edit-jetpack-portfolio' ),
+					'url'   => Redirect::get_url( 'calypso-edit-jetpack-portfolio', $args ),
 					'id'    => 'wp-admin-bar-new-portfolio',
 					'label' => esc_html_x( 'Add', 'Button label for adding a new item via the toolbar menu', 'jetpack' ),
 				)
@@ -1218,7 +1257,7 @@ class Masterbar {
 			if ( ! current_user_can( 'edit_pages' ) ) {
 				$portfolios_title = $this->create_menu_item_anchor(
 					'ab-item ab-primary mb-icon',
-					Redirect::get_url( 'calypso-list-jetpack-portfolio' ),
+					Redirect::get_url( 'calypso-list-jetpack-portfolio', $args ),
 					esc_html__( 'Portfolio', 'jetpack' ),
 					'wp-admin-bar-edit-portfolio'
 				);
@@ -1284,14 +1323,13 @@ class Masterbar {
 					'label' => esc_html_x( 'Customize', 'admin bar customize item label', 'jetpack' ),
 				),
 				array(
-					'url'   => Redirect::get_url( 'calypso-themes' ),
+					'url'   => Redirect::get_url( 'calypso-themes', $args ),
 					'id'    => 'wp-admin-bar-themes',
 					'label' => esc_html__( 'Themes', 'jetpack' ),
 				)
 			);
 			$meta        = array(
-				'class' => 'mb-icon',
-				'class' => 'inline-action',
+				'class' => 'mb-icon inline-action',
 			);
 			$href        = false;
 
@@ -1333,7 +1371,7 @@ class Masterbar {
 						'parent' => 'configuration',
 						'id'     => 'sharing',
 						'title'  => esc_html__( 'Sharing', 'jetpack' ),
-						'href'   => Redirect::get_url( 'calypso-sharing' ),
+						'href'   => Redirect::get_url( 'calypso-sharing', $args ),
 						'meta'   => array(
 							'class' => 'mb-icon',
 						),
@@ -1343,7 +1381,7 @@ class Masterbar {
 
 			$people_title = $this->create_menu_item_pair(
 				array(
-					'url'   => Redirect::get_url( 'calypso-people-team' ),
+					'url'   => Redirect::get_url( 'calypso-people-team', $args ),
 					'id'    => 'wp-admin-bar-people',
 					'label' => esc_html__( 'People', 'jetpack' ),
 				),
@@ -1368,12 +1406,12 @@ class Masterbar {
 
 			$plugins_title = $this->create_menu_item_pair(
 				array(
-					'url'   => Redirect::get_url( 'calypso-plugins' ),
+					'url'   => Redirect::get_url( 'calypso-plugins', $args ),
 					'id'    => 'wp-admin-bar-plugins',
 					'label' => esc_html__( 'Plugins', 'jetpack' ),
 				),
 				array(
-					'url'   => Redirect::get_url( 'calypso-plugins-manage' ),
+					'url'   => Redirect::get_url( 'calypso-plugins-manage', $args ),
 					'id'    => 'wp-admin-bar-plugins-add',
 					'label' => esc_html_x( 'Manage', 'Label for the button on the Masterbar to manage plugins', 'jetpack' ),
 				)
@@ -1394,12 +1432,12 @@ class Masterbar {
 			if ( $this->site_woa ) {
 				$domain_title = $this->create_menu_item_pair(
 					array(
-						'url'   => Redirect::get_url( 'calypso-domains' ),
+						'url'   => Redirect::get_url( 'calypso-domains', $args ),
 						'id'    => 'wp-admin-bar-domains',
 						'label' => esc_html__( 'Domains', 'jetpack' ),
 					),
 					array(
-						'url'   => Redirect::get_url( 'calypso-domains-add' ),
+						'url'   => Redirect::get_url( 'calypso-domains-add', $args ),
 						'id'    => 'wp-admin-bar-domains-add',
 						'label' => esc_html_x( 'Add', 'Label for the button on the Masterbar to add a new domain', 'jetpack' ),
 					)
@@ -1422,7 +1460,7 @@ class Masterbar {
 					'parent' => 'configuration',
 					'id'     => 'blog-settings',
 					'title'  => esc_html__( 'Settings', 'jetpack' ),
-					'href'   => Redirect::get_url( 'calypso-settings-general' ),
+					'href'   => Redirect::get_url( 'calypso-settings-general', $args ),
 					'meta'   => array(
 						'class' => 'mb-icon',
 					),

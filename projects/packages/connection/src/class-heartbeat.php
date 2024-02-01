@@ -164,7 +164,6 @@ class Heartbeat {
 		}
 
 		return $return;
-
 	}
 
 	/**
@@ -250,5 +249,4 @@ class Heartbeat {
 			WP_CLI::line( sprintf( __( 'Last heartbeat sent at: %s', 'jetpack-connection' ), $last_date ) );
 		}
 	}
-
 }

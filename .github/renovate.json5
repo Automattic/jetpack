@@ -1,0 +1,118 @@
+{
+	extends: [ 'config:recommended', 'group:definitelyTyped' ],
+	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
+	prHourlyLimit: 1,
+	timezone: 'UTC',
+	schedule: [ 'before 3am on the first day of the month' ],
+	updateNotScheduled: false,
+	semanticCommits: 'disabled',
+	osvVulnerabilityAlerts: true,
+	// Note: constraints.php is set in renovate-config.js where we can read it in code.
+
+	// Paths and files for renovate to ignore.
+	// We have to override this because the default from config:base catches projects/plugins/*/tests/e2e/package.json which we do want processed.
+	ignorePresets: [ ':ignoreModulesAndTests' ],
+	ignorePaths: [
+		'**/node_modules/**',
+		'**/vendor/**',
+		'**/examples/**',
+		'**/__tests__/**',
+		'**/test/**',
+		'**/tests/!(e2e)/**',
+		'**/__fixtures__/**',
+	],
+
+	packageRules: [
+		// Monorepo packages are excluded in renovate-config.js, where we can read
+		// the list of them in code.
+
+		// Widen PHP dev deps to maintain support for old PHP versions we still support.
+		// When we drop an old PHP version we'll manually go through and narrow any ranges.
+		// (non-dev deps are handled in renovate-config.js where we can read the correct value for `constraints.php`)
+		{
+			matchDatasources: [ 'packagist' ],
+			matchDepTypes: [ 'require-dev' ],
+			rangeStrategy: 'widen',
+		},
+
+		// Various other monorepos and package groupings.
+		{
+			extends: [ 'monorepo:wordpress' ],
+			separateMajorMinor: false,
+			prPriority: 1,
+		},
+		{
+			extends: [ 'monorepo:react' ],
+		},
+		{
+			extends: [ 'packages:eslint' ],
+			groupName: 'Eslint packages',
+		},
+		{
+			extends: [ 'packages:jsUnitTest' ],
+			groupName: 'JS unit testing packages',
+		},
+		{
+			groupName: 'Size-limit',
+			matchPackageNames: [ 'size-limit', '@size-limit/preset-app' ],
+		},
+		// These aren't a monorepo, but we may as well do them all together anyway.
+		{
+			groupName: 'GitHub API packages',
+			matchPackagePatterns: [ '^@actions/', '^@octokit/' ],
+		},
+		{
+			groupName: 'GitHub actions upload/download artifact',
+			matchDepTypes: [ 'action' ],
+			matchPackageNames: [ 'actions/download-artifact', 'actions/upload-artifact' ],
+		},
+		{
+			groupName: 'Codeception packages',
+			matchDatasources: [ 'packagist' ],
+			matchPackagePrefixes: [ 'codeception/' ],
+		},
+		{
+			groupName: 'Docker actions',
+			matchDepTypes: [ 'action' ],
+			matchPackagePrefixes: [ 'docker/' ],
+		},
+
+		// 🤷
+		{
+			groupName: 'Instant Search Dependency Updates',
+			matchPackageNames: [
+				'cache',
+				'preact',
+				'progress-event',
+				'q-flat',
+				'qss',
+				'strip',
+				'uuid',
+				'@testing-library/preact',
+			],
+			reviewers: [ 'team:jetpack-search' ],
+			addLabels: [ 'Search', 'Instant Search' ],
+		},
+	],
+
+	customManagers: [
+		// Update the renovate-version in the action itself.
+		// See also https://github.com/renovatebot/github-action/issues/756
+		{
+			customType: 'regex',
+			fileMatch: [ '^\\.github/workflows/renovate\\.yml$' ],
+			matchStrings: [ 'renovate-version: (?<currentValue>[^\\s]+)' ],
+			datasourceTemplate: 'docker',
+			depNameTemplate: 'renovate',
+			packageNameTemplate: 'ghcr.io/renovatebot/renovate',
+		},
+	],
+
+	lockFileMaintenance: {
+		enabled: true,
+		schedule: [ 'before 3:00 am on Monday on the 7th through 13th day of the month' ],
+	},
+	dependencyDashboardTitle: 'Renovate Dependency Updates',
+	dependencyDashboardLabels: [ 'Primary Issue', '[Type] Janitorial' ],
+	dependencyDashboardFooter: 'The bot runs every two hours, and may be monitored or triggered ahead of schedule [here](https://github.com/Automattic/jetpack/actions/workflows/renovate.yml).',
+}

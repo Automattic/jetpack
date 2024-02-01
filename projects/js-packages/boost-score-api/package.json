@@ -1,0 +1,49 @@
+{
+	"name": "@automattic/jetpack-boost-score-api",
+	"version": "0.1.21-alpha",
+	"description": "A package to get the Jetpack Boost score of a site",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/boost-score-api/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Boost Score Api"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/boost-score-api"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && webpack",
+		"clean": "rm -rf build/",
+		"watch": "pnpm run build && pnpm webpack watch",
+		"test": "jest tests"
+	},
+	"dependencies": {
+		"@wordpress/i18n": "4.50.0",
+		"zod": "3.22.3"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@typescript-eslint/parser": "6.7.5",
+		"eslint": "8.51.0",
+		"jest": "29.7.0",
+		"jest-environment-jsdom": "29.7.0",
+		"ts-loader": "9.4.2",
+		"typescript": "5.0.4",
+		"webpack": "5.76.0",
+		"webpack-cli": "4.9.1"
+	},
+	"exports": {
+		".": {
+			"jetpack:src": "./src/index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		}
+	},
+	"main": "./build/index.js",
+	"types": "./build/index.d.ts",
+	"jest": {
+		"testEnvironment": "jsdom"
+	}
+}

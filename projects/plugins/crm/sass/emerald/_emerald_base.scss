@@ -1,0 +1,33 @@
+/* Remove left padding from WP page content */
+body.jpcrm-admin {
+	background: var(--jp-white-off);
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu',
+		'Cantarell', 'Helvetica Neue', sans-serif;
+
+	#wpcontent {
+		padding-left: 0;
+
+		#wpbody {
+			display: flex;
+			align-items: center;
+			max-width: 1551px;
+			margin: 0 auto;
+		}
+	}
+
+	.alternating-colors tr:nth-child(even) {
+		background-color: var(--jp-gray-0);
+	}
+}
+
+body.jpcrm-admin.jpcrm-full-width #wpcontent #wpbody {
+	max-width: none;
+}
+
+@media screen and (max-width: 600px) {
+	body.jpcrm-admin {
+		#wpbody {
+			padding-top: 0;
+		}
+	}
+}

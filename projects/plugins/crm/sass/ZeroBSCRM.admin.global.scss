@@ -1,0 +1,79 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.0
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 02/06/16
+ */
+
+// This file is to be included on all wp admin pages
+// IT SHOULD NEVER contain any CSS itself, only includes :)
+// this'll keep it tidy and WH happy...
+
+// Mike's also made a clone of the following in \master\sass\ZeroBSCRM.admin.invoicepreview.scss
+// ... which could be updated if / when needs to be, (to largely match this... won't need all)
+
+// block wp notifications:]
+@import 'wp-hide-admin-notices';
+
+// Import colour studio
+@import '_color_studio.scss';
+
+// Import generic edit page styles (old legacy of wh from taxibooker! :o to rewrite)
+@import 'ZeroBSCRM.genericeditpages';
+
+// Import "core" styles
+@import 'ZeroBSCRM.prevadmincore';
+
+// Daterangepicker styles
+@import 'daterangepicker';
+
+// Daterangepicker fix
+@import 'daterangepicker.fix';
+
+// menu mods
+@import 'ZeroBSCRM.adminmenu';
+
+// customer filters gui
+@import 'ZeroBSCRM.customerfilters';
+
+// Import form styles - DO THESE need to be global?
+@import 'ZeroBSCRM.forms';
+
+// Import "Log" styles
+@import 'ZeroBSCRM.logs';
+
+// Import "Typeahead" styles
+@import 'ZeroBSCRM.typeahead';
+
+// Import "Spinner" styles
+@import 'ZeroBSCRM.spinners';
+
+// Import ZBSmetabox styles
+@import 'ZeroBSCRM.metaboxes';
+
+// Import "Admin Pages" styles
+@import 'ZeroBSCRM.adminpages';
+
+// Import "Hide WP Features" styles
+@import 'ZeroBSCRM.hidewpfeatures';
+
+// Import "animation" styles
+@import 'ZeroBSCRM.animations';
+
+// Import "betafeedback" styles
+@import 'ZeroBSCRM.betafeedback';
+
+// Import "mobile" styles
+@import 'ZeroBSCRM.mobile';
+
+// Import "nag" module
+@import 'ZeroBSCRM.nag';
+
+// Import "learn menu" styles
+@import 'JetpackCRM.admin.learnmenu';
+
+// Import Jetpack Style overrides
+@import 'JetpackCRM.admin.overrides';

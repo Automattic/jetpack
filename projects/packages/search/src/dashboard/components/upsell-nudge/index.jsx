@@ -19,12 +19,7 @@ export default function InstantSearchUpsellNudge( props = { upgrade: true } ) {
 				) }
 			</span>
 			<span>
-				{ props.upgrade && (
-					<b>{ __( 'Upgrade to Jetpack Instant Search now', 'jetpack-search-pkg' ) }</b>
-				) }
-				{ ! props.upgrade && (
-					<b>{ __( 'Purchase Jetpack Instant Search now', 'jetpack-search-pkg' ) }</b>
-				) }
+				<b>{ __( 'Try Jetpack Instant Search for free now', 'jetpack-search-pkg' ) }</b>
 			</span>
 		</a>
 	);

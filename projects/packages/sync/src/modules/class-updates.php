@@ -77,6 +77,14 @@ class Updates extends Module {
 		add_action( 'jetpack_update_core_change', $callable );
 
 		add_filter(
+			'jetpack_sync_before_enqueue_jetpack_update_themes_change',
+			array(
+				$this,
+				'expand_themes',
+			)
+		);
+
+		add_filter(
 			'jetpack_sync_before_enqueue_jetpack_update_plugins_change',
 			array(
 				$this,
@@ -107,7 +115,6 @@ class Updates extends Module {
 		add_action( 'jetpack_sync_core_reinstalled_successfully', $callable );
 		add_action( 'jetpack_sync_core_autoupdated_successfully', $callable, 10, 2 );
 		add_action( 'jetpack_sync_core_updated_successfully', $callable, 10, 2 );
-
 	}
 
 	/**
@@ -128,7 +135,6 @@ class Updates extends Module {
 	 */
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_updates', array( $this, 'expand_updates' ) );
-		add_filter( 'jetpack_sync_before_send_jetpack_update_themes_change', array( $this, 'expand_themes' ) );
 	}
 
 	/**
@@ -352,7 +358,6 @@ class Updates extends Module {
 			 */
 			do_action( "jetpack_{$transient}_change", $value );
 		}
-
 	}
 
 	/**
@@ -494,7 +499,7 @@ class Updates extends Module {
 	 * @return array $args The hook parameters.
 	 */
 	public function expand_themes( $args ) {
-		if ( ! isset( $args[0], $args[0]->response ) ) {
+		if ( ! isset( $args[0]->response ) ) {
 			return $args;
 		}
 		if ( ! is_array( $args[0]->response ) ) {
@@ -581,5 +586,4 @@ class Updates extends Module {
 
 		return false;
 	}
-
 }

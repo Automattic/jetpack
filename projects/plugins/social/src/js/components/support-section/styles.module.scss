@@ -1,0 +1,10 @@
+.link {
+	margin-top: calc( var( --spacing-base ) * 2 );
+}
+
+.icon {
+	.is-viewport-medium & {
+		margin-left: calc( var( --spacing-base ) * 3 );
+		margin-right: calc( var( --spacing-base ) * 1 );
+	}
+}

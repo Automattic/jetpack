@@ -66,7 +66,7 @@ const shouldUseJetpackVideoFetch = () => {
  * @param {string} guid - the video guid
  * @returns {Promise} the api request promise
  */
-const uploadTrackForGuid = ( track, guid ) => {
+export const uploadTrackForGuid = ( track, guid ) => {
 	if ( shouldUseJetpackVideoFetch() ) {
 		return window.videoPressUploadTrack(
 			guid,

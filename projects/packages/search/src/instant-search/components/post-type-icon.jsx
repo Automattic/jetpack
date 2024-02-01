@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import React from 'react';
 import arrayOverlap from '../lib/array-overlap';
 import Gridicon from './gridicon';
@@ -47,10 +48,22 @@ const PostTypeIcon = ( { postType, shortcodeTypes, iconSize = 18 } ) => {
 
 	switch ( postType ) {
 		case 'page':
-			return <Gridicon icon="pages" size={ iconSize } />;
+			return (
+				<Gridicon
+					icon="pages"
+					size={ iconSize }
+					description={ __( 'Page', 'jetpack-search-pkg' ) }
+				/>
+			);
 		default:
 			if ( hasGallery ) {
-				return <Gridicon icon="image-multiple" size={ iconSize } />;
+				return (
+					<Gridicon
+						icon="image-multiple"
+						size={ iconSize }
+						description={ __( 'Image', 'jetpack-search-pkg' ) }
+					/>
+				);
 			}
 	}
 

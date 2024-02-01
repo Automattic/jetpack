@@ -8,10 +8,15 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Dismissed_Notices;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move the functions and such to some other file.
 
 /**
  * Wrapper function to safely register a gutenberg block type
@@ -40,9 +45,10 @@ class Jetpack_Gutenberg {
 	/**
 	 * Only these extensions can be registered. Used to control availability of beta blocks.
 	 *
-	 * @var array Extensions allowed list.
+	 * @var array|null Extensions allowed list or `null` if not initialized yet.
+	 * @see static::get_extensions()
 	 */
-	private static $extensions = array();
+	private static $extensions = null;
 
 	/**
 	 * Keeps track of the reasons why a given extension is unavailable.
@@ -66,6 +72,15 @@ class Jetpack_Gutenberg {
 	 * @var array Site-specific features
 	 */
 	private static $site_specific_features = array();
+
+	/**
+	 * List of deprecated blocks.
+	 *
+	 * @var array List of deprecated blocks.
+	 */
+	private static $deprecated_blocks = array(
+		'jetpack/revue',
+	);
 
 	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
@@ -139,7 +154,7 @@ class Jetpack_Gutenberg {
 	 * @return string The unprefixed extension name.
 	 */
 	public static function remove_extension_prefix( $extension_name ) {
-		if ( 0 === strpos( $extension_name, 'jetpack/' ) || 0 === strpos( $extension_name, 'jetpack-' ) ) {
+		if ( str_starts_with( $extension_name, 'jetpack/' ) || str_starts_with( $extension_name, 'jetpack-' ) ) {
 			return substr( $extension_name, strlen( 'jetpack/' ) );
 		}
 		return $extension_name;
@@ -154,7 +169,7 @@ class Jetpack_Gutenberg {
 	 * @return boolean True if $a and $b share at least one item
 	 */
 	protected static function share_items( $a, $b ) {
-		return count( array_intersect( $a, $b ) ) > 0;
+		return array_intersect( $a, $b ) !== array();
 	}
 
 	/**
@@ -206,67 +221,13 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Set up a list of allowed block editor extensions
+	 * Used to initialize the class, no longer in use.
 	 *
 	 * @return void
+	 * @deprecated 12.2 No longer needed.
 	 */
 	public static function init() {
-		if ( ! self::should_load() ) {
-			return;
-		}
-
-		/**
-		 * Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
-		 *
-		 * @since 6.9.0
-		 *
-		 * @param boolean
-		 */
-		if ( apply_filters( 'jetpack_load_beta_blocks', false ) ) {
-			Constants::set_constant( 'JETPACK_BETA_BLOCKS', true );
-		}
-
-		/**
-		 * Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
-		 *
-		 * @since 8.4.0
-		 *
-		 * @param boolean
-		 */
-		if ( apply_filters( 'jetpack_load_experimental_blocks', false ) ) {
-			Constants::set_constant( 'JETPACK_EXPERIMENTAL_BLOCKS', true );
-		}
-
-		/**
-		 * Filter the list of block editor extensions that are available through Jetpack.
-		 *
-		 * @since 7.0.0
-		 *
-		 * @param array
-		 */
-		self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_available_extensions() );
-
-		/**
-		 * Filter the list of block editor plugins that are available through Jetpack.
-		 *
-		 * @deprecated 7.0.0 Use jetpack_set_available_extensions instead
-		 *
-		 * @since 6.8.0
-		 *
-		 * @param array
-		 */
-		self::$extensions = apply_filters( 'jetpack_set_available_blocks', self::$extensions );
-
-		/**
-		 * Filter the list of block editor plugins that are available through Jetpack.
-		 *
-		 * @deprecated 7.0.0 Use jetpack_set_available_extensions instead
-		 *
-		 * @since 6.9.0
-		 *
-		 * @param array
-		 */
-		self::$extensions = apply_filters( 'jetpack_set_available_plugins', self::$extensions );
+		_deprecated_function( __METHOD__, '12.2' );
 	}
 
 	/**
@@ -277,7 +238,7 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function reset() {
-		self::$extensions          = array();
+		self::$extensions          = null;
 		self::$availability        = array();
 		self::$cached_availability = null;
 	}
@@ -407,7 +368,7 @@ class Jetpack_Gutenberg {
 
 		$available_extensions = array();
 
-		foreach ( self::$extensions as $extension ) {
+		foreach ( static::get_extensions() as $extension ) {
 			$is_available                       = self::is_registered_and_no_entry_in_availability( $extension ) || self::is_available( $extension );
 			$available_extensions[ $extension ] = array(
 				'available' => $is_available,
@@ -422,6 +383,32 @@ class Jetpack_Gutenberg {
 		}
 
 		return $available_extensions;
+	}
+
+	/**
+	 * Return the list of extensions that are available.
+	 *
+	 * @since 11.9
+	 *
+	 * @return array A list of block and plugins and their availability status.
+	 */
+	public static function get_extensions() {
+		if ( ! static::should_load() ) {
+			return array();
+		}
+
+		if ( null === self::$extensions ) {
+			/**
+			 * Filter the list of block editor extensions that are available through Jetpack.
+			 *
+			 * @since 7.0.0
+			 *
+			 * @param array
+			 */
+			self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_available_extensions() );
+		}
+
+		return self::$extensions;
 	}
 
 	/**
@@ -478,9 +465,29 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Queue a script to set `Jetpack_Block_Assets_Base_Url`.
+	 *
+	 * In certain cases Webpack needs to know a base to load additional assets from.
+	 * Normally it can determine that itself, but when JS concatenation is involved that tends to confuse it.
+	 * We work around that by explicitly outputting a variable with the correct URL.
+	 * We set that as its own "script" so we can reliably only output it once.
+	 */
+	private static function register_blocks_assets_base_url() {
+		if ( ! wp_script_is( 'jetpack-blocks-assets-base-url', 'registered' ) ) {
+			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- No actual script, so no version needed.
+			wp_register_script( 'jetpack-blocks-assets-base-url', false, array(), null, array( 'in_footer' => false ) );
+			wp_add_inline_script(
+				'jetpack-blocks-assets-base-url',
+				'var Jetpack_Block_Assets_Base_Url=' . wp_json_encode( plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'before'
+			);
+		}
+	}
+
+	/**
 	 * Only enqueue block assets when needed.
 	 *
-	 * @param string $type Slug of the block.
+	 * @param string $type Slug of the block or absolute path to the block source code directory.
 	 * @param array  $script_dependencies Script dependencies. Will be merged with automatically
 	 *                                    detected script dependencies from the webpack build.
 	 *
@@ -490,6 +497,16 @@ class Jetpack_Gutenberg {
 		if ( is_admin() ) {
 			// A block's view assets will not be required in wp-admin.
 			return;
+		}
+
+		// Retrieve the feature from block.json if a path is passed.
+		if ( path_is_absolute( $type ) ) {
+			$metadata = Blocks::get_block_metadata_from_file( Blocks::get_path_to_block_metadata( $type ) );
+			$feature  = Blocks::get_block_feature_from_metadata( $metadata );
+
+			if ( ! empty( $feature ) ) {
+				$type = $feature;
+			}
 		}
 
 		$type = sanitize_title_with_dashes( $type );
@@ -526,9 +543,9 @@ class Jetpack_Gutenberg {
 				echo '<link rel="stylesheet" id="jetpack-block-' . esc_attr( $type ) . '" href="' . esc_attr( $view_style ) . '&amp;ver=' . esc_attr( $style_version ) . '" media="all">';
 			} else {
 				wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
+				wp_style_add_data( 'jetpack-block-' . $type, 'path', JETPACK__PLUGIN_DIR . $style_relative_path );
 			}
 		}
-
 	}
 
 	/**
@@ -548,10 +565,13 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		self::register_blocks_assets_base_url();
+
 		// Enqueue script.
 		$script_relative_path  = self::get_blocks_directory() . $type . '/view.js';
 		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
 		$script_dependencies[] = 'wp-polyfill';
+		$script_dependencies[] = 'jetpack-blocks-assets-base-url';
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
 			$script_dependencies = array_unique( array_merge( $script_dependencies, $asset_manifest['dependencies'] ) );
@@ -580,14 +600,6 @@ class Jetpack_Gutenberg {
 				}
 			}
 		}
-
-		wp_localize_script(
-			'jetpack-block-' . $type,
-			'Jetpack_Block_Assets_Base_Url',
-			array(
-				'url' => plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE ),
-			)
-		);
 	}
 
 	/**
@@ -626,6 +638,18 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		/**
+		 * This can be called multiple times per page load in the admin, during the `enqueue_block_assets` action.
+		 * These assets are necessary for the admin for editing but are not necessary for each pattern preview.
+		 * Therefore we dequeue them, so they don't load for each pattern preview iframe.
+		 */
+		if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
+			wp_dequeue_script( 'jp-tracks' );
+			wp_dequeue_script( 'jetpack-blocks-editor' );
+
+			return;
+		}
+
 		$status = new Status();
 
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
@@ -642,11 +666,16 @@ class Jetpack_Gutenberg {
 			$blocks_env = '';
 		}
 
+		self::register_blocks_assets_base_url();
+
 		Assets::register_script(
 			'jetpack-blocks-editor',
 			"{$blocks_dir}editor{$blocks_env}.js",
 			JETPACK__PLUGIN_FILE,
-			array( 'textdomain' => 'jetpack' )
+			array(
+				'textdomain'   => 'jetpack',
+				'dependencies' => array( 'jetpack-blocks-assets-base-url' ),
+			)
 		);
 
 		// Hack around #20357 (specifically, that the editor bundle depends on
@@ -657,17 +686,10 @@ class Jetpack_Gutenberg {
 
 		Assets::enqueue_script( 'jetpack-blocks-editor' );
 
-		wp_localize_script(
-			'jetpack-blocks-editor',
-			'Jetpack_Block_Assets_Base_Url',
-			array(
-				'url' => plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE ),
-			)
-		);
-
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$user                      = wp_get_current_user();
 			$user_data                 = array(
+				'email'    => $user->user_email,
 				'userid'   => $user->ID,
 				'username' => $user->user_login,
 			);
@@ -679,94 +701,93 @@ class Jetpack_Gutenberg {
 			$is_current_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 		}
 
+		if ( $blocks_variation === 'beta' && $is_current_user_connected ) {
+			wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), Constants::get_constant( 'JETPACK__VERSION' ) );
+		}
+		// AI Assistant
+		$ai_assistant_state = array(
+			'is-enabled'            => apply_filters( 'jetpack_ai_enabled', true ),
+			'is-playground-visible' => Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' ),
+		);
+
+		$screen_base = null;
+		if ( function_exists( 'get_current_screen' ) ) {
+			$screen_base = get_current_screen()->base;
+		}
+
+		$modules = array();
+		if ( class_exists( 'Jetpack_Core_API_Module_List_Endpoint' ) ) {
+			$module_list_endpoint = new Jetpack_Core_API_Module_List_Endpoint();
+			$modules              = $module_list_endpoint->get_modules();
+		}
+
+		$initial_state = array(
+			'available_blocks' => self::get_availability(),
+			'blocks_variation' => $blocks_variation,
+			'modules'          => $modules,
+			'jetpack'          => array(
+				'is_active'                     => Jetpack::is_connection_ready(),
+				'is_current_user_connected'     => $is_current_user_connected,
+				/** This filter is documented in class.jetpack-gutenberg.php */
+				'enable_upgrade_nudge'          => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
+				'is_private_site'               => $status->is_private_site(),
+				'is_coming_soon'                => $status->is_coming_soon(),
+				'is_offline_mode'               => $status->is_offline_mode(),
+				'is_newsletter_feature_enabled' => class_exists( '\Jetpack_Memberships' ),
+				/**
+				 * Enable the RePublicize UI in the block editor context.
+				 *
+				 * @module publicize
+				 *
+				 * @since 10.3.0
+				 * @deprecated $$next_version$$ This is a feature flag that is no longer used.
+				 *
+				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
+				 */
+				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
+				/**
+				 * Prevent the registration of the blocks from extensions/blocks/contact-form
+				 * if the Forms package is enabled.
+				 */
+				'is_form_package_enabled'       => apply_filters( 'jetpack_contact_form_use_package', true ),
+			),
+			'siteFragment'     => $status->get_site_suffix(),
+			'adminUrl'         => esc_url( admin_url() ),
+			'tracksUserData'   => $user_data,
+			'wpcomBlogId'      => $blog_id,
+			'allowedMimeTypes' => wp_get_mime_types(),
+			'siteLocale'       => str_replace( '_', '-', get_locale() ),
+			'ai-assistant'     => $ai_assistant_state,
+			'screenBase'       => $screen_base,
+			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+		);
+
+		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
+			$publicize               = publicize_init();
+			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
+			$settings                = $jetpack_social_settings->get_settings( true );
+
+			$initial_state['social'] = array(
+				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
+				'hasPaidPlan'                     => $publicize->has_paid_plan(),
+				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
+				'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
+				'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
+				'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
+				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
+				'autoConversionSettings'          => $settings['autoConversionSettings'],
+				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
+			);
+		}
+
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Editor_Initial_State',
-			array(
-				'available_blocks' => self::get_availability(),
-				'jetpack'          => array(
-					'is_active'                 => Jetpack::is_connection_ready(),
-					'is_current_user_connected' => $is_current_user_connected,
-					/** This filter is documented in class.jetpack-gutenberg.php */
-					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
-					'is_private_site'           => '-1' === get_option( 'blog_public' ),
-					'is_coming_soon'            => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
-					'is_offline_mode'           => $status->is_offline_mode(),
-					/**
-					 * Enable the RePublicize UI in the block editor context.
-					 *
-					 * @module publicize
-					 *
-					 * @since 10.3.0
-					 *
-					 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
-					 */
-					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
-				),
-				'siteFragment'     => $status->get_site_suffix(),
-				'adminUrl'         => esc_url( admin_url() ),
-				'tracksUserData'   => $user_data,
-				'wpcomBlogId'      => $blog_id,
-				'allowedMimeTypes' => wp_get_mime_types(),
-				'siteLocale'       => str_replace( '_', '-', get_locale() ),
-			)
+			$initial_state
 		);
-	}
 
-	/**
-	 * Add the Gutenberg editor stylesheet to iframed editors, such as the site editor,
-	 * which don't have access to stylesheets added with `wp_enqueue_style`.
-	 *
-	 * This workaround is currently used by WordPress.com Simple and Atomic sites.
-	 *
-	 * @since 10.7
-	 *
-	 * @return void
-	 */
-	public static function add_iframed_editor_style() {
-		if ( ! self::should_load() ) {
-			return;
-		}
-
-		global $pagenow;
-		if ( ! isset( $pagenow ) ) {
-			return;
-		}
-
-		$allowed_pages       = array( 'admin.php', 'themes.php' );
-		$is_site_editor_page = in_array( $pagenow, $allowed_pages, true ) &&
-			isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-		// WP 5.9 puts the site editor in `site-editor.php` when Gutenberg is not active.
-		if ( 'site-editor.php' !== $pagenow && ! $is_site_editor_page ) {
-			return;
-		}
-
-		$blocks_dir       = self::get_blocks_directory();
-		$blocks_variation = self::blocks_variation();
-
-		if ( 'production' !== $blocks_variation ) {
-			$blocks_env = '-' . esc_attr( $blocks_variation );
-		} else {
-			$blocks_env = '';
-		}
-
-		$path = "{$blocks_dir}editor{$blocks_env}.css";
-		$dir  = dirname( JETPACK__PLUGIN_FILE );
-
-		if ( file_exists( "$dir/$path" ) ) {
-			if ( is_rtl() ) {
-				$rtlcsspath = substr( $path, 0, -4 ) . '.rtl.css';
-				if ( file_exists( "$dir/$rtlcsspath" ) ) {
-					$path = $rtlcsspath;
-				}
-			}
-
-			$url = Assets::normalize_path( plugins_url( $path, JETPACK__PLUGIN_FILE ) );
-			$url = add_query_arg( 'minify', 'false', $url );
-
-			add_editor_style( $url );
-		}
+		// Adds Connection package initial state.
+		Connection_Initial_State::render_script( 'jetpack-blocks-editor' );
 	}
 
 	/**
@@ -775,6 +796,7 @@ class Jetpack_Gutenberg {
 	 * We will look for such modules in the extensions/ directory.
 	 *
 	 * @since 7.1.0
+	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {
 		if ( self::should_load() ) {
@@ -782,10 +804,16 @@ class Jetpack_Gutenberg {
 			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
 			 * If available, load them.
 			 */
-			foreach ( self::$extensions as $extension ) {
-				$extension_file_glob = glob( JETPACK__PLUGIN_DIR . 'extensions/*/' . $extension . '/' . $extension . '.php' );
-				if ( ! empty( $extension_file_glob ) ) {
-					include_once $extension_file_glob[0];
+			$directories = array( 'blocks', 'plugins', 'extended-blocks', 'shared', 'store' );
+
+			foreach ( static::get_extensions() as $extension ) {
+				foreach ( $directories as $dirname ) {
+					$path = JETPACK__PLUGIN_DIR . "extensions/{$dirname}/{$extension}/{$extension}.php";
+
+					if ( file_exists( $path ) ) {
+						include_once $path;
+						continue 2;
+					}
 				}
 			}
 		}
@@ -849,19 +877,79 @@ class Jetpack_Gutenberg {
 		// Default to production blocks.
 		$block_varation = 'production';
 
-		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
+		/*
+		 * Prefer to use this JETPACK_BLOCKS_VARIATION constant
+		 * or the jetpack_blocks_variation filter
+		 * to set the block variation in your code.
+		 */
+		$default = Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' );
+		if ( ! empty( $default ) && in_array( $default, array( 'beta', 'experimental', 'production' ), true ) ) {
+			$block_varation = $default;
+		}
+
+		/**
+		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
+		*
+		* @since 6.9.0
+		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
+		*
+		* @param boolean
+		*/
+		$is_beta = apply_filters_deprecated(
+			'jetpack_load_beta_blocks',
+			array( false ),
+			'jetpack-11.8.0',
+			'jetpack_blocks_variation'
+		);
+
+		/*
+		 * Switch to beta blocks if you use the JETPACK_BETA_BLOCKS constant
+		 * or the deprecated jetpack_load_beta_blocks filter.
+		 * This only applies when not using the newer JETPACK_BLOCKS_VARIATION constant.
+		 */
+		if (
+			empty( $default )
+			&& (
+				$is_beta
+				|| Constants::is_true( 'JETPACK_BETA_BLOCKS' )
+			)
+		) {
 			$block_varation = 'beta';
 		}
 
+		/**
+		* Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
+		*
+		* @since 6.9.0
+		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
+		*
+		* @param boolean
+		*/
+		$is_experimental = apply_filters_deprecated(
+			'jetpack_load_experimental_blocks',
+			array( false ),
+			'jetpack-11.8.0',
+			'jetpack_blocks_variation'
+		);
+
 		/*
-		 * Switch to experimental blocks if you use the JETPACK_EXPERIMENTAL_BLOCKS constant.
+		 * Switch to experimental blocks if you use the JETPACK_EXPERIMENTAL_BLOCKS constant
+		 * or the deprecated jetpack_load_experimental_blocks filter.
+		 * This only applies when not using the newer JETPACK_BLOCKS_VARIATION constant.
 		 */
-		if ( Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) ) {
+		if (
+			empty( $default )
+			&& (
+				$is_experimental
+				|| Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' )
+			)
+		) {
 			$block_varation = 'experimental';
 		}
 
 		/**
 		 * Allow customizing the variation of blocks in use on a site.
+		 * Overwrites any previously set values, whether by constant or filter.
 		 *
 		 * @since 8.1.0
 		 *
@@ -1013,7 +1101,7 @@ class Jetpack_Gutenberg {
 	 * @return string
 	 */
 	public static function upgrade_nudge( $plan ) {
-		jetpack_require_lib( 'components' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/components.php';
 		return Jetpack_Components::render_upgrade_nudge(
 			array(
 				'plan' => $plan,
@@ -1065,6 +1153,11 @@ class Jetpack_Gutenberg {
 				array(
 					'br' => array(),
 					'p'  => array(),
+					'a'  => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
 				)
 			),
 			esc_attr( $classes ),
@@ -1185,6 +1278,33 @@ class Jetpack_Gutenberg {
 			return null;
 		};
 	}
+
+	/**
+	 * Display a message to site editors and roles above when a block is no longer supported.
+	 * This is only displayed on the frontend.
+	 *
+	 * @since 12.3
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $block         The full block, including name and attributes.
+	 *
+	 * @return string
+	 */
+	public static function display_deprecated_block_message( $block_content, $block ) {
+		if ( in_array( $block['blockName'], self::$deprecated_blocks, true ) ) {
+			if ( current_user_can( 'edit_posts' ) ) {
+				$block_content = self::notice(
+					__( 'This block is no longer supported. Its contents will no longer be displayed to your visitors and as such this block should be removed.', 'jetpack' ),
+					'warning',
+					'jetpack-block-deprecated'
+				);
+			} else {
+				$block_content = '';
+			}
+		}
+
+		return $block_content;
+	}
 }
 
 if ( ( new Host() )->is_woa_site() ) {
@@ -1196,11 +1316,4 @@ if ( ( new Host() )->is_woa_site() ) {
 	 * More doc: https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#upgrades-for-blocks
 	 */
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
-
-	/**
-	 * Load block editor styles inline for iframed editors.
-	 *
-	 * @see paYJgx-1Kl-p2
-	 */
-	add_action( 'admin_init', array( 'Jetpack_Gutenberg', 'add_iframed_editor_style' ) );
 }

@@ -16,6 +16,14 @@ export const settings = {
 		html: false,
 		inserter: false,
 		align: [ 'left', 'center', 'right' ],
+		typography: {
+			fontSize: true,
+			__experimentalFontFamily: true,
+			__experimentalTextTransform: true,
+			__experimentalDefaultControls: {
+				fontSize: true,
+			},
+		},
 	},
 	styles: [
 		{ name: 'fill', label: __( 'Fill', 'jetpack' ), isDefault: true },
@@ -24,4 +32,5 @@ export const settings = {
 	attributes,
 	edit,
 	save,
+	usesContext: [ 'jetpack/parentBlockWidth' ],
 };

@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		$this->pre_http_req_function = function ( $preempt, $parsed_args, $url ) {
+		$pre_http_req_function = function ( $preempt, $parsed_args, $url ) {
 			if ( 'https://embedr.flickr.com/photos/49931239842' === $url ) {
 				return array(
 					'body' => '<div class="slide slide-video" data-rapid="video" data-slideshow-position="" >
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 				);
 			}
 
-			if ( 0 === strpos( $url, 'https://www.flickr.com/services/oembed/' ) ) {
+			if ( str_starts_with( $url, 'https://www.flickr.com/services/oembed/' ) ) {
 				$body = array(
 					'html' => '<iframe src="https://embedr.flickr.com/photos/49931239842" width="500" height="281" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>',
 				);
@@ -41,18 +41,10 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		add_filter(
 			'pre_http_request',
-			$this->pre_http_req_function,
+			$pre_http_req_function,
 			10,
 			3
 		);
-	}
-
-	/**
-	 * Runs on every test.
-	 */
-	public function tear_down() {
-		remove_filter( 'pre_http_request', $this->pre_http_req_function );
-		parent::tear_down();
 	}
 
 	/**
@@ -61,7 +53,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_exists() {
-		$this->assertEquals( shortcode_exists( 'flickr' ), true );
+		$this->assertTrue( shortcode_exists( 'flickr' ) );
 	}
 
 	/**
@@ -156,7 +148,6 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 		$shortcode_output = flickr_shortcode_video_markup( $atts, '49931239842', 'https://www.flickr.com/photos/kalakeli/49931239842' );
 
 		$this->assertEquals( $output, $shortcode_output );
-
 	}
 
 	/**
@@ -179,7 +170,6 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 		$this->assertEquals( $output, $shortcode_output );
 
 		delete_transient( 'flickr_video_49931239842' );
-
 	}
 
 	/**

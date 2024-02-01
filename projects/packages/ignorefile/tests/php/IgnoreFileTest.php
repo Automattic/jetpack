@@ -19,7 +19,6 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use SplFileInfo;
-use function Wikimedia\quietCall;
 
 /** Tests for IgnoreFile. */
 class IgnoreFileTest extends TestCase {
@@ -105,7 +104,8 @@ class IgnoreFileTest extends TestCase {
 		$mask = rand( 0, 0xffffff );
 		for ( $i = 0; $i < 0xffffff; $i++ ) {
 			$tmpdir = $base . sprintf( '%06x', $i ^ $mask );
-			if ( quietCall( 'mkdir', $tmpdir, 0700 ) ) {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			if ( @mkdir( $tmpdir, 0700 ) ) {
 				return $tmpdir;
 			}
 		}
@@ -415,5 +415,4 @@ class IgnoreFileTest extends TestCase {
 			'Trailing backslash in something looking like a character class range' => array( 'foo[a-\\', 'Unexpected trailing backslash in pattern `foo[a-\\` at index 0' ),
 		);
 	}
-
 }

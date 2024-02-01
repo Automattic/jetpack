@@ -10,6 +10,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * WPCOM_social_media_icons_widget class.
  *
@@ -165,11 +167,11 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 
 			if ( 'googleplus' === $service
 				&& ! is_numeric( $username )
-				&& substr( $username, 0, 1 ) !== '+'
+				&& ! str_starts_with( $username, '+' )
 			) {
 				$link_username = '+' . $username;
 			}
-			if ( 'youtube' === $service && 'UC' === substr( $username, 0, 2 ) ) {
+			if ( 'youtube' === $service && str_starts_with( $username, 'UC' ) ) {
 				$link_username = 'channel/' . $username;
 			} elseif ( 'youtube' === $service ) {
 				$link_username = 'user/' . $username;
@@ -216,7 +218,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		 */
 		$html = apply_filters( 'jetpack_social_media_icons_widget_array', $html );
 		ksort( $html );
-		$html = '<ul><li>' . join( '</li><li>', $html ) . '</li></ul>';
+		$html = '<ul><li>' . implode( '</li><li>', $html ) . '</li></ul>';
 		if ( ! empty( $instance['title'] ) ) {
 			$html = $args['before_title'] . $instance['title'] . $args['after_title'] . $html;
 		}

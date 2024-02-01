@@ -71,7 +71,6 @@ if ( is_multisite() ) :
 
 			$this->assertIsString( $url );
 			$this->assertStringEndsWith( $expected_url, $url );
-
 		}
 
 		/**
@@ -212,7 +211,7 @@ if ( is_multisite() ) :
 			$test_cap        = array( 'test_cap' );
 			$expected_output = $disconnect_allowed ? $test_cap : array( 'do_not_allow' );
 
-			$user_id = $this->factory->user->create( array( 'user_login' => 'test_user' ) );
+			$user_id = self::factory()->user->create( array( 'user_login' => 'test_user' ) );
 			wp_set_current_user( $user_id );
 			if ( $is_super_admin ) {
 				grant_super_admin( $user_id );
@@ -242,6 +241,5 @@ if ( is_multisite() ) :
 				'is_super_admin: false; connection_override: false' => array( false, false, false ),
 			);
 		}
-
 	} // end class
 endif;

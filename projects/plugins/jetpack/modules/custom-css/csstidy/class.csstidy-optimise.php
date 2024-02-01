@@ -38,6 +38,7 @@
  * @author Florian Schmitz (floele at gmail dot com) 2005-2006
  * @version 1.0
  */
+#[AllowDynamicProperties]
 class csstidy_optimise { // phpcs:ignore
 	/**
 	 * Constructor
@@ -296,7 +297,7 @@ class csstidy_optimise { // phpcs:ignore
 			$color_tmp = explode( ',', $color_tmp );
 			for ( $i = 0, $l = count( $color_tmp ); $i < $l; $i++ ) {
 				$color_tmp[ $i ] = trim( $color_tmp[ $i ] );
-				if ( substr( $color_tmp[ $i ], -1 ) === '%' ) {
+				if ( str_ends_with( $color_tmp[ $i ], '%' ) ) {
 					$color_tmp[ $i ] = round( ( 255 * $color_tmp[ $i ] ) / 100 );
 				}
 				if ( $color_tmp[ $i ] > 255 ) {
@@ -708,7 +709,7 @@ class csstidy_optimise { // phpcs:ignore
 			$str_value[ $i ] = self::explode_ws( ' ', trim( $str_value[ $i ] ) );
 
 			for ( $j = 0, $k = count( $str_value[ $i ] ); $j < $k; $j++ ) {
-				if ( $have['bg'] === false && ( substr( $str_value[ $i ][ $j ], 0, 4 ) === 'url(' || $str_value[ $i ][ $j ] === 'none' ) ) {
+				if ( $have['bg'] === false && ( str_starts_with( $str_value[ $i ][ $j ], 'url(' ) || $str_value[ $i ][ $j ] === 'none' ) ) {
 					$return['background-image'] .= $str_value[ $i ][ $j ] . ',';
 					$have['bg']                  = true;
 				} elseif ( in_array( $str_value[ $i ][ $j ], $repeat, true ) ) {
@@ -893,13 +894,11 @@ class csstidy_optimise { // phpcs:ignore
 					$return['line-height'] = ''; // don't add 'normal' !
 				}
 				$have['size'] = true;
+			} elseif ( isset( $return['font-family'] ) ) {
+				$return['font-family'] .= ' ' . $str_value[0][ $j ];
+				$multiwords             = true;
 			} else {
-				if ( isset( $return['font-family'] ) ) {
-					$return['font-family'] .= ' ' . $str_value[0][ $j ];
-					$multiwords             = true;
-				} else {
-					$return['font-family'] = $str_value[0][ $j ];
-				}
+				$return['font-family'] = $str_value[0][ $j ];
 			}
 		}
 		// add quotes if we have several qords in font-family.
@@ -909,7 +908,7 @@ class csstidy_optimise { // phpcs:ignore
 		$i = 1;
 		while ( isset( $str_value[ $i ] ) ) {
 			$return['font-family'] .= ',' . trim( $str_value[ $i ] );
-			$i++;
+			++$i;
 		}
 
 		// Fix for 100 and more font-size.
@@ -1003,5 +1002,4 @@ class csstidy_optimise { // phpcs:ignore
 
 		return $input_css;
 	}
-
 }

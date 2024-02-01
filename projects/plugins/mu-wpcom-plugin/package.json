@@ -1,0 +1,25 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-mu-wpcom-plugin",
+	"version": "2.0.18-alpha",
+	"description": "Test plugin for the jetpack-mu-wpcom package",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Mu Wpcom Plugin"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/mu-wpcom-plugin"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'",
+		"clean": "true"
+	},
+	"devDependencies": {}
+}

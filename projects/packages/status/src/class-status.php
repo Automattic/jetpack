@@ -167,11 +167,11 @@ class Status {
 		$site_url = site_url();
 
 		// Check for localhost and sites using an IP only first.
+		// Note: str_contains() is not used here, as wp-includes/compat.php is not loaded in this file.
 		$is_local = $site_url && false === strpos( $site_url, '.' );
 
-		// @todo Remove function_exists when the package has a documented minimum WP version.
-		// Use Core's environment check, if available. Added in 5.5.0 / 5.5.1 (for `local` return value).
-		if ( function_exists( 'wp_get_environment_type' ) && 'local' === wp_get_environment_type() ) {
+		// Use Core's environment check, if available.
+		if ( 'local' === wp_get_environment_type() ) {
 			$is_local = true;
 		}
 
@@ -184,6 +184,7 @@ class Status {
 			'#\.docksal\.site$#i', // Docksal.
 			'#\.dev\.cc$#i',       // ServerPress.
 			'#\.lndo\.site$#i',    // Lando.
+			'#^https?://127\.0\.0\.1$#',
 		);
 
 		if ( ! $is_local ) {
@@ -221,24 +222,26 @@ class Status {
 			return $cached;
 		}
 
-		// @todo Remove function_exists when the package has a documented minimum WP version.
-		// Core's wp_get_environment_type allows for a few specific options. We should default to bowing out gracefully for anything other than production or local.
-		$is_staging = function_exists( 'wp_get_environment_type' ) && ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
+		/*
+		 * Core's wp_get_environment_type allows for a few specific options.
+		 * We should default to bowing out gracefully for anything other than production or local.
+		 */
+		$is_staging = ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
 
 		$known_staging = array(
 			'urls'      => array(
-				'#\.staging\.wpengine\.com$#i', // WP Engine. This is their legacy staging URL structure. Their new platform does not have a common URL. https://github.com/Automattic/jetpack/issues/21504
-				'#\.staging\.kinsta\.com$#i',   // Kinsta.com.
-				'#\.kinsta\.cloud$#i',          // Kinsta.com.
-				'#\.stage\.site$#i',            // DreamPress.
-				'#\.newspackstaging\.com$#i',   // Newspack.
-				'#\.pantheonsite\.io$#i',       // Pantheon.
-				'#\.flywheelsites\.com$#i',     // Flywheel.
-				'#\.flywheelstaging\.com$#i',   // Flywheel.
-				'#\.cloudwaysapps\.com$#i',     // Cloudways.
-				'#\.azurewebsites\.net$#i',     // Azure.
-				'#\.wpserveur\.net$#i',         // WPServeur.
-				'#\-liquidwebsites\.com$#i',    // Liquidweb.
+				'#\.staging\.wpengine\.com$#i',                    // WP Engine. This is their legacy staging URL structure. Their new platform does not have a common URL. https://github.com/Automattic/jetpack/issues/21504
+				'#\.staging\.kinsta\.com$#i',                      // Kinsta.com.
+				'#\.kinsta\.cloud$#i',                             // Kinsta.com.
+				'#\.stage\.site$#i',                               // DreamPress.
+				'#\.newspackstaging\.com$#i',                      // Newspack.
+				'#^(?!live-)([a-zA-Z0-9-]+)\.pantheonsite\.io$#i', // Pantheon.
+				'#\.flywheelsites\.com$#i',                        // Flywheel.
+				'#\.flywheelstaging\.com$#i',                      // Flywheel.
+				'#\.cloudwaysapps\.com$#i',                        // Cloudways.
+				'#\.azurewebsites\.net$#i',                        // Azure.
+				'#\.wpserveur\.net$#i',                            // WPServeur.
+				'#\-liquidwebsites\.com$#i',                       // Liquidweb.
 			),
 			'constants' => array(
 				'IS_WPE_SNAPSHOT',      // WP Engine. This is used on their legacy staging environment. Their new platform does not have a constant. https://github.com/Automattic/jetpack/issues/21504
@@ -312,6 +315,63 @@ class Status {
 	 */
 	public function is_onboarding() {
 		return \Jetpack_Options::get_option( 'onboarding' ) !== false;
+	}
+
+	/**
+	 * Whether the site is currently private or not.
+	 * On WordPress.com and WoA, sites can be marked as private
+	 *
+	 * @since 1.16.0
+	 *
+	 * @return bool True if the site is private.
+	 */
+	public function is_private_site() {
+		$ret = Cache::get( 'is_private_site' );
+		if ( null === $ret ) {
+			$is_private_site = '-1' === get_option( 'blog_public' );
+
+			/**
+			 * Filters the is_private_site check.
+			 *
+			 * @since 1.16.1
+			 *
+			 * @param bool $is_private_site True if the site is private.
+			 */
+			$is_private_site = apply_filters( 'jetpack_is_private_site', $is_private_site );
+
+			Cache::set( 'is_private_site', $is_private_site );
+			return $is_private_site;
+		}
+		return $ret;
+	}
+
+	/**
+	 * Whether the site is currently unlaunched or not.
+	 * On WordPress.com and WoA, sites can be marked as "coming soon", aka unlaunched
+	 *
+	 * @since 1.16.0
+	 *
+	 * @return bool True if the site is not launched.
+	 */
+	public function is_coming_soon() {
+		$ret = Cache::get( 'is_coming_soon' );
+		if ( null === $ret ) {
+			$is_coming_soon = (bool) ( function_exists( 'site_is_coming_soon' ) && \site_is_coming_soon() )
+				|| get_option( 'wpcom_public_coming_soon' );
+
+			/**
+			 * Filters the is_coming_soon check.
+			 *
+			 * @since 1.16.1
+			 *
+			 * @param bool $is_coming_soon True if the site is coming soon (i.e. unlaunched).
+			 */
+			$is_coming_soon = apply_filters( 'jetpack_is_coming_soon', $is_coming_soon );
+
+			Cache::set( 'is_coming_soon', $is_coming_soon );
+			return $is_coming_soon;
+		}
+		return $ret;
 	}
 
 	/**

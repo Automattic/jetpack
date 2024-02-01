@@ -1,0 +1,266 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.1.18
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 11/10/16
+ */
+
+// Generic edit page css
+
+.users-php .zerobs_customer{
+  background: none !important;
+}
+
+
+/* large options */
+tr.wh-large label {
+    font-size: 14px;
+}
+tr.wh-large select, tr.wh-large input {
+    font-size:14px;    
+    line-height: 1.4em;
+}
+// fixes radio buttons + checkbox heights (which above breaks!)
+tr.wh-large input[type="radio"] {
+  width:16px !important;
+  height:16px !important;
+}
+tr.wh-large th, tr.wh-large td {
+  padding: 6px 20px;
+  color: black;
+}
+table.wh-metatab tr th label {
+  padding: 6px 20px;
+  color: black;
+}
+table.wh-metatab tr.wh-large th label, table.wh-metatab tr.wh-large td label {
+  padding:0;
+}
+
+/* table general tweaks */
+table.wh-metatab {
+    min-width:620px;
+}
+table.wh-metatab tr.wh-hr td {
+  padding: 0px 20px;
+}
+table.wh-metatab tr.wh-hr hr {
+  border-top: 1px solid #D4DBF0;
+  border-bottom:0;
+}
+
+
+/* Help labels */
+span.wh-info {
+  font-size: 12px;
+  padding: 4px 9px;
+  color: #000;
+  background: #CBE3EF;
+  border-radius: 3px;
+}
+
+.zbs-prominent {
+  font-size: 14px;
+    color: green;
+}
+.widetext {
+  width:100%;
+}
+.jpcrm-date, .zbs-date {
+      width: 132px;
+}
+.zbs-tel {
+  width:200px;
+}
+.zbs-email {
+  width:100%;
+}
+textarea.form-control{
+  width:100%;
+  height:120px;
+}
+
+
+/* Custom fields */
+.zbscrm-cf select {
+
+    width: auto;
+    max-width:200px;
+    display: inline-block;
+
+}
+.zbscrm-cf-n{
+  width:200px;
+  text-align:center !important;
+}
+
+
+/* External sources */
+.jpcrm-external-source-group {
+
+  // low key border
+  padding: 5px 7px;
+  border: 1px solid #e9e9e9;
+  border-radius: 3px;
+
+  // header
+  .jpcrm-external-source-group-header.ui.header{    
+    margin-bottom: 0.2em;
+  }
+
+  .jpcrm-external-source {
+    
+    border-top: 1px solid #e9e9e9;
+    margin-top: 5px;
+    padding-top: 4px;
+
+    // here we add extra padding because woo ext sources can have view order buttons
+    .jpcrm-ext-source-woo-order {
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+
+    // order id
+    .jpcrm-ext-source-uid {
+      // color: #4283c4;
+    }
+
+    // origin: domain
+    .jpcrm-ext-source-domain {
+      color: #a9b196;
+      display: inline-block;
+    }
+
+  }
+
+}
+#jpcrm-external-sources-metabox .jpcrm-external-source-group:not(:first-child){
+
+  margin-top: 1em; // margin top for those groups after first
+
+}
+
+
+.zbsDelFile:hover {
+    cursor:pointer;
+    font-weight:800;
+}
+
+
+
+
+.wh-large select, .wh-large input{
+  font-size: 14px;
+  height: 30px;
+}
+.wh-large label {
+    font-size: 15px;
+    color: black;
+    font-weight: 400;
+}
+
+.zbs-tel-wrap {
+	display: flex;
+  flex-wrap: wrap;
+
+	input {
+		flex: 1 0 200px;
+	}
+
+	a.button {
+		margin-left: 10px;
+		padding-top: 2px;
+	}
+}
+
+
+// WH generic ui segment middle-aligned-limited-width
+.ui.segment.zbscentral {
+
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    
+}
+
+
+// date fields
+.form-control.jpcrm-date, .form-control.zbs-date {
+    display: inline-block;
+}
+
+
+
+// id fields + autonumbers
+.zbs-field-id {
+  font-size: 14px !important;
+  color: black !important;
+  vertical-align: top !important;
+}
+
+// edit pages checkbox custom fields
+.zbs-field-checkbox-wrap {
+
+  .ui.checkbox {
+      margin-top: 0;
+      margin-bottom: 0;
+  }
+
+  .ui.checkbox label {
+      padding: 0 0 0 23px !important;
+  }
+  .ui.checkbox:first-of-type {
+      padding-left:0 !important;
+  }
+  .ui.checkbox label, .ui.checkbox+label {
+      font-size: 16px !important;
+      color: #555;
+      font-weight: normal;
+  }
+
+  // this fixed a bug where you could still somehow click them?!
+  input[type="checkbox"]{
+    display:none;
+  }
+
+}
+
+// edit pages radio custom fields 
+.zbs-field-radio-wrap {
+
+    .zbs-radio:first-of-type {
+        padding-left:0 !important;
+    }
+    .zbs-radio {
+
+          // cloned from ui checkbox 12/3/19
+          border: none;
+          margin: 0;
+          padding: 0;
+          padding-left: 20px;
+          //margin-top: 10px;
+          //margin-bottom: 10px;
+          position: relative;
+          display: inline-block;
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+          outline: none;
+          vertical-align: baseline;
+          font-style: normal;
+          min-height: 17px;
+          font-size: 1rem;
+          line-height: 17px;
+          min-width: 17px;
+
+        // good if these match the above checkbox labels ^^ 
+        label {
+          font-size: 16px !important;
+          color: #555;
+          font-weight: normal;
+      }
+
+    }
+}

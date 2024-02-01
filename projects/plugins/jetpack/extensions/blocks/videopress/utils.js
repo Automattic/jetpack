@@ -59,3 +59,52 @@ export function getClassNames( html, existingClassNames = '', allowResponsive = 
 
 	return existingClassNames;
 }
+
+export const removeFileNameExtension = name => {
+	return name.replace( /\.[^/.]+$/, '' );
+};
+
+export const pickGUIDFromUrl = url => {
+	if ( ! url || typeof url !== 'string' ) {
+		return null;
+	}
+
+	const urlParts = url.match(
+		/^https?:\/\/(?<host>video(?:\.word|s\.files\.word)?press\.com)(?:\/v|\/embed)?\/(?<guid>[a-zA-Z\d]{8})/
+	);
+
+	if ( ! urlParts?.groups?.guid ) {
+		return null;
+	}
+
+	return urlParts.groups.guid;
+};
+
+/**
+ * Check whether a block is a VideoPress block instance,
+ * based on the passed attributes.
+ *
+ * @param {object} attributes - Block attributes.
+ * @returns {boolean} 	        Whether the block is a VideoPress block instance.
+ */
+export const isVideoPressBlockBasedOnAttributes = attributes => {
+	const { guid, videoPressTracks, isVideoPressExample } = attributes;
+
+	// VideoPress block should have a guid attribute.
+	if ( ! guid?.length ) {
+		return false;
+	}
+
+	// VideoPress block should have a videoPressTracks array attribute.
+	if ( ! Array.isArray( videoPressTracks ) ) {
+		return false;
+	}
+
+	// VideoPress block should have a isVideoPressExample boolean attribute.
+	const attrNames = Object.keys( attributes );
+	if ( ! attrNames.includes( 'isVideoPressExample' ) || typeof isVideoPressExample !== 'boolean' ) {
+		return false;
+	}
+
+	return true;
+};

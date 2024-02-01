@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
+import { isInTheFuture } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
@@ -9,7 +10,13 @@ import { ProductActivated } from 'components/product-activated';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
 import analytics from 'lib/analytics';
-import { getPlanClass, JETPACK_BACKUP_PRODUCTS, JETPACK_SCAN_PRODUCTS } from 'lib/plans/constants';
+import {
+	containsGiftedPlanOrProduct,
+	getPlanClass,
+	PLAN_JETPACK_FREE,
+	JETPACK_BACKUP_PRODUCTS,
+	JETPACK_SCAN_PRODUCTS,
+} from 'lib/plans/constants';
 import { find, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -45,6 +52,7 @@ class MyPlanHeader extends React.Component {
 		}
 
 		const purchase = find( purchases, purchaseObj => purchaseObj.product_slug === productSlug );
+
 		let expiration;
 		let activation;
 		if ( purchase ) {
@@ -56,10 +64,26 @@ class MyPlanHeader extends React.Component {
 					expiryDate={ purchase.expiry_date }
 					purchaseDate={ purchase.subscribed_date }
 					isRefundable={ purchase.is_refundable }
+					isGift={ containsGiftedPlanOrProduct( purchase.product_slug ) }
+					purchaseID={ purchase.ID }
 				/>
 			);
-
-			activation = purchase.active === '1' ? <ProductActivated key="product-activated" /> : null;
+			if ( purchase.active === '1' ) {
+				// Purchases might not have an expiration date, so we need to check
+				// for their existence (e.g.: lifetime plan like Golden Token).
+				if ( ! isInTheFuture( purchase.expiry_date ) && purchase.expiry_date !== null ) {
+					activation = <ProductActivated key="product-expired" type="product-expired" />;
+				} else {
+					activation = (
+						<ProductActivated
+							key="product-activated"
+							type={ purchase.expiry_date === null ? 'never-expires' : '' }
+						/>
+					);
+				}
+			} else {
+				activation = null;
+			}
 		}
 
 		switch ( getPlanClass( productSlug ) ) {
@@ -193,7 +217,7 @@ class MyPlanHeader extends React.Component {
 					...productProps,
 					details: [ activation, expiration ],
 					tagLine: __(
-						'The most powerful WordPress sites: Top-tier security bundle, enhanced search.',
+						'The ultimate toolkit for best-in-class websites: complete security, performance, and growth.',
 						'jetpack'
 					),
 					title: __( 'Jetpack Complete', 'jetpack' ),
@@ -216,7 +240,7 @@ class MyPlanHeader extends React.Component {
 						),
 						{ strong: <strong /> }
 					),
-					title: __( 'Jetpack Backup', 'jetpack' ),
+					title: __( 'VaultPress Backup', 'jetpack' ),
 				};
 
 			case 'is-backup-t1-plan':
@@ -236,7 +260,7 @@ class MyPlanHeader extends React.Component {
 						),
 						{ strong: <strong /> }
 					),
-					title: __( 'Jetpack Backup', 'jetpack' ),
+					title: __( 'VaultPress Backup', 'jetpack' ),
 				};
 
 			case 'is-backup-t2-plan':
@@ -256,7 +280,7 @@ class MyPlanHeader extends React.Component {
 						),
 						{ strong: <strong /> }
 					),
-					title: __( 'Jetpack Backup', 'jetpack' ),
+					title: __( 'VaultPress Backup', 'jetpack' ),
 				};
 
 			case 'is-search-plan':
@@ -267,6 +291,14 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Search', 'jetpack' ),
 				};
 
+			case 'is-free-search-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Fast, highly relevant search results and powerful filtering.', 'jetpack' ),
+					title: __( 'Jetpack Search Free', 'jetpack' ),
+				};
+
 			case 'is-scan-plan':
 				return {
 					...productProps,
@@ -275,7 +307,7 @@ class MyPlanHeader extends React.Component {
 						'Automatic scanning and one-click fixes keep your site one step ahead of security threats.',
 						'jetpack'
 					),
-					title: createInterpolateElement( __( 'Jetpack Scan <em>Daily</em>', 'jetpack' ), {
+					title: createInterpolateElement( __( 'Jetpack Scan', 'jetpack' ), {
 						em: <em />,
 					} ),
 				};
@@ -288,7 +320,7 @@ class MyPlanHeader extends React.Component {
 						'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.',
 						'jetpack'
 					),
-					title: __( 'Jetpack Anti-Spam', 'jetpack' ),
+					title: __( 'Akismet Anti-spam', 'jetpack' ),
 				};
 
 			// DEPRECATED: Daily and Real-time variations will soon be retired.
@@ -343,6 +375,103 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack VideoPress', 'jetpack' ),
 				};
 
+			case 'is-jetpack-social-basic-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'You can automatically share your content to social media sites.',
+						'jetpack'
+					),
+					title: createInterpolateElement( __( 'Jetpack Social Basic', 'jetpack' ), {
+						em: <em />,
+					} ),
+				};
+
+			case 'is-jetpack-social-advanced-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'You can automatically share your content to social media sites and get access to advanced posting options.',
+						'jetpack'
+					),
+					title: createInterpolateElement( __( 'Jetpack Social Advanced', 'jetpack' ), {
+						em: <em />,
+					} ),
+				};
+
+			case 'is-jetpack-boost-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'Jetpack Boost gives your site the same performance advantages as the world’s leading websites, no developer required.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Boost', 'jetpack' ),
+				};
+
+			case 'is-jetpack-ai-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'Experience the ease of crafting content with intuitive and powerful AI.',
+						'jetpack'
+					),
+					title: __( 'Jetpack AI', 'jetpack' ),
+				};
+
+			case 'is-jetpack-golden-token-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'You have been gifted a Jetpack Golden Token. This unlocks a lifetime of Jetpack VaultPress Backup and Jetpack Scan for your website.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Golden Token', 'jetpack' ),
+					cardClassNames: [ 'plan-golden-token' ],
+				};
+
+			case 'is-jetpack-starter-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'Essential security tools: real-time backups and comment spam protection.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Starter', 'jetpack' ),
+				};
+
+			case 'is-jetpack-stats-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Simple, yet powerful analytics with priority support.', 'jetpack' ),
+					title: __( 'Jetpack Stats', 'jetpack' ),
+				};
+
+			case 'is-free-jetpack-stats-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Simple, yet powerful analytics.', 'jetpack' ),
+					title: __( 'Jetpack Stats Free', 'jetpack' ),
+				};
+			case 'is-jetpack-creator-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'Craft stunning content, boost your subscriber base, and monetize your online presence.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Creator', 'jetpack' ),
+				};
+
 			default:
 				return {
 					...productProps,
@@ -352,14 +481,19 @@ class MyPlanHeader extends React.Component {
 	}
 
 	renderPlan() {
+		// Hide "My Plan" card if there are active products and no paid plan.
+		if ( ! isEmpty( this.props.activeProducts ) && this.props.plan === PLAN_JETPACK_FREE ) {
+			return null;
+		}
+
 		return (
-			<>
-				{ this.renderLicensingActions() }
-				<Card compact>
-					{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
-					<MyPlanCard { ...this.getProductProps( this.props.plan, this.props.activeProducts ) } />
-				</Card>
-			</>
+			<Card compact>
+				{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
+				<MyPlanCard
+					{ ...this.getProductProps( this.props.plan, this.props.activeProducts ) }
+					isPlan
+				/>
+			</Card>
 		);
 	}
 
@@ -367,7 +501,6 @@ class MyPlanHeader extends React.Component {
 		if ( isEmpty( this.props.activeProducts ) ) {
 			return null;
 		}
-
 		return (
 			<Card compact>
 				{ this.renderHeader( __( 'My Products', 'jetpack' ) ) }
@@ -406,7 +539,25 @@ class MyPlanHeader extends React.Component {
 			<Card compact>
 				<div className="jp-landing__licensing-actions">
 					{ 'header' === position && (
-						<span>{ __( 'Got a license key? Activate it here.', 'jetpack' ) }</span>
+						<span>
+							{ createInterpolateElement(
+								/* translators: %s is the link to the License management page. */
+								__( 'Got a license key? <a>Activate it here.</a>', 'jetpack' ),
+								{
+									a: (
+										<a
+											href={
+												! window.Initial_State?.useMyJetpackLicensingUI
+													? siteAdminUrl + 'admin.php?page=jetpack#/license/activation'
+													: siteAdminUrl + 'admin.php?page=my-jetpack#/add-license'
+											}
+											onClick={ this.trackLicenseActivationClick }
+											className="jp-landing__licensing-actions-link"
+										/>
+									),
+								}
+							) }
+						</span>
 					) }
 					<div
 						className={ classnames( 'jp-landing__licensing-actions-item', {
@@ -415,31 +566,19 @@ class MyPlanHeader extends React.Component {
 						} ) }
 					>
 						{ showPurchasesLink && (
-							<ExternalLink
-								className="all-purchases__link"
-								href={ getRedirectUrl( 'calypso-purchases' ) }
-								onClick={ this.trackAllPurchasesClick }
-							>
-								{ __( 'View all purchases', 'jetpack' ) }
-							</ExternalLink>
-						) }
-						{ 'header' === position ? (
-							<Button
-								href={
-									! window.Initial_State?.useMyJetpackLicensingUI
-										? siteAdminUrl + 'admin.php?page=jetpack#/license/activation'
-										: siteAdminUrl + 'admin.php?page=my-jetpack#/add-license'
-								}
-								onClick={ this.trackLicenseActivationClick }
-								primary
-							>
-								{ _x( 'Activate a Product', 'Navigation item.', 'jetpack' ) }
+							<Button onClick={ this.trackAllPurchasesClick } compact rna>
+								<ExternalLink href={ getRedirectUrl( 'calypso-purchases' ) }>
+									{ __( 'View all purchases', 'jetpack' ) }
+								</ExternalLink>
 							</Button>
-						) : (
+						) }
+
+						{ 'footer' === position && (
 							<Button
 								href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
 								onClick={ this.trackRecommendationsClick }
 								primary
+								rna
 							>
 								{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
 							</Button>
@@ -481,6 +620,7 @@ class MyPlanHeader extends React.Component {
 	render() {
 		return (
 			<div className="jp-landing__plans">
+				{ this.renderLicensingActions() }
 				{ this.renderPlan() }
 				{ this.renderProducts() }
 				{ this.renderFooter() }

@@ -508,7 +508,7 @@ class Password_Checker {
 
 		// Spaces.
 		if ( strpos( $password, ' ' ) ) {
-			$size ++;
+			++$size;
 		}
 
 		return $size;
@@ -556,7 +556,7 @@ class Password_Checker {
 		$aidx   = $this->get_char_index( $password[0] );
 		$length = strlen( $password );
 
-		for ( $b = 1; $b < $length; $b ++ ) {
+		for ( $b = 1; $b < $length; $b++ ) {
 			$bidx = $this->get_char_index( $password[ $b ] );
 
 			// 27 = number of chars in the index (a-z,' ').

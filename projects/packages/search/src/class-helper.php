@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Status;
 use GP_Locales;
 use Jetpack; // TODO: Remove this once migrated.
 
@@ -22,11 +23,6 @@ class Helper {
 	 * @var string
 	 */
 	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
-
-	/**
-	 * The post types to hide from 'Excluded post types'.
-	 */
-	const POST_TYPES_TO_HIDE_FROM_EXCLUDED_CHECK_LIST = array( 'attachment' );
 
 	/**
 	 * Create a URL for the current search that doesn't include the "paged" parameter.
@@ -240,6 +236,14 @@ class Helper {
 				$name = _x( 'Post Types', 'label for filtering posts', 'jetpack-search-pkg' );
 				break;
 
+			case 'author':
+				$name = _x( 'Authors', 'label for filtering posts', 'jetpack-search-pkg' );
+				break;
+
+			case 'blog_id':
+				$name = _x( 'Blogs', 'label for filtering posts', 'jetpack-search-pkg' );
+				break;
+
 			case 'date_histogram':
 				$modified_fields = array(
 					'post_modified',
@@ -434,6 +438,10 @@ class Helper {
 					}
 
 					if ( 'filters' === $k ) {
+						if ( ! is_countable( $new_instance['filters'] ) || ! is_countable( $old_instance['filters'] ) ) {
+							continue;
+						}
+
 						if ( count( $new_instance['filters'] ) !== count( $old_instance['filters'] ) ) {
 							$widget = $new_instance;
 							break;
@@ -517,7 +525,7 @@ class Helper {
 
 			$key = sprintf( 'widget_filter_type_%s', $filter['type'] );
 			if ( isset( $filters_properties[ $key ] ) ) {
-				$filters_properties[ $key ] ++;
+				++$filters_properties[ $key ];
 			} else {
 				$filters_properties[ $key ] = 1;
 			}
@@ -814,13 +822,6 @@ class Helper {
 				'name'          => $obj->labels->name,
 			);
 		}
-		$post_type_labels = array_filter(
-			$post_type_labels,
-			function ( $key ) {
-				return ! in_array( $key, self::POST_TYPES_TO_HIDE_FROM_EXCLUDED_CHECK_LIST, true );
-			},
-			ARRAY_FILTER_USE_KEY
-		);
 
 		$prefix         = Options::OPTION_PREFIX;
 		$posts_per_page = (int) get_option( 'posts_per_page' );
@@ -839,49 +840,62 @@ class Helper {
 		);
 		$unexcluded_post_types = array_diff( $post_types, $excluded_post_types );
 		// NOTE: If all post types are being excluded, ignore the option value.
-		if ( count( $unexcluded_post_types ) === 0 ) {
+		if ( array() === $unexcluded_post_types ) {
 			$excluded_post_types = array();
 		}
 
-		$is_wpcom                  = defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
-		$is_private_site           = '-1' === get_option( 'blog_public' );
+		$is_wpcom                  = static::is_wpcom();
+		$is_private_site           = ( new Status() )->is_private_site();
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
 		$options = array(
-			'overlayOptions'        => array(
-				'colorTheme'        => get_option( $prefix . 'color_theme', 'light' ),
-				'enableInfScroll'   => get_option( $prefix . 'inf_scroll', '1' ) === '1',
-				'enableSort'        => get_option( $prefix . 'enable_sort', '1' ) === '1',
-				'highlightColor'    => get_option( $prefix . 'highlight_color', '#FFC' ),
-				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', 'immediate' ),
-				'resultFormat'      => get_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
-				'showPoweredBy'     => get_option( $prefix . 'show_powered_by', '1' ) === '1',
+			'overlayOptions'              => array(
+				'colorTheme'                  => get_option( $prefix . 'color_theme', 'light' ),
+				'enableInfScroll'             => get_option( $prefix . 'inf_scroll', '1' ) === '1',
+				'enableFilteringOpensOverlay' => get_option( $prefix . 'filtering_opens_overlay', '1' ) === '1',
+				'enablePostDate'              => get_option( $prefix . 'show_post_date', '1' ) === '1',
+				'enableSort'                  => get_option( $prefix . 'enable_sort', '1' ) === '1',
+				'highlightColor'              => get_option( $prefix . 'highlight_color', '#FFC' ),
+				'overlayTrigger'              => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
+				'resultFormat'                => get_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
+				'showPoweredBy'               => ( new Plan() )->is_free_plan() || ( get_option( $prefix . 'show_powered_by', '1' ) === '1' ),
 
 				// These options require kicking off a new search.
-				'defaultSort'       => get_option( $prefix . 'default_sort', 'relevance' ),
-				'excludedPostTypes' => $excluded_post_types,
+				'defaultSort'                 => get_option( $prefix . 'default_sort', 'relevance' ),
+				'excludedPostTypes'           => $excluded_post_types,
 			),
 
 			// core config.
-			'homeUrl'               => home_url(),
-			'locale'                => str_replace( '_', '-', self::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
-			'postsPerPage'          => $posts_per_page,
-			'siteId'                => self::get_wpcom_site_id(),
-			'postTypes'             => $post_type_labels,
-			'webpackPublicPath'     => plugins_url( '/build/instant-search/', __DIR__ ),
-			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
+			'homeUrl'                     => home_url(),
+			'locale'                      => str_replace( '_', '-', self::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
+			'postsPerPage'                => $posts_per_page,
+			'siteId'                      => self::get_wpcom_site_id(),
+			'postTypes'                   => $post_type_labels,
+			'webpackPublicPath'           => plugins_url( '/build/instant-search/', __DIR__ ),
+			'isPhotonEnabled'             => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
+			'isFreePlan'                  => ( new Plan() )->is_free_plan(),
 
 			// config values related to private site support.
-			'apiRoot'               => esc_url_raw( rest_url() ),
-			'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-			'isPrivateSite'         => $is_private_site,
-			'isWpcom'               => $is_wpcom,
+			'apiRoot'                     => esc_url_raw( rest_url() ),
+			'apiNonce'                    => wp_create_nonce( 'wp_rest' ),
+			'isPrivateSite'               => $is_private_site,
+			'isWpcom'                     => $is_wpcom,
 
 			// widget info.
-			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
-			'widgets'               => array_values( $widgets ),
-			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
-			'hasNonSearchWidgets'   => $has_non_search_widgets,
+			'hasOverlayWidgets'           => is_countable( $overlay_widget_ids ) && count( $overlay_widget_ids ) > 0,
+			'widgets'                     => array_values( $widgets ),
+			'widgetsOutsideOverlay'       => array_values( $widgets_outside_overlay ),
+			'hasNonSearchWidgets'         => $has_non_search_widgets,
+			/**
+			 * Whether to prevent tracking cookie reset. More information `pbmxuV-39H-p2`.
+			 *
+			 * @module search
+			 *
+			 * @since $next-version$
+			 *
+			 * @param bool Prevent cookie reset for automattic sites as default value.
+			 */
+			'preventTrackingCookiesReset' => apply_filters( 'jetpack_instant_search_prevent_tracking_cookies_reset', function_exists( 'is_automattic' ) && is_automattic() ),
 		);
 
 		/**
@@ -894,6 +908,13 @@ class Helper {
 		 * @param array $options Array of parameters used in Instant Search queries.
 		 */
 		return apply_filters( 'jetpack_instant_search_options', $options );
+	}
+
+	/**
+	 * Returns true if the site is a WordPress.com simple site, i.e. the code runs on WPCOM.
+	 */
+	public static function is_wpcom() {
+		return defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
 	}
 
 	/**
@@ -944,5 +965,22 @@ class Helper {
 
 		// Returns cache site ID.
 		return \Jetpack_Options::get_option( 'id' );
+	}
+
+	/**
+	 * Returns true if the free_plan is set to not empty in URL, which is used for testing purpose.
+	 */
+	public static function is_forced_free_plan() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		return isset( $_GET['free_plan'] ) && $_GET['free_plan'];
+	}
+
+	/**
+	 * Returns true if the new_pricing_202210 is set to not empty in URL for testing purpose.
+	 */
+	public static function is_forced_new_pricing_202208() {
+		$referrer = wp_get_referer();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		return ( isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'] ) || $referrer && strpos( $referrer, 'new_pricing_202208=1' ) !== false;
 	}
 }

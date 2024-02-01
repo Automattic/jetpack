@@ -21,6 +21,7 @@ class Data_Settings {
 			'Automattic\\Jetpack\\Sync\\Modules\\Constants',
 			'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately', // enable Initial Sync on Site Connection.
 			'Automattic\\Jetpack\\Sync\\Modules\\Options',
+			'Automattic\\Jetpack\\Sync\\Modules\\Updates',
 		),
 		'jetpack_sync_callable_whitelist'  => array(
 			'site_url'                => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
@@ -67,6 +68,7 @@ class Data_Settings {
 			'jetpack_sync_settings_post_types_blacklist',
 			'jetpack_sync_settings_taxonomies_blacklist',
 			'jetpack_sync_settings_dedicated_sync_enabled',
+			'jetpack_sync_settings_custom_queue_table_enabled',
 			/**
 			 * Connection related options
 			 */

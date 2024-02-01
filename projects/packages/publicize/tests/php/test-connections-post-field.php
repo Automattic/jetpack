@@ -15,7 +15,7 @@ use WP_REST_Server;
  *
  * @package automattic/jetpack-publicize
  */
-class Test_Connections_Post_Field  extends TestCase {
+class Test_Connections_Post_Field extends TestCase {
 
 	/**
 	 * User ID.
@@ -25,11 +25,18 @@ class Test_Connections_Post_Field  extends TestCase {
 	private static $user_id = 0;
 
 	/**
+	 * Token IDs.
+	 *
+	 * @var array
+	 */
+	private static $connection_ids = array( '456', '123' );
+
+	/**
 	 * Connection IDs.
 	 *
 	 * @var array
 	 */
-	private static $connection_ids = array( 'test-unique-id456', 'test-unique-id123' );
+	private static $token_ids = array( 'test-unique-id456', 'test-unique-id123' );
 
 	/**
 	 * Draft ID.
@@ -51,12 +58,27 @@ class Test_Connections_Post_Field  extends TestCase {
 	 * @var array
 	 */
 	private $wp_rest_additional_fields = null;
+
 	/**
 	 * Publicize instance.
 	 *
 	 * @var ?Publicize
 	 */
 	private $publicize = null;
+
+	/**
+	 * Admin user ID.
+	 *
+	 * @var int
+	 */
+	private $admin_id;
+
+	/**
+	 * WP_REST_Server instance.
+	 *
+	 * @var WP_REST_Server
+	 */
+	private $server;
 
 	/**
 	 * Setting up the test.
@@ -66,11 +88,15 @@ class Test_Connections_Post_Field  extends TestCase {
 	public function set_up() {
 		$this->setup_jetpack_connections();
 		global $publicize;
-		$this->publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'refresh_connections' ) )->getMock();
+		$this->publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'refresh_connections', 'test_connection' ) )->getMock();
 
 		$this->publicize->method( 'refresh_connections' )
 			->withAnyParameters()
 			->willReturn( null );
+
+		$this->publicize->method( 'test_connection' )
+			->withAnyParameters()
+			->willReturn( true );
 
 		$publicize = $this->publicize;
 		register_post_type(
@@ -137,7 +163,6 @@ class Test_Connections_Post_Field  extends TestCase {
 				'post_date_gmt'         => '',
 			)
 		);
-
 	}
 
 	/**
@@ -218,7 +243,7 @@ class Test_Connections_Post_Field  extends TestCase {
 
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $data );
 		$this->assertTrue( true, gettype( $data['jetpack_publicize_connections'] ) === 'array' );
-		$this->assertSame( self::$connection_ids, wp_list_pluck( $data['jetpack_publicize_connections'], 'id' ) );
+		$this->assertSame( self::$token_ids, wp_list_pluck( $data['jetpack_publicize_connections'], 'id' ) );
 
 		$this->assertArrayHasKey( 'meta', $data );
 		$this->assertArrayHasKey( 'jetpack_publicize_message', $data['meta'] );
@@ -236,9 +261,11 @@ class Test_Connections_Post_Field  extends TestCase {
 				'facebook' => array(
 					'id_number' => array(
 						'connection_data' => array(
-							'user_id'  => self::$user_id,
-							'token_id' => 'test-unique-id456',
-							'meta'     => array(
+							'user_id'       => self::$user_id,
+							'id'            => '456',
+							'connection_id' => '4560',
+							'token_id'      => 'test-unique-id456',
+							'meta'          => array(
 								'display_name' => 'test-display-name456',
 							),
 						),
@@ -248,9 +275,11 @@ class Test_Connections_Post_Field  extends TestCase {
 				'tumblr'   => array(
 					'id_number' => array(
 						'connection_data' => array(
-							'user_id'  => 0,
-							'token_id' => 'test-unique-id123',
-							'meta'     => array(
+							'user_id'       => 0,
+							'id'            => '123',
+							'connection_id' => '1230',
+							'token_id'      => 'test-unique-id123',
+							'meta'          => array(
 								'display_name' => 'test-display-name123',
 							),
 						),
@@ -296,7 +325,7 @@ class Test_Connections_Post_Field  extends TestCase {
 			array(
 				'jetpack_publicize_connections' => array(
 					array(
-						'id'      => 'test-unique-id123',
+						'id'      => '123',
 						'enabled' => false,
 					),
 				),
@@ -308,7 +337,11 @@ class Test_Connections_Post_Field  extends TestCase {
 		$this->assertNotEmpty( $data['jetpack_publicize_connections'] );
 
 		foreach ( $data['jetpack_publicize_connections'] as $connection ) {
-			$this->assertSame( 'test-unique-id123' !== $connection->id, $connection->enabled );
+			if ( $connection->id === '123' ) {
+				$this->assertFalse( $connection->enabled );
+			} else {
+				$this->assertTrue( $connection->enabled );
+			}
 		}
 	}
 
@@ -321,8 +354,9 @@ class Test_Connections_Post_Field  extends TestCase {
 			array(
 				'jetpack_publicize_connections' => array(
 					array(
-						'service_name' => 'facebook',
-						'enabled'      => false,
+						'service_name'  => 'facebook',
+						'enabled'       => false,
+						'connection_id' => '4560',
 					),
 				),
 			)
@@ -333,7 +367,46 @@ class Test_Connections_Post_Field  extends TestCase {
 		$this->assertNotEmpty( $data['jetpack_publicize_connections'] );
 
 		foreach ( $data['jetpack_publicize_connections'] as $connection ) {
-			$this->assertSame( 'facebook' !== $connection->service_name, $connection->enabled );
+			if ( $connection->connection_id === '4560' ) {
+				$this->assertFalse( $connection->enabled );
+			} else {
+				$this->assertTrue( $connection->enabled );
+
+			}
 		}
+	}
+
+	/**
+	 * Test that connections are enabled when the publicize_checkbox_default filter isn't used.
+	 */
+	public function test_default_checkbox_filter() {
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$this->server->dispatch( $request );
+
+		foreach ( self::$connection_ids as $unique_id ) {
+			$skip_key = $this->publicize->POST_SKIP . $unique_id;
+			$this->assertEmpty( get_post_meta( $this->draft_id, $skip_key, true ) );
+		}
+	}
+
+	/**
+	 * Test that connections are skipped when the publicize_checkbox_default filter is used.
+	 */
+	public function test_default_checkbox_filter_disabled() {
+		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$filter_func = function ( $default ) {
+			return false;
+		};
+
+		add_filter( 'publicize_checkbox_default', $filter_func );
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$this->server->dispatch( $request );
+
+		foreach ( self::$connection_ids as $unique_id ) {
+			$skip_key = $this->publicize->POST_SKIP_PUBLICIZE . $unique_id;
+			$this->assertNotEmpty( get_post_meta( $this->draft_id, $skip_key, true ) );
+		}
+
+		remove_filter( 'publicize_checkbox_default', $filter_func );
 	}
 }

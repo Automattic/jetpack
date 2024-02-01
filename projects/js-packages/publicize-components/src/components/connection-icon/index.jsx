@@ -1,31 +1,59 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { useCallback, useState } from '@wordpress/element';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 import './style.scss';
 
 const ConnectionIcon = props => {
-	const { id, serviceName, label, profilePicture } = props;
+	const { checked, serviceName, label, onClick, profilePicture } = props;
 	const [ hasDisplayPicture, setHasDisplayPicture ] = useState( !! profilePicture );
 
 	const onError = useCallback( () => setHasDisplayPicture( false ), [] );
 
+	const handleKeyDown = useCallback(
+		ev => {
+			if ( ev.keyCode === 13 ) {
+				onClick();
+			}
+		},
+		[ onClick ]
+	);
+
+	const getServiceName = () => {
+		if ( 'instagram-business' === serviceName ) {
+			return 'instagram';
+		}
+
+		if ( 'twitter' === serviceName ) {
+			return 'x';
+		}
+
+		return serviceName;
+	};
+
 	return (
-		<label htmlFor={ id } className="jetpack-publicize-connection-label">
-			<div className={ hasDisplayPicture ? 'components-connection-icon__picture' : '' }>
-				{ hasDisplayPicture && <img src={ profilePicture } alt={ label } onError={ onError } /> }
-				<SocialServiceIcon
-					serviceName={ serviceName }
-					className="jetpack-publicize-gutenberg-social-icon"
-				/>
-			</div>
-			<span className="jetpack-publicize-connection-label-copy">{ label }</span>
-		</label>
+		<div
+			onClick={ onClick }
+			onKeyDown={ handleKeyDown }
+			role="switch"
+			aria-checked={ checked }
+			tabIndex="0"
+			className={ classNames( 'components-connection-icon', {
+				'components-connection-icon__picture': hasDisplayPicture,
+			} ) }
+		>
+			{ hasDisplayPicture && <img src={ profilePicture } alt={ label } onError={ onError } /> }
+			<SocialServiceIcon
+				alt={ label }
+				serviceName={ getServiceName() }
+				className="jetpack-publicize-gutenberg-social-icon"
+			/>
+		</div>
 	);
 };
 
 ConnectionIcon.propTypes = {
-	id: PropTypes.string.isRequired,
 	serviceName: PropTypes.string,
 	label: PropTypes.string,
 	profilePicture: PropTypes.string,

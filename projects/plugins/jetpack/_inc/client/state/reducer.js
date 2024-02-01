@@ -8,7 +8,6 @@ import { initialState } from 'state/initial-state/reducer';
 import { reducer as introOffers } from 'state/intro-offers';
 import { reducer as jetpackNotices } from 'state/jetpack-notices/reducer';
 import { reducer as licensing } from 'state/licensing/reducer';
-import { reducer as mobile } from 'state/mobile/reducer';
 import { reducer as modules } from 'state/modules/reducer';
 import { reducer as plans } from 'state/plans/reducer';
 import { reducer as products } from 'state/products/reducer';
@@ -18,10 +17,10 @@ import { reducer as rewind } from 'state/rewind/reducer';
 import { reducer as scan } from 'state/scan/reducer';
 import { reducer as search } from 'state/search/reducer';
 import { reducer as settings } from 'state/settings/reducer';
-import { reducer as siteProducts } from 'state/site-products/reducer';
-import { reducer as siteVerify } from 'state/site-verify/reducer';
 import { reducer as pluginsData } from 'state/site/plugins/reducer';
 import { reducer as siteData } from 'state/site/reducer';
+import { reducer as siteProducts } from 'state/site-products/reducer';
+import { reducer as siteVerify } from 'state/site-verify/reducer';
 import { reducer as trackingSettings } from 'state/tracking/reducer';
 import { reducer as waf } from 'state/waf';
 
@@ -46,7 +45,6 @@ const jetpackReducer = combineReducers( {
 	siteVerify,
 	disconnectSurvey,
 	trackingSettings,
-	mobile,
 	licensing,
 	waf,
 	introOffers,

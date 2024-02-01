@@ -66,7 +66,7 @@ abstract class Base_Admin_Menu {
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
-		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || isset( $_SERVER['REQUEST_URI'] ) && 0 === strpos( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || isset( $_SERVER['REQUEST_URI'] ) && str_starts_with( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
 		$this->domain         = ( new Status() )->get_site_suffix();
 
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
@@ -80,6 +80,11 @@ abstract class Base_Admin_Menu {
 			add_action( 'admin_footer', array( $this, 'dashboard_switcher_scripts' ) );
 			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
 			add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
+
+			// Do not inject core mobile toggle when the user wants to use the WP Admin interface.
+			if ( ! $this->use_wp_admin_interface( 'jetpack' ) ) {
+				add_action( 'adminmenu', array( $this, 'inject_core_mobile_toggle' ) );
+			}
 		}
 	}
 
@@ -247,14 +252,8 @@ abstract class Base_Admin_Menu {
 	 * Enqueues scripts and styles.
 	 */
 	public function enqueue_scripts() {
-		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
-
 		if ( $this->is_rtl() ) {
-			if ( $is_wpcom ) {
-				$css_path = 'rtl/admin-menu-rtl.css';
-			} else {
-				$css_path = 'admin-menu-rtl.css';
-			}
+			$css_path = 'admin-menu-rtl.css';
 		} else {
 			$css_path = 'admin-menu.css';
 		}
@@ -267,6 +266,19 @@ abstract class Base_Admin_Menu {
 		);
 
 		wp_style_add_data( 'jetpack-admin-menu', 'rtl', $this->is_rtl() );
+
+		// Load nav unification styles when the user isn't using wp-admin interface style.
+		if ( ! $this->use_wp_admin_interface( 'jetpack' ) ) {
+			wp_enqueue_style(
+				'jetpack-admin-nav-unification',
+				plugins_url( 'admin-menu-nav-unification.css', __FILE__ ),
+				array(),
+				JETPACK__VERSION
+			);
+
+			wp_style_add_data( 'jetpack-admin-nav-unification', 'rtl', $this->is_rtl() );
+		}
+
 		$this->configure_colors_for_rtl_stylesheets();
 
 		wp_enqueue_script(
@@ -429,16 +441,16 @@ abstract class Base_Admin_Menu {
 			// Menu items that don't have icons, for example separators, have less than 7
 			// elements, partly because the 7th is the icon. So, if we have less than 7,
 			// let's skip it.
-			if ( count( $menu_item ) < 7 ) {
+			if ( ! is_countable( $menu_item ) || ( count( $menu_item ) < 7 ) ) {
 				continue;
 			}
 
 			// If the hookname contain a URL than sanitize it by replacing invalid characters.
-			if ( false !== strpos( $menu_item[5], '://' ) ) {
+			if ( str_contains( $menu_item[5], '://' ) ) {
 				$menu_item[5] = preg_replace( '![:/.]+!', '_', $menu_item[5] );
 			}
 
-			if ( 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
+			if ( str_starts_with( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
 				$svg_items[]   = array(
 					'icon' => $menu_item[6],
 					'id'   => $menu_item[5],
@@ -449,7 +461,7 @@ abstract class Base_Admin_Menu {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$menu[ $idx ] = $menu_item;
 		}
-		if ( count( $svg_items ) > 0 ) {
+		if ( $svg_items !== array() ) {
 			$styles = '.menu-svg-icon .wp-menu-image { background-repeat: no-repeat; background-position: center center } ';
 			foreach ( $svg_items as $svg_item ) {
 				$styles .= sprintf( '#%s .wp-menu-image { background-image: url( "%s" ) }', $svg_item['id'], $svg_item['icon'] );
@@ -544,7 +556,7 @@ abstract class Base_Admin_Menu {
 	 * @param array $item A menu or submenu array.
 	 */
 	public function is_item_visible( $item ) {
-		return ! isset( $item[4] ) || false === strpos( $item[4], self::HIDE_CSS_CLASS );
+		return ! isset( $item[4] ) || ! str_contains( $item[4], self::HIDE_CSS_CLASS );
 	}
 
 	/**
@@ -650,7 +662,9 @@ abstract class Base_Admin_Menu {
 			if ( ! $fallback_global_preference ) {
 				return self::UNKNOWN_VIEW;
 			}
-			return $this->should_link_to_wp_admin() ? self::CLASSIC_VIEW : self::DEFAULT_VIEW;
+
+			$should_link_to_wp_admin = $this->should_link_to_wp_admin( $screen ) || $this->use_wp_admin_interface( $screen );
+			return $should_link_to_wp_admin ? self::CLASSIC_VIEW : self::DEFAULT_VIEW;
 		}
 
 		return $preferred_views[ $screen ];
@@ -749,6 +763,45 @@ abstract class Base_Admin_Menu {
 	 */
 	public function should_link_to_wp_admin() {
 		return get_user_option( 'jetpack_admin_menu_link_destination' );
+	}
+
+	/**
+	 * Injects the core's mobile toggle for proper positioning of the submenus.
+	 *
+	 * @see https://core.trac.wordpress.org/ticket/32747
+	 *
+	 * @return void
+	 */
+	public function inject_core_mobile_toggle() {
+		echo '<span id="wp-admin-bar-menu-toggle" style="display: none!important">';
+	}
+
+	/**
+	 * Whether the current user has indicated they want to use the wp-admin interface for the given screen.
+	 *
+	 * @param string $screen The current screen.
+	 * @return bool
+	 */
+	public function use_wp_admin_interface( $screen ) {
+		$screen_excluded = $this->is_excluded_wp_admin_interface_screen( $screen );
+		return ! $screen_excluded && 'wp-admin' === get_option( 'wpcom_admin_interface' );
+	}
+
+	/**
+	 * Returns whether we should default to wp_admin for the given screen.
+	 *
+	 * Screens that should not default to wp_admin when the wpcom_admin_interface is set.
+	 * This applies to screens that have both a wp-admin and a Calypso interface.
+	 *
+	 * @param string $screen The current screen.
+	 *
+	 * @return bool
+	 */
+	protected function is_excluded_wp_admin_interface_screen( $screen ) {
+		$excluded_screens = array(
+			'import.php',
+		);
+		return in_array( $screen, $excluded_screens, true );
 	}
 
 	/**

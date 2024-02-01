@@ -326,7 +326,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		for ( $i = 0; $i < $iterations; $i++ ) {
 			$start_create_post_time = microtime( true );
 
-			$post_id = $this->factory->post->create();
+			$post_id = self::factory()->post->create();
 
 			$start_add_queue_time = microtime( true );
 
@@ -354,7 +354,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 			$pop_buffer_time   += $start_close_buffer_time - $start_pop_buffer_time;
 			$close_buffer_time += $end_time - $start_close_buffer_time;
-			$num_iterations++;
+			++$num_iterations;
 		}
 
 		error_log( 'Pop buffer time: ' . ( $pop_buffer_time / $num_iterations ) . " ($pop_buffer_time seconds)" );

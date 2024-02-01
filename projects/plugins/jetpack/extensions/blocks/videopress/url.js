@@ -37,7 +37,7 @@ export const getVideoPressUrl = (
 		...( muted && { muted: true, persistVolume: false } ),
 		...( playsinline && { playsinline: true } ),
 		...( poster && { posterUrl: poster } ),
-		...( preload !== 'none' && { preloadContent: preload } ),
+		...( preload !== '' && { preloadContent: preload } ),
 		...( seekbarColor !== '' && { sbc: seekbarColor } ),
 		...( seekbarPlayedColor !== '' && { sbpc: seekbarPlayedColor } ),
 		...( seekbarLoadingColor !== '' && { sblc: seekbarLoadingColor } ),

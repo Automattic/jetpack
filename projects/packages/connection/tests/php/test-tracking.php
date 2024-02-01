@@ -16,6 +16,20 @@ use PHPUnit\Framework\TestCase;
 class Test_Tracking extends TestCase {
 
 	/**
+	 * Connection manager mock object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Manager
+	 */
+	public $connection;
+
+	/**
+	 * Tracking object.
+	 *
+	 * @var Tracking
+	 */
+	public $tracking;
+
+	/**
 	 * Test setup.
 	 *
 	 * @before
@@ -53,17 +67,17 @@ class Test_Tracking extends TestCase {
 			->getMock();
 
 		$tos->method( 'has_agreed' )
-			->will( $this->returnValue( $inputs['has_agreed'] ) );
+			->willReturn( $inputs['has_agreed'] );
 
 		$status = $this->getMockBuilder( 'Automattic\Jetpack\Status' )
 			->setMethods( array( 'is_offline_mode' ) )
 			->getMock();
 
 		$status->method( 'is_offline_mode' )
-			->will( $this->returnValue( $inputs['offline'] ) );
+			->willReturn( $inputs['offline'] );
 
 		$this->connection->method( 'is_user_connected' )
-			->will( $this->returnValue( $inputs['connected'] ) );
+			->willReturn( $inputs['connected'] );
 
 		$this->assertEquals( $expected_output, $this->tracking->should_enable_tracking( $tos, $status ) );
 	}

@@ -97,8 +97,8 @@ function phpcsFilesToFilter( file ) {
  * @returns {boolean} If the file matches the requirelist.
  */
 function filterJsFiles( file ) {
-	return [ '.js', '.json', '.jsx', '.cjs', '.mjs', '.ts', '.tsx', '.svelte' ].some( extension =>
-		file.endsWith( extension )
+	return [ '.js', '.json', '.json5', '.jsx', '.cjs', '.mjs', '.ts', '.tsx', '.svelte' ].some(
+		extension => file.endsWith( extension )
 	);
 }
 
@@ -111,6 +111,7 @@ function filterJsFiles( file ) {
 function filterEslintFiles( file ) {
 	return (
 		! file.endsWith( '.json' ) &&
+		! file.endsWith( '.json5' ) &&
 		-1 === loadEslintExcludeList().findIndex( filePath => file === filePath )
 	);
 }
@@ -163,28 +164,6 @@ function checkFileAgainstDirtyList( file, filesList ) {
 }
 
 /**
- * Captures the tree hash being committed to be used later in prepare-commit-msg.js hook to figure out whether pre-commit was executed
- */
-function capturePreCommitTreeHash() {
-	if ( exitCode === 0 ) {
-		// .git folder location varies if this repo is used a submodule. Also, remove trailing new-line.
-		const gitFolderPath = spawnSync( 'git', [ 'rev-parse', '--git-dir' ], {
-			stdio: [ 'inherit', null, 'inherit' ],
-			encoding: 'utf8',
-		} )
-			.stdout.toString()
-			.trim();
-		fs.writeFileSync(
-			`${ gitFolderPath }/last-commit-tree`,
-			spawnSync( 'git', [ 'write-tree' ], {
-				stdio: [ 'inherit', null, 'inherit' ],
-				encoding: 'utf8',
-			} ).stdout
-		);
-	}
-}
-
-/**
  * Given a path, and a config filename, returns the "closest" config file in parent directories of the path.
  *
  * @param {string} configFileName - The name of the config file to find (e.g.: .prettierrc.js)
@@ -210,7 +189,7 @@ function findClosestConfigFile( configFileName, searchPath ) {
  *
  * @param {string} configFileName - The name of the config file to find (e.g.: .prettierrc.js)
  * @param {Array} files - The set of files to divide by relevant config file.
- * @returns {Object} - An object mapping config files to the files which should use them.
+ * @returns {object} - An object mapping config files to the files which should use them.
  */
 function groupByClosestConfig( configFileName, files ) {
 	return files.reduce( ( groupedFiles, file ) => {
@@ -353,9 +332,11 @@ function runPHPLinter( toLintFiles ) {
 
 /**
  * Runs PHPCS against checked PHP files. Exits if the check fails.
+ *
+ * @param {Array} toLintFiles - List of files to lint
  */
-function runPHPCS() {
-	const phpcsResult = spawnSync( 'composer', [ 'phpcs:lint:errors', ...phpcsFiles ], {
+function runPHPCS( toLintFiles ) {
+	const phpcsResult = spawnSync( 'composer', [ 'phpcs:lint', ...toLintFiles ], {
 		stdio: 'inherit',
 	} );
 
@@ -377,19 +358,21 @@ function runPHPCS() {
 
 /**
  * Runs PHPCBF against checked PHP files
+ *
+ * @param {Array} toFixFiles - List of files to fix
  */
-function runPHPCbf() {
-	const toPhpCbf = phpcsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
+function runPHPCbf( toFixFiles ) {
+	const toPhpCbf = toFixFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 	if ( toPhpCbf.length === 0 ) {
 		return;
 	}
 
-	const phpCbfResult = spawnSync( 'vendor/bin/phpcbf', [ ...toPhpCbf ], {
+	const phpCbfResult = spawnSync( 'composer', [ 'phpcs:fix', ...toPhpCbf ], {
 		stdio: 'inherit',
 	} );
 
 	if ( phpCbfResult && phpCbfResult.status ) {
-		spawnSync( 'git', [ 'add', ...phpcsFiles ], { stdio: 'inherit' } );
+		spawnSync( 'git', [ 'add', ...toFixFiles ], { stdio: 'inherit' } );
 		console.log( chalk.yellow( 'PHPCS issues detected and automatically fixed via PHPCBF.' ) );
 	}
 }
@@ -463,7 +446,6 @@ function runCheckGitHubActionsYamlFiles() {
  * @param {number} exitCodePassed - Shell exit code.
  */
 function exit( exitCodePassed ) {
-	capturePreCommitTreeHash();
 	process.exit( exitCodePassed );
 }
 
@@ -481,7 +463,9 @@ dirtyFiles.forEach( file =>
 
 // Start JS work—linting, prettify, etc.
 
-const jsOnlyFiles = jsFiles.filter( file => ! file.endsWith( '.json' ) );
+const jsOnlyFiles = jsFiles.filter(
+	file => ! file.endsWith( '.json' ) && ! file.endsWith( '.json5' )
+);
 const eslintFiles = jsOnlyFiles.filter( filterEslintFiles );
 const eslintFixFiles = eslintFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 const eslintNoFixFiles = eslintFiles.filter(
@@ -523,8 +507,8 @@ if ( phpFiles.length > 0 ) {
 }
 
 if ( phpcsFiles.length > 0 ) {
-	runPHPCbf();
-	runPHPCS();
+	runPHPCbf( phpcsFiles );
+	runPHPCS( phpcsFiles );
 }
 if ( phpcsChangedFiles.length > 0 ) {
 	runPHPCSChanged( phpcsChangedFiles );

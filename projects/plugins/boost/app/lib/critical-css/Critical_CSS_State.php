@@ -1,503 +1,208 @@
 <?php
-/**
- * Critical CSS state.
- *
- * @link       https://automattic.com
- * @since      1.0.0
- * @package    automattic/jetpack-boost
- */
 
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Lib\Transient;
-
-/**
- * Critical CSS State
- */
 class Critical_CSS_State {
 
-	const NOT_GENERATED = 'not_generated';
-	const SUCCESS       = 'success';
-	const FAIL          = 'error';
-	const REQUESTING    = 'requesting';
+	const GENERATION_STATES = array(
+		'not_generated' => 'not_generated',
+		'pending'       => 'pending',
+		'generated'     => 'generated',
+		'error'         => 'error',
+	);
 
-	const KEY_PREFIX = 'critical_css_state-';
+	const PROVIDER_STATES = array(
+		'pending' => 'pending',
+		'success' => 'success',
+		'error'   => 'error',
+	);
+	public $state;
 
-	/**
-	 * Critical CSS state.
-	 *
-	 * @var mixed
-	 */
-	protected $state;
-
-	/**
-	 * Critical CSS state error.
-	 *
-	 * @var mixed
-	 */
-	protected $state_error;
-
-	/**
-	 * Formatted sources array created from providers.
-	 *
-	 * @see get_provider_sources
-	 * @var array
-	 * @todo: Maybe rename to providers
-	 */
-	protected $sources = array();
-
-	/**
-	 * Epoch time when was Critical CSS last updated.
-	 *
-	 * @var int
-	 */
-	protected $created;
-
-	/**
-	 * A string to identify between multiple requests for Critical CSS. Defaults to 'local'.
-	 *
-	 * @var string
-	 */
-	protected $request_name;
-
-	/**
-	 * Posts for which the Critical CSS request is created. Limit provider groups to only the ones related to posts in
-	 * this array.
-	 *
-	 * @var int[]
-	 */
-	protected $context_posts = array();
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct( $request_name = 'local' ) {
-
-		$this->request_name = $request_name;
-		$state              = $this->get_state_transient();
-
-		$this->created     = $state['created'];
-		$this->state       = $state['state'];
-		$this->state_error = empty( $state['state_error'] ) ? null : $state['state_error'];
-		$this->sources     = $this->verify_sources( $state['sources'] );
-
-		$this->check_for_timeout();
+	public function __construct() {
+		$this->state = jetpack_boost_ds_get( 'critical_css_state' );
 	}
 
-	/**
-	 * Check to see if the request is stuck at an unfinished state and mark it as failed if so.
-	 * @return void
-	 */
-	private function check_for_timeout() {
-		if ( self::REQUESTING === $this->state && ( microtime( true ) - $this->created ) > HOUR_IN_SECONDS ) {
-			$this->set_as_failed( __( 'Timeout while waiting for Critical CSS from the Boost Service.', 'jetpack-boost' ) );
-		}
+	public function clear() {
+		jetpack_boost_ds_delete( 'critical_css_state' );
 	}
 
-	private function get_state_transient() {
-		return Transient::get(
-			$this->get_key(),
-			array(
-				'created'     => microtime( true ),
-				'updated'     => microtime( true ),
-				'state'       => null,
-				'state_error' => null,
-				'sources'     => array(),
-			)
-		);
-	}
-
-	public function maybe_set_status() {
-		if ( $this->get_total_providers_count() === $this->get_processed_providers_count() ) {
-			// Only consider the generation a success if at least one provider was successful
-			if ( $this->get_providers_success_count() > 0 ) {
-				$this->state = self::SUCCESS;
-			} else {
-				$this->state = self::FAIL;
-			}
-
-			$this->save();
-		}
-	}
-
-	/**
-	 * Save the Critical CSS state.
-	 */
 	public function save() {
-		Transient::set(
-			$this->get_key(),
+		$this->state['updated'] = microtime( true );
+		jetpack_boost_ds_set( 'critical_css_state', $this->state );
+	}
+
+	public function set_error( $message ) {
+		if ( empty( $message ) ) {
+			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				'Critical CSS: set_error() called with empty message'
+			);
+			return $this;
+		}
+
+		$this->state['status_error'] = $message;
+		$this->state['status']       = self::GENERATION_STATES['error'];
+
+		return $this;
+	}
+
+	public function set_provider_error_dismissed( $provider_key, $dismissed ) {
+		if ( empty( $this->state['providers'] ) ) {
+			return new \WP_Error( 'invalid_provider_key', 'No providers exist' );
+		}
+
+		$provider_index = array_search( $provider_key, array_column( $this->state['providers'], 'key' ), true );
+		if ( $provider_index === false ) {
+			return new \WP_Error( 'invalid_provider_key', 'Invalid provider key' );
+		}
+
+		$this->state['providers'][ $provider_index ]['error_status'] = $dismissed ? 'dismissed' : 'active';
+
+		return true;
+	}
+
+	/**
+	 * Update a provider's state. The provider must already exist in the state to be updated.
+	 *
+	 * @param string $provider_key The provider key.
+	 * @param array  $state        An array to overlay over the current state.
+	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 */
+	private function update_provider_state( $provider_key, $state ) {
+		if ( empty( $this->state['providers'] ) ) {
+			return new \WP_Error( 'invalid_provider_key', 'No providers exist' );
+		}
+
+		$provider_index = array_search( $provider_key, array_column( $this->state['providers'], 'key' ), true );
+		if ( $provider_index === false ) {
+			return new \WP_Error( 'invalid_provider_key', 'Invalid provider key' );
+		}
+
+		$this->state['providers'][ $provider_index ] = array_merge(
+			$this->state['providers'][ $provider_index ],
+			$state
+		);
+
+		$this->maybe_set_generated();
+
+		return true;
+	}
+
+	/**
+	 * Set a provider's state to error.
+	 *
+	 * @param string $provider_key The provider key.
+	 * @param array $errors        A list of errors to store with this provider.
+	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 */
+	public function set_provider_errors( $provider_key, $errors ) {
+		return $this->update_provider_state(
+			$provider_key,
 			array(
-				'created'     => $this->created,
-				'updated'     => microtime( true ),
-				'state'       => $this->state,
-				'state_error' => $this->state_error,
-				'sources'     => $this->sources,
+				'status' => self::PROVIDER_STATES['error'],
+				'errors' => $errors,
 			)
 		);
 	}
 
 	/**
-	 * Add a context to the Critical CSS state.
+	 * Set a provider's state to success.
 	 *
-	 * @return string
+	 * @param string $provider_key The provider key.
+	 * @return bool|WP_Error True on success, WP_Error on failure.
 	 */
-	public function add_request_context( $post ) {
-		$this->context_posts[] = $post;
+	public function set_provider_success( $provider_key ) {
+		return $this->update_provider_state(
+			$provider_key,
+			array(
+				'status' => self::PROVIDER_STATES['success'],
+			)
+		);
 	}
 
 	/**
-	 * Set Critical CSS state as failed.
-	 *
-	 * @param string $error Critical CSS error.
+	 * Set the state to generated if all providers are done. Should be called wherever
+	 * a provider's state is updated.
 	 */
-	public function set_as_failed( $error ) {
-		$this->state       = self::FAIL;
-		$this->state_error = $error;
-		foreach ( $this->sources as $source_key => $source ) {
-			$this->sources[ $source_key ]['status'] = self::FAIL;
-			$this->sources[ $source_key ]['error']  = null;
+	private function maybe_set_generated() {
+		if ( empty( $this->state['providers'] ) ) {
+			return;
 		}
-		$this->save();
-	}
 
-	/**
-	 * Get Critical CSS state error.
-	 *
-	 * @return mixed
-	 */
-	public function get_state_error() {
-		return $this->state_error;
-	}
+		$provider_states = array_column( $this->state['providers'], 'status' );
+		$is_done         = ! in_array( self::GENERATION_STATES['pending'], $provider_states, true );
 
-	/**
-	 * Set source success.
-	 *
-	 * @todo Maybe rename to set_provider_success.
-	 *
-	 * @param string $key Provider key.
-	 */
-	public function set_source_success( $key ) {
-		// If this success was result of a retry by Cloud_CSS_Cron. This provider may contain error data from the
-		// original attempt. We have to remove that first.
-		$this->sources[ $key ]['error'] = null;
-
-		$this->set_source_status( $key, self::SUCCESS );
-	}
-
-	/**
-	 * Set source error.
-	 *
-	 * @todo Maybe rename to set_provider_error.
-	 *
-	 * @param string $key Provider key.
-	 * @param array  $error Provider error.
-	 */
-	public function set_source_error( $key, $error ) {
-		if ( isset( $this->sources[ $key ] ) ) {
-			$this->sources[ $key ]['error'] = $error;
-			$this->set_source_status( $key, self::FAIL );
+		if ( $is_done ) {
+			$this->state['status'] = self::GENERATION_STATES['generated'];
 		}
 	}
 
-	/**
-	 * Get the transient key name.
-	 *
-	 * @return string
-	 */
-	public function get_key() {
-		return self::KEY_PREFIX . $this->request_name;
+	public function has_errors() {
+		// Check if any of the providers have errors as well.
+		$any_provider_has_error = in_array(
+			'error',
+			array_unique(
+				wp_list_pluck(
+					$this->state['providers'],
+					'status'
+				)
+			),
+			true
+		);
+
+		return self::GENERATION_STATES['error'] === $this->state['status'] || $any_provider_has_error;
+	}
+
+	public function get_error_message() {
+		return isset( $this->state['status_error'] ) ? $this->state['status_error'] : null;
+	}
+
+	public function is_requesting() {
+		return self::GENERATION_STATES['pending'] === $this->state['status'];
+	}
+
+	public function prepare_request() {
+		$this->state = array(
+			'status'    => self::GENERATION_STATES['pending'],
+			'providers' => array(),
+			'created'   => microtime( true ),
+			'updated'   => microtime( true ),
+		);
+
+		return $this;
+	}
+
+	public function set_pending_providers( $providers ) {
+		foreach ( $providers as $key => $provider ) {
+			$providers[ $key ]['status'] = self::PROVIDER_STATES['pending'];
+		}
+		$this->state['providers'] = $providers;
+		return $this;
 	}
 
 	/**
-	 * Set source status.
-	 *
-	 * @todo Maybe rename to set_provider_status.
-	 *
-	 * @param string $key Provider key.
-	 * @param string $status Provider status.
+	 * Get fresh state
 	 */
-	private function set_source_status( $key, $status ) {
-		if ( isset( $this->sources[ $key ] ) ) {
-			$this->sources[ $key ]['status'] = $status;
+	public function get() {
+		$this->state = jetpack_boost_ds_get( 'critical_css_state' );
+		return $this->state;
+	}
+
+	public function has_pending_provider( $needles = array() ) {
+		if ( empty( $this->state['providers'] ) ) {
+			return false;
 		}
 
-		if ( 100 === $this->get_percent_complete() ) {
-			$this->state = self::SUCCESS;
-		}
-
-		$this->save();
-	}
-
-	/**
-	 * Request Critical CSS to be generated based on passed URL providers.
-	 *
-	 * @param array $providers Providers.
-	 */
-	public function create_request( $providers ) {
-		$this->state   = self::REQUESTING;
-		$this->sources = $this->get_provider_sources( $providers ); // TODO: Maybe rename sources to providers.
-		$this->created = microtime( true );
-		$this->save();
-	}
-
-	/**
-	 * Get the core providers' status.
-	 *
-	 * @param array $keys Providers keys.
-	 *
-	 * @return string
-	 */
-	public function get_core_providers_status( $keys ) {
-		$errors = $this->collate_column( 'error' );
-		$status = 'success';
-
-		foreach ( $errors as $key => $error ) {
-			if ( ! empty( $error ) && in_array( $key, $keys, true ) ) {
-				$status = 'error';
-				break;
-			}
-		}
-
-		return $status;
-	}
-
-	/**
-	 * Get providers sources.
-	 *
-	 * @param array $providers Providers.
-	 *
-	 * @return array
-	 */
-	protected function get_provider_sources( $providers ) {
-		$sources = array();
-
+		$providers = $this->state['providers'];
 		foreach ( $providers as $provider ) {
-			$provider_name = $provider::get_provider_name();
-
-			// For each provider,
-			// Gather a list of URLs that are going to be used as Critical CSS source.
-			foreach ( $provider::get_critical_source_urls( $this->context_posts ) as $group => $urls ) {
-				$key = $provider_name . '_' . $group;
-
-				// For each URL
-				// Track the state and errors in a state array.
-				$sources[ $key ] = array(
-					'urls'          => $urls,
-					'status'        => self::REQUESTING,
-					'error'         => null,
-					'success_ratio' => $provider::get_success_ratio(),
-				);
-			}
-		}
-
-		return $sources;
-	}
-
-	public function has_pending_provider( $providers = array() ) {
-		if ( empty( $providers ) ) {
-			$providers = array_keys( $this->sources );
-		}
-
-		$state   = $this->get_state_transient();
-		$pending = false;
-		foreach ( $state['sources'] as $name => $source_state ) {
-			if ( in_array( $name, $providers, true ) && self::REQUESTING === $source_state['status'] ) {
-				$pending = true;
-				break;
-			}
-		}
-		return $pending;
-	}
-
-	/**
-	 * Get providers errors.
-	 *
-	 * @return array
-	 */
-	public function get_providers_errors() {
-		$errors = $this->collate_column( 'error' );
-
-		return array_filter( $errors );
-	}
-
-	/**
-	 * Returns the start time of this Critical CSS request.
-	 *
-	 * @return int
-	 */
-	public function get_created_time() {
-		return $this->created;
-	}
-
-	public function get_updated_time() {
-		$state = $this->get_state_transient();
-		return $state['updated'];
-	}
-
-	/**
-	 * Returns true if all provider keys have finished processing (whether successful or not).
-	 *
-	 * @return bool
-	 */
-	public function is_done() {
-		return self::SUCCESS === $this->state;
-	}
-
-	/**
-	 * Return true if the Critical CSS state is empty.
-	 *
-	 * @return bool
-	 */
-	public function is_empty() {
-		return empty( $this->state );
-	}
-
-	/**
-	 * Return true if the Critical CSS is being requested.
-	 *
-	 * @return bool
-	 */
-	public function is_pending() {
-		return self::REQUESTING === $this->state;
-	}
-
-	/**
-	 * Return true if a fatal error occurred during the Critical CSS generation process.
-	 *
-	 * @return bool
-	 */
-	public function is_fatal_error() {
-		return self::FAIL === $this->state;
-	}
-
-	/**
-	 * Given a column, collate all provider sources returning the specified
-	 * column for each one.
-	 *
-	 * @param string $column Provider's source property name.
-	 *
-	 * @return array
-	 */
-	private function collate_column( $column ) {
-		$results = array_fill_keys( array_keys( $this->sources ), array() );
-
-		foreach ( $this->sources as $source_key => $source ) {
-			if ( isset( $source[ $column ] ) ) {
-				$results[ $source_key ] = $source[ $column ];
-			}
-		}
-
-		return $results;
-	}
-
-	/**
-	 * Get the provider urls.
-	 *
-	 * @return array
-	 */
-	public function get_provider_urls() {
-		return $this->collate_column( 'urls' );
-	}
-
-	/**
-	 * Get the success ratio for the provider.
-	 *
-	 * @return array
-	 */
-	public function get_provider_success_ratios() {
-		return $this->collate_column( 'success_ratio' );
-	}
-
-	public function get_total_providers_count() {
-		return count( $this->sources );
-	}
-
-	/**
-	 * Returns the number of requests that were processed whether there was an error.
-	 *
-	 * @return int
-	 */
-	public function get_processed_providers_count() {
-		$source_status = $this->collate_column( 'status' );
-		$successes     = array();
-
-		foreach ( $source_status as $status ) {
-			/**
-			 * Note:
-			 * "Success" is currently considered anything that's not Requesting.
-			 * That's because Critical CSS generation can also end with failure.
-			 */
-			if ( self::REQUESTING !== $status ) {
-				$successes[] = $status;
-			}
-		}
-
-		return count( $successes );
-	}
-
-	/**
-	 * Returns the number of requests that were successfully finished. i.e.: number of blocks stored.
-	 *
-	 * @return int
-	 */
-	public function get_providers_success_count() {
-		$source_status = $this->collate_column( 'status' );
-		$successes     = array();
-
-		foreach ( $source_status as $status ) {
-			/**
-			 * Note:
-			 * "Success" is currently considered anything that's not Requesting.
-			 * That's because Critical CSS generation can also end with failure.
-			 */
-			if ( self::SUCCESS === $status ) {
-				$successes[] = $status;
-			}
-		}
-
-		return count( $successes );
-	}
-
-	/**
-	 * Returns the percentage of requests that are finished processing successfully even though there are some providers having some error.
-	 *
-	 * @return int
-	 */
-	public function get_percent_complete() {
-		return $this->get_processed_providers_count() * 100 / max( 1, count( $this->sources ) );
-	}
-
-	/**
-	 * Reset the Critical CSS state.
-	 */
-	public static function reset() {
-		Transient::delete_by_prefix( self::KEY_PREFIX );
-	}
-
-	/**
-	 * Verify Provider source array, dropping sources which don't contain valid data (i.e.: from older Boost versions)
-	 *
-	 * @param array $sources - Data on Provider sources, raw from storage.
-	 */
-	protected function verify_sources( $sources ) {
-		if ( ! is_array( $sources ) ) {
-			return null;
-		}
-
-		// Ensure any source error contains a type.
-		return array_filter(
-			$sources,
-			function ( $source_details ) {
-				if ( is_array( $source_details['error'] ) ) {
-					foreach ( $source_details['error'] as $error ) {
-						if ( empty( $error['type'] ) ) {
-							return false;
-						}
-					}
-				}
-
+			if (
+				! empty( $provider['key'] )
+				&& ! empty( $provider['status'] )
+				&& self::PROVIDER_STATES['pending'] === $provider['status']
+				&& in_array( $provider['key'], $needles, true )
+			) {
 				return true;
 			}
-		);
+		}
+		return false;
 	}
 }

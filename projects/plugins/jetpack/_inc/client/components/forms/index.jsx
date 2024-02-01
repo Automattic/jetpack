@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { _x } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
 import SelectDropdown from 'components/select-dropdown';
@@ -151,8 +151,13 @@ export class FormButton extends React.Component {
 
 	getDefaultButtonAction = () => {
 		return this.props.isSubmitting
-			? __( 'Saving…', 'jetpack' )
-			: __( 'Save Settings', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+			? _x( 'Saving…', 'Button caption', 'jetpack' )
+			: _x(
+					'Save Settings',
+					'Button caption',
+					'jetpack',
+					/* dummy arg to avoid bad minification */ 0
+			  );
 	};
 
 	render() {
@@ -194,6 +199,7 @@ export class FormSelect extends React.Component {
 				onSelect={ this.handleOnSelect }
 				disabled={ this.props.disabled }
 				initialSelected={ this.props.value }
+				rna={ this.props.rna }
 			/>
 		);
 	}

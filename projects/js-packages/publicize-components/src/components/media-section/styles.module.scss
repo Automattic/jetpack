@@ -1,0 +1,33 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.wrapper {
+	margin-bottom: 16px;
+
+	// This keeps images at their intrinsic size (eg. a 50px
+	// image will never be wider than 50px).
+	& :global( .components-responsive-wrapper__content ) {
+		width: auto;
+	}
+}
+
+.disabled {
+	opacity: 0.5;
+	filter: grayscale( 100% );
+}
+
+.preview-wrapper {
+	position: relative;
+}
+
+.notice.notice {
+	margin: 16px 0 8px 0;
+	padding-right: 8px;
+
+	:global( .components-base-control__label ) + & {
+		margin-top: 0;
+	}
+
+	p {
+		margin: 0 0 4px;
+	}
+}

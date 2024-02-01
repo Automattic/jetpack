@@ -1,6 +1,6 @@
 module.exports = () => ( {
-	plugins: {
-		'postcss-custom-properties': {
+	plugins: [
+		require( 'postcss-custom-properties' )( {
 			importFrom: [ require.resolve( '@automattic/calypso-color-schemes' ) ],
 			// Use of `preserve: false` dates back to when we still used @automattic/calypso-build.
 			// Ideally we'd get rid of it to properly make use of CSS vars, but first we have to
@@ -12,7 +12,8 @@ module.exports = () => ( {
 			// where people were confused about what was going on when calypso-build stopped
 			// including a postcss.config.js like this by default.
 			preserve: false,
-		},
-		autoprefixer: {},
-	},
+			disableDeprecationNotice: true,
+		} ),
+		require( 'autoprefixer' ),
+	],
 } );

@@ -1,0 +1,26 @@
+.checkbox {
+	&[type='checkbox'],
+	&[type='radio'] {
+		width: 20px;
+		min-width: 20px;
+		height: 20px;
+		margin: 0;
+
+		border: 1px solid currentColor;
+		border-radius: 2px;
+
+		&:checked::before {
+			width: 18px;
+			height: 18px;
+			margin: 0;
+
+			background-color: var(--jp-black);
+			content: url('data:image/svg+xml;utf8,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M14.7791%204.00004L7.36198%2013.9753L3.06108%2010.7773%22%20stroke%3D%22white%22%2F%3E%3C%2Fsvg%3E');
+		}
+
+		&:focus {
+			border-color: currentColor;
+			box-shadow: none;
+		}
+	}
+}

@@ -1,0 +1,15 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"include": [ "./src/**/*" ],
+	"compilerOptions": {
+		"declarationDir": "./build/",
+		"typeRoots": [ "./node_modules/@types/" ],
+		"sourceMap": true,
+		"forceConsistentCasingInFileNames": true,
+		"outDir": "./build/",
+		"noEmit": false,
+		"declaration": true,
+		"module": "es6",
+		"target": "es6"
+	}
+}

@@ -2,8 +2,7 @@ import analytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
+import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
 import * as React from 'react';
@@ -34,8 +33,8 @@ const requiredProps = {
 	analytics: analytics,
 };
 
-let locationAssignSpy;
-let recordEventStub;
+const locationAssignSpy = jest.spyOn( window.location, 'assign' );
+const recordEventStub = jest.spyOn( analytics.tracks, 'recordEvent' );
 let stubGetConnectionStatus;
 
 describe( 'RedeemPartnerCouponPreConnection', () => {
@@ -43,8 +42,8 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		let storeSelect;
 		renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
 
-		locationAssignSpy = jest.spyOn( window.location, 'assign' ).mockReset();
-		recordEventStub = jest.spyOn( analytics.tracks, 'recordEvent' ).mockReset();
+		locationAssignSpy.mockReset().mockReturnValue();
+		recordEventStub.mockReset().mockReturnValue();
 		stubGetConnectionStatus = jest
 			.spyOn( storeSelect, 'getConnectionStatus' )
 			.mockReset()
@@ -140,8 +139,8 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		).toBeInTheDocument();
 
 		expect(
-			screen.queryByRole( 'button', { name: 'Set up & redeem Awesome Product' } )
-		).not.toBeInTheDocument();
+			screen.getByRole( 'button', { name: 'Set up & redeem Awesome Product' } )
+		).toBeInTheDocument();
 	} );
 
 	it( 'redeem button redirects with all expected parameters', async () => {

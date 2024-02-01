@@ -1,6 +1,5 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import JetpackColophon from './jetpack-colophon';
 import SearchFilters from './search-filters';
 import WidgetAreaContainer from './widget-area-container';
 
@@ -44,7 +43,6 @@ const Sidebar = props => {
 					document.getElementById( `${ widget.widget_id }-wrapper` )
 				);
 			} ) }
-			{ props.showPoweredBy && <JetpackColophon locale={ props.locale } /> }
 		</div>
 	);
 };

@@ -11,97 +11,43 @@
  * @returns {object} Modified pkg.
  */
 function fixDeps( pkg ) {
-	// Way too many dependencies, some of them vulnerable, that we don't need for the one piece of this (dist/esm/progress-bar) that we actually use.
-	// p1655760691502999-slack-CBG1CP4EN
-	if ( pkg.name === '@automattic/components' ) {
-		delete pkg.dependencies[ '@automattic/data-stores' ];
-		delete pkg.dependencies[ 'i18n-calypso' ];
-		delete pkg.dependencies[ 'wpcom-proxy-request' ];
-	}
-
 	// Depends on punycode but doesn't declare it.
 	// https://github.com/markdown-it/markdown-it/issues/230
+	// https://github.com/markdown-it/markdown-it/issues/945
 	if ( pkg.name === 'markdown-it' && ! pkg.dependencies.punycode ) {
-		pkg.dependencies.punycode = '^2.1.1';
+		pkg.dependencies.punycode = '*';
 	}
 
-	// Even though Storybook works with webpack 5, they still have a bunch of deps on webpack4.
-	// I hear v7 is supposed to fix that <https://github.com/storybookjs/storybook/issues/18261#issuecomment-1132031458>.
-	if ( pkg.name.startsWith( '@storybook/' ) ) {
-		if ( pkg.dependencies[ '@storybook/builder-webpack4' ] ) {
-			pkg.dependencies[ '@storybook/builder-webpack4' ] = 'npm:@storybook/builder-webpack5@^6';
-		}
-		if ( pkg.dependencies[ '@storybook/manager-webpack4' ] ) {
-			pkg.dependencies[ '@storybook/manager-webpack4' ] = 'npm:@storybook/manager-webpack5@^6';
-		}
-		if ( pkg.dependencies.webpack ) {
-			pkg.dependencies.webpack = '^5';
-		}
-		if ( pkg.dependencies[ '@types/webpack' ] ) {
-			pkg.dependencies[ '@types/webpack' ] = '^5';
-		}
-	}
-
-	// Missing dep or peer dep on @wordpress/element.
-	// https://github.com/WordPress/gutenberg/issues/41341
-	// https://github.com/WordPress/gutenberg/issues/41346
+	// Missing dep or peer dep on react.
+	// https://github.com/WordPress/gutenberg/issues/55171
 	if (
-		( pkg.name === '@wordpress/preferences' || pkg.name === '@wordpress/viewport' ) &&
-		! pkg.dependencies?.[ '@wordpress/element' ] &&
-		! pkg.peerDependencies?.[ '@wordpress/element' ]
+		pkg.name === '@wordpress/icons' &&
+		! pkg.dependencies?.react &&
+		! pkg.peerDependencies?.react
 	) {
-		pkg.peerDependencies[ '@wordpress/element' ] = '*';
-	}
-
-	// Missing dep or peer dep on @babel/runtime
-	// https://github.com/WordPress/gutenberg/issues/41343
-	// https://github.com/Automattic/wp-calypso/issues/64034 - Fixed, awaiting release.
-	// https://github.com/Automattic/wp-calypso/pull/64464
-	if (
-		( pkg.name === '@wordpress/reusable-blocks' ||
-			pkg.name === '@automattic/popup-monitor' ||
-			pkg.name === '@automattic/social-previews' ) &&
-		! pkg.dependencies?.[ '@babel/runtime' ] &&
-		! pkg.peerDependencies?.[ '@babel/runtime' ]
-	) {
-		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
+		pkg.peerDependencies.react = '^18';
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( dep.startsWith( 'eslint-plugin-' ) || dep.endsWith( '/eslint-plugin' ) ) {
+			if (
+				dep.startsWith( 'eslint-plugin-' ) ||
+				dep.endsWith( '/eslint-plugin' ) ||
+				dep.startsWith( 'eslint-config-' ) ||
+				dep.endsWith( '/eslint-config' )
+			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
 	}
 
-	// Override @types/react* dependencies in order to use their specific versions
-	// @todo This is probably not safe: https://github.com/Automattic/jetpack/pull/24294#discussion_r881708463
-	for ( const dep of [ '@types/react', '@types/react-dom', '@types/react-test-renderer' ] ) {
-		if ( pkg.dependencies?.[ dep ] ) {
-			pkg.dependencies[ dep ] = '17.x';
-		}
-	}
-
-	// Regular expression DOS.
-	// Dep is via storybook, fix in v7: https://github.com/storybookjs/storybook/issues/14603#issuecomment-1105006210
-	if ( pkg.dependencies.trim === '0.0.1' ) {
-		pkg.dependencies.trim = '^0.0.3';
-	}
-
-	// @octokit/plugin-paginate-rest included a breaking peer dependency change in v2.21.2.
-	// https://github.com/actions/toolkit/issues/1131
-	if (
-		pkg.name === '@actions/github' &&
-		pkg.dependencies[ '@octokit/plugin-paginate-rest' ]?.startsWith( '^2.' ) &&
-		pkg.dependencies[ '@octokit/core' ]?.startsWith( '^3.' )
-	) {
-		// This should be safe, as both major updates were just dropping node <12 support.
-		pkg.dependencies[ '@octokit/plugin-paginate-rest' ] = '^3';
-		pkg.dependencies[ '@octokit/core' ] = '^4';
+	// Update localtunnel axios dep to avoid CVE
+	// https://github.com/localtunnel/localtunnel/issues/632
+	if ( pkg.name === 'localtunnel' && pkg.dependencies.axios === '0.21.4' ) {
+		pkg.dependencies.axios = '^1.6.0';
 	}
 
 	// Avoid annoying flip-flopping of sub-dep peer deps.
@@ -114,15 +60,26 @@ function fixDeps( pkg ) {
 		}
 	}
 
-	// Convert @testing-library/react's dep on @testing-library/dom to a peer.
-	// https://github.com/testing-library/react-testing-library/issues/906#issuecomment-1180767493
+	// Outdated dependency.
+	// No upstream bug link yet.
+	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
+		pkg.dependencies.cssnano = '^5.0.1 || ^6';
+	}
+
+	// Outdated dependency.
+	// No upstream bug link yet.
+	if ( pkg.name === 'svelte-navigator' && pkg.dependencies.svelte2tsx === '^0.1.151' ) {
+		pkg.dependencies.svelte2tsx = '^0.6.10';
+	}
+
+	// Missing dep or peer dep on @babel/runtime
+	// https://github.com/zillow/react-slider/issues/296
 	if (
-		( pkg.name === '@testing-library/react' || pkg.name === '@testing-library/preact' ) &&
-		pkg.dependencies[ '@testing-library/dom' ]
+		pkg.name === 'react-slider' &&
+		! pkg.dependencies?.[ '@babel/runtime' ] &&
+		! pkg.peerDependencies?.[ '@babel/runtime' ]
 	) {
-		pkg.peerDependencies ||= {};
-		pkg.peerDependencies[ '@testing-library/dom' ] = pkg.dependencies[ '@testing-library/dom' ];
-		delete pkg.dependencies[ '@testing-library/dom' ];
+		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
 	return pkg;
@@ -137,32 +94,36 @@ function fixDeps( pkg ) {
  * @returns {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
-	// React 17 is entirely compatible with React 16, but of course abandoned packages exist...
-	const react16Pkgs = new Set( [
-		'react-dates', // @wordpress/components <https://github.com/WordPress/gutenberg/issues/21820?>
-		'airbnb-prop-types', // @wordpress/components → react-dates
-		'react-with-direction', // @wordpress/components → react-dates → react-with-styles
+	// Indirect deps that still depend on React <18.
+	const reactOldPkgs = new Set( [
+		// Still on 16.
 		'react-autosize-textarea', // @wordpress/block-editor <https://github.com/WordPress/gutenberg/issues/39619>
+
+		// Still on 17.
+		'reakit', // @wordpress/components <https://github.com/WordPress/gutenberg/issues/53278>
+		'reakit-system', // @wordpress/components → reakit
+		'reakit-utils', // @wordpress/components → reakit
+		'reakit-warning', // @wordpress/components → reakit
 	] );
-	if ( react16Pkgs.has( pkg.name ) ) {
+	if ( reactOldPkgs.has( pkg.name ) ) {
 		for ( const p of [ 'react', 'react-dom' ] ) {
+			if ( ! pkg.peerDependencies?.[ p ] ) {
+				continue;
+			}
+
 			if (
-				pkg.peerDependencies?.[ p ] &&
 				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^16|16\.x)/ ) &&
 				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^17|17\.x)/ )
 			) {
 				pkg.peerDependencies[ p ] += ' || ^17';
 			}
+			if (
+				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^17|17\.x)/ ) &&
+				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^18|18\.x)/ )
+			) {
+				pkg.peerDependencies[ p ] += ' || ^18';
+			}
 		}
-	}
-
-	// Missing peer dependency.
-	// https://github.com/Automattic/wp-calypso/pull/64238 - Fixed, awaiting release.
-	if (
-		pkg.name === 'eslint-plugin-wpcalypso' &&
-		! pkg.peerDependencies?.[ 'eslint-plugin-react' ]
-	) {
-		pkg.peerDependencies[ 'eslint-plugin-react' ] = '*';
 	}
 
 	return pkg;
@@ -192,6 +153,11 @@ function readPackage( pkg, context ) {
  * @returns {object} Modified lockfile.
  */
 function afterAllResolved( lockfile ) {
+	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.
+	if ( Object.keys( lockfile.importers ).length === 1 ) {
+		return lockfile;
+	}
+
 	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
 		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
 		// https://github.com/pnpm/pnpm/issues/3935

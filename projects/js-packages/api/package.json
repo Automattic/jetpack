@@ -1,29 +1,31 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "0.13.8",
+	"version": "0.16.9-alpha",
 	"description": "Jetpack Api Package",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/api/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Api"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/api"
+	},
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@wordpress/url": "3.13.0",
-		"@automattic/jetpack-config": "workspace:* || ^0.1"
+		"@automattic/jetpack-config": "workspace:*",
+		"@wordpress/url": "3.51.0"
 	},
 	"devDependencies": {
-		"fetch-mock-jest": "1.5.1",
-		"jest": "28.1.0",
-		"jest-environment-jsdom": "28.1.0",
-		"node-fetch": "2.6.7"
+		"jest": "29.7.0",
+		"jest-environment-jsdom": "29.7.0"
 	},
 	"type": "module",
 	"exports": {
 		".": "./index.jsx"
 	},
 	"scripts": {
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
-	},
-	"engines": {
-		"node": "^16.13.2",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
 	}
 }

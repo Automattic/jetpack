@@ -6,10 +6,21 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * Class Jetpack_Shortcode_Unavailable
  */
 class Jetpack_Shortcode_Unavailable {
+	/**
+	 * Shortcodes that are unavailable.
+	 *
+	 * Key is the shortcode, value is string explaining why.
+	 *
+	 * @var array
+	 */
+	public $shortcodes;
+
 	/**
 	 * Set up the actions and filters for the class to listen to.
 	 *

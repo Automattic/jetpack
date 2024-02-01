@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/remove-asset-webpack-plugin",
-	"version": "1.0.12",
+	"version": "1.0.21",
 	"description": "A Webpack plugin to remove assets from the build.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/remove-asset-webpack-plugin/README.md#readme",
 	"bugs": {
@@ -14,23 +14,18 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"test": "jest tests",
-		"test-coverage": "jest tests --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
+		"test": "jest tests"
 	},
 	"dependencies": {
 		"debug": "^4.3.2"
 	},
 	"devDependencies": {
-		"jest": "28.1.0",
-		"webpack": "5.72.1",
+		"jest": "29.7.0",
+		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1"
 	},
 	"peerDependencies": {
 		"webpack": "^5.8.0"
-	},
-	"engines": {
-		"node": "^16.13.2",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
 		".": "./src/index.js"

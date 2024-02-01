@@ -7,46 +7,40 @@ import {
 } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 
-test.describe( 'Connection', () => {
-	test.beforeEach( async ( { page } ) => {
-		await prerequisitesBuilder( page )
-			.withLoggedIn( true )
-			.withWpComLoggedIn( true )
-			.withConnection( false )
-			.build();
-		await DashboardPage.visit( page );
-		await ( await Sidebar.init( page ) ).selectJetpack();
+test.beforeEach( async ( { page } ) => {
+	await prerequisitesBuilder( page )
+		.withCleanEnv()
+		.withLoggedIn( true )
+		.withWpComLoggedIn( true )
+		.build();
+	await DashboardPage.visit( page );
+	await ( await Sidebar.init( page ) ).selectJetpackSubMenuItem();
+} );
+
+test( 'Site only connection', async ( { page } ) => {
+	await test.step( 'Can clean up WPCOM cookie', async () => {
+		await ( await Sidebar.init( page ) ).removeCookieByName( 'wordpress_logged_in' );
 	} );
 
-	test.afterEach( async ( { page } ) => {
-		await prerequisitesBuilder( page ).withCleanEnv().build();
+	await test.step( 'Can start Site Level connection', async () => {
+		await doSiteLevelConnection( page );
 	} );
 
-	test( 'Site only', async ( { page } ) => {
-		await test.step( 'Can clean up WPCOM cookie', async () => {
-			await ( await Sidebar.init( page ) ).removeCookieByName( 'wordpress_logged_in' );
-		} );
+	await test.step( 'Can assert that site is connected', async () => {
+		const jetpackPage = await JetpackDashboardPage.visit( page );
+		expect( await jetpackPage.isSiteConnected(), 'Site should be connected' ).toBeTruthy();
+		expect( await jetpackPage.isNotUserConnected(), 'User should not be connected' ).toBeTruthy();
+	} );
+} );
 
-		await test.step( 'Can start Site Level connection', async () => {
-			await doSiteLevelConnection( page );
-		} );
-
-		await test.step( 'Can assert that site is connected', async () => {
-			const jetpackPage = await JetpackDashboardPage.visit( page );
-			expect( await jetpackPage.isSiteConnected(), 'Site should be connected' ).toBeTruthy();
-			expect( await jetpackPage.isNotUserConnected(), 'User should not be connected' ).toBeTruthy();
-		} );
+test( 'User connection', async ( { page } ) => {
+	await test.step( 'Can start classic connection', async () => {
+		await doClassicConnection( page );
 	} );
 
-	test( 'Classic', async ( { page } ) => {
-		await test.step( 'Can start classic connection', async () => {
-			await doClassicConnection( page, true );
-		} );
-
-		await test.step( 'Can assert that site is connected', async () => {
-			const jetpackPage = await JetpackDashboardPage.visit( page );
-			expect( await jetpackPage.isSiteConnected(), 'Site should be connected' ).toBeTruthy();
-			expect( await jetpackPage.isUserConnected(), 'User should be connected' ).toBeTruthy();
-		} );
+	await test.step( 'Can assert that site is connected', async () => {
+		const jetpackPage = await JetpackDashboardPage.visit( page );
+		expect( await jetpackPage.isSiteConnected(), 'Site should be connected' ).toBeTruthy();
+		expect( await jetpackPage.isUserConnected(), 'User should be connected' ).toBeTruthy();
 	} );
 } );

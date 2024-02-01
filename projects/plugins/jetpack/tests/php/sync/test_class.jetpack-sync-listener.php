@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Health;
@@ -14,7 +15,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$queue = $this->listener->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued
 
-		$this->factory->post->create();
+		self::factory()->post->create();
 
 		$this->assertSame( 0, $queue->size() );
 	}
@@ -27,7 +28,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$queue = $this->listener->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued
 
-		$this->factory->post->create();
+		self::factory()->post->create();
 
 		$this->assertSame( 0, $queue->size() );
 	}
@@ -92,13 +93,13 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_does_listener_add_actor_to_queue() {
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 		$this->listener->get_sync_queue()->reset();
 		$queue = $this->listener->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued
 
-		$this->factory->post->create();
+		self::factory()->post->create();
 		$current_user = wp_get_current_user();
 
 		$roles         = new Roles();
@@ -127,7 +128,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_does_listener_add_actor_user_data_for_login_events() {
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 		$this->listener->get_sync_queue()->reset();
 		$queue = $this->listener->get_sync_queue();
@@ -154,7 +155,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			'is_xmlrpc'        => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
 			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
 			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
-			'ip'               => jetpack_protect_get_ip(),
+			'ip'               => IP_Utils::get_ip(),
 			'user_agent'       => 'Jetpack Unit Tests',
 			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
 			'from_url'         => $this->get_page_url(),
@@ -168,7 +169,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_does_listener_exclude_actor_ip_if_filter_is_present() {
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 		$this->listener->get_sync_queue()->reset();
 		$queue = $this->listener->get_sync_queue();
@@ -211,17 +212,17 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	public function test_does_set_silent_flag_true_while_importing() {
 		Settings::set_importing( true );
 
-		$this->factory->post->create();
+		self::factory()->post->create();
 
 		$this->sender->do_sync();
 
-		$this->assertObjectHasAttribute( 'silent', $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' ) );
+		$this->assertObjectHasProperty( 'silent', $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' ) );
 		$this->assertTrue( $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->silent );
 	}
 
 	public function test_data_loss_action_sent_and_health_updated() {
 		Health::update_status( Health::STATUS_IN_SYNC );
-		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
+		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
 
 		$this->listener->sync_data_loss( $this->listener->get_sync_queue() );
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
@@ -229,7 +230,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $event->args['timestamp'] ) );
 		$this->assertTrue( isset( $event->args['queue_size'] ) );
 		$this->assertTrue( isset( $event->args['queue_lag'] ) );
-		$this->assertEquals( Health::get_status(), Health::STATUS_OUT_OF_SYNC );
+		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, Health::get_status() );
 	}
 
 	public function test_data_loss_action_ignored_if_already_out_of_sync() {
@@ -239,7 +240,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
 
 		$this->assertFalse( $event );
-		$this->assertEquals( Health::get_status(), Health::STATUS_OUT_OF_SYNC );
+		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, Health::get_status() );
 	}
 
 	public function get_page_url() {

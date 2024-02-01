@@ -13,4 +13,5 @@ tests/           export-ignore
 .phpcs.dir.xml     production-exclude
 /changelog/**      production-exclude
 .gitignore         production-exclude
+src/js/**          production-exclude
 webpack.config.js  production-exclude

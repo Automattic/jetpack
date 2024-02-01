@@ -45,7 +45,6 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 			'infinite-scroll',
 			'json-api',
 			'latex',
-			'lazy-images',
 			'likes',
 			'markdown',
 			'masterbar',
@@ -77,7 +76,6 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( asort( $expected_modules ), asort( self::$all_modules ) );
-
 	}
 
 	/**
@@ -105,10 +103,10 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 		// Make sure no one was left behind.
 		$max_matches = 0;
 		if ( is_bool( $value_requires_connection ) ) {
-			$max_matches++;
+			++$max_matches;
 		}
 		if ( is_bool( $value_requires_user_connection ) ) {
-			$max_matches++;
+			++$max_matches;
 		}
 		foreach ( self::$all_modules as $module ) {
 			if ( in_array( $module, $found, true ) ) {
@@ -117,10 +115,10 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 			$matches = 0;
 			$details = Jetpack::get_module( $module );
 			if ( is_bool( $value_requires_connection ) && $details['requires_connection'] === $value_requires_connection ) {
-				$matches++;
+				++$matches;
 			}
 			if ( is_bool( $value_requires_user_connection ) && $details['requires_user_connection'] === $value_requires_user_connection ) {
-				$matches++;
+				++$matches;
 			}
 			$this->assertGreaterThan( $matches, $max_matches, $module . ' module should be returned by get_available_modules but was not.' );
 		}
@@ -194,7 +192,7 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 		$this->assertSame( 'Requires a connected WordPress.com account', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
 		remove_filter( 'jetpack_no_user_testing_mode', '__return_true' );
 		// Mock a user connection.
-		$user = $this->factory->user->create_and_get(
+		$user = self::factory()->user->create_and_get(
 			array(
 				'role' => 'administrator',
 			)

@@ -69,7 +69,17 @@ export class DashItem extends Component {
 		if ( '' !== this.props.module ) {
 			toggle =
 				( includes(
-					[ 'monitor', 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet', 'search' ],
+					[
+						'monitor',
+						'protect',
+						'photon',
+						'vaultpress',
+						'scan',
+						'backups',
+						'akismet',
+						'search',
+						'videopress',
+					],
 					this.props.module
 				) &&
 					this.props.isOfflineMode ) ||
@@ -147,7 +157,7 @@ export class DashItem extends Component {
 				) : (
 					<Card className="jp-dash-item__card" href={ this.props.href }>
 						<div className="jp-dash-item__content">
-							{ this.props.support.link && (
+							{ this.props.support.text && (
 								<SupportInfo module={ module } { ...this.props.support } />
 							) }
 							{ this.props.children }

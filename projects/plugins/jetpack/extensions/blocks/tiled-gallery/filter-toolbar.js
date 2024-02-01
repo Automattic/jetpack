@@ -75,7 +75,7 @@ const label = __( 'Pick an image filter', 'jetpack' );
 export default function FilterToolbar( { value, onChange } ) {
 	return (
 		<Dropdown
-			position="bottom right"
+			placement="bottom-start"
 			className="editor-block-switcher"
 			contentClassName="editor-block-switcher__popover"
 			renderToggle={ ( { onToggle, isOpen } ) => {

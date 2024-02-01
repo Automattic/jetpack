@@ -17,12 +17,45 @@ class Jetpack_Podcast_Helper {
 	protected $feed = null;
 
 	/**
+	 * The number of seconds to cache the podcast feed data.
+	 * This value defaults to 1 hour specifically for podcast feeds.
+	 * The value can be overridden specifically for podcasts using the
+	 * `jetpack_podcast_feed_cache_timeout` filter. Note that the cache timeout value
+	 * for all RSS feeds can be modified using the `wp_feed_cache_transient_lifetime`
+	 * filter from WordPress core.
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/wp_feed_cache_transient_lifetime/
+	 * @see WP_Feed_Cache_Transient
+	 *
+	 * @var int|null
+	 */
+	protected $cache_timeout = HOUR_IN_SECONDS;
+
+	/**
 	 * Initialize class.
 	 *
 	 * @param string $feed The RSS feed of the podcast.
 	 */
 	public function __construct( $feed ) {
 		$this->feed = esc_url_raw( $feed );
+
+		/**
+		 * Filter the number of seconds to cache a specific podcast URL for. The returned value will be ignored if it is null or not a valid integer.
+		 * Note that this timeout will only work if the site is using the default `WP_Feed_Cache_Transient` cache implementation for RSS feeds,
+		 * or their cache implementation relies on the `wp_feed_cache_transient_lifetime` filter.
+		 *
+		 * @since 11.3
+		 * @see https://developer.wordpress.org/reference/hooks/wp_feed_cache_transient_lifetime/
+		 *
+		 * @param int|null $cache_timeout The number of seconds to cache the podcast data. Default value is null, so we don't override any defaults from existing filters.
+		 * @param string   $podcast_url   The URL of the podcast feed.
+		 */
+		$podcast_cache_timeout = apply_filters( 'jetpack_podcast_feed_cache_timeout', $this->cache_timeout, $this->feed );
+
+		// Make sure we force new values for $this->cache_timeout to be integers.
+		if ( is_numeric( $podcast_cache_timeout ) ) {
+			$this->cache_timeout = (int) $podcast_cache_timeout;
+		}
 	}
 
 	/**
@@ -191,7 +224,7 @@ class Jetpack_Podcast_Helper {
 			return $rss;
 		}
 
-		$tracks_quantity = $this->get_tracks_quantity();
+		$tracks_quantity = static::get_tracks_quantity();
 
 		/**
 		 * Allow requesting a specific number of tracks from SimplePie's `get_items` call.
@@ -210,7 +243,7 @@ class Jetpack_Podcast_Helper {
 		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $tracks_quantity ) );
 
 		// Filter out any tracks that are empty.
-		// Reset the array indicies.
+		// Reset the array indices.
 		return array_values( array_filter( $track_list ) );
 	}
 
@@ -277,6 +310,13 @@ class Jetpack_Podcast_Helper {
 		// Add action: detect the podcast feed from the provided feed URL.
 		add_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
 
+		$cache_timeout_filter_added = false;
+		if ( $this->cache_timeout !== null ) {
+			// If we have a custom cache timeout, apply the custom timeout value.
+			add_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'filter_podcast_cache_timeout' ), 20 );
+			$cache_timeout_filter_added = true;
+		}
+
 		/**
 		 * Allow callers to set up any desired hooks when we fetch the content for a podcast.
 		 * The `jetpack_podcast_post_fetch` action can be used to perform cleanup.
@@ -294,6 +334,11 @@ class Jetpack_Podcast_Helper {
 		remove_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
 		if ( true === $force_refresh ) {
 			remove_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
+		}
+
+		if ( $cache_timeout_filter_added ) {
+			// Remove the cache timeout filter we added.
+			remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'filter_podcast_cache_timeout' ), 20 );
 		}
 
 		/**
@@ -322,13 +367,30 @@ class Jetpack_Podcast_Helper {
 	}
 
 	/**
+	 * Filter to override the default number of seconds to cache RSS feed data for the current feed.
+	 * Note that we don't use the feed's URL because some of the SimplePie feed caches trigger this
+	 * filter with a feed identifier and not a URL.
+	 *
+	 * @param int $cache_timeout_in_seconds Number of seconds to cache the podcast feed.
+	 *
+	 * @return int The number of seconds to cache the podcast feed.
+	 */
+	public function filter_podcast_cache_timeout( $cache_timeout_in_seconds ) {
+		if ( $this->cache_timeout !== null ) {
+			return $this->cache_timeout;
+		}
+
+		return $cache_timeout_in_seconds;
+	}
+
+	/**
 	 * Action handler to set our podcast specific feed locator class on the SimplePie object.
 	 *
 	 * @param SimplePie $feed The SimplePie object, passed by reference.
 	 */
 	public static function set_podcast_locator( &$feed ) {
 		if ( ! class_exists( 'Jetpack_Podcast_Feed_Locator' ) ) {
-			jetpack_require_lib( 'class-jetpack-podcast-feed-locator' );
+			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-feed-locator.php';
 		}
 
 		$feed->set_locator_class( 'Jetpack_Podcast_Feed_Locator' );
@@ -423,7 +485,7 @@ class Jetpack_Podcast_Helper {
 	 */
 	protected function get_audio_enclosure( SimplePie_Item $episode ) {
 		foreach ( (array) $episode->get_enclosures() as $enclosure ) {
-			if ( 0 === strpos( $enclosure->type, 'audio/' ) ) {
+			if ( str_starts_with( $enclosure->type, 'audio/' ) ) {
 				return $enclosure;
 			}
 		}

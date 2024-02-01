@@ -19,11 +19,11 @@ jobs:
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: create-matrix
         run: |
           MATRIX="$(.github/files/generate-ci-matrix.php)"
-          echo "::set-output name=matrix::$MATRIX"
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
   run-tests:
     name: ${{ matrix.name }}
@@ -45,19 +45,20 @@ jobs:
       PHP_VERSION: ${{ matrix.php }}
       NODE_VERSION: ${{ matrix.node }}
       MONOREPO_BASE: ${{ github.workspace }}
+      WITH_WOOCOMMERCE: ${{ matrix.with-woocommerce }}
     strategy:
       fail-fast: false
       matrix:
         include: ${{ fromJson( needs.create-matrix.outputs.matrix ) }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # codecov.io requires a fetch depth > 1.
           fetch-depth: 2
 
       # For pull requests, list-changed-projects.sh needs the merge base.
-      # But it doesn't have to be checked out, and codecov.io requires it not be.
+      # But it doesn't have to be checked out.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
         uses: ./.github/actions/deepen-to-merge-base
@@ -68,7 +69,6 @@ jobs:
         uses: ./.github/actions/tool-setup
         with:
           php: ${{ matrix.php }}
-          coverage: ${{ matrix.script == 'test-coverage' && 'pcov' || 'none' }}
           node: ${{ matrix.node }}
 
       - name: Monorepo install
@@ -81,22 +81,37 @@ jobs:
         id: changed
         run: |
           CHANGED="$(EXTRA=test .github/files/list-changed-projects.sh)"
+
+          # Only test certain plugins in combination with WC
+          if [[ "$WITH_WOOCOMMERCE" == true ]]; then
+            echo "Testing with WooCommerce, filtering for projects that have WooCommerce-specific tests."
+            CHANGED=$( jq -c 'with_entries( select( .key == "plugins/jetpack" ) )' <<<"$CHANGED" )
+          fi
+
           ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
-          echo "::set-output name=projects::${CHANGED}"
-          echo "::set-output name=any-plugins::${ANY_PLUGINS}"
+          echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
+          echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
 
       - name: Setup WordPress environment for plugin tests
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+          CHANGED: ${{ steps.changed.outputs.projects }}
         if: steps.changed.outputs.any-plugins == 'true' && matrix.wp != 'none'
         run: .github/files/setup-wordpress-env.sh
 
       - name: Run project tests
         env:
-          EXPERIMENTAL: ${{ matrix.experimental && 'true' || 'false' }}
+          FORCE_PACKAGE_TESTS: ${{ matrix.force-package-tests && 'true' || 'false' }}
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
+          # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
+          if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" ) ]]; then
+            DIR=$(composer config cache-files-dir)
+            rm -rf "$DIR/roots/wordpress"
+          fi
+
           EXIT=0
           mkdir artifacts
-          [[ "$TEST_SCRIPT" == "test-coverage" ]] && mkdir coverage
           for P in composer.json projects/*/*/composer.json; do
             if [[ "$P" == "composer.json" ]]; then
               DIR="."
@@ -108,10 +123,10 @@ jobs:
 
             if [[ "${SLUG%%/*}" == "plugins" ]]; then
               # Plugins run from the WordPress checkout, not the monorepo checkout.
-              if [[ "$WP_BRANCH" != 'none' ]]; then
+              if [[ -d "/tmp/wordpress-$WP_BRANCH/src/wp-content/$SLUG" ]]; then
                 DIR="/tmp/wordpress-$WP_BRANCH/src/wp-content/$SLUG"
               fi
-            elif [[ "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$EXPERIMENTAL" != "true" ]]; then
+            elif [[ "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$FORCE_PACKAGE_TESTS" != "true" ]]; then
               echo "Skipping $SLUG, only plugins run for WP_BRANCH = $WP_BRANCH"
               continue
             fi
@@ -120,6 +135,8 @@ jobs:
               echo "Skipping $SLUG, no changes in it or its dependencies"
             elif ! jq --arg script "$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
               echo "Skipping $SLUG, no test script is defined in composer.json"
+            elif php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$P" )"; then
+              echo "Skipping $SLUG, requires PHP $( jq -r '.require.php // ""' "$P" ) but PHP version is $( php -r 'echo PHP_VERSION;' )"
             else
               if jq --arg script "skip-$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
                 { composer --working-dir="$DIR" run "skip-$TEST_SCRIPT"; CODE=$?; } || true
@@ -136,7 +153,7 @@ jobs:
               echo "::group::Running tests for $SLUG"
 
               # Composer install, if appropriate. Note setup-wordpress-env.sh did it already for plugins.
-              if [[ "${SLUG%%/*}" != "plugins" && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
+              if [[ "${SLUG%%/*}" != "plugins" && "$TEST_SCRIPT" == "test-php" ]]; then
                 if [[ ! -f "$DIR/composer.lock" ]]; then
                   echo 'No composer.lock, running `composer update`'
                   composer --working-dir="$DIR" update
@@ -149,29 +166,33 @@ jobs:
                 fi
               fi
 
+              if [[ "$WP_BRANCH" == 'trunk' && "$TEST_SCRIPT" == "test-php" ]]; then
+                VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
+                if [[ -n "$VER" ]]; then
+                  echo 'Supposed to run tests against WordPress trunk, so upgrading roots/wordpress and roots/wordpress-no-content to dev-main'
+                  # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
+                  rm -rf "$DIR/wordpress"
+                  composer --working-dir="$DIR" require --dev roots/wordpress="dev-main as $VER" roots/wordpress-no-content="dev-main as $VER"
+                fi
+              fi
+
               mkdir -p "artifacts/$SLUG"
               export ARTIFACTS_DIR="$GITHUB_WORKSPACE/artifacts/$SLUG"
-              if [[ "$TEST_SCRIPT" == "test-coverage" ]]; then
-                mkdir -p "coverage/$SLUG"
-                export COVERAGE_DIR="$GITHUB_WORKSPACE/coverage/$SLUG"
-              fi
               FAIL=false
               if ! composer run --timeout=0 --working-dir="$DIR" "$TEST_SCRIPT"; then
                 FAIL=true
                 EXIT=1
               fi
+
+              # Actions seems to slow down if there are a lot of files, so clean up Composer stuff after each test.
+              # We don't do it for JS stuff, as that might break things with how JS does package deps.
+              rm -rf "$DIR/vendor" "$DIR/jetpack_vendor" "$DIR/wordpress"
+
               echo "::endgroup::"
               $FAIL && echo "::error::Tests for $SLUG failed!"
             fi
           done
           exit $EXIT
-
-      - name: Process coverage results
-        env:
-          CHANGED: ${{ steps.changed.outputs.projects }}
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        if: matrix.script == 'test-coverage'
-        run: .github/files/process-coverage.sh
 
       - name: Check for artifacts
         id: check-artifacts
@@ -180,14 +201,53 @@ jobs:
         run: |
           [[ -d artifacts ]] && find artifacts -type d -empty -delete
           if [[ -d artifacts ]]; then
-            echo "::set-output name=any::true"
+            echo "any=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::set-output name=any::false"
+            echo "any=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Upload artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: artifacts
           retention-days: 7
+
+  # Probably this should be a linting test, but we don't run linting on trunk or release branches.
+  plugin-deps:
+    name: Check plugin monorepo dep versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 2  # 2022-09-08: Should only take a few seconds.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          node: false
+      - name: Run check
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == 'push' ]]; then
+            REF="${GITHUB_REF#refs/heads/}"
+          elif [[ "$GITHUB_EVENT_NAME" == 'pull_request' || "$GITHUB_EVENT_NAME" == 'pull_request_target' ]]; then
+            REF="$GITHUB_BASE_REF"
+          else
+            echo "::error::Unsupported github event \"$GITHUB_EVENT_NAME\""
+            exit 1
+          fi
+          echo "Detected target ref \"$REF\""
+
+          if [[ "$REF" == trunk ]]; then
+            ARGS=( --dev )
+          elif [[ "$REF" == */branch-* ]]; then
+            ARGS=( --release )
+            TMP="$(jq -r --arg P "${REF%%/branch-*}" '.extra["release-branch-prefix"] | if type == "array" then . else [ . ] end | if index( $P ) then input_filename | match( "^projects/plugins/([^/]+)/composer.json$" ).captures[0].string else empty end' projects/plugins/*/composer.json)"
+            while IFS= read -r LINE; do
+              ARGS+=( "$LINE" )
+            done <<<"$TMP"
+          else
+            echo "Unsupported ref \"$REF\", ignoring"
+            exit 0
+          fi
+
+          echo "Running tools/check-plugin-monorepo-deps.sh ${ARGS[@]}"
+          tools/check-plugin-monorepo-deps.sh "${ARGS[@]}"

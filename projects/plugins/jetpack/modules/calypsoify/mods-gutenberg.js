@@ -1,40 +1,44 @@
 /* eslint-disable no-var */
-/* global wp, calypsoifyGutenberg */
+/* global jQuery, wp, calypsoifyGutenberg */
 
 jQuery( function ( $ ) {
+	// Force fullscreen mode for iframed post editor.
 	if (
 		wp &&
 		wp.data &&
-		wp.data.select &&
+		wp.data.select( 'core/edit-post' ) &&
 		! wp.data.select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' )
 	) {
 		wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'fullscreenMode' );
 	}
 
+	// Force fullscreen mode for iframed site editor.
+	if (
+		wp &&
+		wp.data &&
+		wp.data.select( 'core/edit-site' ) &&
+		! wp.data.select( 'core/edit-site' ).isFeatureActive( 'fullscreenMode' )
+	) {
+		wp.data.dispatch( 'core/edit-site' ).toggleFeature( 'fullscreenMode' );
+	}
+
 	var editPostHeaderInception = setInterval( function () {
-		// Legacy selector for Gutenberg plugin < v7.7
-		var legacyButton = $( '.edit-post-fullscreen-mode-close__toolbar a' );
-		// Updated selector for Gutenberg plugin => v7.7
-		var newButton = $( '.edit-post-header .edit-post-fullscreen-mode-close' );
-
-		var hasLegacyButton = legacyButton && legacyButton.length;
-		var hasNewButton = newButton && newButton.length;
-
-		// Keep trying until we find one of the close buttons.
-		if ( ! ( hasLegacyButton || hasNewButton ) ) {
+		var $closeButton = $( '.edit-post-fullscreen-mode-close__toolbar a' );
+		if ( $closeButton.length < 1 ) {
 			return;
 		}
 		clearInterval( editPostHeaderInception );
 
-		var theButton = legacyButton;
-		if ( hasNewButton ) {
-			theButton = newButton;
+		if ( calypsoifyGutenberg.closeUrl ) {
+			$closeButton.attr( 'href', calypsoifyGutenberg.closeUrl );
+			$closeButton.attr( 'target', '_parent' );
 		}
-		theButton.attr( 'href', calypsoifyGutenberg.closeUrl );
 	} );
 
 	$( 'body.revision-php a' ).each( function () {
 		var href = $( this ).attr( 'href' );
-		$( this ).attr( 'href', href.replace( '&classic-editor', '' ) );
+		if ( href ) {
+			$( this ).attr( 'href', href.replace( '&classic-editor', '' ) );
+		}
 	} );
 } );

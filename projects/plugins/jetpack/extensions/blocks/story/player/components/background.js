@@ -1,4 +1,4 @@
-import { SVG } from '@wordpress/components';
+import { SVG } from '@wordpress/primitives';
 
 export default function Background( { currentMedia } ) {
 	const url = currentMedia && currentMedia.type === 'image' ? currentMedia.url : null;

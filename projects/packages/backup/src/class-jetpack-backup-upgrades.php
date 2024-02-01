@@ -5,9 +5,14 @@
  * @package automattic/jetpack-backup-plugin
  */
 
-namespace Automattic\Jetpack\Backup;
+// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
+// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
+// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
+// are installed, or in some other cases).
+namespace Automattic\Jetpack\Backup\V0001;
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use function get_option;
+use function update_option;
 
 /**
  * The Upgrades class.
@@ -32,15 +37,12 @@ class Jetpack_Backup_Upgrades {
 			call_user_func( array( __CLASS__, $upgrade ) );
 
 		}
-
 	}
 
 	/**
 	 * The plugin is not checking if it was disabled and reactivating it when we reconnect, therefore we need to clear this information from DB so other plugins know we are still using the connection
+	 *
+	 * @deprecated since 1.7.0 No longer required after removing soft disconnect functionality.
 	 */
-	public static function clear_disabled_plugin() {
-		$manager = new Connection_Manager( 'jetpack-backup' );
-		$manager->enable_plugin();
-	}
-
+	public static function clear_disabled_plugin() {}
 }

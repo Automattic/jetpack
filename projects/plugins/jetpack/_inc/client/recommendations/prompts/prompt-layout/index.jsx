@@ -1,4 +1,5 @@
 import { imagePath } from 'constants/urls';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -44,16 +45,8 @@ const SideContent = ( { isLoading, illustration, illustrationClassName, sidebarC
 };
 
 const PromptLayoutComponent = props => {
-	const {
-		answer,
-		description,
-		illustration,
-		progressBar,
-		question,
-		content,
-		isNew,
-		sidebarCard,
-	} = props;
+	const { answer, description, illustration, progressBar, question, content, isNew, sidebarCard } =
+		props;
 
 	return (
 		<div
@@ -70,8 +63,14 @@ const PromptLayoutComponent = props => {
 						<div className="jp-recommendations-question__progress-bar">{ progressBar }</div>
 					</div>
 				) }
-				<h1 className="jp-recommendations-question__question">{ question }</h1>
-				<p className="jp-recommendations-question__description">{ description }</p>
+				<h1 className="jp-recommendations-question__question">
+					{ createInterpolateElement( question, {
+						nbsp: <span>&nbsp;</span>,
+					} ) }
+				</h1>
+				{ description && (
+					<p className="jp-recommendations-question__description">{ description }</p>
+				) }
 				{ content }
 				<div className="jp-recommendations-question__answer">{ answer }</div>
 			</div>
@@ -87,7 +86,7 @@ PromptLayoutComponent.propTypes = {
 	description: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
 	illustration: PropTypes.string,
 	illustrationClassName: PropTypes.string,
-	progressBar: PropTypes.element.isRequired,
+	progressBar: PropTypes.element,
 	question: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
 	content: PropTypes.element,
 	sidebarCard: PropTypes.element,

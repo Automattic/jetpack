@@ -11,6 +11,8 @@ use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Sync\Modules\WooCommerce_HPOS_Orders;
+use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
 use WP_Error;
 
 /**
@@ -102,11 +104,13 @@ class Actions {
 		}
 
 		// If dedicated Sync is enabled and this is a dedicated Sync request, no need to
-		// initialize Sync for cron jobs, set up listeners or set up a shut-down action
-		// for sending actions to WordPress.com.
+		// initialize Sync for cron jobs or set up a shut-down action for sending actions to WordPress.com.
 		// We only need to set up an init action for sending actions to WordPress.com and exit early.
+		// Note: We also need to initialize the listener so that callable and constant changes, eg actions that
+		// rely on 'jetpack_sync_before_send_queue_sync' are picked up and added to the queue if needed.
 		if ( Settings::is_dedicated_sync_enabled() && Dedicated_Sender::is_dedicated_sync_request() ) {
-			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 90 );
+			self::initialize_listener();
+			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 200 );
 			return;
 		}
 
@@ -169,7 +173,7 @@ class Actions {
 			self::should_initialize_sender()
 		) ) {
 			self::initialize_sender();
-			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
+			add_action( 'shutdown', array( self::$sender, 'do_sync' ), 9998 );
 			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ), 9999 );
 		}
 	}
@@ -346,12 +350,28 @@ class Actions {
 			}
 		}
 
+		// Sync locks.
+		$debug['debug_details']['dedicated_sync_enabled'] = Settings::is_dedicated_sync_enabled();
+
+		$queue      = self::$sender->get_sync_queue();
+		$full_queue = self::$sender->get_full_sync_queue();
+
+		$debug['debug_details']['sync_locks'] = array(
+			'retry_time_sync'                       => get_option( self::RETRY_AFTER_PREFIX . 'sync' ),
+			'retry_time_full_sync'                  => get_option( self::RETRY_AFTER_PREFIX . 'full_sync' ),
+			'next_sync_time_sync'                   => self::$sender->get_next_sync_time( 'sync' ),
+			'next_sync_time_full_sync'              => self::$sender->get_next_sync_time( 'full_sync' ),
+			'queue_locked_sync'                     => $queue->is_locked(),
+			'queue_locked_full_sync'                => $full_queue->is_locked(),
+			'dedicated_sync_request_lock'           => \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null ),
+			'dedicated_sync_temporary_disable_flag' => get_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG ),
+		);
+
 		// Sync Logs.
 		$debug['debug_details']['last_succesful_sync'] = get_option( self::LAST_SUCCESS_PREFIX . 'sync', '' );
 		$debug['debug_details']['sync_error_log']      = get_option( self::ERROR_LOG_PREFIX . 'sync', '' );
 
 		return $debug;
-
 	}
 
 	/**
@@ -423,6 +443,7 @@ class Actions {
 			'buffer_id'      => $buffer_id,
 			// TODO this will be extended in the future. Might be good to extract in a separate method to support future entries too.
 			'sync_flow_type' => Settings::is_dedicated_sync_enabled() ? 'dedicated' : 'default',
+			'storage_type'   => Settings::is_custom_queue_table_enabled() ? 'custom' : 'options',
 		);
 
 		$query_args['timeout'] = Settings::is_doing_cron() ? 30 : 20;
@@ -476,12 +497,7 @@ class Actions {
 		// Enable/Disable Dedicated Sync flow via response headers.
 		$dedicated_sync_header = $rpc->get_response_header( 'Jetpack-Dedicated-Sync' );
 		if ( false !== $dedicated_sync_header ) {
-			$dedicated_sync_enabled = 'on' === $dedicated_sync_header ? 1 : 0;
-			Settings::update_settings(
-				array(
-					'dedicated_sync_enabled' => $dedicated_sync_enabled,
-				)
-			);
+			Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header( $dedicated_sync_header );
 		}
 
 		if ( ! $result ) {
@@ -499,7 +515,9 @@ class Actions {
 				$error_log = array_slice( $error_log, -4, null, true );
 			}
 			// Add new error indexed to time.
-			$error_log[ (string) microtime( true ) ] = $rpc->get_jetpack_error();
+			$error = $rpc->get_jetpack_error();
+			$error->add_data( $rpc->get_last_response() );
+			$error_log[ (string) microtime( true ) ] = $error;
 			// Update the error log.
 			update_option( self::ERROR_LOG_PREFIX . $queue_id, $error_log );
 
@@ -689,7 +707,7 @@ class Actions {
 			$result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync();
 
 			// # of send actions performed.
-			$executions ++;
+			++$executions;
 
 		} while ( $result && ! is_wp_error( $result ) && ( $start_time + $time_limit ) > time() );
 
@@ -728,6 +746,14 @@ class Actions {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_sync_module' ) );
+
+		if ( ! class_exists( CustomOrdersTableController::class ) ) {
+			return;
+		}
+		$cot_controller = wc_get_container()->get( CustomOrdersTableController::class );
+		if ( $cot_controller->custom_orders_table_usage_is_enabled() ) {
+			add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_hpos_order_sync_module' ) );
+		}
 	}
 
 	/**
@@ -771,6 +797,21 @@ class Actions {
 	 */
 	public static function add_woocommerce_sync_module( $sync_modules ) {
 		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce';
+		return $sync_modules;
+	}
+
+	/**
+	 * Adds Woo's HPOS sync modules to existing modules for sending.
+	 *
+	 * @param array $sync_modules The list of sync modules declared prior to this filter.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array A list of sync modules that now includes Woo's HPOS modules.
+	 */
+	public static function add_woocommerce_hpos_order_sync_module( $sync_modules ) {
+		$sync_modules[] = WooCommerce_HPOS_Orders::class;
 		return $sync_modules;
 	}
 
@@ -1018,10 +1059,44 @@ class Actions {
 		);
 
 		// Verify $sync_module is not false.
-		if ( ( $sync_module ) && false === strpos( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+		if ( ( $sync_module ) && ! str_contains( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
 			$result['full_queue_size'] = $full_queue->size();
 			$result['full_queue_lag']  = $full_queue->lag();
 		}
 		return $result;
+	}
+
+	/**
+	 * Reset Sync locks.
+	 *
+	 * @access public
+	 * @static
+	 * @since 1.43.0
+	 *
+	 * @param bool $unlock_queues Whether to unlock Sync queues. Defaults to true.
+	 */
+	public static function reset_sync_locks( $unlock_queues = true ) {
+		// Next sync locks.
+		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_sync' );
+		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full_sync' );
+		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full-sync-enqueue' );
+		// Retry after locks.
+		delete_option( self::RETRY_AFTER_PREFIX . 'sync' );
+		delete_option( self::RETRY_AFTER_PREFIX . 'full_sync' );
+		// Dedicated sync locks.
+		\Jetpack_Options::delete_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
+		// Lock for disabling Sync sending temporarily.
+		delete_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME );
+
+		// Queue locks.
+		// Note that we are just unlocking the queues here, not reseting them.
+		if ( $unlock_queues ) {
+			$sync_queue = new Queue( 'sync' );
+			$sync_queue->unlock();
+
+			$full_sync_queue = new Queue( 'full_sync' );
+			$full_sync_queue->unlock();
+		}
 	}
 }

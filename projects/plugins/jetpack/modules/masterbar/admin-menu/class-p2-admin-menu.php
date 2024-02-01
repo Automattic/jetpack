@@ -130,8 +130,6 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		remove_submenu_page( $this->upgrades_slug, 'https://wordpress.com/email/' . $this->domain );
 		// Stats.
 		remove_menu_page( 'https://wordpress.com/stats/day/' . $this->domain );
-		// Hide all Jetpack for hubs.
-		remove_menu_page( $this->jetpack_slug );
 		// Hide posts.
 		remove_menu_page( 'edit.php' );
 		// Hide pages.
@@ -158,10 +156,8 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 	 * Remove menu items that are not applicable for all P2s.
 	 */
 	private function remove_menus_for_all_p2s() {
-		// For free sites remove Jetpack menu item.
-		if ( ! $this->is_paid ) {
-			remove_menu_page( $this->jetpack_slug );
-		}
+		// Remove Jetpack menu item.
+		remove_menu_page( $this->jetpack_slug );
 
 		// The following menu items are hidden for both hubs and P2 sites.
 		remove_menu_page( 'link-manager.php' );

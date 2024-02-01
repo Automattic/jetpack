@@ -1,6 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import execa from 'execa';
+import { execaCommand, execaCommandSync } from 'execa';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
@@ -169,6 +169,6 @@ function command( cmd, verbose, cwd ) {
 	}
 
 	return verbose
-		? execa.commandSync( `${ cmd }`, { cwd: cwd, env: env, stdio: 'inherit' } )
-		: execa.command( `${ cmd }`, { cwd: cwd, env: env } );
+		? execaCommandSync( `${ cmd }`, { cwd: cwd, env: env, stdio: 'inherit' } )
+		: execaCommand( `${ cmd }`, { cwd: cwd, env: env } );
 }

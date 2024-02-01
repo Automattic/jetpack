@@ -8,7 +8,7 @@ Install via your favorite JS package manager. Note the peer dependency on eslint
 
 For example,
 ```
-npm install eslint-changed eslint
+npm install @automattic/eslint-changed eslint
 ```
 
 ## Usage
@@ -48,12 +48,12 @@ The following options are used with manual mode:
 
 This will compare the staged changes with HEAD.
 ```bash
-npx eslint-changed --git
+npx @automattic/eslint-changed --git
 ```
 
 This will compare HEAD with origin/trunk.
 ```bash
-npx eslint-changed --git --git-base origin/trunk
+npx @automattic/eslint-changed --git --git-base origin/trunk
 ```
 
 This does much the same as the previous example, but manually. If you're using something other than git, you might do something like this.
@@ -74,7 +74,7 @@ git checkout -
 npx eslint --format=json . > /tmp/eslint.new.json
 
 # Run eslint-changed.
-npx eslint-changed --diff /tmp/diff --eslint-orig /tmp/eslint.orig.json --eslint=new /tmp/eslint.new.json
+npx @automattic/eslint-changed --diff /tmp/diff --eslint-orig /tmp/eslint.orig.json --eslint=new /tmp/eslint.new.json
 ```
 Note that, to be exactly the same as the above, you'd want to extract the list of files from the diff instead of linting everything. But this will work.
 

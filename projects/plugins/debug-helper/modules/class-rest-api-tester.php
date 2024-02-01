@@ -41,7 +41,7 @@ class REST_API_Tester {
 	 * @param string $hook Page hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'jetpack-debug_page_rest-api-tester' ) === 0 ) {
+		if ( str_starts_with( $hook, 'jetpack-debug_page_rest-api-tester' ) ) {
 			wp_enqueue_style( 'rest_api_tester_style', plugin_dir_url( __FILE__ ) . 'inc/css/rest-api-tester.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 			wp_enqueue_script( 'rest_api_tester_script', plugin_dir_url( __FILE__ ) . 'inc/js/rest-api-tester.js', array( 'wp-api' ), JETPACK_DEBUG_HELPER_VERSION, true );
 
@@ -93,7 +93,7 @@ class REST_API_Tester {
 				<div class="api-tester-block">
 					<label for="api-tester-url">REST Route:</label>
 					<div class="api-tester-field">
-						<span class="rest-route-prefix">/jetpack/v4/</span>
+						<span class="rest-route-prefix">/</span>
 						<input type="text" name="url" class="input-url" id="api-tester-url">
 					</div>
 				</div>

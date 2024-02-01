@@ -69,7 +69,7 @@ class Jetpack_Twitter_Cards {
 			/**
 			 * Filter the default Twitter card image, used when no image can be found in a post.
 			 *
-			 * @module sharedaddy, publicize
+			 * @module sharedaddy
 			 *
 			 * @since 5.9.0
 			 *
@@ -107,7 +107,7 @@ class Jetpack_Twitter_Cards {
 			if ( ! empty( $post_image ) && is_array( $post_image ) ) {
 				// 4096 is the maximum size for an image per https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/summary .
 				if (
-					isset( $post_image['src_width'], $post_image['src_height'] )
+					isset( $post_image['src_width'] ) && isset( $post_image['src_height'] )
 					&& (int) $post_image['src_width'] <= 4096
 					&& (int) $post_image['src_height'] <= 4096
 				) {
@@ -134,12 +134,8 @@ class Jetpack_Twitter_Cards {
 
 		// Only proceed with media analysis if a featured image has not superseded it already.
 		if ( empty( $og_tags['twitter:image'] ) && empty( $og_tags['twitter:image:src'] ) ) {
-			if ( ! class_exists( 'Jetpack_Media_Summary' ) && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				include WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php';
-			}
-
 			if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
-				jetpack_require_lib( 'class.media-summary' );
+				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-summary.php';
 			}
 
 			// Test again, class should already be auto-loaded in Jetpack.
@@ -272,7 +268,7 @@ class Jetpack_Twitter_Cards {
 	 * @return string Result of the OG tag.
 	 */
 	public static function twitter_cards_output( $og_tag ) {
-		return ( false !== strpos( $og_tag, 'twitter:' ) ) ? preg_replace( '/property="([^"]+)"/', 'name="\1"', $og_tag ) : $og_tag;
+		return ( str_contains( $og_tag, 'twitter:' ) ) ? preg_replace( '/property="([^"]+)"/', 'name="\1"', $og_tag ) : $og_tag;
 	}
 
 	/**

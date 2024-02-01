@@ -7,7 +7,7 @@
 
 namespace Automattic\JetpackBeta;
 
-use Jetpack;
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 
 /**
  * Handles the Jetpack Beta plugin Admin functions.
@@ -36,24 +36,13 @@ class Admin {
 	 * Action for `admin_menu` and `network_admin_menu`.
 	 */
 	public static function add_actions() {
-		if ( class_exists( Jetpack::class ) ) {
-			self::$hookname = add_submenu_page(
-				'jetpack',
-				'Jetpack Beta',
-				'Jetpack Beta',
-				'update_plugins',
-				'jetpack-beta',
-				array( self::class, 'render' )
-			);
-		} else {
-			self::$hookname = add_menu_page(
-				'Jetpack Beta',
-				'Jetpack Beta',
-				'update_plugins',
-				'jetpack-beta',
-				array( self::class, 'render' )
-			);
-		}
+		self::$hookname = Admin_Menu::add_menu(
+			'Beta Tester',
+			'Beta Tester',
+			'update_plugins',
+			'jetpack-beta',
+			array( self::class, 'render' )
+		);
 
 		if ( false !== self::$hookname ) {
 			add_action( 'load-' . self::$hookname, array( self::class, 'admin_page_load' ) );
@@ -354,5 +343,4 @@ class Admin {
 		</a>
 		<?php
 	}
-
 }

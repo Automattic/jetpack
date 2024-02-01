@@ -1,7 +1,6 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-config",
-	"version": "0.1.12",
+	"version": "0.1.24",
 	"description": "Handles Jetpack global configuration shared across all packages",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/config/#readme",
 	"bugs": {
@@ -15,19 +14,15 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"test": "jest",
-		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
+		"test": "jest"
 	},
 	"devDependencies": {
-		"jest": "28.1.0",
-		"jest-environment-jsdom": "28.1.0"
-	},
-	"engines": {
-		"node": "^16.13.2",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+		"jest": "29.7.0",
+		"jest-environment-jsdom": "29.7.0"
 	},
 	"exports": {
 		".": "./src/index.js"
 	},
+	"main": "./src/index.js",
 	"dependencies": {}
 }

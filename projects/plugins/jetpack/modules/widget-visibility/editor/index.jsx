@@ -1,11 +1,10 @@
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { Fragment, useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import analytics from '../../../_inc/client/lib/analytics';
 
 /* global widget_conditions_data */
 /* eslint-disable react/react-in-jsx-scope */
@@ -49,9 +48,9 @@ const blockHasVisibilitySettings = name => {
  * Adds a ".conditions" field to a block's attributes.
  * Used to store visibility rules.
  *
- * @param {Object} settings - Block settings.
+ * @param {object} settings - Block settings.
  * @param {string} name - Block name.
- * @return {Object} Modified settings.
+ * @return {object} Modified settings.
  */
 function addVisibilityAttribute( settings, name ) {
 	if ( blockHasVisibilitySettings( name ) && typeof settings.attributes !== 'undefined' ) {
@@ -226,6 +225,8 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		const conditions = useMemo( () => attributes.conditions || {}, [ attributes ] );
 		const rules = useMemo( () => conditions.rules || [], [ conditions ] );
 
+		const { tracks } = useAnalytics();
+
 		// Is this block the top-most level block in a widget?.
 		const isTopLevelWidgetBlock = useSelect(
 			select => {
@@ -241,14 +242,14 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		);
 
 		const toggleMatchAll = useCallback( () => {
-			analytics.tracks.recordEvent( 'jetpack_widget_visibility_toggle_match_all_click' );
+			tracks.recordEvent( 'jetpack_widget_visibility_toggle_match_all_click' );
 			setAttributes( {
 				conditions: {
 					...maybeAddDefaultConditions( conditions ),
 					match_all: conditions.match_all === '0' ? '1' : '0',
 				},
 			} );
-		}, [ setAttributes, conditions ] );
+		}, [ tracks, setAttributes, conditions ] );
 
 		const setAction = useCallback(
 			value =>
@@ -262,19 +263,19 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		);
 		const addNewRule = useCallback( () => {
 			const newRules = [ ...rules, { major: '', minor: '' } ];
-			analytics.tracks.recordEvent( 'jetpack_widget_visibility_add_new_rule_click' );
+			tracks.recordEvent( 'jetpack_widget_visibility_add_new_rule_click' );
 			setAttributes( {
 				conditions: {
 					...maybeAddDefaultConditions( conditions ),
 					rules: newRules,
 				},
 			} );
-		}, [ setAttributes, conditions, rules ] );
+		}, [ rules, tracks, setAttributes, conditions ] );
 
 		const deleteRule = useCallback(
 			i => {
 				const newRules = [ ...rules.slice( 0, i ), ...rules.slice( i + 1 ) ];
-				analytics.tracks.recordEvent( 'jetpack_widget_visibility_delete_rule_click' );
+				tracks.recordEvent( 'jetpack_widget_visibility_delete_rule_click' );
 				setAttributes( {
 					conditions: {
 						...maybeAddDefaultConditions( conditions ),
@@ -282,12 +283,12 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 					},
 				} );
 			},
-			[ setAttributes, conditions, rules ]
+			[ rules, tracks, setAttributes, conditions ]
 		);
 
 		const setMajor = useCallback(
 			( i, majorValue ) => {
-				analytics.tracks.recordEvent( 'jetpack_widget_visibility_set_major_rule_click' );
+				tracks.recordEvent( 'jetpack_widget_visibility_set_major_rule_click' );
 				// When changing majors, also change the minor to the first available option
 				let minorValue = '';
 				if (
@@ -310,12 +311,12 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 					},
 				} );
 			},
-			[ setAttributes, conditions, rules ]
+			[ tracks, rules, setAttributes, conditions ]
 		);
 
 		const setMinor = useCallback(
 			( i, value ) => {
-				analytics.tracks.recordEvent( 'jetpack_widget_visibility_set_minor_rule_click' );
+				tracks.recordEvent( 'jetpack_widget_visibility_set_minor_rule_click' );
 				// Don't allow section headings to be set
 				if ( value && value.includes( '__HEADER__' ) ) {
 					return;
@@ -332,7 +333,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 					},
 				} );
 			},
-			[ setAttributes, conditions, rules ]
+			[ tracks, rules, setAttributes, conditions ]
 		);
 
 		let mainRender = null;
@@ -363,7 +364,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 						className="widget-vis__show-hide"
 						label={ __( 'Action', 'jetpack' ) }
 						hideLabelFromVision
-						value={ attributes.action }
+						value={ attributes.conditions.action }
 						options={ [
 							{ label: __( 'Show this block', 'jetpack' ), value: 'show' },
 							{ label: __( 'Hide this block', 'jetpack' ), value: 'hide' },

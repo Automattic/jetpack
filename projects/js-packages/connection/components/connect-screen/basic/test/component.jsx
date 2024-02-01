@@ -4,8 +4,9 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import ConnectScreen from '../visual';
 
+const CONNECTION_BUTTON_LABEL = 'Setup Jetpack';
 const requiredProps = {
-	buttonLabel: 'Setup Jetpack',
+	buttonLabel: CONNECTION_BUTTON_LABEL,
 };
 
 describe( 'ConnectScreen', () => {
@@ -18,16 +19,20 @@ describe( 'ConnectScreen', () => {
 		expect( screen.getByText( 'Connect children' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows button and tos', () => {
+	it( 'displays required terms of service text and a clickable connection button with the proper label text', () => {
 		render( <ConnectScreen { ...requiredProps } /> );
-		expect( screen.getByRole( 'button', { name: 'Setup Jetpack' } ) ).toBeInTheDocument();
-		expect( screen.getByText( /By clicking the button above/i ) ).toBeInTheDocument();
-	} );
 
-	it( 'remove button and tos', () => {
-		render( <ConnectScreen { ...requiredProps } showConnectButton={ false } /> );
-		expect( screen.queryByRole( 'button', { name: 'Setup Jetpack' } ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( /By clicking the button above/i ) ).not.toBeInTheDocument();
+		expect(
+			screen.getByText(
+				( content, { textContent } ) =>
+					content !== '' && // filter out parent/wrapper elements
+					textContent.startsWith(
+						`By clicking the ${ CONNECTION_BUTTON_LABEL } button, you agree to our Terms of Service`
+					)
+			)
+		).toBeInTheDocument();
+
+		expect( screen.getByRole( 'button', { name: CONNECTION_BUTTON_LABEL } ) ).toBeEnabled();
 	} );
 
 	it( 'applies correct href to terms of service', () => {

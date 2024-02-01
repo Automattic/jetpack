@@ -2,8 +2,97 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [2.4] - 2024-01-04
+### Fixed
+- Backup: Add namespace versioning to Helper_Script_Manager and other classes [#34739]
+
+## [2.3] - 2023-12-13
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+- General: update WordPress version requirements to WordPress 6.3. [#34127]
+- Updated package dependencies. [#33498]
+- Update lockfile [#33607]
+
+### Fixed
+- Improved helper script installer logging. [#34297]
+
+## [2.2] - 2023-09-20
+### Changed
+- General: update WordPress version requirements to WordPress 6.2. [#32762]
+- Updated package dependencies. [#32966]
+
+## [2.1] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32307]
+
+## [2.0] - 2023-08-01
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
+- Updated package dependencies. [#31769]
+
+## [1.9] - 2023-07-05
+### Added
+- Add authentication to Zendesk chat widget. [#31339]
+- Add video section to Backup connect page. [#31260]
+
+### Changed
+- Update connection module to have an RNA option that updates the design. [#31201]
+- Updated package dependencies. [#31308]
+
+## [1.8] - 2023-06-06
+### Changed
+- General: update link references to releases in changelog. [#30634]
+- Updated package dependencies. [#30493]
+
+## 1.7 - 2023-05-02
+### Changed
+- Updated package dependencies. [#29565]
+- Update WordPress version requirements. Now requires version 6.1. [#30120]
+
+## 1.6 - 2023-04-04
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.2. [#29341]
+- Updated package dependencies. [#29434]
+
+## 1.5 - 2023-03-07
+### Changed
+- Backup: Update description headline, add video [#28890]
+- Updated package dependencies. [#28910]
+
+### Fixed
+- Fixes the plugin's versioning so it actually uses WordPress versioning [#29133]
+
+## 1.4.4 - 2023-02-07
+### Changed
+- Updated package dependencies. [#28218]
+
+## 1.4.3 - 2023-01-10
+### Changed
+- Updated Backup logo. [#27802]
+- Updated package dependencies. [#27688, #27874]
+
+## 1.4.2 - 2022-12-06
+### Changed
+- Add real-time backups details in plugin FAQs [#27470]
+- Compatibility: WordPress 6.1 compatibility [#27084]
+- Rename plugin name to Jetpack VaultPress Backup [#27432] [#27411]
+- Updated package dependencies. [#26072]
+
+### Removed
+- Remove connection-ui package dependency [#26381]
+
+## 1.4.1 - 2022-09-08
+### Added
+- Include contextual notifications from My Jetpack [#22452]
+
+### Changed
+- Plugin activation: Only redirect when activating from the Plugins page in the browser
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Updated package dependencies. [#25713] [#24929] [#24998] [#25048] [#25158] [#25279] [#25315] [#25406] [#25945]
 
 ## 1.4.0 - 2022-06-28
 ### Added
@@ -113,3 +202,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
+
+[2.2-beta]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.1...2.2-beta
+[2.4]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.3...2.4
+[2.3]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.2...2.3
+[2.2]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.2-beta...2.2
+[2.1]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.0...2.1
+[2.0]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.9...2.0
+[1.9]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.8...1.9-beta
+[1.8]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.7...1.8

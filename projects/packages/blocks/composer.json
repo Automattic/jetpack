@@ -3,12 +3,18 @@
 	"description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"php": ">=7.0",
+		"automattic/jetpack-constants": "@dev"
+	},
 	"require-dev": {
 		"automattic/wordbless": "dev-master",
 		"brain/monkey": "2.6.1",
-		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.1"
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -19,10 +25,8 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"test-php": [
 			"@composer phpunit"
 		]
@@ -45,7 +49,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-blocks/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.4.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		}
 	},
 	"config": {

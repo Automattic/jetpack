@@ -238,6 +238,16 @@ export function isSiteVisibleToSearchEngines( state ) {
 	return get( state.jetpack.initialState.siteData, [ 'siteVisibleToSearchEngines' ], true );
 }
 
+/**
+ * Returns the site's boost speed scores from the last time it was checked
+ *
+ * @param {object} state - Global state tree
+ * @returns {object}        the boost speed scores and timestamp
+ */
+export function getLatestBoostSpeedScores( state ) {
+	return get( state.jetpack.initialState.siteData, [ 'latestBoostSpeedScores' ] );
+}
+
 export function getApiNonce( state ) {
 	return get( state.jetpack.initialState, 'WP_API_nonce' );
 }
@@ -351,6 +361,16 @@ export function isAtomicPlatform( state ) {
 }
 
 /**
+ * Get the current theme's stylesheet (slug).
+ *
+ * @param {object} state - Global state tree.
+ * @returns {string} theme stylesheet, e.g. twentytwentythree.
+ */
+export function currentThemeStylesheet( state ) {
+	return get( state.jetpack.initialState.themeData, 'stylesheet' );
+}
+
+/**
  * Check that theme supports a certain feature
  *
  * @param {Object} state   Global state tree.
@@ -360,6 +380,16 @@ export function isAtomicPlatform( state ) {
  */
 export function currentThemeSupports( state, feature ) {
 	return get( state.jetpack.initialState.themeData, [ 'support', feature ], false );
+}
+
+/**
+ * Check that the current theme is a block theme.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the current theme is a block theme, false otherwise.
+ */
+export function currentThemeIsBlockTheme( state ) {
+	return get( state.jetpack.initialState.themeData, [ 'isBlockTheme' ], false );
 }
 
 /**
@@ -495,13 +525,14 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 	const uid = userId || getUserId( state );
 	const purchaseToken = getPurchaseToken( state );
 	const calypsoEnv = getCalypsoEnv( state );
+	const blogID = getSiteId( state );
 
 	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
 		source += '-monthly';
 	}
 
 	const redirectArgs = {
-		site: getSiteRawUrl( state ),
+		site: blogID ?? getSiteRawUrl( state ),
 	};
 
 	if ( affiliateCode ) {
@@ -557,6 +588,7 @@ export function getProductsForPurchase( state ) {
 			key: key,
 			description: product.description,
 			features: product.features,
+			disclaimer: product.disclaimer,
 			available: get( jetpackProducts, [ product.slug, 'available' ], false ),
 			currencyCode: get( jetpackProducts, [ product.slug, 'currency_code' ], '' ),
 			showPromotion: product.show_promotion,
@@ -626,4 +658,85 @@ export function doNotUseConnectionIframe( state ) {
  */
 export function isWooCommerceActive( state ) {
 	return !! state.jetpack.initialState.isWooCommerceActive;
+}
+
+/**
+ * Returns the Jetpack Cloud URL for the specified resource for the current site.
+ *
+ * @param {object} state - Global state tree.
+ * @param {string} slug - Jetpack Cloud resource slug.
+ * @returns {string} The valid Jetpack Cloud URL
+ */
+export function getJetpackCloudUrl( state, slug ) {
+	return `https://cloud.jetpack.com/${ slug }/${ getSiteRawUrl( state ) }`;
+}
+
+/**
+ * Returns if the new Stats experience is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the new Stats experience is enabled.
+ */
+export function isOdysseyStatsEnabled( state ) {
+	return !! state.jetpack.initialState.isOdysseyStatsEnabled;
+}
+
+/**
+ * Returns true if Blaze can be used on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if Blaze is available on the site.
+ */
+export function shouldInitializeBlaze( state ) {
+	return !! state.jetpack.initialState.shouldInitializeBlaze;
+}
+
+/**
+ * Returns true if the wp-admin Blaze dashboard is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the Blaze dashboard is enabled.
+ */
+export function isBlazeDashboardEnabled( state ) {
+	return !! state.jetpack.initialState.isBlazeDashboardEnabled;
+}
+
+/**
+ * Returns true if Jetpack's Pre-connection helpers are enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if pre-connection helpers are enabled.
+ */
+export function arePreConnectionHelpersEnabled( state ) {
+	return !! state.jetpack.initialState.preConnectionHelpers;
+}
+
+/**
+ * Returns information about the Gutenberg plugin and its Interactivity API support.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {object} Gutenberg plugin information.
+ */
+export function getGutenbergState( state ) {
+	return state.jetpack.initialState.gutenbergInitialState;
+}
+
+/**
+ * Check if the Sharing block is available on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the Sharing block is available on the site.
+ */
+export function isSharingBlockAvailable( state ) {
+	return !! state.jetpack.initialState.siteData.isSharingBlockAvailable;
+}
+
+/**
+ * Get the Jetpack Manage info
+ *
+ * @param {object} state - Global state tree.
+ * @returns {object} Jetpack Manage info
+ */
+export function getJetpackManageInfo( state ) {
+	return state.jetpack.initialState.jetpackManage;
 }

@@ -13,6 +13,7 @@ import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { SOCIAL_STORE_ID } from '../../social-store';
 
 class PublicizeConnectionVerify extends Component {
 	componentDidMount() {
@@ -50,7 +51,7 @@ class PublicizeConnectionVerify extends Component {
 				<Notice className="jetpack-publicize-notice" isDismissible={ false } status="error">
 					<p>
 						{ __(
-							'Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:',
+							'Before you hit Publish, please refresh the following connection(s) to make sure we can share your post:',
 							'jetpack'
 						) }
 					</p>
@@ -101,9 +102,9 @@ class PublicizeConnectionVerify extends Component {
 
 export default compose( [
 	withSelect( select => ( {
-		failedConnections: select( 'jetpack/publicize' ).getFailedConnections(),
+		failedConnections: select( SOCIAL_STORE_ID ).getFailedConnections(),
 	} ) ),
 	withDispatch( dispatch => ( {
-		refreshConnections: dispatch( 'jetpack/publicize' ).refreshConnectionTestResults,
+		refreshConnections: dispatch( SOCIAL_STORE_ID ).refreshConnectionTestResults,
 	} ) ),
 ] )( PublicizeConnectionVerify );

@@ -34,20 +34,6 @@ class Jetpack_Calypsoify {
 	}
 
 	/**
-	 * Original singleton.
-	 *
-	 * @todo We need to leave this in place until wpcomsh is updated. wpcomsh can be updated once 9.3.0 is stable.
-	 *
-	 * Deprecated 9.3.0
-	 *
-	 * @return Jetpack_Calypsoify
-	 */
-	public static function getInstance() { //phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		_deprecated_function( __METHOD__, 'Jetpack 9.3.0', 'Jetpack_Calypsoify::get_instance' );
-		return self::get_instance();
-	}
-
-	/**
 	 * Singleton.
 	 *
 	 * @return Jetpack_Calypsoify
@@ -82,7 +68,7 @@ class Jetpack_Calypsoify {
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
 
-		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods-gutenberg.js', false, JETPACK__VERSION, false );
+		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods-gutenberg.js', array( 'jquery' ), JETPACK__VERSION, false );
 		wp_localize_script(
 			'calypsoify_wpadminmods_js',
 			'calypsoifyGutenberg',
@@ -127,14 +113,14 @@ class Jetpack_Calypsoify {
 		if ( $post_id === null ) {
 			// E.g. posts or pages have no special suffix. CPTs are in the `types/{cpt}` format.
 			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
-				? "/${post_type}s/"
-				: "/types/${post_type}/";
+				? "/{$post_type}s/"
+				: "/types/{$post_type}/";
 			$post_suffix      = '';
 		} else {
 			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
-				? "/${post_type}/"
-				: "/edit/${post_type}/";
-			$post_suffix      = "/${post_id}";
+				? "/{$post_type}/"
+				: "/edit/{$post_type}/";
+			$post_suffix      = "/{$post_id}";
 		}
 
 		return $this->get_calypso_origin() . $post_type_suffix . $site_suffix . $post_suffix;
@@ -194,22 +180,22 @@ class Jetpack_Calypsoify {
 		// Disabling WordPress.Security.NonceVerification.Recommended because this function fires within admin_init and this is only changing display.
 		$page = isset( $_SERVER['REQUEST_URI'] ) ? wp_basename( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) : '';
 
-		if ( false !== strpos( $page, 'post-new.php' ) && empty( $_GET['post_type'] ) ) {
+		if ( str_contains( $page, 'post-new.php' ) && empty( $_GET['post_type'] ) ) {
 			return true;
 		}
 
-		if ( false !== strpos( $page, 'post-new.php' ) && isset( $_GET['post_type'] ) && $this->is_post_type_gutenberg( sanitize_key( $_GET['post_type'] ) ) ) {
+		if ( str_contains( $page, 'post-new.php' ) && isset( $_GET['post_type'] ) && $this->is_post_type_gutenberg( sanitize_key( $_GET['post_type'] ) ) ) {
 			return true;
 		}
 
-		if ( false !== strpos( $page, 'post.php' ) ) {
+		if ( str_contains( $page, 'post.php' ) ) {
 			$post = get_post( isset( $_GET['post'] ) ? intval( $_GET['post'] ) : null );
 			if ( isset( $post ) && isset( $post->post_type ) && $this->is_post_type_gutenberg( $post->post_type ) ) {
 				return true;
 			}
 		}
 
-		if ( false !== strpos( $page, 'revision.php' ) ) {
+		if ( str_contains( $page, 'revision.php' ) ) {
 			$post   = get_post( isset( $_GET['revision'] ) ? intval( $_GET['revision'] ) : null );
 			$parent = get_post( $post->post_parent );
 			if ( isset( $parent ) && isset( $parent->post_type ) && $this->is_post_type_gutenberg( $parent->post_type ) ) {
@@ -220,7 +206,6 @@ class Jetpack_Calypsoify {
 		return false;
 		// phpcs:enable
 	}
-
 }
 
 Jetpack_Calypsoify::get_instance();

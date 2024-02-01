@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		parent::set_up();
 
 		// create a user
-		$this->user_id = $this->factory->user->create();
+		$this->user_id = self::factory()->user->create();
 		$this->sender->do_sync();
 	}
 
@@ -53,7 +53,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		unset( $retrieved_user->data->allowed_mime_types );
 
 		$this->assertEquals( $synced_user, $retrieved_user, 'Retrieved user must equal the synced user.' );
-
 	}
 
 	public function test_update_user_url_is_synced() {
@@ -174,7 +173,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_delete_user_reassign_is_synced() {
-		$reassign = $this->factory->user->create();
+		$reassign = self::factory()->user->create();
 		wp_delete_user( $this->user_id, $reassign );
 		$this->sender->do_sync();
 
@@ -209,7 +208,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event();
 		$this->assertFalse( $event );
-
 	}
 
 	// Roles syncing
@@ -257,7 +255,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
 
 		$this->assertTrue( $events[0]->args[1]['role_changed'] );
-		$this->assertEquals( $events[0]->args[1]['previous_role'], array( 'subscriber' ) );
+		$this->assertEquals( array( 'subscriber' ), $events[0]->args[1]['previous_role'] );
 		$this->assertCount( 1, $events );
 	}
 
@@ -389,7 +387,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$other_blog_id = wpmu_create_blog( 'foo.com', '', 'My Blog', $this->user_id );
 		$wpdb->suppress_errors( $suppress );
 
-		$other_blog_user_id = $this->factory->user->create();
+		$other_blog_user_id = self::factory()->user->create();
 		add_user_to_blog( $other_blog_id, $other_blog_user_id, 'administrator' );
 		remove_user_from_blog( $other_blog_user_id, $original_blog_id );
 
@@ -414,7 +412,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		// create a user from within that blog (won't be synced)
 		switch_to_blog( $other_blog_id );
-		$mu_blog_user_id = $this->factory->user->create();
+		$mu_blog_user_id = self::factory()->user->create();
 		restore_current_blog();
 
 		$this->sender->do_sync();
@@ -452,7 +450,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_syncs_user_authentication_attempts() {
-		$user_id = $this->factory->user->create( array( 'user_login' => 'foobar' ) );
+		$user_id = self::factory()->user->create( array( 'user_login' => 'foobar' ) );
 
 		// TODO: ideally we would do wp_signon to trigger this event, but it tries to send headers and
 		// causes an error.
@@ -468,17 +466,15 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'foobar', $user_data_sent_to_server->data->user_login );
 		$this->assertEquals( $user_id, $user_data_sent_to_server->ID );
 		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
-
 	}
 
 	public function test_syncs_user_logout_event() {
-		$user_id = $this->factory->user->create( array( 'user_login' => 'foobar' ) );
+		$user_id = self::factory()->user->create( array( 'user_login' => 'foobar' ) );
 
 		// TODO: ideally we would do wp_logout to trigger this event, but it tries to send headers and
 		// causes an error.
-
 		wp_set_current_user( $user_id );
-		do_action( 'wp_logout' );
+		do_action( 'wp_logout', $user_id );
 
 		$this->sender->do_sync();
 
@@ -492,7 +488,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	public function test_syncs_user_logout_event_without_user() {
 		$current_user_id = get_current_user_id();
 		wp_set_current_user( 0 );
-		do_action( 'wp_logout' );
+		do_action( 'wp_logout', 0 );
 
 		$this->sender->do_sync();
 
@@ -516,8 +512,8 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_maybe_demote_master_user_method() {
 		// set up
-		$current_master_id = $this->factory->user->create( array( 'user_login' => 'current_master' ) );
-		$new_master_id     = $this->factory->user->create( array( 'user_login' => 'new_master' ) );
+		$current_master_id = self::factory()->user->create( array( 'user_login' => 'current_master' ) );
+		$new_master_id     = self::factory()->user->create( array( 'user_login' => 'new_master' ) );
 
 		$current_master = get_user_by( 'id', $current_master_id );
 		$current_master->set_role( 'author' );
@@ -684,7 +680,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		add_user_to_blog( $blog_id, $this->user_id, 'administrator' );
 
-		$other_user_id = $this->factory->user->create();
+		$other_user_id = self::factory()->user->create();
 		add_user_to_blog( $blog_id, $other_user_id, 'administrator' );
 
 		$this->server_event_storage->reset();
@@ -718,7 +714,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_no_save_user_sync_action_when_creating_user() {
 		$this->server_event_storage->reset();
-		$this->factory->user->create();
+		self::factory()->user->create();
 
 		$this->sender->do_sync();
 
@@ -804,6 +800,69 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
+	/**
+	 * Data Provider for test_update_user_field_is_synced tests.
+	 *
+	 * @return array
+	 */
+	public function get_user_fields_and_flags() {
+
+		return array(
+			array(
+				'user_nicename',
+				'dummy',
+				'nicename_changed',
+			),
+			array(
+				'user_url',
+				'http://dummy.com',
+				'url_changed',
+			),
+			array(
+				'user_registered',
+				'2022-12-12 10:10:10',
+				'registration_date_changed',
+			),
+			array(
+				'user_activation_key',
+				'dummy_key',
+				'activation_key_changed',
+			),
+			array(
+				'display_name',
+				'Dummy',
+				'display_name_changed',
+			),
+		);
+	}
+
+	/**
+	 * Test that user field updates are synced with the appropriate flags.
+	 *
+	 * @dataProvider get_user_fields_and_flags
+	 *
+	 * @param string $field_name  User field name to update.
+	 * @param mixed  $field_value User field value to set.
+	 * @param string $user_flag   The expected user flag that should be synced.
+	 */
+	public function test_update_user_field_is_synced( $field_name, $field_value, $user_flag ) {
+		wp_update_user(
+			array(
+				'ID'        => $this->user_id,
+				$field_name => $field_value,
+			)
+		);
+
+		$this->sender->do_sync();
+
+		$server_user = $this->server_replica_storage->get_user( $this->user_id );
+		$this->assertEquals( $field_value, $server_user->data->$field_name );
+
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
+		$this->assertTrue( $events[0]->args[1][ $user_flag ] );
+		$this->assertEquals( $this->user_id, $events[0]->args[0]->ID );
+	}
+
 	protected function assertUsersEqual( $user1, $user2 ) {
 		// order-independent comparison
 		$user1_array = get_object_vars( $user1->data );
@@ -829,5 +888,4 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 			'description'  => '',
 		);
 	}
-
 }

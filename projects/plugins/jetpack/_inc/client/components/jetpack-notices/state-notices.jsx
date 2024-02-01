@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
@@ -77,16 +78,14 @@ class JetpackStateNotices extends React.Component {
 					key
 				);
 				break;
-			case 'site_blacklisted':
+			case 'connection_disabled':
 				message = createInterpolateElement(
 					__(
 						"This site can't be connected to WordPress.com because it violates our <a>Terms of Service</a>.",
 						'jetpack'
 					),
 					{
-						a: (
-							<a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />
-						),
+						a: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
 					}
 				);
 				break;

@@ -115,8 +115,8 @@ class IDC_Simulator {
 	 * @param string $hook Called hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'jetpack_page_broken-token' ) === 0 ) {
-			wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . '/css/style.css', array(), JETPACK_DEBUG_HELPER_VERSION );
+		if ( str_starts_with( $hook, 'jetpack-debug_page_idc-simulator' ) ) {
+			wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . 'inc/css/idc-simulator.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 		}
 	}
 
@@ -452,7 +452,6 @@ class IDC_Simulator {
 	 */
 	public function display_sync_disabled_notice() {
 		echo '<div class="notice notice-warning"><p>Sync has been disabled by the Jetpack Debug Helper plugin\'s IDC Simulator module.</p></div>';
-
 	}
 
 	/**
@@ -514,6 +513,8 @@ class IDC_Simulator {
 		}
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
 
 add_action( 'plugins_loaded', 'register_idc_simulator', 1000 );
 

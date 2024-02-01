@@ -83,11 +83,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_item( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			require_once WP_CONTENT_DIR . '/mu-plugins/masterbar/admin-menu/load.php';
-		} else {
-			require_once JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/load.php';
-		}
+		require_once JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/load.php';
 
 		// All globals need to be declared for menu items to properly register.
 		global $admin_page_hooks, $menu, $menu_order, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -238,7 +234,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		// Exclude hidden menu items.
-		if ( false !== strpos( $menu_item[4], 'hide-if-js' ) ) {
+		if ( str_contains( $menu_item[4], 'hide-if-js' ) ) {
 			// Exclude submenu items as well.
 			if ( ! empty( $submenu[ $menu_item[2] ] ) ) {
 				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -248,7 +244,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		// Handle menu separators.
-		if ( false !== strpos( $menu_item[4], 'wp-menu-separator' ) ) {
+		if ( str_contains( $menu_item[4], 'wp-menu-separator' ) ) {
 			return array(
 				'type' => 'separator',
 			);
@@ -295,7 +291,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		// Exclude hidden submenu items.
-		if ( isset( $submenu_item[4] ) && false !== strpos( $submenu_item[4], 'hide-if-js' ) ) {
+		if ( isset( $submenu_item[4] ) && str_contains( $submenu_item[4], 'hide-if-js' ) ) {
 			return array();
 		}
 
@@ -327,9 +323,9 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		if ( ! empty( $icon ) && 'none' !== $icon && 'div' !== $icon ) {
 			$img = esc_url( $icon );
 
-			if ( 0 === strpos( $icon, 'data:image/svg+xml' ) ) {
+			if ( str_starts_with( $icon, 'data:image/svg+xml' ) ) {
 				$img = $icon;
-			} elseif ( 0 === strpos( $icon, 'dashicons-' ) ) {
+			} elseif ( str_starts_with( $icon, 'dashicons-' ) ) {
 				$img = $this->prepare_dashicon( $icon );
 			}
 		}
@@ -347,11 +343,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 */
 	private function prepare_dashicon( $icon ) {
 		if ( empty( $this->dashicon_set ) ) {
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				$this->dashicon_list = include WP_CONTENT_DIR . '/mu-plugins/masterbar/admin-menu/dashicon-set.php';
-			} else {
-				$this->dashicon_list = include JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/dashicon-set.php';
-			}
+			$this->dashicon_list = include JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/dashicon-set.php';
 		}
 
 		if ( isset( $this->dashicon_list[ $icon ] ) && $this->dashicon_list[ $icon ] ) {
@@ -372,7 +364,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		// External URLS.
 		if ( preg_match( '/^https?:\/\//', $url ) ) {
 			// Allow URLs pointing to WordPress.com.
-			if ( 0 === strpos( $url, 'https://wordpress.com/' ) ) {
+			if ( str_starts_with( $url, 'https://wordpress.com/' ) ) {
 				// Calypso needs the domain removed so they're not interpreted as external links.
 				$url = str_replace( 'https://wordpress.com', '', $url );
 				// Replace special characters with their correct entities e.g. &amp; to &.
@@ -380,13 +372,16 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			}
 
 			// Allow URLs pointing to Jetpack.com.
-			if ( 0 === strpos( $url, 'https://jetpack.com/' ) ) {
+			if ( str_starts_with( $url, 'https://jetpack.com/' ) ) {
 				// Replace special characters with their correct entities e.g. &amp; to &.
 				return wp_specialchars_decode( esc_url_raw( $url ) );
 			}
 
 			// Disallow other external URLs.
-			return '';
+			if ( ! str_starts_with( $url, get_site_url() ) ) {
+				return '';
+			}
+			// The URL matches that of the site, treat it as an internal URL.
 		}
 
 		// Internal URLs.
@@ -435,10 +430,12 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	private function parse_menu_item( $title ) {
 		$item = array();
 
-		if ( false !== strpos( $title, 'count-' ) ) {
-			preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches );
+		if (
+			str_contains( $title, 'count-' )
+			&& preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches )
+		) {
 
-			$count = absint( $matches[1] );
+			$count = (int) ( $matches[1] );
 			if ( $count > 0 ) {
 				// Keep the counter in the item array.
 				$item['count'] = $count;
@@ -448,8 +445,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			$title = trim( str_replace( $matches[0], '', $title ) );
 		}
 
-		if ( false !== strpos( $title, 'inline-text' ) ) {
-			preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches );
+		if (
+			str_contains( $title, 'inline-text' )
+			&& preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches )
+		) {
 
 			$text = $matches[1];
 			if ( $text ) {
@@ -461,8 +460,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			$title = trim( str_replace( $matches[0], '', $title ) );
 		}
 
-		if ( false !== strpos( $title, 'awaiting-mod' ) ) {
-			preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches );
+		if (
+			str_contains( $title, 'awaiting-mod' )
+			&& preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches )
+		) {
 
 			$text = $matches[1];
 			if ( $text ) {
@@ -475,7 +476,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		// It's important we sanitize the title after parsing data to remove any unexpected markup but keep the content.
-		// We are also capilizing the first letter in case there was a counter (now parsed) in front of the title.
+		// We are also capitalizing the first letter in case there was a counter (now parsed) in front of the title.
 		$item['title'] = ucfirst( wp_strip_all_tags( $title ) );
 
 		return $item;

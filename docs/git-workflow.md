@@ -15,7 +15,8 @@ For example, you can run: `git checkout trunk` and then `git checkout -b fix/wha
 
 The Jetpack repo uses the following "reserved" branch name conventions:
 
-* `{something}/branch-{X.Y|something}` -- Used for release branches
+* `prerelease` -- Used for the release process.
+* `{something}/branch-{X.Y|something}` -- Used for release branches.
 * `feature/{something}` -- Used for feature branches for larger feature projects when anticipated there will be multiple PRs into that feature branch.
 
 ## Mind your commits
@@ -38,7 +39,6 @@ There are two ways to update your branch with changes to `trunk` or a parent PR.
    * Pro: Keeps the branch's history cleaner.
    * Con: GitHub doesn't handle it very well. It may lose inline comments on the pre-rebase commits, and it will remove the old commit entries from the conversation (making it harder to determine the state of the PR when earlier comments were left) and instead show every one in the rebase as being "added" again at the time that the rebase was pushed.
    * Con: Anyone else who has checked out your branch pre-rebase can't just `git pull`.
-   * Con: Our pre-commit verification doesn't run on rebases, so you might wind up with all commits tagged as "[not verified]".
    * Note: When pushing the rebase to GitHub, use `git push --force-with-lease` as it's safer than the older `git push --force`.
 
 **In general, it's best to rebase if you haven't yet created the PR, and, in particular, it's good to rebase just before doing so. After the PR has been created, it's better for collaboration to merge instead.**

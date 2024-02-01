@@ -24,7 +24,7 @@ use Jetpack\Docker\MuPlugin\Monorepo;
  * @return mixed
  */
 function jetpack_docker_disable_plugin_deletion_link( $actions, $plugin_file ) {
-	$jetpack_docker_avoided_plugins = ( new Monorepo() )->plugins();
+	$jetpack_docker_avoided_plugins = apply_filters( 'jetpack_docker_avoided_plugins', ( new Monorepo() )->plugins() );
 	if (
 		array_key_exists( 'delete', $actions ) &&
 		in_array(
@@ -45,7 +45,7 @@ add_filter( 'plugin_action_links', 'jetpack_docker_disable_plugin_deletion_link'
  * @param string $plugin_file Path to the plugin file relative to the plugins directory.
  */
 function jetpack_docker_disable_delete_plugin( $plugin_file ) {
-	$jetpack_docker_avoided_plugins = ( new Monorepo() )->plugins();
+	$jetpack_docker_avoided_plugins = apply_filters( 'jetpack_docker_avoided_plugins', ( new Monorepo() )->plugins() );
 	if ( in_array( $plugin_file, $jetpack_docker_avoided_plugins, true ) ) {
 		wp_die(
 			esc_html( 'Deleting plugin "' . $plugin_file . '" is disabled at mu-plugins/avoid-plugin-deletion.php' ),
@@ -61,7 +61,7 @@ add_action( 'delete_plugin', 'jetpack_docker_disable_delete_plugin', 10, 2 );
  * @param mixed $plugins Value of site transient.
  */
 function jetpack_docker_disable_plugin_update( $plugins ) {
-	$jetpack_docker_avoided_plugins = ( new Monorepo() )->plugins();
+	$jetpack_docker_avoided_plugins = apply_filters( 'jetpack_docker_avoided_plugins', ( new Monorepo() )->plugins() );
 	if ( ! is_array( $jetpack_docker_avoided_plugins ) ) {
 		return $plugins;
 	}

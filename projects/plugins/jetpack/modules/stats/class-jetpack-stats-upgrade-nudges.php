@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Redirect;
@@ -363,7 +364,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$additional_classes = $subitem ? 'jp-stats-report-upgrade-subitem' : '';
 		$button_class       = $subitem ? 'is-secondary' : 'is-primary';
 		$icon_url           = plugins_url( '', JETPACK__PLUGIN_FILE ) . '/images/products/' . $icon;
-		$button_label       = $button_label === null ? __( 'Upgrade', 'jetpack' ) : $button_label;
+		$button_label       = $button_label === null ? _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) : $button_label;
 		$view_event         = "stats_nudges_view_$tracks_id";
 		$click_event        = "stats_nudges_click_$tracks_id";
 		$learn_more_event   = "stats_nudges_learn_more_$tracks_id";
@@ -405,7 +406,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$link       = self::get_product_description_link( 'security' );
 		$learn_link = self::get_upgrade_link( 'stats-nudges-security-learn' );
 		$text       = __( 'Comprehensive protection for your site, including Backup, Scan, and Anti-spam.', 'jetpack' );
-		self::print_item( __( 'Security', 'jetpack' ), $text, 'product-jetpack-security-bundle.svg', $link, 'security', $learn_link );
+		self::print_item( _x( 'Security', 'Jetpack product name', 'jetpack' ), $text, 'product-jetpack.svg', $link, 'security', $learn_link );
 	}
 
 	/**
@@ -417,7 +418,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$link       = self::get_product_description_link( 'backup' );
 		$learn_link = self::get_upgrade_link( 'stats-nudges-backup-learn' );
 		$text       = __( 'Save every change and get back online quickly with one-click restores.', 'jetpack' );
-		self::print_item( __( 'Backup', 'jetpack' ), $text, 'product-jetpack-backup.svg', $link, 'backup', $learn_link, true );
+		self::print_item( __( 'VaultPress Backup', 'jetpack' ), $text, 'product-jetpack-backup.svg', $link, 'backup', $learn_link, true );
 	}
 
 	/**
@@ -451,7 +452,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$link       = self::get_product_description_link( 'akismet' );
 		$learn_link = self::get_upgrade_link( 'stats-nudges-akismet-learn' );
 		$text       = __( 'Automatically clear spam from comments and forms.', 'jetpack' );
-		self::print_item( __( 'Anti-spam', 'jetpack' ), $text, 'product-jetpack-anti-spam.svg', $link, 'akismet', $learn_link, true );
+		self::print_item( __( 'Akismet Anti-spam', 'jetpack' ), $text, 'product-jetpack-anti-spam.svg', $link, 'akismet', $learn_link, true );
 	}
 
 	/**
@@ -579,5 +580,4 @@ class Jetpack_Stats_Upgrade_Nudges {
 		self::get_crm_output();
 		self::print_footer();
 	}
-
 }

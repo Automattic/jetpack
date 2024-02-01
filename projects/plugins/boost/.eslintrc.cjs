@@ -6,9 +6,8 @@ module.exports = {
 	extends: [
 		require.resolve( 'jetpack-js-tools/eslintrc/base' ),
 		require.resolve( 'jetpack-js-tools/eslintrc/wp-eslint-plugin/recommended' ),
-		require.resolve( 'jetpack-js-tools/eslintrc/svelte' ),
 	],
-	ignorePatterns: loadIgnorePatterns( __dirname ),
+	ignorePatterns: [ '**/stories/*.stories.tsx', ...loadIgnorePatterns( __dirname ) ],
 	parserOptions: {
 		babelOptions: {
 			configFile: require.resolve( './babel.config.js' ),
@@ -37,7 +36,6 @@ module.exports = {
 
 		// Apparently, we like dangling commas
 		'comma-dangle': 0,
-
 		'jsdoc/no-undefined-types': [
 			1,
 			{
@@ -45,6 +43,12 @@ module.exports = {
 			},
 		],
 
+		// This is not a react project.
+		'react-hooks/rules-of-hooks': 0,
+		'import/no-unresolved': 0,
+		'import/order': 0,
+		'no-nested-ternary': 0,
 		'prettier/prettier': 0,
+		camelcase: 0,
 	},
 };

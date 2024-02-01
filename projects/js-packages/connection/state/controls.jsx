@@ -6,28 +6,29 @@ const REGISTER_SITE = ( { registrationNonce, redirectUri } ) =>
 	restApi.registerSite( registrationNonce, redirectUri );
 
 const CONNECT_USER = createRegistryControl(
-	( { resolveSelect } ) => ( { from, redirectFunc, redirectUri } = {} ) => {
-		return new Promise( ( resolve, reject ) => {
-			resolveSelect( STORE_ID )
-				.getAuthorizationUrl( redirectUri )
-				.then( authorizationUrl => {
-					const redirect = redirectFunc || ( url => window.location.assign( url ) );
+	( { resolveSelect } ) =>
+		( { from, redirectFunc, redirectUri } = {} ) => {
+			return new Promise( ( resolve, reject ) => {
+				resolveSelect( STORE_ID )
+					.getAuthorizationUrl( redirectUri )
+					.then( authorizationUrl => {
+						const redirect = redirectFunc || ( url => window.location.assign( url ) );
 
-					const url = new URL( authorizationUrl );
+						const url = new URL( authorizationUrl );
 
-					if ( from ) {
-						url.searchParams.set( 'from', encodeURIComponent( from ) );
-					}
+						if ( from ) {
+							url.searchParams.set( 'from', encodeURIComponent( from ) );
+						}
 
-					const finalUrl = url.toString();
-					redirect( finalUrl );
-					resolve( finalUrl );
-				} )
-				.catch( error => {
-					reject( error );
-				} );
-		} );
-	}
+						const finalUrl = url.toString();
+						redirect( finalUrl );
+						resolve( finalUrl );
+					} )
+					.catch( error => {
+						reject( error );
+					} );
+			} );
+		}
 );
 
 const FETCH_AUTHORIZATION_URL = ( { redirectUri } ) => restApi.fetchAuthorizationUrl( redirectUri );

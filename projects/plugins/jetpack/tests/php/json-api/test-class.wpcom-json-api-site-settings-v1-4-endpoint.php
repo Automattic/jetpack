@@ -6,7 +6,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'class.json-api-endpoints.php' );
+require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
  * Jetpack `sites/%s/settings` endpoint unit tests.
@@ -89,11 +89,12 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	 *
 	 * @dataProvider setting_value_pairs_get_request
 	 *
+	 * @param string $option_name The option lookup key.
 	 * @param string $setting_name The setting lookup key.
 	 * @param string $setting_value The setting value to test.
 	 */
-	public function test_get_settings_contains_keys_values( $setting_name, $setting_value ) {
-		update_option( $setting_name, $setting_value );
+	public function test_get_settings_contains_keys_values( $option_name, $setting_name, $setting_value ) {
+		update_option( $option_name, $setting_value );
 
 		$response = $this->make_get_request();
 		$settings = $response['settings'];
@@ -122,7 +123,7 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	public function make_get_request() {
 		global $blog_id;
 
-		$admin = $this->factory->user->create_and_get(
+		$admin = self::factory()->user->create_and_get(
 			array(
 				'role' => 'administrator',
 			)
@@ -163,7 +164,7 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	public function make_post_request( $setting ) {
 		global $blog_id;
 
-		$admin = $this->factory->user->create_and_get(
+		$admin = self::factory()->user->create_and_get(
 			array(
 				'role' => 'administrator',
 			)
@@ -192,12 +193,14 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 					'blog_public'                          => '(string) Site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
 					'jetpack_sync_non_public_post_stati'   => '(bool) allow sync of post and pages with non-public posts stati',
 					'jetpack_relatedposts_enabled'         => '(bool) Enable related posts?',
+					'jetpack_relatedposts_show_context'    => '(bool) Show post\'s tags and category in related posts?',
+					'jetpack_relatedposts_show_date'       => '(bool) Show date in related posts?',
 					'jetpack_relatedposts_show_headline'   => '(bool) Show headline in related posts?',
 					'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
 					'instant_search_enabled'               => '(bool) Enable the new Jetpack Instant Search interface',
 					'jetpack_search_enabled'               => '(bool) Enable Jetpack Search',
 					'jetpack_search_supported'             => '(bool) Jetpack Search supported',
-					'jetpack_protect_whitelist'            => '(array) List of IP addresses to whitelist',
+					'jetpack_protect_whitelist'            => '(array) List of IP addresses to always allow',
 					'infinite_scroll'                      => '(bool) Support infinite scroll of posts?',
 					'default_category'                     => '(int) Default post category',
 					'default_post_format'                  => '(string) Default post format',
@@ -253,13 +256,16 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 					Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The SEO meta description for the site.',
 					Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 					'verification_services_codes'          => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex, facebook',
-					'amp_is_enabled'                       => '(bool) Whether AMP is enabled for this site',
 					'podcasting_archive'                   => '(string) The post category, if any, used for publishing podcasts',
 					'site_icon'                            => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 					'api_cache'                            => '(bool) Turn on/off the Jetpack JSON API cache',
 					'posts_per_page'                       => '(int) Number of posts to show on blog pages',
 					'posts_per_rss'                        => '(int) Number of posts to show in the RSS feed',
 					'rss_use_excerpt'                      => '(bool) Whether the RSS feed will use post excerpts',
+					'show_on_front'                        => '(string) Whether homepage should display related posts or a static page. The expected value is \'posts\' or \'page\'.',
+					'page_on_front'                        => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
+					'page_for_posts'                       => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
+					'subscription_options'                 => '(array) Array of two options used in subscription email templates: \'invitation\' and \'comment_follow\' strings.',
 				),
 
 				'response_format' => array(
@@ -290,6 +296,22 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 			'woocommerce_default_country'    => array( 'woocommerce_default_country', '' ),
 			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '' ),
 			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array() ),
+			'wga'                            => array(
+				'wga',
+				array(
+					'code'                          => '',
+					'anonymize_ip'                  => false,
+					'honor_dnt'                     => false,
+					'ec_track_purchases'            => false,
+					'ec_track_add_to_cart'          => false,
+					'enh_ec_tracking'               => false,
+					'enh_ec_track_remove_from_cart' => false,
+					'enh_ec_track_prod_impression'  => false,
+					'enh_ec_track_prod_click'       => false,
+					'enh_ec_track_prod_detail_view' => false,
+					'enh_ec_track_checkout_started' => false,
+				),
+			),
 		);
 	}
 
@@ -300,12 +322,29 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	 */
 	public function setting_value_pairs_get_request() {
 		return array(
-			'woocommerce_store_address'      => array( 'woocommerce_store_address', 'Street 34th 1/2' ),
-			'woocommerce_store_address_2'    => array( 'woocommerce_store_address_2', 'Apt #1' ),
-			'woocommerce_store_city'         => array( 'woocommerce_store_city', 'City' ),
-			'woocommerce_default_country'    => array( 'woocommerce_default_country', 'US:NY' ),
-			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '98738' ),
-			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array( 'test' => 'test value' ) ),
+			'woocommerce_store_address'      => array( 'woocommerce_store_address', 'woocommerce_store_address', 'Street 34th 1/2' ),
+			'woocommerce_store_address_2'    => array( 'woocommerce_store_address_2', 'woocommerce_store_address_2', 'Apt #1' ),
+			'woocommerce_store_city'         => array( 'woocommerce_store_city', 'woocommerce_store_city', 'City' ),
+			'woocommerce_default_country'    => array( 'woocommerce_default_country', 'woocommerce_default_country', 'US:NY' ),
+			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', 'woocommerce_store_postcode', '98738' ),
+			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', 'woocommerce_onboarding_profile', array( 'test' => 'test value' ) ),
+			'wga'                            => array(
+				'jetpack_wga',
+				'wga',
+				array(
+					'code'                          => 'G-TESTING',
+					'anonymize_ip'                  => false,
+					'honor_dnt'                     => false,
+					'ec_track_purchases'            => false,
+					'ec_track_add_to_cart'          => false,
+					'enh_ec_tracking'               => false,
+					'enh_ec_track_remove_from_cart' => false,
+					'enh_ec_track_prod_impression'  => false,
+					'enh_ec_track_prod_click'       => false,
+					'enh_ec_track_prod_detail_view' => false,
+					'enh_ec_track_checkout_started' => false,
+				),
+			),
 		);
 	}
 
@@ -327,6 +366,27 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 			'woocommerce_onboarding_profile string'     => array( 'woocommerce_onboarding_profile', 'string', array( 'string' ) ),
 			'woocommerce_onboarding_profile bool'       => array( 'woocommerce_onboarding_profile', true, array( true ) ),
 			'woocommerce_onboarding_profile example'    => array( 'woocommerce_onboarding_profile', $this->onboarding_profile_example, $this->onboarding_profile_example ),
+			'show_on_front'                             => array( 'show_on_front', 'page', 'page' ),
+			'subscription_options html'                 => array(
+				'subscription_options',
+				array(
+					'invitation'     => '<strong>Test</strong> string <a href="#">link</a>',
+					'comment_follow' => "Test string 2\n\n Other line",
+				),
+				array(
+					'invitation'     => 'Test string <a href="#">link</a>',
+					'comment_follow' => "Test string 2\n\n Other line",
+				),
+			),
+			'wga'                                       => array(
+				'wga',
+				array(
+					'code' => 'G-TESTING',
+				),
+				array(
+					'code' => 'G-TESTING',
+				),
+			),
 		);
 	}
 }

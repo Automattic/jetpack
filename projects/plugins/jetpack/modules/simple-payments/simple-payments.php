@@ -7,6 +7,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+
 /**
  * Jetpack_Simple_Payments
  */
@@ -93,11 +95,11 @@ class Jetpack_Simple_Payments {
 		 *
 		 * @see https://developer.paypal.com/docs/integration/direct/express-checkout/integration-jsv4/add-paypal-button/
 		 */
-		wp_register_script( // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+		wp_register_script( // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Ignored here instead of on the $ver param line since wpcom isn't in sync with ruleset changes in: https://github.com/Automattic/jetpack/pull/28199
 			'paypal-checkout-js',
 			'https://www.paypalobjects.com/api/checkout.js',
 			array(),
-			null,
+			null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 			true
 		);
 		wp_register_script(
@@ -218,10 +220,10 @@ class Jetpack_Simple_Payments {
 			return false;
 		}
 
-		return (
-			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) &&
-			Jetpack_Plan::supports( 'simple-payments' )
-		);
+		return ( ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			|| Jetpack::is_connection_ready() )
+			&&
+			Jetpack_Plan::supports( 'simple-payments' );
 	}
 
 	/**
@@ -307,7 +309,7 @@ class Jetpack_Simple_Payments {
 			return;
 		}
 
-		jetpack_require_lib( 'components' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/components.php';
 		return Jetpack_Components::render_upgrade_nudge(
 			array(
 				'plan' => self::$required_plan,
@@ -334,19 +336,19 @@ class Jetpack_Simple_Payments {
 					<input class="%2$s" type="number" value="1" min="1" id="%3$s" />
 				</div>
 				',
-				esc_attr( "${css_prefix}-items" ),
-				esc_attr( "${css_prefix}-items-number" ),
+				esc_attr( "{$css_prefix}-items" ),
+				esc_attr( "{$css_prefix}-items-number" ),
 				esc_attr( "{$dom_id}_number" )
 			);
 		}
 
 		return sprintf(
 			'<div class="%1$s" id="%2$s"></div><div class="%3$s">%4$s<div class="%5$s" id="%6$s"></div></div>',
-			esc_attr( "${css_prefix}-purchase-message" ),
+			esc_attr( "{$css_prefix}-purchase-message" ),
 			esc_attr( "{$dom_id}-message-container" ),
-			esc_attr( "${css_prefix}-purchase-box" ),
+			esc_attr( "{$css_prefix}-purchase-box" ),
 			$items,
-			esc_attr( "${css_prefix}-button" ),
+			esc_attr( "{$css_prefix}-button" ),
 			esc_attr( "{$dom_id}_button" )
 		);
 	}
@@ -364,8 +366,8 @@ class Jetpack_Simple_Payments {
 		if ( has_post_thumbnail( $data['id'] ) ) {
 			$image = sprintf(
 				'<div class="%1$s"><div class="%2$s">%3$s</div></div>',
-				esc_attr( "${css_prefix}-product-image" ),
-				esc_attr( "${css_prefix}-image" ),
+				esc_attr( "{$css_prefix}-product-image" ),
+				esc_attr( "{$css_prefix}-image" ),
 				get_the_post_thumbnail( $data['id'], 'full' )
 			);
 		}
@@ -384,15 +386,15 @@ class Jetpack_Simple_Payments {
 	</div>
 </div>
 ',
-			esc_attr( "{$data['class']} ${css_prefix}-wrapper" ),
-			esc_attr( "${css_prefix}-product" ),
+			esc_attr( "{$data['class']} {$css_prefix}-wrapper" ),
+			esc_attr( "{$css_prefix}-product" ),
 			$image,
-			esc_attr( "${css_prefix}-details" ),
-			esc_attr( "${css_prefix}-title" ),
+			esc_attr( "{$css_prefix}-details" ),
+			esc_attr( "{$css_prefix}-title" ),
 			esc_html( $data['title'] ),
-			esc_attr( "${css_prefix}-description" ),
+			esc_attr( "{$css_prefix}-description" ),
 			wp_kses( $data['description'], wp_kses_allowed_html( 'post' ) ),
-			esc_attr( "${css_prefix}-price" ),
+			esc_attr( "{$css_prefix}-price" ),
 			esc_html( $data['price'] ),
 			$this->output_purchase_box( $data['dom_id'], $data['multiple'] )
 		);
@@ -410,7 +412,7 @@ class Jetpack_Simple_Payments {
 	 * @return string           Formatted price.
 	 */
 	private function format_price( $price, $currency ) {
-		jetpack_require_lib( 'class-jetpack-currencies' );
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
 		return Jetpack_Currencies::format_price( $price, $currency );
 	}
 
@@ -790,7 +792,7 @@ class Jetpack_Simple_Payments {
 	 * @return ?array               Currency object or null if not found.
 	 */
 	private static function get_currency( $the_currency ) {
-		jetpack_require_lib( 'class-jetpack-currencies' );
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
 		$currencies = Jetpack_Currencies::CURRENCIES;
 
 		if ( isset( $currencies[ $the_currency ] ) ) {

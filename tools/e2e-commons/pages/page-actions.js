@@ -1,7 +1,7 @@
-import logger from '../logger.cjs';
+import logger from '../logger.js';
 import chalk from 'chalk';
 import config from 'config';
-import pwConfig from '../playwright.config.cjs';
+import pwConfig from '../playwright.config.mjs';
 
 /**
  * This is an abstraction for most important page actions
@@ -28,8 +28,18 @@ export default class PageActions {
 		if ( ! url ) {
 			throw new Error( 'Cannot navigate! Page URL is not set' );
 		}
+
 		logger.action( `Navigating to ${ url }` );
-		await this.page.goto( url, options );
+
+		let response;
+		try {
+			response = await this.page.goto( url, options );
+		} catch ( e ) {
+			logger.error( `Error navigating to ${ url } (1). Retrying once.\n${ e }` );
+			response = await this.page.goto( url, options );
+		}
+
+		return response;
 	}
 
 	/**
@@ -39,8 +49,16 @@ export default class PageActions {
 	 */
 	async waitForPage( checkSelectors = true ) {
 		logger.action( `Waiting for ${ this.pageName }` );
-		await this.waitForDomContentLoaded();
-		if ( checkSelectors ) {
+
+		try {
+			await this.waitForDomContentLoaded();
+		} catch ( e ) {
+			logger.error( `Error waiting for domcontentloaded (1): ${ e }` );
+			await this.page.reload();
+			await this.waitForDomContentLoaded();
+		}
+
+		if ( checkSelectors && this.selectors ) {
 			for ( const selector of this.selectors ) {
 				await this.waitForElementToBeVisible( selector );
 			}
@@ -61,21 +79,27 @@ export default class PageActions {
 	/**
 	 * Waits for the given timeout in milliseconds.
 	 *
+	 * TODO: Deprecate and remove this, see https://github.com/playwright-community/eslint-plugin-playwright/blob/main/docs/rules/no-wait-for-timeout.md
+	 *
 	 * @param {number} timeout A timeout to wait for in milliseconds
 	 * @return {Promise<void>}
 	 */
 	async waitForTimeout( timeout ) {
 		logger.action( chalk.redBright( `Waiting for ${ timeout } ms` ) );
+		// eslint-disable-next-line playwright/no-wait-for-timeout
 		await this.page.waitForTimeout( timeout );
 	}
 
 	/**
 	 * Waits for page to reach the 'networkidle' load state or timeout in given ms
 	 *
+	 * TODO: Deprecate and remove this, see https://github.com/playwright-community/eslint-plugin-playwright/blob/main/docs/rules/no-networkidle.md
+	 *
 	 * @param {number} timeout
 	 * @return {Promise<void>}
 	 */
 	async waitForNetworkIdle( timeout = this.timeout ) {
+		// eslint-disable-next-line playwright/no-networkidle
 		await this.waitForLoadState( 'networkidle', timeout );
 	}
 
@@ -295,11 +319,17 @@ export default class PageActions {
 	 *
 	 * @param {string} selector
 	 * @param {number} timeout
-	 * @return {Promise<boolean>} true if element is visible, false otherwise
+	 * @return {Promise<boolean>} true if at least one element with the given selector is visible, false otherwise
 	 */
 	async isElementVisible( selector, timeout = this.timeout ) {
 		logger.action( `Checking if element '${ selector }' is visible` );
-		return await this.page.isVisible( selector, { timeout } );
+		try {
+			await this.page.locator( selector ).first().waitFor( { timeout } );
+			return true;
+		} catch ( e ) {
+			logger.warn( `Element '${ selector }' was not visible. Waited for ${ timeout }ms` );
+			return false;
+		}
 	}
 
 	/**

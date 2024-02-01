@@ -8,7 +8,7 @@
 	color: black;
 	border: $studio-gray-5 0.5px solid;
 	border-radius: 5px;
-	padding: 20px 22px 16px 22px;
+	padding: 24px;
 }
 
 .jp-search-notice-box .dops-notice__content {
@@ -21,7 +21,8 @@
 	padding-top: 16px;
 }
 
-.jp-search-record-meter .jp-search-notice-box > span.dops-notice__icon-wrapper {
+// Use dops classname for increased specificity.
+.jp-search-notice-box.dops-notice > span.dops-notice__icon-wrapper {
 	background-color: rgba( 255, 255, 255, 0 );
 	padding: 0;
 }

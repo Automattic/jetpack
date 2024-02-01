@@ -64,7 +64,7 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public function add_assets( $return, $loaded_scripts, $loaded_styles ) {
 		global $wp_scripts, $wp_styles;
 		// scripts first, just cuz
-		if ( count( $loaded_scripts ) > 0 ) {
+		if ( $loaded_scripts !== array() ) {
 			$scripts = array();
 			foreach ( $loaded_scripts as $handle ) {
 				if ( ! isset( $wp_scripts->registered[ $handle ] ) ) {
@@ -92,7 +92,7 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$return['scripts'] = $scripts;
 		}
 		// now styles
-		if ( count( $loaded_styles ) > 0 ) {
+		if ( $loaded_styles !== array() ) {
 			$styles = array();
 			foreach ( $loaded_styles as $handle ) {
 				if ( ! isset( $wp_styles->registered[ $handle ] ) ) {
@@ -161,18 +161,6 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return string|false
 	 */
 	public function do_embed( $embed_url ) {
-		// in order for oEmbed to fire in the `$wp_embed->shortcode` method, we need to set a post as the current post
-		$_posts = get_posts(
-			array(
-				'posts_per_page'   => 1,
-				'suppress_filters' => false,
-			)
-		);
-		if ( ! empty( $_posts ) ) {
-			global $post;
-			$post = array_shift( $_posts ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		}
-
 		global $wp_embed;
 		return $wp_embed->shortcode( array(), $embed_url );
 	}

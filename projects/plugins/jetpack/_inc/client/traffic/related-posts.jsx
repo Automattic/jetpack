@@ -1,8 +1,7 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -15,7 +14,7 @@ class RelatedPostsComponent extends React.Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {{show_headline: Boolean, show_thumbnails: Boolean}} Initial state object.
+	 * @returns {{show_headline: boolean, show_thumbnails: boolean}} Initial state object.
 	 */
 	state = {
 		show_headline: this.props.getOptionValue( 'show_headline', 'related-posts' ),
@@ -25,7 +24,7 @@ class RelatedPostsComponent extends React.Component {
 	/**
 	 * Update state so preview is updated instantly and toggle options.
 	 *
-	 * @param {string} optionName Slug of option to update.
+	 * @param {string} optionName - Slug of option to update.
 	 */
 	updateOptions = optionName => {
 		this.setState(
@@ -47,6 +46,48 @@ class RelatedPostsComponent extends React.Component {
 	trackConfigureClick = () => {
 		analytics.tracks.recordJetpackClick( 'configure-related-posts' );
 	};
+
+	renderConfigureLink() {
+		const { isBlockThemeActive, lastPostUrl, siteAdminUrl } = this.props;
+
+		if ( isBlockThemeActive ) {
+			return (
+				<Card
+					compact
+					className="jp-settings-card__configure-link"
+					onClick={ this.trackConfigureClick }
+					href={ getRedirectUrl( 'jetpack-support-related-posts', {
+						anchor: 'adding-related-posts-block-theme',
+					} ) }
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					{ __(
+						'Add a Related Posts Block to your site’s template in the site editor',
+						'jetpack'
+					) }
+				</Card>
+			);
+		}
+
+		return (
+			<Card
+				compact
+				className="jp-settings-card__configure-link"
+				onClick={ this.trackConfigureClick }
+				href={
+					siteAdminUrl +
+					'customize.php?autofocus[section]=jetpack_relatedposts' +
+					'&return=' +
+					encodeURIComponent( siteAdminUrl + 'admin.php?page=jetpack#/traffic' ) +
+					'&url=' +
+					encodeURIComponent( lastPostUrl )
+				}
+			>
+				{ __( 'Configure related posts in the Customizer', 'jetpack' ) }
+			</Card>
+		);
+	}
 
 	render() {
 		const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' ),
@@ -74,7 +115,7 @@ class RelatedPostsComponent extends React.Component {
 							{
 								a: (
 									<a
-										href={ getRedirectUrl( 'jetpack-support-jetpack-blocks-related-posts-block' ) }
+										href={ getRedirectUrl( 'jetpack-support-related-posts' ) }
 										target="_blank"
 										rel="noopener noreferrer"
 									/>
@@ -94,32 +135,28 @@ class RelatedPostsComponent extends React.Component {
 						</span>
 					</ModuleToggle>
 					<FormFieldset>
-						<CompactFormToggle
-							checked={ this.state.show_headline }
+						<ToggleControl
+							checked={ this.props.getOptionValue( 'show_headline', 'related-posts' ) }
 							disabled={
 								! isRelatedPostsActive ||
 								unavailableInOfflineMode ||
-								this.props.isSavingAnyOption( [ 'related-posts', 'show_headline' ] )
+								this.props.isSavingAnyOption( [ 'related-posts' ] )
 							}
+							toggling={ this.props.isSavingAnyOption( [ 'show_headline' ] ) }
 							onChange={ this.handleShowHeadlineToggleChange }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Highlight related content with a heading', 'jetpack' ) }
-							</span>
-						</CompactFormToggle>
-						<CompactFormToggle
-							checked={ this.state.show_thumbnails }
+							label={ __( 'Highlight related content with a heading', 'jetpack' ) }
+						/>
+						<ToggleControl
+							checked={ this.props.getOptionValue( 'show_thumbnails', 'related-posts' ) }
 							disabled={
 								! isRelatedPostsActive ||
 								unavailableInOfflineMode ||
-								this.props.isSavingAnyOption( [ 'related-posts', 'show_thumbnails' ] )
+								this.props.isSavingAnyOption( [ 'related-posts' ] )
 							}
+							toggling={ this.props.isSavingAnyOption( [ 'show_thumbnails' ] ) }
 							onChange={ this.handleShowThumbnailsToggleChange }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Show a thumbnail image where available', 'jetpack' ) }
-							</span>
-						</CompactFormToggle>
+							label={ __( 'Show a thumbnail image where available', 'jetpack' ) }
+						/>
 						{ isRelatedPostsActive && (
 							<div>
 								<FormLabel className="jp-form-label-wide">
@@ -182,16 +219,9 @@ class RelatedPostsComponent extends React.Component {
 						) }
 					</FormFieldset>
 				</SettingsGroup>
-				{ ! this.props.isUnavailableInOfflineMode( 'related-posts' ) && isRelatedPostsActive && (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						onClick={ this.trackConfigureClick }
-						href={ this.props.configureUrl }
-					>
-						{ __( 'Configure related posts in the Customizer', 'jetpack' ) }
-					</Card>
-				) }
+				{ ! this.props.isUnavailableInOfflineMode( 'related-posts' ) &&
+					isRelatedPostsActive &&
+					this.renderConfigureLink() }
 			</SettingsCard>
 		);
 	}

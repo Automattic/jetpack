@@ -1,0 +1,26 @@
+.video-not-owned-notice__container {
+    flex-direction: row;
+	align-items: center;
+	padding: 8px 0;
+	justify-content: space-between;
+}
+
+.video-not-owned-notice__message {
+	font-size: 11px;
+	font-weight: 500;
+	color: $yellow-50;
+	flex: 1;
+}
+
+.video-not-owned-notice__message--dark {
+	color: $yellow-30;
+}
+
+.video-not-owned-notice__icon {
+	color: $yellow-50;
+	margin-right: 5px;
+}
+
+.video-not-owned-notice__icon--dark {
+	color: $yellow-30;
+}

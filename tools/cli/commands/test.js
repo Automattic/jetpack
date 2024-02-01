@@ -1,8 +1,8 @@
 import child_process from 'child_process';
 import path from 'path';
 import chalk from 'chalk';
-import execa from 'execa';
-import inquirer from 'inquirer';
+import enquirer from 'enquirer';
+import { execa } from 'execa';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
@@ -171,9 +171,9 @@ async function runTest( argv ) {
  */
 export async function promptForTest( argv ) {
 	const tests = await getTests( argv.project );
-	const response = await inquirer.prompt( [
+	const response = await enquirer.prompt( [
 		{
-			type: 'list',
+			type: 'select',
 			name: 'test',
 			message: 'What test are you trying to run?',
 			choices: tests,

@@ -1,4 +1,5 @@
 import { numberFormat } from '@automattic/jetpack-components';
+import { usePublicizeConfig } from '@automattic/jetpack-publicize-components';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	ContrastChecker,
@@ -10,7 +11,7 @@ import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpr
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
-import { ButtonWidthControl } from '../button/button-width-panel';
+import { WidthControl } from '../../shared/width-panel';
 import {
 	MIN_BORDER_RADIUS_VALUE,
 	MAX_BORDER_RADIUS_VALUE,
@@ -38,6 +39,7 @@ export default function SubscriptionControls( {
 	fallbackButtonBackgroundColor,
 	fallbackTextColor,
 	fontSize,
+	includeSocialFollowers,
 	isGradientAvailable,
 	padding,
 	setAttributes,
@@ -49,11 +51,15 @@ export default function SubscriptionControls( {
 	subscriberCount,
 	textColor,
 	buttonWidth,
+	subscribePlaceholder,
+	submitButtonText,
 	successMessage,
 } ) {
+	const { isPublicizeEnabled } = usePublicizeConfig();
+
 	return (
 		<>
-			{ subscriberCount > 1 && (
+			{ subscriberCount > 0 && (
 				<InspectorNotice>
 					{ createInterpolateElement(
 						sprintf(
@@ -64,9 +70,9 @@ export default function SubscriptionControls( {
 								subscriberCount,
 								'jetpack'
 							),
-							numberFormat( subscriberCount )
+							numberFormat( subscriberCount, { notation: 'compact', maximumFractionDigits: 1 } )
 						),
-						{ span: <span style={ { textDecoration: 'underline' } } /> }
+						{ span: <span style={ { fontWeight: 'bold' } } /> }
 					) }
 				</InspectorNotice>
 			) }
@@ -158,6 +164,8 @@ export default function SubscriptionControls( {
 							customFontSize: newFontSize,
 						} );
 					} }
+					// This is changing in the future, and we need to do this to silence the deprecation warning.
+					__nextHasNoMarginBottom={ true }
 				/>
 			</PanelBody>
 			<PanelBody
@@ -209,7 +217,7 @@ export default function SubscriptionControls( {
 					onChange={ newSpacingValue => setAttributes( { spacing: newSpacingValue } ) }
 				/>
 
-				<ButtonWidthControl
+				<WidthControl
 					width={ buttonWidth }
 					onChange={ newButtonWidth => setAttributes( { buttonWidth: newButtonWidth } ) }
 				/>
@@ -223,7 +231,15 @@ export default function SubscriptionControls( {
 					label={ __( 'Show subscriber count', 'jetpack' ) }
 					checked={ showSubscribersTotal }
 					onChange={ () => {
-						setAttributes( { showSubscribersTotal: ! showSubscribersTotal } );
+						setAttributes( {
+							showSubscribersTotal: ! showSubscribersTotal,
+							// Don't do anything if set previously, but by default set to false. We want to disencourage including social count as it's misleading.
+							// We don't want to rely setting "default" in block.json to falsy, because the default value was previously "true".
+							// Hence users without this set will still get social counts included in the subscriber counter.
+							// Lowering the subscriber count on their behalf with code change would be controversial.
+							includeSocialFollowers:
+								typeof includeSocialFollowers === 'undefined' ? false : includeSocialFollowers,
+						} );
 					} }
 					help={ () => {
 						if ( ! subscriberCount || subscriberCount < 1 ) {
@@ -234,12 +250,41 @@ export default function SubscriptionControls( {
 						}
 					} }
 				/>
+				{ isPublicizeEnabled && (
+					<ToggleControl
+						disabled={ ! showSubscribersTotal }
+						label={ __( 'Include social followers in count', 'jetpack' ) }
+						checked={
+							typeof includeSocialFollowers === 'undefined' ? true : includeSocialFollowers
+						}
+						onChange={ () => {
+							setAttributes( {
+								includeSocialFollowers:
+									typeof includeSocialFollowers === 'undefined' ? false : ! includeSocialFollowers,
+							} );
+						} }
+					/>
+				) }
+
 				<ToggleControl
 					label={ __( 'Place button on new line', 'jetpack' ) }
 					checked={ buttonOnNewLine }
 					onChange={ () => {
 						setAttributes( { buttonOnNewLine: ! buttonOnNewLine } );
 					} }
+				/>
+
+				<TextareaControl
+					value={ subscribePlaceholder }
+					label={ __( 'Input placeholder text', 'jetpack' ) }
+					help={ __( 'Edit the placeholder text of the email address input.', 'jetpack' ) }
+					onChange={ placeholder => setAttributes( { subscribePlaceholder: placeholder } ) }
+				/>
+				<TextareaControl
+					value={ submitButtonText }
+					label={ __( 'Submit button label', 'jetpack' ) }
+					help={ __( 'Edit the label of the button a user clicks to subscribe.', 'jetpack' ) }
+					onChange={ text => setAttributes( { submitButtonText: text } ) }
 				/>
 				{ ! isSimpleSite() && (
 					<TextareaControl

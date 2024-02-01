@@ -1,8 +1,8 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-jetpack_require_lib( 'class.media' );
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
 
-define( 'REVISION_HISTORY_MAXIMUM_AMOUNT', 0 );
+define( 'REVISION_HISTORY_MAXIMUM_AMOUNT', 5 );
 define( 'WP_ATTACHMENT_IMAGE_ALT', '_wp_attachment_image_alt' );
 
 new WPCOM_JSON_API_Edit_Media_v1_2_Endpoint(
@@ -27,7 +27,7 @@ new WPCOM_JSON_API_Edit_Media_v1_2_Endpoint(
 			'alt'         => '(string) Alternative text for image files.',
 			'artist'      => '(string) Audio Only. Artist metadata for the audio track.',
 			'album'       => '(string) Audio Only. Album metadata for the audio track.',
-			'media'       => '(object) An object file to attach to the post. To upload media, ' .
+			'media'       => '(media) An object file to attach to the post. To upload media, ' .
 							'the entire request should be multipart/form-data encoded. ' .
 							'Multiple media items will be displayed in a gallery. Accepts ' .
 							'jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. ' .
@@ -117,7 +117,8 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 	 * @param  {Object} $attrs - `attrs` parameter sent from the client in the request body.
 	 */
 	private function update_by_attrs_parameter( $media_id, $attrs ) {
-		$insert = array();
+		$post_update_action = null;
+		$insert             = array();
 
 		// Attributes: Title, Caption, Description.
 		if ( isset( $attrs['title'] ) ) {
@@ -162,7 +163,7 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 		if ( ! empty( $id3_meta ) ) {
 			// Before updating metadata, ensure that the item is audio.
 			$item = $this->get_media_item_v1_1( $media_id );
-			if ( 0 === strpos( $item->mime_type, 'audio/' ) ) {
+			if ( str_starts_with( $item->mime_type, 'audio/' ) ) {
 				$update_action = wp_update_attachment_metadata( $media_id, $id3_meta );
 				if ( is_wp_error( $update_action ) ) {
 					return $update_action;
@@ -199,16 +200,11 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 	 * Try to remove the temporal file from the given file array.
 	 *
 	 * @param  {Array} $file_array - Array with data about the temporal file.
-	 * @return {Boolean} `true` if the file has been removed.
-	 *                   `false` either the file doesn't exist or it couldn't be removed.
 	 */
 	private function remove_tmp_file( $file_array ) {
-		if ( ! file_exists( $file_array['tmp_name'] ) ) {
-			return false;
+		if ( file_exists( $file_array['tmp_name'] ) ) {
+			wp_delete_file( $file_array['tmp_name'] );
 		}
-		// @todo - see if we can more permanently fix this NoSilencedError.
-		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		return @unlink( $file_array['tmp_name'] );
 	}
 
 	/**
@@ -216,12 +212,14 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 	 *
 	 * @param  {Array}  $file_array - array containing file data.
 	 * @param  {Number} $media_id - the media id.
+	 * @param  {bool}   $is_upload - True if `$file_array` derives from an upload in `$_FILES`, false if this is a sideload.
 	 * @return {Array|WP_Error} An array with information about the new file saved or a WP_Error is something went wrong.
 	 */
-	private function save_temporary_file( $file_array, $media_id ) {
+	private function save_temporary_file( $file_array, $media_id, $is_upload ) {
 		$tmp_filename = $file_array['tmp_name'];
 
-		if ( ! file_exists( $tmp_filename ) ) {
+		$is_ok = $is_upload ? is_uploaded_file( $tmp_filename ) : file_exists( $tmp_filename );
+		if ( ! $is_ok ) {
 			return new WP_Error( 'invalid_input', 'No media provided in input.' );
 		}
 
@@ -236,9 +234,9 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 			! $this->is_file_supported_for_sideloading( $tmp_filename ) &&
 			! file_is_displayable_image( $tmp_filename )
 		) {
-			// @todo - see if we can more permanently fix this NoSilencedError.
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			@unlink( $tmp_filename );
+			if ( ! $is_upload ) {
+				wp_delete_file( $tmp_filename );
+			}
 			return new WP_Error( 'invalid_input', 'Invalid file type.', 403 );
 		}
 		remove_filter( 'jetpack_supported_media_sideload_types', $mime_type_static_filter );
@@ -252,9 +250,12 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 		$time = $this->get_time_string_from_guid( $media_id );
 
 		$file_array['name'] = $tmp_new_filename;
-		$file               = wp_handle_sideload( $file_array, $overrides, $time );
-
-		$this->remove_tmp_file( $file_array );
+		if ( $is_upload ) {
+			$file = wp_handle_upload( $file_array, $overrides, $time );
+		} else {
+			$file = wp_handle_sideload( $file_array, $overrides, $time );
+			$this->remove_tmp_file( $file_array );
+		}
 
 		if ( isset( $file['error'] ) ) {
 			return new WP_Error( 'upload_error', $file['error'] );
@@ -346,6 +347,38 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 	}
 
 	/**
+	 * Restore the original media file.
+	 *
+	 * @param  {Number} $media_id       - media post ID.
+	 * @param  {Object} $original_media - orginal media data.
+	 * @return {Array}                  - restore media info.
+	 */
+	private function restore_original( $media_id, $original_media ) {
+		$revisions = (array) Jetpack_Media::get_revision_history( $media_id );
+		$revisions = array_filter(
+			$revisions,
+			function ( $revision ) use ( $original_media ) {
+				return $revision->file !== $original_media->file;
+			}
+		);
+		$criteria  = array(
+			'from' => 0,
+			'to'   => REVISION_HISTORY_MAXIMUM_AMOUNT,
+		);
+
+		Jetpack_Media::remove_items_from_revision_history( $media_id, $criteria, $revisions );
+		$file           = get_attached_file( $media_id );
+		$file_parts     = pathinfo( $file );
+		$orginal_file   = path_join( $file_parts['dirname'], $original_media->file );
+		$restored_media = array(
+			'file' => $orginal_file,
+			'type' => $original_media->mime_type,
+		);
+
+		return $restored_media;
+	}
+
+	/**
 	 * API callback.
 	 *
 	 * @param string $path - the path.
@@ -396,13 +429,19 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 			}
 
 			// save the temporal file locally.
+			$is_upload     = (bool) $media_file;
 			$temporal_file = $media_file ? $media_file : $this->build_file_array_from_url( $media_id, $media_url );
 
 			if ( is_wp_error( $temporal_file ) ) {
 				return $temporal_file;
 			}
 
-			$uploaded_file = $this->save_temporary_file( $temporal_file, $media_id );
+			// edited media is sent as $media_file and restored media is sent as $media_url
+			$should_restore = isset( $media_url ) && ! isset( $media_file ) && $has_original_media;
+
+			$uploaded_file = $should_restore
+				? $this->restore_original( $media_id, $has_original_media )
+				: $this->save_temporary_file( $temporal_file, $media_id, $is_upload );
 
 			if ( is_wp_error( $uploaded_file ) ) {
 				return $uploaded_file;

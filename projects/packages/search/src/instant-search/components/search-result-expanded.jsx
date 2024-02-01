@@ -1,3 +1,4 @@
+import { cleanForSlug } from '@wordpress/url';
 import React from 'react';
 import PathBreadcrumbs from './path-breadcrumbs';
 import PhotonImage from './photon-image';
@@ -12,16 +13,39 @@ import './search-result-expanded.scss';
  * @returns {Element} - Expanded search result component.
  */
 export default function SearchResultExpanded( props ) {
-	const { isMultiSite, locale = 'en-US' } = props;
+	const { isMultiSite, locale = 'en-US', showPostDate } = props;
 	const { result_type, fields, highlight } = props.result;
 
 	if ( result_type !== 'post' ) {
 		return null;
 	}
 
+	const getCategories = () => {
+		let cats = fields[ 'category.name.default' ];
+
+		if ( ! cats ) {
+			return [];
+		}
+
+		if ( ! Array.isArray( cats ) ) {
+			cats = [ cats ];
+		}
+
+		return cats;
+	};
+
 	const firstImage = Array.isArray( fields[ 'image.url.raw' ] )
 		? fields[ 'image.url.raw' ][ 0 ]
 		: fields[ 'image.url.raw' ];
+
+	if ( Array.isArray( fields.author ) ) {
+		if ( fields.author.length > 3 ) {
+			fields.author = fields.author.slice( 0, 3 ).join( ', ' ) + '...';
+		} else {
+			fields.author = fields.author.join( ', ' );
+		}
+	}
+
 	return (
 		<li
 			className={ [
@@ -30,6 +54,9 @@ export default function SearchResultExpanded( props ) {
 				`jetpack-instant-search__search-result-expanded--${ fields.post_type }`,
 				! firstImage ? 'jetpack-instant-search__search-result-expanded--no-image' : '',
 				isMultiSite ? 'is-multisite' : '',
+				getCategories()
+					.map( cat => 'jetpack-instant-search__search-result-category--' + cleanForSlug( cat ) )
+					.join( ' ' ),
 			].join( ' ' ) }
 		>
 			<div className="jetpack-instant-search__search-result-expanded__content-container">
@@ -39,9 +66,15 @@ export default function SearchResultExpanded( props ) {
 							className="jetpack-instant-search__search-result-title-link jetpack-instant-search__search-result-expanded__title-link"
 							href={ `//${ fields[ 'permalink.url.raw' ] }` }
 							onClick={ props.onClick }
-							//eslint-disable-next-line react/no-danger
-							dangerouslySetInnerHTML={ { __html: highlight.title } }
-						/>
+						>
+							<span
+								//eslint-disable-next-line react/no-danger
+								dangerouslySetInnerHTML={ { __html: highlight.title } }
+							/>
+							{ fields[ 'forum.topic_resolved' ] === 'yes' && (
+								<span className="jetpack-instant-search__search-result-title-checkmark" />
+							) }
+						</a>
 					</h3>
 
 					{ ! isMultiSite && (
@@ -66,6 +99,8 @@ export default function SearchResultExpanded( props ) {
 					className="jetpack-instant-search__search-result-expanded__image-link"
 					href={ `//${ fields[ 'permalink.url.raw' ] }` }
 					onClick={ props.onClick }
+					tabIndex="-1"
+					aria-hidden="true"
 				>
 					<div className="jetpack-instant-search__search-result-expanded__image-container">
 						{ firstImage ? (
@@ -79,36 +114,42 @@ export default function SearchResultExpanded( props ) {
 					</div>
 				</a>
 			</div>
-			{ isMultiSite && (
+			{ ( isMultiSite || showPostDate ) && (
 				<ul className="jetpack-instant-search__search-result-expanded__footer">
-					<li>
-						<PhotonImage
-							alt={ fields.blog_name }
-							className="jetpack-instant-search__search-result-expanded__footer-blog-image"
-							isPhotonEnabled={ false }
-							height={ 24 }
-							width={ 24 }
-							src={ fields.blog_icon_url }
-							lazyLoad={ false }
-						/>
-						<span className="jetpack-instant-search__search-result-expanded__footer-blog">
-							{ fields.blog_name }
-						</span>
-					</li>
-					<li>
-						<span className="jetpack-instant-search__search-result-expanded__footer-author">
-							{ fields.author }
-						</span>
-					</li>
-					<li>
-						<span className="jetpack-instant-search__search-result-expanded__footer-date">
-							{ new Date( fixDateFormat( fields.date ) ).toLocaleDateString( locale, {
-								year: 'numeric',
-								month: 'short',
-								day: 'numeric',
-							} ) }
-						</span>
-					</li>
+					{ isMultiSite && (
+						<>
+							<li>
+								<PhotonImage
+									alt={ fields.blog_name }
+									className="jetpack-instant-search__search-result-expanded__footer-blog-image"
+									isPhotonEnabled={ false }
+									height={ 24 }
+									width={ 24 }
+									src={ fields.blog_icon_url }
+									lazyLoad={ false }
+								/>
+								<span className="jetpack-instant-search__search-result-expanded__footer-blog">
+									{ fields.blog_name }
+								</span>
+							</li>
+							<li>
+								<span className="jetpack-instant-search__search-result-expanded__footer-author">
+									{ fields.author }
+								</span>
+							</li>
+						</>
+					) }
+					{ showPostDate && (
+						<li>
+							<span className="jetpack-instant-search__search-result-expanded__footer-date">
+								{ new Date( fixDateFormat( fields.date ) ).toLocaleDateString( locale, {
+									year: 'numeric',
+									month: 'short',
+									day: 'numeric',
+								} ) }
+							</span>
+						</li>
+					) }
 				</ul>
 			) }
 		</li>

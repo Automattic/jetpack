@@ -6,6 +6,11 @@
 
 .expire-date {
 	margin-bottom: calc( var(--spacing-base ) * 3 );
+	display: flex;
+
+	&--with-icon {
+		margin-right: 8px;
+	}
 }
 
 .actions-list-item {

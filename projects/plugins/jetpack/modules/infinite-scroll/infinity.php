@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 
@@ -369,7 +371,7 @@ class The_Neverending_Home_Page {
 		 * @param object    self::wp_query()     WP_Query object for current request
 		 * @param object    self::get_settings() Infinite Scroll settings
 		 */
-		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() );
+		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() ); // phpcs:ignore WordPress.WP.ClassNameCase.Incorrect -- False positive.
 		if ( is_bool( $override ) ) {
 			return $override;
 		}
@@ -379,7 +381,7 @@ class The_Neverending_Home_Page {
 
 		// This is to cope with an issue in certain themes or setups where posts are returned but found_posts is 0.
 		if ( 0 === $entries ) {
-			return (bool) ( count( self::wp_query()->posts ) < $posts_per_page );
+			return (bool) ( ! is_countable( self::wp_query()->posts ) || ( count( self::wp_query()->posts ) < $posts_per_page ) );
 		}
 		$paged = max( 1, self::wp_query()->get( 'paged' ) );
 
@@ -546,7 +548,7 @@ class The_Neverending_Home_Page {
 				'_inc/build/infinite-scroll/infinity-customizer.min.js',
 				'modules/infinite-scroll/infinity-customizer.js'
 			),
-			array( 'customize-base' ),
+			array( 'jquery', 'customize-base' ),
 			JETPACK__VERSION . '-is5.0.0', // Added for ability to cachebust on WP.com.
 			true
 		);
@@ -650,7 +652,7 @@ class The_Neverending_Home_Page {
 		if ( preg_match_all( '/".*?("|$)|((?<=[\t ",+])|^)[^\t ",+]+/', self::wp_query()->get( 's' ), $matches ) ) {
 			$search_terms = self::wp_query()->query_vars['search_terms'];
 			// if the search string has only short terms or stopwords, or is 10+ terms long, match it as sentence
-			if ( empty( $search_terms ) || count( $search_terms ) > 9 ) {
+			if ( empty( $search_terms ) || ! is_countable( $search_terms ) || count( $search_terms ) > 9 ) {
 				$search_terms = array( self::wp_query()->get( 's' ) );
 			}
 		} else {
@@ -659,7 +661,7 @@ class The_Neverending_Home_Page {
 
 		// actual testing. As search query combines multiple keywords with AND, it's enough to check if any of the keywords is present in the title
 		$term = current( $search_terms );
-		if ( ! empty( $term ) && false !== strpos( $post->post_title, $term ) ) {
+		if ( ! empty( $term ) && str_contains( $post->post_title, $term ) ) {
 			return true;
 		}
 
@@ -1022,7 +1024,7 @@ class The_Neverending_Home_Page {
 			}
 
 			// Slashes everywhere we need them
-			if ( 0 !== strpos( $path, '/' ) ) {
+			if ( ! str_starts_with( $path, '/' ) ) {
 				$path = '/' . $path;
 			}
 
@@ -1150,7 +1152,7 @@ class The_Neverending_Home_Page {
 					// Jetpack block scripts should always be sent, even if they've been
 					// sent before. These scripts only run once on when loaded, they don't
 					// watch for new blocks being added.
-					if ( 0 === strpos( $script_name, 'jetpack-block-' ) ) {
+					if ( str_starts_with( $script_name, 'jetpack-block-' ) ) {
 						return true;
 					}
 
@@ -1171,13 +1173,16 @@ class The_Neverending_Home_Page {
 						continue;
 					}
 
+					$before_handle = $wp_scripts->get_inline_script_data( $handle, 'before' );
+					$after_handle  = $wp_scripts->get_inline_script_data( $handle, 'after' );
+
 					// Provide basic script data
 					$script_data = array(
 						'handle'        => $handle,
 						'footer'        => ( is_array( $wp_scripts->in_footer ) && in_array( $handle, $wp_scripts->in_footer, true ) ),
 						'extra_data'    => $wp_scripts->print_extra_script( $handle, false ),
-						'before_handle' => $wp_scripts->print_inline_script( $handle, 'before', false ),
-						'after_handle'  => $wp_scripts->print_inline_script( $handle, 'after', false ),
+						'before_handle' => $before_handle,
+						'after_handle'  => $after_handle,
 					);
 
 					// Base source
@@ -1774,7 +1779,7 @@ class The_Neverending_Home_Page {
 	 */
 	public function filter_grunion_redirect_url( $url ) {
 		// Remove IS query args, if present
-		if ( false !== strpos( $url, 'infinity=scrolling' ) ) {
+		if ( str_contains( $url, 'infinity=scrolling' ) ) {
 			$url = remove_query_arg(
 				array(
 					'infinity',
@@ -1857,7 +1862,7 @@ class The_Neverending_Home_Page {
 			add_action( 'template_redirect', array( $this, 'amp_start_output_buffering' ), 0 );
 			add_action( 'shutdown', array( $this, 'amp_output_buffer' ), 1 );
 
-			if ( is_callable( "amp_{$template}_hooks" ) ) {
+			if ( is_string( $template ) && strpos( $template, '::' ) === false && is_callable( "amp_{$template}_hooks" ) ) {
 				call_user_func( "amp_{$template}_hooks" );
 			}
 
@@ -1969,7 +1974,7 @@ class The_Neverending_Home_Page {
 	protected function amp_footer_template() {
 		ob_start();
 		?>
-<amp-next-page max-pages="<?php echo esc_attr( $this->amp_get_max_pages() ); ?>">
+<amp-next-page max-pages="<?php echo esc_attr( static::amp_get_max_pages() ); ?>">
 	<script type="application/json">
 		[
 			<?php echo wp_json_encode( $this->amp_next_page() ); ?>

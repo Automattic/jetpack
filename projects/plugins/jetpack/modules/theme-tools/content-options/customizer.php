@@ -472,7 +472,7 @@ function jetpack_content_options_customize_preview_js() {
 	$author       = ( ! empty( $post_details['author'] ) ) ? $post_details['author'] : null;
 	$comment      = ( ! empty( $post_details['comment'] ) ) ? $post_details['comment'] : null;
 
-	wp_enqueue_script( 'jetpack-content-options-customizer', plugins_url( 'customizer.js', __FILE__ ), array( 'customize-preview' ), '1.0', true );
+	wp_enqueue_script( 'jetpack-content-options-customizer', plugins_url( 'customizer.js', __FILE__ ), array( 'jquery', 'customize-preview' ), '1.0', true );
 
 	wp_localize_script(
 		'jetpack-content-options-customizer',

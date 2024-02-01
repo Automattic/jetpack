@@ -478,7 +478,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		foreach ( $this->object_terms[ get_current_blog_id() ][ $taxonomy ] as $term_ids ) {
 			foreach ( $term_ids as $saved_term_id ) {
 				if ( $saved_term_id === $term_id ) {
-					$count ++;
+					++$count;
 				}
 			}
 		}
@@ -725,7 +725,6 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		}
 
 		return (string) array_sum( array_map( array( $this, 'concat_items' ), $array ) );
-
 	}
 
 	public function concat_items( $object ) {
@@ -742,5 +741,4 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	public function get_term_relationships() {
 		return $this->term_relationships[ get_current_blog_id() ];
 	}
-
 }

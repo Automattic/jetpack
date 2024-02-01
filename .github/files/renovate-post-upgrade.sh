@@ -6,12 +6,21 @@ BASE="$PWD"
 BRANCH="$1"
 CHANGEFILE="$(sed 's/[<>:"/\\|?*]/-/g' <<<"$BRANCH")"
 
+. "$BASE/tools/includes/changelogger.sh"
 . "$BASE/tools/includes/alpha-tag.sh"
 
 function die {
 	echo "::error::$*"
 	exit 1
 }
+
+# Renovate has a bug where they modify `.npmrc` and don't clean up after themselves,
+# resulting in those modifications being included in the diff.
+# https://github.com/renovatebot/renovate/issues/23528
+# Further, it seems they're reluctant to even admit this is actually a bug, and would
+# rather cast aspersions than collaborate on a fix.
+# So work around it by manually reverting the file.
+git restore .npmrc
 
 # Renovate may get confused if we leave installed node_modules or the like behind.
 # So delete everything that's git-ignored on exit.
@@ -27,45 +36,35 @@ if [[ "$HOME" == "/" ]]; then
 	mkdir /var/tmp/home
 	export HOME=/var/tmp/home
 fi
-pnpm config set --location=user store-dir /tmp/renovate/cache/others/pnpm
-composer config --global cache-dir /tmp/renovate/cache/others/composer
+
+#pnpm config set --global store-dir /tmp/renovate/cache/others/pnpm
+#composer config --global cache-dir /tmp/renovate/cache/others/composer
 
 # Do the pnpm and changelogger installs.
 cd "$BASE"
-pnpm --quiet install
+pnpm install
 cd projects/packages/changelogger
-composer --quiet update
+composer update
 cd "$BASE"
-CL="$BASE/projects/packages/changelogger/bin/changelogger"
 
-# Add change files for anything that changed. But ignore .npmrc, renovate mangles those.
+# Add change files for anything that changed.
 echo "Changed files:"
-git -c core.quotepath=off diff --name-only HEAD | grep -E -v '(^|/)\.npmrc'
+git -c core.quotepath=off diff --name-only HEAD
 ANY=false
-for DIR in $(git -c core.quotepath=off diff --name-only HEAD | grep -E -v '(^|/)\.npmrc' | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!\1!p' | sort -u); do
+for DIR in $(git -c core.quotepath=off diff --name-only HEAD | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!\1!p' | sort -u); do
 	ANY=true
 	SLUG="${DIR#projects/}"
 	echo "Adding change file for $SLUG"
 	cd "$DIR"
 
-	ARGS=()
-	ARGS=( add --filename="${CHANGEFILE}" --no-interaction --filename-auto-suffix --significance=patch )
-
-	CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
-	if [[ -n "$CLTYPE" ]]; then
-		ARGS+=( "--type=$CLTYPE" )
-	fi
-
-	ARGS+=( --entry="Updated package dependencies." )
-
 	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-		"$CL" "${ARGS[@]}"
+		changelogger_add 'Updated package dependencies.' '' --filename="${CHANGEFILE}" --filename-auto-suffix
 	else
-		"$CL" "${ARGS[@]}"
+		changelogger_add 'Updated package dependencies.' '' --filename="${CHANGEFILE}" --filename-auto-suffix
 		echo "Updating version for $SLUG"
-		PRERELEASE=$(alpha_tag "$CL" composer.json 0)
-		VER=$("$CL" version next --default-first-version --prerelease="$PRERELEASE") || { echo "$VER"; exit 1; }
+		PRERELEASE=$(alpha_tag composer.json 0)
+		VER=$(changelogger version next --default-first-version --prerelease="$PRERELEASE") || { echo "$VER"; exit 1; }
 		"$BASE/tools/project-version.sh" -u "$VER" "$SLUG"
 	fi
 	cd "$BASE"

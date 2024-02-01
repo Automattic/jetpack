@@ -3,25 +3,31 @@ name: 'Mark stale issues'
 on:
   schedule:
     - cron: '30 0 * * *'
+  workflow_dispatch:
 
 jobs:
   stale:
     runs-on: ubuntu-latest
-    timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
+    timeout-minutes: 10  # 2024-01-30: v9 takes longer, and it's not like it matters a whole lot since this only runs once per day anyway.
     steps:
-      - uses: actions/stale@v5
+      - uses: actions/stale@v9
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          # Get issues in ascending (oldest first) order.
-          ascending: true
-          # Do not auto-close issues marked as stale.
-          days-before-close: -1
+          # Get issues in descending (newest first) order.
+          ascending: false
+          # Operations (roughly API calls) per run. Adjust to avoid using up the rate limit (1000/hr shared across all jobs in the repo for the token used here).
+          operations-per-run: 50
           # After 6 months, mark issue as stale.
           days-before-issue-stale: 180
+          # Do not auto-close issues marked as stale.
+          days-before-issue-close: -1
           # After 3 months, mark PR as stale.
           days-before-pr-stale: 90
+          # Auto-close PRs marked as stale a month later.
+          days-before-pr-close: 31
+          # Delete the branch when closing PRs. GitHub's "restore branch" function works indefinitely, so no reason not to.
+          delete-branch: true
           # Issues and PRs with these labels will never be considered stale.
-          exempt-issue-labels: '[Pri] High,[Pri] BLOCKER,[Type] Good For Community,[Type] Good First Bug,FixTheFlows'
+          exempt-issue-labels: '[Pri] High,[Pri] BLOCKER,[Type] Feature Request,[Type] Enhancement,[Type] Janitorial,Good For Community,[Type] Good First Bug,FixTheFlows'
           exempt-pr-labels: '[Pri] High,[Pri] BLOCKER,FixTheFlows'
           # Label to use when marking an issue / PR as stale
           stale-pr-label: '[Status] Stale'
@@ -31,8 +37,8 @@ jobs:
             <p>This issue has been marked as stale. This happened because:</p>
 
             <ul>
-              <li>It has been inactive in the past 6 months.</li>
-              <li>It hasn’t been labeled `[Pri] Blocker`, `[Pri] High`, etc.</li>
+              <li>It has been inactive for the past 6 months.</li>
+              <li>It hasn’t been labeled `[Pri] BLOCKER`, `[Pri] High`, `[Type] Feature Request`, `[Type] Enhancement`, `[Type] Janitorial`, `Good For Community`, `[Type] Good First Bug`, etc.</li>
             </ul>
 
             <p>No further action is needed. But it's worth checking if this ticket has clear
@@ -43,11 +49,17 @@ jobs:
             <p>This PR has been marked as stale. This happened because:</p>
 
             <ul>
-              <li>It has been inactive in the past 3 months.</li>
-              <li>It hasn’t been labeled `[Pri] Blocker`, `[Pri] High`, etc.</li>
+              <li>It has been inactive for the past 3 months.</li>
+              <li>It hasn’t been labeled `[Pri] BLOCKER`, `[Pri] High`, etc.</li>
             </ul>
 
-            <p>No further action is needed. But it's worth checking if this PR has clear
-            testing instructions, is it up to date with trunk, and it is still valid.
-            Feel free to close this PR if you think it's not valid anymore — if you
+            <p>If this PR is still useful, please do a [trunk merge or rebase](https://github.com/Automattic/jetpack/blob/trunk/docs/git-workflow.md#keeping-your-branch-up-to-date)
+            and otherwise make sure it's up to date and has clear testing instructions.
+            You may also want to ping possible reviewers in case they've forgotten about it.
+            Please close this PR if you think it's not valid anymore — if you
             do, please add a brief explanation.</p>
+
+            <p>If the PR is not updated (or at least commented on) in another month, it will be automatically closed.</p>
+          close-pr-message: |
+            <p>This PR has been automatically closed as it has not been updated in some time.
+            If you want to resume work on the PR, feel free to restore the branch and reopen the PR.</p>

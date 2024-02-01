@@ -1,4 +1,4 @@
-import { Path } from '@wordpress/components';
+import { Path } from '@wordpress/primitives';
 import renderMaterialIcon from '../../../../shared/render-material-icon';
 
 const MaterialIcon = ( { children, size } ) => renderMaterialIcon( children, size, size );

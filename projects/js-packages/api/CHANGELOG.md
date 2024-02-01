@@ -2,6 +2,140 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.16.8] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [0.16.7] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411]
+- Updated package dependencies. [#34427]
+
+## [0.16.6] - 2023-11-20
+
+## [0.16.5] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.16.4] - 2023-10-19
+### Changed
+- Updated package dependencies. [#33687]
+
+## [0.16.3] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.16.2] - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+
+## [0.16.1] - 2023-08-21
+### Added
+- Publish package to npmjs.com. [#32515]
+
+## 0.16.0 - 2023-08-14
+### Added
+- Add backup undo feature. [#32442]
+
+## 0.15.10 - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## 0.15.9 - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## 0.15.8 - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## 0.15.7 - 2023-06-21
+### Changed
+- Updated package dependencies. [#31468]
+
+## 0.15.6 - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+## 0.15.5 - 2023-05-02
+### Changed
+- Updated package dependencies. [#30375]
+
+## 0.15.4 - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## 0.15.3 - 2023-03-20
+
+- Minor internal updates.
+
+## 0.15.2 - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## 0.15.1 - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## 0.15.0 - 2023-02-15
+### Added
+- Added fetchMigrationStatus get method [#28807]
+
+### Changed
+- Update to React 18. [#28710]
+
+## 0.14.9 - 2023-01-25
+### Changed
+- Change the web application firewall to run automatic and manual rules independently. [#27726]
+
+## 0.14.8 - 2022-12-02
+### Changed
+- Updated package dependencies. [#27696]
+
+## 0.14.7 - 2022-11-28
+### Changed
+- Updated package dependencies. [#27576]
+
+## 0.14.6 - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## 0.14.5 - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## 0.14.4 - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## 0.14.3 - 2022-10-13
+### Changed
+- Updated package dependencies. [#26791]
+
+## 0.14.2 - 2022-10-11
+### Fixed
+- Fix Jetpack Search dashboard for WPCOM simple sites by allowing using different API root for search endpoints. [#26713]
+
+## 0.14.1 - 2022-10-05
+### Changed
+- Updated package dependencies. [#26568]
+
+## 0.14.0 - 2022-09-27
+### Removed
+- Mobile Login Email: Remove unused code [#26311]
+
+## 0.13.11 - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
+## 0.13.10 - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338]
+
+## 0.13.9 - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
 ## 0.13.8 - 2022-07-12
 ### Changed
 - Updated package dependencies.
@@ -155,3 +289,12 @@
 ### Added
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
+
+[0.16.8]: https://github.com/Automattic/jetpack-api/compare/v0.16.7...v0.16.8
+[0.16.7]: https://github.com/Automattic/jetpack-api/compare/v0.16.6...v0.16.7
+[0.16.6]: https://github.com/Automattic/jetpack-api/compare/v0.16.5...v0.16.6
+[0.16.5]: https://github.com/Automattic/jetpack-api/compare/v0.16.4...v0.16.5
+[0.16.4]: https://github.com/Automattic/jetpack-api/compare/v0.16.3...v0.16.4
+[0.16.3]: https://github.com/Automattic/jetpack-api/compare/v0.16.2...v0.16.3
+[0.16.2]: https://github.com/Automattic/jetpack-api/compare/v0.16.1...v0.16.2
+[0.16.1]: https://github.com/Automattic/jetpack-api/compare/v0.16.0...v0.16.1

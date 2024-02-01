@@ -4,20 +4,24 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-autoloader": "2.11.x-dev",
-		"automattic/jetpack-backup": "1.5.x-dev",
-		"automattic/jetpack-composer-plugin": "1.1.x-dev"
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-backup": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-plugins-installer": "@dev",
+		"automattic/jetpack-my-jetpack": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.1"
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
 			"src/"
 		]
 	},
-	"scripts": {},
+	"scripts": {
+		"watch": "echo 'This script is actually watching the Jetpack Backup package, not the plugin' && jetpack watch packages/backup"
+	},
 	"repositories": [
 		{
 			"type": "path",
@@ -30,7 +34,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ1_4_1_alpha",
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ2_5_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
@@ -38,10 +42,19 @@
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-backup-plugin",
-		"release-branch-prefix": "backup",
-		"wp-plugin-slug": "jetpack-backup"
-	},
-	"changelogger": {
-		"versioning": "wordpress"
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-backup-plugin/compare/${old}...${new}",
+			"versioning": "wordpress"
+		},
+		"release-branch-prefix": [
+			"backup",
+			"monthly"
+		],
+		"wp-plugin-slug": "jetpack-backup",
+		"wp-svn-autopublish": true
 	}
 }

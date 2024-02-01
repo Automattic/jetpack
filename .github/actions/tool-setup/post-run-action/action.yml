@@ -1,0 +1,6 @@
+name: Post-run proxy log dump
+description: Cat the proxy log as a post-run step
+runs:
+  using: node20
+  main: main.mjs
+  post: post.mjs

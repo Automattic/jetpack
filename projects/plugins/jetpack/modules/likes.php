@@ -12,6 +12,13 @@
  *
  * @package automattic/jetpack
  */
+/**
+ * NOTE: While the front-end behavior currently varies, try to keep the data
+ * model here the same as on wpcom to facilitate Simple→Atomic moves and
+ * possible future work to recombine the front-ends.
+ */
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
 
@@ -35,6 +42,13 @@ require_once __DIR__ . '/likes/jetpack-likes-settings.php';
 class Jetpack_Likes {
 
 	/**
+	 * Jetpack_Likes_Settings object
+	 *
+	 * @var Jetpack_Likes_Settings
+	 */
+	public $settings;
+
+	/**
 	 * Initialize class
 	 */
 	public static function init() {
@@ -51,8 +65,7 @@ class Jetpack_Likes {
 	 * Constructs Likes class
 	 */
 	public function __construct() {
-		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
-		$this->settings   = new Jetpack_Likes_Settings();
+		$this->settings = new Jetpack_Likes_Settings();
 
 		// We need to run on wp hook rather than init because we check is_amp_endpoint()
 		// when bootstrapping hooks.
@@ -60,42 +73,35 @@ class Jetpack_Likes {
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
-		if ( $this->in_jetpack ) {
-			add_action( 'jetpack_activate_module_likes', array( $this, 'set_social_notifications_like' ) );
-			add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
+		add_action( 'jetpack_activate_module_likes', array( $this, 'set_social_notifications_like' ) );
+		add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
 
-			Jetpack::enable_module_configurable( __FILE__ );
-			add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
-			add_action( 'admin_print_scripts-settings_page_sharing', array( $this, 'load_jp_css' ) );
-			add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
+		Jetpack::enable_module_configurable( __FILE__ );
+		add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
+		add_action( 'admin_print_scripts-settings_page_sharing', array( $this, 'load_jp_css' ) );
+		add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
 
-			$active = Jetpack::get_active_modules();
+		$active = Jetpack::get_active_modules();
 
-			if ( ! in_array( 'sharedaddy', $active, true ) && ! in_array( 'publicize', $active, true ) ) {
-				// we don't have a sharing page yet.
-				add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
-			}
+		if ( ! in_array( 'sharedaddy', $active, true ) && ! in_array( 'publicize', $active, true ) ) {
+			// we don't have a sharing page yet.
+			add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
+		}
 
-			if ( in_array( 'publicize', $active, true ) && ! in_array( 'sharedaddy', $active, true ) ) {
-				// we have a sharing page but not the global options area.
-				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
-				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
-			}
+		if ( in_array( 'publicize', $active, true ) && ! in_array( 'sharedaddy', $active, true ) ) {
+			// we have a sharing page but not the global options area.
+			add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
+			add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
+		}
 
-			if ( ! in_array( 'sharedaddy', $active, true ) ) {
-				add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharedaddy_not_loaded' ) );
-				add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_showbuttonon_init' ), 19 );
-				add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_showbuttonon_callback' ), 19 );
-				add_action( 'admin_init', array( $this->settings, 'add_meta_box' ) );
-			} else {
-				add_filter( 'sharing_meta_box_title', array( $this->settings, 'add_likes_to_sharing_meta_box_title' ) );
-				add_action( 'start_sharing_meta_box_content', array( $this->settings, 'meta_box_content' ) );
-			}
-		} else { // wpcom.
-			add_action( 'wpmu_new_blog', array( $this, 'enable_comment_likes' ), 10, 1 );
+		if ( ! in_array( 'sharedaddy', $active, true ) ) {
+			add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharedaddy_not_loaded' ) );
+			add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_showbuttonon_init' ), 19 );
+			add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_showbuttonon_callback' ), 19 );
 			add_action( 'admin_init', array( $this->settings, 'add_meta_box' ) );
-			add_action( 'end_likes_meta_box_content', array( $this->settings, 'sharing_meta_box_content' ) );
-			add_filter( 'likes_meta_box_title', array( $this->settings, 'add_likes_to_sharing_meta_box_title' ) );
+		} else {
+			add_filter( 'sharing_meta_box_title', array( $this->settings, 'add_likes_to_sharing_meta_box_title' ) );
+			add_action( 'start_sharing_meta_box_content', array( $this->settings, 'meta_box_content' ) );
 		}
 
 		add_action( 'admin_init', array( $this, 'admin_discussion_likes_settings_init' ) ); // Likes notifications.
@@ -152,10 +158,17 @@ class Jetpack_Likes {
 	 * Load scripts and styles for front end.
 	 */
 	public function load_styles_register_scripts() {
-		if ( $this->in_jetpack ) {
-			wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
-			$this->register_scripts();
-		}
+		wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
+		wp_register_script(
+			'jetpack_likes_queuehandler',
+			Assets::get_file_url_for_environment(
+				'_inc/build/likes/queuehandler.min.js',
+				'modules/likes/queuehandler.js'
+			),
+			array(),
+			JETPACK__VERSION,
+			true
+		);
 	}
 
 	/**
@@ -207,11 +220,7 @@ class Jetpack_Likes {
 	 * @param string $option - which option we're checking (social_notifications_like).
 	 */
 	public function admin_likes_get_option( $option ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$option_setting = get_blog_option( get_current_blog_id(), $option, 'on' );
-		} else {
-			$option_setting = get_option( $option, 'on' );
-		}
+		$option_setting = get_option( $option, 'on' );
 
 		return (int) ( 'on' === $option_setting );
 	}
@@ -274,33 +283,8 @@ class Jetpack_Likes {
 			return;
 		}
 
-		if ( $this->in_jetpack ) {
-			add_filter( 'the_content', array( $this, 'post_likes' ), 30, 1 );
-			add_filter( 'the_excerpt', array( $this, 'post_likes' ), 30, 1 );
-
-		} else {
-			add_filter( 'post_flair', array( $this, 'post_likes' ), 30, 1 );
-			add_filter( 'post_flair_block_css', array( $this, 'post_flair_service_enabled_like' ) );
-
-			wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'queuehandler.js', __FILE__ ), array(), JETPACK__VERSION, true );
-			wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes.css', __FILE__ ), array(), JETPACK__VERSION );
-		}
-	}
-
-	/**
-	 * Register scripts.
-	 */
-	public function register_scripts() {
-		wp_register_script(
-			'jetpack_likes_queuehandler',
-			Assets::get_file_url_for_environment(
-				'_inc/build/likes/queuehandler.min.js',
-				'modules/likes/queuehandler.js'
-			),
-			array(),
-			JETPACK__VERSION,
-			true
-		);
+		add_filter( 'the_content', array( $this, 'post_likes' ), 30, 1 );
+		add_filter( 'the_excerpt', array( $this, 'post_likes' ), 30, 1 );
 	}
 
 	/**
@@ -351,32 +335,26 @@ class Jetpack_Likes {
 	 */
 	public function enqueue_admin_scripts() {
 		if ( empty( $_GET['post_type'] ) || 'post' === $_GET['post_type'] || 'page' === $_GET['post_type'] ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( $this->in_jetpack ) {
-				wp_enqueue_script(
-					'likes-post-count',
-					Assets::get_file_url_for_environment(
-						'_inc/build/likes/post-count.min.js',
-						'modules/likes/post-count.js'
-					),
-					array( 'jquery' ),
-					JETPACK__VERSION,
-					$in_footer = false
-				);
-				wp_enqueue_script(
-					'likes-post-count-jetpack',
-					Assets::get_file_url_for_environment(
-						'_inc/build/likes/post-count-jetpack.min.js',
-						'modules/likes/post-count-jetpack.js'
-					),
-					array( 'likes-post-count' ),
-					JETPACK__VERSION,
-					$in_footer = false
-				);
-			} else {
-				wp_enqueue_script( 'jquery.wpcom-proxy-request', '/wp-content/js/jquery/jquery.wpcom-proxy-request.js', array( 'jquery' ), JETPACK__VERSION, true );
-				wp_enqueue_script( 'likes-post-count', plugins_url( 'likes/post-count.js', __DIR__ ), array( 'jquery' ), JETPACK__VERSION, $in_footer = false );
-				wp_enqueue_script( 'likes-post-count-wpcom', plugins_url( 'likes/post-count-wpcom.js', __DIR__ ), array( 'likes-post-count', 'jquery.wpcom-proxy-request' ), JETPACK__VERSION, $in_footer = false );
-			}
+			wp_enqueue_script(
+				'likes-post-count',
+				Assets::get_file_url_for_environment(
+					'_inc/build/likes/post-count.min.js',
+					'modules/likes/post-count.js'
+				),
+				array( 'jquery' ),
+				JETPACK__VERSION,
+				$in_footer = false
+			);
+			wp_enqueue_script(
+				'likes-post-count-jetpack',
+				Assets::get_file_url_for_environment(
+					'_inc/build/likes/post-count-jetpack.min.js',
+					'modules/likes/post-count-jetpack.js'
+				),
+				array( 'jquery', 'likes-post-count' ),
+				JETPACK__VERSION,
+				$in_footer = false
+			);
 		}
 	}
 
@@ -389,11 +367,7 @@ class Jetpack_Likes {
 	public function likes_edit_column( $column_name, $post_id ) {
 		if ( 'likes' === $column_name ) {
 
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				$blog_id = get_current_blog_id();
-			} else {
-				$blog_id = Jetpack_Options::get_option( 'id' );
-			}
+			$blog_id = Jetpack_Options::get_option( 'id' );
 
 			$permalink = get_permalink( get_the_ID() );
 			?>
@@ -425,22 +399,32 @@ class Jetpack_Likes {
 	 * @param string $content - content of the page.
 	 */
 	public function post_likes( $content ) {
+		global $wp_current_filter;
 		$post_id = get_the_ID();
 
 		if ( ! is_numeric( $post_id ) || ! $this->settings->is_likes_visible() ) {
 			return $content;
 		}
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$blog_id  = get_current_blog_id();
-			$bloginfo = get_blog_details( (int) $blog_id );
-			$domain   = $bloginfo->domain;
-		} else {
-			$blog_id   = Jetpack_Options::get_option( 'id' );
-			$url       = home_url();
-			$url_parts = wp_parse_url( $url );
-			$domain    = $url_parts['host'];
+		// Do not output Likes on requests for ActivityPub requests.
+		if (
+			function_exists( '\Activitypub\is_activitypub_request' )
+			&& \Activitypub\is_activitypub_request()
+		) {
+			return $content;
 		}
+
+		// Ensure we don't display like button on post excerpts that are hooked inside the post content
+		if ( in_array( 'the_excerpt', (array) $wp_current_filter, true ) &&
+			in_array( 'the_content', (array) $wp_current_filter, true ) ) {
+			return $content;
+		}
+
+		$blog_id   = Jetpack_Options::get_option( 'id' );
+		$url       = home_url();
+		$url_parts = wp_parse_url( $url );
+		$domain    = $url_parts['host'];
+
 		// Make sure to include the scripts before the iframe otherwise weird things happen.
 		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
 
@@ -449,8 +433,18 @@ class Jetpack_Likes {
 		* we need a slightly more unique id / name for the widget wrapper.
 		*/
 		$uniqid = uniqid();
+		/**
+		 * Enable an alternate Likes layout.
+		 *
+		 * @since 12.9
+		 *
+		 * @module likes
+		 *
+		 * @param bool $new_layout Enable the new Likes layout. False by default.
+		 */
+		$new_layout = apply_filters( 'likes_new_layout', true ) ? '&amp;n=1' : '';
 
-		$src      = sprintf( 'https://widgets.wp.com/likes/#blog_id=%1$d&amp;post_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $blog_id, $post_id, $domain, $uniqid );
+		$src      = sprintf( 'https://widgets.wp.com/likes/?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid, $new_layout );
 		$name     = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 		$wrapper  = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 		$headline = sprintf(
@@ -471,16 +465,6 @@ class Jetpack_Likes {
 		wp_enqueue_script( 'jetpack_likes_queuehandler' );
 
 		return $content . $html;
-	}
-
-	/**
-	 * Adds sd-like-enabled CSS class
-	 *
-	 * @param array $classes CSS class for post flair.
-	 */
-	public function post_flair_service_enabled_like( $classes ) {
-		$classes[] = 'sd-like-enabled';
-		return $classes;
 	}
 
 	/** Checks if admin bar is visible.*/
@@ -529,20 +513,15 @@ class Jetpack_Likes {
 		if ( is_ssl() ) {
 			$protocol = 'https';
 		}
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$blog_id  = get_current_blog_id();
-			$bloginfo = get_blog_details( (int) $blog_id );
-			$domain   = $bloginfo->domain;
-		} else {
-			$blog_id   = Jetpack_Options::get_option( 'id' );
-			$url       = home_url();
-			$url_parts = wp_parse_url( $url );
-			$domain    = $url_parts['host'];
-		}
+		$blog_id   = Jetpack_Options::get_option( 'id' );
+		$url       = home_url();
+		$url_parts = wp_parse_url( $url );
+		$domain    = $url_parts['host'];
+
 		// Make sure to include the scripts before the iframe otherwise weird things happen.
 		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
 
-		$src = sprintf( 'https://widgets.wp.com/likes/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
+		$src = sprintf( 'https://widgets.wp.com/likes/?ver=%1$s#blog_id=%3$d&amp;post_id=%4$d&amp;origin=%2$s://%5$s', rawurlencode( JETPACK__VERSION ), $protocol, $blog_id, $post_id, $domain );
 
 		$html = "<iframe class='admin-bar-likes-widget jetpack-likes-widget' scrolling='no' frameBorder='0' name='admin-bar-likes-widget' src='$src'></iframe>";
 
@@ -648,14 +627,5 @@ add_action( 'rest_api_init', 'jetpack_post_likes_register_rest_field' );
 // Some CPTs (e.g. Jetpack portfolios and testimonials) get registered with
 // restapi_theme_init because they depend on theme support, so let's also hook to that.
 add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 );
-
-/**
- * Set the Likes and Sharing Gutenberg extension availability.
- */
-function jetpack_post_likes_set_extension_availability() {
-	Jetpack_Gutenberg::set_extension_available( 'likes' );
-}
-
-add_action( 'jetpack_register_gutenberg_extensions', 'jetpack_post_likes_set_extension_availability' );
 
 Jetpack_Likes::init();

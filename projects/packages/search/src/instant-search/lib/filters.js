@@ -3,6 +3,10 @@ import { SERVER_OBJECT_NAME } from './constants';
 // NOTE: This list is missing custom taxonomy names.
 //       getFilterKeys must be used to get the conclusive list of valid filter keys.
 export const FILTER_KEYS = Object.freeze( [
+	// Blog IDs
+	'blog_ids',
+	// Authors
+	'authors',
 	// Post types
 	'post_types',
 	// Built-in taxonomies
@@ -46,14 +50,27 @@ export function getFilterKeys(
 /**
  * Get a list of provided static filters.
  *
+ * @param {'sidebar'|'tabbed'|undefined} variation - the filter variation to get (tabbed or sidebar), defaults to none (returns every variation).
  * @returns {Array} list of available static filters.
  */
-export function getAvailableStaticFilters() {
+export function getAvailableStaticFilters( variation ) {
 	if ( ! window[ SERVER_OBJECT_NAME ]?.staticFilters ) {
 		return [];
 	}
 
-	return window[ SERVER_OBJECT_NAME ].staticFilters;
+	return window[ SERVER_OBJECT_NAME ].staticFilters.filter( filter => {
+		// this check makes the function backwards compatible (it didn't have variation as an argument before)
+		if ( ! variation ) {
+			// if variation is not provided, return all filters
+			return true;
+		}
+		if ( variation === 'sidebar' && ! filter.variation ) {
+			return true; // filters default variation is `sidebar`
+		}
+		if ( variation && filter.variation ) {
+			return filter.variation === variation;
+		}
+	} );
 }
 
 /**
@@ -119,6 +136,10 @@ export function mapFilterToFilterKey( filter ) {
 		return `${ filter.taxonomy }`;
 	} else if ( filter.type === 'post_type' ) {
 		return 'post_types';
+	} else if ( filter.type === 'author' ) {
+		return 'authors';
+	} else if ( filter.type === 'blog_id' ) {
+		return 'blog_ids';
 	} else if ( filter.type === 'group' ) {
 		return filter.filter_id;
 	}
@@ -149,6 +170,14 @@ export function mapFilterKeyToFilter( filterKey ) {
 		return {
 			type: 'post_type',
 		};
+	} else if ( filterKey === 'authors' ) {
+		return {
+			type: 'author',
+		};
+	} else if ( filterKey === 'blog_ids' ) {
+		return {
+			type: 'blog_id',
+		};
 	} else if ( filterKey === 'group' ) {
 		return {
 			type: 'group',
@@ -165,7 +194,7 @@ export function mapFilterKeyToFilter( filterKey ) {
  * Returns the type of the inputted filter object.
  *
  * @param {object} filter - filter key string to be mapped.
- * @returns {string} output
+ * @returns {string|undefined} output
  */
 export function mapFilterToType( filter ) {
 	if ( filter.type === 'date_histogram' ) {
@@ -174,7 +203,12 @@ export function mapFilterToType( filter ) {
 		return 'taxonomy';
 	} else if ( filter.type === 'post_type' ) {
 		return 'postType';
+	} else if ( filter.type === 'author' ) {
+		return 'author';
+	} else if ( filter.type === 'blog_id' ) {
+		return 'blogId';
 	} else if ( filter.type === 'group' ) {
 		return 'group';
 	}
+	return undefined;
 }

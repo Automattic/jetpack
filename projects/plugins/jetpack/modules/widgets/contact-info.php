@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 
@@ -492,7 +494,6 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				wp_die();
 			}
 		}
-
 	}
 
 }

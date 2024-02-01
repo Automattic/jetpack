@@ -10,6 +10,11 @@
 		flex-flow: row nowrap;
 		justify-content: space-between;
 	}
+
+	&.plan-golden-token .my-plan-card__icon img {
+		max-width: 80px;
+		max-height: 80px;
+	}
 }
 
 .my-plan-card__primary {
@@ -20,32 +25,65 @@
 
 .my-plan-card__header {
 	flex: 1;
+  	margin: auto;
+}
+
+.is-plan .my-plan-card__title{
+  font-size: 24px;
+}
+
+.is-plan .my-plan-card__tag-line{
+  font-size: 16px;
+}
+
+.is-plan .my-plan-card__header{
+  margin: auto;
 }
 
 .my-plan-card__title {
-	font-size: $font-title-small;
-	font-weight: 600;
+	font-size: 20px;
+	font-weight: 500;
 	line-height: 30px;
-	margin: 6px 0;
-	color: $gray-dark;
+	margin: 4px 0;
+	color: $black;
+
+  @include breakpoint( '<960px' ) {
+	padding-top: 16px;
+  }
 }
 
 .my-plan-card__tag-line {
 	$font-body-small: 14px;
 	font-weight: 400;
-	line-height: 18px;
-	margin: 0 0 24px;
+	line-height: 1.65;
+	margin: 0 0 4px 0;
 
-	@include breakpoint( '>960px' ) {
-		margin-bottom: 8px;
+	@include breakpoint( '<960px' ) {
+	  margin-bottom: 8px;
+	}
+}
+
+.is-plan .my-plan-card__icon {
+	width: 99px;
+	height: 99px;
+	margin: 0 16px 0 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	@include breakpoint( '<660px' ) {
+		order: 99;
+		width: 80px;
+		height: 80px;
+		margin: 20px 0 0 16px;
 	}
 }
 
 .my-plan-card__icon {
 	flex: 0 0 auto;
-	width: 64px;
-	height: 64px;
-	margin: 8px 20px 16px 0;
+	width: 48px;
+	height: 48px;
+	margin: 16px 24px 16px 0;
 
 	@include breakpoint( '<660px' ) {
 		display: none;
@@ -63,7 +101,7 @@
 	flex-flow: row wrap;
 	align-items: center;
 	justify-content: space-between;
-	padding: 8px 0 0;
+	padding: 0;
 
 	@include breakpoint( '>960px' ) {
 		flex-flow: column nowrap;
@@ -75,10 +113,10 @@
 	&::before {
 		content: '';
 		position: absolute;
-		top: 0;
 		left: -16px;
 		right: -16px;
-		border-top: 1px solid $light-gray-700;
+		border-bottom: 1px solid var(--jp-gray);
+	  	bottom: 0;
 
 		@include breakpoint( '>480px' ) {
 			left: -24px;
@@ -101,8 +139,13 @@
 }
 
 .my-plan-card__details {
-	padding-top: 8px;
+	padding: 8px 0 16px;
 	color: $gray-darken-10;
+  	display: contents;
+
+	@include breakpoint( '<960px' ) {
+	  display: block;
+	}
 
 	@include breakpoint( '>480px' ) {
 		white-space: nowrap;
@@ -115,13 +158,53 @@
 	&.is-error {
 		color: $alert-red;
 	}
+
+	a.my-plan-card__renew {
+	  text-decoration: underline;
+	  margin-top: 8px;
+
+	  &:hover {
+		text-decoration-thickness: 3px;
+		color: $black;
+	  }
+
+	  &:focus {
+		text-decoration-line: none;
+		border-radius: 2px;
+		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+		outline: 3px solid transparent;
+		color: $black;
+	  }
+
+	  &:active {
+		color: $black;
+	  }
+	}
 }
 
 .my-plan-card__action {
 	padding-top: 8px;
 	white-space: nowrap;
 
-	.has-action-only & {
-		padding-top: 0;
+	  .has-action-only & {
+		  padding-top: 0;
+	  }
+}
+
+.my-plan-card__expired {
+	color: $alert-red;
+}
+.my-plan-card__renew {
+	display: flex;
+	justify-content: flex-end;
+	color: $black;
+
+	.components-external-link__icon {
+	  align-self: center;
+	}
+
+	@include breakpoint( '<960px' ) {
+	  justify-content: flex-start;
 	}
 }
+

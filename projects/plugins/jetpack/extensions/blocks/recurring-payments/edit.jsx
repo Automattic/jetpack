@@ -1,30 +1,53 @@
-import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
-import { InnerBlocks } from '@wordpress/block-editor';
-import { Button, ExternalLink, Placeholder } from '@wordpress/components';
+import { InspectorControls, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useMemo } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
-import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';
-import { store as membershipProductsStore } from '../../store/membership-products';
-import { icon, title } from './';
+import useWidth from '../../shared/use-width';
+import { WidthPanel } from '../../shared/width-panel';
+import { getBlockStyles } from './util';
 
 // If we use the name on index.js and the block name changes the events block name will also change.
 const BLOCK_NAME = 'recurring-payments';
 
-export default function Edit( { attributes, clientId, context, setAttributes } ) {
-	const { planId } = attributes;
-	const { isPremiumContentChild } = context;
+export default function Edit( { attributes, clientId, setAttributes } ) {
+	const { align, planId, planIds, width } = attributes;
+
+	// planId is a integer, planIds is an array.
+	// if planIds is set, use it, otherwise use planId. Going forward we should only use planIds.
+	// This is placed in useMemo to support the useCallback and useEffect hooks below.
+	const _planIds = useMemo( () => {
+		return planIds || ( planId ? [ planId ] : [] );
+	}, [ planId, planIds ] );
+
 	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
-	const upgradeUrl = useSelect( select => select( membershipProductsStore ).getUpgradeUrl() );
 
-	const updateSubscriptionPlan = useCallback(
-		newPlanId => {
+	const updateSubscriptionPlans = useCallback(
+		newPlanIds => {
+			// verify newPlanIds is a non-empty array.
+			if ( ! Array.isArray( newPlanIds ) || 0 === newPlanIds.length ) {
+				return;
+			}
+			// ensure/convert all elements to integers.
+			const validatedPlanIds = newPlanIds
+				.map( id => parseInt( id, 10 ) )
+				.filter( id => ! isNaN( id ) );
+
+			// if all the elements match the existing planIds, do nothing.
+			if (
+				Array.isArray( _planIds ) &&
+				validatedPlanIds.length === _planIds.length &&
+				validatedPlanIds.every( i => _planIds.includes( i ) )
+			) {
+				return;
+			}
+
+			const newPlanId = validatedPlanIds.join( '+' );
 			const resolvePaymentUrl = paymentPlanId => {
 				if ( POST_EDITOR !== editorType || ! postLink ) {
 					return '#';
@@ -36,81 +59,78 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 			};
 
 			setAttributes( {
-				planId: newPlanId,
+				planId: null,
+				planIds: validatedPlanIds,
 				url: resolvePaymentUrl( newPlanId ),
 				uniqueId: `recurring-payments-${ newPlanId }`,
 			} );
 		},
-		[ editorType, postLink, setAttributes ]
+		[ editorType, _planIds, postLink, setAttributes ]
 	);
 
 	useEffect( () => {
-		updateSubscriptionPlan( planId );
-	}, [ planId, updateSubscriptionPlan ] );
+		updateSubscriptionPlans( _planIds );
+	}, [ _planIds, updateSubscriptionPlans ] );
 
 	/**
-	 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
-	 * We supply true as the first argument since we should always show the controls by default.
+	 * Filters the editor settings of the Payment Button block (`jetpack/recurring-payments`).
 	 *
-	 * @param {boolean} showControls - Whether inspectors controls are shown.
-	 * @param {string} showControls - Block ID.
+	 * @param {object} editorSettings - An object with the block settings.
+	 * @param {boolean} editorSettings.showProductManagementControls - Whether the product management block controls should be shown.
+	 * @param {boolean} editorSettings.showStripeNudge - Whether the action to connect to Stripe should be shown.
+	 * @param {string} clientId - Block ID.
 	 */
-	const showControls = applyFilters( 'jetpack.RecurringPayments.showControls', true, clientId );
+	const { showProductManagementControls, showStripeNudge } = applyFilters(
+		'jetpack.recurringPayments.editorSettings',
+		{
+			showProductManagementControls: true,
+			showStripeNudge: true,
+		},
+		clientId
+	);
 
-	const availability = getJetpackExtensionAvailability( 'recurring-payments' );
-	const hasWpcomUpgradeNudge =
-		! availability.available && 'missing_plan' === availability.unavailableReason;
-	const showJetpackUpgradeNudge =
-		!! upgradeUrl && ! hasWpcomUpgradeNudge && ! isPremiumContentChild;
+	useWidth( { attributes, setAttributes } );
+
+	const blockProps = useBlockProps( { style: getBlockStyles( { width } ) } );
+	const innerBlocksProps = useInnerBlocksProps(
+		{},
+		{
+			template: [
+				[
+					'jetpack/button',
+					{
+						element: 'a',
+						passthroughAttributes: {
+							uniqueId: 'uniqueId',
+							url: 'url',
+						},
+					},
+				],
+			],
+			templateLock: 'all',
+			templateInsertUpdatesSelection: true,
+		}
+	);
 
 	return (
-		<div className="wp-block-jetpack-recurring-payments">
-			{ showControls && (
+		<div { ...blockProps }>
+			{ showProductManagementControls && (
 				<ProductManagementControls
 					blockName={ BLOCK_NAME }
 					clientId={ clientId }
-					selectedProductId={ planId }
-					setSelectedProductId={ updateSubscriptionPlan }
+					selectedProductIds={ _planIds }
+					setSelectedProductIds={ updateSubscriptionPlans }
 				/>
 			) }
-
-			{ showJetpackUpgradeNudge && (
-				<Placeholder
-					icon={ icon }
-					instructions={ __(
-						"You'll need to upgrade your plan to use the Payments block.",
-						'jetpack'
-					) }
-					label={ title }
-				>
-					<Button href={ upgradeUrl } target="_blank" variant="secondary">
-						{ __( 'Upgrade your plan', 'jetpack' ) }
-					</Button>
-					<div className="membership-button__disclaimer">
-						<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
-							{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
-						</ExternalLink>
-					</div>
-				</Placeholder>
-			) }
-			<StripeNudge blockName={ BLOCK_NAME } />
-			<InnerBlocks
-				template={ [
-					[
-						'jetpack/button',
-						{
-							element: 'a',
-							passthroughAttributes: {
-								uniqueId: 'uniqueId',
-								url: 'url',
-							},
-						},
-					],
-				] }
-				templateLock="all"
-				__experimentalCaptureToolbars={ true }
-				templateInsertUpdatesSelection={ false }
-			/>
+			<InspectorControls>
+				<WidthPanel
+					align={ align }
+					width={ width }
+					onChange={ newWidth => setAttributes( { width: newWidth } ) }
+				/>
+			</InspectorControls>
+			{ showStripeNudge && <StripeNudge blockName={ BLOCK_NAME } /> }
+			<div { ...innerBlocksProps } />
 		</div>
 	);
 }

@@ -4,17 +4,22 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.41",
-		"automattic/jetpack-constants": "^1.6",
-		"automattic/jetpack-identity-crisis": "^0.8",
-		"automattic/jetpack-password-checker": "^0.2",
-		"automattic/jetpack-roles": "^1.4",
-		"automattic/jetpack-status": "^1.14"
+		"php": ">=7.0",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-identity-crisis": "@dev",
+		"automattic/jetpack-password-checker": "@dev",
+		"automattic/jetpack-ip": "@dev",
+		"automattic/jetpack-roles": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.1",
-		"yoast/phpunit-polyfills": "1.0.3",
+		"automattic/jetpack-changelogger": "@dev",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/wordbless": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -25,13 +30,11 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
 		"test-php": [
 			"@composer phpunit"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
 	"repositories": [
 		{
@@ -55,7 +58,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.36.x-dev"
+			"dev-trunk": "2.5.x-dev"
 		}
 	},
 	"config": {

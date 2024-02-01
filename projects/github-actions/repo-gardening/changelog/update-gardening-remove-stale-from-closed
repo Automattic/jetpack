@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Label cleanup: Remove `[Status] Stale` from closed PRs.

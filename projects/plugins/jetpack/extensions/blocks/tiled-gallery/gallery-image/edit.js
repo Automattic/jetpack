@@ -81,7 +81,7 @@ class GalleryImageEdit extends Component {
 
 		switch ( linkTo ) {
 			case 'media':
-				href = url;
+				href = origUrl;
 				break;
 			case 'attachment':
 				href = link;

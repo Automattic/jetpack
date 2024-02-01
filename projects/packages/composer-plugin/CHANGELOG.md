@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [1.1.14] - 2023-09-19
+
+- Minor internal updates.
+
+## [1.1.13] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## [1.1.12] - 2023-07-24
+### Fixed
+- Allow `beta-plugin-slug` for cases when a `wp-plugin-slug` doesn't exist yet but is planned to. [#31551]
+
+## [1.1.11] - 2023-05-22
+### Added
+- Set keywords in `composer.json`. [#30756]
+
+## [1.1.10] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [1.1.9] - 2023-01-16
+### Fixed
+- Ensure `jetpack_vendor/` exists before trying to write `jetpack_vendor/i18n-map.php`. [#28369]
+
+## [1.1.8] - 2022-12-19
+### Changed
+- Updated package dependencies. [#27963]
+
+## [1.1.7] - 2022-12-02
+### Changed
+- Updated package dependencies. [#27688]
+
+## [1.1.6] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## [1.1.5] - 2022-10-25
+### Changed
+- Sort data in generated `i18n-map.php` file to avoid spurious diffs. [#26929]
+
+## [1.1.4] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
 ## [1.1.3] - 2022-06-21
 ### Changed
 - Renaming master to trunk.
@@ -46,6 +94,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added the Jetpack Installer package.
 
+[2.0.0]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.14...v2.0.0
+[1.1.14]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.13...v1.1.14
+[1.1.13]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.12...v1.1.13
+[1.1.12]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.11...v1.1.12
+[1.1.11]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.10...v1.1.11
+[1.1.10]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.9...v1.1.10
+[1.1.9]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.8...v1.1.9
+[1.1.8]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.7...v1.1.8
+[1.1.7]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.6...v1.1.7
+[1.1.6]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.5...v1.1.6
+[1.1.5]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.4...v1.1.5
+[1.1.4]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/Automattic/jetpack-composer-plugin/compare/v1.1.0...v1.1.1

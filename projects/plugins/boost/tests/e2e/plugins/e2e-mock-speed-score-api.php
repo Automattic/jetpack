@@ -9,7 +9,20 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Request;
+
 add_filter( 'pre_http_request', 'e2e_mock_speed_score_api', 1, 3 );
+
+function is_modules_disabled( $target ) {
+	if ( ! preg_match( '/wpcom\/v2\/sites\/\d+\/jetpack-boost\/speed-scores\/([^\?]*)/', $target, $matches ) ) {
+		return false;
+	}
+
+	$option = get_option( 'jb_transient_jetpack_boost_speed_scores_' . $matches[1] );
+	$url    = $option['data']['url'];
+
+	return str_contains( $url, 'jb-disable-modules' );
+}
 
 /**
  * Intercept WPCOM request to generate Speed Scores and reply with mocked data
@@ -37,7 +50,7 @@ function e2e_mock_speed_score_api( $default_action, $args, $target ) {
 	// Return successful speed score message when polling.
 	if ( 'GET' === $args['method'] ) {
 		// Return a lower mock-score when generating with no Boost modules enabled (determined by URL arguments).
-		$modules_disabled = strpos( $target, 'jb-disable-modules' ) !== false;
+		$modules_disabled = is_modules_disabled( $target );
 
 		return e2e_mock_speed_score_api_response(
 			array(
@@ -65,4 +78,12 @@ function e2e_mock_speed_score_api_response( $body ) {
 		),
 		'body'     => wp_json_encode( $body ),
 	);
+}
+
+/**
+ * On deactivation, purge any cached speed scores.
+ */
+register_deactivation_hook( __FILE__, 'e2e_mock_speed_score_purge' );
+function e2e_mock_speed_score_purge() {
+	Speed_Score_Request::clear_cache();
 }

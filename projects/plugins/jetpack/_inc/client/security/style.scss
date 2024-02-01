@@ -1,33 +1,45 @@
+.brute-force__current-ip {
+    margin-bottom: 16px;
+}
+
 .waf__header {
     align-items: center;
     display: flex;
 
-    &__badge {
-        background-color: $green-primary;
-        border-radius: 2px;
-        font-size: 11px;
-        line-height: 12px;
-        margin-left: 9px;
-        padding: 4px 5px;
+    .waf__header__badge {
+        background-color: #D0E6B8;
+        border-radius: 3px;
+        font-size: 10px;
+        line-height: 18px;
+        margin-left: 10px;
+        padding: 0px 6px;
 
         &,
+        &:link,
         &:active,
         &:focus,
-        &:hover {
-            color: $white;
+        &:hover,
+        &:visited {
+            color: #008710;
+            text-decoration: none;
         }
     }
 
 }
 
 .waf__settings {
-    padding-top: 24px;
-    padding-left: 36px;
+    margin-top: 24px;
+    margin-left: 64px;
 
     &__toggle-setting {
         flex-wrap: wrap;
         display: flex;
-        margin-bottom: 12px;
+        margin-bottom: 16px;
+
+        &__label {
+            display: flex;
+            align-items: center;
+        }
 
         &:last-child {
             margin-bottom: 0;
@@ -46,6 +58,11 @@
 
     &__ips:last-of-type {
         margin-bottom: 12px;
+    }
+
+    &__ips__save-button {
+        margin-top: 6px;
+        float: right;
     }
 
     &__share-data-popover {

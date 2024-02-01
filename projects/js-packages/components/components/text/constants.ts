@@ -3,10 +3,12 @@ export const VARIANTS_MAPPING = {
 	'headline-small': 'h2',
 	'headline-small-regular': 'h2',
 	'title-medium': 'h3',
+	'title-medium-semi-bold': 'h3',
 	'title-small': 'h4',
 	body: 'p',
 	'body-small': 'p',
 	'body-extra-small': 'p',
+	'body-extra-small-bold': 'p',
 	label: 'p',
 } as const;
 

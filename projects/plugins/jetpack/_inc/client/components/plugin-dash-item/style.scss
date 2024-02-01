@@ -1,8 +1,10 @@
 @import '@automattic/jetpack-base-styles/style';
 @import '_inc/client/scss/variables/_colors.scss';
 @import '../../scss/mixin_breakpoint.scss';
+@import '../../scss/mixins/ui';
 
 .plugin-dash-item {
+	@include dashboard-card-shadow;
 
 	p {
 		font-size: var( --font-body-small );
@@ -16,8 +18,10 @@
 	}
 
 	.dops-banner.dops-card {
-		border-left-color: $color-product;
 		height: 100%;
+		border: 0;
+		box-shadow: none;
+
 		.dops-banner__icons {
 
 			.dops-banner__icon-circle{
@@ -35,7 +39,7 @@
 			}
 
 			@include breakpoint( '<480px' ) {
-		
+
 				.dops-banner__icon {
 					display: none;
 				}
@@ -43,7 +47,7 @@
 					display: block;
 				}
 			}
-		} 
+		}
 	}
 
 	.plugin-dash-item__content {

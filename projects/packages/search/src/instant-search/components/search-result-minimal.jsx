@@ -1,3 +1,4 @@
+import { cleanForSlug } from '@wordpress/url';
 import React, { Component } from 'react';
 import Gridicon from './gridicon';
 import PathBreadcrumbs from './path-breadcrumbs';
@@ -25,7 +26,7 @@ class SearchResultMinimal extends Component {
 		return tags.slice( 0, MAX_TAGS_OR_CATEGORIES );
 	}
 
-	getCategories() {
+	getCategories( returnAll = false ) {
 		let cats = this.props.result.fields[ 'category.name.default' ];
 
 		if ( ! cats ) {
@@ -34,6 +35,10 @@ class SearchResultMinimal extends Component {
 
 		if ( ! Array.isArray( cats ) ) {
 			cats = [ cats ];
+		}
+
+		if ( returnAll ) {
+			return cats;
 		}
 
 		return cats.slice( 0, MAX_TAGS_OR_CATEGORIES );
@@ -96,16 +101,30 @@ class SearchResultMinimal extends Component {
 		const noMatchingContent = ! highlight.content || highlight.content[ 0 ] === '';
 
 		return (
-			<li className="jetpack-instant-search__search-result jetpack-instant-search__search-result-minimal">
+			<li
+				className={ [
+					'jetpack-instant-search__search-result',
+					'jetpack-instant-search__search-result-minimal',
+					this.getCategories( true )
+						.map( cat => 'jetpack-instant-search__search-result-category--' + cleanForSlug( cat ) )
+						.join( ' ' ),
+				].join( ' ' ) }
+			>
 				<h3 className="jetpack-instant-search__search-result-title jetpack-instant-search__search-result-minimal-title">
 					<PostTypeIcon postType={ fields.post_type } shortcodeTypes={ fields.shortcode_types } />
 					<a
 						className="jetpack-instant-search__search-result-title-link jetpack-instant-search__search-result-minimal-title-link"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ this.props.onClick }
-						//eslint-disable-next-line react/no-danger
-						dangerouslySetInnerHTML={ { __html: highlight.title } }
-					/>
+					>
+						<span
+							//eslint-disable-next-line react/no-danger
+							dangerouslySetInnerHTML={ { __html: highlight.title } }
+						/>
+						{ fields[ 'forum.topic_resolved' ] === 'yes' && (
+							<span className="jetpack-instant-search__search-result-title-checkmark" />
+						) }
+					</a>
 				</h3>
 				{ noMatchingContent ? this.renderNoMatchingContent() : this.renderMatchingContent() }
 				<SearchResultComments comments={ highlight && highlight.comments } />

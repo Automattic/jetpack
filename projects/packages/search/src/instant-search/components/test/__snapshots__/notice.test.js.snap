@@ -21,6 +21,7 @@ exports[`returns a notice if the type is warning: <Notice> output 1`] = `
         />
       </g>
     </svg>
+    <div />
   </div>
 </DocumentFragment>
 `;

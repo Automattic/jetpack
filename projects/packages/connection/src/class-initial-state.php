@@ -15,19 +15,14 @@ use Automattic\Jetpack\Status;
 class Initial_State {
 
 	/**
-	 * Whether the initial state was already rendered
-	 *
-	 * @var boolean
-	 */
-	private static $rendered = false;
-
-	/**
 	 * Get the initial state data.
 	 *
 	 * @return array
 	 */
 	private static function get_data() {
 		global $wp_version;
+
+		$status = new Status();
 
 		return array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
@@ -37,7 +32,10 @@ class Initial_State {
 			'userConnectionData' => REST_Connector::get_user_connection_data( false ),
 			'connectedPlugins'   => REST_Connector::get_connection_plugins( false ),
 			'wpVersion'          => $wp_version,
-			'siteSuffix'         => ( new Status() )->get_site_suffix(),
+			'siteSuffix'         => $status->get_site_suffix(),
+			'connectionErrors'   => Error_Handler::get_instance()->get_verified_errors(),
+			'isOfflineMode'      => $status->is_offline_mode(),
+			'calypsoEnv'         => ( new Status\Host() )->get_calypso_env(),
 		);
 	}
 
@@ -47,11 +45,17 @@ class Initial_State {
 	 * @return string
 	 */
 	public static function render() {
-		if ( self::$rendered ) {
-			return null;
-		}
-		self::$rendered = true;
-		return 'var JP_CONNECTION_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::get_data() ) ) . '"));';
+		return 'var JP_CONNECTION_INITIAL_STATE; typeof JP_CONNECTION_INITIAL_STATE === "object" || (JP_CONNECTION_INITIAL_STATE = JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::get_data() ) ) . '")));';
 	}
 
+	/**
+	 * Render the initial state using an inline script.
+	 *
+	 * @param string $handle The JS script handle.
+	 *
+	 * @return void
+	 */
+	public static function render_script( $handle ) {
+		wp_add_inline_script( $handle, static::render(), 'before' );
+	}
 }

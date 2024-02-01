@@ -1,5 +1,5 @@
+import * as WPElement from '@wordpress/element';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import store from 'state/redux-store';
 import SearchDashboard from './search/dashboard';
@@ -14,12 +14,12 @@ function init() {
 		return;
 	}
 
-	ReactDOM.render(
+	const component = (
 		<Provider store={ store }>
 			<SearchDashboard />
-		</Provider>,
-		container
+		</Provider>
 	);
+	WPElement.createRoot( container ).render( component );
 }
 
 // Initialize the dashboard when DOMContentLoaded is fired, or immediately if it already has been.

@@ -22,11 +22,12 @@ class Jetpack_Tiled_Gallery_Layout_Square extends Jetpack_Tiled_Gallery_Layout {
 		$images_per_row = ( $this->columns > 1 ? $this->columns : 1 );
 		$margin         = 2;
 
-		$margin_space   = ( $images_per_row * $margin ) * 2;
-		$size           = floor( ( $content_width - $margin_space ) / $images_per_row );
-		$remainder_size = $size;
-		$img_size       = $remainder_size;
-		$remainder      = count( $this->attachments ) % $images_per_row;
+		$margin_space     = ( $images_per_row * $margin ) * 2;
+		$size             = floor( ( $content_width - $margin_space ) / $images_per_row );
+		$remainder_size   = $size;
+		$img_size         = $remainder_size;
+		$attachment_count = is_countable( $this->attachments ) ? count( $this->attachments ) : 0;
+		$remainder        = $attachment_count % $images_per_row;
 		if ( $remainder > 0 ) {
 			$remainder_space = ( $remainder * $margin ) * 2;
 			$remainder_size  = floor( ( $content_width - $remainder_space ) / $remainder );
@@ -50,8 +51,8 @@ class Jetpack_Tiled_Gallery_Layout_Square extends Jetpack_Tiled_Gallery_Layout {
 			$item = new Jetpack_Tiled_Gallery_Square_Item( $image, $this->needs_attachment_link, $this->grayscale );
 
 			$row->images[] = $item;
-			$c ++;
-			$items_in_row++;
+			++$c;
+			++$items_in_row;
 
 			if ( $images_per_row === $items_in_row || $remainder + 1 === $c ) {
 				$rows[]       = $row;
@@ -87,4 +88,3 @@ class Jetpack_Tiled_Gallery_Layout_Square extends Jetpack_Tiled_Gallery_Layout {
 		return parent::HTML( array( 'rows' => $this->compute_items() ) );
 	}
 }
-

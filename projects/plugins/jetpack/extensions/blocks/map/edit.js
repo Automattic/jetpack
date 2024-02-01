@@ -1,3 +1,4 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
@@ -14,11 +15,15 @@ import { Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getActiveStyleName } from '../../shared/block-styles';
 import AddPoint from './add-point';
-import Map from './component.js';
+import metadata from './block.json';
+import Map from './component';
 import Controls from './controls';
 import { getCoordinates } from './get-coordinates.js';
 import previewPlaceholder from './map-preview.jpg';
-import { settings } from './settings.js';
+import styles from './styles';
+import getMapProvider from './utils/get-map-provider';
+
+const icon = getBlockIconComponent( metadata );
 
 const API_STATE_LOADING = 0;
 const API_STATE_FAILURE = 1;
@@ -38,6 +43,7 @@ const RESIZABLE_BOX_ENABLE_OPTION = {
 	bottomLeft: false,
 	topLeft: false,
 };
+
 class MapEdit extends Component {
 	constructor() {
 		super( ...arguments );
@@ -48,7 +54,7 @@ class MapEdit extends Component {
 		this.mapRef = createRef();
 	}
 	geoCodeAddress = ( address, apiKey ) => {
-		if ( ! apiKey ) {
+		if ( ! apiKey || this.getMapProvider() === 'mapkit' ) {
 			return;
 		}
 		getCoordinates( address, apiKey )
@@ -83,8 +89,16 @@ class MapEdit extends Component {
 	componentDidUpdate = previousProps => {
 		const address = this.props.attributes?.address;
 		const previousAddress = previousProps.attributes?.address;
+		const className = this.props.attributes?.className;
+		const previousClassName = previousProps.attributes?.className;
+
 		if ( address && previousAddress !== address ) {
 			this.geoCodeAddress( address, this.state.apiKey );
+		}
+		// fetch API key when switching from mapkit to mapbox
+		if ( className && previousClassName !== className && ! this.state.apiKey ) {
+			this.setState( { apiState: API_STATE_LOADING } );
+			this.apiCall();
 		}
 	};
 	addPoint = point => {
@@ -157,12 +171,23 @@ class MapEdit extends Component {
 			} );
 		} );
 	}
+	getMapProvider = () => {
+		const mapStyle = getActiveStyleName( styles, this.props?.attributes?.className );
+		return getMapProvider( { mapStyle } );
+	};
+
 	componentDidMount() {
-		this.apiCall().then( () => {
-			if ( this.props.attributes?.address ) {
-				this.geoCodeAddress( this.props.attributes?.address, this.state.apiKey );
-			}
-		} );
+		if ( this.getMapProvider() === 'mapbox' ) {
+			this.apiCall().then( () => {
+				if ( this.props.attributes?.address ) {
+					this.geoCodeAddress( this.props.attributes?.address, this.state.apiKey );
+				}
+			} );
+		} else {
+			this.setState( {
+				apiState: API_STATE_SUCCESS,
+			} );
+		}
 	}
 	onError = ( code, message ) => {
 		const { noticeOperations } = this.props;
@@ -184,13 +209,19 @@ class MapEdit extends Component {
 
 		onResizeStop();
 
-		const height = parseInt( this.mapRef.current.mapRef.current.offsetHeight + delta.height, 10 );
+		const ref = this.mapRef?.current?.mapRef ?? this.mapRef;
 
-		setAttributes( {
-			mapHeight: height,
-		} );
+		if ( ref ) {
+			const height = parseInt( ref.current.offsetHeight + delta.height, 10 );
 
-		setTimeout( this.mapRef.current.sizeMap, 0 );
+			setAttributes( {
+				mapHeight: height,
+			} );
+
+			if ( ref.current.sizeMap ) {
+				setTimeout( ref.current.sizeMap, 0 );
+			}
+		}
 	};
 
 	render() {
@@ -205,6 +236,7 @@ class MapEdit extends Component {
 			onResizeStart,
 		} = this.props;
 		const {
+			address,
 			mapDetails,
 			points,
 			zoom,
@@ -214,13 +246,12 @@ class MapEdit extends Component {
 			mapHeight,
 			showFullscreenButton,
 		} = attributes;
-		const {
-			addPointVisibility,
-			apiKey,
-			apiKeyControl,
-			apiState,
-			apiRequestOutstanding,
-		} = this.state;
+
+		const { addPointVisibility, apiKey, apiKeyControl, apiState, apiRequestOutstanding } =
+			this.state;
+
+		const mapProvider = this.getMapProvider();
+
 		const inspectorControls = (
 			<>
 				<BlockControls>
@@ -231,6 +262,7 @@ class MapEdit extends Component {
 						setPointVisibility={ this.setPointVisibility }
 						context="toolbar"
 						mapRef={ this.mapRef }
+						mapProvider={ mapProvider }
 					/>
 				</BlockControls>
 				<InspectorControls>
@@ -244,18 +276,19 @@ class MapEdit extends Component {
 						minHeight={ MIN_HEIGHT }
 						removeAPIKey={ this.removeAPIKey }
 						updateAPIKey={ this.updateAPIKey }
+						mapProvider={ mapProvider }
 					/>
 				</InspectorControls>
 			</>
 		);
 		const placholderAPIStateLoading = (
-			<Placeholder icon={ settings.icon }>
+			<Placeholder icon={ icon }>
 				<Spinner />
 			</Placeholder>
 		);
 
 		const instructions = (
-			<Fragment>
+			<p className="components-placeholder__instructions">
 				{ __( 'To use the map block, you need an Access Token.', 'jetpack' ) }
 				<br />
 				<ExternalLink href="https://www.mapbox.com">
@@ -266,16 +299,12 @@ class MapEdit extends Component {
 					'Locate and copy the default access token. Then, paste it into the field below.',
 					'jetpack'
 				) }
-			</Fragment>
+			</p>
 		);
 		const placeholderAPIStateFailure = (
-			<Placeholder
-				icon={ settings.icon }
-				label={ __( 'Map', 'jetpack' ) }
-				notices={ notices }
-				instructions={ instructions }
-			>
+			<Placeholder icon={ icon } label={ __( 'Map', 'jetpack' ) } notices={ notices }>
 				<Fragment>
+					{ instructions }
 					<form>
 						<input
 							type="text"
@@ -298,7 +327,7 @@ class MapEdit extends Component {
 		);
 		// Only scroll to zoom when the block is selected, and there's 1 or less points.
 		const allowScrollToZoom = isSelected && points.length <= 1;
-		const mapStyle = getActiveStyleName( settings.styles, attributes.className );
+		const mapStyle = getActiveStyleName( styles, attributes.className );
 		const placeholderAPIStateSuccess = (
 			<Fragment>
 				{ inspectorControls }
@@ -318,6 +347,7 @@ class MapEdit extends Component {
 						<div className="wp-block-jetpack-map__map_wrapper">
 							<Map
 								ref={ this.mapRef }
+								address={ address }
 								scrollToZoom={ allowScrollToZoom }
 								showFullscreenButton={ showFullscreenButton }
 								mapStyle={ mapStyle || 'default' }
@@ -337,6 +367,7 @@ class MapEdit extends Component {
 								onMapLoaded={ () => this.setState( { addPointVisibility: ! points.length } ) }
 								onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
 								onError={ this.onError }
+								mapProvider={ mapProvider }
 							>
 								{ isSelected && addPointVisibility && (
 									<AddPoint
@@ -345,6 +376,7 @@ class MapEdit extends Component {
 										apiKey={ apiKey }
 										onError={ this.onError }
 										tagName="AddPoint"
+										mapProvider={ mapProvider }
 									/>
 								) }
 							</Map>
@@ -353,7 +385,7 @@ class MapEdit extends Component {
 				</div>
 			</Fragment>
 		);
-		const mapStyleObject = settings.styles.find( styleObject => styleObject.name === mapStyle );
+		const mapStyleObject = styles.find( styleObject => styleObject.name === mapStyle );
 		const placholderPreview = (
 			<div>
 				<img

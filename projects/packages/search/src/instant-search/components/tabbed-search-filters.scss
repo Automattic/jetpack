@@ -1,0 +1,23 @@
+@import '../lib/styles/_helper.scss';
+
+.jetpack-instant-search__search-static-filter-variation-tabbed {
+	border-bottom: 1px solid $color-layout-borders;
+	display: flex;
+
+	> div {
+		margin: 0;
+	}
+
+	.jetpack-instant-search__search-filter-list-label {
+		padding: 10px 20px;
+		margin: 0;
+	}
+
+	.jetpack-instant-search__search-filter-list-input {
+		display: none;
+
+		&:checked + .jetpack-instant-search__search-filter-list-label {
+			border-bottom: 3px solid var( --color-primary );
+		}
+	}
+}

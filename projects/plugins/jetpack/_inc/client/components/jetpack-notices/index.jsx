@@ -14,6 +14,7 @@ import SocialLogo from 'social-logos';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
+	isConnectionOwner,
 	isStaging,
 	isInIdentityCrisis,
 	isCurrentUserLinked,
@@ -35,7 +36,6 @@ import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
 import JetpackStateNotices from './state-notices';
-import UserLicenseActivationNotice from './user-license-activation';
 
 export class DevVersionNotice extends React.Component {
 	static displayName = 'DevVersionNotice';
@@ -178,7 +178,8 @@ export class UserUnlinked extends React.Component {
 			return (
 				<div className="jp-unlinked-notice">
 					<ConnectionBanner
-						title={ __(
+						title={ __( 'Connect your WordPress.com account', 'jetpack' ) }
+						description={ __(
 							'Jetpack is powering your site, but to access all of its features you’ll need to connect your account to WordPress.com.',
 							'jetpack'
 						) }
@@ -210,18 +211,17 @@ class JetpackNotices extends React.Component {
 			error.hasOwnProperty( 'action' )
 		);
 
-		const isUserConnectScreen = '/connect-user' === this.props.location.pathname;
-		const isUserLicenseActivationScreen = this.props.location.pathname.startsWith( '/license' );
+		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
 
 		return (
 			<div aria-live="polite">
 				<NoticesList />
 				{ this.props.siteConnectionStatus &&
 					this.props.userCanConnectSite &&
-					! this.props.isReconnectingSite &&
 					( this.props.connectionErrors.length > 0 || siteDataErrors.length > 0 ) && (
 						<JetpackConnectionErrors
 							errors={ this.props.connectionErrors.concat( siteDataErrors ) }
+							display={ ! this.props.isReconnectingSite }
 						/>
 					) }
 				<JetpackStateNotices />
@@ -269,9 +269,6 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
-				{ ! isUserLicenseActivationScreen && ! this.props.isAtomicSite && (
-					<UserLicenseActivationNotice pathname={ this.props.location.pathname } />
-				) }
 			</div>
 		);
 	}
@@ -285,6 +282,7 @@ export default connect(
 			userCanConnectSite: userCanConnectSite( state ),
 			userCanConnectAccount: userCanConnectAccount( state ),
 			userIsSubscriber: userIsSubscriber( state ),
+			isConnectionOwner: isConnectionOwner( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
 			isAtomicSite: isAtomicSite( state ),

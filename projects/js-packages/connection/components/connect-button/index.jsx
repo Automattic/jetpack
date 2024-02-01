@@ -11,15 +11,8 @@ import useConnection from '../use-connection';
  * @returns {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {
-	const {
-		apiRoot,
-		apiNonce,
-		connectLabel,
-		registrationNonce,
-		redirectUri,
-		from,
-		autoTrigger,
-	} = props;
+	const { apiRoot, apiNonce, connectLabel, registrationNonce, redirectUri, from, autoTrigger } =
+		props;
 
 	const {
 		handleRegisterSite,

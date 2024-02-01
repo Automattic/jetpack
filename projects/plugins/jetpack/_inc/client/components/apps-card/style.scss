@@ -1,63 +1,81 @@
+@import '../../scss/mixins/ui';
+
 .jp-apps-card {
-	margin-top: rem( 64px );
+	margin-top: rem( 24px );
 	margin-bottom: 0;
 }
 
 .jp-apps-card__content {
-	margin-bottom: 0;
+	@include dashboard-card-shadow;
+
+	display: flex;
+	justify-content: space-between;
+	align-content: center;
 
 	&.dops-card {
-		padding: 0;
+		padding: 48px 64px;
 	}
 
 	a:not( .dops-button ) {
 		font-style: italic;
 	}
-}
 
-.jp-apps-card__dismiss {
-	position: absolute;
-	top: 8px;
-	right: 8px;
+	&:after {
+		content: none;
+	}
 
-	&.dops-button.is-compact {
-		padding: 8px 8px 2px 8px;
+	.jp-apps-card__description {
+		margin-right: 20px;
+	}
+
+	.apps-badge {
+		max-width: none;
+		max-height: none;
+
+		img {
+			width: 210px;
+			max-width: 100%;
+		}
+	}
+
+	@include breakpoint( '<782px' ) {
+		flex-direction: column;
+
+		.jp-apps-card__description {
+			margin-right: 0;
+			margin-bottom: 20px;
+		}
 	}
 }
 
-.jp-apps-card__top {
-	padding: rem( 60px ) 0 0;
-	background: #ffffff;
-	text-align: center;
-
-	img {
-		max-width: 26%;
-		padding-top: 10px;
-	}
-}
-
-.jp-apps-card__description {
-	max-width: 80%;
-	margin: 0 auto;
-	padding: rem( 10px ) rem( 24px ) rem( 24px );
-	line-height: 1.65;
-	color: $black;
-	text-align: center;
-
-	.dops-button {
-		margin: 8px 0;
-	}
+.jp-apps-card__top_img {
+	width: 102px;
 }
 
 .jp-apps-card__paragraph {
-	font-size: $font-body;
+	margin: 14px 0 0 0;
+	font-size: 17px;
+	line-height: 145%;
+	color: var( --gray-100 );
+	letter-spacing: -0.24px;
+
+	a.jp-apps-card__link {
+		color: #008710;
+		font-style: normal;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
 }
 
 .jp-apps-card__header {
-	margin-top: 0;
-	margin-bottom: rem( 5px );
-	font-size: $font-title-small;
+	margin-top: 23px;
+	margin-bottom: 0;
+	color: var( --jp-gray-100 );
 	font-weight: 500;
+	font-size: 28px;
+	line-height: 32px;
 }
 
 .jp-apps-card__promo_subhead {
@@ -65,24 +83,40 @@
 	font-style: italic;
 }
 
+.jp-apps-card__apps-qr-code {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+
+	.jp-apps-card__caption {
+		font-size: 11px;
+		margin: rem( 10px ) 0 0;
+		max-width: 220px;
+	}
+
+	a.jp-apps-card__link {
+		color: var( --jp-green-primary );
+		font-style: normal;
+		font-weight: 700;
+	}
+
+	a.jp-apps-card__link:hover {
+		color: var( --jp-green-secondary );
+	}
+}
+
 .jp-apps-card__apps-badges {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 
 	@include breakpoint( '<480px' ) {
-		flex-direction: column;
-
 		.apps-badge:first-child {
 			margin-right: 0;
 		}
-
-		.apps-badge:last-child {
-			margin-top: 1rem;
-		}
 	}
-
 }
 
 .jp-themes-card {

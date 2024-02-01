@@ -41,17 +41,14 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 		blockBasenames.forEach( basename => {
 			// eslint-disable-next-line jest/valid-title
 			test( `all content versions parse correctly for block ${ blockName }`, () => {
-				const { filename: htmlFixtureFileName, file: htmlFixtureContent } = getBlockFixtureHTML(
-					basename
-				);
+				const { filename: htmlFixtureFileName, file: htmlFixtureContent } =
+					getBlockFixtureHTML( basename );
 				if ( htmlFixtureContent === null ) {
 					throw new Error( `Missing fixture file: ${ htmlFixtureFileName }` );
 				}
 
-				const {
-					filename: parsedJSONFixtureFileName,
-					file: parsedJSONFixtureContent,
-				} = getBlockFixtureParsedJSON( basename );
+				const { filename: parsedJSONFixtureFileName, file: parsedJSONFixtureContent } =
+					getBlockFixtureParsedJSON( basename );
 				const parserOutputActual = grammarParse( htmlFixtureContent );
 				let parserOutputExpectedString;
 				if ( parsedJSONFixtureContent ) {
@@ -77,8 +74,8 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				}
 
 				// @wordpress/blocks may call these. Noop them to avoid unnecessary output.
-				jest.spyOn( console, 'groupCollapsed' ).mockReset();
-				jest.spyOn( console, 'groupEnd' ).mockReset();
+				jest.spyOn( console, 'groupCollapsed' ).mockReturnValue();
+				jest.spyOn( console, 'groupEnd' ).mockReturnValue();
 
 				const blocksActual = parse( htmlFixtureContent );
 
@@ -104,9 +101,8 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 
 				const validationIssues = gatherValidationIssues( blocksActual );
 				const blocksActualNormalized = normalizeParsedBlocks( blocksActual );
-				const { filename: jsonFixtureFileName, file: jsonFixtureContent } = getBlockFixtureJSON(
-					basename
-				);
+				const { filename: jsonFixtureFileName, file: jsonFixtureContent } =
+					getBlockFixtureJSON( basename );
 
 				let blocksExpectedString;
 
@@ -144,10 +140,8 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				// `serialize` doesn't have a trailing newline, but the fixture
 				// files should.
 				const serializedActual = serialize( blocksActual ) + '\n';
-				const {
-					filename: serializedHTMLFileName,
-					file: serializedHTMLFixtureContent,
-				} = getBlockFixtureSerializedHTML( basename );
+				const { filename: serializedHTMLFileName, file: serializedHTMLFixtureContent } =
+					getBlockFixtureSerializedHTML( basename );
 
 				let serializedExpected;
 				if ( serializedHTMLFixtureContent ) {

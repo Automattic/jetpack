@@ -14,7 +14,12 @@
 class ExitException extends Exception {
 }
 
-require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';
+// If we're running under `jetpack docker phpunit --php`, Patchwork is located in DOCKER_PHPUNIT_BASE_DIR.
+if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
+	require_once getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) . '/vendor/antecedent/patchwork/Patchwork.php';
+} else {
+	require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';
+}
 
 $exitfunc = function ( $arg = null ) {
 	// While Patchwork does have a way to exclude files from replacement,
@@ -24,7 +29,7 @@ $exitfunc = function ( $arg = null ) {
 	$func = \Patchwork\getFunction();
 	foreach ( $bt as $i => $data ) {
 		if ( $data['function'] === $func ) {
-			if ( isset( $bt[ $i + 1 ]['class'] ) && substr( $bt[ $i + 1 ]['class'], 0, 7 ) === 'PHPUnit' ) {
+			if ( isset( $bt[ $i + 1 ]['class'] ) && str_starts_with( $bt[ $i + 1 ]['class'], 'PHPUnit' ) ) {
 				return \Patchwork\relay();
 			}
 			break;
@@ -43,6 +48,25 @@ $exitfunc = function ( $arg = null ) {
 	}
 	throw new ExitException( 'Exit called with argument ' . var_export( $arg, true ) );
 };
-\Patchwork\redefine( 'exit', $exitfunc );
-\Patchwork\redefine( 'die', $exitfunc );
-unset( $exitfunc );
+
+foreach ( array( 'exit', 'die' ) as $func ) {
+	$handle = \Patchwork\redefine( $func, $exitfunc );
+	$handle->addExpirationHandler(
+		function () use ( $func ) {
+			// Allow removing the handler when called from Patchwork's own __destruct.
+			// Otherwise complain and exit.
+			$bt = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
+			foreach ( $bt as $data ) {
+				if ( isset( $data['class'] ) && $data['class'] === \Patchwork\CallRerouting\Handle::class && $data['function'] === '__destruct' ) {
+					return;
+				}
+			}
+
+			fprintf( STDERR, "The Patchwork handler for %s was removed. This breaks tests, don't do it.\nStack trace:\n%s\n", $func, ( new \Exception() )->getTraceAsString() );
+			exit( 1 );
+		}
+	);
+	$handle->unsilence();
+}
+
+unset( $exitfunc, $func, $handle );

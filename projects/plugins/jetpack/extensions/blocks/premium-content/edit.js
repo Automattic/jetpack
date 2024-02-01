@@ -51,17 +51,17 @@ const BLOCK_NAME = 'premium-content';
  * @property { string } className
  * @property { string } clientId
  * @property { Attributes } attributes
- * @property { (attributes: object<Attributes>) => void } setAttributes
+ * @property {(attributes: Object<Attributes>) => void} setAttributes
  * @typedef { OwnProps } Props
  * @param { Props } props
  */
 
 function Edit( props ) {
 	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
-	const { isPreview, selectedPlanId } = props.attributes;
+	const { isPreview, selectedPlanIds } = props.attributes;
 	const { clientId, isSelected, className, setAttributes } = props;
 
-	const setSelectedProductId = productId => setAttributes( { selectedPlanId: productId } );
+	const setSelectedProductIds = productIds => setAttributes( { selectedPlanIds: productIds } );
 
 	const { isApiLoading, selectedBlock } = useSelect( selector => ( {
 		selectedBlock: selector( blockEditorStore ).getSelectedBlock(),
@@ -106,7 +106,7 @@ function Edit( props ) {
 					{ isApiLoading && (
 						<Placeholder
 							icon="lock"
-							label={ __( 'Premium Content', 'jetpack' ) }
+							label={ __( 'Paid Content', 'jetpack' ) }
 							instructions={ __( 'Loading data…', 'jetpack' ) }
 						>
 							<Spinner />
@@ -116,8 +116,8 @@ function Edit( props ) {
 						blockName={ BLOCK_NAME }
 						clientId={ clientId }
 						productType={ PRODUCT_TYPE_SUBSCRIPTION }
-						selectedProductId={ selectedPlanId }
-						setSelectedProductId={ setSelectedProductId }
+						selectedProductIds={ selectedPlanIds }
+						setSelectedProductIds={ setSelectedProductIds }
 					/>
 					<ViewSelector
 						options={ tabs }

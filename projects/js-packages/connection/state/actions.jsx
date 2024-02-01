@@ -10,9 +10,12 @@ const CLEAR_REGISTRATION_ERROR = 'CLEAR_REGISTRATION_ERROR';
 const REGISTER_SITE = 'REGISTER_SITE';
 const SET_AUTHORIZATION_URL = 'SET_AUTHORIZATION_URL';
 const CONNECT_USER = 'CONNECT_USER';
+const DISCONNECT_USER_SUCCESS = 'DISCONNECT_USER_SUCCESS';
 const FETCH_AUTHORIZATION_URL = 'FETCH_AUTHORIZATION_URL';
 const SET_CONNECTED_PLUGINS = 'SET_CONNECTED_PLUGINS';
 const REFRESH_CONNECTED_PLUGINS = 'REFRESH_CONNECTED_PLUGINS';
+const SET_CONNECTION_ERRORS = 'SET_CONNECTION_ERRORS';
+const SET_IS_OFFLINE_MODE = 'SET_IS_OFFLINE_MODE';
 
 const setConnectionStatus = connectionStatus => {
 	return { type: SET_CONNECTION_STATUS, connectionStatus };
@@ -34,6 +37,10 @@ const setUserIsConnecting = isConnecting => {
 	return { type: SET_USER_IS_CONNECTING, isConnecting };
 };
 
+const disconnectUserSuccess = () => {
+	return { type: DISCONNECT_USER_SUCCESS };
+};
+
 const setRegistrationError = registrationError => {
 	return { type: SET_REGISTRATION_ERROR, registrationError };
 };
@@ -52,6 +59,14 @@ const fetchAuthorizationUrl = redirectUri => {
 
 const setConnectedPlugins = connectedPlugins => {
 	return { type: SET_CONNECTED_PLUGINS, connectedPlugins };
+};
+
+const setConnectionErrors = connectionErrors => {
+	return { type: SET_CONNECTION_ERRORS, connectionErrors };
+};
+
+const setIsOfflineMode = isOfflineMode => {
+	return { type: SET_IS_OFFLINE_MODE, isOfflineMode };
 };
 
 /**
@@ -100,14 +115,16 @@ function* registerSite( { registrationNonce, redirectUri } ) {
  *
  * @returns {Promise} - Promise which resolves when the product status is activated.
  */
-const refreshConnectedPlugins = () => async ( { dispatch } ) => {
-	return await new Promise( resolve => {
-		return restApi.fetchConnectedPlugins().then( data => {
-			dispatch( setConnectedPlugins( data ) );
-			resolve( data );
+const refreshConnectedPlugins =
+	() =>
+	async ( { dispatch } ) => {
+		return await new Promise( resolve => {
+			return restApi.fetchConnectedPlugins().then( data => {
+				dispatch( setConnectedPlugins( data ) );
+				resolve( data );
+			} );
 		} );
-	} );
-};
+	};
 
 const actions = {
 	setConnectionStatus,
@@ -121,8 +138,11 @@ const actions = {
 	setAuthorizationUrl,
 	registerSite,
 	connectUser,
+	disconnectUserSuccess,
 	setConnectedPlugins,
 	refreshConnectedPlugins,
+	setConnectionErrors,
+	setIsOfflineMode,
 };
 
 export {
@@ -137,7 +157,10 @@ export {
 	REGISTER_SITE,
 	SET_AUTHORIZATION_URL,
 	CONNECT_USER,
+	DISCONNECT_USER_SUCCESS,
 	SET_CONNECTED_PLUGINS,
 	REFRESH_CONNECTED_PLUGINS,
+	SET_CONNECTION_ERRORS,
+	SET_IS_OFFLINE_MODE,
 	actions as default,
 };

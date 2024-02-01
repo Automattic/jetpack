@@ -1,5 +1,5 @@
 import { useSelect } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { Nudge } from '../../shared/components/upgrade-nudge';
 import useUpgradeFlow from '../../shared/use-upgrade-flow/index';
 
@@ -12,7 +12,11 @@ export const UPGRADE_NUDGE_DESCRIPTION = __(
 	'Upgrade your plan to use this premium block',
 	'jetpack'
 );
-export const UPGRADE_NUDGE_BUTTON_TEXT = __( 'Upgrade', 'jetpack' );
+export const UPGRADE_NUDGE_BUTTON_TEXT = _x(
+	'Upgrade',
+	'Call to action to buy a new plan',
+	'jetpack'
+);
 
 const UpgradePlanBanner = ( {
 	onRedirect,

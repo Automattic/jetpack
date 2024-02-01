@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'url';
-import execa from 'execa';
+import { execa } from 'execa';
 
 const { stdout: help } = await execa(
 	fileURLToPath( new URL( '../../../bin/jetpack.js', import.meta.url ) ),

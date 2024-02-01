@@ -1,25 +1,99 @@
 .jp-dashboard-footer {
 	display: flex;
-	flex-flow: row wrap;
-	justify-content: space-between;
+	flex-wrap: wrap;
 	align-items: center;
-	width: 100%;
+	
 	max-width: 1128px;
+	width: 100%;
 
-	color: #000;
-
-	a, a:hover, a:visited {
-		color: #000;
+	color: var( --jp-black );
+	
+	font-size: var( --font-body-extra-small );
+	line-height: 1.333;
+	
+	a {
 		text-decoration: none;
+
+		&:any-link,
+		&[role=button] {
+			color: inherit;
+		}
+
+		&:hover {
+			text-decoration: underline;
+			text-decoration-thickness: 1.5px;
+		}
+
+		&:focus {
+			border-radius: 2px;
+			box-shadow: none;
+			outline: 1.5px solid currentColor;
+			outline-offset: 3px;
+		}
+	}
+
+	&.is-sm {
+		> ul {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.125rem;
+		}
+	}
+
+	&.is-md {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	> ul {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 1rem;
+
+		width: 100%;
+		margin: 0;
+		padding: 0;
+		
+		list-style: none;
+
+		> li {
+			margin-bottom: 0;
+
+			> a {
+				display: flex;
+				align-items: center;	
+				gap: 0.25rem;
+
+				min-height: 44px; // Minimum target area size
+			}
+		}
 	}
 }
-.jp-dashboard-footer__module-name,
-.jp-dashboard-footer__jetpack-symbol {
-	vertical-align: middle;
-	display: inline-block;
-}
-.jp-dashboard-footer__module-name {
-	margin-left: 5px;
-	font-size: 12px;
+
+.jp-dashboard-footer__jp-item {
+	padding-inline-end: 1rem;
+
 	font-weight: 600;
+
+	.jp-dashboard-footer.is-sm & {
+		padding-bottom: 1rem;
+	}
+}
+
+.jp-dashboard-footer__a8c-item {
+	.jp-dashboard-footer.is-lg & {
+		margin-inline-start: auto;
+	}
+
+	.jp-dashboard-footer.is-sm & {
+		padding-top: 1rem;
+	}
+}
+
+.jp-dashboard-footer__jp-item,
+.jp-dashboard-footer__a8c-item {
+	> a {
+		text-decoration: none; // Logos typically have no hover effect
+	}
 }

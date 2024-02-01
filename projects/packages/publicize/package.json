@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-publicize",
-	"version": "0.8.1",
+	"version": "0.41.0-alpha",
 	"description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/publicize/#readme",
 	"bugs": {
@@ -15,15 +15,25 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.'",
-		"build-js": "echo 'Not implemented.'",
-		"build-production": "echo 'Not implemented.'",
-		"build-production-js": "echo 'Not implemented.'",
-		"clean": "true"
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "webpack",
+		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build-php'",
+		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
+		"clean": "rm -rf build/",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build && webpack watch"
 	},
-	"devDependencies": {},
-	"engines": {
-		"node": "^16.13.2",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@wordpress/browserslist-config": "5.33.0",
+		"concurrently": "7.6.0",
+		"webpack": "5.76.0",
+		"webpack-cli": "4.9.1"
+	},
+	"dependencies": {
+		"@wordpress/i18n": "4.50.0"
 	}
 }

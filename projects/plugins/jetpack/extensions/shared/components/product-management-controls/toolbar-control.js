@@ -38,16 +38,19 @@ function getProductDescription( product ) {
 }
 
 function Product( { onClose, product } ) {
-	const { selectedProductId, setSelectedProductId } = useProductManagementContext();
+	const { selectedProductIds, setSelectedProductIds } = useProductManagementContext();
 
 	const { id, title } = product;
-	const isSelected = selectedProductId && selectedProductId === id;
+	const isSelected = selectedProductIds && selectedProductIds.includes( id );
 	const icon = isSelected ? check : undefined;
 	const productDescription = product ? ' ' + getProductDescription( product ) : null;
 
 	const handleClick = event => {
 		event.preventDefault();
-		setSelectedProductId( id );
+		const selected = isSelected
+			? selectedProductIds.filter( productId => productId !== id )
+			: [ ...selectedProductIds, id ];
+		setSelectedProductIds( selected );
 		onClose();
 	};
 
@@ -68,7 +71,7 @@ function NewProduct( { onClose } ) {
 			<MenuItem>
 				{ siteSlug && (
 					<ExternalLink
-						href={ `https://wordpress.com/earn/payments-plans/${ siteSlug }#add-new-payment-plan` }
+						href={ `https://wordpress.com/earn/payments/${ siteSlug }#add-new-payment-plan` }
 					>
 						{ getMessageByProductType( 'add a new product', productType ) }
 					</ExternalLink>
@@ -99,23 +102,25 @@ function NewProduct( { onClose } ) {
 }
 
 export default function ProductManagementToolbarControl() {
-	const { products, productType, selectedProductId } = useProductManagementContext();
+	const { products, productType, selectedProductIds } = useProductManagementContext();
 
-	const { selectedProduct, shouldUpgrade } = useSelect( select => {
-		const { getProduct, getShouldUpgrade } = select( membershipProductsStore );
+	const { selectedProducts } = useSelect( select => {
+		const { getSelectedProducts } = select( membershipProductsStore );
 		return {
-			selectedProduct: getProduct( selectedProductId ),
-			shouldUpgrade: getShouldUpgrade(),
+			selectedProducts: getSelectedProducts( selectedProductIds ),
 		};
 	} );
 
 	let productDescription = null;
 	let subscriptionIcon = update;
 
-	if ( selectedProduct ) {
-		productDescription = getProductDescription( selectedProduct );
+	if ( selectedProducts.length > 1 ) {
+		productDescription = __( 'Multiple products selected', 'jetpack' );
+	} else if ( selectedProducts.length === 1 ) {
+		productDescription = getProductDescription( selectedProducts[ 0 ] );
 	}
-	if ( selectedProductId && ! selectedProduct ) {
+
+	if ( selectedProducts.length !== selectedProducts.length ) {
 		productDescription = getMessageByProductType( 'product not found', productType );
 		subscriptionIcon = warning;
 	}
@@ -135,11 +140,11 @@ export default function ProductManagementToolbarControl() {
 								<Product key={ product.id } onClose={ onClose } product={ product } />
 							) ) }
 						</MenuGroup>
-						{ ! shouldUpgrade && (
+						{
 							<MenuGroup>
 								<NewProduct onClose={ onClose } />
 							</MenuGroup>
-						) }
+						}
 					</>
 				) }
 			</ToolbarDropdownMenu>

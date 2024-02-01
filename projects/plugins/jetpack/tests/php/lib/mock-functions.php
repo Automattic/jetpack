@@ -12,15 +12,6 @@ if ( ! function_exists( 'wp_cache_is_enabled' ) ) {
 	function wp_cache_is_enabled() {}
 }
 
-if ( ! function_exists( 'gutenberg_is_fse_theme' ) ) {
-	/**
-	 * Assume all themes are an FSE theme.
-	 */
-	function gutenberg_is_fse_theme() {
-		return true;
-	}
-}
-
 if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
 	/**
 	 * Mock feature support.

@@ -12,12 +12,11 @@ class VideoPress_XMLRPC {
 	 * Initialize the XMLRPC and get back a singleton instance.
 	 *
 	 * @return XMLRPC
-	 * @deprecated $$next-version$$
+	 * @deprecated 11.2
 	 * @see Automattic\Jetpack\VideoPress\XMLRPC::init
 	 */
 	public static function init() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\VideoPress\XMLRPC' );
+		_deprecated_function( __METHOD__, 'jetpack-11.2', 'Automattic\Jetpack\VideoPress\XMLRPC' );
 		return XMLRPC::init();
 	}
-
 }

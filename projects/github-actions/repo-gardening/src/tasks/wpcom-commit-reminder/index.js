@@ -1,6 +1,6 @@
-const debug = require( '../../debug' );
-const getAssociatedPullRequest = require( '../../get-associated-pull-request' );
-const getComments = require( '../../get-comments' );
+const debug = require( '../../utils/debug' );
+const getAssociatedPullRequest = require( '../../utils/get-associated-pull-request' );
+const getComments = require( '../../utils/get-comments' );
 
 /* global GitHub, WebhookPayloadPush */
 

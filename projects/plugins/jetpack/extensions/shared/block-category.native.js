@@ -1,11 +1,15 @@
+import { getHostAppNamespace } from '@automattic/jetpack-shared-extension-utils';
 import { getCategories, setCategories, registerBlockCollection } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import { JetpackLogo } from './icons';
 
-registerBlockCollection( 'jetpack', {
-	title: __( 'Jetpack powered', 'jetpack' ),
-	icon: <JetpackLogo />,
-} );
+const hostApp = getHostAppNamespace();
+if ( hostApp === 'WordPress' ) {
+	registerBlockCollection( 'jetpack', {
+		title: __( 'Jetpack powered', 'jetpack' ),
+		icon: <JetpackLogo />,
+	} );
+}
 
 setCategories( [
 	...getCategories().filter( ( { slug } ) => slug !== 'earn' ),

@@ -1,11 +1,15 @@
 import WpPage from '../wp-page.js';
-import logger from '../../logger.cjs';
-import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
+import logger from '../../logger.js';
+import { resolveSiteUrl } from '../../helpers/utils-helper.js';
+import { waitForBlock } from '../../helpers/blocks-helper.js';
+import { EditorCanvas } from './index.js';
 
 export default class BlockEditorPage extends WpPage {
 	constructor( page ) {
 		const url = resolveSiteUrl() + '/wp-admin/post-new.php';
 		super( page, { expectedSelectors: [ '#editor' ], url } );
+
+		this.canvasPage = new EditorCanvas( page );
 	}
 
 	//region selectors
@@ -15,9 +19,7 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	get searchBlockFldSel() {
-		// There are 2 classes here because the class changed in Gutenberg 11.2 but is not yet in the WP bundled version.
-		//TODO: to remove .block-editor-inserter__search-input once WP will include GB version 11.2
-		return '.components-search-control__input,.block-editor-inserter__search-input';
+		return '.components-search-control__input';
 	}
 
 	blockSel( blockName ) {
@@ -72,6 +74,7 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async insertBlock( blockName, blockTitle ) {
+		await waitForBlock( blockName, this );
 		await this.searchForBlock( blockTitle );
 
 		logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }}` );
@@ -80,14 +83,15 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async getInsertedBlock( blockName ) {
-		return (
-			await this.waitForElementToBeVisible( this.insertedBlockSel( blockName ) )
-		 ).getAttribute( 'data-block' );
+		const blockElement = await this.canvasPage
+			.canvas()
+			.waitForSelector( this.insertedBlockSel( blockName ) );
+		return blockElement.getAttribute( 'data-block' );
 	}
 
 	async setTitle( title ) {
 		await this.selectPostTitle();
-		await this.fill( this.postTitleFldSel, title );
+		await this.canvasPage.canvas().fill( this.postTitleFldSel, title );
 	}
 
 	async publishPost() {
@@ -107,35 +111,19 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async selectPostTitle() {
-		await this.focus( this.postTitleFldSel );
-		await this.click( this.postTitleFldSel );
+		await this.canvasPage.canvas().focus( this.postTitleFldSel );
+		await this.canvasPage.canvas().click( this.postTitleFldSel );
 	}
 
-	async waitForAvailableBlock( blockSlug ) {
-		let block = await this.findAvailableBlock( blockSlug );
-		if ( block ) {
-			return true;
-		}
-		let count = 0;
-		while ( count < 20 && ! block ) {
-			await this.waitForTimeout( 1000 ); // Trying to wait for plan data to be updated
-			await this.reload( { waitUntil: 'domcontentloaded' } );
-			block = await this.findAvailableBlock( blockSlug );
-			count += 1;
+	async openSettingsSidebar() {
+		const settingsLocator = 'button[aria-label="Settings"][aria-pressed="false"]';
+
+		if ( await this.isElementVisible( settingsLocator ) ) {
+			await this.click( settingsLocator );
 		}
 	}
 
-	async findAvailableBlock( blockSlug ) {
-		const allBlocks = await this.getAllAvailableBlocks();
-		return allBlocks.find( b => b.includes( blockSlug ) );
-	}
-
-	async getAllAvailableBlocks() {
-		return await this.page.evaluate( () =>
-			wp.data
-				.select( 'core/blocks' )
-				.getBlockTypes()
-				.map( b => b.name )
-		);
+	async waitForEditor() {
+		await this.canvasPage.canvas().waitForSelector( "h1[aria-label='Add title']" );
 	}
 }

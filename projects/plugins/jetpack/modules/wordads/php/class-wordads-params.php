@@ -13,6 +13,63 @@ use Automattic\Jetpack\Status;
  * Sets parameters for WordAds.
  */
 class WordAds_Params {
+	/**
+	 * WordAds options
+	 *
+	 * @var array
+	 */
+	public $options;
+
+	/**
+	 * Current URL
+	 *
+	 * @access public
+	 * @var string
+	 */
+	public $url;
+
+	/**
+	 * Is this site served by CloudFlare?
+	 *
+	 * @access public
+	 * @var bool
+	 */
+	public $cloudflare;
+
+	/**
+	 * Jetpack Blog ID
+	 *
+	 * @var mixed
+	 */
+	public $blog_id;
+
+	/**
+	 * Determine if the current User Agent is a mobile device
+	 *
+	 * @var bool
+	 */
+	public $mobile_device;
+
+	/**
+	 * WordAds targeting tags
+	 *
+	 * @var array
+	 */
+	public $targeting_tags;
+
+	/**
+	 * Type of page that is being loaded
+	 *
+	 * @var string
+	 */
+	public $page_type;
+
+	/**
+	 * Page type code for IPW config
+	 *
+	 * @var int
+	 */
+	public $page_type_ipw;
 
 	/**
 	 * Setup parameters for serving the ads
@@ -62,7 +119,7 @@ class WordAds_Params {
 		}
 
 		$this->url = esc_url_raw( ( is_ssl() ? 'https' : 'http' ) . '://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : 'localhost' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) );
-		if ( ! ( false === strpos( $this->url, '?' ) ) && ! isset( $_GET['p'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( str_contains( $this->url, '?' ) && ! isset( $_GET['p'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$this->url = substr( $this->url, 0, strpos( $this->url, '?' ) );
 		}
 
@@ -74,7 +131,7 @@ class WordAds_Params {
 			'BlogId'  => ( new Status() )->is_offline_mode() ? 0 : Jetpack_Options::get_option( 'id' ),
 			'Domain'  => esc_js( wp_parse_url( home_url(), PHP_URL_HOST ) ),
 			'PageURL' => esc_js( $this->url ),
-			'LangId'  => false !== strpos( get_bloginfo( 'language' ), 'en' ) ? 1 : 0, // TODO something else?
+			'LangId'  => str_contains( get_bloginfo( 'language' ), 'en' ) ? 1 : 0, // TODO something else?
 			'AdSafe'  => 1, // TODO.
 		);
 	}

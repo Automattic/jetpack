@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 add_action( 'widgets_init', 'jetpack_goodreads_widget_init' );
 /**
  * Register the widget for use in Appearance -> Widgets
@@ -103,6 +105,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 
 		// Set widget ID based on shelf.
 		$this->goodreads_widget_id = $instance['user_id'] . '_' . $instance['shelf'];
+		$this->goodreads_widget_id = str_replace( '-', '_', $this->goodreads_widget_id ); // Goodreads' custom widget does not like dashes.
 
 		if ( empty( $title ) ) {
 			$title = esc_html__( 'Goodreads', 'jetpack' );

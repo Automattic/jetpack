@@ -7,6 +7,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * Register the widget.
  */
@@ -116,11 +118,14 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 	 * @return void Echoes it's output
 	 */
 	public function widget( $args, $instance ) {
-		jetpack_require_lib( 'icalendar-reader' );
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/icalendar-reader.php';
 
-		$ical           = new iCalendarReader();
-		$events         = $ical->get_events( $instance['feed-url'], $instance['count'] );
-		$events         = $this->apply_timezone_offset( $events );
+		$ical   = new iCalendarReader();
+		$events = array();
+		if ( ! empty( $instance['feed-url'] ) ) {
+			$events = $ical->get_events( $instance['feed-url'], $instance['count'] );
+			$events = $this->apply_timezone_offset( $events );
+		}
 		$ical->timezone = null;
 
 		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -130,11 +135,17 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 			echo $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		if ( ! $events ) : // nothing to display?
-			?>
-			<p><?php esc_html_e( 'No upcoming events', 'jetpack' ); ?></p>
-			<?php
-		else :
+		if ( empty( $instance['feed-url'] ) ) {
+			if ( current_user_can( 'manage_options' ) ) {
+				echo '<div class="error-message">';
+				esc_html_e( 'The events feed URL is not properly set up in this widget.', 'jetpack' );
+				echo '</div>';
+			}
+		} elseif ( ! $events ) {
+			echo '<p>';
+			esc_html_e( 'No upcoming events', 'jetpack' );
+			echo '</p>';
+		} else {
 			?>
 			<ul class="upcoming-events">
 				<?php foreach ( $events as $event ) : ?>
@@ -163,12 +174,12 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 				<?php endforeach; ?>
 			</ul>
 			<?php
-		endif;
+		}
 
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
-		do_action( 'jetpack_stats_extra', 'widget_view', 'grofile' );
+		do_action( 'jetpack_stats_extra', 'widget_view', 'upcoming_events' );
 	}
 
 	/**
@@ -178,9 +189,8 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 	 * @param array|false $events Array of events, false on failure.
 	 */
 	private function apply_timezone_offset( $events ) {
-		jetpack_require_lib( 'icalendar-reader' );
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/icalendar-reader.php';
 
-		$ical = new iCalendarReader();
-		return $ical->apply_timezone_offset( $events );
+		return ( new iCalendarReader() )->apply_timezone_offset( $events );
 	}
 }

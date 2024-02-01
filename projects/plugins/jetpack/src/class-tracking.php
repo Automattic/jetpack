@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Plugin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Tracking as Tracks;
 
 /**
@@ -160,11 +161,10 @@ class Tracking {
 	 * @param string $login Username or email address.
 	 */
 	public function wp_login_failed( $login ) {
-		require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 		$this->tracking->record_user_event(
 			'failed_login',
 			array(
-				'origin_ip' => jetpack_protect_get_ip(),
+				'origin_ip' => IP_Utils::get_ip(),
 				'login'     => $login,
 			)
 		);

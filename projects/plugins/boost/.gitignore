@@ -1,8 +1,13 @@
 /vendor
 /release
 /app/assets/dist
+/app/modules/image-guide/dist
+/app/deactivation/dist
 /node_modules
 .phpunit.result.cache
 .DS_Store
 .pnpm-debug.log
 /wordpress
+.yalc
+yalc.lock
+.cache/

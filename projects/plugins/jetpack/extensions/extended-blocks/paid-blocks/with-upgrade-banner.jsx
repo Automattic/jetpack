@@ -2,24 +2,30 @@ import {
 	isStillUsableWithFreePlan,
 	getRequiredPlan,
 	getUsableBlockProps,
+	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
+import { useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { useState, useEffect, useMemo, useContext } from '@wordpress/element';
-import classNames from 'classnames';
 import { PaidBlockContext, PaidBlockProvider } from './components';
 import UpgradePlanBanner from './upgrade-plan-banner';
 import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 
-export default createHigherOrderComponent(
-	BlockListBlock => props => {
-		const { name, className, clientId, isSelected, attributes, setAttributes } = props || {};
-		const { onChildBannerVisibilityChange, hasParentBanner } = useContext( PaidBlockContext ) || {};
-
+const withUpgradeBanner = createHigherOrderComponent(
+	BlockEdit => props => {
+		const { name, clientId, isSelected, attributes, setAttributes } = props || {};
 		const requiredPlan = getRequiredPlan( name );
 
+		// CAUTION: code added before this line will be executed for all blocks
+		// (also the paragraph block, every time on typing), not just paid
+		// blocks!
+		// NOTE: creating hooks conditionally is not a good practice,
+		// but still it's better than having the code executed for all blocks.
+		// @see https://legacy.reactjs.org/docs/hooks-rules.html#only-call-hooks-at-the-top-level
+		// @todo: work on a better implementation.
 		if ( ! requiredPlan ) {
-			return <BlockListBlock { ...props } />;
+			return <BlockEdit { ...props } />;
 		}
 
 		const isDualMode = isStillUsableWithFreePlan( name );
@@ -27,25 +33,24 @@ export default createHigherOrderComponent(
 
 		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
 		const [ hasBannerAlreadyShown, setBannerAlreadyShown ] = useState( false );
-		const [ isChildBannerVisible, setIsChildBannerVisible ] = useState( false );
 
 		const bannerContext = 'editor-canvas';
 		const hasChildrenSelected = useSelect(
 			select => select( 'core/block-editor' ).hasSelectedInnerBlock( clientId, true ),
 			[]
 		);
-
-		// Banner should be not be displayed if one of its children is already displaying a banner.
-		const isBannerVisible =
-			( isSelected || hasChildrenSelected ) && isVisible && ! isChildBannerVisible;
-
+		const { hasParentBanner } = useContext( PaidBlockContext ) || {};
+		// Banner should be not be displayed if one of its parents is already displaying a banner.
+		const isBannerVisible = ( isSelected || hasChildrenSelected ) && isVisible && ! hasParentBanner;
+		const { tracks } = useAnalytics();
 		const trackEventData = useMemo(
 			() => ( {
 				plan: requiredPlan,
 				blockName: name,
 				context: bannerContext,
+				tracks,
 			} ),
-			[ requiredPlan, name, bannerContext ]
+			[ requiredPlan, name, tracks ]
 		);
 
 		// Record event just once, the first time.
@@ -73,40 +78,55 @@ export default createHigherOrderComponent(
 			setAttributes( { shouldDisplayFrontendBanner: ! hasParentBanner } );
 		}, [ setAttributes, hasParentBanner ] );
 
-		// Set isChildBannerVisible for parent block.
-		useEffect( () => {
-			// onChildBannerVisibilityChange sets isChildBannerVisible for our parent paid block.
-			// It is undefined if this block has no parent paid block.
-			if ( onChildBannerVisibilityChange ) {
-				onChildBannerVisibilityChange( isBannerVisible || isChildBannerVisible );
-			}
-		}, [ isBannerVisible, isChildBannerVisible, onChildBannerVisibilityChange ] );
-
-		// Set banner CSS classes depending on its visibility.
-		const listBlockCSSClass = classNames( className, {
-			'is-upgradable': isBannerVisible,
-		} );
+		const blockProps = useBlockProps();
+		// Fix for width of cover block because otherwise the div defaults to content-size as max width
+		const cssFixForCoverBlock = { 'max-width': 'unset' };
 
 		return (
 			<PaidBlockProvider
 				onBannerVisibilityChange={ setIsVisible }
-				onChildBannerVisibilityChange={ setIsChildBannerVisible }
-				hasParentBanner
+				hasParentBanner={ isBannerVisible }
 			>
-				<UpgradePlanBanner
-					className={ `is-${ props.name.replace( /\//, '-' ) }-paid-block` }
-					title={ null }
-					align={ props?.attributes?.align }
-					visible={ isBannerVisible }
-					description={ usableBlocksProps?.description }
-					requiredPlan={ requiredPlan }
-					context={ bannerContext }
-					onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
-				/>
-
-				<BlockListBlock { ...props } className={ listBlockCSSClass } />
+				<div ref={ blockProps.ref } style={ cssFixForCoverBlock }>
+					<UpgradePlanBanner
+						className={ `is-${ name.replace( /\//, '-' ) }-paid-block` }
+						title={ null }
+						align={ attributes?.align }
+						visible={ isBannerVisible }
+						description={ usableBlocksProps?.description }
+						requiredPlan={ requiredPlan }
+						context={ bannerContext }
+						onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
+					/>
+					<BlockEdit { ...props } />
+				</div>
 			</PaidBlockProvider>
 		);
 	},
 	'withUpgradeBanner'
 );
+
+export default withUpgradeBanner;
+
+/**
+ * Helper function that extends the Edit function
+ * of the block with the upgrade banner,
+ * by using the `withUpgradeBanner` HOC.
+ * It has been designed to be bound with a `blocks.registerBlockType` call.
+ *
+ * @param {object} settings - The block settings.
+ * @param {string} name     - The block name.
+ * @returns {object}          The extended block settings.
+ */
+
+export function blockEditWithUpgradeBanner( settings, name ) {
+	const requiredPlan = getRequiredPlan( name );
+	if ( ! requiredPlan ) {
+		return settings;
+	}
+
+	return {
+		...settings,
+		edit: withUpgradeBanner( settings.edit ),
+	};
+}

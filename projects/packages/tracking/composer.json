@@ -4,12 +4,16 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "^1.17",
-		"automattic/jetpack-status": "^1.14",
-		"automattic/jetpack-connection": "^1.41"
+		"php": ">=7.0",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-connection": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.1"
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -37,7 +41,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-tracking/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.14.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		}
 	},
 	"abandoned": "automattic/jetpack-connection"

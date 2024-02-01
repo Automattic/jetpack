@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Status;
+use Jetpack_Custom_CSS;
 use JITM;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -42,7 +44,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
-		$this->add_inbox_menu();
+		$this->add_my_mailboxes_menu();
+		$this->remove_gutenberg_menu();
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -93,7 +96,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( function_exists( '\get_blog_count_for_user' ) ) {
 			return \get_blog_count_for_user( get_current_user_id() );
 		}
-		return count( get_blogs_of_user( get_current_user_id() ) );
+
+		$blogs = get_blogs_of_user( get_current_user_id() );
+		return is_countable( $blogs ) ? count( $blogs ) : 0;
 	}
 
 	/**
@@ -105,7 +110,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		// Add the menu item.
-		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
 		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
 	}
 
@@ -144,17 +149,19 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds site card component.
 	 */
 	public function add_site_card_menu() {
-		$default        = 'data:image/svg+xml,' . rawurlencode( '<svg class="gridicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Globe</title><rect fill-opacity="0" x="0" width="24" height="24"/><g><path fill="#fff" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18l2-2 1-1v-2h-2v-1l-1-1H9v3l2 2v1.93c-3.94-.494-7-3.858-7-7.93l1 1h2v-2h2l3-3V6h-2L9 5v-.41C9.927 4.21 10.94 4 12 4s2.073.212 3 .59V6l-1 1v2l1 1 3.13-3.13c.752.897 1.304 1.964 1.606 3.13H18l-2 2v2l1 1h2l.286.286C18.03 18.06 15.24 20 12 20z"/></g></svg>' );
-		$icon           = get_site_icon_url( 32, $default );
-		$blog_name      = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
-		$is_coming_soon = ( wpcom_is_coming_soon() && is_private_blog() ) || (bool) get_option( 'wpcom_public_coming_soon' );
+		$default         = plugins_url( 'globe-icon.svg', __FILE__ );
+		$icon            = get_site_icon_url( 32, $default );
+		$blog_name       = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
+		$status          = new Status();
+		$is_private_site = $status->is_private_site();
+		$is_coming_soon  = $status->is_coming_soon();
 
 		if ( $default === $icon && blavatar_exists( $this->domain ) ) {
 			$icon = blavatar_url( $this->domain, 'img', 32 );
 		}
 
 		$badge = '';
-		if ( is_private_blog() || $is_coming_soon ) {
+		if ( $is_private_site || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
 				$is_coming_soon ? esc_html__( 'Coming Soon', 'jetpack' ) : esc_html__( 'Private', 'jetpack' )
@@ -263,7 +270,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'edit_posts', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'read', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
 	}
 
 	/**
@@ -299,6 +306,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
 			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
 		}
+
+		if ( defined( 'WPCOM_ENABLE_ADD_ONS_MENU_ITEM' ) && WPCOM_ENABLE_ADD_ONS_MENU_ITEM ) {
+			add_submenu_page( 'paid-upgrades.php', __( 'Add-Ons', 'jetpack' ), __( 'Add-Ons', 'jetpack' ), 'manage_options', 'https://wordpress.com/add-ons/' . $this->domain, null, 1 );
+		}
 	}
 
 	/**
@@ -310,6 +321,14 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		$this->hide_submenu_page( 'themes.php', 'theme-editor.php' );
 
 		$user_can_customize = current_user_can( 'customize' );
+
+		if ( wp_is_block_theme() ) {
+			add_filter( 'safecss_is_freetrial', '__return_false', PHP_INT_MAX );
+			if ( class_exists( 'Jetpack_Custom_CSS' ) && empty( Jetpack_Custom_CSS::get_css() ) ) {
+				$user_can_customize = false;
+			}
+			remove_filter( 'safecss_is_freetrial', '__return_false', PHP_INT_MAX );
+		}
 
 		if ( $user_can_customize ) {
 			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => 'jetpack_custom_css' ) ), $customize_url );
@@ -332,7 +351,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
 		$this->update_submenus( $slug, $submenus_to_update );
-		add_submenu_page( 'users.php', esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
+		add_submenu_page( 'users.php', esc_attr__( 'Add New User', 'jetpack' ), __( 'Add New User', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
+		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
 	}
 
 	/**
@@ -345,12 +365,18 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds My Home menu.
+	 */
+	public function add_my_home_menu() {
+		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack' ), 'read', 'dashicons-admin-home' );
+	}
+
+	/**
 	 * Also remove the Gutenberg plugin menu.
 	 */
-	public function add_gutenberg_menus() {
+	public function remove_gutenberg_menu() {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
-		parent::add_gutenberg_menus();
 	}
 
 	/**
@@ -432,7 +458,15 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		$calypso_preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
 
 		$sidebar_collapsed = isset( $calypso_preferences['sidebarCollapsed'] ) ? $calypso_preferences['sidebarCollapsed'] : false;
-		set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
+
+		// Read the current stored setting and convert it to boolean in order to be able to compare the values later.
+		$current_sidebar_collapsed_setting = ( 'f' === get_user_setting( 'mfold' ) ) ? true : false;
+
+		// Only set the setting if the value differs, as `set_user_setting` always updates at least the timestamp
+		// which leads to unnecessary user meta cache purging on all wp-admin screen requests.
+		if ( $current_sidebar_collapsed_setting !== $sidebar_collapsed ) {
+			set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
+		}
 	}
 
 	/**

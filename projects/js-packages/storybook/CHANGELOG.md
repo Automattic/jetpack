@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.0 - 2023-07-06
+### Added
+- Import root styles from js-packages to load root variables used by components [#30037]
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Update config to work around some bugs so `NODE_PATH` is no longer needed when running storybook. [#31607]
+
+## 0.3.2 - 2023-04-07
+### Added
+- Include VideoPress block editor folder to the stories
+
+### Changed
+- Update to React 18.
+
+## 0.3.1 - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## 0.3.0 - 2022-11-01
+### Added
+- Added support for scanning the dashboard project from the Search package
+- Add VideoPress package folder to projects
+- VideoPress: Support selecting poster by frame
+
+### Fixed
+- StoryBook: fix unexistent package bug
+
 ## 0.2.0 - 2022-07-06
 ### Added
 - Add 'Jetpack Dashboard' background color. [#22597]

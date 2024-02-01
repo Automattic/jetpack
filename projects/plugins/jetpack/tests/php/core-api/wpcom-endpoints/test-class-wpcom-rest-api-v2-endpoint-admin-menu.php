@@ -3,7 +3,9 @@
  * Tests for /wpcom/v2/admin-menu endpoint.
  */
 
-require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
+use WpOrg\Requests\Requests;
+
+require_once dirname( __DIR__, 2 ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
 
 /**
  * Class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu
@@ -44,7 +46,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	public function test_schema_request() {
 		wp_set_current_user( 0 );
 
-		$request  = wp_rest_request( Requests::OPTIONS, '/wpcom/v2/admin-menu' );
+		$request  = new WP_REST_Request( Requests::OPTIONS, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -63,7 +65,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	public function test_get_item_permissions_check() {
 		wp_set_current_user( 0 );
 
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
@@ -80,7 +82,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @return WP_REST_Response
 	 */
 	public function test_successful_request() {
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
@@ -512,6 +514,14 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'woocommerce',
 				'__return_true',
 				admin_url( 'admin.php?page=wc-admin&path=customers' ),
+			),
+			// Treat URLs pointing back to the site as internal URLs.
+			array(
+				get_site_url() . '/wp-admin/admin.php?page=elementor-app&ver=3.10.0#site-editor/promotion',
+				'',
+				null,
+				get_site_url() . '/wp-admin/admin.php?page=elementor-app&ver=3.10.0#site-editor/promotion',
+
 			),
 			// Disallowed URLs.
 			array(

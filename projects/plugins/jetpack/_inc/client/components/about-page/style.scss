@@ -1,11 +1,11 @@
 $color__border: #dcdcde;
 $color__back-link: #787c82;
 
-.jetpack-about__link-back,
 .jetpack-about__main,
 .jetpack-about__plugin {
 	background-color: $white;
-	border: 1px solid $color__border;
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+	border-radius: 4px;
 }
 
 .jetpack-about__main,
@@ -18,12 +18,11 @@ $color__back-link: #787c82;
 }
 
 .jetpack-about__link-back {
-	padding: 16px 16px 13px;
+	padding: 24px 0;
 	border-bottom: none;
 
 	a {
-		color: $color__back-link;
-		font-size: 0.75rem;
+		color: #3C434A;
 
 		&:hover,
 		&:active {
@@ -31,18 +30,18 @@ $color__back-link: #787c82;
 		}
 
 		svg {
-			fill: $color__back-link;
-			height: 24px;
+			fill: black;
+			height: 16px;
 			margin-right: 4px;
 			margin-top: -3px;
 			vertical-align: middle;
-			width: 24px;
+			width: 16px;
 		}
 	}
 }
 
 .jetpack-about__main {
-	padding: 36px;
+	padding: 32px;
 }
 
 .jetpack-about__logo {
@@ -60,17 +59,45 @@ $color__back-link: #787c82;
 	}
 }
 
-.jetpack-about__text {
+.jetpack-about__text,
+.meet-the-team,
+.details-link{
 	order: 1;
 
 	p {
-		font-size: 1rem;
-		line-height: 1.6;
+	  font-size: 14px;
+	  font-weight: 400;
+	  line-height: 24px;
+	  color: var(--jp-gray-80);
+	  margin: 24px 0;
 
 		&:last-child {
 			margin-bottom: 0;
 		}
 	}
+	a {
+	  color: black;
+	  font-weight: 400;
+	  text-decoration: underline;
+	  transition-duration: .05s;
+	  transition-property: border,background,color;
+	  transition-timing-function: ease-in-out;
+
+	  &:hover {
+		text-decoration-thickness: 3px;
+	  }
+	  &:focus {
+		text-decoration-line: none;
+		border-radius: 2px;
+		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+		outline: 3px solid transparent;
+	  }
+  }
+}
+
+.gridicons-external {
+  vertical-align: top;
+  width: 1rem;
 }
 
 .jetpack-about__images {
@@ -118,41 +145,93 @@ $color__back-link: #787c82;
 	margin-bottom: 3rem;
 
 	h3 {
-		margin-top: 2.4375rem;
+		margin-top: 32px;
+		font-size: 24px;
+		color: black;
+		font-weight: 500;
+		line-height: 24px;
+
+	  a {
+		color: black;
+	  }
+	}
+
+  	.button {
+	  background: $white;
+	  border: none;
+	  border-radius: var(--jp-border-radius);
+	  outline: solid 1.5px var(--jp-black);
+	  color: black;
+	  font-weight: 500;
+
+	  &:hover {
+		background: var(--jp-gray-0);
+		outline: solid 1px var(--jp-black);
+		color: black;
+	  }
+
+	  &:focus {
+		outline: solid 2px var(--jp-black);
+		border-color: transparent;
+		background: var(--jp-gray-0);
+		color: black;
+	  }
+	}
+	.star-rating .star {
+	  color: black;
 	}
 }
 
 .jetpack-about__services-more {
-	margin-top: 1.5em;
+  	margin: 24px 0 48px;
 	text-align: center;
+
+	a {
+	  color: black;
+	  text-decoration: underline;
+	}
+  	& :hover {
+	  text-decoration-thickness: 3px;
+	}
 }
 
 
 .jetpack-about__services {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
-	grid-gap: 16px;
+	grid-gap: 24px;
+
+	@include breakpoint( "<960px" ) {
+	  display: block;
+	}
 }
 
 .jetpack-about__plugin {
 	margin-bottom: 0;
 
  	.plugin-card-top {
-		padding: 20px 20px 15px;
+		padding: 24px;
 		position: relative;
+	  	min-height: 128px;
 
 		.name,
 		.desc,
 		.details-link {
-			margin-left: 148px;
+			margin-left: 152px;
 		}
 
 		.name h3 {
 			margin-top: 0;
+		  font-size: 20px;
 		}
 
 		.details-link {
 			font-weight: 500;
+		}
+
+		.plugin-icon {
+		  top: 24px;
+		  left: 24px;
 		}
 	}
 
@@ -162,6 +241,7 @@ $color__back-link: #787c82;
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
+	  	padding: 16px;
 
 		.meta {
 			margin-right: 1em;
@@ -180,5 +260,9 @@ $color__back-link: #787c82;
 				margin-bottom: 0;
 			}
 		}
+	}
+
+	@include breakpoint( "<960px" ) {
+	  margin-bottom: 24px;
 	}
 }

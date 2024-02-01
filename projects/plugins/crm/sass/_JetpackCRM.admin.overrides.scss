@@ -1,0 +1,97 @@
+/*!
+ * Jetpack CRM
+ * https://jetpackcrm.com
+ * V3.0
+ *
+ * Copyright 2020 jetpackcrm.com
+ *
+ * Date: 20/05/20
+ */
+
+
+ // variables
+ $body_bg: #f1f1f1;
+ $page_title: #2a323c;
+ $menu_hover: #f7f7f7;
+ $bottom_border: #dededf;
+
+// square off + shadow as per Jetpack proper
+@mixin jetpackBox {
+
+	box-shadow: 0 0 0 1px #ccd0d4, 0 1px 1px 1px rgba(0,0,0,0.04) !important;
+	border-radius: 0 !important;
+	border: 0 !important;
+	
+}
+
+// dash
+.panel,
+// contact view:;
+.ui.grid.segment, 
+.ui[class*="top attached"].menu,
+.ui.segment[class*="bottom attached"],
+.ui.tabular.menu .active.item {
+
+	@include jetpackBox;
+
+}
+
+.ui.attached.tabular.menu {
+
+    border: 0;
+    box-shadow: none !important;
+}
+
+.ui.blue.button {
+	background-color: $blue-medium;
+}
+
+.ui.icon.buttons .button, .ui.icon.button {
+	font-size: 14px;
+}
+
+.dops-button {
+	background: #f3f5f6;
+	border-color: #0071a1;
+	border-style: solid;
+	border-width: 1px;
+	color: #0071a1;
+	cursor: pointer;
+	display: inline-block;
+	margin: 0;
+	outline: 0;
+	overflow: hidden;
+	font-size: 14px;
+	text-overflow: ellipsis;
+	text-decoration: none;
+	vertical-align: top;
+	box-sizing: border-box;
+	font-size: 13px;
+	border-radius: 3px;
+	padding: 7px 14px 9px;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+}
+
+.dops-button.is-primary {
+	background: #007cba;
+	border-color: #007cba;
+	color: white;
+}
+
+// hide logo
+#zbs-settings-menu .branding.item img {
+
+	display:none !important;
+
+}
+
+.inbox-nav{
+	background:white !important;
+	border-right: 1px solid #dddd !important;
+	.item{
+		border-bottom: 1px solid #e2e2e2;
+		color: black !important;
+	}
+}

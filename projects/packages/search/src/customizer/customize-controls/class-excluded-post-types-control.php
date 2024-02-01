@@ -36,7 +36,7 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 			__FILE__,
 			array(
 				'css_path'     => 'class-excluded-post-types-control.css',
-				'dependencies' => array( 'customize-controls' ),
+				'dependencies' => array( 'jquery', 'customize-controls' ),
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-search-pkg',
 			)
@@ -51,7 +51,7 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 	 * @return array $post_types An array of strings representing post type names.
 	 */
 	public function get_arrayed_value() {
-		return empty( $this->value() ) ? array() : explode( ',', $this->value() );
+		return explode( ',', $this->value() );
 	}
 
 	/**
@@ -93,13 +93,9 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 	 */
 	protected function render_content() {
 		$post_types = get_post_types( array( 'exclude_from_search' => false ), 'objects' );
-		$post_types = array_filter(
-			$post_types,
-			function ( $key ) {
-				return ! in_array( $key, Helper::POST_TYPES_TO_HIDE_FROM_EXCLUDED_CHECK_LIST, true );
-			},
-			ARRAY_FILTER_USE_KEY
-		);
+		if ( ! is_countable( $post_types ) ) {
+			return;
+		}
 		if ( count( $post_types ) === 0 ) {
 			return;
 		}
@@ -122,7 +118,7 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 			/>
 		<?php
 
-		$is_only_one_unchecked = ( count( $post_types ) - 1 ) === count( $this->get_arrayed_value() );
+		$is_only_one_unchecked = is_countable( $post_types ) && ( count( $post_types ) - 1 ) === count( $this->get_arrayed_value() );
 
 		foreach ( $post_types as $post_type ) {
 			$input_id = Helper::generate_post_type_customizer_id( $post_type );

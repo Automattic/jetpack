@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelogger\FormatterPlugin;
+use Automattic\Jetpack\Changelogger\LoadChangeFileException;
 use Automattic\Jetpack\Changelogger\Utils;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -17,7 +18,6 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
-use function Wikimedia\quietCall;
 
 /**
  * Tests for the changelogger utils.
@@ -26,21 +26,9 @@ use function Wikimedia\quietCall;
  */
 class UtilsTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertObjectProperty;
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
-
-	/**
-	 * Test error_clear_last.
-	 */
-	public function test_error_clear_last() {
-		quietCall( 'trigger_error', 'Test', E_USER_NOTICE );
-		$err = error_get_last();
-		$this->assertSame( 'Test', $err['message'] );
-
-		Utils::error_clear_last();
-		$err = error_get_last();
-		$this->assertTrue( empty( $err['message'] ) ); // phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertEmpty -- We need the potential error suppression, behavior varies by PHP version.
-	}
 
 	/**
 	 * Test runCommand.
@@ -175,10 +163,10 @@ class UtilsTest extends TestCase {
 				try {
 					Utils::loadChangeFile( $temp );
 					$this->fail( 'Expcected exception not thrown' );
-				} catch ( \RuntimeException $ex ) {
+				} catch ( LoadChangeFileException $ex ) {
 					$this->assertInstanceOf( get_class( $expect ), $ex );
 					$this->assertMatchesRegularExpression( $expect->getMessage(), $ex->getMessage() );
-					$this->assertObjectHasAttribute( 'fileLine', $ex );
+					$this->assertObjectHasProperty( 'fileLine', $ex );
 					$this->assertSame( $expect->fileLine, $ex->fileLine );
 				}
 			}
@@ -192,7 +180,7 @@ class UtilsTest extends TestCase {
 	 */
 	public function provideLoadChangeFile() {
 		$ex = function ( $msg, $line ) {
-			$ret           = new \RuntimeException( $msg );
+			$ret           = new LoadChangeFileException( $msg );
 			$ret->fileLine = $line;
 			return $ret;
 		};
@@ -348,7 +336,7 @@ class UtilsTest extends TestCase {
 	}
 
 	/**
-	 * Test getRepoData
+	 * Test getRepoData with squash and merge commits.
 	 */
 	public function testGetRepoData() {
 		$this->useTempDir();
@@ -388,9 +376,17 @@ class UtilsTest extends TestCase {
 				),
 			),
 		);
-		Utils::runCommand( array( 'git', 'init', '.' ), ...$args );
+		Utils::runCommand( array( 'git', 'init', '-b', 'main', '.' ), ...$args );
 		Utils::runCommand( array( 'git', 'add', 'in-git.txt' ), ...$args );
 		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit (#123)' ), ...$args );
+
+		// Let's create another branch, add a commit and merge to trunk.
+		Utils::runCommand( array( 'git', 'checkout', '-b', 'temp' ), ...$args );
+		file_put_contents( 'in-git2.txt', '' );
+		Utils::runCommand( array( 'git', 'add', 'in-git2.txt' ), ...$args );
+		Utils::runCommand( array( 'git', 'commit', '-m', 'Dummy commit message.' ), ...$args );
+		Utils::runCommand( array( 'git', 'checkout', 'main' ), ...$args );
+		Utils::runCommand( array( 'git', 'merge', 'temp', '--no-ff', '-m', 'Merge pull request #124 from temp.' ), ...$args );
 
 		$this->assertSame(
 			array(
@@ -398,6 +394,15 @@ class UtilsTest extends TestCase {
 				'pr-num'    => '123',
 			),
 			Utils::getRepoData( 'in-git.txt', $output, $helper )
+		);
+
+		// Test the second commit.
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'pr-num'    => '124',
+			),
+			Utils::getRepoData( 'in-git2.txt', $output, $helper )
 		);
 
 		// Test our non-git file again.
@@ -470,5 +475,4 @@ class UtilsTest extends TestCase {
 			$out->fetch()
 		);
 	}
-
 }

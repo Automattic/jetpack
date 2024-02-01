@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 60  # 2021-10-26: Build for arm64 is S-L-O-W. Sigh.
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up qemu
         uses: docker/setup-qemu-action@v2
@@ -56,18 +56,20 @@ jobs:
         id: buildargs
         run: |
           source .github/versions.sh
-          echo "::set-output name=php-version::$PHP_VERSION"
-          echo "::set-output name=composer-version::$COMPOSER_VERSION"
-          echo "::set-output name=node-version::$NODE_VERSION"
-          echo "::set-output name=pnpm-version::$PNPM_VERSION"
+          source .github/files/gh-funcs.sh
+
+          gh_set_output php-version "$PHP_VERSION"
+          gh_set_output composer-version "$COMPOSER_VERSION"
+          gh_set_output node-version "$NODE_VERSION"
+          gh_set_output pnpm-version "$PNPM_VERSION"
 
           # We're not git-tagging for the env. Just tag all trunk builds as latest.
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
-            echo "::set-output name=tags::type=raw,latest"
-            echo "::set-output name=images::automattic/jetpack-wordpress-dev%0Aghcr.io/automattic/jetpack-wordpress-dev"
+            gh_set_output tags "type=raw,latest"
+            gh_set_output images $'automattic/jetpack-wordpress-dev\nghcr.io/automattic/jetpack-wordpress-dev'
           elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            echo "::set-output name=tags::type=ref,event=pr"
-            echo "::set-output name=images::ghcr.io/automattic/jetpack-wordpress-dev"
+            gh_set_output tags "type=ref,event=pr"
+            gh_set_output images "ghcr.io/automattic/jetpack-wordpress-dev"
           else
             echo "Unknown GITHUB_EVENT_NAME $GITHUB_EVENT_NAME"
             exit 1
@@ -86,7 +88,7 @@ jobs:
             org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}/blob/trunk/tools/docker/README.md
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: tools/docker
           platforms: linux/amd64,linux/arm64

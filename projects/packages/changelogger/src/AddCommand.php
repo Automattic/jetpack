@@ -14,7 +14,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
-use function Wikimedia\quietCall;
 
 /**
  * "Add" command for the changelogger tool CLI.
@@ -165,8 +164,9 @@ EOF
 		try {
 			$dir = Config::changesDir();
 			if ( ! is_dir( $dir ) ) {
-				Utils::error_clear_last();
-				if ( ! quietCall( 'mkdir', $dir, 0775, true ) ) {
+				error_clear_last();
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				if ( ! @mkdir( $dir, 0775, true ) ) {
 					$err = error_get_last();
 					$output->writeln( "<error>Could not create directory $dir: {$err['message']}</>" );
 					return 1;
@@ -181,7 +181,7 @@ EOF
 				$filename = $this->getDefaultFilename( $output );
 			}
 			if ( $isInteractive ) {
-				$question = new Question( "Name your change file <info>[default: $filename]</> > ", $filename );
+				$question = new Question( "Name your changelog file <info>[default: $filename]</> > ", $filename );
 				$question->setValidator( array( $this, 'validateFilename' ) );
 				$filename = $this->getHelper( 'question' )->ask( $input, $output, $question );
 				if ( null === $filename ) { // non-interactive.
@@ -195,7 +195,7 @@ EOF
 				if ( file_exists( "$dir/$filename" ) && $input->getOption( 'filename-auto-suffix' ) ) {
 					$i = 2;
 					while ( file_exists( "$dir/$filename#$i" ) ) {
-						$i++;
+						++$i;
 					}
 					$output->writeln( "File \"$filename\" already exists. Creating \"$filename#$i\" instead.", OutputInterface::VERBOSITY_VERBOSE );
 					$filename = "$filename#$i";
@@ -287,6 +287,9 @@ EOF
 			} else {
 				if ( null === $entry ) {
 					$output->writeln( '<error>Entry must be specified in non-interactive mode.</>' );
+					if ( 'patch' === $significance ) {
+						$output->writeln( '<info>If you want to have an empty entry for this change, pass the empty string as the entry (like <comment>--entry=</>) and also please provide a comment (using <comment>--comment</>).</>' );
+					}
 					return 1;
 				}
 				if ( 'patch' !== $significance && '' === $entry ) {
@@ -319,17 +322,21 @@ EOF
 				OutputInterface::VERBOSITY_DEBUG
 			);
 			$contents .= "\n";
-			Utils::error_clear_last();
-			$fp = quietCall( 'fopen', "$dir/$filename", 'x' );
+			error_clear_last();
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$fp = @fopen( "$dir/$filename", 'x' );
 			if ( ! $fp ||
-				quietCall( 'fwrite', $fp, $contents ) !== strlen( $contents ) ||
-				! quietCall( 'fclose', $fp )
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				@fwrite( $fp, $contents ) !== strlen( $contents ) ||
+				! fclose( $fp )
 			) {
 				// @codeCoverageIgnoreStart
 				$err = error_get_last();
 				$output->writeln( "<error>Failed to write file \"$dir/$filename\": {$err['message']}.</>" );
-				quietCall( 'fclose', $fp );
-				quietCall( 'unlink', "$dir/$filename" );
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				@fclose( $fp );
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				@unlink( "$dir/$filename" );
 				return 1;
 				// @codeCoverageIgnoreEnd
 			}

@@ -7,7 +7,7 @@ const label = __( 'Pick an ad format', 'jetpack' );
 export default function FormatPicker( { value, onChange } ) {
 	return (
 		<Dropdown
-			position="bottom right"
+			placement="bottom-start"
 			renderToggle={ ( { onToggle, isOpen } ) => {
 				return (
 					<ToolbarGroup

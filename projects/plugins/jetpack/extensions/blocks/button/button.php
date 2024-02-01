@@ -23,7 +23,10 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 function register_block() {
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
+		array(
+			'render_callback' => __NAMESPACE__ . '\render_block',
+			'uses_context'    => array( 'jetpack/parentBlockWidth' ),
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
@@ -51,7 +54,7 @@ function render_block( $attributes, $content ) {
 	}
 
 	$element   = get_attribute( $attributes, 'element' );
-	$text      = get_attribute( $attributes, 'text' );
+	$text      = wp_kses_post( get_attribute( $attributes, 'text' ) );
 	$unique_id = get_attribute( $attributes, 'uniqueId' );
 	$url       = get_attribute( $attributes, 'url' );
 	$classes   = Blocks::classes( FEATURE_NAME, $attributes, array( 'wp-block-button' ) );
@@ -69,12 +72,16 @@ function render_block( $attributes, $content ) {
 		$button_attributes .= sprintf( ' data-id-attr="%1$s" id="%1$s"', esc_attr( $unique_id ) );
 	}
 
+	if ( ! in_array( $element, array( 'a', 'button', 'input' ), true ) ) {
+		$element = 'a';
+	}
+
 	if ( 'a' === $element ) {
 		$button_attributes .= sprintf( ' href="%s" target="_blank" role="button" rel="noopener noreferrer"', esc_url( $url ) );
 	} elseif ( 'button' === $element ) {
 		$button_attributes .= ' type="submit"';
 	} elseif ( 'input' === $element ) {
-		$button_attributes .= sprintf( ' type="submit" value="%s"', wp_strip_all_tags( $text, true ) );
+		$button_attributes .= sprintf( ' type="submit" value="%s"', esc_attr( wp_strip_all_tags( $text, true ) ) );
 	}
 
 	$button = 'input' === $element
@@ -102,6 +109,12 @@ function get_button_classes( $attributes ) {
 	$has_named_gradient          = array_key_exists( 'gradient', $attributes );
 	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
 	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
+	$has_font_size               = array_key_exists( 'fontSize', $attributes );
+
+	if ( $has_font_size ) {
+		$classes[] = 'has-' . $attributes['fontSize'] . '-font-size';
+		$classes[] = 'has-custom-font-size';
+	}
 
 	if ( $has_class_name ) {
 		$classes[] = $attributes['className'];
@@ -154,6 +167,22 @@ function get_button_styles( $attributes ) {
 	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
 	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
 	$has_width                   = array_key_exists( 'width', $attributes );
+	$has_font_family             = array_key_exists( 'fontFamily', $attributes );
+	$has_typography_styles       = array_key_exists( 'style', $attributes ) && array_key_exists( 'typography', $attributes['style'] );
+	$has_custom_font_size        = $has_typography_styles && array_key_exists( 'fontSize', $attributes['style']['typography'] );
+	$has_custom_text_transform   = $has_typography_styles && array_key_exists( 'textTransform', $attributes['style']['typography'] );
+
+	if ( $has_font_family ) {
+		$styles[] = sprintf( 'font-family: %s;', $attributes['fontFamily'] );
+	}
+
+	if ( $has_custom_font_size ) {
+		$styles[] = sprintf( 'font-size: %s;', $attributes['style']['typography']['fontSize'] );
+	}
+
+	if ( $has_custom_text_transform ) {
+		$styles[] = sprintf( 'text-transform: %s;', $attributes['style']['typography']['textTransform'] );
+	}
 
 	if ( ! $has_named_text_color && $has_custom_text_color ) {
 		$styles[] = sprintf( 'color: %s;', $attributes['customTextColor'] );

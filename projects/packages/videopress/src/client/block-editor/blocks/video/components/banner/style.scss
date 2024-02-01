@@ -1,0 +1,15 @@
+.block-banner {
+	display: flex;
+    height: 48px;
+    font-size: 14px;
+    align-self: center;
+    align-items: center;
+    background: #F6F7F7;
+    padding: 0 16px;
+
+    .block-banner__content {
+        color: #01283d;
+        flex-grow: 2;
+        margin: 0 8px;
+    }
+}

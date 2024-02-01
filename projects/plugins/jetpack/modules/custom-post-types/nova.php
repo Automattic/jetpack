@@ -26,6 +26,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Roles;
 
 /**
  * Create the new Nova CPT.
@@ -414,7 +415,8 @@ class Nova_Restaurant {
 	public function add_to_dashboard() {
 		$number_menu_items = wp_count_posts( self::MENU_ITEM_POST_TYPE );
 
-		if ( current_user_can( 'administrator' ) ) {
+		$roles = new Roles();
+		if ( current_user_can( $roles->translate_role_to_cap( 'administrator' ) ) ) {
 			$number_menu_items_published = sprintf(
 				'<a href="%1$s">%2$s</a>',
 				esc_url(
@@ -824,7 +826,6 @@ class Nova_Restaurant {
 		);
 		wp_safe_redirect( $redirect );
 		exit;
-
 	}
 
 	/**
@@ -846,7 +847,7 @@ class Nova_Restaurant {
 				'_inc/build/custom-post-types/js/nova-drag-drop.min.js',
 				'modules/custom-post-types/js/nova-drag-drop.js'
 			),
-			array( 'jquery-ui-sortable' ),
+			array( 'jquery', 'jquery-ui-sortable' ),
 			$this->version,
 			true
 		);
@@ -1058,7 +1059,7 @@ class Nova_Restaurant {
 			$parent_count = 0;
 			$current_term = $term;
 			while ( $current_term->parent ) {
-				$parent_count++;
+				++$parent_count;
 				$current_term = get_term( $current_term->parent, self::MENU_TAX );
 			}
 		}
@@ -1383,14 +1384,15 @@ class Nova_Restaurant {
 	 * @return array
 	 */
 	public function get_menus( $args = array() ) {
-		$args = wp_parse_args(
+		$args             = wp_parse_args(
 			$args,
 			array(
 				'hide_empty' => false,
 			)
 		);
+		$args['taxonomy'] = self::MENU_TAX;
 
-		$terms = get_terms( self::MENU_TAX, $args );
+		$terms = get_terms( $args );
 		if ( ! $terms || is_wp_error( $terms ) ) {
 			return array();
 		}
@@ -1440,7 +1442,6 @@ class Nova_Restaurant {
 		}
 
 		return get_term( $term_id, self::MENU_TAX );
-
 	}
 
 	/**
@@ -1486,7 +1487,7 @@ class Nova_Restaurant {
 				);
 			}
 
-			echo join( _x( ', ', 'Nova label separator', 'jetpack' ), $out ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we build $out ourselves and escape things there.
+			echo implode( _x( ', ', 'Nova label separator', 'jetpack' ), $out ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we build $out ourselves and escape things there.
 		} else {
 			esc_html_e( 'No Labels', 'jetpack' );
 		}
@@ -1585,6 +1586,14 @@ class Nova_Restaurant {
 	 */
 	public function menu_item_loop_each_post( $post ) {
 		$this->menu_item_loop_current_term = $this->get_menu_item_menu_leaf( $post->ID );
+
+		if (
+			false === $this->menu_item_loop_current_term
+			|| null === $this->menu_item_loop_current_term
+			|| is_wp_error( $this->menu_item_loop_current_term )
+		) {
+			return;
+		}
 
 		if ( false === $this->menu_item_loop_last_term_id ) {
 			// We're at the very beginning of the loop

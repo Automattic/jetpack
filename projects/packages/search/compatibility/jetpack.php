@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Search\Compatibility\Jetpack;
 
-use Automattic\Jetpack\Search\Plan;
 use Jetpack;
 
 /**
@@ -23,7 +22,7 @@ function should_show_jetpack_search_submenu() {
 		return false;
 	}
 
-	return ( new Plan() )->ever_supported_search();
+	return true;
 }
 
 add_filter( 'jetpack_search_should_add_search_submenu', __NAMESPACE__ . '\should_show_jetpack_search_submenu' );

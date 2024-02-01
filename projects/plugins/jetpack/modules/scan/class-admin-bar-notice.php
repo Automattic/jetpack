@@ -80,6 +80,12 @@ class Admin_Bar_Notice {
 			return false;
 		}
 
+		// Check if Protect is active.
+		// It has its own notice in the admin bar.
+		if ( class_exists( 'Jetpack_Protect' ) ) {
+			return false;
+		}
+
 		// Only show the notice to admins.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;
@@ -99,8 +105,19 @@ class Admin_Bar_Notice {
 		}
 
 		// We don't know about threats in the cache lets load the JS that fetches the info and updates the admin bar.
-		Assets::enqueue_async_script( self::SCRIPT_NAME, '_inc/build/scan/admin-bar-notice.min.js', 'modules/scan/admin-bar-notice.js', array( 'admin-bar' ), self::SCRIPT_VERSION, true );
-
+		Assets::register_script(
+			self::SCRIPT_NAME,
+			'_inc/build/scan/admin-bar-notice.min.js',
+			__FILE__,
+			array(
+				'in_footer'    => true,
+				'strategy'     => 'defer',
+				'nonmin_path'  => '_inc/build/scan/admin-bar-notice.js',
+				'dependencies' => array( 'admin-bar' ),
+				'version'      => self::SCRIPT_VERSION,
+				'enqueue'      => true,
+			)
+		);
 		$script_data = array(
 			'nonce'              => wp_create_nonce( 'wp_rest' ),
 			'scan_endpoint'      => get_rest_url( null, 'jetpack/v4/scan' ),

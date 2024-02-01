@@ -1,9 +1,24 @@
 <?php
-require __DIR__ . '/../../../../modules/publicize.php';
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
+
+if ( ! function_exists( 'publicize_init' ) ) {
+	/**
+	 * Some tests rely on this function which won't get defined unless we mock lots
+	 * of things and require the module code. Instead we'll define it here.
+	 *
+	 * @return Publicize Object
+	 */
+	function publicize_init() {
+		global $publicize;
+
+		return $publicize;
+	}
+}
 
 /**
  * @group publicize
- * @covers Publicize
+ * @covers Jetpack_Publicize
  */
 class WP_Test_Publicize extends WP_UnitTestCase {
 
@@ -24,6 +39,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @var integer $user_id ID of current user.
 	 */
 	private $user_id;
+
+	private $publicize;
 
 	/**
 	 * Index in 'publicize_connections' test data of normal connection.
@@ -50,13 +67,15 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		global $publicize_ui;
 		$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
 
+		$this->setup_publicize_mock();
+
 		$this->publicize          = publicize_init();
 		$this->publicized_post_id = null;
 
-		$post_id    = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+		$post_id    = self::factory()->post->create( array( 'post_status' => 'draft' ) );
 		$this->post = get_post( $post_id );
 
-		$this->user_id = $this->factory->user->create();
+		$this->user_id = self::factory()->user->create();
 		wp_set_current_user( $this->user_id );
 
 		Jetpack_Options::update_options(
@@ -67,6 +86,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 						'id_number' => array(
 							'connection_data' => array(
 								'user_id'  => $this->user_id,
+								'id'       => '456',
 								'token_id' => 'test-unique-id456',
 								'meta'     => array(
 									'display_name' => 'test-display-name456',
@@ -79,6 +99,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 						'id_number' => array(
 							'connection_data' => array(
 								'user_id'  => 0,
+								'id'       => '123',
 								'token_id' => 'test-unique-id123',
 								'meta'     => array(
 									'display_name' => 'test-display-name123',
@@ -105,6 +126,17 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		wp_set_current_user( $this->original_user );
 
 		parent::tear_down();
+	}
+
+	private function setup_publicize_mock() {
+		global $publicize;
+		$this->publicize = $this->getMockBuilder( 'Automattic\Jetpack\Publicize\Publicize' )->setMethods( array( 'test_connection' ) )->getMock();
+
+		$this->publicize->method( 'test_connection' )
+			->withAnyParameters()
+			->willReturn( true );
+
+		$publicize = $this->publicize;
 	}
 
 	public function test_fires_jetpack_publicize_post_on_save_as_published() {

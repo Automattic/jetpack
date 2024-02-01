@@ -5,6 +5,210 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.1.0 - 2024-01-25
+### Added
+- Automatically determine text domain for `I18nLoaderPlugin` as is done for `I18nCheckPlugin`. [#35231]
+
+## 3.0.5 - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## 3.0.4 - 2023-12-06
+### Changed
+- Updated package dependencies. [#34416]
+
+## 3.0.3 - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411]
+
+## 3.0.2 - 2023-11-20
+
+## 3.0.1 - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## 3.0.0 - 2023-11-03
+### Changed
+- Default devtool in development mode is now 'source-map'. This is technically a breaking change, as now `.map` files will be generated in development mode. [#33924]
+
+## 2.0.4 - 2023-10-19
+### Changed
+- Updated package dependencies. [#33687]
+
+## 2.0.3 - 2023-10-17
+### Changed
+- Updated package dependencies. [#33646]
+
+## 2.0.2 - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429, #33600]
+
+## 2.0.1 - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## 2.0.0 - 2023-10-03
+### Added
+- Document PnpmDeterministicModuleIdsPlugin that was added way back in 1.2.0. [#33392]
+
+### Changed
+- Disable `optimization.mangleExports` in production mode in favor of the `I18nSafeMangleExportsPlugin` from `@automattic/i18n-check-webpack-plugin`. This is technically a breaking change, as if someone had been disabling `mangleExports` for other reasons this will effectively re-enable it. [#33392]
+
+## 1.6.0 - 2023-09-13
+### Changed
+- Updated package dependencies. [#33001]
+
+### Removed
+- Remove deprecated `@babel/plugin-proposal-class-properties`; `@babel/plugin-transform-class-properties` is already in `@babel/preset-env`. [#33001]
+
+## 1.5.9 - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+## 1.5.8 - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## 1.5.7 - 2023-07-18
+### Changed
+- Updated package dependencies. [#31922]
+
+## 1.5.6 - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+## 1.5.5 - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## 1.5.4 - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## 1.5.3 - 2023-06-26
+### Changed
+- Updated package dependencies. [#31524]
+
+## 1.5.2 - 2023-06-21
+### Changed
+- Updated package dependencies. [#31468]
+
+## 1.5.1 - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+## 1.5.0 - 2023-05-02
+### Added
+- Webpack's `.resolve.conditionNames` may now be set from `.npmrc` or the corresponding environment variable. [#30313]
+
+### Changed
+- Updated package dependencies.
+
+## 1.4.5 - 2023-04-25
+### Changed
+- Updated package dependencies. [#30246]
+
+## 1.4.4 - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## 1.4.3 - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## 1.4.2 - 2023-03-29
+### Changed
+- Minor internal updates.
+
+## 1.4.1 - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## 1.4.0 - 2023-03-27
+### Added
+- Adds compatibility with @svgr/webpack library for loading svg files as react components [#29544]
+
+## 1.3.27 - 2023-03-23
+### Changed
+- Updated package dependencies.
+
+## 1.3.26 - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## 1.3.25 - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## 1.3.24 - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## 1.3.23 - 2023-02-06
+### Changed
+- Updated package dependencies.
+
+## 1.3.22 - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## 1.3.21 - 2023-01-23
+### Changed
+- Replace `duplicate-package-checker-webpack-plugin` with `@cerner/duplicate-package-checker-webpack-plugin`. [#28518]
+
+## 1.3.20 - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## 1.3.19 - 2022-12-02
+### Changed
+- Updated package dependencies. [#27697]
+
+## 1.3.18 - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## 1.3.17 - 2022-11-10
+### Changed
+- Updated package dependencies. [#27319]
+
+## 1.3.16 - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## 1.3.15 - 2022-11-01
+### Changed
+- Updated package dependencies.
+
+## 1.3.14 - 2022-10-13
+### Changed
+- Updated package dependencies. [#26791]
+
+## 1.3.13 - 2022-10-05
+### Changed
+- Updated package dependencies. [#26568]
+
+## 1.3.12 - 2022-09-13
+### Changed
+- Updated package dependencies. [#26072]
+
+## 1.3.11 - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+## 1.3.10 - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
+## 1.3.9 - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25762]
+
+## 1.3.8 - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
 ## 1.3.7 - 2022-07-12
 ### Changed
 - Updated package dependencies.

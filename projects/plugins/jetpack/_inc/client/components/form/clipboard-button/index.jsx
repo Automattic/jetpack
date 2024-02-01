@@ -14,10 +14,12 @@ export default class ClipboardButton extends React.Component {
 		text: PropTypes.string,
 		prompt: PropTypes.string,
 		onCopy: PropTypes.func,
+		rna: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		onCopy: noop,
+		rna: false,
 	};
 
 	componentDidMount() {
@@ -42,6 +44,7 @@ export default class ClipboardButton extends React.Component {
 		const classes = classNames( 'dops-clipboard-button', this.props.className );
 		return (
 			<Button
+				rna={ this.props.rna }
 				ref="button"
 				{ ...omit( this.props, Object.keys( this.constructor.propTypes ) ) }
 				className={ classes }

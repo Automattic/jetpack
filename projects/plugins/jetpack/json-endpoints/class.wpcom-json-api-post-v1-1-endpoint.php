@@ -50,7 +50,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		'geo'              => '(object>geo|false)',
 		'menu_order'       => '(int) (Pages Only) The order pages should appear in.',
 		'page_template'    => '(string) (Pages Only) The page template this page is using.',
-		'publicize_URLs'   => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
+		'publicize_URLs'   => '(array:URL) Array of Facebook URLs published by this post.',
 		'terms'            => '(object) Hash of taxonomy names mapping to a hash of terms keyed by term name.',
 		'tags'             => '(object:tag) Hash of tags (keyed by tag name) applied to the post.',
 		'categories'       => '(object:category) Hash of categories (keyed by category name) applied to the post.',
@@ -325,6 +325,15 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			return $response;
 		}
 
+		// Bail early if we do not have the necessary data.
+		if (
+			is_wp_error( $response )
+			|| ! isset( $response['posts'] )
+			|| ! is_array( $response['posts'] )
+		) {
+			return $response;
+		}
+
 		// Retrieve an array of field paths, such as: [`autosave.modified`, `autosave.post_ID`]
 		$fields = explode( ',', sanitize_text_field( wp_unslash( $_REQUEST['meta_fields'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not making any changes to the site.
 
@@ -381,7 +390,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		global $post;
 
 		static $instance = 0;
-		$instance++;
+		++$instance;
 
 		// @todo - find out if this is a bug, intentionally unused, or can be removed.
 		$output = ''; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable

@@ -22,46 +22,50 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 	const planPathSlug = startsWith( planSlug, 'jetpack_' ) ? planSlug : get( plan, [ 'path_slug' ] );
 
 	// The full site editor has no set post type.
-	const redirect_to = ( undefined === postType
-		? () => {
-				const queryParams = new URLSearchParams( window.location.search );
+	const redirect_to = (
+		undefined === postType
+			? () => {
+					const queryParams = new URLSearchParams( window.location.search );
 
-				return addQueryArgs(
-					window.location.protocol +
-						`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/admin.php`,
-					{
-						page: 'gutenberg-edit-site',
-						postId: queryParams.get( 'postId' ),
-						postType: queryParams.get( 'postType' ),
-						plan_upgraded: 1,
-					}
-				);
-		  }
-		: () => {
-				// The editor for CPTs has an `edit/` route fragment prefixed.
-				const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
+					return addQueryArgs(
+						window.location.protocol +
+							`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/site-editor.php`,
+						{
+							postId: queryParams.get( 'postId' ),
+							postType: queryParams.get( 'postType' ),
+							plan_upgraded: 1,
+						}
+					);
+			  }
+			: () => {
+					// The editor for CPTs has an `edit/` route fragment prefixed.
+					const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
 
-				// Post-checkout: redirect back here.
-				return isSimpleSite()
-					? addQueryArgs(
-							'/' +
-								compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join(
-									'/'
-								),
-							{
-								plan_upgraded: 1,
-							}
-					  )
-					: addQueryArgs(
-							window.location.protocol +
-								`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`,
-							{
-								action: 'edit',
-								post: postId,
-								plan_upgraded: 1,
-							}
-					  );
-		  } )();
+					// Post-checkout: redirect back here.
+					return isSimpleSite()
+						? addQueryArgs(
+								'/' +
+									compact( [
+										postTypeEditorRoutePrefix,
+										postType,
+										getSiteFragment(),
+										postId,
+									] ).join( '/' ),
+								{
+									plan_upgraded: 1,
+								}
+						  )
+						: addQueryArgs(
+								window.location.protocol +
+									`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`,
+								{
+									action: 'edit',
+									post: postId,
+									plan_upgraded: 1,
+								}
+						  );
+			  }
+	)();
 
 	// Redirect to calypso plans page for WoC sites.
 	if ( isAtomicSite() ) {

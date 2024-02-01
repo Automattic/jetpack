@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 
 /**
@@ -161,7 +163,7 @@ class Jetpack_Comic {
 
 						if ( current_user_can( $post_type_object->cap->publish_posts ) ) {
 							set_post_type( $post_id, $destination_post_type );
-							$modified_count++;
+							++$modified_count;
 						}
 					}
 				}
@@ -467,7 +469,7 @@ class Jetpack_Comic {
 
 			if (
 				! empty( $php_self )
-				&& 'blog-rss.php' === substr( $php_self, -12 )
+				&& str_ends_with( $php_self, 'blog-rss.php' )
 				&& count( $blog_ids ) > 1
 			) {
 				// blog-rss.php isn't run in the context of the target blog when the init action fires,
@@ -575,10 +577,10 @@ class Jetpack_Comic {
 				array_push( $image_id_arr, $image_id );
 			}
 
-			$i++;
+			++$i;
 		}
 
-		if ( count( $image_id_arr ) === 0 ) {
+		if ( $image_id_arr === array() ) {
 			// All image uploads failed.
 			$rv = array( 'error' => '' );
 
@@ -695,7 +697,6 @@ class Jetpack_Comic {
 		$post_types[] = self::POST_TYPE;
 		return $post_types;
 	}
-
 }
 
 add_action( 'init', array( 'Jetpack_Comic', 'init' ) );

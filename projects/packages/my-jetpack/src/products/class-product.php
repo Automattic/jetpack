@@ -62,6 +62,13 @@ abstract class Product {
 	public static $requires_user_connection = true;
 
 	/**
+	 * Whether this product has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = false;
+
+	/**
 	 * Get the plugin slug
 	 *
 	 * @return ?string
@@ -117,18 +124,26 @@ abstract class Product {
 			'title'                    => static::get_title(),
 			'description'              => static::get_description(),
 			'long_description'         => static::get_long_description(),
+			'tiers'                    => static::get_tiers(),
 			'features'                 => static::get_features(),
+			'features_by_tier'         => static::get_features_by_tier(),
+			'disclaimers'              => static::get_disclaimers(),
 			'status'                   => static::get_status(),
 			'pricing_for_ui'           => static::get_pricing_for_ui(),
 			'is_bundle'                => static::is_bundle_product(),
+			'is_plugin_active'         => static::is_plugin_active(),
 			'is_upgradable_by_bundle'  => static::is_upgradable_by_bundle(),
 			'supported_products'       => static::get_supported_products(),
 			'wpcom_product_slug'       => static::get_wpcom_product_slug(),
 			'requires_user_connection' => static::$requires_user_connection,
 			'has_required_plan'        => static::has_required_plan(),
+			'has_required_tier'        => static::has_required_tier(),
 			'manage_url'               => static::get_manage_url(),
+			'purchase_url'             => static::get_purchase_url(),
 			'post_activation_url'      => static::get_post_activation_url(),
-			'class'                    => get_called_class(),
+			'standalone_plugin_info'   => static::get_standalone_info(),
+			'class'                    => static::class,
+			'post_checkout_url'        => static::get_post_checkout_url(),
 		);
 	}
 
@@ -161,6 +176,15 @@ abstract class Product {
 	abstract public static function get_long_description();
 
 	/**
+	 * Get the tiers for the product
+	 *
+	 * @return boolean|string[] The slugs of the tiers (i.e. [ "free", "basic", "advanced" ]), or False if the product has no tiers.
+	 */
+	public static function get_tiers() {
+		return array();
+	}
+
+	/**
 	 * Get the internationalized features list
 	 *
 	 * @return array
@@ -168,11 +192,30 @@ abstract class Product {
 	abstract public static function get_features();
 
 	/**
+	 * Get the internationalized comparison of features grouped by each tier
+	 *
+	 * @return array
+	 */
+	public static function get_features_by_tier() {
+		return array();
+	}
+
+	/**
 	 * Get the product pricing
 	 *
 	 * @return array
 	 */
 	abstract public static function get_pricing_for_ui();
+
+	/**
+	 * Get the URL where the user can purchase the product iff it doesn't have an interstitial page in My Jetpack.
+	 *
+	 * @return ?string
+	 */
+	public static function get_purchase_url() {
+		// Declare as concrete method as most Jetpack products use an interstitial page within My Jetpack.
+		return null;
+	}
 
 	/**
 	 * Get the URL where the user manages the product
@@ -191,12 +234,46 @@ abstract class Product {
 	}
 
 	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_checkout_url() {
+		return null;
+	}
+
+	/**
 	 * Get the WPCOM product slug used to make the purchase
 	 *
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
 		return null;
+	}
+
+	/**
+	 * Get the disclaimers corresponding to a feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_disclaimers() {
+		return array();
+	}
+
+	/**
+	 * Get the standalone plugin related info
+	 *
+	 * @return array
+	 */
+	public static function get_standalone_info() {
+		$is_standalone_installed = static::$has_standalone_plugin && self::is_plugin_installed();
+		$is_standalone_active    = static::$has_standalone_plugin && self::is_plugin_active();
+
+		return array(
+			'has_standalone_plugin'   => static::$has_standalone_plugin,
+			'is_standalone_installed' => $is_standalone_installed,
+			'is_standalone_active'    => $is_standalone_active,
+		);
 	}
 
 	/**
@@ -210,6 +287,37 @@ abstract class Product {
 	 */
 	public static function has_required_plan() {
 		return true;
+	}
+
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the tiers
+	 *
+	 * @return array Key/value pairs of tier slugs and whether they are supported or not.
+	 */
+	public static function has_required_tier() {
+		return array();
+	}
+
+	/**
+	 * Checks whether the product supports trial or not
+	 *
+	 * Returns true if it supports. Return false otherwise.
+	 *
+	 * Free products will always return false.
+	 *
+	 * @return boolean
+	 */
+	public static function has_trial_support() {
+		return false;
+	}
+
+	/**
+	 * Checks whether the product can be upgraded to a different product.
+	 *
+	 * @return boolean
+	 */
+	public static function is_upgradable() {
+		return false;
 	}
 
 	/**
@@ -248,19 +356,32 @@ abstract class Product {
 	 * @return string
 	 */
 	public static function get_status() {
-
 		if ( ! static::is_plugin_installed() ) {
 			$status = 'plugin_absent';
+			if ( static::has_required_plan() ) {
+				$status = 'plugin_absent_with_plan';
+			}
 		} elseif ( static::is_active() ) {
 			$status = 'active';
 			// We only consider missing user connection an error when the Product is active.
 			if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = 'error';
-			} elseif ( ! static::has_required_plan() ) {
-				$status = 'needs_purchase'; // We need needs_purchase here as well because some products we consider active without the required plan.
+			} elseif ( static::is_upgradable() ) {
+				// Upgradable plans should ignore whether or not they have the required plan.
+				$status = 'can_upgrade';
+			} elseif ( ! static::has_required_plan() ) { // We need needs_purchase here as well because some products we consider active without the required plan.
+				if ( static::has_trial_support() ) {
+					$status = 'needs_purchase_or_free';
+				} else {
+					$status = 'needs_purchase';
+				}
 			}
 		} elseif ( ! static::has_required_plan() ) {
-			$status = 'needs_purchase';
+			if ( static::has_trial_support() ) {
+				$status = 'needs_purchase_or_free';
+			} else {
+				$status = 'needs_purchase';
+			}
 		} else {
 			$status = 'inactive';
 		}
@@ -372,7 +493,6 @@ abstract class Product {
 		$result = apply_filters( "my_jetpack_{$product_slug}_activation", $result );
 
 		return $result;
-
 	}
 
 	/**
@@ -434,5 +554,4 @@ abstract class Product {
 			}
 		}
 	}
-
 }

@@ -1,0 +1,49 @@
+{
+	"name": "automattic/jetpack-svelte-data-sync-client",
+	"description": "A Svelte.js client for the wp-js-data-sync package",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"NODE_ENV=production pnpm run build"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		],
+		"test-js": [
+			"pnpm run test"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-svelte-data-sync-client",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-svelte-data-sync-client/compare/v${old}...v${new}"
+		},
+		"autotagger": true
+	}
+}

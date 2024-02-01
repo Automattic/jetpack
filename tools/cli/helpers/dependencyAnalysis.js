@@ -7,9 +7,10 @@ import glob from 'glob';
  *
  * @param {string} root - Monorepo root directory.
  * @param {string|null} extra - Extra deps to include, "build" or "test".
+ * @param {boolean} noDev - Exclude dev dependencies.
  * @returns {Map} Key is the project slug, value is a Set of slugs depended on.
  */
-export async function getDependencies( root, extra = null ) {
+export async function getDependencies( root, extra = null, noDev = false ) {
 	const ret = new Map();
 
 	// Collect all project slugs.
@@ -60,7 +61,7 @@ export async function getDependencies( root, extra = null ) {
 		// Collect composer require, require-dev, and .extra.dependencies.
 		let json = JSON.parse( await fs.readFile( path + '/composer.json', { encoding: 'utf8' } ) );
 		for ( const [ pkg, pkgslug ] of packageMap.entries() ) {
-			if ( json.require?.[ pkg ] || json[ 'require-dev' ]?.[ pkg ] ) {
+			if ( json.require?.[ pkg ] || ( json[ 'require-dev' ]?.[ pkg ] && ! noDev ) ) {
 				deps.push( pkgslug );
 			}
 		}
@@ -72,7 +73,7 @@ export async function getDependencies( root, extra = null ) {
 		if ( ( await fs.access( path + '/package.json' ).catch( () => false ) ) !== false ) {
 			json = JSON.parse( await fs.readFile( path + '/package.json', { encoding: 'utf8' } ) );
 			for ( const [ pkg, pkgslug ] of jsPackageMap.entries() ) {
-				if ( json.dependencies?.[ pkg ] || json.devDependencies?.[ pkg ] ) {
+				if ( json.dependencies?.[ pkg ] || ( json.devDependencies?.[ pkg ] && ! noDev ) ) {
 					deps.push( pkgslug );
 				}
 			}

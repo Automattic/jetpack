@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<ruleset>
+	<rule ref="Jetpack-NoWP" />
+	<rule ref="Jetpack-Compat-82" />
+</ruleset>

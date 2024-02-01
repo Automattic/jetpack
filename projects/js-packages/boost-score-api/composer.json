@@ -1,0 +1,50 @@
+{
+	"name": "automattic/jetpack-boost-score-api",
+	"description": "A package to get the Jetpack Boost score of a site",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"NODE_ENV=production pnpm run build"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		],
+		"test-js": [
+			"pnpm run test"
+		]
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"npmjs-autopublish": true,
+		"mirror-repo": "Automattic/jetpack-boost-score-api",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-boost-score-api/compare/v${old}...v${new}"
+		},
+		"autotagger": true
+	}
+}

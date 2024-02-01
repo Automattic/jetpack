@@ -76,7 +76,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 
 			if ( file_exists( $link ) ) {
 				// Delete if link was tmp local file
-				unlink( $link );
+				wp_delete_file( $link );
 			}
 
 			if ( ! $this->bulk && is_wp_error( $result ) ) {
@@ -211,7 +211,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 
 		$response = $result['response'];
 		if ( $response['code'] !== 200 ) {
-			unlink( $file );
+			wp_delete_file( $file );
 			return new WP_Error( 'problem_fetching_theme', __( 'Problem downloading theme', 'jetpack' ) );
 		}
 

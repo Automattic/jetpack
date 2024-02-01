@@ -7,7 +7,7 @@ import { STORE_ID } from '../store';
 const selectors = select( STORE_ID );
 const dispatchers = dispatch( STORE_ID );
 
-const stubHasFinishedResolution = jest.spyOn( selectors, 'hasFinishedResolution' ).mockReset();
+const stubHasFinishedResolution = jest.spyOn( selectors, 'hasFinishedResolution' );
 const spyFinishResolution = jest.spyOn( dispatchers, 'finishResolution' );
 
 describe( 'resolvers', () => {

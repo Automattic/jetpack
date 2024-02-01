@@ -1,10 +1,10 @@
 === Jetpack Social  ===
-Contributors: automattic, pabline, danielpost, siddarthan
+Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk, danielpost
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
-Requires at least: 5.9
-Requires PHP: 5.6
-Tested up to: 6.0
-Stable tag: 1.0.0
+Requires at least: 6.3
+Requires PHP: 7.0
+Tested up to: 6.4
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,9 +13,11 @@ Write once, publish everywhere. Reach your target audience by sharing your conte
 == Description ==
 ### Write once, publish everywhere.
 
+*Share up to 30 times per month for free with Jetpack Social, and upgrade to share as many times as you want!*
+
 **Grow your following by sharing your content with Jetpack Social!**
 
-It’s important to publish on both your website & social media in order to reach your whole audience. If you only publish on social media, you’re missing up to 60% of adults on a daily basis. Jetpack Social makes it easy to automatically share your site’s posts on popular social media channels such as Facebook and Twitter. Increase your audience by engaging your site's viewers & your social followers.
+It’s important to publish on both your website & social media in order to reach your whole audience. If you only publish on social media, you’re missing up to 60% of adults on a daily basis. Jetpack Social makes it easy to automatically share your site’s posts on popular social media channels such as Facebook and Tumblr. Increase your audience by engaging your site's viewers & your social followers.
 
 **Manage all channels from a single hub to save time**
 
@@ -24,6 +26,14 @@ Don’t have the time to keep up with social media? Jetpack Social pushes your s
 **Set it and forget it!**
 
 Jetpack Social has scheduling tools that allow you to set your posts to publish at the time and day that works for your plan. Schedule your posts in advance so you’re not chained to your desk and publish at the time of day your fans are most engaged on social media.
+
+**Social Image Generator**
+
+With the Jetpack Social Advanced plan, you can have engaging imagery created automatically using the Social Image Generator feature. You can overlay custom text onto your images and choose from a variety of styles to increase engagement on your social posts. Most importantly, you’ll save time by doing it all within the WordPress editor.
+
+**Organic Content Sharing**
+
+Boost your social media engagement with Jetpack Social's Organic Content Sharing feature. Research indicates that manually published posts receive 50% more interaction compared to shared links. Our feature allows you to select custom images, videos, and text to share your blog posts as native social media content, enhancing engagement and saving you time. This feature is available with the Jetpack Social Advanced plan only.
 
 == Installation ==
 
@@ -59,9 +69,10 @@ From your site’s WP Admin:
 You can connect to any of the following networks:
 
 * Facebook Pages
-* Twitter
 * Tumblr
 * LinkedIn
+* Mastodon
+* Instagram Business
 
 After you add a new connection, you have the option to make the connection ‘global’, meaning it can also be used by any other user on your site who has the ability to publish posts.
 
@@ -69,7 +80,7 @@ To make the connection available to all users, check the box labeled "Connection
 
 = To which social media platforms can I post using Jetpack Social? =
 
-You can post to Facebook, Twitter, Tumblr, and Linkedin. We are working hard to increase our social share integrations.
+You can post to Facebook, Instagram Business, Tumblr, Mastodon and Linkedin. We are working hard to increase our social share integrations.
 
 = How do I share a post on social media using Jetpack Social? =
 
@@ -89,11 +100,21 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.1.0-beta - 2022-06-29
+### 4.0.0 - 2024-01-18
 #### Changed
-- Renaming master to trunk.
-- Renaming `master` references to `trunk`
-- Reorder JS imports for `import/order` eslint rule.
-- Updated package dependencies.
-- Updated the design of the admin page to include share counters.
+- Changed dismissed notices endpoint to be a core endpoint
+- Social: Changed the illustration on the admin page
+- Social: Refactored storing of feature options to use core functions
+- Split PublicizeForm component into smaller ones
+- Updated Jetpack Social activation landing page
+- Updated package dependencies. [#34559] [#34815]
+- Updated the design for Quick Share buttons and fixed its a11y
 
+#### Fixed
+- Fixed a bug with the initial state script
+- Fixed Jetpack Social scheduled post messaging
+
+== Upgrade Notice ==
+
+= 3.0.0 =
+Required for compatibility with Jetpack 12.9 and later.

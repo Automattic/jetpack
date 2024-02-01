@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.25] - 2023-09-19
+- Minor internal updates.
+
+## [1.7.24] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## [1.7.23] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.7.22] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [1.7.21] - 2022-12-02
+### Changed
+- Updated package dependencies. [#27688]
+
+## [1.7.20] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## [1.7.19] - 2022-11-07
+### Changed
+- Updated package dependencies. [#27278]
+
+## [1.7.18] - 2022-10-25
+### Changed
+- Updated package dependencies. [#26705]
+
+## [1.7.17] - 2022-09-20
+### Changed
+- Updated package dependencies.
+
+## [1.7.16] - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+## [1.7.15] - 2022-08-29
+### Changed
+- Updated package dependencies.
+
+## [1.7.14] - 2022-08-23
+### Changed
+- Updated package dependencies. [#25628]
+
+## [1.7.13] - 2022-08-03
+### Changed
+- Updated package dependencies. [#25300, #25315]
+
+## [1.7.12] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
 ## [1.7.11] - 2022-06-21
 ### Changed
 - Renaming master to trunk. [#24661]
@@ -168,6 +223,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add partner subsidiary id to upgrade URLs.
 
+[1.7.25]: https://github.com/Automattic/jetpack-partner/compare/v1.7.24...v1.7.25
+[1.7.24]: https://github.com/Automattic/jetpack-partner/compare/v1.7.23...v1.7.24
+[1.7.23]: https://github.com/Automattic/jetpack-partner/compare/v1.7.22...v1.7.23
+[1.7.22]: https://github.com/Automattic/jetpack-partner/compare/v1.7.21...v1.7.22
+[1.7.21]: https://github.com/Automattic/jetpack-partner/compare/v1.7.20...v1.7.21
+[1.7.20]: https://github.com/Automattic/jetpack-partner/compare/v1.7.19...v1.7.20
+[1.7.19]: https://github.com/Automattic/jetpack-partner/compare/v1.7.18...v1.7.19
+[1.7.18]: https://github.com/Automattic/jetpack-partner/compare/v1.7.17...v1.7.18
+[1.7.17]: https://github.com/Automattic/jetpack-partner/compare/v1.7.16...v1.7.17
+[1.7.16]: https://github.com/Automattic/jetpack-partner/compare/v1.7.15...v1.7.16
+[1.7.15]: https://github.com/Automattic/jetpack-partner/compare/v1.7.14...v1.7.15
+[1.7.14]: https://github.com/Automattic/jetpack-partner/compare/v1.7.13...v1.7.14
+[1.7.13]: https://github.com/Automattic/jetpack-partner/compare/v1.7.12...v1.7.13
+[1.7.12]: https://github.com/Automattic/jetpack-partner/compare/v1.7.11...v1.7.12
 [1.7.11]: https://github.com/Automattic/jetpack-partner/compare/v1.7.10...v1.7.11
 [1.7.10]: https://github.com/Automattic/jetpack-partner/compare/v1.7.9...v1.7.10
 [1.7.9]: https://github.com/Automattic/jetpack-partner/compare/v1.7.8...v1.7.9

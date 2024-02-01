@@ -14,6 +14,12 @@ use WP_Customize_Color_Control;
  * Class to customize search on the site.
  */
 class Customizer {
+	/**
+	 * Search Plan class.
+	 *
+	 * @var Plan
+	 */
+	public $plan;
 
 	/**
 	 * Class initialization.
@@ -21,6 +27,7 @@ class Customizer {
 	public function __construct() {
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'customize_controls_enqueue_scripts' ) );
+		$this->plan = new Plan();
 	}
 
 	/**
@@ -100,9 +107,12 @@ class Customizer {
 			$id,
 			array(
 				'choices'     => array(
-					'relevance' => __( 'Relevance (recommended)', 'jetpack-search-pkg' ),
-					'newest'    => __( 'Newest first', 'jetpack-search-pkg' ),
-					'oldest'    => __( 'Oldest first', 'jetpack-search-pkg' ),
+					'relevance'   => __( 'Relevance (recommended)', 'jetpack-search-pkg' ),
+					'newest'      => __( 'Newest first', 'jetpack-search-pkg' ),
+					'oldest'      => __( 'Oldest first', 'jetpack-search-pkg' ),
+					'rating_desc' => __( 'Product rating', 'jetpack-search-pkg' ),
+					'price_asc'   => __( 'Price: low to high', 'jetpack-search-pkg' ),
+					'price_desc'  => __( 'Price: high to low', 'jetpack-search-pkg' ),
 				),
 				'description' => __( 'Pick the initial sort for your search results.', 'jetpack-search-pkg' ),
 				'label'       => __( 'Default Sort', 'jetpack-search-pkg' ),
@@ -115,7 +125,7 @@ class Customizer {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'   => Options::OVERLAY_TRIGGER_IMMEDIATE,
+				'default'   => Options::DEFAULT_OVERLAY_TRIGGER,
 				'transport' => 'postMessage',
 				'type'      => 'option',
 			)
@@ -128,10 +138,46 @@ class Customizer {
 				'section'     => $section_id,
 				'type'        => 'select',
 				'choices'     => array(
+					Options::OVERLAY_TRIGGER_SUBMIT    => __( 'Open when user submits the form (recommended)', 'jetpack-search-pkg' ),
 					Options::OVERLAY_TRIGGER_IMMEDIATE => __( 'Open when user starts typing', 'jetpack-search-pkg' ),
-					Options::OVERLAY_TRIGGER_RESULTS   => __( 'Open when results are available', 'jetpack-search-pkg' ),
-					Options::OVERLAY_TRIGGER_SUBMIT    => __( 'Open when user submits the form', 'jetpack-search-pkg' ),
 				),
+			)
+		);
+
+		$id = $setting_prefix . 'filtering_opens_overlay_settings';
+		$wp_customize->add_setting(
+			$id,
+			array( 'type' => 'option' )
+		);
+		$wp_customize->add_control(
+			new Label_Control(
+				$wp_customize,
+				$id,
+				array(
+					'label'       => __( 'Filtering Search Overlay', 'jetpack-search-pkg' ),
+					'description' => __( 'Open overlay when filters are used outside the Jetpack Sidebar', 'jetpack-search-pkg' ),
+					'section'     => $section_id,
+				)
+			)
+		);
+
+		$id = $setting_prefix . 'filtering_opens_overlay';
+		$wp_customize->add_setting(
+			$id,
+			array(
+				'default'              => '1',
+				'sanitize_callback'    => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value' ),
+				'sanitize_js_callback' => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value_for_js' ),
+				'transport'            => 'postMessage',
+				'type'                 => 'option',
+			)
+		);
+		$wp_customize->add_control(
+			$id,
+			array(
+				'type'    => 'checkbox',
+				'section' => $section_id,
+				'label'   => __( 'Open overlay from filter links', 'jetpack-search-pkg' ),
 			)
 		);
 
@@ -232,7 +278,7 @@ class Customizer {
 			)
 		);
 
-		$id = $setting_prefix . 'show_powered_by';
+		$id = $setting_prefix . 'show_post_date';
 		$wp_customize->add_setting(
 			$id,
 			array(
@@ -248,9 +294,32 @@ class Customizer {
 			array(
 				'type'    => 'checkbox',
 				'section' => $section_id,
-				'label'   => __( 'Display "Powered by Jetpack"', 'jetpack-search-pkg' ),
+				'label'   => __( 'Show post date', 'jetpack-search-pkg' ),
 			)
 		);
+
+		$id = $setting_prefix . 'show_powered_by';
+		$wp_customize->add_setting(
+			$id,
+			array(
+				'default'              => '1',
+				'sanitize_callback'    => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value' ),
+				'sanitize_js_callback' => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value_for_js' ),
+				'transport'            => 'postMessage',
+				'type'                 => 'option',
+			)
+		);
+
+		if ( ! $this->plan->is_free_plan() ) {
+			$wp_customize->add_control(
+				$id,
+				array(
+					'type'    => 'checkbox',
+					'section' => $section_id,
+					'label'   => __( 'Display "Powered by Jetpack"', 'jetpack-search-pkg' ),
+				)
+			);
+		}
 	}
 
 	/**

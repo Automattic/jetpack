@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Custom Post Types: change Nova functions to public to re-allow hooking.

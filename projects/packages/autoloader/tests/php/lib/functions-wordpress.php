@@ -227,7 +227,6 @@ if ( ! function_exists( 'wp_json_encode' ) ) {
 	 * @return false|string The JSON encoded string, or false if it cannot be encoded.
 	 */
 	function wp_json_encode( $data, $options = 0, $depth = 512 ) {
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 		return json_encode( $data, $options, $depth );
 	}
 }

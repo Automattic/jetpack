@@ -2,7 +2,7 @@
 import { numberFormat } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action.jsx';
+import NoticeAction from 'components/notice/notice-action';
 import React from 'react';
 
 import './notice-box.scss';
@@ -18,7 +18,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 	return {
 		1: {
 			id: 1,
-			header: __( 'Search was unable to index your content', 'jetpack-search-pkg' ),
+			header: __( 'We were unable to index your content', 'jetpack-search-pkg' ),
 			message: __(
 				"Jetpack's servers ran into a problem when trying to communicate with your site.",
 				'jetpack-search-pkg'
@@ -27,9 +27,9 @@ const getNotices = ( tierMaximumRecords = null ) => {
 		},
 		2: {
 			id: 2,
-			header: __( "We weren't able to locate any content for Search", 'jetpack-search-pkg' ),
+			header: __( "We're gathering your usage data", 'jetpack-search-pkg' ),
 			message: __(
-				'If you have recently set up Search, please allow a little time for indexing to complete.',
+				'If you have recently set up Jetpack Search, please allow a little time for indexing to complete.',
 				'jetpack-search-pkg'
 			),
 		},

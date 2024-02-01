@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
+require_once dirname( __DIR__, 2 ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
 
 /**
  * Tests that Posts and Custom Post Types do have Publicize data in REST API
@@ -31,6 +31,13 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	 * @var array
 	 */
 	private static $connection_ids = array();
+
+	/**
+	 * Connection IDs.
+	 *
+	 * @var array
+	 */
+	private static $token_ids = array();
 
 	/**
 	 * Draft ID.
@@ -152,9 +159,11 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 					'facebook' => array(
 						'id_number' => array(
 							'connection_data' => array(
-								'user_id'  => self::$user_id,
-								'token_id' => 'test-unique-id456',
-								'meta'     => array(
+								'user_id'       => self::$user_id,
+								'id'            => '456',
+								'token_id'      => 'test-unique-id456',
+								'connection_id' => '4560',
+								'meta'          => array(
 									'display_name' => 'test-display-name456',
 								),
 							),
@@ -164,9 +173,11 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 					'tumblr'   => array(
 						'id_number' => array(
 							'connection_data' => array(
-								'user_id'  => 0,
-								'token_id' => 'test-unique-id123',
-								'meta'     => array(
+								'user_id'       => 0,
+								'id'            => '123',
+								'token_id'      => 'test-unique-id123',
+								'connection_id' => '1230',
+								'meta'          => array(
 									'display_name' => 'test-display-name123',
 								),
 							),
@@ -176,22 +187,24 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 			)
 		);
 
-		self::$connection_ids[] = 'test-unique-id456';
-		self::$connection_ids[] = 'test-unique-id123';
+		self::$connection_ids[] = '456';
+		self::$connection_ids[] = '123';
+		self::$token_ids[]      = 'test-unique-id456';
+		self::$token_ids[]      = 'test-unique-id123';
 	}
 
 	/**
 	 * Set up.
 	 */
 	public function set_up() {
-		$this->draft_id = $this->factory->post->create(
+		parent::set_up();
+
+		$this->draft_id = self::factory()->post->create(
 			array(
 				'post_status' => 'draft',
 				'post_author' => self::$user_id,
 			)
 		);
-
-		parent::set_up();
 
 		$this->setup_fields();
 
@@ -202,6 +215,8 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		// phpunit --filter=Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field
 		// but fails when:
 		// phpunit --group=rest-api
+
+		$this->setup_publicize_mock();
 
 		$this->publicize = publicize_init();
 		$this->publicize->register_post_meta();
@@ -287,8 +302,26 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		unset( $GLOBALS['wpcom_rest_api_v2_plugins']['WPCOM_REST_API_V2_Post_Publicize_Connections_Field'] );
 	}
 
+	private function setup_publicize_mock() {
+		global $publicize;
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_once WP_CONTENT_DIR . '/admin-plugins/publicize.php';
+			$mockbuilder = $this->getMockBuilder( 'Publicize' );
+		} else {
+			$mockbuilder = $this->getMockBuilder( 'Automattic\Jetpack\Publicize\Publicize' );
+		}
+
+		$this->publicize = $mockbuilder->setMethods( array( 'test_connection' ) )->getMock();
+		$this->publicize->method( 'test_connection' )
+			->withAnyParameters()
+			->willReturn( true );
+
+		$publicize = $this->publicize;
+	}
+
 	public function test_register_fields_posts() {
-		$request  = wp_rest_request( 'OPTIONS', '/wp/v2/posts' );
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/posts' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 		$schema   = $data['schema'];
@@ -299,7 +332,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_register_fields_custom_post_type_with_custom_fields_support() {
-		$request  = wp_rest_request( 'OPTIONS', '/wp/v2/example-with' );
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-with' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -311,7 +344,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_register_fields_custom_post_type_without_custom_fields_support() {
-		$request  = wp_rest_request( 'OPTIONS', '/wp/v2/example-without' );
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-without' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 		$schema   = $data['schema'];
@@ -322,13 +355,13 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_response() {
-		$request  = wp_rest_request( 'GET', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $data );
 		$this->assertIsArray( $data['jetpack_publicize_connections'] );
-		$this->assertSame( self::$connection_ids, wp_list_pluck( $data['jetpack_publicize_connections'], 'id' ) );
+		$this->assertSame( self::$token_ids, wp_list_pluck( $data['jetpack_publicize_connections'], 'id' ) );
 
 		$this->assertArrayHasKey( 'meta', $data );
 		$this->assertArrayHasKey( 'jetpack_publicize_message', $data['meta'] );
@@ -337,7 +370,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_update_message() {
-		$request = wp_rest_request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(
 				'meta' => array(
@@ -352,12 +385,12 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_update_connections_by_id() {
-		$request = wp_rest_request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(
 				'jetpack_publicize_connections' => array(
 					array(
-						'id'      => 'test-unique-id123',
+						'id'      => '123',
 						'enabled' => false,
 					),
 				),
@@ -369,18 +402,23 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$this->assertNotEmpty( $data['jetpack_publicize_connections'] );
 
 		foreach ( $data['jetpack_publicize_connections'] as $connection ) {
-			$this->assertSame( 'test-unique-id123' !== $connection->id, $connection->enabled );
+			if ( $connection->id === '123' ) {
+				$this->assertSame( false, $connection->enabled );
+			} else {
+				$this->assertSame( true, $connection->enabled );
+			}
 		}
 	}
 
 	public function test_update_connections_by_service_name() {
-		$request = wp_rest_request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(
 				'jetpack_publicize_connections' => array(
 					array(
-						'service_name' => 'facebook',
-						'enabled'      => false,
+						'service_name'  => 'facebook',
+						'connection_id' => '4560',
+						'enabled'       => false,
 					),
 				),
 			)
@@ -391,7 +429,11 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$this->assertNotEmpty( $data['jetpack_publicize_connections'] );
 
 		foreach ( $data['jetpack_publicize_connections'] as $connection ) {
-			$this->assertSame( 'facebook' !== $connection->service_name, $connection->enabled );
+			if ( $connection->connection_id === '4560' ) {
+				$this->assertFalse( $connection->enabled );
+			} else {
+				$this->assertTrue( $connection->enabled );
+			}
 		}
 	}
 }

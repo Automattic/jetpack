@@ -229,7 +229,6 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 
 		return $updated_service;
 	}
-
 }
 
 new WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint(
@@ -422,7 +421,6 @@ class WPCOM_JSON_API_Get_Sharing_Button_Endpoint extends WPCOM_JSON_API_Sharing_
 			return $this->format_sharing_button( $all_buttons[ $button_id ] );
 		}
 	}
-
 }
 
 new WPCOM_JSON_API_Update_Sharing_Buttons_Endpoint(
@@ -555,7 +553,6 @@ class WPCOM_JSON_API_Update_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Shar
 			'updated' => $updated,
 		);
 	}
-
 }
 
 new WPCOM_JSON_API_Update_Sharing_Button_Endpoint(
@@ -714,7 +711,6 @@ class WPCOM_JSON_API_Update_Sharing_Button_Endpoint extends WPCOM_JSON_API_Shari
 			return $this->format_sharing_button( $updated_service );
 		}
 	}
-
 }
 
 new WPCOM_JSON_API_Delete_Sharing_Button_Endpoint(
@@ -779,7 +775,7 @@ class WPCOM_JSON_API_Delete_Sharing_Button_Endpoint extends WPCOM_JSON_API_Shari
 
 		// Verify button is custom
 		if ( ! is_a( $all_buttons[ $button_id ], 'Share_Custom' ) ) {
-			return new WP_error( 'invalid_request', 'Only custom sharing buttons can be deleted', 400 );
+			return new WP_Error( 'invalid_request', 'Only custom sharing buttons can be deleted', 400 );
 		}
 
 		$success = $this->sharing_service->delete_service( $button_id );
@@ -788,5 +784,4 @@ class WPCOM_JSON_API_Delete_Sharing_Button_Endpoint extends WPCOM_JSON_API_Shari
 			'success' => $success,
 		);
 	}
-
 }

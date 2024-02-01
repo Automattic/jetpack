@@ -6,8 +6,32 @@
 		overflow: hidden;
 		background: $gray-200;
 		min-height: 400px;
-		text-align: left;
+		text-align: start;
 	}
+
+  	.mapkit-popup-content {
+	  background: #fff;
+	  border-radius: 3px;
+	  box-shadow: 0 1px 2px rgb(0 0 0 / 10%);
+	  max-width: 300px;
+	  min-width: 150px;
+	  padding: 10px 10px 15px;
+	  pointer-events: auto;
+
+	  h3 {
+		font-size: 1.3125em;
+		font-weight: 400;
+		margin-bottom: 0.5rem;
+	  }
+	  p {
+		margin-bottom: 0;
+	  }
+	}
+
+	.wp-block-jetpack-map__mb-container {
+	  height: 400px;
+	}
+
 	.mapboxgl-popup {
 		h3 {
 			font-size: 1.3125em;

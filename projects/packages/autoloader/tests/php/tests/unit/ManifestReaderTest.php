@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * File loader test suite.
  *
@@ -21,7 +21,7 @@ class ManifestReaderTest extends TestCase {
 	 * The older version of the autoloader that we want to use. Note that
 	 * the version should support PSR-4 since this one does.
 	 */
-	const OLDER_VERSION = '2.4.0.0';
+	const OLDER_VERSION = '2.6.0.0';
 
 	/**
 	 * The directory of a plugin using the autoloader.
@@ -99,7 +99,7 @@ class ManifestReaderTest extends TestCase {
 
 		$this->assertArrayHasKey( Classmap_Test_Class::class, $input_array );
 		$this->assertEquals( Test_Plugin_Factory::VERSION_CURRENT, $input_array[ Classmap_Test_Class::class ]['version'] );
-		$this->assertEquals( $input_array[ Classmap_Test_Class::class ]['path'], TEST_PLUGIN_DIR . '/includes/class-classmap-test-class.php' );
+		$this->assertEquals( TEST_PLUGIN_DIR . '/includes/class-classmap-test-class.php', $input_array[ Classmap_Test_Class::class ]['path'] );
 	}
 
 	/**
@@ -116,7 +116,7 @@ class ManifestReaderTest extends TestCase {
 
 		$this->assertArrayHasKey( Classmap_Test_Class::class, $input_array );
 		$this->assertEquals( Test_Plugin_Factory::VERSION_CURRENT, $input_array[ Classmap_Test_Class::class ]['version'] );
-		$this->assertEquals( $input_array[ Classmap_Test_Class::class ]['path'], TEST_PLUGIN_DIR . '/includes/class-classmap-test-class.php' );
+		$this->assertEquals( TEST_PLUGIN_DIR . '/includes/class-classmap-test-class.php', $input_array[ Classmap_Test_Class::class ]['path'] );
 	}
 
 	/**
@@ -133,6 +133,6 @@ class ManifestReaderTest extends TestCase {
 
 		$this->assertArrayHasKey( Classmap_Test_Class::class, $input_array );
 		$this->assertEquals( Test_Plugin_Factory::VERSION_CURRENT, $input_array[ Classmap_Test_Class::class ]['version'] );
-		$this->assertEquals( $input_array[ Classmap_Test_Class::class ]['path'], TEST_PLUGIN_DIR . '/includes/class-classmap-test-class.php' );
+		$this->assertEquals( TEST_PLUGIN_DIR . '/includes/class-classmap-test-class.php', $input_array[ Classmap_Test_Class::class ]['path'] );
 	}
 }

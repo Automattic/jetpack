@@ -1,0 +1,43 @@
+jpcrm-dashcount {
+	box-sizing: content-box;
+	margin: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 250px);
+  counter-reset: grid-items;
+	grid-gap: 10px 20px;
+
+	&.wide-cards {
+		grid-template-columns: repeat(auto-fit, 300px);
+	}
+
+	jpcrm-dashcount-card {
+		display: flex;
+		align-items: center;
+		content: counter(grid-item);
+		position: relative;
+		padding: 15px;
+		background-color: var(--jp-white);
+		height: 120px;
+
+		h3 {
+			position: absolute;
+			top: 18px;
+			font-size: 16px;
+			font-weight: 600;
+			margin-block-start: 0;
+		}
+
+		.range_total {
+			font-size: 42px;
+			color: var(--jp-green-50);
+			margin-right: 10px;
+		}
+
+		a {
+			position: absolute;
+			bottom: 18px;
+			text-decoration: none;
+			color: var(--jp-black);
+		}
+	}
+}

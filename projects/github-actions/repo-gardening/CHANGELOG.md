@@ -5,6 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2023-06-06
+### Added
+- Add new task to notify Quality team of important issues
+- Add the legacy Photon label for PRs that make changes to the Image CDN package.
+- Auto labeling: add labels for common elements of the CRM plugin.
+- Create a new triageIssues task, to handle automated label triage and Slack notifications for important issues.
+
+### Changed
+- Add the Docs label whenever markdown files are edited.
+- Auto-labeling: update logic to use new [Focus] label.
+- Automated labeling: standardize how we track PRs with tests.
+- Changed the features directory to include the module directory as well.
+- Docs: Changing 'needs review' label wording for pull requests to more accurately reflect current processes
+- Don't complain about missing a changelog entry if the changelog itself is being changed.
+- Escalation task: update wording and icons.
+- Kitkat escalation task: change the name of the label applied to escalated issues.
+- Label management: do not loop through files for labels that do not require it.
+- Only send Slack notifications for bugs.
+- Triage tasks: update wording of messages and start warning folks of issues that do get any Priority label added automatically, so they can triage manually.
+- Update auto-labeling rules for Boost features.
+- Updated package dependencies.
+
+### Removed
+- The notifyKitKat and triageNewIssues tasks have been removed. The new triageIssues task now handles both of those tasks.
+
+### Fixed
+- Changelogger checks: do not error out when require or require-dev are not set.
+- Triage: ensure we do not trigger triaging on events when a laabel that would impact our automated triage is already being added.
+- Use correct emoji in Kitkat notifications
+
+## [3.1.1] - 2023-02-07
+### Changed
+- Changed headings in the `PULL_REQUEST_TEMPLATE`.
+- Update triage task to match new bug report template format.
+
+### Fixed
+- Clean up JavaScript eslint issues.
+
+## [3.1.0] - 2022-11-01
+### Added
+- Add new task to gather support references in a separate comment.
+- assignLabels: Add a '[Status] Needs Test Review' to PRs touching tests
+- Automated triaging: add Platform label to new issues based on info provided in issue.
+- Gather support references: add a specific label to an issue once it has gathered more than 10 issues.
+- Gather support references: add option to send a Slack message when issuees start gathering a lot of tickets, and would need to be escalated.
+- Labels: add [Status] In Progress label for draft PRs
+- New task: Reply to customers Reminder -- Sends a Slack message to remind triage teams to reply to customers once an issue has been closed.
+- Tooling: enable automatic GitHub releases when a new version of the action is tagged, so the new version can be made available in the GitHub Actions marketplace.
+
+### Changed
+- Documentation: update node version recommended in code sample
+- Gather Support References / Reply to Customers: ping the right DRIs for Satellite products.
+- Gather support references: add clarification that the comment is automated and should not be edited.
+- Gather support references: stop gathering Live Chat references.
+- General: disable Slack link and media previews in messages that are already custom-formatted.
+- General: move all utilities into their own directory to keep things ordered
+- Updated package dependencies.
+
+### Fixed
+- Ensure multiple plugins can be provided and then added as labels
+- Gather Support References: avoid sending reminders for closed issues.
+- Gather Support References: avoid throwing an error when an issue has no content.
+
 ## [3.0.0] - 2022-07-06
 ### Added
 - Automatically add a Priority label based off the contents of an issue. [#24841]
@@ -103,6 +166,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[4.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v3.1.1...v4.0.0
+[3.1.1]: https://github.com/Automattic/action-repo-gardening/compare/v3.1.0...v3.1.1
+[3.1.0]: https://github.com/Automattic/action-repo-gardening/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v2.0.2...v3.0.0
 [2.0.2]: https://github.com/Automattic/action-repo-gardening/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/Automattic/action-repo-gardening/compare/v2.0.0...v2.0.1

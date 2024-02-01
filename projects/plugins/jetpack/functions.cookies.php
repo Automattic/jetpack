@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * This file is meant to be the home for any function handling cookies that can
  * be accessed anywhere within Jetpack.
@@ -9,7 +9,7 @@
  */
 
 /**
- * A PHP 5.X compatible version of the array argument version of PHP 7.3's setcookie().
+ * A PHP 7.0 compatible version of the array argument version of PHP 7.3's setcookie().
  *
  * Useful for setting SameSite cookies in PHP 7.2 or earlier.
  *

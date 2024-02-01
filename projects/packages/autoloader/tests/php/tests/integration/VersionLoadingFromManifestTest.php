@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Integration test suite for the loader population.
  *
@@ -9,7 +9,7 @@
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
 use Automattic\Jetpack\AutoloaderTesting\Current\UniqueTestClass;
-use \Classmap_Test_Class;
+use Classmap_Test_Class;
 use PHPUnit\Framework\TestCase;
 use Test_Plugin_Factory;
 

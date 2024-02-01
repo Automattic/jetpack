@@ -2,6 +2,7 @@
 
 require __DIR__ . '/../../src/lazy-images.php';
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Lazy_Images;
 use WorDBless\BaseTestCase;
 
@@ -13,8 +14,6 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 
 	/**
 	 * Setup.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		add_filter( 'lazyload_images_placeholder_image', array( $this, 'override_image_placeholder' ) );
@@ -277,7 +276,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	 * @dataProvider get_process_image_attributes_data
 	 */
 	public function test_process_image_attributes( $input, $expected_output ) {
-		$this->assertSame( Jetpack_Lazy_Images::process_image_attributes( $input ), $expected_output );
+		$this->assertSame( $expected_output, Jetpack_Lazy_Images::process_image_attributes( $input ) );
 	}
 
 	/**
@@ -601,5 +600,82 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	public function add_skip_lazy_class_to_attributes( $attributes ) {
 		$attributes['class'] .= ' skip-lazy';
 		return $attributes;
+	}
+
+	/**
+	 * Confirms that the lazy images module is not loaded with Gutenberg 16.6.
+	 *
+	 * @covers Jetpack_Lazy_Images::should_force_deactivate
+	 * @dataProvider get_should_force_deactivate_data
+	 *
+	 * @param array $version_details Version details (WP and Gutenberg).
+	 * @param bool  $expected        Whether or not the module should be deactivated.
+	 */
+	public function test_should_force_deactivate( $version_details, $expected ) {
+		global $wp_version;
+		$previous_version = $wp_version;
+
+		Constants::set_constant( 'IS_JETPACK_LAZY_IMAGES_TESTS', false ); // disable hack for this test
+
+		Constants::set_constant( 'IS_GUTENBERG_PLUGIN', $version_details['gutenberg'] );
+		Constants::set_constant( 'GUTENBERG_VERSION', $version_details['gutenberg_version'] );
+		if ( true === $version_details['is_gutenberg_dev'] ) {
+			Constants::set_constant( 'GUTENBERG_DEVELOPMENT_MODE', true );
+		}
+
+		$wp_version = $version_details['wp']; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		try {
+			$this->assertSame( $expected, Jetpack_Lazy_Images::should_force_deactivate() );
+		} finally {
+			Constants::clear_constants();
+			$wp_version = $previous_version; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
+	}
+
+	/**
+	 * Data provider for test.
+	 *
+	 * @return array
+	 */
+	public function get_should_force_deactivate_data() {
+		return array(
+			'Gutenberg 16.5.0'                 => array(
+				array(
+					'wp'                => '6.3.0',
+					'gutenberg'         => true,
+					'gutenberg_version' => '16.5.0',
+					'is_gutenberg_dev'  => false,
+				),
+				false,
+			),
+			'Gutenberg 16.6.0'                 => array(
+				array(
+					'wp'                => '6.3.0',
+					'gutenberg'         => true,
+					'gutenberg_version' => '16.6.0',
+					'is_gutenberg_dev'  => false,
+				),
+				true,
+			),
+			'WordPress 6.4'                    => array(
+				array(
+					'wp'                => '6.4.0',
+					'gutenberg'         => false,
+					'gutenberg_version' => false,
+					'is_gutenberg_dev'  => false,
+				),
+				true,
+			),
+			'Development version of Gutenberg' => array(
+				array(
+					'wp'                => '6.3.0',
+					'gutenberg'         => true,
+					'gutenberg_version' => '15.6.0',
+					'is_gutenberg_dev'  => true,
+				),
+				true,
+			),
+		);
 	}
 }

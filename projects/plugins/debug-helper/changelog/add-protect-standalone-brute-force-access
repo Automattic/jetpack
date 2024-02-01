@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add brute force protection access for particular environments that do not support the WAF

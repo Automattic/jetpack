@@ -160,16 +160,16 @@ class SemverVersioning implements VersioningPlugin {
 					$out->writeln( '<warning>Semver does not automatically move version 0.y.z to 1.0.0.</>' );
 					$out->writeln( '<warning>You will have to do that manually when you\'re ready for the first release.</>' );
 				}
-				$info['minor']++;
+				++$info['minor'];
 			} else {
 				$info['minor'] = 0;
-				$info['major']++;
+				++$info['major'];
 			}
 		} elseif ( isset( $significances['minor'] ) ) {
 			$info['patch'] = 0;
-			$info['minor']++;
+			++$info['minor'];
 		} else {
-			$info['patch']++;
+			++$info['patch'];
 		}
 
 		return $this->normalizeVersion( $info );
@@ -245,5 +245,4 @@ class SemverVersioning implements VersioningPlugin {
 			) + $this->validateExtra( $extra )
 		);
 	}
-
 }

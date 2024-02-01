@@ -13,11 +13,16 @@ body:
         - Backup
         - Boost
         - Beta
+        - CRM
         - Debug Helper
+        - Migration
+        - mu wpcom
         - Protect
         - Search
         - Social
+        - Super Cache
         - VaultPress
+        - VideoPress
         - None / Other
       multiple: true
     validations:

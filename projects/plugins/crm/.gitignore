@@ -1,0 +1,30 @@
+/vendor/
+/node_modules/
+/build/
+/.cache/
+/.phpunit.result.cache
+**/css/*.css
+**/css/*.css.map
+**/css/**/*.css
+**/css/**/*.css.map
+**/js/*.min.js.map
+**/js/**/*.min.js.map
+**/js/*.min.js
+**/js/welcome-to-zbs/*.min.js
+**/js/*.min.js.LICENSE.txt
+/templates/.htaccess
+/templates/emails/.htaccess
+/templates/emails/index.html
+/templates/index.html
+/templates/invoices/.htaccess
+/templates/invoices/index.html
+/templates/quotes/.htaccess
+/templates/quotes/index.html
+/tests/codeception/acceptance.suite.yml
+phpcs.security.xml
+/wordpress/
+
+# We have moved codeception acceptenace tests into a specific `tests/codeception`
+# directory, but we're keeping the old config path around for now to prevent merge
+# conflicts in existing branches and local environments that use codeception.
+/tests/acceptance.suite.yml

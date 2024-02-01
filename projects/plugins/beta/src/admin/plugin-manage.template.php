@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * Jetpack Beta wp-admin manage page contents.
  *
@@ -194,9 +194,10 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 		</div>
 		<div id="section-pr">
 			<?php
-			end( $manifest->pr );
-			$last = key( $manifest->pr );
-			foreach ( $manifest->pr as $k => $pr ) {
+			$pr_list = (array) $manifest->pr;
+			end( $pr_list );
+			$last = key( $pr_list );
+			foreach ( $pr_list as $k => $pr ) {
 				$branch = $plugin->source_info( 'pr', $pr->branch );
 				if ( $branch && ! is_wp_error( $branch ) ) {
 					// Add spaces around the branch name for historical reasons.

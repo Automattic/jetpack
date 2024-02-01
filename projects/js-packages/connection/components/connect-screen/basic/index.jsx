@@ -8,32 +8,44 @@ import ConnectScreenVisual from './visual';
  * The Connection Screen component.
  *
  * @param {object} props -- The properties.
+ * @param {string?} props.title -- The Title.
+ * @param {string?} props.buttonLabel -- The Connect Button label.
+ * @param {string} props.apiRoot -- API root.
+ * @param {string} props.apiNonce -- API nonce.
+ * @param {string} props.registrationNonce -- Registration nonce.
+ * @param {string?} props.from -- Where the connection request is coming from.
+ * @param {string} props.redirectUri -- The redirect admin URI.
+ * @param {string[]?} props.images -- Images to display on the right side.
+ * @param {object[]} props.children -- Additional page elements to show before the call to action.
+ * @param {string?} props.assetBaseUrl -- The assets base URL.
+ * @param {object?} props.footer -- Additional page elements to show after the call to action.
+ * @param {boolean?} props.skipUserConnection -- Whether to not require a user connection and just redirect after site connection.
+ * @param {boolean?} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
+ * @param {object?} props.logo -- The logo to display at the top of the component.
  * @returns {React.Component} The `ConnectScreen` component.
  */
-const ConnectScreen = props => {
-	const {
-		title,
-		buttonLabel,
-		apiRoot,
-		apiNonce,
-		registrationNonce,
-		from,
-		redirectUri,
-		images,
-		children,
-		assetBaseUrl,
-		autoTrigger,
-		footer,
-		skipUserConnection,
-	} = props;
-
+const ConnectScreen = ( {
+	title,
+	buttonLabel,
+	apiRoot,
+	apiNonce,
+	registrationNonce,
+	from,
+	redirectUri,
+	images,
+	children,
+	assetBaseUrl,
+	autoTrigger,
+	footer,
+	skipUserConnection,
+	logo,
+} ) => {
 	const {
 		handleRegisterSite,
-		isRegistered,
-		isUserConnected,
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
+		isOfflineMode,
 	} = useConnection( {
 		registrationNonce,
 		redirectUri,
@@ -44,21 +56,23 @@ const ConnectScreen = props => {
 		skipUserConnection,
 	} );
 
-	const showConnectButton = ! isRegistered || ! isUserConnected;
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
+	const errorCode = registrationError?.response?.code;
 
 	return (
 		<ConnectScreenVisual
 			title={ title }
 			images={ images }
 			assetBaseUrl={ assetBaseUrl }
-			showConnectButton={ showConnectButton }
 			buttonLabel={ buttonLabel }
 			handleButtonClick={ handleRegisterSite }
 			displayButtonError={ displayButtonError }
+			errorCode={ errorCode }
 			buttonIsLoading={ buttonIsLoading }
 			footer={ footer }
+			isOfflineMode={ isOfflineMode }
+			logo={ logo }
 		>
 			{ children }
 		</ConnectScreenVisual>
@@ -66,28 +80,18 @@ const ConnectScreen = props => {
 };
 
 ConnectScreen.propTypes = {
-	/** The Title. */
 	title: PropTypes.string,
-	/** The Connect Button label. */
 	buttonLabel: PropTypes.string,
-	/** API root. */
 	apiRoot: PropTypes.string.isRequired,
-	/** API nonce. */
 	apiNonce: PropTypes.string.isRequired,
-	/** Registration nonce. */
 	registrationNonce: PropTypes.string.isRequired,
-	/** Where the connection request is coming from. */
 	from: PropTypes.string,
-	/** The redirect admin URI. */
 	redirectUri: PropTypes.string.isRequired,
-	/** Whether to initiate the connection process automatically upon rendering the component. */
 	autoTrigger: PropTypes.bool,
-	/** Images to display on the right side. */
 	images: PropTypes.arrayOf( PropTypes.string ),
-	/** The assets base URL. */
 	assetBaseUrl: PropTypes.string,
-	/** Whether to not require a user connection and just redirect after site connection. */
 	skipUserConnection: PropTypes.bool,
+	logo: PropTypes.element,
 };
 
 ConnectScreen.defaultProps = {

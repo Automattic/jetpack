@@ -1,0 +1,70 @@
+{
+	"name": "automattic/jetpack-boost-speed-score",
+	"description": "A package that handles the API to generate the speed score.",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev",
+		"brain/monkey": "^2.6"
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Automattic\\Jetpack\\Boost_Speed_Score\\Tests\\": "./tests/php"
+		}
+	},
+	"require": {
+		"php": ">=7.0",
+		"automattic/jetpack-boost-core": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"build-production": "echo 'Add your build step to composer.json, please!'",
+		"build-development": "echo 'Add your build step to composer.json, please!'",
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
+	},
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-boost-speed-score",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-boost-speed-score/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "0.3.x-dev"
+		},
+		"textdomain": "jetpack-boost-speed-score",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-speed-score.php"
+		}
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	}
+}

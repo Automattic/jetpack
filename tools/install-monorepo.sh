@@ -3,13 +3,14 @@
 set -eo pipefail
 
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+source "$BASE/tools/includes/chalk-lite.sh"
 
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 
+		usage: $0
 
-		Installs all the required tooling for the Jetpack Monorepo. 
+		Installs all the required tooling for the Jetpack Monorepo.
 	EOH
 	exit 1
 }
@@ -18,38 +19,32 @@ if [[ $1 ]]; then
 	usage
 fi
 
-# Exit function
-function abort {
-	echo "$*" >&2
-	exit 1
-}
-
 # Check if we're on a Mac or Linux, bail if we're not.
 OS="$(uname)"
 if [[ "$OS" == "Linux" ]]; then
 	ON_LINUX=1
 	if ! command -v apt &>/dev/null; then
-		abort "Installer script requires 'apt' to ensure essentials are installed."
+		die "Installer script requires 'apt' to ensure essentials are installed."
 	fi
 	sudo apt update
 	sudo apt install build-essential
 elif [[ "$OS" != "Darwin" ]]; then
-	abort "Installer script is only supported on macOS and Linux."
+	die "Installer script is only supported on macOS and Linux."
 fi
 
 # Check for curl and git
 if ! command -v git &>/dev/null; then
-	abort "Installer script requires 'git' to be installed."
+	die "Installer script requires 'git' to be installed."
 fi
 
 if ! command -v curl &>/dev/null; then
-	abort "Installer script requires 'curl' to be installed"
+	die "Installer script requires 'curl' to be installed"
 fi
 
 # Check of Homebrew and nvm are installed
-echo "Checking if Homebrew is installed..."
+info "Checking if Homebrew is installed..."
 if ! command -v brew &>/dev/null; then
-	echo "Installing Homebrew"
+	info "Installing Homebrew"
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	if [[ -n "$ON_LINUX" ]]; then # Add homebrew to PATH
 		echo 'eval "$("/home/linuxbrew/.linuxbrew/bin/brew" shellenv)"' >> "$HOME/.profile"
@@ -57,86 +52,106 @@ if ! command -v brew &>/dev/null; then
 		PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
 	fi
 else
-	echo "Updating brew"
+	info "Updating brew"
 	brew update
 	# Brew can be finicky on MacOS
 	if [[ $? -ne 0 ]]; then
 		 echo "Reinstalling Homebrew"
-   	 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+		 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	fi
 fi
 
-echo "Checking if NVM is installed..."
+info "Checking if NVM is installed..."
 if ! command -v nvm &>/dev/null; then
-	echo "Installing nvm"
+	info "Installing nvm"
 	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash && export NVM_DIR=$HOME/.nvm && source $NVM_DIR/nvm.sh  --no-use
 else
-	echo "Updating nvm"
+	info "Updating nvm"
 	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 fi
 
 # Install and use the correct version of Node.js
-echo "Installing Node.js"
+info "Installing Node.js"
 nvm install && nvm use
 
 # Install our requirements
-echo "Checking Bash version..."
-if [[ -z "${BASH_VERSINFO}" || -z "${BASH_VERSINFO[0]}" || ${BASH_VERSINFO[0]} -lt 4 ]]; then	
+info "Checking Bash version..."
+if [[ -z "${BASH_VERSINFO}" || -z "${BASH_VERSINFO[0]}" || ${BASH_VERSINFO[0]} -lt 4 ]]; then
 	brew install bash
 fi
 
-echo "Checking if jq is installed..."
+info "Checking if jq is installed..."
 if ! command -v jq &>/dev/null; then
-	echo "Installing jq"
+	info "Installing jq"
 	brew install jq
 fi
 
-echo "Checking if pnpm is installed..."
+info "Checking if pnpm is installed..."
 if ! command -v pnpm &>/dev/null; then
-	echo "Installing pnpm"
+	info "Installing pnpm"
+	# Don't use https://get.pnpm.io/install.sh, that doesn't play nice with different shells.
+	# And corepack will likely lose pnpm every time nvm installs a new node version.
 	curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
-fi 
+fi
+if [[ -z "$( pnpm bin --global )" ]]; then
+	info "Setting up pnpm"
+	if ! pnpm setup; then
+		warn 'pnpm has no bin dir set, and `pnpm setup` failed. Linking the Jetpack CLI may fail.'
+	else
+		# Try to read PNPM_HOME from the login shell after `pnpm setup`, as pnpm probably changed it.
+		P=$( "$SHELL" -i -c 'echo $PNPM_HOME' ) || true
+		if [[ -n "$P" ]]; then
+			export PNPM_HOME="$P"
+			if [[ ":$PATH:" != *":$PNPM_HOME:"* ]]; then
+				export PATH="$PNPM_HOME:$PATH"
+			fi
+		fi
+	fi
+fi
 
 source .github/versions.sh
-echo "Installing and linking PHP $PHP_VERSION"
+info "Installing and linking PHP $PHP_VERSION"
 brew install php@$PHP_VERSION
 brew link php@$PHP_VERSION
 
-echo "Checking composer..."
+info "Checking composer..."
 if ! command -v composer &>/dev/null; then
-	echo "Installing Composer"
+	info "Installing Composer"
 	EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
 	php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 	ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
 
-	if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]
-	then
-		>&2 echo 'ERROR: Invalid installer checksum'
+	if [[ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]]; then
 		rm composer-setup.php
-		exit 1
+		die 'ERROR: Invalid composer installer checksum'
 	fi
 
 	php composer-setup.php --version=$COMPOSER_VERSION --quiet
 	RESULT=$?
 	rm composer-setup.php
+	sudo mkdir -p /usr/local/bin
 	sudo mv composer.phar /usr/local/bin/composer
-fi 
+fi
 
 # Setup the Jetpack CLI
-echo "Setting up the Jetpack CLI"
-pnpm install && pnpm cli-setup
-pnpm jetpack cli link # I don't know why we have to do this twice, but it works.
-jetpack install --root
+info "Setting up the Jetpack CLI"
+pnpm install
+pnpm jetpack cli link
+if ! command -v jetpack &>/dev/null; then
+	warn 'Failed to link Jetpack CLI. The `jetpack` command will be unavailable.'
+	warn 'Likely this is because `pnpm setup` has not been run successfully. You may use `pnpm jetpack` from within the monorepo checkout instead.'
+fi
+pnpm jetpack install --root
 
-echo "Installation complete. You may need to restart your terminal for changes to take effect. Then you can run tools/check-development-environment.sh to make sure everything installed correctly."
+success "Installation complete. You may need to restart your terminal for changes to take effect. Then you can run tools/check-development-environment.sh to make sure everything installed correctly."
 
 # Reset the terminal so it picks up the changes.
 if [[ "$SHELL" == "/bin/zsh" ]]; then
-	echo "Refreshing terminal"
+	info "Refreshing terminal"
 	exec zsh
 elif [[ "$SHELL" == "/bin/bash" ]]; then
-	echo "Refreshing terminal"
+	info "Refreshing terminal"
 	exec bash
-else 
-	echo "Note: You may have to restart your terminal for monorepo tools to work properly."
+else
+	info "Note: You may have to restart your terminal for monorepo tools to work properly."
 fi

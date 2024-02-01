@@ -7,6 +7,8 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
+import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
+import { GoldenTokenTooltip } from '../golden-token/tooltip';
 import styles from './style.module.scss';
 
 /**
@@ -17,14 +19,43 @@ import styles from './style.module.scss';
  * @returns {object} PlanSection react component.
  */
 function PlanSection( { purchase = {} } ) {
-	const { product_name, expiry_message } = purchase;
+	const { product_name } = purchase;
 	return (
 		<>
 			<Title>{ product_name }</Title>
-			<Text variant="body" className={ styles[ 'expire-date' ] }>
-				{ expiry_message }
-			</Text>
+			<PlanExpiry { ...purchase } />
 		</>
+	);
+}
+
+/**
+ * Plan expiry component.
+ *
+ * @param {object} purchase - WPCOM purchase object.
+ * @param {string} purchase.product_name - A product name.
+ * @param {string} purchase.subscribed_date - A subscribed date.
+ * @param {string} purchase.expiry_message - An expiry message.
+ * @param {string} purchase.partner_slug - A partner that issued the purchase.
+ * @returns {object} - A plan expiry component.
+ */
+function PlanExpiry( purchase ) {
+	const { expiry_message, product_name, subscribed_date } = purchase;
+
+	if ( isLifetimePurchase( purchase ) ) {
+		return (
+			<Text variant="body" className={ styles[ 'expire-date' ] }>
+				<span className={ styles[ 'expire-date--with-icon' ] }>
+					{ __( 'Never Expires', 'jetpack-my-jetpack' ) }
+				</span>
+				<GoldenTokenTooltip productName={ product_name } giftedDate={ subscribed_date } />
+			</Text>
+		);
+	}
+
+	return (
+		<Text variant="body" className={ styles[ 'expire-date' ] }>
+			{ expiry_message }
+		</Text>
 	);
 }
 
@@ -133,7 +164,8 @@ function PlanSectionFooter( { purchases } ) {
  * @returns {object} PlansSection React component.
  */
 export default function PlansSection() {
-	const purchases = usePurchases();
+	const userIsAdmin = !! window?.myJetpackInitialState?.userIsAdmin;
+	const { purchases } = usePurchases();
 
 	return (
 		<div className={ styles.container }>
@@ -144,8 +176,7 @@ export default function PlansSection() {
 					<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
 				) ) }
 			</div>
-
-			<PlanSectionFooter purchases={ purchases } />
+			{ userIsAdmin && <PlanSectionFooter purchases={ purchases } /> }
 		</div>
 	);
 }

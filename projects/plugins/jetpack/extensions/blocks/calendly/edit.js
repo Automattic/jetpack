@@ -1,3 +1,4 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { Button, ExternalLink, Placeholder, Spinner, withNotices } from '@wordpress/components';
@@ -5,41 +6,39 @@ import { select, dispatch } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { isEqual } from 'lodash';
-import './editor.scss';
-import './view.scss';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import testEmbedUrl from '../../shared/test-embed-url';
-import attributeDetails from './attributes';
+import metadata from './block.json';
+import { CALENDLY_EXAMPLE_URL } from './constants';
 import CalendlyControls from './controls';
-import icon from './icon';
 import { getAttributesFromEmbedCode } from './utils';
-import { CALENDLY_EXAMPLE_URL, innerButtonBlock } from './';
+
+import './editor.scss';
+import './view.scss';
+
+const innerButtonBlock = {
+	name: 'jetpack/button',
+	attributes: {
+		element: 'a',
+		text: __( 'Schedule time with me', 'jetpack' ),
+		uniqueId: 'calendly-widget-id',
+		url: CALENDLY_EXAMPLE_URL,
+	},
+};
+const icon = getBlockIconComponent( metadata );
 
 export function CalendlyEdit( props ) {
-	const {
-		attributes,
-		className,
-		clientId,
-		name,
-		noticeOperations,
-		noticeUI,
-		setAttributes,
-	} = props;
+	const { attributes, className, clientId, name, noticeOperations, noticeUI, setAttributes } =
+		props;
 	const defaultClassName = getBlockDefaultClassName( name );
-	const validatedAttributes = getValidatedAttributes( attributeDetails, attributes );
+	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
 		setAttributes( validatedAttributes );
 	}
 
-	const {
-		backgroundColor,
-		hideEventTypeDetails,
-		primaryColor,
-		textColor,
-		style,
-		url,
-	} = validatedAttributes;
+	const { backgroundColor, hideEventTypeDetails, primaryColor, textColor, style, url } =
+		validatedAttributes;
 	const [ embedCode, setEmbedCode ] = useState( url );
 	const [ isEditingUrl, setIsEditingUrl ] = useState( false );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
@@ -93,7 +92,7 @@ export function CalendlyEdit( props ) {
 
 		testEmbedUrl( newAttributes.url, setIsResolvingUrl )
 			.then( () => {
-				const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
+				const newValidatedAttributes = getValidatedAttributes( metadata.attributes, newAttributes );
 				setAttributes( newValidatedAttributes );
 				setIsEditingUrl( false );
 				noticeOperations.removeAllNotices();

@@ -1,0 +1,49 @@
+.jpcrm-listview-table-container {
+	clear:both;
+	margin-top: 30px;
+	overflow-x: auto;
+
+	.jpcrm-listview-table {
+		min-width: 100%;
+		overflow-x: scroll;
+		border-collapse: collapse;
+
+		thead th {
+			font-weight: 400;
+			border-bottom: 1px solid var(--jp-gray-10);
+			cursor: pointer;
+		}
+
+		a {
+			text-decoration: none;
+			color: var(--jp-grey-80);
+		}
+
+		th, td {
+			text-align: left;
+			padding: 10px;
+		}
+
+		/* min-width except for checkbox column */
+		th:not(:first-child), td:not(:first-child) {
+			min-width: 120px;
+		}
+
+		input[type="checkbox"] {
+			border: 1px solid var(--jp-gray-10);
+			border-radius: 2px;
+		}
+
+		tbody {
+			tr {
+				&.selected {
+					background-color: var(--jp-green-0);
+				}
+				&:hover {
+					background-color: var(--jp-gray-0);
+				}
+			}
+		}
+
+	}
+}

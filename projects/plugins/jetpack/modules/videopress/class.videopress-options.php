@@ -10,7 +10,7 @@ use Automattic\Jetpack\VideoPress\Options as Package_Options;
 /**
  * VideoPress Options class.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.2
  */
 class VideoPress_Options {
 
@@ -18,7 +18,7 @@ class VideoPress_Options {
 	 * Option name.
 	 *
 	 * @var string $option_name The 'videopress' option name
-	 * @deprecated $$next-version$$
+	 * @deprecated 11.2
 	 */
 	public static $option_name = 'videopress';
 
@@ -26,7 +26,7 @@ class VideoPress_Options {
 	 * VideoPress Options.
 	 *
 	 * @var array $options An array of associated VideoPress options (default empty)
-	 * @deprecated $$next-version$$
+	 * @deprecated 11.2
 	 */
 	protected static $options = array();
 
@@ -34,10 +34,10 @@ class VideoPress_Options {
 	 * Get VideoPress options
 	 *
 	 * @return array An array of VideoPress options.
-	 * @deprecated $$next-version$$
+	 * @deprecated 11.2
 	 */
 	public static function get_options() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-11.2' );
 		return Package_Options::get_options();
 	}
 
@@ -47,7 +47,7 @@ class VideoPress_Options {
 	 * @param mixed $options VideoPress options.
 	 */
 	public static function update_options( $options ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-11.2' );
 		return Package_Options::update_options( $options );
 	}
 
@@ -55,8 +55,7 @@ class VideoPress_Options {
 	 * Runs when the VideoPress module is deactivated.
 	 */
 	public static function delete_options() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-11.2' );
 		return Package_Options::delete_options();
 	}
-
 }

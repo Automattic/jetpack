@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /**
  * Useful for finding an image to display alongside/in representation of a specific post.
  *
@@ -104,6 +106,38 @@ class Jetpack_PostImages {
 	}
 
 	/**
+	 * Filtering out images with broken URL from galleries.
+	 *
+	 * @param array $galleries Galleries.
+	 * @return array $filtered_galleries
+	 */
+	public static function filter_gallery_urls( $galleries ) {
+		$filtered_galleries = array();
+		foreach ( $galleries as $this_gallery ) {
+			if ( ! isset( $this_gallery['src'] ) ) {
+				continue;
+			}
+			$ids = isset( $this_gallery['ids'] ) ? explode( ',', $this_gallery['ids'] ) : array();
+			// Make sure 'src' array isn't associative and has no holes.
+			$this_gallery['src'] = array_values( $this_gallery['src'] );
+			foreach ( $this_gallery['src'] as $idx => $src_url ) {
+				if ( filter_var( $src_url, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED ) === false ) {
+					unset( $this_gallery['src'][ $idx ] );
+					unset( $ids[ $idx ] );
+				}
+			}
+			if ( isset( $this_gallery['ids'] ) ) {
+				$this_gallery['ids'] = implode( ',', $ids );
+			}
+			// Remove any holes we introduced.
+			$this_gallery['src']  = array_values( $this_gallery['src'] );
+			$filtered_galleries[] = $this_gallery;
+		}
+
+		return $filtered_galleries;
+	}
+
+	/**
 	 * If a gallery is detected, then get all the images from it.
 	 *
 	 * @param int $post_id Post ID.
@@ -121,6 +155,7 @@ class Jetpack_PostImages {
 		if ( ! empty( $post->post_password ) ) {
 			return $images;
 		}
+		add_filter( 'get_post_galleries', array( __CLASS__, 'filter_gallery_urls' ), 999999 );
 
 		$permalink = get_permalink( $post->ID );
 
@@ -231,6 +266,10 @@ class Jetpack_PostImages {
 
 		foreach ( $html_images as $html_image ) {
 			$src = wp_parse_url( $html_image['src'] );
+			if ( ! $src ) {
+				continue;
+			}
+
 			// strip off any query strings from src.
 			if ( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) ) {
 				$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path'];
@@ -300,7 +339,7 @@ class Jetpack_PostImages {
 				// If wp_get_attachment_image_src returns false but we know that there should be an image that could be used.
 				// we try a bit harder and user the data that we have.
 				$thumb_post_data = get_post( $thumb );
-				$img_src         = array( $thumb_post_data->guid, $meta['width'], $meta['height'] );
+				$img_src         = array( $thumb_post_data->guid ?? null, $meta['width'], $meta['height'] );
 			}
 
 			// Let's try to use the postmeta if we can, since it seems to be
@@ -555,6 +594,10 @@ class Jetpack_PostImages {
 		$post      = get_post( $post_id );
 		$permalink = get_permalink( $post_id );
 
+		if ( ! $post instanceof WP_Post ) {
+			return array();
+		}
+
 		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
 			$url = wpcom_get_avatar_url( $post->post_author, $size, $default, true );
 			if ( $url && is_array( $url ) ) {
@@ -589,10 +632,10 @@ class Jetpack_PostImages {
 	 *
 	 * @param int   $post_id Post ID.
 	 * @param array $args Other arguments (currently width and height required for images where possible to determine).
-	 * @return array containing details of the best image to be used
+	 * @return array|null containing details of the best image to be used, or null if no image is found.
 	 */
 	public static function get_image( $post_id, $args = array() ) {
-		$image = '';
+		$image = null;
 
 		/**
 		 * Fires before we find a single good image for a specific post.
@@ -635,7 +678,7 @@ class Jetpack_PostImages {
 	 */
 	public static function get_images( $post_id, $args = array() ) {
 		// Figure out which image to attach to this post.
-		$media = false;
+		$media = array();
 
 		/**
 		 * Filters the array of images that would be good for a specific post.
@@ -671,7 +714,7 @@ class Jetpack_PostImages {
 		);
 		$args     = wp_parse_args( $args, $defaults );
 
-		$media = false;
+		$media = array();
 		if ( $args['from_thumbnail'] ) {
 			$media = self::from_thumbnail( $post_id, $args['width'], $args['height'] );
 		}
@@ -720,6 +763,52 @@ class Jetpack_PostImages {
 	}
 
 	/**
+	 * Takes an image and base pixel dimensions and returns a srcset for the
+	 * resized and cropped images, based on a fixed set of multipliers.
+	 *
+	 * @param  array $image Array containing details of the image.
+	 * @param  int   $base_width Base image width (i.e., the width at 1x).
+	 * @param  int   $base_height Base image height (i.e., the height at 1x).
+	 * @param  bool  $use_widths Whether to generate the srcset with widths instead of multipliers.
+	 * @return string The srcset for the image.
+	 */
+	public static function generate_cropped_srcset( $image, $base_width, $base_height, $use_widths = false ) {
+		$srcset = '';
+
+		if ( ! is_array( $image ) || empty( $image['src'] ) || empty( $image['src_width'] ) ) {
+			return $srcset;
+		}
+
+		$multipliers   = array( 1, 1.5, 2, 3, 4 );
+		$srcset_values = array();
+		foreach ( $multipliers as $multiplier ) {
+			$srcset_width  = (int) ( $base_width * $multiplier );
+			$srcset_height = (int) ( $base_height * $multiplier );
+			if ( $srcset_width < 1 || $srcset_width > $image['src_width'] ) {
+				break;
+			}
+
+			$srcset_url = self::fit_image_url(
+				$image['src'],
+				$srcset_width,
+				$srcset_height
+			);
+
+			if ( $use_widths ) {
+				$srcset_values[] = "{$srcset_url} {$srcset_width}w";
+			} else {
+				$srcset_values[] = "{$srcset_url} {$multiplier}x";
+			}
+		}
+
+		if ( count( $srcset_values ) > 1 ) {
+			$srcset = implode( ', ', $srcset_values );
+		}
+
+		return $srcset;
+	}
+
+	/**
 	 * Takes an image URL and pixel dimensions then returns a URL for the
 	 * resized and cropped image.
 	 *
@@ -752,7 +841,7 @@ class Jetpack_PostImages {
 
 		// If WPCOM hosted image use native transformations.
 		$img_host = wp_parse_url( $src, PHP_URL_HOST );
-		if ( '.files.wordpress.com' === substr( $img_host, -20 ) ) {
+		if ( str_ends_with( $img_host, '.files.wordpress.com' ) ) {
 			return add_query_arg(
 				array(
 					'w'    => $width,
@@ -763,9 +852,9 @@ class Jetpack_PostImages {
 			);
 		}
 
-		// Use Photon magic.
-		if ( function_exists( 'jetpack_photon_url' ) ) {
-			return jetpack_photon_url( $src, array( 'resize' => "$width,$height" ) );
+		// Use image cdn magic.
+		if ( class_exists( Image_CDN_Core::class ) && method_exists( Image_CDN_Core::class, 'cdn_url' ) ) {
+			return Image_CDN_Core::cdn_url( $src, array( 'resize' => "$width,$height" ) );
 		}
 
 		// Arg... no way to resize image using WordPress.com infrastructure!

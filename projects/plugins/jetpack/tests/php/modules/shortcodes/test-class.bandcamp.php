@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_Bandcamp extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_bandcamp_exists() {
-		$this->assertEquals( shortcode_exists( 'bandcamp' ), true );
+		$this->assertTrue( shortcode_exists( 'bandcamp' ) );
 	}
 
 	/**
@@ -26,5 +26,4 @@ class WP_Test_Jetpack_Shortcodes_Bandcamp extends WP_UnitTestCase {
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
-
 }

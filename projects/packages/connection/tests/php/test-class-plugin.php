@@ -65,5 +65,4 @@ class Test_Plugin extends TestCase {
 
 		$this->assertArrayNotHasKey( self::PLUGIN_SLUG, Plugin_Storage::get_all() );
 	}
-
 }

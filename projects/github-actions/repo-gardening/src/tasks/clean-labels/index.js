@@ -1,5 +1,5 @@
-const debug = require( '../../debug' );
-const getLabels = require( '../../get-labels' );
+const debug = require( '../../utils/debug' );
+const getLabels = require( '../../utils/labels/get-labels' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -10,14 +10,14 @@ const getLabels = require( '../../get-labels' );
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function cleanLabels( payload, octokit ) {
-	const { pull_request, repository, action } = payload;
-	const { number } = pull_request;
+	const { pull_request, issue, repository, action } = payload;
+	const { number } = pull_request || issue;
 	const { name: repo, owner } = repository;
 	const ownerLogin = owner.login;
 
 	// Normally this only gets triggered when PRs get closed, but let's be sure.
 	if ( action !== 'closed' ) {
-		debug( `clean-labels: PR #${ number } is not closed. Aborting.` );
+		debug( `clean-labels: PR/Issue #${ number } is not closed. Aborting.` );
 		return;
 	}
 
@@ -39,6 +39,7 @@ async function cleanLabels( payload, octokit ) {
 		'[Status] Needs Copy',
 		'[Status] Needs Copy Review',
 		'[Status] Editorial Input Requested',
+		'[Status] Stale',
 	];
 
 	const labelsToRemoveFromPr = labelsOnPr.filter( label => labelsToRemove.includes( label ) );

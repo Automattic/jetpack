@@ -85,7 +85,7 @@ function jetpack_load_shortcodes() {
  * @return string $content    Replaced post content.
  */
 function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $search = null ) {
-	if ( $search && false === strpos( $content, $search ) ) {
+	if ( $search && ! str_contains( $content, $search ) ) {
 		return $content;
 	}
 
@@ -98,7 +98,7 @@ function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $s
 		$element = preg_replace( $pattern, $replacement, $element );
 	}
 
-	return join( $textarr );
+	return implode( $textarr );
 }
 
 /**
@@ -113,7 +113,7 @@ function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $s
  * @return string $content Replaced post content.
  */
 function jetpack_preg_replace_callback_outside_tags( $pattern, $callback, $content, $search = null ) {
-	if ( $search && false === strpos( $content, $search ) ) {
+	if ( $search && ! str_contains( $content, $search ) ) {
 		return $content;
 	}
 
@@ -126,7 +126,7 @@ function jetpack_preg_replace_callback_outside_tags( $pattern, $callback, $conte
 		$element = preg_replace_callback( $pattern, $callback, $element );
 	}
 
-	return join( $textarr );
+	return implode( $textarr );
 }
 
 if ( ! function_exists( 'jetpack_shortcode_get_wpvideo_id' ) ) {
@@ -134,7 +134,8 @@ if ( ! function_exists( 'jetpack_shortcode_get_wpvideo_id' ) ) {
 	 * Get VideoPress ID from wpvideo shortcode attributes.
 	 *
 	 * @param array $atts Shortcode attributes.
-	 * @return int  $id   VideoPress ID.
+	 *
+	 * @return string|int $id VideoPress ID.
 	 */
 	function jetpack_shortcode_get_wpvideo_id( $atts ) {
 		if ( isset( $atts[0] ) ) {

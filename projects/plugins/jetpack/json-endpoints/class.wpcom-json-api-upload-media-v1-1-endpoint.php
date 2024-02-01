@@ -78,6 +78,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			return new WP_Error( 'invalid_input', 'No media provided in input.' );
 		}
 
+		$jetpack_sync    = null;
 		$is_jetpack_site = false;
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			// For jetpack sites, we send the media via a different method, because the sync is very different.
@@ -93,8 +94,18 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		// We're splitting out videos for Jetpack sites.
 		foreach ( $media_files as $media_item ) {
 			if ( preg_match( '@^video/@', $media_item['type'] ) && $is_jetpack_site ) {
-				$jetpack_media_files[] = $media_item;
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM &&
+					defined( 'VIDEOPRESS_JETPACK_VIDEO_ENABLED' ) && VIDEOPRESS_JETPACK_VIDEO_ENABLED
+				) {
+					// Check that video upload space is available for a Jetpack site (skipped if site is Atomic).
+					$result = videopress_check_space_available_for_jetpack( $blog_id, $media_item['name'], $media_item['size'] );
 
+					if ( true !== $result ) {
+						$this->api->output_early( 400, array( 'errors' => $this->rewrite_generic_upload_error( array( $result ) ) ) );
+						continue;
+					}
+				}
+				$jetpack_media_files[] = $media_item;
 			} else {
 				$other_media_files[] = $media_item;
 			}
@@ -102,8 +113,12 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 		// New Jetpack / VideoPress media upload processing.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			if ( count( $jetpack_media_files ) > 0 ) {
+			if ( is_countable( $jetpack_media_files ) && count( $jetpack_media_files ) > 0 ) {
 				add_filter( 'upload_mimes', array( $this, 'allow_video_uploads' ) );
+
+				// get_space_used() checks blog upload directory storage,
+				// so filter it temporarily to return only video storage used.
+				add_filter( 'pre_get_space_used', 'videopress_filter_jetpack_get_space_used' );
 
 				$media_items = $jetpack_sync->upload_media( $jetpack_media_files, $this->api );
 
@@ -115,14 +130,21 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 					$post       = (object) $media_item['post'];
 					$media_item = $this->get_media_item_v1_1( $post->ID, $post, $media_item['file'] );
 				}
+				// Remove get_space_used filter after upload.
+				remove_filter( 'pre_get_space_used', 'videopress_filter_jetpack_get_space_used' );
 			}
 		}
 
 		// Normal WPCOM upload processing.
-		if ( count( $other_media_files ) > 0 || count( $media_urls ) > 0 ) {
+		if ( ( is_countable( $other_media_files ) && count( $other_media_files ) > 0 ) || ( is_countable( $other_media_files ) && count( $media_urls ) > 0 ) ) {
 			if ( is_multisite() ) { // Do not check for available space in non multisites.
 				add_filter( 'wp_handle_upload_prefilter', array( $this, 'check_upload_size' ), 9 ); // used for direct media uploads.
 				add_filter( 'wp_handle_sideload_prefilter', array( $this, 'check_upload_size' ), 9 ); // used for uploading media via url.
+			}
+
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				require_lib( 'tos-acceptance-tracking' );
+				add_filter( 'wp_handle_upload_prefilter', '\\A8C\\TOS_Acceptance_Tracking\\handle_uploads_wpcomtos_blog' );
 			}
 
 			$create_media = $this->handle_media_creation_v1_1( $other_media_files, $media_urls, $media_attrs );
@@ -135,7 +157,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			}
 		}
 
-		if ( count( $media_items ) <= 0 ) {
+		if ( array() === $media_items ) {
 			return $this->api->output_early( 400, array( 'errors' => $this->rewrite_generic_upload_error( $errors ) ) );
 		}
 
@@ -155,7 +177,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 		$response = array( 'media' => $results );
 
-		if ( count( $errors ) > 0 ) {
+		if ( is_countable( $errors ) && count( $errors ) > 0 ) {
 			$response['errors'] = $this->rewrite_generic_upload_error( $errors );
 		}
 
@@ -170,7 +192,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 	 */
 	public function rewrite_generic_upload_error( $errors ) {
 		foreach ( $errors as $k => $error ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			if ( 'upload_error' === $error['error'] && false !== strpos( $error['message'], '|' ) ) {
+			if ( 'upload_error' === $error['error'] && str_contains( $error['message'], '|' ) ) {
 				list( $errors[ $k ]['error'], $errors[ $k ]['message'] ) = explode( '|', $error['message'], 2 ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			}
 		}
@@ -193,6 +215,12 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		}
 
 		if ( isset( $file['error'] ) && $file['error'] > 0 ) { // There's already an error. Error Codes Reference: https://www.php.net/manual/en/features.file-upload.errors.php .
+			return $file;
+		}
+
+		// We don't know if this is an upload or a sideload, but in either case the tmp_name should be a path, not a URL.
+		if ( wp_parse_url( $file['tmp_name'], PHP_URL_SCHEME ) !== null ) {
+			$file['error'] = 'rest_upload_invalid|' . __( 'Specified file failed upload test.', 'default' ); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
 			return $file;
 		}
 

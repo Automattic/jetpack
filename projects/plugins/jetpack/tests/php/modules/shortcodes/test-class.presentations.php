@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_Presentations extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_presentations_presentation_exists() {
-		$this->assertEquals( shortcode_exists( 'presentation' ), true );
+		$this->assertTrue( shortcode_exists( 'presentation' ) );
 	}
 
 	/**
@@ -20,7 +20,7 @@ class WP_Test_Jetpack_Shortcodes_Presentations extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_presentations_slide_exists() {
-		$this->assertEquals( shortcode_exists( 'slide' ), true );
+		$this->assertTrue( shortcode_exists( 'slide' ) );
 	}
 
 	/**
@@ -35,5 +35,4 @@ class WP_Test_Jetpack_Shortcodes_Presentations extends WP_UnitTestCase {
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
-
 }

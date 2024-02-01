@@ -156,7 +156,7 @@ class ConfigTest extends TestCase {
 
 		$this->resetConfigCache();
 		putenv( 'COMPOSER=' . __DIR__ . '/../../../../composer.json' );
-		$this->assertSame( dirname( dirname( dirname( dirname( __DIR__ ) ) ) ), Config::base() );
+		$this->assertSame( dirname( __DIR__, 4 ), Config::base() );
 	}
 
 	/**
@@ -336,7 +336,7 @@ class ConfigTest extends TestCase {
 
 		// Get by loading file, valid file.
 		$ns        = __NAMESPACE__;
-		$classBody = 'implements \\' . DummyPlugin::class . " {\n\tuse \\" . PluginTrait::class . ";\n\tpublic function __construct( \$c ) { \$this->c = \$c; }\n}";
+		$classBody = 'implements \\' . DummyPlugin::class . " {\n\tuse \\" . PluginTrait::class . ";\n\tpublic \$c;\n\tpublic function __construct( \$c ) { \$this->c = \$c; }\n}";
 		file_put_contents(
 			'dummy.php',
 			"<?php\nnamespace $ns;\nclass TestFromFile $classBody\n"
@@ -438,5 +438,4 @@ class ConfigTest extends TestCase {
 		$this->expectExceptionMessage( "Unknown versioning plugin {\n    \"class\": \"foobar\"\n}" );
 		Config::versioningPlugin();
 	}
-
 }

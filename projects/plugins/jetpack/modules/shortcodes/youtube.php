@@ -34,7 +34,7 @@
  * @return string The content with YouTube embeds replaced with YouTube shortcodes.
  */
 function youtube_embed_to_short_code( $content ) {
-	if ( ! is_string( $content ) || false === strpos( $content, 'youtube.com' ) ) {
+	if ( ! is_string( $content ) || ! str_contains( $content, 'youtube.com' ) ) {
 		return $content;
 	}
 
@@ -68,7 +68,7 @@ function youtube_embed_to_short_code( $content ) {
 				$params = $match[1];
 
 				if ( in_array( $reg, array( 'ifr_regexp_ent', 'regexp_ent' ), true ) ) {
-					$params = html_entity_decode( $params );
+					$params = html_entity_decode( $params, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 				}
 
 				$params = wp_kses_hair( $params, array( 'http' ) );
@@ -85,7 +85,7 @@ function youtube_embed_to_short_code( $content ) {
 			} else {
 				$match[1] = str_replace( '?', '&', $match[1] );
 
-				$url = esc_url_raw( 'https://www.youtube.com/watch?v=' . html_entity_decode( $match[1] ) );
+				$url = esc_url_raw( 'https://www.youtube.com/watch?v=' . html_entity_decode( $match[1], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) );
 			}
 
 			$content = str_replace( $match[0], "[youtube $url]", $content );
@@ -132,16 +132,20 @@ function youtube_link_callback( $matches ) {
 /**
  * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
  *
- * @param string $url
+ * @param string|array $url Youtube URL.
  * @return string The normalized URL
  */
 if ( ! function_exists( 'youtube_sanitize_url' ) ) :
 	/**
 	 * Clean up Youtube URL to match a single format.
 	 *
-	 * @param string $url Youtube URL.
+	 * @param string|array $url Youtube URL.
 	 */
 	function youtube_sanitize_url( $url ) {
+		if ( is_array( $url ) && isset( $url['url'] ) ) {
+			$url = $url['url'];
+		}
+
 		$url = trim( $url, ' "' );
 		$url = trim( $url );
 		$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
@@ -342,7 +346,7 @@ function youtube_id( $url ) {
 		$layout = $is_amp ? 'layout="responsive" ' : '';
 
 		$html = sprintf(
-			'<iframe class="youtube-player" width="%s" height="%s" %ssrc="%s" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"></iframe>',
+			'<iframe class="youtube-player" width="%s" height="%s" %ssrc="%s" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe>',
 			esc_attr( $w ),
 			esc_attr( $h ),
 			$layout,
@@ -452,6 +456,7 @@ add_shortcode( 'youtube', 'youtube_shortcode' );
  * @return array The width and height of the shortcode.
  */
 function jetpack_shortcode_youtube_dimensions( $query_args ) {
+	$h = null;
 	global $content_width;
 
 	$input_w = ( isset( $query_args['w'] ) && (int) $query_args['w'] ) ? (int) $query_args['w'] : 0;
@@ -483,13 +488,11 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
 	} elseif ( $input_w > 0 ) {
 		$w = $input_w;
 		$h = ceil( ( $w / 16 ) * 9 );
+	} elseif ( isset( $query_args['fmt'] ) && (int) $query_args['fmt'] ) {
+		$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
 	} else {
-		if ( isset( $query_args['fmt'] ) && (int) $query_args['fmt'] ) {
-			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
-		} else {
-			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
-			$h = $input_h;
-		}
+		$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
+		$h = $input_h;
 	}
 
 	/**

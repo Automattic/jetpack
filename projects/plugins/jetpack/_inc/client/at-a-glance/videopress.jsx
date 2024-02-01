@@ -1,7 +1,7 @@
-import ProgressBar from '@automattic/components/dist/esm/progress-bar';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ProgressBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
+import Button from 'components/button';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import { getJetpackProductUpsellByFeature, FEATURE_VIDEOPRESS } from 'lib/plans/constants';
@@ -75,7 +75,7 @@ class DashVideoPress extends Component {
 						/* dummy arg to avoid bad minification */ 0
 				  );
 
-		if ( this.props.getOptionValue( 'videopress' ) && hasConnectedOwner ) {
+		if ( this.props.getOptionValue( 'videopress' ) && hasConnectedOwner && ! isOffline ) {
 			return (
 				<DashItem
 					className="jp-dash-item__videopress"
@@ -95,18 +95,18 @@ class DashVideoPress extends Component {
 								{ shouldDisplayStorage && (
 									<div className="jp-dash-item__videopress-storage">
 										<span>{ __( 'Video storage used out of 1TB:', 'jetpack' ) }</span>
-										<ProgressBar value={ videoPressStorageUsed / 10000 } />
+										<ProgressBar progress={ videoPressStorageUsed / 1000000 } />
 									</div>
 								) }
 							</div>
 							{ shouldDisplayBanner && (
 								<JetpackBanner
 									className="media__videopress-upgrade"
-									callToAction={ __( 'Upgrade', 'jetpack' ) }
+									callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 									title={ bannerText }
 									disableHref="false"
 									eventFeature="videopress"
-									icon="video"
+									noIcon
 									path={ 'dashboard' }
 									plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 									feature="jetpack_videopress"
@@ -128,8 +128,7 @@ class DashVideoPress extends Component {
 				className="jp-dash-item__is-inactive"
 				noToggle={ ! hasConnectedOwner }
 				overrideContent={
-					! hasConnectedOwner &&
-					! isOffline && (
+					! hasConnectedOwner && ! isOffline ? (
 						<JetpackBanner
 							callToAction={ __( 'Connect', 'jetpack' ) }
 							title={ __(
@@ -143,7 +142,7 @@ class DashVideoPress extends Component {
 							plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 							icon="video"
 						/>
-					)
+					) : null
 				}
 			>
 				<p className="jp-dash-item__description">
@@ -151,11 +150,11 @@ class DashVideoPress extends Component {
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
-									'<a>Activate</a> to engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. Try it for free.',
+									'<Button>Activate</Button> to engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. Try it for free.',
 									'jetpack'
 								),
 								{
-									a: <a href="javascript:void(0)" onClick={ this.activateVideoPress } />,
+									Button: <Button className="jp-link-button" onClick={ this.activateVideoPress } />,
 								}
 						  ) }
 				</p>
@@ -173,7 +172,8 @@ export default connect(
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		hasVideoPressFeature:
 			siteHasFeature( state, 'videopress-1tb-storage' ) ||
-			siteHasFeature( state, 'videopress-unlimited-storage' ),
+			siteHasFeature( state, 'videopress-unlimited-storage' ) ||
+			siteHasFeature( state, 'videopress' ),
 		hasVideoPressUnlimitedStorage: siteHasFeature( state, 'videopress-unlimited-storage' ),
 		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 		isOffline: isOfflineMode( state ),

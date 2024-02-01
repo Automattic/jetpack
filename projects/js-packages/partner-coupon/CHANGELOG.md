@@ -5,6 +5,191 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.67 - 2024-01-29
+### Changed
+- Update dependencies. [#35170]
+
+## 0.2.66 - 2024-01-22
+### Changed
+- Update dependencies. [#35117]
+
+## 0.2.65 - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815] [#34816]
+
+## 0.2.64 - 2023-12-20
+### Changed
+- Updated package dependencies. [#34694]
+
+## 0.2.63 - 2023-12-11
+### Changed
+- Updated package dependencies. [#34416]
+
+## 0.2.62 - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+
+## 0.2.61 - 2023-11-20
+
+## 0.2.60 - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## 0.2.59 - 2023-11-13
+### Changed
+- Updated dependencies.
+
+## 0.2.58 - 2023-10-23
+### Changed
+- Updated package dependencies. [#33646] [#33687]
+
+## 0.2.57 - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429]
+
+## 0.2.56 - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## 0.2.55 - 2023-09-19
+### Changed
+- Updated package dependencies. [#33001]
+
+## 0.2.54 - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+## 0.2.53 - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## 0.2.52 - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+## 0.2.51 - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## 0.2.50 - 2023-06-26
+### Changed
+- Updated package dependencies. [#31468]
+
+## 0.2.49 - 2023-06-19
+### Changed
+- Updated package dependencies.
+
+## 0.2.48 - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+## 0.2.47 - 2023-05-02
+### Changed
+- Updated package dependencies.
+
+## 0.2.46 - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## 0.2.45 - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## 0.2.44 - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## 0.2.43 - 2023-03-27
+
+## 0.2.42 - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## 0.2.41 - 2023-02-28
+### Fixed
+- Update React peer dependencies to match updated dev dependencies. [#28924]
+
+## 0.2.40 - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## 0.2.39 - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## 0.2.38 - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682]
+
+## 0.2.37 - 2023-01-26
+### Changed
+- Minor internal updates.
+
+## 0.2.36 - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## 0.2.35 - 2022-12-19
+### Changed
+- Updated package dependencies. [#27916]
+
+## 0.2.34 - 2022-12-06
+### Changed
+- Updated package dependencies. [#27340, #27696, #27697]
+
+## 0.2.33 - 2022-11-28
+### Changed
+- Updated package dependencies. [#26069]
+
+## 0.2.32 - 2022-11-14
+### Changed
+- Updated package dependencies. [#27289]
+
+## 0.2.31 - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## 0.2.30 - 2022-10-17
+### Changed
+- Updated package dependencies. [#26851]
+
+## 0.2.29 - 2022-10-13
+### Changed
+- Updated package dependencies. [#26790]
+
+## 0.2.28 - 2022-10-05
+### Changed
+- Updated package dependencies. [#26457]
+
+## 0.2.27 - 2022-09-27
+### Changed
+- Updated package dependencies.
+
+## 0.2.26 - 2022-09-20
+### Changed
+- Updated package dependencies. [#26034]
+
+## 0.2.25 - 2022-09-13
+### Changed
+- Updated package dependencies. [#26072]
+
+## 0.2.24 - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+## 0.2.23 - 2022-08-30
+### Changed
+- Updated package dependencies. [#25814]
+
+## 0.2.22 - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25762]
+
+## 0.2.21 - 2022-07-26
+### Changed
+- Updated package dependencies. [#25147]
+
 ## 0.2.20 - 2022-07-12
 ### Changed
 - Updated package dependencies. [#25048, #25055]

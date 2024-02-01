@@ -30,18 +30,11 @@ class Test_Wpcom_Products extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
-
-		// See https://stackoverflow.com/a/41611876.
-		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
-			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
-		}
-
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );
 		Initializer::init();
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-
 	}
 
 	/**
@@ -100,6 +93,7 @@ class Test_Wpcom_Products extends TestCase {
 				'cost_display'           => 'R$4.90',
 				'cost'                   => 4.9,
 				'currency_code'          => 'BRL',
+				'product_term'           => 'one time',
 			),
 			'jetpack_videopress_monthly' => (object) array(
 				'product_id'             => 2222,
@@ -112,6 +106,7 @@ class Test_Wpcom_Products extends TestCase {
 				'cost_display'           => 'R$4.90',
 				'cost'                   => 4.9,
 				'currency_code'          => 'BRL',
+				'product_term'           => 'month',
 				'sale_coupon'            => (object) array(
 					'start_date' => gmdate( 'Y' ) . '-01-01',
 					'expires'    => gmdate( 'Y' ) . '-12-31',
@@ -133,7 +128,6 @@ class Test_Wpcom_Products extends TestCase {
 
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
-
 	}
 
 	/**
@@ -163,7 +157,6 @@ class Test_Wpcom_Products extends TestCase {
 		// tests that a second request will get from cache. If it tried to make the request, it would throw a Fatal error.
 		$products = Wpcom_Products::get_products();
 		$this->assertEquals( $this->get_mock_products_data(), $products );
-
 	}
 
 	/**
@@ -177,7 +170,6 @@ class Test_Wpcom_Products extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
 
 		$this->assertTrue( is_wp_error( $products ) );
-
 	}
 
 	/**
@@ -197,7 +189,6 @@ class Test_Wpcom_Products extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
 
 		$this->assertEquals( $this->get_mock_products_data(), $products );
-
 	}
 
 	/**
@@ -211,14 +202,16 @@ class Test_Wpcom_Products extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 
 		$expected = array(
-			'currency_code'   => 'BRL',
-			'full_price'      => 4.9,
-			'discount_price'  => 2.45,
-			'coupon_discount' => 50,
+			'currency_code'         => 'BRL',
+			'full_price'            => 4.9,
+			'discount_price'        => 2.45,
+			'is_introductory_offer' => false,
+			'introductory_offer'    => null,
+			'product_term'          => 'month',
+			'coupon_discount'       => 50,
 		);
 
 		$this->assertSame( $expected, $product_price );
-
 	}
 
 	/**
@@ -232,7 +225,5 @@ class Test_Wpcom_Products extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 
 		$this->assertSame( array(), $product_price );
-
 	}
-
 }

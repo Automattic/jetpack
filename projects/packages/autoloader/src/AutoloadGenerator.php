@@ -1,29 +1,12 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Autoloader Generator.
  *
  * @package automattic/jetpack-autoloader
  */
 
-// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_useFound
-// phpcs:disable PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ns_separatorFound
-// phpcs:disable PHPCompatibility.FunctionDeclarations.NewClosure.Found
-// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_namespaceFound
-// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_dirFound
-// phpcs:disable WordPress.Files.FileName.InvalidClassFileName
-// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_export
-// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
-// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fopen
-// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fwrite
-// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
-
 namespace Automattic\Jetpack\Autoloader;
 
-use Composer\Autoload\ClassMapGenerator;
 use Composer\Composer;
 use Composer\Config;
 use Composer\Installer\InstallationManager;
@@ -37,6 +20,15 @@ use Composer\Util\PackageSorter;
  * Class AutoloadGenerator.
  */
 class AutoloadGenerator {
+
+	const VERSION = '3.0.2';
+
+	/**
+	 * IO object.
+	 *
+	 * @var IOInterface IO object.
+	 */
+	private $io;
 
 	/**
 	 * The filesystem utility.
@@ -209,6 +201,7 @@ class AutoloadGenerator {
 			$baseDir = "'phar://' . " . $baseDir;
 		}
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 		return $baseDir . ( ( false !== $path ) ? var_export( $path, true ) : '' );
 	}
 
@@ -230,6 +223,12 @@ class AutoloadGenerator {
 		foreach ( $packageMap as $item ) {
 			list($package, $installPath) = $item;
 			$autoload                    = $package->getAutoload();
+			$version                     = $package->getVersion(); // Version of the class comes from the package - should we try to parse it?
+
+			// Store our own actual package version, not "dev-trunk" or whatever.
+			if ( $package->getName() === 'automattic/jetpack-autoloader' ) {
+				$version = self::VERSION;
+			}
 
 			if ( $package === $mainPackage ) {
 				$autoload = array_merge_recursive( $autoload, $package->getDevAutoload() );
@@ -246,7 +245,7 @@ class AutoloadGenerator {
 						$relativePath              = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
 						$autoloads[ $namespace ][] = array(
 							'path'    => $relativePath,
-							'version' => $package->getVersion(), // Version of the class comes from the package - should we try to parse it?
+							'version' => $version,
 						);
 					}
 				}
@@ -259,7 +258,7 @@ class AutoloadGenerator {
 						$relativePath = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
 						$autoloads[]  = array(
 							'path'    => $relativePath,
-							'version' => $package->getVersion(), // Version of the class comes from the package - should we try to parse it?
+							'version' => $version,
 						);
 					}
 				}
@@ -271,7 +270,7 @@ class AutoloadGenerator {
 						$relativePath = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
 						$autoloads[ $this->getFileIdentifier( $package, $path ) ] = array(
 							'path'    => $relativePath,
-							'version' => $package->getVersion(), // Version of the file comes from the package - should we try to parse it?
+							'version' => $version,
 						);
 					}
 				}
@@ -302,7 +301,18 @@ class AutoloadGenerator {
 				$dir = $this->filesystem->normalizePath(
 					$this->filesystem->isAbsolutePath( $path ) ? $path : $basePath . '/' . $path
 				);
-				return ClassMapGenerator::createMap(
+
+				// Composer 2.4 changed the name of the class.
+				if ( class_exists( \Composer\ClassMapGenerator\ClassMapGenerator::class ) ) {
+					if ( ! is_dir( $dir ) && ! is_file( $dir ) ) {
+						return array();
+					}
+					$generator = new \Composer\ClassMapGenerator\ClassMapGenerator();
+					$generator->scanPaths( $dir, $excludedClasses, 'classmap', empty( $namespace ) ? null : $namespace );
+					return $generator->getClassMap()->getMap();
+				}
+
+				return \Composer\Autoload\ClassMapGenerator::createMap(
 					$dir,
 					$excludedClasses,
 					null, // Don't pass the IOInterface since the normal autoload generation will have reported already.

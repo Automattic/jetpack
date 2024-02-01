@@ -18,7 +18,7 @@
 		text-align: center;
 		font-size: 16px;
 		padding: 12px;
-		border-left: 1px solid $gray-400;
+		border-inline-start: 1px solid $gray-400;
 		background: $white;
 		color: $gray-900;
 		cursor: pointer;
@@ -28,11 +28,11 @@
 		}
 
 		&:first-child {
-			border-left: none;
+			border-inline-start: none;
 		}
 
 		&.is-active {
-			background: var( --wp-admin-theme-color );
+			background: $gray-900;
 			color: $white;
 			cursor: default;
 		}
@@ -71,7 +71,7 @@
 		background-color: $white;
 		color: $gray-900;
 		border: 1px solid $gray-400;
-		margin-right: 8px;
+		margin-inline-end: 8px;
 		margin-bottom: 8px;
 		font-weight: 600;
 		font-size: 16px;
@@ -86,7 +86,7 @@
 
 	.donations__custom-amount .donations__amount-value {
 		display: inline-block;
-		margin-left: 4px;
+		margin-inline-start: 4px;
 		min-width: 60px;
 	}
 

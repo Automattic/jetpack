@@ -10,15 +10,20 @@ import QuerySite from 'components/data/query-site';
 import QuerySiteDiscount from 'components/data/query-site-discount';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { getNewRecommendations } from 'state/initial-state';
 import {
 	getStep,
+	getOnboardingData,
 	isRecommendationsDataLoaded,
 	isRecommendationsConditionalLoaded,
+	updateRecommendationsOnboardingData as updateRecommendationsOnboardingDataAction,
+	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
+import { isFetchingSiteData } from 'state/site';
+import QuerySiteProducts from '../components/data/query-site-products';
 import { RECOMMENDATION_WIZARD_STEP } from './constants';
 import { ProductPurchased } from './product-purchased';
 import { FeaturePrompt } from './prompts/feature-prompt';
@@ -26,6 +31,31 @@ import { ProductSuggestions } from './prompts/product-suggestions';
 import { ResourcePrompt } from './prompts/resource-prompt';
 import { SiteTypeQuestion } from './prompts/site-type';
 import { Summary } from './summary';
+
+const useInitOnboarding = ( {
+	step,
+	isLoading,
+	onboardingData,
+	updateOnboardingData,
+	updateStep,
+} ) => {
+	const [ isInitialized, setIsInitialized ] = useState( false );
+	useEffect( () => {
+		if ( ! isInitialized && onboardingData && ! isLoading ) {
+			const { active, hasStarted, viewed } = onboardingData;
+
+			setIsInitialized( true );
+
+			if ( active && ! hasStarted ) {
+				updateStep( step );
+				updateOnboardingData( { ...onboardingData, hasStarted: true } );
+			} else {
+				// If no onboarding to start, sync only viewed onboardings
+				updateOnboardingData( { viewed } );
+			}
+		}
+	}, [ isLoading, onboardingData, updateOnboardingData, step, updateStep, isInitialized ] );
+};
 
 const RecommendationsComponent = props => {
 	const { isLoading, step, newRecommendations } = props;
@@ -43,11 +73,17 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.PRODUCT_PURCHASED:
 			redirectPath = '/product-purchased';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.AGENCY:
+			redirectPath = '/agency';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.WOOCOMMERCE:
 			redirectPath = '/woocommerce';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.MONITOR:
 			redirectPath = '/monitor';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.NEWSLETTER:
+			redirectPath = '/newsletter';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.RELATED_POSTS:
 			redirectPath = '/related-posts';
@@ -58,11 +94,17 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.SITE_ACCELERATOR:
 			redirectPath = '/site-accelerator';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.VAULTPRESS_BACKUP:
+			redirectPath = '/vaultpress-backup';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.VAULTPRESS_FOR_WOOCOMMERCE:
+			redirectPath = '/vaultpress-for-woocommerce';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.PUBLICIZE:
 			redirectPath = '/publicize';
 			break;
-		case RECOMMENDATION_WIZARD_STEP.SECURITY_PLAN:
-			redirectPath = '/security-plan';
+		case RECOMMENDATION_WIZARD_STEP.PROTECT:
+			redirectPath = '/protect';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.ANTI_SPAM:
 			redirectPath = '/anti-spam';
@@ -70,11 +112,78 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.VIDEOPRESS:
 			redirectPath = '/videopress';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.BACKUP_PLAN:
+			redirectPath = '/backup-plan';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.BOOST:
+			redirectPath = '/boost';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.SUMMARY:
 			redirectPath = '/summary';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__BACKUP:
+			redirectPath = '/welcome-backup';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__COMPLETE:
+			redirectPath = '/welcome-complete';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__SECURITY:
+			redirectPath = '/welcome-security';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__STARTER:
+			redirectPath = '/welcome-starter';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__ANTISPAM:
+			redirectPath = '/welcome-antispam';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__VIDEOPRESS:
+			redirectPath = '/welcome-videopress';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__SEARCH:
+			redirectPath = '/welcome-search';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__SCAN:
+			redirectPath = '/welcome-scan';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__SOCIAL_BASIC:
+			redirectPath = '/welcome-social-basic';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__SOCIAL_ADVANCED:
+			redirectPath = '/welcome-social-advanced';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__SOCIAL_IMAGE_GENERATOR:
+			redirectPath = 'welcome-social-image-generator';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN:
+			redirectPath = '/welcome-golden-token';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.SERVER_CREDENTIALS:
+			redirectPath = '/server-credentials';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.BACKUP_ACTIVATED:
+			redirectPath = '/backup-activated';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.SCAN_ACTIVATED:
+			redirectPath = '/scan-activated';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.UNLIMITED_SHARING_ACTIVATED:
+			redirectPath = '/unlimited-sharing-activated';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.SOCIAL_ADVANCED_ACTIVATED:
+			redirectPath = '/social-advanced-activated';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.ANTISPAM_ACTIVATED:
+			redirectPath = '/antispam-activated';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.VIDEOPRESS_ACTIVATED:
+			redirectPath = '/videopress-activated';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.SEARCH_ACTIVATED:
+			redirectPath = '/search-activated';
+			break;
 		default:
-			throw `Unknown step ${ step } in RecommendationsComponent`;
+			redirectPath = '/summary';
+			break;
 	}
 
 	// Check to see if a step slug is "new" - has not been viewed yet.
@@ -82,8 +191,11 @@ const RecommendationsComponent = props => {
 		return newRecommendations && newRecommendations.includes( stepSlug );
 	};
 
+	useInitOnboarding( props );
+
 	return (
 		<>
+			<h1 className="screen-reader-text">{ __( 'Jetpack Recommendations', 'jetpack' ) }</h1>
 			<QueryRecommendationsData />
 			<QueryRecommendationsProductSuggestions />
 			<QueryRecommendationsUpsell />
@@ -92,6 +204,7 @@ const RecommendationsComponent = props => {
 			<QuerySite />
 			<QuerySitePlugins />
 			<QuerySiteDiscount />
+			<QuerySiteProducts />
 			<QueryIntroOffers />
 			{ isLoading ? (
 				<div className="jp-recommendations__loading">
@@ -99,6 +212,7 @@ const RecommendationsComponent = props => {
 				</div>
 			) : (
 				<Switch>
+					{ /* TODO: Why we don't redirect improper step paths? */ }
 					<Redirect exact from={ '/recommendations' } to={ '/recommendations' + redirectPath } />
 					<Route path="/recommendations/site-type">
 						<SiteTypeQuestion />
@@ -109,11 +223,17 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/product-purchased">
 						<ProductPurchased />
 					</Route>
+					<Route path="/recommendations/agency">
+						<ResourcePrompt stepSlug="agency" />
+					</Route>
 					<Route path="/recommendations/woocommerce">
 						<FeaturePrompt stepSlug="woocommerce" />
 					</Route>
 					<Route path="/recommendations/monitor">
 						<FeaturePrompt stepSlug="monitor" />
+					</Route>
+					<Route path="/recommendations/newsletter">
+						<FeaturePrompt stepSlug="newsletter" />
 					</Route>
 					<Route path="/recommendations/related-posts">
 						<FeaturePrompt stepSlug="related-posts" />
@@ -124,11 +244,17 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/site-accelerator">
 						<FeaturePrompt stepSlug="site-accelerator" />
 					</Route>
+					<Route path="/recommendations/vaultpress-backup">
+						<ResourcePrompt stepSlug="vaultpress-backup" />
+					</Route>
+					<Route path="/recommendations/vaultpress-for-woocommerce">
+						<ResourcePrompt stepSlug="vaultpress-for-woocommerce" />
+					</Route>
 					<Route path="/recommendations/publicize">
 						<FeaturePrompt stepSlug="publicize" isNew={ isNew( 'publicize' ) } />
 					</Route>
-					<Route path="/recommendations/security-plan">
-						<ResourcePrompt stepSlug="security-plan" isNew={ isNew( 'security-plan' ) } />
+					<Route path="/recommendations/protect">
+						<FeaturePrompt stepSlug="protect" isNew={ isNew( 'protect' ) } />
 					</Route>
 					<Route path="/recommendations/anti-spam">
 						<ResourcePrompt stepSlug="anti-spam" isNew={ isNew( 'anti-spam' ) } />
@@ -136,40 +262,102 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/videopress">
 						<FeaturePrompt stepSlug="videopress" isNew={ isNew( 'videopress' ) } />
 					</Route>
+					<Route path="/recommendations/backup-plan">
+						<ResourcePrompt stepSlug="backup-plan" isNew={ isNew( 'backup-plan' ) } />
+					</Route>
+					<Route path="/recommendations/boost">
+						<FeaturePrompt stepSlug="boost" isNew={ isNew( 'boost' ) } />
+					</Route>
+					<Route path="/recommendations/welcome-backup">
+						<ResourcePrompt stepSlug="welcome__backup" />
+					</Route>
+					<Route path="/recommendations/welcome-complete">
+						<ResourcePrompt stepSlug="welcome__complete" />
+					</Route>
+					<Route path="/recommendations/welcome-starter">
+						<ResourcePrompt stepSlug="welcome__starter" />
+					</Route>
+					<Route path="/recommendations/welcome-security">
+						<ResourcePrompt stepSlug="welcome__security" />
+					</Route>
+					<Route path="/recommendations/welcome-antispam">
+						<ResourcePrompt stepSlug="welcome__antispam" />
+					</Route>
+					<Route path="/recommendations/welcome-videopress">
+						<ResourcePrompt stepSlug="welcome__videopress" />
+					</Route>
+					<Route path="/recommendations/welcome-search">
+						<ResourcePrompt stepSlug="welcome__search" />
+					</Route>
+					<Route path="/recommendations/welcome-scan">
+						<ResourcePrompt stepSlug="welcome__scan" />
+					</Route>
+					<Route path="/recommendations/welcome-social-basic">
+						<ResourcePrompt stepSlug="welcome__social_basic" />
+					</Route>
+					<Route path="/recommendations/welcome-social-advanced">
+						<ResourcePrompt stepSlug="welcome__social_advanced" />
+					</Route>
+					<Route path="/recommendations/welcome-social-image-generator">
+						<ResourcePrompt stepSlug="welcome__social_image_generator" />
+					</Route>
+					<Route path="/recommendations/welcome-golden-token">
+						<ResourcePrompt stepSlug="welcome__golden_token" />
+					</Route>
+					<Route path="/recommendations/backup-activated">
+						<ResourcePrompt stepSlug="backup-activated" />
+					</Route>
+					<Route path="/recommendations/scan-activated">
+						<ResourcePrompt stepSlug="scan-activated" />
+					</Route>
+					<Route path="/recommendations/unlimited-sharing-activated">
+						<ResourcePrompt stepSlug="unlimited-sharing-activated" />
+					</Route>
+					<Route path="/recommendations/social-advanced-activated">
+						<ResourcePrompt stepSlug="social-advanced-activated" />
+					</Route>
+					<Route path="/recommendations/antispam-activated">
+						<ResourcePrompt stepSlug="antispam-activated" />
+					</Route>
+					<Route path="/recommendations/videopress-activated">
+						<ResourcePrompt stepSlug="videopress-activated" />
+					</Route>
+					<Route path="/recommendations/search-activated">
+						<ResourcePrompt stepSlug="search-activated" />
+					</Route>
+					<Route path="/recommendations/server-credentials">
+						<ResourcePrompt stepSlug="server-credentials" />
+					</Route>
 					<Route path="/recommendations/summary">
 						<Summary newRecommendations={ newRecommendations } />
 					</Route>
 				</Switch>
 			) }
-			<div className="jp-footer">
-				<li className="jp-footer__link-item">
-					<a
-						role="button"
-						tabIndex="0"
-						className="jp-footer__link"
-						href={ getRedirectUrl( 'jetpack-support-getting-started' ) }
-					>
-						{ __( 'Learn how to get started with Jetpack', 'jetpack' ) }
-					</a>
-				</li>
-				<li className="jp-footer__link-item">
-					<a
-						role="button"
-						tabIndex="0"
-						className="jp-footer__link"
-						href={ getRedirectUrl( 'jetpack-support' ) }
-					>
-						{ __( 'Search our support site', 'jetpack' ) }
-					</a>
-				</li>
+			<div className="jp-recommendations__links">
+				<a role="button" tabIndex="0" href={ getRedirectUrl( 'jetpack-support-getting-started' ) }>
+					{ __( 'Learn how to get started with Jetpack', 'jetpack' ) }
+				</a>
+				<a role="button" tabIndex="0" href={ getRedirectUrl( 'jetpack-support' ) }>
+					{ __( 'Search our support site', 'jetpack' ) }
+				</a>
 			</div>
 		</>
 	);
 };
 
-export const Recommendations = connect( state => ( {
-	isLoading:
-		! isRecommendationsDataLoaded( state ) || ! isRecommendationsConditionalLoaded( state ),
-	step: getStep( state ),
-	newRecommendations: getNewRecommendations( state ),
-} ) )( RecommendationsComponent );
+export const Recommendations = connect(
+	state => ( {
+		isLoading:
+			! isRecommendationsDataLoaded( state ) ||
+			! isRecommendationsConditionalLoaded( state ) ||
+			isFetchingSiteData( state ),
+		step: getStep( state ),
+		onboardingData: getOnboardingData( state ),
+		newRecommendations: getNewRecommendations( state ),
+	} ),
+	dispatch => ( {
+		updateOnboardingData: onboardingData =>
+			dispatch( updateRecommendationsOnboardingDataAction( onboardingData ) ),
+		updateStep: step => dispatch( updateRecommendationsStepAction( step ) ),
+	} )
+)( RecommendationsComponent );

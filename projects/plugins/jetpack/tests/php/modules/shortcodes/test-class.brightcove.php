@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_Brightcove extends WP_UnitTestCase {
 	 * @since  4.5.0
 	 */
 	public function test_shortcodes_brightcove_exists() {
-		$this->assertEquals( shortcode_exists( 'brightcove' ), true );
+		$this->assertTrue( shortcode_exists( 'brightcove' ) );
 	}
 
 	/**

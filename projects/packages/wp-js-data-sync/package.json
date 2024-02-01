@@ -1,0 +1,25 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-wp-js-data-sync",
+	"version": "0.4.2-alpha",
+	"description": "A package to setup REST API and script localization to pass data to a JavaScript client.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wp-js-data-sync/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Wp Js Data Sync"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/wp-js-data-sync"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'",
+		"clean": "true"
+	},
+	"devDependencies": {}
+}

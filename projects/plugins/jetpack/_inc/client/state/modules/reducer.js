@@ -269,14 +269,13 @@ export function hasAnyOfTheseModules( state, modules = [] ) {
 /**
  * Check that the site has any of the performance features available.
  *
- * @param  {Object} state   Global state tree
+ * @param {object} state   - Global state tree
  *
- * @return {boolean}        True if at least one of the performance features is available
+ * @returns {boolean}        True if at least one of the performance features is available
  */
 export function hasAnyPerformanceFeature( state ) {
 	return hasAnyOfTheseModules( state, [
 		'carousel',
-		'lazy-images',
 		'photon',
 		'photon-cdn',
 		'search',

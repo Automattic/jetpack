@@ -4,19 +4,23 @@ on:
   schedule:
     - cron:  '0 */12 * * *'
 
+env:
+  # Work around a bug in node 18.18.0. See https://github.com/webpack-contrib/thread-loader/issues/191 for details.
+  UV_USE_IO_URING: 0
+
 jobs:
   block-performance:
     name: "Performance tests"
     runs-on: ubuntu-latest
-    timeout-minutes: 50  # 2021-12-13: Successful runs seem to take 40 minutes
+    timeout-minutes: 90  # 2023-04-18: Some runs exceeded 50 minutes
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 14
+          node-version: 16
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: 'WordPress/gutenberg'
           path: 'gutenberg'
@@ -25,9 +29,10 @@ jobs:
         working-directory: gutenberg
         run: |
           npm ci
-          npm run build
+          npx playwright install chromium --with-deps
+          npm run build:packages
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('gutenberg/**/package-lock.json') }}
@@ -47,8 +52,9 @@ jobs:
         env:
           CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         run: |
-          # Gutenberg Performance tests require disable-animations.php test plugin to be available on a site. Below we inject the mapping for that plugin into a Docker config file
-
+          # Gutenberg Performance tests require disable-animations.php test
+          # plugin to be available on a site. Below we inject the mapping for
+          # that plugin into a Docker config file.
           echo "e2e:" >> ../docker/jetpack-docker-config.yml
           echo "  volumeMappings:" >> ../docker/jetpack-docker-config.yml
           echo "    gutenberg/packages/e2e-tests/plugins/disable-animations.php: /var/www/html/wp-content/plugins/disable-animations.php" >> ../docker/jetpack-docker-config.yml
@@ -57,17 +63,13 @@ jobs:
           pnpm config:decrypt
           pnpm env:start
 
+          # The twentytwentyone theme is required for the post-editor test suite.
+          pnpm jetpack docker --type e2e --name t1 wp theme install twentytwentyone
+
       - name: Run performance tests
         working-directory: tools/e2e-commons
         run: |
           node ./bin/performance.js
-
-      - name: Send Slack notification
-        if: ${{ failure() }}
-        working-directory: tools/e2e-commons
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: pnpm run slack status "failed" --report "Blocks performance"
 
       - name: Environment tear-down
         if: ${{ always() }}
@@ -81,7 +83,7 @@ jobs:
       - name: Upload test artifacts
         if: ${{ always() }}
         continue-on-error: true
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-output-block-perf
           path: tools/e2e-commons/results
@@ -94,9 +96,39 @@ jobs:
 
     steps:
       - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v1
+        uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
           repository: automattic/jetpack-e2e-reports
           event-type: block-perf
           client-payload: '{"run_id": "${{github.run_id}}", "repository": "${{github.repository}}"}'
+
+  slack-notification:
+    name: "Slack notification"
+    runs-on: ubuntu-latest
+    if: ${{ ! cancelled() }}
+    needs: [block-performance]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Build action
+        env:
+          COMPOSER_ROOT_VERSION: dev-trunk
+        run: |
+          pnpm install
+          composer install
+          composer build-development
+        working-directory: ./projects/github-actions/test-results-to-slack
+
+      - name: "Send notification"
+        uses: ./projects/github-actions/test-results-to-slack
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          slack_token: ${{ secrets.SLACK_TOKEN }}
+          slack_channel: ${{ secrets.SLACK_E2E_CHANNEL }}
+          slack_icon_emoji: ":jetpack:"
+          suite_name: "blocks performance"

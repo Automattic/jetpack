@@ -5,9 +5,11 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 /**
  * Used to manage Jetpack installation on Multisite Network installs
@@ -62,7 +64,6 @@ class Jetpack_Network {
 	 */
 	private function __construct() {
 		require_once ABSPATH . '/wp-admin/includes/plugin.php'; // For the is_plugin... check.
-		require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php'; // For managing the global whitelist.
 
 		/**
 		 * Sanity check to ensure the install is Multisite and we
@@ -193,7 +194,6 @@ class Jetpack_Network {
 			}
 			restore_current_blog();
 		}
-
 	}
 
 	/**
@@ -281,7 +281,8 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function add_network_admin_menu() {
-		add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_network_admin_page', 'jetpack', array( $this, 'wrap_network_admin_page' ), 'div', 3 );
+		$icon = ( new Logo() )->get_base64_logo();
+		add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_network_admin_page', 'jetpack', array( $this, 'wrap_network_admin_page' ), $icon, 3 );
 		$jetpack_sites_page_hook    = add_submenu_page( 'jetpack', __( 'Jetpack Sites', 'jetpack' ), __( 'Sites', 'jetpack' ), 'jetpack_network_sites_page', 'jetpack', array( $this, 'wrap_network_admin_page' ) );
 		$jetpack_settings_page_hook = add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_network_settings_page', 'jetpack-settings', array( $this, 'wrap_render_network_admin_settings_page' ) );
 		add_action( "admin_print_styles-$jetpack_sites_page_hook", array( 'Jetpack_Admin_Page', 'load_wrapper_styles' ) );
@@ -293,21 +294,6 @@ class Jetpack_Network {
 		 */
 		require_once JETPACK__PLUGIN_DIR . '_inc/genericons.php';
 		jetpack_register_genericons();
-
-		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) ) {
-			wp_register_style( 'jetpack-icons', plugins_url( 'css/jetpack-icons.min.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
-		}
-
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
-	}
-
-	/**
-	 * Adds JP menu icon
-	 *
-	 * @since 2.9
-	 **/
-	public function admin_menu_css() {
-		wp_enqueue_style( 'jetpack-icons' );
 	}
 
 	/**
@@ -576,7 +562,6 @@ class Jetpack_Network {
 		$network_sites_table->prepare_items();
 		$network_sites_table->display();
 		echo '</form></div>';
-
 	}
 
 	/**
@@ -611,11 +596,11 @@ class Jetpack_Network {
 			exit();
 		}
 
-		// Try to save the Protect whitelist before anything else, since that action can result in errors.
-		$whitelist = isset( $_POST['global-whitelist'] ) ? filter_var( wp_unslash( $_POST['global-whitelist'] ) ) : '';
-		$whitelist = str_replace( ' ', '', $whitelist );
-		$whitelist = explode( PHP_EOL, $whitelist );
-		$result    = jetpack_protect_save_whitelist( $whitelist, true );
+		// Try to save the Protect allow list before anything else, since that action can result in errors.
+		$allow_list = isset( $_POST['global-allow-list'] ) ? filter_var( wp_unslash( $_POST['global-allow-list'] ) ) : '';
+		$allow_list = str_replace( ' ', '', $allow_list );
+		$allow_list = explode( PHP_EOL, $allow_list );
+		$result     = Brute_Force_Protection_Shared_Functions::save_allow_list( $allow_list, true );
 		if ( is_wp_error( $result ) ) {
 			wp_safe_redirect(
 				add_query_arg(
@@ -694,7 +679,7 @@ class Jetpack_Network {
 		$data = array(
 			'modules'                   => $modules,
 			'options'                   => $options,
-			'jetpack_protect_whitelist' => jetpack_protect_format_whitelist(),
+			'jetpack_protect_whitelist' => Brute_Force_Protection_Shared_Functions::format_allow_list(),
 		);
 
 		Jetpack::init()->load_view( 'admin/network-settings.php', $data );

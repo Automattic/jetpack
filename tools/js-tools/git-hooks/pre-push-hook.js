@@ -6,6 +6,57 @@ const chalk = require( 'chalk' );
 const isJetpackDraftMode = require( './jetpack-draft' );
 
 /**
+ * Checks for filename collsisions on case-insensitive file systems.
+ *
+ * This is probably impossible to get 100% right due to potential locale
+ * differences in filesystem case folding, but this should be most of the way there.
+ */
+function checkFilenameCollisions() {
+	if ( process.exitCode !== 0 ) {
+		return;
+	}
+
+	console.log( chalk.green( 'Checking for filename collisions. Just a sec...' ) );
+
+	const compare = Intl.Collator( 'und', { sensitivity: 'accent' } ).compare;
+
+	const files = spawnSync( 'git', [
+		'-c',
+		'core.quotepath=off',
+		'ls-tree',
+		'-rt',
+		'--name-only',
+		'HEAD',
+	] )
+		.stdout.toString()
+		.trim()
+		.split( '\n' )
+		.sort( compare );
+
+	const collisions = new Set();
+	let prev = null;
+	for ( const file of files ) {
+		if ( prev !== null && compare( file, prev ) === 0 ) {
+			collisions.add( prev );
+			collisions.add( file );
+		}
+		prev = file;
+	}
+
+	if ( collisions.size > 0 ) {
+		process.exitCode = 1;
+		console.error(
+			chalk.red(
+				'This commit contains filenames that differ only in case! This will break things for Mac users.'
+			)
+		);
+		console.error( '- ' + [ ...collisions ].join( '\n- ' ) );
+	} else {
+		console.log( chalk.green( 'No collisions detected.' ) );
+	}
+}
+
+/**
  * Print the "push again" message.
  */
 function pushAgain() {
@@ -24,14 +75,22 @@ function pushAgain() {
  * Checks if changelog files are required.
  */
 function checkChangelogFiles() {
+	if ( process.exitCode !== 0 ) {
+		return;
+	}
+
 	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
 	// Bail if we're pushing to a release branch, like boost/branch-1.3.0
 	let currentBranch = spawnSync( 'git', [ 'branch', '--show-current' ] );
 	currentBranch = currentBranch.stdout.toString().trim();
-	const branchReg = /.*\/branch-(\d+).(\d+)(.(\d+))?/; // match example: jetpack/branch-1.2.3
+	const branchReg = /.*\/branch-/; // match example: jetpack/branch-1.2.3
 	if ( currentBranch.match( branchReg ) ) {
 		console.log( chalk.green( 'Release branch detected. Skipping changelog test.' ) );
+		return;
+	}
+	if ( currentBranch === 'prerelease' ) {
+		console.log( chalk.green( 'Prerelease branch detected. Skipping changelog test.' ) );
 		return;
 	}
 
@@ -104,4 +163,6 @@ function checkChangelogFiles() {
 	}
 }
 
+process.exitCode = 0;
+checkFilenameCollisions();
 checkChangelogFiles();

@@ -20,9 +20,5 @@
 		"build-production-js": "echo 'Not implemented.'",
 		"clean": "true"
 	},
-	"devDependencies": {},
-	"engines": {
-		"node": "^16.13.2",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	}
+	"devDependencies": {}
 }

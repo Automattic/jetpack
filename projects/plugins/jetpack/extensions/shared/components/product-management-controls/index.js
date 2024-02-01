@@ -14,34 +14,31 @@ export default function ProductManagementControls( {
 	blockName,
 	clientId,
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
-	selectedProductId = 0,
-	setSelectedProductId = () => {},
+	selectedProductIds = [],
+	setSelectedProductIds = () => {},
 } ) {
 	const products = useSelect(
 		select =>
 			select( membershipProductsStore ).getProducts(
 				productType,
-				selectedProductId,
-				setSelectedProductId
+				selectedProductIds,
+				setSelectedProductIds
 			),
 		[]
 	);
-	const { connectUrl, isApiConnected, isSelectedProductInvalid, shouldUpgrade } = useSelect(
-		select => {
-			const { getConnectUrl, getShouldUpgrade, isApiStateConnected, isInvalidProduct } = select(
-				membershipProductsStore
-			);
-			return {
-				connectUrl: getConnectUrl(),
-				isApiConnected: isApiStateConnected(),
-				isSelectedProductInvalid: isInvalidProduct( selectedProductId ),
-				shouldUpgrade: getShouldUpgrade(),
-			};
-		}
-	);
+
+	const { connectUrl, isApiConnected, areSelectedProductsInvalid } = useSelect( select => {
+		const { getConnectUrl, isApiStateConnected, hasInvalidProducts } =
+			select( membershipProductsStore );
+		return {
+			connectUrl: getConnectUrl(),
+			isApiConnected: isApiStateConnected(),
+			areSelectedProductsInvalid: hasInvalidProducts( selectedProductIds ),
+		};
+	} );
 
 	// Don't display this on free sites with Stripe disconnected.
-	if ( shouldUpgrade && ! isApiConnected ) {
+	if ( ! isApiConnected ) {
 		return null;
 	}
 
@@ -50,8 +47,8 @@ export default function ProductManagementControls( {
 		clientId,
 		products,
 		productType,
-		selectedProductId,
-		setSelectedProductId,
+		selectedProductIds,
+		setSelectedProductIds,
 	};
 
 	return (
@@ -67,7 +64,7 @@ export default function ProductManagementControls( {
 					<ProductManagementToolbarControl />
 				</>
 			) }
-			{ isApiConnected && isSelectedProductInvalid && <InvalidProductWarning /> }
+			{ isApiConnected && areSelectedProductsInvalid && <InvalidProductWarning /> }
 		</ProductManagementContext.Provider>
 	);
 }

@@ -1,12 +1,9 @@
-import { JetpackLogo } from '@automattic/jetpack-components';
-
 import './style.scss';
 
-export default function InspectorNotice( { children } ) {
+export default function InspectorNotice( { children, spanClass } ) {
 	return (
 		<div className="jetpack-inspector-notice">
-			<span>{ children }</span>
-			<JetpackLogo height={ 16 } logoColor="#1a1a1a" showText={ false } />
+			<span className={ spanClass }>{ children }</span>
 		</div>
 	);
 }

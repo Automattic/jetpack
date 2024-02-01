@@ -16,10 +16,10 @@ export default function useConnectionWatcher() {
 	const productsThatRequiresUserConnection = useSelect( select =>
 		select( STORE_ID ).getProductsThatRequiresUserConnection()
 	);
-	const { isSiteConnected, topJetpackMenuItemUrl, hasConnectedOwner } = useMyJetpackConnection();
+	const { isSiteConnected, hasConnectedOwner, isUserConnected } = useMyJetpackConnection();
 
 	const requiresUserConnection =
-		! hasConnectedOwner && productsThatRequiresUserConnection.length > 0;
+		! hasConnectedOwner && ! isUserConnected && productsThatRequiresUserConnection.length > 0;
 
 	const oneProductMessage = sprintf(
 		/* translators: placeholder is product name. */
@@ -30,36 +30,51 @@ export default function useConnectionWatcher() {
 		productsThatRequiresUserConnection[ 0 ]
 	);
 
-	const message =
+	const needsUserConnectionMessage =
 		productsThatRequiresUserConnection.length > 1
 			? __(
 					'Some products need a user connection to WordPress.com to be able to work.',
 					'jetpack-my-jetpack'
 			  )
 			: oneProductMessage;
-
-	/*
-	 * When the site is not connect, redirect to the Jetpack dashboard.
-	 */
-	useEffect( () => {
-		if ( ! isSiteConnected && topJetpackMenuItemUrl ) {
-			window.location = topJetpackMenuItemUrl;
-		}
-	}, [ isSiteConnected, topJetpackMenuItemUrl ] );
+	const needsSiteConnectionMessage = __(
+		'Some products need a connection to WordPress.com to be able to work.',
+		'jetpack-my-jetpack'
+	);
 
 	useEffect( () => {
-		if ( requiresUserConnection ) {
-			setGlobalNotice( message, {
-				status: 'error',
+		if ( ! isSiteConnected ) {
+			setGlobalNotice( needsSiteConnectionMessage, {
+				status: 'warning',
 				actions: [
 					{
-						label: __( 'Connect your user account to fix this', 'jetpack-my-jetpack' ),
+						label: __( 'Connect your site to fix this', 'jetpack-my-jetpack' ),
 						onClick: navToConnection,
 						variant: 'link',
 						noDefaultClasses: true,
 					},
 				],
 			} );
+			return;
 		}
-	}, [ message, requiresUserConnection, navToConnection, setGlobalNotice ] );
+		if ( requiresUserConnection ) {
+			setGlobalNotice( needsUserConnectionMessage, {
+				status: 'error',
+				actions: [
+					{
+						label: __( 'Connect your user account to fix this', 'jetpack-my-jetpack' ),
+						onClick: navToConnection,
+						noDefaultClasses: true,
+					},
+				],
+			} );
+		}
+	}, [
+		isSiteConnected,
+		needsSiteConnectionMessage,
+		needsUserConnectionMessage,
+		requiresUserConnection,
+		navToConnection,
+		setGlobalNotice,
+	] );
 }

@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status;
+
 if ( ! defined( 'WPCOM_JSON_API__DEBUG' ) ) {
 	define( 'WPCOM_JSON_API__DEBUG', false );
 }
@@ -29,6 +31,13 @@ class WPCOM_JSON_API {
 	 * @var WPCOM_JSON_API_Endpoint[]
 	 */
 	public $endpoints = array();
+
+	/**
+	 * Endpoint being processed.
+	 *
+	 * @var WPCOM_JSON_API_Endpoint
+	 */
+	public $endpoint = null;
 
 	/**
 	 * Token details.
@@ -166,8 +175,7 @@ class WPCOM_JSON_API {
 	 */
 	public static function init( $method = null, $url = null, $post_body = null ) {
 		if ( ! self::$self ) {
-			$class      = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__; // phpcs:ignore PHPCompatibility.PHP.NewFunctions.get_called_classFound
-			self::$self = new $class( $method, $url, $post_body );
+			self::$self = new static( $method, $url, $post_body );
 		}
 		return self::$self;
 	}
@@ -194,12 +202,25 @@ class WPCOM_JSON_API {
 	}
 
 	/**
-	 * Determine if a string is truthy.
+	 * Determine if a string is truthy. If it's not a string, which can happen with
+	 * not well-formed data coming from Jetpack sites, we still consider it a truthy value.
 	 *
-	 * @param string $value "1", "t", and "true" (case insensitive) are falsey, everything else isn't.
+	 * @param mixed $value true, 1, "1", "t", and "true" (case insensitive) are truthy, everything else isn't.
 	 * @return bool
 	 */
 	public static function is_truthy( $value ) {
+		if ( true === $value ) {
+			return true;
+		}
+
+		if ( 1 === $value ) {
+			return true;
+		}
+
+		if ( ! is_string( $value ) ) {
+			return false;
+		}
+
 		switch ( strtolower( (string) $value ) ) {
 			case '1':
 			case 't':
@@ -213,10 +234,22 @@ class WPCOM_JSON_API {
 	/**
 	 * Determine if a string is falsey.
 	 *
-	 * @param string $value "0", "f", and "false" (case insensitive) are falsey, everything else isn't.
+	 * @param mixed $value false, 0, "0", "f", and "false" (case insensitive) are falsey, everything else isn't.
 	 * @return bool
 	 */
 	public static function is_falsy( $value ) {
+		if ( false === $value ) {
+			return true;
+		}
+
+		if ( 0 === $value ) {
+			return true;
+		}
+
+		if ( ! is_string( $value ) ) {
+			return false;
+		}
+
 		switch ( strtolower( (string) $value ) ) {
 			case '0':
 			case 'f':
@@ -286,7 +319,7 @@ class WPCOM_JSON_API {
 					$this->content_type = 'application/x-www-form-urlencoded';
 				}
 
-				if ( 0 === strpos( strtolower( $this->content_type ), 'multipart/' ) ) {
+				if ( str_starts_with( strtolower( $this->content_type ), 'multipart/' ) ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$this->post_body    = http_build_query( stripslashes_deep( $_POST ) );
 					$this->files        = $_FILES;
@@ -419,17 +452,15 @@ class WPCOM_JSON_API {
 			} else {
 				$help_content_type = 'html';
 			}
+		} elseif ( in_array( $this->method, $allowed_methods, true ) ) {
+			// Only serve requested method.
+			$methods                     = array( $this->method );
+			$find_all_matching_endpoints = false;
 		} else {
-			if ( in_array( $this->method, $allowed_methods, true ) ) {
-				// Only serve requested method.
-				$methods                     = array( $this->method );
-				$find_all_matching_endpoints = false;
-			} else {
-				// We don't allow this requested method - find matching endpoints and send 405.
-				$methods                     = $allowed_methods;
-				$find_all_matching_endpoints = true;
-				$four_oh_five                = true;
-			}
+			// We don't allow this requested method - find matching endpoints and send 405.
+			$methods                     = $allowed_methods;
+			$find_all_matching_endpoints = true;
+			$four_oh_five                = true;
 		}
 
 		// Find which endpoint to serve.
@@ -456,7 +487,7 @@ class WPCOM_JSON_API {
 				$endpoint_path = untrailingslashit( $endpoint_path );
 				if ( $is_help ) {
 					// Truncate path at help depth.
-					$endpoint_path = join( '/', array_slice( explode( '/', $endpoint_path ), 0, $depth ) );
+					$endpoint_path = implode( '/', array_slice( explode( '/', $endpoint_path ), 0, $depth ) );
 				}
 
 				// Generate regular expression from sprintf().
@@ -494,7 +525,7 @@ class WPCOM_JSON_API {
 				$allowed_methods[] = $matching_endpoint[0]->method;
 			}
 
-			header( 'Allow: ' . strtoupper( join( ',', array_unique( $allowed_methods ) ) ) );
+			header( 'Allow: ' . strtoupper( implode( ',', array_unique( $allowed_methods ) ) ) );
 			return $this->output(
 				405,
 				array(
@@ -740,7 +771,7 @@ class WPCOM_JSON_API {
 	 * @return string Content type (assuming it didn't exit).
 	 */
 	public function output_error( $error ) {
-		$error_response = $this->serializable_error( $error );
+		$error_response = static::serializable_error( $error );
 
 		return $this->output( $error_response['status_code'], $error_response['errors'] );
 	}
@@ -900,7 +931,7 @@ class WPCOM_JSON_API {
 		 * 1. In case of user based authentication, we need to check if the logged-in user has the 'read' capability.
 		 * 2. In case of site based authentication, make sure the endpoint accepts it.
 		 */
-		if ( -1 === (int) get_option( 'blog_public' ) &&
+		if ( ( new Status() )->is_private_site() &&
 			! current_user_can( 'read' ) &&
 			! $this->endpoint->accepts_site_based_authentication()
 		) {
@@ -1129,10 +1160,8 @@ class WPCOM_JSON_API {
 			if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
 				return;
 			}
-		} else {
-			if ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
-				return;
-			}
+		} elseif ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
+			return;
 		}
 
 		$this->trapped_error = array(

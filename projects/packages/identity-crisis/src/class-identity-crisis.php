@@ -10,10 +10,9 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
-use Automattic\Jetpack\Constants as Constants;
+use Automattic\Jetpack\IdentityCrisis\Exception;
 use Automattic\Jetpack\IdentityCrisis\UI;
-use Automattic\Jetpack\Status as Status;
-use Automattic\Jetpack\Tracking as Tracking;
+use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Jetpack_Options;
 use WP_Error;
 
@@ -28,7 +27,12 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.8.17';
+	const PACKAGE_VERSION = '0.15.1-alpha';
+
+	/**
+	 * Persistent WPCOM blog ID that stays in the options after disconnect.
+	 */
+	const PERSISTENT_BLOG_ID_OPTION_NAME = 'jetpack_persistent_blog_id';
 
 	/**
 	 * Instance of the object.
@@ -87,6 +91,14 @@ class Identity_Crisis {
 
 		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
 
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ) );
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_ip_requester_to_url_validation_response' ) );
+
+		add_filter( 'jetpack_options', array( static::class, 'reverse_wpcom_urls_for_idc' ) );
+
+		add_filter( 'jetpack_register_request_body', array( static::class, 'register_request_body' ) );
+		add_action( 'jetpack_site_registered', array( static::class, 'site_registered' ) );
+
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
 			return;
@@ -109,6 +121,8 @@ class Identity_Crisis {
 		} else {
 			$connection->disconnect_site( false );
 		}
+
+		delete_option( static::PERSISTENT_BLOG_ID_OPTION_NAME );
 
 		// Clear IDC options.
 		self::clear_all_idc_options();
@@ -144,14 +158,14 @@ class Identity_Crisis {
 		foreach ( (array) $processed_items as $item ) {
 
 			// First, is this item a jetpack_sync_callable action? If so, then proceed.
-			$callable_args = ( is_array( $item ) && isset( $item[0], $item[1] ) && 'jetpack_sync_callable' === $item[0] )
+			$callable_args = ( is_array( $item ) && isset( $item[0] ) && isset( $item[1] ) && 'jetpack_sync_callable' === $item[0] )
 				? $item[1]
 				: null;
 
 			// Second, if $callable_args is set, check if the callable was home_url or site_url. If so,
 			// clear the migrate option.
 			if (
-				isset( $callable_args, $callable_args[0] )
+				isset( $callable_args[0] )
 				&& ( 'home_url' === $callable_args[0] || 'site_url' === $callable_args[1] )
 			) {
 				Jetpack_Options::delete_option( 'migrate_for_idc' );
@@ -168,7 +182,7 @@ class Identity_Crisis {
 	public function wordpress_init() {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {
 			if (
-					isset( $_GET['jetpack_idc_clear_confirmation'], $_GET['_wpnonce'] ) &&
+					isset( $_GET['jetpack_idc_clear_confirmation'] ) && isset( $_GET['_wpnonce'] ) &&
 					wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
 			) {
 				Jetpack_Options::delete_option( 'safe_mode_confirmed' );
@@ -196,10 +210,18 @@ class Identity_Crisis {
 			|| self::validate_sync_error_idc_option() ) {
 			return $url;
 		}
+		$home_url = Urls::home_url();
+		$site_url = Urls::site_url();
+		$hostname = wp_parse_url( $site_url, PHP_URL_HOST );
+
+		// If request is from an IP, make sure ip_requester option is set
+		if ( self::url_is_ip( $hostname ) ) {
+			self::maybe_update_ip_requester( $hostname );
+		}
 
 		$query_args = array(
-			'home'    => Urls::home_url(),
-			'siteurl' => Urls::site_url(),
+			'home'    => $home_url,
+			'siteurl' => $site_url,
 		);
 
 		if ( self::should_handle_idc() ) {
@@ -208,6 +230,10 @@ class Identity_Crisis {
 
 		if ( \Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
 			$query_args['migrate_for_idc'] = true;
+		}
+
+		if ( is_multisite() ) {
+			$query_args['multisite'] = true;
 		}
 
 		return add_query_arg( $query_args, $url );
@@ -284,7 +310,6 @@ class Identity_Crisis {
 		if ( ! $connection->is_connected() || ( new Status() )->is_offline_mode() || ! self::validate_sync_error_idc_option() ) {
 			return false;
 		}
-
 		return Jetpack_Options::get_option( 'sync_error_idc' );
 	}
 
@@ -335,7 +360,7 @@ class Identity_Crisis {
 			);
 
 			if ( in_array( $error_code, $allowed_idc_error_codes, true ) ) {
-				\Jetpack_Options::update_option(
+				Jetpack_Options::update_option(
 					'sync_error_idc',
 					self::get_sync_error_idc_option( $response )
 				);
@@ -437,6 +462,24 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Reverses WP.com URLs stored in sync_error_idc option.
+	 *
+	 * @param array $sync_error error option containing reversed URLs.
+	 * @return array
+	 */
+	public static function reverse_wpcom_urls_for_idc( $sync_error ) {
+		if ( isset( $sync_error['reversed_url'] ) ) {
+			if ( array_key_exists( 'wpcom_siteurl', $sync_error ) ) {
+				$sync_error['wpcom_siteurl'] = strrev( $sync_error['wpcom_siteurl'] );
+			}
+			if ( array_key_exists( 'wpcom_home', $sync_error ) ) {
+				$sync_error['wpcom_home'] = strrev( $sync_error['wpcom_home'] );
+			}
+		}
+		return $sync_error;
+	}
+
+	/**
 	 * Normalizes a url by doing three things:
 	 *  - Strips protocol
 	 *  - Strips www
@@ -504,6 +547,12 @@ class Identity_Crisis {
 			}
 
 			$returned_values[ $key ] = $normalized_url;
+		}
+		// We need to protect WPCOM URLs from search & replace by reversing them. See https://wp.me/pf5801-3R
+		// Add 'reversed_url' key for backward compatibility
+		if ( array_key_exists( 'wpcom_home', $returned_values ) && array_key_exists( 'wpcom_siteurl', $returned_values ) ) {
+			$returned_values['reversed_url'] = true;
+			$returned_values                 = self::reverse_wpcom_urls_for_idc( $returned_values );
 		}
 
 		return $returned_values;
@@ -1285,5 +1334,179 @@ class Identity_Crisis {
 		}
 
 		return $path;
+	}
+
+	/**
+	 * Adds `url_secret` to the `jetpack.idcUrlValidation` URL validation endpoint.
+	 * Adds `url_secret_error` in case of an error.
+	 *
+	 * @param array $response The endpoint response that we're modifying.
+	 *
+	 * @return array
+	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
+	 */
+	public static function add_secret_to_url_validation_response( array $response ) {
+		try {
+			$secret = new URL_Secret();
+
+			$secret->create();
+
+			if ( $secret->exists() ) {
+				$response['url_secret'] = $secret->get_secret();
+			}
+		} catch ( Exception $e ) {
+			$response['url_secret_error'] = new WP_Error( 'unable_to_create_url_secret', $e->getMessage() );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Check if URL is an IP.
+	 *
+	 * @param string $hostname The hostname to check.
+	 * @return bool
+	 */
+	public static function url_is_ip( $hostname = null ) {
+
+		if ( ! $hostname ) {
+			$hostname = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
+		}
+
+		$is_ip = filter_var( $hostname, FILTER_VALIDATE_IP ) !== false ? $hostname : false;
+		return $is_ip;
+	}
+
+	/**
+	 * Add IDC-related data to the registration query.
+	 *
+	 * @param array $params The existing query params.
+	 *
+	 * @return array
+	 */
+	public static function register_request_body( array $params ) {
+		$persistent_blog_id = get_option( static::PERSISTENT_BLOG_ID_OPTION_NAME );
+		if ( $persistent_blog_id ) {
+			$params['persistent_blog_id'] = $persistent_blog_id;
+			$params['url_secret']         = URL_Secret::create_secret( 'registration_request_url_secret_failed' );
+		}
+
+		return $params;
+	}
+
+	/**
+	 * Set the necessary options when site gets registered.
+	 *
+	 * @param int $blog_id The blog ID.
+	 *
+	 * @return void
+	 */
+	public static function site_registered( $blog_id ) {
+		update_option( static::PERSISTENT_BLOG_ID_OPTION_NAME, (int) $blog_id, false );
+	}
+
+	/**
+	 * Check if we need to update the ip_requester option.
+	 *
+	 * @param string $hostname The hostname to check.
+	 *
+	 * @return void
+	 */
+	public static function maybe_update_ip_requester( $hostname ) {
+		// Check if transient exists
+		$transient_key = ip2long( $hostname );
+		if ( $transient_key && ! get_transient( 'jetpack_idc_ip_requester_' . $transient_key ) ) {
+			self::set_ip_requester_for_idc( $hostname, $transient_key );
+		}
+	}
+
+	/**
+	 * If URL is an IP, add the IP value to the ip_requester option with its expiry value.
+	 *
+	 * @param string $hostname The hostname to check.
+	 * @param int    $transient_key The transient key.
+	 */
+	public static function set_ip_requester_for_idc( $hostname, $transient_key ) {
+		// Check if option exists
+		$data = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+
+		$ip_requester = array(
+			'ip'         => $hostname,
+			'expires_at' => time() + 360,
+		);
+
+		// If not set, initialize it
+		if ( empty( $data ) ) {
+			$data = array( $ip_requester );
+		} else {
+			$updated_data  = array();
+			$updated_value = false;
+
+			// Remove expired values and update existing IP
+			foreach ( $data as $item ) {
+				if ( time() > $item['expires_at'] ) {
+					continue; // Skip expired IP
+				}
+
+				if ( $item['ip'] === $hostname ) {
+					$item['expires_at'] = time() + 360;
+					$updated_value      = true;
+				}
+
+				$updated_data[] = $item;
+			}
+
+			if ( ! $updated_value || empty( $updated_data ) ) {
+				$updated_data[] = $ip_requester;
+			}
+
+			$data = $updated_data;
+		}
+
+		self::update_ip_requester( $data, $transient_key );
+	}
+
+	/**
+	 * Update the ip_requester option and set a transient to expire in 5 minutes.
+	 *
+	 * @param array $data The data to be updated.
+	 * @param int   $transient_key The transient key.
+	 *
+	 * @return void
+	 */
+	public static function update_ip_requester( $data, $transient_key ) {
+		// Update the option
+		$updated = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $data );
+		// Set a transient to expire in 5 minutes
+		if ( $updated ) {
+			$transient_name = 'jetpack_idc_ip_requester_' . $transient_key;
+			set_transient( $transient_name, $data, 300 );
+		}
+	}
+
+	/**
+	 * Adds `ip_requester` to the `jetpack.idcUrlValidation` URL validation endpoint.
+	 *
+	 * @param array $response The enpoint response that we're modifying.
+	 *
+	 * @return array
+	 */
+	public static function add_ip_requester_to_url_validation_response( array $response ) {
+		$requesters = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+		if ( $requesters ) {
+			// Loop through the requesters and add the IP to the response if it's not expired
+			$i = 0;
+			foreach ( $requesters as $ip ) {
+				if ( $ip['expires_at'] > time() ) {
+					$response['ip_requester'][] = $ip['ip'];
+				}
+				// Limit the response to five IPs
+				$i = ++$i;
+				if ( $i === 5 ) {
+					break;
+				}
+			}
+		}
+		return $response;
 	}
 }

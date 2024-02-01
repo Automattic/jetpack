@@ -68,10 +68,10 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	 */
 	public function test_auto_config_non_fse_theme_sidebar_search_widget_replace_success() {
 		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_core_search' ) );
-		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_empty_array' );
 		$this->assertTrue( Instant_Search::instance()->auto_config_non_fse_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_core_search' ) );
-		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_empty_array' );
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
 		$this->assertEquals( 'jetpack-search-filters-1', $sidebars_widgets['sidebar-1'][0] );
@@ -84,11 +84,11 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	 */
 	public function test_auto_config_theme_sidebar_search_block_replace_success() {
 		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_search_block' ) );
-		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_empty_array' );
 		add_filter( 'option_widget_block', array( $this, 'widget_block_widgets' ) );
 		$this->assertTrue( Instant_Search::instance()->auto_config_non_fse_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_search_block' ) );
-		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_empty_array' );
 		remove_filter( 'option_widget_block', array( $this, 'widget_block_widgets' ) );
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
@@ -100,10 +100,10 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	 */
 	public function test_auto_config_non_fse_theme_sidebar_search_widget_add_success() {
 		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_empty_sidebar' ) );
-		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_empty_array' );
 		$this->assertTrue( Instant_Search::instance()->auto_config_non_fse_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_empty_sidebar' ) );
-		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_empty_array' );
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
 		$this->assertEquals( 'jetpack-search-filters-1', $sidebars_widgets['sidebar-1'][0] );
@@ -234,5 +234,4 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	public function active_plugins_has_woocommerce() {
 		return array( 'woocommerce/woocommerce.php' );
 	}
-
 }

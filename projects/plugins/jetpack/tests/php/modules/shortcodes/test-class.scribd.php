@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_Scribd extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_scribd_exists() {
-		$this->assertEquals( shortcode_exists( 'scribd' ), true );
+		$this->assertTrue( shortcode_exists( 'scribd' ) );
 	}
 
 	/**
@@ -61,5 +61,4 @@ class WP_Test_Jetpack_Shortcodes_Scribd extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected, $actual );
 	}
-
 }

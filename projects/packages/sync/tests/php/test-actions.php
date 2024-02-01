@@ -15,8 +15,6 @@ class Test_Actions extends BaseTestCase {
 
 	/**
 	 * Set up before each test.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		// Don't try to get options directly from the database.
@@ -34,8 +32,6 @@ class Test_Actions extends BaseTestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();
@@ -117,6 +113,38 @@ class Test_Actions extends BaseTestCase {
 		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
 
 		$this->assertTrue( Settings::is_dedicated_sync_enabled() );
+	}
+
+	/**
+	 * Tests reset_sync_locks method.
+	 */
+	public function test_reset_sync_locks() {
+		update_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_sync', 'dummy' );
+		update_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full_sync', 'dummy' );
+		update_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full-sync-enqueue', 'dummy' );
+		// Retry after locks.
+		update_option( Actions::RETRY_AFTER_PREFIX . 'sync', 'dummy' );
+		update_option( Actions::RETRY_AFTER_PREFIX . 'full_sync', 'dummy' );
+		// Dedicated sync lock.
+		\Jetpack_Options::update_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, 'dummy' );
+		// Queue locks.
+		$sync_queue = new Queue( 'sync' );
+		$this->assertTrue( $sync_queue->lock() );
+		$full_sync_queue = new Queue( 'full_sync' );
+		$this->assertTrue( $full_sync_queue->lock() );
+		// Lock for disabling Sync sending temporarily.
+		set_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME, time() );
+
+		Actions::reset_sync_locks();
+
+		$this->assertFalse( get_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_sync' ) );
+		$this->assertFalse( get_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full_sync' ) );
+		$this->assertFalse( get_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full-sync-enqueue' ) );
+		$this->assertFalse( get_option( Actions::RETRY_AFTER_PREFIX . 'sync' ) );
+		$this->assertFalse( get_option( Actions::RETRY_AFTER_PREFIX . 'full_sync' ) );
+		$this->assertFalse( $sync_queue->is_locked() );
+		$this->assertFalse( $full_sync_queue->is_locked() );
+		$this->assertFalse( get_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME ) );
 	}
 
 	/**

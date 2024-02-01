@@ -1,7 +1,12 @@
+import {
+	isCurrentUserConnected,
+	getJetpackBlocksVariation,
+} from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { addFilter } from '@wordpress/hooks';
-import isCurrentUserConnected from '../is-current-user-connected';
+import { SOURCE_JETPACK_APP_MEDIA } from './constants';
 import MediaButton from './media-button';
+import { addPexelsToMediaInserter, addGooglePhotosToMediaInserter } from './media-service';
 import { mediaSources } from './sources';
 import './editor.scss';
 
@@ -9,7 +14,15 @@ function insertExternalMediaBlocks( settings, name ) {
 	if ( name !== 'core/image' ) {
 		return settings;
 	}
-
+	// Only add the Jetpack App Media button if we are in the beta variation.
+	if ( getJetpackBlocksVariation() !== 'beta' ) {
+		const index = mediaSources.findIndex(
+			mediaSource => mediaSource.id === SOURCE_JETPACK_APP_MEDIA
+		);
+		if ( index > -1 ) {
+			mediaSources.splice( index, 1 );
+		}
+	}
 	return {
 		...settings,
 		keywords: [ ...settings.keywords, ...mediaSources.map( source => source.keyword ) ],
@@ -17,6 +30,9 @@ function insertExternalMediaBlocks( settings, name ) {
 }
 
 if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
+	addPexelsToMediaInserter();
+	addGooglePhotosToMediaInserter();
+
 	const isFeaturedImage = props =>
 		props.unstableFeaturedImageFlow ||
 		( props.modalClass && props.modalClass.indexOf( 'featured-image' ) > -1 );
@@ -31,6 +47,7 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 			'jetpack/slideshow',
 			'jetpack/story',
 			'jetpack/tiled-gallery',
+			'videopress/video',
 		];
 
 		return allowedBlocks.indexOf( name ) > -1 && render.toString().indexOf( 'coblocks' ) === -1;

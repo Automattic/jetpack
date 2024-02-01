@@ -19,8 +19,28 @@ export function buildInitialState() {
 						features: [
 							'Real-time cloud backups',
 							'10GB of backup storage',
-							'30-day archive & activity log',
+							'30-day archive & activity log*',
 							'One-click restores',
+						],
+						disclaimer: {
+							text: '* Subject to your usage and storage limit.',
+							link_text: 'Learn more',
+							url: 'https://cloud.jetpack.com/pricing#backup-storage-limits-faq',
+						},
+					},
+					creator: {
+						title: 'Jetpack Creator',
+						slug: 'jetpack_creator_yearly',
+						description:
+							'Craft stunning content, boost your subscriber base, and monetize your online presence.',
+						show_promotion: true,
+						discount_percent: 50,
+						included_in_plans: [ 'complete' ],
+						features: [
+							'Unlimited subscriber imports',
+							'Earn more from your content',
+							'Accept payments with PayPal',
+							'Increase earnings with WordAds',
 						],
 					},
 					scan: {
@@ -49,7 +69,7 @@ export function buildInitialState() {
 						features: [
 							'Instant search and indexing',
 							'Powerful filtering',
-							'Supports 29 languages',
+							'Supports 38 languages',
 							'Spelling correction',
 						],
 					},

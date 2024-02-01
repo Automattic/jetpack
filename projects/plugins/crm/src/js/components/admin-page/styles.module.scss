@@ -1,0 +1,18 @@
+@import '@wordpress/base-styles/breakpoints';
+
+.admin-page {
+	// Neutralize the negative margin of Jetpack's admin page that do not
+	// seem to fit in with the Jetpack CRM styling.
+	margin-left: 20px;
+
+	@media ( max-width: $break-medium ) {
+		// Neutralize the negative margin of Jetpack's admin page that do not
+		// seem to fit in with the Jetpack CRM styling.
+		margin-left: 10px;
+	}
+}
+
+.sub-headline {
+	letter-spacing: 0.15px;
+	color: var(--jp-gray-50);
+}

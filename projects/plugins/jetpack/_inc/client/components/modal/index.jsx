@@ -4,6 +4,7 @@
 
 import classNames from 'classnames';
 import { createFocusTrap } from 'focus-trap';
+import jQuery from 'jquery';
 import { assign, omit } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -69,8 +70,7 @@ class Modal extends React.Component {
 	}
 
 	handleEscapeKey = e => {
-		if ( e.keyCode === 27 ) {
-			// escape key maps to keycode `27`
+		if ( e.code === 'Escape' ) {
 			this.maybeClose();
 		}
 	};

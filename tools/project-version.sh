@@ -5,6 +5,7 @@ set -eo pipefail
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/changelogger.sh"
 . "$BASE/tools/includes/plugin-functions.sh"
 
 # Print help and exit.
@@ -14,12 +15,14 @@ function usage {
 
 		  Check that the project's versions are updated to the specified version.
 
-		usage: $0 [-f] [-v] -u version <slug>
+		usage: $0 [-f] [-C] [-v] -u version <slug>
 
 		  Update the versions of the specified project.
 
 		  Specifying -f updates the referenced version in other packages that depend
 		  on the updated package (see tools/check-intra-monorepo-deps.sh -ua).
+
+		  Specifying -C creates a changelog entry for the project's version bump.
 
 		The following version numbers are updated:
 		   - Version in the WordPress plugin header, if applicable.
@@ -39,7 +42,8 @@ fi
 OP=
 VERBOSE=false
 FIX_INTRA_MONOREPO_DEPS=false
-while getopts ":c:u:fvsh" opt; do
+DO_CHANGELOG=false
+while getopts ":c:u:fCvsh" opt; do
 	case ${opt} in
 		c)
 			[[ -z "$OP" ]] || die "Only one of -c or -u may be specified"
@@ -52,6 +56,9 @@ while getopts ":c:u:fvsh" opt; do
 			VERSION=$OPTARG
 			OP=update
 			OPING=Updating
+			;;
+		C)
+			DO_CHANGELOG=true
 			;;
 		f)
 			FIX_INTRA_MONOREPO_DEPS=true
@@ -202,7 +209,7 @@ done
 # Update branch-alias in composer.json
 FILE="$BASE/projects/$SLUG/composer.json"
 debug "$OPING branch-alias version, if any"
-jsver "$FILE" '.extra["branch-alias"]["dev-trunk"]' "$(sed -E 's/\.[0-9]+([-+].*)?$/.x-dev/' <<<"$SEMVERSION")"
+jsver "$FILE" '.extra["branch-alias"]["dev-trunk"]' "$(sed -E 's/^([0-9]+\.[0-9]+)(\.[0-9]+)*([-+].*)?$/\1.x-dev/' <<<"$SEMVERSION")"
 
 # Update autoloader-suffix in composer.json
 FILE="$BASE/projects/$SLUG/composer.json"
@@ -236,6 +243,14 @@ while IFS=" " read -r C F; do
 	fi
 	sedver "$BASE/projects/$SLUG/$F" "$PAT" "$VERSION" "version constant $C"
 done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " " + .value' "$FILE")
+
+# Add change entry, if applicable
+
+if $DO_CHANGELOG; then
+	cd "$BASE/projects/$SLUG"
+	changelogger_add '' "Init $VERSION" --filename=init-release-cycle --filename-auto-suffix
+	cd "$BASE"
+fi
 
 # Update other dependencies
 

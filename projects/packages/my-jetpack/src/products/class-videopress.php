@@ -7,13 +7,14 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
  * Class responsible for handling the VideoPress product
  */
-class Videopress extends Module_Product {
+class Videopress extends Hybrid_Product {
 
 	/**
 	 * The product slug
@@ -28,6 +29,38 @@ class Videopress extends Module_Product {
 	 * @var string
 	 */
 	public static $module_name = 'videopress';
+
+	/**
+	 * The slug of the plugin associated with this product.
+	 *
+	 * @var string
+	 */
+	public static $plugin_slug = 'jetpack-videopress';
+
+	/**
+	 * The filename (id) of the plugin associated with this product.
+	 *
+	 * @var string
+	 */
+	public static $plugin_filename = array(
+		'jetpack-videopress/jetpack-videopress.php',
+		'videopress/jetpack-videopress.php',
+		'jetpack-videopress-dev/jetpack-videopress.php',
+	);
+
+	/**
+	 * Search only requires site connection
+	 *
+	 * @var boolean
+	 */
+	public static $requires_user_connection = true;
+
+	/**
+	 * VideoPress has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
 
 	/**
 	 * Get the internationalized product name
@@ -74,7 +107,7 @@ class Videopress extends Module_Product {
 		return array(
 			_x( '1TB of storage', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Built into WordPress editor', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
-			_x( 'Ad-free and brandable player', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Ad-free and customizable player', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Unlimited users', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
 		);
 	}
@@ -118,8 +151,20 @@ class Videopress extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_active() ) {
+		if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'should_initialize_admin_ui' ) && \Automattic\Jetpack\VideoPress\Initializer::should_initialize_admin_ui() ) {
+			return \Automattic\Jetpack\VideoPress\Admin_UI::get_admin_page_url();
+		} else {
 			return admin_url( 'admin.php?page=jetpack#/settings?term=videopress' );
 		}
+	}
+
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		// using second argument `true` to force fetching from wpcom
+		return Current_Plan::supports( 'videopress-1tb-storage', true );
 	}
 }

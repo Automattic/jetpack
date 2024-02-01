@@ -1,0 +1,27 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-ai-assistant__button {
+	&.is-suggesting {
+		.ai-assistant-icon > path {
+			animation: fadingSpark 300ms ease-in-out alternate infinite;
+	
+			&.spark-first {
+				animation-delay: 0.2s;
+			}
+			
+			&.spark-second {
+				animation-delay: 0.6s;
+			}
+		}
+	}
+}
+
+.jetpack-ai-assistant__info {
+	margin: 0 0 8px 0;
+}
+
+@keyframes fadingSpark {
+	to {
+		opacity: 0.3;
+	}
+}

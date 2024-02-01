@@ -1,9 +1,14 @@
 export { default as BlockEditorPage } from './block-editor.js';
+export { default as SiteEditorPage } from './site-editor.js';
 export { default as EventbriteBlock } from './blocks/eventbrite.js';
 export { default as PinterestBlock } from './blocks/pinterest.js';
 export { default as MailchimpBlock } from './blocks/mailchimp.js';
 export { default as SimplePaymentBlock } from './blocks/simple-payments.js';
 export { default as WordAdsBlock } from './blocks/word-ads.js';
+export { default as FormBlock } from './blocks/form.js';
+export { default as TiledGalleryBlock } from './blocks/tilled-gallery.js';
+export { default as SubscribeBlock } from './blocks/subscribe.js';
+export { default as EditorCanvas } from './blocks/editor-canvas.js';
 
 export { default as DashboardPage } from './dashboard.js';
 export { default as InPlacePlansPage } from './in-place-plans.js';

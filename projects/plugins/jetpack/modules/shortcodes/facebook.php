@@ -56,16 +56,16 @@ wp_embed_register_handler( 'facebook-alternate-video', JETPACK_FACEBOOK_VIDEO_AL
  */
 function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 	if (
-		false !== strpos( $url, 'video.php' )
-		|| false !== strpos( $url, '/videos/' )
-		|| false !== strpos( $url, '/watch' )
+		str_contains( $url, 'video.php' )
+		|| str_contains( $url, '/videos/' )
+		|| str_contains( $url, '/watch' )
 	) {
 		$embed = sprintf( '<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>', esc_url( $url ) );
 	} else {
 		$width = 552; // As of 01/2017, the default width of Facebook embeds when no width attribute provided.
 
 		global $content_width;
-		if ( isset( $content_width ) ) {
+		if ( is_numeric( $content_width ) && $content_width > 0 ) {
 			$width = min( $width, $content_width );
 		}
 

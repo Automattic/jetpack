@@ -38,6 +38,7 @@
  * @author Florian Schmitz (floele at gmail dot com) 2005-2006
  * @version 1.0.1
  */
+#[AllowDynamicProperties]
 class csstidy_print { // phpcs:ignore
 
 	/**
@@ -204,9 +205,10 @@ class csstidy_print { // phpcs:ignore
 		}
 
 		if ( ! empty( $this->import ) ) {
-			for ( $i = 0, $size = count( $this->import ); $i < $size; $i++ ) {
+			$import_count = is_countable( $this->import ) ? count( $this->import ) : 0;
+			for ( $i = 0; $i < $import_count; $i++ ) {
 				$import_components = explode( ' ', $this->import[ $i ] );
-				if ( substr( $import_components[0], 0, 4 ) === 'url(' && substr( $import_components[0], -1, 1 ) === ')' ) {
+				if ( str_starts_with( $import_components[0], 'url(' ) && str_ends_with( $import_components[0], ')' ) ) {
 					$import_components[0] = '\'' . trim( substr( $import_components[0], 4, -1 ), "'\"" ) . '\'';
 					$this->import[ $i ]   = implode( ' ', $import_components );
 					$this->parser->log( 'Optimised @import : Removed "url("', 'Information' );
@@ -215,7 +217,7 @@ class csstidy_print { // phpcs:ignore
 			}
 		}
 		if ( ! empty( $this->namespace ) ) {
-			if ( substr( $this->namespace, 0, 4 ) === 'url(' && substr( $this->namespace, -1, 1 ) === ')' ) {
+			if ( str_starts_with( $this->namespace, 'url(' ) && str_ends_with( $this->namespace, ')' ) ) {
 				$this->namespace = '\'' . substr( $this->namespace, 4, -1 ) . '\'';
 				$this->parser->log( 'Optimised @namespace : Removed "url("', 'Information' );
 			}
@@ -428,5 +430,4 @@ class csstidy_print { // phpcs:ignore
 			return ( strlen( $this->output_css_plain ) / 1000 );
 		}
 	}
-
 }

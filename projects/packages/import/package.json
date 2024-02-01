@@ -1,0 +1,25 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-import",
+	"version": "0.8.1",
+	"description": "Set of REST API routes used in WPCOM Unified Importer.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/import/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Import"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/import"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'",
+		"clean": "true"
+	},
+	"devDependencies": {}
+}

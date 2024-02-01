@@ -5,6 +5,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2023-11-21
+
+## [2.0.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [1.8.4] - 2023-09-19
+
+- Minor internal updates.
+
+## [1.8.3] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## [1.8.2] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.8.1] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [1.8.0] - 2023-02-08
+### Added
+- After connection flow, load unattached licenses. If any of them match the product that's being connected, redirect users to the license activation page. [#28509]
+
+## [1.7.14] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## [1.7.13] - 2022-12-02
+### Changed
+- Updated package dependencies. [#27688]
+
+## [1.7.12] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## [1.7.11] - 2022-10-25
+### Changed
+- Updated package dependencies. [#26705]
+
+## [1.7.10] - 2022-09-20
+### Changed
+- Updated package dependencies.
+
+## [1.7.9] - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+## [1.7.8] - 2022-08-29
+### Changed
+- Updated package dependencies.
+
+## [1.7.7] - 2022-08-23
+### Changed
+- Updated package dependencies. [#25628]
+
+## [1.7.6] - 2022-08-03
+### Changed
+- Updated package dependencies. [#25300, #25315]
+
+## [1.7.5] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
 ## [1.7.4] - 2022-06-21
 ### Changed
 - Renaming master to trunk.
@@ -190,6 +256,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Licensing: Add support for Jetpack licenses
 
+[2.0.1]: https://github.com/Automattic/jetpack-licensing/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-licensing/compare/v1.8.4...v2.0.0
+[1.8.4]: https://github.com/Automattic/jetpack-licensing/compare/v1.8.3...v1.8.4
+[1.8.3]: https://github.com/Automattic/jetpack-licensing/compare/v1.8.2...v1.8.3
+[1.8.2]: https://github.com/Automattic/jetpack-licensing/compare/v1.8.1...v1.8.2
+[1.8.1]: https://github.com/Automattic/jetpack-licensing/compare/v1.8.0...v1.8.1
+[1.8.0]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.14...v1.8.0
+[1.7.14]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.13...v1.7.14
+[1.7.13]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.12...v1.7.13
+[1.7.12]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.11...v1.7.12
+[1.7.11]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.10...v1.7.11
+[1.7.10]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.9...v1.7.10
+[1.7.9]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.8...v1.7.9
+[1.7.8]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.7...v1.7.8
+[1.7.7]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.6...v1.7.7
+[1.7.6]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.5...v1.7.6
+[1.7.5]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.4...v1.7.5
 [1.7.4]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.3...v1.7.4
 [1.7.3]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.2...v1.7.3
 [1.7.2]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.1...v1.7.2

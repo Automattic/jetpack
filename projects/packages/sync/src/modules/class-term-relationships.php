@@ -119,8 +119,8 @@ class Term_Relationships extends Module {
 			 */
 			$objects = $wpdb->get_results( $wpdb->prepare( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $last_object_enqueued['object_id'], $last_object_enqueued['term_taxonomy_id'], $last_object_enqueued['object_id'], $limit ), ARRAY_A );
 			// Request term relationships in groups of N for efficiency.
-			$objects_count = count( $objects );
-			if ( ! count( $objects ) ) {
+			$objects_count = is_countable( $objects ) ? count( $objects ) : 0;
+			if ( ! $objects_count ) {
 				return array( $items_enqueued_count, true );
 			}
 			$items                 = array_chunk( $objects, $term_relationships_full_sync_item_size );
@@ -174,6 +174,25 @@ class Term_Relationships extends Module {
 				$status['last_sent']['object_id'],
 				$chunk_size
 			),
+			ARRAY_A
+		);
+	}
+
+	/**
+	 * Return last_item to send for Module Full Sync Configuration.
+	 *
+	 * @param array $config This module Full Sync configuration.
+	 *
+	 * @return array|object|null
+	 */
+	public function get_last_item( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
+		return $wpdb->get_results(
+			"SELECT object_id, term_taxonomy_id 
+			FROM $wpdb->term_relationships 
+			ORDER BY object_id , term_taxonomy_id
+			LIMIT 1",
 			ARRAY_A
 		);
 	}

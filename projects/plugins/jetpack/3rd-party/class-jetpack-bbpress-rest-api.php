@@ -124,7 +124,7 @@ class Jetpack_BbPress_REST_API {
 			$caps[] = 'do_not_allow';
 
 			// Moderators can always edit meta.
-		} elseif ( user_can( $user_id, 'moderate' ) ) {
+		} elseif ( user_can( $user_id, 'moderate' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
 			$caps[] = 'moderate';
 
 			// Unknown so map to edit_posts.
@@ -152,7 +152,7 @@ class Jetpack_BbPress_REST_API {
 		}
 
 		// only modify caps for meta caps and for bbPress meta keys.
-		if ( ! in_array( $cap, array( 'edit_post_meta', 'delete_post_meta', 'add_post_meta' ), true ) || empty( $args[1] ) || false === strpos( $args[1], '_bbp_' ) ) {
+		if ( ! in_array( $cap, array( 'edit_post_meta', 'delete_post_meta', 'add_post_meta' ), true ) || empty( $args[1] ) || ! str_contains( $args[1], '_bbp_' ) ) {
 			return true;
 		}
 

@@ -14,10 +14,10 @@ describe( 'ActivationScreen', () => {
 		successImage: '/success.png',
 	};
 
-	const apiStub = jest.spyOn( restApi, 'attachLicenses' ).mockReset();
+	const apiStub = jest.spyOn( restApi, 'attachLicenses' ).mockReturnValue();
 
 	afterEach( () => {
-		apiStub.mockReset();
+		apiStub.mockReset().mockReturnValue();
 	} );
 
 	it( 'should render ActivationScreenControls first', () => {

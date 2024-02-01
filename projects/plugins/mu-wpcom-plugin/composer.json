@@ -1,0 +1,51 @@
+{
+	"name": "automattic/jetpack-mu-wpcom-plugin",
+	"description": "Test plugin for the jetpack-mu-wpcom package",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-mu-wpcom": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autorelease": true,
+		"autotagger": true,
+		"beta-plugin-slug": "jetpack-mu-wpcom-plugin",
+		"mirror-repo": "Automattic/jetpack-mu-wpcom-plugin",
+		"release-branch-prefix": [
+			"mu-wpcom",
+			"weekly",
+			"monthly"
+		]
+	},
+	"config": {
+		"autoloader-suffix": "d9d132a783958a00a2c7cccff60ca42d_jetpack_mu_wpcom_pluginⓥ2_0_18_alpha"
+	}
+}

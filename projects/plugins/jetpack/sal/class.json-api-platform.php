@@ -43,7 +43,7 @@ abstract class SAL_Platform {
 }
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	require_once __DIR__ . '/class.json-api-platform-wpcom.php';
+	require_once dirname( WP_CONTENT_DIR ) . '/public.api/rest/sal/class.json-api-platform-wpcom.php';
 } else {
 	require_once __DIR__ . '/class.json-api-platform-jetpack.php';
 }

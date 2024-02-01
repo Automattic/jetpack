@@ -198,7 +198,6 @@ EXPECTED;
 
 		$result = Jetpack::absolutize_css_urls( $css, 'http://example.com/dir1/dir2/style.css' );
 		$this->assertEquals( $expected, $result );
-
 	}
 
 	/*
@@ -206,7 +205,7 @@ EXPECTED;
 	 */
 	public function test_implode_frontend_css_enqueues_bundle_file_handle() {
 		global $wp_styles;
-		$wp_styles = new WP_styles();
+		$wp_styles = new WP_Styles();
 
 		add_filter( 'jetpack_implode_frontend_css', '__return_true' );
 
@@ -239,7 +238,7 @@ EXPECTED;
 	 */
 	public function test_implode_frontend_css_does_not_enqueue_bundle_when_disabled_through_filter() {
 		global $wp_styles;
-		$wp_styles = new WP_styles();
+		$wp_styles = new WP_Styles();
 
 		add_filter( 'jetpack_implode_frontend_css', '__return_false' );
 
@@ -366,8 +365,8 @@ EXPECTED;
 
 	public function test_get_other_linked_admins_more_than_one_not_false() {
 		delete_transient( 'jetpack_other_linked_admins' );
-		$master_user     = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		$connected_admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$master_user     = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
 
 		Jetpack_Options::update_option( 'master_user', $master_user );
 		Jetpack_Options::update_option(
@@ -385,7 +384,7 @@ EXPECTED;
 
 	public function test_promoting_admin_clears_other_linked_admins_transient() {
 		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
-		$editor_user = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$editor_user = self::factory()->user->create( array( 'role' => 'editor' ) );
 		wp_update_user(
 			array(
 				'ID'   => $editor_user,
@@ -398,7 +397,7 @@ EXPECTED;
 
 	public function test_demoting_admin_clear_other_linked_admins_transiet() {
 		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
-		$admin_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$admin_user = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_update_user(
 			array(
 				'ID'   => $admin_user,
@@ -411,7 +410,7 @@ EXPECTED;
 
 	public function test_null_old_roles_clears_linked_admins_transient() {
 		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
-		$admin_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$admin_user = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_update_user(
 			array(
 				'ID'   => $admin_user,
@@ -427,7 +426,7 @@ EXPECTED;
 
 	public function test_changing_non_admin_roles_does_not_clear_other_linked_admins_transient() {
 		set_transient( 'jetpack_other_linked_admins', 2, HOUR_IN_SECONDS );
-		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$user_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
 
 		foreach ( array( 'contributor', 'author', 'editor' ) as $role ) {
 			wp_update_user(
@@ -555,13 +554,13 @@ EXPECTED;
 	 * @author tyxla
 	 */
 	public function test_get_assumed_site_creation_date_user_earliest() {
-		$user_id = $this->factory->user->create(
+		$user_id = self::factory()->user->create(
 			array(
 				'role'            => 'administrator',
 				'user_registered' => '1990-01-01 00:00:00',
 			)
 		);
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_date' => '1995-01-01 00:00:00',
 			)
@@ -578,13 +577,13 @@ EXPECTED;
 	 * @author tyxla
 	 */
 	public function test_get_assumed_site_creation_date_post_earliest() {
-		$user_id = $this->factory->user->create(
+		$user_id = self::factory()->user->create(
 			array(
 				'role'            => 'administrator',
 				'user_registered' => '1994-01-01 00:00:00',
 			)
 		);
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_date' => '1991-01-01 00:00:00',
 			)
@@ -601,13 +600,13 @@ EXPECTED;
 	 * @author tyxla
 	 */
 	public function test_get_assumed_site_creation_date_only_admins() {
-		$admin_id  = $this->factory->user->create(
+		$admin_id  = self::factory()->user->create(
 			array(
 				'role'            => 'administrator',
 				'user_registered' => '1994-01-01 00:00:00',
 			)
 		);
-		$editor_id = $this->factory->user->create(
+		$editor_id = self::factory()->user->create(
 			array(
 				'role'            => 'editor',
 				'user_registered' => '1992-01-01 00:00:00',

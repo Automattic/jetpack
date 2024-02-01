@@ -64,7 +64,6 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 				copy( $theme_file, $dest_dir . '/' . basename( $theme_file ) );
 			}
 		}
-
 	}
 
 	/**
@@ -83,7 +82,6 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 			rmdir( $dest_dir );
 		}
-
 	}
 
 	/**

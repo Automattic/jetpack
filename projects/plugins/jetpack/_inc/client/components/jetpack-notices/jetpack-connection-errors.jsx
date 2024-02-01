@@ -9,6 +9,11 @@ import ErrorNoticeCycleConnection from './error-notice-cycle-connection';
 export default class JetpackConnectionErrors extends React.Component {
 	static propTypes = {
 		errors: PropTypes.array.isRequired,
+		display: PropTypes.bool,
+	};
+
+	static defaultProps = {
+		display: true,
 	};
 
 	getAction( action, message, code, errorData, link ) {
@@ -20,6 +25,7 @@ export default class JetpackConnectionErrors extends React.Component {
 						errorCode={ code }
 						errorData={ errorData }
 						action={ action }
+						display={ this.props.display }
 					/>
 				);
 			case 'support':
@@ -29,6 +35,7 @@ export default class JetpackConnectionErrors extends React.Component {
 						status={ 'is-error' }
 						icon={ 'link-break' }
 						showDismiss={ false }
+						display={ this.props.display }
 					>
 						<NoticeAction href={ link } external={ true }>
 							{ __( 'Contact support', 'jetpack' ) }

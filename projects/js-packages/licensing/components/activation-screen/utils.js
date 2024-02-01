@@ -2,48 +2,42 @@ const JETPACK_ANTI_SPAM_PRODUCT_IDS = [ 2110, 2111 ];
 
 const JETPACK_BACKUP_PRODUCT_IDS = [
 	// Backup Daily
-	2100,
-	2101,
+	2100, 2101,
 	// Backup Realtime
-	2102,
-	2103,
+	2102, 2103,
 	// Backup Tier 1
-	2112,
-	2113,
+	2112, 2113,
 	// Backup Tier 2
-	2114,
-	2115,
+	2114, 2115,
 ];
 
 const JETPACK_COMPLETE_PRODUCT_IDS = [ 2014, 2015 ];
 
 const JETPACK_SCAN_PRODUCT_IDS = [
 	// Scan Daily
-	2106,
-	2107,
+	2106, 2107,
 	// Scan Realtime
-	2108,
-	2109,
+	2108, 2109,
 ];
 
 const JETPACK_SEARCH_PRODUCT_IDS = [ 2104, 2105 ];
 
 const JETPACK_SECURITY_PRODUCT_IDS = [
 	// Security Daily
-	2010,
-	2011,
+	2010, 2011,
 	// Security Realtime
-	2012,
-	2013,
+	2012, 2013,
 	// Security Tier 1
-	2016,
-	2017,
+	2016, 2017,
 	// Security Tier 2
-	2019,
-	2020,
+	2019, 2020,
 ];
 
 const JETPACK_VIDEOPRESS_PRODUCT_IDS = [ 2116, 2117 ];
+
+const JETPACK_SOCIAL_ADVANCED_PRODUCT_IDS = [ 2602, 2603, 2604 ];
+
+const JETPACK_SOCIAL_BASIC_PRODUCT_IDS = [ 2503, 2504, 2037 ];
 
 const PRODUCT_GROUPS = {
 	jetpack_anti_spam: JETPACK_ANTI_SPAM_PRODUCT_IDS,
@@ -53,6 +47,8 @@ const PRODUCT_GROUPS = {
 	jetpack_search: JETPACK_SEARCH_PRODUCT_IDS,
 	jetpack_security: JETPACK_SECURITY_PRODUCT_IDS,
 	jetpack_videopress: JETPACK_VIDEOPRESS_PRODUCT_IDS,
+	jetpack_social_advanced: JETPACK_SOCIAL_ADVANCED_PRODUCT_IDS,
+	jetpack_social_basic: JETPACK_SOCIAL_BASIC_PRODUCT_IDS,
 };
 
 /**
@@ -66,4 +62,14 @@ export function getProductGroup( productId ) {
 		Object.keys( PRODUCT_GROUPS ).find( key => PRODUCT_GROUPS[ key ].includes( productId ) ) ||
 		'default'
 	);
+}
+
+/**
+ * Check if a plugin is active.
+ *
+ * @param {string} plugin -- The name of the plugin such as jetpack/jetpack.php, social/jetpack-social.php, backup/jetpack-backup.php.
+ * @returns {boolean} -- True or False.
+ */
+export function isPluginActive( plugin ) {
+	return window.myJetpackInitialState?.plugins?.[ plugin ]?.active;
 }

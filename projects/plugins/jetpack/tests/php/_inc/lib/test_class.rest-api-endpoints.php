@@ -84,7 +84,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @return WP_User
 	 */
 	protected function create_and_get_user( $role = '' ) {
-		return $this->factory->user->create_and_get(
+		return self::factory()->user->create_and_get(
 			array(
 				'role' => empty( $role ) ? 'subscriber' : $role,
 			)
@@ -305,7 +305,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// User has capability so this should work this time
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::disconnect_site_permission_callback() );
-
 	}
 
 	/**
@@ -344,7 +343,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// User has capability so this should work this time
 		$this->assertTrue( REST_Connector::activate_plugins_permission_check() );
-
 	}
 
 	/**
@@ -677,6 +675,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Mock site already registered
+		Jetpack_Options::update_option( 'blog_token', 'h0n3y.b4dg3r' );
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
 
 		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
@@ -708,7 +707,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// No way. Master user can't be unlinked. This is intended
 		$this->assertResponseStatus( 403, $response );
-
 	}
 
 	/** Test unlinking a user will also remove related cached data.
@@ -723,6 +721,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Mock site already registered.
+		Jetpack_Options::update_option( 'blog_token', 'h0n3y.b4dg3r' );
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
 		// Add a dummy transient.
 		$transient_key = "jetpack_connected_user_data_$user->ID";

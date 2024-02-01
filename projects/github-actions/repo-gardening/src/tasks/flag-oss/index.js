@@ -1,6 +1,6 @@
 const { getInput, setFailed } = require( '@actions/core' );
-const debug = require( '../../debug' );
-const sendSlackMessage = require( '../../send-slack-message' );
+const debug = require( '../../utils/debug' );
+const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -27,12 +27,6 @@ async function flagOss( payload, octokit ) {
 		labels: [ 'OSS Citizen' ],
 	} );
 
-	const slackToken = getInput( 'slack_token' );
-	if ( ! slackToken ) {
-		setFailed( `flag-oss: Input slack_token is required but missing. Aborting.` );
-		return;
-	}
-
 	const channel = getInput( 'slack_team_channel' );
 	if ( ! channel ) {
 		setFailed( `flag-oss: Input slack_team_channel is required but missing. Aborting.` );
@@ -43,7 +37,6 @@ async function flagOss( payload, octokit ) {
 	await sendSlackMessage(
 		`An external contributor submitted this PR. Be sure to go welcome them! 👏`,
 		channel,
-		slackToken,
 		payload
 	);
 }

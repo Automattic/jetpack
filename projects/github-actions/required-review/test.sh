@@ -19,7 +19,7 @@ function addenv {
 eval "$(
 	# Read defaults from action.yml
 	node -e 'console.log( JSON.stringify( require( "js-yaml" ).load( require( "fs" ).readFileSync( process.argv[1] ) ) ) );' "$BASE/projects/github-actions/required-review/action.yml" |
-		jq -r '.inputs | to_entries | .[] | select( .key != "token" and .value.default ) | [ "addenv INPUT_", ( .key | ascii_upcase | sub( " "; "_" ) ), " ", @sh "\(.value.default)" ] | join( "" )';
+		jq -r '.inputs | to_entries | .[] | select( .key != "token" and ( .value | has( "default" ) ) ) | [ "addenv INPUT_", ( .key | ascii_upcase | sub( " "; "_" ) ), " ", @sh "\(.value.default)" ] | join( "" )';
 
 	# Read values from .github/workflows/required-review.yml
 	node -e 'console.log( JSON.stringify( require( "js-yaml" ).load( require( "fs" ).readFileSync( process.argv[1] ) ) ) );' "$BASE/.github/workflows/required-review.yml" |

@@ -1,0 +1,34 @@
+/*!
+ * Jetpack CRM Extension: WooSync
+ * https://jetpackcrm.com
+ */
+
+
+/* Connection line on connection edit page */
+.jpcrm-woocommerce-connection {
+
+	.jpcrm-woocommerce-site-url {
+
+		padding-left: 1em;
+
+	}
+
+	.jpcrm-woocommerce-connection-details {
+
+	    padding: 1em;
+	    color: #b0a9a9;
+
+	}
+
+
+	.jpcrm-woocommerce-connection-column {
+
+		text-align: center;
+		border-left: 1px solid #ccc;
+    	padding-right: 0 !important;
+    	vertical-align: middle;
+
+	}
+
+
+}

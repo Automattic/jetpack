@@ -64,21 +64,31 @@ class Logo {
 	/**
 	 * Return string containing the Jetpack logo in a slightly larger format than get_jp_emblem().
 	 *
+	 * @since 1.1.4
+	 * @param bool $logotype Should we use the full logotype (logo + text). Default to false.
 	 * @return string
 	 */
-	public function get_jp_emblem_larger() {
+	public function get_jp_emblem_larger( $logotype = false ) {
 		$logo_text = $this->get_jp_logo_parts();
-		return '<svg class="jitm-jp-logo" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="32" viewBox="0 0 118 32">' . $logo_text['logo'] . $logo_text['text'] . '</svg>';
+		return sprintf(
+			'<svg class="jitm-jp-logo" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="32" viewBox="0 0 %1$s 32">%2$s</svg>',
+			( true === $logotype ? '118' : '32' ),
+			( true === $logotype ? $logo_text['logo'] . $logo_text['text'] : $logo_text['logo'] )
+		);
 	}
 
 	/**
 	 * Return array containing the Jetpack logo and text
 	 *
+	 * @since 1.6.0 - Added $color parameter.
+	 *
+	 * @param string $color The color of the logo.
+	 *
 	 * @return array
 	 */
-	private function get_jp_logo_parts() {
+	private function get_jp_logo_parts( $color = '#069e08' ) {
 		return array(
-			'logo' => '<path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16c8.8,0,16-7.2,16-16S24.8,0,16,0z M15.2,18.7h-8l8-15.5V18.7z M16.8,28.8 V13.3h8L16.8,28.8z"/>',
+			'logo' => '<path fill="' . $color . '" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16c8.8,0,16-7.2,16-16S24.8,0,16,0z M15.2,18.7h-8l8-15.5V18.7z M16.8,28.8 V13.3h8L16.8,28.8z"/>',
 			'text' => '<path d="M41.3,26.6c-0.5-0.7-0.9-1.4-1.3-2.1c2.3-1.4,3-2.5,3-4.6V8h-3V6h6v13.4C46,22.8,45,24.8,41.3,26.6z" />
 			<path d="M65,18.4c0,1.1,0.8,1.3,1.4,1.3c0.5,0,2-0.2,2.6-0.4v2.1c-0.9,0.3-2.5,0.5-3.7,0.5c-1.5,0-3.2-0.5-3.2-3.1V12H60v-2h2.1V7.1 H65V10h4v2h-4V18.4z" />
 			<path d="M71,10h3v1.3c1.1-0.8,1.9-1.3,3.3-1.3c2.5,0,4.5,1.8,4.5,5.6s-2.2,6.3-5.8,6.3c-0.9,0-1.3-0.1-2-0.3V28h-3V10z M76.5,12.3 c-0.8,0-1.6,0.4-2.5,1.2v5.9c0.6,0.1,0.9,0.2,1.8,0.2c2,0,3.2-1.3,3.2-3.9C79,13.4,78.1,12.3,76.5,12.3z" />
@@ -87,5 +97,26 @@ class Logo {
 			<path d="M110,15.2c0.2-0.3,0.2-0.8,3.8-5.2h3.7l-4.6,5.7l5,6.3h-3.7l-4.2-5.8V22h-3V6h3V15.2z" />
 			<path d="M58.5,21.3c-1.5,0.5-2.7,0.6-4.2,0.6c-3.6,0-5.8-1.8-5.8-6c0-3.1,1.9-5.9,5.5-5.9s4.9,2.5,4.9,4.9c0,0.8,0,1.5-0.1,2h-7.3 c0.1,2.5,1.5,2.8,3.6,2.8c1.1,0,2.2-0.3,3.4-0.7C58.5,19,58.5,21.3,58.5,21.3z M56,15c0-1.4-0.5-2.9-2-2.9c-1.4,0-2.3,1.3-2.4,2.9 C51.6,15,56,15,56,15z" />',
 		);
+	}
+
+	/**
+	 * Return a base64 encoded SVG of the Jetpack logo.
+	 * Can be used as a data URI to use the logo inline in CSS.
+	 *
+	 * @since 1.6.0
+	 *
+	 * @param string $color The color of the logo.
+	 *
+	 * @return string
+	 */
+	public function get_base64_logo( $color = '#ffffff' ) {
+		$logo_text    = $this->get_jp_logo_parts( $color );
+		$base_logo    = sprintf(
+			'<svg xmlns="http://www.w3.org/2000/svg" x="20px" y="20px" viewBox="-4 -5 41 41">%1$s</svg>',
+			$logo_text['logo']
+		);
+		$encoded_logo = base64_encode( $base_logo ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- The encoded version is used as data URI to use the logo in CSS.
+
+		return 'data:image/svg+xml;base64,' . $encoded_logo;
 	}
 }

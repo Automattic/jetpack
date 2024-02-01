@@ -5,20 +5,24 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"ext-json": "*",
-		"automattic/jetpack-assets": "1.17.x-dev",
-		"automattic/jetpack-admin-ui": "0.2.x-dev",
-		"automattic/jetpack-autoloader": "2.11.x-dev",
-		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.9.x-dev",
-		"automattic/jetpack-identity-crisis": "0.8.x-dev",
-		"automattic/jetpack-my-jetpack": "1.8.x-dev",
-		"automattic/jetpack-plugins-installer": "0.1.x-dev",
-		"automattic/jetpack-sync": "1.36.x-dev"
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-identity-crisis": "@dev",
+		"automattic/jetpack-my-jetpack": "@dev",
+		"automattic/jetpack-plugins-installer": "@dev",
+		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-transport-helper": "@dev",
+		"automattic/jetpack-plans": "@dev",
+		"automattic/jetpack-waf": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.1",
-		"automattic/wordbless": "0.3.1"
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/wordbless": "0.4.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -28,9 +32,6 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -45,7 +46,8 @@
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
 	"repositories": [
 		{
@@ -60,8 +62,13 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-protect-plugin",
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
 		"release-branch-prefix": "protect",
 		"wp-plugin-slug": "jetpack-protect",
+		"wp-svn-autopublish": true,
 		"version-constants": {
 			"JETPACK_PROTECT_VERSION": "jetpack-protect.php"
 		}
@@ -72,6 +79,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_protectⓥ1_0_2_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_protectⓥ2_1_0_alpha"
 	}
 }

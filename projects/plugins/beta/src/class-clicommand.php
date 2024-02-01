@@ -194,5 +194,4 @@ class CliCommand extends WP_CLI_Command {
 			WP_CLI::error( __( 'Secondary sites in multisite instalations are not supported', 'jetpack-beta' ) );
 		}
 	}
-
 }

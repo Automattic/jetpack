@@ -40,13 +40,18 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce: This is a view, not a model or controller. InputNotSanitized: Sanitized below via `$this->module_info_check()`.
 		$modal_info = isset( $_GET['info'] ) ? wp_unslash( $_GET['info'] ) : false;
 
+		// Adding in a hidden h1 heading for screen-readers.
+		?>
+		<h1 class="screen-reader-text"><?php esc_html_e( 'Jetpack Modules List', 'jetpack' ); ?></h1>
+		<?php
+
 		wp_register_script(
 			'models.jetpack-modules',
 			Assets::get_file_url_for_environment(
 				'_inc/build/jetpack-modules.models.min.js',
 				'_inc/jetpack-modules.models.js'
 			),
-			array( 'backbone', 'underscore' ),
+			array( 'jquery', 'backbone', 'underscore' ),
 			JETPACK__VERSION,
 			false // @todo Can this be put in the footer?
 		);
@@ -56,7 +61,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				'_inc/build/jetpack-modules.views.min.js',
 				'_inc/jetpack-modules.views.js'
 			),
-			array( 'backbone', 'underscore', 'wp-util' ),
+			array( 'jquery', 'backbone', 'underscore', 'wp-util' ),
 			JETPACK__VERSION,
 			false // @todo Can this be put in the footer?
 		);
@@ -81,7 +86,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			array(
 				'modules'   => Jetpack::get_translated_modules( $this->all_items ),
 				'i18n'      => array(
-					'search_placeholder' => __( 'Search Modules…', 'jetpack' ),
+					'search_placeholder' => __( 'Search modules…', 'jetpack' ),
 				),
 				'modalinfo' => $this->module_info_check( $modal_info, $this->all_items ),
 				'nonces'    => array(
@@ -114,21 +119,21 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				if ( item === undefined ) return; #>
 				<tr class="jetpack-module <# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
-						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" />
+						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" {{{ item.disabled }}} />
 					</th>
 					<td class='name column-name'>
-						<span class='info'><a href="{{{item.learn_more_button}}}" target="blank">{{{ item.name }}}</a></span>
+						<p class='info'><a href="{{{item.learn_more_button}}}" target="blank" style="text-decoration: none;">{{{ item.name }}}</a></p>
 						<div class="row-actions">
 						<# if ( item.configurable ) { #>
 							<span class='configure'>{{{ item.configurable }}}</span>
 						<# } #>
 						<# if ( item.activated && 'vaultpress' !== item.module && item.available ) { #>
-							<span class='delete'><a href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php esc_html_e( 'Deactivate', 'jetpack' ); ?></a></span>
+							<span class='delete'><a class="dops-button is-compact" href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php esc_html_e( 'Deactivate', 'jetpack' ); ?></a></span>
 						<# } else if ( item.available ) { #>
-							<span class='activate'><a href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php esc_html_e( 'Activate', 'jetpack' ); ?></a></span>
+							<span class='activate'><a class="dops-button is-compact" href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php esc_html_e( 'Activate', 'jetpack' ); ?></a></span>
 						<# } #>
 						<# if ( ! item.available ) { #>
-							<span class='unavailable_reason'>{{{ item.unavailable_reason }}}</span>
+							<p class='unavailable_reason'>{{{ item.unavailable_reason }}}</p>
 						<# } #>
 						</div>
 					</td>
@@ -157,28 +162,23 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		$modules              = apply_filters( 'jetpack_modules_list_table_items', Jetpack_Admin::init()->get_modules() );
 		$array_of_module_tags = wp_list_pluck( $modules, 'module_tags' );
 		$module_tags          = array_merge( ...array_values( $array_of_module_tags ) );
+		$module_tags          = array_map( 'jetpack_get_module_i18n_tag', $module_tags );
 		$module_tags_unique   = array_count_values( $module_tags );
 		ksort( $module_tags_unique );
 
-		$format = '<a href="%3$s"%4$s data-title="%1$s">%1$s <span class="count">(%2$s)</span></a>';
+		$format = '<a href="%3$s" %4$s data-title="%1$s">%1$s</a> <span class="count">(%2$s)</span>';
 		$title  = __( 'All', 'jetpack' );
-		$count  = count( $modules );
+		$count  = is_countable( $modules ) ? count( $modules ) : 0;
 		$url    = esc_url( remove_query_arg( 'module_tag' ) );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
-		$current = empty( $_GET['module_tag'] ) ? ' class="current all"' : ' class="all"';
-		$views   = array(
-			'all' => sprintf( $format, $title, $count, $url, $current ),
+		$views = array(
+			'all' => sprintf( $format, $title, $count, $url, 'class="all"' ),
 		);
 		foreach ( $module_tags_unique as $title => $count ) {
 			$key           = sanitize_title( $title );
 			$display_title = esc_html( wptexturize( $title ) );
 			$url           = esc_url( add_query_arg( 'module_tag', rawurlencode( $title ) ) );
-			$current       = '';
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
-			if ( ! empty( $_GET['module_tag'] ) && $title === $_GET['module_tag'] ) {
-				$current = ' class="current"';
-			}
-			$views[ $key ] = sprintf( $format, $display_title, $count, $url, $current );
+			$views[ $key ] = sprintf( $format, $display_title, $count, $url, '' );
 		}
 		return $views;
 	}
@@ -189,9 +189,17 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	public function views() {
 		$views = $this->get_views();
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
+		$module_tag = empty( $_GET['module_tag'] ) ? 'all' : sanitize_title( wp_unslash( $_GET['module_tag'] ) );
+
 		echo "<ul class='subsubsub'>\n";
 		foreach ( $views as $class => $view ) {
-			$views[ $class ] = "\t<li class='$class'>$view</li>";
+			$class_name = $class;
+			if ( $class === $module_tag ) {
+				$class_name .= ' current';
+			}
+
+			$views[ $class ] = "\t<li class='$class_name'>$view</li>";
 		}
 		echo implode( "\n", $views ) . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Is HTML. Escaping happens in get_views().
 		echo '</ul>';
@@ -219,7 +227,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		if ( ! empty( $_REQUEST['module_tag'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
 			$module_tag = sanitize_text_field( wp_unslash( $_REQUEST['module_tag'] ) );
-			if ( ! in_array( $module_tag, $module['module_tags'], true ) ) {
+			if ( ! in_array( $module_tag, array_map( 'jetpack_get_module_i18n_tag', $module['module_tags'] ), true ) ) {
 				return false;
 			}
 		}
@@ -303,7 +311,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @return string[] HTML.
 	 */
 	public function get_table_classes() {
-		return array( 'table', 'table-bordered', 'wp-list-table', 'widefat', 'fixed', 'jetpack-modules' );
+		return array( 'table', 'table-bordered', 'wp-list-table', 'widefat', 'fixed' );
 	}
 
 	/**
@@ -337,7 +345,6 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		</a>
 		<?php
 		return ob_get_clean();
-
 	}
 
 	/**
@@ -413,7 +420,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 */
 	public function column_module_tags( $item ) {
 		$module_tags = array();
-		foreach ( $item['module_tags'] as $module_tag ) {
+		foreach ( array_map( 'jetpack_get_module_i18n_tag', $item['module_tags'] ) as $module_tag ) {
 			$module_tags[] = sprintf( '<a href="%3$s" data-title="%2$s">%1$s</a>', esc_html( $module_tag ), esc_attr( $module_tag ), esc_url( add_query_arg( 'module_tag', rawurlencode( $module_tag ) ) ) );
 		}
 		return implode( ', ', $module_tags );
@@ -465,5 +472,4 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	public function unprotected_display_tablenav( $which = 'top' ) {
 		return $this->display_tablenav( $which );
 	}
-
 }

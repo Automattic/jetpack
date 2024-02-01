@@ -17,6 +17,7 @@
 .gitkeep      production-exclude
 
 # We don't need these files in any production mirror.
-.eslintrc.js  production-exclude
-jsconfig.json production-exclude
-tsconfig.json production-exclude
+.eslintrc.js   production-exclude
+jsconfig.json  production-exclude
+tsconfig.json  production-exclude
+**/.w.org-assets/** production-exclude

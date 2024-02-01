@@ -1,6 +1,6 @@
-import { renderHook, act } from '@testing-library/react-hooks';
-import { PINTEREST_EXAMPLE_URL } from '../';
+import { renderHook, act } from '@testing-library/react';
 import testEmbedUrl from '../../../shared/test-embed-url';
+import { PINTEREST_EXAMPLE_URL } from '../constants';
 import useTestPinterestEmbedUrl from '../hooks/use-test-pinterest-embed-url';
 
 jest.mock( '../../../shared/test-embed-url', () => ( {

@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * Template to display a branch card.
  *
@@ -33,8 +33,7 @@ $active_branch = $active_branch; // Dummy assignment to fool VariableAnalysis.Co
 
 // -------------
 
-// TODO: Once we drop PHP 5.6 support, we can do `( function () { ... } )();` instead of assigning to `$tmp`.
-$tmp = function ( $plugin, $branch, $active_branch ) {
+( function ( $plugin, $branch, $active_branch ) {
 	$slug      = 'dev' === $branch->which ? $plugin->dev_plugin_slug() : $plugin->plugin_slug();
 	$classes   = array( 'dops-foldable-card', 'has-expanded-summary', 'dops-card', 'branch-card' );
 	$data_attr = '';
@@ -89,13 +88,13 @@ $tmp = function ( $plugin, $branch, $active_branch ) {
 	$updater_version = sprintf( __( 'Version %s', 'default' ), $branch->version );
 
 	?>
-			<div <?php echo $data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> class="<?php echo esc_attr( join( ' ', $classes ) ); ?>" data-slug="<?php echo esc_attr( $slug ); ?>" data-updater-version="<?php echo esc_attr( $updater_version ); ?>">
+			<div <?php echo $data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" data-slug="<?php echo esc_attr( $slug ); ?>" data-updater-version="<?php echo esc_attr( $updater_version ); ?>">
 				<div class="dops-foldable-card__header has-border" >
 					<span class="dops-foldable-card__main">
 						<div class="dops-foldable-card__header-text">
 							<div class="dops-foldable-card__header-text branch-card-header"><?php echo esc_html( $branch->pretty_version ); ?></div>
 							<div class="dops-foldable-card__subheader">
-							<?php echo wp_kses_post( join( ' - ', $more_info ) ); ?>
+							<?php echo wp_kses_post( implode( ' - ', $more_info ) ); ?>
 							</div>
 						</div>
 					</span>
@@ -107,5 +106,4 @@ $tmp = function ( $plugin, $branch, $active_branch ) {
 				</div>
 			</div>
 	<?php
-};
-$tmp( $plugin, $branch, $active_branch );
+} )( $plugin, $branch, $active_branch );

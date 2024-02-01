@@ -19,7 +19,7 @@ new Jetpack_JSON_API_Plugins_New_Endpoint(
 			'$site' => '(int|string) Site ID or domain',
 		),
 		'request_format'          => array(
-			'zip' => '(zip) Plugin package zip file. multipart/form-data encoded. ',
+			'zip' => '(array) Reference to an uploaded plugin package zip file.',
 		),
 		'response_format'         => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
 		'allow_jetpack_site_auth' => true,
@@ -44,7 +44,7 @@ new Jetpack_JSON_API_Plugins_New_Endpoint(
 			'$site' => '(int|string) Site ID or domain',
 		),
 		'request_format'          => array(
-			'zip' => '(zip) Plugin package zip file. multipart/form-data encoded. ',
+			'zip' => '(array) Reference to an uploaded plugin package zip file.',
 		),
 		'response_format'         => Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2,
 		'allow_jetpack_site_auth' => true,

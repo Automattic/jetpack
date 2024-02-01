@@ -48,16 +48,35 @@ describe( 'hasActiveQuery', () => {
 			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: null } )
 		).toBe( false );
 	} );
-	test( 'returns true if there are defined filters', () => {
+	test( 'returns true if there are defined filters and filteringOpensOverlay is true', () => {
 		expect(
 			hasActiveQuery( {
 				searchQuery: null,
 				filters: { post_types: [ 'post', 'page' ] },
 				sort: null,
+				staticFilters: [],
+				serverOptions: {
+					overlayOptions: {
+						enableFilteringOpensOverlay: true,
+					},
+				},
 			} )
 		).toBe( true );
 		expect(
 			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: null } )
+		).toBe( false );
+		expect(
+			hasActiveQuery( {
+				searchQuery: null,
+				filters: { post_types: [ 'post', 'page' ] },
+				sort: null,
+				staticFilters: [],
+				serverOptions: {
+					overlayOptions: {
+						enableFilteringOpensOverlay: false,
+					},
+				},
+			} )
 		).toBe( false );
 	} );
 	test( 'returns false if there is a defined sort value only', () => {

@@ -2,11 +2,9 @@
 /**
  * Tonesque
  * Grab an average color representation from an image.
- * Author: Automattic, Matias Ventura
- * Author URI: https://automattic.com/
- * License: GNU General Public License v2 or later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  *
+ * @author Automattic
+ * @author Matias Ventura
  * @package automattic/jetpack
  */
 
@@ -14,7 +12,6 @@
  * Color representation class.
  */
 class Tonesque {
-
 	/**
 	 * Image URL.
 	 *
@@ -41,7 +38,7 @@ class Tonesque {
 	 */
 	public function __construct( $image_url ) {
 		if ( ! class_exists( 'Jetpack_Color' ) ) {
-			jetpack_require_lib( 'class.color' );
+			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class.color.php';
 		}
 
 		$this->image_url = esc_url_raw( $image_url );
@@ -65,7 +62,7 @@ class Tonesque {
 	 *
 	 * @param string $image_url Image URL.
 	 *
-	 * @return object Image object.
+	 * @return object|bool Image object or false if the image could not be loaded.
 	 */
 	public static function imagecreatefromurl( $image_url ) {
 		$data = null;
@@ -75,21 +72,27 @@ class Tonesque {
 			// If it's a url pointing to a local media library url.
 			$content_url = content_url();
 			$_image_url  = set_url_scheme( $image_url );
-			if ( wp_startswith( $_image_url, $content_url ) ) {
+			if ( str_starts_with( $_image_url, $content_url ) ) {
 				$_image_path = str_replace( $content_url, WP_CONTENT_DIR, $_image_url );
 				if ( file_exists( $_image_path ) ) {
 					$filetype = wp_check_filetype( $_image_path );
 					$type     = $filetype['type'];
 
-					if ( wp_startswith( $type, 'image/' ) ) {
+					if ( str_starts_with( $type, 'image/' ) ) {
 						$data = file_get_contents( $_image_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 					}
 				}
 			}
 
 			if ( empty( $data ) ) {
-				$response = wp_remote_get( $image_url );
-				if ( is_wp_error( $response ) ) {
+				$response      = wp_safe_remote_get( $image_url );
+				$response_code = wp_remote_retrieve_response_code( $response );
+				if (
+					is_wp_error( $response )
+					|| ! $response_code
+					|| $response_code < 200
+					|| $response_code >= 300
+				) {
 					return false;
 				}
 				$data = wp_remote_retrieve_body( $response );
@@ -101,9 +104,13 @@ class Tonesque {
 			$filetype = wp_check_filetype( $image_url );
 			$type     = $filetype['type'];
 
-			if ( wp_startswith( $type, 'image/' ) ) {
+			if ( str_starts_with( $type, 'image/' ) ) {
 				$data = file_get_contents( $image_url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			}
+		}
+
+		if ( null === $data ) {
+			return false;
 		}
 
 		// Now turn it into an image and return it.
@@ -115,7 +122,7 @@ class Tonesque {
 	 *
 	 * @param string $type Type (hex, rgb, hsv) (optional).
 	 *
-	 * @return color as a string formatted as $type
+	 * @return string|bool color as a string formatted as $type or false if the image could not be loaded.
 	 */
 	public function color( $type = 'hex' ) {
 		// Bail if there is no image to work with.
@@ -126,8 +133,7 @@ class Tonesque {
 		// Finds dominant color.
 		$color = self::grab_color();
 		// Passes value to Color class.
-		$color = self::get_color( $color, $type );
-		return $color;
+		return self::get_color( $color, $type );
 	}
 
 	/**
@@ -135,7 +141,7 @@ class Tonesque {
 	 *
 	 * @param string $type can be 'index' or 'hex'.
 	 *
-	 * @return array with color indices
+	 * @return array|false color indices or false if the image could not be loaded.
 	 */
 	public function grab_points( $type = 'index' ) {
 		$img = $this->image_obj;
@@ -186,7 +192,7 @@ class Tonesque {
 	/**
 	 * Finds the average color of the image based on five sample points
 	 *
-	 * @return array with rgb color
+	 * @return array|bool array with rgb color or false if the image could not be loaded.
 	 */
 	public function grab_color() {
 		$img = $this->image_obj;
@@ -248,8 +254,7 @@ class Tonesque {
 				$color = implode( ',', $c->toHsvInt() );
 				break;
 			default:
-				$color = $c->toHex();
-				return $color;
+				return $c->toHex();
 		}
 
 		return $color;
@@ -260,7 +265,7 @@ class Tonesque {
 	 * Checks contrast against main color
 	 * Gives either black or white for using with opacity
 	 *
-	 * @return string
+	 * @return string|bool Returns black or white or false if the image could not be loaded.
 	 */
 	public function contrast() {
 		if ( ! $this->color ) {
@@ -270,5 +275,4 @@ class Tonesque {
 		$c = $this->color->getMaxContrastColor();
 		return implode( ',', $c->toRgbInt() );
 	}
-
 }

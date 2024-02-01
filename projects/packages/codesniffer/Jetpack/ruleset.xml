@@ -8,27 +8,54 @@
 
 	<!-- We only include some rules from mediawiki/mediawiki-codesniffer. -->
 	<rule ref="MediaWiki.AlternativeSyntax.LeadingZeroInFloat" />
+	<rule ref="MediaWiki.AlternativeSyntax.UnicodeEscape" />
 	<rule ref="MediaWiki.Classes.UnsortedUseStatements" />
 	<rule ref="MediaWiki.Classes.UnusedUseStatement" />
 	<rule ref="MediaWiki.ExtraCharacters.ParenthesesAroundKeyword" />
 	<rule ref="MediaWiki.PHPUnit.AssertCount" />
 	<rule ref="MediaWiki.PHPUnit.AssertEquals" />
 	<rule ref="MediaWiki.PHPUnit.AssertionOrder" />
+	<rule ref="MediaWiki.PHPUnit.MockBoilerplate" />
 	<rule ref="MediaWiki.PHPUnit.SpecificAssertions" />
-	<rule ref="MediaWiki.Usage.DirUsage" />
 	<rule ref="MediaWiki.Usage.DoubleNotOperator" />
 	<rule ref="MediaWiki.Usage.InArrayUsage" />
 	<rule ref="MediaWiki.Usage.MagicConstantClosure" />
 	<rule ref="MediaWiki.Usage.NestedFunctions" />
 	<rule ref="MediaWiki.Usage.PlusStringConcat" />
 	<rule ref="MediaWiki.Usage.ReferenceThis" />
+	<rule ref="MediaWiki.WhiteSpace.EmptyLinesBetweenUse" />
 	<rule ref="MediaWiki.WhiteSpace.MultipleEmptyLines" />
-	<rule ref="MediaWiki.WhiteSpace.SpaceAfterClosure" />
 	<rule ref="MediaWiki.Usage.IsNull" />
 	<!-- Maybe in the future
-	<rule ref="MediaWiki.AlternativeSyntax.UnicodeEscape" /> // syntax it checks requires PHP 7.0+
 	<rule ref="MediaWiki.Usage.NullableType" /> // syntax it enforces requires PHP 7.1+
 	-->
+
+	<!-- We use this in preference to Generic.PHP.ForbiddenFunctions as this will autofix. -->
+	<rule ref="MediaWiki.Usage.ForbiddenFunctions">
+		<properties>
+			<property name="forbiddenFunctions" type="array">
+				<!-- Additional replacements (beyond what the rule does by default) to match wpcom. -->
+				<!-- https://github.com/Automattic/wpcom-php-migration/blob/bd71547/rector.php#L57 -->
+				<element key="fputs" value="fwrite" />
+				<element key="gzputs" value="gzwrites" />
+				<element key="split" value="explode" />
+				<element key="mbstrcut" value="mb_strcut" />
+				<element key="mbstrlen" value="mb_strlen" />
+				<element key="mbstrpos" value="mb_strpos" />
+				<element key="mbstrrpos" value="mb_strrpos" />
+				<element key="mbsubstr" value="mb_substr" />
+
+				<!-- MediaWiki includes some functions that make sense to forbid in their environment but in not ours. Override those by mapping the functions back to themselves. -->
+				<element key="compact" value="compact" />
+				<element key="escapeshellarg" value="escapeshellarg" />
+				<element key="escapeshellcmd" value="escapeshellcmd" />
+				<element key="exec" value="exec" />
+				<element key="proc_open" value="proc_open" />
+				<element key="shell_exec" value="shell_exec" />
+				<element key="is_resource" value="is_resource" />
+			</property>
+		</properties>
+	</rule>
 
 	<!-- Redundant to MediaWiki.ExtraCharacters.ParenthesesAroundKeyword, which checks more keywords. -->
 	<rule ref="PEAR.Files.IncludingFile.BracketsNotRequired">
@@ -40,8 +67,18 @@
 		<exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines" />
 	</rule>
 
+	<!-- Redundant to VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable, which checks more locations. -->
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
+	</rule>
+
 	<!-- Only include select VIP rules -->
 	<rule ref="WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath" />
+
+	<!-- Re-enable this rule that was disabled by WordPress-Extra now that we're on PHP 7.0+. -->
+	<rule ref="Modernize.FunctionCalls.Dirname.Nested">
+		<severity>5</severity>
+	</rule>
 
 	<!-- Elevate undefined variables to an Error instead of a Warning. -->
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable">
@@ -52,6 +89,12 @@
 		<properties>
 			<property name="allowWordPressPassByRefFunctions" value="true" />
 		</properties>
+	</rule>
+
+	<!-- This is not the right way to fix the underlying issue. https://core.trac.wordpress.org/ticket/59282 is. -->
+	<!-- See also https://github.com/WordPress/WordPress-Coding-Standards/issues/2374 -->
+	<rule ref="WordPress.Security.EscapeOutput.ExceptionNotEscaped">
+		<exclude name="WordPress.Security.EscapeOutput.ExceptionNotEscaped" />
 	</rule>
 
 	<!-- Due to conversation within WPCS, we're disabling this rule for now. See https://github.com/WordPress/WordPress-Coding-Standards/issues/1624 -->
@@ -72,6 +115,11 @@
 	<!-- This rule, while useful, is not one we'd want to run automatically in a pre-commit hook. -->
 	<rule ref="WordPress.WP.CapitalPDangit" phpcbf-only="true">
 		<exclude name="WordPress.WP.CapitalPDangit" />
+	</rule>
+
+	<!-- Not useful until we can use PHP 8's named parameters. We're currently stuck on 7.0! -->
+	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames">
+		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames" />
 	</rule>
 
 </ruleset>

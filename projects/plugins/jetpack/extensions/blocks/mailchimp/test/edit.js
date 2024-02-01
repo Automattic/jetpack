@@ -1,5 +1,5 @@
 import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import { registerBlocks } from '../../../shared/test/block-fixtures';
 import { settings } from '../../button';
 import MailchimpSubscribeEdit from '../edit';
@@ -44,10 +44,6 @@ describe( 'Mailchimp block edit component', () => {
 		window.fetch.mockReturnValue( DEFAULT_FETCH_MOCK_RETURN );
 	} );
 
-	afterEach( async () => {
-		await act( () => NOT_CONNECTED_RESOLVED_FETCH_PROMISE );
-	} );
-
 	afterAll( () => {
 		window.fetch = originalFetch;
 	} );
@@ -82,7 +78,16 @@ describe( 'Mailchimp block edit component', () => {
 				is_current_user_connected: false,
 			},
 		};
-		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+		const { container } = render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+
+		// Wait for API call to "finish".
+		await waitFor( () => {
+			expect(
+				// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+				container.querySelector( '.wp-block-jetpack-mailchimp .components-spinner' )
+			).not.toBeInTheDocument();
+		} );
+
 		expect( window.fetch ).toHaveBeenCalledWith(
 			expect.stringContaining( '/jetpack/v4/connection/url?from=jetpack-block-editor&redirect=' ),
 			expect.anything()
@@ -90,7 +95,16 @@ describe( 'Mailchimp block edit component', () => {
 	} );
 
 	test( 'fetches mailchimp connect url on mount if current user is connected', async () => {
-		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+		const { container } = render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+
+		// Wait for API call to "finish".
+		await waitFor( () => {
+			expect(
+				// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+				container.querySelector( '.wp-block-jetpack-mailchimp .components-spinner' )
+			).not.toBeInTheDocument();
+		} );
+
 		expect( window.fetch ).toHaveBeenCalledWith(
 			'/wpcom/v2/mailchimp?_locale=user',
 			expect.anything()
@@ -108,5 +122,9 @@ describe( 'Mailchimp block edit component', () => {
 		const connectedProps = { ...defaultProps, attributes: { ...attributes, preview: true } };
 		render( <MailchimpSubscribeEdit { ...connectedProps } /> );
 		await expect( screen.findByLabelText( 'Enter your email' ) ).resolves.toBeInTheDocument();
+
+		// Wait for the API call to happen. It makes no differnce to the component, so there's nothing to waitFor for.
+		// eslint-disable-next-line testing-library/no-unnecessary-act
+		await act( () => {} );
 	} );
 } );

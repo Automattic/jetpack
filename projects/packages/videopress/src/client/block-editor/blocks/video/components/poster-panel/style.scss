@@ -1,0 +1,107 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+// Hack to hide the Image dropdown when the media modal is open
+body.modal-open .poster-panel__dropdown {
+	display: none;
+}
+
+.poster-panel {
+	.components-dropdown {
+		width: 100%;
+		display: flex;
+
+		.poster-panel__button {
+			width: 100%;
+			display: block;
+			text-align: center;
+			border-radius: 2px;
+			min-height: 140px;
+			max-height: 512px;
+			background-color: #fAfAfA;
+			background-size: cover;
+			background-position: center center;
+
+			&.has-poster span {
+				display: none;
+			}
+
+			&:hover {
+				background-image: none !important; // stronger specificity than the inline style
+
+				span {
+					display: inline;
+				}
+			}
+		}
+	}
+}
+
+.poster-panel__notice {
+	margin-left: 0;
+	margin-right: 0;
+	margin-bottom: 16px;
+}
+
+.poster-panel-control__help {
+	font-size: 12px;
+	font-style: normal;
+	color: rgb(117, 117, 117);
+}
+
+.poster-panel-card {
+	margin-top: $grid-unit-30;
+	margin-right: -$grid-unit-10;
+	margin-left: -$grid-unit-10;
+	padding-left: $grid-unit-20;
+	padding-right: $grid-unit-20;
+}
+
+.poster-panel__frame-picker__sandbox-wrapper {
+	margin-bottom: 8px;
+	position: relative;
+	background-color: #fAfAfA;
+
+	.components-spinner {
+		margin: 0;
+		width: 32px;
+		height: 32px;
+		position: absolute;
+		z-index: 100;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+
+	.components-sandbox {
+		opacity: 0.1;
+		transition: opacity 300ms ease-in-out;
+		transition-delay: 50ms;
+	}
+
+	&:not(.is-player-ready) {
+		aspect-ratio: 16 / 9;
+	}
+
+	&.is-player-ready .components-sandbox {
+		opacity: 1;
+	}
+
+	&.is-generating-poster .components-sandbox {
+		opacity: 0.5;
+	}
+}
+
+.poster-panel__image-wrapper,
+.poster-panel__frame-wrapper {
+	opacity: 0;
+	display: none;
+
+	&.is-selected {
+		opacity: 1;
+		display: block;
+	}
+}
+
+.poster-panel__preview-toggle {
+	margin-top: 24px;
+}

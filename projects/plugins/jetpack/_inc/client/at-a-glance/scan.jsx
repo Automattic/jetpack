@@ -1,7 +1,8 @@
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _n } from '@wordpress/i18n';
+import { __, _n, _x } from '@wordpress/i18n';
+import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
@@ -55,7 +56,7 @@ const renderCard = props => (
 		overrideContent={ props.overrideContent }
 	>
 		{ isArray( props.content ) ? (
-			props.content
+			props.content.map( ( el, i ) => <React.Fragment key={ i }>{ el }</React.Fragment> )
 		) : (
 			<p className="jp-dash-item__description">{ props.content }</p>
 		) }
@@ -206,11 +207,13 @@ class DashScan extends Component {
 					<p className="jp-dash-item__description" key="inactive-scanning">
 						{ createInterpolateElement(
 							__(
-								'VaultPress is not active, <a>please activate</a> to enable automatic scanning for security for threats.',
+								'VaultPress is not active, <Button>please activate</Button> to enable automatic scanning for security for threats.',
 								'jetpack'
 							),
 							{
-								a: <a href="javascript:void(0)" onClick={ this.onActivateVaultPressClick } />,
+								Button: (
+									<Button className="jp-link-button" onClick={ this.onActivateVaultPressClick } />
+								),
 							}
 						) }
 					</p>,
@@ -248,7 +251,7 @@ class DashScan extends Component {
 	getUpgradeBanner() {
 		return (
 			<JetpackBanner
-				callToAction={ __( 'Upgrade', 'jetpack' ) }
+				callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 				title={ __(
 					'Purchase Jetpack Scan to protect your site from security threats with automated scanning.',
 					'jetpack'
@@ -259,6 +262,7 @@ class DashScan extends Component {
 				path="dashboard"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 				trackBannerDisplay={ this.props.trackUpgradeButtonView }
+				noIcon
 			/>
 		);
 	}
@@ -339,7 +343,7 @@ class DashScan extends Component {
 			return (
 				<>
 					{ renderActiveCard(
-						__( 'Please finish your setup by entering your server’s credentials.', 'jetpack' )
+						__( 'Enter your SSH, SFTP, or FTP credentials to enable one-click fixes', 'jetpack' )
 					) }
 					{ this.renderAction(
 						getRedirectUrl( 'jetpack-scan-dash-credentials', { site: siteRawUrl } ),

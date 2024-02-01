@@ -1,0 +1,47 @@
+.videopress-uploader__container {
+	flex-grow: 1;
+	justify-content: center;
+	align-items: center;
+	background-color: $gray-light;
+}
+
+.videopress-uploader__container--dark {
+	background-color: $gray-90;
+}
+
+.videopress-uploader__icon-container {
+	justify-content: center;
+	align-items: center;
+}
+
+.videopress-uploader__icon-container--videopress {
+	width: 32px;
+	height: 32px;
+}
+
+.videopress-uploader__icon-container--retry {
+	width: 80px;
+	height: 80px;
+}
+
+.videopress-uploader__icon {
+	fill: $gray-lighten-20;
+	width: 100%;
+	height: 100%;
+}
+
+.videopress-uploader__icon--dark {
+	fill: $gray-70;
+}
+
+.videopress-uploader__retry-upload-text {
+	color: $gray-dark;
+	font-size: 14;
+	margin-top: 5;
+	text-align: center;
+}
+
+.videopress-uploader__retry-upload-text--dark {
+	color: $white;
+}
+

@@ -1,8 +1,8 @@
 /** @ssr-ready **/
 
+import * as WPElement from '@wordpress/element';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
 import { Provider as ReduxProvider } from 'react-redux';
 
 export default class RootChild extends React.Component {
@@ -19,6 +19,7 @@ export default class RootChild extends React.Component {
 	componentDidMount() {
 		this.container = document.createElement( 'div' );
 		document.body.appendChild( this.container );
+		this.containerRoot = WPElement.createRoot( this.container );
 		this.renderChildren();
 	}
 
@@ -31,9 +32,15 @@ export default class RootChild extends React.Component {
 			return;
 		}
 
-		ReactDom.unmountComponentAtNode( this.container );
+		// Root has to be unmounted asynchronously.
+		const root = this.containerRoot;
+		setTimeout( () => {
+			root.unmount();
+		} );
+
 		document.body.removeChild( this.container );
 		delete this.container;
+		delete this.containerRoot;
 	}
 
 	renderChildren = () => {
@@ -51,7 +58,7 @@ export default class RootChild extends React.Component {
 			content = <ReduxProvider store={ this.context.store }>{ content }</ReduxProvider>;
 		}
 
-		ReactDom.render( content, this.container );
+		this.containerRoot.render( content );
 	};
 
 	render() {

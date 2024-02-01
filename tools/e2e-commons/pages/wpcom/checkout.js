@@ -57,7 +57,7 @@ export default class CheckoutPage extends WpPage {
 	// Switches to credit-card specific iframe and type the value into relative input
 	async waitAndTypeInIframe( iframeSelector, what, value ) {
 		const fullSelector = `.credit-card-form-fields ${ iframeSelector } iframe`;
-		const iframeElement = await this.page.$( fullSelector );
+		const iframeElement = this.page.locator( fullSelector );
 		const iframe = await iframeElement.contentFrame();
 
 		return await iframe.fill( what, value, { delay: 10 } );

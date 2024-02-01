@@ -28,7 +28,7 @@ function sharing_email_send_post( $data ) {
 	}
 
 	$sitename = strtolower( sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) );
-	if ( substr( $sitename, 0, 4 ) === 'www.' ) {
+	if ( str_starts_with( $sitename, 'www.' ) ) {
 		$sitename = substr( $sitename, 4 );
 	}
 
@@ -408,7 +408,6 @@ function sharing_recaptcha_secret_key() {
 	}
 
 	return RECAPTCHA_SECRET_KEY;
-
 }
 
 /**

@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Deprecated `getBrowsers` function in favor of the new `getAllBrowsers`.

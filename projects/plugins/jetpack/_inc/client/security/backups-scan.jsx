@@ -1,6 +1,7 @@
 import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import { info } from '@wordpress/icons';
 import Banner from 'components/banner';
 import Card from 'components/card';
 import QueryRewindStatus from 'components/data/query-rewind-status';
@@ -16,6 +17,7 @@ import { connect } from 'react-redux';
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { showBackups } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
+import { isFetchingRewindStatus } from 'state/rewind';
 import { siteHasFeature } from 'state/site';
 
 class LoadingCard extends Component {
@@ -71,9 +73,10 @@ class BackupsScanRewind extends Component {
 			case 'awaiting_credentials':
 				return {
 					title: __( 'Awaiting credentials', 'jetpack' ),
-					icon: 'notice',
+					iconWp: info,
+					type: 'warning',
 					description: __(
-						'You need to enter your server credentials to finish configuring Backups and Scan.',
+						'Enter your SSH, SFTP, or FTP credentials to enable one-click site restores and fixes',
 						'jetpack'
 					),
 					url: getRedirectUrl( 'jetpack-settings-security-credentials', { site: siteRawUrl } ),
@@ -103,15 +106,16 @@ class BackupsScanRewind extends Component {
 			return __( 'Unavailable in Offline Mode.', 'jetpack' );
 		}
 
-		const { title, icon, description, url } = this.getRewindMessage();
+		const { title, icon, iconWp, description, type, url } = this.getRewindMessage();
 
 		return (
 			<Banner
 				title={ title }
 				icon={ icon }
+				iconWp={ iconWp }
 				feature={ 'rewind' }
 				description={ description }
-				className="is-upgrade-premium jp-banner__no-border"
+				className={ `jp-banner__no-border is-jetpack-${ type ? type : 'info' }` }
 				href={ url }
 			/>
 		);
@@ -149,7 +153,6 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 					false
 				),
 				scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
-			let cardText = '';
 
 			if ( this.props.isOfflineMode ) {
 				return __( 'Unavailable in Offline Mode.', 'jetpack' );
@@ -192,18 +195,14 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 				return __( 'Your site is connected to VaultPress for backups.', 'jetpack' );
 			}
 
-			// Nothing is enabled. We can show upgrade/setup text now.
-			cardText = __( "You have paid for backups but they're not yet active.", 'jetpack' );
-			if ( this.props.hasScan ) {
-				cardText = __(
-					'You have paid for backups and security scanning but they’re not yet active.',
-					'jetpack'
-				);
+			if ( this.props.isFetchingRewindStatus ) {
+				return __( 'Checking site status…', 'jetpack' );
 			}
 
-			cardText += ' ' + __( 'Click "Set Up" to finish installation.', 'jetpack' );
-
-			return cardText;
+			return __(
+				'The Jetpack Backup and Scan status could not be retrieved at this time.',
+				'jetpack'
+			);
 		}
 
 		render() {
@@ -277,5 +276,6 @@ export default connect( state => {
 		hasThreats: getVaultPressScanThreatCount( state ),
 		vaultPressActive: isModuleActivated( state, 'vaultpress' ),
 		showBackups: showBackups( state ),
+		isFetchingRewindStatus: isFetchingRewindStatus( state ),
 	};
 } )( BackupsScan );

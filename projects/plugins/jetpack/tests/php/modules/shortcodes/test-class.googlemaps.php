@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_Googlemaps extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_googlemaps_exists() {
-		$this->assertEquals( shortcode_exists( 'googlemaps' ), true );
+		$this->assertTrue( shortcode_exists( 'googlemaps' ) );
 	}
 
 	/**
@@ -66,5 +66,4 @@ class WP_Test_Jetpack_Shortcodes_Googlemaps extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected, $actual );
 	}
-
 }

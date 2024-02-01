@@ -8,6 +8,7 @@
 # - BUILD_BASE: Path to the build directory, which contains "mirrors.txt" and directories for each repo to mirror to.
 # - GITHUB_ACTOR: GitHub username for the commit being mirrored.
 # - GITHUB_REF: Git ref being mirrored from, e.g. "refs/heads/main". Must begin with "refs/heads/".
+# - GITHUB_SERVER_URL: The URL of the GitHub server. For example: https://github.com
 #
 # Other:
 # - API_TOKEN_GITHUB: Personal access token to use when accessing GitHub.
@@ -40,7 +41,7 @@ fi
 
 if [[ -z "$COMMIT_MESSAGE" ]]; then
 	MONOREPO_COMMIT_MESSAGE=$(cd "${SOURCE_DIR:-.}" && git show -s --format=%B $GITHUB_SHA)
-	COMMIT_MESSAGE=$( printf "%s\n\nCommitted via a GitHub action: https://github.com/%s/actions/runs/%s\n" "$MONOREPO_COMMIT_MESSAGE" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" )
+	COMMIT_MESSAGE=$( printf "%s\n\nCommitted via a GitHub action: %s/%s/actions/runs/%s\n" "$MONOREPO_COMMIT_MESSAGE" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" )
 fi
 COMMIT_ORIGINAL_AUTHOR="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>"
 
@@ -69,12 +70,16 @@ while read -r GIT_SLUG; do
 
 	# Initialize the directory as a git repo, and set the remote
 	git init -b "$BRANCH" .
-	git remote add origin "https://github.com/${GIT_SLUG}"
-	git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $(printf "x-access-token:%s" "$API_TOKEN_GITHUB" | base64)"
+	git remote add origin "${GITHUB_SERVER_URL}/${GIT_SLUG}"
+	if [[ -n "$API_TOKEN_GITHUB" ]]; then
+		git config --local http.${GITHUB_SERVER_URL}/.extraheader "AUTHORIZATION: basic $(printf "x-access-token:%s" "$API_TOKEN_GITHUB" | base64)"
+	fi
 
 	# Check if a remote exists for that mirror.
 	if ! git ls-remote -h origin >/dev/null 2>&1; then
-		echo "Mirror repo for ${GIT_SLUG} does not exist. Skipping."
+		echo "::error::Mirror repo for ${GIT_SLUG} does not exist."
+		echo "Skipping."
+		EXIT=1
 		continue
 	fi
 
@@ -100,7 +105,7 @@ while read -r GIT_SLUG; do
 			{ [[ -z "$CI" ]] || git push origin "$BRANCH"; } # Only do the actual push from the GitHub Action
 		then
 			git show --pretty= --src-prefix="a/$GIT_SLUG/" --dst-prefix="b/$GIT_SLUG/" >> "$BUILD_BASE/changes.diff"
-			echo "https://github.com/$GIT_SLUG/commit/$(git rev-parse HEAD)"
+			echo "${GITHUB_SERVER_URL}/$GIT_SLUG/commit/$(git rev-parse HEAD)"
 			echo "Completed $GIT_SLUG"
 		else
 			echo "::error::Commit of ${GIT_SLUG} failed"

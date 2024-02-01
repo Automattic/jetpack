@@ -4,6 +4,7 @@
 	padding: 0.75em;
 	margin: 1em 0;
 	font-size: 14px;
+	display: flex;
 
 	&.jetpack-instant-search__notice--warning {
 		background-color: $studio-yellow-5;
@@ -12,7 +13,8 @@
 
 	.gridicon {
 		vertical-align: middle;
-		margin-top: -5px;
+		margin-top: 1px;
 		margin-right: 0.5em;
+		flex-shrink: 0;
 	}
 }

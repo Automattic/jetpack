@@ -45,8 +45,8 @@ const JetpackColophon = props => {
 	const locale_prefix = typeof props.locale === 'string' ? props.locale.split( '-', 1 )[ 0 ] : null;
 	const url =
 		locale_prefix && locale_prefix !== 'en'
-			? 'https://' + locale_prefix + '.jetpack.com/search?utm_source=poweredby'
-			: 'https://jetpack.com/search?utm_source=poweredby';
+			? 'https://' + locale_prefix + '.jetpack.com/upgrade/search?utm_source=poweredby'
+			: 'https://jetpack.com/upgrade/search/?utm_source=poweredby';
 	return (
 		<div className="jetpack-instant-search__jetpack-colophon">
 			<a

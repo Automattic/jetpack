@@ -1,25 +1,25 @@
 import WpPage from '../wp-page.js';
-import logger from '../../logger.cjs';
+import logger from '../../logger.js';
 import { takeScreenshot } from '../../reporters/index.js';
-import PageActions from '../page-actions.js';
-import { getSiteCredentials, resolveSiteUrl } from '../../helpers/utils-helper.cjs';
+import { getSiteCredentials, resolveSiteUrl } from '../../helpers/utils-helper.js';
 
 export default class WPLoginPage extends WpPage {
 	constructor( page ) {
 		const url = `${ resolveSiteUrl() }/wp-login.php`;
-		super( page, { expectedSelectors: [ '.login' ], url } );
-	}
-
-	static async isLoggedIn( page ) {
-		return ! ( await new PageActions( page ).isElementVisible( '#user_login' ) );
+		super( page, { expectedSelectors: [ '#loginform' ], url } );
 	}
 
 	async login( credentials = getSiteCredentials(), { retry = true } = {} ) {
 		logger.step( 'Log in to wp-admin' );
 
+		// If the SSO login button (a tag with the jetpack-sso class) is present,
+		// click on the link (a tag with the jetpack-sso-toggle class) to log in with the default core WP login form instead.
+		if ( await this.isElementVisible( '.jetpack-sso' ) ) {
+			await this.click( '.jetpack-sso-toggle' );
+		}
+
 		await this.fill( '#user_login', credentials.username );
 		await this.fill( '#user_pass', credentials.password );
-
 		await this.click( '#wp-submit' );
 		await this.waitForDomContentLoaded();
 

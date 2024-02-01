@@ -61,7 +61,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 		parent::set_up();
 
 		// create a post.
-		$this->post_id = $this->factory->post->create();
+		$this->post_id = self::factory()->post->create();
 		$this->sender->do_sync();
 	}
 
@@ -119,7 +119,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 		// Are we testing all the options.
 		$unique_whitelist = array_unique( $whitelist );
 
-		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
+		$this->assertSameSize( $unique_whitelist, $whitelist, 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
 	}
 
 	/**
@@ -300,6 +300,4 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	protected function assertOptionIsSynced( $meta_key, $value, $type, $object_id ) {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_metadata( $type, $object_id, $meta_key, true ), 'Synced option doesn\'t match local option.' );
 	}
-
 }
-

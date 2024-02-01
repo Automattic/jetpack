@@ -128,7 +128,6 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		);
 		$this->assertEquals( $local_posts, $remote->get_posts() );
 		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
-
 	}
 
 	// asserts that two objects are the same if they're both "objectified",
@@ -269,4 +268,3 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		return $preempt;
 	}
 }
-

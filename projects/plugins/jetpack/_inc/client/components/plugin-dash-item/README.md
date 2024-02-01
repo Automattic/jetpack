@@ -59,6 +59,12 @@ Link to an admin page for the plugin. Used in the "manage" link for the card aft
 
 React prompt to show when Plugin is un-installed or un-activated.
 
+### installedPrompt
+- **Type:** `Element`
+- **Required:** `no`
+
+React prompt to show when Plugin is installed and activated
+
 ### iconAlt
 - **Type:** `String`
 - **Required:** `no`

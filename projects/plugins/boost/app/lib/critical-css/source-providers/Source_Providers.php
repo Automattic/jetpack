@@ -49,6 +49,19 @@ class Source_Providers {
 	}
 
 	/**
+	 * Returns the Provider which controls a given key.
+	 */
+	public function get_provider_for_key( $key ) {
+		foreach ( $this->providers as $provider ) {
+			if ( $provider::owns_key( $key ) ) {
+				return $provider;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Get all critical CSS storage keys that are available for the current request.
 	 * Caches the result.
 	 *
@@ -95,4 +108,35 @@ class Source_Providers {
 		return $this->request_cached_css;
 	}
 
+	/**
+	 * Get providers sources.
+	 *
+	 * @param array $providers Providers.
+	 *
+	 * @return array
+	 */
+	public function get_provider_sources() {
+		$sources = array();
+
+		foreach ( $this->get_providers() as $provider ) {
+			$provider_name = $provider::get_provider_name();
+
+			// For each provider,
+			// Gather a list of URLs that are going to be used as Critical CSS source.
+			foreach ( $provider::get_critical_source_urls() as $group => $urls ) {
+				$key = $provider_name . '_' . $group;
+
+				// For each URL
+				// Track the state and errors in a state array.
+				$sources[] = array(
+					'key'           => $key,
+					'label'         => $provider::describe_key( $key ),
+					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls ),
+					'success_ratio' => $provider::get_success_ratio(),
+				);
+			}
+		}
+
+		return $sources;
+	}
 }

@@ -1,0 +1,296 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.1.12
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 24/07/16
+ */
+
+#wptbpMetaBoxLogs {
+
+	h2 {
+
+		margin: 0;
+
+	}
+
+	button#zbscrmAddLog, button#zbscrmEditLog {
+		
+		float:right;
+		margin:4px;
+		margin-right:8px;
+	}
+
+	// for emphasizing stuff in longs
+	.zbsEmphasis {
+		font-weight:800;
+		color: #191680;
+	}
+
+
+	// add form
+	#zbsAddLogForm {
+
+	    margin: 10px;
+	    border: 1px dashed var(--jp-gray-20);
+	    padding: 12px;
+	    border-radius: 4px;
+	    background: var(--jp-gray-0);
+	    line-height: 32px;
+
+	    // logo ico
+	    div#zbsAddLogIco {
+
+		    width: 80px;
+		    float: right;
+		    text-align: right;
+
+		    i.fa {
+
+		    	font-size:20px;
+		    }
+		    
+
+	    }
+
+
+		// Type select
+		select#zbsAddLogType {
+
+		    max-width: 200px;
+		    font-size: 14px;
+		    line-height: 20px;
+		    height: 34px;
+		    margin-bottom: 14px;
+		    margin-top: 0;
+		    display: inline-block;
+
+		}
+
+		label {
+		    line-height: 32px;
+		    vertical-align: top;
+		}
+
+		// buttons - savecancel
+		div#zbsAddLogActions {
+
+			div#zbsAddLogUpdateMsg {
+				float:left;
+				text-align:left;
+				margin-top:10px;
+			}
+			
+			text-align:right;
+
+			button {
+				
+			    margin-left: 10px;
+			    margin-top: 10px;
+
+			}
+
+		}
+
+ 
+	}
+
+
+
+	// edit form
+	#zbsEditLogForm {
+
+		display:none; // initially
+
+	    margin: 10px;
+	    border: 1px solid #b0a1ec;
+	    padding: 12px;
+	    border-radius: 5px;
+	    background: var(--jp-gray-0);
+	    line-height: 32px;
+
+	    // logo ico
+	    div#zbsEditLogIco {
+
+		    width: 80px;
+		    float: right;
+		    text-align: right;
+
+		    i.fa {
+
+		    	font-size:20px;
+		    }
+		    
+
+	    }
+
+
+		// Type select
+		select#zbsEditLogType {
+
+		    max-width: 200px;
+		    font-size: 14px;
+		    line-height: 20px;
+		    height: 34px;
+		    margin-bottom: 14px;
+		    margin-top: 0;
+		    display: inline-block;
+
+		}
+
+		label {
+		    line-height: 32px;
+		    vertical-align: top;
+		}
+
+		// buttons - savecancel
+		div#zbsEditLogActions {
+
+			div#zbsEditLogUpdateMsg {
+				float:left;
+				text-align:left;
+				margin-top:10px;
+			}
+			
+			text-align:right;
+
+			button {
+				
+			    margin-left: 10px;
+			    margin-top: 10px;
+
+			}
+
+		}
+
+ 
+	}
+
+	.zbsLogOut {
+	
+		margin: 10px;
+	    border: 1px solid rgba(161, 236, 187, 0.15);
+	    padding: 12px;
+	    border-radius: 5px;
+	    background: #f1f1f1;
+	    line-height: 32px;
+    	padding-top: 4px;
+
+	    .zbsLogOutTitle {
+
+		    font-size: 14px;
+		    font-weight: 800;
+    		border-bottom: 2px solid var(--jp-gray-20);
+
+    		// edit icos
+    		.zbsLogOutEdits {
+
+			    display: inline-block; display:none; // init
+			    margin-left: 12px;
+			    color: #000;
+			    font-size: 17px;
+			    padding: 0 4px 0 4px;
+			    height: 24px;
+			    line-height: 24px;
+			    border-radius: 3px;
+			    background: #FFF;
+
+			    .fa {
+							    	
+				    color: var(--jp-gray-20);
+				    padding: 4px;
+				    
+
+			    }
+			    .fa:hover {
+
+			    	color: #000;
+			    	cursor:pointer;
+
+			    }
+			    .fa.last {
+			    	margin-left:4px;
+			    }
+
+			    // "deleting" msg
+			    span {
+
+			    	font-size: 12px;
+    				vertical-align: middle;
+
+			    }
+    		}
+
+
+	    }
+
+	    .zbsLogOutDesc {
+
+		    padding: 4px 10px;
+		    background: rgba(255, 255, 255, 0.61);
+		    border-radius: 4px;
+		    border-top-right-radius: 0;
+		    border-top-left-radius: 0;
+
+	    }
+
+	    .zbsLogOutIco {
+
+	        width: 44px;
+		    float: right;
+		    text-align: right;
+
+		    i.fa {
+			
+			    font-size: 20px;
+			
+			}
+		
+	    }
+	    .zbsLogOutCreated {
+
+    		float: right;
+
+	    }
+
+	}
+
+	// unpinned state
+    .jpcrm_log_pin {
+    	display: inline-block;
+    }
+    .jpcrm_log_unpin {
+    	display: none;
+    }
+
+    // pinned state
+	.zbsLogOut.jpcrm-pinned {
+
+	    border: 1px solid rgb(236 209 161 / 15%);
+	    background: #ff871f42;
+
+	    .jpcrm_log_pin {
+	    	display: none;
+	    }
+	    .jpcrm_log_unpin {
+	    	display: inline-block;
+	    }
+	    
+	}
+
+}
+
+
+// inside right hand bar
+#postbox-container-1 {
+
+		#wptbpMetaBoxLogs {
+
+				width: auto !important;
+				min-width: auto !important;
+
+		}
+
+}

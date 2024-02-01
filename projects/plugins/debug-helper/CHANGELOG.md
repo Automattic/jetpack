@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2023-06-06
+### Added
+- Add a helper for the WAF
+- Added a new WPCOM API Request Tracker module.
+- Set custom tokens and blog ID.
+
+### Changed
+- Remove deprecated core function in favor of direct query.
+
+### Fixed
+- Fixed stylesheet loading and content for the broken-token and idc-simulator modules.
+
+## [1.5.0] - 2023-03-08
+### Added
+- Add "Cookie State Faker" tool. [#28371]
+- Add a button to set the current primary user. [#26562]
+- Added a helper module for Jetpack Scan. [#25641]
+- Added threat descriptions. [#25266]
+- Mocker tool: add runner to add rows in the WAF log DB table for blocked requests [#25645]
+- Replace "XML-RPC errors" with "connection errors", add error type ("xml-rpc" or "rest") to generated errors. [#25694]
+
+### Changed
+- Remove pre-defined prefix in the REST API tool. [#26521]
+- Updated package dependencies.
+- Updated Protect Helper to use newly added data source constant. [#26069]
+
+### Fixed
+- Prevented the threat tester from being identified as a threat due to containing the Akismet suspicious link URL. [#26192]
+
 ## [1.4.0] - 2022-07-06
 ### Added
 - Added the Autoloader debugger helper to the Debug tool. [#23726]
@@ -60,6 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial version.
 
+[1.6.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.5.0...v1.6.0
+[1.5.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.1.0...v1.2.0

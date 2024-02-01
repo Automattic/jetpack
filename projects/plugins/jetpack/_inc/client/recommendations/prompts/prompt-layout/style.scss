@@ -15,7 +15,12 @@
 
 .jp-recommendations-question__progress-bar {
 	.progress-bar {
+		--spacing-base: 8px;
 		width: 70px;
+
+		.progress-bar__progress {
+			background-color: #00a32a;
+		}
 	}
 }
 
@@ -37,22 +42,22 @@
 	color: var( --jp-gray-80 );
 
 	font-size: 1.5rem;
-	margin: 40px 40px 0 40px;
+	margin: 2.5rem 2.5rem 1rem 2.5rem;
 
 	@include breakpoint( '<480px' ) {
-		margin: 0 16px 32px 16px;
+		margin: 0 1rem 2rem 1rem;
 	}
 }
 
 .jp-recommendations-question__description {
 	color: var( --jp-gray-100 );
 
-	font-size: 16px;
+	font-size: 1rem;
 
-	margin: 32px 32px 32px 40px;
+	margin: 1rem 2rem 2rem 2.5rem;
 
 	@include breakpoint( '<480px' ) {
-		margin: 0 16px 16px 16px;
+		margin: 0 1rem 1rem 1rem;
 	}
 
 	.gridicons-external {
@@ -66,14 +71,27 @@
 
 .jp-recommendations-question__description-list {
 	color: var( --jp-gray-100 );
-	font-size: 16px;
-	margin: 0 32px 0 32px;
-	list-style: disc;
-	padding-left: 16px;
+	font-size: 1rem;
+	margin: 0 2rem 2rem 2.5rem;
+
+	list-style-type: none;
+	padding: 0;
+
+	li {
+		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
+		background-size: 1.25rem;
+		padding-left: 1.75rem;
+		margin-bottom: 0.5rem;
+	}
 
 	@include breakpoint( '<480px' ) {
-		margin: 0 16px 0 16px;
+		margin: 0 1rem 0 1rem;
 	}
+}
+
+// When a description section follows the list, remove the extra margin from the top of the description.
+.jp-recommendations-question__description-list + .jp-recommendations-question__description {
+	margin-top: 0;
 }
 
 .jp-recommendations-question__main--with-sidebar .jp-recommendations-question__description {

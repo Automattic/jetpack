@@ -51,6 +51,11 @@ class Dedicated_Sender {
 	const DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME = 'request_lock_id';
 
 	/**
+	 * The name of the transient to use to temporarily disable enabling of Dedicated sync.
+	 */
+	const DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG = 'jetpack_sync_dedicated_sync_temp_disable';
+
+	/**
 	 * Filter a URL to check if Dedicated Sync is enabled.
 	 * We need to remove slashes and then run it through `urldecode` as sometimes the
 	 * URL is in an encoded form, depending on server configuration.
@@ -111,7 +116,7 @@ class Dedicated_Sender {
 	 *
 	 * @access public
 	 *
-	 * @param Automattic\Jetpack\Sync\Queue $queue Queue object.
+	 * @param \Automattic\Jetpack\Sync\Queue $queue Queue object.
 	 *
 	 * @return boolean|WP_Error True if spawned, WP_Error otherwise.
 	 */
@@ -139,6 +144,12 @@ class Dedicated_Sender {
 		if ( $sync_next_time > microtime( true ) ) {
 			return new WP_Error( 'sync_throttled_' . $queue->id );
 		}
+		/**
+		 * How much time to wait before we start suspecting Dedicated Sync is in trouble.
+		 */
+		$queue_send_time_threshold = 30 * MINUTE_IN_SECONDS;
+
+		$queue_lag = $queue->lag();
 
 		/**
 		 * Try to acquire a request lock, so we don't spawn multiple requests at the same time.
@@ -147,6 +158,21 @@ class Dedicated_Sender {
 		$request_lock = self::try_lock_spawn_request();
 		if ( ! $request_lock ) {
 			return new WP_Error( 'dedicated_request_lock', 'Unable to acquire request lock' );
+		}
+
+		/**
+		 * If the queue lag is bigger than the threshold, we want to check if Dedicated Sync is working correctly.
+		 * We will do by sending a test request and disabling Dedicated Sync if it's not working. We will also exit early
+		 * in case we send the test request since it is a blocking request.
+		 */
+		if ( $queue_lag > $queue_send_time_threshold ) {
+			if ( false === get_transient( self::DEDICATED_SYNC_CHECK_TRANSIENT ) ) {
+				if ( ! self::can_spawn_dedicated_sync_request() ) {
+					self::on_dedicated_sync_lag_not_sending_threshold_reached();
+					return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
+				}
+				return true;
+			}
 		}
 
 		$url = rest_url( 'jetpack/v4/sync/spawn-sync' );
@@ -179,6 +205,13 @@ class Dedicated_Sender {
 	 */
 	public static function try_lock_spawn_request() {
 		$current_microtime = (string) microtime( true );
+
+		if ( wp_using_ext_object_cache() ) {
+			if ( true !== wp_cache_add( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, $current_microtime, 'jetpack', self::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT ) ) {
+				// Cache lock has been claimed already.
+				return false;
+			}
+		}
 
 		$current_lock_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
 
@@ -224,9 +257,14 @@ class Dedicated_Sender {
 			return new WP_Error( 'dedicated_request_lock_invalid', 'Invalid lock_id supplied for unlock' );
 		}
 
-		$current_lock_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
+		if ( wp_using_ext_object_cache() ) {
+			if ( (string) $lock_id === wp_cache_get( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, 'jetpack', true ) ) {
+				wp_cache_delete( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, 'jetpack' );
+			}
+		}
 
 		// If this is the flow that has the lock, let's release it so we can spawn other requests afterwards
+		$current_lock_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
 		if ( (string) $lock_id === $current_lock_value ) {
 			\Jetpack_Options::delete_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
 			return true;
@@ -309,7 +347,62 @@ class Dedicated_Sender {
 				$sender->send_action( 'jetpack_sync_flow_error_enable', $data );
 			}
 		}
-
 		return self::DEDICATED_SYNC_VALIDATION_STRING === $dedicated_sync_response_body;
+	}
+
+	/**
+	 * Disable dedicated sync and set a transient to prevent re-enabling it for some time.
+	 *
+	 * @return void
+	 */
+	public static function on_dedicated_sync_lag_not_sending_threshold_reached() {
+		set_transient( self::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG, true, 6 * HOUR_IN_SECONDS );
+
+		Settings::update_settings(
+			array(
+				'dedicated_sync_enabled' => 0,
+			)
+		);
+
+		// Inform that we had to temporarily disable Dedicated Sync
+		$data = array(
+			'timestamp'      => microtime( true ),
+
+			// Send the flow type that was attempted.
+			'sync_flow_type' => 'dedicated',
+		);
+
+		$sender = Sender::get_instance();
+
+		$sender->send_action( 'jetpack_sync_flow_error_temp_disable', $data );
+	}
+
+	/**
+	 * Disable or enable Dedicated Sync sender based on the header value returned from WordPress.com
+	 *
+	 * @param string $dedicated_sync_header The Dedicated Sync header value - `on` or `off`.
+	 *
+	 * @return bool Whether Dedicated Sync is going to be enabled or not.
+	 */
+	public static function maybe_change_dedicated_sync_status_from_wpcom_header( $dedicated_sync_header ) {
+		$dedicated_sync_enabled = 'on' === $dedicated_sync_header ? 1 : 0;
+
+		// Prevent enabling of Dedicated sync via header flag if we're in an autoheal timeout.
+		if ( $dedicated_sync_enabled ) {
+			$check_transient = get_transient( self::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
+
+			if ( $check_transient ) {
+				// Something happened and Dedicated Sync should not be automatically re-enabled.
+				return false;
+			}
+		}
+
+		Settings::update_settings(
+			array(
+				'dedicated_sync_enabled' => $dedicated_sync_enabled,
+			)
+		);
+
+		return Settings::is_dedicated_sync_enabled();
 	}
 }

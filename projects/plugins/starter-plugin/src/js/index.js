@@ -1,18 +1,24 @@
+import { ThemeProvider } from '@automattic/jetpack-components';
+import * as WPElement from '@wordpress/element';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import AdminPage from './components/admin-page';
 
 /**
  * Initial render function.
  */
-function render() {
+function renderApp() {
 	const container = document.getElementById( 'jetpack-starter-plugin-root' );
 
 	if ( null === container ) {
 		return;
 	}
 
-	ReactDOM.render( <AdminPage />, container );
+	const component = (
+		<ThemeProvider>
+			<AdminPage />
+		</ThemeProvider>
+	);
+	WPElement.createRoot( container ).render( component );
 }
 
-render();
+renderApp();

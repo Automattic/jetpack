@@ -1,14 +1,40 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { addFilter, removeFilter } from '@wordpress/hooks';
 import { DEFAULT_FONTSIZE_VALUE } from '../constants';
 import SubscriptionsInspectorControls from '../controls';
 
-// Temporarily mock out the ButtonWidthControl, which is causing errors due to missing
-// dependencies in the jest test runner.
-jest.mock( '../../button/button-width-panel', () => ( {
-	...jest.requireActual( '../../button/button-width-panel' ),
-	ButtonWidthControl: () => <div>Mocked Width Control</div>,
-} ) );
+// These settings need to be set. Easiest way to do that seems to be to use a hook.
+const overrideSettings = {
+	'typography.customFontSize': true,
+	'color.defaultGradients': true,
+	'color.defaultPalette': true,
+	'color.palette.default': [ { name: 'White', slug: 'white', color: '#ffffff' } ],
+	'color.gradients.default': [
+		{
+			name: 'Monochrome',
+			gradient: 'linear-gradient(135deg,rgb(0,0,0) 0%,rgb(255,255,255) 100%)',
+			slug: 'monochrome',
+		},
+	],
+};
+beforeAll( () => {
+	addFilter(
+		'blockEditor.useSetting.before',
+		'extensions/blocks/button/test/controls',
+		( value, path ) => {
+			if ( overrideSettings.hasOwnProperty( path ) ) {
+				return overrideSettings[ path ];
+			}
+			return value;
+		}
+	);
+} );
+afterAll( () => {
+	removeFilter( 'blockEditor.useSetting.before', 'extensions/blocks/button/test/controls' );
+} );
+
+jest.mock( '@wordpress/notices', () => {}, { virtual: true } );
 
 const setButtonBackgroundColor = jest.fn();
 const setGradient = jest.fn();
@@ -100,8 +126,9 @@ describe( 'Inspector controls', () => {
 		test( 'set custom text', async () => {
 			const user = userEvent.setup();
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			await user.click( screen.getByText( 'Typography' ), { selector: 'button' } );
-			await user.type( screen.getAllByLabelText( 'Custom Size' )[ 1 ], '18' );
+			await user.click( screen.getByRole( 'button', { name: 'Typography' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Set custom size' } ) );
+			await user.type( screen.getByRole( 'spinbutton', { name: 'Custom' } ), '18' );
 
 			expect( setAttributes ).toHaveBeenLastCalledWith( {
 				fontSize: 18,
@@ -191,7 +218,19 @@ describe( 'Inspector controls', () => {
 			await user.click( screen.getByLabelText( 'Show subscriber count' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
+				includeSocialFollowers: false,
 				showSubscribersTotal: false,
+			} );
+		} );
+
+		test( 'toggles include social followers', async () => {
+			const user = userEvent.setup();
+			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+			await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+			await user.click( screen.getByLabelText( 'Include social followers in count' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				includeSocialFollowers: false,
 			} );
 		} );
 

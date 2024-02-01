@@ -1,0 +1,84 @@
+@import "$css/main/mixins.scss";
+@import "$css/main/variables.scss";
+
+.error-notice {
+	position: relative;
+	color: #d63638;
+	display: block;
+	margin: 0;
+	padding: 0;
+
+	@include breakpoint(sm) {
+		display: flex;
+		align-items: flex-start;
+		justify-content: left;
+	}
+
+	:global(.raw-error) {
+		color: $primary-black;
+	}
+
+	pre {
+		background-color: #f1f1f1;
+		padding: 25px;
+		margin: 20px 0;
+		text-align: left;
+		white-space: pre-wrap;
+		color: #0f0f0f;
+		border-radius: 6px;
+	}
+
+	.icon {
+		color: inherit;
+		height: 20px;
+		width: 20px;
+		line-height: 0;
+	}
+
+	&.variant-module .icon-wrapper {
+		position: absolute;
+		left: -65px;
+		top: 0;
+		width: 20px;
+	}
+
+	&:not(.variant-module) .offset {
+		padding-left: 0.5em;
+	}
+
+	.main-action:not( :empty ) {
+		margin-left: auto;
+		button {
+			margin-left: 0;
+			@include breakpoint(sm) {
+				margin-left: 20px;
+			}
+		}
+	}
+
+	.description {
+		color: $red_50;
+		font-weight: bold;
+		margin-bottom: .5em;
+	}
+
+	.message {
+		list-style-type: disc;
+		color: $red_50;
+
+		p {
+			margin: .25em 0;
+			color: $red_50;
+		}
+
+		button {
+			color: $primary-black;
+			font-size: 16px;
+			margin: 16px auto;
+		}
+
+		li {
+			@include word-wrap();
+		}
+	}
+}

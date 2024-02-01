@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
-require __DIR__ . '/subscription-service/include.php';
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+
+require_once __DIR__ . '/subscription-service/include.php';
 
 /**
  * Determines if the memberships module is set up.
@@ -20,7 +22,7 @@ function membership_checks() {
 		return false;
 	}
 	// if stripe not connected don't show anything...
-	if ( empty( \Jetpack_Memberships::get_connected_account_id() ) ) {
+	if ( ! \Jetpack_Memberships::has_connected_account() ) {
 		return false;
 	}
 	return true;
@@ -73,26 +75,53 @@ function current_visitor_can_access( $attributes, $block ) {
 	 * If the current WordPress install has as signed in user
 	 * they can see the content.
 	 */
+
 	if ( current_user_can_edit() ) {
 		return true;
 	}
 
-	$selected_plan_id = null;
+	$selected_plan_ids = array();
 
-	if ( isset( $attributes['selectedPlanId'] ) ) {
-		$selected_plan_id = (int) $attributes['selectedPlanId'];
+	if ( isset( $attributes['selectedPlanIds'] ) ) {
+		$selected_plan_ids = $attributes['selectedPlanIds'];
+	} elseif ( isset( $attributes['selectedPlanId'] ) ) {
+		$selected_plan_ids = array( $attributes['selectedPlanId'] );
 	}
 
-	if ( isset( $block ) && isset( $block->context['premium-content/planId'] ) ) {
-		$selected_plan_id = (int) $block->context['premium-content/planId'];
+	if ( isset( $block ) && ! empty( $block->context['premium-content/planId'] ) ) {
+		$selected_plan_ids = array( $block->context['premium-content/planId'] );
+	} elseif ( isset( $block ) && ! empty( $block->context['premium-content/planIds'] ) ) {
+		$selected_plan_ids = $block->context['premium-content/planIds'];
 	}
 
-	if ( empty( $selected_plan_id ) ) {
+	if ( empty( $selected_plan_ids ) ) {
 		return false;
 	}
 
-	$paywall  = subscription_service();
-	$can_view = $paywall->visitor_can_view_content( array( $selected_plan_id ) );
+	$paywall      = subscription_service();
+	$access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS; // Only paid subscribers should be granted access to the premium content
+	$tier_ids     = \Jetpack_Memberships::get_all_newsletter_plan_ids();
+	$tier_ids     = array_intersect( $tier_ids, $selected_plan_ids );
+	if ( ! empty( $tier_ids ) ) {
+		// If the selected plan is a tier, we want to check directly if user has a higher "tier".
+		// This is to prevent situation where the user upgrades and lose access to premium-gated content
+		$token          = $paywall->get_and_set_token_from_request();
+		$payload        = $paywall->decode_token( $token );
+		$is_valid_token = ! empty( $payload );
+
+		$can_view = false;
+		if ( $is_valid_token ) {
+			$subscriptions = (array) $payload['subscriptions'];
+			foreach ( $tier_ids as $tier_id ) {
+				$can_view = ! $paywall->maybe_gate_access_for_user_if_tier( $tier_id, $subscriptions );
+				if ( $can_view ) {
+					break;
+				}
+			}
+		}
+	} else {
+		$can_view = $paywall->visitor_can_view_content( $selected_plan_ids, $access_level );
+	}
 
 	if ( $can_view ) {
 		/**

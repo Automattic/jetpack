@@ -1,0 +1,41 @@
+{
+	"private": true,
+	"description": "High quality, ad-free video.",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Videopress"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/videopress"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@wordpress/data": "9.20.0",
+		"@wordpress/date": "4.50.0",
+		"@wordpress/element": "5.27.0",
+		"@wordpress/i18n": "4.50.0",
+		"react": "18.2.0",
+		"react-dom": "18.2.0"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.23.5",
+		"@babel/preset-env": "7.23.5",
+		"@babel/runtime": "7.23.5",
+		"@wordpress/browserslist-config": "5.33.0",
+		"concurrently": "7.6.0",
+		"sass": "1.64.1",
+		"sass-loader": "12.4.0",
+		"webpack": "5.76.0",
+		"webpack-cli": "4.9.1"
+	}
+}

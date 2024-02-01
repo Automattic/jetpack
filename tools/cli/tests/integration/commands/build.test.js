@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'url';
-import execa from 'execa';
+import { execa } from 'execa';
 
 describe( 'build command', () => {
 	test( 'production flag exists', async () => {

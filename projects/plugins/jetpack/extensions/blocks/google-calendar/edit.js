@@ -1,4 +1,8 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	getBlockIconComponent,
+} from '@automattic/jetpack-shared-extension-utils';
 import { InspectorControls } from '@wordpress/block-editor';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { Placeholder, SandBox, Button, ExternalLink, withNotices } from '@wordpress/components';
@@ -6,9 +10,11 @@ import { compose } from '@wordpress/compose';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { withViewportMatch } from '@wordpress/viewport';
+import metadata from './block.json';
 import GoogleCalendarInspectorControls from './controls';
-import icon from './icon';
 import { URL_REGEX, parseEmbed } from './utils';
+
+const icon = getBlockIconComponent( metadata );
 
 export function GoogleCalendarEdit( props ) {
 	const {
@@ -122,19 +128,14 @@ export function GoogleCalendarEdit( props ) {
 					className={ className }
 					label={ __( 'Google Calendar', 'jetpack' ) }
 					icon={ icon }
-					instructions={
-						<ol className={ `${ defaultClassName }-placeholder-instructions` }>
-							<li>{ permissionsLink }</li>
-							<li>
-								{ __(
-									'Paste the embed code you copied from your Google Calendar below',
-									'jetpack'
-								) }
-							</li>
-						</ol>
-					}
 					notices={ noticeUI }
 				>
+					<ol className={ `${ defaultClassName }-placeholder-instructions` }>
+						<li>{ permissionsLink }</li>
+						<li>
+							{ __( 'Paste the embed code you copied from your Google Calendar below', 'jetpack' ) }
+						</li>
+					</ol>
 					{ getEditForm( `${ defaultClassName }-embed-form-editor` ) }
 					<div className={ `${ defaultClassName }-placeholder-links` }>
 						<ExternalLink href={ supportLink }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>

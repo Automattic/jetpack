@@ -14,8 +14,12 @@ import { numberFormat } from '@automattic/jetpack-components';
 
 render() {
 	const number = '123456';
+	const options = {
+		notation: 'compact',
+		compactDisplay: 'short',
+	};
 	return (
-		<>{ numberFormat( number ) }</>
+		<>{ numberFormat( number ) }</> // 123K
 	);
 }
 ```

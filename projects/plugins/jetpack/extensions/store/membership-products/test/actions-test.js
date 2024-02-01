@@ -7,9 +7,10 @@ import {
 	setApiState,
 	setConnectUrl,
 	setProducts,
-	setShouldUpgrade,
 	setSiteSlug,
-	setUpgradeUrl,
+	setConnectedAccountDefaultCurrency,
+	setNewsletterCategories,
+	setNewsletterCategoriesSubscriptionsCount,
 } from '../actions';
 import * as utils from '../utils';
 
@@ -58,6 +59,20 @@ describe( 'Membership Products Actions', () => {
 		expect( result ).toStrictEqual( anyValidConnectUrlWithType );
 	} );
 
+	test( 'Set ConnectedAccountDefaultCurrency works as expected', () => {
+		// Given
+		const anyValidConnectedAccountDefaultCurrencyWithType = {
+			type: 'SET_CONNECTED_ACCOUNT_DEFAULT_CURRENCY',
+			connectedAccountDefaultCurrency: ANY_VALID_DATA,
+		};
+
+		// When
+		const result = setConnectedAccountDefaultCurrency( ANY_VALID_DATA );
+
+		// Then
+		expect( result ).toStrictEqual( anyValidConnectedAccountDefaultCurrencyWithType );
+	} );
+
 	test( 'Set apiState works as expected', () => {
 		// Given
 		const anyValidApiStateWithType = {
@@ -72,20 +87,6 @@ describe( 'Membership Products Actions', () => {
 		expect( result ).toStrictEqual( anyValidApiStateWithType );
 	} );
 
-	test( 'Set shouldUpgrade works as expected', () => {
-		// Given
-		const anyValidShouldUpgradeWithType = {
-			type: 'SET_SHOULD_UPGRADE',
-			shouldUpgrade: ANY_VALID_DATA,
-		};
-
-		// When
-		const result = setShouldUpgrade( ANY_VALID_DATA );
-
-		// Then
-		expect( result ).toStrictEqual( anyValidShouldUpgradeWithType );
-	} );
-
 	test( 'setSiteSlug works as expected', () => {
 		// Given
 		const anyValidSiteSlugWithType = {
@@ -95,20 +96,6 @@ describe( 'Membership Products Actions', () => {
 
 		// When
 		const result = setSiteSlug( ANY_VALID_DATA );
-
-		// Then
-		expect( result ).toStrictEqual( anyValidSiteSlugWithType );
-	} );
-
-	test( 'setUpgradeUrl works as expected', () => {
-		// Given
-		const anyValidSiteSlugWithType = {
-			type: 'SET_UPGRADE_URL',
-			upgradeUrl: ANY_VALID_DATA,
-		};
-
-		// When
-		const result = setUpgradeUrl( ANY_VALID_DATA );
 
 		// Then
 		expect( result ).toStrictEqual( anyValidSiteSlugWithType );
@@ -127,7 +114,7 @@ describe( 'Membership Products Actions', () => {
 
 	test.each( productsForTitleTesting )( '$name', async testCase => {
 		// Given
-		const selectedProductIdCallback = anyFunction;
+		const selectedProductIdsCallback = anyFunction;
 		const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
 		const noticeMock = jest.spyOn( utils, 'onError' ).mockImplementation( anyFunction );
 		const getMessageMock = jest
@@ -138,7 +125,7 @@ describe( 'Membership Products Actions', () => {
 		await saveProduct(
 			testCase.product,
 			paymentPlanProductType,
-			selectedProductIdCallback
+			selectedProductIdsCallback
 		)( anyFunction, anyFunction );
 
 		// Then
@@ -236,7 +223,7 @@ describe( 'Membership Products Actions', () => {
 			products: registryProductList.concat( [ apiResponseProduct ] ),
 			type: 'SET_PRODUCTS',
 		} );
-		expect( selectedProductCallback ).toHaveBeenCalledWith( apiResponseProduct.id );
+		expect( selectedProductCallback ).toHaveBeenCalledWith( [ apiResponseProduct.id ] );
 		expect( noticeMock ).toHaveBeenCalled();
 		expect( getMessageMock ).toHaveBeenCalledWith(
 			'successfully created product',
@@ -267,5 +254,80 @@ describe( 'Membership Products Actions', () => {
 			'there was an error when adding the product',
 			PRODUCT_TYPE_PAYMENT_PLAN
 		);
+	} );
+
+	test( 'Silent case displays does not display a success notice.', async () => {
+		// Given
+		const anyValidProduct = buildAnyValidProduct();
+		const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
+		const selectedProductCallback = jest.fn( anyFunction );
+		const apiResponseProduct = {
+			id: 1,
+			title: 'anyTitle',
+			interval: 'anyInterval',
+			price: '12',
+			currency: 'anyCurrency',
+		};
+		const registryProductList = [ apiResponseProduct, apiResponseProduct ];
+		const registry = {
+			select: () => ( { getProducts: () => registryProductList } ),
+		};
+		const dispatch = jest.fn( anyFunction );
+		const noticeMock = jest.spyOn( utils, 'onSuccess' ).mockImplementation( anyFunction );
+		const getMessageMock = jest
+			.spyOn( message, 'getMessageByProductType' )
+			.mockImplementation( anyFunction );
+		apiFetch.mockReturnValue( Promise.resolve( apiResponseProduct ) );
+
+		// When
+		await saveProduct(
+			anyValidProduct,
+			paymentPlanProductType,
+			selectedProductCallback,
+			() => {},
+			false
+		)( { dispatch, registry } );
+
+		// Then
+		expect( apiFetch ).toHaveBeenCalledWith( {
+			path: '/wpcom/v2/memberships/product',
+			method: 'POST',
+			data: anyValidProduct,
+		} );
+		expect( dispatch ).toHaveBeenCalledWith( {
+			products: registryProductList.concat( [ apiResponseProduct ] ),
+			type: 'SET_PRODUCTS',
+		} );
+		expect( selectedProductCallback ).toHaveBeenCalledWith( [ apiResponseProduct.id ] );
+		expect( noticeMock ).not.toHaveBeenCalled();
+		expect( getMessageMock ).not.toHaveBeenCalled();
+	} );
+
+	test( 'Set newsletter categories works as expected', () => {
+		// Given
+		const anyValidNewsletterCategoriesWithType = {
+			type: 'SET_NEWSLETTER_CATEGORIES',
+			newsletterCategories: ANY_VALID_DATA,
+		};
+
+		// When
+		const result = setNewsletterCategories( ANY_VALID_DATA );
+
+		// Then
+		expect( result ).toStrictEqual( anyValidNewsletterCategoriesWithType );
+	} );
+
+	test( 'Set newsletter categories subscriptions count works as expected', () => {
+		// Given
+		const anyValidNewsletterCategoriesSubscriptionsCountWithType = {
+			type: 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT',
+			newsletterCategoriesSubscriptionsCount: ANY_VALID_DATA,
+		};
+
+		// When
+		const result = setNewsletterCategoriesSubscriptionsCount( ANY_VALID_DATA );
+
+		// Then
+		expect( result ).toStrictEqual( anyValidNewsletterCategoriesSubscriptionsCountWithType );
 	} );
 } );

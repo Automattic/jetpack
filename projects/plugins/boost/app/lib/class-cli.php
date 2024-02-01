@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 
 /**
@@ -23,7 +24,7 @@ class CLI {
 	 */
 	private $jetpack_boost;
 
-	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical-css', 'lazy-images', 'render-blocking-js' );
+	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'render_blocking_js' );
 
 	/**
 	 * CLI constructor.
@@ -52,8 +53,8 @@ class CLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp jetpack-boost module activate critical-css
-	 * wp jetpack-boost module deactivate critical-css
+	 * wp jetpack-boost module activate critical_css
+	 * wp jetpack-boost module deactivate critical_css
 	 *
 	 * @param array $args Command arguments.
 	 */
@@ -85,6 +86,24 @@ class CLI {
 		}
 	}
 
+	public function getting_started( $args ) {
+		$status = isset( $args[0] ) ? $args[0] : null;
+
+		if ( ! in_array( $status, array( 'true', 'false' ), true ) ) {
+			\WP_CLI::error(
+				/* translators: %s refers to the module slug like 'critical-css' */
+				sprintf( __( "The '%s' status is invalid", 'jetpack-boost' ), $status )
+			);
+		}
+
+		( new Getting_Started_Entry() )->set( 'true' === $status );
+
+		\WP_CLI::success(
+			/* translators: %s refers to 'true' or 'false' */
+			sprintf( __( 'Getting started is set to %s', 'jetpack-boost' ), $status )
+		);
+	}
+
 	/**
 	 * Set a module status.
 	 *
@@ -93,6 +112,7 @@ class CLI {
 	 */
 	private function set_module_status( $module_slug, $status ) {
 		( new Status( $module_slug ) )->update( $status );
+
 		$status_label = $status ? __( 'activated', 'jetpack-boost' ) : __( 'deactivated', 'jetpack-boost' );
 
 		/* translators: The %1$s refers to the module slug, %2$s refers to the module state (either activated or deactivated)*/

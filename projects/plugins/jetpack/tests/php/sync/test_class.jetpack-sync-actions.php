@@ -53,6 +53,26 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'comment_meta_checksum', $comment_meta );
 	}
 
+	public function test_get_sync_status_with_debug_details() {
+		$with_debug_details = Actions::get_sync_status( 'debug_details' );
+		$this->assertArrayHasKey( 'debug_details', $with_debug_details );
+
+		$debug_details = $with_debug_details['debug_details'];
+		$this->assertArrayHasKey( 'sync_allowed', $debug_details );
+		$this->assertArrayHasKey( 'sync_health', $debug_details );
+		$this->assertArrayHasKey( 'dedicated_sync_enabled', $debug_details );
+		$this->assertArrayHasKey( 'sync_locks', $debug_details );
+
+		$sync_locks = $debug_details['sync_locks'];
+		$this->assertArrayHasKey( 'retry_time_sync', $sync_locks );
+		$this->assertArrayHasKey( 'retry_time_full_sync', $sync_locks );
+		$this->assertArrayHasKey( 'next_sync_time_sync', $sync_locks );
+		$this->assertArrayHasKey( 'next_sync_time_full_sync', $sync_locks );
+		$this->assertArrayHasKey( 'queue_locked_sync', $sync_locks );
+		$this->assertArrayHasKey( 'queue_locked_full_sync', $sync_locks );
+		$this->assertArrayHasKey( 'dedicated_sync_request_lock', $sync_locks );
+	}
+
 	public function test_do_initial_sync_during_full_sync() {
 		$full_sync = Modules::get_module( 'full-sync' );
 		$full_sync->start();
@@ -75,7 +95,7 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 	 */
 	public function test_unknown_health_on_upgrade() {
 		Actions::cleanup_on_upgrade();
-		$this->assertEquals( Health::get_status(), Health::STATUS_UNKNOWN );
+		$this->assertEquals( Health::STATUS_UNKNOWN, Health::get_status() );
 	}
 
 	/**
@@ -83,10 +103,10 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 	 */
 	public function test_initialization_status_disabled_on_upgrade() {
 		Health::update_status( Health::STATUS_IN_SYNC );
-		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
+		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
 		Settings::update_settings( array( 'disable' => true ) );
 		Actions::cleanup_on_upgrade();
-		$this->assertEquals( Health::get_status(), Health::STATUS_DISABLED );
+		$this->assertEquals( Health::STATUS_DISABLED, Health::get_status() );
 	}
 
 	/**
@@ -95,7 +115,7 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 	public function test_initialization_status_ignored_on_upgrade() {
 		Health::update_status( Health::STATUS_IN_SYNC );
 		Actions::cleanup_on_upgrade();
-		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
+		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
 	}
 
 	/**
@@ -182,5 +202,4 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$this->assertTrue( \Automattic\Jetpack\Constants::is_true( 'JETPACK_SYNC_READ_ONLY' ) );
 		\Automattic\Jetpack\Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
 	}
-
 }

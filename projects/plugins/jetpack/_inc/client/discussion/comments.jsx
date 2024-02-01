@@ -1,6 +1,5 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel, FormSelect } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -17,11 +16,11 @@ class CommentsComponent extends React.Component {
 	 * If markdown module is inactive and this is toggling markdown for comments on, activate module.
 	 * If markdown for posts is off and this is toggling markdown for comments off, deactivate module.
 	 *
-	 * @param {string} module	the module slug.
+	 * @param {string} module	- the module slug.
 	 * @returns {*}             the updated value
 	 */
 	updateFormStateByMarkdown = module => {
-		if ( !! this.props.getSettingCurrentValue( 'wpcom_publish_posts_with_markdown', module ) ) {
+		if ( this.props.getSettingCurrentValue( 'wpcom_publish_posts_with_markdown', module ) ) {
 			return this.props.updateFormStateModuleOption(
 				module,
 				'wpcom_publish_comments_with_markdown'
@@ -126,6 +125,7 @@ class CommentsComponent extends React.Component {
 										'jetpack_comment_form_color_scheme',
 										'comments'
 									) }
+									rna
 								/>
 							</FormLabel>
 						</FormFieldset>
@@ -156,7 +156,7 @@ class CommentsComponent extends React.Component {
 						{ foundMarkdown && (
 							<div className="jp-toggle-set">
 								<FormFieldset>
-									<CompactFormToggle
+									<ToggleControl
 										checked={
 											!! this.props.getOptionValue(
 												'wpcom_publish_comments_with_markdown',
@@ -164,21 +164,19 @@ class CommentsComponent extends React.Component {
 											)
 										}
 										disabled={
-											this.props.isSavingAnyOption( [
-												'markdown',
-												'wpcom_publish_comments_with_markdown',
-											] ) || 'inactive' === this.props.getModuleOverride( 'markdown' )
+											this.props.isSavingAnyOption( [ 'markdown' ] ) ||
+											'inactive' === this.props.getModuleOverride( 'markdown' )
 										}
 										toggling={ this.props.isSavingAnyOption( [
-											'markdown',
 											'wpcom_publish_comments_with_markdown',
 										] ) }
 										onChange={ this.handleMarkdownCommentsToggle }
-									>
-										<span className="jp-form-toggle-explanation">
-											{ __( 'Enable Markdown use for comments.', 'jetpack' ) }
-										</span>
-									</CompactFormToggle>
+										label={
+											<span className="jp-form-toggle-explanation">
+												{ __( 'Enable Markdown use for comments.', 'jetpack' ) }
+											</span>
+										}
+									/>
 								</FormFieldset>
 								<SupportInfo
 									text={ __( 'Allow readers to use markdown in comments.', 'jetpack' ) }
@@ -199,7 +197,7 @@ class CommentsComponent extends React.Component {
 										toggleModule={ this.props.toggleModuleNow }
 									>
 										<span className="jp-form-toggle-explanation">
-											{ __( 'Enable comment likes.', 'jetpack' ) }
+											{ __( 'Enable comment Likes.', 'jetpack' ) }
 										</span>
 									</ModuleToggle>
 								</FormFieldset>
