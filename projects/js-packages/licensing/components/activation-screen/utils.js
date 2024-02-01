@@ -63,13 +63,3 @@ export function getProductGroup( productId ) {
 		'default'
 	);
 }
-
-/**
- * Check if a plugin is active.
- *
- * @param {string} plugin -- The name of the plugin such as jetpack/jetpack.php, social/jetpack-social.php, backup/jetpack-backup.php.
- * @returns {boolean} -- True or False.
- */
-export function isPluginActive( plugin ) {
-	return window.myJetpackInitialState?.plugins?.[ plugin ]?.active;
-}
