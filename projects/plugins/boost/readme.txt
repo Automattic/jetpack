@@ -5,7 +5,7 @@ Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
 Tested up to: 6.4
 Requires PHP: 7.0
-Stable tag: 2.2.1
+Stable tag: 3.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,26 +180,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.0.0-beta - 2024-01-22
-#### Added
-- Cloud CSS: Added internal support for custom CSS Generation parametr for more reliable Cloud CSS generation.
-- General: Added Jetpack Sync to allow for better support.
-
-#### Changed
-- Code Modernization: Replace usage of strpos() with str_contains(), str_starts_with, and std_ends.
-- Code Modernization: Replace usage of strpos() with str_starts_with().
-- Code Modernization: Replace usage of substr() with str_starts_with() and str_ends_with().
-- General: Cleanup unused JS constants on Boost admin page.
-- General: Migrated Admin UI from Svlete to React, for consistency with the rest of Jetpack.
-- General: Updated PHP requirement to PHP 7.0+
-
-#### Removed
-- Removed Boost setup prompt/banner on wp-admin plugins page.
-- Removed lazy-loading module.
-
+### 3.0.2 - 2024-01-31
 #### Fixed
-- Concatenate JS: Output inline before/after scripts for handles with `src` false.
-- Critical CSS: Exclude @charset and @import statements from Critical CSS.
+- General: Fixed an issue with compatibility file
 
 --------
 

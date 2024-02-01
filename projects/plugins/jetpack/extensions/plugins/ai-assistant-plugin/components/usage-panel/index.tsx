@@ -119,6 +119,7 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 		currentTier,
 		nextTier,
 		requireUpgrade,
+		loading,
 	} = useAiFeature();
 	const planType = usePlanType( currentTier );
 	const daysUntilReset = useDaysUntilReset( usagePeriod?.nextStart );
@@ -170,36 +171,39 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 					daysUntilReset={ daysUntilReset }
 					planType={ planType }
 					requireUpgrade={ requireUpgrade }
+					loading={ loading }
 				/>
 
-				{ ( planType === PLAN_TYPE_FREE || planType === PLAN_TYPE_TIERED ) && canUpgrade && (
-					<div className="jetpack-ai-usage-panel-upgrade-button">
-						{ showContactUsCallToAction && (
-							<>
-								<p>{ __( 'Need more requests?', 'jetpack' ) }</p>
+				{ ! loading &&
+					( planType === PLAN_TYPE_FREE || planType === PLAN_TYPE_TIERED ) &&
+					canUpgrade && (
+						<div className="jetpack-ai-usage-panel-upgrade-button">
+							{ showContactUsCallToAction && (
+								<>
+									<p>{ __( 'Need more requests?', 'jetpack' ) }</p>
+									<Button
+										variant="primary"
+										label={ __( 'Contact us for more requests', 'jetpack' ) }
+										href={ contactUsURL }
+										onClick={ trackContactUsClick }
+									>
+										{ __( 'Contact Us', 'jetpack' ) }
+									</Button>
+								</>
+							) }
+							{ ! showContactUsCallToAction && (
 								<Button
 									variant="primary"
-									label={ __( 'Contact us for more requests', 'jetpack' ) }
-									href={ contactUsURL }
-									onClick={ trackContactUsClick }
+									label={ __( 'Upgrade your Jetpack AI plan', 'jetpack' ) }
+									href={ checkoutUrl }
+									onClick={ trackUpgradeClick }
+									disabled={ isRedirecting }
 								>
-									{ __( 'Contact Us', 'jetpack' ) }
+									{ upgradeButtonText }
 								</Button>
-							</>
-						) }
-						{ ! showContactUsCallToAction && (
-							<Button
-								variant="primary"
-								label={ __( 'Upgrade your Jetpack AI plan', 'jetpack' ) }
-								href={ checkoutUrl }
-								onClick={ trackUpgradeClick }
-								disabled={ isRedirecting }
-							>
-								{ upgradeButtonText }
-							</Button>
-						) }
-					</div>
-				) }
+							) }
+						</div>
+					) }
 			</>
 		</div>
 	);
