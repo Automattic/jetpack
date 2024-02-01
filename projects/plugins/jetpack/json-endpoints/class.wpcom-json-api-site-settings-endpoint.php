@@ -878,7 +878,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$updated[ $key ] = $sanitized_value;
 					}
 					break;
-
+				case 'woocommerce_should_run_headstart_for_theme':
+					// This value should always be 'yes' or empty.
+					if ( 'yes' !== $value ) {
+						$updated[ $key ] = '';
+					}
+					break;
 				case 'woocommerce_store_address':
 				case 'woocommerce_store_address_2':
 				case 'woocommerce_store_city':
