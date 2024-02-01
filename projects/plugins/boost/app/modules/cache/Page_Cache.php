@@ -80,7 +80,7 @@ class Page_Cache implements Pluggable, Is_Always_On {
 
 		if ( file_exists( $advanced_cache_filename ) ) {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			if ( strpos( $content, Page_cache::$advanced_cache_signature ) !== false ) {
+			if ( strpos( $content, self::$advanced_cache_signature ) !== false ) {
 				return true;
 			} else {
 				return new \WP_Error( 'advanced-cache.php exists but is not the correct file' );
@@ -88,7 +88,7 @@ class Page_Cache implements Pluggable, Is_Always_On {
 		} else {
 			$plugin_name = basename( dirname( plugin_dir_path( __FILE__ ), 3 ) );
 			$contents    = '<?php
-// ' . Page_cache::$advanced_cache_signature . '
+// ' . self::$advanced_cache_signature . '
 if ( ! file_exists( WP_CONTENT_DIR . \'/plugins/' . $plugin_name . '/app/modules/cache/Boost_File_Cache.php\' ) ) {
 	return;
 }
