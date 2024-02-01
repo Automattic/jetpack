@@ -48,15 +48,6 @@ abstract class Hybrid_Product extends Product {
 	}
 
 	/**
-	 * Checks whether the plugin is installed
-	 *
-	 * @return boolean
-	 */
-	public static function is_plugin_installed() {
-		return parent::is_plugin_installed() || static::is_jetpack_plugin_installed();
-	}
-
-	/**
 	 * Checks whether the Jetpack module is active only if a module_name is defined
 	 *
 	 * @return bool
