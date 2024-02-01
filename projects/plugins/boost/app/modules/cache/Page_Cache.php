@@ -13,11 +13,6 @@ require_once __DIR__ . '/Boost_Cache_Settings.php';
 
 class Page_Cache implements Pluggable, Is_Always_On {
 	/*
-	 * @var array - The errors that occurred when removing the cache.
-	 */
-	private $removal_errors = array();
-
-	/*
 	 * @var string - The signature used to identify the advanced-cache.php file.
 	 */
 	public static $advanced_cache_signature = 'Boost Cache Plugin 0.1';

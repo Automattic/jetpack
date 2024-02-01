@@ -29,6 +29,19 @@ abstract class Boost_Cache {
 		$this->request_uri = isset( $_SERVER['REQUEST_URI'] )
 			? $this->normalize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			: false;
+
+		$this->init_actions();
+	}
+
+	protected function init_actions() {
+		/*
+		 * I'm not using edit_post because I think we can get everything we need from the other actions.
+		 * but we might need it for other events.
+		 *  add_action( 'edit_post', array( $this, 'delete_cache_post_edit' ), 0 );
+		 */
+		add_action( 'transition_post_status', array( $this, 'delete_on_post_transition' ), 10, 3 );
+		add_action( 'transition_comment_status', array( $this, 'delete_on_comment_transition' ), 10, 3 );
+		add_action( 'comment_post', array( $this, 'delete_on_comment_post' ), 10, 3 );
 	}
 
 	/*
@@ -77,6 +90,11 @@ abstract class Boost_Cache {
 		}
 
 		if ( defined( 'DONOTCACHEPAGE' ) ) {
+			return false;
+		}
+
+		// do not cache post previews or customizer previews
+		if ( ! empty( $_GET ) && ( isset( $_GET['preview'] ) || isset( $_GET['customize_changeset_uuid'] ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
 
@@ -131,7 +149,7 @@ abstract class Boost_Cache {
 	protected function normalize_request_uri( $request_uri ) {
 		// get path from request uri
 		$request_uri = parse_url( $request_uri, PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-		if ( $request_uri === '' ) {
+		if ( $request_uri === '' || $request_uri === false || $request_uri === null ) {
 			$request_uri = '/';
 		} elseif ( substr( $request_uri, -1 ) !== '/' ) {
 			$request_uri .= '/';
@@ -189,10 +207,6 @@ abstract class Boost_Cache {
 		}
 		return $this->path_key;
 	}
-
-	abstract public function get();
-
-	abstract public function set( $data );
 
 	/*
 	 * Starts output buffering and sets the callback to save the cache file.
@@ -262,4 +276,94 @@ abstract class Boost_Cache {
 
 		return $is_backend;
 	}
+
+	protected function is_visible_post_type( $post ) {
+		$post_type = is_object( $post ) ? get_post_type_object( $post->post_type ) : null;
+		if ( empty( $post_type ) || ! $post_type->public ) {
+			return false;
+		}
+		return true;
+	}
+
+	protected function maybe_clear_front_page_cache( $post ) {
+		$front_page_id = get_option( 'show_on_front' ); // posts page
+		if ( $front_page_id === 'page' ) {
+			$front_page_id = get_option( 'page_on_front' ); // static page
+			if ( $front_page_id === $post->ID ) {
+				$this->delete_cache_for_post( $post->ID );
+			}
+		} else {
+			// get a list of posts that show on the front page. If $post_id is there delete the cache
+			$posts_per_page     = get_option( 'posts_per_page' );
+			$latest_posts_query = new \WP_Query(
+				array(
+					'posts_per_page' => $posts_per_page,
+					'post_status'    => 'publish',
+					'no_found_rows'  => true,
+					'fields'         => 'ids',
+				)
+			);
+			$latest_posts       = $latest_posts_query->get_posts();
+			foreach ( $latest_posts as $id ) {
+				if ( (int) $id === (int) $post->ID ) {
+					$this->delete_cache_for_url( get_home_url(), true );
+					return;
+				}
+			}
+		}
+	}
+
+	/*
+	 * Deletes the cache file for the given post_id.
+	 *
+	 * @param int post_id of the post to delete the cache for.
+	 */
+	public function delete_cache_post_edit( $post_id ) {
+		$post = get_post( $post_id );
+		error_log( "Boost_File_Cache::delete_cache_post_edit( $post_id )" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		$this->delete_cache_for_post( $post );
+
+		$this->maybe_clear_front_page_cache( $post_id );
+
+		/*
+		 * Don't delete the cached files for tag/category archives for posts
+		 * that are not published.
+		 * When this function is called by edit_post it can't know the previous
+		 * post status. If the previous post status was "published" or "private"
+		 * and now it's "draft" or "pending", or "future" then that will be
+		 * handled by delete_on_post_transition().
+		 */
+		if ( in_array( $post->post_status, array( 'draft', 'pending', 'future', 'auto-draft', 'inherit' ), true ) ) {
+			return;
+		}
+		$this->delete_cache_for_post_terms( $post );
+	}
+
+	public function delete_on_comment_transition( $new_status, $old_status, $comment ) {
+		$post = get_post( $comment->comment_post_ID );
+		error_log( "Boost_File_Cache::delete_on_comment( $new_status, $old_status, {$comment->comment_post_ID} )" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		$this->delete_cache_for_post( $post );
+	}
+
+	public function delete_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
+		$post = get_post( $commentdata['comment_post_ID'] );
+
+		if ( $comment_approved !== '1' ) {
+			$this->delete_post_for_visitor( $post );
+			error_log( 'comment not approved!!' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			return;
+		}
+		error_log( 'comment was approved' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+
+		error_log( "Boost_File_Cache::delete_on_comment_post( $comment_id, $comment_approved, {$commentdata['comment_post_ID']} )" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		$this->delete_cache_for_post( $post );
+	}
+
+	abstract public function get();
+	abstract public function set( $data );
+	abstract public function delete_cache_for_url( $url );
+	abstract public function delete_cache_for_post( $post_id );
+	abstract public function delete_post_for_visitor( $post );
+	abstract public function delete_on_post_transition( $new_status, $old_status, $post );
+	abstract public function delete_cache_for_post_terms( $post );
 }

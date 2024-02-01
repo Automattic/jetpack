@@ -32,6 +32,33 @@ class Boost_Cache_Utils {
 	}
 
 	/*
+	 * Delete a single directory.
+	 * @param string $dir - The directory to delete.
+	 * @return bool|WP_Error
+	 */
+	public static function delete_single_directory( $dir ) {
+		$dir = realpath( $dir );
+		if ( ! $dir ) {
+			return new \WP_Error( 'Directory does not exist' ); // realpath returns false if a file does not exist.
+		}
+
+		// make sure that $dir is a directory inside WP_CONTENT . '/boost-cache/';
+		if ( self::is_boost_cache_directory( $dir ) === false ) {
+			return new \WP_Error( 'Invalid directory' );
+		}
+
+		// delete files in the directory and the directory if empty
+		$files = array_diff( scandir( $dir ), array( '.', '..' ) );
+		foreach ( $files as $file ) {
+			$file = $dir . '/' . $file;
+			if ( ! is_dir( $file ) ) {
+				wp_delete_file( $file );
+			}
+		}
+		return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+	}
+
+	/*
 	 * Returns a sanitized directory path.
 	 * @param string $path - The path to sanitize.
 	 * @return string
