@@ -1,6 +1,6 @@
 import { UpsellBanner, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import jetpackManageIcon from './jetpack-manage.svg';
 
@@ -13,6 +13,10 @@ import jetpackManageIcon from './jetpack-manage.svg';
 const JetpackManageBanner = props => {
 	const { isAgencyAccount } = props;
 	const { recordEvent } = useAnalytics();
+
+	useEffect( () => {
+		recordEvent( 'jetpack_myjetpack_manage_banner_view' );
+	}, [ recordEvent ] );
 
 	// Handle click events
 	const bannerClickHandler = useCallback(
