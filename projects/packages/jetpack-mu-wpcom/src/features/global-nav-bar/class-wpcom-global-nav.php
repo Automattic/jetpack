@@ -29,7 +29,17 @@ class WPcom_Global_Nav {
 
 		// Re-add original nodes
 		foreach ( $nodes as $id => $node ) {
-			$bar->add_node( $node );
+			$wp_admin_bar->add_node( $node );
 		}
+	}
+
+	// temporary because sometimes console goo is easier to read than an error log.
+	public function console_log( $output, $with_script_tags = true ) {
+		$js_code = 'console.log(' . json_encode( $output, JSON_HEX_TAG ) .
+		');';
+		if ( $with_script_tags ) {
+			$js_code = '<script>' . $js_code . '</script>';
+		}
+		echo $js_code;
 	}
 }
