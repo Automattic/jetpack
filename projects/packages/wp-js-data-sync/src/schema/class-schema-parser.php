@@ -143,7 +143,7 @@ class Schema_Parser implements Parser {
 			$parsers = $this->parser->get_parsers();
 			foreach ( $parsers as $parser ) {
 				if ( $parser instanceof Type_Literal ) {
-					return $parser->parse( null, $this->context);
+					return $parser->parse( null, $this->context );
 				}
 			}
 		}
