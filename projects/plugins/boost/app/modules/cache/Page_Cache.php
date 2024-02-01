@@ -12,8 +12,15 @@ require_once __DIR__ . '/Boost_Cache_Utils.php';
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 
 class Page_Cache implements Pluggable, Is_Always_On {
-
+	/*
+	 * @var array - The errors that occurred when removing the cache.
+	 */
 	private $removal_errors = array();
+
+	/*
+	 * @var string - The signature used to identify the advanced-cache.php file.
+	 */
+	public static $advanced_cache_signature = 'Boost Cache Plugin 0.1';
 
 	/*
 	 * @var array - The settings for the page cache.
@@ -69,19 +76,18 @@ class Page_Cache implements Pluggable, Is_Always_On {
 	 */
 	private function create_advanced_cache() {
 
-		$cache_version           = 'Boost Cache Plugin 0.1';
 		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
 
 		if ( file_exists( $advanced_cache_filename ) ) {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			if ( strpos( $content, $cache_version ) !== false ) {
+			if ( strpos( $content, Page_cache::$advanced_cache_signature ) !== false ) {
 				return true;
 			} else {
 				return new \WP_Error( 'advanced-cache.php exists but is not the correct file' );
 			}
 		} else {
 			$contents = '<?php
-// ' . $cache_version . '
+// ' . Page_cache::$advanced_cache_signature . '
 require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File_Cache.php\' );
 
 ( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_File_Cache() )->serve();
@@ -165,7 +171,7 @@ define( \'WP_CACHE\', true );',
 		}
 
 		$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		if ( strpos( $content, 'Boost Cache Plugin 0.1' ) !== false ) {
+		if ( strpos( $content, self::$advanced_cache_signature ) !== false ) {
 			wp_delete_file( $advanced_cache_filename );
 
 		}
