@@ -175,40 +175,30 @@ class Stats extends Module_Product {
 	 * @return boolean
 	 */
 	public static function is_upgradable() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
+		$connection = new Connection_Manager();
+		if ( ! $connection->is_connected() || ! $connection->is_user_connected() ) {
 			return false;
 		}
 
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			// For now, only the free and commercial tiered subs show as upgradable
-			$upgradeable_stats_purchases = array_filter(
-				$purchases_data,
-				static function ( $purchase ) {
-					// Free plan is upgradeable
-					if ( $purchase->product_slug === 'jetpack_stats_free_yearly' ) {
-						return true;
-						// Commercial plans are upgradeable if they have a tier
-					} elseif (
-						in_array(
-							$purchase->product_slug,
-							array( 'jetpack_stats_yearly', 'jetpack_stats_monthly', 'jetpack_stats_bi_yearly' ),
-							true
-						) &&
-						! empty( $purchase->current_price_tier_slug )
-					) {
-						return true;
-					}
-
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( ! is_wp_error( $purchases_data ) && is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				// Jetpack complete includes Stats commercial & cannot be upgraded
+				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+					return false;
+				} elseif (
+					// Stats commercial cannot be upgraded.
+					in_array(
+						$purchase->product_slug,
+						array( 'jetpack_stats_yearly', 'jetpack_stats_monthly', 'jetpack_stats_bi_yearly' ),
+						true
+					)
+				) {
 					return false;
 				}
-			);
-
-			return ! empty( $upgradeable_stats_purchases );
+			}
 		}
-
-		// If there are no plans found, don't consider the product as upgradeable
-		return false;
+		return true;
 	}
 
 	/**

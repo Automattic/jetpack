@@ -244,6 +244,15 @@ const ProductCard = props => {
 		onDeactivateStandalone();
 	}, [ slug, onDeactivateStandalone, recordEvent ] );
 
+	/**
+	 * Called when "See detailed stats" button is clicked.
+	 */
+	const onDetsailedStatsClick = useCallback( () => {
+		recordEvent( `jetpack_myjetpack_stats_card_seedetailedstats_click`, {
+			product: 'stats',
+		} );
+	}, [ recordEvent ] );
+
 	return (
 		<Card
 			title={ name }
@@ -271,16 +280,30 @@ const ProductCard = props => {
 			) }
 
 			<div className={ styles.actions }>
-				<ActionButton
-					{ ...props }
-					onActivate={ activateHandler }
-					onFixConnection={ fixConnectionHandler }
-					onManage={ manageHandler }
-					onAdd={ addHandler }
-					onLearnMore={ learnMoreHandler }
-					className={ styles.button }
-					additionalActions={ additionalActions }
-				/>
+				<div className={ styles.buttons }>
+					<ActionButton
+						{ ...props }
+						onActivate={ activateHandler }
+						onFixConnection={ fixConnectionHandler }
+						onManage={ manageHandler }
+						onAdd={ addHandler }
+						onLearnMore={ learnMoreHandler }
+						className={ styles.button }
+						additionalActions={ additionalActions }
+					/>
+					{ slug === 'stats' &&
+						( status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE ) && (
+							<Button
+								size="small"
+								weight="regular"
+								variant={ 'secondary' }
+								href={ 'admin.php?page=stats' }
+								onClick={ onDetsailedStatsClick }
+							>
+								{ __( 'See detailed stats', 'jetpack-my-jetpack' ) }
+							</Button>
+						) }
+				</div>
 				{ ! isAbsent && (
 					<Status
 						status={ status }
