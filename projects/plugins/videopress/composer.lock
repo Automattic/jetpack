@@ -124,7 +124,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "1f713fb83a98dab43f325fe71331d40f9ca47334"
+                "reference": "d5648e0a4f0a8bffbbc805d0f6a5ed0f3cedd521"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -148,7 +148,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.0.x-dev"
+                    "dev-trunk": "2.1.x-dev"
                 }
             },
             "autoload": {
@@ -1329,7 +1329,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "ccaf247242c5ee95ce5ac179ef65b402ed56da49"
+                "reference": "bcc9957ec6dfe80f5f59072218bd3a15df0bfedd"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1355,7 +1355,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.22.x-dev"
+                    "dev-trunk": "0.23.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"
