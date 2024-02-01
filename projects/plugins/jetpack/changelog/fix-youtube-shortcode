@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-youtube-shortcode: Handle being given an array with a 'url' key insteadad of the URL as a string

@@ -1,3 +1,4 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -86,6 +87,32 @@ const JetpackProductDetails = props => {
 			text: __(
 				'Experience high-quality, ad-free video built specifically for WordPress.',
 				'jetpack'
+			),
+		},
+		jetpack_social_advanced: {
+			title: __( 'Jetpack Social Advanced is active!', 'jetpack' ),
+			text: createInterpolateElement(
+				__(
+					'Create amazing link previews for your posts using Social Image Generator. Learn more <a>here</a>.<br/><br/>Learn how to make the most out of Jetpack Social <link>here</link>.<br/><br/>',
+					'jetpack'
+				),
+				{
+					a: <a href={ getRedirectUrl( 'jetpack-social-sig-support-page' ) } />,
+					br: <br />,
+					link: <a href={ getRedirectUrl( 'social-plugin-publicize-support-admin-page' ) } />,
+				}
+			),
+		},
+		jetpack_social_basic: {
+			title: __( 'Jetpack Social Basic is active!', 'jetpack' ),
+			text: createInterpolateElement(
+				__(
+					'Enjoy unlimited shares with Jetpack Social Basic. Learn how to make the most out of Jetpack Social <a>here</a>.',
+					'jetpack'
+				),
+				{
+					a: <a href={ getRedirectUrl( 'social-plugin-publicize-support-admin-page' ) } />,
+				}
 			),
 		},
 		default: {

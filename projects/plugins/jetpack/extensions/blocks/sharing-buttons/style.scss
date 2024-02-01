@@ -22,6 +22,10 @@
 	&.has-huge-icon-size {
 		font-size: 36px;
 	}
+
+	@media print {
+		display: none !important;
+	}
 }
 
 ul.jetpack-sharing-buttons__services-list.has-background {
