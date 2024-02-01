@@ -161,15 +161,15 @@ abstract class Sharing_Source_Block {
 	/**
 	 * Get the URL for the link.
 	 *
-	 * @param WP_Post     $post            Post object.
+	 * @param int         $post_id         Post ID.
 	 * @param string      $query           Additional query arguments to add to the link. They should be in 'foo=bar&baz=1' format.
 	 * @param bool|string $id              Sharing ID to include in the data-shared attribute.
 	 * @param array       $data_attributes The keys are used as additional attribute names with 'data-' prefix.
 	 *                                     The values are used as the attribute values.
 	 * @return object Link related data (url and data_attributes);
 	 */
-	public function get_link( $post, $query = '', $id = false, $data_attributes = array() ) {
-		$url             = $this->get_url( $this->get_process_request_url( $post->ID ), $query, $id );
+	public function get_link( $post_id, $query = '', $id = false, $data_attributes = array() ) {
+		$url             = $this->get_url( $this->get_process_request_url( $post_id ), $query, $id );
 		$data_attributes = $this->get_data_attributes( $id, $data_attributes );
 
 		return array(
