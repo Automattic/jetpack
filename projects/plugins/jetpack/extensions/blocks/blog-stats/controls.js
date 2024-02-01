@@ -1,8 +1,7 @@
 import { PanelBody, RadioControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
 
-export function BlogStatsInspectorControls( { attributes, setAttributes, className } ) {
+export function BlogStatsInspectorControls( { attributes, setAttributes } ) {
 	const { statsOption } = attributes;
 
 	const RADIO_OPTIONS = [
@@ -25,7 +24,7 @@ export function BlogStatsInspectorControls( { attributes, setAttributes, classNa
 					onChange={ value => setAttributes( { statsOption: value } ) }
 					options={ RADIO_OPTIONS }
 				/>
-				<span className={ classNames( className, 'stats-notice' ) }>
+				<span className="jetpack-blog-stats__delay-notice">
 					{ __( 'Stats are delayed for up to 5 minutes.', 'jetpack' ) }
 				</span>
 			</PanelBody>

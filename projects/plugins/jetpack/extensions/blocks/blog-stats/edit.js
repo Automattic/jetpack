@@ -21,13 +21,15 @@ function BlogStatsEdit( { attributes, className, setAttributes } ) {
 	useEffect( () => {
 		if ( isModuleActive ) {
 			apiFetch( {
-				path: postId ? `/wpcom/v2/blog-stats?post_id=${ postId }` : '/wpcom/v2/blog-stats',
+				path: Number.isInteger( postId )
+					? `/wpcom/v2/blog-stats?post_id=${ postId }`
+					: '/wpcom/v2/blog-stats',
 			} ).then( response => {
 				setBlogViews( response[ 'blog-views' ] );
 
 				// Display "12,345" as an obvious placeholder when we have no Post ID.
 				// Applies to widgets, FSE templates etc.
-				setPostViews( postId ? response[ 'post-views' ] : '12345' );
+				setPostViews( Number.isInteger( postId ) ? response[ 'post-views' ] : '12345' );
 			} );
 		}
 	}, [ postId, isModuleActive ] );
@@ -45,16 +47,12 @@ function BlogStatsEdit( { attributes, className, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<BlogStatsInspectorControls
-					attributes={ attributes }
-					setAttributes={ setAttributes }
-					className={ className }
-				/>
+				<BlogStatsInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 			</InspectorControls>
 
 			<div className={ className }>
 				{ isLoadingModules || blogViews === null ? (
-					<p className="loading-stats">{ __( 'Loading stats…', 'jetpack' ) }</p>
+					<p className="jetpack-blog-stats__loading">{ __( 'Loading stats…', 'jetpack' ) }</p>
 				) : (
 					<p>
 						<span>{ numberFormat( views ) } </span>
