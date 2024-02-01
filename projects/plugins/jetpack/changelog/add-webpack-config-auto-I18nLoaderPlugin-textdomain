@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Let webpack-config load the I18nLoaderPlugin textdomain from composer.json.
-
-

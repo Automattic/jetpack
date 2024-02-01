@@ -72,15 +72,15 @@ function get_current_url() {
 function get_subscriber_login_url( $redirect ) {
 	$redirect = ! empty( $redirect ) ? $redirect : get_site_url();
 
-	// Copied from projects/plugins/jetpack/extensions/blocks/subscriptions/subscriptions.php
+	// Taken from projects/plugins/jetpack/extensions/blocks/subscriptions/subscriptions.php and simplified a bit
 	if ( ( new Host() )->is_wpcom_simple() ) {
 		// On WPCOM we will redirect immediately
-		$redirect_url = $redirect;
-	} else {
-		// On self-hosted we will save and hide the token
-		$redirect_url = get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
-		$redirect_url = add_query_arg( 'redirect_url', $redirect, $redirect_url );
+		return wpcom_logmein_redirect_url( $redirect, false, null, 'link', get_current_blog_id() );
 	}
+
+	// On self-hosted we will save and hide the token
+	$redirect_url = get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
+	$redirect_url = add_query_arg( 'redirect_url', $redirect, $redirect_url );
 
 	return add_query_arg(
 		array(

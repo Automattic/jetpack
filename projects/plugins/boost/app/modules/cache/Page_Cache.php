@@ -9,6 +9,7 @@ use Automattic\Jetpack_Boost\Contracts\Pluggable;
  * This code is shared between the autoloaded Module and advanced-cache.php loaded code.
  */
 require_once __DIR__ . '/Boost_Cache_Utils.php';
+require_once __DIR__ . '/Boost_Cache_Settings.php';
 
 class Page_Cache implements Pluggable, Is_Always_On {
 
@@ -17,6 +18,15 @@ class Page_Cache implements Pluggable, Is_Always_On {
 	public function __construct() {
 		register_deactivation_hook( JETPACK_BOOST_PATH, array( $this, 'deactivate' ) );
 		register_uninstall_hook( JETPACK_BOOST_PATH, array( $this, 'uninstall' ) );
+	}
+
+	/*
+	 * @var array - The settings for the page cache.
+	 */
+	private $settings;
+
+	public function __construct() {
+		$this->settings = Boost_Cache_Settings::get_instance();
 	}
 
 	/*

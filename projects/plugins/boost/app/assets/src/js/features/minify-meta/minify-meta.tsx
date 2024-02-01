@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { type Props, useMetaQuery } from '$lib/stores/minify';
 import styles from './minify-meta.module.scss';
+import { Button } from '@automattic/jetpack-components';
+import Pencil from '$svg/pencil';
 
 const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Props ) => {
-	const { pluginDirUrl } = Jetpack_Boost;
 	const [ values, updateValues ] = useMetaQuery( datasyncKey );
 	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
 	const [ isEditing, setIsEditing ] = useState( false );
@@ -55,18 +56,16 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 						) }
 					</div>
 
-					<button
-						type="button"
-						className="jb-collapsible-meta__edit-button components-button is-link"
+					<Button
+						variant="link"
+						size="small"
+						weight="regular"
+						className={ styles[ 'edit-button' ] }
 						onClick={ () => setIsEditing( true ) }
+						icon={ <Pencil /> }
 					>
-						<img
-							className="edit-icon"
-							src={ `${ pluginDirUrl }/app/assets/static/images/pencil.svg` }
-							alt={ __( 'Edit', 'jetpack-boost' ) }
-						/>
 						{ buttonText }
-					</button>
+					</Button>
 				</>
 			) }
 		</div>

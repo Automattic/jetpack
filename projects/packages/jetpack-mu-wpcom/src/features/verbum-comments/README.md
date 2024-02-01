@@ -4,15 +4,13 @@ A word, discourse, or reason; connoting an appeal to rational discourse.
 
 ## Description
 
-Verbum is the comment UX for WordPress.com and Jetpack and is the successor to [Highlander Comments](../highlander-comments/highlander-comments.php). It is built with [Preact](https://preactjs.com/) and uses [Vite](https://vitejs.dev/) for bundling. This was chosen to limit the size of the bundle and minimize impact on the page performance metrics.
+Verbum is the comment UX for WordPress.com and Jetpack and is the successor to [Highlander Comments](../highlander-comments/highlander-comments.php). It is built with [Preact](https://preactjs.com/) and uses [Webpack](https://webpack.js.org/) for bundling. This was chosen to limit the size of the bundle and minimize impact on the page performance metrics.
 
 ## Technical Details
 
 ### Basics
 
-Page performance impact was highly considered in this plugin. For that reason Preact was chosen to minimize the bundle size as the basic ReactDOM modules needed for rendering were very large. Preact is best utilized with Vite which compiles and bundles everything into the `dist` directory.
-
-From a developer experience it functions the same as React with Webpack. You can use all the typical npm scripts like `start`, `build`, and `lint`.
+Page performance impact was highly considered in this plugin. For that reason Preact was chosen to minimize the bundle size as the basic ReactDOM modules needed for rendering were very large.
 
 Because we are using a Preact based plugin to manage the user experience, we overwrite and remove any of the basic WordPress comment section hooks. We remove everything that is not needed and output our plugin in place of the submit button. This also means that we do not utilize any of the default settings for the comment section that would allow others to overwrite them. These are typically used to change the wording on buttons and headings or inject your own custom components. If someone were to selfishly overwrite the submit button it would prevent the entire comment form from loading.
 
@@ -88,48 +86,35 @@ count.value = count.peek() + delta.value;
 
 ## Development
 
-Verbum is built and managed from this repository, but is then deployed to WPCOM inside `wp-content/mu-plugins/verbum`. To keep these both in sync it is important to deploy your changes to WPCOM after merging any changes. Here is the workflow you can use.
+Verbum is built and managed inside the `jetpack-mu-wpcom` package developed in the Jetpack Monorepo. Changes for Verbum will specifically made in the `projects/packages/jetpack-mu-wpcom/src/features/verbum-comments` directory. The Verbum block editor is now managed in Calypso under `packages/verbum-block-editor`[https://github.com/Automattic/wp-calypso/tree/trunk/packages/verbum-block-editor]. Changes for the block editor will be deployed separately and will be automatically imported in Verbum through our existing logic.
 
 ### Commands
 
-**In order for Verbum to sync properly to your sandbox you need to have `wpcom` set as a host in your SSH config pointed to your sandbox**
+Note: These commands should be ran from `/jetpack-mu-wpcom` root directory.
 
-* `npm run build` - Build Verbum.
-* `npm run build:sync` - Build Verbum and sync to sandbox.
-* `npm run start` - Build and watch Verbum.
-* `npm run start:sync` - Build and watch Verbum, while syncing to sandbox.
-* `npm run lint` - Look for lint issues.
-* `npm run lint:fix` - Look for lint issues and fix easily fixable issues.
-* `npm run build:editor` - Build the editor app inside `/editor`, necessary when changing the editor files.
+* `pnpm build-js` - Build Verbum development code.
+* `pnpm build-production-js` - Build Verbum production code.
+* `pnpm lint` - Check for lint issues in the code.
+* `pnpm run watch` - Watch file changes
+* `jetpack rsync mu-wpcom-plugin` - Sync local files to development environment. This command tool will ask you for the remote destination after your input it in the command line. Ensure the remote path is correct depending on the environment you're targetting. If you're targetting your sandbox, the remote destination should look like this: `USERNAME@HOSTNAME:~/public_html/wp-content/mu-plugins/jetpack-plugin/production`. You will also need to add `define( 'JETPACK_AUTOLOAD_DEV', true );` to mu-plugins/0-sandbox.php. More details for Simple site testing: [PCYsg-Osp-p2#simple-testing]. If you're targetting your WoA site, the remote destination should look like this: `mywoadevsite.wordpress.com@sftp.wp.com:htdocs/wp-content/plugins/jetpack-mu-wpcom-plugin-dev`. More details for WoA testing: [PCYsg-Osp-p2#woa]. 
+
+In most cases you will only need to sync the code to your sandbox, since Verbum is loaded through a Simple Site in all scenarios. There may be a case where you want to confirm that your PHP changes are not negatively impacting WoA sites (for example, checking for any errors/warning on wp-admin pages). In this case, you will want to sync the code directly to your WoA using the steps above.
+
+### Local Development:
+
+To test your changes, you will first need to build the Verbum code using one of the build commands above and sync the changes to your development environment. The build commands will clean the `jetpack-mu-wpcom/src/build` directory and output the newly bundled files (`/build/verbum-comments`). One method to quickly sync and test changes is to use the `jetpack rsync mu-wpcom-plugin` command. After syncing the files, make sure that you sandbox your testing site to see your latest changes.
+
+Reminder:
+
+On Simple Sites: Sync the Verbum code changes to your sandbox and sandbox the site your testing.
+On Atomic Sites: Sync the Verbum code changes to your sandbox and sandbox `jetpack.wordpress.com`.
 
 ### After Merge - Deploy process
 
-Since this is not deployed to WPCOM automatically you need to manually deploy your changes with the following steps:
+1. Create a Jetpack PR, review it, and merge.
+2. To initiate a Simple Site deployment, follow these instructions: [PCYsg-Osp-p2#simple-deployment]. The Jetpack release team (#jetpack-release) will also do a daily deployment for any merged changes, if you do not initiate a manual deployment.
+3. To initate a WoA deployment, follow these instructions: [PCYsg-Osp-p2#woa-deployment]. A new version of `jetpack-mu-wpcom` will be released weekly, if you do not initiate a manual deployment.
 
-1. `git checkout trunk && git reset --hard && git clean -fd` - After your merge make sure you have the freshest version on trunk.
-2. `git checkout trunk && git reset --hard && git clean -fd` - Log in to your sandbox and do the same thing.
-3. `npm run build:editor && npm run build:sync` - From Verbum run the sync command to move the latest version of Verbum to your sandbox. You can also use only `npm run build:sync` for non editor changes (it will be faster for Intel CPUs)
-4. `arc diff --only` - From your sandbox create a new diff for WordPress.com
-5. Your changes should have already been tested on WordPress.com before merging but check for smoke and failing test.
-6. If there are any LINT issues or errors when deploying please be sure to update the REPO as well to avoid future breaking.
-7. `arc land` - Land your changes
-8. `deploy wpcom` - Deploy and done!
+### Where to track new Verbum Issues
 
-### Testing
-
-#### Setup
-
-1. Please sandbox the following sites before running the tests
-    - jetpack.wordpress.com
-    - e2esiteopencommentstoeveryone.wordpress.com
-    - e2ecommentauthormustfilloutnameandemail.wordpress.com
-    - e2eusersmustberegisteredandloggedintocomment.wordpress.com
-
-2. Run `npx playwright install` to install the browser.
-3. Run `npm i` to install the pre-push git hook. 
-
-Now the tests will run on every push.
-
-The tests live in /tests folder. To run them, you can run `npm run e2e-tests`.
-
-If you want to watch the tests unfold, you can run `npx playwright test --ui`.
+If you stumble upon any issues or have any suggestions for possible changes to Verbum, you can find the relevant project board here: https://github.com/orgs/Automattic/projects/908/views/1.

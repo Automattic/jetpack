@@ -7,6 +7,8 @@
 // @connect      betadownload.jetpack.me
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
+// @updateURL    https://github.com/Automattic/jetpack/raw/trunk/tools/jetpack-live-branches/jetpack-live-branches.user.js
+// @downloadURL  https://github.com/Automattic/jetpack/raw/trunk/tools/jetpack-live-branches/jetpack-live-branches.user.js
 // ==/UserScript==
 
 // Need to declare "jQuery" for linting within TamperMonkey, but in the monorepo it's already declared.

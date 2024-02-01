@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Automatically determine text domain for `I18nLoaderPlugin` as is done for `I18nCheckPlugin`.
