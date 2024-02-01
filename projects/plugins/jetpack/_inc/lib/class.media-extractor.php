@@ -558,7 +558,7 @@ class Jetpack_Media_Meta_Extractor {
 					if ( ! empty( $extracted_image['alt_text'] ) ) {
 						$image_to_add['alt_text'] = $extracted_image['alt_text'];
 					}
-					if ( ! empty( $extracted_image['src_width'] ) || ! empty( $extracted_image['src_width'] ) ) {
+					if ( ! empty( $extracted_image['src_width'] ) || ! empty( $extracted_image['src_height'] ) ) {
 							$image_to_add['src_width']  = $extracted_image['src_width'];
 							$image_to_add['src_height'] = $extracted_image['src_height'];
 					}
