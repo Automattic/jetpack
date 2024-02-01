@@ -27,8 +27,7 @@ export const LoggedIn = ( { toggleTray, logout }: LoggedInProps ) => {
 		useSubscriptionApi();
 	const { subscribeToComment, subscribeToBlog } = VerbumComments;
 	const { email, notification } = subscriptionSettings.value ?? {};
-	const hasSubOptions = subscribeToComment || subscribeToBlog;
-
+	const hasSubOptions = userInfo.value.email && ( subscribeToComment || subscribeToBlog );
 	let verbumLoadedEditor = 'textarea';
 
 	if ( VerbumComments.enableBlocks ) {

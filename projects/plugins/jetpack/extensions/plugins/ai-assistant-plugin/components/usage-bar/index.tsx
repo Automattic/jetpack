@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { BaseControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -60,6 +61,7 @@ function UsageControl( {
 	requestsLimit,
 	daysUntilReset = null,
 	requireUpgrade = false,
+	loading = false,
 }: UsageControlProps ) {
 	// Trust on the isOverLimit flag, but also do a local check
 	const limitReached = isOverLimit || requestsCount >= requestsLimit;
@@ -86,11 +88,8 @@ function UsageControl( {
 
 	const usage = requestsCount / requestsLimit;
 
-	return (
-		<BaseControl
-			help={ helpMessages.length ? helpMessages.join( ' ' ) : null }
-			label={ __( 'Usage', 'jetpack' ) }
-		>
+	const usageDisplay = (
+		<>
 			{ planType === PLAN_TYPE_FREE && (
 				<p>
 					{ sprintf(
@@ -115,6 +114,20 @@ function UsageControl( {
 			{ ( planType === PLAN_TYPE_FREE || planType === PLAN_TYPE_TIERED ) && (
 				<UsageBar usage={ usage } limitReached={ limitReached } requireUpgrade={ requireUpgrade } />
 			) }
+		</>
+	);
+
+	const loadingPlaceholder = (
+		<LoadingPlaceholder height={ 100 } className="jetpack-ai-usage-panel__loading-placeholder" />
+	);
+
+	return (
+		<BaseControl
+			help={ ! loading && helpMessages.length ? helpMessages.join( ' ' ) : null }
+			label={ __( 'Usage', 'jetpack' ) }
+		>
+			{ ! loading && usageDisplay }
+			{ loading && loadingPlaceholder }
 		</BaseControl>
 	);
 }
