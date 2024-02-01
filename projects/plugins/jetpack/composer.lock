@@ -2271,7 +2271,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/stats",
-				"reference": "13cb8ac33ef0c3d0227064885eb6c8162c6544e4"
+				"reference": "7d8c7c0e9eb0169ecad36746b757e49e36296588"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
