@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Boost: added deactivate hook to Cache engine to clean up.
