@@ -215,7 +215,18 @@ class Masterbar {
 			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' );
 		}
 
-		// Hides and replaces the language dropdown for the current user, on WoA.
+		if ( $this->site_woa ) {
+			if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+				// If Atomic and using wp-admin interface, update the user_option with the user's color scheme.
+				update_user_option( $this->user_id, 'admin_color', get_user_meta( $this->user_id, 'admin_color', true ) );
+			} else {
+				// If Atomic and not using wp-admin interface, store, install user locale, and hide and replace the language dropdown for the current user.
+				$this->user_locale = $this->get_jetpack_locale( $this->user_locale );
+				$this->install_locale( $this->user_locale );
+				update_user_option( $this->user_id, 'locale', $this->user_locale, true );
+				update_user_option( $this->user_id, 'admin_color', $this->user_data['color_scheme'] );
+			}
+		}
 		if ( $this->site_woa &&
 			'wp-admin' !== get_option( 'wpcom_admin_interface' ) &&
 			defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE ) {
