@@ -296,7 +296,6 @@ class Masterbar {
 		if ( ! Jetpack::is_module_active( 'notes' ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' && ! $this->use_new_global_navbar ) {
 			wp_dequeue_style( 'admin-bar' );
 		}
-		wp_dequeue_style( 'admin-bar' );
 	}
 
 	/**
@@ -305,7 +304,7 @@ class Masterbar {
 	public function add_styles_and_scripts() {
 		// WoA sites: If wpcom_admin_interface is set to wp-admin, load the wp-admin styles.
 		// These include only styles to enable the "My Sites" and "Reader" links that will be added.
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || $this->use_new_global_navbar ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' && ! $this->use_new_global_navbar ) {
 			$css_file = $this->is_rtl ? 'masterbar-wp-admin-rtl.css' : 'masterbar-wp-admin.css';
 			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/' . $css_file ), array(), JETPACK__VERSION );
 			return;
@@ -315,11 +314,14 @@ class Masterbar {
 			wp_enqueue_style( 'a8c-wpcom-masterbar-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/rtl/wpcom-admin-bar-rtl.css' ), array(), JETPACK__VERSION );
 			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/rtl/masterbar-rtl.css' ), array(), JETPACK__VERSION );
 		} else {
+			// Fixes size of site logos and other things?
 			wp_enqueue_style( 'a8c-wpcom-masterbar', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/wpcom-admin-bar.css' ), array(), JETPACK__VERSION );
+			// includes styles that make the slide-out hidden, but also effects the dropdowns button styles on core menus.
 			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.css' ), array(), JETPACK__VERSION );
 		}
 
 		// Local overrides.
+		// Effects size of buttons in the my sides dropdown
 		wp_enqueue_style( 'a8c_wpcom_css_override', plugins_url( 'overrides.css', __FILE__ ), array(), JETPACK__VERSION );
 
 		if ( ! Jetpack::is_module_active( 'notes ' ) ) {
@@ -345,6 +347,7 @@ class Masterbar {
 			false
 		);
 
+		// Adds scripts to prevent popup submenus and make them click toggles.
 		wp_enqueue_script(
 			'a8c_wpcom_masterbar_overrides',
 			$this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ),

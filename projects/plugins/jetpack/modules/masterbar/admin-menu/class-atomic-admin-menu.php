@@ -17,15 +17,24 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class Atomic_Admin_Menu.
  */
 class Atomic_Admin_Menu extends Admin_Menu {
+	/**
+	 * If the new global navbar should be used;
+	 *
+	 * @var bool
+	 */
+	private $use_new_global_navbar;
 
 	/**
 	 * Atomic_Admin_Menu constructor.
 	 */
 	protected function __construct() {
 		parent::__construct();
+		$this->use_new_global_navbar = true;
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
+		if ( ! $this->use_new_global_navbar ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
+		}
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
 		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
