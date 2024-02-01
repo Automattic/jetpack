@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added active plugins slugs to my jetpack initial state and pass it down as a prop to the license activtion screen.
