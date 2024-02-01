@@ -35,6 +35,11 @@ class Package_Version_Tracker {
 	 * version tracking. If the package versions have changed, updates the option and notifies WPCOM.
 	 */
 	public function maybe_update_package_versions() {
+		// Do not run too early or all the modules may not be loaded.
+		if ( ! did_action( 'init' ) ) {
+			return;
+		}
+
 		/**
 		 * Obtains the package versions.
 		 *
