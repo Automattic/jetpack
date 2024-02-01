@@ -15,11 +15,12 @@ import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
 
 const ProductPromotion = () => {
-	const { adminUrl, siteSuffix } = window.jetpackProtectInitialState || {};
+	const { adminUrl, siteSuffix, blogID } = window.jetpackProtectInitialState || {};
 
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: adminUrl,
+		useBlogIdSuffix: true,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();
@@ -28,7 +29,7 @@ const ProductPromotion = () => {
 	const { hasRequiredPlan } = useProtectData();
 
 	if ( hasRequiredPlan ) {
-		const goToCloudUrl = getRedirectUrl( 'jetpack-scan-dash', { site: siteSuffix } );
+		const goToCloudUrl = getRedirectUrl( 'jetpack-scan-dash', { site: blogID ?? siteSuffix } );
 
 		return (
 			<div className={ styles[ 'product-section' ] }>
