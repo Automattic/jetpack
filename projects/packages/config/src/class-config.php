@@ -163,6 +163,14 @@ class Config {
 				&& $this->ensure_feature( 'import' );
 		}
 
+		/*
+		Ensure that waf is loaded last. Failure to do so can result in only some of the modules
+		 * loading when waf exits early which can result in faulty requests to the
+		 * jetpack-package-versions endpoint.
+		 *
+		 * TODO: Update Package_Version_Tracker::maybe_update_package_versions to exit if called too
+		 *     early (such as using did_action) to avoid this timing issue.
+		 */
 		if ( $this->config['waf'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Waf\Waf_Initializer' )
 			&& $this->ensure_feature( 'waf' );
