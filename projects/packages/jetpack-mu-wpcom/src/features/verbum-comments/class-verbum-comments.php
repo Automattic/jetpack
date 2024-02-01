@@ -279,7 +279,7 @@ class Verbum_Comments {
 				'comment_notes_after'  => '',
 				'title_reply'          => __( 'Leave a comment', 'jetpack-mu-wpcom' ),
 				/* translators: % is the original posters name */
-				'title_reply_to'       => __( 'Leave a Reply to %s', 'jetpack-mu-wpcom' ),
+				'title_reply_to'       => __( 'Leave a reply to %s', 'jetpack-mu-wpcom' ),
 				'cancel_reply_link'    => __( 'Cancel reply', 'jetpack-mu-wpcom' ),
 			)
 		);
