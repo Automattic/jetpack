@@ -29,15 +29,16 @@ function import_admin_banner() {
 		require_once __DIR__ . '/../../utils.php';
 	}
 
-	$import_url = 'https://wordpress.com/setup/import-focused/import?siteSlug=' . wpcom_get_site_slug();
+	$site_slug  = wpcom_get_site_slug();
+	$import_url = esc_url( "https://wordpress.com/setup/import-focused/import?siteSlug={$site_slug}&ref=wp-admin" );
 
 	$banner_content = sprintf(
-		'<div id="wpcom-import-banner" class="notice">
+		'<div class="notice wpcom-import-banner">
 			<p>%s</p>
 			<a href="%s" class="button">%s</a>
 		</div>',
 		esc_html__( 'Import your content with WordPress.com’s guided importer. Designed for seamless integration from multiple platforms.', 'jetpack-mu-wpcom' ),
-		esc_url( $import_url ),
+		$import_url,
 		esc_html__( 'Get started', 'jetpack-mu-wpcom' )
 	);
 
