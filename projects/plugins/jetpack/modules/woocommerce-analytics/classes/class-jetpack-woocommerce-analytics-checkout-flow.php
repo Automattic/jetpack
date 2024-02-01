@@ -92,9 +92,11 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 		}
 
 		if ( is_object( WC()->session ) ) {
-			$create_account = true === WC()->session->get( 'wc_checkout_createaccount_used' ) ? 'Yes' : 'No';
+			$create_account     = true === WC()->session->get( 'wc_checkout_createaccount_used' ) ? 'Yes' : 'No';
+			$checkout_page_used = true === WC()->session->get( 'checkout_page_used' ) ? 'Yes' : 'No';
 		} else {
-			$create_account = 'No';
+			$create_account     = 'No';
+			$checkout_page_used = 'No';
 		}
 
 		$this->record_event(
@@ -111,6 +113,7 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 				'products'                              => $this->format_items_to_json( $order->get_items() ),
 				'order_note'                            => $order->get_customer_note(),
 				'shipping_option'                       => $order->get_shipping_method(),
+				'from_checkout'                         => $checkout_page_used,
 				'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
 				'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
 			)
@@ -138,8 +141,24 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 	 * Track the checkout page view
 	 */
 	public function capture_checkout_view() {
-		if ( ! is_checkout() ) {
+		global $post;
+		$checkout_page_id = wc_get_page_id( 'checkout' );
+
+		$is_checkout = $checkout_page_id && is_page( $checkout_page_id )
+		|| wc_post_content_has_shortcode( 'woocommerce_checkout' )
+		|| has_block( 'woocommerce/checkout', $post )
+		|| apply_filters( 'woocommerce_is_checkout', false )
+		|| \Automattic\Jetpack\Constants::is_defined( 'WOOCOMMERCE_CHECKOUT' );
+
+		if ( ! $is_checkout ) {
 			return;
+		}
+
+		$is_in_checkout_page = $checkout_page_id === $post->ID ? 'Yes' : 'No';
+		$session             = WC()->session;
+		if ( is_object( $session ) ) {
+			$session->set( 'checkout_page_used', true );
+			$session->save_data();
 		}
 
 		// Order received page is also a checkout page, so we need to bail out if we are on that page.
@@ -151,7 +170,9 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 			'woocommerceanalytics_checkout_view',
 			array_merge(
 				$this->get_cart_checkout_shared_data(),
-				array()
+				array(
+					'from_checkout' => $is_in_checkout_page,
+				)
 			)
 		);
 	}

@@ -183,7 +183,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * On the Checkout page, trigger an event for each product in the cart
 	 */
 	public function checkout_process() {
-		$cart = WC()->cart->get_cart();
+		global $post;
+		$checkout_page_id = wc_get_page_id( 'checkout' );
+		$cart             = WC()->cart->get_cart();
 
 		$enabled_payment_options = array_filter(
 			WC()->payment_gateways->get_available_payment_gateways(),
@@ -198,6 +200,13 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 		$enabled_payment_options = array_keys( $enabled_payment_options );
 
+		$is_in_checkout_page = $checkout_page_id === $post->ID ? 'Yes' : 'No';
+		$session             = WC()->session;
+		if ( is_object( $session ) ) {
+			$session->set( 'checkout_page_used', true );
+			$session->save_data();
+		}
+
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			/**
 			* This filter is already documented in woocommerce/templates/cart/cart.php
@@ -209,6 +218,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			}
 
 			$data = $this->get_cart_checkout_shared_data();
+
+			$data['from_checkout'] = $is_in_checkout_page;
 
 			if ( ! empty( $data['products'] ) ) {
 				unset( $data['products'] );
@@ -262,7 +273,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						}
 
 						const checkoutDataStore = wp.data.select( 'wc/store/checkout' );
-						if ( undefined !== checkoutDataStore && checkoutDataStore.getOrderId() !== 0 ) {
+						// Ensures we're not in Cart, but in Checkout page.
+						if ( checkoutDataStore.getOrderId() !== 0 ) {
 							properties.express_checkout = Object.keys( wc.wcBlocksRegistry.getExpressPaymentMethods() );
 							properties.checkout_page_contains_checkout_block = '1';
 							properties.checkout_page_contains_checkout_shortcode = '0';
@@ -270,7 +282,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 							_wca.push( properties );
 							cartItem_{$cart_item_key}_logged = true;
 						}
-					} );
+					}, 'wc/store/checkout' );
 				}
 			"
 			);
@@ -296,9 +308,12 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$payment_option = $order->get_payment_method();
 
 		if ( is_object( WC()->session ) ) {
-			$create_account = true === WC()->session->get( 'wc_checkout_createaccount_used' ) ? 'Yes' : 'No';
+			$create_account     = true === WC()->session->get( 'wc_checkout_createaccount_used' ) ? 'Yes' : 'No';
+			$checkout_page_used = true === WC()->session->get( 'checkout_page_used' ) ? 'Yes' : 'No';
+
 		} else {
-			$create_account = 'No';
+			$create_account     = 'No';
+			$checkout_page_used = 'No';
 		}
 
 		$guest_checkout = $order->get_user() ? 'No' : 'Yes';
@@ -326,6 +341,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			$checkout_page_contains_checkout_block     = '0';
 			$checkout_page_contains_checkout_shortcode = '0';
 		}
+
 		// loop through products in the order and queue a purchase event.
 		foreach ( $order->get_items() as $order_item ) {
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
@@ -352,6 +368,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'products_count'   => $order_items_count,
 					'coupon_used'      => $order_coupons_count,
 					'order_value'      => $order->get_total(),
+					'from_checkout'    => $checkout_page_used,
 					'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
 					'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
 				),
