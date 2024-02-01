@@ -75,6 +75,8 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/media/heif-support.php';
 
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
+
+		require_once __DIR__ . '/features/global-nav-bar/global-nav.php';
 	}
 
 	/**

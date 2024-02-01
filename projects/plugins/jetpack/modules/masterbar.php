@@ -22,7 +22,9 @@ require __DIR__ . '/masterbar/masterbar/class-masterbar.php';
 require __DIR__ . '/masterbar/admin-color-schemes/class-admin-color-schemes.php';
 require __DIR__ . '/masterbar/inline-help/class-inline-help.php';
 
-new Masterbar();
+if ( ! apply_filters( 'wpcom_global_nav_enabled', false ) ) {
+	new Masterbar();
+}
 new Admin_Color_Schemes();
 
 if ( ( new Host() )->is_woa_site() ) {
