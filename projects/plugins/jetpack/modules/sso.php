@@ -55,11 +55,13 @@ class Jetpack_SSO {
 		add_action( 'jetpack_site_before_disconnected', array( static::class, 'disconnect' ) );
 		add_action( 'wp_login', array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
 
+		add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_users_new_form_styles' ) );
 		// If the user has no errors on creation, send an invite to WordPress.com.
 		add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
 		// Don't send core invitation email when SSO is activated. They will get an email from WP.com.
 		add_filter( 'wp_send_new_user_notification_to_user', '__return_false' );
 		add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
+		add_action( 'user_new_form', array( $this, 'render_custom_email_message_form_field' ), 1 );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -368,6 +370,30 @@ class Jetpack_SSO {
 	}
 
 	/**
+	 * Render the custom email message form field for new user registration.
+	 *
+	 * @param string $type The type of new user form the hook follows.
+	 */
+	public function render_custom_email_message_form_field( $type ) {
+		if ( $type === 'add-new-user' ) {
+			?>
+			<table class="form-table">
+				<tr class="form-field">
+					<th scope="row">
+						<label for="custom_email_message">Additional email message:</label>
+					</th>
+					<td>
+						<label for="custom_email_message">
+							<textarea rows="4" maxlength="500" id="custom_email_message" name="custom_email_message"></textarea>
+						</label>
+					</td>
+				</tr>
+			</table>
+			<?php
+		}
+	}
+
+	/**
 	 * Send user invitation to WordPress.com if user has no errors.
 	 *
 	 * @param WP_Error $errors The WP_Error object.
@@ -376,6 +402,11 @@ class Jetpack_SSO {
 	 * @return WP_Error The modified or not WP_Error object.
 	 */
 	public function send_wpcom_mail_user_invite( $errors, $update, $user ) {
+		$valid_nonce = isset( $_POST['_wpnonce_create-user'] ) ? wp_verify_nonce( $_POST['_wpnonce_create-user'], 'create-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+
+		if ( $valid_nonce && ! empty( $_POST['custom_email_message'] ) && strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) ) > 500 ) {
+			$errors->add( 'custom_email_message', __( '<strong>Error</strong>: The additional email message is too long. Please keep it under 500 characters.', 'jetpack' ) );
+		}
 
 		if ( $errors->has_errors() ) {
 			return $errors;
@@ -388,6 +419,15 @@ class Jetpack_SSO {
 		$url     = '/sites/' . $blog_id . '/invites/new';
 		$url     = add_query_arg( 'locale', $locale, $url );
 
+		$new_user_request = array(
+			'email_or_username' => $email,
+			'role'              => $role,
+		);
+
+		if ( $valid_nonce && isset( $_POST['custom_email_message'] ) ) {
+			$new_user_request['message'] = sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) );
+		}
+
 		$response = Client::wpcom_json_api_request_as_user(
 			$url,
 			'2', // Api version
@@ -395,12 +435,7 @@ class Jetpack_SSO {
 				'method' => 'POST',
 			),
 			array(
-				'invitees' => array(
-					array(
-						'email_or_username' => $email,
-						'role'              => $role,
-					),
-				),
+				'invitees' => array( $new_user_request ),
 			)
 		);
 
@@ -558,6 +593,19 @@ class Jetpack_SSO {
 			.jetpack-sso-invitation.sso-disconnected-user:focus,
 			.jetpack-sso-invitation.sso-disconnected-user:active {
 				color: #0096dd;
+			}
+		</style>
+		<?php
+	}
+
+	/**
+	 * Style the Jetpack user rows and columns.
+	 */
+	public function jetpack_users_new_form_styles() {
+		?>
+		<style>
+			#createuser .form-field textarea {
+				width: 25em;
 			}
 		</style>
 		<?php
