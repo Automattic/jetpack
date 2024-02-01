@@ -41,7 +41,7 @@ export default function useConnectionWatcher() {
 	useEffect( () => {
 		if ( ! isSiteConnected || requiresUserConnection ) {
 			setGlobalNotice( needsUserConnectionMessage, {
-				status: 'error',
+				status: 'warning',
 				actions: [
 					{
 						label: __( 'Connect your user account to fix this', 'jetpack-my-jetpack' ),
