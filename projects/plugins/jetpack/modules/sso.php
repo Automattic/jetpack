@@ -380,11 +380,11 @@ class Jetpack_SSO {
 			<table class="form-table">
 				<tr class="form-field">
 					<th scope="row">
-						<label for="custom_email_message">Additional email message:</label>
+						<label for="custom_email_message">Custom Message</label>
 					</th>
 					<td>
 						<label for="custom_email_message">
-							<textarea rows="4" maxlength="500" id="custom_email_message" name="custom_email_message"></textarea>
+							<textarea rows="3" maxlength="500" id="custom_email_message" name="custom_email_message"></textarea>
 						</label>
 					</td>
 				</tr>
@@ -405,7 +405,7 @@ class Jetpack_SSO {
 		$valid_nonce = isset( $_POST['_wpnonce_create-user'] ) ? wp_verify_nonce( $_POST['_wpnonce_create-user'], 'create-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
 
 		if ( $valid_nonce && ! empty( $_POST['custom_email_message'] ) && strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) ) > 500 ) {
-			$errors->add( 'custom_email_message', __( '<strong>Error</strong>: The additional email message is too long. Please keep it under 500 characters.', 'jetpack' ) );
+			$errors->add( 'custom_email_message', __( '<strong>Error</strong>: The custom message is too long. Please keep it under 500 characters.', 'jetpack' ) );
 		}
 
 		if ( $errors->has_errors() ) {
