@@ -31,12 +31,12 @@ export default function useConnectionWatcher() {
 	);
 
 	const needsUserConnectionMessage =
-		productsThatRequiresUserConnection.length > 1
-			? __(
+		productsThatRequiresUserConnection.length === 1
+			? oneProductMessage
+			: __(
 					'Some products need a user connection to WordPress.com to be able to work.',
 					'jetpack-my-jetpack'
-			  )
-			: oneProductMessage;
+			  );
 
 	useEffect( () => {
 		if ( ! isSiteConnected || requiresUserConnection ) {
