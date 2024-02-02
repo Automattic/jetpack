@@ -21,6 +21,7 @@ export const PRODUCT_STATUSES_LABELS = {
 };
 
 /* eslint-disable react/jsx-no-bind */
+// Menu component
 const Menu = ( {
 	items = [],
 	showInstall = false,
@@ -128,6 +129,44 @@ Menu.defaultProps = {
 	showDeactivate: false,
 };
 
+// SecondaryButton component
+const SecondaryButton = props => {
+	const { label, shouldShowButton } = props;
+
+	if ( ! shouldShowButton() ) {
+		return false;
+	}
+
+	return <Button { ...props }>{ label }</Button>;
+};
+
+SecondaryButton.propTypes = {
+	href: PropTypes.string,
+	size: PropTypes.oneOf( [ 'normal', 'small' ] ),
+	variant: PropTypes.oneOf( [ 'primary', 'secondary', 'link', 'tertiary' ] ),
+	weight: PropTypes.oneOf( [ 'bold', 'regular' ] ),
+	label: PropTypes.string,
+	shouldShowButton: PropTypes.func,
+	onClick: PropTypes.func,
+	positionFirst: PropTypes.bool,
+	isExternalLink: PropTypes.bool,
+	icon: PropTypes.node,
+	iconSize: PropTypes.number,
+	disabled: PropTypes.bool,
+	isLoading: PropTypes.bool,
+	className: PropTypes.string,
+};
+
+SecondaryButton.defaultProps = {
+	size: 'small',
+	variant: 'secondary',
+	weight: 'regular',
+	label: __( 'Learn more', 'jetpack-my-jetpack' ),
+	shouldShowButton: () => true,
+	positionFirst: false,
+};
+
+// ProductCard component
 const ProductCard = props => {
 	const {
 		name,
@@ -140,6 +179,7 @@ const ProductCard = props => {
 		isDeactivatingStandalone,
 		slug,
 		additionalActions,
+		secondaryAction,
 		children,
 		// Menu Related
 		showMenu = false,
@@ -244,15 +284,6 @@ const ProductCard = props => {
 		onDeactivateStandalone();
 	}, [ slug, onDeactivateStandalone, recordEvent ] );
 
-	/**
-	 * Called when "See detailed stats" button is clicked.
-	 */
-	const onDetailedStatsClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_stats_card_seedetailedstats_click', {
-			product: 'stats',
-		} );
-	}, [ recordEvent ] );
-
 	return (
 		<Card
 			title={ name }
@@ -281,6 +312,9 @@ const ProductCard = props => {
 
 			<div className={ styles.actions }>
 				<div className={ styles.buttons }>
+					{ secondaryAction && secondaryAction?.positionFirst && (
+						<SecondaryButton { ...secondaryAction } />
+					) }
 					<ActionButton
 						{ ...props }
 						onActivate={ activateHandler }
@@ -291,18 +325,9 @@ const ProductCard = props => {
 						className={ styles.button }
 						additionalActions={ additionalActions }
 					/>
-					{ slug === 'stats' &&
-						( status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE ) && (
-							<Button
-								size="small"
-								weight="regular"
-								variant={ 'secondary' }
-								href={ 'admin.php?page=stats' }
-								onClick={ onDetailedStatsClick }
-							>
-								{ __( 'See detailed stats', 'jetpack-my-jetpack' ) }
-							</Button>
-						) }
+					{ secondaryAction && ! secondaryAction?.positionFirst && (
+						<SecondaryButton { ...secondaryAction } />
+					) }
 				</div>
 				{ ! isAbsent && (
 					<Status
@@ -340,6 +365,7 @@ ProductCard.propTypes = {
 		} )
 	),
 	additionalActions: PropTypes.array,
+	secondaryAction: PropTypes.object,
 	onInstallStandalone: PropTypes.func,
 	onActivateStandalone: PropTypes.func,
 	onDeactivateStandalone: PropTypes.func,
