@@ -37,10 +37,19 @@ const StatsSection = () => {
 		shouldShowButton: shouldShowSecondaryButton,
 	};
 
+	// Override the primary action button to read "View detailed stats" instead
+	// of the default text, "View".
+	const primaryActionOverride = {
+		[ PRODUCT_STATUSES.ACTIVE ]: {
+			label: __( 'View detailed stats', 'jetpack-my-jetpack' ),
+		},
+	};
+
 	return (
 		<ProductCard
 			admin={ userIsAdmin }
 			slug={ 'stats' }
+			primaryActionOverride={ primaryActionOverride }
 			secondaryAction={ viewStatsButton }
 			showMenu
 		>

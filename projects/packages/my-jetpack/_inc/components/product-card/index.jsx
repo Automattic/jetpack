@@ -179,6 +179,7 @@ const ProductCard = props => {
 		isDeactivatingStandalone,
 		slug,
 		additionalActions,
+		primaryActionOverride,
 		secondaryAction,
 		children,
 		// Menu Related
@@ -324,6 +325,7 @@ const ProductCard = props => {
 						onLearnMore={ learnMoreHandler }
 						className={ styles.button }
 						additionalActions={ additionalActions }
+						primaryActionOverride={ primaryActionOverride }
 					/>
 					{ secondaryAction && ! secondaryAction?.positionFirst && (
 						<SecondaryButton { ...secondaryAction } />
@@ -365,6 +367,7 @@ ProductCard.propTypes = {
 		} )
 	),
 	additionalActions: PropTypes.array,
+	primaryActionOverride: PropTypes.object,
 	secondaryAction: PropTypes.object,
 	onInstallStandalone: PropTypes.func,
 	onActivateStandalone: PropTypes.func,
