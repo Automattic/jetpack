@@ -104,6 +104,11 @@ class Jetpack_Social {
 				My_Jetpack_Initializer::init();
 			}
 		);
+		add_action(
+			'init',
+			array( new Automattic\Jetpack\Social\Jetpack_Social_Note(), 'register' ),
+			1
+		);
 
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 
