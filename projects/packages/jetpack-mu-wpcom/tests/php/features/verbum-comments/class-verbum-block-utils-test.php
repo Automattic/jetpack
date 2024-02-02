@@ -81,15 +81,4 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 		$filtered_content = Verbum_Block_Utils::remove_blocks( $comment_content );
 		$this->assertEquals( '<!-- wp:paragraph -->Testing<!-- /wp:paragraph -->', $filtered_content );
 	}
-
-	/**
-	 * Ensure innerBlocks are filtered when 'pre_comment_content' is applied
-	 *
-	 * @covers Verbum_Block_Utils::remove_blocks
-	 */
-	public function test_pre_comment_content_block_sanitization_inner_blocks() {
-		$comment_content  = '<!-- wp:paragraph {} --><!-- wp:latest-posts --><!-- /wp:paragraph -->';
-		$filtered_content = Verbum_Block_Utils::remove_blocks( $comment_content );
-		$this->assertEquals( '<!-- wp:paragraph /-->', $filtered_content );
-	}
 }

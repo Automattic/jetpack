@@ -9,43 +9,6 @@
  * Verbum_Block_Utils offer utility functions for sanitizing and parsing blocks.
  */
 class Verbum_Block_Utils {
-
-	/**
-	 * Helper function to filter blocks that are not allowed recursively.
-	 *
-	 * @param array[] $blocks the blocks to be filtered.
-	 * @return array[] the filtered blocks.
-	 */
-	private static function filter_blocks_recursive( $blocks ) {
-		$filtered_blocks = array();
-
-		$allowed_blocks = self::get_allowed_blocks();
-		foreach ( $blocks as $block ) {
-			if ( in_array( $block['blockName'], $allowed_blocks, true ) ) {
-				$filtered_block = $block;
-
-				// Recursively apply the filtering to innerBlocks
-				if ( isset( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
-					$filtered_inner_blocks = self::filter_blocks_recursive( $block['innerBlocks'] );
-
-					if ( count( $filtered_inner_blocks ) !== count( $block['innerBlocks'] ) ) {
-						$filtered_block['innerBlocks'] = $filtered_inner_blocks;
-
-						// Prevent malformed content by serializing and parsing the block again
-						// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-						$processed_blocks = @parse_blocks( serialize_block( $filtered_block ) );
-						if ( ! empty( $processed_blocks ) ) {
-							$filtered_block = $processed_blocks[0];
-						}
-					}
-				}
-
-				$filtered_blocks[] = $filtered_block;
-			}
-		}
-		return $filtered_blocks;
-	}
-
 	/**
 	 * Remove blocks that aren't allowed
 	 *
@@ -57,18 +20,43 @@ class Verbum_Block_Utils {
 			return $content;
 		}
 
+		$allowed_blocks = self::get_allowed_blocks();
 		// The block attributes come slashed and `parse_blocks` won't be able to parse them.
-		$content         = wp_unslash( $content );
-		$blocks          = parse_blocks( $content );
-		$filtered_blocks = self::filter_blocks_recursive( $blocks );
+		$content = wp_unslash( $content );
+		$blocks  = parse_blocks( $content );
+		$output  = '';
 
-		$output = '';
-
-		foreach ( $filtered_blocks as $block ) {
-			$output .= serialize_block( $block );
+		foreach ( $blocks as $block ) {
+			if ( in_array( $block['blockName'], $allowed_blocks, true ) ) {
+				$output .= serialize_block( $block );
+			}
 		}
 
 		return ltrim( $output );
+	}
+
+	/**
+	 * Filter blocks from content according to our allowed blocks
+	 *
+	 * @param string $content - The content to be processed.
+	 * @return array
+	 */
+	private static function filter_blocks( $content ) {
+		$registry       = new WP_Block_Type_Registry();
+		$allowed_blocks = self::get_allowed_blocks();
+
+		foreach ( $allowed_blocks as $allowed_block ) {
+			$registry->register( $allowed_block );
+		}
+
+		$filtered_blocks = array();
+		$blocks          = parse_blocks( $content );
+
+		foreach ( $blocks as $block ) {
+			$filtered_blocks[] = new WP_Block( $block, array(), $registry );
+		}
+
+		return $filtered_blocks;
 	}
 
 	/**
@@ -83,14 +71,13 @@ class Verbum_Block_Utils {
 			return $comment_content;
 		}
 
-		$blocks          = parse_blocks( $comment_content );
-		$filtered_blocks = self::filter_blocks_recursive( $blocks );
-
+		$blocks          = self::filter_blocks( $comment_content );
 		$comment_content = '';
 
-		foreach ( $filtered_blocks as $block ) {
-			$comment_content .= render_block( $block );
+		foreach ( $blocks as $block ) {
+			$comment_content .= $block->render();
 		}
+
 		return $comment_content;
 	}
 
