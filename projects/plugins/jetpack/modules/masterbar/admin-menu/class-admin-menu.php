@@ -140,7 +140,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			return;
 		}
 
-		add_menu_page( __( 'WordPress.com', 'jetpack' ), __( 'WordPress.com', 'jetpack' ), 'manage_options', 'wpcom', null, 'dashicons-wordpress-alt', 4 );
+		add_menu_page( __( 'WordPress.com', 'jetpack' ), __( 'WordPress.com', 'jetpack' ), 'publish_posts', 'wpcom', null, 'dashicons-wordpress-alt', 4 );
 
 		add_submenu_page( 'wpcom', __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/' . $this->domain, null, 0 );
 
@@ -156,6 +156,8 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		add_submenu_page( 'wpcom', __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 4 );
+		add_submenu_page( 'wpcom', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 5 );
+		add_submenu_page( 'wpcom', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 6 );
 
 		// Remove the submenu auto-created by Core.
 		$this->hide_submenu_page( 'wpcom', 'wpcom' );
@@ -383,8 +385,10 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->hide_submenu_page( 'tools.php', 'tools.php' );
 		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
 
-		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 0 );
-		add_submenu_page( 'tools.php', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 1 );
+		if ( 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 0 );
+			add_submenu_page( 'tools.php', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 1 );
+		}
 	}
 
 	/**
