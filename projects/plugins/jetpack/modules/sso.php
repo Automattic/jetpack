@@ -55,7 +55,6 @@ class Jetpack_SSO {
 		add_action( 'jetpack_site_before_disconnected', array( static::class, 'disconnect' ) );
 		add_action( 'wp_login', array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
 
-		add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_users_new_form_styles' ) );
 		// If the user has no errors on creation, send an invite to WordPress.com.
 		add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
 		// Don't send core invitation email when SSO is activated. They will get an email from WP.com.
@@ -593,19 +592,6 @@ class Jetpack_SSO {
 			.jetpack-sso-invitation.sso-disconnected-user:focus,
 			.jetpack-sso-invitation.sso-disconnected-user:active {
 				color: #0096dd;
-			}
-		</style>
-		<?php
-	}
-
-	/**
-	 * Style the Jetpack user rows and columns.
-	 */
-	public function jetpack_users_new_form_styles() {
-		?>
-		<style>
-			#createuser .form-field textarea {
-				width: 25em;
 			}
 		</style>
 		<?php

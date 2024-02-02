@@ -9,3 +9,7 @@
 .jetpack-sso-admin-create-user-invite-message-link-sso {
     text-decoration: none;
 }
+
+#createuser .form-field textarea {
+	width: 25em;
+}
