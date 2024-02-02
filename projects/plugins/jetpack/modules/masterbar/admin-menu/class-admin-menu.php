@@ -24,7 +24,13 @@ class Admin_Menu extends Base_Admin_Menu {
 		// Remove separators.
 		remove_menu_page( 'separator1' );
 		$this->add_stats_menu();
-		$this->add_upgrades_menu();
+
+		// When the interface is set to wp-admin, move items in Upgrades section to the WordPress.com-specific menu item.
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			$this->add_wpcom_menu();
+		} else {
+			$this->add_upgrades_menu();
+		}
 		$this->add_posts_menu();
 		$this->add_media_menu();
 		$this->add_page_menu();
@@ -124,6 +130,35 @@ class Admin_Menu extends Base_Admin_Menu {
 	 */
 	public function add_stats_menu() {
 		add_menu_page( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+	}
+
+	/**
+	 * Adds WordPress.com menu.
+	 */
+	public function add_wpcom_menu() {
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			return;
+		}
+
+		add_menu_page( __( 'WordPress.com', 'jetpack' ), __( 'WordPress.com', 'jetpack' ), 'manage_options', 'wpcom', null, 'dashicons-wordpress-alt', 4 );
+
+		add_submenu_page( 'wpcom', __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/' . $this->domain, null, 0 );
+
+		if ( defined( 'WPCOM_ENABLE_ADD_ONS_MENU_ITEM' ) && WPCOM_ENABLE_ADD_ONS_MENU_ITEM ) {
+			add_submenu_page( 'wpcom', __( 'Add-Ons', 'jetpack' ), __( 'Add-Ons', 'jetpack' ), 'manage_options', 'https://wordpress.com/add-ons/' . $this->domain, null, 1 );
+		}
+
+		add_submenu_page( 'wpcom', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 2 );
+
+		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
+		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
+			add_submenu_page( 'wpcom', __( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, 3 );
+		}
+
+		add_submenu_page( 'wpcom', __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 4 );
+
+		// Remove the submenu auto-created by Core.
+		$this->hide_submenu_page( 'wpcom', 'wpcom' );
 	}
 
 	/**
