@@ -83,6 +83,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_migration_trial'         => '(bool) If the site ever used a migration trial.',
 		'was_hosting_trial'           => '(bool) If the site ever used a hosting trial.',
 		'wpcom_site_setup'            => '(string) The WP.com site setup identifier.',
+		'admin_color'                 => '(string) Admin color schema.',
 	);
 
 	/**
@@ -116,6 +117,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_core_site_editor_enabled',
 		'is_wpcom_atomic',
 		'is_wpcom_staging_site',
+		'admin_color',
 	);
 
 	/**
@@ -610,6 +612,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'was_upgraded_from_trial':
 				$response[ $key ] = $this->site->was_upgraded_from_trial();
+				break;
+			case 'admin_color':
+				$response[ $key ] = get_user_meta( get_current_user_id(), 'admin_color', true );
 				break;
 		}
 
