@@ -31,6 +31,7 @@ const ActionButton = ( {
 	isDeactivatingStandalone,
 	className,
 	onAdd,
+	onLearnMore,
 	upgradeInInterstitial,
 } ) => {
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
@@ -54,26 +55,15 @@ const ActionButton = ( {
 		switch ( status ) {
 			case PRODUCT_STATUSES.ABSENT:
 			case PRODUCT_STATUSES.ABSENT_WITH_PLAN: {
-				const buttonText =
-					status === PRODUCT_STATUSES.ABSENT
-						? sprintf(
-								/* translators: placeholder is product name. */
-								__( 'Get %s', 'jetpack-my-jetpack' ),
-								name
-						  )
-						: sprintf(
-								/* translators: placeholder is product name. */
-								__( 'Install %s', 'jetpack-my-jetpack' ),
-								name
-						  );
+				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
 				return {
 					...buttonState,
 					href: `#/add-${ slug }`,
 					size: 'small',
-					variant: 'link',
+					variant: 'primary',
 					weight: 'regular',
 					label: buttonText,
-					onClick: null,
+					onClick: onLearnMore,
 				};
 			}
 			case PRODUCT_STATUSES.NEEDS_PURCHASE: {
@@ -83,13 +73,13 @@ const ActionButton = ( {
 					size: 'small',
 					variant: 'primary',
 					weight: 'regular',
-					label: __( 'Purchase', 'jetpack-my-jetpack' ),
+					label: __( 'Learn more', 'jetpack-my-jetpack' ),
 					onClick: onAdd,
 				};
 			}
 			case PRODUCT_STATUSES.CAN_UPGRADE: {
 				const upgradeText = __( 'Upgrade', 'jetpack-my-jetpack' );
-				const purchaseText = __( 'Purchase', 'jetpack-my-jetpack' );
+				const purchaseText = __( 'Learn more', 'jetpack-my-jetpack' );
 				const buttonText = purchaseUrl || upgradeInInterstitial ? upgradeText : purchaseText;
 
 				return {
@@ -109,13 +99,11 @@ const ActionButton = ( {
 					size: 'small',
 					variant: 'primary',
 					weight: 'regular',
-					label: __( 'Start for free', 'jetpack-my-jetpack' ),
+					label: __( 'Learn more', 'jetpack-my-jetpack' ),
 					onClick: onAdd,
 				};
 			case PRODUCT_STATUSES.ACTIVE: {
-				const viewText = __( 'View', 'jetpack-my-jetpack' );
-				const manageText = __( 'Manage', 'jetpack-my-jetpack' );
-				const buttonText = purchaseUrl ? viewText : manageText;
+				const buttonText = __( 'View', 'jetpack-my-jetpack' );
 
 				return {
 					...buttonState,
@@ -155,11 +143,11 @@ const ActionButton = ( {
 		buttonState,
 		isManageDisabled,
 		manageUrl,
-		name,
 		onActivate,
 		onAdd,
 		onFixConnection,
 		onManage,
+		onLearnMore,
 		purchaseUrl,
 		slug,
 		status,

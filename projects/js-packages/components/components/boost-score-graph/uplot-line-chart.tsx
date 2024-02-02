@@ -94,6 +94,8 @@ export default function UplotLineChart( { range, periods }: UplotChartProps ) {
 	const uplot = useRef< uPlot | null >( null );
 	const uplotContainer = useRef( null );
 
+	const width = uplotContainer.current?.clientWidth || DEFAULT_DIMENSIONS.width;
+
 	let lastDesktopScore = 0;
 	let lastMobileScore = 0;
 
@@ -107,7 +109,8 @@ export default function UplotLineChart( { range, periods }: UplotChartProps ) {
 	const options: uPlot.Options = useMemo( () => {
 		const defaultOptions: uPlot.Options = {
 			class: 'boost-score-graph',
-			...DEFAULT_DIMENSIONS,
+			height: DEFAULT_DIMENSIONS.height,
+			width: width,
 			tzDate: ts => uPlot.tzDate( new Date( ts * 1e3 ), 'Etc/UTC' ),
 			fmtDate: ( chartDateStringTemplate: string ) => {
 				return date => getDateFormat( chartDateStringTemplate, date, getUserLocale() );
@@ -178,7 +181,7 @@ export default function UplotLineChart( { range, periods }: UplotChartProps ) {
 		return {
 			...defaultOptions,
 		};
-	}, [ lastDesktopScore, lastMobileScore, periods, range.endDate, range.startDate ] );
+	}, [ width, lastDesktopScore, lastMobileScore, periods, range.endDate, range.startDate ] );
 
 	useResize( uplot, uplotContainer );
 	const onCreate = useCallback( chart => {
@@ -186,7 +189,7 @@ export default function UplotLineChart( { range, periods }: UplotChartProps ) {
 	}, [] );
 
 	return (
-		<div ref={ uplotContainer }>
+		<div ref={ uplotContainer } className="boost-uplot-container">
 			<UplotReact data={ data } onCreate={ onCreate } options={ options } />
 		</div>
 	);

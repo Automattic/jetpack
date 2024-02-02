@@ -58,8 +58,8 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_update action.
@@ -91,14 +91,14 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 
 		$contact_data = new Contact_Data( $contact, $previous_contact );
 
-		$previous_contact->status = 'Blacklisted';
+		$previous_contact->status = 'Refused';
 
 		// We expect the workflow to be executed on contact_status_update event with the contact data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_status_update action.
@@ -133,8 +133,8 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_created action.
@@ -169,8 +169,8 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_email_update action.
@@ -205,8 +205,8 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_deleted action.
@@ -240,8 +240,8 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_before_deleted action.

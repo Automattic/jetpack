@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@automattic/jetpack-components';
+import { numberFormat, ThemeProvider } from '@automattic/jetpack-components';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	BlockControls,
@@ -111,7 +111,7 @@ export function SubscriptionEdit( props ) {
 			subscriberCountString: sprintf(
 				/* translators: Placeholder is a number of subscribers. */
 				_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
-				count
+				numberFormat( count, { notation: 'compact', maximumFractionDigits: 1 } )
 			),
 		};
 	} );

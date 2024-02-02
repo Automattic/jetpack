@@ -2,7 +2,7 @@
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
 Tested up to: 6.4
-Stable tag: 6.2.0
+Stable tag: 6.3.2
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPLv2
@@ -389,26 +389,25 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.3.0 - 2023-11-15
+### 6.4.0 - 2024-01-23
 #### Added
-- API: Add support for creating transactions with custom fields.
-
-#### Changed
-- Requires PHP 7.4 or higher.
-- Requires WordPress 6.0 or higher.
+- Database: Added preliminary support for SQLite.
+- Settings: Add setting to fine tune the Total Value field calculation for contacts and companies.
 
 #### Fixed
-- API: Allow events endpoint to be filtered by owner.
-- API: The `create_event` endpoint no longer throws a 100 error.
-- API: Restrict what owner data is returned with events endpoint.
-- Backend: Prevent error if OpenSSL functions aren't available in PHP.
-- Backend: Changing how styles are added to the page on several stand-alone pages to prevent WordPress 6.4 compatibility issues.
-- Client Portal: Better PHP 8.2 support.
-- Contacts: Fixed display issues on the Add and Edit pages that occurred when moving fields.
-- Listviews: Remove legacy code.
-- Mail Delivery: Removed usage of deprecated function utf8_encode.
-- Quote Templates: Fix issue with notes field rendering HTML entities in some cases.
-- Quote Templates: Make sure quote titles with apostrophes do not have backslashes added when rendered.
-- WooSync: Catch PHP error in Client Portal invoice if WooCommerce is disabled.
-- WooSync: Contacts can now be assigned to existing companies.
+- Backend: Add fallback for dev site detection.
+- Contacts: Updated default statuses.
+- Custom fields: More robust fallbacks for slug creation.
+- Dashboard: Adjust queries for SQLite compatibility.
+- REST API: Allow calls when not using pretty permalinks.
+- Database: Ensure logs table is initiated with all columns.
+- Fixed: Escape output in typeaheads.
+- Invoices: Fixed total amount in preview and pdf when refunds or credit notes are applied.
+- Jetpack Forms: Detect and process custom date fields correctly.
+- Custom fields: Gracefully handle invalid date field data.
+- Listview: Better output escaping in listviews.
+- System Assistant: Fix broken links on some tasks.
+- Migrations: Fix issue where task_offset_fix migration would not mark as complete on some timezones.
+- Templates: Ensure file paths are valid before trying to load.
+- Transactions: Better support for SQLite.
 

@@ -13,6 +13,9 @@ export const getProductsNoResolver = state => getProducts( state );
 export const getProduct = ( state, productId ) =>
 	getProducts( state ).find( product => product.id === productId );
 
+export const getSelectedProducts = ( state, selectedProductIds ) =>
+	getProducts( state ).filter( product => selectedProductIds.includes( product.id ) );
+
 export const getNewsletterTierProducts = state =>
 	state.products.filter( product => product.type === TYPE_TIER );
 
@@ -33,3 +36,10 @@ export const getNewsletterCategoriesEnabled = state => state.newsletterCategorie
 
 export const getNewsletterCategoriesSubscriptionsCount = state =>
 	state.newsletterCategoriesSubscriptionsCount;
+
+export const hasInvalidProducts = ( state, selectedProductIds ) => {
+	return (
+		!! selectedProductIds &&
+		selectedProductIds.some( productId => isInvalidProduct( state, productId ) )
+	);
+};

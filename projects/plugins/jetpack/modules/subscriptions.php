@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Social
  * Feature: Engagement
- * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter
+ * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter, creator
  */
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
@@ -759,7 +759,7 @@ class Jetpack_Subscriptions {
 	 */
 	public function widget_submit() {
 		// Check the nonce.
-		if ( ! wp_verify_nonce( 'blogsub_subscribe_' . \Jetpack_Options::get_option( 'id' ) ) ) {
+		if ( ! wp_verify_nonce( isset( $_REQUEST['_wpnonce'] ) ? sanitize_key( $_REQUEST['_wpnonce'] ) : '', 'blogsub_subscribe_' . \Jetpack_Options::get_option( 'id' ) ) ) {
 			return false;
 		}
 
@@ -849,6 +849,11 @@ class Jetpack_Subscriptions {
 	 */
 	public function comment_subscribe_init( $submit_button ) {
 		global $post;
+
+		// Subscriptions are only available for posts so far.
+		if ( ! $post || 'post' !== $post->post_type ) {
+			return $submit_button;
+		}
 
 		$comments_checked = '';
 		$blog_checked     = '';
@@ -1121,9 +1126,11 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
+		$blog_id = Connection_Manager::get_site_id( true );
+
 		$link = Redirect::get_url(
 			'jetpack-menu-calypso-subscribers',
-			array( 'site' => $status->get_site_suffix() )
+			array( 'site' => $blog_id ? $blog_id : $status->get_site_suffix() )
 		);
 
 		add_submenu_page(

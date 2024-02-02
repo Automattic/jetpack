@@ -2,6 +2,52 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.48.0] - 2024-01-29
+### Changed
+- Move the UpsellBanner component to js-packages/components [#35228]
+
+### Fixed
+- Fix TypeScript type for a Boost Score prop [#35273]
+
+## [0.47.0] - 2024-01-18
+### Added
+- My Jetpack: add a Jetpack Manage banner. [#35078]
+
+## [0.46.0] - 2024-01-18
+### Changed
+- Use blog ID for links instead of site slug. [#34950]
+
+## [0.45.10] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815] [#34816]
+
+### Fixed
+- Added consistency for Jetpack footer links [#34787]
+
+## [0.45.9] - 2024-01-02
+### Changed
+- Updated the design and fixed a11y for Quick Share buttons. [#34754]
+
+## [0.45.8] - 2023-12-19
+### Changed
+- Updated package dependencies. [#34694, #34696]
+
+## [0.45.7] - 2023-12-13
+### Added
+- Added `className` prop to RecordMeterBar component [#34182]
+
+## [0.45.6] - 2023-12-11
+### Fixed
+- Fixed resizing of the performance history graph. [#34185]
+
+## [0.45.5] - 2023-12-06
+### Changed
+- Updated package dependencies. [#34416]
+
+## [0.45.4] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+
 ## [0.45.3] - 2023-11-21
 ### Fixed
 - Fixed ActionPopover CSS variables. [#34226]
@@ -886,6 +932,16 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.48.0]: https://github.com/Automattic/jetpack-components/compare/0.47.0...0.48.0
+[0.47.0]: https://github.com/Automattic/jetpack-components/compare/0.46.0...0.47.0
+[0.46.0]: https://github.com/Automattic/jetpack-components/compare/0.45.10...0.46.0
+[0.45.10]: https://github.com/Automattic/jetpack-components/compare/0.45.9...0.45.10
+[0.45.9]: https://github.com/Automattic/jetpack-components/compare/0.45.8...0.45.9
+[0.45.8]: https://github.com/Automattic/jetpack-components/compare/0.45.7...0.45.8
+[0.45.7]: https://github.com/Automattic/jetpack-components/compare/0.45.6...0.45.7
+[0.45.6]: https://github.com/Automattic/jetpack-components/compare/0.45.5...0.45.6
+[0.45.5]: https://github.com/Automattic/jetpack-components/compare/0.45.4...0.45.5
+[0.45.4]: https://github.com/Automattic/jetpack-components/compare/0.45.3...0.45.4
 [0.45.3]: https://github.com/Automattic/jetpack-components/compare/0.45.2...0.45.3
 [0.45.2]: https://github.com/Automattic/jetpack-components/compare/0.45.1...0.45.2
 [0.45.1]: https://github.com/Automattic/jetpack-components/compare/0.45.0...0.45.1

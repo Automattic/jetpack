@@ -128,6 +128,10 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			return $this->proxy_request_to_wpcom( $request, $request->get_param( 'id' ) );
 		}
 
+		if ( $request->get_param( 'force_year' ) ) {
+			$this->force_year = $request->get_param( 'force_year' );
+		}
+
 		switch_to_blog( self::TEMPLATE_BLOG_ID );
 		$item = parent::get_item( $request );
 		restore_current_blog();
@@ -272,7 +276,11 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 		}
 
 		if ( rest_is_field_included( 'label', $fields ) ) {
-			$data['label'] = __( 'Daily writing prompt', 'jetpack' );
+			if ( $this->is_in_bloganuary( $prompt->post_date_gmt ) ) {
+				$data['label'] = __( 'Bloganuary writing prompt', 'jetpack' );
+			} else {
+				$data['label'] = __( 'Daily writing prompt', 'jetpack' );
+			}
 		}
 
 		if ( rest_is_field_included( 'text', $fields ) ) {
@@ -300,7 +308,12 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 		}
 
 		if ( rest_is_field_included( 'answered_link', $fields ) ) {
-			$data['answered_link'] = esc_url( "https://wordpress.com/tag/dailyprompt-{$prompt->ID}" );
+			if ( $this->is_in_bloganuary( $prompt->post_date_gmt ) ) {
+				$bloganuary_id         = $this->get_bloganuary_id( $prompt->post_date_gmt );
+				$data['answered_link'] = esc_url( "https://wordpress.com/tag/{$bloganuary_id}" );
+			} else {
+				$data['answered_link'] = esc_url( "https://wordpress.com/tag/dailyprompt-{$prompt->ID}" );
+			}
 		}
 
 		if ( rest_is_field_included( 'answered_link_text', $fields ) ) {
@@ -533,11 +546,11 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 		}
 
 		$response_status = wp_remote_retrieve_response_code( $response );
-		$response_body   = json_decode( wp_remote_retrieve_body( $response ) );
+		$response_body   = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( $response_status >= 400 ) {
-			$code    = isset( $response_body->code ) ? $response_body->code : 'unknown_error';
-			$message = isset( $response_body->message ) ? $response_body->message : __( 'An unknown error occurred.', 'jetpack' );
+			$code    = isset( $response_body['code'] ) ? $response_body['code'] : 'unknown_error';
+			$message = isset( $response_body['message'] ) ? $response_body['message'] : __( 'An unknown error occurred.', 'jetpack' );
 			return new WP_Error( $code, $message, array( 'status' => $response_status ) );
 		}
 

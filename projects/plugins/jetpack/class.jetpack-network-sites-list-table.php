@@ -118,7 +118,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		switch_to_blog( $item->blog_id );
 
 		// Checks for both the stock version of Jetpack and the one managed by the Jetpack Beta Plugin.
-		if ( ! is_plugin_active( 'jetpack/jetpack.php' ) && ! is_plugin_active( 'jetpack-dev/jetpack.php' ) ) {
+		if ( ! is_plugin_active( 'jetpack/jetpack.php' ) && ! is_plugin_active( 'jetpack-dev/jetpack.php' ) && ! array_key_exists( 'jetpack.php', get_mu_plugins() ) ) {
 			$title  = __( 'Jetpack is not active on this site.', 'jetpack' );
 			$action = array(
 				'manage-plugins' => '<a href="' . get_admin_url( $item->blog_id, 'plugins.php', 'admin' ) . '">' . __( 'Manage Plugins', 'jetpack' ) . '</a>',

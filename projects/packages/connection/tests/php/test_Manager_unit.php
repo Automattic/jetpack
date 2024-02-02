@@ -64,7 +64,7 @@ class ManagerTest extends TestCase {
 			->setMethods( array( 'get_access_token', 'disconnect_user' ) )
 			->getMock();
 
-		$this->manager->method( 'get_tokens' )->will( $this->returnValue( $this->tokens ) );
+		$this->manager->method( 'get_tokens' )->willReturn( $this->tokens );
 
 		$this->user_id = wp_insert_user(
 			array(
@@ -101,7 +101,7 @@ class ManagerTest extends TestCase {
 		);
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( $access_token ) );
+			->willReturn( $access_token );
 
 		$this->assertTrue( $this->manager->is_active() );
 	}
@@ -114,7 +114,7 @@ class ManagerTest extends TestCase {
 	public function test_is_active_when_not_connected() {
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$this->assertFalse( $this->manager->is_active() );
 	}
@@ -247,7 +247,7 @@ class ManagerTest extends TestCase {
 	public function test_is_user_connected_with_user_id_logged_out_not_connected() {
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$this->assertFalse( $this->manager->is_user_connected( $this->user_id ) );
 	}
@@ -266,7 +266,7 @@ class ManagerTest extends TestCase {
 		);
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( $access_token ) );
+			->willReturn( $access_token );
 
 		$this->assertTrue( $this->manager->is_user_connected() );
 	}
@@ -283,7 +283,7 @@ class ManagerTest extends TestCase {
 		);
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( $access_token ) );
+			->willReturn( $access_token );
 
 		$this->assertTrue( $this->manager->is_user_connected( $this->user_id ) );
 	}
@@ -433,10 +433,10 @@ class ManagerTest extends TestCase {
 		( new Tokens() )->update_user_token( $editor_id, sprintf( '%s.%s.%d', 'key', 'private', $editor_id ), false );
 
 		$this->manager->method( 'unlink_user_from_wpcom' )
-			->will( $this->returnValue( $remote ) );
+			->willReturn( $remote );
 
 		$this->tokens->method( 'disconnect_user' )
-			->will( $this->returnValue( $local ) );
+			->willReturn( $local );
 
 		$result = $this->manager->disconnect_user( $editor_id );
 
@@ -559,7 +559,7 @@ class ManagerTest extends TestCase {
 		);
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( $access_token ) );
+			->willReturn( $access_token );
 
 		$this->manager->method( 'get_connection_owner_id' )
 			->withAnyParameters()
@@ -595,7 +595,7 @@ class ManagerTest extends TestCase {
 		);
 		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
-			->will( $this->returnValue( $access_token ) );
+			->willReturn( $access_token );
 
 		$this->manager->method( 'get_connection_owner_id' )
 			->withAnyParameters()

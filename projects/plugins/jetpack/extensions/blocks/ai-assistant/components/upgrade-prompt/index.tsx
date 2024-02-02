@@ -2,28 +2,69 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
+import debugFactory from 'debug';
+import React, { useCallback } from 'react';
 /*
  * Internal dependencies
  */
 import { Nudge } from '../../../../shared/components/upgrade-nudge';
+import { PLAN_TYPE_TIERED, usePlanType } from '../../../../shared/use-plan-type';
 import useAICheckout from '../../hooks/use-ai-checkout';
 import useAiFeature from '../../hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../lib/connection';
+import './style.scss';
 
+type UpgradePromptProps = {
+	placement?: string;
+};
+
+const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
 /**
  * The default upgrade prompt for the AI Assistant block, containing the Upgrade button and linking
  * to the checkout page or the Jetpack AI interstitial page.
  *
+ * @param {UpgradePromptProps} props - Component props.
  * @returns {React.ReactNode} the Nudge component with the prompt.
  */
-const DefaultUpgradePrompt = (): React.ReactNode => {
+const DefaultUpgradePrompt = ( { placement = null }: UpgradePromptProps ): React.ReactNode => {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
 	const canUpgrade = canUserPurchasePlan();
+	const {
+		nextTier,
+		tierPlansEnabled,
+		currentTier,
+		requestsCount: allTimeRequestsCount,
+		usagePeriod,
+	} = useAiFeature();
 
-	const { nextTier, tierPlansEnabled } = useAiFeature();
+	const planType = usePlanType( currentTier );
+	const requestsCount =
+		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
+
+	const { tracks } = useAnalytics();
+
+	const handleUpgradeClick = useCallback(
+		event => {
+			debug( 'upgrade', placement );
+			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
+				current_tier_slug: currentTier?.slug,
+				requests_count: requestsCount,
+				placement: placement,
+			} );
+			autosaveAndRedirect( event );
+		},
+		[ autosaveAndRedirect, currentTier, requestsCount, tracks, placement ]
+	);
+
+	const handleContactUsClick = useCallback( () => {
+		debug( 'contact us', placement );
+		tracks.recordEvent( 'jetpack_ai_upgrade_contact_us', {
+			placement: placement,
+		} );
+	}, [ tracks, placement ] );
 
 	if ( ! canUpgrade ) {
 		return (
@@ -32,11 +73,10 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 				className={ 'jetpack-ai-upgrade-banner' }
 				description={ createInterpolateElement(
 					__(
-						'Congratulations on exploring Jetpack AI and reaching the free requests limit!<br /><strong>Reach out to the site administrator to upgrade and keep using Jetpack AI.</strong>',
+						'Congratulations on exploring Jetpack AI and reaching the free requests limit! <strong>Reach out to the site administrator to upgrade and keep using Jetpack AI.</strong>',
 						'jetpack'
 					),
 					{
-						br: <br />,
 						strong: <strong />,
 					}
 				) }
@@ -64,6 +104,7 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 					align={ null }
 					title={ null }
 					context={ null }
+					goToCheckoutPage={ handleContactUsClick }
 				/>
 			);
 		}
@@ -80,17 +121,16 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 					sprintf(
 						/* Translators: number of requests */
 						__(
-							'You have reached the requests limit for your current plan.<br /><strong>Upgrade now to increase your requests limit to %d.</strong>',
+							'You have reached the requests limit for your current plan. <strong>Upgrade now to increase your requests limit to %d.</strong>',
 							'jetpack'
 						),
 						nextTier.limit
 					),
 					{
-						br: <br />,
 						strong: <strong />,
 					}
 				) }
-				goToCheckoutPage={ autosaveAndRedirect }
+				goToCheckoutPage={ handleUpgradeClick }
 				isRedirecting={ isRedirecting }
 				visible={ true }
 				align={ 'center' }
@@ -107,11 +147,10 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 			className={ 'jetpack-ai-upgrade-banner' }
 			description={ createInterpolateElement(
 				__(
-					'Congratulations on exploring Jetpack AI and reaching the free requests limit!<br /><strong>Upgrade now to keep using it.</strong>',
+					'Congratulations on exploring Jetpack AI and reaching the free requests limit! <strong>Upgrade now to keep using it.</strong>',
 					'jetpack'
 				),
 				{
-					br: <br />,
 					strong: <strong />,
 				}
 			) }
@@ -156,7 +195,7 @@ const VIPUpgradePrompt = (): React.ReactNode => {
 	);
 };
 
-const UpgradePrompt = () => {
+const UpgradePrompt = props => {
 	const { upgradeType } = useAiFeature();
 
 	// If the user is on a VIP site, show the VIP upgrade prompt.
@@ -164,7 +203,7 @@ const UpgradePrompt = () => {
 		return VIPUpgradePrompt();
 	}
 
-	return DefaultUpgradePrompt();
+	return DefaultUpgradePrompt( props );
 };
 
 export default UpgradePrompt;

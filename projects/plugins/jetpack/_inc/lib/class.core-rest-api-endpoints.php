@@ -777,7 +777,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'args'                => array(
 					'redirect_url' => array(
 						'required'          => true,
-						'description'       => __( 'The URL to redirect_to.', 'jetpack' ),
+						'description'       => __( 'The URL to redirect to.', 'jetpack' ),
 						'validate_callback' => 'wp_http_validate_url',
 						'sanitize_callback' => 'sanitize_url',
 						'type'              => 'string',

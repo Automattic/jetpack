@@ -5,5 +5,10 @@ interface Window {
 		available_blocks: {
 			'jetpack/ai-assistant-support': boolean;
 		};
+		tracksUserData: {
+			userid: number;
+			username: string;
+		};
+		wpcomBlogId: string;
 	};
 }

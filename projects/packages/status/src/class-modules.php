@@ -25,6 +25,10 @@ class Modules {
 	 * @return bool
 	 */
 	public function is_active( $module ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return true;
+		}
+
 		return in_array( $module, self::get_active(), true );
 	}
 

@@ -257,6 +257,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return WP_Error|array ['products']
 	 */
 	public function list_products( WP_REST_Request $request ) {
+		$query       = null;
 		$is_editable = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
 		$type        = isset( $request['type'] ) ? $request['type'] : null;
 
@@ -359,8 +360,14 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	public function get_status( \WP_REST_Request $request ) {
 		$product_type = $request['type'];
-		$source       = $request['source'];
-		$is_editable  = ! isset( $request['is_editable'] ) ? null : (bool) $request['is_editable'];
+
+		if ( ! empty( $request['source'] ) ) {
+			$source = sanitize_text_field( wp_unslash( $request['source'] ) );
+		} else {
+			$source = 'gutenberg';
+		}
+
+		$is_editable = ! isset( $request['is_editable'] ) ? null : (bool) $request['is_editable'];
 
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );

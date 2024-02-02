@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fixed console errors being thrown for Jetpack blocks inside the Full Site Editor.

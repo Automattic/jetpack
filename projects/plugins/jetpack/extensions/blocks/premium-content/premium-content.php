@@ -31,8 +31,9 @@ function register_block() {
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			$provides         => array(
-				'premium-content/planId' => 'selectedPlanId',
-				'isPremiumContentChild'  => 'isPremiumContentChild',
+				'premium-content/planId'  => 'selectedPlanId', // Deprecated.
+				'premium-content/planIds' => 'selectedPlanIds',
+				'isPremiumContentChild'   => 'isPremiumContentChild',
 			),
 		)
 	);

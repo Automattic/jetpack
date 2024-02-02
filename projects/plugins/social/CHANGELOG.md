@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.0.0 - 2024-01-18
+### Changed
+- Changed dismissed notices endpoint to be a core endpoint [#34544]
+- Social: Changed the illustration on the admin page [#34454]
+- Social: Refactored storing of feature options to use core functions [#34113]
+- Split PublicizeForm component into smaller ones [#34612]
+- Updated Jetpack Social activation landing page [#34778]
+- Updated package dependencies. [#34559] [#34815] [#34882]
+- Updated the design for Quick Share buttons and fixed its a11y [#34754]
+
+### Fixed
+- Fixed a bug with the initial state script [#34861]
+- Fixed Jetpack Social scheduled post messaging [#34182]
+
+## 3.0.0 - 2023-12-06
+### Added
+- Added a new post-publish panel for quick sharing [#33231]
+- Added Nextdoor to Social Previews [#33907]
+- Added traking for social sharing buttons [#33231]
+
+### Changed
+- Code Modernization: Replace usage of strpos() with str_contains() [#34137]
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+- General: update WordPress version requirements to WordPress 6.3 and compatible with 6.4. [#34127] [#33776]
+- Updated package dependencies.
+- Updated screenshot to show the new connection toggles. [#33381]
+- Updated Social admin pricing page [#33176]
+
+### Removed
+- Removed unused code [#34111] [#34241]
+
+### Fixed
+- Fixed an issue where initial state is not in sync [#33969]
+- Fixed broken connections UI [#34391]
+- Fixed pre-publish UI reactivity for Jetpack Social [#34243]
+- Fixed the issue of publicize remaining ON after the post is published [#34289]
+
 ## 2.3.0 - 2023-09-20
 ### Added
 - Add the change settings logic in Social for the auto conversion feature. [#32712]

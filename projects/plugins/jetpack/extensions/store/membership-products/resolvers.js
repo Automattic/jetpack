@@ -147,7 +147,7 @@ export const fetchNewsletterCategoriesSubscriptionsCount = async termIds => {
 
 const createDefaultProduct = async (
 	productType,
-	setSelectedProductId,
+	setSelectedProductIds,
 	dispatch,
 	shouldDisplayProductCreationNotice
 ) => {
@@ -160,7 +160,7 @@ const createDefaultProduct = async (
 				interval: '1 month',
 			},
 			productType,
-			setSelectedProductId,
+			setSelectedProductIds,
 			() => {},
 			shouldDisplayProductCreationNotice
 		)
@@ -170,33 +170,33 @@ const createDefaultProduct = async (
 const shouldCreateDefaultProduct = response =>
 	! response.products.length && response.connected_account_id;
 
-const setDefaultProductIfNeeded = ( selectedProductId, setSelectedProductId, select ) => {
-	if ( selectedProductId ) {
+const setDefaultProductIfNeeded = ( selectedProductIds, setSelectedProductIds, select ) => {
+	if ( selectedProductIds.length > 0 ) {
 		return;
 	}
 	const defaultProductId = select.getProductsNoResolver()[ 0 ]?.id;
 	if ( defaultProductId ) {
-		setSelectedProductId( defaultProductId );
+		setSelectedProductIds( [ defaultProductId ] );
 	}
 };
 
 export const getNewsletterTierProducts = (
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
-	selectedProductId = 0,
-	setSelectedProductId = () => {}
-) => getProducts( productType, selectedProductId, setSelectedProductId, false );
+	selectedProductIds = [],
+	setSelectedProductIds = () => {}
+) => getProducts( productType, selectedProductIds, setSelectedProductIds, false );
 
 export const getProducts =
 	(
 		productType = PRODUCT_TYPE_PAYMENT_PLAN,
-		selectedProductId = 0,
-		setSelectedProductId = () => {},
+		selectedProductIds = [],
+		setSelectedProductIds = () => {},
 		shouldDisplayProductCreationNotice = true
 	) =>
 	async ( { dispatch, registry, select } ) => {
 		await executionLock.blockExecution( EXECUTION_KEY );
 		if ( hydratedFromAPI ) {
-			setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
+			setDefaultProductIfNeeded( selectedProductIds, setSelectedProductIds, select );
 			return;
 		}
 
@@ -209,13 +209,13 @@ export const getProducts =
 				// Is ready to use and has no product set up yet. Let's create one!
 				await createDefaultProduct(
 					productType,
-					setSelectedProductId,
+					setSelectedProductIds,
 					dispatch,
 					shouldDisplayProductCreationNotice
 				);
 			}
 
-			setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
+			setDefaultProductIfNeeded( selectedProductIds, setSelectedProductIds, select );
 
 			hydratedFromAPI = true;
 		} catch ( error ) {

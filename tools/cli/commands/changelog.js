@@ -4,7 +4,7 @@ import path from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import enquirer from 'enquirer';
 import { readComposerJson } from '../helpers/json.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
 import { projectTypes, allProjects } from '../helpers/projectHelpers.js';
@@ -64,6 +64,11 @@ export function changelogDefine( yargs ) {
 							.option( 'entry', {
 								alias: 'e',
 								describe: 'Changelog entry',
+								type: 'string',
+							} )
+							.option( 'comment', {
+								alias: 'c',
+								describe: 'Changelog comment',
 								type: 'string',
 							} );
 					},
@@ -261,27 +266,26 @@ async function changelogCommand( argv ) {
 }
 
 /**
- * Checks if any projects have special changelog configurations.
+ * Checks if any projects have special changelog type configurations.
  *
  * @param {Array} needChangelog - files that need a changelog.
- * @returns {Array} - array of projects with unique changelog configurations.
+ * @returns {object} - Object containing types associated with each project.
  */
-async function checkSpecialProjects( needChangelog ) {
-	const specialProjects = [];
+async function getProjectChangeTypes( needChangelog ) {
+	const types = {};
 	for ( const proj of needChangelog ) {
 		const composerJSON = readComposerJson( proj );
-		// todo - handle duplicate special projects with the same type of requirements.
-		// todo - If we want to generate changelogger questions dynamically, we can push the entire composerJSON.extra.changelogger.types object.
 		if (
 			composerJSON.extra &&
 			composerJSON.extra.changelogger &&
 			composerJSON.extra.changelogger.types
 		) {
-			needChangelog.splice( needChangelog.indexOf( proj ), 1 );
-			specialProjects.push( proj );
+			types[ proj ] = composerJSON.extra.changelogger.types;
+		} else {
+			types[ proj ] = 'default';
 		}
 	}
-	return specialProjects;
+	return types;
 }
 
 /**
@@ -290,81 +294,90 @@ async function checkSpecialProjects( needChangelog ) {
  * @param {argv} argv - the arguments passed.
  */
 async function changelogAdd( argv ) {
+	// If we already have all the information we need for a potentially-successful changelogger run, skip the prompts and just do it.
+	if ( argv.project && argv.s && argv.t && argv.e ) {
+		await changelogArgs( argv );
+		return;
+	}
+
+	let needChangelog;
+	const defaultProjects = [];
+	const uniqueProjects = [];
+	const defaultTypes = {
+		security: 'Improves or modifies the security of the project.',
+		added: 'Added new functionality.',
+		changed: 'Changed existing functionality.',
+		deprecated: 'Deprecated existing functionality.',
+		removed: 'Removed existing functionality.',
+		fixed: 'Fixed a bug.',
+	};
+
+	if ( argv.project ) {
+		needChangelog = [ argv.project ];
+	}
+
+	// If we weren't passed a project, check if any projects need changelogs.
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
-		const needChangelog = await checkChangelogFiles();
-		const uniqueProjects = await checkSpecialProjects( needChangelog );
-
-		// If we don't detect any modified projects, shortcircuit to default changelogger.
-		if ( needChangelog.length === 0 && uniqueProjects.length === 0 ) {
+		needChangelog = await checkChangelogFiles();
+		if ( needChangelog.length === 0 ) {
 			console.log(
 				chalk.green(
-					'Did not detect a touched project that still need a changelog. You can still add a changelog manually.'
+					'Did not detect a touched project that still needs a changelog. You can still add a changelog manually by running `jetpack changelog add <type/project>'
 				)
 			);
-			changelogArgs( argv );
-			return;
-		}
-
-		const promptType = await changelogAddPrompt( argv, needChangelog, uniqueProjects );
-
-		// Bail if user doesn't want to auto-add.
-		if ( ! promptType.autoAdd && ! promptType.autoPrompt ) {
-			console.log(
-				chalk.green(
-					`Auto changelog cancelled. You can run 'jetpack changelog add [project-type/project]' to add changelogs individually.`
-				)
-			);
-			return;
-		}
-
-		// Auto add the changelog files for the projects that we can:
-		if ( promptType.autoAdd ) {
-			console.log(
-				chalk.green( `Running auto changelogger for ${ needChangelog.length } project(s)!` )
-			);
-			const response = await promptChangelog( argv, needChangelog );
-			for ( const proj of needChangelog ) {
-				argv = await formatAutoArgs( proj, argv, response );
-				await changelogArgs( argv );
-			}
-
-			// Revert to interactive mode if we have projects with unique changelog configs.
-			if ( uniqueProjects.length > 0 ) {
-				console.log(
-					chalk.green(
-						`Changelog file added to ${ needChangelog.length } project(s)! Returning to interactive mode for remaining projects.`
-					)
-				);
-				needChangelog.splice( 0, needChangelog.length );
-				autoPrompter( argv, needChangelog, uniqueProjects );
-			}
-			return;
-		}
-
-		if ( promptType.autoPrompt ) {
-			autoPrompter( argv, needChangelog, uniqueProjects );
 			return;
 		}
 	}
-	changelogArgs( argv );
-}
 
-/**
- * Prompts an interactive changelogger for reach project that needs one.
- *
- * @param {object} argv - arguments passed.
- * @param {Array} needChangelog - projects that need changelog.
- * @param {Array} uniqueProjects - projects with custom configs.
- */
-async function autoPrompter( argv, needChangelog, uniqueProjects ) {
-	argv.auto = false;
-	const totalProjects = [ ...needChangelog, ...uniqueProjects ];
-	for ( const proj of totalProjects ) {
-		argv.args = [];
-		argv.project = proj;
-		console.log( chalk.green( `Running changelogger for ${ argv.project }` ) );
+	const projectChangeTypes = await getProjectChangeTypes( needChangelog );
+
+	// Iterate over the project types, and if it's not default, add it to uniqueProjects.
+	for ( const proj in projectChangeTypes ) {
+		if ( projectChangeTypes[ proj ] !== 'default' ) {
+			uniqueProjects.push( proj );
+		} else {
+			defaultProjects.push( proj );
+			projectChangeTypes[ proj ] = defaultTypes;
+		}
+	}
+
+	// Confirm what projects we're adding a changelog to, and how we want to add them.
+	const promptConfirm = argv.project
+		? { separateChangelogFiles: true }
+		: await changelogAddPrompt( argv, defaultProjects, uniqueProjects );
+
+	if ( ! promptConfirm ) {
+		console.log( 'Changelog command cancelled' );
+		return;
+	}
+
+	if ( promptConfirm.separateChangelogFiles ) {
+		uniqueProjects.unshift( ...defaultProjects.splice( 0 ) );
+	}
+
+	if ( defaultProjects.length > 0 ) {
+		console.log(
+			chalk.green(
+				`Running changelogger for ${
+					defaultProjects.length
+				} project(s):\n\t${ defaultProjects.join( '\n\t' ) }`
+			)
+		);
+		const response = await promptChangelog( argv, defaultProjects, defaultTypes );
+		for ( const proj of defaultProjects ) {
+			argv = await formatAutoArgs( proj, argv, response );
+			await changelogArgs( argv );
+		}
+	}
+
+	for ( const proj of uniqueProjects ) {
+		console.log( chalk.green( `Running changelogger for ${ proj }!` ) );
+		const response = await promptChangelog( argv, [ proj ], projectChangeTypes[ proj ] );
+		argv = await formatAutoArgs( proj, argv, response );
 		await changelogArgs( argv );
 	}
+
+	return;
 }
 
 /**
@@ -411,20 +424,7 @@ async function changelogArgs( argv ) {
 	// Check for required command specific arguments.
 	switch ( argv.args[ 0 ] ) {
 		case 'add':
-			console.log(
-				"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
-					'Here is an example of a good changelog entry:\n' +
-					'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
-			);
-			if ( ( argv.s && argv.t && argv.e ) || argv.auto ) {
-				argv.args.push( '--no-interaction' );
-			} else if ( argv.s || argv.t || argv.e ) {
-				console.error(
-					chalk.bgRed(
-						'Need to pass all required arguments for non-interactive mode. Defaulting to interactive mode.'
-					)
-				);
-			}
+			argv.args.push( '--no-interaction' );
 			break;
 		case 'version':
 			if ( ! argv.which ) {
@@ -626,6 +626,7 @@ function doesFilenameExist( fileName, needChangelog ) {
 			fileURLToPath( new URL( './', import.meta.url ) ),
 			`../../../projects/${ proj }/changelog/${ fileName }`
 		);
+
 		try {
 			if ( fs.existsSync( projPath ) ) {
 				console.log(
@@ -674,8 +675,8 @@ function validatePath( argv, dir ) {
  * @returns {argv}.
  */
 async function promptCommand( argv ) {
-	const response = await inquirer.prompt( {
-		type: 'list',
+	const response = await enquirer.prompt( {
+		type: 'select',
 		name: 'cmd',
 		message: 'What changelogger command do you want to run?',
 		choices: [ 'add', 'validate', 'version', 'write', 'squash' ],
@@ -691,8 +692,8 @@ async function promptCommand( argv ) {
  * @returns {argv}.
  */
 async function promptForFile( argv ) {
-	const response = await inquirer.prompt( {
-		type: 'list',
+	const response = await enquirer.prompt( {
+		type: 'select',
 		name: 'file',
 		message: 'What are you looking to squash?',
 		choices: [ 'readme', 'changelog' ],
@@ -707,8 +708,8 @@ async function promptForFile( argv ) {
  * @returns {argv}.
  */
 async function promptVersion( argv ) {
-	const response = await inquirer.prompt( {
-		type: 'list',
+	const response = await enquirer.prompt( {
+		type: 'select',
 		name: 'ver',
 		message: 'Which version would you like to get?',
 		choices: [ 'current', 'next', 'previous' ],
@@ -722,156 +723,215 @@ async function promptVersion( argv ) {
  *
  * @param {object} argv - the arguments passed.
  * @param {Array} needChangelog - projects that need changelog.
+ * @param {object} types - the changelog types for the projects.
+ *
  * @returns {argv}.
  */
-async function promptChangelog( argv, needChangelog ) {
+async function promptChangelog( argv, needChangelog, types ) {
 	const gitBranch = child_process
 		.spawnSync( 'git', [ 'branch', '--show-current' ] )
 		.stdout.toString()
 		.trim()
 		.replace( /\//g, '-' );
-	console.log( gitBranch );
-	const commands = await inquirer.prompt( [
-		{
-			type: 'string',
-			name: 'changelogName',
-			message: 'Name your changelog file:',
-			default: gitBranch,
-			validate: input => {
-				const fileExists = doesFilenameExist( input, needChangelog );
-				if ( fileExists ) {
-					return 'Please choose another file name, or delete the file manually.';
-				}
-				return true;
+	const maxLength = Object.keys( types ).reduce( ( a, v ) => ( v.length > a ? v.length : a ), 0 );
+	const typeChoices = Object.entries( types ).map( ( [ value, name ] ) => ( {
+		value,
+		name: `[${ value.padEnd( maxLength, ' ' ) }] ${ name }`,
+	} ) );
+	// Get the changelog name.
+	const { changelogName } = await enquirer.prompt( {
+		type: 'input',
+		name: 'changelogName',
+		message: 'Name your changelog file:',
+		default: argv.f ?? gitBranch,
+		validate: input => {
+			const fileExists = doesFilenameExist( input, needChangelog );
+			if ( fileExists ) {
+				return 'Filename exists already. Please choose another file name, or delete the file existing manually.';
+			}
+			return true;
+		},
+	} );
+
+	// Get the significance.
+	const { significance } = await enquirer.prompt( {
+		type: 'autocomplete',
+		name: 'significance',
+		message: 'Significance of the change, in the style of semantic versioning.',
+		suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
+		initial() {
+			return this.choices.findIndex( v => v.value === argv.s );
+		},
+		highlight: v => v,
+		choices: [
+			{
+				value: 'patch',
+				name: '[patch] Backwards-compatible bug fixes.',
 			},
-		},
-		{
-			type: 'list',
-			name: 'significance',
-			message: 'Significance of the change, in the style of semantic versioning.',
-			choices: [
-				{
-					value: 'patch',
-					name: '[patch] Backwards-compatible bug fixes.',
-				},
-				{
-					value: 'minor',
-					name: '[minor] Added (or deprecated) functionality in a backwards-compatible manner.',
-				},
-				{
-					value: 'major',
-					name: '[major] Broke backwards compatibility in some way.',
-				},
-			],
-		},
-		{
-			type: 'list',
+			{
+				value: 'minor',
+				name: '[minor] Added (or deprecated) functionality in a backwards-compatible manner.',
+			},
+			{
+				value: 'major',
+				name: '[major] Broke backwards compatibility in some way.',
+			},
+		],
+	} );
+
+	const userFacingResponse = await enquirer.prompt( {
+		type: 'confirm',
+		name: 'userFacing',
+		message:
+			'Is this change something an end user or site administrator of a standalone Jetpack site would like to know about?',
+		initial: argv.t !== 'other',
+		skip: ! needChangelog.includes( 'plugins/jetpack' ),
+	} );
+
+	// Get the type, set it to other if this isn't a user facing change.
+	let typeResponse;
+	if ( ! userFacingResponse.userFacing && typeChoices.findIndex( v => v.value === 'other' ) >= 0 ) {
+		typeResponse = { type: 'other' };
+	} else {
+		// Get the type of change.
+		typeResponse = await enquirer.prompt( {
+			type: 'autocomplete',
 			name: 'type',
 			message: 'Type of change.',
-			choices: [
-				{
-					value: 'security',
-					name: '[security  ] Security',
-				},
-				{
-					value: 'added',
-					name: '[added     ] Added',
-				},
-				{
-					value: 'changed',
-					name: '[changed   ] Changed',
-				},
-				{
-					value: 'deprecated',
-					name: '[deprecated] Deprecated',
-				},
-				{
-					value: 'removed',
-					name: '[removed   ] Removed',
-				},
-				{
-					value: 'fixed',
-					name: '[fixed     ] Fixed',
-				},
-			],
-		},
-		{
-			type: 'string',
-			name: 'entry',
-			message: 'Changelog entry. May be left empty if this change is particularly insignificant.',
-			when: answers => answers.significance === 'patch',
-		},
-		{
-			type: 'string',
-			name: 'comment',
-			message:
-				'You omitted the changelog entry, which is fine. But please comment as to why no entry is needed.',
-			when: answers => answers.significance === 'patch' && answers.entry === '',
-		},
-		{
-			type: 'string',
+			suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
+			highlight: v => v,
+			choices: typeChoices,
+			initial: typeChoices.findIndex( v => v.value === argv.t ),
+		} );
+	}
+	const { type } = typeResponse;
+
+	console.log(
+		chalk.yellow(
+			"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
+				'Here is an example of a good changelog entry:\n' +
+				'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
+		)
+	);
+
+	// Get the entry, if it's a patch type it can be left blank.
+	let entryResponse;
+	if ( significance !== 'patch' ) {
+		entryResponse = await enquirer.prompt( {
+			type: 'input',
 			name: 'entry',
 			message: 'Changelog entry. May not be empty.',
-			when: answers => answers.significance === 'minor' || 'major',
+			initial: argv.e,
 			validate: input => {
 				if ( ! input || ! input.trim() ) {
 					return `Changelog entry can't be blank`;
 				}
 				return true;
 			},
-		},
-	] );
-	return { ...commands };
+		} );
+	} else {
+		entryResponse = await enquirer.prompt( {
+			type: 'input',
+			name: 'entry',
+			message: 'Changelog entry. May be left empty if this change is particularly insignificant.',
+			initial: argv.e,
+		} );
+	}
+	const { entry } = entryResponse;
+
+	// Get the comment if the entry is left blank for a patch level change.
+	let commentResponse;
+	if ( entry === '' ) {
+		commentResponse = await enquirer.prompt( {
+			type: 'input',
+			name: 'comment',
+			message:
+				'You omitted the changelog entry, which is fine. But please comment as to why no entry is needed.',
+			initial: argv.c,
+		} );
+	}
+	const { comment } = commentResponse || {};
+
+	return {
+		changelogName,
+		significance,
+		type,
+		entry,
+		comment,
+	};
 }
 
 /**
  * Prompts you for how you want changelogger to run (add to all projects or not, etc).
  *
  * @param {object} argv - the arguments passed.
- * @param {Array} needChangelog - files that need changelogs.
+ * @param {Array} defaultProjects - projects that use the default changelog types.
  * @param {Array} uniqueProjects - projects with unique changelog types.
  * @returns {argv}.
  */
-async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {
-	const totalProjects = [ ...needChangelog, ...uniqueProjects ];
-	if ( uniqueProjects.length === 0 && needChangelog.length > 1 ) {
-		const response = await inquirer.prompt( [
-			{
-				type: 'confirm',
-				name: 'autoAdd',
-				message: `Found ${ needChangelog.length } project(s) that need a changelog. Create and add same changelog to all projects?`,
-			},
-			{
-				type: 'confirm',
-				name: 'autoPrompt',
-				message: 'Create changelog for each project individually?',
-				when: answers => ! answers.autoAdd,
-			},
-		] );
-		return response;
-	}
+async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
+	const totalProjects = [ ...defaultProjects, ...uniqueProjects ];
+	let prompts;
 
+	// Determine if we can add the same changelog file to all, or if we need to add them individually.
 	if ( totalProjects.length === 1 ) {
-		const response = await inquirer.prompt( {
+		prompts = {
 			type: 'confirm',
-			name: 'autoPrompt',
-			message: `Add changelog for ${ totalProjects[ 0 ] }?`,
-		} );
-		return response;
+			name: 'separateChangelogFiles',
+			message: `Add a changelog for ${ totalProjects[ 0 ] }?`,
+			initial: true,
+		};
+	} else if ( defaultProjects.length <= 1 && uniqueProjects.length > 0 ) {
+		prompts = {
+			type: 'confirm',
+			name: 'separateChangelogFiles',
+			message: `Found ${ totalProjects.length } project(s) that need a changelog. Create a changelog for each one?`,
+			initial: true,
+		};
+	} else if ( defaultProjects.length > 0 && uniqueProjects.length === 0 ) {
+		prompts = [
+			{
+				type: 'confirm',
+				name: 'sameChangelogFiles',
+				message: `Found ${ defaultProjects.length } project(s) that need a changelog. Create and add the same changelog to all of them?`,
+				initial: true,
+			},
+			{
+				type: 'confirm',
+				name: 'separateChangelogFiles',
+				message: 'Create a changelog for each project individually?',
+				initial() {
+					return this.skipped ? undefined : true; // https://github.com/enquirer/enquirer/issues/340
+				},
+				skip() {
+					return this.state.answers.sameChangelogFiles;
+				},
+			},
+		];
+	} else {
+		prompts = [
+			{
+				type: 'confirm',
+				name: 'sameChangelogFiles',
+				message: `Found ${ defaultProjects.length } project(s) that can accept the same changelog and ${ uniqueProjects.length } project(s) that need individual ones. Create and add the same changelog to the ones we're able?`,
+				initial: true,
+			},
+			{
+				type: 'confirm',
+				name: 'separateChangelogFiles',
+				message: 'Create a changelog for each project individually?',
+				initial() {
+					return this.skipped ? undefined : true; // https://github.com/enquirer/enquirer/issues/340
+				},
+				skip() {
+					return this.state.answers.sameChangelogFiles;
+				},
+			},
+		];
 	}
-
-	const response = await inquirer.prompt( [
-		{
-			type: 'confirm',
-			name: 'autoAdd',
-			message: `Found ${ needChangelog.length } projects that can accept the same changelog file.\n  Found ${ uniqueProjects.length } project(s) that requires manual configuration. \n  Add same changelog file to ${ needChangelog.length } project(s)?`,
-		},
-		{
-			type: 'confirm',
-			name: 'autoPrompt',
-			message: 'Create changelog for each project individually?',
-			when: answers => ! answers.autoAdd,
-		},
-	] );
+	const response = await enquirer.prompt( prompts );
+	if ( ! response.sameChangelogFiles && ! response.separateChangelogFiles ) {
+		return false;
+	}
 	return response;
 }

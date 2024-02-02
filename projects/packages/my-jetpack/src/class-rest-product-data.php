@@ -18,16 +18,6 @@ class REST_Product_Data {
 	 * Constructor.
 	 */
 	public function __construct() {
-		register_rest_route(
-			'my-jetpack/v1',
-			'site/product-data',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_all_product_data',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
-			)
-		);
-
 		// Get backup undo event
 		register_rest_route(
 			'my-jetpack/v1',
@@ -38,6 +28,16 @@ class REST_Product_Data {
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'/site/backup/count-items',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::count_things_that_can_be_backed_up',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
 	}
 
 	/**
@@ -45,67 +45,6 @@ class REST_Product_Data {
 	 */
 	public static function permissions_callback() {
 		return current_user_can( 'manage_options' );
-	}
-
-	/**
-	 * Gets the product data for all products
-	 *
-	 * @return array|WP_Error
-	 */
-	public static function get_all_product_data() {
-		$site_id        = \Jetpack_Options::get_option( 'id' );
-		$wpcom_endpoint = sprintf( 'sites/%d/jetpack-product-data?locale=%2$s&force=wpcom', $site_id, get_user_locale() );
-		$api_version    = '2';
-		$response       = Client::wpcom_json_api_request_as_blog( $wpcom_endpoint, $api_version, array(), null, 'wpcom' );
-		$response_code  = wp_remote_retrieve_response_code( $response );
-		$body           = json_decode( wp_remote_retrieve_body( $response ) );
-
-		$capabilities = self::get_backup_capabilities();
-
-		if ( is_wp_error( $response ) || empty( $response['body'] ) || 200 !== $response_code ) {
-			return new WP_Error( 'site_products_data_fetch_failed', 'Site products data fetch failed', array( 'status' => $response_code ? $response_code : 400 ) );
-		}
-
-		// If site has backups and the realtime backup capability, add latest undo event
-		if (
-			in_array( 'backup-realtime', $capabilities->data['capabilities'], true )
-		) {
-			$body->backups->last_undoable_event = self::get_site_backup_undo_event();
-		}
-
-		return rest_ensure_response( $body, 200 );
-	}
-
-	/**
-	 * Get an array of backup/scan/anti-spam site capabilities
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @return WP_Error|\WP_REST_Response|null An array of capabilities
-	 */
-	public static function get_backup_capabilities() {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
-
-		$response = Client::wpcom_json_api_request_as_user(
-			'/sites/' . $blog_id . '/rewind/capabilities',
-			'v2',
-			array(),
-			null,
-			'wpcom'
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return null;
-		}
-
-		if ( 200 !== $response['response']['code'] ) {
-			return null;
-		}
-
-		return rest_ensure_response(
-			json_decode( $response['body'], true )
-		);
 	}
 
 	/**
@@ -169,5 +108,40 @@ class REST_Product_Data {
 		}
 
 		return rest_ensure_response( $undo_event, 200 );
+	}
+
+	/**
+	 * This will collect a count of all the items that could be backed up
+	 * This is used to show what backup could be doing if it is not enabled
+	 *
+	 * @return array
+	 */
+	public static function count_things_that_can_be_backed_up() {
+		$image_mime_type = 'image';
+		$video_mime_type = 'video';
+		$audio_mime_type = 'audio';
+
+		$data = array();
+
+		// Add all post types together to get the total post count
+		$data['total_post_count'] = array_sum( (array) wp_count_posts( 'post' ) );
+
+		// Add all page types together to get the total page count
+		$data['total_page_count'] = array_sum( (array) wp_count_posts( 'page' ) );
+
+		// Add all comments together to get the total comment count
+		$comments                    = (array) wp_count_comments();
+		$data['total_comment_count'] = $comments ? $comments['total_comments'] : 0;
+
+		// Add all image attachments together to get the total image count
+		$data['total_image_count'] = array_sum( (array) wp_count_attachments( $image_mime_type ) );
+
+		// Add all video attachments together to get the total video count
+		$data['total_video_count'] = array_sum( (array) wp_count_attachments( $video_mime_type ) );
+
+		// Add all audio attachments together to get the total audio count
+		$data['total_audio_count'] = array_sum( (array) wp_count_attachments( $audio_mime_type ) );
+
+		return rest_ensure_response( $data, 200 );
 	}
 }

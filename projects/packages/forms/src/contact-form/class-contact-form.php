@@ -240,6 +240,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string HTML for the concat form.
 	 */
 	public static function parse( $attributes, $content ) {
+		global $post;
+
 		if ( Settings::is_syncing() ) {
 			return '';
 		}
@@ -270,6 +272,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// (like VideoPress does), the style tag gets "printed" the first time and discarded, leaving the contact form unstyled.
 			// when WordPress does the real loop.
 			wp_enqueue_style( 'grunion.css' );
+			wp_enqueue_script( 'accessible-form' );
 		}
 
 		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );
@@ -351,14 +354,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
 			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' );
 			$form_classes            = 'contact-form commentsblock';
+			$post_title              = $post->post_title ?? '';
+			$form_accessible_name    = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post_title;
+			$form_aria_label         = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
 
 			if ( $has_submit_button_block ) {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "'>\n";
-			$r .= self::get_script_for_form();
-
+			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label novalidate>\n";
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
@@ -465,29 +469,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 				),
 			)
 		);
-	}
-
-	/**
-	 * Returns a script that disables the contact form button after a form submission.
-	 *
-	 * @return string The script.
-	 */
-	private static function get_script_for_form() {
-		return "<script>
-			( function () {
-				const contact_forms = document.getElementsByClassName('contact-form');
-
-				for ( const form of contact_forms ) {
-					form.onsubmit = function() {
-						const buttons = form.getElementsByTagName('button');
-
-						for( const button of buttons ) {
-							button.setAttribute('disabled', true);
-						}
-					}
-				}
-			} )();
-		</script>";
 	}
 
 	/**

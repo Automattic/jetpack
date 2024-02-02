@@ -266,6 +266,10 @@ class Jetpack_PostImages {
 
 		foreach ( $html_images as $html_image ) {
 			$src = wp_parse_url( $html_image['src'] );
+			if ( ! $src ) {
+				continue;
+			}
+
 			// strip off any query strings from src.
 			if ( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) ) {
 				$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path'];
@@ -335,7 +339,7 @@ class Jetpack_PostImages {
 				// If wp_get_attachment_image_src returns false but we know that there should be an image that could be used.
 				// we try a bit harder and user the data that we have.
 				$thumb_post_data = get_post( $thumb );
-				$img_src         = array( $thumb_post_data->guid, $meta['width'], $meta['height'] );
+				$img_src         = array( $thumb_post_data->guid ?? null, $meta['width'], $meta['height'] );
 			}
 
 			// Let's try to use the postmeta if we can, since it seems to be

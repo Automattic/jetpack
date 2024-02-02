@@ -25,8 +25,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$user_id = self::factory()->user->create();
 
 		// create a post
-		$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
-		$this->post = get_post( $post_id );
+		$this->post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+		$this->post    = get_post( $this->post_id );
 
 		$this->sender->do_sync();
 	}
@@ -511,6 +511,23 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '<p>[foo]</p>', trim( $post_on_server->post_content_filtered ) );
 	}
 
+	public function test_sync_post_filter_restores_global_post() {
+		global $post;
+
+		$post_id = self::factory()->post->create();
+		$post    = get_post( $post_id );
+
+		$post_sync_module = Modules::get_module( 'posts' );
+		$post_sync_module->filter_post_content_and_add_links( $this->post );
+
+		$this->assertSame( $post_id, $post->ID );
+
+		// Test with post global not set.
+		$post = null;
+		$post_sync_module->filter_post_content_and_add_links( $this->post );
+		$this->assertNull( $post );
+	}
+
 	public function do_not_expand_shortcode( $shortcodes ) {
 		$shortcodes[] = 'foo';
 		return $shortcodes;
@@ -893,6 +910,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		global $post;
+		$post = $this->post; // Needed to properly apply the shortcode 'the_content' filter.
 		$this->assertStringContainsString( '<form action=', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
@@ -920,6 +939,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		global $post;
+		$post = $this->post; // Needed to properly apply the shortcode 'the_content' filter.
 		$this->assertStringContainsString( 'div class=\'sharedaddy', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
@@ -947,6 +968,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		global $post;
+		$post = $this->post; // Needed to properly apply the shortcode 'the_content' filter.
 		$this->assertStringContainsString( 'class="sharedaddy sd-sharing-enabled"', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
@@ -1482,5 +1505,137 @@ That was a cool video.';
 
 	public function unregister_post_type() {
 		unregister_post_type( 'unregister_post_type' );
+	}
+
+	/**
+	 * Verify metadata meta_value is limited based on MAX_POST_META_LENGTH.
+	 */
+	public function test_metadata_limit() {
+
+		$metadata = array(
+			(object) array(
+				'post_id'    => $this->post_id,
+				'meta_key'   => 'test_key',
+				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH - 1 ),
+				'meta_id'    => 1,
+			),
+			(object) array(
+				'post_id'    => $this->post_id,
+				'meta_key'   => 'test_key',
+				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH ),
+				'meta_id'    => 2,
+			),
+
+		);
+
+		$post_sync_module             = Modules::get_module( 'posts' );
+		list( ,, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( array( $this->post ), $metadata );
+
+		$this->assertNotEmpty( $filtered_metadata[0]->meta_value, 'Filtered metadata meta_value is not empty for strings of allowed length.' );
+		$this->assertEmpty( $filtered_metadata[1]->meta_value, 'Filtered metadata meta_value is trimmed for strings larger than allowed length.' );
+	}
+
+	/**
+	 * Verify test_filter_posts_and_metadata_max_size returns all posts and metadata when the total size is less than MAX_SIZE_FULL_SYNC.
+	 */
+	public function test_filter_posts_and_metadata_max_size_returns_all_posts_and_metadata() {
+
+		$post_ids  = self::factory()->post->create_many( 3 );
+		$post_id_1 = $post_ids[0];
+		$post_id_2 = $post_ids[1];
+		$post_id_3 = $post_ids[2];
+
+		$post_1 = get_post( $post_id_1 );
+		$post_2 = get_post( $post_id_2 );
+		$post_3 = get_post( $post_id_3 );
+
+		$posts = array( $post_1, $post_2, $post_3 );
+
+		$metadata = array(
+			(object) array(
+				'post_id'    => $post_id_1,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 1,
+			),
+			(object) array(
+				'post_id'    => $post_id_1,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 2,
+			),
+			(object) array(
+				'post_id'    => $post_id_2,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 3,
+			),
+			(object) array(
+				'post_id'    => $post_id_2,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 4,
+			),
+			(object) array(
+				'post_id'    => $post_id_3,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 5,
+			),
+
+		);
+
+		$post_sync_module = Modules::get_module( 'posts' );
+		list( $filtered_post_ids, $filtered_posts, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( $posts, $metadata );
+
+		$this->assertEquals( $filtered_post_ids, $post_ids );
+		$this->assertEquals( $filtered_posts, $posts );
+		$this->assertEquals( $filtered_metadata, $metadata );
+	}
+
+	/**
+	 * Verify test_filter_posts_and_metadata_max_size returns only one post when the first post and its meta is bigger than MAX_SIZE_FULL_SYNC.
+	 */
+	public function test_filter_posts_and_metadata_max_size_returns_only_one_post() {
+
+		$post_id_1 = self::factory()->post->create();
+		$post_id_2 = self::factory()->post->create();
+
+		$post_1 = get_post( $post_id_1 );
+		$post_2 = get_post( $post_id_2 );
+
+		$posts = array( $post_1, $post_2 );
+
+		$metadata_items_number = Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC / Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH;
+		$post_metadata_1       = array_map(
+			function ( $x ) use ( $post_id_1 ) {
+				return (object) array(
+					'post_id'    => $post_id_1,
+					'meta_key'   => 'test_key',
+					'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_META_LENGTH - 1 ),
+					'meta_id'    => $x,
+				);
+			},
+			range( 0, $metadata_items_number )
+		);
+
+		$post_metadata_2 = array(
+			(object) array(
+				'post_id'    => $post_id_2,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 3,
+			),
+
+		);
+
+		$metadata = array_merge( $post_metadata_1, $post_metadata_2 );
+
+		$post_sync_module = Modules::get_module( 'posts' );
+		list( $filtered_post_ids, $filtered_posts, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( $posts, $metadata );
+
+		$this->assertEquals( $filtered_post_ids, array( $post_id_1 ) );
+		$this->assertEquals( $filtered_posts, array( $post_1 ) );
+		$this->assertEquals( $filtered_metadata, $post_metadata_1 );
 	}
 }

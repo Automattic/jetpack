@@ -102,10 +102,10 @@ export default function Proofread( {
 		 */
 		dequeueAiAssistantFeatureAyncRequest();
 
-		request( messages );
+		request( messages, { feature: 'jetpack-ai-proofread-plugin' } );
 		toggleProofreadModal();
 		tracks.recordEvent( 'jetpack_ai_get_feedback', {
-			post_id: postId,
+			feature: 'jetpack-ai-proofread-plugin',
 		} );
 	};
 

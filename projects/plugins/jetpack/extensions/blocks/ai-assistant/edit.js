@@ -27,9 +27,11 @@ import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
+import UsagePanel from '../../plugins/ai-assistant-plugin/components/usage-panel';
+import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-assistant-plugin/components/usage-panel/types';
 import ConnectPrompt from './components/connect-prompt';
+import FeedbackControl from './components/feedback-control';
 import ImageWithSelect from './components/image-with-select';
-import { promptTemplates } from './components/prompt-templates-control';
 import ToolbarControls from './components/toolbar-controls';
 import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
@@ -49,7 +51,6 @@ const isPlaygroundVisible =
 	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-playground-visible' ];
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId, isSelected } ) {
-	const [ userPrompt, setUserPrompt ] = useState();
 	const [ errorData, setError ] = useState( {} );
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
@@ -122,8 +123,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		content: attributes.content,
 		setError,
 		tracks,
-		userPrompt,
+		userPrompt: attributes.userPrompt,
 		requireUpgrade,
+		requestingState: attributes.requestingState,
 	} );
 
 	const connected = isUserConnected();
@@ -198,23 +200,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		replaceBlocks( clientId, storedInnerBlocks );
 	}, [ initialContent, clientId, replaceBlocks, getBlock, attributes?.useGutenbergSyntax ] );
 
-	const [ promptPlaceholder, setPromptPlaceholder ] = useState( '' );
-	const [ currentIndex, setCurrentIndex ] = useState( 0 );
-
-	// Loop through placeholder prompts for a nice UX effect.
 	useEffect( () => {
-		const interval = setInterval( () => {
-			if ( currentIndex < promptTemplates.length ) {
-				setPromptPlaceholder( promptTemplates[ currentIndex ].label );
-				setCurrentIndex( prevIndex => prevIndex + 1 );
-			} else {
-				clearInterval( interval );
-				setPromptPlaceholder( __( 'Ask Jetpack AI', 'jetpack' ) );
-			}
-		}, 1600 );
+		// we don't want to store "half way" states
+		if ( ! [ 'init', 'done' ].includes( requestingState ) ) {
+			return;
+		}
 
-		return () => clearInterval( interval );
-	}, [ promptPlaceholder, currentIndex ] );
+		setAttributes( { requestingState } );
+	}, [ requestingState, setAttributes ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
@@ -308,11 +301,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const handleChange = value => {
 		setErrorDismissed( true );
-		setUserPrompt( value );
+		setAttributes( { userPrompt: value } );
 	};
 
 	const handleSend = () => {
 		handleGetSuggestion( 'userPrompt' );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', { feature: 'ai-assistant' } );
 	};
 
 	const handleAccept = () => {
@@ -323,7 +317,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		}
 	};
 
-	const handleAcceptContent = async () => {
+	const replaceContent = async () => {
 		let newGeneratedBlocks = [];
 		if ( ! useGutenbergSyntax ) {
 			/*
@@ -332,7 +326,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			 * - Create blocks from HTML code
 			 */
 			const HTML = markdownConverter
-				.render( attributes.content )
+				.render( attributes.content || '' )
 				// Fix list indentation
 				.replace( /<li>\s+<p>/g, '<li>' )
 				.replace( /<\/p>\s+<\/li>/g, '</li>' );
@@ -357,26 +351,40 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		}
 	};
 
+	const handleAcceptContent = () => {
+		replaceContent();
+		tracks.recordEvent( 'jetpack_ai_assistant_block_accept', { feature: 'ai-assistant' } );
+	};
+
 	const handleAcceptTitle = () => {
 		if ( isInBlockEditor ) {
-			editPost( { title: attributes.content.trim() } );
+			editPost( { title: attributes.content ? attributes.content.trim() : '' } );
 			removeBlock( clientId );
+			tracks.recordEvent( 'jetpack_ai_assistant_block_accept', { feature: 'ai-assistant' } );
 		} else {
 			handleAcceptContent();
 		}
 	};
 
-	const handleTryAgain = () => {
+	const handleDiscard = () => {
+		const isDismiss = attributes?.content === getBlock( clientId ).attributes?.content;
 		setAttributes( {
 			content: attributes?.originalContent,
 			promptType: undefined,
 			messages: attributes?.originalMessages,
 		} );
+		replaceContent();
+		if ( isDismiss ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_dismiss' );
+		} else {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_discard', { feature: 'ai-assistant' } );
+		}
 	};
 
 	const handleStopSuggestion = () => {
 		stopSuggestion();
 		focusOnPrompt();
+		tracks.recordEvent( 'jetpack_ai_assistant_block_stop', { feature: 'ai-assistant' } );
 	};
 
 	const handleImageRequest = () => {
@@ -384,7 +392,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		setError( {} );
 
 		getImagesFromOpenAI(
-			userPrompt.trim() === '' ? __( 'What would you like to see?', 'jetpack' ) : userPrompt,
+			attributes.userPrompt.trim() === ''
+				? __( 'What would you like to see?', 'jetpack' )
+				: attributes.userPrompt,
 			setAttributes,
 			setLoadingImages,
 			setResultImages,
@@ -412,6 +422,30 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const innerBlocks = useInnerBlocksProps( blockProps );
 
+	const promptPlaceholder = __( 'Ask Jetpack AI…', 'jetpack' );
+	const promptPlaceholderWithSamples = __( 'Write about… Make a table for…', 'jetpack' );
+
+	const banner = (
+		<>
+			{ isOverLimit && isSelected && <UpgradePrompt placement="ai-assistant-block" /> }
+			{ ! connected && <ConnectPrompt /> }
+		</>
+	);
+
+	const error = (
+		<>
+			{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
+				<Notice
+					status={ errorData.status }
+					isDismissible={ false }
+					className="jetpack-ai-assistant__error"
+				>
+					{ errorData.message }
+				</Notice>
+			) }
+		</>
+	);
+
 	return (
 		<KeyboardShortcuts
 			bindGlobal
@@ -424,16 +458,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			} }
 		>
 			<div { ...blockProps }>
-				{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
-					<Notice
-						status={ errorData.status }
-						isDismissible={ false }
-						className="jetpack-ai-assistant__error"
-					>
-						{ errorData.message }
-					</Notice>
-				) }
-
 				{ contentIsLoaded && ! useGutenbergSyntax && (
 					<div className="jetpack-ai-assistant__content">
 						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
@@ -446,6 +470,18 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 						{ ...innerBlocks }
 					/>
 				) }
+				<InspectorControls>
+					<PanelBody initialOpen={ true }>
+						<PanelRow>
+							<UsagePanel placement={ USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } />
+						</PanelRow>
+					</PanelBody>
+					<PanelBody initialOpen={ true }>
+						<PanelRow>
+							<FeedbackControl />
+						</PanelRow>
+					</PanelBody>
+				</InspectorControls>
 
 				{ isPlaygroundVisible && (
 					<InspectorControls>
@@ -505,8 +541,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					</InspectorControls>
 				) }
 
-				{ isOverLimit && isSelected && <UpgradePrompt /> }
-				{ ! connected && <ConnectPrompt /> }
 				{ ! isWaitingState && connected && ! requireUpgrade && (
 					<ToolbarControls
 						isWaitingState={ isWaitingState }
@@ -517,7 +551,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 						handleAcceptTitle={ handleAcceptTitle }
 						handleGetSuggestion={ handleGetSuggestion }
 						handleImageRequest={ handleImageRequest }
-						handleTryAgain={ handleTryAgain }
+						handleTryAgain={ null }
 						showRetry={ showRetry }
 						contentBefore={ contentBefore }
 						hasPostTitle={ !! postTitle?.length }
@@ -533,12 +567,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 							// Focus the text area
 							userPromptInput.focus();
 
-							// Add a typing effect in the text area
-							for ( let i = 0; i < prompt.length; i++ ) {
-								setTimeout( () => {
-									setUserPrompt( prompt.slice( 0, i + 1 ) );
-								}, 25 * i );
-							}
+							setAttributes( { userPrompt: prompt } );
 						} }
 						recordEvent={ tracks.recordEvent }
 						isGeneratingTitle={ isGeneratingTitle }
@@ -547,19 +576,22 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 				<AIControl
 					ref={ aiControlRef }
 					disabled={ requireUpgrade || ! connected }
-					value={ userPrompt }
-					placeholder={ promptPlaceholder || __( 'Ask Jetpack AI', 'jetpack' ) }
+					value={ attributes.userPrompt }
+					placeholder={ attributes?.content ? promptPlaceholder : promptPlaceholderWithSamples }
 					onChange={ handleChange }
 					onSend={ handleSend }
 					onStop={ handleStopSuggestion }
 					onAccept={ handleAccept }
+					onDiscard={ handleDiscard }
 					state={ requestingState }
 					isTransparent={ requireUpgrade || ! connected }
 					showButtonLabels={ ! isMobileViewport }
-					showAccept={ contentIsLoaded && ! isWaitingState }
+					showAccept={ requestingState !== 'init' && contentIsLoaded && ! isWaitingState }
 					acceptLabel={ acceptLabel }
-					showClearButton={ ! isWaitingState }
 					showGuideLine={ contentIsLoaded }
+					showRemove={ attributes?.content?.length > 0 }
+					bannerComponent={ banner }
+					errorComponent={ error }
 				/>
 
 				{ ! loadingImages && resultImages.length > 0 && (

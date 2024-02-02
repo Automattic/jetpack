@@ -5,6 +5,7 @@ import { useSelect } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import classnames from 'classnames';
 import './editor.scss';
 import { usePromptTags } from './use-prompt-tags';
 
@@ -23,6 +24,7 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 		showLabel,
 		showResponses,
 		tagsAdded,
+		isBloganuary,
 	} = attributes;
 	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompt' } );
 
@@ -91,8 +93,10 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			path += `?after=--${ month }-${ day }&order=desc`;
 		}
 
-		path = addQueryArgs( path, { _locale: siteLanguage } );
-
+		path = addQueryArgs( path, {
+			_locale: siteLanguage,
+			force_year: new Date()?.getFullYear(),
+		} );
 		fetchingPromptRef.current = true;
 		apiFetch( { path } )
 			.then( prompts => {
@@ -106,6 +110,7 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 					promptLabel: promptData.label,
 					promptText: promptData.text,
 					promptId: promptData.id,
+					isBloganuary: !! promptData.bloganuary_id,
 				} );
 			} )
 			.catch( error => {
@@ -139,7 +144,7 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			<InspectorControls>
 				<PanelBody title={ _x( 'Settings', 'title of block settings sidebar section', 'jetpack' ) }>
 					<ToggleControl
-						label={ __( 'Show daily prompt label', 'jetpack' ) }
+						label={ __( 'Show prompt label', 'jetpack' ) }
 						checked={ showLabel }
 						onChange={ onShowLabelChange }
 					/>
@@ -152,10 +157,13 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			</InspectorControls>
 		</>
 	);
+	const labelClassnames = classnames( [ 'jetpack-blogging-prompt__label' ], {
+		'is-bloganuary-icon': isBloganuary,
+	} );
 
 	const renderPrompt = () => (
 		<>
-			{ showLabel && <div className="jetpack-blogging-prompt__label">{ promptLabel }</div> }
+			{ showLabel && <div className={ labelClassnames }>{ promptLabel }</div> }
 
 			<div className="jetpack-blogging-prompt__text">{ promptText }</div>
 

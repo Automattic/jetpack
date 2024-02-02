@@ -94,7 +94,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Choose a plan', 'jetpack-mu-wpcom' );
 			},
+			'subtitle'             => 'wpcom_launchpad_get_plan_selected_subtitle',
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'badge_text_callback'  => 'wpcom_launchpad_get_plan_selected_badge_text',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				$flow = get_option( 'site_intent' );
 				return '/setup/' . $flow . '/plans?siteSlug=' . $data['site_slug_encoded'];
@@ -113,9 +115,9 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'setup_general'                   => array(
 			'get_title'            => function () {
-				return __( 'Set up your site', 'jetpack-mu-wpcom' );
+				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => '__return_true',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_disabled_callback' => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/settings/general/' . $data['site_slug_encoded'];
@@ -138,15 +140,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/me/account';
 			},
 		),
-		'verify_domain_email'             => array(
-			'get_title'           => function () {
-				return __( 'Verify domain email address', 'jetpack-mu-wpcom' );
-			},
-			'is_visible_callback' => 'wpcom_launchpad_is_domain_email_unverified',
-			'get_calypso_path'    => function ( $task, $default, $data ) {
-				return '/domains/manage/' . $data['site_slug_encoded'];
-			},
-		),
 
 		// Newsletter pre-launch tasks.
 		'first_post_published_newsletter' => array(
@@ -167,7 +160,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_visible_callback' => 'wpcom_launchpad_has_goal_paid_subscribers',
 			'get_calypso_path'    => function ( $task, $default, $data ) {
-				return '/earn/payments-plans/' . $data['site_slug_encoded'] . '#add-newsletter-payment-plan';
+				return '/earn/payments/' . $data['site_slug_encoded'] . '#add-newsletter-payment-plan';
 			},
 		),
 		'setup_newsletter'                => array(
@@ -187,10 +180,12 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_visible_callback' => 'wpcom_launchpad_has_goal_paid_subscribers',
 			'get_calypso_path'    => function ( $task, $default, $data ) {
 				if ( function_exists( 'get_memberships_connected_account_redirect' ) ) {
-					return get_memberships_connected_account_redirect(
-						get_current_user_id(),
-						get_current_blog_id()
-					);
+					$user_id = get_current_user_id();
+					$blog_id = get_current_blog_id();
+					$source = $data['launchpad_context'];
+					return $source
+						? get_memberships_connected_account_redirect( $user_id, $blog_id, $source )
+						: get_memberships_connected_account_redirect( $user_id, $blog_id );
 				}
 				return '/earn/payments/' . $data['site_slug_encoded'];
 			},
@@ -305,7 +300,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Personalize your site', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => '__return_true',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/settings/general/' . $data['site_slug_encoded'];
 			},
@@ -479,7 +474,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_paid_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/earn/payments-plans/' . $data['site_slug_encoded'];
+				return '/earn/payments/' . $data['site_slug_encoded'];
 			},
 		),
 		'add_about_page'                  => array(
@@ -504,7 +499,8 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( function_exists( 'get_memberships_connected_account_redirect' ) ) {
 					return get_memberships_connected_account_redirect(
 						get_current_user_id(),
-						get_current_blog_id()
+						get_current_blog_id(),
+						'earn-launchpad'
 					);
 				}
 				return '/earn/payments/' . $data['site_slug_encoded'];
@@ -517,7 +513,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_has_paid_membership_plans',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/earn/payments-plans/' . $data['site_slug_encoded'];
+				return '/earn/payments/' . $data['site_slug_encoded'] . '#add-new-payment-plan';
 			},
 		),
 
@@ -576,7 +572,70 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/site-editor/' . $data['site_slug_encoded'];
+				return '/site-editor/' . $data['site_slug_encoded'] . '/?canvas=edit&help-center=subscribe-block';
+			},
+		),
+		'mobile_app_installed'            => array(
+			'get_title'            => function () {
+				return __( 'Install the mobile app', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_mobile_app_installed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_mobile_app_installed_visible',
+			'get_calypso_path'     => function () {
+				return '/me/get-apps';
+			},
+		),
+		'post_sharing_enabled'            => array(
+			'get_title'            => function () {
+				return __( 'Enable post sharing', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/marketing/connections/' . $data['site_slug_encoded'];
+			},
+		),
+		'front_page_updated'              => array(
+			'get_title'            => function () {
+				return __( "Update your site's design", 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_front_page_updated_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$page_on_front = get_option( 'page_on_front', false );
+				if ( $page_on_front ) {
+					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
+				}
+				return '/site-editor/' . $data['site_slug_encoded'] . '?canvas=edit';
+			},
+		),
+		'woocommerce_setup'               => array(
+			'get_title'            => function () {
+				return __( 'Finish store setup', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
+			'get_calypso_path'     => function () {
+				return site_url( '/wp-admin/admin.php?page=wc-admin' );
+			},
+		),
+		'sensei_setup'                    => array(
+			'get_title'            => function () {
+				return __( 'Finish Sensei setup', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_sensei_setup_visible',
+			'get_calypso_path'     => function () {
+				return site_url( '/wp-admin/admin.php?page=sensei' );
+			},
+		),
+		'verify_domain_email'             => array(
+			'get_title'            => function () {
+				return __( 'Verify the email address for your domains', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_verify_domain_email_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/domains/manage/' . $data['site_slug_encoded'];
 			},
 		),
 	);
@@ -896,6 +955,289 @@ function wpcom_launchpad_is_domain_upsell_task_visible() {
 	);
 
 	return empty( $bundle_purchases );
+}
+
+/**
+ * Determines whether or not the Install the mobile app task should be visible.
+ *
+ * @return bool True if the Install the mobile app task should be visible.
+ */
+function wpcom_launchpad_is_mobile_app_installed_visible() {
+	// TODO: We are hidding the task for now because we the completion logic
+	// is not fully implemented yet. We should make it return true for simple sites
+	// once we get the completion logic in place.
+	return false;
+}
+
+/**
+ * Verifies if the Mobile App is installed for the current user.
+ *
+ * @param array $task The task object.
+ * @param bool  $is_complete The current task status.
+ * @return bool True if the Mobile App is installed for the current user.
+ */
+function wpcom_launchpad_is_mobile_app_installed( $task, $is_complete ) {
+	if ( $is_complete ) {
+		return true;
+	}
+
+	$has_used_jetpack_app = null;
+	$is_atomic_site       = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( $is_atomic_site ) {
+		$user_attributes = wpcom_launchpad_request_user_attributes( array( 'has_used_jetpack_app' ) );
+		if ( is_wp_error( $user_attributes ) ) {
+			return false;
+		}
+
+		if ( ! isset( $user_attributes['has_used_jetpack_app'] ) ) {
+			return false;
+		}
+
+		$has_used_jetpack_app = $user_attributes['has_used_jetpack_app'];
+	} else {
+		if ( ! function_exists( 'get_user_attribute' ) ) {
+			return false;
+		}
+
+		$user_id              = get_current_user_id();
+		$has_used_jetpack_app = get_user_attribute( $user_id, 'jp_mobile_app_last_seen' );
+	}
+
+	if ( empty( $has_used_jetpack_app ) ) {
+		return false;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'mobile_app_installed' );
+
+	return true;
+}
+
+/**
+ * Determines whether or not the WooCommerce setup task should be visible.
+ *
+ * @return bool True if the site is a WOA site and WooCommerce is active.
+ */
+function wpcom_launchpad_is_woocommerce_setup_visible() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( ! $is_atomic_site ) {
+		return false;
+	}
+
+	return is_plugin_active( 'woocommerce/woocommerce.php' );
+}
+
+/**
+ * Determines wheter or not the sensei setup task should be visible.
+ *
+ * @return bool True if the sensei setup task should be visible.
+ */
+function wpcom_launchpad_is_sensei_setup_visible() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( ! $is_atomic_site ) {
+		return false;
+	}
+
+	return is_plugin_active( 'sensei-lms/sensei-lms.php' );
+}
+
+/**
+ * Determines whether or not the verify domain email task should be visible.
+ *
+ * @return bool True if the verify domain email task should be visible.
+ */
+function wpcom_launchpad_is_verify_domain_email_visible() {
+	// If the task is complete, we should show it and prevent the logic below
+	// to be executed.
+	if ( wpcom_is_checklist_task_complete( 'verify_domain_email' ) ) {
+		return true;
+	}
+
+	$domains_pending_icann_verification = array();
+
+	// For Atomic sites we need to get the domain list from
+	// the public API.
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( $is_atomic_site ) {
+		$domains = wpcom_launchpad_request_domains_list();
+
+		if ( is_wp_error( $domains ) ) {
+			return false;
+		}
+
+		$domains_pending_icann_verification = array_filter(
+			$domains,
+			function ( $domain ) {
+				return isset( $domain->is_pending_icann_verification ) && $domain->is_pending_icann_verification;
+			}
+		);
+	} else {
+		if ( ! class_exists( 'Domain_Management' ) ) {
+			return false;
+		}
+
+		$domains = \Domain_Management::get_paid_domains_with_icann_verification_status();
+
+		$domains_pending_icann_verification = array_filter(
+			$domains,
+			function ( $domain ) {
+				return isset( $domain['is_pending_icann_verification'] ) && $domain['is_pending_icann_verification'];
+			}
+		);
+	}
+
+	$has_domains_pending_icann_verification = ! empty( $domains_pending_icann_verification );
+
+	if ( ! $has_domains_pending_icann_verification && wpcom_launchpad_verify_domain_email_task_displayed() ) {
+		wpcom_mark_launchpad_task_complete( 'verify_domain_email' );
+		return true;
+	}
+
+	if ( $has_domains_pending_icann_verification ) {
+		if ( ! wpcom_launchpad_verify_domain_email_task_displayed() ) {
+			wpcom_set_launchpad_config_option( 'verify_domain_email_task_displayed', true );
+		}
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Checks if the Verify Email Domain task was displayed to the user.
+ */
+function wpcom_launchpad_verify_domain_email_task_displayed() {
+	return wpcom_get_launchpad_config_option( 'verify_domain_email_task_displayed', false );
+}
+
+/**
+ * Make a request to the WordPress.com API to get the domain list for the current site.
+ *
+ * @return array|WP_Error Array of domains and their verification status or WP_Error if the request fails.
+ */
+function wpcom_launchpad_request_domains_list() {
+	// Use a static variable as a temporary in-memory cache to avoid multiple outbound
+	// HTTP requests within a single incoming request.
+	// We don't expect this to be triggered multiple times, but it's worth adding some
+	// light caching to avoid multiple, possibly slow HTTP requests where the underlying data
+	// is highly unlikely to change.
+	// The "cache" only lasts as long as the current request/memory space, so we don't need to invalidate it.
+	static $cached_domains = null;
+
+	if ( $cached_domains !== null ) {
+		return $cached_domains;
+	}
+
+	$site_id       = \Jetpack_Options::get_option( 'id' );
+	$request_path  = sprintf( '/sites/%d/domains', $site_id );
+	$wpcom_request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+		$request_path,
+		'1.2',
+		array(
+			'method'  => 'GET',
+			'headers' => array(
+				'content-type'    => 'application/json',
+				'X-Forwarded-For' => ( new Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
+			),
+		),
+		null,
+		'rest'
+	);
+
+	$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+	if ( 200 !== $response_code ) {
+		return new \WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' ),
+			array( 'status' => $response_code )
+		);
+	}
+
+	$body         = wp_remote_retrieve_body( $wpcom_request );
+	$decoded_body = json_decode( $body );
+
+	if ( ! isset( $decoded_body->domains ) || ! is_array( $decoded_body->domains ) ) {
+		return new \WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
+		);
+	}
+
+	$cached_domains = $decoded_body->domains;
+
+	return $cached_domains;
+}
+
+/**
+ * Make a request to the WordPress.com API to get the values of the user
+ * attributes sent by the client.
+ *
+ * @param string[]                                  $attributes The attributes to request.
+ * @param Automattic\Jetpack\Connection\Client|null $client_wrapper Optional client wrapper to use, this is only used for testing.
+ * @return array|WP_Error Array of user attributes or WP_Error if the request fails.
+ */
+function wpcom_launchpad_request_user_attributes( $attributes, $client_wrapper = null ) {
+	if ( ! is_array( $attributes ) || $attributes === array() ) {
+		return array();
+	}
+	// Use a static variable as a temporary in-memory cache to avoid multiple outbound
+	// HTTP requests within a single incoming request.
+	// We don't expect this to be triggered multiple times, but it's worth adding some
+	// light caching to avoid multiple, possibly slow HTTP requests where the underlying data
+	// is highly unlikely to change.
+	// The "cache" only lasts as long as the current request/memory space, so we don't need to invalidate it.
+	static $cached_attributes = array();
+
+	// Check if all requested attributes are available in the cache
+	$resolved_values = array_intersect_key( $cached_attributes, array_flip( $attributes ) );
+	if ( count( $resolved_values ) === count( $attributes ) ) {
+		return $resolved_values;
+	}
+
+	$attributes_to_fetch = array_diff( $attributes, array_keys( $resolved_values ) );
+
+	$query_params  = build_query( array( 'attributes' => $attributes_to_fetch ) );
+	$client        = $client_wrapper ? $client_wrapper : new Automattic\Jetpack\Connection\Client();
+	$wpcom_request = $client->wpcom_json_api_request_as_user(
+		'/jetpack-user-attributes?' . $query_params,
+		'v2',
+		array(
+			'method'  => 'GET',
+			'headers' => array(
+				'X-Forwarded-For' => ( new Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
+			),
+		)
+	);
+
+	$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+	if ( 200 !== $response_code ) {
+		return new \WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' ),
+			array( 'status' => $response_code )
+		);
+	}
+
+	$body         = wp_remote_retrieve_body( $wpcom_request );
+	$decoded_body = json_decode( $body );
+
+	if ( ! isset( $decoded_body->user_attributes ) ) {
+		return new \WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
+		);
+	}
+
+	$user_attributes = get_object_vars( $decoded_body->user_attributes );
+	if ( ! is_array( $user_attributes ) ) {
+		return new \WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
+		);
+	}
+
+	$cached_attributes = array_merge( $cached_attributes, $user_attributes );
+
+	return $cached_attributes;
 }
 
 /**
@@ -1234,21 +1576,6 @@ function wpcom_launchpad_is_email_verified() {
 }
 
 /**
- * Callback for email verification visibility when the user has a
- * custom domain.
- *
- * @return bool True if email is unverified, false otherwise.
- */
-function wpcom_launchpad_is_domain_email_unverified() {
-	// TODO: handle the edge case where an Atomic user can be unverified.
-	if ( ! class_exists( 'Email_Verification' ) ) {
-		return false;
-	}
-
-	return Email_Verification::is_domain_email_unverified();
-}
-
-/**
  * If the site has a paid-subscriber goal.
  *
  * @return bool True if the site has a paid-subscriber goal, false otherwise.
@@ -1353,6 +1680,56 @@ function wpcom_launchpad_mark_site_title_complete( $old_value, $value ) {
 add_action( 'update_option_blogname', 'wpcom_launchpad_mark_site_title_complete', 10, 3 );
 
 /**
+ * Mark the setup site task as complete if the value is changed.
+ *
+ * @param string $old_value The old value of the site title.
+ * @param string $value The new value of the site title.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_setup_site_tasks_complete( $old_value, $value ) {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	if ( wp_installing() ) {
+		return;
+	}
+
+	if ( $value !== $old_value ) {
+		wpcom_mark_launchpad_task_complete( 'setup_free' );
+	}
+}
+add_action( 'update_option_blogname', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
+add_action( 'update_option_blogdescription', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
+add_action( 'update_option_site_icon', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
+add_action( 'update_option_site_logo', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
+
+/**
+ * Mark the setup_general task as complete if the site title or the site description is changed.
+ *
+ * @param string $old_value The old value of the site title.
+ * @param string $value The new value of the site title.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_setup_general_task_complete( $old_value, $value ) {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	if ( wp_installing() ) {
+		return;
+	}
+
+	if ( $old_value !== $value ) {
+		wpcom_mark_launchpad_task_complete( 'setup_general' );
+	}
+}
+add_action( 'update_option_blogname', 'wpcom_launchpad_mark_setup_general_task_complete', 10, 3 );
+add_action( 'update_option_blogdescription', 'wpcom_launchpad_mark_setup_general_task_complete', 10, 3 );
+
+/**
  * Mark the enable_subscribers_modal task complete
  * if its option is updated to `true`.
  *
@@ -1368,6 +1745,30 @@ function wpcom_launchpad_mark_enable_subscribers_modal_complete( $old_value, $va
 }
 add_action( 'update_option_sm_enabled', 'wpcom_launchpad_mark_enable_subscribers_modal_complete', 10, 3 );
 add_action( 'add_option_sm_enabled', 'wpcom_launchpad_mark_enable_subscribers_modal_complete', 10, 3 );
+
+/**
+ * Mark the Sensei setup task as complete if the value is changed.
+ *
+ * @param string $old_value The old value of the option.
+ * @param string $value The new value of the option.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_sensei_setup_complete( $old_value, $value ) {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	if ( wp_installing() ) {
+		return;
+	}
+
+	if ( true === $value ) {
+		wpcom_mark_launchpad_task_complete( 'sensei_setup' );
+	}
+}
+add_action( 'update_option_sensei_home_tasks_list_is_completed', 'wpcom_launchpad_mark_sensei_setup_complete', 10, 3 );
+add_action( 'add_option_sensei_home_tasks_list_is_completed', 'wpcom_launchpad_mark_sensei_setup_complete', 10, 3 );
 
 /**
  * Determine `domain_claim` task visibility.
@@ -1582,6 +1983,22 @@ function wpcom_launchpad_is_add_about_page_visible() {
 }
 
 /**
+ * Determine `front_page_updated` task visibility.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_launchpad_is_front_page_updated_visible() {
+	$show_on_front = get_option( 'show_on_front' );
+	$blog_on_front = $show_on_front === 'posts' || ( $show_on_front === 'page' && get_option( 'page_on_front' ) === '0' );
+
+	if ( $blog_on_front && ! wp_is_block_theme() ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Determine `site_title` task visibility. The task is not visible if the name was already set.
  *
  * @return bool True if we should show the task, false otherwise.
@@ -1639,6 +2056,58 @@ function wpcom_launchpad_add_about_page_check( $post_id, $post ) {
 	wpcom_mark_launchpad_task_complete( 'add_about_page' );
 }
 add_action( 'wp_insert_post', 'wpcom_launchpad_add_about_page_check', 10, 3 );
+
+/**
+ * Completion hook for the `front_page_updated` task.
+ *
+ * @param int    $post_id The post ID.
+ * @param object $post    The post object.
+ * @return void
+ */
+function wpcom_launchpad_front_page_updated_check( $post_id, $post ) {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// We only care about pages, ignore other post types.
+	if ( $post->post_type !== 'page' ) {
+		return;
+	}
+
+	// Don't do anything if the task is already complete.
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'front_page_updated' ) ) ) {
+		return;
+	}
+
+	// We only complete the task if the page is the front page.
+	$front_page_id = (int) get_option( 'page_on_front' );
+	if ( $post_id !== $front_page_id ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'front_page_updated' );
+}
+add_action( 'wp_insert_post', 'wpcom_launchpad_front_page_updated_check', 10, 3 );
+
+/**
+ * We also need to complete the `front_page_updated` task when the front page option is updated.
+ *
+ * @return void
+ */
+function wpcom_launchpad_front_page_updated_option_check() {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// Don't do anything if the task is already complete.
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'front_page_updated' ) ) ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'front_page_updated' );
+}
+add_action( 'update_option_page_on_front', 'wpcom_launchpad_front_page_updated_option_check', 10, 3 );
+add_action( 'add_option_page_on_front', 'wpcom_launchpad_front_page_updated_option_check', 10, 3 );
 
 /**
  * Determine `update_about_page` task visibility. The task is visible if there is an 'About' page on the site.
@@ -1752,6 +2221,27 @@ function wpcom_launchpad_mark_customize_welcome_message_complete_on_add( $value 
 	}
 }
 add_action( 'add_option_subscription_options', 'wpcom_launchpad_mark_customize_welcome_message_complete_on_add', 10, 1 );
+
+/**
+ * Mark the WooCommerce setup task as complete the setup task list is in
+ * the completed list or in the hidden list.
+ *
+ * @param string $old_value The old value of the option.
+ * @param string $value The new value of the option.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_woocommerce_setup_complete( $old_value, $value ) {
+	if ( ! in_array( 'setup', $value, true ) ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'woocommerce_setup' );
+}
+add_action( 'update_option_woocommerce_task_list_completed_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
+add_action( 'add_option_woocommerce_task_list_completed_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
+add_action( 'update_option_woocommerce_task_list_hidden_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
+add_action( 'add_option_woocommerce_task_list_hidden_lists', 'wpcom_launchpad_mark_woocommerce_setup_complete', 10, 3 );
 
 /**
  * When a page is updated, check to see if we've already completed the `add_new_page` task and mark the `edit_page` task complete accordingly.
@@ -1903,6 +2393,25 @@ function wpcom_launchpad_mark_domain_tasks_complete( $blog_id, $user_id, $produc
 	wpcom_mark_launchpad_task_complete( 'domain_upsell_deferred' );
 }
 add_action( 'activate_product', 'wpcom_launchpad_mark_domain_tasks_complete', 10, 6 );
+
+/**
+ * Mark `plan_selected`, and `plan_completed` tasks complete when a plan product is purchased.
+ *
+ * @param int $blog_id The blog ID.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_plan_tasks_complete( $blog_id ) {
+	require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
+	$current_plan = WPCOM_Store_API::get_current_plan( $blog_id );
+	if ( $current_plan['is_free'] ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'plan_selected' );
+	wpcom_mark_launchpad_task_complete( 'plan_completed' );
+}
+add_action( 'activate_product', 'wpcom_launchpad_mark_plan_tasks_complete', 10, 6 );
 
 /**
  * Re-trigger email campaigns for blog onboarding after user edit one of the fields in the launchpad.

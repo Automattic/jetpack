@@ -51,3 +51,7 @@
 		width: 94%;
 	}
 }
+
+body.jetpack-subscribe-modal-open {
+	overflow: hidden;
+}

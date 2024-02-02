@@ -271,12 +271,18 @@
 		margin-bottom: 0.25em;
 	}
 
+	.jetpack-field-label__suffix {
+		margin-inline-start: 0.25em;
+
+		font-weight: 700;
+	}
+
 	.required {
 		word-break: normal;
 		color: unset;
 		opacity: 0.6;
 		font-size: 85%;
-		margin-left: 0.25em;
+		margin-inline-start: 0.25em;
 		font-weight: normal;
 	}
 
@@ -441,6 +447,22 @@
 			margin: 0 5px 0 0;
 		}
 	}
+
+	.jetpack-field-option {
+		&.field-option-checkbox,
+		&.field-option-radio {
+			display: flex;
+			align-items: baseline; /* Align input with first label line */
+
+			.jetpack-option__type:before {
+				display: block; /* display: flex causes baselines to not align */
+			}
+		}
+
+		&.field-option-radio .jetpack-option__type {
+			transform: translateY(15%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
+		}
+	}
 }
 
 :where(:not(.contact-form)) > .jetpack-field {
@@ -529,21 +551,30 @@
 .jetpack-field-checkbox,
 .jetpack-field-consent {
 	display: flex;
+
+	.jetpack-field-label .jetpack-field-label__input {
+		font-weight: 400;
+	}
+}
+
+.jetpack-field-checkbox {
+	align-items: baseline;
+
+	.jetpack-field-label {
+		display: block;
+	}
+}
+
+.jetpack-field-consent {
 	align-items: center;
 
 	.jetpack-field-label {
 		flex-grow: 1;
 
 		.jetpack-field-label__input {
-			font-weight: 400;
+			font-size: 13px;
+			text-transform: uppercase;
 		}
-	}
-}
-
-.jetpack-field-consent {
-	.jetpack-field-label__input {
-		font-size: 13px;
-		text-transform: uppercase;
 	}
 }
 

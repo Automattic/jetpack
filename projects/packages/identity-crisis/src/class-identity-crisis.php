@@ -27,7 +27,12 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.12.1';
+	const PACKAGE_VERSION = '0.15.1-alpha';
+
+	/**
+	 * Persistent WPCOM blog ID that stays in the options after disconnect.
+	 */
+	const PERSISTENT_BLOG_ID_OPTION_NAME = 'jetpack_persistent_blog_id';
 
 	/**
 	 * Instance of the object.
@@ -87,8 +92,12 @@ class Identity_Crisis {
 		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
 
 		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ) );
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_ip_requester_to_url_validation_response' ) );
 
 		add_filter( 'jetpack_options', array( static::class, 'reverse_wpcom_urls_for_idc' ) );
+
+		add_filter( 'jetpack_register_request_body', array( static::class, 'register_request_body' ) );
+		add_action( 'jetpack_site_registered', array( static::class, 'site_registered' ) );
 
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
@@ -112,6 +121,8 @@ class Identity_Crisis {
 		} else {
 			$connection->disconnect_site( false );
 		}
+
+		delete_option( static::PERSISTENT_BLOG_ID_OPTION_NAME );
 
 		// Clear IDC options.
 		self::clear_all_idc_options();
@@ -199,10 +210,18 @@ class Identity_Crisis {
 			|| self::validate_sync_error_idc_option() ) {
 			return $url;
 		}
+		$home_url = Urls::home_url();
+		$site_url = Urls::site_url();
+		$hostname = wp_parse_url( $site_url, PHP_URL_HOST );
+
+		// If request is from an IP, make sure ip_requester option is set
+		if ( self::url_is_ip( $hostname ) ) {
+			self::maybe_update_ip_requester( $hostname );
+		}
 
 		$query_args = array(
-			'home'    => Urls::home_url(),
-			'siteurl' => Urls::site_url(),
+			'home'    => $home_url,
+			'siteurl' => $site_url,
 		);
 
 		if ( self::should_handle_idc() ) {
@@ -1339,6 +1358,155 @@ class Identity_Crisis {
 			$response['url_secret_error'] = new WP_Error( 'unable_to_create_url_secret', $e->getMessage() );
 		}
 
+		return $response;
+	}
+
+	/**
+	 * Check if URL is an IP.
+	 *
+	 * @param string $hostname The hostname to check.
+	 * @return bool
+	 */
+	public static function url_is_ip( $hostname = null ) {
+
+		if ( ! $hostname ) {
+			$hostname = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
+		}
+
+		$is_ip = filter_var( $hostname, FILTER_VALIDATE_IP ) !== false ? $hostname : false;
+		return $is_ip;
+	}
+
+	/**
+	 * Add IDC-related data to the registration query.
+	 *
+	 * @param array $params The existing query params.
+	 *
+	 * @return array
+	 */
+	public static function register_request_body( array $params ) {
+		$persistent_blog_id = get_option( static::PERSISTENT_BLOG_ID_OPTION_NAME );
+		if ( $persistent_blog_id ) {
+			$params['persistent_blog_id'] = $persistent_blog_id;
+			$params['url_secret']         = URL_Secret::create_secret( 'registration_request_url_secret_failed' );
+		}
+
+		return $params;
+	}
+
+	/**
+	 * Set the necessary options when site gets registered.
+	 *
+	 * @param int $blog_id The blog ID.
+	 *
+	 * @return void
+	 */
+	public static function site_registered( $blog_id ) {
+		update_option( static::PERSISTENT_BLOG_ID_OPTION_NAME, (int) $blog_id, false );
+	}
+
+	/**
+	 * Check if we need to update the ip_requester option.
+	 *
+	 * @param string $hostname The hostname to check.
+	 *
+	 * @return void
+	 */
+	public static function maybe_update_ip_requester( $hostname ) {
+		// Check if transient exists
+		$transient_key = ip2long( $hostname );
+		if ( $transient_key && ! get_transient( 'jetpack_idc_ip_requester_' . $transient_key ) ) {
+			self::set_ip_requester_for_idc( $hostname, $transient_key );
+		}
+	}
+
+	/**
+	 * If URL is an IP, add the IP value to the ip_requester option with its expiry value.
+	 *
+	 * @param string $hostname The hostname to check.
+	 * @param int    $transient_key The transient key.
+	 */
+	public static function set_ip_requester_for_idc( $hostname, $transient_key ) {
+		// Check if option exists
+		$data = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+
+		$ip_requester = array(
+			'ip'         => $hostname,
+			'expires_at' => time() + 360,
+		);
+
+		// If not set, initialize it
+		if ( empty( $data ) ) {
+			$data = array( $ip_requester );
+		} else {
+			$updated_data  = array();
+			$updated_value = false;
+
+			// Remove expired values and update existing IP
+			foreach ( $data as $item ) {
+				if ( time() > $item['expires_at'] ) {
+					continue; // Skip expired IP
+				}
+
+				if ( $item['ip'] === $hostname ) {
+					$item['expires_at'] = time() + 360;
+					$updated_value      = true;
+				}
+
+				$updated_data[] = $item;
+			}
+
+			if ( ! $updated_value || empty( $updated_data ) ) {
+				$updated_data[] = $ip_requester;
+			}
+
+			$data = $updated_data;
+		}
+
+		self::update_ip_requester( $data, $transient_key );
+	}
+
+	/**
+	 * Update the ip_requester option and set a transient to expire in 5 minutes.
+	 *
+	 * @param array $data The data to be updated.
+	 * @param int   $transient_key The transient key.
+	 *
+	 * @return void
+	 */
+	public static function update_ip_requester( $data, $transient_key ) {
+		// Update the option
+		$updated = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $data );
+		// Set a transient to expire in 5 minutes
+		if ( $updated ) {
+			$transient_name = 'jetpack_idc_ip_requester_' . $transient_key;
+			set_transient( $transient_name, $data, 300 );
+		}
+	}
+
+	/**
+	 * Adds `ip_requester` to the `jetpack.idcUrlValidation` URL validation endpoint.
+	 *
+	 * @param array $response The enpoint response that we're modifying.
+	 *
+	 * @return array
+	 */
+	public static function add_ip_requester_to_url_validation_response( array $response ) {
+		$requesters = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+		if ( $requesters ) {
+			// Loop through the requesters and add the IP to the response if it's not expired
+			$i = 0;
+			foreach ( $requesters as $ip ) {
+				if ( $ip['expires_at'] > time() ) {
+					$response['ip_requester'][] = $ip['ip'];
+				}
+				// Limit the response to five IPs
+				$i = ++$i;
+				if ( $i === 5 ) {
+					break;
+				}
+			}
+		}
 		return $response;
 	}
 }

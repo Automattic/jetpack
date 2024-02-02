@@ -622,7 +622,16 @@ class REST_Endpoints {
 			return rest_ensure_response( $sender->immediate_full_sync_pull( $number_of_items ) );
 		}
 
-		return rest_ensure_response( $sender->queue_pull( $queue_name, $number_of_items, $args ) );
+		$response = $sender->queue_pull( $queue_name, $number_of_items, $args );
+		// Disable sending while pulling.
+		if ( ! is_wp_error( $response ) ) {
+			set_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME, time(), Sender::TEMP_SYNC_DISABLE_TRANSIENT_EXPIRY );
+		} elseif ( 'queue_size' === $response->get_error_code() ) {
+			// Re-enable sending if the queue is empty.
+			delete_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME );
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -679,7 +688,7 @@ class REST_Endpoints {
 		}
 
 		// Limit to A-Z,a-z,0-9,_,- .
-		$request_body['buffer_id'] = preg_replace( '/[^A-Za-z0-9]/', '', $request_body['buffer_id'] );
+		$request_body['buffer_id'] = preg_replace( '/[^A-Za-z0-9\-_\.]/', '', $request_body['buffer_id'] );
 		$request_body['item_ids']  = array_filter( array_map( array( 'Automattic\Jetpack\Sync\REST_Endpoints', 'sanitize_item_ids' ), $request_body['item_ids'] ) );
 
 		$queue = new Queue( $queue_name );

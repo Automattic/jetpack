@@ -9,9 +9,8 @@ namespace Automattic\Jetpack\Extensions\Subscriptions;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack;
@@ -20,6 +19,7 @@ use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
 
 require_once __DIR__ . '/constants.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
 /**
  * These block defaults should match ./constants.js
@@ -94,6 +94,20 @@ function register_block() {
 
 	register_post_meta(
 		'post',
+		META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+		array(
+			'default'       => false,
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => 'boolean',
+			'auth_callback' => function () {
+				return wp_get_current_user()->has_cap( 'edit_posts' );
+			},
+		)
+	);
+
+	register_post_meta(
+		'post',
 		META_NAME_FOR_POST_TIER_ID_SETTINGS,
 		array(
 			'show_in_rest'  => true,
@@ -109,7 +123,13 @@ function register_block() {
 	add_filter(
 		'jetpack_sync_post_meta_whitelist',
 		function ( $allowed_meta ) {
-			return array_merge( $allowed_meta, array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+			return array_merge(
+				$allowed_meta,
+				array(
+					META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+					META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+				)
+			);
 		}
 	);
 
@@ -126,9 +146,13 @@ function register_block() {
 	// Gate the excerpt for a post
 	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
 
-	// Add a 'Newsletter access' column to the Edit posts page
-	add_action( 'manage_post_posts_columns', __NAMESPACE__ . '\register_newsletter_access_column' );
-	add_action( 'manage_post_posts_custom_column', __NAMESPACE__ . '\render_newsletter_access_rows', 10, 2 );
+	// Add a 'Newsletter' column to the Edit posts page
+	// We only display the "Newsletter" column if we have configured the paid newsletter plan
+	if ( Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
+		add_action( 'manage_post_posts_columns', __NAMESPACE__ . '\register_newsletter_access_column' );
+		add_action( 'manage_post_posts_custom_column', __NAMESPACE__ . '\render_newsletter_access_rows', 10, 2 );
+		add_action( 'admin_head', __NAMESPACE__ . '\newsletter_access_column_styles' );
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
@@ -148,13 +172,8 @@ function is_wpcom() {
  * @return array An array of column names.
  */
 function register_newsletter_access_column( $columns ) {
-	if ( ! Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
-		// We only display the "NL access" column if we have published one paid-newsletter
-		return $columns;
-	}
-
 	$position   = array_search( 'title', array_keys( $columns ), true );
-	$new_column = array( NEWSLETTER_COLUMN_ID => '<span>' . __( 'Newsletter', 'jetpack' ) . '</span>' );
+	$new_column = array( NEWSLETTER_COLUMN_ID => __( 'Newsletter', 'jetpack' ) );
 	return array_merge(
 		array_slice( $columns, 0, $position + 1, true ),
 		$new_column,
@@ -176,21 +195,28 @@ function render_newsletter_access_rows( $column_id, $post_id ) {
 	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 
 	switch ( $access_level ) {
-		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
 			echo esc_html__( 'Paid Subscribers (all plans)', 'jetpack' );
 			break;
-		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
 			echo esc_html__( 'Paid Subscribers', 'jetpack' );
 			break;
-		case Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
 			echo esc_html__( 'Subscribers', 'jetpack' );
 			break;
-		case Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY:
 			echo esc_html__( 'Everybody', 'jetpack' );
 			break;
 		default:
 			echo '';
 	}
+}
+
+/**
+ * Adds the Newsletter column styles
+ */
+function newsletter_access_column_styles() {
+	echo '<style id="jetpack-newsletter-newsletter-access-column"> table.fixed .column-newsletter_access { width: 10%; } </style>';
 }
 
 /**
@@ -526,11 +552,8 @@ function render_block( $attributes ) {
 	}
 
 	if ( class_exists( '\Jetpack_Memberships' ) ) {
-		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
-		Jetpack_Gutenberg::load_assets_as_required( __DIR__, array( 'thickbox' ) );
-		if ( ! wp_style_is( 'enqueued' ) ) {
-			wp_enqueue_style( 'thickbox' );
-		}
+		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript.
+		Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 	} else {
 		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 	}
@@ -549,6 +572,11 @@ function render_block( $attributes ) {
 	$classes = get_element_class_names_from_attributes( $attributes );
 	$styles  = get_element_styles_from_attributes( $attributes );
 
+	// The default value was previously "true" in block.json. We don't want to rely setting "default" in block.json to falsy,
+	// because it would change the setting for previously saved blocks. Block editor doesn't store default values in attributes at all.
+	// Hence users without this set will still get social counts included in the subscriber counter.
+	// Lowering the subscriber count on their behalf with code change would be controversial.
+	// We want to disencourage including social count as it's misleading.
 	$include_social_followers = isset( $attributes['includeSocialFollowers'] ) ? (bool) get_attribute( $attributes, 'includeSocialFollowers' ) : true;
 
 	$data = array(
@@ -576,6 +604,7 @@ function render_block( $attributes ) {
 			( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' )
 		),
 		'source'                        => 'subscribe-block',
+		'app_source'                    => get_attribute( $attributes, 'appSource', null ),
 	);
 
 	if ( ! jetpack_is_frontend() ) {
@@ -593,7 +622,7 @@ function render_block( $attributes ) {
 function get_post_access_level_for_current_post() {
 	if ( ! is_singular() ) {
 		// There is no "actual" current post.
-		return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+		return Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 	}
 
 	return Jetpack_Memberships::get_post_access_level();
@@ -609,6 +638,7 @@ function get_post_access_level_for_current_post() {
  * @return string
  */
 function render_for_website( $data, $classes, $styles ) {
+	$lang              = get_locale();
 	$blog_id           = \Jetpack_Options::get_option( 'id' );
 	$widget_id_suffix  = Jetpack_Subscriptions_Widget::$instance_count > 1 ? '-' . Jetpack_Subscriptions_Widget::$instance_count : '';
 	$form_id           = 'subscribe-blog' . $widget_id_suffix;
@@ -670,6 +700,7 @@ function render_for_website( $data, $classes, $styles ) {
 								placeholder="%3$s"
 								value="%4$s"
 								id="%5$s"
+								%6$s
 							/>',
 							( ! empty( $classes['email_field'] )
 								? 'class="' . esc_attr( $classes['email_field'] ) . '"'
@@ -681,7 +712,11 @@ function render_for_website( $data, $classes, $styles ) {
 							),
 							esc_attr( $data['subscribe_placeholder'] ),
 							esc_attr( $data['subscribe_email'] ),
-							esc_attr( $subscribe_field_id )
+							esc_attr( $subscribe_field_id ),
+							( ! empty( $data['subscribe_email'] )
+								? 'disabled title="' . esc_attr__( "You're logged in with this email", 'jetpack' ) . '"'
+								: ''
+							)
 						);
 						?>
 					</p>
@@ -695,9 +730,11 @@ function render_for_website( $data, $classes, $styles ) {
 						<input type="hidden" name="blog_id" value="<?php echo (int) $blog_id; ?>"/>
 						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
+						<input type="hidden" name="app_source" value="<?php echo esc_attr( $data['app_source'] ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
+						<input type="hidden" name="lang" value="<?php echo esc_attr( $lang ); ?>"/>
 						<?php
-						wp_nonce_field( 'blogsub_subscribe_' . $blog_id, '_wpnonce', false );
+						wp_nonce_field( 'blogsub_subscribe_' . $blog_id );
 
 						if ( ! empty( $post_id ) ) {
 							echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
@@ -751,7 +788,7 @@ function render_for_email( $data, $styles ) {
 			<div>
 				<div>
 					<p ' . $submit_button_wrapper_style . '>
-						<a href="' . esc_url( get_post_permalink() ) . '" style="text-decoration: none; ' . esc_attr( $styles['submit_button'] ) . '">' . sanitize_submit_text( $button_text ) . '</a>
+						<a href="' . esc_url( get_post_permalink() ) . '" style="' . esc_attr( $styles['submit_button'] ) . ' text-decoration: none; white-space: nowrap; margin-left: 0">' . sanitize_submit_text( $button_text ) . '</a>
 					</p>
 				</div>
 			</div>
@@ -795,7 +832,7 @@ function add_paywall( $the_content ) {
 	$post_access_level = Jetpack_Memberships::get_post_access_level();
 
 	if ( Jetpack_Memberships::user_can_view_post() ) {
-		if ( $post_access_level !== Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ) {
+		if ( $post_access_level !== Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ) {
 			do_action(
 				'earn_track_paywalled_post_view',
 				array(
@@ -806,14 +843,7 @@ function add_paywall( $the_content ) {
 		return $the_content;
 	}
 
-	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-	$token_service              = is_wpcom() ? new WPCOM_Token_Subscription_Service() : new Jetpack_Token_Subscription_Service();
-	$token                      = $token_service->get_and_set_token_from_request();
-	$payload                    = $token_service->decode_token( $token );
-	$is_valid_token             = ! empty( $payload );
-	$email_confirmation_pending = $is_valid_token && isset( $payload['blog_sub'] ) && $payload['blog_sub'] === 'pending';
-
-	$paywalled_content = get_paywall_content( $post_access_level, $email_confirmation_pending ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$paywalled_content = get_paywall_content( $post_access_level ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	if ( has_block( \Automattic\Jetpack\Extensions\Paywall\BLOCK_NAME ) ) {
 		if ( strpos( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML ) ) {
@@ -869,11 +899,10 @@ function maybe_gate_existing_comments( $comment ) {
  * Returns paywall content blocks
  *
  * @param string $post_access_level The newsletter access level.
- * @param string $email_confirmation_pending True if the current user needs to validate their email.
  * @return string
  */
-function get_paywall_content( $post_access_level, $email_confirmation_pending = false ) {
-	if ( $email_confirmation_pending ) {
+function get_paywall_content( $post_access_level ) {
+	if ( Jetpack_Memberships::user_is_pending_subscriber() ) {
 		return get_paywall_blocks_subscribe_pending();
 	}
 	if ( doing_filter( 'get_the_excerpt' ) ) {
@@ -1062,8 +1091,8 @@ function get_paywall_blocks( $newsletter_access_level ) {
  */
 function get_paywall_access_question( $post_access_level ) {
 	switch ( $post_access_level ) {
-		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
-		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
 			$tier = Jetpack_Memberships::get_post_tier();
 			if ( $tier !== null ) {
 				return sprintf(
@@ -1105,15 +1134,24 @@ function is_user_auth() {
  * @return string
  */
 function get_paywall_blocks_subscribe_pending() {
-	$access_heading = esc_html__( 'Verify your email to continue reading', 'jetpack' );
+	$subscribe_email = Jetpack_Memberships::get_current_user_email();
 
-	$subscribe_text = esc_html__( 'Please check your inbox to confirm your subscription.', 'jetpack' );
+	/** This filter is documented in modules/contact-form/grunion-contact-form.php */
+	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
+		$current_user    = wp_get_current_user();
+		$subscribe_email = ! empty( $current_user->user_email ) ? $current_user->user_email : '';
+	}
+
+	$access_heading = esc_html__( 'Confirm your subscription to continue reading', 'jetpack' );
+
+	/* translators: %s: email address */
+	$subscribe_text = sprintf( esc_html__( 'Head to your inbox and confirm your email address %s.', 'jetpack' ), $subscribe_email );
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
 	return '
-<!-- wp:group {"style":{"border":{"width":"1px","radius":"4px"},"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|70","left":"32px","right":"32px"}}},"borderColor":"primary","className":"jetpack-subscribe-paywall","layout":{"type":"constrained","contentSize":"400px"}} -->
-<div class="wp-block-group jetpack-subscribe-paywall has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:var(--wp--preset--spacing--70);padding-right:32px;padding-bottom:var(--wp--preset--spacing--70);padding-left:32px">
+<!-- wp:group {"style":{"border":{"width":"1px","radius":"4px"},"spacing":{"padding":{"top":"32px","bottom":"32px","left":"32px","right":"32px"}}},"borderColor":"primary","className":"jetpack-subscribe-paywall","layout":{"type":"constrained","contentSize":"400px"}} -->
+<div class="wp-block-group jetpack-subscribe-paywall has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:32px;padding-right:32px;padding-bottom:32px;padding-left:32px">
 <!-- wp:image {"align":"center","width":24,"height":24,"sizeSlug":"large","linkDestination":"none"} -->
 <figure class="wp-block-image aligncenter size-large is-resized"><img src="' . $lock_svg . '" alt="" width="24" height="24"/></figure>
 <!-- /wp:image -->

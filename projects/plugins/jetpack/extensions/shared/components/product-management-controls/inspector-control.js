@@ -27,7 +27,7 @@ const DEFAULT_INTERVAL = '1 month';
 const DEFAULT_IS_CUSTOM_AMOUNT = false;
 
 export default function ProductManagementInspectorControl() {
-	const { productType, setSelectedProductId } = useProductManagementContext();
+	const { productType, setSelectedProductIds } = useProductManagementContext();
 
 	const siteSlug = useSelect( select => select( membershipProductsStore ).getSiteSlug() );
 
@@ -63,7 +63,7 @@ export default function ProductManagementInspectorControl() {
 				is_editable: true,
 			},
 			productType,
-			setSelectedProductId,
+			setSelectedProductIds,
 			success => {
 				setApiState( API_STATE_NOT_REQUESTING );
 				if ( success ) {

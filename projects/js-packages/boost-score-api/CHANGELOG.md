@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.20] - 2024-01-29
+### Fixed
+- Fix TypeScript type for a Boost Score prop [#35273]
+
+## [0.1.19] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [0.1.18] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+
 ## [0.1.17] - 2023-11-20
 
 ## [0.1.16] - 2023-11-14
@@ -83,6 +95,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Create package for the boost score bar API [#30781]
 
+[0.1.20]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.19...v0.1.20
+[0.1.19]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.18...v0.1.19
+[0.1.18]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.17...v0.1.18
 [0.1.17]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.16...v0.1.17
 [0.1.16]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/Automattic/jetpack-boost-score-api/compare/v0.1.14...v0.1.15

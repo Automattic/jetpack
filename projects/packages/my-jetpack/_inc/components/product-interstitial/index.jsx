@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -22,6 +23,8 @@ import extrasImage from './extras.png';
 import { JetpackAIInterstitialMoreRequests } from './jetpack-ai/more-requests';
 import jetpackAiImage from './jetpack-ai.png';
 import searchImage from './search.png';
+import socialImage from './social.png';
+import statsImage from './stats.png';
 import styles from './style.module.scss';
 import videoPressImage from './videopress.png';
 
@@ -41,6 +44,7 @@ import videoPressImage from './videopress.png';
  * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
  * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @param {number} [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
+ * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature in the list of features
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -56,6 +60,7 @@ export default function ProductInterstitial( {
 	hideTOS = false,
 	quantity = null,
 	directCheckout = false,
+	highlightLastFeature = false,
 } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle, tiers } = detail;
@@ -169,6 +174,7 @@ export default function ProductInterstitial( {
 									ctaButtonLabel={ ctaButtonLabel }
 									hideTOS={ hideTOS }
 									quantity={ quantity }
+									highlightLastFeature={ highlightLastFeature }
 								/>
 							</Col>
 							<Col
@@ -184,6 +190,7 @@ export default function ProductInterstitial( {
 										onClick={ clickHandler }
 										className={ isUpgradableByBundle ? styles.container : null }
 										quantity={ quantity }
+										highlightLastFeature={ highlightLastFeature }
 									/>
 								) : (
 									children
@@ -241,6 +248,15 @@ export function BoostInterstitial() {
 }
 
 /**
+ * CreatorInterstitial component
+ *
+ * @returns {object} CreatorInterstitial react component.
+ */
+export function CreatorInterstitial() {
+	return <ProductInterstitial slug="creator" installsPlugin={ true } />;
+}
+
+/**
  * CRMInterstitial component
  *
  * @returns {object} CRMInterstitial react component.
@@ -275,15 +291,24 @@ export function JetpackAIInterstitial() {
 	const slug = 'jetpack-ai';
 	const { detail } = useProduct( slug );
 	const { onClickGoBack } = useGoBack( { slug } );
+	const { isRegistered } = useConnection();
 
 	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ] || null;
 
-	if ( ! nextTier ) {
+	if ( isRegistered && ! nextTier ) {
 		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
 	}
 
 	const { hasRequiredPlan } = detail;
 	const ctaLabel = hasRequiredPlan ? __( 'Upgrade Jetpack AI', 'jetpack-my-jetpack' ) : null;
+
+	// Default to 100 requests if the site is not registered/connected.
+	const nextTierValue = isRegistered ? nextTier?.value : 100;
+	// Decide the quantity value for the upgrade, but ignore the unlimited tier.
+	const quantity = nextTierValue !== 1 ? nextTierValue : null;
+
+	// Highlight the last feature in the table for all the tiers except the unlimited one.
+	const highlightLastFeature = nextTier?.value !== 1;
 
 	return (
 		<ProductInterstitial
@@ -292,8 +317,9 @@ export function JetpackAIInterstitial() {
 			imageContainerClassName={ styles.aiImageContainer }
 			ctaButtonLabel={ ctaLabel }
 			hideTOS={ true }
-			quantity={ nextTier.value }
+			quantity={ quantity }
 			directCheckout={ hasRequiredPlan }
+			highlightLastFeature={ highlightLastFeature }
 		>
 			<img src={ jetpackAiImage } alt="Jetpack AI" />
 		</ProductInterstitial>
@@ -324,7 +350,17 @@ export function ScanInterstitial() {
  * @returns {object} SocialInterstitial react component.
  */
 export function SocialInterstitial() {
-	return <ProductInterstitial slug="social" installsPlugin={ true } />;
+	return (
+		<ProductInterstitial slug="social" installsPlugin={ true }>
+			<img
+				src={ socialImage }
+				alt={ __(
+					'Image displaying logos of social media platforms supported by Jetpack Social.',
+					'jetpack-my-jetpack'
+				) }
+			/>
+		</ProductInterstitial>
+	);
 }
 
 /**
@@ -352,6 +388,25 @@ export function SearchInterstitial() {
 			}
 		>
 			<img src={ searchImage } alt="Search" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * StatsInterstitial component
+ *
+ * @returns {object} StatsInterstitial react component.
+ */
+export function StatsInterstitial() {
+	return (
+		<ProductInterstitial slug="stats" installsPlugin={ true }>
+			<img
+				src={ statsImage }
+				alt={ __(
+					'Illustration showing the Stats feature, highlighting important statistics for your site.',
+					'jetpack-my-jetpack'
+				) }
+			/>
 		</ProductInterstitial>
 	);
 }

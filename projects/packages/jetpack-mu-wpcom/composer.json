@@ -4,7 +4,8 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0"
+		"php": ">=7.0",
+		"automattic/jetpack-assets": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
@@ -26,8 +27,8 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"build-production": "echo 'Add your build step to composer.json, please!'",
-		"build-development": "echo 'Add your build step to composer.json, please!'",
+		"build-production": "pnpm run build-production-js",
+		"build-development": "pnpm run build-js",
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
@@ -49,7 +50,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "5.1.x-dev"
+			"dev-trunk": "5.12.x-dev"
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {

@@ -2,10 +2,8 @@
 // List them here and the resolver will adjust the conditions to resolve them as "node" instead.
 // cf. https://github.com/microsoft/accessibility-insights-web/pull/5421#issuecomment-1109168149
 const badBrowserPackages = new Set( [
-	// https://github.com/dmonad/lib0/issues/79
-	'lib0',
-	// Fixed in v9: https://github.com/uuidjs/uuid/pull/616#issuecomment-1237428554
-	'uuid',
+	// v3 is still supposed to be commonjs-compatible. https://github.com/ai/nanoid/issues/462
+	'nanoid',
 ] );
 
 module.exports = ( path, options ) => {

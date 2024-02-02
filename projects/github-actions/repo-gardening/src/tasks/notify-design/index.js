@@ -1,7 +1,7 @@
 const { getInput, setFailed } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
-const getLabels = require( '../../utils/get-labels' );
-const sendSlackMessage = require( '../../utils/send-slack-message' );
+const getLabels = require( '../../utils/labels/get-labels' );
+const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -61,12 +61,6 @@ async function notifyDesign( payload, octokit ) {
 	const { owner, name: repo } = repository;
 	const ownerLogin = owner.login;
 
-	const slackToken = getInput( 'slack_token' );
-	if ( ! slackToken ) {
-		setFailed( `notify-design: Input slack_token is required but missing. Aborting.` );
-		return;
-	}
-
 	const channel = getInput( 'slack_design_channel' );
 	if ( ! channel ) {
 		setFailed( `notify-design: Input slack_design_channel is required but missing. Aborting.` );
@@ -89,7 +83,6 @@ async function notifyDesign( payload, octokit ) {
 		await sendSlackMessage(
 			`Someone would be interested in input from the Design team on this topic.`,
 			channel,
-			slackToken,
 			payload
 		);
 	}
@@ -103,7 +96,6 @@ async function notifyDesign( payload, octokit ) {
 		await sendSlackMessage(
 			`Someone is looking for a review from the design team.`,
 			channel,
-			slackToken,
 			payload
 		);
 	}

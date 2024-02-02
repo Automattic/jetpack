@@ -1,10 +1,14 @@
+import { createWriteStream, existsSync } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 import process from 'process';
+import util from 'util';
 import chalk from 'chalk';
+import chokidar from 'chokidar';
 import Configstore from 'configstore';
+import enquirer from 'enquirer';
 import { execa } from 'execa';
-import inquirer from 'inquirer';
+import pDebounce from 'p-debounce';
 import tmp from 'tmp';
 import { projectDir } from '../helpers/install.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
@@ -65,192 +69,79 @@ export async function rsyncInit( argv ) {
 		finalDest = path.join( argv.dest, '/' );
 	}
 
-	await rsyncToDest( sourcePluginPath, finalDest, argv.dest );
-}
+	if ( argv.watch ) {
+		let watcher;
+		const rsyncAndUpdateWatches = async ( event, eventfile ) => {
+			if ( argv.v ) {
+				console.debug( `rsync due to event ${ event } for ${ eventfile }` );
+			}
 
-/**
- * Promots to delete, clear or list out the stored destinations.
- */
-async function promptToManageConfig() {
-	const promptClearAll = async () => {
-		console.log( rsyncConfigStore.all );
-		await inquirer
-			.prompt( {
-				type: 'confirm',
-				name: 'clearAll',
-				message: 'are you sure you want to clear them all?',
-			} )
-			.then( answer => {
-				if ( answer.clearAll ) {
-					rsyncConfigStore.clear();
-					console.log( 'Empty! Cleared them all.' );
+			const paths = await rsyncToDest( sourcePluginPath, finalDest );
+
+			// On some systems, using multiple 'watcher.add()' calls breaks the firing of the 'ready' event.
+			// Instead, we add all the paths to an array and call add() once.
+			const pathsToAdd = [];
+
+			if ( ! watcher ) {
+				watcher = chokidar.watch( [], {
+					cwd: sourcePluginPath,
+					followSymlinks: false,
+					disableGlobbing: true,
+					ignoreInitial: true,
+					depth: 0,
+				} );
+
+				// Always watch the plugin base dir.
+				pathsToAdd.push( '.' );
+
+				// Also watch the git index for changes to catch `git add`, as that may change which files are synced.
+				pathsToAdd.push( path.join( process.cwd(), '.git/index' ) );
+
+				// Watch `.gitignore` and `.gitattributes` in parent dirs, as they too may change which files are synced.
+				// Here we assume sourcePluginPath is always `projects/plugins/whatever`
+				for ( const dir of [ '.', 'projects', 'projects/plugins' ] ) {
+					const ignorepath = path.join( process.cwd(), dir, '.gitignore' );
+					if ( existsSync( ignorepath ) ) {
+						pathsToAdd.push( ignorepath );
+					}
+					const attributespath = path.join( process.cwd(), dir, '.gitattributes' );
+					if ( existsSync( attributespath ) ) {
+						pathsToAdd.push( attributespath );
+					}
 				}
-			} );
-	};
-	const clearOne = key => rsyncConfigStore.delete( escapeKey( key ) );
-	const configManage = await inquirer.prompt( {
-		type: 'list',
-		name: 'manageConfig',
-		message: 'Manage saved destination paths.',
-		choices: [ 'list', 'add', 'remove' ],
-	} );
-	if ( configManage.manageConfig === 'list' ) {
-		console.log( "Here's what you have saved:" );
-		console.log( rsyncConfigStore.all );
-	}
-	if ( configManage.manageConfig === 'add' ) {
-		const aliasDest = await promptNewDest();
-		if ( aliasDest ) {
-			await promptForSetAlias( aliasDest );
-		}
-	}
-	if ( configManage.manageConfig === 'remove' ) {
-		const configKeys = Object.keys( rsyncConfigStore.all );
-		configKeys.push( 'All of them!' );
-		const removeDest = await inquirer.prompt( {
-			type: 'list',
-			name: 'removeKey',
-			message: 'which would you like to remove?',
-			choices: configKeys,
-		} );
-		if ( removeDest.removeKey === 'All of them!' ) {
-			await promptClearAll();
-		} else {
-			clearOne( removeDest.removeKey );
-			console.log( `Done! Removed ${ removeDest.removeKey }` );
-		}
-	}
-}
 
-/**
- * Rsync differentiates literal strings vs patterns by looking for `[`, `*`, and `?`.
- * Only patterns use backslash escapes, literal strings do not.
- *
- * @param {string} file - File to add.
- * @param {Set} filters - Set to add filter rules into.
- * @returns {void}
- */
-async function addFileToFilter( file, filters ) {
-	// Rsync requires we also list all the directories containing the file.
-	let prev;
-	do {
-		filters.add( '+ /' + ( file.match( /[[*?]/ ) ? file.replace( /[[*?\\]/g, '\\$&' ) : file ) );
-		prev = file;
-		file = path.dirname( file ) + '/';
-	} while ( file !== '/' && file !== './' && file !== prev );
-}
-
-/**
- * Collect rsync filter rules based on files at a path.
- *
- * @param {string} source - Source path.
- * @param {string} prefix - Source path prefix.
- * @param {Set} filters - Set to add filter rules into.
- * @returns {Promise<void>}
- */
-async function buildFilterRules( source, prefix, filters ) {
-	// Include just the files that are published to the mirror.
-	for await ( const rfile of listProjectFiles( source, execa ) ) {
-		const file = path.join( prefix, rfile );
-
-		// If the file is a monorepo vendor symlink, we need to follow it.
-		const fullpath = path.join( source, file );
-		if (
-			await fs.lstat( fullpath ).then(
-				dirent => dirent.isSymbolicLink(),
-				() => false
-			)
-		) {
-			const target = path.relative(
-				process.cwd(),
-				path.join( path.dirname( fullpath ), await fs.readlink( fullpath ) )
-			);
-			if (
-				target.startsWith( 'projects/' ) &&
-				( await fs.access( target ).then(
-					() => true,
-					() => false
-				) )
-			) {
-				await buildFilterRules( target, file, filters );
-				continue;
+				watcher.once( 'ready', () => {
+					console.log( 'jetpack rsync --watch is now watching for changes to:', sourcePluginPath );
+					watcher.on( 'all', pDebounce( rsyncAndUpdateWatches, 1000 ) );
+				} );
 			}
-		}
 
-		await addFileToFilter( file, filters );
-	}
-}
-
-/**
- * Explicitly add any /vendor files that are otherwise not symlinked.
- * Necessary when rsyncing development builds.
- *
- * @param {string} source - Source path.
- * @param {Set} filters - Set to add filter rules into.
- * @returns {void}
- */
-async function addVendorFilesToFilter( source, filters ) {
-	const dirents = await fs.readdir( source, { withFileTypes: true } );
-	const files = await Promise.all(
-		dirents.map( dirent => {
-			const fileSource = path.resolve( source, dirent.name );
-			return dirent.isDirectory() ? addVendorFilesToFilter( fileSource, filters ) : fileSource;
-		} )
-	);
-
-	for ( const file of files ) {
-		if (
-			await fs.lstat( file ).then(
-				dirent => dirent.isSymbolicLink(),
-				() => false
-			)
-		) {
-			// Skip the symlinks.
-			continue;
-		}
-		if ( file ) {
-			// Relative file path to the project dir.
-			const relativeFilePath = file.substring( file.indexOf( '/vendor' ) + 1 );
-			if ( relativeFilePath.startsWith( 'vendor' ) ) {
-				await addFileToFilter( relativeFilePath, filters );
+			// Any dirs that aren't already being watched should start being watched.
+			const curPaths = watcher.getWatched();
+			for ( const dir of paths ) {
+				if ( dir.endsWith( '/' ) && ! curPaths[ dir.substring( 0, dir.length - 1 ) ]?.length ) {
+					pathsToAdd.push( dir );
+				}
 			}
-		}
-	}
-}
 
-/**
- * Function that does the actual work of rsync.
- *
- * @param {string} source - Source path.
- * @param {string} dest - Final destination path, including plugin slug.
- * @param {string} pluginDestPath - Destination path.
- * @returns {Promise<void>}
- */
-async function rsyncToDest( source, dest, pluginDestPath ) {
-	const filters = new Set();
+			// Any dirs currently being watched that aren't synced anymore should no longer be watched.
+			for ( const dir of Object.keys( curPaths ) ) {
+				if (
+					dir !== '.' &&
+					dir !== '..' &&
+					! dir.startsWith( '../' ) &&
+					curPaths[ dir ].length &&
+					! paths.has( dir + '/' )
+				) {
+					watcher.unwatch( dir );
+				}
+			}
 
-	// Exclude any `.git` dirs, mostly in case someone ran composer with --prefer-source (or composer fell back to that).
-	filters.add( '- .git' );
-	// To catch files required in dev builds.
-	await addVendorFilesToFilter( `${ source }/vendor/`, filters );
-	await buildFilterRules( source, '', filters );
-
-	// Exclude anything not included above.
-	filters.add( '- *' );
-
-	const tmpFileName = tmp.tmpNameSync();
-	await fs.writeFile( tmpFileName, [ ...filters ].join( '\r\n' ) );
-	try {
-		await runCommand( 'rsync', [
-			'-azLKPv',
-			'--prune-empty-dirs',
-			'--delete',
-			'--delete-after',
-			'--delete-excluded',
-			`--include-from=${ tmpFileName }`,
-			source,
-			dest,
-		] );
+			watcher.add( pathsToAdd );
+		};
+		await rsyncAndUpdateWatches( 'startup', 'jetpack rsync --watch' );
+	} else {
+		await rsyncToDest( sourcePluginPath, finalDest );
 
 		console.log( '\n' );
 		console.log(
@@ -277,12 +168,248 @@ async function rsyncToDest( source, dest, pluginDestPath ) {
 		);
 		console.log( '\n' );
 
-		await promptForRsyncConfig( pluginDestPath );
+		await promptForRsyncConfig( argv.dest );
+	}
+}
+
+/**
+ * Promots to delete, clear or list out the stored destinations.
+ */
+async function promptToManageConfig() {
+	const promptClearAll = async () => {
+		console.log( rsyncConfigStore.all );
+		await enquirer
+			.prompt( {
+				type: 'confirm',
+				name: 'clearAll',
+				message: 'are you sure you want to clear them all?',
+				initial: true,
+			} )
+			.then( answer => {
+				if ( answer.clearAll ) {
+					rsyncConfigStore.clear();
+					console.log( 'Empty! Cleared them all.' );
+				}
+			} );
+	};
+	const clearOne = key => rsyncConfigStore.delete( escapeKey( key ) );
+	const configManage = await enquirer.prompt( {
+		type: 'select',
+		name: 'manageConfig',
+		message: 'Manage saved destination paths.',
+		choices: [ 'list', 'add', 'remove' ],
+	} );
+	if ( configManage.manageConfig === 'list' ) {
+		console.log( "Here's what you have saved:" );
+		console.log( rsyncConfigStore.all );
+	}
+	if ( configManage.manageConfig === 'add' ) {
+		const aliasDest = await promptNewDest();
+		if ( aliasDest ) {
+			await promptForSetAlias( aliasDest );
+		}
+	}
+	if ( configManage.manageConfig === 'remove' ) {
+		const configKeys = Object.keys( rsyncConfigStore.all );
+		configKeys.push( 'All of them!' );
+		const removeDest = await enquirer.prompt( {
+			type: 'select',
+			name: 'removeKey',
+			message: 'which would you like to remove?',
+			choices: configKeys,
+		} );
+		if ( removeDest.removeKey === 'All of them!' ) {
+			await promptClearAll();
+		} else {
+			clearOne( removeDest.removeKey );
+			console.log( `Done! Removed ${ removeDest.removeKey }` );
+		}
+	}
+}
+
+/**
+ * Fetch the list of files to rsync.
+ *
+ * @param {string} source - Source path.
+ * @returns {Promise<Set>} List of paths.
+ */
+async function collectPaths( source ) {
+	const paths = new Set();
+
+	await addVendorFilesToPathSet( `${ source }/vendor/`, paths );
+	await addFilesToPathSet( source, '', paths );
+
+	return paths;
+}
+
+/**
+ * Add a file, and all directories containing it, to the set of paths.
+ *
+ * @param {string} file - File to add.
+ * @param {Set} paths - Set of paths to add to.
+ * @returns {void}
+ */
+async function addFileToPathSet( file, paths ) {
+	// Rsync requires we also list all the directories containing the file.
+	let prev;
+	do {
+		paths.add( file );
+		prev = file;
+		file = path.dirname( file ) + '/';
+	} while ( file !== '/' && file !== './' && file !== prev );
+}
+
+/**
+ * Collect paths to rsync.
+ *
+ * @param {string} source - Source path.
+ * @param {string} prefix - Source path prefix.
+ * @param {Set} paths - Set to add paths into.
+ * @returns {Promise<void>}
+ */
+async function addFilesToPathSet( source, prefix, paths ) {
+	// Include just the files that are published to the mirror.
+	for await ( const rfile of listProjectFiles( source, execa ) ) {
+		const file = path.join( prefix, rfile );
+
+		// If the file is a monorepo vendor symlink, we need to follow it.
+		const fullpath = path.join( source, file );
+		if (
+			await fs.lstat( fullpath ).then(
+				dirent => dirent.isSymbolicLink(),
+				() => false
+			)
+		) {
+			const target = path.relative(
+				process.cwd(),
+				path.join( path.dirname( fullpath ), await fs.readlink( fullpath ) )
+			);
+			if (
+				target.startsWith( 'projects/' ) &&
+				( await fs.access( target ).then(
+					() => true,
+					() => false
+				) )
+			) {
+				await addFilesToPathSet( target, file, paths );
+				continue;
+			}
+		}
+
+		await addFileToPathSet( file, paths );
+	}
+}
+
+/**
+ * Explicitly add any /vendor files that are otherwise not symlinked.
+ * Necessary when rsyncing development builds.
+ *
+ * @param {string} source - Source path.
+ * @param {Set} paths - Set to add paths into.
+ * @returns {void}
+ */
+async function addVendorFilesToPathSet( source, paths ) {
+	const dirents = await fs.readdir( source, { withFileTypes: true } );
+	const files = await Promise.all(
+		dirents.map( dirent => {
+			const fileSource = path.resolve( source, dirent.name );
+			return dirent.isDirectory() ? addVendorFilesToPathSet( fileSource, paths ) : fileSource;
+		} )
+	);
+
+	for ( const file of files ) {
+		if (
+			await fs.lstat( file ).then(
+				dirent => dirent.isSymbolicLink(),
+				() => false
+			)
+		) {
+			// Skip the symlinks.
+			continue;
+		}
+		if ( file ) {
+			// Relative file path to the project dir.
+			const relativeFilePath = file.substring( file.indexOf( '/vendor' ) + 1 );
+			if ( relativeFilePath.startsWith( 'vendor' ) ) {
+				await addFileToPathSet( relativeFilePath, paths );
+			}
+		}
+	}
+}
+
+/**
+ * Create a temporary rsync filter file.
+ *
+ * @param {Set} paths - Paths to rsync.
+ * @returns {object} As from `tmp.fileSync()`.
+ */
+async function createFilterFile( paths ) {
+	const tmpFile = tmp.fileSync();
+
+	// Wrap the tmpFile fd in a stream.
+	const tmpStream = createWriteStream( null, { fd: tmpFile.fd } );
+	const writeTmp = data => {
+		return new Promise( resolve => {
+			if ( ! tmpStream.write( data ) ) {
+				tmpStream.once( 'drain', resolve );
+			} else {
+				resolve();
+			}
+		} );
+	};
+
+	// Exclude any `.git` dirs, mostly in case someone ran composer with --prefer-source (or composer fell back to that).
+	await writeTmp( '- .git\r\n' );
+
+	// Include each path.
+	for ( const file of paths ) {
+		// Rsync differentiates literal strings vs patterns by looking for `[`, `*`, and `?`.
+		// Only patterns use backslash escapes, literal strings do not.
+		await writeTmp(
+			'+ /' + ( file.match( /[[*?]/ ) ? file.replace( /[[*?\\]/g, '\\$&' ) : file ) + '\r\n'
+		);
+	}
+
+	// Exclude anything not included above.
+	await writeTmp( '- *\r\n' );
+
+	// Close the file.
+	await util.promisify( tmpStream.close ).call( tmpStream );
+
+	return tmpFile;
+}
+
+/**
+ * Function that does the actual work of rsync.
+ *
+ * @param {string} source - Source path.
+ * @param {string} dest - Final destination path, including plugin slug.
+ * @returns {Promise<Set>} Synced path set.
+ */
+async function rsyncToDest( source, dest ) {
+	const paths = await collectPaths( source );
+	const tmpFile = await createFilterFile( paths );
+
+	try {
+		await runCommand( 'rsync', [
+			'-azLKPv',
+			'--prune-empty-dirs',
+			'--delete',
+			'--delete-after',
+			'--delete-excluded',
+			`--include-from=${ tmpFile.name }`,
+			source,
+			dest,
+		] );
+		tmpFile.removeCallback();
 	} catch ( e ) {
 		console.log( e );
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
+		tmpFile.removeCallback();
 		process.exit( 1 );
 	}
+
+	return paths;
 }
 
 /**
@@ -297,9 +424,9 @@ async function promptForRsyncConfig( pluginDestPath ) {
 	if ( foundValue ) {
 		return;
 	}
-	const createPrompt = await inquirer.prompt( {
+	const createPrompt = await enquirer.prompt( {
 		name: 'createConfig',
-		type: 'list',
+		type: 'select',
 		message: `No saved entries for ${ pluginDestPath }. Create one for easier use later?`,
 		choices: [ 'Hell yeah!', 'Nah' ],
 	} );
@@ -314,19 +441,19 @@ async function promptForRsyncConfig( pluginDestPath ) {
  * @param { string } pluginDestPath - String to destination path.
  */
 async function promptForSetAlias( pluginDestPath ) {
-	const aliasSetPrompt = await inquirer.prompt( {
+	const aliasSetPrompt = await enquirer.prompt( {
 		name: 'alias',
 		type: 'input',
 		message: 'Enter an alias for easier reference? (Press enter to skip.)',
 	} );
 	const alias = aliasSetPrompt.alias || pluginDestPath;
 	if ( rsyncConfigStore.has( escapeKey( alias ) ) ) {
-		const alreadyFound = await inquirer.prompt( {
+		const alreadyFound = await enquirer.prompt( {
 			name: 'overwrite',
 			type: 'confirm',
-			message: `This alias already exists for dest: ${ rsyncConfigStore.get(
-				escapeKey( alias )
-			) }. Overwrite it?`,
+			initial: true,
+			// prettier-ignore
+			message: `This alias already exists for dest: ${ rsyncConfigStore.get( escapeKey( alias ) ) }. Overwrite it?`,
 		} );
 		if ( ! alreadyFound.overwrite ) {
 			console.log( 'Okay!' );
@@ -353,17 +480,21 @@ async function maybePromptForDest( argv ) {
 		return argv;
 	}
 	const savedDests = Object.keys( rsyncConfigStore.all );
-	savedDests.unshift( 'Create new' );
-	const response = await inquirer.prompt( {
-		name: 'dest',
-		type: 'list',
-		message: 'Choose destination:',
-		choices: savedDests,
-	} );
-	if ( 'Create new' === response.dest ) {
+	if ( savedDests.length === 0 ) {
 		argv.dest = await promptNewDest();
 	} else {
-		argv.dest = rsyncConfigStore.get( escapeKey( response.dest ) );
+		savedDests.unshift( 'Create new' );
+		const response = await enquirer.prompt( {
+			type: 'select',
+			name: 'dest',
+			message: 'Choose destination:',
+			choices: savedDests,
+		} );
+		if ( 'Create new' === response.dest ) {
+			argv.dest = await promptNewDest();
+		} else {
+			argv.dest = rsyncConfigStore.get( escapeKey( response.dest ) );
+		}
 	}
 	return argv;
 }
@@ -374,7 +505,7 @@ async function maybePromptForDest( argv ) {
  * @returns {Promise<*|string>} - Destination path
  */
 async function promptNewDest() {
-	const response = await inquirer.prompt( {
+	const response = await enquirer.prompt( {
 		name: 'dest',
 		type: 'input',
 		message: "Input destination host:path to the plugin's dir or the /plugins or /mu-plugins dir: ",
@@ -398,8 +529,8 @@ export async function maybePromptForPlugin( argv ) {
 		whichPlugin.length === 0 ||
 		( whichPlugin.length > 0 && ! validatePlugin( whichPlugin ) )
 	) {
-		whichPlugin = await inquirer.prompt( {
-			type: 'list',
+		whichPlugin = await enquirer.prompt( {
+			type: 'autocomplete',
 			name: 'plugin',
 			message: 'Which plugin?',
 			choices: dirs( './projects/plugins' ),
@@ -447,6 +578,11 @@ export function rsyncDefine( yargs ) {
 				} )
 				.option( 'config', {
 					describe: 'List, add, or remove saved destinations in the config.',
+					type: 'boolean',
+				} )
+				.option( 'watch', {
+					describe:
+						'Watch the plugin for changes and rsync on change. Note this will probably not be useful if rsync prompts for a password.',
 					type: 'boolean',
 				} );
 		},

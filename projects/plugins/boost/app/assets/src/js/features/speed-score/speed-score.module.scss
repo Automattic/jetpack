@@ -1,0 +1,57 @@
+@import '$css/main/variables';
+@import '$css/main/mixins';
+
+.speed-scores {
+	p {
+		margin: 1em 0;
+	}
+
+	.offline, .top {
+		margin-bottom: 2rem;
+	}
+
+	.offline p {
+		font-weight: 400;
+		max-width: 560px;
+		line-height: 1.5;
+		color: $gray_70;
+	}
+
+	.top {
+		display: flex;
+		align-items: center;
+		color: #000;
+	}
+
+	.action-button {
+		color: $gray_90;
+		margin-left: auto;
+		min-width: auto;
+
+		svg {
+			fill: $jetpack-green;
+		}
+	}
+}
+
+:global(.jb-dashboard) .speed-scores h2 {
+	font-weight: 700;
+
+	@include breakpoint(xs) {
+		font-size: 27px;
+	}
+}
+
+@include breakpoint(xs) {
+	.speed-scores :global(.icon-tooltip-helper.is-wide .components-popover) {
+		left: -60px !important;
+	}
+
+	.speed-scores :global(.icon-tooltip-helper.is-wide .components-popover__content) {
+		width: 304px;
+	}
+
+	.speed-scores :global(.icon-tooltip-helper.is-wide .components-popover__arrow) {
+		left: 215px !important;
+	}
+}

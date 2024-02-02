@@ -104,6 +104,11 @@ $jetpack_dev_debug_modules = array(
 		'name'        => 'WPCOM API Request Tracker',
 		'description' => 'Displays the number of requests to WPCOM API endpoints for the current page request.',
 	),
+	'xmlrpc-logger'             => array(
+		'file'        => 'class-xmlrpc-logger.php',
+		'name'        => 'XMLRPC Logger',
+		'description' => 'Logs incoming XMLRPC requests into the debug.log file.',
+	),
 );
 
 require_once __DIR__ . '/class-admin.php';

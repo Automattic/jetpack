@@ -51,8 +51,8 @@ class Transaction_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $transaction_data )
+			$trigger,
+			$transaction_data
 		);
 
 		// Run the transaction_created action.
@@ -84,8 +84,8 @@ class Transaction_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $transaction_data )
+			$trigger,
+			$transaction_data
 		);
 
 		// Run the transaction_updated action.

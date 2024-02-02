@@ -6,7 +6,7 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { usePostMeta } from '../../utils/use-post-meta';
+import { usePostMeta } from '../use-post-meta';
 
 const republicizeFeatureName = 'republicize';
 
@@ -19,6 +19,7 @@ const republicizeFeatureName = 'republicize';
  */
 export default function usePublicizeConfig() {
 	const sharesData = getJetpackData()?.social?.sharesData ?? {};
+	const blogID = getJetpackData()?.wpcomBlogId;
 	const isShareLimitEnabled = sharesData.is_share_limit_enabled;
 	const isRePublicizeFeatureAvailable =
 		getJetpackExtensionAvailability( republicizeFeatureName )?.available || isShareLimitEnabled;
@@ -114,7 +115,7 @@ export default function usePublicizeConfig() {
 		isEnhancedPublishingEnabled,
 		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
-		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),
+		connectionsAdminUrl: connectionsRootUrl + ( blogID ?? getSiteFragment() ),
 		adminUrl: getJetpackData()?.social?.adminUrl,
 		isAutoConversionEnabled,
 		jetpackSharingSettingsUrl: getJetpackData()?.social?.jetpackSharingSettingsUrl,

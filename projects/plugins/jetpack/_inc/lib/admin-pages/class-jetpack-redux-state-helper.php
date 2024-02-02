@@ -21,6 +21,7 @@ use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
@@ -135,6 +136,8 @@ class Jetpack_Redux_State_Helper {
 
 		$speed_score_history = new Speed_Score_History( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
 
+		$block_availability = Jetpack_Gutenberg::get_cached_availability();
+
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
@@ -196,6 +199,8 @@ class Jetpack_Redux_State_Helper {
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
 				'latestBoostSpeedScores'     => $speed_score_history->latest(),
+				'isSharingBlockAvailable'    => (bool) isset( $block_availability['sharing-buttons'] )
+					&& $block_availability['sharing-buttons']['available'],
 			),
 			'themeData'                   => array(
 				'name'         => $current_theme->get( 'Name' ),
@@ -229,6 +234,10 @@ class Jetpack_Redux_State_Helper {
 				'showLicensingUi'         => Licensing::instance()->is_licensing_input_enabled(),
 				'userCounts'              => Licensing_Endpoints::get_user_license_counts(),
 				'activationNoticeDismiss' => Licensing::instance()->get_license_activation_notice_dismiss(),
+			),
+			'jetpackManage'               => array(
+				'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
+				'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 			),
 			'hasSeenWCConnectionModal'    => Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false ),
 			'newRecommendations'          => Jetpack_Recommendations::get_new_conditional_recommendations(),
@@ -289,24 +298,14 @@ class Jetpack_Redux_State_Helper {
 	 * @return array|null
 	 */
 	public static function get_publicize_initial_state() {
-		$sig_settings             = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
-		$auto_conversion_settings = new Automattic\Jetpack\Publicize\Auto_Conversion\Settings();
+		$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
+		$settings                = $jetpack_social_settings->get_settings( true );
 
-		if ( empty( $sig_settings ) && empty( $auto_conversion_settings ) ) {
+		if ( empty( $settings ) ) {
 			return null;
 		}
 
-		return array(
-			'socialImageGeneratorSettings' => array(
-				'available'       => $sig_settings->is_available(),
-				'enabled'         => $sig_settings->is_enabled(),
-				'defaultTemplate' => $sig_settings->get_default_template(),
-			),
-			'autoConversionSettings'       => array(
-				'available' => $auto_conversion_settings->is_available( 'image' ),
-				'image'     => $auto_conversion_settings->is_enabled( 'image' ),
-			),
-		);
+		return $settings;
 	}
 
 	/**

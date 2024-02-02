@@ -10,57 +10,26 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
-use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
-use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
-use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 
 class Admin {
-
 	/**
 	 * Menu slug.
 	 */
 	const MENU_SLUG = 'jetpack-boost';
 
-	/**
-	 * Main plugin instance.
-	 *
-	 * @var Jetpack_Boost Plugin.
-	 */
-	private $modules;
-
-	/**
-	 * Speed_Score class instance.
-	 *
-	 * @var Speed_Score instance.
-	 */
-	private $speed_score;
-
-	/**
-	 * Configuration constants.
-	 *
-	 * @param Config $config
-	 */
-	private $config;
-
-	public function __construct( Modules_Setup $modules ) {
-		$this->modules     = $modules;
-		$this->speed_score = new Speed_Score( $modules, 'boost-plugin' );
+	public function init( Modules_Setup $modules ) {
 		Environment_Change_Detector::init();
-		Premium_Pricing::init();
 
-		$this->config = new Config();
-		$this->config->init();
+		// Initiate speed scores.
+		new Speed_Score( $modules, 'boost-plugin' );
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
 		add_action( 'admin_menu', array( $this, 'handle_admin_menu' ) );
-
-		// Set up Super Cache info system if WP Super Cache available.
-		Super_Cache_Info::init();
 	}
 
 	public function handle_admin_menu() {
@@ -128,7 +97,7 @@ class Admin {
 		wp_localize_script(
 			$admin_js_handle,
 			'Jetpack_Boost',
-			$this->config->constants()
+			( new Config() )->constants()
 		);
 
 		wp_set_script_translations( $admin_js_handle, 'jetpack-boost' );

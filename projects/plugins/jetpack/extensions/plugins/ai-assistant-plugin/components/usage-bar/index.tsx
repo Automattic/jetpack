@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { BaseControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -9,7 +10,11 @@ import React from 'react';
  * Internal dependencies
  */
 import './style.scss';
-import { PLAN_TYPE_FREE, PLAN_TYPE_TIERED, PLAN_TYPE_UNLIMITED } from './types';
+import {
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_TIERED,
+	PLAN_TYPE_UNLIMITED,
+} from '../../../../shared/use-plan-type';
 /**
  * Types
  */
@@ -24,6 +29,7 @@ import type { UsageBarProps, UsageControlProps } from './types';
 export const UsageBar: React.FC< UsageBarProps > = ( {
 	usage,
 	limitReached,
+	requireUpgrade = false,
 }: UsageBarProps ): React.ReactNode => {
 	if ( usage == null ) {
 		return null;
@@ -40,6 +46,7 @@ export const UsageBar: React.FC< UsageBarProps > = ( {
 			<div
 				className={ classNames( 'ai-assistant-usage-bar-usage', {
 					'is-limit-reached': limitReached,
+					'require-upgrade': requireUpgrade,
 				} ) }
 				style={ style }
 			></div>
@@ -53,6 +60,8 @@ function UsageControl( {
 	requestsCount,
 	requestsLimit,
 	daysUntilReset = null,
+	requireUpgrade = false,
+	loading = false,
 }: UsageControlProps ) {
 	// Trust on the isOverLimit flag, but also do a local check
 	const limitReached = isOverLimit || requestsCount >= requestsLimit;
@@ -79,11 +88,8 @@ function UsageControl( {
 
 	const usage = requestsCount / requestsLimit;
 
-	return (
-		<BaseControl
-			help={ helpMessages.length ? helpMessages.join( ' ' ) : null }
-			label={ __( 'Usage', 'jetpack' ) }
-		>
+	const usageDisplay = (
+		<>
 			{ planType === PLAN_TYPE_FREE && (
 				<p>
 					{ sprintf(
@@ -106,8 +112,22 @@ function UsageControl( {
 			) }
 			{ planType === PLAN_TYPE_UNLIMITED && <p>{ __( 'Unlimited requests.', 'jetpack' ) }</p> }
 			{ ( planType === PLAN_TYPE_FREE || planType === PLAN_TYPE_TIERED ) && (
-				<UsageBar usage={ usage } limitReached={ limitReached } />
+				<UsageBar usage={ usage } limitReached={ limitReached } requireUpgrade={ requireUpgrade } />
 			) }
+		</>
+	);
+
+	const loadingPlaceholder = (
+		<LoadingPlaceholder height={ 100 } className="jetpack-ai-usage-panel__loading-placeholder" />
+	);
+
+	return (
+		<BaseControl
+			help={ ! loading && helpMessages.length ? helpMessages.join( ' ' ) : null }
+			label={ __( 'Usage', 'jetpack' ) }
+		>
+			{ ! loading && usageDisplay }
+			{ loading && loadingPlaceholder }
 		</BaseControl>
 	);
 }

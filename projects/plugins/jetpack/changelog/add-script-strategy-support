@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Performance: improve script enqueuing strategies to rely on methods introduced in WordPress 6.3.

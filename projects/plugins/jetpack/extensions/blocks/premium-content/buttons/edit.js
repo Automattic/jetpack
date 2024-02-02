@@ -1,7 +1,7 @@
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useMemo } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 
@@ -12,7 +12,11 @@ const ALLOWED_BLOCKS = [
 ];
 
 function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
-	const planId = context ? context[ 'premium-content/planId' ] : null;
+	// Placing this in a useMemo to support `useEffect` hook below.
+	const planIds = useMemo( () => {
+		return context[ 'premium-content/planIds' ] || [];
+	}, [ context ] );
+
 	const isPreview = context ? context[ 'premium-content/isPreview' ] : false;
 
 	const previewTemplate = [
@@ -30,7 +34,7 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 	const template = [
 		[
 			'jetpack/recurring-payments',
-			{ planId },
+			{ planIds },
 			[
 				[
 					'jetpack/button',
@@ -52,14 +56,22 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 	// Keep in sync the plan selected on the Premium Content block with the plan selected on the Recurring Payments
 	// inner block acting as a subscribe button.
 	useEffect( () => {
-		if ( ! planId || ! subscribeButton ) {
+		if ( ! planIds || planIds.length === 0 || ! subscribeButton ) {
 			return;
 		}
 
-		if ( subscribeButton.attributes.planId !== planId ) {
-			setSubscribeButtonPlan( planId );
+		const subscribeButtonPlanIds = subscribeButton.attributes.planIds || [];
+
+		// if the plan IDs are the same, don't update the subscribe button
+		if (
+			subscribeButtonPlanIds.length === planIds.length &&
+			subscribeButtonPlanIds.every( i => planIds.includes( i ) )
+		) {
+			return;
 		}
-	}, [ planId, subscribeButton, setSubscribeButtonPlan ] );
+
+		setSubscribeButtonPlan( planIds );
+	}, [ planIds, subscribeButton, setSubscribeButtonPlan ] );
 
 	/*
 	 * Hides the product management controls of the Recurring Payments inner block acting as a subscribe
@@ -113,13 +125,13 @@ export default compose( [
 	} ),
 	withDispatch( ( dispatch, props ) => ( {
 		/**
-		 * Updates the plan on the Recurring Payments block acting as a subscribe button.
+		 * Updates the plans on the Recurring Payments block acting as a subscribe button.
 		 *
-		 * @param {number} planId - Plan ID.
+		 * @param {Array} planIds - Plan IDs.
 		 */
-		setSubscribeButtonPlan( planId ) {
+		setSubscribeButtonPlan( planIds ) {
 			dispatch( 'core/block-editor' ).updateBlockAttributes( props.subscribeButton.clientId, {
-				planId,
+				planIds,
 			} );
 		},
 	} ) ),

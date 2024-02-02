@@ -65,10 +65,11 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
 
 final class Data_Sync {
 
-	const PACKAGE_VERSION = '0.4.0-alpha';
+	const PACKAGE_VERSION = '0.4.2-alpha';
 
 	/**
 	 * @var Registry
@@ -105,6 +106,28 @@ final class Data_Sync {
 	}
 
 	/**
+	 * Retrieve nonces for all action endpoints associated with a given entry.
+	 *
+	 * @param string $entry_key The key for the entry.
+	 *
+	 * @return array An associative array of action nonces.
+	 */
+	private function get_action_nonces_for_entry( $entry_key ) {
+		// Assuming a method in Registry class to retrieve all action names for an entry
+		$action_names = $this->registry->get_action_names_for_entry( $entry_key );
+		$nonces       = array();
+
+		foreach ( $action_names as $action_name ) {
+			$nonce = $this->registry->get_action_nonce( $entry_key, $action_name );
+			if ( $nonce ) {
+				$nonces[ $action_name ] = $nonce;
+			}
+		}
+
+		return $nonces;
+	}
+
+	/**
 	 * Don't call this method directly.
 	 * It's only public so that it can be called as a hook
 	 *
@@ -125,8 +148,18 @@ final class Data_Sync {
 				'nonce' => $this->registry->get_endpoint( $key )->create_nonce(),
 			);
 
+			if ( DS_Utils::is_debug() ) {
+				$data[ $key ]['log'] = $entry->get_parser()->get_log();
+			}
+
 			if ( $entry->is( Lazy_Entry::class ) ) {
 				$data[ $key ]['lazy'] = true;
+			}
+
+			// Include nonces for action endpoints associated with this entry
+			$action_nonces = $this->get_action_nonces_for_entry( $key );
+			if ( ! empty( $action_nonces ) ) {
+				$data[ $key ]['actions'] = $action_nonces;
 			}
 		}
 
@@ -195,7 +228,19 @@ final class Data_Sync {
 		 *      $Data_Sync->get_registry()->register(...)` instead of `$Data_Sync->register(...)
 		 * ```
 		 */
+		if ( method_exists( $parser, 'set_context' ) ) {
+			$parser->set_context( new Schema_Context( $key ) );
+		}
 		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $parser );
 		$this->registry->register( $key, $entry_adapter );
+	}
+
+	public function register_action(
+		$key,
+		$action_name,
+		$request_schema,
+		$instance
+	) {
+		$this->registry->register_action( $key, $action_name, $request_schema, $instance );
 	}
 }

@@ -2,28 +2,22 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "jetpack/sharing-button",
-	"title": "Sharing button",
-	"description": "Give your readers the ability to easily share your content with X, Facebook, Tumblr, LinkedIn, and a host of other services to help spread your message across the web.",
+	"title": "Sharing Button",
+	"description": "Display a sharing button, allowing users to share your post.",
 	"keywords": [],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
 	"category": "embed",
 	"parent": [ "jetpack/sharing-buttons" ],
 	"attributes": {
-		"url": {
-			"type": "string"
-		},
 		"service": {
 			"type": "string"
 		},
 		"label": {
 			"type": "string"
-		},
-		"rel": {
-			"type": "string"
 		}
 	},
-	"usesContext": [ "styleType", "postId" ],
+	"usesContext": [ "styleType", "postId", "iconColorValue", "iconBackgroundColorValue" ],
 	"supports": {
 		"reusable": false,
 		"html": false

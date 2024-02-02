@@ -72,7 +72,7 @@ const ItemBadge = ( { count, checked } ) => {
 		>
 			{ badgeElement }
 			{ showPopover && (
-				<Popover noArrow={ false }>
+				<Popover noArrow={ false } inline={ true }>
 					<Text variant="body-small" className={ styles[ 'popover-text' ] }>
 						{ popoverText }
 					</Text>

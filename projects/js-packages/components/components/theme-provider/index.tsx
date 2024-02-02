@@ -142,7 +142,7 @@ const ThemeProvider: React.FC< ThemeProviderProps > = ( {
 
 	// Do not wrap when the DOM element target is defined.
 	if ( targetDom ) {
-		return children;
+		return <>{ children }</>;
 	}
 
 	return <div ref={ themeWrapperRef }>{ children }</div>;

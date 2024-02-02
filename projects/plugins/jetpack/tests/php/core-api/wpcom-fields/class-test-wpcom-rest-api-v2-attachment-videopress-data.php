@@ -48,14 +48,12 @@ class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WP_Test_Jetpack_
 						->setMethods( array( 'get_videopress_data' ) )
 						->getMock();
 
-		$mock->expects( $this->exactly( 1 ) )
+		$mock->expects( $this->once() )
 				->method( 'get_videopress_data' )
-				->will(
-					$this->returnValue(
-						array(
-							'guid'   => 'mocked_videopress_guid',
-							'rating' => 'G',
-						)
+				->willReturn(
+					array(
+						'guid'   => 'mocked_videopress_guid',
+						'rating' => 'G',
 					)
 				);
 
