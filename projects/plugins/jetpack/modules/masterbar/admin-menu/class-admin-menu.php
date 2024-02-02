@@ -140,7 +140,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			return;
 		}
 
-		add_menu_page( __( 'WordPress.com', 'jetpack' ), __( 'WordPress.com', 'jetpack' ), 'manage_options', 'wpcom', null, 'dashicons-wordpress', 4 );
+		add_menu_page( __( 'WordPress.com', 'jetpack' ), __( 'WordPress.com', 'jetpack' ), 'manage_options', 'wpcom', null, 'dashicons-wordpress-alt', 4 );
 
 		add_submenu_page( 'wpcom', __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/' . $this->domain, null, 0 );
 
