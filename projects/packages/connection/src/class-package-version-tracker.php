@@ -31,10 +31,25 @@ class Package_Version_Tracker {
 	const CACHED_FAILED_REQUEST_EXPIRATION = 1 * HOUR_IN_SECONDS;
 
 	/**
+	 * Transient key for rate limiting the package version requests;
+	 */
+	const RATE_LIMITER_KEY = 'jetpack_update_remote_package_last_query';
+
+	/**
+	 * Only allow one versions check (and request) per minute.
+	 */
+	const RATE_LIMITER_TIMEOUT = MINUTE_IN_SECONDS;
+
+	/**
 	 * Uses the jetpack_package_versions filter to obtain the package versions from packages that need
 	 * version tracking. If the package versions have changed, updates the option and notifies WPCOM.
 	 */
 	public function maybe_update_package_versions() {
+		if ( $this->is_rate_limiting() ) {
+			// The version check is being rate limited.
+			return;
+		}
+
 		/**
 		 * Obtains the package versions.
 		 *
@@ -107,5 +122,20 @@ class Package_Version_Tracker {
 		} else {
 			set_transient( self::CACHED_FAILED_REQUEST_KEY, time(), self::CACHED_FAILED_REQUEST_EXPIRATION );
 		}
+	}
+
+	/**
+	 * Check if version check is being rate limited, and update the rate limiting transient if needed.
+	 *
+	 * @return bool
+	 */
+	private function is_rate_limiting() {
+		if ( get_transient( static::RATE_LIMITER_KEY ) ) {
+			return true;
+		}
+
+		set_transient( static::RATE_LIMITER_KEY, time(), static::RATE_LIMITER_TIMEOUT );
+
+		return false;
 	}
 }

@@ -57,6 +57,9 @@ class Test_Package_Version_Tracker extends TestCase {
 		$this->http_request_attempted = false;
 		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
+
+		delete_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY );
+		delete_transient( Package_Version_Tracker::RATE_LIMITER_KEY );
 	}
 
 	/**
@@ -317,9 +320,34 @@ class Test_Package_Version_Tracker extends TestCase {
 		$failed_request_cached = get_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY );
 
 		$this->assertNotFalse( $failed_request_cached );
+	}
 
-		// Clean-up.
-		delete_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY );
+	/**
+	 * Tests the maybe_update_package_versions method with rate limit applied.
+	 */
+	public function test_maybe_update_package_versions_with_rate_limit() {
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_http_request_success' ) );
+
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
+		set_transient( Package_Version_Tracker::RATE_LIMITER_KEY, time() );
+
+		add_filter(
+			'jetpack_package_versions',
+			function () {
+				return self::CHANGED_VERSIONS;
+			}
+		);
+
+		( new Package_Version_Tracker() )->maybe_update_package_versions();
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_http_request_success' ) );
+
+		$this->assertFalse( $this->http_request_attempted );
+
+		$this->assertSame( self::PACKAGE_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
 	}
 
 	/**
@@ -349,9 +377,6 @@ class Test_Package_Version_Tracker extends TestCase {
 		$this->assertFalse( $this->http_request_attempted );
 
 		$this->assertSame( self::PACKAGE_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
-
-		// Clean-up.
-		delete_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY );
 	}
 
 	/**
