@@ -105,7 +105,7 @@ export default function Proofread( {
 		request( messages, { feature: 'jetpack-ai-proofread-plugin' } );
 		toggleProofreadModal();
 		tracks.recordEvent( 'jetpack_ai_get_feedback', {
-			post_id: postId,
+			feature: 'jetpack-ai-proofread-plugin',
 		} );
 	};
 

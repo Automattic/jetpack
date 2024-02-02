@@ -6,8 +6,14 @@ namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
  * This file is loaded by advanced-cache.php when it loads Boost_File_Cache.php
  * As it is loaded before WordPress is loaded, it is not autoloaded by Boost.
  */
+require_once __DIR__ . '/Boost_Cache_Settings.php';
 
 abstract class Boost_Cache {
+	/*
+	 * @var array - The settings for the page cache.
+	 */
+	private $settings;
+
 	/*
 	 * @var string - The path key used to identify the cache directory for the current request. MD5 of the request uri.
 	 */
@@ -19,6 +25,7 @@ abstract class Boost_Cache {
 	protected $request_uri = false;
 
 	public function __construct() {
+		$this->settings    = Boost_Cache_Settings::get_instance();
 		$this->request_uri = isset( $_SERVER['REQUEST_URI'] )
 			? $this->normalize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			: false;
@@ -66,6 +73,10 @@ abstract class Boost_Cache {
 	 */
 	public function is_cacheable() {
 		if ( ! apply_filters( 'boost_cache_cacheable', $this->request_uri ) ) {
+			return false;
+		}
+
+		if ( defined( 'DONOTCACHEPAGE' ) ) {
 			return false;
 		}
 
@@ -234,12 +245,18 @@ abstract class Boost_Cache {
 		if ( $script !== 'index.php' ) {
 			if ( in_array( $script, array( 'wp-login.php', 'xmlrpc.php', 'wp-cron.php' ), true ) ) {
 				$is_backend = true;
-			} elseif ( defined( 'DOING_CRON' ) && DOING_CRON ) {
-				$is_backend = true;
-			} elseif ( PHP_SAPI === 'cli' || ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) ) {
-				$is_backend = true;
 			}
-		} elseif ( defined( 'REST_REQUEST' ) ) {
+		}
+
+		if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+			$is_backend = true;
+		}
+
+		if ( PHP_SAPI === 'cli' || ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) ) {
+			$is_backend = true;
+		}
+
+		if ( defined( 'REST_REQUEST' ) ) {
 			$is_backend = true;
 		}
 

@@ -259,7 +259,7 @@ class Contact_Form_Plugin {
 			'../../dist/contact-form/js/accessible-form.js',
 			__FILE__,
 			array(
-				'async'        => true,
+				'strategy'     => 'defer',
 				'textdomain'   => 'jetpack-forms',
 				'version'      => \JETPACK__VERSION,
 				'dependencies' => array( 'wp-i18n' ),
