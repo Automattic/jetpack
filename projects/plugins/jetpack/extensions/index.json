@@ -41,6 +41,7 @@
 		"slideshow",
 		"social-previews",
 		"story",
+		"subscriber-login",
 		"subscriptions",
 		"tiled-gallery",
 		"tock",
@@ -58,6 +59,8 @@
 		"blogroll-item",
 		"nextdoor",
 		"ai-assistant-usage-panel",
+		"sharing-button",
+		"sharing-buttons",
 		"ai-content-lens"
 	],
 	"beta": [
@@ -67,12 +70,10 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"create-with-voice",
+		"blog-stats",
 		"top-posts",
 		"ai-assistant-backend-prompts",
-		"sharing-button",
-		"sharing-buttons",
-		"ai-logo-generator",
-		"subscriber-login"
+		"ai-logo-generator"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

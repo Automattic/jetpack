@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Stats;
 
-use Automattic\Jetpack\Assets;
 use Jetpack_Options;
 use WP_Post;
 
@@ -128,11 +127,11 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 			'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js',
 			array(),
 			null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- The version is set in the URL.
-			true
+			array(
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			)
 		);
-
-		// Make sure the script loads asynchronously (add a defer attribute).
-		Assets::instance()->add_async_script( 'jetpack-stats' );
 
 		$data = self::build_view_data();
 
