@@ -91,6 +91,7 @@ class Jetpack_SSO {
 		}
 		add_filter( 'manage_users_columns', array( $this, 'jetpack_user_connected_th' ) );
 		add_action( 'admin_print_styles-users.php', array( $this, 'jetpack_user_table_styles' ) );
+		add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_user_new_form_styles' ) );
 		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_connection_status' ), 10, 3 );
 		add_action( 'admin_post_jetpack_invite_user_to_wpcom', array( $this, 'invite_user_to_wpcom' ) );
 		add_action( 'admin_post_jetpack_revoke_invite_user_to_wpcom', array( $this, 'revoke_user_invite_to_wpcom' ) );
@@ -340,9 +341,6 @@ class Jetpack_SSO {
 	 * Render the invitation email message.
 	 */
 	public function render_invitation_email_message() {
-		// Enqueue the CSS for the admin create user page.
-		wp_enqueue_style( 'jetpack-sso-admin-create-user', plugins_url( 'modules/sso/jetpack-sso-admin-create-user.css', JETPACK__PLUGIN_FILE ), array(), time() );
-
 		$message = wp_kses(
 			__(
 				'New users will receive an invite to join WordPress.com, so they can log in securely using <a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="https://jetpack.com/support/sso/">Secure Sign On</a>.',
@@ -595,6 +593,14 @@ class Jetpack_SSO {
 			}
 		</style>
 		<?php
+	}
+
+	/**
+	 * Enqueue style for the Jetpack user new form.
+	 */
+	public function jetpack_user_new_form_styles() {
+		// Enqueue the CSS for the admin create user page.
+		wp_enqueue_style( 'jetpack-sso-admin-create-user', plugins_url( 'modules/sso/jetpack-sso-admin-create-user.css', JETPACK__PLUGIN_FILE ), array(), time() );
 	}
 
 	/**
