@@ -81,8 +81,15 @@ class Test_Integration_Serialization extends TestCase {
 		// With Fallback
 		$with_fallback        = Schema::as_string()->fallback( 'fallback' );
 		$expect_with_fallback = array(
-			'type'    => 'string',
-			'default' => 'fallback',
+			'type'  => 'or',
+			'value' => array(
+				array(
+					'type' => 'string',
+				),
+				array(
+					'type' => 'literal_value("fallback")',
+				),
+			),
 		);
 
 		$this->assertSame( $expect_with_fallback, $with_fallback->schema() );
@@ -229,8 +236,15 @@ class Test_Integration_Serialization extends TestCase {
 		$expect_array_value_fallback = array(
 			'type'  => 'array',
 			'value' => array(
-				'type'    => 'string',
-				'default' => 'fallback',
+				'type'  => 'or',
+				'value' => array(
+					array(
+						'type' => 'string',
+					),
+					array(
+						'type' => 'literal_value("fallback")',
+					),
+				),
 			),
 		);
 
@@ -238,13 +252,23 @@ class Test_Integration_Serialization extends TestCase {
 		$this->assertSame( wp_json_encode( $expect_array_value_fallback ), wp_json_encode( $array_value_fallback ) );
 
 		// Fallback on Array
-		$array_group_fallback        = Schema::as_array(
+		$array_group_fallback = Schema::as_array(
 			Schema::as_string()
 		)->fallback( array( 'fallback' ) );
+
 		$expect_array_group_fallback = array(
-			'type'    => 'array',
-			'value'   => array( 'type' => 'string' ),
-			'default' => array( 'fallback' ),
+			'type'  => 'or',
+			'value' => array(
+				array(
+					'type'  => 'array',
+					'value' => array(
+						'type' => 'string',
+					),
+				),
+				array(
+					'type' => 'literal_value(array)',
+				),
+			),
 		);
 
 		$this->assertSame( $expect_array_group_fallback, $array_group_fallback->schema() );
@@ -258,14 +282,21 @@ class Test_Integration_Serialization extends TestCase {
 		)->fallback( array( array( 'fallback' ) ) );
 
 		$expect_array_group_fallback = array(
-			'type'    => 'array',
-			'value'   => array(
-				'type'  => 'array',
-				'value' => array(
-					'type' => 'string',
+			'type'  => 'or',
+			'value' => array(
+				array(
+					'type'  => 'array',
+					'value' => array(
+						'type'  => 'array',
+						'value' => array(
+							'type' => 'string',
+						),
+					),
+				),
+				array(
+					'type' => 'literal_value(array)',
 				),
 			),
-			'default' => array( array( 'fallback' ) ),
 		);
 
 		$this->assertSame( $expect_array_group_fallback, $array_group_fallback->schema() );

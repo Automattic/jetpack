@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -329,6 +330,26 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds Jetpack menu.
+	 */
+	public function add_jetpack_menu() {
+		// This is supposed to be the same as class-admin-menu but with a different position specified for the Jetpack menu.
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			parent::create_jetpack_menu( 2, false );
+		} else {
+			parent::add_jetpack_menu();
+		}
+
+		/**
+		 * Prevent duplicate menu items that link to Jetpack Backup.
+		 * Hide the one that's shown when the standalone backup plugin is not installed, since Jetpack Backup is already included in Atomic sites.
+		 *
+		 * @see https://github.com/Automattic/jetpack/pull/33955
+		 */
+		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+	}
+
+	/**
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
@@ -416,10 +437,22 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_tools_menu() {
 		parent::add_tools_menu();
 
+		// Link the Tools menu to Available Tools when the interface is set to wp-admin.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Available Tools', 'jetpack' ), __( 'Available Tools', 'jetpack' ), 'edit_posts', 'tools.php', null, 0 );
+		}
+
 		/**
 		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
 		 */
 		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
+
+		/**
+		 * Adds the WordPress.com Github Deployments submenu under the main Tools menu.
+		 */
+		if ( apply_filters( 'jetpack_show_wpcom_github_deployments_menu', false ) ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Github Deployments', 'jetpack' ), __( 'Github Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 7 );
+		}
 	}
 
 	/**
@@ -494,10 +527,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// Show the notice for the following screens and map them to the Calypso page.
 		$screen_map = array(
-			'options-general'    => 'general',
-			'options-writing'    => 'writing',
-			'options-reading'    => 'reading',
-			'options-discussion' => 'discussion',
+			'options-general' => 'general',
+			'options-reading' => 'reading',
 		);
 
 		$mapped_screen = isset( $screen_map[ $current_screen->id ] )
@@ -522,5 +553,29 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		};
 
 		add_action( 'admin_notices', $admin_notices );
+	}
+
+	/**
+	 * Adds Appearance menu.
+	 */
+	public function add_appearance_menu() {
+		// When the interface is set to wp-admin, we need to add a link to the Marketplace and rest of the menu keeps like core.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			add_submenu_page( 'themes.php', esc_attr__( 'Theme Showcase', 'jetpack' ), __( 'Theme Showcase', 'jetpack' ), 'read', 'https://wordpress.com/themes/' . $this->domain );
+		} else {
+			parent::add_appearance_menu();
+		}
+	}
+
+	/**
+	 * Adds a dashboard switcher to the list of screen meta links of the current page.
+	 */
+	public function add_dashboard_switcher() {
+		// When the interface is set to wp-admin, do not show the dashboard switcher.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			return;
+		}
+
+		parent::add_dashboard_switcher();
 	}
 }

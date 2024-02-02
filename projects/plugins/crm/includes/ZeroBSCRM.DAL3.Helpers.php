@@ -6555,6 +6555,43 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
   	Value Calculator / helpers
    ====================================================== */
 
+/**
+ * Calculates the total value associated with a contact or company entity.
+ *
+ * This function sums the total of invoices and transactions associated with a given entity.
+ * It also accounts for the 'jpcrm_total_value_fields' settings to determine whether to include
+ * invoices and transactions in the total value. Additionally, if both invoices and transactions
+ * are included, and the 'transactions_paid_total' is set and greater than 0, it subtracts this
+ * value from the total.
+ *
+ * @param array $entity The entity array containing 'invoices_total', 'transactions_total', and optionally 'transactions_paid_total'.
+ *
+ * @return float The calculated total value. It includes the invoices and transactions totals based on the settings,
+ *               and adjusts for 'transactions_paid_total' if applicable.
+ */
+function jpcrm_get_total_value_from_contact_or_company( $entity ) {
+	global $zbs;
+	$total_value        = 0.0;
+	$invoices_total     = isset( $entity['invoices_total'] ) ? $entity['invoices_total'] : 0.0;
+	$transactions_total = isset( $entity['transactions_total'] ) ? $entity['transactions_total'] : 0.0;
+	// For compatibility reasons we include all values if the jpcrm_total_value_fields setting is inexistent.
+	$settings                     = $zbs->settings->getAll();
+	$include_invoices_in_total    = true;
+	$include_transations_in_total = true;
+	if ( isset( $settings['jpcrm_total_value_fields'] ) ) {
+				$include_invoices_in_total    = isset( $settings['jpcrm_total_value_fields']['invoices'] ) && $settings['jpcrm_total_value_fields']['invoices'] === 1;
+				$include_transations_in_total = isset( $settings['jpcrm_total_value_fields']['transactions'] ) && $settings['jpcrm_total_value_fields']['transactions'] === 1;
+	}
+	$total_value  = 0;
+	$total_value += $include_invoices_in_total ? $invoices_total : 0;
+	$total_value += $include_transations_in_total ? $transactions_total : 0;
+	if ( $include_invoices_in_total && $include_transations_in_total && isset( $entity['transactions_paid_total'] ) && $entity['transactions_paid_total'] > 0 ) {
+				$total_value -= $entity['transactions_paid_total'];
+	}
+
+	return $total_value;
+}
+
    // evolved for dal3.0
    // left in place + translated, but FAR better to just use 'withValues' => true on a getContact call directly.
 	// THIS STAYS THE SAME FOR DB2 until trans+invoices MOVED OVER #DB2ROUND2

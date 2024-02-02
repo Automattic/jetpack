@@ -54,7 +54,14 @@ const slowerMessage: ScoreChangeMessage = {
 };
 
 function PopOut( { scoreChange }: Props ) {
+	/*
+	 * Determine if the score has changed enough to show the alert.
+	 */
 	const hasScoreChanged = scoreChange !== false && Math.abs( scoreChange ) > 5;
+
+	/*
+	 * Determine which message to show based on the direction of score change.
+	 */
 	const message = scoreChange && scoreChange < 0 ? slowerMessage : fasterMessage;
 
 	/*

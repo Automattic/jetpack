@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-There was a problem with likers without avatar images not appearing in the likers popup. Now they appear with their default avatar images.

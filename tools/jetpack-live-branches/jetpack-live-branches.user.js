@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.34
+// @version      1.35
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      betadownload.jetpack.me
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
+// @updateURL    https://github.com/Automattic/jetpack/raw/trunk/tools/jetpack-live-branches/jetpack-live-branches.user.js
+// @downloadURL  https://github.com/Automattic/jetpack/raw/trunk/tools/jetpack-live-branches/jetpack-live-branches.user.js
 // ==/UserScript==
 
 // Need to declare "jQuery" for linting within TamperMonkey, but in the monorepo it's already declared.
@@ -167,8 +169,8 @@
 									name: 'wp-debug-log',
 								},
 								{
-									label: 'Multisite based on subdomains',
-									name: 'subdomain_multisite',
+									label: 'Enable WordPress.com Sandbox Access',
+									name: 'dev-pool',
 								},
 								{
 									label: 'Multisite based on subdirectories',

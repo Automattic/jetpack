@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Endpoints;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
+
 class Authenticated_Nonce {
 
 	/**
@@ -21,14 +23,14 @@ class Authenticated_Nonce {
 
 	public function create() {
 
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && ! did_action( 'set_current_user' ) ) {
+		if ( DS_Utils::is_debug() && ! did_action( 'set_current_user' ) ) {
 			throw new \RuntimeException( "Debug: Attempting to create {$this->action} nonce before the user is set." );
 		}
 		return wp_create_nonce( $this->action );
 	}
 
 	public function verify( $nonce ) {
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && ! did_action( 'set_current_user' ) ) {
+		if ( DS_Utils::is_debug() && ! did_action( 'set_current_user' ) ) {
 			throw new \RuntimeException( "Debug: Attempting to validate {$this->action} nonce before the user is set." );
 		}
 
