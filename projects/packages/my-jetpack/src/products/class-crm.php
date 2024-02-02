@@ -98,9 +98,17 @@ class Crm extends Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
+		// We are hard coding pricing info for CRM because it is not available to us through the CRM API.
 		return array(
-			'available' => true,
-			'is_free'   => true,
+			'available'             => true,
+			'is_free'               => false,
+			'full_price'            => 132,
+			'discount_price'        => 132,
+			'is_introductory_offer' => false,
+			'product_term'          => 'year',
+			'introductory_offer'    => null,
+			// CRM is only sold in USD
+			'currency_code'         => 'USD',
 		);
 	}
 
