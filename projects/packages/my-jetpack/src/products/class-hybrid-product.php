@@ -15,10 +15,6 @@ use WP_Error;
  * Class responsible for handling the hybrid products
  *
  * Hybrid products are those that may work both as a stand-alone plugin or with the Jetpack plugin.
- *
- * In case Jetpack plugin is active, it will not attempt to install its stand-alone plugin.
- *
- * But if Jetpack plugin is not active, then it will prompt to install and activate its stand-alone plugin.
  */
 abstract class Hybrid_Product extends Product {
 
