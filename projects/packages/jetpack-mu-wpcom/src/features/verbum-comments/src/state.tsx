@@ -97,3 +97,8 @@ export const shouldStoreEmailData = signal( false );
 
 //
 export const subscriptionSettings: Signal< SubscriptionDetails > = signal( undefined );
+
+/*
+ * Store the comment parent which is updated by external scripts
+ */
+export const commentParent = signal( 0 );

@@ -7,6 +7,7 @@ import { CommentInputField } from './components/comment-input-field';
 import { CommentMessage } from './components/comment-message';
 import { LoggedIn } from './components/logged-in';
 import { LoggedOut } from './components/logged-out';
+import useFormMutations from './hooks/useFormMutations';
 import useSocialLogin from './hooks/useSocialLogin';
 import { translate } from './i18n';
 import {
@@ -19,6 +20,7 @@ import {
 	userInfo,
 	userLoggedIn,
 	commentUrl,
+	commentParent,
 } from './state';
 import {
 	classNames,
@@ -46,6 +48,7 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 	const [ email, setEmail ] = useState( '' );
 	const [ ignoreSubscriptionModal, setIgnoreSubscriptionModal ] = useState( false );
 	const { login, loginWindowRef, logout } = useSocialLogin();
+	useFormMutations();
 
 	const dispose = effect( () => {
 		// The tray, when there is no sub options, is pretty minimal.
@@ -118,10 +121,6 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 			setEmail( formData.get( 'email' ) as string );
 		}
 
-		// We get the parent comment id to scroll on page reload.
-		// If the user is not replying any comment, we scroll to the comment form.
-		const parentCommentId = Number( formData.get( 'comment_parent' ) );
-
 		formData.set( 'verbum_show_subscription_modal', subscribeModalStatus );
 
 		const response = await fetch( formAction, {
@@ -130,8 +129,9 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		} );
 
 		if ( response.redirected ) {
+			// If the user is not replying any comment, we scroll to the comment form.
 			commentUrl.value =
-				response.url + ( parentCommentId > 0 ? '#comment-' + parentCommentId : '#respond' );
+				response.url + ( commentParent.value > 0 ? '#comment-' + commentParent.value : '#respond' );
 			setShowMessage( translate( 'Comment sent successfully' ) );
 			setIsErrorMessage( false );
 			return;

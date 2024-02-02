@@ -22,6 +22,7 @@ const UpgradePrompt = () => {
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: firewallUrl,
+		useBlogIdSuffix: true,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();
