@@ -351,6 +351,37 @@ class Test_Package_Version_Tracker extends TestCase {
 	}
 
 	/**
+	 * Tests the maybe_update_package_versions method when the `init` hook is not fired.
+	 */
+	public function test_maybe_update_package_versions_with_init_hook_not_fired() {
+		global $wp_actions;
+		// Remove `init` from global $wp_actions.
+		unset( $wp_actions['init'] );
+
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_http_request_success' ) );
+
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
+
+		add_filter(
+			'jetpack_package_versions',
+			function () {
+				return self::CHANGED_VERSIONS;
+			}
+		);
+
+		( new Package_Version_Tracker() )->maybe_update_package_versions();
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_http_request_success' ) );
+
+		$this->assertFalse( $this->http_request_attempted );
+
+		$this->assertSame( self::PACKAGE_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
+	}
+
+	/**
 	 * Tests the maybe_update_package_versions method when the HTTP request to WPCOM has already failed within last hour..
 	 */
 	public function test_remote_package_versions_will_not_be_updated_if_a_previous_failed_request_occurred_within_hour() {
