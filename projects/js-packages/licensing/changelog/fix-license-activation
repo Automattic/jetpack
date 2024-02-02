@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed how we check if a plugin is active
