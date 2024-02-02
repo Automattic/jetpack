@@ -61,7 +61,6 @@ export default function SearchModuleControl( {
 	isTogglingModule,
 	isTogglingInstantSearch,
 } ) {
-	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
 	const { isUserConnected } = useConnection( {
 		redirectUri: 'admin.php?page=jetpack-search',
 		from: 'jetpack-search',
@@ -70,7 +69,7 @@ export default function SearchModuleControl( {
 	const upgradeUrl = getProductCheckoutUrl(
 		'jetpack_search_free',
 		domain,
-		`${ adminUrl }admin.php?page=jetpack-search`,
+		`admin.php?page=jetpack-search`,
 		isUserConnected || isWpcom
 	);
 

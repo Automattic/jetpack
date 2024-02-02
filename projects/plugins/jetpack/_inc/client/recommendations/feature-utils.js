@@ -78,7 +78,7 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 			};
 		case 'publicize':
 			return {
-				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				configureButtonLabel: __( 'Manage connections', 'jetpack' ),
 				displayName: __( 'Social Media Sharing', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: getRedirectUrl( 'calypso-marketing-connections', {
@@ -153,6 +153,18 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 				displayName: __( 'Real-time Malware Scanning', 'jetpack' ),
 				ctaLabel: __( 'Manage', 'jetpack' ),
 				ctaLink: getJetpackCloudUrl( state, 'scan' ),
+			};
+		case 'unlimited-sharing-activated':
+			return {
+				displayName: __( 'Social Media Sharing', 'jetpack' ),
+				ctaLabel: __( 'Manage', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+			};
+		case 'social-advanced-activated':
+			return {
+				displayName: __( 'Advanced Sharing Features', 'jetpack' ),
+				ctaLabel: __( 'Manage', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
 			};
 		case 'antispam-activated':
 			return {
@@ -523,6 +535,46 @@ export const getStepContent = ( state, stepSlug ) => {
 				illustration: 'assistant-backup-welcome',
 				skipText: __( 'Next', 'jetpack' ),
 			};
+		case 'welcome__social_basic':
+			return {
+				question: __( 'Welcome to Jetpack Social!', 'jetpack' ),
+				description: __(
+					"With your new basic plan you unlocked unlimited sharing, and access to our priority support. You can share your posts from the post editor to your connected social media accounts<br/><br/>Let's start with connecting your social media accounts, if you haven't already.",
+					'jetpack'
+				),
+				ctaText: __( 'Manage Social Media Connections', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'calypso-marketing-connections', {
+					site: getSiteRawUrl( state ),
+				} ),
+				illustration: 'assistant-jetpack-social',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'welcome__social_advanced':
+			return {
+				question: __( 'Welcome to Jetpack Social!', 'jetpack' ),
+				description: __(
+					"With your new advanced plan you unlocked unlimited sharing, access to upload photos and videos with your posts, and usage of Social Image Generator.<br/><br/>Let's start with connecting your social media accounts, if you haven't already.",
+					'jetpack'
+				),
+				ctaText: __( 'Manage Social Media Connections', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'calypso-marketing-connections', {
+					site: getSiteRawUrl( state ),
+				} ),
+				illustration: 'assistant-jetpack-social',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'welcome__social_image_generator':
+			return {
+				question: __( 'Social Image Generator', 'jetpack' ),
+				description: __(
+					'Create beautiful social media previews for your posts with Social Image Generator. You can customize the text, image, and template to match your brand.<br/><br/>You can turn on Social Image Generator for individual posts from the post editor, or turn it on by default for all future posts from the Jetpack Social Settings.',
+					'jetpack'
+				),
+				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+				illustration: 'assistant-social-image-post',
+				skipText: __( 'Next', 'jetpack' ),
+			};
 		case 'welcome__golden_token':
 			return {
 				question: __( 'Congratulations, you have been gifted a Jetpack Golden Token!', 'jetpack' ),
@@ -560,6 +612,30 @@ export const getStepContent = ( state, stepSlug ) => {
 				ctaText: __( 'View Security Dashboard', 'jetpack' ),
 				ctaLink: getJetpackCloudUrl( state, 'scan' ),
 				illustration: 'assistant-malware-scanning',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'unlimited-sharing-activated':
+			return {
+				question: __( 'Jetpack Social', 'jetpack' ),
+				description: __(
+					'You have access to unlimited social sharing with your Jetpack Social plan. You can share your posts from the post editor to your connected social media accounts.<br/><br/>You can toggle the social sharing feature, manage your connections, and tweak the options from the Jetpack Social Settings.',
+					'jetpack'
+				),
+				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+				illustration: 'assistant-jetpack-social',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'social-advanced-activated':
+			return {
+				question: __( 'Advanced Sharing features', 'jetpack' ),
+				description: __(
+					'Use your unlocked unlimited sharing, upload photos and videos with your posts, and create previews with Social Image Generator. To use these features, just head to the post editor and start creating your post!<br/><br/>You can manage your connections, and tweak features like Social Image Generator from the Jetpack Social Settings.',
+					'jetpack'
+				),
+				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+				illustration: 'assistant-social-image-post',
 				skipText: __( 'Next', 'jetpack' ),
 			};
 		case 'antispam-activated':
