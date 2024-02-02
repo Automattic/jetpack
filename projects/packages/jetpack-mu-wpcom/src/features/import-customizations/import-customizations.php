@@ -37,7 +37,7 @@ function import_admin_banner() {
 			<p>%s</p>
 			<a href="%s" class="button">%s</a>
 		</div>',
-		esc_html__( 'Import your content with WordPress.com’s guided importer. Designed for seamless integration from multiple platforms.', 'jetpack-mu-wpcom' ),
+		esc_html__( 'Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more.', 'jetpack-mu-wpcom' ),
 		$import_url,
 		esc_html__( 'Get started', 'jetpack-mu-wpcom' )
 	);
