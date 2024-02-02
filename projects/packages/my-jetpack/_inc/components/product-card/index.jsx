@@ -248,7 +248,7 @@ const ProductCard = props => {
 	 * Called when "See detailed stats" button is clicked.
 	 */
 	const onDetailedStatsClick = useCallback( () => {
-		recordEvent( `jetpack_myjetpack_stats_card_seedetailedstats_click`, {
+		recordEvent( 'jetpack_myjetpack_stats_card_seedetailedstats_click', {
 			product: 'stats',
 		} );
 	}, [ recordEvent ] );
