@@ -14,12 +14,13 @@ const JetpackManageBanner = props => {
 	const { isAgencyAccount } = props;
 	const { recordEvent } = useAnalytics();
 
+	// Track banner view.
 	useEffect( () => {
-		recordEvent( 'jetpack_myjetpack_manage_banner_view' );
+		recordEvent( 'jetpack_myjetpack_manage_banner_view', {} );
 	}, [ recordEvent ] );
 
-	// Handle click events
-	const bannerClickHandler = useCallback(
+	// Track click event.
+	const trackClick = useCallback(
 		target => {
 			recordEvent( 'jetpack_myjetpack_manage_banner_click', {
 				target: target,
@@ -29,31 +30,28 @@ const JetpackManageBanner = props => {
 		[ recordEvent ]
 	);
 
-	const learnMoreClick = useCallback( () => {
-		bannerClickHandler( 'jp-manage-learn-more' );
-	}, [ bannerClickHandler ] );
-	const dashboardSitesClick = useCallback( () => {
-		bannerClickHandler( 'jp-manage-dashboard-sites' );
-	}, [ bannerClickHandler ] );
-	const signUpClick = useCallback( () => {
-		bannerClickHandler( 'jp-manage-sign-up' );
-	}, [ bannerClickHandler ] );
+	// Handle CTA banner clicks.
+	const handleLearnMoreClick = useCallback( () => {
+		trackClick( 'jp-manage-learn-more' );
+	}, [ trackClick ] );
+	const handleDashboardSitesClick = useCallback( () => {
+		trackClick( 'jp-manage-dashboard-sites' );
+	}, [ trackClick ] );
+	const handleSignUpClick = useCallback( () => {
+		trackClick( 'jp-manage-sign-up' );
+	}, [ trackClick ] );
 
-	// Set up the secondary CTA
-	const secondaryCtaLabel = __( 'Learn more', 'jetpack-my-jetpack' );
-	const secondaryCtaURL = getRedirectUrl( 'my-jetpack-jetpack-manage-learn-more' );
-
-	// Set up the primary CTA
+	// Set up the primary CTA.
 	let primaryCtaLabel, primaryCtaURL, primaryCtaOnClick;
 
 	if ( isAgencyAccount ) {
 		primaryCtaLabel = __( 'Manage sites', 'jetpack-my-jetpack' );
 		primaryCtaURL = getRedirectUrl( 'my-jetpack-jetpack-manage-dashboard' );
-		primaryCtaOnClick = dashboardSitesClick;
+		primaryCtaOnClick = handleDashboardSitesClick;
 	} else {
 		primaryCtaLabel = __( 'Sign up for free', 'jetpack-my-jetpack' );
 		primaryCtaURL = getRedirectUrl( 'my-jetpack-jetpack-manage-sign-up' );
-		primaryCtaOnClick = signUpClick;
+		primaryCtaOnClick = handleSignUpClick;
 	}
 
 	return (
@@ -64,10 +62,10 @@ const JetpackManageBanner = props => {
 				'Jetpack Manage has the tools you need to manage multiple WordPress sites. Monitor site security, performance, and traffic, and get alerted if a site needs attention. Plus, get bulk discounts.',
 				'jetpack-my-jetpack'
 			) }
-			secondaryCtaLabel={ secondaryCtaLabel }
-			secondaryCtaURL={ secondaryCtaURL }
+			secondaryCtaLabel={ __( 'Learn more', 'jetpack-my-jetpack' ) }
+			secondaryCtaURL={ getRedirectUrl( 'my-jetpack-jetpack-manage-learn-more' ) }
 			secondaryCtaIsExternalLink={ true }
-			secondaryCtaOnClick={ learnMoreClick }
+			secondaryCtaOnClick={ handleLearnMoreClick }
 			primaryCtaLabel={ primaryCtaLabel }
 			primaryCtaURL={ primaryCtaURL }
 			primaryCtaIsExternalLink={ true }
