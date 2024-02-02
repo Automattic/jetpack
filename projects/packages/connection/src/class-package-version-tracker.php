@@ -50,9 +50,8 @@ class Package_Version_Tracker {
 			return;
 		}
 
+		// The version check is being rate limited.
 		if ( $this->is_rate_limiting() ) {
-			// The version check is being rate limited.
-
 			return;
 		}
 
