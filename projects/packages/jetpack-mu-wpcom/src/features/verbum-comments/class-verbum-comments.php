@@ -108,8 +108,6 @@ class Verbum_Comments {
 			return;
 		}
 
-		$version_js       = filemtime( __DIR__ . '/verbum-comments.js' );
-		$version_css      = filemtime( __DIR__ . '/verbum-comments.css' );
 		$connect_url      = site_url( '/public.api/connect/?action=request' );
 		$primary_redirect = get_primary_redirect();
 
@@ -117,20 +115,18 @@ class Verbum_Comments {
 			$connect_url = add_query_arg( 'domain', $primary_redirect, $connect_url );
 		}
 
-		// Enqueue styles
-		wp_enqueue_style( 'verbum', plugins_url( '/verbum-comments.css', __FILE__ ), array(), $version_css );
-
-		// Enqueue scripts
-		wp_register_script(
+		// Enqueue styles and scripts
+		Assets::register_script(
 			'verbum',
-			plugins_url( 'verbum-comments.js', __FILE__ ),
-			array(),
-			$version_js,
+			'../../build/verbum-comments/verbum-comments.js',
+			__FILE__,
 			array(
 				'strategy'  => 'defer',
 				'in_footer' => true,
 			)
 		);
+
+		wp_enqueue_style( 'verbum' );
 		\WP_Enqueue_Dynamic_Script::enqueue_script( 'verbum' );
 
 		// Enqueue settings separately since the main script is dynamic.
@@ -139,7 +135,7 @@ class Verbum_Comments {
 			'verbum-settings',
 			false,
 			array(),
-			$version_js,
+			null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- No script, so no version needed.
 			array(
 				'strategy'  => 'defer',
 				'in_footer' => true,
@@ -183,66 +179,71 @@ class Verbum_Comments {
 			'window.VerbumComments = ' . wp_json_encode(
 				array(
 					'Log in or provide your name and email to leave a reply.' => __( 'Log in or provide your name and email to leave a reply.', 'jetpack-mu-wpcom' ),
+					'Log in or provide your name and email to leave a comment.' => __( 'Log in or provide your name and email to leave a comment.', 'jetpack-mu-wpcom' ),
 					'Receive web and mobile notifications for posts on this site.' => __( 'Receive web and mobile notifications for posts on this site.', 'jetpack-mu-wpcom' ),
-					'Name'                              => __( 'Name', 'jetpack-mu-wpcom' ),
-					'Email (address never made public)' => __( 'Email (address never made public)', 'jetpack-mu-wpcom' ),
-					'Website (optional)'                => __( 'Website (optional)', 'jetpack-mu-wpcom' ),
-					'Leave a reply. (log in optional)'  => __( 'Leave a reply. (log in optional)', 'jetpack-mu-wpcom' ),
-					'Log in to leave a reply.'          => __( 'Log in to leave a reply.', 'jetpack-mu-wpcom' ),
+					'Name'                               => __( 'Name', 'jetpack-mu-wpcom' ),
+					'Email (address never made public)'  => __( 'Email (address never made public)', 'jetpack-mu-wpcom' ),
+					'Website (optional)'                 => __( 'Website (optional)', 'jetpack-mu-wpcom' ),
+					'Leave a reply. (log in optional)'   => __( 'Leave a reply. (log in optional)', 'jetpack-mu-wpcom' ),
+					'Leave a comment. (log in optional)' => __( 'Leave a comment. (log in optional)', 'jetpack-mu-wpcom' ),
+					'Log in to leave a reply.'           => __( 'Log in to leave a reply.', 'jetpack-mu-wpcom' ),
+					'Log in to leave a comment.'         => __( 'Log in to leave a comment.', 'jetpack-mu-wpcom' ),
 					/* translators: %s is the name of the provider (WordPress, Facebook, Twitter) */
-					'Logged in via %s'                  => __( 'Logged in via %s', 'jetpack-mu-wpcom' ),
-					'Log out'                           => __( 'Log out', 'jetpack-mu-wpcom' ),
-					'Email'                             => __( 'Email', 'jetpack-mu-wpcom' ),
-					'(Address never made public)'       => __( '(Address never made public)', 'jetpack-mu-wpcom'), // phpcs:ignore PEAR.Functions.FunctionCallSignature.SpaceBeforeCloseBracket
-					'Instantly'                         => __( 'Instantly', 'jetpack-mu-wpcom' ),
-					'Daily'                             => __( 'Daily', 'jetpack-mu-wpcom' ),
-					'Reply'                             => __( 'Reply', 'jetpack-mu-wpcom' ),
-					'WordPress'                         => __( 'WordPress', 'jetpack-mu-wpcom' ),
-					'Weekly'                            => __( 'Weekly', 'jetpack-mu-wpcom' ),
-					'Notify me of new posts'            => __( 'Notify me of new posts', 'jetpack-mu-wpcom' ),
-					'Email me new posts'                => __( 'Email me new posts', 'jetpack-mu-wpcom' ),
-					'Email me new comments'             => __( 'Email me new comments', 'jetpack-mu-wpcom' ),
-					'Cancel'                            => __( 'Cancel', 'jetpack-mu-wpcom' ),
-					'Write a comment...'                => __( 'Write a Comment...', 'jetpack-mu-wpcom' ),
-					'Website'                           => __( 'Website', 'jetpack-mu-wpcom' ),
-					'Optional'                          => __( 'Optional', 'jetpack-mu-wpcom' ),
+					'Logged in via %s'                   => __( 'Logged in via %s', 'jetpack-mu-wpcom' ),
+					'Log out'                            => __( 'Log out', 'jetpack-mu-wpcom' ),
+					'Email'                              => __( 'Email', 'jetpack-mu-wpcom' ),
+					'(Address never made public)'        => __( '(Address never made public)', 'jetpack-mu-wpcom'), // phpcs:ignore PEAR.Functions.FunctionCallSignature.SpaceBeforeCloseBracket
+					'Instantly'                          => __( 'Instantly', 'jetpack-mu-wpcom' ),
+					'Daily'                              => __( 'Daily', 'jetpack-mu-wpcom' ),
+					'Reply'                              => __( 'Reply', 'jetpack-mu-wpcom' ),
+					'Comment'                            => __( 'Comment', 'jetpack-mu-wpcom' ),
+					'WordPress'                          => __( 'WordPress', 'jetpack-mu-wpcom' ),
+					'Weekly'                             => __( 'Weekly', 'jetpack-mu-wpcom' ),
+					'Notify me of new posts'             => __( 'Notify me of new posts', 'jetpack-mu-wpcom' ),
+					'Email me new posts'                 => __( 'Email me new posts', 'jetpack-mu-wpcom' ),
+					'Email me new comments'              => __( 'Email me new comments', 'jetpack-mu-wpcom' ),
+					'Cancel'                             => __( 'Cancel', 'jetpack-mu-wpcom' ),
+					'Write a comment...'                 => __( 'Write a comment...', 'jetpack-mu-wpcom' ),
+					'Write a reply...'                   => __( 'Write a reply...', 'jetpack-mu-wpcom' ),
+					'Website'                            => __( 'Website', 'jetpack-mu-wpcom' ),
+					'Optional'                           => __( 'Optional', 'jetpack-mu-wpcom' ),
 					/* translators: Success message of a modal when user subscribes */
-					'We\'ll keep you in the loop!'      => __( 'We\'ll keep you in the loop!', 'jetpack-mu-wpcom' ),
-					'Loading your comment...'           => __( 'Loading your comment...', 'jetpack-mu-wpcom' ),
+					'We\'ll keep you in the loop!'       => __( 'We\'ll keep you in the loop!', 'jetpack-mu-wpcom' ),
+					'Loading your comment...'            => __( 'Loading your comment...', 'jetpack-mu-wpcom' ),
 					/* translators: %s is the name of the site */
-					'Discover more from'                => sprintf( __( 'Discover more from %s', 'jetpack-mu-wpcom' ), get_bloginfo( 'name' ) ),
+					'Discover more from'                 => sprintf( __( 'Discover more from %s', 'jetpack-mu-wpcom' ), get_bloginfo( 'name' ) ),
 					'Subscribe now to keep reading and get access to the full archive.' => __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack-mu-wpcom' ),
-					'Continue reading'                  => __( 'Continue reading', 'jetpack-mu-wpcom' ),
-					'Never miss a beat!'                => __( 'Never miss a beat!', 'jetpack-mu-wpcom' ),
+					'Continue reading'                   => __( 'Continue reading', 'jetpack-mu-wpcom' ),
+					'Never miss a beat!'                 => __( 'Never miss a beat!', 'jetpack-mu-wpcom' ),
 					'Interested in getting blog post updates? Simply click the button below to stay in the loop!' => __( 'Interested in getting blog post updates? Simply click the button below to stay in the loop!', 'jetpack-mu-wpcom' ),
-					'Enter your email address'          => __( 'Enter your email address', 'jetpack-mu-wpcom' ),
-					'Subscribe'                         => __( 'Subscribe', 'jetpack-mu-wpcom' ),
-					'Comment sent successfully'         => __( 'Comment sent successfully', 'jetpack-mu-wpcom' ),
+					'Enter your email address'           => __( 'Enter your email address', 'jetpack-mu-wpcom' ),
+					'Subscribe'                          => __( 'Subscribe', 'jetpack-mu-wpcom' ),
+					'Comment sent successfully'          => __( 'Comment sent successfully', 'jetpack-mu-wpcom' ),
 					'Save my name, email, and website in this browser for the next time I comment.' => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-mu-wpcom' ),
-					'siteId'                            => $this->blog_id,
-					'postId'                            => $post_id,
-					'mustLogIn'                         => $comment_registration_enabled && ! is_user_logged_in(),
-					'requireNameEmail'                  => boolval( get_blog_option( $this->blog_id, 'require_name_email' ) ),
-					'commentRegistration'               => $comment_registration_enabled,
-					'connectURL'                        => $connect_url,
-					'logoutURL'                         => html_entity_decode( wp_logout_url(), ENT_COMPAT ),
-					'homeURL'                           => home_url( '/' ),
-					'subscribeToBlog'                   => $subscribe_to_blog,
-					'subscribeToComment'                => $subscribe_to_comment,
-					'isJetpackCommentsLoggedIn'         => is_jetpack_comments() && is_jetpack_comments_user_logged_in(),
-					'jetpackUsername'                   => $jetpack_username,
-					'jetpackUserId'                     => $jetpack_user_id,
-					'jetpackSignature'                  => $jetpack_signature,
-					'jetpackAvatar'                     => $jetpack_avatar,
-					'enableBlocks'                      => boolval( $this->should_load_gutenberg_comments() ),
-					'enableSubscriptionModal'           => boolval( $this->should_show_subscription_modal() ),
-					'currentLocale'                     => $locale,
-					'isJetpackComments'                 => is_jetpack_comments(),
-					'allowedBlocks'                     => \Verbum_Gutenberg_Editor::get_allowed_blocks(),
-					'embedNonce'                        => wp_create_nonce( 'embed_nonce' ),
-					'verbumBundleUrl'                   => plugins_url( 'dist/index.js', __FILE__ ),
-					'isRTL'                             => is_rtl( $locale ),
-					'vbeCacheBuster'                    => $vbe_cache_buster,
+					'siteId'                             => $this->blog_id,
+					'postId'                             => $post_id,
+					'mustLogIn'                          => $comment_registration_enabled && ! is_user_logged_in(),
+					'requireNameEmail'                   => boolval( get_blog_option( $this->blog_id, 'require_name_email' ) ),
+					'commentRegistration'                => $comment_registration_enabled,
+					'connectURL'                         => $connect_url,
+					'logoutURL'                          => html_entity_decode( wp_logout_url(), ENT_COMPAT ),
+					'homeURL'                            => home_url( '/' ),
+					'subscribeToBlog'                    => $subscribe_to_blog,
+					'subscribeToComment'                 => $subscribe_to_comment,
+					'isJetpackCommentsLoggedIn'          => is_jetpack_comments() && is_jetpack_comments_user_logged_in(),
+					'jetpackUsername'                    => $jetpack_username,
+					'jetpackUserId'                      => $jetpack_user_id,
+					'jetpackSignature'                   => $jetpack_signature,
+					'jetpackAvatar'                      => $jetpack_avatar,
+					'enableBlocks'                       => boolval( $this->should_load_gutenberg_comments() ),
+					'enableSubscriptionModal'            => boolval( $this->should_show_subscription_modal() ),
+					'currentLocale'                      => $locale,
+					'isJetpackComments'                  => is_jetpack_comments(),
+					'allowedBlocks'                      => \Verbum_Gutenberg_Editor::get_allowed_blocks(),
+					'embedNonce'                         => wp_create_nonce( 'embed_nonce' ),
+					'verbumBundleUrl'                    => plugins_url( 'dist/index.js', __FILE__ ),
+					'isRTL'                              => is_rtl( $locale ),
+					'vbeCacheBuster'                     => $vbe_cache_buster,
 				)
 			),
 			'before'
@@ -250,14 +251,14 @@ class Verbum_Comments {
 
 		wp_enqueue_script( 'verbum-settings' );
 
-		wp_enqueue_script(
+		Assets::register_script(
 			'verbum-dynamic-loader',
-			plugins_url( 'assets/dynamic-loader.js', __FILE__ ),
-			array(),
-			$version_js,
+			'../../build/verbum-comments/assets/dynamic-loader.js',
+			__FILE__,
 			array(
 				'strategy'  => 'defer',
 				'in_footer' => true,
+				'enqueue'   => true,
 			)
 		);
 	}
@@ -276,9 +277,9 @@ class Verbum_Comments {
 				'logged_in_as'         => '',
 				'comment_notes_before' => '',
 				'comment_notes_after'  => '',
-				'title_reply'          => __( 'Leave a Reply', 'jetpack-mu-wpcom' ),
+				'title_reply'          => __( 'Leave a comment', 'jetpack-mu-wpcom' ),
 				/* translators: % is the original posters name */
-				'title_reply_to'       => __( 'Leave a Reply to %s', 'jetpack-mu-wpcom' ),
+				'title_reply_to'       => __( 'Leave a reply to %s', 'jetpack-mu-wpcom' ),
 				'cancel_reply_link'    => __( 'Cancel reply', 'jetpack-mu-wpcom' ),
 			)
 		);

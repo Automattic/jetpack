@@ -35,6 +35,10 @@ const JETPACK_SECURITY_PRODUCT_IDS = [
 
 const JETPACK_VIDEOPRESS_PRODUCT_IDS = [ 2116, 2117 ];
 
+const JETPACK_SOCIAL_ADVANCED_PRODUCT_IDS = [ 2602, 2603, 2604 ];
+
+const JETPACK_SOCIAL_BASIC_PRODUCT_IDS = [ 2503, 2504, 2037 ];
+
 const PRODUCT_GROUPS = {
 	jetpack_anti_spam: JETPACK_ANTI_SPAM_PRODUCT_IDS,
 	jetpack_backup: JETPACK_BACKUP_PRODUCT_IDS,
@@ -43,6 +47,8 @@ const PRODUCT_GROUPS = {
 	jetpack_search: JETPACK_SEARCH_PRODUCT_IDS,
 	jetpack_security: JETPACK_SECURITY_PRODUCT_IDS,
 	jetpack_videopress: JETPACK_VIDEOPRESS_PRODUCT_IDS,
+	jetpack_social_advanced: JETPACK_SOCIAL_ADVANCED_PRODUCT_IDS,
+	jetpack_social_basic: JETPACK_SOCIAL_BASIC_PRODUCT_IDS,
 };
 
 /**
@@ -56,4 +62,14 @@ export function getProductGroup( productId ) {
 		Object.keys( PRODUCT_GROUPS ).find( key => PRODUCT_GROUPS[ key ].includes( productId ) ) ||
 		'default'
 	);
+}
+
+/**
+ * Check if a plugin is active.
+ *
+ * @param {string} plugin -- The name of the plugin such as jetpack/jetpack.php, social/jetpack-social.php, backup/jetpack-backup.php.
+ * @returns {boolean} -- True or False.
+ */
+export function isPluginActive( plugin ) {
+	return window.myJetpackInitialState?.plugins?.[ plugin ]?.active;
 }
