@@ -607,4 +607,55 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 
 		return ( '0' !== $result ) ? 1 : 0;
 	}
+
+	/**
+	 * Get additional fields data for Checkout and Post-Checkout events.
+	 *
+	 * @param WC_Order|null $order The order object or null if we don't have an order.
+	 *
+	 * return array An array containing the additional fields data.
+	 */
+	private function get_additional_fields_data( $order = null ) {
+		$data = array();
+
+		if ( class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && class_exists( 'Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields' ) ) {
+			$additional_fields_controller = Automattic\WooCommerce\Blocks\Package::container()->get( Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields::class );
+			$additional_fields            = $additional_fields_controller->get_additional_fields();
+			$fields_count                 = count( $additional_fields );
+			$fields_data                  = array_map(
+				function ( $field_key, $field ) use ( $additional_fields_controller ) {
+					return array(
+						$field_key,
+						$additional_fields_controller->get_field_location( $field_key ),
+						$field['type'],
+						$field['required'] ? '1' : '0',
+					);
+				},
+				array_keys( $additional_fields ),
+				$additional_fields
+			);
+
+			if ( $order ) {
+				$fields_data = array_map(
+					function ( $field ) use ( $additional_fields_controller, $order ) {
+						// For additional and contact, they have the default group, which is ''.
+						$field_group = $field[1] === 'address' ? 'shipping' : '';
+						$field[]     = $additional_fields_controller->get_field_from_order( $field[0], $order, $field_group );
+						// If we have no value in shipping, try billing.
+						if ( $field[1] === 'address' && ! $field[4] ) {
+							$field[4] = $additional_fields_controller->get_field_from_order( $field[0], $order, 'billing' );
+						}
+						return $field;
+					},
+					$fields_data
+				);
+			}
+			$data = array(
+				'fields_count' => $fields_count,
+				'fields'       => wp_json_encode( $fields_data ),
+			);
+		}
+
+		return $data;
+	}
 }
