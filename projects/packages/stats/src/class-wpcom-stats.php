@@ -422,12 +422,7 @@ class WPCOM_Stats {
 		$stats_cache = get_post_meta( $post_id, $meta_name );
 
 		if ( $stats_cache ) {
-			$data = reset( $stats_cache );
-
-			if ( is_wp_error( $data ) ) {
-				return $data;
-			}
-
+			$data       = reset( $stats_cache );
 			$time       = key( $data );
 			$expiration = self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS;
 
@@ -437,7 +432,9 @@ class WPCOM_Stats {
 		}
 
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
-		update_post_meta( $post_id, $meta_name, array( time() => $wpcom_stats ) );
+		if ( ! is_wp_error( $wpcom_stats ) ) {
+			update_post_meta( $post_id, $meta_name, array( time() => $wpcom_stats ) );
+		}
 
 		return $wpcom_stats;
 	}
