@@ -264,6 +264,35 @@ class Test_Package_Version_Tracker extends TestCase {
 		$this->assertSame( self::PACKAGE_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
 	}
 
+		/**
+		 * Tests the maybe_update_package_versions method when the `init` hook is not fired.
+		 */
+	public function test_maybe_update_package_versions_with_init_hook_not_fired() {
+		global $wp_actions;
+		// Remove `init` from global $wp_actions.
+		unset( $wp_actions['init'] );
+
+		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
+			->setMethods( array( 'update_package_versions_option' ) )
+			->getMock();
+
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
+
+		add_filter(
+			'jetpack_package_versions',
+			function () {
+				return self::CHANGED_VERSIONS;
+			}
+		);
+
+		$tracker->expects( $this->never() )
+			->method( 'update_package_versions_option' );
+
+		$tracker->maybe_update_package_versions();
+
+		$this->assertSame( self::PACKAGE_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
+	}
+
 	/**
 	 * Tests the maybe_update_package_versions method with Sync disabled when the HTTP request to WPCOM succeeds.
 	 */
