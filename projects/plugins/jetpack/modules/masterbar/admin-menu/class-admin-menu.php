@@ -156,6 +156,8 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		add_submenu_page( 'wpcom', __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 4 );
+		add_submenu_page( 'wpcom', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 5 );
+		add_submenu_page( 'wpcom', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 6 );
 
 		// Remove the submenu auto-created by Core.
 		$this->hide_submenu_page( 'wpcom', 'wpcom' );

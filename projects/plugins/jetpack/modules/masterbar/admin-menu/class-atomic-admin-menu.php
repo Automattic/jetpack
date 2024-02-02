@@ -46,7 +46,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// Add notices to the settings pages when there is a Calypso page available.
 		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 			add_action( 'current_screen', array( $this, 'add_settings_page_notice' ) );
-			$this->add_wpcom_menu();
 		}
 	}
 
@@ -578,23 +577,5 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		parent::add_dashboard_switcher();
-	}
-
-	/**
-	 * Adds the WP.com drawer.
-	 */
-	public function add_wpcom_menu() {
-		add_menu_page(
-			'WordPress.com',
-			'WordPress.com',
-			'read',
-			'wordpress.com',
-			'__return_null',
-			'dashicons-wordpress-alt',
-			3
-		);
-
-		add_submenu_page( 'wordpress.com', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 0 );
-		add_submenu_page( 'wordpress.com', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 1 );
 	}
 }
