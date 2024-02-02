@@ -212,7 +212,7 @@ class WPCOM_Stats {
 		$this->resource = sprintf( 'post/%d', $post_id );
 
 		if ( $cache_in_meta ) {
-			$this->fetch_post_stats( $args, $post_id );
+			return $this->fetch_post_stats( $args, $post_id );
 		}
 
 		return $this->fetch_stats( $args );
