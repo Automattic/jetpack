@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove pre-6.3 asset enqueuing method, and relying on WordPress Core method instead.

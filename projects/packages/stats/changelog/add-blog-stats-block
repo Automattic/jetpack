@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Permit overriding cache when retrieving post views.

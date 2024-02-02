@@ -183,7 +183,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/assets",
-				"reference": "1f713fb83a98dab43f325fe71331d40f9ca47334"
+				"reference": "d5648e0a4f0a8bffbbc805d0f6a5ed0f3cedd521"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -207,7 +207,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.0.x-dev"
+					"dev-trunk": "2.1.x-dev"
 				}
 			},
 			"autoload": {
@@ -2271,10 +2271,9 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/stats",
-				"reference": "1ab549225e2ceb78c3e8c3efbb8a6508566a7749"
+				"reference": "7d8c7c0e9eb0169ecad36746b757e49e36296588"
 			},
 			"require": {
-				"automattic/jetpack-assets": "@dev",
 				"automattic/jetpack-connection": "@dev",
 				"automattic/jetpack-constants": "@dev",
 				"automattic/jetpack-status": "@dev",
@@ -2296,7 +2295,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.9.x-dev"
+					"dev-trunk": "0.10.x-dev"
 				},
 				"textdomain": "jetpack-stats"
 			},
