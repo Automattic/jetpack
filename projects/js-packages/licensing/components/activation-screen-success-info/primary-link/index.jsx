@@ -3,44 +3,30 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { getProductGroup, isPluginActive } from '../../activation-screen/utils';
+import { getProductGroup } from '../../activation-screen/utils';
 
 import './style.scss';
 
 const PrimaryLink = props => {
-	const { currentRecommendationsStep, siteAdminUrl, siteRawUrl, productId } = props;
+	const { currentRecommendationsStep, siteAdminUrl, siteRawUrl, productId, activePlugins } = props;
 
 	const productGroup = getProductGroup( productId );
-	if (
-		productGroup === 'jetpack_social_advanced' &&
-		( isPluginActive( 'jetpack/jetpack.php' ) || isPluginActive( 'jetpack/jetpack-social.php' ) )
-	) {
-		return (
-			<Button
-				className="jp-license-activation-screen-success-info--button"
-				href={
-					siteAdminUrl +
-					( isPluginActive( 'jetpack/jetpack.php' )
-						? 'admin.php?page=jetpack#/recommendations/welcome-social-advanced'
-						: 'admin.php?page=jetpack-social' )
-				}
-			>
-				{ __( 'Configure my site', 'jetpack' ) }
-			</Button>
-		);
-	}
+	const isJetpackActive = activePlugins.includes( 'Jetpack' );
+	const isJetpackSocialActive = activePlugins.includes( 'Jetpack Social' );
+	const isJetpackSocialProduct =
+		productGroup === 'jetpack_social_advanced' || productGroup === 'jetpack_social_basic';
 
-	if (
-		productGroup === 'jetpack_social_basic' &&
-		( isPluginActive( 'jetpack/jetpack.php' ) || isPluginActive( 'jetpack/jetpack-social.php' ) )
-	) {
+	if ( isJetpackSocialProduct && ( isJetpackActive || isJetpackSocialActive ) ) {
 		return (
 			<Button
 				className="jp-license-activation-screen-success-info--button"
 				href={
 					siteAdminUrl +
-					( isPluginActive( 'jetpack/jetpack.php' )
-						? 'admin.php?page=jetpack#/recommendations/welcome-social-basic'
+					( isJetpackActive
+						? 'admin.php?page=jetpack#/recommendations/' +
+						  ( productGroup === 'jetpack_social_advanced'
+								? 'welcome-social-advanced'
+								: 'welcome-social-basic' )
 						: 'admin.php?page=jetpack-social' )
 				}
 			>
@@ -75,6 +61,7 @@ PrimaryLink.propTypes = {
 	siteAdminUrl: PropTypes.string.isRequired,
 	currentRecommendationsStep: PropTypes.string,
 	siteRawUrl: PropTypes.string.isRequired,
+	activePlugins: PropTypes.array,
 };
 
 export { PrimaryLink };

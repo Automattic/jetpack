@@ -1,5 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
+import apiFetch from '@wordpress/api-fetch';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -77,6 +78,16 @@ const ActivationScreen = props => {
 		}
 	}, [ availableLicenses ] );
 
+	const [ activePlugins, setActivePlugins ] = useState( [] );
+
+	useEffect( () => {
+		apiFetch( { path: 'wp/v2/plugins' } ).then( plugins =>
+			setActivePlugins(
+				plugins.filter( plugin => plugin.status === 'active' ).map( plugin => plugin.name )
+			)
+		);
+	}, [] );
+
 	const activateLicense = useCallback( () => {
 		if ( isSaving ) {
 			return Promise.resolve();
@@ -137,6 +148,7 @@ const ActivationScreen = props => {
 				productId={ activatedProduct }
 				siteAdminUrl={ siteAdminUrl }
 				currentRecommendationsStep={ currentRecommendationsStep }
+				activePlugins={ activePlugins }
 			/>
 			<ActivationScreenIllustration imageUrl={ successImage } showSupportLink={ false } />
 		</div>
