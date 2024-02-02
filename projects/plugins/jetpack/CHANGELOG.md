@@ -2868,6 +2868,7 @@
 - Gathering Twitter Threads: ensure that only contributors can access the endpoint to unroll threads. [#25005]
 - Stats: fix dashboard widget form name to allow form choices to be saved. [#25039]
 - Subscriptions: format the number of subscribers displayed in the block editor's controls. [#25063]
+- Fix Netowrk Admin connection status for sites that use Jetpack in MU-Plugins
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - E2E tests: fixed pretest cleanup script not running. [#25051]
