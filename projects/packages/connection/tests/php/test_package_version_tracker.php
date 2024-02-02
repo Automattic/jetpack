@@ -54,6 +54,10 @@ class Test_Package_Version_Tracker extends TestCase {
 	 * @after
 	 */
 	public function tear_down() {
+		global $wp_actions;
+		// Restore `init` in global $wp_actions.
+		$wp_actions['init'] = true;
+
 		$this->http_request_attempted = false;
 		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
