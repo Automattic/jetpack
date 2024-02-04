@@ -88,6 +88,7 @@ function load_assets( $attributes ) {
 	}
 
 	$fallback_label = $attributes['statsData'] === 'visitors' ? esc_html(
+		/* Translators: Number of visitors */
 		_n( 'visitor', 'visitors', $stats, 'jetpack' )
 	) : esc_html(
 		/* Translators: Number of views */
