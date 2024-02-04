@@ -40,7 +40,6 @@ export function BlogStatsInspectorControls( { attributes, setAttributes } ) {
 					) }
 				/>
 				<RadioControl
-					className="jetpack-blog-stats__radio-options"
 					label={ __( 'Show stats data for', 'jetpack' ) }
 					selected={ statsOption }
 					onChange={ value => setAttributes( { statsOption: value } ) }
@@ -48,7 +47,7 @@ export function BlogStatsInspectorControls( { attributes, setAttributes } ) {
 					disabled={ statsData === 'visitors' }
 					help={
 						statsData === 'visitors'
-							? __( 'Visitor counts are not available for individual posts.', 'jetpack' )
+							? __( "Visitor counts aren't available for individual posts.", 'jetpack' )
 							: null
 					}
 				/>
