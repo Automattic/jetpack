@@ -26,7 +26,7 @@ const StatsSection = () => {
 	}, [ recordEvent ] );
 
 	const shouldShowSecondaryButton = useCallback(
-		() => !! ( status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE ),
+		() => !! ( status === PRODUCT_STATUSES.CAN_UPGRADE ),
 		[ status ]
 	);
 

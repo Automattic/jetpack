@@ -399,7 +399,7 @@ export function SearchInterstitial() {
  */
 export function StatsInterstitial() {
 	return (
-		<ProductInterstitial slug="stats" installsPlugin={ true }>
+		<ProductInterstitial slug="stats" directCheckout={ true } installsPlugin={ true }>
 			<img
 				src={ statsImage }
 				alt={ __(

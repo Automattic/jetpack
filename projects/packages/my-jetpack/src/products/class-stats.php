@@ -49,7 +49,7 @@ class Stats extends Module_Product {
 	 *
 	 * @var boolean
 	 */
-	public static $requires_user_connection = false;
+	public static $requires_user_connection = true;
 
 	/**
 	 * Stats does not have a standalone plugin (yet?)
@@ -160,12 +160,46 @@ class Stats extends Module_Product {
 	 * @return boolean
 	 */
 	public static function has_required_plan() {
-		// The only requirement for Stats is a connection.
-		$connection = new Connection_Manager();
-		if ( ! $connection->is_connected() || ! $connection->is_user_connected() ) {
-			return false;
-		}
 		return true;
+	}
+
+	/**
+	 * Gets the 'status' of the Stats product
+	 *
+	 * @return string
+	 */
+	public static function get_status() {
+		if ( ! static::is_plugin_installed() ) {
+			$status = 'plugin_absent';
+			if ( static::has_required_plan() ) {
+				$status = 'plugin_absent_with_plan';
+			}
+		} elseif ( static::is_active() ) {
+			$status = 'active';
+			// We only consider missing user connection an error when the Product is active.
+			if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
+				// For Stats product, show the "Learn more" button when not connected (eventually leading to 'connect-after-checkout' flow).
+				$status = 'needs_purchase_or_free';
+			} elseif ( static::is_upgradable() ) {
+				// Upgradable plans should ignore whether or not they have the required plan.
+				$status = 'can_upgrade';
+			} elseif ( ! static::has_required_plan() ) { // We need needs_purchase here as well because some products we consider active without the required plan.
+				if ( static::has_trial_support() ) {
+					$status = 'needs_purchase_or_free';
+				} else {
+					$status = 'needs_purchase';
+				}
+			}
+		} elseif ( ! static::has_required_plan() ) {
+			if ( static::has_trial_support() ) {
+				$status = 'needs_purchase_or_free';
+			} else {
+				$status = 'needs_purchase';
+			}
+		} else {
+			$status = 'inactive';
+		}
+		return $status;
 	}
 
 	/**
@@ -175,11 +209,6 @@ class Stats extends Module_Product {
 	 * @return boolean
 	 */
 	public static function is_upgradable() {
-		$connection = new Connection_Manager();
-		if ( ! $connection->is_connected() || ! $connection->is_user_connected() ) {
-			return false;
-		}
-
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( ! is_wp_error( $purchases_data ) && is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
@@ -187,12 +216,17 @@ class Stats extends Module_Product {
 				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
 					return false;
 				} elseif (
-					// Stats commercial cannot be upgraded.
+					// Stats commercial purchased with highest tier cannot be upgraded.
 					in_array(
 						$purchase->product_slug,
 						array( 'jetpack_stats_yearly', 'jetpack_stats_monthly', 'jetpack_stats_bi_yearly' ),
 						true
-					)
+					) && $purchase->current_price_tier_slug === 'more_than_1m_views'
+				) {
+					return false;
+				} elseif (
+					// If user already has Stats PWYW, we won't push them to upgrade.
+					$purchase->product_slug === 'jetpack_stats_pwyw_yearly'
 				) {
 					return false;
 				}
