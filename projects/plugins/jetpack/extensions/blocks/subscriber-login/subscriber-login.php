@@ -93,6 +93,15 @@ function get_subscriber_login_url( $redirect ) {
 }
 
 /**
+ * Determines whether the current visitor is a logged in user or a subscriber.
+ *
+ * @return bool
+ */
+function is_subscriber_logged_in() {
+	return is_user_logged_in() || Abstract_Token_Subscription_Service::has_token_from_cookie();
+}
+
+/**
  * Renders Subscriber Login block.
  *
  * @param array $attributes The block attributes.
@@ -108,7 +117,7 @@ function render_block( $attributes ) {
 	$log_out_label              = ! empty( $attributes['logOutLabel'] ) ? sanitize_text_field( $attributes['logOutLabel'] ) : esc_html__( 'Log out', 'jetpack' );
 	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscriptions', 'jetpack' );
 
-	if ( ! is_user_logged_in() ) {
+	if ( ! is_subscriber_logged_in() ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),
