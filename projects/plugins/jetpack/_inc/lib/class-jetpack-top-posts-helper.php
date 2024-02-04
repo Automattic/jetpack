@@ -15,11 +15,11 @@ class Jetpack_Top_Posts_Helper {
 	 * Returns user's top posts.
 	 *
 	 * @param int    $period       Period of days to draw stats from.
-	 * @param int    $items_count  Number of items to display.
-	 * @param string $types        Content types to include.
+	 * @param int    $items_count  Optional. Number of items to display.
+	 * @param string $types        Optional. Content types to include.
 	 * @return array
 	 */
-	public static function get_top_posts( $period, $items_count, $types ) {
+	public static function get_top_posts( $period, $items_count = null, $types = null ) {
 		$all_time_days = floor( ( time() - strtotime( get_option( 'site_created_date' ) ) ) / ( 60 * 60 * 24 * 365 ) );
 
 		// While we only display ten posts, users can filter out content types.

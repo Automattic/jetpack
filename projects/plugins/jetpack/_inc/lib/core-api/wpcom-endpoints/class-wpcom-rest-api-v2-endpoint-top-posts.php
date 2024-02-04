@@ -93,7 +93,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 	 */
 	public function get_top_posts( $request ) {
 		$period = $request->get_param( 'period' );
-		return Jetpack_Top_Posts_Helper::get_top_posts( $period, '', '' );
+		return Jetpack_Top_Posts_Helper::get_top_posts( $period );
 	}
 }
 
