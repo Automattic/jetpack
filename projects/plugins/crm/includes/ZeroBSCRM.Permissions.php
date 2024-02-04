@@ -1083,3 +1083,39 @@ function jpcrm_perms_error() {
 	);
 	die();
 }
+
+/**
+ * Verifies a given path is within allowed base paths.
+ *
+ * @param string       $path Path to check.
+ * @param array|string $allowed_base_paths Paths to check.
+ *
+ * @return bool True if it's an allowed path, false if not.
+ */
+function jpcrm_is_allowed_path( $path, $allowed_base_paths ) {
+
+	// Convert to array if not already one.
+	if ( ! is_array( $allowed_base_paths ) ) {
+		$allowed_base_paths = array( $allowed_base_paths );
+	}
+
+	$real_path = realpath( $path );
+
+	// Invalid path.
+	if ( ! $real_path ) {
+		return false;
+	}
+
+	foreach ( $allowed_base_paths as $base_path ) {
+		$real_base_path = realpath( $base_path );
+
+		// If file belongs to a valid base_path, all is well.
+		// This base path is sometimes a non-existent path, so we test for its existence as well.
+		if ( $real_base_path && strpos( $real_path, $real_base_path ) === 0 ) {
+			return true;
+		}
+	}
+
+	// doesn't match an allowed base path
+	return false;
+}

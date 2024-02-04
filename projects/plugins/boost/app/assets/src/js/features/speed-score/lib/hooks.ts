@@ -1,11 +1,10 @@
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { castToString } from '$lib/utils/cast-to-string';
-import debounce from '$lib/utils/debounce';
-import { useState, useCallback, useEffect, useMemo, useReducer } from 'react';
-
-const siteIsOnline = Jetpack_Boost.site.online;
-const siteUrl = Jetpack_Boost.site.url;
+import { useCallback, useEffect, useReducer, useRef } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
+import { standardizeError } from '$lib/utils/standardize-error';
+import { __ } from '@wordpress/i18n';
 
 type SpeedScoreState = {
 	status: 'loading' | 'loaded' | 'error';
@@ -18,7 +17,7 @@ type SpeedScoreState = {
 		noBoost: {
 			mobile: number;
 			desktop: number;
-		};
+		} | null;
 		isStale: boolean;
 	};
 };
@@ -28,11 +27,13 @@ type RefreshFunction = ( regenerate?: boolean ) => Promise< void >;
 /**
  * A hook that gives you the speed scores and a method to refresh them.
  *
+ * @param  siteUrl
  * @return {[ SpeedScoreState, RefreshFunction ]} - A tuple with the state and a method to refresh the scores.
  */
-export const useSpeedScores = () => {
+export const useSpeedScores = ( siteUrl: string ) => {
 	const [ state, updateState ] = useReducer(
-		( oldState, newState ) => ( { ...oldState, ...newState } ),
+		( oldState: SpeedScoreState, newState: Partial< SpeedScoreState > ) =>
+			( { ...oldState, ...newState } ) as SpeedScoreState,
 		{
 			status: 'loading', // 'loading' | 'loaded' | 'error'
 			error: undefined,
@@ -44,36 +45,39 @@ export const useSpeedScores = () => {
 		}
 	);
 
-	const loadScore = useCallback( async ( regenerate = false ) => {
-		// Don't run in offline mode.
-		if ( ! siteIsOnline ) {
-			return;
-		}
+	const loadScore = useCallback(
+		async ( regenerate = false ) => {
+			try {
+				updateState( {
+					status: 'loading',
+				} );
+				const results = await requestSpeedScores(
+					regenerate,
+					wpApiSettings.root,
+					siteUrl,
+					wpApiSettings.nonce
+				);
+				updateState( {
+					scores: results,
+					status: 'loaded',
+				} );
+			} catch ( err ) {
+				const error = standardizeError(
+					err,
+					__( 'Error requesting speed scores', 'jetpack-boost' )
+				);
 
-		try {
-			updateState( {
-				status: 'loading',
-			} );
-			const results = await requestSpeedScores(
-				regenerate,
-				wpApiSettings.root,
-				siteUrl,
-				wpApiSettings.nonce
-			);
-			updateState( {
-				scores: results,
-				status: 'loaded',
-			} );
-		} catch ( err ) {
-			recordBoostEvent( 'speed_score_request_error', {
-				error_message: castToString( err.message ),
-			} );
-			updateState( {
-				status: 'error',
-				error: err,
-			} );
-		}
-	}, [] );
+				recordBoostEvent( 'speed_score_request_error', {
+					error_message: castToString( error.message ),
+				} );
+				updateState( {
+					status: 'error',
+					error,
+				} );
+			}
+		},
+		[ siteUrl ]
+	);
 
 	return [ state as SpeedScoreState, loadScore as RefreshFunction ] as const;
 };
@@ -97,32 +101,35 @@ export const useDebouncedRefreshScore = (
 	{ moduleStates, criticalCssCreated, criticalCssIsGenerating }: RefreshDependencies,
 	loadScore: RefreshFunction
 ) => {
-	const [ scoreConfigString, setScoreConfigString ] = useState(
-		JSON.stringify( [ moduleStates, criticalCssCreated ] )
-	);
+	const currentConfigString = JSON.stringify( [ moduleStates, criticalCssCreated ] );
+
+	/*
+	 * Keep track of the config string that was responsible for the last score refresh.
+	 *
+	 * By maintaining this value and comparing it to the current config string, we can
+	 * avoid refreshing the score when the config change was undone by the user quickly.
+	 * Example: The user toggles on a module, then toggles it off again within debounce
+	 * duration. We don't want to refresh the score in this case.
+	 */
+	const lastScoreConfigString = useRef( currentConfigString );
 
 	// Debounced function: Refresh the speed score if the config has changed.
-	const debouncedRefreshScore = useMemo(
-		() =>
-			debounce( async ( newConfig, oldConfig ) => {
-				if ( oldConfig !== newConfig ) {
-					setScoreConfigString( newConfig );
-					await loadScore( true );
-				}
-			}, 2000 ),
-		[ loadScore, setScoreConfigString ]
+	const debouncedRefreshScore = useDebouncedCallback(
+		( newConfig: string, generating: boolean ) => {
+			/*
+			 * Trigger a refresh if config is different from last speed score refresh.
+			 * While critical CSS is currently generating, skip refreshing the score as
+			 * the impact of the config change won't be visible until the CSS is done.
+			 */
+			if ( lastScoreConfigString.current !== newConfig && ! generating ) {
+				lastScoreConfigString.current = newConfig;
+				loadScore();
+			}
+		},
+		2000
 	);
 
 	useEffect( () => {
-		if ( ! criticalCssIsGenerating ) {
-			const newScoreConfigString = JSON.stringify( [ moduleStates, criticalCssCreated ] );
-			debouncedRefreshScore( newScoreConfigString, scoreConfigString );
-		}
-	}, [
-		moduleStates,
-		criticalCssCreated,
-		criticalCssIsGenerating,
-		debouncedRefreshScore,
-		scoreConfigString,
-	] );
+		debouncedRefreshScore( currentConfigString, criticalCssIsGenerating );
+	}, [ currentConfigString, debouncedRefreshScore, criticalCssIsGenerating ] );
 };

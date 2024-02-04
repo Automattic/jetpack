@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Adjust 'get_site_id()' method to return null if there's no blog ID.

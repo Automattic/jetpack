@@ -19,7 +19,7 @@ jobs:
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: create-matrix
         run: |
           MATRIX="$(.github/files/generate-ci-matrix.php)"
@@ -52,7 +52,7 @@ jobs:
         include: ${{ fromJson( needs.create-matrix.outputs.matrix ) }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # codecov.io requires a fetch depth > 1.
           fetch-depth: 2
@@ -207,7 +207,7 @@ jobs:
           fi
       - name: Upload artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: artifacts
@@ -219,7 +219,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2  # 2022-09-08: Should only take a few seconds.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup tools
         uses: ./.github/actions/tool-setup
         with:

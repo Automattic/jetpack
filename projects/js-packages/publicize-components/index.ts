@@ -16,7 +16,7 @@ export { default as TemplatePickerButton } from './src/components/social-image-g
 export { default as PublicizePanel } from './src/components/panel';
 export { default as ReviewPrompt } from './src/components/review-prompt';
 export { default as PostPublishReviewPrompt } from './src/components/post-publish-review-prompt';
-export { default as PostPublishOneClickSharing } from './src/components/post-publish-one-click-sharing';
+export { default as PostPublishManualSharing } from './src/components/post-publish-manual-sharing';
 export { default as RefreshJetpackSocialSettingsWrapper } from './src/components/refresh-jetpack-social-settings';
 
 export { default as useSocialMediaConnections } from './src/hooks/use-social-media-connections';

@@ -11,7 +11,6 @@ import {
 	isDevVersion as _isDevVersion,
 	getCurrentVersion,
 	userCanManageOptions,
-	getSiteAdminUrl,
 	isAtomicPlatform,
 } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
@@ -146,7 +145,6 @@ export class Footer extends React.Component {
 						<JetpackFooter
 							menu={ menu }
 							moduleNameHref={ getRedirectUrl( 'jetpack' ) }
-							siteAdminUrl={ this.props.siteAdminUrl }
 							onAboutClick={ this.trackAboutClick }
 							onPrivacyClick={ this.trackPrivacyClick }
 							onTermsClick={ this.trackTermsClick }
@@ -167,7 +165,6 @@ export default connect(
 			isAtomicPlatform: isAtomicPlatform( state ),
 			isDevVersion: _isDevVersion( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			userCanManageOptions: userCanManageOptions( state ),
 		};

@@ -19,8 +19,10 @@ use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Jetpack;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -32,12 +34,23 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.1.4';
+	const PACKAGE_VERSION = '4.8.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
 	 */
 	const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
+
+	const JETPACK_PLUGIN_SLUGS = array(
+		'jetpack-backup',
+		'jetpack-boost',
+		'zerobscrm',
+		'jetpack',
+		'jetpack-protect',
+		'jetpack-social',
+		'jetpack-videopress',
+		'jetpack-search',
+	);
 
 	/**
 	 * Initialize My Jetpack
@@ -177,8 +190,10 @@ class Initializer {
 				),
 				'plugins'               => Plugins_Installer::get_plugins(),
 				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
+				'myJetpackCheckoutUri'  => 'admin.php?page=my-jetpack',
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
+				'blogID'                => Connection_Manager::get_site_id( true ),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
 				'myJetpackFlags'        => self::get_my_jetpack_flags(),
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
@@ -186,9 +201,15 @@ class Initializer {
 				'adminUrl'              => esc_url( admin_url() ),
 				'IDCContainerID'        => static::get_idc_container_id(),
 				'userIsAdmin'           => current_user_can( 'manage_options' ),
+				'userIsNewToJetpack'    => self::is_jetpack_user_new(),
 				'isStatsModuleActive'   => $modules->is_active( 'stats' ),
+				'isUserFromKnownHost'   => self::is_user_from_known_host(),
 				'welcomeBanner'         => array(
 					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
+				),
+				'jetpackManage'         => array(
+					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
+					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
 			)
 		);
@@ -209,6 +230,72 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * Determine if the current user is "new" to Jetpack
+	 * This is used to vary some messaging in My Jetpack
+	 *
+	 * On the front-end, purchases are also taken into account
+	 *
+	 * @return bool
+	 */
+	public static function is_jetpack_user_new() {
+		// is the user connected?
+		$connection = new Connection_Manager();
+		if ( $connection->is_user_connected() ) {
+			return false;
+		}
+
+		// TODO: add a data point for the last known connection/ disconnection time
+
+		// are any modules active?
+		$modules        = new Modules();
+		$active_modules = $modules->get_active();
+		// if the Jetpack plugin is active, filter out the modules that are active by default
+		if ( class_exists( 'Jetpack' ) && ! empty( $active_modules ) ) {
+			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
+		}
+		if ( ! empty( $active_modules ) ) {
+			return false;
+		}
+
+		// check for other Jetpack plugins that are installed on the site (active or not)
+		// If there's more than one Jetpack plugin active, this user is not "new"
+		$plugin_slugs              = array_keys( Plugins_Installer::get_plugins() );
+		$plugin_slugs              = array_map(
+			static function ( $slug ) {
+				$parts = explode( '/', $slug );
+				if ( empty( $parts ) ) {
+					return '';
+				}
+				// Return the last segment of the filepath without the PHP extension
+				return str_replace( '.php', '', $parts[ count( $parts ) - 1 ] );
+			},
+			$plugin_slugs
+		);
+		$installed_jetpack_plugins = array_intersect( self::JETPACK_PLUGIN_SLUGS, $plugin_slugs );
+		if ( is_countable( $installed_jetpack_plugins ) && count( $installed_jetpack_plugins ) >= 2 ) {
+			return false;
+		}
+
+		// Does the site have any purchases?
+		$purchases = Wpcom_Products::get_site_current_purchases();
+		if ( ! empty( $purchases ) && ! is_wp_error( $purchases ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines whether the user has come from a host we can recognize.
+	 *
+	 * @return string
+	 */
+	public static function is_user_from_known_host() {
+		// Known (external) host is the one that has been determined and is not dotcom.
+		return ! in_array( ( new Status_Host() )->get_known_host_guess(), array( 'unknown', 'wpcom' ), true );
 	}
 
 	/**

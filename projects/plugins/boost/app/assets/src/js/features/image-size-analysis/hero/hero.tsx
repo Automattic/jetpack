@@ -1,20 +1,12 @@
-import { IconTooltip } from '@automattic/jetpack-components';
+import { IconTooltip, Spinner } from '@automattic/jetpack-components';
 import classNames from 'classnames';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import styles from './hero.module.scss';
 import ImageCdnRecommendation from '$features/image-size-analysis/image-cdn-recommendation/image-cdn-recommendation';
+import { type IsaCounts } from '$features/image-size-analysis';
 
 // removed in:fade={{ duration: 300, easing: quadOut }} from .jb-hero
-
-export const Hero = ( {
-	needsRefresh,
-	refresh,
-	isImageCdnModuleActive,
-	isaLastUpdated,
-	hasActiveGroup,
-	totalIssueCount,
-} ) => {
+const LastUpdated = ( { lastUpdated }: { lastUpdated: number } ) => {
 	const formatter = new Intl.DateTimeFormat( 'en-US', {
 		month: 'long',
 		day: 'numeric',
@@ -23,28 +15,72 @@ export const Hero = ( {
 		hour12: true,
 	} );
 
-	const lastUpdated = formatter.format( isaLastUpdated );
-	const showLatestReport = hasActiveGroup && !! isaLastUpdated;
+	return (
+		<div className={ styles[ 'last-updated' ] }>
+			{ sprintf(
+				/* translators: %s: date of the latest report */
+				__( 'Latest report as of %s', 'jetpack-boost' ),
+				formatter.format( lastUpdated )
+			) }
+		</div>
+	);
+};
+
+const UpdateInProgress = ( { lastUpdated }: { lastUpdated: number } ) => {
+	const formatter = new Intl.DateTimeFormat( 'en-US', {
+		month: 'long',
+		day: 'numeric',
+		hour: 'numeric',
+		minute: 'numeric',
+		hour12: true,
+	} );
 
 	return (
+		<div className={ styles[ 'last-updated' ] }>
+			<Spinner color="#23282d" size="1em" />
+			{ sprintf(
+				/* translators: %s: date of the latest report */
+				__( 'Scan started on %s', 'jetpack-boost' ),
+				formatter.format( lastUpdated )
+			) }
+		</div>
+	);
+};
+
+const Hero = ( {
+	isImageCdnModuleActive,
+	isaLastUpdated,
+	isUpdateInProgress,
+	group,
+}: {
+	isImageCdnModuleActive: boolean;
+	isaLastUpdated: number;
+	isUpdateInProgress: boolean;
+	group?: IsaCounts;
+} ) => {
+	return (
 		<>
-			{ showLatestReport ? (
+			{ group && group.total_pages > 0 ? (
 				<div className={ classNames( styles.hero, styles[ 'fade-in' ] ) }>
-					<span>Latest report as of { lastUpdated }</span>
-					{ totalIssueCount > 0 && (
+					{ isUpdateInProgress ? (
+						<UpdateInProgress lastUpdated={ isaLastUpdated } />
+					) : (
+						<LastUpdated lastUpdated={ isaLastUpdated } />
+					) }
+					{ group.total_pages > 0 && (
 						<h1>
 							{ sprintf(
 								/* translators: %d: number of image recommendations */
 								_n(
 									'%d Image Recommendation',
 									'%d Image Recommendations',
-									totalIssueCount,
+									group.issue_count,
 									'jetpack-boost'
 								),
-								totalIssueCount
+								group.issue_count
 							) }
 
-							{ ! isImageCdnModuleActive && totalIssueCount > 0 && (
+							{ ! isImageCdnModuleActive && group.issue_count > 0 && (
 								<IconTooltip
 									title=""
 									placement={ 'bottom' }
@@ -58,31 +94,6 @@ export const Hero = ( {
 							) }
 						</h1>
 					) }
-
-					{ needsRefresh && (
-						<span>
-							{ createInterpolateElement(
-								__(
-									'More recommendations have been found. <refresh>Refresh</refresh> to see the latest recommendations.',
-									'jetpack-boost'
-								),
-								{
-									refresh: (
-										// eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid
-										<a
-											className="action"
-											onClick={ event => {
-												event.preventDefault();
-
-												refresh();
-											} }
-											href="#"
-										/>
-									),
-								}
-							) }
-						</span>
-					) }
 				</div>
 			) : (
 				<>
@@ -93,3 +104,5 @@ export const Hero = ( {
 		</>
 	);
 };
+
+export default Hero;

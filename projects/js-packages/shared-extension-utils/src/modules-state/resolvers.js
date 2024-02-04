@@ -1,4 +1,4 @@
-import { setJetpackModules, fetchModules } from './actions';
+import { setJetpackModules } from './actions';
 import { fetchJetpackModules } from './controls';
 
 /**
@@ -18,13 +18,4 @@ export function* getJetpackModules() {
 	}
 }
 
-/**
- * When requesting data on particular module
- * we want to make sure to have the latest state
- * @returns {boolean} - if action was completed successfully.
- */
-export function isModuleActive() {
-	return fetchModules();
-}
-
-export default { getJetpackModules, isModuleActive };
+export default { getJetpackModules };

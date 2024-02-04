@@ -24,6 +24,7 @@ import {
 	SocialInterstitial,
 	SearchInterstitial,
 	VideoPressInterstitial,
+	StatsInterstitial,
 } from './components/product-interstitial';
 import RedeemTokenScreen from './components/redeem-token-screen';
 import { initStore } from './state/store';
@@ -64,7 +65,7 @@ const MyJetpack = () => (
 				<Route path="/add-social" element={ <SocialInterstitial /> } />
 				<Route path="/add-search" element={ <SearchInterstitial /> } />
 				<Route path="/add-videopress" element={ <VideoPressInterstitial /> } />
-				<Route path="/add-stats" element={ <Navigate replace to="/connection" /> } />
+				<Route path="/add-stats" element={ <StatsInterstitial /> } />
 				{ window?.myJetpackInitialState?.loadAddLicenseScreen && (
 					<Route path="/add-license" element={ <AddLicenseScreen /> } />
 				) }
