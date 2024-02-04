@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Asset enqueuing: switch to enqueuing strategy introduced in WordPress 6.3.

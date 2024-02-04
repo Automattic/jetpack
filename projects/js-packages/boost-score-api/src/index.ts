@@ -16,7 +16,7 @@ type SpeedScores = {
 
 type SpeedScoresSet = {
 	current: SpeedScores;
-	noBoost: SpeedScores;
+	noBoost: SpeedScores | null;
 	isStale: boolean;
 };
 

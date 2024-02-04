@@ -45,7 +45,7 @@ const BlazePostPublishPanel = () => {
 
 	const blazeUrl = () => {
 		if ( isDashboardEnabled ) {
-			return `${ adminUrl }tools.php?page=advertising#!/advertising/${ siteFragment }/posts/promote/post-${ postId }`;
+			return `${ adminUrl }tools.php?page=advertising#!/advertising/posts/promote/post-${ postId }/${ siteFragment }`;
 		}
 
 		return getRedirectUrl( 'jetpack-blaze', {

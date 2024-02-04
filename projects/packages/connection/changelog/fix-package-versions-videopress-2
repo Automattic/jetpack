@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Prevent package versions tracker from running before all packages were initialized.
+
+

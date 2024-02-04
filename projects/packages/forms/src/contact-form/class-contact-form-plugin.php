@@ -251,7 +251,7 @@ class Contact_Form_Plugin {
 		 *  }
 		 *  add_action('wp_print_styles', 'remove_grunion_style');
 		 */
-		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . 'contact-form/css/grunion.css', array(), \JETPACK__VERSION );
+		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . '../dist/contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
 		Assets::register_script(
@@ -259,7 +259,7 @@ class Contact_Form_Plugin {
 			'../../dist/contact-form/js/accessible-form.js',
 			__FILE__,
 			array(
-				'async'        => true,
+				'strategy'     => 'defer',
 				'textdomain'   => 'jetpack-forms',
 				'version'      => \JETPACK__VERSION,
 				'dependencies' => array( 'wp-i18n' ),

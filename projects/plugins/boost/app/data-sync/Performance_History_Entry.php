@@ -19,7 +19,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 		$request = new Speed_Score_Graph_History_Request( $this->start_date, $this->end_date, array() );
 		$result  = $request->execute();
 
-		if ( is_wp_error( $result ) ) {
+		if ( is_wp_error( $result ) || empty( $result['data'] ) ) {
 			return array(
 				'startDate' => $this->start_date,
 				'endDate'   => $this->end_date,
@@ -28,9 +28,9 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 		}
 
 		return array(
-			'startDate' => $result->data->_meta->start,
-			'endDate'   => $result->data->_meta->end,
-			'periods'   => $result->data->periods,
+			'startDate' => $result['data']['_meta']['start'],
+			'endDate'   => $result['data']['_meta']['end'],
+			'periods'   => $result['data']['periods'],
 		);
 	}
 

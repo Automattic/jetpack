@@ -12,3 +12,19 @@ export function getMediaSourceUrl( media ) {
 	// Try getting the large size (1024px width) and fallback to the full size.
 	return media.media_details?.sizes?.large?.source_url || media.source_url;
 }
+
+/**
+ * Gets the URL of an image from the post body
+ *
+ * @param {string} editedPostContent - The post content coming from core/editor
+ * @returns {?string} URL address
+ */
+export function getPostImageUrl( editedPostContent ) {
+	const parser = new DOMParser();
+	const doc = parser.parseFromString( editedPostContent, 'text/html' );
+	const imgElements = Array.from( doc.querySelectorAll( 'img' ) );
+
+	const imageUrl = imgElements[ 0 ]?.src;
+
+	return imageUrl ?? null;
+}

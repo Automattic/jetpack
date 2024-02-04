@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Stats fetching mechanism: add filter allowing one to customize how long we cache results.

@@ -1,43 +1,46 @@
+import domReady from '@wordpress/dom-ready';
 import './style.scss';
 
 let sharingWindowOpen;
 
-( function () {
-	const servicesContainer = document.getElementById( 'jetpack-sharing-serivces-list' );
-	if ( ! servicesContainer ) {
-		return;
-	}
-	servicesContainer.addEventListener( 'click', event => {
-		const link = event.target.closest( 'a' );
-		const service = link?.dataset?.service;
+if ( typeof window !== 'undefined' ) {
+	domReady( () => {
+		const containers = document.getElementsByClassName( 'wp-block-jetpack-sharing-buttons' );
 
-		if ( ! link || ! link.classList.contains( `share-${ service }` ) ) {
-			return;
-		}
+		for ( const servicesContainer of containers ) {
+			servicesContainer.addEventListener( 'click', event => {
+				const link = event.target.closest( 'a' );
+				const service = link?.dataset?.service;
 
-		if ( service === 'mail' ) {
-			return;
-		}
+				if ( ! link || ! link.classList.contains( `share-${ service }` ) ) {
+					return;
+				}
 
-		event.preventDefault();
-		event.stopPropagation();
+				if ( service === 'mail' ) {
+					return;
+				}
 
-		if ( service === 'print' ) {
-			window.print();
-			return;
-		}
-		if ( sharingWindowOpen ) {
-			sharingWindowOpen.close();
-		}
+				event.preventDefault();
+				event.stopPropagation();
 
-		sharingWindowOpen = window.open(
-			link.getAttribute( 'href' ),
-			`wpcom${ service }`,
-			'menubar=1,resizable=1,width=600,height=400'
-		);
+				if ( service === 'print' ) {
+					window.print();
+					return;
+				}
+				if ( sharingWindowOpen ) {
+					sharingWindowOpen.close();
+				}
 
-		if ( sharingWindowOpen ) {
-			sharingWindowOpen.focus();
+				sharingWindowOpen = window.open(
+					link.getAttribute( 'href' ),
+					`wpcom${ service }`,
+					'menubar=1,resizable=1,width=600,height=400'
+				);
+
+				if ( sharingWindowOpen ) {
+					sharingWindowOpen.focus();
+				}
+			} );
 		}
 	} );
-} )();
+}

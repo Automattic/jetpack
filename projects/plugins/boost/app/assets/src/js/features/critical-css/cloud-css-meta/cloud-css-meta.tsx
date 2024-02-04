@@ -1,66 +1,36 @@
 import { __ } from '@wordpress/i18n';
-import { CriticalCssState } from '../lib/stores/critical-css-state-types';
-import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import Status from '../status/status';
-import { useState } from '@wordpress/element';
+import { useCriticalCssState } from '../lib/stores/critical-css-state';
+import { useRetryRegenerate } from '../lib/use-retry-regenerate';
 
-type CloudCssMetaProps = {
-	cssState: CriticalCssState;
-	isCloudCssAvailable: boolean;
-	criticalCssProgress: number;
-	issues: CriticalCssState[ 'providers' ];
-	isFatalError: boolean;
-	primaryErrorSet;
-	suggestRegenerate;
-	regenerateCriticalCss;
-};
+export default function CloudCssMetaProps() {
+	const [ cssState ] = useCriticalCssState();
+	const [ hasRetried, retry ] = useRetryRegenerate();
 
-const CloudCssMeta: React.FC< CloudCssMetaProps > = ( {
-	cssState,
-	isCloudCssAvailable,
-	criticalCssProgress,
-	issues = [],
-	isFatalError,
-	primaryErrorSet,
-	suggestRegenerate,
-	regenerateCriticalCss,
-} ) => {
-	const [ hasRetried, setHasRetried ] = useState( false );
+	const isPending = cssState.status === 'pending';
+	const hasCompletedSome = cssState.providers.some( provider => provider.status !== 'pending' );
+	const notGenerated = cssState.status === 'not_generated';
 
-	const successCount = cssState.providers.filter(
-		provider => provider.status === 'success'
-	).length;
+	// If CSS generation has made some progress but is not finished indicate that.
+	const extraText =
+		hasCompletedSome &&
+		isPending &&
+		__( 'Jetpack Boost is generating more Critical CSS.', 'jetpack-boost' );
 
-	function retry() {
-		setHasRetried( true );
-		regenerateCriticalCss();
-	}
+	// If waiting for the back-end generator to begin, provide a blank message.
+	const overrideText =
+		( isPending || notGenerated ) &&
+		! hasCompletedSome &&
+		__( 'Jetpack Boost will generate Critical CSS for you automatically.', 'jetpack-boost' );
 
-	return isFatalError ? (
-		<ShowStopperError
-			supportLink="https://jetpackme.wordpress.com/contact-support/"
-			status={ cssState.status }
-			primaryErrorSet={ primaryErrorSet }
-			statusError={ cssState.status_error }
-			regenerateCriticalCss={ retry }
-			showRetry={ ! hasRetried }
-		/>
-	) : (
+	return (
 		<Status
-			isCloudCssAvailable={ isCloudCssAvailable }
-			status={ cssState.status }
-			successCount={ successCount }
-			issues={ issues }
-			updated={ cssState.updated }
-			progress={ criticalCssProgress }
-			suggestRegenerate={ suggestRegenerate }
-			generateText={ __(
-				'Jetpack Boost will generate Critical CSS for you automatically.',
-				'jetpack-boost'
-			) }
-			generateMoreText={ __( 'Jetpack Boost is generating more Critical CSS.', 'jetpack-boost' ) }
+			cssState={ cssState }
+			isCloud={ true }
+			hasRetried={ hasRetried }
+			retry={ retry }
+			extraText={ extraText || undefined }
+			overrideText={ overrideText || undefined }
 		/>
 	);
-};
-
-export default CloudCssMeta;
+}

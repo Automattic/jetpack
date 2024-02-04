@@ -1,13 +1,11 @@
 import { Button } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { moreVertical, download } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
-import { STORE_ID } from '../../state/store';
 import Card from '../card';
 import ActionButton, { PRODUCT_STATUSES } from './action-button';
 import Status from './status';
@@ -18,6 +16,8 @@ export const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.INACTIVE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.ABSENT ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ERROR ]: __( 'Error', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.CAN_UPGRADE ]: __( 'Active', 'jetpack-my-jetpack' ),
 };
@@ -169,7 +169,6 @@ const ProductCard = props => {
 	} );
 
 	const { recordEvent } = useAnalytics();
-	const { dismissWelcomeBanner } = useDispatch( STORE_ID );
 
 	/**
 	 * Calls the passed function onActivate after firing Tracks event
@@ -178,9 +177,8 @@ const ProductCard = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
 			product: slug,
 		} );
-		dismissWelcomeBanner();
 		onActivate();
-	}, [ slug, onActivate, dismissWelcomeBanner, recordEvent ] );
+	}, [ slug, onActivate, recordEvent ] );
 
 	/**
 	 * Calls the passed function onAdd after firing Tracks event
@@ -189,8 +187,7 @@ const ProductCard = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
 			product: slug,
 		} );
-		dismissWelcomeBanner();
-	}, [ slug, recordEvent, dismissWelcomeBanner ] );
+	}, [ slug, recordEvent ] );
 
 	/**
 	 * Calls the passed function onManage after firing Tracks event
@@ -199,8 +196,7 @@ const ProductCard = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
 			product: slug,
 		} );
-		dismissWelcomeBanner();
-	}, [ slug, recordEvent, dismissWelcomeBanner ] );
+	}, [ slug, recordEvent ] );
 
 	/**
 	 * Calls the passed function onManage after firing Tracks event
@@ -209,8 +205,7 @@ const ProductCard = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_fixconnection_click', {
 			product: slug,
 		} );
-		dismissWelcomeBanner();
-	}, [ slug, recordEvent, dismissWelcomeBanner ] );
+	}, [ slug, recordEvent ] );
 
 	/**
 	 * Calls when the "Learn more" button is clicked
@@ -219,8 +214,7 @@ const ProductCard = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_learnmore_click', {
 			product: slug,
 		} );
-		dismissWelcomeBanner();
-	}, [ slug, recordEvent, dismissWelcomeBanner ] );
+	}, [ slug, recordEvent ] );
 
 	/**
 	 * Use a Tracks event to count a standalone plugin install request
@@ -289,14 +283,12 @@ const ProductCard = props => {
 					className={ styles.button }
 					additionalActions={ additionalActions }
 				/>
-				{ ! isAbsent && (
-					<Status
-						status={ status }
-						isFetching={ isDeactivatingStandalone }
-						isInstallingStandalone={ isInstallingStandalone }
-						isDeactivatingStandalone={ isFetching }
-					/>
-				) }
+				<Status
+					status={ status }
+					isFetching={ isDeactivatingStandalone }
+					isInstallingStandalone={ isInstallingStandalone }
+					isDeactivatingStandalone={ isFetching }
+				/>
 			</div>
 		</Card>
 	);

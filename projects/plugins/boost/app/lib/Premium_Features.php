@@ -12,6 +12,7 @@ class Premium_Features {
 	const PERFORMANCE_HISTORY = 'performance-history';
 	const IMAGE_CDN_QUALITY   = 'image-cdn-quality';
 	const PRIORITY_SUPPORT    = 'support';
+	const PAGE_CACHE          = 'page-cache';
 
 	const TRANSIENT_KEY = 'premium_features';
 

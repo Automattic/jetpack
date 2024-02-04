@@ -3,6 +3,7 @@ import {
 	getJetpackData,
 	isAtomicSite,
 	isSimpleSite,
+	useModuleStatus,
 } from '@automattic/jetpack-shared-extension-utils';
 import {
 	InnerBlocks,
@@ -20,6 +21,7 @@ import {
 	SelectControl,
 	TextareaControl,
 	TextControl,
+	Notice,
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -36,6 +38,7 @@ import JetpackEmailConnectionSettings from './components/jetpack-email-connectio
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
+import useFormAccessibleName from './hooks/use-form-accessible-name';
 import { withStyleVariables } from './util/with-style-variables';
 import defaultVariations from './variations';
 
@@ -88,10 +91,6 @@ export const JetpackContactFormEdit = forwardRef(
 			defaultVariation,
 			canUserInstallPlugins,
 			style,
-			isModuleActive,
-			isLoadingModules,
-			isChangingStatus,
-			updateJetpackModuleStatus,
 		},
 		ref
 	) => {
@@ -108,6 +107,9 @@ export const JetpackContactFormEdit = forwardRef(
 		} = attributes;
 
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
+
+		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+			useModuleStatus( 'contact-form' );
 
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
@@ -158,6 +160,8 @@ export const JetpackContactFormEdit = forwardRef(
 			}
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [] );
+
+		useFormAccessibleName( formTitle, clientId, setAttributes );
 
 		useEffect( () => {
 			if ( to === undefined && postAuthorEmail ) {
@@ -286,12 +290,7 @@ export const JetpackContactFormEdit = forwardRef(
 			}
 			return (
 				<ContactFormPlaceholder
-					changeStatus={ val => {
-						updateJetpackModuleStatus( {
-							name: 'contact-form',
-							active: val,
-						} );
-					} }
+					changeStatus={ changeStatus }
 					isModuleActive={ isModuleActive }
 					isLoading={ isChangingStatus }
 				/>
@@ -305,11 +304,18 @@ export const JetpackContactFormEdit = forwardRef(
 		return (
 			<>
 				<InspectorControls>
+					{ ! attributes.formTitle && (
+						<PanelBody>
+							<Notice status="warning" isDismissible={ false }>
+								{ __(
+									'Add a heading inside the form or before it to help everybody identify it.',
+									'jetpack-forms'
+								) }
+							</Notice>{ ' ' }
+						</PanelBody>
+					) }
 					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
-						<JetpackManageResponsesSettings
-							formTitle={ formTitle }
-							setAttributes={ setAttributes }
-						/>
+						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
 					</PanelBody>
 					<PanelBody title={ __( 'Submission Settings', 'jetpack-forms' ) } initialOpen={ false }>
 						{ renderSubmissionSettings() }
@@ -372,7 +378,6 @@ export default compose( [
 		const { getBlocks } = select( 'core/block-editor' );
 		const { getEditedPostAttribute } = select( 'core/editor' );
 		const { getSite, getUser, canUser } = select( 'core' );
-		const { isModuleActive, areModulesLoading, areModulesUpdating } = select( 'jetpack-modules' );
 		const innerBlocks = getBlocks( props.clientId );
 
 		const authorId = getEditedPostAttribute( 'author' );
@@ -397,15 +402,11 @@ export default compose( [
 			siteTitle: get( getSite && getSite(), [ 'title' ] ),
 			postTitle: postTitle,
 			postAuthorEmail: authorEmail,
-			isModuleActive: isModuleActive( 'contact-form' ),
-			isLoadingModules: areModulesLoading(),
-			isChangingStatus: areModulesUpdating(),
 		};
 	} ),
 	withDispatch( dispatch => {
 		const { replaceInnerBlocks, selectBlock } = dispatch( 'core/block-editor' );
-		const { updateJetpackModuleStatus } = dispatch( 'jetpack-modules' );
-		return { replaceInnerBlocks, selectBlock, updateJetpackModuleStatus };
+		return { replaceInnerBlocks, selectBlock };
 	} ),
 	withInstanceId,
 	withThemeProvider,

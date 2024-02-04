@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Social: Refactored storing of feature options to use core functions
