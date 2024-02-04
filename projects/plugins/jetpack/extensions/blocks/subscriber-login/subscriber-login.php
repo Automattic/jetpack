@@ -46,7 +46,8 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return void
  */
 function subscriber_logout() {
-	Abstract_Token_Subscription_Service::clear_token_cookie();
+	$cookie_domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
+	Abstract_Token_Subscription_Service::clear_token_cookie( $cookie_domain );
 }
 
 /**
