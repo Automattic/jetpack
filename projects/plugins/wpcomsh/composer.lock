@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2e29ec7af7041e0ded3defb232354c36",
+    "content-hash": "9930099f8aaff885da4e3873854ab01a",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -66,26 +66,30 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "v1.17.9",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-assets.git",
-                "reference": "0913a0f465ce48926d320322f61a38b0affa11f4"
+                "reference": "83980bb7efda9e64ee246a6e555e54ee66995bfa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/0913a0f465ce48926d320322f61a38b0affa11f4",
-                "reference": "0913a0f465ce48926d320322f61a38b0affa11f4",
+                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/83980bb7efda9e64ee246a6e555e54ee66995bfa",
+                "reference": "83980bb7efda9e64ee246a6e555e54ee66995bfa",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-constants": "^1.6"
+                "automattic/jetpack-constants": "^2.0.0",
+                "php": ">=7.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-changelogger": "^4.1.0",
                 "brain/monkey": "2.6.1",
-                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
-                "yoast/phpunit-polyfills": "1.0.3"
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -96,7 +100,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.17.x-dev"
+                    "dev-trunk": "2.1.x-dev"
                 }
             },
             "autoload": {
@@ -113,9 +117,9 @@
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-assets/tree/v1.17.9"
+                "source": "https://github.com/Automattic/jetpack-assets/tree/v2.1.0"
             },
-            "time": "2022-04-05T19:39:05+00:00"
+            "time": "2024-02-05T17:56:29+00:00"
         },
         {
             "name": "automattic/jetpack-config",
@@ -163,22 +167,28 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "v1.6.15",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-constants.git",
-                "reference": "f203b7c8ce89760ff8a70abcfbd1308765038fc9"
+                "reference": "d4244e33d2d18902951af05ca5dbb689a23c9cdc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/f203b7c8ce89760ff8a70abcfbd1308765038fc9",
-                "reference": "f203b7c8ce89760ff8a70abcfbd1308765038fc9",
+                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/d4244e33d2d18902951af05ca5dbb689a23c9cdc",
+                "reference": "d4244e33d2d18902951af05ca5dbb689a23c9cdc",
                 "shasum": ""
             },
+            "require": {
+                "php": ">=7.0"
+            },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-changelogger": "^4.0.0",
                 "brain/monkey": "2.6.1",
-                "yoast/phpunit-polyfills": "1.0.3"
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -188,7 +198,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-constants/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.6.x-dev"
+                    "dev-trunk": "2.0.x-dev"
                 }
             },
             "autoload": {
@@ -202,25 +212,26 @@
             ],
             "description": "A wrapper for defining constants in a more testable way.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-constants/tree/v1.6.15"
+                "source": "https://github.com/Automattic/jetpack-constants/tree/v2.0.0"
             },
-            "time": "2022-01-25T17:38:30+00:00"
+            "time": "2023-11-20T20:02:28+00:00"
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v5.11.0",
+            "version": "v5.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "50ea49c8a706fcc2cc72a4c72a5d5f1f0f5a8d6e"
+                "reference": "72e2600eb154027ec02f17051e72c200d8ba9220"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/50ea49c8a706fcc2cc72a4c72a5d5f1f0f5a8d6e",
-                "reference": "50ea49c8a706fcc2cc72a4c72a5d5f1f0f5a8d6e",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/72e2600eb154027ec02f17051e72c200d8ba9220",
+                "reference": "72e2600eb154027ec02f17051e72c200d8ba9220",
                 "shasum": ""
             },
             "require": {
+                "automattic/jetpack-assets": "^2.1.0",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -239,7 +250,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.11.x-dev"
+                    "dev-trunk": "5.12.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -257,36 +268,41 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.11.0"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.12.0"
             },
-            "time": "2024-01-29T19:38:35+00:00"
+            "time": "2024-02-05T17:56:57+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
-            "version": "v0.2.4",
+            "version": "v0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-post-list.git",
-                "reference": "bc8d679028aab5c4b267b32583fc4c5588c32931"
+                "reference": "1e04b56986840a1254ac8d5889a3b7d212d316b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-post-list/zipball/bc8d679028aab5c4b267b32583fc4c5588c32931",
-                "reference": "bc8d679028aab5c4b267b32583fc4c5588c32931",
+                "url": "https://api.github.com/repos/Automattic/jetpack-post-list/zipball/1e04b56986840a1254ac8d5889a3b7d212d316b0",
+                "reference": "1e04b56986840a1254ac8d5889a3b7d212d316b0",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-assets": "^1.12"
+                "automattic/jetpack-assets": "^2.0.1",
+                "php": ">=7.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-changelogger": "^4.0.3",
                 "automattic/wordbless": "@dev",
-                "yoast/phpunit-polyfills": "1.0.2"
+                "yoast/phpunit-polyfills": "1.1.0"
             },
-            "type": "library",
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-post-list",
+                "textdomain": "jetpack-post-list",
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-post-list.php"
                 },
@@ -294,7 +310,7 @@
                     "link-template": "https://github.com/automattic/jetpack-post-list/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.2.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 }
             },
             "autoload": {
@@ -308,9 +324,9 @@
             ],
             "description": "Enhance the classic view of the Admin section of your WordPress site",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-post-list/tree/v0.2.4"
+                "source": "https://github.com/Automattic/jetpack-post-list/tree/v0.5.1"
             },
-            "time": "2021-11-22T09:43:36+00:00"
+            "time": "2023-11-24T21:14:45+00:00"
         },
         {
             "name": "automattic/text-media-widget-styles",
@@ -2631,5 +2647,5 @@
         "php": ">=7.0.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
