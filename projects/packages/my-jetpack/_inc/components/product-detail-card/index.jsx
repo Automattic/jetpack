@@ -127,7 +127,7 @@ const ProductDetailCard = ( {
 	 * Or when:
 	 * - it's a quantity-based product
 	 */
-	const needsPurchase = ! isFree || quantity != null;
+	const needsPurchase = ( ! isFree && ! hasRequiredPlan ) || quantity != null;
 
 	// Redirect to the referrer URL when the `redirect_to_referrer` query param is present.
 	const referrerURL = useRedirectToReferrer();
