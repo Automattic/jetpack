@@ -556,8 +556,8 @@ HTML;
 		$has_blocks_flag = has_blog_sticker( 'verbum-block-comments', $blog_id );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$gutenberg_query_param = isset( $_GET['verbum_gutenberg'] ) ? intval( $_GET['verbum_gutenberg'] ) : null;
-		// This will release to 30% of sites.
-		$blog_in_10_percent = $blog_id % 100 >= 70;
+		// This will release to 50% of sites.
+		$blog_in_10_percent = $blog_id % 100 >= 50;
 		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
 			? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
