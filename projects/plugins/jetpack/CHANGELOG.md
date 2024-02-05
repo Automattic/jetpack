@@ -4,44 +4,38 @@
 
 ## 13.1-beta - 2024-02-05
 ### Enhancements
-- Blog Stats Block: allow transforming the Legacy Widget into the new block. [#35408]
-- Gutenberg: Add Blog Stats block. [#34557]
-- Making sharing buttons block visible to all users [#34553]
-- Social: Added recommendation card for the advanced plan [#35244]
-- Top Posts & Pages block: allow transforming the Legacy Widget into the new block. [#34717]
-- Top Posts & Pages block: Remove unnecessary parameters from endpoint. [#34614]
+- Like block: the existing Jetpack Like & Reblog button features are now available as a block! With the new Like block, users are be able to add the Like & Reblog features not just to posts and pages, but also to block templates and block patterns. You can give the new Like block a try by adding it from within the editor just like any other block.
+- Sharing Buttons block: similar to the Like block mentioned above, the existing Jetpack Sharing Buttons feature is now available as a block.
 
 ### Improved compatibility
+- GIF block: accept Giphy shortlinks as a valid embed. [#34786]
 - Performance: improve script enqueuing strategies to rely on methods introduced in WordPress 6.3. [#34072]
-- Sitemaps: Use wp_loaded filter hook instead of init filter hook to load the permalinks for the sitemaps, Which will allow plugins and other hooks to load. [#34269]
+- Sitemaps: use wp_loaded filter hook instead of init hook to load the permalinks for the sitemaps, which allows plugins and other hooks to load. [#34269]
 
 ### Bug fixes
-- Dashboard: update the Support card to display the right contents depending on the plan or product used on the site. [#35364]
-- WordPress.com REST API: avoid fatal error when receiving error in API response. [#35389]
+- Related Posts block: get related posts only when the option is turned on and the current post contains a Related Posts block. [#34958]
+- Spotify shortcode: prevent a fatal error in PHP 8.1 if no attributes are passed. [#34891]
+- Theme Tools: ensure that Content Options does not override the Featured Images options set within blocks. [#34805]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Add Jetpack Manage banner in the Dashboard [#35283]
-- Admin Interface: remove exception for Import screen on Classic style [#35258]
-- AI Proofread plugin: add feature to the event props [#35370]
-- Fix issue where there are two Jetpack menu items that link users to Jetpack Backup [#35387]
-- Jetpack AI: add loading state to the usage panel. [#35352]
-- Jetpack AI: Build a Calypso URL as the redirect destination for Simple sites after upgrade. [#35376]
-- Jetpack AI: move error handling from top of block to closer the AI Control input. [#35322]
-- Jetpack AI: Use the editor URL as the redirect destination for after-purchase redirect. [#35263]
-- Jetpack Sync: Make media extraction more consistent with regards to getting alt text and image size information [#35369]
-- Remove sharing buttons on Print view. If multiple sharing buttons on the page they all should work. [#35382]
-- Revert the Tools menu to the one in core for the wp-admin interface. [#35212]
-- Sharing: update block markup to simplify output and escape as late as possible. [#35390]
-- Subscriber Login: Allow to add it to the Navigation block [#35410]
-- Subscriber Login: Fix log in URL for simple sites [#35371]
-- Subscriber Login: Move Subscriber Login block to production [#35332]
-- tiled gallery: carousel-image-args.php: Fix PHP warnings from nested arrays in image meta [#35317]
-- Updated package dependencies. [#35384]
-- Updated package dependencies. [#35385]
-- Update the Jetpack Manage Banner trackEvent target name [#35378]
-- Updating sharing buttons control with color styles settings [#35354]
-- Wordpress.com Tools Menu: Add Github Deployments submenu and gate behind a constant [#35350]
-- wpcom_restapi_copy_theme_plugin_actions: Fix PHP 8.1 fatals related to static calls on non-static [#35383]
+- Reference the Jetpack 13.1 milestone for all closed issues being included in the 13.1 release: https://github.com/Automattic/jetpack/milestone/385?closed=1
+- AI Assistant: various fixes and improvements.
+- Blog Stats block: add new block to beta blocks.
+- Contact Form: fix source for concatenated stylesheet. [#35091]
+- GIF block: fix styling of the search bar input. [#34779]
+- iCalendarReader: support BYDAY recurrence rules for last, second-to-last, or third-to-last weekdays. [#35050]
+- Post Images: avoid PHP warnings on sites using PHP 8.1+, when a post image has a malformed URL. [#34926]
+- Related Posts block: address accessibility issues. [#34925]
+- REST API: fixed the way we treat 0 and 1 integers in boolean context. [#35190]
+- Subscriber Login block: add new block to beta blocks.
+- Subscriptions: various fixes and improvements.
+- Sync: make media extraction more consistent with regards to getting alt text and image size information. [#35369]
+- Top Posts & Pages block: add new block to beta blocks.
+- Woo: add support for WooCommerce HPOS to the Google Analytics module. [#33152]
+- WPcom: avoid fatal error when receiving error in WPcom API response. [#35389]
+- WPcom: enhanced WordPress.com API compatibility with third party plugin data. [#34770]
+- Tiled gallery: fix PHP warnings from nested arrays in image meta. [#35317]
+- YouTube shortcode: handle being given an array with a 'url' key insteadad of the URL as a string. [#35181]
 
 ## 13.1-a.9 - 2024-01-29
 ### Enhancements
