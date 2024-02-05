@@ -371,6 +371,15 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds WordPress.com menu.
+	 */
+	public function add_wpcom_menu() {
+		$submenu_position = parent::add_wpcom_menu();
+
+		add_submenu_page( 'wpcom', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, $submenu_position++ );
+	}
+
+	/**
 	 * Adds Upgrades menu.
 	 *
 	 * @param string $plan The current WPCOM plan of the blog.
@@ -443,9 +452,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		/**
-		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
+		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu when the interface is not set to wp-admin.
 		 */
-		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
+		if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
+		}
 
 		/**
 		 * Adds the WordPress.com Github Deployments submenu under the main Tools menu.
