@@ -69,6 +69,7 @@ export const updateWafSettings = newSettings => {
 				jetpack_waf_ip_allow_list: newSettings.ipAllowList,
 				jetpack_waf_ip_block_list: newSettings.ipBlockList,
 				jetpack_waf_share_data: newSettings.shareData,
+				jetpack_waf_share_debug_data: newSettings.shareDebugData,
 			} )
 			.then( settings => {
 				dispatch( {

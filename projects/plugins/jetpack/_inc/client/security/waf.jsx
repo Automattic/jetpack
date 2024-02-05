@@ -181,6 +181,19 @@ export const Waf = class extends Component {
 		);
 	};
 
+	/**
+	 * Toggle share debug data.
+	 */
+	toggleShareDebugData = () => {
+		this.setState(
+			{
+				...this.state,
+				shareDebugData: ! this.state.shareDebugData,
+			},
+			this.onSubmit
+		);
+	};
+
 	render() {
 		const isWafActive = this.props.getOptionValue( 'waf' );
 		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
@@ -340,7 +353,46 @@ export const Waf = class extends Component {
 							>
 								{ createInterpolateElement(
 									__(
-										'Allow Jetpack to collect data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'Allow Jetpack to collect extra debug data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'jetpack'
+									),
+									{
+										ExternalLink: (
+											<ExternalLink
+												href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) }
+											/>
+										),
+										hr: <hr />,
+									}
+								) }
+							</InfoPopover>
+						</div>
+					}
+				/>
+			</div>
+		);
+
+		const shareDebugDataSettings = (
+			<div className="waf__settings__toggle-setting">
+				<ToggleControl
+					checked={ this.props.settings?.shareDebugData }
+					disabled={ baseInputDisabledCase }
+					toggling={
+						this.props.isUpdatingWafSettings &&
+						this.state.shareDebugata !== this.props.settings?.shareDebugData
+					}
+					onChange={ this.toggleShareDebugData }
+					label={
+						<div className="waf__settings__toggle-setting__label">
+							<span>{ __( 'Share debug data with Jetpack', 'jetpack' ) }</span>
+							<InfoPopover
+								position="right"
+								screenReaderText={ __( 'Learn more', 'jetpack' ) }
+								className="waf__settings__share-debug-data-popover"
+							>
+								{ createInterpolateElement(
+									__(
+										'Allow Jetpack to collect debug data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
 										'jetpack'
 									),
 									{
@@ -471,6 +523,7 @@ export const Waf = class extends Component {
 							{ automaticRulesSettings }
 							{ ipListSettings }
 							{ shareDataSettings }
+							{ shareDebugDataSettings }
 						</FormFieldset>
 					) }
 				</SettingsGroup>
