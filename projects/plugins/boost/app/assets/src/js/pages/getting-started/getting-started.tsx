@@ -45,7 +45,9 @@ const GettingStarted: React.FC = () => {
 					wpcomBlogId ? wpcomBlogId.toString() : null
 				);
 			} else {
+				if( ! isPremium ) {
 				setCriticalCssState( true );
+				}
 				navigate( '/', { replace: true } );
 			}
 		}
