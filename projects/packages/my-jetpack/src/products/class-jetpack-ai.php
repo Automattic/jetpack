@@ -63,7 +63,7 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Jetpack AI', 'jetpack-my-jetpack' );
+		return __( 'AI', 'jetpack-my-jetpack' );
 	}
 
 	/**

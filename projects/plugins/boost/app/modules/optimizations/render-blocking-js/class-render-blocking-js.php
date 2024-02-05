@@ -219,8 +219,8 @@ class Render_Blocking_JS implements Pluggable {
 			'~<!--.*?-->~si',
 
 			// Scripts with types that do not execute complex code. Moving them down can be dangerous
-			// and does not benefit performance. Includes types: application/json and importmap.
-			'~<script\s+[^\>]*type=(?<q>["\']*)(application/json|importmap)\k<q>.*?>.*?</script>~si',
+			// and does not benefit performance. Includes types: application/json, application/ld+json and importmap.
+			'~<script\s+[^\>]*type=(?<q>["\']*)(application\/(ld\+)?json|importmap)\k<q>.*?>.*?<\/script>~si',
 		);
 
 		return preg_replace_callback(
