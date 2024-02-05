@@ -1681,7 +1681,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "bf778754fb706da75a7c178fa20217ae9281e212"
+				"reference": "788923064a9e6dfd1fb5287d3f37f52f97c97774"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1713,7 +1713,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.8.x-dev"
+					"dev-trunk": "4.9.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
