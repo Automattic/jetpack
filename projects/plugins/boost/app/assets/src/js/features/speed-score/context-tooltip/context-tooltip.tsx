@@ -9,7 +9,6 @@ const ContextTooltip = () => {
 			placement={ 'bottom' }
 			className={ styles.tooltip }
 			iconSize={ 22 }
-			offset={ 10 }
 			wide={ true }
 		>
 			<p>

@@ -7,14 +7,132 @@
     "content-hash": "eec12a75b7ddd8f85b30cc58ffb814c6",
     "packages": [
         {
+            "name": "automattic/jetpack-assets",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/assets",
+                "reference": "d5648e0a4f0a8bffbbc805d0f6a5ed0f3cedd521"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "brain/monkey": "2.6.1",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-assets",
+                "textdomain": "jetpack-assets",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "2.1.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "actions.php"
+                ],
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Asset management utilities for Jetpack ecosystem packages",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-constants",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/constants",
+                "reference": "3fd2bf1d1ba0bb374918e6b7dd670735ce554c2b"
+            },
+            "require": {
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "brain/monkey": "2.6.1",
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-constants",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-constants/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A wrapper for defining constants in a more testable way.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-mu-wpcom",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "e680986f807f26c9aea852decad5b9f6fff63c30"
+                "reference": "dae0cc7eec39d1aa18226cc4a392bf989e4ee2eb"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -33,7 +151,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.9.x-dev"
+                    "dev-trunk": "5.12.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
