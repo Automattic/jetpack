@@ -1,0 +1,16 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.wp-block-jetpack-blog-stats {
+	.jetpack-blog-stats__loading {
+		// Same as RichText component's placeholder opacity from Core.
+		opacity: 0.62;
+	}
+
+	.components-placeholder__fieldset {
+		display: block;
+	}
+}
+
+.jetpack-blog-stats__delay-notice {
+	color: $gray-700;
+}
