@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -338,6 +339,14 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		} else {
 			parent::add_jetpack_menu();
 		}
+
+		/**
+		 * Prevent duplicate menu items that link to Jetpack Backup.
+		 * Hide the one that's shown when the standalone backup plugin is not installed, since Jetpack Backup is already included in Atomic sites.
+		 *
+		 * @see https://github.com/Automattic/jetpack/pull/33955
+		 */
+		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 	}
 
 	/**
@@ -437,6 +446,13 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
 		 */
 		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
+
+		/**
+		 * Adds the WordPress.com Github Deployments submenu under the main Tools menu.
+		 */
+		if ( apply_filters( 'jetpack_show_wpcom_github_deployments_menu', false ) ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Github Deployments', 'jetpack' ), __( 'Github Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 7 );
+		}
 	}
 
 	/**

@@ -23,8 +23,9 @@ test( 'Atomic: author_must_fill_name_and_email', async ( { page } ) => {
 		.fill( randomName );
 	await page
 		.frameLocator( 'iframe[name="jetpack_remote_comment"]' )
-		.getByRole( 'button', { name: 'Reply' } )
+		.getByRole( 'button', { name: 'Comment' } )
 		.click();
+	await page.getByText( 'Continue reading' ).click();
 
 	await page.waitForLoadState( 'domcontentloaded' );
 	await expect( page.getByText( randomComment ) ).toBeVisible();

@@ -37,6 +37,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_site_editor_dashboard_link' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_import_customizations' ) );
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_marketplace_products_updater' ) );
 
@@ -265,5 +266,12 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
 		}
+	}
+
+	/**
+	 * Load import.php customizations.
+	 */
+	public static function load_import_customizations() {
+		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
 	}
 }
