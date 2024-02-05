@@ -44,7 +44,7 @@ class Note {
 				'items_list'            => esc_html__( 'Notes list', 'jetpack-social' ),
 			),
 			'show_in_rest' => true,
-			'supports'     => array( 'editor', 'thumbnail', 'publicize' ),
+			'supports'     => array( 'editor', 'thumbnail', 'publicize', 'activitypub' ),
 			'menu_icon'    => 'dashicons-welcome-write-blog',
 
 		);
