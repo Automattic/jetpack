@@ -16,6 +16,8 @@ export const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.INACTIVE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.ABSENT ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ERROR ]: __( 'Error', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.CAN_UPGRADE ]: __( 'Active', 'jetpack-my-jetpack' ),
 };
@@ -281,14 +283,12 @@ const ProductCard = props => {
 					className={ styles.button }
 					additionalActions={ additionalActions }
 				/>
-				{ ! isAbsent && (
-					<Status
-						status={ status }
-						isFetching={ isDeactivatingStandalone }
-						isInstallingStandalone={ isInstallingStandalone }
-						isDeactivatingStandalone={ isFetching }
-					/>
-				) }
+				<Status
+					status={ status }
+					isFetching={ isDeactivatingStandalone }
+					isInstallingStandalone={ isInstallingStandalone }
+					isDeactivatingStandalone={ isFetching }
+				/>
 			</div>
 		</Card>
 	);

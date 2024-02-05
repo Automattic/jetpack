@@ -47,7 +47,9 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_top_posts' ),
-					'permission_callback' => '__return_true',
+					'permission_callback' => function () {
+						return current_user_can( 'edit_posts' );
+					},
 					'args'                => array(
 						'period' => array(
 							'description'       => __( 'Timeframe for stats.', 'jetpack' ),
@@ -55,22 +57,6 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 							'required'          => true,
 							'validate_callback' => function ( $param ) {
 								return is_numeric( $param ) || is_string( $param );
-							},
-						),
-						'number' => array(
-							'description'       => __( 'Number of posts to display.', 'jetpack' ),
-							'type'              => 'integer',
-							'required'          => false,
-							'validate_callback' => function ( $param ) {
-								return is_numeric( $param );
-							},
-						),
-						'types'  => array(
-							'description'       => __( 'Types of content to include.', 'jetpack' ),
-							'type'              => 'string',
-							'required'          => false,
-							'validate_callback' => function ( $param ) {
-								return is_string( $param );
 							},
 						),
 					),
@@ -107,9 +93,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 	 */
 	public function get_top_posts( $request ) {
 		$period = $request->get_param( 'period' );
-		$number = $request->get_param( 'number' );
-		$types  = $request->get_param( 'types' );
-		return Jetpack_Top_Posts_Helper::get_top_posts( $period, $number, $types );
+		return Jetpack_Top_Posts_Helper::get_top_posts( $period );
 	}
 }
 
