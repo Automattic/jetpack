@@ -289,7 +289,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 							{ this.props.isAtomicSite && this.props.isPageOptimizeActive && (
 								<CompactCard
 									className="jp-settings-card__configure-link"
-									href={ `${ this.props.siteAdminUrl }?page=page-optimze` }
+									href={ `${ this.props.siteAdminUrl }admin.php?page=page-optimize` }
 								>
 									{ __(
 										'Optimize JS and CSS for faster page load and render in the browser.',
