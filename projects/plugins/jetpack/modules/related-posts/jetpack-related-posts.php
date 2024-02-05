@@ -497,8 +497,8 @@ EOT;
 
 		if ( isset( $block ) ) {
 			foreach ( $block->inner_blocks as $inner_block ) {
-				if ( 'core/heading' === $inner_block->name && ! empty( trim( wp_strip_all_tags( $inner_block->inner_html ) ) ) ) {
-					$headline_markup = $inner_block->inner_html;
+				if ( 'core/heading' === $inner_block->name && ! empty( wp_strip_all_tags( $inner_block->inner_html ) ) ) {
+					$headline_markup = trim( $inner_block->inner_html );
 					break;
 				}
 			}
