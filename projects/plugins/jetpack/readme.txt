@@ -293,12 +293,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.1-a.9 - 2024-01-29
+### 13.1-beta - 2024-02-05
 #### Enhancements
-- Subject: A new way to upload media via the Jetpack App
+- Blog Stats Block: allow transforming the Legacy Widget into the new block.
+- Gutenberg: Add Blog Stats block.
+- Making sharing buttons block visible to all users
+- Social: Added recommendation card for the advanced plan
+- Top Posts & Pages block: allow transforming the Legacy Widget into the new block.
+- Top Posts & Pages block: Remove unnecessary parameters from endpoint.
 
 #### Improved compatibility
-- RNMobile: Disable Story block
+- Performance: improve script enqueuing strategies to rely on methods introduced in WordPress 6.3.
+- Sitemaps: Use wp_loaded filter hook instead of init filter hook to load the permalinks for the sitemaps, Which will allow plugins and other hooks to load.
+
+#### Bug fixes
+- Dashboard: update the Support card to display the right contents depending on the plan or product used on the site.
+- WordPress.com REST API: avoid fatal error when receiving error in API response.
 
 --------
 
