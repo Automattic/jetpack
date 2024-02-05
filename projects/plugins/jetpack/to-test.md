@@ -39,18 +39,6 @@ There are two new blocks in beta that utilise stats data: the Top Posts & Pages 
   - We do not collect Visitor data for individual posts. As such, you shouldn't be able to select "Visitors" and "This individual post" when adding the block.
 - In all cases, confirm that the block correctly loads on the front-end and contains the appropriate statistic.
 
-### WooCommerce Analytics
-
-Remove logic that prevents site admins being tracked and add store_admin property to WooCommerce analytics events
-
-- Ensure site is connected, WooCommerce is installed, products, payment methods, and shipping methods are available. (Cash on Delivery and Free shipping will be fine).
-- Ensure WooCommerce analytics is running.
-- As a shop manager user: add an item to your cart and go to the checkout.
-- Check out and then visit Tracks and find your event. (I spoofed my user agent so I could find the event easily)
-- Check the event for the `store_admin` property, which should be `1`
-- Repeat as a logged _out_ (e.g. guest) user, the event should be logged, and should have the `store_admin` property but it should be `0`
-- Repeat as a logged in, but _not_ admin user, (e.g. a customer), the event should be logged, and should have the `store_admin` property but it should be `0`
-
 ### Like Block 
 
 The existing Like & Reblog button features are now available as a block. With the new Like block, users are be able to add the Like & Reblog features not just to posts and pages, but also to block templates and block patterns. You can give the new Like block a try by adding it from within the editor just like any other block. For testing purposes, consider trying:
