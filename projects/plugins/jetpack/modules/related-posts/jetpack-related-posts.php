@@ -521,7 +521,7 @@ EOT;
 			esc_attr( $block_attributes['layout'] ),
 			$headline_markup,
 			$list_markup,
-			empty( $headline_markup ) ? esc_attr( __( 'Related Posts', 'jetpack' ) ) : esc_attr( wp_strip_all_tags( $headline_markup ) )
+			empty( $headline_markup ) ? esc_attr__( 'Related Posts', 'jetpack' ) : esc_attr( wp_strip_all_tags( $headline_markup ) )
 		);
 
 		/**
