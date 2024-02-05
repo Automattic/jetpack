@@ -48,37 +48,29 @@ const Status: React.FC< StatusTypes > = ( {
 		);
 	}
 
-	// If my parent has provided override text, show it.
-	if ( overrideText ) {
-		return (
-			<div className={ styles.status }>
-				<div className={ styles.summary }>{ overrideText }</div>
-			</div>
-		);
-	}
-
-	// Otherwise, show the status.
 	return (
-		<div className={ classNames( 'jb-critical-css__meta', styles.status ) }>
+		<div className={ styles.status } data-testid="critical-css-meta">
 			<div className={ styles.summary }>
-				<div className={ styles.successes }>
-					{ sprintf(
-						/* translators: %d is a number of CSS Files which were successfully generated */
-						_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
-						successCount
-					) }
+				{ overrideText || (
+					<div className={ styles.successes }>
+						{ sprintf(
+							/* translators: %d is a number of CSS Files which were successfully generated */
+							_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
+							successCount
+						) }
 
-					{ !! cssState.updated && (
-						<>
-							{ ' ' }
-							<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
-						</>
-					) }
+						{ !! cssState.updated && (
+							<>
+								{ ' ' }
+								<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
+							</>
+						) }
 
-					{ '. ' }
+						{ '. ' }
 
-					{ extraText }
-				</div>
+						{ extraText }
+					</div>
+				) }
 
 				{ cssState.status !== 'pending' && issues.length > 0 && (
 					<div className={ classNames( 'failures', styles.failures ) }>
@@ -105,18 +97,17 @@ const Status: React.FC< StatusTypes > = ( {
 				) }
 			</div>
 
-			{ cssState.status !== 'pending' && (
-				<Button
-					className={ classNames( {
-						'is-link': ! highlightRegenerateButton,
-					} ) }
-					isPrimary={ highlightRegenerateButton }
-					onClick={ () => regenerateAction.mutate() }
-				>
-					{ ! highlightRegenerateButton && <RefreshIcon /> }
-					{ __( 'Regenerate', 'jetpack-boost' ) }
-				</Button>
-			) }
+			<Button
+				className={ styles[ 'regenerate-button' ] }
+				variant={ highlightRegenerateButton ? 'primary' : 'link' }
+				size="small"
+				weight="regular"
+				onClick={ () => regenerateAction.mutate() }
+				icon={ highlightRegenerateButton ? undefined : <RefreshIcon /> }
+				disabled={ cssState.status === 'pending' }
+			>
+				{ __( 'Regenerate', 'jetpack-boost' ) }
+			</Button>
 		</div>
 	);
 };

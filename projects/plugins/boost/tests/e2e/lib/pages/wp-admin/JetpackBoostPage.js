@@ -98,12 +98,12 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async isTheCriticalCssMetaInformationVisible() {
-		const selector = '.jb-critical-css__meta';
+		const selector = '[data-testid="critical-css-meta"]';
 		return this.page.isVisible( selector );
 	}
 
 	async waitForCriticalCssMetaInfoVisibility() {
-		const selector = '.jb-critical-css__meta';
+		const selector = '[data-testid="critical-css-meta"]';
 		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
 	}
 
@@ -113,7 +113,7 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async isTheCriticalCssFailureMessageVisible() {
-		const selector = '.jb-critical-css__meta .failures';
+		const selector = '[data-testid="critical-css-meta"] .failures';
 		return this.page.isVisible( selector );
 	}
 
