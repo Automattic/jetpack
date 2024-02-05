@@ -55,20 +55,11 @@ function BlogStatsEdit( { attributes, className, setAttributes } ) {
 		);
 	}
 
-	const visitorsPlaceholder = _n(
-		/* Translators: Number of visitors */
-		'visitor',
-		'visitors',
-		parseInt( stats ),
-		'jetpack'
-	);
-	const viewsPlaceholder = _n(
-		/* Translators: Number of views */
-		'hit',
-		'hits',
-		parseInt( stats ),
-		'jetpack'
-	);
+	/* Translators: Number of visitors */
+	const visitorsPlaceholder = _n( 'visitor', 'visitors', parseInt( stats ), 'jetpack', 0 );
+
+	/* Translators: Number of views */
+	const viewsPlaceholder = _n( 'hit', 'hits', parseInt( stats ), 'jetpack', 0 );
 
 	return (
 		<>
