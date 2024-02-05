@@ -77,7 +77,8 @@ class Verbum_Comments {
 	 * Get the comment form action url
 	 */
 	public function get_form_action() {
-		return is_jetpack_comments() ? 'https://jetpack.wordpress.com/jetpack-comment/' : site_url( '/wp-comments-post.php' );
+		return is_jetpack_comments() ?
+			wp_json_encode( esc_url_raw( http() . '://' . JETPACK_SERVER__DOMAIN . '/jetpack-comment/' ) ) : site_url( '/wp-comments-post.php' );
 	}
 
 	/**
