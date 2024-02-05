@@ -13,3 +13,9 @@
 #createuser .form-field textarea {
 	width: 25em;
 }
+
+#custom_email_message_description {
+	max-width: 25rem;
+	color: #646970;
+	font-size: 12px;
+}

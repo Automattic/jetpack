@@ -381,11 +381,10 @@ class Jetpack_SSO {
 					</th>
 					<td>
 						<label for="custom_email_message">
+						<textarea aria-describedby="custom_email_message_description" rows="3" maxlength="500" id="custom_email_message" name="custom_email_message"></textarea>
+						<p id="custom_email_message_description">
 							<?php
-								printf(
-									'<textarea rows="3" maxlength="500" id="custom_email_message" name="custom_email_message" placeholder="%s"></textarea>',
-									esc_attr( __( "This user will be invited to WordPress.com, you can include a customized welcoming message that we'll make sure to pass along with the invitation", 'jetpack' ) )
-								);
+								esc_html_e( 'This user will be invited to WordPress.com. You can include a personalized welcome message with the invitation.', 'jetpack' );
 							?>
 						</label>
 					</td>
