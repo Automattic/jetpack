@@ -25,7 +25,7 @@ const GettingStarted: React.FC = () => {
 
 	const pricing = usePricing();
 	const premiumFeatures = usePremiumFeatures();
-	const isPremium = premiumFeatures !== false;
+	const isPremium = premiumFeatures.length > 0;
 
 	const { shouldGetStarted, markGettingStartedComplete } = useGettingStarted();
 	const [ , setCriticalCssState ] = useSingleModuleState( 'critical_css' );
@@ -46,7 +46,7 @@ const GettingStarted: React.FC = () => {
 				);
 			} else {
 				if( ! isPremium ) {
-				setCriticalCssState( true );
+					setCriticalCssState( true );
 				}
 				navigate( '/', { replace: true } );
 			}
