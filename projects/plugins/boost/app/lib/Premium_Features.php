@@ -19,7 +19,7 @@ class Premium_Features {
 	public static function has_feature( $feature ) {
 		$features = self::get_features();
 
-		if( is_array($features) ) {
+		if ( is_array( $features ) ) {
 			return in_array( $feature, $features, true );
 		}
 		return false;
