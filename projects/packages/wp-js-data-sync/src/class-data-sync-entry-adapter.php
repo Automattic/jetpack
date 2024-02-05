@@ -62,14 +62,14 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 		}
 
 		// If WordPress debug is enabled, don't hide exceptions.
-		if( defined('WP_DEBUG') && WP_DEBUG ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			return $this->parser->parse( $this->entry->get() );
 		}
 
 		// If WordPress debug is disabled, attempt to recover by just returning the value
 		try {
 			return $this->parser->parse( $this->entry->get() );
-		} catch( Schema_Error $error ) {
+		} catch ( Schema_Error $error ) {
 			return $this->entry->get();
 		}
 	}

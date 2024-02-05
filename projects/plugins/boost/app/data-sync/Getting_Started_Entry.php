@@ -31,7 +31,7 @@ class Getting_Started_Entry implements Entry_Can_Get, Entry_Can_Set {
 		}
 
 		// For all other cases, the page should be shown only if the flag is set. It indicates that it's a new site.
-		if( $fallback !== false ) {
+		if ( $fallback !== false ) {
 			return \get_option( $this->option_key, $fallback );
 		}
 		return \get_option( $this->option_key );

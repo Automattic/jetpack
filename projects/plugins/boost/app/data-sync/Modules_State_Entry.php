@@ -33,7 +33,7 @@ class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 				'available' => isset( $available_modules[ $slug ] ),
 			);
 		}
-		
+
 		return $modules_state;
 	}
 
