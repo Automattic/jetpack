@@ -54,6 +54,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
+		if ( 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
+			$this->add_woocommerce_installation_menu();
+		}
+
 		ksort( $GLOBALS['menu'] );
 	}
 
