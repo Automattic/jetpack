@@ -361,7 +361,12 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
-		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 10 );
+		/**
+		 * Adds the Hosting Configuration submenu under the Settings menu when the interface is not set to wp-admin.
+		 */
+		if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+			add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 10 );
+		}
 	}
 
 	/**
