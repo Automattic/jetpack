@@ -15,7 +15,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 		$this->end_date   = time() * 1000;
 	}
 
-	public function get( $fallback = false ) {
+	public function get( $_fallback = false ) {
 		$request = new Speed_Score_Graph_History_Request( $this->start_date, $this->end_date, array() );
 		$result  = $request->execute();
 
