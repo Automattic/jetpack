@@ -134,33 +134,38 @@ class Admin_Menu extends Base_Admin_Menu {
 
 	/**
 	 * Adds WordPress.com menu.
+	 *
+	 * @return number The current position of the submenu.
 	 */
 	public function add_wpcom_menu() {
-		if ( get_option( 'wpcom_is_staging_site' ) ) {
-			return;
+		add_menu_page( esc_attr__( 'WordPress.com', 'jetpack' ), __( 'WordPress.com', 'jetpack' ), 'publish_posts', 'wpcom', null, 'dashicons-wordpress-alt', 4 );
+
+		$submenu_position = 0;
+		// We don't want to show the items related to the Upgrades on the staging site.
+		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
+			add_submenu_page( 'wpcom', esc_attr__( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/' . $this->domain, null, $submenu_position++ );
+
+			if ( defined( 'WPCOM_ENABLE_ADD_ONS_MENU_ITEM' ) && WPCOM_ENABLE_ADD_ONS_MENU_ITEM ) {
+				add_submenu_page( 'wpcom', esc_attr__( 'Add-Ons', 'jetpack' ), __( 'Add-Ons', 'jetpack' ), 'manage_options', 'https://wordpress.com/add-ons/' . $this->domain, null, $submenu_position++ );
+			}
+
+			add_submenu_page( 'wpcom', esc_attr__( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $submenu_position++ );
+
+			/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
+			if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
+				add_submenu_page( 'wpcom', esc_attr__( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $submenu_position++ );
+			}
+
+			add_submenu_page( 'wpcom', esc_attr__( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, $submenu_position++ );
 		}
 
-		add_menu_page( __( 'WordPress.com', 'jetpack' ), __( 'WordPress.com', 'jetpack' ), 'publish_posts', 'wpcom', null, 'dashicons-wordpress-alt', 4 );
-
-		add_submenu_page( 'wpcom', __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/' . $this->domain, null, 0 );
-
-		if ( defined( 'WPCOM_ENABLE_ADD_ONS_MENU_ITEM' ) && WPCOM_ENABLE_ADD_ONS_MENU_ITEM ) {
-			add_submenu_page( 'wpcom', __( 'Add-Ons', 'jetpack' ), __( 'Add-Ons', 'jetpack' ), 'manage_options', 'https://wordpress.com/add-ons/' . $this->domain, null, 1 );
-		}
-
-		add_submenu_page( 'wpcom', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 2 );
-
-		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
-		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
-			add_submenu_page( 'wpcom', __( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, 3 );
-		}
-
-		add_submenu_page( 'wpcom', __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 4 );
-		add_submenu_page( 'wpcom', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 5 );
-		add_submenu_page( 'wpcom', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 6 );
+		add_submenu_page( 'wpcom', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, $submenu_position++ );
+		add_submenu_page( 'wpcom', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, $submenu_position++ );
 
 		// Remove the submenu auto-created by Core.
 		$this->hide_submenu_page( 'wpcom', 'wpcom' );
+
+		return $submenu_position;
 	}
 
 	/**
