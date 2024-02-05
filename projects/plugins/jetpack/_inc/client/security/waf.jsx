@@ -22,7 +22,6 @@ import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
 import { ModuleToggle } from '../components/module-toggle';
 import Textarea from '../components/textarea';
-import { getWafState } from '../state/initial-state';
 import { getSetting } from '../state/settings/reducer';
 import { updateWafSettings, updateWafIpAllowList } from '../state/waf/actions';
 import {
@@ -45,6 +44,7 @@ export const Waf = class extends Component {
 		ipBlockList: this.props.settings?.ipBlockList,
 		ipAllowList: this.props.settings?.ipAllowList,
 		shareData: this.props.settings?.shareData,
+		standaloneMode: this.props.settings?.standaloneMode,
 	};
 
 	/**
@@ -62,6 +62,7 @@ export const Waf = class extends Component {
 				ipBlockList: this.props.settings?.ipBlockList,
 				ipAllowList: this.props.settings?.ipAllowList,
 				shareData: this.props.settings?.shareData,
+				standaloneMode: this.props.settings?.standaloneMode,
 			} );
 		}
 
@@ -184,7 +185,6 @@ export const Waf = class extends Component {
 
 	render() {
 		const isWafActive = this.props.getOptionValue( 'waf' );
-		const standaloneMode = isWafActive ? this.props.wafInfo?.standaloneMode : false;
 		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
 		const baseInputDisabledCase =
 			! isWafActive ||
@@ -203,7 +203,7 @@ export const Waf = class extends Component {
 				>
 					{ _x( 'NEW', 'Settings header badge', 'jetpack' ) }
 				</a>
-				{ standaloneMode && (
+				{ this.props.settings?.standaloneMode && (
 					<Status
 						className="waf__standalone__mode"
 						status="active"
@@ -500,7 +500,6 @@ export default connect(
 			settings: getWafSettings( state ),
 			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 			sitePlan,
-			wafInfo: getWafState( state ),
 		};
 	},
 	dispatch => {

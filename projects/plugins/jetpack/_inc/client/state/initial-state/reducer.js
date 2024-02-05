@@ -730,13 +730,3 @@ export function getGutenbergState( state ) {
 export function isSharingBlockAvailable( state ) {
 	return !! state.jetpack.initialState.siteData.isSharingBlockAvailable;
 }
-
-/**
- * Returns information about the WAF.
- *
- * @param {object} state - Global state tree.
- * @returns {object} WAF information.
- */
-export function getWafState( state ) {
-	return state.jetpack.initialState.wafInitialState;
-}
