@@ -8,11 +8,8 @@
 /**
  * Class WordAds_Consent_Management_Provider
  *
- * This is an IAB TCF v2.2 compatible implementation of a [Consent Management Provider](https://iabeurope.eu/transparency-consent-framework/)
+ * This is an integration with the A8C Consent Management Provider
  * to comply with GDPR requirements for privacy and transparency related to advertising.
- *
- * The repository for the CMP front-end JS can be found at: https://github.com/Automattic/cmp
- * Build with `yarn build` then create a Phabricator patch to deploy the assets in the `/dist` folder to WPCOM.
  */
 class WordAds_Consent_Management_Provider {
 
