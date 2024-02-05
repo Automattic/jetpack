@@ -119,7 +119,16 @@ class Jetpack_WooCommerce_Analytics {
 			gmdate( 'YW' )
 		);
 
-		Assets::enqueue_async_script( 'woocommerce-analytics', esc_url( $filename ), esc_url( $filename ), array(), null, false );
+		Assets::register_script(
+			'woocommerce-analytics',
+			esc_url( $filename ),
+			__FILE__,
+			array(
+				'in_footer' => false,
+				'strategy'  => 'defer',
+				'enqueue'   => true,
+			)
+		);
 	}
 
 	/**

@@ -107,9 +107,12 @@ class Customizer {
 			$id,
 			array(
 				'choices'     => array(
-					'relevance' => __( 'Relevance (recommended)', 'jetpack-search-pkg' ),
-					'newest'    => __( 'Newest first', 'jetpack-search-pkg' ),
-					'oldest'    => __( 'Oldest first', 'jetpack-search-pkg' ),
+					'relevance'   => __( 'Relevance (recommended)', 'jetpack-search-pkg' ),
+					'newest'      => __( 'Newest first', 'jetpack-search-pkg' ),
+					'oldest'      => __( 'Oldest first', 'jetpack-search-pkg' ),
+					'rating_desc' => __( 'Product rating', 'jetpack-search-pkg' ),
+					'price_asc'   => __( 'Price: low to high', 'jetpack-search-pkg' ),
+					'price_desc'  => __( 'Price: high to low', 'jetpack-search-pkg' ),
 				),
 				'description' => __( 'Pick the initial sort for your search results.', 'jetpack-search-pkg' ),
 				'label'       => __( 'Default Sort', 'jetpack-search-pkg' ),

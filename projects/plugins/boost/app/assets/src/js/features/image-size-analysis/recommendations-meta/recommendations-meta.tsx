@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import MultiProgress from '../multi-progress/multi-progress';
-import Button from '../button/button';
+import { Button } from '@automattic/jetpack-components';
 import ErrorNotice from '$features/error-notice/error-notice';
 import ImageCdnRecommendation from '$features/image-size-analysis/image-cdn-recommendation/image-cdn-recommendation';
 import { recordBoostEvent, recordBoostEventAndRedirect } from '$lib/utils/analytics';
@@ -113,15 +113,16 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 									) }
 								</div>
 							) }
-							<button
-								type="button"
-								className="components-button is-link"
+							<Button
+								variant="link"
+								size="small"
+								weight="regular"
+								icon={ <RefreshIcon /> }
 								onClick={ handleAnalyzeClick }
 								disabled={ isaRequest.isPending }
 							>
-								<RefreshIcon />
 								{ __( 'Analyze again', 'jetpack-boost' ) }
-							</button>
+							</Button>
 						</div>
 					) }
 
@@ -144,6 +145,7 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 						! isaRequest.isPending && (
 							<div className={ styles[ 'button-area' ] }>
 								<Button
+									variant="secondary"
 									disabled={ isaRequest.isPending }
 									onClick={ () =>
 										recordBoostEventAndRedirect(
@@ -163,7 +165,11 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 					{ ( ! status ||
 						! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( status ) ) && (
 						<div className={ styles[ 'button-area' ] }>
-							<Button disabled={ isaRequest.isPending } onClick={ handleAnalyzeClick }>
+							<Button
+								variant="secondary"
+								disabled={ isaRequest.isPending }
+								onClick={ handleAnalyzeClick }
+							>
 								{ status === ISAStatus.Completed
 									? __( 'Analyze again', 'jetpack-boost' )
 									: __( 'Start image analysis', 'jetpack-boost' ) }

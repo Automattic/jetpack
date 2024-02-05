@@ -104,6 +104,7 @@ class Jetpack_Social {
 				My_Jetpack_Initializer::init();
 			}
 		);
+		add_action( 'init', array( new Automattic\Jetpack\Social\Note(), 'register' ) );
 
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 
@@ -225,6 +226,7 @@ class Jetpack_Social {
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'siteSuffix'        => ( new Status() )->get_site_suffix(),
+				'blogID'            => Connection_Manager::get_site_id( true ),
 				'pluginVersion'     => $this->get_plugin_version(),
 			),
 		);
@@ -325,6 +327,7 @@ class Jetpack_Social {
 			'Jetpack_Editor_Initial_State',
 			array(
 				'siteFragment' => ( new Status() )->get_site_suffix(),
+				'wpcomBlogId'  => Connection_Manager::get_site_id( true ),
 				'social'       => array(
 					'adminUrl'                        => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
 					'sharesData'                      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),

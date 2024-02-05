@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -1673,7 +1674,10 @@ abstract class Publicize_Base {
 	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
 		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
 		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
-		return Redirect::get_url( $source, array( 'site' => ( new Status() )->get_site_suffix() ) );
+		$blog_id         = Connection_Manager::get_site_id( true );
+		$site            = ( new Status() )->get_site_suffix();
+
+		return Redirect::get_url( $source, array( 'site' => $blog_id ? $blog_id : $site ) );
 	}
 
 	/**

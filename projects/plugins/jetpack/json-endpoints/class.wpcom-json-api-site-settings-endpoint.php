@@ -204,7 +204,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 *
 	 * @param array $copy_dirs Array of files to be included in theme context.
 	 */
-	public function wpcom_restapi_copy_theme_plugin_actions( $copy_dirs ) {
+	public static function wpcom_restapi_copy_theme_plugin_actions( $copy_dirs ) {
 		$theme_name        = get_stylesheet();
 		$default_file_name = WP_CONTENT_DIR . "/mu-plugins/infinity/themes/{$theme_name}.php";
 
