@@ -99,10 +99,10 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API upload to WP Media Library routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%1$d/wordads/dsp/api/v1/wpcom/media(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1/wpcom/sites/%1$d/media', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'post_dsp_media' ),
+				'callback'            => array( $this, 'upload_image_to_current_website' ),
 				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
@@ -399,15 +399,55 @@ class Dashboard_REST_Controller {
 	/**
 	 * Redirect POST requests to WordAds DSP Blaze media endpoint for the site.
 	 *
-	 * @param WP_REST_Request $req The request object.
 	 * @return array|WP_Error
 	 */
-	public function post_dsp_media( $req ) {
+	public function upload_image_to_current_website() {
 		$site_id = $this->get_site_id();
 		if ( is_wp_error( $site_id ) ) {
-			return array();
+			return array( 'error' => $site_id->get_error_message() );
 		}
-		return $this->post_dsp_generic( sprintf( 'v1/wpcom/sites/%d/media', $site_id ), $req );
+
+		$file = sanitize_file_name( $_FILES['image'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( ! $file ) {
+			return array( 'error' => 'File is missed' );
+		}
+		if ( ! is_uploaded_file( $file['tmp_name'] ?? '' ) ) {
+			return array( 'error' => 'Specified file was not upload' );
+		}
+
+		// Getting the original file name.
+		$filename = basename( $file['full_path'] );
+		// Upload contents to the Upload folder locally.
+		$upload = wp_upload_bits(
+			$filename,
+			null,
+			file_get_contents( $file['tmp_name'] ) // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		);
+
+		// Check the type of file. We'll use this as the 'post_mime_type'.
+		$filetype = wp_check_filetype( $filename, null );
+
+		// Prepare an array of post data for the attachment.
+		$attachment = array(
+			'guid'           => wp_upload_dir()['url'] . '/' . $filename,
+			'post_mime_type' => $filetype['type'],
+			'post_title'     => preg_replace( '/\.[^.]+$/', '', $filename ),
+			'post_content'   => '',
+			'post_status'    => 'inherit',
+		);
+
+		// Insert the attachment.
+		$attach_id = wp_insert_attachment( $attachment, $upload['file'] );
+
+		// Make sure wp_generate_attachment_metadata() has all requirement dependencies.
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		// Generate the metadata for the attachment, and update the database record.
+		$attach_data = wp_generate_attachment_metadata( $attach_id, $upload['file'] );
+		// Store metadata in the local DB.
+		wp_update_attachment_metadata( $attach_id, $attach_data );
+
+		return array( 'url' => $upload['url'] );
 	}
 
 	/**
@@ -575,30 +615,6 @@ class Dashboard_REST_Controller {
 			array_merge(
 				$args,
 				array( 'method' => 'GET' )
-			)
-		);
-	}
-
-	/**
-	 * Redirect POST requests to WordAds DSP for the site.
-	 *
-	 * @param String          $path The Root API endpoint.
-	 * @param WP_REST_Request $req The request object.
-	 * @param array           $args Request arguments.
-	 * @return array|WP_Error
-	 */
-	public function post_dsp_generic( $path, $req, $args = array() ) {
-		$site_id = $this->get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return array();
-		}
-
-		return $this->request_as_user(
-			sprintf( '/sites/%d/wordads/dsp/api/%s%s', $site_id, $path, $this->build_subpath_with_query_strings( $req->get_params() ) ),
-			'v2',
-			array_merge(
-				$args,
-				array( 'method' => 'POST' )
 			)
 		);
 	}
