@@ -432,7 +432,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
+		/**
+		 * Adds the Hosting Configuration submenu under the Settings menu when the interface is not set to wp-admin.
+		 */
+		if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+			add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
+		}
 
 		// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
