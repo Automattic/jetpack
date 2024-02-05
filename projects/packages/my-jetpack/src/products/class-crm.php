@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
  * Class responsible for handling the CRM product
@@ -128,5 +129,28 @@ class Crm extends Product {
 	 */
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=zerobscrm-dash' );
+	}
+
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 * CRM is available as part of Jetpack Complete
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 }
