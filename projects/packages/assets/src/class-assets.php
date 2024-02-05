@@ -62,12 +62,12 @@ class Assets {
 	/**
 	 * A public method for adding the async script.
 	 *
-	 * @deprecated Since $$next-version$$, the `strategy` feature should be used instead, with the "defer" setting.
+	 * @deprecated Since 2.1.0, the `strategy` feature should be used instead, with the "defer" setting.
 	 *
 	 * @param string $script_handle Script handle.
 	 */
 	public static function add_async_script( $script_handle ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '2.1.0' );
 
 		wp_script_add_data( $script_handle, 'strategy', 'defer' );
 	}
@@ -76,13 +76,13 @@ class Assets {
 	 * Add an async attribute to scripts that can be loaded deferred.
 	 * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script
 	 *
-	 * @deprecated Since $$next-version$$, the `strategy` feature should be used instead.
+	 * @deprecated Since 2.1.0, the `strategy` feature should be used instead.
 	 *
 	 * @param string $tag    The <script> tag for the enqueued script.
 	 * @param string $handle The script's registered handle.
 	 */
 	public function script_add_async( $tag, $handle ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '2.1.0' );
 		if ( empty( $this->defer_script_handles ) ) {
 			return $tag;
 		}
@@ -98,7 +98,7 @@ class Assets {
 	/**
 	 * A helper function that lets you enqueue scripts in an async fashion.
 	 *
-	 * @deprecated Since $$next-version$$ - use the strategy feature instead.
+	 * @deprecated Since 2.1.0 - use the strategy feature instead.
 	 *
 	 * @param string $handle        Name of the script. Should be unique.
 	 * @param string $min_path      Minimized script path.
@@ -108,7 +108,7 @@ class Assets {
 	 * @param bool   $in_footer       Should the script be included in the footer.
 	 */
 	public static function enqueue_async_script( $handle, $min_path, $non_min_path, $deps = array(), $ver = false, $in_footer = true ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '2.1.0' );
 		$assets_instance = self::instance();
 		$assets_instance->add_async_script( $handle );
 		wp_enqueue_script( $handle, self::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
@@ -305,7 +305,7 @@ class Assets {
 	 * This wrapper handles all of that.
 	 *
 	 * @since 1.12.0
-	 * @since $$next-version$$ Add a new `strategy` option to leverage WP >= 6.3 script strategy feature. The `async` option is deprecated.
+	 * @since 2.1.0 Add a new `strategy` option to leverage WP >= 6.3 script strategy feature. The `async` option is deprecated.
 	 * @param string $handle      Name of the script. Should be unique across both scripts and styles.
 	 * @param string $path        Minimized script path.
 	 * @param string $relative_to File that `$path` is relative to. Pass `__FILE__`.
@@ -331,7 +331,7 @@ class Assets {
 		}
 
 		if ( isset( $options['async'] ) ) {
-			_deprecated_argument( __METHOD__, '$$next-version$$', 'The `async` option is deprecated in favor of `strategy`' );
+			_deprecated_argument( __METHOD__, '2.1.0', 'The `async` option is deprecated in favor of `strategy`' );
 		}
 
 		$dir      = dirname( $relative_to );
