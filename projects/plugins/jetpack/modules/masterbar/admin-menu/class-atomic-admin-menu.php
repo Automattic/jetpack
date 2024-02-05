@@ -337,7 +337,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
 			parent::create_jetpack_menu( 2, false );
 
-			// Remove the Newsletter submenu item from Settings and add a it under Jetpack menu.
+			// Remove the Newsletter submenu item from Settings and add it under Jetpack menu.
 			remove_submenu_page( 'options-general.php', 'https://wordpress.com/settings/newsletter/' . $this->domain );
 			add_submenu_page( 'jetpack', esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 2 );
 		} else {
