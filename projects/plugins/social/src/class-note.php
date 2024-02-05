@@ -48,6 +48,6 @@ class Note {
 			'menu_icon'    => 'dashicons-welcome-write-blog',
 
 		);
-		register_post_type( 'jetpack_social_note', $args );
+		register_post_type( 'jetpack-social-note', $args );
 	}
 }
