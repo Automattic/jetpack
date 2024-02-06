@@ -405,7 +405,7 @@ class Jetpack_SSO {
 		$users_with_invites = array_filter(
 			$user_ids,
 			function ( $user_id ) {
-				return self::has_pending_wpcom_invite( $user_id );
+				return $user_id !== null && self::has_pending_wpcom_invite( $user_id );
 			}
 		);
 
@@ -417,13 +417,16 @@ class Jetpack_SSO {
 			$users_with_invites
 		);
 
-		if ( count( $users_with_invites ) ) {
+		$invites_count = count( $users_with_invites );
+		if ( $invites_count > 0 ) {
 			$users_with_invites = implode( ', ', $users_with_invites );
 			$message            = wp_kses(
 				sprintf(
 					/* translators: %s is a comma-separated list of user logins. */
-					__(
+					_n(
+						'WordPress.com invitation will be automatically revoked for user: <strong>%s</strong>.',
 						'WordPress.com invitations will be automatically revoked for users: <strong>%s</strong>.',
+						$invites_count,
 						'jetpack'
 					),
 					$users_with_invites
