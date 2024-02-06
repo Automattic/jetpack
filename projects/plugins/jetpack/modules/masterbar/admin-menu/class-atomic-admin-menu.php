@@ -119,16 +119,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Whether the current user has is using the wp-admin interface.
-	 *
-	 * @param string $screen Dummy to match parent method signature.
-	 * @return bool
-	 */
-	public function use_wp_admin_interface( $screen = '' ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return 'wp-admin' === get_option( 'wpcom_admin_interface' );
-	}
-
-	/**
 	 * Adds Users menu.
 	 */
 	public function add_users_menu() {
