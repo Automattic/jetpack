@@ -396,6 +396,15 @@ class Jetpack_Social {
 	}
 
 	/**
+	 * Plugin deactivation actions to take.
+	 *
+	 * @static
+	 */
+	public static function plugin_deactivation() {
+		Automattic\Jetpack\Social\Note::delete_rewrite_rules_option();
+	}
+
+	/**
 	 * Helper to check that we have a Jetpack connection.
 	 */
 	private function is_connected() {
