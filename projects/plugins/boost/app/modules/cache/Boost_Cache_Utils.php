@@ -67,7 +67,7 @@ class Boost_Cache_Utils {
 
 	/*
 	 * Writes data to a file.
-	 * This creates a temporary filename first, then renames the file to the final filename.
+	 * This creates a temporary file first, then renames the file to the final filename.
 	 * This is done to prevent the file from being read while it is being written to.
 	 *
 	 * @param string $filename - The filename to write to.
