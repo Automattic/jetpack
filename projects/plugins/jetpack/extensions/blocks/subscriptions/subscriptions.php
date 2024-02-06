@@ -170,7 +170,8 @@ function register_block() {
 		<em>Aliquam a ullamcorper lorem<br>Integer at tempus nibh</em>
 	</p>
 	<!-- /wp:paragraph -->
-	<!-- wp:jetpack/subscriptions /--></div>
+	<!-- wp:jetpack/subscriptions /-->
+</div>
 <!-- /wp:group -->';
 				}
 
