@@ -96,7 +96,7 @@ export const initializeMembershipButtons = selector => {
 	} );
 };
 
-const tokenCookieName = 'jp-premium-content-session';
+const tokenCookieName = 'wp-jp-premium-content-session';
 const getTokenFromCookie = function () {
 	const value = `; ${ document.cookie }`;
 	const parts = value.split( `; ${ tokenCookieName } = ` );
@@ -121,7 +121,7 @@ export const setPurchaseResultCookie = function ( premiumContentJWTToken ) {
 	const domain = '.' + hostname;
 
 	document.cookie =
-		'jp-premium-content-session' +
+		'wp-jp-premium-content-session' +
 		'=' +
 		premiumContentJWTToken +
 		'; expires=' +
