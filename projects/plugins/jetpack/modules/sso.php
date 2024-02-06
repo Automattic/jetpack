@@ -403,45 +403,47 @@ class Jetpack_SSO {
 	 * @return WP_Error The modified or not WP_Error object.
 	 */
 	public function send_wpcom_mail_user_invite( $errors, $update, $user ) {
-		$valid_nonce = isset( $_POST['_wpnonce_create-user'] ) ? wp_verify_nonce( $_POST['_wpnonce_create-user'], 'create-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+		if ( ! $update ) {
+			$valid_nonce = isset( $_POST['_wpnonce_create-user'] ) ? wp_verify_nonce( $_POST['_wpnonce_create-user'], 'create-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
 
-		if ( $valid_nonce && ! empty( $_POST['custom_email_message'] ) && strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) ) > 500 ) {
-			$errors->add( 'custom_email_message', __( '<strong>Error</strong>: The custom message is too long. Please keep it under 500 characters.', 'jetpack' ) );
-		}
+			if ( $valid_nonce && ! empty( $_POST['custom_email_message'] ) && strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) ) > 500 ) {
+				$errors->add( 'custom_email_message', __( '<strong>Error</strong>: The custom message is too long. Please keep it under 500 characters.', 'jetpack' ) );
+			}
 
-		if ( $errors->has_errors() ) {
-			return $errors;
-		}
+			if ( $errors->has_errors() ) {
+				return $errors;
+			}
 
-		$email   = $user->user_email;
-		$role    = $user->role;
-		$locale  = get_user_locale( $user->ID );
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		$url     = '/sites/' . $blog_id . '/invites/new';
-		$url     = add_query_arg( 'locale', $locale, $url );
+			$email   = $user->user_email;
+			$role    = $user->role;
+			$locale  = get_user_locale( $user->ID );
+			$blog_id = Jetpack_Options::get_option( 'id' );
+			$url     = '/sites/' . $blog_id . '/invites/new';
+			$url     = add_query_arg( 'locale', $locale, $url );
 
-		$new_user_request = array(
-			'email_or_username' => $email,
-			'role'              => $role,
-		);
+			$new_user_request = array(
+				'email_or_username' => $email,
+				'role'              => $role,
+			);
 
-		if ( $valid_nonce && isset( $_POST['custom_email_message'] ) && strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) > 0 ) ) {
-			$new_user_request['message'] = sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) );
-		}
+			if ( $valid_nonce && isset( $_POST['custom_email_message'] ) && strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) > 0 ) ) {
+				$new_user_request['message'] = sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) );
+			}
 
-		$response = Client::wpcom_json_api_request_as_user(
-			$url,
-			'2', // Api version
-			array(
-				'method' => 'POST',
-			),
-			array(
-				'invitees' => array( $new_user_request ),
-			)
-		);
+			$response = Client::wpcom_json_api_request_as_user(
+				$url,
+				'2', // Api version
+				array(
+					'method' => 'POST',
+				),
+				array(
+					'invitees' => array( $new_user_request ),
+				)
+			);
 
-		if ( 200 !== $response['response']['code'] ) {
-			$errors->add( 'invitation_not_sent', __( '<strong>Error</strong>: "The user invitation email could not be sent, the user account was not created.', 'jetpack' ) );
+			if ( 200 !== $response['response']['code'] ) {
+				$errors->add( 'invitation_not_sent', __( '<strong>Error</strong>: The user invitation email could not be sent, the user account was not created.', 'jetpack' ) );
+			}
 		}
 
 		return $errors;
