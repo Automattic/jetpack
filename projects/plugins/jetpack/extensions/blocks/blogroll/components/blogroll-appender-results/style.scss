@@ -70,6 +70,15 @@
 				height: 40px;
 				flex-shrink: 0;
 
+				&.empty-site-icon {
+					background: url('../../placeholder-site-icon.svg');
+					background-size: cover;
+	
+					img {
+						display: none;
+					}
+				}
+
 				img {
 					border-radius: 50%;
 					width: 40px;
