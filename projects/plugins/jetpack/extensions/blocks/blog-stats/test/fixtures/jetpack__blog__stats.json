@@ -4,6 +4,7 @@
 		"name": "jetpack/blog-stats",
 		"isValid": true,
 		"attributes": {
+			"statsData": "views",
 			"statsOption": "site"
 		},
 		"innerBlocks": [],
