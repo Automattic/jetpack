@@ -125,56 +125,60 @@ function SubscriptionsSettings( props ) {
 					<span className="jp-form-toggle-explanation">{ subscriptions.description }</span>
 				</ModuleToggle>
 				{
-					<FormFieldset>
-						<ToggleControl
-							checked={ isSubscriptionsActive && isStbEnabled }
-							disabled={ isDisabled }
-							toggling={ isSavingAnyOption( [ 'stb_enabled' ] ) }
-							onChange={ handleSubscribeToBlogToggleChange }
-							label={ __(
-								'Enable the “subscribe to site” option on your comment form',
-								'jetpack'
-							) }
-						/>
-						<ToggleControl
-							checked={ isSubscriptionsActive && isStcEnabled }
-							disabled={ isDisabled }
-							toggling={ isSavingAnyOption( [ 'stc_enabled' ] ) }
-							onChange={ handleSubscribeToCommentToggleChange }
-							label={ __(
-								'Enable the “subscribe to comments” option on your comment form',
-								'jetpack'
-							) }
-						/>
-						<ToggleControl
-							checked={ isSubscriptionsActive && isSmEnabled }
-							disabled={ isDisabled }
-							toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
-							onChange={ handleSubscribeModalToggleChange }
-							label={ __( 'Enable subscription pop-up', 'jetpack' ) }
-						/>
-						<p className="jp-form-setting-explanation">
-							{ __(
-								'Automatically add a subscription form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
-								'jetpack'
-							) }
-							{ isBlockTheme && subscribeModalEditorUrl && (
-								<>
-									{ ' ' }
-									<ExternalLink href={ subscribeModalEditorUrl }>
-										{ __( 'Preview and edit the pop-up', 'jetpack' ) }
-									</ExternalLink>
-								</>
-							) }
-						</p>
-						<ToggleControl
-							checked={ isSubscriptionsActive && isSbPostEndEnabled }
-							disabled={ isDisabled }
-							toggling={ isSavingAnyOption( [ 'sb_post_end_enabled' ] ) }
-							onChange={ handleSubscribePostEndToggleChange }
-							label={ __( 'Add Subscribe block at the end of each post', 'jetpack' ) }
-						/>
-					</FormFieldset>
+					<>
+						<FormFieldset>
+							<ToggleControl
+								checked={ isSubscriptionsActive && isStbEnabled }
+								disabled={ isDisabled }
+								toggling={ isSavingAnyOption( [ 'stb_enabled' ] ) }
+								onChange={ handleSubscribeToBlogToggleChange }
+								label={ __(
+									'Enable the “subscribe to site” option on your comment form',
+									'jetpack'
+								) }
+							/>
+							<ToggleControl
+								checked={ isSubscriptionsActive && isStcEnabled }
+								disabled={ isDisabled }
+								toggling={ isSavingAnyOption( [ 'stc_enabled' ] ) }
+								onChange={ handleSubscribeToCommentToggleChange }
+								label={ __(
+									'Enable the “subscribe to comments” option on your comment form',
+									'jetpack'
+								) }
+							/>
+							<ToggleControl
+								checked={ isSubscriptionsActive && isSmEnabled }
+								disabled={ isDisabled }
+								toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
+								onChange={ handleSubscribeModalToggleChange }
+								label={ __( 'Enable subscription pop-up', 'jetpack' ) }
+							/>
+							<p className="jp-form-setting-explanation">
+								{ __(
+									'Automatically add a subscription form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
+									'jetpack'
+								) }
+								{ isBlockTheme && subscribeModalEditorUrl && (
+									<>
+										{ ' ' }
+										<ExternalLink href={ subscribeModalEditorUrl }>
+											{ __( 'Preview and edit the pop-up', 'jetpack' ) }
+										</ExternalLink>
+									</>
+								) }
+							</p>
+						</FormFieldset>
+						<FormFieldset>
+							<ToggleControl
+								checked={ isSubscriptionsActive && isSbPostEndEnabled }
+								disabled={ isDisabled }
+								toggling={ isSavingAnyOption( [ 'sb_post_end_enabled' ] ) }
+								onChange={ handleSubscribePostEndToggleChange }
+								label={ __( 'Add Subscribe block at the end of each post', 'jetpack' ) }
+							/>
+						</FormFieldset>
+					</>
 				}
 			</SettingsGroup>
 			{ getSubClickableCard() }
