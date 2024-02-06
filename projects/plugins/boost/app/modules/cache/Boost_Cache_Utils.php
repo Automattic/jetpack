@@ -65,6 +65,15 @@ class Boost_Cache_Utils {
 		return strpos( $dir, WP_CONTENT_DIR . '/boost-cache' ) !== false;
 	}
 
+	/*
+	 * Writes data to a file.
+	 * This creates a temporary filename first, then renames the file to the final filename.
+	 * This is done to prevent the file from being read while it is being written to.
+	 *
+	 * @param string $filename - The filename to write to.
+	 * @param string $data - The data to write to the file.
+	 * @return bool|WP_Error - true on sucess or WP_Error on failure.
+	 */
 	public static function write_to_file( $filename, $data ) {
 		$tmp_filename = $filename . uniqid( uniqid(), true ) . '.tmp';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
