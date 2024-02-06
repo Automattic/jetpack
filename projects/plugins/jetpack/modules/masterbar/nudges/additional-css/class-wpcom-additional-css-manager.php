@@ -39,7 +39,7 @@ class WPCOM_Additional_CSS_Manager {
 	 */
 	public function register_nudge( \WP_Customize_Manager $wp_customize_manager ) {
 		$nudge_url  = $this->get_nudge_url();
-		$nudge_text = __( 'Purchase a Premium Plan to<br> activate CSS customization', 'jetpack' );
+		$nudge_text = __( 'Purchase an Explorer plan to<br> activate CSS customization', 'jetpack' );
 
 		if (
 			( defined( 'ENABLE_PRO_PLAN' ) && ENABLE_PRO_PLAN ) ||
