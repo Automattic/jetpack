@@ -3332,6 +3332,9 @@ p {
 		/** Already documented in automattic/jetpack-connection::src/class-client.php */
 		$client_verify_ssl_certs = apply_filters( 'jetpack_client_verify_ssl_certs', false );
 
+		// Run post-activation actions if needed.
+		$this->plugin_post_activation();
+
 		if ( ( self::is_connection_ready() || $is_offline_mode ) && false === $fallback_no_verify_ssl_certs && ! $client_verify_ssl_certs ) {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate.
@@ -6921,5 +6924,22 @@ endif;
 			. '</a>';
 
 		return $plugin_meta;
+	}
+
+	/**
+	 * Run plugin post-activation actions if we need to.
+	 *
+	 * @return void
+	 */
+	private function plugin_post_activation() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return;
+		}
+
+		if ( get_transient( 'activated_jetpack' ) ) {
+			delete_transient( 'activated_jetpack' );
+
+			wp_safe_redirect( static::admin_url( 'page=my-jetpack' ) );
+		}
 	}
 }

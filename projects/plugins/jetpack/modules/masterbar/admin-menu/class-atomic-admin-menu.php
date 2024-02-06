@@ -75,7 +75,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$this->add_my_home_menu();
 		$this->remove_gutenberg_menu();
 
-		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
+		// We don't need the `My Mailboxes` when the interface is set to wp-admin or the site is a staging site,
+		if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' && ! get_option( 'wpcom_is_staging_site' ) ) {
 			$this->add_my_mailboxes_menu();
 		}
 
@@ -429,6 +430,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
+
+		// Hide Settings > Performance when the interface is set to wp-admin.
+		// This is due to these settings are mostly also available in Jetpack > Settings, in the Performance tab.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$this->hide_submenu_page( 'options-general.php', 'https://wordpress.com/settings/performance/' . $this->domain );
+		}
 	}
 
 	/**
