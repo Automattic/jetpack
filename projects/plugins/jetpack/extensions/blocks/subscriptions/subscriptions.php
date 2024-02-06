@@ -153,6 +153,18 @@ function register_block() {
 		add_action( 'manage_post_posts_custom_column', __NAMESPACE__ . '\render_newsletter_access_rows', 10, 2 );
 		add_action( 'admin_head', __NAMESPACE__ . '\newsletter_access_column_styles' );
 	}
+
+	// Add Subscribe block at the end of each post
+	$sb_post_end_enabled = get_option( 'sb_post_end_enabled', false );
+	if ( ! empty( $sb_post_end_enabled ) ) {
+		add_filter(
+			'the_content',
+			function ( $content ) {
+				return $content . '<p class="sb_post_end_enabled_nudge">Aliquam a ullamcorper lorem.<br>Integer at tempus nibh</p><!-- wp:jetpack/subscriptions /-->';
+			},
+			1
+		);
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
