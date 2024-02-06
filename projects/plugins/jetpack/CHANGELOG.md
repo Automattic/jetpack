@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.1-beta - 2024-02-05
+## 13.1 - 2024-02-06
 ### Enhancements
 - Like block: the existing Jetpack Like & Reblog button features are now available as a block! With the new Like block, users are be able to add the Like & Reblog features not just to posts and pages, but also to block templates and block patterns. You can give the new Like block a try by adding it from within the editor just like any other block.
 - Sharing Buttons block: similar to the Like block mentioned above, the existing Jetpack Sharing Buttons feature is now available as a block.
@@ -30,11 +30,11 @@
 - Subscriber Login block: add new block to beta blocks.
 - Subscriptions: various fixes and improvements.
 - Sync: make media extraction more consistent with regards to getting alt text and image size information. [#35369]
+- Tiled gallery: fix PHP warnings from nested arrays in image meta. [#35317]
 - Top Posts & Pages block: add new block to beta blocks.
 - Woo: add support for WooCommerce HPOS to the Google Analytics module. [#33152]
 - WPcom: avoid fatal error when receiving error in WPcom API response. [#35389]
 - WPcom: enhanced WordPress.com API compatibility with third party plugin data. [#34770]
-- Tiled gallery: fix PHP warnings from nested arrays in image meta. [#35317]
 - YouTube shortcode: handle being given an array with a 'url' key insteadad of the URL as a string. [#35181]
 
 ## 13.1-a.9 - 2024-01-29
