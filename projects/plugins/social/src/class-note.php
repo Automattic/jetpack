@@ -11,10 +11,45 @@ namespace Automattic\Jetpack\Social;
  * Register the Jetpack Social Note custom post type.
  */
 class Note {
+	const JETPACK_SOCIAL_NOTE_CPT                      = 'jetpack-social-note';
+	const JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT = 'jetpack_socia_rewrite_rules_last_flushed_at';
+
+	/**
+	 * Check if the feature is enabled.
+	 */
+	public function enabled() {
+		return defined( 'JETPACK_SOCIAL_NOTES_ENABLED' ) && constant( 'JETPACK_SOCIAL_NOTES_ENABLED' );
+	}
+
+	/**
+	 * Initialize the Jetpack Social Note custom post type.
+	 */
+	public function init() {
+		flush_rewrite_rules();
+		if ( ! static::enabled() ) {
+			return;
+		}
+		static::register_cpt();
+		add_action( 'wp_insert_post_data', array( new Note(), 'set_empty_title' ), 10, 2 );
+	}
+
+	/**
+	 * Set the title to empty string.
+	 *
+	 * @param array $data The Post Data.
+	 * @param array $post The Post.
+	 */
+	public static function set_empty_title( $data, $post ) {
+		if ( self::JETPACK_SOCIAL_NOTE_CPT === $post['post_type'] && 'auto-draft' === $post['post_status'] ) {
+			$data['post_title'] = '';
+		}
+		return $data;
+	}
+
 	/**
 	 * Register the Jetpack Social Note custom post type.
 	 */
-	public static function register() {
+	public static function register_cpt() {
 		if ( ! defined( 'JETPACK_SOCIAL_NOTES_ENABLED' ) || ! constant( 'JETPACK_SOCIAL_NOTES_ENABLED' ) ) {
 			return;
 		}
@@ -46,8 +81,20 @@ class Note {
 			'show_in_rest' => true,
 			'supports'     => array( 'editor', 'thumbnail', 'publicize', 'activitypub' ),
 			'menu_icon'    => 'dashicons-welcome-write-blog',
-
 		);
-		register_post_type( 'jetpack-social-note', $args );
+		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
+		static::may_be_flush_rewrite_rules( true );
+	}
+
+	/**
+	 * Flush rewrite rules so the post permalink works correctly for the Social Note CPT. Flushing is an expensive operation, so do only when necessary.
+	 *
+	 * @param boolean $force Force flush the rewrite rules.
+	 */
+	public static function may_be_flush_rewrite_rules( $force = false ) {
+		if ( ! empty( get_option( self::JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT ) ) || $force ) {
+			flush_rewrite_rules();
+			update_option( self::JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT, time() );
+		}
 	}
 }
