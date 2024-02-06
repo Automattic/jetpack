@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add rate limiter to the package versions endpoint calls.
