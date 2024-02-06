@@ -41,6 +41,7 @@
 		"slideshow",
 		"social-previews",
 		"story",
+		"subscriber-login",
 		"subscriptions",
 		"tiled-gallery",
 		"tock",
@@ -72,8 +73,7 @@
 		"blog-stats",
 		"top-posts",
 		"ai-assistant-backend-prompts",
-		"ai-logo-generator",
-		"subscriber-login"
+		"ai-logo-generator"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

@@ -141,9 +141,11 @@ class Jetpack_PostImages {
 	 * If a gallery is detected, then get all the images from it.
 	 *
 	 * @param int $post_id Post ID.
+	 * @param int $width Minimum image width to consider.
+	 * @param int $height Minimum image height to consider.
 	 * @return array Images.
 	 */
-	public static function from_gallery( $post_id ) {
+	public static function from_gallery( $post_id, $width = 200, $height = 200 ) {
 		$images = array();
 
 		$post = get_post( $post_id );
@@ -180,20 +182,35 @@ class Jetpack_PostImages {
 		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		foreach ( $galleries as $gallery ) {
-			if ( isset( $gallery['type'] ) && 'slideshow' === $gallery['type'] && ! empty( $gallery['ids'] ) ) {
+			if ( ! empty( $gallery['ids'] ) ) {
 				$image_ids  = explode( ',', $gallery['ids'] );
 				$image_size = isset( $gallery['size'] ) ? $gallery['size'] : 'thumbnail';
 				foreach ( $image_ids as $image_id ) {
 					$image = wp_get_attachment_image_src( $image_id, $image_size );
+					$meta  = wp_get_attachment_metadata( $image_id );
+
+					if ( isset( $gallery['type'] ) && 'slideshow' === $gallery['type'] ) {
+						// Must be larger than 200x200 (or user-specified).
+						if ( ! isset( $meta['width'] ) || $meta['width'] < $width ) {
+							continue;
+						}
+						if ( ! isset( $meta['height'] ) || $meta['height'] < $height ) {
+							continue;
+						}
+					}
+
 					if ( ! empty( $image[0] ) ) {
 						list( $raw_src ) = explode( '?', $image[0] ); // pull off any Query string (?w=250).
 						$raw_src         = wp_specialchars_decode( $raw_src ); // rawify it.
 						$raw_src         = esc_url_raw( $raw_src ); // clean it.
 						$images[]        = array(
-							'type' => 'image',
-							'from' => 'gallery',
-							'src'  => $raw_src,
-							'href' => $permalink,
+							'type'       => 'image',
+							'from'       => 'gallery',
+							'src'        => $raw_src,
+							'src_width'  => $meta['width'] ?? 0,
+							'src_height' => $meta['height'] ?? 0,
+							'href'       => $permalink,
+							'alt_text'   => self::get_alt_text( $image_id ),
 						);
 					}
 				}
@@ -498,10 +515,33 @@ class Jetpack_PostImages {
 			if ( stripos( $img_src, '/smilies/' ) ) {
 				continue;
 			}
+			// First try to get the width and height from the img attributes, but if they are not set, check to see if they are specified in the url. WordPress automatically names files like foo-1024x768.jpg during the upload process
+			$width  = (int) $image_tag->getAttribute( 'width' );
+			$height = (int) $image_tag->getAttribute( 'height' );
+			if ( 0 === $width && 0 === $height ) {
+				preg_match( '/-([0-9]+)x([0-9]+)\.(?:jpg|jpeg|png|gif|webp)$/i', $img_src, $matches );
+				if ( ! empty( $matches[1] ) ) {
+					$width = (int) $matches[1];
+				}
+				if ( ! empty( $matches[2] ) ) {
+					$height = (int) $matches[2];
+				}
+			}
+			// If width and height are still 0, try to get the id of the image from the class, e.g. wp-image-1234
+			if ( 0 === $width && 0 === $height ) {
+
+				preg_match( '/wp-image-([0-9]+)/', $image_tag->getAttribute( 'class' ), $matches );
+				if ( ! empty( $matches[1] ) ) {
+					$attachment_id = $matches[1];
+					$meta          = wp_get_attachment_metadata( $attachment_id );
+					$height        = $meta['height'] ?? 0;
+					$width         = $meta['width'] ?? 0;
+				}
+			}
 
 			$meta = array(
-				'width'    => (int) $image_tag->getAttribute( 'width' ),
-				'height'   => (int) $image_tag->getAttribute( 'height' ),
+				'width'    => $width,
+				'height'   => $height,
 				'alt_text' => $image_tag->getAttribute( 'alt' ),
 			);
 
@@ -530,15 +570,18 @@ class Jetpack_PostImages {
 				continue;
 			}
 
-			$images[] = array(
+			$image = array(
 				'type'       => 'image',
 				'from'       => 'html',
 				'src'        => $img_src,
 				'src_width'  => $meta['width'],
 				'src_height' => $meta['height'],
 				'href'       => $html_info['post_url'],
-				'alt_text'   => $meta['alt_text'],
 			);
+			if ( ! empty( $meta['alt_text'] ) ) {
+				$image['alt_text'] = $meta['alt_text'];
+			}
+			$images[] = $image;
 		}
 		return $images;
 	}
