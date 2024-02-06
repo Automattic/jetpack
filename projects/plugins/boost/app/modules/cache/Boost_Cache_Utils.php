@@ -69,12 +69,12 @@ class Boost_Cache_Utils {
 		$tmp_filename = $filename . uniqid( uniqid(), true ) . '.tmp';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		if ( false === file_put_contents( $tmp_filename, $data ) ) {
-			return new \WP_Error( 'Could not write to tmp file' );
+			return new \WP_Error( 'Could not write to tmp file: ' . $tmp_filename );
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
 		if ( ! rename( $tmp_filename, $filename ) ) {
-			return new \WP_Error( 'Could not rename tmp file' );
+			return new \WP_Error( 'Could not rename tmp file to final file: ' . $filename );
 		}
 		return true;
 	}
