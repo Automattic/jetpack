@@ -55,23 +55,13 @@ function BlogStatsEdit( { attributes, className, setAttributes } ) {
 		);
 	}
 
-	const visitorsPlaceholder = _n(
+	const visitorsPlaceholder =
 		/* Translators: Number of visitors */
-		'visitor',
-		'visitors',
-		parseInt( stats ),
-		'jetpack',
-		0
-	);
+		_n( 'visitor', 'visitors', parseInt( stats ), 'jetpack', 0 );
 
-	const viewsPlaceholder = _n(
+	const viewsPlaceholder =
 		/* Translators: Number of views */
-		'hit',
-		'hits',
-		parseInt( stats ),
-		'jetpack',
-		0
-	);
+		_n( 'hit', 'hits', parseInt( stats ), 'jetpack', 0 );
 
 	return (
 		<>
