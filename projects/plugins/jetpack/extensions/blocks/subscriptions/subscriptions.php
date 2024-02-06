@@ -162,16 +162,16 @@ function register_block() {
 			function ( $content ) {
 				// Check if we're inside the main loop in a single Post
 				if ( is_singular() && in_the_loop() && is_main_query() ) {
-					$subscribe_section = <<<EOT
-<div class="wp-block-jetpack-subscriptions__sb_post_end">
-	<p class="wp-block-jetpack-subscriptions__sb_post_end_nudge">
-		Aliquam a ullamcorper lorem.<br>
-		Integer at tempus nibh
+					return $content . '
+<!-- wp:group {"className":"wp-block-jetpack-subscriptions__sb_post_end","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
+<div class="wp-block-group wp-block-jetpack-subscriptions__sb_post_end">
+	<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"300"}},"className":"has-text-align-center"} -->
+	<p class="has-text-align-center" style="font-style:normal;font-weight:300">
+		<em>Aliquam a ullamcorper lorem<br>Integer at tempus nibh</em>
 	</p>
-	<!-- wp:jetpack/subscriptions /-->
-</div>
-EOT;
-					return $content . $subscribe_section;
+	<!-- /wp:paragraph -->
+	<!-- wp:jetpack/subscriptions /--></div>
+<!-- /wp:group -->';
 				}
 
 				return $content;
