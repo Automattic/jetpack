@@ -293,20 +293,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.1 - 2024-02-06
-#### Enhancements
-- Like block: the existing Jetpack Like & Reblog button features are now available as a block! With the new Like block, users are be able to add the Like & Reblog features not just to posts and pages, but also to block templates and block patterns. You can give the new Like block a try by adding it from within the editor just like any other block.
-- Sharing Buttons block: similar to the Like block mentioned above, the existing Jetpack Sharing Buttons feature is now available as a block.
-
-#### Improved compatibility
-- GIF block: accept Giphy shortlinks as a valid embed.
-- Performance: improve script enqueuing strategies to rely on methods introduced in WordPress 6.3.
-- Sitemaps: use wp_loaded filter hook instead of init hook to load the permalinks for the sitemaps, which allows plugins and other hooks to load.
-
+### 13.1.1 - 2024-02-06
 #### Bug fixes
-- Related Posts block: get related posts only when the option is turned on and the current post contains a Related Posts block.
-- Spotify shortcode: prevent a fatal error in PHP 8.1 if no attributes are passed.
-- Theme Tools: ensure that Content Options does not override the Featured Images options set within blocks.
+- WooCommerce Analytics: resolve warning when enqueuing analytics script.
 
 --------
 
