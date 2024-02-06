@@ -61,6 +61,8 @@ class Jetpack_SSO {
 		add_filter( 'wp_send_new_user_notification_to_user', '__return_false' );
 		add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
 		add_action( 'user_new_form', array( $this, 'render_custom_email_message_form_field' ), 1 );
+		add_action( 'delete_user_form', array( $this, 'render_invitations_notices_for_deleted_users' ) );
+		add_action( 'delete_user', array( $this, 'revoke_user_invite' ) );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -94,11 +96,26 @@ class Jetpack_SSO {
 		add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_user_new_form_styles' ) );
 		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_connection_status' ), 10, 3 );
 		add_action( 'admin_post_jetpack_invite_user_to_wpcom', array( $this, 'invite_user_to_wpcom' ) );
-		add_action( 'admin_post_jetpack_revoke_invite_user_to_wpcom', array( $this, 'revoke_user_invite_to_wpcom' ) );
+		add_action( 'admin_post_jetpack_revoke_invite_user_to_wpcom', array( $this, 'handle_request_revoke_invite' ) );
 		add_action( 'admin_notices', array( $this, 'handle_invitation_results' ) );
 		add_action( 'user_row_actions', array( $this, 'jetpack_user_table_row_actions' ), 10, 2 );
 	}
 
+	/**
+	 * Revokes WordPress.com invitation.
+	 *
+	 * @param int $user_id The user ID.
+	 */
+	public function revoke_user_invite( $user_id ) {
+		try {
+			$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
+			if ( $has_pending_invite ) {
+				return self::revoke_deleted_users_invites( $has_pending_invite );
+			}
+		} catch ( Exception $e ) {
+			return false;
+		}
+	}
 	/**
 	 * Renders invitations errors/success messages in users.php.
 	 */
@@ -214,9 +231,33 @@ class Jetpack_SSO {
 	}
 
 	/**
+	 * Revokes a user's invitation to connect to WordPress.com.
+	 *
+	 * @param string $invite_id The ID of the invite to revoke.
+	 */
+	public function revoke_deleted_users_invites( $invite_id ) {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$url      = '/sites/' . $blog_id . '/invites/delete';
+		$response = Client::wpcom_json_api_request_as_user(
+			$url,
+			'v2',
+			array(
+				'method' => 'POST',
+			),
+			array(
+				'invite_ids' => array( $invite_id ),
+			),
+			'wpcom'
+		);
+
+		return json_decode( $response['body'] );
+	}
+
+	/**
 	 * Handles logic to revoke user invite.
 	 */
-	public function revoke_user_invite_to_wpcom() {
+	public function handle_request_revoke_invite() {
 		check_admin_referer( 'jetpack-sso-revoke-user-invite', 'revoke_invite_nonce' );
 		$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
 
@@ -252,24 +293,8 @@ class Jetpack_SSO {
 				return self::create_error_notice_and_redirect( $query_params );
 			}
 
-			$has_pending_invite = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
-
-			$blog_id = Jetpack_Options::get_option( 'id' );
-
-			$url      = '/sites/' . $blog_id . '/invites/delete';
-			$response = Client::wpcom_json_api_request_as_user(
-				$url,
-				'v2',
-				array(
-					'method' => 'POST',
-				),
-				array(
-					'invite_ids' => array( $has_pending_invite ),
-				),
-				'wpcom'
-			);
-
-			$body         = json_decode( $response['body'] );
+			$invite_id    = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
+			$body         = self::revoke_deleted_users_invites( $invite_id );
 			$query_params = array(
 				'jetpack-sso-invite-user' => $body->deleted ? 'successful-revoke' : 'failed',
 				'_wpnonce'                => $nonce,
@@ -364,6 +389,57 @@ class Jetpack_SSO {
 				'additional_classes' => array( 'jetpack-sso-admin-create-user-invite-message' ),
 			)
 		);
+	}
+
+	/**
+	 * Render a note that wp.com invites will be automatically revoked.
+	 */
+	public function render_invitations_notices_for_deleted_users() {
+		check_admin_referer( 'bulk-users' );
+
+		// When one user is deleted, the param is `user`, when multiple users are deleted, the param is `users`.
+		// We start with `users` and fallback to `user`.
+		$user_id  = isset( $_GET['user'] ) ? intval( wp_unslash( $_GET['user'] ) ) : null;
+		$user_ids = isset( $_GET['users'] ) ? array_map( 'intval', wp_unslash( $_GET['users'] ) ) : array( $user_id );
+
+		$users_with_invites = array_filter(
+			$user_ids,
+			function ( $user_id ) {
+				return self::has_pending_wpcom_invite( $user_id );
+			}
+		);
+
+		$users_with_invites = array_map(
+			function ( $user_id ) {
+				$user = get_user_by( 'id', $user_id );
+				return $user->user_login;
+			},
+			$users_with_invites
+		);
+
+		if ( count( $users_with_invites ) ) {
+			$users_with_invites = implode( ', ', $users_with_invites );
+			$message            = wp_kses(
+				sprintf(
+					/* translators: %s is a comma-separated list of user logins. */
+					__(
+						'WordPress.com invitations will be automatically revoked for users: <strong>%s</strong>.',
+						'jetpack'
+					),
+					$users_with_invites
+				),
+				array( 'strong' => true )
+			);
+			wp_admin_notice(
+				$message,
+				array(
+					'id'                 => 'invitation_message',
+					'type'               => 'info',
+					'dismissible'        => false,
+					'additional_classes' => array( 'jetpack-sso-admin-create-user-invite-message' ),
+				)
+			);
+		}
 	}
 
 	/**
