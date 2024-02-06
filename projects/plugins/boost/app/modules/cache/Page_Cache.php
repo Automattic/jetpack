@@ -87,12 +87,13 @@ class Page_Cache implements Pluggable, Is_Always_On {
 			}
 		} else {
 			$plugin_name = basename( dirname( plugin_dir_path( __FILE__ ), 3 ) );
+			$filename    = WP_CONTENT_DIR . '/plugins/' . $plugin_name . '/app/modules/cache/Boost_File_Cache.php';
 			$contents    = '<?php
 // ' . self::$advanced_cache_signature . '
-if ( ! file_exists( WP_CONTENT_DIR . \'/plugins/' . $plugin_name . '/app/modules/cache/Boost_File_Cache.php\' ) ) {
+if ( ! file_exists( \'' . $filename . '\' ) ) {
 	return;
 }
-require_once( WP_CONTENT_DIR . \'/plugins/' . $plugin_name . '/app/modules/cache/Boost_File_Cache.php\' );
+require_once( \'' . $filename . '\');
 
 ( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_File_Cache() )->serve();
 ';
