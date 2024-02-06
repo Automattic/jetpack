@@ -39,7 +39,7 @@ function SubscriptionsSettings( props ) {
 		isStbEnabled,
 		isStcEnabled,
 		isSmEnabled,
-		isSbPostEndEnabled,
+		isSubscribePostEndEnabled,
 		isSubscriptionsActive,
 		siteRawUrl,
 		subscriptions,
@@ -73,7 +73,7 @@ function SubscriptionsSettings( props ) {
 	}, [ updateFormStateModuleOption ] );
 
 	const handleSubscribePostEndToggleChange = useCallback( () => {
-		updateFormStateModuleOption( 'subscriptions', 'sb_post_end_enabled' );
+		updateFormStateModuleOption( 'subscriptions', 'jetpack_subscribe_post_end_enabled' );
 	}, [ updateFormStateModuleOption ] );
 
 	const getSubClickableCard = () => {
@@ -171,9 +171,9 @@ function SubscriptionsSettings( props ) {
 						</FormFieldset>
 						<FormFieldset>
 							<ToggleControl
-								checked={ isSubscriptionsActive && isSbPostEndEnabled }
+								checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
 								disabled={ isDisabled }
-								toggling={ isSavingAnyOption( [ 'sb_post_end_enabled' ] ) }
+								toggling={ isSavingAnyOption( [ 'jetpack_subscribe_post_end_enabled' ] ) }
 								onChange={ handleSubscribePostEndToggleChange }
 								label={ __( 'Add Subscribe block at the end of each post', 'jetpack' ) }
 							/>
@@ -205,7 +205,7 @@ export default withModuleSettingsFormHelpers(
 			isStbEnabled: ownProps.getOptionValue( 'stb_enabled' ),
 			isStcEnabled: ownProps.getOptionValue( 'stc_enabled' ),
 			isSmEnabled: ownProps.getOptionValue( 'sm_enabled' ),
-			isSbPostEndEnabled: ownProps.getOptionValue( 'sb_post_end_enabled' ),
+			isSubscribePostEndEnabled: ownProps.getOptionValue( 'jetpack_subscribe_post_end_enabled' ),
 			isBlockTheme: currentThemeIsBlockTheme( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			themeStylesheet: currentThemeStylesheet( state ),

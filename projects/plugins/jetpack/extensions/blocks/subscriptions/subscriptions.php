@@ -155,7 +155,7 @@ function register_block() {
 	}
 
 	// Add Subscribe block at the end of each post
-	$sb_post_end_enabled = get_option( 'sb_post_end_enabled', false );
+	$sb_post_end_enabled = get_option( 'jetpack_subscribe_post_end_enabled', false );
 	if ( ! empty( $sb_post_end_enabled ) ) {
 		add_filter(
 			'the_content',
@@ -163,8 +163,8 @@ function register_block() {
 				// Check if we're inside the main loop in a single Post
 				if ( is_singular() && in_the_loop() && is_main_query() ) {
 					return $content . '
-<!-- wp:group {"className":"wp-block-jetpack-subscriptions__sb_post_end","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
-<div class="wp-block-group wp-block-jetpack-subscriptions__sb_post_end">
+<!-- wp:group {"className":"wp-block-jetpack-subscriptions__subscribe_post_end","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
+<div class="wp-block-group wp-block-jetpack-subscriptions__subscribe_post_end">
 	<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"300"}},"className":"has-text-align-center"} -->
 	<p class="has-text-align-center" style="font-style:normal;font-weight:300">
 		<em>Aliquam a ullamcorper lorem<br>Integer at tempus nibh</em>

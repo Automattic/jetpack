@@ -146,7 +146,7 @@ class Defaults {
 		'stb_enabled',
 		'stc_enabled',
 		'sm_enabled',
-		'sb_post_end_enabled',
+		'jetpack_subscribe_post_end_enabled',
 		'sticky_posts',
 		'stylesheet',
 		'subscription_options',
