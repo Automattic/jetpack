@@ -54,7 +54,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
-		$this->add_woocommerce_installation_menu( $this->get_current_plan() );
+		if ( $this->use_wp_admin_interface() ) {
+			$this->add_woocommerce_installation_menu();
+		}
 
 		ksort( $GLOBALS['menu'] );
 	}
