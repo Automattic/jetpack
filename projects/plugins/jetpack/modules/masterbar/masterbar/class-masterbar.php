@@ -107,7 +107,12 @@ class Masterbar {
 	 * @var bool
 	 */
 	private $site_woa;
-
+	/**
+	 * If the developer centric wp-admin bar should be used.
+	 *
+	 * @var bool
+	 */
+	private $use_dev_nav;
 	/**
 	 * Constructor
 	 */
@@ -127,6 +132,8 @@ class Masterbar {
 		$this->is_rtl          = isset( $this->user_data['text_direction'] ) && 'rtl' === $this->user_data['text_direction'];
 		$this->user_locale     = isset( $this->user_data['user_locale'] ) ? $this->user_data['user_locale'] : '';
 		$this->site_woa        = ( new Host() )->is_woa_site();
+		// update true to check user meta. true -> get_user_meta( $this->user_data['ID'], 'wpcom-global-nav-enabled', true ); or get_user_option( 'wpcom-global-nav-enabled', $this->user_id )
+		$this->use_dev_nav = $this->site_woa && true;
 
 		// Store part of the connected user data as user options so it can be used
 		// by other files of the masterbar module without making another XMLRPC
@@ -269,7 +276,7 @@ class Masterbar {
 
 		$classes = array( 'jetpack-masterbar', trim( $admin_body_classes ) );
 
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || $this->use_dev_nav ) {
 			$classes[] = 'wpcom-admin-interface';
 		}
 
@@ -296,7 +303,7 @@ class Masterbar {
 	public function add_styles_and_scripts() {
 		// WoA sites: If wpcom_admin_interface is set to wp-admin, load the wp-admin styles.
 		// These include only styles to enable the "My Sites" and "Reader" links that will be added.
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || $this->use_dev_nav ) {
 			$css_file = $this->is_rtl ? 'masterbar-wp-admin-rtl.css' : 'masterbar-wp-admin.css';
 			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/' . $css_file ), array(), JETPACK__VERSION );
 			return;
@@ -371,7 +378,7 @@ class Masterbar {
 			return false;
 		}
 
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || $this->use_dev_nav ) {
 			$this->build_wp_admin_interface_bar( $wp_admin_bar );
 			return;
 		}
@@ -408,7 +415,9 @@ class Masterbar {
 		// Here we add the My sites and Reader buttons
 		$this->wpcom_adminbar_add_secondary_groups( $bar );
 		$this->add_my_sites_submenu( $bar );
-		$this->add_reader_submenu( $bar );
+		if ( ! $this->use_dev_nav ) {
+			$this->add_reader_submenu( $bar );
+		}
 
 		foreach ( $nodes as $id => $node ) {
 
@@ -951,17 +960,33 @@ class Masterbar {
 			$my_site_title = esc_html__( 'My Sites', 'jetpack' );
 		}
 
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'root-default',
-				'id'     => 'blog',
-				'title'  => $my_site_title,
-				'href'   => $my_site_url,
-				'meta'   => array(
-					'class' => 'my-sites mb-trackable',
-				),
-			)
-		);
+		$class = 'my-sites mb-trackable';
+		if ( $this->use_dev_nav ) {
+			$class .= ' dev-mode';
+			$wp_admin_bar->add_menu(
+				array(
+					'parent' => 'root-default',
+					'id'     => 'blog',
+					'href'   => $my_site_url,
+					'meta'   => array(
+						'class' => $class,
+						'title' => $my_site_title,
+					),
+				)
+			);
+		} else {
+			$wp_admin_bar->add_menu(
+				array(
+					'parent' => 'root-default',
+					'id'     => 'blog',
+					'title'  => $my_site_title,
+					'href'   => $my_site_url,
+					'meta'   => array(
+						'class' => $class,
+					),
+				)
+			);
+		}
 
 		/** This filter is documented in modules/masterbar.php */
 		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
