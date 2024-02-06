@@ -160,7 +160,12 @@ function register_block() {
 		add_filter(
 			'the_content',
 			function ( $content ) {
-				return $content . '<p class="sb_post_end_enabled_nudge">Aliquam a ullamcorper lorem.<br>Integer at tempus nibh</p><!-- wp:jetpack/subscriptions /-->';
+				// Check if we're inside the main loop in a single Post
+				if ( is_singular() && in_the_loop() && is_main_query() ) {
+					return $content . '<p class="wp-block-jetpack-subscriptions__sb_post_end_nudge">Aliquam a ullamcorper lorem.<br>Integer at tempus nibh</p><!-- wp:jetpack/subscriptions /-->';
+				}
+
+				return $content;
 			},
 			1
 		);
