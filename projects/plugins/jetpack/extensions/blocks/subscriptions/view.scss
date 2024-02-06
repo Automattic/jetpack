@@ -122,4 +122,9 @@
 .wp-block-jetpack-subscriptions__sb_post_end {
 	margin: 2em auto !important;
 	max-width: 500px !important;
+	gap: 0 !important;
+
+	& > p {
+		margin-bottom: 0.8em !important;
+	}
 }
