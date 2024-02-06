@@ -2,6 +2,41 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.1-beta - 2024-02-05
+### Enhancements
+- Like block: the existing Jetpack Like & Reblog button features are now available as a block! With the new Like block, users are be able to add the Like & Reblog features not just to posts and pages, but also to block templates and block patterns. You can give the new Like block a try by adding it from within the editor just like any other block.
+- Sharing Buttons block: similar to the Like block mentioned above, the existing Jetpack Sharing Buttons feature is now available as a block.
+
+### Improved compatibility
+- GIF block: accept Giphy shortlinks as a valid embed. [#34786]
+- Performance: improve script enqueuing strategies to rely on methods introduced in WordPress 6.3. [#34072]
+- Sitemaps: use wp_loaded filter hook instead of init hook to load the permalinks for the sitemaps, which allows plugins and other hooks to load. [#34269]
+
+### Bug fixes
+- Related Posts block: get related posts only when the option is turned on and the current post contains a Related Posts block. [#34958]
+- Spotify shortcode: prevent a fatal error in PHP 8.1 if no attributes are passed. [#34891]
+- Theme Tools: ensure that Content Options does not override the Featured Images options set within blocks. [#34805]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Reference the Jetpack 13.1 milestone for all closed issues being included in the 13.1 release: https://github.com/Automattic/jetpack/milestone/385?closed=1
+- AI Assistant: various fixes and improvements.
+- Blog Stats block: add new block to beta blocks.
+- Contact Form: fix source for concatenated stylesheet. [#35091]
+- GIF block: fix styling of the search bar input. [#34779]
+- iCalendarReader: support BYDAY recurrence rules for last, second-to-last, or third-to-last weekdays. [#35050]
+- Post Images: avoid PHP warnings on sites using PHP 8.1+, when a post image has a malformed URL. [#34926]
+- Related Posts block: address accessibility issues. [#34925]
+- REST API: fixed the way we treat 0 and 1 integers in boolean context. [#35190]
+- Subscriber Login block: add new block to beta blocks.
+- Subscriptions: various fixes and improvements.
+- Sync: make media extraction more consistent with regards to getting alt text and image size information. [#35369]
+- Top Posts & Pages block: add new block to beta blocks.
+- Woo: add support for WooCommerce HPOS to the Google Analytics module. [#33152]
+- WPcom: avoid fatal error when receiving error in WPcom API response. [#35389]
+- WPcom: enhanced WordPress.com API compatibility with third party plugin data. [#34770]
+- Tiled gallery: fix PHP warnings from nested arrays in image meta. [#35317]
+- YouTube shortcode: handle being given an array with a 'url' key insteadad of the URL as a string. [#35181]
+
 ## 13.1-a.9 - 2024-01-29
 ### Enhancements
 - Subject: A new way to upload media via the Jetpack App [#34179]

@@ -17,7 +17,7 @@
 	display: grid;
 	gap: 4px;
 	grid-template-columns: 30px 1fr 1fr;
-	grid-template-rows: 36px 18px 18px;
+	grid-template-rows: 36px 1.6rem 18px;
 	grid-template-areas:
 		'progress progress progress'
 		'bubble category category'
@@ -58,6 +58,7 @@
 .jb-category-name {
 	grid-area: category;
 	display: flex;
+	line-height: 1.6rem;
 
 	.jb-score-context {
 		top: 2px;
