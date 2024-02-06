@@ -117,9 +117,7 @@ class Boost_Cache_Settings {
 		$this->settings = array_merge( $this->settings, $settings );
 
 		$contents = "<?php die();\n/*\n * Configuration data for Jetpack Boost Cache. Do not edit.\n" . json_encode( $this->settings ) . "\n */"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-		Boost_Cache_Utils::write_to_file( $this->config_file, $contents );
-
-		return true;
+		return Boost_Cache_Utils::write_to_file( $this->config_file, $contents );
 	}
 
 	/*

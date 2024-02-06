@@ -92,10 +92,8 @@ require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File
 
 ( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_File_Cache() )->serve();
 ';
-			Boost_Cache_Utils::write_to_file( $advanced_cache_filename, $contents );
+			return Boost_Cache_Utils::write_to_file( $advanced_cache_filename, $contents );
 		}
-
-		return true;
 	}
 
 	/*

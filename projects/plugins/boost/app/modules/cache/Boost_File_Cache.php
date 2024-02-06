@@ -107,8 +107,6 @@ class Boost_File_Cache extends Boost_Cache {
 			return new \WP_Error( 'Could not create cache directory' );
 		}
 
-		Boost_Cache_Utils::write_to_file( $cache_filename, $buffer );
-
-		return true;
+		return Boost_Cache_Utils::write_to_file( $cache_filename, $buffer );
 	}
 }
