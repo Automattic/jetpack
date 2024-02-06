@@ -6,7 +6,7 @@ import { getNameBySite } from './utils';
 import './style.scss';
 const SharingButtonEdit = ( { attributes, context } ) => {
 	const { service, label } = attributes;
-	const { styleType } = context;
+	const { styleType, iconColorValue, iconBackgroundColorValue } = context;
 
 	const socialLinkName = getNameBySite( service );
 	const socialLinkLabel = label ?? socialLinkName;
@@ -21,10 +21,15 @@ const SharingButtonEdit = ( { attributes, context } ) => {
 		className: 'jetpack-sharing-button__list-item',
 	} );
 
+	const buttonStyle = {
+		color: iconColorValue,
+		backgroundColor: iconBackgroundColorValue,
+	};
+
 	return (
 		<>
 			<li { ...blockProps }>
-				<Button className={ sharingButtonClass }>
+				<Button className={ sharingButtonClass } style={ buttonStyle }>
 					<SocialIcon icon={ service } size={ 24 } />
 					<span className={ 'jetpack-sharing-button__service-label' }>{ socialLinkLabel }</span>
 				</Button>
