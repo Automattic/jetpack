@@ -392,7 +392,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @param int  $position  Menu position.
 	 * @param bool $separator Whether to add a separator before the menu.
 	 */
-	public function create_jetpack_menu( $position = 50, $separator = true ) {
+	public function create_jetpack_menu( $position, $separator ) {
 		if ( $separator ) {
 			$this->add_admin_menu_separator( $position, 'manage_options' );
 			++$position;
@@ -424,7 +424,12 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds Jetpack menu.
 	 */
 	public function add_jetpack_menu() {
-		$this->create_jetpack_menu();
+		if ( $this->use_untangled_interface() ) {
+			// Use a different position for the Jetpack menu.
+			$this->create_jetpack_menu( 2, false );
+		} else {
+			$this->create_jetpack_menu( 50, true );
+		}
 	}
 
 	/**

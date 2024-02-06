@@ -1,0 +1,5 @@
+Significance: minor
+Type: other
+
+Introduce a new "use_untangled_interface()" toggle in the masterbar module, as a flag whether we should show the "untangled" menus.
+Untangled menus are those matching Core structure as similar as possible.

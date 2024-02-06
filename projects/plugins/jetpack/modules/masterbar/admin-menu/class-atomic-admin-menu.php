@@ -75,9 +75,13 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$this->add_my_home_menu();
 		$this->remove_gutenberg_menu();
 
-		// We don't need the `My Mailboxes` when the interface is set to wp-admin or the site is a staging site,
-		if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' && ! get_option( 'wpcom_is_staging_site' ) ) {
-			$this->add_my_mailboxes_menu();
+		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
+			if ( ! $this->use_untangled_interface() ) {
+				// Only show the My Mailbox submenu when not in the untangled interface.
+				// The functionalites are already present in Upgrades -> Emails.
+
+				$this->add_my_mailboxes_menu();
+			}
 		}
 
 		// Not needed outside of wp-admin.
@@ -334,12 +338,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Jetpack menu.
 	 */
 	public function add_jetpack_menu() {
-		// This is supposed to be the same as class-admin-menu but with a different position specified for the Jetpack menu.
-		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
-			parent::create_jetpack_menu( 2, false );
-		} else {
-			parent::add_jetpack_menu();
-		}
+		parent::add_jetpack_menu();
 
 		/**
 		 * Prevent duplicate menu items that link to Jetpack Backup.
@@ -431,9 +430,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
 
-		// Hide Settings > Performance when the interface is set to wp-admin.
-		// This is due to these settings are mostly also available in Jetpack > Settings, in the Performance tab.
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		if ( $this->use_untangled_interface() ) {
+			// Hide Settings -> Performance submenu.
+			// These settings are mostly also available in Jetpack -> Settings, in the Performance tab.
 			$this->hide_submenu_page( 'options-general.php', 'https://wordpress.com/settings/performance/' . $this->domain );
 		}
 	}
@@ -444,8 +443,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_tools_menu() {
 		parent::add_tools_menu();
 
-		// Link the Tools menu to Available Tools when the interface is set to wp-admin.
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		if ( $this->use_untangled_interface() ) {
+			// Link the Tools menu to Available Tools.
 			add_submenu_page( 'tools.php', esc_attr__( 'Available Tools', 'jetpack' ), __( 'Available Tools', 'jetpack' ), 'edit_posts', 'tools.php', null, 0 );
 		}
 
@@ -566,10 +565,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Appearance menu.
 	 */
 	public function add_appearance_menu() {
-		// When the interface is set to wp-admin, we need to add a link to the Marketplace and rest of the menu keeps like core.
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		if ( $this->use_wp_admin_interface() ) {
+			// Show Core submenus, then re-add Theme Showcase submenu pointing to the Calypso page.
 			add_submenu_page( 'themes.php', esc_attr__( 'Theme Showcase', 'jetpack' ), __( 'Theme Showcase', 'jetpack' ), 'read', 'https://wordpress.com/themes/' . $this->domain );
 		} else {
+			// Show Theme Showcase submenu as Calypso page.
 			parent::add_appearance_menu();
 		}
 	}
@@ -578,8 +578,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds a dashboard switcher to the list of screen meta links of the current page.
 	 */
 	public function add_dashboard_switcher() {
-		// When the interface is set to wp-admin, do not show the dashboard switcher.
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		if ( $this->use_wp_admin_interface() ) {
+			// Do not show the dashboard switcher.
 			return;
 		}
 

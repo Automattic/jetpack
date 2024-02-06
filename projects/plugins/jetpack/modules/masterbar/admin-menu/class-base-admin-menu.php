@@ -786,6 +786,16 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
+	 * Whether to show the untangled interface; i.e., matching Core's menus as similar as possible.
+	 *
+	 * @return bool
+	 */
+	public function use_untangled_interface() {
+		// Temporarily reuse the admin interface style toggle for now.
+		return $this->use_wp_admin_interface();
+	}
+
+	/**
 	 * Create the desired menu output.
 	 */
 	abstract public function reregister_menu_items();
