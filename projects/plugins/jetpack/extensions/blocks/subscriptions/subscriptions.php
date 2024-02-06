@@ -164,8 +164,8 @@ function register_block() {
 				if ( is_singular() && in_the_loop() && is_main_query() ) {
 					$subscribe_section = <<<EOT
 <div class="wp-block-jetpack-subscriptions__sb_post_end">
-  <p class="wp-block-jetpack-subscriptions__sb_post_end_nudge">
-	  Aliquam a ullamcorper lorem.<br>
+	<p class="wp-block-jetpack-subscriptions__sb_post_end_nudge">
+		Aliquam a ullamcorper lorem.<br>
 		Integer at tempus nibh
 	</p>
 	<!-- wp:jetpack/subscriptions /-->
