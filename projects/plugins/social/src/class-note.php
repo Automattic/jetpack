@@ -83,7 +83,7 @@ class Note {
 			'menu_icon'    => 'dashicons-welcome-write-blog',
 		);
 		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
-		static::may_be_flush_rewrite_rules( true );
+		static::may_be_flush_rewrite_rules();
 	}
 
 	/**
@@ -92,9 +92,16 @@ class Note {
 	 * @param boolean $force Force flush the rewrite rules.
 	 */
 	public static function may_be_flush_rewrite_rules( $force = false ) {
-		if ( ! empty( get_option( self::JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT ) ) || $force ) {
+		if ( empty( get_option( self::JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT ) ) || $force ) {
 			flush_rewrite_rules();
 			update_option( self::JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT, time() );
 		}
+	}
+
+	/**
+	 * Delete the JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT option when plugin is deactivated.
+	 */
+	public static function delete_rewrite_rules_option() {
+		delete_option( self::JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT );
 	}
 }
