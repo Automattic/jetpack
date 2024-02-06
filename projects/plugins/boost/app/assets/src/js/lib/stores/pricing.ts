@@ -8,8 +8,7 @@ const PricingSchema = z
 		currencyCode: z.string(),
 		isIntroductoryOffer: z.boolean(),
 	} )
-	.nullable()
-	.catch( null );
+	.nullable();
 
 export type PricingSchema = z.infer< typeof PricingSchema >;
 

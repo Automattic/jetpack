@@ -63,7 +63,7 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Jetpack AI', 'jetpack-my-jetpack' );
+		return __( 'AI', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -205,12 +205,6 @@ class Jetpack_Ai extends Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui_by_usage_tier( $tier ) {
-
-		// Bail early if the site is not connected.
-		if ( ! self::is_site_connected() ) {
-			return array();
-		}
-
 		$product = Wpcom_Products::get_product( static::get_wpcom_product_slug() );
 
 		if ( empty( $product ) ) {

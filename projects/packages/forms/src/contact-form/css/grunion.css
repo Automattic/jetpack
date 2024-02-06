@@ -611,23 +611,56 @@ on production builds, the attributes are being reordered, causing side-effects
 	width: calc(var(--jetpack--contact-form--font-size) / 2);
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-checkbox-multiple-label,
+.contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-radio-label {
-	color: var(--jetpack--contact-form--button-outline--text-color);
-	border: var(--jetpack--contact-form--button-outline--border);
-	border-color: transparent;
-	border-radius: unset;
+	display: inline-flex;
+  align-items: center;
+
 	padding: var(--jetpack--contact-form--button-outline--padding);
+
+	background: var(--jetpack--contact-form--button-outline--background-color);
+	border: var(--jetpack--contact-form--button-outline--border);
+	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
+	color: var(--jetpack--contact-form--button-outline--text-color);
+
 	line-height: var(--jetpack--contact-form--button-outline--line-height);
-	cursor: pointer;
-	position: relative;
-	z-index: 0;
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-radio-label {
-	position: relative;
-	flex-direction: row-reverse;
-	gap: 16px;
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button {
+	/* visually-hidden */
+	clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:checked + .grunion-radio-label {
+	display: inline-flex;
+	gap: 0.5em;
+}
+
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:checked + .grunion-radio-label:before {
+	content: "\2713";
+}
+
+.contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field:focus-within,
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:focus + .grunion-radio-label {
+	outline: var(--jetpack--contact-form--button-outline--border);
+	outline-offset: 2px;
+}
+
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple.is-style-button {
+	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
+	color: var(--jetpack--contact-form--button-outline--text-color);
+
+	font-family: var(--wp--preset--font-family--body);
+}
+
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple.is-style-button:focus {
+	outline-width: 0; /* focus style defined on parent */
 }
 
 .contact-form input.grunion-field.is-style-button + .grunion-field-text::before {
@@ -650,7 +683,6 @@ on production builds, the attributes are being reordered, causing side-effects
 	color: var(--jetpack--contact-form--button-outline--color);
 }
 
-
 .contact-form input.grunion-field.is-style-button:checked,
 .contact-form input.grunion-field.is-style-button:checked + .grunion-field-text {
 	color: var(--jetpack--contact-form--button-outline--background-color-fallback);
@@ -659,42 +691,6 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form input.grunion-field.is-style-button:checked + .grunion-field-text::before {
 	background: var(--jetpack--contact-form--button-outline--text-color);
 	border-color: var(--jetpack--contact-form--button-outline--text-color);
-}
-
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio {
-	align-items: center;
-	border: none;
-	display: flex;
-	height: auto;
-	margin: 0;
-	position: absolute;
-	padding: 0;
-	visibility: hidden;
-	width: auto;
-}
-
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio:checked {
-	position: relative;
-	visibility: visible;
-}
-
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio::before {
-	display: none;
-}
-
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio::after {
-	background: unset;
-	content: "✓";
-	display: block;
-	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-	font-weight: 400;
-	font-size: 1em;
-	height: auto;
-	margin: -0.2em 0 0;
-	position: relative;
-	transform: unset;
-	visibility: inherit;
-	width: auto;
 }
 
 .contact-form__error,
