@@ -110,7 +110,7 @@ class Jetpack_SSO {
 		try {
 			$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
 			if ( $has_pending_invite ) {
-				return self::revoke_deleted_users_invites( $has_pending_invite );
+				return self::revoke_wpcom_invite( $has_pending_invite );
 			}
 		} catch ( Exception $e ) {
 			return false;
@@ -235,7 +235,7 @@ class Jetpack_SSO {
 	 *
 	 * @param string $invite_id The ID of the invite to revoke.
 	 */
-	public function revoke_deleted_users_invites( $invite_id ) {
+	public function revoke_wpcom_invite( $invite_id ) {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$url      = '/sites/' . $blog_id . '/invites/delete';
@@ -294,7 +294,7 @@ class Jetpack_SSO {
 			}
 
 			$invite_id    = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
-			$body         = self::revoke_deleted_users_invites( $invite_id );
+			$body         = self::revoke_wpcom_invite( $invite_id );
 			$query_params = array(
 				'jetpack-sso-invite-user' => $body->deleted ? 'successful-revoke' : 'failed',
 				'_wpnonce'                => $nonce,
