@@ -1,7 +1,7 @@
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 
-const premiumFeaturesSchema = z.array( z.string() ).or( z.literal( false ) );
+const premiumFeaturesSchema = z.array( z.string() );
 
 type PremiumFeatures = z.infer< typeof premiumFeaturesSchema >;
 
