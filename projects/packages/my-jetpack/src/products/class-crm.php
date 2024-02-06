@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
  * Class responsible for handling the CRM product
@@ -98,9 +99,17 @@ class Crm extends Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
+		// We are hard coding pricing info for CRM because it is not available to us through the CRM API.
 		return array(
-			'available' => true,
-			'is_free'   => true,
+			'available'             => true,
+			'is_free'               => false,
+			'full_price'            => 132,
+			'discount_price'        => 132,
+			'is_introductory_offer' => false,
+			'product_term'          => 'year',
+			'introductory_offer'    => null,
+			// CRM is only sold in USD
+			'currency_code'         => 'USD',
 		);
 	}
 
@@ -120,5 +129,28 @@ class Crm extends Product {
 	 */
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=zerobscrm-dash' );
+	}
+
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 * CRM is available as part of Jetpack Complete
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 }
