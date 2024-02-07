@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Subscribe block: avoid Batcache when logged in
