@@ -2,7 +2,7 @@
 /**
  * Sharing Buttons Block.
  *
- * @since 11.x
+ * @since 13.1
  *
  * @package automattic/jetpack
  */
@@ -10,10 +10,15 @@
 namespace Automattic\Jetpack\Extensions\Sharing_Button_Block;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
 require_once __DIR__ . '/class-sharing-source-block.php';
 require_once __DIR__ . '/components/social-icons.php';
+
+const PARENT_BLOCK_NAME = 'jetpack/sharing-buttons';
+const INNER_BLOCK_NAME  = 'jetpack/sharing-button';
 
 /**
  * Registers the block for use in Gutenberg
@@ -156,5 +161,135 @@ function sharing_process_requests() {
 		}
 	}
 }
-
 add_action( 'template_redirect', __NAMESPACE__ . '\sharing_process_requests', 9 );
+
+/**
+ * Automatically add the Sharing Buttons block to the end of the Single Posts template.
+ *
+ * @since $$next-version$$
+ *
+ * @param array                   $hooked_block_types The list of hooked block types.
+ * @param string                  $relative_position  The relative position of the hooked blocks. Can be one of 'before', 'after', 'first_child', or 'last_child'.
+ * @param string                  $anchor_block_type  The anchor block type.
+ * @param WP_Block_Template|array $context            The block template, template part, or pattern that the anchor block belongs to.
+ *
+ * @return array
+ */
+function add_block_to_single_posts_template( $hooked_block_types, $relative_position, $anchor_block_type, $context ) {
+	// Only automate the addition of the block in block-based themes.
+	if ( ! wp_is_block_theme() ) {
+		return $hooked_block_types;
+	}
+
+	// Proceed if the user has toggle the auto-addition in Jetpack settings.
+	if ( ! get_option( 'jetpack_sharing_buttons_auto_add' ) ) {
+		return $hooked_block_types;
+	}
+
+	/*
+	 * The Sharing module must be disabled.
+	 * We do not want to automatically insert sharing buttons twice.
+	 * On WordPress.com Simple the module is always active so we must check differently.
+	 * There, we check if buttons are enabled on single posts and pages.
+	 */
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		if ( ! class_exists( 'Sharing_Service' ) ) {
+			include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
+		}
+
+		$sharer = new \Sharing_Service();
+		$global = $sharer->get_global_options();
+		if (
+			! $global['show']
+			|| in_array( 'post', $global['show'], true )
+			|| in_array( 'page', $global['show'], true )
+		) {
+			return $hooked_block_types;
+		}
+	} elseif ( ( new Modules() )->is_active( 'sharedaddy' ) ) {
+		return $hooked_block_types;
+	}
+
+	// Only hook into page and single post templates.
+	if (
+		! $context instanceof \WP_Block_Template
+		|| ! property_exists( $context, 'slug' )
+		|| empty( $context->slug )
+		|| ! preg_match( '/^(page|single)/', $context->slug )
+	) {
+		return $hooked_block_types;
+	}
+
+	$content = $context->content ?? '';
+	// Check if the block is already in the template. If so, abort.
+	if ( false !== strpos( $content, 'wp:' . PARENT_BLOCK_NAME ) ) {
+		return $hooked_block_types;
+	}
+
+	// Add the block at the end of the post content.
+	if (
+		'after' === $relative_position
+		&& 'core/post-content' === $anchor_block_type
+	) {
+		$hooked_block_types[] = PARENT_BLOCK_NAME;
+	}
+
+	return $hooked_block_types;
+}
+add_filter( 'hooked_block_types', __NAMESPACE__ . '\add_block_to_single_posts_template', 10, 4 );
+
+/**
+ * Add default services to the block we add to the post content by default.
+ *
+ * @since $$next-version$$
+ *
+ * @param array                   $parsed_hooked_block The parsed block array for the given hooked block type.
+ * @param string                  $relative_position   The relative position of the hooked block.
+ * @param array                   $parsed_anchor_block The anchor block, in parsed block array format.
+ * @param WP_Block_Template|array $context             The block template, template part, or pattern that the anchor block.
+ *
+ * @return array
+ */
+function add_default_services_to_block( $parsed_hooked_block, $relative_position, $parsed_anchor_block, $context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	// Is the hooked block adjacent to the anchor block?
+	if ( 'after' !== $relative_position ) {
+		return $parsed_hooked_block;
+	}
+
+	// Use the icon style by default.
+	$parsed_hooked_block['attrs']['styleType'] = 'icon';
+
+	// Does the anchor block have a layout attribute?
+	if ( isset( $anchor_block['attrs']['layout'] ) ) {
+		// Copy the anchor block's layout attribute to the hooked block.
+		$parsed_hooked_block['attrs']['layout'] = $parsed_anchor_block['attrs']['layout'];
+	}
+
+	// Add default services (inner blocks) to the block.
+	$parsed_hooked_block['innerBlocks'] = array(
+		array(
+			'blockName' => INNER_BLOCK_NAME,
+			'attrs'     => array(
+				'service' => 'facebook',
+				'label'   => esc_html__( 'Facebook', 'jetpack' ),
+			),
+		),
+		array(
+			'blockName' => INNER_BLOCK_NAME,
+			'attrs'     => array(
+				'service' => 'x',
+				'label'   => esc_html__( 'X', 'jetpack' ),
+			),
+		),
+		array(
+			'blockName' => INNER_BLOCK_NAME,
+			'attrs'     => array(
+				'service' => 'mastodon',
+				'label'   => esc_html__( 'Mastodon', 'jetpack' ),
+			),
+		),
+	);
+
+	return $parsed_hooked_block;
+}
+add_filter( 'hooked_block_' . PARENT_BLOCK_NAME, __NAMESPACE__ . '\add_default_services_to_block', 10, 4 );
