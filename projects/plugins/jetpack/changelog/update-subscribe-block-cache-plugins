@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Subscriptions block: instruct WP Super Cache plugin to not cache the block.
