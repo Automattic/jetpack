@@ -21,12 +21,6 @@ export const automatticAssignments = {
 		slack_id: 'C01B6KEJ5GE',
 		board_id: 'https://github.com/orgs/Automattic/projects/718',
 	},
-	Newsletter: {
-		team: 'Zap',
-		labels: [ '[Block] Subscriptions', '[Block] Paywall', '[Feature] Subscriptions' ],
-		slack_id: 'C02NQ4HMJKV',
-		board_id: 'https://github.com/orgs/Automattic/projects/657',
-	},
 	Reader: {
 		team: 'Loop',
 		labels: [ '[Feature] Reader' ],
@@ -100,6 +94,12 @@ export const automatticAssignments = {
 		labels: [ '[Package] My Jetpack' ],
 		slack_id: 'C02TQF5VAJD',
 	},
+	Newsletter: {
+		team: 'Zap',
+		labels: [ '[Block] Subscriptions', '[Block] Paywall' ],
+		slack_id: 'C02NQ4HMJKV',
+		board_id: 'https://github.com/orgs/Automattic/projects/657',
+	},
 	Protect: {
 		team: 'Scan',
 		labels: [ '[Plugin] Protect', '[Feature] Protect', '[Package] WAF' ],
@@ -148,6 +148,12 @@ export const automatticAssignments = {
 		labels: [ '[Plugin] Super Cache' ],
 		slack_id: 'C016BBAFHHS',
 		board_id: 'https://github.com/orgs/Automattic/projects/548',
+	},
+	Verbum: {
+		team: 'Vertex',
+		labels: [ '[mu wpcom Feature] Verbum Comments' ],
+		slack_id: 'C02T4NVL4JJ',
+		board_id: 'https://github.com/orgs/Automattic/projects/908/views/1',
 	},
 	VideoPress: {
 		team: 'Agora',

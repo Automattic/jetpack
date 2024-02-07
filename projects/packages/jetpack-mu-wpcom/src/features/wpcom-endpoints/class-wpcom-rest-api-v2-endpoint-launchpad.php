@@ -73,7 +73,14 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 									'enum'        => $this->get_checklist_slug_enums(),
 								),
 								'is_dismissed' => array(
-									'type' => 'boolean',
+									'type'     => 'boolean',
+									'required' => false,
+									'default'  => false,
+								),
+								'dismiss_by'   => array(
+									'description' => 'Timestamp of when the checklist should be shown again',
+									'type'        => 'string',
+									'enum'        => array( '+ 1 day', '+ 1 week' ),
 								),
 							),
 							'additionalProperties' => false,
@@ -160,6 +167,19 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	}
 
 	/**
+	 * Parses the relative date string and returns the timestamp
+	 *
+	 * @param string $relative_date The string to parse.
+	 *
+	 * @return int The timestamp of when the checklist should be shown again.
+	 */
+	public function parse_relative_date( $relative_date ) {
+		$date = new \DateTime( 'now', new \DateTimeZone( 'UTC' ) );
+
+		return $date->modify( $relative_date )->getTimestamp();
+	}
+
+	/**
 	 * Updates Launchpad-related options and returns the result
 	 *
 	 * @param WP_REST_Request $request Request object.
@@ -179,10 +199,11 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					break;
 
 				case 'is_checklist_dismissed':
-					$checklist_slug = $value['slug'];
-					$is_dismissed   = $value['is_dismissed'];
+					$checklist_slug  = $value['slug'];
+					$is_dismissed    = isset( $value['is_dismissed'] ) ? $value['is_dismissed'] : false;
+					$dismissed_until = isset( $value['dismiss_by'] ) ? $this->parse_relative_date( $value['dismiss_by'] ) : null;
 
-					wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed );
+					wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed, $dismissed_until );
 					break;
 
 				case 'hide_fse_next_steps_modal':

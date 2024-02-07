@@ -280,7 +280,7 @@ class JPCRM_Settings_Cest {
 		$I->see( 'Transactions', 'h1.header' );
 		$I->see( 'Use Shipping' );
 		$I->see( 'Use Paid/Completed Dates' );
-		$I->see( 'Include these statuses in total value' );
+		$I->see( 'Include these statuses in the transaction total value' );
 		$I->see( 'Transaction Status' );
 
 		$I->see( 'Additional settings on transactions' );

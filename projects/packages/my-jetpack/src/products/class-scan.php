@@ -57,7 +57,7 @@ class Scan extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Stay one step ahead of threats', 'jetpack-my-jetpack' );
+		return __( 'Powerful, automated site security', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -220,7 +220,7 @@ class Scan extends Module_Product {
 	 */
 	public static function get_post_checkout_url() {
 		if ( static::is_jetpack_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack#/recommendations' );
+			return 'admin.php?page=jetpack#/recommendations';
 		}
 
 		// If Jetpack is not active, it means that the user has another standalone plugin active

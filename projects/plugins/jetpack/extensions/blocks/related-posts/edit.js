@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
 import { LoadingPostsGrid } from '../../shared/components/loading-posts-grid';
 import metadata from './block.json';
 import { RelatedPostsBlockControls, RelatedPostsInspectorControls } from './controls';
+import { useRelatedPosts } from './hooks/use-related-posts';
 import { useRelatedPostsStatus } from './hooks/use-status-toggle';
 import { InactiveRelatedPostsPlaceholder } from './inactive-placeholder';
 import './editor.scss';
@@ -44,7 +45,7 @@ function PlaceholderPostEdit( props ) {
 						viewBox="0 0 350 200"
 					>
 						<title>{ __( 'Grey square', 'jetpack' ) }</title>
-						<Path d="M0 0h350v200H0z" fill="#8B8B96" fill-opacity=".1" />
+						<Path d="M0 0h350v200H0z" fill="#8B8B96" fillOpacity=".1" />
 					</SVG>
 					<SVG
 						className="jp-related-posts-i2__post-image-placeholder-icon"
@@ -173,10 +174,11 @@ export default function RelatedPostsEdit( props ) {
 
 	const isChangingRelatedPostsStatus = isChangingStatus || isUpdatingStatus;
 
-	const { posts, isInSiteEditor } = useSelect( select => {
+	const { posts, isLoading: isLoadingRelatedPosts } = useRelatedPosts( isEnabled );
+
+	const { isInSiteEditor } = useSelect( select => {
 		const currentPost = select( editorStore ).getCurrentPost();
 		return {
-			posts: currentPost?.[ 'jetpack-related-posts' ] ?? [],
 			isInSiteEditor: ! currentPost || Object.keys( currentPost ).length === 0,
 		};
 	} );
@@ -184,7 +186,7 @@ export default function RelatedPostsEdit( props ) {
 	const { instanceId } = useInstanceId( RelatedPostsEdit );
 	const { attributes, className, setAttributes } = props;
 
-	if ( isLoadingModules || isFetchingStatus ) {
+	if ( isLoadingModules || isFetchingStatus || isLoadingRelatedPosts ) {
 		return <LoadingPostsGrid />;
 	}
 

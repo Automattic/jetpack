@@ -19,6 +19,7 @@ import classnames from 'classnames';
 import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import { useProduct } from '../../hooks/use-product';
+import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
 
@@ -83,7 +84,7 @@ const ProductDetailCard = ( {
 	quantity = null,
 	highlightLastFeature = false,
 } ) => {
-	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackUrl } =
+	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackCheckoutUri } =
 		window?.myJetpackInitialState ?? {};
 
 	const { detail, isFetching } = useProduct( slug );
@@ -128,7 +129,28 @@ const ProductDetailCard = ( {
 	 */
 	const needsPurchase = ( ! isFree && ! hasRequiredPlan ) || quantity != null;
 
-	const checkoutRedirectUrl = postCheckoutUrl ? postCheckoutUrl : myJetpackUrl;
+	// Redirect to the referrer URL when the `redirect_to_referrer` query param is present.
+	const referrerURL = useRedirectToReferrer();
+
+	/*
+	 * Function to handle the redirect URL selection.
+	 * - postCheckoutUrl is the URL provided by the product API and is the preferred URL
+	 * - referrerURL is the referrer URL, in case the redirect_to_referrer flag was provided
+	 * - myJetpackCheckoutUri is the default URL
+	 */
+	const getCheckoutRedirectUrl = useCallback( () => {
+		if ( postCheckoutUrl ) {
+			return postCheckoutUrl;
+		}
+
+		if ( referrerURL ) {
+			return referrerURL;
+		}
+
+		return myJetpackCheckoutUri;
+	}, [ postCheckoutUrl, referrerURL, myJetpackCheckoutUri ] );
+
+	const checkoutRedirectUrl = getCheckoutRedirectUrl();
 
 	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
 		useProductCheckoutWorkflow( {
@@ -139,15 +161,17 @@ const ProductDetailCard = ( {
 			connectAfterCheckout: true,
 			from: 'my-jetpack',
 			quantity,
+			useBlogIdSuffix: true,
 		} );
 
 	const { run: trialCheckoutRedirect, hasCheckoutStarted: hasTrialCheckoutStarted } =
 		useProductCheckoutWorkflow( {
 			productSlug: wpcomFreeProductSlug,
-			redirectUrl: myJetpackUrl,
+			redirectUrl: myJetpackCheckoutUri,
 			siteSuffix,
 			from: 'my-jetpack',
 			quantity,
+			useBlogIdSuffix: true,
 		} );
 
 	// Suppported products icons.
@@ -284,10 +308,10 @@ const ProductDetailCard = ( {
 				{ needsPurchase && discountPrice && (
 					<>
 						<div className={ styles[ 'price-container' ] }>
+							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 							{ discountPrice < price && (
 								<Price value={ price } currency={ currencyCode } isOld={ true } />
 							) }
-							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 						</div>
 						<Text className={ styles[ 'price-description' ] }>{ priceDescription }</Text>
 					</>

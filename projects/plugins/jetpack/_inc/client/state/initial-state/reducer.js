@@ -525,13 +525,14 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 	const uid = userId || getUserId( state );
 	const purchaseToken = getPurchaseToken( state );
 	const calypsoEnv = getCalypsoEnv( state );
+	const blogID = getSiteId( state );
 
 	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
 		source += '-monthly';
 	}
 
 	const redirectArgs = {
-		site: getSiteRawUrl( state ),
+		site: blogID ?? getSiteRawUrl( state ),
 	};
 
 	if ( affiliateCode ) {
@@ -728,4 +729,14 @@ export function getGutenbergState( state ) {
  */
 export function isSharingBlockAvailable( state ) {
 	return !! state.jetpack.initialState.siteData.isSharingBlockAvailable;
+}
+
+/**
+ * Get the Jetpack Manage info
+ *
+ * @param {object} state - Global state tree.
+ * @returns {object} Jetpack Manage info
+ */
+export function getJetpackManageInfo( state ) {
+	return state.jetpack.initialState.jetpackManage;
 }

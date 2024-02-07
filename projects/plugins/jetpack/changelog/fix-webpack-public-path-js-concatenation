@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Extensions: Don't auto-generate public path after all. But improve the way the manual path is being set.

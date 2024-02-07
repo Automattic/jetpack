@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2024-02-05
+### Added
+- Add rate limiter to the package versions endpoint calls. [#35379]
+
+### Changed
+- Adjust 'get_site_id()' method to return null if there's no blog ID. [#35004]
+- Adjust 'get_site_id()' method to return null if there's no blog ID. [#35006]
+- Jetpack Connection: Add jetpack_package_versions to Sync [#35409]
+- Updated package dependencies. [#35384]
+
+## [2.2.0] - 2024-01-18
+### Added
+- Adding support for IDC when site URL is an IP address. [#34753]
+
+### Changed
+- Adjust 'get_site_id()' method to return null if there's no blog ID. [#34976]
+
 ## [2.1.1] - 2024-01-04
 ### Changed
 - Updated package dependencies. [#34815]
@@ -943,6 +960,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[2.3.0]: https://github.com/Automattic/jetpack-connection/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/Automattic/jetpack-connection/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/Automattic/jetpack-connection/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/Automattic/jetpack-connection/compare/v2.0.3...v2.1.0
 [2.0.3]: https://github.com/Automattic/jetpack-connection/compare/v2.0.2...v2.0.3

@@ -9,8 +9,10 @@ import {
 	QueryClientProvider,
 } from '@tanstack/react-query';
 import React from 'react';
+import { useRef } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
+import { DataSyncError } from './DataSyncError';
 
 /**
  * @REACT-TODO This is temporary. We need to allow each app to define their own QueryClient.
@@ -84,6 +86,10 @@ export function useDataSync<
 	config: DataSyncConfig< Schema, Value > = {},
 	params: Record< string, string | number > = {}
 ): DataSyncHook< Schema, Value > {
+	// AbortController is used to track rapid value mutations
+	// and will cancel in-flight requests and prevent
+	// the optimistic value from being reverted.
+	const abortController = useRef< AbortController | null >( null );
 	const datasync = new DataSync( namespace, key, schema );
 	const queryKey = buildQueryKey( key, params );
 
@@ -92,6 +98,7 @@ export function useDataSync<
 	 * - `queryKey` is the key of the value that's being synced.
 	 * - `queryFn` is wired up to DataSync `GET` method.
 	 * - `initialData` gets the value from the global window object.
+	 * - `staleTime` is set to 1 second by default; to prevent immediate re-fetching after setting a value.
 	 *
 	 * If your property is lazy-loaded, you should populate `initialData` with a value manually.
 	 * ```js
@@ -104,6 +111,7 @@ export function useDataSync<
 		queryKey,
 		queryFn: ( { signal } ) => datasync.GET( params, signal ),
 		initialData: () => datasync.getInitialValue(),
+		staleTime: 1 * 1000,
 	};
 
 	/**
@@ -118,8 +126,19 @@ export function useDataSync<
 	 */
 	const mutationConfigDefaults = {
 		mutationKey: queryKey,
-		mutationFn: value => datasync.SET( value, params ),
+
+		// Mutation function that's called when the mutation is triggered
+		mutationFn: value => datasync.SET( value, params, abortController.current.signal ),
+
+		// Mutation actions that occur before the mutationFn is called
 		onMutate: async data => {
+			// If there's an existing mutation in progress, cancel it
+			if ( abortController.current ) {
+				abortController.current.abort();
+			}
+			// Create a new AbortController for the upcoming request
+			abortController.current = new AbortController();
+
 			const value = schema.parse( data );
 
 			// Cancel any outgoing refetches
@@ -133,13 +152,26 @@ export function useDataSync<
 			queryClient.setQueryData( queryKey, value );
 
 			// Return a context object with the snapshotted value
-			return { previousValue };
+			return { previousValue, optimisticValue: value };
 		},
-		onError: ( _, __, context ) => {
+		onError: ( err, _, context ) => {
+			if ( err instanceof DataSyncError && err.info.status === 'aborted' ) {
+				// If the request was aborted, this means that another mutation
+				// has already been dispatched and has already updated
+				// the optimistic value, so there's nothing to revert.
+				return;
+			}
+			// Revert the optimistic update to the previous value on error
 			queryClient.setQueryData( queryKey, context.previousValue );
 		},
-		onSettled: () => {
-			queryClient.invalidateQueries( { queryKey } );
+		onSuccess: ( data: Value ) => {
+			queryClient.setQueryData( queryKey, data );
+		},
+		onSettled: ( _, error ) => {
+			// Clear the abortController on either success or failure that is not an abort
+			if ( ! error || ( error instanceof DataSyncError && error.info.status !== 'aborted' ) ) {
+				abortController.current = null;
+			}
 		},
 	};
 

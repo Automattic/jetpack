@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	MenuItem,
 	MenuGroup,
@@ -134,6 +135,14 @@ export default function I18nDropdownControl( {
 	onChange,
 	disabled = false,
 }: LanguageDropdownControlProps ) {
+	const { tracks } = useAnalytics();
+
+	const toggleHandler = isOpen => {
+		if ( isOpen ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_toolbar_menu_show', { tool: 'i18n' } );
+		}
+	};
+
 	return disabled ? (
 		<Tooltip text={ label }>
 			<Button disabled>
@@ -147,6 +156,7 @@ export default function I18nDropdownControl( {
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
+			onToggle={ toggleHandler }
 		>
 			{ () => <I18nMenuGroup value={ value } onChange={ onChange } /> }
 		</ToolbarDropdownMenu>

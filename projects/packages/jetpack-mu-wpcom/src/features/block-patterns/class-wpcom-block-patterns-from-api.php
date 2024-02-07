@@ -116,6 +116,10 @@ class Wpcom_Block_Patterns_From_Api {
 					$viewport_width = $viewport_width < 320 ? 320 : $viewport_width;
 					$pattern_name   = self::PATTERN_NAMESPACE . $pattern['name'];
 					$block_types    = $this->utils->maybe_get_pattern_block_types_from_pattern_meta( $pattern );
+					if ( empty( $block_types ) ) {
+						// For wp_block patterns because don't use pattern meta for block types.
+						$block_types = $this->utils->get_block_types_from_categories( $pattern );
+					}
 
 					$results[ $pattern_name ] = register_block_pattern(
 						$pattern_name,
@@ -173,11 +177,20 @@ class Wpcom_Block_Patterns_From_Api {
 
 		$block_patterns = $this->utils->cache_get( $patterns_cache_key, 'ptk_patterns' );
 
+		// Enable testing v2 patterns on sites with Assembler theme active
+		$enable_testing_v2_patterns = in_array( get_stylesheet(), array( 'pub/assembler', 'assembler' ), true );
+
 		// Load fresh data if we don't have any patterns.
-		if ( false === $block_patterns || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE ) ) {
+		if ( $enable_testing_v2_patterns || false === $block_patterns || ( defined( 'WP_DISABLE_PATTERN_CACHE' ) && WP_DISABLE_PATTERN_CACHE ) ) {
+			if ( $enable_testing_v2_patterns ) {
+				$request_params = array(
+					'site'      => 'dotcompatterns.wordpress.com',
+					'post_type' => 'wp_block',
+				);
+			}
 			$request_url = esc_url_raw(
 				add_query_arg(
-					array(
+					$request_params ?? array(
 						'tags'            => 'pattern',
 						'pattern_meta'    => 'is_web',
 						'patterns_source' => $patterns_source,
@@ -188,7 +201,9 @@ class Wpcom_Block_Patterns_From_Api {
 
 			$block_patterns = $this->utils->remote_get( $request_url );
 
-			$this->utils->cache_add( $patterns_cache_key, $block_patterns, 'ptk_patterns', DAY_IN_SECONDS );
+			if ( ! $enable_testing_v2_patterns ) {
+				$this->utils->cache_add( $patterns_cache_key, $block_patterns, 'ptk_patterns', DAY_IN_SECONDS );
+			}
 		}
 
 		return $block_patterns;
