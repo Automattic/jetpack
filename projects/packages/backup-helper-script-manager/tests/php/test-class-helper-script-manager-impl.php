@@ -113,17 +113,17 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		$this->assertCount( 3, $default_install_locations );
 
 		$paths = array_keys( $default_install_locations );
-		$this->assertStringEndsWith( '/wordpress/wp-content', $paths[0] );
-		$this->assertStringEndsWith( '/wordpress/wp-content/uploads', $paths[1] );
-		$this->assertStringEndsWith( '/wordpress', $paths[2] );
+		$this->assertStringEndsWith( '/wordpress', $paths[0] );
+		$this->assertStringEndsWith( '/wordpress/wp-content', $paths[1] );
+		$this->assertStringEndsWith( '/wordpress/wp-content/uploads', $paths[2] );
 
 		$site_url = get_site_url();
 		$urls     = array_values( $default_install_locations );
 		$this->assertSame(
 			array(
+				$site_url,
 				"$site_url/wp-content",
 				"$site_url/wp-content/uploads",
-				$site_url,
 			),
 			$urls
 		);
