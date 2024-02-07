@@ -26,7 +26,7 @@ import {
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { getModuleOverride } from 'state/modules';
+import { getModuleOverride, isModuleAvailable } from 'state/modules';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import DashActivity from './activity';
 import DashAkismet from './akismet';
@@ -48,6 +48,19 @@ class AtAGlance extends Component {
 
 	trackUpgradeButtonView = ( feature = '' ) => {
 		return () => analytics.tracks.recordEvent( `jetpack_wpa_aag_upgrade_button_view`, { feature } );
+	};
+
+	/**
+	 * Determines whether a card should be added based on the feature and module availability.
+	 *
+	 * @param {string} feature - The feature to check.
+	 * @param {boolean} [checkModuleAvailability=false] - Whether to check module availability.
+	 * @returns {boolean} - Whether the card should be added.
+	 */
+	shouldAddCard = ( feature, checkModuleAvailability = false ) => {
+		const isActive = 'inactive' !== this.props.getModuleOverride( feature );
+		const isAvailable = ! checkModuleAvailability || this.props.isModuleAvailable( feature );
+		return isActive && isAvailable;
 	};
 
 	render() {
@@ -108,10 +121,10 @@ class AtAGlance extends Component {
 			/>
 		);
 
-		if ( 'inactive' !== this.props.getModuleOverride( 'protect' ) ) {
+		if ( this.shouldAddCard( 'protect', true ) ) {
 			securityCards.push( <DashProtect { ...settingsProps } /> );
 		}
-		if ( 'inactive' !== this.props.getModuleOverride( 'monitor' ) ) {
+		if ( this.shouldAddCard( 'monitor', true ) ) {
 			securityCards.push( <DashMonitor { ...settingsProps } /> );
 		}
 
@@ -127,10 +140,10 @@ class AtAGlance extends Component {
 				! this.props.multisite && ! this.props.isOfflineMode && this.props.hasConnectedOwner;
 			const performanceCards = [];
 
-			if ( 'inactive' !== this.props.getModuleOverride( 'photon' ) ) {
+			if ( this.shouldAddCard( 'photon', true ) ) {
 				performanceCards.push( <DashPhoton { ...settingsProps } /> );
 			}
-			if ( 'inactive' !== this.props.getModuleOverride( 'search' ) ) {
+			if ( this.shouldAddCard( 'search' ) ) {
 				performanceCards.push(
 					<DashSearch
 						{ ...settingsProps }
@@ -138,7 +151,7 @@ class AtAGlance extends Component {
 					/>
 				);
 			}
-			if ( 'inactive' !== this.props.getModuleOverride( 'videopress' ) ) {
+			if ( this.shouldAddCard( 'videopress', true ) ) {
 				performanceCards.push(
 					<DashVideoPress
 						{ ...settingsProps }
@@ -248,6 +261,7 @@ export default connect( state => {
 		isAtomicSite: isAtomicSite( state ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		isModuleAvailable: module_name => isModuleAvailable( state, module_name ),
 		multisite: isMultisite( state ),
 		scanStatus: getScanStatus( state ),
 		fetchingScanStatus: isFetchingScanStatus( state ),
