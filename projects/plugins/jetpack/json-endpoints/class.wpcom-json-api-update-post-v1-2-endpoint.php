@@ -106,15 +106,15 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint(
 		),
 
 		'request_format'       => array(
-			'date'              => "(ISO 8601 datetime) The post's creation time.",
-			'title'             => '(HTML) The post title.',
-			'content'           => '(HTML) The post content.',
-			'excerpt'           => '(HTML) An optional post excerpt.',
-			'slug'              => '(string) The name (slug) for the post, used in URLs.',
-			'author'            => '(string) The username or ID for the user to assign the post to.',
-			'publicize'         => '(array|bool) True or false if the post be shared to external services. An array of services if we only want to share to a select few. Defaults to true.',
-			'publicize_message' => '(string) Custom message to be shared to external services.',
-			'status'            => array(
+			'date'                  => "(ISO 8601 datetime) The post's creation time.",
+			'title'                 => '(HTML) The post title.',
+			'content'               => '(HTML) The post content.',
+			'excerpt'               => '(HTML) An optional post excerpt.',
+			'slug'                  => '(string) The name (slug) for the post, used in URLs.',
+			'author'                => '(string) The username or ID for the user to assign the post to.',
+			'publicize'             => '(array|bool) True or false if the post be shared to external services. An array of services if we only want to share to a select few. Defaults to true.',
+			'publicize_message'     => '(string) Custom message to be shared to external services.',
+			'status'                => array(
 				'publish' => 'Publish the post.',
 				'private' => 'Privately publish the post.',
 				'draft'   => 'Save the post as a draft.',
@@ -122,29 +122,30 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint(
 				'pending' => 'Mark the post as pending editorial approval.',
 				'trash'   => 'Set the post as trashed.',
 			),
-			'sticky'            => array(
+			'sticky'                => array(
 				'false' => 'Post is not marked as sticky.',
 				'true'  => 'Stick the post to the front page.',
 			),
-			'password'          => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
-			'parent'            => "(int) The post ID of the new post's parent.",
-			'terms'             => '(object) Mapping of taxonomy to comma-separated list or array of term names',
-			'terms_by_id'       => '(object) Mapping of taxonomy to comma-separated list or array of term IDs',
-			'categories'        => '(array|string) Comma-separated list or array of category names',
-			'categories_by_id'  => '(array|string) Comma-separated list or array of category IDs',
-			'tags'              => '(array|string) Comma-separated list or array of tag names',
-			'tags_by_id'        => '(array|string) Comma-separated list or array of tag IDs',
-			'format'            => array_merge( array( 'default' => 'Use default post format' ), get_post_format_strings() ),
-			'discussion'        => '(object) A hash containing one or more of the following boolean values, which default to the blog\'s discussion preferences: `comments_open`, `pings_open`',
-			'likes_enabled'     => '(bool) Should the post be open to likes?',
-			'menu_order'        => '(int) (Pages only) the order pages should appear in. Use 0 to maintain alphabetical order.',
-			'page_template'     => '(string) (Pages Only) The page template this page should use.',
-			'sharing_enabled'   => '(bool) Should sharing buttons show on this post?',
-			'featured_image'    => '(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.',
-			'media'             => '(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded. Multiple media items will be displayed in a gallery. Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options resposne of the site endpoint. <br /><br /><strong>Example</strong>:<br />' .
+			'password'              => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
+			'parent'                => "(int) The post ID of the new post's parent.",
+			'terms'                 => '(object) Mapping of taxonomy to comma-separated list or array of term names',
+			'terms_by_id'           => '(object) Mapping of taxonomy to comma-separated list or array of term IDs',
+			'categories'            => '(array|string) Comma-separated list or array of category names',
+			'categories_by_id'      => '(array|string) Comma-separated list or array of category IDs',
+			'tags'                  => '(array|string) Comma-separated list or array of tag names',
+			'tags_by_id'            => '(array|string) Comma-separated list or array of tag IDs',
+			'format'                => array_merge( array( 'default' => 'Use default post format' ), get_post_format_strings() ),
+			'discussion'            => '(object) A hash containing one or more of the following boolean values, which default to the blog\'s discussion preferences: `comments_open`, `pings_open`',
+			'likes_enabled'         => '(bool) Should the post be open to likes?',
+			'menu_order'            => '(int) (Pages only) the order pages should appear in. Use 0 to maintain alphabetical order.',
+			'page_template'         => '(string) (Pages Only) The page template this page should use.',
+			'sharing_enabled'       => '(bool) Should sharing buttons show on this post?',
+			'featured_image'        => '(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.',
+			'media'                 => '(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded. Multiple media items will be displayed in a gallery. Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options resposne of the site endpoint. <br /><br /><strong>Example</strong>:<br />' .
 							"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
-			'media_urls'        => '(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.',
-			'metadata'          => '(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
+			'media_urls'            => '(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.',
+			'metadata'              => '(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
+			'if_not_modified_since' => '(ISO 8601 datetime) If the post has been modified since this time, the post will not be updated.',
 		),
 
 		'example_request'      => 'https://public-api.wordpress.com/rest/v1.2/sites/82974409/posts/881',
@@ -276,6 +277,12 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 			if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
+			}
+
+			if ( ! empty( $input['if_not_modified_since'] ) ) {
+				if ( mysql2date( 'U', $post->post_modified_gmt ) > mysql2date( 'U', $input['if_not_modified_since'] ) ) {
+					return new WP_Error( 'old-revision', 'There is a revision of this post that is more recent.', 409 );
+				}
 			}
 
 			if ( ! empty( $input['author'] ) ) {
