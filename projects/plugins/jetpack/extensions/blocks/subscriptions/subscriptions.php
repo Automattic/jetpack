@@ -660,6 +660,14 @@ function render_for_website( $data, $classes, $styles ) {
 	$is_subscribed      = Jetpack_Memberships::is_current_user_subscribed();
 	$button_text        = get_submit_button_text( $data );
 
+	// Prevent Batcache from caching views with subscribe block when user subscribed, or even just logged and aren't subscribed.
+	// Avoids user's emails or block's "subscribed" state getting cached.
+	if ( $is_subscribed || ! empty( $data['subscribe_email'] ) ) {
+		if ( function_exists( 'batcache_cancel' ) ) {
+			batcache_cancel();
+		}
+	}
+
 	ob_start();
 
 	Jetpack_Subscriptions_Widget::render_widget_status_messages(
