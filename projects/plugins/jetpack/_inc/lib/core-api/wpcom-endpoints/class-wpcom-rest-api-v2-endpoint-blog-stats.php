@@ -63,7 +63,7 @@ class WPCOM_REST_API_V2_Endpoint_Blog_Stats extends WP_REST_Controller {
 			( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) )
 		);
 
-		if ( ! isset( $blog_data->stats->views ) ) {
+		if ( ! isset( $blog_data->stats->views ) || ! isset( $blog_data->stats->visitors ) ) {
 			return false;
 		}
 
@@ -72,8 +72,9 @@ class WPCOM_REST_API_V2_Endpoint_Blog_Stats extends WP_REST_Controller {
 		}
 
 		return array(
-			'post-views' => $post_data->views,
-			'blog-views' => $blog_data->stats->views,
+			'post-views'    => $post_data->views,
+			'blog-visitors' => $blog_data->stats->visitors,
+			'blog-views'    => $blog_data->stats->views,
 		);
 	}
 }
