@@ -30,6 +30,7 @@ class Note {
 		}
 		self::register_cpt();
 		add_action( 'wp_insert_post_data', array( new Note(), 'set_empty_title' ), 10, 2 );
+		add_filter( 'the_title', array( new Note(), 'override_empty_title' ), 10, 2 );
 	}
 
 	/**
@@ -123,5 +124,27 @@ class Note {
 	public static function delete_rewrite_rules_option() {
 		delete_option( self::JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT );
 >>>>>>> 6f3444d1b7 (Delete the flush rewrite option on plugin deactivation.)
+	}
+
+	/**
+	 * Use the_title hook so we show the social note's exceprt in the post list view.
+	 *
+	 * @param array $title The title of the post, which we have set to be an empty string for Social Notes.
+	 * @param array $post_id The Post ID.
+	 */
+	public static function override_empty_title( $title, $post_id ) {
+		if ( is_admin() && 'edit.php' === $GLOBALS['pagenow'] ) {
+			// Get the post type
+			$post_type = get_post_type( $post_id );
+
+			// Check if the post type doesn't have a title
+			if ( $post_type === self::JETPACK_SOCIAL_NOTE_CPT ) {
+				// Return permalink instead of title
+				return wp_strip_all_tags( wp_trim_excerpt( get_post_field( 'post_content', $post_id ) ) );
+			}
+		}
+
+		// Return the original title for other cases
+		return $title;
 	}
 }
