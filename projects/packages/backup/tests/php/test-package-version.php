@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Backup;
 
 use PHPUnit\Framework\TestCase;
 use function add_filter;
+use function apply_filters;
 
 /**
  * Unit tests for the Package_Version class.
