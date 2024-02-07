@@ -880,7 +880,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			),
 			'jetpack/jetpack.php' => array(
 				'settings' => admin_url( 'settings.php' ),
-				'support'  => 'https://jetpack.com/support',
 			),
 		);
 
