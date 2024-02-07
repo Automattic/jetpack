@@ -28,7 +28,7 @@ class Test_Package_Version extends TestCase {
 
 		add_filter(
 			'jetpack_package_versions',
-			'\Automattic\Jetpack\Backup\Package_Version\Package_Version::send_package_version_to_tracker'
+			'\Automattic\Jetpack\Backup\Package_Version::send_package_version_to_tracker'
 		);
 
 		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', array() ) );
@@ -50,7 +50,7 @@ class Test_Package_Version extends TestCase {
 
 		add_filter(
 			'jetpack_package_versions',
-			'\Automattic\Jetpack\Backup\Package_Version\Package_Version::send_package_version_to_tracker'
+			'\Automattic\Jetpack\Backup\Package_Version::send_package_version_to_tracker'
 		);
 
 		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', $existing_array ) );
