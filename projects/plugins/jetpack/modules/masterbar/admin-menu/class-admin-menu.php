@@ -404,6 +404,11 @@ class Admin_Menu extends Base_Admin_Menu {
 			add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'jetpack', null, $icon, $position );
 		}
 
+		// wp-admin interface, add Subscribers under Jetpack menu.
+		if ( $this->use_wp_admin_interface() ) {
+			add_submenu_page( 'jetpack', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>', 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 2 );
+		}
+
 		add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 3 );
 		add_submenu_page( 'jetpack', esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 4 );
 

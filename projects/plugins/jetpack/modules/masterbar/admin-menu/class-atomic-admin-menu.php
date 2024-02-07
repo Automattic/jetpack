@@ -129,11 +129,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->update_submenus( $slug, $submenus_to_update );
 		}
 
-		// When wp-admin interface is selected, Subscribers is added on Jetpack,
-		// if not, the subscribers link is added to the Users menu.
-		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
-			add_submenu_page( 'jetpack', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>', 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 2 );
-		} else {
+		// Not wp-admin interface, add Subscribers under Users menu.
+		if ( ! $this->use_wp_admin_interface() ) {
 			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
 		}
 
