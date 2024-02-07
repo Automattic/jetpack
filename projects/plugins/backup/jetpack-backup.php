@@ -29,7 +29,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-use Automattic\Jetpack\Backup\V0001\Jetpack_Backup as My_Jetpack_Backup;
+use Automattic\Jetpack\Backup\V0002\Jetpack_Backup as My_Jetpack_Backup;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -163,7 +163,7 @@ add_filter(
 	}
 );
 
-register_deactivation_hook( __FILE__, array( 'Automattic\\Jetpack\\Backup\\V0001\\Jetpack_Backup', 'plugin_deactivation' ) );
+register_deactivation_hook( __FILE__, array( 'Automattic\\Jetpack\\Backup\\V0002\\Jetpack_Backup', 'plugin_deactivation' ) );
 
 // Main plugin class.
 My_Jetpack_Backup::initialize();
