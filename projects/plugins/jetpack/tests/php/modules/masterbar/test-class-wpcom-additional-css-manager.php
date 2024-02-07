@@ -58,7 +58,7 @@ class Test_WPCOM_Additional_Css_Manager extends \WP_UnitTestCase {
 
 		$cta_copys = array(
 			'Purchase a Pro Plan to<br> activate CSS customization',
-			'Purchase an Explorer plan to<br> activate CSS customization',
+			'Purchase the Explorer plan to<br> activate CSS customization',
 		);
 
 		$cta_copy = $this->wp_customize->controls()['jetpack_custom_css_control']->nudge_copy;
