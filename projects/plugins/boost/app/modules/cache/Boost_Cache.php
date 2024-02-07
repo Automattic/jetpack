@@ -7,6 +7,7 @@ namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
  * As it is loaded before WordPress is loaded, it is not autoloaded by Boost.
  */
 require_once __DIR__ . '/Boost_Cache_Settings.php';
+require_once __DIR__ . '/Boost_Cache_Utils.php';
 
 abstract class Boost_Cache {
 	/*
