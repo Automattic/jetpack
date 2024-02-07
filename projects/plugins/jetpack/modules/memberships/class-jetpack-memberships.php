@@ -655,7 +655,7 @@ class Jetpack_Memberships {
 		// Request common cache plugins to not cache this post
 		// Batcache at WP.com is handled by JWT_AUTH_TOKEN_COOKIE_NAME being prefixed with `wp-` already.
 		if ( $can_view_post && $post_access_level !== Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ) {
-			Abstract_Token_Subscription_Service::plugins_do_not_cache();
+			$paywall->plugins_do_not_cache();
 		}
 
 		self::$user_can_view_post_cache[ $cache_key ] = $can_view_post;
