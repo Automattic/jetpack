@@ -17,6 +17,7 @@ import {
 	currentThemeIsBlockTheme,
 	currentThemeStylesheet,
 	getSiteAdminUrl,
+	isSubscriptionSiteEnabled,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
 
@@ -40,6 +41,7 @@ function SubscriptionsSettings( props ) {
 		isStcEnabled,
 		isSmEnabled,
 		isSubscribePostEndEnabled,
+		isSubscriptionSiteFeatureEnabled,
 		isSubscriptionsActive,
 		siteRawUrl,
 		subscriptions,
@@ -169,15 +171,17 @@ function SubscriptionsSettings( props ) {
 								) }
 							</p>
 						</FormFieldset>
-						<FormFieldset>
-							<ToggleControl
-								checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
-								disabled={ isDisabled }
-								toggling={ isSavingAnyOption( [ 'jetpack_subscribe_post_end_enabled' ] ) }
-								onChange={ handleSubscribePostEndToggleChange }
-								label={ __( 'Add Subscribe block at the end of each post', 'jetpack' ) }
-							/>
-						</FormFieldset>
+						{ isSubscriptionSiteFeatureEnabled && (
+							<FormFieldset>
+								<ToggleControl
+									checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
+									disabled={ isDisabled }
+									toggling={ isSavingAnyOption( [ 'jetpack_subscribe_post_end_enabled' ] ) }
+									onChange={ handleSubscribePostEndToggleChange }
+									label={ __( 'Add Subscribe block at the end of each post', 'jetpack' ) }
+								/>
+							</FormFieldset>
+						) }
 					</>
 				}
 			</SettingsGroup>
@@ -206,6 +210,7 @@ export default withModuleSettingsFormHelpers(
 			isStcEnabled: ownProps.getOptionValue( 'stc_enabled' ),
 			isSmEnabled: ownProps.getOptionValue( 'sm_enabled' ),
 			isSubscribePostEndEnabled: ownProps.getOptionValue( 'jetpack_subscribe_post_end_enabled' ),
+			isSubscriptionSiteFeatureEnabled: isSubscriptionSiteEnabled( state ),
 			isBlockTheme: currentThemeIsBlockTheme( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			themeStylesheet: currentThemeStylesheet( state ),

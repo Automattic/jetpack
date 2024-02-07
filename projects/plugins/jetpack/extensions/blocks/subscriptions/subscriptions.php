@@ -155,8 +155,9 @@ function register_block() {
 	}
 
 	// Add Subscribe block at the end of each post
-	$sb_post_end_enabled = get_option( 'jetpack_subscribe_post_end_enabled', false );
-	if ( ! empty( $sb_post_end_enabled ) ) {
+	$subscription_site_enabled  = apply_filters( 'jetpack_subscription_site_enabled', false );
+	$subscribe_post_end_enabled = get_option( 'jetpack_subscribe_post_end_enabled', false );
+	if ( ! empty( $subscription_site_enabled ) && ! empty( $subscribe_post_end_enabled ) ) {
 		add_filter(
 			'the_content',
 			function ( $content ) {
