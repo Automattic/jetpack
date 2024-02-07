@@ -1,12 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
-// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
-// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
-// are installed, or in some other cases).
-namespace Automattic\Jetpack\Backup\V0002;
+namespace Automattic\Jetpack\Backup;
 
-use Automattic\Jetpack\Backup\Package_Version;
 use PHPUnit\Framework\TestCase;
 use function add_filter;
 
@@ -26,10 +21,7 @@ class Test_Package_Version extends TestCase {
 			Package_Version::PACKAGE_SLUG => Package_Version::PACKAGE_VERSION,
 		);
 
-		add_filter(
-			'jetpack_package_versions',
-			'\Automattic\Jetpack\Backup\Package_Version::send_package_version_to_tracker'
-		);
+		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
 		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', array() ) );
 	}
@@ -48,10 +40,7 @@ class Test_Package_Version extends TestCase {
 			array( Package_Version::PACKAGE_SLUG => Package_Version::PACKAGE_VERSION )
 		);
 
-		add_filter(
-			'jetpack_package_versions',
-			'\Automattic\Jetpack\Backup\Package_Version::send_package_version_to_tracker'
-		);
+		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
 		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', $existing_array ) );
 	}
