@@ -379,7 +379,7 @@ export const Waf = class extends Component {
 					disabled={ baseInputDisabledCase }
 					toggling={
 						this.props.isUpdatingWafSettings &&
-						this.state.shareDebugata !== this.props.settings?.shareDebugData
+						this.state.shareDebugData !== this.props.settings?.shareDebugData
 					}
 					onChange={ this.toggleShareDebugData }
 					label={
