@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+WooCommerce Analytics: disable feature when Usage Tracking is disabled.

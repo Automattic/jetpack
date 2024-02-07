@@ -76,6 +76,12 @@ class Jetpack_WooCommerce_Analytics {
 		if ( ! $minimum_woocommerce_active ) {
 			return false;
 		}
+
+		// Do not track if the user has opted out of tracking.
+		if ( 'yes' !== get_option( 'woocommerce_allow_tracking', 'no' ) ) {
+			return false;
+		}
+
 		return true;
 	}
 
