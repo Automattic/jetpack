@@ -43,8 +43,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			0
 		);
 
-		// Add notices to the settings pages when there is a Calypso page available.
 		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			// Add notice to the Dashboard page about the reorganized menus.
+			add_action( 'load-index.php', array( $this, 'add_reorganized_menus_notice' ) );
+
+			// Add notices to the settings pages when there is a Calypso page available.
 			add_action( 'current_screen', array( $this, 'add_settings_page_notice' ) );
 		}
 	}
@@ -573,6 +576,24 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			?>
 			<div class="notice notice-warning">
 				<p><?php echo wp_kses( sprintf( $notice, esc_url( $switch_url ) ), array( 'a' => array( 'href' => array() ) ) ); ?></p>
+			</div>
+			<?php
+		};
+
+		add_action( 'admin_notices', $admin_notices );
+	}
+
+	/**
+	 * Adds an admin notice about the menu reorganization.
+	 *
+	 * @return void
+	 */
+	public function add_reorganized_menus_notice() {
+		$admin_notices = function () {
+			$notice = __( 'We’re improving our menu organization to align with WordPress.org’s wp-admin. WordPress.com specific features are now in the new <b>WordPress.com</b> menu.', 'jetpack' );
+			?>
+			<div class="notice notice-warning is-dismissible">
+				<p><?php echo wp_kses( $notice, array( 'b' => array() ) ); ?></p>
 			</div>
 			<?php
 		};
