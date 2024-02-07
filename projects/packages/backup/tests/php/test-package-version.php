@@ -6,6 +6,7 @@
 // are installed, or in some other cases).
 namespace Automattic\Jetpack\Backup\V0002;
 
+use Automattic\Jetpack\Backup\Package_Version;
 use PHPUnit\Framework\TestCase;
 use function add_filter;
 
@@ -25,7 +26,10 @@ class Test_Package_Version extends TestCase {
 			Package_Version::PACKAGE_SLUG => Package_Version::PACKAGE_VERSION,
 		);
 
-		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
+		add_filter(
+			'jetpack_package_versions',
+			'\Automattic\Jetpack\Backup\Package_Version\Package_Version::send_package_version_to_tracker'
+		);
 
 		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', array() ) );
 	}
@@ -44,7 +48,10 @@ class Test_Package_Version extends TestCase {
 			array( Package_Version::PACKAGE_SLUG => Package_Version::PACKAGE_VERSION )
 		);
 
-		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
+		add_filter(
+			'jetpack_package_versions',
+			'\Automattic\Jetpack\Backup\Package_Version\Package_Version::send_package_version_to_tracker'
+		);
 
 		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', $existing_array ) );
 	}
