@@ -16,11 +16,6 @@ abstract class Boost_Cache {
 	private $settings;
 
 	/*
-	 * @var string - The path key used to identify the cache directory for the current request. MD5 of the request uri.
-	 */
-	protected $path_key = false;
-
-	/*
 	 * @var string - The normalized path for the current request. This is not sanitized. Only to be used for comparison purposes.
 	 */
 	protected $request_uri = false;
