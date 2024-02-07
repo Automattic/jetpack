@@ -29,4 +29,4 @@ $add_action( 'jetpack_cleanup_helper_scripts', array( 'Automattic\\Jetpack\\Back
 $add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Transport_Helper\\V0002\\REST_Controller', 'register_rest_routes' ) );
 
 // Set up package version hook.
-$add_filter( 'jetpack_package_versions', 'Automattic\\Jetpack\\Transport_Helper\\V0002\\Package_Version::send_package_version_to_tracker' );
+$add_filter( 'jetpack_package_versions', 'Automattic\\Jetpack\\Transport_Helper\\Package_Version::send_package_version_to_tracker' );
