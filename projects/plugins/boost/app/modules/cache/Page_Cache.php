@@ -86,14 +86,13 @@ class Page_Cache implements Pluggable, Is_Always_On {
 				return new \WP_Error( 'advanced-cache.php exists but is not the correct file' );
 			}
 		} else {
-			$plugin_name = basename( dirname( plugin_dir_path( __FILE__ ), 3 ) );
-			$filename    = WP_CONTENT_DIR . '/plugins/' . $plugin_name . '/app/modules/cache/Boost_File_Cache.php';
-			$contents    = '<?php
+			$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . basename( dirname( plugin_dir_path( __FILE__ ), 3 ) ) . '/app/modules/cache/Boost_File_Cache.php';
+			$contents             = '<?php
 // ' . self::$advanced_cache_signature . '
-if ( ! file_exists( \'' . $filename . '\' ) ) {
+if ( ! file_exists( \'' . $boost_cache_filename . '\' ) ) {
 	return;
 }
-require_once( \'' . $filename . '\');
+require_once( \'' . $boost_cache_filename . '\');
 
 ( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_File_Cache() )->serve();
 ';
