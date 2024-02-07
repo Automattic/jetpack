@@ -132,8 +132,7 @@ class Masterbar {
 		$this->is_rtl          = isset( $this->user_data['text_direction'] ) && 'rtl' === $this->user_data['text_direction'];
 		$this->user_locale     = isset( $this->user_data['user_locale'] ) ? $this->user_data['user_locale'] : '';
 		$this->site_woa        = ( new Host() )->is_woa_site();
-		// update true to check user meta. true -> get_user_meta( $this->user_data['ID'], 'wpcom-global-nav-enabled', true ); or get_user_option( 'wpcom-global-nav-enabled', $this->user_id )
-		$this->use_dev_nav = $this->site_woa && true;
+		$this->use_dev_nav     = $this->site_woa && ( isset( $this->user_data['wpcom_global_nav_enabled'] ) ? $this->user_data['wpcom_global_nav_enabled'] : false );
 
 		// Store part of the connected user data as user options so it can be used
 		// by other files of the masterbar module without making another XMLRPC
