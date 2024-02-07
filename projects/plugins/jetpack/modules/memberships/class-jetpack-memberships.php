@@ -655,7 +655,7 @@ class Jetpack_Memberships {
 		// Request common cache plugins to not cache this post
 		// Batcache at WP.com is handled by JWT_AUTH_TOKEN_COOKIE_NAME being prefixed with `wp-` already.
 		if ( $can_view_post && $post_access_level !== Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ) {
-			$paywall->plugins_do_not_cache();
+			self::plugins_do_not_cache();
 		}
 
 		self::$user_can_view_post_cache[ $cache_key ] = $can_view_post;
@@ -848,6 +848,20 @@ class Jetpack_Memberships {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 		return $subscription_service->is_current_user_subscribed();
+	}
+
+	/**
+	 * Request common cache plugins to not cache this post
+	 *
+	 * @return void
+	 */
+	public static function plugins_do_not_cache() {
+		// WP Super Cache
+		// Jetpack Boost Cache
+		// https://jetpack.com/support/wp-super-cache/wp-super-cache-faq/
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true );
+		}
 	}
 }
 Jetpack_Memberships::get_instance();
