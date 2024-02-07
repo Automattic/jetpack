@@ -843,5 +843,19 @@ class Jetpack_Memberships {
 		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 		return $subscription_service->is_current_user_subscribed();
 	}
+
+	/**
+	 * Request common cache plugins to not cache this post
+	 *
+	 * @return void
+	 */
+	public static function plugins_do_not_cache() {
+		// WP Super Cache
+		// Jetpack Boost Cache
+		// https://jetpack.com/support/wp-super-cache/wp-super-cache-faq/
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true );
+		}
+	}
 }
 Jetpack_Memberships::get_instance();
