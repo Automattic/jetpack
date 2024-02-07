@@ -3,7 +3,7 @@
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 use Automattic\Jetpack_Boost\Lib\Minify\Utils;
-use tubalmartin\CssMin;
+use tubalmartin\CssMin\Minifier;
 
 function jetpack_boost_page_optimize_types() {
 	return array(
@@ -209,11 +209,7 @@ function jetpack_boost_page_optimize_build_output() {
 	$pre_output    = '';
 	$output        = '';
 
-	$should_minify_css = Config::is_css_minify_enabled();
-
-	if ( $should_minify_css ) {
-		$css_minify = new CssMin\Minifier();
-	}
+	$css_minify = new Minifier();
 
 	foreach ( $args as $uri ) {
 		$fullpath = jetpack_boost_page_optimize_get_path( $uri );
@@ -302,9 +298,7 @@ function jetpack_boost_page_optimize_build_output() {
 				);
 			}
 
-			if ( $should_minify_css ) {
-				$buf = $css_minify->run( $buf );
-			}
+			$buf = $css_minify->run( $buf );
 		}
 
 		if ( $jetpack_boost_page_optimize_types['js'] === $mime_type ) {
