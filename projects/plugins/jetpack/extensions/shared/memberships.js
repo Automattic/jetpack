@@ -28,8 +28,6 @@ export function handleIframeResult( eventFromIframe ) {
 }
 
 export function showModal( url ) {
-	window.scrollTo( 0, 0 );
-
 	// prevent double scroll bars. We use the entire viewport for the modal so we need to hide overflow on the body element.
 	document.body.classList.add( 'modal-open' );
 
