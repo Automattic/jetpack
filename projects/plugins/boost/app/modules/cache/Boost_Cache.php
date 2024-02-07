@@ -28,7 +28,7 @@ abstract class Boost_Cache {
 	public function __construct() {
 		$this->settings    = Boost_Cache_Settings::get_instance();
 		$this->request_uri = isset( $_SERVER['REQUEST_URI'] )
-			? $this->normalize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			? Boost_Cache_Utils::sanitize_file_path( $this->normalize_request_uri( $_SERVER['REQUEST_URI'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			: false;
 	}
 
@@ -167,28 +167,6 @@ abstract class Boost_Cache {
 		);
 
 		return md5( json_encode( $key_components ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-	}
-
-	/*
-	 * Returns a key to identify the path to the visitor's cache file.
-	 * Without a parameter it uses the current request uri, and caches that in
-	 * $this->path_key.
-	 * A URL like "/2024/01/01/hello-world/" on your site will have one path_key,
-	 * but the cache_filename to identify the cache file for a visitor is based
-	 * on the path_key + cache_key. Can have multiple cache files for one path_key.
-	 *
-	 * @param string $request_uri (optional) The sanitized request uri to calculate the path key. Defaults to the current request uri.
-	 * @return string
-	 */
-	public function path_key( $request_uri = '' ) {
-		if ( $request_uri !== '' ) {
-			return md5( $request_uri );
-		}
-
-		if ( ! $this->path_key ) {
-			$this->path_key = md5( $this->request_uri );
-		}
-		return $this->path_key;
 	}
 
 	abstract public function get();
