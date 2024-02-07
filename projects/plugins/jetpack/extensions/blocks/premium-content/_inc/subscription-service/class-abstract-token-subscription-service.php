@@ -39,6 +39,17 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	}
 
 	/**
+	 * Request common cache plugins to not cache this post
+	 *
+	 * @return void
+	 */
+	public function plugins_do_not_cache() {
+		// WP Super Cache
+		// https://jetpack.com/support/wp-super-cache/wp-super-cache-faq/
+		define( 'DONOTCACHEPAGE', true );
+	}
+
+	/**
 	 * Set the token from the Request to the cookie and retrieve the token.
 	 *
 	 * @return string|null
