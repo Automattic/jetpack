@@ -73,16 +73,16 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 
 		$order = wc_get_order( $order_id );
 
-		$order_source = $order->get_created_via();
+		$order_source                              = $order->get_created_via();
+		$checkout_page_contains_checkout_block     = '0';
+		$checkout_page_contains_checkout_shortcode = '0';
+
 		if ( 'store-api' === $order_source ) {
 			$checkout_page_contains_checkout_block     = '1';
 			$checkout_page_contains_checkout_shortcode = '0';
 		} elseif ( 'checkout' === $order_source ) {
 			$checkout_page_contains_checkout_block     = '0';
 			$checkout_page_contains_checkout_shortcode = '1';
-		} else {
-			$checkout_page_contains_checkout_block     = '0';
-			$checkout_page_contains_checkout_shortcode = '0';
 		}
 
 		$coupons     = $order->get_coupons();
@@ -147,6 +147,7 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 		$is_checkout = $checkout_page_id && is_page( $checkout_page_id )
 		|| wc_post_content_has_shortcode( 'woocommerce_checkout' )
 		|| has_block( 'woocommerce/checkout', $post )
+		|| has_block( 'woocommerce/classic-shortcode', $post )
 		|| apply_filters( 'woocommerce_is_checkout', false )
 		|| \Automattic\Jetpack\Constants::is_defined( 'WOOCOMMERCE_CHECKOUT' );
 
@@ -154,11 +155,19 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 			return;
 		}
 
-		$is_in_checkout_page = $checkout_page_id === $post->ID ? 'Yes' : 'No';
-		$session             = WC()->session;
+		$is_in_checkout_page                       = $checkout_page_id === $post->ID ? 'Yes' : 'No';
+		$checkout_page_contains_checkout_block     = '0';
+		$checkout_page_contains_checkout_shortcode = '1';
+
+		$session = WC()->session;
 		if ( is_object( $session ) ) {
 			$session->set( 'checkout_page_used', true );
 			$session->save_data();
+			$draft_order_id = $session->get( 'store_api_draft_order', 0 );
+			if ( $draft_order_id ) {
+				$checkout_page_contains_checkout_block     = '1';
+				$checkout_page_contains_checkout_shortcode = '0';
+			}
 		}
 
 		// Order received page is also a checkout page, so we need to bail out if we are on that page.
@@ -172,6 +181,8 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 				$this->get_cart_checkout_shared_data(),
 				array(
 					'from_checkout' => $is_in_checkout_page,
+					'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
+					'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
 				)
 			)
 		);

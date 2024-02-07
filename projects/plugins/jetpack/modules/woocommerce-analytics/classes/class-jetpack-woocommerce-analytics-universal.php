@@ -244,9 +244,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				// Check if jQuery is available
 				if ( typeof jQuery !== 'undefined' ) {
 					// This is only triggered on the checkout shortcode.
-					console.log('running here');
 					jQuery( document.body ).on( 'init_checkout', function () {
-						console.log('but not here');
 						if ( true === cartItem_{$cart_item_key}_logged ) {
 							return;
 						}
@@ -274,7 +272,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 						const checkoutDataStore = wp.data.select( 'wc/store/checkout' );
 						// Ensures we're not in Cart, but in Checkout page.
-						if ( checkoutDataStore.getOrderId() !== 0 ) {
+						if (
+							typeof checkoutDataStore !== 'undefined' &&
+							checkoutDataStore.getOrderId() !== 0
+						) {
 							properties.express_checkout = Object.keys( wc.wcBlocksRegistry.getExpressPaymentMethods() );
 							properties.checkout_page_contains_checkout_block = '1';
 							properties.checkout_page_contains_checkout_shortcode = '0';
@@ -282,7 +283,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 							_wca.push( properties );
 							cartItem_{$cart_item_key}_logged = true;
 						}
-					}, 'wc/store/checkout' );
+					} );
 				}
 			"
 			);
@@ -330,6 +331,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			}
 		}
 
+		$checkout_page_contains_checkout_block         = '0';
+			$checkout_page_contains_checkout_shortcode = '0';
+
 		$order_source = $order->get_created_via();
 		if ( 'store-api' === $order_source ) {
 			$checkout_page_contains_checkout_block     = '1';
@@ -337,9 +341,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		} elseif ( 'checkout' === $order_source ) {
 			$checkout_page_contains_checkout_block     = '0';
 			$checkout_page_contains_checkout_shortcode = '1';
-		} else {
-			$checkout_page_contains_checkout_block     = '0';
-			$checkout_page_contains_checkout_shortcode = '0';
 		}
 
 		// loop through products in the order and queue a purchase event.
