@@ -92,14 +92,8 @@ require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File
 
 ( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_File_Cache() )->serve();
 ';
-
-			$result = file_put_contents( $advanced_cache_filename, $contents ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-			if ( $result === false ) {
-				return new \WP_Error( 'Could not write to advanced-cache.php' );
-			}
+			return Boost_Cache_Utils::write_to_file( $advanced_cache_filename, $contents );
 		}
-
-		return true;
 	}
 
 	/*

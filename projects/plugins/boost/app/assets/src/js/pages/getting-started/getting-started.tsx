@@ -25,7 +25,7 @@ const GettingStarted: React.FC = () => {
 
 	const pricing = usePricing();
 	const premiumFeatures = usePremiumFeatures();
-	const isPremium = premiumFeatures !== false;
+	const isPremium = premiumFeatures.length > 0;
 
 	const { shouldGetStarted, markGettingStartedComplete } = useGettingStarted();
 	const [ , setCriticalCssState ] = useSingleModuleState( 'critical_css' );
@@ -45,7 +45,9 @@ const GettingStarted: React.FC = () => {
 					wpcomBlogId ? wpcomBlogId.toString() : null
 				);
 			} else {
-				setCriticalCssState( true );
+				if ( ! isPremium ) {
+					setCriticalCssState( true );
+				}
 				navigate( '/', { replace: true } );
 			}
 		}
