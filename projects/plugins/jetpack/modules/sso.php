@@ -576,7 +576,7 @@ class Jetpack_SSO {
 		$url      = '/sites/' . $blog_id . '/invites/is-invited';
 		$url      = add_query_arg(
 			array(
-				'email_or_username' => $user->user_email,
+				'email_or_username' => rawurlencode( $user->user_email ),
 			),
 			$url
 		);
