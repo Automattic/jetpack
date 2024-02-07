@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Memberships: instruct WP Super Cache plugin to not cache membership posts
