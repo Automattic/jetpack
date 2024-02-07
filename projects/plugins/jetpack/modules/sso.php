@@ -416,7 +416,8 @@ class Jetpack_SSO {
 
 			$email   = $user->user_email;
 			$role    = $user->role;
-			$locale  = get_user_locale( $user->ID );
+			$user_id = ! empty( $user->ID ) ? $user->ID : 0;
+			$locale  = get_user_locale( $user_id );
 			$blog_id = Jetpack_Options::get_option( 'id' );
 			$url     = '/sites/' . $blog_id . '/invites/new';
 			$url     = add_query_arg( 'locale', $locale, $url );
