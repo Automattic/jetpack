@@ -18,6 +18,7 @@ use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
 
+require_once __DIR__ . '/class-jetpack-subscription-site.php';
 require_once __DIR__ . '/constants.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
@@ -154,33 +155,7 @@ function register_block() {
 		add_action( 'admin_head', __NAMESPACE__ . '\newsletter_access_column_styles' );
 	}
 
-	// Add Subscribe block at the end of each post
-	$subscription_site_enabled  = apply_filters( 'jetpack_subscription_site_enabled', false );
-	$subscribe_post_end_enabled = get_option( 'jetpack_subscribe_post_end_enabled', false );
-	if ( ! empty( $subscription_site_enabled ) && ! empty( $subscribe_post_end_enabled ) ) {
-		add_filter(
-			'the_content',
-			function ( $content ) {
-				// Check if we're inside the main loop in a single Post
-				if ( is_singular() && in_the_loop() && is_main_query() ) {
-					return $content . '
-<!-- wp:group {"className":"wp-block-jetpack-subscriptions__subscribe_post_end","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
-<div class="wp-block-group wp-block-jetpack-subscriptions__subscribe_post_end">
-	<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"300"}},"className":"has-text-align-center"} -->
-	<p class="has-text-align-center" style="font-style:normal;font-weight:300">
-		<em>Aliquam a ullamcorper lorem<br>Integer at tempus nibh</em>
-	</p>
-	<!-- /wp:paragraph -->
-	<!-- wp:jetpack/subscriptions /-->
-</div>
-<!-- /wp:group -->';
-				}
-
-				return $content;
-			},
-			1
-		);
-	}
+	Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
