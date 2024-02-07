@@ -46,7 +46,9 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	public function plugins_do_not_cache() {
 		// WP Super Cache
 		// https://jetpack.com/support/wp-super-cache/wp-super-cache-faq/
-		define( 'DONOTCACHEPAGE', true );
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true );
+		}
 	}
 
 	/**
