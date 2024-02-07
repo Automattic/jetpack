@@ -11,10 +11,13 @@ import { InactiveStatsPlaceholder } from './inactive-placeholder';
 function BlogStatsEdit( { attributes, className, setAttributes } ) {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'stats' );
-	const { label, statsOption } = attributes;
+	const { label, statsData, statsOption } = attributes;
 	const [ blogViews, setBlogViews ] = useState( null );
+	const [ blogVisitors, setBlogVisitors ] = useState();
 	const [ postViews, setPostViews ] = useState();
-	const views = statsOption === 'post' ? postViews : blogViews;
+
+	const blogStats = statsData === 'views' ? blogViews : blogVisitors;
+	const stats = statsOption === 'post' ? postViews : blogStats;
 
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 
@@ -26,6 +29,7 @@ function BlogStatsEdit( { attributes, className, setAttributes } ) {
 					: '/wpcom/v2/blog-stats',
 			} ).then( response => {
 				setBlogViews( response[ 'blog-views' ] );
+				setBlogVisitors( response[ 'blog-visitors' ] );
 
 				// Display "12,345" as an obvious placeholder when we have no Post ID.
 				// Applies to widgets, FSE templates etc.
@@ -33,6 +37,13 @@ function BlogStatsEdit( { attributes, className, setAttributes } ) {
 			} );
 		}
 	}, [ postId, isModuleActive ] );
+
+	// We don't collect visitor data for individual posts.
+	useEffect( () => {
+		if ( statsData === 'visitors' ) {
+			setAttributes( { statsOption: 'site' } );
+		}
+	}, [ statsData, setAttributes ] );
 
 	if ( ! isModuleActive && ! isLoadingModules ) {
 		return (
@@ -43,6 +54,14 @@ function BlogStatsEdit( { attributes, className, setAttributes } ) {
 			/>
 		);
 	}
+
+	const visitorsPlaceholder =
+		/* Translators: Number of visitors */
+		_n( 'visitor', 'visitors', parseInt( stats ), 'jetpack', 0 );
+
+	const viewsPlaceholder =
+		/* Translators: Number of views */
+		_n( 'hit', 'hits', parseInt( stats ), 'jetpack', 0 );
 
 	return (
 		<>
@@ -55,13 +74,10 @@ function BlogStatsEdit( { attributes, className, setAttributes } ) {
 					<p className="jetpack-blog-stats__loading">{ __( 'Loading stats…', 'jetpack' ) }</p>
 				) : (
 					<p>
-						<span>{ numberFormat( views ) } </span>
+						<span>{ numberFormat( stats ) } </span>
 						<RichText
 							tagName="span"
-							placeholder={
-								/* Translators: Number of views */
-								_n( 'hit', 'hits', parseInt( views ), 'jetpack' )
-							}
+							placeholder={ statsData === 'visitors' ? visitorsPlaceholder : viewsPlaceholder }
 							value={ label }
 							allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 							onChange={ newLabel => setAttributes( { label: newLabel } ) }

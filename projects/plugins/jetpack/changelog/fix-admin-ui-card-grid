@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Don't include Dash cards on Admin UI if module is not available, which fixes positioning.
