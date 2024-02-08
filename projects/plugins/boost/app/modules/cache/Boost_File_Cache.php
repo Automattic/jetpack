@@ -17,22 +17,12 @@ class Boost_File_Cache extends Boost_Cache {
 	 */
 	private function path( $request_uri = false ) {
 		if ( $request_uri !== false ) {
-			$request_uri = $this->normalize_request_uri( $request_uri );
+			$request_uri = Boost_Cache_Utils::sanitize_file_path( $this->normalize_request_uri( $request_uri ) );
 		} else {
 			$request_uri = $this->request_uri;
 		}
 
-		$key  = $this->path_key( $request_uri );
-		$path = WP_CONTENT_DIR . '/boost-cache/cache/';
-
-		/*
-		 * The cache directory is split into 5 levels of subdirectories.
-		 * 2 characters of the md5 hash of the request uri are used for each level.
-		 * This is done to prevent having too many files in a single directory.
-		 */
-		for ( $i = 0; $i < 10; $i += 2 ) {
-			$path .= substr( $key, $i, 2 ) . '/';
-		}
+		$path = Boost_Cache_Utils::trailingslashit( WP_CONTENT_DIR . '/boost-cache/cache/' . $request_uri );
 
 		return $path;
 	}
@@ -46,8 +36,8 @@ class Boost_File_Cache extends Boost_Cache {
 	private function cache_filename( $args = array() ) {
 		$defaults = array(
 			'request_uri' => $this->request_uri,
-			'cookies'     => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			'get'         => $_GET, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
+			'cookies'     => $this->cookies, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			'get'         => $this->get, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		);
 		$args     = array_merge( $defaults, $args );
 
@@ -107,17 +97,6 @@ class Boost_File_Cache extends Boost_Cache {
 			return new \WP_Error( 'Could not create cache directory' );
 		}
 
-		$tmp_filename = $cache_filename . uniqid( wp_rand(), true ) . '.tmp';
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		if ( false === file_put_contents( $tmp_filename, $buffer ) ) {
-			return new \WP_Error( 'Could not write to tmp file' );
-		}
-
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
-		if ( ! rename( $tmp_filename, $cache_filename ) ) {
-			return new \WP_Error( 'Could not rename tmp file' );
-		}
-
-		return true;
+		return Boost_Cache_Utils::write_to_file( $cache_filename, $buffer );
 	}
 }

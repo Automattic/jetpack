@@ -13,6 +13,7 @@ namespace Automattic\Jetpack;
 require_once __DIR__ . '/assets/class-wpcom-rest-api-v2-verbum-auth.php';
 require_once __DIR__ . '/assets/class-wpcom-rest-api-v2-verbum-oembed.php';
 require_once __DIR__ . '/assets/class-verbum-gutenberg-editor.php';
+require_once __DIR__ . '/assets/class-verbum-block-utils.php';
 
 /**
  * Verbum Comments Experience
@@ -74,11 +75,19 @@ class Verbum_Comments {
 	}
 
 	/**
+	 * Get the comment form action url
+	 */
+	public function get_form_action() {
+		return is_jetpack_comments() ?
+			wp_json_encode( esc_url_raw( http() . '://' . JETPACK_SERVER__DOMAIN . '/jetpack-comment/' ) ) : site_url( '/wp-comments-post.php' );
+	}
+
+	/**
 	 * Load the div where Verbum app is rendered.
 	 */
 	public function verbum_render_element() {
 		$color_scheme = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
-		$comment_url  = site_url( '/wp-comments-post.php' );
+		$comment_url  = $this->get_form_action();
 
 		if ( ! $color_scheme || '' === $color_scheme ) {
 			// Default to transparent because it is more adaptable than white or dark.
@@ -239,7 +248,7 @@ class Verbum_Comments {
 					'enableSubscriptionModal'            => boolval( $this->should_show_subscription_modal() ),
 					'currentLocale'                      => $locale,
 					'isJetpackComments'                  => is_jetpack_comments(),
-					'allowedBlocks'                      => \Verbum_Gutenberg_Editor::get_allowed_blocks(),
+					'allowedBlocks'                      => \Verbum_Block_Utils::get_allowed_blocks(),
 					'embedNonce'                         => wp_create_nonce( 'embed_nonce' ),
 					'verbumBundleUrl'                    => plugins_url( 'dist/index.js', __FILE__ ),
 					'isRTL'                              => is_rtl( $locale ),
@@ -281,6 +290,7 @@ class Verbum_Comments {
 				/* translators: % is the original posters name */
 				'title_reply_to'       => __( 'Leave a reply to %s', 'jetpack-mu-wpcom' ),
 				'cancel_reply_link'    => __( 'Cancel reply', 'jetpack-mu-wpcom' ),
+				'action'               => $this->get_form_action(),
 			)
 		);
 	}
@@ -551,9 +561,9 @@ HTML;
 			return false;
 		}
 
-		$blog_id         = verbum_get_blog_id();
-		$e2e_tests       = has_blog_sticker( 'a8c-e2e-test-blog', $blog_id );
-		$has_blocks_flag = has_blog_sticker( 'verbum-block-comments', $blog_id );
+		$blog_id         = $this->blog_id;
+		$e2e_tests       = function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'a8c-e2e-test-blog', $blog_id );
+		$has_blocks_flag = function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'verbum-block-comments', $blog_id );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$gutenberg_query_param = isset( $_GET['verbum_gutenberg'] ) ? intval( $_GET['verbum_gutenberg'] ) : null;
 		// This will release to 50% of sites.

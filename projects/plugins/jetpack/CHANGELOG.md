@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.1.1 - 2024-02-06
+### Bug fixes
+- WooCommerce Analytics: resolve warning when enqueuing analytics script. [#35471]
+
 ## [13.1] - 2024-02-06
 ### Enhancements
 - Like block: the existing Jetpack Like & Reblog button features are now available as a block! With the new Like block, users are be able to add the Like & Reblog features not just to posts and pages, but also to block templates and block patterns. You can give the new Like block a try by adding it from within the editor just like any other block.

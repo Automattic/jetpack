@@ -18,16 +18,6 @@ class Config {
 		return $path;
 	}
 
-	public static function is_css_minify_enabled() {
-		if ( defined( 'PAGE_OPTIMIZE_CSS_MINIFY' ) ) {
-			$enabled = (bool) PAGE_OPTIMIZE_CSS_MINIFY;
-		} else {
-			$enabled = false;
-		}
-
-		return $enabled;
-	}
-
 	public static function get_abspath() {
 		if ( defined( 'PAGE_OPTIMIZE_ABSPATH' ) ) {
 			$path = PAGE_OPTIMIZE_ABSPATH;
