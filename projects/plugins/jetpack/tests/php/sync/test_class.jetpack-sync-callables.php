@@ -874,16 +874,28 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
 
-		$expected_array = array(
-			'hello.php'           => array(
-				'fun 😀' => admin_url( 'fun.php' ),
-			),
-			'jetpack/jetpack.php' => array(
-				'settings'   => admin_url( 'settings.php' ),
-				'support'    => 'https://jetpack.com/support',
-				'My Jetpack' => admin_url( 'admin.php?page=my-jetpack' ),
-			),
-		);
+		if ( ! is_multisite() ) {
+			$expected_array = array(
+				'hello.php'           => array(
+					'fun 😀' => admin_url( 'fun.php' ),
+				),
+				'jetpack/jetpack.php' => array(
+					'settings'   => admin_url( 'settings.php' ),
+					'support'    => 'https://jetpack.com/support',
+					'My Jetpack' => admin_url( 'admin.php?page=my-jetpack' ),
+				),
+			);
+		} else {
+			$expected_array = array(
+				'hello.php'           => array(
+					'fun 😀' => admin_url( 'fun.php' ),
+				),
+				'jetpack/jetpack.php' => array(
+					'settings' => admin_url( 'settings.php' ),
+					'support'  => 'https://jetpack.com/support',
+				),
+			);
+		}
 
 		$this->assertEquals( $expected_array, $this->extract_plugins_we_are_testing( $plugins_action_links ) );
 
