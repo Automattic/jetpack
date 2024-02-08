@@ -10,6 +10,11 @@ require_once __DIR__ . '/Boost_Cache.php';
 
 class Boost_File_Cache extends Boost_Cache {
 	/*
+	 * The path to the cache directory.
+	 */
+	private $cache_path = WP_CONTENT_DIR . '/boost-cache/cache/';
+
+	/*
 	 * Returns the path to the cache directory for the given request, or current request
 	 *
 	 * @param string $request_uri - The request uri to get the path for. Defaults to current request.
@@ -22,7 +27,7 @@ class Boost_File_Cache extends Boost_Cache {
 			$request_uri = $this->request_uri;
 		}
 
-		$path = Boost_Cache_Utils::trailingslashit( WP_CONTENT_DIR . '/boost-cache/cache/' . $request_uri );
+		$path = Boost_Cache_Utils::trailingslashit( $this->cache_path . $request_uri );
 
 		return $path;
 	}
@@ -206,5 +211,12 @@ class Boost_File_Cache extends Boost_Cache {
 
 	public function delete_post_for_visitor( $post ) {
 		wp_delete_file( $this->cache_filename( array( 'request_uri' => get_permalink( $post->ID ) ) ) );
+	}
+
+	/*
+	 * Delete the entire cache.
+	 */
+	public function delete_cache() {
+		Boost_Cache_Utils::delete_directory( $this->cache_path );
 	}
 }

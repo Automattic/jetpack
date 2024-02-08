@@ -58,6 +58,7 @@ abstract class Boost_Cache {
 		add_action( 'transition_post_status', array( $this, 'delete_on_post_transition' ), 10, 3 );
 		add_action( 'transition_comment_status', array( $this, 'delete_on_comment_transition' ), 10, 3 );
 		add_action( 'comment_post', array( $this, 'delete_on_comment_post' ), 10, 3 );
+		add_action( 'switch_theme', array( $this, 'delete_cache' ) );
 	}
 
 	/*
@@ -356,6 +357,7 @@ abstract class Boost_Cache {
 
 	abstract public function get();
 	abstract public function set( $data );
+	abstract public function delete_cache();
 	abstract public function delete_cache_for_url( $url );
 	abstract public function delete_cache_for_post( $post_id );
 	abstract public function delete_post_for_visitor( $post );
