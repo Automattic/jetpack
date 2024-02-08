@@ -337,7 +337,7 @@ abstract class Boost_Cache {
 			return;
 		}
 		$post = get_post( $comment->comment_post_ID );
-		$this->delete_cache_for_post( $post, true );
+		$this->delete_cache_for_post( $post, false );
 	}
 
 	public function delete_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
