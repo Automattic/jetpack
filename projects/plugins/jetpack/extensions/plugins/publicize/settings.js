@@ -17,7 +17,9 @@ import UpsellNotice from './components/upsell';
 export const Settings = () => {
 	useSyncPostDataToStore();
 	const { hasEnabledConnections } = useSocialMediaConnections();
-	const { isSocialImageGeneratorAvailable } = usePublicizeConfig();
+	const { isSocialImageGeneratorAvailable, isJetpackSocialNote } = usePublicizeConfig();
+
+	const hasSocialImageGenerator = isSocialImageGeneratorAvailable && ! isJetpackSocialNote;
 
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
@@ -25,7 +27,7 @@ export const Settings = () => {
 				<PublicizePanel>
 					<UpsellNotice />
 				</PublicizePanel>
-				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
+				{ hasSocialImageGenerator && <SocialImageGeneratorPanel /> }
 			</JetpackPluginSidebar>
 
 			<PluginPrePublishPanel
@@ -43,7 +45,7 @@ export const Settings = () => {
 				</PublicizePanel>
 			</PluginPrePublishPanel>
 
-			{ isSocialImageGeneratorAvailable && (
+			{ hasSocialImageGenerator && (
 				<PluginPrePublishPanel
 					initialOpen
 					title={ __( 'Social Image Generator', 'jetpack' ) }

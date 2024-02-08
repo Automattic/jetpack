@@ -51,8 +51,12 @@ const JetpackSocialSidebar = () => {
 	const closeModal = useCallback( () => setIsModalOpened( false ), [] );
 
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
-	const { isPublicizeEnabled, hidePublicizeFeature, isSocialImageGeneratorAvailable } =
-		usePublicizeConfig();
+	const {
+		isPublicizeEnabled,
+		hidePublicizeFeature,
+		isSocialImageGeneratorAvailable,
+		isJetpackSocialNote,
+	} = usePublicizeConfig();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const PanelDescription = () => (
 		<Description
@@ -79,7 +83,9 @@ const JetpackSocialSidebar = () => {
 				<PublicizePanel>
 					<PanelDescription />
 				</PublicizePanel>
-				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
+				{ isSocialImageGeneratorAvailable && ! isJetpackSocialNote && (
+					<SocialImageGeneratorPanel />
+				) }
 				<PanelBody title={ __( 'Social Previews', 'jetpack-social' ) }>
 					<SocialPreviewsPanel openModal={ openModal } />
 				</PanelBody>
