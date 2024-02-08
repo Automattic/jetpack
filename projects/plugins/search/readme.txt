@@ -122,11 +122,16 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 1.4.1 - 2023-03-08
+### 2.0.0 - 2024-02-07
+#### Added
+- Allow users to select price as default sorting option for search
+- Implemented a "tabbed" variation for static filters. This adds tabs on top of the results for each filter group.
+
 #### Changed
-- Remove `ci.targets` from package.json. Better scoping of e2e tests.
-- Update playwright dependency.
-- Updated package dependencies.
+- General: indicate full compatibility with the latest version of WordPress, 6.4.
+- General: update WordPress version requirements to WordPress 6.3.
+- General: updated PHP requirement to PHP 7.0+
+
 
 == Testimonials ==
 

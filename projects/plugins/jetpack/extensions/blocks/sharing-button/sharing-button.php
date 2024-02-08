@@ -33,61 +33,72 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  *
  * @param array  $attr    Array containing the Sharing Buttons block attributes.
  * @param string $content String containing the Sharing Buttons block content.
- * @param array  $block Array containing block data.
+ * @param object $block   Object containing block data.
  *
  * @return string
  */
 function render_block( $attr, $content, $block ) {
-	global $post;
-	$post_id = $block->context['postId'];
-	$title   = $attr['label'] ?? $attr['service'];
+	$service_name = $attr['service'];
+	$title        = $attr['label'] ?? $service_name;
+	$icon         = get_social_logo( $service_name );
+	$style_type   = $block->context['styleType'] ?? 'icon-text';
+	$post_id      = $block->context['postId'] ?? 0;
+	$data_shared  = sprintf(
+		'sharing-%1$s-%2$d',
+		$service_name,
+		$post_id
+	);
 
-	$style_type = $block->context['styleType'];
-	$style      = 'style-' . $style_type;
-	$query      = 'share=' . $attr['service'] . '&nb=1';
-
-	$data_shared = 'sharing-' . $attr['service'] . '-' . $post_id;
-
-	$services   = get_services();
-	$service    = new $services[ $attr['service'] ]( $attr['service'], array() );
-	$link_props = $service->get_link( $post, $query, $data_shared );
-
-	$link_url           = $link_props['url'];
-	$icon               = get_social_logo( $attr['service'] );
-	$sharing_link_class = 'jetpack-sharing-button__button ' . $style . ' share-' . $attr['service'];
-
+	$services        = get_services();
+	$service         = new $services[ $service_name ]( $service_name, array() );
+	$link_props      = $service->get_link(
+		$post_id,
+		'share=' . esc_attr( $service_name ) . '&nb=1',
+		esc_attr( $data_shared )
+	);
+	$link_url        = $link_props['url'];
+	$link_classes    = sprintf(
+		'jetpack-sharing-button__button style-%1$s share-%2$s',
+		$style_type,
+		$service_name
+	);
 	$link_aria_label = sprintf(
 		/* translators: %s refers to a string representation of sharing service, e.g. Facebook  */
 		esc_html__( 'Share on %s', 'jetpack' ),
 		esc_html( $title )
 	);
 
-	$styles = '';
-	if ( array_key_exists( 'iconColorValue', $block->context ) ) {
-		$styles .= 'color: ' . $block->context['iconColorValue'] . ';';
+	$styles = array();
+	if (
+		array_key_exists( 'iconColorValue', $block->context )
+		&& ! empty( $block->context['iconColorValue'] )
+	) {
+		$styles['color'] = $block->context['iconColorValue'];
 	}
-
-	if ( array_key_exists( 'iconBackgroundColorValue', $block->context ) ) {
-		$styles .= 'background-color: ' . $block->context['iconBackgroundColorValue'] . ';';
+	if (
+		array_key_exists( 'iconBackgroundColorValue', $block->context )
+		&& ! empty( $block->context['iconBackgroundColorValue'] )
+	) {
+		$styles['background-color'] = $block->context['iconBackgroundColorValue'];
 	}
-
-	$attributes            = array(
-		'class' => esc_attr( $sharing_link_class ),
-		'style' => esc_attr( $styles ),
-		'href'  => esc_url( $link_url ),
-	);
-	$normalized_attributes = array();
-	foreach ( $attributes as $key => $value ) {
-		$normalized_attributes[] = $key . '="' . $value . '"';
+	$link_styles = '';
+	foreach ( $styles as $property => $value ) {
+		$link_styles .= $property . ':' . $value . ';';
 	}
-	$button_attributes = implode( ' ', $normalized_attributes );
 
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$component  = '<li class="jetpack-sharing-button__list-item">';
-	$component .= '<a rel="nofollow noopener noreferrer" target="_blank"' . $button_attributes;
-	$component .= 'data-service="' . esc_attr( $attr['service'] ) . '" data-shared="' . esc_attr( $data_shared ) . '" aria-label="' . esc_attr( $link_aria_label ) . '" primary>';
-	$component .= $icon;
+	$component .= sprintf(
+		'<a href="%1$s" target="_blank" rel="nofollow noopener noreferrer" class="%2$s" style="%3$s" data-service="%4$s" data-shared="%5$s" aria-label="%6$s">',
+		esc_url( $link_url ),
+		esc_attr( $link_classes ),
+		esc_attr( $link_styles ),
+		esc_attr( $service_name ),
+		esc_attr( $data_shared ),
+		esc_attr( $link_aria_label )
+	);
+	$component .= $style_type !== 'text' ? $icon : '';
 	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . esc_html( $title ) . '</span>';
 	$component .= '</a>';
 	$component .= '</li>';

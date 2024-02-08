@@ -73,6 +73,7 @@ class Data_Settings {
 			 * Connection related options
 			 */
 			'jetpack_connection_active_plugins',
+			'jetpack_package_versions',
 			/**
 			 * Generic site options
 			 */

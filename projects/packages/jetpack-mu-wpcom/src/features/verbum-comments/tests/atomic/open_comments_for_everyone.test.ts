@@ -10,22 +10,24 @@ test( 'Atomic: open_comments_for_everyone - Anonymous', async ( { page } ) => {
 
 	await page
 		.frameLocator( 'iframe[name="jetpack_remote_comment"]' )
-		.getByPlaceholder( 'Write a Comment...' )
+		.getByPlaceholder( 'Write a comment...' )
 		.click();
 	await page
 		.frameLocator( 'iframe[name="jetpack_remote_comment"]' )
-		.getByPlaceholder( 'Write a Comment...' )
-		.fill( randomComment );
+		.getByPlaceholder( 'Write a comment...' )
+		.pressSequentially( randomComment );
 
 	await expect(
 		page
 			.frameLocator( 'iframe[name="jetpack_remote_comment"]' )
-			.getByText( 'Leave a reply. (log in optional)' )
+			.getByText( 'Leave a comment. (log in optional)' )
 	).toBeVisible();
 	await page
 		.frameLocator( 'iframe[name="jetpack_remote_comment"]' )
-		.getByRole( 'button', { name: 'Reply' } )
+		.getByRole( 'button', { name: 'Comment' } )
 		.click();
+	await page.getByText( 'Continue reading' ).click();
+
 	await page.waitForLoadState( 'domcontentloaded' );
 	await expect( page.getByText( randomComment ) ).toBeVisible();
 	await expect( page.getByText( 'Anonymous' ) ).toHaveCount( existingAnonComments + 1 );

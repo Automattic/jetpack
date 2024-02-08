@@ -2,11 +2,20 @@ import { getRedirectUrl, UpsellBanner } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import jetpackManageIcon from './jetpack-manage.svg';
 
 const JetpackManageBanner = props => {
-	const trackEvent = useCallback(
+	// Track banner view.
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_manage_banner_view', {
+			feature: 'manage',
+			page: props.path,
+		} );
+	}, [ props.path ] );
+
+	// Track click event.
+	const trackClick = useCallback(
 		target => {
 			analytics.tracks.recordJetpackClick( {
 				target: target,
@@ -17,23 +26,20 @@ const JetpackManageBanner = props => {
 		[ props.path ]
 	);
 
+	// Handle CTA banner clicks.
 	const handleLearnMoreClick = useCallback( () => {
-		trackEvent( 'jp-manage-learn-more-click' );
-	}, [ trackEvent ] );
+		trackClick( 'jp-manage-learn-more' );
+	}, [ trackClick ] );
 
 	const handleManageSitesClick = useCallback( () => {
-		trackEvent( 'jp-manage-dashboard-sites-click' );
-	}, [ trackEvent ] );
+		trackClick( 'jp-manage-dashboard-sites' );
+	}, [ trackClick ] );
 
 	const handleSignUpForFreeClick = useCallback( () => {
-		trackEvent( 'jp-manage-sign-up-click' );
-	}, [ trackEvent ] );
+		trackClick( 'jp-manage-sign-up' );
+	}, [ trackClick ] );
 
-	// Set up the secondary CTA
-	const ctaLearnMoreLabel = __( 'Learn more', 'jetpack' );
-	const ctaLearnMoreUrl = getRedirectUrl( 'jetpack-at-a-glance-to-jetpack-manage-learn-more' );
-
-	// Set up the primary CTA
+	// Set up the primary CTA.
 	let primaryCtaLabel, primaryCtaURL, primaryCtaOnClick;
 
 	if ( props.isAgencyAccount ) {
@@ -54,8 +60,8 @@ const JetpackManageBanner = props => {
 				'Jetpack Manage has the tools you need to manage multiple WordPress sites. Monitor site security, performance, and traffic, and get alerted if a site needs attention. Plus, get bulk discounts.',
 				'jetpack'
 			) }
-			secondaryCtaLabel={ ctaLearnMoreLabel }
-			secondaryCtaURL={ ctaLearnMoreUrl }
+			secondaryCtaLabel={ __( 'Learn more', 'jetpack' ) }
+			secondaryCtaURL={ getRedirectUrl( 'jetpack-at-a-glance-to-jetpack-manage-learn-more' ) }
 			secondaryCtaIsExternalLink={ true }
 			secondaryCtaOnClick={ handleLearnMoreClick }
 			primaryCtaLabel={ primaryCtaLabel }
