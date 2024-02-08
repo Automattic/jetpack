@@ -452,6 +452,8 @@ class Jetpack_SSO {
 	 */
 	public function render_custom_email_message_form_field( $type ) {
 		if ( $type === 'add-new-user' ) {
+			$valid_nonce          = isset( $_POST['_wpnonce_create-user'] ) ? wp_verify_nonce( $_POST['_wpnonce_create-user'], 'create-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+			$custom_email_message = ( $valid_nonce && isset( $_POST['custom_email_message'] ) ) ? sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) : '';
 			?>
 			<table class="form-table">
 				<tr class="form-field">
@@ -460,7 +462,7 @@ class Jetpack_SSO {
 					</th>
 					<td>
 						<label for="custom_email_message">
-						<textarea aria-describedby="custom_email_message_description" rows="3" maxlength="500" id="custom_email_message" name="custom_email_message"></textarea>
+						<textarea aria-describedby="custom_email_message_description" rows="3" maxlength="500" id="custom_email_message" name="custom_email_message"><?php echo esc_html( $custom_email_message ); ?></textarea>
 						<p id="custom_email_message_description">
 							<?php
 								esc_html_e( 'This user will be invited to WordPress.com. You can include a personalized welcome message with the invitation.', 'jetpack' );
