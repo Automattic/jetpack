@@ -13,6 +13,7 @@ namespace Automattic\Jetpack;
 require_once __DIR__ . '/assets/class-wpcom-rest-api-v2-verbum-auth.php';
 require_once __DIR__ . '/assets/class-wpcom-rest-api-v2-verbum-oembed.php';
 require_once __DIR__ . '/assets/class-verbum-gutenberg-editor.php';
+require_once __DIR__ . '/assets/class-verbum-block-utils.php';
 
 /**
  * Verbum Comments Experience
@@ -247,7 +248,7 @@ class Verbum_Comments {
 					'enableSubscriptionModal'            => boolval( $this->should_show_subscription_modal() ),
 					'currentLocale'                      => $locale,
 					'isJetpackComments'                  => is_jetpack_comments(),
-					'allowedBlocks'                      => \Verbum_Gutenberg_Editor::get_allowed_blocks(),
+					'allowedBlocks'                      => \Verbum_Block_Utils::get_allowed_blocks(),
 					'embedNonce'                         => wp_create_nonce( 'embed_nonce' ),
 					'verbumBundleUrl'                    => plugins_url( 'dist/index.js', __FILE__ ),
 					'isRTL'                              => is_rtl( $locale ),
@@ -560,9 +561,9 @@ HTML;
 			return false;
 		}
 
-		$blog_id         = verbum_get_blog_id();
-		$e2e_tests       = has_blog_sticker( 'a8c-e2e-test-blog', $blog_id );
-		$has_blocks_flag = has_blog_sticker( 'verbum-block-comments', $blog_id );
+		$blog_id         = $this->blog_id;
+		$e2e_tests       = function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'a8c-e2e-test-blog', $blog_id );
+		$has_blocks_flag = function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'verbum-block-comments', $blog_id );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$gutenberg_query_param = isset( $_GET['verbum_gutenberg'] ) ? intval( $_GET['verbum_gutenberg'] ) : null;
 		// This will release to 50% of sites.
