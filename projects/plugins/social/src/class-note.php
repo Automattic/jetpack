@@ -76,6 +76,7 @@ class Note {
 			'show_in_rest' => true,
 			'supports'     => array( 'editor', 'thumbnail', 'publicize', 'activitypub' ),
 			'menu_icon'    => 'dashicons-welcome-write-blog',
+			'rewrite'      => array( 'slug' => 'sn' ),
 		);
 		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
 		static::maybe_flush_rewrite_rules();
