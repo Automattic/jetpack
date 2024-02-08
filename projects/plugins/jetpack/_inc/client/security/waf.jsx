@@ -353,7 +353,7 @@ export const Waf = class extends Component {
 							>
 								{ createInterpolateElement(
 									__(
-										'Allow Jetpack to collect data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'Allow Jetpack to collect data of blocked requests to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
 										'jetpack'
 									),
 									{
@@ -388,11 +388,11 @@ export const Waf = class extends Component {
 							<InfoPopover
 								position="right"
 								screenReaderText={ __( 'Learn more', 'jetpack' ) }
-								className="waf__settings__share-debug-data-popover"
+								className="waf__settings__share-data-popover"
 							>
 								{ createInterpolateElement(
 									__(
-										'Allow Jetpack to collect detailed data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'Allow Jetpack to collect detailed data of blocked requests to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
 										'jetpack'
 									),
 									{

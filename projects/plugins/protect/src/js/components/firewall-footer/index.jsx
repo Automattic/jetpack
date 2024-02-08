@@ -98,7 +98,12 @@ const ShareDebugData = () => {
 					onChange={ handleShareDebugDataChange }
 					disabled={ isUpdating }
 				/>
-				<Text>{ __( 'Allow Jetpack to collect detailed data.', 'jetpack-protect' ) }</Text>
+				<Text>
+					{ __(
+						'Allow Jetpack to collect detailed data of the blocked requests.',
+						'jetpack-protect'
+					) }
+				</Text>
 			</div>
 		</div>
 	);
