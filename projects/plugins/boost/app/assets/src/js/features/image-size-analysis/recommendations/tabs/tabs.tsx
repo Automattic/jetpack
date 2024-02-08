@@ -79,7 +79,7 @@ const Tabs: React.FC< TabsProps > = ( {
 								<div className={ styles.header }>
 									{ issues > 0 ? (
 										<Link
-											className="jb-navigator-link"
+											className={ styles.link }
 											to={ `/image-size-analysis/${ group }/1` }
 											onClick={ () => {
 												recordBoostEvent( 'clicked_isa_report_group', { group } );
@@ -90,7 +90,7 @@ const Tabs: React.FC< TabsProps > = ( {
 											<span>{ issues }</span>
 										</Link>
 									) : (
-										<div className={ classNames( 'jb-navigator-link', styles.inactive ) }>
+										<div className={ classNames( styles.link, styles.inactive ) }>
 											{ label }
 											<span>{ issues }</span>
 										</div>

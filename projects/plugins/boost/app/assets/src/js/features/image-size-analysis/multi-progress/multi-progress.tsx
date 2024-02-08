@@ -98,7 +98,7 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => 
 					{ ( report.done || report.has_issues ) && (
 						<div
 							className={ classNames( styles.status, {
-								'has-issues': report.has_issues,
+								[ styles[ 'has-issues' ] ]: report.has_issues,
 							} ) }
 						>
 							<MaybeLink
