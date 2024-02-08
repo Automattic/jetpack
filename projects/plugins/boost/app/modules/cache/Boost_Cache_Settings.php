@@ -137,4 +137,12 @@ class Boost_Cache_Settings {
 	public function get_last_error() {
 		return $this->last_error;
 	}
+
+	/*
+	 * Resets the last error message.
+	 * Once you get the last_error, it should be reset, or it will be returned again.
+	 */
+	public function reset_last_error() {
+		$this->last_error = '';
+	}
 }
