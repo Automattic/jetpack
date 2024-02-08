@@ -4,15 +4,15 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-backup": "@dev",
-		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-plugins-installer": "@dev",
-		"automattic/jetpack-my-jetpack": "@dev"
+		"automattic/jetpack-autoloader": "^3.0.2",
+		"automattic/jetpack-backup": "^3.1.4",
+		"automattic/jetpack-composer-plugin": "^2.0.0",
+		"automattic/jetpack-plugins-installer": "^0.3.1",
+		"automattic/jetpack-my-jetpack": "^4.9.0"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
-		"automattic/jetpack-changelogger": "@dev"
+		"automattic/jetpack-changelogger": "^4.1.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -22,15 +22,7 @@
 	"scripts": {
 		"watch": "echo 'This script is actually watching the Jetpack Backup package, not the plugin' && jetpack watch packages/backup"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
