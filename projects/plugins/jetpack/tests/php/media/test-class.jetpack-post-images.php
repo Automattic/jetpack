@@ -62,7 +62,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @covers Jetpack_PostImages::from_html
 	 */
 	public function test_from_html_no_size() {
-		$s = "<img src='img-851958915511220-220.jpg' />";
+		$s = "<img src='img-851958915511220x220.jpg' />";
 
 		$result = Jetpack_PostImages::from_html( $s );
 
