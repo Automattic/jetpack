@@ -11,14 +11,44 @@ namespace Automattic\Jetpack\Social;
  * Register the Jetpack Social Note custom post type.
  */
 class Note {
+	const JETPACK_SOCIAL_NOTE_CPT     = 'jetpack-social-note';
+	const FLUSH_REWRITE_RULES_FLUSHED = 'jetpack_social_rewrite_rules_flushed';
+
+	/**
+	 * Check if the feature is enabled.
+	 */
+	public function enabled() {
+		return get_option( self::JETPACK_SOCIAL_NOTE_CPT );
+	}
+
+	/**
+	 * Initialize the Jetpack Social Note custom post type.
+	 */
+	public function init() {
+		if ( ! self::enabled() ) {
+			return;
+		}
+		self::register_cpt();
+		add_action( 'wp_insert_post_data', array( new Note(), 'set_empty_title' ), 10, 2 );
+	}
+
+	/**
+	 * Set the title to empty string.
+	 *
+	 * @param array $data The Post Data.
+	 * @param array $post The Post.
+	 */
+	public function set_empty_title( $data, $post ) {
+		if ( self::JETPACK_SOCIAL_NOTE_CPT === $post['post_type'] && 'auto-draft' === $post['post_status'] ) {
+			$data['post_title'] = '';
+		}
+		return $data;
+	}
+
 	/**
 	 * Register the Jetpack Social Note custom post type.
 	 */
-	public static function register() {
-		if ( ! defined( 'JETPACK_SOCIAL_NOTES_ENABLED' ) || ! constant( 'JETPACK_SOCIAL_NOTES_ENABLED' ) ) {
-			return;
-		}
-
+	public function register_cpt() {
 		$args = array(
 			'public'       => true,
 			'labels'       => array(
@@ -46,8 +76,34 @@ class Note {
 			'show_in_rest' => true,
 			'supports'     => array( 'editor', 'thumbnail', 'publicize', 'activitypub' ),
 			'menu_icon'    => 'dashicons-welcome-write-blog',
-
+			'rewrite'      => array( 'slug' => 'sn' ),
 		);
-		register_post_type( 'jetpack-social-note', $args );
+		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
+		self::maybe_flush_rewrite_rules();
+	}
+
+	/**
+	 * Flush rewrite rules so the post permalink works correctly for the Social Note CPT. Flushing is an expensive operation, so do only when necessary.
+	 *
+	 * @param boolean $force Force flush the rewrite rules.
+	 */
+	public function maybe_flush_rewrite_rules( $force = false ) {
+		if ( empty( get_option( self::FLUSH_REWRITE_RULES_FLUSHED ) ) || $force ) {
+			flush_rewrite_rules( false );
+			update_option( self::FLUSH_REWRITE_RULES_FLUSHED, true );
+		}
+	}
+
+	/**
+	 * Toggle whether or not the Notes feature is enabled.
+	 */
+	public function toggle_enabled_status() {
+		if ( ! self::enabled() ) {
+			update_option( self::JETPACK_SOCIAL_NOTE_CPT, true );
+		} else {
+			delete_option( self::JETPACK_SOCIAL_NOTE_CPT );
+		}
+		// Delete this option, so the rules get flushe in maybe_flush_rewrite_rules when the CPT is registered.
+		delete_option( self::FLUSH_REWRITE_RULES_FLUSHED );
 	}
 }
