@@ -248,7 +248,7 @@ class Verbum_Comments {
 					'enableSubscriptionModal'            => boolval( $this->should_show_subscription_modal() ),
 					'currentLocale'                      => $locale,
 					'isJetpackComments'                  => is_jetpack_comments(),
-					'allowedBlocks'                      => \Verbum_Gutenberg_Editor::get_allowed_blocks(),
+					'allowedBlocks'                      => \Verbum_Block_Utils::get_allowed_blocks(),
 					'embedNonce'                         => wp_create_nonce( 'embed_nonce' ),
 					'verbumBundleUrl'                    => plugins_url( 'dist/index.js', __FILE__ ),
 					'isRTL'                              => is_rtl( $locale ),
