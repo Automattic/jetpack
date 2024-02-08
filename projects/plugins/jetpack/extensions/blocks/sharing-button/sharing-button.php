@@ -290,6 +290,15 @@ function add_default_services_to_block( $parsed_hooked_block, $relative_position
 		),
 	);
 
+	// Wrap inner blocks in our sharing buttons markup.
+	$parsed_hooked_block['innerContent'] = array(
+		'<ul class="wp-block-jetpack-sharing-buttons has-normal-icon-size jetpack-sharing-buttons__services-list" id="jetpack-sharing-serivces-list">',
+		null,
+		null,
+		null,
+		'</ul>',
+	);
+
 	return $parsed_hooked_block;
 }
 add_filter( 'hooked_block_' . PARENT_BLOCK_NAME, __NAMESPACE__ . '\add_default_services_to_block', 10, 4 );
