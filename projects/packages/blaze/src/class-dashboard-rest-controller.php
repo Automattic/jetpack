@@ -407,21 +407,22 @@ class Dashboard_REST_Controller {
 			return array( 'error' => $site_id->get_error_message() );
 		}
 
-		$file = sanitize_file_name( $_FILES['image'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( ! $file ) {
+		if ( empty( $_FILES['image'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return array( 'error' => 'File is missed' );
 		}
-		if ( ! is_uploaded_file( $file['tmp_name'] ?? '' ) ) {
-			return array( 'error' => 'Specified file was not upload' );
+		$file      = $_FILES['image']; // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$temp_name = $file['tmp_name'] ?? ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( ! $temp_name || ! is_uploaded_file( $temp_name ) ) {
+			return array( 'error' => 'Specified file was not uploaded' );
 		}
 
 		// Getting the original file name.
-		$filename = basename( $file['full_path'] );
+		$filename = sanitize_file_name( basename( $file['full_path'] ) );
 		// Upload contents to the Upload folder locally.
 		$upload = wp_upload_bits(
 			$filename,
 			null,
-			file_get_contents( $file['tmp_name'] ) // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( $temp_name ) // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		);
 
 		// Check the type of file. We'll use this as the 'post_mime_type'.
