@@ -879,7 +879,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 				'fun 😀' => admin_url( 'fun.php' ),
 			),
 			'jetpack/jetpack.php' => array(
-				'settings' => admin_url( 'settings.php' ),
+				'settings'   => admin_url( 'settings.php' ),
+				'My Jetpack' => admin_url( 'admin.php?page=my-jetpack' ),
+				'support'    => 'https://jetpack.com/support',
 			),
 		);
 
