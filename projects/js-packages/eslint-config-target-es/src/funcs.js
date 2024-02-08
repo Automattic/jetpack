@@ -41,7 +41,7 @@ function getAllBrowsers( options = {} ) {
 /**
  * Get the list of supported browsers.
  *
- * @deprecated since $$next-version$$. Use getAllBrowsers instead.
+ * @deprecated since 2.1.0. Use getAllBrowsers instead.
  * @param {object} options - Options.
  * @param {string} options.query - Browserslist query.
  * @returns {object} Browsers mapped to minimum versions.

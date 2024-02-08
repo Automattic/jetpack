@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-yoast-promo",
-	"version": "0.2.0-alpha",
+	"version": "0.2.0",
 	"description": "Components used to promote Yoast as part of our collaboration",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/yoast-promo/#readme",
 	"bugs": {
