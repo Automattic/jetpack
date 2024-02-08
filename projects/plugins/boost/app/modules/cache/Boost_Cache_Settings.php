@@ -44,7 +44,9 @@ class Boost_Cache_Settings {
 		}
 
 		if ( ! file_exists( $this->config_file ) ) {
-			$this->set( array( 'enabled' => false ) );
+			if ( ! $this->set( array( 'enabled' => false ) ) ) {
+				return false;
+			}
 		}
 
 		$lines = file( $this->config_file );
