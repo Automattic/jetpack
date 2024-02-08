@@ -45,8 +45,8 @@ class WordAds_Consent_Management_Provider {
 	 * Handler for setting consent cookie AJAX request.
 	 */
 	public static function handle_set_consent_request() {
-		check_ajax_referer( 'gdpr_set_consent', 'security' );
 
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		if ( ! isset( $_POST['consent'] ) ) {
 			wp_send_json_error();
 		}
@@ -57,6 +57,8 @@ class WordAds_Consent_Management_Provider {
 		setcookie( self::COOKIE_NAME, $consent, time() + YEAR_IN_SECONDS, '/', self::get_cookie_domain(), is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie -- Client side CMP needs to be able to read this value.
 
 		wp_send_json_success( true );
+
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}
 
 	/**
@@ -75,7 +77,6 @@ class WordAds_Consent_Management_Provider {
 	private static function get_config_string() {
 		$locale      = strtolower( get_locale() ); // defaults to en_US not en
 		$request_url = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/configuration/%s/', self::get_blog_id(), $locale );
-		$nonce       = wp_create_nonce( 'gdpr_set_consent' );
 
 		$config_script = <<<JS
 <script id="cmp-config-loader">
@@ -87,14 +88,11 @@ class WordAds_Consent_Management_Provider {
 				var response = JSON.parse(xhr.responseText);
 				if (response && response.scripts && Array.isArray(response.scripts)) {
 					var scripts = response.scripts;
-					// remove before injecting configuration
-					delete response.scripts;
-					response['ajaxNonce'] = "$nonce";
 
 					var configurationScript = document.createElement('script');
 					configurationScript.id = 'cmp-configuration';
 					configurationScript.type = 'application/configuration';
-					configurationScript.innerHTML = JSON.stringify(response);
+					configurationScript.innerHTML = JSON.stringify(response.config);
 
 					// Add the cmp-configuration script element to the document's body
 					document.body.appendChild(configurationScript);
