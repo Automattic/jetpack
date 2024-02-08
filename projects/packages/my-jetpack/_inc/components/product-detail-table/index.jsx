@@ -74,9 +74,9 @@ const ProductDetailTableColumn = ( {
 	}, [ trackProductButtonClick, onProductButtonClick, runCheckout, detail, tier ] );
 
 	// Compute the price per month.
-	const price = fullPrice ? Math.ceil( ( fullPrice / 12 ) * 100 ) / 100 : null;
+	const price = fullPrice ? Math.round( ( fullPrice / 12 ) * 100 ) / 100 : null;
 	const offPrice = introductoryOffer?.costPerInterval
-		? Math.ceil( ( introductoryOffer.costPerInterval / 12 ) * 100 ) / 100
+		? Math.round( ( introductoryOffer.costPerInterval / 12 ) * 100 ) / 100
 		: null;
 
 	const isOneMonthOffer =

@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "13.1.0-a.10",
+	"version": "13.2.0-a.0",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -91,7 +91,7 @@
 		"gridicons": "3.4.1",
 		"jsdom": "20.0.3",
 		"mapbox-gl": "1.13.0",
-		"markdown-it": "12.3.2",
+		"markdown-it": "14.0.0",
 		"markdown-it-footnote": "3.0.3",
 		"photon": "4.0.0",
 		"postcss-custom-properties": "12.1.7",

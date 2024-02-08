@@ -1,4 +1,0 @@
-Significance: major
-Type: deprecated
-
-This package is now deprecated. Find Partner classes in the automattic/jetpack-connection package from now on. You can now remove this package from your project's dependencies.
