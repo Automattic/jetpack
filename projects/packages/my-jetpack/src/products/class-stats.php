@@ -161,7 +161,7 @@ class Stats extends Module_Product {
 	 */
 	public static function get_status() {
 		$status = parent::get_status();
-		if ( 'error' === $status && ! Initializer::is_registered() ) {
+		if ( 'module_disabled' === $status && ! Initializer::is_registered() ) {
 			// If the site has never been connected before, show the "Learn more" CTA,
 			// that points to the add Stats product interstitial.
 			$status = 'needs_purchase_or_free';

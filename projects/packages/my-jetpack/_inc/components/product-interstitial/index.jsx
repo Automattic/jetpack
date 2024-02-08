@@ -399,7 +399,12 @@ export function SearchInterstitial() {
  */
 export function StatsInterstitial() {
 	return (
-		<ProductInterstitial slug="stats" directCheckout={ true } installsPlugin={ true }>
+		<ProductInterstitial
+			slug="stats"
+			directCheckout={ true }
+			installsPlugin={ true }
+			ctaButtonLabel={ __( 'Get Stats', 'jetpack-my-jetpack' ) }
+		>
 			<img
 				src={ statsImage }
 				alt={ __(
