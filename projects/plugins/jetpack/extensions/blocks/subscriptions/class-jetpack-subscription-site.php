@@ -107,10 +107,11 @@ class Jetpack_Subscription_Site {
 		add_filter(
 			'hooked_block_jetpack/subscriptions',
 			function ( $hooked_block, $relative_position, $anchor_block ) {
-				l( $hooked_block );
-
-				if ( $anchor_block === 'core/post-content' && $relative_position === 'after' && isset( $anchor_block['attrs']['layout'] ) ) {
-					$hooked_block['attrs']['layout'] = $anchor_block['attrs']['layout'];
+				$is_post_content_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/post-content';
+				if ( $is_post_content_anchor_block && ( $relative_position === 'after' || $relative_position === 'before' ) ) {
+					if ( isset( $anchor_block['attrs']['layout'] ) ) {
+						$hooked_block['attrs']['layout'] = $anchor_block['attrs']['layout'];
+					}
 				}
 
 				return $hooked_block;

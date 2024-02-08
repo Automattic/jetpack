@@ -5,7 +5,7 @@
 	"title": "Subscribe",
 	"description": "Subscribe to this blog's posts as a newsletter.",
 	"keywords": [ "newsletter", "email", "follow" ],
-	"version": "12.5.0",
+	"version": "12.5.1",
 	"textdomain": "jetpack",
 	"category": "grow",
 	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='m19.02,5H4.98c-1.09,0-1.98.89-1.98,1.98v10.04c0,1.09.89,1.98,1.98,1.98h14.04c1.09,0,1.98-.89,1.98-1.98V6.98c0-1.09-.89-1.98-1.98-1.98Zm.48,11.92c0,.32-.26.58-.58.58H5.08c-.32,0-.58-.26-.58-.58V7.08c0-.32.26-.58.58-.58h13.84c.32,0,.58.26.58.58v9.84Z'/><path d='m4.38,17.69l5.71-4.79s.96,1,1.91.99,1.91-.99,1.91-.99l5.59,4.79v-2.03l-4.41-3.73,4.41-3.72v-1.91l-7.14,5.76c-.24.19-.59.19-.83,0l-7.14-5.88v1.98l4.3,3.67-4.3,3.78v2.08Z'/></svg>",
@@ -14,7 +14,8 @@
 			"margin": true,
 			"padding": true
 		},
-		"align": [ "wide", "full" ]
+		"align": [ "wide", "full" ],
+		"layout": true
 	},
 	"styles": [
 		{
