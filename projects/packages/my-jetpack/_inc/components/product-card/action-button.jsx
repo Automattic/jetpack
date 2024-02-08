@@ -120,9 +120,7 @@ const ActionButton = ( {
 						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ] ),
 				};
 			case PRODUCT_STATUSES.ACTIVE: {
-				const defaultButtonText = __( 'View', 'jetpack-my-jetpack' );
-				const statsButtonText = __( 'View detailed stats', 'jetpack-my-jetpack' );
-				const buttonText = slug === 'stats' ? statsButtonText : defaultButtonText;
+				const buttonText = __( 'View', 'jetpack-my-jetpack' );
 
 				return {
 					...buttonState,
