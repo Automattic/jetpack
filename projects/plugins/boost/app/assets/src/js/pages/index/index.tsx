@@ -30,7 +30,7 @@ const Index = () => {
 	const { canResizeImages } = Jetpack_Boost;
 
 	const premiumFeatures = usePremiumFeatures();
-	const isPremium = premiumFeatures !== false;
+	const isPremium = premiumFeatures.length > 0;
 
 	return (
 		<div className="jb-container--narrow">
