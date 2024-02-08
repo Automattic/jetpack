@@ -78,6 +78,7 @@ class Verbum_Comments {
 	 * Get the comment form action url
 	 */
 	public function get_form_action() {
+		l( 'site_url: ', site_url() );
 		return is_jetpack_comments() ?
 			wp_json_encode( esc_url_raw( http() . '://' . JETPACK_SERVER__DOMAIN . '/jetpack-comment/' ) ) : site_url( '/wp-comments-post.php' );
 	}
@@ -585,6 +586,15 @@ HTML;
 	 * Check if we should show the subscription modal.
 	 */
 	public function should_show_subscription_modal() {
+		// Do not display subscription modal for WordPress.com subdomain sites.
+		if ( defined( 'WPCOM_SUBDIR_SUBDOMAIN_BLOG_IDS_TO_REDIRECT' ) && defined( 'JETPACKCOM_BLOG_BLOG_IDS' ) ) {
+			$blogs_to_redirect = array_merge( WPCOM_SUBDIR_SUBDOMAIN_BLOG_IDS_TO_REDIRECT, JETPACKCOM_BLOG_BLOG_IDS );
+
+			if ( in_array( get_current_blog_id(), $blogs_to_redirect, true ) ) {
+				return false;
+			}
+		}
+
 		$modal_enabled = get_option( 'jetpack_verbum_subscription_modal', true );
 		return ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
 	}
