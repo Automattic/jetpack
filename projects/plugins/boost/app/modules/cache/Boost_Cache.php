@@ -337,7 +337,7 @@ abstract class Boost_Cache {
 			return;
 		}
 		$post = get_post( $comment->comment_post_ID );
-		$this->delete_cache_for_post( $post, false );
+		$this->delete_cache_for_post_only( $post );
 	}
 
 	public function delete_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
@@ -347,19 +347,20 @@ abstract class Boost_Cache {
 		 * If a comment is not approved, we only need to delete the cache for
 		 * this post for this visitor so the unmoderated comment is shown to them.
 		 */
-		if ( $comment_approved !== '1' ) {
+		if ( $comment_approved !== 1 ) {
 			$this->delete_post_for_visitor( $post );
 			return;
 		}
 
-		$this->delete_cache_for_post( $post );
+		$this->delete_cache_for_post_only( $post );
 	}
 
 	abstract public function get();
 	abstract public function set( $data );
 	abstract public function delete_cache();
-	abstract public function delete_cache_for_url( $url );
-	abstract public function delete_cache_for_post( $post_id );
+	abstract public function delete_cache_for_url( $url, $recurse = true );
+	abstract public function delete_cache_for_post( $post_id, $all = true );
+	abstract public function delete_cache_for_post_only( $post_id );
 	abstract public function delete_post_for_visitor( $post );
 	abstract public function delete_on_post_transition( $new_status, $old_status, $post );
 	abstract public function delete_cache_for_post_terms( $post );
