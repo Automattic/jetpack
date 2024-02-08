@@ -345,7 +345,7 @@ export const Waf = class extends Component {
 					onChange={ this.toggleShareData }
 					label={
 						<div className="waf__settings__toggle-setting__label">
-							<span>{ __( 'Share data with Jetpack', 'jetpack' ) }</span>
+							<span>{ __( 'Share basic data with Jetpack', 'jetpack' ) }</span>
 							<InfoPopover
 								position="right"
 								screenReaderText={ __( 'Learn more', 'jetpack' ) }
@@ -353,7 +353,7 @@ export const Waf = class extends Component {
 							>
 								{ createInterpolateElement(
 									__(
-										'Allow Jetpack to collect extra debug data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'Allow Jetpack to collect data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
 										'jetpack'
 									),
 									{
@@ -384,7 +384,7 @@ export const Waf = class extends Component {
 					onChange={ this.toggleShareDebugData }
 					label={
 						<div className="waf__settings__toggle-setting__label">
-							<span>{ __( 'Share debug data with Jetpack', 'jetpack' ) }</span>
+							<span>{ __( 'Share detailed data with Jetpack', 'jetpack' ) }</span>
 							<InfoPopover
 								position="right"
 								screenReaderText={ __( 'Learn more', 'jetpack' ) }
@@ -392,7 +392,7 @@ export const Waf = class extends Component {
 							>
 								{ createInterpolateElement(
 									__(
-										'Allow Jetpack to collect debug data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'Allow Jetpack to collect detailed data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
 										'jetpack'
 									),
 									{

@@ -91,14 +91,14 @@ const ShareDebugData = () => {
 
 	return (
 		<div className={ styles[ 'share-data-section' ] }>
-			<Title mb={ 2 }>{ __( ' Share debug data with Jetpack', 'jetpack-protect' ) }</Title>
+			<Title mb={ 2 }>{ __( ' Share detailed data with Jetpack', 'jetpack-protect' ) }</Title>
 			<div className={ styles[ 'footer-checkbox' ] }>
 				<CheckboxControl
 					checked={ Boolean( settings.jetpack_waf_share_debug_data ) }
 					onChange={ handleShareDebugDataChange }
 					disabled={ isUpdating }
 				/>
-				<Text>{ __( 'Allow Jetpack to collect advanced debug data.', 'jetpack-protect' ) }</Text>
+				<Text>{ __( 'Allow Jetpack to collect detailed data.', 'jetpack-protect' ) }</Text>
 			</div>
 		</div>
 	);
@@ -149,7 +149,7 @@ const ShareData = () => {
 
 	return (
 		<div className={ styles[ 'share-data-section' ] }>
-			<Title mb={ 2 }>{ __( ' Share data with Jetpack', 'jetpack-protect' ) }</Title>
+			<Title mb={ 2 }>{ __( ' Share basic data with Jetpack', 'jetpack-protect' ) }</Title>
 			<div className={ styles[ 'footer-checkbox' ] }>
 				<CheckboxControl
 					checked={ Boolean( settings.jetpack_waf_share_data ) }
@@ -158,7 +158,7 @@ const ShareData = () => {
 				/>
 				<Text>
 					{ __(
-						'Allow Jetpack to collect data to improve firewall protection and rules. Collected data is also used to display advanced usage metrics.',
+						'Allow Jetpack to collect basic data to improve firewall protection and rules. Collected data is also used to display advanced usage metrics.',
 						'jetpack-protect'
 					) }
 				</Text>
