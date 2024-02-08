@@ -3,7 +3,9 @@ import {
 	SET_PURCHASES,
 	SET_PURCHASES_IS_FETCHING,
 	SET_CHAT_AVAILABILITY,
+	SET_CHAT_AUTHENTICATION,
 	SET_CHAT_AVAILABILITY_IS_FETCHING,
+	SET_CHAT_AUTHENTICATION_IS_FETCHING,
 	SET_AVAILABLE_LICENSES,
 	SET_AVAILABLE_LICENSES_IS_FETCHING,
 	SET_PRODUCT,
@@ -14,6 +16,14 @@ import {
 	CLEAN_GLOBAL_NOTICE,
 	SET_PRODUCT_STATS,
 	SET_IS_FETCHING_PRODUCT_STATS,
+	SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING,
+	SET_BACKUP_REWINDABLE_EVENTS,
+	SET_COUNT_BACKUP_ITEMS_IS_FETCHING,
+	SET_COUNT_BACKUP_ITEMS,
+	SET_STATS_COUNTS_IS_FETCHING,
+	SET_STATS_COUNTS,
+	SET_DISMISSED_WELCOME_BANNER_IS_FETCHING,
+	SET_DISMISSED_WELCOME_BANNER,
 } from './actions';
 
 const products = ( state = {}, action ) => {
@@ -75,6 +85,44 @@ const products = ( state = {}, action ) => {
 	}
 };
 
+const backupRewindableEvents = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_BACKUP_REWINDABLE_EVENTS:
+			return {
+				...state,
+				items: action?.rewindableEvents || {},
+			};
+
+		default:
+			return state;
+	}
+};
+
+const countBackupItems = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_COUNT_BACKUP_ITEMS_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_COUNT_BACKUP_ITEMS:
+			return {
+				...state,
+				items: action?.backupItems || {},
+			};
+
+		default:
+			return state;
+	}
+};
+
 const purchases = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_PURCHASES_IS_FETCHING:
@@ -106,6 +154,25 @@ const chatAvailability = ( state = { isFetching: false, isAvailable: false }, ac
 			return {
 				...state,
 				isAvailable: action?.chatAvailability?.is_available,
+			};
+
+		default:
+			return state;
+	}
+};
+
+const chatAuthentication = ( state = { isFetching: false, jwt: false }, action ) => {
+	switch ( action.type ) {
+		case SET_CHAT_AUTHENTICATION_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_CHAT_AUTHENTICATION:
+			return {
+				...state,
+				jwt: action?.chatAuthentication?.user?.jwt,
 			};
 
 		default:
@@ -190,14 +257,57 @@ const stats = ( state = {}, action ) => {
 	}
 };
 
+const statsCounts = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_STATS_COUNTS_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_STATS_COUNTS:
+			return {
+				...state,
+				data: action?.statsCounts || {},
+			};
+
+		default:
+			return state;
+	}
+};
+
+const welcomeBanner = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_DISMISSED_WELCOME_BANNER_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_DISMISSED_WELCOME_BANNER:
+			return {
+				...state,
+				hasBeenDismissed: action.hasBeenDismissed,
+			};
+
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	products,
+	backupRewindableEvents,
+	countBackupItems,
 	purchases,
 	chatAvailability,
+	chatAuthentication,
 	availableLicenses,
 	notices,
 	plugins,
 	stats,
+	statsCounts,
+	welcomeBanner,
 } );
 
 export default reducers;

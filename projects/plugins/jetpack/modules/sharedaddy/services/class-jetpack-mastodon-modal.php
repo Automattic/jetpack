@@ -65,7 +65,8 @@ class Jetpack_Mastodon_Modal {
 	/**
 	 * Render the modal.
 	 */
-	public static function render_modal() { ?>
+	public static function render_modal() {
+		?>
 <!doctype html>
 <html <?php language_attributes(); ?>>
 <head>

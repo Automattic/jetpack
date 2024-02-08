@@ -74,7 +74,7 @@ class Boost extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'The easiest speed optimization plugin for WordPress', 'jetpack-my-jetpack' );
+		return __( 'Speed up your site in seconds', 'jetpack-my-jetpack' );
 	}
 
 	/**

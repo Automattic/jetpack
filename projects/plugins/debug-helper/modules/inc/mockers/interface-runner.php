@@ -20,5 +20,4 @@ interface Runner_Interface {
 	 * @return bool
 	 */
 	public function run( $number );
-
 }

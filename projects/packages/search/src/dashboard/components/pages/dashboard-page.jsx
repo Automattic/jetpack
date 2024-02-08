@@ -33,14 +33,15 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
+	const blogID = useSelect( select => select( STORE_ID ).getBlogId() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const sendPaidPlanToCart = () => {
 		const checkoutProductUrl = getProductCheckoutUrl(
 			'jetpack_search',
-			domain,
-			`${ siteAdminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
+			blogID ?? domain,
+			`admin.php?page=jetpack-search&just_upgraded=1`,
 			true
 		);
 
@@ -238,12 +239,10 @@ const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSear
 };
 
 const Footer = () => {
-	const AUTOMATTIC_WEBSITE = 'https://automattic.com/';
 	return (
 		<div className="jp-search-dashboard-footer jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
 				<JetpackFooter
-					a8cLogoHref={ AUTOMATTIC_WEBSITE }
 					moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 					className="lg-col-span-12 md-col-span-8 sm-col-span-4"
 				/>

@@ -175,8 +175,7 @@ class WPCOM_JSON_API {
 	 */
 	public static function init( $method = null, $url = null, $post_body = null ) {
 		if ( ! self::$self ) {
-			$class      = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__; // phpcs:ignore PHPCompatibility.PHP.NewFunctions.get_called_classFound
-			self::$self = new $class( $method, $url, $post_body );
+			self::$self = new static( $method, $url, $post_body );
 		}
 		return self::$self;
 	}
@@ -203,12 +202,25 @@ class WPCOM_JSON_API {
 	}
 
 	/**
-	 * Determine if a string is truthy.
+	 * Determine if a string is truthy. If it's not a string, which can happen with
+	 * not well-formed data coming from Jetpack sites, we still consider it a truthy value.
 	 *
-	 * @param string $value "1", "t", and "true" (case insensitive) are falsey, everything else isn't.
+	 * @param mixed $value true, 1, "1", "t", and "true" (case insensitive) are truthy, everything else isn't.
 	 * @return bool
 	 */
 	public static function is_truthy( $value ) {
+		if ( true === $value ) {
+			return true;
+		}
+
+		if ( 1 === $value ) {
+			return true;
+		}
+
+		if ( ! is_string( $value ) ) {
+			return false;
+		}
+
 		switch ( strtolower( (string) $value ) ) {
 			case '1':
 			case 't':
@@ -222,10 +234,22 @@ class WPCOM_JSON_API {
 	/**
 	 * Determine if a string is falsey.
 	 *
-	 * @param string $value "0", "f", and "false" (case insensitive) are falsey, everything else isn't.
+	 * @param mixed $value false, 0, "0", "f", and "false" (case insensitive) are falsey, everything else isn't.
 	 * @return bool
 	 */
 	public static function is_falsy( $value ) {
+		if ( false === $value ) {
+			return true;
+		}
+
+		if ( 0 === $value ) {
+			return true;
+		}
+
+		if ( ! is_string( $value ) ) {
+			return false;
+		}
+
 		switch ( strtolower( (string) $value ) ) {
 			case '0':
 			case 'f':
@@ -295,7 +319,7 @@ class WPCOM_JSON_API {
 					$this->content_type = 'application/x-www-form-urlencoded';
 				}
 
-				if ( 0 === strpos( strtolower( $this->content_type ), 'multipart/' ) ) {
+				if ( str_starts_with( strtolower( $this->content_type ), 'multipart/' ) ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$this->post_body    = http_build_query( stripslashes_deep( $_POST ) );
 					$this->files        = $_FILES;
@@ -747,7 +771,7 @@ class WPCOM_JSON_API {
 	 * @return string Content type (assuming it didn't exit).
 	 */
 	public function output_error( $error ) {
-		$error_response = $this->serializable_error( $error );
+		$error_response = static::serializable_error( $error );
 
 		return $this->output( $error_response['status_code'], $error_response['errors'] );
 	}

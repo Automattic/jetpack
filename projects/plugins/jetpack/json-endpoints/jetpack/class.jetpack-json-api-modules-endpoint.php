@@ -154,5 +154,4 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 
 		return array_map( array( $this, 'format_module' ), $modules );
 	}
-
 }

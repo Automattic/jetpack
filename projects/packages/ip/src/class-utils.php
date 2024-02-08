@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\IP;
  */
 class Utils {
 
-	const PACKAGE_VERSION = '0.1.4';
+	const PACKAGE_VERSION = '0.2.1';
 
 	/**
 	 * Get the current user's IP address.
@@ -92,6 +92,7 @@ class Utils {
 	 */
 	public static function ip_is_private( $ip ) {
 		// We are dealing with ipv6, so we can simply rely on filter_var.
+		// Note: str_contains() is not used here, as wp-includes/compat.php may not be loaded in this file.
 		if ( false === strpos( $ip, '.' ) ) {
 			return ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
 		}
@@ -117,28 +118,17 @@ class Utils {
 
 	/**
 	 * Uses inet_pton if available to convert an IP address to a binary string.
-	 * If inet_pton is not available, ip2long will convert the address to an integer.
 	 * Returns false if an invalid IP address is given.
-	 *
-	 * NOTE: ip2long will return false for any ipv6 address. servers that do not support
-	 * inet_pton will not support ipv6
 	 *
 	 * @param mixed $ip IP address.
 	 * @return int|string|bool
 	 */
 	public static function convert_ip_address( $ip ) {
-		if ( function_exists( 'inet_pton' ) ) {
-			return inet_pton( $ip );
-		}
-		return ip2long( $ip );
+		return inet_pton( $ip );
 	}
 
 	/**
 	 * Checks that a given IP address is within a given low - high range.
-	 * Servers that support inet_pton will use that function to convert the ip to number,
-	 * while other servers will use ip2long.
-	 *
-	 * NOTE: servers that do not support inet_pton cannot support ipv6.
 	 *
 	 * @param mixed $ip IP.
 	 * @param mixed $range_low Range Low.
@@ -146,23 +136,11 @@ class Utils {
 	 * @return Bool
 	 */
 	public static function ip_address_is_in_range( $ip, $range_low, $range_high ) {
-		// The inet_pton will give us binary string of an ipv4 or ipv6.
-		// We can then use strcmp to see if the address is in range.
-		if ( function_exists( 'inet_pton' ) ) {
-			$ip_num  = inet_pton( $ip );
-			$ip_low  = inet_pton( $range_low );
-			$ip_high = inet_pton( $range_high );
-			if ( $ip_num && $ip_low && $ip_high && strcmp( $ip_num, $ip_low ) >= 0 && strcmp( $ip_num, $ip_high ) <= 0 ) {
-				return true;
-			}
-			// The ip2long will give us an integer of an ipv4 address only. it will produce FALSE for ipv6.
-		} else {
-			$ip_num  = ip2long( $ip );
-			$ip_low  = ip2long( $range_low );
-			$ip_high = ip2long( $range_high );
-			if ( $ip_num && $ip_low && $ip_high && $ip_num >= $ip_low && $ip_num <= $ip_high ) {
-				return true;
-			}
+		$ip_num  = inet_pton( $ip );
+		$ip_low  = inet_pton( $range_low );
+		$ip_high = inet_pton( $range_high );
+		if ( $ip_num && $ip_low && $ip_high && strcmp( $ip_num, $ip_low ) >= 0 && strcmp( $ip_num, $ip_high ) <= 0 ) {
+			return true;
 		}
 		return false;
 	}
@@ -204,8 +182,6 @@ class Utils {
 	/**
 	 * Validates the low and high IP addresses of a range.
 	 *
-	 * NOTE: servers that do not support inet_pton cannot support ipv6.
-	 *
 	 * @param string $range_low  Low IP address.
 	 * @param string $range_high High IP address.
 	 * @return bool True if the range is valid, false otherwise.
@@ -217,30 +193,17 @@ class Utils {
 		}
 
 		// Validate that the $range_low is lower or equal to $range_high.
-		if ( function_exists( 'inet_pton' ) ) {
-			// The inet_pton will give us binary string of an ipv4 or ipv6.
-			// We can then use strcmp to see if the address is in range.
-			$ip_low  = inet_pton( $range_low );
-			$ip_high = inet_pton( $range_high );
-			if ( false === $ip_low || false === $ip_high ) {
-				return false;
-			}
-			if ( strcmp( $ip_low, $ip_high ) > 0 ) {
-				return false;
-			}
-		} else {
-			// The ip2long will give us an integer of an ipv4 address only. it will produce FALSE for ipv6.
-			$ip_low  = ip2long( $range_low );
-			$ip_high = ip2long( $range_high );
-			if ( false === $ip_low || false === $ip_high ) {
-				return false;
-			}
-			if ( $ip_low > $ip_high ) {
-				return false;
-			}
+		// The inet_pton will give us binary string of an ipv4 or ipv6.
+		// We can then use strcmp to see if the address is in range.
+		$ip_low  = inet_pton( $range_low );
+		$ip_high = inet_pton( $range_high );
+		if ( false === $ip_low || false === $ip_high ) {
+			return false;
+		}
+		if ( strcmp( $ip_low, $ip_high ) > 0 ) {
+			return false;
 		}
 
 		return true;
 	}
-
 }

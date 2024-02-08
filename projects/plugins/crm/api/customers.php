@@ -26,6 +26,8 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 // Ultimately this should be switched to GET, but the docs have it as POST, so best to wait for a rewrite
 // Also seems to mostly be a duplicate of customer_search, other than not being able to search by email...
 
+// phpcs:disabled WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 global $zbs;
 
 $json_params     = file_get_contents( 'php://input' );
@@ -65,6 +67,11 @@ if ( isset( $customer_params['company'] ) ) {
 	$companyID = (int) $customer_params['company'];
 }
 
+$withTags = false;
+if ( isset( $customer_params['tags'] ) ) {
+	$withTags = (bool) $customer_params['tags'];
+}
+
 // #FORMIKENOTES -
 // These should be Bools - see https://stackoverflow.com/questions/7336861/how-to-convert-string-to-boolean-php
 // ... this forces them from string of "true" or "false" into a bool
@@ -81,6 +88,7 @@ $args = array(
 	'withQuotes'       => $withQuotes,
 	'withInvoices'     => $withInvoices,
 	'withTransactions' => $withTransactions,
+	'withTags'         => $withTags,
 	'page'             => $page,
 	'perPage'          => $perPage,
 	'ignoreowner'      => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT ),
@@ -89,5 +97,7 @@ $args = array(
 $customers = $zbs->DAL->contacts->getContacts( $args );
 
 wp_send_json( $customers );
+
+// phpcs:enabled WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 

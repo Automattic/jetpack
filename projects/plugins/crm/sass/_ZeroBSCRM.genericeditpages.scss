@@ -162,15 +162,18 @@ textarea.form-control{
     font-weight: 400;
 }
 
+.zbs-tel-wrap {
+	display: flex;
+  flex-wrap: wrap;
 
+	input {
+		flex: 1 0 200px;
+	}
 
-// telephone - for clickable links :)
-.zbs-tel-wrap .form-control.zbs-tel {
-    display: inline-block;
-}
-.zbs-tel-wrap a {
-    margin-top: 3px !important;
-    margin-left: 10px !important;
+	a.button {
+		margin-left: 10px;
+		padding-top: 2px;
+	}
 }
 
 

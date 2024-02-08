@@ -4,11 +4,15 @@ import {
 	Notice,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
-import { useDismissNotice } from '@automattic/jetpack-publicize-components';
+import {
+	useDismissNotice,
+	SOCIAL_STORE_ID,
+	getSupportedAdditionalConnections,
+	CONNECTION_SERVICE_INSTAGRAM_BUSINESS,
+} from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
 
 const freePlanNoticeText = __(
@@ -21,25 +25,24 @@ const paidPlanNoticeText = __(
 );
 
 const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
-	const { dismissedNotices, dismissNotice } = useDismissNotice();
-	const [ showNotice, setShowNotice ] = useState( ! dismissedNotices.includes( 'instagram' ) );
+	const { shouldShowNotice, dismissNotice, NOTICES } = useDismissNotice();
 
-	const { connectionsAdminUrl, isInstagramConnectionSupported, isEnhancedPublishingEnabled } =
-		useSelect( select => {
-			const store = select( STORE_ID );
-			return {
-				connectionsAdminUrl: store.getConnectionsAdminUrl(),
-				isInstagramConnectionSupported: store.isInstagramConnectionSupported(),
-				isEnhancedPublishingEnabled: store.isEnhancedPublishingEnabled(),
-			};
-		} );
+	const { connectionsAdminUrl, isEnhancedPublishingEnabled } = useSelect( select => {
+		const store = select( SOCIAL_STORE_ID );
+		return {
+			connectionsAdminUrl: store.getConnectionsAdminUrl(),
+			isEnhancedPublishingEnabled: store.isEnhancedPublishingEnabled(),
+		};
+	} );
 
 	const handleDismiss = useCallback( () => {
-		dismissNotice( 'instagram' );
-		setShowNotice( false );
-	}, [ dismissNotice, setShowNotice ] );
+		dismissNotice( NOTICES.instagram );
+	}, [ dismissNotice, NOTICES ] );
 
-	if ( ! showNotice || ! isInstagramConnectionSupported ) {
+	if (
+		! shouldShowNotice( NOTICES.instagram ) ||
+		! getSupportedAdditionalConnections().includes( CONNECTION_SERVICE_INSTAGRAM_BUSINESS )
+	) {
 		return null;
 	}
 

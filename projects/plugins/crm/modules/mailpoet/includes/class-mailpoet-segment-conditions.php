@@ -65,5 +65,4 @@ class Mailpoet_Segment_Conditions {
 		$this->conditions['is_mailpoet_customer'] = new \Segment_Condition_Mailpoet_Subscriber();
 
 	}
-
 }

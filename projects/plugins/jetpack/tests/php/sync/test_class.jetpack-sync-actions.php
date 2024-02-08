@@ -202,5 +202,4 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$this->assertTrue( \Automattic\Jetpack\Constants::is_true( 'JETPACK_SYNC_READ_ONLY' ) );
 		\Automattic\Jetpack\Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
 	}
-
 }

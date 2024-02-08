@@ -26,6 +26,13 @@ class Hooks {
 	protected static $instance = null;
 
 	/**
+	 * Previous error handler.
+	 *
+	 * @var callable
+	 */
+	protected static $prev_error_handler = null;
+
+	/**
 	 * Main Instance
 	 */
 	public static function instance() {
@@ -226,7 +233,7 @@ class Hooks {
 	 */
 	public function get_plugin_info( $result, $action, $args ) {
 		// Check if this is a 'plugin_information' request for a '-dev' plugin.
-		if ( 'plugin_information' !== $action || substr( $args->slug, -4 ) !== '-dev' ) {
+		if ( 'plugin_information' !== $action || ! str_ends_with( $args->slug, '-dev' ) ) {
 			return $result;
 		}
 
@@ -440,9 +447,7 @@ class Hooks {
 		}
 		wp_clear_scheduled_hook( 'jetpack_beta_autoupdate_hourly_cron' );
 
-		if ( function_exists( 'wp_unschedule_hook' ) ) { // New in WP `4.9`.
-			wp_unschedule_hook( 'jetpack_beta_autoupdate_hourly_cron' );
-		}
+		wp_unschedule_hook( 'jetpack_beta_autoupdate_hourly_cron' );
 	}
 
 	/**
@@ -577,6 +582,13 @@ class Hooks {
 	}
 
 	/**
+	 * Set up at plugin load.
+	 */
+	public static function setup() {
+		self::$prev_error_handler = set_error_handler( array( self::class, 'custom_error_handler' ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+	}
+
+	/**
 	 * Custom error handler to intercept errors and log them using Jetpack's own logger.
 	 *
 	 * @param int    $errno   - Error code.
@@ -595,7 +607,11 @@ class Hooks {
 			}
 		}
 
-		// Returning false makes the error go through the standard error handler as well.
-		return false;
+		if ( self::$prev_error_handler ) {
+			return call_user_func( self::$prev_error_handler, $errno, $errstr, $errfile, $errline );
+		} else {
+			// Returning false makes the error go through the standard error handler as well.
+			return false;
+		}
 	}
 }

@@ -83,7 +83,7 @@ The default is development mode; set `NODE_ENV=production` in node's environment
 
 Webpack has several different devtools with various tradeoffs. This value selects an appropriate devtool for the mode.
 
-In development mode, we choose 'eval-cheap-module-source-map'. This provides correct line numbers and filenames for error messages, while still being reasonably fast to build.
+In development mode we choose 'source-map' for maximum debugability.
 
 In production mode we choose no devtool, mainly because we don't currently distribute source maps in production.
 
@@ -96,7 +96,14 @@ This is an object suited for spreading some default values into Webpack's `outpu
 
 #### `optimization`
 
-`optimization` is an object suitable for spreading some defaults into Webpack's `optimization` setting. It sets `minimize` based on the mode, configures a default `minimizer` with `TerserPlugin` and `CssMinimizerPlugin`, and sets `concatenateModules` to false as that setting [may mangle WordPress's i18n function names](https://github.com/Automattic/jetpack/issues/21204).
+`optimization` is an object suitable for spreading some defaults into Webpack's `optimization` setting. It sets the following:
+
+* `minimize` is set based on the mode.
+* `minimizer` is configured with `TerserPlugin` and `CssMinimizerPlugin` configured as described below.
+* `emitOnErrors` is set true to facilitate debugging.
+* `concatenateModules` is set to false as that setting [may mangle WordPress's i18n function names](https://github.com/Automattic/jetpack/issues/21204).
+* `moduleIds` is set to false in production mode, as `PnpmDeterministicModuleIdsPlugin` is intended to be used instead. The Webpack default 'name' is set in development mode.
+* `mangleExports` is set to false in production mode, as `I18nSafeMangleExportsPlugin` is intended to be used instead.
 
 #### `TerserPlugin( options )`
 
@@ -138,7 +145,7 @@ plugins: {
 }
 ```
 
-Note that I18nCheckPlugin is only included by default in production mode.
+Note that I18nCheckPlugin, PnpmDeterministicModuleIdsPlugin, and I18nSafeMangleExportsPlugin are only included by default in production mode. They can be turned on in development mode by passing an options object.
 
 ##### `DefinePlugin( defines )`
 
@@ -180,13 +187,19 @@ This provides an instance of [@wordpress/dependency-extraction-webpack-plugin](h
 
 This provides an instance of [@automattic/i18n-loader-webpack-plugin](https://www.npmjs.com/package/@automattic/i18n-loader-webpack-plugin). The `options` are passed to the plugin.
 
-Note that if the plugin actually does anything in your build, you'll need to specify at least the `domain` option for it.
-
 ##### `I18nCheckPlugin( options )`
 
 This provides an instance of [@wordpress/i18n-check-webpack-plugin](https://www.npmjs.com/package/@wordpress/i18n-check-webpack-plugin). The `options` are passed to the plugin.
 
 The default configuration sets a filter that excludes `node_modules` other than `@automattic/*`. This may be accessed as `I18nCheckPlugin.defaultFilter`.
+
+##### `I18nSafeMangleExportsPlugin( options )`
+
+This provides an instance of [@wordpress/i18n-check-webpack-plugin](https://www.npmjs.com/package/@wordpress/i18n-check-webpack-plugin)'s I18nSafeMangleExportsPlugin. The `options` are passed to the plugin.
+
+##### `PnpmDeterministicModuleIdsPlugin( options )`
+
+This provides an slightly modified instance of Webpack's built-in DeterministicModuleIdsPlugin that does a better job of handling the paths produced by pnpm. The `options` are passed to the plugin.
 
 #### Module rules and loaders
 
@@ -264,7 +277,6 @@ The options and corresponding components are:
 - `presetTypescript`: Corresponds to [@babel/preset-typescript](https://www.npmjs.com/package/@babel/preset-typescript).
 - `pluginReplaceTextdomain`: Corresponds to [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain).
   Note this plugin is only included if this option is set, as the plugin requires a `textdomain` option be set.
-- `pluginProposalClassProperties`: Corresponds to [@babel/plugin-proposal-class-properties](https://www.npmjs.com/package/@babel/plugin-proposal-class-properties).
 - `pluginTransformRuntime`: Corresponds to [@babel/plugin-transform-runtime](https://www.npmjs.com/package/@babel/plugin-transform-runtime).
 
   Note the following options that are different from `@babel/plugin-transform-runtime`'s defaults:

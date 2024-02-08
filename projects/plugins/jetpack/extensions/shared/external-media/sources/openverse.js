@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { sample } from 'lodash';
 import { SOURCE_OPENVERSE, PEXELS_EXAMPLE_QUERIES } from '../constants';
 import MediaBrowser from '../media-browser';
+import { MediaSource } from '../media-service/types';
 import { getApiUrl } from './api';
 import withMedia from './with-media';
 
@@ -108,4 +109,4 @@ function OpenverseMedia( props ) {
 	);
 }
 
-export default withMedia()( OpenverseMedia );
+export default withMedia( MediaSource.Openverse )( OpenverseMedia );

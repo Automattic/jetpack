@@ -95,7 +95,7 @@ class Jetpack_Sitemap_Manager {
 
 		// Add callback for sitemap URL handler.
 		add_action(
-			'init',
+			'wp_loaded',
 			array( $this, 'callback_action_catch_sitemap_urls' ),
 			defined( 'IS_WPCOM' ) && IS_WPCOM ? 100 : 10
 		);
@@ -558,7 +558,6 @@ class Jetpack_Sitemap_Manager {
 			)
 		);
 	}
-
 } // End Jetpack_Sitemap_Manager class.
 
 new Jetpack_Sitemap_Manager();

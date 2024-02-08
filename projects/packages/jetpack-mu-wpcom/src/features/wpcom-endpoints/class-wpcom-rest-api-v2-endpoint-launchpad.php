@@ -36,10 +36,14 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_data' ),
 					'permission_callback' => array( $this, 'can_access' ),
 					'args'                => array(
-						'checklist_slug' => array(
+						'checklist_slug'    => array(
 							'description' => 'Checklist slug',
 							'type'        => 'string',
 							'enum'        => $this->get_checklist_slug_enums(),
+						),
+						'launchpad_context' => array(
+							'description' => 'Screen where Launchpand instance is loaded.',
+							'type'        => 'string',
 						),
 					),
 				),
@@ -48,16 +52,42 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					'callback'            => array( $this, 'update_site_options' ),
 					'permission_callback' => array( $this, 'can_access' ),
 					'args'                => array(
-						'checklist_statuses' => array(
+						'checklist_statuses'        => array(
 							'description'          => 'Launchpad statuses',
 							'type'                 => 'object',
 							'properties'           => $this->get_checklist_statuses_properties(),
 							'additionalProperties' => false,
 						),
-						'launchpad_screen'   => array(
+						'launchpad_screen'          => array(
 							'description' => 'Launchpad screen',
 							'type'        => 'string',
-							'enum'        => array( 'off', 'minimized', 'full' ),
+							'enum'        => array( 'off', 'minimized', 'full', 'skipped' ),
+						),
+						'is_checklist_dismissed'    => array(
+							'description'          => 'Marks a checklist as dismissed by the user',
+							'type'                 => 'object',
+							'properties'           => array(
+								'slug'         => array(
+									'description' => 'Checklist slug',
+									'type'        => 'string',
+									'enum'        => $this->get_checklist_slug_enums(),
+								),
+								'is_dismissed' => array(
+									'type'     => 'boolean',
+									'required' => false,
+									'default'  => false,
+								),
+								'dismiss_by'   => array(
+									'description' => 'Timestamp of when the checklist should be shown again',
+									'type'        => 'string',
+									'enum'        => array( '+ 1 day', '+ 1 week' ),
+								),
+							),
+							'additionalProperties' => false,
+						),
+						'hide_fse_next_steps_modal' => array(
+							'description' => 'Controls whether we show or hide the next steps modal in the full site editor',
+							'type'        => 'boolean',
 						),
 					),
 				),
@@ -84,7 +114,10 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 		$tasks            = wpcom_launchpad_checklists()->get_all_tasks();
 		$allowed_task_ids = array();
 		foreach ( $tasks as $task ) {
-			$allowed_task_ids[] = wpcom_launchpad_checklists()->get_task_key( $task );
+			$allowed_task_ids[] = $task['id'];
+			if ( isset( $task['id_map'] ) ) {
+				$allowed_task_ids[] = $task['id_map'];
+			}
 		}
 		$allowed_task_ids = array_unique( $allowed_task_ids );
 		$properties       = array();
@@ -117,13 +150,33 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	public function get_data( $request ) {
 		$checklist_slug = isset( $request['checklist_slug'] ) ? $request['checklist_slug'] : get_option( 'site_intent' );
 
+		$launchpad_context = isset( $request['launchpad_context'] )
+			? $request['launchpad_context']
+			: null;
+
 		return array(
 			'site_intent'        => get_option( 'site_intent' ),
 			'launchpad_screen'   => get_option( 'launchpad_screen' ),
 			'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
-			'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug ),
+			'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context ),
 			'is_enabled'         => wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ),
+			'is_dismissed'       => wpcom_launchpad_is_task_list_dismissed( $checklist_slug ),
+			'is_dismissible'     => wpcom_launchpad_is_task_list_dismissible( $checklist_slug ),
+			'title'              => wpcom_get_launchpad_checklist_title_by_checklist_slug( $checklist_slug ),
 		);
+	}
+
+	/**
+	 * Parses the relative date string and returns the timestamp
+	 *
+	 * @param string $relative_date The string to parse.
+	 *
+	 * @return int The timestamp of when the checklist should be shown again.
+	 */
+	public function parse_relative_date( $relative_date ) {
+		$date = new \DateTime( 'now', new \DateTimeZone( 'UTC' ) );
+
+		return $date->modify( $relative_date )->getTimestamp();
 	}
 
 	/**
@@ -139,14 +192,25 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 		foreach ( $input as $key => $value ) {
 			switch ( $key ) {
 				case 'checklist_statuses':
-					$launchpad_checklist_tasks_statuses_option = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
-					$launchpad_checklist_tasks_statuses_option = array_merge( $launchpad_checklist_tasks_statuses_option, $value );
+					$updated[ $key ] = wpcom_launchpad_update_task_status( $value );
 
-					if ( update_option( 'launchpad_checklist_tasks_statuses', $launchpad_checklist_tasks_statuses_option ) ) {
+					// This will check if we have completed all the tasks and disable Launchpad if so.
+					wpcom_launchpad_checklists()->maybe_disable_fullscreen_launchpad();
+					break;
+
+				case 'is_checklist_dismissed':
+					$checklist_slug  = $value['slug'];
+					$is_dismissed    = isset( $value['is_dismissed'] ) ? $value['is_dismissed'] : false;
+					$dismissed_until = isset( $value['dismiss_by'] ) ? $this->parse_relative_date( $value['dismiss_by'] ) : null;
+
+					wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed, $dismissed_until );
+					break;
+
+				case 'hide_fse_next_steps_modal':
+					$value = (bool) $value;
+					if ( wpcom_launchpad_set_fse_next_steps_modal_hidden( $value ) ) {
 						$updated[ $key ] = $value;
 					}
-					// This will check if we have completed all the tasks and disable Launchpad if so.
-					wpcom_launchpad_checklists()->maybe_disable_launchpad();
 					break;
 
 				default:

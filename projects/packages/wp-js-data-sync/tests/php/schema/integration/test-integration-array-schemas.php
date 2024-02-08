@@ -98,5 +98,4 @@ class Test_Integration_Array_Schemas extends TestCase {
 
 		$this->assertEquals( $valid_array, $schema->parse( $valid_array ) );
 	}
-
 }

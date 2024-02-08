@@ -11,9 +11,7 @@
 
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 
-/**
- * Disable direct access/execution to/of the widget code.
- */
+// Disable direct access/execution to/of the widget code.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -35,6 +33,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 			'classname'                   => 'blog-stats',
 			'description'                 => esc_html__( 'Show a hit counter for your blog.', 'jetpack' ),
 			'customize_selective_refresh' => true,
+			'show_instance_in_rest'       => true,
 		);
 		parent::__construct(
 			'blog-stats',
@@ -43,6 +42,18 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 			$widget_ops
 		);
 		$this->alt_option_name = 'widget_statscounter';
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove the "Blog Stats" widget from the Legacy Widget block
+	 *
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		$widget_types[] = 'blog-stats';
+		return $widget_types;
 	}
 
 	/**
@@ -101,7 +112,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 			<label for="<?php echo esc_attr( $this->get_field_id( 'hits' ) ); ?>"><?php esc_html_e( 'Pageview Description:', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'hits' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'hits' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['hits'] ); ?>" />
 		</p>
-		<p><?php esc_html_e( 'Hit counter is delayed by up to 60 seconds.', 'jetpack' ); ?></p>
+		<p><?php esc_html_e( 'Hit counter is delayed by up to 5 minutes.', 'jetpack' ); ?></p>
 
 		<?php
 	}
@@ -152,7 +163,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 		} elseif ( $views ) {
 			printf(
 				'<ul><li>%1$s %2$s</li></ul>',
-				number_format_i18n( $views ),
+				esc_html( number_format_i18n( $views ) ),
 				isset( $instance['hits'] ) ? esc_html( $instance['hits'] ) : ''
 			);
 		} else {

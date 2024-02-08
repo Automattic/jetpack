@@ -290,25 +290,17 @@ class Status {
 			$threats,
 			function ( $a, $b ) {
 				// sort primarily based on the presence of threats
-				if ( ! empty( $a->threats ) && empty( $b->threats ) ) {
-					return -1;
-				}
-				if ( empty( $a->threats ) && ! empty( $b->threats ) ) {
-					return 1;
-				}
+				$ret = empty( $a->threats ) <=> empty( $b->threats );
+
 				// sort secondarily on whether the item has been checked
-				if ( $a->checked && ! $b->checked ) {
-					return 1;
-				}
-				if ( ! $a->checked && $b->checked ) {
-					return -1;
+				if ( ! $ret ) {
+					$ret = $a->checked <=> $b->checked;
 				}
 
-				return 0;
+				return $ret;
 			}
 		);
 
 		return $threats;
 	}
-
 }

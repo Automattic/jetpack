@@ -5,6 +5,142 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.41.0] - 2024-02-05
+### Changed
+- Updated package dependencies. [#35384]
+- Use Blog ID in links to WPCOM instead of site slug. [#35006]
+
+## [0.40.0] - 2024-01-18
+### Changed
+- Changed dismissed notices endpoint to be a core endpoint [#34544]
+
+## [0.39.0] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+### Removed
+- Social: Remove obsolete tweetstorm files. [#34330]
+
+## [0.38.3] - 2023-12-20
+### Fixed
+- Fixed backwards compatibility with Social store refactor. [#34566]
+
+## [0.38.2] - 2023-12-15
+### Fixed
+- Social: Fixed issue with auto-conversion option logic. [#34666]
+
+## [0.38.1] - 2023-12-14
+### Fixed
+- Fixed Jetpack Social scheduled post messaging. [#34182]
+- Social: Fixed bug with PHP conversion error. [#34636]
+- Updated version. [#34182]
+
+## [0.38.0] - 2023-12-11
+### Changed
+- Social: Refactored storing of feature options to use core functions. [#34113]
+
+### Removed
+- Social: Removed deprecated files because of refactore. [#34113]
+
+## [0.37.2] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411]
+
+## [0.37.1] - 2023-11-24
+### Removed
+- Removed unused code. [#34241]
+
+## [0.37.0] - 2023-11-20
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Removed the 'jetpack/publicize' store. [#34111]
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [0.36.6] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.36.5] - 2023-11-03
+### Added
+- Added Nextdoor to Social Previews. [#33907]
+
+## [0.36.4] - 2023-10-23
+### Added
+- Social: Add the Nextdoor connection toggle. [#33663]
+
+### Changed
+- Updated package dependencies. [#33687]
+
+## [0.36.3] - 2023-10-16
+### Changed
+- Added type prop to custom media for social posts. [#33504]
+
+## [0.36.2] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.36.1] - 2023-09-19
+### Fixed
+- Classic Editor Notices: do not display Twitter in post-publish message. [#33063]
+- Publicize: Ensure that the auto-conversion setting is enabled by default [#33088]
+
+## [0.36.0] - 2023-09-04
+### Changed
+- Changed logic that disables the connections based on the auto-conversion feature [#32671]
+- Updated option name [#32693]
+- Updated package dependencies. [#32803]
+
+## [0.35.0] - 2023-08-23
+### Added
+- Added the new auto-conversion toggle for Social [#32597]
+
+### Changed
+- Updated package dependencies. [#32605]
+
+## [0.34.0] - 2023-08-21
+### Added
+- Added key for auto-conversion settings. [#32577]
+- Social: Added endpoint for media auto-conversion settings. [#32342]
+
+### Fixed
+- Publicize: Prevent metadata updates for published posts [#32301]
+
+## [0.33.1] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [0.33.0] - 2023-08-07
+### Added
+- Added admin-page upsell notice [#32128]
+- Added new nudge in the editor to upgrade to the Advanced plan. Appears every 3 months [#32087]
+
+## [0.32.0] - 2023-08-01
+### Changed
+- Change dismiss notice so it can be dismissed for a given time. [#32033]
+
+## [0.31.0] - 2023-07-25
+### Added
+- Added instagram reel restrictions [#31808]
+
+## [0.30.4] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+## [0.30.3] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## [0.30.2] - 2023-06-26
+### Changed
+- Updated package dependencies. [#31468]
+
+## [0.30.1] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+### Fixed
+- Simplified i18n strings [#31185]
+
 ## [0.30.0] - 2023-05-29
 ### Added
 - Added account_name field to the publicize connections object. [#30937]
@@ -327,6 +463,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.41.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.40.0...v0.41.0
+[0.40.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.39.0...v0.40.0
+[0.39.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.38.3...v0.39.0
+[0.38.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.38.2...v0.38.3
+[0.38.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.38.1...v0.38.2
+[0.38.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.38.0...v0.38.1
+[0.38.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.37.2...v0.38.0
+[0.37.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.37.1...v0.37.2
+[0.37.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.37.0...v0.37.1
+[0.37.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.36.6...v0.37.0
+[0.36.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.36.5...v0.36.6
+[0.36.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.36.4...v0.36.5
+[0.36.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.36.3...v0.36.4
+[0.36.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.36.2...v0.36.3
+[0.36.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.36.1...v0.36.2
+[0.36.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.36.0...v0.36.1
+[0.36.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.35.0...v0.36.0
+[0.35.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.34.0...v0.35.0
+[0.34.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.33.1...v0.34.0
+[0.33.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.33.0...v0.33.1
+[0.33.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.32.0...v0.33.0
+[0.32.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.31.0...v0.32.0
+[0.31.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.4...v0.31.0
+[0.30.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.3...v0.30.4
+[0.30.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.2...v0.30.3
+[0.30.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.1...v0.30.2
+[0.30.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.28.0...v0.29.0
 [0.28.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.27.0...v0.28.0

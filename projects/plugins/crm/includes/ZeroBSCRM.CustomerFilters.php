@@ -41,7 +41,7 @@ function zeroBSCRM_CustomerTypeList( $jsCallbackFuncStr = '', $inputDefaultValue
 		$ret .= '<div class="zbstypeaheadwrap ' . $extraClasses . '">';
 
 		// } Build input
-		$ret .= '<input class="zbstypeahead" type="text" value="' . esc_attr( $inputDefaultValue ) . '" placeholder="' . __( 'Contact name or email...', 'zero-bs-crm' ) . '" data-zbsopencallback="' . $jsCallbackFuncStr . '" data-zbschangecallback="' . $jsChangeCallbackFuncStr . '" autocomplete="zbscon-' . time() . '-typeahead" data-autokey="cotypelist">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$ret .= '<input class="zbstypeahead" type="text" value="' . esc_attr( $inputDefaultValue ) . '" placeholder="' . __( 'Contact name or email...', 'zero-bs-crm' ) . '" data-zbsopencallback="' . $jsCallbackFuncStr . '" data-zbschangecallback="' . $jsChangeCallbackFuncStr . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" data-autokey="cotypelist">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// } close wrap
 		$ret .= '</div>';
@@ -50,14 +50,19 @@ function zeroBSCRM_CustomerTypeList( $jsCallbackFuncStr = '', $inputDefaultValue
 		global $haszbscrmBHURLCustomersOut;
 	if ( ! isset( $haszbscrmBHURLCustomersOut ) ) {
 
-		// cachebusting for now... (ESP needed when migrating from DAL1 -> DAL2)
+		$nonce         = wp_create_nonce( 'wp_rest' );
+		$rest_base_url = get_rest_url();
 
-		$cacheBusterStr = '&time=' . time();
+		// handle bare permalink structure
+		if ( empty( get_option( 'permalink_structure' ) ) ) {
+			$param_separator = '&';
+		} else {
+			$param_separator = '?';
+		}
+		$rest_url = $rest_base_url . 'zbscrm/v1/contacts' . $param_separator . '_wpnonce=' . $nonce;
 
-		// change to proper WP REST (not cached) and wont be impacted by setup connection issues. Is also the "proper" way to do it
-		$nonce                      = wp_create_nonce( 'wp_rest' );
-		$rest_url                   = esc_url( get_rest_url() . 'zbscrm/v1/contacts?_wpnonce=' . $nonce );
-		$ret                       .= '<script type="text/javascript">var zbscrmBHURLCustomers = "' . $rest_url . '";</script>';
+		$ret .= '<script type="text/javascript">var zbscrmBHURLCustomers = "' . $rest_url . '";</script>';
+
 		$haszbscrmBHURLCustomersOut = true;
 	}
 
@@ -87,7 +92,7 @@ function zeroBSCRM_CompanyTypeList( $jsCallbackFuncStr = '', $inputDefaultValue 
 
 		// } Build input
 		$companies = zeroBS_getCompanies( true, 10000, 0 );
-		$ret      .= '<select class="zbs-company-select-input" autocomplete="zbsco-' . time() . '-typeahead" data-zbsopencallback="' . $jsCallbackFuncStr . '" data-zbschangecallback="' . $jsChangeCallbackFuncStr . '">';
+		$ret      .= '<select class="zbs-company-select-input" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" data-zbsopencallback="' . $jsCallbackFuncStr . '" data-zbschangecallback="' . $jsChangeCallbackFuncStr . '">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		if ( is_array( $companies ) ) {
 			foreach ( $companies as $co ) {
@@ -116,12 +121,7 @@ function zeroBSCRM_CompanyTypeList( $jsCallbackFuncStr = '', $inputDefaultValue 
 		// } Wrap
 		$ret .= '<div class="zbstypeaheadwrap ' . $extraClasses . '">';
 
-		// } Build input
-			// NOTE on autocomplete:
-			// needs "data-autokey" attr
-			// see my answer https://stackoverflow.com/questions/34585783/disable-browsers-autofill-when-using-typeahead-js
-			// see Admin.global.js #AUTOCOMPLETE
-		$ret .= '<input class="zbstypeaheadco" type="text" value="' . $inputDefaultValue . '" placeholder="' . __( jpcrm_label_company() . ' name...', 'zero-bs-crm' ) . '" data-zbsopencallback="' . $jsCallbackFuncStr . '" data-zbschangecallback="' . $jsChangeCallbackFuncStr . '" autocomplete="zbsco-' . time() . '-typeahead" data-autokey="cotypelist">';
+		$ret .= '<input class="zbstypeaheadco" type="text" value="' . $inputDefaultValue . '" placeholder="' . __( jpcrm_label_company() . ' name...', 'zero-bs-crm' ) . '" data-zbsopencallback="' . $jsCallbackFuncStr . '" data-zbschangecallback="' . $jsChangeCallbackFuncStr . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" data-autokey="cotypelist">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.WP.I18n.NonSingularStringLiteralText
 
 		// } close wrap
 		$ret .= '</div>';
@@ -130,9 +130,19 @@ function zeroBSCRM_CompanyTypeList( $jsCallbackFuncStr = '', $inputDefaultValue 
 		global $haszbscrmBHURLCompaniesOut;
 		if ( ! isset( $haszbscrmBHURLCompaniesOut ) ) {
 
-			$nonce                      = wp_create_nonce( 'wp_rest' );
-			$rest_url                   = esc_url( get_rest_url() . 'zbscrm/v1/companies?_wpnonce=' . $nonce );
-			$ret                       .= '<script type="text/javascript">var zbscrmBHURLCompanies = "' . $rest_url . '";</script>';
+			$nonce         = wp_create_nonce( 'wp_rest' );
+			$rest_base_url = get_rest_url();
+
+			// handle bare permalink structure
+			if ( empty( get_option( 'permalink_structure' ) ) ) {
+				$param_separator = '&';
+			} else {
+				$param_separator = '?';
+			}
+			$rest_url = $rest_base_url . 'zbscrm/v1/companies' . $param_separator . '_wpnonce=' . $nonce;
+
+			$ret .= '<script type="text/javascript">var zbscrmBHURLCompanies = "' . $rest_url . '";</script>';
+
 			$haszbscrmBHURLCompaniesOut = true;
 		}
 
@@ -770,7 +780,7 @@ function zbs_customerFiltersRetrieveCustomers( $perPage = 10, $page = 1, $forceP
 								$filterPostcode = str_replace( ' ', '', $appliedFilters['postcode'] );
 
 								// } Check Postcode
-								if ( substr( $cleanPostcode, 0, strlen( $filterPostcode ) ) != $filterPostcode ) {
+								if ( ! str_starts_with( $cleanPostcode, $filterPostcode ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 									$includeThisCustomer = false;
 								}
 							}

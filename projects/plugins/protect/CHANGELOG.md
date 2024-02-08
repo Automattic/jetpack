@@ -5,7 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.4.0-beta - 2023-03-29
+## 2.0.0 - 2024-01-18
+### Changed
+- Firewall: use datetime versioning for rules file updates. [#34698]
+- General: unify display of notifications across Scan and Firewall screens [#34702]
+- General: indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
+- General: update PHP requirement to PHP 7.0+ [#34126]
+- General: update WordPress version requirements to WordPress 6.3. [#34127]
+- General: update package dependencies. [#34882]
+- General: update lockfile. [#33607]
+
+### Fixed
+- Fix Modal component overflow scrolling. [#34475]
+- Fix Popover component styling. [#34424]
+- Improved helper script installer logging. [#34297]
+
+## 1.4.2 - 2023-10-19
+### Changed
+- General: update WordPress version requirements to WordPress 6.2. [#32762] [#32772]
+- Updated Jetpack submenu sort order so individual features are alpha-sorted. [#32958]
+- Updated method used to render Connection initial state. [#32499]
+- Updated package dependencies. [#33692]
+
+## 1.4.1 - 2023-07-18
+### Changed
+- Brute Force Protection: add access to feature in environments that otherwise do not support the WAF. [#31952]
+- General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
+- Update WordPress version requirements. Now requires version 6.1. [#30120]
+- Update package dependencies. [#31952]
+
+### Fixed
+- Scan: Fixed sorting of threats by severity. [#31124]
+- License Activation: add filtering for unattached and unrevoked licenses within upgrade flow check. [#31086]
+
+## 1.4.0 - 2023-05-05
 ### Added
 - Add brute force protection. [#28401]
 

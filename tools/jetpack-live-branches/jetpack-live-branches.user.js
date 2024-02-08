@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.27
+// @version      1.35
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
-// @connect      jurassic.ninja
+// @connect      betadownload.jetpack.me
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
+// @updateURL    https://github.com/Automattic/jetpack/raw/trunk/tools/jetpack-live-branches/jetpack-live-branches.user.js
+// @downloadURL  https://github.com/Automattic/jetpack/raw/trunk/tools/jetpack-live-branches/jetpack-live-branches.user.js
 // ==/UserScript==
 
 // Need to declare "jQuery" for linting within TamperMonkey, but in the monorepo it's already declared.
@@ -17,6 +19,25 @@
 	const $ = jQuery.noConflict();
 	const markdownBodySelector = '.pull-discussion-timeline .markdown-body';
 	let pluginsList = null;
+
+	const style = document.createElement( 'style' );
+	style.innerHTML = `
+		#jetpack-live-branches .optionslist {
+			list-style: none;
+			padding-left: 0;
+			margin-top: 24px;
+			display: flex;
+			flex-wrap: wrap;
+		}
+
+		#jetpack-live-branches label {
+			font-weight: inherit;
+		}
+
+		#jetpack-live-branches label.disabled {
+			color: var( --color-fg-muted, #7d8590 );
+		}
+	`;
 
 	// Watch for relevant DOM changes that indicate we need to re-run `doit()`:
 	// - Adding a new `.markdown-body`.
@@ -70,28 +91,18 @@
 
 		const host = 'https://jurassic.ninja';
 		const currentBranch = jQuery( '.head-ref:first' ).text();
-		const branchIsForked = currentBranch.includes( ':' );
 		const branchStatus = $( '.gh-header-meta .State' ).text().trim();
 		const repo = determineRepo();
 
 		if ( branchStatus === 'Merged' ) {
 			const contents = `
 				<p><strong>This branch is already merged.</strong></p>
-				<p><a target="_blank" rel="nofollow noopener" href="${ getLink() }">
+				<p><a target="_blank" rel="nofollow noopener" href="${ getLink()[ 0 ] }">
 					Test with <code>trunk</code> branch instead.
 				</a></p>
+				<p>Note: You need to be Logged in to WordPress.com to create a test site.</p>
 			`;
 			appendHtml( markdownBody, contents );
-		} else if ( branchStatus === 'Draft' ) {
-			appendHtml(
-				markdownBody,
-				'<p><strong>This branch is a draft. You can open live branches only from open pull requests.</strong></p>'
-			);
-		} else if ( branchIsForked ) {
-			appendHtml(
-				markdownBody,
-				"<p><strong>This branch can't be tested live because it comes from a forked version of this repo.</strong></p>"
-			);
 		} else if ( ! repo ) {
 			appendHtml(
 				markdownBody,
@@ -99,39 +110,43 @@
 			);
 		} else {
 			if ( ! pluginsList ) {
-				pluginsList = dofetch( `${ host }/wp-json/jurassic.ninja/jetpack-beta/plugins` );
+				pluginsList = dofetch(
+					// prettier-ignore
+					`https://betadownload.jetpack.me/query-branch.php?repo=${ encodeURIComponent( repo ) }&branch=${ encodeURIComponent( currentBranch ) }`
+				);
 			}
 			pluginsList
 				.then( body => {
 					const plugins = [];
 
-					if ( body.status === 'ok' ) {
+					if ( body.hasOwnProperty( 'plugins' ) ) {
 						const labels = new Set(
 							$.map( $( '.js-issue-labels a.IssueLabel' ), e => $( e ).data( 'name' ) )
 						);
-						Object.keys( body.data ).forEach( k => {
-							const data = body.data[ k ];
-							if ( data.repo === repo ) {
-								plugins.push( {
-									name: `branches.${ k }`,
-									value: currentBranch,
-									label: encodeHtmlEntities( data.name ),
-									checked: data.labels && data.labels.some( l => labels.has( l ) ),
-								} );
-							}
+						Object.keys( body.plugins ).forEach( k => {
+							const data = body.plugins[ k ];
+							plugins.push( {
+								name: `branches.${ k }`,
+								value: currentBranch,
+								label: encodeHtmlEntities( data.name ),
+								checked:
+									data.pr !== null && data.labels && data.labels.some( l => labels.has( l ) ),
+								disabled:
+									data.pr === null ? `${ data.name } has not been built for this PR` : false,
+							} );
 						} );
 						if ( ! plugins.length ) {
 							throw new Error( `No plugins are configured for ${ repo }` );
 						}
 						plugins.sort( ( a, b ) => a.label.localeCompare( b.label ) );
-					} else if ( body.code === 'rest_no_route' ) {
-						plugins.push( {
-							name: 'branch',
-							value: currentBranch,
-							label: 'Jetpack',
-							checked: true,
-							disabled: true,
-						} );
+
+						if ( ! plugins.some( p => ! p.disabled ) ) {
+							appendHtml(
+								markdownBody,
+								'<p><strong>No plugins have been built for this PR.</strong> (<a href="#" class="refresh">refresh</a>)</p>'
+							);
+							return;
+						}
 					} else {
 						throw new Error( 'Invalid response from server' );
 					}
@@ -154,8 +169,8 @@
 									name: 'wp-debug-log',
 								},
 								{
-									label: 'Multisite based on subdomains',
-									name: 'subdomain_multisite',
+									label: 'Enable WordPress.com Sandbox Access',
+									name: 'dev-pool',
 								},
 								{
 									label: 'Multisite based on subdirectories',
@@ -259,6 +274,7 @@
 					<p>
 						<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
 					</p>
+					<p>Note: You need to be Logged in to WordPress.com to create a test site.</p>
 					`;
 					appendHtml( markdownBody, contents );
 					updateLink();
@@ -268,7 +284,7 @@
 					appendHtml(
 						markdownBody,
 						// prettier-ignore
-						`<p><strong>Error while fetching data for live testing: ${ encodeHtmlEntities( e.message ) }.</strong></p>`
+						`<p><strong>Error while fetching data for live testing: ${ encodeHtmlEntities( e.message ) }.</strong> (<a href="#" class="refresh">retry</a>)</p>`
 					);
 				} );
 		}
@@ -350,7 +366,7 @@
 		 * @param {string} opts.name - Checkbox name.
 		 * @param {string} [opts.value] - Checkbox value, if any.
 		 * @param {boolean} [opts.checked] - Whether the checkbox is default checked.
-		 * @param {boolean} [opts.disabled] - Whether the checkbox is disabled.
+		 * @param {boolean|string} [opts.disabled] - Whether the checkbox is disabled. If a string, the string is used as a title attribute on the label.
 		 * @param {boolean} [opts.invert] - Whether the sense of the checkbox is inverted.
 		 * @param {number} columnWidth - Column width.
 		 * @returns {string} HTML.
@@ -361,12 +377,12 @@
 		) {
 			// prettier-ignore
 			return `
-			<li style="min-width: ${ columnWidth }%">
-				<label style="font-weight: inherit; ">
-					<input type="checkbox" name="${ encodeHtmlEntities( name ) }" value="${ encodeHtmlEntities( value ) }"${ checked ? ' checked' : '' }${ disabled ? ' disabled' : '' }${ invert ? ' data-invert' : '' }>
-					${ label }
-				</label>
-			</li>
+				<li style="min-width: ${ columnWidth }%">
+					<label class="${ disabled ? 'disabled' : '' }" ${ typeof disabled === 'string' ? 'title="' + encodeHtmlEntities( disabled ) + '"' : '' }>
+						<input type="checkbox" name="${ encodeHtmlEntities( name ) }" value="${ encodeHtmlEntities( value ) }"${ checked ? ' checked' : '' }${ disabled ? ' disabled' : '' }${ invert ? ' data-invert' : '' }>
+						${ label }
+					</label>
+				</li>
 			`;
 		}
 
@@ -378,13 +394,10 @@
 		 * @returns {string} HTML.
 		 */
 		function getOptionsList( options, columnWidth ) {
+			// prettier-ignore
 			return `
-				<ul style="list-style: none; padding-left: 0; margin-top: 24px; display: flex; flex-wrap: wrap;">
-					${ options
-						.map( option => {
-							return getOption( option, columnWidth );
-						} )
-						.join( '' ) }
+				<ul class="optionslist">
+					${ options.map( option => getOption( option, columnWidth ) ).join( '' ) }
 				</ul>
 			`;
 		}
@@ -403,10 +416,10 @@
 				`<h2>Jetpack Live Branches</h2> ${ contents }`
 			);
 			$( '#jetpack-live-branches' ).remove();
+			liveBranches.prepend( style );
 			$el.append( liveBranches );
-			liveBranches
-				.find( 'input[type=checkbox]' )
-				.each( () => this.addEventListener( 'change', onInputChanged ) );
+			liveBranches.find( 'input[type=checkbox]' ).on( 'change', onInputChanged );
+			liveBranches.find( 'a.refresh' ).on( 'click', onRefreshClick );
 		}
 
 		/**
@@ -423,6 +436,21 @@
 				e.target.removeAttribute( 'checked' );
 			}
 			updateLink();
+		}
+
+		/**
+		 * Refresh link click handler.
+		 *
+		 * @param {Event} e - Event object.
+		 * @returns {false} False.
+		 */
+		function onRefreshClick( e ) {
+			e.stopPropagation();
+			e.preventDefault();
+			pluginsList = null;
+			$( '#jetpack-live-branches' ).remove();
+			doit();
+			return false;
 		}
 
 		/**

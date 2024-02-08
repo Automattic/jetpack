@@ -37,6 +37,9 @@ class Dummy_Class {
 		// MediaWiki.AlternativeSyntax.LeadingZeroInFloat.
 		$u->dummy = .5;
 
+		// MediaWiki.AlternativeSyntax.UnicodeEscape
+		$u->unicode = "\u{a0}\u{000a0}\u{1f389}\u{01F389}";
+
 		// MediaWiki.ExtraCharacters.ParenthesesAroundKeyword.
 		require_once( 'bar.php' );
 		$u->clone = clone( $x );
@@ -78,7 +81,7 @@ class Dummy_Class {
 		// MediaWiki.WhiteSpace.MultipleEmptyLines.
 
 
-		// MediaWiki.WhiteSpace.SpaceAfterClosure.
+		// Formerly MediaWiki.WhiteSpace.SpaceAfterClosure, now Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction.
 		$u->func2 = function() {
 		};
 
@@ -88,5 +91,5 @@ class Dummy_Class {
 	// MediaWiki.WhiteSpace.MultipleEmptyLines again.
 
 
+	// ...
 }
-

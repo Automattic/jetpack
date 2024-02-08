@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * Compatibility functions for YouTube URLs and WP.com helper functions.
  *
@@ -20,7 +20,7 @@ function jetpack_shortcode_get_youtube_id( $url ) {
 /**
  * Extract video ID from a YouTube url.
  *
- * @param string $url YouTube URL.
+ * @param string|array $url YouTube URL.
  * @return bool|mixed The Youtube video ID
  */
 function jetpack_get_youtube_id( $url ) {
@@ -58,10 +58,17 @@ if ( ! function_exists( 'youtube_sanitize_url' ) ) :
 	/**
 	 * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
 	 *
-	 * @param string $url YouTube URL.
-	 * @return string The normalized URL
+	 * @param string|array $url YouTube URL.
+	 * @return string|array The normalized URL or false if input is invalid.
 	 */
 	function youtube_sanitize_url( $url ) {
+		if ( is_array( $url ) && isset( $url['url'] ) ) {
+			$url = $url['url'];
+		}
+		if ( ! is_string( $url ) ) {
+			return false;
+		}
+
 		$url = trim( $url, ' "' );
 		$url = trim( $url );
 		$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
@@ -98,10 +105,7 @@ if ( ! function_exists( 'wp_startswith' ) ) :
 		$haystack = (string) $haystack;
 		$needle   = (string) $needle;
 
-		if ( function_exists( 'str_starts_with' ) ) { // remove when PHP 8.0 is the minimum supported.
-			return str_starts_with( $haystack, $needle ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions
-		}
-		return 0 === strpos( $haystack, $needle );
+		return str_starts_with( $haystack, $needle );
 	}
 endif;
 
@@ -121,11 +125,7 @@ if ( ! function_exists( 'wp_endswith' ) ) :
 		$haystack = (string) $haystack;
 		$needle   = (string) $needle;
 
-		if ( function_exists( 'str_ends_with' ) ) { // remove when PHP 8.0 is the minimum supported.
-			return str_ends_with( $haystack, $needle ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions
-
-		}
-		return $needle === substr( $haystack, -strlen( $needle ) );
+		return str_ends_with( $haystack, $needle );
 	}
 endif;
 
@@ -145,11 +145,7 @@ if ( ! function_exists( 'wp_in' ) ) :
 		$haystack = (string) $haystack;
 		$needle   = (string) $needle;
 
-		if ( function_exists( 'str_contains' ) ) { // remove when PHP 8.0 is the minimum supported.
-			return str_contains( $haystack, $needle ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions
-		}
-
-		return false !== strpos( $haystack, $needle );
+		return str_contains( $haystack, $needle );
 	}
 endif;
 

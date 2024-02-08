@@ -45,7 +45,7 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 			}
 
 			// Get screen options for user
-			$screenOpts = $zbs->userScreenOptions();
+			$screenOpts = $zbs->global_screen_options(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// Retrieve company
 			$company = $zbs->DAL->companies->getCompany( $id, $args );
@@ -287,7 +287,7 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 							if ( $useInvoices == '1' || $useTrans == '1' ) :
 								?>
 							<tr>
-							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( 'Total Value is all transaction types and any unpaid invoices (excluding deleted status invoices).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
+							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( "The Total Value can be set to include just transaction values, just invoice values, or both together. You can choose how it's calculated by going to the General Settings page.", 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
 							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $company_total_value ) ); ?></strong></td>
 							</tr>
 							<?php endif; ?>
@@ -588,7 +588,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 										$invoice_val = $invoice['total'];
 
-										$invoice_status = $invoice['status'];
+										$invoice_status = $invoice['status_label'];
 
 										echo '<tr>';
 										echo '<td><a href="' . esc_url( $invoice_url ) . '">' . esc_html( $id_ref_str ) . '</a></td>';
@@ -765,9 +765,6 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								$hasFiles = true;
 
 								$fileLineIndx = 0; foreach ( $zbsFiles as $zbsFile ) {
-
-									// $fileFullname = basename($zbsFile['file']);
-									// $file = substr($fileFullname,strpos($fileFullname, '-')+1);
 									$file = zeroBSCRM_files_baseName( $zbsFile['file'], isset( $zbsFile['priv'] ) );
 									?>
 								<tr>
@@ -849,7 +846,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								<tbody>
 									<?php
 									// prep link to create a new task
-									$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&zbsprefillco=' . $company['id'];
+									$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TASK ) . '&zbsprefillco=' . $company['id'];
 
 									if ( isset( $company['tasks'] ) && is_array( $company['tasks'] ) && count( $company['tasks'] ) > 0 ) {
 
@@ -881,7 +878,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 											}
 
-											$taskURL   = jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_EVENT );
+											$taskURL   = jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_TASK );
 											$statusStr = __( 'Incomplete', 'zero-bs-crm' );
 											if ( isset( $task['complete'] ) && $task['complete'] === 1 ) {
 												$statusStr = __( 'Completed', 'zero-bs-crm' );

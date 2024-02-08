@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2024-02-05
+### Added
+- Stats fetching mechanism: add filter allowing one to customize how long we cache results. [#35421]
+
+### Changed
+- Permit overriding cache when retrieving post views. [#34557]
+- Remove pre-6.3 asset enqueuing method, and relying on WordPress Core method instead. [#34072]
+
+### Removed
+- Stop requiring the Jetpack Assets Composer package. [#34072]
+
+## [0.9.0] - 2023-12-25
+### Added
+- Stats: added passing select UTM parameters to Tracking Pixel requests. [#34431]
+
+## [0.8.0] - 2023-12-11
+### Changed
+- Permit overriding cache when retrieving top posts. [#34153]
+
+## [0.7.2] - 2023-12-03
+### Changed
+- Internal updates.
+
+## [0.7.1] - 2023-11-21
+
+## [0.7.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [0.6.6] - 2023-10-23
+### Fixed
+- Stats: Increase timeout to 20s. [#33549]
+
+## [0.6.5] - 2023-08-28
+### Changed
+- Updated package dependencies. [#32605]
+
+## [0.6.4] - 2023-08-09
+### Added
+- Stats: compatibility for AMP for WP plugin [#32328]
+
 ## [0.6.3] - 2023-05-15
 ### Changed
 - PHP 8.1 compatibility updates [#30517]
@@ -88,6 +129,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.10.0]: https://github.com/Automattic/jetpack-stats/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/Automattic/jetpack-stats/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/Automattic/jetpack-stats/compare/v0.7.2...v0.8.0
+[0.7.2]: https://github.com/Automattic/jetpack-stats/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/Automattic/jetpack-stats/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/Automattic/jetpack-stats/compare/v0.6.6...v0.7.0
+[0.6.6]: https://github.com/Automattic/jetpack-stats/compare/v0.6.5...v0.6.6
+[0.6.5]: https://github.com/Automattic/jetpack-stats/compare/v0.6.4...v0.6.5
+[0.6.4]: https://github.com/Automattic/jetpack-stats/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/Automattic/jetpack-stats/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/Automattic/jetpack-stats/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/Automattic/jetpack-stats/compare/v0.6.0...v0.6.1

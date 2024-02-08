@@ -5,6 +5,7 @@ import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import FirewallPage from './components/firewall-page';
 import Modal from './components/modal';
 import ScanPage from './components/scan-page';
+import { OnboardingRenderedContextProvider } from './hooks/use-onboarding';
 import { initStore } from './state/store';
 import './styles.module.scss';
 
@@ -33,24 +34,21 @@ function render() {
 		return;
 	}
 
-	// @todo: Remove fallback when we drop support for WP 6.1
 	const component = (
 		<ThemeProvider>
-			<HashRouter>
-				<ScrollToTop />
-				<Routes>
-					<Route path="/" element={ <ScanPage /> } />
-					<Route path="/firewall" element={ <FirewallPage /> } />
-				</Routes>
-			</HashRouter>
-			<Modal />
+			<OnboardingRenderedContextProvider value={ { renderedSteps: [] } }>
+				<HashRouter>
+					<ScrollToTop />
+					<Routes>
+						<Route path="/" element={ <ScanPage /> } />
+						<Route path="/firewall" element={ <FirewallPage /> } />
+					</Routes>
+				</HashRouter>
+				<Modal />
+			</OnboardingRenderedContextProvider>
 		</ThemeProvider>
 	);
-	if ( WPElement.createRoot ) {
-		WPElement.createRoot( container ).render( component );
-	} else {
-		WPElement.render( component, container );
-	}
+	WPElement.createRoot( container ).render( component );
 }
 
 render();

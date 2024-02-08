@@ -4,7 +4,7 @@ const definePaletteColorsAsStaticVariables = require( './define-palette-colors-a
 
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		'jp-search-configure': path.join( __dirname, '../src/customberg/index.jsx' ),
 	},
@@ -31,7 +31,6 @@ module.exports = {
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: { injectPolyfill: true },
-			I18nLoaderPlugin: { textdomain: 'jetpack-search-pkg' },
 		} ),
 		definePaletteColorsAsStaticVariables(),
 	],

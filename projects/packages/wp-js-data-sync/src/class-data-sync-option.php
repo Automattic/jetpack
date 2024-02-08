@@ -30,5 +30,4 @@ final class Data_Sync_Option implements Entry_Can_Get, Entry_Can_Set, Entry_Can_
 	public function delete() {
 		delete_option( $this->option_key );
 	}
-
 }

@@ -245,5 +245,4 @@ class SemverVersioning implements VersioningPlugin {
 			) + $this->validateExtra( $extra )
 		);
 	}
-
 }

@@ -179,7 +179,7 @@ class Import extends Module {
 		}
 
 		$action    = current_filter();
-		$backtrace = debug_backtrace( false ); //phpcs:ignore PHPCompatibility.FunctionUse.NewFunctionParameters.debug_backtrace_optionsFound,WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
+		$backtrace = debug_backtrace( false ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 
 		$do_action_pos = -1;
 		$backtrace_len = count( $backtrace );

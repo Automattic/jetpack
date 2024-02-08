@@ -79,7 +79,6 @@
             $this->coOrgLabel = jpcrm_label_company();
 
             // set these
-            // DAL3 switched for objType $this->postType = 'zerobs_customer';
             $this->objType = 'company';
             $this->metaboxID = 'zerobs-company-edit';
             $this->metaboxTitle = $this->coOrgLabel.' '.__('Details','zero-bs-crm');
@@ -164,21 +163,14 @@
 					}
 					$field_group = '';
 
-					/*
-					 * We need to know if we are in the first column or not because
-					 * when we have a group (e.g. addresses), they should start in
-					 * the first column. We are using only two columns.
-					 */
-					$is_first_column = false;
 					foreach ( $fields as $field_key => $field_value ) {
-						$is_first_column = ! $is_first_column;
-						$show_field      = ! isset( $field_value['opt'] ) || isset( $zbsFieldsEnabled[ $field_value['opt'] ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-						$show_field      = isset( $fields_to_hide['company'] )
+						$show_field = ! isset( $field_value['opt'] ) || isset( $zbsFieldsEnabled[ $field_value['opt'] ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$show_field = isset( $fields_to_hide['company'] )
 							&& is_array( $fields_to_hide['company'] )
 							&& in_array( $field_key, $fields_to_hide['company'] ) // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 							? false
 							: $show_field;
-						$show_field      = isset( $field_value[0] )
+						$show_field = isset( $field_value[0] )
 							&& 'selectcountry' === $field_value[0]
 							&& 0 === $show_country_fields
 							? false
@@ -188,9 +180,6 @@
 							if ( $show_addresses !== 1 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								continue;
 							} elseif ( $field_group === '' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-								if ( ! $is_first_column ) {
-									echo '<div class="jpcrm-empty-form-group">&nbsp;</div>';
-								}
 								echo '<div class="jpcrm-form-grid" style="padding:0px;grid-template-columns: 1fr;">';
 								echo '<div class="jpcrm-form-group"><label>';
 								echo esc_html__( $field_value['area'], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText
@@ -216,7 +205,7 @@
 								if ( $field_group === 'Second Address' ) {
 									$field_value[1] = str_replace( ' (' . $second_address_label . ')', '', $field_value[1] );
 								}
-								zeroBSCRM_html_editField( $zbsCompany, $field_key, $field_value, 'zbsc_' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+								zeroBSCRM_html_editField( $zbsCompany, $field_key, $field_value, 'zbsco_' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							}
 						}
 					}
@@ -430,7 +419,6 @@ class zeroBS__Metabox_CompanyContacts extends zeroBS__Metabox{
         // oldschool.
         $this->coOrgLabel = jpcrm_label_company();
     
-        // DAL3 switched for objType $this->postType = 'zerobs_customer';
         $this->objType = 'company';
         $this->metaboxID = 'zerobs-company-contacts';
         $this->metaboxTitle = __('Associated Contacts',"zero-bs-crm");
@@ -604,7 +592,6 @@ class zeroBS__Metabox_CompanyTags extends zeroBS__Metabox_Tags{
     }
 
     // html + save dealt with by parent class :) 
-
 }
 
 /* ======================================================
@@ -1000,7 +987,6 @@ class zeroBS__Metabox_CompanyTags extends zeroBS__Metabox_Tags{
         } // html
 
         // saved via main metabox
-
     }
 
 
@@ -1015,7 +1001,6 @@ class zeroBS__Metabox_Company_Activity extends zeroBS__Metabox {
 
     public function __construct( $plugin_file ) {
     
-        $this->postType = 'zerobs_company';
         $this->metaboxID = 'zbs-company-activity-metabox';
         $this->metaboxTitle = __('Activity', 'zero-bs-crm');
         $this->metaboxIcon = 'heartbeat';

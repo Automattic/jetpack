@@ -176,5 +176,4 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 		// Clean up.
 		remove_filter( 'pre_http_request', array( $this, 'return_503_response' ) );
 	}
-
 }

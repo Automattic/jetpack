@@ -38,30 +38,16 @@ module.exports = {
 	platform: 'github',
 	repositories: [ 'Automattic/jetpack' ],
 
-	// We're including configuration in this file.
-	onboarding: false,
-	requireConfig: 'optional',
-
 	// Extra code to run before creating a commit.
-	allowPostUpgradeCommandTemplating: true,
 	allowedPostUpgradeCommands: [ monorepoBase + '.github/files/renovate-post-upgrade-run.sh' ],
 	postUpgradeTasks: {
 		commands: [ monorepoBase + '.github/files/renovate-post-upgrade-run.sh {{{branchName}}}' ],
-		// Anything might change thanks to version bumping.
-		fileFilters: [ '**' ],
 		executionMode: 'branch',
 	},
 	postUpdateOptions: [ 'pnpmDedupe' ],
 
-	// This is the renovate configuration.
-	extends: [ 'config:base', 'group:definitelyTyped' ],
-	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
-	prHourlyLimit: 1,
-	timezone: 'UTC',
-	schedule: [ 'before 3am on the first day of the month' ],
-	updateNotScheduled: false,
-	semanticCommits: 'disabled',
-	osvVulnerabilityAlerts: true,
+	// Most of the actual renovate configuration is in renovate.json5, except for a few things
+	// where we want to read part of it from somewhere else.
 	constraints: {
 		php: `~${ versions.PHP_VERSION }.0`,
 	},
@@ -95,71 +81,14 @@ module.exports = {
 			} )(),
 			enabled: false,
 		},
-
-		// We need to keep a wide version range to support PHP 5.6.
-		// Note for libraries used in plugins this will only work right for require-dev deps, not require.
+		// PHP non-dev deps need to work with the oldest PHP versions we support.
 		{
-			matchPackageNames: [
-				'johnkary/phpunit-speedtrap',
-				'symfony/console',
-				'symfony/process',
-				'wikimedia/at-ease',
-				'wikimedia/testing-access-wrapper',
-			],
-			rangeStrategy: 'widen',
-		},
-
-		// Various other monorepos and package groupings.
-		{
-			extends: [ 'monorepo:wordpress' ],
-			separateMajorMinor: false,
-			prPriority: 1,
-		},
-		{
-			extends: [ 'monorepo:react' ],
-		},
-		{
-			extends: [ 'packages:eslint' ],
-			groupName: 'Eslint packages',
-		},
-		{
-			extends: [ 'packages:jsUnitTest' ],
-			groupName: 'JS unit testing packages',
-		},
-		{
-			groupName: 'Size-limit',
-			matchPackageNames: [ 'size-limit', '@size-limit/preset-app' ],
-		},
-		// These aren't a monorepo, but we may as well do them all together anyway.
-		{
-			groupName: 'GitHub API packages',
-			matchPackagePatterns: [ '^@actions/', '^@octokit/' ],
-		},
-
-		// 🤷
-		{
-			groupName: 'Instant Search Dependency Updates',
-			matchPackageNames: [
-				'cache',
-				'preact',
-				'progress-event',
-				'q-flat',
-				'qss',
-				'strip',
-				'uuid',
-				'@testing-library/preact',
-			],
-			reviewers: [ 'team:jetpack-search' ],
-			addLabels: [ 'Search', 'Instant Search' ],
+			matchDatasources: [ 'packagist' ],
+			matchDepTypes: [ 'require' ],
+			constraintsFiltering: 'strict',
+			constraints: {
+				php: `~${ versions.MIN_PHP_VERSION }.0`,
+			},
 		},
 	],
-	lockFileMaintenance: {
-		enabled: true,
-		schedule: [ 'before 3:00 am on Monday on the 7th through 13th day of the month' ],
-	},
-	dependencyDashboard: true,
-	dependencyDashboardTitle: 'Renovate Dependency Updates',
-	dependencyDashboardLabels: [ 'Primary Issue', '[Type] Janitorial' ],
-	dependencyDashboardFooter:
-		'The bot runs every two hours, and may be monitored or triggered ahead of schedule [here](https://github.com/Automattic/jetpack/actions/workflows/renovate.yml).',
 };

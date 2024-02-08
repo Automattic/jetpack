@@ -85,7 +85,7 @@ function jetpack_load_shortcodes() {
  * @return string $content    Replaced post content.
  */
 function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $search = null ) {
-	if ( $search && false === strpos( $content, $search ) ) {
+	if ( $search && ! str_contains( $content, $search ) ) {
 		return $content;
 	}
 
@@ -113,7 +113,7 @@ function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $s
  * @return string $content Replaced post content.
  */
 function jetpack_preg_replace_callback_outside_tags( $pattern, $callback, $content, $search = null ) {
-	if ( $search && false === strpos( $content, $search ) ) {
+	if ( $search && ! str_contains( $content, $search ) ) {
 		return $content;
 	}
 

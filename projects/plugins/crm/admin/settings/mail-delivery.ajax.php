@@ -503,8 +503,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 	}
 
 	header( 'Content-Type: application/json' );
-	// requires zeroBSCRM_utf8ize for proper debug passing
-	echo json_encode( zeroBSCRM_utf8ize( $res ) );
+	echo wp_json_encode( $res, JSON_UNESCAPED_UNICODE );
 	exit();
 }
 
@@ -574,8 +573,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTPPorts() {
 
 	$res['open'] = $okay;
 	header( 'Content-Type: application/json' );
-	// requires zeroBSCRM_utf8ize for proper debug passing
-	echo json_encode( zeroBSCRM_utf8ize( $res ) );
+	echo wp_json_encode( $res, JSON_UNESCAPED_UNICODE );
 	exit();
 }
 

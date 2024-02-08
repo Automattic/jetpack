@@ -108,5 +108,4 @@ class Terms_Of_Service {
 	protected function set_reject() {
 		\Jetpack_Options::update_option( self::OPTION_NAME, false );
 	}
-
 }

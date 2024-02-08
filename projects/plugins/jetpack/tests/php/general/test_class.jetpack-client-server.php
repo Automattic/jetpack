@@ -116,5 +116,4 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 		$this->assertInstanceOf( 'WP_Error', $return_value );
 	}
-
 }

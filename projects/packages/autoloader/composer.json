@@ -12,10 +12,11 @@
 		"wordpress"
 	],
 	"require": {
+		"php": ">=7.0",
 		"composer-plugin-api": "^1.1 || ^2.0"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.4",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
@@ -52,8 +53,11 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
 		},
+		"version-constants": {
+			"::VERSION": "src/AutoloadGenerator.php"
+		},
 		"branch-alias": {
-			"dev-trunk": "2.11.x-dev"
+			"dev-trunk": "3.0.x-dev"
 		}
 	}
 }

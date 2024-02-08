@@ -144,7 +144,7 @@ if ( isset( $sbupdated ) ) {
 							<div class="header"><?php esc_html_e( 'No Tax Rates', 'zero-bs-crm' ); ?></div>
 							<p>
 								<?php
-									echo sprintf(
+									printf(
 										wp_kses(
 											/* Translators: placeholder is an anchor, which gets changed via Javascript elsewhere to create new tax rate entry fields. */
 											__(

@@ -139,6 +139,7 @@ abstract class Product {
 			'has_required_plan'        => static::has_required_plan(),
 			'has_required_tier'        => static::has_required_tier(),
 			'manage_url'               => static::get_manage_url(),
+			'purchase_url'             => static::get_purchase_url(),
 			'post_activation_url'      => static::get_post_activation_url(),
 			'standalone_plugin_info'   => static::get_standalone_info(),
 			'class'                    => static::class,
@@ -205,6 +206,16 @@ abstract class Product {
 	 * @return array
 	 */
 	abstract public static function get_pricing_for_ui();
+
+	/**
+	 * Get the URL where the user can purchase the product iff it doesn't have an interstitial page in My Jetpack.
+	 *
+	 * @return ?string
+	 */
+	public static function get_purchase_url() {
+		// Declare as concrete method as most Jetpack products use an interstitial page within My Jetpack.
+		return null;
+	}
 
 	/**
 	 * Get the URL where the user manages the product
@@ -301,6 +312,15 @@ abstract class Product {
 	}
 
 	/**
+	 * Checks whether the product can be upgraded to a different product.
+	 *
+	 * @return boolean
+	 */
+	public static function is_upgradable() {
+		return false;
+	}
+
+	/**
 	 * Checks whether product is a bundle.
 	 *
 	 * @return boolean True if product is a bundle. Otherwise, False.
@@ -346,6 +366,9 @@ abstract class Product {
 			// We only consider missing user connection an error when the Product is active.
 			if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = 'error';
+			} elseif ( static::is_upgradable() ) {
+				// Upgradable plans should ignore whether or not they have the required plan.
+				$status = 'can_upgrade';
 			} elseif ( ! static::has_required_plan() ) { // We need needs_purchase here as well because some products we consider active without the required plan.
 				if ( static::has_trial_support() ) {
 					$status = 'needs_purchase_or_free';
@@ -531,5 +554,4 @@ abstract class Product {
 			}
 		}
 	}
-
 }

@@ -33,6 +33,11 @@ class Waf_Compatibility {
 	/**
 	 * Run compatibility migrations.
 	 *
+	 * Note that this method should be compatible with sites where
+	 * the request firewall is not active or not supported.
+	 *
+	 * @see Waf_Runner::is_supported_environment().
+	 *
 	 * @since 0.11.0
 	 *
 	 * @return void
@@ -181,7 +186,7 @@ class Waf_Compatibility {
 		$brute_force_allow_list = Jetpack_Options::get_raw_option( 'jetpack_protect_whitelist', false );
 		if ( false !== $brute_force_allow_list ) {
 			$waf_allow_list = self::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list );
-			update_option( Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, 1 );
+			update_option( Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, true );
 		}
 
 		return $waf_allow_list;
@@ -208,7 +213,7 @@ class Waf_Compatibility {
 		$brute_force_allow_list = Jetpack_Options::get_raw_option( 'jetpack_protect_whitelist', false );
 		if ( false !== $brute_force_allow_list ) {
 			$waf_allow_list = self::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list );
-			update_option( Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, 1 );
+			update_option( Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, true );
 		}
 
 		return $waf_allow_list;
@@ -224,5 +229,4 @@ class Waf_Compatibility {
 	public static function is_brute_force_running_in_jetpack() {
 		return defined( 'JETPACK__VERSION' ) && version_compare( JETPACK__VERSION, '12', '<' );
 	}
-
 }

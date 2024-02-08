@@ -7,7 +7,7 @@ import { Placeholder, Button, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, RawHTML, useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import { name as aiParagraphBlockName } from './index';
+import metadata from './block.json';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
@@ -177,7 +177,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	} );
 
 	const containsAiUntriggeredParagraph = () => {
-		const blockName = 'jetpack/' + aiParagraphBlockName;
+		const blockName = metadata.name;
 		return (
 			contentBefore.filter(
 				block => block.name && block.name === blockName && ! block.attributes.content

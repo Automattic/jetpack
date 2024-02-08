@@ -1,11 +1,11 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
-use Automattic\Jetpack\Assets;
-
 /**
  * Template for form builder
  */
 
+use Automattic\Jetpack\Assets;
+
+// phpcs:ignore PSR12.Files.FileHeader.IncorrectOrder
 /**
  * Filter to modify the limit of 5 additional contact form fields.
  *

@@ -1,10 +1,10 @@
 === Jetpack CRM - Clients, Leads, Invoices, Billing, Email Marketing, & Automation ===
-Contributors: automattic, woodyhayday, mikemayhem3030
+Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
-Tested up to: 6.2
-Stable tag: 5.8.0
-Requires at least: 5.0
-Requires PHP: 7.2
+Tested up to: 6.4
+Stable tag: 6.3.2
+Requires at least: 6.0
+Requires PHP: 7.4
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,7 +30,7 @@ The CRM for small businesses. Manage leads, invoicing, billing, email marketing,
 
 ## 🤵 Who's already using Jetpack CRM?
 
-<p>Thousands of entrepeneurs use Jetpack CRM everyday. We've noticed a common trend to the following use cases:</p>
+<p>Thousands of entrepreneurs use Jetpack CRM every day. We've noticed a common trend to the following use cases:</p>
 
 <ol>
 <li><strong>eCommerce sites</strong> (The best WooCommerce CRM, integrate with PayPal and Stripe)</li>
@@ -39,7 +39,7 @@ The CRM for small businesses. Manage leads, invoicing, billing, email marketing,
 <li><strong>Local business & small teams</strong> (From personal trainers to yoga academies!)</li>
 </ol>
 
-<p>Because Jetpack CRM is so adaptable & extendible, there are many individuals who don't fit these groups, but find innovative ways to use our CRM to manage their contacts.</p>
+<p>Because Jetpack CRM is so adaptable & extendable, there are many individuals who don't fit these groups, but find innovative ways to use our CRM to manage their contacts.</p>
 
 
 ## 🧰 What is Jetpack CRM good at?
@@ -58,7 +58,7 @@ The CRM for small businesses. Manage leads, invoicing, billing, email marketing,
 
 ## 🚲 How to get started (Try out this CRM)
 
-From reading this to understanding Jetpack CRM will probably take you 10 minutes. Familiar with WordPress? You'll be set up in under 5 mins.
+From reading this to understanding Jetpack CRM will probably take you 10 minutes. Familiar with WordPress? You'll be set up in under 5 minutes.
 
 The Jetpack CRM plugin installs in seconds, (with a super-quick welcome wizard to get you started). Adding a contact is straightforward. Creating a quote, or invoice, even simpler. Give it a go, you'll see!
 
@@ -95,22 +95,12 @@ Need a helping hand? No worries. Just <a href="https://kb.jetpackcrm.com/submit-
 </blockquote>
 
 
-## 🛡️ Made by Professionals, backed by Automattic
-<p>Mike and Woody are the people behind Jetpack CRM. We've been here a while. Between us we're accountable for a few million WordPress-related downloads. We've built many tools over the years, easily 50+ plugins, and 10+ themes. We make our living through WordPress.</p>
-
-
-<p>*And we both use Jetpack CRM every day!</p>
-
-<p>🚀 <a href="https://jetpackcrm.com">Visit JetpackCRM.com</a></p>
-
-<p>---</p>
-
-<p><strong>Supercharging Jetpack CRM with Optional Extensions</strong></p>
+## Supercharging Jetpack CRM with Optional Extensions
 <p>(fairly priced power-ups for Jetpack CRM)</p>
 
-<p>We've built a few extras for Jetpack CRM, but they're mostly offering functionality outside of the core CRM, so we've seperated them into individual "extensions". These all have some supercharging effect on your CRM, but none are essential.</p>
+<p>We've built a few extras for Jetpack CRM, but they're mostly offering functionality outside the core CRM, so we've seperated them into individual "extensions". These all have some supercharging effect on your CRM, but none are essential.</p>
 
-<p>👉 <strong><a href="https://jetpackcrm.com/extensions)">View all of the CRM Extensions</a></strong></p>
+<p>👉 <strong><a href="https://jetpackcrm.com/extensions">View all of the CRM Extensions</a></strong></p>
 
 <blockquote>
 <p><strong>Jetpack CRM Extensions:</strong></p>
@@ -270,7 +260,7 @@ For more documentation, please see the CRM knowledge base: [https://kb.jetpackcr
 
 ###Automatic Install From WordPress Dashboard
 
-1. Login to your the admin panel
+1. Login to your admin panel
 2. Navigate to Plugins -> Add New
 3. Search **Jetpack CRM**
 4. Click install and activate, and then follow the Welcome Wizard
@@ -312,7 +302,7 @@ We haven't published our roadmap since v3, but we may do in the future. You can 
 
 = Where can I see the CRM extensions? =
 
-You can see all of the CRM power-ups here: https://jetpackcrm.com/extensions/
+You can see all the CRM power-ups here: https://jetpackcrm.com/extensions/
 
 = Is there a contact search feature on Jetpack CRM? =
 
@@ -322,7 +312,7 @@ Yes, Jetpack CRM comes with a search feature that allows you to run a customer s
 
 Data privacy, control, extensibility. GDPR compliance. You're probably already paying for hosting too, so you'll save there. SaaS has its place, but there's so much value in hosting your own (e.g. for GDPR rules you need to know where your contacts data is kept)!
 
-= How do I get my existing contacts into Jetpack CRM? = 
+= How do I get my existing contacts into Jetpack CRM? =
 
 The free core is fully integrated with WooCommerce using the built-in WooSync module. It also has a basic CSV Importer which works well and allows you to import contacts and import customer data. You can also use our paid extensions for additional features: CSV Importer Pro, PayPal Sync, or Stripe Sync - these automatically pull up all your contact data (including transactions) and then keep it up to date for you!
 
@@ -377,7 +367,7 @@ To send out email broadcasts such as newsletters or other email marketing you wi
 
 = What Automations and Workflows does Jetpack CRM support? =
 
-Jetpack CRM has it's own [Automations extension](https://jetpackcrm.com/product/automations/) which uses Triggers, Conditions, and Actions to automate workflows based on CRM events. This can be used in lead generation, email marketing, or internal business admin. If you have an idea for a workflow or automation you'd like to see, please do [submit it as a feature request](https://kb.jetpackcrm.com/submit-a-ticket/).
+Jetpack CRM has its own [Automations extension](https://jetpackcrm.com/product/automations/) which uses Triggers, Conditions, and Actions to automate workflows based on CRM events. This can be used in lead generation, email marketing, or internal business admin. If you have an idea for a workflow or automation you'd like to see, please do [submit it as a feature request](https://kb.jetpackcrm.com/submit-a-ticket/).
 
 = What add-ons are available? =
 
@@ -399,39 +389,25 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 5.8.0 - 2023-05-18
+### 6.4.0 - 2024-01-23
 #### Added
-- Composer: Added jetpack-forms as a required dependency to fix a Jetpack form compat issue
-- Segments: Adding a doesnotcontain condition for email segments, for better compatibility with Advanced Segments
-
-#### Changed
-- Code cleanup: Cleaning up WP Editor helper functions and wp_editor usage
-- General: Update link references to releases in changelog
-- Navigation: Changed Learn More button and Learn More link to be consistent with Jetpack styles
-- PDF generator: Objects in filenames are translated
-- WooSync: Improved status mapping logic
+- Database: Added preliminary support for SQLite.
+- Settings: Add setting to fine tune the Total Value field calculation for contacts and companies.
 
 #### Fixed
-- Companies: Fix company name prefill so add links - transaction, invoice and tasks - prefill company name
-- Contact / Company: Fix date styling for transactions, invoices and quotes
-- Contact / Company: Profile summary total value and invoice count now removes deleted invoices
-- Custom fields: Use native date pickers
-- Quotes: Use native date pickers
-- Export: Contact segments now export company info
-- Logs: Facebook, Twitter, Feedback, and Other Contact log types now update last contacted timestamp
-- Settings: Eliminate orphaned references to custom fields within field sorting settings when removing custom fields
-- Segments: Make sure total count is updated on tag changes
-- Tasks: Start and end times now show correctly throughout the CRM
-- Tasks: New migration to remove timezone offset from database
-- Tasks: Removed reliance on strftime for better PHP 8.1 compatibility
-- Tasks: Switch to native browser date and time inputs
-- Tasks: Catch moment.js notice due to using fallback date format
-- Tasks: Fix ##TASK-BODY## placeholder
-- Tooling: Allowing minification of JS files in development
-- Transactions: Always show current status in editor
-- WooSync: Fix the fee amount from a WooCommerce order is not added to the invoice
-- WooSync: Fix shipping tax and discount amounts from Woocommerce orders are not calculated in invoices
-- WooSync: Fix the subtotal amount from WooCommerce orders is not calculated in invoices
-- WooSync: Fix PHP Warning
-- Invoices: On invoice update the shipping tax selected is removed resulting on incorrect total amount
+- Backend: Add fallback for dev site detection.
+- Contacts: Updated default statuses.
+- Custom fields: More robust fallbacks for slug creation.
+- Dashboard: Adjust queries for SQLite compatibility.
+- REST API: Allow calls when not using pretty permalinks.
+- Database: Ensure logs table is initiated with all columns.
+- Fixed: Escape output in typeaheads.
+- Invoices: Fixed total amount in preview and pdf when refunds or credit notes are applied.
+- Jetpack Forms: Detect and process custom date fields correctly.
+- Custom fields: Gracefully handle invalid date field data.
+- Listview: Better output escaping in listviews.
+- System Assistant: Fix broken links on some tasks.
+- Migrations: Fix issue where task_offset_fix migration would not mark as complete on some timezones.
+- Templates: Ensure file paths are valid before trying to load.
+- Transactions: Better support for SQLite.
 

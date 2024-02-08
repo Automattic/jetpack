@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [1.6.23] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
 ## [1.6.22] - 2023-04-10
 ### Added
 - Add Jetpack Autoloader package suggestion. [#29988]
@@ -150,6 +158,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Finish the constants package
 
+[2.0.0]: https://github.com/Automattic/jetpack-constants/compare/v1.6.23...v2.0.0
+[1.6.23]: https://github.com/Automattic/jetpack-constants/compare/v1.6.22...v1.6.23
 [1.6.22]: https://github.com/Automattic/jetpack-constants/compare/v1.6.21...v1.6.22
 [1.6.21]: https://github.com/Automattic/jetpack-constants/compare/v1.6.20...v1.6.21
 [1.6.20]: https://github.com/Automattic/jetpack-constants/compare/v1.6.19...v1.6.20

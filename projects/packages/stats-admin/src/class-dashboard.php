@@ -60,8 +60,7 @@ class Dashboard {
 			_x( 'Stats App', 'product name shown in menu', 'jetpack-stats-admin' ),
 			'manage_options',
 			'jetpack-stats-app',
-			array( $this, 'render' ),
-			100
+			array( $this, 'render' )
 		);
 
 		if ( $page_suffix ) {

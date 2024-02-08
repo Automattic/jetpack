@@ -89,6 +89,7 @@ const Controls = props => {
 										{ Object.keys( SUPPORTED_CURRENCIES ).map( ccy => (
 											<MenuItem
 												isSelected={ ccy === currency }
+												icon={ ccy === currency ? 'yes' : '' }
 												onClick={ () => {
 													changeDefaultDonationAmounts( ccy );
 													onClose();

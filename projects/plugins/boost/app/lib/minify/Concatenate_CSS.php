@@ -71,16 +71,16 @@ class Concatenate_CSS extends WP_Styles {
 			$do_concat = false;
 
 			// Only try to concat static css files
-			if ( false !== strpos( $css_url_parsed['path'], '.css' ) ) {
+			if ( str_contains( $css_url_parsed['path'], '.css' ) ) {
 				$do_concat = true;
 			} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					echo sprintf( "\n<!-- No Concat CSS %s => Maybe Not Static File %s -->\n", esc_html( $handle ), esc_html( $obj->src ) );
+					printf( "\n<!-- No Concat CSS %s => Maybe Not Static File %s -->\n", esc_html( $handle ), esc_html( $obj->src ) );
 			}
 
 			// Don't try to concat styles which are loaded conditionally (like IE stuff)
 			if ( isset( $extra['conditional'] ) ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					echo sprintf( "\n<!-- No Concat CSS %s => Has Conditional -->\n", esc_html( $handle ) );
+					printf( "\n<!-- No Concat CSS %s => Has Conditional -->\n", esc_html( $handle ) );
 				}
 				$do_concat = false;
 			}
@@ -88,7 +88,7 @@ class Concatenate_CSS extends WP_Styles {
 			// Don't concat rtl stuff for now until concat supports it correctly
 			if ( $do_concat && 'rtl' === $this->text_direction && ! empty( $extra['rtl'] ) ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					echo sprintf( "\n<!-- No Concat CSS %s => Is RTL -->\n", esc_html( $handle ) );
+					printf( "\n<!-- No Concat CSS %s => Is RTL -->\n", esc_html( $handle ) );
 				}
 				$do_concat = false;
 			}
@@ -97,7 +97,7 @@ class Concatenate_CSS extends WP_Styles {
 			$is_internal_uri = $this->dependency_path_mapping->is_internal_uri( $css_url );
 			if ( $do_concat && ! $is_internal_uri ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					echo sprintf( "\n<!-- No Concat CSS %s => External URL: %s -->\n", esc_html( $handle ), esc_url( $css_url ) );
+					printf( "\n<!-- No Concat CSS %s => External URL: %s -->\n", esc_html( $handle ), esc_url( $css_url ) );
 				}
 				$do_concat = false;
 			}
@@ -107,7 +107,7 @@ class Concatenate_CSS extends WP_Styles {
 				$css_realpath = $this->dependency_path_mapping->dependency_src_to_fs_path( $css_url );
 				if ( false === $css_realpath ) {
 					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-						echo sprintf( "\n<!-- No Concat CSS %s => Invalid Path %s -->\n", esc_html( $handle ), esc_html( $css_realpath ) );
+						printf( "\n<!-- No Concat CSS %s => Invalid Path %s -->\n", esc_html( $handle ), esc_html( $css_realpath ) );
 					}
 					$do_concat = false;
 				}
@@ -119,7 +119,7 @@ class Concatenate_CSS extends WP_Styles {
 				if ( $do_concat && $handle === $exclude ) {
 					$do_concat = false;
 					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-						echo sprintf( "\n<!-- No Concat CSS %s => Excluded option -->\n", esc_html( $handle ) );
+						printf( "\n<!-- No Concat CSS %s => Excluded option -->\n", esc_html( $handle ) );
 					}
 				}
 			}
@@ -127,7 +127,7 @@ class Concatenate_CSS extends WP_Styles {
 			// Allow plugins to disable concatenation of certain stylesheets.
 			if ( $do_concat && ! apply_filters( 'css_do_concat', $do_concat, $handle ) ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					echo sprintf( "\n<!-- No Concat CSS %s => Filtered `false` -->\n", esc_html( $handle ) );
+					printf( "\n<!-- No Concat CSS %s => Filtered `false` -->\n", esc_html( $handle ) );
 				}
 			}
 			$do_concat = apply_filters( 'css_do_concat', $do_concat, $handle );
@@ -169,7 +169,7 @@ class Concatenate_CSS extends WP_Styles {
 					} else {
 						$path_str = implode( ',', $css );
 					}
-					$path_str = "$path_str?m=$mtime";
+					$path_str = "$path_str?m=$mtime&cb=" . jetpack_boost_minify_cache_buster();
 
 					if ( $this->allow_gzip_compression ) {
 						// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
@@ -179,13 +179,13 @@ class Concatenate_CSS extends WP_Styles {
 						}
 					}
 
-					$href = $siteurl . '/_static/??' . $path_str;
+					$href = $siteurl . jetpack_boost_get_static_prefix() . '??' . $path_str;
 				} else {
 					$href = jetpack_boost_page_optimize_cache_bust_mtime( current( $css ), $siteurl );
 				}
 
 				$handles = array_keys( $css );
-				$css_id  = "$media-css-" . md5( $href );
+				$css_id  = sanitize_title_with_dashes( $media ) . '-css-' . md5( $href );
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					$style_tag = "<link data-handles='" . esc_attr( implode( ',', $handles ) ) . "' rel='stylesheet' id='$css_id' href='$href' type='text/css' media='$media' />";
 				} else {
@@ -193,6 +193,10 @@ class Concatenate_CSS extends WP_Styles {
 				}
 
 				$style_tag = apply_filters( 'page_optimize_style_loader_tag', $style_tag, $handles, $href, $media );
+
+				// Allow manipulation of the stylesheet tag.
+				// For example - making it deferred when using with Critical CSS.
+				$style_tag = apply_filters( 'style_loader_tag', $style_tag, implode( ',', $handles ), $href, $media );
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $style_tag . "\n";

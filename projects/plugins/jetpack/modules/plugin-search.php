@@ -8,12 +8,11 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;
 
-/**
- * Disable direct access and execution.
- */
+// Disable direct access and execution.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -339,7 +338,6 @@ class Jetpack_Plugin_Search {
 				array_flip(
 					array(
 						'contact-form',
-						'lazy-images',
 						'monitor',
 						'photon',
 						'photon-cdn',
@@ -476,7 +474,7 @@ class Jetpack_Plugin_Search {
 	 * @param array $m2 Array 2 to sort.
 	 */
 	private function by_sorting_option( $m1, $m2 ) {
-		return $m1['sort'] - $m2['sort'];
+		return $m1['sort'] <=> $m2['sort'];
 	}
 
 	/**
@@ -601,7 +599,6 @@ class Jetpack_Plugin_Search {
 
 		return $links;
 	}
-
 }
 
 /**

@@ -521,13 +521,13 @@ abstract class Sharing_Source {
 			esc_attr(
 				$is_deprecated
 					/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
-					? sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
+					? sprintf( __( 'The %1$s sharing service has shut down or discontinued support for sharing buttons. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
 					: $this->get_name()
 			),
 			esc_html(
 				$is_deprecated
 					/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
-					? sprintf( __( '%1$s has shut down', 'jetpack' ), $this->get_name() )
+					? sprintf( __( '%1$s is no longer supported', 'jetpack' ), $this->get_name() )
 					: $text
 			)
 		);
@@ -845,9 +845,9 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 		return $this->get_link(
 			$this->get_share_url( $post->ID ),
 			/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
-			sprintf( __( '%1$s has shut down', 'jetpack' ), $this->get_name() ),
+			sprintf( __( '%1$s is no longer supported', 'jetpack' ), $this->get_name() ),
 			/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
-			sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
+			sprintf( __( 'The %1$s sharing service has shut down or discontinued support for sharing buttons. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
 		);
 	}
 }
@@ -1318,22 +1318,33 @@ class Share_Twitter extends Sharing_Source {
 }
 
 /**
- * Reddit sharing button.
+ * X sharing button.
+ *
+ * While the old Twitter button had an official button,
+ * this new X button does not, since there is no official X button yet.
  */
-class Share_Reddit extends Sharing_Source {
+class Share_X extends Sharing_Source {
 	/**
 	 * Service short name.
 	 *
 	 * @var string
 	 */
-	public $shortname = 'reddit';
+	public $shortname = 'x';
 
 	/**
 	 * Service icon font code.
 	 *
 	 * @var string
 	 */
-	public $icon = '\f222';
+	public $icon = '\f10e';
+
+	/**
+	 * Length of a URL on X.
+	 * https://developer.twitter.com/en/docs/tco
+	 *
+	 * @var int
+	 */
+	public $short_url_length = 24;
 
 	/**
 	 * Constructor.
@@ -1357,6 +1368,220 @@ class Share_Reddit extends Sharing_Source {
 	 * @return string
 	 */
 	public function get_name() {
+		return __( 'X', 'jetpack' );
+	}
+
+	/**
+	 * Get the markup of the sharing button.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public function get_display( $post ) {
+		$via = static::sharing_x_via( $post );
+
+		if ( $via ) {
+			$via = 'data-via="' . esc_attr( $via ) . '"';
+		} else {
+			$via = '';
+		}
+
+		$related = static::get_related_accounts( $post );
+		if ( ! empty( $related ) && $related !== $via ) {
+			$related = 'data-related="' . esc_attr( $related ) . '"';
+		} else {
+			$related = '';
+		}
+
+		if ( $this->smart ) {
+			$share_url  = $this->get_share_url( $post->ID );
+			$post_title = $this->get_share_title( $post->ID );
+			return sprintf(
+				'<a href="https://x.com/share" class="twitter-share-button" data-url="%1$s" data-text="%2$s" %3$s %4$s>%5$s</a>',
+				esc_url( $share_url ),
+				esc_attr( $post_title ),
+				$via,
+				$related,
+				esc_html__( 'Post', 'jetpack' )
+			);
+		} else {
+			if (
+				/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+				apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'x' )
+			) {
+				sharing_register_post_for_share_counts( $post->ID );
+			}
+			return $this->get_link(
+				$this->get_process_request_url( $post->ID ),
+				_x( 'X', 'share to', 'jetpack' ),
+				__( 'Click to share on X', 'jetpack' ),
+				'share=x',
+				'sharing-x-' . $post->ID
+			);
+		}
+	}
+
+	/**
+	 * Determine the X 'via' value for a post.
+	 *
+	 * @param  WP_Post|int $post Post object or post ID.
+	 * @return string X handle without the preceding @.
+	 **/
+	public static function sharing_x_via( $post ) {
+		$post = get_post( $post );
+		/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+		$twitter_site_tag_value = apply_filters(
+			'jetpack_twitter_cards_site_tag',
+			'',
+			/** This action is documented in modules/sharedaddy/sharing-sources.php */
+			array( 'twitter:creator' => apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID ) )
+		);
+
+		/*
+		 * Hack to remove the unwanted behavior of adding 'via @jetpack' which
+		 * was introduced with the adding of the Twitter cards.
+		 * This should be a temporary solution until a better method is setup.
+		 */
+		if ( 'jetpack' === $twitter_site_tag_value ) {
+			$twitter_site_tag_value = '';
+		}
+
+		/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+		$twitter_site_tag_value = apply_filters( 'jetpack_sharing_twitter_via', $twitter_site_tag_value, $post->ID );
+
+		// Strip out anything other than a letter, number, or underscore.
+		// This will prevent the inadvertent inclusion of an extra @, as well as normalizing the handle.
+		return preg_replace( '/[^\da-z_]+/i', '', $twitter_site_tag_value );
+	}
+
+	/**
+	 * Determine the 'related' X accounts for a post.
+	 *
+	 * @param  WP_Post|int $post Post object or post ID.
+	 * @return string Comma-separated list of X handles.
+	 **/
+	public static function get_related_accounts( $post ) {
+		$post = get_post( $post );
+		/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+		$related_accounts = apply_filters( 'jetpack_sharing_twitter_related', array(), $post->ID );
+
+		// Example related string: account1,account2:Account 2 description,account3
+		$related = array();
+
+		foreach ( $related_accounts as $related_account_username => $related_account_description ) {
+			// Join the description onto the end of the username
+			if ( $related_account_description ) {
+				$related_account_username .= ':' . $related_account_description;
+			}
+
+			$related[] = $related_account_username;
+		}
+
+		return implode( ',', $related );
+	}
+
+	/**
+	 * Add content specific to a service in the footer.
+	 */
+	public function display_footer() {
+		if ( $this->smart ) {
+			?>
+			<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+			<?php
+		} else {
+			$this->js_dialog( $this->shortname, array( 'height' => 350 ) );
+		}
+	}
+
+	/**
+	 * Process sharing request. Add actions that need to happen when sharing here.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param array   $post_data Array of information about the post we're sharing.
+	 *
+	 * @return void
+	 */
+	public function process_request( $post, array $post_data ) {
+		$post_title = $this->get_share_title( $post->ID );
+		$post_link  = $this->get_share_url( $post->ID );
+
+		if ( function_exists( 'mb_stripos' ) ) {
+			$strlen = 'mb_strlen';
+			$substr = 'mb_substr';
+		} else {
+			$strlen = 'strlen';
+			$substr = 'substr';
+		}
+
+		$via     = static::sharing_x_via( $post );
+		$related = static::get_related_accounts( $post );
+		if ( $via ) {
+			$sig = " via @$via";
+			if ( $related === $via ) {
+				$related = false;
+			}
+		} else {
+			$via = false;
+			$sig = '';
+		}
+
+		$suffix_length = $this->short_url_length + $strlen( $sig );
+		// $sig is handled by twitter in their 'via' argument.
+		// $post_link is handled by twitter in their 'url' argument.
+		if ( 280 < $strlen( $post_title ) + $suffix_length ) {
+			// The -1 is for "\xE2\x80\xA6", a UTF-8 ellipsis.
+			$text = $substr( $post_title, 0, 280 - $suffix_length - 1 ) . "\xE2\x80\xA6";
+		} else {
+			$text = $post_title;
+		}
+
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		$url         = $post_link;
+		$twitter_url = add_query_arg(
+			rawurlencode_deep( array_filter( compact( 'via', 'related', 'text', 'url' ) ) ),
+			'https://x.com/intent/tweet'
+		);
+
+		parent::redirect_request( $twitter_url );
+	}
+
+	/**
+	 * Does this sharing source have a custom style.
+	 *
+	 * @return bool
+	 */
+	public function has_custom_button_style() {
+		return $this->smart;
+	}
+}
+
+/**
+ * Reddit sharing button.
+ */
+class Share_Reddit extends Sharing_Source {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'reddit';
+
+	/**
+	 * Service icon font code.
+	 *
+	 * @var string
+	 */
+	public $icon = '\f222';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
 		return __( 'Reddit', 'jetpack' );
 	}
 
@@ -1368,11 +1593,12 @@ class Share_Reddit extends Sharing_Source {
 	 * @return string
 	 */
 	public function get_display( $post ) {
-		if ( $this->smart ) {
-			return '<div class="reddit_button"><iframe src="' . $this->http() . '://www.reddit.com/static/button/button1.html?newwindow=true&width=120&amp;url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" height="22" width="120" scrolling="no" frameborder="0"></iframe></div>';
-		} else {
-			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Reddit', 'share to', 'jetpack' ), __( 'Click to share on Reddit', 'jetpack' ), 'share=reddit' );
-		}
+		return $this->get_link(
+			$this->get_process_request_url( $post->ID ),
+			_x( 'Reddit', 'share to', 'jetpack' ),
+			__( 'Click to share on Reddit', 'jetpack' ),
+			'share=reddit'
+		);
 	}
 
 	/**
@@ -2761,7 +2987,6 @@ class Share_Pocket extends Sharing_Source {
 			);
 		endif;
 	}
-
 }
 
 /**
@@ -2931,7 +3156,7 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 /**
  * Skype sharing service.
  */
-class Share_Skype extends Sharing_Source {
+class Share_Skype extends Deprecated_Sharing_Source {
 	/**
 	 * Service short name.
 	 *
@@ -2940,150 +3165,12 @@ class Share_Skype extends Sharing_Source {
 	public $shortname = 'skype';
 
 	/**
-	 * Service icon font code.
-	 *
-	 * @var string
-	 */
-	public $icon = '\f220';
-
-	/**
-	 * Sharing type.
-	 *
-	 * @var string
-	 */
-	private $share_type = 'default';
-
-	/**
-	 * Constructor.
-	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
-	 */
-	public function __construct( $id, array $settings ) {
-		parent::__construct( $id, $settings );
-
-		if ( isset( $settings['share_type'] ) ) {
-			$this->share_type = $settings['share_type'];
-		}
-
-		if ( 'official' === $this->button_style ) {
-			$this->smart = true;
-		} else {
-			$this->smart = false;
-		}
-	}
-
-	/**
 	 * Service name.
 	 *
 	 * @return string
 	 */
 	public function get_name() {
 		return __( 'Skype', 'jetpack' );
-	}
-
-	/**
-	 * Get the markup of the sharing button.
-	 *
-	 * @param WP_Post $post Post object.
-	 *
-	 * @return string
-	 */
-	public function get_display( $post ) {
-		if ( $this->smart ) {
-			$skype_share_html = sprintf(
-				'<div class="skype-share" data-href="%1$s" data-lang="%2$s" data-style="small" data-source="jetpack" ></div>',
-				esc_attr( $this->get_share_url( $post->ID ) ),
-				'en-US'
-			);
-			return $skype_share_html;
-		}
-
-		/** This filter is already documented in modules/sharedaddy/sharing-sources.php */
-		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'skype' ) ) {
-			sharing_register_post_for_share_counts( $post->ID );
-		}
-		return $this->get_link(
-			$this->get_process_request_url( $post->ID ),
-			_x( 'Skype', 'share to', 'jetpack' ),
-			__( 'Click to share on Skype', 'jetpack' ),
-			'share=skype',
-			'sharing-skype-' . $post->ID
-		);
-	}
-
-	/**
-	 * AMP display for Skype.
-	 *
-	 * @param \WP_Post $post The current post being viewed.
-	 */
-	public function get_amp_display( $post ) {
-		$attrs = array(
-			'data-share-endpoint' => sprintf(
-				'https://web.skype.com/share?url=%1$s&lang=%2$s=&source=jetpack',
-				rawurlencode( $this->get_share_url( $post->ID ) ),
-				'en-US'
-			),
-		);
-
-		return $this->build_amp_markup( $attrs );
-	}
-
-	/**
-	 * Process sharing request. Add actions that need to happen when sharing here.
-	 *
-	 * @param WP_Post $post Post object.
-	 * @param array   $post_data Array of information about the post we're sharing.
-	 *
-	 * @return void
-	 */
-	public function process_request( $post, array $post_data ) {
-		$skype_url = sprintf(
-			'https://web.skype.com/share?url=%1$s&lang=%2$s=&source=jetpack',
-			rawurlencode( $this->get_share_url( $post->ID ) ),
-			'en-US'
-		);
-
-		// Record stats
-		parent::process_request( $post, $post_data );
-
-		parent::redirect_request( $skype_url );
-	}
-
-	/**
-	 * Add content specific to a service in the footer.
-	 */
-	public function display_footer() {
-		if ( $this->smart ) :
-			?>
-			<script>
-				(function(r, d, s) {
-					r.loadSkypeWebSdkAsync = r.loadSkypeWebSdkAsync || function(p) {
-							var js, sjs = d.getElementsByTagName(s)[0];
-							if (d.getElementById(p.id)) { return; }
-							js = d.createElement(s);
-							js.id = p.id;
-							js.src = p.scriptToLoad;
-							js.onload = p.callback
-							sjs.parentNode.insertBefore(js, sjs);
-						};
-					var p = {
-						scriptToLoad: 'https://swx.cdn.skype.com/shared/v/latest/skypewebsdk.js',
-						id: 'skype_web_sdk'
-					};
-					r.loadSkypeWebSdkAsync(p);
-				})(window, document, 'script');
-			</script>
-			<?php
-		else :
-			$this->js_dialog(
-				$this->shortname,
-				array(
-					'width'  => 305,
-					'height' => 665,
-				)
-			);
-		endif;
 	}
 }
 
@@ -3196,5 +3283,68 @@ class Share_Mastodon extends Sharing_Source {
 				'height' => 400,
 			)
 		);
+	}
+}
+
+/**
+ * Nextdoor sharing service.
+ */
+class Share_Nextdoor extends Sharing_Source {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'nextdoor';
+
+	/**
+	 * Service icon font code.
+	 *
+	 * @var string
+	 */
+	public $icon = '\f10c';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'Nextdoor', 'jetpack' );
+	}
+
+	/**
+	 * Get the markup of the sharing button.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public function get_display( $post ) {
+		return $this->get_link(
+			$this->get_process_request_url( $post->ID ),
+			_x( 'Nextdoor', 'share to', 'jetpack' ),
+			__( 'Click to share on Nextdoor', 'jetpack' ),
+			'share=nextdoor',
+			'sharing-nextdoor-' . $post->ID
+		);
+	}
+
+	/**
+	 * Process sharing request. Add actions that need to happen when sharing here.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param array   $post_data Array of information about the post we're sharing.
+	 *
+	 * @return void
+	 */
+	public function process_request( $post, array $post_data ) {
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		$url  = 'https://nextdoor.com/sharekit/?source=jetpack&body=';
+		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
+
+		parent::redirect_request( $url );
 	}
 }

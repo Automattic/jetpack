@@ -96,5 +96,4 @@ class Test_Terms_Of_Service extends TestCase {
 		$this->terms_of_service->expects( $this->once() )->method( 'is_offline_mode' )->willReturn( true );
 		$this->assertFalse( $this->terms_of_service->has_agreed() );
 	}
-
 }

@@ -5,7 +5,8 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -77,10 +78,11 @@ class Jetpack_Admin {
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
 
 		if ( class_exists( 'Akismet_Admin' ) ) {
-			// If the site has Jetpack Anti-Spam, change the Akismet menu label accordingly.
-			$site_products      = Jetpack_Plan::get_products();
-			$anti_spam_products = array( 'jetpack_anti_spam_monthly', 'jetpack_anti_spam' );
-			if ( ! empty( array_intersect( $anti_spam_products, array_column( $site_products, 'product_slug' ) ) ) ) {
+			// If the site has Jetpack Anti-spam, change the Akismet menu label and logo accordingly.
+			$site_products         = array_column( Jetpack_Plan::get_products(), 'product_slug' );
+			$has_anti_spam_product = count( array_intersect( array( 'jetpack_anti_spam', 'jetpack_anti_spam_monthly' ), $site_products ) ) > 0;
+
+			if ( Jetpack_Plan::supports( 'akismet' ) || Jetpack_Plan::supports( 'antispam' ) || $has_anti_spam_product ) {
 				// Prevent Akismet from adding a menu item.
 				add_action(
 					'admin_menu',
@@ -90,13 +92,8 @@ class Jetpack_Admin {
 					4
 				);
 
-				// Add an Anti-spam menu item for Jetpack.
-				add_action(
-					'jetpack_admin_menu',
-					function () {
-						add_submenu_page( 'jetpack', __( 'Anti-Spam', 'jetpack' ), __( 'Anti-Spam', 'jetpack' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
-					}
-				);
+				// Add an Anti-spam menu item for Jetpack. This is handled automatically by the Admin_Menu as long as it has been initialized.
+				Admin_Menu::init();
 				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
 			}
 		}
@@ -111,15 +108,13 @@ class Jetpack_Admin {
 	}
 
 	/**
-	 * Generate styles to replace Akismet logo for the Jetpack logo. It's a workaround until we create a proper settings page for
-	 * Jetpack Anti-Spam. Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
+	 * Generate styles to replace Akismet logo for the Jetpack Akismet Anti-spam logo.
+		Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
 	 */
 	public function akismet_logo_replacement_styles() {
-		$logo = new Jetpack_Logo();
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		$logo_base64     = base64_encode( $logo->get_jp_emblem_larger() );
-		$logo_base64_url = "data:image/svg+xml;base64,{$logo_base64}";
-		$style           = ".akismet-masthead__logo-container { background: url({$logo_base64_url}) no-repeat .25rem; height: 1.8125rem; } .akismet-masthead__logo { display: none; }";
+		$logo_url = esc_url( plugins_url( 'images/products/logo-anti-spam.svg', JETPACK__PLUGIN_FILE ) );
+		$style    = ".akismet-masthead__logo-container { background: url({$logo_url}) no-repeat; min-height: 42px; margin: 20px 0; padding: 0 !important; } .akismet-masthead__logo { display: none; }";
+		$style   .= '@media screen and (max-width: 782px) { .akismet-masthead__logo-container { margin-left: 4px; } }';
 		wp_add_inline_style( 'admin-bar', $style );
 	}
 
@@ -129,6 +124,16 @@ class Jetpack_Admin {
 	 * @since 11.0 . Prior to that, this function was located in custom-css-4.7.php (now custom-css.php).
 	 */
 	public static function additional_css_menu() {
+		/*
+		 * Custom CSS for the Customizer is deprecated for block themes as of WP 6.1, so we only expose it with a menu
+		 * if the site already has existing CSS code.
+		 */
+		if ( wp_is_block_theme() ) {
+			$styles = wp_get_custom_css();
+			if ( ! $styles ) {
+				return;
+			}
+		}
 
 		// If the site is a WoA site and the custom-css feature is not available, return.
 		// See https://github.com/Automattic/jetpack/pull/19965 for more on how this menu item is dealt with on WoA sites.
@@ -223,15 +228,7 @@ class Jetpack_Admin {
 	 * @return int Indicating the relative ordering of module1 and module2.
 	 */
 	public static function sort_requires_connection_last( $module1, $module2 ) {
-		if ( (bool) $module1['requires_connection'] === (bool) $module2['requires_connection'] ) {
-			return 0;
-		} elseif ( $module1['requires_connection'] ) {
-			return 1;
-		} elseif ( $module2['requires_connection'] ) {
-			return -1;
-		}
-
-		return 0;
+		return ( (bool) $module1['requires_connection'] ) <=> ( (bool) $module2['requires_connection'] );
 	}
 
 	/**
@@ -599,22 +596,6 @@ class Jetpack_Admin {
 			),
 			true
 		) ) {
-			return false;
-		}
-
-		// Disable all JITMs on pages where the recommendations banner is displaying.
-		if (
-			in_array(
-				$screen_id,
-				array(
-					'dashboard',
-					'plugins',
-					'jetpack_page_stats',
-				),
-				true
-			)
-			&& \Jetpack_Recommendations_Banner::can_be_displayed()
-		) {
 			return false;
 		}
 

@@ -1,8 +1,9 @@
 import { LinkedInPreviews } from '@automattic/social-previews';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
-import { getLinkedInDetails } from '../../store/selectors';
+import { SOCIAL_STORE_ID, CONNECTION_SERVICE_LINKEDIN } from '../../social-store';
 
 /**
  * The linkedin tab component.
@@ -13,7 +14,9 @@ import { getLinkedInDetails } from '../../store/selectors';
 export function LinkedIn( props ) {
 	const { title, url, image, media } = props;
 
-	const { name, profileImage } = getLinkedInDetails();
+	const { displayName: name, profileImage } = useSelect( select =>
+		select( SOCIAL_STORE_ID ).getConnectionProfileDetails( CONNECTION_SERVICE_LINKEDIN )
+	);
 
 	const { message: text } = useSocialMediaMessage();
 

@@ -48,10 +48,9 @@ class JPCRM_Fonts {
 			foreach ( $return_array as $zip_name => $font_name ){
 
 				$cleaned_name = $font_name;
-				if ( substr( $font_name, 0, 9 ) == 'Noto Sans' ){
+				if ( str_starts_with( $font_name, 'Noto Sans' ) ) {
 					$cleaned_name = substr( $cleaned_name, 10 ) . ' (Noto Sans)';
-				}
-				if ( substr( $font_name, 0, 10 ) == 'Noto Serif' ){
+				} elseif ( str_starts_with( $font_name, 'Noto Serif' ) ) {
 					$cleaned_name = substr( $cleaned_name, 11 ) . ' (Noto Serif)';
 				}
 
@@ -621,5 +620,4 @@ class JPCRM_Fonts {
 
 		return false;
 	}
-
 }

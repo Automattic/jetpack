@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Jetpack;
 use Jetpack_Gutenberg;
 
@@ -19,9 +20,6 @@ use Jetpack_Gutenberg;
  * @since 7.1.0
  */
 class WordAds {
-	const FEATURE_NAME = 'wordads';
-	const BLOCK_NAME   = 'jetpack/' . self::FEATURE_NAME;
-
 	/**
 	 * Check if site is on WP.com Simple.
 	 *
@@ -30,6 +28,7 @@ class WordAds {
 	private static function is_wpcom() {
 		return defined( 'IS_WPCOM' ) && IS_WPCOM;
 	}
+
 	/**
 	 * Check if the WordAds module is active.
 	 *
@@ -49,7 +48,7 @@ class WordAds {
 			return has_any_blog_stickers( array( 'wordads', 'wordads-approved', 'wordads-approved-misfits' ), get_current_blog_id() );
 		}
 
-		return self::is_jetpack_module_active();
+		return Jetpack_Plan::supports( 'wordads' );
 	}
 
 	/**
@@ -58,7 +57,7 @@ class WordAds {
 	public static function register() {
 		if ( self::is_available() ) {
 			Blocks::jetpack_register_block(
-				self::BLOCK_NAME,
+				__DIR__,
 				array(
 					'render_callback' => array( __CLASS__, 'gutenblock_render' ),
 				)
@@ -70,12 +69,14 @@ class WordAds {
 	 * Set if the WordAds block is available.
 	 */
 	public static function set_availability() {
+		$block_name = Blocks::get_block_name( __DIR__ );
+
 		if ( ! self::is_available() ) {
-			Jetpack_Gutenberg::set_extension_unavailable( self::BLOCK_NAME, 'WordAds unavailable' );
+			Jetpack_Gutenberg::set_extension_unavailable( $block_name, 'WordAds unavailable' );
 			return;
 		}
 		// Make the block available. Just in case it wasn't registered before.
-		Jetpack_Gutenberg::set_extension_available( self::BLOCK_NAME );
+		Jetpack_Gutenberg::set_extension_available( $block_name );
 	}
 
 	/**
@@ -87,6 +88,11 @@ class WordAds {
 	 */
 	public static function gutenblock_render( $attr ) {
 		global $wordads;
+
+		/** If the WordAds module is not active, don't render the block. */
+		if ( ! self::is_jetpack_module_active() ) {
+			return '';
+		}
 
 		/** This filter is already documented in modules/wordads/class-wordads.php `insert_ad()` */
 		if (

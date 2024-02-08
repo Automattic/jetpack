@@ -5,6 +5,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.16] - 2024-02-05
+### Changed
+- Updated package dependencies. [#35384]
+
+## [0.6.15] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [0.6.14] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411]
+
+## [0.6.13] - 2023-11-20
+
+## [0.6.12] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.6.11] - 2023-10-19
+### Changed
+- Updated package dependencies. [#33687]
+
+## [0.6.10] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.6.9] - 2023-09-11
+### Changed
+- Bump pkgs version [#32825]
+
+## [0.6.8] - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+
+## [0.6.7] - 2023-09-01
+### Removed
+- Remove unnecessary files from mirror repo and published package. [#32674]
+
+## [0.6.6] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## [0.6.5] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [0.6.4] - 2023-07-24
+
+## [0.6.3] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [0.6.2] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+- Update storybook mdx to use `@storybook/blocks` directly rather than `@storybook/addon-docs`. [#31607]
+
+## [0.6.1] - 2023-06-21
+### Changed
+- Updated package dependencies. [#31468]
+
+## [0.6.0] - 2023-06-06
+### Changed
+- Update connection module to have an RNA option that updates the design [#31201]
+- Updated package dependencies. [#31129]
+
 ## [0.5.1] - 2023-05-29
 ### Added
 - Added the jp-highlight colour for use with the social previews [#31023]
@@ -180,6 +246,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[0.6.16]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.15...0.6.16
+[0.6.15]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.14...0.6.15
+[0.6.14]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.13...0.6.14
+[0.6.13]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.12...0.6.13
+[0.6.12]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.11...0.6.12
+[0.6.11]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.10...0.6.11
+[0.6.10]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.9...0.6.10
+[0.6.9]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.8...0.6.9
+[0.6.8]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.7...0.6.8
+[0.6.7]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.6...0.6.7
+[0.6.6]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.5...0.6.6
+[0.6.5]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.4...0.6.5
+[0.6.4]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.3...0.6.4
+[0.6.3]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.2...0.6.3
+[0.6.2]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.1...0.6.2
+[0.6.1]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.0...0.6.1
+[0.6.0]: https://github.com/Automattic/jetpack-base-styles/compare/0.5.1...0.6.0
 [0.5.1]: https://github.com/Automattic/jetpack-base-styles/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/Automattic/jetpack-base-styles/compare/0.4.4...0.5.0
 [0.4.4]: https://github.com/Automattic/jetpack-base-styles/compare/0.4.3...0.4.4

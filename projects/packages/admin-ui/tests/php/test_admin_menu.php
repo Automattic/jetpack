@@ -93,5 +93,4 @@ class Admin_Menu_Test extends TestCase {
 
 		$this->assertSame( 'menu_2', $first );
 	}
-
 }

@@ -14,6 +14,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
@@ -25,6 +26,7 @@ use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
 use Automattic\Jetpack\Stats_Admin\Notices as Stats_Notices;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
@@ -245,12 +247,12 @@ function stats_admin_menu() {
 		// - Atomic sites.
 		// - When the "enable_odyssey_stats" option is disabled.
 		// - When being shown in the adminbar outside of wp-admin.
-		$hook = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
+		$hook = Admin_Menu::add_menu( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
 		add_action( "load-$hook", 'stats_reports_load' );
 	} else {
 		// Enable the new Odyssey Stats experience.
 		$stats_dashboard = new Stats_Dashboard();
-		$hook            = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', array( $stats_dashboard, 'render' ) );
+		$hook            = Admin_Menu::add_menu( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', array( $stats_dashboard, 'render' ) );
 		add_action( "load-$hook", array( $stats_dashboard, 'admin_init' ) );
 	}
 }
@@ -522,7 +524,7 @@ function stats_reports_page( $main_chart_only = false ) {
 		} elseif ( null === $vals ) {
 			$q[ $var ] = '';
 		} elseif ( 'data' === $vals ) {
-			if ( 'index.php' === substr( $val, 0, 9 ) ) {
+			if ( str_starts_with( $val, 'index.php' ) ) {
 				$q[ $var ] = $val;
 			}
 		}
@@ -549,7 +551,7 @@ function stats_reports_page( $main_chart_only = false ) {
 	} else {
 		if ( ! empty( $get['headers']['content-type'] ) ) {
 			$type = $get['headers']['content-type'];
-			if ( substr( $type, 0, 5 ) === 'image' ) {
+			if ( str_starts_with( $type, 'image' ) ) {
 				$img = $get['body'];
 				header( 'Content-Type: ' . $type );
 				header( 'Content-Length: ' . strlen( $img ) );
@@ -1000,10 +1002,11 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 	$img_src_2x = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale-2x' ) );
 	$alt        = esc_attr( __( 'Stats', 'jetpack' ) );
 	$title      = esc_attr( __( 'Views over 48 hours. Click for more Jetpack Stats.', 'jetpack' ) );
+	$site_slug  = ( new Status() )->get_site_suffix();
 
 	$menu = array(
 		'id'    => 'stats',
-		'href'  => add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ), // no menu_page_url() blog-side.
+		'href'  => esc_url( 'https://wordpress.com/stats/day/' . $site_slug ),
 		'title' => "<div><img src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>",
 	);
 

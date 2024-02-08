@@ -1,4 +1,13 @@
-import registerJetpackBlock from '../../shared/register-jetpack-block';
-import { name, settings } from '.';
+import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
+import metadata from './block.json';
+import edit from './edit';
+import save from './save'; // TODO: Replace
+import transforms from './transforms';
 
-registerJetpackBlock( name, settings );
+import './editor.scss';
+
+registerJetpackBlockFromMetadata( metadata, {
+	edit,
+	save,
+	transforms: transforms( metadata.name ),
+} );

@@ -278,7 +278,7 @@ class Woo_Sync_My_Account_Integration {
 
 								?>
 								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], "zero-bs-crm" ); ?></label>
-								<input type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="input-text" style="width: 100%;padding: 15px;margin-bottom: 18px;" placeholder="<?php if (isset($field_value[2])) echo esc_attr( $field_value[2] ); ?>" value="<?php if (isset($crm_contact[$field_key])) echo esc_attr( $crm_contact[$field_key] ); ?>" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $field_key ); ?>" />
+								<input type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="input-text" style="width: 100%;padding: 15px;margin-bottom: 18px;" placeholder="<?php echo ( isset( $field_value[2] ) ? esc_attr__( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" value="<?php echo esc_attr( isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : '' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 								<?php
 
 								break;
@@ -286,7 +286,7 @@ class Woo_Sync_My_Account_Integration {
 							case 'price':
 
 								?><label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e($field_value[1],"zero-bs-crm"); ?></label>
-									<?php echo esc_html( zeroBSCRM_getCurrencyChr() ); ?> <input style="width: 130px;display: inline-block;" type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control  numbersOnly" placeholder="<?php if (isset($field_value[2])) echo esc_attr( $field_value[2] ); ?>" value="<?php if (isset($crm_contact[$field_key])) echo esc_attr( $crm_contact[$field_key] ); ?>" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $field_key ); ?>" />
+									<?php echo esc_html( zeroBSCRM_getCurrencyChr() ); ?> <input style="width: 130px;display: inline-block;" type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control  numbersOnly" placeholder="<?php echo ( isset( $field_value[2] ) ? esc_attr__( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" value="<?php echo esc_attr( isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : '' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 								<?php
 
 								break;
@@ -312,7 +312,7 @@ class Woo_Sync_My_Account_Integration {
 							case 'select':
 
 								?><label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e($field_value[1],"zero-bs-crm"); ?></label>
-									<select name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control zbs-watch-input" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $field_key ); ?>">
+									<select name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control zbs-watch-input" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>">
 										<?php
 											// pre DAL 2 = $field_value[3], DAL2 = $field_value[2]
 											$options = array(); 
@@ -369,7 +369,7 @@ class Woo_Sync_My_Account_Integration {
 							case 'tel':
 
 								?><label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e($field_value[1],"zero-bs-crm");?></label>
-									<input type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control zbs-tel" placeholder="<?php if (isset($field_value[2])) echo esc_attr( $field_value[2] ); ?>" value="<?php if (isset($crm_contact[$field_key])) echo esc_attr( $crm_contact[$field_key] ); ?>" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $field_key ); ?>" />
+									<input type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control zbs-tel" placeholder="<?php echo ( isset( $field_value[2] ) ? esc_attr__( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" value="<?php echo esc_attr( isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : '' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 									<?php
 
 									if ( $click2call == "1" && isset( $crm_contact[$field_key] ) && !empty( $crm_contact[$field_key] ) ) {
@@ -408,7 +408,7 @@ class Woo_Sync_My_Account_Integration {
 							case 'email':
 
 								?><label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], "zero-bs-crm" ); ?>:</label>
-									<input type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control zbs-email" placeholder="<?php if (isset($field_value[2])) echo esc_attr( $field_value[2] ); ?>" value="<?php if (isset($crm_contact[$field_key])) echo esc_attr( $crm_contact[$field_key] ); ?>" autocomplete="off" />
+									<input type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control zbs-email" placeholder="<?php echo esc_attr( isset( $field_value[2] ) ? __( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" value="<?php echo esc_attr( isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : '' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 								<?php
 
 								break;
@@ -416,7 +416,7 @@ class Woo_Sync_My_Account_Integration {
 							case 'textarea':
 
 								?><label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], "zero-bs-crm" ); ?>:</label>
-									<textarea name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control" placeholder="<?php if (isset($field_value[2])) echo esc_attr( $field_value[2] ); ?>" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $field_key ); ?>"><?php if (isset($crm_contact[$field_key])) echo esc_textarea($crm_contact[$field_key]); ?></textarea>
+									<textarea name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control" placeholder="<?php echo esc_attr( isset( $field_value[2] ) ? __( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>"><?php echo esc_textarea( isset( $crm_contact[ $field_key ] ) ? $crm_contact[ $field_key ] : '' ); ?></textarea>
 								<?php
 
 								break;
@@ -429,7 +429,7 @@ class Woo_Sync_My_Account_Integration {
 								if ( $show_address_country_field == "1" ){
 
 								?><label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], "zero-bs-crm" ); ?></label>
-									<select name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $field_key ); ?>">
+									<select name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>">
 										<?php
 
 											// got countries?
@@ -508,8 +508,8 @@ class Woo_Sync_My_Account_Integration {
 								$value = isset( $crm_contact[$field_key] ) ? $crm_contact[$field_key] : -99;
 
 								?>
-								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], "zero-bs-crm" ); ?></label>
-								<input style="width: 130px;display: inline-block;" type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control intOnly zbs-dc zbs-custom-field" placeholder="<?php if (isset($field_value[2])) echo esc_attr__($field_value[2],'zero-bs-crm'); ?>" value="<?php if ($value !== -99) echo esc_attr( $value ); else echo esc_attr( $default ); ?>" autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $field_key ); ?>" />
+								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?></label>
+								<input style="width: 130px;display: inline-block;" type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control intOnly zbs-dc zbs-custom-field" placeholder="<?php echo esc_attr( isset( $field_value[2] ) ? __( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" value="<?php echo esc_attr( $value !== -99 ? $value : '' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 								<?php
 
 									break;
@@ -518,8 +518,8 @@ class Woo_Sync_My_Account_Integration {
 								$value = isset( $crm_contact[$field_key] ) ? $crm_contact[$field_key] : -99;
 
 								?>
-								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], "zero-bs-crm" ); ?></label>
-								<input style="width: 130px;display: inline-block;" type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control numbersOnly zbs-dc zbs-custom-field" placeholder="<?php if (isset($field_value[2])) echo esc_attr__($field_value[2],'zero-bs-crm'); ?>" value="<?php if ($value !== -99) echo esc_attr( $value ); else echo esc_attr( $default ); ?>" autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $field_key ); ?>" />
+								<label for="<?php echo esc_attr( $field_key ); ?>"><?php esc_html_e( $field_value[1], 'zero-bs-crm' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?></label>
+								<input style="width: 130px;display: inline-block;" type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control numbersOnly zbs-dc zbs-custom-field" placeholder="<?php echo esc_attr( isset( $field_value[2] ) ? __( $field_value[2], 'zero-bs-crm' ) : '' ); /* phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText */ ?>" value="<?php echo esc_attr( $value !== -99 ? $value : '' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 								<?php
 
 									break;
@@ -721,5 +721,4 @@ class Woo_Sync_My_Account_Integration {
 			}
 		}
 	}
-
 }

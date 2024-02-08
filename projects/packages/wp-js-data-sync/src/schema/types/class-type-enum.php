@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
 class Type_Enum implements Parser {
 
@@ -15,12 +16,35 @@ class Type_Enum implements Parser {
 		$this->valid_values = $valid_values;
 	}
 
-	public function parse( $data ) {
-		if ( ! in_array( $data, $this->valid_values, true ) ) {
-			$message = sprintf( 'Invalid value "%s". Expected one of: %s', $data, implode( ', ', $this->valid_values ) );
-			throw new \Error( $message );
+	public function parse( $value, $_context ) {
+		if ( ! in_array( $value, $this->valid_values, true ) ) {
+			$message = sprintf( 'Invalid value \'%s\'. Expected one of: %s', $value, implode( ', ', $this->valid_values ) );
+			throw new Schema_Error( $message, $value );
 		}
-		return $data;
+		return $value;
 	}
 
+	public function __toString() {
+		$valid_values = implode( ',', $this->valid_values );
+		return "enum($valid_values)";
+	}
+
+	#[\ReturnTypeWillChange]
+	public function jsonSerialize() {
+		return $this->schema();
+	}
+
+	public function schema() {
+		$valid_values = $this->valid_values;
+		foreach ( $valid_values as $key => $value ) {
+			if ( is_object( $value ) && method_exists( $value, 'schema' ) ) {
+				$valid_values[ $key ] = $value->schema();
+			}
+		}
+
+		return array(
+			'type'  => 'enum',
+			'value' => $valid_values,
+		);
+	}
 }

@@ -164,6 +164,7 @@ function PlanSectionFooter( { purchases } ) {
  * @returns {object} PlansSection React component.
  */
 export default function PlansSection() {
+	const userIsAdmin = !! window?.myJetpackInitialState?.userIsAdmin;
 	const { purchases } = usePurchases();
 
 	return (
@@ -175,8 +176,7 @@ export default function PlansSection() {
 					<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
 				) ) }
 			</div>
-
-			<PlanSectionFooter purchases={ purchases } />
+			{ userIsAdmin && <PlanSectionFooter purchases={ purchases } /> }
 		</div>
 	);
 }

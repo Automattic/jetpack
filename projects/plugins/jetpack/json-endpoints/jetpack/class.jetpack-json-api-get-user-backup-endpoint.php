@@ -57,6 +57,4 @@ class Jetpack_JSON_API_Get_User_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 			'meta' => get_user_meta( $user->ID ),
 		);
 	}
-
 }
-

@@ -48,6 +48,7 @@ if ( isset( $_GET['email'] ) ) {
 			'email'            => $email,
 			'withInvoices'     => true,
 			'withTransactions' => true,
+			'withTags'         => true,
 		)
 	);
 
@@ -90,5 +91,3 @@ if ( $replace_hyphens_in_response === 1 ) {
 }
 
 wp_send_json( $customer_matches );
-
-

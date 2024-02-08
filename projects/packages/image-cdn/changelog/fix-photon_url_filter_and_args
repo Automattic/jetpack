@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Photon: fix potential bug where two "?" characters might be added to a url

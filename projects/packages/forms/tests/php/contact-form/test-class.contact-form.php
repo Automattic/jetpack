@@ -7,8 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
-use \WorDBless\BaseTestCase;
-use \WorDBless\Posts;
+use WorDBless\BaseTestCase;
+use WorDBless\Posts;
 
 /**
  * Test class for Contact_Form
@@ -66,6 +66,9 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	 * @before
 	 */
 	public function set_up_test_case() {
+		// Avoid actually trying to send any mail.
+		add_filter( 'pre_wp_mail', '__return_true', PHP_INT_MAX );
+
 		$this->set_globals();
 
 		$author_id = wp_insert_user(
@@ -438,18 +441,14 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			"[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]"
 		);
 
-		$title         = 'You got a new response!';
-		$body          = 'Here are the details:';
-		$footer        = 'This is the footer';
-		$response_link = 'http://example.com/wp-admin/admin.php?page=feedback';
-		$form_link     = 'http://example.com/contact-us/';
-		$result        = $form->wrap_message_in_html_tags( $title, $response_link, $form_link, $body, $footer );
+		$title  = 'You got a new response!';
+		$body   = 'Here are the details:';
+		$footer = 'This is the footer';
+		$result = $form->wrap_message_in_html_tags( $title, $body, $footer );
 
 		$this->assertStringContainsString( $title, $result );
 		$this->assertStringContainsString( $body, $result );
 		$this->assertStringContainsString( $footer, $result );
-		$this->assertStringContainsString( $response_link, $result );
-		$this->assertStringContainsString( $form_link, $result );
 	}
 
 	/**
@@ -819,6 +818,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			'default'     => 'foo',
 			'placeholder' => 'PLACEHOLDTHIS!',
 			'id'          => 'funID',
+			'format'      => '(YYYY-MM-DD)',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
@@ -969,28 +969,35 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	 * @param DOMElement $wrapper_div The wrapper div.
 	 * @param array      $attributes An associative array containing the field's attributes.
 	 */
-	public function assertCommonValidHtml( $wrapper_div, $attributes ) {
+	public function assertFieldClasses( $wrapper_div, $attributes ) {
 		if ( 'date' === $attributes['type'] ) {
 			$attributes['class'] = 'jp-contact-form-date';
 		}
 
 		$css_class = "grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap grunion-field-wrap";
 
-		if ( 'select' === $attributes['type'] ) {
-			$css_class .= ' contact-form-dropdown-wrap ui-front';
-		}
-
 		$this->assertEquals(
 			$wrapper_div->getAttribute( 'class' ),
 			$css_class,
 			'div class attribute doesn\'t match'
 		);
+	}
 
-		// Get label.
-		$label = $this->getFirstElement( $wrapper_div, 'label' );
+	/**
+	 * Tests whether the label in the wrapper div matches the field's label.
+	 *
+	 * @param DOMElement $wrapper_div The wrapper div.
+	 * @param array      $attributes An associative array containing the field's attributes.
+	 * @param string     $tag_name The tag used to label the field. Could be `legend` for checkboxes
+	 *                                                       and radio buttons.
+	 */
+	public function assertFieldLabel( $wrapper_div, $attributes, $tag_name = 'label' ) {
+		$type     = $attributes['type'];
+		$label    = $this->getFirstElement( $wrapper_div, $tag_name );
+		$expected = 'date' === $type ? $attributes['label'] . ' ' . $attributes['format'] : $attributes['label'];
 
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$this->assertEquals( trim( $label->nodeValue ), $attributes['label'], 'Label is not what we expect it to be...' );
+		$this->assertEquals( $expected, trim( $label->nodeValue ), 'Label is not what we expect it to be...' );
 	}
 
 	/**
@@ -1002,7 +1009,8 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function assertValidField( $html, $attributes ) {
 
 		$wrapper_div = $this->getCommonDiv( $html );
-		$this->assertCommonValidHtml( $wrapper_div, $attributes );
+		$this->assertFieldClasses( $wrapper_div, $attributes );
+		$this->assertFieldLabel( $wrapper_div, $attributes );
 
 		// Get label.
 		$label = $this->getFirstElement( $wrapper_div, 'label' );
@@ -1065,10 +1073,11 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function assertValidCheckboxField( $html, $attributes ) {
 
 		$wrapper_div = $this->getCommonDiv( $html );
-		$this->assertCommonValidHtml( $wrapper_div, $attributes );
+		$this->assertFieldClasses( $wrapper_div, $attributes );
+		$this->assertFieldLabel( $wrapper_div, $attributes );
 
-		$label = $this->getFirstElement( $wrapper_div, 'label' );
-		$input = $this->getFirstElement( $label, 'input' );
+		$label = $wrapper_div->getElementsByTagName( 'label' )->item( 0 );
+		$input = $wrapper_div->getElementsByTagName( 'input' )->item( 0 );
 
 		$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label ' . $attributes['type'], 'label class doesn\'t match' );
 
@@ -1091,13 +1100,13 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function assertValidFieldMultiField( $html, $attributes ) {
 
 		$wrapper_div = $this->getCommonDiv( $html );
-		$this->assertCommonValidHtml( $wrapper_div, $attributes );
-
-		// Get label.
-		$label = $this->getFirstElement( $wrapper_div, 'label' );
+		$this->assertFieldClasses( $wrapper_div, $attributes );
 
 		// Inputs.
 		if ( 'select' === $attributes['type'] ) {
+			$label = $this->getFirstElement( $wrapper_div, 'label' );
+
+			$this->assertFieldLabel( $wrapper_div, $attributes );
 			$this->assertEquals( 'grunion-field-label select', $label->getAttribute( 'class' ), 'label class doesn\'t match' );
 
 			$select = $this->getFirstElement( $wrapper_div, 'select' );
@@ -1113,7 +1122,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 				'label for does not equal input name!'
 			);
 
-			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' grunion-field contact-form-dropdown', ' select class does not match expected' );
+			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' grunion-field', ' select class does not match expected' );
 
 			// Options.
 			$options = $select->getElementsByTagName( 'option' );
@@ -1132,18 +1141,22 @@ class WP_Test_Contact_Form extends BaseTestCase {
 				$this->assertEquals( $option->nodeValue, $attributes['options'][ $i ], 'Input does not match the option' );
 			}
 		} else {
+			$label = $this->getFirstElement( $wrapper_div, 'legend' );
+
+			$this->assertFieldLabel( $wrapper_div, $attributes, 'legend' );
 			$this->assertEquals( 'grunion-field-label', $label->getAttribute( 'class' ), 'label class doesn\'t match' );
 			// Radio and Checkboxes.
 			$labels = $wrapper_div->getElementsByTagName( 'label' );
-			$n      = $labels->length - 1;
+			$n      = $labels->length;
 			$this->assertCount( $n, $attributes['options'], 'Number of inputs doesn\'t match number of options' );
 			$this->assertCount( $n, $attributes['values'], 'Number of inputs doesn\'t match number of values' );
 			for ( $i = 0; $i < $n; $i++ ) {
-				$item_label = $labels->item( $i + 1 );
+				$item_label = $labels->item( $i );
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$this->assertEquals( $item_label->nodeValue, ' ' . $attributes['options'][ $i ] ); // extra space added for a padding.
+				$this->assertEquals( $item_label->nodeValue, $attributes['options'][ $i ] );
 
-				$input = $this->getFirstElement( $item_label, 'input' );
+				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$input = $item_label->parentNode->getElementsByTagName( 'input' )->item( 0 );
 				$this->assertEquals( $input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
 				if ( 'radio' === $attributes['input_type'] ) {
 					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
@@ -1264,23 +1277,23 @@ class WP_Test_Contact_Form extends BaseTestCase {
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_post_meta_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
+			->willReturnMap( $get_post_meta_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_parsed_field_contents_of_post' )
-			->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+			->willReturnMap( $get_parsed_field_contents_of_post_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_post_content_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_content_for_csv_export_map ) );
+			->willReturnMap( $get_post_content_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->will( $this->returnValueMap( $mapped_fields_contents_map ) );
+			->willReturnMap( $mapped_fields_contents_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'has_json_data' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
@@ -1375,19 +1388,19 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		// and each mock expects two calls.
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_post_meta_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
+			->willReturnMap( $get_post_meta_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_parsed_field_contents_of_post' )
-			->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+			->willReturnMap( $get_parsed_field_contents_of_post_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_post_content_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_content_for_csv_export_map ) );
+			->willReturnMap( $get_post_content_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->will( $this->returnValueMap( $mapped_fields_contents_map ) );
+			->willReturnMap( $mapped_fields_contents_map );
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
@@ -1469,19 +1482,19 @@ class WP_Test_Contact_Form extends BaseTestCase {
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_post_meta_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
+			->willReturnMap( $get_post_meta_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_parsed_field_contents_of_post' )
-			->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+			->willReturnMap( $get_parsed_field_contents_of_post_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_post_content_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_content_for_csv_export_map ) );
+			->willReturnMap( $get_post_content_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->will( $this->returnValueMap( $mapped_fields_contents_map ) );
+			->willReturnMap( $mapped_fields_contents_map );
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
@@ -1576,21 +1589,21 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			),
 		);
 
-		$mock->expects( $this->exactly( 1 ) )
+		$mock->expects( $this->once() )
 			->method( 'get_post_meta_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
+			->willReturnMap( $get_post_meta_for_csv_export_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_parsed_field_contents_of_post' )
-			->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+			->willReturnMap( $get_parsed_field_contents_of_post_map );
 
-		$mock->expects( $this->exactly( 1 ) )
+		$mock->expects( $this->once() )
 			->method( 'get_post_content_for_csv_export' )
-			->will( $this->returnValueMap( $get_post_content_for_csv_export_map ) );
+			->willReturnMap( $get_post_content_for_csv_export_map );
 
-		$mock->expects( $this->exactly( 1 ) )
+		$mock->expects( $this->once() )
 			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->will( $this->returnValueMap( $mapped_fields_contents_map ) );
+			->willReturnMap( $mapped_fields_contents_map );
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
@@ -1640,7 +1653,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'get_parsed_field_contents_of_post' )
-			->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+			->willReturnMap( $get_parsed_field_contents_of_post_map );
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 

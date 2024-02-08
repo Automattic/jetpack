@@ -5,6 +5,276 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.46.0] - 2024-02-05
+### Added
+- Add blog ID to the initial state. [#35006]
+
+### Changed
+- Updated package dependencies.
+
+## [0.45.2] - 2024-01-29
+### Changed
+- Update dependencies. [#35170]
+
+## [0.45.1] - 2024-01-22
+### Changed
+- Update dependencies. [#35126]
+
+### Fixed
+- Fixed a bug where the post body images weren't used for social previews [#35111]
+
+## [0.45.0] - 2024-01-18
+### Changed
+- Changed dismissed notices endpoint to be a core endpoint [#34544]
+
+## [0.44.2] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815] [#34816]
+
+## [0.44.1] - 2024-01-02
+### Changed
+- Updated the design for Quick Share buttons and fixed its a11y [#34754]
+
+## [0.44.0] - 2023-12-20
+### Changed
+- Hide conversion notice on Simple sites. [#34733]
+- Updated package dependencies. [#34694]
+
+### Fixed
+- Fixed the media validation notice shown even when auto conversion is enabled. [#34730]
+
+## [0.43.0] - 2023-12-14
+### Changed
+- Moved `usePostMeta` hook to `/hooks/` directory. [#34611]
+- Split PublicizeForm component into smaller ones. [#34612]
+- Updated the share limit bar design. [#34182]
+
+### Fixed
+- Fixed Jetpack Social scheduled post messaging. [#34182]
+- Fixed the scheduled post double count for share limits. [#34182]
+
+## [0.42.0] - 2023-12-11
+### Changed
+- Refactored storing of feature options to use core functions. [#34113]
+
+## [0.41.9] - 2023-12-06
+### Changed
+- Updated package dependencies. [#34416]
+
+## [0.41.8] - 2023-12-03
+### Changed
+- Disabled quick share for scheduled posts. [#34354]
+- Extracted test utils to make them reusable. [#34309]
+- Updated package dependencies. [#34411] [#34427]
+
+### Fixed
+- Fixed the issue of publicize remaining ON after the post is published. [#34289]
+
+## [0.41.7] - 2023-11-24
+### Fixed
+- Fixed pre-publish UI reactivity for Jetpack Social. [#34243]
+
+## [0.41.6] - 2023-11-20
+### Removed
+- Removed the 'jetpack/publicize' store. [#34111]
+
+## [0.41.5] - 2023-11-14
+### Added
+- Added unit tests for Jetpack social store connections. [#34064]
+
+### Changed
+- Updated package dependencies. [#34093]
+
+### Fixed
+- Fixed post editor dirty state caused by Publicize state. [#34064]
+
+## [0.41.4] - 2023-11-13
+### Changed
+- Updated dependencies.
+
+## [0.41.3] - 2023-11-08
+### Fixed
+- Social: Fixed an issue where initial state of the Jetpack Social toggle is not in sync. [#33969]
+
+## [0.41.2] - 2023-11-03
+### Added
+- Added Facebook to Quick Share buttons. [#33934]
+- Added Nextdoor to Social Previews. [#33907]
+
+### Changed
+- Updated package dependencies. [#33904]
+
+## [0.41.1] - 2023-10-26
+### Fixed
+- Fixed Social Image Generator debouncing. [#33767]
+
+## [0.41.0] - 2023-10-23
+### Added
+- Added media restrictions for nextdoor media. [#33630]
+
+### Changed
+- Updated package dependencies. [#33646] [#33687]
+
+### Removed
+- Social: Remove tweetstorm editor components. [#33723]
+
+### Fixed
+- Connection Toggle: Prevented the change handler for firing when the component is disabled. [#33602]
+
+## [0.40.2] - 2023-10-16
+### Added
+- Added aspect-ratio validation for Instagram images. [#33522]
+
+### Changed
+- Added type prop to custom media for social posts. [#33504]
+- Changed Twitter icon and label to X. [#33445]
+- Convert Twitter to X. [#33574]
+- Replaced inline social icons with social-logos package. [#33613]
+- Updated package dependencies. [#33429]
+
+### Fixed
+- Fixed an issue with conditional className property [#33592]
+- Fixed tracking for quick share buttons [#33589]
+
+## [0.40.1] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.40.0] - 2023-10-03
+### Added
+- Added a new post-publish panel for quick sharing [#33244]
+
+## [0.39.1] - 2023-09-28
+### Added
+- Added Copy to clipboard button to sharing buttons [#33261]
+
+## [0.39.0] - 2023-09-25
+### Added
+- Added a new post-publish panel for quick sharing. [#33231]
+- Added sharing buttons to be used in post-publish panel. [#33074]
+- Added tracking events for post publish share buttons. [#33231]
+
+### Fixed
+- Fixed versions. [#33231]
+- Publicize: Reinstate the connect an account link. [#33182]
+
+## [0.38.0] - 2023-09-19
+### Changed
+- Move auto-conversion notice near the Instagram one [#33106]
+- Updated package dependencies. [#33001]
+- Updated package dependencies. [#33043]
+
+### Fixed
+- Fixed video previews for Social Previews [#33132]
+- Only allow selectable image types for Social attached media [#33142]
+
+## [0.37.0] - 2023-09-11
+### Added
+- Add the change settings logic in Social for the auto conversion feature [#32712]
+
+### Changed
+- Changed the isConvertible logic so that Auto conversion only works for Photon supported mime typesa [#32938]
+- Social: Disable Share as a social post checkbox if there is no media on the post [#32922]
+
+## [0.36.0] - 2023-09-04
+### Changed
+- Changed logic that disables the connections based on the auto-conversion feature [#32671]
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+### Fixed
+- Fixed an issue with the logic of getting the enchanced publishing feature [#32707]
+- Fixed FB image size limit for restrictions [#32760]
+
+## [0.35.0] - 2023-08-23
+### Added
+- Added the new auto-conversion toggle for Social [#32597]
+
+### Changed
+- Updated package dependencies. [#32605]
+
+## [0.34.0] - 2023-08-21
+### Added
+- Added SIG toggle for Jetpack Settings [#32475]
+
+### Changed
+- Update connection toggles to be button switches [#32305]
+
+### Fixed
+- Social: Scope the preview image CSS to its container [#32539]
+
+## [0.33.0] - 2023-08-09
+### Changed
+- Moved store to publicize-components package [#32317]
+- Updated package dependencies. [#32166]
+
+## [0.32.0] - 2023-08-07
+### Added
+- ADded new notice for admin page for Advanced plan upsell [#32128]
+- Added new nudge in the editor to upgrade to the Advanced plan. Appears every 3 months [#32087]
+
+### Changed
+- Social: Move the Social Image Generator settings to a modal. [#31665]
+
+### Fixed
+- Fixed checkout link so it's not siteless [#32254]
+
+## [0.31.0] - 2023-08-01
+### Added
+- Add check for seeing if user is on Basic plan. [#32112]
+
+### Changed
+- Change dismiss notice so it can be dismissed for a given time. [#32033]
+
+## [0.30.0] - 2023-07-25
+### Added
+- Added instagram reel restrictions [#31808]
+
+### Changed
+- Refactor TemplatePicker component, so inner part can be use in it's own without a modal. [#31740]
+
+## [0.29.1] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+### Fixed
+- Fix Instagram Max size [#31912]
+
+## [0.29.0] - 2023-07-10
+### Changed
+- Refactored component so it can accept values as prop, and disable debounce [#31700]
+
+## [0.28.0] - 2023-07-05
+### Changed
+- Refactored the media validation so that it is done on a per connection basis [#31565]
+- Updated package dependencies. [#31659]
+- Updated package dependencies. [#31661]
+
+## [0.27.0] - 2023-06-26
+### Changed
+- Updated package dependencies. [#31468]
+
+### Fixed
+- Media picker: Constrain the preview image [#31461]
+- Social Review Prompt: Fix the state so it is shown when Jetpack is also active [#31456]
+
+## [0.26.3] - 2023-06-19
+### Fixed
+- Fixed an issue where Instagram restricitons are not working because of the service name [#31310]
+
+## [0.26.2] - 2023-06-12
+### Changed
+- Improved the defaults for social previews [#31060]
+
+## [0.26.1] - 2023-06-06
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Jetpack Social: Hide the image requirement notice when the site is out of shares [#31184]
+- Simplified i18n strings [#31185]
+- Social: Fixed the connection state to ensure that new connections are disabled by default when there are no shares left. [#31168]
+
 ## [0.26.0] - 2023-05-29
 ### Added
 - Added account_name field to the connections post field. [#30937]
@@ -312,6 +582,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.46.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.45.2...v0.46.0
+[0.45.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.45.1...v0.45.2
+[0.45.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.45.0...v0.45.1
+[0.45.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.44.2...v0.45.0
+[0.44.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.44.1...v0.44.2
+[0.44.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.44.0...v0.44.1
+[0.44.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.43.0...v0.44.0
+[0.43.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.42.0...v0.43.0
+[0.42.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.9...v0.42.0
+[0.41.9]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.8...v0.41.9
+[0.41.8]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.7...v0.41.8
+[0.41.7]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.6...v0.41.7
+[0.41.6]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.5...v0.41.6
+[0.41.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.4...v0.41.5
+[0.41.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.3...v0.41.4
+[0.41.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.2...v0.41.3
+[0.41.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.1...v0.41.2
+[0.41.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.0...v0.41.1
+[0.41.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.40.2...v0.41.0
+[0.40.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.40.1...v0.40.2
+[0.40.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.40.0...v0.40.1
+[0.40.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.39.1...v0.40.0
+[0.39.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.39.0...v0.39.1
+[0.39.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.38.0...v0.39.0
+[0.38.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.37.0...v0.38.0
+[0.37.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.36.0...v0.37.0
+[0.36.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.35.0...v0.36.0
+[0.35.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.34.0...v0.35.0
+[0.34.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.33.0...v0.34.0
+[0.33.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.32.0...v0.33.0
+[0.32.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.31.0...v0.32.0
+[0.31.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.30.0...v0.31.0
+[0.30.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.29.1...v0.30.0
+[0.29.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.29.0...v0.29.1
+[0.29.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.28.0...v0.29.0
+[0.28.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.27.0...v0.28.0
+[0.27.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.3...v0.27.0
+[0.26.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.2...v0.26.3
+[0.26.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.1...v0.26.2
+[0.26.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.0...v0.26.1
 [0.26.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.23.0...v0.24.0

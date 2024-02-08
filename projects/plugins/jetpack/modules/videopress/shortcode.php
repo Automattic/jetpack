@@ -208,7 +208,7 @@ class VideoPress_Shortcode {
 			foreach ( $url_keys as $key ) {
 				if ( isset( $attr[ $key ] ) ) {
 					$url = $attr[ $key ];
-					// phpcs:ignore WordPress.WP.CapitalPDangit
+					// phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 					if ( preg_match( '@videos.(videopress\.com|files\.wordpress\.com)/([a-z0-9]{8})/@i', $url, $matches ) ) {
 						$videopress_guid = $matches[2];
 					}
@@ -219,7 +219,7 @@ class VideoPress_Shortcode {
 					}
 
 					// Also test for old v.wordpress.com oembed URL.
-					if ( ! $videopress_guid && preg_match( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', $url, $matches ) ) { // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+					if ( ! $videopress_guid && preg_match( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', $url, $matches ) ) { // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 						$videopress_guid = $matches[1];
 					}
 

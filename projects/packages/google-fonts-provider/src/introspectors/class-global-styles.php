@@ -40,13 +40,7 @@ class Global_Styles {
 	 * @return array Font faces from Global Styles settings.
 	 */
 	public static function collect_fonts_from_global_styles() {
-		if ( ! function_exists( 'gutenberg_get_global_styles' ) && ! function_exists( 'wp_get_global_styles' ) ) {
-			return array();
-		}
-
-		$global_styles = function_exists( 'wp_get_global_styles' ) ?
-			wp_get_global_styles() : gutenberg_get_global_styles();
-
+		$global_styles  = wp_get_global_styles();
 		$found_webfonts = array();
 
 		// Look for fonts in block presets...

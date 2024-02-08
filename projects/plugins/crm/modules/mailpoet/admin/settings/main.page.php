@@ -64,7 +64,7 @@ function jpcrm_settings_page_html_mailpoet_main(){
 	?>
     <p style="padding-top: 18px; text-align:center;margin:1em">
 		<?php
-		echo sprintf(
+		printf(
 			'<a href="%s" class="ui basic positive button" style="margin-top:1em"><i class="users icon"></i> %s</a>',
 			jpcrm_esc_link( $zbs->slugs['mailpoet'] ),
 			esc_html__( 'MailPoet Sync Hub', 'zero-bs-crm' )
@@ -143,18 +143,18 @@ function jpcrm_settings_page_html_mailpoet_main(){
             </tbody>
         </table>
 
-        <table class="table table-bordered table-striped wtab">
-            <tbody>
+			<table class="table table-bordered table-striped wtab">
+				<tbody>
 
-            <tr>
-                <td colspan="2" class="wmid"><button type="submit" class="button button-primary button-large"><?php esc_html_e('Save Settings','zero-bs-crm'); ?></button></td>
-            </tr>
+					<tr>
+						<td class="wmid"><button type="submit" class="button button-primary button-large"><?php esc_html_e( 'Save Settings', 'zero-bs-crm' ); ?></button></td>
+					</tr>
 
-            </tbody>
-        </table>
+				</tbody>
+			</table>
 
-    </form>
+		</form>
 
-    </div><?php
-
+	</div>
+	<?php
 }

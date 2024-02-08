@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Run CI tests with PHP 8.1+ after adjusting test configs to avoid the deprecation warnings.
-
-

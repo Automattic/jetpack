@@ -7,11 +7,13 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\A8c_Mc_Stats as A8c_Mc_Stats;
+use Automattic\Jetpack\A8c_Mc_Stats;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
+use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_IXR_Client;
@@ -134,6 +136,12 @@ class Manager {
 
 		// Initialize connection notices.
 		new Connection_Notice();
+
+		// Initialize token locks.
+		new Tokens_Locks();
+
+		// Initial Partner management.
+		Partner::init();
 	}
 
 	/**
@@ -270,7 +278,7 @@ class Manager {
 		$jetpack_methods = array();
 
 		foreach ( $methods as $method => $callback ) {
-			if ( 0 === strpos( $method, 'jetpack.' ) ) {
+			if ( str_starts_with( $method, 'jetpack.' ) ) {
 				$jetpack_methods[ $method ] = $callback;
 			}
 		}
@@ -437,7 +445,7 @@ class Manager {
 			$post_data   = $_POST;
 			$file_hashes = array();
 			foreach ( $post_data as $post_data_key => $post_data_value ) {
-				if ( 0 !== strpos( $post_data_key, '_jetpack_file_hmac_' ) ) {
+				if ( ! str_starts_with( $post_data_key, '_jetpack_file_hmac_' ) ) {
 					continue;
 				}
 				$post_data_key                 = substr( $post_data_key, strlen( '_jetpack_file_hmac_' ) );
@@ -782,6 +790,25 @@ class Manager {
 
 		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
 			$connection_owner = get_userdata( $user_token->external_user_id );
+		}
+
+		if ( $connection_owner === false ) {
+			Error_Handler::get_instance()->report_error(
+				new WP_Error(
+					'invalid_connection_owner',
+					'Invalid connection owner',
+					array(
+						'user_id'           => $user_id,
+						'has_user_token'    => (bool) $user_token,
+						'error_type'        => 'connection',
+						'signature_details' => array(
+							'token' => '',
+						),
+					)
+				),
+				false,
+				true
+			);
 		}
 
 		return $connection_owner;
@@ -1165,7 +1192,7 @@ class Manager {
 			$jetpack_public = false;
 		}
 
-		\Jetpack_Options::update_options(
+		Jetpack_Options::update_options(
 			array(
 				'id'     => (int) $registration_details->jetpack_id,
 				'public' => $jetpack_public,
@@ -1175,6 +1202,13 @@ class Manager {
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, $package_versions );
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
+
+		if ( ! Jetpack_Options::get_option( 'id' ) || ! $this->get_tokens()->get_access_token() ) {
+			return new WP_Error(
+				'connection_data_save_failed',
+				'Failed to save connection data in the database'
+			);
+		}
 
 		$alternate_authorization_url = isset( $registration_details->alternate_authorization_url ) ? $registration_details->alternate_authorization_url : '';
 
@@ -1647,6 +1681,11 @@ class Manager {
 			return false;
 		}
 
+		if ( ( new Status() )->is_offline_mode() && ! apply_filters( 'jetpack_connection_disconnect_site_wpcom_offline_mode', false ) ) {
+			// Prevent potential disconnect of the live site by removing WPCOM tokens.
+			return false;
+		}
+
 		/**
 		 * Fires upon the disconnect attempt.
 		 * Return `false` to prevent the disconnect.
@@ -1887,6 +1926,8 @@ class Manager {
 				'site_lang'             => get_locale(),
 				'site_created'          => $this->get_assumed_site_creation_date(),
 				'allow_site_connection' => ! $this->has_connected_owner(),
+				'calypso_env'           => ( new Host() )->get_calypso_env(),
+				'source'                => ( new Host() )->get_source_query(),
 			)
 		);
 
@@ -1894,7 +1935,10 @@ class Manager {
 
 		$api_url = $this->api_url( 'authorize' );
 
-		return add_query_arg( $body, $api_url );
+		$url = add_query_arg( $body, $api_url );
+
+		/** This filter is documented in plugins/jetpack/class-jetpack.php  */
+		return apply_filters( 'jetpack_build_authorize_url', $url );
 	}
 
 	/**
@@ -2110,7 +2154,6 @@ class Manager {
 			'wordpress.com',
 			'localhost',
 			'localhost.localdomain',
-			'127.0.0.1',
 			'local.wordpress.test',         // VVV pattern.
 			'local.wordpress-trunk.test',   // VVV pattern.
 			'src.wordpress-develop.test',   // VVV pattern.
@@ -2164,6 +2207,24 @@ class Manager {
 		if ( ! function_exists( 'filter_var' ) ) {
 			// Just pass back true for now, and let wpcom sort it out.
 			return true;
+		}
+
+		$domain = preg_replace( '#^https?://#', '', untrailingslashit( $domain ) );
+
+		if ( filter_var( $domain, FILTER_VALIDATE_IP )
+			&& ! filter_var( $domain, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )
+		) {
+			return new \WP_Error(
+				'fail_ip_forbidden',
+				sprintf(
+					/* translators: %1$s is a domain name. */
+					__(
+						'IP address `%1$s` just failed is_usable_domain check as it is in the private network.',
+						'jetpack-connection'
+					),
+					$domain
+				)
+			);
 		}
 
 		return true;
@@ -2498,18 +2559,36 @@ class Manager {
 	/**
 	 * Get the WPCOM or self-hosted site ID.
 	 *
-	 * @return int|WP_Error
+	 * @param bool $quiet Return null instead of an error.
+	 *
+	 * @return int|WP_Error|null
 	 */
-	public static function get_site_id() {
+	public static function get_site_id( $quiet = false ) {
 		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 		$site_id  = $is_wpcom ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
 		if ( ! $site_id ) {
-			return new \WP_Error(
-				'unavailable_site_id',
-				__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack-connection' ),
-				403
-			);
+			return $quiet
+				? null
+				: new \WP_Error(
+					'unavailable_site_id',
+					__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack-connection' ),
+					403
+				);
 		}
 		return (int) $site_id;
+	}
+
+	/**
+	 * Check if Jetpack is ready for uninstall cleanup.
+	 *
+	 * @param string $current_plugin_slug The current plugin's slug.
+	 *
+	 * @return bool
+	 */
+	public static function is_ready_for_cleanup( $current_plugin_slug ) {
+		$active_plugins = get_option( Plugin_Storage::ACTIVE_PLUGINS_OPTION_NAME );
+
+		return empty( $active_plugins ) || ! is_array( $active_plugins )
+			|| ( count( $active_plugins ) === 1 && array_key_exists( $current_plugin_slug, $active_plugins ) );
 	}
 }

@@ -28,215 +28,6 @@
 	 }
  }
 
-#zbs-add-new-compay-modal{
-	.tiny{
-		font-size:11px;
-		font-style:italic;
-	}
-}
-
-// Extension page...
-#zbsExtensionsPage {
-
-	width:100%;
-	padding-right:1em;
-
-	h2 {
-
-		i.fa {
-
-			color:green;
-
-		}
-
-	}
-
-
-	.zbsExtensionGroup {
-
-	    margin: 14px;
-	    background: #FFF;
-	    padding: 20px;
-	    border-radius: 4px;
-
-		h2 {
-
-		    margin-top: -10px;
-		    color: #428bca;
-
-		}
-
-		p {
-
-			font-size:16px;
-
-		}
-
-		// list of extensions
-		.zbsExtensionList {
-
-			position:relative;
-			width:100%;
-			clear:both;
-
-			// individual extension
-
-				.zbsFreeExtension{
-
-					.zbsExtensionImg {
-
-						text-align:center;
-						background: green;
-						padding:20px 40px;
-					    border-top-left-radius: 4px;
-					    border-top-right-radius: 4px;
-
-						i.fa {
-
-							font-size:68px;
-							color:#FFF;
-						}
-
-						img{
-							max-width:100%;
-						}
-
-					}
-				}
-
-				.zbsPaidExtension{
-
-					.zbsExtensionImg {
-
-
-						text-align:center;
-						//padding:20px 40px;
-
-						img{
-							max-width:100%;
-						}
-
-						i.fa {
-
-							font-size:68px;
-							color:#FFF;
-						}
-
-					}
-				}
-
-			.zbsExtension {
-
-				position:relative;
-
-				text-align:center;
-				width: 23%;
-
-				float:left;
-				margin:10px;
-
-			    border-radius: 4px;
-			    border: 1px solid #f1f1f1;
-			    padding-bottom: 12px;
-
-			    // back shadow  http://www.cssmatic.com/box-shadow
-			    -webkit-box-shadow: 0px 2px 24px -6px rgba(128,128,128,1);
-				-moz-box-shadow: 0px 2px 24px -6px rgba(128,128,128,1);
-				box-shadow: 0px 2px 24px -6px rgba(128,128,128,1);
-
-
-				h3 {
-
-					text-align:center;
-
-				}
-
-				p {
-
-					text-align:center;
-    				padding: 0px 8px;
-    				min-height: 48px; //twolines
-
-    				// for button
-    				margin-bottom: 44px;
-
-				}
-
-
-				.zbsExtensionButton {
-
-				    position: absolute;
-				    bottom: 16px;
-				    left: 0;
-				    width:100%;
-				    text-align:center;
-
-					button {
-
-						text-align:center;
-
-					}
-
-
-				    // for label "installed"
-				    line-height: 30px;
-				    font-size: 16px;
-					strong {
-
-						color:green;
-
-					}
-
-
-
-				}
-
-
-			}
-
-			// free ones get less size!
-			.zbsExtension.zbsFreeExtension {
-
-			    width: 20%;
-			    max-width: 250px;
-			    min-width: 150px;
-			    min-height: 266px;
-
-				.zbsExtensionImg {
-
-					opacity:0.6;
-
-					i.fa {
-
-						font-size: 56px;
-					}
-
-				}
-
-				h3 {
-
-					font-size:20px;
-
-				}
-
-				p {
-
-					font-size:15px;
-
-				}
-
-			}
-
-
-
-		}
-
-	}
-
-
-}
-
-
 // Deletion page... e.g. "customer 123 moved to trash"
 #zbsDeletionPage {
 
@@ -295,127 +86,6 @@
 	}
 
 }
-
-// ZBS account connector
-
-.zbs-account-connector{
-
-	padding:20px;
-
-	.loadingAlert {
-
-      	display: none;
-		text-align:center;
-		float:none !important;
-		border: 0px solid white !important;
-		margin-top:20px;
-		margin-bottom:20px;
-
-		.spinner{
-	      background-size: 16px 16px;
-	      opacity: .7;
-	      filter: alpha(opacity=70);
-	      width: 16px;
-	      height: 16px;
-	      margin: 5px 5px 0;
-	    }
-	}
-    .zbs-extensions{
-      display:inline-block;
-      padding:10px;
-      text-align:center;
-      width:100%;
-      margin-bottom:10px;
-      border: 1px dashed #ccc;
-      background: #f9f9f9;
-      .Active,.active{
-      	margin-left:10px;
-      	padding:5px;
-      	color:white !important;
-      	background: #18c518;
-      	border-radius:5px;
-      }
-      .Cancelled, .cancelled{
-      	margin-left:10px;
-      	padding:5px;
-      	color:white !important;
-      	background: #b54141;
-      	border-radius:5px;
-      }
-      div{
-      	line-height:35px;
-      }
-    }
-
-
-	#zbs-extensions-manager-unlink-wrap {
-		text-align: center;
-    	margin-bottom: 3em;
-	}
-
-	.connect-account-form{
-		display:none;
-	    max-width: 500px;
-	    margin-left: auto !important;
-	    margin-right: auto !important;
-	}
-
-	.connect-account-button{
-	    margin-bottom: 3em;
-	    text-align: center;
-	    margin-top: 2em;
-	}
-
-	.connect-account{
-		margin:50px;
-		background:white;
-		padding:20px;
-		border-radius: 5px;
-		border: 1px solid #ccc;
-	}
-
-	.installed-zbs-plugins {
-		max-width:700px;
-		margin-left:auto;
-		margin-right:auto;
-	}
-
-	// upsell
-	.zbs-no-premium {
-
-	    max-width: 400px;
-	    text-align: center;
-	    padding: 2em;
-	    margin-left: auto !important;
-	    margin-right: auto !important;
-
-	}
-
-	label{
-		margin-top:10px;
-	}
-
-	.green, .red, .black{
-		font-weight:800;
-		font-size:14px;
-	}
-
-	.green{
-		color:green;
-	}
-	.red{
-		color:red;
-	}
-	.black{
-		color:black;
-	}
-
-	.no-account{
-		text-align:center;
-		margin-top:10px;
-	}
-}
-
 
 .zbs-settings_page_zerobscrm-plugin-settings{
 	.wfieldname{
@@ -532,6 +202,10 @@
 			max-width: 800px !important;
 		}
 	}
+
+	&.jpcrm-full-width {
+		max-width: none;
+	}
 }
 
 div.ui.learn.button {
@@ -543,16 +217,6 @@ div.ui.learn.button {
 		vertical-align: text-bottom;
 		margin-left: 4px;
 	}
-}
-
-
-.sales-overview{
-	background: #3f4347 !important;
-	h3{
-		color: white !important;
-	}
-	margin-left:-25px;
-	padding-left:25px;
 }
 
 .item:focus{
@@ -584,15 +248,6 @@ div.ui.learn.button {
     background: none !important;
 }
 
-.learn-h3{
-	font-weight:900;
-	font-size:20px;
-}
-
-#learn-pop{
-	z-index:9999999999;
-}
-
 //TEAM STUFF BELOW HERE
 #zbs-team-user-table{
 	.dn{
@@ -617,15 +272,6 @@ div.ui.learn.button {
 .clear{
 	clear:both;
 }
-
-.zbs-inner-segment{
-	margin-right:25px !important;
-}
-
-
-
-
-
 
 // File Edit page
 .zbs-cp-file-edit-page {
@@ -654,7 +300,7 @@ div.ui.learn.button {
 #zbs-quote-learn-nav,
 #zbs-invoice-learn-nav,
 #zbs-transaction-learn-nav,
-#zbs-event-learn-nav {
+#jpcrm-task-learn-nav {
     display: flex;
 }
 

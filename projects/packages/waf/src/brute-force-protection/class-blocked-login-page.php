@@ -366,7 +366,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 
 		if ( self::HTTP_STATUS_CODE_TOO_MANY_REQUESTS === $code ) {
 			// translators: email address the recovery instructions were sent to.
-			return new WP_Error( 'email_already_sent', sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack-waf' ), $this->email_address ) );
+			return new WP_Error( 'email_already_sent', sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack-waf' ), esc_html( $this->email_address ) ) );
 		} elseif ( is_wp_error( $result ) || empty( $result ) || isset( $result->error ) ) {
 			return new WP_Error( 'email_send_error', __( 'Oops, we were unable to send a recovery email. Try again.', 'jetpack-waf' ) );
 		}

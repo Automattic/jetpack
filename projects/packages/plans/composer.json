@@ -4,10 +4,11 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"php": ">=7.0",
 		"automattic/jetpack-connection": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.4",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/wordbless": "@dev"
@@ -50,7 +51,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.3.x-dev"
+			"dev-trunk": "0.4.x-dev"
 		}
 	},
 	"config": {

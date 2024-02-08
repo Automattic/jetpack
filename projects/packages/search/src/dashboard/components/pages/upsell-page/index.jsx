@@ -27,7 +27,6 @@ import Header from './header';
 
 import './styles.scss';
 
-const AUTOMATTIC_WEBSITE = 'https://automattic.com/';
 const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
 
 /**
@@ -42,6 +41,7 @@ export default function UpsellPage( { isLoading = false } ) {
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
@@ -59,6 +59,7 @@ export default function UpsellPage( { isLoading = false } ) {
 			siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 			from: 'jetpack-search',
 			siteSuffix: domain,
+			blogID,
 			isWpcom,
 		} );
 
@@ -70,6 +71,7 @@ export default function UpsellPage( { isLoading = false } ) {
 			siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 			from: 'jetpack-search',
 			siteSuffix: domain,
+			blogID,
 			isWpcom,
 		} );
 
@@ -90,7 +92,6 @@ export default function UpsellPage( { isLoading = false } ) {
 				<div className="jp-search-dashboard-upsell-page">
 					<AdminPage
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
-						a8cLogoHref={ AUTOMATTIC_WEBSITE }
 						header={ <Header /> }
 						moduleNameHref={ JETPACK_SEARCH__LINK }
 					>

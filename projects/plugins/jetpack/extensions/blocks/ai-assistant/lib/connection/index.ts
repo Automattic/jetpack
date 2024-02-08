@@ -6,6 +6,14 @@ import debugFactory from 'debug';
 
 const initialState = window?.JP_CONNECTION_INITIAL_STATE;
 const debug = debugFactory( 'jetpack-ai-assistant:connection' );
+let hasCheckedConnection = false;
+
+const debugOnce = content => {
+	if ( ! hasCheckedConnection ) {
+		debug( content );
+		hasCheckedConnection = true;
+	}
+};
 
 /**
  * Return the initial connection status.
@@ -14,20 +22,33 @@ const debug = debugFactory( 'jetpack-ai-assistant:connection' );
  */
 export function isUserConnected(): boolean {
 	if ( isSimpleSite() ) {
-		debug( 'Simple site connected ✅' );
+		debugOnce( 'Simple site connected ✅' );
 		return true;
 	}
 
 	if ( isAtomicSite() ) {
-		debug( 'Atomic site connected ✅' );
+		debugOnce( 'Atomic site connected ✅' );
 		return true;
 	}
 
 	if ( initialState?.connectionStatus?.isUserConnected ) {
-		debug( 'Jetpack user is connected ✅' );
+		debugOnce( 'Jetpack user is connected ✅' );
 		return true;
 	}
 
-	debug( 'User is not connected ❌' );
+	debugOnce( 'User is not connected ❌' );
 	return false;
+}
+
+export function canUserPurchasePlan(): boolean {
+	if ( isSimpleSite() ) {
+		// Roles on simple sites can't be inferred from the connection status.
+		return true;
+	}
+
+	const permissions =
+		initialState?.userConnectionData?.currentUser?.permissions ??
+		( {} as { manage_options?: boolean } );
+
+	return ! permissions.manage_options === false;
 }

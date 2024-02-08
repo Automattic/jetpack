@@ -5,35 +5,12 @@ const debug = require( '../../utils/debug' );
 const getAffectedChangeloggerProjects = require( '../../utils/get-affected-changelogger-projects' );
 const getComments = require( '../../utils/get-comments' );
 const getFiles = require( '../../utils/get-files' );
-const getLabels = require( '../../utils/get-labels' );
 const getNextValidMilestone = require( '../../utils/get-next-valid-milestone' );
 const getPluginNames = require( '../../utils/get-plugin-names' );
 const getPrWorkspace = require( '../../utils/get-pr-workspace' );
+const getLabels = require( '../../utils/labels/get-labels' );
 
 /* global GitHub, WebhookPayloadPullRequest */
-
-/**
- * Check if a PR has unverified commits.
- *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
- */
-async function hasUnverifiedCommit( octokit, owner, repo, number ) {
-	for await ( const response of octokit.paginate.iterator( octokit.rest.pulls.listCommits, {
-		owner,
-		repo,
-		pull_number: +number,
-	} ) ) {
-		if ( response.data.find( commit => commit.commit.message.includes( '[not verified]' ) ) ) {
-			return true;
-		}
-	}
-
-	return false;
-}
 
 /**
  * Check for status labels on a PR.
@@ -94,7 +71,7 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
 
 		// Look for a code freeze date in the milestone description.
-		const dateRegex = /^Code Freeze: (\d{4}-\d{2}-\d{2})\s*$/m;
+		const dateRegex = /^(?:Code Freeze|Branch Cut): (\d{4}-\d{2}-\d{2})\s*$/m;
 		const freezeDateDescription = nextMilestone.description.match( dateRegex );
 
 		// If we have a date and it is valid, use it, otherwise set code freeze to a week before the release.
@@ -126,8 +103,21 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 ******
 
 **${ capitalizedName } plugin:**
+
+${
+	'Jetpack' === capitalizedName
+		? `The Jetpack plugin has different release cadences depending on the platform:
+
+- WordPress.com Simple releases happen daily.
+- WoA releases happen weekly.
+- Releases to self-hosted sites happen monthly. The next release is scheduled for _${ releaseDate }_ (scheduled code freeze on _${ codeFreezeDate }_).`
+		: `
 - Next scheduled release: _${ releaseDate }_.
 - Scheduled code freeze: _${ codeFreezeDate }_.
+`
+}
+
+If you have any questions about the release process, please ask in the #jetpack-releases channel on Slack.
 `;
 }
 
@@ -151,10 +141,11 @@ async function buildMilestoneInfo( octokit, owner, repo, number ) {
 		const nextMilestone = await getNextValidMilestone( octokit, owner, repo, plugin );
 		debug( `check-description: Milestone found: ${ JSON.stringify( nextMilestone ) }` );
 
-		debug( `check-description: getting milestone info for ${ plugin }` );
-		const info = await getMilestoneDates( plugin, nextMilestone );
-
-		pluginInfo += info;
+		if ( 'crm' !== plugin ) {
+			debug( `check-description: getting milestone info for ${ plugin }` );
+			const info = await getMilestoneDates( plugin, nextMilestone );
+			pluginInfo += info;
+		}
 	}
 
 	return pluginInfo;
@@ -256,7 +247,6 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
  * Compose a list of checks for the PR
  * Covers:
  * - Short PR description
- * - Unverified commits
  * - Missing `[Status]` label
  * - Missing "Testing instructions"
  * - Missing Changelog entry
@@ -274,7 +264,6 @@ async function getStatusChecks( payload, octokit ) {
 	const ownerLogin = owner.login;
 
 	const hasLongDescription = body.length > 200;
-	const isClean = ! ( await hasUnverifiedCommit( octokit, ownerLogin, repo, number ) );
 	const isLabeled = await hasStatusLabels( octokit, ownerLogin, repo, number );
 	const hasTesting = body.includes( 'Testing instructions' );
 	const hasPrivacy = body.includes( 'data or activity we track or use' );
@@ -283,7 +272,6 @@ async function getStatusChecks( payload, octokit ) {
 
 	return {
 		hasLongDescription,
-		isClean,
 		isLabeled,
 		hasTesting,
 		hasPrivacy,
@@ -304,14 +292,6 @@ function renderStatusChecks( statusChecks ) {
 	let checks = statusEntry(
 		! statusChecks.hasLongDescription,
 		'Include a description of your PR changes.'
-	);
-
-	// Check all commits in PR.
-	// In this case, we use a different failure icon, as we do not consider this a blocker, it should not trigger label changes.
-	checks += statusEntry(
-		! statusChecks.isClean,
-		'All commits were linted before commit.',
-		'warning'
 	);
 
 	// Use labels please!
@@ -515,7 +495,7 @@ The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e
 	if ( statusChecks.isFromContributor ) {
 		comment += `
 
-Once your PR is ready for review, check one last time that all required checks (other than "Required review") appearing at the bottom of this PR are passing or skipped.
+Once your PR is ready for review, check one last time that all required checks appearing at the bottom of this PR are passing or skipped.
 Then, add the "[Status] Needs Team Review" label and ask someone from your team review the code. Once reviewed, it can then be merged.
 If you need an extra review from someone familiar with the codebase, you can update the labels from "[Status] Needs Team Review" to "[Status] Needs Review", and in that case Jetpack Approvers will do a final review of your PR.`;
 	}

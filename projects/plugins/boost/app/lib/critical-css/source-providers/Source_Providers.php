@@ -49,6 +49,19 @@ class Source_Providers {
 	}
 
 	/**
+	 * Returns the Provider which controls a given key.
+	 */
+	public function get_provider_for_key( $key ) {
+		foreach ( $this->providers as $provider ) {
+			if ( $provider::owns_key( $key ) ) {
+				return $provider;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Get all critical CSS storage keys that are available for the current request.
 	 * Caches the result.
 	 *
@@ -126,5 +139,4 @@ class Source_Providers {
 
 		return $sources;
 	}
-
 }

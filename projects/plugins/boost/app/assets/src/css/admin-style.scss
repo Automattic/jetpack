@@ -6,21 +6,21 @@
 @import 'main/common';
 
 // Components
-@import 'components/connection';
-@import 'components/feature-toggle';
-@import 'components/benchmarks';
-@import 'components/score';
-@import 'components/error-message';
-@import 'components/critical-css';
-@import 'components/close-button';
-@import 'components/numbered-list';
-@import 'components/rating-card';
 @import 'components/button';
-@import 'components/card';
-@import 'components/checklist';
-@import 'components/icons';
-@import 'components/badge';
-@import 'components/support';
 @import 'components/snackbar';
-@import 'components/icon-tooltip';
-@import 'components/pricing-table.scss';
+
+// React Migration CSS
+@import 'components/isa/recommendations-page.scss';
+@import 'components/isa/multi-progress.scss';
+@import 'components/isa/recommendations/hero.scss';
+@import 'components/isa/recommendations/pagination.scss';
+@import 'components/isa/recommendations/table.scss';
+@import 'components/isa/recommendations/tabs.scss';
+@import 'components/isa/recommendations/components/device.scss';
+@import 'components/isa/recommendations/components/pagination-arrow.scss';
+@import 'components/isa/recommendations/components/pill.scss';
+@import 'components/isa/recommendations/components/row-title.scss';
+@import 'components/isa/recommendations/components/thumbnail.scss';
+@import 'components/isa/recommendations/row-types/table-row.scss';
+@import 'components/isa/recommendations/row-types/table-row-hover.scss';
+@import 'components/isa/recommendations/row-types/image-size-row.scss';

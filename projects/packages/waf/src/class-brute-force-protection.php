@@ -212,6 +212,10 @@ class Brute_Force_Protection {
 	 * @return bool
 	 */
 	public static function enable() {
+		// Return true if already enabled.
+		if ( self::is_enabled() ) {
+			return true;
+		}
 		return ( new Modules() )->activate( 'protect', false, false );
 	}
 
@@ -221,6 +225,10 @@ class Brute_Force_Protection {
 	 * @return bool
 	 */
 	public static function disable() {
+		// Return true if already disabled.
+		if ( ! self::is_enabled() ) {
+			return true;
+		}
 		return ( new Modules() )->deactivate( 'protect' );
 	}
 

@@ -154,5 +154,4 @@ class Test_Roles extends TestCase {
 	public function test_role_to_cap_non_existing_role() {
 		$this->assertFalse( $this->roles->translate_role_to_cap( 'follower' ) );
 	}
-
 }

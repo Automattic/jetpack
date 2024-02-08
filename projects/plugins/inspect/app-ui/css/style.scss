@@ -1,0 +1,67 @@
+@import "main/variables";
+@import "main/wp-admin";
+
+.info code {
+	background-color: hsla(0, 0%, 92%, 100%);
+	border-radius: 3px;
+}
+
+.info code {
+	font-size: 11px;
+}
+
+.button-effects {
+	&:hover {
+		opacity: 0.8;
+	}
+
+	transition: transform 200ms ease;
+	&:active {
+		outline: none;
+		transform: translateY(1px);
+	}
+}
+.ji-button {
+	display: inline-block;
+	padding: 9px 21px;
+	font-size: 0.75rem;
+	background-color: var(--jetpack_green_40);
+	color: var(--jetpack_green_0);
+	border-radius: 21px;
+	border: none;
+	font-weight: 400;
+	cursor: pointer;
+	@extend .button-effects;
+}
+
+.ji-button--alt {
+	@extend .ji-button;
+	background-color: hsl(77, 43%, 90%);
+	color: var(--jetpack_green_40);
+}
+
+.ji-button--altii {
+	@extend .ji-button;
+	background-color: hsl(77, 43%, 90%);
+	color: var(--jetpack_green_40);
+}
+
+#jetpack-inspect {
+	form :focus,
+	textarea:focus,
+	input:focus {
+		outline-color: var(--jetpack_green_40);
+	}
+	input,
+	textarea {
+		border: 1px solid var(--gray_5);
+		border-radius: 3px;
+	}
+	input[type="text"] {
+		padding-left: 10px;
+
+		&::placeholder {
+			opacity: 0.3;
+		}
+	}
+}

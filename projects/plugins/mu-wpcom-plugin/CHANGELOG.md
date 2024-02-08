@@ -5,6 +5,206 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.18 - 2024-02-05
+### Changed
+- Internal updates.
+
+## 2.0.17 - 2024-01-29
+### Changed
+- Internal updates.
+
+## 2.0.16 - 2024-01-25
+### Changed
+- Internal updates.
+
+## 2.0.15 - 2024-01-23
+### Changed
+- Internal updates.
+
+## 2.0.14 - 2024-01-22
+### Changed
+- Internal updates.
+
+## 2.0.13 - 2024-01-15
+### Changed
+- Internal updates.
+
+## 2.0.12 - 2024-01-08
+### Changed
+- Updated package dependencies. [#34882]
+
+## 2.0.11 - 2024-01-04
+### Changed
+- Internal updates.
+
+## 2.0.10 - 2024-01-02
+### Added
+- Bumped the composer version. [#34789]
+
+## 2.0.9 - 2023-12-25
+
+- Internal updates.
+
+## 2.0.8 - 2023-12-20
+### Changed
+- Internal updates.
+
+## 2.0.7 - 2023-12-15
+### Changed
+- Version bump [#34648]
+
+## 2.0.6 - 2023-12-14
+### Changed
+- Updated package dependencies. [#34559]
+
+## 2.0.5 - 2023-12-11
+### Changed
+- Internal updates.
+
+## 2.0.4 - 2023-12-03
+
+## 2.0.3 - 2023-11-30
+### Changed
+- Internal updates.
+
+## 2.0.2 - 2023-11-24
+
+## 2.0.1 - 2023-11-21
+
+## 2.0.0 - 2023-11-20
+### Changed
+- Updated the required PHP version to >= 7.0. [#34126]
+
+## 1.7.11 - 2023-11-14
+### Changed
+- Updated package dependencies. [#34087]
+
+## 1.7.10 - 2023-11-13
+### Changed
+- Internal updates.
+
+## 1.7.9 - 2023-11-09
+
+## 1.7.8 - 2023-11-08
+
+## 1.7.7 - 2023-11-03
+
+## 1.7.6 - 2023-10-31
+### Changed
+- Internal updates.
+
+## 1.7.5 - 2023-10-30
+
+## 1.7.4 - 2023-10-26
+
+## 1.7.3 - 2023-10-24
+### Changed
+- Internal updates.
+
+## 1.7.2 - 2023-10-23
+
+## 1.7.1 - 2023-10-16
+### Changed
+- Updated package dependencies. [#33498]
+
+## 1.7.0 - 2023-10-10
+### Changed
+- Updated lock files [#33456]
+- Updated lock file [#33457]
+
+## 1.6.24 - 2023-10-04
+### Changed
+- Internal updates.
+
+## 1.6.23 - 2023-10-03
+
+- Minor internal updates.
+
+## 1.6.22 - 2023-09-28
+### Changed
+- Minor internal updates.
+
+## 1.6.21 - 2023-09-25
+
+## 1.6.20 - 2023-09-19
+
+## 1.6.19 - 2023-09-11
+### Changed
+- Updated package dependencies. [#32966]
+
+## 1.6.18 - 2023-09-07
+
+## 1.6.17 - 2023-09-06
+
+## 1.6.16 - 2023-09-04
+
+## 1.6.15 - 2023-08-28
+### Changed
+- Updated package dependencies. [#32605]
+
+## 1.6.14 - 2023-08-21
+
+## 1.6.13 - 2023-08-15
+### Changed
+- Internal updates.
+
+## 1.6.12 - 2023-08-14
+
+- Minor internal updates.
+
+## 1.6.11 - 2023-08-09
+### Changed
+- Internal updates.
+
+## 1.6.10 - 2023-08-09
+### Changed
+- Updated package dependencies. [#32307]
+
+## 1.6.9 - 2023-08-07
+
+## 1.6.8 - 2023-08-01
+
+- Minor internal updates.
+
+## 1.6.7 - 2023-07-26
+
+- Updated package dependencies.
+
+## 1.6.6 - 2023-07-25
+
+## 1.6.5 - 2023-07-17
+### Changed
+- Updated package dependencies. [#31769]
+
+## 1.6.4 - 2023-07-10
+
+## 1.6.3 - 2023-07-05
+
+## 1.6.2 - 2023-06-27
+
+## 1.6.1 - 2023-06-26
+### Changed
+- Updated package dependencies.
+
+## 1.6.0 - 2023-06-26
+### Changed
+- Updated package dependencies. [#31308]
+
+### Fixed
+- Updates package version. [#31191]
+
+## 1.5.0 - 2023-06-19
+### Fixed
+- Updates package version to 3.1.0-alpha [#31349]
+
+## 1.4.0 - 2023-06-12
+### Changed
+- Updated package dependencies. [#31284]
+
+## 1.3.0 - 2023-06-06
+### Changed
+- Updated jetpack-mu-wpcom [#30915]
+
 ## 1.2.6 - 2023-05-29
 
 ## 1.2.5 - 2023-05-22

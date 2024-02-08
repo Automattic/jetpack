@@ -1,4 +1,5 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ImageSlider from './image-slider';
@@ -11,18 +12,26 @@ import './style.scss';
  * @returns {React.Component} The `ConnectScreenLayout` component.
  */
 const ConnectScreenLayout = props => {
-	const { title, children, className, assetBaseUrl, images, logo } = props;
+	const { title, children, className, assetBaseUrl, images, logo, rna = false } = props;
 
 	const showImageSlider = images?.length;
 
 	return (
 		<div
-			className={
-				'jp-connection__connect-screen-layout' +
-				( showImageSlider ? ' jp-connection__connect-screen-layout__two-columns' : '' ) +
-				( className ? ' ' + className : '' )
-			}
+			className={ classNames(
+				'jp-connection__connect-screen-layout',
+				showImageSlider ? 'jp-connection__connect-screen-layout__two-columns' : '',
+				className ? ' ' + className : ''
+			) }
 		>
+			{ rna && (
+				<div className="jp-connection__connect-screen-layout__color-blobs">
+					<div className="jp-connection__connect-screen-layout__color-blobs__green"></div>
+					<div className="jp-connection__connect-screen-layout__color-blobs__yellow"></div>
+					<div className="jp-connection__connect-screen-layout__color-blobs__blue"></div>
+				</div>
+			) }
+
 			<div className="jp-connection__connect-screen-layout__left">
 				{ logo || <JetpackLogo /> }
 

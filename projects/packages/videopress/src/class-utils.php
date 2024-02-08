@@ -74,7 +74,7 @@ class Utils {
 	 * @return bool True if the URL is a VideoPress URL, false otherwise.
 	 */
 	public static function is_videopress_url( $url ) {
-		$pattern = '/^https?:\/\/(?:(?:v(?:ideo)?\.wordpress\.com|videopress\.com)\/(?:v|embed)|v\.wordpress\.com)\/([a-z\d]{8})(\/|\b)/i'; // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+		$pattern = '/^https?:\/\/(?:(?:v(?:ideo)?\.wordpress\.com|videopress\.com)\/(?:v|embed)|v\.wordpress\.com)\/([a-z\d]{8})(\/|\b)/i'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 		return (bool) preg_match( $pattern, $url );
 	}
 }

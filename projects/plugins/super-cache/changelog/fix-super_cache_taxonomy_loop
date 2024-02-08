@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-WP Super Cache: A small fix to the counter used in the preload loop.

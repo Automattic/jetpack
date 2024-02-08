@@ -35,5 +35,4 @@ class WP_Test_Jetpack_Shortcodes_Presentations extends WP_UnitTestCase {
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
-
 }

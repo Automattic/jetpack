@@ -104,6 +104,7 @@ export const requests = ( state = connectionRequests, action ) => {
 			return assign( {}, state, {
 				connectingUser: true,
 				connectingUserFeatureLabel: action.featureLabel,
+				connectingUserFrom: action.from,
 			} );
 		case RESET_CONNECT_USER:
 			return assign( {}, state, { connectingUser: false } );
@@ -301,6 +302,18 @@ export function isConnectingUser( state ) {
 export function getConnectingUserFeatureLabel( state ) {
 	return state.jetpack.connection.requests.hasOwnProperty( 'connectingUserFeatureLabel' )
 		? state.jetpack.connection.requests.connectingUserFeatureLabel
+		: null;
+}
+
+/**
+ * Returns the "from" value the user connection where initiated from, if any.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {string|null} string if "from" value exists, false otherwise.
+ */
+export function getConnectingUserFrom( state ) {
+	return state.jetpack.connection.requests.hasOwnProperty( 'connectingUserFrom' )
+		? state.jetpack.connection.requests.connectingUserFrom
 		: null;
 }
 

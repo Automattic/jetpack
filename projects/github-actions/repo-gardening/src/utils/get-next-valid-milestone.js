@@ -52,6 +52,15 @@ async function getNextValidMilestone( octokit, owner, repo, plugin = 'jetpack' )
 	const reg = new RegExp( '^' + plugin + '\\/\\d+\\.\\d' );
 	const milestones = ( await getOpenMilestones( octokit, owner, repo ) )
 		.filter( m => m.title.match( reg ) )
+		.filter( m => {
+			/**
+			 * If a milestone description contains a string with "Code Freeze: YYYY-MM-DD" or "Branch Cut: YYYY-MM-DD",
+			 * and that date has elapsed, then filter out the milestone. This prevents merged PRs from being
+			 * automatically added to milestones that have entered a code freeze.
+			 */
+			const match = m.description?.match( /(?:Code Freeze|Branch Cut): (\d{4}-\d{2}-\d{2})/ );
+			return ! ( match && moment( match[ 1 ] ) < moment() );
+		} )
 		.sort( ( m1, m2 ) =>
 			compareVersions( m1.title.split( '/' )[ 1 ], m2.title.split( '/' )[ 1 ] )
 		);

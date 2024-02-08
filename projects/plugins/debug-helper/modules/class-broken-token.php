@@ -97,6 +97,9 @@ class Broken_Token {
 		add_action( 'admin_post_set_invalid_blog_token', array( $this, 'admin_post_set_invalid_blog_token' ) );
 		add_action( 'admin_post_set_invalid_user_tokens', array( $this, 'admin_post_set_invalid_user_tokens' ) );
 		add_action( 'admin_post_set_invalid_current_user_token', array( $this, 'admin_post_set_invalid_current_user_token' ) );
+		add_action( 'admin_post_set_custom_blog_token', array( $this, 'admin_post_set_custom_blog_token' ) );
+		add_action( 'admin_post_set_custom_user_token', array( $this, 'admin_post_set_custom_user_token' ) );
+		add_action( 'admin_post_set_custom_blog_id', array( $this, 'admin_post_set_custom_blog_id' ) );
 		add_action( 'admin_post_clear_blog_token', array( $this, 'admin_post_clear_blog_token' ) );
 		add_action( 'admin_post_clear_current_user_token', array( $this, 'admin_post_clear_current_user_token' ) );
 		add_action( 'admin_post_clear_user_tokens', array( $this, 'admin_post_clear_user_tokens' ) );
@@ -125,8 +128,9 @@ class Broken_Token {
 	 * @param string $hook Called hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'jetpack-debug_page_broken-token' ) === 0 ) {
+		if ( str_starts_with( $hook, 'jetpack-debug_page_broken-token' ) ) {
 			wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . 'inc/css/broken-token.css', array(), JETPACK_DEBUG_HELPER_VERSION );
+			wp_enqueue_script( 'broken_token_script', plugin_dir_url( __FILE__ ) . 'inc/js/broken-token.js', array(), JETPACK_DEBUG_HELPER_VERSION, true );
 		}
 	}
 
@@ -224,6 +228,15 @@ class Broken_Token {
 			<?php wp_nonce_field( 'clear-blog-token' ); ?>
 			<input type="submit" value="Clear blog token" class="button button-primary button-break-it">
 		</form>
+		<br>
+		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" class="broken-token-edit-form-inline">
+			<input type="hidden" name="action" value="set_custom_blog_token">
+			<?php wp_nonce_field( 'set-custom-blog-token' ); ?>
+			<input type="text" class="regular-text" name="custom-blog-token" id="broken-token-edit-blog-token" placeholder="Enter new blog token" style="display: none;">
+			<input type="button" value="Set custom blog token" class="button button-primary button-break-it" id="broken-token-set-blog-token">
+			<input type="submit" value="Save custom blog token" class="button button-primary button-break-it" style="display: none;" id="broken-token-save-blog-token">
+			<input type="button" value="Cancel" class="button button-primary button-break-it" style="display: none;" id="broken-token-cancel-edit-blog-token">
+		</form>
 
 		<p><strong>Break the user tokens:</strong></p>
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
@@ -248,6 +261,16 @@ class Broken_Token {
 			<input type="hidden" name="action" value="set_invalid_current_user_token">
 			<?php wp_nonce_field( 'set-invalid-current-user-token' ); ?>
 			<input type="submit" value="Set invalid user token (current user)" class="button button-primary button-break-it">
+		</form>
+		<br>
+		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" class="broken-token-edit-form-inline">
+			<input type="hidden" name="action" value="set_custom_user_token">
+			<?php wp_nonce_field( 'set-custom-user-token' ); ?>
+			<input type="text" class="regular-text" name="custom-user-id" id="broken-token-edit-user-id" placeholder="Enter user ID" style="display: none;">
+			<input type="text" class="regular-text" name="custom-user-token" id="broken-token-edit-user-token" placeholder="Enter new user token" style="display: none;">
+			<input type="button" value="Set custom user token" class="button button-primary button-break-it" id="broken-token-set-user-token">
+			<input type="submit" value="Save custom user token" class="button button-primary button-break-it" style="display: none;" id="broken-token-save-user-token">
+			<input type="button" value="Cancel" class="button button-primary button-break-it" style="display: none;" id="broken-token-cancel-edit-user-token">
 		</form>
 
 		<p><strong>Break the Primary User:</strong></p>
@@ -286,6 +309,15 @@ class Broken_Token {
 			<input type="hidden" name="action" value="clear_blog_id">
 			<?php wp_nonce_field( 'clear-blog-id' ); ?>
 			<input type="submit" value="Clear the Blog ID" class="button button-primary button-break-it">
+		</form>
+		<br>
+		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" class="broken-token-edit-form-inline">
+			<input type="hidden" name="action" value="set_custom_blog_id">
+			<?php wp_nonce_field( 'set-custom-blog-id' ); ?>
+			<input type="text" class="regular-text" name="custom-blog-id" id="broken-token-edit-blog-id" placeholder="Enter new blog ID" style="display: none;">
+			<input type="button" value="Set custom blog ID" class="button button-primary button-break-it" id="broken-token-set-blog-id">
+			<input type="submit" value="Save custom blog ID" class="button button-primary button-break-it" style="display: none;" id="broken-token-save-blog-id">
+			<input type="button" value="Cancel" class="button button-primary button-break-it" style="display: none;" id="broken-token-cancel-edit-blog-id">
 		</form>
 		<?php
 	}
@@ -373,6 +405,52 @@ class Broken_Token {
 		$tokens[ $id ] = sprintf( $this->invalid_user_token, $id );
 
 		Jetpack_Options::update_option( 'user_tokens', $tokens );
+
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Set custom blog token.
+	 */
+	public function admin_post_set_custom_blog_token() {
+		check_admin_referer( 'set-custom-blog-token' );
+		$this->notice_type = 'jetpack-broken';
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		Jetpack_Options::update_option( 'blog_token', isset( $_POST['custom-blog-token'] ) ? wp_unslash( $_POST['custom-blog-token'] ) : '' );
+
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Set custom user token.
+	 */
+	public function admin_post_set_custom_user_token() {
+		check_admin_referer( 'set-custom-user-token' );
+		$this->notice_type = 'jetpack-broken';
+
+		$tokens = Jetpack_Options::get_option( 'user_tokens' );
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$id = isset( $_POST['custom-user-id'] ) ? wp_unslash( $_POST['custom-user-id'] ) : '';
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$tokens[ $id ] = isset( $_POST['custom-user-token'] ) ? wp_unslash( $_POST['custom-user-token'] ) : '';
+
+		Jetpack_Options::update_option( 'user_tokens', $tokens );
+
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Set custom blog ID.
+	 */
+	public function admin_post_set_custom_blog_id() {
+		check_admin_referer( 'set-custom-blog-id' );
+		$this->notice_type = 'jetpack-broken';
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		Jetpack_Options::update_option( 'id', isset( $_POST['custom-blog-id'] ) ? wp_unslash( $_POST['custom-blog-id'] ) : '' );
 
 		$this->admin_post_redirect_referrer();
 	}

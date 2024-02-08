@@ -1,9 +1,9 @@
 <?php
 
+use Automattic\Jetpack_Boost\Lib\Minify;
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 use Automattic\Jetpack_Boost\Lib\Minify\Utils;
-use tubalmartin\CssMin;
 
 function jetpack_boost_page_optimize_types() {
 	return array(
@@ -13,7 +13,7 @@ function jetpack_boost_page_optimize_types() {
 }
 
 /**
- * Handle serving a minified / concatenated file from the virtual _static dir.
+ * Handle serving a minified / concatenated file from the virtual _jb_static dir.
  */
 function jetpack_boost_page_optimize_service_request() {
 	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
@@ -73,9 +73,9 @@ function jetpack_boost_page_optimize_service_request() {
 
 			if ( file_exists( $cache_file_meta ) ) {
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-				$meta = json_decode( file_get_contents( $cache_file_meta ) );
-				if ( null !== $meta && isset( $meta->headers ) ) {
-					foreach ( $meta->headers as $header ) {
+				$meta = json_decode( file_get_contents( $cache_file_meta ), ARRAY_A );
+				if ( ! empty( $meta ) && ! empty( $meta['headers'] ) ) {
+					foreach ( $meta['headers'] as $header ) {
 						header( $header );
 					}
 				}
@@ -129,11 +129,12 @@ function jetpack_boost_strip_parent_path( $parent_path, $path ) {
 		$trimmed_path = substr( $trimmed_path, strlen( $trimmed_parent ) );
 	}
 
-	return substr( $trimmed_path, 0, 1 ) === '/' ? $trimmed_path : '/' . $trimmed_path;
+	return str_starts_with( $trimmed_path, '/' ) ? $trimmed_path : '/' . $trimmed_path;
 }
 
 /**
- * Generate a combined and minified output for the current request.
+ * Generate a combined and minified output for the current request. This is run regardless of the
+ * type of content being fetched; JavaScript or CSS, so it must handle either.
  */
 function jetpack_boost_page_optimize_build_output() {
 	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
@@ -153,20 +154,20 @@ function jetpack_boost_page_optimize_build_output() {
 	}
 
 	// Ensure the path follows one of these forms:
-	// /_static/??/foo/bar.css,/foo1/bar/baz.css?m=293847g
+	// /_jb_static/??/foo/bar.css,/foo1/bar/baz.css?m=293847g
 	// -- or --
-	// /_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
+	// /_jb_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $utils->unslash( $_SERVER['REQUEST_URI'] ) : '';
 	$args        = $utils->parse_url( $request_uri, PHP_URL_QUERY );
-	if ( ! $args || false === strpos( $args, '?' ) ) {
+	if ( ! $args || ! str_contains( $args, '?' ) ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 
 	$args = substr( $args, strpos( $args, '?' ) + 1 );
 
 	// Detect paths with - in their filename - this implies a base64 encoded gzipped string for the file list.
-	// e.g.: /_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
+	// e.g.: /_jb_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
 	if ( '-' === $args[0] ) {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		$args = @gzuncompress( base64_decode( substr( $args, 1 ) ) );
@@ -199,7 +200,7 @@ function jetpack_boost_page_optimize_build_output() {
 	// We can't assume that the root serves the same content as the subdir.
 	$subdir_path_prefix = '';
 	$request_path       = $utils->parse_url( $request_uri, PHP_URL_PATH );
-	$_static_index      = strpos( $request_path, '/_static/' );
+	$_static_index      = strpos( $request_path, jetpack_boost_get_static_prefix() );
 	if ( $_static_index > 0 ) {
 		$subdir_path_prefix = substr( $request_path, 0, $_static_index );
 	}
@@ -208,12 +209,6 @@ function jetpack_boost_page_optimize_build_output() {
 	$last_modified = 0;
 	$pre_output    = '';
 	$output        = '';
-
-	$should_minify_css = Config::is_css_minify_enabled();
-
-	if ( $should_minify_css ) {
-		$css_minify = new CssMin\Minifier();
-	}
 
 	foreach ( $args as $uri ) {
 		$fullpath = jetpack_boost_page_optimize_get_path( $uri );
@@ -267,11 +262,11 @@ function jetpack_boost_page_optimize_build_output() {
 			);
 
 			// The @charset rules must be on top of the output
-			if ( 0 === strpos( $buf, '@charset' ) ) {
+			if ( str_starts_with( $buf, '@charset' ) ) {
 				preg_replace_callback(
 					'/(?P<charset_rule>@charset\s+[\'"][^\'"]+[\'"];)/i',
 					function ( $match ) use ( &$pre_output ) {
-						if ( 0 === strpos( $pre_output, '@charset' ) ) {
+						if ( str_starts_with( $pre_output, '@charset' ) ) {
 							return '';
 						}
 
@@ -285,11 +280,11 @@ function jetpack_boost_page_optimize_build_output() {
 
 			// Move the @import rules on top of the concatenated output.
 			// Only @charset rule are allowed before them.
-			if ( false !== strpos( $buf, '@import' ) ) {
+			if ( str_contains( $buf, '@import' ) ) {
 				$buf = preg_replace_callback(
 					'/(?P<pre_path>@import\s+(?:url\s*\()?[\'"\s]*)(?P<path>[^\'"\s](?:https?:\/\/.+\/?)?.+?)(?P<post_path>[\'"\s\)]*;)/i',
 					function ( $match ) use ( $dirpath, &$pre_output ) {
-						if ( 0 !== strpos( $match['path'], 'http' ) && '/' !== $match['path'][0] ) {
+						if ( ! str_starts_with( $match['path'], 'http' ) && '/' !== $match['path'][0] ) {
 							$pre_output .= $match['pre_path'] . ( $dirpath === '/' ? '/' : $dirpath . '/' ) .
 											$match['path'] . $match['post_path'] . "\n";
 						} else {
@@ -302,21 +297,22 @@ function jetpack_boost_page_optimize_build_output() {
 				);
 			}
 
-			if ( $should_minify_css ) {
-				$buf = $css_minify->run( $buf );
-			}
-		}
-
-		if ( $jetpack_boost_page_optimize_types['js'] === $mime_type ) {
-			$output .= "$buf;\n";
-		} else {
+			// Minify CSS.
+			$buf     = Minify::css( $buf );
 			$output .= "$buf";
+		} else {
+			// Minify JS
+			$buf     = Minify::js( $buf );
+			$output .= "$buf;\n";
 		}
 	}
 
+	// Don't let trailing whitespace ruin everyone's day. Seems to get stripped by batcache
+	// resulting in ns_error_net_partial_transfer errors.
+	$output = rtrim( $output );
+
 	$headers = array(
 		'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $last_modified ) . ' GMT',
-		'Content-Length: ' . ( strlen( $pre_output ) + strlen( $output ) ),
 		"Content-Type: $mime_type",
 	);
 
@@ -362,7 +358,7 @@ function jetpack_boost_page_optimize_get_path( $uri ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 
-	if ( false !== strpos( $uri, '..' ) || false !== strpos( $uri, "\0" ) ) {
+	if ( str_contains( $uri, '..' ) || str_contains( $uri, "\0" ) ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 

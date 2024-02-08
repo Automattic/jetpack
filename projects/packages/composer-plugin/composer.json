@@ -10,11 +10,12 @@
 		"i18n"
 	],
 	"require": {
+		"php": ">=7.0",
 		"composer-plugin-api": "^2.1.0"
 	},
 	"require-dev": {
 		"composer/composer": "^2.2 || ^2.4",
-		"yoast/phpunit-polyfills": "1.0.4",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
@@ -50,7 +51,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "1.1.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		}
 	}
 }

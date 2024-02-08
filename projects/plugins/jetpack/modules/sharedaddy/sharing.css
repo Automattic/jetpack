@@ -286,10 +286,17 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-icon-text .sd-content li.share-twitter a:before {
 	content: '\f202';
 }
+.sd-social-icon .sd-content ul li.share-x a:before,
+.sd-social-text .sd-content ul li.share-x a:before,
+.sd-content ul li.share-x div.option.option-smart-off a:before,
+.sd-social-icon-text .sd-content li.share-x a:before {
+	content: '\f10e';
+}
 .sd-social-icon .sd-content ul li.share-reddit a:before,
 .sd-social-text .sd-content ul li.share-reddit a:before,
 .sd-content ul li.share-reddit div.option.option-smart-off a:before,
-.sd-social-icon-text .sd-content li.share-reddit a:before {
+.sd-social-icon-text .sd-content li.share-reddit a:before,
+.sd-social-official .sd-content li.share-reddit a:before {
 	content: '\f222';
 }
 .sd-social-icon .sd-content ul li.share-tumblr a:before,
@@ -337,12 +344,6 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-official .sd-content li.share-telegram a:before {
 	color: #0088cc;
 }
-.sd-social-icon .sd-content ul li.share-skype a:before,
-.sd-social-text .sd-content ul li.share-skype a:before,
-.sd-content ul li.share-skype div.option.option-smart-off a:before,
-.sd-social-icon-text .sd-content li.share-skype a:before {
-	content: '\f220';
-}
 .sd-social-icon .sd-content ul li.share-mastodon a:before,
 .sd-social-text .sd-content ul li.share-mastodon a:before,
 .sd-content ul li.share-mastodon div.option.option-smart-off a:before,
@@ -385,6 +386,22 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-official .sd-content ul li a.share-web-share:before {
 	content: '\f415';
 }
+
+.sd-social-icon .sd-content ul li.share-nextdoor a:before,
+.sd-social-text .sd-content ul li.share-nextdoor a:before,
+.sd-content ul li.share-nextdoor div.option.option-smart-off a:before,
+.sd-social-icon-text .sd-content li.share-nextdoor a:before,
+.sd-social-official .sd-content li.share-nextdoor a:before {
+	content: '\f10c';
+}
+.sd-social-official .sd-content li.share-nextdoor a:before {
+	color: #8ED500;
+}
+.sd-social-icon .sd-content ul li[class*='share-'].share-nextdoor a.sd-button {
+	background: #8ED500;
+	color: #fff !important;
+}
+
 
 .sd-social-icon .sd-content ul li.share-deprecated a:before,
 .sd-social-icon-text .sd-content li.share-deprecated a:before,
@@ -448,20 +465,12 @@ body .sd-content ul li.share-custom.no-icon a span {
 
 
 /* Individual official buttons */
-.reddit_button iframe {
-	margin-top: 1px;
-}
-
 .pocket_button iframe, .pinterest_button, .twitter_button, .linkedin_button>span {
 	margin: 0 !important;
 }
 
 .linkedin_button>span, .pinterest_button a {
 	display: block !important;
-}
-
-.sd-social-official .sd-content .share-skype {
-	min-width: 55px;
 }
 
 .sd-social-official .sd-content .share-tumblr iframe {
@@ -639,12 +648,17 @@ body .sd-social-icon .sd-content li.share-custom a span {
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-facebook a.sd-button {
-	background: #1877F2;
+	background: #0866ff;
 	color: #fff !important;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-twitter a.sd-button {
 	background: #00acee;
+	color: #fff !important;
+}
+
+.sd-social-icon .sd-content ul li[class*='share-'].share-x a.sd-button {
+	background: #000;
 	color: #fff !important;
 }
 
@@ -680,11 +694,6 @@ body .sd-social-icon .sd-content li.share-custom a span {
 .sd-social-icon .sd-content ul li[class*='share-'].share-reddit a.sd-button {
 	background: #cee3f8;
 	color: #555555 !important;
-}
-
-.sd-social-icon .sd-content ul li[class*='share-'].share-skype a.sd-button {
-	background: #00AFF0;
-	color: #fff !important;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-mastodon a.sd-button {

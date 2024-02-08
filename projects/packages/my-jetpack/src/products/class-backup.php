@@ -75,7 +75,11 @@ class Backup extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Save every change', 'jetpack-my-jetpack' );
+		if ( static::is_active() ) {
+			return __( 'Save every change', 'jetpack-my-jetpack' );
+		}
+
+		return __( 'Your site is not backed up', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -226,9 +230,9 @@ class Backup extends Hybrid_Product {
 	 */
 	public static function get_post_checkout_url() {
 		if ( static::is_jetpack_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack#/recommendations' );
+			return 'admin.php?page=jetpack#/recommendations';
 		} elseif ( static::is_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack-backup' );
+			return 'admin.php?page=jetpack-backup';
 		}
 	}
 }

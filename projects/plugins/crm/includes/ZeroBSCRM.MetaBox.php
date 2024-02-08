@@ -279,9 +279,6 @@
             $zbs->pageMessages[] = $msg;
 
         }
-
-
-
     }
 
 /* ======================================================
@@ -437,8 +434,7 @@ function zeroBSCRM_do_meta_boxes( $screen, $context, $object ) {
 
         //echo 'Screen: '.$zbs->pageKey.' # '.$context;
         // use ours
-        $screenOpts = $zbs->userScreenOptions(); // false = not set, array if set (can be either GLOBAL FORCED by admin, or user specific)
-        // not needed here: $screenOptionsList = array(); if (is_array($screenOpts) && isset($screenOpts['mb_'.$context]) && is_array($screenOpts['mb_'.$context])) $screenOptionsList = $screenOpts['mb_'.$context];
+				$screenOpts = $zbs->global_screen_options(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
         $hidden = array(); if (is_array($screenOpts) && isset($screenOpts['mb_hidden']) && is_array($screenOpts['mb_hidden'])) $hidden = $screenOpts['mb_hidden'];
         $minimised = array(); if (is_array($screenOpts) && isset($screenOpts['mb_mini']) && is_array($screenOpts['mb_mini'])) $minimised = $screenOpts['mb_mini'];
 
@@ -502,10 +498,11 @@ function zeroBSCRM_do_meta_boxes( $screen, $context, $object ) {
 
 function zeroBSCRM_applyScreenOptions($screenOpts = false,$page = '', $context = ''){
 
-    global $zbs;
+	global $zbs;
 
-    // if not passed, load users :) 
-    if (!is_array($screenOpts)) $screenOpts = $zbs->userScreenOptions();
+	if ( ! is_array( $screenOpts ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$screenOpts = $zbs->global_screen_options(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
     $screenOptionsList = array(); if (is_array($screenOpts) && isset($screenOpts['mb_'.$context]) && is_array($screenOpts['mb_'.$context])) $screenOptionsList = $screenOpts['mb_'.$context];
     // not needed here: $hidden = array(); if (is_array($screenOpts) && isset($screenOpts['mb_hidden']) && is_array($screenOpts['mb_hidden'])) $hidden = $screenOpts['mb_hidden'];
 
@@ -891,4 +888,3 @@ function zeroBSCRM_getMetaboxes($page='',$context=''){
     return array();
 
 }
-

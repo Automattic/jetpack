@@ -253,16 +253,16 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_inbox_menu
+	 * Tests add_my_mailboxes_menu
 	 *
-	 * @covers ::add_inbox_menu
+	 * @covers ::add_my_mailboxes_menu
 	 */
-	public function test_add_inbox_menu() {
+	public function test_add_my_mailboxes_menu() {
 		global $menu;
 
-		static::$admin_menu->add_inbox_menu();
+		static::$admin_menu->add_my_mailboxes_menu();
 
-		$this->assertSame( 'https://wordpress.com/inbox/' . static::$domain, $menu['4.64424'][2] );
+		$this->assertSame( 'https://wordpress.com/mailboxes/' . static::$domain, $menu['4.64424'][2] );
 	}
 
 	/**
@@ -277,6 +277,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
 		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][2][2] );
 	}
 
 	/**

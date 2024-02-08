@@ -12,9 +12,6 @@ global $zbs;
  */
 function jpcrm_render_contact_view_page( $id = -1 ) {
 
-	// generic php-js for view pages (lang labels)
-	zeroBSCRM_pages_admin_contact_view_page_js();
-
 	if ( ! empty( $id ) && $id > 0 ) {
 
 		global $zbs;
@@ -380,7 +377,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						<tbody>
 						<?php if ( $useInvoices == '1' || $useTrans == '1' ) : ?>
 						<tr class="zbs-view-vital-totalvalue">
-							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( 'Total Value is all transaction types and any unpaid invoices (excluding deleted status invoices).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
+							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( "The Total Value can be set to include just transaction values, just invoice values, or both together. You can choose how it's calculated by going to the General Settings page.", 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
 							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $contact_total_value ) ); ?></strong></td>
 						</tr>
 						<?php endif; ?>
@@ -555,6 +552,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						<tr class="zbs-view-vital-flags">
 							<td class="zbs-view-vital-label"><?php esc_html_e( 'Flags', 'zero-bs-crm' ); ?></td>
 							<td>
+
 								<?php
 
 								foreach ( $contact_flags as $flag ) {
@@ -878,7 +876,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 									$invoice_val = $invoice['total'];
 
-									$invoice_status = $invoice['status'];
+									$invoice_status = $invoice['status_label'];
 
 									echo '<tr>';
 									echo '<td><a href="' . esc_url( $invoice_url ) . '">' . esc_html( $id_ref_str ) . '</a></td>';
@@ -1252,7 +1250,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 							<?php
 
 							// prep link to create a new task
-							$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&zbsprefillcust=' . $contact['id'];
+							$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TASK ) . '&zbsprefillcust=' . $contact['id'];
 
 							if ( isset( $contact['tasks'] ) && is_array( $contact['tasks'] ) && count( $contact['tasks'] ) > 0 ) {
 
@@ -1284,7 +1282,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 									}
 
-									$taskURL   = jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_EVENT );
+									$taskURL   = jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_TASK );
 									$statusStr = __( 'Incomplete', 'zero-bs-crm' );
 									if ( isset( $task['complete'] ) && $task['complete'] === 1 ) {
 																		$statusStr = __( 'Completed', 'zero-bs-crm' );
@@ -1384,7 +1382,8 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 			var zbsViewSettings = {
 
 				objid: <?php echo esc_html( $id ); ?>,
-				objdbname: 'contact' <?php // echo $this->objType; ?>
+				objdbname: 'contact',
+				update_meta_nonce: '<?php echo esc_html( wp_create_nonce( 'jpcrm-update-meta-ajax' ) ); ?>'
 
 			};
 
@@ -1395,22 +1394,6 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 			do_action( 'zerobscrm_contactview_postscripts' );
 
 	} // if ID
-}
-
-/*
-	Exposes generic php-js for view pages (lang labels)
-*/
-function zeroBSCRM_pages_admin_contact_view_page_js() {
-
-	?>
-	<script>
-		var zbsViewLang = {
-
-			'error': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Error', 'zero-bs-crm' ) ) ); ?>',
-			'unabletodelete': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Unable to delete this file.', 'zero-bs-crm' ) ) ); ?>'
-		};
-	</script>
-	<?php
 }
 
 /*

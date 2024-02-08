@@ -7,6 +7,7 @@ import {
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
+	PLAN_JETPACK_CREATOR_YEARLY,
 } from 'lib/plans/constants';
 import {
 	getSiteAdminUrl,
@@ -47,6 +48,13 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=monitor',
 			};
+		case 'newsletter':
+			return {
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				displayName: __( 'Newsletter', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
+				configLink: '#/settings?term=subscriptions',
+			};
 		case 'related-posts':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
@@ -70,7 +78,7 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 			};
 		case 'publicize':
 			return {
-				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				configureButtonLabel: __( 'Manage connections', 'jetpack' ),
 				displayName: __( 'Social Media Sharing', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: getRedirectUrl( 'calypso-marketing-connections', {
@@ -146,6 +154,18 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 				ctaLabel: __( 'Manage', 'jetpack' ),
 				ctaLink: getJetpackCloudUrl( state, 'scan' ),
 			};
+		case 'unlimited-sharing-activated':
+			return {
+				displayName: __( 'Social Media Sharing', 'jetpack' ),
+				ctaLabel: __( 'Manage', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+			};
+		case 'social-advanced-activated':
+			return {
+				displayName: __( 'Advanced Sharing Features', 'jetpack' ),
+				ctaLabel: __( 'Manage', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+			};
 		case 'antispam-activated':
 			return {
 				displayName: __( 'Automated Spam Protection', 'jetpack' ),
@@ -195,6 +215,12 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 			return {
 				activateFeature: () => {
 					return dispatch( updateSettings( { monitor: true } ) );
+				},
+			};
+		case 'newsletter':
+			return {
+				activateFeature: () => {
+					return dispatch( updateSettings( { subscriptions: true } ) );
 				},
 			};
 		case 'related-posts':
@@ -299,10 +325,21 @@ export const getStepContent = ( state, stepSlug ) => {
 					'The Jetpack Newsletter Form combined with Creative Mail by Constant Contact can help automatically gather subscribers and send them beautiful emails. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
-				descriptionLink:
-					'https://jetpack.com/support/jetpack-blocks/form-block/newsletter-sign-up-form/',
+				descriptionLink: getRedirectUrl( 'jetpack-support-jetpack-blocks-newsletter-sign-up' ),
 				ctaText: __( 'Install Creative Mail', 'jetpack' ),
 				illustration: 'assistant-creative-mail',
+			};
+		case 'newsletter':
+			return {
+				progressValue: '70',
+				question: __( 'Send subscribers your latest blog posts via email?', 'jetpack' ),
+				description: __(
+					'With Jetpack Newsletter you can keep your audience engaged by automatically sending your content via email. <ExternalLink>Learn more</ExternalLink>',
+					'jetpack'
+				),
+				descriptionLink: getRedirectUrl( 'jetpack-newsletter-landing' ),
+				ctaText: __( 'Enable Newsletter', 'jetpack' ),
+				illustration: 'assistant-newsletter',
 			};
 		case 'monitor':
 			return {
@@ -315,7 +352,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'If your site ever goes down, Downtime Monitoring will send you an email or push notitification to let you know. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
-				descriptionLink: 'https://jetpack.com/support/monitor/',
+				descriptionLink: getRedirectUrl( 'jetpack-support-monitor' ),
 				ctaText: __( 'Enable Downtime Monitoring', 'jetpack' ),
 				illustration: 'assistant-downtime-monitoring',
 			};
@@ -330,7 +367,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'Displaying Related Posts at the end of your content keeps visitors engaged and on your site. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
-				descriptionLink: 'https://jetpack.com/support/related-posts/',
+				descriptionLink: getRedirectUrl( 'jetpack-support-related-posts' ),
 				ctaText: __( 'Enable Related Posts', 'jetpack' ),
 				illustration: 'assistant-related-post',
 			};
@@ -342,7 +379,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'Faster sites get better ranking in search engines and help keep visitors on your site longer. Jetpack will automatically optimize and load your images and files from our global Content Delivery Network (CDN). <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
-				descriptionLink: 'https://jetpack.com/support/site-accelerator/',
+				descriptionLink: getRedirectUrl( 'jetpack-support-site-accelerator' ),
 				ctaText: __( 'Enable Site Accelerator', 'jetpack' ),
 				illustration: 'assistant-site-accelerator',
 			};
@@ -401,7 +438,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'We’re partnered with <strong>WooCommerce</strong> — a customizable, open-source eCommerce platform built for WordPress. It’s everything you need to start selling products today. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
-				descriptionLink: 'https://woocommerce.com/woocommerce-features/',
+				descriptionLink: getRedirectUrl( 'woocommerce-features-landing' ),
 				ctaText: __( 'Install WooCommerce', 'jetpack' ),
 				illustration: 'assistant-woo-commerce',
 			};
@@ -498,6 +535,46 @@ export const getStepContent = ( state, stepSlug ) => {
 				illustration: 'assistant-backup-welcome',
 				skipText: __( 'Next', 'jetpack' ),
 			};
+		case 'welcome__social_basic':
+			return {
+				question: __( 'Welcome to Jetpack Social!', 'jetpack' ),
+				description: __(
+					"With your new basic plan you unlocked unlimited sharing, and access to our priority support. You can share your posts from the post editor to your connected social media accounts<br/><br/>Let's start with connecting your social media accounts, if you haven't already.",
+					'jetpack'
+				),
+				ctaText: __( 'Manage Social Media Connections', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'calypso-marketing-connections', {
+					site: getSiteRawUrl( state ),
+				} ),
+				illustration: 'assistant-jetpack-social',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'welcome__social_advanced':
+			return {
+				question: __( 'Welcome to Jetpack Social!', 'jetpack' ),
+				description: __(
+					"With your new advanced plan you unlocked unlimited sharing, access to upload photos and videos with your posts, and usage of Social Image Generator.<br/><br/>Let's start with connecting your social media accounts, if you haven't already.",
+					'jetpack'
+				),
+				ctaText: __( 'Manage Social Media Connections', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'calypso-marketing-connections', {
+					site: getSiteRawUrl( state ),
+				} ),
+				illustration: 'assistant-jetpack-social',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'welcome__social_image_generator':
+			return {
+				question: __( 'Social Image Generator', 'jetpack' ),
+				description: __(
+					'Create beautiful social media previews for your posts with Social Image Generator. You can customize the text, image, and template to match your brand.<br/><br/>You can turn on Social Image Generator for individual posts from the post editor, or turn it on by default for all future posts from the Jetpack Social Settings.',
+					'jetpack'
+				),
+				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+				illustration: 'assistant-social-image-post',
+				skipText: __( 'Next', 'jetpack' ),
+			};
 		case 'welcome__golden_token':
 			return {
 				question: __( 'Congratulations, you have been gifted a Jetpack Golden Token!', 'jetpack' ),
@@ -535,6 +612,30 @@ export const getStepContent = ( state, stepSlug ) => {
 				ctaText: __( 'View Security Dashboard', 'jetpack' ),
 				ctaLink: getJetpackCloudUrl( state, 'scan' ),
 				illustration: 'assistant-malware-scanning',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'unlimited-sharing-activated':
+			return {
+				question: __( 'Jetpack Social', 'jetpack' ),
+				description: __(
+					'You have access to unlimited social sharing with your Jetpack Social plan. You can share your posts from the post editor to your connected social media accounts.<br/><br/>You can toggle the social sharing feature, manage your connections, and tweak the options from the Jetpack Social Settings.',
+					'jetpack'
+				),
+				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+				illustration: 'assistant-jetpack-social',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'social-advanced-activated':
+			return {
+				question: __( 'Advanced Sharing features', 'jetpack' ),
+				description: __(
+					'Use your unlocked unlimited sharing, upload photos and videos with your posts, and create previews with Social Image Generator. To use these features, just head to the post editor and start creating your post!<br/><br/>You can manage your connections, and tweak features like Social Image Generator from the Jetpack Social Settings.',
+					'jetpack'
+				),
+				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+				illustration: 'assistant-social-image-post',
 				skipText: __( 'Next', 'jetpack' ),
 			};
 		case 'antispam-activated':
@@ -695,6 +796,18 @@ export const getProductCardData = ( state, productSlug ) => {
 				productCardCtaText: __( 'Get Jetpack Security', 'jetpack' ),
 				productCardList: products.security ? products.security.features : [],
 				productCardIcon: '/recommendations/cloud-icon.svg',
+			};
+		// Creator Plan
+		case PLAN_JETPACK_CREATOR_YEARLY:
+			return {
+				productCardTitle: __( 'Grow and monetize your audience', 'jetpack' ),
+				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: productSlug,
+				} ),
+				productCardCtaText: __( 'Get Jetpack Creator', 'jetpack' ),
+				productCardList: products.creator ? products.creator.features : [],
+				productCardIcon: '/recommendations/creator-icon.svg',
 			};
 		case PLAN_JETPACK_ANTI_SPAM:
 			return {

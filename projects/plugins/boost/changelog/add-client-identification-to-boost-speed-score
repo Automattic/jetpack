@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a new argument to Speed_Score to identify where the request was made from (e.g. 'boost-plugin', 'jetpack-dashboard', etc).

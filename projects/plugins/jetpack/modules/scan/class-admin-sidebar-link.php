@@ -200,7 +200,7 @@ class Admin_Sidebar_Link {
 	 * @return boolean
 	 */
 	private function has_backup_plugin() {
-		return Backup::is_active();
+		return Backup::is_standalone_plugin_active();
 	}
 
 	/**

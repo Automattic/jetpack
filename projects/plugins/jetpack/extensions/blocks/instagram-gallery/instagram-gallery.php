@@ -14,9 +14,6 @@ use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Instagram_Gallery_Helper;
 
-const FEATURE_NAME = 'instagram-gallery';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -25,7 +22,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 function register_block() {
 	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) {
 		Blocks::jetpack_register_block(
-			BLOCK_NAME,
+			__DIR__,
 			array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 		);
 	}
@@ -52,7 +49,7 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 	$spacing              = get_instagram_gallery_attribute( 'spacing', $attributes );
 
 	$grid_classes = Blocks::classes(
-		FEATURE_NAME,
+		Blocks::get_block_feature( __DIR__ ),
 		$attributes,
 		array(
 			'wp-block-jetpack-instagram-gallery__grid',
@@ -85,7 +82,7 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 		$message = $error_message
 			. '<br />'
 			. esc_html__( '(Only administrators and the post author will see this message.)', 'jetpack' );
-		return Jetpack_Gutenberg::notice( $message, 'error', Blocks::classes( FEATURE_NAME, $attributes ) );
+		return Jetpack_Gutenberg::notice( $message, 'error', Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attributes ) );
 	}
 
 	if ( empty( $gallery->images ) ) {
@@ -94,7 +91,7 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 
 	$images = array_slice( $gallery->images, 0, $count );
 
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	ob_start();
 	?>

@@ -182,11 +182,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 									if (
 										// First Regex.
 										(
-											'#' === substr( $url_fragment, 0, 1 ) && '#' === substr( $url_fragment, -1 )
+											str_starts_with( $url_fragment, '#' ) && str_ends_with( $url_fragment, '#' )
 											&& preg_match( $url_fragment, $icon['url'] )
 										)
 										// Then, regular host name.
-										|| false !== strpos( $icon['url'], $url_fragment )
+										|| str_contains( $icon['url'], $url_fragment )
 									) {
 										printf(
 											'<span class="screen-reader-text">%1$s</span>%2$s',
@@ -491,6 +491,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Blogger',
 			),
 			array(
+				'url'   => array( 'bsky.app' ),
+				'icon'  => 'bluesky',
+				'label' => 'Bluesky',
+			),
+			array(
 				'url'   => array( 'codepen.io' ),
 				'icon'  => 'codepen',
 				'label' => 'CodePen',
@@ -596,6 +601,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Medium',
 			),
 			array(
+				'url'   => array( 'nextdoor.com' ),
+				'icon'  => 'nextdoor',
+				'label' => 'Nextdoor',
+			),
+			array(
 				'url'   => array( 'patreon.com' ),
 				'icon'  => 'patreon',
 				'label' => 'Patreon',
@@ -671,6 +681,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Telegram',
 			),
 			array(
+				'url'   => array( 'threads.net' ),
+				'icon'  => 'threads',
+				'label' => 'Threads',
+			),
+			array(
 				'url'   => array( 'tiktok.com' ),
 				'icon'  => 'tiktok',
 				'label' => 'TikTok',
@@ -721,6 +736,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Yelp',
 			),
 			array(
+				'url'   => array( 'x.com' ),
+				'icon'  => 'x',
+				'label' => 'X',
+			),
+			array(
 				'url'   => array( 'xanga.com' ),
 				'icon'  => 'xanga',
 				'label' => 'Xanga',
@@ -762,7 +782,17 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			),
 		);
 
-		return $social_links_icons;
+		/**
+		 * Filter the list of services matching Social Media Icons available in the Social Icons SVG sprite.
+		 *
+		 * @since 12.3
+		 *
+		 * @param array $social_links_icons Array of social links icons.
+		 */
+		return apply_filters(
+			'jetpack_social_icons_supported_icons',
+			$social_links_icons
+		);
 	}
 } // Jetpack_Widget_Social_Icons
 

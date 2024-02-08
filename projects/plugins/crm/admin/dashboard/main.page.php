@@ -18,7 +18,8 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	====================================================== */
 
 // permissions check
-if ( ! zeroBSCRM_permsCustomers() ) {
+global $current_user;
+if ( ! $current_user || ! $current_user->has_cap( 'zbs_dash' ) ) {
 	wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) );
 }
 
@@ -217,7 +218,9 @@ function jpcrm_render_dashboard_page() {
 								<?php esc_html_e( 'No valid transactions were added during the last 12 months. You need transactions for your revenue chart to show. If you have transactions, check the guide for more info.', 'zero-bs-crm' ); ?>
 							</div>
 							<div class="jpcrm-div-message">
+								<?php ##WLREMOVE ?>
 								<a href="<?php echo esc_url( $zbs->urls['kbrevoverview'] ); ?>" target="_blank" class="jpcrm-button white-bg"><?php echo esc_html__( 'Read guide', 'zero-bs-crm' ); ?></a>
+								<?php ##/WLREMOVE ?>
 								<a href="<?php echo jpcrm_esc_link( 'create', -1, 'zerobs_transaction', false, false ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" class="jpcrm-button"><?php esc_html_e( 'Add a transaction', 'zero-bs-crm' ); ?></a>
 							</div>
 						</div>

@@ -130,5 +130,4 @@ abstract class Module_Product extends Product {
 		}
 		return Jetpack::deactivate_module( static::$module_name );
 	}
-
 }

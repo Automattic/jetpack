@@ -142,5 +142,4 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 		$namespaces = array_keys( $result->getNamespaces() );
 		$this->assertEquals( array( 'xsl' ), $namespaces );
 	}
-
 }

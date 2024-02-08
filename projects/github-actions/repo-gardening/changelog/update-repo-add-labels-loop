@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Label management: do not loop through files for labels that do not require it.

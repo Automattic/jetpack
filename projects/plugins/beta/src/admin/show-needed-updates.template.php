@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * Jetpack Beta wp-admin template to show needed updates.
  *
@@ -18,8 +18,7 @@ $plugin = isset( $plugin ) ? $plugin : null; // phpcs:ignore WordPress.WP.Global
 
 // -------------
 
-// TODO: Once we drop PHP 5.6 support, we can do `( function () { ... } )();` instead of assigning to `$tmp`.
-$tmp = function ( $plugin ) {
+( function ( $plugin ) {
 	$updates = Utils::plugins_needing_update( true );
 	if ( isset( $plugin ) ) {
 		$updates = array_intersect_key(
@@ -67,7 +66,7 @@ $tmp = function ( $plugin ) {
 				$name = $update->Name;
 			} else {
 				$isdev = false;
-				if ( substr( $slug, -4 ) === '-dev' ) {
+				if ( str_ends_with( $slug, '-dev' ) ) {
 					$isdev = true;
 					$slug  = substr( $slug, 0, -4 );
 				}
@@ -99,5 +98,4 @@ $tmp = function ( $plugin ) {
 		<?php } ?>
 	</div>
 	<?php
-};
-$tmp( $plugin );
+} )( $plugin );

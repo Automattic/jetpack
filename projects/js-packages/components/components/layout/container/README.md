@@ -20,6 +20,14 @@ import { Container, Col, Button } from '@automattic/jetpack-components';
 
 ## Props
 
+### tagName
+
+The HTML tag of the container.
+
+- Type: `String`
+- Default: `div`
+- Required: `false`
+
 ### className
 
 A custom class to append with the default ones.

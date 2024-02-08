@@ -13,8 +13,12 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import CopyButton from './components/copy-button';
+import DisplayError from './components/display-error';
+import Feedback from './components/feedback';
 import useSubmitQuestion from './use-submit-question';
 
+// TODO: Configurable strings.
 const waitStrings = [
 	__( 'Good question, give me a moment to think about that 🤔', 'jetpack' ),
 	__( 'Let me work out the answer to that, back soon!', 'jetpack' ),
@@ -43,6 +47,7 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 				}, 50 * tokens.length );
 			} else {
 				setDisplayedRawHTML( html );
+				onAnimationDone();
 			}
 		},
 		// eslint-disable-next-line
@@ -55,16 +60,56 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 		</div>
 	);
 }
-export default function QuestionAnswer() {
-	const { question, setQuestion, answer, isLoading, submitQuestion, references } =
-		useSubmitQuestion();
 
-	const [ animationDone, setAnimationDone ] = useState( false );
+/**
+ * Primary question-answer.
+ *
+ * @param {object} props - Component props.
+ * @param {string} props.askButtonLabel - Ask button label.
+ * @param {number} props.blogId - Blog ID.
+ * @param {string} props.blogType - Blog type (wpcom|jetpack) for wpcom simple and jetpack/atomic.
+ * @param {string} props.placeholder - Input placeholder.
+ * @param {boolean} props.settingShowCopy - Show copy button.
+ * @param {boolean} props.settingShowFeedback - Show feedback (thumbs up/down) buttons.
+ * @param {boolean} props.settingShowSources - Show references (the list of URLs).
+ * @returns {QuestionAnswer} component.
+ */
+export default function QuestionAnswer( {
+	askButtonLabel,
+	blogId,
+	blogType,
+	placeholder,
+	settingShowCopy,
+	settingShowFeedback,
+	settingShowSources,
+} ) {
+	const {
+		question,
+		setQuestion,
+		answer,
+		isLoading,
+		submitQuestion,
+		references,
+		askError,
+		setAskError,
+		cacheKey,
+	} = useSubmitQuestion( blogType, blogId );
+
+	const [ animationDone, setAnimationDone ] = useState( true );
 	const [ showReferences, setShowReferences ] = useState( false );
+	const [ feedbackSubmitted, setFeedbackSubmitted ] = useState( [] );
+	const [ submittedQuestion, setSubmittedQuestion ] = useState( '' );
+
+	const addFeedbackToState = submittedCacheKey => {
+		setFeedbackSubmitted( [ ...feedbackSubmitted, submittedCacheKey ] );
+	};
 
 	const handleSubmitQuestion = () => {
+		setAskError( false );
 		setAnimationDone( false );
 		setShowReferences( false );
+		setFeedbackSubmitted( [] );
+		setSubmittedQuestion( question );
 		submitQuestion();
 	};
 
@@ -72,6 +117,9 @@ export default function QuestionAnswer() {
 		setAnimationDone( true );
 		setShowReferences( true );
 	};
+
+	const showCopyButton = settingShowCopy && animationDone && ! isLoading && answer;
+	const showFeedback = settingShowFeedback && animationDone && ! isLoading && cacheKey;
 	return (
 		<>
 			<KeyboardShortcuts
@@ -82,36 +130,42 @@ export default function QuestionAnswer() {
 				<div className="jetpack-ai-chat-question-wrapper">
 					<TextControl
 						className="jetpack-ai-chat-question-input"
-						placeholder={ __( "Enter a question about this blog's content", 'jetpack' ) }
+						placeholder={ placeholder }
 						size={ 50 }
+						disabled={ ! animationDone || isLoading }
 						value={ question }
 						onChange={ newQuestion => setQuestion( newQuestion ) }
 					/>
 
-					<Button variant="primary" disabled={ isLoading } onClick={ handleSubmitQuestion }>
-						{ __( 'Ask', 'jetpack' ) }
+					<Button
+						className="wp-block-button__link jetpack-ai-chat-question-button"
+						disabled={ ! animationDone || isLoading }
+						onClick={ handleSubmitQuestion }
+					>
+						{ isLoading && <Spinner /> }
+						{ ! isLoading && askButtonLabel }
 					</Button>
 				</div>
 			</KeyboardShortcuts>
 			<div>
 				<div className="jetpack-ai-chat-answer-container">
-					{ isLoading ? (
+					{ submittedQuestion && <h2>{ submittedQuestion }</h2> }
+					{ isLoading && waitStrings[ Math.floor( Math.random() * 3 ) ] }
+					{ ! isLoading && (
 						<>
-							<Spinner />
-							{ waitStrings[ Math.floor( Math.random() * 3 ) ] }
+							<ShowLittleByLittle
+								showAnimation={ ! animationDone }
+								onAnimationDone={ handleSetAnimationDone }
+								html={ answer }
+							/>
 						</>
-					) : (
-						// eslint-disable-next-line react/no-danger
-						<ShowLittleByLittle
-							showAnimation={ ! animationDone }
-							onAnimationDone={ handleSetAnimationDone }
-							html={ answer }
-						/>
 					) }
 				</div>
-				{ references && references.length > 0 && showReferences && (
+				{ askError && ! isLoading && <DisplayError error={ askError } /> }
+				{ showCopyButton && <CopyButton answer={ answer } /> }
+				{ settingShowSources && references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
-						<div>{ __( 'Additional resources:', 'jetpack' ) }</div>
+						<h3>{ __( 'Additional resources:', 'jetpack' ) }</h3>
 
 						<ul>
 							{ references.map( ( reference, index ) => (
@@ -120,7 +174,17 @@ export default function QuestionAnswer() {
 								</li>
 							) ) }
 						</ul>
+						<hr />
 					</div>
+				) }
+				{ showFeedback && (
+					<Feedback
+						blogId={ blogId }
+						blogType={ blogType }
+						cacheKey={ cacheKey }
+						feedbackSubmitted={ feedbackSubmitted }
+						addFeedback={ addFeedbackToState }
+					/>
 				) }
 			</div>
 		</>

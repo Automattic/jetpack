@@ -3,12 +3,13 @@
 	justify-content: flex-end;
 	align-items: center;
 	gap: var( --spacing-base ); // 8px
+}
 
-	.popover {
-		padding: var( --spacing-base ); // 8px
-		text-align: center;
-		white-space: nowrap;
-	}
+// Nested selectors for popovers and dropdowns are no longer supported due to portals
+.popover {
+	padding: var( --spacing-base ); // 8px
+	text-align: center;
+	white-space: nowrap;
 }
 
 .trash {

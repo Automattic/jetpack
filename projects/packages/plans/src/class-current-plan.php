@@ -2,15 +2,13 @@
 /**
  * Handles fetching of the site's plan and products from WordPress.com and caching values locally.
  *
- * This file was copied and adapted from the Jetpack plugin on Mar 2022
- *
- * @package automattic/jetpack
+ * @package automattic/jetpack-plans
  */
 
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Client;
-use Jetpack_Options;
+use Automattic\Jetpack\Connection\Manager;
 
 /**
  * Provides methods methods for fetching the site's plan and products from WordPress.com.
@@ -43,12 +41,15 @@ class Current_Plan {
 				'jetpack_free',
 			),
 			'supports' => array(
+				'advanced-seo',
 				'opentable',
 				'calendly',
 				'send-a-message',
 				'whatsapp-button',
 				'social-previews',
 				'videopress',
+				'videopress/video',
+				'v6-video-frame-poster',
 
 				'core/video',
 				'core/cover',
@@ -79,8 +80,12 @@ class Current_Plan {
 				'value_bundle-monthly',
 				'value_bundle-2y',
 				'value_bundle-3y',
+				'jetpack_creator_yearly',
+				'jetpack_creator_bi_yearly',
+				'jetpack_creator_monthly',
 			),
 			'supports' => array(
+				'simple-payments',
 				'vaultpress',
 				'videopress',
 				'republicize',
@@ -112,6 +117,14 @@ class Current_Plan {
 				'ecommerce-bundle-2y',
 				'ecommerce-bundle-3y',
 				'pro-plan',
+				'wp_bundle_migration_trial_monthly',
+				'wp_bundle_hosting_trial_monthly',
+				'ecommerce-trial-bundle-monthly',
+				'wooexpress-small-bundle-yearly',
+				'wooexpress-small-bundle-monthly',
+				'wooexpress-medium-bundle-yearly',
+				'wooexpress-medium-bundle-monthly',
+				'wp_com_hundred_year_bundle_centennially',
 			),
 			'supports' => array(),
 		),
@@ -210,9 +223,18 @@ class Current_Plan {
 	 * @return bool True if plan is updated, false if no update
 	 */
 	public static function refresh_from_wpcom() {
+		$site_id = Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return false;
+		}
+
 		// Make the API request.
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) ) . '?force=wpcom', '1.1' );
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d?force=wpcom', $site_id ),
+			'1.1'
+		);
+
 		return self::update_from_sites_response( $response );
 	}
 
@@ -248,16 +270,14 @@ class Current_Plan {
 
 		list( $plan['class'], $supports ) = self::get_class_and_features( $plan['product_slug'] );
 
-		// get available features if Jetpack is active.
-		if ( class_exists( 'Jetpack' ) ) {
-			foreach ( \Jetpack::get_available_modules() as $module_slug ) {
-				$module = \Jetpack::get_module( $module_slug );
-				if ( ! isset( $module ) || ! is_array( $module ) ) {
-					continue;
-				}
-				if ( in_array( 'free', $module['plan_classes'], true ) || in_array( $plan['class'], $module['plan_classes'], true ) ) {
-					$supports[] = $module_slug;
-				}
+		$modules = new Modules();
+		foreach ( $modules->get_available() as $module_slug ) {
+			$module = $modules->get( $module_slug );
+			if ( ! isset( $module ) || ! is_array( $module ) ) {
+				continue;
+			}
+			if ( in_array( 'free', $module['plan_classes'], true ) || in_array( $plan['class'], $module['plan_classes'], true ) ) {
+				$supports[] = $module_slug;
 			}
 		}
 
@@ -318,7 +338,7 @@ class Current_Plan {
 	/**
 	 * Determine whether the active plan supports a particular feature
 	 *
-	 * @uses Jetpack_Plan::get()
+	 * @uses self::get()
 	 *
 	 * @access public
 	 * @static
@@ -353,8 +373,8 @@ class Current_Plan {
 			return true;
 		}
 
-		// As of 05 2023 - all plans support Earn features
-		if ( in_array( $feature, array( 'donations', 'recurring-payments', 'premium-content/container', 'simple-payments' ), true ) ) {
+		// As of 05 2023 - all plans support Earn features (minus 'simple-payments')
+		if ( in_array( $feature, array( 'donations', 'recurring-payments', 'premium-content/container' ), true ) ) {
 			return true;
 		}
 

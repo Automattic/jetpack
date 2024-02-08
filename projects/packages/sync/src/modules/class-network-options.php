@@ -248,5 +248,4 @@ class Network_Options extends Module {
 	public function total( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return count( (array) $this->network_options_whitelist );
 	}
-
 }

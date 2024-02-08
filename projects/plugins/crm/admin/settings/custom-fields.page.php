@@ -204,12 +204,10 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 				in_array( $potential_slug, array( 'id', 'status' ) )
 			) {
 
-				$n = 0;
-
-				while ( $n <= 20 ) {
+				// Ideally we could do something like gh-33096-jetpack, but custom field definitions are in a JSON-encoded settings field.
+				for ( $n = 1; $n < $max_custom_fields_per_object; $n++ ) {
 
 					// Search for alternative slugs, n+1
-					++$n;
 					$alternative_slug = "$potential_slug-$n";
 
 					// Check in custom fields
@@ -244,49 +242,24 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 		}
 	}
 
-	// update DAL 2 custom fields :) (DAL3 dealt with below)
-	if ( $zbs->isDAL2() && ! $zbs->isDAL3() ) {
+	foreach ( $object_custom_fields_to_save as $obj_key => $obj_type_id ) {
 
-		if ( isset( $custom_fields['customers'] ) && is_array( $custom_fields['customers'] ) ) {
+		if ( isset( $custom_fields[ $obj_key ] ) && is_array( $custom_fields[ $obj_key ] ) ) {
 
 			// slight array reconfig
 			$db2_custom_fields = array();
-			foreach ( $custom_fields['customers'] as $cfArr ) {
-				$db2_custom_fields[ $cfArr[3] ] = $cfArr;
+			foreach ( $custom_fields[ $obj_key ] as $cf_array ) {
+				$db2_custom_fields[ $cf_array[3] ] = $cf_array;
 			}
 
 			// simple maintain DAL2 (needs to also)
-			$zbs->DAL->updateActiveCustomFields(
+			$zbs->DAL->updateActiveCustomFields( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				array(
-					'objtypeid' => 1,
+					'objtypeid' => $obj_type_id,
 					'fields'    => $db2_custom_fields,
 				)
 			);
 
-		}
-	}
-	// DAL3 they all get this :)
-	if ( $zbs->isDAL3() ) {
-
-		foreach ( $object_custom_fields_to_save as $obj_key => $obj_type_id ) {
-
-			if ( isset( $custom_fields[ $obj_key ] ) && is_array( $custom_fields[ $obj_key ] ) ) {
-
-				// slight array reconfig
-				$db2_custom_fields = array();
-				foreach ( $custom_fields[ $obj_key ] as $cfArr ) {
-					$db2_custom_fields[ $cfArr[3] ] = $cfArr;
-				}
-
-				// simple maintain DAL2 (needs to also)
-				$zbs->DAL->updateActiveCustomFields(
-					array(
-						'objtypeid' => $obj_type_id,
-						'fields'    => $db2_custom_fields,
-					)
-				);
-
-			}
 		}
 	}
 
@@ -301,8 +274,9 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 	 */
 	$sort_types_map = array(
 		'address'  => array(
-			'custom_key' => 'addresses',
-			'obj_key'    => 'zbsAddressFields',
+			'custom_key'        => 'addresses',
+			'obj_key'           => 'zbsAddressFields',
+			'force_addr_prefix' => 'addr_',
 		),
 		'customer' => array(
 			'custom_key' => 'customers',
@@ -320,13 +294,6 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 	 * fields, then adding all others (that should be the default ones).
 	 */
 	$sort_field_names = array();
-	foreach ( $custom_fields as $custom_type => $field_arrays ) {
-		foreach ( $field_arrays as $field_array ) {
-			if ( isset( $field_array[3] ) ) {
-					$sort_field_names[ $custom_type ][ $field_array[3] ] = true;
-			}
-		}
-	}
 	foreach ( $sort_types_map as $sort_type => $sort_map ) {
 		$custom_type = $sort_map['custom_key'];
 		$field_types = isset( $GLOBALS[ $sort_map['obj_key'] ] ) ? $GLOBALS[ $sort_map['obj_key'] ] : array();
@@ -343,16 +310,31 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 		}
 	}
 
+	foreach ( $custom_fields as $custom_type => $field_arrays ) {
+		$field_prefix = array_column( $sort_types_map, 'force_addr_prefix', 'custom_key' )[ $custom_type ] ?? '';
+		foreach ( $field_arrays as $field_array ) {
+			if ( isset( $field_array[3] ) ) {
+				$field_slug                                      = $field_prefix . $field_array[3];
+				$sort_field_names[ $custom_type ][ $field_slug ] = true;
+			}
+		}
+	}
+
 	/*
 	 * In this step, we remove any field that no longer exists. Additionally, if
 	 * a field type becomes empty, we also remove the corresponding entry from
 	 * the sort array. We have two distinct settings for sorting fields: one for
-	 * the sorting itself and another for hidden fields.
+	 * the sorting itself and another for hidden fields. For fieldsorts we add all
+	 * newly added fields, we don't do this for fieldhides.
 	 */
 	$settings_to_update = array( 'fieldsorts', 'fieldhides' );
 	foreach ( $settings_to_update as $setting ) {
 		$fields = $zbs->settings->get( $setting );
 		foreach ( $fields as $sort_type => $sort_names ) {
+			if ( empty( $sort_names ) ) {
+				continue;
+			}
+
 			$custom_type = $sort_types_map[ $sort_type ]['custom_key'];
 
 			if ( ! isset( $custom_fields[ $custom_type ] ) || ! isset( $sort_field_names[ $custom_type ] ) ) {
@@ -360,7 +342,7 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 				continue;
 			}
 
-			$fields[ $sort_type ] = array_values(
+			$valid_fields = array_values(
 				array_filter(
 					$sort_names,
 					function ( $field_name ) use ( $sort_field_names, $custom_type ) {
@@ -368,6 +350,17 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 					}
 				)
 			);
+			if ( $setting === 'fieldsorts' ) {
+				/**
+				* The operation below ensures that any newly added custom fields are included in the final array (only for fieldsorts).
+				* Although this could be optimized for performance, readability is prioritized here.
+				* Note: This operation is only invoked when custom fields are added or removed, minimizing the performance impact.
+				*/
+				$all_fields           = array_keys( $sort_field_names[ $custom_type ] );
+				$fields[ $sort_type ] = array_unique( array_merge( $valid_fields, $all_fields ) );
+			} else {
+				$fields[ $sort_type ] = $valid_fields;
+			}
 
 			if ( empty( $fields[ $sort_type ] ) ) {
 				unset( $fields[ $sort_type ] );
@@ -387,26 +380,14 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 // load
 $fieldOverride = $settings['fieldoverride'];
 
-// Following overloading code is also replicated in Fields.php, search #FIELDOVERLOADINGDAL2+
+foreach ( $object_custom_fields_to_save as $obj_key => $obj_type_id ) {
 
-// This ALWAYS needs to get overwritten by DAL2 for now :)
-if ( zeroBSCRM_isZBSAdminOrAdmin() && $zbs->isDAL2() && ! $zbs->isDAL3() && isset( $settings['customfields'] ) && isset( $settings['customfields']['customers'] ) ) {
+	if ( isset( $settings['customfields'] ) && isset( $settings['customfields'][ $obj_key ] ) ) {
 
-	$settings['customfields']['customers'] = $zbs->DAL->setting( 'customfields_contact', array() );
-
-}
-// DAL3 ver (all objs in $object_custom_fields_to_save above)
-if ( $zbs->isDAL3() ) {
-
-	foreach ( $object_custom_fields_to_save as $obj_key => $obj_type_id ) {
-
-		if ( isset( $settings['customfields'] ) && isset( $settings['customfields'][ $obj_key ] ) ) {
-
-			// turn ZBS_TYPE_CONTACT (1) into "contact"
-			$typeStr = $zbs->DAL->objTypeKey( $obj_type_id );
-			if ( ! empty( $typeStr ) ) {
-				$settings['customfields'][ $obj_key ] = $zbs->DAL->setting( 'customfields_' . $typeStr, array() );
-			}
+		// turn ZBS_TYPE_CONTACT (1) into "contact"
+		$type_str = $zbs->DAL->objTypeKey( $obj_type_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		if ( ! empty( $type_str ) ) {
+			$settings['customfields'][ $obj_key ] = $zbs->DAL->setting( 'customfields_' . $type_str, array() ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		}
 	}
 }

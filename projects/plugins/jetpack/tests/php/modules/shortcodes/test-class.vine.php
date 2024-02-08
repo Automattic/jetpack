@@ -88,5 +88,4 @@ class WP_Test_Jetpack_Shortcodes_Vine extends WP_UnitTestCase {
 		$this->assertStringContainsString( $url, $shortcode_content );
 		$this->assertStringContainsString( '/embed/' . $type, $shortcode_content );
 	}
-
 }

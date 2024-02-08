@@ -93,25 +93,17 @@
     }
 
     #wpcontent {
-        margin-left:0px !important;
 
         .label{
             white-space: pre-wrap;
         }
-
-		jpcrm-top-menu {
-			display:none;
-		}
 
         .grid{
             max-width:100%;
         }
 
         #zbs-mobile-nav{
-            padding: 7px;
-            // actually don't think this is needed? (only needed sub 600px, wh adapted elsewhere in this file) padding-top: 60px;
             background: #2c2e2f;
-            margin-left: -10px;
             cursor: pointer;
         }
 
@@ -167,11 +159,6 @@
             max-width: 100%;
             width: 95% !important;
         }
-
-        #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap, #zbs-side-sortables{
-            padding-right:0px !important;
-        }
-
 
         //specific targets
         #email-template-submenu-admin{
@@ -241,40 +228,10 @@
     }
 }
 
-/* Tablet / iPad Portrait */
-@media only screen and (min-width: 768px) and (max-width: 960px) {
-    #wpcontent {
-        margin-left:0px !important; 
-
-        #zbs-mobile-nav {
-            margin-left: 10px !important;
-            padding-left: 15px !important;
-        }
-
-    }
-
-    #wpbody {
-      margin-left: 30px;
-    }
-
-}
-// tiny gap:
-@media only screen and (min-width: 768px) and (max-width: 783px) {
-    #wpcontent {
-        margin-left:0px !important; 
-
-        #zbs-mobile-nav {
-            margin-left: -10px !important;
-            padding-left: 10px !important;
-        }
-
-    }
-
-    #wpbody {
-      margin-left: 0;
-    }
-
-
+#zbs-mobile-nav {
+	padding: 10px 20px;
+	background: #2c2e2f;
+	cursor: pointer;
 }
 
 /* Tablet / iPad Portrait */
@@ -287,20 +244,6 @@
 
         .grid{
             max-width:100%;
-        }
-
-        #zbs-mobile-nav {
-            padding: 7px;
-            padding-top: 10px;
-            background: #2c2e2f;
-            margin-left: -10px;
-            cursor: pointer;
-            margin-left: -20px;
-            padding-left: 10px;
-        }
-
-        #wpbody-content{
-            margin-top:0px;
         }
         
         #zbs-mobile-navigation-toggle{
@@ -340,11 +283,6 @@
         #zbs-customer-panel{
             padding-right:0px;
         }
-
-        #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap, #zbs-side-sortables{
-            padding-right:0px !important;
-        }
-
 
         //specific targets
         #email-template-submenu-admin{
@@ -393,13 +331,6 @@
 
     .zbs-invoice-topper, #zbs_invoice_logos, #zbs-business-info-wrapper, #billing-to, #assign-to, .zbs-controls{
         width:100% !important;
-    }
-
-
-    // WH fixes for extensions page
-    #zbsExtensionsPage .zbsExtensionGroup .zbsExtensionList .zbsExtension.zbsFreeExtension {
-        width: 45% !important;
-        min-width: 45% !important;
     }
 
     // Email template editor

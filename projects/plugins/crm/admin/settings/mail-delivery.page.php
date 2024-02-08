@@ -427,7 +427,7 @@ if ( count( $zbsSMTPAccs ) <= 0 ) {
 									$commonSMTPSettings = jpcrm_maildelivery_common_SMTP_settings();
 									foreach ( $commonSMTPSettings as $settingPerm => $settingArr ) {
 
-										echo sprintf(
+										printf(
 											'<option value="%s">%s</option>',
 											esc_attr( $settingPerm ),
 											esc_html( $settingArr['name'] )
@@ -472,13 +472,13 @@ if ( count( $zbsSMTPAccs ) <= 0 ) {
 
 									<div class="required field">
 										<label for="zbs-mail-delivery-wizard-step-2-smtp-user"><?php esc_html_e( 'Username', 'zero-bs-crm' ); ?></label>
-										<input type="text" placeholder="e.g. mike or mike@yourdomain.com" id="zbs-mail-delivery-wizard-step-2-smtp-user" class="mailInp" value="" autocomplete="new-smtpuser-<?php echo esc_attr( time() ); ?>" />
+										<input type="text" placeholder="e.g. mike or mike@yourdomain.com" id="zbs-mail-delivery-wizard-step-2-smtp-user" class="mailInp" value="" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 										<div class="ui pointing label hidden" id="zbs-mail-delivery-wizard-smtpuser-error"></div>
 									</div> <!-- .field -->
 
 									<div class="required field">
 										<label for="zbs-mail-delivery-wizard-step-2-smtp-pass"><?php esc_html_e( 'Password', 'zero-bs-crm' ); ?></label>
-										<input type="text" placeholder="" id="zbs-mail-delivery-wizard-step-2-smtp-pass" class="mailInp" value="" autocomplete="new-password-<?php echo esc_attr( time() ); ?>" />
+										<input type="text" placeholder="" id="zbs-mail-delivery-wizard-step-2-smtp-pass" class="mailInp" value="" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 										<div class="ui pointing label hidden" id="zbs-mail-delivery-wizard-smtppass-error"></div>
 									</div> <!-- .field -->
 
@@ -541,7 +541,7 @@ if ( count( $zbsSMTPAccs ) <= 0 ) {
 if ( $runningLocally ) {
 
 	?>
-	<div class="ui message"><div class="header"><div class="ui yellow label"><?php esc_html_e( 'Local Machine?', 'zero-bs-crm' ); ?></div></div><p><?php esc_html_e( 'It appears you are running Jetpack CRM locally, this may cause SMTP delivery methods to behave unexpectedly.<br />(e.g. your computer may block outgoing SMTP traffic via firewall or anti-virus software).<br />Jetpack CRM may require external web hosting to properly send via SMTP.', 'zero-bs-crm' ); ?></p></div>
+	<div class="ui message"><div class="header"><div class="ui yellow label"><?php esc_html_e( 'Local Machine?', 'zero-bs-crm' ); ?></div></div><p><?php esc_html_e( 'It appears you are running Jetpack CRM locally. This may cause SMTP delivery methods to behave unexpectedly (e.g. your computer may block outgoing SMTP traffic via firewall or antivirus software). Jetpack CRM may require external web hosting to properly send via SMTP.', 'zero-bs-crm' ); ?></p></div>
 	<?php
 
 }

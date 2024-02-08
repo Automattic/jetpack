@@ -1,0 +1,21 @@
+{
+	"parents": {
+		"readme.md": [ "docs/quick-start.md", "docs/CONTRIBUTING.md" ],
+		"docs/CONTRIBUTING.md": [
+			"CODE-OF-CONDUCT.md",
+			"docs/coding-guidelines.md",
+			"docs/development-environment.md",
+			"docs/pull-request.md",
+			"docs/git-workflow.md",
+			"docs/monorepo.md",
+			"docs/quick-start.md",
+			"docs/writing-a-good-changelog-entry.md",
+			"docs/unison-wordpress-com.md",
+			"docs/rest-api.md",
+			"docs/code-reviews.md",
+			"docs/release-management.md",
+			"docs/translations.md",
+			"docs/automated-testing.md"
+		]
+	}
+}

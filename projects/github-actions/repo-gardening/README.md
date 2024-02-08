@@ -10,7 +10,7 @@ Here is the current list of tasks handled by this action:
 - Add Milestone (`addMilestone`): Adds a valid milestone to all PRs that get merged and don't already include a milestone.
 - Check Description (`checkDescription`): Checks the contents of a PR description, and ensure it matches our recommendations.
 - Add Labels (`addLabels`): Adds labels to PRs that touch specific features.
-- Clean Labels (`cleanLabels`): Removes Status labels once a PR has been merged.
+- Clean Labels (`cleanLabels`): Removes Status labels once a PR or issue has been closed or merged.
 - WordPress.com Commit Reminder (`wpcomCommitReminder`): Posts a comment on merged PRs to remind Automatticians to commit the matching WordPress.com change.
 - Notify Design (`notifyDesign`): Sends a Slack Notification to the Design team to request feedback, based on labels applied to a PR.
 - Notify Editorial (`notifyEditorial`): Sends a Slack Notification to the Editorial team to request feedback, based on labels applied to a PR.
@@ -18,6 +18,7 @@ Here is the current list of tasks handled by this action:
 - Triage Issues (`triageIssues`): Adds labels to issues based on issue content, and send Slack notifications depending on Priority.
 - Gather support references (`gatherSupportReferences`): Adds a new comment with a list of all support references on the issue, and escalates that issue via a Slack message if needed.
 - Reply to customers Reminder ( `replyToCustomersReminder` ): sends a Slack message about closed issues to remind Automatticians to update customers.
+- Update Board (`updateBoard`): this task updates specific columns in a GitHub Project board, based on labels applied to an issue.
 
 Some of the tasks are may not satisfy your needs. If that's the case, you can use the `tasks` option to limit the action to the list of tasks you need in your repo. See the example below to find out more.
 
@@ -36,6 +37,8 @@ on:
   # Refer to src/index.js to see a list of all events each task needs to be listen to.
   pull_request_target:
     types: ['closed', 'labeled']
+  issues:
+    types: ['closed']
 
 jobs:
   repo-gardening:
@@ -46,10 +49,10 @@ jobs:
 
     steps:
      - name: Checkout
-       uses: actions/checkout@v3
+       uses: actions/checkout@v4
 
      - name: Setup Node
-       uses: actions/setup-node@v3
+       uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
@@ -73,6 +76,7 @@ The action relies on the following parameters.
 
 - (Required) `github_token` is a GitHub Access Token used to access GitHub's API. The user account associated with the token is the one that will be seen as posting the checkDescription comment, adding and removing labels, and so on. If omitted, the standard token for the github-actions bot will be used.
 - (Optional) `tasks` allows for running selected tasks instead of the full suite. The value is a comma-separated list of task identifiers. You can find the list of the different tasks (and what event it's attached to) in `src/index.js`.
+- (Optional) `add_labels`. Pass custom labels to add. Defaults to an empty string. Only applies for the [addLabel](src/tasks/add-labels/readme.md) task.
 - (Optional) `slack_token` is the Auth token of a bot that is installed on your Slack workspace. The token should be stored in a [secret](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository). See the instructions below to create a bot.
 - (Optional) `slack_design_channel` is the Slack public channel ID where messages for the design team will be posted. Again, the value should be stored in a secret.
 - (Optional) `slack_editorial_channel` is the Slack public channel ID where messages for the Editorial team will be posted. Again, the value should be stored in a secret.
@@ -80,6 +84,9 @@ The action relies on the following parameters.
 - (Optional) `slack_he_triage_channel` is the Slack public channel ID where messages for the HE Triage team will be posted. The value should be stored in a secret.
 - (Optional) `slack_quality_channel` is the Slack public channel ID where issues needing extra triage / escalation will be sent. The value should be stored in a secret.
 - (Optional) `reply_to_customers_threshold`. It is optional, and defaults to 10. It is the minimum number of support references needed to trigger an alert that we need to reply to customers.
+- (Optional) `triage_projects_token` is a [personal access token](https://github.com/settings/tokens/new) with `repo` and `project` scopes. The token should be stored in a secret. This is required if you want to use the `updateBoard` task.
+- (Optional) `project_board_url` is the URL of a GitHub Project Board. We'll automate some of the work on that board in the `updateBoard` task.
+- (Optional) `labels_team_assignments` is a list of features you can provide, with matching team names, as specified in the "Team" field of your GitHub Project Board used for the `updateBoard` task, and lists of labels in use in your repository.
 
 #### How to create a Slack bot and get your SLACK_TOKEN
 
@@ -100,7 +107,7 @@ Certain tasks require filesystem access to the PR, which `pull_request_target` d
 ```yaml
      - name: Checkout the PR
        if: github.event_name == 'pull_request_target'
-       uses: actions/checkout@v3
+       uses: actions/checkout@v4
        with:
          ref: ${{ github.event.pull_request.head.ref }}
          repository: ${{ github.event.pull_request.head.repo.full_name }}

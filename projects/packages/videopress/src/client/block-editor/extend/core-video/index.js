@@ -10,6 +10,7 @@ import { useDispatch } from '@wordpress/data';
 import { useEffect, createInterpolateElement, useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 /**
  * Internal dependencies
  */
@@ -78,15 +79,90 @@ function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
 	return attrs;
 }
 
+/**
+ * JetpackCoreVideoDeprecation component.
+ *
+ * @param {object} props                - component props
+ * @param {object} props.BlockListBlock - BlockListBlock
+ * @returns {React.ReactNode}             BlockListBlock if the block is valid, or the recovery warning.
+ */
+function JetpackCoreVideoDeprecation( { BlockListBlock, ...props } ) {
+	const { block } = props;
+	const { attributes, clientId, __unstableBlockSource } = block;
+	const { poster } = attributes;
+	const { replaceBlock } = useDispatch( blockEditorStore );
+	const [ ignoreBlockRecovery, setIgnoreBlockRecovery ] = useState();
+
+	useEffect( () => {
+		if ( ignoreBlockRecovery !== false ) {
+			return;
+		}
+
+		replaceBlock(
+			clientId,
+			createBlock(
+				'videopress/video',
+				getVideoPressVideoBlockAttributes( __unstableBlockSource?.attrs, attributes )
+			)
+		);
+	}, [ clientId, ignoreBlockRecovery, attributes, __unstableBlockSource ] );
+
+	const moreAboutVideoPress = createInterpolateElement(
+		__(
+			'This block contains unexpected or invalid content, and it seems to be a <moreAboutVideoPressLink>VideoPress video block</moreAboutVideoPressLink> instance.',
+			'jetpack-videopress-pkg'
+		),
+		{
+			moreAboutVideoPressLink: <ExternalLink href={ getRedirectUrl( 'jetpack-videopress' ) } />,
+		}
+	);
+
+	if ( ! ignoreBlockRecovery ) {
+		return (
+			<div>
+				<Warning
+					className="extended-block-warning"
+					actions={ [
+						<Button
+							key="convert"
+							variant="primary"
+							onClick={ () => setIgnoreBlockRecovery( false ) }
+						>
+							{ __( 'Attempt VideoPress Block Recovery', 'jetpack-videopress-pkg' ) }
+						</Button>,
+						<Button
+							key="ignore"
+							variant="tertiary"
+							onClick={ () => setIgnoreBlockRecovery( true ) }
+						>
+							{ __( 'Skip', 'jetpack-videopress-pkg' ) }
+						</Button>,
+					] }
+				>
+					{ moreAboutVideoPress }
+					{ poster && (
+						<p className="wp-extended-block-wrapper is-disabled">
+							<p className="extended-block-player__overlay" />
+							<span class="videoplayer-play" aria-hidden="true" />
+							<img
+								src={ poster }
+								alt={ __( 'VideoPress Video Block', 'jetpack-videopress-pkg' ) }
+							/>
+						</p>
+					) }
+				</Warning>
+			</div>
+		);
+	}
+
+	return <BlockListBlock { ...props } />;
+}
+
 const handleJetpackCoreVideoDeprecation = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { block, isValid } = props;
-		const { name, attributes, clientId, __unstableBlockSource } = block;
-		const { guid, videoPressTracks, poster } = attributes;
-
-		const { replaceBlock } = useDispatch( blockEditorStore );
-
-		const [ ignoreBlockRecovery, setIgnoreBlockRecovery ] = useState();
+		const { name, attributes } = block;
+		const { guid, videoPressTracks } = attributes;
 
 		/*
 		 * We try to recognize core/video Jetpack VideoPress block,
@@ -100,83 +176,13 @@ const handleJetpackCoreVideoDeprecation = createHigherOrderComponent( BlockListB
 			isCoreVideoVideoPressBlock
 		);
 
-		useEffect( () => {
-			if ( ignoreBlockRecovery !== false ) {
-				return;
-			}
-
-			if ( ! shouldHandleConvertion ) {
-				return;
-			}
-
-			replaceBlock(
-				clientId,
-				createBlock(
-					'videopress/video',
-					getVideoPressVideoBlockAttributes( __unstableBlockSource?.attrs, attributes )
-				)
-			);
-		}, [
-			clientId,
-			shouldHandleConvertion,
-			ignoreBlockRecovery,
-			attributes,
-			__unstableBlockSource,
-		] );
-
+		// CAUTION: code added before this line will be executed for all blocks
+		// (also on typing), not just video blocks.
 		if ( ! shouldHandleConvertion ) {
 			return <BlockListBlock { ...props } />;
 		}
 
-		const moreAboutVideoPress = createInterpolateElement(
-			__(
-				'This block contains unexpected or invalid content, and it seems to be a <moreAboutVideoPressLink>VideoPress video block</moreAboutVideoPressLink> instance.',
-				'jetpack-videopress-pkg'
-			),
-			{
-				moreAboutVideoPressLink: <ExternalLink href={ getRedirectUrl( 'jetpack-videopress' ) } />,
-			}
-		);
-
-		if ( ! ignoreBlockRecovery ) {
-			return (
-				<div>
-					<Warning
-						className="extended-block-warning"
-						actions={ [
-							<Button
-								key="convert"
-								variant="primary"
-								onClick={ () => setIgnoreBlockRecovery( false ) }
-							>
-								{ __( 'Attempt VideoPress Block Recovery', 'jetpack-videopress-pkg' ) }
-							</Button>,
-							<Button
-								key="ignore"
-								variant="tertiary"
-								onClick={ () => setIgnoreBlockRecovery( true ) }
-							>
-								{ __( 'Skip', 'jetpack-videopress-pkg' ) }
-							</Button>,
-						] }
-					>
-						{ moreAboutVideoPress }
-						{ poster && (
-							<p className="wp-extended-block-wrapper is-disabled">
-								<p className="extended-block-player__overlay" />
-								<span class="videoplayer-play" aria-hidden="true" />
-								<img
-									src={ poster }
-									alt={ __( 'VideoPress Video Block', 'jetpack-videopress-pkg' ) }
-								/>
-							</p>
-						) }
-					</Warning>
-				</div>
-			);
-		}
-
-		return <BlockListBlock { ...props } />;
+		return <JetpackCoreVideoDeprecation { ...props } BlockListBlock={ BlockListBlock } />;
 	};
 }, 'handleJetpackCoreVideoDeprecation' );
 

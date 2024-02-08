@@ -94,14 +94,14 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 		// l337 h4X0Ring required:
 		$instance = new ReflectionProperty( Image_CDN::class, 'instance' );
 		$instance->setAccessible( true );
-		$instance->setValue( null );
+		$instance->setValue( null, null );
 
 		/**
 		 * Reset the `image_sizes` property, as it persists between class instantiations, since it's static.
 		 */
 		$instance = new ReflectionProperty( Image_CDN::class, 'image_sizes' );
 		$instance->setAccessible( true );
-		$instance->setValue( null );
+		$instance->setValue( null, null );
 
 		self::delete_author();
 
@@ -1535,6 +1535,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 			'jpeg'    => array( 'http://example.com/example-150x150.jpeg', true ),
 			'png'     => array( 'http://example.com/example-150x150.png', true ),
 			'webp'    => array( 'http://example.com/example-150x150.webp', true ),
+			'heic'    => array( 'http://example.com/example-150x150.heic', true ),
 			'invalid' => array( 'http://example.com/example-150x150.invalid', false ),
 
 		);

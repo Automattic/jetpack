@@ -182,5 +182,4 @@ class Changelog implements JsonSerializable {
 		}
 		return $ret;
 	}
-
 }

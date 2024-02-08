@@ -2,3 +2,8 @@
 	background-color: red !important;
 	border-color: red !important;
 }
+
+.broken-token-edit-form-inline {
+	display: flex;
+	gap: 5px;
+}

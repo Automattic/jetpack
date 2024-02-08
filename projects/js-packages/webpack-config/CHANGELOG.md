@@ -5,6 +5,103 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.1.1 - 2024-02-05
+### Changed
+- Updated package dependencies. [#35384]
+
+## 3.1.0 - 2024-01-25
+### Added
+- Automatically determine text domain for `I18nLoaderPlugin` as is done for `I18nCheckPlugin`. [#35231]
+
+## 3.0.5 - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## 3.0.4 - 2023-12-06
+### Changed
+- Updated package dependencies. [#34416]
+
+## 3.0.3 - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411]
+
+## 3.0.2 - 2023-11-20
+
+## 3.0.1 - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## 3.0.0 - 2023-11-03
+### Changed
+- Default devtool in development mode is now 'source-map'. This is technically a breaking change, as now `.map` files will be generated in development mode. [#33924]
+
+## 2.0.4 - 2023-10-19
+### Changed
+- Updated package dependencies. [#33687]
+
+## 2.0.3 - 2023-10-17
+### Changed
+- Updated package dependencies. [#33646]
+
+## 2.0.2 - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429, #33600]
+
+## 2.0.1 - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## 2.0.0 - 2023-10-03
+### Added
+- Document PnpmDeterministicModuleIdsPlugin that was added way back in 1.2.0. [#33392]
+
+### Changed
+- Disable `optimization.mangleExports` in production mode in favor of the `I18nSafeMangleExportsPlugin` from `@automattic/i18n-check-webpack-plugin`. This is technically a breaking change, as if someone had been disabling `mangleExports` for other reasons this will effectively re-enable it. [#33392]
+
+## 1.6.0 - 2023-09-13
+### Changed
+- Updated package dependencies. [#33001]
+
+### Removed
+- Remove deprecated `@babel/plugin-proposal-class-properties`; `@babel/plugin-transform-class-properties` is already in `@babel/preset-env`. [#33001]
+
+## 1.5.9 - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+## 1.5.8 - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## 1.5.7 - 2023-07-18
+### Changed
+- Updated package dependencies. [#31922]
+
+## 1.5.6 - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+## 1.5.5 - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## 1.5.4 - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## 1.5.3 - 2023-06-26
+### Changed
+- Updated package dependencies. [#31524]
+
+## 1.5.2 - 2023-06-21
+### Changed
+- Updated package dependencies. [#31468]
+
+## 1.5.1 - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
 ## 1.5.0 - 2023-05-02
 ### Added
 - Webpack's `.resolve.conditionNames` may now be set from `.npmrc` or the corresponding environment variable. [#30313]

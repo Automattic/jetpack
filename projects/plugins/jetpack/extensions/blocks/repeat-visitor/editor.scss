@@ -1,9 +1,9 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 .wp-block-jetpack-repeat-visitor {
 	.components-notice {
 		margin: 1em 0 0;
-		&__content {
-			color: var( --color-black );
-		}
+		color: $gray-900;
 	}
 	.components-radio-control__option {
 		text-align: left;
@@ -40,7 +40,7 @@
 	}
 
 	.components-base-control__help {
-		color: var( --muriel-hot-red-500 );
+		color: $alert-red;
 		font-size: 13px;
 	}
 }

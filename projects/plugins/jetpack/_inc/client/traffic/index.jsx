@@ -9,11 +9,11 @@ import {
 	isUnavailableInOfflineMode,
 	hasConnectedOwner,
 } from 'state/connection';
-import { getLastPostUrl, isAtomicSite } from 'state/initial-state';
+import { getLastPostUrl, currentThemeIsBlockTheme, getSiteId } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
-import { Ads } from './ads';
+import Blaze from './blaze';
 import { GoogleAnalytics } from './google-analytics';
 import { RelatedPosts } from './related-posts';
 import SEO from './seo';
@@ -30,21 +30,24 @@ export class Traffic extends React.Component {
 			settings: this.props.settings,
 			siteRawUrl: this.props.siteRawUrl,
 			getModule: this.props.module,
+			isBlockThemeActive: this.props.isBlockThemeActive,
 			isSiteConnected: this.props.isSiteConnected,
 			isOfflineMode: this.props.isOfflineMode,
 			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			getModuleOverride: this.props.getModuleOverride,
 			hasConnectedOwner: this.props.hasConnectedOwner,
+			lastPostUrl: this.props.lastPostUrl,
+			siteAdminUrl: this.props.siteAdminUrl,
 		};
 
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
-			foundAds = this.props.isModuleFound( 'wordads' ),
 			foundStats = this.props.isModuleFound( 'stats' ),
 			foundShortlinks = this.props.isModuleFound( 'shortlinks' ),
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
-			foundAnalytics = this.props.isModuleFound( 'google-analytics' );
+			foundAnalytics = this.props.isModuleFound( 'google-analytics' ),
+			foundBlaze = this.props.isModuleFound( 'blaze' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
@@ -52,13 +55,13 @@ export class Traffic extends React.Component {
 
 		if (
 			! foundSeo &&
-			! foundAds &&
 			! foundStats &&
 			! foundShortlinks &&
 			! foundRelated &&
 			! foundVerification &&
 			! foundSitemaps &&
-			! foundAnalytics
+			! foundAnalytics &&
+			! foundBlaze
 		) {
 			return null;
 		}
@@ -75,33 +78,12 @@ export class Traffic extends React.Component {
 								'jetpack'
 						  ) }
 				</h2>
-				{ foundAds && (
-					<Ads
-						{ ...commonProps }
-						isAtomicSite={ this.props.isAtomicSite }
-						configureUrl={ getRedirectUrl( 'calypso-stats-ads-day', {
-							site: this.props.siteRawUrl,
-						} ) }
-					/>
-				) }
-				{ foundRelated && (
-					<RelatedPosts
-						{ ...commonProps }
-						configureUrl={
-							this.props.siteAdminUrl +
-							'customize.php?autofocus[section]=jetpack_relatedposts' +
-							'&return=' +
-							encodeURIComponent( this.props.siteAdminUrl + 'admin.php?page=jetpack#/traffic' ) +
-							'&url=' +
-							encodeURIComponent( this.props.lastPostUrl )
-						}
-					/>
-				) }
+				{ foundRelated && <RelatedPosts { ...commonProps } /> }
 				{ foundSeo && (
 					<SEO
 						{ ...commonProps }
 						configureUrl={ getRedirectUrl( 'calypso-marketing-traffic', {
-							site: this.props.siteRawUrl,
+							site: this.props.blogID ?? this.props.siteRawUrl,
 							anchor: 'seo',
 						} ) }
 					/>
@@ -111,11 +93,12 @@ export class Traffic extends React.Component {
 					<GoogleAnalytics
 						{ ...commonProps }
 						configureUrl={ getRedirectUrl( 'calypso-marketing-traffic', {
-							site: this.props.siteRawUrl,
+							site: this.props.blogID ?? this.props.siteRawUrl,
 							anchor: 'analytics',
 						} ) }
 					/>
 				) }
+				{ foundBlaze && <Blaze { ...commonProps } /> }
 				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
 				{ foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ foundVerification && <VerificationServices { ...commonProps } /> }
@@ -128,13 +111,14 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
+		isBlockThemeActive: currentThemeIsBlockTheme( state ),
 		isOfflineMode: isOfflineMode( state ),
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		isSiteConnected: isSiteConnected( state ),
 		lastPostUrl: getLastPostUrl( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
-		isAtomicSite: isAtomicSite( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
+		blogID: getSiteId( state ),
 	};
 } )( Traffic );

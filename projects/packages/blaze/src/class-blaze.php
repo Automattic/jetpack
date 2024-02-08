@@ -7,18 +7,20 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Blaze\Dashboard as Blaze_Dashboard;
+use Automattic\Jetpack\Blaze\Dashboard_REST_Controller as Blaze_Dashboard_REST_Controller;
+use Automattic\Jetpack\Blaze\REST_Controller;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Status as Jetpack_Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
  * Class for promoting posts.
  */
 class Blaze {
-
-	const PACKAGE_VERSION = '0.5.13';
-
 	/**
 	 * Script handle for the JS file we enqueue in the post editor.
 	 *
@@ -34,7 +36,8 @@ class Blaze {
 	public static $script_path = '../build/editor.js';
 
 	/**
-	 * The configuration method that is called from the jetpack-config package.
+	 * Initializer.
+	 * Used to configure the blaze package, eg when called via the Config package.
 	 *
 	 * @return void
 	 */
@@ -43,6 +46,12 @@ class Blaze {
 		add_action( 'load-edit.php', array( __CLASS__, 'add_post_links_actions' ) );
 		// In the post editor, add a post-publish panel to allow promoting the post.
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
+		// Add a Blaze Menu.
+		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
+		// Add Blaze dashboard app REST API endpoints.
+		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
+		// Add general Blaze REST API endpoints.
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 	}
 
 	/**
@@ -54,6 +63,68 @@ class Blaze {
 		if ( self::should_initialize() ) {
 			add_filter( 'post_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 			add_filter( 'page_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
+		}
+	}
+
+	/**
+	 * Is the wp-admin Dashboard enabled?
+	 * That dashboard is not available or necessary on WordPress.com sites.
+	 *
+	 * @return bool
+	 */
+	public static function is_dashboard_enabled() {
+		$is_dashboard_enabled = true;
+
+		// On WordPress.com sites, the dashboard is not needed.
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			$is_dashboard_enabled = false;
+		}
+
+		/**
+		 * Enable a wp-admin dashboard for Blaze campaign management.
+		 *
+		 * @since 0.7.0
+		 *
+		 * @param bool $should_enable Should the dashboard be enabled?
+		 */
+		return apply_filters( 'jetpack_blaze_dashboard_enable', $is_dashboard_enabled );
+	}
+
+	/**
+	 * Enable the Blaze menu.
+	 *
+	 * @return void
+	 */
+	public static function enable_blaze_menu() {
+		if ( ! self::should_initialize() ) {
+			return;
+		}
+
+		$blaze_dashboard = new Blaze_Dashboard();
+
+		if ( self::is_dashboard_enabled() ) {
+			$page_suffix = add_submenu_page(
+				'tools.php',
+				esc_attr__( 'Advertising', 'jetpack-blaze' ),
+				__( 'Advertising', 'jetpack-blaze' ),
+				'manage_options',
+				'advertising',
+				array( $blaze_dashboard, 'render' ),
+				1
+			);
+			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
+		} elseif ( ( new Host() )->is_wpcom_platform() ) {
+			$domain      = ( new Jetpack_Status() )->get_site_suffix();
+			$page_suffix = add_submenu_page(
+				'tools.php',
+				esc_attr__( 'Advertising', 'jetpack-blaze' ),
+				__( 'Advertising', 'jetpack-blaze' ),
+				'manage_options',
+				'https://wordpress.com/advertising/' . $domain,
+				null,
+				1
+			);
+			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		}
 	}
 
@@ -162,6 +233,47 @@ class Blaze {
 	}
 
 	/**
+	 * Get URL to create a Blaze campaign for a specific post.
+	 *
+	 * This can return 2 different types of URL:
+	 * - Calypso Links
+	 * - wp-admin Links if access to the wp-admin Blaze Dashboard is enabled.
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return array An array with the link, and whether this is a Calypso or a wp-admin link.
+	 */
+	public static function get_campaign_management_url( $post_id ) {
+		if ( self::is_dashboard_enabled() ) {
+			$admin_url = admin_url( 'tools.php?page=advertising' );
+			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
+			$blaze_url = sprintf(
+				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',
+				$admin_url,
+				esc_attr( $post_id ),
+				$hostname
+			);
+
+			return array(
+				'link'     => $blaze_url,
+				'external' => false,
+			);
+		}
+
+		// Default Calypso link.
+		$blaze_url = Redirect::get_url(
+			'jetpack-blaze',
+			array(
+				'query' => 'blazepress-widget=post-' . esc_attr( $post_id ),
+			)
+		);
+		return array(
+			'link'     => $blaze_url,
+			'external' => true,
+		);
+	}
+
+	/**
 	 * Adds the Promote link to the posts list row action.
 	 *
 	 * @param array   $post_actions The current array of post actions.
@@ -187,24 +299,21 @@ class Blaze {
 			return $post_actions;
 		}
 
-		// Might be useful to wrap in a method call for general use without post_id.
-		$blaze_url = Redirect::get_url(
-			'jetpack-blaze',
-			array(
-				'query' => 'blazepress-widget=post-' . esc_attr( $post_id ),
-			)
+		$blaze_url = self::get_campaign_management_url( $post_id );
+		$text      = __( 'Promote with Blaze', 'jetpack-blaze' );
+		$title     = get_the_title( $post );
+		$label     = sprintf(
+			/* translators: post title */
+			__( 'Blaze &#8220;%s&#8221; to Tumblr and WordPress.com audiences.', 'jetpack-blaze' ),
+			$title
 		);
 
-		// Add the link, make sure to tooltip hover.
-		$text  = _x( 'Blaze', 'Verb', 'jetpack-blaze' );
-		$title = _draft_or_post_title( $post );
-		/* translators: post title */
-		$label                 = sprintf( __( 'Blaze &#8220;%s&#8221; to Tumblr and WordPress.com audiences.', 'jetpack-blaze' ), $title );
 		$post_actions['blaze'] = sprintf(
-			'<a href="%1$s" target="_blank" title="%2$s" aria-label="%2$s" rel="noopener noreferrer">%3$s</a>',
-			esc_url( $blaze_url ),
+			'<a href="%1$s" title="%2$s" aria-label="%2$s" %4$s>%3$s</a>',
+			esc_url( $blaze_url['link'] ),
 			esc_attr( $label ),
-			esc_html( $text )
+			esc_html( $text ),
+			( true === $blaze_url['external'] ? 'target="_blank" rel="noopener noreferrer"' : '' )
 		);
 
 		return $post_actions;
@@ -248,6 +357,17 @@ class Blaze {
 		);
 
 		// Adds Connection package initial state.
-		wp_add_inline_script( self::SCRIPT_HANDLE, Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
+
+		// Pass additional data to our script.
+		wp_localize_script(
+			self::SCRIPT_HANDLE,
+			'blazeInitialState',
+			array(
+				'adminUrl'           => esc_url( admin_url() ),
+				'isDashboardEnabled' => self::is_dashboard_enabled(),
+				'siteFragment'       => ( new Jetpack_Status() )->get_site_suffix(),
+			)
+		);
 	}
 }

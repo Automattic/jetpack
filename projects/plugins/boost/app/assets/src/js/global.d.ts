@@ -2,8 +2,6 @@
  * Type definitions for the global namespace. i.e.: things we expect to find in window.
  */
 
-import type { ConnectionStatus } from './stores/connection';
-import type { Optimizations } from './stores/modules';
 import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
 
 // <reference types ="@types/jquery"/>
@@ -14,49 +12,29 @@ declare global {
 		nonce: string;
 	};
 
+	const jbImageGuide: {
+		proxyNonce: string;
+		ajax_url: string;
+	};
+
 	// Constants provided by the plugin.
 	const Jetpack_Boost: {
-		preferences: {
-			showRatingPrompt: boolean;
-			showScorePrompt: boolean;
-			prioritySupport: boolean;
-		};
-		isPremium: boolean;
 		version: string;
 		api: {
 			namespace: string;
 			prefix: string;
 		};
-		connectionIframeOriginUrl: string;
-		connection: ConnectionStatus;
-		showRatingPromptNonce?: string;
-		showScorePromptNonce?: string;
-		dismissedScorePrompts: string[];
-		superCache: {
-			pluginActive: boolean;
-			cacheEnabled: boolean;
-			disableCacheKey?: string;
-		};
 		site: {
 			domain: string;
 			url: string;
 			online: boolean;
-			assetPath: string;
-			getStarted: boolean;
-			canResizeImages: boolean;
+			isAtomic: boolean;
 		};
-		optimizations: Optimizations;
-		shownAdminNoticeIds: string[];
-		nonces: {
+		assetPath: string;
+		pluginDirUrl: string;
+		canResizeImages: boolean;
+		postTypes: {
 			[ key: string ]: string;
-		};
-		pricing: {
-			yearly?: {
-				priceBefore: number;
-				priceAfter: number;
-				currencyCode: string;
-				isIntroductoryOffer: boolean;
-			};
 		};
 	};
 
@@ -72,6 +50,16 @@ declare global {
 			eventType: string,
 			eventProp: TracksEventProperites
 		): JQueryXHR;
+	};
+
+	const jetpackBoostAnalytics: {
+		tracksData: {
+			userData: {
+				userid: number;
+				username: string;
+			};
+			blogId: number;
+		};
 	};
 }
 

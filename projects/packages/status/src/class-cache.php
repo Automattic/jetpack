@@ -51,5 +51,4 @@ class Cache {
 	public static function clear() {
 		self::$cache = array();
 	}
-
 }

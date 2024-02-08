@@ -48,13 +48,30 @@ Extensions in the `extensions/` folder loosely follow this structure:
 		└── ...
 ```
 
-If your block depends on another block, place them all in extensions folder:
+If your block depends on another block, place them all in one folder:
 
 ```txt
 .
 └── blocks/
-	├── block-name/
-	└── sub-blockname/
+	└── block-name/
+		└── sub-blockname/
+```
+To ensure that the child blog is properly registered, include its php block registration file in the parent php file. 
+Also, you would need to adjust the front-end block registration in the parent as follows:
+```js
+import registerJetpackBlock from '../../shared/register-jetpack-block';
+import {
+	name as childBlockName,
+	settings as childBlockSettings,
+} from './sub-blockname';
+import { name, settings } from '.';
+
+registerJetpackBlock( name, settings, [
+	{
+		name: childBlockName,
+		settings: childBlockSettings,
+	},
+] );
 ```
 
 ## Developing block editor extensions in Jetpack
@@ -63,15 +80,13 @@ If your block depends on another block, place them all in extensions folder:
 
 1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md#readme).
 1. Start a new branch.
-1. Add your new extension's source files to the extensions directory.
-And add your extensions' slug to the beta array in `extensions/index.json`. You can use Jetpack-CLI command to scaffold the block (see below).
-By keeping your extension in the beta array, it's safe to do small PRs and merge frequently.
+1. Use Jetpack-CLI command to scaffold a new block (see below). That block will be created in the `extensions/blocks` folder, and will be set as a Beta block by default.
 1. Or modify existing extensions in the same folder.
-1. Run `pnpm build-extensions [--watch]` to compile your changes.
+1. Run `jetpack build plugins/jetpack` to compile your changes.
 1. Now test your changes in your Docker environment's wp-admin.
-1. Open a PR, and a WordPress.com diff will be automatically generated with your changes.
-1. Test the WordPress.com diff
-1. Once the code works well in both environments and has been approved by a Jetpack crew member, you can merge your branch!
+1. Open a PR
+1. Test your changes in all 3 environments available to you: your local development site, a WordPress.com Simple site, and a WoA site.
+1. Once the code works well in all environments and your PR has been approved, you can merge it!
 1. When your block is ready to be shipped, move your extensions' slug from beta to production array in `extensions/index.json`
 
 ### Beta Extensions
@@ -82,7 +97,7 @@ Generally, all new extensions should start out as a beta.
 - In the `wp-config.php` for your Docker environment (`docker/wordpress/wp-config.php`) or in your custom mu-plugins file (`docker/mu-plugins/yourfile.php`), enable beta extensions with the following snippet: `define( 'JETPACK_BLOCKS_VARIATION', 'beta' );`
 - When you use this constant, you'll get all blocks: Beta blocks, Experimental blocks, and Production blocks.
 - You can also filter to specific extensions: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`.
-- In the WordPress.com environment, Automatticians will be able to see beta extensions with no further configuration
+- In the WordPress.com environment, Automatticians will be able to see beta extensions with no further configuration.
 - In a Jurassic Ninja site, you must go to Settings > Jetpack Constants, and enable the Beta blocks option there.
 - Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
@@ -91,7 +106,7 @@ Generally, all new extensions should start out as a beta.
 
 We also offer an "experimental" state for extensions. Those extensions will be made available to anyone having the `JETPACK_BLOCKS_VARIATION` constant set to `experimental` in `wp-config.php`. When you use this constant, you'll get Experimental blocks as well as Production blocks.
 
-Experimental extensions are usually considered ready for production, but are served only to sites requesting them.
+Experimental extensions are usually considered ready for production, but are served only to sites requesting them. **All WordPress.com sites have access to experimental extensions**.
 
 ### Scaffolding blocks with WP-CLI
 
@@ -135,7 +150,7 @@ Since it's added to the beta array, you need to load the beta blocks as explaine
 
 ### Testing
 
-Run `pnpm test-extensions [--watch]` to run tests written in [Jest](https://jestjs.io/en/).
+Run `cd projects/plugins/jetpack && pnpm test-extensions [--watch]` to run tests written in [Jest](https://jestjs.io/en/).
 
 Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testing) for block's `save` methods is problematic because many core packages relying on `window` that is not present when testing with Jest. See [prior exploration](https://github.com/Automattic/wp-calypso/pull/30727).
 
@@ -143,42 +158,25 @@ Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testin
 
 Yes! Just like any other changes in Jetpack, also blocks work in Jurassic Ninja.
 
-Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branches.jetpack=trunk or use other ninjastic features.
+Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branches.jetpack=master or use other ninjastic features.
 
 ## Deploying extensions
 
-### How do I merge extensions to Jetpack
+### How do I merge extensions?
 
-- Jetpack is released once a month, so be sure your team is aware of [upcoming code freezes](https://github.com/Automattic/Jetpack/milestones).
-- Make sure you and your team have tested your PR in both the Jetpack environment, and the WordPress.com environment.
-- Additionally, your PR will require approval from a Jetpack crew member.
-- Once merged, your extension will appear in the next release.
+Jetpack has a strict release schedule, so it's important to keep this in mind when merging extensions. Be mindful of [code freezes and release dates](https://github.com/Automattic/Jetpack/milestones) for all 3 different environments where the plugin is deployed (WordPress.com Simple, WoA, and self-hosted).
 
-### How do I merge extensions to WordPress.com?
+Once a PR has been merged, it will be included in the next release on each platform. With that in mind, use the "Beta" state to iterate on your extensions and test them in all 3 environments, until you're ready to deploy them to production.
 
-- Merge to Jetpack trunk first.
-- Then, merge the auto-generated diff on WordPress.com.
-- Note: before merging your WordPress.com diff, it is worth considering the release schedule if you are shipping a new feature. This is to avoid a situation where a new feature ends up on WordPress.com before anywhere else, and any subsequent site migrations mean that functionality is lost. Reach out to a Jetpack crew member if in doubt.
+### How do I test on WordPress.com Simple?
 
-### What if I need to manually create a WordPress.com diff?
+- If you've opened a Pull Request, you can use the command appearing as a comment on your PR as soon as the Build step has completed. This will deploy your branch to WordPress.com Simple, and you'll be able to test it there.
+- If you're still working on your changes locally, you can use the Jetpack CLI and its `rsync` command to deploy your changes to your WordPress.com sandbox and test them there. You can find more information about the Jetpack CLI [here](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md#available-commands).
 
-You can build extensions from the Jetpack folder to your local sandbox folder and sync the whole sandbox like you always do:
+### How do I test on WoA sites?
 
-```bash
-pnpm clean-extensions
-pnpm build-extensions \
-  --output-path /PATH_TO_YOUR_SANDBOX/wp-content/mu-plugins/jetpack/_inc/blocks/ \
-  --watch
-```
-
-Alternatively, if you don’t need to touch PHP files, you can build extensions in the Jetpack folder without --output-path and use rsync to push files directly to your sandbox:
-
-```bash
-rsync -az --delete _inc/blocks/ \
-  YOUR_WPCOM_SANDBOX:/BLOCKS_PATH_IN_YOUR_SANDBOX/
-```
-
-To test extensions for a Simple site in Calypso, sandbox the simple site URL (`example.wordpress.com`). Calypso loads Gutenberg from simple sites’ wp-admin in an iframe.
+- If you've opened a Pull Request, you can use [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/) to test your changes on any WoA site.
+- If you're still working on your changes locally, you can use the Jetpack CLI and its `rsync` command to push your changes to your WoA dev blog. You can learn more about WoA dev blogs at p9o2xV-1r2-p2
 
 ## Paid blocks
 
@@ -214,7 +212,7 @@ const PLAN_DATA = array(
 	),
 ```
 
-The plan data is found in `class.jetpack-plan.php` for Jetpack and an example of adding the features to WordPress.com plans is in D43206-code.
+The plan data is found in the Packages plan for Jetpack (see the `Current_Plan` class), and an example of adding the features to WordPress.com plans is in D43206-code.
 
 ### Upgrades for Blocks
 Paid blocks that aren't supported by a user's plan will still be registered for use in the block editor, but will not be displayed by default.
@@ -277,6 +275,17 @@ For a working example please see the [Social Previews extension](https://github.
 Blocks can be registered but not available:
 - Registered: The block appears in the block inserter
 - Available: The block is included in the user's current plan and renders in the front end of the site
+
+## Developing API endpoints for blocks
+
+Blocks may need to access information from the site or from WordPress.com, through endpoints. When developing an endpoint for a block in the Jetpack plugin, you can look at past endpoints in `projects/plugins/jetpack/_inc/lib/core-api/wpcom-endpoints` for inspiration.
+
+Find out more about developing endpoints in the following resources:
+
+- Jetpack APIs Quick Reference Guide PCYsg-CB9-p2
+- How to write a REST API endpoint for Jetpack sites in WordPress.com PCYsg-liz-p2
+
+**Note**: if your feature is available in multiple plugins, consider adding the endpoints to a package that will be available to all the plugins that will need it.
 
 ## Block upgrade and deprecation paths
 

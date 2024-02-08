@@ -6,13 +6,35 @@
  * @package automattic/jetpack-backup
  */
 
-namespace Automattic\Jetpack\Backup;
+// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
+// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
+// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
+// are installed, or in some other cases).
+namespace Automattic\Jetpack\Backup\V0002;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Sync\Actions as Sync_Actions;
+use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
+// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
+use function esc_html__;
+use function get_comment;
+use function get_comment_meta;
+use function get_metadata;
+use function get_post;
+use function get_post_meta;
+use function get_term;
+use function get_term_meta;
+use function get_user_by;
+use function get_user_meta;
+use function is_wp_error;
+use function register_rest_route;
+use function rest_authorization_required_code;
+use function rest_ensure_response;
+use function wp_remote_retrieve_response_code;
 
 /**
  * Registers the REST routes for Backup.
@@ -176,6 +198,17 @@ class REST_Controller {
 				'permission_callback' => __CLASS__ . '::backup_permissions_callback',
 			)
 		);
+
+		// Get backup undo event
+		register_rest_route(
+			'jetpack/v4',
+			'/site/backup/undo-event',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_undo_event',
+				'permission_callback' => __NAMESPACE__ . '\Jetpack_Backup::backups_permissions_callback',
+			)
+		);
 	}
 
 	/**
@@ -207,12 +240,14 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @return array|WP_Error Returns the result of Helper Script installation. Returns one of:
-	 * - WP_Error on failure, or
-	 * - An array with installation info on success:
-	 *  'path'    (string) The sinstallation path.
-	 *  'url'     (string) The access url.
-	 *  'abspath' (string) The abspath.
+	 *
+	 * @return array|WP_Error Array with installation info on success:
+	 *
+	 *   'path'    (string) Helper script installation path on the filesystem.
+	 *   'url'     (string) URL to the helper script.
+	 *   'abspath' (string) WordPress root.
+	 *
+	 *   or an instance of WP_Error on failure.
 	 */
 	public static function install_backup_helper_script( $request ) {
 		$helper_script = $request->get_param( 'helper' );
@@ -226,11 +261,6 @@ class REST_Controller {
 		$installation_info = Helper_Script_Manager::install_helper_script( $helper_script );
 		Helper_Script_Manager::cleanup_expired_helper_scripts();
 
-		// Include ABSPATH with successful result.
-		if ( ! is_wp_error( $installation_info ) ) {
-			$installation_info['abspath'] = ABSPATH;
-		}
-
 		return rest_ensure_response( $installation_info );
 	}
 
@@ -241,19 +271,20 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @return array An array with 'success' key indicating the result of the delete operation.
+	 *
+	 * @return array|WP_Error An array with 'success' key, or an instance of WP_Error on failure.
 	 */
 	public static function delete_backup_helper_script( $request ) {
 		$path_to_helper_script = $request->get_param( 'path' );
 
-		$deleted = Helper_Script_Manager::delete_helper_script( $path_to_helper_script );
+		$delete_result = Helper_Script_Manager::delete_helper_script( $path_to_helper_script );
 		Helper_Script_Manager::cleanup_expired_helper_scripts();
 
-		return rest_ensure_response(
-			array(
-				'success' => $deleted,
-			)
-		);
+		if ( is_wp_error( $delete_result ) ) {
+			return $delete_result;
+		}
+
+		return rest_ensure_response( array( 'success' => true ) );
 	}
 
 	/**
@@ -263,6 +294,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_database_object_backup( $request ) {
@@ -320,6 +352,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_options_backup( $request ) {
@@ -339,6 +372,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_comment_backup( $request ) {
@@ -387,6 +421,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_post_backup( $request ) {
@@ -424,6 +459,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_term_backup( $request ) {
@@ -508,6 +544,76 @@ class REST_Controller {
 				'id_field' => 'webhook_id',
 			),
 		);
+	}
+
+	/**
+	 * This will fetch the last rewindable event from the Activity Log and
+	 * the last rewind_id prior to that.
+	 */
+	public static function get_site_backup_undo_event() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/activity?force=wpcom',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		$body = json_decode( $response['body'], true );
+
+		if ( ! isset( $body['current'] ) ) {
+			return null;
+		}
+
+		if ( ! isset( $body['current']['orderedItems'] ) ) {
+			return null;
+		}
+
+		// Preparing the response structure
+		$undo_event = array(
+			'last_rewindable_event' => null,
+			'undo_backup_id'        => null,
+		);
+
+		// List of events that will not be considered to be undo.
+		// Basically we should not `undo` a full backup event, but we could
+		// use them to undo any other action like plugin updates.
+		$last_event_exceptions = array(
+			'rewind__backup_only_complete_full',
+			'rewind__backup_only_complete_initial',
+			'rewind__backup_only_complete',
+			'rewind__backup_complete_full',
+			'rewind__backup_complete_initial',
+			'rewind__backup_complete',
+		);
+
+		// Looping through the events to find the last rewindable event and the last backup_id.
+		// The idea is to find the last rewindable event and then the last rewind_id before that.
+		$found_last_event = false;
+		foreach ( $body['current']['orderedItems'] as $event ) {
+			if ( $event['is_rewindable'] ) {
+				if ( ! $found_last_event && ! in_array( $event['name'], $last_event_exceptions, true ) ) {
+					$undo_event['last_rewindable_event'] = $event;
+					$found_last_event                    = true;
+				} elseif ( $found_last_event ) {
+					$undo_event['undo_backup_id'] = $event['rewind_id'];
+					break;
+				}
+			}
+		}
+
+		// Ensure that we have a rewindable event and a backup_id to undo.
+		if ( $undo_event['last_rewindable_event'] === null || $undo_event['undo_backup_id'] === null ) {
+			return null;
+		}
+
+		return rest_ensure_response( $undo_event );
 	}
 
 	/**

@@ -25,6 +25,24 @@ class Sender {
 	const NEXT_SYNC_TIME_OPTION_NAME = 'jetpack_next_sync_time';
 
 	/**
+	 * Name of the transient responsible for temprorarily disabling Sync sending during Pulls.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
+	const TEMP_SYNC_DISABLE_TRANSIENT_NAME = 'jetpack_disable_sync_sending';
+
+	/**
+	 * Expiry of the transient responsible for temprorarily disabling Sync sending during Pulls.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const TEMP_SYNC_DISABLE_TRANSIENT_EXPIRY = MINUTE_IN_SECONDS;
+
+	/**
 	 * Sync timeout after a WPCOM error.
 	 *
 	 * @access public
@@ -295,7 +313,7 @@ class Sender {
 
 		$this->continue_full_sync_enqueue();
 		// immediate full sync sends data in continue_full_sync_enqueue.
-		if ( false === strpos( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+		if ( ! str_contains( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
 			return $this->do_sync_and_set_delays( $this->full_sync_queue );
 		} else {
 			$status = $sync_module->get_status();
@@ -440,6 +458,10 @@ class Sender {
 			return new WP_Error( 'sender_disabled_for_queue_' . $queue->id );
 		}
 
+		if ( get_transient( self::TEMP_SYNC_DISABLE_TRANSIENT_NAME ) ) {
+			return new WP_Error( 'sender_temporarily_disabled_while_pulling' );
+		}
+
 		// Return early if we've gotten a retry-after header response.
 		$retry_time = get_option( Actions::RETRY_AFTER_PREFIX . $queue->id );
 		if ( $retry_time ) {
@@ -509,6 +531,11 @@ class Sender {
 		 * This is expensive, but the only way to really know :/
 		 */
 		foreach ( $items as $key => $item ) {
+			if ( ! is_array( $item ) ) {
+				$skipped_items_ids[] = $key;
+				continue;
+			}
+
 			// Suspending cache addition help prevent overloading in memory cache of large sites.
 			wp_suspend_cache_addition( true );
 			/**
@@ -574,6 +601,7 @@ class Sender {
 		 * Now that we're sure we are about to sync, try to ignore user abort
 		 * so we can avoid getting into a bad state.
 		 */
+		// https://plugins.trac.wordpress.org/ticket/2041
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
 		}

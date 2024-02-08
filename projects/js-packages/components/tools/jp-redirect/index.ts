@@ -25,7 +25,7 @@ export default function getRedirectUrl( source: string, args: GetRedirectUrlArgs
 
 	let calypsoEnv;
 	if ( typeof window !== 'undefined' ) {
-		calypsoEnv = window.Initial_State?.calypsoEnv;
+		calypsoEnv = window?.JP_CONNECTION_INITIAL_STATE?.calypsoEnv;
 	}
 
 	if ( source.search( 'https://' ) === 0 ) {
@@ -38,16 +38,16 @@ export default function getRedirectUrl( source: string, args: GetRedirectUrlArgs
 		queryVars.source = encodeURIComponent( source );
 	}
 
-	Object.keys( args ).map( argName => {
+	for ( const argName in args ) {
 		queryVars[ argName ] = encodeURIComponent( args[ argName ] );
-	} );
+	}
 
 	if (
 		! Object.keys( queryVars ).includes( 'site' ) &&
 		typeof jetpack_redirects !== 'undefined' &&
 		jetpack_redirects.hasOwnProperty( 'currentSiteRawUrl' )
 	) {
-		queryVars.site = jetpack_redirects.currentSiteRawUrl;
+		queryVars.site = jetpack_redirects.currentBlogID ?? jetpack_redirects.currentSiteRawUrl;
 	}
 
 	if ( calypsoEnv ) {

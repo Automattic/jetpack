@@ -66,51 +66,38 @@ function zeroBSCRM_pages_admin_addedit() {
 // } This is a slow general move to new UI (and new DB) and moving away from the custom post add / edit links
 function zeroBSCRM_pages_admin_addedit_page( $type = 'contact', $action = 'new', $id = -1 ) {
 
-	// } learn script (for this page)
+	global $zbs;
+	$obj_type_id = $zbs->DAL->objTypeID( $type ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-	?>
+	switch ( $obj_type_id ) {
 
-	<script type="text/javascript">
-
-		jQuery(function($){
-
-			jQuery('.learn')
-			.popup({
-				inline: false,
-				on:'click',
-				lastResort: 'bottom right',
-			});
-
-		});
-	</script>
-
-
-
-
-	<?php
-	switch ( $type ) {
-
-		case 'contact':
+		case ZBS_TYPE_CONTACT:
 			// pass them this way..
 			zeroBSCRM_pages_admin_addedit_page_contact( $id, $action );
 			break;
 
-		case 'company':
+		case ZBS_TYPE_COMPANY:
 			zeroBSCRM_pages_admin_addedit_page_company( $id, $action );
 			break;
 
-		case 'segment':
+		case ZBS_TYPE_SEGMENT:
 			zeroBSCRM_pages_admin_addedit_page_segment( $id, $action );
 			break;
 
 		// DAL3.0 + the rest can be fired via zeroBSCRM_pages_admin_addedit_page_generic
-		case 'quote':
-		case 'invoice':
-		case 'transaction':
-		case 'event':
-		case 'form':
-		case 'quotetemplate':
-			zeroBSCRM_pages_admin_addedit_page_generic( $id, $action );
+		case ZBS_TYPE_QUOTE:
+		case ZBS_TYPE_INVOICE:
+		case ZBS_TYPE_TRANSACTION:
+		case ZBS_TYPE_TASK:
+		case ZBS_TYPE_FORM:
+		case ZBS_TYPE_QUOTETEMPLATE:
+			if ( zeroBSCRM_permsObjType( $obj_type_id ) ) {
+				zeroBSCRM_pages_admin_addedit_page_generic( $id, $action );
+			} else {
+				echo '<div style="margin-left: 20px">';
+				echo esc_html( sprintf( __( 'You do not have permission to edit this %s.', 'zero-bs-crm' ), $zbs->DAL->typeStr( $obj_type_id ) ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.WP.I18n.MissingTranslatorsComment
+				echo '</div>';
+			}
 			break;
 
 	}
@@ -260,7 +247,7 @@ function zeroBSCRM_prehtml_pages_admin_addedit() {
 				$zbsEditView   = new zeroBSCRM_Edit(
 					array(
 						'objID'      => $zbsid,
-						'objTypeID'  => ZBS_TYPE_EVENT,
+						'objTypeID'  => ZBS_TYPE_TASK,
 						'langLabels' => array(),
 						'extraBoxes' => $upsellBoxHTML,
 					)
@@ -360,7 +347,7 @@ function zeroBSCRM_prehtml_pages_admin_addedit() {
 				$zbsDeleteView = new zeroBSCRM_Delete(
 					array(
 						'objID'      => $zbsid,
-						'objTypeID'  => ZBS_TYPE_EVENT,
+						'objTypeID'  => ZBS_TYPE_TASK,
 						'langLabels' => array(),
 					)
 				);

@@ -134,4 +134,3 @@ class VideoPress_Divi_Extension extends DiviExtension {
 	public function wp_hook_enqueue_scripts() {
 	}
 }
-

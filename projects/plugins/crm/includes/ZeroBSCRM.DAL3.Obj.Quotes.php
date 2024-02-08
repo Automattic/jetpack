@@ -684,22 +684,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
                 // cycle through
                 foreach ($quickFilters as $qFilter){
 
-                	/* 
-                        // where status = x
-                        // USE hasStatus above now...
-                        if (substr($qFilter,0,7) == 'status_'){
-
-                            $qFilterStatus = substr($qFilter,7);
-                            $qFilterStatus = str_replace('_',' ',$qFilterStatus);
-
-                            // check status
-                            $wheres['quickfilterstatus'] = array('zbsq_status','LIKE','%s',ucwords($qFilterStatus));
-
-                        }
-
-                    */
-
-                    #} <3.0 we used firm status's for quotes, now we infer:
+										// Pre-DAL3 we used firm status's for quotes, now we infer:
                     if ($qFilter == 'status_accepted'){
 
                     	$wheres['quickfilterstatus'] = array('zbsq_accepted','>','0');
@@ -797,12 +782,12 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
             // Mapped sorts
             // This catches listview and other exception sort cases
-            $sort_map = array(
+				$sort_map = array(
+					'customer' => '(SELECT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_from = quote.ID)', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// hack to support quote statuses (for here only, 2 is accepted, 1 is unaccepted, 0 is draft)
+					'status'   => '(CASE WHEN zbsq_accepted > 0 THEN 2 WHEN zbsq_template > 0 THEN 1 ELSE 0 END)',
+				);
 
-                'customer'				=> '(SELECT zbsol_objid_to FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_QUOTE.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_from = quote.ID)',                           
-
-            );
-            
             if ( array_key_exists( $sortByField, $sort_map ) ) {
 
                 $sortByField = $sort_map[ $sortByField ];
@@ -1076,7 +1061,10 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 						// some weird case where getting empties, so added check
 						if (isset($field['key']) && !empty($field['key'])){ 
 
-							$dePrefixed = ''; if (substr($field['key'],0,strlen('zbsq_')) === 'zbsq_') $dePrefixed = substr($field['key'], strlen('zbsq_'));
+						$dePrefixed = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $field['key'], 'zbsq_' ) ) {
+							$dePrefixed = substr( $field['key'], strlen( 'zbsq_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 
 							if (isset($customFields[$field['key']])){
 
@@ -1978,7 +1966,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return array quote (clean obj)
 	 */
-	private function tidy_quote($obj=false,$withCustomFields=false){
+	public function tidy_quote( $obj = false, $withCustomFields = false ) { // phpcs:ignore
 
 			$res = false;
 
@@ -2192,7 +2180,6 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 	/**
 	 * Returns an ownerid against a quote
-	 * Replaces zeroBS_getCustomerOwner
 	 *
 	 * @param int id quote ID
 	 *
@@ -2404,7 +2391,4 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 	// ===========  /   QUOTE  =======================================================
 	// ===============================================================================
-
-
 } // / class
-

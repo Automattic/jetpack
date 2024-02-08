@@ -101,14 +101,12 @@ class ChangeEntryTest extends TestCase {
 	 * @param int         $expect Expected value.
 	 */
 	public function testCompare( ChangeEntry $a, ChangeEntry $b, array $config, $expect ) {
-		$ret = ChangeEntry::compare( $a, $b, $config );
 		// We only care about the sign of the return value.
-		$ret = $ret < 0 ? -1 : ( $ret > 0 ? 1 : 0 );
+		$ret = ChangeEntry::compare( $a, $b, $config ) <=> 0;
 		$this->assertSame( $expect, $ret );
 
-		$ret = ChangeEntry::compare( $b, $a, $config );
 		// We only care about the sign of the return value.
-		$ret = $ret < 0 ? -1 : ( $ret > 0 ? 1 : 0 );
+		$ret = ChangeEntry::compare( $b, $a, $config ) <=> 0;
 		$this->assertSame( -$expect, $ret );
 	}
 
@@ -434,5 +432,4 @@ class ChangeEntryTest extends TestCase {
 			),
 		);
 	}
-
 }

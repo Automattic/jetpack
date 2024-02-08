@@ -1,0 +1,45 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-ai-usage-panel {
+	--spacing-base: 8px;
+
+	.components-base-control {
+		margin: 0;
+	}
+
+	.jetpack-ai-usage-panel-loading {
+		height: calc( var( --spacing-base ) * 11 + 0.5px );
+		background-color: var( --jp-gray );
+	}
+
+	.ai-assistant-usage-bar {
+		&-wrapper {
+			width: 100%;
+			height: 4px;
+			border-radius: 2px;
+			background-color: var( --jp-gray-5 );
+			overflow: hidden;
+			margin: 0;
+		}
+
+		&-usage {
+			height: 100%;
+			border-radius: 2px;
+			background-color: var( --jp-green-40 );
+
+			&.is-limit-reached {
+				background-color: var( --jp-yellow-10 );
+
+				&.require-upgrade {
+					background-color: var( --jp-red );
+				}
+			}
+
+		}
+	}
+
+	.jetpack-ai-usage-panel__loading-placeholder {
+		background-color: var(--jp-gray-10);
+		margin-top: var( --spacing-base );
+	}
+}

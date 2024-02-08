@@ -1,4 +1,5 @@
 # Files not needed to be distributed in the package.
+.babelrc          export-ignore
 .gitattributes    export-ignore
 .github/          export-ignore
 package.json      export-ignore

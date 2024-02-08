@@ -1,13 +1,14 @@
 import { addFilter } from '@wordpress/hooks';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
+import { InstagramIcon } from '../../shared/icons';
 import isActive from '../../shared/is-active';
 
 const instagramVariation = {
 	name: 'instagram',
 	title: 'Instagram',
 	icon: {
-		src: 'instagram',
+		src: InstagramIcon,
 		foreground: getIconColor(),
 	},
 	keywords: [

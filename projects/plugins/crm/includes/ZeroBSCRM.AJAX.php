@@ -53,320 +53,6 @@ function jpcrm_hide_feature_alert() {
 	}
 }
 
-// } Dash date range picker keeping as AJAX longer term be good to have this as WP REST API and React led.
-add_action( 'wp_ajax_jetpackcrm_dash_refresh', 'jetpackcrm_dash_refresh' );
-function jetpackcrm_dash_refresh() {
-
-	check_ajax_referer( 'zbs_dash_count', 'security' );  // nonce it up...
-
-	// note for WH - looking at the DAL, we can probably extract these into DAL3 helpers?
-	global $zbs, $wpdb, $ZBSCRM_t;
-
-	// Table names $ZBSCRM_t['contacts'] and $ZBSCRM_t['transactions']
-
-	// the settings for the totals row in the dash.
-	$cid                                   = get_current_user_id();
-	$settings_dashboard_total_contacts     = get_user_meta( $cid, 'settings_dashboard_total_contacts', true );
-	$settings_dashboard_total_transactions = get_user_meta( $cid, 'settings_dashboard_total_transactions', true );
-
-	/**
-	 * [06-Nov-2020 09:10:44 UTC] Array
-	* (
-	*    [action] => jetpackcrm_dash_refresh
-	*    [start_date] => 2019-11-06
-	*    [end_date] => 2020-11-06
-	* )
-	*/
-
-	$start_date = sanitize_text_field( $_POST['start_date'] );
-	$end_date   = sanitize_text_field( $_POST['end_date'] );
-
-	$start_date = strtotime( $start_date );
-	$end_date   = date_create( $end_date )->setTime( 23, 59, 59 )->getTimestamp();
-
-	$summary = array();
-	$chart   = array();
-
-	$range_params = array(
-		'count'     => true,
-		'newerThan' => $start_date,
-		'olderThan' => $end_date,
-	);
-
-	$summary[] = array(
-		'label'             => __( 'Contacts', 'zero-bs-crm' ),
-		'range_total'       => zeroBSCRM_prettifyLongInts( $zbs->DAL->getContacts( $range_params ) ),
-		'alltime_total_str' => sprintf( __( '%s total', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $zbs->DAL->contacts->getFullCount() ) ),
-		'link'              => jpcrm_esc_link( $zbs->slugs['managecontacts'] ),
-	);
-
-	if ( zeroBSCRM_getSetting( 'feat_transactions' ) > 0 ) {
-		$summary[] = array(
-			'label'             => __( 'Transactions', 'zero-bs-crm' ),
-			'range_total'       => zeroBSCRM_prettifyLongInts( $zbs->DAL->transactions->getTransactions( $range_params ) ),
-			'alltime_total_str' => sprintf( __( '%s total', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $zbs->DAL->transactions->getFullCount() ) ),
-			'link'              => jpcrm_esc_link( $zbs->slugs['managetransactions'] ),
-		);
-	}
-
-	if ( zeroBSCRM_getSetting( 'feat_quotes' ) > 0 ) {
-		$summary[] = array(
-			'label'             => __( 'Quotes', 'zero-bs-crm' ),
-			'range_total'       => zeroBSCRM_prettifyLongInts( $zbs->DAL->quotes->getQuotes( $range_params ) ),
-			'alltime_total_str' => sprintf( __( '%s total', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $zbs->DAL->quotes->getFullCount() ) ),
-			'link'              => jpcrm_esc_link( $zbs->slugs['managequotes'] ),
-		);
-	}
-
-	if ( zeroBSCRM_getSetting( 'feat_invs' ) > 0 ) {
-		$summary[] = array(
-			'label'             => __( 'Invoices', 'zero-bs-crm' ),
-			'range_total'       => zeroBSCRM_prettifyLongInts( $zbs->DAL->invoices->getInvoices( $range_params ) ),
-			'alltime_total_str' => sprintf( __( '%s total', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $zbs->DAL->invoices->getFullCount() ) ),
-			'link'              => jpcrm_esc_link( $zbs->slugs['manageinvoices'] ),
-		);
-	}
-
-	// next we want the contact chart which is total contacts between the dates grouped by day, week, month, year
-	$sql    = $wpdb->prepare( 'SELECT count(ID) as count, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY year ORDER BY year', $start_date, $end_date );
-	$yearly = $wpdb->get_results( $sql );
-
-	$sql     = $wpdb->prepare( 'SELECT count(ID) as count, zbsc_created as ts, MONTH(FROM_UNIXTIME(zbsc_created)) as month, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY month, year ORDER BY year, month', $start_date, $end_date );
-	$monthly = $wpdb->get_results( $sql );
-
-	$sql    = $wpdb->prepare( 'SELECT count(ID) as count, zbsc_created as ts, WEEK(FROM_UNIXTIME(zbsc_created)) as week, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY week, year ORDER BY year, week', $start_date, $end_date );
-	$weekly = $wpdb->get_results( $sql );
-
-	$sql   = $wpdb->prepare( 'SELECT count(ID) as count, zbsc_created as ts, DAY(FROM_UNIXTIME(zbsc_created)) as day, MONTH(FROM_UNIXTIME(zbsc_created)) as month, YEAR(FROM_UNIXTIME(zbsc_created)) as year FROM ' . $ZBSCRM_t['contacts'] . ' WHERE zbsc_created > %d AND zbsc_created < %d GROUP BY day, month, year ORDER BY year, month, day', $start_date, $end_date );
-	$daily = $wpdb->get_results( $sql );
-
-	$zeros = jetpackcrm_create_zeros_array( $start_date, $end_date );
-
-	// get the data ready for the charts
-	foreach ( $yearly as $k => $v ) {
-		$zeros['year'][ $v->year ] = $v->count;
-	}
-
-	// convert the monthly array into a zero padded one
-	foreach ( $monthly as $k => $v ) {
-		$the_month                    = date( 'M y', $v->ts );
-		$zeros['month'][ $the_month ] = $v->count;
-	}
-
-	foreach ( $weekly as $k => $v ) {
-		$the_month                   = date( 'W Y', $v->ts );
-		$zeros['week'][ $the_month ] = $v->count;
-	}
-
-	foreach ( $daily as $k => $v ) {
-		$the_month                  = date( 'd M y', $v->ts );
-		$zeros['day'][ $the_month ] = $v->count;
-	}
-
-	$year_labels  = array_keys( $zeros['year'] );
-	$month_labels = array_keys( $zeros['month'] );
-	$week_labels  = array_keys( $zeros['week'] );
-	$day_labels   = array_keys( $zeros['day'] );
-
-	$chart['yearly'] = array(
-		'labels' => $year_labels,
-		'data'   => array_values( $zeros['year'] ),
-	);
-
-	$chart['monthly'] = array(
-		'labels' => $month_labels,
-		'data'   => array_values( $zeros['month'] ),
-	);
-
-	$chart['weekly'] = array(
-		'labels' => $week_labels,
-		'data'   => array_values( $zeros['week'] ),
-	);
-
-	$chart['daily'] = array(
-		'labels' => $day_labels,
-		'data'   => array_values( $zeros['day'] ),
-	);
-
-	// the final output
-	$r = array(
-		'summary' => $summary,
-		'chart'   => $chart,
-	);
-
-	echo json_encode( $r );
-	die();
-}
-
-	// } Store ZBS Dashboard User Display Preferences
-	// } Set Transients for checking of the subscription status..
-	add_action( 'wp_ajax_zbs_dash_setting', 'zbs_dash_setting' );
-function zbs_dash_setting() {
-
-	check_ajax_referer( 'zbs_dash_setting', 'security' );  // nonce it up...
-
-	// perms?
-	if ( zeroBSCRM_permsCustomers() ) {
-
-		$setting_key             = ( isset( $_POST['the_setting'] ) ? sanitize_text_field( wp_unslash( $_POST['the_setting'] ) ) : '' );
-		$acceptable_setting_keys = array( 'settings_dashboard_sales_funnel', 'settings_dashboard_revenue_chart', 'settings_dashboard_recent_activity', 'settings_dashboard_latest_contacts' );
-
-		if ( in_array( $setting_key, $acceptable_setting_keys, true ) ) {
-
-			// default to checked
-			$is_checked = ( isset( $_POST['is_checked'] ) ? (int) sanitize_text_field( $_POST['is_checked'] ) : 1 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-
-			// retrieve
-			$current_user_id = get_current_user_id();
-
-			// update user meta, if legit.
-			update_user_meta( $current_user_id, $setting_key, $is_checked );
-
-			// No rights or failed key match
-			zeroBSCRM_sendJSONSuccess( array( 'fini' => 1 ) );
-		}
-	}
-
-	// No rights or failed key match
-	zeroBSCRM_sendJSONError( array( 'no-action-or-rights' => 1 ) );
-}
-
-	// Generate New WP User...
-	add_action( 'wp_ajax_zbs_new_user', 'zeroBSCRM_generateClientPortalUser' );
-function zeroBSCRM_generateClientPortalUser() {
-
-	// Nonce check
-	check_ajax_referer( 'newwp-ajax-nonce', 'security' );
-
-	// Perms check
-	if ( zeroBSCRM_permsCustomers() ) {
-
-		$email = '';
-		$cID   = -1;
-		if ( isset( $_POST['email'] ) && ! empty( $_POST['email'] ) ) {
-			$email = sanitize_text_field( $_POST['email'] );
-		}
-		if ( isset( $_POST['cid'] ) && ! empty( $_POST['cid'] ) ) {
-			$cID = (int) sanitize_text_field( $_POST['cid'] );
-		}
-		if ( ! zeroBSCRM_validateEmail( $email ) ) {
-			$email = '';
-		}
-
-		// $email_exists will be either false/int (id of wp user)
-		$email_exists = email_exists( $email );
-
-		if ( ! empty( $cID ) && null == $email_exists && ! empty( $email ) ) {
-
-			global $zbs;
-
-			// retrieve fname, lname if available
-			$fname = '';
-			$lname = '';
-			if ( $zbs->isDAL2() ) {
-
-				$fields = $zbs->DAL->contacts->getContact(
-					$cID,
-					array(
-						'withCustomFields' => false,
-						'fields'           => array( 'zbsc_addr1', 'zbsc_prefix', 'zbsc_fname', 'zbsc_lname' ),
-						'ignoreowner'      => true,
-					)
-				);
-
-				if ( isset( $fields['fname'] ) ) {
-					$fname = $fields['fname'];
-				}
-				if ( isset( $fields['lname'] ) ) {
-					$lname = $fields['lname'];
-				}
-			}
-
-			// create user
-			$created = zeroBSCRM_createClientPortalUser( $cID, $email, 12, $fname, $lname );
-
-			$m['message'] = 'WordPress User Created';
-			$m['success'] = true;
-			$m['user_id'] = $created;
-			echo json_encode( $m );
-			die();
-
-		} else {
-
-			// if has wp id, & contact ID is set
-			if ( is_int( $email_exists ) && $cID > 0 ) {
-
-				// link the user to the WordPress ID...
-				zeroBSCRM_setClientPortalUser( $cID, $email_exists );
-
-			}
-
-			$m['message'] = __( 'User already exists or invalid email!', 'zero-bs-crm' );
-			$m['success'] = false;
-			$m['email']   = $email;
-			echo json_encode( $m );
-			die();
-
-		}
-	}
-}
-
-	// apply action to portal user (enable disable)
-	add_action( 'wp_ajax_zbsPortalAction', 'zeroBSCRM_AJAX_zbsPortalAction' );
-function zeroBSCRM_AJAX_zbsPortalAction() {
-
-	check_ajax_referer( 'zbsportalaction-ajax-nonce', 'security' );
-
-	// can manage users?
-	if ( zeroBSCRM_permsCustomers() ) {
-
-		// sanitize?
-		$action = sanitize_text_field( $_POST['portalAction'] );
-		$cID    = (int) sanitize_text_field( $_POST['cid'] );
-		if ( ! empty( $action ) && ! empty( $cID ) ) {
-
-			switch ( $action ) {
-
-				// enable
-				case 'enable':
-					// fire dal enable
-					zeroBSCRM_customerPortalDisableEnable( $cID, 'enable' );
-
-					// send success
-					zeroBSCRM_sendJSONSuccess( array( 'success' => 1 ) );
-
-					break;
-				// disable
-				case 'disable':
-					// fire dal disable
-					zeroBSCRM_customerPortalDisableEnable( $cID, 'disable' );
-
-					// send success
-					zeroBSCRM_sendJSONSuccess( array( 'success' => 1 ) );
-
-					break;
-				// Reset client portal password
-				case 'resetpw':
-					// fire dal disable
-					$newpw = zeroBSCRM_customerPortalPWReset( $cID );
-
-					// send success
-					zeroBSCRM_sendJSONSuccess(
-						array(
-							'success' => 1,
-							'pw'      => $newpw,
-						)
-					);
-
-					break;
-
-			}
-		}
-	}
-
-	zeroBSCRM_sendJSONError( array( 'no-action-or-rights' => 1 ) );
-}
-
 	// AJAX email template population (as backup)
 	add_action( 'wp_ajax_zbs_create_email_templates', 'zbs_create_email_templates' );
 function zbs_create_email_templates() {
@@ -473,230 +159,6 @@ function zbs_save_email_status() {
 	die();
 	// nonce field is zbs-save-email_active
 }
-
-##WLREMOVE
-// Wizard Finish Step
-// AJAX function for installing demo content
-add_action( 'wp_ajax_nopriv_zbs_wizard_fin', 'zbs_wizard_fin' );
-add_action( 'wp_ajax_zbs_wizard_fin', 'zbs_wizard_fin' );
-function zbs_wizard_fin() {
-
-	// nonce to bounce out if not from right page
-	check_ajax_referer( 'zbswf-ajax-nonce', 'security' );
-	// only admin can do this too (extra security layer)
-	if ( current_user_can( 'manage_options' ) ) {
-
-		global $zbs;
-
-		// Retrieve post
-		$crm_name       = sanitize_text_field( $_POST['zbs_crm_name'] );
-		$crm_curr       = sanitize_text_field( $_POST['zbs_crm_curr'] ); // GBP
-		$crm_type       = sanitize_text_field( $_POST['zbs_crm_type'] );
-		$crm_other      = sanitize_text_field( $_POST['zbs_crm_other'] );
-		$crm_menu_style = (int) sanitize_text_field( $_POST['zbs_crm_menu_style'] ); // 1 2 3
-		$crm_share      = empty( $_POST['zbs_crm_share_essentials'] ) ? 0 : 1;
-
-		$crm_enable_quotes     = empty( $_POST['zbs_quotes'] ) ? 0 : 1;
-		$crm_enable_invoices   = empty( $_POST['zbs_invoicing'] ) ? 0 : 1;
-		$crm_enable_woo_module = empty( $_POST['jpcrm_woo_module'] ) ? 0 : 1;
-
-		$bn      = sanitize_text_field( $_POST['zbs_crm_subblogname'] );
-		$fn      = sanitize_text_field( $_POST['zbs_crm_first_name'] );
-		$ln      = sanitize_text_field( $_POST['zbs_crm_last_name'] );
-		$em      = sanitize_text_field( $_POST['zbs_crm_email'] );
-		$emv     = zeroBSCRM_validateEmail( $em );
-		$crm_sub = empty( $_POST['zbs_crm_subscribed'] ) ? 0 : 1;
-
-		// Just to pass for smm:
-		$crm_enable_forms = 1;
-		$crm_override     = 0;
-		$crm_url          = '';
-
-		// Save down initial options as option bk
-		$initOptions = array(
-			'share' => $crm_share,
-			'bn'    => $bn,
-			'fn'    => $fn,
-			'ln'    => $ln,
-			'em'    => $em,
-			'emv'   => $emv,
-			'smm'   => time(),
-			'n'     => $crm_name,
-			'u'     => $crm_url,
-			'o'     => $crm_other,
-			's'     => $crm_sub,
-			't'     => $crm_type,
-			'ov'    => $crm_override,
-			'eq'    => $crm_enable_quotes,
-			'ei'    => $crm_enable_invoices,
-			'ef'    => $crm_enable_forms,
-			'ew'    => $crm_enable_woo_module,
-			'ems'   => $crm_menu_style,
-			'v'     => $zbs->version,
-			'cu'    => $crm_curr,
-		);
-		update_option( 'zbs_initopts_' . time(), $initOptions, false );
-
-		// Note: this only shares if "share essentials" has been ticked...
-		// ... or email subscribe (where upon our server ignores customer data except email sub details)
-		if ( is_callable( 'curl_init' ) && ( $crm_share === 1 || $crm_sub === 1 ) ) {
-
-			$crm_url      = home_url();
-			$current_user = wp_get_current_user();
-
-			// pass whether we are sharing essentials
-			$m = $initOptions;
-
-			$response = wp_remote_post(
-				$zbs->urls['smm'],
-				array(
-					'method'      => 'POST',
-					'timeout'     => 45,
-					'redirection' => 5,
-					'httpversion' => '1.0',
-					'blocking'    => true,
-					'headers'     => array(),
-					'body'        => $m,
-					'cookies'     => array(),
-				)
-			);
-
-		}
-
-		// Header text
-		$zbs->settings->update( 'customheadertext', $crm_name );
-
-		// load currency list
-		global $whwpCurrencyList;
-		if ( ! isset( $whwpCurrencyList ) ) {
-			require_once ZEROBSCRM_INCLUDE_PATH . 'wh.currency.lib.php';
-		}
-
-		// Currency (Grim but will work for now)
-		$currSetting = array(
-			'chr'    => '$',
-			'strval' => 'USD',
-		);
-		if ( ! empty( $crm_curr ) ) {
-			foreach ( $whwpCurrencyList as $currencyObj ) {
-				if ( $currencyObj[1] === $crm_curr ) {
-					$currSetting['chr']    = $currencyObj[0];
-					$currSetting['strval'] = $currencyObj[1];
-					break;
-				}
-			}
-		}
-
-		// Save currency
-		$zbs->settings->update( 'currency', $currSetting );
-
-		// Save Share Essentials
-		$zbs->settings->update( 'shareessentials', $crm_share );
-
-		// Menu style
-		switch ( $crm_menu_style ) {
-
-			case 1:
-				// full (normal) wp
-				$zbs->settings->update( 'menulayout', 1 );
-				break;
-
-			case 2:
-				// slimline
-				$zbs->settings->update( 'menulayout', 2 );
-				break;
-
-			case 3:
-				// CRM only
-				$zbs->settings->update( 'menulayout', 3 );
-				break;
-
-		}
-
-		// Enable/disable extensions
-		if ( $crm_enable_quotes === 1 ) {
-			zeroBSCRM_extension_install_quotebuilder();
-		} else {
-			zeroBSCRM_extension_uninstall_quotebuilder();
-		}
-
-		if ( $crm_enable_invoices === 1 ) {
-
-			zeroBSCRM_extension_install_invbuilder();
-			// This assumes they want pdf inv too ;)
-			zeroBSCRM_extension_install_pdfinv();
-
-		} else {
-
-			zeroBSCRM_extension_uninstall_invbuilder();
-
-		}
-
-		if ( $crm_enable_forms === 1 ) {
-			zeroBSCRM_extension_install_forms();
-		} else {
-			zeroBSCRM_extension_uninstall_forms();
-		}
-
-		if ( $crm_enable_woo_module === 1 ) {
-			zeroBSCRM_extension_install_woo_sync();
-		} else {
-			zeroBSCRM_extension_uninstall_woo_sync();
-		}
-
-		// Tax tables, defaults
-		// added basic in v3.0, this would be great to expand if we get operational country (assume by ip?)
-		// based on currency, not ideal.
-		$currentTaxTables = zeroBSCRM_taxRates_getTaxTableArr();
-		if ( is_array( $currentTaxTables ) && count( $currentTaxTables ) === 0 && is_array( $currSetting ) && isset( $currSetting['strval'] ) ) {
-
-			$ratesToAdd = array();
-
-			// this can be factored out into a single 'setup packs' file ++
-			switch ( $currSetting['strval'] ) {
-
-				case 'USD':
-					// state based, MEH. leave for v3.1+
-					break;
-
-				case 'GBP':
-					$ratesToAdd[] = array(
-						'name' => 'VAT',
-						'rate' => 20.0,
-					);
-					break;
-
-			}
-
-			// add any
-			if ( count( $ratesToAdd ) > 0 ) {
-				foreach ( $ratesToAdd as $rate ) {
-
-					zeroBSCRM_taxRates_addUpdateTaxRate(
-						array(
-							// fields (directly)
-							'data' => $rate,
-						)
-					);
-				}
-			}
-		}
-
-		// log successful wizard completion
-		update_option( 'jpcrm_wizard_completed', 1 );
-
-		$r['message'] = 'success';
-		$r['success'] = 1;
-		echo json_encode( $r );
-		die();
-	} else {
-		$r['message'] = 'Unauthorised to do this...';
-		$r['success'] = 0;
-		echo json_encode( $r );
-		die();
-	}
-}
-##/WLREMOVE
 
 	// } General App Helpers - log user closing a modal (see also zeroBSCRM_getCloseState)
 	// basically log a dismissed dialog..
@@ -1255,29 +717,31 @@ function ZeroBSCRM_get_quote_template() {
 	// } Retrive deets
 	$customer_ID = -1;
 	if ( isset( $_POST['cust_id'] ) ) {
-		$customer_ID = (int) sanitize_text_field( $_POST['cust_id'] );
+		$customer_ID = (int) $_POST['cust_id']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
-	$quote_template_ID = -1;
+	$quote_template_id = -1;
 	if ( isset( $_POST['quote_type'] ) ) {
-		$quote_template_ID = (int) sanitize_text_field( $_POST['quote_type'] );
+		$quote_template_id = (int) $_POST['quote_type'];
 	}
 
 	// <DAL3
 	$quote_title = '';
 	if ( isset( $_POST['quote_title'] ) ) {
-		$quote_title = sanitize_text_field( $_POST['quote_title'] );
+		$quote_title = sanitize_text_field( wp_unslash( $_POST['quote_title'] ) );
 	}
 	$quote_val = '';
 	if ( isset( $_POST['quote_val'] ) ) {
-		$quote_val = sanitize_text_field( $_POST['quote_val'] );
+		$quote_val = sanitize_text_field( wp_unslash( $_POST['quote_val'] ) );
 	}
 	$quote_date = '';
 	if ( isset( $_POST['quote_dt'] ) ) {
-		$quote_date = sanitize_text_field( $_POST['quote_dt'] );
+		$quote_date = sanitize_text_field( wp_unslash( $_POST['quote_dt'] ) );
 	}
 
+	$quote_notes = '';
+
 	// } needs at least customer id + template id
-	if ( $customer_ID !== -1 && $quote_template_ID !== -1 ) {
+	if ( $customer_ID !== -1 && $quote_template_id !== -1 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		global $zbs;
 
@@ -1287,13 +751,17 @@ function ZeroBSCRM_get_quote_template() {
 
 			// retrieve basics over above
 			if ( isset( $_POST['quote_fields']['zbscq_title'] ) && ! empty( $_POST['quote_fields']['zbscq_title'] ) ) {
-				$quote_title = sanitize_text_field( $_POST['quote_fields']['zbscq_title'] );
+				$quote_title = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_title'] ) );
 			}
 			if ( isset( $_POST['quote_fields']['zbscq_value'] ) && ! empty( $_POST['quote_fields']['zbscq_value'] ) ) {
-				$quote_val = sanitize_text_field( $_POST['quote_fields']['zbscq_value'] );
+				$quote_val = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_value'] ) );
 			}
 			if ( isset( $_POST['quote_fields']['zbscq_date'] ) && ! empty( $_POST['quote_fields']['zbscq_date'] ) ) {
-				$quote_date = sanitize_text_field( $_POST['quote_fields']['zbscq_date'] );
+				$sanitized_date = jpcrm_date_str_to_uts( sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_date'] ) ) );
+				$quote_date     = jpcrm_uts_to_date_str( $sanitized_date );
+			}
+			if ( isset( $_POST['quote_fields']['zbscq_notes'] ) && ! empty( $_POST['quote_fields']['zbscq_notes'] ) ) {
+				$quote_notes = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_notes'] ) );
 			}
 		}
 
@@ -1310,16 +778,19 @@ function ZeroBSCRM_get_quote_template() {
 		$placeholder_templating = $zbs->get_templating();
 
 		// } Load template
-		$quoteTemplate = zeroBS_getQuoteTemplate( $quote_template_ID );
+		$quote_template = zeroBS_getQuoteTemplate( $quote_template_id );
 
-		if ( isset( $quoteTemplate ) && is_array( $quoteTemplate ) && isset( $quoteTemplate['content'] ) ) {
+		if ( isset( $quote_template ) && is_array( $quote_template ) && isset( $quote_template['content'] ) ) {
 
 			// if no title/value is passed at this point, but there is one seet in quote template, we should use those values
-			if ( empty( $quote_title ) && ! empty( $quoteTemplate['title'] ) ) {
-				$quote_title = $quoteTemplate['title'];
+			if ( empty( $quote_title ) && ! empty( $quote_template['title'] ) ) {
+				$quote_title = $quote_template['title'];
 			}
-			if ( empty( $quote_val ) && ! empty( $quoteTemplate['value'] ) ) {
-				$quote_val = $quoteTemplate['value'];
+			if ( empty( $quote_val ) && ! empty( $quote_template['value'] ) ) {
+				$quote_val = $quote_template['value'];
+			}
+			if ( empty( $quote_notes ) && ! empty( $quote_template['notes'] ) ) {
+				$quote_notes = $quote_template['notes'];
 			}
 
 			// catch empty pass...
@@ -1330,17 +801,11 @@ function ZeroBSCRM_get_quote_template() {
 				$quote_val = '[QUOTEVALUE]';
 			}
 			if ( empty( $quote_date ) ) {
-				$quote_date = date( 'd/m/Y', time() );
-			}
-
-			if ( empty( $quote_notes ) ) {
-				if ( isset( $_POST['quote_fields']['zbscq_notes'] ) ) {
-					$quote_notes = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_notes'] ) );
-				}
+				$quote_date = jpcrm_uts_to_date_str( time(), get_option( 'date_format' ) );
 			}
 
 			// HTML is escaped just prior to the complete HTML in this function being returned
-			$workingHTML = $quoteTemplate['content']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$working_html = wpautop( $quote_template['content'] );
 
 			// replacements
 			$replacements = $placeholder_templating->get_generic_replacements();
@@ -1351,6 +816,11 @@ function ZeroBSCRM_get_quote_template() {
 			$replacements['quote-notes']      = $quote_notes;
 			$replacements['biz-state']        = $bizState;
 			$replacements['contact-fullname'] = $customerName;
+
+			$settings = $zbs->settings->getAll();
+			if ( $settings['currency'] && $settings['currency']['strval'] ) {
+				$replacements['quote-currency'] = $settings['currency']['strval'];
+			}
 
 			// if DAL3, also replace any custom fields
 			if ( isset( $_POST['quote_fields'] ) && is_array( $_POST['quote_fields'] ) ) {
@@ -1373,27 +843,40 @@ function ZeroBSCRM_get_quote_template() {
 							$v = '';
 							if ( isset( $_POST['quote_fields'][ 'zbscq_' . $key ] ) ) {
 								$v = sanitize_text_field( $_POST['quote_fields'][ 'zbscq_' . $key ] );
+
+								// Here is where we search and replace placeholders for dates with a date string and date time strings), initially checking the value is similar to that of 'yyyy-mm-dd'.
+								if ( preg_match( '/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/', $v ) ) {
+
+									// Additional date validation to confirm the date is valid, before processing (creating placeholder strings for searching and replacing).
+									$date_time = DateTime::createFromFormat( 'Y-m-d', $v );
+									if ( $date_time && $date_time->format( 'Y-m-d' ) === $v ) {
+
+										$working_html = jpcrm_process_date_variables( $v, $key, $working_html, $placeholder_str_start = '##QUOTE-' );
+
+									}
+								}
 							}
 
 							// allow upper or lower to catch various uses
-							$workingHTML = str_replace( '##QUOTE-' . strtoupper( $key ) . '##', $v, $workingHTML );
-							$workingHTML = str_replace( '##QUOTE-' . strtolower( $key ) . '##', $v, $workingHTML );
-							$workingHTML = str_replace( '##quote-' . strtolower( $key ) . '##', $v, $workingHTML );
+							$working_html = str_replace( '##QUOTE-' . strtoupper( $key ) . '##', $v, $working_html );
+							$working_html = str_replace( '##QUOTE-' . strtolower( $key ) . '##', $v, $working_html );
+							$working_html = str_replace( '##quote-' . strtolower( $key ) . '##', $v, $working_html );
 						}
 					}
 				}
 			}
-			$workingHTML = $placeholder_templating->replace_placeholders( array( 'global', 'contact', 'quote' ), $workingHTML, $replacements, array( ZBS_TYPE_CONTACT => $contact_object ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$keys_staying_unrendered = array( 'quote-ID', 'quote-url', 'quote-created', 'quote-created_datetime_str', 'quote-created_date_str', 'quote-accepted', 'quote-accepted_datetime_str', 'quote-accepted_date_str', 'quote-lastupdated', 'quote-lastupdated_datetime_str', 'quote-lastupdated_date_str', 'quote-lastviewed', 'quote-lastviewed_datetime_str', 'quote-lastviewed_date_str' );
+			$working_html            = $placeholder_templating->replace_placeholders( array( 'global', 'contact', 'quote' ), $working_html, $replacements, array( ZBS_TYPE_CONTACT => $contact_object ), false, $keys_staying_unrendered ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// } replace the rest (#fname, etc)
-			// WH: moved to nice filter :) $workingHTML = zeroBSCRM_replace_customer_placeholders($customer_ID, $workingHTML);
-			$workingHTML = apply_filters( 'zerobscrm_quote_html_generate', $workingHTML, $customer_ID );
+			// WH: moved to nice filter :) $working_html = zeroBSCRM_replace_customer_placeholders($customer_ID, $working_html);
+			$working_html = apply_filters( 'zerobscrm_quote_html_generate', $working_html, $customer_ID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// } set return
-			$content['html']           = wp_kses( $workingHTML, $zbs->acceptable_html );
-			$content['template_title'] = $quoteTemplate['title'];
-			$content['template_value'] = $quoteTemplate['value'];
-			$content['template_notes'] = $quoteTemplate['notes'];
+			$content['html']           = wp_kses( $working_html, $zbs->acceptable_html );
+			$content['template_title'] = $quote_template['title'];
+			$content['template_value'] = $quote_template['value'];
+			$content['template_notes'] = $quote_template['notes'];
 
 			// } return
 			wp_send_json( $content );
@@ -1642,8 +1125,7 @@ function ZeroBSCRM_accept_quote() {
 
 		// validate that this has been posted by the contact associated with the quote
 		if ( ! $uinfo->ID
-			|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== zeroBSCRM_quote_getContactAssigned( $quoteID )
-			|| zeroBSCRM_permsQuotes()
+			|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== zeroBSCRM_quote_getContactAssigned( $quoteID ) // phpcs:ignore
 		) {
 			zeroBSCRM_sendJSONError( array( 'access' => 1 ), 403 );
 		}
@@ -2508,9 +1990,9 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$passBack       = array();
 
 			// } Build
-			$newEventColumns = array(); foreach ( $listColumns as $colKey => $colVal ) {
+			$new_task_columns = array(); foreach ( $listColumns as $colKey => $colVal ) {
 
-				$newEventColumns[ $colVal['fieldstr'] ] = array( __( $colVal['namestr'], 'zero-bs-crm' ) );
+				$new_task_columns[ $colVal['fieldstr'] ] = array( __( $colVal['namestr'], 'zero-bs-crm' ) );
 				$passBack[]                             = array(
 					'fieldstr' => __( $colVal['fieldstr'], 'zero-bs-crm' ),
 					'namestr'  => __( $colVal['namestr'], 'zero-bs-crm' ),
@@ -2519,7 +2001,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			}
 
 			// Update
-			$newCustomViews['event'] = $newEventColumns;
+			$newCustomViews['event'] = $new_task_columns;
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
@@ -2687,7 +2169,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 		if ( isset( $listViewParams['pagekey'] ) && ! empty( $listViewParams['pagekey'] ) ) {
 
 			// has a key, get screen opts
-			$screenOpts = $zbs->userScreenOptions( $listViewParams['pagekey'] );
+			$screenOpts = $zbs->global_screen_options( $listViewParams['pagekey'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			if ( is_array( $screenOpts ) ) {
 
 				if ( isset( $screenOpts['perpage'] ) ) {
@@ -2848,7 +2330,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					$hasQuickFilterForLogs = false;
 				if ( is_array( $possibleQuickFilters ) && count( $possibleQuickFilters ) > 0 ) {
 					foreach ( $possibleQuickFilters as $pqf ) {
-						if ( substr( $pqf, 0, 14 ) == 'notcontactedin' ) {
+						if ( str_starts_with( $pqf, 'notcontactedin' ) ) {
 										$hasQuickFilterForLogs = true;
 						}
 					}
@@ -3151,7 +2633,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					$hasQuickFilterForLogs = false;
 				if ( is_array( $possibleQuickFilters ) && count( $possibleQuickFilters ) > 0 ) {
 					foreach ( $possibleQuickFilters as $pqf ) {
-						if ( substr( $pqf, 0, 14 ) == 'notcontactedin' ) {
+						if ( str_starts_with( $pqf, 'notcontactedin' ) ) {
 										$hasQuickFilterForLogs = true;
 						}
 					}
@@ -4000,7 +3482,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				}
 
 				// } Retrieve data
-				$quoteTemplates = zeroBS_getQuoteTemplates( false, $per_page, $page_number, $possibleSearchTerm );
+				$quote_templates = zeroBS_getQuoteTemplates( false, $per_page, $page_number, $possibleSearchTerm );// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				// } If using pagination, also return total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
@@ -4010,11 +3492,11 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				}
 
 				// } Tidy
-				if ( count( $quoteTemplates ) > 0 ) {
-					foreach ( $quoteTemplates as $quoteTemplate ) {
+				if ( count( $quote_templates ) > 0 ) {
+					foreach ( $quote_templates as $quote_template ) {
 
 						// DAL3 now processes these in the OBJ class (starting to centralise properly.)
-						$res['objects'][] = $zbs->DAL->quotetemplates->listViewObj( $quoteTemplate, $columnsRequired );
+						$res['objects'][] = $zbs->DAL->quotetemplates->listViewObj( $quote_template, $columnsRequired ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 					} // / foreach
 				}
@@ -4027,7 +3509,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 			/*
 			==============================================================================
-			===================== EVENT ================================================= */
+			===================== TASK ================================================= */
 
 			case 'event':
 				// build query
@@ -4140,7 +3622,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					'page'         => $page_number,
 					'perPage'      => $per_page,
 
-					'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_EVENT ),
+					'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_TASK ),
 
 				);
 
@@ -4194,7 +3676,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					}
 				}
 
-				$events = $zbs->DAL->events->getEvents( $args );
+				$tasks = $zbs->DAL->events->getEvents( $args );
 
 				// } If using pagination, also return total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
@@ -4209,11 +3691,11 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				}
 
 				// } Tidy
-				if ( count( $events ) > 0 ) {
-					foreach ( $events as $event ) {
+				if ( count( $tasks ) > 0 ) {
+					foreach ( $tasks as $task ) {
 
 						// DAL3 now processes these in the OBJ class (starting to centralise properly.)
-						$res['objects'][] = $zbs->DAL->events->listViewObj( $event, $columnsRequired );
+						$res['objects'][] = $zbs->DAL->events->listViewObj( $task, $columnsRequired );
 
 					} // / foreach
 				}
@@ -4221,7 +3703,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				break;
 
 			/*
-			=================== / EVENT ==================================================
+			=================== / TASK ==================================================
 			============================================================================= */
 
 			// } Default = non hard typed listtype !
@@ -4251,21 +3733,24 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 	// } Check nonce
 	check_ajax_referer( 'zbscrmjs-ajax-nonce', 'sec' );
 
-	// } Check perms
-	if ( ! zeroBSCRM_permsCustomers() ) {
-		header( 'Content-Type: application/json' );
-		exit( '{err:1}' ); }
+	global $zbs;
+
+	// Get object type (string, not ID)
+	$objtype = empty( $_POST['objtype'] ) ? '' : sanitize_text_field( $_POST['objtype'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+
+	// Check perms for given object
+	$has_perms = zeroBSCRM_permsObjType( $zbs->DAL->objTypeID( $objtype ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	if ( ! $has_perms ) {
+		$reply = array(
+			'status'  => __( 'Forbidden', 'zero-bs-crm' ),
+			'message' => __( 'You do not have permission to access this resource.', 'zero-bs-crm' ),
+		);
+		wp_send_json_error( $reply, 403 );
+	}
 
 	// ret
 	$passBack = array();
 
-		global $zbs;
-
-		// } Retrieve
-		$objtype = '';
-	if ( isset( $_POST['objtype'] ) ) {
-		$objtype = sanitize_text_field( $_POST['objtype'] );
-	}
 		$actionstr = '';
 	if ( isset( $_POST['actionstr'] ) ) {
 		$actionstr = sanitize_text_field( $_POST['actionstr'] );
@@ -4971,13 +4456,13 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								// add tag(s) to transaction(s)
 							case 'addtag':
-								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_EVENT, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_TASK, 'zerobscrm_transactiontag' );
 
 								break;
 
 								// remove tag(S) from transaction(s)
 							case 'removetag':
-								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_EVENT, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_TASK, 'zerobscrm_transactiontag' );
 
 								break;
 
@@ -4987,7 +4472,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$completed = 0;
 								foreach ( $legitIDs as $id ) {
 
-									// update event as completed
+									// update task as completed
 									$zbs->DAL->events->setEventCompleteness( $id, 1 );
 
 									++$completed;
@@ -5009,7 +4494,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$incompleted = 0;
 								foreach ( $legitIDs as $id ) {
 
-									// update event as completed
+									// update task as completed
 									$zbs->DAL->events->setEventCompleteness( $id, -1 );
 
 									++$incompleted;
@@ -5640,7 +5125,7 @@ function zeroBSCRM_AJAX_saveScreenOptions() {
 		// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
 		// @todo Replace this with something more correct.
 		foreach ( $screenOpts as $k => $v ) {
-			if ( isset( $screenOptionsFilters[$k]['filter'] ) && $screenOptionsFilters[$k]['filter'] === FILTER_UNSAFE_RAW ) {
+			if ( isset( $screenOptionsFilters[ $k ]['filter'] ) && $screenOptionsFilters[ $k ]['filter'] === FILTER_UNSAFE_RAW && $v !== null ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				foreach ( $v as $k2 => $v2 ) {
 					$screenOpts[$k][$k2] = strtr(
 						strip_tags( $v2 ),
@@ -5662,7 +5147,7 @@ function zeroBSCRM_AJAX_saveScreenOptions() {
 	if ( ! empty( $pageKey ) ) {
 
 		// } Brutally update
-		$zbs->DAL->updateUserSetting( $zbs->user(), 'screenopts_' . $pageKey, $screenOpts );
+		$zbs->DAL->updateSetting( 'screenopts_' . $pageKey, $screenOpts ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 		zeroBSCRM_sendJSONSuccess( array( 'fini' => 1 ) );
 		exit();
@@ -5966,9 +5451,9 @@ function zeroBSCRM_AJAX_sendInvoiceEmail_v3( $email = '', $invoiceID = -1, $atta
 
 			// once the invoice is sent it will mark it as unpaid (automatically)
 			// (if is draft)
-			if ( isset( $invoice['status'] ) && $invoice['status'] == __( 'Draft', 'zero-bs-crm' ) ) {
+			if ( isset( $invoice['status'] ) && $invoice['status'] === 'Draft' ) {
 
-				$zbs->DAL->invoices->setInvoiceStatus( $invoiceID, __( 'Unpaid', 'zero-bs-crm' ) );
+				$zbs->DAL->invoices->setInvoiceStatus( $invoiceID, 'Unpaid' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			}
 
@@ -6423,7 +5908,7 @@ function zeroBSCRM_AJAX_betaFeedback() {
 
 /*
 ======================================================
-	Admin AJAX: Events
+	Admin AJAX: Tasks
 ====================================================== */
 
 add_action( 'wp_ajax_mark_task_complete', 'zeroBSCRM_ajax_mark_task_complete' );
@@ -6431,7 +5916,7 @@ function zeroBSCRM_ajax_mark_task_complete() {
 
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
-	if ( ! zeroBSCRM_permsEvents() ) {
+	if ( ! zeroBSCRM_perms_tasks() ) {
 
 		zeroBSCRM_sendJSONError( array( 'permission_error' => 1 ) );
 		exit();
@@ -6471,7 +5956,7 @@ function zeroBSCRM_ajax_mark_task_complete() {
 
 /*
 ======================================================
-	/ Admin AJAX: Events
+	/ Admin AJAX: Tasks
 ====================================================== */
 
 	// sends a proper error response

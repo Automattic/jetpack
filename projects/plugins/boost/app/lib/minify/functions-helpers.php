@@ -4,6 +4,14 @@ use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 
 /**
+ * Get an extra cache key for requests. We can manually bump this when we want
+ * to ensure a new version of Jetpack Boost never reuses old cached URLs.
+ */
+function jetpack_boost_minify_cache_buster() {
+	return 1;
+}
+
+/**
  * Cleanup the given cache folder, removing all files older than $file_age seconds.
  *
  * @param string $cache_folder The path to the cache folder to cleanup.
@@ -79,7 +87,7 @@ function jetpack_boost_page_optimize_uninstall() {
  * generating concatenated URLs.
  */
 function jetpack_boost_enqueued_to_absolute_url( $url ) {
-	if ( substr( $url, 0, 1 ) === '/' ) {
+	if ( str_starts_with( $url, '/' ) ) {
 		return home_url( $url );
 	}
 
@@ -216,7 +224,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 	static $dependency_path_mapping;
 
 	// Absolute paths should dump the path component of siteurl.
-	if ( substr( $path, 0, 1 ) === '/' ) {
+	if ( str_starts_with( $path, '/' ) ) {
 		$parts   = wp_parse_url( $siteurl );
 		$siteurl = $parts['scheme'] . '://' . $parts['host'];
 	}
@@ -247,7 +255,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 		return $url;
 	}
 
-	if ( false === strpos( $url, '?' ) ) {
+	if ( ! str_contains( $url, '?' ) ) {
 		$q = '';
 	} else {
 		list( $url, $q ) = explode( '?', $url, 2 );
@@ -260,7 +268,21 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 }
 
 /**
- * Detects requests within the `/_static/` directory, and serves minified content.
+ * Get the URL prefix for static minify/concat resources. Defaults to /jb_static/, but can be
+ * overridden by defining JETPACK_BOOST_STATIC_PREFIX.
+ */
+function jetpack_boost_get_static_prefix() {
+	$prefix = defined( 'JETPACK_BOOST_STATIC_PREFIX' ) ? JETPACK_BOOST_STATIC_PREFIX : '/_jb_static/';
+
+	if ( ! str_starts_with( $prefix, '/' ) ) {
+		$prefix = '/' . $prefix;
+	}
+
+	return trailingslashit( $prefix );
+}
+
+/**
+ * Detects requests within the `/_jb_static/` directory, and serves minified content.
  *
  * @return void
  */
@@ -270,7 +292,8 @@ function jetpack_boost_minify_serve_concatenated() {
 	if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];
-		if ( '/_static/' === substr( $request_path, -9, 9 ) ) {
+		$prefix       = jetpack_boost_get_static_prefix();
+		if ( $prefix === substr( $request_path, -strlen( $prefix ), strlen( $prefix ) ) ) {
 			require_once __DIR__ . '/functions-service.php';
 			jetpack_boost_page_optimize_service_request();
 			exit;

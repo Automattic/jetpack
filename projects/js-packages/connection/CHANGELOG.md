@@ -2,6 +2,130 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.32.0] - 2024-02-05
+### Changed
+- Allow using blog ID instead of site suffix in checkout URL. [#34996]
+- Allow using blog ID instead of site suffix in checkout URL. [#35004]
+- Updated package dependencies.
+
+## [0.31.2] - 2024-01-29
+### Changed
+- Update dependencies.
+
+## [0.31.1] - 2024-01-18
+### Changed
+- Update dependencies.
+
+## [0.31.0] - 2024-01-18
+### Changed
+- Allow using blog ID instead of site suffix in checkout URL. [#34976]
+
+## [0.30.12] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815] [#34816]
+
+## [0.30.11] - 2023-12-19
+### Changed
+- Updated package dependencies. [#34694, #34696]
+
+## [0.30.10] - 2023-12-06
+### Changed
+- Updated package dependencies. [#34416]
+
+## [0.30.9] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+
+## [0.30.8] - 2023-11-20
+### Added
+- Add optional quantity to product checkout workflow hook. [#34177]
+
+## [0.30.7] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.30.6] - 2023-11-13
+### Changed
+- Updated dependencies.
+
+## [0.30.5] - 2023-10-23
+### Added
+- Added getCalypsoOrigin() helper function. [#33257]
+
+## [0.30.4] - 2023-10-19
+### Changed
+- Updated package dependencies. [#33687]
+
+## [0.30.3] - 2023-10-17
+### Changed
+- Updated package dependencies. [#33646]
+
+## [0.30.2] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429, #33584]
+
+## [0.30.1] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.30.0] - 2023-09-25
+### Added
+- Handle connection error codes and display proper error messages. Enabled for the "private network" error only at the moment. [#32898]
+
+## [0.29.10] - 2023-09-13
+### Changed
+- Updated package dependencies. [#33001]
+
+## [0.29.9] - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+## [0.29.8] - 2023-08-21
+### Added
+- Better way to render initial state. [#32499]
+- Publish package to npmjs.com. [#32515]
+
+## 0.29.7 - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## 0.29.6 - 2023-07-25
+### Changed
+- Updated package dependencies. [#31999]
+
+## 0.29.5 - 2023-07-18
+### Fixed
+- Minor internal updates. [#31684]
+
+## 0.29.4 - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+### Fixed
+- Reset connection errors upon successful Restore request. [#31618]
+
+## 0.29.3 - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## 0.29.2 - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## 0.29.1 - 2023-06-21
+### Changed
+- Updated package dependencies. [#31468]
+
+## 0.29.0 - 2023-06-15
+### Changed
+- Connection: always display connection button on connection screen. [#31196]
+
+## 0.28.0 - 2023-06-06
+### Changed
+- Update connection module to have an RNA option that updates the design [#31201]
+- Updated package dependencies. [#31129]
+
 ## 0.27.1 - 2023-05-29
 ### Added
 - Add logo prop to `ConnectScreen` and `ConnectScreenVisual` so we could use produucts logos similar to `ConnectScreenRequiredPlan` component. [#30886]
@@ -573,3 +697,24 @@
 
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
+
+[0.32.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.31.2...v0.32.0
+[0.31.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.31.1...v0.31.2
+[0.31.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.31.0...v0.31.1
+[0.31.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.12...v0.31.0
+[0.30.12]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.11...v0.30.12
+[0.30.11]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.10...v0.30.11
+[0.30.10]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.9...v0.30.10
+[0.30.9]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.8...v0.30.9
+[0.30.8]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.7...v0.30.8
+[0.30.7]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.6...v0.30.7
+[0.30.6]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.5...v0.30.6
+[0.30.5]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.4...v0.30.5
+[0.30.4]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.3...v0.30.4
+[0.30.3]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.2...v0.30.3
+[0.30.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.1...v0.30.2
+[0.30.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.0...v0.30.1
+[0.30.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.29.10...v0.30.0
+[0.29.10]: https://github.com/Automattic/jetpack-connection-js/compare/v0.29.9...v0.29.10
+[0.29.9]: https://github.com/Automattic/jetpack-connection-js/compare/v0.29.8...v0.29.9
+[0.29.8]: https://github.com/Automattic/jetpack-connection-js/compare/v0.29.7...v0.29.8

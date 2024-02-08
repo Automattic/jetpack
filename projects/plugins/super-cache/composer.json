@@ -7,7 +7,7 @@
 		"automattic/jetpack-device-detection": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.4",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
@@ -51,6 +51,6 @@
 		"wp-svn-autopublish": true
 	},
 	"config": {
-		"autoloader-suffix": "6fe342bc02f0b440f7b3c8d8ade42286_super_cacheⓥ1_10_0_alpha"
+		"autoloader-suffix": "6fe342bc02f0b440f7b3c8d8ade42286_super_cacheⓥ2_0_0_alpha"
 	}
 }

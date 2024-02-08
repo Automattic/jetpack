@@ -638,41 +638,42 @@ addFilter(
 	convertVideoBlockToVideoPressVideoBlock
 );
 
+function ConvertV6toV5Effect( { BlockListBlock, ...props } ) {
+	const { block } = props;
+	const { name, attributes, clientId } = block;
+	const { replaceBlock } = useDispatch( blockEditorStore );
+
+	useEffect( () => {
+		try {
+			const parsedData = parse( attributes.originalContent );
+			const originalBlock = parsedData?.[ 0 ];
+			if ( ! originalBlock ) {
+				return;
+			}
+
+			const { attrs } = originalBlock;
+			replaceBlock( clientId, createBlock( 'core/video', mapV6AttributesToV5( attrs ) ) );
+		} catch ( e ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Error converting VideoPress block to core/video', e );
+		}
+	}, [ name, clientId, attributes, replaceBlock ] );
+
+	return <BlockListBlock { ...props } />;
+}
+
 const convertV6toV5 = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { block } = props;
-		const { name, attributes, clientId } = block;
-		const { replaceBlock } = useDispatch( blockEditorStore );
+		const { name, attributes } = block;
 
-		/*
-		 * Detect missing videopress/video (v6) block,
-		 * and try to convert it to extended core/video (v5)
-		 */
-		useEffect( () => {
-			if ( name !== 'core/missing' ) {
-				return;
-			}
+		// CAUTION: code added before this line will be executed for all blocks
+		// (also on typing), not just missing blocks.
+		if ( name !== 'core/missing' || attributes?.originalName !== 'videopress/video' ) {
+			return <BlockListBlock { ...props } />;
+		}
 
-			if ( attributes?.originalName !== 'videopress/video' ) {
-				return;
-			}
-
-			try {
-				const parsedData = parse( attributes.originalContent );
-				const originalBlock = parsedData?.[ 0 ];
-				if ( ! originalBlock ) {
-					return;
-				}
-
-				const { attrs } = originalBlock;
-				replaceBlock( clientId, createBlock( 'core/video', mapV6AttributesToV5( attrs ) ) );
-			} catch ( e ) {
-				// eslint-disable-next-line no-console
-				console.error( 'Error converting VideoPress block to core/video', e );
-			}
-		}, [ name, clientId, attributes, replaceBlock ] );
-
-		return <BlockListBlock { ...props } />;
+		return <ConvertV6toV5Effect { ...props } BlockListBlock={ BlockListBlock } />;
 	};
 }, 'convertV6toV5' );
 

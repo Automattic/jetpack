@@ -8,38 +8,42 @@ import {
 	getRedirectUrl,
 	getUserLocale,
 } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
+import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import {
+	ShareLimitsBar,
+	store as socialStore,
+	useShareLimits,
+} from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
-import { STORE_ID } from '../../store';
-import ShareCounter from '../share-counter';
 import StatCards from '../stat-cards';
 import styles from './styles.module.scss';
 
 const Header = () => {
+	const connectionData = window.jetpackSocialInitialState.connectionData ?? {};
 	const {
 		connectionsAdminUrl,
 		hasConnections,
-		hasPaidPlan,
 		isModuleEnabled,
-		isShareLimitEnabled,
 		newPostUrl,
 		postsCount,
-		sharesCount,
+		totalShareCount,
 		siteSuffix,
+		blogID,
+		showShareLimits,
 	} = useSelect( select => {
-		const store = select( STORE_ID );
+		const store = select( socialStore );
 		return {
-			connectionsAdminUrl: store.getConnectionsAdminUrl(),
-			hasConnections: store.hasConnections(),
-			hasPaidPlan: select( STORE_ID ).hasPaidPlan(),
+			connectionsAdminUrl: connectionData.adminUrl,
+			hasConnections: Object.keys( connectionData.connections || {} ).length > 0,
 			isModuleEnabled: store.isModuleEnabled(),
-			isShareLimitEnabled: select( STORE_ID ).isShareLimitEnabled(),
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
-			postsCount: select( STORE_ID ).getPostsCount(),
-			sharesCount: select( STORE_ID ).getSharesCount(),
-			siteSuffix: select( STORE_ID ).getSiteSuffix(),
+			postsCount: store.getSharedPostsCount(),
+			totalShareCount: store.getTotalSharesCount(),
+			siteSuffix: store.getSiteSuffix(),
+			blogID: store.getBlogID(),
+			showShareLimits: store.showShareLimits(),
 		};
 	} );
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -48,6 +52,8 @@ const Header = () => {
 		notation: 'compact',
 		compactDisplay: 'short',
 	} );
+
+	const { noticeType, usedCount, scheduledCount, remainingCount } = useShareLimits();
 
 	return (
 		<>
@@ -76,9 +82,16 @@ const Header = () => {
 					</div>
 				</Col>
 				<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
-					{ isShareLimitEnabled && ! hasPaidPlan ? (
+					{ showShareLimits ? (
 						<>
-							<ShareCounter value={ sharesCount } max={ 30 } />
+							<ShareLimitsBar
+								usedCount={ usedCount }
+								scheduledCount={ scheduledCount }
+								remainingCount={ remainingCount }
+								legendCaption={ __( 'Auto-share usage', 'jetpack-social' ) }
+								noticeType={ noticeType }
+								className={ styles[ 'bar-wrapper' ] }
+							/>
 							<ContextualUpgradeTrigger
 								className={ styles.cut }
 								description={ __(
@@ -86,9 +99,9 @@ const Header = () => {
 									'jetpack-social'
 								) }
 								cta={ __( 'Get a Jetpack Social Plan', 'jetpack-social' ) }
-								href={ getRedirectUrl( 'jetpack-social-basic-plan-plugin-admin-page', {
-									site: siteSuffix,
-									query: 'redirect_to=' + window.location.href,
+								href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
+									site: blogID ?? siteSuffix,
+									query: 'redirect_to=admin.php?page=jetpack-social',
 								} ) }
 								tooltipText={ __( 'Share as a post for more engagement', 'jetpack-social' ) }
 							/>
@@ -99,8 +112,8 @@ const Header = () => {
 								{
 									icon: <SocialIcon />,
 									label: __( 'Total shares past 30 days', 'jetpack-social' ),
-									loading: null === sharesCount,
-									value: formatter.format( sharesCount ),
+									loading: null === totalShareCount,
+									value: formatter.format( totalShareCount ),
 								},
 								{
 									icon: <Icon icon={ postList } />,

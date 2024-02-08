@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-image-cdn",
-	"version": "0.2.3-alpha",
+	"version": "0.3.2",
 	"description": "Serve images through Jetpack's powerful CDN",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/image-cdn/#readme",
 	"bugs": {
@@ -25,9 +25,5 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

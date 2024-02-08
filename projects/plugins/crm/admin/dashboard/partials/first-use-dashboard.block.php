@@ -85,13 +85,9 @@ $learn_from_mike_videos = array(
 			<div class="seven wide column">
 
 			<div class="jpcrm-modal-learn-footer">
-				<div class="jpcrm-modal-learn-footer-title">
-				<img src="<?php echo esc_url( ZEROBSCRM_URL ); ?>i/learn-more-from-mike.jpeg" alt="<?php esc_attr_e( 'Learn from Mike', 'zero-bs-crm' ); ?>" />
-				&nbsp;&nbsp;<?php esc_html_e( 'Learn more from Mike', 'zero-bs-crm' ); ?>
-				</div>
-				<div class="jpcrm-modal-learn-footer-paragraph"><?php esc_html_e( 'Mike is one of the team behind Jetpack CRM. Through these videos he will help you use Jetpack CRM to its full potential.', 'zero-bs-crm' ); ?></div>
+			<div class="jpcrm-modal-learn-footer-paragraph"><?php esc_html_e( 'You can learn more about how to use Jetpack CRM to its full potential from our videos on YouTube.', 'zero-bs-crm' ); ?></div>
 				<div class="jpcrm-modal-learn-footer-actions">
-				<a href="<?php echo esc_url( $zbs->urls['youtube_intro_playlist'] ); ?>" target="_blank"><img src="<?php echo esc_url( ZEROBSCRM_URL ); ?>i/first-use-dash-learn-video-ico.png" alt="<?php esc_attr_e( 'Learn from Mike', 'zero-bs-crm' ); ?>" /> <?php esc_html_e( 'Get Started Playlist', 'zero-bs-crm' ); ?></a>
+				<a href="<?php echo esc_url( $zbs->urls['youtube_intro_playlist'] ); ?>" target="_blank"><img src="<?php echo esc_url( ZEROBSCRM_URL ); ?>i/first-use-dash-learn-video-ico.png" alt="<?php esc_attr_e( 'Get Started Playlist', 'zero-bs-crm' ); ?>" /> <?php esc_html_e( 'Get Started Playlist', 'zero-bs-crm' ); ?></a>
 				</div>
 			</div>
 
@@ -124,7 +120,8 @@ $learn_from_mike_videos = array(
 
 	</div>
 </div>
-<script>var jpcrm_show_first_use_dash = true;</script>
+<?php // PHPCS:Ignore WordPress.Security.NonceVerification.Recommended ?>
+<script>var jpcrm_show_first_use_dash = <?php echo esc_js( ! isset( $_GET['zbs-welcome-tour'] ) ); ?>;</script>
 <?php
 
 ##/WLREMOVE

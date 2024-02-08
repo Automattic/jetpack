@@ -96,6 +96,12 @@ const DashBoost = ( {
 			setDaysSinceTested( 0 );
 			setIsLoading( false );
 		} catch ( err ) {
+			analytics.tracks.recordEvent( 'jetpack_boost_speed_score_error', {
+				feature: BOOST_PLUGIN_SLUG,
+				position: 'at-a-glance',
+				error: err,
+			} );
+
 			// If error, use cached speed scores if they exist
 			if ( latestSpeedScores && latestSpeedScores.scores ) {
 				setScoresFromCache();

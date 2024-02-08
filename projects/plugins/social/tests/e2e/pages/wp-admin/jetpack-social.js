@@ -1,6 +1,6 @@
 import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
-import logger from 'jetpack-e2e-commons/logger.cjs';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import logger from 'jetpack-e2e-commons/logger.js';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 export default class JetpackSocialPage extends WpPage {
 	constructor( page ) {

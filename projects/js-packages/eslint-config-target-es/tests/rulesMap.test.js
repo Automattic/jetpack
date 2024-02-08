@@ -1,5 +1,5 @@
 const mdn = require( '@mdn/browser-compat-data' );
-const { rules: esRules } = require( 'eslint-plugin-es' );
+const { rules: esRules } = require( 'eslint-plugin-es-x' );
 const rulesMap = require( '../src/rulesMap.js' );
 
 expect.extend( {

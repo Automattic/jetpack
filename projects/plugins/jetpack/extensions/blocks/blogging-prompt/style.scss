@@ -12,7 +12,12 @@
 		background-size: 24px 24px;
 		font-size: 14px;
 		margin-bottom: $grid-unit-20;
-		padding-left: 22px;
+		padding-inline-start: 22px;
+		&.is-bloganuary-icon {
+			background: no-repeat url('./bloganuary-icon.svg');
+			background-position: 0px center;
+			padding-inline-start: 26px;
+		}
 	}
 
 	&__text {
@@ -22,7 +27,7 @@
 
 	&__answers-link {
 		display: inline-block;
-		margin-left: 10px;
+		margin-inline-start: 10px;
 		text-decoration: underline;
 	}
 
@@ -38,11 +43,11 @@
 		width: 24px;
 
 		&:first-child {
-			margin-left: -2px;
+			margin-inline-start: -2px;
 		}
 
 		&:not(:first-child) {
-			margin-left: -15px;
+			margin-inline-start: -15px;
 		}
 	}
 
@@ -52,7 +57,7 @@
 
 	&.is-style-quote {
 		border: none;
-		border-left: 4px solid $gray-800;
+		border-inline-start: 4px solid $gray-800;
 		margin-bottom: $grid-unit-20;
 		padding: 0 24px;
 	}
@@ -60,7 +65,7 @@
 	@media only email {
 		&__label {
 			background: none;
-			padding-left: 0;
+			padding-inline-start: 0;
 		}
 
 		&__answers {
@@ -71,7 +76,7 @@
 			margin-bottom: 0;
 
 			&:not(:first-child) {
-				margin-left: 0;
+				margin-inline-start: 0;
 			}
 		}
 	}

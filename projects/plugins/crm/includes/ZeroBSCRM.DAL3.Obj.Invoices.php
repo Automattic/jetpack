@@ -17,7 +17,7 @@
   / Breaking Checks
    ====================================================== */
 
-
+use Automattic\Jetpack\CRM\Event_Manager\Events_Manager;
 
 /**
 * ZBS DAL >> Invoices
@@ -161,6 +161,14 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
         );
 
+		/**
+		 * Events_Manager instance. Manages CRM events.
+		 *
+		 * @since 6.2.0
+		 *
+		 * @var Events_Manager
+		 */
+		private $events_manager;
 
     function __construct($args=array()) {
 
@@ -173,7 +181,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
         ); foreach ($defaultArgs as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS =============
 
-
+			$this->events_manager = new Events_Manager();
     }
 
 
@@ -776,7 +784,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
                     // where status = x
                     // USE hasStatus above now...
-                    if (substr($qFilter,0,7) == 'status_'){
+					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                         $qFilterStatus = substr($qFilter,7);
                         $qFilterStatus = str_replace('_',' ',$qFilterStatus);
@@ -784,14 +792,13 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                         // check status
                         $wheres['quickfilterstatus'] = array('zbsi_status','LIKE','%s',ucwords($qFilterStatus));
 
-                    } else {
+					} else {
 
                         // if we've hit no filter query, let external logic hook in to provide alternatives
                         // First used in WooSync module
                         $wheres = apply_filters( 'jpcrm_invoice_query_quickfilter', $wheres, $qFilter );
 
-                    }
-
+					}
                 }
             } // / quickfilters
 
@@ -1204,7 +1211,10 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                         // some weird case where getting empties, so added check
                         if (isset($field['key']) && !empty($field['key'])){ 
 
-                            $dePrefixed = ''; if (substr($field['key'],0,strlen('zbsi_')) === 'zbsi_') $dePrefixed = substr($field['key'], strlen('zbsi_'));
+						$dePrefixed = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $field['key'], 'zbsi_' ) ) {
+							$dePrefixed = substr( $field['key'], strlen( 'zbsi_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 
                             if (isset($customFields[$field['key']])){
 
@@ -1549,6 +1559,8 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                 #} Check if obj exists (here) - for now just brutal update (will error when doesn't exist)
                 $originalStatus = $this->getInvoiceStatus($id);
 
+					$previous_invoice_obj = $this->getInvoice( $id );
+
                 // log any change of status
                 if (isset($dataArr['zbsi_status']) && !empty($dataArr['zbsi_status']) && !empty($originalStatus) && $dataArr['zbsi_status'] != $originalStatus){
 
@@ -1735,10 +1747,14 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                                         'againstids'=>array(), //$againstIDs,
                                         'extsource'=>false, //$approvedExternalSource
                                         'automatorpassthrough'=>$automatorPassthrough, #} This passes through any custom log titles or whatever into the Internal automator recipe.
-                                        'extraMeta'=>$confirmedExtraMeta #} This is the "extraMeta" passed (as saved)
+									'extraMeta'      => $confirmedExtraMeta, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- Also this is the "extraMeta" passed (as saved)
+									'prev_invoice'   => $previous_invoice_obj,
                                     ));
 
-                                
+											$data['id']                 = $id;
+											$previous_invoice_obj['id'] = $id;
+
+											$this->events_manager->invoice()->updated( $data, $previous_invoice_obj );
 
                             }
 
@@ -1897,6 +1913,8 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                             'extraMeta'=>$confirmedExtraMeta #} This is the "extraMeta" passed (as saved)
                         ));
 
+												$data['id'] = $newID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+												$this->events_manager->invoice()->created( $data );
                     }
                     
                     return $newID;
@@ -2117,6 +2135,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
             $res['id_override'] = $this->stripSlashes($obj->zbsi_id_override);
             $res['parent'] = (int)$obj->zbsi_parent;
             $res['status'] = $this->stripSlashes($obj->zbsi_status);
+					$res['status_label'] = __( $res['status'], 'zero-bs-crm' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
             $res['hash'] = $this->stripSlashes($obj->zbsi_hash);
             $res['pdf_template'] = $this->stripSlashes($obj->zbsi_pdf_template);
             $res['portal_template'] = $this->stripSlashes($obj->zbsi_portal_template);
@@ -2508,7 +2527,6 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
     
     /**
      * Returns an ownerid against a invoice
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id invoice ID
      *
@@ -2735,52 +2753,49 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
                 // get total due
                 $invoiceTotalValue = 0.0; if (isset($invoice['total'])) $invoiceTotalValue = (float)$invoice['total'];
-                // this one'll be a rolling sum
-                $transactionsTotalValue = 0.0;
 
-                // cycle through trans + calc existing balance
-                if (isset($invoice['transactions']) && is_array($invoice['transactions'])){
+						// this one'll be a rolling sum
+						$transactions_total_value = 0.0;
 
-                    // got trans
-                    foreach ($invoice['transactions'] as $transaction){
+						// cycle through trans + calc existing balance
+						if ( isset( $invoice['transactions'] ) && is_array( $invoice['transactions'] ) ) {
 
-                        // should we also check for status=completed/succeeded? (leaving for now, will let check all):
+							// got trans
+							foreach ( $invoice['transactions'] as $transaction ) {
 
-                        // get amount
-                        $transactionAmount = 0.0; if (isset($transaction['total'])) $transactionAmount = (float)$transaction['total'];
+								// should we also check for status=completed/succeeded? (leaving for now, will let check all):
 
-                        if ($transactionAmount > 0){
+								// get amount
+								$transaction_amount = 0.0;
 
-                            switch ($transaction['type']){
+								if ( isset( $transaction['total'] ) ) {
+									$transaction_amount = (float) $transaction['total'];
+								}
 
-                                case __('Sale','zero-bs-crm'):
+								switch ( $transaction['type'] ) {
 
-                                    // these count as debits against invoice.
-                                    $transactionsTotalValue -= $transactionAmount;
+									case __( 'Sale', 'zero-bs-crm' ):
+										// these count as debits against invoice.
+										$transactions_total_value -= $transaction_amount;
 
-                                    break;
+										break;
 
-                                case __('Refund','zero-bs-crm'):
-                                case __('Credit Note','zero-bs-crm'):
+									case __( 'Refund', 'zero-bs-crm' ):
+									case __( 'Credit Note', 'zero-bs-crm' ):
+										// These count as credits against invoice, and should be added.
+										$transactions_total_value -= abs( (float) $transaction_amount );
 
-                                    // these count as credits against invoice.
-                                    $transactionsTotalValue += $transactionAmount;
+										break;
 
-                                    break;
+								} // / switch on type (sale/refund)
 
+							} // / each trans
 
+							// should now have $transactionsTotalValue & $invoiceTotalValue
+							// ... so we sum + return.
+							return $invoiceTotalValue + $transactions_total_value; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                            } // / switch on type (sale/refund)
-
-                        } // / if trans > 0
-
-                    } // / each trans
-
-                    // should now have $transactionsTotalValue & $invoiceTotalValue
-                    // ... so we sum + return.
-                    return $invoiceTotalValue + $transactionsTotalValue;
-
-                } // / if has trans
+						} // / if has trans
 
             } // / if retrieved inv
 
@@ -2862,6 +2877,4 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
     // ===========  /   INVOICE  =======================================================
     // ===============================================================================
-    
-
 } // / class

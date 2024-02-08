@@ -26,6 +26,7 @@ class Products {
 			'backup'     => Products\Backup::class,
 			'boost'      => Products\Boost::class,
 			'crm'        => Products\Crm::class,
+			'creator'    => Products\Creator::class,
 			'extras'     => Products\Extras::class,
 			'jetpack-ai' => Products\Jetpack_Ai::class,
 			'scan'       => Products\Scan::class,
@@ -34,6 +35,7 @@ class Products {
 			'security'   => Products\Security::class,
 			'protect'    => Products\Protect::class,
 			'videopress' => Products\Videopress::class,
+			'stats'      => Products\Stats::class,
 		);
 
 		/**
@@ -179,5 +181,4 @@ class Products {
 			$class_name::extend_plugin_action_links();
 		}
 	}
-
 }

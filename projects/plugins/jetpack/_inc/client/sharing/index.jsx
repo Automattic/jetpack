@@ -8,14 +8,22 @@ import {
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
-import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
+import {
+	currentThemeIsBlockTheme,
+	getSiteRawUrl,
+	getSiteAdminUrl,
+	userCanManageModules,
+	isAtomicSite,
+	isSharingBlockAvailable,
+	getSiteId,
+} from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
+import { siteHasFeature, getActiveFeatures } from 'state/site';
 import { Likes } from './likes';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
-
 class Sharing extends Component {
 	render() {
 		const commonProps = {
@@ -26,8 +34,17 @@ class Sharing extends Component {
 			isLinked: this.props.isLinked,
 			connectUrl: this.props.connectUrl,
 			siteRawUrl: this.props.siteRawUrl,
+			blogID: this.props.blogID,
 			siteAdminUrl: this.props.siteAdminUrl,
 			userCanManageModules: this.props.userCanManageModules,
+			activeFeatures: this.props.activeFeatures,
+			hasSocialBasicFeatures: this.props.hasSocialBasicFeatures,
+			hasSocialAdvancedFeatures: this.props.hasSocialAdvancedFeatures,
+			hasSocialImageGenerator: this.props.hasSocialImageGenerator,
+			hasAutoConversion: this.props.hasAutoConversion,
+			isAtomicSite: this.props.isAtomicSite,
+			hasSharingBlock: this.props.hasSharingBlock,
+			isBlockTheme: this.props.isBlockTheme,
 		};
 
 		const foundPublicize = this.props.isModuleFound( 'publicize' ),
@@ -72,7 +89,16 @@ export default connect( state => {
 		isLinked: isCurrentUserLinked( state ),
 		connectUrl: getConnectUrl( state ),
 		siteRawUrl: getSiteRawUrl( state ),
+		blogID: getSiteId( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
+		hasSocialBasicFeatures: siteHasFeature( state, 'social-shares-1000' ),
+		activeFeatures: getActiveFeatures( state ),
+		hasSocialAdvancedFeatures: siteHasFeature( state, 'social-enhanced-publishing' ),
+		hasSocialImageGenerator: siteHasFeature( state, 'social-image-generator' ),
+		hasAutoConversion: siteHasFeature( state, 'social-image-auto-convert' ),
 		userCanManageModules: userCanManageModules( state ),
+		isAtomicSite: isAtomicSite( state ),
+		hasSharingBlock: isSharingBlockAvailable( state ),
+		isBlockTheme: currentThemeIsBlockTheme( state ),
 	};
 } )( Sharing );

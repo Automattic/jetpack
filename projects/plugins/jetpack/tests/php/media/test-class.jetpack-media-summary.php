@@ -137,5 +137,4 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 		$this->assertSame( 0, Jetpack_Media_Summary::get_link_count( $content ) );
 	}
-
 }

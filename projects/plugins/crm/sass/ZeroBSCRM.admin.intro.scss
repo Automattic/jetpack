@@ -11,18 +11,6 @@
  //wrap all in our page bodyclass so to not clash anywhere else. Is also only enqueue on that one page
 
 .admin_page_zerobscrm-plugin{
-	jpcrm-top-menu {
-		display:none;
-	}
-    .top-bar-welcome{
-    height:5px;
-    background: #17b0fb;
-    margin-left:-20px;
-    }
-    #zbs-welcome{
-    color: #555;
-    padding-top: 110px;
-    }
     #zbs-welcome .container {
     margin: 0 auto;
     max-width: 720px;

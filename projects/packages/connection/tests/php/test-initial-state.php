@@ -34,6 +34,8 @@ class Test_Initial_State extends TestCase {
 			}
 		);
 
+		$_GET['calypso_env'] = 'wpcalypso';
+
 		$expected_state = array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
 			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
@@ -45,12 +47,15 @@ class Test_Initial_State extends TestCase {
 			'siteSuffix'         => ( new Status() )->get_site_suffix(),
 			'connectionErrors'   => Error_Handler::get_instance()->get_verified_errors(),
 			'isOfflineMode'      => ( new Status() )->is_offline_mode(),
+			'calypsoEnv'         => 'wpcalypso',
 		);
-		$expected_value = 'var JP_CONNECTION_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $expected_state ) ) . '"));';
+		$expected_value = 'var JP_CONNECTION_INITIAL_STATE; typeof JP_CONNECTION_INITIAL_STATE === "object" || (JP_CONNECTION_INITIAL_STATE = JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $expected_state ) ) . '")));';
 
-		$this->assertEquals( $expected_value, Initial_State::render() );
+		$actual_value = Initial_State::render();
 
-		// Ensure that a second request returns null.
-		$this->assertNull( Initial_State::render() );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		unset( $_GET['calypso_env'] );
+
+		$this->assertEquals( $expected_value, $actual_value );
 	}
 }

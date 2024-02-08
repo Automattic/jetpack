@@ -697,6 +697,4 @@ class Mailpoet_Background_Sync {
 		}
 
 	}
-
-
 }

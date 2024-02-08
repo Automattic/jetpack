@@ -55,8 +55,7 @@ class Dashboard {
 			_x( 'WordAds', 'product name shown in menu', 'jetpack-wordads' ),
 			'manage_options',
 			'jetpack-wordads',
-			array( $this, 'render' ),
-			100
+			array( $this, 'render' )
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );

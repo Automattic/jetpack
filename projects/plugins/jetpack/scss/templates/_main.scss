@@ -365,7 +365,7 @@
 
 		&:hover,
 		&:focus {
-			color: #81A844;
+			color: $green;
 		}
 	}
 	@include breakpoint(large-desktop){

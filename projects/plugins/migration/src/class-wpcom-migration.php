@@ -12,11 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Backup\V0002\Jetpack_Backup;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\Status as Status;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Data_Settings;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
@@ -61,7 +62,7 @@ class WPCOM_Migration {
 			},
 			1
 		);
-		\Jetpack_Backup::initialize();
+		Jetpack_Backup::initialize();
 		My_Jetpack_Initializer::init();
 	}
 
@@ -121,7 +122,7 @@ class WPCOM_Migration {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'wpcom-migration', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'wpcom-migration' );
 		wp_add_inline_script( 'wpcom-migration', $this->render_initial_state(), 'before' );
 	}
 

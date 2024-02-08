@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button } from '@automattic/jetpack-components';
+import { Button, ThemeProvider } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { moreVertical, media, trash, download } from '@wordpress/icons';
@@ -46,7 +46,6 @@ const VideoDetailsActions = ( {
 		<>
 			<Dropdown
 				placement="bottom center"
-				className={ styles.dropdown }
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
 						variant="tertiary"
@@ -57,47 +56,49 @@ const VideoDetailsActions = ( {
 					/>
 				) }
 				renderContent={ ( { onClose } ) => (
-					<>
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ media }
-							href={ newPostURL }
-							target="_blank"
-							disabled={ disabled }
-							onClick={ onClose }
-						>
-							{ __( 'Add to new post', 'jetpack-videopress-pkg' ) }
-						</Button>
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ download }
-							href={ url }
-							target="_blank"
-							disabled={ disabled }
-							onClick={ onClose }
-						>
-							{ __( 'Download file', 'jetpack-videopress-pkg' ) }
-						</Button>
-						<hr className={ styles.separator } />
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ trash }
-							className={ styles.delete }
-							disabled={ disabled }
-							onClick={ () => {
-								setShowDeleteModal( true );
-								onClose();
-							} }
-						>
-							{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
-						</Button>
-					</>
+					<ThemeProvider>
+						<div className={ styles.dropdown }>
+							<Button
+								weight="regular"
+								fullWidth
+								variant="tertiary"
+								icon={ media }
+								href={ newPostURL }
+								target="_blank"
+								disabled={ disabled }
+								onClick={ onClose }
+							>
+								{ __( 'Add to new post', 'jetpack-videopress-pkg' ) }
+							</Button>
+							<Button
+								weight="regular"
+								fullWidth
+								variant="tertiary"
+								icon={ download }
+								href={ url }
+								target="_blank"
+								disabled={ disabled }
+								onClick={ onClose }
+							>
+								{ __( 'Download file', 'jetpack-videopress-pkg' ) }
+							</Button>
+							<hr className={ styles.separator } />
+							<Button
+								weight="regular"
+								fullWidth
+								variant="tertiary"
+								icon={ trash }
+								className={ styles.delete }
+								disabled={ disabled }
+								onClick={ () => {
+									setShowDeleteModal( true );
+									onClose();
+								} }
+							>
+								{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
+							</Button>
+						</div>
+					</ThemeProvider>
 				) }
 			/>
 			{ showDeleteModal && (

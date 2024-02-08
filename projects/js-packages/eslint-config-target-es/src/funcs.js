@@ -1,22 +1,20 @@
-const mdn = require( '@mdn/browser-compat-data' );
 const browserslist = require( 'browserslist' );
 const debug = require( 'debug' );
-const { rules: esRules } = require( 'eslint-plugin-es' );
+const { rules: esRules } = require( 'eslint-plugin-es-x' );
 const semver = require( 'semver' );
 const browsersMap = require( './browsersMap.js' );
-const rulesMap = require( './rulesMap.js' );
+const { needsCheck } = require( './needsCheck.js' );
 
 const warn = debug( '@automattic/eslint-config-target-es:warn' );
-const debuglog = debug( '@automattic/eslint-config-target-es:debug' );
 
 /**
  * Get the list of supported browsers.
  *
  * @param {object} options - Options.
  * @param {string} options.query - Browserslist query.
- * @returns {object} Browsers mapped to versions.
+ * @returns {object} Browsers mapped to arrays of versions.
  */
-function getBrowsers( options = {} ) {
+function getAllBrowsers( options = {} ) {
 	const browsers = {};
 	for ( const b of browserslist( options.query ) ) {
 		const m = b.match( /^([a-z_]+) (all|[0-9.]+)(-.*)?$/ );
@@ -33,96 +31,33 @@ function getBrowsers( options = {} ) {
 			continue;
 		}
 		const ver = m[ 2 ] === 'all' ? '0.0.0' : semver.coerce( m[ 2 ] ).version;
-		if ( typeof browsers[ browser ] === 'undefined' || semver.lt( ver, browsers[ browser ] ) ) {
-			browsers[ browser ] = ver;
-		}
+		browsers[ browser ] ||= [];
+		browsers[ browser ].push( ver );
+		browsers[ browser ].sort( semver.compare );
 	}
 	return browsers;
 }
 
 /**
- * Test if a rule needs to be checked.
+ * Get the list of supported browsers.
  *
- * @param {string} rule - Rule.
- * @param {object} browsers - Browsers targeted.
+ * @deprecated since 2.1.0. Use getAllBrowsers instead.
  * @param {object} options - Options.
- * @param {boolean|null} options.builtins - If true, only rules with "javascript.builtins" paths are checked. If false, such rules are not checked. If null/undefined, all may be checked.
- * @returns {boolean} Whether the rule needs to be checked.
+ * @param {string} options.query - Browserslist query.
+ * @returns {object} Browsers mapped to minimum versions.
  */
-// eslint-disable-next-line no-unused-vars
-function needsCheck( rule, browsers, options = {} ) {
-	let paths = rulesMap[ rule ];
-	if ( paths === true || paths === false ) {
-		return paths;
+function getBrowsers( options = {} ) {
+	warn( 'getBrowsers is deprecated. Use getAllBrowsers instead.' );
+	const browsers = getAllBrowsers( options );
+	const ret = {};
+	for ( const k of Object.keys( browsers ) ) {
+		ret[ k ] = browsers[ k ][ 0 ];
 	}
-	if ( ! Array.isArray( paths ) ) {
-		paths = [ paths ];
-	}
-
-	if (
-		options.builtins === false &&
-		paths.some( path => path.startsWith( 'javascript.builtins.' ) )
-	) {
-		return false;
-	}
-	if (
-		options.builtins === true &&
-		! paths.some( path => path.startsWith( 'javascript.builtins.' ) )
-	) {
-		return false;
-	}
-
-	path: for ( const path of paths ) {
-		let data = mdn;
-		for ( const k of path.split( '.' ) ) {
-			data = data[ k ];
-			if ( ! data ) {
-				warn( `Invalid feature map for rule ${ rule }: ${ path } does not exist` );
-				continue path;
-			}
-		}
-		if ( ! data.__compat || ! data.__compat.support ) {
-			warn( `Invalid feature map for rule ${ rule }: No data at ${ path }` );
-			continue path;
-		}
-
-		browser: for ( const browser of Object.keys( browsers ) ) {
-			if ( ! data.__compat.support[ browser ] ) {
-				debuglog( `No support data for ${ browser } for rule ${ rule } (${ path }), skipping` );
-				continue browser;
-			}
-			let support = data.__compat.support[ browser ];
-			if ( Array.isArray( support ) ) {
-				support = support[ 0 ];
-			}
-
-			if ( support.version_added === null ) {
-				debuglog( `No support data for ${ browser } for rule ${ rule } (${ path }), skipping` );
-				continue browser;
-			} else if ( support.version_added === false ) {
-				debuglog( `${ browser } needs check for ${ rule } (${ path })` );
-				return true;
-			} else if ( support.version_added === true ) {
-				continue browser;
-			} else if ( semver.gt( semver.coerce( support.version_added ), browsers[ browser ] ) ) {
-				debuglog(
-					`${ browser } < ${ support.version_added } needs check for ${ rule } (${ path }); we have ${ browsers[ browser ] }`
-				);
-				return true;
-			} else if ( support.partial_implementation ) {
-				debuglog(
-					`${ browser } needs check for ${ rule } (${ path }) due to partial implementation`
-				);
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return ret;
 }
 
 /**
- * Get the es rule configurations.
+ * Get the es-x rule configurations.
  *
  * @param {object} options - Options.
  * @param {boolean|null} options.builtins - If true, only rules with "javascript.builtins" paths are checked. If false, such rules are not checked. If null/undefined, all may be checked.
@@ -130,15 +65,16 @@ function needsCheck( rule, browsers, options = {} ) {
  * @returns {object} Rules configuration.
  */
 function getRules( options = {} ) {
-	const browsers = getBrowsers( options );
+	const browsers = getAllBrowsers( options );
 	const ret = {};
 	for ( const rule of Object.keys( esRules ) ) {
-		ret[ `es/${ rule }` ] = needsCheck( rule, browsers, options ) ? 2 : 0;
+		ret[ `es-x/${ rule }` ] = needsCheck( rule, browsers, options ) ? 2 : 0;
 	}
 	return ret;
 }
 
 module.exports = {
+	getAllBrowsers,
 	getBrowsers,
 	getRules,
 };

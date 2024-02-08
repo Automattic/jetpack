@@ -38,7 +38,6 @@ class WP_Test_Jetpack_Core_Api_Xmlrpc_Consumer_Endpoint extends WP_UnitTestCase 
 			array( false, false ),
 		);
 	}
-
 }
 
 /**

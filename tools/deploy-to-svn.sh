@@ -156,12 +156,18 @@ success "Done!"
 
 info "Checking for added and removed files"
 ANY=false
-while IFS=" " read -r FLAG FILE; do
-	if [[ "$FLAG" == '!' ]]; then
-		svn rm "$FILE"
+while IFS= read -r LINE; do
+	FLAGS="${LINE:0:7}"
+	FILE="${LINE:8}"
+	if [[ "$FLAGS" != ?'      ' ]]; then
+		echo "Unexpected svn flags: $LINE"
+	fi
+	# The appending of an `@` to the filename here avoids problems with filenames containing `@` being interpreted as "peg revisions".
+	if [[ "${FLAGS:0:1}" == '!' ]]; then
+		svn rm "${FILE}@"
 		ANY=true
-	elif [[ "$FLAG" == "?" ]]; then
-		svn add "$FILE"
+	elif [[ "${FLAGS:0:1}" == "?" ]]; then
+		svn add "${FILE}@"
 		ANY=true
 	fi
 done < <( svn status )
@@ -173,13 +179,26 @@ fi
 
 cd "$DIR"
 
-STABLE_TAG="$(sed -n -E -e 's/^Stable tag: +([^ ]+) *$/\1/p' trunk/readme.txt)"
-if [[ "$SVNTAG" == "$STABLE_TAG" ]]; then
-	warn "The stable tag in trunk/readme.txt is already $STABLE_TAG!"
-	echo "Usually we wait until a final, manual step to update the stable tag."
-	proceed_p ""
-else
-	debug "Stable tag in trunk/readme.txt is $STABLE_TAG. Good, that's !== $SVNTAG."
+# Check that the stable tag in trunk/readme.txt is not being changed. If it is, try to undo the change.
+CHECK="$(svn diff trunk/readme.txt | grep '^[+-]Stable tag:' || true)"
+if [[ -n "$CHECK" ]]; then
+	LINE="$(grep --line-number --max-count=1 '^Stable tag:' trunk/readme.txt)"
+	if grep -q '^+' <<<"$CHECK" && ! grep -q '^-' <<<"$CHECK"; then
+		# On the initial commit, it seems there's no way to specify not to immediately have that commit served as the stable version.
+		# So just print a notice pointing that out in case anyone is looking and leave it as-is.
+		warn "This appears to be the initial release of the plugin, which will unavoidably set the stable tag to the version being released now."
+	elif [[ -n "$LINE" ]]; then
+		warn "Stable tag must be updated manually! Update would change it, attempting to undo the change."
+		nl=$'\n'
+		patch -R trunk/readme.txt <<<"@@ -${LINE%%:*},1 +${LINE%%:*},1 @@$nl$CHECK"
+		CHECK2="$(svn diff trunk/readme.txt | grep '^[+-]Stable tag:' || true)"
+		if [[ -n "$CHECK2" ]]; then
+			die "Attempt to revert stable tag change failed! Remaining diff:$nl$nl$CHECK2"
+		fi
+	else
+		nl=$'\n'
+		die "Stable tag must be updated manually! Update would change it.$nl$nl$CHECK"
+	fi
 fi
 
 proceed_p "We're ready to update trunk and tag $SVNTAG!" "Do it?"

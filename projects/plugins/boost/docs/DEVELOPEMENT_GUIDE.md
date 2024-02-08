@@ -34,10 +34,10 @@ If not, you might need as a prerequisite to [bypass the Jetpack connection](#byp
 
 ## Build the project
 
-You may also need building the Lazy Images Jetpack Package dependency (used by the Lazy Image Loading module) using the following command:
+You may also need building the Image CDN Jetpack Package dependency using the following command:
 
   ```sh
-  jetpack build packages/lazy-images
+  jetpack build packages/image_cdn
   ```
 
 You may need to do this only once.
@@ -78,7 +78,7 @@ To automatically fix some coding standards issues on the Jetpack Boost PHP code 
   composer phpcs:fix ./projects/plugins/boost
   ```
 
-To check for PHP 5.6 code compatibility run:
+To check for PHP code compatibility run:
 
   ```sh
   composer phpcs:compatibility ./projects/plugins/boost

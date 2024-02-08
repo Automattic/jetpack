@@ -112,5 +112,4 @@ class Threat_Model {
 			}
 		}
 	}
-
 }

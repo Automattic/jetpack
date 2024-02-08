@@ -38,7 +38,7 @@
 <p>
 	<small>
 		<?php
-		echo sprintf(
+		printf(
 			wp_kses(
 				/* Translators: %s is the URL to an example Flickr RSS feed. */
 				__( 'Leave the Flickr RSS URL field blank to display <a target="_blank" href="%s">interesting</a> Flickr photos.', 'jetpack' ),

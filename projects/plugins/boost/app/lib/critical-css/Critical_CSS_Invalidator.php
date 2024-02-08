@@ -6,6 +6,7 @@
  */
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
+use Automattic\Jetpack_Boost\Lib\Boost_Health;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS_Followup;
 
 /**
@@ -21,6 +22,7 @@ class Critical_CSS_Invalidator {
 	public static function init() {
 		add_action( 'jetpack_boost_deactivate', array( __CLASS__, 'clear_data' ) );
 		add_action( 'handle_environment_change', array( __CLASS__, 'handle_environment_change' ) );
+		add_filter( 'jetpack_boost_total_problem_count', array( __CLASS__, 'update_boost_problem_count' ) );
 	}
 
 	/**
@@ -47,4 +49,12 @@ class Critical_CSS_Invalidator {
 		}
 	}
 
+	public static function update_boost_problem_count( $count ) {
+		$css_needs_regeneration = Boost_Health::critical_css_needs_regeneration();
+		if ( $css_needs_regeneration ) {
+			++$count;
+		}
+
+		return $count;
+	}
 }

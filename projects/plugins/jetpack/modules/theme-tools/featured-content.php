@@ -117,7 +117,9 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			}
 
 			add_filter( $theme_support[0]['filter'], array( __CLASS__, 'get_featured_posts' ) );
-			add_action( 'customize_register', array( __CLASS__, 'customize_register' ), 9 );
+			if ( ! wp_is_block_theme() ) {
+				add_action( 'customize_register', array( __CLASS__, 'customize_register' ), 9 );
+			}
 			add_action( 'admin_init', array( __CLASS__, 'register_setting' ) );
 			add_action( 'save_post', array( __CLASS__, 'delete_transient' ) );
 			add_action( 'delete_post_tag', array( __CLASS__, 'delete_post_tag' ) );

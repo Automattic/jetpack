@@ -1,5 +1,5 @@
 import { AuthorizePage } from 'jetpack-e2e-commons/pages/wpcom/index.js';
-import logger from 'jetpack-e2e-commons/logger.cjs';
+import logger from 'jetpack-e2e-commons/logger.js';
 import { JetpackSocialPage } from '../pages/index.js';
 
 export async function connect( page, premium = false ) {

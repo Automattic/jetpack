@@ -20,6 +20,7 @@ jQuery( function () {
 		window.zbsViewSettings.objdbname == 'contact'
 	) {
 		zeroBSCRMJS_viewContactInit();
+		jQuery('#do-not-email').on('click',jpcrm_confirm_remove_unsubscribe_flag);
 	} // is contact
 
 	// check type :)
@@ -113,9 +114,9 @@ function zeroBSCRMJS_bindViewFiles() {
 					error: function ( response ) {
 						jQuery( '#zbsFilesTable' ).append(
 							'<div class="ui warning message" style="margin-top:10px;"><strong>' +
-								window.zbsViewLang.error +
+								zeroBSCRMJS_globViewLang('error') +
 								':</strong> ' +
-								window.zbsViewLang.unabletodelete +
+								zeroBSCRMJS_globViewLang('unabletodelete') +
 								'</div>'
 						);
 					},
@@ -275,12 +276,62 @@ function zeroBSCRMJS_bindActivityStream() {
 		} );
 }
 
+// confirm removal of flag
+function jpcrm_remove_unsubscribe_flag() {
+	var payload = {
+		action: 'jpcrm_update_meta',
+		contact_id: zbsViewSettings['objid'],
+		meta_key: 'do-not-email',
+		_wpnonce: zbsViewSettings['update_meta_nonce']
+	}
+	request = jQuery.ajax({
+		url: ajaxurl,
+		type: "POST",
+		data: payload,
+		dataType: "json"
+	});
+	request.done(function(e) {
+		// remove element from page
+		document.getElementById('do-not-email').remove();
+	});
+	request.fail(function(e) {
+		// error
+		swal({
+			title: zeroBSCRMJS_globViewLang('error'),
+			type: 'error'
+		});
+	});
+}
+
+// confirmation popup for unsubscribe flag removal
+function jpcrm_confirm_remove_unsubscribe_flag() {
+	swal({
+		title: zeroBSCRMJS_globViewLang('remove_unsubscribe_title'),
+		text: zeroBSCRMJS_globViewLang('remove_unsubscribe_message'),
+		type: 'warning',
+		showCancelButton: true,
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">' + zeroBSCRMJS_globViewLang('cancel') + '</span>',
+		confirmButtonText: zeroBSCRMJS_globViewLang('remove_unsubscribe_yes'),
+	})
+	.then(function (result) {
+		if (result.value) {
+			jpcrm_remove_unsubscribe_flag();
+		} else {
+			// cancel
+		}
+	})
+}
+
 /* ============================================================================================================
     / Generic helpers (view settings)
 ============================================================================================================ */
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbsCurrentlyDeleting, zeroBSCRMJS_initSingleView, zeroBSCRMJS_bindViewFiles,
+	module.exports = { zbsCurrentlyDeleting, zeroBSCRMJS_initSingleView, zeroBSCRMJS_bindViewFiles,
 		zeroBSCRMJS_viewContactInit, zeroBSCRMJS_viewCompanyInit,
-		zeroBSCRMJS_bindGenericViewSettings, zeroBSCRMJS_bindActivityStream };
+		zeroBSCRMJS_bindGenericViewSettings, zeroBSCRMJS_bindActivityStream,
+		jpcrm_remove_unsubscribe_flag, jpcrm_confirm_remove_unsubscribe_flag
+	};
 }

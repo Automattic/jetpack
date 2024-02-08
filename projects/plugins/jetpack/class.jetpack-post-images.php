@@ -106,12 +106,46 @@ class Jetpack_PostImages {
 	}
 
 	/**
+	 * Filtering out images with broken URL from galleries.
+	 *
+	 * @param array $galleries Galleries.
+	 * @return array $filtered_galleries
+	 */
+	public static function filter_gallery_urls( $galleries ) {
+		$filtered_galleries = array();
+		foreach ( $galleries as $this_gallery ) {
+			if ( ! isset( $this_gallery['src'] ) ) {
+				continue;
+			}
+			$ids = isset( $this_gallery['ids'] ) ? explode( ',', $this_gallery['ids'] ) : array();
+			// Make sure 'src' array isn't associative and has no holes.
+			$this_gallery['src'] = array_values( $this_gallery['src'] );
+			foreach ( $this_gallery['src'] as $idx => $src_url ) {
+				if ( filter_var( $src_url, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED ) === false ) {
+					unset( $this_gallery['src'][ $idx ] );
+					unset( $ids[ $idx ] );
+				}
+			}
+			if ( isset( $this_gallery['ids'] ) ) {
+				$this_gallery['ids'] = implode( ',', $ids );
+			}
+			// Remove any holes we introduced.
+			$this_gallery['src']  = array_values( $this_gallery['src'] );
+			$filtered_galleries[] = $this_gallery;
+		}
+
+		return $filtered_galleries;
+	}
+
+	/**
 	 * If a gallery is detected, then get all the images from it.
 	 *
 	 * @param int $post_id Post ID.
+	 * @param int $width Minimum image width to consider.
+	 * @param int $height Minimum image height to consider.
 	 * @return array Images.
 	 */
-	public static function from_gallery( $post_id ) {
+	public static function from_gallery( $post_id, $width = 200, $height = 200 ) {
 		$images = array();
 
 		$post = get_post( $post_id );
@@ -123,6 +157,7 @@ class Jetpack_PostImages {
 		if ( ! empty( $post->post_password ) ) {
 			return $images;
 		}
+		add_filter( 'get_post_galleries', array( __CLASS__, 'filter_gallery_urls' ), 999999 );
 
 		$permalink = get_permalink( $post->ID );
 
@@ -147,20 +182,35 @@ class Jetpack_PostImages {
 		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		foreach ( $galleries as $gallery ) {
-			if ( isset( $gallery['type'] ) && 'slideshow' === $gallery['type'] && ! empty( $gallery['ids'] ) ) {
+			if ( ! empty( $gallery['ids'] ) ) {
 				$image_ids  = explode( ',', $gallery['ids'] );
 				$image_size = isset( $gallery['size'] ) ? $gallery['size'] : 'thumbnail';
 				foreach ( $image_ids as $image_id ) {
 					$image = wp_get_attachment_image_src( $image_id, $image_size );
+					$meta  = wp_get_attachment_metadata( $image_id );
+
+					if ( isset( $gallery['type'] ) && 'slideshow' === $gallery['type'] ) {
+						// Must be larger than 200x200 (or user-specified).
+						if ( ! isset( $meta['width'] ) || $meta['width'] < $width ) {
+							continue;
+						}
+						if ( ! isset( $meta['height'] ) || $meta['height'] < $height ) {
+							continue;
+						}
+					}
+
 					if ( ! empty( $image[0] ) ) {
 						list( $raw_src ) = explode( '?', $image[0] ); // pull off any Query string (?w=250).
 						$raw_src         = wp_specialchars_decode( $raw_src ); // rawify it.
 						$raw_src         = esc_url_raw( $raw_src ); // clean it.
 						$images[]        = array(
-							'type' => 'image',
-							'from' => 'gallery',
-							'src'  => $raw_src,
-							'href' => $permalink,
+							'type'       => 'image',
+							'from'       => 'gallery',
+							'src'        => $raw_src,
+							'src_width'  => $meta['width'] ?? 0,
+							'src_height' => $meta['height'] ?? 0,
+							'href'       => $permalink,
+							'alt_text'   => self::get_alt_text( $image_id ),
 						);
 					}
 				}
@@ -233,6 +283,10 @@ class Jetpack_PostImages {
 
 		foreach ( $html_images as $html_image ) {
 			$src = wp_parse_url( $html_image['src'] );
+			if ( ! $src ) {
+				continue;
+			}
+
 			// strip off any query strings from src.
 			if ( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) ) {
 				$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path'];
@@ -302,7 +356,7 @@ class Jetpack_PostImages {
 				// If wp_get_attachment_image_src returns false but we know that there should be an image that could be used.
 				// we try a bit harder and user the data that we have.
 				$thumb_post_data = get_post( $thumb );
-				$img_src         = array( $thumb_post_data->guid, $meta['width'], $meta['height'] );
+				$img_src         = array( $thumb_post_data->guid ?? null, $meta['width'], $meta['height'] );
 			}
 
 			// Let's try to use the postmeta if we can, since it seems to be
@@ -461,10 +515,33 @@ class Jetpack_PostImages {
 			if ( stripos( $img_src, '/smilies/' ) ) {
 				continue;
 			}
+			// First try to get the width and height from the img attributes, but if they are not set, check to see if they are specified in the url. WordPress automatically names files like foo-1024x768.jpg during the upload process
+			$width  = (int) $image_tag->getAttribute( 'width' );
+			$height = (int) $image_tag->getAttribute( 'height' );
+			if ( 0 === $width && 0 === $height ) {
+				preg_match( '/-([0-9]+)x([0-9]+)\.(?:jpg|jpeg|png|gif|webp)$/i', $img_src, $matches );
+				if ( ! empty( $matches[1] ) ) {
+					$width = (int) $matches[1];
+				}
+				if ( ! empty( $matches[2] ) ) {
+					$height = (int) $matches[2];
+				}
+			}
+			// If width and height are still 0, try to get the id of the image from the class, e.g. wp-image-1234
+			if ( 0 === $width && 0 === $height ) {
+
+				preg_match( '/wp-image-([0-9]+)/', $image_tag->getAttribute( 'class' ), $matches );
+				if ( ! empty( $matches[1] ) ) {
+					$attachment_id = $matches[1];
+					$meta          = wp_get_attachment_metadata( $attachment_id );
+					$height        = $meta['height'] ?? 0;
+					$width         = $meta['width'] ?? 0;
+				}
+			}
 
 			$meta = array(
-				'width'    => (int) $image_tag->getAttribute( 'width' ),
-				'height'   => (int) $image_tag->getAttribute( 'height' ),
+				'width'    => $width,
+				'height'   => $height,
 				'alt_text' => $image_tag->getAttribute( 'alt' ),
 			);
 
@@ -493,15 +570,18 @@ class Jetpack_PostImages {
 				continue;
 			}
 
-			$images[] = array(
+			$image = array(
 				'type'       => 'image',
 				'from'       => 'html',
 				'src'        => $img_src,
 				'src_width'  => $meta['width'],
 				'src_height' => $meta['height'],
 				'href'       => $html_info['post_url'],
-				'alt_text'   => $meta['alt_text'],
 			);
+			if ( ! empty( $meta['alt_text'] ) ) {
+				$image['alt_text'] = $meta['alt_text'];
+			}
+			$images[] = $image;
 		}
 		return $images;
 	}
@@ -726,6 +806,52 @@ class Jetpack_PostImages {
 	}
 
 	/**
+	 * Takes an image and base pixel dimensions and returns a srcset for the
+	 * resized and cropped images, based on a fixed set of multipliers.
+	 *
+	 * @param  array $image Array containing details of the image.
+	 * @param  int   $base_width Base image width (i.e., the width at 1x).
+	 * @param  int   $base_height Base image height (i.e., the height at 1x).
+	 * @param  bool  $use_widths Whether to generate the srcset with widths instead of multipliers.
+	 * @return string The srcset for the image.
+	 */
+	public static function generate_cropped_srcset( $image, $base_width, $base_height, $use_widths = false ) {
+		$srcset = '';
+
+		if ( ! is_array( $image ) || empty( $image['src'] ) || empty( $image['src_width'] ) ) {
+			return $srcset;
+		}
+
+		$multipliers   = array( 1, 1.5, 2, 3, 4 );
+		$srcset_values = array();
+		foreach ( $multipliers as $multiplier ) {
+			$srcset_width  = (int) ( $base_width * $multiplier );
+			$srcset_height = (int) ( $base_height * $multiplier );
+			if ( $srcset_width < 1 || $srcset_width > $image['src_width'] ) {
+				break;
+			}
+
+			$srcset_url = self::fit_image_url(
+				$image['src'],
+				$srcset_width,
+				$srcset_height
+			);
+
+			if ( $use_widths ) {
+				$srcset_values[] = "{$srcset_url} {$srcset_width}w";
+			} else {
+				$srcset_values[] = "{$srcset_url} {$multiplier}x";
+			}
+		}
+
+		if ( count( $srcset_values ) > 1 ) {
+			$srcset = implode( ', ', $srcset_values );
+		}
+
+		return $srcset;
+	}
+
+	/**
 	 * Takes an image URL and pixel dimensions then returns a URL for the
 	 * resized and cropped image.
 	 *
@@ -758,7 +884,7 @@ class Jetpack_PostImages {
 
 		// If WPCOM hosted image use native transformations.
 		$img_host = wp_parse_url( $src, PHP_URL_HOST );
-		if ( '.files.wordpress.com' === substr( $img_host, -20 ) ) {
+		if ( str_ends_with( $img_host, '.files.wordpress.com' ) ) {
 			return add_query_arg(
 				array(
 					'w'    => $width,

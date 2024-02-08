@@ -342,5 +342,4 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 		$this->assertLessThan( strpos( $archives, 'first' ), strpos( $archives, 'last' ) );
 	}
-
 }

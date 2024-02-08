@@ -77,7 +77,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 */
 	public function jetpack_add_dashboard_sub_nav_item() {
 		if ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() ) {
-			add_submenu_page( 'jetpack', __( 'Dashboard', 'jetpack' ), __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/dashboard', '__return_null' );
+			add_submenu_page( 'jetpack', __( 'Dashboard', 'jetpack' ), __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/dashboard', '__return_null', 1 );
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
 	}
@@ -273,6 +273,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			$version             = $asset_manifest['version'];
 		}
 
+		$blog_id_prop = '';
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			$blog_id = Connection_Manager::get_site_id( true );
+			if ( $blog_id ) {
+				$blog_id_prop = ', currentBlogID: "' . (int) $blog_id . '"';
+			}
+		}
+
 		wp_enqueue_script(
 			'react-plugin',
 			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
@@ -293,9 +301,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		wp_add_inline_script( 'react-plugin', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));', 'before' );
 
 		// This will set the default URL of the jp_redirects lib.
-		wp_add_inline_script( 'react-plugin', 'var jetpack_redirects = { currentSiteRawUrl: "' . $site_suffix . '" };', 'before' );
+		wp_add_inline_script( 'react-plugin', 'var jetpack_redirects = { currentSiteRawUrl: "' . $site_suffix . '"' . $blog_id_prop . ' };', 'before' );
 
 		// Adds Connection package initial state.
-		wp_add_inline_script( 'react-plugin', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'react-plugin' );
 	}
 }

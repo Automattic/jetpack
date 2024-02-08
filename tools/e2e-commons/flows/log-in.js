@@ -1,8 +1,8 @@
 import config from 'config';
 import { DashboardPage, WPLoginPage } from '../pages/wp-admin/index.js';
 import { LoginPage } from '../pages/wpcom/index.js';
-import logger from '../logger.cjs';
-import { resolveSiteUrl } from '../helpers/utils-helper.cjs';
+import logger from '../logger.js';
+import { resolveSiteUrl } from '../helpers/utils-helper.js';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 
@@ -25,10 +25,9 @@ export async function loginToWpSite( page, mockPlanData ) {
 	await ( await WPLoginPage.init( page ) ).login();
 
 	if ( ! mockPlanData ) {
-		await ( await DashboardPage.init( page ) ).setSandboxModeForPayments(
-			cookie,
-			new URL( resolveSiteUrl() ).host
-		);
+		await (
+			await DashboardPage.init( page )
+		).setSandboxModeForPayments( cookie, new URL( resolveSiteUrl() ).host );
 	}
 }
 

@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 3.1.6-alpha
+ * Version: 4.0.0
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * Update URI: https://jetpack.com/download-jetpack-beta/
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'JPBETA__PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
-define( 'JPBETA_VERSION', '3.1.6-alpha' );
+define( 'JPBETA_VERSION', '4.0.0' );
 
 define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.json' );
 
@@ -99,7 +99,7 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 
 add_action( 'init', array( Automattic\JetpackBeta\AutoupdateSelf::class, 'instance' ) );
 
-set_error_handler( array( Automattic\JetpackBeta\Hooks::class, 'custom_error_handler' ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+Automattic\JetpackBeta\Hooks::setup();
 
 register_activation_hook( __FILE__, array( Automattic\JetpackBeta\Hooks::class, 'activate' ) );
 register_deactivation_hook( __FILE__, array( Automattic\JetpackBeta\Hooks::class, 'deactivate' ) );

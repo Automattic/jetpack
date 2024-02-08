@@ -21,5 +21,4 @@ class Dashboard_Endpoint extends Client_Portal_Endpoint {
 		$endpoints[] = $new_endpoint;
 		return $endpoints;
 	}
-
 }

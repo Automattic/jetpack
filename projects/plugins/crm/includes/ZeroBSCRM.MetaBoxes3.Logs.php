@@ -117,11 +117,11 @@ $zeroBSCRM_logTypes = array( // phpcs:ignore WordPress.NamingConventions.ValidVa
         $hide_transactions = zeroBSCRM_getSetting('feat_transactions') == -1;
 
         foreach ( $zeroBSCRM_logTypes['zerobs_customer'] as $log_type => $log_type_value) {
-          if (
-            $hide_quotes && strpos( $log_type, 'quote' ) === 0
-            || $hide_invoices && strpos( $log_type, 'invoice' ) === 0
-            || $hide_transactions && strpos( $log_type, 'transaction' ) === 0
-          ) {
+		if (
+			$hide_quotes && str_starts_with( $log_type, 'quote' )
+			|| $hide_invoices && str_starts_with( $log_type, 'invoice' )
+			|| $hide_transactions && str_starts_with( $log_type, 'transaction' )
+		) {
             $zeroBSCRM_logTypes['zerobs_customer'][$log_type]['locked'] = true;
           }
         }
@@ -146,6 +146,13 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
     public $objtypeid = false; // child fills out e.g. ZBS_TYPE_CONTACT
     public $metaboxLocation = 'normal';
+
+	/**
+	 * The legacy object name (e.g. 'zerobs_customer')
+	 *
+	 * @var string
+	 */
+	private $postType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
     public function __construct( $plugin_file ) {
 
@@ -247,10 +254,10 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                             <br />
 
                             <label for="zbsAddLogMainDesc"><?php esc_html_e("Activity Description","zero-bs-crm")?>:</label>
-                            <input type="text" class="form-control" id="zbsAddLogMainDesc" placeholder="e.g. <?php esc_attr_e('Called and talked to Todd about service x, seemed keen',"zero-bs-crm");?>" autocomplete="zbslog-<?php echo esc_attr( time() ); ?>" />
+														<input type="text" class="form-control" id="zbsAddLogMainDesc" placeholder="e.g. <?php esc_attr_e( 'Called and talked to Todd about service x, seemed keen', 'zero-bs-crm' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 
                             <label for="zbsAddLogDetailedDesc"><?php esc_html_e("Activity Detailed Notes","zero-bs-crm");?>:</label>
-                            <textarea class="form-control" id="zbsAddLogDetailedDesc" autocomplete="zbslog-<?php echo esc_attr( time() ); ?>"></textarea>
+														<textarea class="form-control" id="zbsAddLogDetailedDesc" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>"></textarea>
 
                             <label for="zbsAddLogPinNote"><?php esc_html_e( 'Pin note', 'zero-bs-crm' ); ?>:</label>
                             <input type="checkbox" id="zbsAddLogPinNote" />
@@ -274,7 +281,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                             </div>
 
                             <label for="zbsEditLogType"><?php esc_html_e("Activity Type","zero-bs-crm");?>:</label>
-                            <select id="zbsEditLogType" class="form-control zbsUpdateTypeEdit" autocomplete="zbslog-<?php echo esc_attr( time() ); ?>">
+														<select id="zbsEditLogType" class="form-control zbsUpdateTypeEdit" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>">
                                 <?php global $zeroBSCRM_logTypes; 
                                 if (isset($zeroBSCRM_logTypes[$this->postType]) && count($zeroBSCRM_logTypes[$this->postType]) > 0) foreach ($zeroBSCRM_logTypes[$this->postType] as $logKey => $logType){
 
@@ -292,10 +299,10 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                             <br />
 
                             <label for="zbsEditLogMainDesc"><?php esc_html_e("Activity Description","zero-bs-crm");?>:</label>
-                            <input type="text" class="form-control" id="zbsEditLogMainDesc" placeholder="e.g. 'Called and talked to Todd about service x, seemed keen'" autocomplete="zbslog-<?php echo esc_attr( time() ); ?>" />
+														<input type="text" class="form-control" id="zbsEditLogMainDesc" placeholder="e.g. 'Called and talked to Todd about service x, seemed keen'" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 
                             <label for="zbsEditLogDetailedDesc"><?php esc_html_e("Activity Detailed Notes","zero-bs-crm");?>:</label>
-                            <textarea class="form-control" id="zbsEditLogDetailedDesc" autocomplete="zbslog-<?php echo esc_attr( time() ); ?>"></textarea>
+														<textarea class="form-control" id="zbsEditLogDetailedDesc" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>"></textarea>
 
                             <label for="zbsEditLogPinNote"><?php esc_html_e( 'Pin note', 'zero-bs-crm' ); ?>:</label>
                             <input type="checkbox" id="zbsEditLogPinNote" />

@@ -1,9 +1,8 @@
 # Jetpack Monorepo
 
 [![License](https://poser.pugx.org/automattic/jetpack/license.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![codecov](https://codecov.io/gh/Automattic/jetpack/branch/trunk/graph/badge.svg?token=GmiI6Xl10U)](https://codecov.io/gh/Automattic/jetpack)
 
-This is the Jetpack Monorepo. It contains source code for the Jetpack plugin, the Jetpack composer packages, and other things.
+This is the Jetpack Monorepo. It contains source code for the different Jetpack plugins, Composer and JavaScript packages used by the plugins, and other things.
 
 ## How to install Jetpack plugin on your site
 
@@ -15,7 +14,7 @@ If you're interested in developing with the Jetpack monorepo, you can check out 
 
 ### Installation From Git Monorepo
 
-To run the Jetpack plugin from the monorepo, you'll first need to build the JS and CSS. To do so, [follow the instructions here](./docs/development-environment.md).
+To run the Jetpack plugin from the monorepo, you'll first need to build it. To do so, [follow the instructions here](./docs/development-environment.md).
 
 If you're using the [Docker development environment](./docs/development-environment.md#docker-supported-recommended), you should then be all set.
 
@@ -48,14 +47,6 @@ Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.t
 
 <!-- end sync section -->
 
-## Team
-
-Jetpack is developed and maintained by various teams at Automattic. The Jetpack Crew responsible for coordinating everything is comprised of @adimoldovan, @anomiex, @bindlegirl, @bisko, @brbrr, @briancolinger, @coder-karen, @dereksmart, @fgiannar, @jeherve, @kbrown9, @kraftbj, @leogermani, @mdbitz, @samiff, @sdixon194, @sergeymitr, and @zinigor.
-
-Contributions have been and continue to be made by dozens of other Automatticians, like:
-
-@aldavigdis, @allendav, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @chaosexanima, @ebinnion, @enejb, @eoigal, @georgestephanis, @gibrown, @gititon, @gravityrail, @jasmussen, @jblz, @jeffgolenski, @jessefriedman, @joanrho, @justinshreve, @keoshi, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @mdawaffe, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @oskosk, @pento, @roccotripaldi, @stephdau, @Viper007Bond, @xyu, and @yoavf.
-
-Our _awesome_ Happiness Engineers are @a8ck3n, @aicee, @bizanimesh, @brucea8c, @cena, @danjjohnson, @dericleeyy, @dkmyta, @gaurav1984, @jenhooks, @JenSwish, @julsyd, @kristinaplauche, @lizthefair, @madhattermattic, @mbhthompson, @mzakariya, @pranali333, @rcowles, @snowmads, @stefmattana, and @tmmbecker.
+## Join us!
 
 Interested in working on awesome open-source code all day? [Join us](https://automattic.com/work-with-us/)!

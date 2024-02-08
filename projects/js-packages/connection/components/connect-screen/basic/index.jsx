@@ -42,8 +42,6 @@ const ConnectScreen = ( {
 } ) => {
 	const {
 		handleRegisterSite,
-		isRegistered,
-		isUserConnected,
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
@@ -58,19 +56,19 @@ const ConnectScreen = ( {
 		skipUserConnection,
 	} );
 
-	const showConnectButton = ! isRegistered || ! isUserConnected;
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
+	const errorCode = registrationError?.response?.code;
 
 	return (
 		<ConnectScreenVisual
 			title={ title }
 			images={ images }
 			assetBaseUrl={ assetBaseUrl }
-			showConnectButton={ showConnectButton }
 			buttonLabel={ buttonLabel }
 			handleButtonClick={ handleRegisterSite }
 			displayButtonError={ displayButtonError }
+			errorCode={ errorCode }
 			buttonIsLoading={ buttonIsLoading }
 			footer={ footer }
 			isOfflineMode={ isOfflineMode }

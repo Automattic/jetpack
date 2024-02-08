@@ -25,7 +25,7 @@ class JPCRM_Admin_Views_Cest {
 		);
 
 		foreach ( $expectedAdminMenus as $menu ) {
-			$I->see( $menu, 'jpcrm-top-menu .item' );
+			$I->see( $menu, '#jpcrm-top-menu .item' );
 		}
 	}
 	public function see_jpcrm_dashboard( AcceptanceTester $I ) {

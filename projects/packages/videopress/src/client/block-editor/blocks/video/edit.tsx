@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { isBlobURL, getBlobByURL } from '@wordpress/blob';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BlockIcon,
@@ -28,6 +29,7 @@ import {
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
 import { useSyncMedia } from '../../hooks/use-sync-media';
+import { isVideoFile } from '../../utils/video';
 import ConnectBanner from './components/banner/connect-banner';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
@@ -301,7 +303,39 @@ export default function VideoPressEdit( {
 	// Setting video media process
 	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
 	const [ fileToUpload, setFileToUpload ] = useState( null );
+	/*
+	 * Check if the video URL is a blob URL.
+	 * If so, it means that the video needs to be uploaded.
+	 * This scenario happens when the user drops a video file
+	 * into the editor canvas (transformFromFile).
+	 */
+	useEffect( () => {
+		if ( ! src ) {
+			return;
+		}
 
+		if ( ! isBlobURL( src ) ) {
+			return;
+		}
+
+		// Get the file from the blob URL.
+		const file = getBlobByURL( src );
+		if ( ! file ) {
+			return;
+		}
+
+		// Check if the file is a video file.
+		if ( ! isVideoFile( file ) ) {
+			return;
+		}
+
+		// Clean the src attribute.
+		setAttributes( { src: undefined } );
+
+		// Set state to start the upload process.
+		setIsUploadingFile( true );
+		setFileToUpload( file );
+	}, [ src ] );
 	const { replaceBlock } = useDispatch( blockEditorStore );
 
 	// Replace video state
@@ -549,12 +583,7 @@ export default function VideoPressEdit( {
 				/>
 			</InspectorControls>
 
-			{ /*
-			 * __experimentalGroup is a temporary prop to allow us to group the color panel, and it
-			 * will be replaced with the `group` prop once WP 6.2 becomes the minimum required version.
-			 * @see https://github.com/WordPress/gutenberg/pull/47105/files#diff-f1d682ce5edd25698e5f189ac8267ab659d6a786260478307dc1352589419309
-			 */ }
-			<InspectorControls __experimentalGroup="color">
+			<InspectorControls group="color">
 				<ColorPanel
 					clientId={ clientId }
 					{ ...{ attributes, setAttributes, isRequestingVideoData } }

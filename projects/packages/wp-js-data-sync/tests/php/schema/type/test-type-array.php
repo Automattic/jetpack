@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 use PHPUnit\Framework\TestCase;
 
 class Type_Array_Test extends TestCase {
@@ -21,7 +22,8 @@ class Type_Array_Test extends TestCase {
 
 		// Test with non-array data
 		$non_array_data = 'not an array';
-		$this->expectException( \Error::class );
+
+		$this->expectException( Schema_Error::class );
 		$sanitized_array = $type_array->parse( $non_array_data );
 	}
 
@@ -51,5 +53,4 @@ class Type_Array_Test extends TestCase {
 		$this->expectExceptionMessage( "Expected an array, received 'integer'" );
 		$nested_schema->parse( $invalid_nested_array );
 	}
-
 }

@@ -21,11 +21,24 @@ function add_launchpad_options() {
 		return;
 	}
 
+	/**
+	 * Note the `site_intent` added on this Jetpack_LaunchpadSaveModal var is currently consumed in
+	 * both ETK and WBE as a temporary solution to resolve an issue where atomic sites were DoSing
+	 * themselves due to a non-existing endpoint. Since this data already existed on the window, we
+	 * used it to avoid the unnecessary requests.
+	 * https://github.com/Automattic/wp-calypso/blob/b7ba5798fddb56484f2cdaa83e9732ad32f3ca0a/apps/editing-toolkit/editing-toolkit-plugin/dotcom-fse/lib/site-intent/use-site-intent.js#L10
+	 * https://github.com/Automattic/wp-calypso/blob/b7ba5798fddb56484f2cdaa83e9732ad32f3ca0a/apps/wpcom-block-editor/src/wpcom/features/use-site-intent.js#L9
+	 */
 	$launchpad_options = array(
 		'launchpadScreenOption'       => get_option( 'launchpad_screen' ),
 		'siteIntentOption'            => get_option( 'site_intent' ),
 		'hasNeverPublishedPostOption' => get_option( 'has_never_published_post' ),
 	);
+
+	if ( function_exists( 'wpcom_launchpad_is_fse_next_steps_modal_hidden' ) && wpcom_launchpad_is_fse_next_steps_modal_hidden() ) {
+		$launchpad_options['hideFSENextStepsModal'] = true;
+	}
+
 	wp_add_inline_script(
 		'jetpack-blocks-editor',
 		'var Jetpack_LaunchpadSaveModal = ' . wp_json_encode( $launchpad_options, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',

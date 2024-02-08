@@ -89,7 +89,7 @@ class Search extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Help them find what they need', 'jetpack-my-jetpack' );
+		return __( 'Custom instant site search', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -327,5 +327,4 @@ class Search extends Hybrid_Product {
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=jetpack-search' );
 	}
-
 }

@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.0 - 2024-02-07
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
+- General: indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
+- General: remove WP 6.1 backwards compatibility checks [#32772]
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+- General: update WordPress version requirements to WordPress 6.2. [#32762]
+- General: update WordPress version requirements to WordPress 6.3. [#34127]
+- Updated Jetpack submenu sort order so individual features are alpha-sorted. [#32958]
+- Updated package dependencies.
+- Update lockfile [#33607]
+- Use the new method to render Connection initial state. [#32499]
+
+## 0.3.0 - 2023-07-06
+### Added
+- Add authentication to zendesk chat widget [#31339]
+
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.2. [#29341]
+- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now [#29942]
+- Updated package dependencies.
+- Update WordPress version requirements. Now requires version 6.1. [#30120]
+
 ## 0.2.0 - 2023-03-08
 ### Added
 - Add support for JITMs to starter plugin [#25880]

@@ -33,5 +33,3 @@ list( $page, $per_page ) = jpcrm_api_process_pagination();
 $invoices = zeroBS_getInvoices( true, $per_page, $page );
 
 wp_send_json( $invoices );
-
-

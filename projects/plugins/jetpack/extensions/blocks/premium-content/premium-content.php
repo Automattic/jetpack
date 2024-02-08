@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
 require_once __DIR__ . '/_inc/access-check.php';
@@ -16,8 +15,6 @@ require_once __DIR__ . '/logged-out-view/logged-out-view.php';
 require_once __DIR__ . '/subscriber-view/subscriber-view.php';
 require_once __DIR__ . '/buttons/buttons.php';
 require_once __DIR__ . '/login-button/login-button.php';
-
-const FEATURE_NAME = 'premium-content/container';
 
 /**
  * Registers the block for use in Gutenberg
@@ -30,18 +27,13 @@ function register_block() {
 	$provides   = $deprecated ? 'providesContext' : 'provides_context';
 
 	Blocks::jetpack_register_block(
-		FEATURE_NAME,
+		__DIR__,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
-			'attributes'      => array(
-				'isPremiumContentChild' => array(
-					'type'    => 'boolean',
-					'default' => true,
-				),
-			),
 			$provides         => array(
-				'premium-content/planId' => 'selectedPlanId',
-				'isPremiumContentChild'  => 'isPremiumContentChild',
+				'premium-content/planId'  => 'selectedPlanId', // Deprecated.
+				'premium-content/planIds' => 'selectedPlanIds',
+				'isPremiumContentChild'   => 'isPremiumContentChild',
 			),
 		)
 	);
@@ -88,7 +80,7 @@ function render_stripe_nudge() {
 			__( 'Connect to Stripe to use this block on your site.', 'jetpack' ),
 			__( 'Connect', 'jetpack' )
 		);
-	} elseif ( ( new Host() )->is_woa_site() ) {
+	} else {
 		// On WoA sites, the Stripe connection url is not easily available
 		// server-side, so we redirect them to the post in the editor in order
 		// to connect.
@@ -98,9 +90,6 @@ function render_stripe_nudge() {
 			__( 'Edit post', 'jetpack' )
 		);
 	}
-
-	// The Premium Content block is not supported on Jetpack sites.
-	return '';
 }
 
 /**

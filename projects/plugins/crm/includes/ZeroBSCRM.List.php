@@ -36,88 +36,94 @@ class zeroBSCRM_list{
         #} All messages need params to match this func: 
         #} ... zeroBSCRM_UI2_messageHTML($msgClass='',$msgHeader='',$msg='',$iconClass='',$id='')
 
-    function __construct($args=array()) {
+	/**
+	 * Construct function
+	 *
+	 * @param array $args Object construct args.
+	 */
+	public function __construct( $args = array() ) {
 
-        #} =========== LOAD ARGS ==============
-        $defaultArgs = array(
+		$default_args = array(
 
-            'objType'   => false,   //transaction
-            'singular'   => false,  //Transaction
-            'plural' => false,      //Transactions
-            'tag' => false,         //zerobs_transactiontag
-            'postType' => false,    //zerobs_transaction
-            'postPage' => false,    //manage-transactions
-            'langLabels' => array(
-                    
-                    // bulk actions - general
-                    'view' => __('View',"zero-bs-crm"),
-                    'edit' => __('Edit',"zero-bs-crm"),
-                    'deletestr' => __('Delete',"zero-bs-crm"),
-                    'nocustomer' => __('Not Assigned',"zero-bs-crm"),
-                    'areyousure' => __('Are you sure?',"zero-bs-crm"),
-                    'acceptyesdoit' => __('Yes, accept',"zero-bs-crm"),
-                    'yesproceed'  => __('Yes, proceed',"zero-bs-crm"),
-                    'changestatus' => __('Change Status',"zero-bs-crm"),
-                    'yesupdate' => __('Yes, update',"zero-bs-crm"),
-                    
-                    // bulk actions - delete
-                    'areyousurethese' => __('Are you sure you want to delete these?',"zero-bs-crm"),
-                    'yesdelete' => __('Yes, delete!','zero-bs-crm'),
-                    'noleave' => __('No, leave them',"zero-bs-crm"),
-                    'yesthose' => __('Yes, remove everything',"zero-bs-crm"),
-                    'deleted' => __('Deleted',"zero-bs-crm"),
-                    'notdeleted' => __('Could not delete!',"zero-bs-crm"),
+			'objType'     => false, // transaction
+			'singular'    => false, // Transaction
+			'plural'      => false, // Transactions
+			'tag'         => false, // zerobs_transactiontag
+			'postType'    => false, // zerobs_transaction
+			'postPage'    => false, // manage-transactions
+			'langLabels'  => array(
 
-                    // tag related
-                    'addtags' => __('Add tag(s)',"zero-bs-crm"),
-                    'addtags' => __('Add tags',"zero-bs-crm"),
-                    'removetags' => __('Remove tag(s)',"zero-bs-crm"),
-                    'addthesetags' => __('Add Tags',"zero-bs-crm"),
-                    'whichtags' => __('Which Tag(s)?',"zero-bs-crm"),
-                    'whichtagsadd' => __('Which Tag(s) would you like to add?',"zero-bs-crm"),
-                    'whichtagsremove' => __('Which Tag(s) would you like to remove?',"zero-bs-crm"),                    
-                    'addthesetags' => __('Add Tags',"zero-bs-crm"),
-                    'tagsadded' => __('Tags Added',"zero-bs-crm"),
-                    'tagsaddeddesc' => __('Your tags have been successsfully added.',"zero-bs-crm"),
-                    'tagsnotadded' => __('Tags Not Added',"zero-bs-crm"),
-                    'tagsnotaddeddesc' => __('Your tags could not be added.',"zero-bs-crm"),
-                    'tagsnotselected' => __('No Tags Selected',"zero-bs-crm"),
-                    'tagsnotselecteddesc' => __('You did not select any tags.',"zero-bs-crm"),
-                    'removethesetags' => __('Remove Tags',"zero-bs-crm"),
-                    'tagsremoved' => __('Tags Removed',"zero-bs-crm"),
-                    'tagsremoveddesc' => __('Your tags have been successsfully removed.',"zero-bs-crm"),
-                    'tagsnotremoved' => __('Tags Not Removed',"zero-bs-crm"),
-                    'tagsnotremoveddesc' => __('Your tags could not be removed.',"zero-bs-crm"),
-                    'notags' => __('You do not have any tags',"zero-bs-crm"),
-               
+				// bulk actions - general
+				'view'                => __( 'View', 'zero-bs-crm' ),
+				'edit'                => __( 'Edit', 'zero-bs-crm' ),
+				'deletestr'           => __( 'Delete', 'zero-bs-crm' ),
+				'nocustomer'          => __( 'Not Assigned', 'zero-bs-crm' ),
+				'areyousure'          => __( 'Are you sure?', 'zero-bs-crm' ),
+				'acceptyesdoit'       => __( 'Yes, accept', 'zero-bs-crm' ),
+				'yesproceed'          => __( 'Yes, proceed', 'zero-bs-crm' ),
+				'changestatus'        => __( 'Change Status', 'zero-bs-crm' ),
+				'yesupdate'           => __( 'Yes, update', 'zero-bs-crm' ),
 
-                    // bulk actions - merge 2 records
-                    'merged' => __('Merged',"zero-bs-crm"),
-                    'notmerged' => __('Not Merged',"zero-bs-crm"),
-                    'yesmerge' => __('Yes, merge them',"zero-bs-crm"),
+				// bulk actions - delete
+				'areyousurethese'     => __( 'Are you sure you want to delete these?', 'zero-bs-crm' ),
+				'yesdelete'           => __( 'Yes, delete!', 'zero-bs-crm' ),
+				'noleave'             => __( 'No, leave them', 'zero-bs-crm' ),
+				'yesthose'            => __( 'Yes, remove everything', 'zero-bs-crm' ),
+				'deleted'             => __( 'Deleted', 'zero-bs-crm' ),
+				'notdeleted'          => __( 'Could not delete!', 'zero-bs-crm' ),
 
-            ),
-            'bulkActions' => array(),
-            'sortables' => array('id'),
-            'unsortables' => array('tagged','editlink','phonelink','viewlink'),
-            'extraBoxes' => '', // html for extra boxes e.g. upsells :)
-            'extraJS' => '',
-            'messages' => '',
+				// tag related
+				'addtags'             => __( 'Add tags', 'zero-bs-crm' ),
+				'removetags'          => __( 'Remove tag(s)', 'zero-bs-crm' ),
+				'whichtags'           => __( 'Which Tag(s)?', 'zero-bs-crm' ),
+				'whichtagsadd'        => __( 'Which Tag(s) would you like to add?', 'zero-bs-crm' ),
+				'whichtagsremove'     => __( 'Which Tag(s) would you like to remove?', 'zero-bs-crm' ),
+				'addthesetags'        => __( 'Add Tags', 'zero-bs-crm' ),
+				'tagsadded'           => __( 'Tags Added', 'zero-bs-crm' ),
+				'tagsaddeddesc'       => __( 'Your tags have been successsfully added.', 'zero-bs-crm' ),
+				'tagsnotadded'        => __( 'Tags Not Added', 'zero-bs-crm' ),
+				'tagsnotaddeddesc'    => __( 'Your tags could not be added.', 'zero-bs-crm' ),
+				'tagsnotselected'     => __( 'No Tags Selected', 'zero-bs-crm' ),
+				'tagsnotselecteddesc' => __( 'You did not select any tags.', 'zero-bs-crm' ),
+				'removethesetags'     => __( 'Remove Tags', 'zero-bs-crm' ),
+				'tagsremoved'         => __( 'Tags Removed', 'zero-bs-crm' ),
+				'tagsremoveddesc'     => __( 'Your tags have been successsfully removed.', 'zero-bs-crm' ),
+				'tagsnotremoved'      => __( 'Tags Not Removed', 'zero-bs-crm' ),
+				'tagsnotremoveddesc'  => __( 'Your tags could not be removed.', 'zero-bs-crm' ),
+				'notags'              => __( 'You do not have any tags', 'zero-bs-crm' ),
 
-            //not implemented 'hideSidebar' => false // ability to hard-hide sidebar
+				// bulk actions - merge 2 records
+				'merged'              => __( 'Merged', 'zero-bs-crm' ),
+				'notmerged'           => __( 'Not Merged', 'zero-bs-crm' ),
+				'yesmerge'            => __( 'Yes, merge them', 'zero-bs-crm' ),
 
-        ); foreach ($defaultArgs as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
-        #} =========== / LOAD ARGS =============
+				// error handling
+				'badperms'            => __( 'Invalid permissions', 'zero-bs-crm' ),
+				'badperms_desc'       => __( 'You do not have permissions to make this change.', 'zero-bs-crm' ),
 
-        global $zbs;
+			),
+			'bulkActions' => array(),
+			'sortables'   => array( 'id' ),
+			'unsortables' => array( 'tagged', 'editlink', 'phonelink', 'viewlink' ),
+			'extraBoxes'  => '', // html for extra boxes e.g. upsells :)
+			'extraJS'     => '',
+			'messages'    => '',
 
-        if ($this->objTypeID == false){
+			// not implemented 'hideSidebar' => false // ability to hard-hide sidebar
+
+		);
+		// phpcs:disable
+		foreach ($default_args as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
+		// phpcs:enable
+
+		global $zbs;
+
+		if ( $this->objTypeID == false ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 			$this->objTypeID = $zbs->DAL->objTypeID( $this->objType ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-        }
-
-    }
+		}
+	}
 
     public function drawListView(){
 
@@ -182,19 +188,6 @@ class zeroBSCRM_list{
         $currentColumns = false; if (isset($customViews) && isset($customViews[$this->objType])) $currentColumns = $customViews[$this->objType];
         if ($currentColumns == false) $currentColumns = $defaultColumns;
 
-
-        #} Filter buttons
-        // load defaults (List.columns.php)
-        $filterVar = 'zeroBSCRM_filterbuttons_'.$this->objType; //$zeroBSCRM_filterbuttons_transaction;
-        if ( !isset( $GLOBALS[ $filterVar ] ) ) {
-            $GLOBALS[ $filterVar ] = array( 'default'=>array(), 'all'=>array() );
-        }
-        $defaultFilterButtons = $GLOBALS[ $filterVar ]['default'];
-        // retrieve from customViews (as retrieved above)
-        $currentFilterButtons = false; if (isset($customViews) && isset($customViews[$this->objType.'_filters'])) $currentFilterButtons = $customViews[$this->objType.'_filters'];
-        if ($currentFilterButtons == false) $currentFilterButtons = $defaultFilterButtons;
-        $allFilterButtons = $GLOBALS[ $filterVar ]['all'];
-
 		// add all columns to sortables :)
 		if ( is_array( $currentColumns ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			foreach ( $currentColumns as $col => $var ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -202,6 +195,14 @@ class zeroBSCRM_list{
 					$this->sortables[] = $col;
 				}
 			}
+		}
+
+		$screen_opts = $zbs->global_screen_options();
+
+		if ( ! empty( $screen_opts['perpage'] ) && $screen_opts['perpage'] > 0 ) {
+			$per_page = (int) $screen_opts['perpage'];
+		} else {
+			$per_page = 20;
 		}
 
         #} Refresh 2
@@ -331,41 +332,28 @@ class zeroBSCRM_list{
                 <div class="ui divider"></div>
                 <?php } // if admin/can manage columns ?>
 
-                <div id="zbs-list-options-base-wrap" class="ui grid">
+								<div id="zbs-list-options-base-wrap" class="ui grid">
 
-                    <?php 
-                        # here we add stuff which is saved by screenOptions, even tho it's in its own dom elements, not sceen options area 
-                        $screenOpts = $zbs->userScreenOptions();
+									<div class="two column clearing centered row">
+										<div class="column" style="max-width:364px;">
+											<div class="ui labeled input">
+												<div class="ui label"><i class="table icon"></i>  <?php esc_html_e( 'Records per page:', 'zero-bs-crm' ); ?></div>
+												<input type="text" style="width:70px;" class="intOnly" id="zbs-screenoptions-records-per-page" value="<?php echo esc_attr( $per_page ); ?>" />
+											</div>
+										</div>
+									</div>
 
-                        // debug echo '<pre>'; print_r($screenOpts); echo '</pre>'; 
+									<div class="ui divider" style="margin-bottom:0;margin-top:0;"></div>
 
-                        // default
-                        $perPage = 20; 
-                        if (isset($screenOpts) && is_array($screenOpts) && isset($screenOpts['perpage']) && !empty($screenOpts['perpage']) && $screenOpts['perpage'] > 0) $perPage = (int)$screenOpts['perpage'];
-                    ?>
-                    <div class="two column clearing centered row">
+									<div class="two column clearing centered row">
+										<div class="column" style="max-width:364px;">
+											<button id="zbs-columnmanager-bottomsave" type="button" class="ui button black positive">
+												<i class="check square icon"></i> <?php esc_html_e( 'Save Options and Close', 'zero-bs-crm' ); ?>
+											</button>
+										</div>
+									</div>
 
-                        <div class="column" style="max-width:364px;">
-                            <div class="ui labeled input">
-										<div class="ui label"><i class="table icon"></i>  <?php esc_html_e( 'Records per page:', 'zero-bs-crm' ); ?></div>
-                                <input type="text" style="width:70px;" class="intOnly" id="zbs-screenoptions-records-per-page" value="<?php echo esc_attr( $perPage ); ?>" />
-                            </div>
-                        </div>
-
-                    </div>
-
-
-                <div class="ui divider" style="margin-bottom:0;margin-top:0;"></div>
-
-                    <div class="two column clearing centered row">
-
-                        <div class="column" style="max-width:364px;">
-									<button id="zbs-columnmanager-bottomsave" type="button" class="ui button black positive"><i class="check square icon"></i> <?php esc_html_e( 'Save Options and Close', 'zero-bs-crm' ); ?></button>
-                        </div>
-
-                    </div>
-
-                </div>
+								</div>
 
 
             </div>
@@ -404,7 +392,7 @@ class zeroBSCRM_list{
 			// If totals, show the wrapper. Currently only implemented in contacts
 			if ( $zbs->settings->get( 'show_totals_table' ) === 1 && $this->objType === 'customer' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				?>
-				<jpcrm-dashcount></jpcrm-dashcount>
+				<jpcrm-dashcount class="wide-cards"></jpcrm-dashcount>
 				<?php
 			}
 			##WLREMOVE
@@ -458,17 +446,6 @@ class zeroBSCRM_list{
 	            }
             }
 
-            #} Check for screen options (perpage)
-            $per_page = 20;
-            $screenOpts = $zbs->userScreenOptions();
-            if ( is_array( $screenOpts ) ) {
-
-	            if ( isset( $screenOpts['perpage'] ) ) $per_page = (int)$screenOpts['perpage'];
-	            // catch
-	            if ( $per_page < 1 ) $per_page = 20;
-
-            }
-
             // build options objects
             $list_view_settings = array(
 
@@ -509,39 +486,6 @@ class zeroBSCRM_list{
             // Vars for zbs list view drawer
             var zbsListViewParams = <?php echo wp_json_encode( $list_view_parameters ) ?>;
 
-            var zbsFilterButtons = [
-                    // e.g. {namestr:'Status',fieldstr:'_status'}
-                    <?php  $buttonCount = 0;
-
-                        #} Current cols
-                        if (is_array($currentFilterButtons)) foreach ($currentFilterButtons as $buttonKey => $button){
-
-                            if ($buttonCount > 0) echo ',';
-                            
-							// Hard coded, lazy
-							printf(
-								"{namestr:'%s',fieldstr:'%s'}",
-								wp_kses( $button[0], array( 'i' => array( 'class' => array() ) ) ),
-								// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactored.
-								esc_html( $buttonKey )
-								// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-							);
-
-                            $buttonCount++;
-
-                        }
-
-                    ?>
-                ];
-            var zbsUnsortables = [<?php $c = 0; if (count($this->unsortables) > 0) foreach ($this->unsortables as $sortableStr) {
-
-                        if ($c > 0) echo ',';
-
-                        echo "'". esc_html( zeroBSCRM_slashOut($sortableStr,true) )."'";
-
-                        $c++;
-                        
-            } ?>]; // this is columns that are "unsortable" e.g. edit link
             var zbsSortables = [<?php 
 
                 $c = 0; if (count($this->sortables) > 0) foreach ($this->sortables as $sortableStr) {
@@ -583,7 +527,7 @@ class zeroBSCRM_list{
             var zbsObjectViewLinkPrefixTransaction = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_transaction',true ); ?>';
             var zbsObjectViewLinkPrefixForm = '<?php echo jpcrm_esc_link( 'edit',-1,ZBS_TYPE_FORM,true ); ?>';
             var zbsObjectViewLinkPrefixSegment = '<?php echo jpcrm_esc_link( 'edit',-1,ZBS_TYPE_SEGMENT,true ); ?>';
-            var zbsObjectViewLinkPrefixEvent = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_EVENT, true  ); ?>';
+            var zbsObjectViewLinkPrefixTask = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_TASK, true  ); ?>';
 
             var zbsObjectEditLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_customer',true ); ?>';
             var zbsObjectEditLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_company',true ); ?>';
@@ -634,48 +578,6 @@ class zeroBSCRM_list{
 
                     default:
                         zeroBSCRM_slashOut(__('Item',"zero-bs-crm"));
-                        break;
-
-
-
-                } 
-
-            ?>';
-            var zbsListViewObjNamePlural = '<?php
-
-                switch ($this->postType){
-
-
-                    case 'zerobs_customer':
-                        zeroBSCRM_slashOut(__('Contacts',"zero-bs-crm"));
-                        break;
-
-                    case 'zerobs_company':
-                        zeroBSCRM_slashOut(jpcrm_label_company(true));
-                        break;
-
-                    case 'zerobs_quote':
-                        zeroBSCRM_slashOut(__('Quotes',"zero-bs-crm"));
-                        break;
-
-                    case 'zerobs_invoice':
-                        zeroBSCRM_slashOut(__('Invoices',"zero-bs-crm"));
-                        break;
-
-                    case 'zerobs_transaction':
-                        zeroBSCRM_slashOut(__('Transactions',"zero-bs-crm"));
-                        break;
-
-                    case 'zerobs_form':
-                        zeroBSCRM_slashOut(__('Forms',"zero-bs-crm"));
-                        break;
-
-                    case 'zerobs_quotetemplate':
-                        zeroBSCRM_slashOut(__('Quote Templates',"zero-bs-crm"));
-                        break;
-
-                    default:
-                        zeroBSCRM_slashOut(__('Items',"zero-bs-crm"));
                         break;
 
 
@@ -782,7 +684,7 @@ class zeroBSCRM_list{
 	public function draw_listview_header( $listview_filters ) {
 		global $zbs;
 
-		$filter_var       = 'zeroBSCRM_filterbuttons_a' . $this->objType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$filter_var       = 'zeroBSCRM_filterbuttons_' . $this->objType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$all_quickfilters = ( empty( $GLOBALS[ $filter_var ]['all'] ) ? array() : $GLOBALS[ $filter_var ]['all'] );
 		$all_tags         = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(

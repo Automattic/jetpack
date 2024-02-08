@@ -65,33 +65,11 @@
 		#} Checks through defaults + existing and adds defaults where unset
 		function validateAndUpdate(){
 
-			global $zbs;
-
-			// DAL1 save:
-			if (!$zbs->isDAL2()){
-				
-				$defaultsAdded = 0;
-				foreach ($this->settingsDefault as $key => $val){ 
-					if (!isset($this->settings[$key])) {
-						$this->settings[$key] = $val;
-						$defaultsAdded++;
-					}
-				}
-				
-				if ($defaultsAdded > 0) $this->saveToDB();
-
-			} else {
-
-				// DAL 2
-				
 				foreach ($this->settingsDefault as $key => $val){ 
 					if (!isset($this->settings[$key])) {
 						$this->update($key,$val);
 					}
 				}
-				
-
-			}
 
 		}
 		
@@ -159,22 +137,8 @@
 			if (empty($key) === true) return false;
 
 			global $zbs;
-			
-			// if $freshFromDB, reload from db
-			if (!$freshFromDB && $zbs->isDAL2()){
-
-				// normal way
-				if (isset($this->settings[$key]))
-					return $this->settings[$key];
-				else
-					return false;
-
-			} else {
-
 				// db-loading way (ONLY WORKS DB2!)
 				return $zbs->DAL->getSetting(array('key' => $key,'fullDetails' => false));	
-			}
-			
 		}
 		
 		#} Add/Update *brutally
@@ -184,22 +148,9 @@
 
 			global $zbs;
 
-			// DAL1 save:
-			if (!$zbs->isDAL2()){
-
-				#} Don't even check existence as I guess it doesn't matter?
-				$this->settings[$key] = $val;	
-				
-				#} Save down
-				$this->saveToDB();
-
-			} else {
-
 				#} Don't even check existence as I guess it doesn't matter?
 				$this->settings[$key] = $val;	
 				$zbs->DAL->updateSetting($key, $val);	
-				
-			}
 			
 		}		
 		
@@ -353,27 +304,6 @@
 
 			global $zbs;
 
-			// DAL1 load:
-			if (!$zbs->isDAL2()){
-			
-				#} Load the register
-				$this->settingsDMZRegister = get_option($this->settingsDMZKey);
-
-				#} Load anything logged in register
-				if (is_array($this->settingsDMZRegister) && count($this->settingsDMZRegister) > 0) { foreach ($this->settingsDMZRegister as $regEntry){
-
-						#} Load it
-						$this->settingsDMZ[$regEntry] = get_option($this->settingsDMZKey.'_'.$regEntry);
-
-					}
-				}
-				return $this->settingsDMZ;
-
-			} else {
-
-				// DAL 2 load :)
-				global $zbs;
-			
 				#} Load the register
 				$this->settingsDMZRegister = $zbs->DAL->setting($this->settingsDMZKey,array());
 
@@ -391,10 +321,6 @@
 					}
 				}
 				return $this->settingsDMZ;
-
-
-			}
-			
 		}
 
 		#} / DMZ Fields
@@ -405,29 +331,6 @@
 		function saveToDB(){
 
 			global $zbs;
-
-			// DAL1 save:
-			if (!$zbs->isDAL2()){
-		
-				$u = array();
-				$u[] = update_option($this->settingsKey, $this->settings);				
-
-				#} Also any DMZ's!
-
-					#} save register
-					update_option($this->settingsDMZKey,$this->settingsDMZRegister);
-					if (isset($this->settingsDMZRegister) && is_array($this->settingsDMZRegister)) foreach ($this->settingsDMZRegister as $dmzKey){ # => $dmzVal
-
-						$u[] = update_option($this->settingsDMZKey.'_'.$dmzKey, $this->settingsDMZ[$dmzKey]);	
-
-					}
-
-				return $u;
-
-			} else {
-
-				// DAL 2 save :)
-				global $zbs;
 		
 				// DAL2 saves individually :)
 				$u = array();
@@ -449,7 +352,6 @@
 					}
 
 				return $u;
-			}
 			
 		}
 		
@@ -458,22 +360,9 @@
 
 			global $zbs;
 
-			// DAL1 load:
-			if (!$zbs->isDAL2()){
-				
-				$this->settings = get_option($this->settingsKey);
-				return $this->settings;
-
-			} else {
-
-				// DAL2 load:
-				// for now, load everything
-				global $zbs; 
 				$this->settings = $zbs->DAL->getSettings(array('autoloadOnly' => true,'fullDetails' => false));				
 				return $this->settings;
 
-			}
-			
 		}		
 		
 		#} Uninstall func - effectively creates a bk then removes its main setting
@@ -487,20 +376,11 @@
 			
 			#} Blank it out
 			$this->settings = NULL;
-			
-			#} Return the delete
-			if (!$zbs->isDAL2()){
-
-				// DAL 1
-				return delete_option($this->settingsKey);
-
-			} else {
 
 				// DAL2 
 				// leave for now
 				return true;
-			}
-			
+
 		}
 		
 		#} Backup existing settings obj (ripped from sgv2.0)
@@ -557,9 +437,6 @@
 				
 			
 		}
-		
-		
-		
 	}
 
 
@@ -668,7 +545,6 @@
 			return $zbs->settings->dmzGetConfig($this->extperma);
 
 		}
-
 	}
 
 
@@ -684,5 +560,3 @@ function zeroBS_temp_ext_legacy_notice(){
 		define('ZBSLEGACYSET',1);
 	}
 }	
-	
-?>

@@ -8,7 +8,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
  * @param {object}   props           - The component's props.
  * @param {string}   props.message   - The message to display.
  * @param {Function} props.onChange  - Callback to invoke as the message changes.
- * @param {boolean}  props.disabled  - Whether the control is disabled.
+ * @param {boolean}  [props.disabled]  - Whether the control is disabled.
  * @param {number}   props.maxLength - The maximum character length of the message.
  * @returns {object} The message box component.
  */

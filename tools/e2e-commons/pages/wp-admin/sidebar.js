@@ -7,8 +7,14 @@ export default class Sidebar extends WpPage {
 
 	async selectJetpack() {
 		const jetpackMenuSelector = '#toplevel_page_jetpack';
-		const menuItemSelector =
-			'#toplevel_page_jetpack a[href$="jetpack#/dashboard"], #toplevel_page_jetpack a[href$="jetpack"]';
+		const menuItemSelector = '#toplevel_page_jetpack a[href$="admin.php?page=my-jetpack"]';
+
+		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
+	}
+
+	async selectJetpackSubMenuItem() {
+		const jetpackMenuSelector = '#toplevel_page_jetpack';
+		const menuItemSelector = '#toplevel_page_jetpack .wp-submenu a[href$="admin.php?page=jetpack"]';
 
 		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
 	}

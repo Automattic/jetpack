@@ -68,15 +68,16 @@ class Jetpack_Stats_Dashboard_Widget {
 				// New widget implemented in Odyssey Stats.
 				$stats_widget = new Dashboard_Stats_Widget();
 				wp_add_dashboard_widget(
-					'jetpack_summary_widget',
+					Dashboard_Stats_Widget::DASHBOARD_WIDGET_ID,
 					$widget_title,
 					array( $stats_widget, 'render' )
 				);
-				$stats_widget->load_admin_scripts();
+				// Only load scripts when the widget is not hidden
+				$stats_widget->maybe_load_admin_scripts();
 			} else {
 				// Legacy widget.
 				wp_add_dashboard_widget(
-					'jetpack_summary_widget',
+					Dashboard_Stats_Widget::DASHBOARD_WIDGET_ID,
 					$widget_title,
 					array( __CLASS__, 'render_widget' )
 				);

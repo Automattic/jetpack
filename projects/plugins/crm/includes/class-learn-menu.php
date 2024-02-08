@@ -12,6 +12,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit;
 
 /**
  * Learn menu class
+ * This is a bit of a misnomer, as it really refers to the page titlebar (under the top menu).
  */
 class Learn_Menu {
 
@@ -29,6 +30,104 @@ class Learn_Menu {
 	 * @var string
 	 */
 	protected $override_slug;
+
+	/**
+	 * Title of page
+	 *
+	 * @var string
+	 */
+	private $page_title;
+
+	/**
+	 * HTML to the left of the page header, often containing buttons
+	 *
+	 * @var string
+	 */
+	private $left_buttons;
+
+	/**
+	 * HTML to the right of the page header, often containing buttons
+	 *
+	 * @var string
+	 */
+	private $right_buttons;
+
+	/**
+	 * Whether or not to show the learn button
+	 *
+	 * @var bool
+	 */
+	private $show_learn;
+
+	/**
+	 * The learn box title
+	 *
+	 * @var string
+	 */
+	private $learn_title;
+
+	/**
+	 * The learn box content (HTML)
+	 *
+	 * @var string
+	 */
+	private $learn_content;
+
+	/**
+	 * The "learn more" link url
+	 *
+	 * @var string
+	 */
+	private $learn_more_url;
+
+	/**
+	 * The learn image url
+	 *
+	 * @var string
+	 */
+	private $learn_image_url;
+
+	/**
+	 * The learn video url
+	 *
+	 * @var string
+	 */
+	private $learn_video_url;
+
+	/**
+	 * Any extra JS to output
+	 *
+	 * @var string
+	 */
+	private $extra_js;
+
+	/**
+	 * Any extra css styles to add to the popup element
+	 *
+	 * @var string
+	 */
+	private $popup_extra_css;
+
+	/**
+	 * If $learn_video_url is provided, specify a video title here
+	 *
+	 * @var string
+	 */
+	private $learn_video_title;
+
+	/**
+	 * An icon to show before the page title
+	 *
+	 * @var string
+	 */
+	private $icon_class;
+
+	/**
+	 * The slug to use for a "back to list" link, or false if not used
+	 *
+	 * @var string|bool
+	 */
+	private $back_slug;
 
 	/**
 	 * Setup learn menu.
@@ -75,7 +174,7 @@ class Learn_Menu {
 					$learn_menu_settings['title'],
 					$learn_menu_settings['left_buttons'],
 					$learn_menu_settings['right_buttons'],
-					( ! isset( $learn_menu_settings['hide'] ) ? true : false ),
+					$learn_menu_settings['show_learn'],
 					$learn_menu_settings['learn_title'],
 					$learn_menu_settings['content'],
 					$learn_menu_settings['url'],
@@ -271,7 +370,7 @@ class Learn_Menu {
 			$slug = 'transactiontags';
 		}
 
-		// Events
+		// Tasks
 		if ( zeroBSCRM_is_task_new_page() ) {
 			$slug = 'tasknew';
 		} elseif ( zeroBSCRM_is_task_edit_page() ) {
@@ -432,7 +531,7 @@ class Learn_Menu {
 				<?php echo $extra_js . "\n"; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
 			});
 		</script>
-		<div class="jpcrm-learn-menu-container">
+		<div class="<?php echo esc_attr( $this->get_learn_menu_container_css_classes() ); ?>">
 			<?php
 			if ( $back_slug ) {
 				?>
@@ -440,7 +539,7 @@ class Learn_Menu {
 				<?php
 			}
 			?>
-			<div class="jpcrm-learn-menu">
+			<div class="<?php echo esc_attr( $this->get_learn_menu_css_classes() ); ?>">
 				<div class="jpcrm-learn-menu-subdiv-75">
 					<div class="jpcrm-learn-menu-subdiv-75">
 						<div class="jpcrm-learn-page-title">
@@ -606,14 +705,8 @@ class Learn_Menu {
 		// check if available
 		if ( isset( $learn_menu_content[ $slug ] ) ) {
 
-			if ( empty( $learn_menu_content[ $slug ]['url'] ) ) {
-				$learn_menu_content[ $slug ]['url'] = $zbs->urls['docs'];
-			}
-			if ( empty( $learn_menu_content[ $slug ]['img'] ) ) {
-				$learn_menu_content[ $slug ]['img'] = 'learn-extensions-list.png';
-			}
-			if ( empty( $learn_menu_content[ $slug ]['learn_title'] ) ) {
-				$learn_menu_content[ $slug ]['learn_title'] = $learn_menu_content[ $slug ]['title'];
+			if ( empty( $learn_menu_content[ $slug ]['title'] ) ) {
+				$learn_menu_content[ $slug ]['title'] = '';
 			}
 			if ( empty( $learn_menu_content[ $slug ]['left_buttons'] ) ) {
 				$learn_menu_content[ $slug ]['left_buttons'] = '';
@@ -621,8 +714,32 @@ class Learn_Menu {
 			if ( empty( $learn_menu_content[ $slug ]['right_buttons'] ) ) {
 				$learn_menu_content[ $slug ]['right_buttons'] = '';
 			}
+			if ( ! isset( $learn_menu_content[ $slug ]['show_learn'] ) || $learn_menu_content[ $slug ]['show_learn'] !== false ) {
+				$learn_menu_content[ $slug ]['show_learn'] = true;
+			}
+			if ( empty( $learn_menu_content[ $slug ]['learn_title'] ) ) {
+				$learn_menu_content[ $slug ]['learn_title'] = $learn_menu_content[ $slug ]['title'];
+			}
+			if ( empty( $learn_menu_content[ $slug ]['content'] ) ) {
+				$learn_menu_content[ $slug ]['content'] = '<p></p>';
+			}
+			if ( empty( $learn_menu_content[ $slug ]['url'] ) ) {
+				$learn_menu_content[ $slug ]['url'] = $zbs->urls['docs'];
+			}
+			if ( empty( $learn_menu_content[ $slug ]['img'] ) ) {
+				$learn_menu_content[ $slug ]['img'] = 'learn-extensions-list.png';
+			}
+			if ( empty( $learn_menu_content[ $slug ]['video'] ) ) {
+				$learn_menu_content[ $slug ]['video'] = false;
+			}
 			if ( empty( $learn_menu_content[ $slug ]['extra_js'] ) ) {
 				$learn_menu_content[ $slug ]['extra_js'] = '';
+			}
+			if ( empty( $learn_menu_content[ $slug ]['extra_css'] ) ) {
+				$learn_menu_content[ $slug ]['extra_css'] = '';
+			}
+			if ( empty( $learn_menu_content[ $slug ]['video_title'] ) ) {
+				$learn_menu_content[ $slug ]['video_title'] = '';
 			}
 			if ( empty( $learn_menu_content[ $slug ]['icon_class'] ) ) {
 				$learn_menu_content[ $slug ]['icon_class'] = '';
@@ -721,7 +838,6 @@ class Learn_Menu {
 				'title'         => __( 'Dashboard', 'zero-bs-crm' ),
 				'url'           => 'https://jetpackcrm.com/feature/dashboard/',
 				'img'           => 'learn-dashboard.png',
-				'video'         => false,
 				'content'       => '<p>' . __( 'This your CRM dashboard. It shows you at a glance some key data from your CRM activity.', 'zero-bs-crm' ) . '</p><p>' . __( '<b>Sales Funnel</b> shows how effective you are at converting leads to customers.', 'zero-bs-crm' ) . '</p><p>' . __( '<b>Revenue Chart</b> shows you the overview of your transactions for the past few months.', 'zero-bs-crm' ) . '</p>',
 				'right_buttons' => '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_dash_page_options">' . esc_html__( 'Page options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>',
 			),
@@ -729,7 +845,6 @@ class Learn_Menu {
 				'title'           => __( 'Contacts', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/contacts/',
 				'img'             => 'learn-contact-list.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Here is your contact list. It is central to your CRM. You can manage your contacts here and apply quick filters.', 'zero-bs-crm' ) . '</p><p>' . __( 'Transactions Total is how much your contact has spent with you (for approved statuses). You can choose which transaction types should be included in your settings.', 'zero-bs-crm' ) . '</p><p>' . __( 'Total Value is the total value including other transaction statuses (pending, on-hold, etc) as well as the value of any unpaid invoices.', 'zero-bs-crm' ) . '</p>',
 				'filter_function' => 'jpcrm_contactlist_learn_menu',
 			),
@@ -737,7 +852,6 @@ class Learn_Menu {
 				'title'           => __( 'Viewing Contact', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/contacts/',
 				'img'             => 'learn-edit-contact.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'View Contact gives you an easy way to see your contact information in one place.', 'zero-bs-crm' ) . '</p>',
 				'back_slug'       => $zbs->slugs['managecontacts'],
 				'filter_function' => 'jpcrm_viewcontact_learn_menu',
@@ -746,7 +860,6 @@ class Learn_Menu {
 				'title'        => __( 'New Contact', 'zero-bs-crm' ),
 				'url'          => 'https://jetpackcrm.com/feature/contacts/',
 				'img'          => 'learn-import-contacts.png',
-				'video'        => false,
 				'content'      => '<p>' . __( 'There are plenty of ways which you can add contacts to your CRM', 'zero-bs-crm' ) . '</p><div class="ui divider"></div><p><strong>' . __( 'Adding them manually', 'zero-bs-crm' ) . '</strong> ' . __( 'You can add contacts manually. This takes time.', 'zero-bs-crm' ) . '</p><p><strong>' . __( 'Import from CSV', 'zero-bs-crm' ) . '</strong> ' . __( 'You can import via a CSV file.', 'zero-bs-crm' ) . '</p><p><strong>' . __( 'Import using our extensions', 'zero-bs-crm' ) . '</strong> ' . __( 'such as PayPal Sync, Stripe Sync or WooSync which will help get your contacts into your CRM automatically.', 'zero-bs-crm' ) . '</p>',
 				'left_buttons' => '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_page_options">' . esc_html__( 'Page options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>',
 				'back_slug'    => $zbs->slugs['managecontacts'],
@@ -755,7 +868,6 @@ class Learn_Menu {
 				'title'           => __( 'Edit Contact', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/contacts/',
 				'img'             => 'learn-edit-contact.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Keep the details of your contacts up to date.', 'zero-bs-crm' ) . '</p><p>' . __( '<strong>Key details</strong> should be kept up to date here. Your contacts email, their address, plus any additional information you want to hold on them.', 'zero-bs-crm' ) . '</p><p>' . sprintf( __( 'If the available fields below are not enough, you can add custom fields to your contacts record through the <a href="%s">custom field settings</a>', 'zero-bs-crm' ), admin_url( 'admin.php?page=' . $zbs->slugs['settings'] . '&tab=customfields' ) ) . '</p>',   // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
 				'back_slug'       => $zbs->slugs['managecontacts'],
 				'filter_function' => 'jpcrm_contactedit_learn_menu',
@@ -780,14 +892,12 @@ class Learn_Menu {
 				'title'   => __( 'Send Email', 'zero-bs-crm' ),
 				'url'     => 'https://jetpackcrm.com/feature/system-emails/',
 				'img'     => 'learn-send-email.png',
-				'video'   => false,
 				'content' => '<p>' . __( 'Send your contact a single email from this page.', 'zero-bs-crm' ) . '</p><p>' . __( '<strong>Emails</strong> sent from here are logged against your contact in their Activity log', 'zero-bs-crm' ) . '</p><p><img style="max-width:90%" src="' . ZEROBSCRM_URL . 'i/learn/learn-email-activity-log.png" alt="" /></p><p>' . __( 'Emails are sent using your chosen method of delivery (wp_mail, SMTP).', 'zero-bs-crm' ) . '</p>',
 			),
 			'viewcompany'        => array(
 				'title'           => __( 'Viewing ' . jpcrm_label_company(), 'zero-bs-crm' ), // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
 				'url'             => 'https://jetpackcrm.com/feature/b2b-mode/',
 				'img'             => 'learn-new-company.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'View ' . jpcrm_label_company() . ' gives you an overview of the key ' . jpcrm_label_company() . ' information. Including the ability to see which contacts work at the ' . jpcrm_label_company() . ' and click into viewing the contact information easily.', 'zero-bs-crm' ) . '</p>', // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
 				'back_slug'       => $zbs->slugs['managecompanies'],
 				'filter_function' => 'jpcrm_viewcompany_learn_menu',
@@ -819,19 +929,17 @@ class Learn_Menu {
 				'content'     => '<p>' . __( 'Add a new form and choose your form layout.', 'zero-bs-crm' ) . '</p><p>' . __( 'Each form has its views and submissions tracked.', 'zero-bs-crm' ) . '</p><p>' . __( 'The more information asked for on a form, the lower the submission rate. Only ask for what you need and keep your contact list growing fast.', 'zero-bs-crm' ) . '</p>',
 				'back_slug'   => $zbs->slugs['manageformscrm'],
 			),
-			'manage-events'      => array(
+			'manage-tasks'      => array(
 				'title'           => __( 'Task Calendar', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/tasks/',
 				'img'             => 'learn-task-calendar.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Tasks are our internal word for managing things to do related to contacts.', 'zero-bs-crm' ) . '</p><p>' . __( 'They are not intended to be a full appointment system operatable from the front end. They are useful to schedule short appointments and if using Client Portal Pro your clients can add them to their Calendar.', 'zero-bs-crm' ) . '</p>',
 				'filter_function' => 'jpcrm_taskcalendar_learn_menu',
 			),
-			'manage-events-list' => array(
+			'manage-tasks-list' => array(
 				'title'           => __( 'Task List', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/tasks/',
 				'img'             => 'learn-task-calendar.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Tasks are our internal word for managing things to do related to contacts.', 'zero-bs-crm' ) . '</p><p>' . __( 'They are not intended to be a full appointment system operatable from the front end. They are useful to schedule short appointments and if using Client Portal Pro your clients can add them to their Calendar.', 'zero-bs-crm' ) . '</p>',
 				'filter_function' => 'jpcrm_tasklistview_learn_menu',
 			),
@@ -839,7 +947,6 @@ class Learn_Menu {
 				'title'           => __( 'Edit Task', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/tasks/',
 				'img'             => 'learn-task-calendar.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Tasks are our internal word for managing things to do related to contacts.', 'zero-bs-crm' ) . '</p><p>' . __( 'They are not intended to be a full appointment system operatable from the front end. They are useful to schedule short appointments and if using Client Portal Pro your clients can add them to their Calendar.', 'zero-bs-crm' ) . '</p>',
 				'filter_function' => 'jpcrm_taskedit_learn_menu',
 			),
@@ -847,7 +954,6 @@ class Learn_Menu {
 				'title'           => __( 'New Task', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/tasks/',
 				'img'             => 'learn-task-calendar.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Tasks are our internal word for managing things to do related to contacts.', 'zero-bs-crm' ) . '</p><p>' . __( 'They are not intended to be a full appointment system operatable from the front end. They are useful to schedule short appointments and if using Client Portal Pro your clients can add them to their Calendar.', 'zero-bs-crm' ) . '</p>',
 				'filter_function' => 'jpcrm_tasknew_learn_menu',
 			),
@@ -855,7 +961,6 @@ class Learn_Menu {
 				'title'           => __( 'Quotes', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/quotes/',
 				'img'             => 'learn-quote-list.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Here is your list of quotes. You can see which quotes you have issued in the past.', 'zero-bs-crm' ) . '</p><p>' . __( 'You can also change the status of quotes in Bulk Actions by ticking a quote row.', 'zero-bs-crm' ) . '</p>',
 				'filter_function' => 'jpcrm_quotelist_learn_menu',
 			),
@@ -863,7 +968,6 @@ class Learn_Menu {
 				'title'        => __( 'New Quote', 'zero-bs-crm' ),
 				'url'          => 'https://jetpackcrm.com/feature/quotes/',
 				'img'          => 'learn-new-quote.png',
-				'video'        => false,
 				'content'      => '<p>' . __( 'Add a new quote here. When creating a quote you fill in the key details such as contact name and quote value. You can then choose which template should populate the quote content.', 'zero-bs-crm' ) . '</p><p>' . __( 'Templates automatically fill in the contact fields and save you time if you regularly issue similar quotes.', 'zero-bs-crm' ) . '</p>',
 				'left_buttons' => '<div id="zbs-quote-learn-nav"></div>',
 				'back_slug'    => $zbs->slugs['managequotes'],
@@ -872,8 +976,6 @@ class Learn_Menu {
 				'title'        => __( 'Edit Quote', 'zero-bs-crm' ),
 				'url'          => 'https://jetpackcrm.com/feature/quotes/',
 				'img'          => 'learn-new-quote.png',
-				'video'        => false,
-				'content'      => '<p></p>',
 				'left_buttons' => '<div id="zbs-quote-learn-nav"></div>',
 				'back_slug'    => $zbs->slugs['managequotes'],
 			),
@@ -897,7 +999,6 @@ class Learn_Menu {
 				'title'        => __( 'New Transaction', 'zero-bs-crm' ),
 				'url'          => 'https://jetpackcrm.com/feature/transactions/',
 				'img'          => 'learn-trans.png',
-				'video'        => false,
 				'content'      => '<p>' . __( 'Adding a new transaction is easy. You should assign it to a contact and then optionally to an invoice.', 'zero-bs-crm' ) . '</p><p>' . __( 'Assigned transactions are deducted from the balance of an invoice and feed into the total value for the contact.', 'zero-bs-crm' ) . '</p><p>' . __( 'Be sure to define which transaction statuses to include in totals via the Transactions tab in CRM Settings.', 'zero-bs-crm' ) . '</p>',
 				'left_buttons' => '<div id="zbs-transaction-learn-nav"></div>',
 				'back_slug'    => $zbs->slugs['managetransactions'],
@@ -906,7 +1007,6 @@ class Learn_Menu {
 				'title'        => __( 'Edit Transaction', 'zero-bs-crm' ),
 				'url'          => 'https://jetpackcrm.com/feature/transactions/',
 				'img'          => 'learn-trans.png',
-				'video'        => false,
 				'content'      => '<p>' . __( 'Editing a Transaction is easy. You should assign it to a contact and then optionally to an invoice.', 'zero-bs-crm' ) . '</p><p>' . __( 'Assigned transactions are deducted from the balance of an invoice and feed into the total value for the contact.', 'zero-bs-crm' ) . '</p><p>' . __( 'Be sure to define which transaction statuses to include in totals via the Transactions tab in CRM Settings.', 'zero-bs-crm' ) . '</p>',
 				'left_buttons' => '<div id="zbs-transaction-learn-nav"></div>',
 				'back_slug'    => $zbs->slugs['managetransactions'],
@@ -915,7 +1015,6 @@ class Learn_Menu {
 				'title'           => __( 'Transactions', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/transactions/',
 				'img'             => 'learn-transactions-list.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Here is your transactions list. This transactions of all statuses, such as completed, refunded, cancelled, and failed. You can manage your transactions and see who has made them.', 'zero-bs-crm' ) . '</p><p>' . __( 'You can choose which transaction types should be included in totals in the Transactions tab of the CRM settings.', 'zero-bs-crm' ) . '</p>',
 				'filter_function' => 'jpcrm_transactionlist_learn_menu',
 			),
@@ -923,7 +1022,6 @@ class Learn_Menu {
 				'title'         => __( 'Quote Templates', 'zero-bs-crm' ),
 				'url'           => 'https://jetpackcrm.com/feature/quotes/',
 				'img'           => 'learn-quote-template.png',
-				'video'         => false,
 				'content'       => '<p>' . __( 'Quote templates save you time. You can enter placeholders so that when you generate a new quote using the template, the contact fields are automatically populated.', 'zero-bs-crm' ) . '</p>',
 				'right_buttons' => ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_quo_template', false ) . '#free-extensions-tour" class="jpcrm-button font-14px" id="add-template">' . __( 'Add new template', 'zero-bs-crm' ) . '</a>',
 			),
@@ -931,7 +1029,6 @@ class Learn_Menu {
 				'title'     => __( 'New Quote Template', 'zero-bs-crm' ),
 				'url'       => 'https://jetpackcrm.com/feature/quotes/',
 				'img'       => 'learn-quote-templates.png',
-				'video'     => false,
 				'content'   => '<p>' . __( 'A quote template is where you should populate all the business information when putting together a proposal or quote for your services.', 'zero-bs-crm' ) . '</p><p>' . __( 'Templates save time, since in new quotes you can just edit any price information and be up and running in seconds vs. typing out all the details again.', 'zero-bs-crm' ) . '</p>',
 				'back_slug' => $zbs->slugs['quote-templates'],
 			),
@@ -939,7 +1036,6 @@ class Learn_Menu {
 				'title'     => __( 'Edit Quote Template', 'zero-bs-crm' ),
 				'url'       => 'https://jetpackcrm.com/feature/quotes/',
 				'img'       => 'learn-quote-templates.png',
-				'video'     => false,
 				'content'   => '<p>' . __( 'A quote template is where you should populate all the business information when putting together a proposal or quote for your services.', 'zero-bs-crm' ) . '</p><p>' . __( 'Templates save time, since in new quotes you can just edit any price information and be up and running in seconds vs. typing out all the details again.', 'zero-bs-crm' ) . '</p>',
 				'back_slug' => $zbs->slugs['quote-templates'],
 			),
@@ -947,7 +1043,6 @@ class Learn_Menu {
 				'title'           => __( 'Invoices', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/invoices/',
 				'img'             => 'learn-invoice-list.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Here is your Invoice List. It shows you all your invoices. You can search and filter the list to find the invoices you want.', 'zero-bs-crm' ) . '</p>',
 				'filter_function' => 'jpcrm_invoicelist_learn_menu',
 			),
@@ -955,7 +1050,6 @@ class Learn_Menu {
 				'title'           => __( 'New Invoice', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/invoices/',
 				'img'             => 'learn-new-invoice.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Having invoices in your CRM is a great way to keep contacts and payments together.', 'zero-bs-crm' ) . '</p><p>' . __( 'Do you want to provide PDF invoices to your clients? Simple. Choose the PDF option and download your invoices as PDF.', 'zero-bs-crm' ) . '</p><p>' . __( 'The real power of invoicing comes when you allow your invoices to be accessed and paid straight from your client portal using Invoicing Pro.', 'zero-bs-crm' ) . '</p>',
 				'left_buttons'    => '<div id="zbs-invoice-learn-nav"></div>',
 				'back_slug'       => $zbs->slugs['manageinvoices'],
@@ -965,7 +1059,6 @@ class Learn_Menu {
 				'title'           => __( 'Edit Invoice', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/invoices/',
 				'img'             => 'learn-invoice-list.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Having invoices in your CRM is a great way to keep contacts and payments together.', 'zero-bs-crm' ) . '</p><p>' . __( 'Do you want to provide PDF invoices to your clients? Simple. Choose the PDF option and download your invoices as PDF.', 'zero-bs-crm' ) . '</p><p>' . __( 'The real power of invoicing comes when you allow your invoices to be accessed and paid straight from your client portal using Invoicing Pro.', 'zero-bs-crm' ) . '</p>',
 				'left_buttons'    => '<div id="zbs-invoice-learn-nav"></div>',
 				'back_slug'       => $zbs->slugs['manageinvoices'],
@@ -983,35 +1076,32 @@ class Learn_Menu {
 				'title'   => __( 'Your Team', 'zero-bs-crm' ),
 				'url'     => 'https://jetpackcrm.com/feature/team/',
 				'img'     => 'learn-zbs-team.png',
-				'video'   => false,
 				'content' => '<p>' . __( 'Here is your CRM team. You can see what role your team members have and when they were last active.', 'zero-bs-crm' ) . '</p>',
 			),
 			'teamadd'            => array(
 				'title'   => __( 'Add New Team Member', 'zero-bs-crm' ),
 				'url'     => 'https://jetpackcrm.com/feature/team/',
 				'img'     => 'learn-zbs-team.png',
-				'video'   => false,
 				'content' => '<p>' . __( 'As your business grows you will want to expand your team.', 'zero-bs-crm' ) . '</p><p>' . __( 'Add new team members or search existing WordPress users to add them to your team.', 'zero-bs-crm' ) . '</p><p>' . __( 'WordPress Administrator level by default has access to everything. You can manage your other user permissions here.', 'zero-bs-crm' ) . '</p>',
 			),
 			'teamedit'           => array(
 				'title'   => __( 'Edit Team Member', 'zero-bs-crm' ),
 				'url'     => 'https://jetpackcrm.com/feature/team/',
 				'img'     => 'learn-zbs-team.png',
-				'video'   => false,
 				'content' => '<p>' . __( 'As your business grows you will want to expand your team.', 'zero-bs-crm' ) . '</p><p>' . __( 'Add new team members or search existing WordPress users to add them to your team.', 'zero-bs-crm' ) . '</p><p>' . __( 'WordPress Administrator level by default has access to everything. You can manage your other user permissions here.', 'zero-bs-crm' ) . '</p>',
 			),
 			'extensions'         => array(
-				'title'   => __( 'Extensions', 'zero-bs-crm' ),
-				'url'     => 'https://jetpackcrm.com/pricing/',
-				'img'     => 'learn-extensions-list.png',
-				'video'   => false,
-				'content' => '<p>' . sprintf( __( 'The core of the CRM is free to use, and you can manage your core modules (extensions) <a href="%s">here</a>; this page lets you manage premium extensions.', 'zero-bs-crm' ), admin_url( 'admin.php?page=' . $zbs->slugs['modules'] ) ) . '</p><p>' . __( '<b>Premium Extensions</b> Want all the extensions? Purchase our Entrepeneur Bundle to get access to them all.', 'zero-bs-crm' ) . '</p>', // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+				'title'           => __( 'Extensions', 'zero-bs-crm' ),
+				'url'             => 'https://jetpackcrm.com/pricing/',
+				'img'             => 'learn-extensions-list.png',
+				'video'           => false,
+				'content'         => '<p>' . sprintf( __( 'The core of the CRM is free to use, and you can manage your core modules (extensions) <a href="%s">here</a>; this page lets you manage premium extensions.', 'zero-bs-crm' ), admin_url( 'admin.php?page=' . $zbs->slugs['modules'] ) ) . '</p><p>' . __( '<b>Premium Extensions</b> Want all the extensions? Purchase our Entrepeneur Bundle to get access to them all.', 'zero-bs-crm' ) . '</p>', // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+				'filter_function' => 'jpcrm_extensions_learn_menu',
 			),
 			'managecompanies'    => array(
 				'title'           => __( jpcrm_label_company( true ), 'zero-bs-crm' ), // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
 				'url'             => 'https://jetpackcrm.com/feature/companies/',
 				'img'             => 'learn-company-list.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Keep track of important ', 'zero-bs-crm' ) . jpcrm_label_company() . __( ' level relationships in your CRM', 'zero-bs-crm' ) . '</p><p>' . __( 'Managing ', 'zero-bs-crm' ) . jpcrm_label_company( true ) . __( ' is a way of seeing which contacts work at which ', 'zero-bs-crm' ) . jpcrm_label_company() . __( ' If you have three or four contacts who keep in touch with you, it is useful to know which ', 'zero-bs-crm' ) . jpcrm_label_company() . __( ' they all share in common.', 'zero-bs-crm' ) . '</p>',
 				'filter_function' => 'jpcrm_companylist_learn_menu',
 			),
@@ -1019,7 +1109,6 @@ class Learn_Menu {
 				'title'     => sprintf( __( 'New %s', 'zero-bs-crm' ), jpcrm_label_company() ), // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
 				'url'       => 'https://jetpackcrm.com/feature/companies/',
 				'img'       => 'learn-company-list.png',
-				'video'     => false,
 				'content'   => '<p>' . __( 'Add a New Company to your CRM. When adding a ', 'zero-bs-crm' ) . jpcrm_label_company() . __( ' you can also choose which contacts to assign to the ', 'zero-bs-crm' ) . jpcrm_label_company() . __( '.', 'zero-bs-crm' ) . '</p><p>' . __( 'Managing large clients, this gives you an easy way to zero in on contacts at a particular company.', 'zero-bs-crm' ) . '</p>',
 				'back_slug' => $zbs->slugs['managecompanies'],
 			),
@@ -1027,7 +1116,6 @@ class Learn_Menu {
 				'title'           => sprintf( __( 'Edit %s', 'zero-bs-crm' ), jpcrm_label_company() ), // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
 				'url'             => 'https://jetpackcrm.com/feature/companies/',
 				'img'             => 'learn-company-list.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Editing a Company in your CRM. When editing a ', 'zero-bs-crm' ) . jpcrm_label_company() . __( ' you can also choose which contacts to assign to the ', 'zero-bs-crm' ) . jpcrm_label_company() . __( '.', 'zero-bs-crm' ) . '</p><p>' . __( 'Managing large clients, this gives you an easy way to zero in on contacts at a particular company.', 'zero-bs-crm' ) . '</p>',
 				'back_slug'       => $zbs->slugs['managecompanies'],
 				'filter_function' => 'jpcrm_companyedit_learn_menu',
@@ -1036,35 +1124,30 @@ class Learn_Menu {
 				'title'   => __( 'Settings: Mail', 'zero-bs-crm' ),
 				'url'     => 'https://jetpackcrm.com/feature/system-emails/',
 				'img'     => 'learn-mail.png',
-				'video'   => false,
 				'content' => '<p>' . __( 'Your mail settings control the emails that are sent out of your CRM.', 'zero-bs-crm' ) . '</p><p>' . __( 'You can choose how you want your email "From" name to look when single emails are sent and setup various mail delivery options (such as adding your STMP settings).', 'zero-bs-crm' ) . '</p>',
 			),
 			'maildelivery'       => array(
 				'title'   => __( 'Settings: Mail Delivery', 'zero-bs-crm' ),
 				'url'     => 'https://jetpackcrm.com/feature/mail-delivery/',
 				'img'     => 'learn-mail-delivery.png',
-				'video'   => false,
 				'content' => '<p>' . __( 'Mail delivery options help you improve your CRM email deliverability. If you are running Mail Campaigns or our mail templates you may also wish to choose which email account sends the emails (or system emails).', 'zero-bs-crm' ) . '</p><p>' . __( 'You could have your new client account emails come from one email and your invoices come from another email.', 'zero-bs-crm' ) . '</p>',
 			),
 			'email-templates'    => array(
 				'title'   => __( 'System Email Templates', 'zero-bs-crm' ),
 				'url'     => 'https://jetpackcrm.com/feature/system-emails/',
 				'img'     => 'learn-mail.png',
-				'video'   => false,
 				'content' => '<p>' . __( 'Edit your different system email templates.', 'zero-bs-crm' ) . '</p>',
 			),
 			'recent-emails'      => array(
 				'title'   => __( 'Recent Email Activity', 'zero-bs-crm' ),
 				'url'     => 'https://jetpackcrm.com/feature/system-emails/',
 				'img'     => 'learn-mail.png',
-				'video'   => false,
 				'content' => '<p>' . __( 'Recent email activity across your CRM email templates.', 'zero-bs-crm' ) . '</p>',
 			),
 			'template-settings'  => array(
 				'title'   => __( 'Template Settings', 'zero-bs-crm' ),
 				'url'     => 'https://jetpackcrm.com/feature/system-emails/',
 				'img'     => 'learn-mail.png',
-				'video'   => false,
 				'content' => '<p>' . __( 'Manage your main email template settings.', 'zero-bs-crm' ) . '</p>',
 			),
 			'viewsegment'        => array(
@@ -1103,7 +1186,6 @@ class Learn_Menu {
 				'title'           => __( 'Notifications', 'zero-bs-crm' ),
 				'url'             => 'https://kb.jetpackcrm.com/knowledge-base/jetpack-crm-notifications/',
 				'img'             => 'learn-notifications.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'When you are running your CRM you want to be kept up to date with everything.', 'zero-bs-crm' ) . '</p><p>' . __( 'Notifications are here to help keep you notified. Here is where you will see useful messages and updates from us.', 'zero-bs-crm' ) . '</p>',
 				'filter_function' => 'jpcrm_notifications_learn_menu',
 			),
@@ -1111,7 +1193,6 @@ class Learn_Menu {
 				'title'   => __( 'Export Tools', 'zero-bs-crm' ),
 				'url'     => 'https://kb.jetpackcrm.com/knowledge-base/how-to-export-company-data/',
 				'img'     => 'learn-export-tools.png',
-				'video'   => false,
 				'content' => '<p>' . __( 'Here is the central area for exporting information from your CRM.', 'zero-bs-crm' ) . '</p><p>' . __( 'Export to keep backups offline, to do additional analysis in a spreadsheet, or to import into other tools you use.', 'zero-bs-crm' ) . '</p>',
 			),
 			'datatools'          => array(
@@ -1125,7 +1206,6 @@ class Learn_Menu {
 			'systemstatus'       => array(
 				'title'   => __( 'System Assistant', 'zero-bs-crm' ),
 				'img'     => 'learn-system-settings.png',
-				'video'   => false,
 				'content' => '<p>' . __( 'This page is your CRM backend hub. You can use the System Assistant to guide your setup, or the System Status tab lets you see the various server and software settings which exist behind the scenes in your Jetpack CRM install.', 'zero-bs-crm' ) . '</p><p>' . __( 'You will not need to change anything here, but our support team might ask you to load this page to retrieve a status flag.', 'zero-bs-crm' ) . '</p>',
 			),
 			'modules'            => array(
@@ -1136,53 +1216,37 @@ class Learn_Menu {
 				'content'     => '<p>' . __( 'From this page you can manage which core modules are enabled, it gives you ultimate control of the areas of your CRM that you plan to use or hide. Modules are kind of like bundled CRM extensions and vary from object-areas like Invoices to functionality like adding PDF generation.', 'zero-bs-crm' ) . '</p><p>' . sprintf( __( 'If you want to manage your premium extensions, you can do that <a href="%s">here</a>.', 'zero-bs-crm' ), admin_url( 'admin.php?page=' . $zbs->slugs['extensions'] ) ) . '</p>', // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
 			),
 			'export'             => array(
-				'title'   => __( 'Export', 'zero-bs-crm' ),
-				'url'     => 'https://kb.jetpackcrm.com/knowledge-base/how-to-export-company-data/',
-				'img'     => 'learn-extensions-list.png',
-				'video'   => false,
-				'content' => '<p></p>',
+				'title' => __( 'Export', 'zero-bs-crm' ),
+				'url'   => 'https://kb.jetpackcrm.com/knowledge-base/how-to-export-company-data/',
+				'img'   => 'learn-extensions-list.png',
 			),
 			'bulktagger'         => array(
-				'title'   => __( 'Bulk Tagger', 'zero-bs-crm' ),
-				'url'     => 'https://kb.jetpackcrm.com/article-categories/bulk-tagger/',
-				'img'     => 'learn-extensions-list.png',
-				'video'   => false,
-				'content' => '<p></p>',
+				'title' => __( 'Bulk Tagger', 'zero-bs-crm' ),
+				'url'   => 'https://kb.jetpackcrm.com/article-categories/bulk-tagger/',
+				'img'   => 'learn-extensions-list.png',
 			),
 			'salesdash'          => array(
-				'title'   => __( 'Sales Dashboard', 'zero-bs-crm' ),
-				'url'     => 'https://kb.jetpackcrm.com/article-categories/sales-dashboard/',
-				'img'     => 'learn-extensions-list.png',
-				'video'   => false,
-				'content' => '<p></p>',
+				'title' => __( 'Sales Dashboard', 'zero-bs-crm' ),
+				'url'   => 'https://kb.jetpackcrm.com/article-categories/sales-dashboard/',
+				'img'   => 'learn-extensions-list.png',
 			),
 			'home'               => array(
-				'title'   => __( 'Home', 'zero-bs-crm' ),
-				'url'     => 'https://jetpackcrm.com/',
-				'img'     => 'learn-extensions-list.png',
-				'video'   => false,
-				'content' => '<p></p>',
-				'hide'    => true,
+				'show_learn' => false,
 			),
 			'welcome'            => array(
-				'title'   => __( 'Welcome', 'zero-bs-crm' ),
-				'url'     => 'https://jetpackcrm.com/',
-				'img'     => 'learn-contact-list.png',
-				'video'   => false,
-				'content' => '<p></p>',
+				'title' => __( 'Welcome', 'zero-bs-crm' ),
+				'url'   => 'https://jetpackcrm.com/',
+				'img'   => 'learn-contact-list.png',
 			),
 			'sync'               => array(
-				'title'   => __( 'Sync Tools', 'zero-bs-crm' ),
-				'url'     => 'https://jetpackcrm.com/pricing/',
-				'img'     => 'learn-contact-list.png',
-				'video'   => false,
-				'content' => '<p></p>',
+				'title' => __( 'Sync Tools', 'zero-bs-crm' ),
+				'url'   => 'https://jetpackcrm.com/pricing/',
+				'img'   => 'learn-contact-list.png',
 			),
 			'settings'           => array(
 				'title'           => __( 'Settings', 'zero-bs-crm' ),
 				'url'             => 'https://kb.jetpackcrm.com/knowledge-base/settings-page/',
 				'img'             => 'learn-settings-page.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'This settings page lets you control all of the different areas of Jetpack CRM. As you install extensions you will also see their settings pages showing up on the left hand menu below.', 'zero-bs-crm' ),
 				'filter_function' => 'jpcrm_settings_learn_menu',
 			),
@@ -1190,35 +1254,25 @@ class Learn_Menu {
 				'title'           => __( 'Emails', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/emails',
 				'img'             => 'learn-emails.png',
-				'video'           => false,
 				'content'         => '<p>' . __( 'Emails are centric to your CRM communications. Send emails to your contacts and schedule them to send at certain times in the future (if conditions are met).', 'zero-bs-crm' ) . '</p><p>' . __( 'Check out our System Emails Pro extension to extend the email functionality.', 'zero-bs-crm' ) . '</p>',
 				'filter_function' => 'jpcrm_emails_learn_menu',
 			),
 			'profile'            => array(
 				'title'   => __( 'Your Profile', 'zero-bs-crm' ),
 				'img'     => 'learn-your-profile.png',
-				'video'   => false,
 				'content' => '<p>' . __( 'This is your profile page.', 'zero-bs-crm' ) . '</p>',
 			),
 			'crmresources'       => array(
 				'title'   => __( 'CRM Resources', 'zero-bs-crm' ),
-				'img'     => '',
-				'video'   => false,
 				'content' => '<p>' . __( 'The CRM Resources page collects together the general resources for CRM Admins.', 'zero-bs-crm' ) . '</p>',
 			),
 			'delete'             => array(
 				'title'           => __( 'Delete', 'zero-bs-crm' ),
-				'img'             => '',
-				'video'           => false,
-				'content'         => '<p></p>',
 				'output_function' => 'jpcrm_delete_learn_menu',
 			),
 			'csvlite'            => array(
 				'title'           => __( 'CSV Importer Lite', 'zero-bs-crm' ),
-				'img'             => '',
-				'video'           => false,
 				'learn_title'     => esc_html__( 'Import contacts from CSV', 'zero-bs-crm' ),
-				'content'         => '<p></p>',
 				'filter_function' => 'jpcrm_csvlite_learn_menu',
 			),
 		);
@@ -1229,9 +1283,6 @@ class Learn_Menu {
 		if ( isset( $zbs->slugs['stripesync'] ) ) {
 			$learn_menu_array[ $zbs->slugs['stripesync'] ] = array(
 				'title'           => __( 'Stripe Sync', 'zero-bs-crm' ),
-				'img'             => '',
-				'video'           => false,
-				'content'         => '<p></p>',
 				'output_function' => 'zeroBSCRM_stripesync_learn_menu',
 			);
 		}
@@ -1239,9 +1290,6 @@ class Learn_Menu {
 		if ( isset( $zbs->slugs['woosync'] ) ) {
 			$learn_menu_array[ $zbs->slugs['woosync'] ] = array(
 				'title'           => 'WooSync',
-				'img'             => '',
-				'video'           => false,
-				'content'         => '<p></p>',
 				'output_function' => 'zeroBSCRM_woosync_learn_menu',
 			);
 		}
@@ -1249,9 +1297,6 @@ class Learn_Menu {
 		if ( isset( $zbs->slugs['mailpoet'] ) ) {
 			$learn_menu_array[ $zbs->slugs['mailpoet'] ] = array(
 				'title'           => 'MailPoet',
-				'img'             => '',
-				'video'           => false,
-				'content'         => '<p></p>',
 				'output_function' => 'zeroBSCRM_mailpoet_learn_menu',
 			);
 		}
@@ -1259,9 +1304,6 @@ class Learn_Menu {
 		if ( isset( $zbs->slugs['paypalsync'] ) ) {
 			$learn_menu_array[ $zbs->slugs['paypalsync'] ] = array(
 				'title'           => 'PayPal Sync',
-				'img'             => '',
-				'video'           => false,
-				'content'         => '<p></p>',
 				'output_function' => 'zeroBSCRM_paypalsync_learn_menu',
 			);
 		}
@@ -1271,4 +1313,35 @@ class Learn_Menu {
 		return $learn_menu_array;
 	}
 
+	/**
+	 * Retrieves the CSS classes for the Learn menu container.
+	 *
+	 * @return string The CSS classes for the Learn menu container.
+	 */
+	private function get_learn_menu_container_css_classes() {
+		$classes = 'jpcrm-learn-menu-container';
+
+		if ( isset( $_GET['page'] ) && jpcrm_is_full_width_page( wp_unslash( $_GET['page'] ) ) ) { // phpcs:ignore
+			$classes .= ' jpcrm-full-width';
+		}
+
+		$classes = apply_filters( 'jetpack_crm_learn_menu_container_css_classes', $classes );
+		return $classes;
+	}
+
+	/**
+	 * Retrieves the CSS classes for the Learn menu.
+	 *
+	 * @return string The CSS classes for the Learn menu.
+	 */
+	private function get_learn_menu_css_classes() {
+		$classes = 'jpcrm-learn-menu';
+
+		if ( isset( $_GET['page'] ) && jpcrm_is_full_width_page( wp_unslash( $_GET['page'] ) ) ) { // phpcs:ignore
+			$classes .= ' jpcrm-full-width';
+		}
+
+		$classes = apply_filters( 'jetpack_crm_learn_menu_css_classes', $classes );
+		return $classes;
+	}
 }

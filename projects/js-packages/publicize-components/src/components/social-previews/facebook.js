@@ -1,23 +1,20 @@
 import { FacebookPreviews as Previews } from '@automattic/social-previews';
-import { withSelect } from '@wordpress/data';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { useSelect, withSelect } from '@wordpress/data';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import { SOCIAL_STORE_ID, CONNECTION_SERVICE_FACEBOOK } from '../../social-store';
 
 const FacebookPreview = props => {
-	const { connections } = useSocialMediaConnections();
 	const { message } = useSocialMediaMessage();
 
 	const { title, excerpt, content } = props;
-	const connection = connections?.find( conn => conn.service_name === 'facebook' );
 
-	let user;
+	const user = useSelect( select => {
+		const { displayName, profileImage: avatarUrl } = select(
+			SOCIAL_STORE_ID
+		).getConnectionProfileDetails( CONNECTION_SERVICE_FACEBOOK );
 
-	if ( connection ) {
-		user = {
-			displayName: connection.display_name,
-			avatarUrl: connection.profile_picture,
-		};
-	}
+		return { displayName, avatarUrl };
+	} );
 
 	return (
 		<Previews

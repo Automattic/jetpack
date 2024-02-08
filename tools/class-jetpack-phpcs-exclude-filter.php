@@ -27,17 +27,10 @@ class Jetpack_Phpcs_Exclude_Filter extends Automattic\Jetpack\PhpcsFilter {
 			return;
 		}
 
-		$lines = json_decode( file_get_contents( __DIR__ . '/phpcs-excludelist.json' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		$lines = array_filter(
-			$lines,
-			function ( $line ) {
-				$line = trim( $line );
-				return '' !== $line && '#' !== $line[0];
-			}
-		);
+		$lines = json_decode( file_get_contents( __DIR__ . '/phpcs-excludelist.json' ) );
 		$lines = array_map(
 			function ( $line ) {
-				return $this->basedir . '/' . $line;
+				return $this->filterBaseDir . '/' . $line;
 			},
 			$lines
 		);
@@ -71,5 +64,4 @@ class Jetpack_Phpcs_Exclude_Filter extends Automattic\Jetpack\PhpcsFilter {
 		$ret->exclude = $this->exclude;
 		return $ret;
 	}
-
 }

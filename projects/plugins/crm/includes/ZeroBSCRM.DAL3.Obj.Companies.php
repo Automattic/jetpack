@@ -50,7 +50,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
             'input_type' => 'select',
             'label' => 'Status',
             'placeholder'=>'',
-			'options'               => array( 'Lead', 'Customer', 'Refused', 'Blacklisted' ),
+			'options'               => array( 'Lead', 'Customer', 'Refused' ),
             'essential' => true,
             'max_len' => 50,
             'do_not_show_on_portal' => true
@@ -334,6 +334,33 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 
     }
 
+	/**
+	 * Retrieves the company ID by its name.
+	 *
+	 * @param  string $name  The name of the company whose ID is to be retrieved.
+	 * @return int|bool      Returns the ID of the company if found, false otherwise.
+	 *
+	 * @throws Exception     Catches and handles exceptions, logging SQL errors.
+	 *
+	 * @since  6.2.0
+	 */
+	public function get_company_id_by_name( $name ) {
+		global $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		global $wpdb;
+
+		try {
+			$query  = $this->prepare( 'SELECT ID FROM ' . $ZBSCRM_t['companies'] . ' WHERE zbsco_name LIKE %s', $name ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$result = $wpdb->get_row( $query, OBJECT ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared
+
+			if ( isset( $result ) && ( $result->ID ) ) {
+				return $result->ID;
+			}
+		} catch ( Exception $e ) {
+			$this->catchSQLError( $e );
+		}
+		return false;
+	}
+
     /**
      * returns full company line +- details
      *
@@ -388,6 +415,8 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
             (!empty($id) && $id > 0)
             ||
             (!empty($email))
+					||
+					( ! empty( $name ) )
             ||
             (!empty($externalSource) && !empty($externalSourceUID))
             ){
@@ -766,7 +795,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                 'assignedCompany'   => $potentialRes->ID, // assigned to company id (int)
                                 'page'       => -1,
                                 'perPage'       => -1,
-                                'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT),                                    
+                                'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK),                                    
                                 'sortByField'   => 'zbse_start',
                                 'sortOrder'     => 'DESC',
                                 'withAssigned'  => false // no need, it's assigned to this obj already
@@ -1287,7 +1316,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 
                         // where status = x
                         // USE hasStatus above now...
-                        if (substr($qFilter,0,7) == 'status_'){
+				if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                             $qFilterStatus = substr($qFilter,7);
                             $qFilterStatus = str_replace('_',' ',$qFilterStatus);
@@ -1295,21 +1324,21 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                             // check status
                             $wheres['quickfilterstatus'] = array('zbsco_status','LIKE','%s',ucwords($qFilterStatus));
 
-                        } elseif (substr($qFilter,0,14) == 'notcontactedin'){
+				} elseif ( str_starts_with( $qFilter, 'notcontactedin' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                                 // check
                                 $notcontactedinDays = (int)substr($qFilter,14);
                                 $notcontactedinDaysSeconds = $notcontactedinDays*86400;
                                 $wheres['notcontactedinx'] = array('zbsco_lastcontacted','<','%d',time()-$notcontactedinDaysSeconds);
 
-                        } elseif (substr($qFilter,0,9) == 'olderthan'){
+				} elseif ( str_starts_with( $qFilter, 'olderthan' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                                 // check
                                 $olderThanDays = (int)substr($qFilter,9);
                                 $olderThanDaysSeconds = $olderThanDays*86400;
                                 $wheres['olderthanx'] = array('zbsco_created','<','%d',time()-$olderThanDaysSeconds);
 
-                        } else {
+				} else {
 
                                 // normal/hardtyped
 
@@ -1646,7 +1675,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                     'assignedCompany'   => $resDataLine->ID, // assigned to company id (int)
                                     'page'       => -1,
                                     'perPage'       => -1,
-                                    'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT),                                    
+                                    'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK),                                    
                                     'sortByField'   => 'zbse_start',
                                     'sortOrder'     => 'DESC',
                                     'withAssigned'  => false // no need, it's assigned to this obj already
@@ -1836,7 +1865,10 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                         // some weird case where getting empties, so added check
                         if (isset($field['key']) && !empty($field['key'])){ 
 
-                            $dePrefixed = ''; if (substr($field['key'],0,strlen('zbsco_')) === 'zbsco_') $dePrefixed = substr($field['key'], strlen('zbsco_'));
+						$dePrefixed = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $field['key'], 'zbsco_' ) ) {
+							$dePrefixed = substr( $field['key'], strlen( 'zbsco_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 
                             if (isset($customFields[$field['key']])){
 
@@ -2171,6 +2203,8 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                 #} Check if obj exists (here) - for now just brutal update (will error when doesn't exist)
                 $originalStatus = $this->getCompanyStatus($id);
 
+				$previous_company_obj = $this->getCompany( $id );
+
                 // log any change of status
                 if (isset($dataArr['zbsco_status']) && !empty($dataArr['zbsco_status']) && !empty($originalStatus) && $dataArr['zbsco_status'] != $originalStatus){
 
@@ -2398,7 +2432,8 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                 zeroBSCRM_FireInternalAutomator('company.update',array(
                                     'id'=>$id,
                                     'againstid' => $id,
-                                    'data'=> $dataArr
+									'data'         => $dataArr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									'prev_company' => $previous_company_obj,
                                     ));
 
                                 
@@ -2777,12 +2812,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                 // and if have invs + trans totals, add to make total val
                 // This now accounts for "part payments" where trans are part/whole payments against invs
                 if (isset($res['invoices_total']) || isset($res['transactions_total'])){
-                    
-                    $invTotal = 0.0; if (isset($res['invoices_total'])) $invTotal = $res['invoices_total'];
-                    $transTotal = 0.0; if (isset($res['transactions_total'])) $transTotal = $res['transactions_total'];
-
-                    $res['total_value'] = $invTotal + $transTotal;
-                    if (isset($res['transactions_paid_total']) && $res['transactions_paid_total'] > 0) $res['total_value'] -= $res['transactions_paid_total'];
+							$res['total_value'] = jpcrm_get_total_value_from_contact_or_company( $res );
                 }
                 
             // custom fields - tidy any that are present:
@@ -2859,7 +2889,6 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
     
     /**
      * Returns an ownerid against a company
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id company ID
      *
@@ -3363,5 +3392,4 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 
     // =========== / Formatting    ===================================================
     // ===============================================================================
-
 } // / class

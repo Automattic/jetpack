@@ -176,14 +176,14 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'fetch_site_info' )
 			->with( 'http://test.com' )
-			->will( $this->returnValue( ( 'test_param_1' ) ) );
+			->willReturn( ( 'test_param_1' ) );
 
 		$test_error = new WP_Error( 'broke', 'the', 'test' );
 
 		$mock->expects( $this->any() )
 			->method( 'parse_site_info_response' )
 			->with( 'test_param_1' )
-			->will( $this->returnValue( $test_error ) );
+			->willReturn( $test_error );
 
 		$mock->expects( $this->never() )
 			->method( 'fetch_posts_for_site' );
@@ -240,24 +240,24 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'fetch_site_info' )
 			->with( 'http://test.com' )
-			->will( $this->returnValue( 'test_param_1' ) );
+			->willReturn( 'test_param_1' );
 
 		$mock->expects( $this->any() )
 			->method( 'parse_site_info_response' )
 			->with( 'test_param_1' )
-			->will( $this->returnValue( ( (object) ( array( 'ID' => 'test_id' ) ) ) ) );
+			->willReturn( ( (object) ( array( 'ID' => 'test_id' ) ) ) );
 
 		$mock->expects( $this->any() )
 			->method( 'fetch_posts_for_site' )
 			->with( 'test_id' )
-			->will( $this->returnValue( 'test_param_2' ) );
+			->willReturn( 'test_param_2' );
 
 		$test_error = new WP_Error( 'broke', 'the', 'test' );
 
 		$mock->expects( $this->any() )
 			->method( 'parse_posts_response' )
 			->with( 'test_param_2' )
-			->will( $this->returnValue( $test_error ) );
+			->willReturn( $test_error );
 
 		$result = $mock->fetch_blog_data( 'http://test.com' );
 
@@ -310,24 +310,24 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'fetch_site_info' )
 			->with( 'http://test.com' )
-			->will( $this->returnValue( 'test_param_1' ) );
+			->willReturn( 'test_param_1' );
 
 		$mock->expects( $this->any() )
 			->method( 'parse_site_info_response' )
 			->with( 'test_param_1' )
-			->will( $this->returnValue( ( (object) ( array( 'ID' => 'test_id' ) ) ) ) );
+			->willReturn( ( (object) ( array( 'ID' => 'test_id' ) ) ) );
 
 		$mock->expects( $this->any() )
 			->method( 'fetch_posts_for_site' )
 			->with( 'test_id' )
-			->will( $this->returnValue( 'test_param_2' ) );
+			->willReturn( 'test_param_2' );
 
 		$test_error = new WP_Error( 'broke', 'the', 'test' );
 
 		$mock->expects( $this->any() )
 			->method( 'parse_posts_response' )
 			->with( 'test_param_2' )
-			->will( $this->returnValue( $test_error ) );
+			->willReturn( $test_error );
 
 		$predefined_data = array(
 			'site_info' => array(
@@ -391,22 +391,22 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'fetch_site_info' )
 			->with( 'http://test.com' )
-			->will( $this->returnValue( 'test_param_1' ) );
+			->willReturn( 'test_param_1' );
 
 		$mock->expects( $this->any() )
 			->method( 'parse_site_info_response' )
 			->with( 'test_param_1' )
-			->will( $this->returnValue( ( (object) ( array( 'ID' => 'test_id' ) ) ) ) );
+			->willReturn( ( (object) ( array( 'ID' => 'test_id' ) ) ) );
 
 		$mock->expects( $this->any() )
 			->method( 'fetch_posts_for_site' )
 			->with( 'test_id' )
-			->will( $this->returnValue( 'test_param_2' ) );
+			->willReturn( 'test_param_2' );
 
 		$mock->expects( $this->any() )
 			->method( 'parse_posts_response' )
 			->with( 'test_param_2' )
-			->will( $this->returnValue( 'test_result_final' ) );
+			->willReturn( 'test_result_final' );
 
 		$result = $mock->fetch_blog_data( 'http://test.com' );
 
@@ -459,12 +459,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'fetch_site_info' )
 			->with( 'http://test.com' )
-			->will( $this->returnValue( ( 'test_param_1' ) ) );
+			->willReturn( ( 'test_param_1' ) );
 
 		$mock->expects( $this->any() )
 			->method( 'parse_site_info_response' )
 			->with( 'test_param_1' )
-			->will( $this->returnValue( array( 1, 2, 3 ) ) );
+			->willReturn( array( 1, 2, 3 ) );
 
 		$mock->expects( $this->never() )
 			->method( 'fetch_posts_for_site' );
@@ -514,12 +514,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'get_site_hash' )
 			->with( 'http://test.com' )
-			->will( $this->returnValue( 'test_option_hash' ) );
+			->willReturn( 'test_option_hash' );
 
 		$mock->expects( $this->any() )
 			->method( 'wp_get_option' )
 			->with( $mock->widget_options_key_prefix . 'test_option_hash' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$result = $mock->get_blog_data( 'http://test.com' );
 
@@ -547,12 +547,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'get_site_hash' )
 			->with( 'http://test.com' )
-			->will( $this->returnValue( 'test_option_hash' ) );
+			->willReturn( 'test_option_hash' );
 
 		$mock->expects( $this->any() )
 			->method( 'wp_get_option' )
 			->with( $mock->widget_options_key_prefix . 'test_option_hash' )
-			->will( $this->returnValue( 'real value' ) );
+			->willReturn( 'real value' );
 
 		$result = $mock->get_blog_data( 'http://test.com' );
 
@@ -576,7 +576,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'format_posts_for_storage' )
 			->with( $service_response_test )
-			->will( $this->returnValue( 'other test value' ) );
+			->willReturn( 'other test value' );
 
 		$result = $mock->parse_posts_response( $service_response_test );
 
@@ -806,11 +806,11 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 		$mock->expects( $this->any() )
 			->method( 'should_cron_be_running' )
-			->will( $this->returnValue( true ) );
+			->willReturn( true );
 
 		$mock->expects( $this->any() )
 			->method( 'get_instances_sites' )
-			->will( $this->returnValue( array( 'test_url_1', 'test_url_2', 'test_url_3' ) ) );
+			->willReturn( array( 'test_url_1', 'test_url_2', 'test_url_3' ) );
 
 		$mock->expects( $this->exactly( 3 ) )
 			->method( 'update_instance' )
@@ -837,11 +837,11 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 		$mock->expects( $this->any() )
 			->method( 'should_cron_be_running' )
-			->will( $this->returnValue( true ) );
+			->willReturn( true );
 
 		$mock->expects( $this->any() )
 			->method( 'get_instances_sites' )
-			->will( $this->returnValue( array() ) );
+			->willReturn( array() );
 
 		$mock->expects( $this->never() )
 			->method( 'update_instance' );
@@ -863,11 +863,11 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 		$mock->expects( $this->any() )
 			->method( 'should_cron_be_running' )
-			->will( $this->returnValue( true ) );
+			->willReturn( true );
 
 		$mock->expects( $this->any() )
 			->method( 'get_instances_sites' )
-			->will( $this->returnValue( '' ) );
+			->willReturn( '' );
 
 		$mock->expects( $this->never() )
 			->method( 'update_instance' );
@@ -895,7 +895,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 		$mock->expects( $this->any() )
 			->method( 'should_cron_be_running' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$mock->expects( $this->never() )
 			->method( 'get_instances_sites' );
@@ -929,7 +929,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'wp_get_option' )
 			->with( 'widget_jetpack_display_posts_widget' )
-			->will( $this->returnValue( $url_list_test ) );
+			->willReturn( $url_list_test );
 
 		$result = $mock->get_instances_sites();
 
@@ -955,7 +955,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'wp_get_option' )
 			->with( 'widget_jetpack_display_posts_widget' )
-			->will( $this->returnValue( false ) );
+			->willReturn( false );
 
 		$result = $mock->get_instances_sites();
 
@@ -975,7 +975,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'wp_get_option' )
 			->with( 'widget_jetpack_display_posts_widget' )
-			->will( $this->returnValue( 'my value' ) );
+			->willReturn( 'my value' );
 
 		$result = $mock->get_instances_sites();
 
@@ -995,7 +995,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'wp_get_option' )
 			->with( 'widget_jetpack_display_posts_widget' )
-			->will( $this->returnValue( array() ) );
+			->willReturn( array() );
 
 		$result = $mock->get_instances_sites();
 
@@ -1033,7 +1033,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'wp_get_option' )
 			->with( 'widget_jetpack_display_posts_widget' )
-			->will( $this->returnValue( $broken_data ) );
+			->willReturn( $broken_data );
 
 		$result = $mock->get_instances_sites();
 
@@ -1061,19 +1061,19 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'get_site_hash' )
 			->with( 'http://test.com' )
-			->will( $this->returnValue( 'my_hash' ) );
+			->willReturn( 'my_hash' );
 
 		$widget_data_original = false;
 
 		$mock->expects( $this->any() )
 			->method( 'wp_get_option' )
 			->with( $mock->widget_options_key_prefix . 'my_hash' )
-			->will( $this->returnValue( $widget_data_original ) );
+			->willReturn( $widget_data_original );
 
 		$mock->expects( $this->any() )
 			->method( 'fetch_blog_data' )
 			->with( 'http://test.com', false )
-			->will( $this->returnValue( 'new data' ) );
+			->willReturn( 'new data' );
 
 		$mock->expects( $this->any() )
 			->method( 'wp_add_option' )
@@ -1106,17 +1106,17 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$mock->expects( $this->any() )
 			->method( 'get_site_hash' )
 			->with( 'http://test.com' )
-			->will( $this->returnValue( 'my_hash' ) );
+			->willReturn( 'my_hash' );
 
 		$mock->expects( $this->any() )
 			->method( 'wp_get_option' )
 			->with( $mock->widget_options_key_prefix . 'my_hash' )
-			->will( $this->returnValue( array( 123 ) ) );
+			->willReturn( array( 123 ) );
 
 		$mock->expects( $this->any() )
 			->method( 'fetch_blog_data' )
 			->with( 'http://test.com', array( 123 ) )
-			->will( $this->returnValue( 'new data' ) );
+			->willReturn( 'new data' );
 
 		$mock->expects( $this->never() )
 			->method( 'wp_add_option' );
@@ -1455,11 +1455,11 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'wp_wp_remote_get' )
-			->will( $this->returnValueMap( $wp_wp_remote_get_map ) );
+			->willReturnMap( $wp_wp_remote_get_map );
 
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'parse_service_response' )
-			->will( $this->returnValueMap( $parse_service_response_map ) );
+			->willReturnMap( $parse_service_response_map );
 
 		$result1       = $mock->fetch_service_endpoint( 'cache_endpoint_1' );
 		$result2       = $mock->fetch_service_endpoint( 'cache_endpoint_2' );
@@ -1469,5 +1469,4 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( 'second test', $result2 );
 		$this->assertEquals( 'first test', $result1_again );
 	}
-
 }

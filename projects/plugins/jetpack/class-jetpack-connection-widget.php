@@ -5,6 +5,7 @@ use Automattic\Jetpack\Assets\Logo;
 
 /**
  * Jetpack connection dashboard widget.
+ * DEPRECATED in v 13.0
  *
  * @package automattic/jetpack
  */

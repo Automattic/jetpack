@@ -5,6 +5,7 @@
 @import './common';
 
 .wp-block-jetpack-cookie-consent {
+	position: initial;
 	/* Required to capture clicks */
 	background-color: transparent;
 	bottom: unset;

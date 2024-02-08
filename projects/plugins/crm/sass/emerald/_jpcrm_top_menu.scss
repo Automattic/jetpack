@@ -1,4 +1,4 @@
-jpcrm-top-menu#jpcrm-top-menu {
+#jpcrm-top-menu {
 	padding: 20px 20px 0px 20px;
 	display: block;
 	background-color: white;
@@ -28,6 +28,7 @@ jpcrm-top-menu#jpcrm-top-menu {
 
 				img {
 					max-width: 100%;
+					max-height: 40px;
 				}
 			}
 
@@ -73,7 +74,28 @@ jpcrm-top-menu#jpcrm-top-menu {
 				min-width:580px;
 
 				i.icon {
-					margin-right: 5px;
+					margin-right: 8px;
+				}
+			}
+
+			.jpcrm-user-menu-link {
+				display: flex;
+				align-items: flex-start;
+
+				.item {
+					display: flex;
+					align-items: center;
+
+					i {
+						margin-right: 10px;
+						color: rgba(0, 0, 0, 0.4);
+					}
+				}
+
+				&:hover {
+					.item i {
+						color: rgba(0, 0, 0, 0.87);
+					}
 				}
 			}
 		}

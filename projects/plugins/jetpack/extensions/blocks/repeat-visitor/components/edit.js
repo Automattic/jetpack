@@ -1,11 +1,12 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { Notice, TextControl, RadioControl, Placeholder } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
+import metadata from '../block.json';
 import { CRITERIA_AFTER, CRITERIA_BEFORE } from '../constants';
-import { icon } from '../index';
 
 const RADIO_OPTIONS = [
 	{
@@ -17,6 +18,7 @@ const RADIO_OPTIONS = [
 		label: __( 'Show before threshold', 'jetpack' ),
 	},
 ];
+const icon = getBlockIconComponent( metadata );
 
 export class RepeatVisitorEdit extends Component {
 	state = {

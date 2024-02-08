@@ -469,7 +469,7 @@ class Jetpack_Comic {
 
 			if (
 				! empty( $php_self )
-				&& 'blog-rss.php' === substr( $php_self, -12 )
+				&& str_ends_with( $php_self, 'blog-rss.php' )
 				&& count( $blog_ids ) > 1
 			) {
 				// blog-rss.php isn't run in the context of the target blog when the init action fires,
@@ -697,7 +697,6 @@ class Jetpack_Comic {
 		$post_types[] = self::POST_TYPE;
 		return $post_types;
 	}
-
 }
 
 add_action( 'init', array( 'Jetpack_Comic', 'init' ) );

@@ -5,6 +5,80 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2024-02-07
+### Added
+- Auto-label features in the mu-wpcom package. [#32221]
+- Board triage: automate triage of Verbum-related issues. [#35326]
+- Board triage task: automatically add issues classified as bugs to the project board. [#33493]
+- Gather Support References task: automatically label issues that include support references. [#32398]
+- Label automations: mark revert PRs with a label. [#33472]
+- Label cleanup: Remove `[Status] Stale` from closed PRs. [#31743]
+- New task: updateBoard allows you to automate updates to a GitHub Project Board fields to match priority labels on an issue in your repo. [#33469]
+- Project Board automations: automatically update the status field based on the "Triaged" label. [#33482]
+- Project Board triage: automatically assign teams to an issue based on issue labels. [#34313]
+- Repo Gardening Action: Add add_labels input to addLabels task for setting custom path: label matching directly in the workflow. [#32306]
+
+### Changed
+- addMilestone task: if a milestone description contains a string with "Code Freeze: YYYY-MM-DD" or "Branch Cut: YYYY-MM-DD", and that date has elapsed, then don't add PRs to that milestone. This prevents merged PRs from being automatically added to milestones that have entered a code freeze. [#31973]
+- Board triage: update team Zap's assignment settings. [#35466]
+- Check description task: support different phrasing in milestone descriptiion. "Code Freeze" can also be "Branch cut". [#31987]
+- Description task: update milestone details to include information about the different release schedules. [#33675]
+- Gather Support References: also gather p2 comment references. [#33979]
+- Gather Support References: consider forum links to be a valid support reference. [#35148]
+- Issue Triage: update the "Escalated" status label to "Priority Review Triggered". [#33756]
+- Label cleanup: Task now runs for closed issues as well as PRs. [#31743]
+- Labelling: handle automatic labeling of Contact Form changes in the package. [#33864]
+- Labels: prefix module labels with [Feature], to match new bug reporting tool. [#32118]
+- Labels: update "Premium Content" to "Paid Content". [#33119]
+- Labels: update Stats's label name. [#32916]
+- Project Board triage: handle issues waiting on a third-party fix when auto-triaging. [#33876]
+- Updated package dependencies. [#33650]
+- Update the label used to mark issues that have reports from Happiness Engineers. [#32711]
+- Use the node20 runner instead of the deprecated node16 runner. [#35262]
+
+### Removed
+- Description task: remove reference to "Required review" check that was removed a while back. [#33683]
+- Status checks: remove commit verification status check. [#33075]
+
+### Fixed
+- Adds Woo Sync to GH label name exceptions. [#33713]
+- Automated Board triage: fix event reference to trigger the action. [#34482]
+- Board triage: ensure the task works when the organization name is capitalized [#34980]
+- Don't crash on milestones with null description. [#32599]
+- Issue references: avoid changing capitalization of p2 shortlinks. [#34426]
+- Issue references: do not gather support references in Pull Requests, only in issues. [#34426]
+- Project Board automations: do not run any automation on closed issues. [#33539]
+
+## [4.0.0] - 2023-06-06
+### Added
+- Add new task to notify Quality team of important issues
+- Add the legacy Photon label for PRs that make changes to the Image CDN package.
+- Auto labeling: add labels for common elements of the CRM plugin.
+- Create a new triageIssues task, to handle automated label triage and Slack notifications for important issues.
+
+### Changed
+- Add the Docs label whenever markdown files are edited.
+- Auto-labeling: update logic to use new [Focus] label.
+- Automated labeling: standardize how we track PRs with tests.
+- Changed the features directory to include the module directory as well.
+- Docs: Changing 'needs review' label wording for pull requests to more accurately reflect current processes
+- Don't complain about missing a changelog entry if the changelog itself is being changed.
+- Escalation task: update wording and icons.
+- Kitkat escalation task: change the name of the label applied to escalated issues.
+- Label management: do not loop through files for labels that do not require it.
+- Only send Slack notifications for bugs.
+- Triage tasks: update wording of messages and start warning folks of issues that do get any Priority label added automatically, so they can triage manually.
+- Update auto-labeling rules for Boost features.
+- Updated package dependencies.
+
+### Removed
+- The notifyKitKat and triageNewIssues tasks have been removed. The new triageIssues task now handles both of those tasks.
+
+### Fixed
+- Changelogger checks: do not error out when require or require-dev are not set.
+- Triage: ensure we do not trigger triaging on events when a laabel that would impact our automated triage is already being added.
+- Use correct emoji in Kitkat notifications
+
 ## [3.1.1] - 2023-02-07
 ### Changed
 - Changed headings in the `PULL_REQUEST_TEMPLATE`.
@@ -136,6 +210,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[5.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v4.0.0...v5.0.0
+[4.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v3.1.1...v4.0.0
 [3.1.1]: https://github.com/Automattic/action-repo-gardening/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/Automattic/action-repo-gardening/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v2.0.2...v3.0.0

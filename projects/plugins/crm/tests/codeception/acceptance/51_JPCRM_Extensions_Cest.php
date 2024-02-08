@@ -18,5 +18,4 @@ class JPCRM_Extensions_Cest {
 		$I->goToPageViaSlug( 'extensions' );
 		$I->see( 'Premium Extensions', '.box-title' );
 	}
-
 }

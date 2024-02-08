@@ -141,5 +141,4 @@ class Client_Portal_Render_Helper {
 			return $nav_html;
 		}
 	}
-
 }

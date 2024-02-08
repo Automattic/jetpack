@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * This file contains some 'remember' functions inspired by the core Classic Editor Plugin
  * Used to align the 'last editor' metadata so that it is set on all Jetpack and WPCOM sites

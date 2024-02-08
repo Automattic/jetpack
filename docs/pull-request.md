@@ -19,7 +19,7 @@ Once you know what the first small piece of your feature will be, follow this ge
 1. If you end up needing more than a few commits, consider splitting the pull request into separate components. Discuss in the new pull request and in the comments why the branch was broken apart and any changes that may have taken place that necessitated the split. Our goal is to catch early in the review process those pull requests that attempt to do too much.
 1. When you feel that you are ready for a formal review or for merging into `trunk` make sure you check this list.
     - Make sure your Pull Request [includes a changelog entry](writing-a-good-changelog-entry.md) for each project touched.
-    - Make sure all required checks (other than "Required review") listed at the bottom of the Pull Request are passing.
+    - Make sure all required checks listed at the bottom of the Pull Request are passing.
     - Make sure your branch merges cleanly and consider rebasing against `trunk` to keep the branch history short and clean.
     - If there are visual changes, add before and after screenshots in the pull request comments.
     - Add unit tests, or at a minimum, provide helpful instructions for the reviewer so they can test your changes. This will help speed up the review process.

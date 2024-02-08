@@ -63,7 +63,7 @@ class Defaults {
 		'image_default_link_type',
 		'infinite_scroll',
 		'infinite_scroll_google_analytics',
-		'jetpack-memberships-connected-account-id',
+		'jetpack-memberships-has-connected-account',
 		'jetpack-twitter-cards-site-tag',
 		'jetpack_activated',
 		'jetpack_allowed_xsite_search_ids',
@@ -87,6 +87,8 @@ class Defaults {
 		'jetpack_protect_key',
 		'jetpack_publicize_options',
 		'jetpack_relatedposts',
+		'jetpack_social_settings',
+		'jetpack_social_autoconvert_images',
 		'jetpack_sso_match_by_email',
 		'jetpack_sso_require_two_step',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
@@ -96,6 +98,7 @@ class Defaults {
 		'jetpack_sync_settings_post_types_blacklist',
 		'jetpack_sync_settings_taxonomies_blacklist',
 		'jetpack_sync_settings_dedicated_sync_enabled', // is Dedicated Sync flow enabled.
+		'jetpack_sync_settings_custom_queue_table_enabled', // is custom queue table enabled.
 		'jetpack_testimonial',
 		'jetpack_testimonial_posts_per_page',
 		'jetpack_wga',
@@ -142,6 +145,7 @@ class Defaults {
 		'stats_options',
 		'stb_enabled',
 		'stc_enabled',
+		'sm_enabled',
 		'sticky_posts',
 		'stylesheet',
 		'subscription_options',
@@ -159,6 +163,7 @@ class Defaults {
 		'uploads_use_yearmonth_folders',
 		'users_can_register',
 		'verification_services_codes',
+		'videopress_private_enabled_for_site',
 		'wordads_ccpa_enabled',
 		'wordads_ccpa_privacy_policy_url',
 		'wordads_custom_adstxt',
@@ -168,18 +173,27 @@ class Defaults {
 		'wordads_display_page',
 		'wordads_display_post',
 		'wordads_second_belowpost',
+		'woocommerce_custom_orders_table_enabled',
 		'wp_mobile_app_promos',
 		'wp_mobile_excerpt',
 		'wp_mobile_featured_images',
 		'wp_page_for_privacy_policy',
+		'wpcom_ai_site_prompt',
 		'wpcom_featured_image_in_email',
+		'wpcom_gifting_subscription',
 		'wpcom_is_fse_activated',
+		'wpcom_legacy_contact',
+		'wpcom_locked_mode',
+		'wpcom_newsletter_categories',
+		'wpcom_newsletter_categories_enabled',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
 		'wpcom_reader_views_enabled',
+		'wpcom_site_setup',
 		'wpcom_subscription_emails_use_excerpt',
-		'videopress_private_enabled_for_site',
-		'wpcom_gifting_subscription',
+		'jetpack_verbum_subscription_modal',
+		'jetpack_blocks_disabled',
+		'jetpack_package_versions',
 	);
 
 	/**
@@ -290,6 +304,7 @@ class Defaults {
 	 * @var array Default whitelist of callables.
 	 */
 	public static $default_callable_whitelist = array(
+		'get_loaded_extensions'            => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_loaded_extensions' ),
 		'get_plugins'                      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
 		'get_themes'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
 		'get_plugins_action_links'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins_action_links' ),
@@ -399,6 +414,7 @@ class Defaults {
 		'flamingo_outbound',
 		'http',
 		'idx_page',
+		'jetpack_inspect_log', // Jetpack Inspect dev tool. p1HpG7-nkd-p2
 		'jetpack_migration',
 		'jp_img_sitemap',
 		'jp_img_sitemap_index',
@@ -727,7 +743,6 @@ class Defaults {
 		'_wp_page_template',
 		'_wp_trash_meta_comments_status',
 		'_wpas_feature_enabled',
-		'_wpas_is_tweetstorm',
 		'_wpas_mess',
 		'_wpas_options',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
@@ -1297,4 +1312,10 @@ class Defaults {
 	 */
 	public static $default_dedicated_sync_enabled = 0;
 
+	/**
+	 * Default for enabling custom queue table for Sync.
+	 *
+	 * @var int Bool-ish. Default 0.
+	 */
+	public static $default_custom_queue_table_enabled = 0;
 }

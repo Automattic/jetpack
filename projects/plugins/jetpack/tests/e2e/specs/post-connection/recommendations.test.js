@@ -1,7 +1,7 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { RecommendationsPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { Plans, prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
-import playwrightConfig from '../../playwright.config.cjs';
+import playwrightConfig from '../../playwright.config.mjs';
 
 test.beforeAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );
@@ -47,10 +47,14 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 	await test.step( 'Enable Monitoring and continue to Related Post step', async () => {
 		await recommendationsPage.saveSiteTypeAndContinue();
 		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
+		const isMonitorStep = await recommendationsPage.isEnableMonitoringButtonVisible();
+		expect( isMonitorStep, 'Monitor step should be visible' ).toBeTruthy();
+		expect(
+			recommendationsPage.isUrlInSyncWithStepName( 'monitor' ),
+			'URL should be in sync with the step name'
+		).toBeTruthy();
 		await recommendationsPage.enableMonitoringAndContinue();
 		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
 		const isRelatedPostsStep = await recommendationsPage.isEnableRelatedPostsButtonVisible();
 		expect( isRelatedPostsStep, 'Related posts step should be visible' ).toBeTruthy();
 		expect(
@@ -59,22 +63,20 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 		).toBeTruthy();
 	} );
 
-	await test.step( 'Enable Related Posts and continue to Creative Mail step', async () => {
+	await test.step( 'Enable Related Posts and continue to Newsletter step', async () => {
 		await recommendationsPage.enableRelatedPostsAndContinue();
 		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
-		const isCreativeMailStep = await recommendationsPage.isInstallCreativeMailButtonVisible();
-		expect( isCreativeMailStep, 'Creative Mail step should ne visible' ).toBeTruthy();
+		const isNewsletterStep = await recommendationsPage.isEnableNewsletterButtonVisible();
+		expect( isNewsletterStep, 'Newsletter step should be visible' ).toBeTruthy();
 		expect(
-			recommendationsPage.isUrlInSyncWithStepName( 'creative-mail' ),
+			recommendationsPage.isUrlInSyncWithStepName( 'newsletter' ),
 			'URL should be in sync with the step name'
 		).toBeTruthy();
 	} );
 
-	await test.step( 'Skip Creative Mail and continue to Site Accelerator', async () => {
-		await recommendationsPage.skipCreativeMailAndContinue();
+	await test.step( 'Enable Newsletter and continue to Site Accelerator', async () => {
+		await recommendationsPage.enableNewsletterAndContinue();
 		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
 		const isSiteAcceleratorStep = await recommendationsPage.isEnableSiteAcceleratorButtonVisible();
 		expect( isSiteAcceleratorStep, 'Site Accelerator step should be visible' ).toBeTruthy();
 		expect(
@@ -86,7 +88,6 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 	await test.step( 'Skip Site Accelerator and continue to VaultPress Backup card', async () => {
 		await recommendationsPage.skipSiteAcceleratorAndContinue();
 		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
 		const isVaultPressBackupStep = await recommendationsPage.isTryVaultPressBackupButtonVisible();
 		expect( isVaultPressBackupStep, 'VaultPress Backup step should be visible' ).toBeTruthy();
 		expect(
@@ -98,7 +99,6 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 	await test.step( 'Skip VaultPress Backup card and continue to Summary', async () => {
 		await recommendationsPage.skipVaultPressBackupAndContinue();
 		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
 		const isSummaryContent = await recommendationsPage.isSummaryContentVisible();
 		const isSummarySidebar = await recommendationsPage.isSummarySidebarVisible();
 		expect(
@@ -111,22 +111,19 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 		).toBeTruthy();
 	} );
 
-	await test.step( 'Verify Monitoring and Related Posts are enabled', async () => {
+	await test.step( 'Verify Monitoring, Newsletter, and Related Posts are enabled', async () => {
 		const isMonitoringFeatureEnabled = await recommendationsPage.isMonitoringFeatureEnabled();
 		const isRelatedPostsFeatureEnabled = await recommendationsPage.isRelatedPostsFeatureEnabled();
+		const isNewsletterFeatureEnabled = await recommendationsPage.isNewsletterFeatureEnabled();
 		expect(
-			isMonitoringFeatureEnabled && isRelatedPostsFeatureEnabled,
-			'Monitoring feature and Related Posts should be enabled'
+			isMonitoringFeatureEnabled && isNewsletterFeatureEnabled && isRelatedPostsFeatureEnabled,
+			'Monitoring feature, Newsletter, and Related Posts should be enabled'
 		).toBeTruthy();
 	} );
 
-	await test.step( 'Verify Creative Mail and Site Accelerator are disabled', async () => {
-		const isCreativeMailFeatureEnabled = await recommendationsPage.isCreativeMailFeatureEnabled();
+	await test.step( 'Verify Site Accelerator is disabled', async () => {
 		const isSiteAcceleratorFeatureEnabled =
 			await recommendationsPage.isSiteAcceleratorFeatureEnabled();
-		expect(
-			isCreativeMailFeatureEnabled && isSiteAcceleratorFeatureEnabled,
-			'Creative Mail and Site Accelerator should be enabled'
-		).toBeTruthy();
+		expect( isSiteAcceleratorFeatureEnabled, 'Site Accelerator should be disabled' ).toBeTruthy();
 	} );
 } );

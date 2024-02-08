@@ -39,6 +39,10 @@
 			padding: 0;
 		}
 	}
+
+	.jp-dash-item__content .jp-support-info {
+		top: auto;
+	}
 }
 
 .jp-dash-section-header.jp-dash-section-header-stats {
@@ -634,6 +638,67 @@ a.jp-dash-item__manage-in-wpcom,
 		box-shadow: none;
 		border: 0;
 		border-top: 1px solid $gray-5;
+	}
+
+	.dash-backup-undo {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		border-bottom: 1px solid $gray-5;
+	}
+
+	.dash-backup-undo__activity-log {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		justify-content: space-between;
+		font-size: 0.75rem;
+
+		.dash-backup-undo__activity-log-date {
+			color: $gray-60;
+		}
+		.dash-backup-undo__activity-log-action,
+		.dash-backup-undo__activity-log-description,
+		.dash-backup-undo__activity-log-user-meta {
+			margin-top: 8px;
+		}
+
+		.dash-backup-undo__activity-log-action {
+			font-size: $font-body;
+			font-weight: 600;
+		}
+
+		.dash-backup-undo__activity-log-description {
+			font-size: $font-body-small;
+		}
+
+		.dash-backup-undo__activity-log-user-meta {
+			display: flex;
+			flex-direction: row;
+		}
+
+		.dash-backup-undo__activity-log-user-meta-avatar {
+			display: flex;
+			margin-right: 8px;
+
+			img {
+				border-radius: 100%;
+				width: 30px;
+				height: 30px;
+			}
+		}
+
+		.dash-backup-undo__activity-log-user-meta-name {
+			display: flex;
+    		align-items: center;
+		}
+	}
+
+	.dash-backup-undo__cta svg {
+		fill: $white;
+		position: relative;
+		top: 5px;
+		margin-top: -6px;
 	}
 }
 

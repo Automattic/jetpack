@@ -26,5 +26,4 @@ function jpcrm_settings_page_html_mailpoet() {
 
 	$zbs->modules->mailpoet->load_admin_page("settings/{$current_tab}");
 	call_user_func( "Automattic\JetpackCRM\jpcrm_settings_page_html_{$page}_{$current_tab}");
-
 }

@@ -23,7 +23,7 @@ const settings = {
 	keywords: [ __( 'link', 'jetpack' ) ],
 	edit,
 	save,
-	usesContext: [ 'premium-content/planId', 'premium-content/isPreview' ],
+	usesContext: [ 'premium-content/planIds', 'premium-content/isPreview' ],
 	deprecated: [
 		{
 			attributes: {},

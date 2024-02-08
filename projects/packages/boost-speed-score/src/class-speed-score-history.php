@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Boost_Speed_Score;
 
-use Automattic\Jetpack\Boost_Speed_Score\Lib\Transient;
+use Automattic\Jetpack\Boost_Core\Lib\Transient;
 
 /**
  * Class Speed_Score_History

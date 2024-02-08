@@ -678,6 +678,4 @@ class Woo_Sync_Background_Sync {
 		return $this->tax_rates_table;
 
 	}
-
-
 }

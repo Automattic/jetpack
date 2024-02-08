@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
+import { currentThemeIsBlockTheme } from 'state/initial-state';
 import { siteHasFeature, isFetchingSitePurchases } from 'state/site';
 
 const SEARCH_DESCRIPTION = __(
@@ -28,7 +29,7 @@ const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
 /**
  * Displays a card for Search based on the props given.
  *
- * @param   {object} props Settings to render the card.
+ * @param {object} props - Settings to render the card
  * @returns {object}       Search card
  */
 const renderCard = props => (
@@ -76,6 +77,14 @@ class DashSearch extends Component {
 	trackAddSearchWidgetLink = () => {
 		analytics.tracks.recordJetpackClick( {
 			type: 'search-widget-link',
+			target: 'at-a-glance',
+			feature: 'search',
+		} );
+	};
+
+	trackAddSearchBlockLink = () => {
+		analytics.tracks.recordJetpackClick( {
+			type: 'search-block-link',
 			target: 'at-a-glance',
 			feature: 'search',
 		} );
@@ -163,7 +172,7 @@ class DashSearch extends Component {
 							{ __( 'Jetpack Search is powering search on your site.', 'jetpack' ) }
 						</p>
 					</DashItem>
-					{ this.props.hasInstantSearch ? (
+					{ this.props.hasInstantSearch && (
 						<Card
 							compact
 							className="jp-search-config-aag"
@@ -172,7 +181,8 @@ class DashSearch extends Component {
 						>
 							{ SEARCH_CUSTOMIZE_CTA }
 						</Card>
-					) : (
+					) }
+					{ ! this.props.hasInstantSearch && ! this.props.isBlockThemeActive && (
 						<Card
 							compact
 							className="jp-search-config-aag"
@@ -180,6 +190,16 @@ class DashSearch extends Component {
 							onClick={ this.trackAddSearchWidgetLink }
 						>
 							{ __( 'Add Search (Jetpack) Widget', 'jetpack' ) }
+						</Card>
+					) }
+					{ ! this.props.hasInstantSearch && this.props.isBlockThemeActive && (
+						<Card
+							compact
+							className="jp-search-config-aag"
+							href="site-editor.php"
+							onClick={ this.trackAddSearchBlockLink }
+						>
+							{ __( 'Add a Search Block', 'jetpack' ) }
 						</Card>
 					) }
 				</div>
@@ -205,6 +225,7 @@ class DashSearch extends Component {
 export default connect(
 	state => {
 		return {
+			isBlockThemeActive: currentThemeIsBlockTheme( state ),
 			isOfflineMode: isOfflineMode( state ),
 			isFetching: isFetchingSitePurchases( state ),
 			hasClassicSearch: siteHasFeature( state, 'search' ),

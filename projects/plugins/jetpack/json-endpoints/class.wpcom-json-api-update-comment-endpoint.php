@@ -189,7 +189,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		if ( $this->api->ends_with( $path, '/delete' ) ) {
 			return $this->delete_comment( $path, $blog_id, $object_id );
 		} elseif ( $this->api->ends_with( $path, '/new' ) ) {
-			if ( false !== strpos( $path, '/posts/' ) ) {
+			if ( str_contains( $path, '/posts/' ) ) {
 				return $this->new_comment( $path, $blog_id, $object_id, 0 );
 			} else {
 				return $this->new_comment( $path, $blog_id, 0, $object_id );

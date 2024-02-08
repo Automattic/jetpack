@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.8] - 2024-02-07
+### Changed
+- Updated package dependencies. [#34427]
+
+## [2.0.7] - 2023-07-12
+### Fixed
+- Fix package name in readme. [#31844]
+
+## [2.0.6] - 2023-06-06
+### Changed
+- Updated package dependencies.
+
 ## [2.0.5] - 2023-02-07
 ### Fixed
 - Clean up JavaScript eslint issues.
@@ -67,6 +79,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Created as a tool within the monorepo.
 
+[2.0.8]: https://github.com/Automattic/eslint-changed/compare/2.0.7...2.0.8
+[2.0.7]: https://github.com/Automattic/eslint-changed/compare/2.0.6...2.0.7
+[2.0.6]: https://github.com/Automattic/eslint-changed/compare/2.0.5...2.0.6
 [2.0.5]: https://github.com/Automattic/eslint-changed/compare/2.0.4...2.0.5
 [2.0.4]: https://github.com/Automattic/eslint-changed/compare/2.0.3...2.0.4
 [2.0.3]: https://github.com/Automattic/eslint-changed/compare/2.0.2...2.0.3

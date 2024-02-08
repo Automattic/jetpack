@@ -47,4 +47,8 @@ interface Data_Sync_Entry {
 	 */
 	public function delete();
 
+	/**
+	 * @return mixed The schema of the data sync entry.
+	 */
+	public function get_parser();
 }

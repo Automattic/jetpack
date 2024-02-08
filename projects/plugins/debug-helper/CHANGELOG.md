@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2024-02-07
+### Added
+- Add brute force protection access for particular environments that do not support the WAF [#31761]
+
+### Changed
+- Code Modernization: Replace usage of strpos() with str_contains() [#34137]
+- Code Modernization: Replace usage of strpos() with str_starts_with(). [#34135]
+- Comment: Added price as default sorting option for Jetpack Search [#35167]
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+- Updated package dependencies.
+
+### Fixed
+- Fix PHP 8.2 deprecation warnings. [#32134]
+- Resort to error_log if l() is not available [#34499]
+
+## [1.6.0] - 2023-06-06
+### Added
+- Add a helper for the WAF
+- Added a new WPCOM API Request Tracker module.
+- Set custom tokens and blog ID.
+
+### Changed
+- Remove deprecated core function in favor of direct query.
+
+### Fixed
+- Fixed stylesheet loading and content for the broken-token and idc-simulator modules.
+
 ## [1.5.0] - 2023-03-08
 ### Added
 - Add "Cookie State Faker" tool. [#28371]
@@ -77,6 +104,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial version.
 
+[2.0.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.6.0...v2.0.0
+[1.6.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.2.0...v1.3.0

@@ -19,20 +19,26 @@ import VideoNotOwnedWarning from '../video-not-owned-warning';
  */
 export default function DetailsPanel( { attributes, setAttributes, videoBelongToSite } ) {
 	const { title, description } = attributes;
+	const titlePlaceholder = videoBelongToSite
+		? __( 'Add title', 'jetpack-videopress-pkg' )
+		: __( 'No title', 'jetpack-videopress-pkg' );
+	const descriptionPlaceholder = videoBelongToSite
+		? __( 'Add description', 'jetpack-videopress-pkg' )
+		: __( 'No description', 'jetpack-videopress-pkg' );
 
 	return (
 		<PanelBody title={ __( 'Details', 'jetpack-videopress-pkg' ) }>
 			<TextControl
 				value={ title || '' }
 				onChange={ value => setAttributes( { title: value } ) }
-				placeholder={ __( 'Add title', 'jetpack-videopress-pkg' ) }
+				placeholder={ titlePlaceholder }
 				label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 				disabled={ ! videoBelongToSite }
 			/>
 			<BottomSheetTextControl
 				initialValue={ description }
 				onChange={ value => setAttributes( { description: value } ) }
-				placeholder={ __( 'Add description', 'jetpack-videopress-pkg' ) }
+				placeholder={ descriptionPlaceholder }
 				label={ __( 'Description', 'jetpack-videopress-pkg' ) }
 				disabled={ ! videoBelongToSite }
 			/>
