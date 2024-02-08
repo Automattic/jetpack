@@ -17,22 +17,12 @@ class Boost_File_Cache extends Boost_Cache {
 	 */
 	private function path( $request_uri = false ) {
 		if ( $request_uri !== false ) {
-			$request_uri = $this->normalize_request_uri( $request_uri );
+			$request_uri = Boost_Cache_Utils::sanitize_file_path( $this->normalize_request_uri( $request_uri ) );
 		} else {
 			$request_uri = $this->request_uri;
 		}
 
-		$key  = $this->path_key( $request_uri );
-		$path = WP_CONTENT_DIR . '/boost-cache/cache/';
-
-		/*
-		 * The cache directory is split into 5 levels of subdirectories.
-		 * 2 characters of the md5 hash of the request uri are used for each level.
-		 * This is done to prevent having too many files in a single directory.
-		 */
-		for ( $i = 0; $i < 10; $i += 2 ) {
-			$path .= substr( $key, $i, 2 ) . '/';
-		}
+		$path = Boost_Cache_Utils::trailingslashit( WP_CONTENT_DIR . '/boost-cache/cache/' . $request_uri );
 
 		return $path;
 	}
