@@ -17,6 +17,7 @@ function show_iframe_retrieve_subscriptions_from_email() {
 	}
 
 	const email = form.querySelector( 'input[type=email]' ).value;
+	const delivery_frequency = form.querySelector( 'input[name=delivery_frequency]' )?.value ?? '';
 
 	show_iframe( {
 		email,
@@ -25,6 +26,7 @@ function show_iframe_retrieve_subscriptions_from_email() {
 		source: 'jetpack_retrieve_subscriptions',
 		post_access_level: form.dataset.post_access_level,
 		display: 'alternate',
+		delivery_frequency,
 	} );
 }
 
@@ -69,6 +71,8 @@ domReady( function () {
 					const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
 					const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
 					const app_source = form.querySelector( 'input[name=app_source]' )?.value ?? '';
+					const delivery_frequency =
+						form.querySelector( 'input[name=delivery_frequency]' )?.value ?? '';
 
 					show_iframe( {
 						email,
@@ -80,6 +84,7 @@ domReady( function () {
 						app_source,
 						post_access_level: form.dataset.post_access_level,
 						display: 'alternate',
+						delivery_frequency,
 					} );
 				}
 			} );

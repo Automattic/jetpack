@@ -655,10 +655,19 @@ function render_for_website( $data, $classes, $styles ) {
 		$post_id = get_option( 'page_on_front' );
 	}
 
-	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
-	$tier_id            = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
-	$is_subscribed      = Jetpack_Memberships::is_current_user_subscribed();
-	$button_text        = get_submit_button_text( $data );
+	$subscribe_field_id         = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
+	$tier_id                    = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
+	$is_subscribed              = Jetpack_Memberships::is_current_user_subscribed();
+	$button_text                = get_submit_button_text( $data );
+	$default_delivery_frequency = apply_filters(
+		'subscribe_default_delivery_frequency',
+		0,
+		array(
+			0   => 'instantly',
+			24  => 'daily',
+			168 => 'weekly',
+		)
+	);
 
 	ob_start();
 
@@ -733,6 +742,7 @@ function render_for_website( $data, $classes, $styles ) {
 						<input type="hidden" name="app_source" value="<?php echo esc_attr( $data['app_source'] ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 						<input type="hidden" name="lang" value="<?php echo esc_attr( $lang ); ?>"/>
+						<input type="hidden" name="delivery_frequency" value="<?php echo esc_attr( $default_delivery_frequency ); ?>"/>
 						<?php
 						wp_nonce_field( 'blogsub_subscribe_' . $blog_id );
 
