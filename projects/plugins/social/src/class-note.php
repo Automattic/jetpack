@@ -11,21 +11,20 @@ namespace Automattic\Jetpack\Social;
  * Register the Jetpack Social Note custom post type.
  */
 class Note {
-	const JETPACK_SOCIAL_NOTE_CPT                      = 'jetpack-social-note';
-	const JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT = 'jetpack_socia_rewrite_rules_last_flushed_at';
+	const JETPACK_SOCIAL_NOTE_CPT     = 'jetpack-social-note';
+	const FLUSH_REWRITE_RULES_FLUSHED = 'jetpack_socia_rewrite_rules_flushed';
 
 	/**
 	 * Check if the feature is enabled.
 	 */
-	public function enabled() {
-		return defined( 'JETPACK_SOCIAL_NOTES_ENABLED' ) && constant( 'JETPACK_SOCIAL_NOTES_ENABLED' );
+	public static function enabled() {
+		return get_option( self::JETPACK_SOCIAL_NOTE_CPT );
 	}
 
 	/**
 	 * Initialize the Jetpack Social Note custom post type.
 	 */
-	public function init() {
-		flush_rewrite_rules();
+	public static function init() {
 		if ( ! static::enabled() ) {
 			return;
 		}
@@ -50,10 +49,6 @@ class Note {
 	 * Register the Jetpack Social Note custom post type.
 	 */
 	public static function register_cpt() {
-		if ( ! defined( 'JETPACK_SOCIAL_NOTES_ENABLED' ) || ! constant( 'JETPACK_SOCIAL_NOTES_ENABLED' ) ) {
-			return;
-		}
-
 		$args = array(
 			'public'       => true,
 			'labels'       => array(
@@ -83,7 +78,7 @@ class Note {
 			'menu_icon'    => 'dashicons-welcome-write-blog',
 		);
 		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
-		static::may_be_flush_rewrite_rules();
+		static::maybe_flush_rewrite_rules();
 	}
 
 	/**
@@ -91,17 +86,23 @@ class Note {
 	 *
 	 * @param boolean $force Force flush the rewrite rules.
 	 */
-	public static function may_be_flush_rewrite_rules( $force = false ) {
-		if ( empty( get_option( self::JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT ) ) || $force ) {
-			flush_rewrite_rules();
-			update_option( self::JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT, time() );
+	public static function maybe_flush_rewrite_rules( $force = false ) {
+		if ( empty( get_option( self::FLUSH_REWRITE_RULES_FLUSHED ) ) || $force ) {
+			flush_rewrite_rules( false );
+			update_option( self::FLUSH_REWRITE_RULES_FLUSHED, true );
 		}
 	}
 
 	/**
-	 * Delete the JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT option when plugin is deactivated.
+	 * Toggle whether or not the Notes feature is enabled.
 	 */
-	public static function delete_rewrite_rules_option() {
-		delete_option( self::JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT );
+	public static function toggle_enabled_status() {
+		if ( ! static::enabled() ) {
+			update_option( self::JETPACK_SOCIAL_NOTE_CPT, true );
+		} else {
+			delete_option( self::JETPACK_SOCIAL_NOTE_CPT );
+		}
+		// Delete this option, so the rules get flushe in maybe_flush_rewrite_rules when the CPT is registered.
+		delete_option( self::FLUSH_REWRITE_RULES_FLUSHED );
 	}
 }
