@@ -103,5 +103,20 @@ class Jetpack_Subscription_Site {
 			10,
 			3
 		);
+
+		add_filter(
+			'hooked_block_jetpack/subscriptions',
+			function ( $hooked_block, $relative_position, $anchor_block ) {
+				l( $hooked_block );
+
+				if ( $anchor_block === 'core/post-content' && $relative_position === 'after' && isset( $anchor_block['attrs']['layout'] ) ) {
+					$hooked_block['attrs']['layout'] = $anchor_block['attrs']['layout'];
+				}
+
+				return $hooked_block;
+			},
+			10,
+			3
+		);
 	}
 }
