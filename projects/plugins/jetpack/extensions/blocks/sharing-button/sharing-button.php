@@ -260,7 +260,7 @@ function add_default_services_to_block( $parsed_hooked_block, $relative_position
 	$parsed_hooked_block['attrs']['styleType'] = 'icon';
 
 	// Does the anchor block have a layout attribute?
-	if ( isset( $anchor_block['attrs']['layout'] ) ) {
+	if ( isset( $parsed_anchor_block['attrs']['layout'] ) ) {
 		// Copy the anchor block's layout attribute to the hooked block.
 		$parsed_hooked_block['attrs']['layout'] = $parsed_anchor_block['attrs']['layout'];
 	}
