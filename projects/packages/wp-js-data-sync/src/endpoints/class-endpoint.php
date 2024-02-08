@@ -160,11 +160,11 @@ class Endpoint {
 				'status' => 'success',
 				'JSON'   => $result,
 			);
-			if ( DS_Utils::is_debug() ) {
+			if ( true === DS_Utils::is_debug() ) {
 				$response['log'] = $this->entry->get_parser()->get_log();
 			}
 
-			if ( DS_Utils::debug_disable( $this->route_base ) ) {
+			if ( true === DS_Utils::debug_disable( $this->route_base ) ) {
 				// Return 418 I'm a teapot if this is a debug request to the endpoint.
 				return rest_ensure_response( new \WP_Error( 'teapot', "I'm a teapot.", array( 'status' => 418 ) ) );
 			}
