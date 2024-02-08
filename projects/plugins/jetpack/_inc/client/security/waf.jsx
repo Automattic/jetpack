@@ -44,6 +44,7 @@ export const Waf = class extends Component {
 		ipBlockList: this.props.settings?.ipBlockList,
 		ipAllowList: this.props.settings?.ipAllowList,
 		shareData: this.props.settings?.shareData,
+		shareDebugData: this.props.settings?.shareDebugData,
 	};
 
 	/**
