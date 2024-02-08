@@ -146,10 +146,17 @@ class Boost_File_Cache extends Boost_Cache {
 	}
 
 	/*
+	 * Delete cache files for a given post but do not delete the front page cache.
+	 */
+	public function delete_cache_for_post_only( $post ) {
+		$this->delete_cache_for_post( $post, false );
+	}
+
+	/*
 	 * Deletes cache files for the given post.
 	 *
 	 * @param WP_Post $post - The post to delete the cache file for.
-	 * @param bool $all - If false, only delete the cache file for the post, not the paged archive or front page cache.
+	 * @param bool $all - If false, only delete the cache file for the post, not the front page cache.
 	 */
 	public function delete_cache_for_post( $post, $all = true ) {
 		static $already_deleted = -1;
@@ -180,7 +187,7 @@ class Boost_File_Cache extends Boost_Cache {
 			$permalink                     = str_replace( array( '%postname%', '%pagename%' ), $post_name, $permalink );
 		}
 
-		$this->delete_cache_for_url( $permalink, $all );
+		$this->delete_cache_for_url( $permalink );
 		if ( $all ) {
 			$this->maybe_clear_front_page_cache( $post );
 		}
