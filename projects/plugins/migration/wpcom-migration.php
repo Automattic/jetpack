@@ -4,7 +4,7 @@
  * Plugin Name: Move to WordPress.com
  * Plugin URI: https://wordpress.org/plugins/wpcom-migration
  * Description: A WordPress plugin that helps users to migrate their sites to WordPress.com.
- * Version: 2.0.0-alpha
+ * Version: 2.0.1-alpha
  * Author: Automattic
  * Author URI: https://wordpress.com/
  * License: GPLv2 or later
