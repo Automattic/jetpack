@@ -87,7 +87,7 @@ require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/blaze.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
 require_once __DIR__ . '/feature-plugins/full-site-editing.php';
-require_once __DIR__ . '/feature-plugins/github-deploy.php';
+require_once __DIR__ . '/feature-plugins/github-deployments.php';
 require_once __DIR__ . '/feature-plugins/google-fonts.php';
 require_once __DIR__ . '/feature-plugins/gutenberg-mods.php';
 require_once __DIR__ . '/feature-plugins/headstart-util.php';
