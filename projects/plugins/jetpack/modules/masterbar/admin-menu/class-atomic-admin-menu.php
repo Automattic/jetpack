@@ -590,10 +590,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_reorganized_menus_notice() {
 		$admin_notices = function () {
-			$notice = __( 'We’re improving our menu organization to align with WordPress.org’s wp-admin. WordPress.com specific features are now in the new <b>WordPress.com</b> menu.', 'jetpack' );
+			$menu_url = sprintf( 'https://wordpress.com/plans/%s', $this->domain );
+			// translators: %s is a link to the new WordPress.com menu.
+			$notice = __( 'We’re improving our menu organization to align with WordPress.org’s wp-admin. WordPress.com specific features are now in <a href="%s">the new WordPress.com menu</a>.', 'jetpack' );
 			?>
 			<div class="notice notice-warning is-dismissible">
-				<p><?php echo wp_kses( $notice, array( 'b' => array() ) ); ?></p>
+				<p><?php echo wp_kses( sprintf( $notice, esc_url( $menu_url ) ), array( 'a' => array( 'href' => array() ) ) ); ?></p>
 			</div>
 			<?php
 		};
