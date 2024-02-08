@@ -55,10 +55,7 @@ class Boost_File_Cache extends Boost_Cache {
 		if ( ! $this->is_cacheable() ) {
 			return false;
 		}
-		// exclude wp-json requests
-		if ( strpos( $this->request_uri, '/wp-json/' ) === false ) {
-			error_log( 'get: ' . $this->request_uri . ' ' . $this->cache_filename( $args ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		}
+
 		if ( file_exists( $this->cache_filename( $args ) ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo file_get_contents( $this->cache_filename( $args ) ) . '<!-- cached: ' . $this->cache_key( $args ) . ' -->';
@@ -105,34 +102,33 @@ class Boost_File_Cache extends Boost_Cache {
 		return Boost_Cache_Utils::write_to_file( $cache_filename, $buffer );
 	}
 
-	public function delete_cache_for_url( $url, $filename = false ) {
-		error_log( "deleting cache for url: $url $filename" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		if ( $filename ) {
-			if ( Boost_Cache_Utils::is_boost_cache_directory( $filename ) ) {
-				error_log( 'deleting file: ' . $filename ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				unlink( $filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-				return;
-			}
-		}
-
+	/*
+	 * Delete the cache for the given url. Recurse through sub directories if $recurse is true.
+	 *
+	 * @param string $url - The url to delete the cache for.
+	 * @param bool $recurse - If true, delete the cache for all sub directories as well.
+	 */
+	public function delete_cache_for_url( $url, $recurse = true ) {
 		$path = $this->path( $this->normalize_request_uri( $url ) );
-		if ( Boost_Cache_Utils::is_boost_cache_directory( $path ) ) {
+		if ( ! $recurse ) {
+			Boost_Cache_Utils::delete_single_directory( $path );
+		} else {
 			Boost_Cache_Utils::delete_directory( $path );
-			error_log( "Boost_File_Cache::delete_directory( $url ) -> $path" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 	}
 
+	/*
+	 * Delete the cache for terms associated with this post.
+	 *
+	 * @param WP_Post $post - The post to delete the cache for.
+	 */
 	public function delete_cache_for_post_terms( $post ) {
-		// get categories and tags for the post and delete those cache directories too
+		// get categories and tags for the post and delete those cache directories
 		$categories = get_the_category( $post->ID );
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
 				$link = trailingslashit( get_category_link( $category->term_id ) );
 				$this->delete_cache_for_url( $link );
-				$count = get_term_by( 'id', $category->term_id, 'category' )->count;
-				for ( $i = 1; $i <= $count; $i++ ) {
-					$this->delete_cache_for_url( $link . "page/$i/" );
-				}
 			}
 		}
 
@@ -141,11 +137,6 @@ class Boost_File_Cache extends Boost_Cache {
 			foreach ( $tags as $tag ) {
 				$link = trailingslashit( get_tag_link( $tag->term_id ) );
 				$this->delete_cache_for_url( $link );
-				$count = get_term_by( 'id', $tag->term_id, 'post_tag' )->count;
-				for ( $i = 1; $i <= $count; $i++ ) {
-					error_log( "deleting $link/page/$i/" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					$this->delete_cache_for_url( $link . "page/$i/" );
-				}
 			}
 		}
 	}
@@ -154,11 +145,11 @@ class Boost_File_Cache extends Boost_Cache {
 	 * Deletes cache files for the given post.
 	 *
 	 * @param WP_Post $post - The post to delete the cache file for.
+	 * @param bool $all - If false, only delete the cache file for the post, not the front page cache.
 	 */
-	public function delete_cache_for_post( $post, $filename = false ) {
+	public function delete_cache_for_post( $post, $all = true ) {
 		static $already_deleted = -1;
 		if ( $already_deleted === $post->ID ) {
-			error_log( "Boost_File_Cache::delete_cache_for_post( {$post->ID} ) already deleted" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			return;
 		}
 
@@ -170,8 +161,7 @@ class Boost_File_Cache extends Boost_Cache {
 		}
 
 		$already_deleted = $post->ID;
-		error_log( "Boost_File_Cache::delete_cache_for_post( {$post->ID} )" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		$permalink = get_permalink( $post->ID );
+		$permalink       = get_permalink( $post->ID );
 
 		/*
 		 * If a post is unpublished, the permalink will be deleted. In that case,
@@ -183,23 +173,26 @@ class Boost_File_Cache extends Boost_Cache {
 				require_once ABSPATH . 'wp-admin/includes/post.php';
 			}
 			list( $permalink, $post_name ) = get_sample_permalink( $post );
-			error_log( "got permalink: $permalink, post_name: $post_name" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			$permalink = str_replace( array( '%postname%', '%pagename%' ), $post->post_name, $permalink );
+			$permalink                     = str_replace( array( '%postname%', '%pagename%' ), $post_name, $permalink );
 		}
 
-		$this->delete_cache_for_url( $permalink, $filename );
-
-		// delete the front page only if we're not deleting a post for a specific visitor.
-		if ( $filename === false ) {
+		$this->delete_cache_for_url( $permalink, $all );
+		if ( $all ) {
 			$this->maybe_clear_front_page_cache( $post );
 		}
 	}
 
+	/*
+	 * Delete the cached post if it transitioned from one state to another.
+	 *
+	 * @param string $new_status - The new status of the post.
+	 * @param string $old_status - The old status of the post.
+	 * @param WP_Post $post - The post that transitioned.
+	 */
 	public function delete_on_post_transition( $new_status, $old_status, $post ) {
 		if ( ! $this->is_visible_post_type( $post ) ) {
 			return;
 		}
-		error_log( "Called Boost_File_Cache::delete_on_post_transition( $new_status, $old_status, $post->ID )" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
 		if ( ( $old_status === 'private' || $old_status === 'publish' ) && $new_status !== 'publish' ) { // post unpublished
 			$this->delete_cache_for_post( $post );
@@ -213,7 +206,6 @@ class Boost_File_Cache extends Boost_Cache {
 	}
 
 	public function delete_post_for_visitor( $post ) {
-		error_log( 'visitor post: deleting post: ' . $this->cache_filename( array( 'request_uri' => get_permalink( $post->ID ) ) ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		$this->delete_cache_for_post( $post, $this->cache_filename( array( 'request_uri' => get_permalink( $post->ID ) ) ) );
+		wp_delete_file( $this->cache_filename( array( 'request_uri' => get_permalink( $post->ID ) ) ) );
 	}
 }

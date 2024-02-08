@@ -300,7 +300,7 @@ abstract class Boost_Cache {
 			$latest_posts       = $latest_posts_query->get_posts();
 			foreach ( $latest_posts as $id ) {
 				if ( (int) $id === (int) $post->ID ) {
-					$this->delete_cache_for_url( get_home_url(), true );
+					$this->delete_cache_for_url( get_home_url(), false );
 					return;
 				}
 			}
@@ -314,9 +314,7 @@ abstract class Boost_Cache {
 	 */
 	public function delete_cache_post_edit( $post_id ) {
 		$post = get_post( $post_id );
-		error_log( "Boost_File_Cache::delete_cache_post_edit( $post_id )" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$this->delete_cache_for_post( $post );
-
 		$this->maybe_clear_front_page_cache( $post_id );
 
 		/*
@@ -334,22 +332,25 @@ abstract class Boost_Cache {
 	}
 
 	public function delete_on_comment_transition( $new_status, $old_status, $comment ) {
+		if ( $new_status === $old_status ) {
+			return;
+		}
 		$post = get_post( $comment->comment_post_ID );
-		error_log( "Boost_File_Cache::delete_on_comment( $new_status, $old_status, {$comment->comment_post_ID} )" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		$this->delete_cache_for_post( $post );
+		$this->delete_cache_for_post( $post, true );
 	}
 
 	public function delete_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
 		$post = get_post( $commentdata['comment_post_ID'] );
 
+		/*
+		 * If a comment is not approved, we only need to delete the cache for
+		 * this post for this visitor so the unmoderated comment is shown to them.
+		 */
 		if ( $comment_approved !== '1' ) {
 			$this->delete_post_for_visitor( $post );
-			error_log( 'comment not approved!!' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			return;
 		}
-		error_log( 'comment was approved' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
-		error_log( "Boost_File_Cache::delete_on_comment_post( $comment_id, $comment_approved, {$commentdata['comment_post_ID']} )" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$this->delete_cache_for_post( $post );
 	}
 
