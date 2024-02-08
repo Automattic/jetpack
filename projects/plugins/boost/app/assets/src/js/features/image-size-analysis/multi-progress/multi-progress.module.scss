@@ -8,6 +8,10 @@
 	}
 }
 
+.progress {
+	grid-area: progress;
+}
+
 .entry {
 	flex: 1 0;
 	display: grid;
@@ -22,10 +26,6 @@
 	a {
 		text-decoration: none;
 	}
-}
-
-.progress {
-	grid-area: progress;
 }
 
 .bubble {
