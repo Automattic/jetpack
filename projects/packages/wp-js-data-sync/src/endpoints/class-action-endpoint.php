@@ -79,7 +79,6 @@ class Action_Endpoint {
 				throw new \RuntimeException( $result->get_error_message() );
 			}
 
-
 			if ( true === DS_Utils::debug_disable( $this->route ) ) {
 				// Return 418 I'm a teapot if this is a debug request to the endpoint.
 				return rest_ensure_response( new \WP_Error( 'teapot', "I'm a teapot.", array( 'status' => 418 ) ) );
