@@ -1,8 +1,0 @@
-Significance: minor
-Type: added
-
-Support for more complex MDN data:
-* Multiple support statements are now all checked. Previously only the first (most recent) was, which may have missed cases where support was backported.
-* `version_removed` is now checked.
-* Ranged versions (≤) are now handled.
-* `prefix`, `alternative_name`, and `flags` now indicate (possible) lack of support.

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.1] - 2024-02-07
+### Changed
+- Update dependencies.
+
 ## [2.5.0] - 2024-02-05
 ### Changed
 - Jetpack Connection: Add jetpack_package_versions to Sync [#35409]
@@ -1035,6 +1039,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[2.5.1]: https://github.com/Automattic/jetpack-sync/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/Automattic/jetpack-sync/compare/v2.4.2...v2.5.0
 [2.4.2]: https://github.com/Automattic/jetpack-sync/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/Automattic/jetpack-sync/compare/v2.4.0...v2.4.1
