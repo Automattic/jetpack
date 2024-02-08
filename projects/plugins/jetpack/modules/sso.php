@@ -555,9 +555,9 @@ class Jetpack_SSO {
 	 */
 	public function jetpack_user_connected_th( $columns ) {
 		$columns['user_jetpack'] = sprintf(
-			'<span title="%1$s">%2$s</span>',
-			esc_attr__( 'Connected users can log-in to this site using their WordPress.com account.', 'jetpack' ),
-			esc_html__( 'Status', 'jetpack' )
+			'<span title="%1$s">%2$s <span class="tooltip">?</span></span>',
+			esc_attr__( 'Jetpack SSO is required for a seamless and secure experience on WordPress.com. Join millions of WordPress users who trust us to keep their accounts safe.', 'jetpack' ),
+			esc_html__( 'SSO Status', 'jetpack' )
 		);
 		return $columns;
 	}
@@ -678,6 +678,16 @@ class Jetpack_SSO {
 			.jetpack-sso-invitation.sso-disconnected-user:focus,
 			.jetpack-sso-invitation.sso-disconnected-user:active {
 				color: #0096dd;
+			}
+			.tooltip {
+				background: #aaaaaa;
+				width: 20px;
+				display: inline-block;
+				border-radius: 10px;
+				height: 20px;
+				text-align: center;
+				color: white;
+				cursor: pointer;
 			}
 		</style>
 		<?php
