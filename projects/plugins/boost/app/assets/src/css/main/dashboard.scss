@@ -27,6 +27,21 @@ button.jb-link {
 	font-size:0.8em;
 }
 
+.jb-navigator-link {
+	background: none;
+	padding: 8px 16px;
+	border: 0;
+	cursor: pointer;
+	text-decoration: none;
+
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	justify-content: center;
+	outline: 0;
+	box-shadow: none;
+}
+
 .jb-section--alt {
 	background-color: $alt_white;
 }
