@@ -25,11 +25,31 @@ abstract class Boost_Cache {
 	 */
 	protected $request_uri = false;
 
+	/*
+	 * @var array - The cookies for the current request.
+	 */
+	protected $cookies;
+
+	/*
+	 * @var array - The get parameters for the current request.
+	 */
+	protected $get;
+
 	public function __construct() {
 		$this->settings    = Boost_Cache_Settings::get_instance();
 		$this->request_uri = isset( $_SERVER['REQUEST_URI'] )
 			? $this->normalize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			: false;
+
+		/*
+		 * Set the cookies and get parameters for the current request.
+		 * Sometimes these arrays are modified by WordPress or other plugins.
+		 * We need to cache them here so they can be used for the cache key
+		 * later.
+		 * We don't need to sanitize them, as they are only used for comparison.
+		 */
+		$this->cookies = $_COOKIE; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$this->get     = $_GET; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 	}
 
 	/*
@@ -156,8 +176,8 @@ abstract class Boost_Cache {
 
 		$defaults = array(
 			'request_uri' => $this->request_uri,
-			'cookies'     => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			'get'         => $_GET, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
+			'cookies'     => $this->cookies, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			'get'         => $this->get, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		);
 		$args     = array_merge( $defaults, $args );
 
