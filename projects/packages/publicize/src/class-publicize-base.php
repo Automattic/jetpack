@@ -1646,7 +1646,7 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * This function runs the image through Proton to compress it, and also scales it down if needed.
+	 * This function runs the image through Site Accelerator to compress it, and also scales it down if needed.
 	 *
 	 * @param string $url Image URL.
 	 * @param int    $width Image width.
@@ -1654,7 +1654,7 @@ abstract class Publicize_Base {
 	 * @return array The compressed image data.
 	 */
 	public function compress_and_scale_og_image( $url, $width, $height ) {
-		// If the dimensions are fine we just run it through Proton to compress it.
+		// If the dimensions are fine we just run it through Site Accelerator to compress it.
 		if ( 1200 >= $width && 1200 >= $height ) {
 			return array(
 				'url'    => $this->get_resized_image_url( $url, $width, $height ),
