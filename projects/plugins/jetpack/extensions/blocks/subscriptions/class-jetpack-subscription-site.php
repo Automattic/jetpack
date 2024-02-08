@@ -63,27 +63,45 @@ class Jetpack_Subscription_Site {
 			return;
 		}
 
+		if ( ! wp_is_block_theme() ) {
+			add_filter(
+				'the_content',
+				function ( $content ) {
+					// Check if we're inside the main loop in a single Post
+					if ( is_singular() && in_the_loop() && is_main_query() ) {
+						return $content . '
+	<!-- wp:group {"className":"wp-block-jetpack-subscriptions__subscribe_post_end","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
+	<div class="wp-block-group wp-block-jetpack-subscriptions__subscribe_post_end">
+		<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"300"}},"className":"has-text-align-center"} -->
+		<p class="has-text-align-center" style="font-style:normal;font-weight:300">
+			<em>Aliquam a ullamcorper lorem<br>Integer at tempus nibh</em>
+		</p>
+		<!-- /wp:paragraph -->
+		<!-- wp:jetpack/subscriptions /-->
+	</div>
+	<!-- /wp:group -->';
+					}
+
+					return $content;
+				},
+				8, // TODO use 10 and do_blocks instead?
+				1
+			);
+
+			return;
+		}
+
 		add_filter(
-			'the_content',
-			function ( $content ) {
-				// Check if we're inside the main loop in a single Post
-				if ( is_singular() && in_the_loop() && is_main_query() ) {
-					return $content . '
-<!-- wp:group {"className":"wp-block-jetpack-subscriptions__subscribe_post_end","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
-<div class="wp-block-group wp-block-jetpack-subscriptions__subscribe_post_end">
-	<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"300"}},"className":"has-text-align-center"} -->
-	<p class="has-text-align-center" style="font-style:normal;font-weight:300">
-		<em>Aliquam a ullamcorper lorem<br>Integer at tempus nibh</em>
-	</p>
-	<!-- /wp:paragraph -->
-	<!-- wp:jetpack/subscriptions /-->
-</div>
-<!-- /wp:group -->';
+			'hooked_block_types',
+			function ( $hooked_blocks, $relative_position, $anchor_block ) {
+				if ( $anchor_block === 'core/post-content' && $relative_position === 'after' ) {
+					$hooked_blocks[] = 'jetpack/subscriptions';
 				}
 
-				return $content;
+				return $hooked_blocks;
 			},
-			1
+			10,
+			3
 		);
 	}
 }
