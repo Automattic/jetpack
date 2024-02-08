@@ -262,22 +262,25 @@ function add_default_services_to_block( $parsed_hooked_block, $relative_position
 	// Add default services (inner blocks) to the block.
 	$parsed_hooked_block['innerBlocks'] = array(
 		array(
-			'blockName' => INNER_BLOCK_NAME,
-			'attrs'     => array(
+			'blockName'    => INNER_BLOCK_NAME,
+			'innerContent' => array(),
+			'attrs'        => array(
 				'service' => 'facebook',
 				'label'   => esc_html__( 'Facebook', 'jetpack' ),
 			),
 		),
 		array(
-			'blockName' => INNER_BLOCK_NAME,
-			'attrs'     => array(
+			'blockName'    => INNER_BLOCK_NAME,
+			'innerContent' => array(),
+			'attrs'        => array(
 				'service' => 'x',
 				'label'   => esc_html__( 'X', 'jetpack' ),
 			),
 		),
 		array(
-			'blockName' => INNER_BLOCK_NAME,
-			'attrs'     => array(
+			'blockName'    => INNER_BLOCK_NAME,
+			'innerContent' => array(),
+			'attrs'        => array(
 				'service' => 'mastodon',
 				'label'   => esc_html__( 'Mastodon', 'jetpack' ),
 			),
