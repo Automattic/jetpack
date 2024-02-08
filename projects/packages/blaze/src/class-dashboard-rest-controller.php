@@ -417,13 +417,17 @@ class Dashboard_REST_Controller {
 		}
 
 		// Getting the original file name.
-		$filename = sanitize_file_name( basename( $file['full_path'] ) );
+		$filename = sanitize_file_name( basename( $file['name'] ) );
 		// Upload contents to the Upload folder locally.
 		$upload = wp_upload_bits(
 			$filename,
 			null,
 			file_get_contents( $temp_name ) // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		);
+
+		if ( ! empty( $upload['error'] ) ) {
+			return array( 'error' => $upload['error'] );
+		}
 
 		// Check the type of file. We'll use this as the 'post_mime_type'.
 		$filetype = wp_check_filetype( $filename, null );
