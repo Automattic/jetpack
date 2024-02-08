@@ -259,12 +259,6 @@ function add_default_services_to_block( $parsed_hooked_block, $relative_position
 	// Use the icon style by default.
 	$parsed_hooked_block['attrs']['styleType'] = 'icon';
 
-	// Does the anchor block have a layout attribute?
-	if ( isset( $parsed_anchor_block['attrs']['layout'] ) ) {
-		// Copy the anchor block's layout attribute to the hooked block.
-		$parsed_hooked_block['attrs']['layout'] = $parsed_anchor_block['attrs']['layout'];
-	}
-
 	// Add default services (inner blocks) to the block.
 	$parsed_hooked_block['innerBlocks'] = array(
 		array(
@@ -299,6 +293,19 @@ function add_default_services_to_block( $parsed_hooked_block, $relative_position
 		'</ul>',
 	);
 
-	return $parsed_hooked_block;
+	// Wrap the whole thing in a group block.
+	return array(
+		'blockName'    => 'core/group',
+		'attrs'        => array(
+			// Does the anchor block have a layout attribute? If so, use it in the group to maintain the same alignment.
+			'layout' => $parsed_anchor_block['attrs']['layout'] ?? 'null',
+		),
+		'innerBlocks'  => array( $parsed_hooked_block ),
+		'innerContent' => array(
+			'<div class="wp-block-group">',
+			null,
+			'</div>',
+		),
+	);
 }
 add_filter( 'hooked_block_' . PARENT_BLOCK_NAME, __NAMESPACE__ . '\add_default_services_to_block', 10, 4 );
