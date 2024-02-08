@@ -40,7 +40,6 @@ class Boost_File_Cache extends Boost_Cache {
 			'get'         => $this->get, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		);
 		$args     = array_merge( $defaults, $args );
-		error_log( 'cache_filename: ' . print_r( $args, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 		return $this->path( $args['request_uri'] ) . $this->cache_key( $args ) . '.html';
 	}
