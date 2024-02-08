@@ -72,9 +72,9 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => 
 							trackEventProps={ report.group }
 						>
 							<span
-								className={ classNames( 'jb-bubble', {
-									done: report.done,
-									'has-issues': report.has_issues,
+								className={ classNames( styles.bubble, {
+									[ styles.done ]: report.done,
+									[ styles[ 'has-issues' ] ]: report.has_issues,
 								} ) }
 							>
 								{ report.has_issues ? <WarningIcon /> : report.done ? '✓' : index + 1 }
