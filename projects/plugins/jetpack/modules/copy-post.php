@@ -317,10 +317,11 @@ class Jetpack_Copy_Post {
 		);
 		$edit_action = array(
 			'jetpack-copy' => sprintf(
-				'<a href="%s" aria-label="%s">%s</a>',
+				'<a href="%s" aria-label="%s">%s <img src="%s" alt="Jetpack Logo" width="16" height="16" style="vertical-align:text-bottom"></a>',
 				esc_url( $edit_url ),
 				esc_attr__( 'Copy this post.', 'jetpack' ),
-				esc_html__( 'Copy', 'jetpack' )
+				esc_html__( 'Copy', 'jetpack' ),
+				plugins_url( '', JETPACK__PLUGIN_FILE ) . '/images/jetpack-logomark-green.svg'
 			),
 		);
 
