@@ -77,17 +77,18 @@ class Jetpack_Social_Test extends BaseTestCase {
 	 * Test the social notes feature.
 	 */
 	public function test_social_notes() {
-		Note::init();
+		$note = new Note();
+		$note->init();
 		$this->assertEmpty( get_option( Note::FLUSH_REWRITE_RULES_FLUSHED ) );
 		update_option( Note::JETPACK_SOCIAL_NOTE_CPT, true );
-		Note::init();
+		$note->init();
 		$this->assertTrue( get_option( Note::FLUSH_REWRITE_RULES_FLUSHED ) );
-		Note::toggle_enabled_status();
-		$this->assertFalse( Note::enabled() );
-		Note::init();
+		$note->toggle_enabled_status();
+		$this->assertFalse( $note->enabled() );
+		$note->init();
 		$this->assertEmpty( get_option( Note::FLUSH_REWRITE_RULES_FLUSHED ) );
-		Note::toggle_enabled_status();
-		Note::init();
+		$note->toggle_enabled_status();
+		$note->init();
 		$this->assertTrue( get_option( Note::FLUSH_REWRITE_RULES_FLUSHED ) );
 	}
 }

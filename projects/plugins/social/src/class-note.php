@@ -12,23 +12,23 @@ namespace Automattic\Jetpack\Social;
  */
 class Note {
 	const JETPACK_SOCIAL_NOTE_CPT     = 'jetpack-social-note';
-	const FLUSH_REWRITE_RULES_FLUSHED = 'jetpack_socia_rewrite_rules_flushed';
+	const FLUSH_REWRITE_RULES_FLUSHED = 'jetpack_social_rewrite_rules_flushed';
 
 	/**
 	 * Check if the feature is enabled.
 	 */
-	public static function enabled() {
+	public function enabled() {
 		return get_option( self::JETPACK_SOCIAL_NOTE_CPT );
 	}
 
 	/**
 	 * Initialize the Jetpack Social Note custom post type.
 	 */
-	public static function init() {
-		if ( ! static::enabled() ) {
+	public function init() {
+		if ( ! self::enabled() ) {
 			return;
 		}
-		static::register_cpt();
+		self::register_cpt();
 		add_action( 'wp_insert_post_data', array( new Note(), 'set_empty_title' ), 10, 2 );
 	}
 
@@ -38,7 +38,7 @@ class Note {
 	 * @param array $data The Post Data.
 	 * @param array $post The Post.
 	 */
-	public static function set_empty_title( $data, $post ) {
+	public function set_empty_title( $data, $post ) {
 		if ( self::JETPACK_SOCIAL_NOTE_CPT === $post['post_type'] && 'auto-draft' === $post['post_status'] ) {
 			$data['post_title'] = '';
 		}
@@ -48,7 +48,7 @@ class Note {
 	/**
 	 * Register the Jetpack Social Note custom post type.
 	 */
-	public static function register_cpt() {
+	public function register_cpt() {
 		$args = array(
 			'public'       => true,
 			'labels'       => array(
@@ -79,7 +79,7 @@ class Note {
 			'rewrite'      => array( 'slug' => 'sn' ),
 		);
 		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
-		static::maybe_flush_rewrite_rules();
+		self::maybe_flush_rewrite_rules();
 	}
 
 	/**
@@ -87,7 +87,7 @@ class Note {
 	 *
 	 * @param boolean $force Force flush the rewrite rules.
 	 */
-	public static function maybe_flush_rewrite_rules( $force = false ) {
+	public function maybe_flush_rewrite_rules( $force = false ) {
 		if ( empty( get_option( self::FLUSH_REWRITE_RULES_FLUSHED ) ) || $force ) {
 			flush_rewrite_rules( false );
 			update_option( self::FLUSH_REWRITE_RULES_FLUSHED, true );
@@ -97,8 +97,8 @@ class Note {
 	/**
 	 * Toggle whether or not the Notes feature is enabled.
 	 */
-	public static function toggle_enabled_status() {
-		if ( ! static::enabled() ) {
+	public function toggle_enabled_status() {
+		if ( ! self::enabled() ) {
 			update_option( self::JETPACK_SOCIAL_NOTE_CPT, true );
 		} else {
 			delete_option( self::JETPACK_SOCIAL_NOTE_CPT );
