@@ -9,6 +9,7 @@ import styles from './style.module.scss';
 export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',
 	INACTIVE: 'inactive',
+	MODULE_DISABLED: 'module_disabled',
 	ERROR: 'error',
 	ABSENT: 'plugin_absent',
 	ABSENT_WITH_PLAN: 'plugin_absent_with_plan',
@@ -151,6 +152,7 @@ const ActionButton = ( {
 						primaryActionOverride[ PRODUCT_STATUSES.ERROR ] ),
 				};
 			case PRODUCT_STATUSES.INACTIVE:
+			case PRODUCT_STATUSES.MODULE_DISABLED:
 				return {
 					...buttonState,
 					href: '',

@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Jetpack_Options;
@@ -49,7 +49,7 @@ class Stats extends Module_Product {
 	 *
 	 * @var boolean
 	 */
-	public static $requires_user_connection = true;
+	public static $requires_user_connection = false;
 
 	/**
 	 * Stats does not have a standalone plugin (yet?)
@@ -155,56 +155,23 @@ class Stats extends Module_Product {
 	}
 
 	/**
-	 * Checks whether the site already supports this product through an existing plan or purchase
-	 *
-	 * @return boolean
-	 */
-	public static function has_required_plan() {
-		return true;
-	}
-
-	/**
 	 * Gets the 'status' of the Stats product
 	 *
 	 * @return string
 	 */
 	public static function get_status() {
-		if ( ! static::is_plugin_installed() ) {
-			$status = 'plugin_absent';
-			if ( static::has_required_plan() ) {
-				$status = 'plugin_absent_with_plan';
-			}
-		} elseif ( static::is_active() ) {
-			$status = 'active';
-			// We only consider missing user connection an error when the Product is active.
-			if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
-				// For Stats product, show the "Learn more" button when not connected (eventually leading to 'connect-after-checkout' flow).
-				$status = 'needs_purchase_or_free';
-			} elseif ( static::is_upgradable() ) {
-				// Upgradable plans should ignore whether or not they have the required plan.
-				$status = 'can_upgrade';
-			} elseif ( ! static::has_required_plan() ) { // We need needs_purchase here as well because some products we consider active without the required plan.
-				if ( static::has_trial_support() ) {
-					$status = 'needs_purchase_or_free';
-				} else {
-					$status = 'needs_purchase';
-				}
-			}
-		} elseif ( ! static::has_required_plan() ) {
-			if ( static::has_trial_support() ) {
-				$status = 'needs_purchase_or_free';
-			} else {
-				$status = 'needs_purchase';
-			}
-		} else {
-			$status = 'inactive';
+		$status = parent::get_status();
+		if ( 'error' === $status && ! Initializer::is_registered() ) {
+			// If the site has never been connected before, show the "Learn more" CTA,
+			// that points to the add Stats product interstitial.
+			$status = 'needs_purchase_or_free';
 		}
 		return $status;
 	}
-
 	/**
 	 * Checks whether the product can be upgraded to a different product.
-	 * Only Jetpack Stats Commercial plan is not upgradable.
+	 * Stats Commercial plan (highest tier) & Jetpack Complete are not upgradable.
+	 * Also we don't push PWYW users to upgrade.
 	 *
 	 * @return boolean
 	 */
@@ -236,15 +203,19 @@ class Stats extends Module_Product {
 	}
 
 	/**
-	 * Returns a redirect parameter for an upgrade URL if current purchase license is a free license
-	 * or an empty string otherwise.
+	 * Returns a productType parameter for an upgrade URL, determining whether
+	 * to show the PWYW upgrade interstitial or commercial upgrade interstitial.
 	 *
 	 * @return string
 	 */
-	public static function get_url_redirect_string() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
+	public static function get_url_product_type() {
+		$purchases_data     = Wpcom_Products::get_site_current_purchases();
+		$is_commercial_site = Initializer::is_commercial_site();
 		if ( is_wp_error( $purchases_data ) ) {
-			return '';
+			return $is_commercial_site ? '&productType=commercial' : '';
+		}
+		if ( $is_commercial_site ) {
+			return '&productType=commercial';
 		}
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
@@ -288,7 +259,7 @@ class Stats extends Module_Product {
 			'%s#!/stats/purchase/%d?from=jetpack-my-jetpack%s&redirect_uri=%s',
 			admin_url( 'admin.php?page=stats' ),
 			Jetpack_Options::get_option( 'id' ),
-			static::get_url_redirect_string(),
+			static::get_url_product_type(),
 			rawurlencode( 'admin.php?page=stats' )
 		);
 	}
