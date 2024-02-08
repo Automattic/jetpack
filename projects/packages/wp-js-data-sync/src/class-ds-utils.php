@@ -48,9 +48,9 @@ class DS_Utils {
 
 	public static function debug_disable( $name ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['debug-ds-disable'] ) && ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) ) {
+		if ( isset( $_GET['ds-debug-disable'] ) && ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$values = explode( ',', sanitize_key( $_GET['debug-ds-disable'] ) );
+			$values = explode( ',', sanitize_key( $_GET['ds-debug-disable'] ) );
 			if ( ! $values || ! is_array( $values ) ) {
 				return false;
 			}

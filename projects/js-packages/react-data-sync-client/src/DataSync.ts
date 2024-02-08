@@ -318,20 +318,20 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 * Method to request a teapot response.
 	 */
 	private maybeRequestDisabled( url: string ) {
-		if ( ! window.location.hash.includes( 'debug-ds-disable=' ) ) {
+		if ( ! window.location.hash.includes( 'ds-debug-disable=' ) ) {
 			return url;
 		}
-		const hashEntry = window.location.hash.split( 'debug-ds-disable=' )[ 1 ];
+		const hashEntry = window.location.hash.split( 'ds-debug-disable=' )[ 1 ];
 		if ( ! hashEntry ) {
 			return url;
 		}
 		if ( hashEntry.match( /[^a-zA-Z0-9-_,]/ ) ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Invalid debug-ds-disable hash entry:', hashEntry );
+			console.error( 'Invalid ds-debug-disable hash entry:', hashEntry );
 			return url;
 		}
 		const debugURL = new URL( url );
-		debugURL.searchParams.set( 'debug-ds-disable', hashEntry );
+		debugURL.searchParams.set( 'ds-debug-disable', hashEntry );
 		return debugURL.toString();
 	}
 
