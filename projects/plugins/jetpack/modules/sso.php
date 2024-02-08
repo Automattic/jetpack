@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Roles;
@@ -93,12 +94,12 @@ class Jetpack_SSO {
 		}
 		add_filter( 'manage_users_columns', array( $this, 'jetpack_user_connected_th' ) );
 		add_action( 'admin_print_styles-users.php', array( $this, 'jetpack_user_table_styles' ) );
-		add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_user_new_form_styles' ) );
 		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_connection_status' ), 10, 3 );
 		add_action( 'admin_post_jetpack_invite_user_to_wpcom', array( $this, 'invite_user_to_wpcom' ) );
 		add_action( 'admin_post_jetpack_revoke_invite_user_to_wpcom', array( $this, 'handle_request_revoke_invite' ) );
 		add_action( 'admin_notices', array( $this, 'handle_invitation_results' ) );
 		add_action( 'user_row_actions', array( $this, 'jetpack_user_table_row_actions' ), 10, 2 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_new_user_assets' ), 10, 1 );
 	}
 
 	/**
@@ -452,6 +453,8 @@ class Jetpack_SSO {
 	 */
 	public function render_custom_email_message_form_field( $type ) {
 		if ( $type === 'add-new-user' ) {
+			$valid_nonce          = isset( $_POST['_wpnonce_create-user'] ) ? wp_verify_nonce( $_POST['_wpnonce_create-user'], 'create-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+			$custom_email_message = ( $valid_nonce && isset( $_POST['custom_email_message'] ) ) ? sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) : '';
 			?>
 			<table class="form-table">
 				<tr class="form-field">
@@ -460,7 +463,7 @@ class Jetpack_SSO {
 					</th>
 					<td>
 						<label for="custom_email_message">
-						<textarea aria-describedby="custom_email_message_description" rows="3" maxlength="500" id="custom_email_message" name="custom_email_message"></textarea>
+						<textarea aria-describedby="custom_email_message_description" rows="3" maxlength="500" id="custom_email_message" name="custom_email_message"><?php echo esc_html( $custom_email_message ); ?></textarea>
 						<p id="custom_email_message_description">
 							<?php
 								esc_html_e( 'This user will be invited to WordPress.com. You can include a personalized welcome message with the invitation.', 'jetpack' );
@@ -470,6 +473,41 @@ class Jetpack_SSO {
 				</tr>
 			</table>
 			<?php
+		}
+	}
+
+	/**
+	 * Load the new user form scripts.
+	 *
+	 * @param string $hook - The current admin page.
+	 */
+	public function enqueue_new_user_assets( $hook ) {
+		if ( isset( $hook ) && $hook === 'user-new.php' ) {
+			$valid_nonce      = isset( $_POST['_wpnonce_create-user'] ) ? wp_verify_nonce( $_POST['_wpnonce_create-user'], 'create-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+			$locale_post_data = ( $valid_nonce && isset( $_POST['locale'] ) ) ? sanitize_text_field( wp_unslash( $_POST['locale'] ) ) : 'site_default';
+
+			Assets::register_script(
+				'jetpack-sso-admin-create-user',
+				'/sso/jetpack-sso-admin-create-user.js',
+				__FILE__,
+				array(
+					'strategy'  => 'defer',
+					'in_footer' => true,
+				)
+			);
+
+			Assets::enqueue_script( 'jetpack-sso-admin-create-user' );
+
+			wp_add_inline_script(
+				'jetpack-sso-admin-create-user',
+				'window.jetpackSSOAdminCreateUser = ' . wp_json_encode(
+					array(
+						'locale' => $locale_post_data,
+					)
+				),
+				'before'
+			);
+
 		}
 	}
 
@@ -679,14 +717,6 @@ class Jetpack_SSO {
 			}
 		</style>
 		<?php
-	}
-
-	/**
-	 * Enqueue style for the Jetpack user new form.
-	 */
-	public function jetpack_user_new_form_styles() {
-		// Enqueue the CSS for the admin create user page.
-		wp_enqueue_style( 'jetpack-sso-admin-create-user', plugins_url( 'modules/sso/jetpack-sso-admin-create-user.css', JETPACK__PLUGIN_FILE ), array(), time() );
 	}
 
 	/**
