@@ -23,7 +23,7 @@ class Page_Cache implements Pluggable, Is_Always_On {
 	public static $advanced_cache_signature = 'Boost Cache Plugin 0.1';
 
 	/*
-	 * @var array - The settings for the page cache.
+	 * @var Boost_Cache_Settings - The settings for the page cache.
 	 */
 	private $settings;
 

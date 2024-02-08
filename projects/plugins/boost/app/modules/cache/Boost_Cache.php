@@ -11,7 +11,7 @@ require_once __DIR__ . '/Boost_Cache_Utils.php';
 
 abstract class Boost_Cache {
 	/*
-	 * @var array - The settings for the page cache.
+	 * @var Boost_Cache_Settings - The settings for the page cache.
 	 */
 	private $settings;
 
