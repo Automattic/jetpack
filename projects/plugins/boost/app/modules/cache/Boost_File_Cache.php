@@ -36,8 +36,8 @@ class Boost_File_Cache extends Boost_Cache {
 	private function cache_filename( $args = array() ) {
 		$defaults = array(
 			'request_uri' => $this->request_uri,
-			'cookies'     => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			'get'         => $_GET, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
+			'cookies'     => $this->cookies, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			'get'         => $this->get, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		);
 		$args     = array_merge( $defaults, $args );
 
