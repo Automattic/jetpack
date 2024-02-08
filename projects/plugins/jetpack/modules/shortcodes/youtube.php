@@ -133,7 +133,7 @@ function youtube_link_callback( $matches ) {
  * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
  *
  * @param string|array $url Youtube URL.
- * @return string The normalized URL
+ * @return string|false The normalized URL or false if input is invalid.
  */
 if ( ! function_exists( 'youtube_sanitize_url' ) ) :
 	/**
@@ -144,6 +144,9 @@ if ( ! function_exists( 'youtube_sanitize_url' ) ) :
 	function youtube_sanitize_url( $url ) {
 		if ( is_array( $url ) && isset( $url['url'] ) ) {
 			$url = $url['url'];
+		}
+		if ( ! is_string( $url ) ) {
+			return false;
 		}
 
 		$url = trim( $url, ' "' );

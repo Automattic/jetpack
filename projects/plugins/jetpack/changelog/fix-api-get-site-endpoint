@@ -1,0 +1,3 @@
+Significance: patch
+Type: compat
+Comment: API for get/site, make sure $response->options is set before using it

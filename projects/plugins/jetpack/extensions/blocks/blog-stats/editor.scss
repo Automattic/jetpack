@@ -1,5 +1,3 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
-
 .wp-block-jetpack-blog-stats {
 	.jetpack-blog-stats__loading {
 		// Same as RichText component's placeholder opacity from Core.
@@ -12,5 +10,5 @@
 }
 
 .jetpack-blog-stats__delay-notice {
-	color: $gray-700;
+	font-size: 12px;
 }

@@ -116,19 +116,8 @@ class Boost_Cache_Settings {
 
 		$this->settings = array_merge( $this->settings, $settings );
 
-		$contents     = "<?php die();\n/*\n * Configuration data for Jetpack Boost Cache. Do not edit.\n" . json_encode( $this->settings ) . "\n */"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-		$tmp_filename = $this->config_file . uniqid( uniqid(), true ) . '.tmp';
-		if ( false === file_put_contents( $tmp_filename, $contents ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-			$this->last_error = 'Could not write to tmp config file';
-			return false;
-		}
-
-		if ( ! rename( $tmp_filename, $this->config_file ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
-			$this->last_error = 'Could not rename tmp config file';
-			return false;
-		}
-
-		return true;
+		$contents = "<?php die();\n/*\n * Configuration data for Jetpack Boost Cache. Do not edit.\n" . json_encode( $this->settings ) . "\n */"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+		return Boost_Cache_Utils::write_to_file( $this->config_file, $contents );
 	}
 
 	/*
