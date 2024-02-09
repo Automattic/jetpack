@@ -8,13 +8,12 @@ const PricingSchema = z
 		currencyCode: z.string(),
 		isIntroductoryOffer: z.boolean(),
 	} )
-	.nullable()
-	.catch( null );
+	.nullable();
 
 export type PricingSchema = z.infer< typeof PricingSchema >;
 
 export const usePricing = () => {
 	const [ { data } ] = useDataSync( 'jetpack_boost_ds', 'pricing', PricingSchema );
 
-	return data as PricingSchema;
+	return data;
 };

@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Change memberships cookie name in order to take advantage of batcache baked-in skip
+
+

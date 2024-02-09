@@ -4,7 +4,7 @@ Tags: migrate, migration, backup, restore, transfer, move, copy, wordpress.com, 
 Requires at least: 6.3
 Requires PHP: 7.0
 Tested up to: 6.4
-Stable tag: 1.0.0
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,13 +39,13 @@ If you need a little help during or after the migration, you’ll have round-the
 3. Next, click the Activate button. After activating, you can navigate to Move to WordPress.com in your admin area.
 
 == Changelog ==
-### 1.0.1 - 2023-11-03
-#### Added
-- Updated composer.lock.
-
+### 2.0.0 - 2024-02-07
 #### Changed
-- General: Indicate full compatibility with the latest version of WordPress, 6.4.
-- General: Remove WP 6.1 backwards compatibility checks.
+- General: updated PHP requirement to PHP 7.0+
+- General: update WordPress version requirements to WordPress 6.3.
 - Updated package dependencies.
-- Update lockfile.
-- Use the new method to render Connection initial state.
+
+#### Fixed
+- Backup: add namespace versioning to Helper_Script_Manager and other classes.
+- Improved helper script installer logging.
+
