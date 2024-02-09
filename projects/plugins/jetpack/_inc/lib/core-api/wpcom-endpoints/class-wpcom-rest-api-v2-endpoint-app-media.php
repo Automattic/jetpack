@@ -165,7 +165,7 @@ class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 	private function format_item( $item ) {
 		return array(
 			'ID'         => $item->ID,
-			'url'        => get_permalink( $item ),
+			'url'        => wp_get_attachment_image_url( $item->ID ),
 			'date'       => get_date_from_gmt( $item->post_date_gmt ),
 			'name'       => get_the_title( $item ),
 			'file'       => basename( wp_get_attachment_image_url( $item->ID, 'full' ) ),
