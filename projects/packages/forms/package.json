@@ -36,6 +36,7 @@
 		"@wordpress/block-editor": "12.18.2",
 		"@wordpress/blocks": "12.27.1",
 		"@wordpress/compose": "6.27.0",
+		"@wordpress/core-data": "6.27.2",
 		"@wordpress/data": "9.20.0",
 		"@wordpress/element": "5.27.0",
 		"@wordpress/hooks": "3.50.0",
