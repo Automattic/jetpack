@@ -427,7 +427,9 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
 
-		add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 7 );
+		if ( ! $this->use_wp_admin_interface() ) {
+			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 7 );
+		}
 		add_submenu_page( 'options-general.php', esc_attr__( 'Podcasting', 'jetpack' ), __( 'Podcasting', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, 8 );
 		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 9 );
 	}
@@ -450,8 +452,13 @@ class Admin_Menu extends Base_Admin_Menu {
 			add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'jetpack', null, $icon, $position );
 		}
 
-		add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 2 );
-		add_submenu_page( 'jetpack', esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 3 );
+		// wp-admin interface, add Newsletter.
+		if ( $this->use_wp_admin_interface() ) {
+			add_submenu_page( 'jetpack', esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 2 );
+		}
+
+		add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 3 );
+		add_submenu_page( 'jetpack', esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 4 );
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'jetpack' ) ) {
 			$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
