@@ -172,9 +172,12 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 2.4 - 2024-01-04
+### 2.5 - 2024-02-08
+#### Changed
+- Updated package dependencies.
+
 #### Fixed
-- Backup: Add namespace versioning to Helper_Script_Manager and other classes
+- Write helper script to ABSPATH by default, just like we did before
 
 --------
 

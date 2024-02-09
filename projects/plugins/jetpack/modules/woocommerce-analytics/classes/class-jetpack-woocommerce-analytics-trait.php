@@ -68,7 +68,13 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			} else {
 				$product = $item['data'];
 			}
+
+			if ( ! $product || ! $product instanceof WC_Product ) {
+				continue;
+			}
+
 			$data = $this->get_product_details( $product );
+
 			if ( $item instanceof WC_Order_Item_Product ) {
 				$data['pq'] = $item->get_quantity();
 			} else {

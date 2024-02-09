@@ -38,12 +38,12 @@ export const getProduct = ( state, productId ) => {
 
 	product.pricingForUi.fullPricePerMonth =
 		product.pricingForUi.productTerm === 'year'
-			? Math.ceil( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100
+			? Math.round( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100
 			: product.pricingForUi.fullPrice;
 
 	product.pricingForUi.discountPricePerMonth =
 		product.pricingForUi.productTerm === 'year'
-			? Math.ceil( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100
+			? Math.round( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100
 			: product.pricingForUi.discountPrice;
 
 	return product;

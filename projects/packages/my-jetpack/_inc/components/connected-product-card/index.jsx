@@ -109,11 +109,16 @@ const ConnectedProductCard = ( {
 			} );
 	}, [ deactivateStandalonePlugin ] );
 
-	const DefaultDescription = () => (
-		<Text variant="body-small" style={ { flexGrow: 1 } }>
-			{ defaultDescription }
-		</Text>
-	);
+	const DefaultDescription = () => {
+		// Replace the last space with a non-breaking space to prevent widows
+		const cardDescription = defaultDescription.replace( /\s(?=[^\s]*$)/, '\u00A0' );
+
+		return (
+			<Text variant="body-small" style={ { flexGrow: 1 } }>
+				{ cardDescription }
+			</Text>
+		);
+	};
 
 	return (
 		<ProductCard

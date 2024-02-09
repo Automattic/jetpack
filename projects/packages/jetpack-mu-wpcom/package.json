@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-mu-wpcom",
-	"version": "5.12.0",
+	"version": "5.12.1-alpha",
 	"description": "Enhances your site with features powered by WordPress.com",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/jetpack-mu-wpcom/#readme",
 	"bugs": {

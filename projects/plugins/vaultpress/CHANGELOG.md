@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.2.5 - 2024-02-07
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
+- Updated package dependencies.
+
 ## 2.2.4 - 2023-07-06
 ### Changed
 - General: indicate full compatibility with the latest version of WordPress, 6.2. [#29341]

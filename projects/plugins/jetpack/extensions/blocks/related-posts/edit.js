@@ -45,7 +45,7 @@ function PlaceholderPostEdit( props ) {
 						viewBox="0 0 350 200"
 					>
 						<title>{ __( 'Grey square', 'jetpack' ) }</title>
-						<Path d="M0 0h350v200H0z" fill="#8B8B96" fill-opacity=".1" />
+						<Path d="M0 0h350v200H0z" fill="#8B8B96" fillOpacity=".1" />
 					</SVG>
 					<SVG
 						className="jp-related-posts-i2__post-image-placeholder-icon"
