@@ -45,3 +45,13 @@ function getOnboardingPriority( name: string ) {
 export function sortByOnboardingPriority( a: string, b: string ) {
 	return getOnboardingPriority( a ) - getOnboardingPriority( b );
 }
+
+/**
+ * Bogus function with bad types.
+ * @param {number} a - Addend
+ * @param {number} b - Addend
+ * @returns {number} Sum.
+ */
+export function bogus( a: number, b: object ): number {
+	return a + b;
+}
