@@ -162,6 +162,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		add_submenu_page( 'wpcom', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, $submenu_position++ );
 		add_submenu_page( 'wpcom', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, $submenu_position++ );
 		add_submenu_page( 'wpcom', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, $submenu_position++ );
+		add_submenu_page( 'wpcom', esc_attr__( 'Site Tools', 'jetpack' ), __( 'Site Tools', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/site-tools/' . $this->domain, null, $submenu_position++ );
 
 		// Remove the submenu auto-created by Core.
 		$this->hide_submenu_page( 'wpcom', 'wpcom' );
