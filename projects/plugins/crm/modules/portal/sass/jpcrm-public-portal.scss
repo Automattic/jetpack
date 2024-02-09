@@ -587,7 +587,7 @@
 
   .zbs-portal-content .alert {
     margin: 2em;
-    background: #38b6dc;
+    background: #1ed15a;
     text-align: center;
     padding: 1em;
     border-radius: .5em;
@@ -718,4 +718,12 @@ i.icon.child:before {
 .client-portal-profile-picture-container {
   display: inline-block;
   text-align: center;
+}
+
+.jpcrm-client-portal-admin-banner {
+	padding: 0 20px 20px 20px;
+
+	.admin-message {
+		text-wrap: balance;
+	}
 }
