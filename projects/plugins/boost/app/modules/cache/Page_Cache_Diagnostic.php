@@ -54,10 +54,14 @@ class Page_Cache_Diagnostic {
 			}
 		}
 
+		// @todo - if file is not present, we need to be sure we can create it.
+
 		// is cache dir present and if so, is it writable
 		if ( is_dir( WP_CONTENT_DIR . '/boost-cache' ) && ! is_writable( WP_CONTENT_DIR . '/boost-cache' ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
 			return new \WP_Error( 'page-cache-root-dir-not-writable', '/boost-cache directory is not writable.' );
 		}
+
+		// @todo - if directory is not present, we need to be sure it can be created.
 
 		// is wp-config.php writable
 		if ( ! is_writable( ABSPATH . '/wp-config.php' ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
