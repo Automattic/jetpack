@@ -452,8 +452,10 @@ class Admin_Menu extends Base_Admin_Menu {
 			add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'jetpack', null, $icon, $position );
 		}
 
-		// wp-admin interface, add Newsletter.
 		if ( $this->use_wp_admin_interface() ) {
+			// wp-admin interface, add Subscribers under Jetpack menu.
+			add_submenu_page( 'jetpack', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>', 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 2 );
+			// wp-admin interface, add Newsletter under Jetpack menu.
 			add_submenu_page( 'jetpack', esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 2 );
 		}
 
