@@ -5,7 +5,7 @@ import styles from '../health.module.scss';
 const cacheIssuesLink = 'TBD'; // @todo - add proper link here.
 
 const messages: { [ key: string ]: { title: string; message: React.ReactNode } } = {
-	'feature-disabled-advanced-cache-exists': {
+	'feature-disabled-advanced-cache-incompatible': {
 		title: __( 'Cache loader script already exists', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			sprintf(
