@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Prevent missing archive pages from breaking generation process
