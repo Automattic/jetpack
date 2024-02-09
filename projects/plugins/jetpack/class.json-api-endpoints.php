@@ -1297,7 +1297,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( 'inherit' === $post->post_status ) {
 			$parent_post     = get_post( $post->post_parent );
-			$post_status_obj = get_post_status_object( $parent_post->post_status ) ?? null;
+			$post_status_obj = get_post_status_object( $parent_post->post_status ?? $post->post_status );
 		} else {
 			$post_status_obj = get_post_status_object( $post->post_status );
 		}
