@@ -1,4 +1,4 @@
-<?php 
+<?php // phpcs:disable
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -1507,7 +1507,9 @@ class Woo_Sync {
 							);
 
 							// add option to flag newly added to UI
-							set_transient( 'jpcrm_woo_newly_authenticated', $new_sync_site['site_key'], 600 );
+							if ( $new_sync_site ) {
+								set_transient( 'jpcrm_woo_newly_authenticated', $new_sync_site['site_key'], 600 );
+							}
 
 						} else {
 
