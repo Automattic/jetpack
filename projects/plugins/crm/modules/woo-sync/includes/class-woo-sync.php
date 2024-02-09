@@ -1848,7 +1848,6 @@ class Woo_Sync {
 		// get existing (but side-step the woo local check because that can cause an infinite loop)
 		$pre_state = $this->skip_local_woo_check;
 		$this->skip_local_woo_check = true;
-		$sync_sites = $this->get_active_sync_sites( 'default' );
 
 		$this->skip_local_woo_check = $pre_state;
 
@@ -1856,41 +1855,28 @@ class Woo_Sync {
 		if ( ! in_array( $mode, array( JPCRM_WOO_SYNC_MODE_LOCAL, JPCRM_WOO_SYNC_MODE_API ), true ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 			return false;
 		}
-		if ( isset( $sync_sites[ $site_key ] ) ) {
-			return false;
-		}
 
 		// if no site key, attempt to generate one:
 		if ( empty( $site_key ) ) {
 
 			if ( $mode === JPCRM_WOO_SYNC_MODE_LOCAL ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-
 				$site_key = 'local';
+			} elseif ( ! empty( $domain ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-				// if local and already have a local, error?
-				if ( isset( $sync_sites[ $site_key ] ) ) {
-					return false;
-				}
+				$site_key = $this->generate_site_key( $domain ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
 			} else {
 
-				if ( ! empty( $domain ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-
-					$site_key = $this->generate_site_key( $domain );
-
-				} else {
-
-					// external site setup without a domain ¯\_(ツ)_/¯
-					$site_key = $this->generate_site_key( 'no_domain' );
-
-				}
+				// external site setup without a domain ¯\_(ツ)_/¯
+				$site_key = $this->generate_site_key( 'no_domain' );
 
 			}
 
-			// any luck?
-			if ( empty( $site_key ) ) {
+			$sync_sites = $this->get_active_sync_sites( 'default' );
 
+			// Abort if site key wasn't generated or already exists.
+			if ( empty( $site_key ) || isset( $sync_sites[ $site_key ] ) ) {
 				return false;
-
 			}
 
 		}
