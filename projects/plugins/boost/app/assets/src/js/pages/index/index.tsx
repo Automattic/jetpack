@@ -30,7 +30,6 @@ const Index = () => {
 	const { canResizeImages } = Jetpack_Boost;
 
 	const premiumFeatures = usePremiumFeatures();
-	const isPremium = premiumFeatures.length > 0;
 
 	return (
 		<div className="jb-container--narrow">
@@ -188,7 +187,7 @@ const Index = () => {
 					</p>
 				}
 			>
-				<QualitySettings isPremium={ isPremium } />
+				<QualitySettings isPremium={ premiumFeatures.includes( 'image-cdn-quality' ) } />
 			</Module>
 
 			<div className={ styles.settings }>
