@@ -497,11 +497,8 @@ class Jetpack_SSO {
 
 			$email   = $user->user_email;
 			$role    = $user->role;
-			$user_id = ! empty( $user->ID ) ? $user->ID : 0;
-			$locale  = get_user_locale( $user_id );
 			$blog_id = Jetpack_Options::get_option( 'id' );
 			$url     = '/sites/' . $blog_id . '/invites/new';
-			$url     = add_query_arg( 'locale', $locale, $url );
 
 			$new_user_request = array(
 				'email_or_username' => $email,
@@ -555,9 +552,9 @@ class Jetpack_SSO {
 	 */
 	public function jetpack_user_connected_th( $columns ) {
 		$columns['user_jetpack'] = sprintf(
-			'<span title="%1$s">%2$s</span>',
-			esc_attr__( 'Connected users can log-in to this site using their WordPress.com account.', 'jetpack' ),
-			esc_html__( 'Status', 'jetpack' )
+			'<span title="%1$s">%2$s <span class="tooltip">?</span></span>',
+			esc_attr__( 'Jetpack SSO is required for a seamless and secure experience on WordPress.com. Join millions of WordPress users who trust us to keep their accounts safe.', 'jetpack' ),
+			esc_html__( 'SSO Status', 'jetpack' )
 		);
 		return $columns;
 	}
@@ -679,12 +676,23 @@ class Jetpack_SSO {
 			.jetpack-sso-invitation.sso-disconnected-user:active {
 				color: #0096dd;
 			}
+
 			.sso-disconnected-user-icon {
 				margin-left: 5px;
 				cursor: pointer;
 				background: black;
 				border-radius: 10px;
 				color: white;
+			}
+			.tooltip {
+				background: #aaaaaa;
+				width: 20px;
+				display: inline-block;
+				border-radius: 10px;
+				height: 20px;
+				text-align: center;
+				color: white;
+				cursor: pointer;
 			}
 		</style>
 		<?php

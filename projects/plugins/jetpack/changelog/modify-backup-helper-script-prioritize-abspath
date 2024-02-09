@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Write helper script to ABSPATH by default, just like we did before
