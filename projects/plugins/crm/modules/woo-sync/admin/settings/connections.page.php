@@ -158,7 +158,7 @@ function jpcrm_settings_page_html_woosync_connections() {
 						<?php _e('Are you sure?',"zero-bs-crm"); ?>
 					</div>
 					<p><?php echo sprintf( __( 'Are you sure you want to disconnect the connection to the store at <br><code>%s</code>?', 'zero-bs-crm' ), $sync_sites[ $site_key_to_disconnect ]['domain'] ); ?></p>
-					<p><?php esc_html_e( 'This will pernamently remove this connection. No new data will be synchronised from this external store unless you add a new connection to it at a later date. This will not remove any existing data.', 'zero-bs-crm' ); ?></p>
+					<p><?php esc_html_e( 'This will permanently remove this connection. No new data will be synchronised from this external store unless you add a new connection to it at a later date. This will not remove any existing data.', 'zero-bs-crm' ); ?></p>
 					<p><?php
 
 									// actions
