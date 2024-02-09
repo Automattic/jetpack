@@ -86,7 +86,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
-		$this->add_woocommerce_installation_menu();
+		if ( $this->use_wp_admin_interface() ) {
+			$this->add_woocommerce_installation_menu();
+		}
+
 		ksort( $GLOBALS['menu'] );
 	}
 
@@ -371,6 +374,15 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds WordPress.com menu.
+	 */
+	public function add_wpcom_menu() {
+		$submenu_position = parent::add_wpcom_menu();
+
+		add_submenu_page( 'wpcom', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, $submenu_position++ );
+	}
+
+	/**
 	 * Adds Upgrades menu.
 	 *
 	 * @param string $plan The current WPCOM plan of the blog.
@@ -423,12 +435,23 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
+		/**
+		 * Adds the Hosting Configuration submenu under the Settings menu when the interface is not set to wp-admin.
+		 */
+		if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+			add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
+		}
 
 		// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
+
+		// Hide Settings > Performance when the interface is set to wp-admin.
+		// This is due to these settings are mostly also available in Jetpack > Settings, in the Performance tab.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$this->hide_submenu_page( 'options-general.php', 'https://wordpress.com/settings/performance/' . $this->domain );
+		}
 	}
 
 	/**
@@ -443,9 +466,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		/**
-		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
+		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu when the interface is not set to wp-admin.
 		 */
-		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
+		if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
+		}
 
 		/**
 		 * Adds the WordPress.com Github Deployments submenu under the main Tools menu.
