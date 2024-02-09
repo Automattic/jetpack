@@ -7,6 +7,7 @@ type ModuleProps = {
 	title: React.ReactNode;
 	description: React.ReactNode;
 	children?: React.ReactNode;
+	alwaysRenderableChildren?: React.ReactNode;
 	slug: string;
 	toggle?: boolean;
 	onEnable?: () => void;
@@ -18,6 +19,7 @@ const Module = ( {
 	title,
 	description,
 	children,
+	alwaysRenderableChildren,
 	slug,
 	toggle = true,
 	onEnable,
@@ -68,6 +70,8 @@ const Module = ( {
 				<h3>{ title }</h3>
 
 				<div className={ styles.description }>{ description }</div>
+
+				{ alwaysRenderableChildren }
 
 				{ isModuleActive && children }
 			</div>

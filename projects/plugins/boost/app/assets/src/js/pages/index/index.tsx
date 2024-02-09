@@ -15,6 +15,7 @@ import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
+import PageCacheHealth from '$features/page-cache/health/health';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -128,6 +129,7 @@ const Index = () => {
 						) }
 					</p>
 				}
+				alwaysRenderableChildren={ <PageCacheHealth /> }
 			></Module>
 			<Module
 				slug="render_blocking_js"
