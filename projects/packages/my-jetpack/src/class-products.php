@@ -178,6 +178,7 @@ class Products {
 			'social',
 			'protect',
 			'crm',
+			'search',
 		);
 
 		// Add plugin action links for the core Jetpack plugin.
