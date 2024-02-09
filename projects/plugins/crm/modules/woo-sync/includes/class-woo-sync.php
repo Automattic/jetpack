@@ -1495,16 +1495,16 @@ class Woo_Sync {
 
 							$log[] = 'connection verified';
 
-							// if legit, add as site							
-							$new_sync_site = $this->add_sync_site( array(
-			        			
-					            'mode'           => JPCRM_WOO_SYNC_MODE_API,
-					            'domain'         => $transient_check_domain,
-					            'key'            => $key,
-					            'secret'         => $secret,
-					            'prefix'         => ''
-
-					        ));
+							// if legit, add as site
+							$new_sync_site = $this->add_sync_site(
+								array(
+									'mode'   => JPCRM_WOO_SYNC_MODE_API,
+									'domain' => $transient_check_domain,
+									'key'    => $key,
+									'secret' => $secret,
+									'prefix' => '',
+								)
+							);
 
 							// add option to flag newly added to UI
 							set_transient( 'jpcrm_woo_newly_authenticated', $new_sync_site['site_key'], 600 );
