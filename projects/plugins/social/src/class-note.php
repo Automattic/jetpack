@@ -30,7 +30,20 @@ class Note {
 		}
 		self::register_cpt();
 		add_action( 'wp_insert_post_data', array( new Note(), 'set_empty_title' ), 10, 2 );
-		add_filter( 'the_title', array( new Note(), 'override_empty_title' ), 10, 2 );
+		add_action( 'current_screen', array( $this, 'add_filters_and_actions_for_screen' ) );
+	}
+
+	/**
+	 * If the current_screen has 'edit' as the base, add filter to change the post list tables.
+	 *
+	 * @param object $current_screen The current screen.
+	 */
+	public function add_filters_and_actions_for_screen( $current_screen ) {
+		if ( 'edit' !== $current_screen->base ) {
+			return;
+		}
+
+		add_filter( 'the_title', array( $this, 'override_empty_title' ), 10, 2 );
 	}
 
 	/**
@@ -114,16 +127,16 @@ class Note {
 	 * @param array $title The title of the post, which we have set to be an empty string for Social Notes.
 	 * @param array $post_id The Post ID.
 	 */
-	public static function override_empty_title( $title, $post_id ) {
-		if ( is_admin() && 'edit.php' === $GLOBALS['pagenow'] ) {
-			// Get the post type
-			$post_type = get_post_type( $post_id );
+	public function override_empty_title( $title, $post_id ) {
+		if ( get_post_type( $post_id ) === self::JETPACK_SOCIAL_NOTE_CPT ) {
+			$words = explode( ' ', wp_strip_all_tags( wp_trim_excerpt( get_post_field( 'post_content', $post_id ) ) ) );
 
-			// Check if the post type doesn't have a title
-			if ( $post_type === self::JETPACK_SOCIAL_NOTE_CPT ) {
-				// Return permalink instead of title
-				return wp_strip_all_tags( wp_trim_excerpt( get_post_field( 'post_content', $post_id ) ) );
-			}
+			// Get the first 10 words
+			$first_10_words = array_slice( $words, 0, 10 );
+
+			// Join the first 10 words back into a string
+			return implode( ' ', $first_10_words );
+
 		}
 
 		// Return the original title for other cases
