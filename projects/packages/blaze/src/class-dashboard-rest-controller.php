@@ -667,19 +667,39 @@ class Dashboard_REST_Controller {
 	 */
 	protected function add_prices_in_posts( $posts ) {
 
-		if ( ! function_exists( 'wc_get_product' ) || ! function_exists( 'wc_price' ) ) {
+		if ( ! function_exists( 'wc_get_product' ) ||
+			! function_exists( 'wc_get_price_decimal_separator' ) ||
+			! function_exists( 'wc_get_price_thousand_separator' ) ||
+			! function_exists( 'wc_get_price_decimals' ) ||
+			! function_exists( 'get_woocommerce_price_format' ) ||
+			! function_exists( 'get_woocommerce_currency_symbol' )
+		) {
 			return $posts;
 		}
 
 		foreach ( $posts as $key => $post ) {
 			$product = wc_get_product( $post['ID'] );
 			if ( $product !== false ) {
-				$posts[ $key ]['price'] = html_entity_decode(
-					wp_strip_all_tags(
-						wc_price( $product->get_price() )
-					),
-					ENT_QUOTES
-				);
+
+				$price              = $product->get_price();
+				$decimal_separator  = wc_get_price_decimal_separator();
+				$thousand_separator = wc_get_price_thousand_separator();
+				$decimals           = wc_get_price_decimals();
+				$price_format       = get_woocommerce_price_format();
+				$currency_symbol    = get_woocommerce_currency_symbol();
+
+				// Convert to float to avoid issues on PHP 8.
+				$price = (float) $price;
+
+				$negative = $price < 0;
+
+				$price = $negative ? $price * -1 : $price;
+
+				$price = number_format( $price, $decimals, $decimal_separator, $thousand_separator );
+
+				$formatted_price = sprintf( $price_format, $currency_symbol, $price );
+
+				$posts[ $key ]['price'] = $formatted_price;
 			} else {
 				$posts[ $key ]['price'] = '';
 			}
