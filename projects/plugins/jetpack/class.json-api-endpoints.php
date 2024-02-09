@@ -1302,13 +1302,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$post_status_obj = get_post_status_object( $post->post_status );
 		}
 
-		if ( ! isset( $post_status_obj->public ) || ! $post_status_obj->public ) {
+		if ( empty( $post_status_obj->public )  ) {
 			if ( is_user_logged_in() ) {
-				if ( isset( $post_status_obj->protected ) && $post_status_obj->protected ) {
+				if ( ! empty( $post_status_obj->protected ) ) {
 					if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
-				} elseif ( isset( $post_status_obj->private ) && $post_status_obj->private ) {
+				} elseif ( ! empty( $post_status_obj->private ) ) {
 					if ( ! current_user_can( 'read_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
