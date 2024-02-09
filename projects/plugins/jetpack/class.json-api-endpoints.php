@@ -1302,7 +1302,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$post_status_obj = get_post_status_object( $post->post_status );
 		}
 
-		if ( empty( $post_status_obj->public )  ) {
+		if ( empty( $post_status_obj->public ) ) {
 			if ( is_user_logged_in() ) {
 				if ( ! empty( $post_status_obj->protected ) ) {
 					if ( ! current_user_can( 'edit_post', $post->ID ) ) {
