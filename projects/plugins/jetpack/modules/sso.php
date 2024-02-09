@@ -637,7 +637,7 @@ class Jetpack_SSO {
 					admin_url( 'admin-post.php' )
 				),
 				esc_html__( 'Send invite', 'jetpack' ),
-				esc_attr__( 'This user doesn&#8217;t have a WP.com account and, with your current site settings, won&#8217;t be able to log in. Request them to create a WP.com to be able to function normally.', 'jetpack' )
+				esc_attr__( 'This user doesn&#8217;t have a WP.com account and, with your current site settings, won&#8217;t be able to log in. Request them to create a WP.com account to be able to function normally.', 'jetpack' )
 			);
 			return $connection_html;
 		}
