@@ -136,14 +136,7 @@ class Note {
 	 */
 	public function override_empty_title( $title, $post_id ) {
 		if ( get_post_type( $post_id ) === self::JETPACK_SOCIAL_NOTE_CPT ) {
-			$words = explode( ' ', wp_strip_all_tags( wp_trim_excerpt( get_post_field( 'post_content', $post_id ) ) ) );
-
-			// Get the first 10 words
-			$first_10_words = array_slice( $words, 0, 10 );
-
-			// Join the first 10 words back into a string
-			return implode( ' ', $first_10_words );
-
+			return wp_trim_words( get_the_excerpt(), 10 );
 		}
 
 		// Return the original title for other cases
