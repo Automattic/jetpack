@@ -100,7 +100,7 @@ const ShareDebugData = () => {
 				/>
 				<Text>
 					{ __(
-						'Allow Jetpack to collect detailed data about blocked requests to enhance Firewall protection and rules accuracy.',
+						'Allow Jetpack to collect detailed data of blocked requests to enhance Firewall protection and rules accuracy.',
 						'jetpack-protect'
 					) }
 				</Text>
@@ -163,7 +163,7 @@ const ShareData = () => {
 				/>
 				<Text>
 					{ __(
-						'Allow Jetpack to collect basic data about blocked requests to improve firewall protection and rules.',
+						'Allow Jetpack to collect basic data of blocked requests to improve firewall protection and rules accuracy.',
 						'jetpack-protect'
 					) }
 				</Text>
