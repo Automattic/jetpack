@@ -1874,8 +1874,14 @@ class Woo_Sync {
 
 			$sync_sites = $this->get_active_sync_sites( 'default' );
 
-			// Abort if site key wasn't generated or already exists.
-			if ( empty( $site_key ) || isset( $sync_sites[ $site_key ] ) ) {
+			if (
+				// error generating key
+				empty( $site_key )
+				// site key already exists
+				|| isset( $sync_sites[ $site_key ] )
+				// domain already exists
+				|| in_array( $domain, array_column( $sync_sites, 'domain' ), true ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+				) {
 				return false;
 			}
 
