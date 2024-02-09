@@ -1,4 +1,4 @@
-.jb-row-title__heading {
+.heading {
 	display: block;
 	font-size: 1.125rem;
 	margin-bottom: 4px;
@@ -7,7 +7,7 @@
 	white-space: nowrap;
 }
 
-.jb-row-title__link {
+:global(.jb-dashboard a).link {
 	font-size: 0.875rem;
 	color: var(--gray-80);
 	text-decoration: none;

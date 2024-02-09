@@ -585,6 +585,15 @@ HTML;
 	 * Check if we should show the subscription modal.
 	 */
 	public function should_show_subscription_modal() {
+		// Do not display subscription modal for WordPress.com subdomain sites.
+		if ( defined( 'WPCOM_SUBDIR_SUBDOMAIN_BLOG_IDS_TO_REDIRECT' ) && defined( 'JETPACKCOM_BLOG_BLOG_IDS' ) ) {
+			$blogs_to_redirect = array_merge( WPCOM_SUBDIR_SUBDOMAIN_BLOG_IDS_TO_REDIRECT, JETPACKCOM_BLOG_BLOG_IDS );
+
+			if ( in_array( get_current_blog_id(), $blogs_to_redirect, true ) ) {
+				return false;
+			}
+		}
+
 		$modal_enabled = get_option( 'jetpack_verbum_subscription_modal', true );
 		return ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
 	}
