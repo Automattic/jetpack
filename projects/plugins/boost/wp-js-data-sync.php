@@ -19,6 +19,7 @@ use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Page_Cache_Diagnostic;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
@@ -337,3 +338,5 @@ jetpack_boost_register_readonly_option( 'premium_features', array( Premium_Featu
 jetpack_boost_register_readonly_option( 'super_cache', array( Super_Cache_Info::class, 'get_info' ) );
 
 jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback( false ), new Getting_Started_Entry() );
+
+jetpack_boost_Register_readonly_option( 'page_cache_diagnostic', array( Page_Cache_Diagnostic::class, 'get_status' ) );
