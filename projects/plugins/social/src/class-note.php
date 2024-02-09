@@ -29,7 +29,14 @@ class Note {
 			return;
 		}
 		self::register_cpt();
-		add_action( 'wp_insert_post_data', array( new Note(), 'set_empty_title' ), 10, 2 );
+		add_action( 'wp_insert_post_data', array( $this, 'set_empty_title' ), 10, 2 );
+		add_action( 'admin_init', array( $this, 'admin_init_actions' ) );
+	}
+
+	/**
+	 * Things to do on admin_init.
+	 */
+	public function admin_init_actions() {
 		add_action( 'current_screen', array( $this, 'add_filters_and_actions_for_screen' ) );
 	}
 
