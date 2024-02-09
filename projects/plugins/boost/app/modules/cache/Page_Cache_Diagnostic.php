@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
+use Automattic\Jetpack_Boost\Modules\Modules_Index;
+
 class Page_Cache_Diagnostic {
 
 	public static function get_status() {
@@ -36,8 +38,9 @@ class Page_Cache_Diagnostic {
 	 * @return bool|WP_Error
 	 */
 	public static function can_feature_be_enabled() {
-		$is_feature_enabled = false; // @todo update to use db call?
-		if ( $is_feature_enabled ) {
+		$modules           = new Modules_Index();
+		$is_module_enabled = $modules->is_module_enabled( Page_Cache::get_slug() );
+		if ( $is_module_enabled ) {
 			return true;
 		}
 
@@ -57,6 +60,7 @@ class Page_Cache_Diagnostic {
 
 		// is wp-config.php writable
 		if ( ! is_writable( ABSPATH . '/wp-config.php' ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+			// @todo - maybe it's not writable, but caching is enabled?
 			return new \WP_Error( 'wp-config-not-writable', 'wp-config.php is not writable.' );
 		}
 
