@@ -80,26 +80,24 @@ class Page_Cache implements Pluggable, Is_Always_On {
 
 		if ( file_exists( $advanced_cache_filename ) ) {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			if ( strpos( $content, Page_cache::$advanced_cache_signature ) !== false ) {
+			if ( strpos( $content, self::$advanced_cache_signature ) !== false ) {
 				return true;
 			} else {
 				return new \WP_Error( 'advanced-cache.php exists but is not the correct file' );
 			}
 		} else {
-			$contents = '<?php
-// ' . Page_cache::$advanced_cache_signature . '
-require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File_Cache.php\' );
+			$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . basename( dirname( plugin_dir_path( __FILE__ ), 3 ) ) . '/app/modules/cache/Boost_File_Cache.php';
+			$contents             = '<?php
+// ' . self::$advanced_cache_signature . '
+if ( ! file_exists( \'' . $boost_cache_filename . '\' ) ) {
+	return;
+}
+require_once( \'' . $boost_cache_filename . '\');
 
 ( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_File_Cache() )->serve();
 ';
-
-			$result = file_put_contents( $advanced_cache_filename, $contents ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-			if ( $result === false ) {
-				return new \WP_Error( 'Could not write to advanced-cache.php' );
-			}
+			return Boost_Cache_Utils::write_to_file( $advanced_cache_filename, $contents );
 		}
-
-		return true;
 	}
 
 	/*
