@@ -1723,34 +1723,36 @@ abstract class Publicize_Base {
 		$social_opengraph_image = $this->get_social_opengraph_image( get_the_ID() );
 
 		if ( ! empty( $social_opengraph_image ) ) {
-			return $this->add_jetpack_social_og_image( $tags, $social_opengraph_image );
+			$tags = $this->add_jetpack_social_og_image( $tags, $social_opengraph_image );
+		}
+
+		if ( empty( $tags['og:image'] ) || empty( $tags['og:image:width'] ) || empty( $tags['og:image:height'] ) ) {
+			return $tags;
 		}
 
 		// If we do not have a SIG or attached image, but we have an image in post body
 		// we need to check that the image is not too large for the social sites.
-		if ( ! empty( $tags['og:image'] ) && ! empty( $tags['og:image:width'] ) && ! empty( $tags['og:image:height'] ) ) {
-			$filesize = $this->get_remote_filesize( $tags['og:image'] );
-			// If the image is small enough, we do not need to do anything.
-			if ( empty( $filesize ) || $filesize <= self::OG_IMAGE_MAX_FILESIZE ) {
-				return $tags;
-			}
+		$filesize = $this->get_remote_filesize( $tags['og:image'] );
+		// If the image is small enough, we do not need to do anything.
+		if ( empty( $filesize ) || $filesize <= self::OG_IMAGE_MAX_FILESIZE ) {
+			return $tags;
+		}
 
-			$compressed_image = $this->compress_and_scale_og_image( $tags['og:image'], $tags['og:image:width'], $tags['og:image:height'] );
-			$filesize         = $this->get_remote_filesize( $compressed_image['url'] );
-			// If the compressed image is small enough, we use it.
-			if ( $filesize <= self::OG_IMAGE_MAX_FILESIZE ) {
-				$tags['og:image']        = $compressed_image['url'];
-				$tags['og:image:width']  = $compressed_image['width'];
-				$tags['og:image:height'] = $compressed_image['height'];
-				return $tags;
-			}
+		$compressed_image = $this->compress_and_scale_og_image( $tags['og:image'], $tags['og:image:width'], $tags['og:image:height'] );
+		$filesize         = $this->get_remote_filesize( $compressed_image['url'] );
+		// If the compressed image is small enough, we use it.
+		if ( $filesize <= self::OG_IMAGE_MAX_FILESIZE ) {
+			$tags['og:image']        = $compressed_image['url'];
+			$tags['og:image:width']  = $compressed_image['width'];
+			$tags['og:image:height'] = $compressed_image['height'];
+			return $tags;
+		}
 
-			$reduced_image = $this->reduce_file_size( $compressed_image['url'], $compressed_image['width'], $compressed_image['height'] );
-			if ( ! empty( $reduced_image ) ) {
-				$tags['og:image']        = $reduced_image['url'];
-				$tags['og:image:width']  = $reduced_image['width'];
-				$tags['og:image:height'] = $reduced_image['height'];
-			}
+		$reduced_image = $this->reduce_file_size( $compressed_image['url'], $compressed_image['width'], $compressed_image['height'] );
+		if ( ! empty( $reduced_image ) ) {
+			$tags['og:image']        = $reduced_image['url'];
+			$tags['og:image:width']  = $reduced_image['width'];
+			$tags['og:image:height'] = $reduced_image['height'];
 		}
 
 		return $tags;
