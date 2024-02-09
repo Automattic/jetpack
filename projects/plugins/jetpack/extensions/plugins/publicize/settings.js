@@ -19,15 +19,13 @@ export const Settings = () => {
 	const { hasEnabledConnections } = useSocialMediaConnections();
 	const { isSocialImageGeneratorAvailable } = usePublicizeConfig();
 
-	const hasSocialImageGenerator = isSocialImageGeneratorAvailable;
-
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
 			<JetpackPluginSidebar>
 				<PublicizePanel>
 					<UpsellNotice />
 				</PublicizePanel>
-				{ hasSocialImageGenerator && <SocialImageGeneratorPanel /> }
+				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
 			</JetpackPluginSidebar>
 
 			<PluginPrePublishPanel
@@ -45,7 +43,7 @@ export const Settings = () => {
 				</PublicizePanel>
 			</PluginPrePublishPanel>
 
-			{ hasSocialImageGenerator && (
+			{ isSocialImageGeneratorAvailable && (
 				<PluginPrePublishPanel
 					initialOpen
 					title={ __( 'Social Image Generator', 'jetpack' ) }
