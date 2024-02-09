@@ -424,9 +424,10 @@ class WPCOM_JSON_API {
 
 		// Normalize path and extract API version.
 		$this->path = untrailingslashit( $this->path );
-		preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches );
-		$this->path    = substr( $this->path, strlen( $matches[0] ?? '' ) );
-		$this->version = $matches[1] ?? null;
+		if ( preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches ) ) {
+			$this->path    = substr( $this->path, strlen( $matches[0] ) );
+			$this->version = $matches[1];
+		}
 
 		$allowed_methods = array( 'GET', 'POST' );
 		$four_oh_five    = false;
