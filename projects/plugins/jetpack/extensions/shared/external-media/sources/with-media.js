@@ -250,7 +250,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 						caption: image.caption,
 						id: image.ID,
 						type: 'image',
-						url: image.guid,
+						url: image.url,
 					} ) );
 				} else {
 					result = [
@@ -259,7 +259,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 							caption: items.caption,
 							id: items.ID,
 							type: 'image',
-							url: items.guid,
+							url: items.url,
 						},
 					];
 				}
