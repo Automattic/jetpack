@@ -47,6 +47,7 @@ class Page_Cache_Diagnostic {
 		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
 		// advanced-cache.php shouldn't exist
 		if ( file_exists( $advanced_cache_filename ) ) {
+			// @todo - what do we do when there's an update? We need to handle this internally.
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			if ( strpos( $content, Page_Cache::$advanced_cache_signature ) === false ) {
 				return new \WP_Error( 'feature-disabled-advanced-cache-incompatible', 'advanced-cache.php exists not compatible.' );
