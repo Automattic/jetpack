@@ -630,7 +630,7 @@ class Jetpack_SSO {
 			$nonce           = wp_create_nonce( 'jetpack-sso-invite-user' );
 			$connection_html = sprintf(
 				// Using formmethod and formaction because we can't nest forms and have to submit using the main form.
-				'<a href="%s" class="jetpack-sso-invitation sso-disconnected-user" title="%s">%s</a>',
+				'<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a><span title="%3$s" class="sso-disconnected-user-icon dashicons dashicons-warning"></span>',
 				add_query_arg(
 					array(
 						'user_id'      => $user_id,
@@ -639,8 +639,8 @@ class Jetpack_SSO {
 					),
 					admin_url( 'admin-post.php' )
 				),
-				esc_attr__( 'Invite the user to this site so they can login via SSO.', 'jetpack' ),
-				esc_html__( 'Invite', 'jetpack' )
+				esc_html__( 'Send invite', 'jetpack' ),
+				esc_attr__( 'This user doesn&#8217;t have a WP.com account and, with your current site settings, won&#8217;t be able to log in. Request them to create a WP.com to be able to function normally.', 'jetpack' )
 			);
 			return $connection_html;
 		}
@@ -678,6 +678,13 @@ class Jetpack_SSO {
 			.jetpack-sso-invitation.sso-disconnected-user:focus,
 			.jetpack-sso-invitation.sso-disconnected-user:active {
 				color: #0096dd;
+			}
+			.sso-disconnected-user-icon {
+				margin-left: 5px;
+				cursor: pointer;
+				background: black;
+				border-radius: 10px;
+				color: white;
 			}
 		</style>
 		<?php
