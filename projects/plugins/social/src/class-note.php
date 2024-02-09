@@ -80,11 +80,7 @@ class Note {
 			'rewrite'      => array( 'slug' => 'sn' ),
 		);
 		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
-<<<<<<< HEAD
 		self::maybe_flush_rewrite_rules();
-=======
-		static::may_be_flush_rewrite_rules();
->>>>>>> 6f3444d1b7 (Delete the flush rewrite option on plugin deactivation.)
 	}
 
 	/**
@@ -92,22 +88,14 @@ class Note {
 	 *
 	 * @param boolean $force Force flush the rewrite rules.
 	 */
-<<<<<<< HEAD
 	public function maybe_flush_rewrite_rules( $force = false ) {
 		if ( empty( get_option( self::FLUSH_REWRITE_RULES_FLUSHED ) ) || $force ) {
 			flush_rewrite_rules( false );
 			update_option( self::FLUSH_REWRITE_RULES_FLUSHED, true );
-=======
-	public static function may_be_flush_rewrite_rules( $force = false ) {
-		if ( empty( get_option( self::JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT ) ) || $force ) {
-			flush_rewrite_rules();
-			update_option( self::JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT, time() );
->>>>>>> 6f3444d1b7 (Delete the flush rewrite option on plugin deactivation.)
 		}
 	}
 
 	/**
-<<<<<<< HEAD
 	 * Toggle whether or not the Notes feature is enabled.
 	 */
 	public function toggle_enabled_status() {
@@ -118,12 +106,6 @@ class Note {
 		}
 		// Delete this option, so the rules get flushe in maybe_flush_rewrite_rules when the CPT is registered.
 		delete_option( self::FLUSH_REWRITE_RULES_FLUSHED );
-=======
-	 * Delete the JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT option when plugin is deactivated.
-	 */
-	public static function delete_rewrite_rules_option() {
-		delete_option( self::JETPACK_SOCIAL_REWRITE_RULES_LAST_FLUSHED_AT );
->>>>>>> 6f3444d1b7 (Delete the flush rewrite option on plugin deactivation.)
 	}
 
 	/**
