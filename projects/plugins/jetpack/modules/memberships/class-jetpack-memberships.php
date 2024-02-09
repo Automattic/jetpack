@@ -579,13 +579,13 @@ class Jetpack_Memberships {
 	 */
 	public static function user_is_paid_subscriber() {
 		$user_id = get_current_user_id();
-
-		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-		$paywall            = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$is_paid_subscriber = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS );
-
-		self::$user_is_paid_subscriber_cache[ $user_id ] = $is_paid_subscriber;
-		return $is_paid_subscriber;
+		if ( ! isset( self::$user_is_paid_subscriber_cache[ $user_id ] ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+			$paywall            = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+			$is_paid_subscriber = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS );
+			self::$user_is_paid_subscriber_cache[ $user_id ] = $is_paid_subscriber;
+		}
+		return self::$user_is_paid_subscriber_cache[ $user_id ];
 	}
 
 	/**
