@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+WooCommerce Analytics: avoid error when trying to pay for a deleted product.

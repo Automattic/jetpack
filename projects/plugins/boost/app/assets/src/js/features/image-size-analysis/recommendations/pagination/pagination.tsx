@@ -1,7 +1,9 @@
+import classNames from 'classnames';
 import { useState, useEffect, useMemo } from 'react';
 import ChevronLeft from '$svg/chevron-left';
 import ChevronRight from '$svg/chevron-right';
 import { Link } from 'react-router-dom';
+import styles from './pagination.module.scss';
 
 interface PaginationProps {
 	group: string;
@@ -35,11 +37,11 @@ const PaginationArrow: React.FC< PaginationLinkProps > = ( {
 	);
 
 	if ( inactive ) {
-		return <span className="jb-pagination__page jb-pagination__page--inactive">{ children }</span>;
+		return <span className={ classNames( styles.page, styles.inactive ) }>{ children }</span>;
 	}
 
 	return (
-		<Link to={ `/image-size-analysis/${ group }/${ page }` } className="jb-pagination__page">
+		<Link to={ `/image-size-analysis/${ group }/${ page }` } className={ styles.page }>
 			{ children }
 		</Link>
 	);
@@ -77,24 +79,24 @@ const Pagination: React.FC< PaginationProps > = ( { group, current, total } ) =>
 	}, [ MORE_ICON, current, total ] );
 
 	return (
-		<div className="jb-pagination">
+		<div className={ styles.pagination }>
 			{ total > 1 && (
 				<>
 					<PaginationArrow direction="left" group={ group } current={ current } total={ total }>
 						<ChevronLeft />
 					</PaginationArrow>
 
-					<ul className="jb-pagination__list">
+					<ul className={ styles.list }>
 						{ pages.map( ( paginationPage, index ) => (
-							<li key={ index } className="jb-pagination__item">
+							<li key={ index } className={ styles.item }>
 								{ paginationPage === MORE_ICON ? (
-									<span className="jb-pagination__page jb-pagination__more"> ... </span>
+									<span className={ styles.page }> ... </span>
 								) : (
 									<Link
 										to={ `/image-size-analysis/${ group }/${ paginationPage }` }
-										className={ `jb-pagination__page${
-											paginationPage === current ? ' jb-pagination__page--current' : ''
-										}` }
+										className={ classNames( styles.page, {
+											[ styles.current ]: paginationPage === current,
+										} ) }
 									>
 										{ paginationPage }
 									</Link>
