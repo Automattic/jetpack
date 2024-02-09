@@ -119,7 +119,8 @@ export default function usePublicizeConfig() {
 		shouldShowAdvancedPlanNudge: sharesData.show_advanced_plan_upgrade_nudge,
 		hasPaidPlan,
 		isEnhancedPublishingEnabled,
-		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
+		isSocialImageGeneratorAvailable:
+			!! getJetpackData()?.social?.isSocialImageGeneratorAvailable && ! isJetpackSocialNote,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
 		connectionsAdminUrl: connectionsRootUrl + ( blogID ?? getSiteFragment() ),
 		adminUrl: getJetpackData()?.social?.adminUrl,

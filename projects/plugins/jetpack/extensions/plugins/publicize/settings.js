@@ -17,9 +17,9 @@ import UpsellNotice from './components/upsell';
 export const Settings = () => {
 	useSyncPostDataToStore();
 	const { hasEnabledConnections } = useSocialMediaConnections();
-	const { isSocialImageGeneratorAvailable, isJetpackSocialNote } = usePublicizeConfig();
+	const { isSocialImageGeneratorAvailable } = usePublicizeConfig();
 
-	const hasSocialImageGenerator = isSocialImageGeneratorAvailable && ! isJetpackSocialNote;
+	const hasSocialImageGenerator = isSocialImageGeneratorAvailable;
 
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
