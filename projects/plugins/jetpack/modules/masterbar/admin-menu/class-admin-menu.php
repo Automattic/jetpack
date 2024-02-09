@@ -22,13 +22,13 @@ class Admin_Menu extends Base_Admin_Menu {
 	 */
 	public function reregister_menu_items() {
 		// Remove separators.
-		remove_menu_page( 'separator1' );
-		$this->add_stats_menu();
 
 		// When the interface is set to wp-admin, move items in Upgrades section to the WordPress.com-specific menu item.
 		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
-			$this->add_wpcom_menu();
+			// $this->add_wpcom_menu();
 		} else {
+			remove_menu_page( 'separator1' );
+			$this->add_stats_menu();
 			$this->add_upgrades_menu();
 		}
 		$this->add_posts_menu();
@@ -516,7 +516,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		check_ajax_referer( 'upsell_nudge_jitm' );
 
 		$nudge = $this->get_upsell_nudge();
-		if ( ! $nudge ) {
+		if ( ! $nudge || 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
 			wp_die();
 		}
 

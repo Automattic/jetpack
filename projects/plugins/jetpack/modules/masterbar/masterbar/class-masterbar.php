@@ -408,8 +408,12 @@ class Masterbar {
 
 		// Here we add the My sites and Reader buttons
 		$this->wpcom_adminbar_add_secondary_groups( $bar );
+
 		$this->add_my_sites_submenu( $bar );
-		$this->add_reader_submenu( $bar );
+
+		if ( 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
+			$this->add_reader_submenu( $bar );
+		}
 
 		foreach ( $nodes as $id => $node ) {
 
@@ -948,8 +952,9 @@ class Masterbar {
 		$my_site_url   = 'https://wordpress.com/sites/' . $this->primary_site_url;
 		$my_site_title = _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' );
 		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
-			$my_site_url   = 'https://wordpress.com/sites';
-			$my_site_title = esc_html__( 'My Sites', 'jetpack' );
+			$my_site_url   = 'https://wordpress.com/home/' . $this->primary_site_url;
+			$my_site_url   = 'http://calypso.localhost:3000/home/' . $this->primary_site_url;
+			$my_site_title = __( 'WordPress.com', 'jetpack' );
 		}
 
 		$wp_admin_bar->add_menu(
