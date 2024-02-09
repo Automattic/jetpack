@@ -295,46 +295,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 13.1-beta - 2024-02-05
 #### Enhancements
-- Add support for WooCommerce HPOS to the Google Analytics module.
-- Blog Stats Block: allow transforming the Legacy Widget into the new block.
-- Changed dismissed notices endpoint to be a core endpoint
-- GIF Block: Accept Giphy shortlinks as a valid embed.
-- GIF Block: fix styling of the search bar input.
-- Gutenberg: Add Blog Stats block.
-- Jetpack Search: Add 'price' as the default sorting option.
-- Like block: Move the block from beta to production
-- Making sharing buttons block visible to all users
-- Related Posts: Get the related posts only when the option is turned on and the current post contains a Related Posts block
-- Social: Added recommendation card for the advanced plan
-- Subject: A new way to upload media via the Jetpack App
-- Subscribe block: add buttons transform
-- Subscribe block: don't allow editing the email for subscribing for logged-in members.
-- Subscribe Block: Don't include social followers on counts by default.
-- Top Posts & Pages block: allow transforming the Legacy Widget into the new block.
-- Top Posts & Pages block: Remove unnecessary parameters from endpoint.
+- Like block: the existing Jetpack Like & Reblog button features are now available as a block! With the new Like block, users are be able to add the Like & Reblog features not just to posts and pages, but also to block templates and block patterns. You can give the new Like block a try by adding it from within the editor just like any other block.
+- Sharing Buttons block: similar to the Like block mentioned above, the existing Jetpack Sharing Buttons feature is now available as a block.
 
 #### Improved compatibility
-- Likes: Flip likers popup when overflowing viewport.
+- GIF block: accept Giphy shortlinks as a valid embed.
 - Performance: improve script enqueuing strategies to rely on methods introduced in WordPress 6.3.
-- Post Images: avoid PHP warnings on sites using PHP 8.1+, when a post image has a malformed URL.
-- RNMobile: Disable Story block
-- Sitemaps: Use wp_loaded filter hook instead of init filter hook to load the permalinks for the sitemaps, Which will allow plugins and other hooks to load.
+- Sitemaps: use wp_loaded filter hook instead of init hook to load the permalinks for the sitemaps, which allows plugins and other hooks to load.
 
 #### Bug fixes
-- AI Assistant: avoid deprecation notices when using a development version of WordPress.
-- AI Assistant: do not attempt to display the AI Excerpt assistant in the site editor and the widget editor.
-- Dashboard: update the Support card to display the right contents depending on the plan or product used on the site.
-- Enhanced WordPress.com API compatibility with third party plugin data.
-- Fixes recurring payments buttons multiple plan support.
-- iCalendarReader: Support BYDAY recurrence rules for last, second-to-last, or third-to-last weekdays
-- Subscribe block: fix spacing of "pending email confirmation" message in some themes
-- Subscribe modal: Don't show in Elementor editor
-- Subscriptions: do not display subscription checkboxes in comment forms displayed on Custom Post Type pages.
-- Subscriptions: Fix broken subscribe button in email
-- Subscriptions: Fix page scrolling up after the subscription modal is dismissed
-- Subscriptions: Fix subscribtion modal appear right after subscribing
-- Theme Tools: Ensure that Content Options does not override the Featured Images options set within blocks.
-- WordPress.com REST API: avoid fatal error when receiving error in API response.
+- Related Posts block: get related posts only when the option is turned on and the current post contains a Related Posts block.
+- Spotify shortcode: prevent a fatal error in PHP 8.1 if no attributes are passed.
+- Theme Tools: ensure that Content Options does not override the Featured Images options set within blocks.
 
 --------
 

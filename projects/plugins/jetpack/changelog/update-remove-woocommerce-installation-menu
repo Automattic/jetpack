@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Remove calls to add_woocommerce_installation_menu from WPcom_Admin_Menu and Atomic_Admin_Menu.

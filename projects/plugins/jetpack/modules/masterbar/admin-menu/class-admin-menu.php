@@ -24,7 +24,13 @@ class Admin_Menu extends Base_Admin_Menu {
 		// Remove separators.
 		remove_menu_page( 'separator1' );
 		$this->add_stats_menu();
-		$this->add_upgrades_menu();
+
+		// When the interface is set to wp-admin, move items in Upgrades section to the WordPress.com-specific menu item.
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			$this->add_wpcom_menu();
+		} else {
+			$this->add_upgrades_menu();
+		}
 		$this->add_posts_menu();
 		$this->add_media_menu();
 		$this->add_page_menu();
@@ -124,6 +130,44 @@ class Admin_Menu extends Base_Admin_Menu {
 	 */
 	public function add_stats_menu() {
 		add_menu_page( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+	}
+
+	/**
+	 * Adds WordPress.com menu.
+	 *
+	 * @return number The current position of the submenu.
+	 */
+	public function add_wpcom_menu() {
+		add_menu_page( esc_attr__( 'WordPress.com', 'jetpack' ), __( 'WordPress.com', 'jetpack' ), 'publish_posts', 'wpcom', null, 'dashicons-wordpress-alt', 4 );
+
+		$submenu_position = 0;
+		// We don't want to show the items related to the Upgrades on the staging site.
+		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
+			add_submenu_page( 'wpcom', esc_attr__( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/' . $this->domain, null, $submenu_position++ );
+
+			if ( defined( 'WPCOM_ENABLE_ADD_ONS_MENU_ITEM' ) && WPCOM_ENABLE_ADD_ONS_MENU_ITEM ) {
+				add_submenu_page( 'wpcom', esc_attr__( 'Add-Ons', 'jetpack' ), __( 'Add-Ons', 'jetpack' ), 'manage_options', 'https://wordpress.com/add-ons/' . $this->domain, null, $submenu_position++ );
+			}
+
+			add_submenu_page( 'wpcom', esc_attr__( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $submenu_position++ );
+
+			/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
+			if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
+				add_submenu_page( 'wpcom', esc_attr__( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $submenu_position++ );
+			}
+
+			add_submenu_page( 'wpcom', esc_attr__( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, $submenu_position++ );
+		}
+
+		add_submenu_page( 'wpcom', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, $submenu_position++ );
+		add_submenu_page( 'wpcom', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, $submenu_position++ );
+		add_submenu_page( 'wpcom', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, $submenu_position++ );
+		add_submenu_page( 'wpcom', esc_attr__( 'Site Tools', 'jetpack' ), __( 'Site Tools', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/site-tools/' . $this->domain, null, $submenu_position++ );
+
+		// Remove the submenu auto-created by Core.
+		$this->hide_submenu_page( 'wpcom', 'wpcom' );
+
+		return $submenu_position;
 	}
 
 	/**
@@ -348,8 +392,10 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->hide_submenu_page( 'tools.php', 'tools.php' );
 		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
 
-		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 0 );
-		add_submenu_page( 'tools.php', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 1 );
+		if ( 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 0 );
+			add_submenu_page( 'tools.php', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 1 );
+		}
 	}
 
 	/**
