@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import Button from '$features/image-size-analysis/button/button';
 import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
 import { type IsaImage } from '$features/image-size-analysis';
+import styles from './table-row-hover.module.scss';
 
 // @REACT-TODO: Move this to a DataSync Store.
 const __DEV_ENABLE_FIX_BUTTON = false;
@@ -25,11 +26,11 @@ const TableRowHover: React.FC< TableRowHoverProps > = ( {
 	toggleImageFix,
 } ) => {
 	return (
-		<div className="jb-row-hover">
-			<p className="jb-row-hover__instruction">{ instructions }</p>
+		<div className={ styles.hover }>
+			<p className={ styles.instruction }>{ instructions }</p>
 
 			{ edit_url && (
-				<div className="jb-row-hover__button-container">
+				<div>
 					{ __DEV_ENABLE_FIX_BUTTON && imageId && toggleImageFix && device_type === 'desktop' ? (
 						<Button width="auto" fill onClick={ () => toggleImageFix( imageId ) }>
 							{ isFixed ? __( 'Undo Fix', 'jetpack-boost' ) : __( 'Fix', 'jetpack-boost' ) }
