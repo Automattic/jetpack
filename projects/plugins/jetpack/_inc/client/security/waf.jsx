@@ -174,26 +174,32 @@ export const Waf = class extends Component {
 	 * Toggle share data.
 	 */
 	toggleShareData = () => {
-		this.setState(
-			{
-				...this.state,
-				shareData: ! this.state.shareData,
-			},
-			this.onSubmit
-		);
+		const state = {
+			...this.state,
+			shareData: ! this.state.shareData,
+		};
+
+		if ( ! state.shareData ) {
+			state.shareDebugData = state.shareData;
+		}
+
+		this.setState( state, this.onSubmit );
 	};
 
 	/**
 	 * Toggle share debug data.
 	 */
 	toggleShareDebugData = () => {
-		this.setState(
-			{
-				...this.state,
-				shareDebugData: ! this.state.shareDebugData,
-			},
-			this.onSubmit
-		);
+		const state = {
+			...this.state,
+			shareDebugData: ! this.state.shareDebugData,
+		};
+
+		if ( state.shareDebugData ) {
+			state.shareData = state.shareDebugData;
+		}
+
+		this.setState( state, this.onSubmit );
 	};
 
 	render() {
