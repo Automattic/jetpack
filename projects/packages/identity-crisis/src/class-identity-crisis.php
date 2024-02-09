@@ -546,9 +546,8 @@ class Identity_Crisis {
 	 * Returns the value of the jetpack_should_handle_idc filter or constant.
 	 * If set to true, the site will be put into staging mode.
 	 *
-	 * This method uses both the current jetpack_should_handle_idc filter and constant and the
-	 * legacy jetpack_sync_idc_optin filter and constant to determine whether an IDC should be
-	 * handled.
+	 * This method uses both the current jetpack_should_handle_idc filter
+	 * and constant to determine whether an IDC should be handled.
 	 *
 	 * @return bool
 	 * @since 0.2.6
@@ -556,9 +555,6 @@ class Identity_Crisis {
 	public static function should_handle_idc() {
 		if ( Constants::is_defined( 'JETPACK_SHOULD_HANDLE_IDC' ) ) {
 			$default = Constants::get_constant( 'JETPACK_SHOULD_HANDLE_IDC' );
-		} elseif ( Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
-			// Check the legacy constant. This constant should be considered deprecated as of version 0.2.6.
-			$default = Constants::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
 		} else {
 			$default = ! Constants::is_defined( 'SUNRISE' ) && ! is_multisite();
 		}
