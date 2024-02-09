@@ -62,9 +62,6 @@ export function showModal( url ) {
 
 	window.addEventListener( 'message', handleIframeResult, false );
 	dialog.showModal();
-
-	// This line has to come after the modal has opened otherwise Firefox doesn't scroll to the top.
-	window.scrollTo( 0, 0 );
 }
 
 function setUpModal( button ) {
