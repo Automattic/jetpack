@@ -118,6 +118,18 @@ const Index = () => {
 				<CloudCssMeta />
 			</Module>
 			<Module
+				slug="page_cache"
+				title={ __( 'Cache Site Pages', 'jetpack-boost' ) }
+				description={
+					<p>
+						{ __(
+							'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
+							'jetpack-boost'
+						) }
+					</p>
+				}
+			></Module>
+			<Module
 				slug="render_blocking_js"
 				title={ __( 'Defer Non-Essential JavaScript', 'jetpack-boost' ) }
 				description={

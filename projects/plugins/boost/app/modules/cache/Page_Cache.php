@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
-use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
 /*
@@ -11,7 +10,7 @@ use Automattic\Jetpack_Boost\Contracts\Pluggable;
 require_once __DIR__ . '/Boost_Cache_Utils.php';
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 
-class Page_Cache implements Pluggable, Is_Always_On {
+class Page_Cache implements Pluggable {
 	/*
 	 * @var array - The errors that occurred when removing the cache.
 	 */
@@ -203,6 +202,6 @@ define( \'WP_CACHE\', true );',
 	}
 
 	public static function get_slug() {
-		return 'boost_cache';
+		return 'page_cache';
 	}
 }
