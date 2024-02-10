@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Don't run `tsc` for production builds, run it in CI tests instead.
+
+
