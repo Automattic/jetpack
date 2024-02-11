@@ -600,9 +600,7 @@ class REST_Controller {
 			'v2',
 			array( 'timeout' => 5 ),
 			null,
-			'wpcom',
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			! isset( $_GET['force_refresh'] ) && ! isset( $_GET['statsPurchaseSuccess'] )
+			'wpcom'
 		);
 	}
 
@@ -782,8 +780,7 @@ class REST_Controller {
 			),
 			null,
 			'wpcom',
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			! isset( $_GET['force_refresh'] ) && ! isset( $_GET['statsPurchaseSuccess'] ),
+			true,
 			static::JETPACK_STATS_DASHBOARD_MODULES_CACHE_KEY
 		);
 	}
@@ -837,8 +834,7 @@ class REST_Controller {
 			),
 			null,
 			'wpcom',
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			! isset( $_GET['force_refresh'] ) && ! isset( $_GET['statsPurchaseSuccess'] ),
+			true,
 			static::JETPACK_STATS_DASHBOARD_MODULE_SETTINGS_CACHE_KEY
 		);
 	}

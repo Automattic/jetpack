@@ -106,8 +106,7 @@ class Notices {
 			),
 			null,
 			'wpcom',
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			! isset( $_GET['force_refresh'] ) && ! isset( $_GET['statsPurchaseSuccess'] ),
+			true,
 			static::STATS_DASHBOARD_NOTICES_CACHE_KEY
 		);
 
