@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+OG image will be converted to match platform requirements even if its inside the body

@@ -1736,6 +1736,9 @@ importers:
       '@wordpress/compose':
         specifier: 6.27.0
         version: 6.27.0(react@18.2.0)
+      '@wordpress/core-data':
+        specifier: 6.27.2
+        version: 6.27.2(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/data':
         specifier: 9.20.0
         version: 9.20.0(react@18.2.0)

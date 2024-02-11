@@ -314,7 +314,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			return $site_id;
 		}
 
-		if ( ! current_user_can( 'manage_options' ) || ! is_user_member_of_blog( get_current_user_id(), $site_id ) ) {
+		if ( ! current_user_can( 'edit_pages' ) ) {
 			return new WP_Error(
 				'invalid_user_permission_jetpack_form_responses',
 				'unauthorized',
