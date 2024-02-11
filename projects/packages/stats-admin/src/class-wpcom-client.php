@@ -125,7 +125,7 @@ class WPCOM_Client {
 	 *
 	 * @return bool
 	 */
-	protected function should_bypass_cache() {
+	protected static function should_bypass_cache() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return isset( $_GET['force_refresh'] ) || isset( $_GET['statsPurchaseSuccess'] ) ||
 			// phpcs:ignore WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
