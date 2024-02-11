@@ -128,9 +128,9 @@ class WPCOM_Client {
 	protected function should_bypass_cache() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return isset( $_GET['force_refresh'] ) || isset( $_GET['statsPurchaseSuccess'] ) ||
-		// phpcs:ignore WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		( isset( $_SERVER[ 'HTTP_REFERER' ] ) && false !== strpos( $_SERVER[ 'HTTP_REFERER' ], 'force_refresh' ) ) ||
-		// phpcs:ignore WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		( isset( $_SERVER[ 'HTTP_REFERER' ] ) && false !== strpos( $_SERVER[ 'HTTP_REFERER' ], 'statsPurchaseSuccess' ) );
+			// phpcs:ignore WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			( isset( $_SERVER[ 'HTTP_REFERER' ] ) && false !== strpos( $_SERVER[ 'HTTP_REFERER' ], 'force_refresh' ) ) ||
+			// phpcs:ignore WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			( isset( $_SERVER[ 'HTTP_REFERER' ] ) && false !== strpos( $_SERVER[ 'HTTP_REFERER' ], 'statsPurchaseSuccess' ) );
 	}
 }
