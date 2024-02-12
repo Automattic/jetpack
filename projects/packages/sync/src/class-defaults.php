@@ -28,7 +28,7 @@ class Defaults {
 		'avatar_rating',
 		'blog_charset',
 		'blog_public',
-		'wpcom_partner_sharing_opt_out',
+		'wpcom_third_party_data_opt_out',
 		'blogdescription',
 		'blogname',
 		'carousel_background_color',
