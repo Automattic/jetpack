@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9930099f8aaff885da4e3873854ab01a",
+    "content-hash": "63dd1ce07e87bea4c21dec74dad2b23d",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -218,16 +218,16 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v5.12.0",
+            "version": "v5.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "72e2600eb154027ec02f17051e72c200d8ba9220"
+                "reference": "9649392e55e7444a3dd7760b1ec7083bb8234501"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/72e2600eb154027ec02f17051e72c200d8ba9220",
-                "reference": "72e2600eb154027ec02f17051e72c200d8ba9220",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/9649392e55e7444a3dd7760b1ec7083bb8234501",
+                "reference": "9649392e55e7444a3dd7760b1ec7083bb8234501",
                 "shasum": ""
             },
             "require": {
@@ -268,9 +268,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.12.0"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.12.1"
             },
-            "time": "2024-02-05T17:56:57+00:00"
+            "time": "2024-02-12T19:44:55+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
