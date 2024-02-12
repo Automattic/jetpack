@@ -114,7 +114,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'default_ping_status'                          => 'pineapple',
 			'sticky_posts'                                 => 'pineapple',
 			'blog_public'                                  => 0,
-			'wpcom_third_party_data_opt_out'               => false,
+			'wpcom_data_sharing_opt_out'                   => false,
 			'default_pingback_flag'                        => 'pineapple',
 			'require_name_email'                           => 'pineapple',
 			'close_comments_for_old_posts'                 => 'pineapple',
