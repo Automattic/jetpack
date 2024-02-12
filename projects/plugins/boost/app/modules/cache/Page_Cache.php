@@ -177,7 +177,7 @@ define( \'WP_CACHE\', true );',
 		}
 
 		$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		if ( strpos( $content, self::$advanced_cache_signature ) !== false ) {
+		if ( strpos( $content, self::ADVANCED_CACHE_SIGNATURE ) !== false ) {
 			wp_delete_file( $advanced_cache_filename );
 
 		}
