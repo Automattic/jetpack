@@ -102,4 +102,20 @@ class File_Storage implements Storage {
 		$_cache[ $path ] = $path;
 		return $path;
 	}
+
+	/*
+	 * Delete all cached data for the given path.
+	 *
+	 * @param string $path - The path to delete.
+	 */
+	public function invalidate( $path ) {
+		$path = $this->sanitize_path( $path );
+		$dir  = $this->root_path . $path;
+
+		if ( Boost_Cache_Utils::is_boost_cache_directory( $dir ) ) {
+			return Boost_Cache_Utils::delete_directory( $dir );
+		}
+
+		return false;
+	}
 }
