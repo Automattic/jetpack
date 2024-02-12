@@ -103,11 +103,11 @@ class Speed_Score_Request extends Cacheable {
 	}
 
 	/**
-	 * Get the list of active modules while this request was created.
+	 * Get the list of active performance modules while this request was created.
 	 *
 	 * @return string
 	 */
-	public function get_active_modules() {
+	public function get_active_performance_modules() {
 
 		// List of modules that affect the speed score.
 		$performance_modules = array(
@@ -130,7 +130,7 @@ class Speed_Score_Request extends Cacheable {
 		return array(
 			'id'             => $this->get_cache_id(),
 			'url'            => $this->url,
-			'active_modules' => $this->get_active_modules(),
+			'active_modules' => $this->get_active_performance_modules(),
 			'created'        => $this->created,
 			'status'         => $this->status,
 			'error'          => $this->error,
