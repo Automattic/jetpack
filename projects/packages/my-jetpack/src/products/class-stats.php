@@ -47,7 +47,7 @@ class Stats extends Module_Product {
 	/**
 	 * Stats only requires site connection, not user connection
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	public static $requires_user_connection = false;
 
