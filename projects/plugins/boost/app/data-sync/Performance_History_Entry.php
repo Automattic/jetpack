@@ -21,9 +21,10 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 
 		if ( is_wp_error( $result ) || empty( $result['data'] ) ) {
 			return array(
-				'startDate' => $this->start_date,
-				'endDate'   => $this->end_date,
-				'periods'   => array(),
+				'startDate'   => $this->start_date,
+				'endDate'     => $this->end_date,
+				'periods'     => array(),
+				'annotations' => array(),
 			);
 		}
 
@@ -31,7 +32,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 			'startDate'   => $result['data']['_meta']['start'],
 			'endDate'     => $result['data']['_meta']['end'],
 			'periods'     => $result['data']['periods'],
-			'annotations' => $result['data']['annotations'],
+			'annotations' => isset( $result['data']['annotations'] ) ? $result['data']['annotations'] : array(),
 		);
 	}
 

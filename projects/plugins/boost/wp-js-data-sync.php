@@ -305,7 +305,7 @@ jetpack_boost_register_option(
 						'text'      => Schema::as_string(),
 					)
 				)
-			)->nullable(),
+			),
 			'startDate'   => Schema::as_number(),
 			'endDate'     => Schema::as_number(),
 		)

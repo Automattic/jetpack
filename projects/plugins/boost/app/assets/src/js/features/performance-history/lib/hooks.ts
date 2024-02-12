@@ -18,14 +18,12 @@ const periodsSchema = z.object( {
 const performanceHistoryDataSchema = z
 	.object( {
 		periods: z.array( periodsSchema ),
-		annotations: z
-			.array(
-				z.object( {
-					timestamp: z.number(),
-					text: z.string(),
-				} )
-			)
-			.optional(),
+		annotations: z.array(
+			z.object( {
+				timestamp: z.number(),
+				text: z.string(),
+			} )
+		),
 		startDate: z.number(),
 		endDate: z.number(),
 	} )
