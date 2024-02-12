@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Make sure $url is a string before calling str_contains().
