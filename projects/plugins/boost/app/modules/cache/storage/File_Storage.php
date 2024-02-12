@@ -97,19 +97,7 @@ class File_Storage implements Storage {
 			return $_cache[ $path ];
 		}
 
-		$path = Boost_Cache_Utils::trailingslashit( $path );
-		$path = Boost_Cache_Utils::deep_replace(
-			array( '..', '\\' ),
-			preg_replace(
-				'/[ <>\'\"\r\n\t\(\)]/',
-				'',
-				preg_replace(
-					'/(\?.*)?(#.*)?$/',
-					'',
-					$path
-				)
-			)
-		);
+		$path = Boost_Cache_Utils::sanitize_file_path( $path );
 
 		$_cache[ $path ] = $path;
 		return $path;
