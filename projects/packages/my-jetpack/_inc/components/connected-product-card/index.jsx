@@ -20,8 +20,10 @@ const ConnectedProductCard = ( {
 	showMenu = false,
 	Description = null,
 	additionalActions = null,
+	secondaryAction = null,
 	menuItems = [],
 	upgradeInInterstitial = false,
+	primaryActionOverride,
 } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
@@ -132,6 +134,8 @@ const ConnectedProductCard = ( {
 			isDeactivatingStandalone={ deactivatingStandalone }
 			onDeactivate={ deactivate }
 			additionalActions={ additionalActions }
+			primaryActionOverride={ primaryActionOverride }
+			secondaryAction={ secondaryAction }
 			slug={ slug }
 			onActivate={ handleActivate }
 			showMenu={ menuIsActive }
@@ -156,6 +160,8 @@ ConnectedProductCard.propTypes = {
 	isDataLoading: PropTypes.bool,
 	showMenu: PropTypes.bool,
 	additionalActions: PropTypes.array,
+	primaryActionOverride: PropTypes.object,
+	secondaryAction: PropTypes.object,
 	menuItems: PropTypes.array,
 };
 

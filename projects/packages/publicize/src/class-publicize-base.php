@@ -1748,7 +1748,7 @@ abstract class Publicize_Base {
 			return $tags;
 		}
 
-		$reduced_image = $this->reduce_file_size( $compressed_image['url'], $compressed_image['width'], $compressed_image['height'] );
+		$reduced_image = $this->reduce_file_size( $compressed_image['url'], $compressed_image['width'], $compressed_image['height'], $filesize );
 		if ( ! empty( $reduced_image ) ) {
 			$tags['og:image']        = $reduced_image['url'];
 			$tags['og:image:width']  = $reduced_image['width'];
