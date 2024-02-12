@@ -912,7 +912,7 @@ function is_jetpack_token_subscription_service_loaded(): bool {
 function maybe_prevent_super_cache_caching() {
 	// Prevents cached page to be served if the Membership cookie is present
 	if ( is_jetpack_token_subscription_service_loaded() ) {
-		do_action( ‘wpsc_add_cookie’, Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME );
+		do_action( 'wpsc_add_cookie', Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME );
 	}
 
 	if ( is_user_auth() ) {
