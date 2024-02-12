@@ -716,8 +716,18 @@ i.icon.child:before {
 
 .jpcrm-client-portal-admin-banner {
 	padding: 0 20px 20px 20px;
+	color: var(--jp-black);
 
 	.admin-message {
 		text-wrap: balance;
+	}
+
+	a, a:visited, a:active {
+		color: var(--jp-black);
+		text-decoration: underline;
+
+		&:hover, &:focus {
+			color: var(--jp-gray-10);
+		}
 	}
 }
