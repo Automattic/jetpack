@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2024-02-12
+### Added
+- Added a new site setting option for opting out of research partners using your site's content. [#35509]
+
 ## [2.5.1] - 2024-02-07
 ### Changed
 - Update dependencies.
@@ -1039,6 +1043,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[2.6.0]: https://github.com/Automattic/jetpack-sync/compare/v2.5.1...v2.6.0
 [2.5.1]: https://github.com/Automattic/jetpack-sync/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/Automattic/jetpack-sync/compare/v2.4.2...v2.5.0
 [2.4.2]: https://github.com/Automattic/jetpack-sync/compare/v2.4.1...v2.4.2
