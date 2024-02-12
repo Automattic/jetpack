@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-forms",
-	"version": "0.30.3",
+	"version": "0.30.4-alpha",
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
 	"bugs": {
@@ -36,6 +36,7 @@
 		"@wordpress/block-editor": "12.18.2",
 		"@wordpress/blocks": "12.27.1",
 		"@wordpress/compose": "6.27.0",
+		"@wordpress/core-data": "6.27.2",
 		"@wordpress/data": "9.20.0",
 		"@wordpress/element": "5.27.0",
 		"@wordpress/hooks": "3.50.0",

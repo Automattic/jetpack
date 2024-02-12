@@ -529,7 +529,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/identity-crisis",
-				"reference": "a0250717669c335a2696024c473a306309765ee7"
+				"reference": "5406e585309097950723400ecb775b06a498bbcb"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -559,7 +559,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.15.x-dev"
+					"dev-trunk": "0.16.x-dev"
 				}
 			},
 			"autoload": {
@@ -841,7 +841,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "bf778754fb706da75a7c178fa20217ae9281e212"
+				"reference": "788923064a9e6dfd1fb5287d3f37f52f97c97774"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -873,7 +873,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.8.x-dev"
+					"dev-trunk": "4.9.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1105,7 +1105,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "8ae211d5a7ea6e710c056c3f7a22fef3adaa9397"
+				"reference": "cdf843add1fb7328d3b3c5f265d1a6b6ce9cd792"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1133,7 +1133,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.41.x-dev"
+					"dev-trunk": "0.42.x-dev"
 				}
 			},
 			"autoload": {

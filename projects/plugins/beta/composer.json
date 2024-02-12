@@ -35,7 +35,7 @@
 	"prefer-stable": true,
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ4_0_0_alpha",
+		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ4_0_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true
 		}
