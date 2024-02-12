@@ -16,33 +16,15 @@ import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAnalytics from '../../../../blocks/ai-assistant/hooks/use-analytics';
 import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
 import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
+import {
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_TIERED,
+	usePlanType,
+	PlanType,
+} from '../../../../shared/use-plan-type';
 import UsageControl from '../usage-bar';
 import './style.scss';
-import { PLAN_TYPE_FREE, PLAN_TYPE_TIERED, PLAN_TYPE_UNLIMITED } from '../usage-bar/types';
 import type { UsagePanelProps } from './types';
-import type { PlanType } from '../usage-bar/types';
-
-/**
- * Simple hook to get the plan type from the current tier
- *
- * @param {object} currentTier - the current tier from the AI Feature data
- * @returns {PlanType} the plan type
- */
-const usePlanType = ( currentTier ): PlanType => {
-	if ( ! currentTier ) {
-		return null;
-	}
-
-	if ( currentTier?.value === 0 ) {
-		return PLAN_TYPE_FREE;
-	}
-
-	if ( currentTier?.value === 1 ) {
-		return PLAN_TYPE_UNLIMITED;
-	}
-
-	return PLAN_TYPE_TIERED;
-};
 
 /**
  * Simple hook to get the days until the next reset
@@ -137,6 +119,7 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 		currentTier,
 		nextTier,
 		requireUpgrade,
+		loading,
 	} = useAiFeature();
 	const planType = usePlanType( currentTier );
 	const daysUntilReset = useDaysUntilReset( usagePeriod?.nextStart );
@@ -148,7 +131,7 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 	const trackUpgradeClick = useCallback(
 		( event: React.MouseEvent< HTMLElement > ) => {
 			event.preventDefault();
-			tracks.recordEvent( 'jetpack_ai_usage_panel_upgrade_button_click', {
+			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
 				current_tier_slug: currentTier?.slug,
 				requests_count: requestsCount,
 				...( placement ? { placement } : {} ),
@@ -161,7 +144,7 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 	const trackContactUsClick = useCallback(
 		( event: React.MouseEvent< HTMLElement > ) => {
 			event.preventDefault();
-			tracks.recordEvent( 'jetpack_ai_usage_panel_upgrade_button_click', {
+			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
 				current_tier_slug: currentTier?.slug,
 				requests_count: requestsCount,
 				...( placement ? { placement } : {} ),
@@ -188,36 +171,39 @@ export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 					daysUntilReset={ daysUntilReset }
 					planType={ planType }
 					requireUpgrade={ requireUpgrade }
+					loading={ loading }
 				/>
 
-				{ ( planType === PLAN_TYPE_FREE || planType === PLAN_TYPE_TIERED ) && canUpgrade && (
-					<div className="jetpack-ai-usage-panel-upgrade-button">
-						{ showContactUsCallToAction && (
-							<>
-								<p>{ __( 'Need more requests?', 'jetpack' ) }</p>
+				{ ! loading &&
+					( planType === PLAN_TYPE_FREE || planType === PLAN_TYPE_TIERED ) &&
+					canUpgrade && (
+						<div className="jetpack-ai-usage-panel-upgrade-button">
+							{ showContactUsCallToAction && (
+								<>
+									<p>{ __( 'Need more requests?', 'jetpack' ) }</p>
+									<Button
+										variant="primary"
+										label={ __( 'Contact us for more requests', 'jetpack' ) }
+										href={ contactUsURL }
+										onClick={ trackContactUsClick }
+									>
+										{ __( 'Contact Us', 'jetpack' ) }
+									</Button>
+								</>
+							) }
+							{ ! showContactUsCallToAction && (
 								<Button
 									variant="primary"
-									label={ __( 'Contact us for more requests', 'jetpack' ) }
-									href={ contactUsURL }
-									onClick={ trackContactUsClick }
+									label={ __( 'Upgrade your Jetpack AI plan', 'jetpack' ) }
+									href={ checkoutUrl }
+									onClick={ trackUpgradeClick }
+									disabled={ isRedirecting }
 								>
-									{ __( 'Contact Us', 'jetpack' ) }
+									{ upgradeButtonText }
 								</Button>
-							</>
-						) }
-						{ ! showContactUsCallToAction && (
-							<Button
-								variant="primary"
-								label={ __( 'Upgrade your Jetpack AI plan', 'jetpack' ) }
-								href={ checkoutUrl }
-								onClick={ trackUpgradeClick }
-								disabled={ isRedirecting }
-							>
-								{ upgradeButtonText }
-							</Button>
-						) }
-					</div>
-				) }
+							) }
+						</div>
+					) }
 			</>
 		</div>
 	);

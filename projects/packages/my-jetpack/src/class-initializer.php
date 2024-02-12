@@ -19,6 +19,7 @@ use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
@@ -33,7 +34,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.4.0-alpha';
+	const PACKAGE_VERSION = '4.9.1-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -189,8 +190,10 @@ class Initializer {
 				),
 				'plugins'               => Plugins_Installer::get_plugins(),
 				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
+				'myJetpackCheckoutUri'  => 'admin.php?page=my-jetpack',
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
+				'blogID'                => Connection_Manager::get_site_id( true ),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
 				'myJetpackFlags'        => self::get_my_jetpack_flags(),
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
@@ -200,8 +203,13 @@ class Initializer {
 				'userIsAdmin'           => current_user_can( 'manage_options' ),
 				'userIsNewToJetpack'    => self::is_jetpack_user_new(),
 				'isStatsModuleActive'   => $modules->is_active( 'stats' ),
+				'isUserFromKnownHost'   => self::is_user_from_known_host(),
 				'welcomeBanner'         => array(
 					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
+				),
+				'jetpackManage'         => array(
+					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
+					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
 			)
 		);
@@ -278,6 +286,16 @@ class Initializer {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Determines whether the user has come from a host we can recognize.
+	 *
+	 * @return string
+	 */
+	public static function is_user_from_known_host() {
+		// Known (external) host is the one that has been determined and is not dotcom.
+		return ! in_array( ( new Status_Host() )->get_known_host_guess(), array( 'unknown', 'wpcom' ), true );
 	}
 
 	/**

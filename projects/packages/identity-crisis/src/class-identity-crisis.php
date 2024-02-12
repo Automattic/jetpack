@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\IdentityCrisis\Exception;
@@ -27,7 +26,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.14.1';
+	const PACKAGE_VERSION = '0.16.0';
 
 	/**
 	 * Persistent WPCOM blog ID that stays in the options after disconnect.
@@ -92,6 +91,7 @@ class Identity_Crisis {
 		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
 
 		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ) );
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_ip_requester_to_url_validation_response' ) );
 
 		add_filter( 'jetpack_options', array( static::class, 'reverse_wpcom_urls_for_idc' ) );
 
@@ -209,10 +209,18 @@ class Identity_Crisis {
 			|| self::validate_sync_error_idc_option() ) {
 			return $url;
 		}
+		$home_url = Urls::home_url();
+		$site_url = Urls::site_url();
+		$hostname = wp_parse_url( $site_url, PHP_URL_HOST );
+
+		// If request is from an IP, make sure ip_requester option is set
+		if ( self::url_is_ip( $hostname ) ) {
+			self::maybe_update_ip_requester( $hostname );
+		}
 
 		$query_args = array(
-			'home'    => Urls::home_url(),
-			'siteurl' => Urls::site_url(),
+			'home'    => $home_url,
+			'siteurl' => $site_url,
 		);
 
 		if ( self::should_handle_idc() ) {
@@ -223,34 +231,11 @@ class Identity_Crisis {
 			$query_args['migrate_for_idc'] = true;
 		}
 
-		if ( self::url_is_ip() ) {
-			$query_args['url_secret'] = URL_Secret::create_secret( 'URL_argument_secret_failed' );
-		}
-
 		if ( is_multisite() ) {
 			$query_args['multisite'] = true;
 		}
 
 		return add_query_arg( $query_args, $url );
-	}
-
-	/**
-	 * Non-admins current screen check.
-	 *
-	 * @param object $current_screen Current screen.
-	 *
-	 * @return null
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function non_admins_current_screen_check( $current_screen ) {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		self::$current_screen = $current_screen;
-		if ( isset( $current_screen->id ) && 'toplevel_page_jetpack' === $current_screen->id ) {
-			return null;
-		}
-
-		return null;
 	}
 
 	/**
@@ -554,21 +539,6 @@ class Identity_Crisis {
 	}
 
 	/**
-	 * Returns the value of the jetpack_sync_idc_optin filter, or constant.
-	 * If set to true, the site will be put into staging mode.
-	 *
-	 * @return bool
-	 * @since 0.2.0
-	 * @since-jetpack 4.3.2
-	 * @deprecated 0.2.6 Use should_handle_idc()
-	 * @see Automattic\Jetpack\Identity_Crisis::should_handle_idc
-	 */
-	public static function sync_idc_optin() {
-		_deprecated_function( __METHOD__, '0.2.6', 'Automattic\\Jetpack\\Identity_Crisis::should_handle_idc' );
-		return self::should_handle_idc();
-	}
-
-	/**
 	 * Returns the value of the jetpack_should_handle_idc filter or constant.
 	 * If set to true, the site will be put into staging mode.
 	 *
@@ -589,9 +559,6 @@ class Identity_Crisis {
 			$default = ! Constants::is_defined( 'SUNRISE' ) && ! is_multisite();
 		}
 
-		// Add a callback which uses the legacy filter 'jetpack_sync_idc_optin'.
-		add_filter( 'jetpack_should_handle_idc', array( __CLASS__, 'legacy_jetpack_sync_idc_optin_filter' ) );
-
 		/**
 		 * Allows sites to opt in for IDC mitigation which blocks the site from syncing to WordPress.com when the home
 		 * URL or site URL do not match what WordPress.com expects. The default value is either true, or the value of
@@ -602,155 +569,6 @@ class Identity_Crisis {
 		 * @since 0.2.6
 		 */
 		return (bool) apply_filters( 'jetpack_should_handle_idc', $default );
-	}
-
-	/**
-	 * Returns the value for the deprecated filter, 'jetpack_sync_idc_optin'. That filter has been replaced with the
-	 * 'jetpack_should_handle_idc' filter.
-	 *
-	 * @since 0.2.6
-	 *
-	 * @param bool $default Whether the site is opted in to IDC mitigation.
-	 */
-	public static function legacy_jetpack_sync_idc_optin_filter( $default ) {
-		/**
-		 * Allows sites to opt in for IDC mitigation which blocks the site from syncing to WordPress.com when the home
-		 * URL or site URL do not match what WordPress.com expects. The default value is either true, or the value of
-		 * JETPACK_SYNC_IDC_OPTIN constant if set.
-		 *
-		 * @param bool $default Whether the site is opted in to IDC mitigation.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.3.2
-		 * @deprecated 0.2.6 Use jetpack_should_handle_idc
-		 */
-		return (bool) apply_filters_deprecated( 'jetpack_sync_idc_optin', array( $default ), '0.2.6', 'jetpack_should_handle_idc' );
-	}
-
-	/**
-	 * Does the current admin page have help tabs?
-	 *
-	 * @return bool
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function admin_page_has_help_tabs() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		if ( ! function_exists( 'get_current_screen' ) ) {
-			return false;
-		}
-
-		$current_screen = get_current_screen();
-		$tabs           = $current_screen->get_help_tabs();
-
-		return ! empty( $tabs );
-	}
-
-	/**
-	 * Renders the non-admin IDC notice.
-	 *
-	 * @return void
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function display_non_admin_idc_notice() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		$classes = 'jp-idc-notice inline is-non-admin notice notice-warning';
-		if ( isset( self::$current_screen ) && 'toplevel_page_jetpack' !== self::$current_screen->id ) {
-			$classes .= ' is-dismissible';
-		}
-
-		if ( $this->admin_page_has_help_tabs() ) {
-			$classes .= ' has-help-tabs';
-		}
-		?>
-
-		<div class="<?php echo esc_attr( $classes ); ?>">
-			<?php $this->render_notice_header(); ?>
-			<div class="jp-idc-notice__content-header">
-				<h3 class="jp-idc-notice__content-header__lead">
-					<?php echo $this->get_non_admin_notice_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</h3>
-
-				<p class="jp-idc-notice__content-header__explanation">
-					<?php echo $this->get_non_admin_contact_admin_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</p>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * First "step" of the IDC mitigation. Will provide some messaging and two options/buttons.
-	 * "Confirm Staging" - Dismiss the notice and continue on with our lives in staging mode.
-	 * "Fix Jetpack Connection" - Will disconnect the site and start the mitigation...
-	 *
-	 * @return void
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function display_idc_notice() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		$classes = 'jp-idc-notice inline notice notice-warning';
-		if ( $this->admin_page_has_help_tabs() ) {
-			$classes .= ' has-help-tabs';
-		}
-		?>
-		<div class="<?php echo esc_attr( $classes ); ?>">
-			<?php $this->render_notice_header(); ?>
-			<?php $this->render_notice_first_step(); ?>
-			<?php $this->render_notice_second_step(); ?>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Enqueue CSS for the admin bar.
-	 *
-	 * @return void
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function enqueue_admin_bar_css() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-	}
-
-	/**
-	 * Enqueue scripts for the notice.
-	 *
-	 * @return void
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function enqueue_idc_notice_files() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		// Register and Enqueue jp-tracks-functions.
-		Tracking::register_tracks_functions_scripts( true );
-	}
-
-	/**
-	 * Renders the notice header.
-	 *
-	 * @return void
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function render_notice_header() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		?>
-		<div class="jp-idc-notice__header">
-			<div class="jp-idc-notice__header__emblem">
-				<?php
-				$jetpack_logo = new Jetpack_Logo();
-				echo $jetpack_logo->get_jp_emblem(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				?>
-			</div>
-			<p class="jp-idc-notice__header__text">
-				<?php esc_html_e( 'Jetpack Safe Mode', 'jetpack-idc' ); ?>
-			</p>
-		</div>
-
-		<div class="jp-idc-notice__separator"></div>
-		<?php
 	}
 
 	/**
@@ -1162,57 +980,6 @@ class Identity_Crisis {
 	}
 
 	/**
-	 * Returns the non-admin notice text.
-	 *
-	 * @return string
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function get_non_admin_notice_text() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		$html = wp_kses(
-			sprintf(
-			/* translators: %s: Safe mode docs URL. */
-				__( 'Jetpack has been placed into Safe Mode. Learn more about <a href="%1$s">Safe Mode</a>.', 'jetpack-idc' ),
-				esc_url( self::get_safe_mod_doc_url() )
-			),
-			array( 'a' => array( 'href' => array() ) )
-		);
-
-		/**
-		 * Allows overriding of the default text that is displayed to non-admin on the Jetpack admin page.
-		 *
-		 * @param string $html The HTML to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_non_admin_notice_text', $html );
-	}
-
-	/**
-	 * Returns the non-admin contact admin text.
-	 *
-	 * @return string
-	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
-	 */
-	public function get_non_admin_contact_admin_text() {
-		_deprecated_function( __METHOD__, '0.5.0' );
-
-		$string = esc_html__( 'An administrator of this site can take Jetpack out of Safe Mode.', 'jetpack-idc' );
-
-		/**
-		 * Allows overriding of the default text that is displayed to non-admins prompting them to contact an admin.
-		 *
-		 * @param string $string The string to be displayed.
-		 *
-		 * @since 0.2.0
-		 * @since-jetpack 4.4.0
-		 */
-		return apply_filters( 'jetpack_idc_non_admin_contact_admin_text', $string );
-	}
-
-	/**
 	 * Whether the site is undergoing identity crisis.
 	 *
 	 * @return bool
@@ -1359,11 +1126,16 @@ class Identity_Crisis {
 	/**
 	 * Check if URL is an IP.
 	 *
+	 * @param string $hostname The hostname to check.
 	 * @return bool
 	 */
-	public static function url_is_ip() {
-		$hostname = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
-		$is_ip    = filter_var( $hostname, FILTER_VALIDATE_IP ) !== false ? true : false;
+	public static function url_is_ip( $hostname = null ) {
+
+		if ( ! $hostname ) {
+			$hostname = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
+		}
+
+		$is_ip = filter_var( $hostname, FILTER_VALIDATE_IP ) !== false ? $hostname : false;
 		return $is_ip;
 	}
 
@@ -1393,5 +1165,110 @@ class Identity_Crisis {
 	 */
 	public static function site_registered( $blog_id ) {
 		update_option( static::PERSISTENT_BLOG_ID_OPTION_NAME, (int) $blog_id, false );
+	}
+
+	/**
+	 * Check if we need to update the ip_requester option.
+	 *
+	 * @param string $hostname The hostname to check.
+	 *
+	 * @return void
+	 */
+	public static function maybe_update_ip_requester( $hostname ) {
+		// Check if transient exists
+		$transient_key = ip2long( $hostname );
+		if ( $transient_key && ! get_transient( 'jetpack_idc_ip_requester_' . $transient_key ) ) {
+			self::set_ip_requester_for_idc( $hostname, $transient_key );
+		}
+	}
+
+	/**
+	 * If URL is an IP, add the IP value to the ip_requester option with its expiry value.
+	 *
+	 * @param string $hostname The hostname to check.
+	 * @param int    $transient_key The transient key.
+	 */
+	public static function set_ip_requester_for_idc( $hostname, $transient_key ) {
+		// Check if option exists
+		$data = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+
+		$ip_requester = array(
+			'ip'         => $hostname,
+			'expires_at' => time() + 360,
+		);
+
+		// If not set, initialize it
+		if ( empty( $data ) ) {
+			$data = array( $ip_requester );
+		} else {
+			$updated_data  = array();
+			$updated_value = false;
+
+			// Remove expired values and update existing IP
+			foreach ( $data as $item ) {
+				if ( time() > $item['expires_at'] ) {
+					continue; // Skip expired IP
+				}
+
+				if ( $item['ip'] === $hostname ) {
+					$item['expires_at'] = time() + 360;
+					$updated_value      = true;
+				}
+
+				$updated_data[] = $item;
+			}
+
+			if ( ! $updated_value || empty( $updated_data ) ) {
+				$updated_data[] = $ip_requester;
+			}
+
+			$data = $updated_data;
+		}
+
+		self::update_ip_requester( $data, $transient_key );
+	}
+
+	/**
+	 * Update the ip_requester option and set a transient to expire in 5 minutes.
+	 *
+	 * @param array $data The data to be updated.
+	 * @param int   $transient_key The transient key.
+	 *
+	 * @return void
+	 */
+	public static function update_ip_requester( $data, $transient_key ) {
+		// Update the option
+		$updated = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $data );
+		// Set a transient to expire in 5 minutes
+		if ( $updated ) {
+			$transient_name = 'jetpack_idc_ip_requester_' . $transient_key;
+			set_transient( $transient_name, $data, 300 );
+		}
+	}
+
+	/**
+	 * Adds `ip_requester` to the `jetpack.idcUrlValidation` URL validation endpoint.
+	 *
+	 * @param array $response The enpoint response that we're modifying.
+	 *
+	 * @return array
+	 */
+	public static function add_ip_requester_to_url_validation_response( array $response ) {
+		$requesters = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+		if ( $requesters ) {
+			// Loop through the requesters and add the IP to the response if it's not expired
+			$i = 0;
+			foreach ( $requesters as $ip ) {
+				if ( $ip['expires_at'] > time() ) {
+					$response['ip_requester'][] = $ip['ip'];
+				}
+				// Limit the response to five IPs
+				$i = ++$i;
+				if ( $i === 5 ) {
+					break;
+				}
+			}
+		}
+		return $response;
 	}
 }

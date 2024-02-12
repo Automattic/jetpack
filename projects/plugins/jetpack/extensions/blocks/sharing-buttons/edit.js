@@ -1,20 +1,21 @@
-import { useInnerBlocksProps, useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, MenuItemsChoice } from '@wordpress/components';
+import { useInnerBlocksProps, useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import './style.scss';
+import classNames from 'classnames';
+import SharingButtonsBlockControls from './components/block-controls';
+import SharingButtonsInspectorControls from './components/inspector-controls';
 
 const ALLOWED_BLOCKS = [ 'jetpack/sharing-button' ];
 
-export function SharingButtonsEdit( props ) {
-	const { attributes, setAttributes } = props;
-
-	const { styleType } = attributes;
+function SharingButtonsEdit( props ) {
+	const { attributes } = props;
+	const { size } = attributes;
 
 	const SharingButtonsPlaceholder = (
 		<li>{ __( 'Click plus to add a Sharing Button', 'jetpack' ) }</li>
 	);
 
-	const className = 'jetpack-sharing-buttons__services-list';
+	const className = classNames( size, 'jetpack-sharing-buttons__services-list' );
 
 	const blockProps = useBlockProps( { className } );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
@@ -28,24 +29,11 @@ export function SharingButtonsEdit( props ) {
 
 	return (
 		<>
-			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
-					<MenuItemsChoice
-						choices={ [
-							/* translators: Sharing: Sharing button option label. */
-							{ value: 'icon-text', label: __( 'Icon & Text', 'jetpack' ) },
-							/* translators: Sharing: Sharing button option label. */
-							{ value: 'icon', label: __( 'Icon Only', 'jetpack' ) },
-							/* translators: Sharing: Sharing button option label. */
-							{ value: 'text', label: __( 'Text Only', 'jetpack' ) },
-						] }
-						value={ styleType }
-						onSelect={ value => setAttributes( { styleType: value } ) }
-					/>
-				</PanelBody>
-			</InspectorControls>
+			<SharingButtonsBlockControls { ...props } />
+			<SharingButtonsInspectorControls { ...props } />
 			<ul { ...innerBlocksProps } />
 		</>
 	);
 }
+
 export default SharingButtonsEdit;

@@ -3,15 +3,15 @@ name: 'Mark stale issues'
 on:
   schedule:
     - cron: '30 0 * * *'
+  workflow_dispatch:
 
 jobs:
   stale:
     runs-on: ubuntu-latest
-    timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
+    timeout-minutes: 10  # 2024-01-30: v9 takes longer, and it's not like it matters a whole lot since this only runs once per day anyway.
     steps:
-      - uses: actions/stale@v8
+      - uses: actions/stale@v9
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
           # Get issues in descending (newest first) order.
           ascending: false
           # Operations (roughly API calls) per run. Adjust to avoid using up the rate limit (1000/hr shared across all jobs in the repo for the token used here).

@@ -15,7 +15,8 @@ export function handleIframeResult( eventFromIframe ) {
 		}
 		if ( data && data.action === 'close' && premiumContentJWTTokenForCookie ) {
 			// The token was set during the purchase flow, we want to reload the whole page so the content is displayed
-			window.location.reload();
+			// For avoiding Firefox reload, we need to force reload bypassing the cache.
+			window.location.reload( true );
 		} else if ( data && data.action === 'close' ) {
 			// User just aborted.
 			window.removeEventListener( 'message', handleIframeResult );
@@ -33,24 +34,33 @@ export function showModal( url ) {
 	document.body.classList.add( 'modal-open' );
 
 	const existingModal = document.getElementById( 'memberships-modal-window' );
-	const dialog = existingModal ?? document.createElement( 'dialog' );
-
-	if ( ! existingModal ) {
-		dialog.setAttribute( 'id', 'memberships-modal-window' );
-
-		const iframe = document.createElement( 'iframe' );
-		iframe.setAttribute( 'id', 'memberships-modal-iframe' );
-		iframe.innerText =
-			'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
-		iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
-		iframe.setAttribute( 'frameborder', '0' );
-		iframe.setAttribute( 'allowtransparency', 'true' );
-		iframe.setAttribute( 'allowfullscreen', 'true' );
-		dialog.classList.add( 'jetpack-memberships-modal' );
-
-		document.body.appendChild( dialog );
-		dialog.appendChild( iframe );
+	if ( existingModal ) {
+		document.body.removeChild( existingModal );
 	}
+
+	const dialog = document.createElement( 'dialog' );
+	dialog.setAttribute( 'id', 'memberships-modal-window' );
+
+	const iframe = document.createElement( 'iframe' );
+	const inputLanguage = document.querySelector( 'input[name="lang"]' );
+	let siteLanguage = null;
+	if ( inputLanguage ) {
+		siteLanguage = inputLanguage.value;
+	}
+	iframe.setAttribute( 'id', 'memberships-modal-iframe' );
+	iframe.innerText =
+		'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
+	iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
+	if ( siteLanguage ) {
+		iframe.src = iframe.src + '&lang=' + siteLanguage;
+	}
+	iframe.setAttribute( 'frameborder', '0' );
+	iframe.setAttribute( 'allowtransparency', 'true' );
+	iframe.setAttribute( 'allowfullscreen', 'true' );
+	dialog.classList.add( 'jetpack-memberships-modal' );
+
+	document.body.appendChild( dialog );
+	dialog.appendChild( iframe );
 
 	window.addEventListener( 'message', handleIframeResult, false );
 	dialog.showModal();
@@ -86,7 +96,7 @@ export const initializeMembershipButtons = selector => {
 	} );
 };
 
-const tokenCookieName = 'jp-premium-content-session';
+const tokenCookieName = 'wp-jp-premium-content-session';
 const getTokenFromCookie = function () {
 	const value = `; ${ document.cookie }`;
 	const parts = value.split( `; ${ tokenCookieName } = ` );
@@ -111,7 +121,7 @@ export const setPurchaseResultCookie = function ( premiumContentJWTToken ) {
 	const domain = '.' + hostname;
 
 	document.cookie =
-		'jp-premium-content-session' +
+		'wp-jp-premium-content-session' +
 		'=' +
 		premiumContentJWTToken +
 		'; expires=' +

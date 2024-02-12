@@ -7,10 +7,12 @@ import ActivateLicense from '$features/activate-license/activate-license';
 import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import styles from './getting-started.module.scss';
-import { useConfig } from '$lib/stores/config-ds';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useNavigate } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
+import { usePricing } from '$lib/stores/pricing';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
+import { useSingleModuleState } from '$features/module/lib/stores';
 
 const GettingStarted: React.FC = () => {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
@@ -18,28 +20,44 @@ const GettingStarted: React.FC = () => {
 	const navigate = useNavigate();
 
 	const {
-		pricing,
-		is_premium: isPremium,
 		site: { domain },
-	} = useConfig();
+	} = Jetpack_Boost;
+
+	const pricing = usePricing();
+	const premiumFeatures = usePremiumFeatures();
+	const isPremium = premiumFeatures.length > 0;
 
 	const { shouldGetStarted, markGettingStartedComplete } = useGettingStarted();
+	const [ , setCriticalCssState ] = useSingleModuleState( 'critical_css' );
 
-	const {
-		connection: { userConnected },
-		initializeConnection,
-	} = useConnection();
-
+	const { connection, initializeConnection } = useConnection();
+	const { userConnected, wpcomBlogId } = connection || {};
 	useEffect( () => {
 		if ( ! shouldGetStarted && selectedPlan ) {
 			// Go to the purchase flow if the user doesn't have a premium plan.
 			if ( ! isPremium && selectedPlan === 'premium' ) {
-				window.location.href = getUpgradeURL( domain, userConnected );
+				window.location.href = getUpgradeURL(
+					domain,
+					userConnected,
+					wpcomBlogId ? wpcomBlogId.toString() : null
+				);
 			} else {
+				if ( ! isPremium ) {
+					setCriticalCssState( true );
+				}
 				navigate( '/', { replace: true } );
 			}
 		}
-	}, [ domain, isPremium, navigate, selectedPlan, shouldGetStarted, userConnected ] );
+	}, [
+		domain,
+		isPremium,
+		navigate,
+		selectedPlan,
+		setCriticalCssState,
+		shouldGetStarted,
+		userConnected,
+		wpcomBlogId,
+	] );
 
 	async function initialize( plan: 'free' | 'premium' ) {
 		setSelectedPlan( plan );
@@ -54,7 +72,7 @@ const GettingStarted: React.FC = () => {
 			// * premium_cta_from_getting_started_page_in_plugin
 			await recordBoostEvent( `${ plan }_cta_from_getting_started_page_in_plugin`, {} );
 
-			markGettingStartedComplete();
+			await markGettingStartedComplete();
 		} catch ( e ) {
 			// Display the error in a snackbar message
 			setSnackbarMessage(
@@ -65,30 +83,35 @@ const GettingStarted: React.FC = () => {
 	}
 
 	return (
-		<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
-			<Header>
-				<ActivateLicense />
-			</Header>
+		pricing && (
+			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
+				<Header>
+					<ActivateLicense />
+				</Header>
 
-			<div className="jb-section jb-section--alt">
-				<div className="jb-container">
-					<div className={ styles[ 'pricing-table' ] }>
-						<BoostPricingTable
-							pricing={ pricing }
-							onPremiumCTA={ () => initialize( 'premium' ) }
-							onFreeCTA={ () => initialize( 'free' ) }
-							chosenFreePlan={ selectedPlan === 'free' }
-							chosenPaidPlan={ selectedPlan === 'premium' }
-						/>
-						{ snackbarMessage !== '' && (
-							<Snackbar children={ snackbarMessage } onDismiss={ () => setSnackbarMessage( '' ) } />
-						) }
+				<div className="jb-section jb-section--alt">
+					<div className="jb-container">
+						<div className={ styles[ 'pricing-table' ] }>
+							<BoostPricingTable
+								pricing={ pricing }
+								onPremiumCTA={ () => initialize( 'premium' ) }
+								onFreeCTA={ () => initialize( 'free' ) }
+								chosenFreePlan={ selectedPlan === 'free' }
+								chosenPaidPlan={ selectedPlan === 'premium' }
+							/>
+							{ snackbarMessage !== '' && (
+								<Snackbar
+									children={ snackbarMessage }
+									onDismiss={ () => setSnackbarMessage( '' ) }
+								/>
+							) }
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<Footer />
-		</div>
+				<Footer />
+			</div>
+		)
 	);
 };
 

@@ -1,3 +1,4 @@
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 
 export const qualityConfigSchema = z.object( {
@@ -10,6 +11,9 @@ export const imageCdnSettingsSchema = z.object( {
 	png: qualityConfigSchema,
 	webp: qualityConfigSchema,
 } );
-
 export type ImageCdnSettings = z.infer< typeof imageCdnSettingsSchema >;
 export type QualityConfig = z.infer< typeof qualityConfigSchema >;
+
+export function useImageCdnQuality() {
+	return useDataSync( 'jetpack_boost_ds', 'image_cdn_quality', imageCdnSettingsSchema );
+}

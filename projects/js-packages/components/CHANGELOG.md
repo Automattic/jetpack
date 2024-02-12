@@ -2,6 +2,26 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.48.1] - 2024-02-05
+### Changed
+- Update clicking an icon tooltip to cause the tooltip to show/hide instead of always showing. [#35312]
+- Updated package dependencies.
+
+## [0.48.0] - 2024-01-29
+### Changed
+- Move the UpsellBanner component to js-packages/components [#35228]
+
+### Fixed
+- Fix TypeScript type for a Boost Score prop [#35273]
+
+## [0.47.0] - 2024-01-18
+### Added
+- My Jetpack: add a Jetpack Manage banner. [#35078]
+
+## [0.46.0] - 2024-01-18
+### Changed
+- Use blog ID for links instead of site slug. [#34950]
+
 ## [0.45.10] - 2024-01-04
 ### Changed
 - Updated package dependencies. [#34815] [#34816]
@@ -917,6 +937,10 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.48.1]: https://github.com/Automattic/jetpack-components/compare/0.48.0...0.48.1
+[0.48.0]: https://github.com/Automattic/jetpack-components/compare/0.47.0...0.48.0
+[0.47.0]: https://github.com/Automattic/jetpack-components/compare/0.46.0...0.47.0
+[0.46.0]: https://github.com/Automattic/jetpack-components/compare/0.45.10...0.46.0
 [0.45.10]: https://github.com/Automattic/jetpack-components/compare/0.45.9...0.45.10
 [0.45.9]: https://github.com/Automattic/jetpack-components/compare/0.45.8...0.45.9
 [0.45.8]: https://github.com/Automattic/jetpack-components/compare/0.45.7...0.45.8

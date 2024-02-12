@@ -7,8 +7,9 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Delete;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parser;
 
 /**
  * Data Sync Entry Adapter:
@@ -30,7 +31,7 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 	private $entry;
 
 	/**
-	 * @var Parser $parser - The schema for the data sync entry.
+	 * @var Schema_Parser $parser - The schema for the data sync entry.
 	 */
 	private $parser;
 
@@ -53,12 +54,24 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 	}
 
 	public function get() {
-		if ( $this->parser instanceof Decorate_With_Default ) {
-			$default = $this->parser->get_default_value();
+
+		if ( $this->parser->has_fallback() ) {
+			$default = $this->parser->get_fallback();
 			$value   = $this->entry->get( $default );
 			return $this->parser->parse( $value );
 		}
-		return $this->parser->parse( $this->entry->get() );
+
+		// If WordPress debug is enabled, don't hide exceptions.
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			return $this->parser->parse( $this->entry->get() );
+		}
+
+		// If WordPress debug is disabled, attempt to recover by just returning the value
+		try {
+			return $this->parser->parse( $this->entry->get() );
+		} catch ( Schema_Error $error ) {
+			return $this->entry->get();
+		}
 	}
 
 	public function set( $value ) {
@@ -71,8 +84,8 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 
 	public function merge( $partial_value ) {
 		if ( $this->is( Entry_Can_Merge::class ) ) {
-			if ( $this->parser instanceof Decorate_With_Default ) {
-				$default        = $this->parser->get_default_value();
+			if ( $this->parser->has_fallback() ) {
+				$default        = $this->parser->get_fallback();
 				$existing_value = $this->entry->get( $default );
 			} else {
 				$existing_value = $this->entry->get();
@@ -88,5 +101,12 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 			$this->entry->delete();
 		}
 		return $this->get();
+	}
+
+	/**
+	 * @return Parser
+	 */
+	public function get_parser() {
+		return $this->parser;
 	}
 }

@@ -28,6 +28,7 @@ import useGlobalNotice from '../../hooks/use-notice';
 import { useProduct } from '../../hooks/use-product';
 import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
+import JetpackManageBanner from '../jetpack-manage-banner';
 import PlansSection from '../plans-section';
 import { PRODUCT_STATUSES } from '../product-card';
 import ProductCardsSection from '../product-cards-section';
@@ -92,6 +93,7 @@ export default function MyJetpackScreen() {
 	const welcomeBannerHasBeenDismissed =
 		window?.myJetpackInitialState?.welcomeBanner.hasBeenDismissed;
 	const isStatsModuleActive = window?.myJetpackInitialState?.isStatsModuleActive === '1';
+	const jetpackManage = window?.myJetpackInitialState?.jetpackManage;
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
@@ -160,6 +162,11 @@ export default function MyJetpackScreen() {
 					<Col>
 						<ProductCardsSection />
 					</Col>
+					{ jetpackManage.isEnabled && (
+						<Col>
+							<JetpackManageBanner isAgencyAccount={ jetpackManage.isAgencyAccount } />
+						</Col>
+					) }
 				</Container>
 			</AdminSectionHero>
 

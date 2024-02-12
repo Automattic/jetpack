@@ -157,17 +157,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the legacy jetpack_sync_idc_optin filter is used by should_handle_idc.
-	 */
-	public function test_should_handle_idc_uses_legacy_filter() {
-		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
-		$result = Identity_Crisis::should_handle_idc();
-		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
-
-		$this->assertFalse( $result );
-	}
-
-	/**
 	 * Test that current JETPACK_SHOULD_HANDLE_IDC constant overrides the legacy JETPACK_SYNC_IDC_OPTIN constant.
 	 */
 	public function test_should_handle_idc_current_constant_overrides_legacy_constant() {
@@ -1088,5 +1077,62 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 		$this->assertFalse( $option_before );
 		$this->assertSame( $blog_id, $option_after );
+	}
+
+	/**
+	 * Test the `set_ip_requester_for_idc()` method.
+	 *
+	 * @return void
+	 */
+	public function testAddIPRequesterForIdc() {
+		Identity_Crisis::init();
+
+		update_option( 'siteurl', 'http://72.182.131.109/' );
+		$hostname      = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		$transient_key = ip2long( $hostname );
+
+		// Call the method to be tested
+		Identity_Crisis::set_ip_requester_for_idc( $hostname, $transient_key );
+		$result = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+
+		// Assert that the the ip was added to the option
+		$this->assertIsArray( $result );
+
+		// Assert that the ip and expiry date are added
+		$expected_ip = '72.182.131.109';
+		foreach ( $result as $ip ) {
+			$this->assertEquals( $expected_ip, $ip['ip'] );
+			$this->assertTrue( is_int( $ip['expires_at'] ) );
+		}
+
+		// Test with another IP address
+		update_option( 'siteurl', 'http://33.182.100.200/' );
+		$hostname      = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		$transient_key = ip2long( $hostname );
+		Identity_Crisis::set_ip_requester_for_idc( $hostname, $transient_key );
+		$result2 = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+
+		$expected_ip2      = '33.182.100.200';
+		$expected_ip_array = array( $expected_ip, $expected_ip2 );
+
+		foreach ( $result2 as $ip ) {
+			$this->assertContains( $ip['ip'], $expected_ip_array );
+		}
+
+		// Test deleting expired IPs
+		$expired_ip = array(
+			'ip'         => '99.182.100.777',
+			'expires_at' => 1111,
+		);
+		$result2[]  = $expired_ip;
+
+		$expected_ip3 = '99.182.100.777';
+
+		Identity_Crisis::set_ip_requester_for_idc( $hostname, $transient_key );
+		$result3 = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+
+		foreach ( $result3 as $ip ) {
+			$this->assertNotContains( $expected_ip3, $ip );
+		}
 	}
 }

@@ -45,7 +45,7 @@ class Test_CSS_Nudge_Customize_Control extends \WP_UnitTestCase {
 					foo
 				</p>
 				<div class="button-container">
-					<button type="button" class="button-primary navigate-to" data-navigate-to-page="https://wordpress.com">Upgrade Now</button>
+					<button type="button" class="button-primary navigate-to" data-navigate-to-page="https://wordpress.com">Upgrade now</button>
 				</div>
 			</div>';
 		$this->assertEquals( $expected_output, $content );

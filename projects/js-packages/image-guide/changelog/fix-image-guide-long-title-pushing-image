@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix image name causing image to go outside details panel.

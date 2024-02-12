@@ -1084,7 +1084,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			<?php
 			$requires_auth = $wpdb->get_row( $wpdb->prepare( 'SELECT requires_authentication FROM rest_api_documentation WHERE `version` = %s AND `path` = %s AND `method` = %s LIMIT 1', $version, untrailingslashit( $doc['path_labeled'] ), $doc['method'] ) );
 			?>
-			<td class="type api-index-item-title"><?php echo ( true === (bool) $requires_auth->requires_authentication ? 'Yes' : 'No' ); ?></td>
+			<td class="type api-index-item-title"><?php echo ( ! empty( $requires_auth->requires_authentication ) ? 'Yes' : 'No' ); ?></td>
 		</tr>
 
 	</tbody>
@@ -1297,18 +1297,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( 'inherit' === $post->post_status ) {
 			$parent_post     = get_post( $post->post_parent );
-			$post_status_obj = get_post_status_object( $parent_post->post_status );
+			$post_status_obj = get_post_status_object( $parent_post->post_status ?? $post->post_status );
 		} else {
 			$post_status_obj = get_post_status_object( $post->post_status );
 		}
 
-		if ( ! $post_status_obj->public ) {
+		if ( empty( $post_status_obj->public ) ) {
 			if ( is_user_logged_in() ) {
-				if ( $post_status_obj->protected ) {
+				if ( ! empty( $post_status_obj->protected ) ) {
 					if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
-				} elseif ( $post_status_obj->private ) {
+				} elseif ( ! empty( $post_status_obj->private ) ) {
 					if ( ! current_user_can( 'read_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}

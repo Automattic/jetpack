@@ -389,10 +389,25 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.3.2 - 2023-12-19
-#### Changed
-- Settings: Make support document links more consistent.
+### 6.4.0 - 2024-01-23
+#### Added
+- Database: Added preliminary support for SQLite.
+- Settings: Add setting to fine tune the Total Value field calculation for contacts and companies.
 
 #### Fixed
-- Segments: Fixed an issue preventing segments from being deleted.
+- Backend: Add fallback for dev site detection.
+- Contacts: Updated default statuses.
+- Custom fields: More robust fallbacks for slug creation.
+- Dashboard: Adjust queries for SQLite compatibility.
+- REST API: Allow calls when not using pretty permalinks.
+- Database: Ensure logs table is initiated with all columns.
+- Fixed: Escape output in typeaheads.
+- Invoices: Fixed total amount in preview and pdf when refunds or credit notes are applied.
+- Jetpack Forms: Detect and process custom date fields correctly.
+- Custom fields: Gracefully handle invalid date field data.
+- Listview: Better output escaping in listviews.
+- System Assistant: Fix broken links on some tasks.
+- Migrations: Fix issue where task_offset_fix migration would not mark as complete on some timezones.
+- Templates: Ensure file paths are valid before trying to load.
+- Transactions: Better support for SQLite.
 

@@ -12,12 +12,17 @@ class Premium_Features {
 	const PERFORMANCE_HISTORY = 'performance-history';
 	const IMAGE_CDN_QUALITY   = 'image-cdn-quality';
 	const PRIORITY_SUPPORT    = 'support';
+	const PAGE_CACHE          = 'page-cache';
 
 	const TRANSIENT_KEY = 'premium_features';
 
 	public static function has_feature( $feature ) {
 		$features = self::get_features();
-		return in_array( $feature, $features, true );
+
+		if ( is_array( $features ) ) {
+			return in_array( $feature, $features, true );
+		}
+		return false;
 	}
 
 	public static function get_features() {

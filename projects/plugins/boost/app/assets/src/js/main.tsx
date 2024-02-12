@@ -12,23 +12,16 @@ import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-adva
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
 import SettingsPage from '$layout/settings-page/settings-page';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import ImageSizeAnalysis from './pages/image-size-analysis/image-size-analysis';
 import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
+import '../css/admin-style.scss';
 
-/*
- * For the time being, we will pass the props from a svelte file.
- * Ones the stores are converted to react, we wont need to do this.
- */
-type MainProps = {
-	criticalCss: any;
-};
-
-const useBoostRouter = ( { criticalCss }: MainProps ) => {
+const useBoostRouter = () => {
 	const { shouldGetStarted } = useGettingStarted();
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	return createHashRouter( [
@@ -43,7 +36,7 @@ const useBoostRouter = ( { criticalCss }: MainProps ) => {
 			element: (
 				<SettingsPage>
 					<Tracks>
-						<Index criticalCss={ criticalCss } />
+						<Index />
 					</Tracks>
 				</SettingsPage>
 			),
@@ -55,16 +48,12 @@ const useBoostRouter = ( { criticalCss }: MainProps ) => {
 					return redirect( '/getting-started' );
 				}
 
-				if ( criticalCss?.issues?.length === 0 ) {
-					return redirect( '/' );
-				}
-
 				return null;
 			},
 			element: (
 				<SettingsPage>
 					<Tracks>
-						<AdvancedCriticalCss issues={ criticalCss.issues } />
+						<AdvancedCriticalCss />
 					</Tracks>
 				</SettingsPage>
 			),
@@ -110,8 +99,8 @@ const useBoostRouter = ( { criticalCss }: MainProps ) => {
 	] );
 };
 
-function Main( props: MainProps ) {
-	const router = useBoostRouter( { ...props } );
+function Main() {
+	const router = useBoostRouter();
 	return <RouterProvider router={ router } />;
 }
 
@@ -150,10 +139,12 @@ const ISAPage = () => {
 	);
 };
 
-export default ( props: MainProps ) => {
+export default () => {
 	return (
-		<DataSyncProvider>
-			<Main { ...props } />
-		</DataSyncProvider>
+		<React.StrictMode>
+			<DataSyncProvider>
+				<Main />
+			</DataSyncProvider>
+		</React.StrictMode>
 	);
 };

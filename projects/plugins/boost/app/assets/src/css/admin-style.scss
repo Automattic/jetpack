@@ -6,33 +6,10 @@
 @import 'main/common';
 
 // Components
-@import 'components/connection';
-@import 'components/feature-toggle';
-@import 'components/error-message';
-@import 'components/critical-css';
-@import 'components/close-button';
-@import 'components/rating-card';
 @import 'components/button';
-@import 'components/card';
-@import 'components/checklist';
-@import 'components/icons';
-@import 'components/badge';
 @import 'components/snackbar';
 
 // React Migration CSS
-@import 'react/pages/settings/elements/MinifyMeta.scss';
-@import 'components/isa/recommendations-meta.scss';
 @import 'components/isa/recommendations-page.scss';
-@import 'components/isa/multi-progress.scss';
-@import 'components/isa/recommendations/hero.scss';
-@import 'components/isa/recommendations/pagination.scss';
 @import 'components/isa/recommendations/table.scss';
-@import 'components/isa/recommendations/tabs.scss';
-@import 'components/isa/recommendations/components/device.scss';
-@import 'components/isa/recommendations/components/pagination-arrow.scss';
-@import 'components/isa/recommendations/components/pill.scss';
-@import 'components/isa/recommendations/components/row-title.scss';
-@import 'components/isa/recommendations/components/thumbnail.scss';
 @import 'components/isa/recommendations/row-types/table-row.scss';
-@import 'components/isa/recommendations/row-types/table-row-hover.scss';
-@import 'components/isa/recommendations/row-types/image-size-row.scss';

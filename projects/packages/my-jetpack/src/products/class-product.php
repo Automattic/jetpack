@@ -47,7 +47,7 @@ abstract class Product {
 	/**
 	 * The Jetpack plugin filename
 	 *
-	 * @var string
+	 * @var array
 	 */
 	const JETPACK_PLUGIN_FILENAME = array(
 		'jetpack/jetpack.php',
@@ -537,15 +537,11 @@ abstract class Product {
 	}
 
 	/**
-	 * Extend the plugin action links.
+	 * Filter the action links for the plugins specified.
+	 *
+	 * @param string|string[] $filenames The plugin filename(s) to filter the action links for.
 	 */
-	public static function extend_plugin_action_links() {
-
-		$filenames = static::get_plugin_filename();
-		if ( ! is_array( $filenames ) ) {
-			$filenames = array( $filenames );
-		}
-
+	private static function filter_action_links( $filenames ) {
 		foreach ( $filenames as $filename ) {
 			$hook     = 'plugin_action_links_' . $filename;
 			$callback = array( static::class, 'get_plugin_actions_links' );
@@ -553,5 +549,26 @@ abstract class Product {
 				add_filter( $hook, $callback, 20, 2 );
 			}
 		}
+	}
+
+	/**
+	 * Extend the plugin action links.
+	 */
+	public static function extend_plugin_action_links() {
+		$filenames = static::get_plugin_filename();
+		if ( ! is_array( $filenames ) ) {
+			$filenames = array( $filenames );
+		}
+
+		self::filter_action_links( $filenames );
+	}
+
+	/**
+	 * Extend the Jetpack plugin action links.
+	 */
+	public static function extend_core_plugin_action_links() {
+		$filenames = self::JETPACK_PLUGIN_FILENAME;
+
+		self::filter_action_links( $filenames );
 	}
 }

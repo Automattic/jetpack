@@ -90,7 +90,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			const { value, nonce } = this.getWindowValue( 'rest_api', z.string().url() );
 			this.wpRestNonce = nonce;
 			this.wpDatasyncUrl = value;
-		} catch ( e ) {
+		} catch ( error ) {
 			// eslint-disable-next-line no-console
 			console.error(
 				`Failed to connect to REST API because of an invalid "window.${ this.namespace }.rest_api" value:\n`,
@@ -99,7 +99,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 				`\n	Received Value: `,
 				window[ namespace ]?.rest_api,
 				'\n\nError originated from: \n ',
-				e
+				error
 			);
 		}
 
@@ -111,7 +111,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			// That's why we don't care what the value schema is, we just want the nonce.
 			const { nonce } = this.getWindowValue( this.key, z.unknown() );
 			this.endpointNonce = nonce;
-		} catch ( e ) {
+		} catch ( error ) {
 			// eslint-disable-next-line no-console
 			console.error(
 				`Failed to connect to REST API because of an invalid "window.${ this.namespace }.${ this.key }" value:\n`,
@@ -120,7 +120,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 				`\n	Received Value: `,
 				window[ namespace ]?.[ this.key ],
 				'\n\nError originated from: \n ',
-				e
+				error
 			);
 		}
 	}
@@ -157,8 +157,20 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			? window[ this.namespace ][ valueName ]
 			: { value: undefined, nonce: '' };
 
-		const result = validator.parse( source );
-		return result as ParsedValue< V >;
+		try {
+			return validator.parse( source ) as ParsedValue< V >;
+		} catch ( error ) {
+			throw new DataSyncError(
+				`Failed to parse global value at 'window.${ this.namespace }.${ valueName }'`,
+				{
+					...this.describeSelf(),
+					location: `window.${ this.namespace }.${ valueName }`,
+					status: 'schema_error',
+					error,
+					data: source,
+				}
+			);
+		}
 	}
 
 	/**
@@ -210,10 +222,16 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		const text = await result.text();
 		try {
 			data = JSON.parse( text );
-		} catch ( e ) {
+		} catch ( error ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Failed to parse the response\n', { url, text, result, error: e } );
-			throw new DataSyncError( url.toString(), 'json_parse_error', 'Failed to parse the response' );
+			throw new DataSyncError( 'Failed to JSON.parse() the response from the server.', {
+				...this.describeSelf(),
+				location: url,
+				method: args.method,
+				status: 'json_parse_error',
+				error,
+				data: text,
+			} );
 		}
 
 		/**
@@ -224,21 +242,33 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		 * @see https://github.com/WordPress/wordpress-develop/blob/28f10e4af559c9b4dbbd1768feff0bae575d5e78/src/wp-includes/rest-api/class-wp-rest-request.php#L701
 		 */
 		if ( ! data || ! data.status ) {
-			// eslint-disable-next-line no-console
-			console.error( 'JSON response is empty.\n', { url, text, result } );
-			throw new DataSyncError( url.toString(), 'json_empty', 'JSON response is empty' );
+			throw new DataSyncError( 'JSON response was empty', {
+				...this.describeSelf(),
+				method,
+				data,
+				location: url,
+				status: 'json_empty',
+			} );
 		}
 
 		if ( data.status === 'error' && 'message' in data ) {
-			// eslint-disable-next-line no-console
-			console.error( 'Server returned an error.\n', { url, text, result } );
-			throw new DataSyncError( url.toString(), 'error_with_message', data.message );
+			throw new DataSyncError( data.message, {
+				...this.describeSelf(),
+				method,
+				location: url,
+				status: 'error_with_message',
+				data,
+			} );
 		}
 
 		if ( ! data || data.JSON === undefined ) {
-			// eslint-disable-next-line no-console
-			console.error( 'JSON response is empty.\n', { url, text, result } );
-			throw new DataSyncError( url.toString(), 'json_empty', 'JSON response is empty' );
+			throw new DataSyncError( 'JSON response was empty', {
+				...this.describeSelf(),
+				method,
+				location: url,
+				status: 'json_empty',
+				data,
+			} );
 		}
 
 		return data.JSON;
@@ -261,15 +291,48 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	): Promise< Value > {
 		const data = await this.request( method, requestPath, value, params, abortSignal );
 		try {
-			const parsed = this.schema.parse( data );
-			return parsed;
+			return this.schema.parse( data );
 		} catch ( error ) {
 			const url = `${ this.wpDatasyncUrl }/${ requestPath }`;
-			// Log Zod validation errors to the console.
-			// eslint-disable-next-line no-console
-			console.error( error );
-			throw new DataSyncError( url, 'schema_error', 'Schema validation failed' );
+			throw new DataSyncError( `Failed to validate response schema.`, {
+				...this.describeSelf(),
+				data,
+				location: url,
+				method,
+				status: 'schema_error',
+				error,
+			} );
 		}
+	}
+
+	private describeSelf() {
+		return {
+			namespace: this.namespace,
+			key: this.key,
+			endpoint: this.endpoint,
+		};
+	}
+
+	/**
+	 * A debugging utility -
+	 * Method to request a teapot response.
+	 */
+	private maybeRequestDisabled( url: string ) {
+		if ( ! window.location.hash.includes( 'ds-debug-disable=' ) ) {
+			return url;
+		}
+		const hashEntry = window.location.hash.split( 'ds-debug-disable=' )[ 1 ];
+		if ( ! hashEntry ) {
+			return url;
+		}
+		if ( hashEntry.match( /[^a-zA-Z0-9-_,]/ ) ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Invalid ds-debug-disable hash entry:', hashEntry );
+			return url;
+		}
+		const debugURL = new URL( url );
+		debugURL.searchParams.set( 'ds-debug-disable', hashEntry );
+		return debugURL.toString();
 	}
 
 	/**
@@ -280,14 +343,36 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 */
 	private async attemptRequest( url: string, args: RequestInit ) {
 		try {
+			url = this.maybeRequestDisabled( url );
 			const result = await fetch( url, args );
 			if ( ! result.ok ) {
-				throw new DataSyncError( url, result.status, result.statusText );
+				throw new DataSyncError( result.statusText, {
+					...this.describeSelf(),
+					method: args.method,
+					location: url,
+					status: 'response_not_ok',
+					data: result,
+				} );
 			}
 
 			return result;
-		} catch ( e ) {
-			throw new DataSyncError( url, 'failed_to_sync', e.message );
+		} catch ( error ) {
+			// Re-throw DataSyncErrors
+			if ( error instanceof DataSyncError ) {
+				throw error;
+			}
+
+			const aborted = error instanceof DOMException && error.name === 'AbortError';
+			const status = aborted ? 'aborted' : 'failed_to_sync';
+
+			throw new DataSyncError( error.message, {
+				...this.describeSelf(),
+				method: args.method,
+				location: url,
+				status,
+				data: null,
+				error,
+			} );
 		}
 	}
 
@@ -334,48 +419,49 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		value: T,
 		schema: R
 	): Promise< z.infer< R > > => {
-		if ( ! window ) {
-			throw new Error( `Window object not found` );
+		if ( ! ( this.namespace in window ) || ! ( this.key in window[ this.namespace ] ) ) {
+			throw new DataSyncError( `"${ this.namespace }.${ this.key }" not found in window object`, {
+				...this.describeSelf(),
+				location: `window.${ this.namespace }.${ this.key }`,
+				status: 'schema_error',
+				data: null,
+			} );
 		}
 
-		if ( ! window[ this.namespace ] ) {
-			throw new Error( `"${ this.namespace }" not found in window object` );
-		}
-
-		if ( ! window[ this.namespace ][ this.key ] ) {
-			throw new Error( `"${ this.key }" not found in "${ this.namespace }"` );
-		}
-
-		const actions = window[ this.namespace ][ this.key ].actions
-			? window[ this.namespace ][ this.key ].actions
-			: false;
+		const actions =
+			'actions' in window[ this.namespace ][ this.key ]
+				? window[ this.namespace ][ this.key ].actions
+				: false;
 
 		// Check if the specific action name exists
 		if ( ! actions || ! actions[ name ] ) {
-			const errorMessage = `Nonce for Action "${ name }" not found in window.${ this.namespace }.${ this.key }.actions`;
-			// eslint-disable-next-line no-console
-			console.error( errorMessage );
-			throw new Error( errorMessage );
+			throw new DataSyncError(
+				`Nonce for Action "${ name }" not found in window.${ this.namespace }.${ this.key }.actions`,
+				{
+					...this.describeSelf(),
+					location: `window.${ this.namespace }.${ this.key }.actions`,
+					status: 'schema_error',
+					data: actions,
+				}
+			);
 		}
 
 		// Get the nonce for the specific action
 		const nonce = actions[ name ];
-
-		const result = await this.request(
-			'POST',
-			`${ this.endpoint }/action/${ name }`,
-			value,
-			{},
-			undefined,
-			nonce
-		);
+		const url = `${ this.endpoint }/action/${ name }`;
+		const result = await this.request( 'POST', url, value, {}, undefined, nonce );
 
 		try {
 			return schema.parse( result );
-		} catch ( e ) {
-			// eslint-disable-next-line no-console
-			console.error( 'Failed to parse the response\n', { result, error: e } );
-			throw new DataSyncError( '', 'json_parse_error', 'Failed to parse the response' );
+		} catch ( error ) {
+			throw new DataSyncError( 'Failed to parse the response', {
+				location: url,
+				...this.describeSelf(),
+				method: 'POST',
+				error,
+				status: 'schema_error',
+				data: result,
+			} );
 		}
 	};
 	/**

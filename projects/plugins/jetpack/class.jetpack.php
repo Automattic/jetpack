@@ -867,6 +867,9 @@ class Jetpack {
 
 		// Actions for conditional recommendations.
 		add_action( 'plugins_loaded', array( 'Jetpack_Recommendations', 'init_conditional_recommendation_actions' ) );
+
+		// Add 5-star
+		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );
 	}
 
 	/**
@@ -3329,6 +3332,9 @@ p {
 		/** Already documented in automattic/jetpack-connection::src/class-client.php */
 		$client_verify_ssl_certs = apply_filters( 'jetpack_client_verify_ssl_certs', false );
 
+		// Run post-activation actions if needed.
+		$this->plugin_post_activation();
+
 		if ( ( self::is_connection_ready() || $is_offline_mode ) && false === $fallback_no_verify_ssl_certs && ! $client_verify_ssl_certs ) {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate.
@@ -3766,12 +3772,9 @@ p {
 	 * @return array
 	 */
 	public function plugin_action_links( $actions ) {
-		$support_link = ( new Host() )->is_woa_site() ? 'https://wordpress.com/help/contact/' : self::admin_url( 'page=jetpack-debugger' );
-
 		if ( current_user_can( 'jetpack_manage_modules' ) && ( self::is_connection_ready() || ( new Status() )->is_offline_mode() ) ) {
 			return array_merge(
 				array( 'settings' => sprintf( '<a href="%s">%s</a>', esc_url( self::admin_url( 'page=jetpack#/settings' ) ), __( 'Settings', 'jetpack' ) ) ),
-				array( 'support' => sprintf( '<a href="%s">%s</a>', esc_url( $support_link ), __( 'Support', 'jetpack' ) ) ),
 				$actions
 			);
 		}
@@ -5672,19 +5675,6 @@ endif;
 	}
 
 	/**
-	 * Checks whether the sync_error_idc option is valid or not, and if not, will do cleanup.
-	 *
-	 * @since 4.4.0
-	 * @since 5.4.0 Do not call get_sync_error_idc_option() unless site is in IDC
-	 *
-	 * @return bool
-	 */
-	public static function validate_sync_error_idc_option() {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Identity_Crisis::validate_sync_error_idc_option' );
-		return Identity_Crisis::validate_sync_error_idc_option();
-	}
-
-	/**
 	 * Normalizes a url by doing three things:
 	 *  - Strips protocol
 	 *  - Strips www
@@ -5704,33 +5694,6 @@ endif;
 		// Strip www and protocols.
 		$url = preg_replace( '/^www\./i', '', $parsed_url['host'] . $parsed_url['path'] );
 		return $url;
-	}
-
-	/**
-	 * Gets the value that is to be saved in the jetpack_sync_error_idc option.
-	 *
-	 * @since 4.4.0
-	 * @since 5.4.0 Add transient since home/siteurl retrieved directly from DB
-	 * @deprecated 9.8.0 Use \\Automattic\\Jetpack\\Identity_Crisis::get_sync_error_idc_option
-	 *
-	 * @param array $response HTTP response.
-	 * @return array Array of the local urls, wpcom urls, and error code
-	 */
-	public static function get_sync_error_idc_option( $response = array() ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Identity_Crisis::get_sync_error_idc_option' );
-		return Identity_Crisis::get_sync_error_idc_option( $response );
-	}
-
-	/**
-	 * Returns the value of the jetpack_sync_idc_optin filter, or constant.
-	 * If set to true, the site will be put into staging mode.
-	 *
-	 * @since 4.3.2
-	 * @return bool
-	 */
-	public static function sync_idc_optin() {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Identity_Crisis::sync_idc_optin' );
-		return Identity_Crisis::sync_idc_optin();
 	}
 
 	/**
@@ -6898,5 +6861,42 @@ endif;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Add 5-star review link on the Jetpack Plugin meta, in the plugins list table (on the plugins page).
+	 *
+	 * @param array  $plugin_meta An array of the plugin's metadata.
+	 * @param string $plugin_file Path to the plugin file.
+	 *
+	 * @return array $plugin_meta An array of the plugin's metadata.
+	 */
+	public function add_5_star_review_link( $plugin_meta, $plugin_file ) {
+		if ( $plugin_file !== 'jetpack/jetpack.php' ) {
+			return $plugin_meta;
+		}
+
+		$plugin_meta[] = '<a href="https://wordpress.org/support/plugin/jetpack/reviews/?filter=5" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Rate Jetpack on WordPress.org', 'jetpack' ) . '" style="color: #ffb900">'
+			. str_repeat( '<span class="dashicons dashicons-star-filled" style="font-size: 16px; width:16px; height: 16px"></span>', 5 )
+			. '</a>';
+
+		return $plugin_meta;
+	}
+
+	/**
+	 * Run plugin post-activation actions if we need to.
+	 *
+	 * @return void
+	 */
+	private function plugin_post_activation() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return;
+		}
+
+		if ( get_transient( 'activated_jetpack' ) ) {
+			delete_transient( 'activated_jetpack' );
+
+			wp_safe_redirect( static::admin_url( 'page=my-jetpack' ) );
+		}
 	}
 }

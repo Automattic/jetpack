@@ -106,6 +106,45 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	}
 
 	/**
+	 * Test return not dismissed task list when the date is in the future.
+	 */
+	public function test_update_checklist_set_temporary_dismissed_when_date_is_in_the_future() {
+		wp_set_current_user( $this->admin_id );
+
+		$values = array(
+			'slug'       => 'intent-build',
+			'dismiss_by' => '+ 1 day',
+		);
+
+		$data    = array( 'is_checklist_dismissed' => $values );
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $data ) );
+		$result = rest_do_request( $request );
+		$this->assertSame( 200, $result->get_status(), 'assert status code' );
+		$this->assertTrue( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ), 'assert the dismiss state' );
+	}
+
+	/**
+	 * Test return not dismissed task list when the date is in the future.
+	 */
+	public function test_update_checklist_doesnt_set_temporary_dismiss_with_invalid_args() {
+		wp_set_current_user( $this->admin_id );
+
+		$values = array(
+			'slug'       => 'intent-build',
+			'dismiss_by' => '+1 century',
+		);
+
+		$data    = array( 'is_checklist_dismissed' => $values );
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $data ) );
+		$result = rest_do_request( $request );
+		$this->assertSame( 400, $result->get_status(), 'assert status code' );
+	}
+
+	/**
 	 * Test updating checklist_statuses.
 	 *
 	 * @covers ::update_site_options
