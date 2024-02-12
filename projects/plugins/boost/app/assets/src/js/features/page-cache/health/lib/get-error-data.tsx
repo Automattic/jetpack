@@ -5,6 +5,22 @@ import styles from '../health.module.scss';
 const cacheIssuesLink = 'TBD'; // @todo - add proper link here.
 
 const messages: { [ key: string ]: { title: string; message: React.ReactNode } } = {
+	'wp-content-not-writable': {
+		title: 'wp-content-not-writable',
+		message: 'wp-content-not-writable',
+	},
+	'advanced-cache-incompatible': {
+		title: 'advanced-cache-incompatible',
+		message: 'advanced-cache-incompatible',
+	},
+	'unable-to-write-advanced-cache': {
+		title: 'unable-to-write-advanced-cache',
+		message: 'unable-to-write-advanced-cache',
+	},
+	'wp-cache-defined-not-true': {
+		title: 'wp-cache-defined-not-true',
+		message: 'wp-cache-defined-not-true',
+	},
 	'feature-disabled-advanced-cache-incompatible': {
 		title: __( 'Cache loader script already exists', 'jetpack-boost' ),
 		message: createInterpolateElement(
@@ -55,8 +71,12 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			}
 		),
 	},
+	default: {
+		title: __( 'Unknown error', 'jetpack-boost' ),
+		message: __( 'An unknown error ocurred.', 'jetpack-boost' ),
+	},
 };
 
-export const getDiagnosticData = ( status: string ) => {
-	return messages[ status ] || null;
+export default ( status: string ) => {
+	return messages[ status ] || messages.default;
 };

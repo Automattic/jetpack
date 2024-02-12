@@ -9,7 +9,7 @@ use Automattic\Jetpack_Boost\Contracts\Pluggable;
  */
 require_once __DIR__ . '/Boost_Cache_Utils.php';
 require_once __DIR__ . '/Boost_Cache_Settings.php';
-require_once __DIR__ . '/Boost_Cache_Setup.php';
+require_once __DIR__ . '/Page_Cache_Setup.php';
 
 class Page_Cache implements Pluggable {
 	/*
@@ -36,18 +36,21 @@ class Page_Cache implements Pluggable {
 		$this->settings = Boost_Cache_Settings::get_instance();
 		register_deactivation_hook( JETPACK_BOOST_PATH, array( Page_Cache_Setup::class, 'deactivate' ) );
 		register_uninstall_hook( JETPACK_BOOST_PATH, array( Page_Cache_Setup::class, 'uninstall' ) );
+
+		add_action( 'update_option_jetpack_boost_status_' . str_replace( '_', '-', $this->get_slug() ), array( self::class, 'module_toggled' ), 10, 2 );
 	}
 
-	/*
-	 * Sets up the advanced-cache.php file and if that works, adds the WP_CACHE
-	 * define to wp-config.php
-	 * These are used by WordPress to load the caching system before most of
-	 * WordPress is loaded.
-	 */
-	public function setup() {
-		if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'jetpack-boost' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	public function setup() {}
+
+	public static function module_toggled( $old_value, $value ) {
+		$was_enabled = boolval( $old_value ) === true;
+		$enabling    = boolval( $value ) && ! $was_enabled;
+
+		if ( $enabling ) {
 			Page_Cache_Setup::run_setup();
 		}
+
+		// @todo - cleanup advanced cache and wp config
 	}
 
 	public static function is_available() {

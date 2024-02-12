@@ -1,15 +1,15 @@
 import { Notice } from '@automattic/jetpack-components';
-import { useSingleModuleState } from '$features/module/lib/stores';
-import { usePageCacheDiagnosticDS } from '$lib/stores/page-cache';
-import { getDiagnosticData } from './lib/diagnostic';
+import { usePageCacheErrorDS } from '$lib/stores/page-cache';
+import getErrorData from './lib/get-error-data';
 
 const Health = () => {
-	const [ pageCache ] = useSingleModuleState( 'page_cache' );
-	const data = usePageCacheDiagnosticDS();
+	const error = usePageCacheErrorDS();
 
-	// If the module is disabled, can it be enabled?
-	if ( pageCache?.active !== true && data?.canBeEnabled.status === false ) {
-		const diagnosticMessage = getDiagnosticData( data?.canBeEnabled.error );
+	// Was there a problem trying to setup cache?
+	if ( error !== '' ) {
+		const errorCode = error ? error : '';
+
+		const diagnosticMessage = getErrorData( errorCode );
 		if ( diagnosticMessage ) {
 			return (
 				<Notice level="warning" hideCloseButton={ true } title={ diagnosticMessage.title }>

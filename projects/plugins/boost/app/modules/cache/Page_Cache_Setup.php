@@ -5,23 +5,8 @@ namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 class Page_Cache_Setup {
 
 	/**
-	 * Setup Page Cache and return any errors.
-	 *
-	 * Example good:
-	 *      array(
-	 *          'status' => 'ok',
-	 *      )
-	 *
-	 * Example bad:
-	 *      array(
-	 *          'status' => 'error',
-	 *          'error'  => array(
-	 *              'code'    => 'error-code',
-	 *              'message' => 'error message',
-	 *          )
-	 *      )
-	 *
-	 * @return array
+	 * Runs setup steps and returns whether setup was successful or not.
+	 * @return bool
 	 */
 	public static function run_setup() {
 		$steps = array(
@@ -33,19 +18,15 @@ class Page_Cache_Setup {
 		foreach ( $steps as $step ) {
 			$result = self::$step();
 			if ( is_wp_error( $result ) ) {
-				return array(
-					'status' => 'error',
-					'error'  => array(
-						'code'    => $result->get_error_code(),
-						'message' => $result->get_error_message(),
-					),
-				);
+				jetpack_boost_ds_set( 'page_cache_error', $result->get_error_code() );
+
+				return false;
 			}
 		}
 
-		return array(
-			'status' => 'ok',
-		);
+		jetpack_boost_ds_set( 'page_cache_error', '' );
+
+		return true;
 	}
 
 	/**
