@@ -2,6 +2,36 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.2-a.1 - 2024-02-12
+### Enhancements
+- Additional CSS: Use the correct plan name in the WordPress.com nudge. [#35495]
+- Admin Bar: link Stats item to WordPress.com. [#35435]
+- Blog Stats Block: allow displaying site's number of visitors. [#35427]
+- Change editor layout for social notes [#35536]
+- Remove Support link from Jetpack on plugins page [#35523]
+- Remove the My Mailboxes menu from the classic view [#35217]
+
+### Bug fixes
+- Don't include Dash cards on Admin UI if module is not available, which fixes positioning. [#35450]
+- Small adjustments to default Sharing Buttons styles [#35521]
+- WooCommerce Analytics: avoid error when trying to pay for a deleted product. [#35566]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add new option to sync allowlist [#35509]
+- Allowing multiple Sharing Buttons blocks on a page. [#35579]
+- Feature Hints: add the sharing block to the list of suggested features when the site uses a block-based theme. [#35577]
+- Fix blogroll item image size and fix blogroll appender result image placeholder [#35494]
+- Fixed various PHP warnings for PHP 8.1+ [#35551]
+- Jetpack Sync: Avoid detecting invalid image size [#35532]
+- Related Posts: allow author to set headline level [#35353]
+- Related Posts: fix SVG notice in block. [#35459]
+- Remove Settings > Performance for the classic admin interface, and added Page Optimizer link in Jetpack > Settings > Performance for Atomic sites. [#35439]
+- Revert: Untangle: Do not add the dashboard switcher for the wp-admin interface [#35563]
+- Shortcodes: Get rid of warnings when given invalid input to parsing youtube urls [#35512]
+- Untangle Calypso: Users > My Profile to default wp-admin users profile. [#35235]
+- Updated package dependencies. [#35468]
+- Write helper script to ABSPATH by default, just like we did before [#35508]
+
 ## 13.1.1 - 2024-02-06
 ### Bug fixes
 - WooCommerce Analytics: resolve warning when enqueuing analytics script. [#35471]
