@@ -113,14 +113,14 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		);
 
 		$enabled_payment_options = array_keys( $enabled_payment_options );
-
-		$shared_data = array(
+		$cart_total              = wc_prices_include_tax() ? $cart->get_cart_contents_total() + $cart->get_cart_contents_tax() : $cart->get_cart_contents_total();
+		$shared_data             = array(
 			'products'               => $this->format_items_to_json( $cart->get_cart() ),
 			'create_account'         => $create_account,
 			'guest_checkout'         => $guest_checkout,
 			'express_checkout'       => 'null', // TODO: not solved yet.
 			'products_count'         => $cart->get_cart_contents_count(),
-			'order_value'            => $cart->get_cart_total(),
+			'order_value'            => $cart_total,
 			'shipping_options_count' => 'null', // TODO: not solved yet.
 			'coupon_used'            => $coupon_used,
 			'payment_options'        => $enabled_payment_options,
@@ -387,8 +387,8 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		$all_props = apply_filters(
 			'jetpack_woocommerce_analytics_event_props',
 			array_merge(
-				$properties,
-				$this->get_common_properties()
+				$this->get_common_properties(), // We put this here to allow override of common props.
+				$properties
 			)
 		);
 
