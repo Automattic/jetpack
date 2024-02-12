@@ -74,6 +74,7 @@ class Note {
 				'items_list'            => esc_html__( 'Notes list', 'jetpack-social' ),
 			),
 			'show_in_rest' => true,
+			'has_archive'  => true,
 			'supports'     => array( 'editor', 'thumbnail', 'publicize', 'activitypub' ),
 			'menu_icon'    => 'dashicons-welcome-write-blog',
 			'rewrite'      => array( 'slug' => 'sn' ),
