@@ -1,4 +1,4 @@
-.jb-multi-progress {
+.multi-progress {
 	width: 100%;
 	display: flex;
 	gap: 8px;
@@ -8,11 +8,11 @@
 	}
 }
 
-.jb-progress {
+.progress {
 	grid-area: progress;
 }
 
-.jb-entry {
+.entry {
 	flex: 1 0;
 	display: grid;
 	gap: 4px;
@@ -28,7 +28,7 @@
 	}
 }
 
-.jb-bubble {
+.bubble {
 	grid-area: bubble;
 	background-color: var( --gray-50 );
 	color: var( --gray-0 );
@@ -49,42 +49,14 @@
 	}
 }
 
-.jb-status {
+.status {
 	grid-area: status;
 	font-size: 0.875rem;
 	color: var( --gray-50 );
 }
 
-.jb-category-name {
+.category {
 	grid-area: category;
 	display: flex;
 	line-height: 1.6rem;
-
-	.jb-score-context {
-		top: 2px;
-	}
-
-	.jb-score-context__info-icon {
-		width: 14px;
-		height: 14px;
-		font-size: 10px;
-	}
-
-	.jb-score-context__info-container {
-		top: 24px;
-
-		@media ( min-width: 782px ) {
-			left: -112px;
-		}
-
-		@media ( max-width: 782px ) {
-			left: 112px;
-		}
-	}
-
-	.jb-score-context__info-container i {
-		@media ( max-width: 782px ) {
-			left: 41px;
-		}
-	}
 }

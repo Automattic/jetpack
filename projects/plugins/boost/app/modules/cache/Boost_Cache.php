@@ -100,6 +100,10 @@ abstract class Boost_Cache {
 			return false;
 		}
 
+		if ( function_exists( 'is_user_logged_in' ) && is_user_logged_in() ) {
+			return false;
+		}
+
 		if ( function_exists( 'is_404' ) && is_404() ) {
 			return false;
 		}
