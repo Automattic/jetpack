@@ -138,10 +138,39 @@ class Jetpack_Subscription_Site {
 					);
 				}
 
+				// The code below is just for prototyping purposes.
+				$is_navigation_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/navigation';
+				if ( $is_navigation_anchor_block && $relative_position === 'last_child' ) {
+					return array(
+						'blockName'    => 'core/group',
+						'attrs'        => array(),
+						'innerBlocks'  => array( $hooked_block ),
+						'innerContent' => array(
+							'<div class="wp-block-group wp-block-jetpack-subscriptions__subscribe_navigation">',
+							null,
+							'</div>',
+						),
+					);
+				}
+
 				return $hooked_block;
 			},
 			10,
 			3
+		);
+
+		// The code below is just for prototyping purposes.
+		add_filter(
+			'hooked_block_types',
+			function ( $hooked_blocks, $relative_position, $anchor_block, $context ) {
+				if ( $anchor_block === 'core/navigation' && $relative_position === 'last_child' && is_object( $context ) && get_class( $context ) === 'WP_Post' && $context->post_type === 'wp_navigation' ) {
+					$hooked_blocks[] = 'jetpack/subscriptions';
+				}
+
+				return $hooked_blocks;
+			},
+			10,
+			4
 		);
 	}
 }
