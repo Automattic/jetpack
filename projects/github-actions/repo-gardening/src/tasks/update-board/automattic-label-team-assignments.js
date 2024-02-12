@@ -68,13 +68,13 @@ export const automatticAssignments = {
 	'Blocks infrastructure': {
 		team: 'Vulcan',
 		labels: [ '[Package] Blocks', '[Focus] FSE', '[Focus] Blocks' ],
-		slack_id: 'CBG1CP4EN',
+		slack_id: 'C05PV073SG3',
 		board_id: 'https://github.com/orgs/Automattic/projects/778',
 	},
 	Connection: {
 		team: 'Vulcan',
 		labels: [ '[Package] Connection', '[Package] Identity Crisis', '[Package] Sync' ],
-		slack_id: 'CBG1CP4EN',
+		slack_id: 'C05PV073SG3',
 		board_id: 'https://github.com/orgs/Automattic/projects/778',
 	},
 	CRM: {
@@ -110,7 +110,7 @@ export const automatticAssignments = {
 	'React Dashboard': {
 		team: 'Vulcan',
 		labels: [ 'Admin Page' ],
-		slack_id: 'CBG1CP4EN',
+		slack_id: 'C05PV073SG3',
 		board_id: 'https://github.com/orgs/Automattic/projects/778',
 	},
 	Search: {
