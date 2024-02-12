@@ -41,6 +41,10 @@
 		}
 	},
 	"extra": {
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
 		"mirror-repo": "Automattic/vaultpress",
 		"release-branch-prefix": "vaultpress",
 		"version-constants": {
