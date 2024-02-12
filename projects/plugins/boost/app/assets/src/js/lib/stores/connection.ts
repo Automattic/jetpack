@@ -13,17 +13,24 @@ import { z } from 'zod';
  *
  * @param domain
  * @param isUserConnected
+ * @param blogID
  */
-export function getUpgradeURL( domain: string, isUserConnected = false ) {
+export function getUpgradeURL(
+	domain: string,
+	isUserConnected = false,
+	blogID: string | null = null
+) {
 	const product = 'jetpack_boost_yearly';
 
-	const redirectUrl = new URL( window.location.href );
-	redirectUrl.hash = '#/purchase-successful';
-
-	const checkoutProductUrl = new URL( `https://wordpress.com/checkout/${ domain }/${ product }` );
+	const checkoutProductUrl = new URL(
+		`https://wordpress.com/checkout/${ blogID ?? domain }/${ product }`
+	);
 
 	// Add redirect_to parameter
-	checkoutProductUrl.searchParams.set( 'redirect_to', redirectUrl.toString() );
+	checkoutProductUrl.searchParams.set(
+		'redirect_to',
+		'admin.php?page=jetpack-boost#/purchase-successful'
+	);
 
 	// Add site to query string.
 	checkoutProductUrl.searchParams.set( 'site', domain );
@@ -53,7 +60,7 @@ export const useConnection = () => {
 	const [ { refetch: reloadModules } ] = useModulesState();
 
 	return {
-		connection: connection as ConnectionSchema,
+		connection,
 		initializeConnection: useCallback( async () => {
 			if ( connection?.connected ) {
 				return;

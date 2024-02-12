@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2024-02-05
+### Added
+- Add support for script enqueuing strategies implemented in WordPress 6.3 [#34072]
+
+### Changed
+- Updated package dependencies. [#35384]
+
 ## [2.0.4] - 2024-01-04
 ### Changed
 - Updated package dependencies. [#34815]
@@ -396,6 +403,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[2.1.0]: https://github.com/Automattic/jetpack-assets/compare/v2.0.4...v2.1.0
 [2.0.4]: https://github.com/Automattic/jetpack-assets/compare/v2.0.3...v2.0.4
 [2.0.3]: https://github.com/Automattic/jetpack-assets/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/Automattic/jetpack-assets/compare/v2.0.1...v2.0.2

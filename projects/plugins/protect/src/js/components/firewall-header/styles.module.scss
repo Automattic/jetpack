@@ -1,25 +1,3 @@
-.status {
-    color: var( --jp-gray-50 );
-
-    &:before {
-        content: "";
-        display: inline-block;
-        border-radius: 50%;
-        height: 8px;
-        width: 8px;
-        margin-right: var(--spacing-base); // 8px
-        background: var( --jp-gray-50 );
-    }
-
-    &.active {
-        color: var( --jp-green-40 );
-
-        &:before {
-            background: var( --jp-green-40 );
-        }
-    }
-}
-
 svg.spinner {
     width: 32px;
     height: 32px;

@@ -110,8 +110,14 @@ export function useDataSync<
 	const queryConfigDefaults = {
 		queryKey,
 		queryFn: ( { signal } ) => datasync.GET( params, signal ),
-		initialData: () => datasync.getInitialValue(),
 		staleTime: 1 * 1000,
+		initialData: () => {
+			try {
+				return datasync.getInitialValue();
+			} catch ( e ) {
+				return;
+			}
+		},
 	};
 
 	/**
@@ -155,7 +161,7 @@ export function useDataSync<
 			return { previousValue, optimisticValue: value };
 		},
 		onError: ( err, _, context ) => {
-			if ( err instanceof DataSyncError && err.status === 'aborted' ) {
+			if ( err instanceof DataSyncError && err.info.status === 'aborted' ) {
 				// If the request was aborted, this means that another mutation
 				// has already been dispatched and has already updated
 				// the optimistic value, so there's nothing to revert.
@@ -169,7 +175,7 @@ export function useDataSync<
 		},
 		onSettled: ( _, error ) => {
 			// Clear the abortController on either success or failure that is not an abort
-			if ( ! error || ( error instanceof DataSyncError && error.status !== 'aborted' ) ) {
+			if ( ! error || ( error instanceof DataSyncError && error.info.status !== 'aborted' ) ) {
 				abortController.current = null;
 			}
 		},

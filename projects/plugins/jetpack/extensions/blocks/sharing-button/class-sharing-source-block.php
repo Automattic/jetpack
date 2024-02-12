@@ -161,15 +161,15 @@ abstract class Sharing_Source_Block {
 	/**
 	 * Get the URL for the link.
 	 *
-	 * @param WP_Post     $post            Post object.
+	 * @param int         $post_id         Post ID.
 	 * @param string      $query           Additional query arguments to add to the link. They should be in 'foo=bar&baz=1' format.
 	 * @param bool|string $id              Sharing ID to include in the data-shared attribute.
 	 * @param array       $data_attributes The keys are used as additional attribute names with 'data-' prefix.
 	 *                                     The values are used as the attribute values.
 	 * @return object Link related data (url and data_attributes);
 	 */
-	public function get_link( $post, $query = '', $id = false, $data_attributes = array() ) {
-		$url             = $this->get_url( $this->get_process_request_url( $post->ID ), $query, $id );
+	public function get_link( $post_id, $query = '', $id = false, $data_attributes = array() ) {
+		$url             = $this->get_url( $this->get_process_request_url( $post_id ), $query, $id );
 		$data_attributes = $this->get_data_attributes( $id, $data_attributes );
 
 		return array(
@@ -399,12 +399,12 @@ class Share_Email_Block extends Sharing_Source_Block {
 	/**
 	 * Helper function to return a nonce action based on the current post.
 	 *
-	 * @param WP_Post|null $post The current post if it is defined.
+	 * @param int $post_id The current post id if it is defined.
 	 * @return string The nonce action name.
 	 */
-	protected function get_email_share_nonce_action( $post ) {
-		if ( ! empty( $post ) && $post instanceof WP_Post ) {
-			return 'jetpack-email-share-' . $post->ID;
+	protected function get_email_share_nonce_action( $post_id ) {
+		if ( ! empty( $post_id ) && 0 !== $post_id ) {
+			return 'jetpack-email-share-' . $post_id;
 		}
 
 		return 'jetpack-email-share';
@@ -413,17 +413,17 @@ class Share_Email_Block extends Sharing_Source_Block {
 	/**
 	 * Get the URL for the link.
 	 *
-	 * @param WP_Post     $post            Post object.
+	 * @param int         $post_id         Post ID.
 	 * @param string      $query           Additional query arguments to add to the link. They should be in 'foo=bar&baz=1' format.
 	 * @param bool|string $id              Sharing ID to include in the data-shared attribute.
 	 * @param array       $data_attributes The keys are used as additional attribute names with 'data-' prefix.
 	 *                                     The values are used as the attribute values.
 	 * @return object Link related data (url and data_attributes);
 	 */
-	public function get_link( $post, $query = '', $id = false, $data_attributes = array() ) {
+	public function get_link( $post_id, $query = '', $id = false, $data_attributes = array() ) {
 		// We don't need to open new window, so we set it to false.
 		$id           = false;
-		$tracking_url = $this->get_process_request_url( $post->ID );
+		$tracking_url = $this->get_process_request_url( $post_id );
 		if ( false === stripos( $tracking_url, '?' ) ) {
 			$tracking_url .= '?';
 		} else {
@@ -437,12 +437,12 @@ class Share_Email_Block extends Sharing_Source_Block {
 				"If you're having problems sharing via email, you might not have email set up for your browser. You may need to create a new email yourself.",
 				'jetpack'
 			),
-			'email-share-nonce'       => wp_create_nonce( $this->get_email_share_nonce_action( $post ) ),
+			'email-share-nonce'       => wp_create_nonce( $this->get_email_share_nonce_action( $post_id ) ),
 			'email-share-track-url'   => $tracking_url,
 		);
 
-		$post_title = $this->get_share_title( $post->ID );
-		$post_url   = $this->get_share_url( $post->ID );
+		$post_title = $this->get_share_title( $post_id );
+		$post_url   = $this->get_share_url( $post_id );
 
 		/** This filter is documented in plugins/jetpack/modules/sharedaddy/sharedaddy.php */
 		$email_subject = apply_filters(

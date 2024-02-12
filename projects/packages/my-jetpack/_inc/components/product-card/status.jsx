@@ -16,7 +16,7 @@ const getStatusClassName = status => {
 		case PRODUCT_STATUSES.ERROR:
 			return styles.error;
 		default:
-			return '';
+			return styles.inactive;
 	}
 };
 

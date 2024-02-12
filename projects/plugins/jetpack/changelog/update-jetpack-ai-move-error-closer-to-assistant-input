@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack AI: move error handling from top of block to closer the AI Control input.
