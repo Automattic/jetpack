@@ -63,11 +63,11 @@ class Jetpack_Subscription_Site {
 			return;
 		}
 
-		if ( ! wp_is_block_theme() ) {
+		if ( ! wp_is_block_theme() ) { // Fallback for classit themes.
 			add_filter(
 				'the_content',
 				function ( $content ) {
-					// Check if we're inside the main loop in a single Post
+					// Check if we're inside the main loop in a single Post.
 					if ( is_singular() && in_the_loop() && is_main_query() ) {
 						return $content . '
 	<!-- wp:group {"className":"wp-block-jetpack-subscriptions__subscribe_post_end","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
@@ -109,9 +109,33 @@ class Jetpack_Subscription_Site {
 			function ( $hooked_block, $relative_position, $anchor_block ) {
 				$is_post_content_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/post-content';
 				if ( $is_post_content_anchor_block && ( $relative_position === 'after' || $relative_position === 'before' ) ) {
-					if ( isset( $anchor_block['attrs']['layout'] ) ) {
-						$hooked_block['attrs']['layout'] = $anchor_block['attrs']['layout'];
+					$attrs = array(
+						'className' => 'wp-block-jetpack-subscriptions__subscribe_post_end',
+						'layout'    => array(
+							'type'           => 'flex',
+							'orientation'    => 'vertical',
+							'justifyContent' => 'stretch',
+						),
+					);
+					if ( ! empty( $anchor_block['attrs']['layout']['type'] ) ) {
+						$attrs['layout']['type'] = $anchor_block['attrs']['layout']['type'];
 					}
+
+					return array(
+						'blockName'    => 'core/group',
+						'attrs'        => $attrs,
+						'innerBlocks'  => array( $hooked_block ),
+						'innerContent' => array(
+							'<div class="wp-block-group wp-block-jetpack-subscriptions__subscribe_post_end">
+								<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"300"}},"className":"has-text-align-center"} -->
+								<p class="has-text-align-center" style="font-style:normal;font-weight:300">
+									<em>Aliquam a ullamcorper lorem<br>Integer at tempus nibh</em>
+								</p>
+								<!-- /wp:paragraph -->',
+							null,
+							'</div>',
+						),
+					);
 				}
 
 				return $hooked_block;
