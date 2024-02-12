@@ -1,3 +1,5 @@
 Significance: patch
-Type: fixed
-Comment: Make sure $url is a string before calling str_contains().
+Type: other
+Comment: Embeds: avoid notices caused by wrong data used in iCloud embeds
+
+
