@@ -313,7 +313,7 @@ class WPCOM_JSON_API {
 					$this->content_type = filter_var( wp_unslash( $_SERVER['HTTP_CONTENT_TYPE'] ) );
 				} elseif ( ! empty( $_SERVER['CONTENT_TYPE'] ) ) {
 					$this->content_type = filter_var( wp_unslash( $_SERVER['CONTENT_TYPE'] ) );
-				} elseif ( '{' === $this->post_body[0] ) {
+				} elseif ( isset( $this->post_body[0] ) && '{' === $this->post_body[0] ) {
 					$this->content_type = 'application/json';
 				} else {
 					$this->content_type = 'application/x-www-form-urlencoded';
@@ -424,9 +424,10 @@ class WPCOM_JSON_API {
 
 		// Normalize path and extract API version.
 		$this->path = untrailingslashit( $this->path );
-		preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches );
-		$this->path    = substr( $this->path, strlen( $matches[0] ) );
-		$this->version = $matches[1];
+		if ( preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches ) ) {
+			$this->path    = substr( $this->path, strlen( $matches[0] ) );
+			$this->version = $matches[1];
+		}
 
 		$allowed_methods = array( 'GET', 'POST' );
 		$four_oh_five    = false;
@@ -741,7 +742,7 @@ class WPCOM_JSON_API {
 
 		$status_code = $error->get_error_data();
 
-		if ( is_array( $status_code ) ) {
+		if ( is_array( $status_code ) && isset( $status_code['status_code'] ) ) {
 			$status_code = $status_code['status_code'];
 		}
 

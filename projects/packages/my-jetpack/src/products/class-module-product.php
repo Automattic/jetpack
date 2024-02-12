@@ -86,7 +86,7 @@ abstract class Module_Product extends Product {
 	 */
 	public static function get_status() {
 		$status = parent::get_status();
-		if ( 'active' === $status && ! static::is_module_active() ) {
+		if ( 'inactive' === $status && ! static::is_module_active() ) {
 			$status = 'module_disabled';
 		}
 		return $status;
