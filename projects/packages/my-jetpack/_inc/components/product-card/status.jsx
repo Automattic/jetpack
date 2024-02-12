@@ -14,7 +14,7 @@ const getStatusClassName = status => {
 		case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:
 			return styles.inactive;
 		case PRODUCT_STATUSES.ERROR:
-			return styles.error;
+			return styles.inactive;
 		default:
 			return styles.inactive;
 	}
