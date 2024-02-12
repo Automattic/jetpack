@@ -29,6 +29,7 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-licensing": "workspace:*",
+		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@wordpress/api-fetch": "6.47.0",
 		"@wordpress/components": "25.16.0",
 		"@wordpress/data": "9.20.0",

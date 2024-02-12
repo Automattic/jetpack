@@ -7,6 +7,7 @@
 		"php": ">=7.0",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-boost-speed-score": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-licensing": "@dev",
