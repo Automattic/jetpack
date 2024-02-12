@@ -90,9 +90,10 @@ export const automatticAssignments = {
 		board_id: 'https://github.com/orgs/Automattic/projects/599',
 	},
 	'My Jetpack': {
-		team: 'Agora',
+		team: 'Jetpack MarTech',
 		labels: [ '[Package] My Jetpack' ],
-		slack_id: 'C02TQF5VAJD',
+		slack_id: 'C06CVN9QVFY',
+		board_id: 'https://github.com/orgs/Automattic/projects/724',
 	},
 	Newsletter: {
 		team: 'Zap',
