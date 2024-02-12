@@ -52,6 +52,15 @@ class Initializer {
 		'jetpack-search',
 	);
 
+	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
+
+	/**
+	 * Holds info/data about the site (from the /sites/%d endpoint)
+	 *
+	 * @var stdClass Object
+	 */
+	public static $site_info;
+
 	/**
 	 * Initialize My Jetpack
 	 *
@@ -142,6 +151,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_init() {
+		self::$site_info = self::get_site_info();
 		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 		// Product statuses are constantly changing, so we never want to cache the page.
@@ -204,6 +214,7 @@ class Initializer {
 				'userIsNewToJetpack'    => self::is_jetpack_user_new(),
 				'isStatsModuleActive'   => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'   => self::is_user_from_known_host(),
+				'isCommercial'          => self::is_commercial_site(),
 				'welcomeBanner'         => array(
 					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
 				),
@@ -404,6 +415,56 @@ class Initializer {
 		}
 
 		return rest_ensure_response( $body, 200 );
+	}
+
+	/**
+	 * Populates the self::$site_info var with site data from the /sites/%d endpoint
+	 *
+	 * @return Object|WP_Error
+	 */
+	public static function get_site_info() {
+		static $site_info = null;
+
+		if ( $site_info !== null ) {
+			return $site_info;
+		}
+
+		// Check for a cached value before doing lookup
+		$stored_site_info = get_transient( self::MY_JETPACK_SITE_INFO_TRANSIENT_KEY );
+		if ( $stored_site_info !== false ) {
+			return $stored_site_info;
+		}
+
+		$response = self::get_site();
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+		$site_info = $response->data;
+		set_transient( self::MY_JETPACK_SITE_INFO_TRANSIENT_KEY, $site_info, DAY_IN_SECONDS );
+
+		return $site_info;
+	}
+
+	/**
+	 * Returns whether a site has been determined "commercial" or not.
+	 *
+	 * @return bool
+	 */
+	public static function is_commercial_site() {
+		if ( is_wp_error( self::$site_info ) ) {
+			return null;
+		}
+
+		return empty( self::$site_info->options->is_commercial ) ? false : self::$site_info->options->is_commercial;
+	}
+
+	/**
+	 * Check if site is registered (has been connected before).
+	 *
+	 * @return bool
+	 */
+	public static function is_registered() {
+		return (bool) \Jetpack_Options::get_option( 'id' );
 	}
 
 	/**
