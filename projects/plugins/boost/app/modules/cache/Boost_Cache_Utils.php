@@ -10,6 +10,7 @@ class Boost_Cache_Utils {
 	 * @return bool|WP_Error
 	 */
 	public static function delete_directory( $dir, $recurse = true ) {
+		error_log( "delete directory: $dir" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$dir = realpath( $dir );
 		if ( ! $dir ) {
 			return new \WP_Error( 'Directory does not exist' ); // realpath returns false if a file does not exist.
@@ -66,6 +67,7 @@ class Boost_Cache_Utils {
 	 * @return bool
 	 */
 	public static function delete_single_directory( $dir ) {
+		error_log( "delete single directory: $dir" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		return self::delete_directory( $dir, false );
 	}
 
