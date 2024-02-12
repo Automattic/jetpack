@@ -293,9 +293,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.1.1 - 2024-02-06
+### 13.2-a.1 - 2024-02-12
+#### Enhancements
+- Additional CSS: Use the correct plan name in the WordPress.com nudge.
+- Admin Bar: link Stats item to WordPress.com.
+- Blog Stats Block: allow displaying site's number of visitors.
+- Change editor layout for social notes
+- Remove Support link from Jetpack on plugins page
+- Remove the My Mailboxes menu from the classic view
+
 #### Bug fixes
-- WooCommerce Analytics: resolve warning when enqueuing analytics script.
+- Don't include Dash cards on Admin UI if module is not available, which fixes positioning.
+- Small adjustments to default Sharing Buttons styles
+- WooCommerce Analytics: avoid error when trying to pay for a deleted product.
 
 --------
 
