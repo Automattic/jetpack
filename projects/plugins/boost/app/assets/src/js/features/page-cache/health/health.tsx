@@ -19,7 +19,7 @@ const Health = () => {
 		}
 	}
 
-	// Don't mind me.
+	return null;
 };
 
 export default Health;
