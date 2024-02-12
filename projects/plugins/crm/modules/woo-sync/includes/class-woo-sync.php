@@ -1853,19 +1853,20 @@ class Woo_Sync {
 
 		$this->skip_local_woo_check = $pre_state;
 
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		// basic validation
-		if ( ! in_array( $mode, array( JPCRM_WOO_SYNC_MODE_LOCAL, JPCRM_WOO_SYNC_MODE_API ), true ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		if ( ! in_array( $mode, array( JPCRM_WOO_SYNC_MODE_LOCAL, JPCRM_WOO_SYNC_MODE_API ), true ) ) {
 			return false;
 		}
 
 		// if no site key, attempt to generate one:
 		if ( empty( $site_key ) ) {
 
-			if ( $mode === JPCRM_WOO_SYNC_MODE_LOCAL ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			if ( $mode === JPCRM_WOO_SYNC_MODE_LOCAL ) {
 				$site_key = 'local';
-			} elseif ( ! empty( $domain ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			} elseif ( ! empty( $domain ) ) {
 
-				$site_key = $this->generate_site_key( $domain ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+				$site_key = $this->generate_site_key( $domain );
 
 			} else {
 
@@ -1882,7 +1883,7 @@ class Woo_Sync {
 				// site key already exists
 				|| isset( $sync_sites[ $site_key ] )
 				// domain already exists
-				|| in_array( $domain, array_column( $sync_sites, 'domain' ), true ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+				|| in_array( $domain, array_column( $sync_sites, 'domain' ), true )
 				) {
 				return false;
 			}
@@ -1891,11 +1892,11 @@ class Woo_Sync {
 
 		// add
 		$sync_sites[ $site_key ] = array(
-			'mode'                  => $mode, // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-			'domain'                => $domain, // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-			'key'                   => $key, // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-			'secret'                => $secret, // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-			'prefix'                => $prefix, // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			'mode'                  => $mode,
+			'domain'                => $domain,
+			'key'                   => $key,
+			'secret'                => $secret,
+			'prefix'                => $prefix,
 
 			// tracking
 			'last_sync_fired'       => -1,
@@ -1906,11 +1907,12 @@ class Woo_Sync {
 		);
 
 		// pause, if present
-		if ( $paused ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		if ( $paused ) {
 
-			$sync_sites[ $site_key ]['paused'] = $paused; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$sync_sites[ $site_key ]['paused'] = $paused;
 
 		}
+		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 		// save
 		$this->settings->update( 'sync_sites', $sync_sites );
