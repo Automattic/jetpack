@@ -303,7 +303,8 @@ class Boost_Cache {
 			$latest_posts       = $latest_posts_query->get_posts();
 			foreach ( $latest_posts as $id ) {
 				if ( (int) $id === (int) $post->ID ) {
-					$this->delete_cache_for_url( get_home_url(), false );
+					$this->storage->invalidate_home_page();
+					error_log( 'delete front page cache' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					return;
 				}
 			}
@@ -339,7 +340,7 @@ class Boost_Cache {
 			return;
 		}
 		$post = get_post( $comment->comment_post_ID );
-		$this->delete_cache_for_post_only( $post );
+		$this->delete_cache_for_post( $post );
 	}
 
 	public function delete_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
@@ -350,20 +351,108 @@ class Boost_Cache {
 		 * this post for this visitor so the unmoderated comment is shown to them.
 		 */
 		if ( $comment_approved !== 1 ) {
-			$this->delete_post_for_visitor( $post );
+			$this->storage->invalidate_single_visitor( $this->request_uri, $this->request_parameters );
 			return;
 		}
 
-		$this->delete_cache_for_post_only( $post );
+		$this->delete_cache_for_post( $post );
 	}
 
-	abstract public function get();
-	abstract public function set( $data );
-	abstract public function delete_cache();
-	abstract public function delete_cache_for_url( $url, $recurse = true );
-	abstract public function delete_cache_for_post( $post_id, $all = true );
-	abstract public function delete_cache_for_post_only( $post_id );
-	abstract public function delete_post_for_visitor( $post );
-	abstract public function delete_on_post_transition( $new_status, $old_status, $post );
-	abstract public function delete_cache_for_post_terms( $post );
+	/*
+	 * Delete the cached post if it transitioned from one state to another.
+	 *
+	 * @param string $new_status - The new status of the post.
+	 * @param string $old_status - The old status of the post.
+	 * @param WP_Post $post - The post that transitioned.
+	 */
+	public function delete_on_post_transition( $new_status, $old_status, $post ) {
+		if ( ! $this->is_visible_post_type( $post ) ) {
+			return;
+		}
+
+		$this->delete_cache_for_post( $post );
+
+		if (
+			( ( $old_status === 'private' || $old_status === 'publish' ) && $new_status !== 'publish' ) || // unpublished
+			( $new_status === 'private' || $new_status === 'publish' ) // published
+		) {
+			$this->delete_cache_for_post_terms( $post );
+		}
+
+		$this->maybe_clear_front_page_cache( $post );
+	}
+
+	/*
+	 * Deletes cache files for the given post.
+	 *
+	 * @param WP_Post $post - The post to delete the cache file for.
+	 * @param bool $all - If false, only delete the cache file for the post, not the front page cache.
+	 */
+	public function delete_cache_for_post( $post ) {
+		static $already_deleted = -1;
+		if ( $already_deleted === $post->ID ) {
+			return;
+		}
+
+		/*
+		 * Don't delete the cache for post types that are not public.
+		 */
+		if ( ! $this->is_visible_post_type( $post ) ) {
+			return;
+		}
+
+		$already_deleted = $post->ID;
+
+		/*
+		 * If a post is unpublished, the permalink will be deleted. In that case,
+		 * get_sample_permalink() will return a permalink with ?p=123 instead of
+		 * the post name. We need to get the post name from the post object.
+		 */
+		$permalink = get_permalink( $post->ID );
+		if ( strpos( $permalink, '?p=' ) !== false ) {
+			if ( ! function_exists( 'get_sample_permalink' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/post.php';
+			}
+			list( $permalink, $post_name ) = get_sample_permalink( $post );
+			$permalink                     = str_replace( array( '%postname%', '%pagename%' ), $post_name, $permalink );
+		}
+
+		error_log( "delete_cache_for_post: $permalink" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		$this->delete_cache_for_url( $permalink );
+	}
+
+	/*
+	 * Delete the cache for terms associated with this post.
+	 *
+	 * @param WP_Post $post - The post to delete the cache for.
+	 */
+	public function delete_cache_for_post_terms( $post ) {
+		$categories = get_the_category( $post->ID );
+		if ( is_array( $categories ) ) {
+			foreach ( $categories as $category ) {
+				$link = trailingslashit( get_category_link( $category->term_id ) );
+				$this->delete_cache_for_url( $link );
+			}
+		}
+
+		$tags = get_the_tags( $post->ID );
+		if ( is_array( $tags ) ) {
+			foreach ( $tags as $tag ) {
+				$link = trailingslashit( get_tag_link( $tag->term_id ) );
+				$this->delete_cache_for_url( $link );
+			}
+		}
+	}
+
+	/*
+	 * Delete the cache for the given url. Recurse through sub directories if $recurse is true.
+	 *
+	 * @param string $url - The url to delete the cache for.
+	 */
+	public function delete_cache_for_url( $url ) {
+		error_log( 'delete_cache_for_url: ' . $url ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		$path = $this->normalize_request_uri( $url );
+
+		$this->storage->invalidate( $path );
+	}
 }
