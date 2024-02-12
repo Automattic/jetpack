@@ -917,7 +917,9 @@ function maybe_prevent_super_cache_caching() {
 
 	if ( is_user_auth() ) {
 		// Do not cache the page if user is auth with Membership token
-		define( 'DONOTCACHEPAGE', true );
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true );
+		}
 	}
 }
 
