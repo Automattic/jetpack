@@ -18,9 +18,14 @@ class Page_Cache implements Pluggable, Is_Always_On {
 	private $removal_errors = array();
 
 	/*
-	 * @var string - The signature used to identify the advanced-cache.php file.
+	 * The signature used to identify the advanced-cache.php file owned by Jetpack Boost.
 	 */
-	public static $advanced_cache_signature = 'Boost Cache Plugin 0.1';
+	const ADVANCED_CACHE_SIGNATURE = 'Boost Cache Plugin';
+
+	/**
+	 * The full signature including the current version, to verify the Advanced-cache file is current.
+	 */
+	const ADVANCED_CACHE_VERSION = 'v0.0.2';
 
 	/*
 	 * @var array - The settings for the page cache.
@@ -75,25 +80,32 @@ class Page_Cache implements Pluggable, Is_Always_On {
 	 * @return bool|WP_Error
 	 */
 	private function create_advanced_cache() {
-
 		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
 
 		if ( file_exists( $advanced_cache_filename ) ) {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			if ( strpos( $content, Page_cache::$advanced_cache_signature ) !== false ) {
-				return true;
-			} else {
-				return new \WP_Error( 'advanced-cache.php exists but is not the correct file' );
-			}
-		} else {
-			$contents = '<?php
-// ' . Page_cache::$advanced_cache_signature . '
-require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File_Cache.php\' );
 
-( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_File_Cache() )->serve();
-';
-			return Boost_Cache_Utils::write_to_file( $advanced_cache_filename, $contents );
+			if ( strpos( $content, self::ADVANCED_CACHE_SIGNATURE ) === false ) {
+				return new \WP_Error( 'advanced-cache.php exists, but belongs to another plugin/system.' );
+			}
+
+			if ( strpos( $content, self::ADVANCED_CACHE_VERSION ) !== false ) {
+				// The version and signature match.
+				return true;
+			}
 		}
+
+		$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . basename( dirname( plugin_dir_path( __FILE__ ), 3 ) ) . '/app/modules/cache/Boost_Cache.php';
+		$contents             = '<?php
+// ' . self::ADVANCED_CACHE_SIGNATURE . ' - ' . self::ADVANCED_CACHE_VERSION . '
+if ( ! file_exists( \'' . $boost_cache_filename . '\' ) ) {
+return;
+}
+require_once( \'' . $boost_cache_filename . '\');
+
+( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_Cache() )->serve();
+';
+		return Boost_Cache_Utils::write_to_file( $advanced_cache_filename, $contents );
 	}
 
 	/*
@@ -165,7 +177,7 @@ define( \'WP_CACHE\', true );',
 		}
 
 		$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		if ( strpos( $content, self::$advanced_cache_signature ) !== false ) {
+		if ( strpos( $content, self::ADVANCED_CACHE_SIGNATURE ) !== false ) {
 			wp_delete_file( $advanced_cache_filename );
 
 		}

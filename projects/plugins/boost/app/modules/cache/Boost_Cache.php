@@ -3,40 +3,61 @@
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
 /*
- * This file is loaded by advanced-cache.php when it loads Boost_File_Cache.php
- * As it is loaded before WordPress is loaded, it is not autoloaded by Boost.
+ * This file is loaded by advanced-cache.php, and so cannot rely on autoloading.
  */
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 require_once __DIR__ . '/Boost_Cache_Utils.php';
+require_once __DIR__ . '/Storage/File_Storage.php';
 
-abstract class Boost_Cache {
+class Boost_Cache {
 	/*
-	 * @var array - The settings for the page cache.
+	 * @var Boost_Cache_Settings - The settings for the page cache.
 	 */
 	private $settings;
 
-	/*
-	 * @var string - The path key used to identify the cache directory for the current request. MD5 of the request uri.
+	/**
+	 * @var Boost_Cache_Storage - The storage system used by Boost Cache.
 	 */
-	protected $path_key = false;
+	private $storage;
 
 	/*
 	 * @var string - The normalized path for the current request. This is not sanitized. Only to be used for comparison purposes.
 	 */
-	protected $request_uri = false;
+	private $request_uri = false;
 
-	public function __construct() {
-		$this->settings    = Boost_Cache_Settings::get_instance();
+	/*
+	 * @var array - The GET parameters and cookies for the current request. Everything considered in the cache key.
+	 */
+	private $request_parameters;
+
+	/**
+	 * @param $storage - Optionally provide a Boost_Cache_Storage subclass to handle actually storing and retrieving cached content. Defaults to a new instance of File_Storage.
+	 */
+	public function __construct( $storage = null ) {
+		$this->settings = Boost_Cache_Settings::get_instance();
+		$this->storage  = $storage ?? new Storage\File_Storage( WP_CONTENT_DIR . '/boost-cache/cache/' );
+
 		$this->request_uri = isset( $_SERVER['REQUEST_URI'] )
 			? $this->normalize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			: false;
+
+		/*
+		 * Set the cookies and get parameters for the current request.
+		 * Sometimes these arrays are modified by WordPress or other plugins.
+		 * We need to cache them here so they can be used for the cache key later.
+		 * We don't need to sanitize them, as they are only used for comparison.
+		 */
+		$this->request_parameters = array(
+			'cookies' => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			'get'     => $_GET,   // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
+		);
 	}
 
 	/*
 	 * Serve the cached page if it exists, otherwise start output buffering.
 	 */
 	public function serve() {
-		if ( ! $this->get() ) {
+		if ( ! $this->serve_cached() ) {
 			$this->ob_start();
 		}
 	}
@@ -82,6 +103,10 @@ abstract class Boost_Cache {
 		}
 
 		if ( $this->is_fatal_error() ) {
+			return false;
+		}
+
+		if ( function_exists( 'is_user_logged_in' ) && is_user_logged_in() ) {
 			return false;
 		}
 
@@ -141,59 +166,23 @@ abstract class Boost_Cache {
 		return $request_uri;
 	}
 
-	/*
-	 * Returns a key to identify the visitor's cache file from the request uri,
-	 * cookies and get parameters.
-	 * Without a parameter, it will use the current request uri.
-	 *
-	 * @param array $args (optional) An array containing the request uri, cookies and get parameters to calculate the cache key. Defaults to the current request uri, cookies and get parameters.
-	 * @return string
+	/**
+	 * Serve cached content, if any is available for the current request. Will terminate if it does so.
+	 * Otherwise, returns false.
 	 */
-	public function cache_key( $args = array() ) {
-		if ( isset( $args['request_uri'] ) && $args['request_uri'] !== $this->request_uri ) {
-			$args['request_uri'] = $this->normalize_request_uri( $args['request_uri'] );
+	public function serve_cached() {
+		if ( ! $this->is_cacheable() ) {
+			return false;
 		}
 
-		$defaults = array(
-			'request_uri' => $this->request_uri,
-			'cookies'     => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			'get'         => $_GET, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
-		);
-		$args     = array_merge( $defaults, $args );
+		$cached = $this->storage->read( $this->request_uri, $this->request_parameters );
+		if ( is_string( $cached ) ) {
+			echo $cached . '<!-- cached -->'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			die();
+		}
 
-		$key_components = apply_filters(
-			'boost_cache_key_components',
-			$args
-		);
-
-		return md5( json_encode( $key_components ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+		return false;
 	}
-
-	/*
-	 * Returns a key to identify the path to the visitor's cache file.
-	 * Without a parameter it uses the current request uri, and caches that in
-	 * $this->path_key.
-	 * A URL like "/2024/01/01/hello-world/" on your site will have one path_key,
-	 * but the cache_filename to identify the cache file for a visitor is based
-	 * on the path_key + cache_key. Can have multiple cache files for one path_key.
-	 *
-	 * @param string $request_uri (optional) The sanitized request uri to calculate the path key. Defaults to the current request uri.
-	 * @return string
-	 */
-	public function path_key( $request_uri = '' ) {
-		if ( $request_uri !== '' ) {
-			return md5( $request_uri );
-		}
-
-		if ( ! $this->path_key ) {
-			$this->path_key = md5( $this->request_uri );
-		}
-		return $this->path_key;
-	}
-
-	abstract public function get();
-
-	abstract public function set( $data );
 
 	/*
 	 * Starts output buffering and sets the callback to save the cache file.
@@ -217,10 +206,12 @@ abstract class Boost_Cache {
 	 * @return string - The output buffer.
 	 */
 	public function ob_callback( $buffer ) {
-		$result = $this->set( $buffer );
+		if ( $this->is_cacheable() ) {
+			$result = $this->storage->write( $this->request_uri, $this->request_parameters, $buffer );
 
-		if ( is_wp_error( $result ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-			// TODO: log error for site owner
+			if ( is_wp_error( $result ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+				// TODO: log error for site owner
+			}
 		}
 
 		return $buffer;

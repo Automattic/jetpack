@@ -27,7 +27,10 @@ class Crm extends Product {
 	 *
 	 * @var string
 	 */
-	public static $plugin_filename = 'zero-bs-crm/ZeroBSCRM.php';
+	public static $plugin_filename = array(
+		'zero-bs-crm/ZeroBSCRM.php',
+		'crm/ZeroBSCRM.php',
+	);
 
 	/**
 	 * The slug of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
