@@ -125,6 +125,13 @@ abstract class Publicize_Base {
 	const OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES = 'jetpack_social_dismissed_notices';
 
 	/**
+	 * The maximum size of an image that can be used as an Open Graph image.
+	 *
+	 * @var string
+	 */
+	const OG_IMAGE_MAX_FILESIZE = 2000000; // 2MB.
+
+	/**
 	 * Default pieces of the message used in constructing the
 	 * content pushed out to other social networks.
 	 */
@@ -229,7 +236,7 @@ abstract class Publicize_Base {
 
 		// Default checkbox state for each Connection.
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 2 );
-		add_filter( 'jetpack_open_graph_tags', array( $this, 'add_jetpack_social_og_images' ), 12, 1 ); // $priority = 12, to run after Jetpack adds the tags in the Jetpack_Twitter_Cards class.
+		add_filter( 'jetpack_open_graph_tags', array( $this, 'jetpack_social_open_graph_filter' ), 12, 1 ); // $priority = 12, to run after Jetpack adds the tags in the Jetpack_Twitter_Cards class.
 
 		// Alter the "Post Publish" admin notice to mention the Connections we Publicized to.
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
@@ -1608,17 +1615,156 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Add the Jetpack Social images (attached media, SIG image) to the OpenGraph tags.
+	 * Returns the image size in bytes of a remote image.
+	 *
+	 * @param  string $image_url       Image URL.
+	 * @return integer|null $bytes      Image size in bytes, or null if request failed.
+	 */
+	public function get_remote_filesize( $image_url ) {
+		$response = wp_remote_get( $image_url, array( 'method' => 'HEAD' ) );
+		$size     = wp_remote_retrieve_header( $response, 'content-length' );
+
+		return ! empty( $size ) ? $size : null;
+	}
+
+	/**
+	 * Returns the resized Photon URL for a given image.
+	 *
+	 * @param string $image_url Image URL.
+	 * @param int    $width Image width.
+	 * @param int    $height Image height.
+	 * @return string
+	 */
+	public function get_resized_image_url( $image_url, $width, $height ) {
+		return jetpack_photon_url(
+			$image_url,
+			array(
+				'w' => $width,
+				'h' => $height,
+			)
+		);
+	}
+
+	/**
+	 * This function runs the image through Site Accelerator to compress it, and also scales it down if needed.
+	 *
+	 * @param string $url Image URL.
+	 * @param int    $width Image width.
+	 * @param int    $height Image height.
+	 * @return array The compressed image data.
+	 */
+	public function compress_and_scale_og_image( $url, $width, $height ) {
+		// If the dimensions are fine we just run it through Site Accelerator to compress it.
+		if ( 1200 >= $width && 1200 >= $height ) {
+			return array(
+				'url'    => $this->get_resized_image_url( $url, $width, $height ),
+				'width'  => $width,
+				'height' => $height,
+			);
+		}
+
+		if ( $height > $width ) {
+			// Portrait.
+			$width  = 1200 * $width / $height;
+			$height = 1200;
+		} else {
+			// Landscape.
+			$height = 1200 * $height / $width;
+			$width  = 1200;
+		}
+
+		return array(
+			'url'    => $this->get_resized_image_url( $url, $width, $height ),
+			'width'  => $width,
+			'height' => $height,
+		);
+	}
+
+	/**
+	 * Reduce the filesize of an image by reducing the dimensions. Uses Photon.
+	 * Returns null if the image cannot be reduced enough.
+	 *
+	 * @param string $url Image URL.
+	 * @param int    $width Image width.
+	 * @param int    $height Image height.
+	 * @param int    $filesize Image filesize.
+	 * @param int    $tries Number of times to try reducing the image size. Default is 5.
+	 * @return array|null
+	 */
+	public function reduce_file_size( $url, $width, $height, $filesize, $tries = 5 ) {
+		while ( $tries > 0 && $filesize > self::OG_IMAGE_MAX_FILESIZE ) {
+			$width   *= 0.75;
+			$height  *= 0.75;
+			$url      = $this->get_resized_image_url( $url, $width, $height );
+			$filesize = $this->get_remote_filesize( $url );
+			--$tries;
+		}
+
+		// If the image is still too large, we failed.
+		if ( $filesize > self::OG_IMAGE_MAX_FILESIZE ) {
+			// TODO: Track this to see if conversion failed.
+			return null;
+		}
+
+		return array(
+			'url'    => $url,
+			'width'  => $width,
+			'height' => $height,
+		);
+	}
+
+	/**
+	 * Hooks into jetpack_open_graph_tags to add the Jetpack Social images to the OpenGraph tags,
+	 * or to make the Jetpack open graph images pass restrictions.
 	 *
 	 * @param array $tags Current tags.
 	 */
-	public function add_jetpack_social_og_images( $tags ) {
-		$opengraph_image = $this->get_social_opengraph_image( get_the_ID() );
+	public function jetpack_social_open_graph_filter( $tags ) {
+		$social_opengraph_image = $this->get_social_opengraph_image( get_the_ID() );
 
-		if ( empty( $opengraph_image ) ) {
+		if ( ! empty( $social_opengraph_image ) ) {
+			$tags = $this->add_jetpack_social_og_image( $tags, $social_opengraph_image );
+		}
+
+		if ( empty( $tags['og:image'] ) || empty( $tags['og:image:width'] ) || empty( $tags['og:image:height'] ) ) {
 			return $tags;
 		}
 
+		// If we do not have a SIG or attached image, but we have an image in post body
+		// we need to check that the image is not too large for the social sites.
+		$filesize = $this->get_remote_filesize( $tags['og:image'] );
+		// If the image is small enough, we do not need to do anything.
+		if ( empty( $filesize ) || $filesize <= self::OG_IMAGE_MAX_FILESIZE ) {
+			return $tags;
+		}
+
+		$compressed_image = $this->compress_and_scale_og_image( $tags['og:image'], $tags['og:image:width'], $tags['og:image:height'] );
+		$filesize         = $this->get_remote_filesize( $compressed_image['url'] );
+		// If the compressed image is small enough, we use it.
+		if ( $filesize <= self::OG_IMAGE_MAX_FILESIZE ) {
+			$tags['og:image']        = $compressed_image['url'];
+			$tags['og:image:width']  = $compressed_image['width'];
+			$tags['og:image:height'] = $compressed_image['height'];
+			return $tags;
+		}
+
+		$reduced_image = $this->reduce_file_size( $compressed_image['url'], $compressed_image['width'], $compressed_image['height'] );
+		if ( ! empty( $reduced_image ) ) {
+			$tags['og:image']        = $reduced_image['url'];
+			$tags['og:image:width']  = $reduced_image['width'];
+			$tags['og:image:height'] = $reduced_image['height'];
+		}
+
+		return $tags;
+	}
+
+	/**
+	 * Add the Jetpack Social images (attached media, SIG image) to the OpenGraph tags.
+	 *
+	 * @param array $tags Current tags.
+	 * @param array $opengraph_image The Jetpack Social image data.
+	 */
+	public function add_jetpack_social_og_image( $tags, $opengraph_image ) {
 		// If this code is running in Jetpack, we need to add Twitter cards.
 		// Some active plugins disable Jetpack's Twitter Cards, so we need
 		// to check if the class was instantiated before adding the cards.
