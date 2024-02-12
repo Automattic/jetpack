@@ -8,7 +8,8 @@ import { PRODUCT_STATUSES } from '../product-card/action-button';
 import StatsCards from './cards';
 
 const StatsSection = () => {
-	const { detail } = useProduct( 'stats' );
+	const slug = 'stats';
+	const { detail } = useProduct( slug );
 	const { status } = detail;
 	const { userIsAdmin } = window?.myJetpackInitialState ?? false;
 	const { statsCounts } = useStatsCounts();
@@ -21,7 +22,7 @@ const StatsSection = () => {
 	 */
 	const onDetailedStatsClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_stats_card_seedetailedstats_click', {
-			product: 'stats',
+			product: slug,
 		} );
 	}, [ recordEvent ] );
 
@@ -51,7 +52,7 @@ const StatsSection = () => {
 	return (
 		<ProductCard
 			admin={ userIsAdmin }
-			slug={ 'stats' }
+			slug={ slug }
 			primaryActionOverride={ primaryActionOverride }
 			secondaryAction={ viewStatsButton }
 			showMenu
