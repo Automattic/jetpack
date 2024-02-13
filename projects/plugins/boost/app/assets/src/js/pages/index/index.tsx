@@ -136,6 +136,7 @@ const Index = () => {
 					</p>
 				}
 				onEnable={ invalidatePageCacheError }
+				onDisable={ invalidatePageCacheError }
 			>
 				<PageCacheHealth />
 			</Module>
