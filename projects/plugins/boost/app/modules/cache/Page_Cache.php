@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
+use Automattic\Jetpack_Boost\Contracts\Has_Activate;
+use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
 /*
@@ -11,7 +13,7 @@ require_once __DIR__ . '/Boost_Cache_Utils.php';
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 require_once __DIR__ . '/Page_Cache_Setup.php';
 
-class Page_Cache implements Pluggable {
+class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	/*
 	 * @var array - The errors that occurred when removing the cache.
 	 */
@@ -36,21 +38,22 @@ class Page_Cache implements Pluggable {
 		$this->settings = Boost_Cache_Settings::get_instance();
 		register_deactivation_hook( JETPACK_BOOST_PATH, array( Page_Cache_Setup::class, 'deactivate' ) );
 		register_uninstall_hook( JETPACK_BOOST_PATH, array( Page_Cache_Setup::class, 'uninstall' ) );
-
-		add_action( 'update_option_jetpack_boost_status_' . str_replace( '_', '-', $this->get_slug() ), array( self::class, 'module_toggled' ), 10, 2 );
 	}
 
 	public function setup() {}
 
-	public static function module_toggled( $old_value, $value ) {
-		$was_enabled = boolval( $old_value ) === true;
-		$enabling    = boolval( $value ) && ! $was_enabled;
+	/**
+	 * Runs the setup when the feature is activated.
+	 */
+	public static function activate() {
+		Page_Cache_Setup::run_setup();
+	}
 
-		if ( $enabling ) {
-			Page_Cache_Setup::run_setup();
-		}
-
-		// @todo - cleanup advanced cache and wp config
+	/**
+	 * Runs cleanup when the feature is deactivated.
+	 */
+	public static function deactivate() {
+		Page_Cache_Setup::deactivate();
 	}
 
 	public static function is_available() {
