@@ -140,7 +140,7 @@ class File_Storage implements Storage {
 	}
 
 	/**
-	 * Invalidate the home page cache.
+	 * Delete the cached files for the home page, and any paged archives.
 	 */
 	public function invalidate_home_page() {
 		$directory = $this->root_path;
