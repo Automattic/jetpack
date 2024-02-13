@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Speed Score: Do not return no-boost score if no boost modules are active
