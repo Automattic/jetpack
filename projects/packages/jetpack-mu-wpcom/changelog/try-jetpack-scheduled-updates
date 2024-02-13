@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added a way to manage update schedules and kick them off from wp-cron.php
