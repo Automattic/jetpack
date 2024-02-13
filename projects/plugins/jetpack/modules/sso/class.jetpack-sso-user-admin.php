@@ -3,6 +3,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Roles;
 
 if ( ! class_exists( 'Jetpack_Sso_User_Admin' ) ) :
+	require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
 	/**
 	 * Jetpack likes settings class.
 	 */
@@ -12,7 +13,7 @@ if ( ! class_exists( 'Jetpack_Sso_User_Admin' ) ) :
 		 * Constructor function.
 		 */
 		public function __construct() {
-			add_action( 'delete_user', array( $this, 'delete_connection_for_user' ) );
+			add_action( 'delete_user', array( 'Jetpack_SSO_Helpers', 'delete_connection_for_user' ) );
 			// If the user has no errors on creation, send an invite to WordPress.com.
 			add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
 			// Don't send core invitation email when SSO is activated. They will get an email from WP.com.

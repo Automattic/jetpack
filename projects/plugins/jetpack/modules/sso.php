@@ -51,7 +51,8 @@ class Jetpack_SSO {
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
 		add_action( 'login_form_logout', array( $this, 'store_wpcom_profile_cookies_on_logout' ) );
-		add_action( 'jetpack_unlinked_user', array( $this, 'delete_connection_for_user' ) );
+		add_action( 'jetpack_unlinked_user', array( 'Jetpack_SSO_Helpers', 'delete_connection_for_user' ) );
+
 		add_action( 'jetpack_site_before_disconnected', array( static::class, 'disconnect' ) );
 		add_action( 'wp_login', array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
 
@@ -144,7 +145,7 @@ class Jetpack_SSO {
 
 		if ( 1 === (int) $current_user->jetpack_force_logout ) {
 			delete_user_meta( $current_user->ID, 'jetpack_force_logout' );
-			self::delete_connection_for_user( $current_user->ID );
+			Jetpack_SSO_Helpers::delete_connection_for_user( $current_user->ID );
 			wp_logout();
 			wp_safe_redirect( wp_login_url() );
 			exit;
@@ -181,7 +182,7 @@ class Jetpack_SSO {
 		if ( $user instanceof WP_User ) {
 			$user = wp_set_current_user( $user->ID );
 			update_user_meta( $user->ID, 'jetpack_force_logout', '1' );
-			self::delete_connection_for_user( $user->ID );
+			Jetpack_SSO_Helpers::delete_connection_for_user( $user->ID );
 			return true;
 		}
 		return false;
@@ -724,38 +725,8 @@ class Jetpack_SSO {
 	 */
 	public static function disconnect() {
 		if ( Jetpack::connection()->is_user_connected() ) {
-			static::delete_connection_for_user( get_current_user_id() );
+			Jetpack_SSO_Helpers::delete_connection_for_user( get_current_user_id() );
 		}
-	}
-
-	/**
-	 * Remove an SSO connection for a user.
-	 *
-	 * @param int $user_id The local user id.
-	 */
-	public static function delete_connection_for_user( $user_id ) {
-		$wpcom_user_id = get_user_meta( $user_id, 'wpcom_user_id', true );
-		if ( ! $wpcom_user_id ) {
-			return;
-		}
-
-		$xml = new Jetpack_IXR_Client(
-			array(
-				'wpcom_user_id' => $user_id,
-			)
-		);
-		$xml->query( 'jetpack.sso.removeUser', $wpcom_user_id );
-
-		if ( $xml->isError() ) {
-			return false;
-		}
-
-		// Clean up local data stored for SSO.
-		delete_user_meta( $user_id, 'wpcom_user_id' );
-		delete_user_meta( $user_id, 'wpcom_user_data' );
-		self::clear_wpcom_profile_cookies();
-
-		return $xml->getResponse();
 	}
 
 	/**
