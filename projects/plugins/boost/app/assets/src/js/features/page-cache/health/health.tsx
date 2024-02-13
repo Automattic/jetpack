@@ -3,7 +3,7 @@ import { usePageCacheErrorDS, useRunPageCacheSetupAction } from '$lib/stores/pag
 import getErrorData from './lib/get-error-data';
 
 const Health = () => {
-	const error = usePageCacheErrorDS();
+	const pageCacheError = usePageCacheErrorDS();
 	const runPageCacheSetupAction = useRunPageCacheSetupAction();
 
 	const requestRunSetup = () => {
@@ -11,15 +11,15 @@ const Health = () => {
 	};
 
 	// Was there a problem trying to setup cache?
-	if ( error !== '' ) {
-		const errorCode = error ? error : '';
+	if ( pageCacheError !== '' ) {
+		const errorCode = pageCacheError ? pageCacheError : '';
 
-		const diagnosticMessage = getErrorData( errorCode );
-		if ( diagnosticMessage ) {
+		const errorData = getErrorData( errorCode );
+		if ( errorData ) {
 			return (
 				<>
-					<Notice level="warning" hideCloseButton={ true } title={ diagnosticMessage.title }>
-						{ diagnosticMessage.message }
+					<Notice level="warning" hideCloseButton={ true } title={ errorData.title }>
+						{ errorData.message }
 					</Notice>
 					<Button size="small" weight="regular" onClick={ requestRunSetup }>
 						I`ve fixed the errors, run setup again.
