@@ -59,11 +59,6 @@ class Boost_Cache {
 	 * Initialize the actions for the cache.
 	 */
 	protected function init_actions() {
-		/*
-		 * I'm not using edit_post because I think we can get everything we need from the other actions.
-		 * but we might need it for other events.
-		 *  add_action( 'edit_post', array( $this, 'delete_cache_post_edit' ), 0 );
-		 */
 		add_action( 'transition_post_status', array( $this, 'delete_on_post_transition' ), 10, 3 );
 		add_action( 'transition_comment_status', array( $this, 'delete_on_comment_transition' ), 10, 3 );
 		add_action( 'comment_post', array( $this, 'delete_on_comment_post' ), 10, 3 );
@@ -309,30 +304,6 @@ class Boost_Cache {
 			$this->storage->invalidate_home_page();
 			error_log( 'delete front page cache' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
-	}
-
-	/*
-	 * Deletes the cache file for the given post_id.
-	 *
-	 * @param int post_id of the post to delete the cache for.
-	 */
-	public function delete_cache_post_edit( $post_id ) {
-		$post = get_post( $post_id );
-		$this->delete_cache_for_post( $post );
-		$this->delete_front_page_cache( $post_id );
-
-		/*
-		 * Don't delete the cached files for tag/category archives for posts
-		 * that are not published.
-		 * When this function is called by edit_post it can't know the previous
-		 * post status. If the previous post status was "published" or "private"
-		 * and now it's "draft" or "pending", or "future" then that will be
-		 * handled by delete_on_post_transition().
-		 */
-		if ( in_array( $post->post_status, array( 'draft', 'pending', 'future', 'auto-draft', 'inherit' ), true ) ) {
-			return;
-		}
-		$this->delete_cache_for_post_terms( $post );
 	}
 
 	/*
