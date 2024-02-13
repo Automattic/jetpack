@@ -1,4 +1,8 @@
-import { getScoreLetter, requestSpeedScores } from '@automattic/jetpack-boost-score-api';
+import {
+	getScoreLetter,
+	requestSpeedScores,
+	calculateDaysSince,
+} from '@automattic/jetpack-boost-score-api';
 // We'll need the IconTooltip in a follow-up PR. TODO: remove me
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { IconTooltip, Spinner, BoostScoreBar } from '@automattic/jetpack-components';
@@ -65,21 +69,6 @@ const BoostSpeedScore = () => {
 
 			setIsLoading( false );
 		}
-	};
-
-	const calculateDaysSince = timestamp => {
-		// Create Date objects for the provided timestamp and the current date
-		const providedDate = new Date( timestamp );
-		const currentDate = new Date();
-
-		// Calculate the difference in milliseconds between the two dates
-		const differenceInMilliseconds = currentDate.valueOf() - providedDate.valueOf();
-
-		// Convert milliseconds to days
-		const millisecondsInADay = 24 * 60 * 60 * 1000;
-		const differenceInDays = Math.floor( differenceInMilliseconds / millisecondsInADay );
-
-		return differenceInDays;
 	};
 
 	// Maybe we'll use this in a follup PR? In the tooltip? TODO: remove me.
