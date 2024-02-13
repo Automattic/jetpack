@@ -79,8 +79,7 @@ class Odyssey_Assets {
 	protected function get_cdn_asset_cache_buster() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['force_refresh'] ) ) {
-			delete_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
-			return floor( microtime( true ) * 1000 );
+			set_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY, floor( microtime( true ) * 1000 ), 15 * MINUTE_IN_SECONDS );
 		}
 
 		// Use cached cache buster in production.
