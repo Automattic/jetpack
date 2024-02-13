@@ -17,12 +17,17 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		};
 
 		onOptionChange = event => {
-			const optionName = event.target.name;
+			let optionName = event.target.name;
 			let optionValue;
 			// Get the option value from the `checked` property if present.
 			if ( event.target.type === 'checkbox' ) {
 				optionValue =
 					typeof event.target.checked !== 'undefined' ? event.target.checked : event.target.value;
+			} else if ( optionName.includes( '.' ) ) {
+				// We define the use of an object in a form field name like "object.member", ie: "subscription_options.welcome".
+				// Then we create an object with the setting name and the subsetting name. This is useful for nested settings.
+				const [ settingName, subSettingName ] = optionName.split( '.' );
+				optionName = { [ settingName ]: { [ subSettingName ]: event.target.value } };
 			} else {
 				optionValue = event.target.value;
 			}
