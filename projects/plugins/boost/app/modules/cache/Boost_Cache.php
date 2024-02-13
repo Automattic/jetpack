@@ -206,7 +206,7 @@ class Boost_Cache {
 	 * @return string - The output buffer.
 	 */
 	public function ob_callback( $buffer ) {
-		if ( $this->is_cacheable() ) {
+		if ( strlen( $buffer ) > 0 && $this->is_cacheable() ) {
 			$result = $this->storage->write( $this->request_uri, $this->request_parameters, $buffer );
 
 			if ( is_wp_error( $result ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
