@@ -389,6 +389,16 @@ class Boost_Cache {
 	}
 
 	/*
+	 * Returns true if the post is published or private.
+	 *
+	 * @param string $status - The status of the post.
+	 * @return bool
+	 */
+	private function is_published( $status ) {
+		return $status === 'publish' || $status === 'private';
+	}
+
+	/*
 	 * Delete the cached post if it transitioned from one state to another.
 	 *
 	 * @param string $new_status - The new status of the post.
@@ -400,15 +410,18 @@ class Boost_Cache {
 			return;
 		}
 
-		$this->delete_cache_for_post( $post );
+		error_log( "delete_on_post_transition: $new_status, $old_status, {$post->ID}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
-		if (
-			( ( $old_status === 'private' || $old_status === 'publish' ) && $new_status !== 'publish' ) || // unpublished
-			( $new_status === 'private' || $new_status === 'publish' ) // published
-		) {
-			$this->delete_cache_for_post_terms( $post );
+		// Don't delete the cache for posts that weren't published and aren't published now
+		if ( ! $this->is_published( $new_status ) && ! $this->is_published( $old_status ) ) {
+			error_log( 'delete_on_post_transition: not published' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			return;
 		}
 
+		error_log( "delete_on_post_transition: deleting post {$post->ID}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+
+		$this->delete_cache_for_post( $post );
+		$this->delete_cache_for_post_terms( $post );
 		$this->delete_front_page_cache( $post );
 	}
 
