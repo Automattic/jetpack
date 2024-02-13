@@ -44,7 +44,7 @@ const VideoSettings = ( { setAttributes, attributes } ) => {
 				label={ __( 'Autoplay', 'jetpack' ) }
 				onChange={ toggleFactory.autoplay }
 				checked={ !! autoplay }
-				help={ __( 'Autoplay may cause usability issues for some users!', 'jetpack' ) }
+				help={ __( 'Autoplay may cause usability issues for some users', 'jetpack' ) }
 			/>
 			<ToggleControl
 				__nextHasNoMarginBottom
