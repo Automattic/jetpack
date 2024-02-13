@@ -10,14 +10,8 @@
 // theme compatibility fixes
 @import '../../../sass/ZeroBSCRM.ThemeCompat';
 
-// Daterangepicker styles
-@import '../../../sass/daterangepicker';
-
-// Daterangepicker fix
-@import '../../../sass/daterangepicker.fix';
-
-// Daterangepicker dirty fix
-@import '../../../sass/daterangepicker.dirty.fix';
+// Import JS CSS vars
+@import '../../../sass/emerald/_jp_vars.scss';
 
 // 17/10/19 - started to clean up this file as was a bit of a mess.  ¯\_(ツ)_/¯
 // had lost it's scss virtues, partly now restored
@@ -587,7 +581,7 @@
 
   .zbs-portal-content .alert {
     margin: 2em;
-    background: #38b6dc;
+    background: var(--jp-green-20);
     text-align: center;
     padding: 1em;
     border-radius: .5em;
@@ -718,4 +712,22 @@ i.icon.child:before {
 .client-portal-profile-picture-container {
   display: inline-block;
   text-align: center;
+}
+
+.jpcrm-client-portal-admin-banner {
+	padding: 0 20px 20px 20px;
+	color: var(--jp-black);
+
+	.admin-message {
+		text-wrap: balance;
+	}
+
+	a, a:visited, a:active {
+		color: var(--jp-black);
+		text-decoration: underline;
+
+		&:hover, &:focus {
+			color: var(--jp-gray-80);
+		}
+	}
 }

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Jetpack_Options;
@@ -42,6 +43,20 @@ class Stats extends Module_Product {
 	 * @var string|null
 	 */
 	public static $plugin_filename = self::JETPACK_PLUGIN_FILENAME;
+
+	/**
+	 * Stats only requires site connection, not user connection
+	 *
+	 * @var bool
+	 */
+	public static $requires_user_connection = false;
+
+	/**
+	 * Stats does not have a standalone plugin (yet?)
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = false;
 
 	/**
 	 * Get the internationalized product name
@@ -140,81 +155,67 @@ class Stats extends Module_Product {
 	}
 
 	/**
-	 * Checks whether the site already supports this product through an existing plan or purchase
+	 * Gets the 'status' of the Stats product
 	 *
-	 * @return boolean
+	 * @return string
 	 */
-	public static function has_required_plan() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
+	public static function get_status() {
+		$status = parent::get_status();
+		if ( 'module_disabled' === $status && ! Initializer::is_registered() ) {
+			// If the site has never been connected before, show the "Learn more" CTA,
+			// that points to the add Stats product interstitial.
+			$status = 'needs_purchase_or_free';
 		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				if ( str_starts_with( $purchase->product_slug, 'jetpack_stats' ) ) {
-					return true;
-				}
-				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return $status;
 	}
-
 	/**
 	 * Checks whether the product can be upgraded to a different product.
-	 * Only Jetpack Stats Commercial plan is not upgradable.
+	 * Stats Commercial plan (highest tier) & Jetpack Complete are not upgradable.
+	 * Also we don't push PWYW users to upgrade.
 	 *
 	 * @return boolean
 	 */
 	public static function is_upgradable() {
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			// For now, only the free and commercial tiered subs show as upgradable
-			$upgradeable_stats_purchases = array_filter(
-				$purchases_data,
-				static function ( $purchase ) {
-					// Free plan is upgradeable
-					if ( $purchase->product_slug === 'jetpack_stats_free_yearly' ) {
-						return true;
-						// Commercial plans are upgradeable if they have a tier
-					} elseif (
-						in_array(
-							$purchase->product_slug,
-							array( 'jetpack_stats_yearly', 'jetpack_stats_monthly', 'jetpack_stats_bi_yearly' ),
-							true
-						) &&
-						! empty( $purchase->current_price_tier_slug )
-					) {
-						return true;
-					}
-
+		if ( ! is_wp_error( $purchases_data ) && is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				// Jetpack complete includes Stats commercial & cannot be upgraded
+				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+					return false;
+				} elseif (
+					// Stats commercial purchased with highest tier cannot be upgraded.
+					in_array(
+						$purchase->product_slug,
+						array( 'jetpack_stats_yearly', 'jetpack_stats_monthly', 'jetpack_stats_bi_yearly' ),
+						true
+					) && $purchase->current_price_tier_slug === 'more_than_1m_views'
+				) {
+					return false;
+				} elseif (
+					// If user already has Stats PWYW, we won't push them to upgrade.
+					$purchase->product_slug === 'jetpack_stats_pwyw_yearly'
+				) {
 					return false;
 				}
-			);
-
-			return ! empty( $upgradeable_stats_purchases );
+			}
 		}
-
-		// If there are no plans found, don't consider the product as upgradeable
-		return false;
+		return true;
 	}
 
 	/**
-	 * Returns a redirect parameter for an upgrade URL if current purchase license is a free license
-	 * or an empty string otherwise.
+	 * Returns a productType parameter for an upgrade URL, determining whether
+	 * to show the PWYW upgrade interstitial or commercial upgrade interstitial.
 	 *
 	 * @return string
 	 */
-	public static function get_url_redirect_string() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
+	public static function get_url_product_type() {
+		$purchases_data     = Wpcom_Products::get_site_current_purchases();
+		$is_commercial_site = Initializer::is_commercial_site();
 		if ( is_wp_error( $purchases_data ) ) {
-			return '';
+			return $is_commercial_site ? '&productType=commercial' : '';
+		}
+		if ( $is_commercial_site ) {
+			return '&productType=commercial';
 		}
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
@@ -258,7 +259,7 @@ class Stats extends Module_Product {
 			'%s#!/stats/purchase/%d?from=jetpack-my-jetpack%s&redirect_uri=%s',
 			admin_url( 'admin.php?page=stats' ),
 			Jetpack_Options::get_option( 'id' ),
-			static::get_url_redirect_string(),
+			static::get_url_product_type(),
 			rawurlencode( 'admin.php?page=stats' )
 		);
 	}

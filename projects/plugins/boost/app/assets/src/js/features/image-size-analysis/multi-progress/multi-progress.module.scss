@@ -1,0 +1,62 @@
+.multi-progress {
+	width: 100%;
+	display: flex;
+	gap: 8px;
+
+	@media ( max-width: 782px ) {
+		flex-direction: column;
+	}
+}
+
+.progress {
+	grid-area: progress;
+}
+
+.entry {
+	flex: 1 0;
+	display: grid;
+	gap: 4px;
+	grid-template-columns: 30px 1fr 1fr;
+	grid-template-rows: 36px 1.6rem 18px;
+	grid-template-areas:
+		'progress progress progress'
+		'bubble category category'
+		'bubble status status';
+
+	a {
+		text-decoration: none;
+	}
+}
+
+.bubble {
+	grid-area: bubble;
+	background-color: var( --gray-50 );
+	color: var( --gray-0 );
+	border-radius: 50%;
+	width: 1.6rem;
+	height: 1.6rem;
+	font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&.done {
+		background-color: var( --jetpack-green-50 );
+	}
+
+	&.has-issues {
+		background: transparent;
+	}
+}
+
+.status {
+	grid-area: status;
+	font-size: 0.875rem;
+	color: var( --gray-50 );
+}
+
+.category {
+	grid-area: category;
+	display: flex;
+	line-height: 1.6rem;
+}
