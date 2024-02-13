@@ -53,5 +53,3 @@ function wpcom_add_command_palette_node() {
 	echo '<div id="command-palette"></div>';
 }
 add_action( 'in_admin_header', 'wpcom_add_command_palette_node' );
-
-
