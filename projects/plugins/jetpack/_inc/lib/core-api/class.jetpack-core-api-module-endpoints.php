@@ -1023,6 +1023,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					);
 
 					$old_subscription_options = get_option( 'subscription_options' );
+					if ( ! is_array( $old_subscription_options ) ) {
+						$old_subscription_options = array();
+					}
 					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
 
 					if ( update_option( $option, $new_subscription_options ) ) {
