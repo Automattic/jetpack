@@ -283,7 +283,12 @@ class Boost_Cache {
 		return true;
 	}
 
-	protected function maybe_clear_front_page_cache( $post ) {
+	/*
+	 * Delete the cache for the front page and paged archives.
+	 * This is called when a post is edited, deleted, or published.
+	 * @param int $post_id - The id of the post that was edited, deleted, or published.
+	 */
+	protected function delete_front_page_cache( $post ) {
 		$front_page_id = get_option( 'show_on_front' ); // posts page
 		if ( $front_page_id === 'page' ) {
 			$front_page_id = get_option( 'page_on_front' ); // static page
@@ -291,24 +296,8 @@ class Boost_Cache {
 				$this->delete_cache_for_post( $post->ID );
 			}
 		} else {
-			// get a list of posts that show on the front page. If $post_id is there delete the cache
-			$posts_per_page     = get_option( 'posts_per_page' );
-			$latest_posts_query = new \WP_Query(
-				array(
-					'posts_per_page' => $posts_per_page,
-					'post_status'    => 'publish',
-					'no_found_rows'  => true,
-					'fields'         => 'ids',
-				)
-			);
-			$latest_posts       = $latest_posts_query->get_posts();
-			foreach ( $latest_posts as $id ) {
-				if ( (int) $id === (int) $post->ID ) {
-					$this->storage->invalidate_home_page();
-					error_log( 'delete front page cache' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					return;
-				}
-			}
+			$this->storage->invalidate_home_page();
+			error_log( 'delete front page cache' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 	}
 
@@ -320,7 +309,7 @@ class Boost_Cache {
 	public function delete_cache_post_edit( $post_id ) {
 		$post = get_post( $post_id );
 		$this->delete_cache_for_post( $post );
-		$this->maybe_clear_front_page_cache( $post_id );
+		$this->delete_front_page_cache( $post_id );
 
 		/*
 		 * Don't delete the cached files for tag/category archives for posts
@@ -336,6 +325,12 @@ class Boost_Cache {
 		$this->delete_cache_for_post_terms( $post );
 	}
 
+	/*
+	 * Delete the cache for the post if the comment transitioned from one state to another.
+	 * @param string $new_status - The new status of the comment.
+	 * @param string $old_status - The old status of the comment.
+	 * @param WP_Comment $comment - The comment that transitioned.
+	 */
 	public function delete_on_comment_transition( $new_status, $old_status, $comment ) {
 		if ( $new_status === $old_status ) {
 			return;
@@ -346,6 +341,7 @@ class Boost_Cache {
 
 	/*
 	 * After editing a comment, delete the cache for the post if the comment is approved.
+	 * If changing state and editing, both actions will be called, but the cache will only be deleted once.
 	 *
 	 * @param int $comment_id - The id of the comment.
 	 * @param array $commentdata - The comment data.
@@ -394,7 +390,7 @@ class Boost_Cache {
 			$this->delete_cache_for_post_terms( $post );
 		}
 
-		$this->maybe_clear_front_page_cache( $post );
+		$this->delete_front_page_cache( $post );
 	}
 
 	/*
