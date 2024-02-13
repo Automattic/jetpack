@@ -9,7 +9,7 @@ class Logger {
 	/**
 	 * The header to place on top of every log file.
 	 */
-	const LOG_HEADER = "<?php die(); // This file is not intended to be accessed directly. So, it is created as a php file to prevent direct access. ?>\n\n";
+	const LOG_HEADER = "<?php die(); // This file is not intended to be accessed directly. ?>\n\n";
 
 	/**
 	 * Get the singleton instance of the logger.
