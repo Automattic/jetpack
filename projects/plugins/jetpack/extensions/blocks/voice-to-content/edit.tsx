@@ -24,7 +24,7 @@ function AudioPlayer( { src, state } ) {
 	return <audio controls src={ src } />; // eslint-disable-line jsx-a11y/media-has-caption
 }
 
-export default function CreateWithVoiceEdit() {
+export default function VoiceToContentEdit() {
 	const { state, start, pause, stop, resume, url } = useMediaRecording( {
 		onDone: blob => {
 			console.log( 'Blob created: ', blob ); // eslint-disable-line no-console
@@ -54,23 +54,23 @@ export default function CreateWithVoiceEdit() {
 		<div { ...blockProps }>
 			<Placeholder
 				icon="microphone"
-				label="AI: Create with voice"
+				label="AI: Voice to content"
 				instructions={ __(
-					'Transform your spoken words into publish-ready blocks with AI',
+					'Transform your spoken words into publish-ready content with AI.',
 					'jetpack'
 				) }
-				className="jetpack-ai-create-with-voice"
+				className="jetpack-ai-voice-to-content"
 			>
-				<div className="jetpack-ai-create-with-voice__player">
+				<div className="jetpack-ai-voice-to-content__player">
 					<strong>
 						<AudioDurationDisplay url={ url } />
 					</strong>
 					<AudioPlayer state={ state } src={ url } />
 				</div>
 
-				<div className="jetpack-ai-create-with-voice__recorder">
+				<div className="jetpack-ai-voice-to-content__recorder">
 					<Button
-						className="jetpack-ai-create-with-voice__record-button"
+						className="jetpack-ai-voice-to-content__record-button"
 						icon={ state === 'recording' ? playerPauseIcon : micIcon }
 						iconPosition="right"
 						variant="primary"
@@ -79,7 +79,7 @@ export default function CreateWithVoiceEdit() {
 						{ buttonLabel }
 					</Button>
 					<Button
-						className="jetpack-ai-create-with-voice__done-button"
+						className="jetpack-ai-voice-to-content__done-button"
 						variant="primary"
 						onClick={ stop }
 						disabled={ state === 'inactive' }

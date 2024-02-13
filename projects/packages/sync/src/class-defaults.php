@@ -439,6 +439,8 @@ class Defaults {
 		'wp_log', // WP Logging Plugin.
 		'wpephpcompat_jobs',
 		'wprss_feed_item',
+		'memberships_coupon',
+		'memberships_gift',
 	);
 
 	/**

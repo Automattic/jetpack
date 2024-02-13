@@ -2,6 +2,20 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.2-a.3 - 2024-02-13
+### Enhancements
+- Blaze: remove "Promote with Blaze" links appearing in the Posts list when the Blaze feature is enabled. You can still go to Tools > Advertising to create and manage Blaze campaigns on your site. [#35586]
+
+### Bug fixes
+- Disable scroll to top when memberships subscribe popup is opened. [#35553]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Create with voice: Rename feature to Voice to content [#35645]
+- Jetpack AI Voice to content: Enable on P2 [#35610]
+- Related Posts: fix too few arguments error [#35646]
+- Update "Earn" to "Monetize" navigation item  on Jetpack sites managed in Calypso/WP.com. [#35633]
+- Updated package dependencies.
+
 ## 13.2-a.1 - 2024-02-12
 ### Enhancements
 - Additional CSS: Use the correct plan name in the WordPress.com nudge. [#35495]
