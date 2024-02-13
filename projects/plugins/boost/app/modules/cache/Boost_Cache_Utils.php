@@ -44,7 +44,7 @@ class Boost_Cache_Utils {
 	 * @param string       $subject The string being searched and replaced on, otherwise known as the haystack.
 	 * @return string The string with the replaced values.
 	 */
-	private static function deep_replace( $search, $subject ) {
+	public static function deep_replace( $search, $subject ) {
 		$subject = (string) $subject;
 
 		$count = 1;
@@ -80,6 +80,20 @@ class Boost_Cache_Utils {
 		);
 
 		return $path;
+	}
+
+	/*
+	 * Creates the directory if it doesn't exist.
+	 *
+	 * @param string $path - The path to the directory to create.
+	 */
+	public static function create_directory( $path ) {
+		if ( ! is_dir( $path ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.dir_mkdir_dirname, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+			return mkdir( $path, 0755, true );
+		}
+
+		return true;
 	}
 
 	/*
