@@ -5,23 +5,28 @@ import { IconTooltip, Spinner, BoostScoreBar } from '@automattic/jetpack-compone
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useEffect, useState } from 'react';
 import useAnalytics from '../../../hooks/use-analytics';
+import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import './style.scss';
 
 const BoostSpeedScore = () => {
 	const { recordEvent } = useAnalytics();
 	const [ isLoading, setIsLoading ] = useState( false );
-	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( 'C' );
+	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( '' );
 	const [ daysSinceTested, setDaysSinceTested ] = useState( 1 );
 	const [ averageSpeedScore, setAverageSpeedScore ] = useState( 0 );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
 
-	const { apiRoot, apiNonce, connectionStatus } = window.JP_CONNECTION_INITIAL_STATE;
+	const { apiRoot, apiNonce } = window.JP_CONNECTION_INITIAL_STATE;
 	const { siteSuffix: siteUrl = '', latestBoostSpeedScores } = window?.myJetpackInitialState ?? {};
-	const isSiteRegistered = connectionStatus?.isRegistered;
+	const { isSiteConnected } = useMyJetpackConnection();
+
+	const getAverageSpeedScore = ( mobileScore, desktopScore ) => {
+		return Math.round( ( mobileScore + desktopScore ) / 2 );
+	};
 
 	const setScoresFromCache = cachedSpeedScores => {
 		setAverageSpeedScore(
-			Math.round( ( cachedSpeedScores.scores.mobile + cachedSpeedScores.scores.desktop ) / 2 )
+			getAverageSpeedScore( cachedSpeedScores.scores.mobile, cachedSpeedScores.scores.desktop )
 		);
 		setSpeedLetterGrade(
 			getScoreLetter( cachedSpeedScores.scores.mobile, cachedSpeedScores.scores.desktop )
@@ -30,7 +35,7 @@ const BoostSpeedScore = () => {
 	};
 
 	const getSpeedScores = async () => {
-		if ( ! isSiteRegistered ) {
+		if ( ! isSiteConnected ) {
 			setIsSpeedScoreError( true );
 			return;
 		}
@@ -40,7 +45,7 @@ const BoostSpeedScore = () => {
 			const scores = await requestSpeedScores( true, apiRoot, siteUrl, apiNonce );
 			const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
 			setSpeedLetterGrade( scoreLetter );
-			setAverageSpeedScore( Math.round( ( scores.current.mobile + scores.current.desktop ) / 2 ) );
+			setAverageSpeedScore( getAverageSpeedScore( scores.current.mobile, scores.current.desktop ) );
 			setDaysSinceTested( 0 );
 			setIsLoading( false );
 		} catch ( err ) {

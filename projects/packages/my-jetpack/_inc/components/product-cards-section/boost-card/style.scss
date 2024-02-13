@@ -4,16 +4,16 @@ $bar_height: 24px;
 $border_radius: math.div($bar-height, 2);
 
 .mj-boost-speed-score__grade {
-    font-size: 14px;
-    line-height: 24px;
+    font-size: var(--font-body-small);
+    line-height: $bar_height;
     display: flex;
     justify-content: space-between;
     column-gap: 1em;
     margin: 8px 0 8px;
     &--letter {
-        font-size: 20px;
-        font-weight: 700;
-        line-height: 24px;
+        font-size: var(--font-title-small);
+        font-weight: bold;
+        line-height: $bar_height;
         color: var(--jp-green);
     }
 }
