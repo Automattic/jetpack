@@ -65,7 +65,7 @@ class Blaze {
 			/**
 			 * Allow third-party plugins to disable Blaze row actions.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.16.0
 			 *
 			 * @param bool $blaze_post_actions_enabled Should Blaze row actions be enabled?
 			 */
