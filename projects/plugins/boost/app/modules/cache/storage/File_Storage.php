@@ -83,7 +83,7 @@ class File_Storage implements Storage {
 
 		$key_components = apply_filters( 'boost_cache_key_components', $key_components );
 
-		return md5( json_encode( $key_components ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+		return md5( json_encode( $key_components ) ) . '.html'; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 	}
 
 	/**
