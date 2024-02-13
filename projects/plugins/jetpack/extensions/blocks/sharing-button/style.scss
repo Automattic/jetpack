@@ -3,7 +3,7 @@
 .jetpack-sharing-button__button {
 	display: flex;
 	flex-direction: row;
-	margin: 4px;
+	margin: 4px 8px 4px 0px;
 	cursor: default;
 	font-size: inherit;
 	font-weight: 500;
@@ -17,15 +17,23 @@
 	text-decoration: none;
 	height: auto;
 	align-items: center;
+	color: inherit;
+
 
 	& svg {
 		width: 1.5em;
 		height: 1.5em;
+		fill: currentColor;
 	}
 
 	&:hover {
 		cursor: pointer;
 		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.22);
+	}
+
+	&.components-button {
+		font-size: inherit;
+		padding: 4px 11px 3px 9px;
 	}
 
 	&.style-icon {
@@ -39,6 +47,7 @@
 		width: auto;
 		height: auto;
 		margin-bottom: 0;
+		color: #fff;
 
 		&.share-x { background: #000; }
 		&.share-print { background: #c5c2c2; }
@@ -55,8 +64,6 @@
 		&.share-whatsapp { background: var( --color-whatsapp ); }
 		&.share-mastodon { background: var( --color-mastodon ); }
 		&.share-nextdoor { background: var( --color-nextdoor ); }
-
-		.social-logo { fill: #fff; }
 	}
 
 	&.style-icon.is-custom {

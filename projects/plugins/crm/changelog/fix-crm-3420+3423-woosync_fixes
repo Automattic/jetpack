@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+
+WooSync: Remove broken link from settings page.
+WooSync: Prevent addition of the same site more than once.

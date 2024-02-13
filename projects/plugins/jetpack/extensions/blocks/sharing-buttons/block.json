@@ -41,14 +41,35 @@
 				"has-large-icon-size",
 				"has-huge-icon-size"
 			]
+		},
+		"iconColor": {
+			"type": "string"
+		},
+		"customIconColor": {
+			"type": "string"
+		},
+		"iconColorValue": {
+			"type": "string"
+		},
+		"iconBackgroundColor": {
+			"type": "string"
+		},
+		"customIconBackgroundColor": {
+			"type": "string"
+		},
+		"iconBackgroundColorValue": {
+			"type": "string"
 		}
 	},
 	"providesContext": {
-		"styleType": "styleType"
+		"styleType": "styleType",
+		"iconColor": "iconColor",
+		"iconColorValue": "iconColorValue",
+		"iconBackgroundColor": "iconBackgroundColor",
+		"iconBackgroundColorValue": "iconBackgroundColorValue"
 	},
 	"supports": {
 		"align": [ "left", "center", "right" ],
-		"multiple": false,
 		"anchor": true,
 		"__experimentalExposeControlsToChildren": true,
 		"layout": {
@@ -60,9 +81,10 @@
 			}
 		},
 		"color": {
-			"enableContrastChecker": false,
+			"enableContrastChecker": true,
 			"background": true,
 			"gradients": true,
+			"customGradient": true,
 			"text": false,
 			"__experimentalDefaultControls": {
 				"background": false

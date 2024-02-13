@@ -105,6 +105,14 @@ export default function ProductInterstitial( {
 					: product?.pricingForUi?.isFree;
 				const needsPurchase = ! isFree && ! hasRequiredPlan;
 
+				// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
+				// This is done because CRM is not part of the WP billing system
+				// and we can't send them to checkout like we can with the rest of the products
+				if ( product.pluginSlug === 'zero-bs-crm' && ! hasRequiredPlan ) {
+					window.location.href = 'https://jetpackcrm.com/pricing/';
+					return;
+				}
+
 				// If no purchase is needed, redirect the user to the product screen.
 				if ( ! needsPurchase ) {
 					if ( postActivationUrl ) {
@@ -399,7 +407,12 @@ export function SearchInterstitial() {
  */
 export function StatsInterstitial() {
 	return (
-		<ProductInterstitial slug="stats" installsPlugin={ true }>
+		<ProductInterstitial
+			slug="stats"
+			directCheckout={ true }
+			installsPlugin={ true }
+			ctaButtonLabel={ __( 'Get Stats', 'jetpack-my-jetpack' ) }
+		>
 			<img
 				src={ statsImage }
 				alt={ __(

@@ -5,7 +5,39 @@ namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
+/*
+ * This code is shared between the autoloaded Module and advanced-cache.php loaded code.
+ */
+require_once __DIR__ . '/Boost_Cache_Utils.php';
+require_once __DIR__ . '/Boost_Cache_Settings.php';
+
 class Page_Cache implements Pluggable, Is_Always_On {
+	/*
+	 * @var array - The errors that occurred when removing the cache.
+	 */
+	private $removal_errors = array();
+
+	/*
+	 * The signature used to identify the advanced-cache.php file owned by Jetpack Boost.
+	 */
+	const ADVANCED_CACHE_SIGNATURE = 'Boost Cache Plugin';
+
+	/**
+	 * The full signature including the current version, to verify the Advanced-cache file is current.
+	 */
+	const ADVANCED_CACHE_VERSION = 'v0.0.2';
+
+	/*
+	 * @var array - The settings for the page cache.
+	 */
+	private $settings;
+
+	public function __construct() {
+		$this->settings = Boost_Cache_Settings::get_instance();
+		register_deactivation_hook( JETPACK_BOOST_PATH, array( $this, 'deactivate' ) );
+		register_uninstall_hook( JETPACK_BOOST_PATH, 'Page_Cache::uninstall' );
+	}
+
 	/*
 	 * Sets up the advanced-cache.php file and if that works, adds the WP_CACHE
 	 * define to wp-config.php
@@ -49,28 +81,31 @@ class Page_Cache implements Pluggable, Is_Always_On {
 	 */
 	private function create_advanced_cache() {
 		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
+
 		if ( file_exists( $advanced_cache_filename ) ) {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			if ( strpos( $content, 'Boost Cache Plugin 0.1' ) !== false ) {
-				return true;
-			} else {
-				return new \WP_Error( 'advanced-cache.php exists but is not the correct file' );
+
+			if ( strpos( $content, self::ADVANCED_CACHE_SIGNATURE ) === false ) {
+				return new \WP_Error( 'advanced-cache.php exists, but belongs to another plugin/system.' );
 			}
-		} else {
-			$contents = '<?php
-// Boost Cache Plugin 0.1
-require_once( ABSPATH . \'/wp-content/plugins/boost/app/modules/cache/Boost_File_Cache.php\' );
 
-( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_File_Cache() )->serve();
-';
-
-			$result = file_put_contents( $advanced_cache_filename, $contents ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-			if ( $result === false ) {
-				return new \WP_Error( 'Could not write to advanced-cache.php' );
+			if ( strpos( $content, self::ADVANCED_CACHE_VERSION ) !== false ) {
+				// The version and signature match.
+				return true;
 			}
 		}
 
-		return true;
+		$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . basename( dirname( plugin_dir_path( __FILE__ ), 3 ) ) . '/app/modules/cache/Boost_Cache.php';
+		$contents             = '<?php
+// ' . self::ADVANCED_CACHE_SIGNATURE . ' - ' . self::ADVANCED_CACHE_VERSION . '
+if ( ! file_exists( \'' . $boost_cache_filename . '\' ) ) {
+return;
+}
+require_once( \'' . $boost_cache_filename . '\');
+
+( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_Cache() )->serve();
+';
+		return Boost_Cache_Utils::write_to_file( $advanced_cache_filename, $contents );
 	}
 
 	/*
@@ -102,6 +137,70 @@ define( \'WP_CACHE\', true );',
 		if ( $result === false ) {
 			return new \WP_Error( 'Could not write to wp-config.php' );
 		}
+	}
+
+	/*
+	 * Removes the advanced-cache.php file and the WP_CACHE define from wp-config.php
+	 * Fired when the plugin is deactivated.
+	 */
+	public function deactivate() {
+		$this->delete_advanced_cache();
+		$this->delete_wp_cache_constant();
+
+		return true;
+	}
+
+	/*
+	 * Removes the boost-cache directory, removing all cached files and the config file.
+	 * Fired when the plugin is uninstalled.
+	 */
+	public static function uninstall() {
+		self::delete_advanced_cache();
+		self::delete_wp_cache_constant();
+
+		$result = Boost_Cache_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache' );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return true;
+	}
+
+	/*
+	 * Deletes the file advanced-cache.php if it exists.
+	 */
+	public static function delete_advanced_cache() {
+		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
+
+		if ( ! file_exists( $advanced_cache_filename ) ) {
+			return;
+		}
+
+		$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		if ( strpos( $content, self::ADVANCED_CACHE_SIGNATURE ) !== false ) {
+			wp_delete_file( $advanced_cache_filename );
+
+		}
+	}
+
+	/*
+	 * Deletes the WP_CACHE define from wp-config.php
+	 * @return WP_Error if an error occurred.
+	 */
+	public static function delete_wp_cache_constant() {
+		$lines = file( ABSPATH . 'wp-config.php' );
+		$found = false;
+		foreach ( $lines as $key => $line ) {
+			if ( preg_match( '#define\s*\(\s*[\'"]WP_CACHE[\'"]#', $line ) === 1 ) {
+				unset( $lines[ $key ] );
+				$found = true;
+			}
+		}
+		if ( ! $found ) {
+			return;
+		}
+		$content = implode( '', $lines );
+		file_put_contents( ABSPATH . 'wp-config.php', $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 	}
 
 	public static function is_available() {

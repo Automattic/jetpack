@@ -20,6 +20,12 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 	flex-wrap: wrap;
 }
 
+.buttons {
+	display: flex;
+	justify-content: flex-start;
+	gap: var( --spacing-base );
+}
+
 .title {
 	width: 100%;
 	display: flex;

@@ -2,6 +2,16 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.32.1] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [0.32.0] - 2024-02-05
+### Changed
+- Allow using blog ID instead of site suffix in checkout URL. [#34996]
+- Allow using blog ID instead of site suffix in checkout URL. [#35004]
+- Updated package dependencies.
+
 ## [0.31.2] - 2024-01-29
 ### Changed
 - Update dependencies.
@@ -692,6 +702,8 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.32.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.32.0...v0.32.1
+[0.32.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.31.2...v0.32.0
 [0.31.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.31.1...v0.31.2
 [0.31.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.31.0...v0.31.1
 [0.31.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.12...v0.31.0

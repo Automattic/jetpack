@@ -1,9 +1,16 @@
-import { AdminSectionHero, Container, Col, Text, H3, Button } from '@automattic/jetpack-components';
+import {
+	AdminSectionHero,
+	Container,
+	Col,
+	Text,
+	H3,
+	Button,
+	Status,
+} from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { Spinner, Popover } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, help } from '@wordpress/icons';
-import classnames from 'classnames';
 import React, { useState, useCallback } from 'react';
 import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -22,6 +29,7 @@ const UpgradePrompt = () => {
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: firewallUrl,
+		useBlogIdSuffix: true,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();
@@ -153,6 +161,7 @@ const FirewallHeader = ( {
 	jetpackWafAutomaticRules,
 	bruteForceProtectionIsEnabled,
 	wafSupported,
+	standaloneMode,
 } ) => {
 	return (
 		<AdminSectionHero>
@@ -164,9 +173,14 @@ const FirewallHeader = ( {
 				<Col>
 					{ 'on' === status && (
 						<>
-							<Text className={ classnames( styles.status, styles.active ) } variant={ 'label' }>
-								{ __( 'Active', 'jetpack-protect' ) }
-							</Text>
+							<Status
+								status="active"
+								label={
+									standaloneMode
+										? __( 'Standalone mode', 'jetpack-protect' )
+										: __( 'Active', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 )
+								}
+							/>{ ' ' }
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
 								{ ! wafSupported && __( 'Brute force protection is active', 'jetpack-protect' ) }
 								{ wafSupported &&
@@ -190,9 +204,7 @@ const FirewallHeader = ( {
 					) }
 					{ 'off' === status && (
 						<>
-							<Text className={ styles.status } variant={ 'label' }>
-								{ __( 'Inactive', 'jetpack-protect' ) }
-							</Text>
+							<Status status="inactive" label={ __( 'Inactive', 'jetpack-protect' ) } />
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
 								{ ! wafSupported && __( 'Brute force protection is disabled', 'jetpack-protect' ) }
 								{ wafSupported &&
@@ -239,17 +251,17 @@ const ConnectedFirewallHeader = () => {
 		config: {
 			jetpackWafAutomaticRules,
 			jetpackWafIpList,
+			standaloneMode,
 			automaticRulesAvailable,
 			bruteForceProtection,
 		},
 		isToggling,
 		wafSupported,
+		isEnabled,
 	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
-	const currentStatus =
-		( wafSupported && ( jetpackWafAutomaticRules || jetpackWafIpList ) ) || bruteForceProtection
-			? 'on'
-			: 'off';
+	const isSupportedWafFeatureEnabled = wafSupported ? isEnabled : bruteForceProtection;
+	const currentStatus = isSupportedWafFeatureEnabled ? 'on' : 'off';
 
 	return (
 		<FirewallHeader
@@ -261,6 +273,7 @@ const ConnectedFirewallHeader = () => {
 			jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 			bruteForceProtectionIsEnabled={ bruteForceProtection }
 			wafSupported={ wafSupported }
+			standaloneMode={ standaloneMode }
 		/>
 	);
 };

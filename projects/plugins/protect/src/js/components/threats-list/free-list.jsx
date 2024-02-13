@@ -24,6 +24,7 @@ const ThreatAccordionItem = ( {
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: adminUrl,
+		useBlogIdSuffix: true,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();

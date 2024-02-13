@@ -1,0 +1,36 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-ai-voice-to-content .components-placeholder__fieldset {
+	display: flex;
+	flex-direction: column;
+}
+
+.jetpack-ai-voice-to-content__player {
+	margin-bottom: 12px;
+	display: flex;
+	height: 40px;
+	align-items: center;
+	gap: 16px;
+
+	audio {
+		height: 100%;
+	}
+}
+
+.jetpack-ai-voice-to-content__recorder {
+	display: flex;
+	flex-direction:row;
+	gap: 1px;
+
+	.components-button {
+		margin-right: 0;
+
+		&.jetpack-ai-voice-to-content__record-button {
+			border-radius: 4px 0 0 4px;
+		}
+
+		&.jetpack-ai-voice-to-content__done-button {
+			border-radius: 0 4px 4px 0;
+		}
+	}
+}

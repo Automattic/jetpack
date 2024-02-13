@@ -28,6 +28,7 @@ class Defaults {
 		'avatar_rating',
 		'blog_charset',
 		'blog_public',
+		'wpcom_data_sharing_opt_out',
 		'blogdescription',
 		'blogname',
 		'carousel_background_color',
@@ -193,6 +194,7 @@ class Defaults {
 		'wpcom_subscription_emails_use_excerpt',
 		'jetpack_verbum_subscription_modal',
 		'jetpack_blocks_disabled',
+		'jetpack_package_versions',
 	);
 
 	/**
@@ -437,6 +439,8 @@ class Defaults {
 		'wp_log', // WP Logging Plugin.
 		'wpephpcompat_jobs',
 		'wprss_feed_item',
+		'memberships_coupon',
+		'memberships_gift',
 	);
 
 	/**
