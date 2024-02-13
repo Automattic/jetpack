@@ -64,6 +64,7 @@ class Boost_Cache {
 		add_action( 'transition_post_status', array( $this, 'delete_on_post_transition' ), 10, 3 );
 		add_action( 'transition_comment_status', array( $this, 'delete_on_comment_transition' ), 10, 3 );
 		add_action( 'comment_post', array( $this, 'delete_on_comment_post' ), 10, 3 );
+		add_action( 'edit_comment', array( $this, 'delete_on_comment_edit' ), 10, 2 );
 		add_action( 'switch_theme', array( $this, 'delete_cache' ) );
 	}
 
@@ -341,6 +342,20 @@ class Boost_Cache {
 		}
 		$post = get_post( $comment->comment_post_ID );
 		$this->delete_cache_for_post( $post );
+	}
+
+	/*
+	 * After editing a comment, delete the cache for the post if the comment is approved.
+	 *
+	 * @param int $comment_id - The id of the comment.
+	 * @param array $commentdata - The comment data.
+	 */
+	public function delete_on_comment_edit( $comment_id, $commentdata ) {
+		$post = get_post( $commentdata['comment_post_ID'] );
+
+		if ( (int) $commentdata['comment_approved'] === 1 ) {
+			$this->delete_cache_for_post( $post );
+		}
 	}
 
 	public function delete_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
