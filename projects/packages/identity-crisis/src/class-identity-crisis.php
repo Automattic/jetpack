@@ -1079,7 +1079,6 @@ class Identity_Crisis {
 	 * @return bool True if potentially dynamic site urls were detected in wp-config, false otherwise.
 	 */
 	public static function detect_possible_dynamic_site_url() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
 		$transient_key = 'jetpack_idc_possible_dynamic_site_url_detected';
 		$transient_val = get_transient( $transient_key );
 
