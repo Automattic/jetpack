@@ -33,7 +33,7 @@ class Logger {
 	 * Ensure that the log file exists, and if not, create it.
 	 */
 	private function prepare_file() {
-		$log_file = self::get_log_file();
+		$log_file = $this->get_log_file();
 		if ( file_exists( $log_file ) ) {
 			return true;
 		}
@@ -68,14 +68,14 @@ class Logger {
 		$request_uri = htmlspecialchars( $request_uri, ENT_QUOTES, 'UTF-8' );
 		$line        = gmdate( 'H:i:s' ) . ' ' . getmypid() . " {$request_uri} {$message}" . PHP_EOL;
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( $line, 3, self::get_log_file() );
+		error_log( $line, 3, $this->get_log_file() );
 	}
 
 	/**
 	 * Reads the log file and returns the contents.
 	 */
 	public function read() {
-		$log_file = self::get_log_file();
+		$log_file = $this->get_log_file();
 
 		// Get the content after skipping the LOG_HEADER.
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
@@ -87,7 +87,7 @@ class Logger {
 	 *
 	 * @return string
 	 */
-	private function get_log_file() {
+	private static function get_log_file() {
 		$today = gmdate( 'Y-m-d' );
 		return WP_CONTENT_DIR . "/boost-cache/logs/log-{$today}.log.php";
 	}

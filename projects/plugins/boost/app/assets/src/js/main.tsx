@@ -20,6 +20,7 @@ import { useSingleModuleState } from '$features/module/lib/stores';
 import ImageSizeAnalysis from './pages/image-size-analysis/image-size-analysis';
 import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 import '../css/admin-style.scss';
+import CacheDebugLogs from './pages/cache-debug-log/cache-debug-log';
 
 const useBoostRouter = () => {
 	const { shouldGetStarted } = useGettingStarted();
@@ -39,6 +40,20 @@ const useBoostRouter = () => {
 						<Index />
 					</Tracks>
 				</SettingsPage>
+			),
+		},
+		{
+			path: '/cache-debug-logs',
+			loader: () => {
+				if ( shouldGetStarted ) {
+					return redirect( '/getting-started' );
+				}
+				return null;
+			},
+			element: (
+				<Tracks>
+					<CacheDebugLogs />
+				</Tracks>
 			),
 		},
 		{
