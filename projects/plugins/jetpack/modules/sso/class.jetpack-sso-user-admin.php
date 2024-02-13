@@ -2,12 +2,12 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Roles;
 
-if ( ! class_exists( 'Jetpack_Sso_User_Admin' ) ) :
+if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 	require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
 	/**
 	 * Jetpack likes settings class.
 	 */
-	class Jetpack_Sso_User_Admin {
+	class Jetpack_SSO_User_Admin {
 
 		/**
 		 * Constructor function.
