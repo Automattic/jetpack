@@ -423,12 +423,16 @@ function get_element_styles_from_attributes( $attributes ) {
 	$submit_button_styles .= $style;
 	$email_field_styles   .= $style;
 
-	$button_spacing = get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE );
-	if ( true === get_attribute( $attributes, 'buttonOnNewLine' ) ) {
-		$submit_button_styles .= sprintf( 'margin-top: %dpx;', $button_spacing );
-	} else {
-		$submit_button_styles .= 'margin: 0px; '; // Reset Safari's 2px default margin for buttons affecting input and button union
-		$submit_button_styles .= sprintf( 'margin-left: %dpx;', $button_spacing );
+	$is_button_only = get_attribute( $attributes, 'className' ) === BUTTON_ONLY_CLASS_NAME;
+
+	if ( ! $is_button_only ) {
+		$button_spacing = get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE );
+		if ( true === get_attribute( $attributes, 'buttonOnNewLine' ) ) {
+			$submit_button_styles .= sprintf( 'margin-top: %dpx;', $button_spacing );
+		} else {
+			$submit_button_styles .= 'margin: 0px; '; // Reset Safari's 2px default margin for buttons affecting input and button union
+			$submit_button_styles .= sprintf( 'margin-left: %dpx;', $button_spacing );
+		}
 	}
 
 	if ( has_attribute( $attributes, 'borderColor' ) ) {
@@ -605,6 +609,7 @@ function render_block( $attributes ) {
 		),
 		'source'                        => 'subscribe-block',
 		'app_source'                    => get_attribute( $attributes, 'appSource', null ),
+		'class_name'                    => get_attribute( $attributes, 'className' ),
 	);
 
 	if ( ! jetpack_is_frontend() ) {
@@ -658,6 +663,7 @@ function render_for_website( $data, $classes, $styles ) {
 	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
 	$tier_id            = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
 	$is_subscribed      = Jetpack_Memberships::is_current_user_subscribed();
+	$is_button_only     = $data['class_name'] === BUTTON_ONLY_CLASS_NAME;
 	$button_text        = get_submit_button_text( $data );
 
 	ob_start();
@@ -680,7 +686,7 @@ function render_for_website( $data, $classes, $styles ) {
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
 				<div class="wp-block-jetpack-subscriptions__form-elements">
-					<?php if ( ! $is_subscribed ) : ?>
+					<?php if ( ! $is_subscribed && ! $is_button_only ) : ?>
 					<p id="subscribe-email">
 						<label
 							id="<?php echo esc_attr( $subscribe_field_id . '-label' ); ?>"
