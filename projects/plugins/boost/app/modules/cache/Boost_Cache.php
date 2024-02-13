@@ -110,11 +110,11 @@ class Boost_Cache {
 			return false;
 		}
 
-		if ( function_exists( 'is_404' ) && is_404() ) {
+		if ( Boost_Cache_Utils::is_404() ) {
 			return false;
 		}
 
-		if ( function_exists( 'is_feed' ) && is_feed() ) {
+		if ( Boost_Cache_Utils::is_feed() ) {
 			return false;
 		}
 
