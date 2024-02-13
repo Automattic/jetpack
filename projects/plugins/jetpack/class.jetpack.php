@@ -6896,10 +6896,15 @@ endif;
 		if ( get_transient( 'activated_jetpack' ) ) {
 			delete_transient( 'activated_jetpack' );
 
-			// My Jetpack is not supported on multisite sites, so we redirect to the Jetpack page.
-			$redirect_url = $this->is_multisite()
-				? static::admin_url( 'page=jetpack' )
-				: static::admin_url( 'page=my-jetpack' );
+			if ( ( new Host() )->is_woa_site() ) {
+				$redirect_url = static::admin_url( 'page=jetpack' );
+			} elseif ( is_network_admin() ) {
+				$redirect_url = admin_url( 'network/admin.php?page=jetpack' );
+			} elseif ( My_Jetpack_Initializer::should_initialize() ) {
+				$redirect_url = static::admin_url( 'page=my-jetpack' );
+			} else {
+				$redirect_url = static::admin_url( 'page=jetpack' );
+			}
 
 			wp_safe_redirect( $redirect_url );
 		}
