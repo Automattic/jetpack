@@ -358,7 +358,6 @@ export const Ads = withModuleSettingsFormHelpers(
 							</FormFieldset>
 						) }
 					</SettingsGroup>
-					{ ! isSubDirSite && this.renderAdsTxtSection() }
 					<SettingsGroup>
 						<ToggleControl
 							checked={ wordads_cmp_enabled }
@@ -372,6 +371,7 @@ export const Ads = withModuleSettingsFormHelpers(
 							label={ __( 'Enable GDPR Consent Banner', 'jetpack' ) }
 						/>
 					</SettingsGroup>
+					{ ! isSubDirSite && this.renderAdsTxtSection() }
 					{ ! unavailableInOfflineMode && isAdsActive && (
 						<Card
 							compact
