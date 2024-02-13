@@ -39,6 +39,10 @@
 			padding: 0;
 		}
 	}
+
+	.jp-dash-item__content .jp-support-info {
+		top: auto;
+	}
 }
 
 .jp-dash-section-header.jp-dash-section-header-stats {
@@ -672,7 +676,7 @@ a.jp-dash-item__manage-in-wpcom,
 			display: flex;
 			flex-direction: row;
 		}
-		
+
 		.dash-backup-undo__activity-log-user-meta-avatar {
 			display: flex;
 			margin-right: 8px;

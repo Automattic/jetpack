@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2024-01-18
+### Changed
+- The package now requires PHP >= 7.0. [#34192]
+
+### Fixed
+- Backup: Add namespace versioning to Helper_Script_Manager and other classes. [#34739]
+- Backup: Bug fixes in helper script installation class. [#34297]
+
+## [0.1.6] - 2023-10-19
+### Changed
+- Updated package dependencies. [#32605]
+
+### Fixed
+- Fix helper script upload for sites without direct file system access. [#32102]
+
 ## [0.1.5] - 2023-07-06
 ### Added
 - Add Jetpack Autoloader package suggestion. [#29988]
@@ -33,6 +48,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies.
 
+[0.2.0]: https://github.com/Automattic/jetpack-transport-helper/compare/v0.1.6...v0.2.0
+[0.1.6]: https://github.com/Automattic/jetpack-transport-helper/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/Automattic/jetpack-transport-helper/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/Automattic/jetpack-transport-helper/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/Automattic/jetpack-transport-helper/compare/v0.1.2...v0.1.3

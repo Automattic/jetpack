@@ -7,6 +7,7 @@
 
 require __DIR__ . '/base.php';
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Main Comments class
@@ -150,7 +151,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		parent::setup_filters();
 
 		add_filter( 'comment_post_redirect', array( $this, 'capture_comment_post_redirect_to_reload_parent_frame' ), 100 );
+		add_filter( 'comment_duplicate_trigger', array( $this, 'capture_comment_duplicate_trigger' ), 100 );
 		add_filter( 'get_avatar', array( $this, 'get_avatar' ), 10, 4 );
+		// Fix comment reply link when `comment_registration` is required.
+		add_filter( 'comment_reply_link', array( $this, 'comment_reply_link' ), 10, 4 );
 	}
 
 	/**
@@ -182,6 +186,57 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		// Return the Facebook or Twitter avatar.
 		return preg_replace( '#src=([\'"])[^\'"]+\\1#', 'src=\\1' . esc_url( set_url_scheme( $this->photon_avatar( $foreign_avatar, $size ), 'https' ) ) . '\\1', $avatar );
+	}
+
+	/**
+	 * Set comment reply link.
+	 * This is to fix the reply link when comment registration is required.
+	 *
+	 * @param string     $reply_link The HTML markup for the comment reply link.
+	 * @param array      $args An array of arguments overriding the defaults.
+	 * @param WP_Comment $comment The object of the comment being replied.
+	 * @param WP_Post    $post    The WP_Post object.
+	 *
+	 * @return string New reply link.
+	 */
+	public function comment_reply_link( $reply_link, $args, $comment, $post ) {
+		// This is only necessary if comment_registration is required to post comments
+		if ( ! get_option( 'comment_registration' ) ) {
+			return $reply_link;
+		}
+
+		$respond_id = esc_attr( $args['respond_id'] );
+		$add_below  = esc_attr( $args['add_below'] );
+		/* This is to accommodate some themes that add an SVG to the Reply link like twenty-seventeen. */
+		$reply_text  = wp_kses(
+			$args['reply_text'],
+			array(
+				'svg' => array(
+					'class'           => true,
+					'aria-hidden'     => true,
+					'aria-labelledby' => true,
+					'role'            => true,
+					'xmlns'           => true,
+					'width'           => true,
+					'height'          => true,
+					'viewbox'         => true,
+				),
+				'use' => array(
+					'href'       => true,
+					'xlink:href' => true,
+				),
+			)
+		);
+		$before_link = wp_kses( $args['before'], wp_kses_allowed_html( 'post' ) );
+		$after_link  = wp_kses( $args['after'], wp_kses_allowed_html( 'post' ) );
+
+		$reply_url = esc_url( add_query_arg( 'replytocom', $comment->comment_ID . '#' . $respond_id ) );
+
+		return <<<HTML
+			$before_link
+			<a class="comment-reply-link" href="$reply_url" onclick="return addComment.moveForm( '$add_below-$comment->comment_ID', '$comment->comment_ID', '$respond_id', '$post->ID' )">$reply_text</a>
+			$after_link
+HTML;
 	}
 
 	/**
@@ -258,30 +313,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		// Throw it all out and drop in our replacement.
 		ob_end_clean();
 
-		// If users are required to be logged in, and they're not, then we don't need to do anything else.
-		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
-			/**
-			 * Changes the log in to comment prompt.
-			 *
-			 * @module comments
-			 *
-			 * @since  1.4.0
-			 *
-			 * @param string $var Default is "You must log in to post a comment."
-			 */
-			echo '<p class="must-log-in">' . wp_kses_post(
-				sprintf(
-					apply_filters(
-						'jetpack_must_log_in_to_comment',
-						/* translators: %s is the wp-login URL for the site */
-						__( 'You must <a href="%s">log in</a> to post a comment.', 'jetpack' )
-					),
-					wp_login_url( get_permalink() . '#respond' )
-				)
-			) . '</p>';
-			return;
-		}
-
 		if ( in_array( 'subscriptions', Jetpack::get_active_modules(), true ) ) {
 			$stb_enabled = get_option( 'stb_enabled', 1 );
 			$stb_enabled = empty( $stb_enabled ) ? 0 : 1;
@@ -338,6 +369,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$commenter                     = wp_get_current_commenter();
 			$params['show_cookie_consent'] = (int) has_action( 'set_comment_cookies', 'wp_set_comment_cookies' );
 			$params['has_cookie_consent']  = (int) ! empty( $commenter['comment_author_email'] );
+			// Jetpack_Memberships for logged out users only checks for the wp-jp-premium-content-session cookie
+			$params['is_current_user_subscribed'] = class_exists( '\Jetpack_Memberships' ) ? (int) Jetpack_Memberships::is_current_user_subscribed() : 0;
 		}
 
 		list( $token_key ) = explode( '.', $blog_token->secret, 2 );
@@ -479,104 +512,53 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			// @todo Implement AMP support.
 			return;
 		}
-
-		$url_origin = 'https://jetpack.wordpress.com';
 		?>
-
-		<!--[if IE]>
 		<script type="text/javascript">
-			if ( 0 === window.location.hash.indexOf( '#comment-' ) ) {
-				// window.location.reload() doesn't respect the Hash in IE
-				window.location.hash = window.location.hash;
-			}
-		</script>
-		<![endif]-->
-		<script type="text/javascript">
-			(function () {
-				var comm_par_el = document.getElementById( 'comment_parent' ),
-					comm_par = ( comm_par_el && comm_par_el.value ) ? comm_par_el.value : '',
-					frame = document.getElementById( 'jetpack_remote_comment' ),
-					tellFrameNewParent;
-
-				tellFrameNewParent = function () {
-					if ( comm_par ) {
-						frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>" + '&replytocom=' + parseInt( comm_par, 10 ).toString();
-					} else {
-						frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>";
-					}
-				};
-
-				<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
-
-				if ( 'undefined' !== typeof addComment ) {
+			const iframe = document.getElementById( 'jetpack_remote_comment' );
+			<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
+			const watchReply = function() {
+				// Check addComment._Jetpack_moveForm to make sure we don't monkey-patch twice.
+				if ( 'undefined' !== typeof addComment && ! addComment._Jetpack_moveForm ) {
+					// Cache the Core function.
 					addComment._Jetpack_moveForm = addComment.moveForm;
+					const commentParent = document.getElementById( 'comment_parent' );
+					const cancel = document.getElementById( 'cancel-comment-reply-link' );
 
-					addComment.moveForm = function ( commId, parentId, respondId, postId ) {
-						var returnValue = addComment._Jetpack_moveForm( commId, parentId, respondId, postId ),
-							cancelClick, cancel;
-
-						if ( false === returnValue ) {
-							cancel = document.getElementById( 'cancel-comment-reply-link' );
-							cancelClick = cancel.onclick;
-							cancel.onclick = function () {
-								var cancelReturn = cancelClick.call( this );
-								if ( false !== cancelReturn ) {
-									return cancelReturn;
-								}
-
-								if ( ! comm_par ) {
-									return cancelReturn;
-								}
-
-								comm_par = 0;
-
-								tellFrameNewParent();
-
-								return cancelReturn;
-							};
+					function tellFrameNewParent ( commentParentValue ) {
+						const url = new URL( iframe.src );
+						if ( commentParentValue ) {
+							url.searchParams.set( 'replytocom', commentParentValue )
+						} else {
+							url.searchParams.delete( 'replytocom' );
 						}
-
-						if ( comm_par == parentId ) {
-							return returnValue;
+						if( iframe.src !== url.href ) {
+							iframe.src = url.href;
 						}
+					};
 
-						comm_par = parentId;
+					cancel.addEventListener( 'click', function () {
+						tellFrameNewParent( false );
+					} );
 
-						tellFrameNewParent();
-
-						return returnValue;
+					addComment.moveForm = function ( _, parentId ) {
+						tellFrameNewParent( parentId );
+						return addComment._Jetpack_moveForm.apply( null, arguments );
 					};
 				}
+			}
+			document.addEventListener( 'DOMContentLoaded', watchReply );
+			// In WP 6.4+, the script is loaded asynchronously, so we need to wait for it to load before we monkey-patch the functions it introduces.
+			document.querySelector('#comment-reply-js')?.addEventListener( 'load', watchReply );
 
-				<?php endif; ?>
+			<?php endif; ?>
 
-				// Do the post message bit after the dom has loaded.
-				document.addEventListener( 'DOMContentLoaded', function () {
-					var iframe_url = <?php echo wp_json_encode( esc_url_raw( $url_origin ) ); ?>;
-					if ( window.postMessage ) {
-						if ( document.addEventListener ) {
-							window.addEventListener( 'message', function ( event ) {
-								var origin = event.origin.replace( /^http:\/\//i, 'https://' );
-								if ( iframe_url.replace( /^http:\/\//i, 'https://' ) !== origin ) {
-									return;
-								}
-								frame.style.height = event.data + 'px';
-							});
-						} else if ( document.attachEvent ) {
-							window.attachEvent( 'message', function ( event ) {
-								var origin = event.origin.replace( /^http:\/\//i, 'https://' );
-								if ( iframe_url.replace( /^http:\/\//i, 'https://' ) !== origin ) {
-									return;
-								}
-								frame.style.height = event.data + 'px';
-							});
-						}
-					}
-				})
-
-			})();
+			window.addEventListener( 'message', function ( event ) {
+				if ( event.origin !== 'https://jetpack.wordpress.com' ) {
+					return;
+				}
+				iframe.style.height = event.data + 'px';
+			});
 		</script>
-
 		<?php
 	}
 
@@ -602,7 +584,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
 		}
 
-		if ( false !== strpos( $post_array['hc_avatar'], '.gravatar.com' ) ) {
+		if ( str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
 			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'], ENT_COMPAT );
 		}
 
@@ -680,6 +662,161 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
+	 * Should show the subscription modal
+	 *
+	 * @return boolean
+	 */
+	public function should_show_subscription_modal() {
+
+		// Not allow it to run on self-hosted or simple sites
+		if ( ! ( new Host() )->is_wpcom_platform() || ( new Host() )->is_wpcom_simple() ) {
+			return false;
+		}
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
+
+		// Atomic sites with jetpack_verbum_subscription_modal option enabled
+		$modal_enabled = ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true );
+
+		return $modal_enabled && ! $is_current_user_subscribed;
+	}
+
+	/**
+	 * Get the data to send as an event to the parent window on subscription modal
+	 *
+	 * @param string $url url to redirect to.
+	 *
+	 * @return array
+	 */
+	public function get_subscription_modal_data_to_parent( $url ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$current_user_email = isset( $_POST['email'] ) ? filter_var( wp_unslash( $_POST['email'] ) ) : null;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$post_id = isset( $_POST['comment_post_ID'] ) ? filter_var( wp_unslash( $_POST['comment_post_ID'] ) ) : null;
+		return array(
+			'url'          => $url,
+			'email'        => $current_user_email,
+			'blog_id'      => esc_attr( \Jetpack_Options::get_option( 'id' ) ),
+			'post_id'      => esc_attr( $post_id ),
+			'lang'         => esc_attr( get_locale() ),
+			'is_logged_in' => isset( $_POST['hc_userid'] ),
+		);
+	}
+
+	/**
+	 * Track the hidden event for the subscription modal
+	 */
+	public function subscription_modal_status_track_event() {
+		$tracking_event = 'hidden_disabled';
+		// Not allow it to run on self-hosted or simple sites
+		if ( ! ( new Host() )->is_wpcom_platform() || ( new Host() )->is_wpcom_simple() ) {
+			$tracking_event = 'hidden_self_hosted';
+		}
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
+
+		if ( $is_current_user_subscribed ) {
+			$tracking_event = 'hidden_already_subscribed';
+		}
+
+		$jetpack = Jetpack::init();
+		// $jetpack->stat automatically prepends the stat group with 'jetpack-'
+		$jetpack->stat( 'subscribe-modal-comm', $tracking_event );
+		$jetpack->do_stats( 'server_side' );
+	}
+
+	/**
+	 * Catch the duplicated comment error and show a custom error page
+	 *
+	 * @return void
+	 */
+	public function capture_comment_duplicate_trigger() {
+		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			exit;
+		}
+
+		?>
+		<!DOCTYPE html>
+		<html <?php language_attributes(); ?>>
+		<!--<![endif]-->
+		<head>
+			<meta charset="<?php bloginfo( 'charset' ); ?>" />
+			<title>
+				<?php
+					wp_kses_post(
+						printf(
+							/* translators: %s is replaced by an ellipsis */
+							__( 'Submitting Comment%s', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							'&hellip;'
+						)
+					);
+				?>
+				</title>
+			<style type="text/css">
+				body {
+					display: table;
+					width: 100%;
+					height: 60%;
+					position: absolute;
+					top: 0;
+					left: 0;
+					overflow: hidden;
+					color: #333;
+					padding-top: 3%;
+				}
+				div {
+					text-align: left;
+					margin: 0;
+					padding: 0;
+					display: table-cell;
+					vertical-align: top;
+					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
+					font-weight: normal;
+				}
+
+				h3 {
+					margin: 0;
+					padding-bottom: 3%;
+					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
+					font-weight: normal;
+				}
+				a {
+					text-decoration: underline;
+					color: #333 !important;
+				}
+			</style>
+		</head>
+		<body>
+		<div>
+			<h3>
+				<?php
+					esc_html_e( 'Duplicate comment detected; it looks as though you’ve already said that!', 'jetpack' );
+				?>
+			</h3>
+			<a href="javascript:backToComments()"><?php esc_html_e( '&laquo; Back', 'jetpack' ); ?></a>
+		</div>
+		<script type="text/javascript">
+			function backToComments() {
+				const test = regexp => {
+						return regexp.test(navigator.userAgent);
+				};
+				if (test(/chrome|chromium|crios|safari|edg/i)) {
+						history.go(-2);
+						return;
+				}
+				history.back();
+			}
+		</script>
+
+		</body>
+		</html>
+		<?php
+		exit;
+	}
+
+	/**
 	 * POST the submitted comment to the iframe
 	 *
 	 * @param string $url The comment URL origin.
@@ -687,6 +824,13 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	public function capture_comment_post_redirect_to_reload_parent_frame( $url ) {
 		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return $url;
+		}
+
+		$should_show_subscription_modal = $this->should_show_subscription_modal();
+
+		// Track event when not showing the subscription modal
+		if ( ! $should_show_subscription_modal ) {
+			$this->subscription_modal_status_track_event();
 		}
 		?>
 		<!DOCTYPE html>
@@ -715,14 +859,15 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					left: 0;
 					overflow: hidden;
 					color: #333;
+					padding-top: 3%;
 				}
 
-				h1 {
+				h3 {
 					text-align: center;
 					margin: 0;
 					padding: 0;
 					display: table-cell;
-					vertical-align: middle;
+					vertical-align: top;
 					font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
 					font-weight: normal;
 				}
@@ -731,7 +876,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					opacity: 0;
 				}
 
-				h1 span {
+				h3 span {
 					-moz-transition-property: opacity;
 					-moz-transition-duration: 1s;
 					-moz-transition-timing-function: ease-in-out;
@@ -755,7 +900,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			</style>
 		</head>
 		<body>
-		<h1>
+		<?php if ( ! $should_show_subscription_modal ) { ?>
+		<h3>
 			<?php
 				wp_kses_post(
 					printf(
@@ -765,7 +911,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					)
 				);
 			?>
-			</h1>
+		</h3>
 		<script type="text/javascript">
 			try {
 				window.parent.location = <?php echo wp_json_encode( $url ); ?>;
@@ -782,6 +928,27 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 			setInterval(toggleEllipsis, 1200);
 		</script>
+		<?php } else { ?>
+		<h3>
+			<?php
+				wp_kses_post(
+					print __( 'Comment sent', 'jetpack' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+			?>
+		</h3>
+		<script type="text/javascript">
+			if ( window.parent && window.parent !== window ) {
+
+				window.parent.postMessage(
+					{
+						type: 'subscriptionModalShow',
+						data: <?php echo wp_json_encode( $this->get_subscription_modal_data_to_parent( $url ) ); ?>,
+					},
+					window.location.origin
+				);
+			}
+		</script>
+		<?php } ?>
 		</body>
 		</html>
 		<?php

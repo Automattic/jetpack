@@ -4,7 +4,7 @@ const { definePaletteColorsAsStaticVariables } = require( './webpack.helpers' );
 
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		index: {
 			import: path.join( __dirname, '../modules/widget-visibility/editor/index.jsx' ),
@@ -33,7 +33,6 @@ module.exports = {
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: { injectPolyfill: true },
-			I18nLoaderPlugin: { textdomain: 'jetpack' },
 		} ),
 		definePaletteColorsAsStaticVariables(),
 	],

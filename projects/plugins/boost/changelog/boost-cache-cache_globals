@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Boost: cache the COOKIE and GET arrays for later use.
+
+

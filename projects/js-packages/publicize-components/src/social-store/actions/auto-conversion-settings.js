@@ -20,7 +20,7 @@ export function* updateAutoConversionSettings( settings ) {
 		yield setAutoConversionSettings( settings );
 		yield updateAutoConversionSettingsControl( settings );
 		const updatedSettings = yield fetchAutoConversionSettings();
-		yield setAutoConversionSettings( updatedSettings );
+		yield setAutoConversionSettings( updatedSettings.jetpack_social_autoconvert_images );
 		return true;
 	} catch ( e ) {
 		const oldSettings = select( SOCIAL_STORE_ID ).getAutoConversionSettings();
@@ -39,11 +39,14 @@ export function* updateAutoConversionSettings( settings ) {
  */
 export function* refreshAutoConversionSettings() {
 	try {
+		yield setUpdatingAutoConversionSettings();
 		const updatedSettings = yield fetchAutoConversionSettings();
-		yield setAutoConversionSettings( updatedSettings );
+		yield setAutoConversionSettings( updatedSettings.jetpack_social_autoconvert_images );
 		return true;
 	} catch ( e ) {
 		return false;
+	} finally {
+		yield setUpdatingAutoConversionSettingsDone();
 	}
 }
 

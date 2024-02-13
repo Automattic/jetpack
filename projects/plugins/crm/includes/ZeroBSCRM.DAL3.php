@@ -5770,32 +5770,27 @@ class zbsDAL {
 
     }
 
-    /**
-     * Returns an origin string and type from a prefixed origin string
-     *
-     * @param string $string - prefixed origin string
-     *
-     * @return array|bool(false) - origin string and type, or false
-     */
-    public function hydrate_origin( $string ){
+	/**
+	 * Returns an origin string and type from a prefixed origin string
+	 *
+	 * @param string $string Prefixed origin string.
+	 *
+	 * @return array|bool(false) - origin string and type, or false
+	 */
+	public function hydrate_origin( $string ) {
 
-        // domain
-        if ( substr( $string, 0, 2 ) == 'd:' ){
+		// domain
+		if ( str_starts_with( $string, 'd:' ) ) {
 
-            return array(
-                'origin'      => $this->remove_origin_prefix( $string ),
-                'origin_type' => 'domain'
-            );
+			return array(
+				'origin'      => $this->remove_origin_prefix( $string ),
+				'origin_type' => 'domain',
+			);
 
-        }
+		}
 
-        return false;
-
-    }
-
-
-    
-
+		return false;
+	}
 
     // =========== / Origin Helpers      =============================================
     // ===============================================================================
@@ -7409,6 +7404,23 @@ class zbsDAL {
             return false;
 
         }
+
+	/**
+	 * Generates GROUP_CONCAT SQL compatible with both SQLite and MySQL
+	 *
+	 * @param string $field Field that will be concatenated.
+	 * @param string $separator Separator added between concatenated fields.
+	 *
+	 * @return string
+	 */
+	public function build_group_concat( $field, $separator ) {
+		$db_engine = jpcrm_database_engine();
+		if ( $db_engine === 'sqlite' ) {
+			return sprintf( 'GROUP_CONCAT(%s, "%s")', $field, $separator );
+		} else {
+			return sprintf( 'GROUP_CONCAT(%s SEPARATOR "%s")', $field, $separator );
+		}
+	}
 
         // this returns %s etc. for common field names, will default to %s unless somt obv a date
         public function getTypeStr($fieldKey=''){

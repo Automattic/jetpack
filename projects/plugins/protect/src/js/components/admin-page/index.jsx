@@ -1,7 +1,7 @@
 import { AdminPage as JetpackAdminPage, Container } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import React, { useEffect } from 'react';
@@ -10,6 +10,7 @@ import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import InterstitialPage from '../interstitial-page';
 import Logo from '../logo';
+import Notice from '../notice';
 import Tabs, { Tab } from '../tabs';
 import styles from './styles.module.scss';
 import useRegistrationWatcher from './use-registration-watcher';
@@ -18,6 +19,7 @@ const AdminPage = ( { children } ) => {
 	useRegistrationWatcher();
 
 	const { isSeen: wafSeen } = useWafData();
+	const notice = useSelect( select => select( STORE_ID ).getNotice() );
 	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
@@ -28,6 +30,7 @@ const AdminPage = ( { children } ) => {
 				path: 'jetpack-protect/v1/check-plan',
 				method: 'GET',
 			} ).then( hasRequiredPlan => hasRequiredPlan ),
+		useBlogIdSuffix: true,
 	} );
 
 	useEffect( () => {
@@ -51,6 +54,7 @@ const AdminPage = ( { children } ) => {
 
 	return (
 		<JetpackAdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
+			{ notice.message && <Notice floating={ true } dismissable={ true } { ...notice } /> }
 			<Container horizontalSpacing={ 0 }>
 				<Tabs className={ styles.navigation }>
 					<Tab link="/" label={ __( 'Scan', 'jetpack-protect' ) } />

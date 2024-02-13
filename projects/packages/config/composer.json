@@ -3,7 +3,9 @@
 	"description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"php": ">=7.0"
+	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev"
 	},
@@ -34,7 +36,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.15.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		}
 	}
 }

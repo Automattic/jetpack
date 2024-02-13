@@ -281,7 +281,7 @@ function zeroBSCRM_html_contactTimeline($contactID=-1,$logs=false,$contactObj=fa
 			if ($zbs->isDAL2()) $creationLog = zeroBSCRM_getObjCreationLog($contactID,1);
 
 		}
-		if (is_array($creationLog)){ //$creationLog['type'] == 'Create' || strpos($creationLog['shortdesc'], 'Created') > 0){
+		if ( is_array( $creationLog ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			$logsToShow[] = $creationLog;
 
@@ -481,7 +481,7 @@ function zeroBSCRM_pages_admin_display_custom_fields_table($id = -1, $objectType
 		     		break;
 
 		     	case 'date':
-		     		$html .= '<td class="zbs-view-vital-customfields-'.esc_attr($v['type']).'">' . ( $v['value'] !== '' ? zeroBSCRM_date_i18n( -1, $v['value'], false, true ) : '' )  . '</td>';
+						$html .= '<td class="zbs-view-vital-customfields-' . esc_attr( $v['type'] ) . '">' . ( $v['value'] !== '' ? jpcrm_uts_to_date_str( $v['value'], false, true ) : '' ) . '</td>';
 		     		break;
 
 		     	case 'checkbox':
@@ -703,7 +703,7 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 			    $creationLog = zeroBSCRM_getObjCreationLog( $companyID, 1 );
             }
 		}
-		if (is_array($creationLog)){ //if ($creationLog['type'] == 'Create' || strpos($creationLog['shortdesc'], 'Created') > 0){
+		if ( is_array( $creationLog ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			$logsToShow[] = $creationLog;
 
@@ -849,6 +849,36 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 		return 'ui green label';
 
 	}
+
+/**
+ * Return an updated HTML string, replacing date placeholders with correct date strings based on site settings.
+ * @param  string $value                 The value of the date variable to be replaced.
+ * @param  string $key                   The key of the date variable to be replaced.
+ * @param  string $working_html          The HTML string to be updated.
+ * @param  string $placeholder_str_start The string to add to the beginning of the placeholder string (eg. ##QUOTE-).
+ *
+ * @return string                The updated HTML string.
+ */
+function jpcrm_process_date_variables( $value, $key, $working_html, $placeholder_str_start = '##' ) {
+
+	$base_date_key        = $key;
+	$date_to_uts          = jpcrm_date_str_to_uts( $value );
+	$datetime_key         = $key . '_datetime_str';
+	$date_uts_to_datetime = jpcrm_uts_to_datetime_str( $date_to_uts );
+	$date_key             = $key . '_date_str';
+	$date_uts__to_date    = jpcrm_uts_to_date_str( $date_to_uts );
+
+	$search_replace_pairs = array(
+		$placeholder_str_start . strtoupper( $base_date_key ) . '##' => $date_to_uts,
+		$placeholder_str_start . strtoupper( $datetime_key ) . '##' => $date_uts_to_datetime,
+		$placeholder_str_start . strtoupper( $date_key ) . '##' => $date_uts__to_date,
+
+	);
+
+	$working_html = str_replace( array_keys( $search_replace_pairs ), $search_replace_pairs, $working_html );
+
+	return $working_html;
+}
 
 /* ======================================================
   /	Quotes
@@ -1264,20 +1294,6 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 	   					 if (isset($dataArr['secaddr_postcode'])) $value = $dataArr['secaddr_postcode'];
 	   					 break;
 	   			}
-	   			/* old way, doesn't work reliably - more likely to break custom fields:
-	   			if (strpos($fieldKey, 'secaddr') > -1){
-
-	   				if ($value == -99){
-
-	   					// try the alternate (secaddr_addr1 -> secaddr1)
-	   					// ... really this fix is only req. for contacts, and will fudge up if users use custom fields with similar names..
-	   					// ... def overcome more latterally v3.0+
-	   					//$tempKey = str_replace('secaddr_','sec',$fieldKey);	   					
-	   					if (isset($dataArr[$tempKey])) $value = $dataArr[$tempKey];secaddr_addr1
-	   				}	   		
-	   				
-	   				//echo $fieldKey.' = '.$tempKey.' = '.$value.'!<br>';
-	   			}*/
 
    			global $zbs;
 

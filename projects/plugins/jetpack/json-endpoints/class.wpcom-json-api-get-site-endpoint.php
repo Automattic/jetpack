@@ -79,6 +79,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_staging_site'       => '(bool) If the site is a WP.com staging site.',
 		'user_interactions'           => '(array) An array of user interactions with a site.',
 		'was_ecommerce_trial'         => '(bool) If the site ever used an eCommerce trial.',
+		'was_upgraded_from_trial'     => '(bool) If the site ever upgraded to a paid plan from a trial.',
 		'was_migration_trial'         => '(bool) If the site ever used a migration trial.',
 		'was_hosting_trial'           => '(bool) If the site ever used a hosting trial.',
 		'wpcom_site_setup'            => '(string) The WP.com site setup identifier.',
@@ -233,6 +234,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_ecommerce_trial',
 		'was_migration_trial',
 		'was_hosting_trial',
+		'was_upgraded_from_trial',
 	);
 
 	/**
@@ -605,6 +607,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'was_hosting_trial':
 				$response[ $key ] = $this->site->was_trial( self::$jetpack_enabled_trials['was_hosting_trial'] );
+				break;
+			case 'was_upgraded_from_trial':
+				$response[ $key ] = $this->site->was_upgraded_from_trial();
 				break;
 		}
 
@@ -983,7 +988,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		// render additional options.
-		if ( $response->options ) {
+		if ( isset( $response->options ) && $response->options ) {
 			$wpcom_options_response = $this->render_option_keys( self::$jetpack_response_option_additions );
 
 			// Remove heic from jetpack (and atomic) sites so that the iOS app know to convert the file format into a JPEG.

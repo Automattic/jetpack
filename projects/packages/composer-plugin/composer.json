@@ -10,6 +10,7 @@
 		"i18n"
 	],
 	"require": {
+		"php": ">=7.0",
 		"composer-plugin-api": "^2.1.0"
 	},
 	"require-dev": {
@@ -50,7 +51,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "1.1.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		}
 	}
 }

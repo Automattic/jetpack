@@ -5,10 +5,18 @@ export const PLAN_BUSINESS = 'business-bundle';
 export const PLAN_BUSINESS_2_YEARS = 'business-bundle-2y';
 export const PLAN_BUSINESS_3_YEARS = 'business-bundle-3y';
 export const PLAN_BUSINESS_MONTHLY = 'business-bundle-monthly';
+export const PLAN_BUSINESS_TRIAL = 'wp_bundle_hosting_trial_monthly';
+export const PLAN_MIGRATION_TRIAL = 'wp_bundle_migration_trial_monthly';
+export const PLAN_100_YEARS = 'wp_com_hundred_year_bundle_centennially';
 export const PLAN_ECOMMERCE = 'ecommerce-bundle';
 export const PLAN_ECOMMERCE_2_YEARS = 'ecommerce-bundle-2y';
 export const PLAN_ECOMMERCE_3_YEARS = 'ecommerce-bundle-3y';
 export const PLAN_ECOMMERCE_MONTHLY = 'ecommerce-bundle-monthly';
+export const PLAN_WOOEXPRESS_ESSENTIALS = 'wooexpress-small-bundle-yearly';
+export const PLAN_WOOEXPRESS_ESSENTIALS_MONTHLY = 'wooexpress-small-bundle-monthly';
+export const PLAN_WOOEXPRESS_PERFORMANCE = 'wooexpress-medium-bundle-yearly';
+export const PLAN_WOOEXPRESS_PERFORMANCE_MONTHLY = 'wooexpress-medium-bundle-monthly';
+export const PLAN_WOOEXPRESS_TRIAL = 'ecommerce-trial-bundle-monthly';
 export const PLAN_PREMIUM = 'value_bundle';
 export const PLAN_PREMIUM_2_YEARS = 'value_bundle-2y';
 export const PLAN_PREMIUM_3_YEARS = 'value_bundle-3y';
@@ -76,6 +84,9 @@ export const PLAN_JETPACK_SOCIAL_ADVANCED_BI_YEARLY = 'jetpack_social_advanced_b
 export const PLAN_JETPACK_SOCIAL_ADVANCED = 'jetpack_social_advanced_yearly';
 export const PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY = 'jetpack_social_advanced_monthly';
 export const PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME = 'jetpack_golden_token_lifetime';
+export const PLAN_JETPACK_CREATOR_MONTHLY = 'jetpack_creator_monthly';
+export const PLAN_JETPACK_CREATOR_YEARLY = 'jetpack_creator_yearly';
+export const PLAN_JETPACK_CREATOR_BI_YEARLY = 'jetpack_creator_bi_yearly';
 // DEPRECATED: Daily and Real-time variations will soon be retired.
 // Remove after all customers are migrated to new products.
 export const PLAN_JETPACK_BACKUP_DAILY = 'jetpack_backup_daily';
@@ -269,13 +280,21 @@ export const JETPACK_VIDEOPRESS_PRODUCTS = [
 	PLAN_JETPACK_VIDEOPRESS_MONTHLY,
 ];
 
-export const JETPACK_SOCIAL_PRODUCTS = [
+export const JETPACK_SOCIAL_BASIC_PRODUCTS = [
 	PLAN_JETPACK_SOCIAL_BASIC_BI_YEARLY,
 	PLAN_JETPACK_SOCIAL_BASIC,
 	PLAN_JETPACK_SOCIAL_BASIC_MONTHLY,
+];
+
+export const JETPACK_SOCIAL_ADVANCED_PRODUCTS = [
 	PLAN_JETPACK_SOCIAL_ADVANCED_BI_YEARLY,
 	PLAN_JETPACK_SOCIAL_ADVANCED,
 	PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY,
+];
+
+export const JETPACK_SOCIAL_PRODUCTS = [
+	...JETPACK_SOCIAL_BASIC_PRODUCTS,
+	...JETPACK_SOCIAL_ADVANCED_PRODUCTS,
 ];
 
 export const JETPACK_BOOST_PRODUCTS = [
@@ -296,6 +315,12 @@ export const JETPACK_STATS_PRODUCTS = [
 	PLAN_JETPACK_STATS_MONTHLY,
 	PLAN_JETPACK_STATS_PWYW_YEARLY,
 	PLAN_JETPACK_STATS_FREE,
+];
+
+export const JETPACK_CREATOR_PRODUCTS = [
+	PLAN_JETPACK_CREATOR_MONTHLY,
+	PLAN_JETPACK_CREATOR_YEARLY,
+	PLAN_JETPACK_CREATOR_BI_YEARLY,
 ];
 
 export const PLAN_MONTHLY_PERIOD = 31;
@@ -515,6 +540,16 @@ export function isJetpackStats( product ) {
 }
 
 /**
+ * Determines if a product is Jetpack Creator.
+ *
+ * @param {string} product - The product id.
+ * @returns {boolean} True if the product is Jetpack Creator, false otherwise.
+ */
+export function isJetpackCreator( product ) {
+	return JETPACK_CREATOR_PRODUCTS.includes( product );
+}
+
+/**
  * Checks if a product slug is a Jetpack product.
  *
  * @param {string} product - The product id.
@@ -530,7 +565,8 @@ export function isJetpackProduct( product ) {
 		isJetpackSocial( product ) ||
 		isJetpackBoost( product ) ||
 		isJetpackAI( product ) ||
-		isJetpackStats( product )
+		isJetpackStats( product ) ||
+		isJetpackCreator( product )
 	);
 }
 
@@ -631,6 +667,14 @@ export function getPlanClass( plan ) {
 		case PLAN_ECOMMERCE_3_YEARS:
 		case PLAN_ECOMMERCE_MONTHLY:
 		case PLAN_PRO:
+		case PLAN_BUSINESS_TRIAL:
+		case PLAN_MIGRATION_TRIAL:
+		case PLAN_100_YEARS:
+		case PLAN_WOOEXPRESS_ESSENTIALS:
+		case PLAN_WOOEXPRESS_ESSENTIALS_MONTHLY:
+		case PLAN_WOOEXPRESS_PERFORMANCE:
+		case PLAN_WOOEXPRESS_PERFORMANCE_MONTHLY:
+		case PLAN_WOOEXPRESS_TRIAL:
 			return 'is-business-plan';
 		case PLAN_JETPACK_STARTER:
 		case PLAN_JETPACK_STARTER_MONTHLY:
@@ -679,6 +723,10 @@ export function getPlanClass( plan ) {
 			return 'is-videopress-plan';
 		case PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME:
 			return 'is-jetpack-golden-token-plan';
+		case PLAN_JETPACK_CREATOR_BI_YEARLY:
+		case PLAN_JETPACK_CREATOR_YEARLY:
+		case PLAN_JETPACK_CREATOR_MONTHLY:
+			return 'is-jetpack-creator-plan';
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
@@ -715,7 +763,6 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_STATS_MONTHLY:
 		case PLAN_JETPACK_STATS_PWYW_YEARLY:
 			return 'is-jetpack-stats-plan';
-
 		case PLAN_JETPACK_STATS_FREE:
 			return 'is-free-jetpack-stats-plan';
 

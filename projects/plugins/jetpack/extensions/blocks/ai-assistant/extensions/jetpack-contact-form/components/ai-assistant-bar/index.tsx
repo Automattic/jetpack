@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useAiContext, AIControl, ERROR_QUOTA_EXCEEDED } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { serialize } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
@@ -24,7 +25,7 @@ import React from 'react';
  */
 import ConnectPrompt from '../../../../components/connect-prompt';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
-import useAIFeature from '../../../../hooks/use-ai-feature';
+import useAiFeature from '../../../../hooks/use-ai-feature';
 import { isUserConnected } from '../../../../lib/connection';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
@@ -79,11 +80,14 @@ export default function AiAssistantBar( {
 } ) {
 	const wrapperRef = useRef< HTMLDivElement >( null );
 	const inputRef = useRef< HTMLInputElement >( null );
+	const { tracks } = useAnalytics();
 
 	const connected = isUserConnected();
 
 	const { inputValue, setInputValue, isVisible, assistantAnchor } =
 		useContext( AiAssistantUiContext );
+
+	const { dequeueAiAssistantFeatureAyncRequest } = useDispatch( 'wordpress-com/plans' );
 
 	const focusOnPrompt = () => {
 		// Small delay to avoid focus crash
@@ -96,7 +100,7 @@ export default function AiAssistantBar( {
 		onDone: focusOnPrompt,
 	} );
 
-	const { requireUpgrade } = useAIFeature();
+	const { requireUpgrade } = useAiFeature();
 
 	const siteRequireUpgrade = requestingError?.code === ERROR_QUOTA_EXCEEDED || requireUpgrade;
 
@@ -124,14 +128,34 @@ export default function AiAssistantBar( {
 			content: getSerializedContentFromBlock( clientId ),
 		} );
 
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
+
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
+			feature: 'jetpack-form-ai-extension',
+		} );
 		wrapperRef?.current?.focus();
-	}, [ clientId, inputValue, removeNotice, requestSuggestion ] );
+	}, [
+		clientId,
+		dequeueAiAssistantFeatureAyncRequest,
+		inputValue,
+		removeNotice,
+		requestSuggestion,
+		tracks,
+	] );
 
 	const handleStopSuggestion = useCallback( () => {
 		stopSuggestion();
 		focusOnPrompt();
-	}, [ stopSuggestion ] );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_stop', {
+			feature: 'jetpack-form-ai-extension',
+		} );
+	}, [ stopSuggestion, tracks ] );
 
 	/*
 	 * Fix the assistant bar when the viewport is mobile,
@@ -186,6 +210,14 @@ export default function AiAssistantBar( {
 		};
 	}, [ isAssistantBarFixed, isVisible ] );
 
+	useEffect( () => {
+		if ( isVisible ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_prompt_show', {
+				block_type: 'jetpack/contact-form',
+			} );
+		}
+	}, [ isVisible, tracks ] );
+
 	// focus input on first render only (for a11y reasons, toggling on/off should not focus the input)
 	useEffect( () => {
 		/*
@@ -215,42 +247,44 @@ export default function AiAssistantBar( {
 
 	// Assistant bar component.
 	const AiAssistantBarComponent = (
-		<KeyboardShortcuts
-			bindGlobal
-			shortcuts={ {
-				esc: () => {
-					if ( [ 'requesting', 'suggesting' ].includes( requestingState ) ) {
-						handleStopSuggestion();
-					}
-				},
-			} }
-		>
-			<div
-				ref={ wrapperRef }
-				className={ classNames( 'jetpack-ai-assistant__bar', {
-					[ className ]: className,
-					'is-fixed': isAssistantBarFixed,
-					'is-mobile-mode': isMobileMode,
-				} ) }
-				tabIndex={ -1 }
+		<div className="jetpack-ai-assistant__bar-wrapper">
+			<KeyboardShortcuts
+				bindGlobal
+				shortcuts={ {
+					esc: () => {
+						if ( [ 'requesting', 'suggesting' ].includes( requestingState ) ) {
+							handleStopSuggestion();
+						}
+					},
+				} }
 			>
-				{ siteRequireUpgrade && <UpgradePrompt /> }
-				{ ! connected && <ConnectPrompt /> }
-				<AIControl
-					ref={ inputRef }
-					disabled={ siteRequireUpgrade || ! connected }
-					value={ isLoading ? undefined : inputValue }
-					placeholder={ isLoading ? loadingPlaceholder : placeholder }
-					onChange={ setInputValue }
-					onSend={ handleSend }
-					onStop={ handleStopSuggestion }
-					state={ requestingState }
-					isTransparent={ siteRequireUpgrade || ! connected }
-					showButtonLabels={ ! isMobileMode }
-					showGuideLine={ showGuideLine }
-				/>
-			</div>
-		</KeyboardShortcuts>
+				<div
+					ref={ wrapperRef }
+					className={ classNames( 'jetpack-ai-assistant__bar', {
+						[ className ]: className,
+						'is-fixed': isAssistantBarFixed,
+						'is-mobile-mode': isMobileMode,
+					} ) }
+					tabIndex={ -1 }
+				>
+					{ siteRequireUpgrade && <UpgradePrompt placement="jetpack-form-block" /> }
+					{ ! connected && <ConnectPrompt /> }
+					<AIControl
+						ref={ inputRef }
+						disabled={ siteRequireUpgrade || ! connected }
+						value={ inputValue }
+						placeholder={ isLoading ? loadingPlaceholder : placeholder }
+						onChange={ setInputValue }
+						onSend={ handleSend }
+						onStop={ handleStopSuggestion }
+						state={ requestingState }
+						isTransparent={ siteRequireUpgrade || ! connected }
+						showButtonLabels={ ! isMobileMode }
+						showGuideLine={ showGuideLine }
+					/>
+				</div>
+			</KeyboardShortcuts>
+		</div>
 	);
 
 	// Check if the Assistant bar should be rendered in the Assistant anchor (fixed mode)

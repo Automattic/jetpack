@@ -32,7 +32,7 @@ type SuggestionsEventSourceConstructorArgs = {
 	question: PromptProp;
 	token?: string;
 	options?: {
-		postId?: number;
+		postId?: number | string;
 		feature?: 'ai-assistant-experimental' | string | undefined;
 		fromCache?: boolean;
 		functions?: Array< object >;
@@ -71,6 +71,9 @@ export default class SuggestionsEventSource extends EventTarget {
 	fullFunctionCall: FunctionCallProps;
 	isPromptClear: boolean;
 	controller: AbortController;
+
+	// Flag to detect if the unclear prompt event was already dispatched
+	errorUnclearPromptTriggered: boolean;
 
 	constructor( data: SuggestionsEventSourceConstructorArgs ) {
 		super();
@@ -114,9 +117,9 @@ export default class SuggestionsEventSource extends EventTarget {
 			model?: AiModelTypeProp;
 		} = {};
 
-		// Populate body data with post id
-		if ( options?.postId ) {
-			bodyData.post_id = options.postId;
+		// Populate body data with post id only if it is an integer
+		if ( Number.isInteger( parseInt( options.postId as string ) ) ) {
+			bodyData.post_id = +options.postId;
 		}
 
 		// If the url is not provided, we use the default one
@@ -156,6 +159,9 @@ export default class SuggestionsEventSource extends EventTarget {
 			debug( 'Model: %o', options.model );
 			bodyData.model = options.model;
 		}
+
+		// Clean the unclear prompt trigger flag
+		this.errorUnclearPromptTriggered = false;
 
 		await fetchEventSource( url, {
 			openWhenHidden: true,
@@ -257,8 +263,19 @@ export default class SuggestionsEventSource extends EventTarget {
 		 */
 		const replacedMessage = this.fullMessage.replace( /__|(\*\*)/g, '' );
 		if ( replacedMessage.startsWith( 'JETPACK_AI_ERROR' ) ) {
+			/*
+			 * Check if the unclear prompt event was already dispatched,
+			 * to ensure that it is dispatched only once per request.
+			 */
+			if ( this.errorUnclearPromptTriggered ) {
+				return;
+			}
+			this.errorUnclearPromptTriggered = true;
+
 			// The unclear prompt marker was found, so we dispatch an error event
 			this.dispatchEvent( new CustomEvent( ERROR_UNCLEAR_PROMPT ) );
+			debug( 'Unclear error prompt dispatched' );
+
 			this.dispatchEvent(
 				new CustomEvent( ERROR_RESPONSE, {
 					detail: getErrorData( ERROR_UNCLEAR_PROMPT ),
@@ -279,6 +296,14 @@ export default class SuggestionsEventSource extends EventTarget {
 
 	processEvent( e: EventSourceMessage ) {
 		if ( e.data === '[DONE]' ) {
+			/*
+			 * Check if the unclear prompt event was already dispatched,
+			 * to ensure that it is dispatched only once per request.
+			 */
+			if ( this.errorUnclearPromptTriggered ) {
+				return;
+			}
+
 			if ( this.fullMessage.length ) {
 				// Dispatch an event with the full content
 				this.dispatchEvent( new CustomEvent( 'done', { detail: this.fullMessage } ) );

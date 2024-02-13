@@ -82,9 +82,17 @@ class Concatenate_JS extends WP_Scripts {
 			}
 
 			if ( ! $this->registered[ $handle ]->src ) { // Defines a group.
-				// if there are localized items, echo them
-				$this->print_extra_script( $handle );
-				$this->done[] = $handle;
+				if ( $this->has_inline_content( $handle ) ) {
+					++$level;
+					$javascripts[ $level ]['type']   = 'do_item';
+					$javascripts[ $level ]['handle'] = $handle;
+					++$level;
+					unset( $this->to_do[ $key ] );
+				} else {
+					// if there are localized items, echo them
+					$this->print_extra_script( $handle );
+					$this->done[] = $handle;
+				}
 				continue;
 			}
 
@@ -100,7 +108,7 @@ class Concatenate_JS extends WP_Scripts {
 			$do_concat = false;
 
 			// Only try to concat static js files
-			if ( false !== strpos( $js_url_parsed['path'], '.js' ) ) {
+			if ( str_contains( $js_url_parsed['path'], '.js' ) ) {
 				// Previously, the value of this variable was determined by a function.
 				// Now, since concatenation is always enabled when the module is active,
 				// the value will always be true for static files.

@@ -69,7 +69,17 @@ export class DashItem extends Component {
 		if ( '' !== this.props.module ) {
 			toggle =
 				( includes(
-					[ 'monitor', 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet', 'search' ],
+					[
+						'monitor',
+						'protect',
+						'photon',
+						'vaultpress',
+						'scan',
+						'backups',
+						'akismet',
+						'search',
+						'videopress',
+					],
 					this.props.module
 				) &&
 					this.props.isOfflineMode ) ||

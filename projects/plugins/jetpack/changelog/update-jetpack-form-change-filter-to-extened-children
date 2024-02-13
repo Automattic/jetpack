@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-AI Extension: use registerBlockType filter to extend Jetpack Form / children block instances

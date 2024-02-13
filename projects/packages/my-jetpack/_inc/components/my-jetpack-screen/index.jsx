@@ -28,10 +28,12 @@ import useGlobalNotice from '../../hooks/use-notice';
 import { useProduct } from '../../hooks/use-product';
 import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
+import JetpackManageBanner from '../jetpack-manage-banner';
 import PlansSection from '../plans-section';
 import { PRODUCT_STATUSES } from '../product-card';
 import ProductCardsSection from '../product-cards-section';
 import StatsSection from '../stats-section';
+import WelcomeBanner from '../welcome-banner';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, options, clean } ) => {
@@ -87,7 +89,11 @@ const GlobalNotice = ( { message, options, clean } ) => {
  */
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
-	const isStatsModuleActive = window?.myJetpackInitialState?.isStatsModuleActive === '1';
+	// Check using the global state instead of Redux so it only has effect after refreshing the page
+	const welcomeBannerHasBeenDismissed =
+		window?.myJetpackInitialState?.welcomeBanner.hasBeenDismissed;
+	const { showJetpackStatsCard = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
+	const jetpackManage = window?.myJetpackInitialState?.jetpackManage;
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
@@ -95,6 +101,7 @@ export default function MyJetpackScreen() {
 	const { jwt, isFetchingChatAuthentication } = useChatAuthentication();
 	const shouldShowZendeskChatWidget =
 		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
+	const isNewUser = window?.myJetpackInitialState?.userIsNewToJetpack === '1';
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
@@ -116,29 +123,34 @@ export default function MyJetpackScreen() {
 	}
 
 	return (
-		<AdminPage>
+		<AdminPage siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }>
 			<IDCModal />
 			<AdminSectionHero>
-				<Container horizontalSpacing={ 0 }>
-					<Col>
-						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-					</Col>
-				</Container>
+				{ ! isNewUser && (
+					<Container horizontalSpacing={ 0 }>
+						<Col>
+							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+						</Col>
+					</Container>
+				) }
+				<WelcomeBanner />
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<Text variant="headline-small">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</Text>
+						<Text variant="headline-small">
+							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
+						</Text>
 					</Col>
-					{ hasConnectionError && (
+					{ hasConnectionError && ( welcomeBannerHasBeenDismissed || ! isNewUser ) && (
 						<Col>
 							<ConnectionError />
 						</Col>
 					) }
-					{ message && (
+					{ message && ( welcomeBannerHasBeenDismissed || ! isNewUser ) && (
 						<Col>
 							<GlobalNotice message={ message } options={ options } clean={ clean } />
 						</Col>
 					) }
-					{ isStatsModuleActive && (
+					{ showJetpackStatsCard && (
 						<Col
 							className={ classnames( {
 								[ styles.stats ]: statsDetails?.status !== PRODUCT_STATUSES.ERROR,
@@ -150,6 +162,11 @@ export default function MyJetpackScreen() {
 					<Col>
 						<ProductCardsSection />
 					</Col>
+					{ jetpackManage.isEnabled && (
+						<Col>
+							<JetpackManageBanner isAgencyAccount={ jetpackManage.isAgencyAccount } />
+						</Col>
+					) }
 				</Container>
 			</AdminSectionHero>
 

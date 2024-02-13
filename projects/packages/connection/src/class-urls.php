@@ -90,6 +90,7 @@ class Urls {
 		$option_key = self::HTTPS_CHECK_OPTION_PREFIX . $callable;
 
 		$parsed_url = wp_parse_url( $new_value );
+
 		if ( ! $parsed_url ) {
 			return $new_value;
 		}
@@ -98,7 +99,12 @@ class Urls {
 		} else {
 			$scheme = '';
 		}
-		$scheme_history   = get_option( $option_key, array() );
+		$scheme_history = get_option( $option_key, array() );
+
+		if ( ! is_array( $scheme_history ) ) {
+			$scheme_history = array();
+		}
+
 		$scheme_history[] = $scheme;
 
 		// Limit length to self::HTTPS_CHECK_HISTORY.

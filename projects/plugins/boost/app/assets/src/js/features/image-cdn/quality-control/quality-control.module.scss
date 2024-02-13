@@ -1,0 +1,40 @@
+
+.quality-control {
+	display: flex;
+	align-items: center;
+	min-height: 40px;
+	margin-top: 8px;
+	gap: 20px;
+}
+
+.label {
+	min-width: 4rem;
+}
+
+.lossless {
+	flex-shrink: 0;
+}
+
+.slider {
+	width: 100%;
+}
+
+.disabled {
+	opacity: 0.3;
+	filter: grayscale( 1 );
+	pointer-events: none;
+}
+
+@media screen and ( max-width: 782px ) {
+	.quality-control {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0;
+		margin-bottom: 30px;
+	}
+
+	.label {
+		margin: 0;
+		font-weight: 500;
+	}
+}

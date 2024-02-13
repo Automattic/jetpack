@@ -1,7 +1,7 @@
-import { defaultAttributes } from '../../attributes';
+import metadata from '../../block.json';
 
 export default {
-	attributes: defaultAttributes,
+	attributes: metadata.attributes,
 	migrate: attributes => {
 		const { style, className } = attributes;
 		const styleClassName = 'standard' === style ? '' : `is-style-${ style }`;

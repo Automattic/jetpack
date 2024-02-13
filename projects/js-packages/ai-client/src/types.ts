@@ -60,3 +60,20 @@ export const AI_MODEL_GPT_3_5_Turbo_16K = 'gpt-3.5-turbo-16k' as const;
 export const AI_MODEL_GPT_4 = 'gpt-4' as const;
 
 export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo_16K | typeof AI_MODEL_GPT_4;
+
+// Connection initial state
+// @todo: it should be provided by the connection package
+interface JPConnectionInitialState {
+	apiNonce: string;
+	siteSuffix: string;
+	connectionStatus: {
+		isActive: boolean;
+	};
+}
+
+// Global
+declare global {
+	interface Window {
+		JP_CONNECTION_INITIAL_STATE: JPConnectionInitialState;
+	}
+}

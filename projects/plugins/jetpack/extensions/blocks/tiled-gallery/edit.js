@@ -1,3 +1,4 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import {
 	BlockControls,
 	InspectorControls,
@@ -20,6 +21,7 @@ import { __ } from '@wordpress/i18n';
 import { filter, get, pick } from 'lodash';
 import { getActiveStyleName } from '../../shared/block-styles';
 import EditButton from '../../shared/edit-button';
+import metadata from './block.json';
 import {
 	ALLOWED_MEDIA_TYPES,
 	LAYOUT_CIRCLE,
@@ -29,8 +31,8 @@ import {
 } from './constants';
 import FilterToolbar from './filter-toolbar';
 import Layout from './layout';
-import { icon } from '.';
 
+const icon = getBlockIconComponent( metadata );
 const linkOptions = [
 	{ value: 'attachment', label: __( 'Attachment Page', 'jetpack' ) },
 	{ value: 'media', label: __( 'Media File', 'jetpack' ) },

@@ -364,6 +364,31 @@ const buildExecCmd = argv => {
 			'--configuration=/var/www/html/wp-content/plugins/jetpack/tests/php.multisite.xml',
 			...unitArgs
 		);
+	} else if ( cmd === 'phpunit-woocommerce' ) {
+		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
+		console.warn(
+			chalk.yellow(
+				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
+			)
+		);
+		const unitArgs = argv._.slice( 2 );
+
+		opts.splice(
+			1,
+			0,
+			'-w',
+			'/var/www/html/wp-content/plugins/jetpack',
+			'-e',
+			'JETPACK_TEST_WOOCOMMERCE=1'
+		); // Need to add this option to `exec` before the container name.
+		opts.push(
+			...( argv.php
+				? [ '/var/scripts/phpunit-version-wrapper.sh', argv.php ]
+				: [ 'vendor/bin/phpunit' ] ),
+			'--configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist',
+			'--group=woocommerce',
+			...unitArgs
+		);
 	} else if ( cmd === 'phpunit-crm' ) {
 		// @todo: Make this scale.
 		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack CRM plugin.' ) );
@@ -674,6 +699,17 @@ export function dockerDefine( yargs ) {
 					command: 'phpunit-multisite',
 					alias: 'phpunit:multisite',
 					description: 'Run multisite PHPUnit tests inside container ',
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).option( 'php', {
+							describe: 'Use the specified version of PHP.',
+							type: 'string',
+						} ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'phpunit-woocommerce',
+					alias: 'phpunit:woocommerce',
+					description: 'Run PHPUnit tests with WooCommerce inside container ',
 					builder: yargCmd =>
 						defaultOpts( yargCmd ).option( 'php', {
 							describe: 'Use the specified version of PHP.',

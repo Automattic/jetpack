@@ -1,6 +1,6 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
-import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
+import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
 
 test.describe( 'Auto refresh of speed scores', () => {
@@ -12,12 +12,12 @@ test.describe( 'Auto refresh of speed scores', () => {
 
 		await boostPrerequisitesBuilder( page )
 			.withConnection( true )
-			.withInactiveModules( [ 'critical_css', 'lazy_images', 'render_blocking_js' ] )
+			.withInactiveModules( [ 'critical_css', 'render_blocking_js' ] )
 			.build();
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
-	[ 'lazy_images', 'render_blocking_js' ].forEach( moduleSlug => {
+	[ 'render_blocking_js' ].forEach( moduleSlug => {
 		test( `Enabling ${ moduleSlug } should refresh scores`, async () => {
 			await jetpackBoostPage.waitForScoreLoadingToFinish();
 
@@ -33,8 +33,6 @@ test.describe( 'Auto refresh of speed scores', () => {
 
 	test( 'Score refresh should debounce between multiple module toggle', async () => {
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
-
-		const toggleLazyPromise = jetpackBoostPage.toggleModule( 'lazy_images' );
 
 		// Wait a second before toggling another.
 		await new Promise( resolve => setTimeout( resolve, 1000 ) );
@@ -53,6 +51,6 @@ test.describe( 'Auto refresh of speed scores', () => {
 		expect( await jetpackBoostPage.isScoreLoading(), 'Score should be loading' ).toBeTruthy();
 
 		// Still expect toggling those two modules to succeed.
-		await Promise.all( [ toggleLazyPromise, renderBlockingPromise ] );
+		await Promise.all( [ renderBlockingPromise ] );
 	} );
 } );

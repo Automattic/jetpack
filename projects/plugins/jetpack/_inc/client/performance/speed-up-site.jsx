@@ -1,11 +1,9 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
-import SimpleNotice from 'components/notice';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
@@ -14,7 +12,8 @@ import { connect } from 'react-redux';
 import { isOfflineMode } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { getGutenbergState } from '../state/initial-state';
+import { getGutenbergState, isAtomicSite } from '../state/initial-state';
+import { isPluginActive } from '../state/site/plugins';
 
 const SpeedUpSite = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -148,50 +147,13 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			}
 		};
 
-		trackDeprecatedLazyImagesLearnMore = () => {
-			analytics.tracks.recordJetpackClick( {
-				target: 'learn-more',
-				feature: 'lazy-images',
-				extra: 'deprecated-link',
-			} );
-		};
-
-		displayLazyImagesNotice = () => {
-			const disableStatusMessage = this.props.gutenbergInfo.hasInteractivityApi
-				? __( 'We’ve consequently disabled the Lazy Images feature on your site.', 'jetpack' )
-				: __( 'This feature will consequently be removed from Jetpack in November.', 'jetpack' );
-
-			return (
-				<SimpleNotice showDismiss={ false } status="is-info" className="jp-form-settings-notice">
-					{ __(
-						'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos.',
-						'jetpack'
-					) }{ ' ' }
-					{ disableStatusMessage }{ ' ' }
-					{
-						<ExternalLink
-							href={ getRedirectUrl( 'jetpack-support-lazy-images' ) }
-							onClick={ this.trackDeprecatedLazyImagesLearnMore }
-						>
-							{ __( 'Learn more', 'jetpack' ) }
-						</ExternalLink>
-					}
-				</SimpleNotice>
-			);
-		};
-
 		render() {
 			const foundPhoton = this.props.isModuleFound( 'photon' );
 			const foundAssetCdn = this.props.isModuleFound( 'photon-cdn' );
-			const foundLazyImages = this.props.isModuleFound( 'lazy-images' );
 
-			if ( ! foundPhoton && ! foundLazyImages && ! foundAssetCdn ) {
+			if ( ! foundPhoton && ! foundAssetCdn ) {
 				return null;
 			}
-
-			const lazyImages = this.props.module( 'lazy-images' );
-			const isLazyimagesActive = this.props.getOptionValue( 'lazy-images' );
-			const isLazyimagesForceDisabled = this.props.gutenbergInfo.hasInteractivityApi;
 
 			// Check if any of the CDN options are on.
 			const siteAcceleratorStatus =
@@ -274,82 +236,68 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 					module="performance-speed"
 				>
 					{ ( foundPhoton || foundAssetCdn ) && (
-						<SettingsGroup
-							hasChild
-							support={ {
-								link: getRedirectUrl( 'jetpack-support-site-accelerator' ),
-							} }
-						>
-							<p>
-								{ __(
-									'Load pages faster by allowing Jetpack to optimize your images and serve your images and static files (like CSS and JavaScript) from our global network of servers.',
-									'jetpack'
-								) }
-							</p>
-							{ canAppearInSearch && (
-								<ToggleControl
-									checked={ siteAcceleratorStatus }
-									toggling={ togglingSiteAccelerator }
-									onChange={ this.handleSiteAcceleratorChange }
-									disabled={ ! canDisplaySiteAcceleratorSettings }
-									label={ __( 'Enable site accelerator', 'jetpack' ) }
-								/>
-							) }
-							<FormFieldset>
-								{ foundPhoton && (
-									<ModuleToggle
-										slug="photon"
-										disabled={ this.props.isUnavailableInOfflineMode( 'photon' ) }
-										activated={ this.props.getOptionValue( 'photon' ) }
-										toggling={ this.props.isSavingAnyOption( 'photon' ) }
-										toggleModule={ this.toggleModule }
-									>
-										<span className="jp-form-toggle-explanation">
-											{ __( 'Speed up image load times', 'jetpack' ) }
-										</span>
-									</ModuleToggle>
-								) }
-								{ foundAssetCdn && (
-									<ModuleToggle
-										slug="photon-cdn"
-										activated={ this.props.getOptionValue( 'photon-cdn' ) }
-										toggling={ this.props.isSavingAnyOption( 'photon-cdn' ) }
-										toggleModule={ this.toggleModule }
-									>
-										<span className="jp-form-toggle-explanation">
-											{ __( 'Speed up static file load times', 'jetpack' ) }
-										</span>
-									</ModuleToggle>
-								) }
-							</FormFieldset>
-						</SettingsGroup>
-					) }
-
-					{ foundLazyImages && (
-						<SettingsGroup
-							hasChild
-							module={ lazyImages }
-							className={ classNames( 'jp-form-settings-group--lazy_images', {
-								'jp-form-settings-group--lazy_images_disabled': ! isLazyimagesActive,
-							} ) }
-						>
-							{ this.displayLazyImagesNotice() }
-							<ModuleToggle
-								slug="lazy-images"
-								disabled={
-									this.props.isUnavailableInOfflineMode( 'lazy-images' ) ||
-									! isLazyimagesActive ||
-									isLazyimagesForceDisabled
-								}
-								activated={ isLazyimagesActive && ! isLazyimagesForceDisabled }
-								toggling={ this.props.isSavingAnyOption( 'lazy-images' ) }
-								toggleModule={ this.toggleModule }
+						<>
+							<SettingsGroup
+								hasChild
+								support={ {
+									link: getRedirectUrl( 'jetpack-support-site-accelerator' ),
+								} }
 							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Enable Lazy Loading for images', 'jetpack' ) }
-								</span>
-							</ModuleToggle>
-						</SettingsGroup>
+								<p>
+									{ __(
+										'Load pages faster by allowing Jetpack to optimize your images and serve your images and static files (like CSS and JavaScript) from our global network of servers.',
+										'jetpack'
+									) }
+								</p>
+								{ canAppearInSearch && (
+									<ToggleControl
+										checked={ siteAcceleratorStatus }
+										toggling={ togglingSiteAccelerator }
+										onChange={ this.handleSiteAcceleratorChange }
+										disabled={ ! canDisplaySiteAcceleratorSettings }
+										label={ __( 'Enable site accelerator', 'jetpack' ) }
+									/>
+								) }
+								<FormFieldset>
+									{ foundPhoton && (
+										<ModuleToggle
+											slug="photon"
+											disabled={ this.props.isUnavailableInOfflineMode( 'photon' ) }
+											activated={ this.props.getOptionValue( 'photon' ) }
+											toggling={ this.props.isSavingAnyOption( 'photon' ) }
+											toggleModule={ this.toggleModule }
+										>
+											<span className="jp-form-toggle-explanation">
+												{ __( 'Speed up image load times', 'jetpack' ) }
+											</span>
+										</ModuleToggle>
+									) }
+									{ foundAssetCdn && (
+										<ModuleToggle
+											slug="photon-cdn"
+											activated={ this.props.getOptionValue( 'photon-cdn' ) }
+											toggling={ this.props.isSavingAnyOption( 'photon-cdn' ) }
+											toggleModule={ this.toggleModule }
+										>
+											<span className="jp-form-toggle-explanation">
+												{ __( 'Speed up static file load times', 'jetpack' ) }
+											</span>
+										</ModuleToggle>
+									) }
+								</FormFieldset>
+							</SettingsGroup>
+							{ this.props.isAtomicSite && this.props.isPageOptimizeActive && (
+								<CompactCard
+									className="jp-settings-card__configure-link"
+									href={ `${ this.props.siteAdminUrl }admin.php?page=page-optimize` }
+								>
+									{ __(
+										'Optimize JS and CSS for faster page load and render in the browser.',
+										'jetpack'
+									) }
+								</CompactCard>
+							) }
+						</>
 					) }
 				</SettingsCard>
 			);
@@ -364,5 +312,7 @@ export default connect( state => {
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		gutenbergInfo: getGutenbergState( state ),
+		isAtomicSite: isAtomicSite( state ),
+		isPageOptimizeActive: isPluginActive( state, 'page-optimize/page-optimize.php' ),
 	};
 } )( SpeedUpSite );

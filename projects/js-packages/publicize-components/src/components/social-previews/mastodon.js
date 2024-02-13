@@ -1,12 +1,11 @@
 import { MastodonPreviews } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { usePostMeta } from '../../hooks/use-post-meta';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
-import { shouldUploadAttachedMedia } from '../../store/selectors';
+import { SOCIAL_STORE_ID, CONNECTION_SERVICE_MASTODON } from '../../social-store';
 
 const MastodonPreview = props => {
-	const { connections } = useSocialMediaConnections();
 	const { message } = useSocialMediaMessage();
 	const { content, siteName } = useSelect( select => {
 		const { getEditedPostAttribute } = select( 'core/editor' );
@@ -17,18 +16,17 @@ const MastodonPreview = props => {
 			siteName: decodeEntities( getSite().title ),
 		};
 	} );
-	const isSocialPost = shouldUploadAttachedMedia();
-	const connection = connections?.find( conn => conn.service_name === 'mastodon' );
+	const { shouldUploadAttachedMedia: isSocialPost } = usePostMeta();
 
-	let user;
+	const user = useSelect( select => {
+		const {
+			displayName,
+			profileImage: avatarUrl,
+			username: address,
+		} = select( SOCIAL_STORE_ID ).getConnectionProfileDetails( CONNECTION_SERVICE_MASTODON );
 
-	if ( connection ) {
-		user = {
-			displayName: connection.display_name,
-			avatarUrl: connection.profile_picture,
-			address: connection.username,
-		};
-	}
+		return { displayName, avatarUrl, address };
+	} );
 
 	const firstMediaItem = props.media?.[ 0 ];
 

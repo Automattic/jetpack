@@ -24,10 +24,41 @@ const { videopressAjax } = window;
 type TokenBrigeEventProps = {
 	event: 'videopress_token_request';
 	guid: VideoGUID;
+	subscriptionPlanId?: number;
 	requestId: string;
 	origin: Origin;
 	isRetry?: boolean;
 };
+
+/**
+ * Quick docReady implementation.
+ * @returns {Promise} promise.
+ */
+function ready(): Promise< void > {
+	return new Promise( function ( resolve ) {
+		if ( document.readyState !== 'loading' ) {
+			return resolve();
+		}
+		document.addEventListener( 'DOMContentLoaded', function () {
+			resolve();
+		} );
+	} );
+}
+
+/**
+ * Check if the guid has an associated subscriptionPlanId.
+ *
+ * @param {VideoGUID} guid - The guid.
+ * @returns {Promise} promise.
+ */
+async function getSubscriberPlanIdIfExists( guid: VideoGUID ): Promise< number > {
+	await ready();
+	if ( ! window.__guidsToPlanIds ) {
+		return 0;
+	}
+	const subscriptionPlanId = window.__guidsToPlanIds[ guid ] || 0;
+	return subscriptionPlanId;
+}
 
 /**
  * Function handler to dialog with the client
@@ -57,6 +88,7 @@ export async function tokenBridgeHandler(
 	}
 
 	const postId = window?.videopressAjax.post_id || 0;
+	const subscriptionPlanId = await getSubscriberPlanIdIfExists( guid );
 
 	const allowed_origins: Array< Origin > = [
 		'https://videopress.com',
@@ -102,6 +134,7 @@ export async function tokenBridgeHandler(
 	const tokenData = await getMediaToken( 'playback', {
 		id: Number( postId ),
 		guid,
+		subscriptionPlanId,
 		adminAjaxAPI: videopressAjax.ajaxUrl,
 		flushToken: isRetry, // flush the token if it's a retry
 	} );

@@ -10,10 +10,30 @@ import {
 	ToolbarGroup,
 	RangeControl,
 	BaseControl,
+	SVG,
+	G,
+	Polygon,
+	Path,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import Locations from './locations';
-import { settings } from './settings.js';
+
+const markerIcon = (
+	/* Do not use SVG components from @wordpress/component to avoid frontend bloat */
+	<SVG width="14" height="20" viewBox="0 0 14 20" xmlns="http://www.w3.org/2000/svg">
+		<G id="Page-1" fill="none" fillRule="evenodd">
+			<G id="outline-add_location-24px" transform="translate(-5 -2)">
+				<Polygon id="Shape" points="0 0 24 0 24 24 0 24" />
+				<Path
+					d="M12,2 C8.14,2 5,5.14 5,9 C5,14.25 12,22 12,22 C12,22 19,14.25 19,9 C19,5.14 15.86,2 12,2 Z M7,9 C7,6.24 9.24,4 12,4 C14.76,4 17,6.24 17,9 C17,11.88 14.12,16.19 12,18.88 C9.92,16.21 7,11.85 7,9 Z M13,6 L11,6 L11,8 L9,8 L9,10 L11,10 L11,12 L13,12 L13,10 L15,10 L15,8 L13,8 L13,6 Z"
+					id="Shape"
+					fill="#000"
+					fillRule="nonzero"
+				/>
+			</G>
+		</G>
+	</SVG>
+);
 
 export default ( {
 	attributes,
@@ -80,7 +100,7 @@ export default ( {
 				/>
 				<ToolbarGroup>
 					<ToolbarButton
-						icon={ settings.markerIcon }
+						icon={ markerIcon }
 						label={ __( 'Add a marker', 'jetpack' ) }
 						onClick={ setPointVisibility }
 					/>

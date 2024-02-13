@@ -117,11 +117,11 @@ $zeroBSCRM_logTypes = array( // phpcs:ignore WordPress.NamingConventions.ValidVa
         $hide_transactions = zeroBSCRM_getSetting('feat_transactions') == -1;
 
         foreach ( $zeroBSCRM_logTypes['zerobs_customer'] as $log_type => $log_type_value) {
-          if (
-            $hide_quotes && strpos( $log_type, 'quote' ) === 0
-            || $hide_invoices && strpos( $log_type, 'invoice' ) === 0
-            || $hide_transactions && strpos( $log_type, 'transaction' ) === 0
-          ) {
+		if (
+			$hide_quotes && str_starts_with( $log_type, 'quote' )
+			|| $hide_invoices && str_starts_with( $log_type, 'invoice' )
+			|| $hide_transactions && str_starts_with( $log_type, 'transaction' )
+		) {
             $zeroBSCRM_logTypes['zerobs_customer'][$log_type]['locked'] = true;
           }
         }

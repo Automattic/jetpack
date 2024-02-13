@@ -141,7 +141,7 @@ function scossdl_off_rewriter( $match ) {
 		$include_dirs = scossdl_off_additional_directories();
 	}
 
-	if ( $ossdl_https && 0 === strpos( $match[0], 'https' ) ) {
+	if ( $ossdl_https && str_starts_with( $match[0], 'https' ) ) {
 		return $match[0];
 	}
 

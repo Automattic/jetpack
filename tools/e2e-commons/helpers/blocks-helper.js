@@ -1,4 +1,4 @@
-import logger from '../logger.cjs';
+import logger from '../logger.js';
 
 export async function waitForBlock( blockSlug, page ) {
 	let block = await findAvailableBlock( blockSlug, page );

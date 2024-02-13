@@ -85,7 +85,7 @@ class Launchpad_Task_Lists {
 	 * @return bool True if successful, false if not.
 	 */
 	public function register_task( $task = array() ) {
-		if ( ! $this->validate_task( $task ) ) {
+		if ( ! static::validate_task( $task ) ) {
 			return false;
 		}
 		// TODO: Handle duplicate tasks
@@ -160,9 +160,24 @@ class Launchpad_Task_Lists {
 	 */
 	public function is_task_list_dismissed( $id ) {
 		$task_list_dismissed_status = $this->get_task_list_dismissed_status();
+		$is_dismissed               = isset( $task_list_dismissed_status[ $id ] ) && true === $task_list_dismissed_status[ $id ];
 
 		// Return true if the task list is on the dismissed status array and its value is true.
-		return isset( $task_list_dismissed_status[ $id ] ) && true === $task_list_dismissed_status[ $id ];
+		return $is_dismissed || $this->is_temporally_dismissed( $id );
+	}
+
+	/**
+	 * Check if a task list is dismissible.
+	 *
+	 * @param string $id Task List id.
+	 * @return bool True if dismissible, false if not.
+	 */
+	public function is_task_list_dismissible( $id ) {
+		$task_list = $this->get_task_list( $id );
+		if ( ! isset( $task_list['is_dismissible'] ) ) {
+			return false;
+		}
+		return $task_list['is_dismissible'];
 	}
 
 	/**
@@ -172,7 +187,9 @@ class Launchpad_Task_Lists {
 	 * @param bool   $is_dismissed True if dismissed, false if not.
 	 */
 	public function set_task_list_dismissed( $id, $is_dismissed ) {
-		$task_list = $this->get_task_list( $id );
+		$task_list        = $this->get_task_list( $id );
+		$launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+
 		if ( empty( $id ) || empty( $task_list ) ) {
 			return;
 		}
@@ -186,9 +203,54 @@ class Launchpad_Task_Lists {
 			unset( $task_list_dismissed_status[ $id ] );
 		}
 
-		$launchpad_config                               = get_option( 'wpcom_launchpad_config', array() );
 		$launchpad_config['task_list_dismissed_status'] = $task_list_dismissed_status;
 		update_option( 'wpcom_launchpad_config', $launchpad_config );
+	}
+
+	/**
+	 * Set the date until a task list is dismissed.
+	 *
+	 * @param string $checklist_slug Checklist slug.
+	 * @param int    $dismissed_until Timestamp with the date until the task list is dismissed.
+	 */
+	public function set_task_list_dismissed_until( $checklist_slug, $dismissed_until ) {
+
+		if ( empty( $checklist_slug ) ) {
+			return;
+		}
+
+		$task_list_dismissed_until = $this->get_task_list_dismissed_until();
+
+		if ( isset( $dismissed_until ) ) {
+			$task_list_dismissed_until[ $checklist_slug ] = $dismissed_until;
+		} else {
+			unset( $task_list_dismissed_until[ $checklist_slug ] );
+		}
+
+		$launchpad_config                              = get_option( 'wpcom_launchpad_config', array() );
+		$launchpad_config['task_list_dismissed_until'] = $task_list_dismissed_until;
+
+		update_option( 'wpcom_launchpad_config', $launchpad_config );
+	}
+
+	/**
+	 * Returns true if the task list is temporally dismissed.
+	 *
+	 * @param string $checklist_slug Checklist slug.
+	 * @return bool True if temporally dismissed, false if not.
+	 */
+	protected function is_temporally_dismissed( $checklist_slug ): bool {
+		$task_list_dismissed_until = $this->get_task_list_dismissed_until();
+
+		if ( ! isset( $task_list_dismissed_until ) || ! isset( $task_list_dismissed_until[ $checklist_slug ] ) ) {
+			return false;
+		}
+
+		$task_list_dismissed_until = $task_list_dismissed_until[ $checklist_slug ];
+		$current_time              = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+		$dismissed_until           = new DateTime( '@' . $task_list_dismissed_until, new DateTimeZone( 'UTC' ) );
+
+		return $current_time <= $dismissed_until;
 	}
 
 	/**
@@ -203,6 +265,21 @@ class Launchpad_Task_Lists {
 		}
 
 		return $launchpad_config['task_list_dismissed_status'];
+	}
+
+	/**
+	 * Get the task list dismissed until date when available.
+	 *
+	 * @return array
+	 */
+	public function get_task_list_dismissed_until() {
+		$launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+
+		if ( ! isset( $launchpad_config['task_list_dismissed_until'] ) || ! is_array( $launchpad_config['task_list_dismissed_until'] ) ) {
+			return array();
+		}
+
+		return $launchpad_config['task_list_dismissed_until'];
 	}
 
 	/**
@@ -290,11 +367,12 @@ class Launchpad_Task_Lists {
 	/**
 	 * Builds a collection of tasks for a given task list
 	 *
-	 * @param string $id Task list id.
+	 * @param string      $id Task list id.
+	 * @param string|null $launchpad_context Optional. Screen in which launchpad is loading.
 	 *
 	 * @return Task[] Collection of tasks associated with a task list.
 	 */
-	public function build( $id ) {
+	public function build( $id, $launchpad_context = null ) {
 		$task_list           = $this->get_task_list( $id );
 		$tasks_for_task_list = array();
 
@@ -312,7 +390,7 @@ class Launchpad_Task_Lists {
 
 			// if task can't be found don't add anything
 			if ( $this->is_visible( $task_definition ) ) {
-				$tasks_for_task_list[] = $this->build_task( $task_definition );
+				$tasks_for_task_list[] = $this->build_task( $task_definition, $launchpad_context );
 			}
 		}
 
@@ -337,10 +415,11 @@ class Launchpad_Task_Lists {
 	/**
 	 * Builds a single task with current state
 	 *
-	 * @param Task $task Task definition.
+	 * @param Task        $task Task definition.
+	 * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
 	 * @return Task Task with current state.
 	 */
-	private function build_task( $task ) {
+	private function build_task( $task, $launchpad_context = null ) {
 		$built_task = array(
 			'id' => $task['id'],
 		);
@@ -363,7 +442,7 @@ class Launchpad_Task_Lists {
 		}
 
 		if ( isset( $task['get_calypso_path'] ) ) {
-			$calypso_path = $this->load_calypso_path( $task );
+			$calypso_path = $this->load_calypso_path( $task, $launchpad_context );
 
 			if ( ! empty( $calypso_path ) ) {
 				$built_task['calypso_path'] = $calypso_path;
@@ -458,10 +537,11 @@ class Launchpad_Task_Lists {
 	/**
 	 * Helper function to load the Calypso path for a task.
 	 *
-	 * @param array $task A task definition.
+	 * @param array       $task A task definition.
+	 * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
 	 * @return string|null
 	 */
-	private function load_calypso_path( $task ) {
+	private function load_calypso_path( $task, $launchpad_context = null ) {
 		if ( null === $this->site_slug ) {
 			$this->site_slug = wpcom_get_site_slug();
 		}
@@ -469,6 +549,7 @@ class Launchpad_Task_Lists {
 		$data = array(
 			'site_slug'         => $this->site_slug,
 			'site_slug_encoded' => rawurlencode( $this->site_slug ),
+			'launchpad_context' => $launchpad_context,
 		);
 
 		$calypso_path = $this->load_value_from_callback( $task, 'get_calypso_path', null, $data );
@@ -502,7 +583,7 @@ class Launchpad_Task_Lists {
 		}
 
 		// Require that the string start with a slash, but not two slashes.
-		if ( '/' === substr( $input, 0, 1 ) && '/' !== substr( $input, 1, 1 ) ) {
+		if ( str_starts_with( $input, '/' ) && ! str_starts_with( $input, '//' ) ) {
 			return true;
 		}
 
@@ -651,6 +732,26 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Gets a list of completed tasks.
+	 *
+	 * @param string $task_list_id Optional. Will default to `site_intent` option.
+	 * @return array Array of completed tasks.
+	 */
+	private function get_completed_tasks( $task_list_id = null ) {
+		$task_list_id = $task_list_id ? $task_list_id : get_option( 'site_intent' );
+		if ( ! $task_list_id ) {
+			return array();
+		}
+		$task_list = $this->get_task_list( $task_list_id );
+		if ( empty( $task_list ) ) {
+			return array();
+		}
+		$built_tasks = $this->build( $task_list_id );
+		// filter for incomplete tasks
+		return wp_list_filter( $built_tasks, array( 'completed' => true ) );
+	}
+
+	/**
 	 * Checks if there are any active tasks.
 	 *
 	 * @param string|null $task_list_id Optional. Will default to `site_intent` option.
@@ -733,10 +834,18 @@ class Launchpad_Task_Lists {
 	 * @return void
 	 */
 	public function maybe_disable_fullscreen_launchpad() {
-		if ( $this->has_active_tasks() ) {
-			return;
+		$completed_site_launched_task = wp_list_filter(
+			$this->get_completed_tasks(),
+			array(
+				'isLaunchTask' => true,
+			)
+		);
+
+		$site_launched = ! empty( $completed_site_launched_task );
+
+		if ( $site_launched || ! $this->has_active_tasks() ) {
+			$this->disable_fullscreen_launchpad();
 		}
-		$this->disable_fullscreen_launchpad();
 	}
 
 	/**
@@ -800,5 +909,17 @@ class Launchpad_Task_Lists {
 	 */
 	private function disable_fullscreen_launchpad() {
 		return update_option( 'launchpad_screen', 'off' );
+	}
+
+	/**
+	 * Gets the title for a task list.
+	 *
+	 * @param string $id Task list id.
+	 * @return string|null The title for the task list.
+	 */
+	public function get_task_list_title( $id ) {
+		$task_list = $this->get_task_list( $id );
+
+		return $this->load_value_from_callback( $task_list, 'get_title', null );
 	}
 }

@@ -1,8 +1,19 @@
-import { name, settings } from '../';
 import runBlockFixtureTests from '../../../shared/test/block-fixtures';
+import metadata from '../block.json';
+import edit from '../edit';
+import { StarIcon } from '../icon';
+import save from '../save';
 
-// Need to include all the blocks involved in rendering this block.
-// The main block should be the first in the array.
-const blocks = [ { name: `jetpack/${ name }`, settings } ];
+const { name } = metadata;
+const blocks = [
+	{
+		name,
+		settings: {
+			...metadata,
+			edit: edit( StarIcon ),
+			save: save( '★' ), // Fallback symbol if the block is removed or the render_callback deactivated.
+		},
+	},
+];
 
-runBlockFixtureTests( `jetpack/${ name }`, blocks, __dirname );
+runBlockFixtureTests( name, blocks, __dirname );

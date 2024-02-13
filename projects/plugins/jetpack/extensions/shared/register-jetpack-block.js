@@ -47,7 +47,7 @@ export default function registerJetpackBlock(
 
 	const prefixedName = jpPrefix + rawName;
 	const result = registerBlockType(
-		nameOrMetadata === 'object' ? nameOrMetadata : prefixedName,
+		typeof nameOrMetadata === 'object' ? nameOrMetadata : prefixedName,
 		settings
 	);
 
@@ -81,6 +81,7 @@ export function registerJetpackBlockFromMetadata( metadata, settings, childBlock
 	const mergedSettings = {
 		...settings,
 		icon: getBlockIconProp( metadata ),
+		attributes: metadata.attributes || {},
 	};
 	const { variations } = metadata;
 

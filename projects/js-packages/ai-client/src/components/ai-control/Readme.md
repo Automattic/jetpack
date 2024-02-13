@@ -11,6 +11,8 @@
 - `isTransparent` (**boolean**) (Optional): Controls the opacity of the component. Default value is `false`.
 - `state` (**RequestingStateProp**) (Optional): Determines the state of the component. Default value is `'init'`.
 - `showClearButton` (**boolean**) (Optional): Determines if the clear button is shown when the input has a value. Default value is `true`.
+- `showGuideLine`: (**boolean**) (Optional): Whether to show the usual AI guidelines at the bottom of the input.
+- `customFooter`: (**ReactElement**) (Optional): if provided together with `showGuideLine` it will be rendered at the bottom of the input.
 - `onChange` (**Function**) (Optional): Handler for input change. Default action is no operation.
 - `onSend` (**Function**) (Optional): Handler to send a request. Default action is no operation.
 - `onStop` (**Function**) (Optional): Handler to stop a request. Default action is no operation.
@@ -19,6 +21,8 @@
 #### Example Usage
 
 ```jsx
+import { AIControl, FooterMessage } from '@automattic/jetpack-ai-client';
+
 <AIControl
   value="Type here"
   placeholder="Placeholder text"
@@ -26,5 +30,7 @@
   onSend={ handleSend }
   onStop={ handleStop }
   onAccept={ handleAccept }
+  showGuideLine={ true }
+  customFooter={ <FooterMessage severity="info">Remember AI suggestions can be inaccurate</FooterMessage> }
 />
 ```

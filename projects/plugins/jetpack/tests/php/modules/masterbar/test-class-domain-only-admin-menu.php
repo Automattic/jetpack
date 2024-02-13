@@ -81,7 +81,7 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 		global $menu;
 
 		$mock_email_checker = $this->getMockBuilder( 'WPCOM_Email_Subscription_Checker' )->setMethods( array( 'has_email' ) )->getMock();
-		$mock_email_checker->method( 'has_email' )->will( $this->returnValue( false ) ); // always returns false
+		$mock_email_checker->method( 'has_email' )->willReturn( false ); // always returns false
 
 		static::$admin_menu->set_email_subscription_checker( $mock_email_checker );
 		static::$admin_menu->reregister_menu_items();
@@ -102,7 +102,7 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 		global $menu;
 
 		$mock_email_checker = $this->getMockBuilder( 'WPCOM_Email_Subscription_Checker' )->setMethods( array( 'has_email' ) )->getMock();
-		$mock_email_checker->method( 'has_email' )->will( $this->returnValue( true ) ); // always returns true
+		$mock_email_checker->method( 'has_email' )->willReturn( true ); // always returns true
 
 		static::$admin_menu->set_email_subscription_checker( $mock_email_checker );
 		static::$admin_menu->reregister_menu_items();

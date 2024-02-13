@@ -9,6 +9,8 @@
  * Date: 14/01/19
  */
 
+// phpcs:disable Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 /* ======================================================
   Breaking Checks ( stops direct access )
    ====================================================== */
@@ -393,7 +395,7 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                     if (is_array($custFields)) foreach ($custFields as $cK => $cF){
 
                         // add as subquery
-                        $extraSelect .= ',(SELECT zbscf_objval FROM '.$ZBSCRM_t['customfields']." WHERE zbscf_objid = transaction.ID AND zbscf_objkey = %s AND zbscf_objtype = %d LIMIT 1) '".$cK."'";
+												$extraSelect .= ',(SELECT zbscf_objval FROM ' . $ZBSCRM_t['customfields'] . " WHERE zbscf_objid = transactions.ID AND zbscf_objkey = %s AND zbscf_objtype = %d LIMIT 1) '" . $cK . "'";
                         
                         // add params
                         $params[] = $cK; $params[] = ZBS_TYPE_TRANSACTION;
@@ -402,26 +404,30 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 
                 }
 
-                $selector = 'transaction.*';
+								$selector = 'transactions.*';
                 if (isset($fields) && is_array($fields)) {
                     $selector = '';
 
-                    // always needs id, so add if not present
-                    if (!in_array('ID',$fields)) $selector = 'transaction.ID';
+					// always needs id, so add if not present
+					if ( ! in_array( 'ID', $fields, true ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+						$selector = 'transactions.ID';
+					}
 
-                    foreach ($fields as $f) {
-                        if (!empty($selector)) $selector .= ',';
-                        $selector .= 'transaction.'.$f;
-                    }
-                } else if ($onlyID){
-                    $selector = 'transaction.ID';
-                }
+					foreach ( $fields as $f ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+						if ( ! empty( $selector ) ) {
+							$selector .= ',';
+						}
+						$selector .= 'transactions.' . $f;
+					}
+				} elseif ( $onlyID ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+					$selector = 'transactions.ID';
+					}
 
             #} ============ / PRE-QUERY ===========
 
 
             #} Build query
-            $query = "SELECT ".$selector.$extraSelect." FROM ".$ZBSCRM_t['transactions'].' as transaction';
+						$query = 'SELECT ' . $selector . $extraSelect . ' FROM ' . $ZBSCRM_t['transactions'] . ' AS transactions'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
             #} ============= WHERE ================
 
                 if (!empty($id) && $id > 0){
@@ -728,7 +734,7 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                     }
 
                     // add as subquery
-                    $extraSelect .= ',(SELECT zbscf_objval FROM '.$ZBSCRM_t['customfields']." WHERE zbscf_objid = transaction.ID AND zbscf_objkey = %s AND zbscf_objtype = %d LIMIT 1) ".$cKey;
+                    $extraSelect .= ',(SELECT zbscf_objval FROM ' . $ZBSCRM_t['customfields'] . ' WHERE zbscf_objid = transactions.ID AND zbscf_objkey = %s AND zbscf_objtype = %d LIMIT 1) ' . $cKey;
                     
                     // add params
                     $params[] = $cK; $params[] = ZBS_TYPE_TRANSACTION;
@@ -742,26 +748,28 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 				$joinQ .= '  LEFT JOIN (
 								SELECT 
 									extsrcs.zbss_objid external_source_objid,
-									GROUP_CONCAT(extsrcs.zbss_uid SEPARATOR "\n") AS external_source_uids,
-									GROUP_CONCAT(extsrcs.zbss_source SEPARATOR "\n") AS external_source_sources
+									' . $this->DAL()->build_group_concat( 'extsrcs.zbss_uid', '\n' ) . ' AS external_source_uids,
+									' . $this->DAL()->build_group_concat( 'extsrcs.zbss_source', '\n' ) . ' AS external_source_sources
 								FROM 
 									' . $ZBSCRM_t['externalsources'] . ' extsrcs
 								WHERE 
 								  extsrcs.zbss_objtype = %s
 								GROUP BY extsrcs.zbss_objid
 							) external_source ON
-								transaction.ID = external_source.external_source_objid' ;
+								transactions.ID = external_source.external_source_objid';
 				$params[] = ZBS_TYPE_TRANSACTION;
 			}
 
         #} ============ / PRE-QUERY ===========
 
-        #} Build query
-        $query = "SELECT transaction.*".$extraSelect." FROM ".$ZBSCRM_t['transactions'].' as transaction'.$joinQ;
+			#} Build query
+			$query = 'SELECT transactions.*' . $extraSelect . ' FROM ' . $ZBSCRM_t['transactions'] . ' AS transactions' . $joinQ;
 
-        #} Count override
-        if ($count) $query = "SELECT COUNT(transaction.ID) FROM ".$ZBSCRM_t['transactions'].' as transaction'.$joinQ;
-        
+			#} Count override
+			if ( $count ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+				$query = 'SELECT COUNT(transactions.ID) FROM ' . $ZBSCRM_t['transactions'] . ' AS transactions' . $joinQ;
+			}
+
         #} onlyColumns override
         if ($onlyColumns && is_array($onlyColumnsFieldArr) && count($onlyColumnsFieldArr) > 0){
 
@@ -774,14 +782,14 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 
             }
 
-            $query = "SELECT ".$columnStr." FROM ".$ZBSCRM_t['transactions'].' as transaction'.$joinQ;
+				$query = 'SELECT ' . $columnStr . ' FROM ' . $ZBSCRM_t['transactions'] . ' AS transactions' . $joinQ;
 
         }
 
         // $total only override
         if ( $total ){
-        
-            $query = "SELECT SUM(transaction.zbst_total) total FROM ".$ZBSCRM_t['transactions'].' as transaction'.$joinQ;
+
+				$query = 'SELECT SUM(transactions.zbst_total) total FROM ' . $ZBSCRM_t['transactions'] . ' AS transactions' . $joinQ;
 
         }
 
@@ -889,7 +897,7 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 
                         // where status = x
                         // USE hasStatus above now...
-                        if (substr($qFilter,0,7) == 'status_'){
+					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                             $qFilterStatus = substr($qFilter,7);
                             $qFilterStatus = str_replace('_',' ',$qFilterStatus);
@@ -897,14 +905,13 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                             // check status
                             $wheres['quickfilterstatus'] = array('zbst_status','LIKE','%s',ucwords($qFilterStatus));
 
-                        } else {
+					} else {
 
                             // if we've hit no filter query, let external logic hook in to provide alternatives
                             // First used in WooSync module
                             $wheres = apply_filters( 'jpcrm_transaction_query_quickfilter', $wheres, $qFilter );
 
-                        }
-
+					}
                 } 
 
             }// / quickfilters
@@ -925,9 +932,12 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 
             if (!is_array($isTagged) && !empty($isTagged) && $isTagged > 0){
 
-                // add where tagged                 
-                // 1 int: 
-                $wheres['direct'][] = array('((SELECT COUNT(ID) FROM '.$ZBSCRM_t['taglinks'].' WHERE zbstl_objtype = %d AND zbstl_objid = transaction.ID AND zbstl_tagid = %d) > 0)',array(ZBS_TYPE_TRANSACTION,$isTagged));
+				// add where tagged
+				// 1 int:
+				$wheres['direct'][] = array(
+					'((SELECT COUNT(ID) FROM ' . $ZBSCRM_t['taglinks'] . ' WHERE zbstl_objtype = %d AND zbstl_objid = transactions.ID AND zbstl_tagid = %d) > 0)',
+					array( ZBS_TYPE_TRANSACTION, $isTagged ),
+				);
 
             } else if (is_array($isTagged) && count($isTagged) > 0){
 
@@ -942,8 +952,11 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                     }
                 }
                 if (!empty($tagStr)){
-                    
-                    $wheres['direct'][] = array('((SELECT COUNT(ID) FROM '.$ZBSCRM_t['taglinks'].' WHERE zbstl_objtype = %d AND zbstl_objid = transaction.ID AND zbstl_tagid IN (%s)) > 0)',array(ZBS_TYPE_TRANSACTION,$tagStr));
+
+					$wheres['direct'][] = array(
+						'((SELECT COUNT(ID) FROM ' . $ZBSCRM_t['taglinks'] . ' WHERE zbstl_objtype = %d AND zbstl_objid = transactions.ID AND zbstl_tagid IN (%s)) > 0)',
+						array( ZBS_TYPE_TRANSACTION, $tagStr ),
+					);
 
                 }
 
@@ -955,9 +968,12 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                 
             if (!is_array($isNotTagged) && !empty($isNotTagged) && $isNotTagged > 0){
 
-                // add where tagged                 
-                // 1 int: 
-                $wheres['direct'][] = array('((SELECT COUNT(ID) FROM '.$ZBSCRM_t['taglinks'].' WHERE zbstl_objtype = %d AND zbstl_objid = transaction.ID AND zbstl_tagid = %d) = 0)',array(ZBS_TYPE_TRANSACTION,$isNotTagged));
+					// add where tagged
+					// 1 int:
+					$wheres['direct'][] = array(
+						'((SELECT COUNT(ID) FROM ' . $ZBSCRM_t['taglinks'] . ' WHERE zbstl_objtype = %d AND zbstl_objid = transactions.ID AND zbstl_tagid = %d) = 0)',
+						array( ZBS_TYPE_TRANSACTION, $isNotTagged ),
+					);
 
             } else if (is_array($isNotTagged) && count($isNotTagged) > 0){
 
@@ -972,8 +988,11 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                     }
                 }
                 if (!empty($tagStr)){
-                    
-                    $wheres['direct'][] = array('((SELECT COUNT(ID) FROM '.$ZBSCRM_t['taglinks'].' WHERE zbstl_objtype = %d AND zbstl_objid = transaction.ID AND zbstl_tagid IN (%s)) = 0)',array(ZBS_TYPE_TRANSACTION,$tagStr));
+
+						$wheres['direct'][] = array(
+							'((SELECT COUNT(ID) FROM ' . $ZBSCRM_t['taglinks'] . ' WHERE zbstl_objtype = %d AND zbstl_objid = transactions.ID AND zbstl_tagid IN (%s)) = 0)',
+							array( ZBS_TYPE_TRANSACTION, $tagStr ),
+						);
 
                 }
 
@@ -991,12 +1010,12 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 
             // Mapped sorts
             // This catches listview and other exception sort cases
-            $sort_map = array(
+					$sort_map = array(
 
-                // Note: "customer" here could be company or contact, so it's not a true sort (as no great way of doing this beyond some sort of prefix comparing)               
-                'customer'          => '(SELECT ID FROM '.$ZBSCRM_t['contacts'].' WHERE ID IN (SELECT zbsol_objid_to FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_TRANSACTION.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_from = transaction.ID))',
+						// Note: "customer" here could be company or contact, so it's not a true sort (as no great way of doing this beyond some sort of prefix comparing)
+						'customer' => '(SELECT ID FROM ' . $ZBSCRM_t['contacts'] . ' WHERE ID IN (SELECT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_from = transactions.ID))',
 
-            );
+					);
             
             if ( array_key_exists( $sortByField, $sort_map ) ) {
 
@@ -1281,7 +1300,10 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                         // some weird case where getting empties, so added check
                         if (isset($field['key']) && !empty($field['key'])){ 
 
-                            $dePrefixed = ''; if (substr($field['key'],0,strlen('zbst_')) === 'zbst_') $dePrefixed = substr($field['key'], strlen('zbst_'));
+						$dePrefixed = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $field['key'], 'zbst_' ) ) {
+							$dePrefixed = substr( $field['key'], strlen( 'zbst_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 
                             if (isset($customFields[$field['key']])){
 
@@ -2352,7 +2374,6 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 
     /**
      * Returns an ownerid against a transaction
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id transaction ID
      *

@@ -185,10 +185,10 @@ if ( isset( $sbupdated ) ) {
 											continue;
 										}
 
-										// remove address custom fields echo '<br>'.$subkey; print_r($field);
-										if ( $key != 'address' && ( substr( $subkey, 0, 7 ) == 'addr_cf' || substr( $subkey, 0, 10 ) == 'secaddr_cf' ) ) {
+										// remove address custom fields
+										if ( $key !== 'address' && ( str_starts_with( $subkey, 'addr_cf' ) || str_starts_with( $subkey, 'secaddr_cf' ) ) ) {
 
-											// to ignore :)
+											continue;
 
 										} else {
 
@@ -233,7 +233,7 @@ if ( isset( $sbupdated ) ) {
 																	<?php
 																		echo esc_html( $field[1] );
 
-																	if ( substr( $subkey, 0, 2 ) == 'cf' ) {
+																	if ( str_starts_with( $subkey, 'cf' ) ) {
 																		echo ' (' . esc_html__( 'Custom Field', 'zero-bs-crm' ) . ')';
 																	}
 

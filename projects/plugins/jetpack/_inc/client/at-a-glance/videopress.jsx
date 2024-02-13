@@ -1,5 +1,4 @@
-import ProgressBar from '@automattic/components/dist/esm/progress-bar';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ProgressBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Button from 'components/button';
@@ -76,7 +75,7 @@ class DashVideoPress extends Component {
 						/* dummy arg to avoid bad minification */ 0
 				  );
 
-		if ( this.props.getOptionValue( 'videopress' ) && hasConnectedOwner ) {
+		if ( this.props.getOptionValue( 'videopress' ) && hasConnectedOwner && ! isOffline ) {
 			return (
 				<DashItem
 					className="jp-dash-item__videopress"
@@ -96,7 +95,7 @@ class DashVideoPress extends Component {
 								{ shouldDisplayStorage && (
 									<div className="jp-dash-item__videopress-storage">
 										<span>{ __( 'Video storage used out of 1TB:', 'jetpack' ) }</span>
-										<ProgressBar value={ videoPressStorageUsed / 10000 } />
+										<ProgressBar progress={ videoPressStorageUsed / 1000000 } />
 									</div>
 								) }
 							</div>
@@ -129,8 +128,7 @@ class DashVideoPress extends Component {
 				className="jp-dash-item__is-inactive"
 				noToggle={ ! hasConnectedOwner }
 				overrideContent={
-					! hasConnectedOwner &&
-					! isOffline && (
+					! hasConnectedOwner && ! isOffline ? (
 						<JetpackBanner
 							callToAction={ __( 'Connect', 'jetpack' ) }
 							title={ __(
@@ -144,7 +142,7 @@ class DashVideoPress extends Component {
 							plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 							icon="video"
 						/>
-					)
+					) : null
 				}
 			>
 				<p className="jp-dash-item__description">

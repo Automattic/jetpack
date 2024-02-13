@@ -15,10 +15,6 @@ use WP_Error;
  * Class responsible for handling the hybrid products
  *
  * Hybrid products are those that may work both as a stand-alone plugin or with the Jetpack plugin.
- *
- * In case Jetpack plugin is active, it will not attempt to install its stand-alone plugin.
- *
- * But if Jetpack plugin is not active, then it will prompt to install and activate its stand-alone plugin.
  */
 abstract class Hybrid_Product extends Product {
 
@@ -45,15 +41,6 @@ abstract class Hybrid_Product extends Product {
 	 */
 	public static function is_standalone_plugin_active() {
 		return parent::is_plugin_active();
-	}
-
-	/**
-	 * Checks whether the plugin is installed
-	 *
-	 * @return boolean
-	 */
-	public static function is_plugin_installed() {
-		return parent::is_plugin_installed() || static::is_jetpack_plugin_installed();
 	}
 
 	/**

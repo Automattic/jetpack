@@ -92,24 +92,27 @@ class Editor_View {
 		add_filter( 'mce_external_plugins', array( __CLASS__, 'mce_external_plugins' ) );
 		add_filter( 'mce_buttons', array( __CLASS__, 'mce_buttons' ) );
 
-		wp_enqueue_style( 'grunion-editor-ui', plugins_url( 'css/editor-ui.css', __FILE__ ), array(), \JETPACK__VERSION );
+		wp_enqueue_style( 'grunion-editor-ui', plugins_url( '../../dist/contact-form/css/editor-ui.css', __FILE__ ), array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion-editor-ui', 'rtl', 'replace' );
-		wp_enqueue_script(
+
+		Assets::register_script(
 			'grunion-editor-view',
-			Assets::get_file_url_for_environment(
-				'_inc/build/contact-form/js/editor-view.min.js',
-				'modules/contact-form/js/editor-view.js'
-			),
-			array( 'wp-util', 'jquery', 'quicktags' ),
-			\JETPACK__VERSION,
-			true
+			'../../dist/contact-form/js/editor-view.js',
+			__FILE__,
+			array(
+				'enqueue'      => true,
+				'dependencies' => array( 'wp-util', 'jquery', 'quicktags' ),
+				'version'      => \JETPACK__VERSION,
+				'in_footer'    => true,
+			)
 		);
+
 		wp_localize_script(
 			'grunion-editor-view',
 			'grunionEditorView',
 			array(
-				'inline_editing_style'     => plugins_url( 'css/editor-inline-editing-style.css', __FILE__ ),
-				'inline_editing_style_rtl' => plugins_url( 'css/editor-inline-editing-style.rtl.css', __FILE__ ),
+				'inline_editing_style'     => plugins_url( '../../dist/contact-form/css/editor-inline-editing-style.css', __FILE__ ),
+				'inline_editing_style_rtl' => plugins_url( '../../dist/contact-form/css/editor-inline-editing-style.rtl.css', __FILE__ ),
 				'dashicons_css_url'        => includes_url( 'css/dashicons.css' ),
 				'default_form'             => '[contact-field label="' . __( 'Name', 'jetpack-forms' ) . '" type="name"  required="true" /]' .
 									'[contact-field label="' . __( 'Email', 'jetpack-forms' ) . '" type="email" required="true" /]' .
@@ -126,7 +129,7 @@ class Editor_View {
 			)
 		);
 
-		add_editor_style( plugin_dir_url( __FILE__ ) . 'css/editor-style.css' );
+		add_editor_style( plugin_dir_url( __FILE__ ) . '../../dist/contact-form/css/editor-style.css' );
 	}
 
 	/**

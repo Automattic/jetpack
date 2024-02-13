@@ -197,7 +197,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 			$hosts[] = 'public-api.wordpress.com';
 			$hosts[] = 'jetpack.com';
 
-			if ( false === strpos( $api_base, 'jetpack.wordpress.com/jetpack' ) ) {
+			if ( ! str_contains( $api_base, 'jetpack.wordpress.com/jetpack' ) ) {
 				$base_url_parts = wp_parse_url( esc_url_raw( $api_base ) );
 				if ( $base_url_parts && ! empty( $base_url_parts['host'] ) ) {
 					$hosts[] = $base_url_parts['host'];
@@ -351,14 +351,14 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		public static function get_custom_login_url() {
 			$login_url = wp_login_url();
 
-			if ( 'wp-login.php' === substr( $login_url, -12 ) ) {
+			if ( str_ends_with( $login_url, 'wp-login.php' ) ) {
 				// No custom URL found.
 				return null;
 			}
 
 			$site_url = trailingslashit( site_url() );
 
-			if ( 0 !== strpos( $login_url, $site_url ) ) {
+			if ( ! str_starts_with( $login_url, $site_url ) ) {
 				// Something went wrong, we can't properly extract the custom URL.
 				return null;
 			}

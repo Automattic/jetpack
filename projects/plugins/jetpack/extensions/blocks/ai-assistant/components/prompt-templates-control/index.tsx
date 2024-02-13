@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { title, postContent, postExcerpt, termDescription, post, pencil } from '@wordpress/icons';
@@ -10,6 +11,7 @@ type PromptTemplatesControlProps = {
 	hasContentBefore: boolean;
 	hasContent: boolean;
 	hasPostTitle: boolean;
+	contentIsLoaded: boolean;
 	onPromptSelect: ( prompt: { original: string; translated: string } ) => void;
 	onSuggestionSelect: ( suggestion: string ) => void;
 };
@@ -32,34 +34,6 @@ export const defaultPromptTemplate = {
 
 export const promptTemplates = [
 	defaultPromptTemplate,
-	// {
-	// 	label: __( 'Detailed guide on…', 'jetpack' ),
-	// 	description: {
-	// 		original: 'Craft a detailed guide ',
-	// 		translated: __( 'Craft a detailed guide ', 'jetpack' ),
-	// 	},
-	// },
-	// {
-	// 	label: __( 'Opinion on trends in…', 'jetpack' ),
-	// 	description: {
-	// 		original: 'Write an opinion piece on the current trends in ',
-	// 		translated: __( 'Write an opinion piece on the current trends in ', 'jetpack' ),
-	// 	},
-	// },
-	// {
-	// 	label: __( 'Review about…', 'jetpack' ),
-	// 	description: {
-	// 		original: 'Write a review about ',
-	// 		translated: __( 'Write a review about ', 'jetpack' ),
-	// 	},
-	// },
-	// {
-	// 	label: __( 'Short story in…', 'jetpack' ),
-	// 	description: {
-	// 		original: 'Write a short story set in ',
-	// 		translated: __( 'Write a short story set in ', 'jetpack' ),
-	// 	},
-	// },
 	{
 		label: __( 'Informative article on…', 'jetpack' ),
 		description: {
@@ -67,13 +41,6 @@ export const promptTemplates = [
 			translated: __( 'Craft an informative article explaining ', 'jetpack' ),
 		},
 	},
-	// {
-	// 	label: __( 'Tribute to…', 'jetpack' ),
-	// 	description: {
-	// 		original: 'Write a tribute piece about ',
-	// 		translated: __( 'Write a tribute piece about ', 'jetpack' ),
-	// 	},
-	// },
 	{
 		label: __( 'Step-by-step tutorial on…', 'jetpack' ),
 		description: {
@@ -88,23 +55,51 @@ export const promptTemplates = [
 			translated: __( 'Create a motivational post on ', 'jetpack' ),
 		},
 	},
-	// {
-	// 	label: __( 'Critical analysis of…', 'jetpack' ),
-	// 	description: {
-	// 		original: 'Write a critical analysis of ',
-	// 		translated: __( 'Write a critical analysis of ', 'jetpack' ),
-	// 	},
-	// },
+];
+
+export const promptTemplatesForGeneratedContent = [
+	{
+		label: __( 'Say it differently…', 'jetpack' ),
+		description: {
+			original: 'Rewrite it in a way that ',
+			translated: __( 'Rewrite it in a way that ', 'jetpack' ),
+		},
+	},
+	{
+		label: __( 'Add…', 'jetpack' ),
+		description: {
+			original: 'Add more details about ',
+			translated: __( 'Add more details about ', 'jetpack' ),
+		},
+	},
+	{
+		label: __( 'Remove…', 'jetpack' ),
+		description: {
+			original: 'Remove unnecessary details about ',
+			translated: __( 'Remove unnecessary details about ', 'jetpack' ),
+		},
+	},
 ];
 
 export default function PromptTemplatesControl( {
 	hasContentBefore,
 	hasContent,
 	hasPostTitle,
+	contentIsLoaded,
 	onPromptSelect,
 	onSuggestionSelect,
 }: PromptTemplatesControlProps ) {
 	const label = __( 'Write with AI…', 'jetpack' );
+
+	const { tracks } = useAnalytics();
+
+	const toggleHandler = isOpen => {
+		if ( isOpen ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_toolbar_menu_show', {
+				tool: 'write-with-ai',
+			} );
+		}
+	};
 
 	return (
 		<ToolbarDropdownMenu
@@ -112,9 +107,28 @@ export default function PromptTemplatesControl( {
 			icon={ null }
 			label={ label }
 			text={ label }
+			onToggle={ toggleHandler }
 		>
 			{ ( { onClose } ) => {
-				return (
+				return contentIsLoaded ? (
+					<MenuGroup label={ __( 'Write…', 'jetpack' ) }>
+						{ promptTemplatesForGeneratedContent.map(
+							( prompt: PromptTemplateProps, i: number ) => (
+								<MenuItem
+									icon={ pencil }
+									iconPosition="left"
+									key={ `key-${ i }` }
+									onClick={ () => {
+										onClose();
+										onPromptSelect( prompt.description );
+									} }
+								>
+									{ prompt.label }
+								</MenuItem>
+							)
+						) }
+					</MenuGroup>
+				) : (
 					<>
 						{ hasContentBefore && (
 							<MenuGroup label={ __( 'Based on preceding content…', 'jetpack' ) }>

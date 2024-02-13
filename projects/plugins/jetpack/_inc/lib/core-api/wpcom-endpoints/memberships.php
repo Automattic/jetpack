@@ -257,6 +257,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return WP_Error|array ['products']
 	 */
 	public function list_products( WP_REST_Request $request ) {
+		$query       = null;
 		$is_editable = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
 		$type        = isset( $request['type'] ) ? $request['type'] : null;
 
@@ -359,8 +360,14 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	public function get_status( \WP_REST_Request $request ) {
 		$product_type = $request['type'];
-		$source       = $request['source'];
-		$is_editable  = ! isset( $request['is_editable'] ) ? null : (bool) $request['is_editable'];
+
+		if ( ! empty( $request['source'] ) ) {
+			$source = sanitize_text_field( wp_unslash( $request['source'] ) );
+		} else {
+			$source = 'gutenberg';
+		}
+
+		$is_editable = ! isset( $request['is_editable'] ) ? null : (bool) $request['is_editable'];
 
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
@@ -550,6 +557,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	private function get_payload_for_product( WP_REST_Request $request ) {
 		$is_editable             = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
 		$type                    = isset( $request['type'] ) ? $request['type'] : null;
+		$tier                    = isset( $request['tier'] ) ? $request['tier'] : null;
 		$buyer_can_change_amount = isset( $request['buyer_can_change_amount'] ) && (bool) $request['buyer_can_change_amount'];
 
 		$payload = array(
@@ -562,8 +570,11 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			'welcome_email_content'        => $request['welcome_email_content'],
 			'subscribe_as_site_subscriber' => $request['subscribe_as_site_subscriber'],
 			'multiple_per_user'            => $request['multiple_per_user'],
-			'tier'                         => $request['tier'],
 		);
+
+		if ( null !== $tier ) {
+			$payload['tier'] = $tier;
+		}
 
 		// If we pass directly the value "null", it will break the argument validation.
 		if ( null !== $is_editable ) {

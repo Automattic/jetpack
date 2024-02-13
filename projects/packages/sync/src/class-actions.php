@@ -110,7 +110,7 @@ class Actions {
 		// rely on 'jetpack_sync_before_send_queue_sync' are picked up and added to the queue if needed.
 		if ( Settings::is_dedicated_sync_enabled() && Dedicated_Sender::is_dedicated_sync_request() ) {
 			self::initialize_listener();
-			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 90 );
+			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 200 );
 			return;
 		}
 
@@ -1059,7 +1059,7 @@ class Actions {
 		);
 
 		// Verify $sync_module is not false.
-		if ( ( $sync_module ) && false === strpos( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+		if ( ( $sync_module ) && ! str_contains( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
 			$result['full_queue_size'] = $full_queue->size();
 			$result['full_queue_lag']  = $full_queue->lag();
 		}
@@ -1086,6 +1086,8 @@ class Actions {
 		// Dedicated sync locks.
 		\Jetpack_Options::delete_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
 		delete_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
+		// Lock for disabling Sync sending temporarily.
+		delete_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME );
 
 		// Queue locks.
 		// Note that we are just unlocking the queues here, not reseting them.

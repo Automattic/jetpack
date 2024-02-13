@@ -1,7 +1,15 @@
 /*
  * External dependencies
  */
-import { MenuItem, MenuGroup, ToolbarDropdownMenu, DropdownMenu } from '@wordpress/components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import {
+	MenuItem,
+	MenuGroup,
+	ToolbarDropdownMenu,
+	DropdownMenu,
+	Button,
+	Tooltip,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { globe } from '@wordpress/icons';
@@ -33,6 +41,7 @@ type LanguageDropdownControlProps = {
 	value?: LanguageProp;
 	onChange: ( value: string ) => void;
 	label?: string;
+	disabled?: boolean;
 };
 
 const defaultLanguageLocale =
@@ -124,14 +133,30 @@ export default function I18nDropdownControl( {
 	value = defaultLanguage,
 	label = defaultLabel,
 	onChange,
+	disabled = false,
 }: LanguageDropdownControlProps ) {
-	return (
+	const { tracks } = useAnalytics();
+
+	const toggleHandler = isOpen => {
+		if ( isOpen ) {
+			tracks.recordEvent( 'jetpack_ai_assistant_block_toolbar_menu_show', { tool: 'i18n' } );
+		}
+	};
+
+	return disabled ? (
+		<Tooltip text={ label }>
+			<Button disabled>
+				<Icon icon={ globe } />
+			</Button>
+		</Tooltip>
+	) : (
 		<ToolbarDropdownMenu
 			icon={ globe }
 			label={ label }
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
+			onToggle={ toggleHandler }
 		>
 			{ () => <I18nMenuGroup value={ value } onChange={ onChange } /> }
 		</ToolbarDropdownMenu>
@@ -141,10 +166,9 @@ export default function I18nDropdownControl( {
 export function I18nMenuDropdown( {
 	value = defaultLanguage,
 	label = defaultLabel,
-	disabled = false,
 	onChange,
-}: Pick< LanguageDropdownControlProps, 'label' | 'onChange' | 'value' > & {
-	disabled?: boolean;
+	disabled = false,
+}: Pick< LanguageDropdownControlProps, 'label' | 'onChange' | 'value' | 'disabled' > & {
 	toggleProps?: Record< string, unknown >;
 } ) {
 	return (
@@ -152,7 +176,6 @@ export function I18nMenuDropdown( {
 			className="ai-assistant__i18n-dropdown"
 			icon={ globe }
 			label={ label }
-			disabled={ disabled }
 			toggleProps={ {
 				children: (
 					<>
@@ -160,6 +183,7 @@ export function I18nMenuDropdown( {
 						<Icon icon={ chevronRight } />
 					</>
 				),
+				disabled,
 			} }
 		>
 			{ ( { onClose } ) => (

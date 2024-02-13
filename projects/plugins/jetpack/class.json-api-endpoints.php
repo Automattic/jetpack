@@ -288,6 +288,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'allowed_if_deleted'                   => false,
 			'description'                          => '',
 			'group'                                => '',
+			'stat'                                 => '',
 			'method'                               => 'GET',
 			'path'                                 => '/',
 			'min_version'                          => '0',
@@ -583,7 +584,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$return[ $key ] = false;
 				break;
 			case 'url':
-				if ( is_object( $value ) && isset( $value->url ) && false !== strpos( $value->url, 'https://videos.files.wordpress.com/' ) ) {
+				if ( is_object( $value ) && isset( $value->url ) && str_contains( $value->url, 'https://videos.files.wordpress.com/' ) ) {
 					$value = $value->url;
 				}
 				// Check for string since esc_url_raw() expects one.
@@ -606,6 +607,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 					if ( ! empty( $types[0] ) && 'false' === $types[0]['type'] ) {
 						$next_type = array_shift( $types );
 						return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );
+					}
+					if ( is_array( $value ) ) {
+						// Give up rather than setting the value to the string 'Array'.
+						break;
 					}
 				}
 				$return[ $key ] = (string) $value;
@@ -995,7 +1000,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'>' => 'subtype',
 				'=' => 'default',
 			) as $operator => $meaning ) {
-				if ( false !== strpos( $type, $operator ) ) {
+				if ( str_contains( $type, $operator ) ) {
 					$item     = explode( $operator, $type, 2 );
 					$return[] = array(
 						'type'   => $item[0],
@@ -1079,7 +1084,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			<?php
 			$requires_auth = $wpdb->get_row( $wpdb->prepare( 'SELECT requires_authentication FROM rest_api_documentation WHERE `version` = %s AND `path` = %s AND `method` = %s LIMIT 1', $version, untrailingslashit( $doc['path_labeled'] ), $doc['method'] ) );
 			?>
-			<td class="type api-index-item-title"><?php echo ( true === (bool) $requires_auth->requires_authentication ? 'Yes' : 'No' ); ?></td>
+			<td class="type api-index-item-title"><?php echo ( ! empty( $requires_auth->requires_authentication ) ? 'Yes' : 'No' ); ?></td>
 		</tr>
 
 	</tbody>
@@ -1255,9 +1260,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 							}
 						}
 					}
-					$type                  = '(' . implode( '|', $type ) . ')';
-					list( , $description ) = explode( ')', $description, 2 );
-					$description           = trim( $description );
+					$type = '(' . implode( '|', $type ) . ')';
+					if ( str_contains( $description, ')' ) ) {
+						list( , $description ) = explode( ')', $description, 2 );
+					}
+					$description = trim( $description );
 					if ( $default ) {
 						$description .= " Default: $default.";
 					}
@@ -1290,18 +1297,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( 'inherit' === $post->post_status ) {
 			$parent_post     = get_post( $post->post_parent );
-			$post_status_obj = get_post_status_object( $parent_post->post_status );
+			$post_status_obj = get_post_status_object( $parent_post->post_status ?? $post->post_status );
 		} else {
 			$post_status_obj = get_post_status_object( $post->post_status );
 		}
 
-		if ( ! $post_status_obj->public ) {
+		if ( empty( $post_status_obj->public ) ) {
 			if ( is_user_logged_in() ) {
-				if ( $post_status_obj->protected ) {
+				if ( ! empty( $post_status_obj->protected ) ) {
 					if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
-				} elseif ( $post_status_obj->private ) {
+				} elseif ( ! empty( $post_status_obj->private ) ) {
 					if ( ! current_user_can( 'read_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
@@ -1451,8 +1458,25 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$nice       = $user->user_nicename;
 			}
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
-				$active_blog = get_active_blog_for_user( $id );
-				$site_id     = $active_blog->blog_id;
+				$site_id = -1;
+
+				/**
+				 * Allow customizing the blog ID returned with the author in WordPress.com REST API queries.
+				 *
+				 * @since 12.9
+				 *
+				 * @module json-api
+				 *
+				 * @param bool|int $active_blog  Blog ID, or false by default.
+				 * @param int      $id           User ID.
+				 */
+				$active_blog = apply_filters( 'wpcom_api_pre_get_active_blog_author', false, $id );
+				if ( false === $active_blog ) {
+					$active_blog = get_active_blog_for_user( $id );
+				}
+				if ( ! empty( $active_blog ) ) {
+					$site_id = $active_blog->blog_id;
+				}
 				if ( $site_id > -1 ) {
 					$site_visible = (
 						-1 !== (int) $active_blog->public ||
@@ -1661,6 +1685,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 			if ( isset( $metadata['length'] ) ) {
 				$response['length'] = $metadata['length'];
+			}
+
+			if ( empty( $response['length'] ) && isset( $metadata['duration'] ) ) {
+				$response['length'] = (int) $metadata['duration'];
+			}
+
+			if ( empty( $response['length'] ) && isset( $metadata['videopress']['duration'] ) ) {
+				$response['length'] = ceil( $metadata['videopress']['duration'] / 1000 );
 			}
 
 			// add VideoPress info.
@@ -2006,7 +2038,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 						foreach ( $base_paths as $base_path ) {
 
 							// only copy hooks with functions which are part of the specified files.
-							if ( 0 === strpos( $file_name, $base_path ) ) {
+							if ( str_starts_with( $file_name, $base_path ) ) {
 								add_action(
 									$to_hook,
 									$callback_data['function'],
@@ -2322,7 +2354,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				if ( ! empty( $id3_meta ) ) {
 					// Before updating metadata, ensure that the item is audio.
 					$item = $this->get_media_item_v1_1( $media_id );
-					if ( 0 === strpos( $item->mime_type, 'audio/' ) ) {
+					if ( str_starts_with( $item->mime_type, 'audio/' ) ) {
 						wp_update_attachment_metadata( $media_id, $id3_meta );
 					}
 				}
@@ -2460,7 +2492,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( ! empty( $video_exts ) ) {
 			foreach ( $video_exts as $ext ) {
 				foreach ( $mime_list as $ext_pattern => $mime ) {
-					if ( '' !== $ext && strpos( $ext_pattern, $ext ) !== false ) {
+					if ( '' !== $ext && str_contains( $ext_pattern, $ext ) ) {
 						$video_mimes[ $ext_pattern ] = $mime;
 					}
 				}

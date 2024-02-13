@@ -6,12 +6,23 @@
  * @package automattic/jetpack-transport-helper
  */
 
-namespace Automattic\Jetpack\Transport_Helper;
+// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
+// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
+// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
+// are installed, or in some other cases).
+namespace Automattic\Jetpack\Transport_Helper\V0002;
 
+use Automattic\Jetpack\Backup\V0002\Helper_Script_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
+// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
+use function esc_html__;
+use function is_wp_error;
+use function register_rest_route;
+use function rest_authorization_required_code;
+use function rest_ensure_response;
 
 /**
  * Registers the REST routes.
@@ -92,12 +103,14 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @return array|WP_Error Returns the result of Helper Script installation. Returns one of:
-	 * - WP_Error on failure, or
-	 * - An array with installation info on success:
-	 *  'path'    (string) The sinstallation path.
-	 *  'url'     (string) The access url.
-	 *  'abspath' (string) The abspath.
+	 *
+	 * @return array|WP_Error An array with installation info on success:
+	 *
+	 *   'path'    (string) Helper script installation path on the filesystem.
+	 *   'url'     (string) URL to the helper script.
+	 *   'abspath' (string) WordPress root.
+	 *
+	 *   or an instance of WP_Error on failure.
 	 */
 	public static function install_helper_script( $request ) {
 		$helper_script = $request->get_param( 'helper' );
@@ -111,11 +124,6 @@ class REST_Controller {
 		$installation_info = Helper_Script_Manager::install_helper_script( $helper_script );
 		Helper_Script_Manager::cleanup_expired_helper_scripts();
 
-		// Include ABSPATH with successful result.
-		if ( ! is_wp_error( $installation_info ) ) {
-			$installation_info['abspath'] = ABSPATH;
-		}
-
 		return rest_ensure_response( $installation_info );
 	}
 
@@ -126,18 +134,19 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @return array An array with 'success' key indicating the result of the delete operation.
+	 *
+	 * @return array|WP_Error An array with 'success' key indicating the result of the delete operation.
 	 */
 	public static function delete_helper_script( $request ) {
 		$path_to_helper_script = $request->get_param( 'path' );
 
-		$deleted = Helper_Script_Manager::delete_helper_script( $path_to_helper_script );
+		$delete_result = Helper_Script_Manager::delete_helper_script( $path_to_helper_script );
 		Helper_Script_Manager::cleanup_expired_helper_scripts();
 
-		return rest_ensure_response(
-			array(
-				'success' => $deleted,
-			)
-		);
+		if ( is_wp_error( $delete_result ) ) {
+			return $delete_result;
+		}
+
+		return rest_ensure_response( array( 'success' => true ) );
 	}
 }

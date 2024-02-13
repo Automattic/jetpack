@@ -1,7 +1,7 @@
-import logger from '../logger.cjs';
+import logger from '../logger.js';
 import chalk from 'chalk';
 import config from 'config';
-import pwConfig from '../playwright.config.cjs';
+import pwConfig from '../playwright.config.mjs';
 
 /**
  * This is an abstraction for most important page actions

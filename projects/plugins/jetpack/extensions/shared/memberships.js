@@ -1,5 +1,3 @@
-/* global tb_show, tb_remove */
-
 let premiumContentJWTTokenForCookie = '';
 
 /**
@@ -17,27 +15,61 @@ export function handleIframeResult( eventFromIframe ) {
 		}
 		if ( data && data.action === 'close' && premiumContentJWTTokenForCookie ) {
 			// The token was set during the purchase flow, we want to reload the whole page so the content is displayed
-			window.location.reload();
+			// For avoiding Firefox reload, we need to force reload bypassing the cache.
+			window.location.reload( true );
 		} else if ( data && data.action === 'close' ) {
 			// User just aborted.
 			window.removeEventListener( 'message', handleIframeResult );
-			tb_remove && tb_remove();
+			const dialog = document.getElementById( 'memberships-modal-window' );
+			dialog.close();
+			document.body.classList.remove( 'modal-open' );
 		}
 	}
 }
 
-function setUpThickbox( button ) {
+export function showModal( url ) {
+	// prevent double scroll bars. We use the entire viewport for the modal so we need to hide overflow on the body element.
+	document.body.classList.add( 'modal-open' );
+
+	const existingModal = document.getElementById( 'memberships-modal-window' );
+	if ( existingModal ) {
+		document.body.removeChild( existingModal );
+	}
+
+	const dialog = document.createElement( 'dialog' );
+	dialog.setAttribute( 'id', 'memberships-modal-window' );
+
+	const iframe = document.createElement( 'iframe' );
+	const inputLanguage = document.querySelector( 'input[name="lang"]' );
+	let siteLanguage = null;
+	if ( inputLanguage ) {
+		siteLanguage = inputLanguage.value;
+	}
+	iframe.setAttribute( 'id', 'memberships-modal-iframe' );
+	iframe.innerText =
+		'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
+	iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
+	if ( siteLanguage ) {
+		iframe.src = iframe.src + '&lang=' + siteLanguage;
+	}
+	iframe.setAttribute( 'frameborder', '0' );
+	iframe.setAttribute( 'allowtransparency', 'true' );
+	iframe.setAttribute( 'allowfullscreen', 'true' );
+	dialog.classList.add( 'jetpack-memberships-modal' );
+
+	document.body.appendChild( dialog );
+	dialog.appendChild( iframe );
+
+	window.addEventListener( 'message', handleIframeResult, false );
+	dialog.showModal();
+}
+
+function setUpModal( button ) {
 	button.addEventListener( 'click', event => {
 		event.preventDefault();
-		const url = button.getAttribute( 'href' );
-		window.scrollTo( 0, 0 );
-		tb_show( null, url + '&display=alternate&TB_iframe=true', null );
-		window.addEventListener( 'message', handleIframeResult, false );
-		const tbWindow = document.querySelector( '#TB_window' );
-		tbWindow.classList.add( 'jetpack-memberships-modal' );
-
-		// This line has to come after the Thickbox has opened otherwise Firefox doesn't scroll to the top.
-		window.scrollTo( 0, 0 );
+		showModal( button.getAttribute( 'href' ) );
+		this.blur();
+		return false;
 	} );
 }
 
@@ -49,14 +81,23 @@ export const initializeMembershipButtons = selector => {
 		}
 
 		try {
-			setUpThickbox( button );
+			setUpModal( button );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Problem setting up Thickbox', err );
+			console.error( 'Problem setting up Modal', err );
 		}
 
 		button.setAttribute( 'data-jetpack-memberships-button-initialized', 'true' );
 	} );
+};
+
+const tokenCookieName = 'wp-jp-premium-content-session';
+const getTokenFromCookie = function () {
+	const value = `; ${ document.cookie }`;
+	const parts = value.split( `; ${ tokenCookieName } = ` );
+	if ( parts.length === 2 ) {
+		return parts.pop().split( ';' ).shift();
+	}
 };
 
 const updateQueryStringParameter = function ( uri, key, value ) {
@@ -71,15 +112,18 @@ const updateQueryStringParameter = function ( uri, key, value ) {
 export const setPurchaseResultCookie = function ( premiumContentJWTToken ) {
 	// We will set this in a cookie  - just in case. This will be reloaded in the refresh, when user clicks OK.
 	// But user can close the browser window before clicking OK. IN that case, we want to leave a cookie behind.
-	const date = new Date();
-	date.setTime( date.getTime() + 365 * 24 * 60 * 60 * 1000 );
+	const hostname = window.location.hostname;
+	const domain = '.' + hostname;
+
 	document.cookie =
-		'jp-premium-content-session' +
+		'wp-jp-premium-content-session' +
 		'=' +
 		premiumContentJWTToken +
 		'; expires=' +
-		date.toGMTString() +
-		'; path=/';
+		0 +
+		'; path=/' +
+		'; domain=' +
+		domain;
 };
 
 export const reloadPageWithPremiumContentQueryString = function (

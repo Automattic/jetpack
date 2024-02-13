@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
  *
  * @package Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service
  */
-class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service {
+class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Service {
 
 	/**
 	 * Is available()
@@ -45,6 +45,61 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 		}
 
 		return $this->user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, get_the_ID() );
+	}
+
+	/**
+	 * Retrieves the email of the currently authenticated subscriber.
+	 *
+	 * This function checks if the current user has an active subscription. If the user is subscribed,
+	 * their email is returned. Otherwise, it returns an empty string to indicate no active subscription.
+	 *
+	 * @return string The email address of the subscribed user or an empty string if not subscribed.
+	 */
+	public function get_subscriber_email() {
+		if ( ! is_user_logged_in() ) {
+			return '';
+		}
+		return wp_get_current_user()->user_email;
+	}
+
+	/**
+	 * Returns true if the current authenticated user is subscribed to the current site.
+	 *
+	 * @return bool
+	 */
+	public function is_current_user_subscribed(): bool {
+		include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
+		$email             = wp_get_current_user()->user_email;
+		$subscriber_object = \Blog_Subscriber::get( $email );
+		if ( empty( $subscriber_object ) ) {
+			return false;
+		}
+		$blog_id             = $this->get_site_id();
+		$subscription_status = \Blog_Subscription::get_subscription_status_for_blog( $subscriber_object, $blog_id );
+		if ( 'active' !== $subscription_status ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Returns true if the current authenticated user has a pending subscription to the current site.
+	 *
+	 * @return bool
+	 */
+	public function is_current_user_pending_subscriber(): bool {
+		include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
+		$email             = wp_get_current_user()->user_email;
+		$subscriber_object = \Blog_Subscriber::get( $email );
+		if ( empty( $subscriber_object ) ) {
+			return false;
+		}
+		$blog_id             = $this->get_site_id();
+		$subscription_status = \Blog_Subscription::get_subscription_status_for_blog( $subscriber_object, $blog_id );
+		if ( self::BLOG_SUB_PENDING !== $subscription_status ) {
+			return false;
+		}
+		return true;
 	}
 
 	/**

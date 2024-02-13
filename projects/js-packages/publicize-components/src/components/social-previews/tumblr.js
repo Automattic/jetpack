@@ -1,7 +1,7 @@
 import { TumblrPreviews } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import { SOCIAL_STORE_ID, CONNECTION_SERVICE_TUMBLR } from '../../social-store';
 
 const TumblrPreview = props => {
 	const { content, author } = useSelect( select => {
@@ -15,19 +15,17 @@ const TumblrPreview = props => {
 			author: user?.name,
 		};
 	} );
-	const { connections } = useSocialMediaConnections();
 	const { message } = useSocialMediaMessage();
 
-	const connection = connections?.find( conn => conn.service_name === 'tumblr' );
+	const user = useSelect(
+		select => {
+			const { displayName, profileImage: avatarUrl } =
+				select( SOCIAL_STORE_ID ).getConnectionProfileDetails( CONNECTION_SERVICE_TUMBLR );
 
-	let user;
-
-	if ( connection ) {
-		user = {
-			displayName: connection.display_name || author,
-			avatarUrl: connection.profile_picture,
-		};
-	}
+			return { displayName: displayName || author, avatarUrl };
+		},
+		[ author ]
+	);
 
 	return (
 		<TumblrPreviews { ...props } user={ user } description={ content } customText={ message } />

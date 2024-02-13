@@ -159,7 +159,7 @@ class WPCOM_JSON_API_Site_Settings_V1_3_Endpoint extends WPCOM_JSON_API_Site_Set
 	 * @return array
 	 */
 	public function filter_site_settings_endpoint_get( $settings ) {
-		$option_name     = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'wga' : 'jetpack_wga';
+		$option_name     = $this->get_google_analytics_option_name();
 		$option          = get_option( $option_name, array() );
 		$settings['wga'] = wp_parse_args( $option, $this->get_defaults() );
 		return $settings;

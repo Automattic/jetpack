@@ -25,7 +25,7 @@ class ParserTest extends TestCase {
 	 */
 	public function testParseFromFile() {
 		$mock = $this->getMockBuilder( Parser::class )->getMockForAbstractClass();
-		$mock->method( 'parse' )->will( $this->returnArgument( 0 ) );
+		$mock->method( 'parse' )->willReturnArgument( 0 );
 
 		$temp = tempnam( sys_get_temp_dir(), 'phpunit-testParseFromFile-' );
 		try {

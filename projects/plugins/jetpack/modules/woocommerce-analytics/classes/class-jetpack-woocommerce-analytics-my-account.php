@@ -232,6 +232,12 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 			if ( ! isset( $action['url'] ) ) {
 				continue;
 			}
+
+			// Check if the action key is view, pay, or cancel.
+			if ( ! in_array( $key, array( 'view', 'pay', 'cancel' ), true ) ) {
+				continue;
+			}
+
 			$url                    = add_query_arg( array( '_wca_initiator' => 'action' ), $action['url'] );
 			$actions[ $key ]['url'] = $url;
 		}

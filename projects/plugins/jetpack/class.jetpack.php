@@ -29,7 +29,6 @@ use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
@@ -78,9 +77,34 @@ class Jetpack {
 	public $xmlrpc_server = null;
 
 	/**
+	 * List of Jetpack modules that have CSS that gets concatenated into jetpack.css.
+	 *
+	 * See $concatenated_style_handles for the list of handles,
+	 * and the implode_frontend_css method for more details.
+	 *
+	 * When updating this list, make sure to update $concatenated_style_handles as well.
+	 *
+	 * @var array List of Jetpack modules.
+	 */
+	public $modules_with_concatenated_css = array(
+		'carousel',
+		'contact-form',
+		'infinite-scroll',
+		'likes',
+		'related-posts',
+		'sharedaddy',
+		'shortcodes',
+		'subscriptions',
+		'tiled-gallery',
+		'widgets',
+	);
+
+	/**
 	 * The handles of styles that are concatenated into jetpack.css.
 	 *
-	 * When making changes to that list, you must also update concat_list in tools/webpack.config.css.js.
+	 * When making changes to that list,
+	 * you must also update concat_list in tools/webpack.config.css.js,
+	 * and to $modules_with_concatenated_css if necessary.
 	 *
 	 * @var array The handles of styles that are concatenated into jetpack.css.
 	 */
@@ -299,11 +323,6 @@ class Jetpack {
 			'MSM Sitemaps'                         => 'msm-sitemap/msm-sitemap.php',
 			'Rank Math'                            => 'seo-by-rank-math/rank-math.php',
 			'Slim SEO'                             => 'slim-seo/slim-seo.php',
-		),
-		'lazy-images'        => array(
-			'Lazy Load'              => 'lazy-load/lazy-load.php',
-			'BJ Lazy Load'           => 'bj-lazy-load/bj-lazy-load.php',
-			'Lazy Load by WP Rocket' => 'rocket-lazy-load/rocket-lazy-load.php',
 		),
 	);
 
@@ -652,8 +671,8 @@ class Jetpack {
 
 		$first_priority = array_shift( $taken_priorities );
 
-		if ( defined( 'PHP_INT_MAX' ) && $first_priority <= - PHP_INT_MAX ) {
-			$new_priority = - PHP_INT_MAX;
+		if ( $first_priority <= PHP_INT_MIN ) {
+			$new_priority = PHP_INT_MIN;
 		} else {
 			$new_priority = $first_priority - 1;
 		}
@@ -732,9 +751,8 @@ class Jetpack {
 		// Returns HTTPS support status.
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
 
+		// TODO: the conneciton banner has been deprecated - this can be removed in 13.1+
 		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
-
-		add_action( 'wp_ajax_jetpack_recommendations_banner', array( 'Jetpack_Recommendations_Banner', 'ajax_callback' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 
@@ -842,13 +860,16 @@ class Jetpack {
 		add_filter( 'jetpack_static_url', array( 'Automattic\\Jetpack\\Assets', 'staticize_subdomain' ) );
 
 		// Validate the domain names in Jetpack development versions.
-		add_action( 'jetpack_pre_register', array( get_called_class(), 'registration_check_domains' ) );
+		add_action( 'jetpack_pre_register', array( static::class, 'registration_check_domains' ) );
 
 		// Register product descriptions for partner coupon usage.
 		add_filter( 'jetpack_partner_coupon_products', array( $this, 'get_partner_coupon_product_descriptions' ) );
 
 		// Actions for conditional recommendations.
 		add_action( 'plugins_loaded', array( 'Jetpack_Recommendations', 'init_conditional_recommendation_actions' ) );
+
+		// Add 5-star
+		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );
 	}
 
 	/**
@@ -961,7 +982,6 @@ class Jetpack {
 	public function late_initialization() {
 		add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 
-		Partner::init();
 		My_Jetpack_Initializer::init();
 
 		// Initialize Boost Speed Score
@@ -1562,6 +1582,7 @@ class Jetpack {
 	 * @return array
 	 */
 	public static function get_updates() {
+		$updates     = array();
 		$update_data = wp_get_update_data();
 
 		// Stores the individual update counts as well as the total count.
@@ -1576,7 +1597,7 @@ class Jetpack {
 				$updates['wp_update_version'] = $cur->current;
 			}
 		}
-		return isset( $updates ) ? $updates : array();
+		return $updates;
 	}
 	// phpcs:enable WordPress.WP.CapitalPDangit.MisspelledInComment
 
@@ -3093,7 +3114,7 @@ p {
 	 * @return null|\WP_Error The domain validation error, or `null` if everything's fine.
 	 */
 	public static function registration_check_domains( $error ) {
-		if ( static::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
+		if ( static::is_development_version() ) {
 			$domains_to_check = array_unique(
 				array(
 					'siteurl' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
@@ -3311,10 +3332,8 @@ p {
 		/** Already documented in automattic/jetpack-connection::src/class-client.php */
 		$client_verify_ssl_certs = apply_filters( 'jetpack_client_verify_ssl_certs', false );
 
-		if ( ! $is_offline_mode ) {
-			Jetpack_Connection_Banner::init();
-			Jetpack_Connection_Widget::init();
-		}
+		// Run post-activation actions if needed.
+		$this->plugin_post_activation();
 
 		if ( ( self::is_connection_ready() || $is_offline_mode ) && false === $fallback_no_verify_ssl_certs && ! $client_verify_ssl_certs ) {
 			// Upgrade: 1.1 -> 1.1.1
@@ -3322,8 +3341,6 @@ p {
 			$args = array();
 			Client::_wp_remote_request( self::connection()->api_url( 'test' ), $args, true );
 		}
-
-		Jetpack_Recommendations_Banner::init();
 
 		if ( current_user_can( 'manage_options' ) && ! self::permit_ssl() ) {
 			add_action( 'jetpack_notices', array( $this, 'alert_auto_ssl_fail' ) );
@@ -3755,12 +3772,9 @@ p {
 	 * @return array
 	 */
 	public function plugin_action_links( $actions ) {
-		$support_link = ( new Host() )->is_woa_site() ? 'https://wordpress.com/help/contact/' : self::admin_url( 'page=jetpack-debugger' );
-
 		if ( current_user_can( 'jetpack_manage_modules' ) && ( self::is_connection_ready() || ( new Status() )->is_offline_mode() ) ) {
 			return array_merge(
 				array( 'settings' => sprintf( '<a href="%s">%s</a>', esc_url( self::admin_url( 'page=jetpack#/settings' ) ), __( 'Settings', 'jetpack' ) ) ),
-				array( 'support' => sprintf( '<a href="%s">%s</a>', esc_url( $support_link ), __( 'Support', 'jetpack' ) ) ),
 				$actions
 			);
 		}
@@ -4128,7 +4142,8 @@ p {
 			self::activate_new_modules( true );
 		}
 
-		$message_code = self::state( 'message' );
+		$activated_manage = false;
+		$message_code     = self::state( 'message' );
 		if ( self::state( 'optin-manage' ) ) {
 			$activated_manage = $message_code;
 			$message_code     = 'jetpack-manage';
@@ -4487,7 +4502,7 @@ endif;
 				}
 			}
 
-			$url = $this->build_authorize_url( $redirect );
+			$url = static::build_authorize_url( $redirect );
 		}
 
 		if ( $from ) {
@@ -4836,11 +4851,7 @@ endif;
 	 * @return int 0 if the same sort or (+/-) to indicate which is greater.
 	 */
 	public static function sort_modules( $a, $b ) {
-		if ( $a['sort'] === $b['sort'] ) {
-			return 0;
-		}
-
-		return ( $a['sort'] < $b['sort'] ) ? -1 : 1;
+		return $a['sort'] <=> $b['sort'];
 	}
 
 	/**
@@ -4985,7 +4996,7 @@ endif;
 
 		if ( $force_recheck || false === $ssl ) {
 			$message = '';
-			if ( 'https' !== substr( JETPACK__API_BASE, 0, 5 ) ) {
+			if ( ! str_starts_with( JETPACK__API_BASE, 'https' ) ) {
 				$ssl = 0;
 			} else {
 				$ssl = 1;
@@ -5664,19 +5675,6 @@ endif;
 	}
 
 	/**
-	 * Checks whether the sync_error_idc option is valid or not, and if not, will do cleanup.
-	 *
-	 * @since 4.4.0
-	 * @since 5.4.0 Do not call get_sync_error_idc_option() unless site is in IDC
-	 *
-	 * @return bool
-	 */
-	public static function validate_sync_error_idc_option() {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Identity_Crisis::validate_sync_error_idc_option' );
-		return Identity_Crisis::validate_sync_error_idc_option();
-	}
-
-	/**
 	 * Normalizes a url by doing three things:
 	 *  - Strips protocol
 	 *  - Strips www
@@ -5696,33 +5694,6 @@ endif;
 		// Strip www and protocols.
 		$url = preg_replace( '/^www\./i', '', $parsed_url['host'] . $parsed_url['path'] );
 		return $url;
-	}
-
-	/**
-	 * Gets the value that is to be saved in the jetpack_sync_error_idc option.
-	 *
-	 * @since 4.4.0
-	 * @since 5.4.0 Add transient since home/siteurl retrieved directly from DB
-	 * @deprecated 9.8.0 Use \\Automattic\\Jetpack\\Identity_Crisis::get_sync_error_idc_option
-	 *
-	 * @param array $response HTTP response.
-	 * @return array Array of the local urls, wpcom urls, and error code
-	 */
-	public static function get_sync_error_idc_option( $response = array() ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Identity_Crisis::get_sync_error_idc_option' );
-		return Identity_Crisis::get_sync_error_idc_option( $response );
-	}
-
-	/**
-	 * Returns the value of the jetpack_sync_idc_optin filter, or constant.
-	 * If set to true, the site will be put into staging mode.
-	 *
-	 * @since 4.3.2
-	 * @return bool
-	 */
-	public static function sync_idc_optin() {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Identity_Crisis::sync_idc_optin' );
-		return Identity_Crisis::sync_idc_optin();
 	}
 
 	/**
@@ -5748,7 +5719,7 @@ endif;
 		$base = dirname( plugin_basename( $plugin ) );
 
 		// Short out on non-Jetpack assets.
-		if ( 'jetpack/' !== substr( $base, 0, 8 ) ) {
+		if ( ! str_starts_with( $base, 'jetpack/' ) ) {
 			return $url;
 		}
 
@@ -5790,13 +5761,13 @@ endif;
 	 * @return mixed
 	 */
 	public static function set_suffix_on_min( $src, $handle ) {
-		if ( false === strpos( $src, '.min.css' ) ) {
+		if ( ! str_contains( $src, '.min.css' ) ) {
 			return $src;
 		}
 
 		if ( ! empty( self::$min_assets ) ) {
 			foreach ( self::$min_assets as $file => $path ) {
-				if ( false !== strpos( $src, $file ) ) {
+				if ( str_contains( $src, $file ) ) {
 					wp_style_add_data( $handle, 'suffix', '.min' );
 					return $src;
 				}
@@ -5974,11 +5945,6 @@ endif;
 			'jetpack_cache_plans'                          => array(
 				'replacement' => null,
 				'version'     => 'jetpack-6.1.0',
-			),
-
-			'jetpack_lazy_images_skip_image_with_atttributes' => array(
-				'replacement' => 'jetpack_lazy_images_skip_image_with_attributes',
-				'version'     => 'jetpack-6.5.0',
 			),
 			'jetpack_enable_site_verification'             => array(
 				'replacement' => null,
@@ -6173,7 +6139,7 @@ endif;
 				$url = trim( $match['path'], "'\" \t" );
 
 				// If this is a data url, we don't want to mess with it.
-				if ( 'data:' === substr( $url, 0, 5 ) ) {
+				if ( str_starts_with( $url, 'data:' ) ) {
 					continue;
 				}
 
@@ -6236,6 +6202,18 @@ endif;
 
 		// Do not implode CSS when the page loads via the AMP plugin.
 		if ( class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request() ) {
+			$do_implode = false;
+		}
+
+		/*
+		 * Only proceed if at least 2 modules with concatenated CSS are active.
+		 * There is no point in serving a big concatenated CSS file
+		 * if there are no features (or only one) that actually need some CSS loaded.
+		 */
+		$active_modules                = self::get_active_modules();
+		$modules_with_concatenated_css = $this->modules_with_concatenated_css;
+		$active_module_with_css_count  = count( array_intersect( $active_modules, $modules_with_concatenated_css ) );
+		if ( $active_module_with_css_count < 2 ) {
 			$do_implode = false;
 		}
 
@@ -6413,7 +6391,7 @@ endif;
 		}
 
 		foreach ( $sorted as $box_context => $ids ) {
-			if ( false === strpos( $ids, 'dashboard_stats' ) ) {
+			if ( ! str_contains( $ids, 'dashboard_stats' ) ) {
 				// If the old id isn't anywhere in the ids, don't bother exploding and fail out.
 				continue;
 			}
@@ -6743,6 +6721,21 @@ endif;
 			),
 		);
 
+		$products['creator'] = array(
+			'title'             => __( 'Jetpack Creator', 'jetpack' ),
+			'slug'              => 'jetpack_creator_yearly',
+			'description'       => __( 'Craft stunning content, boost your subscriber base, and monetize your online presence.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 50,
+			'included_in_plans' => array( 'complete' ),
+			'features'          => array(
+				_x( 'Unlimited subscriber imports', 'Creator Product Feature', 'jetpack' ),
+				_x( 'Earn more from your content', 'Creator Product Feature', 'jetpack' ),
+				_x( 'Accept payments with PayPal', 'Creator Product Feature', 'jetpack' ),
+				_x( 'Increase earnings with WordAds', 'Creator Product Feature', 'jetpack' ),
+			),
+		);
+
 		$products['scan'] = array(
 			'title'             => __( 'Jetpack Scan', 'jetpack' ),
 			'slug'              => 'jetpack_scan',
@@ -6868,5 +6861,42 @@ endif;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Add 5-star review link on the Jetpack Plugin meta, in the plugins list table (on the plugins page).
+	 *
+	 * @param array  $plugin_meta An array of the plugin's metadata.
+	 * @param string $plugin_file Path to the plugin file.
+	 *
+	 * @return array $plugin_meta An array of the plugin's metadata.
+	 */
+	public function add_5_star_review_link( $plugin_meta, $plugin_file ) {
+		if ( $plugin_file !== 'jetpack/jetpack.php' ) {
+			return $plugin_meta;
+		}
+
+		$plugin_meta[] = '<a href="https://wordpress.org/support/plugin/jetpack/reviews/?filter=5" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Rate Jetpack on WordPress.org', 'jetpack' ) . '" style="color: #ffb900">'
+			. str_repeat( '<span class="dashicons dashicons-star-filled" style="font-size: 16px; width:16px; height: 16px"></span>', 5 )
+			. '</a>';
+
+		return $plugin_meta;
+	}
+
+	/**
+	 * Run plugin post-activation actions if we need to.
+	 *
+	 * @return void
+	 */
+	private function plugin_post_activation() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return;
+		}
+
+		if ( get_transient( 'activated_jetpack' ) ) {
+			delete_transient( 'activated_jetpack' );
+
+			wp_safe_redirect( static::admin_url( 'page=my-jetpack' ) );
+		}
 	}
 }

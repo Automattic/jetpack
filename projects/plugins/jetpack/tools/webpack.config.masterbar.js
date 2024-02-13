@@ -14,7 +14,7 @@ for ( const file of glob
 
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: false,
+	devtool: jetpackWebpackConfig.devtool,
 	entry: masterbarCssEntries,
 	output: {
 		...jetpackWebpackConfig.output,

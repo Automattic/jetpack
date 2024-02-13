@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '6.2.0';
+	public $version = '6.4.0';
 
 	/**
 	 * WordPress version tested with.
@@ -365,6 +365,16 @@ final class ZeroBSCRM {
 	 * @var Jetpack CRM Acceptable mime types list
 	 */
 	public $acceptable_mime_types;
+
+	/**
+	 * Acceptable fields to be included in the Total Value of contacts and companies
+	 *
+	 * @var Jetpack CRM Acceptable fields to be included in the Total Value
+	 */
+	public $acceptable_total_value_fields = array(
+		'transactions' => 'Transactions',
+		'invoices'     => 'Invoices',
+	);
 
 	/**
 	 * Acceptable html array
@@ -801,19 +811,37 @@ final class ZeroBSCRM {
 	 * Retrieves MySQL/MariaDB/Percona database server info
 	 */
 	public function get_database_server_info() {
-
 		if ( empty( $this->database_server_info ) ) {
-			global $wpdb;
-			$raw_version                = $wpdb->get_var( 'SELECT VERSION()' );
-			$version                    = preg_replace( '/[^0-9.].*/', '', $raw_version );
-			$is_mariadb                 = ! ( stripos( $raw_version, 'mariadb' ) === false );
+
+			// Adapted from proposed SQLite integration for core
+			// https://github.com/WordPress/sqlite-database-integration/blob/4a687709bb16a569a7d1ecabfcce433c0e471de8/health-check.php
+			if ( defined( 'DB_ENGINE' ) && DB_ENGINE === 'sqlite' ) {
+				$db_engine       = DB_ENGINE;
+				$db_engine_label = 'SQLite';
+				$raw_version     = class_exists( 'SQLite3' ) ? SQLite3::version()['versionString'] : null;
+				$version         = $raw_version;
+			} else {
+				global $wpdb;
+				$raw_version = $wpdb->get_var( 'SELECT VERSION()' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$version     = preg_replace( '/[^0-9.].*/', '', $raw_version );
+				if ( stripos( $raw_version, 'mariadb' ) !== false ) {
+					$db_engine       = 'mariadb';
+					$db_engine_label = 'MariaDB';
+				} else {
+					$db_engine       = 'mysql';
+					$db_engine_label = 'MySQL';
+				}
+			}
+
 			$database_server_info       = array(
-				'raw_version' => $raw_version,
-				'version'     => $version,
-				'is_mariadb'  => $is_mariadb,
+				'raw_version'     => $raw_version,
+				'version'         => $version,
+				'db_engine'       => $db_engine,
+				'db_engine_label' => $db_engine_label,
 			);
 			$this->database_server_info = $database_server_info;
 		}
+
 		return $this->database_server_info;
 	}
 
@@ -971,6 +999,7 @@ final class ZeroBSCRM {
 		$this->urls['kb-pre-v5-migration-todo'] = 'https://kb.jetpackcrm.com/knowledge-base/upgrading-to-jetpack-crm-v5-0/';
 		$this->urls['kb-mailpoet']              = 'https://kb.jetpackcrm.com/knowledge-base/mailpoet-crm-sync/';
 		$this->urls['kb-automations']           = 'https://kb.jetpackcrm.com/knowledge-base/automations/';
+		$this->urls['kb-contact-fields']        = 'https://kb.jetpackcrm.com/knowledge-base/contact-field-list/';
 
 		// coming soon
 		$this->urls['soon'] = 'https://jetpackcrm.com/coming-soon/';
@@ -1518,7 +1547,7 @@ final class ZeroBSCRM {
 	 * @return array
 	 */
 	public static function plugin_row_meta( $links_array, $plugin ) {
-		if ( strpos( $plugin, plugin_basename( ZBS_ROOTFILE ) ) === false ) {
+		if ( ! str_contains( $plugin, plugin_basename( ZBS_ROOTFILE ) ) ) {
 			return $links_array;
 		}
 
@@ -1691,15 +1720,6 @@ final class ZeroBSCRM {
 		// If usage tracking is active - include the tracking code.
 		$this->load_usage_tracking();
 
-		// } Ownership
-		$usingOwnership = $this->settings->get( 'perusercustomers' );
-		if ( $usingOwnership && ! $this->isDAL3() ) {
-			if ( ! class_exists( 'zeroBS__Metabox' ) ) {
-				require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBox.php';
-			}
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes.Ownership.php';
-		}
-
 		if ( $this->isDAL3() && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ) ) {
 			// } Jetpack - can condition this include on detection of Jetpack - BUT the code in Jetpack.php only fires on actions so will be OK to just include
 			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Jetpack.php';
@@ -1778,14 +1798,6 @@ final class ZeroBSCRM {
 
 		// } JUST before cpt, we do any install/uninstall of extensions, so that cpt's can adjust instantly:
 		zeroBSCRM_extensions_init_install();
-
-		// stuff pre DAL3 needs CPTs etc.
-		if ( ! $this->isDAL3() ) {
-
-			// COMMENT} setup post types
-			zeroBSCRM_setupPostTypes();
-
-		}
 
 		// } Here we do any 'default content' installs (quote templates) (In CPT <DAL3, In DAL3.Helpers DAL3+)
 		zeroBSCRM_installDefaultContent();

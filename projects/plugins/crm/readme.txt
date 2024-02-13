@@ -1,10 +1,10 @@
 === Jetpack CRM - Clients, Leads, Invoices, Billing, Email Marketing, & Automation ===
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
-Tested up to: 6.3
-Stable tag: 6.2.0
-Requires at least: 5.0
-Requires PHP: 7.3
+Tested up to: 6.4
+Stable tag: 6.3.2
+Requires at least: 6.0
+Requires PHP: 7.4
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -389,28 +389,25 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.2.0 - 2023-10-11
+### 6.4.0 - 2024-01-23
 #### Added
-- Tests: Add mock globals for testing.
-- Automations: Add new backend in preparation for future release.
-
-#### Changed
-- Quotes: Allow admin users to accept quotes.
-- Tasks: Use consistent language in code.
-- Increase PHP required version to 7.3.
-- Updated package dependencies.
+- Database: Added preliminary support for SQLite.
+- Settings: Add setting to fine tune the Total Value field calculation for contacts and companies.
 
 #### Fixed
-- API: Rewrite rules are now flushed after enabling module.
-- API: Task reminder param is no longer ignored.
-- Better PHP 8.2 support.
-- CRM Forms: Removed reference to old branding.
-- CSV Importer: Fixed assignment to companies by name.
-- Custom Fields: Corrected bug that prevented new address custom fields from being shown.
-- Invoices: Handle status translations consistently.
-- Segments: Fixed error 219 occurring when using date ranges.
-- Tags: Better slug generation and added tag slug migration.
-- Tags: Prevent duplicate slugs, and adding more robust slug fallback support.
-- Tasks: Corrected placeholders for contacts and companies in the task reminder email.
-- Transactions: Filters now work for custom statuses.
+- Backend: Add fallback for dev site detection.
+- Contacts: Updated default statuses.
+- Custom fields: More robust fallbacks for slug creation.
+- Dashboard: Adjust queries for SQLite compatibility.
+- REST API: Allow calls when not using pretty permalinks.
+- Database: Ensure logs table is initiated with all columns.
+- Fixed: Escape output in typeaheads.
+- Invoices: Fixed total amount in preview and pdf when refunds or credit notes are applied.
+- Jetpack Forms: Detect and process custom date fields correctly.
+- Custom fields: Gracefully handle invalid date field data.
+- Listview: Better output escaping in listviews.
+- System Assistant: Fix broken links on some tasks.
+- Migrations: Fix issue where task_offset_fix migration would not mark as complete on some timezones.
+- Templates: Ensure file paths are valid before trying to load.
+- Transactions: Better support for SQLite.
 

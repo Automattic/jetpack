@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/podcast-player",
 	"title": "Podcast Player",
 	"description": "Select and play episodes from a single podcast.",
@@ -24,8 +24,7 @@
 	},
 	"attributes": {
 		"url": {
-			"type": "string",
-			"validator": "isUrl"
+			"type": "string"
 		},
 		"selectedEpisodes": {
 			"type": "array",
@@ -105,6 +104,5 @@
 				]
 			}
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }

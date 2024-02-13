@@ -12,9 +12,6 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
-const FEATURE_NAME = 'related-posts';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -26,25 +23,9 @@ function register_block() {
 		|| ( \Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() )
 	) {
 		Blocks::jetpack_register_block(
-			BLOCK_NAME,
+			__DIR__,
 			array(
 				'render_callback' => __NAMESPACE__ . '\render_block',
-				'supports'        => array(
-					'color'      => array(
-						'gradients' => true,
-						'link'      => true,
-					),
-					'spacing'    => array(
-						'margin'  => true,
-						'padding' => true,
-					),
-					'typography' => array(
-						'__experimentalFontFamily' => true,
-						'fontSize'                 => true,
-						'lineHeight'               => true,
-					),
-					'align'      => array( 'wide', 'full' ),
-				),
 			)
 		);
 	}
@@ -54,16 +35,17 @@ add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 /**
  * Related Posts block render callback.
  *
- * @param array  $attributes Array containing the Button block attributes.
- * @param string $content    The Button block content.
+ * @param array    $attributes Array containing the Button block attributes.
+ * @param string   $content    The block content.
+ * @param WP_Block $block    The block object.
  *
  * @return string
  */
-function render_block( $attributes, $content ) {
+function render_block( $attributes, $content, $block ) {
 	// If the Related Posts module is not active, don't render the block.
 	if (
 		! ( new Host() )->is_wpcom_simple()
-		&& ! ( new Modules() )->is_active( FEATURE_NAME )
+		&& ! ( new Modules() )->is_active( 'related-posts' )
 	) {
 		return '';
 	}
@@ -78,5 +60,5 @@ function render_block( $attributes, $content ) {
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
 	}
 
-	return \Jetpack_RelatedPosts::init()->render_block( $attributes, $content );
+	return \Jetpack_RelatedPosts::init()->render_block( $attributes, $content, $block );
 }

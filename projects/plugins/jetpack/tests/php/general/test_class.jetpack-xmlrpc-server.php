@@ -145,17 +145,17 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 			)
 			->getMock();
 
-		$xml->expects( $this->exactly( 1 ) )
+		$xml->expects( $this->once() )
 			->method( 'query' )
-			->will( $this->returnValue( 'sadlkjdasd.sadlikdj' ) );
+			->willReturn( 'sadlkjdasd.sadlikdj' );
 
-		$xml->expects( $this->exactly( 1 ) )
+		$xml->expects( $this->once() )
 			->method( 'isError' )
-			->will( $this->returnValue( empty( $error ) ? false : true ) );
+			->willReturn( empty( $error ) ? false : true );
 
-		$xml->expects( $this->exactly( 1 ) )
+		$xml->expects( $this->once() )
 			->method( 'getResponse' )
-			->will( $this->returnValue( 'asdadsasd' ) );
+			->willReturn( 'asdadsasd' );
 
 		$server = new Jetpack_XMLRPC_Server();
 

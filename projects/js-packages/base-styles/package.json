@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-base-styles",
-	"version": "0.6.10",
+	"version": "0.6.17-alpha",
 	"description": "Jetpack components base styles",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/base-styles/#readme",
 	"bugs": {
@@ -20,10 +20,6 @@
 		"build-production-js": "echo 'Not implemented.'"
 	},
 	"devDependencies": {
-		"@wordpress/base-styles": "4.34.0"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+		"@wordpress/base-styles": "4.42.0"
 	}
 }

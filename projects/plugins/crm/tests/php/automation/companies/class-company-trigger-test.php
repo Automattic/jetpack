@@ -52,8 +52,8 @@ class Company_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( new Company_Data( $company ) )
+			$trigger,
+			new Company_Data( $company )
 		);
 
 		// Run the company_update action.
@@ -86,8 +86,8 @@ class Company_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( new Company_Data( $company ) )
+			$trigger,
+			new Company_Data( $company )
 		);
 
 		// Run the company_status_update action.
@@ -120,8 +120,8 @@ class Company_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( new Company_Data( $company ) )
+			$trigger,
+			new Company_Data( $company )
 		);
 
 		// Run the company_created action.
@@ -154,8 +154,8 @@ class Company_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( new Company_Data( $company ) )
+			$trigger,
+			new Company_Data( $company )
 		);
 
 		// Run the company_deleted action.

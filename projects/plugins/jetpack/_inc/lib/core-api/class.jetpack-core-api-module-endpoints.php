@@ -1331,7 +1331,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			return false;
 		}
 		foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
-			if ( strpos( $widget, 'widget_contact_info' ) !== false ) {
+			if ( str_contains( $widget, 'widget_contact_info' ) ) {
 				return true;
 			}
 		}

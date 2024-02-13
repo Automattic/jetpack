@@ -63,13 +63,13 @@ function zerobscrm_doing_it_wrong( $function, $message, $version ) {
 		$prefix = rest_get_url_prefix( );
 		if (defined('REST_REQUEST') && REST_REQUEST // (#1)
 			|| isset($_GET['rest_route']) // (#2)
-				&& strpos( trim( $_GET['rest_route'], '\\/' ), $prefix , 0 ) === 0)
+				&& str_starts_with( trim( $_GET['rest_route'], '\\/' ), $prefix, 0 ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			return true;
 
 		// (#3)
 		$rest_url = wp_parse_url( site_url( $prefix ) );
 		$current_url = wp_parse_url( add_query_arg( array( ) ) );
-		return strpos( $current_url['path'], $rest_url['path'], 0 ) === 0;
+		return str_starts_with( $current_url['path'], $rest_url['path'], 0 );
 	}
 
 
@@ -417,9 +417,10 @@ function zeroBSCRM_wpb_lastlogin($uid ) {
 	    return ((float)$usec + (float)$sec);
 	}     
 
-	#} Does it's best to find the real IP for user
+	#} Does its best to find the real IP for user
 	function zeroBSCRM_getRealIpAddr()
 	{
+		$ip = false;
 		#} check ip from share internet
 		if (isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP']))
 		{
@@ -514,58 +515,61 @@ function zeroBSCRM_wpb_lastlogin($uid ) {
 	}
 
 
-	// as clean as zeroBSCRM_retrieveFile was above, we needed to wpify for .org.
-	// here's an adaptation of https://wordpress.stackexchange.com/questions/50094/wp-remote-get-downloading-and-saving-files
-	function zeroBSCRM_retrieveFile( $url, $filepath, $args = array() ){
+/**
+ * Retrieve file from remote server
+ *
+ * As clean as zeroBSCRM_retrieveFile was above, we needed to wpify for .org.
+ * Here's an adaptation of https://wordpress.stackexchange.com/questions/50094/wp-remote-get-downloading-and-saving-files
+ *
+ * @param string $url URL to retrieve the file.
+ * @param string $filepath Path to save file.
+ * @param array  $args Args for wp_remote_get.
+ */
+function zeroBSCRM_retrieveFile( $url, $filepath, $args = array() ) {
 
-		// Use wp_remote_get to fetch the data
-		$response = wp_remote_get($url, $args);
+	// Use wp_remote_get to fetch the data
+	$response = wp_remote_get( $url, $args );
 
-		// Save the body part to a variable
-		if ( is_array( $response ) && isset( $response['body'] ) ){
+	// Save the body part to a variable
+	if ( is_array( $response ) && isset( $response['body'] ) ) {
 
-			// Now use the standard PHP file functions
-			$fp = fopen($filepath, "w");
-			fwrite($fp, $response['body']);
-			fclose($fp);
+		// Now use the standard PHP file functions
+		$fp = fopen( $filepath, 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+		fwrite( $fp, $response['body'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen,WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+		fclose( $fp ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen,WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
-	     	return (filesize($filepath) > 0)? true : false;
+		return ( filesize( $filepath ) > 0 ) ? true : false;
 
-		} elseif ( get_class( $response ) == 'WP_Error' ) {
+	} elseif ( get_class( $response ) === 'WP_Error' ) {
 
-			// deal with errors
+		// deal with errors
 
-			// timeout
-			// https://wordpress.stackexchange.com/questions/240273/wp-remote-get-keeps-timing-out
-			if ( isset( $response->errors['http_request_failed'] ) ){
-				
-				if ( is_array( $response->errors['http_request_failed'] ) ){
+		// timeout
+		// https://wordpress.stackexchange.com/questions/240273/wp-remote-get-keeps-timing-out
+		if ( isset( $response->errors['http_request_failed'] ) ) {
 
-					$match_str = 'cURL error 28: Operation timed out after';
+			if ( is_array( $response->errors['http_request_failed'] ) ) {
 
-					foreach ( $response->errors['http_request_failed'] as $error ){
+				$match_str = 'cURL error 28: Operation timed out after';
 
-						if ( substr( $error, 0, strlen( $match_str ) ) == $match_str ){
+				foreach ( $response->errors['http_request_failed'] as $error ) {
 
-							// connection timeout error
-							// Add admin notification
-							zeroBSCRM_notifyme_insert_notification( get_current_user_id(), -999, -1, 'curl.timeout.error', $error );
+					if ( str_starts_with( $error, $match_str ) ) {
 
-							return false;
+						// connection timeout error
+						// Add admin notification
+						zeroBSCRM_notifyme_insert_notification( get_current_user_id(), -999, -1, 'curl.timeout.error', $error );
 
-						}
+						return false;
 
 					}
-
 				}
-
 			}
-
 		}
-
-		return false;
-
 	}
+
+	return false;
+}
 
 	# http://stackoverflow.com/questions/8889025/unzip-a-file-with-php
 	function zeroBSCRM_expandArchive($filepath,$expandTo){
@@ -758,29 +762,29 @@ function jpcrm_inject_contacts( $contacts, $args ) {
 	} 
 
 
-	// returns send-from email + name
-	// code ripped from wp_mail func 12/9/18
-	// https://developer.wordpress.org/reference/functions/wp_mail/
-	function zeroBSCRM_wp_retrieveSendFrom(){
+/**
+ * Returns send-from email + name
+ *
+ * code ripped from wp_mail func 12/9/18
+ * https://developer.wordpress.org/reference/functions/wp_mail/
+ */
+function zeroBSCRM_wp_retrieveSendFrom() {
+	$from_name = 'WordPress';
 
-	    // From email and name
-	    // If we don't have a name from the input headers
-	    //if ( !isset( $from_name ) )
-	        $from_name = 'WordPress';
-
-	    //if ( !isset( $from_email ) ) {
-	        // Get the site domain and get rid of www.
-	        $sitename = strtolower( $_SERVER['SERVER_NAME'] );
-	        if ( substr( $sitename, 0, 4 ) == 'www.' ) {
-	            $sitename = substr( $sitename, 4 );
-	        }
-	 
-	        $from_email = 'wordpress@' . $sitename;
-	    //}
-	    $from_email = apply_filters( 'wp_mail_from', $from_email );
-
-	    return array('name'=>$from_name,'email'=>$from_email);
+	// Get the site domain and get rid of www.
+	$sitename = strtolower( $_SERVER['SERVER_NAME'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+	if ( str_starts_with( $sitename, 'www.' ) ) {
+		$sitename = substr( $sitename, 4 );
 	}
+
+	$from_email = 'wordpress@' . $sitename;
+	$from_email = apply_filters( 'wp_mail_from', $from_email );
+
+	return array(
+		'name'  => $from_name,
+		'email' => $from_email,
+	);
+}
 
 
 
@@ -904,22 +908,6 @@ function zeroBSCRM_isJson( $str ) {
 
 		return $endArr;
 	}
-
-
-	// recursive utf8-ing 
-	// https://stackoverflow.com/questions/19361282/why-would-json-encode-return-an-empty-string
-	function zeroBSCRM_utf8ize($d) {
-	    if (is_array($d)) {
-	        foreach ($d as $k => $v) {
-	            $d[$k] = zeroBSCRM_utf8ize($v);
-	        }
-	    } else if (is_string ($d)) {
-			// TODO: utf8_encode has been deprecated in PHP 8.2, and needs to be replaced.
-			return utf8_encode($d); // phpcs:ignore
-	    }
-	    return $d;
-	}
-
 
 	// returns a filetype img if avail
 	// returns 48px from  https://github.com/redbooth/free-file-icons
@@ -1312,8 +1300,8 @@ function zeroBSCRM_portal_linkObj( $obj_id = -1, $type_int = ZBS_TYPE_INVOICE ) 
 	$use_hash        = zeroBSCRM_getSetting( 'easyaccesslinks' );
 	$portal_base_url = zeroBS_portal_link();
 	// The separator for values in invoices and quotes should be '=' when plain permalinks are being used
-	$url_separator   = ( strpos( $portal_base_url, '?' ) === false ) ? '/' : '=';
-                
+	$url_separator = ( ! str_contains( $portal_base_url, '?' ) ) ? '/' : '=';
+
 	switch ( $type_int ) {
 		case ZBS_TYPE_INVOICE:
 			$settings          = zeroBSCRM_get_invoice_settings();
@@ -1361,7 +1349,7 @@ function jpcrm_get_portal_slug() {
 function jpcrm_get_client_portal_root_url() {
 	$client_portal_root_url  = home_url( jpcrm_get_portal_slug() );
 	// The url separator should be '&' when plain permalinks are being used
-	$client_portal_root_url .= ( strpos( $client_portal_root_url, '?' ) === false ) ? '/' : '&';
+	$client_portal_root_url .= ( ! str_contains( $client_portal_root_url, '?' ) ) ? '/' : '&';
 
 	return $client_portal_root_url;
 }
@@ -1390,7 +1378,9 @@ function zeroBS_portal_link($type='dash',$objIDorHashStr=-1){
 
 			// if using a str (hash) then prefix with zh- if not already
 			if (is_string($objIDorHashStr)){
-				if (substr($objIDorHashStr, 0,3) != 'zh-') $objIDorHashStr = 'zh-'.$objIDorHashStr;
+				if ( ! str_starts_with( $objIDorHashStr, 'zh-' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$objIDorHashStr = 'zh-' . $objIDorHashStr; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				}
 			}
 
 			if (

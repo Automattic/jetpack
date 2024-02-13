@@ -55,6 +55,14 @@ const mastodonImageTypes = allowedImageTypes.concat( [
 	'image/avif',
 ] );
 const mastodonVideoTypes = [ 'video/webm', 'video/quicktime', 'video/ogg' ];
+const nextdoorImageTypes = allowedImageTypes.concat( [
+	'image/gif',
+	'image/jpe',
+	'image/tif',
+	'image/tiff',
+	'image/webp',
+] );
+const nextdoorVideoTypes = [ MOV, 'video/avi', 'video/mpg', 'video/mpeg', 'video/m4v' ];
 
 // Global max size: 100 GB;
 export const GLOBAL_MAX_SIZE = 100000;
@@ -157,6 +165,15 @@ export const RESTRICTIONS = {
 		},
 		video: {
 			maxSize: 40,
+		},
+	},
+	nextdoor: {
+		allowedMediaTypes: nextdoorImageTypes.concat( [ ...nextdoorVideoTypes, MP4, VIDEOPRESS ] ),
+		image: {
+			maxSize: 10,
+		},
+		video: {
+			maxSize: 500,
 		},
 	},
 };

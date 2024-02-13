@@ -1,24 +1,24 @@
 /**
  * External dependencies
  */
+import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 import {
-	AI_MODEL_GPT_4,
-	ERROR_QUOTA_EXCEEDED,
-	useAiSuggestions,
-} from '@automattic/jetpack-ai-client';
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+	isAtomicSite,
+	isSimpleSite,
+	useAnalytics,
+} from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
-import React from 'react';
 /**
  * Internal dependencies
  */
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
+import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { isBetaExtension } from '../../../../editor';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
@@ -26,7 +26,7 @@ import { AiExcerptControl } from '../../components/ai-excerpt-control';
  */
 import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
 import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
-import type { AiModelTypeProp } from '@automattic/jetpack-ai-client';
+import type { AiModelTypeProp, PromptProp } from '@automattic/jetpack-ai-client';
 
 import './style.scss';
 
@@ -52,7 +52,12 @@ function AiPostExcerpt() {
 		};
 	}, [] );
 
+	const { tracks } = useAnalytics();
+
 	const { editPost } = useDispatch( 'core/editor' );
+
+	const { dequeueAiAssistantFeatureAyncRequest, increaseAiAssistantRequestsCount } =
+		useDispatch( 'wordpress-com/plans' );
 
 	// Post excerpt words number
 	const [ excerptWordsNumber, setExcerptWordsNumber ] = useState( 50 );
@@ -60,11 +65,36 @@ function AiPostExcerpt() {
 	const [ reenable, setReenable ] = useState( false );
 	const [ language, setLanguage ] = useState< LanguageProp >();
 	const [ tone, setTone ] = useState< ToneProp >();
-	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_GPT_4 );
+	const [ model, setModel ] = useState< AiModelTypeProp >( null );
 
-	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions(
-		{}
-	);
+	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions( {
+		onDone: useCallback( () => {
+			/*
+			 * Increase the AI Suggestion counter.
+			 * @todo: move this at store level.
+			 */
+			increaseAiAssistantRequestsCount();
+		}, [ increaseAiAssistantRequestsCount ] ),
+		onError: useCallback(
+			suggestionError => {
+				/*
+				 * Incrses AI Suggestion counter
+				 * only for valid errors.
+				 * @todo: move this at store level.
+				 */
+				if (
+					suggestionError.code === 'error_network' ||
+					suggestionError.code === 'error_quota_exceeded'
+				) {
+					return;
+				}
+
+				// Increase the AI Suggestion counter.
+				increaseAiAssistantRequestsCount();
+			},
+			[ increaseAiAssistantRequestsCount ]
+		),
+	} );
 
 	// Cancel and reset AI suggestion when the component is unmounted
 	useEffect( () => {
@@ -134,27 +164,43 @@ ${ postContent }
 `,
 		};
 
-		const prompt = [
+		const prompt: PromptProp = [
 			{
 				role: 'jetpack-ai',
 				context: messageContext,
 			},
 		];
 
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
+
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
+			feature: 'jetpack-ai-content-lens',
+		} );
 	}
 
-	function setExpert() {
+	function setExcerpt() {
 		editPost( { excerpt: suggestion } );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_accept', {
+			feature: 'jetpack-ai-content-lens',
+		} );
 		reset();
 	}
 
-	function discardExpert() {
+	function discardExcerpt() {
 		editPost( { excerpt: excerpt } );
+		tracks.recordEvent( 'jetpack_ai_assistant_block_discard', {
+			feature: 'jetpack-ai-content-lens',
+		} );
 		reset();
 	}
 
-	const isQuotaExceeded = error?.code === ERROR_QUOTA_EXCEEDED;
+	const { requireUpgrade, isOverLimit } = useAiFeature();
 
 	// Set the docs link depending on the site type
 	const docsLink =
@@ -188,7 +234,7 @@ ${ postContent }
 					</Notice>
 				) }
 
-				{ isQuotaExceeded && <UpgradePrompt /> }
+				{ isOverLimit && <UpgradePrompt placement="excerpt-panel" /> }
 
 				<AiExcerptControl
 					words={ excerptWordsNumber }
@@ -211,7 +257,7 @@ ${ postContent }
 						setModel( newModel );
 						setReenable( true );
 					} }
-					disabled={ isBusy || isQuotaExceeded }
+					disabled={ isBusy || requireUpgrade }
 				/>
 
 				<BaseControl
@@ -221,17 +267,17 @@ ${ postContent }
 				>
 					<div className="jetpack-generated-excerpt__generate-buttons-container">
 						<Button
-							onClick={ discardExpert }
+							onClick={ discardExcerpt }
 							variant="secondary"
 							isDestructive
-							disabled={ requestingState !== 'done' || isQuotaExceeded }
+							disabled={ requestingState !== 'done' || requireUpgrade }
 						>
 							{ __( 'Discard', 'jetpack' ) }
 						</Button>
 						<Button
-							onClick={ setExpert }
+							onClick={ setExcerpt }
 							variant="secondary"
-							disabled={ requestingState !== 'done' || isQuotaExceeded }
+							disabled={ requestingState !== 'done' || requireUpgrade }
 						>
 							{ __( 'Accept', 'jetpack' ) }
 						</Button>
@@ -239,7 +285,7 @@ ${ postContent }
 							onClick={ requestExcerpt }
 							variant="secondary"
 							isBusy={ isBusy }
-							disabled={ isGenerateButtonDisabled || isQuotaExceeded || ! postContent }
+							disabled={ isGenerateButtonDisabled || requireUpgrade || ! postContent }
 						>
 							{ __( 'Generate', 'jetpack' ) }
 						</Button>

@@ -83,7 +83,7 @@ The default is development mode; set `NODE_ENV=production` in node's environment
 
 Webpack has several different devtools with various tradeoffs. This value selects an appropriate devtool for the mode.
 
-In development mode, we choose 'eval-cheap-module-source-map'. This provides correct line numbers and filenames for error messages, while still being reasonably fast to build.
+In development mode we choose 'source-map' for maximum debugability.
 
 In production mode we choose no devtool, mainly because we don't currently distribute source maps in production.
 
@@ -186,8 +186,6 @@ This provides an instance of [@wordpress/dependency-extraction-webpack-plugin](h
 ##### `I18nLoaderPlugin( options )`
 
 This provides an instance of [@automattic/i18n-loader-webpack-plugin](https://www.npmjs.com/package/@automattic/i18n-loader-webpack-plugin). The `options` are passed to the plugin.
-
-Note that if the plugin actually does anything in your build, you'll need to specify at least the `domain` option for it.
 
 ##### `I18nCheckPlugin( options )`
 

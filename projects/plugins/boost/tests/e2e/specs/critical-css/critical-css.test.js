@@ -3,22 +3,22 @@ import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import { DashboardPage, ThemesPage, Sidebar } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
+import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
 
 test.describe( 'Critical CSS module', () => {
 	let page;
+	let previousTheme = null;
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( true ).build();
 	} );
 
-	test.afterAll( async ( { browser } ) => {
-		page = await browser.newPage();
-		await DashboardPage.visit( page );
-		await ( await Sidebar.init( page ) ).selectThemes();
-		await ( await ThemesPage.init( page ) ).activateTheme( 'twentytwentyone' );
-		await page.close();
+	test.afterAll( async () => {
+		if ( previousTheme !== null ) {
+			await execWpCommand( `theme activate ${ previousTheme }` );
+		}
 	} );
 
 	// NOTE: The order of the following tests is important as we are making reuse of the generated Critical CSS
@@ -78,7 +78,9 @@ test.describe( 'Critical CSS module', () => {
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectThemes();
 		const themesPage = await ThemesPage.init( page );
-		await themesPage.activateTheme( 'twentytwentytwo' );
+		// Remember the current theme so we can switch back to it during cleanup.
+		previousTheme = await themesPage.getActiveThemeSlug();
+		await themesPage.switchTheme();
 		expect(
 			await themesPage.isElementVisible( 'text=Jetpack Boost - Action Required' )
 		).toBeTruthy();

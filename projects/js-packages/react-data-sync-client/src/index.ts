@@ -1,2 +1,3 @@
-// eslint-disable-next-line no-console
-console.log( 'Hello World!' );
+export * from './DataSyncHooks';
+export { DataSync } from './DataSync';
+export { DataSyncError } from './DataSyncError';

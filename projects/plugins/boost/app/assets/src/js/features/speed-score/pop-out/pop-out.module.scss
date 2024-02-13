@@ -1,0 +1,30 @@
+.wrapper {
+	width: 400px;
+	position: absolute;
+	top: 40px;
+	right: 0;
+	z-index: 60;
+	overflow: hidden;
+	padding: 20px 0 20px 20px;
+	pointer-events: none;
+}
+
+.card {
+	box-shadow: 0 0 20px 0 rgb(170 170 170 / 28%);
+
+	position: relative;
+	right: -100%;
+	padding: 24px;
+
+	background-color: white;
+	pointer-events: all;
+}
+
+.dismiss-button {
+	margin-top: 10px !important;
+	float: right;
+}
+
+.headline {
+	margin-right: 21px;
+}

@@ -145,4 +145,98 @@ class Test_Host extends TestCase {
 			'default'     => array( '' ),
 		);
 	}
+
+	/**
+	 * Test adding a source parameter to the Calypso URL.
+	 *
+	 * @covers Automattic\Jetpack\Status\Host::get_source_query
+	 * @dataProvider get_source_query_params
+	 *
+	 * @param string $source Source parameter.
+	 * @param string $expected Expected query string.
+	 */
+	public function test_get_source_query( $source, $expected ) {
+		$_GET['source'] = $source;
+		$this->assertEquals( $expected, $this->host_obj->get_source_query( $source ) );
+		unset( $_GET['source'] );
+	}
+
+	/**
+	 * Test getting the known host guess.
+	 *
+	 * @covers Automattic\Jetpack\Status\Host::get_nameserver_dns_records
+	 */
+	public function test_get_nameserver_dns_records() {
+		Functions\when( 'dns_get_record' )->justReturn(
+			array(
+				array( 'target' => 'ns1.wordpress.com' ),
+				array( 'target' => 'ns2.wordpress.com' ),
+			)
+		);
+
+		$domain  = 'example.com';
+		$records = $this->host_obj->get_nameserver_dns_records( $domain );
+		$this->assertEquals( array( 'ns1.wordpress.com', 'ns2.wordpress.com' ), $records );
+	}
+
+	/**
+	 * Test getting the known host guess.
+	 *
+	 * @covers Automattic\Jetpack\Status\Host::get_hosting_provider_by_nameserver
+	 */
+	public function test_get_hosting_provider_by_nameserver() {
+		$mock = $this->createPartialMock( Host::class, array( 'get_nameserver_dns_records' ) );
+
+		$mock->method( 'get_nameserver_dns_records' )
+			->willReturn( array( 'ns1.bluehost.com', 'ns2.bluehost.com' ) );
+
+		$provider = $mock->get_hosting_provider_by_nameserver( 'example.com' );
+		$this->assertEquals( 'bluehost', $provider );
+	}
+
+	/**
+	 * Test getting the known host guess.
+	 *
+	 * @covers Automattic\Jetpack\Status\Host::get_known_host_guess
+	 */
+	public function test_get_known_host_guess() {
+		Functions\when( 'sanitize_text_field' )->alias(
+			function ( $value ) {
+				return $value;
+			}
+		);
+		$_SERVER['SERVER_NAME'] = 'mocked.example.com';
+
+		$mock1 = $this->createPartialMock( Host::class, array( 'get_hosting_provider_by_nameserver' ) );
+
+		$mock1->method( 'get_hosting_provider_by_nameserver' )
+			->willReturn( 'bluehost' );
+
+		$this->assertEquals( 'bluehost', $mock1->get_known_host_guess() );
+		Cache::clear();
+
+		$mock2 = $this->createPartialMock( Host::class, array( 'is_atomic_platform' ) );
+
+		$mock2->method( 'is_atomic_platform' )
+			->willReturn( true );
+
+		$this->assertEquals( 'atomic', $mock2->get_known_host_guess() );
+		Cache::clear();
+
+		$this->assertEquals( 'unknown', $this->host_obj->get_known_host_guess() );
+		Cache::clear();
+	}
+
+	/**
+	 * Data provider for `test_get_source_query()` test method.
+	 *
+	 * @return array
+	 */
+	public function get_source_query_params() {
+			return array(
+				'empty'   => array( '', '' ),
+				'valid'   => array( 'jetpack-manage', 'jetpack-manage' ),
+				'invalid' => array( 'invalid-param', '' ),
+			);
+	}
 }

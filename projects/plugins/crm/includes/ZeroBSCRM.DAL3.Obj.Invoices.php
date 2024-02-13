@@ -784,7 +784,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
                     // where status = x
                     // USE hasStatus above now...
-                    if (substr($qFilter,0,7) == 'status_'){
+					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                         $qFilterStatus = substr($qFilter,7);
                         $qFilterStatus = str_replace('_',' ',$qFilterStatus);
@@ -792,14 +792,13 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                         // check status
                         $wheres['quickfilterstatus'] = array('zbsi_status','LIKE','%s',ucwords($qFilterStatus));
 
-                    } else {
+					} else {
 
                         // if we've hit no filter query, let external logic hook in to provide alternatives
                         // First used in WooSync module
                         $wheres = apply_filters( 'jpcrm_invoice_query_quickfilter', $wheres, $qFilter );
 
-                    }
-
+					}
                 }
             } // / quickfilters
 
@@ -1212,7 +1211,10 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                         // some weird case where getting empties, so added check
                         if (isset($field['key']) && !empty($field['key'])){ 
 
-                            $dePrefixed = ''; if (substr($field['key'],0,strlen('zbsi_')) === 'zbsi_') $dePrefixed = substr($field['key'], strlen('zbsi_'));
+						$dePrefixed = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $field['key'], 'zbsi_' ) ) {
+							$dePrefixed = substr( $field['key'], strlen( 'zbsi_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 
                             if (isset($customFields[$field['key']])){
 
@@ -2525,7 +2527,6 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
     
     /**
      * Returns an ownerid against a invoice
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id invoice ID
      *
@@ -2751,55 +2752,58 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
             if (is_array($invoice)){
 
                 // get total due
-                $invoiceTotalValue = 0.0; if (isset($invoice['total'])) $invoiceTotalValue = (float)$invoice['total'];
-                // this one'll be a rolling sum
-                $transactionsTotalValue = 0.0;
+						$invoice_total_value = 0.0;
+						if ( isset( $invoice['total'] ) ) {
+							$invoice_total_value = (float) $invoice['total'];
+							// this one'll be a rolling sum
+							$transactions_total_value = 0.0;
 
-                // cycle through trans + calc existing balance
-                if (isset($invoice['transactions']) && is_array($invoice['transactions'])){
+							// cycle through trans + calc existing balance
+							if ( isset( $invoice['transactions'] ) && is_array( $invoice['transactions'] ) ) {
 
-                    // got trans
-                    foreach ($invoice['transactions'] as $transaction){
+								// got trans
+								foreach ( $invoice['transactions'] as $transaction ) {
 
-                        // should we also check for status=completed/succeeded? (leaving for now, will let check all):
+									// should we also check for status=completed/succeeded? (leaving for now, will let check all):
 
-                        // get amount
-                        $transactionAmount = 0.0; if (isset($transaction['total'])) $transactionAmount = (float)$transaction['total'];
+									// get amount
+									$transaction_amount = 0.0;
 
-                        if ($transactionAmount > 0){
+									if ( isset( $transaction['total'] ) ) {
+										$transaction_amount = (float) $transaction['total'];
 
-                            switch ($transaction['type']){
+										if ( $transaction_amount > 0 ) {
 
-                                case __('Sale','zero-bs-crm'):
+											switch ( $transaction['type'] ) {
+												case __( 'Sale', 'zero-bs-crm' ):
+													// these count as debits against invoice.
+													$transactions_total_value -= $transaction_amount;
 
-                                    // these count as debits against invoice.
-                                    $transactionsTotalValue -= $transactionAmount;
+													break;
 
-                                    break;
+												case __( 'Refund', 'zero-bs-crm' ):
+												case __( 'Credit Note', 'zero-bs-crm' ):
+													// these count as credits against invoice.
+													$transactions_total_value += $transaction_amount;
 
-                                case __('Refund','zero-bs-crm'):
-                                case __('Credit Note','zero-bs-crm'):
+													break;
 
-                                    // these count as credits against invoice.
-                                    $transactionsTotalValue += $transactionAmount;
+											} // / switch on type (sale/refund)
 
-                                    break;
+										} // / if trans > 0
 
+									} // / if isset
 
+								} // / each trans
 
-                            } // / switch on type (sale/refund)
+								// should now have $transactions_total_value & $invoice_total_value
+								// ... so we sum + return.
+								return $invoice_total_value + $transactions_total_value;
 
-                        } // / if trans > 0
+							} // / if has trans
+						} //  if isset invoice total
 
-                    } // / each trans
-
-                    // should now have $transactionsTotalValue & $invoiceTotalValue
-                    // ... so we sum + return.
-                    return $invoiceTotalValue + $transactionsTotalValue;
-
-                } // / if has trans
-
-            } // / if retrieved inv
+					} // / if retrieved inv
 
         } // / if invoice_id > 0
 

@@ -6,7 +6,11 @@ import debounce from 'lodash/debounce';
 import React, { Component, Fragment } from 'react';
 import { createPortal } from 'react-dom';
 import { connect } from 'react-redux';
-import { MULTISITE_NO_GROUP_VALUE, RESULT_FORMAT_EXPANDED } from '../lib/constants';
+import {
+	MULTISITE_NO_GROUP_VALUE,
+	RESULT_FORMAT_EXPANDED,
+	SERVER_OBJECT_NAME,
+} from '../lib/constants';
 import { getAvailableStaticFilters } from '../lib/filters';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
@@ -117,7 +121,7 @@ class SearchApp extends Component {
 
 	initializeAnalytics() {
 		initializeTracks();
-		resetTrackingCookies();
+		! window[ SERVER_OBJECT_NAME ].preventTrackingCookiesReset && resetTrackingCookies();
 		identifySite( this.props.options.siteId );
 	}
 

@@ -1070,7 +1070,7 @@ class zbsDAL_quotetemplates extends zbsDAL_ObjectLayer {
             $res['owner'] = $obj->zbs_owner;
 
 
-            $res['title'] = $this->stripSlashes($obj->zbsqt_title);
+			$res['title']            = wp_kses( html_entity_decode( $obj->zbsqt_title, ENT_QUOTES, 'UTF-8' ), $zbs->acceptable_restricted_html );
             $res['value'] = $this->stripSlashes($obj->zbsqt_value);
             $res['date_str'] = $this->stripSlashes($obj->zbsqt_date_str);
             $res['date'] = (int)$obj->zbsqt_date;
@@ -1131,7 +1131,6 @@ class zbsDAL_quotetemplates extends zbsDAL_ObjectLayer {
     
     /**
      * Returns an ownerid against a quotetemplate
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id quotetemplate ID
      *

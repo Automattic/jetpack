@@ -6,7 +6,7 @@ const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plug
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: jetpackWebpackConfig.devtool,
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.join( __dirname, '../_inc/build' ),
@@ -85,7 +85,6 @@ const supportedModules = [
 	'masterbar',
 	'videopress',
 	'comment-likes',
-	'lazy-images',
 	'scan',
 	'wordads',
 	'theme-tools/responsive-videos',

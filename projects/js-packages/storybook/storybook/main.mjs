@@ -87,6 +87,18 @@ const sbconfig = {
 			fileURLToPath( new URL( '../../../packages/search/src/dashboard/', import.meta.url ) )
 		);
 
+		config.resolve.alias = {
+			...config.resolve.alias,
+
+			// Boost specific aliases
+			$lib: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/lib' ),
+			$features: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/features' ),
+			$layout: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/layout' ),
+			$svg: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/svg' ),
+			$css: path.join( __dirname, '../../../plugins/boost/app/assets/src/css' ),
+			$images: path.join( __dirname, '../../../plugins/boost/app/assets/static/images' ),
+		};
+
 		return config;
 	},
 	refs: {

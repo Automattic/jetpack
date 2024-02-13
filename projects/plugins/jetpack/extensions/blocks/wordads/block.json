@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/wordads",
 	"title": "Ad",
 	"description": "Earn income by adding high quality ads to your post.",
@@ -31,5 +31,5 @@
 			"default": false
 		}
 	},
-	"editorScript": "file:../editor.js"
+	"example": {}
 }

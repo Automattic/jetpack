@@ -14,6 +14,7 @@ import './shared/styles/external-link-fix.scss';
 // Register media source store to the centralized data registry.
 import './store/media-source';
 import './store/membership-products';
+import './store/wordpress-com';
 import extensionList from './index.json';
 import './index.scss';
 

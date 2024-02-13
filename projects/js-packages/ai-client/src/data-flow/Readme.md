@@ -33,7 +33,6 @@ export default withAiAssistantData( MyComponent );
 
 * [AI Data Context](#ai-assistant-content)
 * [withAiDataProvider HOC](#with-ai-data-provider)
-* [blockListBlockWithAiDataProvider](#block-list-block-with-ai-data-provider)
 * [useAiContext Hook](#use-ai-context)
 
 <h2 id="ai-assistant-content">Ai Data Context</h2>
@@ -115,25 +114,6 @@ These callbacks will be invoked with the detail of the corresponding event emitt
 
 When called, the hook returns the Ai Data Context.
 
-
-<h2 id="block-list-block-with-ai-data-provider">blockListBlockWithAiDataProvider Function</h2>
-
-The `blockListBlockWithAiDataProvider` function returns a Higher Order Component (HOC) that wraps and provides the AI Assistant Data context to a specified set of blocks. Primarily designed for use with the `editor.BlockListBlock` filter in the WordPress Block Editor, it conditionally applies the data provider only to block types specified in the function options.
-
-### Usage
-
-To use the `blockListBlockWithAiDataProvider`, you'll need to specify which blocks should have access to the AI Assistant Data context:
-
-```jsx
-import { blockListBlockWithAiDataProvider } from '@automattic/jetpack-ai-client';
-
-// Example usage with WordPress filters
-const enhancedBlockListBlock = blockListBlockWithAiDataProvider( {
-  blocks: [ 'core/paragraph', 'core/heading' ]
-} );
-
-wp.hooks.addFilter( 'editor.BlockListBlock', 'my-plugin/with-ai-data', enhancedBlockListBlock );
-```
 
 ### Parameters
 

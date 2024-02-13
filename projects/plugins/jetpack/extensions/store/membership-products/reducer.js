@@ -11,6 +11,10 @@ export const DEFAULT_STATE = {
 		emailSubscribers: null,
 		paidSubscribers: null,
 	},
+	newsletterCategories: {
+		enabled: false,
+		categories: [],
+	},
 };
 
 export default function reducer( state = DEFAULT_STATE, action ) {
@@ -32,6 +36,16 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 			return {
 				...state,
 				subscriberCounts: action.subscriberCounts,
+			};
+		case 'SET_NEWSLETTER_CATEGORIES':
+			return {
+				...state,
+				newsletterCategories: action.newsletterCategories,
+			};
+		case 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT':
+			return {
+				...state,
+				newsletterCategoriesSubscriptionsCount: action.newsletterCategoriesSubscriptionsCount,
 			};
 	}
 	return state;

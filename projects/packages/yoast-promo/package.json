@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-yoast-promo",
-	"version": "0.1.3-alpha",
+	"version": "0.2.1-alpha",
 	"description": "Components used to promote Yoast as part of our collaboration",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/yoast-promo/#readme",
 	"bugs": {
@@ -24,22 +24,22 @@
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
-		"@wordpress/components": "25.9.0",
-		"@wordpress/data": "9.13.0",
-		"@wordpress/edit-post": "7.20.0",
-		"@wordpress/element": "5.20.0",
-		"@wordpress/i18n": "4.43.0",
-		"@wordpress/plugins": "6.11.0",
+		"@wordpress/components": "26.0.0",
+		"@wordpress/data": "9.21.0",
+		"@wordpress/edit-post": "7.28.0",
+		"@wordpress/element": "5.28.0",
+		"@wordpress/i18n": "4.51.0",
+		"@wordpress/plugins": "6.19.0",
 		"gridicons": "3.4.1",
 		"react": "18.2.0",
 		"react-dom": "18.2.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.23.2",
-		"@babel/preset-env": "7.23.2",
-		"@babel/runtime": "7.23.2",
-		"@wordpress/browserslist-config": "5.26.0",
+		"@babel/core": "7.23.5",
+		"@babel/preset-env": "7.23.5",
+		"@babel/runtime": "7.23.5",
+		"@wordpress/browserslist-config": "5.34.0",
 		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
 		"webpack": "5.76.0",
@@ -47,9 +47,5 @@
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
-	],
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	}
+	]
 }

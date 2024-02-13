@@ -509,13 +509,14 @@ function wpsc_get_accept_header() {
 	static $accept = 'N/A';
 
 	if ( $accept === 'N/A' ) {
-		$json_list = array( 'application/json', 'application/activity+json', 'application/ld+json' );
+		$accept_headers = apply_filters( 'wpsc_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
+		$accept_headers = array_map( 'strtolower', $accept_headers );
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- $accept is checked and set below.
 		$accept = isset( $_SERVER['HTTP_ACCEPT'] ) ? strtolower( filter_var( $_SERVER['HTTP_ACCEPT'] ) ) : '';
 
-		foreach ( $json_list as $header ) {
-			if ( strpos( $accept, $header ) ) {
+		foreach ( $accept_headers as $header ) {
+			if ( str_contains( $accept, $header ) ) {
 				$accept = 'application/json';
 			}
 		}
@@ -677,7 +678,7 @@ function wp_cache_check_mobile( $cache_key ) {
 		}
 	}
 	$accept = isset( $_SERVER['HTTP_ACCEPT'] ) ? strtolower( $_SERVER['HTTP_ACCEPT'] ) : '';
-	if ( strpos( $accept, 'wap' ) !== false ) {
+	if ( str_contains( $accept, 'wap' ) ) {
 		return $cache_key . '-' . 'wap';
 	}
 
@@ -803,7 +804,7 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 	if ( $post_id != 0 ) {
 		$site_url  = site_url();
 		$permalink = get_permalink( $post_id );
-		if ( false === strpos( $permalink, $site_url ) ) {
+		if ( ! str_contains( $permalink, $site_url ) ) {
 			/*
 			 * Sometimes site_url doesn't return the siteurl. See https://wordpress.org/support/topic/wp-super-cache-not-refreshing-post-after-comments-made
 			 */
@@ -824,7 +825,7 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 			}
 		} else {
 			$uri = str_replace( $site_url, '', $permalink );
-			if ( strpos( $uri, $wp_cache_home_path ) !== 0 ) {
+			if ( ! str_starts_with( $uri, $wp_cache_home_path ) ) {
 				$uri = rtrim( $wp_cache_home_path, '/' ) . $uri;
 			}
 		}
@@ -1279,14 +1280,14 @@ foreach ( $debug_log as $t => $line ) {
 	$line = str_replace( $path_to_site, "ABSPATH/", $line );
 	$debug_log[ $t ] = $line;
 	foreach( $checks as $check ) {
-		if ( $$check && false !== strpos( $line, " /$check/" ) ) {
+		if ( $$check && str_contains( $line, " /$check/" ) ) {
 			unset( $debug_log[ $t ] );
 		}
 	}
 	if ( $filter ) {
-		if ( false !== strpos( $line, $filter ) && $exclude_filter ) {
+		if ( str_contains( $line, $filter ) && $exclude_filter ) {
 			unset( $debug_log[ $t ] );
-		} elseif ( false === strpos( $line, $filter ) && ! $exclude_filter ) {
+		} elseif ( ! str_contains( $line, $filter ) && ! $exclude_filter ) {
 			unset( $debug_log[ $t ] );
 		}
 	}
@@ -1305,14 +1306,14 @@ foreach( $debug_log as $line ) {
 }
 
 function wpsc_delete_url_cache( $url ) {
-	if ( false !== strpos( $url, '?' ) ) {
+	if ( str_contains( $url, '?' ) ) {
 		wp_cache_debug( 'wpsc_delete_url_cache: URL contains the character "?". Not deleting URL: ' . $url );
 		return false;
 	}
 	$dir = str_replace( get_option( 'home' ), '', $url );
 	if ( $dir != '' ) {
 		$supercachedir = get_supercache_dir();
-		wpsc_delete_files( $supercachedir . $dir );
+		wpsc_rebuild_files( $supercachedir . $dir );
 		prune_super_cache( $supercachedir . $dir . '/page', true );
 		return true;
 	} else {
@@ -2565,7 +2566,7 @@ function wp_cache_phase2_clean_cache( $file_prefix ) {
 	wp_cache_debug( "wp_cache_phase2_clean_cache: Cleaning cache in $blog_cache_dir" );
 	if ( $handle = @opendir( $blog_cache_dir ) ) {
 		while ( false !== ( $file = @readdir( $handle ) ) ) {
-			if ( strpos( $file, $file_prefix ) !== false ) {
+			if ( str_contains( $file, $file_prefix ) ) {
 				if ( strpos( $file, '.html' ) ) {
 					// delete old wpcache files immediately
 					wp_cache_debug( "wp_cache_phase2_clean_cache: Deleting obsolete wpcache cache+meta files: $file" );
@@ -3196,7 +3197,7 @@ function wp_cache_post_id_gc( $post_id, $all = 'all' ) {
 	}
 
 	$permalink = trailingslashit( str_replace( get_option( 'home' ), '', get_permalink( $post_id ) ) );
-	if ( false !== strpos( $permalink, '?' ) ) {
+	if ( str_contains( $permalink, '?' ) ) {
 		wp_cache_debug( 'wp_cache_post_id_gc: NOT CLEARING CACHE. Permalink has a "?". ' . $permalink );
 		return false;
 	}
@@ -3307,7 +3308,7 @@ function wp_cache_post_change( $post_id ) {
 	$supercache_files_deleted = false;
 	if ( $handle = @opendir( $blog_cache_dir ) ) {
 		while ( false !== ( $file = readdir( $handle ) ) ) {
-			if ( strpos( $file, $file_prefix ) !== false ) {
+			if ( str_contains( $file, $file_prefix ) ) {
 				if ( strpos( $file, '.html' ) ) {
 					// delete old wpcache files immediately
 					wp_cache_debug( "wp_cache_post_change: Deleting obsolete wpcache cache+meta files: $file" );
@@ -3528,7 +3529,7 @@ if ( ! function_exists( 'apache_request_headers' ) ) {
 		$headers = array();
 
 		foreach ( array_keys( $_SERVER ) as $skey ) {
-			if ( 0 === strpos( $skey, 'HTTP_' ) ) {
+			if ( str_starts_with( $skey, 'HTTP_' ) ) {
 				$header             = implode( '-', array_map( 'ucfirst', array_slice( explode( '_', strtolower( $skey ) ), 1 ) ) );
 				$headers[ $header ] = $_SERVER[ $skey ];
 			}

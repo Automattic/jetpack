@@ -132,13 +132,14 @@ class Table_Checksum {
 	/**
 	 * Table_Checksum constructor.
 	 *
-	 * @param string  $table The table to calculate checksums for.
-	 * @param string  $salt  Optional salt to add to the checksum.
+	 * @param string  $table                   The table to calculate checksums for.
+	 * @param string  $salt                    Optional salt to add to the checksum.
 	 * @param boolean $perform_text_conversion If text fields should be latin1 converted.
+	 * @param array   $additional_columns      Additional columns to add to the checksum calculation.
 	 *
 	 * @throws Exception Throws exception from inner functions.
 	 */
-	public function __construct( $table, $salt = null, $perform_text_conversion = false ) {
+	public function __construct( $table, $salt = null, $perform_text_conversion = false, $additional_columns = null ) {
 
 		if ( ! Sync\Settings::is_checksum_enabled() ) {
 			throw new Exception( 'Checksums are currently disabled.' );
@@ -162,6 +163,8 @@ class Table_Checksum {
 		$this->table_configuration = $this->allowed_tables[ $table ];
 
 		$this->prepare_fields( $this->table_configuration );
+
+		$this->prepare_additional_columns( $additional_columns );
 
 		// Run any callbacks to check if a table is enabled or not.
 		if (
@@ -876,5 +879,49 @@ class Table_Checksum {
 		// TODO more checks if needed. Probably query the DB to make sure the tables exist.
 
 		return true;
+	}
+
+	/**
+	 * Prepare and append custom columns to the list of columns that we run the checksum on.
+	 *
+	 * @param string|array $additional_columns List of additional columns.
+	 *
+	 * @return void
+	 * @throws Exception When field validation fails.
+	 */
+	protected function prepare_additional_columns( $additional_columns ) {
+		/**
+		 * No need to do anything if the parameter is not provided or empty.
+		 */
+		if ( empty( $additional_columns ) ) {
+			return;
+		}
+
+		if ( ! is_array( $additional_columns ) ) {
+			if ( ! is_string( $additional_columns ) ) {
+				throw new Exception( 'Invalid value for additional fields' );
+			}
+
+			$additional_columns = explode( ',', $additional_columns );
+		}
+
+		/**
+		 * Validate the fields. If any don't conform to the required norms, we will throw an exception and
+		 * halt code here.
+		 */
+		$this->validate_fields( $additional_columns );
+
+		/**
+		 * Assign the fields to the checksum_fields to be used in the checksum later.
+		 *
+		 * We're adding the fields to the rest of the `checksum_fields`, so we don't need
+		 * to implement extra logic just for the additional fields.
+		 */
+		$this->checksum_fields = array_unique(
+			array_merge(
+				$this->checksum_fields,
+				$additional_columns
+			)
+		);
 	}
 }

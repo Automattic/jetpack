@@ -149,7 +149,7 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		// Get the user by ID or login
-		$get_by = false !== strpos( $path, '/users/login:' ) ? 'login' : 'id';
+		$get_by = str_contains( $path, '/users/login:' ) ? 'login' : 'id';
 		$user   = get_user_by( $get_by, $user_id );
 
 		if ( ! $user ) {

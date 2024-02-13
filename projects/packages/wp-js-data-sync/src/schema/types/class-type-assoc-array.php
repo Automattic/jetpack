@@ -2,20 +2,26 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
+use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
 
 class Type_Assoc_Array implements Parser {
-	private $assoc_parser_array;
+	private $parser;
 
 	/**
 	 * Assoc Array type takes in a parser in the constructor and
 	 * will parse each keyed value in the array using the parser.
 	 *
 	 * @param Parser[] $assoc_parser_array - An associative array of parsers to use.
+	 * @throws Schema_Error - Only in Debug mode: if the $assoc_parser_array is not an associative array.
 	 */
-	public function __construct( array $assoc_parser_array ) {
-		$this->assoc_parser_array = $assoc_parser_array;
+	public function __construct( $assoc_parser_array ) {
+		$this->parser = $assoc_parser_array;
+		if ( ! is_array( $assoc_parser_array ) && DS_Utils::is_debug() ) {
+			$message = "Expected an associative array of parsers, received '" . gettype( $assoc_parser_array ) . "'";
+			throw new Schema_Error( $message, $assoc_parser_array );
+		}
 	}
 
 	/**
@@ -25,44 +31,47 @@ class Type_Assoc_Array implements Parser {
 	 * It will then loop over each key that was provided in the constructor
 	 * and pull the value based on that key from the $data array.
 	 *
-	 * @param $input_value mixed[]
-	 * @throws \Error - If the $data passed to it is not an associative array.
+	 * @param $value mixed[]
 	 *
 	 * @return array
+	 * @throws Schema_Error - If the $data passed to it is not an associative array.
+	 *
 	 */
-	public function parse( $input_value ) {
+	public function parse( $value, $context ) {
 		// Allow coercing stdClass objects (often returned from json_decode) to an assoc array.
-		if ( is_object( $input_value ) && get_class( $input_value ) === 'stdClass' ) {
-			$input_value = (array) $input_value;
+		if ( is_object( $value ) && $value instanceof \stdClass ) {
+			$value = (array) $value;
 		}
 
-		if ( ! is_array( $input_value ) || $this->is_sequential_array( $input_value ) ) {
-			$message = "Expected an associative array, received '" . gettype( $input_value ) . "'";
-			throw new \Error( $message );
+		if ( ! is_array( $value ) || $this->is_sequential_array( $value ) ) {
+			$message = "Expected an associative array, received '" . gettype( $value ) . "'";
+			throw new Schema_Error( $message, $value );
 		}
+		$output = array();
+		foreach ( $this->parser as $key => $parser ) {
 
-		$parsed = array();
-		foreach ( $this->assoc_parser_array as $key => $parser ) {
-			if ( ! isset( $input_value[ $key ] ) ) {
-				if ( $parser instanceof Decorate_With_Default ) {
-					$value = $parser->parse( null );
+			if ( null !== $context ) {
+				$context->add_to_path( $key );
+			}
 
-					// @TODO Document this behavior.
-					// At the moment, values that are null are dropped from assoc arrays.
-					// to match the Zod behavior.
-					if ( $value !== null ) {
-						$parsed[ $key ] = $value;
-					}
-				} else {
-					$message = "Expected key '$key' in associative array";
-					throw new \Error( $message );
-				}
-			} else {
-				$parsed[ $key ] = $parser->parse( $input_value[ $key ] );
+			if ( ! isset( $value[ $key ] ) ) {
+				$value[ $key ] = null;
+			}
+
+			$parsed = $parser->parse( $value[ $key ], $context );
+			// @TODO Document this behavior.
+			// At the moment, values that are null are dropped from assoc arrays.
+			// to match the Zod behavior.
+			if ( $parsed !== null ) {
+				$output[ $key ] = $parsed;
+			}
+
+			if ( null !== $context ) {
+				$context->remove_path( $key );
 			}
 		}
 
-		return $parsed;
+		return $output;
 	}
 
 	private function is_sequential_array( $arr ) {
@@ -70,5 +79,28 @@ class Type_Assoc_Array implements Parser {
 			return false;
 		}
 		return array_keys( $arr ) === range( 0, count( $arr ) - 1 );
+	}
+
+	public function __toString() {
+		return 'assoc_array';
+	}
+
+	/**
+	 * @return string
+	 */
+	#[\ReturnTypeWillChange]
+	public function jsonSerialize() {
+		return $this->schema();
+	}
+
+	public function schema() {
+		$results = array();
+		foreach ( $this->parser as $key => $parser ) {
+			$results[ $key ] = $parser->schema();
+		}
+		return array(
+			'type'  => 'assoc_array',
+			'value' => $results,
+		);
 	}
 }

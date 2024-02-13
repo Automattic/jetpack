@@ -4,6 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"php": ">=7.0",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
@@ -49,12 +50,13 @@
 			"link-template": "https://github.com/Automattic/jetpack-partner/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.7.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		}
 	},
 	"config": {
 		"allow-plugins": {
 			"roots/wordpress-core-installer": true
 		}
-	}
+	},
+	"abandoned": "automattic/jetpack-connection"
 }

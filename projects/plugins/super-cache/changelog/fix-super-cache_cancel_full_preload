@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Super Cache: cancel the full preload job correctly.

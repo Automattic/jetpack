@@ -12,9 +12,9 @@ import {
 	ThankYouPage,
 	LoginPage,
 } from '../pages/wpcom/index.js';
-import { execWpCommand } from '../helpers/utils-helper.cjs';
+import { execWpCommand } from '../helpers/utils-helper.js';
 import { persistPlanData, syncPlanData } from '../helpers/plan-helper.js';
-import logger from '../logger.cjs';
+import logger from '../logger.js';
 import { expect } from '@playwright/test';
 
 const cardCredentials = config.get( 'testCardCredentials' );
@@ -42,7 +42,7 @@ export async function doSiteLevelConnection( page ) {
 	await ( await PickAPlanPage.init( page ) ).select( 'free' );
 	const isPageVisible = await (
 		await RecommendationsPage.visit( page )
-	 ).areSiteTypeQuestionsVisible();
+	).areSiteTypeQuestionsVisible();
 	expect( isPageVisible ).toBeTruthy();
 	await ( await Sidebar.init( page ) ).selectJetpack();
 }

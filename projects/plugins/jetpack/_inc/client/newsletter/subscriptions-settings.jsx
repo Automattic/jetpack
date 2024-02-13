@@ -14,7 +14,6 @@ import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
 import {
-	isSubscriptionModalEnabled,
 	currentThemeIsBlockTheme,
 	currentThemeStylesheet,
 	getSiteAdminUrl,
@@ -33,7 +32,6 @@ const trackViewSubsClick = () => {
  */
 function SubscriptionsSettings( props ) {
 	const {
-		hasSubscriptionModal,
 		unavailableInOfflineMode,
 		isLinked,
 		isOffline,
@@ -49,6 +47,7 @@ function SubscriptionsSettings( props ) {
 		isBlockTheme,
 		siteAdminUrl,
 		themeStylesheet,
+		blogID,
 	} = props;
 
 	const subscribeModalEditorUrl =
@@ -83,7 +82,7 @@ function SubscriptionsSettings( props ) {
 				className="jp-settings-card__configure-link"
 				onClick={ trackViewSubsClick }
 				href={ getRedirectUrl( 'calypso-subscribers', {
-					site: siteRawUrl,
+					site: blogID ?? siteRawUrl,
 				} ) }
 				target="_blank"
 				rel="noopener noreferrer"
@@ -92,6 +91,9 @@ function SubscriptionsSettings( props ) {
 			</Card>
 		);
 	};
+
+	const isDisabled =
+		! isSubscriptionsActive || unavailableInOfflineMode || isSavingAnyOption( [ 'subscriptions' ] );
 
 	return (
 		<SettingsCard { ...props } hideButton module="subscriptions">
@@ -110,7 +112,7 @@ function SubscriptionsSettings( props ) {
 			>
 				<ModuleToggle
 					slug="subscriptions"
-					disabled={ unavailableInOfflineMode || ! isLinked }
+					disabled={ unavailableInOfflineMode }
 					activated={ isSubscriptionsActive }
 					toggling={ isSavingAnyOption( 'subscriptions' ) }
 					toggleModule={ toggleModuleNow }
@@ -121,12 +123,7 @@ function SubscriptionsSettings( props ) {
 					<FormFieldset>
 						<ToggleControl
 							checked={ isSubscriptionsActive && isStbEnabled }
-							disabled={
-								! isSubscriptionsActive ||
-								unavailableInOfflineMode ||
-								isSavingAnyOption( [ 'subscriptions' ] ) ||
-								! isLinked
-							}
+							disabled={ isDisabled }
 							toggling={ isSavingAnyOption( [ 'stb_enabled' ] ) }
 							onChange={ handleSubscribeToBlogToggleChange }
 							label={ __(
@@ -136,12 +133,7 @@ function SubscriptionsSettings( props ) {
 						/>
 						<ToggleControl
 							checked={ isSubscriptionsActive && isStcEnabled }
-							disabled={
-								! isSubscriptionsActive ||
-								unavailableInOfflineMode ||
-								isSavingAnyOption( [ 'subscriptions' ] ) ||
-								! isLinked
-							}
+							disabled={ isDisabled }
 							toggling={ isSavingAnyOption( [ 'stc_enabled' ] ) }
 							onChange={ handleSubscribeToCommentToggleChange }
 							label={ __(
@@ -149,36 +141,27 @@ function SubscriptionsSettings( props ) {
 								'jetpack'
 							) }
 						/>
-						{ hasSubscriptionModal && (
-							<>
-								<ToggleControl
-									checked={ isSubscriptionsActive && isSmEnabled }
-									disabled={
-										! isSubscriptionsActive ||
-										unavailableInOfflineMode ||
-										isSavingAnyOption( [ 'subscriptions' ] ) ||
-										! isLinked
-									}
-									toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
-									onChange={ handleSubscribeModalToggleChange }
-									label={ __( 'Enable subscriber pop-up', 'jetpack' ) }
-								/>
-								<p className="jp-form-setting-explanation">
-									{ __(
-										'Automatically add a subscribe form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
-										'jetpack'
-									) }
-									{ isBlockTheme && subscribeModalEditorUrl && (
-										<>
-											{ ' ' }
-											<ExternalLink href={ subscribeModalEditorUrl }>
-												{ __( 'Preview and edit the pop-up', 'jetpack' ) }
-											</ExternalLink>
-										</>
-									) }
-								</p>
-							</>
-						) }
+						<ToggleControl
+							checked={ isSubscriptionsActive && isSmEnabled }
+							disabled={ isDisabled }
+							toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
+							onChange={ handleSubscribeModalToggleChange }
+							label={ __( 'Enable subscription pop-up', 'jetpack' ) }
+						/>
+						<p className="jp-form-setting-explanation">
+							{ __(
+								'Automatically add a subscription form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
+								'jetpack'
+							) }
+							{ isBlockTheme && subscribeModalEditorUrl && (
+								<>
+									{ ' ' }
+									<ExternalLink href={ subscribeModalEditorUrl }>
+										{ __( 'Preview and edit the pop-up', 'jetpack' ) }
+									</ExternalLink>
+								</>
+							) }
+						</p>
 					</FormFieldset>
 				}
 			</SettingsGroup>
@@ -201,7 +184,6 @@ export default withModuleSettingsFormHelpers(
 			isLinked: isCurrentUserLinked( state ),
 			isOffline: isOfflineMode( state ),
 			isSubscriptionsActive: ownProps.getOptionValue( 'subscriptions' ),
-			hasSubscriptionModal: isSubscriptionModalEnabled( state ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, 'subscriptions' ),
 			subscriptions: getModule( state, 'subscriptions' ),
 			isStbEnabled: ownProps.getOptionValue( 'stb_enabled' ),

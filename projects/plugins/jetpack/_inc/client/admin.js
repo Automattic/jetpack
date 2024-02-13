@@ -127,7 +127,7 @@ export function getRouteName( path ) {
 		case '/discussion':
 			return _x( 'Discussion', 'Navigation item.', 'jetpack' );
 		case '/earn':
-			return _x( 'Earn', 'Navigation item.', 'jetpack' );
+			return _x( 'Monetize', 'Navigation item.', 'jetpack' );
 		case '/newsletter':
 			return _x( 'Newsletter', 'Navigation item.', 'jetpack' );
 		case '/security':

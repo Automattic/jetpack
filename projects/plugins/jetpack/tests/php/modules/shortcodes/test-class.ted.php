@@ -27,7 +27,7 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 	}
 
 	public function pre_http_request( $response, $args, $url ) {
-		if ( 0 !== strpos( $url, 'https://www.ted.com/services/v1/oembed.json?' ) ) {
+		if ( ! str_starts_with( $url, 'https://www.ted.com/services/v1/oembed.json?' ) ) {
 			return $response;
 		}
 

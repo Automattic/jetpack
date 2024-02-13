@@ -59,6 +59,12 @@ $whatsapp: #2ab318;
 		background-color: $whatsapp;
 	}
 
+	.facebook {
+		background-color: var( --color-facebook );
+		// I hate !important, but social icon has it, so it needs to be overriden
+		border-radius: var(--jp-border-radius) !important;
+	}
+
 	.clipboard {
 		background-color: #fff;
 		outline: 1px solid var(--jp-gray);

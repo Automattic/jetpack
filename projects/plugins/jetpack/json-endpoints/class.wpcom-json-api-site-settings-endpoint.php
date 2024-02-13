@@ -51,6 +51,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'default_ping_status'                     => '(bool) Allow link notifications from other blogs?',
 			'default_comment_status'                  => '(bool) Allow comments on new articles?',
 			'blog_public'                             => '(string) Site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
+			'wpcom_data_sharing_opt_out'              => '(bool) Did the site opt out of sharing public content with third parties and research partners?',
 			'jetpack_sync_non_public_post_stati'      => '(bool) allow sync of post and pages with non-public posts stati',
 			'jetpack_relatedposts_enabled'            => '(bool) Enable related posts?',
 			'jetpack_relatedposts_show_context'       => '(bool) Show post\'s tags and category in related posts?',
@@ -118,6 +119,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'rss_use_excerpt'                         => '(bool) Whether the RSS feed will use post excerpts',
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
 			'sm_enabled'                              => '(bool) Whether the newsletter subscribe modal is enabled',
+			'wpcom_ai_site_prompt'                    => '(string) User input in the AI site prompt',
 		),
 
 		'response_format'     => array(
@@ -203,7 +205,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 *
 	 * @param array $copy_dirs Array of files to be included in theme context.
 	 */
-	public function wpcom_restapi_copy_theme_plugin_actions( $copy_dirs ) {
+	public static function wpcom_restapi_copy_theme_plugin_actions( $copy_dirs ) {
 		$theme_name        = get_stylesheet();
 		$default_file_name = WP_CONTENT_DIR . "/mu-plugins/infinity/themes/{$theme_name}.php";
 
@@ -374,6 +376,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						// new stuff starts here.
 						'instant_search_enabled'           => (bool) get_option( 'instant_search_enabled' ),
 						'blog_public'                      => (int) get_option( 'blog_public' ),
+						'wpcom_data_sharing_opt_out'       => (bool) get_option( 'wpcom_data_sharing_opt_out' ),
 						'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
 						'jetpack_relatedposts_allowed'     => (bool) $this->jetpack_relatedposts_supported(),
 						'jetpack_relatedposts_enabled'     => (bool) $jetpack_relatedposts_options['enabled'],
@@ -456,11 +459,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
 						'subscription_options'             => (array) get_option( 'subscription_options' ),
+						'jetpack_verbum_subscription_modal' => (bool) get_option( 'jetpack_verbum_subscription_modal', true ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						$response[ $key ]['wpcom_publish_posts_with_markdown']    = (bool) WPCom_Markdown::is_posting_enabled();
-						$response[ $key ]['wpcom_publish_comments_with_markdown'] = (bool) WPCom_Markdown::is_commenting_enabled();
+						$response[ $key ]['wpcom_publish_posts_with_markdown']    = (bool) WPCom_Markdown::get_instance()->is_posting_enabled();
+						$response[ $key ]['wpcom_publish_comments_with_markdown'] = (bool) WPCom_Markdown::get_instance()->is_commenting_enabled();
 
 						// WPCOM-specific Infinite Scroll Settings.
 						if ( is_callable( array( 'The_Neverending_Home_Page', 'get_settings' ) ) ) {
@@ -533,7 +537,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					 * - 5 days before the monthly plan expiration.
 					 * This is to match the gifting banner logic.
 					 */
-					$days_of_warning          = false !== strpos( $purchase->product_slug, 'monthly' ) ? 5 : 54;
+					$days_of_warning          = str_contains( $purchase->product_slug, 'monthly' ) ? 5 : 54;
 					$seconds_until_expiration = strtotime( $purchase->expiry_date ) - time();
 					if ( $seconds_until_expiration >= $days_of_warning * DAY_IN_SECONDS ) {
 						return false;
@@ -572,8 +576,20 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * Get GA tracking code.
 	 */
 	protected function get_google_analytics() {
-		$option_name = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'wga' : 'jetpack_wga';
+		$option_name = $this->get_google_analytics_option_name();
+
 		return get_option( $option_name );
+	}
+
+	/**
+	 * Get GA tracking code option name.
+	 */
+	protected function get_google_analytics_option_name() {
+		/** This filter is documented in class.json-api-endpoints.php */
+		$is_jetpack  = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
+		$option_name = $is_jetpack ? 'jetpack_wga' : 'wga';
+
+		return $option_name;
 	}
 
 	/**
@@ -690,8 +706,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
 					}
 
-					$is_wpcom    = defined( 'IS_WPCOM' ) && IS_WPCOM;
-					$option_name = $is_wpcom ? 'wga' : 'jetpack_wga';
+					$option_name = $this->get_google_analytics_option_name();
 
 					$wga         = get_option( $option_name, array() );
 					$wga['code'] = $value['code']; // maintain compatibility with wp-google-analytics.
@@ -715,6 +730,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					/** This action is documented in modules/widgets/social-media-icons.php */
 					do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
 
+					$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 					if ( $is_wpcom ) {
 						$business_plugins = WPCOM_Business_Plugins::instance();
 						$business_plugins->activate_plugin( 'wp-google-analytics' );
@@ -735,6 +751,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_portfolio':
 				case 'jetpack_comment_likes_enabled':
 				case 'wpcom_reader_views_enabled':
+				case 'jetpack_verbum_subscription_modal':
 					// settings are stored as 1|0.
 					$coerce_value = (int) $value;
 					if ( update_option( $key, $coerce_value ) ) {

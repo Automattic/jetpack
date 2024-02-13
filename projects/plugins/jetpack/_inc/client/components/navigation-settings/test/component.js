@@ -167,8 +167,8 @@ describe( 'NavigationSettings', () => {
 			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 8 );
 			expect( screen.getByRole( 'menuitem', { name: 'Discussion' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'Discussion' } ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'menuitem', { name: 'Earn' } ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'option', { name: 'Earn' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'menuitem', { name: 'Monetize' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Monetize' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'menuitem', { name: 'Newsletter' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'Newsletter' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'menuitem', { name: 'Security' } ) ).toBeInTheDocument();
@@ -263,7 +263,7 @@ describe( 'NavigationSettings', () => {
 				routeName: 'Earn',
 			};
 			render( <NavigationSettings { ...currentTestProps2 } /> );
-			const option = screen.getByRole( 'option', { name: 'Earn' } );
+			const option = screen.getByRole( 'option', { name: 'Monetize' } );
 			expect( option ).toHaveAttribute( 'aria-selected', 'true' );
 		} );
 

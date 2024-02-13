@@ -241,13 +241,6 @@ function zeroBS_setCustomerWPID($cID=-1,$wpID=-1){
 
 }
 
-function zeroBS_getCustomerOwner($customerID=-1){
-
-	// Actually, this one is more accurate, as returns obj :) global $zbs; return $zbs->DAL->contacts->getContactOwner($customerID);
-	return zeroBS_getOwner($customerID,true,'zerobs_customer');
-
-}
-
 function zeroBSCRM_getCustomerTags($hide_empty=false){
 	
 	global $zbs; 
@@ -1183,20 +1176,41 @@ function zeroBS_getOwner($objID=-1,$withDeets=true,$objType=-1,$knownOwnerID=-1)
 	return false;
 }
 
-function zeroBS_getOwnerObj($wpUserID=-1,$simpleUserData=true){
+/**
+ * Retrieves the owner object based on a given WP user ID.
+ *
+ * This function gets the owner's data without revealing sensitive information
+ * (e.g. `user_pass`).
+ *
+ * @param int $wp_user_id The WordPress user ID. Default is -1.
+ *
+ * @return array|bool Returns an associative array containing the 'ID' and 'OBJ' (user data object) if successful, false otherwise.
+ */
+function zeroBS_getOwnerObj( $wp_user_id = -1 ) {
+	if ( $wp_user_id > 0 ) {
 
-	if ($wpUserID !== -1){
+		$user = get_userdata( $wp_user_id );
 
-		if ($simpleUserData)
-			$data = zeroBS_getWPUserSimple($wpUserID);
-		else
-			$data = get_userdata($wpUserID);
+		if ( ! isset( $user->ID ) || ! isset( $user->data ) ) {
+			return false;
+		}
+
+		/**
+		 * Ideally we'd restructure this, but the return result is used extensively,
+		 * particularly from `zeroBS_getOwner` calls. For now we'll explicitly set what
+		 * fields are provided (e.g. don't show `user_pass`).
+		 */
+		$user_data = (object) array(
+			'ID'            => $user->data->ID,
+			'user_login'    => $user->data->user_login,
+			'user_nicename' => $user->data->user_nicename,
+			'display_name'  => $user->data->display_name,
+		);
 
 		return array(
-
-						'ID'=> $wpUserID,
-						'OBJ'=> $data
-				);
+			'ID'  => $wp_user_id,
+			'OBJ' => $user_data,
+		);
 
 	}
 
@@ -1361,7 +1375,7 @@ function zeroBSCRM_mergeCustomers($dominantID=-1,$slaveID=-1){
 
             				// ADDRESSES. Here we just use the foreach to check if the master has any secaddr fields
             				// just sets a flag used below in logic :)
-            				if (substr($fieldKey, 0, 8) == 'secaddr_'){
+						if ( str_starts_with( $fieldKey, 'secaddr_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             					// check presence (of any secaddr_ field)
             					if (isset($master[$fieldKey]) && !empty($master[$fieldKey])) $masterHasSecondAddr = true;
@@ -2421,7 +2435,7 @@ function zeroBS_addUpdateLog(
 		}
 
 		// no TYPE
-		zeroBSCRM_DEPRECATEDMSG('zeroBS_addUpdateLog has been replaced by DAL3 logging. Please do no use, or at least pass an object type');
+		zeroBSCRM_DEPRECATEDMSG( 'zeroBS_addUpdateLog has been replaced by DAL3 logging. Please do not use, or at least pass an object type.' );
 		return false;
 
 
@@ -2509,7 +2523,7 @@ function zeroBS_addUpdateObjLog(
 // still used in bulk-tagger and groove-connect extensions as of 9 May 1923
 function zeroBSCRM_DAL2_set_post_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$append=true,$usingTagIDS=true){
 
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_set_post_terms has been replaced by DAL3 tagging. Please do no use');		
+	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_set_post_terms has been replaced by DAL3 tagging. Please do not use.' );
 	
 	global $zbs;
 
@@ -2541,7 +2555,7 @@ function zeroBSCRM_DAL2_set_post_terms($cID=-1,$tags=array(),$taxonomy='zerobscr
 // still used in several extensions as of 9 May 1923
 function zeroBSCRM_DAL2_set_object_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$append=true,$usingTagIDS=true){
 
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_set_object_terms has been replaced by DAL3 tagging. Please do no use');		
+	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_set_object_terms has been replaced by DAL3 tagging. Please do not use.' );
 	
 	global $zbs;
 
@@ -2596,7 +2610,7 @@ function zeroBSCRM_DAL2_set_object_terms($cID=-1,$tags=array(),$taxonomy='zerobs
 // still used in csv-importer-pro as of 9 May 1923
 function zeroBSCRM_DAL2_remove_object_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$usingTagIDS=true){
 
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_remove_object_terms has been replaced by DAL3 tagging. Please do no use');		
+	zeroBSCRM_DEPRECATEDMSG( 'zeroBSCRM_DAL2_remove_object_terms has been replaced by DAL3 tagging. Please do not use.' );
 	
 	global $zbs;
 
@@ -3097,7 +3111,7 @@ function zeroBS___________DAL30Helpers(){return;}
 		            			if (isset($fV[2])) {
 		            			    $formatExample = $fV[2];
                                 }
-		            			if (!empty($formatExample) && strpos($formatExample, '#') !== false ){
+						if ( ! empty( $formatExample ) && str_contains( $formatExample, '#' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		            				// has a rule at least
 		            				$formatParts = explode('#', $formatExample);
@@ -3118,7 +3132,7 @@ function zeroBS___________DAL30Helpers(){return;}
 		                			if ($no > 0 && $no !== false) $retArray[$outputPrefix.$fK] = $autono;
 
 
-		            			}
+						}
 		            	}
 
 			        } // / if autonumber
@@ -5197,7 +5211,7 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 				// Retrieve invoice endpoint & portal root URL
 				$invoice_endpoint = $zbs->modules->portal->get_endpoint( ZBS_TYPE_INVOICE );
 				$portalLink = zeroBS_portal_link();
-				if ( substr( $portalLink, -1 ) !== '/' ) {
+				if ( ! str_ends_with( $portalLink, '/' ) ) {  // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					$portalLink .= '/';
 				}
 
@@ -5917,9 +5931,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 
 			global $zbs;
 
-				// legacy from dal1
 				$actualPage = $page;
-				if (!$zbs->isDAL2()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -6543,6 +6555,43 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
   	Value Calculator / helpers
    ====================================================== */
 
+/**
+ * Calculates the total value associated with a contact or company entity.
+ *
+ * This function sums the total of invoices and transactions associated with a given entity.
+ * It also accounts for the 'jpcrm_total_value_fields' settings to determine whether to include
+ * invoices and transactions in the total value. Additionally, if both invoices and transactions
+ * are included, and the 'transactions_paid_total' is set and greater than 0, it subtracts this
+ * value from the total.
+ *
+ * @param array $entity The entity array containing 'invoices_total', 'transactions_total', and optionally 'transactions_paid_total'.
+ *
+ * @return float The calculated total value. It includes the invoices and transactions totals based on the settings,
+ *               and adjusts for 'transactions_paid_total' if applicable.
+ */
+function jpcrm_get_total_value_from_contact_or_company( $entity ) {
+	global $zbs;
+	$total_value        = 0.0;
+	$invoices_total     = isset( $entity['invoices_total'] ) ? $entity['invoices_total'] : 0.0;
+	$transactions_total = isset( $entity['transactions_total'] ) ? $entity['transactions_total'] : 0.0;
+	// For compatibility reasons we include all values if the jpcrm_total_value_fields setting is inexistent.
+	$settings                     = $zbs->settings->getAll();
+	$include_invoices_in_total    = true;
+	$include_transations_in_total = true;
+	if ( isset( $settings['jpcrm_total_value_fields'] ) ) {
+				$include_invoices_in_total    = isset( $settings['jpcrm_total_value_fields']['invoices'] ) && $settings['jpcrm_total_value_fields']['invoices'] === 1;
+				$include_transations_in_total = isset( $settings['jpcrm_total_value_fields']['transactions'] ) && $settings['jpcrm_total_value_fields']['transactions'] === 1;
+	}
+	$total_value  = 0;
+	$total_value += $include_invoices_in_total ? $invoices_total : 0;
+	$total_value += $include_transations_in_total ? $transactions_total : 0;
+	if ( $include_invoices_in_total && $include_transations_in_total && isset( $entity['transactions_paid_total'] ) && $entity['transactions_paid_total'] > 0 ) {
+				$total_value -= $entity['transactions_paid_total'];
+	}
+
+	return $total_value;
+}
+
    // evolved for dal3.0
    // left in place + translated, but FAR better to just use 'withValues' => true on a getContact call directly.
 	// THIS STAYS THE SAME FOR DB2 until trans+invoices MOVED OVER #DB2ROUND2
@@ -6902,8 +6951,10 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 		//SANITIZE
 		$hash = sanitize_text_field($hash); //sanitize it here
 
-        // if prefix still present, chunk off
-        if (substr($hash,0,3) == 'zh-') $hash = substr($hash,3);
+	// if prefix still present, chunk off
+	if ( str_starts_with( $hash, 'zh-' ) ) {
+		$hash = substr( $hash, 3 );
+	}
 
         // get if poss
         if (!empty($hash) && $objTypeID > 0){
@@ -7846,19 +7897,6 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 		}
 	}
 
-	// Simplifies the data to be returned by get_userdata
-	function zeroBS_getWPUserSimple($wpUserID=-1){
-
-		if ($wpUserID > 0){
-			
-			$d = get_userdata($wpUserID);
-
-			if (isset($d->ID) && isset($d->data)) return $d->data;
-		}
-
-		return false;
-	}
-
 	/*
 	* Gets formatted display name for user (tries to retrieve fname lname)
 	*/
@@ -7949,7 +7987,7 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 
 		    if ($asArray){
 
-		    	if (strpos('#'.$zbsStatusStr, ',') > -1){
+		if ( str_contains( '#' . $zbsStatusStr, ',' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		    		$arr = explode(',',$zbsStatusStr);
 		    		$ret = array();
@@ -7964,44 +8002,53 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 		    return $zbsStatusStr;
 		}
 
-		// retrieves statuses from object :)
-		function zeroBSCRM_getTransactionsStatuses($returnArray=false){
-		    
-		    global $zbs;
+/**
+ * Retrieve valid transaction statuses
+ *
+ * @param bool $return_array Return an array instead of a CSV.
+ */
+function zeroBSCRM_getTransactionsStatuses( $return_array = false ) {
+	global $zbs;
 
-		    $setting = $zbs->DAL->setting('customisedfields',false);
+	$setting = $zbs->DAL->setting( 'customisedfields', false ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-		    $zbsStatusStr = '';
+	$zbs_status_str = '';
 
-		    #} stored here: $settings['customisedfields']
-		    if (is_array($setting) && isset($setting['transactions']['status']) && is_array($setting['transactions']['status'])) $zbsStatusStr = $setting['transactions']['status'][1];                                        
-		    if (empty($zbsStatusStr)) {
-		      #} Defaults:
-		      global $zbsTransactionFields; if (is_array($zbsTransactionFields)) $zbsStatusStr = implode(',',$zbsTransactionFields['status'][3]);
-		    }  
-
-		    if ($returnArray){
-
-		    	if (strpos($zbsStatusStr,',') > -1) 
-		    		return explode(',', $zbsStatusStr);
-		    	else
-		    		return array();
-		    }
-
-		    return $zbsStatusStr;
+	if ( is_array( $setting ) && isset( $setting['transactions']['status'] ) && is_array( $setting['transactions']['status'] ) ) {
+		$zbs_status_str = $setting['transactions']['status'][1];
+	}
+	if ( empty( $zbs_status_str ) ) {
+		global $zbsTransactionFields; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( is_array( $zbsTransactionFields ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$zbs_status_str = implode( ',', $zbsTransactionFields['status'][3] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		}
+	}
 
-		// retrieves statuses from object :)
-		function zeroBSCRM_getInvoicesStatuses(){
-			// for DAL3+ these are hard typed, probably need to sit in the obj:
-			return array(
-				'Draft',
-				'Unpaid',
-				'Paid',
-				'Overdue',
-				'Deleted',
-			);
+	if ( $return_array ) {
+
+		if ( str_contains( $zbs_status_str, ',' ) ) {
+			return explode( ',', $zbs_status_str );
+		} else {
+			return array();
 		}
+	}
+
+	return $zbs_status_str;
+}
+
+/**
+ * Retrieve an array of valid invoice statuses
+ */
+function zeroBSCRM_getInvoicesStatuses() {
+	// for DAL3+ these are hard typed, probably need to sit in the obj:
+	return array(
+		'Draft',
+		'Unpaid',
+		'Paid',
+		'Overdue',
+		'Deleted',
+	);
+}
 
 
 		function zeroBSCRM_getCompanyStatusesCSV(){
@@ -8022,15 +8069,18 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 		    return $zbsStatusStr;
 		}
 
-		function zeroBSCRM_getCompanyStatuses(){
-		    
-		    $statusesSTR = zeroBSCRM_getCompanyStatusesCSV();
-		    
-	    	if (strpos($statusesSTR,',') > -1) 
-	    		return explode(',', $statusesSTR);
-	    	else
-	    		return array();
-		}
+/**
+ * Retrieve an array of valid company statuses
+ */
+function zeroBSCRM_getCompanyStatuses() {
+	$statuses_str = zeroBSCRM_getCompanyStatusesCSV();
+
+	if ( str_contains( $statuses_str, ',' ) ) {
+		return explode( ',', $statuses_str );
+	} else {
+		return array();
+	}
+}
 
 		/// ======= / Statuses wrappers - bit antiquated  now... 
 

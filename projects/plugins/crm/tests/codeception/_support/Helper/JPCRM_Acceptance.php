@@ -107,7 +107,7 @@ class JPCRM_Acceptance extends WPBrowser {
 			$row = fgets( $output );
 			// todo: we can do the same using a regular expression and preg_match
 			foreach ( $php_errors as $php_error ) {
-				if ( strpos( $row, $php_error ) !== false ) {
+				if ( str_contains( $row, $php_error ) ) {
 					$errors[] = $row;
 				}
 			}

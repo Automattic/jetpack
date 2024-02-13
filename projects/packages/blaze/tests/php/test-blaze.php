@@ -146,14 +146,14 @@ class Test_Blaze extends BaseTestCase {
 		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
 
 		// Ensure that no menu is added by default.
-		$this->assertEmpty( menu_page_url( 'advertising' ) );
+		$this->assertEmpty( menu_page_url( 'advertising', false ) );
 
 		wp_set_current_user( $this->admin_id );
 
 		add_filter( 'jetpack_blaze_enabled', '__return_true' );
 
 		Blaze::enable_blaze_menu();
-		$this->assertNotEmpty( menu_page_url( 'advertising' ) );
+		$this->assertNotEmpty( menu_page_url( 'advertising', false ) );
 
 		add_filter( 'jetpack_blaze_enabled', '__return_false' );
 	}

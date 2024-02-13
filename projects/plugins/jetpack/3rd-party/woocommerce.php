@@ -134,29 +134,3 @@ function jetpack_woocommerce_infinite_scroll_style() {
 	}';
 	wp_add_inline_style( 'woocommerce-layout', $custom_css );
 }
-
-/**
- * Adds compat for WooCommerce and Lazy Loading.
- */
-function jetpack_woocommerce_lazy_images_compat() {
-	wp_add_inline_script(
-		'wc-cart-fragments',
-		"
-		jQuery( 'body' ).bind( 'wc_fragments_refreshed', function() {
-			var jetpackLazyImagesLoadEvent;
-			try {
-				jetpackLazyImagesLoadEvent = new Event( 'jetpack-lazy-images-load', {
-					bubbles: true,
-					cancelable: true
-				} );
-			} catch ( e ) {
-				jetpackLazyImagesLoadEvent = document.createEvent( 'Event' )
-				jetpackLazyImagesLoadEvent.initEvent( 'jetpack-lazy-images-load', true, true );
-			}
-			jQuery( 'body' ).get( 0 ).dispatchEvent( jetpackLazyImagesLoadEvent );
-		} );
-		"
-	);
-}
-
-add_action( 'wp_enqueue_scripts', 'jetpack_woocommerce_lazy_images_compat', 11 );

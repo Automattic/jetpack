@@ -186,7 +186,7 @@ class Post extends \WP_REST_Posts_Controller {
 			$meta_keys,
 			function ( $key ) use ( $excluded_keys ) {
 				// We also don't want to include any oembed post meta because it gets created after a post created
-				return ! in_array( $key, $excluded_keys, true ) && strpos( $key, '_oembed' ) === false;
+				return ! in_array( $key, $excluded_keys, true ) && ! str_contains( $key, '_oembed' );
 			}
 		);
 		// Return the filtered array
