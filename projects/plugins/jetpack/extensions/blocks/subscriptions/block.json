@@ -114,6 +114,9 @@
 		},
 		"appSource": {
 			"type": "string"
+		},
+		"className": {
+			"type": "string"
 		}
 	},
 	"example": {}
