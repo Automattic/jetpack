@@ -1,4 +1,4 @@
-Significance: patch
-Type: changed
+Significance: minor
+Type: added
 
-Removing 'Promote with Blaze' link from posts and pages
+Quick Action Links: introduce new filter allowing to disable quick links in the Posts screen.

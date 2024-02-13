@@ -42,6 +42,8 @@ class Blaze {
 	 * @return void
 	 */
 	public static function init() {
+		// On the edit screen, add a row action to promote the post.
+		add_action( 'load-edit.php', array( __CLASS__, 'add_post_links_actions' ) );
 		// In the post editor, add a post-publish panel to allow promoting the post.
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.
@@ -50,6 +52,28 @@ class Blaze {
 		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
 		// Add general Blaze REST API endpoints.
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+	}
+
+	/**
+	 * Add links under each published post in the wp-admin post list.
+	 *
+	 * @return void
+	 */
+	public static function add_post_links_actions() {
+		if (
+			self::should_initialize()
+			/**
+			 * Allow third-party plugins to disable Blaze row actions.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $blaze_post_actions_enabled Should Blaze row actions be enabled?
+			 */
+			&& apply_filters( 'jetpack_blaze_post_row_actions_enable', true )
+		) {
+			add_filter( 'post_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
+			add_filter( 'page_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
+		}
 	}
 
 	/**
@@ -257,6 +281,52 @@ class Blaze {
 			'link'     => $blaze_url,
 			'external' => true,
 		);
+	}
+
+	/**
+	 * Adds the Promote link to the posts list row action.
+	 *
+	 * @param array   $post_actions The current array of post actions.
+	 * @param WP_Post $post The current post in the post list table.
+	 *
+	 * @return array
+	 */
+	public static function jetpack_blaze_row_action( $post_actions, $post ) {
+		$post_id = $post->ID;
+
+		// Bail if we are not looking at one of the supported post types (post, page, or product).
+		if ( ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
+			return $post_actions;
+		}
+
+		// Bail if the post is not published.
+		if ( $post->post_status !== 'publish' ) {
+			return $post_actions;
+		}
+
+		// Bail if the post has a password.
+		if ( '' !== $post->post_password ) {
+			return $post_actions;
+		}
+
+		$blaze_url = self::get_campaign_management_url( $post_id );
+		$text      = __( 'Promote with Blaze', 'jetpack-blaze' );
+		$title     = get_the_title( $post );
+		$label     = sprintf(
+			/* translators: post title */
+			__( 'Blaze &#8220;%s&#8221; to Tumblr and WordPress.com audiences.', 'jetpack-blaze' ),
+			$title
+		);
+
+		$post_actions['blaze'] = sprintf(
+			'<a href="%1$s" title="%2$s" aria-label="%2$s" %4$s>%3$s</a>',
+			esc_url( $blaze_url['link'] ),
+			esc_attr( $label ),
+			esc_html( $text ),
+			( true === $blaze_url['external'] ? 'target="_blank" rel="noopener noreferrer"' : '' )
+		);
+
+		return $post_actions;
 	}
 
 	/**
