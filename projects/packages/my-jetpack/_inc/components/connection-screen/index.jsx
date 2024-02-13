@@ -23,23 +23,29 @@ const ConnectionScreenFooter = () => {
 					'jetpack-my-jetpack'
 				) }
 			</div>
-			<span className={ styles[ 'account-images' ] }>
-				<img
-					src={ wordpressLogo }
-					className={ styles.wordpress }
-					alt={ __( 'WordPress Logo', 'jetpack-my-jetpack' ) }
-				/>
-				<img
-					src={ googleLogo }
-					className={ styles.google }
-					alt={ __( 'Google Logo', 'jetpack-my-jetpack' ) }
-				/>
-				<img
-					src={ appleLogo }
-					className={ styles.apple }
-					alt={ __( 'Apple Logo', 'jetpack-my-jetpack' ) }
-				/>
-			</span>
+			<ul className={ styles[ 'account-images' ] }>
+				<li>
+					<img
+						src={ wordpressLogo }
+						className={ styles.wordpress }
+						alt={ __( 'WordPress Logo', 'jetpack-my-jetpack' ) }
+					/>
+				</li>
+				<li>
+					<img
+						src={ googleLogo }
+						className={ styles.google }
+						alt={ __( 'Google Logo', 'jetpack-my-jetpack' ) }
+					/>
+				</li>
+				<li>
+					<img
+						src={ appleLogo }
+						className={ styles.apple }
+						alt={ __( 'Apple Logo', 'jetpack-my-jetpack' ) }
+					/>
+				</li>
+			</ul>
 		</>
 	);
 };
