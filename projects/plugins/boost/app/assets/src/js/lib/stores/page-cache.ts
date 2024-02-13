@@ -22,14 +22,7 @@ function usePageCacheErrorAction<
 >( action: string, schema: ActionRequestData ) {
 	const responseSchema = z.void();
 
-	return useDataSyncAction<
-		typeof PageCacheError,
-		typeof responseSchema,
-		typeof schema,
-		z.infer< typeof schema >,
-		z.infer< typeof responseSchema >,
-		ModulesState
-	>( {
+	return useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
 		key: 'page_cache_error',
 		action_name: action,
