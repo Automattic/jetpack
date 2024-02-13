@@ -26,7 +26,7 @@ class WordAds_Consent_Management_Provider {
 		add_filter( 'jetpack_disable_eu_cookie_law_widget', '__return_true' );
 
 		// Enqueue scripts.
-		add_action( 'wp_head', array( __CLASS__, 'insert_head' ) );
+		add_action( 'wp_head', array( __CLASS__, 'insert_head' ), 10 );
 	}
 
 	/**
@@ -65,66 +65,37 @@ class WordAds_Consent_Management_Provider {
 	 * Outputs the frontend Javascript framework configuration.
 	 */
 	public static function insert_head() {
-		$output = self::get_config_string();
-		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
+		$locale      = strtolower( get_locale() ); // Defaults to en_US not en.
+		$request_url = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/configuration/%s/?_jsonp=a8c_load_cmp', self::get_blog_id(), $locale );
 
-	/**
-	 * Outputs the frontend cmp initialization configuration.
-	 *
-	 * @return string output string.
-	 */
-	private static function get_config_string() {
-		$locale      = strtolower( get_locale() ); // defaults to en_US not en
-		$request_url = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/configuration/%s/', self::get_blog_id(), $locale );
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		?>
+			<script id="cmp-config-loader">
+				function a8c_load_cmp(data) {
+					if (data && data.scripts && Array.isArray(data.scripts)) {
 
-		$config_script = <<<JS
-<script id="cmp-config-loader">
-	function init() {
-		var xhr = new XMLHttpRequest();
-		xhr.open('GET', "$request_url", true);
-		xhr.onload = function() {
-			if (xhr.status >= 200 && xhr.status < 300) {
-				var response = JSON.parse(xhr.responseText);
-				if (response && response.scripts && Array.isArray(response.scripts)) {
-					var scripts = response.scripts;
+						if (data.config) {
+							let configurationScript = document.createElement('script');
+							configurationScript.id = 'cmp-configuration';
+							configurationScript.type = 'application/configuration';
+							configurationScript.innerHTML = JSON.stringify(data.config);
 
-					var configurationScript = document.createElement('script');
-					configurationScript.id = 'cmp-configuration';
-					configurationScript.type = 'application/configuration';
-					configurationScript.innerHTML = JSON.stringify(response.config);
+							// Add the cmp-configuration script element to the document's body
+							document.head.appendChild(configurationScript);
+						}
 
-					// Add the cmp-configuration script element to the document's body
-					document.body.appendChild(configurationScript);
-
-					// Load each cmp script
-					scripts.forEach(function(scriptUrl) {
-						var script = document.createElement('script');
-						script.src = scriptUrl;
-						document.body.appendChild(script);
-					});
-				} else {
-					console.error('Invalid API response format or missing scripts property.');
+						// Load each cmp script
+						data.scripts.forEach(function(scriptUrl) {
+							let script = document.createElement('script');
+							script.src = scriptUrl;
+							document.head.appendChild(script);
+						});
+					}
 				}
-			} else {
-				console.error('Error making API request. Status code: ' + xhr.status);
-			}
-		};
-
-		xhr.onerror = function() {
-			console.error('Network error occurred while making the API request.');
-		};
-
-		// Send the GET request
-		xhr.send();
-	}
-
-	document.addEventListener('DOMContentLoaded', function() {
-		init();
-	});
-</script>
-JS;
-		return $config_script;
+			</script>
+			<script src="<?php echo esc_attr( $request_url ); ?>"></script>
+		<?php
+		// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 	}
 
 	/**
