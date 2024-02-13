@@ -55,6 +55,9 @@ class Boost_Cache {
 		$this->init_actions();
 	}
 
+	/*
+	 * Initialize the actions for the cache.
+	 */
 	protected function init_actions() {
 		/*
 		 * I'm not using edit_post because I think we can get everything we need from the other actions.
@@ -275,6 +278,12 @@ class Boost_Cache {
 		return $is_backend;
 	}
 
+	/*
+	 * Checks if the post type is public.
+	 *
+	 * @param WP_Post $post - The post to check.
+	 * @return bool - True if the post type is public.
+	 */
 	protected function is_visible_post_type( $post ) {
 		$post_type = is_object( $post ) ? get_post_type_object( $post->post_type ) : null;
 		if ( empty( $post_type ) || ! $post_type->public ) {
@@ -286,6 +295,7 @@ class Boost_Cache {
 	/*
 	 * Delete the cache for the front page and paged archives.
 	 * This is called when a post is edited, deleted, or published.
+	 *
 	 * @param int $post_id - The id of the post that was edited, deleted, or published.
 	 */
 	protected function delete_front_page_cache( $post ) {
@@ -327,6 +337,7 @@ class Boost_Cache {
 
 	/*
 	 * Delete the cache for the post if the comment transitioned from one state to another.
+	 *
 	 * @param string $new_status - The new status of the comment.
 	 * @param string $old_status - The old status of the comment.
 	 * @param WP_Comment $comment - The comment that transitioned.
@@ -354,6 +365,14 @@ class Boost_Cache {
 		}
 	}
 
+	/*
+	 * After a comment is posted, delete the cache for the post if the comment is approved.
+	 * If the comment is not approved, only delete the cache for this post for this visitor.
+	 *
+	 * @param int $comment_id - The id of the comment.
+	 * @param int $comment_approved - The approval status of the comment.
+	 * @param array $commentdata - The comment data.
+	 */
 	public function delete_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
 		$post = get_post( $commentdata['comment_post_ID'] );
 
