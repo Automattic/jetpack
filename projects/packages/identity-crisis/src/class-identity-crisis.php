@@ -1075,7 +1075,6 @@ class Identity_Crisis {
 	 * When a site URL is dynamic, it can lead to a Jetpack IDC. If potentially dynamic usage is detected,
 	 * helpful support info will be shown on the IDC UI about setting a static site/home URL.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
 	 * @return bool True if potentially dynamic site urls were detected in wp-config, false otherwise.
 	 */
 	public static function detect_possible_dynamic_site_url() {
