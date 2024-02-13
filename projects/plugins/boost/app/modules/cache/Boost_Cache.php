@@ -351,7 +351,7 @@ class Boost_Cache {
 		 * this post for this visitor so the unmoderated comment is shown to them.
 		 */
 		if ( $comment_approved !== 1 ) {
-			$this->storage->invalidate_single_visitor( $this->request_uri, $this->request_parameters );
+			$this->storage->invalidate_single_visitor( $this->normalize_request_uri( get_permalink( $post->ID ) ), $this->request_parameters );
 			return;
 		}
 
