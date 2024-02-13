@@ -55,6 +55,9 @@ class Jetpack_Copy_Post {
 					width: 14px;
 					vertical-align: text-bottom;
 				}
+				#jetpack-logo__icon path {
+					fill: #2271b1;
+				}
 			</style>
 		';
 	}
