@@ -1,4 +1,6 @@
 import { getScoreLetter, requestSpeedScores } from '@automattic/jetpack-boost-score-api';
+// We'll need the IconTooltip in a follow-up PR. TODO: remove me
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { IconTooltip, Spinner, BoostScoreBar } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -13,8 +15,9 @@ const BoostSpeedScore = () => {
 	const [ averageSpeedScore, setAverageSpeedScore ] = useState( 0 );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
 
-	const { apiRoot, apiNonce } = window.JP_CONNECTION_INITIAL_STATE;
+	const { apiRoot, apiNonce, connectionStatus } = window.JP_CONNECTION_INITIAL_STATE;
 	const { siteSuffix: siteUrl = '', latestBoostSpeedScores } = window?.myJetpackInitialState ?? {};
+	const isSiteRegistered = connectionStatus?.isRegistered;
 
 	const setScoresFromCache = cachedSpeedScores => {
 		setAverageSpeedScore(
@@ -27,8 +30,12 @@ const BoostSpeedScore = () => {
 	};
 
 	const getSpeedScores = async () => {
-		setIsLoading( true );
+		if ( ! isSiteRegistered ) {
+			setIsSpeedScoreError( true );
+			return;
+		}
 
+		setIsLoading( true );
 		try {
 			const scores = await requestSpeedScores( true, apiRoot, siteUrl, apiNonce );
 			const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
@@ -70,6 +77,8 @@ const BoostSpeedScore = () => {
 		return differenceInDays;
 	};
 
+	// Maybe we'll use this in a follup PR? In the tooltip? TODO: remove me.
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const getSinceTestedText = useCallback( () => {
 		switch ( daysSinceTested ) {
 			case 0:
@@ -113,7 +122,7 @@ const BoostSpeedScore = () => {
 						<div className="mj-boost-speed-score__bar">
 							<BoostScoreBar
 								score={ averageSpeedScore }
-								active={ true }
+								active={ averageSpeedScore > 0 }
 								isLoading={ isLoading }
 								showPrevScores={ false }
 								scoreBarType="desktop"
