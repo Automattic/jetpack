@@ -210,6 +210,7 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 					isSavingAnyOption={ this.isSavingAnyOption }
 					isDirty={ this.isDirty }
 					resetFormStateOption={ this.resetFormStateOption }
+					optionsState={ this.state.options }
 					{ ...this.props }
 				/>
 			);
