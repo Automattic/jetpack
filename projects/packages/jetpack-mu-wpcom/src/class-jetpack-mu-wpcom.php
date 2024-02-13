@@ -32,7 +32,11 @@ class Jetpack_Mu_Wpcom {
 		// Coming Soon feature.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 
+		/*
+		 * Please use `load_features` to load features that don't need any special loading considerations.
+		 */
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
+
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
@@ -43,7 +47,7 @@ class Jetpack_Mu_Wpcom {
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_first_posts_stream_helpers' ) );
 
-		// This feature runs only on simple sites
+		// This feature runs only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 		}
@@ -66,16 +70,20 @@ class Jetpack_Mu_Wpcom {
 
 	/**
 	 * Load features that don't need any special loading considerations.
+	 *
+	 * Please organize in alphabetical order, so they are easier to find.
 	 */
 	public static function load_features() {
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
 		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
 
+		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
+
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 
 		require_once __DIR__ . '/features/media/heif-support.php';
 
-		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
+		require_once __DIR__ . '/features/scheduled-updates/scheduled-updates.php';
 	}
 
 	/**
