@@ -1,11 +1,11 @@
 @import '@automattic/jetpack-base-styles/style';
 
-.jetpack-ai-create-with-voice .components-placeholder__fieldset {
+.jetpack-ai-voice-to-content .components-placeholder__fieldset {
 	display: flex;
 	flex-direction: column;
 }
 
-.jetpack-ai-create-with-voice__player {
+.jetpack-ai-voice-to-content__player {
 	margin-bottom: 12px;
 	display: flex;
 	height: 40px;
@@ -17,7 +17,7 @@
 	}
 }
 
-.jetpack-ai-create-with-voice__recorder {
+.jetpack-ai-voice-to-content__recorder {
 	display: flex;
 	flex-direction:row;
 	gap: 1px;
@@ -25,11 +25,11 @@
 	.components-button {
 		margin-right: 0;
 
-		&.jetpack-ai-create-with-voice__record-button {
+		&.jetpack-ai-voice-to-content__record-button {
 			border-radius: 4px 0 0 4px;
 		}
 
-		&.jetpack-ai-create-with-voice__done-button {
+		&.jetpack-ai-voice-to-content__done-button {
 			border-radius: 0 4px 4px 0;
 		}
 	}
