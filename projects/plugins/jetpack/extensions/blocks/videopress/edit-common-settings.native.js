@@ -12,7 +12,7 @@ const options = [
 ];
 
 const VideoSettings = ( { setAttributes, attributes } ) => {
-	const { autoplay, controls, loop, muted, playsInline, preload } = attributes;
+	const { autoplay, controls, loop, muted, playsinline, preload } = attributes;
 
 	const toggleFactory = useMemo( () => {
 		const toggleAttribute = attribute => {
@@ -26,7 +26,7 @@ const VideoSettings = ( { setAttributes, attributes } ) => {
 			loop: toggleAttribute( 'loop' ),
 			muted: toggleAttribute( 'muted' ),
 			controls: toggleAttribute( 'controls' ),
-			playsInline: toggleAttribute( 'playsInline' ),
+			playsinline: toggleAttribute( 'playsinline' ),
 		};
 	}, [ setAttributes ] );
 
@@ -67,8 +67,8 @@ const VideoSettings = ( { setAttributes, attributes } ) => {
 			<ToggleControl
 				__nextHasNoMarginBottom
 				label={ __( 'Play inline', 'jetpack' ) }
-				onChange={ toggleFactory.playsInline }
-				checked={ !! playsInline }
+				onChange={ toggleFactory.playsinline }
+				checked={ !! playsinline }
 			/>
 			<SelectControl
 				__nextHasNoMarginBottom
