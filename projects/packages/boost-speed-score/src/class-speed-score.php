@@ -23,7 +23,7 @@ if ( ! defined( 'JETPACK_BOOST_REST_PREFIX' ) ) {
  */
 class Speed_Score {
 
-	const PACKAGE_VERSION = '0.3.3';
+	const PACKAGE_VERSION = '0.3.4-alpha';
 
 	/**
 	 * An instance of Automatic\Jetpack_Boost\Modules\Modules_Setup passed to the constructor
@@ -320,7 +320,7 @@ class Speed_Score {
 			);
 
 			// Only include noBoost scores if at least one module is enabled.
-			if ( $this->modules->have_enabled_modules() ) {
+			if ( $score_request && ! empty( $score_request->get_active_performance_modules() ) ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
 			}
 
