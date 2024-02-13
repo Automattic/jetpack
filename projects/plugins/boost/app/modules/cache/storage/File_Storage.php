@@ -50,7 +50,6 @@ class File_Storage implements Storage {
 		$directory = self::get_uri_directory( $request_uri );
 		$filename  = self::get_request_filename( $request_uri, $parameters );
 		$full_path = $directory . $filename;
-		error_log( "Reading from $full_path" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
 		if ( file_exists( $full_path ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -148,6 +147,9 @@ class File_Storage implements Storage {
 		$dir       = Boost_Cache_Utils::sanitize_file_path( $directory );
 
 		if ( Boost_Cache_Utils::is_boost_cache_directory( $dir ) ) {
+			if ( is_dir( $dir . '/page' ) ) {
+				Boost_Cache_Utils::delete_directory( $dir . '/page' );
+			}
 			return Boost_Cache_Utils::delete_single_directory( $dir );
 		}
 
