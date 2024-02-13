@@ -1,3 +1,0 @@
-Significance: patch
-Type: other
-Comment: In token_from_request() make sure $_GET['token'] is a string
