@@ -56,7 +56,7 @@ export default function VoiceToContentEdit() {
 				icon="microphone"
 				label="AI: Voice to content"
 				instructions={ __(
-					'Transform your spoken words into publish-ready content with AI.',
+					'Transform your spoken words into a post ready to publish with AI.',
 					'jetpack'
 				) }
 				className="jetpack-ai-voice-to-content"
