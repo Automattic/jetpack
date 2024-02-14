@@ -293,19 +293,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.2-a.1 - 2024-02-12
+### 13.2-a.3 - 2024-02-13
 #### Enhancements
-- Additional CSS: Use the correct plan name in the WordPress.com nudge.
-- Admin Bar: link Stats item to WordPress.com.
-- Blog Stats Block: allow displaying site's number of visitors.
-- Change editor layout for social notes
-- Remove Support link from Jetpack on plugins page
-- Remove the My Mailboxes menu from the classic view
+- Blaze: remove "Promote with Blaze" links appearing in the Posts list when the Blaze feature is enabled. You can still go to Tools > Advertising to create and manage Blaze campaigns on your site.
 
 #### Bug fixes
-- Don't include Dash cards on Admin UI if module is not available, which fixes positioning.
-- Small adjustments to default Sharing Buttons styles
-- WooCommerce Analytics: avoid error when trying to pay for a deleted product.
+- Disable scroll to top when memberships subscribe popup is opened.
 
 --------
 
