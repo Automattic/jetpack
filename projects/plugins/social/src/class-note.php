@@ -71,8 +71,8 @@ class Note {
 	 */
 	public function register_cpt() {
 		$args = array(
-			'public'       => true,
-			'labels'       => array(
+			'public'        => true,
+			'labels'        => array(
 				'name'                  => esc_html__( 'Social Notes', 'jetpack-social' ),
 				'singular_name'         => esc_html__( 'Social Note', 'jetpack-social' ),
 				'menu_name'             => esc_html__( 'Social Notes', 'jetpack-social' ),
@@ -94,11 +94,20 @@ class Note {
 				'items_list_navigation' => esc_html__( 'Notes list navigation', 'jetpack-social' ),
 				'items_list'            => esc_html__( 'Notes list', 'jetpack-social' ),
 			),
-			'show_in_rest' => true,
-			'has_archive'  => true,
-			'supports'     => array( 'editor', 'thumbnail', 'publicize', 'activitypub' ),
-			'menu_icon'    => 'dashicons-welcome-write-blog',
-			'rewrite'      => array( 'slug' => 'sn' ),
+			'show_in_rest'  => true,
+			'has_archive'   => true,
+			'supports'      => array( 'editor', 'thumbnail', 'publicize', 'activitypub' ),
+			'menu_icon'     => 'dashicons-welcome-write-blog',
+			'rewrite'       => array( 'slug' => 'sn' ),
+			'template'      => array(
+				array(
+					'core/paragraph',
+					array(
+						'placeholder' => __( "What's on your mind?", 'jetpack-social' ),
+					),
+				),
+			),
+			'template_lock' => 'all',
 		);
 		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
 		self::maybe_flush_rewrite_rules();

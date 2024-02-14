@@ -293,13 +293,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.2-a.3 - 2024-02-13
-#### Enhancements
-- Blaze: remove "Promote with Blaze" links appearing in the Posts list when the Blaze feature is enabled. You can still go to Tools > Advertising to create and manage Blaze campaigns on your site.
-
-#### Bug fixes
-- Disable scroll to top when memberships subscribe popup is opened.
-
+### 13.2-a.5 - 2024-02-14
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

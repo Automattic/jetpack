@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Simply moving a utility function over to the boost-score-api js-package.
+
+
