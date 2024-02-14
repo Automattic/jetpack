@@ -263,12 +263,12 @@ function wpcomsh_update_plugin_link_destination( $url, $path ) {
  * @return void
  */
 function wpcomsh_update_plugin_add_filter() {
-	// If site is not connected, return early.
-	if ( ! class_exists( 'Automattic\Jetpack\Status' ) ) {
+	// If site is not connected or nav redesign is enabled, return early.
+	if ( ! class_exists( 'Automattic\Jetpack\Status' ) || wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
 
-	// We also need to change the any plugin-install.php links appearing in /wp-admin/plugins.php or elsewhere.
+	// Update any plugin-install.php links appearing in /wp-admin/plugins.php or elsewhere.
 	add_filter( 'self_admin_url', 'wpcomsh_update_plugin_link_destination', 10, 2 );
 }
 add_action( 'admin_menu', 'wpcomsh_update_plugin_add_filter' );
