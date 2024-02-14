@@ -35,7 +35,7 @@ const ConnectionScreenFooter = () => {
 					<img
 						src={ googleLogo }
 						className={ styles.google }
-						alt={ __( 'Google Logo', 'jetpack-my-jetpack' ) }
+						alt="Google"
 					/>
 				</li>
 				<li>
