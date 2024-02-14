@@ -99,6 +99,14 @@ const ConnectionStatusCard = props => {
 		[ onDisconnected, setConnectionStatus ]
 	);
 
+	/**
+	 * Compare the two values and set IsMultidomain to true if they are the same
+	 */
+	const isMultidomain =
+		window.myJetpackInitialState.siteSuffix !== window.myJetpackInitialState.wpcomURLSuffix;
+
+	const isIDC = window.hasOwnProperty( 'JP_IDENTITY_CRISIS__INITIAL_STATE' ) ?? false;
+
 	return (
 		<div className={ styles[ 'connection-status-card' ] }>
 			<H3>{ title }</H3>
@@ -119,7 +127,7 @@ const ConnectionStatusCard = props => {
 				<img src={ cloud } alt="" className={ styles.cloud } />
 				<div
 					className={ classNames( styles.line, {
-						[ styles.disconnected ]: ! isRegistered || ! isUserConnected,
+						[ styles.disconnected ]: ! isRegistered || ! isUserConnected || isIDC,
 					} ) }
 				/>
 				<div className={ styles[ 'avatar-wrapper' ] }>
@@ -142,16 +150,44 @@ const ConnectionStatusCard = props => {
 					/>
 				) : (
 					<>
-						<ConnectionListItem
-							onClick={ openManageConnectionDialog }
-							text={ __( 'Site connected.', 'jetpack-my-jetpack' ) }
-							actionText={
-								isUserConnected && userConnectionData.currentUser?.isMaster
-									? __( 'Manage', 'jetpack-my-jetpack' )
-									: null
-							}
-						/>
-						{ isUserConnected && (
+						{ isIDC && (
+							<ConnectionListItem
+								text={ __( 'This site is in Safe Mode.', 'jetpack-my-jetpack' ) }
+								status="error"
+							/>
+						) }
+						{ isMultidomain && ! isIDC && (
+							<div>
+								<ConnectionListItem
+									text={ __( 'This site is using multiple domains.', 'jetpack-my-jetpack' ) }
+								/>
+								<ConnectionListItem
+									onClick={ openManageConnectionDialog }
+									text={ sprintf(
+										/* translators: placeholder is domain name */
+										__( 'Site connected as %s', 'jetpack-my-jetpack' ),
+										window.myJetpackInitialState.wpcomURL
+									) }
+									actionText={
+										isUserConnected && userConnectionData.currentUser?.isMaster
+											? __( 'Manage', 'jetpack-my-jetpack' )
+											: ' '
+									}
+								/>
+							</div>
+						) }
+						{ ! isMultidomain && ! isIDC && (
+							<ConnectionListItem
+								onClick={ openManageConnectionDialog }
+								text={ __( 'Site connected.', 'jetpack-my-jetpack' ) }
+								actionText={
+									isUserConnected && userConnectionData.currentUser?.isMaster
+										? __( 'Manage', 'jetpack-my-jetpack' )
+										: ' '
+								}
+							/>
+						) }
+						{ isUserConnected && ! isIDC && (
 							<ConnectionListItem
 								onClick={ openManageConnectionDialog }
 								actionText={ __( 'Manage', 'jetpack-my-jetpack' ) }
@@ -167,7 +203,8 @@ const ConnectionStatusCard = props => {
 						) }
 						{ isUserConnected &&
 							userConnectionData?.connectionOwner &&
-							! userConnectionData.currentUser?.isMaster && (
+							! userConnectionData.currentUser?.isMaster &&
+							! isIDC && (
 								<ConnectionListItem
 									text={ sprintf(
 										/* translators: placeholder is the username of the Jetpack connection owner */
