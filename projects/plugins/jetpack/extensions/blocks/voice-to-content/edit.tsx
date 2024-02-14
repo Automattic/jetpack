@@ -6,11 +6,14 @@ import {
 	micIcon,
 	playerPauseIcon,
 	useMediaRecording,
+	useAudioTranscription,
+	UseAudioTranscriptionReturn,
 } from '@automattic/jetpack-ai-client';
 import { useBlockProps } from '@wordpress/block-editor';
-import { Placeholder, Button } from '@wordpress/components';
+import { Placeholder, Button, FormFileUpload } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 
 function AudioPlayer( { src, state } ) {
 	if ( ! src ) {
@@ -22,6 +25,54 @@ function AudioPlayer( { src, state } ) {
 	}
 
 	return <audio controls src={ src } />; // eslint-disable-line jsx-a11y/media-has-caption
+}
+
+/**
+ * A simple component to display the transcription hook usage.
+ * @returns {React.ReactNode} The transcription demo component.
+ */
+function AudioTranscriptionDemo() {
+	const {
+		transcribeAudio,
+		isTranscribingAudio,
+		transcriptionResult,
+		transcriptionError,
+	}: UseAudioTranscriptionReturn = useAudioTranscription( 'voice-to-content' );
+
+	/**
+	 * File change handler for the file upload.
+	 */
+	const onFileChange = useCallback(
+		event => {
+			if ( event.currentTarget.files.length > 0 ) {
+				transcribeAudio( event.currentTarget.files[ 0 ] );
+			}
+		},
+		[ transcribeAudio ]
+	);
+
+	return (
+		<div className="jetpack-ai-voice-to-content__uploader">
+			<hr />
+			<p>{ __( 'Pick a file for testing the transcription:', 'jetpack' ) }</p>
+			<FormFileUpload accept="audio/*" onChange={ onFileChange } variant="primary">
+				{ __( 'Upload Audio', 'jetpack' ) }
+			</FormFileUpload>
+			{ isTranscribingAudio && <p>{ __( 'Processing the transcription…', 'jetpack' ) }</p> }
+			{ transcriptionError && (
+				<p>
+					{ __( 'Error', 'jetpack' ) }: { transcriptionError }
+				</p>
+			) }
+			{ transcriptionResult && (
+				<p>
+					{ __( 'Result', 'jetpack' ) }: <br />
+					<br />
+					{ transcriptionResult }
+				</p>
+			) }
+		</div>
+	);
 }
 
 export default function VoiceToContentEdit() {
@@ -87,6 +138,7 @@ export default function VoiceToContentEdit() {
 						{ __( 'Done', 'jetpack' ) }
 					</Button>
 				</div>
+				<AudioTranscriptionDemo />
 			</Placeholder>
 		</div>
 	);
