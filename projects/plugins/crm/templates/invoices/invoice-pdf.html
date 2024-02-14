@@ -183,6 +183,24 @@
             /* removed as leaned out font support to regular + bold font-style: italic; */
         }
 
+	.jpcrm-invoice-lineitem-description {
+		text-align: left;
+	}
+	.jpcrm-invoice-lineitem-quantity,
+	.jpcrm-invoice-lineitem-price,
+	.jpcrm-invoice-lineitem-amount {
+		text-align: right;
+	}
+	#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-description {
+		width: 50%;
+	}
+	#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-description .title {
+		font-weight: 600;
+	}
+	#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-description .subtitle {
+		font-size: 13px;
+		font-style: italic;
+	}
 
         /* viewport-size specific - catchalls */
         @media screen and (min-width: 1280px) {
@@ -196,9 +214,6 @@
                 padding: 20px;
                 position: relative;
             }
-        }
-
-        #crm-invoice-partials table {
         }
 
     </style>
@@ -299,16 +314,11 @@
 
         <!-- =============Invoice Description============= -->
         <table style='width:100%; margin-top: 30px;' class='striped'>
-            <thead style='font-weight:900;padding:10px;margin-top:50px'>
-                <tr>
-                    ##INVOICE-TABLE-HEADERS##
-                </tr>
-            </thead>
-            <tbody class='zbs-div-block'>
-
-                ##INVOICE-LINE-ITEMS##
+					<thead id="jpcrm-invoice-lineitems-header" style='font-weight:900;padding:10px;margin-top:50px'>
+						##INVOICE-TABLE-HEADERS##
+					</thead>
+					<tbody id="jpcrm-invoice-lineitems">##INVOICE-LINE-ITEMS##</tbody>
     
-            </tbody>
         </table>
         <!-- =============/Invoice Description============= -->
 
