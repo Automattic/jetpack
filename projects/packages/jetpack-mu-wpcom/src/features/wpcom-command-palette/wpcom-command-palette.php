@@ -30,14 +30,17 @@ function wpcom_load_command_palette() {
 
 	wp_enqueue_script(
 		'command-palette-script',
-		'//widgets.wp.com/command-palette.js',
+		'//widgets.wp.com/command-palette/build.min.js',
 		array(),
-		'1.0.0',
+		'1.0.1',
 		true
 	);
-	wp_add_inline_script(
-		'command-palette-script',
-		'window.initCommandPalette?.( document.querySelector( "#command-palette" ) );'
+	wp_enqueue_style(
+		'command-palette-styles',
+		'//widgets.wp.com/command-palette/build.css',
+		array(),
+		'1.0.1',
+		true
 	);
 }
 add_action( 'admin_enqueue_scripts', 'wpcom_load_command_palette' );
