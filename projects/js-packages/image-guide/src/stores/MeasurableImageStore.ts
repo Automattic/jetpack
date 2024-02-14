@@ -1,6 +1,6 @@
 import { Writable, Readable, writable, derived } from 'svelte/store';
-import { MeasurableImage } from '../MeasurableImage';
-import type { Dimensions, Weight } from '../MeasurableImage';
+import { MeasurableImage } from '../MeasurableImage.js';
+import type { Dimensions, Weight } from '../MeasurableImage.js';
 
 /**
  * Each measurable image has its own set of Svelte stores.

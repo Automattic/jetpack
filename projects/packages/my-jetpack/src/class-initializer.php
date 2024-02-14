@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -34,7 +35,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.9.2';
+	const PACKAGE_VERSION = '4.10.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -187,41 +188,43 @@ class Initializer {
 				'textdomain' => 'jetpack-my-jetpack',
 			)
 		);
-		$modules = new Modules();
+		$modules             = new Modules();
+		$speed_score_history = new Speed_Score_History( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
 			array(
-				'products'              => array(
+				'products'               => array(
 					'items' => Products::get_products(),
 				),
-				'purchases'             => array(
+				'purchases'              => array(
 					'items' => array(),
 				),
-				'plugins'               => Plugins_Installer::get_plugins(),
-				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
-				'myJetpackCheckoutUri'  => 'admin.php?page=my-jetpack',
-				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
-				'siteSuffix'            => ( new Status() )->get_site_suffix(),
-				'blogID'                => Connection_Manager::get_site_id( true ),
-				'myJetpackVersion'      => self::PACKAGE_VERSION,
-				'myJetpackFlags'        => self::get_my_jetpack_flags(),
-				'fileSystemWriteAccess' => self::has_file_system_write_access(),
-				'loadAddLicenseScreen'  => self::is_licensing_ui_enabled(),
-				'adminUrl'              => esc_url( admin_url() ),
-				'IDCContainerID'        => static::get_idc_container_id(),
-				'userIsAdmin'           => current_user_can( 'manage_options' ),
-				'userIsNewToJetpack'    => self::is_jetpack_user_new(),
-				'isStatsModuleActive'   => $modules->is_active( 'stats' ),
-				'isUserFromKnownHost'   => self::is_user_from_known_host(),
-				'isCommercial'          => self::is_commercial_site(),
-				'welcomeBanner'         => array(
+				'plugins'                => Plugins_Installer::get_plugins(),
+				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
+				'myJetpackCheckoutUri'   => 'admin.php?page=my-jetpack',
+				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
+				'siteSuffix'             => ( new Status() )->get_site_suffix(),
+				'blogID'                 => Connection_Manager::get_site_id( true ),
+				'myJetpackVersion'       => self::PACKAGE_VERSION,
+				'myJetpackFlags'         => self::get_my_jetpack_flags(),
+				'fileSystemWriteAccess'  => self::has_file_system_write_access(),
+				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
+				'adminUrl'               => esc_url( admin_url() ),
+				'IDCContainerID'         => static::get_idc_container_id(),
+				'userIsAdmin'            => current_user_can( 'manage_options' ),
+				'userIsNewToJetpack'     => self::is_jetpack_user_new(),
+				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
+				'isUserFromKnownHost'    => self::is_user_from_known_host(),
+				'isCommercial'           => self::is_commercial_site(),
+				'welcomeBanner'          => array(
 					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
 				),
-				'jetpackManage'         => array(
+				'jetpackManage'          => array(
 					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
+				'latestBoostSpeedScores' => $speed_score_history->latest(),
 			)
 		);
 
