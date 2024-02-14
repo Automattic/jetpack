@@ -303,6 +303,13 @@ class Boost_Cache {
 		if ( $new_status === $old_status ) {
 			return;
 		}
+		error_log( "delete_on_comment_transition: $new_status, $old_status" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+
+		if ( $new_status !== 'approved' && $old_status !== 'approved' ) {
+			error_log( 'delete_on_comment_transition: comment not approved' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			return;
+		}
+
 		$post = get_post( $comment->comment_post_ID );
 		$this->delete_cache_for_post( $post );
 	}
