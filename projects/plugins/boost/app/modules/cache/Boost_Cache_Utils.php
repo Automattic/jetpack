@@ -171,4 +171,18 @@ class Boost_Cache_Utils {
 		}
 		return true;
 	}
+
+	/**
+	 * Checks if the post type is public.
+	 *
+	 * @param WP_Post $post - The post to check.
+	 * @return bool - True if the post type is public.
+	 */
+	public static function is_visible_post_type( $post ) {
+		$post_type = is_a( $post, 'WP_Post' ) ? get_post_type_object( $post->post_type ) : null;
+		if ( empty( $post_type ) || ! $post_type->public ) {
+			return false;
+		}
+		return true;
+	}
 }

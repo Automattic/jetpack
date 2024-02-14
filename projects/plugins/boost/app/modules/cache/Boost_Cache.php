@@ -274,20 +274,6 @@ class Boost_Cache {
 	}
 
 	/**
-	 * Checks if the post type is public.
-	 *
-	 * @param WP_Post $post - The post to check.
-	 * @return bool - True if the post type is public.
-	 */
-	protected function is_visible_post_type( $post ) {
-		$post_type = is_a( $post, 'WP_Post' ) ? get_post_type_object( $post->post_type ) : null;
-		if ( empty( $post_type ) || ! $post_type->public ) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
 	 * Delete the cache for the front page and paged archives.
 	 * This is called when a post is edited, deleted, or published.
 	 *
@@ -377,7 +363,7 @@ class Boost_Cache {
 	 * @param WP_Post $post - The post that transitioned.
 	 */
 	public function delete_on_post_transition( $new_status, $old_status, $post ) {
-		if ( ! $this->is_visible_post_type( $post ) ) {
+		if ( ! Boost_Cache_Utils::is_visible_post_type( $post ) ) {
 			return;
 		}
 
@@ -411,7 +397,7 @@ class Boost_Cache {
 		/**
 		 * Don't delete the cache for post types that are not public.
 		 */
-		if ( ! $this->is_visible_post_type( $post ) ) {
+		if ( ! Boost_Cache_Utils::is_visible_post_type( $post ) ) {
 			return;
 		}
 
