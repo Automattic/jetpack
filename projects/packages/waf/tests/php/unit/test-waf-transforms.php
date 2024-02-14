@@ -51,10 +51,20 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 		yield array(
 			'base64_decode',
 			array(
-				''                 => '',
-				'VGVzdENhc2U='     => 'TestCase',
-				'VGVzdENhc2Ux'     => 'TestCase1',
-				'VGVzdENhc2UxMg==' => 'TestCase12',
+				''                       => '',
+				'VGVzdENhc2U='           => 'TestCase',
+				'VGVzdENhc2Ux'           => 'TestCase1',
+				'VGVzdENhc))((((2UxMg==' => 'TestCase12',
+			),
+		);
+
+		yield array(
+			'base64_decode_ext',
+			array(
+				''                       => '',
+				'VGVzdENhc2U='           => 'TestCase',
+				'VGVzdENhc2Ux'           => 'TestCase1',
+				'VGVzdENhc))((((2UxMg==' => 'TestCase12',
 			),
 		);
 

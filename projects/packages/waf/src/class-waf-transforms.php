@@ -11,6 +11,17 @@ namespace Automattic\Jetpack\Waf;
  * Waf_Transforms class
  */
 class Waf_Transforms {
+
+	/**
+	 * Decode a Base64-encoded string.
+	 *
+	 * @param string $value value to be decoded.
+	 * @return string
+	 */
+	public function base64_decode_ext( $value ) {
+		return base64_decode( $value );
+	}
+
 	/**
 	 * Characters to match when trimming a string.
 	 * Emulates `std::isspace` used by ModSecurity.
@@ -26,7 +37,7 @@ class Waf_Transforms {
 	 * @return string
 	 */
 	public function base64_decode( $value ) {
-		return base64_decode( $value );
+		return base64_decode( $value, false );
 	}
 
 	/**
