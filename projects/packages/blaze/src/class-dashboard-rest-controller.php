@@ -677,9 +677,13 @@ class Dashboard_REST_Controller {
 			return $posts;
 		}
 
-		foreach ( $posts as $key => $post ) {
-			$product = wc_get_product( $post['ID'] );
-			if ( $product !== false ) {
+		foreach ( $posts as $key => $item ) {
+			if ( ! isset( $item['ID'] ) ) {
+				$posts[ $key ]['price'] = '';
+				continue;
+			}
+			$product = wc_get_product( $item['ID'] );
+			if ( $product ) {
 
 				$price              = $product->get_price();
 				$decimal_separator  = wc_get_price_decimal_separator();
@@ -689,14 +693,10 @@ class Dashboard_REST_Controller {
 				$currency_symbol    = get_woocommerce_currency_symbol();
 
 				// Convert to float to avoid issues on PHP 8.
-				$price = (float) $price;
-
-				$negative = $price < 0;
-
-				$price = $negative ? $price * -1 : $price;
-
-				$price = number_format( $price, $decimals, $decimal_separator, $thousand_separator );
-
+				$price           = (float) $price;
+				$negative        = $price < 0;
+				$price           = $negative ? $price * -1 : $price;
+				$price           = number_format( $price, $decimals, $decimal_separator, $thousand_separator );
 				$formatted_price = sprintf( $price_format, $currency_symbol, $price );
 
 				$posts[ $key ]['price'] = $formatted_price;
@@ -704,7 +704,6 @@ class Dashboard_REST_Controller {
 				$posts[ $key ]['price'] = '';
 			}
 		}
-
 		return $posts;
 	}
 
