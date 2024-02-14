@@ -3,8 +3,9 @@ import React from 'react';
 import ProductCard from '../../connected-product-card';
 import { PRODUCT_STATUSES } from '../../product-card/action-button';
 import BoostSpeedScore from './boost-speed-score';
+import type { FC } from 'react';
 
-const BoostCard: React.FC< { admin: boolean } > = ( { admin } ) => {
+const BoostCard: FC< { admin: boolean } > = ( { admin } ) => {
 	// Override the primary action button to read "Boost your site" instead
 	// of the default text, "Lern more".
 	const primaryActionOverride = {

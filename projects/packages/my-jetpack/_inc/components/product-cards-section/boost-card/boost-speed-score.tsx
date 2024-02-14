@@ -20,9 +20,8 @@ const BoostSpeedScore = () => {
 	const [ averageSpeedScore, setAverageSpeedScore ] = useState( 0 );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
 
-	const { apiRoot, apiNonce } = window.JP_CONNECTION_INITIAL_STATE;
 	const { siteSuffix: siteUrl = '', latestBoostSpeedScores } = window?.myJetpackInitialState ?? {};
-	const { isSiteConnected } = useMyJetpackConnection();
+	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
 
 	const getAverageSpeedScore = ( mobileScore, desktopScore ) => {
 		return Math.round( ( mobileScore + desktopScore ) / 2 );
@@ -110,7 +109,7 @@ const BoostSpeedScore = () => {
 				) : (
 					<>
 						<div className="mj-boost-speed-score__grade">
-							<span>Your websites's overall speed score:</span>
+							<span>{ __( 'Your website’s overall speed score:', 'jetpack-my-jetpack' ) }</span>
 							<span className="mj-boost-speed-score__grade--letter">{ speedLetterGrade }</span>
 						</div>
 						<div className="mj-boost-speed-score__bar">
