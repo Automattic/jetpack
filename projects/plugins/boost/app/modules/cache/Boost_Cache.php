@@ -386,7 +386,6 @@ class Boost_Cache {
 	 * Deletes cache files for the given post.
 	 *
 	 * @param WP_Post $post - The post to delete the cache file for.
-	 * @param bool $all - If false, only delete the cache file for the post, not the front page cache.
 	 */
 	public function delete_cache_for_post( $post ) {
 		static $already_deleted = -1;
