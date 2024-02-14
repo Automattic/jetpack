@@ -2842,7 +2842,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'wordads',
 			),
 			'wordads_cmp_enabled'                  => array(
-				'description'       => esc_html__( 'Enable A8C EU Consent Management Banner for WordAds', 'jetpack' ),
+				'description'       => esc_html__( 'Enable GDPR Consent Management Banner for WordAds', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
