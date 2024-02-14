@@ -512,7 +512,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 							self::$cached_invites[] = array(
 								'email_or_username' => $item->user_email,
 								'invited'           => false,
-								'slug'              => '',
+								'invite_code'       => '',
 							);
 						}
 						return $current;
@@ -584,7 +584,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			$cached_invite = self::get_pending_cached_wpcom_invite( $user->user_email );
 
 			if ( $cached_invite ) {
-				return $cached_invite['slug'];
+				return $cached_invite['invite_code'];
 			}
 
 			$url      = '/sites/' . $blog_id . '/invites/is-invited';
