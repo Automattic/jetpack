@@ -749,6 +749,10 @@ function render_for_website( $data, $classes, $styles ) {
 						if ( ! empty( $tier_id ) ) {
 							echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
 						}
+
+						if ( $is_button_only_style && ! empty( $data['subscribe_email'] ) ) {
+							echo '<input type="hidden" name="email" value="' . esc_attr( $data['subscribe_email'] ) . '"/>';
+						}
 						?>
 						<button type="submit"
 							<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
