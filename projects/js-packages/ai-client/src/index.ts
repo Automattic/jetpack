@@ -11,6 +11,7 @@ export { default as transcribeAudio } from './audio-transcription';
  */
 export { default as useAiSuggestions } from './hooks/use-ai-suggestions';
 export { default as useMediaRecording } from './hooks/use-media-recording';
+export { default as useAudioTranscription } from './hooks/use-audio-transcription';
 
 /*
  * Components: Icons
