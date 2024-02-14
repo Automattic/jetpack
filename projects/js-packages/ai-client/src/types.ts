@@ -32,7 +32,12 @@ export type PromptProp = PromptMessagesProp | string;
  * Data Flow types
  */
 export type { UseAiContextOptions } from './data-flow/use-ai-context';
+
+/*
+ * Hook types
+ */
 export type { RequestingErrorProps } from './hooks/use-ai-suggestions';
+export type { UseAudioTranscriptionReturn } from './hooks/use-audio-transcription';
 
 /*
  * Requests types

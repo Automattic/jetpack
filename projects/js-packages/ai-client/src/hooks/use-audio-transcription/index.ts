@@ -13,7 +13,7 @@ const debug = debugFactory( 'jetpack-ai-client:use-audio-transcription' );
 /**
  * The response from the audio transcription hook.
  */
-type UseAudioTranscriptionReturn = {
+export type UseAudioTranscriptionReturn = {
 	transcriptionResult: string;
 	isTranscribingAudio: boolean;
 	transcriptionError: string;
