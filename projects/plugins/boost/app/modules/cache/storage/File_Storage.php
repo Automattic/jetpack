@@ -103,7 +103,7 @@ class File_Storage implements Storage {
 		return $path;
 	}
 
-	/*
+	/**
 	 * Delete all cached data for the given path.
 	 *
 	 * @param string $path - The path to delete.

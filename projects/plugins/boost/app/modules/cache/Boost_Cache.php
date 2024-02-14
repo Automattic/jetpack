@@ -1,16 +1,16 @@
 <?php
+/**
+ * This file is loaded by advanced-cache.php, and so cannot rely on autoloading.
+ */
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
-/*
- * This file is loaded by advanced-cache.php, and so cannot rely on autoloading.
- */
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 require_once __DIR__ . '/Boost_Cache_Utils.php';
 require_once __DIR__ . '/Storage/File_Storage.php';
 
 class Boost_Cache {
-	/*
+	/**
 	 * @var Boost_Cache_Settings - The settings for the page cache.
 	 */
 	private $settings;
@@ -20,12 +20,12 @@ class Boost_Cache {
 	 */
 	private $storage;
 
-	/*
+	/**
 	 * @var string - The normalized path for the current request. This is not sanitized. Only to be used for comparison purposes.
 	 */
 	private $request_uri = false;
 
-	/*
+	/**
 	 * @var array - The GET parameters and cookies for the current request. Everything considered in the cache key.
 	 */
 	private $request_parameters;
@@ -41,7 +41,7 @@ class Boost_Cache {
 			? $this->normalize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			: false;
 
-		/*
+		/**
 		 * Set the cookies and get parameters for the current request.
 		 * Sometimes these arrays are modified by WordPress or other plugins.
 		 * We need to cache them here so they can be used for the cache key later.
@@ -55,7 +55,7 @@ class Boost_Cache {
 		$this->init_actions();
 	}
 
-	/*
+	/**
 	 * Initialize the actions for the cache.
 	 */
 	protected function init_actions() {
@@ -66,7 +66,7 @@ class Boost_Cache {
 		add_action( 'switch_theme', array( $this, 'delete_cache' ) );
 	}
 
-	/*
+	/**
 	 * Serve the cached page if it exists, otherwise start output buffering.
 	 */
 	public function serve() {
@@ -75,7 +75,7 @@ class Boost_Cache {
 		}
 	}
 
-	/*
+	/**
 	 * Returns true if the current request has a fatal error.
 	 *
 	 * @return bool
@@ -97,7 +97,7 @@ class Boost_Cache {
 		return in_array( $error['type'], $fatal_errors, true );
 	}
 
-	/*
+	/**
 	 * Returns true if the request is cacheable.
 	 *
 	 * If a request is in the backend, or is a POST request, or is not an
@@ -161,7 +161,7 @@ class Boost_Cache {
 		return true;
 	}
 
-	/*
+	/**
 	 * Normalize the request uri so it can be used for caching purposes.
 	 * It removes the query string and the trailing slash, and characters
 	 * that might cause problems with the filesystem.
@@ -396,7 +396,7 @@ class Boost_Cache {
 		$this->delete_cache_for_front_page( $post );
 	}
 
-	/*
+	/**
 	 * Deletes cache files for the given post.
 	 *
 	 * @param WP_Post $post - The post to delete the cache file for.
@@ -408,7 +408,7 @@ class Boost_Cache {
 			return;
 		}
 
-		/*
+		/**
 		 * Don't delete the cache for post types that are not public.
 		 */
 		if ( ! $this->is_visible_post_type( $post ) ) {
@@ -417,7 +417,7 @@ class Boost_Cache {
 
 		$already_deleted = $post->ID;
 
-		/*
+		/**
 		 * If a post is unpublished, the permalink will be deleted. In that case,
 		 * get_sample_permalink() will return a permalink with ?p=123 instead of
 		 * the post name. We need to get the post name from the post object.
@@ -435,7 +435,7 @@ class Boost_Cache {
 		$this->delete_cache_for_url( $permalink );
 	}
 
-	/*
+	/**
 	 * Delete the cache for terms associated with this post.
 	 *
 	 * @param WP_Post $post - The post to delete the cache for.
@@ -458,7 +458,7 @@ class Boost_Cache {
 		}
 	}
 
-	/*
+	/**
 	 * Delete the cache for the given url. Recurse through sub directories if $recurse is true.
 	 *
 	 * @param string $url - The url to delete the cache for.
@@ -470,7 +470,7 @@ class Boost_Cache {
 		return $this->storage->invalidate( $path );
 	}
 
-	/*
+	/**
 	 * Delete the entire cache.
 	 */
 	public function delete_cache() {
