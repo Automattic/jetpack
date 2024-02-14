@@ -5,7 +5,13 @@ import { z } from 'zod';
 import Footer from '$layout/footer/footer';
 
 const CacheDebugLog = () => {
-	const [ { data: debugLog } ] = useDataSync( 'jetpack_boost_ds', 'cache_debug_log', z.string() );
+	const [ { data: debugLog } ] = useDataSync( 'jetpack_boost_ds', 'cache_debug_log', z.string(), {
+		query: {
+			// Keep refreshing the logs every 10 seconds
+			refetchInterval: 10000,
+		},
+	} );
+
 	return (
 		<div id="jb-dashboard" className="jb-dashboard">
 			<Header subPageTitle={ __( 'Cache Debug Log', 'jetpack-boost' ) } />

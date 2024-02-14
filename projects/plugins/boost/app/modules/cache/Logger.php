@@ -78,9 +78,8 @@ class Logger {
 	 * @param string $message - The message to write to the log file.
 	 */
 	public function log( $message ) {
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? stripslashes( $_SERVER['REQUEST_URI'] ) : '<unknown request uri>';
-		$request_uri = htmlspecialchars( $request_uri, ENT_QUOTES, 'UTF-8' );
+		$request     = new Request();
+		$request_uri = htmlspecialchars( $request->get_uri(), ENT_QUOTES, 'UTF-8' );
 		$line        = gmdate( 'H:i:s' ) . ' ' . getmypid() . " {$request_uri} {$message}" . PHP_EOL;
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( $line, 3, $this->get_log_file() );
