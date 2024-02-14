@@ -523,18 +523,13 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				if ( ! empty( $user_emails ) ) {
 					$url = '/sites/' . $blog_id . '/invites/are-users-invited';
 
-					$url = add_query_arg(
-						array(
-							'users' => $user_emails,
-						),
-						$url
-					);
-
 					$response = Client::wpcom_json_api_request_as_user(
 						$url,
 						'v2',
-						array(),
-						null,
+						array(
+							'method' => 'POST',
+						),
+						array( 'users' => $user_emails ),
 						'wpcom'
 					);
 
