@@ -3,35 +3,6 @@
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
 class Boost_Cache_Utils {
-
-	/**
-	 * "Safe" version of WordPress' is_404 method. When called before WordPress' query is run, returns
-	 * `null` (a falsey value) instead of outputting a _doing_it_wrong warning.
-	 */
-	public static function is_404() {
-		global $wp_query;
-
-		if ( ! isset( $wp_query ) || ! function_exists( '\is_404' ) ) {
-			return null;
-		}
-
-		return \is_404();
-	}
-
-	/**
-	 * "Safe" version of WordPress' is_feed method. When called before WordPress' query is run, returns
-	 * `null` (a falsey value) instead of outputting a _doing_it_wrong warning.
-	 */
-	public static function is_feed() {
-		global $wp_query;
-
-		if ( ! isset( $wp_query ) || ! function_exists( '\is_feed' ) ) {
-			return null;
-		}
-
-		return \is_feed();
-	}
-
 	/*
 	 * Recursively delete a directory.
 	 * @param string $dir - The directory to delete.

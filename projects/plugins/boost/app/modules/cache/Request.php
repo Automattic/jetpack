@@ -109,11 +109,11 @@ class Request {
 			return false;
 		}
 
-		if ( function_exists( 'is_404' ) && is_404() ) {
+		if ( $this->is_404() ) {
 			return false;
 		}
 
-		if ( function_exists( 'is_feed' ) && is_feed() ) {
+		if ( $this->is_feed() ) {
 			return false;
 		}
 
@@ -178,5 +178,33 @@ class Request {
 		}
 
 		return $is_backend;
+	}
+
+	/**
+	 * "Safe" version of WordPress' is_404 method. When called before WordPress' query is run, returns
+	 * `null` (a falsey value) instead of outputting a _doing_it_wrong warning.
+	 */
+	public function is_404() {
+		global $wp_query;
+
+		if ( ! isset( $wp_query ) || ! function_exists( '\is_404' ) ) {
+			return null;
+		}
+
+		return \is_404();
+	}
+
+	/**
+	 * "Safe" version of WordPress' is_feed method. When called before WordPress' query is run, returns
+	 * `null` (a falsey value) instead of outputting a _doing_it_wrong warning.
+	 */
+	public function is_feed() {
+		global $wp_query;
+
+		if ( ! isset( $wp_query ) || ! function_exists( '\is_feed' ) ) {
+			return null;
+		}
+
+		return \is_feed();
 	}
 }
