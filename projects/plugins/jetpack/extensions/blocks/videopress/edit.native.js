@@ -163,20 +163,20 @@ class VideoPressEdit extends Component {
 		const { mediaUrl, mediaServerId, metadata = {} } = payload;
 		const { videopressGUID } = metadata;
 		setAttributes( { src: mediaUrl, id: mediaServerId } );
-		this.setState( { isUploadInProgress: false } );
+		this.setState( { isUploadInProgress: false, isUploadFailed: false } );
 		this.setGuid( videopressGUID );
 	}
 
 	finishMediaUploadWithFailure( payload ) {
 		const { setAttributes } = this.props;
 		setAttributes( { id: payload.mediaId } );
-		this.setState( { isUploadInProgress: false } );
+		this.setState( { isUploadInProgress: false, isUploadFailed: true } );
 	}
 
 	mediaUploadStateReset() {
 		const { setAttributes } = this.props;
 		setAttributes( { id: null, src: null, guid: null } );
-		this.setState( { isUploadInProgress: false } );
+		this.setState( { isUploadInProgress: false, isUploadFailed: false } );
 	}
 
 	onSelectMediaUploadOption( payload ) {
