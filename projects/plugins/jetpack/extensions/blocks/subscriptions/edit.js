@@ -15,6 +15,7 @@ import { useEffect } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
+import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
 import GetAddPaidPlanButton from '../../shared/memberships/utils';
@@ -27,7 +28,7 @@ import {
 	DEFAULT_PADDING_VALUE,
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
-	BUTTON_ONLY_CLASS_NAME,
+	BUTTON_STYLE_NAME,
 } from './constants';
 import SubscriptionControls from './controls';
 import { SubscriptionsPlaceholder } from './subscription-placeholder';
@@ -93,7 +94,7 @@ export function SubscriptionEdit( props ) {
 		successMessage,
 	} = validatedAttributes;
 
-	const isButtonOnlyStyle = validatedAttributes.className === BUTTON_ONLY_CLASS_NAME;
+	const activeStyleName = getActiveStyleName( metadata.styles, validatedAttributes.className );
 
 	const { subscriberCount, subscriberCountString } = useSelect( select => {
 		if ( ! isModuleActive ) {
@@ -203,7 +204,7 @@ export function SubscriptionEdit( props ) {
 		width: buttonWidth,
 	};
 
-	if ( ! isButtonOnlyStyle ) {
+	if ( activeStyleName !== BUTTON_STYLE_NAME ) {
 		if ( buttonOnNewLine ) {
 			buttonStyles.marginTop = getSpacingStyleValue( spacing ) + 'px';
 		} else {
@@ -299,7 +300,7 @@ export function SubscriptionEdit( props ) {
 				<div className="wp-block-jetpack-subscriptions__container is-not-subscriber">
 					<div className="wp-block-jetpack-subscriptions__form" role="form">
 						<div className="wp-block-jetpack-subscriptions__form-elements">
-							{ ! isButtonOnlyStyle && (
+							{ activeStyleName !== BUTTON_STYLE_NAME && (
 								<TextControl
 									placeholder={ subscribePlaceholder }
 									disabled={ true }
