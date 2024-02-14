@@ -3,6 +3,7 @@ import Header from '$layout/header/header';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 import Footer from '$layout/footer/footer';
+import styles from './cache-debug-log.module.scss';
 
 const CacheDebugLog = () => {
 	const [ { data: debugLog } ] = useDataSync( 'jetpack_boost_ds', 'cache_debug_log', z.string(), {
@@ -17,7 +18,7 @@ const CacheDebugLog = () => {
 			<Header subPageTitle={ __( 'Cache Debug Log', 'jetpack-boost' ) } />
 			<div className="jb-section--alt">
 				<div className="jb-container">
-					<pre>{ debugLog }</pre>
+					<pre className={ styles[ 'log-text' ] }>{ debugLog }</pre>
 				</div>
 			</div>
 			<div className="jb-section">
