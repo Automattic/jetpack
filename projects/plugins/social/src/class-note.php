@@ -18,7 +18,7 @@ class Note {
 	 * Check if the feature is enabled.
 	 */
 	public function enabled() {
-		return get_option( self::JETPACK_SOCIAL_NOTE_CPT );
+		return (bool) get_option( self::JETPACK_SOCIAL_NOTE_CPT );
 	}
 
 	/**
@@ -126,10 +126,16 @@ class Note {
 	}
 
 	/**
-	 * Toggle whether or not the Notes feature is enabled.
+	 * Set whether or not the Notes feature is enabled.
+	 *
+	 * @param boolean $enabled Whether or not the Notes feature is enabled.
 	 */
-	public function toggle_enabled_status() {
-		if ( ! self::enabled() ) {
+	public function set_enabled( $enabled ) {
+		if ( $enabled === self::enabled() ) {
+			return;
+		}
+
+		if ( $enabled ) {
 			update_option( self::JETPACK_SOCIAL_NOTE_CPT, true );
 		} else {
 			delete_option( self::JETPACK_SOCIAL_NOTE_CPT );
