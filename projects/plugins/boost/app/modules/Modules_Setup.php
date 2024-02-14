@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
+use Automattic\Jetpack_Boost\Contracts\Has_Activate;
+use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
@@ -12,13 +14,18 @@ use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 class Modules_Setup implements Has_Setup {
 	/**
+	 * @var Modules_Index
+	 */
+	protected $modules = array();
+
+	/**
 	 * @var Module[] - Associative array of all Jetpack Boost modules currently available.
 	 */
 	protected $available_modules = array();
 
 	public function __construct() {
-		$modules                 = new Modules_Index();
-		$this->available_modules = $modules->available_modules();
+		$this->modules           = new Modules_Index();
+		$this->available_modules = $this->modules->available_modules();
 	}
 
 	public function have_enabled_modules() {
@@ -84,6 +91,17 @@ class Modules_Setup implements Has_Setup {
 	public function on_module_status_update( $module_slug, $is_activated ) {
 		$status = new Status( $module_slug );
 		$status->on_update( $is_activated );
+
+		$feature        = $this->modules->get_feature_instance_by_slug( $module_slug );
+		$has_activate   = $feature && $feature instanceof Has_Activate;
+		$has_deactivate = $feature && $feature instanceof Has_Deactivate;
+		if ( $is_activated && $has_activate ) {
+			$feature::activate();
+		}
+
+		if ( ! $is_activated && $has_deactivate ) {
+			$feature::deactivate();
+		}
 
 		if ( $module_slug === Cloud_CSS::get_slug() && $is_activated ) {
 			( new Regenerate() )->start();
