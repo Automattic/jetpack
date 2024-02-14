@@ -1,6 +1,7 @@
 import { Button, Notice } from '@automattic/jetpack-components';
 import { usePageCacheErrorDS, useRunPageCacheSetupAction } from '$lib/stores/page-cache';
 import getErrorData from './lib/get-error-data';
+import { __ } from '@wordpress/i18n';
 
 const Health = () => {
 	const pageCacheError = usePageCacheErrorDS();
@@ -17,14 +18,18 @@ const Health = () => {
 		const errorData = getErrorData( errorCode );
 		if ( errorData ) {
 			return (
-				<>
-					<Notice level="warning" hideCloseButton={ true } title={ errorData.title }>
-						{ errorData.message }
-					</Notice>
-					<Button size="small" weight="regular" onClick={ requestRunSetup }>
-						I`ve fixed the errors, run setup again.
-					</Button>
-				</>
+				<Notice
+					level="warning"
+					hideCloseButton={ true }
+					title={ errorData.title }
+					actions={ [
+						<Button size="small" weight="regular" onClick={ requestRunSetup } key="try-again">
+							{ __( 'Try again', 'jetpack-boost' ) }
+						</Button>,
+					] }
+				>
+					<p>{ errorData.message }</p>
+				</Notice>
 			);
 		}
 	}
