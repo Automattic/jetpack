@@ -1,10 +1,10 @@
 import { Text, H3, Title, Button } from '@automattic/jetpack-components';
 import { __, _n } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
+import usePurchases from '../../data/purchases/use-purchases';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
@@ -62,19 +62,19 @@ function PlanExpiry( purchase ) {
 /**
  * Plan section Header component.
  *
- * @param {object} props          - Component props.
- * @param {Array} props.purchases - Purchases array.
+ * @param {object} props                   - Component props.
+ * @param {number} props.numberOfPurchases - Count of purchases in purchases array.
  * @returns {object} PlanSectionHeader react component.
  */
-function PlanSectionHeader( { purchases } ) {
+function PlanSectionHeader( { numberOfPurchases = 0 } ) {
 	return (
 		<>
 			<H3>
-				{ purchases.length <= 1
+				{ numberOfPurchases <= 1
 					? __( 'Your plan', 'jetpack-my-jetpack' )
 					: __( 'Your plans', 'jetpack-my-jetpack' ) }
 			</H3>
-			{ purchases.length === 0 && (
+			{ numberOfPurchases === 0 && (
 				<Text variant="body">{ __( 'Want to power up your Jetpack?', 'jetpack-my-jetpack' ) }</Text>
 			) }
 		</>
@@ -84,30 +84,30 @@ function PlanSectionHeader( { purchases } ) {
 /**
  * Plan section Footer component.
  *
- * @param {object} props          - Component props.
- * @param {Array} props.purchases - Purchases array.
+ * @param {object} props                   - Component props.
+ * @param {number} props.numberOfPurchases - Count of purchases in purchases array.
  * @returns {object} PlanSectionFooter react component.
  */
-function PlanSectionFooter( { purchases } ) {
+function PlanSectionFooter( { numberOfPurchases } ) {
 	const { recordEvent } = useAnalytics();
 	const { isUserConnected } = useMyJetpackConnection();
 
 	let planLinkDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
-	if ( purchases.length >= 1 ) {
+	if ( numberOfPurchases >= 1 ) {
 		planLinkDescription = _n(
 			'Manage your plan',
 			'Manage your plans',
-			purchases.length,
+			numberOfPurchases,
 			'jetpack-my-jetpack'
 		);
 	}
 
 	const purchaseClickHandler = useCallback( () => {
-		const event = purchases.length
+		const event = numberOfPurchases
 			? 'jetpack_myjetpack_plans_manage_click'
 			: 'jetpack_myjetpack_plans_purchase_click';
 		recordEvent( event );
-	}, [ purchases, recordEvent ] );
+	}, [ numberOfPurchases, recordEvent ] );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 	const activateLicenseClickHandler = useCallback( () => {
@@ -130,7 +130,7 @@ function PlanSectionFooter( { purchases } ) {
 			<li className={ styles[ 'actions-list-item' ] }>
 				<Button
 					onClick={ purchaseClickHandler }
-					href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
+					href={ numberOfPurchases ? getManageYourPlanUrl() : getPurchasePlanUrl() }
 					weight="regular"
 					variant="link"
 					isExternalLink={ true }
@@ -165,18 +165,22 @@ function PlanSectionFooter( { purchases } ) {
  */
 export default function PlansSection() {
 	const userIsAdmin = !! window?.myJetpackInitialState?.userIsAdmin;
-	const { purchases } = usePurchases();
+	const { data: purchases, isLoading, isError } = usePurchases();
+
+	const isDataLoaded = purchases && ! isLoading && ! isError;
+	const numberOfPurchases = isDataLoaded ? purchases.length : 0;
 
 	return (
 		<div className={ styles.container }>
-			<PlanSectionHeader purchases={ purchases } />
+			<PlanSectionHeader purchases={ numberOfPurchases } />
 
 			<div className={ styles.purchasesSection }>
-				{ purchases.map( purchase => (
-					<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
-				) ) }
+				{ isDataLoaded &&
+					purchases.map( purchase => (
+						<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
+					) ) }
 			</div>
-			{ userIsAdmin && <PlanSectionFooter purchases={ purchases } /> }
+			{ userIsAdmin && <PlanSectionFooter purchases={ numberOfPurchases } /> }
 		</div>
 	);
 }

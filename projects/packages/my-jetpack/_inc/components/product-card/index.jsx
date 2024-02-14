@@ -29,7 +29,12 @@ const SecondaryButton = props => {
 		return false;
 	}
 
-	return <Button { ...props }>{ label }</Button>;
+	// Button component doesn't take these props
+	const buttonProps = { ...props };
+	delete buttonProps.shouldShowButton;
+	delete buttonProps.positionFirst;
+
+	return <Button { ...buttonProps }>{ label }</Button>;
 };
 
 SecondaryButton.propTypes = {
