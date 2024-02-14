@@ -141,31 +141,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 	}
 
 	/**
-	 * Test that should_handle_idc returns true when the legacy JETPACK_SYNC_IDC_OPTIN constant is true.
-	 */
-	public function test_should_handle_idc_true_when_legacy_constant_true() {
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
-		$this->assertTrue( Identity_Crisis::should_handle_idc() );
-	}
-
-	/**
-	 * Test that should_handle_idc returns false when the legacy JETPACK_SYNC_IDC_OPTIN constant is false.
-	 */
-	public function test_should_handle_idc_false_when_legacy_constant_false() {
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
-		$this->assertFalse( Identity_Crisis::should_handle_idc() );
-	}
-
-	/**
-	 * Test that current JETPACK_SHOULD_HANDLE_IDC constant overrides the legacy JETPACK_SYNC_IDC_OPTIN constant.
-	 */
-	public function test_should_handle_idc_current_constant_overrides_legacy_constant() {
-		Constants::set_constant( 'JETPACK_SHOULD_HANDLE_IDC', true );
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
-		$this->assertTrue( Identity_Crisis::should_handle_idc() );
-	}
-
-	/**
 	 * Test that validate_sync_error_idc_option returns false if the sync_error_idc error doesn't exist.
 	 */
 	public function test_sync_error_idc_validation_returns_false_if_no_option() {
