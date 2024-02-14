@@ -469,7 +469,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @static
 		 * @param int $user_id The user ID.
 		 *
-		 * @return {false|string} returns the user slug if the user is invited, false otherwise.
+		 * @return {false|string} returns the user invite code if the user is invited, false otherwise.
 		 */
 		private static function has_pending_wpcom_invite( $user_id ) {
 			$blog_id = Jetpack_Options::get_option( 'id' );
@@ -497,7 +497,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				return false;
 			}
 
-			return json_decode( $response['body'], true )['slug'];
+			return json_decode( $response['body'], true )['invite_code'];
 		}
 
 		/**
