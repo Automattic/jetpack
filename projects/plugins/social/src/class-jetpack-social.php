@@ -238,7 +238,7 @@ class Jetpack_Social {
 			$state = array_merge(
 				$state,
 				array(
-					'jetpackSettings' => array(
+					'jetpackSettings'     => array(
 						'publicize_active'               => self::is_publicize_active(),
 						'show_pricing_page'              => self::should_show_pricing_page(),
 						'showNudge'                      => ! $publicize->has_paid_plan( true ),
@@ -246,11 +246,14 @@ class Jetpack_Social {
 						'dismissedNotices'               => Dismissed_Notices::get_dismissed_notices(),
 						'supportedAdditionalConnections' => $publicize->get_supported_additional_connections(),
 					),
-					'connectionData'  => array(
+					'connectionData'      => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 						'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 					),
-					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'sharesData'          => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'socialNotesSettings' => array(
+						'enabled' => ( new Automattic\Jetpack\Social\Note() )->enabled(),
+					),
 				),
 				$settings
 			);
