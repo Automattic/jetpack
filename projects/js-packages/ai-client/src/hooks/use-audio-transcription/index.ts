@@ -41,6 +41,7 @@ export default function useAudioTranscription( feature?: string ): UseAudioTrans
 			setTranscriptionResult( '' );
 			setTranscriptionError( '' );
 			setIsTranscribingAudio( true );
+
 			/**
 			 * Call the audio transcription library.
 			 */
