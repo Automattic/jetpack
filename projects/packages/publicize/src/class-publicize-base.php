@@ -1726,7 +1726,7 @@ abstract class Publicize_Base {
 			$tags = $this->add_jetpack_social_og_image( $tags, $social_opengraph_image );
 		}
 
-		if ( empty( $tags['og:image'] ) || empty( $tags['og:image:width'] ) || empty( $tags['og:image:height'] ) ) {
+		if ( empty( $tags['og:image'] ) || ! is_string( $tags['og:image'] ) || empty( $tags['og:image:width'] ) || empty( $tags['og:image:height'] ) ) {
 			return $tags;
 		}
 
