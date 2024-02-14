@@ -1,15 +1,6 @@
 .wrapper {
-	display: flex;
-	flex-direction: row;
-	align-items: flex-start;
 	font-size: 14px;
 	line-height: 22px;
-
-	.summary {
-		flex-grow: 1;
-		margin-right: 5px;
-		color: var(--gray-40);
-	}
 
 	:global(svg) {
 		fill: var(--jetpack-green-40);
@@ -17,5 +8,62 @@
 
 	:global(button ~ button) {
 		margin-left: 20px !important;
+	}
+
+	.head {
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+
+		.summary {
+			flex-grow: 1;
+			margin-right: 5px;
+			color: var(--gray-40);
+		}
+	}
+
+	.body {
+		margin-top: 16px;
+
+		.section {
+			padding: 16px;
+			border-radius: 4px;
+			background-color: var(--gray-0);
+
+			& ~ .section {
+				margin-top: 16px;
+			}
+
+			.title {
+				margin-bottom: 16px;
+				font-size: 16px;
+				line-height: 1;
+				font-weight: 600;
+			}
+
+			textarea {
+				display: block;
+				margin-bottom: 8px;
+				width: 100%;
+				padding: 12px 16px;
+				border-radius: 4px;
+				border: 1px solid var( --gray-10 );
+				background: var( --primary-white );
+				color: var( --gray-10 );
+			}
+
+			.description {
+				margin-top: 8px;
+				font-size: 14px;
+				line-height: 1.5;
+				color: var( --gray-60 );
+				font-weight: 400;
+			}
+
+			label {
+				font-size: 16px;
+				line-height: 1.5;
+			}
+		}
 	}
 }
