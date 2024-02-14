@@ -293,7 +293,7 @@ class Boost_Cache {
 	 *
 	 * @param int $post - The post that should be deleted.
 	 */
-	protected function delete_front_page_cache( $post ) {
+	protected function delete_cache_for_front_page( $post ) {
 		$front_page_id = get_option( 'show_on_front' ); // posts page
 		if ( $front_page_id === 'page' ) {
 			$front_page_id = get_option( 'page_on_front' ); // static page
@@ -393,7 +393,7 @@ class Boost_Cache {
 
 		$this->delete_cache_for_post( $post );
 		$this->delete_cache_for_post_terms( $post );
-		$this->delete_front_page_cache( $post );
+		$this->delete_cache_for_front_page( $post );
 	}
 
 	/*
