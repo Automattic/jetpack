@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Hack tests to pass by avoiding calling `Modules::disable()` from packages/status, which has an undeclared dependency on `Jetpack_Options` which is currently in packages/connection.
-
-

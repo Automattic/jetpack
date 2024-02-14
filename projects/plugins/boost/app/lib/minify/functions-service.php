@@ -1,9 +1,9 @@
 <?php
 
+use Automattic\Jetpack_Boost\Lib\Minify;
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 use Automattic\Jetpack_Boost\Lib\Minify\Utils;
-use tubalmartin\CssMin;
 
 function jetpack_boost_page_optimize_types() {
 	return array(
@@ -133,7 +133,8 @@ function jetpack_boost_strip_parent_path( $parent_path, $path ) {
 }
 
 /**
- * Generate a combined and minified output for the current request.
+ * Generate a combined and minified output for the current request. This is run regardless of the
+ * type of content being fetched; JavaScript or CSS, so it must handle either.
  */
 function jetpack_boost_page_optimize_build_output() {
 	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
@@ -208,12 +209,6 @@ function jetpack_boost_page_optimize_build_output() {
 	$last_modified = 0;
 	$pre_output    = '';
 	$output        = '';
-
-	$should_minify_css = Config::is_css_minify_enabled();
-
-	if ( $should_minify_css ) {
-		$css_minify = new CssMin\Minifier();
-	}
 
 	foreach ( $args as $uri ) {
 		$fullpath = jetpack_boost_page_optimize_get_path( $uri );
@@ -302,15 +297,13 @@ function jetpack_boost_page_optimize_build_output() {
 				);
 			}
 
-			if ( $should_minify_css ) {
-				$buf = $css_minify->run( $buf );
-			}
-		}
-
-		if ( $jetpack_boost_page_optimize_types['js'] === $mime_type ) {
-			$output .= "$buf;\n";
-		} else {
+			// Minify CSS.
+			$buf     = Minify::css( $buf );
 			$output .= "$buf";
+		} else {
+			// Minify JS
+			$buf     = Minify::js( $buf );
+			$output .= "$buf;\n";
 		}
 	}
 

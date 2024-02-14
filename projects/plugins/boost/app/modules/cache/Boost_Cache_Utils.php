@@ -3,6 +3,35 @@
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
 class Boost_Cache_Utils {
+
+	/**
+	 * "Safe" version of WordPress' is_404 method. When called before WordPress' query is run, returns
+	 * `null` (a falsey value) instead of outputting a _doing_it_wrong warning.
+	 */
+	public static function is_404() {
+		global $wp_query;
+
+		if ( ! isset( $wp_query ) || ! function_exists( '\is_404' ) ) {
+			return null;
+		}
+
+		return \is_404();
+	}
+
+	/**
+	 * "Safe" version of WordPress' is_feed method. When called before WordPress' query is run, returns
+	 * `null` (a falsey value) instead of outputting a _doing_it_wrong warning.
+	 */
+	public static function is_feed() {
+		global $wp_query;
+
+		if ( ! isset( $wp_query ) || ! function_exists( '\is_feed' ) ) {
+			return null;
+		}
+
+		return \is_feed();
+	}
+
 	/*
 	 * Recursively delete a directory.
 	 * @param string $dir - The directory to delete.
@@ -31,15 +60,42 @@ class Boost_Cache_Utils {
 		return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 	}
 
+	/**
+	 * Performs a deep string replace operation to ensure the values in $search are no longer present.
+	 * Copied from wp-includes/formatting.php
+	 *
+	 * Repeats the replacement operation until it no longer replaces anything to remove "nested" values
+	 * e.g. $subject = '%0%0%0DDD', $search ='%0D', $result ='' rather than the '%0%0DD' that
+	 * str_replace would return
+	 *
+	 * @param string|array $search  The value being searched for, otherwise known as the needle.
+	 *                              An array may be used to designate multiple needles.
+	 * @param string       $subject The string being searched and replaced on, otherwise known as the haystack.
+	 * @return string The string with the replaced values.
+	 */
+	public static function deep_replace( $search, $subject ) {
+		$subject = (string) $subject;
+
+		$count = 1;
+		while ( $count ) {
+				$subject = str_replace( $search, '', $subject, $count );
+		}
+
+		return $subject;
+	}
+
+	public static function trailingslashit( $string ) {
+		return rtrim( $string, '/' ) . '/';
+	}
+
 	/*
 	 * Returns a sanitized directory path.
 	 * @param string $path - The path to sanitize.
 	 * @return string
 	 */
 	public static function sanitize_file_path( $path ) {
-		$path = trailingslashit( $path );
-
-		$path = _deep_replace(
+		$path = self::trailingslashit( $path );
+		$path = self::deep_replace(
 			array( '..', '\\' ),
 			preg_replace(
 				'/[ <>\'\"\r\n\t\(\)]/',
@@ -53,6 +109,20 @@ class Boost_Cache_Utils {
 		);
 
 		return $path;
+	}
+
+	/*
+	 * Creates the directory if it doesn't exist.
+	 *
+	 * @param string $path - The path to the directory to create.
+	 */
+	public static function create_directory( $path ) {
+		if ( ! is_dir( $path ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.dir_mkdir_dirname, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+			return mkdir( $path, 0755, true );
+		}
+
+		return true;
 	}
 
 	/*

@@ -33,8 +33,18 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-
-<!-- When you do a release, use the monorepo script tools/plugin-changelog-to-readme.sh to copy from CHANGELOG.md to here. -->
+### 0.4.0 - 2024-02-07
+#### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.3.
+- General: indicate full compatibility with the latest version of WordPress, 6.4.
+- General: remove WP 6.1 backwards compatibility checks
+- General: updated PHP requirement to PHP 7.0+
+- General: update WordPress version requirements to WordPress 6.2.
+- General: update WordPress version requirements to WordPress 6.3.
+- Updated Jetpack submenu sort order so individual features are alpha-sorted.
+- Updated package dependencies.
+- Update lockfile
+- Use the new method to render Connection initial state.
 
 == Arbitrary section ==
 
