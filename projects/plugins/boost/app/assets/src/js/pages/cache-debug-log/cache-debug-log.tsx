@@ -4,6 +4,8 @@ import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 import Footer from '$layout/footer/footer';
 import styles from './cache-debug-log.module.scss';
+import classNames from 'classnames';
+import { Button } from '@automattic/jetpack-components';
 
 const CacheDebugLog = () => {
 	const [ { data: debugLog } ] = useDataSync( 'jetpack_boost_ds', 'cache_debug_log', z.string(), {
@@ -13,19 +15,31 @@ const CacheDebugLog = () => {
 		},
 	} );
 
+	const copyToClipboard = () => {
+		navigator.clipboard.writeText( debugLog as string );
+	};
+
 	return (
-		<div id="jb-dashboard" className="jb-dashboard">
-			<Header subPageTitle={ __( 'Cache Debug Log', 'jetpack-boost' ) } />
-			<div className="jb-section--alt">
+		<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
+			<Header subPageTitle={ __( 'Cache Log Viewer', 'jetpack-boost' ) } />
+			<div className={ classNames( 'jb-section jb-section--main', styles.section ) }>
 				<div className="jb-container">
+					<header className={ styles.header }>
+						<h3>{ __( 'Jetpack Boost Cache Log Viewer', 'jetpack-boost' ) }</h3>
+						<Button
+							className={ styles[ 'copy-button' ] }
+							onClick={ copyToClipboard }
+							variant="link"
+							weight="regular"
+						>
+							{ __( 'Copy to clipboard', 'jetpack-boost' ) }
+						</Button>
+					</header>
+
 					<pre className={ styles[ 'log-text' ] }>{ debugLog }</pre>
 				</div>
 			</div>
-			<div className="jb-section">
-				<div className="jb-container">
-					<Footer />
-				</div>
-			</div>
+			<Footer />
 		</div>
 	);
 };
