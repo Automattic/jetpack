@@ -35,7 +35,8 @@ $border_radius: math.div($bar-height, 2);
     }
 
     .jb-score-bar__score {
-        width: $bar-height;
+        width: $bar-height + 6px;
         height: $bar-height;
+        border-radius: $border_radius;
     }
 }
