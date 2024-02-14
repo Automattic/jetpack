@@ -280,7 +280,7 @@ class Boost_Cache {
 	 * @return bool - True if the post type is public.
 	 */
 	protected function is_visible_post_type( $post ) {
-		$post_type = is_object( $post ) ? get_post_type_object( $post->post_type ) : null;
+		$post_type = is_a( $post, 'WP_Post' ) ? get_post_type_object( $post->post_type ) : null;
 		if ( empty( $post_type ) || ! $post_type->public ) {
 			return false;
 		}
