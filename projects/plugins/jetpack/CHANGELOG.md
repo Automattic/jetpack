@@ -2,6 +2,12 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.2-a.5 - 2024-02-14
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adds error messaging to endpoint when connected account for memberships cannot be loaded. [#35564]
+- Like block: Update block's Learn more link logic [#35641]
+- Make Jetpack redirect to the Jetpack page after multisite activation. [#35559]
+
 ## 13.2-a.3 - 2024-02-13
 ### Enhancements
 - Blaze: remove "Promote with Blaze" links appearing in the Posts list when the Blaze feature is enabled. You can still go to Tools > Advertising to create and manage Blaze campaigns on your site. [#35586]
