@@ -455,7 +455,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 */
 		public function jetpack_user_connected_th( $columns ) {
 			$columns['user_jetpack'] = sprintf(
-				'<span title="%1$s">%2$s <span class="tooltip">?</span></span>',
+				'<span title="%1$s">%2$s [?]</span>',
 				esc_attr__( 'Jetpack SSO is required for a seamless and secure experience on WordPress.com. Join millions of WordPress users who trust us to keep their accounts safe.', 'jetpack' ),
 				esc_html__( 'SSO Status', 'jetpack' )
 			);
@@ -601,16 +601,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				background: black;
 				border-radius: 10px;
 				color: white;
-			}
-			.tooltip {
-				background: #aaaaaa;
-				width: 20px;
-				display: inline-block;
-				border-radius: 10px;
-				height: 20px;
-				text-align: center;
-				color: white;
-				cursor: pointer;
 			}
 		</style>
 			<?php
