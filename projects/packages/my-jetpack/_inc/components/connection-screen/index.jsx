@@ -42,7 +42,7 @@ const ConnectionScreenFooter = () => {
 					<img
 						src={ appleLogo }
 						className={ styles.apple }
-						alt={ __( 'Apple Logo', 'jetpack-my-jetpack' ) }
+						alt="Apple"
 					/>
 				</li>
 			</ul>
