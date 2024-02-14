@@ -25,25 +25,13 @@ const ConnectionScreenFooter = () => {
 			</div>
 			<ul className={ styles[ 'account-images' ] }>
 				<li>
-					<img
-						src={ wordpressLogo }
-						className={ styles.wordpress }
-						alt="WordPress.com"
-					/>
+					<img src={ wordpressLogo } className={ styles.wordpress } alt="WordPress.com" />
 				</li>
 				<li>
-					<img
-						src={ googleLogo }
-						className={ styles.google }
-						alt="Google"
-					/>
+					<img src={ googleLogo } className={ styles.google } alt="Google" />
 				</li>
 				<li>
-					<img
-						src={ appleLogo }
-						className={ styles.apple }
-						alt="Apple"
-					/>
+					<img src={ appleLogo } className={ styles.apple } alt="Apple" />
 				</li>
 			</ul>
 		</>
