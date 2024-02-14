@@ -74,6 +74,18 @@ class Modules_Index {
 		return $available_modules;
 	}
 
+	public function is_module_enabled( $slug ) {
+		$available_modules = $this->available_modules();
+
+		if ( ! array_key_exists( $slug, $available_modules ) ) {
+			return false;
+		}
+
+		$module = $available_modules[ $slug ];
+
+		return $module->is_enabled();
+	}
+
 	/**
 	 * Get the lists of modules explicitly disabled from the 'jb-disable-modules' query string.
 	 * The parameter is a comma separated value list of module slug.
@@ -90,5 +102,9 @@ class Modules_Index {
 		}
 
 		return array();
+	}
+
+	public function get_feature_instance_by_slug( $slug ) {
+		return isset( $this->modules[ $slug ] ) ? $this->modules[ $slug ]->feature : false;
 	}
 }

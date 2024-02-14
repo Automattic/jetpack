@@ -277,15 +277,7 @@ If `.extra.autotagger` is set to an object with falsey value for `v` (i.e. if `.
 
 Note that, for this to work, you'll need to create a secret `API_TOKEN_GITHUB` in the mirror repo. The value of the secret must be a GitHub access token. See PCYsg-xsv-p2#mirror-repo-secrets for details.
 
-This is intended to work in combination with [Changelogger](#jetpack-changelogger): When any change files are present in the project, a `-alpha` version entry will be written to the changelog so the autotagging will not be triggered. To release a new version, you'd do the following:
-
-1. (optional) Activate the "Release Lock" (see PCYsg-zQS-p2#generating-a-new-changelog).
-2. Use `tools/changelogger-release.sh` to create a PR rolling the change files into a new changelog entry.
-3. Push and merge that PR.
-4. If you used the Release Lock in step 1, go turn it off. If you didn't, check that no one merged any PRs in between steps 2 and 3 that added change files to the projects being released.
-   * If they did, you'll likely have to create a release branch in the affected projects' mirror repos and manually tag.
-5. Verify that the Build workflow run for your PR's merge to trunk succeeded. [This search](https://github.com/Automattic/jetpack/actions/workflows/build.yml?query=branch%3Atrunk) will show the runs of that workflow for all merges to trunk.
-   * If it failed, you can try re-running it as long as no other PRs were merged. If some were merged, you'll have to manually tag the affected projects.
+This is intended to work in combination with [Changelogger](#jetpack-changelogger): When any change files are present in the project, a `-alpha` version entry will be written to the changelog so the autotagging will not be triggered. To release a new plugin version, see: PCYsg-SU8-p2
 
 ### Auto-release
 

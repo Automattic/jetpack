@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Avoid blog-stats block warning for "Undefined array key label"
+
+
