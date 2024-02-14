@@ -61,12 +61,12 @@ function AudioTranscriptionDemo() {
 			{ isTranscribingAudio && <p>{ __( 'Processing the transcription…', 'jetpack' ) }</p> }
 			{ transcriptionError && (
 				<p>
-					{ __( 'Error', 'jetpack' ) }: { transcriptionError }
+					{ __( 'Error:', 'jetpack' ) } { transcriptionError }
 				</p>
 			) }
 			{ transcriptionResult && (
 				<p>
-					{ __( 'Result', 'jetpack' ) }: <br />
+					{ __( 'Result:', 'jetpack' ) } <br />
 					<br />
 					{ transcriptionResult }
 				</p>
