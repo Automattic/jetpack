@@ -4,6 +4,7 @@
 export { default as requestJwt } from './jwt';
 export { default as SuggestionsEventSource } from './suggestions-event-source';
 export { default as askQuestion } from './ask-question';
+export { default as transcribeAudio } from './audio-transcription';
 
 /*
  * Hooks
