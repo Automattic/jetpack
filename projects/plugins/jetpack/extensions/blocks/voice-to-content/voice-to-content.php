@@ -1,13 +1,13 @@
 <?php
 /**
- * "Create with voice" Block.
+ * "Voice to content" Block.
  *
  * @since 12.5
  *
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\Create_With_Voice;
+namespace Automattic\Jetpack\Extensions\Voice_To_Content;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
@@ -26,10 +26,10 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * "Create with voice" block registration/dependency declaration.
+ * "Voice to content" block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the "Create with voice" block attributes.
- * @param string $content String containing the "Create with voice" block content.
+ * @param array  $attr    Array containing the "Voice to content" block attributes.
+ * @param string $content String containing the "Voice to content" block content.
  *
  * @return string
  */
