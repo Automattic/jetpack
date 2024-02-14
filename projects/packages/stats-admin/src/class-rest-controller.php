@@ -323,6 +323,17 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
+
+		// Get dashboard module settings.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/stats/emails/(?P<resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_email_stats' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -666,6 +677,32 @@ class REST_Controller {
 			'v1.1',
 			array( 'timeout' => 5 )
 		);
+	}
+
+	/**
+	 * Get Email stats as a list.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_email_stats( $req ) {
+		switch ( $req->get_param( 'resource' ) ) {
+			case 'summary':
+				return WPCOM_Client::request_as_blog_cached(
+					sprintf(
+						'/sites/%d/stats/emails/%s?%s',
+						Jetpack_Options::get_option( 'id' ),
+						$req->get_param( 'resource' ),
+						$this->filter_and_build_query_string(
+							$req->get_params()
+						)
+					),
+					'v1.1',
+					array( 'timeout' => 5 )
+				);
+			default:
+				return $this->get_forbidden_error();
+		}
 	}
 
 	/**
