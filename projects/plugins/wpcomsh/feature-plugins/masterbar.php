@@ -160,6 +160,11 @@ add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options
  * @return bool Whether Nav Unification should be enabled.
  */
 function wpcomsh_activate_nav_unification() {
+	// Disable when in the redesigned nav.
+	if ( wpcom_is_nav_redesign_enabled() ) {
+		return false;
+	}
+
 	$user_id = get_current_user_id();
 
 	// Loads for all API requests to the admin-menu endpoint (i.e. Calypso).
