@@ -202,7 +202,7 @@ class Boost_Cache {
 		return false;
 	}
 
-	/*
+	/**
 	 * Starts output buffering and sets the callback to save the cache file.
 	 *
 	 * @return bool - false if page is not cacheable.
@@ -215,7 +215,7 @@ class Boost_Cache {
 		ob_start( array( $this, 'ob_callback' ) );
 	}
 
-	/*
+	/**
 	 * Callback function from output buffer. This function saves the output
 	 * buffer to a cache file and then returns the buffer so PHP will send it
 	 * to the browser.
@@ -235,7 +235,7 @@ class Boost_Cache {
 		return $buffer;
 	}
 
-	/*
+	/**
 	 * Returns true if the current request is one of the following:
 	 * 1. wp-admin
 	 * 2. wp-login.php, xmlrpc.php or wp-cron.php/cron request
@@ -273,7 +273,7 @@ class Boost_Cache {
 		return $is_backend;
 	}
 
-	/*
+	/**
 	 * Checks if the post type is public.
 	 *
 	 * @param WP_Post $post - The post to check.
@@ -287,7 +287,7 @@ class Boost_Cache {
 		return true;
 	}
 
-	/*
+	/**
 	 * Delete the cache for the front page and paged archives.
 	 * This is called when a post is edited, deleted, or published.
 	 *
@@ -306,7 +306,7 @@ class Boost_Cache {
 		}
 	}
 
-	/*
+	/**
 	 * Delete the cache for the post if the comment transitioned from one state to another.
 	 *
 	 * @param string $new_status - The new status of the comment.
@@ -321,7 +321,7 @@ class Boost_Cache {
 		$this->delete_cache_for_post( $post );
 	}
 
-	/*
+	/**
 	 * After editing a comment, delete the cache for the post if the comment is approved.
 	 * If changing state and editing, both actions will be called, but the cache will only be deleted once.
 	 *
@@ -336,7 +336,7 @@ class Boost_Cache {
 		}
 	}
 
-	/*
+	/**
 	 * After a comment is posted, delete the cache for the post if the comment is approved.
 	 * If the comment is not approved, only delete the cache for this post for this visitor.
 	 *
@@ -347,7 +347,7 @@ class Boost_Cache {
 	public function delete_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
 		$post = get_post( $commentdata['comment_post_ID'] );
 
-		/*
+		/**
 		 * If a comment is not approved, we only need to delete the cache for
 		 * this post for this visitor so the unmoderated comment is shown to them.
 		 */
@@ -359,7 +359,7 @@ class Boost_Cache {
 		$this->delete_cache_for_post( $post );
 	}
 
-	/*
+	/**
 	 * Returns true if the post is published or private.
 	 *
 	 * @param string $status - The status of the post.
@@ -369,7 +369,7 @@ class Boost_Cache {
 		return $status === 'publish' || $status === 'private';
 	}
 
-	/*
+	/**
 	 * Delete the cached post if it transitioned from one state to another.
 	 *
 	 * @param string $new_status - The new status of the post.
