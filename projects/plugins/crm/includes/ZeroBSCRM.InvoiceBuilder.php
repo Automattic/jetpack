@@ -964,7 +964,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	if ( $invsettings['invtax'] != 0 || $invsettings['invpandp'] != 0 || $invsettings['invdis'] != 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 		$totals_table .= '<tr class="total-top">';
 		$totals_table .= '<td  class="bord bord-l" style="text-align:right; width: 80%; text-transform: uppercase;">' . esc_html__( 'Subtotal', 'zero-bs-crm' ) . '</td>';
-		$totals_table .= '<td class="bord row-amount" class="bord" style="text-align:right; "><span class="zbs-totals">';
+		$totals_table .= '<td class="bord row-amount" style="text-align:right; "><span class="zbs-totals">';
 		if ( isset( $invoice['net'] ) && ! empty( $invoice['net'] ) ) {
 			$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['net'] ) );
 		} else {
@@ -988,7 +988,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 
 			$totals_table .= '-' . esc_html( zeroBSCRM_formatCurrency( $invoice['totals']['discount'] ) );
 
-			$totals_table .= '</td>';
+			$totals_table .= '</span></td>';
 			$totals_table .= '</tr>';
 		}
 	}
@@ -1003,7 +1003,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 		} else {
 			$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 		}
-		$totals_table .= '</td>';
+		$totals_table .= '</span></td>';
 		$totals_table .= '</tr>';
 	}
 
@@ -1033,7 +1033,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 				} else {
 					$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 				}
-				$totals_table .= '</td>';
+				$totals_table .= '</span></td>';
 				$totals_table .= '</tr>';
 			}
 		} else {
@@ -1047,7 +1047,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 			} else {
 				$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 			}
-			$totals_table .= '</td>';
+			$totals_table .= '</span></td>';
 			$totals_table .= '</tr>';
 		}
 	}
@@ -1117,7 +1117,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	}
 
 	$partials_table .= '<tr class="zbs_grand_total' . $balance_hide . '">';
-	$partials_table .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</td>';
+	$partials_table .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</span></td>';
 	$partials_table .= '<td class="bord row-amount"><span class="zbs-subtotal-value">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</span></td>';
 	$partials_table .= '</tr>';
 	$partials_table .= '</table>';
