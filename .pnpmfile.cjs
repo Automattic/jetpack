@@ -11,13 +11,6 @@
  * @returns {object} Modified pkg.
  */
 function fixDeps( pkg ) {
-	// Depends on punycode but doesn't declare it.
-	// https://github.com/markdown-it/markdown-it/issues/230
-	// https://github.com/markdown-it/markdown-it/issues/945
-	if ( pkg.name === 'markdown-it' && ! pkg.dependencies.punycode ) {
-		pkg.dependencies.punycode = '*';
-	}
-
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
 	if (

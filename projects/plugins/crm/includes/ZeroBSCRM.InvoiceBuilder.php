@@ -621,22 +621,23 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return
 
 						// ignore if status_bool (non-completed status)
 						$partial['status_bool'] = (int) $partial['status_bool'];
-						if ( isset( $partial ) && $partial['status_bool'] == 1 && isset( $partial['total'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+						if ( isset( $partial ) && $partial['status_bool'] == 1 && isset( $partial['total'] ) && $partial['total'] > 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 
-							switch ( $partial['type'] ) {
-								case __( 'Sale', 'zero-bs-crm' ):
-									// these count as debits against invoice.
-									$balance   = $balance - $partial['total'];
-									$payments += $partial['total'];
+							// v3.0+ has + or - partials. Account for that:
+							if ( $partial['type_accounting'] === 'credit' ) {
 
-									break;
-								case __( 'Refund', 'zero-bs-crm' ):
-								case __( 'Credit Note', 'zero-bs-crm' ):
-									// These count as credits against invoice, and should be added.
-									$balance  -= abs( (float) $partial['total'] );
-									$payments -= abs( (float) $partial['total'] );
+								// credit note, or refund
+								$balance = $balance + $partial['total'];
+								// add to payments
+								$payments += $partial['total'];
 
-									break;
+							} else {
+
+								// assume debit
+								$balance = $balance - $partial['total'];
+
+								// add to payments
+								$payments += $partial['total'];
 							}
 						}
 					} // /foreach
@@ -1085,20 +1086,14 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 			// ignore if status_bool (non-completed status)
 			$partial['status_bool'] = (int) $partial['status_bool'];
 			if ( isset( $partial ) && $partial['status_bool'] == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-				// v3.0+ has + or - partials. Account for that.
-				switch ( $partial['type'] ) {
 
-					case __( 'Sale', 'zero-bs-crm' ):
-						// these count as debits against invoice.
-						$balance = $balance - $partial['total'];
-						break;
-
-					case __( 'Refund', 'zero-bs-crm' ):
-					case __( 'Credit Note', 'zero-bs-crm' ):
-						// These count as credits against invoice, and should be added.
-						$balance -= abs( (float) $partial['total'] );
-						break;
-
+				// v3.0+ has + or - partials. Account for that:
+				if ( $partial['type_accounting'] === 'credit' ) {
+					// credit note, or refund
+					$balance = $balance + $partial['total'];
+				} else {
+					// assume debit
+					$balance = $balance - $partial['total'];
 				}
 
 				$partials_table .= '<tr class="total-top">';

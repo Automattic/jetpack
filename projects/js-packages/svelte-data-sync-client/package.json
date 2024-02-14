@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-svelte-data-sync-client",
-	"version": "0.3.5-alpha",
+	"version": "0.3.5",
 	"description": "A Svelte.js client for the wp-js-data-sync package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/svelte-data-sync-client/#readme",
 	"type": "module",
