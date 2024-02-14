@@ -1,0 +1,21 @@
+.wrapper {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	font-size: 14px;
+	line-height: 22px;
+
+	.summary {
+		flex-grow: 1;
+		margin-right: 5px;
+		color: var(--gray-40);
+	}
+
+	:global(svg) {
+		fill: var(--jetpack-green-40);
+	}
+
+	:global(button ~ button) {
+		margin-left: 20px !important;
+	}
+}

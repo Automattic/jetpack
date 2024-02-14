@@ -15,6 +15,7 @@ import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
+import PageCacheMeta from '$features/page-cache/meta/meta';
 import PageCacheHealth from '$features/page-cache/health/health';
 import { invalidateQuery } from '@automattic/jetpack-react-data-sync-client';
 
@@ -138,6 +139,7 @@ const Index = () => {
 				onEnable={ invalidatePageCacheError }
 				onDisable={ invalidatePageCacheError }
 			>
+				<PageCacheMeta />
 				<PageCacheHealth />
 			</Module>
 			<Module
