@@ -98,7 +98,7 @@ function cliUnlink( options ) {
 }
 
 /**
- * Command definition for the build subcommand.
+ * Command definition for the cli subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
  * @returns {object} Yargs with the CLI commands defined.
