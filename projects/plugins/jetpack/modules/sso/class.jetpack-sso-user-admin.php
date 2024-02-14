@@ -10,6 +10,19 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 	class Jetpack_SSO_User_Admin {
 
 		/**
+		 * Instance of WP_User_Query.
+		 *
+		 * @var $user_search
+		 */
+		private static $user_search = null;
+		/**
+		 * Array of cached invites.
+		 *
+		 * @var $cached_invites
+		 */
+		private static $cached_invites = null;
+
+		/**
 		 * Constructor function.
 		 */
 		public function __construct() {
@@ -30,6 +43,19 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			add_action( 'admin_post_jetpack_revoke_invite_user_to_wpcom', array( $this, 'handle_request_revoke_invite' ) );
 			add_action( 'admin_print_styles-users.php', array( $this, 'jetpack_user_table_styles' ) );
 			add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_user_new_form_styles' ) );
+			add_filter( 'users_list_table_query_args', array( $this, 'set_user_query' ), 100, 1 );
+		}
+
+		/**
+		 * Intercept the arguments for building the table, and create WP_User_Query instance
+		 *
+		 * @param array $args The search arguments.
+		 *
+		 * @return array
+		 */
+		public function set_user_query( $args ) {
+			self::$user_search = new WP_User_Query( $args );
+			return $args;
 		}
 
 		/**
@@ -463,6 +489,86 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		}
 
 		/**
+		 * Executed when our WP_User_Query instance is set, and we don't have cached invites.
+		 * This function uses the user emails and the 'are-users-invited' endpoint to build the cache.
+		 *
+		 * @return void
+		 */
+		private static function rebuild_invite_cache() {
+			$blog_id = Jetpack_Options::get_option( 'id' );
+
+			if ( self::$cached_invites === null && self::$user_search !== null ) {
+
+				self::$cached_invites = array();
+
+				$results = self::$user_search->get_results();
+
+				$user_emails = array_reduce(
+					$results,
+					function ( $current, $item ) {
+						if ( ! Jetpack::connection()->is_user_connected( $item->ID ) ) {
+							$current[] = rawurlencode( $item->user_email );
+						} else {
+							self::$cached_invites[] = array(
+								'email_or_username' => $item->user_email,
+								'invited'           => false,
+							);
+						}
+						return $current;
+					},
+					array()
+				);
+
+				if ( ! empty( $user_emails ) ) {
+					$url = '/sites/' . $blog_id . '/invites/are-users-invited';
+
+					$url = add_query_arg(
+						array(
+							'users' => $user_emails,
+						),
+						$url
+					);
+
+					$response = Client::wpcom_json_api_request_as_user(
+						$url,
+						'v2',
+						array(),
+						null,
+						'wpcom'
+					);
+
+					if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
+						$body                 = json_decode( $response['body'], true );
+						self::$cached_invites = array_merge( self::$cached_invites, $body );
+					}
+				}
+			}
+		}
+
+		/**
+		 * Check if there is cached invite for a user email.
+		 *
+		 * @access private
+		 * @static
+		 *
+		 * @param string $email The user email.
+		 *
+		 * @return array|void Returns the cached invite if found.
+		 */
+		public static function get_pending_cached_wpcom_invite( $email ) {
+			if ( self::$cached_invites === null ) {
+				self::rebuild_invite_cache();
+			}
+
+			if ( ! empty( self::$cached_invites ) ) {
+				$index = array_search( $email, array_column( self::$cached_invites, 'email_or_username' ), true );
+				if ( $index !== false ) {
+					return self::$cached_invites[ $index ];
+				}
+			}
+		}
+
+		/**
 		 * Check if a given user is invited to the site.
 		 *
 		 * @access private
@@ -472,9 +578,14 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @return {false|string} returns the user slug if the user is invited, false otherwise.
 		 */
 		private static function has_pending_wpcom_invite( $user_id ) {
-			$blog_id = Jetpack_Options::get_option( 'id' );
+			$blog_id       = Jetpack_Options::get_option( 'id' );
+			$user          = get_user_by( 'id', $user_id );
+			$cached_invite = self::get_pending_cached_wpcom_invite( $user->user_email );
 
-			$user     = get_user_by( 'id', $user_id );
+			if ( $cached_invite ) {
+				return $cached_invite['invited'];
+			}
+
 			$url      = '/sites/' . $blog_id . '/invites/is-invited';
 			$url      = add_query_arg(
 				array(
