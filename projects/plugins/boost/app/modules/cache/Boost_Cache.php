@@ -175,7 +175,7 @@ class Boost_Cache {
 	protected function normalize_request_uri( $request_uri ) {
 		// get path from request uri
 		$request_uri = parse_url( $request_uri, PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-		if ( $request_uri === '' || $request_uri === false || $request_uri === null ) {
+		if ( empty( $request_uri ) ) {
 			$request_uri = '/';
 		} elseif ( substr( $request_uri, -1 ) !== '/' ) {
 			$request_uri .= '/';
