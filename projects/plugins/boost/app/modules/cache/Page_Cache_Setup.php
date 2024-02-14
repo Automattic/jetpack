@@ -80,7 +80,7 @@ require_once( \'' . $boost_cache_filename . '\');
 
 		$write_advanced_cache = Boost_Cache_Utils::write_to_file( $advanced_cache_filename, $contents );
 		if ( is_wp_error( $write_advanced_cache ) ) {
-			return new \WP_Error( 'unable-to-write-advanced-cache', $write_advanced_cache->get_error_message() );
+			return new \WP_Error( 'unable-to-write-to-advanced-cache', $write_advanced_cache->get_error_message() );
 		}
 
 		return true;
