@@ -116,16 +116,15 @@ class VideoPressEdit extends Component {
 
 	async fetchMetadata( guid ) {
 		this.setState( { isLoadingMetadata: true } );
-		try {
-			const metadata = await apiFetch( {
-				path: `/rest/v1.1/videos/${ guid }`,
+		await apiFetch( { path: `/rest/v1.1/videos/${ guid }` } )
+			.then( metadata => {
+				this.setState( { metadata, isLoadingMetadata: false } );
+			} )
+			.catch( () => {
+				// eslint-disable-next-line no-console
+				console.error( `Couldn't fetch metadata of VideoPress video with ID = ${ guid }` );
+				this.setState( { isLoadingMetadata: false } );
 			} );
-			this.setState( { metadata, isLoadingMetadata: false } );
-		} catch ( error ) {
-			// eslint-disable-next-line no-console
-			console.error( `Couldn't fetch metadata of VideoPress video with ID = ${ guid }`, error );
-			this.setState( { isLoadingMetadata: false } );
-		}
 	}
 
 	onVideoPressed() {
