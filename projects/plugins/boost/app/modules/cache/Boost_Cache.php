@@ -459,7 +459,7 @@ class Boost_Cache {
 	}
 
 	/**
-	 * Delete the cache for the given url. Recurse through sub directories if $recurse is true.
+	 * Delete the cache for the given url.
 	 *
 	 * @param string $url - The url to delete the cache for.
 	 */
