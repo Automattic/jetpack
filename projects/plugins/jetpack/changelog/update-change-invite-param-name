@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Changed the parameter name for the return value of calling an endpoint
