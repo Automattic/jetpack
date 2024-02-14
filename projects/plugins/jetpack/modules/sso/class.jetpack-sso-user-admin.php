@@ -569,10 +569,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			?>
 		<style>
 			#the-list tr:has(.sso-disconnected-user) {
-				background: #F5E6B3;
+				background: #F5F1E1;
 			}
 			#the-list tr:has(.sso-pending-invite) {
-				background: #ccedef;
+				background: #E9F0F5;
 			}
 			.fixed .column-user_jetpack {
 				width: 100px;
