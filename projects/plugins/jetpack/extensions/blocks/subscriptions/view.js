@@ -54,14 +54,31 @@ domReady( function () {
 					return;
 				}
 
-				const emailInput = form.querySelector( 'input[type=email]' );
+				const action = form.querySelector( 'input[name=action]' ).value;
+				const emailInput = form.querySelector( 'input[name=email]' );
 				const email = emailInput ? emailInput.value : form.dataset.subscriber_email;
 
-				if ( ! email ) {
+				if ( ! email && action !== 'get_email' ) {
 					return;
 				}
 
-				const action = form.querySelector( 'input[name=action]' ).value;
+				if ( action === 'get_email' ) {
+					event.preventDefault();
+
+					const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
+					const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
+					const app_source = form.querySelector( 'input[name=app_source]' )?.value ?? '';
+
+					show_iframe( {
+						post_id,
+						tier_id,
+						blog: form.dataset.blog,
+						plan: 'newsletter',
+						source: 'jetpack_subscribe',
+						app_source,
+						post_access_level: form.dataset.post_access_level,
+					} );
+				}
 
 				if ( action === 'subscribe' ) {
 					event.preventDefault();

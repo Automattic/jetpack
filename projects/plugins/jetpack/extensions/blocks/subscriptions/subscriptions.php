@@ -634,6 +634,25 @@ function get_post_access_level_for_current_post() {
 }
 
 /**
+ * Get the subscription form action.
+ *
+ * @param array $data Array containing block view data.
+ *
+ * @return string
+ */
+function get_subscription_form_action( $data ) {
+	if ( is_top_subscription() ) {
+		return 'subscribed';
+	}
+
+	if ( $data['class_name'] === BUTTON_ONLY_CLASS_NAME && empty( $data['subscribe_email'] ) ) {
+		return 'get_email';
+	}
+
+	return 'subscribe';
+}
+
+/**
  * Renders the subscriptions block at the site.
  *
  * @param array $data    Array containing block view data.
@@ -732,7 +751,7 @@ function render_for_website( $data, $classes, $styles ) {
 							style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
 						<?php endif; ?>
 					>
-						<input type="hidden" name="action" value="<?php echo is_top_subscription() ? 'subscribed' : 'subscribe'; ?>"/>
+						<input type="hidden" name="action" value="<?php echo esc_attr( get_subscription_form_action( $data ) ); ?>"/>
 						<input type="hidden" name="blog_id" value="<?php echo (int) $blog_id; ?>"/>
 						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
