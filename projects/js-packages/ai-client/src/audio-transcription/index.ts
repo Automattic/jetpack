@@ -6,7 +6,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import requestJwt from '../jwt';
+import requestJwt from '../jwt/index.js';
 
 const debug = debugFactory( 'jetpack-ai-client:audio-transcription' );
 

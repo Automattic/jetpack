@@ -6,7 +6,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import transcribeAudio from '../../audio-transcription';
+import transcribeAudio from '../../audio-transcription/index.js';
 
 const debug = debugFactory( 'jetpack-ai-client:use-audio-transcription' );
 
