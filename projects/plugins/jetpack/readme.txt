@@ -129,7 +129,7 @@ If you like Jetpack, consider checking out our other products and bundles
 * [Jetpack Backup](https://jetpack.com/redirect?source=org-backup) - Save every change and get back online quickly with one‑click restores from Jetpack VaultPress Backup.
 * [Jetpack Scan](https://jetpack.com/redirect?source=org-scan) - Protect your site from bad actors around‑the‑clock ‑ with our web application firewall (WAF) and automated malware scanning with one‑click fixes.
 * [Jetpack Search](https://jetpack.com/redirect?source=org-search) - Instantly deliver the most relevant results to your visitors with Jetpack Search. No coding required, no ads, and no tracking.
-* [Jetpack Boost](https://jetpack.com/redirect?source=org-boost) - Increase your website site.  Enjoy the same performance advantages as the world’s leading websites, no developer required.
+* [Jetpack Boost](https://jetpack.com/redirect?source=org-boost) - Increase your website speed.  Enjoy the same performance advantages as the world’s leading websites, no developer required.
 * [Jetpack VideoPress](https://jetpack.com/redirect?source=org-video) - Display stunning‑quality video with none of the hassle. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
 * [Jetpack AI](https://jetpack.com/redirect?source=org-ai) - Turn your ideas into ready‑to‑publish content at lightspeed.
 * [Jetpack Stats](https://jetpack.com/redirect?source=org-stats) - Keep track of your website visits, popular posts, newsletter subscribers and more.
