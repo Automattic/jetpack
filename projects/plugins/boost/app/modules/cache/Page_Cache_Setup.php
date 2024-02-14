@@ -91,7 +91,7 @@ require_once( \'' . $boost_cache_filename . '\');
 	 */
 	private static function add_wp_cache_define() {
 		$content = file_get_contents( ABSPATH . 'wp-config.php' );
-		if ( preg_match( '#define\s*\(\s*[\'"]WP_CACHE[\'"]#', $content ) === 1 ) {
+		if ( preg_match( '#^\s*define\s*\(\s*[\'"]WP_CACHE[\'"]#m', $content ) === 1 ) {
 			/*
 			 * wp-settings.php checks "if ( WP_CACHE )" so it may be truthy and
 			 * not === true to pass that check.
@@ -105,8 +105,8 @@ require_once( \'' . $boost_cache_filename . '\');
 
 			return true; // WP_CACHE already added.
 		}
-		$content = str_replace(
-			'<?php',
+		$content = preg_replace(
+			'#^<\?php#',
 			'<?php
 define( \'WP_CACHE\', true );',
 			$content
