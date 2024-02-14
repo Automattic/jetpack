@@ -2,8 +2,13 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
+/**
+ * A utility that manages logging for the boost cache.
+ */
 class Logger {
-
+	/**
+	 * The singleton instance of the logger.
+	 */
 	private static $instance = null;
 
 	/**
@@ -66,6 +71,9 @@ class Logger {
 	 */
 	public static function debug( $message ) {
 		$logger = self::get_instance();
+
+		// TODO: Check to make sure that logging is enabled in the settings.
+		// TODO: Check to make sure that current request IP is allowed to create logs.
 
 		if ( ! is_wp_error( $logger ) ) {
 			$logger->log( $message );
