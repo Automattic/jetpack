@@ -1,11 +1,14 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import Configstore from 'configstore';
 import { execaCommand, execaCommandSync } from 'execa';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
 import PATH from 'path-name';
 import { chalkJetpackGreen } from '../helpers/styling.js';
+
+const configStore = new Configstore( 'automattic/jetpack-cli/cli' );
 
 /**
  * Show us the status of the cli, such as the currenet linked directory.
@@ -98,6 +101,23 @@ function cliUnlink( options ) {
 }
 
 /**
+ * Toggles the analytics tracking preference for the CLI.
+ */
+function cliAnalytics() {
+	const analyticsEnabled = configStore.get( 'analyticsEnabled' );
+	const newAnalyticsEnabled = ! analyticsEnabled;
+	configStore.set( 'analyticsEnabled', newAnalyticsEnabled );
+	console.log(
+		`Analytics tracking for Jetpack CLI is now ${ newAnalyticsEnabled ? 'enabled' : 'disabled' }.`,
+		`\n\nAnalytics tracking helps improve the Jetpack CLI by sending anonymized usage data. ${
+			newAnalyticsEnabled
+				? 'Thank you for helping us improve!'
+				: "\nWe appreciate your privacy. If you'd like to enable analytics tracking in the future, run: jetpack cli analytics"
+		}`
+	);
+}
+
+/**
  * Command definition for the cli subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
@@ -134,6 +154,17 @@ export function cliDefine( yargs ) {
 				() => {},
 				argv => {
 					cliStatus( argv );
+					if ( argv.v ) {
+						console.log( argv );
+					}
+				}
+			)
+			.command(
+				'analytics',
+				'Toggle analytics tracking for the CLI',
+				() => {},
+				argv => {
+					cliAnalytics();
 					if ( argv.v ) {
 						console.log( argv );
 					}
