@@ -125,8 +125,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$schedules = get_option( 'jetpack_update_schedules', array() );
 		$events    = array();
 
-		foreach ( $schedules as $timestamp => $schedule_args ) {
-			$events[] = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args, $timestamp );
+		foreach ( $schedules as $schedule_args ) {
+			$events[] = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
 		}
 
 		return rest_ensure_response( $events );
@@ -139,8 +139,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function create_item_permissions_check( $request ) {
-		if ( ! wpcom_site_has_feature( WPCOM_Features::SCHEDULED_UPDATES ) ) {
-			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-mu-wpcom' ), array( 'status' => 403 ) );
+		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+		if ( ! ( method_exists( 'Automattic\Jetpack\Current_Plan', 'supports' ) && Automattic\Jetpack\Current_Plan::supports( 'scheduled-updates', true ) ) ) {
+			// phpcs:ignore
+			// return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-mu-wpcom' ), array( 'status' => 403 ) );
 		}
 
 		$schedules = get_option( 'jetpack_update_schedules', array() );
@@ -148,8 +150,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create more than two schedules at this time.', 'jetpack-mu-wpcom' ), array( 'status' => 403 ) );
 		}
 
-		foreach ( $schedules as $timestamp => $schedule_args ) {
-			if ( strtotime( 'next ' . $request['schedule']['weekday'] . ' ' . $request['schedule']['time'] ) === $timestamp ) {
+		foreach ( $schedules as $schedule_args ) {
+			$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
+
+			if ( $request['schedule']['timestamp'] === $event->timestamp ) {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same time as an existing schedule.', 'jetpack-mu-wpcom' ), array( 'status' => 403 ) );
 			}
 
@@ -175,18 +179,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$schedule = $request['schedule'];
 		$plugins  = $request['plugins'];
 
-		$timestamp = strtotime( 'next ' . $schedule['weekday'] . ' ' . $schedule['time'] );
-		if ( false === $timestamp ) {
-			return new WP_Error( 'rest_invalid_schedule', __( 'The weekday and time provided could not be used to create a schedule.', 'jetpack-mu-wpcom' ), array( 'status' => 400 ) );
-		}
-
-		$event = wp_schedule_event( $timestamp, $schedule['interval'], 'jetpack_scheduled_update', $plugins, true );
+		$event = wp_schedule_event( $schedule['timestamp'], $schedule['interval'], 'jetpack_scheduled_update', $plugins, true );
 		if ( is_wp_error( $event ) ) {
 			return $event;
 		}
 
-		$schedules               = get_option( 'jetpack_update_schedules', array() );
-		$schedules[ $timestamp ] = $plugins;
+		$schedules   = get_option( 'jetpack_update_schedules', array() );
+		$schedules[] = $plugins;
 		update_option( 'jetpack_update_schedules', $schedules );
 
 		return rest_ensure_response( md5( serialize( $plugins ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
@@ -212,9 +211,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$schedules = get_option( 'jetpack_update_schedules', array() );
 		$event     = array();
 
-		foreach ( $schedules as $timestamp => $schedule_args ) {
+		foreach ( $schedules as $schedule_args ) {
 			if ( md5( serialize( $schedule_args ) ) === $request['schedule_id'] ) { // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-				$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args, $timestamp );
+				$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
 				break;
 			}
 		}
@@ -229,17 +228,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function update_item_permissions_check( $request ) {
-		if ( ! wpcom_site_has_feature( WPCOM_Features::SCHEDULED_UPDATES ) ) {
-			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-mu-wpcom' ), array( 'status' => 403 ) );
+		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+		if ( ! ( method_exists( 'Automattic\Jetpack\Current_Plan', 'supports' ) && Automattic\Jetpack\Current_Plan::supports( 'scheduled-updates', true ) ) ) {
+			// phpcs:ignore
+			// return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-mu-wpcom' ), array( 'status' => 403 ) );
 		}
 
 		$schedules = get_option( 'jetpack_update_schedules', array() );
-		foreach ( $schedules as $timestamp => $schedule_args ) {
+		foreach ( $schedules as $schedule_args ) {
+			$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
+
 			if ( md5( serialize( $schedule_args ) ) === $request['schedule_id'] ) { // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				continue;
 			}
 
-			if ( strtotime( 'next ' . $request['schedule']['weekday'] . ' ' . $request['schedule']['time'] ) === $timestamp ) {
+			if ( $request['schedule']['timestamp'] === $event->timestamp ) {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same time as an existing schedule.', 'jetpack-mu-wpcom' ), array( 'status' => 403 ) );
 			}
 
@@ -265,18 +268,19 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$schedules = get_option( 'jetpack_update_schedules', array() );
 		$found     = array();
 
-		foreach ( $schedules as $timestamp => $schedule_args ) {
+		foreach ( $schedules as $key => $schedule_args ) {
 			if ( md5( serialize( $schedule_args ) ) === $request['schedule_id'] ) { // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				// We found the schedule to update.
 				$found = true;
 
-				$result = wp_unschedule_event( $timestamp, 'jetpack_scheduled_update', $schedule_args, true );
+				$event  = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
+				$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $schedule_args, true );
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}
 
 				// Remove the old schedule.
-				unset( $schedules[ $timestamp ] );
+				unset( $schedules[ $key ] );
 				update_option( 'jetpack_update_schedules', $schedules );
 
 				break;
@@ -310,18 +314,19 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$schedules = get_option( 'jetpack_update_schedules', array() );
 		$found     = array();
 
-		foreach ( $schedules as $timestamp => $schedule_args ) {
+		foreach ( $schedules as $key => $schedule_args ) {
 			if ( md5( serialize( $schedule_args ) ) === $request['schedule_id'] ) { // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				// We found the schedule to delete.
 				$found = true;
 
-				$result = wp_unschedule_event( $timestamp, 'jetpack_scheduled_update', $schedule_args, true );
+				$event  = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
+				$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $schedule_args, true );
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}
 
 				// Remove the old schedule.
-				unset( $schedules[ $timestamp ] );
+				unset( $schedules[ $key ] );
 				break;
 			}
 		}
@@ -403,19 +408,16 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				'type'        => 'object',
 				'required'    => true,
 				'properties'  => array(
-					'interval' => array(
+					'interval'  => array(
 						'description' => 'Interval for the schedule.',
 						'type'        => 'string',
 						'enum'        => array( 'daily', 'weekly' ),
+						'required'    => true,
 					),
-					'weekday'  => array(
-						'description' => 'Weekday for the schedule.',
-						'type'        => 'string',
-						'enum'        => array( 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' ),
-					),
-					'time'     => array(
-						'description' => 'Time for the schedule.',
-						'type'        => 'string',
+					'timestamp' => array(
+						'description' => 'Unix timestamp (UTC) for when to first run the schedule.',
+						'type'        => 'integer',
+						'required'    => true,
 					),
 				),
 			),
