@@ -357,7 +357,7 @@ class WPCOM_Features {
 	public const EDIT_THEMES                       = 'edit-themes';
 	public const EMAIL_PROFESSIONAL                = 'email-professional';
 	public const EMAIL_SUBSCRIPTION                = 'email-subscription';
-	public const EMAIL_UNLIMITED_FORWARDS          = 'email-unlimited-forwards';
+	public const EMAIL_FORWARDS_EXTENDED_LIMIT     = 'email-forwards-extended-limit';
 	public const FREE_BLOG                         = 'free-blog';
 	public const FULL_ACTIVITY_LOG                 = 'full-activity-log';
 	public const GLOBAL_STYLES                     = 'global-styles';
@@ -388,7 +388,6 @@ class WPCOM_Features {
 	public const PERFORMANCE_HISTORY               = 'performance-history';
 	public const POLLDADDY                         = 'polldaddy';
 	public const PREMIUM_CONTENT_CONTAINER         = 'premium-content/container';
-
 	public const PERSONAL_THEMES                   = 'personal-themes';
 	public const PREMIUM_THEMES                    = 'premium-themes';
 	public const PRIORITY_SUPPORT                  = 'priority_support';
@@ -399,6 +398,7 @@ class WPCOM_Features {
 	public const REPUBLICIZE                       = 'republicize';
 	public const SCAN                              = 'scan';
 	public const SCAN_MANAGED                      = 'scan-managed';
+	public const SCHEDULED_UPDATES                 = 'scheduled-updates';
 	public const SECURITY_SETTINGS                 = 'security-settings';
 	public const SEO_PREVIEW_TOOLS                 = 'seo-preview-tools';
 	public const SEND_A_MESSAGE                    = 'send-a-message';
@@ -676,7 +676,7 @@ class WPCOM_Features {
 		self::EMAIL_SUBSCRIPTION               => array(
 			self::WPCOM_EMAIL_PRODUCTS,
 		),
-		self::EMAIL_UNLIMITED_FORWARDS         => array(
+		self::EMAIL_FORWARDS_EXTENDED_LIMIT    => array(
 			self::BUNDLE_ENTERPRISE,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
@@ -940,6 +940,15 @@ class WPCOM_Features {
 		self::SCAN_MANAGED                     => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+		),
+
+		/*
+		 * SCHEDULED_UPDATES - Allows users to schedule plugin and (eventually) theme updates for their sites.
+		 *
+		 * @see pcmemI-2O3-p2
+		 */
+		self::SCHEDULED_UPDATES                 => array(
+			// phpcs:ignore WordPress.Arrays.ArrayDeclarationSpacing.SpaceInEmptyArray
 		),
 
 		/*
@@ -1539,7 +1548,7 @@ class WPCOM_Features {
 
 			// If the date range hurtle is cleared, check if the purchase is included in the $product_definition.
 			if ( $purchase_eligible_by_date ) {
-				if ( self::in_array_recursive( $purchase->product_slug, array( $product_definition ) ) ) {
+				if ( self::in_array_recursive( $purchase->product_slug ?? null, array( $product_definition ) ) ) {
 					return true;
 				}
 			}
