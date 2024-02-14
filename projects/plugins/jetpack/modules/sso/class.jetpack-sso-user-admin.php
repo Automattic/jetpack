@@ -512,6 +512,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 							self::$cached_invites[] = array(
 								'email_or_username' => $item->user_email,
 								'invited'           => false,
+								'slug'              => '',
 							);
 						}
 						return $current;
