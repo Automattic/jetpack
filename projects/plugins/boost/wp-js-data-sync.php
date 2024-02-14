@@ -19,8 +19,8 @@ use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Logger;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Data_Sync_Actions\Run_Setup;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Logger;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
