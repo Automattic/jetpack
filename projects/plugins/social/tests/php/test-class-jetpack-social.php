@@ -83,11 +83,11 @@ class Jetpack_Social_Test extends BaseTestCase {
 		update_option( Note::JETPACK_SOCIAL_NOTE_CPT, true );
 		$note->init();
 		$this->assertTrue( get_option( Note::FLUSH_REWRITE_RULES_FLUSHED ) );
-		$note->toggle_enabled_status();
+		$note->set_enabled( false );
 		$this->assertFalse( $note->enabled() );
 		$note->init();
 		$this->assertEmpty( get_option( Note::FLUSH_REWRITE_RULES_FLUSHED ) );
-		$note->toggle_enabled_status();
+		$note->set_enabled( true );
 		$note->init();
 		$this->assertTrue( get_option( Note::FLUSH_REWRITE_RULES_FLUSHED ) );
 	}
