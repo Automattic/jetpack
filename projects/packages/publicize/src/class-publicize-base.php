@@ -1622,7 +1622,12 @@ abstract class Publicize_Base {
 	 */
 	public function get_remote_filesize( $image_url ) {
 		$response = wp_remote_get( $image_url, array( 'method' => 'HEAD' ) );
-		$size     = wp_remote_retrieve_header( $response, 'content-length' );
+
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
+		$size = wp_remote_retrieve_header( $response, 'content-length' );
 
 		return ! empty( $size ) ? $size : null;
 	}
