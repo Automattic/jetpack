@@ -29,7 +29,28 @@ class Note {
 			return;
 		}
 		self::register_cpt();
-		add_action( 'wp_insert_post_data', array( new Note(), 'set_empty_title' ), 10, 2 );
+		add_action( 'wp_insert_post_data', array( $this, 'set_empty_title' ), 10, 2 );
+		add_action( 'admin_init', array( $this, 'admin_init_actions' ) );
+	}
+
+	/**
+	 * Things to do on admin_init.
+	 */
+	public function admin_init_actions() {
+		add_action( 'current_screen', array( $this, 'add_filters_and_actions_for_screen' ) );
+	}
+
+	/**
+	 * If the current_screen has 'edit' as the base, add filter to change the post list tables.
+	 *
+	 * @param object $current_screen The current screen.
+	 */
+	public function add_filters_and_actions_for_screen( $current_screen ) {
+		if ( 'edit' !== $current_screen->base ) {
+			return;
+		}
+
+		add_filter( 'the_title', array( $this, 'override_empty_title' ), 10, 2 );
 	}
 
 	/**
@@ -50,8 +71,8 @@ class Note {
 	 */
 	public function register_cpt() {
 		$args = array(
-			'public'       => true,
-			'labels'       => array(
+			'public'        => true,
+			'labels'        => array(
 				'name'                  => esc_html__( 'Social Notes', 'jetpack-social' ),
 				'singular_name'         => esc_html__( 'Social Note', 'jetpack-social' ),
 				'menu_name'             => esc_html__( 'Social Notes', 'jetpack-social' ),
@@ -73,11 +94,20 @@ class Note {
 				'items_list_navigation' => esc_html__( 'Notes list navigation', 'jetpack-social' ),
 				'items_list'            => esc_html__( 'Notes list', 'jetpack-social' ),
 			),
-			'show_in_rest' => true,
-			'has_archive'  => true,
-			'supports'     => array( 'editor', 'thumbnail', 'publicize', 'activitypub' ),
-			'menu_icon'    => 'dashicons-welcome-write-blog',
-			'rewrite'      => array( 'slug' => 'sn' ),
+			'show_in_rest'  => true,
+			'has_archive'   => true,
+			'supports'      => array( 'editor', 'thumbnail', 'publicize', 'activitypub' ),
+			'menu_icon'     => 'dashicons-welcome-write-blog',
+			'rewrite'       => array( 'slug' => 'sn' ),
+			'template'      => array(
+				array(
+					'core/paragraph',
+					array(
+						'placeholder' => __( "What's on your mind?", 'jetpack-social' ),
+					),
+				),
+			),
+			'template_lock' => 'all',
 		);
 		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
 		self::maybe_flush_rewrite_rules();
@@ -106,5 +136,20 @@ class Note {
 		}
 		// Delete this option, so the rules get flushe in maybe_flush_rewrite_rules when the CPT is registered.
 		delete_option( self::FLUSH_REWRITE_RULES_FLUSHED );
+	}
+
+	/**
+	 * Use the_title hook so we show the social note's exceprt in the post list view.
+	 *
+	 * @param array $title The title of the post, which we have set to be an empty string for Social Notes.
+	 * @param array $post_id The Post ID.
+	 */
+	public function override_empty_title( $title, $post_id ) {
+		if ( get_post_type( $post_id ) === self::JETPACK_SOCIAL_NOTE_CPT ) {
+			return wp_trim_words( get_the_excerpt(), 10 );
+		}
+
+		// Return the original title for other cases
+		return $title;
 	}
 }

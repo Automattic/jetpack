@@ -1,5 +1,5 @@
 import { JETPACK_FORM_AI_COMPOSITION_EXTENSION } from './blocks/ai-assistant/extensions/jetpack-contact-form/constants';
-import { JETPACK_CREATE_WITH_VOICE_EXTENSION } from './blocks/create-with-voice/constants';
+import { JETPACK_VOICE_TO_CONTENT_EXTENSION } from './blocks/voice-to-content/constants';
 import { SiteAIAssistantFeatureEndpointResponseProps } from './types';
 
 type AvailableBlockProps =
@@ -64,7 +64,7 @@ declare global {
 		};
 		Jetpack_Editor_Initial_State: {
 			available_blocks: {
-				[ JETPACK_CREATE_WITH_VOICE_EXTENSION ]: AvailableBlockProps;
+				[ JETPACK_VOICE_TO_CONTENT_EXTENSION ]: AvailableBlockProps;
 				[ JETPACK_FORM_AI_COMPOSITION_EXTENSION ]: AvailableBlockProps;
 			};
 			adminUrl: string;

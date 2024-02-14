@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Adds error messaging to endpoint when connected account for memberships cannot be loaeded.

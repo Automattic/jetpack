@@ -453,7 +453,7 @@ EOT;
 	 * @param WP_Block $block    The block object.
 	 * @return string
 	 */
-	public function render_block( $attributes, $content, $block ) {
+	public function render_block( $attributes, $content, $block = null ) {
 		if ( ! jetpack_is_frontend() ) {
 			return $content;
 		}
