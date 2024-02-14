@@ -291,7 +291,7 @@ class Boost_Cache {
 	 * Delete the cache for the front page and paged archives.
 	 * This is called when a post is edited, deleted, or published.
 	 *
-	 * @param int $post_id - The id of the post that was edited, deleted, or published.
+	 * @param int $post - The post that should be deleted.
 	 */
 	protected function delete_front_page_cache( $post ) {
 		$front_page_id = get_option( 'show_on_front' ); // posts page
