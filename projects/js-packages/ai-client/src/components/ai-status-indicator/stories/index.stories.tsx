@@ -5,8 +5,8 @@ import React from 'react';
 /*
  * Internal Dependencies
  */
-import AiStatusIndicator, { AiStatusIndicatorProps } from '..';
-import { REQUESTING_STATES } from '../../../types';
+import { REQUESTING_STATES } from '../../../types.js';
+import AiStatusIndicator, { AiStatusIndicatorProps } from '../index.js';
 
 type AiStatusIndicatoryStoryProps = AiStatusIndicatorProps & {
 	icon: string;

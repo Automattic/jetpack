@@ -38,6 +38,12 @@ const optimization = {
 };
 const resolve = {
 	extensions: [ '.js', '.jsx', '.ts', '.tsx', '...' ],
+	// TypeScript's tsc needs to refer to files like "foo.js" even if they're named "foo.ts". We have to make webpack work with that convention too.
+	extensionAlias: {
+		'.js': [ '.js', '.ts', '.tsx' ],
+		'.cjs': [ '.cjs', '.cts' ],
+		'.mjs': [ '.mjs', '.mts' ],
+	},
 	conditionNames: [
 		...( process.env.npm_config_jetpack_webpack_config_resolve_conditions
 			? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
