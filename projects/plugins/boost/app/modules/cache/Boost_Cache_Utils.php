@@ -32,7 +32,7 @@ class Boost_Cache_Utils {
 		return \is_feed();
 	}
 
-	/*
+	/**
 	 * Recursively delete a directory.
 	 * @param string $dir - The directory to delete.
 	 * @param bool   $recurse - If false, only delete the files in the directory, do not recurse into subdirectories.
@@ -92,7 +92,7 @@ class Boost_Cache_Utils {
 		return rtrim( $string, '/' ) . '/';
 	}
 
-	/*
+	/**
 	 * Delete a single directory.
 	 * @param string $dir - The directory to delete.
 	 * @return bool
@@ -102,7 +102,7 @@ class Boost_Cache_Utils {
 		return self::delete_directory( $dir, false );
 	}
 
-	/*
+	/**
 	 * Returns a sanitized directory path.
 	 * @param string $path - The path to sanitize.
 	 * @return string
@@ -125,7 +125,7 @@ class Boost_Cache_Utils {
 		return $path;
 	}
 
-	/*
+	/**
 	 * Creates the directory if it doesn't exist.
 	 *
 	 * @param string $path - The path to the directory to create.
@@ -139,7 +139,7 @@ class Boost_Cache_Utils {
 		return true;
 	}
 
-	/*
+	/**
 	 * Returns true if the given directory is inside the boost-cache directory.
 	 * @param string $dir - The directory to check.
 	 * @return bool
@@ -149,7 +149,7 @@ class Boost_Cache_Utils {
 		return strpos( $dir, WP_CONTENT_DIR . '/boost-cache' ) !== false;
 	}
 
-	/*
+	/**
 	 * Writes data to a file.
 	 * This creates a temporary file first, then renames the file to the final filename.
 	 * This is done to prevent the file from being read while it is being written to.
