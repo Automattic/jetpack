@@ -42,12 +42,14 @@ class Boost_Cache_Utils {
 		error_log( "delete directory: $dir " . (int) $recurse ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$dir = realpath( $dir );
 		if ( ! $dir ) {
-			return new \WP_Error( 'Directory does not exist' ); // realpath returns false if a file does not exist.
+			// translators: %s is the directory that does not exist.
+			return new \WP_Error( 'directory-missing', sprintf( __( 'Directory does not exist: %s', 'jetpack-boost' ), $dir ) ); // realpath returns false if a file does not exist.
 		}
 
 		// make sure that $dir is a directory inside WP_CONTENT . '/boost-cache/';
 		if ( self::is_boost_cache_directory( $dir ) === false ) {
-			return new \WP_Error( 'Invalid directory ' . $dir );
+			// translators: %s is the directory that is invalid.
+			return new \WP_Error( 'invalid-directory', sprintf( __( 'Invalid directory %s', 'jetpack-boost' ), $dir ) );
 		}
 
 		$files = array_diff( scandir( $dir ), array( '.', '..' ) );
