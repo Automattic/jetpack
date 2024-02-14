@@ -1531,7 +1531,7 @@ function zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines = array() ) {
 	foreach ( $invlines as $invline ) {
 
 		$line_item_html .= '
-			<tr class="top-row jpcrm-invoice-lineitem">
+			<tr class="jpcrm-invoice-lineitem">
 			<td class="jpcrm-invoice-lineitem-description"><span class="title">' . esc_html( $invline['title'] ) . '</span><br/><span class="subtitle">' . nl2br( esc_html( $invline['desc'] ) ) . '</span></td>
 			<td class="jpcrm-invoice-lineitem-quantity">' . esc_html( zeroBSCRM_format_quantity( $invline['quantity'] ) ) . '</td>
 			<td class="jpcrm-invoice-lineitem-price">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
