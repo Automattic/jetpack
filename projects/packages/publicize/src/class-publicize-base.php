@@ -1622,7 +1622,12 @@ abstract class Publicize_Base {
 	 */
 	public function get_remote_filesize( $image_url ) {
 		$response = wp_remote_get( $image_url, array( 'method' => 'HEAD' ) );
-		$size     = wp_remote_retrieve_header( $response, 'content-length' );
+
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
+		$size = wp_remote_retrieve_header( $response, 'content-length' );
 
 		return ! empty( $size ) ? $size : null;
 	}
@@ -1726,7 +1731,7 @@ abstract class Publicize_Base {
 			$tags = $this->add_jetpack_social_og_image( $tags, $social_opengraph_image );
 		}
 
-		if ( empty( $tags['og:image'] ) || empty( $tags['og:image:width'] ) || empty( $tags['og:image:height'] ) ) {
+		if ( empty( $tags['og:image'] ) || ! is_string( $tags['og:image'] ) || empty( $tags['og:image:width'] ) || empty( $tags['og:image:height'] ) ) {
 			return $tags;
 		}
 

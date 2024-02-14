@@ -2,11 +2,11 @@
  * External dependencies
  */
 import debugFactory from 'debug';
-import SuggestionsEventSource from '../suggestions-event-source';
+import SuggestionsEventSource from '../suggestions-event-source/index.js';
 /*
  * Types & constants
  */
-import type { AiModelTypeProp, PromptProp } from '../types';
+import type { AiModelTypeProp, PromptProp } from '../types.js';
 
 export type AskQuestionOptionsArgProps = {
 	/*

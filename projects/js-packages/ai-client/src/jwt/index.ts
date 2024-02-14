@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-import apiFetch from '@wordpress/api-fetch';
+import apiFetchMod from '@wordpress/api-fetch';
 import debugFactory from 'debug';
 /*
  * Types & constants
@@ -26,6 +26,12 @@ type TokenDataEndpointResponseProps = {
 };
 
 const debug = debugFactory( 'jetpack-ai-client:jwt' );
+
+// @wordpress/api-fetch (as of 6.47.0) declares itself in such a way that tsc and node see the function at apiFetchMod.default
+// while some other environments (including code running inside WordPress itself) see it at apiFetch.
+// See https://arethetypeswrong.github.io/?p=@wordpress/api-fetch@6.47.0
+type ApiFetchType = typeof apiFetchMod.default;
+const apiFetch: ApiFetchType = ( apiFetchMod.default ?? apiFetchMod ) as ApiFetchType;
 
 const JWT_TOKEN_ID = 'jetpack-ai-jwt';
 const JWT_TOKEN_EXPIRATION_TIME = 2 * 60 * 1000; // 2 minutes

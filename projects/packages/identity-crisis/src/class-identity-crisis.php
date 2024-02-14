@@ -26,7 +26,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.17.0-alpha';
+	const PACKAGE_VERSION = '0.17.0';
 
 	/**
 	 * Persistent WPCOM blog ID that stays in the options after disconnect.
@@ -141,11 +141,11 @@ class Identity_Crisis {
 	/**
 	 * Gets the link to the support document used to explain Safe Mode to users.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
 	public static function get_safe_mod_doc_url() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		return Redirect::get_url( 'jetpack-support-safe-mode' );
 	}
 
@@ -357,13 +357,13 @@ class Identity_Crisis {
 	/**
 	 * Prepare URL for display.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @param string $url URL to display.
 	 *
 	 * @return string
 	 */
 	public static function prepare_url_for_display( $url ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		return untrailingslashit( self::normalize_url_protocol_agnostic( $url ) );
 	}
 
@@ -575,11 +575,11 @@ class Identity_Crisis {
 	 * Is a container for the error notices.
 	 * Will be shown/controlled by jQuery in idc-notice.js.
 	 *
-	 * @deprecated  $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated  0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return void
 	 */
 	public function render_error_notice() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		?>
 		<div class="jp-idc-error__notice dops-notice is-error">
 			<svg class="gridicon gridicons-notice dops-notice__icon" height="24" width="24" viewBox="0 0 24 24">
@@ -605,11 +605,11 @@ class Identity_Crisis {
 	/**
 	 * Renders the first step notice.
 	 *
-	 * @deprecated  $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated  0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return void
 	 */
 	public function render_notice_first_step() {
-		_deprecated_function( __METHOD__, ' $$next-version$$' );
+		_deprecated_function( __METHOD__, ' 0.17.0' );
 		?>
 		<div class="jp-idc-notice__first-step">
 			<div class="jp-idc-notice__content-header">
@@ -650,12 +650,12 @@ class Identity_Crisis {
 	/**
 	 * Renders the second step notice.
 	 *
-	 * @deprecated  $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated  0.17.0 Use `@automattic/jetpack-idc` instead.
 	 *
 	 * @return void
 	 */
 	public function render_notice_second_step() {
-		_deprecated_function( __METHOD__, ' $$next-version$$' );
+		_deprecated_function( __METHOD__, ' 0.17.0' );
 		?>
 		<div class="jp-idc-notice__second-step">
 			<div class="jp-idc-notice__content-header">
@@ -697,12 +697,12 @@ class Identity_Crisis {
 	/**
 	 * Returns the first step header lead.
 	 *
-	 * @deprecated  $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated  0.17.0 Use `@automattic/jetpack-idc` instead.
 	 *
 	 * @return string
 	 */
 	public function get_first_step_header_lead() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Safe mode docs URL and site URL. */
@@ -728,12 +728,12 @@ class Identity_Crisis {
 	/**
 	 * Returns the first step header explanation.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 *
 	 * @return string
 	 */
 	public function get_first_step_header_explanation() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Safe mode docs URL. */
@@ -757,11 +757,11 @@ class Identity_Crisis {
 	/**
 	 * Returns the confirm safe mode explanation.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
 	public function get_confirm_safe_mode_action_explanation() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Site URL. */
@@ -786,11 +786,11 @@ class Identity_Crisis {
 	/**
 	 * Returns the confirm safe mode button text.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
 	public function get_confirm_safe_mode_button_text() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		$string = esc_html__( 'Confirm Safe Mode', 'jetpack-idc' );
 
 		/**
@@ -807,11 +807,11 @@ class Identity_Crisis {
 	/**
 	 * Returns the first step fix connection action explanation.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
 	public function get_first_step_fix_connection_action_explanation() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Site URL. */
@@ -836,11 +836,11 @@ class Identity_Crisis {
 	/**
 	 * Returns the first step fix connection button text.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
 	public function get_first_step_fix_connection_button_text() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		$string = esc_html__( "Fix Jetpack's Connection", 'jetpack-idc' );
 
 		/**
@@ -857,11 +857,11 @@ class Identity_Crisis {
 	/**
 	 * Returns the second step header lead.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
 	public function get_second_step_header_lead() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		$string = sprintf(
 		/* translators: %s: Site URL. */
 			esc_html__( 'Is %1$s the new home of %2$s?', 'jetpack-idc' ),
@@ -883,11 +883,11 @@ class Identity_Crisis {
 	/**
 	 * Returns the site action explanation.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
 	public function get_migrate_site_action_explanation() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Site URL. */
@@ -914,11 +914,11 @@ class Identity_Crisis {
 	/**
 	 * Returns the migrate site button text.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
 	public function get_migrate_site_button_text() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		$string = esc_html__( 'Migrate Stats &amp; Subscribers', 'jetpack-idc' );
 
 		/**
@@ -935,11 +935,11 @@ class Identity_Crisis {
 	/**
 	 * Returns the start fresh explanation.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
 	public function get_start_fresh_action_explanation() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Site URL. */
@@ -966,11 +966,11 @@ class Identity_Crisis {
 	/**
 	 * Returns the start fresh button text.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
 	public function get_start_fresh_button_text() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		$string = esc_html__( 'Start Fresh &amp; Create New Connection', 'jetpack-idc' );
 
 		/**
@@ -987,11 +987,11 @@ class Identity_Crisis {
 	/**
 	 * Returns the unsure prompt text.
 	 *
-	 * @deprecated since $$next-version$$ Use `@automattic/jetpack-idc` instead.
+	 * @deprecated since 0.17.0 Use `@automattic/jetpack-idc` instead.
 	 * @return string
 	 */
 	public function get_unsure_prompt() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-0.17.0' );
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Safe mode docs URL. */
