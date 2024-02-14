@@ -302,7 +302,6 @@ class VideoPressEdit extends Component {
 						onMediaUploadStateReset={ this.mediaUploadStateReset }
 						renderContent={ ( { retryMessage } ) => {
 							const videoURL = this.getVideoURL();
-							const videoPoster = this.state.metadata.poster;
 							const showVideo =
 								isURL( videoURL ) &&
 								! isUploadInProgress &&
@@ -330,7 +329,7 @@ class VideoPressEdit extends Component {
 												style={ videoStyle }
 												source={ { uri: videoURL } }
 												paused={ true }
-												poster={ videoPoster }
+												poster={ this.state.metadata.poster }
 											/>
 										</View>
 									) }
