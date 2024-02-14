@@ -183,24 +183,32 @@
             /* removed as leaned out font support to regular + bold font-style: italic; */
         }
 
-	.jpcrm-invoice-lineitem-description {
-		text-align: left;
-	}
-	.jpcrm-invoice-lineitem-quantity,
-	.jpcrm-invoice-lineitem-price,
-	.jpcrm-invoice-lineitem-amount {
-		text-align: right;
-	}
-	#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-description {
-		width: 50%;
-	}
-	#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-description .title {
-		font-weight: 600;
-	}
-	#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-description .subtitle {
-		font-size: 13px;
-		font-style: italic;
-	}
+
+.jpcrm-invoice-lineitem-description {
+  text-align: left;
+}
+
+.jpcrm-invoice-lineitem-quantity,
+.jpcrm-invoice-lineitem-price,
+.jpcrm-invoice-lineitem-amount {
+  text-align: right;
+}
+
+#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-description {
+  width: 50%;
+}
+#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-description .title {
+  font-weight: bold;
+}
+#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-description .subtitle {
+  font-size: 13px;
+  font-style: italic;
+}
+#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-quantity,
+#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-price,
+#jpcrm-invoice-lineitems .jpcrm-invoice-lineitem-amount {
+  width: 15%;
+}
 
         /* viewport-size specific - catchalls */
         @media screen and (min-width: 1280px) {
@@ -313,7 +321,7 @@
         <!-- =============/Invoice Infos============= -->
 
         <!-- =============Invoice Description============= -->
-        <table style='width:100%; margin-top: 30px;' class='striped'>
+        <table style='width:100%; margin-top: 30px; font-size: 13px;' class='striped'>
 					<thead id="jpcrm-invoice-lineitems-header" style='font-weight:900;padding:10px;margin-top:50px'>
 						##INVOICE-TABLE-HEADERS##
 					</thead>
