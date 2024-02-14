@@ -277,7 +277,7 @@ class Boost_Cache {
 	 * Delete the cache for the front page and paged archives.
 	 * This is called when a post is edited, deleted, or published.
 	 *
-	 * @param int $post - The post that should be deleted.
+	 * @param WP_Post $post - The post that should be deleted.
 	 */
 	protected function delete_cache_for_front_page( $post ) {
 		$front_page_id = get_option( 'show_on_front' ); // posts page
