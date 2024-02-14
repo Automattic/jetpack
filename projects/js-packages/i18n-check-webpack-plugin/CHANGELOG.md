@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.6] - 2024-02-07
+### Changed
+- At some point a change in the toolchain (babel? terser?) broke one of the possible fixes for expression movement. Update the docs to stop recommending that fix. [#35452]
+
 ## [1.1.5] - 2023-12-06
 ### Changed
 - Updated package dependencies. [#34416]
@@ -194,6 +198,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[1.1.6]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.5...v1.1.6
 [1.1.5]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.2...v1.1.3

@@ -248,7 +248,6 @@
 	"projects/plugins/crm/modules/woo-sync/includes/class-woo-sync-my-account-integration.php",
 	"projects/plugins/crm/modules/woo-sync/includes/class-woo-sync-segment-conditions.php",
 	"projects/plugins/crm/modules/woo-sync/includes/class-woo-sync-woo-admin-integration.php",
-	"projects/plugins/crm/modules/woo-sync/includes/class-woo-sync.php",
 	"projects/plugins/crm/modules/woo-sync/includes/jpcrm-woo-sync-contact-tabs.php",
 	"projects/plugins/crm/modules/woo-sync/includes/jpcrm-woo-sync-default-settings.php",
 	"projects/plugins/crm/modules/woo-sync/includes/segment-conditions/class-segment-condition-woo-customer.php",

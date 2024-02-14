@@ -5,6 +5,7 @@ import { BlogStatsInspectorControls } from '../controls';
 describe( 'BlogStatsControls', () => {
 	const defaultAttributes = {
 		label: 'hits',
+		statsData: 'views',
 		statsOption: 'site',
 	};
 
@@ -19,10 +20,30 @@ describe( 'BlogStatsControls', () => {
 	} );
 
 	describe( 'Inspector settings', () => {
-		test( 'loads and displays settings', () => {
+		test( 'loads and displays views or visitors settings', () => {
 			render( <BlogStatsInspectorControls { ...defaultProps } /> );
 
-			expect( screen.getByText( 'Settings' ) ).toBeInTheDocument();
+			expect( screen.getByLabelText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.getByLabelText( 'Visitors' ) ).toBeInTheDocument();
+		} );
+
+		test( 'defaults stats data to views', () => {
+			render( <BlogStatsInspectorControls { ...defaultProps } /> );
+
+			expect( screen.getByLabelText( 'Views' ) ).toBeChecked();
+		} );
+
+		test( 'sets the statsData attribute', async () => {
+			const user = userEvent.setup();
+			render( <BlogStatsInspectorControls { ...defaultProps } /> );
+			await user.click( screen.getByLabelText( 'Visitors' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { statsData: 'visitors' } );
+		} );
+
+		test( 'loads and displays option settings', () => {
+			render( <BlogStatsInspectorControls { ...defaultProps } /> );
+
 			expect( screen.getByLabelText( 'My whole site' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( 'This individual post' ) ).toBeInTheDocument();
 		} );
