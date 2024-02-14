@@ -347,7 +347,11 @@ class VideoPressEdit extends Component {
 											} }
 										>
 											{ videoContainerHeight > 0 &&
-												( isLoadingMetadata ? <ActivityIndicator /> : iconContainer ) }
+												( isUploadInProgress || isLoadingMetadata ? (
+													<ActivityIndicator />
+												) : (
+													iconContainer
+												) ) }
 											{ isUploadFailed && (
 												<Text style={ style.uploadFailedText }>{ retryMessage }</Text>
 											) }
