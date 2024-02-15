@@ -142,14 +142,14 @@ class File_Storage implements Storage {
 	/**
 	 * Delete the cached files for the home page, and any paged archives.
 	 */
-	public function invalidate_home_page() {
-		$directory = $this->root_path;
-		$dir       = Boost_Cache_Utils::sanitize_file_path( $directory );
+	public function invalidate_home_page( $dir ) {
+		$dir = $this->root_path . Boost_Cache_Utils::sanitize_file_path( $dir );
 
 		if ( Boost_Cache_Utils::is_boost_cache_directory( $dir ) ) {
 			if ( is_dir( $dir . '/page' ) ) {
 				Boost_Cache_Utils::delete_directory( $dir . '/page' );
 			}
+			error_log( "invalidate_home_page: $dir" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			return Boost_Cache_Utils::delete_single_directory( $dir );
 		}
 

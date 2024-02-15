@@ -293,8 +293,8 @@ class Boost_Cache {
 				$this->delete_cache_for_post( get_post( $posts_page_id ) );
 			}
 		} else {
-			$this->storage->invalidate_home_page();
-			error_log( 'delete front page cache' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			$this->storage->invalidate_home_page( $this->normalize_request_uri( home_url() ) );
+			error_log( 'delete front page cache ' . $this->normalize_request_uri( home_url() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 	}
 
