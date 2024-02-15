@@ -41,6 +41,7 @@ $jetpack_green_100: #001c09;
 
 $red_50: #d63638;
 $orange_20: #faa754;
+$yellow_20: #DEB100;
 $jetpack_green: $jetpack_green_50;
 
 $padding: 48px;
@@ -84,4 +85,5 @@ $spacing-unit: 8px;
 	--jetpack-green-80: #{$jetpack_green_80};
 	--jetpack-green-90: #{$jetpack_green_90};
 	--jetpack-green-100: #{$jetpack_green_100};
+	--jp-yellow-20: #{$yellow_20};
 }

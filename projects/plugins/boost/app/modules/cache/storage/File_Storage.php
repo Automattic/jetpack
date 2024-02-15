@@ -19,7 +19,7 @@ class File_Storage implements Storage {
 	private $root_path;
 
 	public function __construct( $root_path ) {
-		$this->root_path = Boost_Cache_Utils::trailingslashit( $root_path );
+		$this->root_path = WP_CONTENT_DIR . '/boost-cache/cache' . Boost_Cache_Utils::sanitize_file_path( Boost_Cache_Utils::trailingslashit( $root_path ) );
 	}
 
 	/**

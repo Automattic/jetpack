@@ -6,34 +6,75 @@ const cacheIssuesLink = 'TBD'; // @todo - add proper link here.
 
 const messages: { [ key: string ]: { title: string; message: React.ReactNode } } = {
 	'wp-content-not-writable': {
-		title: 'wp-content-not-writable',
-		message: 'wp-content-not-writable',
-	},
-	'advanced-cache-incompatible': {
-		title: 'advanced-cache-incompatible',
-		message: 'advanced-cache-incompatible',
-	},
-	'unable-to-write-advanced-cache': {
-		title: 'unable-to-write-advanced-cache',
-		message: 'unable-to-write-advanced-cache',
-	},
-	'wp-cache-defined-not-true': {
-		title: 'wp-cache-defined-not-true',
-		message: 'wp-cache-defined-not-true',
-	},
-	'feature-disabled-advanced-cache-incompatible': {
-		title: __( 'Cache loader script already exists', 'jetpack-boost' ),
+		title: 'wp-content not writable',
 		message: createInterpolateElement(
 			sprintf(
-				// translators: %d refers to the path of the cache loader script.
+				// translators: %s refers to wp-content.
 				__(
-					`This feature cannot be enabled because <underline>%s</underline> was found on your site. It was created by another plugin, or your hosting provider. Please remove it to use this module. <link>Learn more.</link>`,
+					`This feature cannot be enabled because <code>%s</code> is not writable. <link>Learn more.</link>`,
+					'jetpack-boost'
+				),
+				'wp-content'
+			),
+			{
+				code: <code className={ styles.nowrap } />,
+				// eslint-disable-next-line jsx-a11y/anchor-has-content
+				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
+			}
+		),
+	},
+	'advanced-cache-incompatible': {
+		title: __( 'Cache loader file already exists', 'jetpack-boost' ),
+		message: createInterpolateElement(
+			sprintf(
+				// translators: %s refers to the path of the cache loader file.
+				__(
+					`This feature cannot be enabled because <code>%s</code> was found on your site. It was created by another plugin, or your hosting provider. Please remove it to use this module. <link>Learn more.</link>`,
 					'jetpack-boost'
 				),
 				'wp-content/advanced-cache.php'
 			),
 			{
-				underline: <span className={ styles.underline } />,
+				code: <code className={ styles.nowrap } />,
+				// eslint-disable-next-line jsx-a11y/anchor-has-content
+				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
+			}
+		),
+	},
+	'unable-to-write-to-advanced-cache': {
+		title: __( 'Could not write to cache loader file', 'jetpack-boost' ),
+		message: createInterpolateElement(
+			sprintf(
+				// translators: %s refers to the path of the cache loader file.
+				__(
+					`This feature cannot be enabled because <code>%s</code> is not writable. <link>Learn more.</link>`,
+					'jetpack-boost'
+				),
+				'wp-content/advanced-cache.php'
+			),
+			{
+				code: <code className={ styles.nowrap } />,
+				// eslint-disable-next-line jsx-a11y/anchor-has-content
+				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
+			}
+		),
+	},
+	'wp-cache-defined-not-true': {
+		title: __( 'Cache constant not set to true', 'jetpack-boost' ),
+		message: createInterpolateElement(
+			sprintf(
+				// translators: %1$s refers to the cache constant (WP_CACHE), %2$s refers to what it isn't set to (true), %3$s refers to what the value should be set to (true).
+				__(
+					`<code>%1$s</code> has already been defined, but is not set to <code>%2$s</code>. To use caching, it needs to be set to <code>%3$s</code>. <link>Learn more.</link>`,
+					'jetpack-boost'
+				),
+				'WP_CACHE',
+				'true',
+				'true',
+				'wp-content/advanced-cache.php'
+			),
+			{
+				code: <code className={ styles.nowrap } />,
 				// eslint-disable-next-line jsx-a11y/anchor-has-content
 				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
 			}
@@ -45,13 +86,13 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			sprintf(
 				// translators: %d refers to the path of the cache directory.
 				__(
-					`This feature cannot be enabled because the cache directory (<underline>%s</underline>) is not writable. This needs to be resolved before caching can be enabled.`,
+					`This feature cannot be enabled because the cache directory (<code>%s</code>) is not writable. This needs to be resolved before caching can be enabled.`,
 					'jetpack-boost'
 				),
 				'wp-content/boost-cache'
 			),
 			{
-				underline: <span className={ styles.underline } />,
+				code: <code className={ styles.nowrap } />,
 			}
 		),
 	},
@@ -61,13 +102,13 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			sprintf(
 				// translators: %d refers to the path of wp-config.php.
 				__(
-					`This feature cannot be enabled because <underline>%s</underline> is not writable. This needs to be resolved before caching can be enabled.`,
+					`This feature cannot be enabled because <code>%s</code> is not writable. This needs to be resolved before caching can be enabled.`,
 					'jetpack-boost'
 				),
 				'wp-config.php'
 			),
 			{
-				underline: <span className={ styles.underline } />,
+				code: <code className={ styles.nowrap } />,
 			}
 		),
 	},
