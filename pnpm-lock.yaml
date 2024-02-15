@@ -1271,9 +1271,6 @@ importers:
       '@wordpress/postcss-plugins-preset':
         specifier: 4.35.0
         version: 4.35.0(postcss@8.4.31)
-      autoprefixer:
-        specifier: 10.4.14
-        version: 10.4.14(postcss@8.4.31)
       babel-loader:
         specifier: 9.1.2
         version: 9.1.2(@babel/core@7.23.5)(webpack@5.76.0)
@@ -1292,9 +1289,6 @@ importers:
       postcss:
         specifier: 8.4.31
         version: 8.4.31
-      postcss-custom-properties:
-        specifier: 12.1.7
-        version: 12.1.7(postcss@8.4.31)
       postcss-loader:
         specifier: 6.2.0
         version: 6.2.0(postcss@8.4.31)(webpack@5.76.0)
@@ -2347,6 +2341,9 @@ importers:
       '@babel/runtime':
         specifier: 7.23.5
         version: 7.23.5
+      '@csstools/postcss-global-data':
+        specifier: 2.1.1
+        version: 2.1.1(postcss@8.4.31)
       '@size-limit/preset-app':
         specifier: 8.2.6
         version: 8.2.6(size-limit@8.2.6)
@@ -2523,6 +2520,9 @@ importers:
       '@babel/preset-react':
         specifier: 7.23.3
         version: 7.23.3(@babel/core@7.23.5)
+      '@csstools/postcss-global-data':
+        specifier: 2.1.1
+        version: 2.1.1(postcss@8.4.31)
       '@jest/globals':
         specifier: 29.4.3
         version: 29.4.3
@@ -3372,6 +3372,9 @@ importers:
       '@babel/runtime':
         specifier: 7.23.5
         version: 7.23.5
+      '@csstools/postcss-global-data':
+        specifier: 2.1.1
+        version: 2.1.1(postcss@8.4.31)
       '@svgr/webpack':
         specifier: 7.0.0
         version: 7.0.0(typescript@5.0.4)
@@ -3763,6 +3766,9 @@ importers:
       '@babel/runtime':
         specifier: 7.23.5
         version: 7.23.5
+      '@csstools/postcss-global-data':
+        specifier: 2.1.1
+        version: 2.1.1(postcss@8.4.31)
       '@testing-library/dom':
         specifier: 9.3.4
         version: 9.3.4
@@ -5754,6 +5760,15 @@ packages:
   /@colors/colors@1.6.0:
     resolution: {integrity: sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==}
     engines: {node: '>=0.1.90'}
+    dev: true
+
+  /@csstools/postcss-global-data@2.1.1(postcss@8.4.31):
+    resolution: {integrity: sha512-tihdBLogY2G5jgUSu2jKSEVeOcnWqsz6k7UmPM7+ezhuV9FP5MIyX35Hc/YvqipQLRNsfBj9wRkBvsE7k1GM8A==}
+    engines: {node: ^14 || ^16 || >=18}
+    peerDependencies:
+      postcss: ^8.4
+    dependencies:
+      postcss: 8.4.31
     dev: true
 
   /@dabh/diagnostics@2.0.3:
