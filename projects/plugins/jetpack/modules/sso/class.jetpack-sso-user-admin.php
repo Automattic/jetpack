@@ -5,7 +5,7 @@ use Automattic\Jetpack\Roles;
 if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 	require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
 	/**
-	 * Jetpack likes settings class.
+	 * Jetpack sso user admin class.
 	 */
 	class Jetpack_SSO_User_Admin {
 
