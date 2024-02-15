@@ -14,8 +14,24 @@
  * @return array $results An associative array. Key 'missing_taxonomies' has an array value: if there were terms in the annotation that could not be added because a taxonomy was missing on the site, the list of missing taxonomies. (An array of strings).
  */
 function wpcomsh_apply_headstart_terms() {
-	$theme           = wp_get_theme();
-	$theme_name      = $theme->get_stylesheet();
+	$theme_to_headstart = get_option( 'woocommerce_should_run_headstart_for_theme', false );
+	$early_return_data  = array( 'missing_taxonomies' => array() );
+
+	if ( false === $theme_to_headstart ) {
+		return $early_return_data;
+	}
+
+	$theme      = wp_get_theme();
+	$theme_name = $theme->get_stylesheet();
+
+	if ( $theme_name !== $theme_to_headstart ) {
+		wpcomsh_headstart_log( "wpcomsh_apply_headstart_terms: Theme slugs don't match. Theme to Headstart: [$theme_to_headstart], Theme Slug: [$theme_name]." );
+
+		// Delete the option; the theme has changed.
+		delete_option( 'woocommerce_should_run_headstart_for_theme' );
+		return $early_return_data;
+	}
+
 	$locale          = get_locale();
 	$fallback_locale = 'en';
 
@@ -24,6 +40,9 @@ function wpcomsh_apply_headstart_terms() {
 
 	if ( false === $annotation ) {
 		wpcomsh_headstart_log( "wpcomsh_apply_headstart_terms: Could not find the headstart annotation for theme [$theme_name]. locale=[$locale] fallback_locale=[$fallback_locale]" );
+
+		// Delete the option; we don't have a Headstart annotation for this theme.
+		delete_option( 'woocommerce_should_run_headstart_for_theme' );
 		return $missing_taxonomies;
 	}
 
@@ -44,6 +63,8 @@ function wpcomsh_apply_headstart_terms() {
 	} else {
 		wpcomsh_headstart_log( "wpcomsh_apply_headstart_terms: Found an annotation for [$theme], but not taking action since it did not contain custom_terms_by_taxonomy." );
 	}
+
+	delete_option( 'woocommerce_should_run_headstart_for_theme' );
 	return array( 'missing_taxonomies' => $missing_taxonomies );
 }
 
