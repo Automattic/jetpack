@@ -402,7 +402,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			<table class="form-table">
 				<tr class="form-field">
 					<th scope="row">
-						<label for="custom_email_message">Custom Message</label>
+						<label for="custom_email_message"><?php esc_html_e( 'Custom Message', 'jetpack' ); ?></label>
 					</th>
 					<td>
 						<label for="custom_email_message">
