@@ -178,7 +178,7 @@ class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 			'caption'    => '',
 			'thumbnails' => array(
 				'thumbnail' => wp_get_attachment_image_url( $item->ID, 'thumbnail' ),
-				'large'     => wp_get_attachment_image_url( $item->ID, 'full' ),
+				'large'     => wp_get_attachment_image_url( $item->ID, 'large' ),
 			),
 		);
 	}
