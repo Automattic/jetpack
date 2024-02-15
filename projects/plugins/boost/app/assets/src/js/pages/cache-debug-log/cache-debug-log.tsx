@@ -5,7 +5,7 @@ import { z } from 'zod';
 import Footer from '$layout/footer/footer';
 import styles from './cache-debug-log.module.scss';
 import classNames from 'classnames';
-import { Button } from '@automattic/jetpack-components';
+import { CopyToClipboard } from '@automattic/jetpack-components';
 
 const CacheDebugLog = () => {
 	const [ { data: debugLog } ] = useDataSync( 'jetpack_boost_ds', 'cache_debug_log', z.string(), {
@@ -15,10 +15,6 @@ const CacheDebugLog = () => {
 		},
 	} );
 
-	const copyToClipboard = () => {
-		navigator.clipboard.writeText( debugLog as string );
-	};
-
 	return (
 		<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
 			<Header subPageTitle={ __( 'Cache Log Viewer', 'jetpack-boost' ) } />
@@ -26,14 +22,14 @@ const CacheDebugLog = () => {
 				<div className="jb-container">
 					<header className={ styles.header }>
 						<h3>{ __( 'Jetpack Boost Cache Log Viewer', 'jetpack-boost' ) }</h3>
-						<Button
+						<CopyToClipboard
 							className={ styles[ 'copy-button' ] }
-							onClick={ copyToClipboard }
+							textToCopy={ debugLog as string }
 							variant="link"
 							weight="regular"
 						>
 							{ __( 'Copy to clipboard', 'jetpack-boost' ) }
-						</Button>
+						</CopyToClipboard>
 					</header>
 
 					<pre className={ styles[ 'log-text' ] }>{ debugLog }</pre>
