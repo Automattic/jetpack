@@ -335,6 +335,7 @@ class REST_Controller {
 			)
 		);
 
+		// Get Email opens stats for a single post.
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/sites/%d/stats/opens/emails/(?P<post_id>[\d]+)/(?P<resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
@@ -345,6 +346,7 @@ class REST_Controller {
 			)
 		);
 
+		// Get Email clicks stats for a single post.
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/sites/%d/stats/clicks/emails/(?P<post_id>[\d]+)/(?P<resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
@@ -355,6 +357,7 @@ class REST_Controller {
 			)
 		);
 
+		// Get Email stats time series.
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/sites/%d/stats/(?P<resource>[\-\w]+)/emails/(?P<post_id>[\d]+)', Jetpack_Options::get_option( 'id' ) ),
@@ -764,7 +767,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * Get Email opens stats for a single post.
+	 * Get Email clicks stats for a single post.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array
