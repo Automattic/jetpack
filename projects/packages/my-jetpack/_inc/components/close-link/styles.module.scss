@@ -9,3 +9,15 @@
 	text-decoration: none;
 	align-items: center;
 }
+
+// Hide content from screen but not from screen readers
+.visually-hidden {
+	position: absolute;
+	clip: rect(1px, 1px, 1px, 1px);
+	padding: 0;
+	border: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	width: 1px;
+	height: 1px;
+}
