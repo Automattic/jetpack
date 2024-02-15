@@ -26,11 +26,9 @@ function should_load_wpcom_command_palette() {
  * @return string
  */
 function get_wpcom_command_palette_config_js() {
-	$config = array(
-		'siteId' => get_current_blog_id(),
-	);
+	$site_id = get_current_blog_id();
 
-	return sprintf( 'window.commandPalette.config = %s;', wp_json_encode( $config ) );
+	return "var commandPaletteConfig = { siteId: $site_id };";
 }
 
 /**
