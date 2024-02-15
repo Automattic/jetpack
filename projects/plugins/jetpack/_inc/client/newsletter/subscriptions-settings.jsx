@@ -49,6 +49,7 @@ function SubscriptionsSettings( props ) {
 		siteAdminUrl,
 		themeStylesheet,
 		blogID,
+		onOptionChange,
 	} = props;
 
 	const welcomeMessage = props.getOptionValue( 'subscription_options' )?.welcome || '';
@@ -96,6 +97,16 @@ function SubscriptionsSettings( props ) {
 
 	const isDisabled =
 		! isSubscriptionsActive || unavailableInOfflineMode || isSavingAnyOption( [ 'subscriptions' ] );
+
+	const changeWelcomeMessageState = useCallback(
+		event => {
+			const subscriptionOptionEvent = {
+				target: { name: event.target.name, value: { welcome: event.target.value } },
+			};
+			onOptionChange( subscriptionOptionEvent );
+		},
+		[ onOptionChange ]
+	);
 
 	return (
 		<>
@@ -196,9 +207,9 @@ function SubscriptionsSettings( props ) {
 							{ __( 'Welcome email message', 'jetpack' ) }
 						</span>
 						<Textarea
-							name={ 'subscription_options.welcome' }
+							name={ 'subscription_options' }
 							value={ welcomeMessage }
-							onChange={ props.onOptionChange }
+							onChange={ changeWelcomeMessageState }
 						/>
 					</FormLabel>
 				</SettingsGroup>
