@@ -10,6 +10,7 @@ module.exports = [
 		entry: {
 			'error-reporting': './src/features/error-reporting/index.js',
 			'block-theme-previews': './src/features/block-theme-previews/index.js',
+			tour: './src/features/tour/index.js',
 		},
 		mode: jetpackConfig.mode,
 		devtool: jetpackConfig.devtool,

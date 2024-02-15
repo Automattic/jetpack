@@ -57,9 +57,13 @@
 		"@wordpress/i18n": "4.51.0",
 		"@wordpress/plugins": "6.19.0",
 		"@wordpress/url": "3.52.0",
+		"@automattic/tour-kit": "1.1.1",
+		"@babel/runtime": "^7",
 		"preact": "^10.13.1",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"wpcom-proxy-request": "^7.0.3"
+		"redux": "^4.2.1",
+		"wpcom-proxy-request": "^7.0.3",
+		"reakit-utils": "^0.15.1"
 	}
 }
