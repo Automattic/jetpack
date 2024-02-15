@@ -641,9 +641,7 @@ class REST_Controller {
 			'v2',
 			array( 'timeout' => 5 ),
 			null,
-			'wpcom',
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			! isset( $_GET['force_refresh'] ) && ! isset( $_GET['statsPurchaseSuccess'] )
+			'wpcom'
 		);
 	}
 
