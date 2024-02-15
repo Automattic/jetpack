@@ -95,13 +95,19 @@ class Logger {
 
 	/**
 	 * Reads the log file and returns the contents.
+	 *
+	 * @return string
 	 */
 	public function read() {
 		$log_file = $this->get_log_file();
 
+		if ( ! file_exists( $log_file ) ) {
+			return '';
+		}
+
 		// Get the content after skipping the LOG_HEADER.
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		return file_get_contents( $log_file, false, null, strlen( self::LOG_HEADER ) );
+		return file_get_contents( $log_file, false, null, strlen( self::LOG_HEADER ) ) || '';
 	}
 
 	/**
