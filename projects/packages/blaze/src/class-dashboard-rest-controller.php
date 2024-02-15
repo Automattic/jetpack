@@ -769,7 +769,7 @@ class Dashboard_REST_Controller {
 				$price           = number_format( $price, $decimals, $decimal_separator, $thousand_separator );
 				$formatted_price = sprintf( $price_format, $currency_symbol, $price );
 
-				$posts[ $key ]['price'] = $formatted_price;
+				$posts[ $key ]['price'] = htmlspecialchars_decode( $formatted_price );
 			} else {
 				$posts[ $key ]['price'] = '';
 			}
