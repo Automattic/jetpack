@@ -185,6 +185,7 @@ const ActionButton = ( {
 		onAdd,
 		onFixConnection,
 		onActivate,
+		onInstall,
 		onLearnMore,
 		purchaseUrl,
 		upgradeInInterstitial,
