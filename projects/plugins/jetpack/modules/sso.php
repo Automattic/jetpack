@@ -645,42 +645,12 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Clear the cookies that store the profile information for the last
-	 * WPCOM user to connect.
-	 */
-	public static function clear_wpcom_profile_cookies() {
-		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ] ) ) {
-			setcookie(
-				'jetpack_sso_wpcom_name_' . COOKIEHASH,
-				' ',
-				time() - YEAR_IN_SECONDS,
-				COOKIEPATH,
-				COOKIE_DOMAIN,
-				is_ssl(),
-				true
-			);
-		}
-
-		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ] ) ) {
-			setcookie(
-				'jetpack_sso_wpcom_gravatar_' . COOKIEHASH,
-				' ',
-				time() - YEAR_IN_SECONDS,
-				COOKIEPATH,
-				COOKIE_DOMAIN,
-				is_ssl(),
-				true
-			);
-		}
-	}
-
-	/**
 	 * Clear cookies that are no longer needed once the user has logged in.
 	 *
 	 * @since 4.8.0
 	 */
 	public static function clear_cookies_after_login() {
-		self::clear_wpcom_profile_cookies();
+		Jetpack_SSO_Helpers::clear_wpcom_profile_cookies();
 		if ( isset( $_COOKIE['jetpack_sso_nonce'] ) ) {
 			setcookie(
 				'jetpack_sso_nonce',
@@ -1052,7 +1022,7 @@ class Jetpack_SSO {
 		if ( empty( $reauth ) ) {
 			$sso_redirect = $this->build_sso_url( $args );
 		} else {
-			self::clear_wpcom_profile_cookies();
+			Jetpack_SSO_Helpers::clear_wpcom_profile_cookies();
 			$sso_redirect = $this->build_reauth_and_sso_url( $args );
 		}
 

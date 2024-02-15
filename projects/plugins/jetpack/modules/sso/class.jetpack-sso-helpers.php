@@ -368,6 +368,36 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		}
 
 		/**
+		 * Clear the cookies that store the profile information for the last
+		 * WPCOM user to connect.
+		 */
+		public static function clear_wpcom_profile_cookies() {
+			if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ] ) ) {
+				setcookie(
+					'jetpack_sso_wpcom_name_' . COOKIEHASH,
+					' ',
+					time() - YEAR_IN_SECONDS,
+					COOKIEPATH,
+					COOKIE_DOMAIN,
+					is_ssl(),
+					true
+				);
+			}
+
+			if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ] ) ) {
+				setcookie(
+					'jetpack_sso_wpcom_gravatar_' . COOKIEHASH,
+					' ',
+					time() - YEAR_IN_SECONDS,
+					COOKIEPATH,
+					COOKIE_DOMAIN,
+					is_ssl(),
+					true
+				);
+			}
+		}
+
+		/**
 		 * Remove an SSO connection for a user.
 		 *
 		 * @param int $user_id The local user id.
