@@ -95,7 +95,7 @@ function load_assets( $attributes ) {
 		_n( 'hit', 'hits', $stats, 'jetpack' )
 	);
 
-	$label = $attributes['label'] ? $attributes['label'] : $fallback_label;
+	$label = empty( $attributes['label'] ) ? $fallback_label : $attributes['label'];
 
 	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 

@@ -5,7 +5,7 @@ import { useState, useEffect } from '@wordpress/element';
 /*
  * Internal dependencies
  */
-import { formatTime, getDuration } from './lib/media';
+import { formatTime, getDuration } from './lib/media.js';
 /*
  * Types
  */

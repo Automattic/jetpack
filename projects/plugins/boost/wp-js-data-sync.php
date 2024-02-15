@@ -19,6 +19,7 @@ use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Data_Sync_Actions\Run_Setup;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
@@ -279,7 +280,7 @@ jetpack_boost_register_option(
 	'performance_history',
 	Schema::as_assoc_array(
 		array(
-			'periods'   => Schema::as_array(
+			'periods'     => Schema::as_array(
 				Schema::as_assoc_array(
 					array(
 						'timestamp'  => Schema::as_number(),
@@ -298,8 +299,16 @@ jetpack_boost_register_option(
 					)
 				)
 			),
-			'startDate' => Schema::as_number(),
-			'endDate'   => Schema::as_number(),
+			'annotations' => Schema::as_array(
+				Schema::as_assoc_array(
+					array(
+						'timestamp' => Schema::as_number(),
+						'text'      => Schema::as_string(),
+					)
+				)
+			),
+			'startDate'   => Schema::as_number(),
+			'endDate'     => Schema::as_number(),
 		)
 	),
 	new Performance_History_Entry()
@@ -337,3 +346,12 @@ jetpack_boost_register_readonly_option( 'premium_features', array( Premium_Featu
 jetpack_boost_register_readonly_option( 'super_cache', array( Super_Cache_Info::class, 'get_info' ) );
 
 jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback( false ), new Getting_Started_Entry() );
+
+// Page Cache error
+jetpack_boost_register_option(
+	'page_cache_error',
+	Schema::as_string()
+		->nullable()
+);
+
+jetpack_boost_register_action( 'page_cache_error', 'run-page-cache-setup', Schema::as_void(), new Run_Setup() );

@@ -23,7 +23,7 @@ The hook returns an object with the following properties and methods:
 Here's an example React component that utilizes the `useMediaRecording` hook.
 
 ```jsx
-import useMediaRecording from './useMediaRecording';
+import useMediaRecording from './useMediaRecording/index.js';
 
 const MediaRecorderComponent = () => {
 	const { start, pause, resume, stop, state } = useMediaRecording();
