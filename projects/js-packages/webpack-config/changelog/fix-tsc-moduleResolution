@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `resolve.extensionAlias` with entries for tsc compatibility.
