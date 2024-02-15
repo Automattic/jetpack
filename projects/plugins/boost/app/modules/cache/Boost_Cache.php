@@ -280,12 +280,17 @@ class Boost_Cache {
 	 *
 	 * @param WP_Post $post - The post that should be deleted.
 	 */
-	protected function delete_cache_for_front_page( $post ) {
-		$front_page_id = get_option( 'show_on_front' ); // posts page
-		if ( $front_page_id === 'page' ) {
+	protected function delete_cache_for_front_page() {
+		if ( get_option( 'show_on_front' ) === 'page' ) {
 			$front_page_id = get_option( 'page_on_front' ); // static page
-			if ( $front_page_id === $post->ID ) {
-				$this->delete_cache_for_post( $post->ID );
+			if ( $front_page_id ) {
+				error_log( 'delete_cache_for_front_page: deleting front page cache' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				$this->delete_cache_for_post( get_post( $front_page_id ) );
+			}
+			$posts_page_id = get_option( 'page_for_posts' ); // posts page
+			if ( $posts_page_id ) {
+				error_log( 'delete_cache_for_front_page: deleting posts page cache' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				$this->delete_cache_for_post( get_post( $posts_page_id ) );
 			}
 		} else {
 			$this->storage->invalidate_home_page();
@@ -387,7 +392,7 @@ class Boost_Cache {
 
 		$this->delete_cache_for_post( $post );
 		$this->delete_cache_for_post_terms( $post );
-		$this->delete_cache_for_front_page( $post );
+		$this->delete_cache_for_front_page();
 	}
 
 	/**
