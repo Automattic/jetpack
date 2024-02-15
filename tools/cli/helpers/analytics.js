@@ -16,7 +16,7 @@ async function analyticsEnabled() {
 			{
 				type: 'confirm',
 				name: 'analyticsEnabled',
-				message: 'Enable anonymized analytics tracking to help improve the Jetpack CLI?',
+				message: 'Enable analytics tracking to help improve the Jetpack CLI?',
 				initial: true,
 			},
 		] );

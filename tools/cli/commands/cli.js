@@ -108,7 +108,7 @@ function cliAnalytics() {
 	configStore.set( 'analyticsEnabled', analyticsEnabled );
 	console.log(
 		`Analytics tracking for Jetpack CLI is now ${ analyticsEnabled ? 'enabled' : 'disabled' }.`,
-		`\n\nAnalytics tracking helps improve the Jetpack CLI by sending anonymized usage data. ${
+		`\n\nAnalytics tracking helps improve the Jetpack CLI by sending usage data. ${
 			analyticsEnabled
 				? 'Thank you for helping us improve!'
 				: "\nWe appreciate your privacy. If you'd like to enable analytics tracking in the future, run: jetpack cli analytics"
