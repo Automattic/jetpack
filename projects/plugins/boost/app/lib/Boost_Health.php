@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 
 /**
  * Class Boost_Health
@@ -50,13 +51,17 @@ class Boost_Health {
 		return $this->issues;
 	}
 
+	private static function is_critical_css_enabled() {
+		return ( new Status( Critical_CSS::get_slug() ) )->is_enabled();
+	}
+
 	/**
 	 * Check if Critical CSS needs regeneration.
 	 *
 	 * @return bool True if regeneration is needed, false otherwise.
 	 */
 	public static function critical_css_needs_regeneration() {
-		if ( Cloud_CSS::is_available() ) {
+		if ( Cloud_CSS::is_available() || ! self::is_critical_css_enabled() ) {
 			return false;
 		}
 
@@ -71,6 +76,9 @@ class Boost_Health {
 	 * @return bool True if errors are present, false otherwise.
 	 */
 	public static function critical_css_has_errors() {
+		if ( ! self::is_critical_css_enabled() ) {
+			return false;
+		}
 		return ( new Critical_CSS_State() )->has_errors();
 	}
 }

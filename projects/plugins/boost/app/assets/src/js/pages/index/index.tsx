@@ -15,6 +15,9 @@ import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
+import PageCacheMeta from '$features/page-cache/meta/meta';
+import PageCacheHealth from '$features/page-cache/health/health';
+import { invalidatePageCacheError } from '$lib/stores/page-cache';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -30,7 +33,6 @@ const Index = () => {
 	const { canResizeImages } = Jetpack_Boost;
 
 	const premiumFeatures = usePremiumFeatures();
-	const isPremium = premiumFeatures !== false;
 
 	return (
 		<div className="jb-container--narrow">
@@ -118,6 +120,23 @@ const Index = () => {
 				<CloudCssMeta />
 			</Module>
 			<Module
+				slug="page_cache"
+				title={ __( 'Cache Site Pages', 'jetpack-boost' ) }
+				description={
+					<p>
+						{ __(
+							'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
+							'jetpack-boost'
+						) }
+					</p>
+				}
+				onEnable={ invalidatePageCacheError }
+				onDisable={ invalidatePageCacheError }
+			>
+				<PageCacheMeta />
+				<PageCacheHealth />
+			</Module>
+			<Module
 				slug="render_blocking_js"
 				title={ __( 'Defer Non-Essential JavaScript', 'jetpack-boost' ) }
 				description={
@@ -188,7 +207,7 @@ const Index = () => {
 					</p>
 				}
 			>
-				<QualitySettings isPremium={ isPremium } />
+				<QualitySettings isPremium={ premiumFeatures.includes( 'image-cdn-quality' ) } />
 			</Module>
 
 			<div className={ styles.settings }>

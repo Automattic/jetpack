@@ -11,6 +11,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Image_CDN;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Performance_History\Performance_History;
 
 class Modules_Index {
@@ -34,6 +35,7 @@ class Modules_Index {
 		Image_Guide::class,
 		Image_CDN::class,
 		Performance_History::class,
+		Page_Cache::class,
 	);
 
 	/**
@@ -72,6 +74,18 @@ class Modules_Index {
 		return $available_modules;
 	}
 
+	public function is_module_enabled( $slug ) {
+		$available_modules = $this->available_modules();
+
+		if ( ! array_key_exists( $slug, $available_modules ) ) {
+			return false;
+		}
+
+		$module = $available_modules[ $slug ];
+
+		return $module->is_enabled();
+	}
+
 	/**
 	 * Get the lists of modules explicitly disabled from the 'jb-disable-modules' query string.
 	 * The parameter is a comma separated value list of module slug.
@@ -88,5 +102,9 @@ class Modules_Index {
 		}
 
 		return array();
+	}
+
+	public function get_feature_instance_by_slug( $slug ) {
+		return isset( $this->modules[ $slug ] ) ? $this->modules[ $slug ]->feature : false;
 	}
 }

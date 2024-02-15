@@ -216,6 +216,7 @@ class Jetpack_Protect {
 			'wpVersion'          => $wp_version,
 			'adminUrl'           => 'admin.php?page=jetpack-protect',
 			'siteSuffix'         => ( new Jetpack_Status() )->get_site_suffix(),
+			'blogID'             => Connection_Manager::get_site_id( true ),
 			'jetpackScan'        => My_Jetpack_Products::get_product( 'scan' ),
 			'hasRequiredPlan'    => Plan::has_required_plan(),
 			'onboardingProgress' => Onboarding::get_current_user_progress(),

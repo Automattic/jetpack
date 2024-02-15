@@ -27,25 +27,27 @@ type UseMediaRecordingReturn = {
 	 */
 	url: string | null;
 
-	/**
-	 * `start` recording handler
-	 */
-	start: ( timeslice?: number ) => void;
+	controls: {
+		/**
+		 * `start` recording handler
+		 */
+		start: ( timeslice?: number ) => void;
 
-	/**
-	 * `pause` recording handler
-	 */
-	pause: () => void;
+		/**
+		 * `pause` recording handler
+		 */
+		pause: () => void;
 
-	/**
-	 * `resume` recording handler
-	 */
-	resume: () => void;
+		/**
+		 * `resume` recording handler
+		 */
+		resume: () => void;
 
-	/**
-	 * `stop` recording handler
-	 */
-	stop: () => void;
+		/**
+		 * `stop` recording handler
+		 */
+		stop: () => void;
+	};
 };
 
 type MediaRecorderEvent = {
@@ -188,6 +190,7 @@ export default function useMediaRecording( {
 				// @todo: handle error
 				throw err;
 			} );
+
 		return () => {
 			/*
 			 * mediaRecordRef is not defined when
@@ -211,9 +214,11 @@ export default function useMediaRecording( {
 		blob,
 		url: blob ? URL.createObjectURL( blob ) : null,
 
-		start,
-		pause,
-		resume,
-		stop,
+		controls: {
+			start,
+			pause,
+			resume,
+			stop,
+		},
 	};
 }

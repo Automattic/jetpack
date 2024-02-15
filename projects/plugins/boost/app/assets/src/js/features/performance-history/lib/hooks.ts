@@ -18,6 +18,12 @@ const periodsSchema = z.object( {
 const performanceHistoryDataSchema = z
 	.object( {
 		periods: z.array( periodsSchema ),
+		annotations: z.array(
+			z.object( {
+				timestamp: z.number(),
+				text: z.string(),
+			} )
+		),
 		startDate: z.number(),
 		endDate: z.number(),
 	} )
@@ -27,7 +33,12 @@ export const usePerformanceHistoryQuery = () => {
 	const [ query ] = useDataSync(
 		'jetpack_boost_ds',
 		'performance_history',
-		performanceHistoryDataSchema
+		performanceHistoryDataSchema,
+		{
+			query: {
+				staleTime: 12 * 60 * 60 * 1000, // 12 hours
+			},
+		}
 	);
 
 	return query;

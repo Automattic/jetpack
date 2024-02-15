@@ -12,6 +12,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Delete;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
+use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
 
 class Endpoint {
 
@@ -152,15 +153,23 @@ class Endpoint {
 		}
 
 		try {
-			$params = $request->get_json_params();
-			$data   = isset( $params['JSON'] ) ? $params['JSON'] : null;
-			$result = $this->entry->$entry_method( $data );
-			return rest_ensure_response(
-				array(
-					'status' => 'success',
-					'JSON'   => $result,
-				)
+			$params   = $request->get_json_params();
+			$data     = isset( $params['JSON'] ) ? $params['JSON'] : null;
+			$result   = $this->entry->$entry_method( $data );
+			$response = array(
+				'status' => 'success',
+				'JSON'   => $result,
 			);
+			if ( true === DS_Utils::is_debug() ) {
+				$response['log'] = $this->entry->get_parser()->get_log();
+			}
+
+			if ( true === DS_Utils::debug_disable( $this->route_base ) ) {
+				// Return 418 I'm a teapot if this is a debug request to the endpoint.
+				return rest_ensure_response( new \WP_Error( 'teapot', "I'm a teapot.", array( 'status' => 418 ) ) );
+			}
+			return rest_ensure_response( $response );
+
 		} catch ( \RuntimeException $e ) {
 			return rest_ensure_response(
 				array(

@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "3.0.5",
+	"version": "3.2.0-alpha",
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/webpack-config/#readme",
 	"bugs": {
@@ -28,12 +28,13 @@
 		"@babel/preset-react": "7.23.3",
 		"@babel/preset-typescript": "7.23.3",
 		"@cerner/duplicate-package-checker-webpack-plugin": "2.3.0",
-		"@wordpress/browserslist-config": "5.31.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "4.31.0",
+		"@wordpress/browserslist-config": "5.34.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "5.2.0",
 		"babel-loader": "9.1.2",
 		"browserslist": "4.22.1",
 		"css-loader": "6.5.1",
 		"css-minimizer-webpack-plugin": "5.0.1",
+		"fork-ts-checker-webpack-plugin": "9.0.2",
 		"mini-css-extract-plugin": "2.4.5",
 		"terser-webpack-plugin": "5.3.3",
 		"thread-loader": "3.0.4"
@@ -41,12 +42,14 @@
 	"devDependencies": {
 		"@babel/core": "7.23.5",
 		"@babel/runtime": "7.23.5",
+		"typescript": "5.0.4",
 		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1"
 	},
 	"peerDependencies": {
 		"@babel/core": "^7.0.0",
 		"@babel/runtime": "7.23.5",
+		"typescript": ">=4.9.5",
 		"webpack": "^5.67.0"
 	},
 	"peerDependenciesMeta": {
@@ -54,6 +57,9 @@
 			"optional": true
 		},
 		"@babel/runtime": {
+			"optional": true
+		},
+		"typescript": {
 			"optional": true
 		}
 	},
