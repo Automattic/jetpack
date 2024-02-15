@@ -651,8 +651,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				);
 				return $connection_html;
 			}
-
-			return $val;
 		}
 
 		/**
