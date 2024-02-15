@@ -32,7 +32,8 @@ class Boost_Cache {
 	 */
 	public function __construct( $storage = null ) {
 		$this->settings = Boost_Cache_Settings::get_instance();
-		$this->storage  = $storage ?? new Storage\File_Storage( WP_CONTENT_DIR . '/boost-cache/cache/' );
+		$home           = isset( $_SERVER['HTTP_HOST'] ) ? strtolower( $_SERVER['HTTP_HOST'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$this->storage  = $storage ?? new Storage\File_Storage( $home );
 		$this->request  = new Request();
 	}
 
