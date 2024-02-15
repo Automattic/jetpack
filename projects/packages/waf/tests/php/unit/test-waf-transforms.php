@@ -54,7 +54,7 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 				''                       => '',
 				'VGVzdENhc2U='           => 'TestCase',
 				'VGVzdENhc2Ux'           => 'TestCase1',
-				'VGVzdENhc))((((2UxMg==' => 'TestCase12',
+				'VGVzdENhc))((((2UxMg==' => false,
 			),
 		);
 

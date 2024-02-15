@@ -37,7 +37,7 @@ class Waf_Transforms {
 	 * @return string
 	 */
 	public function base64_decode( $value ) {
-		return base64_decode( $value, false );
+		return base64_decode( $value, true );
 	}
 
 	/**
