@@ -14,7 +14,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  * and if it is not already enabled.
  */
 function wpcomsh_activate_masterbar_module() {
-	if ( ! defined( 'JETPACK__VERSION' ) ) {
+	if ( ! defined( 'JETPACK__VERSION' ) || wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
 
@@ -28,6 +28,22 @@ function wpcomsh_activate_masterbar_module() {
 	}
 }
 add_action( 'init', 'wpcomsh_activate_masterbar_module', 0, 0 );
+
+
+/**
+ * Disable the Masterbar for nav redesign.
+ *
+ * @param array $modules Array of Jetpack modules.
+ * @return array
+ */
+function atomic_masterbar_filter_jetpack_modules( $modules ) {
+	if ( isset( $modules['masterbar'] ) && wpcom_is_nav_redesign_enabled() ) {
+		unset( $modules['masterbar'] );
+	}
+
+	return $modules;
+}
+add_filter( 'jetpack_get_available_modules', 'atomic_masterbar_filter_jetpack_modules' );
 
 /**
  * Remove Masterbar from the old Module list.
