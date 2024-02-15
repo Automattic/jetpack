@@ -71,6 +71,10 @@ class Boost_Cache {
 	 * Serve the cached page if it exists, otherwise start output buffering.
 	 */
 	public function serve() {
+		if ( ! $this->is_cacheable() ) {
+			return;
+		}
+
 		if ( ! $this->serve_cached() ) {
 			$this->ob_start();
 		}
@@ -98,6 +102,24 @@ class Boost_Cache {
 		return in_array( $error['type'], $fatal_errors, true );
 	}
 
+	public function is_url_excluded( $request_uri = '' ) {
+		if ( $request_uri === '' ) {
+			$request_uri = $this->request_uri;
+		}
+
+		$excluded_urls = $this->settings->get_excluded_urls();
+		$excluded_urls = apply_filters( 'boost_cache_excluded_urls', $excluded_urls );
+
+		$excluded_urls[] = 'wp-.*\.php';
+		foreach ( $excluded_urls as $expr ) {
+			if ( ! empty( $expr ) && preg_match( "~$expr~", $request_uri ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/**
 	 * Returns true if the request is cacheable.
 	 *
@@ -122,6 +144,11 @@ class Boost_Cache {
 		}
 
 		if ( $this->is_fatal_error() ) {
+			return false;
+		}
+
+		if ( $this->is_url_excluded() ) {
+			error_log( $_SERVER['REQUEST_URI'] . ' url excluded, not cached!' ); // phpcs:ignore -- This is a debug message
 			return false;
 		}
 
