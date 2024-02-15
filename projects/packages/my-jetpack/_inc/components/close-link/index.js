@@ -6,10 +6,12 @@ import styles from './styles.module.scss';
 
 const CloseLink = ( { className, accessibleName } ) => {
 	return (
-		<Link to="/" className={ classNames( styles.link, className ) }>
+		<Link
+			to="/"
+			className={ classNames( styles.link, className ) }
+			aria-label={ accessibleName || null }
+		>
 			<Icon icon={ close } className={ styles.icon } />
-			{ /* Screen reader users require a textual information of what the button does. */ }
-			<span className={ styles[ 'visually-hidden' ] }>{ accessibleName }</span>
 		</Link>
 	);
 };
