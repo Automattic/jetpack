@@ -25,7 +25,7 @@ function Oscilloscope( { audioURL } ) {
 	return <img src={ oscilloscope } alt="" />;
 }
 
-function AudioStatusPanel( { state, error = null, audioURL = null } ) {
+function AudioStatusPanel( { state, error = null, audioURL = null, duration = 0 } ) {
 	if ( state === 'inactive' ) {
 		return (
 			<div className="jetpack-ai-voice-to-content__information">
@@ -39,7 +39,7 @@ function AudioStatusPanel( { state, error = null, audioURL = null } ) {
 			<div className="jetpack-ai-voice-to-content__audio">
 				<AudioDurationDisplay
 					className="jetpack-ai-voice-to-content__audio--duration"
-					url={ audioURL }
+					duration={ duration }
 				/>
 				<Oscilloscope audioURL={ audioURL } />
 				<span className="jetpack-ai-voice-to-content__information">
@@ -54,7 +54,7 @@ function AudioStatusPanel( { state, error = null, audioURL = null } ) {
 			<div className="jetpack-ai-voice-to-content__audio">
 				<AudioDurationDisplay
 					className="jetpack-ai-voice-to-content__audio--duration"
-					url={ audioURL }
+					duration={ duration }
 				/>
 				<Oscilloscope audioURL={ audioURL } />
 				<span className="jetpack-ai-voice-to-content__information">
@@ -175,18 +175,15 @@ function ActionButtons( { state, mediaControls, onError } ) {
 }
 
 export default function VoiceToContentEdit( { clientId } ) {
-	const { state, controls, url, error, onError } = useMediaRecording( {
-		onDone: blob => {
-			console.log( 'Blob created: ', blob ); // eslint-disable-line no-console
+	const { state, controls, url, error, onError, duration } = useMediaRecording( {
+		onDone: ( lastBlob, lastUrl ) => {
+			console.log( 'Blob created: ', lastBlob, lastUrl ); // eslint-disable-line no-console
 		},
 	} );
 
 	const dispatch = useDispatch( 'core/block-editor' );
 
 	const destroyBlock = useCallback( () => {
-		// eslint-disable-next-line no-console
-		console.log( 'VTC: destroy' );
-
 		// Remove the block from the editor
 		setTimeout( () => {
 			dispatch.removeBlock( clientId );
@@ -194,8 +191,6 @@ export default function VoiceToContentEdit( { clientId } ) {
 	}, [ dispatch, clientId ] );
 
 	const handleClose = () => {
-		// eslint-disable-next-line no-console
-		console.log( 'VTC: close' );
 		destroyBlock();
 	};
 
@@ -218,7 +213,12 @@ export default function VoiceToContentEdit( { clientId } ) {
 							) }
 						</span>
 						<div className="jetpack-ai-voice-to-content__contextual-row">
-							<AudioStatusPanel state={ state } audioURL={ url } error={ error } />
+							<AudioStatusPanel
+								state={ state }
+								audioURL={ url }
+								error={ error }
+								duration={ duration }
+							/>
 						</div>
 						<ActionButtons state={ state } mediaControls={ controls } onError={ onError } />
 					</div>
