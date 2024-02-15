@@ -23,6 +23,7 @@ const CacheDebugLog = () => {
 					<header className={ styles.header }>
 						<h3>{ __( 'Jetpack Boost Cache Log Viewer', 'jetpack-boost' ) }</h3>
 						<CopyToClipboard
+							buttonStyle="icon-text"
 							className={ styles[ 'copy-button' ] }
 							textToCopy={ debugLog as string }
 							variant="link"
