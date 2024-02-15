@@ -60,6 +60,62 @@ class File_Storage implements Storage {
 	}
 
 	/**
+	 * Garbage collect expired files.
+	 */
+	public function garbage_collect() {
+		$cache_duration = apply_filters( 'jetpack_boost_cache_duration', 3600 );
+
+		if ( $cache_duration === 0 ) {
+			// Garbage collection is disabled.
+			return false;
+		}
+
+		clearstatcache();
+
+		$now    = time();
+		$count  = 0;
+		$handle = is_readable( $this->root_path ) ? opendir( $this->root_path ) : false;
+		if ( $handle ) {
+			$file = readdir( $handle );
+			while ( $file !== false ) {
+				$file_path = $this->root_path . $file;
+				$filemtime = file_exists( $file_path ) ? filemtime( $file_path ) : false;
+				$expired   = ( $filemtime + $cache_duration ) <= $now;
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+				$deletable = $file && file_exists( $file_path ) && is_writable( $file_path );
+
+				if ( $deletable && ! $this->skip_garbage_collection( $file ) && $expired ) {
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+					unlink( $file_path );
+					++$count;
+				}
+
+				// Take the next file.
+				$file = readdir( $handle );
+			}
+			closedir( $handle );
+		}
+
+		return $count;
+	}
+
+	private function skip_garbage_collection( $file ) {
+		if ( $file === '.' || $file === '..' ) {
+			return true;
+		}
+
+		if ( is_dir( $this->root_path . $file ) ) {
+			return true;
+		}
+
+		if ( substr( $file, -9 ) !== '.htaccess' && $file !== 'index.html' ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Given a request_uri, return the filesystem path where it should get stored. Handles sanitization.
 	 * Note that the directory path does not take things like GET parameters or cookies into account, for easy cache purging.
 	 *
