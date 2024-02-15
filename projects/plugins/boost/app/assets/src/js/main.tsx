@@ -25,15 +25,18 @@ import CacheDebugLog from './pages/cache-debug-log/cache-debug-log';
 const useBoostRouter = () => {
 	const { shouldGetStarted } = useGettingStarted();
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
+
+	const checkForGettingStarted = () => {
+		if ( shouldGetStarted ) {
+			return redirect( '/getting-started' );
+		}
+		return null;
+	};
+
 	return createHashRouter( [
 		{
 			path: '*',
-			loader: () => {
-				if ( shouldGetStarted ) {
-					return redirect( '/getting-started' );
-				}
-				return null;
-			},
+			loader: checkForGettingStarted,
 			element: (
 				<SettingsPage>
 					<Tracks>
@@ -44,12 +47,7 @@ const useBoostRouter = () => {
 		},
 		{
 			path: '/cache-debug-log',
-			loader: () => {
-				if ( shouldGetStarted ) {
-					return redirect( '/getting-started' );
-				}
-				return null;
-			},
+			loader: checkForGettingStarted,
 			element: (
 				<Tracks>
 					<CacheDebugLog />
@@ -58,13 +56,7 @@ const useBoostRouter = () => {
 		},
 		{
 			path: '/critical-css-advanced',
-			loader: () => {
-				if ( shouldGetStarted ) {
-					return redirect( '/getting-started' );
-				}
-
-				return null;
-			},
+			loader: checkForGettingStarted,
 			element: (
 				<SettingsPage>
 					<Tracks>
