@@ -19,7 +19,7 @@ type FormatTimeOptions = {
  * Formats the given time in milliseconds into a string with the format HH:MM:SS.DD,
  * adding hours and minutes only when needed.
  *
- * @param {number} time               - The time in millisecons to format.
+ * @param {number} time               - The time in milliseconds to format.
  * @param {FormatTimeOptions} options - The arguments.
  * @returns {string}                    The formatted time string.
  * @example
