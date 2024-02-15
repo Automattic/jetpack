@@ -6,11 +6,11 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import useMediaRecording from '../';
+import AudioDurationDisplay from '../../../components/audio-duration-display/index.js';
+import useMediaRecording from '../index.js';
 /**
  * Types
  */
-import AudioDurationDisplay from '../../../components/audio-duration-display';
 import type { Meta } from '@storybook/react';
 
 const RecorderComponent = ( { timeslice } ) => {

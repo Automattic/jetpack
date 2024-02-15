@@ -1,4 +1,4 @@
-import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl, ToggleControl, Status } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -201,6 +201,13 @@ export const Waf = class extends Component {
 				>
 					{ _x( 'NEW', 'Settings header badge', 'jetpack' ) }
 				</a>
+				{ this.props.settings?.standaloneMode && (
+					<Status
+						className="waf__standalone__mode"
+						status="active"
+						label={ __( 'Standalone mode', 'jetpack' ) }
+					/>
+				) }
 			</div>
 		);
 
