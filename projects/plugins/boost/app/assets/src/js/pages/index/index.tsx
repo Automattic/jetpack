@@ -15,6 +15,9 @@ import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
+import PageCacheMeta from '$features/page-cache/meta/meta';
+import PageCacheHealth from '$features/page-cache/health/health';
+import { invalidateQuery } from '@automattic/jetpack-react-data-sync-client';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -30,6 +33,12 @@ const Index = () => {
 	const { canResizeImages } = Jetpack_Boost;
 
 	const premiumFeatures = usePremiumFeatures();
+
+	// When page cache is enabled, page cache error needs to be invalidated,
+	// so we can get the updated error message from the last setup run.
+	const invalidatePageCacheError = () => {
+		invalidateQuery( 'page_cache_error' );
+	};
 
 	return (
 		<div className="jb-container--narrow">
@@ -115,6 +124,23 @@ const Index = () => {
 				}
 			>
 				<CloudCssMeta />
+			</Module>
+			<Module
+				slug="page_cache"
+				title={ __( 'Cache Site Pages', 'jetpack-boost' ) }
+				description={
+					<p>
+						{ __(
+							'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
+							'jetpack-boost'
+						) }
+					</p>
+				}
+				onEnable={ invalidatePageCacheError }
+				onDisable={ invalidatePageCacheError }
+			>
+				<PageCacheMeta />
+				<PageCacheHealth />
 			</Module>
 			<Module
 				slug="render_blocking_js"
