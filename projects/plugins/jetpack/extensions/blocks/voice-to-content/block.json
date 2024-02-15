@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/voice-to-content",
 	"title": "Voice to content",
-	"description": "Transform your spoken words into publish-ready content with AI.",
+	"description": "Transform your spoken words into a post ready to publish with AI.",
 	"keywords": [ "AI", "GPT", "AL", "Magic", "help", "assistant" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",

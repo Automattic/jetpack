@@ -32,27 +32,31 @@ class Boost_Cache_Utils {
 		return \is_feed();
 	}
 
-	/*
+	/**
 	 * Recursively delete a directory.
 	 * @param string $dir - The directory to delete.
+	 * @param bool   $recurse - If false, only delete the files in the directory, do not recurse into subdirectories.
 	 * @return bool|WP_Error
 	 */
-	public static function delete_directory( $dir ) {
+	public static function delete_directory( $dir, $recurse = true ) {
+		error_log( "delete directory: $dir " . (int) $recurse ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$dir = realpath( $dir );
 		if ( ! $dir ) {
-			return new \WP_Error( 'Directory does not exist' ); // realpath returns false if a file does not exist.
+			// translators: %s is the directory that does not exist.
+			return new \WP_Error( 'directory-missing', sprintf( __( 'Directory does not exist: %s', 'jetpack-boost' ), $dir ) ); // realpath returns false if a file does not exist.
 		}
 
 		// make sure that $dir is a directory inside WP_CONTENT . '/boost-cache/';
 		if ( self::is_boost_cache_directory( $dir ) === false ) {
-			return new \WP_Error( 'Invalid directory' );
+			// translators: %s is the directory that is invalid.
+			return new \WP_Error( 'invalid-directory', sprintf( __( 'Invalid directory %s', 'jetpack-boost' ), $dir ) );
 		}
 
 		$files = array_diff( scandir( $dir ), array( '.', '..' ) );
 		foreach ( $files as $file ) {
 			$file = $dir . '/' . $file;
-			if ( is_dir( $file ) ) {
-				self::delete_directory( $file );
+			if ( $recurse && is_dir( $file ) ) {
+				self::delete_directory( $file, $recurse );
 			} else {
 				wp_delete_file( $file );
 			}
@@ -88,7 +92,17 @@ class Boost_Cache_Utils {
 		return rtrim( $string, '/' ) . '/';
 	}
 
-	/*
+	/**
+	 * Delete a single directory.
+	 * @param string $dir - The directory to delete.
+	 * @return bool
+	 */
+	public static function delete_single_directory( $dir ) {
+		error_log( "delete single directory: $dir" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		return self::delete_directory( $dir, false );
+	}
+
+	/**
 	 * Returns a sanitized directory path.
 	 * @param string $path - The path to sanitize.
 	 * @return string
@@ -111,7 +125,7 @@ class Boost_Cache_Utils {
 		return $path;
 	}
 
-	/*
+	/**
 	 * Creates the directory if it doesn't exist.
 	 *
 	 * @param string $path - The path to the directory to create.
@@ -125,7 +139,7 @@ class Boost_Cache_Utils {
 		return true;
 	}
 
-	/*
+	/**
 	 * Returns true if the given directory is inside the boost-cache directory.
 	 * @param string $dir - The directory to check.
 	 * @return bool
@@ -135,7 +149,7 @@ class Boost_Cache_Utils {
 		return strpos( $dir, WP_CONTENT_DIR . '/boost-cache' ) !== false;
 	}
 
-	/*
+	/**
 	 * Writes data to a file.
 	 * This creates a temporary file first, then renames the file to the final filename.
 	 * This is done to prevent the file from being read while it is being written to.
@@ -154,6 +168,20 @@ class Boost_Cache_Utils {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
 		if ( ! rename( $tmp_filename, $filename ) ) {
 			return new \WP_Error( 'Could not rename tmp file to final file: ' . $filename );
+		}
+		return true;
+	}
+
+	/**
+	 * Checks if the post type is public.
+	 *
+	 * @param WP_Post $post - The post to check.
+	 * @return bool - True if the post type is public.
+	 */
+	public static function is_visible_post_type( $post ) {
+		$post_type = is_a( $post, 'WP_Post' ) ? get_post_type_object( $post->post_type ) : null;
+		if ( empty( $post_type ) || ! $post_type->public ) {
+			return false;
 		}
 		return true;
 	}

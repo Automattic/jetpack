@@ -280,7 +280,7 @@ jetpack_boost_register_option(
 	'performance_history',
 	Schema::as_assoc_array(
 		array(
-			'periods'   => Schema::as_array(
+			'periods'     => Schema::as_array(
 				Schema::as_assoc_array(
 					array(
 						'timestamp'  => Schema::as_number(),
@@ -299,8 +299,16 @@ jetpack_boost_register_option(
 					)
 				)
 			),
-			'startDate' => Schema::as_number(),
-			'endDate'   => Schema::as_number(),
+			'annotations' => Schema::as_array(
+				Schema::as_assoc_array(
+					array(
+						'timestamp' => Schema::as_number(),
+						'text'      => Schema::as_string(),
+					)
+				)
+			),
+			'startDate'   => Schema::as_number(),
+			'endDate'     => Schema::as_number(),
 		)
 	),
 	new Performance_History_Entry()
