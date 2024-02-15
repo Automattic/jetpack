@@ -25,7 +25,7 @@ function Oscilloscope( { audioURL } ) {
 	return <img src={ oscilloscope } alt="" />;
 }
 
-function ContextualRow( { state, error = null, audioURL = null } ) {
+function AudioStatusPanel( { state, error = null, audioURL = null } ) {
 	if ( state === 'inactive' ) {
 		return (
 			<div className="jetpack-ai-voice-to-content__information">
@@ -220,7 +220,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 							) }
 						</span>
 						<div className="jetpack-ai-voice-to-content__contextual-row">
-							<ContextualRow state={ state } audioURL={ url } error={ error } />
+							<AudioStatusPanel state={ state } audioURL={ url } error={ error } />
 						</div>
 						<ActionButtons state={ state } mediaControls={ controls } />
 					</div>
