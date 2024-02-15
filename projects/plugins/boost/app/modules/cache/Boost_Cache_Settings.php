@@ -44,7 +44,9 @@ class Boost_Cache_Settings {
 		}
 
 		if ( ! file_exists( $this->config_file ) ) {
-			$this->set( array( 'enabled' => false ) );
+			if ( ! $this->set( array( 'enabled' => false ) ) ) {
+				return false;
+			}
 		}
 
 		$lines = file( $this->config_file );
@@ -117,7 +119,13 @@ class Boost_Cache_Settings {
 		$this->settings = array_merge( $this->settings, $settings );
 
 		$contents = "<?php die();\n/*\n * Configuration data for Jetpack Boost Cache. Do not edit.\n" . json_encode( $this->settings ) . "\n */"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-		return Boost_Cache_Utils::write_to_file( $this->config_file, $contents );
+		$result   = Boost_Cache_Utils::write_to_file( $this->config_file, $contents );
+		if ( is_wp_error( $result ) ) {
+			$this->last_error = $result->get_error_message();
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	/*
@@ -128,5 +136,13 @@ class Boost_Cache_Settings {
 	 */
 	public function get_last_error() {
 		return $this->last_error;
+	}
+
+	/*
+	 * Resets the last error message.
+	 * Once you get the last_error, it should be reset, or it will be returned again.
+	 */
+	public function reset_last_error() {
+		$this->last_error = '';
 	}
 }
