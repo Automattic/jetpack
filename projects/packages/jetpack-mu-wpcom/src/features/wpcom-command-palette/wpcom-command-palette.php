@@ -21,6 +21,19 @@ function should_load_wpcom_command_palette() {
 }
 
 /**
+ * Get the WPCom Command Palette JS configuration as a string.
+ *
+ * @return string
+ */
+function get_wpcom_command_palette_config_js() {
+	$config = array(
+		'siteId' => get_current_blog_id(),
+	);
+
+	return sprintf( 'window.commandPalette.config = %s;', wp_json_encode( $config ) );
+}
+
+/**
  * Load the WPCom Command Palette.
  */
 function wpcom_load_command_palette() {
@@ -28,12 +41,19 @@ function wpcom_load_command_palette() {
 		return;
 	}
 
+	$command_palette_js_handle = 'command-palette-script';
+
 	wp_enqueue_script(
 		'command-palette-script',
 		'//widgets.wp.com/command-palette/build.min.js',
 		array(),
 		'1.0.1',
 		true
+	);
+	wp_add_inline_script(
+		$command_palette_js_handle,
+		get_wpcom_command_palette_config_js(),
+		'before'
 	);
 	wp_enqueue_style(
 		'command-palette-styles',
