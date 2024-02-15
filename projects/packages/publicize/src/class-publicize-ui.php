@@ -133,7 +133,7 @@ class Publicize_UI {
 						),
 					)
 				),
-				esc_url( $this->publicize->publicize_connections_url() )
+				esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) )
 			);
 			?>
 		</h4>

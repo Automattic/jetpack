@@ -1819,7 +1819,7 @@ abstract class Publicize_Base {
 	/**
 	 * Get Calypso URL for Publicize connections.
 	 *
-	 * @param string $source The idenfitier of the place the function is called from.
+	 * @param string $source The identifier of the place the function is called from.
 	 * @return string
 	 */
 	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
