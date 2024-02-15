@@ -30,7 +30,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	const ADVANCED_CACHE_VERSION = 'v0.0.2';
 
 	/*
-	 * @var array - The settings for the page cache.
+	 * @var Boost_Cache_Settings - The settings for the page cache.
 	 */
 	private $settings;
 

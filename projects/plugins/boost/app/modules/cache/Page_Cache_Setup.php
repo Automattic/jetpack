@@ -10,7 +10,7 @@ class Page_Cache_Setup {
 	 */
 	public static function run_setup() {
 		$steps = array(
-			'is_wp_content_writable',
+			'verify_wp_content_writable',
 			'create_advanced_cache',
 			'add_wp_cache_define',
 		);
@@ -32,7 +32,7 @@ class Page_Cache_Setup {
 	/**
 	 * Returns true if the wp-content directory is writeable.
 	 */
-	private static function is_wp_content_writable() {
+	private static function verify_wp_content_writable() {
 		$filename = WP_CONTENT_DIR . '/' . uniqid() . '.txt';
 		$result   = file_put_contents( $filename, 'test' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		wp_delete_file( $filename );
@@ -80,7 +80,7 @@ require_once( \'' . $boost_cache_filename . '\');
 
 		$write_advanced_cache = Boost_Cache_Utils::write_to_file( $advanced_cache_filename, $contents );
 		if ( is_wp_error( $write_advanced_cache ) ) {
-			return new \WP_Error( 'unable-to-write-advanced-cache', $write_advanced_cache->get_error_message() );
+			return new \WP_Error( 'unable-to-write-to-advanced-cache', $write_advanced_cache->get_error_message() );
 		}
 
 		return true;
@@ -91,7 +91,7 @@ require_once( \'' . $boost_cache_filename . '\');
 	 */
 	private static function add_wp_cache_define() {
 		$content = file_get_contents( ABSPATH . 'wp-config.php' );
-		if ( preg_match( '#define\s*\(\s*[\'"]WP_CACHE[\'"]#', $content ) === 1 ) {
+		if ( preg_match( '#^\s*define\s*\(\s*[\'"]WP_CACHE[\'"]#m', $content ) === 1 ) {
 			/*
 			 * wp-settings.php checks "if ( WP_CACHE )" so it may be truthy and
 			 * not === true to pass that check.
@@ -105,8 +105,8 @@ require_once( \'' . $boost_cache_filename . '\');
 
 			return true; // WP_CACHE already added.
 		}
-		$content = str_replace(
-			'<?php',
+		$content = preg_replace(
+			'#^<\?php#',
 			'<?php
 define( \'WP_CACHE\', true );',
 			$content
