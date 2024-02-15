@@ -237,17 +237,6 @@ class REST_Products {
 			);
 		}
 
-		/**
-		 * If the product is not hybrid, there is no need to deal with a standalone plugin.
-		 */
-		if ( ! is_subclass_of( $product['class'], Hybrid_Product::class ) ) {
-			return new \WP_Error(
-				'not_hybrid',
-				__( 'This product does not have a standalone plugin to install', 'jetpack-my-jetpack' ),
-				array( 'status' => 400 )
-			);
-		}
-
 		$install_product_result = call_user_func( array( $product['class'], 'install_and_activate_standalone' ) );
 		if ( is_wp_error( $install_product_result ) ) {
 			$install_product_result->add_data( array( 'status' => 400 ) );

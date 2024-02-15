@@ -580,4 +580,44 @@ abstract class Product {
 
 		self::filter_action_links( $filenames );
 	}
+
+	/**
+	 * Install and activate the standalone plugin in the case it's missing.
+	 *
+	 * @return boolean|WP_Error
+	 */
+	public static function install_and_activate_standalone() {
+		/**
+		 * Check for the presence of the standalone plugin, ignoring Jetpack presence.
+		 *
+		 * If the standalone plugin is not installed and the user can install plugins, proceed with the installation.
+		 */
+		if ( ! static::is_plugin_installed() ) {
+			/**
+			 * Check for permissions
+			 */
+			if ( ! current_user_can( 'install_plugins' ) ) {
+				return new WP_Error( 'not_allowed', __( 'You are not allowed to install plugins on this site.', 'jetpack-my-jetpack' ) );
+			}
+
+			/**
+			 * Install the plugin
+			 */
+			$installed = Plugins_Installer::install_plugin( static::get_plugin_slug() );
+			if ( is_wp_error( $installed ) ) {
+				return $installed;
+			}
+		}
+
+		/**
+		 * Activate the installed plugin
+		 */
+		$result = static::activate_plugin();
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return true;
+	}
 }
