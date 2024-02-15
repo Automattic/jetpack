@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+[Boost] add the hostname to the cache path.

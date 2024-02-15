@@ -1271,9 +1271,6 @@ importers:
       '@wordpress/postcss-plugins-preset':
         specifier: 4.35.0
         version: 4.35.0(postcss@8.4.31)
-      autoprefixer:
-        specifier: 10.4.14
-        version: 10.4.14(postcss@8.4.31)
       babel-loader:
         specifier: 9.1.2
         version: 9.1.2(@babel/core@7.23.5)(webpack@5.76.0)
@@ -1292,9 +1289,6 @@ importers:
       postcss:
         specifier: 8.4.31
         version: 8.4.31
-      postcss-custom-properties:
-        specifier: 12.1.7
-        version: 12.1.7(postcss@8.4.31)
       postcss-loader:
         specifier: 6.2.0
         version: 6.2.0(postcss@8.4.31)(webpack@5.76.0)
@@ -2347,6 +2341,9 @@ importers:
       '@babel/runtime':
         specifier: 7.23.5
         version: 7.23.5
+      '@csstools/postcss-global-data':
+        specifier: 2.1.1
+        version: 2.1.1(postcss@8.4.31)
       '@size-limit/preset-app':
         specifier: 8.2.6
         version: 8.2.6(size-limit@8.2.6)
@@ -2523,6 +2520,9 @@ importers:
       '@babel/preset-react':
         specifier: 7.23.3
         version: 7.23.3(@babel/core@7.23.5)
+      '@csstools/postcss-global-data':
+        specifier: 2.1.1
+        version: 2.1.1(postcss@8.4.31)
       '@jest/globals':
         specifier: 29.4.3
         version: 29.4.3
@@ -3372,6 +3372,9 @@ importers:
       '@babel/runtime':
         specifier: 7.23.5
         version: 7.23.5
+      '@csstools/postcss-global-data':
+        specifier: 2.1.1
+        version: 2.1.1(postcss@8.4.31)
       '@svgr/webpack':
         specifier: 7.0.0
         version: 7.0.0(typescript@5.0.4)
@@ -3763,6 +3766,9 @@ importers:
       '@babel/runtime':
         specifier: 7.23.5
         version: 7.23.5
+      '@csstools/postcss-global-data':
+        specifier: 2.1.1
+        version: 2.1.1(postcss@8.4.31)
       '@testing-library/dom':
         specifier: 9.3.4
         version: 9.3.4
@@ -4406,7 +4412,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.23.5
       '@emotion/react': 11.11.3(@types/react@18.2.33)(react@18.2.0)
-      '@wordpress/components': 25.16.0(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/components': 26.0.0(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/element': 5.28.0
       '@wordpress/i18n': 4.51.0
       classnames: 2.3.2
@@ -5756,6 +5762,15 @@ packages:
     engines: {node: '>=0.1.90'}
     dev: true
 
+  /@csstools/postcss-global-data@2.1.1(postcss@8.4.31):
+    resolution: {integrity: sha512-tihdBLogY2G5jgUSu2jKSEVeOcnWqsz6k7UmPM7+ezhuV9FP5MIyX35Hc/YvqipQLRNsfBj9wRkBvsE7k1GM8A==}
+    engines: {node: ^14 || ^16 || >=18}
+    peerDependencies:
+      postcss: ^8.4
+    dependencies:
+      postcss: 8.4.31
+    dev: true
+
   /@dabh/diagnostics@2.0.3:
     resolution: {integrity: sha512-hrlQOIi7hAfzsMqlGSFyVucrx38O+j6wiGOf//H2ecvIEqYN4ADBSS2iLMh5UFyDunCNniUIPk/q3riFv45xRA==}
     dependencies:
@@ -7070,10 +7085,6 @@ packages:
       source-map: 0.7.4
       webpack: 5.76.0(webpack-cli@4.9.1)
     dev: true
-
-  /@popperjs/core@2.11.8:
-    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
-    dev: false
 
   /@preact/signals-core@1.5.1:
     resolution: {integrity: sha512-dE6f+WCX5ZUDwXzUIWNMhhglmuLpqJhuy3X3xHrhZYI0Hm2LyQwOu0l9mdPiWrVNsE+Q7txOnJPgtIqHCYoBVA==}
@@ -12040,74 +12051,6 @@ packages:
       - babel-plugin-macros
       - vite
 
-  /@wordpress/components@25.16.0(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-voQuMsO5JbH+JW33TnWurwwvpSb8IQ4XU5wyVMubX4TUwadt+/2ToNJbZIDXoaJPei7vbM81Ft+pH+zGlN8CyA==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
-    dependencies:
-      '@ariakit/react': 0.3.14(react-dom@18.2.0)(react@18.2.0)
-      '@babel/runtime': 7.23.5
-      '@emotion/cache': 11.11.0
-      '@emotion/css': 11.11.2
-      '@emotion/react': 11.11.3(@types/react@18.2.33)(react@18.2.0)
-      '@emotion/serialize': 1.1.3
-      '@emotion/styled': 11.11.0(@emotion/react@11.11.3)(@types/react@18.2.33)(react@18.2.0)
-      '@emotion/utils': 1.2.1
-      '@floating-ui/react-dom': 2.0.8(react-dom@18.2.0)(react@18.2.0)
-      '@types/gradient-parser': 0.1.3
-      '@types/highlight-words-core': 1.2.1
-      '@use-gesture/react': 10.3.0(react@18.2.0)
-      '@wordpress/a11y': 3.51.0
-      '@wordpress/compose': 6.28.0(react@18.2.0)
-      '@wordpress/date': 4.51.0
-      '@wordpress/deprecated': 3.51.0
-      '@wordpress/dom': 3.51.0
-      '@wordpress/element': 5.28.0
-      '@wordpress/escape-html': 2.51.0
-      '@wordpress/hooks': 3.51.0
-      '@wordpress/html-entities': 3.51.0
-      '@wordpress/i18n': 4.51.0
-      '@wordpress/icons': 9.42.0(react@18.2.0)
-      '@wordpress/is-shallow-equal': 4.51.0
-      '@wordpress/keycodes': 3.51.0
-      '@wordpress/primitives': 3.49.0
-      '@wordpress/private-apis': 0.32.0
-      '@wordpress/rich-text': 6.28.0(react@18.2.0)
-      '@wordpress/warning': 2.51.0
-      change-case: 4.1.2
-      classnames: 2.3.2
-      colord: 2.9.3
-      date-fns: 2.30.0
-      deepmerge: 4.3.1
-      dom-scroll-into-view: 1.2.1
-      downshift: 6.1.12(react@18.2.0)
-      fast-deep-equal: 3.1.3
-      framer-motion: 10.18.0(react-dom@18.2.0)(react@18.2.0)
-      gradient-parser: 0.1.5
-      highlight-words-core: 1.2.2
-      is-plain-object: 5.0.0
-      memize: 2.1.0
-      path-to-regexp: 6.2.1
-      re-resizable: 6.9.11(react-dom@18.2.0)(react@18.2.0)
-      react: 18.2.0
-      react-colorful: 5.6.1(react-dom@18.2.0)(react@18.2.0)
-      react-dom: 18.2.0(react@18.2.0)
-      reakit: 1.3.11(react-dom@18.2.0)(react@18.2.0)
-      remove-accents: 0.5.0
-      use-lilius: 2.0.4(react-dom@18.2.0)(react@18.2.0)
-      uuid: 9.0.1
-      valtio: 1.7.0(react@18.2.0)
-    transitivePeerDependencies:
-      - '@babel/helper-module-imports'
-      - '@babel/types'
-      - '@types/react'
-      - aslemammad-vite-plugin-macro
-      - babel-plugin-macros
-      - vite
-    dev: false
-
   /@wordpress/components@26.0.0(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-23poBjhN4Lgqw3mYQwrHSiF0qrfDVlwr8voqLampeNXFHgJfST13aOCeD3y9ZpML2urOKt5Mi//+Lype9p29FA==}
     engines: {node: '>=12'}
@@ -13192,13 +13135,6 @@ packages:
       '@babel/runtime': 7.23.5
       requestidlecallback: 0.3.0
 
-  /@wordpress/private-apis@0.32.0:
-    resolution: {integrity: sha512-P7nxI/bGMDQhtlTfSe1Y2SDfrd20K5UMnTHbq+hmIkzBGRpNPbdGeNu2bZaZtIvmXk1OCR0Fkef+e6QqkOfYPg==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@babel/runtime': 7.23.5
-    dev: false
-
   /@wordpress/private-apis@0.33.0:
     resolution: {integrity: sha512-Dc8y7m17gAKnDVFOPDqPcb2jo9cDhDNikLdepTkRXLywYUPT2PFH4GrXsVK87BLc+nCIqgs3DFU/AJx1db4y/w==}
     engines: {node: '>=12'}
@@ -13630,11 +13566,10 @@ packages:
       indent-string: 4.0.0
     dev: true
 
-  /ajv-formats@2.1.1:
+  /ajv-formats@2.1.1(ajv@8.12.0):
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
-    peerDependenciesMeta:
-      ajv:
-        optional: true
+    peerDependencies:
+      ajv: ^8.0.0
     dependencies:
       ajv: 8.12.0
 
@@ -14266,10 +14201,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /body-scroll-lock@3.1.5:
-    resolution: {integrity: sha512-Yi1Xaml0EvNA0OYWxXiYNqY24AfWkbA6w5vxE7GWxtKfzIbZM+Qw+aSmkgsbWzbHiy/RCSkUZBplVxTA+E4jJg==}
-    dev: false
 
   /boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
@@ -21841,53 +21772,6 @@ packages:
     dependencies:
       picomatch: 2.2.3
 
-  /reakit-system@0.15.2(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-TvRthEz0DmD0rcJkGamMYx+bATwnGNWJpe/lc8UV2Js8nnPvkaxrHk5fX9cVASFrWbaIyegZHCWUBfxr30bmmA==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18
-      react-dom: ^16.8.0 || ^17.0.0 || ^18
-    dependencies:
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      reakit-utils: 0.15.2(react-dom@18.2.0)(react@18.2.0)
-    dev: false
-
-  /reakit-utils@0.15.2(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-i/RYkq+W6hvfFmXw5QW7zvfJJT/K8a4qZ0hjA79T61JAFPGt23DsfxwyBbyK91GZrJ9HMrXFVXWMovsKBc1qEQ==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18
-      react-dom: ^16.8.0 || ^17.0.0 || ^18
-    dependencies:
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
-  /reakit-warning@0.6.2(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-z/3fvuc46DJyD3nJAUOto6inz2EbSQTjvI/KBQDqxwB0y02HDyeP8IWOJxvkuAUGkWpeSx+H3QWQFSNiPcHtmw==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18
-    dependencies:
-      react: 18.2.0
-      reakit-utils: 0.15.2(react-dom@18.2.0)(react@18.2.0)
-    transitivePeerDependencies:
-      - react-dom
-    dev: false
-
-  /reakit@1.3.11(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-mYxw2z0fsJNOQKAEn5FJCPTU3rcrY33YZ/HzoWqZX0G7FwySp1wkCYW79WhuYMNIUFQ8s3Baob1RtsEywmZSig==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18
-      react-dom: ^16.8.0 || ^17.0.0 || ^18
-    dependencies:
-      '@popperjs/core': 2.11.8
-      body-scroll-lock: 3.1.5
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      reakit-system: 0.15.2(react-dom@18.2.0)(react@18.2.0)
-      reakit-utils: 0.15.2(react-dom@18.2.0)(react@18.2.0)
-      reakit-warning: 0.6.2(react-dom@18.2.0)(react@18.2.0)
-    dev: false
-
   /recast@0.23.4:
     resolution: {integrity: sha512-qtEDqIZGVcSZCHniWwZWbRy79Dc6Wp3kT/UmDA2RJKBPg7+7k51aQBZirHmUGn5uvHf2rg8DkjizrN26k61ATw==}
     engines: {node: '>= 4'}
@@ -22409,7 +22293,7 @@ packages:
     dependencies:
       '@types/json-schema': 7.0.15
       ajv: 8.12.0
-      ajv-formats: 2.1.1
+      ajv-formats: 2.1.1(ajv@8.12.0)
       ajv-keywords: 5.1.0(ajv@8.12.0)
 
   /seed-random@2.2.0:
@@ -24723,7 +24607,6 @@ packages:
     resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/56adf5a550475fd30962cd4e8f8bfcaf71f84177}
     name: jetpack-boost-critical-css-gen
     version: 0.0.11
-    prepare: true
     requiresBuild: true
     dependencies:
       clean-css: 5.3.3
