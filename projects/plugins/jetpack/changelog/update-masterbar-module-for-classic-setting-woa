@@ -1,3 +1,0 @@
-Significance: patch
-Type: other
-Comment: Prevents loading of the masterbar and nav unification customizations in the masterbar module given a specific filter. Default filter values will make no change outside WordPress.com.

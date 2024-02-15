@@ -9,7 +9,8 @@
 		"outDir": "./build/",
 		"noEmit": false,
 		"declaration": true,
-		"module": "es6",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
 		"target": "es6"
 	}
 }
