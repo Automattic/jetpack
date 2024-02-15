@@ -6,9 +6,11 @@ import {
 	micIcon,
 	playerPauseIcon,
 	useMediaRecording,
+	useAudioTranscription,
+	UseAudioTranscriptionReturn,
 } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { Button, Modal, Icon } from '@wordpress/components';
+import { Button, Modal, Icon, FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -80,6 +82,22 @@ function ContextualRow( { state, error = null, audioURL = null } ) {
 function ActionButtons( { state, mediaControls } ) {
 	const { start, pause, resume, stop } = mediaControls ?? {};
 
+	const onTranscriptionReady = ( transcription: string ) => {
+		// eslint-disable-next-line no-console
+		console.log( 'Transcription ready: ', transcription );
+	};
+
+	const onTranscriptionError = ( error: string ) => {
+		// eslint-disable-next-line no-console
+		console.log( 'Transcription error: ', error );
+	};
+
+	const { transcribeAudio }: UseAudioTranscriptionReturn = useAudioTranscription( {
+		feature: 'voice-to-content',
+		onReady: onTranscriptionReady,
+		onError: onTranscriptionError,
+	} );
+
 	const recordingHandler = useCallback( () => {
 		if ( state === 'inactive' ) {
 			start?.( 1000 ); // Stream audio on 1 second intervals
@@ -90,8 +108,11 @@ function ActionButtons( { state, mediaControls } ) {
 		}
 	}, [ state, start, pause, resume ] );
 
-	const uploadHandler = () => {
-		throw new Error( 'Not implemented' );
+	const uploadHandler = event => {
+		if ( event.currentTarget.files.length > 0 ) {
+			const file = event.currentTarget.files[ 0 ];
+			transcribeAudio( file );
+		}
 	};
 
 	const doneHandler = useCallback( () => {
@@ -122,13 +143,14 @@ function ActionButtons( { state, mediaControls } ) {
 				</Button>
 			) }
 			{ [ 'inactive', 'error' ].includes( state ) && (
-				<Button
-					className="jetpack-ai-voice-to-content__button"
+				<FormFileUpload
+					accept="audio/*"
+					onChange={ uploadHandler }
 					variant="secondary"
-					onClick={ uploadHandler }
+					className="jetpack-ai-voice-to-content__button"
 				>
 					{ __( 'Upload audio', 'jetpack' ) }
-				</Button>
+				</FormFileUpload>
 			) }
 			{ [ 'recording', 'paused' ].includes( state ) && (
 				<Button
