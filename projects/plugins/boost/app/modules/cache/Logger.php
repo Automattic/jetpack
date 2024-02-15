@@ -45,7 +45,7 @@ class Logger {
 
 		$directory = dirname( $log_file );
 		if ( ! Boost_Cache_Utils::create_directory( $directory ) ) {
-			return new \WP_Error( 'Could not boost cache log directory' );
+			return new \WP_Error( 'Could not create boost cache log directory' );
 		}
 
 		return Boost_Cache_Utils::write_to_file( $log_file, self::LOG_HEADER );
