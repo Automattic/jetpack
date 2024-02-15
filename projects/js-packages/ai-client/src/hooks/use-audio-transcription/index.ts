@@ -21,12 +21,25 @@ export type UseAudioTranscriptionReturn = {
 };
 
 /**
+ * The props for the audio transcription hook.
+ */
+export type UseAudioTranscriptionProps = {
+	feature: string;
+	onReady?: ( transcription: string ) => void;
+	onError?: ( error: string ) => void;
+};
+
+/**
  * A hook to handle audio transcription.
  *
  * @param {string} feature - The feature name that is calling the transcription.
  * @returns {UseAudioTranscriptionReturn} - Object with properties to get the transcription data.
  */
-export default function useAudioTranscription( feature?: string ): UseAudioTranscriptionReturn {
+export default function useAudioTranscription( {
+	feature,
+	onReady,
+	onError,
+}: UseAudioTranscriptionProps ): UseAudioTranscriptionReturn {
 	const [ transcriptionResult, setTranscriptionResult ] = useState< string >( '' );
 	const [ transcriptionError, setTranscriptionError ] = useState< string >( '' );
 	const [ isTranscribingAudio, setIsTranscribingAudio ] = useState( false );
@@ -46,8 +59,14 @@ export default function useAudioTranscription( feature?: string ): UseAudioTrans
 			 * Call the audio transcription library.
 			 */
 			transcribeAudio( audio, feature )
-				.then( transcriptionText => setTranscriptionResult( transcriptionText ) )
-				.catch( error => setTranscriptionError( error.message ) )
+				.then( transcriptionText => {
+					setTranscriptionResult( transcriptionText );
+					onReady?.( transcriptionText );
+				} )
+				.catch( error => {
+					setTranscriptionError( error.message );
+					onError?.( error.message );
+				} )
 				.finally( () => setIsTranscribingAudio( false ) );
 		},
 		[ transcribeAudio, setTranscriptionResult, setTranscriptionError, setIsTranscribingAudio ]
