@@ -101,12 +101,22 @@ class Blaze {
 	}
 
 	/**
+	 * Is the Woo Blaze plugin active?
+	 * The dashboard provided by that plugin takes precedence over Jetpack Blaze
+	 *
+	 * @return bool
+	 */
+	public static function is_woo_blaze_active() {
+		return is_plugin_active( 'woocommerce/woocommerce.php' ) && is_plugin_active( 'woo-blaze/woo-blaze.php' );
+	}
+
+	/**
 	 * Enable the Blaze menu.
 	 *
 	 * @return void
 	 */
 	public static function enable_blaze_menu() {
-		if ( ! self::should_initialize() ) {
+		if ( ! self::should_initialize() || self::is_woo_blaze_active() ) {
 			return;
 		}
 
@@ -249,17 +259,24 @@ class Blaze {
 	 * - Calypso Links
 	 * - wp-admin Links if access to the wp-admin Blaze Dashboard is enabled.
 	 *
-	 * @param int $post_id Post ID.
+	 * @param int|string $post_id Post ID.
 	 *
 	 * @return array An array with the link, and whether this is a Calypso or a wp-admin link.
 	 */
 	public static function get_campaign_management_url( $post_id ) {
-		if ( self::is_dashboard_enabled() ) {
-			$admin_url = admin_url( 'tools.php?page=advertising' );
+		$is_woo_blaze_active = self::is_woo_blaze_active();
+
+		if ( self::is_dashboard_enabled() || $is_woo_blaze_active ) {
+			// Woo Blaze uses a different admin section and path prefix
+			$admin_section     = $is_woo_blaze_active ? 'admin.php' : 'tools.php';
+			$blaze_path_prefix = $is_woo_blaze_active ? 'wc-blaze' : 'advertising';
+
+			$admin_url = admin_url( sprintf( '%1$s?page=%2$s', $admin_section, $blaze_path_prefix ) );
 			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
 			$blaze_url = sprintf(
-				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',
+				'%1$s#!/%2$s/posts/promote/post-%3$s/%4$s',
 				$admin_url,
+				$blaze_path_prefix,
 				esc_attr( $post_id ),
 				$hostname
 			);
@@ -374,9 +391,7 @@ class Blaze {
 			self::SCRIPT_HANDLE,
 			'blazeInitialState',
 			array(
-				'adminUrl'           => esc_url( admin_url() ),
-				'isDashboardEnabled' => self::is_dashboard_enabled(),
-				'siteFragment'       => ( new Jetpack_Status() )->get_site_suffix(),
+				'blazeUrlTemplate' => self::get_campaign_management_url( '__POST_ID__' ),
 			)
 		);
 	}
