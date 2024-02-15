@@ -47,12 +47,19 @@ abstract class Product {
 	/**
 	 * The Jetpack plugin filename
 	 *
-	 * @var string
+	 * @var array
 	 */
 	const JETPACK_PLUGIN_FILENAME = array(
 		'jetpack/jetpack.php',
 		'jetpack-dev/jetpack.php',
 	);
+
+	/**
+	 * Whether this product requires a site connection
+	 *
+	 * @var string
+	 */
+	public static $requires_site_connection = true;
 
 	/**
 	 * Whether this product requires a user connection
@@ -363,8 +370,10 @@ abstract class Product {
 			}
 		} elseif ( static::is_active() ) {
 			$status = 'active';
-			// We only consider missing user connection an error when the Product is active.
-			if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
+			// We only consider missing site & user connection an error when the Product is active.
+			if ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
+				$status = 'error';
+			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
 				$status = 'error';
 			} elseif ( static::is_upgradable() ) {
 				// Upgradable plans should ignore whether or not they have the required plan.
@@ -537,15 +546,11 @@ abstract class Product {
 	}
 
 	/**
-	 * Extend the plugin action links.
+	 * Filter the action links for the plugins specified.
+	 *
+	 * @param string|string[] $filenames The plugin filename(s) to filter the action links for.
 	 */
-	public static function extend_plugin_action_links() {
-
-		$filenames = static::get_plugin_filename();
-		if ( ! is_array( $filenames ) ) {
-			$filenames = array( $filenames );
-		}
-
+	private static function filter_action_links( $filenames ) {
 		foreach ( $filenames as $filename ) {
 			$hook     = 'plugin_action_links_' . $filename;
 			$callback = array( static::class, 'get_plugin_actions_links' );
@@ -553,5 +558,26 @@ abstract class Product {
 				add_filter( $hook, $callback, 20, 2 );
 			}
 		}
+	}
+
+	/**
+	 * Extend the plugin action links.
+	 */
+	public static function extend_plugin_action_links() {
+		$filenames = static::get_plugin_filename();
+		if ( ! is_array( $filenames ) ) {
+			$filenames = array( $filenames );
+		}
+
+		self::filter_action_links( $filenames );
+	}
+
+	/**
+	 * Extend the Jetpack plugin action links.
+	 */
+	public static function extend_core_plugin_action_links() {
+		$filenames = self::JETPACK_PLUGIN_FILENAME;
+
+		self::filter_action_links( $filenames );
 	}
 }

@@ -35,12 +35,16 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ2_2_5",
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ2_2_6_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true
 		}
 	},
 	"extra": {
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
 		"mirror-repo": "Automattic/vaultpress",
 		"release-branch-prefix": "vaultpress",
 		"version-constants": {

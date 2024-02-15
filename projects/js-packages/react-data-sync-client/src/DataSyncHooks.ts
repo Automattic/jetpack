@@ -20,6 +20,10 @@ import { DataSyncError } from './DataSyncError';
  */
 export const queryClient = new QueryClient();
 
+export function invalidateQuery( key: string ) {
+	queryClient.invalidateQueries( { queryKey: [ key ] } );
+}
+
 /**
  * React Query Provider for DataSync.
  * This is necessary for React Query to work.
@@ -110,8 +114,14 @@ export function useDataSync<
 	const queryConfigDefaults = {
 		queryKey,
 		queryFn: ( { signal } ) => datasync.GET( params, signal ),
-		initialData: () => datasync.getInitialValue(),
 		staleTime: 1 * 1000,
+		initialData: () => {
+			try {
+				return datasync.getInitialValue();
+			} catch ( e ) {
+				return;
+			}
+		},
 	};
 
 	/**

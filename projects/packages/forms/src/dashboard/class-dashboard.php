@@ -111,7 +111,7 @@ class Dashboard {
 				'',
 				__( 'Form Responses', 'jetpack-forms' ),
 				_x( 'Feedback', 'post type name shown in menu', 'jetpack-forms' ),
-				'read',
+				'edit_pages',
 				'jetpack-forms',
 				array( $this, 'render_dashboard' )
 			);
@@ -124,7 +124,7 @@ class Dashboard {
 		add_menu_page(
 			__( 'Form Responses', 'jetpack-forms' ),
 			_x( 'Feedback', 'post type name shown in menu', 'jetpack-forms' ),
-			'read',
+			'edit_pages',
 			'jetpack-forms',
 			array( $this, 'render_dashboard' ),
 			'dashicons-feedback',
