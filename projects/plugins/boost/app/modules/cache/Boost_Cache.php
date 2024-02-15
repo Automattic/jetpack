@@ -7,7 +7,7 @@ namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
  */
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 require_once __DIR__ . '/Boost_Cache_Utils.php';
-require_once __DIR__ . '/Storage/File_Storage.php';
+require_once __DIR__ . '/storage/File_Storage.php';
 
 class Boost_Cache {
 	/*
