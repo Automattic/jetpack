@@ -16,7 +16,8 @@ function jetpack_run_scheduled_update( $plugins = array() ) {
 
 	foreach ( $plugins as $plugin ) {
 		if ( isset( $available_updates->response[ $plugin ] ) ) {
-			$plugins_to_update[] = $plugin;
+			$plugins_to_update[ $plugin ]              = $available_updates->response[ $plugin ];
+			$plugins_to_update[ $plugin ]->old_version = $available_updates->checked[ $plugin ];
 		}
 	}
 
