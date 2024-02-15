@@ -64,7 +64,7 @@ function AudioStatusPanel( { state, error = null, audioURL = null } ) {
 		);
 	}
 
-	if ( state === 'transcribing' ) {
+	if ( state === 'processing' ) {
 		return (
 			<div className="jetpack-ai-voice-to-content__information">
 				{ __( 'Uploading and transcribing audio…', 'jetpack' ) }
@@ -79,8 +79,8 @@ function AudioStatusPanel( { state, error = null, audioURL = null } ) {
 	return null;
 }
 
-function ActionButtons( { state, mediaControls } ) {
-	const { start, pause, resume, stop } = mediaControls ?? {};
+function ActionButtons( { state, mediaControls, onError } ) {
+	const { start, pause, resume, stop, reset } = mediaControls ?? {};
 
 	const onTranscriptionReady = ( transcription: string ) => {
 		// eslint-disable-next-line no-console
@@ -99,7 +99,7 @@ function ActionButtons( { state, mediaControls } ) {
 	} );
 
 	const recordingHandler = useCallback( () => {
-		if ( state === 'inactive' ) {
+		if ( [ 'inactive', 'error' ].includes( state ) ) {
 			start?.( 1000 ); // Stream audio on 1 second intervals
 		} else if ( state === 'recording' ) {
 			pause?.();
@@ -120,7 +120,7 @@ function ActionButtons( { state, mediaControls } ) {
 	}, [ stop ] );
 
 	const cancelHandler = () => {
-		throw new Error( 'Not implemented' );
+		reset?.();
 	};
 
 	let buttonLabel = __( 'Begin recording', 'jetpack' );
@@ -161,7 +161,7 @@ function ActionButtons( { state, mediaControls } ) {
 					{ __( 'Done', 'jetpack' ) }
 				</Button>
 			) }
-			{ [ 'recording', 'paused', 'transcribing' ].includes( state ) && (
+			{ [ 'recording', 'paused', 'processing' ].includes( state ) && (
 				<Button
 					className="jetpack-ai-voice-to-content__button"
 					variant="secondary"
@@ -175,13 +175,11 @@ function ActionButtons( { state, mediaControls } ) {
 }
 
 export default function VoiceToContentEdit( { clientId } ) {
-	const { state, controls, url } = useMediaRecording( {
+	const { state, controls, url, error, onError } = useMediaRecording( {
 		onDone: blob => {
 			console.log( 'Blob created: ', blob ); // eslint-disable-line no-console
 		},
 	} );
-
-	const error = null;
 
 	const dispatch = useDispatch( 'core/block-editor' );
 
@@ -222,7 +220,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 						<div className="jetpack-ai-voice-to-content__contextual-row">
 							<AudioStatusPanel state={ state } audioURL={ url } error={ error } />
 						</div>
-						<ActionButtons state={ state } mediaControls={ controls } />
+						<ActionButtons state={ state } mediaControls={ controls } onError={ onError } />
 					</div>
 					<div className="jetpack-ai-voice-to-content__footer">
 						<Button
