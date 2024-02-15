@@ -1,20 +1,14 @@
 /**
  * External dependencies
  */
-import apiFetchMod from '@wordpress/api-fetch';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import apiFetch from '../api-fetch/index.js';
 import requestJwt from '../jwt/index.js';
 
 const debug = debugFactory( 'jetpack-ai-client:audio-transcription' );
-
-// @wordpress/api-fetch (as of 6.47.0) declares itself in such a way that tsc and node see the function at apiFetchMod.default
-// while some other environments (including code running inside WordPress itself) see it at apiFetch.
-// See https://arethetypeswrong.github.io/?p=@wordpress/api-fetch@6.47.0
-type ApiFetchType = typeof apiFetchMod.default;
-const apiFetch: ApiFetchType = ( apiFetchMod.default ?? apiFetchMod ) as ApiFetchType;
 
 /**
  * The response from the audio transcription service.
