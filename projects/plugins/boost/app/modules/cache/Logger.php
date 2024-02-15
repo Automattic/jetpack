@@ -107,7 +107,7 @@ class Logger {
 
 		// Get the content after skipping the LOG_HEADER.
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		return file_get_contents( $log_file, false, null, strlen( self::LOG_HEADER ) ) || '';
+		return file_get_contents( $log_file, false, null, strlen( self::LOG_HEADER ) ) ?? '';
 	}
 
 	/**
