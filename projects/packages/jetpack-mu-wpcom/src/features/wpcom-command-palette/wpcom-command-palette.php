@@ -26,7 +26,7 @@ function should_load_wpcom_command_palette() {
  * @return string
  */
 function get_wpcom_command_palette_config_js() {
-	$site_id = get_current_blog_id();
+	$site_id = Jetpack_Options::get_option( 'id' );
 
 	return "var commandPaletteConfig = { siteId: $site_id };";
 }
