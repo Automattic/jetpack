@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 3.14.41
+ * Version: 3.14.42
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '3.14.41' );
+define( 'WPCOMSH_VERSION', '3.14.42' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -492,6 +492,17 @@ function wpcomsh_hide_scan_threats_from_transients( $response ) {
 	return $response;
 }
 add_filter( 'transient_jetpack_scan_state', 'wpcomsh_hide_scan_threats_from_transients' );
+
+/**
+ * Unhook Jetpack Scan Admin Notice
+ *
+ * @return void
+ */
+function wpcomsh_remove_threats_from_toolbar() {
+	global $wp_admin_bar;
+	$wp_admin_bar->remove_node( 'jetpack-scan-notice' );
+}
+add_action( 'wp_before_admin_bar_render', 'wpcomsh_remove_threats_from_toolbar', 999999 );
 
 /**
  * Hide scan threats from api
