@@ -27,7 +27,7 @@ import {
 	requestImageFailedRetryDialog,
 	requestImageUploadCancelDialog,
 } from '@wordpress/react-native-bridge';
-import { isURL, getProtocol } from '@wordpress/url';
+import { isURL, getProtocol, addQueryArgs } from '@wordpress/url';
 /**
  * External dependencies
  */
@@ -57,6 +57,7 @@ class VideoPressEdit extends Component {
 			isUploadFailed: false,
 			isLoadingMetadata: false,
 			metadata: {},
+			metadataToken: null,
 		};
 
 		this.mediaUploadStateReset = this.mediaUploadStateReset.bind( this );
@@ -83,6 +84,7 @@ class VideoPressEdit extends Component {
 			await this.setGuid();
 		} else {
 			await this.fetchMetadata( guid );
+			await this.fetchMetadataToken( guid );
 		}
 	}
 
@@ -111,6 +113,7 @@ class VideoPressEdit extends Component {
 		setAttributes( { guid } );
 		if ( guid ) {
 			await this.fetchMetadata( guid );
+			await this.fetchMetadataToken( guid );
 		}
 	}
 
@@ -125,6 +128,20 @@ class VideoPressEdit extends Component {
 				console.error( `Couldn't fetch metadata of VideoPress video with ID = ${ guid }` );
 				this.setState( { isLoadingMetadata: false } );
 			} );
+	}
+
+	async fetchMetadataToken( guid ) {
+		try {
+			const response = await apiFetch( {
+				path: `/wpcom/v2/media/videopress-playback-jwt/${ guid }`,
+				method: 'POST',
+			} );
+			const { metadata_token } = response;
+			this.setState( { metadataToken: metadata_token } );
+		} catch ( error ) {
+			// eslint-disable-next-line no-console
+			console.error( `Couldn't fetch token of VideoPress video with ID = ${ guid }` );
+		}
 	}
 
 	onVideoPressed() {
@@ -225,18 +242,14 @@ class VideoPressEdit extends Component {
 
 	getVideoURL() {
 		const { guid } = this.props.attributes;
-		const { is_private } = this.state.metadata || {};
+		const { original } = this.state.metadata || {};
+		const { metadataToken } = this.state;
 
-		if ( ! guid ) {
+		if ( ! guid || ! original ) {
 			return;
 		}
 
-		// Private videos will open in the player for logged in users with the WordPress.com URL.
-		// However, they'll still display blank in the editor.
-		// TODO: We need to iterate so that private videos display as expected.
-		return is_private
-			? `https://video.wordpress.com/v/${ guid }`
-			: `https://videopress.com/v/${ guid }`;
+		return metadataToken ? addQueryArgs( original, { metadata_token: metadataToken } ) : original;
 	}
 
 	render() {
@@ -332,7 +345,6 @@ class VideoPressEdit extends Component {
 												style={ videoStyle }
 												source={ { uri: videoURL } }
 												paused={ true }
-												poster={ this.state.metadata.poster }
 											/>
 										</View>
 									) }
