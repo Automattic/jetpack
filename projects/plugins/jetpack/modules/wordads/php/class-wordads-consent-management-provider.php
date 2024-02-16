@@ -24,6 +24,7 @@ class WordAds_Consent_Management_Provider {
 	public static function init() {
 		// Prevent Cookies & Consent banner from displaying when the CMP is active.
 		add_filter( 'jetpack_disable_eu_cookie_law_widget', '__return_true' );
+		add_filter( 'jetpack_disable_cookie_consent_block', '__return_true' );
 
 		// Enqueue scripts.
 		add_action( 'wp_head', array( __CLASS__, 'insert_head' ), 10 );
