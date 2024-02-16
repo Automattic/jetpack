@@ -23,13 +23,15 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Blog_Privacy;
  * @return string
  */
 function robots_txt( string $output, $public ): string {
+	$public = (int) $public;
+
 	// If the site is completely private, don't bother with the additional restrictions.
-	if ( -1 === (int) $public ) {
+	if ( -1 === $public ) {
 		return $output;
 	}
 
 	// An option oddly named because of history.
-	if ( get_option( 'wpcom_data_sharing_opt_out' ) ) {
+	if ( 0 === $public || get_option( 'wpcom_data_sharing_opt_out' ) ) {
 		$ai_bots = array(
 			'Amazonbot',
 			'CCBot',
