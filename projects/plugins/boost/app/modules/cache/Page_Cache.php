@@ -6,7 +6,6 @@ use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Page_Cache_Setup;
 
 class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	/*
