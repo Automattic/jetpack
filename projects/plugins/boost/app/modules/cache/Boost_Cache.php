@@ -74,7 +74,7 @@ class Boost_Cache {
 
 		$cached = $this->storage->read( $this->request->get_uri(), $this->request->get_parameters() );
 		if ( is_string( $cached ) ) {
-			Logger::request_debug( 'Serving cached page' );
+			Logger::debug( 'Serving cached page' );
 			echo $cached . '<!-- cached -->'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			die();
 		}
@@ -108,9 +108,9 @@ class Boost_Cache {
 			$result = $this->storage->write( $this->request->get_uri(), $this->request->get_parameters(), $buffer );
 
 			if ( is_wp_error( $result ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-				Logger::request_debug( 'Error writing cache file: ' . $result->get_error_message() );
+				Logger::debug( 'Error writing cache file: ' . $result->get_error_message() );
 			} else {
-				Logger::request_debug( 'Cache file created' );
+				Logger::debug( 'Cache file created' );
 			}
 		}
 

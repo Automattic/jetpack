@@ -52,21 +52,6 @@ class Logger {
 	}
 
 	/**
-	 * Add a debug message that logs request specific events.
-	 *
-	 * Use this for logging cache hits, misses, and other request specific events.
-	 * It will filter out requests for wp-admin and other non-cacheable requests.
-	 *
-	 * @param string $message - The message to write to the log file.
-	 */
-	public static function request_debug( $message ) {
-		$request = Request::get_instance();
-		if ( $request->is_cacheable() ) {
-			self::debug( $message );
-		}
-	}
-
-	/**
 	 * Add a debug message to the log file after doing necessary checks.
 	 */
 	public static function debug( $message ) {
