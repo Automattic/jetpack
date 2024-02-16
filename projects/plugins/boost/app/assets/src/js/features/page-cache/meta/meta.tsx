@@ -10,7 +10,7 @@ import { usePageCache } from '$lib/stores/page-cache';
 import { Link } from 'react-router-dom';
 
 const Meta = () => {
-	const [ isExpanded, setIsExpanded ] = useState( true );
+	const [ isExpanded, setIsExpanded ] = useState( false );
 	const [ query, mutation ] = usePageCache();
 
 	const settings = query?.data;
