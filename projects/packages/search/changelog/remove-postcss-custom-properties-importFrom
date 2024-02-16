@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Replace `postcss-custom-properties` `importFrom` with `@csstools/postcss-global-data`. Should be no change to the package itself.
+
+

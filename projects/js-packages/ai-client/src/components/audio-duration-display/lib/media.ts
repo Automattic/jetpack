@@ -32,9 +32,18 @@ export function getDuration( url: string ): Promise< number > {
 type FormatTimeOptions = {
 	/**
 	 * Whether to add the decimal part to the formatted time.
-	 *
 	 */
 	addDecimalPart?: boolean;
+
+	/**
+	 * Whether to show the minutes part of the formatted time even when it's 0.
+	 */
+	showMinutes?: boolean;
+
+	/**
+	 * Whether to show the hours part of the formatted time even when it's 0.
+	 */
+	showHours?: boolean;
 };
 
 /**
@@ -51,7 +60,7 @@ type FormatTimeOptions = {
  */
 export function formatTime(
 	time: number,
-	{ addDecimalPart = true }: FormatTimeOptions = {}
+	{ addDecimalPart = true, showMinutes = true, showHours = false }: FormatTimeOptions = {}
 ): string {
 	time = time * 1000;
 	const hours = Math.floor( time / 3600000 );
@@ -60,8 +69,8 @@ export function formatTime(
 	const deciseconds = Math.floor( time / 10 ) % 100;
 
 	const parts = [
-		hours > 0 ? hours.toString().padStart( 2, '0' ) + ':' : '',
-		hours > 0 || minutes > 0 ? minutes.toString().padStart( 2, '0' ) + ':' : '',
+		hours > 0 || showHours ? hours.toString().padStart( 2, '0' ) + ':' : '',
+		hours > 0 || minutes > 0 || showMinutes ? minutes.toString().padStart( 2, '0' ) + ':' : '',
 		seconds.toString().padStart( 2, '0' ),
 	];
 

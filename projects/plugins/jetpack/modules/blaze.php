@@ -16,3 +16,6 @@
 use Automattic\Jetpack\Blaze;
 
 Blaze::init();
+
+// Remove post row Blaze actions in the Jetpack plugin.
+add_filter( 'jetpack_blaze_post_row_actions_enable', '__return_false' );
