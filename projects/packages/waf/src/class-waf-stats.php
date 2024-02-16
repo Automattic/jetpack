@@ -20,10 +20,9 @@ class Waf_Stats {
 	 * @return array
 	 */
 	public static function get_blocked_requests() {
-		$new_blocklog_manager = new Waf_Blocklog_Manager();
 		return array(
-			'one_day_stats'    => $new_blocklog_manager->get_today_stats(),
-			'thirty_day_stats' => $new_blocklog_manager->get_current_month_stats(),
+			'one_day_stats'    => Waf_Blocklog_Manager::get_today_stats(),
+			'thirty_day_stats' => Waf_Blocklog_Manager::get_current_month_stats(),
 		);
 	}
 

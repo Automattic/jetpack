@@ -84,7 +84,7 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return void
 	 */
-	public function update_daily_summary() {
+	private function update_daily_summary() {
 		$stats = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
 		$date  = gmdate( 'Y-m-d' );
 
@@ -124,7 +124,7 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return int
 	 */
-	public function get_today_stats() {
+	public static function get_today_stats() {
 		$stats = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
 		$today = gmdate( 'Y-m-d' );
 
@@ -136,7 +136,7 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return int
 	 */
-	public function get_current_month_stats() {
+	public static function get_current_month_stats() {
 		$stats               = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
 		$current_month_start = gmdate( 'Y-m-01' );
 		$total_blocks        = 0;

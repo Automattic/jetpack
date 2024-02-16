@@ -317,8 +317,7 @@ class Waf_Runner {
 		Waf_Rules_Manager::generate_ip_rules();
 		Waf_Rules_Manager::generate_rules();
 
-		$waf_blocklog_manager = new Waf_Blocklog_Manager();
-		$waf_blocklog_manager->create_blocklog_table();
+		Waf_Blocklog_Manager::create_blocklog_table();
 	}
 
 	/**
