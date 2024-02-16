@@ -1897,54 +1897,29 @@ function zeroBS_addUpdateCustomer(
 			#} Build using centralised func below, passing any existing meta (updates not overwrites)
 			$zbsCustomerMeta = zeroBS_buildCustomerMeta($cFields,$existingMeta,$metaBuilderPrefix,'',true);
 
-			/* dealt with in DAL2 now :)
-			// log any change of status
-			if (!empty($zbsCustomerMeta['status']) && !empty($originalStatus) && $zbsCustomerMeta['status'] != $originalStatus){
+		$we_have_tags = false; // set to false.. duh..
 
-				// status change
-				$statusChange = array(
-					'from' => $originalStatus,
-					'to' => $zbsCustomerMeta['status']
+		// TAG customer (if exists) - clean etc here too
+		if ( ! empty( $cFields['tags'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$tags = $cFields['tags']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			// Sanitize tags
+			if ( is_array( $tags ) ) {
+				$customer_tags = filter_var_array( $tags, FILTER_UNSAFE_RAW );
+				// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
+				// @todo Replace this with something more correct.
+				foreach ( $customer_tags as $k => $v ) {
+					$customer_tags[ $k ] = strtr(
+						strip_tags( $v ), // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
+						array(
+							"\0" => '',
+							'"'  => '&#34;',
+							"'"  => '&#39;',
+							'<'  => '',
+						)
 					);
-			} */
-
-
-			/* dealt with in DAL2 now :)
-			#} If no status, and default is specified in settings, add that in :)
-			if (is_null($zbsCustomerMeta['status']) || !isset($zbsCustomerMeta['status']) || empty($zbsCustomerMeta['status'])){
-
-				$defaultStatusStr = zeroBSCRM_getSetting('defaultstatus');
-
-				// allow "empties" if (!empty($defaultStatusStr)) 
-				$zbsCustomerMeta['status'] = $defaultStatusStr;
-
-			}
-			*/
-
-
-            $we_have_tags = false; //set to false.. duh..
-
-            # TAG customer (if exists) - clean etc here too 
-            if(!empty($cFields['tags'])){
-				$tags 		= $cFields['tags'];
-				#} Santize tags
-				if(is_array($tags)){
-					$customer_tags = filter_var_array($tags,FILTER_UNSAFE_RAW); 
-					// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
-					// @todo Replace this with something more correct.
-					foreach ( $customer_tags as $k => $v ) {
-						$customer_tags[$k] = strtr(
-							strip_tags( $v ),
-							array(
-								"\0" => '',
-								'"' => '&#34;',
-								"'" => '&#39;',
-								"<" => '',
-							)
-						);
-					}
-					$we_have_tags = true;
 				}
+				$we_have_tags = true;
+			}
 
 			if ( $we_have_tags ) {
 
