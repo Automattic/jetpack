@@ -171,7 +171,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'permission_callback' => array( $this, 'can_modify_products_permission_check' ),
 					'args'                => array(
 						'cancel_subscriptions' => array(
-							'type'     => 'string',
+							'type'     => 'boolean',
 							'required' => false,
 						),
 					),
@@ -354,7 +354,11 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				return array( 'error' => $e->getMessage() );
 			}
 		} else {
-			return $this->proxy_request_to_wpcom( "product/$product_id", 'DELETE' );
+			return $this->proxy_request_to_wpcom(
+				"product/$product_id",
+				'DELETE',
+				array( 'cancel_subscriptions' => $cancel_subscriptions )
+			);
 		}
 	}
 
