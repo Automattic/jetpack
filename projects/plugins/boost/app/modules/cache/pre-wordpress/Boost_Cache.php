@@ -1,6 +1,5 @@
 <?php
-
-/**
+/*
  * This file is loaded by advanced-cache.php, and so cannot rely on autoloading.
  */
 

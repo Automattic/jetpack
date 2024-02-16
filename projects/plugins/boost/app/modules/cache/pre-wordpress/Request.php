@@ -1,6 +1,5 @@
 <?php
-
-/**
+/*
  * This file may be called before WordPress is fully initialized. See the README file for info.
  */
 
