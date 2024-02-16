@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
+
 class Page_Cache_Setup {
 
 	/**
