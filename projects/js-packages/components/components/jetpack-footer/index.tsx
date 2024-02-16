@@ -1,4 +1,3 @@
-import { VisuallyHidden } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
@@ -15,6 +14,18 @@ import type { JetpackFooterProps, JetpackFooterMenuItem } from './types';
 
 const JetpackIcon: React.FC = () => (
 	<JetpackLogo logoColor="#000" showText={ false } height={ 16 } aria-hidden="true" />
+);
+
+const ExternalIcon: React.FC = () => (
+	<>
+		<Icon icon={ external } size={ 16 } />
+		<span className="jp-dashboard-footer__accessible-external-link">
+			{
+				/* translators: accessibility text */
+				__( '(opens in a new tab)', 'jetpack' )
+			}
+		</span>
+	</>
 );
 
 /**
@@ -140,17 +151,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 								tabIndex={ isButton ? 0 : undefined }
 							>
 								{ item.label }
-								{ isExternalLink && (
-									<>
-										<Icon icon={ external } size={ 16 } />
-										<VisuallyHidden as="span">
-											{
-												/* translators: accessibility text */
-												__( '(opens in a new tab)', 'jetpack' )
-											}
-										</VisuallyHidden>
-									</>
-								) }
+								{ isExternalLink && <ExternalIcon /> }
 							</a>
 						</li>
 					);
