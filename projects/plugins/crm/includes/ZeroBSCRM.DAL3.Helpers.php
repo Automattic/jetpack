@@ -1227,27 +1227,6 @@ function zeroBS_setOwner($objID=-1,$ownerID=-1,$objTypeID=false){
         // here we check that the potential owner CAN even own
         if (!user_can($ownerID,'admin_zerobs_usr')) return false;
 
-        /* DAL3 simplifies this
-
-		// BECAUSE db2 doesn't have all objects as tables, find out the type + then switch here
-		// ... we need to pass object really to third param, until we switch DB over
-		if (!$objType) $objType = get_post_type($postID);
-
-		// if not new db2:
-		if ($objType !== false && $objType !== 'zerobs_customer'){
-
-			return update_post_meta($postID, 'zbs_owner', (int)$ownerID);
-
-		} else {
-
-			global $zbs;
-
-			return $zbs->DAL->contacts->addUpdateContact(array(
-					'id'			=>	$postID,
-					'limitedFields'	=>array(
-						array('key'=>'zbs_owner','val'=>$ownerID,'type'=>'%d')
-						)));
-		} */
 		global $zbs;
 
 		return $zbs->DAL->setFieldByID(array(
@@ -6065,75 +6044,6 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 
    // Add an event
    function zeroBS_addUpdateEvent($eventID = -1, $eventFields = array(), $reminders=array()){
-
-		/*
-		
-			-EVENT FIELDS ARE
-
-			v2....
-			$event_fields = array(
-
-				'title' => event title
-				'customer' => ID of the customer the event is for (if any)
-				'notes' => customer notes string
-				'to' => to date, format date('m/d/Y H') . ":00:00";
-				'from' => from date, format date('m/d/Y H') . ":00:00";
-				'notify' => 0 or 24 (never or 24 hours before)
-				'complete' => 0 or 1 (boolean),
-				'owner' => who owns the event (-1 for no one),
-				'event_id' => the event ID
-
-
-			);
-
-
-			v3....
-			$event_fields = array(
-
-
-                'title' => '',
-                'desc' => '',
-                'start' => '',
-                'end' => '',
-                'complete' => '',
-                'show_on_portal' => '',
-                'show_on_cal' => '',
-
-                // obj links:
-                'contacts' => false, // array of id's
-                'companies' => false, // array of id's
-
-                // reminders:
-                'reminders'     => false, 
-                // will be an array of eventreminder lines (as per matching eventreminder database model)
-                // note:    if no change desired, pass "false"
-                //          if removal of all/change, pass array
-
-                // Note Custom fields may be passed here, but will not have defaults so check isset()
-
-                'tags' => -1, // if this is an array of ID's, they'll REPLACE existing tags against contact
-
-                'externalSources' => -1, // if this is an array(array('source'=>src,'uid'=>uid),multiple()) it'll add :)
-
-                // allow this to be set for MS sync etc.
-                'created' => -1,
-                'lastupdated' => '',
-
-
-			);
-
-		*/
-		/*
-		
-			-Reminder fields are (WH added in MS style for DAL3, and modified in events save )
-			$event_fields = array(
-
-	        'remind_at' => +- event time (e.g. -86400 for 1 day before)
-	        'sent' => has reminder been sent?
-
-			);
-
-		*/
 
 		// if using 'from' and 'to', probably using v1 dal, so translate dates:
 		if (isset($eventFields['from'])) $eventFields['from'] = strtotime($eventFields['from']);
