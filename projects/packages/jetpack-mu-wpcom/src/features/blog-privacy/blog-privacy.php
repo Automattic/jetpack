@@ -31,15 +31,15 @@ function robots_txt( string $output, $public ): string {
 	// An option oddly named because of history.
 	if ( get_option( 'wpcom_data_sharing_opt_out' ) ) {
 		$ai_bots = array(
+			'Amazonbot',
 			'CCBot',
-			'SentiBot',
-			'sentibot',
-			'Google-Extended',
 			'FacebookBot',
+			'Google-Extended',
+			'GPTBot',
 			'omgili',
 			'omgilibot',
-			'Amazonbot',
-			'Bingbot',
+			'SentiBot',
+			'sentibot',
 		);
 
 		foreach ( $ai_bots as $ai_bot ) {
