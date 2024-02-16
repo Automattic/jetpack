@@ -14,8 +14,8 @@ const debug = debugFactory( 'jetpack-ai-client:use-transcription-post-processing
 /**
  * Post-processing types.
  */
-export const POST_PROCESSING_ACTION_SIMPLE_DRAFT = 'voice-to-content-simple-draft';
-export type PostProcessingAction = typeof POST_PROCESSING_ACTION_SIMPLE_DRAFT;
+export const TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT = 'voice-to-content-simple-draft';
+export type PostProcessingAction = typeof TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT;
 
 /**
  * The return value for the transcription post-processing hook.
