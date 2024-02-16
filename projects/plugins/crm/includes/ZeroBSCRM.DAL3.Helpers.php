@@ -5774,20 +5774,36 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 										);
 									}
 
-				                	$args['data']['tags'] = array();
-									foreach($transactionTags as $tTag){
+				$args['data']['tags'] = array();
+				foreach ( $transactionTags as $tag_name ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-										// find/add tag
-										//wp_set_object_terms($postID , $cTag, 'zerobscrm_customertag', true );
-										$tagID = $zbs->DAL->addUpdateTag(array(
-											'data'=>array(
-												'objtype' 		=> ZBS_TYPE_TRANSACTION,
-												'name' 			=> $tTag
-												)));
+					// Check for existing tag under this name.
+					$tag_id = $zbs->DAL->getTag( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						-1,
+						array(
+							'objtype' => ZBS_TYPE_TRANSACTION,
+							'name'    => $tag_name,
+							'onlyID'  => true,
+						)
+					);
 
-										if (!empty($tagID)) $args['data']['tags'][] = $tagID;
+					// If tag doesn't exist, create one.
+					if ( empty( $tag_id ) ) {
+						$tag_id = $zbs->DAL->addUpdateTag( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+							array(
+								'data' => array(
+									'objtype' => ZBS_TYPE_TRANSACTION,
+									'name'    => $tag_name,
+								),
+							)
+						);
+					}
 
-									}
+					// Add tag to list.
+					if ( ! empty( $tag_id ) ) {
+						$args['data']['tags'][] = $tag_id;
+					}
+				}
 							}
 
 				#} Update record (All IA is now fired intrinsicaly)
