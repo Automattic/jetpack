@@ -80,45 +80,10 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
-	 * Write a blocklog entry
-	 *
-	 * @param int    $rule_id The rule ID that triggered the block.
-	 * @param string $reason  The reason for the block.
+	 * Update the daily summary stats for the current date.
 	 *
 	 * @return void
 	 */
-	public function write_blocklog( $rule_id, $reason ) {
-		$log_data              = array();
-		$log_data['rule_id']   = $rule_id;
-		$log_data['reason']    = $reason;
-		$log_data['timestamp'] = gmdate( 'Y-m-d H:i:s' );
-
-		if ( defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA ) {
-			$file_path   = JETPACK_WAF_DIR . '/waf-blocklog';
-			$file_exists = file_exists( $file_path );
-
-			if ( ! $file_exists || filesize( $file_path ) < ( 100 * 1024 * 1024 ) ) {
-				$fp = fopen( $file_path, 'a+' );
-
-				if ( $fp ) {
-					try {
-						fwrite( $fp, json_encode( $log_data ) . "\n" );
-					} finally {
-						fclose( $fp );
-					}
-				}
-			}
-		}
-
-		$this->write_blocklog_row( $log_data );
-		$this->update_daily_summary();
-	}
-
-		/**
-		 * Update the daily summary stats for the current date.
-		 *
-		 * @return void
-		 */
 	public function update_daily_summary() {
 		$stats = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
 		$date  = gmdate( 'Y-m-d' );
@@ -183,5 +148,40 @@ class Waf_Blocklog_Manager {
 		}
 
 		return $total_blocks;
+	}
+
+	/**
+	 * Write a blocklog entry
+	 *
+	 * @param int    $rule_id The rule ID that triggered the block.
+	 * @param string $reason  The reason for the block.
+	 *
+	 * @return void
+	 */
+	public function write_blocklog( $rule_id, $reason ) {
+		$log_data              = array();
+		$log_data['rule_id']   = $rule_id;
+		$log_data['reason']    = $reason;
+		$log_data['timestamp'] = gmdate( 'Y-m-d H:i:s' );
+
+		if ( defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA ) {
+			$file_path   = JETPACK_WAF_DIR . '/waf-blocklog';
+			$file_exists = file_exists( $file_path );
+
+			if ( ! $file_exists || filesize( $file_path ) < ( 100 * 1024 * 1024 ) ) {
+				$fp = fopen( $file_path, 'a+' );
+
+				if ( $fp ) {
+					try {
+						fwrite( $fp, json_encode( $log_data ) . "\n" );
+					} finally {
+						fclose( $fp );
+					}
+				}
+			}
+		}
+
+		$this->write_blocklog_row( $log_data );
+		$this->update_daily_summary();
 	}
 }
