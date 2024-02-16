@@ -3,6 +3,8 @@
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
 class Request {
+	private static $instance = null;
+
 	/**
 	 * @var string - The normalized path for the current request. This is not sanitized. Only to be used for comparison purposes.
 	 */
@@ -12,6 +14,18 @@ class Request {
 	 * @var array - The GET parameters and cookies for the current request. Everything considered in the cache key.
 	 */
 	private $request_parameters;
+
+	/**
+	 * Gets the singleton request instance.
+	 *
+	 * @return Request The instance of the class.
+	 */
+	public static function get_instance() {
+		if ( self::$instance === null ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
 
 	public function get_uri() {
 		return $this->request_uri;
