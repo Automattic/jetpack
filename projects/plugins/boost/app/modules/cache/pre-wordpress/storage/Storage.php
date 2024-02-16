@@ -1,6 +1,10 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Storage;
+/**
+ * This file may be called before WordPress is fully initialized. See the README file for info.
+ */
+
+namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Storage;
 
 /**
  * Interface for Cache storage - a system for storing and purging caches.

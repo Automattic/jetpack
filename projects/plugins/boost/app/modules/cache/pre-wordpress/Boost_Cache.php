@@ -1,9 +1,10 @@
 <?php
+
 /**
  * This file is loaded by advanced-cache.php, and so cannot rely on autoloading.
  */
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
+namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
 
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 require_once __DIR__ . '/Boost_Cache_Utils.php';

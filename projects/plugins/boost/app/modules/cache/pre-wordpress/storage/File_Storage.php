@@ -1,12 +1,15 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Storage;
+/**
+ * This file may be called before WordPress is fully initialized. See the README file for info.
+ */
 
-// This file is loaded by advanced-cache.php, and so cannot rely on autoload.
+namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Storage;
+
 require_once __DIR__ . '/Storage.php';
 require_once dirname( __DIR__ ) . '/Boost_Cache_Utils.php';
 
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_Cache_Utils;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 
 /**
  * File Storage - handles writing to disk, reading from disk, purging and pruning old content.

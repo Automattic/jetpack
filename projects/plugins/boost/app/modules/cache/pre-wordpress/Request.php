@@ -1,6 +1,13 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
+/**
+ * This file may be called before WordPress is fully initialized. See the README file for info.
+ */
+
+namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
+
+require_once __DIR__ . '/Boost_Cache_Settings.php';
+require_once __DIR__ . '/Logger.php';
 
 class Request {
 	/**
@@ -120,11 +127,6 @@ class Request {
 			return false;
 		}
 
-		if ( $this->is_url_excluded() ) {
-			Logger::debug( 'Url excluded, not cached!' ); // phpcs:ignore -- This is a debug message
-			return false;
-		}
-
 		if ( function_exists( 'is_user_logged_in' ) && is_user_logged_in() ) {
 			return false;
 		}
@@ -138,6 +140,11 @@ class Request {
 		}
 
 		if ( $this->is_backend() ) {
+			return false;
+		}
+
+		if ( $this->is_url_excluded() ) {
+			Logger::debug( 'Url excluded, not cached!' ); // phpcs:ignore -- This is a debug message
 			return false;
 		}
 

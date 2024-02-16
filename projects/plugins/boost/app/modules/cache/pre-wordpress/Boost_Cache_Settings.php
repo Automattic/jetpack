@@ -1,13 +1,17 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
+/**
+ * This file may be called before WordPress is fully initialized. See the README file for info.
+ */
+
+namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
+
+require_once __DIR__ . '/Boost_Cache_Utils.php';
 
 /*
  * Cache settings class.
  * Settings are stored in a file in the boost-cache directory.
- * This file is shared by autoloaded code and code loaded by advanced-cache.php
  */
-
 class Boost_Cache_Settings {
 	private static $instance = null;
 	private $settings        = array();
