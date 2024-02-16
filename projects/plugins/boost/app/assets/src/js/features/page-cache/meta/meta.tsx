@@ -1,4 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
+import { Button, Notice } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import ChevronDown from '$svg/chevron-down';
@@ -94,6 +94,7 @@ const Meta = () => {
 							<Exceptions
 								exceptions={ settings.exceptions.join( '\n' ) }
 								setExceptions={ setExceptions }
+								showErrorNotice={ query.isError }
 							/>
 							<div className={ styles.section }>
 								<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
@@ -126,10 +127,12 @@ export default Meta;
 type ExceptionsProps = {
 	exceptions: string;
 	setExceptions: ( newValue: string ) => void;
+	showErrorNotice: boolean;
 };
 
-const Exceptions = ( { exceptions, setExceptions }: ExceptionsProps ) => {
+const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: ExceptionsProps ) => {
 	const [ inputValue, setInputValue ] = useState( exceptions );
+	const [ showNotice, setShowNotice ] = useState( showErrorNotice );
 
 	// @todo - add proper link.
 	const exclusionsLink = 'TBD';
@@ -169,7 +172,16 @@ const Exceptions = ( { exceptions, setExceptions }: ExceptionsProps ) => {
 					}
 				) }
 			</p>
-			<Button disabled={ exceptions === inputValue } onClick={ save }>
+			{ showNotice && (
+				<Notice
+					level="error"
+					title={ __( 'Error: Unable to save changes.', 'jetpack-boost' ) }
+					onClose={ () => setShowNotice( false ) }
+				>
+					{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
+				</Notice>
+			) }
+			<Button disabled={ exceptions === inputValue } onClick={ save } className={ styles.button }>
 				{ __( 'Save', 'jetpack-boost' ) }
 			</Button>
 		</div>
