@@ -50,7 +50,7 @@ class Waf_Blocklog_Manager {
 		);
 
 		$wpdb->query( $sql );
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:enable
 
 		// Migrate the old blocklog table to the new daily summary table
 		$this->migrate_jetpack_waf_blocklog();
@@ -79,7 +79,7 @@ class Waf_Blocklog_Manager {
 				$one_month_ago
 			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable
 	}
 
 	/**
@@ -101,8 +101,7 @@ class Waf_Blocklog_Manager {
 				$today
 			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-
+		// phpcs:enable
 
 		return $total_blocks ? $total_blocks : 0;
 	}
@@ -131,7 +130,7 @@ class Waf_Blocklog_Manager {
 				$next_month_start
 			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable
 
 		return $total_blocks ? $total_blocks : 0;
 	}
@@ -167,7 +166,7 @@ class Waf_Blocklog_Manager {
 					)
 				);
 			}
-			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			// phpcs:enable
 
 			// Remove the old table
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
