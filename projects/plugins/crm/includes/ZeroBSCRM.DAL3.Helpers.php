@@ -5804,17 +5804,14 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 						$args['data']['tags'][] = $tag_id;
 					}
 				}
-							}
-
-				#} Update record (All IA is now fired intrinsicaly)
-				return $zbs->DAL->transactions->addUpdateTransaction($args);
-
 			}
 
-
-		return false;
+			// Update record (All IA is now fired intrinsicaly)
+			return $zbs->DAL->transactions->addUpdateTransaction( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
+	return false;
+}
 
 	// Please use direct dal calls in future work, not this.
 	#} Quick wrapper to future-proof.
