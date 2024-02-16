@@ -269,7 +269,7 @@ class VideoPressEdit extends Component {
 		const isSourcePresent = src || ( guid && id );
 		if ( ! isSourcePresent ) {
 			return (
-				<View style={ { flex: 1 } }>
+				<View style={ style.container }>
 					<MediaPlaceholder
 						allowedTypes={ [ MEDIA_TYPE_VIDEO ] }
 						onSelect={ this.onSelectMediaUploadOption }
@@ -288,7 +288,7 @@ class VideoPressEdit extends Component {
 				onPress={ this.onVideoPressed }
 				disabled={ ! isSelected }
 			>
-				<View style={ { flex: 1 } }>
+				<View style={ style.container }>
 					{ ! this.state.isCaptionSelected && <BlockControls>{ toolbarEditButton }</BlockControls> }
 					{ isSelected && (
 						<InspectorControls>
