@@ -6,6 +6,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Storage;
 
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Logger;
 
 /**
  * File Storage - handles writing to disk, reading from disk, purging and pruning old content.
@@ -71,43 +72,84 @@ class File_Storage implements Storage {
 
 		clearstatcache();
 
-		$now    = time();
+		$count = $this->garbage_collect_directory( $this->root_path, $cache_duration );
+
+		Logger::debug( "Garbage collected $count files" );
+	}
+
+	/**
+	 * Recursively garbage collect a directory.
+	 *
+	 * @param string $directory      - The directory to garbage collect.
+	 * @param int    $cache_duration - The duration in seconds to keep files.
+	 */
+	private function garbage_collect_directory( $directory, $cache_duration ) {
 		$count  = 0;
-		$handle = is_readable( $this->root_path ) ? opendir( $this->root_path ) : false;
+		$now    = time();
+		$handle = is_readable( $directory ) && is_dir( $directory ) ? opendir( $directory ) : false;
 		if ( $handle ) {
-			$file = readdir( $handle );
-			while ( $file !== false ) {
-				$file_path = $this->root_path . $file;
-				$filemtime = file_exists( $file_path ) ? filemtime( $file_path ) : false;
+			// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			while ( false !== ( $file = readdir( $handle ) ) ) {
+				if ( $this->is_skipped_file( $file ) ) {
+					// Skip and continue to next file
+					continue;
+				}
+
+				$file_path = $directory . '/' . $file;
+
+				if ( ! file_exists( $file_path ) ) {
+					// File doesn't exist, skip and continue to next file
+					continue;
+				}
+
+				// Handle directories recursively.
+				if ( is_dir( $file_path ) ) {
+					$count += $this->garbage_collect_directory( $file_path, $cache_duration );
+					continue;
+				}
+
+				$filemtime = filemtime( $file_path );
 				$expired   = ( $filemtime + $cache_duration ) <= $now;
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
-				$deletable = $file && file_exists( $file_path ) && is_writable( $file_path );
+				$deletable = is_writable( $file_path );
 
-				if ( $deletable && ! $this->skip_garbage_collection( $file ) && $expired ) {
+				if ( $deletable && $expired ) {
 					// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 					unlink( $file_path );
 					++$count;
 				}
-
-				// Take the next file.
-				$file = readdir( $handle );
 			}
 			closedir( $handle );
+
+			// If the directory is empty after processing it's files, delete it.
+			$is_dir_empty = $this->is_dir_empty( $directory );
+			if ( $is_dir_empty && ! is_wp_error( $is_dir_empty ) ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+				rmdir( $directory );
+			}
 		}
 
 		return $count;
 	}
 
-	private function skip_garbage_collection( $file ) {
+	/**
+	 * Check if a directory is empty.
+	 *
+	 * @param string $dir - The directory to check.
+	 */
+	private function is_dir_empty( $dir ) {
+		if ( ! is_readable( $dir ) ) {
+			return new \WP_Error( 'directory_not_readable', 'Directory is not readable' );
+		}
+
+		return ( count( scandir( $dir ) ) === 2 ); // All directories have '.' and '..'
+	}
+
+	/**
+	 * If the file doesn't matter.
+	 */
+	private function is_skipped_file( $file ) {
 		if ( $file === '.' || $file === '..' ) {
-			return true;
-		}
-
-		if ( is_dir( $this->root_path . $file ) ) {
-			return true;
-		}
-
-		if ( substr( $file, -9 ) !== '.htaccess' && $file !== 'index.html' ) {
 			return true;
 		}
 

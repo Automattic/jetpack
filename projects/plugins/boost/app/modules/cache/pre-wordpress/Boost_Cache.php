@@ -69,6 +69,13 @@ class Boost_Cache {
 	}
 
 	/**
+	 * Get the storage instance used by Boost Cache.
+	 */
+	public function get_storage() {
+		return $this->storage;
+	}
+
+	/**
 	 * Serve cached content, if any is available for the current request. Will terminate if it does so.
 	 * Otherwise, returns false.
 	 */

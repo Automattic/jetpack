@@ -34,13 +34,16 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 		register_uninstall_hook( JETPACK_BOOST_PATH, array( Page_Cache_Setup::class, 'uninstall' ) );
 	}
 
-	public function setup() {}
+	public function setup() {
+		Garbage_Collection::init();
+	}
 
 	/**
 	 * Runs the setup when the feature is activated.
 	 */
 	public static function activate() {
 		Page_Cache_Setup::run_setup();
+		Garbage_Collection::install();
 	}
 
 	/**
@@ -48,6 +51,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	 */
 	public static function deactivate() {
 		Page_Cache_Setup::deactivate();
+		Garbage_Collection::uninstall();
 	}
 
 	public static function is_available() {
