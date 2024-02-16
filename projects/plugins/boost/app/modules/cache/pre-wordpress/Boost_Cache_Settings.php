@@ -16,6 +16,15 @@ class Boost_Cache_Settings {
 	private $config_file_path;
 	private $config_file;
 
+	/**
+	 * An uninitialized config holds these settings.
+	 */
+	private $default_settings = array(
+		'enabled' => true,
+		'exclues' => array(),
+		'logging' => false,
+	);
+
 	private function __construct() {
 		$this->config_file_path = WP_CONTENT_DIR . '/boost-cache/';
 		$this->config_file      = $this->config_file_path . 'config.php';
@@ -45,7 +54,7 @@ class Boost_Cache_Settings {
 		}
 
 		if ( ! file_exists( $this->config_file ) ) {
-			if ( ! $this->set( array( 'enabled' => false ) ) ) {
+			if ( ! $this->set( $this->default_settings ) ) {
 				return false;
 			}
 		}

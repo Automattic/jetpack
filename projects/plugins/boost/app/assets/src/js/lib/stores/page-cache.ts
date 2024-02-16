@@ -6,11 +6,19 @@ import {
 import { z } from 'zod';
 
 export const PageCacheError = z.string();
+export const PageCache = z.object( {
+	excludes: z.array( z.string() ),
+	logging: z.boolean(),
+} );
 
 export function usePageCacheErrorDS() {
 	const [ { data } ] = useDataSync( 'jetpack_boost_ds', 'page_cache_error', PageCacheError );
 
 	return data;
+}
+
+export function usePageCache() {
+	return useDataSync( 'jetpack_boost_ds', 'page_cache', PageCache );
 }
 
 /**
