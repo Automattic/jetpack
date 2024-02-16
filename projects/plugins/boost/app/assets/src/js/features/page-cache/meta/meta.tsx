@@ -1,4 +1,5 @@
 import { Button } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
@@ -102,12 +103,21 @@ type ExceptionsProps = {
 const Exceptions = ( { exceptions, setExceptions }: ExceptionsProps ) => {
 	const [ inputValue, setInputValue ] = useState( exceptions );
 
+	// @todo - add proper link.
+	const exclusionsLink = 'TBD';
+
 	useEffect( () => {
 		setInputValue( exceptions );
 	}, [ exceptions ] );
 
 	function save() {
 		setExceptions( inputValue );
+	}
+
+	function showExample( event: React.MouseEvent ) {
+		event.preventDefault();
+
+		// @todo - add proper example.
 	}
 
 	return (
@@ -117,8 +127,18 @@ const Exceptions = ( { exceptions, setExceptions }: ExceptionsProps ) => {
 			<textarea value={ inputValue } rows={ 3 } onChange={ e => setInputValue( e.target.value ) } />
 			<p className={ styles.description }>
 				{ __(
-					'Use (.*) to address multiple URLs under a given path. Be sure each URL path is in its own line. See an example or learn more.',
+					'Use (.*) to address multiple URLs under a given path. Be sure each URL path is in its own line.',
 					'jetpack-boost'
+				) }
+				<br />
+				{ createInterpolateElement(
+					__( '<help>See an example</help> or <link>learn more</link>.', 'jetpack-boost' ),
+					{
+						// eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid
+						help: <a href="#" target="_blank" rel="noreferrer" onClick={ showExample } />,
+						// eslint-disable-next-line jsx-a11y/anchor-has-content
+						link: <a href={ exclusionsLink } target="_blank" rel="noreferrer" />,
+					}
 				) }
 			</p>
 			<Button disabled={ exceptions === inputValue } onClick={ save }>
