@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Added custom message textarea to send a message via email when adding new users
