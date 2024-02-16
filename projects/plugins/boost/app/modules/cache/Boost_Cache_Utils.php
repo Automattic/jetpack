@@ -3,35 +3,6 @@
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
 class Boost_Cache_Utils {
-
-	/**
-	 * "Safe" version of WordPress' is_404 method. When called before WordPress' query is run, returns
-	 * `null` (a falsey value) instead of outputting a _doing_it_wrong warning.
-	 */
-	public static function is_404() {
-		global $wp_query;
-
-		if ( ! isset( $wp_query ) || ! function_exists( '\is_404' ) ) {
-			return null;
-		}
-
-		return \is_404();
-	}
-
-	/**
-	 * "Safe" version of WordPress' is_feed method. When called before WordPress' query is run, returns
-	 * `null` (a falsey value) instead of outputting a _doing_it_wrong warning.
-	 */
-	public static function is_feed() {
-		global $wp_query;
-
-		if ( ! isset( $wp_query ) || ! function_exists( '\is_feed' ) ) {
-			return null;
-		}
-
-		return \is_feed();
-	}
-
 	/**
 	 * Recursively delete a directory.
 	 * @param string $dir - The directory to delete.
@@ -147,6 +118,29 @@ class Boost_Cache_Utils {
 	public static function is_boost_cache_directory( $dir ) {
 		$dir = self::sanitize_file_path( $dir );
 		return strpos( $dir, WP_CONTENT_DIR . '/boost-cache' ) !== false;
+	}
+
+	/**
+	 * Normalize the request uri so it can be used for caching purposes.
+	 * It removes the query string and the trailing slash, and characters
+	 * that might cause problems with the filesystem.
+	 *
+	 * **THIS DOES NOT SANITIZE THE VARIABLE IN ANY WAY.**
+	 * Only use it for comparison purposes or to generate an MD5 hash.
+	 *
+	 * @param string $request_uri - The request uri to normalize.
+	 * @return string - The normalized request uri.
+	 */
+	public static function normalize_request_uri( $request_uri ) {
+		// get path from request uri
+		$request_uri = parse_url( $request_uri, PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		if ( empty( $request_uri ) ) {
+			$request_uri = '/';
+		} elseif ( substr( $request_uri, -1 ) !== '/' ) {
+			$request_uri .= '/';
+		}
+
+		return $request_uri;
 	}
 
 	/**
