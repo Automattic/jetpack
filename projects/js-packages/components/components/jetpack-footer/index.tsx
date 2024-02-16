@@ -1,3 +1,4 @@
+import { VisuallyHidden } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
@@ -139,7 +140,17 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 								tabIndex={ isButton ? 0 : undefined }
 							>
 								{ item.label }
-								{ isExternalLink && <Icon icon={ external } size={ 16 } /> }
+								{ isExternalLink && (
+									<>
+										<Icon icon={ external } size={ 16 } />
+										<VisuallyHidden as="span">
+											{
+												/* translators: accessibility text */
+												__( '(opens in a new tab)', 'jetpack' )
+											}
+										</VisuallyHidden>
+									</>
+								) }
 							</a>
 						</li>
 					);
