@@ -6,7 +6,7 @@
  * * WordPress Core (all sites: `blog_privacy_selector`, `blog_public`)
  * * wpcomsh (WoA: Private Site feature)
  * * WP.com (simple: `blog_public`)
- * * This jetpack-mu-wpcom feature (WoA, simple: robots.text user agent blocks)
+ * * This jetpack-mu-wpcom feature (WoA, simple: `wpcom_data_sharing_opt_out` robots.txt user agent blocks)
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -25,13 +25,13 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Blog_Privacy;
 function robots_txt( string $output, $public ): string {
 	$public = (int) $public;
 
-	// If the site is completely private, don't bother with the additional restrictions.
-	if ( -1 === $public ) {
+	// If the site is completely private or already discouraging *all* bots, don't bother with the additional restrictions.
+	if ( -1 === $public || 0 === $public ) {
 		return $output;
 	}
 
 	// An option oddly named because of history.
-	if ( 0 === $public || get_option( 'wpcom_data_sharing_opt_out' ) ) {
+	if ( get_option( 'wpcom_data_sharing_opt_out' ) ) {
 		$ai_bots = array(
 			'Amazonbot',
 			'CCBot',

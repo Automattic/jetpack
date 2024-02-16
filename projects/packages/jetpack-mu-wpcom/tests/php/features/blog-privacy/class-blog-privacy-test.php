@@ -75,13 +75,13 @@ AI_BLOCKS;
 		yield 'discourage search, no discourage AI' => array(
 			'blog_public'                => '0',
 			'wpcom_data_sharing_opt_out' => null,
-			'expected'                   => "TEST\n$ai_blocks",
+			'expected'                   => 'TEST',
 		);
 
 		yield 'discourage search, discourage AI' => array(
 			'blog_public'                => '0',
 			'wpcom_data_sharing_opt_out' => '1',
-			'expected'                   => "TEST\n$ai_blocks",
+			'expected'                   => 'TEST', // We already discourage all user agents.
 		);
 
 		yield 'private, no discourage AI' => array(
