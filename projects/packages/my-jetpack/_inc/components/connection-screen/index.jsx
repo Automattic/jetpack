@@ -47,7 +47,10 @@ const ConnectionScreen = () => {
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
 				<Col className={ styles[ 'relative-col' ] }>
-					<CloseLink className={ styles[ 'close-link' ] } />
+					<CloseLink
+						className={ styles[ 'close-link' ] }
+						accessibleName={ __( 'Go back to previous screen', 'jetpack-my-jetpack' ) }
+					/>
 				</Col>
 				<Col>
 					<ConnectScreen
