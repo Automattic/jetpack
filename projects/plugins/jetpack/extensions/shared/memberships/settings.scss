@@ -15,7 +15,8 @@
 .jetpack-newsletter-access-radio-buttons {
 	label {
 		text-wrap: balance;
-		max-width: 100%;
+		flex-shrink: 0;
+		margin-right: 12px;
 	}
 }
 
