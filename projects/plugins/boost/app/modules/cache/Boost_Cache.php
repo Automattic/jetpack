@@ -23,7 +23,7 @@ class Boost_Cache {
 	private $storage;
 
 	/**
-	 * @var string - The request object that provides utility for the current request.
+	 * @var Request - The request object that provides utility for the current request.
 	 */
 	private $request = null;
 
@@ -54,6 +54,10 @@ class Boost_Cache {
 	 * Serve the cached page if it exists, otherwise start output buffering.
 	 */
 	public function serve() {
+		if ( ! $this->request->is_cacheable() ) {
+			return;
+		}
+
 		if ( ! $this->serve_cached() ) {
 			$this->ob_start();
 		}
@@ -132,8 +136,8 @@ class Boost_Cache {
 				$this->delete_cache_for_post( get_post( $posts_page_id ) );
 			}
 		} else {
-			$this->storage->invalidate_home_page( $this->normalize_request_uri( home_url() ) );
-			error_log( 'delete front page cache ' . $this->normalize_request_uri( home_url() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			$this->storage->invalidate_home_page( Boost_Cache_Utils::normalize_request_uri( home_url() ) );
+			error_log( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 	}
 
@@ -190,7 +194,7 @@ class Boost_Cache {
 		 * this post for this visitor so the unmoderated comment is shown to them.
 		 */
 		if ( $comment_approved !== 1 ) {
-			$this->storage->invalidate_single_visitor( $this->normalize_request_uri( get_permalink( $post->ID ) ), $this->request_parameters );
+			$this->storage->invalidate_single_visitor( Boost_Cache_Utils::normalize_request_uri( get_permalink( $post->ID ) ), $this->request->get_parameters() );
 			return;
 		}
 
@@ -302,7 +306,7 @@ class Boost_Cache {
 	 */
 	public function delete_cache_for_url( $url ) {
 		error_log( 'delete_cache_for_url: ' . $url ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		$path = $this->normalize_request_uri( $url );
+		$path = Boost_Cache_Utils::normalize_request_uri( $url );
 
 		return $this->storage->invalidate( $path );
 	}

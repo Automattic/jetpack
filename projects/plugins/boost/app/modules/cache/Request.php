@@ -23,7 +23,7 @@ class Request {
 
 	public function __construct() {
 		$this->request_uri = isset( $_SERVER['REQUEST_URI'] )
-			? $this->normalize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			? Boost_Cache_Utils::normalize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			: false;
 
 		// Set the cookies and get parameters for the current request. Sometimes these arrays are modified by WordPress or other plugins.
@@ -32,29 +32,6 @@ class Request {
 			'cookies' => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			'get'     => $_GET,   // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		);
-	}
-
-	/**
-	 * Normalize the request uri so it can be used for caching purposes.
-	 * It removes the query string and the trailing slash, and characters
-	 * that might cause problems with the filesystem.
-	 *
-	 * **THIS DOES NOT SANITIZE THE VARIABLE IN ANY WAY.**
-	 * Only use it for comparison purposes or to generate an MD5 hash.
-	 *
-	 * @param string $request_uri - The request uri to normalize.
-	 * @return string - The normalized request uri.
-	 */
-	protected function normalize_request_uri( $request_uri ) {
-		// get path from request uri
-		$request_uri = parse_url( $request_uri, PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-		if ( empty( $request_uri ) ) {
-			$request_uri = '/';
-		} elseif ( substr( $request_uri, -1 ) !== '/' ) {
-			$request_uri .= '/';
-		}
-
-		return $request_uri;
 	}
 
 	/**
@@ -77,6 +54,24 @@ class Request {
 		);
 
 		return in_array( $error['type'], $fatal_errors, true );
+	}
+
+	public function is_url_excluded( $request_uri = '' ) {
+		if ( $request_uri === '' ) {
+			$request_uri = $this->request_uri;
+		}
+
+		$excluded_urls = Boost_Cache_Settings::get_instance()->get_excluded_urls();
+		$excluded_urls = apply_filters( 'boost_cache_excluded_urls', $excluded_urls );
+
+		$excluded_urls[] = 'wp-.*\.php';
+		foreach ( $excluded_urls as $expr ) {
+			if ( ! empty( $expr ) && preg_match( "~$expr~", $request_uri ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -103,6 +98,11 @@ class Request {
 		}
 
 		if ( $this->is_fatal_error() ) {
+			return false;
+		}
+
+		if ( $this->is_url_excluded() ) {
+			Logger::request_debug( 'Url excluded, not cached!' ); // phpcs:ignore -- This is a debug message
 			return false;
 		}
 

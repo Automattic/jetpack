@@ -21,7 +21,7 @@ class Boost_Cache_Settings {
 		$this->init_settings();
 	}
 
-	/*
+	/**
 	 * Gets the instance of the class.
 	 *
 	 * @return Boost_Cache_Settings The instance of the class.
