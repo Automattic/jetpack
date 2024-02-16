@@ -19,12 +19,12 @@ import React from 'react';
  * Internal dependencies
  */
 import './style.scss';
-import AiStatusIndicator from '../ai-status-indicator';
-import { GuidelineMessage } from './message';
+import AiStatusIndicator from '../ai-status-indicator/index.js';
+import { GuidelineMessage } from './message.js';
 /**
  * Types
  */
-import type { RequestingStateProp } from '../../types';
+import type { RequestingStateProp } from '../../types.js';
 type AiControlProps = {
 	disabled?: boolean;
 	value: string;

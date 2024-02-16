@@ -17,8 +17,14 @@ export interface Period {
 		mobile_tbt: number;
 	};
 }
+export interface Annotation {
+	timestamp: number;
+	text: string;
+	line?: HTMLElement;
+}
 export interface BoostScoreGraphProps {
 	periods?: Period[];
+	annotations?: Annotation[];
 	startDate?: number;
 	endDate?: number;
 	title?: string;
@@ -42,6 +48,7 @@ export type ScoreGraphAlignedData = [
  */
 export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	periods = [],
+	annotations = [],
 	startDate = 0,
 	endDate = 0,
 	title,
@@ -80,7 +87,11 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 					<Background />
 				</div>
 			) : (
-				<UplotLineChart periods={ periods } range={ { startDate, endDate } } />
+				<UplotLineChart
+					periods={ periods }
+					annotations={ annotations }
+					range={ { startDate, endDate } }
+				/>
 			) }
 		</div>
 	);
