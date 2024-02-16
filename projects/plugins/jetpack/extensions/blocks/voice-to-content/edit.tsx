@@ -79,6 +79,7 @@ function AudioStatusPanel( { state, error = null, audioURL = null, duration = 0 
 	return null;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ActionButtons( { state, mediaControls, onError } ) {
 	const { start, pause, resume, stop, reset } = mediaControls ?? {};
 
