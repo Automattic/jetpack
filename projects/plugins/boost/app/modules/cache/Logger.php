@@ -60,7 +60,7 @@ class Logger {
 	 * @param string $message - The message to write to the log file.
 	 */
 	public static function request_debug( $message ) {
-		$request = new Request();
+		$request = Request::get_instance();
 		if ( $request->is_cacheable() ) {
 			self::debug( $message );
 		}
