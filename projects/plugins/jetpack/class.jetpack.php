@@ -8,7 +8,6 @@
  */
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
@@ -3363,11 +3362,6 @@ p {
 			// Artificially throw errors in certain specific cases during plugin activation.
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
 		}
-
-		// Add custom column in wp-admin/users.php to show whether user is linked.
-		add_filter( 'manage_users_columns', array( $this, 'jetpack_icon_user_connected' ) );
-		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_user_connected_icon' ), 10, 3 );
-		add_action( 'admin_print_styles', array( $this, 'jetpack_user_col_style' ) );
 	}
 
 	/**
@@ -6410,65 +6404,6 @@ endif;
 
 		return $sorted;
 	}
-
-	/**
-	 * Adds a "blank" column in the user admin table to display indication of user connection.
-	 *
-	 * @param array $columns User list table columns.
-	 *
-	 * @return array
-	 */
-	public function jetpack_icon_user_connected( $columns ) {
-		$columns['user_jetpack'] = '';
-		return $columns;
-	}
-
-	/**
-	 * Show Jetpack icon if the user is linked.
-	 *
-	 * @param string $val HTML for the icon.
-	 * @param string $col User list table column.
-	 * @param int    $user_id User ID.
-	 *
-	 * @return string
-	 */
-	public function jetpack_show_user_connected_icon( $val, $col, $user_id ) {
-		if ( 'user_jetpack' === $col && self::connection()->is_user_connected( $user_id ) ) {
-			$jetpack_logo = new Jetpack_Logo();
-			$emblem_html  = sprintf(
-				'<a title="%1$s" class="jp-emblem-user-admin">%2$s</a>',
-				esc_attr__( 'This user is linked and ready to fly with Jetpack.', 'jetpack' ),
-				$jetpack_logo->get_jp_emblem()
-			);
-			return $emblem_html;
-		}
-
-		return $val;
-	}
-
-	/**
-	 * Style the Jetpack user column
-	 */
-	public function jetpack_user_col_style() {
-		global $current_screen;
-		if ( ! empty( $current_screen->base ) && 'users' === $current_screen->base ) {
-			?>
-			<style>
-				.fixed .column-user_jetpack {
-					width: 21px;
-				}
-				.jp-emblem-user-admin svg {
-					width: 20px;
-					height: 20px;
-				}
-				.jp-emblem-user-admin path {
-					fill: #069e08;
-				}
-			</style>
-			<?php
-		}
-	}
-
 	/**
 	 * Checks if Akismet is active and working.
 	 *

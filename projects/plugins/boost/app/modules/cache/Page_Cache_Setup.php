@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
+
 class Page_Cache_Setup {
 
 	/**
@@ -67,7 +69,7 @@ class Page_Cache_Setup {
 			}
 		}
 
-		$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . basename( dirname( plugin_dir_path( __FILE__ ), 3 ) ) . '/app/modules/cache/Boost_Cache.php';
+		$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . basename( dirname( plugin_dir_path( __FILE__ ), 3 ) ) . '/app/modules/cache/pre-wordpress/Boost_Cache.php';
 		$contents             = '<?php
 // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE . ' - ' . Page_Cache::ADVANCED_CACHE_VERSION . '
 if ( ! file_exists( \'' . $boost_cache_filename . '\' ) ) {
@@ -75,7 +77,7 @@ return;
 }
 require_once( \'' . $boost_cache_filename . '\');
 
-( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_Cache() )->serve();
+( new Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache() )->serve();
 ';
 
 		$write_advanced_cache = Boost_Cache_Utils::write_to_file( $advanced_cache_filename, $contents );

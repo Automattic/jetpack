@@ -195,6 +195,7 @@ class Defaults {
 		'jetpack_verbum_subscription_modal',
 		'jetpack_blocks_disabled',
 		'jetpack_package_versions',
+		'jetpack_newsletters_publishing_default_frequency',
 	);
 
 	/**
