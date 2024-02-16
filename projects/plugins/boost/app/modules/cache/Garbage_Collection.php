@@ -42,7 +42,7 @@ class Garbage_Collection {
 	public static function add_cron_interval( $schedules ) {
 		$schedules[ self::GARBAGE_COLLECTION_INTERVAL ] = array(
 			'interval' => 900,
-			'display'  => __( 'Every 10 minutes', 'jetpack-boost' ),
+			'display'  => __( 'Every 15 minutes', 'jetpack-boost' ),
 		);
 
 		return $schedules;
