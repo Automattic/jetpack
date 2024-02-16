@@ -80,8 +80,8 @@ const WelcomeBanner = () => {
 				</CardWrapper>
 				<Button
 					className={ styles.dismiss }
-					title={ __( 'Dismiss', 'jetpack-my-jetpack' ) }
 					variant="secondary"
+					aria-label={ __( 'Don’t show the welcome message again', 'jetpack-my-jetpack' ) }
 					size="small"
 					icon={ close }
 					onClick={ onDismissClick }

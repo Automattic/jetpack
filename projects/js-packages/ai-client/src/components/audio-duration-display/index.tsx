@@ -13,6 +13,7 @@ import type React from 'react';
 
 type AudioDurationDisplayProps = {
 	url: string;
+	className?: string | null;
 };
 
 /**
@@ -23,6 +24,7 @@ type AudioDurationDisplayProps = {
  */
 export default function AudioDurationDisplay( {
 	url,
+	className,
 }: AudioDurationDisplayProps ): React.ReactElement {
 	const [ duration, setDuration ] = useState( 0 );
 	useEffect( () => {
@@ -33,5 +35,5 @@ export default function AudioDurationDisplay( {
 		getDuration( url ).then( setDuration );
 	}, [ url ] );
 
-	return <span>{ formatTime( duration, { addDecimalPart: false } ) }</span>;
+	return <span className={ className }>{ formatTime( duration, { addDecimalPart: false } ) }</span>;
 }

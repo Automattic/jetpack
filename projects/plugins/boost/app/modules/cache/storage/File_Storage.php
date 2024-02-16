@@ -19,7 +19,7 @@ class File_Storage implements Storage {
 	private $root_path;
 
 	public function __construct( $root_path ) {
-		$this->root_path = WP_CONTENT_DIR . '/boost-cache/cache' . Boost_Cache_Utils::sanitize_file_path( Boost_Cache_Utils::trailingslashit( $root_path ) );
+		$this->root_path = WP_CONTENT_DIR . '/boost-cache/cache/' . Boost_Cache_Utils::sanitize_file_path( Boost_Cache_Utils::trailingslashit( $root_path ) );
 	}
 
 	/**
@@ -101,5 +101,58 @@ class File_Storage implements Storage {
 
 		$_cache[ $path ] = $path;
 		return $path;
+	}
+
+	/**
+	 * Delete all cached data for the given path.
+	 *
+	 * @param string $path - The path to delete.
+	 */
+	public function invalidate( $path ) {
+		error_log( "invalidate: $path" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		$path = $this->sanitize_path( $path );
+		$dir  = $this->root_path . $path;
+
+		if ( Boost_Cache_Utils::is_boost_cache_directory( $dir ) ) {
+			return Boost_Cache_Utils::delete_directory( $dir );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Given a request_uri and its parameters, delete the cached data for this request.
+	 *
+	 * @param string $request_uri - The URI of this request (excluding GET parameters)
+	 * @param array  $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
+	 */
+	public function invalidate_single_visitor( $request_uri, $parameters ) {
+		$directory = self::get_uri_directory( $request_uri );
+		$filename  = self::get_request_filename( $request_uri, $parameters );
+		$full_path = $directory . $filename;
+		error_log( 'Deleting ' . $full_path . ' from cache' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+
+		if ( file_exists( $full_path ) ) {
+			return wp_delete_file( $full_path );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Delete the cached files for the home page, and any paged archives.
+	 */
+	public function invalidate_home_page( $dir ) {
+		$dir = $this->root_path . Boost_Cache_Utils::sanitize_file_path( $dir );
+
+		if ( Boost_Cache_Utils::is_boost_cache_directory( $dir ) ) {
+			if ( is_dir( $dir . '/page' ) ) {
+				Boost_Cache_Utils::delete_directory( $dir . '/page' );
+			}
+			error_log( "invalidate_home_page: $dir" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			return Boost_Cache_Utils::delete_single_directory( $dir );
+		}
+
+		return false;
 	}
 }

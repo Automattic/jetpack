@@ -3,12 +3,12 @@
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
 class Request {
-	/*
+	/**
 	 * @var string - The normalized path for the current request. This is not sanitized. Only to be used for comparison purposes.
 	 */
 	private $request_uri = false;
 
-	/*
+	/**
 	 * @var array - The GET parameters and cookies for the current request. Everything considered in the cache key.
 	 */
 	private $request_parameters;
@@ -26,19 +26,15 @@ class Request {
 			? $this->normalize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			: false;
 
-		/*
-		 * Set the cookies and get parameters for the current request.
-		 * Sometimes these arrays are modified by WordPress or other plugins.
-		 * We need to cache them here so they can be used for the cache key later.
-		 * We don't need to sanitize them, as they are only used for comparison.
-		 */
+		// Set the cookies and get parameters for the current request. Sometimes these arrays are modified by WordPress or other plugins.
+		// We need to cache them here so they can be used for the cache key later. We don't need to sanitize them, as they are only used for comparison.
 		$this->request_parameters = array(
 			'cookies' => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			'get'     => $_GET,   // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		);
 	}
 
-	/*
+	/**
 	 * Normalize the request uri so it can be used for caching purposes.
 	 * It removes the query string and the trailing slash, and characters
 	 * that might cause problems with the filesystem.
@@ -49,10 +45,10 @@ class Request {
 	 * @param string $request_uri - The request uri to normalize.
 	 * @return string - The normalized request uri.
 	 */
-	private function normalize_request_uri( $request_uri ) {
+	protected function normalize_request_uri( $request_uri ) {
 		// get path from request uri
 		$request_uri = parse_url( $request_uri, PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-		if ( $request_uri === '' ) {
+		if ( empty( $request_uri ) ) {
 			$request_uri = '/';
 		} elseif ( substr( $request_uri, -1 ) !== '/' ) {
 			$request_uri .= '/';
@@ -61,7 +57,7 @@ class Request {
 		return $request_uri;
 	}
 
-	/*
+	/**
 	 * Returns true if the current request has a fatal error.
 	 *
 	 * @return bool
@@ -83,7 +79,7 @@ class Request {
 		return in_array( $error['type'], $fatal_errors, true );
 	}
 
-	/*
+	/**
 	 * Returns true if the request is cacheable.
 	 *
 	 * If a request is in the backend, or is a POST request, or is not an
@@ -98,6 +94,11 @@ class Request {
 		}
 
 		if ( defined( 'DONOTCACHEPAGE' ) ) {
+			return false;
+		}
+
+		// do not cache post previews or customizer previews
+		if ( ! empty( $_GET ) && ( isset( $_GET['preview'] ) || isset( $_GET['customize_changeset_uuid'] ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
 
@@ -142,7 +143,7 @@ class Request {
 		return true;
 	}
 
-	/*
+	/**
 	 * Returns true if the current request is one of the following:
 	 * 1. wp-admin
 	 * 2. wp-login.php, xmlrpc.php or wp-cron.php/cron request

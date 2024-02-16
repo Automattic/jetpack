@@ -14,7 +14,8 @@ import useMediaRecording from '../index.js';
 import type { Meta } from '@storybook/react';
 
 const RecorderComponent = ( { timeslice } ) => {
-	const { start, pause, resume, stop, state, blob, url } = useMediaRecording();
+	const { controls, state, blob, url } = useMediaRecording();
+	const { start, pause, resume, stop } = controls;
 
 	return (
 		<div>
