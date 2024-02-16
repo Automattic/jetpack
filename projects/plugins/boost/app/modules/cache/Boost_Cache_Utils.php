@@ -3,56 +3,31 @@
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
 class Boost_Cache_Utils {
-
 	/**
-	 * "Safe" version of WordPress' is_404 method. When called before WordPress' query is run, returns
-	 * `null` (a falsey value) instead of outputting a _doing_it_wrong warning.
-	 */
-	public static function is_404() {
-		global $wp_query;
-
-		if ( ! isset( $wp_query ) || ! function_exists( '\is_404' ) ) {
-			return null;
-		}
-
-		return \is_404();
-	}
-
-	/**
-	 * "Safe" version of WordPress' is_feed method. When called before WordPress' query is run, returns
-	 * `null` (a falsey value) instead of outputting a _doing_it_wrong warning.
-	 */
-	public static function is_feed() {
-		global $wp_query;
-
-		if ( ! isset( $wp_query ) || ! function_exists( '\is_feed' ) ) {
-			return null;
-		}
-
-		return \is_feed();
-	}
-
-	/*
 	 * Recursively delete a directory.
 	 * @param string $dir - The directory to delete.
+	 * @param bool   $recurse - If false, only delete the files in the directory, do not recurse into subdirectories.
 	 * @return bool|WP_Error
 	 */
-	public static function delete_directory( $dir ) {
+	public static function delete_directory( $dir, $recurse = true ) {
+		error_log( "delete directory: $dir " . (int) $recurse ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$dir = realpath( $dir );
 		if ( ! $dir ) {
-			return new \WP_Error( 'Directory does not exist' ); // realpath returns false if a file does not exist.
+			// translators: %s is the directory that does not exist.
+			return new \WP_Error( 'directory-missing', sprintf( __( 'Directory does not exist: %s', 'jetpack-boost' ), $dir ) ); // realpath returns false if a file does not exist.
 		}
 
 		// make sure that $dir is a directory inside WP_CONTENT . '/boost-cache/';
 		if ( self::is_boost_cache_directory( $dir ) === false ) {
-			return new \WP_Error( 'Invalid directory' );
+			// translators: %s is the directory that is invalid.
+			return new \WP_Error( 'invalid-directory', sprintf( __( 'Invalid directory %s', 'jetpack-boost' ), $dir ) );
 		}
 
 		$files = array_diff( scandir( $dir ), array( '.', '..' ) );
 		foreach ( $files as $file ) {
 			$file = $dir . '/' . $file;
-			if ( is_dir( $file ) ) {
-				self::delete_directory( $file );
+			if ( $recurse && is_dir( $file ) ) {
+				self::delete_directory( $file, $recurse );
 			} else {
 				wp_delete_file( $file );
 			}
@@ -88,7 +63,17 @@ class Boost_Cache_Utils {
 		return rtrim( $string, '/' ) . '/';
 	}
 
-	/*
+	/**
+	 * Delete a single directory.
+	 * @param string $dir - The directory to delete.
+	 * @return bool
+	 */
+	public static function delete_single_directory( $dir ) {
+		error_log( "delete single directory: $dir" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		return self::delete_directory( $dir, false );
+	}
+
+	/**
 	 * Returns a sanitized directory path.
 	 * @param string $path - The path to sanitize.
 	 * @return string
@@ -111,7 +96,7 @@ class Boost_Cache_Utils {
 		return $path;
 	}
 
-	/*
+	/**
 	 * Creates the directory if it doesn't exist.
 	 *
 	 * @param string $path - The path to the directory to create.
@@ -125,7 +110,7 @@ class Boost_Cache_Utils {
 		return true;
 	}
 
-	/*
+	/**
 	 * Returns true if the given directory is inside the boost-cache directory.
 	 * @param string $dir - The directory to check.
 	 * @return bool
@@ -135,7 +120,30 @@ class Boost_Cache_Utils {
 		return strpos( $dir, WP_CONTENT_DIR . '/boost-cache' ) !== false;
 	}
 
-	/*
+	/**
+	 * Normalize the request uri so it can be used for caching purposes.
+	 * It removes the query string and the trailing slash, and characters
+	 * that might cause problems with the filesystem.
+	 *
+	 * **THIS DOES NOT SANITIZE THE VARIABLE IN ANY WAY.**
+	 * Only use it for comparison purposes or to generate an MD5 hash.
+	 *
+	 * @param string $request_uri - The request uri to normalize.
+	 * @return string - The normalized request uri.
+	 */
+	public static function normalize_request_uri( $request_uri ) {
+		// get path from request uri
+		$request_uri = parse_url( $request_uri, PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		if ( empty( $request_uri ) ) {
+			$request_uri = '/';
+		} elseif ( substr( $request_uri, -1 ) !== '/' ) {
+			$request_uri .= '/';
+		}
+
+		return $request_uri;
+	}
+
+	/**
 	 * Writes data to a file.
 	 * This creates a temporary file first, then renames the file to the final filename.
 	 * This is done to prevent the file from being read while it is being written to.
@@ -154,6 +162,20 @@ class Boost_Cache_Utils {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
 		if ( ! rename( $tmp_filename, $filename ) ) {
 			return new \WP_Error( 'Could not rename tmp file to final file: ' . $filename );
+		}
+		return true;
+	}
+
+	/**
+	 * Checks if the post type is public.
+	 *
+	 * @param WP_Post $post - The post to check.
+	 * @return bool - True if the post type is public.
+	 */
+	public static function is_visible_post_type( $post ) {
+		$post_type = is_a( $post, 'WP_Post' ) ? get_post_type_object( $post->post_type ) : null;
+		if ( empty( $post_type ) || ! $post_type->public ) {
+			return false;
 		}
 		return true;
 	}

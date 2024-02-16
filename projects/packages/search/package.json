@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-search",
-	"version": "0.43.1",
+	"version": "0.43.2-alpha",
 	"description": "Package for Jetpack Search products",
 	"main": "main.js",
 	"directories": {
@@ -70,6 +70,7 @@
 		"@babel/preset-react": "7.23.3",
 		"@babel/preset-typescript": "7.23.3",
 		"@babel/runtime": "7.23.5",
+		"@csstools/postcss-global-data": "2.1.1",
 		"@size-limit/preset-app": "8.2.6",
 		"@testing-library/dom": "9.3.4",
 		"@testing-library/preact": "3.2.3",
