@@ -5,6 +5,10 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
 
+/*
+ * Require all pre-wordpress files here. These files aren't autoloaded as they are loaded before WordPress is fully initialized.
+ * pre-wordpress files assume all other pre-wordpress files are loaded here.
+ */
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 require_once __DIR__ . '/Boost_Cache_Utils.php';
 require_once __DIR__ . '/Logger.php';
