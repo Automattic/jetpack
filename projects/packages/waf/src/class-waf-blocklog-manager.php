@@ -12,165 +12,70 @@ namespace Automattic\Jetpack\Waf;
  */
 class Waf_Blocklog_Manager {
 	/**
-	 * Create the blocklog table
+	 * Create the log table when plugin is activated.
 	 *
 	 * @return void
 	 */
-	public function create_blocklog_table() {
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	public static function create_blocklog_table() {
 		global $wpdb;
 
-		$summary_sql = "
-			CREATE TABLE {$wpdb->prefix}jetpack_waf_blocklog_daily_summary (
-				summary_date DATE NOT NULL,
-				total_blocks INT UNSIGNED NOT NULL DEFAULT 0,
-				PRIMARY KEY (summary_date)
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		$sql = "
+		CREATE TABLE {$wpdb->prefix}jetpack_waf_blocklog (
+			log_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+			timestamp datetime NOT NULL,
+			rule_id BIGINT NOT NULL,
+			reason longtext NOT NULL,
+			PRIMARY KEY (log_id),
+			KEY timestamp (timestamp)
+		)
 		";
 
-		dbDelta( $summary_sql );
+		dbDelta( $sql );
 	}
 
 	/**
-	 * Update the daily summary table for the current date
-	 *
-	 * @return void
+	 * Connect to WordPress database.
 	 */
-	public function update_daily_summary() {
-		global $wpdb;
+	private function connect_to_wordpress_db() {
+		if ( ! file_exists( JETPACK_WAF_WPCONFIG ) ) {
+			return;
+		}
 
-		$table_name = $wpdb->prefix . 'jetpack_waf_blocklog_daily_summary';
-		$date       = gmdate( 'Y-m-d' );
+		require_once JETPACK_WAF_WPCONFIG;
+		$conn = new \mysqli( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME ); // phpcs:ignore WordPress.DB.RestrictedClasses.mysql__mysqli
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
-		$sql = $wpdb->prepare(
-			"INSERT INTO {$table_name} (summary_date, total_blocks) VALUES (%s, 1)
-			 ON DUPLICATE KEY UPDATE total_blocks = total_blocks + 1",
-			$date
-		);
+		if ( $conn->connect_error ) {
+			error_log( 'Could not connect to the database:' . $conn->connect_error );
+			return null;
+		}
 
-		$wpdb->query( $sql );
-		// phpcs:enable
-
-		// Migrate the old blocklog table to the new daily summary table
-		$this->migrate_jetpack_waf_blocklog();
-
-		// After updating the daily summary, prune entries older than 1 month.
-		$this->prune_daily_summary_table();
+		return $conn;
 	}
 
 	/**
-	 * Prune the daily summary table to retain only 1 month of data
+	 * Write block logs to database.
 	 *
-	 * @return void
+	 * @param array $log_data Log data.
 	 */
-	private function prune_daily_summary_table() {
-		global $wpdb;
-		$waf_blocklog_daily_summary = $wpdb->prefix . 'jetpack_waf_blocklog_daily_summary';
+	private function write_blocklog_row( $log_data ) {
+		$conn = $this->connect_to_wordpress_db();
 
-		// Calculate the date 1 month ago from today
-		$one_month_ago = gmdate( 'Y-m-d', strtotime( '-1 month' ) );
+		if ( ! $conn ) {
+			return;
+		}
 
-		// Delete entries older than 1 month
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM $waf_blocklog_daily_summary WHERE summary_date < %s",
-				$one_month_ago
-			)
-		);
-		// phpcs:enable
-	}
+		global $table_prefix;
 
-	/**
-	 * Get the total number of blocked requests for today
-	 *
-	 * @return int
-	 */
-	public function get_today_stats() {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'jetpack_waf_blocklog_daily_summary';
+		$statement = $conn->prepare( "INSERT INTO {$table_prefix}jetpack_waf_blocklog(reason,rule_id, timestamp) VALUES (?, ?, ?)" );
+		if ( false !== $statement ) {
+			$statement->bind_param( 'sis', $log_data['reason'], $log_data['rule_id'], $log_data['timestamp'] );
+			$statement->execute();
 
-		// Calculate today's date
-		$today = current_time( 'Y-m-d' );
-
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$total_blocks = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT total_blocks FROM $table_name WHERE summary_date = %s",
-				$today
-			)
-		);
-		// phpcs:enable
-
-		return $total_blocks ? $total_blocks : 0;
-	}
-
-	/**
-	 * Get the total number of blocked requests for the current month
-	 *
-	 * @return int
-	 */
-	public function get_current_month_stats() {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'jetpack_waf_blocklog_daily_summary';
-
-		// Calculate the first day of the current month in YYYY-MM-DD format
-		$current_month_start = gmdate( 'Y-m-01' );
-
-		// Calculate the first day of the next month, to set the range of this month
-		$next_month_start = gmdate( 'Y-m-01', strtotime( '+1 month' ) );
-
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$total_blocks = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT SUM(total_blocks) FROM $table_name 
-			 WHERE summary_date >= %s AND summary_date < %s",
-				$current_month_start,
-				$next_month_start
-			)
-		);
-		// phpcs:enable
-
-		return $total_blocks ? $total_blocks : 0;
-	}
-
-	/**
-	 * Migrate the old blocklog table to the new daily summary table
-	 *
-	 * @return void
-	 */
-	public function migrate_jetpack_waf_blocklog() {
-		global $wpdb;
-		$waf_blocklog               = $wpdb->prefix . 'jetpack_waf_blocklog';
-		$waf_blocklog_daily_summary = $wpdb->prefix . 'jetpack_waf_blocklog_daily_summary';
-
-		// Check if the old table exists
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$waf_blocklog}'" ) === $waf_blocklog ) {
-			// Aggregate data from the old table to the daily summary table
-			$results = $wpdb->get_results(
-				"SELECT DATE(timestamp) AS summary_date, COUNT(*) AS total_blocks
-				FROM {$waf_blocklog}
-				GROUP BY DATE(timestamp)"
-			);
-
-			foreach ( $results as $row ) {
-				// Insert or update the summary data for each day
-				$wpdb->query(
-					$wpdb->prepare(
-						"INSERT INTO {$waf_blocklog_daily_summary} (summary_date, total_blocks) VALUES (%s, %d)
-						ON DUPLICATE KEY UPDATE total_blocks = total_blocks + VALUES(total_blocks)",
-						$row->summary_date,
-						$row->total_blocks
-					)
-				);
+			if ( $conn->insert_id > 100 ) {
+				$conn->query( "DELETE FROM {$table_prefix}jetpack_waf_blocklog ORDER BY log_id LIMIT 1" );
 			}
-			// phpcs:enable
-
-			// Remove the old table
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$wpdb->query( "DROP TABLE IF EXISTS {$waf_blocklog}" );
 		}
 	}
 
@@ -205,6 +110,78 @@ class Waf_Blocklog_Manager {
 			}
 		}
 
+		$this->write_blocklog_row( $log_data );
 		$this->update_daily_summary();
+	}
+
+		/**
+		 * Update the daily summary stats for the current date.
+		 *
+		 * @return void
+		 */
+	public function update_daily_summary() {
+		$stats = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
+		$date  = gmdate( 'Y-m-d' );
+
+		if ( ! isset( $stats[ $date ] ) ) {
+			$stats[ $date ] = 0;
+		}
+
+		++$stats[ $date ];
+
+		// Prune stats to keep only the last 30 days.
+		$stats = $this->prune_stats( $stats );
+
+		update_option( 'jetpack_waf_blocklog_daily_summary', $stats );
+	}
+
+	/**
+	 * Prune the stats to retain only data for the last 30 days.
+	 *
+	 * @param array $stats The array of stats to prune.
+	 * @return array Pruned stats array.
+	 */
+	private function prune_stats( $stats ) {
+		$pruned_stats  = array();
+		$one_month_ago = gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+
+		foreach ( $stats as $date => $count ) {
+			if ( $date >= $one_month_ago ) {
+				$pruned_stats[ $date ] = $count;
+			}
+		}
+
+		return $pruned_stats;
+	}
+
+	/**
+	 * Get the total number of blocked requests for today.
+	 *
+	 * @return int
+	 */
+	public function get_today_stats() {
+		$stats = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
+		$today = gmdate( 'Y-m-d' );
+
+		return isset( $stats[ $today ] ) ? $stats[ $today ] : 0;
+	}
+
+	/**
+	 * Get the total number of blocked requests for the current month.
+	 *
+	 * @return int
+	 */
+	public function get_current_month_stats() {
+		$stats               = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
+		$current_month_start = gmdate( 'Y-m-01' );
+		$total_blocks        = 0;
+
+		foreach ( $stats as $date => $count ) {
+			if ( $date >= $current_month_start ) {
+				$total_blocks += $count;
+			}
+		}
+
+		return $total_blocks;
 	}
 }
