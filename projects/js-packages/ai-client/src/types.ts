@@ -41,6 +41,15 @@ export type {
 	UseAudioTranscriptionProps,
 	UseAudioTranscriptionReturn,
 } from './hooks/use-audio-transcription/index.js';
+export type {
+	UseTranscriptionPostProcessingProps,
+	UseTranscriptionPostProcessingReturn,
+	PostProcessingAction,
+} from './hooks/use-transcription-post-processing/index.js';
+/*
+ * Hook constants
+ */
+export { POST_PROCESSING_ACTION_SIMPLE_DRAFT } from './hooks/use-transcription-post-processing/index.js';
 
 /*
  * Requests types
