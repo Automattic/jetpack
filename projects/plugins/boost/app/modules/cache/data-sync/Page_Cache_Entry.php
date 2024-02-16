@@ -21,6 +21,25 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 	public function set( $value ) {
 		$cache_settings = Boost_Cache_Settings::get_instance();
 
+		$value['excludes'] = $this->sanitize_value( $value['excludes'] );
+
 		$cache_settings->set( $value );
+	}
+
+	/**
+	 * Sanitizes the given value, ensuring that it is a comma-separated list of unique, trimmed strings.
+	 *
+	 * @param mixed $value The value to sanitize.
+	 *
+	 * @return string The sanitized value, as a comma-separated list of unique, trimmed strings.
+	 */
+	private function sanitize_value( $value ) {
+		if ( is_array( $value ) ) {
+			$value = array_values( array_unique( array_filter( array_map( 'trim', $value ) ) ) );
+		} else {
+			$value = array();
+		}
+
+		return $value;
 	}
 }

@@ -4,7 +4,7 @@ import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
 import Lightning from '$svg/lightning';
 import styles from './meta.module.scss';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePageCache } from '$lib/stores/page-cache';
 
 const Meta = () => {
@@ -22,6 +22,17 @@ const Meta = () => {
 		setSettings( {
 			...settings,
 			logging: newValue,
+		} );
+	};
+
+	const setExcludes = ( newValue: string ) => {
+		if ( ! setSettings || ! settings ) {
+			return;
+		}
+
+		setSettings( {
+			...settings,
+			excludes: newValue.split( '\n' ).map( item => item.trim() ),
 		} );
 	};
 
@@ -57,20 +68,7 @@ const Meta = () => {
 				<div className={ styles.body }>
 					{ settings && (
 						<>
-							<div className={ styles.section }>
-								<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
-								<p>
-									{ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }
-								</p>
-								<textarea rows={ 3 }></textarea>
-								<p className={ styles.description }>
-									{ __(
-										'Use (*) to address multiple URLs under a given path. Be sure each URL path is in its own line. See an example or learn more.',
-										'jetpack-boost'
-									) }
-								</p>
-								<Button>{ __( 'Save', 'jetpack-boost' ) }</Button>
-							</div>
+							<Exceptions excludes={ settings.excludes.join( '\n' ) } setExcludes={ setExcludes } />
 							<div className={ styles.section }>
 								<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
 								<label htmlFor="cache-logging">
@@ -92,3 +90,37 @@ const Meta = () => {
 };
 
 export default Meta;
+
+type ExceptionsProps = {
+	excludes: string;
+	setExcludes: ( newValue: string ) => void;
+};
+
+const Exceptions = ( { excludes, setExcludes }: ExceptionsProps ) => {
+	const [ inputValue, setInputValue ] = useState( excludes );
+
+	useEffect( () => {
+		setInputValue( excludes );
+	}, [ excludes ] );
+
+	function save() {
+		setExcludes( inputValue );
+	}
+
+	return (
+		<div className={ styles.section }>
+			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
+			<p>{ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }</p>
+			<textarea value={ inputValue } rows={ 3 } onChange={ e => setInputValue( e.target.value ) } />
+			<p className={ styles.description }>
+				{ __(
+					'Use (*) to address multiple URLs under a given path. Be sure each URL path is in its own line. See an example or learn more.',
+					'jetpack-boost'
+				) }
+			</p>
+			<Button disabled={ excludes === inputValue } onClick={ save }>
+				{ __( 'Save', 'jetpack-boost' ) }
+			</Button>
+		</div>
+	);
+};
