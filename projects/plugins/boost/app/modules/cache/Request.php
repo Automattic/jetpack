@@ -3,7 +3,10 @@
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
 class Request {
-	private static $instance = null;
+	/**
+	 * @var Request - The request instance for current request.
+	 */
+	private static $current_request = null;
 
 	/**
 	 * @var string - The normalized path for the current request. This is not sanitized. Only to be used for comparison purposes.
@@ -20,11 +23,26 @@ class Request {
 	 *
 	 * @return Request The instance of the class.
 	 */
-	public static function get_instance() {
-		if ( self::$instance === null ) {
-			self::$instance = new self();
+	public static function current() {
+		if ( self::$current_request === null ) {
+			self::$current_request = new self(
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+				isset( $_SERVER['REQUEST_URI'] ) ? Boost_Cache_Utils::normalize_request_uri( $_SERVER['REQUEST_URI'] ) : false,
+				// Set the cookies and get parameters for the current request. Sometimes these arrays are modified by WordPress or other plugins.
+				// We need to cache them here so they can be used for the cache key later. We don't need to sanitize them, as they are only used for comparison.
+				array(
+					'cookies' => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+					'get'     => $_GET,    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
+				)
+			);
 		}
-		return self::$instance;
+
+		return self::$current_request;
+	}
+
+	public function __construct( $uri, $parameters ) {
+		$this->request_uri        = $uri;
+		$this->request_parameters = $parameters;
 	}
 
 	public function get_uri() {
@@ -33,19 +51,6 @@ class Request {
 
 	public function get_parameters() {
 		return $this->request_parameters;
-	}
-
-	public function __construct() {
-		$this->request_uri = isset( $_SERVER['REQUEST_URI'] )
-			? Boost_Cache_Utils::normalize_request_uri( $_SERVER['REQUEST_URI'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-			: false;
-
-		// Set the cookies and get parameters for the current request. Sometimes these arrays are modified by WordPress or other plugins.
-		// We need to cache them here so they can be used for the cache key later. We don't need to sanitize them, as they are only used for comparison.
-		$this->request_parameters = array(
-			'cookies' => $_COOKIE, // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			'get'     => $_GET,   // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
-		);
 	}
 
 	/**
