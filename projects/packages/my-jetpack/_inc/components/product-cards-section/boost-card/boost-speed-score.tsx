@@ -3,22 +3,24 @@ import {
 	requestSpeedScores,
 	calculateDaysSince,
 } from '@automattic/jetpack-boost-score-api';
-// We'll need the IconTooltip in a follow-up PR. TODO: remove me
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { IconTooltip, Spinner, BoostScoreBar } from '@automattic/jetpack-components';
+import { Spinner, BoostScoreBar } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useEffect, useState } from 'react';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
+import BoostScoreTooltip from './boost-score-tooltip';
+import type { FC } from 'react';
+
 import './style.scss';
 
-const BoostSpeedScore = () => {
+const BoostSpeedScore: FC = () => {
 	const { recordEvent } = useAnalytics();
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( '' );
 	const [ daysSinceTested, setDaysSinceTested ] = useState( 1 );
 	const [ averageSpeedScore, setAverageSpeedScore ] = useState( 0 );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
+	const [ isTooltipVisible, setIsTooltipVisible ] = useState( false );
 
 	const { siteSuffix: siteUrl = '', latestBoostSpeedScores } = window?.myJetpackInitialState ?? {};
 	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
@@ -87,6 +89,14 @@ const BoostSpeedScore = () => {
 		}
 	}, [ daysSinceTested ] );
 
+	const handleTooltipOpen = useCallback( () => {
+		setIsTooltipVisible( true );
+	}, [] );
+
+	const handleTooltipClose = useCallback( () => {
+		setIsTooltipVisible( false );
+	}, [] );
+
 	useEffect( () => {
 		// Use cache scores if they are less than 21 days old.
 		if (
@@ -97,7 +107,6 @@ const BoostSpeedScore = () => {
 		} else {
 			getSpeedScores();
 		}
-
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
@@ -110,7 +119,29 @@ const BoostSpeedScore = () => {
 					<>
 						<div className="mj-boost-speed-score__grade">
 							<span>{ __( 'Your website’s overall speed score:', 'jetpack-my-jetpack' ) }</span>
-							<span className="mj-boost-speed-score__grade--letter">{ speedLetterGrade }</span>
+							<span className="mj-boost-speed-score__grade--letter">
+								<button
+									tabIndex={ 0 }
+									onMouseEnter={ handleTooltipOpen }
+									onFocus={ handleTooltipOpen }
+									onMouseLeave={ handleTooltipClose }
+									onBlur={ handleTooltipClose }
+								>
+									{ speedLetterGrade }
+								</button>
+								<BoostScoreTooltip isVisible={ isTooltipVisible } offset={ 8 }>
+									<p className={ 'boost-score-tooltip__heading' }>
+										{ __( 'Site speed performance:', 'jetpack-my-jetpack' ) } { speedLetterGrade }
+									</p>
+									<p className={ 'boost-score-tooltip__content' }>
+										{ __(
+											'You are one step away from making your site blazing fast. A one-second' +
+												'improvement in loading times can increase your site traffic by 10%.',
+											'jetpack-my-jetpack'
+										) }
+									</p>
+								</BoostScoreTooltip>
+							</span>
 						</div>
 						<div className="mj-boost-speed-score__bar">
 							<BoostScoreBar

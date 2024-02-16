@@ -11,10 +11,46 @@ $border_radius: math.div($bar-height, 2);
     column-gap: 1em;
     margin: 8px 0 8px;
     &--letter {
+        position: relative;
+        > button {
+            all: unset;
+            font-size: var(--font-title-small);
+            font-weight: bold;
+            line-height: $bar_height;
+            color: var(--jp-green);
+            padding: 0 5px;
+            border-radius: var(--jp-border-radius);
+            cursor: pointer;
+            &:focus {
+                outline: 1px dotted #000;
+            }
+        }
+    }
+}
+
+.boost-score-tooltip {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    &__heading {
         font-size: var(--font-title-small);
-        font-weight: bold;
-        line-height: $bar_height;
-        color: var(--jp-green);
+        line-height: 30px;
+        margin: 0;
+        color: black;
+    }
+    &__content {
+        font-size: var(--font-body);
+        line-height: 24px;
+    }
+}
+
+.components-popover__content {
+    width: 100%;
+    max-width: 340px;
+    min-height: 150px;
+    padding: 24px;
+    p:last-child {
+        margin-bottom: 0;
     }
 }
 
