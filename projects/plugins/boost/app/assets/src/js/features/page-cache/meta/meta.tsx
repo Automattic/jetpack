@@ -7,6 +7,7 @@ import Lightning from '$svg/lightning';
 import styles from './meta.module.scss';
 import { useEffect, useState } from 'react';
 import { usePageCache } from '$lib/stores/page-cache';
+import { Link } from 'react-router-dom';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( true );
@@ -104,6 +105,12 @@ const Meta = () => {
 										onChange={ event => setLogging( event.target.checked ) }
 									/>{ ' ' }
 									{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
+									{ settings.logging && (
+										<>
+											{ ' ' }
+											<Link to="/cache-debug-log">{ __( 'See Logs', 'jetpack-boost' ) }</Link>
+										</>
+									) }
 								</label>
 							</div>
 						</>
