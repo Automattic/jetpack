@@ -703,7 +703,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			.sso-disconnected-user-icon {
 				margin-left: 5px;
 				cursor: pointer;
-				background: black;
+				background: gray;
 				border-radius: 10px;
 				color: white;
 			}
