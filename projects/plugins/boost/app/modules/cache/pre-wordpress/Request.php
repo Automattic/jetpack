@@ -83,11 +83,11 @@ class Request {
 			$request_uri = $this->request_uri;
 		}
 
-		$excluded_urls = Boost_Cache_Settings::get_instance()->get_excluded_urls();
-		$excluded_urls = apply_filters( 'boost_cache_excluded_urls', $excluded_urls );
+		$exceptions = Boost_Cache_Settings::get_instance()->get_exceptions();
+		$exceptions = apply_filters( 'boost_cache_exceptions', $exceptions );
 
-		$excluded_urls[] = 'wp-.*\.php';
-		foreach ( $excluded_urls as $expr ) {
+		$exceptions[] = 'wp-.*\.php';
+		foreach ( $exceptions as $expr ) {
 			if ( ! empty( $expr ) && preg_match( "~$expr~", $request_uri ) ) {
 				return true;
 			}

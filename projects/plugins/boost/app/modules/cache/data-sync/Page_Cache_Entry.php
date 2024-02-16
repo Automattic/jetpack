@@ -11,8 +11,8 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 		$cache_settings = Boost_Cache_Settings::get_instance();
 
 		$settings = array(
-			'excludes' => is_array( $cache_settings->get( 'excludes' ) ) ? $cache_settings->get( 'excludes' ) : array(),
-			'logging'  => $cache_settings->get( 'logging' ),
+			'exceptions' => $cache_settings->get_exceptions(),
+			'logging'    => $cache_settings->get_logging(),
 		);
 
 		return $settings;
@@ -21,7 +21,7 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 	public function set( $value ) {
 		$cache_settings = Boost_Cache_Settings::get_instance();
 
-		$value['excludes'] = $this->sanitize_value( $value['excludes'] );
+		$value['exceptions'] = $this->sanitize_value( $value['exceptions'] );
 
 		$cache_settings->set( $value );
 	}

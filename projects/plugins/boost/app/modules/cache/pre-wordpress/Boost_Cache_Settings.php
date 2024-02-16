@@ -20,9 +20,9 @@ class Boost_Cache_Settings {
 	 * An uninitialized config holds these settings.
 	 */
 	private $default_settings = array(
-		'enabled' => true,
-		'exclues' => array(),
-		'logging' => false,
+		'enabled'    => true,
+		'exceptions' => array(),
+		'logging'    => false,
 	);
 
 	private function __construct() {
@@ -107,8 +107,17 @@ class Boost_Cache_Settings {
 	 *
 	 * @return array
 	 */
-	public function get_excluded_urls() {
-		return $this->get( 'excluded_urls', array() );
+	public function get_exceptions() {
+		return $this->get( 'exceptions', array() );
+	}
+
+	/**
+	 * Returns whether logging is enabled or not.
+	 *
+	 * @return bool
+	 */
+	public function get_logging() {
+		return $this->get( 'logging', false );
 	}
 
 	/*

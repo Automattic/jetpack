@@ -25,14 +25,14 @@ const Meta = () => {
 		} );
 	};
 
-	const setExcludes = ( newValue: string ) => {
+	const setExceptions = ( newValue: string ) => {
 		if ( ! setSettings || ! settings ) {
 			return;
 		}
 
 		setSettings( {
 			...settings,
-			excludes: newValue.split( '\n' ).map( item => item.trim() ),
+			exceptions: newValue.split( '\n' ).map( item => item.trim() ),
 		} );
 	};
 
@@ -68,7 +68,10 @@ const Meta = () => {
 				<div className={ styles.body }>
 					{ settings && (
 						<>
-							<Exceptions excludes={ settings.excludes.join( '\n' ) } setExcludes={ setExcludes } />
+							<Exceptions
+								exceptions={ settings.exceptions.join( '\n' ) }
+								setExceptions={ setExceptions }
+							/>
 							<div className={ styles.section }>
 								<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
 								<label htmlFor="cache-logging">
@@ -92,19 +95,19 @@ const Meta = () => {
 export default Meta;
 
 type ExceptionsProps = {
-	excludes: string;
-	setExcludes: ( newValue: string ) => void;
+	exceptions: string;
+	setExceptions: ( newValue: string ) => void;
 };
 
-const Exceptions = ( { excludes, setExcludes }: ExceptionsProps ) => {
-	const [ inputValue, setInputValue ] = useState( excludes );
+const Exceptions = ( { exceptions, setExceptions }: ExceptionsProps ) => {
+	const [ inputValue, setInputValue ] = useState( exceptions );
 
 	useEffect( () => {
-		setInputValue( excludes );
-	}, [ excludes ] );
+		setInputValue( exceptions );
+	}, [ exceptions ] );
 
 	function save() {
-		setExcludes( inputValue );
+		setExceptions( inputValue );
 	}
 
 	return (
@@ -114,11 +117,11 @@ const Exceptions = ( { excludes, setExcludes }: ExceptionsProps ) => {
 			<textarea value={ inputValue } rows={ 3 } onChange={ e => setInputValue( e.target.value ) } />
 			<p className={ styles.description }>
 				{ __(
-					'Use (*) to address multiple URLs under a given path. Be sure each URL path is in its own line. See an example or learn more.',
+					'Use (.*) to address multiple URLs under a given path. Be sure each URL path is in its own line. See an example or learn more.',
 					'jetpack-boost'
 				) }
 			</p>
-			<Button disabled={ excludes === inputValue } onClick={ save }>
+			<Button disabled={ exceptions === inputValue } onClick={ save }>
 				{ __( 'Save', 'jetpack-boost' ) }
 			</Button>
 		</div>
