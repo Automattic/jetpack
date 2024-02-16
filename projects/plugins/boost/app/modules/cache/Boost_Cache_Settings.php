@@ -51,7 +51,6 @@ class Boost_Cache_Settings {
 
 		$lines = file( $this->config_file );
 		if ( count( $lines ) < 4 ) {
-			Logger::debug( 'Invalid config file' );
 			$this->last_error = 'Invalid config file';
 			return false;
 		}
@@ -64,7 +63,6 @@ class Boost_Cache_Settings {
 			}
 		}
 		if ( ! is_array( $settings ) ) {
-			Logger::debug( 'Invalid config file' );
 			$this->last_error = 'Invalid config file';
 			return false;
 		}
@@ -79,7 +77,6 @@ class Boost_Cache_Settings {
 	 */
 	public function get( $setting, $default = false ) {
 		if ( ! isset( $this->settings[ $setting ] ) ) {
-			Logger::debug( 'Setting not found' );
 			$this->last_error = 'Setting not found';
 			return $default;
 		}
@@ -114,9 +111,7 @@ class Boost_Cache_Settings {
 	 * @return bool - true if the settings were saved, false otherwise. Call get_last_error() to get the error message.
 	 */
 	public function set( $settings ) {
-		Logger::debug( 'Setting cache settings' );
 		if ( ! is_writable( $this->config_file_path ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
-			Logger::debug( 'Config file path is not writable' );
 			$this->last_error = 'Config file is not writable';
 			return false;
 		}
