@@ -3688,9 +3688,9 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 						$we_have_tags = true;
 					}
 
-	                if ($we_have_tags){
+			if ( $we_have_tags ) {
 
-	                	$zbsCompanyMeta['tags'] = array();
+				$zbsCompanyMeta['tags'] = array(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				foreach ( $company_tags as $tag_name ) {
 
 					// Check for existing tag under this name.
