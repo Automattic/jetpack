@@ -84,7 +84,7 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return void
 	 */
-	private function update_daily_summary() {
+	public function update_daily_summary() {
 		$stats = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
 		$date  = gmdate( 'Y-m-d' );
 
