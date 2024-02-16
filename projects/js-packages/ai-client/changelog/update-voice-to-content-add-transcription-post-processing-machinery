@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: added
 
 AI Client: add support for transcription post-processing.
