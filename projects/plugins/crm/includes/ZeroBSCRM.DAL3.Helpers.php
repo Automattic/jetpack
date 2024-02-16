@@ -3691,21 +3691,37 @@ function zeroBS_getCompanyIDWithName( $company_name = '' ) {
 	                if ($we_have_tags){
 
 	                	$zbsCompanyMeta['tags'] = array();
-						foreach($company_tags as $cTag){
+				foreach ( $company_tags as $tag_name ) {
 
-							// find/add tag
-							$tagID = $zbs->DAL->addUpdateTag(array(
-								'data'=>array(
-									'objtype' 		=> ZBS_TYPE_COMPANY,
-									'name' 			=> $cTag
-									)));
+					// Check for existing tag under this name.
+					$tag_id = $zbs->DAL->getTag( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						-1,
+						array(
+							'objtype' => ZBS_TYPE_COMPANY,
+							'name'    => $tag_name,
+							'onlyID'  => true,
+						)
+					);
 
-							if (!empty($tagID)) $zbsCompanyMeta['tags'][] = $tagID;
+					// If tag doesn't exist, create one.
+					if ( empty( $tag_id ) ) {
+						$tag_id = $zbs->DAL->addUpdateTag( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+							array(
+								'data' => array(
+									'objtype' => ZBS_TYPE_COMPANY,
+									'name'    => $tag_name,
+								),
+							)
+						);
+					}
 
-						}
-
+					// Add tag to list.
+					if ( ! empty( $tag_id ) ) {
+						$zbsCompanyMeta['tags'][] = $tag_id; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					}
 				}
+			}
+		}
 
 
 				#} Add external source/externalid
