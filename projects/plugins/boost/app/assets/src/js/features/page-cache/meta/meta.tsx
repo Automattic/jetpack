@@ -1,6 +1,6 @@
 import { Button } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
 import Lightning from '$svg/lightning';
@@ -37,11 +37,32 @@ const Meta = () => {
 		} );
 	};
 
+	const totalExceptions = settings?.exceptions.length || 0;
+
 	return (
 		<div className={ styles.wrapper }>
 			<div className={ styles.head }>
 				<div className={ styles.summary }>
-					{ __( 'No exceptions or logging.', 'jetpack-boost' ) }
+					{ totalExceptions === 0 && ! settings?.logging ? (
+						__( 'No exceptions or logging.', 'jetpack-boost' )
+					) : (
+						<>
+							{ totalExceptions > 0 ? (
+								<>
+									{ sprintf(
+										/* translators: %d is the number of exceptions. */
+										_n( '%d exception.', '%d exceptions.', totalExceptions, 'jetpack-boost' ),
+										totalExceptions
+									) }
+								</>
+							) : (
+								__( 'No exceptions.', 'jetpack-boost' )
+							) }{ ' ' }
+							{ settings?.logging
+								? __( 'Logging activated.', 'jetpack-boost' )
+								: __( 'No logging.', 'jetpack-boost' ) }
+						</>
+					) }
 				</div>
 				<div className={ styles.actions }>
 					<Button
