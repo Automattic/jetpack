@@ -165,6 +165,10 @@ add_action( 'muplugins_loaded', '\Private_Site\muplugins_loaded' );
  * Replaces the 'Site Visibility' privacy options selector with a Calypso link.
  */
 function privatize_blog_priv_selector() {
+	if ( wpcom_is_nav_redesign_enabled() ) {
+		return;
+	}
+
 	$has_jetpack_connection = is_jetpack_connected();
 
 	if ( ! $has_jetpack_connection && site_is_private() ) {
