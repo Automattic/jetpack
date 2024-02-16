@@ -23,7 +23,12 @@ const ConnectionScreenFooter = () => {
 					'jetpack-my-jetpack'
 				) }
 			</div>
-			<ul className={ styles[ 'account-images' ] }>
+			{ /*
+				Since the list style type is set to none, `role=list` is required for VoiceOver (on Safari) to announce the list.
+				See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
+			*/ }
+			{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
+			<ul className={ styles[ 'account-images' ] } role="list">
 				<li>
 					<img src={ wordpressLogo } className={ styles.wordpress } alt="WordPress.com" />
 				</li>
@@ -65,7 +70,12 @@ const ConnectionScreen = () => {
 						from="my-jetpack"
 						redirectUri={ returnToPage }
 					>
-						<ul>
+						{ /*
+						Since the list style type is set to none, `role=list` is required for VoiceOver (on Safari) to announce the list.
+						See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
+						*/ }
+						{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
+						<ul role="list">
 							<li>{ __( 'Receive instant downtime alerts', 'jetpack-my-jetpack' ) }</li>
 							<li>
 								{ __( 'Automatically share your content on social media', 'jetpack-my-jetpack' ) }
