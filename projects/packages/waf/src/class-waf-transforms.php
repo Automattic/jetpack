@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Waf;
 class Waf_Transforms {
 
 	/**
-	 * Decode a Base64-encoded string.
+	 * Decode a Base64-encoded string. This runs the decode without strict mode, to match Modsecurity's 'base64DecodeExt' transform function.
 	 *
 	 * @param string $value value to be decoded.
 	 * @return string
@@ -31,7 +31,7 @@ class Waf_Transforms {
 	const TRIM_CHARS = " \n\r\t\v\f";
 
 	/**
-	 * Decode a Base64-encoded string.
+	 * Decode a Base64-encoded string. This runs the decode with strict mode, to match Modsecurity's 'base64Decode' transform function.
 	 *
 	 * @param string $value value to be decoded.
 	 * @return string
