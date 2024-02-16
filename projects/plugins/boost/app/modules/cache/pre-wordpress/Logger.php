@@ -1,6 +1,9 @@
 <?php
+/*
+ * This file may be called before WordPress is fully initialized. See the README file for info.
+ */
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
+namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
 
 /**
  * A utility that manages logging for the boost cache.
