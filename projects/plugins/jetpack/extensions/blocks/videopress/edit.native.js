@@ -224,9 +224,8 @@ class VideoPressEdit extends Component {
 	}
 
 	getVideoURL() {
-		const { attributes } = this.props;
-		const { guid } = attributes;
-		const { metadata = {} } = this.state;
+		const { guid } = this.props.attributes;
+		const { is_private } = this.state.metadata || {};
 
 		if ( ! guid ) {
 			return;
@@ -235,7 +234,7 @@ class VideoPressEdit extends Component {
 		// Private videos will open in the player for logged in users with the WordPress.com URL.
 		// However, they'll still display blank in the editor.
 		// TODO: We need to iterate so that private videos display as expected.
-		return metadata.is_private
+		return is_private
 			? `https://video.wordpress.com/v/${ guid }`
 			: `https://videopress.com/v/${ guid }`;
 	}
