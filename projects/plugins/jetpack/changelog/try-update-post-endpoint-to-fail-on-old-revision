@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Add 'if_not_modified_since' to the update post endpoints this will help clients fails if the post has been updated since last retrieved 
