@@ -8,6 +8,8 @@ import {
 	useMediaRecording,
 	useAudioTranscription,
 	UseAudioTranscriptionReturn,
+	useTranscriptionPostProcessing,
+	TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
 } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { Button, Modal, Icon, FormFileUpload } from '@wordpress/components';
@@ -82,9 +84,26 @@ function ContextualRow( { state, error = null, audioURL = null } ) {
 function ActionButtons( { state, mediaControls } ) {
 	const { start, pause, resume, stop } = mediaControls ?? {};
 
+	const { processTranscription } = useTranscriptionPostProcessing( {
+		feature: 'voice-to-content',
+		onReady: result => {
+			// eslint-disable-next-line no-console
+			console.log( 'Post-processing ready: ', result );
+		},
+		onError: error => {
+			// eslint-disable-next-line no-console
+			console.log( 'Post-processing error: ', error );
+		},
+		onUpdate: currentPostProcessingResult => {
+			// eslint-disable-next-line no-console
+			console.log( 'Post-processing update: ', currentPostProcessingResult );
+		},
+	} );
+
 	const onTranscriptionReady = ( transcription: string ) => {
 		// eslint-disable-next-line no-console
 		console.log( 'Transcription ready: ', transcription );
+		processTranscription( TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT, transcription );
 	};
 
 	const onTranscriptionError = ( error: string ) => {
