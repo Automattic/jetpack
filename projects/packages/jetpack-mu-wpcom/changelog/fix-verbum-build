@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Verbum: Avoid copying PHP files into `src/build/verbum-comments/`.

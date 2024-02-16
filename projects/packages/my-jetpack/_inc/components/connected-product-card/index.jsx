@@ -20,8 +20,10 @@ const ConnectedProductCard = ( {
 	showMenu = false,
 	Description = null,
 	additionalActions = null,
+	secondaryAction = null,
 	menuItems = [],
 	upgradeInInterstitial = false,
+	primaryActionOverride,
 } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
@@ -109,11 +111,16 @@ const ConnectedProductCard = ( {
 			} );
 	}, [ deactivateStandalonePlugin ] );
 
-	const DefaultDescription = () => (
-		<Text variant="body-small" style={ { flexGrow: 1 } }>
-			{ defaultDescription }
-		</Text>
-	);
+	const DefaultDescription = () => {
+		// Replace the last space with a non-breaking space to prevent widows
+		const cardDescription = defaultDescription.replace( /\s(?=[^\s]*$)/, '\u00A0' );
+
+		return (
+			<Text variant="body-small" style={ { flexGrow: 1 } }>
+				{ cardDescription }
+			</Text>
+		);
+	};
 
 	return (
 		<ProductCard
@@ -127,6 +134,8 @@ const ConnectedProductCard = ( {
 			isDeactivatingStandalone={ deactivatingStandalone }
 			onDeactivate={ deactivate }
 			additionalActions={ additionalActions }
+			primaryActionOverride={ primaryActionOverride }
+			secondaryAction={ secondaryAction }
 			slug={ slug }
 			onActivate={ handleActivate }
 			showMenu={ menuIsActive }
@@ -151,6 +160,8 @@ ConnectedProductCard.propTypes = {
 	isDataLoading: PropTypes.bool,
 	showMenu: PropTypes.bool,
 	additionalActions: PropTypes.array,
+	primaryActionOverride: PropTypes.object,
+	secondaryAction: PropTypes.object,
 	menuItems: PropTypes.array,
 };
 

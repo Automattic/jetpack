@@ -21,6 +21,7 @@ use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
@@ -233,6 +234,10 @@ class Jetpack_Redux_State_Helper {
 				'showLicensingUi'         => Licensing::instance()->is_licensing_input_enabled(),
 				'userCounts'              => Licensing_Endpoints::get_user_license_counts(),
 				'activationNoticeDismiss' => Licensing::instance()->get_license_activation_notice_dismiss(),
+			),
+			'jetpackManage'               => array(
+				'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
+				'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 			),
 			'hasSeenWCConnectionModal'    => Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false ),
 			'newRecommendations'          => Jetpack_Recommendations::get_new_conditional_recommendations(),

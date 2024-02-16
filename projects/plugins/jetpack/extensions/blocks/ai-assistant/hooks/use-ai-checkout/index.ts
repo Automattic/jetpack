@@ -10,6 +10,18 @@ import {
 import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import useAiFeature from '../use-ai-feature';
 
+const getWPComRedirectToURL = () => {
+	const searchParams = new URLSearchParams( window.location.search );
+	const site = getSiteFragment();
+
+	if ( isSimpleSite() && searchParams.has( 'post' ) ) {
+		// When there is an explicit post, use it as the destination
+		return `https://wordpress.com/post/${ site }/${ searchParams.get( 'post' ) }`;
+	}
+	// When there is no explicit post, or the site is not Simple, use the home page as the destination
+	return `https://wordpress.com/home/${ site }`;
+};
+
 export default function useAICheckout(): {
 	checkoutUrl: string;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,11 +30,13 @@ export default function useAICheckout(): {
 } {
 	const { nextTier, tierPlansEnabled } = useAiFeature();
 
+	const wpcomRedirectToURL = getWPComRedirectToURL();
+
 	const wpcomCheckoutUrl = tierPlansEnabled
 		? getRedirectUrl( 'jetpack-ai-yearly-tier-upgrade-nudge', {
 				site: getSiteFragment(),
 				path: `jetpack_ai_yearly:-q-${ nextTier?.limit }`,
-				query: `redirect_to=${ encodeURIComponent( window.location.href ) }`,
+				query: `redirect_to=${ encodeURIComponent( wpcomRedirectToURL ) }`,
 		  } )
 		: getRedirectUrl( 'jetpack-ai-monthly-plan-ai-assistant-block-banner', {
 				site: getSiteFragment(),

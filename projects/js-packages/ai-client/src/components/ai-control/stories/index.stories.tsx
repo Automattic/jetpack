@@ -7,8 +7,8 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { REQUESTING_STATES } from '../../../types';
-import AIControl from '../index';
+import { REQUESTING_STATES } from '../../../types.js';
+import AIControl from '../index.js';
 /**
  * Types
  */

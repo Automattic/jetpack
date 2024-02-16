@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.12.0-alpha';
+	const PACKAGE_VERSION = '5.12.3-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -37,6 +37,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_site_editor_dashboard_link' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_import_customizations' ) );
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_marketplace_products_updater' ) );
 
@@ -75,6 +76,8 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/media/heif-support.php';
 
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
+
+		require_once __DIR__ . '/features/wpcom-site-menu/wpcom-site-menu.php';
 	}
 
 	/**
@@ -265,5 +268,12 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
 		}
+	}
+
+	/**
+	 * Load import.php customizations.
+	 */
+	public static function load_import_customizations() {
+		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
 	}
 }

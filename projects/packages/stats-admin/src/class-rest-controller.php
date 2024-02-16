@@ -323,6 +323,50 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
+
+		// Get email stats as a list.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/stats/emails/(?P<resource>[\-\w\d]+)', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_email_stats_list' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
+		// Get Email opens stats for a single post.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/stats/opens/emails/(?P<post_id>[\d]+)/(?P<resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_email_opens_stats_single' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
+		// Get Email clicks stats for a single post.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/stats/clicks/emails/(?P<post_id>[\d]+)/(?P<resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_email_clicks_stats_single' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
+		// Get Email stats time series.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/stats/(?P<resource>[\-\w]+)/emails/(?P<post_id>[\d]+)', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_email_stats_time_series' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -664,6 +708,122 @@ class REST_Controller {
 			'v1.1',
 			array( 'timeout' => 5 )
 		);
+	}
+
+	/**
+	 * Get Email stats as a list.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_email_stats_list( $req ) {
+		switch ( $req->get_param( 'resource' ) ) {
+			case 'summary':
+				return WPCOM_Client::request_as_blog_cached(
+					sprintf(
+						'/sites/%d/stats/emails/%s?%s',
+						Jetpack_Options::get_option( 'id' ),
+						$req->get_param( 'resource' ),
+						$this->filter_and_build_query_string(
+							$req->get_params()
+						)
+					),
+					'v1.1',
+					array( 'timeout' => 5 )
+				);
+			default:
+				return $this->get_forbidden_error();
+		}
+	}
+
+	/**
+	 * Get Email opens stats for a single post.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_email_opens_stats_single( $req ) {
+		switch ( $req->get_param( 'resource' ) ) {
+			case 'client':
+			case 'device':
+			case 'country':
+			case 'rate':
+				return WPCOM_Client::request_as_blog_cached(
+					sprintf(
+						'/sites/%d/stats/opens/emails/%d/%s?%s',
+						Jetpack_Options::get_option( 'id' ),
+						$req->get_param( 'post_id' ),
+						$req->get_param( 'resource' ),
+						$this->filter_and_build_query_string(
+							$req->get_params()
+						)
+					),
+					'v1.1',
+					array( 'timeout' => 5 )
+				);
+			default:
+				return $this->get_forbidden_error();
+		}
+	}
+
+	/**
+	 * Get Email clicks stats for a single post.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_email_clicks_stats_single( $req ) {
+		switch ( $req->get_param( 'resource' ) ) {
+			case 'client':
+			case 'device':
+			case 'country':
+			case 'rate':
+			case 'link':
+			case 'user-content-link':
+				return WPCOM_Client::request_as_blog_cached(
+					sprintf(
+						'/sites/%d/stats/clicks/emails/%d/%s?%s',
+						Jetpack_Options::get_option( 'id' ),
+						$req->get_param( 'post_id' ),
+						$req->get_param( 'resource' ),
+						$this->filter_and_build_query_string(
+							$req->get_params()
+						)
+					),
+					'v1.1',
+					array( 'timeout' => 5 )
+				);
+			default:
+				return $this->get_forbidden_error();
+		}
+	}
+
+	/**
+	 * Get Email stats time series.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_email_stats_time_series( $req ) {
+		switch ( $req->get_param( 'resource' ) ) {
+			case 'opens':
+			case 'clicks':
+				return WPCOM_Client::request_as_blog_cached(
+					sprintf(
+						'/sites/%d/stats/%s/emails/%d?%s',
+						Jetpack_Options::get_option( 'id' ),
+						$req->get_param( 'resource' ),
+						$req->get_param( 'post_id' ),
+						$this->filter_and_build_query_string(
+							$req->get_params()
+						)
+					),
+					'v1.1',
+					array( 'timeout' => 5 )
+				);
+			default:
+				return $this->get_forbidden_error();
+		}
 	}
 
 	/**
