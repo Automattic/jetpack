@@ -124,7 +124,7 @@ class Publicize_UI {
 			printf(
 				wp_kses(
 					/* translators: %s is the link to the Publicize page in Calypso */
-					__( "We've made some updates to Jetpack Social. Please visit the <a href='%s' class='jptracks' data-jptracks-name='legacy_publicize_settings'>WordPress.com sharing page</a> to manage your Jetpack Social connections or use the button below.", 'jetpack-publicize-pkg' ),
+					__( "We've made some updates to Jetpack Social. Please visit the <a href='%s' class='jptracks' data-jptracks-name='legacy_publicize_settings'>Connections page</a> to manage your Jetpack Social connections or use the button below.", 'jetpack-publicize-pkg' ),
 					array(
 						'a' => array(
 							'href'               => array(),
@@ -138,7 +138,7 @@ class Publicize_UI {
 			?>
 		</h4>
 
-		<a href="<?php echo esc_url( $this->publicize->publicize_connections_url() ); ?>" class="button button-primary jptracks" data-jptracks-name='legacy_publicize_settings'><?php esc_html_e( 'Jetpack Social Settings', 'jetpack-publicize-pkg' ); ?></a>
+		<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" class="button button-primary jptracks" data-jptracks-name='legacy_publicize_settings'><?php esc_html_e( 'Jetpack Social Settings', 'jetpack-publicize-pkg' ); ?></a>
 		<?php
 	}
 
