@@ -6,9 +6,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
 
-require_once __DIR__ . '/Boost_Cache_Settings.php';
-require_once __DIR__ . '/Logger.php';
-
 class Request {
 	/**
 	 * @var Request - The request instance for current request.

@@ -10,6 +10,7 @@ require_once __DIR__ . '/Boost_Cache_Settings.php';
 require_once __DIR__ . '/Boost_Cache_Utils.php';
 require_once __DIR__ . '/Logger.php';
 require_once __DIR__ . '/Request.php';
+require_once __DIR__ . '/storage/Storage.php';
 require_once __DIR__ . '/storage/File_Storage.php';
 
 class Boost_Cache {

@@ -6,8 +6,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
 
-require_once __DIR__ . '/Boost_Cache_Utils.php';
-
 /*
  * Cache settings class.
  * Settings are stored in a file in the boost-cache directory.

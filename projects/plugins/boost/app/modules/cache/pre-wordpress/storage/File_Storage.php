@@ -6,9 +6,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Storage;
 
-require_once __DIR__ . '/Storage.php';
-require_once dirname( __DIR__ ) . '/Boost_Cache_Utils.php';
-
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 
 /**
