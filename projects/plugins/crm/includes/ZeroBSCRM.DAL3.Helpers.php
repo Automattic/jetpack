@@ -1946,24 +1946,41 @@ function zeroBS_addUpdateCustomer(
 					$we_have_tags = true;
 				}
 
-                if($we_have_tags){
+			if ( $we_have_tags ) {
 
-                	$zbsCustomerMeta['tags'] = array();
-					foreach($customer_tags as $cTag){
+				$zbsCustomerMeta['tags'] = array(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				foreach ( $customer_tags as $tag_name ) {
 
-						// find/add tag
-						//wp_set_object_terms($postID , $cTag, 'zerobscrm_customertag', true );
-						$tagID = $zbs->DAL->addUpdateTag(array(
-							'data'=>array(
-								'objtype' 		=> ZBS_TYPE_CONTACT,
-								'name' 			=> $cTag
-								)));
+					// Check for existing tag under this name.
+					$tag_id = $zbs->DAL->getTag( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						-1,
+						array(
+							'objtype' => ZBS_TYPE_CONTACT,
+							'name'    => $tag_name,
+							'onlyID'  => true,
+						)
+					);
 
-						if (!empty($tagID)) $zbsCustomerMeta['tags'][] = $tagID;
-
+					// If tag doesn't exist, create one.
+					if ( empty( $tag_id ) ) {
+						$tag_id = $zbs->DAL->addUpdateTag( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+							array(
+								'data' => array(
+									'objtype' => ZBS_TYPE_CONTACT,
+									'name'    => $tag_name,
+								),
+							)
+						);
 					}
+
+					// Add tag to list.
+					if ( ! empty( $tag_id ) ) {
+						$zbsCustomerMeta['tags'][] = $tag_id; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					}
+
 				}
 			}
+		}
 
 
 			#} Add external source/externalid
