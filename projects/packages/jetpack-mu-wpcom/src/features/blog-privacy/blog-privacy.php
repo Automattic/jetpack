@@ -53,4 +53,4 @@ function robots_txt( string $output, $public ): string {
 	return $output;
 }
 
-add_filter( 'robots_txt', __NAMESPACE__ . '\\robots_txt', 20, 2 );
+add_filter( 'robots_txt', __NAMESPACE__ . '\\robots_txt', 12, 2 );

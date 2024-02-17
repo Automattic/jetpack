@@ -101,7 +101,7 @@ AI_BLOCKS;
 	 * Test for robots_txt hook.
 	 */
 	public function test_robots_txt_is_hooked() {
-		$this->assertSame( 20, \has_filter( 'robots_txt', __NAMESPACE__ . '\\robots_txt' ) );
+		$this->assertSame( 12, \has_filter( 'robots_txt', __NAMESPACE__ . '\\robots_txt' ) );
 	}
 
 	/**
