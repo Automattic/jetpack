@@ -6,9 +6,14 @@
  */
 
 /**
+ * The root directory of Jetpack CRM.
+ */
+define( 'JETPACK_CRM_TESTS_ROOT', __DIR__ );
+
+/**
  * Assume we're in tests/php/bootstrap.php.
  */
-$_plugin_root = dirname( dirname( __DIR__ ) );
+$_plugin_root = dirname( __DIR__, 2 );
 
 /**
  * Locate WordPress or wordpress-develop. We look in several places.
@@ -74,7 +79,7 @@ require $test_root . '/includes/functions.php';
  * Load Jetpack CRM.
  */
 function _jpcrm_manually_load_plugin() {
-	require_once __DIR__ . '/../../ZeroBSCRM.php';
+	require_once JETPACK_CRM_TESTS_ROOT . '/../../ZeroBSCRM.php';
 
 	// Run all register_activation_hook() functions.
 	global $zbs;
@@ -92,8 +97,8 @@ require $test_root . '/includes/bootstrap.php';
 /**
  * Make Jetpack CRM test case available for all tests.
  */
-require_once __DIR__ . '/class-jpcrm-base-test-case.php';
-require_once __DIR__ . '/class-jpcrm-base-integration-test-case.php';
+require_once JETPACK_CRM_TESTS_ROOT . '/class-jpcrm-base-test-case.php';
+require_once JETPACK_CRM_TESTS_ROOT . '/class-jpcrm-base-integration-test-case.php';
 
 /**
  * Load all feature flags, so they will be testable.

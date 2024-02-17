@@ -377,7 +377,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						<tbody>
 						<?php if ( $useInvoices == '1' || $useTrans == '1' ) : ?>
 						<tr class="zbs-view-vital-totalvalue">
-							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( 'Total Value is all transaction types and any unpaid invoices (excluding deleted status invoices).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
+							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( "The Total Value can be set to include just transaction values, just invoice values, or both together. You can choose how it's calculated by going to the General Settings page.", 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
 							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $contact_total_value ) ); ?></strong></td>
 						</tr>
 						<?php endif; ?>
@@ -876,7 +876,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 									$invoice_val = $invoice['total'];
 
-									$invoice_status = $invoice['status'];
+									$invoice_status = $invoice['status_label'];
 
 									echo '<tr>';
 									echo '<td><a href="' . esc_url( $invoice_url ) . '">' . esc_html( $id_ref_str ) . '</a></td>';
@@ -1250,7 +1250,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 							<?php
 
 							// prep link to create a new task
-							$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&zbsprefillcust=' . $contact['id'];
+							$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TASK ) . '&zbsprefillcust=' . $contact['id'];
 
 							if ( isset( $contact['tasks'] ) && is_array( $contact['tasks'] ) && count( $contact['tasks'] ) > 0 ) {
 
@@ -1282,7 +1282,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 									}
 
-									$taskURL   = jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_EVENT );
+									$taskURL   = jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_TASK );
 									$statusStr = __( 'Incomplete', 'zero-bs-crm' );
 									if ( isset( $task['complete'] ) && $task['complete'] === 1 ) {
 																		$statusStr = __( 'Completed', 'zero-bs-crm' );

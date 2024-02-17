@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.system_calls_proc_open, PHPCompatibility.ParameterValues.NewProcOpenCmdArray.Found, WordPress.WP.AlternativeFunctions
+// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.system_calls_proc_open, WordPress.WP.AlternativeFunctions
 
 // The repo root path.
 $jetpack_path = dirname( __DIR__ ) . '/';
@@ -31,13 +31,13 @@ foreach ( $regex as $path_to_file => $value ) {
 	$path_from_repo_root = str_replace( $jetpack_path, '', $path_to_file );
 
 	// Ignore top-level files.
-	if ( false === strpos( $path_from_repo_root, '/' ) ) {
+	if ( ! str_contains( $path_from_repo_root, '/' ) ) {
 		continue;
 	}
 
 	// Ignore explicit ignore list.
 	foreach ( $ignore_paths as $ignore_path ) {
-		if ( 0 === strpos( $path_from_repo_root, $ignore_path ) ) {
+		if ( str_starts_with( $path_from_repo_root, $ignore_path ) ) {
 			continue 2;
 		}
 	}

@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { getSiteIcon } from './utils';
 
 export default function useSubscriptions( { ignore_user_blogs } ) {
 	const [ isLoading, setIsLoading ] = useState( false );
@@ -35,6 +36,11 @@ export default function useSubscriptions( { ignore_user_blogs } ) {
 						)
 					);
 				}
+				// Add placeholder image if site icon is missing
+				response = response.map( subscription => {
+					subscription.site_icon = getSiteIcon( subscription.site_icon );
+					return subscription;
+				} );
 				setSubscriptions( response );
 			} )
 			.catch( error => {

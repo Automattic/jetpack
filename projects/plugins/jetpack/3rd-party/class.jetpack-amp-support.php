@@ -500,7 +500,7 @@ class Jetpack_AMP_Support {
 		}
 
 		// Percentage-based dimensions are not allowed in AMP, so this shouldn't happen, but short-circuit just in case.
-		if ( false !== strpos( $details['width_orig'], '%' ) || false !== strpos( $details['height_orig'], '%' ) ) {
+		if ( str_contains( $details['width_orig'], '%' ) || str_contains( $details['height_orig'], '%' ) ) {
 			return $args;
 		}
 

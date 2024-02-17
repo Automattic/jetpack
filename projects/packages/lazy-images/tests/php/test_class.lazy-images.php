@@ -604,19 +604,78 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 
 	/**
 	 * Confirms that the lazy images module is not loaded with Gutenberg 16.6.
+	 *
+	 * @covers Jetpack_Lazy_Images::should_force_deactivate
+	 * @dataProvider get_should_force_deactivate_data
+	 *
+	 * @param array $version_details Version details (WP and Gutenberg).
+	 * @param bool  $expected        Whether or not the module should be deactivated.
 	 */
-	public function test_lazy_images_not_loaded_with_gutenberg_16_6() {
-		// Verify without the constant set that the instance is returned.
-		$this->assertInstanceOf( Jetpack_Lazy_Images::class, Jetpack_Lazy_Images::instance() );
+	public function test_should_force_deactivate( $version_details, $expected ) {
+		global $wp_version;
+		$previous_version = $wp_version;
 
-		// Verify loading on old versions of Gutenberg.
-		Constants::set_constant( 'IS_GUTENBERG_PLUGIN', true );
-		Constants::set_constant( 'GUTENBERG_VERSION', '16.5.0' );
-		$this->assertInstanceOf( Jetpack_Lazy_Images::class, Jetpack_Lazy_Images::instance() );
+		Constants::set_constant( 'IS_JETPACK_LAZY_IMAGES_TESTS', false ); // disable hack for this test
 
-		// Set the Gutenberg constants and test instance.
-		Constants::set_constant( 'GUTENBERG_VERSION', '16.6.0' );
-		$this->assertNull( Jetpack_Lazy_Images::instance() );
-		Constants::clear_constants();
+		Constants::set_constant( 'IS_GUTENBERG_PLUGIN', $version_details['gutenberg'] );
+		Constants::set_constant( 'GUTENBERG_VERSION', $version_details['gutenberg_version'] );
+		if ( true === $version_details['is_gutenberg_dev'] ) {
+			Constants::set_constant( 'GUTENBERG_DEVELOPMENT_MODE', true );
+		}
+
+		$wp_version = $version_details['wp']; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		try {
+			$this->assertSame( $expected, Jetpack_Lazy_Images::should_force_deactivate() );
+		} finally {
+			Constants::clear_constants();
+			$wp_version = $previous_version; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
+	}
+
+	/**
+	 * Data provider for test.
+	 *
+	 * @return array
+	 */
+	public function get_should_force_deactivate_data() {
+		return array(
+			'Gutenberg 16.5.0'                 => array(
+				array(
+					'wp'                => '6.3.0',
+					'gutenberg'         => true,
+					'gutenberg_version' => '16.5.0',
+					'is_gutenberg_dev'  => false,
+				),
+				false,
+			),
+			'Gutenberg 16.6.0'                 => array(
+				array(
+					'wp'                => '6.3.0',
+					'gutenberg'         => true,
+					'gutenberg_version' => '16.6.0',
+					'is_gutenberg_dev'  => false,
+				),
+				true,
+			),
+			'WordPress 6.4'                    => array(
+				array(
+					'wp'                => '6.4.0',
+					'gutenberg'         => false,
+					'gutenberg_version' => false,
+					'is_gutenberg_dev'  => false,
+				),
+				true,
+			),
+			'Development version of Gutenberg' => array(
+				array(
+					'wp'                => '6.3.0',
+					'gutenberg'         => true,
+					'gutenberg_version' => '15.6.0',
+					'is_gutenberg_dev'  => true,
+				),
+				true,
+			),
+		);
 	}
 }

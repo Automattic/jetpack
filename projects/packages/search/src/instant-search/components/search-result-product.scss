@@ -52,6 +52,9 @@ $item-spacing: 16px;
 		$column-count: 5;
 		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
 	}
+	.jetpack-instant-search__search-result-title-link {
+		display: initial;
+	}
 }
 
 .jetpack-instant-search__search-result > .jetpack-instant-search__search-result-product-img-link {

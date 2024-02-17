@@ -83,7 +83,7 @@ The default is development mode; set `NODE_ENV=production` in node's environment
 
 Webpack has several different devtools with various tradeoffs. This value selects an appropriate devtool for the mode.
 
-In development mode, we choose 'eval-cheap-module-source-map'. This provides correct line numbers and filenames for error messages, while still being reasonably fast to build.
+In development mode we choose 'source-map' for maximum debugability.
 
 In production mode we choose no devtool, mainly because we don't currently distribute source maps in production.
 
@@ -96,7 +96,14 @@ This is an object suited for spreading some default values into Webpack's `outpu
 
 #### `optimization`
 
-`optimization` is an object suitable for spreading some defaults into Webpack's `optimization` setting. It sets `minimize` based on the mode, configures a default `minimizer` with `TerserPlugin` and `CssMinimizerPlugin`, and sets `concatenateModules` to false as that setting [may mangle WordPress's i18n function names](https://github.com/Automattic/jetpack/issues/21204).
+`optimization` is an object suitable for spreading some defaults into Webpack's `optimization` setting. It sets the following:
+
+* `minimize` is set based on the mode.
+* `minimizer` is configured with `TerserPlugin` and `CssMinimizerPlugin` configured as described below.
+* `emitOnErrors` is set true to facilitate debugging.
+* `concatenateModules` is set to false as that setting [may mangle WordPress's i18n function names](https://github.com/Automattic/jetpack/issues/21204).
+* `moduleIds` is set to false in production mode, as `PnpmDeterministicModuleIdsPlugin` is intended to be used instead. The Webpack default 'name' is set in development mode.
+* `mangleExports` is set to false in production mode, as `I18nSafeMangleExportsPlugin` is intended to be used instead.
 
 #### `TerserPlugin( options )`
 
@@ -138,7 +145,9 @@ plugins: {
 }
 ```
 
-Note that I18nCheckPlugin is only included by default in production mode.
+Note that I18nCheckPlugin, PnpmDeterministicModuleIdsPlugin, and I18nSafeMangleExportsPlugin are only included by default in production mode. They can be turned on in development mode by passing an options object.
+
+Note that ForkTSCheckerPlugin must be explicitly enabled by passing an options object.
 
 ##### `DefinePlugin( defines )`
 
@@ -149,9 +158,39 @@ This provides an instance of Webpack's `DefinePlugin`, configured by default wit
 
 You can pass any additional defines as the `defines` parameter. Note it is not necessary or desirable to define `process.env.NODE_ENV`, as Webpack will do that for you based on `mode`.
 
-##### `MomentLocaleIgnorePlugin()`
+##### `DependencyExtractionPlugin( options )`
 
-This provides an instance of Webpack's `IgnorePlugin` configured to ignore moment.js locale modules.
+This provides an instance of [@wordpress/dependency-extraction-webpack-plugin](https://www.npmjs.com/package/@wordpress/dependency-extraction-webpack-plugin). The `options` are passed to the plugin.
+
+##### `DuplicatePackageCheckerPlugin( options )`
+
+This provides an instance of [@cerner/duplicate-package-checker-webpack-plugin](https://www.npmjs.com/package/@cerner/duplicate-package-checker-webpack-plugin). The `options` are passed to the plugin.
+
+##### `ForkTSCheckerPlugin( options )`
+
+This provides an instance of [fork-ts-checker-webpack-plugin](https://www.npmjs.com/package/fork-ts-checker-webpack-plugin) configured for use alongside `@babel/preset-typescript`. The `options` are passed to the plugin.
+
+The default configuration sets the following:
+
+- `typescript.mode` to "write-dts".
+- `typescript.diagnosticOptions.semantic` to true.
+- `typescript.diagnosticOptions.syntactic` to true.
+
+Note that the optional peer dependency on `typescript` must be satisfied for this plugin to work.
+
+##### `I18nCheckPlugin( options )`
+
+This provides an instance of [@wordpress/i18n-check-webpack-plugin](https://www.npmjs.com/package/@wordpress/i18n-check-webpack-plugin). The `options` are passed to the plugin.
+
+The default configuration sets a filter that excludes `node_modules` other than `@automattic/*`. This may be accessed as `I18nCheckPlugin.defaultFilter`.
+
+##### `I18nLoaderPlugin( options )`
+
+This provides an instance of [@automattic/i18n-loader-webpack-plugin](https://www.npmjs.com/package/@automattic/i18n-loader-webpack-plugin). The `options` are passed to the plugin.
+
+##### `I18nSafeMangleExportsPlugin( options )`
+
+This provides an instance of [@wordpress/i18n-check-webpack-plugin](https://www.npmjs.com/package/@wordpress/i18n-check-webpack-plugin)'s I18nSafeMangleExportsPlugin. The `options` are passed to the plugin.
 
 ##### `MiniCssExtractPlugin( options )`
 
@@ -164,29 +203,17 @@ This is a plugin that adjusts `MiniCssExtractPlugin`'s asset loading to conditio
 Options are:
 - `isRtlExpr`: String holding an expression that evaluates to a boolean, true if RTL CSS should be used. Default is `"document.dir === 'rtl'"`.
 
+##### `MomentLocaleIgnorePlugin()`
+
+This provides an instance of Webpack's `IgnorePlugin` configured to ignore moment.js locale modules.
+
+##### `PnpmDeterministicModuleIdsPlugin( options )`
+
+This provides an slightly modified instance of Webpack's built-in DeterministicModuleIdsPlugin that does a better job of handling the paths produced by pnpm. The `options` are passed to the plugin.
+
 ##### `WebpackRtlPlugin( options )`
 
 This provides an instance of [@automattic/webpack-rtl-plugin](https://www.npmjs.com/package/@automattic/webpack-rtl-plugin). The `options` are passed to the plugin.
-
-##### `DuplicatePackageCheckerPlugin( options )`
-
-This provides an instance of [@cerner/duplicate-package-checker-webpack-plugin](https://www.npmjs.com/package/@cerner/duplicate-package-checker-webpack-plugin). The `options` are passed to the plugin.
-
-##### `DependencyExtractionPlugin( options )`
-
-This provides an instance of [@wordpress/dependency-extraction-webpack-plugin](https://www.npmjs.com/package/@wordpress/dependency-extraction-webpack-plugin). The `options` are passed to the plugin.
-
-##### `I18nLoaderPlugin( options )`
-
-This provides an instance of [@automattic/i18n-loader-webpack-plugin](https://www.npmjs.com/package/@automattic/i18n-loader-webpack-plugin). The `options` are passed to the plugin.
-
-Note that if the plugin actually does anything in your build, you'll need to specify at least the `domain` option for it.
-
-##### `I18nCheckPlugin( options )`
-
-This provides an instance of [@wordpress/i18n-check-webpack-plugin](https://www.npmjs.com/package/@wordpress/i18n-check-webpack-plugin). The `options` are passed to the plugin.
-
-The default configuration sets a filter that excludes `node_modules` other than `@automattic/*`. This may be accessed as `I18nCheckPlugin.defaultFilter`.
 
 #### Module rules and loaders
 

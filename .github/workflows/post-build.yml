@@ -40,7 +40,11 @@ jobs:
     outputs:
       upgrade_check: ${{ steps.upgrade_check.outputs.id }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Log info
+        run: |
+          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+
+      - uses: actions/checkout@v4
 
       - name: Get token
         id: get_token
@@ -68,7 +72,7 @@ jobs:
     if: github.event.workflow_run.conclusion != 'success'
     timeout-minutes: 2  # 2022-08-26: Seems like it should be fast.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Get token
         id: get_token
@@ -99,7 +103,7 @@ jobs:
       zip_url: ${{ steps.run.outputs.zip_url }}
       any_plugins: ${{ steps.run.outputs.any_plugins }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Find artifact
         id: run
@@ -160,7 +164,7 @@ jobs:
     if: needs.find_artifact.outputs.any_plugins == 'false'
     timeout-minutes: 2  # 2022-08-26: Seems like it should be fast.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Get token
         id: get_token
@@ -211,10 +215,10 @@ jobs:
       ports:
         - 80:80
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: trunk
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_commit.id }}
           path: commit

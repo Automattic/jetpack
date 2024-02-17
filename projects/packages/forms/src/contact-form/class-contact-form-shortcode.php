@@ -188,9 +188,9 @@ class Contact_Form_Shortcode {
 				$value = implode( ',', $value );
 			}
 
-			if ( false === strpos( $value, "'" ) ) {
+			if ( ! str_contains( $value, "'" ) ) {
 				$value = "'$value'";
-			} elseif ( false === strpos( $value, '"' ) ) {
+			} elseif ( ! str_contains( $value, '"' ) ) {
 				$value = '"' . $value . '"';
 			} else {
 				// Shortcodes can't contain both '"' and "'".  Strip one.

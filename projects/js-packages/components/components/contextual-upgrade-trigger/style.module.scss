@@ -57,6 +57,7 @@
 .icon {
 	fill: var( --jp-green-40 );
 	transition: transform 0.1s ease-out;
+	pointer-events: none;
 }
 
 .iconContainer {

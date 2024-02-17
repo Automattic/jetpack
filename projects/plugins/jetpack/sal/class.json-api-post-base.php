@@ -790,9 +790,9 @@ abstract class SAL_Post {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$active_blog = get_active_blog_for_user( $user->ID );
 			$site_id     = $active_blog->blog_id;
-			$profile_URL = "https://en.gravatar.com/{$user->user_login}";
+			$profile_URL = "https://gravatar.com/{$user->user_login}";
 		} else {
-			$profile_URL = 'https://en.gravatar.com/' . md5( strtolower( trim( $user->user_email ) ) );
+			$profile_URL = 'https://gravatar.com/' . md5( strtolower( trim( $user->user_email ) ) );
 			$site_id     = -1;
 		}
 
@@ -985,6 +985,14 @@ abstract class SAL_Post {
 
 			if ( isset( $metadata['length'] ) ) {
 				$response['length'] = $metadata['length'];
+			}
+
+			if ( empty( $response['length'] ) && isset( $metadata['duration'] ) ) {
+				$response['length'] = (int) $metadata['duration'];
+			}
+
+			if ( empty( $response['length'] ) && isset( $metadata['videopress']['duration'] ) ) {
+				$response['length'] = ceil( $metadata['videopress']['duration'] / 1000 );
 			}
 
 			// add VideoPress info.

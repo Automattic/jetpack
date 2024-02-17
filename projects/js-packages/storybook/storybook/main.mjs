@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url';
 import postcssPlugins from '@wordpress/postcss-plugins-preset';
 import { EsbuildPlugin } from 'esbuild-loader';
 import remarkGfm from 'remark-gfm';
-import { ProgressPlugin } from 'webpack';
 import projects from './projects.js';
 
 const storiesSearch = '*.@(mdx|@(story|stories).@(js|jsx|ts|tsx))';
@@ -46,7 +45,7 @@ const sbconfig = {
 		// Remove ProgressPlugin and source maps in production builds.
 		if ( process.env.NODE_ENV === 'production' ) {
 			config.devtool = false;
-			config.plugins = config.plugins.filter( p => ! ( p instanceof ProgressPlugin ) );
+			config.plugins = config.plugins.filter( p => p.constructor.name !== 'ProgressPlugin' );
 		}
 
 		// Use esbuild to minify.
@@ -87,6 +86,25 @@ const sbconfig = {
 		config.resolve.modules.push(
 			fileURLToPath( new URL( '../../../packages/search/src/dashboard/', import.meta.url ) )
 		);
+
+		config.resolve.alias = {
+			...config.resolve.alias,
+
+			// Boost specific aliases
+			$lib: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/lib' ),
+			$features: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/features' ),
+			$layout: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/layout' ),
+			$svg: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/svg' ),
+			$css: path.join( __dirname, '../../../plugins/boost/app/assets/src/css' ),
+			$images: path.join( __dirname, '../../../plugins/boost/app/assets/static/images' ),
+		};
+
+		// For tsc
+		config.resolve.extensionAlias = {
+			'.js': [ '.js', '.ts', '.tsx' ],
+			'.cjs': [ '.cjs', '.cts' ],
+			'.mjs': [ '.mjs', '.mts' ],
+		};
 
 		return config;
 	},

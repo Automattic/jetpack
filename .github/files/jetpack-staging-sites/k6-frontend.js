@@ -36,16 +36,6 @@ export default function () {
 			check( res, {
 				'random post status was 200': r => r.status == 200,
 			} );
-
-			// Jetpack Blocks test post.
-			if ( site.url !== 'https://jetpackedgeprivate.wpcomstaging.com' ) {
-				res = http.get( `${ site.url }/2023/06/09/jetpack-blocks/` );
-				check( res, {
-					'blocks test post status was 200': r => r.status == 200,
-					'verify blocks post end contents': r =>
-						r.body.includes( 'End of Jetpack Blocks post content' ),
-				} );
-			}
 		} );
 	} );
 

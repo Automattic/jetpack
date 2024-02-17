@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [0.2.2] - 2023-12-11
+### Changed
+- Updated package dependencies. [#34416]
+
+## [0.2.1] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411]
+
+## [0.2.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [0.1.32] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.1.31] - 2023-11-03
+### Changed
+- Update dependencies. [#33946]
+
+## [0.1.30] - 2023-10-23
+### Changed
+- Updated package dependencies. [#33646] [#33687]
+
+## [0.1.29] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429]
+
+## [0.1.28] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.1.27] - 2023-09-19
+### Changed
+- Updated package dependencies. [#33001]
+
 ## [0.1.26] - 2023-09-04
 ### Changed
 - Updated package dependencies. [#32803]
@@ -114,6 +154,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Adds the Action Bar package and Jetpack plugin module for follows, likes, and comments. Just a scaffold to build on, for now. [#25447]
 
+[0.2.3]: https://github.com/Automattic/jetpack-action-bar/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/Automattic/jetpack-action-bar/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/Automattic/jetpack-action-bar/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/Automattic/jetpack-action-bar/compare/v0.1.32...v0.2.0
+[0.1.32]: https://github.com/Automattic/jetpack-action-bar/compare/v0.1.31...v0.1.32
+[0.1.31]: https://github.com/Automattic/jetpack-action-bar/compare/v0.1.30...v0.1.31
+[0.1.30]: https://github.com/Automattic/jetpack-action-bar/compare/v0.1.29...v0.1.30
+[0.1.29]: https://github.com/Automattic/jetpack-action-bar/compare/v0.1.28...v0.1.29
+[0.1.28]: https://github.com/Automattic/jetpack-action-bar/compare/v0.1.27...v0.1.28
+[0.1.27]: https://github.com/Automattic/jetpack-action-bar/compare/v0.1.26...v0.1.27
 [0.1.26]: https://github.com/Automattic/jetpack-action-bar/compare/v0.1.25...v0.1.26
 [0.1.25]: https://github.com/Automattic/jetpack-action-bar/compare/v0.1.24...v0.1.25
 [0.1.24]: https://github.com/Automattic/jetpack-action-bar/compare/v0.1.23...v0.1.24

@@ -54,7 +54,7 @@
 		"webpack-cli": "4.8.0"
 	},
 	"engines": {
-		"node": "^18.13.0",
+		"node": "^20.8.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

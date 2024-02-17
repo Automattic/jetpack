@@ -1,21 +1,14 @@
-import { name, settings } from '../';
 import runBlockFixtureTests from '../../../shared/test/block-fixtures';
 import { settings as buttonSettings } from '../../button';
+import metadata from '../block.json';
+import deprecated from '../deprecated/v1';
+import edit from '../edit';
+import save from '../save';
 
-/**
- * Update this array of blocks to contain the name and settings for all blocks
- * involved in this set of tests.
- *
- * Example containing multiple blocks:
- * ```
- * const blocks = [
- *    { name: 'jetpack/whatsapp-button', settings },
- *    { name: 'jetpack/send-a-message', settings: parentSettings },
- * ];
- * ```
- */
+const { name } = metadata;
 const blocks = [
-	{ name: `jetpack/${ name }`, settings },
+	{ name, settings: { ...metadata, edit, save, deprecated: [ deprecated ] } },
 	{ name: `jetpack/button`, settings: buttonSettings },
 ];
-runBlockFixtureTests( `jetpack/${ name }`, blocks, __dirname );
+
+runBlockFixtureTests( name, blocks, __dirname );

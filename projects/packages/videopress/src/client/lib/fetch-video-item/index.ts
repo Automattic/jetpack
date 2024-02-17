@@ -31,6 +31,7 @@ const debug = debugFactory( 'videopress:lib:fetch-video-item' );
  * @param {string} parameters.token              - The token to use in the request.
  * @param {boolean} parameters.skipRatingControl - Whether to skip the rating control.
  * @param {number} parameters.retries            - The number of retries.
+ * @returns {WPCOMRestAPIVideosGetEndpointResponseProps} Props
  */
 export async function fetchVideoItem( {
 	guid,

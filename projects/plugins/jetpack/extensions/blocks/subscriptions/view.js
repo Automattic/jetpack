@@ -1,84 +1,88 @@
-/* global tb_show, tb_remove */
-
 import './view.scss';
 import '../../shared/memberships.scss';
 
 import domReady from '@wordpress/dom-ready';
-import {
-	setPurchaseResultCookie,
-	reloadPageWithPremiumContentQueryString,
-} from '../../../extensions/shared/memberships';
+import { showModal } from '../../shared/memberships';
 
-domReady( function () {
+// @ts-ignore
+function show_iframe_retrieve_subscriptions_from_email() {
 	const form = document.querySelector( '.wp-block-jetpack-subscriptions__container form' );
 	if ( ! form ) {
 		return;
 	}
-	let premiumContentJWTToken = '';
-	if ( ! form.payments_attached ) {
-		form.payments_attached = true;
-		form.addEventListener( 'submit', function ( event ) {
-			const email = form.querySelector( 'input[type=email]' ).value;
-			if ( form.resubmitted || ! email ) {
-				return;
-			}
+
+	if ( ! form.checkValidity() ) {
+		form.reportValidity();
+		return;
+	}
+
+	const email = form.querySelector( 'input[type=email]' ).value;
+
+	show_iframe( {
+		email,
+		blog: form.dataset.blog,
+		plan: 'newsletter',
+		source: 'jetpack_retrieve_subscriptions',
+		post_access_level: form.dataset.post_access_level,
+		display: 'alternate',
+	} );
+}
+
+function show_iframe( data ) {
+	const params = new URLSearchParams( data );
+
+	const url = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
+
+	showModal( url );
+}
+
+domReady( function () {
+	const link = document.querySelector( '#jp_retrieve_subscriptions_link' );
+	if ( link ) {
+		link.addEventListener( 'click', function ( event ) {
 			event.preventDefault();
-
-			// get all unchecked categories
-			const excluded_newsletter_categories = Array.from(
-				form.querySelectorAll(
-					'.wp-block-jetpack-subscriptions__newsletter-category input[type=checkbox]'
-				)
-			)
-				.filter( checkbox => ! checkbox.checked )
-				.map( checkbox => checkbox.value );
-
-			const url =
-				'https://subscribe.wordpress.com/memberships/?' +
-				'blog=' +
-				form.dataset.blog +
-				'&plan=newsletter' +
-				'&source=jetpack_subscribe' +
-				'&post_access_level=' +
-				form.dataset.post_access_level +
-				'&display=alternate' +
-				'&email=' +
-				encodeURIComponent( email ) +
-				'&excluded_newsletter_categories=' +
-				excluded_newsletter_categories.join( ',' );
-
-			window.scrollTo( 0, 0 );
-			tb_show( null, url + '&TB_iframe=true', null );
-
-			//TODO: Unify this code across premium content, subscribe and payment button.
-			const handleIframeResult = function ( eventFromIframe ) {
-				if (
-					eventFromIframe.origin === 'https://subscribe.wordpress.com' &&
-					eventFromIframe.data
-				) {
-					const data = JSON.parse( eventFromIframe.data );
-					if ( data && data.result && data.result.jwt_token ) {
-						// We save the token for now, doing nothing.
-						premiumContentJWTToken = data.result.jwt_token;
-						setPurchaseResultCookie( premiumContentJWTToken );
-					} else if ( data && data.action === 'close' && premiumContentJWTToken ) {
-						// The token was set during the purchase flow, we want to relead the whole page with token in query string so it recognizes that the user is logged in.
-						reloadPageWithPremiumContentQueryString( premiumContentJWTToken, {
-							subscribe: 'success',
-						} );
-					} else if ( data && data.action === 'close' ) {
-						// User just aborted.
-						window.removeEventListener( 'message', handleIframeResult );
-						tb_remove();
-					}
-				}
-			};
-			window.addEventListener( 'message', handleIframeResult, false );
-			const tbWindow = document.querySelector( '#TB_window' );
-			tbWindow.classList.add( 'jetpack-memberships-modal' );
-
-			// This line has to come after the Thickbox has opened otherwise Firefox doesnt scroll to the top.
-			window.scrollTo( 0, 0 );
+			show_iframe_retrieve_subscriptions_from_email();
 		} );
 	}
+
+	const forms = document.querySelectorAll( '.wp-block-jetpack-subscriptions__container form' );
+	forms.forEach( form => {
+		if ( ! form.payments_attached ) {
+			form.payments_attached = true;
+			form.addEventListener( 'submit', function ( event ) {
+				if ( form.resubmitted ) {
+					return;
+				}
+
+				const emailInput = form.querySelector( 'input[type=email]' );
+				const email = emailInput ? emailInput.value : form.dataset.subscriber_email;
+
+				if ( ! email ) {
+					return;
+				}
+
+				const action = form.querySelector( 'input[name=action]' ).value;
+
+				if ( action === 'subscribe' ) {
+					event.preventDefault();
+
+					const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
+					const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
+					const app_source = form.querySelector( 'input[name=app_source]' )?.value ?? '';
+
+					show_iframe( {
+						email,
+						post_id,
+						tier_id,
+						blog: form.dataset.blog,
+						plan: 'newsletter',
+						source: 'jetpack_subscribe',
+						app_source,
+						post_access_level: form.dataset.post_access_level,
+						display: 'alternate',
+					} );
+				}
+			} );
+		}
+	} );
 } );

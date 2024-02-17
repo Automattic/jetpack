@@ -1,5 +1,33 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Webpack \`I18nSafeMangleExportsPlugin\`: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`I18nSafeMangleExportsPlugin\`: Webpack build files 1`] = `
+[
+  "control.js",
+  "plugin.js",
+]
+`;
+
+exports[`Webpack \`I18nSafeMangleExportsPlugin\`: Webpack build stats 1`] = `
+{
+  "children": [
+    {
+      "errors": [],
+      "name": undefined,
+      "warnings": [],
+    },
+    {
+      "errors": [],
+      "name": undefined,
+      "warnings": [],
+    },
+  ],
+  "errors": [],
+  "warnings": [],
+}
+`;
+
 exports[`Webpack \`basic-test\`: Webpack build error 1`] = `null`;
 
 exports[`Webpack \`basic-test\`: Webpack build files 1`] = `
@@ -75,11 +103,15 @@ exports[`Webpack \`known-problems\`: Webpack build stats 1`] = `
 {
   "errors": [
     {
-      "message": "main.js:2:92: msgid argument is not a string literal: __(o?"Foo is set":"Foo is not set","domain")",
+      "message": "main.js:3:148: msgid argument is not a string literal: __(o?"Foo is set":"Foo is not set","domain")",
     },
     {
       "message": "main.js: Translator comments have gone missing for "The comment will be lost when the assignment is merged into the above const" (context "context")
  - Translators: This comment will be lost",
+    },
+    {
+      "message": "main.js: Translator comments have gone missing for "This is another workaround" (context "context")
+ - Translators: This comment will be in the source but not detected for the right message.",
     },
     {
       "message": "main.js: Optimization seems to have broken the following translation strings:

@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
-use VIDEOPRESS_PRIVACY;
 
 /**
  * VideoPress AJAX action handlers and utilities.
@@ -85,6 +84,7 @@ class AJAX {
 	public function wp_ajax_videopress_get_playback_jwt() {
 		$guid             = filter_input( INPUT_POST, 'guid' );
 		$embedded_post_id = filter_input( INPUT_POST, 'post_id', FILTER_VALIDATE_INT );
+		$selected_plan_id = filter_input( INPUT_POST, 'subscription_plan_id' );
 
 		if ( empty( $embedded_post_id ) ) {
 			$embedded_post_id = 0;
@@ -95,7 +95,7 @@ class AJAX {
 			return;
 		}
 
-		if ( ! $this->is_current_user_authed_for_video( $guid, $embedded_post_id ) ) {
+		if ( ! $this->is_current_user_authed_for_video( $guid, $embedded_post_id, $selected_plan_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'You cannot view this video.', 'jetpack-videopress-pkg' ) ) );
 			return;
 		}
@@ -122,51 +122,10 @@ class AJAX {
 	 *
 	 * @param string $guid             The video id being checked.
 	 * @param int    $embedded_post_id The post id the video is embedded in or 0.
+	 * @param int    $selected_plan_id The plan id the earn block this video is embedded in has.
 	 */
-	private function is_current_user_authed_for_video( $guid, $embedded_post_id ) {
-		$attachment = videopress_get_post_by_guid( $guid );
-		if ( ! $attachment ) {
-			return false;
-		}
-
-		$video_info = video_get_info_by_blogpostid( get_current_blog_id(), $attachment->ID );
-		if ( null === $video_info->guid ) {
-			return false;
-		}
-
-		$is_user_authed = false;
-		// Determine if video is public, private or use site default.
-		switch ( $video_info->privacy_setting ) {
-			case VIDEOPRESS_PRIVACY::IS_PUBLIC:
-				$is_user_authed = true;
-				break;
-			case VIDEOPRESS_PRIVACY::IS_PRIVATE:
-				$is_user_authed = current_user_can( 'read' );
-				break;
-			case VIDEOPRESS_PRIVACY::SITE_DEFAULT:
-			default:
-				$is_videopress_private_for_site = Data::get_videopress_videos_private_for_site();
-				$is_user_authed                 = false === $is_videopress_private_for_site || ( $is_videopress_private_for_site && current_user_can( 'read' ) );
-				break;
-		}
-
-		/**
-		 * Overrides video view authorization for current user.
-		 *
-		 * Example of making all videos public:
-		 *
-		 * function jp_example_override_video_auth( $is_user_authed, $guid ) {
-		 *  return true
-		 * };
-		 * add_filter( 'videopress_is_current_user_authed_for_video', 'jp_example_override_video_auth', 10, 2 );
-		 *
-		 * @param bool     $is_user_authed   The current user authorization state.
-		 * @param string   $guid             The video's unique identifier.
-		 * @param int|null $embedded_post_id The post the video is embedded..
-		 *
-		 * @return bool
-		 */
-		return (bool) apply_filters( 'videopress_is_current_user_authed_for_video', $is_user_authed, $guid, $embedded_post_id );
+	private function is_current_user_authed_for_video( $guid, $embedded_post_id, $selected_plan_id = 0 ) {
+		return Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedded_post_id, $selected_plan_id );
 	}
 
 	/**
@@ -175,6 +134,14 @@ class AJAX {
 	 * @param string $guid The video id being checked.
 	 */
 	private function request_jwt_from_wpcom( $guid ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'video_wpcom_get_playback_jwt_for_guid' ) ) {
+			$jwt_data = video_wpcom_get_playback_jwt_for_guid( $guid );
+			if ( is_wp_error( $jwt_data ) ) {
+				return false;
+			}
+			return $jwt_data->metadata_token;
+		}
+
 		$video_blog_id = $this->get_videopress_blog_id();
 		$args          = array(
 			'method' => 'POST',

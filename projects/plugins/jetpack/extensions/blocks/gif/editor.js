@@ -1,4 +1,12 @@
-import registerJetpackBlock from '../../shared/register-jetpack-block';
-import { name, settings } from '.';
+import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
+import metadata from './block.json';
+import edit from './edit';
 
-registerJetpackBlock( name, settings );
+// Ordering is important! Editor overrides style!
+import './style.scss';
+import './editor.scss';
+
+registerJetpackBlockFromMetadata( metadata, {
+	edit,
+	save: () => null,
+} );

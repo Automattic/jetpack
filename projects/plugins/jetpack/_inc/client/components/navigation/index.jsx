@@ -12,10 +12,8 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { hasConnectedOwner, isCurrentUserLinked, isOfflineMode } from 'state/connection';
 import {
-	getSiteAdminUrl,
 	getSiteRawUrl,
 	showRecommendations,
-	showMyJetpack,
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 	getPurchaseToken,
@@ -66,10 +64,6 @@ export class Navigation extends React.Component {
 		} );
 	};
 
-	trackMyJetpackClick = () => {
-		this.trackNavClick( 'my-jetpack' );
-	};
-
 	componentDidMount() {
 		this.trackNewRecommendations();
 	}
@@ -80,7 +74,7 @@ export class Navigation extends React.Component {
 		const jetpackPlansPath = getRedirectUrl(
 			this.props.hasConnectedOwner ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
 			{
-				site: this.props.siteUrl,
+				site: this.props.blogID ?? this.props.siteUrl,
 				...( this.props.purchaseToken
 					? { query: `purchasetoken=${ this.props.purchaseToken }` }
 					: {} ),
@@ -144,14 +138,6 @@ export class Navigation extends React.Component {
 							) }
 						</NavItem>
 					) }
-					{ this.props.showMyJetpack && (
-						<NavItem
-							path={ this.props.adminUrl + 'admin.php?page=my-jetpack' }
-							onClick={ this.trackMyJetpackClick }
-						>
-							{ _x( 'My Jetpack', 'Navigation item.', 'jetpack' ) }
-						</NavItem>
-					) }
 				</NavTabs>
 			);
 		} else {
@@ -192,8 +178,6 @@ export default connect( state => {
 		showRecommendations: showRecommendations( state ),
 		newRecommendationsCount: getNonViewedRecommendationsCount( state ),
 		siteUrl: getSiteRawUrl( state ),
-		adminUrl: getSiteAdminUrl( state ),
 		purchaseToken: getPurchaseToken( state ),
-		showMyJetpack: showMyJetpack( state ),
 	};
 } )( withRouter( Navigation ) );

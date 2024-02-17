@@ -4,12 +4,12 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"php": ">=7.0",
 		"automattic/jetpack-a8c-mc-stats": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-logo": "@dev",
-		"automattic/jetpack-partner": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
@@ -66,7 +66,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.3.x-dev"
+			"dev-trunk": "3.0.x-dev"
 		}
 	}
 }

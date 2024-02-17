@@ -215,10 +215,10 @@ function videopress_override_media_templates() {
 function videopress_media_send_to_editor( $html, $id, $attachment ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	$videopress_guid = get_post_meta( $id, 'videopress_guid', true );
 	if ( $videopress_guid && videopress_is_valid_guid( $videopress_guid ) ) {
-		if ( '[video ' === substr( $html, 0, 7 ) ) {
+		if ( str_starts_with( $html, '[video ' ) ) {
 			$html = sprintf( '[videopress %1$s]', esc_attr( $videopress_guid ) );
 
-		} elseif ( '<a href=' === substr( $html, 0, 8 ) ) {
+		} elseif ( str_starts_with( $html, '<a href=' ) ) {
 			// We got here because `wp_attachment_is()` returned false for
 			// video, because there isn't a local copy of the file.
 			$html = sprintf( '[videopress %1$s]', esc_attr( $videopress_guid ) );

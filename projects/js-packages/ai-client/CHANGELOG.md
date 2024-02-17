@@ -5,6 +5,101 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [0.6.0] - 2024-02-05
+### Added
+- Jetpack AI: Support floating error messaging on the AI Control component. [#35322]
+
+### Changed
+- Updated package dependencies. [#35384]
+
+## [0.5.1] - 2024-01-29
+### Changed
+- Update dependencies. [#35170]
+
+## [0.5.0] - 2024-01-25
+### Changed
+- AI Control: Do not call onAccept from the discard handler. A fix has been put in place on #35236. [#35238]
+
+## [0.4.1] - 2024-01-22
+### Changed
+- Update dependencies. [#35117]
+
+## [0.4.0] - 2024-01-15
+### Added
+- AI Client: introduce bannerComponent prop, React.Element, to render on top of the AI Control [#34918]
+
+### Fixed
+- Jetpack AI: Check for post id type and only include numbers [#34974]
+
+## [0.3.1] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [0.3.0] - 2023-12-20
+### Changed
+- AI Client: improved usability with new block positioning, prompt and suggestion action buttons. [#34383]
+- Updated package dependencies. [#34696]
+
+## [0.2.1] - 2023-12-03
+### Changed
+- Updated the prompt shadow for a better sense of depth. [#34362]
+- Updated package dependencies. [#34411] [#34427]
+
+## [0.2.0] - 2023-11-20
+### Changed
+- Include built JavaScript code in addition to TypeScript. [#34118]
+
+## [0.1.16] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.1.15] - 2023-11-13
+### Changed
+- Prevented dispatching the `done` event for JETPACK_AI_ERROR. [#34051]
+- Ensured the unclear prompt error is dispatched only once per request. [#34025]
+
+## [0.1.14] - 2023-11-03
+
+## [0.1.13] - 2023-10-23
+### Changed
+- Updated package dependencies. [#33687]
+
+### Removed
+- AI Client: Remove obsolete blockListBlockWithAiDataProvider() HOC component. [#33726]
+
+## [0.1.12] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33584]
+
+## [0.1.11] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.1.10] - 2023-09-28
+### Added
+- AI Client: Add keyboard shortcut text next to Stop action [#33271]
+
+## [0.1.9] - 2023-09-25
+### Added
+- Export GuidelineMessage for use in other blocks. [#33180]
+
+## [0.1.8] - 2023-09-19
+### Added
+- AI Client: Add support for the jetpack-ai role on the prompt messages. [#33052]
+- AI Client: add `model` param to request helpers [#33083]
+- AI Client: Emit specific error for large context error on SuggestionsEventSource [#33157]
+- AI Client: Introduce blockListBlockWithAiDataProvider() function [#33025]
+
+### Changed
+- AI Client: Move showGuideLine to AIControl component props [#33084]
+
+### Fixed
+- AI Client: check media record ref of the useMediaRecording() hook before to remove the listeners [#33013]
+
 ## [0.1.7] - 2023-09-11
 ### Added
 - AI Client: add and expose reset() from useAiSuggestions() hook [#32886]
@@ -115,6 +210,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.6.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.5.1...v0.6.0
+[0.5.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.4.1...v0.5.0
+[0.4.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.3.1...v0.4.0
+[0.3.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.2.1...v0.3.0
+[0.2.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.16...v0.2.0
+[0.1.16]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.15...v0.1.16
+[0.1.15]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.14...v0.1.15
+[0.1.14]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.13...v0.1.14
+[0.1.13]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.12...v0.1.13
+[0.1.12]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.11...v0.1.12
+[0.1.11]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.10...v0.1.11
+[0.1.10]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.9...v0.1.10
+[0.1.9]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.8...v0.1.9
+[0.1.8]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.4...v0.1.5

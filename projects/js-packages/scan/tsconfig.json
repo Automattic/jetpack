@@ -1,0 +1,14 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"include": [ "./src/**/*" ],
+	"compilerOptions": {
+		"typeRoots": [ "./node_modules/@types/", "src/types/*" ],
+		"sourceMap": false,
+		"forceConsistentCasingInFileNames": true,
+		"outDir": "./build/",
+		"noEmit": false,
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"declaration": true
+	}
+}

@@ -160,7 +160,7 @@ class Jetpack_Signature {
 
 		$signature_details = compact( 'token', 'timestamp', 'nonce', 'body_hash', 'method', 'url' );
 
-		if ( 0 !== strpos( $token, "$this->token:" ) ) {
+		if ( ! str_starts_with( $token, "$this->token:" ) ) {
 			return new WP_Error( 'token_mismatch', 'Incorrect token', compact( 'signature_details' ) );
 		}
 

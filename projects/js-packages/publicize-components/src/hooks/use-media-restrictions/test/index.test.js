@@ -32,8 +32,8 @@ const DUMMY_CONNECTIONS = [
 const INVALID_TYPES = [ 'imagejpg', 'image/tgif', 'video/mp5', '', null ];
 
 const VALID_MEDIA_ALL = [
-	{ metaData: { mime: 'image/jpg', fileSize: 40 } },
-	{ metaData: { mime: 'image/jpeg', fileSize: 20 } },
+	{ metaData: { mime: 'image/jpg', fileSize: 40 }, mediaData: { width: 400, height: 500 } },
+	{ metaData: { mime: 'image/jpeg', fileSize: 20 }, mediaData: { width: 400, height: 500 } },
 ];
 const ALLOWED_MEDIA_TYPES_ALL = [
 	'image/jpeg',
@@ -142,9 +142,27 @@ describe( 'useMediaRestrictions hook', () => {
 
 	test( 'Instagram should only accept good sized image', () => {
 		[
-			{ media: { metaData: { mime: 'image/jpg', fileSize: 10000000 } }, error: FILE_SIZE_ERROR }, // Too big image
-			{ media: { metaData: { mime: 'image/png', fileSize: 10000000 } }, error: FILE_TYPE_ERROR }, // Png
-			{ media: { metaData: { mime: 'video/mp5', fileSize: 10 } }, error: FILE_TYPE_ERROR }, // Bad Video
+			{
+				media: {
+					metaData: { mime: 'image/jpg', fileSize: 10000000 },
+					mediaData: { width: 400, height: 500 },
+				},
+				error: FILE_SIZE_ERROR,
+			}, // Too big image
+			{
+				media: {
+					metaData: { mime: 'image/png', fileSize: 10000000 },
+					mediaData: { width: 400, height: 500 },
+				},
+				error: FILE_TYPE_ERROR,
+			}, // Png
+			{
+				media: {
+					metaData: { mime: 'video/mp5', fileSize: 10 },
+					mediaData: { width: 320, height: 500 },
+				},
+				error: FILE_TYPE_ERROR,
+			}, // Bad Video
 		].forEach( testData => {
 			const { result } = renderHook( () =>
 				useMediaRestrictions(
@@ -159,11 +177,17 @@ describe( 'useMediaRestrictions hook', () => {
 	test( 'Can get video length error', () => {
 		[
 			{
-				media: { metaData: { mime: 'video/mp4', fileSize: 1000000, length: 2 } },
+				media: {
+					metaData: { mime: 'video/mp4', fileSize: 1000000, length: 2 },
+					mediaData: { width: 10, height: 10 },
+				},
 				error: VIDEO_LENGTH_TOO_SHORT_ERROR,
 			}, // Too short video
 			{
-				media: { metaData: { mime: 'video/mp4', fileSize: 1000000, length: 20000 } },
+				media: {
+					metaData: { mime: 'video/mp4', fileSize: 1000000, length: 20000 },
+					mediaData: { width: 10, height: 10 },
+				},
 				error: VIDEO_LENGTH_TOO_LONG_ERROR,
 			}, // Too long video
 		].forEach( testData => {

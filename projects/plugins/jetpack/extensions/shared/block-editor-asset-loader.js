@@ -1,3 +1,5 @@
+/* global __webpack_public_path__ */
+
 /**
  * Returns the current document and window contexts for `elementRef`.
  * Use to retrieve the correct context for elements that may be within an iframe.
@@ -108,7 +110,17 @@ export function maybeCopyElementsToSiteEditorContext(
  * @param   {HTMLElement} elementRef  - A reference for an element within the current block.
  */
 export function loadBlockEditorAssets( resources, callbacks, elementRef ) {
-	const resourcePath = `${ window.Jetpack_Block_Assets_Base_Url.url }editor-assets`;
+	let editorAssetsUrl;
+
+	try {
+		editorAssetsUrl = new URL( 'editor-assets', __webpack_public_path__ );
+	} catch ( e ) {}
+
+	if ( ! editorAssetsUrl ) {
+		return;
+	}
+
+	const resourcePath = editorAssetsUrl.href;
 	const { currentDoc } = getLoadContext( elementRef );
 
 	const currentHead = currentDoc.getElementsByTagName( 'head' )[ 0 ];

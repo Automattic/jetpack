@@ -1,4 +1,10 @@
-import { getJetpackData, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { ThemeProvider } from '@automattic/jetpack-components';
+import {
+	getJetpackData,
+	isAtomicSite,
+	isSimpleSite,
+	useModuleStatus,
+} from '@automattic/jetpack-shared-extension-utils';
 import {
 	InnerBlocks,
 	InspectorControls,
@@ -15,6 +21,7 @@ import {
 	SelectControl,
 	TextareaControl,
 	TextControl,
+	Notice,
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -24,11 +31,14 @@ import classnames from 'classnames';
 import { filter, get, isArray, map } from 'lodash';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
+import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
+import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
+import useFormAccessibleName from './hooks/use-form-accessible-name';
 import { withStyleVariables } from './util/with-style-variables';
 import defaultVariations from './variations';
 
@@ -56,6 +66,8 @@ const ALLOWED_BLOCKS = [
 	'core/subhead',
 	'core/video',
 ];
+
+const PRIORITIZED_INSERTER_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
 
 const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;
 const CUSTOMIZING_FORMS_URL = 'https://jetpack.com/support/jetpack-blocks/contact-form/';
@@ -95,6 +107,9 @@ export const JetpackContactFormEdit = forwardRef(
 		} = attributes;
 
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
+
+		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+			useModuleStatus( 'contact-form' );
 
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
@@ -145,6 +160,8 @@ export const JetpackContactFormEdit = forwardRef(
 			}
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [] );
+
+		useFormAccessibleName( formTitle, clientId, setAttributes );
 
 		useEffect( () => {
 			if ( to === undefined && postAuthorEmail ) {
@@ -267,6 +284,19 @@ export const JetpackContactFormEdit = forwardRef(
 			);
 		};
 
+		if ( ! isModuleActive ) {
+			if ( isLoadingModules ) {
+				return <ContactFormSkeletonLoader />;
+			}
+			return (
+				<ContactFormPlaceholder
+					changeStatus={ changeStatus }
+					isModuleActive={ isModuleActive }
+					isLoading={ isChangingStatus }
+				/>
+			);
+		}
+
 		if ( ! hasInnerBlocks && registerBlockVariation ) {
 			return renderVariationPicker();
 		}
@@ -274,11 +304,18 @@ export const JetpackContactFormEdit = forwardRef(
 		return (
 			<>
 				<InspectorControls>
+					{ ! attributes.formTitle && (
+						<PanelBody>
+							<Notice status="warning" isDismissible={ false }>
+								{ __(
+									'Add a heading inside the form or before it to help everybody identify it.',
+									'jetpack-forms'
+								) }
+							</Notice>{ ' ' }
+						</PanelBody>
+					) }
 					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
-						<JetpackManageResponsesSettings
-							formTitle={ formTitle }
-							setAttributes={ setAttributes }
-						/>
+						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
 					</PanelBody>
 					<PanelBody title={ __( 'Submission Settings', 'jetpack-forms' ) } initialOpen={ false }>
 						{ renderSubmissionSettings() }
@@ -300,7 +337,7 @@ export const JetpackContactFormEdit = forwardRef(
 							instanceId={ instanceId }
 						/>
 					) }
-					{ ! isSimpleSite() && (
+					{ ! ( isSimpleSite() || isAtomicSite() ) && (
 						<Fragment>
 							{ canUserInstallPlugins && (
 								<PanelBody title={ __( 'CRM Connection', 'jetpack-forms' ) } initialOpen={ false }>
@@ -318,11 +355,21 @@ export const JetpackContactFormEdit = forwardRef(
 				</InspectorControls>
 
 				<div className={ formClassnames } style={ style } ref={ ref }>
-					<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
+					<InnerBlocks
+						allowedBlocks={ ALLOWED_BLOCKS }
+						prioritizedInserterBlocks={ PRIORITIZED_INSERTER_BLOCKS }
+						templateInsertUpdatesSelection={ false }
+					/>
 				</div>
 			</>
 		);
 	}
+);
+
+const withThemeProvider = WrappedComponent => props => (
+	<ThemeProvider>
+		<WrappedComponent { ...props } />
+	</ThemeProvider>
 );
 
 export default compose( [
@@ -362,4 +409,5 @@ export default compose( [
 		return { replaceInnerBlocks, selectBlock };
 	} ),
 	withInstanceId,
+	withThemeProvider,
 ] )( withStyleVariables( JetpackContactFormEdit ) );

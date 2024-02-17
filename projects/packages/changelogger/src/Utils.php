@@ -11,27 +11,11 @@ use Automattic\Jetpack\Changelog\ChangeEntry;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
-use function error_clear_last; // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.error_clear_lastFound
-use function Wikimedia\quietCall;
 
 /**
  * Utilities for the changelogger tool.
  */
 class Utils {
-
-	/**
-	 * Calls `error_clear_last()` or emulates it.
-	 */
-	public static function error_clear_last() {
-		if ( is_callable( 'error_clear_last' ) ) {
-			// phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.error_clear_lastFound
-			error_clear_last();
-		} else {
-			// @codeCoverageIgnoreStart
-			quietCall( 'trigger_error', '', E_USER_NOTICE );
-			// @codeCoverageIgnoreEnd
-		}
-	}
 
 	/**
 	 * Helper to run a process.
@@ -110,8 +94,9 @@ class Utils {
 			throw $ex;
 		}
 
-		self::error_clear_last();
-		$contents = quietCall( 'file_get_contents', $filename );
+		error_clear_last();
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$contents = @file_get_contents( $filename );
 		// @codeCoverageIgnoreStart
 		if ( false === $contents ) {
 			$err          = error_get_last();
@@ -203,7 +188,8 @@ class Utils {
 		}
 
 		if ( ! $repo_data['timestamp'] ) {
-			$mtime = quietCall( 'filemtime', $file );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$mtime = @filemtime( $file );
 			if ( false !== $mtime ) {
 				$repo_data['timestamp'] = gmdate( 'Y-m-d\\TH:i:s\\Z', $mtime );
 			}

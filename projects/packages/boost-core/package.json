@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-boost-core",
-	"version": "0.1.3-alpha",
+	"version": "0.2.4",
 	"description": "Core functionality for boost and relevant packages to depend on",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/boost-core/#readme",
 	"bugs": {
@@ -21,9 +21,5 @@
 		"build-production-js": "echo 'Not implemented.'",
 		"clean": "true"
 	},
-	"devDependencies": {},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	}
+	"devDependencies": {}
 }

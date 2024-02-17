@@ -6,6 +6,8 @@ use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Tag;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
+use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
@@ -70,17 +72,21 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_field_changed_is_operator() {
 		$contact_field_changed_condition = $this->get_contact_field_changed_condition( 'is', 'customer' );
-		$contact_data_type               = $this->automation_faker->contact_data( true );
-		$contact_data                    = $contact_data_type->get_entity();
+
+		/** @var Contact $contact */
+		$contact = $this->automation_faker->contact();
+
+		// Any update on $contact instance will be reflected on $contact_data.
+		$contact_data = new Contact_Data( $contact );
 
 		// Testing when the condition has been met.
-		$contact_data['status'] = 'customer';
-		$contact_field_changed_condition->execute( $contact_data );
+		$contact->status = 'customer';
+		$contact_field_changed_condition->validate_and_execute( $contact_data );
 		$this->assertTrue( $contact_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
-		$contact_data['status'] = 'lead';
-		$contact_field_changed_condition->execute( $contact_data );
+		$contact->status = 'lead';
+		$contact_field_changed_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_field_changed_condition->condition_met() );
 	}
 
@@ -89,17 +95,20 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_field_changed_is_not_operator() {
 		$contact_field_changed_condition = $this->get_contact_field_changed_condition( 'is_not', 'customer' );
-		$contact_data_type               = $this->automation_faker->contact_data( true );
-		$contact_data                    = $contact_data_type->get_entity();
+
+		/** @var Contact $contact */
+		$contact = $this->automation_faker->contact();
+
+		$contact_data = new Contact_Data( $contact );
 
 		// Testing when the condition has been met.
-		$contact_data['status'] = 'lead';
-		$contact_field_changed_condition->execute( $contact_data );
+		$contact->status = 'lead';
+		$contact_field_changed_condition->validate_and_execute( $contact_data );
 		$this->assertTrue( $contact_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
-		$contact_data['status'] = 'customer';
-		$contact_field_changed_condition->execute( $contact_data );
+		$contact->status = 'customer';
+		$contact_field_changed_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_field_changed_condition->condition_met() );
 	}
 
@@ -108,12 +117,14 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_field_changed_invalid_operator_throws_exception() {
 		$contact_field_changed_condition = $this->get_contact_field_changed_condition( 'wrong_operator', 'customer' );
-		$contact_data_type               = $this->automation_faker->contact_data( true );
+
+		/** @var Contact $contact */
+		$contact = $this->automation_faker->contact();
 
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
-		$contact_field_changed_condition->execute( $contact_data_type->get_entity() );
+		$contact_field_changed_condition->validate_and_execute( new Contact_Data( $contact ) );
 	}
 
 	/**
@@ -125,12 +136,15 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
-		$contact_data_type               = $this->automation_faker->contact_data( true );
-		$contact_data                    = $contact_data_type->get_entity();
-		$previous_contact_data           = $contact_data;
-		$previous_contact_data['status'] = 'old_status';
+		/** @var Contact $contact */
+		$contact = $this->automation_faker->contact();
 
-		$contact_transitional_status_condition->execute( $contact_data, $previous_contact_data );
+		$previous_contact         = clone $contact;
+		$previous_contact->status = 'old_status';
+
+		$contact_data = new Contact_Data( $contact, $previous_contact );
+
+		$contact_transitional_status_condition->validate_and_execute( $contact_data );
 	}
 
 	/**
@@ -138,27 +152,31 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_transitional_status() {
 		$contact_transitional_status_condition = $this->get_contact_transitional_status_condition( 'from_to', 'old_status', 'new_status' );
-		$contact_data_type                     = $this->automation_faker->contact_data( true );
-		$contact_data                          = $contact_data_type->get_entity();
+
+		/** @var Contact $contact */
+		$contact = $this->automation_faker->contact();
 
 		// Create a previous state of a contact.
-		$previous_contact           = $contact_data;
-		$previous_contact['status'] = 'old_status';
+		$previous_contact = clone $contact;
+
+		$contact_data = new Contact_Data( $contact, $previous_contact );
 
 		// Testing when the condition has been met.
-		$contact_data['status'] = 'new_status';
-		$contact_transitional_status_condition->execute( $contact_data, $previous_contact );
+		$contact->status          = 'new_status';
+		$previous_contact->status = 'old_status';
+
+		$contact_transitional_status_condition->validate_and_execute( $contact_data );
 		$this->assertTrue( $contact_transitional_status_condition->condition_met() );
 
 		// Testing when the condition has been not been met for the to field.
-		$contact_data['status'] = 'wrong_to';
-		$contact_transitional_status_condition->execute( $contact_data, $previous_contact );
+		$contact->status = 'wrong_to';
+		$contact_transitional_status_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_transitional_status_condition->condition_met() );
 
 		// Testing when the condition has been not been met for the from field
-		$contact_data['status']     = 'new_status';
-		$previous_contact['status'] = 'wrong_from';
-		$contact_transitional_status_condition->execute( $contact_data, $previous_contact );
+		$contact->status          = 'new_status';
+		$previous_contact->status = 'wrong_from';
+		$contact_transitional_status_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_transitional_status_condition->condition_met() );
 	}
 
@@ -167,19 +185,24 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_contact_tag_added() {
 		$contact_tag_condition = $this->get_contact_tag_condition( 'tag_added', 'Tag Added' );
-		$contact_data_type     = $this->automation_faker->contact_data( true );
-		$contact_data          = $contact_data_type->get_entity();
-		$tag_id                = end( $contact_data['tags'] )['id'] + 1;
+
+		/** @var Contact $contact */
+		$contact = $this->automation_faker->contact();
 
 		// Create a previous state of a contact.
-		$previous_contact = $contact_data;
+		$previous_contact = clone $contact;
+
+		$contact_data = new Contact_Data( $contact, $previous_contact );
+
+		// Generate the next tag id.
+		$tag_id = end( $contact->tags )['id'] + 1;
 
 		// Testing when the condition has been not been met because the contact does not have said tag.
-		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_tag_condition->condition_met() );
 
 		// Testing when the condition has been met.
-		$contact_data['tags'][] = array(
+		$contact->tags[] = array(
 			'id'          => $tag_id,
 			'objtype'     => ZBS_TYPE_CONTACT,
 			'name'        => 'Tag Added',
@@ -187,11 +210,11 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 			'created'     => 1692663412,
 			'lastupdated' => 1692663412,
 		);
-		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertTrue( $contact_tag_condition->condition_met() );
 
 		// Testing when the condition has been not been met because the previous contact already had said tag.
-		$previous_contact['tags'][] = array(
+		$previous_contact->tags[] = array(
 			'id'          => $tag_id,
 			'objtype'     => ZBS_TYPE_CONTACT,
 			'name'        => 'Tag Added',
@@ -200,7 +223,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 			'lastupdated' => 1692663412,
 		);
 
-		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_tag_condition->condition_met() );
 	}
 
@@ -209,19 +232,21 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_contact_tag_removed() {
 		$contact_tag_condition = $this->get_contact_tag_condition( 'tag_removed', 'Tag to be removed' );
-		$contact_data_type     = $this->automation_faker->contact_data( true );
-		$contact_data          = $contact_data_type->get_entity();
-		$tag_id                = end( $contact_data['tags'] )['id'] + 1;
 
-		// Create a previous state of a contact.
-		$previous_contact = $contact_data;
+		/** @var Contact $contact */
+		$contact          = $this->automation_faker->contact();
+		$previous_contact = clone $contact;
+
+		$contact_data = new Contact_Data( $contact, $previous_contact );
+
+		$tag_id = end( $contact->tags )['id'] + 1;
 
 		// Testing when the condition has been not been met because the previous contact does not have said tag.
-		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_tag_condition->condition_met() );
 
 		// Testing when the condition has been met.
-		$previous_contact['tags'][] = array(
+		$previous_contact->tags[] = array(
 			'id'          => $tag_id,
 			'objtype'     => ZBS_TYPE_CONTACT,
 			'name'        => 'Tag to be removed',
@@ -229,11 +254,11 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 			'created'     => 1692663412,
 			'lastupdated' => 1692663412,
 		);
-		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertTrue( $contact_tag_condition->condition_met() );
 
 		// Testing when the condition has been not been met because the current contact still has said tag.
-		$contact_data['tags'][] = array(
+		$contact->tags[] = array(
 			'id'          => $tag_id,
 			'objtype'     => ZBS_TYPE_CONTACT,
 			'name'        => 'Tag to be removed',
@@ -241,7 +266,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 			'created'     => 1692663412,
 			'lastupdated' => 1692663412,
 		);
-		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_tag_condition->condition_met() );
 	}
 
@@ -250,19 +275,22 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_contact_has_tag() {
 		$contact_tag_condition = $this->get_contact_tag_condition( 'has_tag', 'Some Tag' );
-		$contact_data_type     = $this->automation_faker->contact_data( true );
-		$contact_data          = $contact_data_type->get_entity();
-		$tag_id                = end( $contact_data['tags'] )['id'] + 1;
 
-		// Create a previous state of a contact.
-		$previous_contact = $contact_data;
+		/** @var Contact $contact */
+		$contact          = $this->automation_faker->contact();
+		$previous_contact = clone $contact;
+
+		$contact_data = new Contact_Data( $contact, $previous_contact );
+
+		// Generate the next tag id.
+		$tag_id = end( $contact->tags )['id'] + 1;
 
 		// Testing when the condition has been not been met because the contact does not have said tag.
-		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_tag_condition->condition_met() );
 
 		// Testing when the condition has been met.
-		$contact_data['tags'][] = array(
+		$contact->tags[] = array(
 			'id'          => $tag_id,
 			'objtype'     => ZBS_TYPE_CONTACT,
 			'name'        => 'Some Tag',
@@ -270,7 +298,8 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 			'created'     => 1692663412,
 			'lastupdated' => 1692663412,
 		);
-		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$contact_tag_condition->validate_and_execute( $contact_data );
+
 		$this->assertTrue( $contact_tag_condition->condition_met() );
 	}
 }

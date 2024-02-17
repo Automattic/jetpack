@@ -12,6 +12,12 @@
 	text-decoration: none;
 }
 
+.jetpack-newsletter-access-radio-buttons {
+	label {
+		text-wrap: balance;
+	}
+}
+
 .jetpack-subscribe-newsletters-panel {
 	.edit-post-post-misconfiguration {
 		&__warning {
@@ -23,55 +29,14 @@
 			}
 		}
 	}
+}
 
-	.edit-post-post-visibility {
-		display: block;
-		* {
-			text-wrap: pretty;
-		}
+.jetpack-editor-post-tiers {
+	padding-left: 35px;
+	padding-top: 5px;
+}
 
-		&__notice {
-			&.is-info {
-				background: #e9f0f5;
-				border-left-color: #e9f0f5;
-			}
-		}
-
-		.components-notice__content {
-			margin-right: 0;
-		}
-
-		.components-button {
-			margin-top: 10px;
-		}
-	}
-
-	fieldset.editor-post-visibility__fieldset .editor-post-visibility {
-		&__choice {
-			margin-bottom: 15px;
-
-			.editor-post-visibility__label {
-				font-size: $default-font-size;
-			}
-
-			input[disabled] {
-				cursor: no-drop;
-
-				& + label {
-					cursor: no-drop;
-					text-decoration: line-through;
-				}
-			}
-		}
-
-		&__notice {
-			margin-top: 5px;
-			margin-left: 33px;
-		}
-
-		&__info {
-			margin-top: -10px;
-		}
-	}
-
+.jetpack-subscribe-affirmation-loading {
+	background: $gray-400;
+	color: $gray-400;
 }

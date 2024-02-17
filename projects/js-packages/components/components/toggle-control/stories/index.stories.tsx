@@ -65,6 +65,26 @@ export const Disabled = args => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const Small = args => {
+	const [ checked, setChecked ] = useState( false );
+
+	const handleChecked = useCallback( () => {
+		setChecked( ! checked );
+	}, [ checked ] );
+
+	return (
+		<>
+			<ToggleControl
+				checked={ checked }
+				size="small"
+				label="Code is poetry."
+				onChange={ handleChecked }
+			/>
+		</>
+	);
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const HelpText = args => {
 	const [ checked, setChecked ] = useState( false );
 

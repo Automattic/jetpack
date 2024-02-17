@@ -3,12 +3,12 @@
 	"description": "[Jetpack CRM](https://jetpackcrm.com) Core CRM Plugin - WordPress.org Hosted",
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"codeception/codeception": "^4.1",
-		"codeception/module-asserts": "^1.0",
-		"codeception/module-phpbrowser": "^1.0",
-		"codeception/module-webdriver": "^1.0",
-		"codeception/module-db": "^1.0",
-		"codeception/module-filesystem": "^1.0",
+		"codeception/codeception": "^4.1 || ^5.0",
+		"codeception/module-asserts": "^2.0 || ^3.0",
+		"codeception/module-phpbrowser": "^2.0 || ^3.0",
+		"codeception/module-webdriver": "^2.0 || ^3.0 || ^4.0",
+		"codeception/module-db": "^2.0 || 3.1.0 || ^3.1.2",
+		"codeception/module-filesystem": "^2.0 || ^3.0",
 		"codeception/util-universalframework": "^1.0",
 		"yoast/phpunit-polyfills": "1.1.0"
 	},
@@ -42,7 +42,7 @@
 		]
 	},
 	"config": {
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_2_0_alpha",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_4_1_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true,

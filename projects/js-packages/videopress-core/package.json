@@ -1,5 +1,4 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-videopress-core",
 	"version": "0.1.0-alpha",
 	"description": "VideoPress Core Functionality",
@@ -25,18 +24,14 @@
 	"devDependencies": {
 		"jest": "*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.22.17",
-		"@babel/preset-react": "7.22.15",
-		"@types/jest": "29.2.5",
+		"@babel/core": "7.23.5",
+		"@babel/preset-react": "7.23.3",
+		"@types/jest": "29.5.12",
 		"ts-loader": "9.4.2",
 		"tslib": "2.5.0",
 		"typescript": "5.0.4",
 		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
 		".": "./index.jsx",

@@ -16,6 +16,14 @@ import {
 	CLEAN_GLOBAL_NOTICE,
 	SET_PRODUCT_STATS,
 	SET_IS_FETCHING_PRODUCT_STATS,
+	SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING,
+	SET_BACKUP_REWINDABLE_EVENTS,
+	SET_COUNT_BACKUP_ITEMS_IS_FETCHING,
+	SET_COUNT_BACKUP_ITEMS,
+	SET_STATS_COUNTS_IS_FETCHING,
+	SET_STATS_COUNTS,
+	SET_DISMISSED_WELCOME_BANNER_IS_FETCHING,
+	SET_DISMISSED_WELCOME_BANNER,
 } from './actions';
 
 const products = ( state = {}, action ) => {
@@ -71,6 +79,44 @@ const products = ( state = {}, action ) => {
 				},
 			};
 		}
+
+		default:
+			return state;
+	}
+};
+
+const backupRewindableEvents = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_BACKUP_REWINDABLE_EVENTS:
+			return {
+				...state,
+				items: action?.rewindableEvents || {},
+			};
+
+		default:
+			return state;
+	}
+};
+
+const countBackupItems = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_COUNT_BACKUP_ITEMS_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_COUNT_BACKUP_ITEMS:
+			return {
+				...state,
+				items: action?.backupItems || {},
+			};
 
 		default:
 			return state;
@@ -211,8 +257,48 @@ const stats = ( state = {}, action ) => {
 	}
 };
 
+const statsCounts = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_STATS_COUNTS_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_STATS_COUNTS:
+			return {
+				...state,
+				data: action?.statsCounts || {},
+			};
+
+		default:
+			return state;
+	}
+};
+
+const welcomeBanner = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_DISMISSED_WELCOME_BANNER_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_DISMISSED_WELCOME_BANNER:
+			return {
+				...state,
+				hasBeenDismissed: action.hasBeenDismissed,
+			};
+
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	products,
+	backupRewindableEvents,
+	countBackupItems,
 	purchases,
 	chatAvailability,
 	chatAuthentication,
@@ -220,6 +306,8 @@ const reducers = combineReducers( {
 	notices,
 	plugins,
 	stats,
+	statsCounts,
+	welcomeBanner,
 } );
 
 export default reducers;

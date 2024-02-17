@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/paywall",
-	"title": "Paywall (Beta)",
-	"description": "Content before this block will be shown in the excerpt on your archives page.",
+	"title": "Paywall",
+	"description": "Limit access to the content below this block to chosen subscribers.",
 	"keywords": [
 		"more",
 		"email",
@@ -25,6 +25,5 @@
 		"html": false,
 		"multiple": false
 	},
-	"parent": [ "core/post-content" ],
-	"editorScript": "file:../editor-beta.js"
+	"parent": [ "core/post-content" ]
 }

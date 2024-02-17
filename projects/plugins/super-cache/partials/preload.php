@@ -1,3 +1,4 @@
+<div class="wpsc-settings-inner">
 <?php
 echo '<a name="preload"></a>';
 if ( ! $cache_enabled || ! $super_cache_enabled || true === defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
@@ -12,12 +13,15 @@ if ( $count > 1000 ) {
 	$min_refresh_interval = 30;
 }
 
+echo '<div class="wpsc-card">';
 echo '<p>' . __( 'This will cache every published post and page on your site. It will create supercache static files so unknown visitors (including bots) will hit a cached page. This will probably help your Google ranking as they are using speed as a metric when judging websites now.', 'wp-super-cache' ) . '</p>';
 echo '<p>' . __( 'Preloading creates lots of files however. Caching is done from the newest post to the oldest so please consider only caching the newest if you have lots (10,000+) of posts. This is especially important on shared hosting.', 'wp-super-cache' ) . '</p>';
 echo '<p>' . __( 'In &#8217;Preload Mode&#8217; regular garbage collection will be disabled so that old cache files are not deleted. This is a recommended setting when the cache is preloaded.', 'wp-super-cache' ) . '</p>';
 echo '<form name="cache_filler" action="' . esc_url_raw( add_query_arg( 'tab', 'preload', $admin_url ) ) . '" method="POST">';
 echo '<input type="hidden" name="action" value="preload" />';
 echo '<input type="hidden" name="page" value="wpsupercache" />';
+echo '</div>';
+echo '<div class="wpsc-card">';
 echo '<p>' . sprintf( __( 'Refresh preloaded cache files every %s minutes. (0 to disable, minimum %d minutes.)', 'wp-super-cache' ), "<input type='text' size=4 name='wp_cache_preload_interval' value='" . (int) $wp_cache_preload_interval . "' />", $min_refresh_interval ) . '</p>';
 if ( $count > 100 ) {
 	$step = (int)( $count / 10 );
@@ -90,3 +94,5 @@ if ( false == $currently_preloading ) {
 echo '</div>';
 wp_nonce_field( 'wp-cache' );
 echo '</form>';
+echo '</div>';
+echo '</div>';

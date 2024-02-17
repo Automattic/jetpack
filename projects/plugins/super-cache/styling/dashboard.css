@@ -1,0 +1,175 @@
+/* TODO: Migrate to SCSS after adding build step to WPSC */
+/* TODO: Migrate CSS from wp-cache.php */
+
+#wpwrap {
+	/* Declare JP CSS variables */
+	/* TODO: Integrate root-variables.scss from base-styles package */
+	--jp-black: #000000;
+	--jp-gray: #dcdcde;
+	--jp-white-off: #f9f9f6;
+	--jp-white: #ffffff;
+	--font-headline-medium: 48px;
+	--font-headline-small: 36px;
+	--font-title-medium: 24px;
+	--font-body: 16px;
+	--font-body-small: 14px;
+
+	/* Declare commonly used variables */
+	--wpsc-header-font: Corbel,
+		-apple-system,
+		BlinkMacSystemFont,
+		"Segoe UI",
+		Roboto,
+		Oxygen-Sans,
+		Ubuntu,
+		Cantarell,
+		"Helvetica Neue",
+		sans-serif;
+	--max-container-width: 1128px;	
+	background-color: var(--jp-white);
+}
+
+#wpbody-content {
+	padding-bottom: 0;
+}
+
+#wpsc-dashboard {
+	/* Remove default wp-admin spacing */
+	margin-left: -20px;
+	padding-top: 20px;
+}
+
+#wpsc-dashboard,
+#wpsc-dashboard p,
+#wpsc-dashboard .form-table,
+#wpsc-dashboard .form-table td,
+#wpsc-dashboard .form-table th,
+#wpsc-dashboard .form-table td p {
+	font-size: var(--font-body);
+}
+
+#wpsc-callout ul,
+#wpsc-callout ol,
+#wpsc-callout > p:last-child {
+	font-size: var(--font-body-small);
+}
+
+#wpsc-dashboard > .header,
+#wpsc-dashboard > .footer,
+#wpsc-dashboard .wpsc-body-content,
+#wpsc-dashboard .wpsc-nav {
+	max-width: var(--max-container-width);
+	margin-left: auto;
+	margin-right: auto;
+	width: 100%;
+}
+
+.header {
+	--icon-height: 48px;
+	display: flex;
+	margin-top: 1em;
+}
+
+.header .wpsc-icon {
+	width: var(--icon-height);
+	height: var(--icon-height);
+	border-radius: 7px;
+}
+.header .wpsc-name {
+	color: var(--jp-black);
+	font-family: var(--wpsc-header-font);
+	font-size: var(--font-headline-small);
+	letter-spacing: -0.015em;
+	line-height: var(--icon-height);
+	margin-left: 0.25em;
+}
+
+.wpsc-nav {
+	display: flex;
+	width: 100%;
+	overflow: hidden;
+}
+
+.wpsc-nav-tab {
+	width: auto;
+	flex: none;
+	border-bottom: 2px solid transparent;
+	border-top: none;
+	text-align: center;
+	margin: 0 16px;
+}
+
+.wpsc-nav-tab:hover,
+.wpsc-nav-tab:focus,
+.wpsc-nav-tab.wpsc-nav-tab-selected {
+	box-shadow: inset 0px -1px 0px rgb(0, 0, 0);
+}
+
+.wpsc-nav-tab a {
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	padding: 15px;
+	width: 100%;
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 24px;
+	color: var(--jp-black);
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.wpsc-nav-container {
+	background: var(--jp-white);
+}
+
+.wpsc-body {
+	background: var(--jp-white-off);
+}
+
+.wpsc-card {
+	background: var(--jp-white);
+	border-radius: 4px;
+	flex-wrap: wrap;
+	font-size: var(--font-body);
+	line-height: 1.3;
+	margin-bottom: 2em;
+	margin-right: 1em;
+	max-width: 100%;
+	padding: 1rem 1.5rem;
+	position: relative;
+}
+
+.footer {
+	--icon-height: 16px;
+	
+	display: flex;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.footer .wp-super-cache-version .wpsc-icon {
+	border-radius: 2px;
+	height: var(--icon-height);
+	width: var(--icon-height);
+	vertical-align: middle;
+}
+
+.footer .wp-super-cache-version .wpsc-name {
+	font-family: var(--wpsc-header-font);
+	letter-spacing: -0.015em;
+	margin-left: 0.25em;
+	line-height: var(--icon-height);
+	vertical-align: middle;
+}
+
+.footer .automattic-airline {
+	flex: 1;
+	height: 45px;
+	text-align: right;
+}
+
+.footer .automattic-airline	img {
+	width: 190px;
+	height: auto;
+}

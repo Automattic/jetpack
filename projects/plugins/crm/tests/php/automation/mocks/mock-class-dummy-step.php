@@ -4,17 +4,15 @@ namespace Automattic\Jetpack\CRM\Automation\Tests\Mocks;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Base_Step;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
 
 class Dummy_Step extends Base_Step {
 
 	/**
-	 * Execute the step
-	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
-	 * @return void
+	 * {@inheritDoc}
 	 */
-	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function execute( Data_Type $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		Automation_Logger::instance()->log( 'Dummy step executed' );
 	}
 
@@ -31,14 +29,10 @@ class Dummy_Step extends Base_Step {
 	}
 
 	public static function get_data_type(): string {
-		return 'contact';
+		return Contact_Data::class;
 	}
 
 	public static function get_category(): ?string {
 		return 'testing';
-	}
-
-	public static function get_allowed_triggers(): ?array {
-		return array();
 	}
 }

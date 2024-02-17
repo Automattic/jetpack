@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-svelte-data-sync-client",
-	"version": "0.3.3",
+	"version": "0.3.5",
 	"description": "A Svelte.js client for the wp-js-data-sync package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/svelte-data-sync-client/#readme",
 	"type": "module",
@@ -25,20 +25,16 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@typescript-eslint/parser": "5.62.0",
-		"eslint": "8.48.0",
-		"jest": "29.4.3",
+		"@typescript-eslint/parser": "6.7.5",
+		"eslint": "8.51.0",
+		"jest": "29.7.0",
 		"svelte": "3.58.0",
 		"ts-loader": "9.4.2",
 		"tslib": "2.5.0",
 		"typescript": "5.0.4",
 		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1",
-		"zod": "3.20.2"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+		"zod": "3.22.3"
 	},
 	"exports": {
 		".": {

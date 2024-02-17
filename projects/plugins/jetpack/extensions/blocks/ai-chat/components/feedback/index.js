@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+
 /**
  * WordPress dependencies
  */
@@ -7,6 +9,7 @@ import { useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { ThumbsDown, ThumbsUp } from '../../lib/icons';
 import useSubmitFeedback from '../../use-submit-feedback';
 import DisplayError from '../display-error';
 
@@ -51,24 +54,27 @@ export default function Feedback( { blogType, blogId, cacheKey, feedbackSubmitte
 			) }
 			{ showFeedbackForm && (
 				<div className="jetpack-ai-chat-answer-feedback">
+					<hr />
 					<div className="jetpack-ai-chat-answer-feedback-buttons">
 						{ __( 'Was this helpful?', 'jetpack' ) }
-						<Button
+						<a
+							role="button"
 							className="thumbs-up"
 							disabled={ isSubmittingFeedback || feedback.rank === 'thumbs-up' }
 							label={ __( 'Thumbs up', 'jetpack' ) }
 							onClick={ () => handleRankSubmit( 'thumbs-up' ) }
 						>
-							<Icon icon="thumbs-up" />
-						</Button>
-						<Button
+							<Icon icon={ ThumbsUp } />
+						</a>
+						<a
+							role="button"
 							className="thumbs-down"
 							disabled={ isSubmittingFeedback || feedback.rank === 'thumbs-down' }
 							label={ __( 'Thumbs down', 'jetpack' ) }
 							onClick={ () => handleRankSubmit( 'thumbs-down' ) }
 						>
-							<Icon icon="thumbs-down" />
-						</Button>
+							<Icon icon={ ThumbsDown } />
+						</a>
 					</div>
 					{ showCommentForm && (
 						<div className="jetpack-ai-chat-feedback-form">
@@ -85,7 +91,7 @@ export default function Feedback( { blogType, blogId, cacheKey, feedbackSubmitte
 								onChange={ newComment => setFeedback( { ...feedback, comment: newComment } ) }
 							/>
 							<Button
-								variant="primary"
+								className="wp-block-button__link jetpack-ai-chat-feedback-submit"
 								onClick={ handleFeedbackSubmit }
 								disabled={ isSubmittingFeedback || feedbackSubmittedForThisQuestion }
 							>

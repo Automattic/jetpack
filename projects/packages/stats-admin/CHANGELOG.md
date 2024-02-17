@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.15.3 - 2024-02-14
+### Fixed
+- Stats: clear usage, modules, module-settings cache after purchase [#35590]
+
+## 0.15.2 - 2024-02-05
+### Changed
+- Update dependencies.
+
+## 0.15.1 - 2023-12-25
+### Changed
+- Update dependencies.
+
+## 0.15.0 - 2023-12-11
+### Added
+- Introduced the plan usage API route porting to wpcom. [#34516]
+
+## 0.14.0 - 2023-11-24
+### Added
+- Added support to load scripts conditionally for the Stats widget. [#34284]
+
+## 0.13.0 - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
+## 0.12.2 - 2023-09-19
+### Changed
+- Updated Jetpack submenu sort order so individual features are alpha-sorted. [#32958]
+
 ## 0.12.1 - 2023-08-28
 ### Changed
 - Updated package dependencies. [#32605]

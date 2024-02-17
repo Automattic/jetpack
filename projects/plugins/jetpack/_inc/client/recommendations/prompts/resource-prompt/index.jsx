@@ -1,4 +1,4 @@
-import ProgressBar from '@automattic/components/dist/esm/progress-bar';
+import { ProgressBar } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -107,7 +107,13 @@ const ResourcePromptComponent = props => {
 		}
 
 		if ( progressValue ) {
-			return <ProgressBar color={ '#00A32A' } value={ progressValue } />;
+			return (
+				<ProgressBar
+					className={ 'progress-bar' }
+					progressClassName={ 'progress-bar__progress' }
+					progress={ progressValue / 100 }
+				/>
+			);
 		}
 
 		return null;

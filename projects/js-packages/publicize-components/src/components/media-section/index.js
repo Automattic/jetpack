@@ -35,8 +35,8 @@ export default function MediaSection( {
 			if ( ! media ) {
 				updateAttachedMedia( [] );
 			} else {
-				const { id, url } = media;
-				updateAttachedMedia( [ { id, url } ] );
+				const { id, url, mime: type } = media;
+				updateAttachedMedia( [ { id, url, type } ] );
 			}
 		},
 		[ updateAttachedMedia ]

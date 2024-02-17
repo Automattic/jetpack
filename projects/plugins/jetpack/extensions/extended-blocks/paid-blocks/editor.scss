@@ -82,12 +82,21 @@ $icon-background-color: #fff;
 
 // Paid Icons: Only show if upgrade is possible.
 .jetpack-enable-upgrade-nudge {
-	.block-editor-block-icon > svg {
-		overflow: visible;
+
+	.block-editor-block-icon {
+		position: relative;
+
+		> svg {
+			overflow: visible;
+		}
 	}
 
-	.jetpack-paid-block-symbol {
+	svg.jetpack-paid-block-symbol {
 		display: block;
+
+		position: absolute;
+		left: calc(100% - 1px);
+		top: 3px;
 	}
 
 	.components-placeholder__label .jetpack-paid-block-symbol {

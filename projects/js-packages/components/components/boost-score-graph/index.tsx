@@ -17,8 +17,14 @@ export interface Period {
 		mobile_tbt: number;
 	};
 }
+export interface Annotation {
+	timestamp: number;
+	text: string;
+	line?: HTMLElement;
+}
 export interface BoostScoreGraphProps {
 	periods?: Period[];
+	annotations?: Annotation[];
 	startDate?: number;
 	endDate?: number;
 	title?: string;
@@ -28,7 +34,7 @@ export interface BoostScoreGraphProps {
 export type ScoreGraphAlignedData = [
 	number[], // timestamps
 	number[], // desktop_overall_score
-	number[] // mobile_overall_score
+	number[], // mobile_overall_score
 ];
 
 /**
@@ -42,6 +48,7 @@ export type ScoreGraphAlignedData = [
  */
 export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	periods = [],
+	annotations = [],
 	startDate = 0,
 	endDate = 0,
 	title,
@@ -61,6 +68,17 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 		startDate = Math.min( periods[ 0 ].timestamp, dayBeforeEndDate );
 	}
 
+	// Add a fake period before the start date to make the chart look better
+	if ( periods.length > 0 ) {
+		periods = [
+			{
+				timestamp: startDate - 24 * 60 * 60 * 1000,
+				dimensions: periods[ 0 ].dimensions,
+			},
+			...periods,
+		];
+	}
+
 	return (
 		<div className="jb-score-graph">
 			{ title && <Text variant="title-medium">{ title }</Text> }
@@ -69,7 +87,11 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 					<Background />
 				</div>
 			) : (
-				<UplotLineChart periods={ periods } range={ { startDate, endDate } } />
+				<UplotLineChart
+					periods={ periods }
+					annotations={ annotations }
+					range={ { startDate, endDate } }
+				/>
 			) }
 		</div>
 	);

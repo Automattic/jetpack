@@ -6,8 +6,7 @@
  * @since 12.4
  */
 
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
-use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 /**
@@ -133,14 +132,14 @@ class Jetpack_Subscribe_Modal {
 	public function get_subscribe_template_content() {
 		// translators: %s is the name of the site.
 		$discover_more_from = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
-		$continue_reading   = __( 'Continue Reading', 'jetpack' );
+		$continue_reading   = __( 'Continue reading', 'jetpack' );
 		$subscribe_text     = __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack' );
 
 		return <<<HTML
-	<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|70","left":"var:preset|spacing|70","right":"var:preset|spacing|70"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
-	<div class="wp-block-group has-border-color" style="border-color:#dddddd;border-width:1px;margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--70);padding-right:var(--wp--preset--spacing--70);padding-bottom:var(--wp--preset--spacing--70);padding-left:var(--wp--preset--spacing--70)">
+	<!-- wp:group {"style":{"spacing":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
+	<div class="wp-block-group has-border-color" style="border-color:#dddddd;border-width:1px;margin-top:0;margin-bottom:0;padding-top:32px;padding-right:32px;padding-bottom:32px;padding-left:32px">
 
-	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"4px"}}}} -->
+	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
 		<h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px;font-size:26px;font-style:normal;font-weight:600">$discover_more_from</h2>
 		<!-- /wp:heading -->
 
@@ -148,26 +147,14 @@ class Jetpack_Subscribe_Modal {
 		<p class='has-text-align-center' style='margin-top:4px;margin-bottom:0px;font-size:15px'>$subscribe_text</p>
 		<!-- /wp:paragraph -->
 
-		<!-- wp:jetpack/subscriptions {"buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
+		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact"} /-->
 
-		<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}},"className":"jetpack-subscribe-modal__close"} -->
+		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"20px"}},"typography":{"fontSize":"14px"}},"className":"jetpack-subscribe-modal__close"} -->
 		<p class="has-text-align-center jetpack-subscribe-modal__close" style="margin-top:20px;font-size:14px"><a href="#">$continue_reading</a></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
 HTML;
-	}
-
-	/**
-	 * Returns true if we should load Newsletter content.
-	 *
-	 * @return bool
-	 */
-	public static function should_load_subscriber_modal() {
-		// Adding extra check/flag to load only on WP.com
-		// When ready for Jetpack release, remove this.
-		$is_wpcom = ( new Host() )->is_wpcom_platform();
-		return $is_wpcom;
 	}
 
 	/**
@@ -182,6 +169,20 @@ HTML;
 			return false;
 		}
 
+		// Needed because Elementor editor makes is_admin() return false
+		// See https://coreysalzano.com/wordpress/why-elementor-disobeys-is_admin/
+		// Ignore nonce warning as just checking if is set
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['elementor-preview'] ) ) {
+			return false;
+		}
+
+		// Don't show when previewing blog posts or site's theme
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['preview'] ) || isset( $_GET['theme_preview'] ) || isset( $_GET['customize_preview'] ) || isset( $_GET['hide_banners'] ) ) {
+			return false;
+		}
+
 		// Don't show if one of subscribe query params is set.
 		// They are set when user submits the subscribe form.
 		// The nonce is checked elsewhere before redirect back to this page with query params.
@@ -192,79 +193,31 @@ HTML;
 
 		// Don't show if post is for subscribers only or has paywall block
 		global $post;
-		$access_level              = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
-		$is_accessible_by_everyone = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level;
-		if ( ! $is_accessible_by_everyone ) {
-			return false;
+		if ( defined( 'Automattic\\Jetpack\\Extensions\\Subscriptions\\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS' ) ) {
+			$access_level = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+		} else {
+			$access_level = get_post_meta( $post->ID, '_jetpack_newsletter_access', true );
 		}
-
-		// Dont show if user is member of site.
-		if ( is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$is_accessible_by_everyone = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level || empty( $access_level );
+		if ( ! $is_accessible_by_everyone ) {
 			return false;
 		}
 
 		// Don't show if user is subscribed to blog.
 		require_once __DIR__ . '/../views.php';
-		if ( $this->has_subscription_cookie() || Jetpack_Subscriptions_Widget::is_current_user_subscribed() ) {
+		if ( ! class_exists( 'Jetpack_Memberships' ) || Jetpack_Memberships::is_current_user_subscribed() ) {
 			return false;
 		}
 		return true;
 	}
-
-	/**
-	 * Returns true if site visitor has subscribed
-	 * to the blog and has a subscription cookie.
-	 *
-	 * @return bool
-	 */
-	public function has_subscription_cookie() {
-		$cookies = $_COOKIE;
-		foreach ( $cookies as $name => $value ) {
-			if ( strpos( $name, 'jetpack_blog_subscribe_' ) !== false ) {
-				return true;
-			}
-		}
-		return false;
-	}
 }
 
-add_filter(
-	'jetpack_subscriptions_modal_enabled',
-	array(
-		'Jetpack_Subscribe_Modal',
-		'should_load_subscriber_modal',
-	)
-);
-
-/**
- * Filter for enabling or disabling the Jetpack Subscribe Modal
- * feature. We use this filter here and in several other places
- * to conditionally load options and functionality related to
- * this feature.
- *
- * @since 12.4
- *
- * @param bool Defaults to false.
- */
-if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
-	Jetpack_Subscribe_Modal::init();
-}
+Jetpack_Subscribe_Modal::init();
 
 add_action(
 	'rest_api_switched_to_blog',
 	function () {
-		/**
-		 * Filter for enabling or disabling the Jetpack Subscribe Modal
-		 * feature. We use this filter here and in several other places
-		 * to conditionally load options and functionality related to
-		 * this feature.
-		 *
-		 * @since 12.4
-		 *
-		 * @param bool Defaults to false.
-		 */
-		if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
-			Jetpack_Subscribe_Modal::init();
-		}
+		Jetpack_Subscribe_Modal::init();
 	}
 );

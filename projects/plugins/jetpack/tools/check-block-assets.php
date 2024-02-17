@@ -83,6 +83,7 @@ $allowed = array(
 		'wp-data',
 		'wp-element',
 		'wp-keycodes',
+		'wp-plugins',
 		'wp-primitives',
 	),
 );
@@ -119,7 +120,7 @@ $bad_deps   = array_fill_keys( $bad_deps, true );
 $ok_wp_deps = array_fill_keys( $ok_wp_deps, true );
 $iter       = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( '_inc/blocks/', FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_PATHNAME ) );
 foreach ( $iter as $file ) {
-	if ( substr( $file, -15 ) !== '/view.asset.php' ) {
+	if ( ! str_ends_with( $file, '/view.asset.php' ) ) {
 		continue;
 	}
 	$block = substr( $file, 12, -15 );
@@ -128,7 +129,7 @@ foreach ( $iter as $file ) {
 	$allow = isset( $allowed[ $block ] ) ? array_fill_keys( $allowed[ $block ], true ) : array();
 	unset( $allowed[ $block ] );
 	foreach ( $data['dependencies'] as $dep ) {
-		if ( isset( $bad_deps[ $dep ] ) || substr( $dep, 0, 3 ) === 'wp-' && ! isset( $ok_wp_deps[ $dep ] ) ) {
+		if ( isset( $bad_deps[ $dep ] ) || str_starts_with( $dep, 'wp-' ) && ! isset( $ok_wp_deps[ $dep ] ) ) {
 			if ( isset( $allow[ $dep ] ) ) {
 				unset( $allow[ $dep ] );
 			} else {

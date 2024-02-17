@@ -765,6 +765,27 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
+
+		// Save subscriber token and redirect
+		register_rest_route(
+			'jetpack/v4',
+			'/subscribers/auth',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::set_subscriber_cookie_and_redirect',
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'redirect_url' => array(
+						'required'          => true,
+						'description'       => __( 'The URL to redirect to.', 'jetpack' ),
+						'validate_callback' => 'wp_http_validate_url',
+						'sanitize_callback' => 'sanitize_url',
+						'type'              => 'string',
+						'format'            => 'uri',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -799,6 +820,25 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'token'   => $json->token,
 			'blog_id' => $blog_id,
 		);
+	}
+
+	/**
+	 * Set subscriber cookie and redirect
+	 *
+	 * @param \WP_Rest_Request $request The URL to redirect to.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public static function set_subscriber_cookie_and_redirect( $request ) {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		$token                = $subscription_service->get_and_set_token_from_request();
+		$payload              = $subscription_service->decode_token( $token );
+		$is_valid_token       = ! empty( $payload );
+		if ( $is_valid_token ) {
+			return new WP_REST_Response( null, 302, array( 'location' => $request['redirect_url'] ) );
+		}
+		return new WP_Error( 'invalid-token', 'Invalid Token' );
 	}
 
 	/**
@@ -2494,7 +2534,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'description'       => esc_html__( 'Enabled Services and those hidden behind a button', 'jetpack' ),
 				'type'              => 'object',
 				'default'           => array(
-					'visible' => array( 'twitter', 'facebook' ),
+					'visible' => array( 'facebook', 'x' ),
 					'hidden'  => array(),
 				),
 				'validate_callback' => __CLASS__ . '::validate_services',
@@ -2563,7 +2603,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_custom_service',
 				'jp_group'          => 'sharedaddy',
 			),
-			// Not an option, but an action that can be perfomed on the list of custom services passing the service ID.
+			// Not an option, but an action that can be performed on the list of custom services passing the service ID.
 			'sharing_delete_service'               => array(
 				'description'       => esc_html__( 'Delete custom sharing service.', 'jetpack' ),
 				'type'              => 'string',

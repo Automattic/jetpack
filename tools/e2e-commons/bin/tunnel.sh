@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Wrapper over tunnel.cjs script
+# Wrapper over tunnel.js script
 
 set -e
 
@@ -22,11 +22,11 @@ export PATH="$BASE_DIR/../node_modules/.bin:$PATH"
 
 function up() {
 	down
-	node "$BASE_DIR"/tunnel.cjs on "$@"
+	node "$BASE_DIR"/tunnel.js on "$@"
 }
 
 function down() {
-	node "$BASE_DIR"/tunnel.cjs off
+	node "$BASE_DIR"/tunnel.js off
 }
 
 function reset() {

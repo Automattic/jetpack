@@ -4,7 +4,6 @@
     background: white;
     border: 1px solid var(--jp-gray-10);
     border-radius: 2px;
-    margin: 0 10px;
 	 position: relative;
 }
 
@@ -25,6 +24,8 @@
 	width: 100%;
 	align-items: center;
 	justify-content: flex-start;
+	font-weight: 400;
+	font-size: 14px;
 }
 
 :global(.components-dropdown-menu__toggle) {

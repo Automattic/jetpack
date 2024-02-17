@@ -32,7 +32,7 @@
       if (zeroBSCRM_is_invoicetags_page()) $typeInt = ZBS_TYPE_INVOICE;
       if (zeroBSCRM_is_transactiontags_page()) $typeInt = ZBS_TYPE_TRANSACTION;
       if (zeroBSCRM_is_formtags_page()) $typeInt = ZBS_TYPE_FORM;
-      if (zeroBSCRM_is_eventtags_page()) $typeInt = ZBS_TYPE_EVENT;
+      if (zeroBSCRM_is_tasktags_page()) $typeInt = ZBS_TYPE_TASK;
 
         if ($typeInt > 0){
 
@@ -76,6 +76,13 @@
 
     class zeroBS__Metabox_TagList extends zeroBS__Metabox{ 
 
+	/**
+	 * The legacy object name (e.g. 'zerobs_customer')
+	 *
+	 * @var string
+	 */
+	private $postType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+
         public function __construct( $plugin_file, $typeInt = ZBS_TYPE_CONTACT ) {
 
           global $zbs;
@@ -89,7 +96,6 @@
             $this->metaboxArea = 'normal';
             $this->metaboxLocation = 'high';
             $this->saveOrder = 1;
-
             // headless!
             $this->headless = true;
 
@@ -198,6 +204,12 @@
 
     class zeroBS__Metabox_TagAdd extends zeroBS__Metabox_Tags{
 
+	/**
+	 * The legacy object name (e.g. 'zerobs_customer')
+	 *
+	 * @var string
+	 */
+	private $postType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
         public function __construct( $plugin_file, $typeInt = ZBS_TYPE_CONTACT) {
 

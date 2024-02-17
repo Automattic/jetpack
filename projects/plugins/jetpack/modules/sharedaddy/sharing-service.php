@@ -72,7 +72,7 @@ class Sharing_Service {
 				$config = array();
 
 				// Pre-load custom modules otherwise they won't know who they are
-				if ( substr( $id, 0, 7 ) === 'custom-' && is_array( $options[ $id ] ) ) {
+				if ( str_starts_with( $id, 'custom-' ) && is_array( $options[ $id ] ) ) {
 					$config = $options[ $id ];
 				}
 
@@ -108,6 +108,7 @@ class Sharing_Service {
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
 			'mastodon'         => 'Share_Mastodon',
 			'nextdoor'         => 'Share_Nextdoor',
+			'x'                => 'Share_X',
 			// deprecated.
 			'skype'            => 'Share_Skype',
 		);
@@ -293,8 +294,8 @@ class Sharing_Service {
 		if ( ! is_array( $enabled ) ) {
 			$enabled = array(
 				'visible' => array(
-					'twitter',
 					'facebook',
+					'x',
 				),
 				'hidden'  => array(),
 			);
@@ -695,13 +696,13 @@ class Sharing_Service_Total {
 	 * @param object $a Sharing_Service_Total object.
 	 * @param object $b Sharing_Service_Total object.
 	 *
-	 * @return bool
+	 * @return int -1, 0, or 1 if $a is <, =, or > $b
 	 */
 	public static function cmp( $a, $b ) {
 		if ( $a->total === $b->total ) {
-			return $a->name < $b->name;
+			return $b->name <=> $a->name;
 		}
-		return $a->total < $b->total;
+		return $b->total <=> $a->total;
 	}
 }
 
@@ -756,13 +757,13 @@ class Sharing_Post_Total {
 	 * @param object $a Sharing_Post_Total object.
 	 * @param object $b Sharing_Post_Total object.
 	 *
-	 * @return bool
+	 * @return int -1, 0, or 1 if $a is <, =, or > $b
 	 */
 	public static function cmp( $a, $b ) {
 		if ( $a->total === $b->total ) {
-			return $a->id < $b->id;
+			return $b->id <=> $a->id;
 		}
-		return $a->total < $b->total;
+		return $b->total <=> $a->total;
 	}
 }
 

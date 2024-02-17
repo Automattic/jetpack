@@ -1,5 +1,22 @@
 # Changelog
 
+## 4.0.0 - 2024-02-07
+### Changed
+- Code Modernization: Replace usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+- Updated package dependencies.
+
+## 3.1.6 - 2023-10-02
+### Changed
+- General: remove backwards-compatibility function checks now that the package supports WP 6.2. [#32772]
+- Updated Jetpack submenu sort order so individual features are alpha-sorted. [#32958]
+- Updated package dependencies. [#31308], [#32966], [#32307]
+
+### Fixed
+- Avoid deprecation warning in PHP 8.1 when viewing Beta settings screen. [#31295]
+- If another PHP error handler was set, chain to it insead of calling PHP's default handler. [#32834]
+- Use WordPress core's `Plugin_Upgrader` to install plugins, as it handles edge cases better. [#33216]
+
 ## 3.1.5 - 2023-04-27
 ### Security
 - Disable HTML-style tags in the markdown renderer, the library used doesn't always handle them properly. [#30339]

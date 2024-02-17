@@ -31,8 +31,8 @@ const useSuggestionsFromOpenAI = ( {
 	onSuggestionDone,
 	onUnclearPrompt,
 	onModeration,
-	refreshFeatureData,
 	requireUpgrade,
+	requestingState,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
@@ -40,7 +40,9 @@ const useSuggestionsFromOpenAI = ( {
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
-	const [ requestingState, setRequestingState ] = useState( 'init' );
+	const { dequeueAiAssistantFeatureAyncRequest, setAiAssistantFeatureRequireUpgrade } =
+		useDispatch( 'wordpress-com/plans' );
+	const [ requestState, setRequestState ] = useState( requestingState || 'init' );
 	const source = useRef();
 
 	// Let's grab post data so that we can do something smart.
@@ -119,6 +121,13 @@ const useSuggestionsFromOpenAI = ( {
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
 	const getStreamedSuggestionFromOpenAI = async ( type, options = {} ) => {
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
+
 		const implementedFunctions = options?.functions?.reduce( ( acc, { name, implementation } ) => {
 			return {
 				...acc,
@@ -131,7 +140,7 @@ const useSuggestionsFromOpenAI = ( {
 		 * let's set the error and return an `undefined` event source.
 		 */
 		if ( requireUpgrade ) {
-			setRequestingState( 'error' );
+			setRequestState( 'error' );
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
@@ -218,7 +227,7 @@ const useSuggestionsFromOpenAI = ( {
 				debugPrompt( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
 			);
 
-			setRequestingState( 'requesting' );
+			setRequestState( 'requesting' );
 
 			source.current = await askQuestion( prompt, {
 				postId,
@@ -227,7 +236,7 @@ const useSuggestionsFromOpenAI = ( {
 				functions: options?.functions,
 			} );
 
-			setRequestingState( 'suggesting' );
+			setRequestState( 'suggesting' );
 		} catch ( err ) {
 			if ( err.message ) {
 				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );
@@ -270,6 +279,7 @@ const useSuggestionsFromOpenAI = ( {
 			source?.current?.removeEventListener( 'done', onDone );
 			source?.current?.removeEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
 			source?.current?.removeEventListener( 'error_network', onErrorNetwork );
+			source?.current?.removeEventListener( 'error_context_too_large', onErrorContextTooLarge );
 			source?.current?.removeEventListener(
 				'error_service_unavailable',
 				onErrorServiceUnavailable
@@ -290,6 +300,7 @@ const useSuggestionsFromOpenAI = ( {
 			source?.current?.addEventListener( 'done', onDone );
 			source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
 			source?.current?.addEventListener( 'error_network', onErrorNetwork );
+			source?.current?.addEventListener( 'error_context_too_large', onErrorContextTooLarge );
 			source?.current?.addEventListener( 'error_service_unavailable', onErrorServiceUnavailable );
 			source?.current?.addEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
 			source?.current?.addEventListener( 'error_moderation', onErrorModeration );
@@ -299,7 +310,7 @@ const useSuggestionsFromOpenAI = ( {
 		const onDone = e => {
 			const { detail } = e;
 
-			setRequestingState( 'done' );
+			setRequestState( 'done' );
 
 			// Remove the delimiter from the suggestion.
 			const assistantResponse = detail.replaceAll( delimiter, '' );
@@ -342,12 +353,10 @@ const useSuggestionsFromOpenAI = ( {
 			const blocks = parse( detail );
 			const validBlocks = blocks.filter( block => block.isValid );
 			replaceInnerBlocks( clientId, validBlocks );
-
-			refreshFeatureData();
 		};
 
 		const onErrorUnclearPrompt = () => {
-			setRequestingState( 'error' );
+			setRequestState( 'error' );
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -359,8 +368,24 @@ const useSuggestionsFromOpenAI = ( {
 			onUnclearPrompt?.();
 		};
 
+		const onErrorContextTooLarge = () => {
+			setRequestState( 'error' );
+			source?.current?.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( false );
+			setError( {
+				code: 'error_context_too_large',
+				message: __(
+					'The content is too large to be processed all at once. Please try to shorten it or divide it into smaller parts.',
+					'jetpack'
+				),
+				status: 'info',
+			} );
+		};
+
 		const onErrorNetwork = ( { detail: error } ) => {
-			setRequestingState( 'error' );
+			setRequestState( 'error' );
 			const { name: errorName, message: errorMessage } = error;
 			if ( errorName === 'TypeError' && errorMessage === 'Failed to fetch' ) {
 				/*
@@ -376,7 +401,7 @@ const useSuggestionsFromOpenAI = ( {
 
 				/*
 				 * Update the last prompt with the new messages.
-				 * @todo: Iterate over Prompt libraru to address properly the messages.
+				 * @todo: Iterate over Prompt library to address properly the messages.
 				 */
 				prompt = buildPromptForBlock( {
 					generatedContent: content,
@@ -406,7 +431,7 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorServiceUnavailable = () => {
-			setRequestingState( 'error' );
+			setRequestState( 'error' );
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -422,11 +447,15 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorQuotaExceeded = () => {
-			setRequestingState( 'error' );
+			setRequestState( 'error' );
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
+
+			// Dispatch the action to set the feature as requiring an upgrade.
+			setAiAssistantFeatureRequireUpgrade( true );
+
 			setError( {
 				code: 'error_quota_exceeded',
 				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
@@ -435,7 +464,7 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorModeration = () => {
-			setRequestingState( 'error' );
+			setRequestState( 'error' );
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -479,6 +508,7 @@ const useSuggestionsFromOpenAI = ( {
 		source?.current?.addEventListener( 'done', onDone );
 		source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
 		source?.current?.addEventListener( 'error_network', onErrorNetwork );
+		source?.current?.addEventListener( 'error_context_too_large', onErrorContextTooLarge );
 		source?.current?.addEventListener( 'error_service_unavailable', onErrorServiceUnavailable );
 		source?.current?.addEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
 		source?.current?.addEventListener( 'error_moderation', onErrorModeration );
@@ -498,7 +528,7 @@ const useSuggestionsFromOpenAI = ( {
 		onSuggestionDone?.();
 
 		// Set requesting state to done since the suggestion stopped.
-		setRequestingState( 'done' );
+		setRequestState( 'done' );
 	}
 
 	return {
@@ -511,7 +541,7 @@ const useSuggestionsFromOpenAI = ( {
 		postTitle: currentPostTitle,
 		contentBefore: getPartialContentToBlock( clientId ),
 		wholeContent: getContentFromBlocks(),
-		requestingState,
+		requestingState: requestState,
 
 		getSuggestionFromOpenAI: getStreamedSuggestionFromOpenAI,
 		stopSuggestion,

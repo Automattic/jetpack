@@ -1,11 +1,11 @@
-import logger from '../logger.cjs';
+import logger from '../logger.js';
 import { syncJetpackPlanData, loginToWpCom, loginToWpSite } from '../flows/index.js';
 import {
 	execWpCommand,
 	getDotComCredentials,
 	isLocalSite,
 	resetWordpressInstall,
-} from '../helpers/utils-helper.cjs';
+} from '../helpers/utils-helper.js';
 import { provisionJetpackStartConnection } from '../helpers/partner-provisioning.js';
 import fs from 'fs';
 import config from 'config';

@@ -2,11 +2,11 @@
  * External dependencies
  */
 import debugFactory from 'debug';
-import SuggestionsEventSource from '../suggestions-event-source';
+import SuggestionsEventSource from '../suggestions-event-source/index.js';
 /*
  * Types & constants
  */
-import type { PromptProp } from '../types';
+import type { AiModelTypeProp, PromptProp } from '../types.js';
 
 export type AskQuestionOptionsArgProps = {
 	/*
@@ -23,6 +23,11 @@ export type AskQuestionOptionsArgProps = {
 	 * Allows to use a specific AI assistant feature. Default value is undefined.
 	 */
 	feature?: 'ai-assistant-experimental' | string | undefined;
+
+	/*
+	 * Allows to use a specific AI model.
+	 */
+	model?: AiModelTypeProp;
 
 	/*
 	 * Allows the use of function calling. Default value is undefined.
@@ -57,12 +62,18 @@ const debug = debugFactory( 'jetpack-ai-client:ask-question' );
  */
 export default async function askQuestion(
 	question: PromptProp,
-	{ postId = null, fromCache = false, feature, functions }: AskQuestionOptionsArgProps = {}
+	{ postId = null, fromCache = false, feature, functions, model }: AskQuestionOptionsArgProps = {}
 ): Promise< SuggestionsEventSource > {
-	debug( 'Asking question: %o. options: %o', question, { postId, fromCache, feature, functions } );
+	debug( 'Asking question: %o. options: %o', question, {
+		postId,
+		fromCache,
+		feature,
+		functions,
+		model,
+	} );
 
 	return new SuggestionsEventSource( {
 		question,
-		options: { postId, feature, fromCache, functions },
+		options: { postId, feature, fromCache, functions, model },
 	} );
 }

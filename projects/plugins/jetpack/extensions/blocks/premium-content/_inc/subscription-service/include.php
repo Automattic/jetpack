@@ -8,19 +8,16 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 require_once __DIR__ . '/class-jwt.php';
-require_once __DIR__ . '/class-subscription-service.php';
-require_once __DIR__ . '/class-token-subscription.php';
-require_once __DIR__ . '/class-token-subscription-service.php';
-require_once __DIR__ . '/class-wpcom-token-subscription-service.php';
+require_once __DIR__ . '/interface-subscription-service.php';
+require_once __DIR__ . '/class-abstract-token-subscription-service.php';
+require_once __DIR__ . '/class-jetpack-token-subscription-service.php';
 require_once __DIR__ . '/class-wpcom-online-subscription-service.php';
 require_once __DIR__ . '/class-wpcom-offline-subscription-service.php';
-require_once __DIR__ . '/class-jetpack-token-subscription-service.php';
 require_once __DIR__ . '/class-unconfigured-subscription-service.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Unconfigured_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 
 const PAYWALL_FILTER = 'earn_premium_content_subscription_service';
 
@@ -66,18 +63,19 @@ function default_service( $service ) {
 		return $service;
 	}
 
+	// Prefer to use the WPCOM_Online_Subscription_Service if this code is executing on WPCOM.
 	if ( WPCOM_Online_Subscription_Service::available() ) {
+		// Return the WPCOM Online subscription service when we are on WPCOM.
 		return new WPCOM_Online_Subscription_Service();
 	}
 
-	if ( WPCOM_Token_Subscription_Service::available() ) {
-		return new WPCOM_Token_Subscription_Service();
-	}
-
+	// Fallback on using the Jetpack_Token_Subscription_Service if this is not executing on WPCOM but is executing on a Jetpack site.
 	if ( Jetpack_Token_Subscription_Service::available() ) {
+		// Return the Jetpack Token Subscription Service when it is available.
 		return new Jetpack_Token_Subscription_Service();
 	}
 
+	// Return an Unconfigured Subscription Service if this is not a WPCOM or Jetpack site or if both of those services are not available.
 	return new Unconfigured_Subscription_Service();
 }
 add_filter( PAYWALL_FILTER, 'Automattic\Jetpack\Extensions\Premium_Content\default_service' );

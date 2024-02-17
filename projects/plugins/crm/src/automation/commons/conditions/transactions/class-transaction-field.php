@@ -10,19 +10,21 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Transaction_Data;
+use Automattic\Jetpack\CRM\Entities\Transaction;
 
 /**
  * Transaction_Field condition class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Transaction_Field extends Base_Condition {
 
 	/**
 	 * Transaction_Field constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
@@ -58,47 +60,42 @@ class Transaction_Field extends Base_Condition {
 	 * Executes the condition. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data Data passed from the trigger.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! $this->is_valid_transaction_field_data( $data ) ) {
-			$this->logger->log( 'Invalid transaction field condition data' );
-			$this->condition_met = false;
-
-			return;
-		}
+	protected function execute( Data_Type $data ) {
+		/** @var Transaction $transaction */
+		$transaction = $data->get_data();
 
 		$field    = $this->get_attributes()['field'];
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
 		$this->check_for_valid_operator( $operator );
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data[ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $transaction->{$field} );
 
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $data[ $field ] === $value );
+				$this->condition_met = ( $transaction->{$field} === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				break;
 
 			case 'is_not':
-				$this->condition_met = ( $data[ $field ] !== $value );
+				$this->condition_met = ( $transaction->{$field} !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				break;
 
 			case 'contains':
-				$this->condition_met = ( strpos( $data[ $field ], $value ) !== false );
+				$this->condition_met = ( str_contains( $transaction->{$field}, $value ) );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				break;
 
 			case 'does_not_contain':
-				$this->condition_met = ( strpos( $data[ $field ], $value ) === false );
+				$this->condition_met = ( ! str_contains( $transaction->{$field}, $value ) );
 				break;
 
 			default:
@@ -114,22 +111,9 @@ class Transaction_Field extends Base_Condition {
 	}
 
 	/**
-	 * Checks if the transaction has at least the necessary keys to evaluate a
-	 * transaction field condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param array $transaction_data The transaction data.
-	 * @return bool True if the data is valid to evaluate a transaction field condition, false otherwise.
-	 */
-	private function is_valid_transaction_field_data( array $transaction_data ): bool {
-		return isset( $transaction_data[ $this->get_attributes()['field'] ] );
-	}
-
-	/**
 	 * Get the title for the transaction field condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title 'Transaction Field Changed'.
 	 */
@@ -140,7 +124,7 @@ class Transaction_Field extends Base_Condition {
 	/**
 	 * Get the slug for the transaction field condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug 'transaction_field'.
 	 */
@@ -151,7 +135,7 @@ class Transaction_Field extends Base_Condition {
 	/**
 	 * Get the description for the transaction field condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description for the condition.
 	 */
@@ -162,40 +146,22 @@ class Transaction_Field extends Base_Condition {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Transaction::get_slug();
+		return Transaction_Data::class;
 	}
 
 	/**
 	 * Get the category of the transaction field condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The category 'transaction'.
 	 */
 	public static function get_category(): string {
 		return __( 'Transaction', 'zero-bs-crm' );
-	}
-
-	/**
-	 * Get the allowed triggers for the transaction field condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string[] An array of allowed triggers:
-	 *               - 'jpcrm/transaction_status_updated'
-	 *               - 'jpcrm/transaction_updated'
-	 *               - 'jpcrm/transaction_created'
-	 */
-	public static function get_allowed_triggers(): array {
-		return array(
-			'jpcrm/transaction_status_updated',
-			'jpcrm/transaction_updated',
-			'jpcrm/transaction_created',
-		);
 	}
 }

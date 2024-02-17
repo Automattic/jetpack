@@ -4,6 +4,54 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 1.7 - 2023-11-21
+### Changed
+- Updated WordPress tested version to 6.4.
+- Updated minimum WordPress version requirement to WordPress 6.3.
+- Updated minimum PHP version requirement to PHP 7.0.
+
+## 1.6-beta - 2023-10-17
+### Added
+- Added Divi Builder Compatibility.
+- Added play button when the video block Show controls and Preview On Hover are enabled.
+- Pick video block attributes from URL when pasting/inserting.
+- Integrated video poster with Preview On Hover effect.
+
+### Changed
+- Indicate full compatibility with WordPress 6.3
+- Updated WordPress version requirement to WordPress 6.2
+- Made the Jetpack menu item default to point to My Jetpack.
+- Hide core Video and embed VideoPress variations, when video block is available.
+- Improved the connection prompt when the Jetpack VideoPress module is not active.
+- Changed max duration of the Preview On Hover effect to ten seconds.
+- Support autoplay playback option when Preview On Hover is enabled.
+- Render VideoPress video block 100% dynamically instead of saving html representation.
+- Video block: Create VideoPress video block when pasting URLs.
+- Video block: Stopped saving HTML markup representation.
+- Video block: Added Privacy and Rating panel to native block's settings.
+- Video block: Added replace functionality for the native version of the block.
+- Video block: Handle uploading video files when dropping in the editor canvas.
+
+### Security
+- Escape VideoPress attributes poster, and anchor when rendering block.
+
+### Fixed
+- Added a Notice when trying to edit a video that doesn't belong to the site.
+- Added error handling for track files upload process.
+- Handle block registration in the REST API request context.
+- Defer assets enqueuing for non block themes so they don't load on every page.
+- Enqueue token bridge file in the front-end only when required.
+- Ensure the appropriate scripts are enqueued to support private VideoPress videos rendered by the VideoPress Divi module.
+- Set video player position according to "starting point" and "duration".
+- Avoid conflicts with Better Click To Tweet plugin.
+- Fixed compatibility with Timber theme.
+- Fixed false values not working on shortcodes.
+- Fixed issue with disabled Privacy and rating panel.
+- Fixed JITM layout on video edit page.
+- Fixed playing state of poster mini-player.
+- Fixed playback of private videos on private sites.
+- Video block: Fixed blocking state when stopping an upload.
+
 ## 1.5 - 2023-03-22
 ### Added
 - Added request and update video poster functionality

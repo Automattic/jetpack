@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { RefreshJetpackSocialSettingsWrapper } from '@automattic/jetpack-publicize-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -27,6 +28,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				isLinked = this.props.isLinked,
 				isOfflineMode = this.props.isOfflineMode,
 				siteRawUrl = this.props.siteRawUrl,
+				blogID = this.props.blogID,
 				siteAdminUrl = this.props.siteAdminUrl,
 				isActive = this.props.getOptionValue( 'publicize' ),
 				hasSocialBasicFeatures = this.props.hasSocialBasicFeatures,
@@ -42,7 +44,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 				activeFeatures &&
 				activeFeatures.length > 0 &&
 				isActive &&
-				! hasSocialAdvancedFeatures;
+				! hasSocialAdvancedFeatures &&
+				isLinked;
 
 			const shouldShowChildElements = isActive && ! this.props.isSavingAnyOption( 'publicize' );
 
@@ -61,7 +64,9 @@ export const Publicize = withModuleSettingsFormHelpers(
 							onClick={ this.trackClickConfigure }
 							target="_blank"
 							rel="noopener noreferrer"
-							href={ getRedirectUrl( 'calypso-marketing-connections', { site: siteRawUrl } ) }
+							href={ getRedirectUrl( 'calypso-marketing-connections', {
+								site: blogID ?? siteRawUrl,
+							} ) }
 						>
 							{ __( 'Connect your social media accounts', 'jetpack' ) }
 						</Card>
@@ -147,17 +152,21 @@ export const Publicize = withModuleSettingsFormHelpers(
 							) }
 							<ModuleToggle
 								slug="publicize"
-								disabled={ unavailableInOfflineMode || ! this.props.isLinked }
+								disabled={ unavailableInOfflineMode }
 								activated={ isActive }
 								toggling={ this.props.isSavingAnyOption( 'publicize' ) }
 								toggleModule={ this.props.toggleModuleNow }
 							>
 								{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
 							</ModuleToggle>
-							{ shouldShowChildElements && hasAutoConversion && <AutoConversionSection /> }
-							{ shouldShowChildElements && hasSocialImageGenerator && (
-								<SocialImageGeneratorSection />
-							) }
+							<RefreshJetpackSocialSettingsWrapper
+								shouldRefresh={ ! isActive && this.props.isSavingAnyOption( 'publicize' ) }
+							>
+								{ shouldShowChildElements && hasAutoConversion && <AutoConversionSection /> }
+								{ shouldShowChildElements && hasSocialImageGenerator && (
+									<SocialImageGeneratorSection />
+								) }
+							</RefreshJetpackSocialSettingsWrapper>
 						</SettingsGroup>
 					) }
 

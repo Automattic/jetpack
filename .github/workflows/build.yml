@@ -14,6 +14,8 @@ concurrency:
 
 env:
   COMPOSER_ROOT_VERSION: "dev-trunk"
+  # Work around a bug in node 18.18.0. See https://github.com/webpack-contrib/thread-loader/issues/191 for details.
+  UV_USE_IO_URING: 0
 
 jobs:
   build:
@@ -30,7 +32,7 @@ jobs:
       changed_projects: ${{ steps.changed.outputs.projects }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
@@ -54,7 +56,7 @@ jobs:
 
       - name: Check if a WordPress.com test reminder comment is needed.
         id: check-test-reminder-comment
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
@@ -132,16 +134,18 @@ jobs:
         run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "$BUILD_BASE" --transform 's,^\.,build,' .
 
       - name: Store build as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jetpack-build
           path: build.tar.xz
           # Only need to retain for a day since the beta builder slurps it up to distribute.
           retention-days: 1
+          # Already compressed.
+          compression-level: 0
 
       - name: Store plugins.tsv as artifact
         if: steps.plugins.outputs.any == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: plugins.tsv
           path: ${{ env.BUILD_BASE }}/plugins.tsv
@@ -150,7 +154,7 @@ jobs:
 
       - name: Update reminder with testing instructions
         id: update-reminder-comment
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
@@ -166,10 +170,17 @@ jobs:
               \`\`\`
               `;
             }, '' );
+
+            let jetpackMuWPcomLine = '';
+            if ( data.projects.includes( 'jetpack-mu-wpcom-plugin' ) ) {
+              jetpackMuWPcomLine = "  - For \`jetpack-mu-wpcom\` changes, also add \`define( 'JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN', true );\` to your \`wp-config.php\` file.";
+            }
+
             const commentBody = `${ TEST_COMMENT_INDICATOR }
             Are you an Automattician? Please test your changes on all WordPress.com environments to help mitigate accidental explosions.
 
-            - To test on WoA, go to the Plugins menu on a WordPress.com Simple site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta > Jetpack and enable the \`${ BRANCH_NAME }\` branch.
+            - To test on WoA, go to the Plugins menu on a WordPress.com Simple site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta, select your plugin, and enable the \`${ BRANCH_NAME }\` branch. 
+            ${ jetpackMuWPcomLine }
             - To test on Simple, run the following command on your sandbox:
             ${ commands }
 
@@ -189,15 +200,15 @@ jobs:
     name: Create artifact for Jetpack Beta plugin
     runs-on: ubuntu-latest
     needs: build
-    if: ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'Automattic/jetpack' ) && needs.build.outputs.any_plugins == 'true'
+    if: needs.build.outputs.any_plugins == 'true'
     timeout-minutes: 10  # 2021-06-24: Successful runs should take just a few seconds now. But sometimes the upload is slow.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: monorepo
 
       - name: Download build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: jetpack-build
       - name: Extract build archive
@@ -215,8 +226,7 @@ jobs:
           # Assume GH run IDs are monotonic.
           VERSUFFIX="${GITHUB_RUN_ID}-g${SHA:0:8}"
 
-          # Plugin data is passed as a JSON object.
-          PLUGIN_DATA="{}"
+          ANY_BUILT=false
 
           while IFS=$'\t' read -r SRC MIRROR SLUG; do
             echo "::group::$MIRROR (src=$SRC slug=$SLUG)"
@@ -254,39 +264,25 @@ jobs:
             # Zip the plugin
             ( cd work && zip -9 -r "../zips/${SLUG}-dev.zip" "${SLUG}-dev" )
 
-            # Record plugin data.
-            PLUGIN_DATA=$( jq -c --arg slug "$SLUG" --arg ver "$CURRENT_VERSION" '.[ $slug ] = { version: $ver }' <<<"$PLUGIN_DATA" )
+            ANY_BUILT=true
 
             echo "::endgroup::"
           done < build/plugins.tsv
-          if [[ "$PLUGIN_DATA" == "{}" ]]; then
+          if ! $ANY_BUILT; then
             echo "No plugins were built"
           fi
-          echo "plugin-data=$PLUGIN_DATA" >> "$GITHUB_OUTPUT"
+          echo "any-built=$ANY_BUILT" >> "$GITHUB_OUTPUT"
 
       - name: Create plugins artifact
-        uses: actions/upload-artifact@v3
-        if: steps.prepare.outputs.plugin-data != '{}'
+        uses: actions/upload-artifact@v4
+        if: steps.prepare.outputs.any-built == 'true'
         with:
           name: plugins
           path: zips
           # Only need to retain for a day since the beta builder slurps it up to distribute.
           retention-days: 1
-
-      - name: Inform Beta Download webhook
-        if: steps.prepare.outputs.plugin-data != '{}'
-        env:
-          SECRET: ${{ secrets.JPBETA_SECRET }}
-          PLUGIN_DATA: ${{ steps.prepare.outputs.plugin-data }}
-          PR: ${{ github.event.number }}
-          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: |
-          curl -v --fail -L \
-            --url "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$SHA" \
-            --form-string "repo=$GITHUB_REPOSITORY" \
-            --form-string "branch=${GITHUB_REF#refs/heads/}" \
-            --form-string "plugins=$PLUGIN_DATA" \
-            --form-string "secret=$SECRET"
+          # Already compressed.
+          compression-level: 0
 
   update_mirrors:
     name: Push to mirror repos
@@ -297,13 +293,13 @@ jobs:
 
     # Not setting a job-level timeout because it would be kind of pointless with the blocking step. Set a step timeout for all other steps instead.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: monorepo
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
 
       - name: Download build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: jetpack-build
         timeout-minutes: 2  # 2022-03-15: Successful runs normally take a few seconds, but on occasion they've been taking 60+ recently.

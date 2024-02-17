@@ -1,3 +1,4 @@
+<div class="wpsc-settings-inner">
 <?php
 global $wp_cache_mod_rewrite, $wp_cache_mfunc_enabled, $wp_cache_mobile_enabled;
 
@@ -7,6 +8,7 @@ $kses_allow_links = array( 'a' => array( 'href' => array() ) ); // Arguments for
 if ( isset( $wp_cache_front_page_checks ) == false ) {
 	$wp_cache_front_page_checks = true;
 }
+echo '<div class="wpsc-card">';
 echo '<form name="wp_manager" action="' . esc_url_raw( add_query_arg( 'tab', 'settings', $admin_url ) ) . '" method="post">';
 wp_nonce_field( 'wp-cache' );
 echo '<input type="hidden" name="action" value="scupdates" />';
@@ -212,7 +214,10 @@ echo '<blockquote><h5>' . __( 'Mobile Browsers', 'wp-super-cache' ) . '</h5>' . 
 <?php
 echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . ' value="' . esc_html__( 'Update Status', 'wp-super-cache' ) . '" /></div>';
 wp_nonce_field( 'wp-cache' );
-?></form><?php
+?>
+</form>
+</div>
+<?php
 
 if ( ! $GLOBALS['is_nginx'] && ! defined( 'WPSC_DISABLE_HTACCESS_UPDATE' ) && $GLOBALS['cache_enabled'] === true && $GLOBALS['wp_cache_mod_rewrite'] === 1 ) {
 	?>
@@ -270,7 +275,9 @@ if ( ! $GLOBALS['is_nginx'] && ! defined( 'WPSC_DISABLE_HTACCESS_UPDATE' ) && $G
 
 $timezone_format = _x('Y-m-d G:i:s', 'timezone date format');
 
-?><fieldset class="options">
+?>
+<div class="wpsc-card">
+<fieldset class="options">
 <a name='expirytime'></a>
 <h4><?php _e( 'Expiry Time &amp; Garbage Collection', 'wp-super-cache' ); ?></h4><?php
 
@@ -340,10 +347,14 @@ echo "<p>" . __( 'Set the expiry time to 0 seconds to disable garbage collection
 echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Change Expiration', 'wp-super-cache' ) . '" /></div>';
 wp_nonce_field('wp-cache');
 echo "</form>\n";
-?></fieldset><?php
+?>
+</fieldset>
+</div>
 
+<?php
+// Accepted Filenames
+echo '<div class="wpsc-card">';
 echo '<a name="files"></a><fieldset class="options"><h4>' . __( 'Accepted Filenames &amp; Rejected URIs', 'wp-super-cache' ) . '</h4>';
-
 echo '<a name="rejectpages"></a>';
 echo '<p>' . __( 'Do not cache the following page types. See the <a href="https://codex.wordpress.org/Conditional_Tags">Conditional Tags</a> documentation for a complete discussion on each type.', 'wp-super-cache' ) . '</p>';
 echo '<form name="wp_edit_rejected_pages" action="' . esc_url_raw( add_query_arg( 'tab', 'settings', $admin_url ) . '#rejectpages' ) . '" method="post">';
@@ -362,7 +373,10 @@ echo '<label><input type="checkbox" value="1" name="wp_cache_pages[author]" ' . 
 echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save Settings', 'wp-super-cache' ) . '" /></div>';
 wp_nonce_field('wp-cache');
 echo "</form>\n";
+echo '</div>';
 
+// Rejected URL strings
+echo '<div class="wpsc-card">';
 echo '<a name="rejecturi"></a><fieldset class="options"><h4>' . __( 'Rejected URL Strings', 'wp-super-cache' ) . '</h4>';
 echo '<form name="wp_edit_rejected" action="' . esc_url_raw( add_query_arg( 'tab', 'settings', $admin_url ) . '#rejecturi' ) . '" method="post">';
 echo "<p>" . __( 'Add here strings (not a filename) that forces a page not to be cached. For example, if your URLs include year and you dont want to cache last year posts, it&#8217;s enough to specify the year, i.e. &#8217;/2004/&#8217;. WP-Cache will search if that string is part of the URI and if so, it will not cache that page.', 'wp-super-cache' ) . "</p>\n";
@@ -374,7 +388,10 @@ echo '</textarea> ';
 echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save Strings', 'wp-super-cache' ) . '" /></div>';
 wp_nonce_field( 'wp-cache' );
 echo "</form>\n";
+echo '</div>';
 
+// Rejected Cookies
+echo '<div class="wpsc-card">';
 echo '<a name="rejectcookies"></a><fieldset class="options"><h4>' . __( 'Rejected Cookies', 'wp-super-cache' ) . '</h4>';
 echo '<form name="wp_edit_rejected_cookies" action="' . esc_url_raw( add_query_arg( 'tab', 'settings', $admin_url ) . '#rejectcookies' ) . '" method="post">';
 echo "<p>" . __( 'Do not cache pages when these cookies are set. Add the cookie names here, one per line. Matches on fragments, so "test" will match "WordPress_test_cookie". (Simple caching only)', 'wp-super-cache' ) . "</p>\n";
@@ -386,7 +403,10 @@ echo '</textarea> ';
 echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save', 'wp-super-cache' ) . '" /></div>';
 wp_nonce_field('wp-cache');
 echo "</form>\n";
+echo '</div>';
 
+// Always Cache Filenames
+echo '<div class="wpsc-card">';
 echo '<a name="cancache"></a><fieldset class="options"><h4>' . __( 'Always Cache Filenames', 'wp-super-cache' ) . '</h4>';
 echo '<div style="clear:both"></div><form name="wp_edit_accepted" action="' . esc_url_raw( add_query_arg( 'tab', 'settings', $admin_url ) . '#cancache' ) . '" method="post">';
 echo "<p>" . __( 'Add here those filenames that can be cached, even if they match one of the rejected substring specified above.', 'wp-super-cache' ) . "</p>\n";
@@ -398,5 +418,7 @@ echo '</textarea> ';
 echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save Files', 'wp-super-cache' ) . '" /></div>';
 wp_nonce_field('wp-cache');
 echo "</form>\n";
+echo '</div>';
 
 echo '</fieldset>';
+echo '</div>';

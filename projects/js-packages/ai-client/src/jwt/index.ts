@@ -2,8 +2,11 @@
  * External dependencies
  */
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-import apiFetch from '@wordpress/api-fetch';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
+import apiFetch from '../api-fetch/index.js';
 /*
  * Types & constants
  */

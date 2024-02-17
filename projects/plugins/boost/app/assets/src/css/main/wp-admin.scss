@@ -7,9 +7,6 @@ p {
 	font-size: 16px;
 	color: $gray_80;
 }
-.jb-dashboard--main {
-	background-color: $primary-white;
-}
 // Override WordPress component styles
 .jb-dashboard {
 	--wp-admin-theme-color: #{$jetpack_green_50};
@@ -20,13 +17,23 @@ p {
 	--font-headline-medium: 48px;
 	--font-title-medium: 24px;
 	--font-body-small: 14px;
+
+	// Jetpack component uses this variable
+	--font-body-extra-small: 14px;
+	
 	--spacing-base: 8px;
 
 	font-size: 16px;
 	min-height: calc(100vh - 60px);
 	display: flex;
 	flex-direction: column;
-  	position: relative;
+	position: relative;
+	background-color: #f9f9f6;
+
+
+	&--main {
+		background-color: $primary-white;
+	}
 
 	a {
 		color: var( --wp-admin-theme-link-color );

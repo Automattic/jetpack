@@ -629,7 +629,7 @@ function jpcrm_js_bind_datetimerangepicker( options, callback ) {
 		// force time format
 		if (
 			dateRangePickerOpts.locale.format &&
-			dateRangePickerOpts.locale.format.indexOf( 'hh:mm' ) == -1
+			! dateRangePickerOpts.locale.format.includes( 'hh:mm' )
 		) {
 			dateRangePickerOpts.locale.format += ' hh:mm A';
 		}
@@ -683,7 +683,7 @@ function jpcrm_js_bind_datetimepicker( options, callback ) {
 		// force time format
 		if (
 			dateRangePickerOpts.locale.format &&
-			dateRangePickerOpts.locale.format.indexOf( 'hh:mm' ) == -1
+			! dateRangePickerOpts.locale.format.includes( 'hh:mm' )
 		) {
 			dateRangePickerOpts.locale.format += ' hh:mm A';
 		}
@@ -741,7 +741,7 @@ function jpcrm_js_bind_datetimepicker_future( options, callback ) {
 		// force time format
 		if (
 			dateRangePickerOpts.locale.format &&
-			dateRangePickerOpts.locale.format.indexOf( 'hh:mm' ) == -1
+			! dateRangePickerOpts.locale.format.includes( 'hh:mm' )
 		) {
 			dateRangePickerOpts.locale.format += ' hh:mm A';
 		}
@@ -931,10 +931,10 @@ function zbscrm_JS_Bind_Typeaheads_Customers() {
 							var name = r.name.trim()
 								? r.name
 								: zeroBSCRMJS_globViewLang( 'contact' ) + ' #' + r.id;
-							var email = r.email ? r.email : '<i>no email</i>';
+							var email = r.email ? jpcrm.esc_html(r.email) : '<i>no email</i>';
 							sug =
 								'<div class="sug-wrap"><div class="name">' +
-								name +
+								jpcrm.esc_html(name) +
 								'</div><div class="email">' +
 								email +
 								'</div></div><div class="clear"></div>';

@@ -56,11 +56,31 @@ const isMediaConvertible = metaData => {
  * This function is used to check if the provided image is valid based on it's size and type.
  *
  * @param {number} sizeInMb - The fileSize in bytes.
- * @param {number} maxImageSize - The maximum size to check against.
+ * @param {number} width - Width of the image.
+ * @param {number} height - Height of the image.
+ * @param {object} imageLimits - Has the properties to check against
  * @returns {FILE_SIZE_ERROR} Returns validation error.
  */
-const getImageValidationError = ( sizeInMb, maxImageSize ) =>
-	! sizeInMb || sizeInMb > maxImageSize ? FILE_SIZE_ERROR : null;
+const getImageValidationError = ( sizeInMb, width, height, imageLimits ) => {
+	const {
+		maxSize = GLOBAL_MAX_SIZE,
+		minWidth = 0,
+		maxWidth = GLOBAL_MAX_SIZE,
+		aspectRatio = DEFAULT_RESTRICTIONS.image.aspectRatio,
+	} = imageLimits;
+
+	const ratio = width / height;
+	if (
+		ratio < aspectRatio.min ||
+		ratio > aspectRatio.max ||
+		width > maxWidth ||
+		width < minWidth
+	) {
+		return DIMENSION_ERROR;
+	}
+
+	return ! sizeInMb || sizeInMb > maxSize ? FILE_SIZE_ERROR : null;
+};
 
 /**
  * This function is used to check if the provided video is valid based on it's size and type and length.
@@ -128,17 +148,21 @@ const getValidationError = ( metaData, mediaData, serviceName, shouldUploadAttac
 		return FILE_TYPE_ERROR;
 	}
 
+	if ( ! mediaData?.width || ! mediaData?.height ) {
+		return DIMENSION_ERROR;
+	}
+
 	const sizeInMb = fileSize ? fileSize / Math.pow( 1000, 2 ) : null;
 
 	return isVideo( mime )
 		? getVideoValidationError(
 				sizeInMb,
 				metaData.length,
-				mediaData?.width,
-				mediaData?.height,
+				mediaData.width,
+				mediaData.height,
 				restrictions.video
 		  )
-		: getImageValidationError( sizeInMb, restrictions.image.maxSize );
+		: getImageValidationError( sizeInMb, mediaData.width, mediaData.height, restrictions.image );
 };
 
 /**

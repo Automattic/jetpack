@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -48,13 +49,6 @@ abstract class Publicize_Base {
 	 * @var string
 	 */
 	public $POST_MESS = '_wpas_mess';
-
-	/**
-	 * Post meta key for flagging when the post is a tweetstorm.
-	 *
-	 * @var string
-	 */
-	public $POST_TWEETSTORM = '_wpas_is_tweetstorm';
 
 	/**
 	 * Post meta key for the flagging when the post share feature is disabled.
@@ -129,6 +123,13 @@ abstract class Publicize_Base {
 	 * @var string
 	 */
 	const OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES = 'jetpack_social_dismissed_notices';
+
+	/**
+	 * The maximum size of an image that can be used as an Open Graph image.
+	 *
+	 * @var string
+	 */
+	const OG_IMAGE_MAX_FILESIZE = 2000000; // 2MB.
 
 	/**
 	 * Default pieces of the message used in constructing the
@@ -235,7 +236,7 @@ abstract class Publicize_Base {
 
 		// Default checkbox state for each Connection.
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 2 );
-		add_filter( 'jetpack_open_graph_tags', array( $this, 'add_jetpack_social_og_images' ), 12, 1 ); // $priority = 12, to run after Jetpack adds the tags in the Jetpack_Twitter_Cards class.
+		add_filter( 'jetpack_open_graph_tags', array( $this, 'jetpack_social_open_graph_filter' ), 12, 1 ); // $priority = 12, to run after Jetpack adds the tags in the Jetpack_Twitter_Cards class.
 
 		// Alter the "Post Publish" admin notice to mention the Connections we Publicized to.
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
@@ -451,7 +452,7 @@ abstract class Publicize_Base {
 		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['connection_data']['meta']['link'] ) ) {
-			if ( 'facebook' === $service_name && 0 === strpos( wp_parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
+			if ( 'facebook' === $service_name && str_starts_with( wp_parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
 				// App-scoped Facebook user IDs are not usable profile links.
 				return false;
 			}
@@ -1094,17 +1095,6 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
-		$tweetstorm_args = array(
-			'type'          => 'boolean',
-			'description'   => __( 'Whether or not the post should be treated as a Twitter thread.', 'jetpack-publicize-pkg' ),
-			'single'        => true,
-			'default'       => false,
-			'show_in_rest'  => array(
-				'name' => 'jetpack_is_tweetstorm',
-			),
-			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
-		);
-
 		$publicize_feature_enable_args = array(
 			'type'          => 'boolean',
 			'description'   => __( 'Whether or not the Share Post feature is enabled.', 'jetpack-publicize-pkg' ),
@@ -1133,7 +1123,7 @@ abstract class Publicize_Base {
 			'single'        => true,
 			'default'       => array(
 				'image_generator_settings' => array(
-					'template' => ( new Social_Image_Generator\Settings() )->get_default_template(),
+					'template' => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_template(),
 					'enabled'  => false,
 				),
 			),
@@ -1147,10 +1137,13 @@ abstract class Publicize_Base {
 							'items' => array(
 								'type'       => 'object',
 								'properties' => array(
-									'id'  => array(
+									'id'   => array(
 										'type' => 'number',
 									),
-									'url' => array(
+									'url'  => array(
+										'type' => 'string',
+									),
+									'type' => array(
 										'type' => 'string',
 									),
 								),
@@ -1194,13 +1187,11 @@ abstract class Publicize_Base {
 			}
 
 			$message_args['object_subtype']                  = $post_type;
-			$tweetstorm_args['object_subtype']               = $post_type;
 			$publicize_feature_enable_args['object_subtype'] = $post_type;
 			$already_shared_flag_args['object_subtype']      = $post_type;
 			$jetpack_social_options_args['object_subtype']   = $post_type;
 
 			register_meta( 'post', $this->POST_MESS, $message_args );
-			register_meta( 'post', $this->POST_TWEETSTORM, $tweetstorm_args );
 			register_meta( 'post', self::POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
 			register_meta( 'post', $this->POST_DONE . 'all', $already_shared_flag_args );
 			register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
@@ -1250,7 +1241,7 @@ abstract class Publicize_Base {
 				APP_REQUEST
 			)
 		&&
-			0 === strpos( $post->post_title, 'Temporary Post Used For Theme Detection' )
+			str_starts_with( $post->post_title, 'Temporary Post Used For Theme Detection' )
 		) {
 			$submit_post = false;
 		}
@@ -1427,6 +1418,11 @@ abstract class Publicize_Base {
 
 		$labels = array();
 		foreach ( $services as $service_name => $display_names ) {
+			// Twitter connections do not trigger Publicize anymore. Skip.
+			if ( 'Twitter' === $service_name ) {
+				continue;
+			}
+
 			$labels[] = sprintf(
 				/* translators: Service name is %1$s, and account name is %2$s. */
 				esc_html__( '%1$s (%2$s)', 'jetpack-publicize-pkg' ),
@@ -1436,7 +1432,7 @@ abstract class Publicize_Base {
 		}
 
 		$messages['post'][6] = sprintf(
-			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack) */
 			esc_html__( 'Post published and sharing on %1$s.', 'jetpack-publicize-pkg' ),
 			implode( ', ', $labels )
 		) . $view_post_link_html;
@@ -1445,7 +1441,7 @@ abstract class Publicize_Base {
 			$subscription = \Jetpack_Subscriptions::init();
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
-					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack) */
 					esc_html__( 'Post published, sending emails to subscribers and sharing post on %1$s.', 'jetpack-publicize-pkg' ),
 					implode( ', ', $labels )
 				) . $view_post_link_html;
@@ -1453,7 +1449,7 @@ abstract class Publicize_Base {
 		}
 
 		$messages['jetpack-portfolio'][6] = sprintf(
-			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack) */
 			esc_html__( 'Project published and sharing project on %1$s.', 'jetpack-publicize-pkg' ),
 			implode( ', ', $labels )
 		) . $view_post_link_html;
@@ -1619,17 +1615,161 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Add the Jetpack Social images (attached media, SIG image) to the OpenGraph tags.
+	 * Returns the image size in bytes of a remote image.
+	 *
+	 * @param  string $image_url       Image URL.
+	 * @return integer|null $bytes      Image size in bytes, or null if request failed.
+	 */
+	public function get_remote_filesize( $image_url ) {
+		$response = wp_remote_get( $image_url, array( 'method' => 'HEAD' ) );
+
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
+		$size = wp_remote_retrieve_header( $response, 'content-length' );
+
+		return ! empty( $size ) ? $size : null;
+	}
+
+	/**
+	 * Returns the resized Photon URL for a given image.
+	 *
+	 * @param string $image_url Image URL.
+	 * @param int    $width Image width.
+	 * @param int    $height Image height.
+	 * @return string
+	 */
+	public function get_resized_image_url( $image_url, $width, $height ) {
+		return jetpack_photon_url(
+			$image_url,
+			array(
+				'w' => $width,
+				'h' => $height,
+			)
+		);
+	}
+
+	/**
+	 * This function runs the image through Site Accelerator to compress it, and also scales it down if needed.
+	 *
+	 * @param string $url Image URL.
+	 * @param int    $width Image width.
+	 * @param int    $height Image height.
+	 * @return array The compressed image data.
+	 */
+	public function compress_and_scale_og_image( $url, $width, $height ) {
+		// If the dimensions are fine we just run it through Site Accelerator to compress it.
+		if ( 1200 >= $width && 1200 >= $height ) {
+			return array(
+				'url'    => $this->get_resized_image_url( $url, $width, $height ),
+				'width'  => $width,
+				'height' => $height,
+			);
+		}
+
+		if ( $height > $width ) {
+			// Portrait.
+			$width  = 1200 * $width / $height;
+			$height = 1200;
+		} else {
+			// Landscape.
+			$height = 1200 * $height / $width;
+			$width  = 1200;
+		}
+
+		return array(
+			'url'    => $this->get_resized_image_url( $url, $width, $height ),
+			'width'  => $width,
+			'height' => $height,
+		);
+	}
+
+	/**
+	 * Reduce the filesize of an image by reducing the dimensions. Uses Photon.
+	 * Returns null if the image cannot be reduced enough.
+	 *
+	 * @param string $url Image URL.
+	 * @param int    $width Image width.
+	 * @param int    $height Image height.
+	 * @param int    $filesize Image filesize.
+	 * @param int    $tries Number of times to try reducing the image size. Default is 5.
+	 * @return array|null
+	 */
+	public function reduce_file_size( $url, $width, $height, $filesize, $tries = 5 ) {
+		while ( $tries > 0 && $filesize > self::OG_IMAGE_MAX_FILESIZE ) {
+			$width   *= 0.75;
+			$height  *= 0.75;
+			$url      = $this->get_resized_image_url( $url, $width, $height );
+			$filesize = $this->get_remote_filesize( $url );
+			--$tries;
+		}
+
+		// If the image is still too large, we failed.
+		if ( $filesize > self::OG_IMAGE_MAX_FILESIZE ) {
+			// TODO: Track this to see if conversion failed.
+			return null;
+		}
+
+		return array(
+			'url'    => $url,
+			'width'  => $width,
+			'height' => $height,
+		);
+	}
+
+	/**
+	 * Hooks into jetpack_open_graph_tags to add the Jetpack Social images to the OpenGraph tags,
+	 * or to make the Jetpack open graph images pass restrictions.
 	 *
 	 * @param array $tags Current tags.
 	 */
-	public function add_jetpack_social_og_images( $tags ) {
-		$opengraph_image = $this->get_social_opengraph_image( get_the_ID() );
+	public function jetpack_social_open_graph_filter( $tags ) {
+		$social_opengraph_image = $this->get_social_opengraph_image( get_the_ID() );
 
-		if ( empty( $opengraph_image ) ) {
+		if ( ! empty( $social_opengraph_image ) ) {
+			$tags = $this->add_jetpack_social_og_image( $tags, $social_opengraph_image );
+		}
+
+		if ( empty( $tags['og:image'] ) || ! is_string( $tags['og:image'] ) || empty( $tags['og:image:width'] ) || empty( $tags['og:image:height'] ) ) {
 			return $tags;
 		}
 
+		// If we do not have a SIG or attached image, but we have an image in post body
+		// we need to check that the image is not too large for the social sites.
+		$filesize = $this->get_remote_filesize( $tags['og:image'] );
+		// If the image is small enough, we do not need to do anything.
+		if ( empty( $filesize ) || $filesize <= self::OG_IMAGE_MAX_FILESIZE ) {
+			return $tags;
+		}
+
+		$compressed_image = $this->compress_and_scale_og_image( $tags['og:image'], $tags['og:image:width'], $tags['og:image:height'] );
+		$filesize         = $this->get_remote_filesize( $compressed_image['url'] );
+		// If the compressed image is small enough, we use it.
+		if ( $filesize <= self::OG_IMAGE_MAX_FILESIZE ) {
+			$tags['og:image']        = $compressed_image['url'];
+			$tags['og:image:width']  = $compressed_image['width'];
+			$tags['og:image:height'] = $compressed_image['height'];
+			return $tags;
+		}
+
+		$reduced_image = $this->reduce_file_size( $compressed_image['url'], $compressed_image['width'], $compressed_image['height'], $filesize );
+		if ( ! empty( $reduced_image ) ) {
+			$tags['og:image']        = $reduced_image['url'];
+			$tags['og:image:width']  = $reduced_image['width'];
+			$tags['og:image:height'] = $reduced_image['height'];
+		}
+
+		return $tags;
+	}
+
+	/**
+	 * Add the Jetpack Social images (attached media, SIG image) to the OpenGraph tags.
+	 *
+	 * @param array $tags Current tags.
+	 * @param array $opengraph_image The Jetpack Social image data.
+	 */
+	public function add_jetpack_social_og_image( $tags, $opengraph_image ) {
 		// If this code is running in Jetpack, we need to add Twitter cards.
 		// Some active plugins disable Jetpack's Twitter Cards, so we need
 		// to check if the class was instantiated before adding the cards.
@@ -1685,7 +1825,10 @@ abstract class Publicize_Base {
 	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
 		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
 		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
-		return Redirect::get_url( $source, array( 'site' => ( new Status() )->get_site_suffix() ) );
+		$blog_id         = Connection_Manager::get_site_id( true );
+		$site            = ( new Status() )->get_site_suffix();
+
+		return Redirect::get_url( $source, array( 'site' => $blog_id ? $blog_id : $site ) );
 	}
 
 	/**
@@ -1796,21 +1939,37 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Check if Instagram connection is enabled.
+	 * Check if a connection is enabled.
+	 *
+	 * @param string $connection The connection name like 'instagram', 'mastodon', 'nextdoor' etc.
 	 *
 	 * @return bool
 	 */
-	public function has_instagram_connection_feature() {
-		return Current_Plan::supports( 'social-instagram-connection' );
+	public function has_connection_feature( $connection ) {
+		return Current_Plan::supports( "social-$connection-connection" );
 	}
 
 	/**
-	 * Check if Mastodon connection is enabled.
+	 * Get a list of additional connections that are supported by the current plan.
 	 *
-	 * @return bool
+	 * @return array
 	 */
-	public function has_mastodon_connection_feature() {
-		return Current_Plan::supports( 'social-mastodon-connection' );
+	public function get_supported_additional_connections() {
+		$additional_connections = array();
+
+		if ( $this->has_connection_feature( 'instagram' ) ) {
+			$additional_connections[] = 'instagram-business';
+		}
+
+		if ( $this->has_connection_feature( 'mastodon' ) ) {
+			$additional_connections[] = 'mastodon';
+		}
+
+		if ( $this->has_connection_feature( 'nextdoor' ) ) {
+			$additional_connections[] = 'nextdoor';
+		}
+
+		return $additional_connections;
 	}
 
 	/**

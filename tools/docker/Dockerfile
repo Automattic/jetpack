@@ -12,6 +12,13 @@ ENV LC_ALL en_US.UTF-8
 
 WORKDIR /tmp
 
+# Record ARGs
+RUN \
+	echo "PHP_VERSION=$PHP_VERSION" > /etc/docker-args.sh \
+	&& echo "NODE_VERSION=$NODE_VERSION" >> /etc/docker-args.sh \
+	&& echo "COMPOSER_VERSION=$COMPOSER_VERSION" >> /etc/docker-args.sh \
+	&& echo "PNPM_VERSION=$PNPM_VERSION" >> /etc/docker-args.sh
+
 # Install basic packages, including Apache.
 RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 	export DEBIAN_FRONTEND=noninteractive \
@@ -20,7 +27,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 	&& add-apt-repository ppa:ondrej/php \
 	&& curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
 	&& apt-get update \
-	&& apt-get install -y \
+	&& apt-get --purge install -y \
 		apache2 \
 		git \
 		jq \
@@ -31,41 +38,23 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 		ssmtp \
 		subversion \
 		sudo \
+		systemd-standalone-tmpfiles \
 		unzip \
 		vim \
 		zip \
 	&& apt-get remove --purge --auto-remove -y gpg software-properties-common \
 	&& find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
-# Enable mod_rewrite in Apache.
-RUN a2enmod rewrite
+# Enable various Apache modules.
+RUN a2dismod mpm_prefork && a2enmod rewrite mpm_event proxy_fcgi http2
 
 # Install requested version of PHP.
+COPY ./config/php.ini /var/lib/jetpack-config/php.ini
 RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
+	--mount=type=bind,source=./bin/ensure-php-version.sh,target=/usr/local/bin/ensure-php-version.sh \
 	: "${PHP_VERSION:?Build argument PHP_VERSION needs to be set and non-empty.}" \
-	&& export DEBIAN_FRONTEND=noninteractive \
-	&& apt-get install -y \
-		libapache2-mod-php${PHP_VERSION} \
-		php${PHP_VERSION} \
-		php${PHP_VERSION}-bcmath \
-		php${PHP_VERSION}-cli \
-		php${PHP_VERSION}-curl \
-		php${PHP_VERSION}-intl \
-		php${PHP_VERSION}-ldap \
-		php${PHP_VERSION}-mbstring \
-		php${PHP_VERSION}-mysql \
-		php${PHP_VERSION}-opcache \
-		php${PHP_VERSION}-pgsql \
-		php${PHP_VERSION}-soap \
-		php${PHP_VERSION}-sqlite3 \
-		php${PHP_VERSION}-xdebug \
-		php${PHP_VERSION}-xml \
-		php${PHP_VERSION}-xsl \
-		php${PHP_VERSION}-zip \
-	&& apt-get install -y --no-install-recommends \
-		php${PHP_VERSION}-apcu \
-		php${PHP_VERSION}-gd \
-		php${PHP_VERSION}-imagick \
+	&& ensure-php-version.sh "$PHP_VERSION" \
+	&& a2enconf "php$PHP_VERSION-fpm" \
 	&& find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
 # Install requested version of Composer.
@@ -108,10 +97,6 @@ RUN mkdir /usr/local/src/psysh \
 
 # Copy a default config file for an apache host.
 COPY ./config/apache_default /etc/apache2/sites-available/000-default.conf
-
-# Copy a default set of settings for PHP (php.ini).
-COPY ./config/php.ini /etc/php/${PHP_VERSION}/mods-available/jetpack-wordpress.ini
-RUN phpenmod jetpack-wordpress
 
 # Copy single site htaccess to /var/lib/jetpack-config. run.sh will move it to the site's base dir if there's none present.
 COPY ./config/htaccess /var/lib/jetpack-config/htaccess

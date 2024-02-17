@@ -1,5 +1,7 @@
+<div class="wpsc-settings-inner">
 <?php
 global $wpsc_promo_links;
+echo '<div class="wpsc-card">';
 echo '<form name="wp_manager" action="' . esc_url_raw( add_query_arg( 'tab', 'easy', $admin_url ) ) . '" method="post">';
 echo '<input type="hidden" name="action" value="easysetup" />';
 wp_nonce_field( 'wp-cache' );
@@ -31,7 +33,9 @@ if ( ! $is_nginx && $cache_enabled && ! $wp_cache_mod_rewrite ) {
 	}
 }
 echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . ' value="' . esc_html__( 'Update Status', 'wp-super-cache' ) . '" /></div></form>';
+echo '</div>';
 if ( $cache_enabled ) {
+	echo '<div class="wpsc-card">';
 	echo '<h4>' . esc_html__( 'Cache Tester', 'wp-super-cache' ) . '</h4>';
 	echo '<p>' . esc_html__( 'Test your cached website by clicking the test button below.', 'wp-super-cache' ) . '</p>';
 	echo '<p>' . __( 'Note: if you use Cloudflare or other transparent front-end proxy service this test may fail.<ol><li> If you have Cloudflare minification enabled this plugin may detect differences in the pages and report an error.</li><li> Try using the development mode of Cloudflare to perform the test. You can disable development mode afterwards if the test succeeds.</li></ol>', 'wp-super-cache' ) . '</p>';
@@ -106,7 +110,9 @@ if ( $cache_enabled ) {
 
 	wp_nonce_field( 'wp-cache' );
 	echo '</form>';
+	echo '</div>';
 }
+echo '<div class="wpsc-card">';
 echo '<h4>' . esc_html__( 'Delete Cached Pages', 'wp-super-cache' ) . '</h4>';
 echo '<p>' . esc_html__( 'Cached pages are stored on your server as html and PHP files. If you need to delete them, use the button below.', 'wp-super-cache' ) . '</p>';
 echo '<form name="wp_cache_content_delete" action="' . esc_url_raw( add_query_arg( 'tab', 'contents', $admin_url ) ) . '" method="post">';
@@ -114,15 +120,19 @@ echo '<input type="hidden" name="wp_delete_cache" />';
 echo '<div class="submit"><input id="deletepost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . esc_html__( 'Delete Cache', 'wp-super-cache' ) . ' " /></div>';
 wp_nonce_field( 'wp-cache' );
 echo "</form>\n";
+echo '</div>';
 
 if ( is_multisite() && wpsupercache_site_admin() ) {
+	echo '<div class="wpsc-card">';
 	echo '<form name="wp_cache_content_delete" action="' . esc_url_raw( add_query_arg( 'tab', 'contents', $admin_url ) . '#listfiles' ) . '" method="post">';
 	echo '<input type="hidden" name="wp_delete_all_cache" />';
 	echo '<div class="submit"><input id="deleteallpost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . esc_html__( 'Delete Cache On All Blogs', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field( 'wp-cache' );
 	echo "</form><br />\n";
+	echo '</div>';
 }
 ?>
+<div class="wpsc-card">
 <h4 class="clear"><?php esc_html_e( 'Recommended Links and Plugins', 'wp-super-cache' ); ?></h4>
 <p><?php esc_html_e( 'Caching is only one part of making a website faster. Here are some other plugins that will help:', 'wp-super-cache' ); ?></p>
 
@@ -160,4 +170,5 @@ if ( is_multisite() && wpsupercache_site_admin() ) {
 <li><?php printf( __( '<a href="%s">WP Crontrol</a> is a useful plugin to use when trying to debug garbage collection and preload problems.', 'wp-super-cache' ), 'https://wordpress.org/plugins/wp-crontrol/' ); ?></li>
 </ul>
 <p><?php _e( "* The links above (apart from Jetpack) go to websites outside the author's control. Caution is advised when testing any new software.", 'wp-super-cache' ); ?></p>
-
+</div>
+</div>

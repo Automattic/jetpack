@@ -818,7 +818,7 @@ class jpcrm_templating_placeholders {
 					'origin' 			=> __( 'Task Scheduler', 'zero-bs-crm' ),
 					'expected_format' 	=> 'str',
 					'available_in'	 	=> array(),
-					'associated_type' 	=> ZBS_TYPE_EVENT,
+					'associated_type' 	=> ZBS_TYPE_TASK,
 					'replace_str'		=> '##TASK-TITLE##',
 					'aliases'			=> array( '###EVENTTITLE###', '##EVENT-TITLE##' )
 				),
@@ -829,7 +829,7 @@ class jpcrm_templating_placeholders {
 					'origin' 			=> __( 'Task Scheduler', 'zero-bs-crm' ),
 					'expected_format' 	=> 'html',
 					'available_in'	 	=> array(),
-					'associated_type' 	=> ZBS_TYPE_EVENT,
+					'associated_type' 	=> ZBS_TYPE_TASK,
 					'replace_str'		=> '##TASK-LINK##',
 					'aliases'			=> array( '###EVENTLINK###' )
 				),
@@ -840,7 +840,7 @@ class jpcrm_templating_placeholders {
 					'origin' 			=> __( 'Task Scheduler', 'zero-bs-crm' ),
 					'expected_format' 	=> 'html',
 					'available_in'	 	=> array(),
-					'associated_type' 	=> ZBS_TYPE_EVENT,
+					'associated_type' 	=> ZBS_TYPE_TASK,
 					'replace_str'		=> '##TASK-LINK-BUTTON##',
 					'aliases'			=> array( '###EVENTLINKBUTTON###' )
 				),
@@ -851,7 +851,7 @@ class jpcrm_templating_placeholders {
 					'origin' 			=> __( 'Task Scheduler', 'zero-bs-crm' ),
 					'expected_format' 	=> 'html',
 					'available_in'	 	=> array(),
-					'associated_type' 	=> ZBS_TYPE_EVENT,
+					'associated_type' 	=> ZBS_TYPE_TASK,
 					'replace_str'		=> '##TASK-BODY##',
 					'aliases'			=> array( '###EVENTBODY###' )
 				),
@@ -1654,11 +1654,10 @@ class jpcrm_templating_placeholders {
 		$string = '',
 		$replacements = array(),
 		$replacement_objects = false,
-		$retain_unset_placeholders = false
+		$retain_unset_placeholders = false,
+		$keys_staying_unrendered = array()
 
 	) {
-
-		global $zbs;
 
 		// retrieve replacements for this tooling
 		$to_replace = $this->get_placeholders_for_tooling( $tooling );
@@ -1753,11 +1752,31 @@ class jpcrm_templating_placeholders {
 						$string = str_replace( $replacement_info['aliases'], $replace_with, $string );
 					
 					}
-					
-					// replace main key
-					$string = str_replace( $replace_string, $replace_with, $string );
 
+					// If this is a Quote date key and is not set (Quote accepted or last viewed), let's print out a message saying the quote isn't accepted or viewed.
+					if (
+						in_array( $key, array( 'quote-accepted', 'quote-lastviewed' ), true ) &&
+						! in_array( $replacement_info['key'], $keys_staying_unrendered, true ) &&
+						( empty( $replace_with ) || jpcrm_date_str_to_uts( $replace_with ) === 0 )
+						) {
 
+						if ( $key === 'quote-accepted' ) {
+							$replace_with = __( 'Quote not yet accepted', 'zero-bs-crm' );
+							$string       = str_replace( '##QUOTE-ACCEPTED_DATETIME_STR##', $replace_with, $string );
+							$string       = str_replace( '##QUOTE-ACCEPTED_DATE_STR##', $replace_with, $string );
+						} else {
+							$replace_with = __( 'Quote not yet viewed', 'zero-bs-crm' );
+							$string       = str_replace( '##QUOTE-LASTVIEWED_DATETIME_STR##', $replace_with, $string );
+							$string       = str_replace( '##QUOTE-LASTVIEWED_DATE_STR##', $replace_with, $string );
+						}
+					}
+
+					// Replace main key.
+					if ( empty( $keys_staying_unrendered ) || ! in_array( $replacement_info['key'], $keys_staying_unrendered, true ) ) {
+
+						$string = str_replace( $replace_string, $replace_with, $string );
+
+					}
 				}
 
 			}

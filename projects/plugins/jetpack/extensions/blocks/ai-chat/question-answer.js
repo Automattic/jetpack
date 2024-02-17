@@ -47,6 +47,7 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 				}, 50 * tokens.length );
 			} else {
 				setDisplayedRawHTML( html );
+				onAnimationDone();
 			}
 		},
 		// eslint-disable-next-line
@@ -67,9 +68,21 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
  * @param {string} props.askButtonLabel - Ask button label.
  * @param {number} props.blogId - Blog ID.
  * @param {string} props.blogType - Blog type (wpcom|jetpack) for wpcom simple and jetpack/atomic.
+ * @param {string} props.placeholder - Input placeholder.
+ * @param {boolean} props.settingShowCopy - Show copy button.
+ * @param {boolean} props.settingShowFeedback - Show feedback (thumbs up/down) buttons.
+ * @param {boolean} props.settingShowSources - Show references (the list of URLs).
  * @returns {QuestionAnswer} component.
  */
-export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
+export default function QuestionAnswer( {
+	askButtonLabel,
+	blogId,
+	blogType,
+	placeholder,
+	settingShowCopy,
+	settingShowFeedback,
+	settingShowSources,
+} ) {
 	const {
 		question,
 		setQuestion,
@@ -82,9 +95,11 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 		cacheKey,
 	} = useSubmitQuestion( blogType, blogId );
 
-	const [ animationDone, setAnimationDone ] = useState( false );
+	const [ animationDone, setAnimationDone ] = useState( true );
 	const [ showReferences, setShowReferences ] = useState( false );
 	const [ feedbackSubmitted, setFeedbackSubmitted ] = useState( [] );
+	const [ submittedQuestion, setSubmittedQuestion ] = useState( '' );
+
 	const addFeedbackToState = submittedCacheKey => {
 		setFeedbackSubmitted( [ ...feedbackSubmitted, submittedCacheKey ] );
 	};
@@ -93,6 +108,8 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 		setAskError( false );
 		setAnimationDone( false );
 		setShowReferences( false );
+		setFeedbackSubmitted( [] );
+		setSubmittedQuestion( question );
 		submitQuestion();
 	};
 
@@ -101,8 +118,8 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 		setShowReferences( true );
 	};
 
-	const showCopyButton = animationDone && ! isLoading && answer;
-	const showFeedback = animationDone && ! isLoading && cacheKey;
+	const showCopyButton = settingShowCopy && animationDone && ! isLoading && answer;
+	const showFeedback = settingShowFeedback && animationDone && ! isLoading && cacheKey;
 	return (
 		<>
 			<KeyboardShortcuts
@@ -113,38 +130,42 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 				<div className="jetpack-ai-chat-question-wrapper">
 					<TextControl
 						className="jetpack-ai-chat-question-input"
-						placeholder={ __( "Enter a question about this blog's content", 'jetpack' ) }
+						placeholder={ placeholder }
 						size={ 50 }
+						disabled={ ! animationDone || isLoading }
 						value={ question }
 						onChange={ newQuestion => setQuestion( newQuestion ) }
 					/>
 
-					<Button variant="primary" disabled={ isLoading } onClick={ handleSubmitQuestion }>
-						{ askButtonLabel }
+					<Button
+						className="wp-block-button__link jetpack-ai-chat-question-button"
+						disabled={ ! animationDone || isLoading }
+						onClick={ handleSubmitQuestion }
+					>
+						{ isLoading && <Spinner /> }
+						{ ! isLoading && askButtonLabel }
 					</Button>
 				</div>
 			</KeyboardShortcuts>
 			<div>
 				<div className="jetpack-ai-chat-answer-container">
-					{ isLoading ? (
+					{ submittedQuestion && <h2>{ submittedQuestion }</h2> }
+					{ isLoading && waitStrings[ Math.floor( Math.random() * 3 ) ] }
+					{ ! isLoading && (
 						<>
-							<Spinner />
-							{ waitStrings[ Math.floor( Math.random() * 3 ) ] }
+							<ShowLittleByLittle
+								showAnimation={ ! animationDone }
+								onAnimationDone={ handleSetAnimationDone }
+								html={ answer }
+							/>
 						</>
-					) : (
-						// eslint-disable-next-line react/no-danger
-						<ShowLittleByLittle
-							showAnimation={ ! animationDone }
-							onAnimationDone={ handleSetAnimationDone }
-							html={ answer }
-						/>
 					) }
 				</div>
-				{ askError && <DisplayError error={ askError } /> }
+				{ askError && ! isLoading && <DisplayError error={ askError } /> }
 				{ showCopyButton && <CopyButton answer={ answer } /> }
-				{ references && references.length > 0 && showReferences && (
+				{ settingShowSources && references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
-						<div>{ __( 'Additional resources:', 'jetpack' ) }</div>
+						<h3>{ __( 'Additional resources:', 'jetpack' ) }</h3>
 
 						<ul>
 							{ references.map( ( reference, index ) => (

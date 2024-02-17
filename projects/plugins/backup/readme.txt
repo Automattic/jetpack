@@ -1,10 +1,10 @@
 === Jetpack VaultPress Backup ===
-Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
+Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, pypt, samiff, sermitr, williamvianas
 Tags: jetpack, backup, restore
-Requires at least: 6.2
-Requires PHP: 5.6
-Tested up to: 6.3
-Stable tag: 2.1
+Requires at least: 6.3
+Requires PHP: 7.0
+Tested up to: 6.4
+Stable tag: 2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -172,10 +172,12 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 2.0 - 2023-08-01
+### 2.5 - 2024-02-08
 #### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.3.
 - Updated package dependencies.
+
+#### Fixed
+- Write helper script to ABSPATH by default, just like we did before
 
 --------
 

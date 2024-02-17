@@ -5,6 +5,88 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2024-02-13
+### Added
+- Blaze: Whiteliste /media/new WPCOM REST API call for image uploading [#34790]
+- Quick Action Links: introduce new filter allowing to disable quick links in the Posts screen. [#35586]
+
+### Changed
+- Updated package dependencies. [#35608]
+
+## [0.15.3] - 2024-02-05
+### Changed
+- Updated package dependencies. [#35384]
+
+## [0.15.2] - 2024-01-29
+### Changed
+- Update dependencies. [#35170]
+
+## [0.15.1] - 2024-01-22
+### Changed
+- Update dependencies. [#35117]
+
+## [0.15.0] - 2024-01-15
+### Changed
+- Changes the Blaze Dashboard paths to use the new format [#34896]
+
+## [0.14.3] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [0.14.2] - 2023-12-11
+### Changed
+- Updated package dependencies. [#34416]
+
+## [0.14.1] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411]
+
+## [0.14.0] - 2023-11-24
+### Added
+- Added whitelisting for the payments endpoint. [#34227]
+
+## [0.13.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [0.12.3] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.12.2] - 2023-11-13
+### Changed
+- Updated dependencies. [#33960]
+
+## [0.12.1] - 2023-11-03
+### Changed
+- Updated dependencies. [#33946]
+
+## [0.12.0] - 2023-10-31
+### Added
+- Add sending Jetpack version to BlazePress Calypso App. [#33823]
+
+## [0.11.0] - 2023-10-23
+### Added
+- DSP media endpoints allowlisting. [#33598]
+
+### Changed
+- Updated package dependencies. [#33646] [#33687]
+
+### Fixed
+- Fix unsetting `sub_path` in `Dashboard_REST_Controller`. [#33668]
+
+## [0.10.4] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429]
+
+## [0.10.3] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.10.2] - 2023-09-19
+### Changed
+- Updated package dependencies. [#33001]
+
 ## [0.10.1] - 2023-09-04
 ### Changed
 - Updated package dependencies. [#32803]
@@ -203,6 +285,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.16.0]: https://github.com/automattic/jetpack-blaze/compare/v0.15.3...v0.16.0
+[0.15.3]: https://github.com/automattic/jetpack-blaze/compare/v0.15.2...v0.15.3
+[0.15.2]: https://github.com/automattic/jetpack-blaze/compare/v0.15.1...v0.15.2
+[0.15.1]: https://github.com/automattic/jetpack-blaze/compare/v0.15.0...v0.15.1
+[0.15.0]: https://github.com/automattic/jetpack-blaze/compare/v0.14.3...v0.15.0
+[0.14.3]: https://github.com/automattic/jetpack-blaze/compare/v0.14.2...v0.14.3
+[0.14.2]: https://github.com/automattic/jetpack-blaze/compare/v0.14.1...v0.14.2
+[0.14.1]: https://github.com/automattic/jetpack-blaze/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/automattic/jetpack-blaze/compare/v0.13.0...v0.14.0
+[0.13.0]: https://github.com/automattic/jetpack-blaze/compare/v0.12.3...v0.13.0
+[0.12.3]: https://github.com/automattic/jetpack-blaze/compare/v0.12.2...v0.12.3
+[0.12.2]: https://github.com/automattic/jetpack-blaze/compare/v0.12.1...v0.12.2
+[0.12.1]: https://github.com/automattic/jetpack-blaze/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/automattic/jetpack-blaze/compare/v0.11.0...v0.12.0
+[0.11.0]: https://github.com/automattic/jetpack-blaze/compare/v0.10.4...v0.11.0
+[0.10.4]: https://github.com/automattic/jetpack-blaze/compare/v0.10.3...v0.10.4
+[0.10.3]: https://github.com/automattic/jetpack-blaze/compare/v0.10.2...v0.10.3
+[0.10.2]: https://github.com/automattic/jetpack-blaze/compare/v0.10.1...v0.10.2
 [0.10.1]: https://github.com/automattic/jetpack-blaze/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/automattic/jetpack-blaze/compare/v0.9.3...v0.10.0
 [0.9.3]: https://github.com/automattic/jetpack-blaze/compare/v0.9.2...v0.9.3

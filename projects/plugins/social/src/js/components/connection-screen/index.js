@@ -7,6 +7,7 @@ import React from 'react';
 import background from './background.svg';
 import illustration from './illustration.png';
 import styles from './styles.module.scss';
+
 const ConnectionScreen = () => {
 	const connectProps = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID );
@@ -34,15 +35,18 @@ const ConnectionScreen = () => {
 					<ProductOffer
 						className={ styles.offer }
 						slug={ 'jetpack-social' }
-						title={ 'Jetpack Social' }
+						title={ __( 'Jetpack Social', 'jetpack-social' ) }
 						subTitle={ __(
 							'Share your posts with your social media network and increase your site’s traffic',
 							'jetpack-social'
 						) }
 						features={ [
-							'Connect with Twitter, Facebook, LinkedIn and Tumblr',
-							'Select the social media to share posts while publishing',
-							'Publish custom messages',
+							__(
+								'Share to Facebook, Instagram, LinkedIn, Mastodon, Tumblr, and Nextdoor',
+								'jetpack-social'
+							),
+							__( 'Post to multiple channels at once', 'jetpack-social' ),
+							__( 'Manage all of your channels from a single hub', 'jetpack-social' ),
 						] }
 						isCard={ false }
 						isBundle={ false }

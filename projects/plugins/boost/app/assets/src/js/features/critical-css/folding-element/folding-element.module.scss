@@ -1,0 +1,32 @@
+:global(.jb-dashboard .components-button.is-link) {
+	&.foldable-element-control {
+		color: var( --primary-black );
+		font-size: 16px;
+		margin-bottom: 24px;
+	}
+}
+
+:global(.jb-dashboard .components-button.is-link) {
+	&.foldable-element-control.visible {
+		margin-bottom: 0;
+	}
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+.fade-in {
+	animation-duration: 300ms;
+	animation-name: fadeIn;
+}
+
+.expanded {
+	margin-bottom: 24px;
+}

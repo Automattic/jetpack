@@ -3,26 +3,26 @@
  * Jetpack CRM Automation Contact_Updated trigger.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 
 /**
  * Adds the Contact_Updated class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Contact_Updated extends Base_Trigger {
 
 	/**
 	 * The Automation workflow object.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Automation_Workflow
 	 */
 	protected $workflow;
@@ -30,7 +30,7 @@ class Contact_Updated extends Base_Trigger {
 	/**
 	 * Get the slug name of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug name of the trigger.
 	 */
@@ -41,7 +41,7 @@ class Contact_Updated extends Base_Trigger {
 	/**
 	 * Get the title of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The title of the trigger.
 	 */
@@ -52,7 +52,7 @@ class Contact_Updated extends Base_Trigger {
 	/**
 	 * Get the description of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The description of the trigger.
 	 */
@@ -63,7 +63,7 @@ class Contact_Updated extends Base_Trigger {
 	/**
 	 * Get the category of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The category of the trigger.
 	 */
@@ -77,18 +77,17 @@ class Contact_Updated extends Base_Trigger {
 	 * @return string The type of the step
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Contact::get_slug();
+		return Contact_Data::class;
 	}
 
 	/**
 	 * Listen to the desired event.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
+	 *
+	 * @return void
 	 */
-	protected function listen_to_event() {
-		add_action(
-			'jpcrm_contact_updated',
-			array( $this, 'execute_workflow' )
-		);
+	protected function listen_to_event(): void {
+		$this->listen_to_wp_action( 'jpcrm_contact_updated' );
 	}
 }

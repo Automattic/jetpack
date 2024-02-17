@@ -193,9 +193,7 @@ class ChangeEntry implements JsonSerializable {
 	 * @return int
 	 */
 	protected static function compareTimestamp( ChangeEntry $a, ChangeEntry $b, array $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$aa = $a->getTimestamp();
-		$bb = $b->getTimestamp();
-		return $aa < $bb ? -1 : ( $aa > $bb ? 1 : 0 );
+		return $a->getTimestamp() <=> $b->getTimestamp();
 	}
 
 	/**

@@ -72,21 +72,27 @@ class Tonesque {
 			// If it's a url pointing to a local media library url.
 			$content_url = content_url();
 			$_image_url  = set_url_scheme( $image_url );
-			if ( wp_startswith( $_image_url, $content_url ) ) {
+			if ( str_starts_with( $_image_url, $content_url ) ) {
 				$_image_path = str_replace( $content_url, WP_CONTENT_DIR, $_image_url );
 				if ( file_exists( $_image_path ) ) {
 					$filetype = wp_check_filetype( $_image_path );
 					$type     = $filetype['type'];
 
-					if ( wp_startswith( $type, 'image/' ) ) {
+					if ( str_starts_with( $type, 'image/' ) ) {
 						$data = file_get_contents( $_image_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 					}
 				}
 			}
 
 			if ( empty( $data ) ) {
-				$response = wp_safe_remote_get( $image_url );
-				if ( is_wp_error( $response ) ) {
+				$response      = wp_safe_remote_get( $image_url );
+				$response_code = wp_remote_retrieve_response_code( $response );
+				if (
+					is_wp_error( $response )
+					|| ! $response_code
+					|| $response_code < 200
+					|| $response_code >= 300
+				) {
 					return false;
 				}
 				$data = wp_remote_retrieve_body( $response );
@@ -98,9 +104,13 @@ class Tonesque {
 			$filetype = wp_check_filetype( $image_url );
 			$type     = $filetype['type'];
 
-			if ( wp_startswith( $type, 'image/' ) ) {
+			if ( str_starts_with( $type, 'image/' ) ) {
 				$data = file_get_contents( $image_url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			}
+		}
+
+		if ( null === $data ) {
+			return false;
 		}
 
 		// Now turn it into an image and return it.

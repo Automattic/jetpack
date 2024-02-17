@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/related-posts",
 	"title": "Related Posts",
 	"description": "Display a list of related posts.",
@@ -41,10 +41,6 @@
 			"type": "boolean",
 			"default": true
 		},
-		"displayHeadline": {
-			"type": "boolean",
-			"default": false
-		},
 		"displayThumbnails": {
 			"type": "boolean",
 			"default": false
@@ -52,10 +48,6 @@
 		"displayContext": {
 			"type": "boolean",
 			"default": false
-		},
-		"headline": {
-			"type": "string",
-			"default": ""
 		},
 		"postsToShow": {
 			"type": "number",
@@ -67,12 +59,9 @@
 			"postLayout": "grid",
 			"displayAuthor": false,
 			"displayDate": true,
-			"displayHeadline": false,
 			"displayThumbnails": true,
 			"displayContext": false,
-			"headline": "",
 			"postsToShow": 2
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }

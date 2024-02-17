@@ -80,10 +80,16 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/top-posts/
 	 * @param array $args Optional query parameters.
+	 * @param bool  $override_cache Optional override cache.
 	 * @return array|WP_Error
 	 */
-	public function get_top_posts( $args = array() ) {
+	public function get_top_posts( $args = array(), $override_cache = false ) {
 		$this->resource = 'top-posts';
+
+		// Needed for the Top Posts block, so users can preview changes instantly.
+		if ( $override_cache ) {
+			return $this->fetch_remote_stats( $this->build_endpoint(), $args );
+		}
 
 		return $this->fetch_stats( $args );
 	}
@@ -197,12 +203,17 @@ class WPCOM_Stats {
 	 * Get a post's views.
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/post/%24post_id/
-	 * @param int   $post_id The video's ID.
-	 * @param array $args    Optional query parameters.
+	 * @param int   $post_id        The post's ID.
+	 * @param array $args           Optional query parameters.
+	 * @param bool  $cache_in_meta  Optional should cache in post meta.
 	 * @return array|WP_Error
 	 */
-	public function get_post_views( $post_id, $args = array() ) {
+	public function get_post_views( $post_id, $args = array(), $cache_in_meta = false ) {
 		$this->resource = sprintf( 'post/%d', $post_id );
+
+		if ( $cache_in_meta ) {
+			return $this->fetch_post_stats( $args, $post_id );
+		}
 
 		return $this->fetch_stats( $args );
 	}
@@ -387,8 +398,64 @@ class WPCOM_Stats {
 
 		// To reduce size in storage: store with time as key, store JSON encoded data.
 		$cached_value = is_wp_error( $wpcom_stats ) ? $wpcom_stats : wp_json_encode( $wpcom_stats );
-		$expiration   = self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS;
+
+		/**
+		 * Filters the expiration time for the stats cache.
+		 *
+		 * @module stats
+		 *
+		 * @since 0.10.0
+		 *
+		 * @param int $expiration The expiration time in minutes.
+		 */
+		$expiration = apply_filters(
+			'jetpack_fetch_stats_cache_expiration',
+			self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
+		);
 		set_transient( $transient_name, array( time() => $cached_value ), $expiration );
+
+		return $wpcom_stats;
+	}
+
+	/**
+	 * Fetches stats data from WPCOM or local Cache. Caches locally for 5 minutes.
+	 *
+	 * Unlike the above function, this caches data in the post meta table. As such,
+	 * it prevents wp_options from blowing up when retrieving views for large numbers
+	 * of posts at the same time. However, the final response is the same as above.
+	 *
+	 * @param array $args Query parameters.
+	 * @param int   $post_id Post ID to acquire stats for.
+	 *
+	 * @return array|WP_Error
+	 */
+	protected function fetch_post_stats( $args, $post_id ) {
+		$endpoint    = $this->build_endpoint();
+		$meta_name   = '_' . self::STATS_CACHE_TRANSIENT_PREFIX;
+		$stats_cache = get_post_meta( $post_id, $meta_name );
+
+		if ( $stats_cache ) {
+			$data = reset( $stats_cache );
+
+			if ( is_wp_error( $data ) ) {
+				return $data;
+			}
+
+			$time = key( $data );
+
+			/** This filter is already documented in projects/packages/stats/src/class-wpcom-stats.php */
+			$expiration = apply_filters(
+				'jetpack_fetch_stats_cache_expiration',
+				self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
+			);
+
+			if ( ( time() - $time ) < $expiration ) {
+				return array_merge( array( 'cached_at' => $time ), $data[ $time ] );
+			}
+		}
+
+		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
+		update_post_meta( $post_id, $meta_name, array( time() => $wpcom_stats ) );
 
 		return $wpcom_stats;
 	}
@@ -405,7 +472,7 @@ class WPCOM_Stats {
 		if ( is_array( $args ) && ! empty( $args ) ) {
 			$endpoint .= '?' . http_build_query( $args );
 		}
-		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION );
+		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION, array( 'timeout' => 20 ) );
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 

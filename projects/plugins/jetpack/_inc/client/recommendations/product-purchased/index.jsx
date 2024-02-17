@@ -1,4 +1,4 @@
-import ProgressBar from '@automattic/components/dist/esm/progress-bar';
+import { ProgressBar } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
@@ -94,7 +94,13 @@ const ProductPurchasedComponent = props => {
 
 	return (
 		<PromptLayout
-			progressBar={ <ProgressBar color={ '#00A32A' } value={ '33' } /> }
+			progressBar={
+				<ProgressBar
+					className={ 'progress-bar' }
+					progressClassName={ 'progress-bar__progress' }
+					progress={ 0.33 }
+				/>
+			}
 			question={ __( 'Your plan has been upgraded!', 'jetpack' ) }
 			description={ __( 'You now have access to these benefits:', 'jetpack' ) }
 			answer={ answerSection }

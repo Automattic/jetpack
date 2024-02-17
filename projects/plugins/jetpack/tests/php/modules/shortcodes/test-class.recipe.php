@@ -184,12 +184,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 		// We expect a different image markup when Lazy Load is enabled.
 		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
-			// WP 6.3 changes the order of the attributes.
-			if ( function_exists( 'wp_img_tag_add_loading_optimization_attrs' ) ) {
-				$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" loading="lazy" />';
-			} else {
-				$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" loading="lazy" itemprop="image" />';
-			}
+			$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" loading="lazy" />';
 		} else {
 			$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />';
 		}

@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/subscriptions",
 	"title": "Subscribe",
-	"description": "Let readers subscribe to this blog's posts as a newsletter.",
+	"description": "Subscribe to this blog's posts as a newsletter.",
 	"keywords": [ "newsletter", "email", "follow" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
@@ -37,8 +37,7 @@
 			"default": false
 		},
 		"includeSocialFollowers": {
-			"type": "boolean",
-			"default": true
+			"type": "boolean"
 		},
 		"buttonOnNewLine": {
 			"type": "boolean",
@@ -108,7 +107,10 @@
 		"successMessage": {
 			"type": "string",
 			"default": "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing."
+		},
+		"appSource": {
+			"type": "string"
 		}
 	},
-	"editorScript": "file:../editor.js"
+	"example": {}
 }

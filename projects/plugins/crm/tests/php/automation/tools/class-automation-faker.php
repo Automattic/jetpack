@@ -2,16 +2,26 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
+use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Company;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Event;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
+use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
+use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
+use Automattic\Jetpack\CRM\Entities\Company;
+use Automattic\Jetpack\CRM\Entities\Contact;
+use Automattic\Jetpack\CRM\Entities\Factories\Company_Factory;
+use Automattic\Jetpack\CRM\Entities\Factories\Contact_Factory;
+use Automattic\Jetpack\CRM\Entities\Factories\Invoice_Factory;
+use Automattic\Jetpack\CRM\Entities\Factories\Quote_Factory;
+use Automattic\Jetpack\CRM\Entities\Factories\Task_Factory;
+use Automattic\Jetpack\CRM\Entities\Factories\Transaction_Factory;
+use Automattic\Jetpack\CRM\Entities\Invoice;
+use Automattic\Jetpack\CRM\Entities\Quote;
+use Automattic\Jetpack\CRM\Entities\Tag;
+use Automattic\Jetpack\CRM\Entities\Task;
+use Automattic\Jetpack\CRM\Entities\Transaction;
 
 require_once __DIR__ . '/class-event-emitter.php';
 
@@ -46,7 +56,7 @@ class Automation_Faker {
 		// Remove all WP actions, starting by jpcrm_.
 		global $wp_filter;
 		foreach ( $wp_filter as $tag => $actions ) {
-			if ( 0 === strpos( $tag, 'jpcrm_' ) ) {
+			if ( str_starts_with( $tag, 'jpcrm_' ) ) {
 				remove_all_actions( $tag );
 			}
 		}
@@ -61,17 +71,21 @@ class Automation_Faker {
 			'name'         => 'Workflow Test: basic_workflow',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
-			'is_active'    => true,
+			'active'       => true,
 			'triggers'     => array(
-				'jpcrm/contact_created',
+				Contact_Created_Trigger::get_slug(),
 			),
-			'initial_step' => array(
-				'slug'       => 'send_email_action',
-				'attributes' => array(
-					'to'       => 'admin@example.com',
-					'template' => 'send_welcome_email',
+			'initial_step' => 0,
+			'steps'        => array(
+				// Step 0
+				0 => array(
+					'slug'           => 'send_email_action',
+					'attributes'     => array(
+						'to'       => 'admin@example.com',
+						'template' => 'send_welcome_email',
+					),
+					'next_step_true' => null,
 				),
-				'next_step'  => null,
 			),
 		);
 	}
@@ -85,9 +99,9 @@ class Automation_Faker {
 			'name'        => 'Workflow Test: without_initial_step',
 			'description' => 'Test: the description of the workflow',
 			'category'    => 'Test',
-			'is_active'   => true,
+			'active'      => true,
 			'triggers'    => array(
-				'jpcrm/contact_created',
+				Contact_Created_Trigger::get_slug(),
 			),
 		);
 	}
@@ -104,7 +118,7 @@ class Automation_Faker {
 			'name'        => 'Workflow Test: without_initial_step_customize_trigger',
 			'description' => 'Test: the description of the workflow',
 			'category'    => 'Test',
-			'is_active'   => true,
+			'active'      => true,
 			'triggers'    => array(
 				$trigger_name,
 			),
@@ -150,14 +164,15 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return dummy event triggers name list
+	 * Return dummy task triggers name list
 	 *
 	 * @return array
 	 */
-	public function event_triggers(): array {
+	public function task_triggers(): array {
 		return array(
-			'jpcrm/event_created',
-			'jpcrm/event_deleted',
+			'jpcrm/task_created',
+			'jpcrm/task_deleted',
+			'jpcrm/task_updated',
 		);
 	}
 
@@ -182,22 +197,30 @@ class Automation_Faker {
 			'name'         => 'Workflow Test: with_condition_action',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
-			'is_active'    => true,
+			'active'       => true,
 			'triggers'     => array(
-				'jpcrm/contact_created',
+				Contact_Created_Trigger::get_slug(),
 			),
-			'initial_step' => array(
-				'slug'            => 'contact_status_condition',
-				'class_name'      => Contact_Condition::class,
-				'attributes'      => array(
-					'field'    => 'status',
-					'operator' => 'is',
-					'value'    => 'lead',
+			'initial_step' => 0,
+			'steps'        => array(
+				// Step 0
+				0 => array(
+					'slug'            => Contact_Condition::get_slug(),
+					'next_step_true'  => 1,
+					'next_step_false' => null,
+					'attributes'      => array(
+						'field'    => 'status',
+						'operator' => 'is',
+						'value'    => 'lead',
+					),
 				),
-				'next_step_true'  => array(
-					'slug' => 'dummy_step',
+				// Step 1
+				1 => array(
+					'slug'            => Dummy_Step::get_slug(),
+					'next_step_true'  => null,
+					'next_step_false' => null,
+					'attributes'      => array(),
 				),
-				'next_step_false' => null,
 			),
 		);
 	}
@@ -211,19 +234,25 @@ class Automation_Faker {
 			'name'         => 'Workflow Test: with_condition_customizable_trigger_action',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
-			'is_active'    => true,
+			'active'       => true,
 			'triggers'     => array(
 				$trigger_slug,
 			),
-			'initial_step' => array(
-				'slug'            => Contact_Field_Changed::get_slug(),
-				'attributes'      => array(
-					'field'    => 'status',
-					'operator' => 'is',
-					'value'    => 'Lead',
+			'initial_step' => 0,
+			'steps'        => array(
+				// Step 0
+				0 => array(
+					'slug'            => Contact_Field_Changed::get_slug(),
+					'attributes'      => array(
+						'field'    => 'status',
+						'operator' => 'is',
+						'value'    => 'Lead',
+					),
+					'next_step_true'  => 1,
+					'next_step_false' => null,
 				),
-				'next_step_true'  => $action_data,
-				'next_step_false' => null,
+				// Step 1
+				1 => $action_data,
 			),
 		);
 	}
@@ -239,52 +268,213 @@ class Automation_Faker {
 		$mocks     = scandir( $mocks_dir );
 
 		foreach ( $mocks as $mock ) {
-			if ( strpos( $mock, 'mock-class-' ) === 0 ) {
+			if ( str_starts_with( $mock, 'mock-class-' ) ) {
 				require_once $mocks_dir . $mock;
 			}
 		}
 	}
 
 	/**
-	 * Return data for a dummy contact.
+	 * Return a dummy Contact.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Contact object.
-	 * @return array|Data_Type_Contact
+	 * @return Contact A Contact object.
 	 */
-	public function contact_data( $get_as_data_type = false ) {
+	public function contact(): Contact {
+		$data = array(
+			'id'               => 1,
+			'owner'            => '-1',
+			'status'           => 'lead',
+			'fname'            => 'John',
+			'lname'            => 'Doe',
+			'email'            => 'johndoe@example.com',
+			'prefix'           => 'Mr',
+			'addr1'            => 'My Street 1',
+			'addr2'            => '',
+			'city'             => 'San Francisco',
+			'county'           => 'CA',
+			'postcode'         => '94110',
+			'country'          => 'US',
+			'secaddr_addr1'    => '',
+			'secaddr_addr2'    => '',
+			'secaddr_city'     => '',
+			'secaddr_county'   => '',
+			'secaddr_country'  => '',
+			'secaddr_postcode' => '',
+			'hometel'          => '',
+			'worktel'          => '',
+			'mobtel'           => '(877) 273-3049',
+			'wpid'             => '',
+			'avatar'           => '',
+			'tw'               => '',
+			'li'               => '',
+			'fb'               => '',
+			'created'          => '1691193339',
+			'lastupdated'      => '1691193339',
+			'lastcontacted'    => '',
+			'lastlog'          => '',
+			'lastcontactlog'   => '',
+			'tags'             => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
+		);
+
+		return Contact_Factory::create( $data );
+	}
+
+	/**
+	 * Return a dummy Invoice.
+	 *
+	 * @return Invoice A Invoice object.
+	 */
+	public function invoice(): Invoice {
+		$data = array(
+			'id'          => 1,
+			'id_override' => '1',
+			'parent'      => '',
+			'status'      => 'Unpaid',
+			'due_date'    => 1690840800,
+			'hash'        => 'ISSQndSUjlhJ8feWj2v',
+			'lineitems'   => array(
+				array(
+					'net'      => 3.75,
+					'desc'     => 'Dummy product',
+					'quantity' => '3',
+					'price'    => '1.25',
+					'total'    => 3.75,
+				),
+				'contacts' => array( 1 ),
+				'created'  => -1,
+				'tags'     => array(
+					array(
+						'id'          => 1,
+						'objtype'     => 1,
+						'name'        => 'Name 1',
+						'slug'        => 'name-1',
+						'created'     => 1692663411,
+						'lastupdated' => 1692663411,
+					),
+					array(
+						'id'          => 2,
+						'objtype'     => 1,
+						'name'        => 'Name 2',
+						'slug'        => 'name-2',
+						'created'     => 1692663412,
+						'lastupdated' => 1692663412,
+					),
+				),
+			),
+		);
+
+		return Invoice_Factory::create( $data );
+	}
+
+	/**
+	 * Return a dummy Quote.
+	 *
+	 * @return Quote A Quote object.
+	 */
+	public function quote(): Quote {
+		$data = array(
+			'id'          => 1,
+			'id_override' => '1',
+			'title'       => 'Quote title',
+			'hash'        => 'V8jAlsi0#$ksm0Plsxp',
+			'value'       => 150.00,
+			'currency'    => 'USD',
+			'template'    => 1676923766,
+			'accepted'    => 1676923766,
+			'created'     => 1676000000,
+			'tags'        => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
+		);
+
+		return Quote_Factory::create( $data );
+	}
+
+	/**
+	 * Return a Company.
+	 *
+	 * @return Company A Company object.
+	 */
+	public function company(): Company {
+		$data = array(
+			'id'     => 1,
+			'name'   => 'Dummy Company',
+			'email'  => 'johndoe@dummycompany.com',
+			'addr1'  => 'Address 1',
+			'status' => 'lead',
+			'tags'   => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
+		);
+
+		return Company_Factory::create( $data );
+	}
+
+	/**
+	 * Return dummy Task.
+	 *
+	 * @return Task A Task object.
+	 */
+	public function task(): Task {
 		$data = array(
 			'id'             => 1,
-			'owner'          => '-1',
-			'status'         => 'lead',
-			'fname'          => 'John',
-			'lname'          => 'Doe',
-			'email'          => 'johndoe@example.com',
-			'prefix'         => 'Mr',
-			'addr1'          => 'My Street 1',
-			'addr2'          => '',
-			'city'           => 'San Francisco',
-			'county'         => 'CA',
-			'postcode'       => '94110',
-			'country'        => 'US',
-			'secaddr1'       => '',
-			'secaddr2'       => '',
-			'seccity'        => '',
-			'seccounty'      => '',
-			'seccountry'     => '',
-			'secpostcode'    => '',
-			'hometel'        => '',
-			'worktel'        => '',
-			'mobtel'         => '(877) 273-3049',
-			'wpid'           => '',
-			'avatar'         => '',
-			'tw'             => '',
-			'li'             => '',
-			'fb'             => '',
-			'created'        => '1691193339',
-			'lastupdated'    => '1691193339',
-			'lastcontacted'  => '',
-			'lastlog'        => '',
-			'lastcontactlog' => '',
+			'title'          => 'Some task title',
+			'desc'           => 'Some desc',
+			'hash'           => 'V8jAlsi0#$ksm0Plsxp',
+			'start'          => 1676000000,
+			'end'            => 1676923766,
+			'complete'       => false,
+			'show_in_portal' => true,
+			'show_in_cal'    => true,
+			'created'        => 1675000000,
+			'lastupdated'    => 1675000000,
 			'tags'           => array(
 				array(
 					'id'          => 1,
@@ -305,152 +495,107 @@ class Automation_Faker {
 			),
 		);
 
-		if ( $get_as_data_type ) {
-			return new Data_Type_Contact( $data );
-		}
-
-		return $data;
+		return Task_Factory::create( $data );
 	}
 
 	/**
-	 * Return data for a dummy invoice.
+	 * Return a dummy Transaction.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Invoice object.
-	 * @return array|Data_Type_Invoice
+	 * @return Transaction A Transaction object.
 	 */
-	public function invoice_data( $get_as_data_type = false ) {
+	public function transaction(): Transaction {
 		$data = array(
-			'id'   => 1,
-			'data' => array(
-				'id_override' => '1',
-				'parent'      => '',
-				'status'      => 'Unpaid',
-				'due_date'    => 1690840800,
-				'hash'        => 'ISSQndSUjlhJ8feWj2v',
-				'lineitems'   => array(
-					array(
-						'net'      => 3.75,
-						'desc'     => 'Dummy product',
-						'quantity' => '3',
-						'price'    => '1.25',
-						'total'    => 3.75,
-					),
+			'id'             => 1,
+			'title'          => 'Some transaction title',
+			'desc'           => 'Some desc',
+			'hash'           => 'mASOpAnf334Pncl1px4',
+			'status'         => 'Completed',
+			'type'           => 'Sale',
+			'ref'            => '123456',
+			'currency'       => 'USD',
+			'total'          => '150.00',
+			'tax'            => '10.00',
+			'lineitems'      => array(),
+			'date'           => 1676000000,
+			'date_completed' => 1676923766,
+			'created'        => 1675000000,
+			'lastupdated'    => 1675000000,
+			'tags'           => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
 				),
-				'contacts'    => array( 1 ),
-				'created'     => -1,
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
 			),
 		);
 
-		if ( $get_as_data_type ) {
-			return new Data_Type_Invoice( $data );
-		}
-
-		return $data;
+		return Transaction_Factory::create( $data );
 	}
 
 	/**
-	 * Return data for a dummy quote.
+	 * Return data for a dummy tag.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Quote object.
-	 * @return array|Data_Type_Quote
+	 * @return Tag A sample Tag instance.
 	 */
-	public function quote_data( $get_as_data_type = false ) {
-		$data = array(
+	public function tag(): Tag {
+		$tag_data = array(
 			'id'          => 1,
-			'id_override' => '1',
-			'title'       => 'Quote title',
-			'hash'        => 'V8jAlsi0#$ksm0Plsxp',
-			'template'    => 1676923766,
-			'accepted'    => 1676923766,
-			'created'     => 1676000000,
+			'name'        => 'Some tag name',
+			'slug'        => 'tag_slug',
+			'objtype'     => 'Contact',
+			'created'     => 1675000000,
+			'lastupdated' => 1675000000,
 		);
 
-		if ( $get_as_data_type ) {
-			return new Data_Type_Quote( $data );
+		// @todo: Use the factory when it is ready: return Tag_Factory::create( $tag );
+		$tag = new Tag();
+		foreach ( $tag_data as $key => $value ) {
+			$tag->$key = $value;
 		}
 
-		return $data;
+		return $tag;
 	}
 
 	/**
-	 * Return data for a dummy company.
+	 * Return data for a dummy tag.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Company object.
-	 * @return array|Data_Type_Company
-	 */
-	public function company_data( $get_as_data_type = false ) {
-		$data = array(
-			'id'     => 1,
-			'name'   => 'Dummy Company',
-			'email'  => 'johndoe@dummycompany.com',
-			'status' => 'lead',
-		);
-
-		if ( $get_as_data_type ) {
-			return new Data_Type_Company( $data );
-		}
-
-		return $data;
-	}
-
-	/**
-	 * Return data for a dummy event.
+	 * @param array|null $additional_array An array with additional data to be added to the tag list.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Event object.
 	 * @return array
+	 * @throws Data_Type_Exception
 	 */
-	public function event_data( $get_as_data_type = false ) {
+	public function tag_list( array $additional_array = null ) {
 		$data = array(
-			'id'   => 1,
-			'data' => array(
-				'title'          => 'Some event title',
-				'desc'           => 'Some desc',
-				'hash'           => 'V8jAlsi0#$ksm0Plsxp',
-				'start'          => 1676000000,
-				'end'            => 1676923766,
-				'complete'       => false,
-				'show_on_portal' => true,
-				'show_on_cal'    => true,
-				'created'        => 1675000000,
-				'lastupdated'    => 1675000000,
+			array(
+				'id'          => 1,
+				'objtype'     => 1,
+				'name'        => 'Name 1',
+				'slug'        => 'name-1',
+				'created'     => 1692663411,
+				'lastupdated' => 1692663411,
+			),
+			array(
+				'id'          => 2,
+				'objtype'     => 1,
+				'name'        => 'Name 2',
+				'slug'        => 'name-2',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
 			),
 		);
-
-		if ( $get_as_data_type ) {
-			return new Data_Type_Event( $data );
-		}
-
-		return $data;
-	}
-
-	/**
-	 * Return data for a dummy transaction.
-	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Transaction object.
-	 * @return array
-	 */
-	public function transaction_data( $get_as_data_type = false ) {
-		$data = array(
-			'id'   => 1,
-			'data' => array(
-				'title'          => 'Some transaction title',
-				'desc'           => 'Some desc',
-				'hash'           => 'mASOpAnf334Pncl1px4',
-				'status'         => 'Completed',
-				'type'           => 'Sale',
-				'currency'       => 'USD',
-				'total'          => '150.00',
-				'tax'            => '10.00',
-				'lineitems'      => array(),
-				'date'           => 1676000000,
-				'date_completed' => 1676923766,
-				'created'        => 1675000000,
-				'lastupdated'    => 1675000000,
-			),
-		);
-
-		if ( $get_as_data_type ) {
-			return new Data_Type_Transaction( $data );
+		if ( $additional_array !== null ) {
+			$data[] = $additional_array;
 		}
 
 		return $data;

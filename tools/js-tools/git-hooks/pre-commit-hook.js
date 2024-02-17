@@ -164,28 +164,6 @@ function checkFileAgainstDirtyList( file, filesList ) {
 }
 
 /**
- * Captures the tree hash being committed to be used later in prepare-commit-msg.js hook to figure out whether pre-commit was executed
- */
-function capturePreCommitTreeHash() {
-	if ( exitCode === 0 ) {
-		// .git folder location varies if this repo is used a submodule. Also, remove trailing new-line.
-		const gitFolderPath = spawnSync( 'git', [ 'rev-parse', '--git-dir' ], {
-			stdio: [ 'inherit', null, 'inherit' ],
-			encoding: 'utf8',
-		} )
-			.stdout.toString()
-			.trim();
-		fs.writeFileSync(
-			`${ gitFolderPath }/last-commit-tree`,
-			spawnSync( 'git', [ 'write-tree' ], {
-				stdio: [ 'inherit', null, 'inherit' ],
-				encoding: 'utf8',
-			} ).stdout
-		);
-	}
-}
-
-/**
  * Given a path, and a config filename, returns the "closest" config file in parent directories of the path.
  *
  * @param {string} configFileName - The name of the config file to find (e.g.: .prettierrc.js)
@@ -468,7 +446,6 @@ function runCheckGitHubActionsYamlFiles() {
  * @param {number} exitCodePassed - Shell exit code.
  */
 function exit( exitCodePassed ) {
-	capturePreCommitTreeHash();
 	process.exit( exitCodePassed );
 }
 

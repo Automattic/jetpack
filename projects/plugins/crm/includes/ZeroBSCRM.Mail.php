@@ -191,11 +191,6 @@ function zeroBSCRM_mailDelivery_sendMessage($mailDeliveryAccKey='',$mail=-1){
 
 	}
 
-
-	// Debug 
-	//echo 'Mail Settings:<pre>'; print_r($mailSettings); echo '</pre>';
-	//echo 'Mail Settings:<pre>'; print_r($mail); echo '</pre>';
-
 	// got settings?
 	if (isset($mailSettings) && is_array($mailSettings)){
 
@@ -212,7 +207,6 @@ function zeroBSCRM_mailDelivery_sendMessage($mailDeliveryAccKey='',$mail=-1){
 			return array(false,'errorMsg'=>__('<span>#290</span>Could not load message for this mail delivery call', 'zero-bs-crm'));
 
 		}
-
 
 		/* comes in...
 		// build send array
@@ -404,61 +398,25 @@ function zeroBSCRM_mailDelivery_sendMessage($mailDeliveryAccKey='',$mail=-1){
 					// From (esp req for wpmail):
 					$newHeaders = array();
 					$headerPresent = false;
-					foreach ($headers as $h){
-						
-						if (substr($h, 0, 5) == 'From:'){
+				foreach ( $headers as $h ) {
+					if ( str_starts_with( $h, 'From:' ) ) {
 
 							// replace it :)
 							$newHeaders[] = 'From: '.$mailSettings['fromname'].' <'.$mailSettings['fromemail'].'>';
 
-						} else {
+					} else {
 
 							// just add to new arr
 							$newHeaders[] = $h;
-						}
-
 					}
+
+				}
 
 					// if no from, we need to add it!
 					if (!$headerPresent) $newHeaders[] = 'From: '.$mailSettings['fromname'].' <'.$mailSettings['fromemail'].'>';
 
 					// and overwrite it... (if nothing changed, doesn't matter :))
 					$headers = $newHeaders;
-
-					// HERE we do some custom work to make sure AltBody is set (if html + textbody exists)
-					/*
-
-						WH: Removed this 18/3/19 - it was an attempt at resolving this issue:
-						https://wordpress.stackexchange.com/questions/191923/sending-multipart-text-html-emails-via-wp-mail-will-likely-get-your-domain-b
-						.. wp does not deal well with multi-part text/html emails
-						.. but the workaround is clearly broken for people using "other mail" plugins (sendgrid, WPGmail etc.)
-						.. we probably need to HARD override wp_mail like those guys, or do something different here.
-						.. .. FOR NOW, we just send HTML (sigh*)
-						(also commented out #REMOVEDFORWPMAILPLUGINS below)
-
-							Works: 
-							- WP Mail SMTP
-
-							Doesn't Work:
-							- PostMan SMTP with SendGrid API
-							- Sendgrid
-
-						if ($options['html'] == 1 && !empty($textBody)){
-
-							// we set a phony header which our catch func finds, and removes:
-							// zeroBSCRM_mailDelivery_wp_mail_AltBodyOverride
-							$headers[] = 'Comments: zbs-mail-alt-req'; // NOTE if changing this must change in  zeroBSCRM_mailDelivery_wp_mail_AltBodyOverride
-
-							// .. and we array+serialise the body parts to pass through:
-							$bodyArr = array(
-								'html' => $body,
-								'plaintext' => $textBody
-								);
-							$body = maybe_serialize($bodyArr);
-
-						} 
-
-					*/
 
 					// Here we check $attachments, because these can optionally be passed as arrays with 'meaningful names' as second var
 					// .. but no easy way to get wp_mail to use meaningful names
@@ -570,74 +528,12 @@ function zeroBSCRM_mailDelivery_sendMessage($mailDeliveryAccKey='',$mail=-1){
 
 }
 
-// This integrates with above sendMessage function to allow multipart text/html emails via wp_mail
-// adapted from https://wordpress.stackexchange.com/questions/191923/sending-multipart-text-html-emails-via-wp-mail-will-likely-get-your-domain-b
-/* removed 18/3/19, see #REMOVEDFORWPMAILPLUGINS above
-
-function zeroBSCRM_mailDelivery_wp_mail_AltBodyOverride($phpmailer){
-
-	$headers = $phpmailer->getCustomHeaders();
-	//debug echo 'intercepted:<pre>'; print_r($headers); echo '</pre><br>';
-
-	// got ours?
-	$needsAlt = false;
-	if (is_array($headers) && count($headers) > 0) 
-		foreach ($headers as $h)
-			if (is_array($h) && $h[0] == 'Comments' && $h[1] == ' zbs-mail-alt-req')
-				$needsAlt = true;
-
-	if ($needsAlt){
-
-		//debug echo 'got it...';
-		// remove our flag
-
-			// remove all old
-			$phpmailer->clearCustomHeaders();
-
-			// re-add all except our flag
-			foreach ($headers as $h) {
-
-				if (is_array($h) && $h[0] == 'Comments' && $h[1] == ' zbs-mail-alt-req'){
-					// ours, do nout
-
-				} else {
-				
-					$phpmailer->addCustomHeader($h[0].': '.$h[1]);
-
-				}
-
-			}
-
-		//debug echo 'fixed:<pre>'; print_r($phpmailer->getCustomHeaders()); echo '</pre><br>';
-
-		if( $phpmailer->ContentType == 'text/html' ) {
-			$body_parts = maybe_unserialize($phpmailer->Body);
-
-			if(isset($body_parts['html']) && !empty($body_parts['html'])){
-				$phpmailer->MsgHTML($body_parts['html']);
-			}
-
-			if(isset($body_parts['plaintext']) && !empty($body_parts['plaintext'])){
-				$phpmailer->AltBody = $body_parts['plaintext'];
-			}
-		}
-	}
-
-} add_action('phpmailer_init', 'zeroBSCRM_mailDelivery_wp_mail_AltBodyOverride');
-*/
-
-
-
 // [DREAMWORLD]: WH $arg'itizes this
 function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser='',$smtpPass='',$smtpSecurity='tls',$sendFrom='',$sendFromName='',$toEmail='',$toName='',$subject='',$msgText='',$msgHTML='',$debugMail=false,$returnDebug=false,$attachments=false){ #,$ccEmails='',$bccEmails='',$replyToAddr='',$returnPath=''
 
 	global $retDebugStr;
 
 	if ($debugMail) $retDebugStr = '<h2>Debugging SMTP</h2>';
-
-	# NO BLACKLIST SENDS!
-	# global $blacklistCache;
-	# if (in_array($toEmail,$blacklistCache)) return false;
 
 	#} was going to fallback to default "sendFrom", but these should not be fired without! - for now use brand name :)
 	if (empty($sendFromName)) $sendFromName = 'Jetpack CRM';
@@ -650,7 +546,6 @@ function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser=
 	){
 
 		global $zbsDebug; $zbsDebug['return'] = $returnDebug; $zbsDebug['debug'] = $debugMail;
-				
 
 			// here we set err handler to avoid any leaked php warnings knocking over the ui
 			// https://stackoverflow.com/questions/1241728/can-i-try-catch-a-warning
@@ -668,16 +563,13 @@ function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser=
 
 					}
 
-					
-
 					// make it more serious than a warning so it can be caught
 					//trigger_error($errstr, E_ERROR);
 					//return true;
 
-					// 
 					global $retDebugStr,$zbsDebug;
 					//return array('details'=>true,'sent'=>false,'stage'=>-1,'debugs'=>array($retDebugStr));
-						
+
 					/* Don't execute PHP internal error handler */
 					return true;
 			 });
@@ -812,10 +704,9 @@ function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser=
 			#echo "debug level $level; message: $str";
 			$retDebugStr .= $level.': message: '.$str."
 					";
-				
+
 		};
-			
-			
+
 		#} Set From & Subject
 		$phpmailer->SetFrom($sendFrom, $sendFromName,false); //from (verified email address)
 		$phpmailer->Subject = $subject; //subject
@@ -832,7 +723,7 @@ function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser=
 
 		#} Recipient(s)
 		#} Currently stored as csv in defined ^^ so discern.... messy, improve.
-		if (strpos($toEmail,',') > -1 && strpos($toName,',') > -1){
+		if ( str_contains( $toEmail, ',' ) && str_contains( $toName, ',' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			$toEmail = explode(',',$toEmail);
 			$toName = explode(',',$toName);
 		}
@@ -907,7 +798,7 @@ function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser=
 							return 'success:'.$retDebugStr;
 					}
 					return true;#DEBUG array(true,$phpmailer->Host,$phpmailer->Username,$phpmailer->Password); #true;
-				
+
 				} else {
 
 					#} Brutal
@@ -959,7 +850,7 @@ function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser=
 			} catch (Exception $e){
 
 				// general exception
-				
+
 					if ($debugMail) {
 
 						$mail_error_data = array( 'to', 'subject', 'message', 'headers', 'attachments' );
@@ -971,7 +862,6 @@ function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser=
 						if (isset($attachments)) 	$mail_error_data['attachments'] = $attachments;
 						$mail_error_data['phpmailer_exception_code'] 	= $e->getCode();
 						$mail_error_data['phpmailer_exception_errinfo'] = $phpmailer->ErrorInfo;
-
 
 						$retDebugStr .= '<hr /><strong>Mail FAILED #exit-3</strong><br />';
 						if (!$returnDebug) {
@@ -995,12 +885,11 @@ function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser=
 
 }
 
-
 #} check SMTP Deets
 function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail='',$smtpHost='',$smtpPort='',$smtpUser='',$smtpPass=''){
 	
 	$ret = array('status' => false);
-	
+
 	#} Perms?
 	if (!zeroBSCRM_permsMailCampaigns()){
 
@@ -1008,7 +897,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 		return $ret;
 		
 	}
-	
+
 	#} Check for empties once
 	if (
 			!empty($sendFromName) &&
@@ -1019,9 +908,9 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 			!empty($smtpPass)
 
 		){
-	
+
 			$emailWasSent = false;
-			
+
 			#} Fill these into array
 			$smtpSettings = array(
 				'host' => $smtpHost,
@@ -1053,37 +942,34 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 				isset($smtpSettings['pass']) && !empty($smtpSettings['pass']) && 
 				isset($smtpSettings['port']) && !empty($smtpSettings['port']) 
 			) {
-				
+
 				if (
 					isset($sendFromName) && !empty($sendFromName) &&
 					isset($sendFromEmail) && zeroBSCRM_validateEmail($sendFromEmail)
 				){
-					
+
 					#} Some test text:
 					$emTo = $sendFromEmail; // - here we send to itself :) VALIDATORTARGET;
 					$emHTMLBody = zeroBSCRM_mailDelivery_generateTestHTML(true);
 					$emTextBody = '';
 					$emSubject = '[Jetpack CRM] '.__('Mail Delivery Routine',"zero-bs-crm");
 					$commonSMTPSettings = jpcrm_maildelivery_common_SMTP_settings();
-				
+
 					if (
 						isset($emHTMLBody) && !empty($emHTMLBody) &&
 						isset($emTo) && zeroBSCRM_validateEmail($emTo)
 					){
-				
-					#} Try it :)								
-						
+
 						$testCount = 0; $emailDebugs = array(); $emailSettingsTried = array();
 						#} ===============================================
 						#} ==== 1) Raw settings as provided by user/api call
 						#} ===============================================
-								
+
 							#} Log this for later use :)
 							$originalSec = $smtpSettings['security'];
-								
+
 						#} go
 						$emailDebug = zeroBSCRM_mailDelivery_sendViaSMTP(
-								
 								#} SMTP Settings
 								$smtpSettings['host'],$smtpSettings['port'],$smtpSettings['user'],$smtpSettings['pass'],
 								#'tls', #tls ssl - switched for option:
@@ -1101,65 +987,62 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 						#} add to debug list + log tried
 						$emailDebugs[] = $emailDebug;
 						$emailSettingsTried[] = json_encode($smtpSettings);
-				
+
 						#} Analysis of send
-						
+
 							$emailSentMsg = '';
 
 							#success: or error:
-							if (substr($emailDebug,0,6) == 'error:'){
-								
+						if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 								$emailWasSent = false;									
 								$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
-							
+
 								#} various:
 								if ($emailDebug == 'error:SMTP connect() failed.'){
 										$emailSentMsg .= "
 	".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
 								}
-						
-						
-							} else if (substr($emailDebug,0,8) == 'success:'){
-								
+
+						} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 								$emailWasSent = true;								
 								$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
-						
+
 							}
 							$testCount++;
-							
 
 							#} ===============================================
 							#} ==== 2) Check settings against common settings + if such (gmail etc.) then adopt typical settings + retest
 							#} ===============================================
 							if (!$emailWasSent){
-							
+
 								#} slow down, joe
 								sleep(1);
-								
+
 								$replacementHost = ''; $replacementPort = ''; $replacementSecurityMode = '';
-								
+
 								#} Check host
 								foreach ($commonSMTPSettings as $commonSMTPKey => $commonSMTPSetting){
-									
+
 									if ($smtpSettings['host'] == $commonSMTPSetting['host']){
 
 										#} Override port + security mode
 										$replacementPort = $commonSMTPSetting['port'];
 										$replacementSecurityMode = $commonSMTPSetting['auth'];
-										
+
 										#} got one!
 										break;
-										
+
 									}
-									
+
 								}
-								
-								
+
 								#} Try and catch common email addresses (e.g. @gmail.com)
-								
+
 								#} No luck?
 								if (empty($replacementPort) && empty($replacementSecurityMode)){
-									
+
 									$mailProviderBreadcrumbs = array(
 											'gmail' => array('gmail.com'),
 											'outlook' => array('outlook.com'),
@@ -1167,39 +1050,36 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 											'yahoo' => array('yahoo.com'),
 											'aol' => array('aol.com'),
 											'hotmail' => array('hotmail.com')
-											
 									);
-									
+
 									#} dynamic :)
 									foreach ($mailProviderBreadcrumbs as $settingKey => $needleArr){
-										
+
 										if (strpos('#'.$sendFromEmail, $needleArr[0]) > 0){
 
 											#} Override port + security mode + host
 											$replacementHost = $commonSMTPSettings[$settingKey]['host'];
 											$replacementPort = $commonSMTPSettings[$settingKey]['port'];
 											$replacementSecurityMode = $commonSMTPSettings[$settingKey]['auth'];
-											
+
 										}
 
 									}
 									
 									#} extra - ehosts.com
 									if (empty($replacementHost) && strpos('#'.$smtpSettings['host'],'ehosts.com') > 0){
-										
+
 											$replacementHost = $smtpSettings['host'];# leave as existing;
 											$replacementPort = 465;
 											$replacementSecurityMode = 'ssl';
-											
-										
+
 									}
-									
+
 								}
-								
-								
+
 								#} Override port + security mode
 								if (!empty($replacementHost) || !empty($replacementPort) || !empty($replacementSecurityMode)){
-									
+
 									#} any? both?
 									if (!empty($replacementHost)) $smtpSettings['host'] = $replacementHost;
 									if (!empty($replacementPort)) $smtpSettings['port'] = $replacementPort;
@@ -1207,11 +1087,10 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 
 									#} If not already tried, try that!
 									if (!in_array(json_encode($smtpSettings),$emailSettingsTried)){
-										
-												
-											#} Re-test						
+
+											// Re-test
 											$emailDebug = zeroBSCRM_mailDelivery_sendViaSMTP(
-													
+
 													#} SMTP Settings
 													$smtpSettings['host'],$smtpSettings['port'],$smtpSettings['user'],$smtpSettings['pass'],
 													#'tls', #tls ssl - switched for option:
@@ -1225,94 +1104,81 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 													#} Following returns debug
 													true,true
 											);
-											
+
 											#} add to debug list + save tried settings
 											$emailDebugs[] = $emailDebug;
 											$emailSettingsTried[] = json_encode($smtpSettings);
-		
+
 											#} Analysis of send - THIS ISN'T DRY!
 											#success: or error:
-											if (substr($emailDebug,0,6) == 'error:'){
-												
+								if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 												$emailWasSent = false;									
 												$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
-											
+
 												#} various:
 												if ($emailDebug == 'error:SMTP connect() failed.'){
 														$emailSentMsg .= "
 					".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
 												}
-										
-										
-											} else if (substr($emailDebug,0,8) == 'success:'){
-												
+
+								} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 												$emailWasSent = true;								
 												$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
-										
-											}								
-		
+
+								}
+
 											$testCount++;
-											
-											
-											
+
 									} // if not already tested
-										
-									
+
 								} // if any to test
-								
-								
+
 							}
-							
-						
+
 							#} ===============================================
 							#} ==== 3) If no success, switch security models, (ssl/tls->tls/ssl->none)
 							#} ===============================================
 							if (!$emailWasSent){
-							
+
 								#} slow down, joe
 								sleep(1);
-								
+
 								#} Switch from existing
 								switch ($smtpSettings['security']){
-									
+
 									case 'tls':
 										#} TLS -> SSL
 										$smtpSettings['port'] = 465;
 										$smtpSettings['security'] = 'ssl';
-										
 										break;
-									
+
 									case 'ssl':
 										#} SSL -> TLS
 										$smtpSettings['port'] = 587;
 										$smtpSettings['security'] = 'tls';
-										
 										break;
-									
+
 									case 'none':
 										#} None -> TLS
 										$smtpSettings['port'] = 587;
 										$smtpSettings['security'] = 'tls';
-										
 										break;
-									
+
 									case '':
 										#} None -> TLS
 										$smtpSettings['port'] = 587;
 										$smtpSettings['security'] = 'tls';
-										
 										break;
-									
-									
+
 								}
 
 								#} If not already tried, try that!
 								if (!in_array(json_encode($smtpSettings),$emailSettingsTried)){
-									
-											
-										#} Re-test						
+
+										// Re-test
 										$emailDebug = zeroBSCRM_mailDelivery_sendViaSMTP(
-												
 												#} SMTP Settings
 												$smtpSettings['host'],$smtpSettings['port'],$smtpSettings['user'],$smtpSettings['pass'],
 												#'tls', #tls ssl - switched for option:
@@ -1326,68 +1192,59 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 												#} Following returns debug
 												true,true
 										);
-										
+
 										#} add to debug list + save tried settings
 										$emailDebugs[] = $emailDebug;
 										$emailSettingsTried[] = json_encode($smtpSettings);
 
 										#} Analysis of send - THIS ISN'T DRY
 										#success: or error:
-										if (substr($emailDebug,0,6) == 'error:'){
-											
+							if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 											$emailWasSent = false;									
 											$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
-										
+
 											#} various:
 											if ($emailDebug == 'error:SMTP connect() failed.'){
 													$emailSentMsg .= "
 				".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
 											}
-									
-									
-										} else if (substr($emailDebug,0,8) == 'success:'){
-											
+
+							} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 											$emailWasSent = true;								
 											$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
-									
-										}							
+
+							}
 
 										$testCount++;
-										
-										
-										
+
 								} // if not already tested
-								
-								
-								
+
 							}
-							
-						
+
 							#} ===============================================
 							#} ==== 4) If no success, and is 587, try without TLS
 							#} ===============================================
 							if (!$emailWasSent){
-							
+
 								#} slow down, joe
 								sleep(1);
-								
+
 								#} TLS?
 								if (isset($originalSec) && $originalSec == 'tls'){
-									
+
 										#} TLS -> none
 										$smtpSettings['port'] = 587;
 										$smtpSettings['security'] = '';
-										
-										
+
 								}
 
 								#} If not already tried, try that!
 								if (!in_array(json_encode($smtpSettings),$emailSettingsTried)){
-									
-											
-										#} Re-test						
+
+										// Re-test
 										$emailDebug = zeroBSCRM_mailDelivery_sendViaSMTP(
-												
 												#} SMTP Settings
 												$smtpSettings['host'],$smtpSettings['port'],$smtpSettings['user'],$smtpSettings['pass'],
 												#'tls', #tls ssl - switched for option:
@@ -1401,101 +1258,34 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 												#} Following returns debug
 												true,true
 										);
-										
+
 										#} add to debug list + save tried settings
 										$emailDebugs[] = $emailDebug;
 										$emailSettingsTried[] = json_encode($smtpSettings);
 
 										#} Analysis of send - THIS ISN'T DRY
 										#success: or error:
-										if (substr($emailDebug,0,6) == 'error:'){
-											
+							if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 											$emailWasSent = false;									
 											$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
-										
+
 											#} various:
 											if ($emailDebug == 'error:SMTP connect() failed.'){
 													$emailSentMsg .= "
 				".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
 											}
-									
-									
-										} else if (substr($emailDebug,0,8) == 'success:'){
-											
+
+							} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 											$emailWasSent = true;								
 											$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
-									
-										}									
 
-										$testCount++;
-										
-										
-								} // if not already tested
-								
-								
-								
 							}
 
-						
-						/*
-						#} If user setting to be autosaved, do so
-						if (isset($emailWasSent) && $emailWasSent && isset($_POST['autosave'])){
-						
-							#} Get settings obj
-							$userSettingsObj = $ecUser->getProspectrrSettings();
-							#$userSettings = $userSettingsObj->getAll();
-						
-							#} Back up prev?
-							$prevKey = $userSettingsObj->get('bingapikey');
-							if (isset($prevKey) && !empty($prevKey)){
-								
-								# later maybe.
-									
-							}
-						
-							#} brutal update
-							$userSettingsObj->update('sendfromemail',$sendFromEmail);
-							$userSettingsObj->update('sendfromname',$sendFromName);
-							$userSettingsObj->update('smtphost',$smtpSettings['host']);
-							$userSettingsObj->update('smtpport',$smtpSettings['port']);
-							# use enc $userSettingsObj->update('smtpuser',$smtpSettings['user']);
-							
-							#} Also save this if was successful!
-							$userSettingsObj->update('smtpsecurity',$smtpSettings['security']);
-								
-							#} We also update this, which says "last successful validation of an API"
-							$userSettingsObj->update('smtplive',time());
-							
-							#} Encoded User + Pass
-				
-								#} Encryption
-								if (!defined('PHPENCINC')) { require('includes/phpenc.php');	define('PHPENCINC',1); }
-							
-								#} User
-								$tempUserK = phpe_key();
-								$encuser = phpe_enc($smtpSettings['user'], $tempUserK);
-								#rh $updatedSettings['smtpuser'] = $encuser;
-								#} BLATENTLY breaking the rules by base64encoding these here.... see phpe_enc
-								#} But they wouldn't sit well in db any other way?
-								$ecUser->setMeta('smusk',base64_encode($tempUserK));
-								$ecUser->setMeta('smtpuser',base64_encode($encuser));
-								
-								#} PASS
-								if (!empty($smtpSettings['pass']) && strlen($smtpSettings['pass']) < 150){
-								
-									$tempPK = phpe_key();
-									$encp = phpe_enc($smtpSettings['pass'], $tempPK);
-									#rh $updatedSettings['smtppass'] = $encp;
-									#} BLATENTLY breaking the walls by base64encoding these here.... see phpe_enc
-									#} But they wouldn't sit well in db any other way?
-									$ecUser->setMeta('smpwk',base64_encode($tempPK));
-									$ecUser->setMeta('smtppw',base64_encode($encp));
-			
-								}
-							
+										++$testCount; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							} // if not already tested
 						}
-						*/
-						
 						#} Return
 
 						#} SUPER ADMIN return full debug: 
@@ -1504,28 +1294,23 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 						// from 2.94.2 return debugs
 						$debugArr = array('details'=>true,'sent'=>$emailWasSent,'sentmsg'=>$emailSentMsg, 'tried'=>$testCount,'finset'=>$smtpSettings,'debugs'=>$emailDebugs);
 						return $debugArr;
-				
+
 					} else {
-					
+
 						# rather than erroring, just send as response
 						return array('details'=>true,'sent'=>false,'stage'=>3);
-						
-					}	
-				
+					}
 				} else {
-					
+
 					# rather than erroring, just send as response
 					return array('details'=>true,'sent'=>false,'stage'=>2);
-					
-				}	
-				
-				
+				}
 			} else {
-				
+
 				# rather than erroring, just send as response
 				return array('details'=>true,'sent'=>false,'stage'=>1);
-			}	
-	
+			}
+
 	// / no empties
 	} else {
 
@@ -1533,7 +1318,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 		$ret['errors'] = 'params';
 		return $ret;
 	}
-	
+
 }
 
 /* 
@@ -1718,7 +1503,6 @@ function jpcrm_mail_delivery_send_via_gmail_oauth( $args ){
 
 }
 
-
 function zeroBSCRM_mailDelivery_retrieveACCByKey($key=-1){
 
 	if ($key !== -1){
@@ -1766,10 +1550,8 @@ function zeroBSCRM_mailDelivery_retrieveDefaultMDAcc(){
 
 		}
 
-
 		return false;
 }
-
 
 // makes a simple array key for this index, comparing to existing :)
 // some kind of semi-lazy permalink gen... lol @ self (though works)
@@ -1854,9 +1636,6 @@ function zeroBSCRM_mailDelivery_checkPort($port=false,$host='portquiz.net'){
 	return array(false,$errno,$errstr);
 
 }
-
-
-
 
 /* ======================================================
   Page/Shortcode stuff

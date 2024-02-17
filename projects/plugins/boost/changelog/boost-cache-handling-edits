@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Boost: delete the cache when posts are edited or comments made.

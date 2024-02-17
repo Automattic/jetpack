@@ -55,6 +55,11 @@ Genericons
 	content: "\f415";
 }
 
+/* Bluesky */
+.jetpack-social-navigation-genericons a[href*="bsky.app"]:before {
+	content: "\f10f";
+}
+
 /* CodePen */
 .jetpack-social-navigation-genericons a[href*="codepen.io"]:before {
 	content: "\f216";
@@ -199,6 +204,11 @@ Genericons
 .jetpack-social-navigation-genericons a[href*="wordpress.com"]:before,
 .jetpack-social-navigation-genericons a[href*="wordpress.org"]:before {
 	content: "\f205";
+}
+
+/* X */
+.jetpack-social-navigation-genericons a[href*="x.com"]:before {
+	content: "\f10e";
 }
 
 /* YouTube */

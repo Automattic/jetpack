@@ -58,10 +58,10 @@ const BLOCK_NAME = 'premium-content';
 
 function Edit( props ) {
 	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
-	const { isPreview, selectedPlanId } = props.attributes;
+	const { isPreview, selectedPlanIds } = props.attributes;
 	const { clientId, isSelected, className, setAttributes } = props;
 
-	const setSelectedProductId = productId => setAttributes( { selectedPlanId: productId } );
+	const setSelectedProductIds = productIds => setAttributes( { selectedPlanIds: productIds } );
 
 	const { isApiLoading, selectedBlock } = useSelect( selector => ( {
 		selectedBlock: selector( blockEditorStore ).getSelectedBlock(),
@@ -116,8 +116,8 @@ function Edit( props ) {
 						blockName={ BLOCK_NAME }
 						clientId={ clientId }
 						productType={ PRODUCT_TYPE_SUBSCRIPTION }
-						selectedProductId={ selectedPlanId }
-						setSelectedProductId={ setSelectedProductId }
+						selectedProductIds={ selectedPlanIds }
+						setSelectedProductIds={ setSelectedProductIds }
 					/>
 					<ViewSelector
 						options={ tabs }

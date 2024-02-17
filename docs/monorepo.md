@@ -42,7 +42,7 @@ All GitHub Actions configuration for the monorepo, including CI, lives in `.gith
 
 ## Compatibility
 
-All projects should be compatible with PHP versions WordPress supports. That's currently PHP 5.6 to 8.0.
+All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.0 to 8.3.
 
 ## First Time
 
@@ -210,7 +210,7 @@ If a project contains PHP tests (typically PHPUnit), it must define `.scripts.te
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
-Tests are run with a variety of supported PHP versions from 5.6 to 8.0. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
+Tests are run with a variety of supported PHP versions from 7.0 to 8.3. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
 
 #### PHP tests for non-plugins
 
@@ -218,7 +218,7 @@ For all project types other than WordPress plugins, the necessary version of PHP
 
 We currently make use of the following packages in testing; it's encouraged to use these rather than introducing other tools that serve the same purpose.
 
-* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 5.7 to 9.0, to support PHP 5.6 to 8.0.
+* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 6.5 to 9.0, to support PHP 7.0 to 8.3.
   * Do not use `Yoast\PHPUnitPolyfills\TestCases\TestCase` or `Yoast\PHPUnitPolyfills\TestCases\XTestCase`. Just use the `@before`, `@after`, `@beforeClass`, and `@afterClass` annotations directly.
 * PHPUnit's built-in mocking is used for class mocks.
 * [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
@@ -277,15 +277,7 @@ If `.extra.autotagger` is set to an object with falsey value for `v` (i.e. if `.
 
 Note that, for this to work, you'll need to create a secret `API_TOKEN_GITHUB` in the mirror repo. The value of the secret must be a GitHub access token. See PCYsg-xsv-p2#mirror-repo-secrets for details.
 
-This is intended to work in combination with [Changelogger](#jetpack-changelogger): When any change files are present in the project, a `-alpha` version entry will be written to the changelog so the autotagging will not be triggered. To release a new version, you'd do the following:
-
-1. (optional) Activate the "Release Lock" (see PCYsg-zQS-p2#generating-a-new-changelog).
-2. Use `tools/changelogger-release.sh` to create a PR rolling the change files into a new changelog entry.
-3. Push and merge that PR.
-4. If you used the Release Lock in step 1, go turn it off. If you didn't, check that no one merged any PRs in between steps 2 and 3 that added change files to the projects being released.
-   * If they did, you'll likely have to create a release branch in the affected projects' mirror repos and manually tag.
-5. Verify that the Build workflow run for your PR's merge to trunk succeeded. [This search](https://github.com/Automattic/jetpack/actions/workflows/build.yml?query=branch%3Atrunk) will show the runs of that workflow for all merges to trunk.
-   * If it failed, you can try re-running it as long as no other PRs were merged. If some were merged, you'll have to manually tag the affected projects.
+This is intended to work in combination with [Changelogger](#jetpack-changelogger): When any change files are present in the project, a `-alpha` version entry will be written to the changelog so the autotagging will not be triggered. To release a new plugin version, see: PCYsg-SU8-p2
 
 ### Auto-release
 
@@ -311,7 +303,6 @@ See PCYsg-xsv-p2#mirror-repo-secrets for details.
 
 Note the following will also be done by the build process:
 
-* In `package.json`, the `.engines` will be deleted. If there is a `.publish_engines`, it will be renamed to `.engines`.
 * Entries will be prepended to `.npmignore` to ignore `.github` and `composer.json` during the NPM publish. This file will be created if not present.
 
 Before you create the first release tag, you may want to check out the mirror and run `npm publish --dry-run` to ensure that only the files you want published will be published.

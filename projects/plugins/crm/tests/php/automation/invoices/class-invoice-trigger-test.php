@@ -3,10 +3,12 @@
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Invoice_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Updated;
+use Automattic\Jetpack\CRM\Entities\Invoice;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
@@ -43,19 +45,20 @@ class Invoice_Trigger_Test extends JPCRM_Base_Test_Case {
 		// Init the Invoice_Updated trigger.
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$invoice_data = $this->automation_faker->invoice_data();
+		/** @var Invoice $invoice */
+		$invoice      = $this->automation_faker->invoice();
+		$invoice_data = new Invoice_Data( $invoice );
 
 		// We expect the workflow to be executed on invoice_update event with the invoice data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $invoice_data )
+			$trigger,
+			$invoice_data
 		);
 
 		// Run the invoice_update action.
-		do_action( 'jpcrm_invoice_updated', $invoice_data );
+		do_action( 'jpcrm_invoice_updated', $invoice );
 	}
 
 	/**
@@ -76,19 +79,20 @@ class Invoice_Trigger_Test extends JPCRM_Base_Test_Case {
 		// Init the Invoice_Updated trigger.
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$invoice_data = $this->automation_faker->invoice_data();
+		/** @var Invoice $invoice */
+		$invoice      = $this->automation_faker->invoice();
+		$invoice_data = new Invoice_Data( $invoice );
 
 		// We expect the workflow to be executed on invoice_status_update event with the invoice data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $invoice_data )
+			$trigger,
+			$invoice_data
 		);
 
 		// Run the invoice_status_update action.
-		do_action( 'jpcrm_invoice_status_updated', $invoice_data );
+		do_action( 'jpcrm_invoice_status_updated', $invoice );
 	}
 
 	/**
@@ -109,19 +113,20 @@ class Invoice_Trigger_Test extends JPCRM_Base_Test_Case {
 		// Init the Invoice_Created trigger.
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$invoice_data = $this->automation_faker->invoice_data();
+		/** @var Invoice $invoice */
+		$invoice      = $this->automation_faker->invoice();
+		$invoice_data = new Invoice_Data( $invoice );
 
 		// We expect the workflow to be executed on invoice_created event with the invoice data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $invoice_data )
+			$trigger,
+			$invoice_data
 		);
 
 		// Run the invoice_created action.
-		do_action( 'jpcrm_invoice_created', $invoice_data );
+		do_action( 'jpcrm_invoice_created', $invoice );
 	}
 
 	/**
@@ -142,18 +147,19 @@ class Invoice_Trigger_Test extends JPCRM_Base_Test_Case {
 		// Init the Invoice_Deleted trigger.
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$invoice_data = $this->automation_faker->invoice_data();
+		/** @var Invoice $invoice */
+		$invoice      = $this->automation_faker->invoice();
+		$invoice_data = new Invoice_Data( $invoice );
 
 		// We expect the workflow to be executed on invoice_deleted event with the invoice data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $invoice_data )
+			$trigger,
+			$invoice_data
 		);
 
 		// Run the invoice_deleted action.
-		do_action( 'jpcrm_invoice_deleted', $invoice_data );
+		do_action( 'jpcrm_invoice_deleted', $invoice );
 	}
 }

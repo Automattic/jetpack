@@ -1318,6 +1318,247 @@ class Share_Twitter extends Sharing_Source {
 }
 
 /**
+ * X sharing button.
+ *
+ * While the old Twitter button had an official button,
+ * this new X button does not, since there is no official X button yet.
+ */
+class Share_X extends Sharing_Source {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'x';
+
+	/**
+	 * Service icon font code.
+	 *
+	 * @var string
+	 */
+	public $icon = '\f10e';
+
+	/**
+	 * Length of a URL on X.
+	 * https://developer.twitter.com/en/docs/tco
+	 *
+	 * @var int
+	 */
+	public $short_url_length = 24;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param int   $id       Sharing source ID.
+	 * @param array $settings Sharing settings.
+	 */
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+
+		if ( 'official' === $this->button_style ) {
+			$this->smart = true;
+		} else {
+			$this->smart = false;
+		}
+	}
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'X', 'jetpack' );
+	}
+
+	/**
+	 * Get the markup of the sharing button.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public function get_display( $post ) {
+		$via = static::sharing_x_via( $post );
+
+		if ( $via ) {
+			$via = 'data-via="' . esc_attr( $via ) . '"';
+		} else {
+			$via = '';
+		}
+
+		$related = static::get_related_accounts( $post );
+		if ( ! empty( $related ) && $related !== $via ) {
+			$related = 'data-related="' . esc_attr( $related ) . '"';
+		} else {
+			$related = '';
+		}
+
+		if ( $this->smart ) {
+			$share_url  = $this->get_share_url( $post->ID );
+			$post_title = $this->get_share_title( $post->ID );
+			return sprintf(
+				'<a href="https://x.com/share" class="twitter-share-button" data-url="%1$s" data-text="%2$s" %3$s %4$s>%5$s</a>',
+				esc_url( $share_url ),
+				esc_attr( $post_title ),
+				$via,
+				$related,
+				esc_html__( 'Post', 'jetpack' )
+			);
+		} else {
+			if (
+				/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+				apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'x' )
+			) {
+				sharing_register_post_for_share_counts( $post->ID );
+			}
+			return $this->get_link(
+				$this->get_process_request_url( $post->ID ),
+				_x( 'X', 'share to', 'jetpack' ),
+				__( 'Click to share on X', 'jetpack' ),
+				'share=x',
+				'sharing-x-' . $post->ID
+			);
+		}
+	}
+
+	/**
+	 * Determine the X 'via' value for a post.
+	 *
+	 * @param  WP_Post|int $post Post object or post ID.
+	 * @return string X handle without the preceding @.
+	 **/
+	public static function sharing_x_via( $post ) {
+		$post = get_post( $post );
+		/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+		$twitter_site_tag_value = apply_filters(
+			'jetpack_twitter_cards_site_tag',
+			'',
+			/** This action is documented in modules/sharedaddy/sharing-sources.php */
+			array( 'twitter:creator' => apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID ) )
+		);
+
+		/*
+		 * Hack to remove the unwanted behavior of adding 'via @jetpack' which
+		 * was introduced with the adding of the Twitter cards.
+		 * This should be a temporary solution until a better method is setup.
+		 */
+		if ( 'jetpack' === $twitter_site_tag_value ) {
+			$twitter_site_tag_value = '';
+		}
+
+		/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+		$twitter_site_tag_value = apply_filters( 'jetpack_sharing_twitter_via', $twitter_site_tag_value, $post->ID );
+
+		// Strip out anything other than a letter, number, or underscore.
+		// This will prevent the inadvertent inclusion of an extra @, as well as normalizing the handle.
+		return preg_replace( '/[^\da-z_]+/i', '', $twitter_site_tag_value );
+	}
+
+	/**
+	 * Determine the 'related' X accounts for a post.
+	 *
+	 * @param  WP_Post|int $post Post object or post ID.
+	 * @return string Comma-separated list of X handles.
+	 **/
+	public static function get_related_accounts( $post ) {
+		$post = get_post( $post );
+		/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+		$related_accounts = apply_filters( 'jetpack_sharing_twitter_related', array(), $post->ID );
+
+		// Example related string: account1,account2:Account 2 description,account3
+		$related = array();
+
+		foreach ( $related_accounts as $related_account_username => $related_account_description ) {
+			// Join the description onto the end of the username
+			if ( $related_account_description ) {
+				$related_account_username .= ':' . $related_account_description;
+			}
+
+			$related[] = $related_account_username;
+		}
+
+		return implode( ',', $related );
+	}
+
+	/**
+	 * Add content specific to a service in the footer.
+	 */
+	public function display_footer() {
+		if ( $this->smart ) {
+			?>
+			<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+			<?php
+		} else {
+			$this->js_dialog( $this->shortname, array( 'height' => 350 ) );
+		}
+	}
+
+	/**
+	 * Process sharing request. Add actions that need to happen when sharing here.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param array   $post_data Array of information about the post we're sharing.
+	 *
+	 * @return void
+	 */
+	public function process_request( $post, array $post_data ) {
+		$post_title = $this->get_share_title( $post->ID );
+		$post_link  = $this->get_share_url( $post->ID );
+
+		if ( function_exists( 'mb_stripos' ) ) {
+			$strlen = 'mb_strlen';
+			$substr = 'mb_substr';
+		} else {
+			$strlen = 'strlen';
+			$substr = 'substr';
+		}
+
+		$via     = static::sharing_x_via( $post );
+		$related = static::get_related_accounts( $post );
+		if ( $via ) {
+			$sig = " via @$via";
+			if ( $related === $via ) {
+				$related = false;
+			}
+		} else {
+			$via = false;
+			$sig = '';
+		}
+
+		$suffix_length = $this->short_url_length + $strlen( $sig );
+		// $sig is handled by twitter in their 'via' argument.
+		// $post_link is handled by twitter in their 'url' argument.
+		if ( 280 < $strlen( $post_title ) + $suffix_length ) {
+			// The -1 is for "\xE2\x80\xA6", a UTF-8 ellipsis.
+			$text = $substr( $post_title, 0, 280 - $suffix_length - 1 ) . "\xE2\x80\xA6";
+		} else {
+			$text = $post_title;
+		}
+
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		$url         = $post_link;
+		$twitter_url = add_query_arg(
+			rawurlencode_deep( array_filter( compact( 'via', 'related', 'text', 'url' ) ) ),
+			'https://x.com/intent/tweet'
+		);
+
+		parent::redirect_request( $twitter_url );
+	}
+
+	/**
+	 * Does this sharing source have a custom style.
+	 *
+	 * @return bool
+	 */
+	public function has_custom_button_style() {
+		return $this->smart;
+	}
+}
+
+/**
  * Reddit sharing button.
  */
 class Share_Reddit extends Sharing_Source {

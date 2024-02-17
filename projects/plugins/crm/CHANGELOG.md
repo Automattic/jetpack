@@ -5,6 +5,94 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.4.0] - 2024-01-23
+### Added
+- Database: Added preliminary support for SQLite. [#34868]
+- Settings: Add setting to fine tune the Total Value field calculation for contacts and companies. [#34957]
+
+### Fixed
+- Backend: Add fallback for dev site detection. [#34867]
+- Contacts: Updated default statuses. [#34892]
+- Custom fields: More robust fallbacks for slug creation. [#35175]
+- Dashboard: Adjust queries for SQLite compatibility.
+- REST API: Allow calls when not using pretty permalinks. [#35201]
+- Database: Ensure logs table is initiated with all columns. [#34871]
+- Fixed: Escape output in typeaheads. [#35171]
+- Invoices: Fixed total amount in preview and pdf when refunds or credit notes are applied. [#34211]
+- Jetpack Forms: Detect and process custom date fields correctly.
+- Custom fields: Gracefully handle invalid date field data. [#34890]
+- Listview: Better output escaping in listviews. [#35140]
+- System Assistant: Fix broken links on some tasks.
+- Migrations: Fix issue where task_offset_fix migration would not mark as complete on some timezones. [#34873]
+- Templates: Ensure file paths are valid before trying to load. [#34949]
+- Transactions: Better support for SQLite. [#34868]
+
+## [6.3.2] - 2023-12-19
+### Changed
+- Settings: Make support document links more consistent. [#34695]
+
+### Fixed
+- Segments: Fixed an issue preventing segments from being deleted. [#34690]
+
+## [6.3.1] - 2023-12-14
+### Added
+- WooSync: New `jpcrm_woo_sync_order_data` hook. [#34212]
+
+### Fixed
+- Bulk actions: Stricter permissions checks. [#34586]
+- OAuth Connection: Updated typo to remove plural connection"s", and removed doc reference for whitelabel builds. [#34446]
+- Placeholders: Fixing quote placeholders on the quote template, client portal, pdf and emails. [#34490]
+- Quotes: Consistent rendering of dates in placeholders. [#34490]
+- Quotes: Consistent rendering of values and currency in placeholders. [#34490]
+
+## [6.3.0] - 2023-11-15
+### Added
+- API: Add support for creating transactions with custom fields. [#33645]
+
+### Changed
+- Requires PHP 7.4 or higher. [#33806]
+- Requires WordPress 6.0 or higher. [#33805]
+
+### Fixed
+- API: Allow events endpoint to be filtered by owner. [#33789]
+- API: The `create_event` endpoint no longer throws a 100 error. [#33712]
+- API: Restrict what owner data is returned with events endpoint. [#33736]
+- Backend: Prevent error if OpenSSL functions aren't available in PHP. [#33605]
+- Backend: Changing how styles are added to the page on several stand-alone pages to prevent WordPress 6.4 compatibility issues. [#33678]
+- Client Portal: Better PHP 8.2 support. [#33740]
+- Contacts: Fixed display issues on the Add and Edit pages that occurred when moving fields. [#33762]
+- Listviews: Remove legacy code. [#33718]
+- Mail Delivery: Removed usage of deprecated function utf8_encode. [#33777]
+- Quote Templates: Fix issue with notes field rendering HTML entities in some cases. [#33614]
+- Quote Templates: Make sure quote titles with apostrophes do not have backslashes added when rendered. [#33596]
+- WooSync: Catch PHP error in Client Portal invoice if WooCommerce is disabled. [#33759]
+- WooSync: Contacts can now be assigned to existing companies. [#33711]
+
+## [6.2.0] - 2023-10-11
+### Added
+- Tests: Add mock globals for testing. [#32755]
+- Automations: Add new backend in preparation for future release.
+
+### Changed
+- Quotes: Allow admin users to accept quotes. [#32738]
+- Tasks: Use consistent language in code. [#33221]
+- Increase PHP required version to 7.3. [#33003]
+- Updated package dependencies.
+
+### Fixed
+- API: Rewrite rules are now flushed after enabling module. [#32901]
+- API: Task reminder param is no longer ignored. [#33194]
+- Better PHP 8.2 support. [#33421]
+- CRM Forms: Removed reference to old branding. [#32903]
+- CSV Importer: Fixed assignment to companies by name. [#33097]
+- Custom Fields: Corrected bug that prevented new address custom fields from being shown. [#33056]
+- Invoices: Handle status translations consistently. [#32909]
+- Segments: Fixed error 219 occurring when using date ranges. [#32379]
+- Tags: Better slug generation and added tag slug migration. [#33121]
+- Tags: Prevent duplicate slugs, and adding more robust slug fallback support. [#33096]
+- Tasks: Corrected placeholders for contacts and companies in the task reminder email. [#32375]
+- Transactions: Filters now work for custom statuses. [#33476]
+
 ## [6.1.0] - 2023-07-24
 ### Added
 - Listing pages: Add a new setting that allows listing pages to utilize the full width of the screen [#31904]
@@ -204,6 +292,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added a migration to remove outdated AKA lines
 
 [5.5.4-a.1]: https://github.com/Automattic/jetpack-crm/compare/v5.5.3...v5.5.4-a.1
+[6.4.0]: https://github.com/Automattic/jetpack-crm/compare/6.3.2...6.4.0
+[6.3.2]: https://github.com/Automattic/jetpack-crm/compare/6.3.1...6.3.2
+[6.3.1]: https://github.com/Automattic/jetpack-crm/compare/6.3.0...6.3.1
+[6.3.0]: https://github.com/Automattic/jetpack-crm/compare/6.2.0...6.3.0
+[6.2.0]: https://github.com/Automattic/jetpack-crm/compare/6.1.0...6.2.0
 [6.1.0]: https://github.com/Automattic/jetpack-crm/compare/6.0.0...6.1.0
 [6.0.0]: https://github.com/Automattic/jetpack-crm/compare/5.8.0...6.0.0
 [5.8.0]: https://github.com/Automattic/jetpack-crm/compare/5.7.0...5.8.0

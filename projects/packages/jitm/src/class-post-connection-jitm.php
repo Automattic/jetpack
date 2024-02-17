@@ -360,7 +360,8 @@ class Post_Connection_JITM extends JITM {
 			$this->tracking->record_user_event(
 				'jitm_view_client',
 				array(
-					'jitm_id' => $envelope->id,
+					'jitm_id'           => $envelope->id,
+					'jitm_message_path' => $message_path,
 				)
 			);
 
@@ -405,6 +406,7 @@ class Post_Connection_JITM extends JITM {
 			}
 
 			$envelope->content->icon = $this->generate_icon( $envelope->content->icon, $full_jp_logo_exists );
+			$envelope->message_path  = esc_attr( $message_path );
 
 			$stats->add( 'jitm', $envelope->id . '-viewed' );
 			$stats->do_server_side_stats();

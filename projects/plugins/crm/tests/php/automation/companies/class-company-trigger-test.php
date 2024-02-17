@@ -3,10 +3,12 @@
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Company_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Company_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Company_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Company_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Company_Updated;
+use Automattic\Jetpack\CRM\Entities\Company;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
@@ -44,18 +46,18 @@ class Company_Trigger_Test extends JPCRM_Base_Test_Case {
 		$trigger->init( $workflow );
 
 		// Fake event data.
-		$company_data = $this->automation_faker->company_data();
+		$company = $this->automation_faker->company();
 
 		// We expect the workflow to be executed on company_update event with the company data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $company_data )
+			$trigger,
+			new Company_Data( $company )
 		);
 
 		// Run the company_update action.
-		do_action( 'jpcrm_company_updated', $company_data );
+		do_action( 'jpcrm_company_updated', $company );
 	}
 
 	/**
@@ -77,18 +79,19 @@ class Company_Trigger_Test extends JPCRM_Base_Test_Case {
 		$trigger->init( $workflow );
 
 		// Fake event data.
-		$company_data = $this->automation_faker->company_data();
+		/** @var Company $company */
+		$company = $this->automation_faker->company();
 
 		// We expect the workflow to be executed on company_status_update event with the company data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $company_data )
+			$trigger,
+			new Company_Data( $company )
 		);
 
 		// Run the company_status_update action.
-		do_action( 'jpcrm_company_status_updated', $company_data );
+		do_action( 'jpcrm_company_status_updated', $company );
 	}
 
 	/**
@@ -110,18 +113,19 @@ class Company_Trigger_Test extends JPCRM_Base_Test_Case {
 		$trigger->init( $workflow );
 
 		// Fake event data.
-		$company_data = $this->automation_faker->company_data();
+		/** @var Company $company */
+		$company = $this->automation_faker->company();
 
 		// We expect the workflow to be executed on company_created event with the company data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $company_data )
+			$trigger,
+			new Company_Data( $company )
 		);
 
 		// Run the company_created action.
-		do_action( 'jpcrm_company_created', $company_data );
+		do_action( 'jpcrm_company_created', $company );
 	}
 
 	/**
@@ -143,17 +147,18 @@ class Company_Trigger_Test extends JPCRM_Base_Test_Case {
 		$trigger->init( $workflow );
 
 		// Fake event data.
-		$company_data = $this->automation_faker->company_data();
+		/** @var Company $company */
+		$company = $this->automation_faker->company();
 
 		// We expect the workflow to be executed on company_deleted event with the company data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $company_data )
+			$trigger,
+			new Company_Data( $company )
 		);
 
 		// Run the company_deleted action.
-		do_action( 'jpcrm_company_deleted', $company_data );
+		do_action( 'jpcrm_company_deleted', $company );
 	}
 }

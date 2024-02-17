@@ -92,18 +92,6 @@ class Jetpack_Publicize {
 			$publicize    = new Publicize();
 			$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
 		}
-
-		add_action(
-			'jetpack_register_gutenberg_extensions',
-			function () {
-				global $publicize;
-				if ( $publicize->current_user_can_access_publicize_data() ) {
-					Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
-				} else {
-					Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
-				}
-			}
-		);
 	}
 }
 

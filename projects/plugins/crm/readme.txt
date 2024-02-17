@@ -1,10 +1,10 @@
 === Jetpack CRM - Clients, Leads, Invoices, Billing, Email Marketing, & Automation ===
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
-Tested up to: 6.3
-Stable tag: 6.0.0
-Requires at least: 5.0
-Requires PHP: 7.3
+Tested up to: 6.4
+Stable tag: 6.3.2
+Requires at least: 6.0
+Requires PHP: 7.4
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -389,18 +389,25 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.1.0 - 2023-07-24
+### 6.4.0 - 2024-01-23
 #### Added
-- Listing pages: Add a new setting that allows listing pages to utilize the full width of the screen
-
-#### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.3
+- Database: Added preliminary support for SQLite.
+- Settings: Add setting to fine tune the Total Value field calculation for contacts and companies.
 
 #### Fixed
-- API: Fixed error 200 while saving new api connections
-- Contacts: Fix bug that prevented the creation of contacts WP user for the Client Portal
-- Contacts: Fix Filter options not available on the main contacts listing
-- File Uploads: Fix bug that prevented file uploads from working in environments where the PHP finfo_open function was not available
-- Menu: Improved alignment for items in the menu
-- OAuth/Gmail: Fix to enable sending links and images in the email content, supporting text/plain
-- Segments: Fix bug that prevented dates to be saved in some environments
+- Backend: Add fallback for dev site detection.
+- Contacts: Updated default statuses.
+- Custom fields: More robust fallbacks for slug creation.
+- Dashboard: Adjust queries for SQLite compatibility.
+- REST API: Allow calls when not using pretty permalinks.
+- Database: Ensure logs table is initiated with all columns.
+- Fixed: Escape output in typeaheads.
+- Invoices: Fixed total amount in preview and pdf when refunds or credit notes are applied.
+- Jetpack Forms: Detect and process custom date fields correctly.
+- Custom fields: Gracefully handle invalid date field data.
+- Listview: Better output escaping in listviews.
+- System Assistant: Fix broken links on some tasks.
+- Migrations: Fix issue where task_offset_fix migration would not mark as complete on some timezones.
+- Templates: Ensure file paths are valid before trying to load.
+- Transactions: Better support for SQLite.
+

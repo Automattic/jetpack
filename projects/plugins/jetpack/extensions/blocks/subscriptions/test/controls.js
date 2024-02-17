@@ -1,30 +1,37 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { addFilter, removeFilter } from '@wordpress/hooks';
 import { DEFAULT_FONTSIZE_VALUE } from '../constants';
 import SubscriptionsInspectorControls from '../controls';
 
-// Mock `useSetting` from `@wordpress/block-editor` to override a setting.
-// This approach was recommended at p1667855007139489-slack-C45SNKV4Z
-jest.mock( '@wordpress/block-editor/build/components/use-setting', () => {
-	const { default: useSetting } = jest.requireActual(
-		'@wordpress/block-editor/build/components/use-setting'
-	);
-	const settings = {
-		'typography.customFontSize': true,
-		'color.defaultGradients': true,
-		'color.defaultPalette': true,
-	};
-	const aliases = {
-		'color.palette.default': 'color.palette',
-		'color.gradients.default': 'color.gradients',
-	};
-	return path => {
-		let ret = settings.hasOwnProperty( path ) ? settings[ path ] : useSetting( path );
-		if ( ret === undefined && aliases.hasOwnProperty( path ) ) {
-			ret = useSetting( aliases[ path ] );
+// These settings need to be set. Easiest way to do that seems to be to use a hook.
+const overrideSettings = {
+	'typography.customFontSize': true,
+	'color.defaultGradients': true,
+	'color.defaultPalette': true,
+	'color.palette.default': [ { name: 'White', slug: 'white', color: '#ffffff' } ],
+	'color.gradients.default': [
+		{
+			name: 'Monochrome',
+			gradient: 'linear-gradient(135deg,rgb(0,0,0) 0%,rgb(255,255,255) 100%)',
+			slug: 'monochrome',
+		},
+	],
+};
+beforeAll( () => {
+	addFilter(
+		'blockEditor.useSetting.before',
+		'extensions/blocks/button/test/controls',
+		( value, path ) => {
+			if ( overrideSettings.hasOwnProperty( path ) ) {
+				return overrideSettings[ path ];
+			}
+			return value;
 		}
-		return ret;
-	};
+	);
+} );
+afterAll( () => {
+	removeFilter( 'blockEditor.useSetting.before', 'extensions/blocks/button/test/controls' );
 } );
 
 jest.mock( '@wordpress/notices', () => {}, { virtual: true } );
@@ -211,6 +218,7 @@ describe( 'Inspector controls', () => {
 			await user.click( screen.getByLabelText( 'Show subscriber count' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
+				includeSocialFollowers: false,
 				showSubscribersTotal: false,
 			} );
 		} );
@@ -222,7 +230,7 @@ describe( 'Inspector controls', () => {
 			await user.click( screen.getByLabelText( 'Include social followers in count' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
-				includeSocialFollowers: true,
+				includeSocialFollowers: false,
 			} );
 		} );
 

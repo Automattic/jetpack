@@ -23,7 +23,10 @@ type AutoConversionToggleProps = {
  * @param {AutoConversionToggleProps} props - Component props.
  * @returns {React.ReactElement} - JSX.Element
  */
-const AutoConversionToggle: React.FC< AutoConversionToggleProps > = props => {
+const AutoConversionToggle: React.FC< AutoConversionToggleProps > = ( {
+	toggleClass,
+	children,
+} ) => {
 	const { isEnabled, isUpdating } = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
 		return {
@@ -36,18 +39,18 @@ const AutoConversionToggle: React.FC< AutoConversionToggleProps > = props => {
 
 	const toggleStatus = useCallback( () => {
 		const newOption = {
-			image: ! isEnabled,
+			enabled: ! isEnabled,
 		};
 		updateOptions( newOption );
 	}, [ isEnabled, updateOptions ] );
 
 	return (
 		<ToggleControl
-			className={ props.toggleClass }
+			className={ toggleClass }
 			disabled={ isUpdating }
 			checked={ isEnabled }
 			onChange={ toggleStatus }
-			label={ props.children }
+			label={ children }
 		/>
 	);
 };

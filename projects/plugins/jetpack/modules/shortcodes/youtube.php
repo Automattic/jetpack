@@ -34,7 +34,7 @@
  * @return string The content with YouTube embeds replaced with YouTube shortcodes.
  */
 function youtube_embed_to_short_code( $content ) {
-	if ( ! is_string( $content ) || false === strpos( $content, 'youtube.com' ) ) {
+	if ( ! is_string( $content ) || ! str_contains( $content, 'youtube.com' ) ) {
 		return $content;
 	}
 
@@ -132,16 +132,23 @@ function youtube_link_callback( $matches ) {
 /**
  * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
  *
- * @param string $url
- * @return string The normalized URL
+ * @param string|array $url Youtube URL.
+ * @return string|false The normalized URL or false if input is invalid.
  */
 if ( ! function_exists( 'youtube_sanitize_url' ) ) :
 	/**
 	 * Clean up Youtube URL to match a single format.
 	 *
-	 * @param string $url Youtube URL.
+	 * @param string|array $url Youtube URL.
 	 */
 	function youtube_sanitize_url( $url ) {
+		if ( is_array( $url ) && isset( $url['url'] ) ) {
+			$url = $url['url'];
+		}
+		if ( ! is_string( $url ) ) {
+			return false;
+		}
+
 		$url = trim( $url, ' "' );
 		$url = trim( $url );
 		$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
@@ -342,7 +349,7 @@ function youtube_id( $url ) {
 		$layout = $is_amp ? 'layout="responsive" ' : '';
 
 		$html = sprintf(
-			'<iframe class="youtube-player" width="%s" height="%s" %ssrc="%s" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"></iframe>',
+			'<iframe class="youtube-player" width="%s" height="%s" %ssrc="%s" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe>',
 			esc_attr( $w ),
 			esc_attr( $h ),
 			$layout,

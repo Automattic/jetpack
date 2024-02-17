@@ -53,7 +53,8 @@
 					"source": "attribute",
 					"attribute": "src"
 				}
-			}
+			},
+			"default": []
 		},
 		"promptLabel": {
 			"type": "string",
@@ -83,7 +84,14 @@
 		"tagsAdded": {
 			"type": "boolean",
 			"default": false
+		},
+		"isBloganuary": {
+			"type": "boolean",
+			"default": false
 		}
 	},
-	"editorScript": "file:../editor.js"
+	"styles": [
+		{ "name": "block", "label": "Block", "isDefault": true },
+		{ "name": "quote", "label": "Quote" }
+	]
 }

@@ -1,6 +1,6 @@
 import WpPage from '../wp-page.js';
-import logger from '../../logger.cjs';
-import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
+import logger from '../../logger.js';
+import { resolveSiteUrl } from '../../helpers/utils-helper.js';
 
 export default class JetpackDashboardPage extends WpPage {
 	constructor( page ) {

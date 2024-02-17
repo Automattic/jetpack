@@ -37,7 +37,7 @@ const ProductDetailTableColumn = ( {
 	tier,
 	trackProductButtonClick,
 } ) => {
-	const { siteSuffix, myJetpackUrl } = window?.myJetpackInitialState ?? {};
+	const { siteSuffix, myJetpackCheckoutUri } = window?.myJetpackInitialState ?? {};
 
 	// Extract the product details.
 	const {
@@ -61,8 +61,10 @@ const ProductDetailTableColumn = ( {
 	const { run: runCheckout, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
 		productSlug: wpcomProductSlug,
-		redirectUrl: postActivationUrl || myJetpackUrl,
+		redirectUrl: postActivationUrl.replace( /(^.*\/wp-admin\/)/i, '' ) || myJetpackCheckoutUri,
+		connectAfterCheckout: true,
 		siteSuffix,
+		useBlogIdSuffix: true,
 	} );
 
 	// Register the click handler for the product button.
@@ -72,9 +74,9 @@ const ProductDetailTableColumn = ( {
 	}, [ trackProductButtonClick, onProductButtonClick, runCheckout, detail, tier ] );
 
 	// Compute the price per month.
-	const price = fullPrice ? Math.ceil( ( fullPrice / 12 ) * 100 ) / 100 : null;
+	const price = fullPrice ? Math.round( ( fullPrice / 12 ) * 100 ) / 100 : null;
 	const offPrice = introductoryOffer?.costPerInterval
-		? Math.ceil( ( introductoryOffer.costPerInterval / 12 ) * 100 ) / 100
+		? Math.round( ( introductoryOffer.costPerInterval / 12 ) * 100 ) / 100
 		: null;
 
 	const isOneMonthOffer =

@@ -3,25 +3,26 @@
  * Defines Jetpack CRM Automation engine.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
 
 use Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Base;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
 
 /**
  * Automation Engine.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Automation_Engine {
 
 	/**
 	 * Instance singleton.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Automation_Engine
 	 */
 	private static $instance = null;
@@ -29,7 +30,7 @@ class Automation_Engine {
 	/**
 	 * The triggers map name => classname.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string[]
 	 */
 	private $triggers_map = array();
@@ -37,7 +38,7 @@ class Automation_Engine {
 	/**
 	 * The steps map name => classname.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string[]
 	 */
 	private $steps_map = array();
@@ -45,7 +46,7 @@ class Automation_Engine {
 	/**
 	 * The Automation logger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var ?Automation_Logger
 	 */
 	private $automation_logger = null;
@@ -53,7 +54,7 @@ class Automation_Engine {
 	/**
 	 * The list of registered workflows.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Automation_Workflow[]
 	 */
 	private $workflows = array();
@@ -61,7 +62,7 @@ class Automation_Engine {
 	/**
 	 * An array of supported data types.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var Data_Type_Base[]
 	 */
@@ -70,7 +71,7 @@ class Automation_Engine {
 	/**
 	 * An array of supported data transformers.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var Data_Transformer_Base[]
 	 */
@@ -79,7 +80,7 @@ class Automation_Engine {
 	/**
 	 * An array of data type that represents support between types.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var string[]
 	 */
@@ -88,7 +89,7 @@ class Automation_Engine {
 	/**
 	 * Instance singleton object.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param bool $force Whether to force a new Automation_Engine instance.
 	 * @return Automation_Engine The Automation_Engine instance.
@@ -104,7 +105,7 @@ class Automation_Engine {
 	/**
 	 * Set the automation logger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Logger $logger The automation logger.
 	 */
@@ -113,73 +114,9 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Register data type.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $class_name The fully qualified class name for the data type.
-	 * @return void
-	 *
-	 * @throws Data_Type_Exception Throws an exception if the data type class do not look valid.
-	 */
-	public function register_data_type( string $class_name ): void {
-		if ( ! class_exists( $class_name ) ) {
-			throw new Data_Type_Exception(
-				sprintf( 'Data Type class do not exist: %s', $class_name ),
-				Data_Type_Exception::CLASS_NOT_FOUND
-			);
-		}
-
-		// Make sure that the class implements the Data_Type base class,
-		// so we're certain that required logic exists to use the object.
-		if ( ! is_subclass_of( $class_name, Data_Type_Base::class ) ) {
-			throw new Data_Type_Exception(
-				sprintf( 'Data Type class do not extend base class: %s', $class_name ),
-				Data_Type_Exception::DO_NOT_EXTEND_BASE
-			);
-		}
-
-		if ( isset( $this->data_types[ $class_name::get_slug() ] ) ) {
-			throw new Data_Type_Exception(
-				sprintf( 'Data Type slug already exist: %s', $class_name ),
-				Data_Type_Exception::SLUG_EXISTS
-			);
-		}
-
-		$this->data_types[ $class_name::get_slug() ] = $class_name;
-	}
-
-	/**
-	 * Get data type instance.
-	 *
-	 * This method will convert trigger/step raw data to a Data_type instance
-	 * and return the instance.
-	 * We need this to ensure the data looks valid, unified formatting, and to ensure we have
-	 * a set of expected methods to work with to transformer an object into a related object.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $data_type_slug The slug of the data type to be instantiated.
-	 * @param mixed  $entity The entity data to be used to instantiate the data type.
-	 * @return Data_Type_Base Returns an instance of the data type.
-	 *
-	 * @throws Data_Type_Exception Throws an exception if the data type slug does not exist.
-	 */
-	public function get_data_type_instance( string $data_type_slug, $entity ): Data_Type_Base {
-		if ( ! isset( $this->data_types[ $data_type_slug ] ) ) {
-			throw new Data_Type_Exception(
-				sprintf( 'Data Type slug do not exist: %s', $data_type_slug ),
-				Data_Type_Exception::SLUG_DO_NOT_EXIST
-			);
-		}
-
-		return new $this->data_types[ $data_type_slug ]( $entity );
-	}
-
-	/**
 	 * Register data transformer.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $class_name The fully qualified class name for the data transformer.
 	 * @return void
@@ -203,14 +140,14 @@ class Automation_Engine {
 			);
 		}
 
-		if ( isset( $this->data_transformers[ $class_name::get_slug() ] ) ) {
+		if ( isset( $this->data_transformers[ $class_name ] ) ) {
 			throw new Data_Transformer_Exception(
 				sprintf( 'Data Transformer slug already exist: %s', $class_name ),
 				Data_Transformer_Exception::SLUG_EXISTS
 			);
 		}
 
-		$this->data_transformers[ $class_name::get_slug() ] = $class_name;
+		$this->data_transformers[ $class_name ] = $class_name;
 
 		if ( ! isset( $this->data_transform_map[ $class_name::get_from() ] ) ) {
 			$this->data_transform_map[ $class_name::get_from() ] = array();
@@ -222,7 +159,7 @@ class Automation_Engine {
 	/**
 	 * Register a trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $trigger_classname Trigger classname to add to the mapping.
 	 *
@@ -271,7 +208,7 @@ class Automation_Engine {
 	/**
 	 * Register a step in the automation engine.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $class_name The name of the class in which the step should belong.
 	 *
@@ -293,14 +230,14 @@ class Automation_Engine {
 			);
 		}
 
-		$step_name                     = $class_name::get_slug();
-		$this->steps_map[ $step_name ] = $class_name;
+		$step_slug                     = $class_name::get_slug();
+		$this->steps_map[ $step_slug ] = $class_name;
 	}
 
 	/**
 	 * Get a step class by name.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $step_name The name of the step whose class we will be retrieving.
 	 * @return string The name of the step class.
@@ -321,7 +258,7 @@ class Automation_Engine {
 	/**
 	 * Add a workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Workflow $workflow The workflow class instance to be added.
 	 * @param bool                $init_workflow Whether or not to initialize the workflow.
@@ -329,6 +266,8 @@ class Automation_Engine {
 	 * @throws Workflow_Exception Throws an exception if the workflow is not valid.
 	 */
 	public function add_workflow( Automation_Workflow $workflow, bool $init_workflow = false ) {
+		$workflow->set_engine( $this );
+
 		$this->workflows[] = $workflow;
 
 		if ( $init_workflow ) {
@@ -339,7 +278,7 @@ class Automation_Engine {
 	/**
 	 * Build and add a workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $workflow_data The workflow data to be added.
 	 * @param bool  $init_workflow Whether or not to initialize the workflow.
@@ -357,7 +296,7 @@ class Automation_Engine {
 	/**
 	 * Init automation workflows.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @throws Workflow_Exception Throws an exception if the workflow is not valid.
 	 */
@@ -372,30 +311,21 @@ class Automation_Engine {
 	/**
 	 * Execute workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Workflow $workflow The workflow to be executed.
 	 * @param Trigger             $trigger The trigger that started the execution process.
-	 * @param array               $trigger_data The data that was passed along by the trigger.
+	 * @param Data_Type           $trigger_data_type The data that was passed along by the trigger.
 	 * @return bool
 	 *
 	 * @throws Automation_Exception Throws exception if an error executing the workflow.
+	 * @throws Data_Transformer_Exception Throws exception if an error transforming the data.
 	 */
-	public function execute_workflow( Automation_Workflow $workflow, Trigger $trigger, array $trigger_data ): bool {
+	public function execute_workflow( Automation_Workflow $workflow, Trigger $trigger, Data_Type $trigger_data_type ): bool {
 		$this->get_logger()->log( sprintf( 'Trigger activated: %s', $trigger->get_slug() ) );
 		$this->get_logger()->log( sprintf( 'Executing workflow: %s', $workflow->name ) );
 
 		$step_data = $workflow->get_initial_step();
-
-		// Convert the trigger data into a data type instance.
-		try {
-			$trigger_data_type = $this->get_data_type_instance( $trigger::get_data_type(), $trigger_data );
-		} catch ( Data_Type_Exception $e ) {
-			throw new Automation_Exception(
-				$e->getMessage(),
-				Automation_Exception::GENERAL_ERROR
-			);
-		}
 
 		while ( $step_data ) {
 			try {
@@ -414,15 +344,15 @@ class Automation_Engine {
 
 				$step_slug = $step->get_slug();
 
-				if ( isset( $step_data['attributes'] ) && is_array( $step_data['attributes'] ) ) {
-					$step->set_attributes( $step_data['attributes'] );
-				}
-
-				$this->get_logger()->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step->get_data_type() );
+				$this->get_logger()->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step::get_data_type() );
 
 				$data_type = $this->maybe_transform_data_type( $trigger_data_type, $step::get_data_type() );
-				$step->execute( $data_type->get_entity() );
-				$step_data = $step->get_next_step();
+
+				$step->validate_and_execute( $data_type );
+
+				//todo: return Step instance instead of array
+				$step_id   = $step->get_next_step_id();
+				$step_data = $workflow->get_step( $step_id );
 
 				$this->get_logger()->log( '[' . $step->get_slug() . '] Step executed!' );
 
@@ -435,6 +365,10 @@ class Automation_Engine {
 				$this->get_logger()->log( 'Error executing the workflow on step: ' . $step_slug . ' - ' . $automation_exception->getMessage() );
 
 				throw $automation_exception;
+			} catch ( Data_Transformer_Exception $transformer_exception ) {
+				$this->get_logger()->log( 'Error executing the workflow on step ' . $step_slug . '. Transformer error: ' . $transformer_exception->getMessage() );
+
+				throw $transformer_exception;
 			}
 		}
 
@@ -444,47 +378,48 @@ class Automation_Engine {
 	/**
 	 * Maybe transform data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
-	 * @param Data_Type_Base $data_type The current data type.
-	 * @param string         $new_data_type The new data type to transform the data to.
-	 * @return Data_Type_Base The transformed data type.
+	 * @param Data_Type $data_type The current data type.
+	 * @param string    $new_data_type_class The new data type to transform the data to.
+	 * @return Data_Type The transformed data type.
 	 *
 	 * @throws Data_Transformer_Exception Throws an exception if the data type cannot be transformed.
 	 */
-	protected function maybe_transform_data_type( Data_Type_Base $data_type, string $new_data_type ): Data_Type_Base {
-		$current_data_type = $data_type::get_slug();
+	protected function maybe_transform_data_type( Data_Type $data_type, string $new_data_type_class ): Data_Type_Base {
 
 		// Bail early if we do not have to transform the data.
-		if ( $current_data_type === $new_data_type ) {
+		if ( $data_type instanceof $new_data_type_class ) {
 			return $data_type;
 		}
 
-		if ( ! isset( $this->data_transform_map[ $current_data_type ][ $new_data_type ] ) ) {
+		$data_type_class = get_class( $data_type );
+
+		if ( ! isset( $this->data_transform_map[ $data_type_class ][ $new_data_type_class ] ) ) {
 			throw new Data_Transformer_Exception(
-				sprintf( 'Transforming from "%s" to "%s" is not supported', $current_data_type, $new_data_type ),
+				sprintf( 'Transforming from "%s" to "%s" is not supported', $data_type_class, $new_data_type_class ),
 				Data_Transformer_Exception::TRANSFORM_IS_NOT_SUPPORTED
 			);
 		}
 
-		$transformer = new $this->data_transform_map[ $current_data_type ][ $new_data_type ]();
+		$transformer = new $this->data_transform_map[ $data_type_class ][ $new_data_type_class ]();
+
 		return $transformer->transform( $data_type );
 	}
 
 	/**
-	 * Get step instance
+	 * Get a step instance.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
-	 * @param string $step_name The name of the step to be registered.
-	 * @param array  $step_data The step data to be registered.
-	 * @return Step The step class instance.
+	 * @param array $step_data The step data hydrate the step with.
+	 * @return Step A step class instance.
 	 *
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
 	 */
-	public function get_registered_step( $step_name, array $step_data = array() ): Step {
+	public function get_registered_step( array $step_data ): Step {
 
-		$step_class = $this->get_step_class( $step_name );
+		$step_class = $this->get_step_class( $step_data['slug'] );
 
 		if ( ! class_exists( $step_class ) ) {
 			throw new Automation_Exception(
@@ -500,7 +435,7 @@ class Automation_Engine {
 	/**
 	 * Get registered steps.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string[] The registered steps.
 	 */
@@ -511,7 +446,7 @@ class Automation_Engine {
 	/**
 	 * Get trigger instance.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $trigger_slug The name of the trigger slug with which to retrieve the trigger class.
 	 * @return string The name of the trigger class.
@@ -534,7 +469,7 @@ class Automation_Engine {
 	/**
 	 * Get Automation logger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return Automation_Logger Return an instance of the Automation_Logger class.
 	 */
@@ -545,7 +480,7 @@ class Automation_Engine {
 	/**
 	 * Get the registered triggers.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string[] The registered triggers.
 	 */

@@ -26,9 +26,9 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 			->setMethods( array( 'load_feed', 'setup_tracks_callback' ) )
 			->getMock();
 
-		$podcast_helper->expects( $this->exactly( 1 ) )
+		$podcast_helper->expects( $this->once() )
 			->method( 'load_feed' )
-			->will( $this->returnValue( new WP_Error( 'feed_error', 'Feed error.' ) ) );
+			->willReturn( new WP_Error( 'feed_error', 'Feed error.' ) );
 
 		$error = $podcast_helper->get_track_data( 'invalid_id' );
 		$this->assertWPError( $error );
@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 
 		$track->expects( $this->exactly( 2 ) )
 			->method( 'get_id' )
-			->will( $this->returnValue( 1 ) );
+			->willReturn( 1 );
 
 		$rss = $this->getMockBuilder( 'SimplePie' )
 			->disableOriginalConstructor()
@@ -63,27 +63,25 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 
 		$rss->expects( $this->exactly( 2 ) )
 			->method( 'get_items' )
-			->will( $this->returnValue( array( $track ) ) );
+			->willReturn( array( $track ) );
 
 		$podcast_helper->expects( $this->exactly( 2 ) )
 			->method( 'load_feed' )
-			->will( $this->returnValue( $rss ) );
+			->willReturn( $rss );
 
 		$id = wp_unique_id( 'podcast-track-' );
 
-		$podcast_helper->expects( $this->exactly( 1 ) )
+		$podcast_helper->expects( $this->once() )
 			->method( 'setup_tracks_callback' )
-			->will(
-				$this->returnValue(
-					array(
-						'id'          => $id,
-						'link'        => 'https://example.org',
-						'src'         => 'https://example.org',
-						'type'        => 'episode',
-						'description' => '',
-						'title'       => '',
-						'guid'        => '123',
-					)
+			->willReturn(
+				array(
+					'id'          => $id,
+					'link'        => 'https://example.org',
+					'src'         => 'https://example.org',
+					'type'        => 'episode',
+					'description' => '',
+					'title'       => '',
+					'guid'        => '123',
 				)
 			);
 

@@ -6,8 +6,9 @@ use Automattic\Jetpack\CRM\Automation\Actions\Delete_Contact;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated;
+use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
 
 /**
@@ -20,7 +21,7 @@ class Delete_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 	/**
 	 * A helper class to generate data for the automation tests.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var Automation_Faker
 	 */
@@ -43,7 +44,8 @@ class Delete_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 
 		// Create a contact and verify it was created.
 		$contact_id = $this->add_contact();
-		$contact    = $this->get_contact( $contact_id );
+		/** @var Contact $contact */
+		$contact = $this->get_contact( $contact_id );
 
 		// Setup action that is supposed to delete the contact.
 		$action_delete_contact = new Delete_Contact(
@@ -56,7 +58,7 @@ class Delete_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 		);
 
 		// Execute the action.
-		$action_delete_contact->execute( $contact );
+		$action_delete_contact->validate_and_execute( new Contact_Data( $contact ) );
 
 		// Verify that the contact no longer exists.
 		$contact = $zbs->DAL->contacts->getContact( $contact_id );
@@ -74,7 +76,6 @@ class Delete_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 		$automation->register_trigger( Contact_Updated::class );
 		$automation->register_step( Contact_Field_Changed::class );
 		$automation->register_step( Delete_Contact::class );
-		$automation->register_data_type( Data_Type_Contact::class );
 
 		// Create a contact to verify it existed before we delete it.
 		$contact_id = $this->add_contact( array( 'status' => 'Anything but lead' ) );

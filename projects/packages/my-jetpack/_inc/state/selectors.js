@@ -38,12 +38,12 @@ export const getProduct = ( state, productId ) => {
 
 	product.pricingForUi.fullPricePerMonth =
 		product.pricingForUi.productTerm === 'year'
-			? Math.ceil( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100
+			? Math.round( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100
 			: product.pricingForUi.fullPrice;
 
 	product.pricingForUi.discountPricePerMonth =
 		product.pricingForUi.productTerm === 'year'
-			? Math.ceil( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100
+			? Math.round( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100
 			: product.pricingForUi.discountPrice;
 
 	return product;
@@ -75,6 +75,16 @@ const productSelectors = {
 	isValidProduct,
 	isFetching: ( state, productId ) => state.products?.isFetching?.[ productId ] || false,
 	getProductsThatRequiresUserConnection,
+};
+
+const backupRewindableEventsSelectors = {
+	getBackupRewindableEvents: state => state.backupRewindableEvents?.items || {},
+	isFetchingBackupRewindableEvents: state => state.backupRewindableEvents?.isFetching || false,
+};
+
+const countBackupItemsSelectors = {
+	getCountBackupItems: state => state.countBackupItems?.items || {},
+	isFetchingCountBackupItems: state => state.countBackupItems.isFetching || false,
 };
 
 const purchasesSelectors = {
@@ -129,6 +139,23 @@ const productStatsSelectors = {
 	isFetchingProductStats,
 };
 
+const getStatsCounts = state => {
+	return state.statsCounts?.data;
+};
+
+const isFetchingStatsCounts = state => {
+	return state.statsCounts?.isFetching || false;
+};
+
+const statsCountsSelectors = {
+	getStatsCounts,
+	isFetchingStatsCounts,
+};
+
+const getWelcomeBannerHasBeenDismissed = state => {
+	return state.welcomeBanner?.hasBeenDismissed;
+};
+
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
@@ -138,6 +165,10 @@ const selectors = {
 	...noticeSelectors,
 	...pluginSelectors,
 	...productStatsSelectors,
+	...backupRewindableEventsSelectors,
+	...countBackupItemsSelectors,
+	...statsCountsSelectors,
+	getWelcomeBannerHasBeenDismissed,
 };
 
 export default selectors;

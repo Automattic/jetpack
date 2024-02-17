@@ -44,6 +44,18 @@ inputs:
     description: "Comma-separated selection of task names (function name, camelCase) this action should run. e.g. addLabels,cleanLabels"
     required: false
     default: "all"
+  triage_projects_token:
+    description: "Triage Projects access token"
+    required: false
+    default: ""
+  project_board_url:
+    description: "URL of the GitHub project board to update"
+    required: false
+    default: ""
+  labels_team_assignments:
+    description: "Mapping of team assignments for labels"
+    required: false
+    default: ""
 runs:
-  using: node16
+  using: node20
   main: "dist/index.js"

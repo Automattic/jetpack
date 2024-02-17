@@ -25,6 +25,7 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 	const [ productInfo ] = useProductInfo();
 
 	const siteSuffix = useSelect( select => select( SOCIAL_STORE_ID ).getSiteSuffix() );
+	const blogID = useSelect( select => select( SOCIAL_STORE_ID ).getBlogID() );
 	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateJetpackSettings;
 
 	const [ isLarge ] = useBreakpointMatch( 'lg' );
@@ -62,7 +63,7 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 				{ name: __( 'Number of shares in 30 days', 'jetpack-social' ) },
 				{ name: __( 'Priority support', 'jetpack-social' ) },
 				{ name: __( 'Schedule posting', 'jetpack-social' ) },
-				{ name: __( 'Twitter, Facebook, LinkedIn & Tumblr', 'jetpack-social' ) },
+				{ name: __( 'Instagram, Facebook, Mastodon, LinkedIn, & Tumblr', 'jetpack-social' ) },
 				{ name: __( 'Customize publications', 'jetpack-social' ) },
 				{
 					name: __( 'Recycle content', 'jetpack-social' ),
@@ -80,22 +81,20 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 				},
 				{
 					name: __( 'Video sharing', 'jetpack-social' ),
-					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
 					tooltipInfo: __( 'Upload and share videos to your social platforms.', 'jetpack-social' ),
+				},
+				{
+					name: __( 'Image generator', 'jetpack-social' ),
+					tooltipInfo: __(
+						'Automatically create custom images, saving you hours of tedious work.',
+						'jetpack-social'
+					),
 				},
 				{
 					name: __( 'Multi-image sharing', 'jetpack-social' ),
 					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
 					tooltipInfo: __(
 						'Share multiple images at once on social media platforms.',
-						'jetpack-social'
-					),
-				},
-				{
-					name: __( 'Image generator', 'jetpack-social' ),
-					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
-					tooltipInfo: __(
-						'Automatically create custom images, saving you hours of tedious work.',
 						'jetpack-social'
 					),
 				},
@@ -124,8 +123,8 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 					) }
 					<Button
 						href={ getRedirectUrl( 'jetpack-social-advanced-plan-plugin-admin-page', {
-							site: siteSuffix,
-							query: 'redirect_to=' + window.location.href,
+							site: blogID ?? siteSuffix,
+							query: 'redirect_to=admin.php?page=jetpack-social',
 						} ) }
 						fullWidth
 					>
@@ -139,8 +138,8 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
-				<PricingTableItem isComingSoon />
-				<PricingTableItem isComingSoon />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
 				<PricingTableItem isComingSoon />
 			</PricingTableColumn>
 			<PricingTableColumn primary>
@@ -158,8 +157,8 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 					) }
 					<Button
 						href={ getRedirectUrl( 'jetpack-social-basic-plan-plugin-admin-page', {
-							site: siteSuffix,
-							query: 'redirect_to=' + window.location.href,
+							site: blogID ?? siteSuffix,
+							query: 'redirect_to=admin.php?page=jetpack-social',
 						} ) }
 						fullWidth
 					>

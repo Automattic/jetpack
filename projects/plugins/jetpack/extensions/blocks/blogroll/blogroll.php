@@ -23,7 +23,10 @@ function register_block() {
 	Blocks::jetpack_register_block(
 		__DIR__,
 		array(
-			'render_callback' => __NAMESPACE__ . '\load_assets',
+			'render_callback'  => __NAMESPACE__ . '\load_assets',
+			'provides_context' => array(
+				'openLinksNewWindow' => 'open_links_new_window',
+			),
 		)
 	);
 }
@@ -38,37 +41,82 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr, $content ) {
+	global $wp;
+
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
+	$current_location = home_url( $wp->request );
+	$is_wpcom         = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 
-	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
-	$placeholder_icon   = '<svg xmlns="http://www.w3.org/2000/svg" height="38px" viewBox="0 0 24 24" width="38px" fill="#646970"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18l2-2 1-1v-2h-2v-1l-1-1H9v3l2 2v1.931C7.06 19.436 4 16.072 4 12l1 1h2v-2h2l3-3V6h-2L9 5v-.411a7.945 7.945 0 016 0V6l-1 1v2l1 1 3.13-3.13A7.983 7.983 0 0119.736 10H18l-2 2v2l1 1h2l.286.286C18.029 18.061 15.239 20 12 20z"/></svg>';
+	$form_content = <<<HTML
+		<form method="post" action="https://subscribe.wordpress.com" accept-charset="utf-8">
+			<input name="action" type="hidden" value="subscribe">
+			<input name="source" type="hidden" value="$current_location">
+			<input name="sub-type" type="hidden" value="jetpack_blogroll">
+			$content
+		</form>
+HTML;
 
-	if ( $attr['recommendations'] ) {
-		foreach ( $attr['recommendations'] as $recommendation ) {
-			$url       = empty( $recommendation['URL'] ) ? '' : esc_url( $recommendation['URL'] );
-			$site_icon = empty( $recommendation['site_icon'] ) ? '' : esc_url( $recommendation['site_icon'] );
-			$name      = empty( $recommendation['name'] ) ? '' : $recommendation['name'];
-
-			$icon_image = $site_icon ? "<img class='site-icon' src='{$site_icon}' alt='" . esc_attr( $name ) . "' />" : $placeholder_icon;
-
-			if ( empty( $name ) || empty( $url ) ) {
-				continue;
-			}
-
-			$content .= "<div class='recommendation-row'>
-							{$icon_image}
-							<a href='{$url}'>" . esc_html( $name ) . '</a>
-						</div>';
-		}
-	}
+	$blogroll_content = $is_wpcom && jetpack_is_frontend() ? $form_content : $content;
 
 	return sprintf(
-		'<div class="%s"%s>%s</div>',
-		! empty( $wrapper_attributes['class'] ) ? esc_attr( $wrapper_attributes['class'] ) : '',
-		! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
-		$content
+		'<div class="%1$s">%2$s</div>',
+		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		$blogroll_content
 	);
 }
+
+/**
+ * Register site_recommendations settings
+ *
+ * @since 12.7
+ */
+function site_recommendations_settings() {
+	register_setting(
+		'general',
+		'Blogroll Recommendations', // Visible to the user see: https://github.com/WordPress/gutenberg/issues/41637
+		array(
+			'description'   => __( 'Site Recommendations', 'jetpack' ),
+			'type'          => 'array',
+			'show_in_rest'  => array(
+				'schema' => array(
+					'items' => array(
+						'type'       => 'object',
+						'properties' => array(
+							'id'                => array(
+								'type'   => 'string',
+								'format' => 'text-field',
+							),
+							'name'              => array(
+								'type'   => 'string',
+								'format' => 'text-field',
+							),
+							'icon'              => array(
+								'type'   => 'string',
+								'format' => 'uri',
+							),
+							'url'               => array(
+								'type'   => 'string',
+								'format' => 'uri',
+							),
+							'description'       => array(
+								'type'   => 'string',
+								'format' => 'text-field',
+							),
+							'is_non_wpcom_site' => array(
+								'type' => 'boolean',
+							),
+						),
+					),
+				),
+			),
+			'auth_callback' => function () {
+				return current_user_can( 'edit_posts' );
+			},
+		)
+	);
+}
+
+add_action( 'rest_api_init', __NAMESPACE__ . '\site_recommendations_settings' );

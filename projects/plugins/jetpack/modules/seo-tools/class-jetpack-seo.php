@@ -55,7 +55,6 @@ class Jetpack_SEO {
 
 		add_filter( 'jetpack_open_graph_tags', array( $this, 'set_custom_og_tags' ) );
 		Jetpack_SEO_Posts::register_post_meta();
-		Jetpack_SEO_Posts::register_gutenberg_extension();
 		// Exclude posts with 'jetpack_seo_noindex' set true from the Jetpack sitemap.
 		add_filter( 'jetpack_sitemap_skip_post', array( 'Jetpack_SEO_Posts', 'exclude_noindex_posts_from_jetpack_sitemap' ), 10, 2 );
 	}

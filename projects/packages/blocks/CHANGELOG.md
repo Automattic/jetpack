@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2023-11-20
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [1.6.2] - 2023-10-23
+### Fixed
+- Fix missing block translations. [#33546]
+
+## [1.6.1] - 2023-09-26
+### Fixed
+- Fix erroneous path check in Blocks class [#33318]
+
+## [1.6.0] - 2023-09-19
+### Added
+- Add function to get path to block metadata file [#32698]
+- Helper to get a block's feature name [#32815]
+
 ## [1.5.0] - 2023-09-11
 ### Added
 - Enable block registration by specifying block.json path [#32697]
@@ -152,6 +170,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Blocks: introduce new package for block management
 
+[2.0.0]: https://github.com/Automattic/jetpack-blocks/compare/v1.6.2...v2.0.0
+[1.6.2]: https://github.com/Automattic/jetpack-blocks/compare/v1.6.1...v1.6.2
+[1.6.1]: https://github.com/Automattic/jetpack-blocks/compare/v1.6.0...v1.6.1
+[1.6.0]: https://github.com/Automattic/jetpack-blocks/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.23...v1.5.0
 [1.4.23]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.22...v1.4.23
 [1.4.22]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.21...v1.4.22

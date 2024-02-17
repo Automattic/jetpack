@@ -867,6 +867,7 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function customize_value_custom_css( $css, $setting ) {
 		// Find the current preprocessor.
+		$preprocessor       = null;
 		$jetpack_custom_css = get_theme_mod( 'jetpack_custom_css', array() );
 		if ( isset( $jetpack_custom_css['preprocessor'] ) ) {
 			$preprocessor = $jetpack_custom_css['preprocessor'];

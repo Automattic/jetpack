@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Make map block settings load after registering the script

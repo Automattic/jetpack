@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
 import classNames from 'classnames';
 import { isVideo } from '../../hooks/use-media-restrictions';
+import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
 import VideoPreview from '../video-preview';
 import styles from './styles.module.scss';
 
@@ -26,6 +27,7 @@ const clickHandler = open => e => {
  * @param {object} props.mediaDetails - The details of the media for preview
  * @param {Function} props.onChange - A callback that can be passed to parent for validation
  * @param {string} props.wrapperClassName - A class name to be added to the wrapper
+ * @param {object} props.allowedMediaTypes - Custom allowed media types
  * @returns {object} The media section.
  */
 export default function MediaPicker( {
@@ -35,9 +37,13 @@ export default function MediaPicker( {
 	mediaDetails = {},
 	onChange,
 	wrapperClassName,
+	allowedMediaTypes = null,
 } ) {
-	const { mediaData: { width, height, sourceUrl } = {}, metaData: { mime, length = null } = {} } =
-		mediaDetails;
+	const {
+		mediaData: { width, height, sourceUrl } = {},
+		metaData: { mime, length = null } = {},
+		previewData: { width: previewWidth, height: previewHeight, sourceUrl: previewUrl } = {},
+	} = mediaDetails;
 
 	const isImageLoading = ! sourceUrl || ! width || ! height || ! mime;
 
@@ -74,15 +80,34 @@ export default function MediaPicker( {
 								duration={ length }
 							></VideoPreview>
 						) : (
-							<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
-								<img src={ sourceUrl } alt="" className={ styles[ 'preview-image' ] } />
+							<ResponsiveWrapper
+								naturalWidth={ previewWidth || width }
+								naturalHeight={ previewHeight || height }
+								isInline
+							>
+								<img
+									src={ previewUrl || sourceUrl }
+									alt=""
+									className={ styles[ 'preview-image' ] }
+								/>
 							</ResponsiveWrapper>
 						) }
 					</button>
 				</div>
 			);
 		},
-		[ height, length, mime, onRemoveMedia, sourceUrl, width, wrapperClassName ]
+		[
+			height,
+			length,
+			mime,
+			onRemoveMedia,
+			previewHeight,
+			previewUrl,
+			previewWidth,
+			sourceUrl,
+			width,
+			wrapperClassName,
+		]
 	);
 
 	const renderPicker = useCallback(
@@ -124,6 +149,7 @@ export default function MediaPicker( {
 		<ThemeProvider>
 			<MediaUploadCheck>
 				<MediaUpload
+					allowedTypes={ allowedMediaTypes ?? SELECTABLE_MEDIA_TYPES }
 					title={ buttonLabel }
 					onSelect={ onUpdateMedia }
 					render={ setMediaRender }

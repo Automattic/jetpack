@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -41,6 +42,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			},
 			0
 		);
+
+		// Add notices to the settings pages when there is a Calypso page available.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			add_action( 'current_screen', array( $this, 'add_settings_page_notice' ) );
+		}
 	}
 
 	/**
@@ -69,8 +75,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$this->add_my_home_menu();
 		$this->remove_gutenberg_menu();
 
-		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
-			$this->add_inbox_menu();
+		// We don't need the `My Mailboxes` when the interface is set to wp-admin or the site is a staging site,
+		if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' && ! get_option( 'wpcom_is_staging_site' ) ) {
+			$this->add_my_mailboxes_menu();
 		}
 
 		// Not needed outside of wp-admin.
@@ -94,6 +101,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
+
 		// Export on Atomic sites are always managed on WP Admin.
 		if ( in_array( $screen, array( 'export.php' ), true ) ) {
 			return self::CLASSIC_VIEW;
@@ -114,19 +122,42 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Users menu.
 	 */
 	public function add_users_menu() {
-		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
+		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'users.php' ) ) {
+			$submenus_to_update = array(
+				'users.php' => 'https://wordpress.com/people/team/' . $this->domain,
+			);
+			$this->update_submenus( $slug, $submenus_to_update );
+		}
 
-		return parent::add_users_menu();
+		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
+
+		// When the interface is not set to wp-admin, we replace the Profile submenu.
+		if ( ! $this->use_wp_admin_interface() ) {
+			remove_submenu_page( 'users.php', 'profile.php' );
+			add_submenu_page( 'users.php', esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me/', null );
+		}
+
+		// Users who can't 'list_users' will see "Profile" menu & "Profile > Account Settings" as submenu.
+		add_submenu_page( $slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
 	}
 
 	/**
 	 * Adds Plugins menu.
 	 */
 	public function add_plugins_menu() {
+
 		global $submenu;
 
 		// Calypso plugins screens link.
 		$plugins_slug = 'https://wordpress.com/plugins/' . $this->domain;
+
+		// Link to the Marketplace from Plugins > Add New on Atomic sites where the wpcom_admin_interface option is set to wp-admin.
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
+			$submenus_to_update = array( 'plugin-install.php' => $plugins_slug );
+			$this->update_submenus( 'plugins.php', $submenus_to_update );
+			return;
+		}
 
 		// Link to the Marketplace on sites that can't manage plugins.
 		if (
@@ -162,6 +193,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_browse_sites_link() {
 		$site_count = get_user_option( 'wpcom_site_count' );
 		if ( ! $site_count || $site_count < 2 ) {
+			return;
+		}
+
+		// Unnecessary because "My Sites" always links to the Sites page.
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
 			return;
 		}
 
@@ -298,11 +334,30 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds Jetpack menu.
+	 */
+	public function add_jetpack_menu() {
+		// This is supposed to be the same as class-admin-menu but with a different position specified for the Jetpack menu.
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			parent::create_jetpack_menu( 2, false );
+		} else {
+			parent::add_jetpack_menu();
+		}
+
+		/**
+		 * Prevent duplicate menu items that link to Jetpack Backup.
+		 * Hide the one that's shown when the standalone backup plugin is not installed, since Jetpack Backup is already included in Atomic sites.
+		 *
+		 * @see https://github.com/Automattic/jetpack/pull/33955
+		 */
+		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+	}
+
+	/**
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
 		$menu_title = __( 'Stats', 'jetpack' );
-
 		if (
 			! $this->is_api_request &&
 			\Jetpack::is_module_active( 'stats' ) &&
@@ -316,7 +371,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$menu_title .= "<img class='sidebar-unified__sparkline' src='$img_src' width='80' height='20' alt='$alt'>";
 		}
 
-		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'edit_posts', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
 	}
 
 	/**
@@ -378,6 +433,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
+
+		// Hide Settings > Performance when the interface is set to wp-admin.
+		// This is due to these settings are mostly also available in Jetpack > Settings, in the Performance tab.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$this->hide_submenu_page( 'options-general.php', 'https://wordpress.com/settings/performance/' . $this->domain );
+		}
 	}
 
 	/**
@@ -386,10 +447,22 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_tools_menu() {
 		parent::add_tools_menu();
 
+		// Link the Tools menu to Available Tools when the interface is set to wp-admin.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Available Tools', 'jetpack' ), __( 'Available Tools', 'jetpack' ), 'edit_posts', 'tools.php', null, 0 );
+		}
+
 		/**
 		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
 		 */
 		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
+
+		/**
+		 * Adds the WordPress.com Github Deployments submenu under the main Tools menu.
+		 */
+		if ( apply_filters( 'jetpack_show_wpcom_github_deployments_menu', false ) ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Github Deployments', 'jetpack' ), __( 'Github Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 7 );
+		}
 	}
 
 	/**
@@ -443,5 +516,64 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$jitm->dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
 		}
 		wp_die();
+	}
+
+	/**
+	 * Adds a notice above each settings page while using the Classic view to indicate
+	 * that the Default view offers more features. Links to the default view.
+	 *
+	 * @return void
+	 */
+	public function add_settings_page_notice() {
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		$current_screen = get_current_screen();
+
+		if ( ! $current_screen instanceof \WP_Screen ) {
+			return;
+		}
+
+		// Show the notice for the following screens and map them to the Calypso page.
+		$screen_map = array(
+			'options-general' => 'general',
+			'options-reading' => 'reading',
+		);
+
+		$mapped_screen = isset( $screen_map[ $current_screen->id ] )
+			? $screen_map[ $current_screen->id ]
+			: false;
+
+		if ( ! $mapped_screen ) {
+			return;
+		}
+
+		$switch_url = sprintf( 'https://wordpress.com/settings/%s/%s', $mapped_screen, $this->domain );
+
+		// Close over the $switch_url variable.
+		$admin_notices = function () use ( $switch_url ) {
+			// translators: %s is a link to the Calypso settings page.
+			$notice = __( 'You are currently using the Classic view, which doesn\'t offer the same set of features as the Default view. To access additional settings and features, <a href="%s">switch to the Default view</a>. ', 'jetpack' );
+			?>
+			<div class="notice notice-warning">
+				<p><?php echo wp_kses( sprintf( $notice, esc_url( $switch_url ) ), array( 'a' => array( 'href' => array() ) ) ); ?></p>
+			</div>
+			<?php
+		};
+
+		add_action( 'admin_notices', $admin_notices );
+	}
+
+	/**
+	 * Adds Appearance menu.
+	 */
+	public function add_appearance_menu() {
+		// When the interface is set to wp-admin, we need to add a link to the Marketplace and rest of the menu keeps like core.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			add_submenu_page( 'themes.php', esc_attr__( 'Theme Showcase', 'jetpack' ), __( 'Theme Showcase', 'jetpack' ), 'read', 'https://wordpress.com/themes/' . $this->domain );
+		} else {
+			parent::add_appearance_menu();
+		}
 	}
 }

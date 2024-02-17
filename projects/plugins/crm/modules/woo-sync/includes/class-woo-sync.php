@@ -1,4 +1,4 @@
-<?php 
+<?php // phpcs:disable
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -265,11 +265,11 @@ class Woo_Sync {
 			);
 
 			if ( in_array( $order_status, $paid_statuses, true ) ) {
-				$status = __( 'Paid', 'zero-bs-crm' );
+				$status = 'Paid';
 			} elseif ( $order_status === 'checkout-draft' ) {
-				$status = __( 'Draft', 'zero-bs-crm' );
+				$status = 'Draft';
 			} else {
-				$status = __( 'Unpaid', 'zero-bs-crm' );
+				$status = 'Unpaid';
 			}
 		} elseif ( $obj_type_id === ZBS_TYPE_TRANSACTION ) {
 			// note that transaction statuses aren't translated, as they're user-configurable
@@ -323,13 +323,6 @@ class Woo_Sync {
 	 */
 	private function init_hooks( ) {
 
-		/*
-		Welcome wizard
-		This needs to fire after the object is set in $zbs->modules->woosync,
-		because its slugs are used in the welcome wizard.
-		*/
-		add_action( 'admin_init', array( $this, 'show_welcome_wizard' ), 100 );
-
 		// Add settings tab
 		add_filter( 'zbs_settings_tabs', array( $this, 'add_settings_tab' ) );
 
@@ -382,10 +375,8 @@ class Woo_Sync {
 	 */
 	private function init_features( ) {
 
-		global $zbs;
-
 		// Contact Tabs
-		if ( $zbs->isDAL2() && zeroBSCRM_is_customer_view_page() ){
+		if ( zeroBSCRM_is_customer_view_page() ) {
 
 			require_once JPCRM_WOO_SYNC_ROOT_PATH . 'includes/jpcrm-woo-sync-contact-tabs.php';
 			$this->contact_tabs = Woo_Sync_Contact_Tabs::instance();
@@ -625,41 +616,6 @@ class Woo_Sync {
 		// WooCommerce My Account
 		wp_register_style( 'jpcrm-woo-sync-my-account', plugins_url( '/css/jpcrm-woo-sync-my-account'.wp_scripts_get_suffix().'.css', JPCRM_WOO_SYNC_ROOT_FILE ) );
 		wp_register_style( 'jpcrm-woo-sync-fa', plugins_url( '/css/font-awesome.min.css', ZBS_ROOTFILE ) );
-
-	}
-
-
-	/**
-	 * Intercept page load to send to Welcome Wizard
-	 *  (previously on `admin_init 100`)
-	 */
-	public function show_welcome_wizard() {
-
-		##WLREMOVE
-
-		// Bail if activating from network, or bulk
-		if ( wp_doing_ajax() || is_network_admin() || ! current_user_can( 'admin_zerobs_manage_options' ) ) {
-			return;
-		}
-
-		// if on Woo Page
-		if ( $this->is_hub_page() ){
-
-			// check if user has been shown welcome wizard, if not show, otherwise skip
-			$wizard_run_count = get_option( 'jpcrm_woo_connect_wizard_completions', 0 );
-			if ( $wizard_run_count == 0 ){
-
-				//#whtodo - follow on work
-				//require_once( JPCRM_WOO_SYNC_ROOT_PATH . 'admin/activation/welcome-to-woo-sync.php' );
-				//exit();
-
-			}
-		}
-
-		// Delete the redirect transient
-		delete_transient( 'jpcrm_woosync_just_installed' );
-
-	    ##/WLREMOVE
 
 	}
 
@@ -912,31 +868,53 @@ class Woo_Sync {
 	 */
 	public function render_pay_via_woo_checkout_button( $invoice_id = -1 ) {
 
-		if ( $invoice_id > 0 ) {
+		global $zbs;
 
-			$api = $this->get_invoice_meta( $invoice_id, 'api' );
-			$order_post_id = $this->get_invoice_meta( $invoice_id, 'order_post_id' );
+		// We can't generate a Woo payment button if WooCommerce isn't active
+		if ( ! $zbs->woocommerce_is_active() ) {
+			// show an error if an invoice admin
+			if ( zeroBSCRM_permsInvoices() ) {
+				$admin_alert  = '<b>' . esc_html__( 'Admin note', 'zero-bs-crm' ) . ':</b> ';
+				$admin_alert .= esc_html__( 'Please enable WooCommerce to show the payment link here.', 'zero-bs-crm' );
+				return $admin_alert;
+			} else {
+				return false;
+			}
+		}
 
-			// intercept pay button and set to pay via woo checkout
-			if ( empty( $api ) ) {
+		// blatantly wrong invoice ID
+		if ( $invoice_id <= 0 ) {
+			return false;
+		}
 
-				if ( !empty( $order_post_id ) ) {
+		$api = $this->get_invoice_meta( $invoice_id, 'api' );
+		$order_post_id = $this->get_invoice_meta( $invoice_id, 'order_post_id' );
 
-					remove_filter( 'invoicing_pro_paypal_button', 'zeroBSCRM_paypalbutton' , 1 );
-					remove_filter( 'invoicing_pro_stripe_button', 'zeroBSCRM_stripebutton', 1 );
-					$order = wc_get_order( $order_post_id );
-					$payment_page = $order->get_checkout_payment_url();
-					$res = '<h3>' . __( "Pay Invoice", 'zero-bs-crm' ) . '</h3>';
-					$res .= '<a href="' . esc_url( $payment_page ) . '" class="ui button btn">' . __( "Pay Now", 'zero-bs-crm' ) .'</a>';
+		// intercept pay button and set to pay via woo checkout
+		if ( empty( $api ) && ! empty( $order_post_id ) ) {
+			remove_filter( 'invoicing_pro_paypal_button', 'zeroBSCRM_paypalbutton', 1 );
+			remove_filter( 'invoicing_pro_stripe_button', 'zeroBSCRM_stripebutton', 1 );
+			$order        = wc_get_order( $order_post_id );
 
-					return $res;
-
+			// Order no longer exists (probably deleted).
+			if ( ! $order ) {
+				// show an error if an invoice admin
+				if ( zeroBSCRM_permsInvoices() ) {
+					$admin_alert  = '<b>' . esc_html__( 'Admin note', 'zero-bs-crm' ) . ':</b> ';
+					$admin_alert .= esc_html__( 'WooCommerce order no longer exists, so unable to generate payment link.', 'zero-bs-crm' );
+					return $admin_alert;
+				} else {
+					return false;
 				}
 			}
+			$payment_page = $order->get_checkout_payment_url();
+			$res          = '<h3>' . __( 'Pay Invoice', 'zero-bs-crm' ) . '</h3>';
+			$res         .= '<a href="' . esc_url( $payment_page ) . '" class="ui button btn">' . __( 'Pay Now', 'zero-bs-crm' ) . '</a>';
 
-			return $invoice_id;
-			
+			return $res;
 		}
+
+		return $invoice_id;
 
 	}
 
@@ -1320,16 +1298,14 @@ class Woo_Sync {
 	public function process_error( $error ){
 
 		// number 1: Invalid JSON = endpoint incorrect...
-		if ( strpos( $error, 'Invalid JSON returned for' ) !== false){
+		if ( str_contains( $error, 'Invalid JSON returned for' ) ) {
 
-			return __( "Error. Your WooCommerce endpoint may be incorrect!", 'zero-bs-crm' );
+			return __( 'Error. Your WooCommerce endpoint may be incorrect!', 'zero-bs-crm' );
 
 		}
 
 		return $error;
-
 	}
-
 
 	/**
 	 * Returns CRM Invoice meta with a specified key
@@ -1532,19 +1508,21 @@ class Woo_Sync {
 
 							$log[] = 'connection verified';
 
-							// if legit, add as site							
-							$new_sync_site = $this->add_sync_site( array(
-			        			
-					            'mode'           => JPCRM_WOO_SYNC_MODE_API,
-					            'domain'         => $transient_check_domain,
-					            'key'            => $key,
-					            'secret'         => $secret,
-					            'prefix'         => ''
-
-					        ));
+							// if legit, add as site
+							$new_sync_site = $this->add_sync_site(
+								array(
+									'mode'   => JPCRM_WOO_SYNC_MODE_API,
+									'domain' => $transient_check_domain,
+									'key'    => $key,
+									'secret' => $secret,
+									'prefix' => '',
+								)
+							);
 
 							// add option to flag newly added to UI
-							set_transient( 'jpcrm_woo_newly_authenticated', $new_sync_site['site_key'], 600 );
+							if ( $new_sync_site ) {
+								set_transient( 'jpcrm_woo_newly_authenticated', $new_sync_site['site_key'], 600 );
+							}
 
 						} else {
 
@@ -1868,104 +1846,92 @@ class Woo_Sync {
 	 */
 	public function add_sync_site( $args=array() ){
 
-        // ============ LOAD ARGS ===============
-        $defaultArgs = array(
+		// ============ LOAD ARGS ===============
+		$defaultArgs = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-        	'site_key'       => '', // if none is passed, domain will be used to generate
+			'site_key' => '', // if none is passed, domain will be used to generate
+			'mode'     => -1,
+			'domain'   => '',
+			'key'      => '',
+			'secret'   => '',
+			'prefix'   => '',
+			'paused'   => false, // if set to non-false site will not sync (typically pass timestamp of time paused)
 
-            'mode'           => -1,
-            'domain'         => '',
-            'key'            => '',
-            'secret'         => '',
-            'prefix'         => '',
-
-            'paused'         => false, // if set to non-false site will not sync (typically pass timestamp of time paused)
-
-        ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }        
-        // ============ / LOAD ARGS =============
+		); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } } // phpcs:ignore
+		// ============ / LOAD ARGS =============
 
 		// get existing (but side-step the woo local check because that can cause an infinite loop)
 		$pre_state = $this->skip_local_woo_check;
 		$this->skip_local_woo_check = true;
-		$sync_sites = $this->get_active_sync_sites( 'default' );
+
 		$this->skip_local_woo_check = $pre_state;
 
-        // basic validation
-        if ( !in_array( $mode, array( JPCRM_WOO_SYNC_MODE_LOCAL, JPCRM_WOO_SYNC_MODE_API ) ) ){
-        	return false;
-        }
-        if ( isset( $sync_sites[ $site_key ] ) ){
-        	return false;
-        }
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		// basic validation
+		if ( ! in_array( $mode, array( JPCRM_WOO_SYNC_MODE_LOCAL, JPCRM_WOO_SYNC_MODE_API ), true ) ) {
+			return false;
+		}
 
-	    
-        // if no site key, attempt to generate one:
-        if ( empty( $site_key ) ){
+		// if no site key, attempt to generate one:
+		if ( empty( $site_key ) ) {
 
-			if ( $mode == JPCRM_WOO_SYNC_MODE_LOCAL ){
-				
+			if ( $mode === JPCRM_WOO_SYNC_MODE_LOCAL ) {
 				$site_key = 'local';
+			} elseif ( ! empty( $domain ) ) {
 
-				// if local and already have a local, error?
-		        if ( isset( $sync_sites[ $site_key ] ) ){
-		        	return false;
-		        }
+				$site_key = $this->generate_site_key( $domain );
 
 			} else {
 
-				if ( !empty( $domain ) ){
-					
-					$site_key = $this->generate_site_key( $domain );
-
-				} else {
-
-					// external site setup without a domain ¯\_(ツ)_/¯
-					$site_key = $this->generate_site_key( 'no_domain' );
-
-				}
+				// external site setup without a domain ¯\_(ツ)_/¯
+				$site_key = $this->generate_site_key( 'no_domain' );
 
 			}
 
-			// any luck?
-			if ( empty( $site_key ) ){
+			$sync_sites = $this->get_active_sync_sites( 'default' );
 
+			if (
+				// error generating key
+				empty( $site_key )
+				// site key already exists
+				|| isset( $sync_sites[ $site_key ] )
+				// domain already exists
+				|| in_array( $domain, array_column( $sync_sites, 'domain' ), true )
+				) {
 				return false;
-
 			}
 
 		}
 
-        
-        // add
-        $sync_sites[ $site_key ] = array(
+		// add
+		$sync_sites[ $site_key ] = array(
+			'mode'                  => $mode,
+			'domain'                => $domain,
+			'key'                   => $key,
+			'secret'                => $secret,
+			'prefix'                => $prefix,
 
-            'mode'           => $mode,
-            'domain'         => $domain,
-            'key'            => $key,
-            'secret'         => $secret,
-            'prefix'         => $prefix,
+			// tracking
+			'last_sync_fired'       => -1,
+			'resume_from_page'      => 1,
+			'total_order_count'     => 0,
+			'total_customer_count'  => 0,
+			'first_import_complete' => false,
+		);
 
-            // tracking
-            'last_sync_fired'        => -1,
-            'resume_from_page'       => 1,
-            'total_order_count'      => 0,
-            'total_customer_count'   => 0,
-            'first_import_complete'  => false,
+		// pause, if present
+		if ( $paused ) {
 
-        );
+			$sync_sites[ $site_key ]['paused'] = $paused;
 
-        // pause, if present
-        if ( $paused ){
+		}
+		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-        	$sync_sites[ $site_key ][ 'paused' ] = $paused;
+		// save
+		$this->settings->update( 'sync_sites', $sync_sites );
 
-        }
-
-        // save
-        $this->settings->update( 'sync_sites', $sync_sites );
-
-        // add the sitekey (which may have been autogenerated above) and return
-        $sync_sites[ $site_key ]['site_key'] = $site_key;
+		// add the sitekey (which may have been autogenerated above) and return
+		$sync_sites[ $site_key ]['site_key'] = $site_key;
 		return $sync_sites[ $site_key ];
 
 	}
