@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Added endpoint to create a new category to the Jetpack API.
