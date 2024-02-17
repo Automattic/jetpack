@@ -102,3 +102,5 @@ export const subscriptionSettings: Signal< SubscriptionDetails > = signal( undef
  * Store the comment parent which is updated by external scripts
  */
 export const commentParent = signal( 0 );
+
+export const subscribeModalStatus = signal( undefined );
