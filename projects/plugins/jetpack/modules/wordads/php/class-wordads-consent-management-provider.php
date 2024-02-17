@@ -5,10 +5,12 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Class WordAds_Consent_Management_Provider
  *
- * This is an integration with the A8C Consent Management Provider
+ * This is an integration with the GDPR Consent Management Provider
  * to comply with GDPR requirements for privacy and transparency related to advertising.
  */
 class WordAds_Consent_Management_Provider {
@@ -27,7 +29,7 @@ class WordAds_Consent_Management_Provider {
 		add_filter( 'jetpack_disable_cookie_consent_block', '__return_true' );
 
 		// Enqueue scripts.
-		add_action( 'wp_head', array( __CLASS__, 'insert_head' ), 10 );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_frontend_scripts' ) );
 	}
 
 	/**
@@ -63,40 +65,42 @@ class WordAds_Consent_Management_Provider {
 	}
 
 	/**
-	 * Outputs the frontend Javascript framework configuration.
+	 * Enqueues the main frontend Javascript.
 	 */
-	public static function insert_head() {
+	public static function enqueue_frontend_scripts() {
+		wp_enqueue_script(
+			'cmp_script_loader',
+			Assets::get_file_url_for_environment(
+				'__inc/build/wordads/js/cmp-loader.min.js',
+				'modules/wordads/js/cmp-loader.js'
+			),
+			array(),
+			JETPACK__VERSION,
+			true
+		);
+
+		$request_url = self::get_config_url();
+		wp_enqueue_script(
+			'cmp_config_script',
+			Assets::get_file_url_for_environment(
+				$request_url,
+				$request_url
+			),
+			array(),
+			JETPACK__VERSION,
+			true
+		);
+	}
+
+	/**
+	 * Gets the value to be used when an opt-in cookie is set.
+	 *
+	 * @return string The value to store in the opt-in cookie.
+	 */
+	private static function get_config_url() {
 		$locale      = strtolower( get_locale() ); // Defaults to en_US not en.
-		$request_url = sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/cmp/configuration/%s/?_jsonp=a8c_load_cmp', self::get_blog_id(), $locale );
-
-		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		?>
-			<script id="cmp-config-loader">
-				function a8c_load_cmp(data) {
-					if (data && data.scripts && Array.isArray(data.scripts)) {
-
-						if (data.config) {
-							let configurationScript = document.createElement('script');
-							configurationScript.id = 'cmp-configuration';
-							configurationScript.type = 'application/configuration';
-							configurationScript.innerHTML = JSON.stringify(data.config);
-
-							// Add the cmp-configuration script element to the document's body
-							document.head.appendChild(configurationScript);
-						}
-
-						// Load each cmp script
-						data.scripts.forEach(function(scriptUrl) {
-							let script = document.createElement('script');
-							script.src = scriptUrl;
-							document.head.appendChild(script);
-						});
-					}
-				}
-			</script>
-			<script src="<?php echo esc_attr( $request_url ); ?>"></script>
-		<?php
-		// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$request_url = 'https://public-api.wordpress.com/wpcom/v2/sites/' . self::get_blog_id() . '/cmp/configuration/' . $locale . '/?_jsonp=a8c_cmp_callback';
+		return $request_url;
 	}
 
 	/**
