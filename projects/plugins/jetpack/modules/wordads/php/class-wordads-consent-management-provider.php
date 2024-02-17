@@ -76,7 +76,7 @@ class WordAds_Consent_Management_Provider {
 			),
 			array(),
 			JETPACK__VERSION,
-			true
+			false
 		);
 
 		$request_url = self::get_config_url();
@@ -88,7 +88,7 @@ class WordAds_Consent_Management_Provider {
 			),
 			array(),
 			JETPACK__VERSION,
-			true
+			false
 		);
 	}
 
