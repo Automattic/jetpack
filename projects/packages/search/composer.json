@@ -4,6 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"php": ">=7.0",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-constants": "@dev",
@@ -70,7 +71,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.39.x-dev"
+			"dev-trunk": "0.43.x-dev"
 		},
 		"version-constants": {
 			"::VERSION": "src/class-package.php"

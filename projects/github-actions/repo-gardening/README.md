@@ -49,10 +49,10 @@ jobs:
 
     steps:
      - name: Checkout
-       uses: actions/checkout@v3
+       uses: actions/checkout@v4
 
      - name: Setup Node
-       uses: actions/setup-node@v3
+       uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
@@ -86,6 +86,7 @@ The action relies on the following parameters.
 - (Optional) `reply_to_customers_threshold`. It is optional, and defaults to 10. It is the minimum number of support references needed to trigger an alert that we need to reply to customers.
 - (Optional) `triage_projects_token` is a [personal access token](https://github.com/settings/tokens/new) with `repo` and `project` scopes. The token should be stored in a secret. This is required if you want to use the `updateBoard` task.
 - (Optional) `project_board_url` is the URL of a GitHub Project Board. We'll automate some of the work on that board in the `updateBoard` task.
+- (Optional) `labels_team_assignments` is a list of features you can provide, with matching team names, as specified in the "Team" field of your GitHub Project Board used for the `updateBoard` task, and lists of labels in use in your repository.
 
 #### How to create a Slack bot and get your SLACK_TOKEN
 
@@ -106,7 +107,7 @@ Certain tasks require filesystem access to the PR, which `pull_request_target` d
 ```yaml
      - name: Checkout the PR
        if: github.event_name == 'pull_request_target'
-       uses: actions/checkout@v3
+       uses: actions/checkout@v4
        with:
          ref: ${{ github.event.pull_request.head.ref }}
          repository: ${{ github.event.pull_request.head.repo.full_name }}

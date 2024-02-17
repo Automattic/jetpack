@@ -3,7 +3,9 @@
 	"description": "Password Checker.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"php": ">=7.0"
+	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "@dev",
@@ -46,7 +48,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-password-checker/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.2.x-dev"
+			"dev-trunk": "0.3.x-dev"
 		}
 	},
 	"config": {

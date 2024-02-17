@@ -3,6 +3,8 @@
 namespace Automattic\Jetpack\Backup;
 
 use PHPUnit\Framework\TestCase;
+use function add_filter;
+use function apply_filters;
 
 /**
  * Unit tests for the Package_Version class.
@@ -12,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 class Test_Package_Version extends TestCase {
 
 	/**
-	 * Tests that the backup package version is added to the package verions array obtained by the
+	 * Tests that the backup package version is added to the package versions array obtained by the
 	 * Package_Version_Tracker.
 	 */
 	public function test_send_package_version_to_tracker_empty_array() {
@@ -26,7 +28,7 @@ class Test_Package_Version extends TestCase {
 	}
 
 	/**
-	 * Tests that the backup package version is added to the package verions array obtained by the
+	 * Tests that the backup package version is added to the package versions array obtained by the
 	 * Package_Version_Tracker.
 	 */
 	public function test_send_package_version_to_tracker_existing_array() {

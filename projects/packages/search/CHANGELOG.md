@@ -5,6 +5,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.43.1] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [0.43.0] - 2024-02-05
+### Changed
+- Updated package dependencies. [#35384]
+- Updated package dependencies. [#35385]
+- Use blog ID instead of site slug in checkout links. [#35000]
+
+## [0.42.1] - 2024-01-29
+### Changed
+- Update dependencies. [#35170]
+
+## [0.42.0] - 2024-01-25
+### Added
+- Add price and rating to default sort options. [#35167]
+
+## [0.41.1] - 2024-01-22
+### Changed
+- Update dependencies. [#35117]
+
+## [0.41.0] - 2024-01-04
+### Added
+- Search: Add a filter to prevent tracking cookie reset. [#34803]
+
+### Changed
+- Updated package dependencies. [#34815]
+
+## [0.40.4] - 2023-12-20
+### Changed
+- Updated package dependencies. [#34694]
+
+## [0.40.3] - 2023-12-11
+### Changed
+- Updated package dependencies. [#34416]
+
+## [0.40.2] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+
+### Fixed
+- Instant Search: Fixed the title layout for product layout. [#34263]
+
+## [0.40.1] - 2023-11-24
+### Changed
+- Replaced usage of strpos() with str_contains(). [#34137]
+- Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+
+## [0.40.0] - 2023-11-20
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [0.39.7] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.39.6] - 2023-11-13
+### Fixed
+- Switched to classic search for iOS 15 or lower. [#33929]
+
 ## [0.39.5] - 2023-11-03
 
 ## [0.39.4] - 2023-10-30
@@ -832,6 +894,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.43.1]: https://github.com/Automattic/jetpack-search/compare/v0.43.0...v0.43.1
+[0.43.0]: https://github.com/Automattic/jetpack-search/compare/v0.42.1...v0.43.0
+[0.42.1]: https://github.com/Automattic/jetpack-search/compare/v0.42.0...v0.42.1
+[0.42.0]: https://github.com/Automattic/jetpack-search/compare/v0.41.1...v0.42.0
+[0.41.1]: https://github.com/Automattic/jetpack-search/compare/v0.41.0...v0.41.1
+[0.41.0]: https://github.com/Automattic/jetpack-search/compare/v0.40.4...v0.41.0
+[0.40.4]: https://github.com/Automattic/jetpack-search/compare/v0.40.3...v0.40.4
+[0.40.3]: https://github.com/Automattic/jetpack-search/compare/v0.40.2...v0.40.3
+[0.40.2]: https://github.com/Automattic/jetpack-search/compare/v0.40.1...v0.40.2
+[0.40.1]: https://github.com/Automattic/jetpack-search/compare/v0.40.0...v0.40.1
+[0.40.0]: https://github.com/Automattic/jetpack-search/compare/v0.39.7...v0.40.0
+[0.39.7]: https://github.com/Automattic/jetpack-search/compare/v0.39.6...v0.39.7
+[0.39.6]: https://github.com/Automattic/jetpack-search/compare/v0.39.5...v0.39.6
 [0.39.5]: https://github.com/Automattic/jetpack-search/compare/v0.39.4...v0.39.5
 [0.39.4]: https://github.com/Automattic/jetpack-search/compare/v0.39.3...v0.39.4
 [0.39.3]: https://github.com/Automattic/jetpack-search/compare/v0.39.2...v0.39.3

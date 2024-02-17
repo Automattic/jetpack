@@ -85,25 +85,28 @@ function site_recommendations_settings() {
 					'items' => array(
 						'type'       => 'object',
 						'properties' => array(
-							'id'          => array(
+							'id'                => array(
 								'type'   => 'string',
 								'format' => 'text-field',
 							),
-							'name'        => array(
+							'name'              => array(
 								'type'   => 'string',
 								'format' => 'text-field',
 							),
-							'icon'        => array(
+							'icon'              => array(
 								'type'   => 'string',
 								'format' => 'uri',
 							),
-							'url'         => array(
+							'url'               => array(
 								'type'   => 'string',
 								'format' => 'uri',
 							),
-							'description' => array(
+							'description'       => array(
 								'type'   => 'string',
 								'format' => 'text-field',
+							),
+							'is_non_wpcom_site' => array(
+								'type' => 'boolean',
 							),
 						),
 					),

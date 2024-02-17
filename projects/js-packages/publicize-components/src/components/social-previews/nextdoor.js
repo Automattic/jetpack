@@ -1,7 +1,8 @@
 import { NextdoorPreviews } from '@automattic/social-previews';
+import { useSelect } from '@wordpress/data';
 import React from 'react';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
-import { getNextdoorDetails } from '../../store/selectors';
+import { SOCIAL_STORE_ID, CONNECTION_SERVICE_NEXTDOOR } from '../../social-store';
 
 /**
  * The linkedin tab component.
@@ -12,7 +13,9 @@ import { getNextdoorDetails } from '../../store/selectors';
 export function Nextdoor( props ) {
 	const { title, url, image, media } = props;
 
-	const { name, profileImage } = getNextdoorDetails();
+	const { displayName: name, profileImage } = useSelect( select =>
+		select( SOCIAL_STORE_ID ).getConnectionProfileDetails( CONNECTION_SERVICE_NEXTDOOR )
+	);
 
 	const { message: text } = useSocialMediaMessage();
 

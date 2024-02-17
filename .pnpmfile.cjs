@@ -11,11 +11,13 @@
  * @returns {object} Modified pkg.
  */
 function fixDeps( pkg ) {
-	// Depends on punycode but doesn't declare it.
-	// https://github.com/markdown-it/markdown-it/issues/230
-	// https://github.com/markdown-it/markdown-it/issues/945
-	if ( pkg.name === 'markdown-it' && ! pkg.dependencies.punycode ) {
-		pkg.dependencies.punycode = '*';
+	// Outdated dep. Already fixed upstream, just waiting on a release.
+	// https://github.com/Automattic/wp-calypso/pull/87350
+	if (
+		pkg.name === '@automattic/social-previews' &&
+		pkg.dependencies?.[ '@wordpress/components' ] === '^25.10.0'
+	) {
+		pkg.dependencies[ '@wordpress/components' ] = '^26.0.0';
 	}
 
 	// Missing dep or peer dep on react.
@@ -44,6 +46,12 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Update localtunnel axios dep to avoid CVE
+	// https://github.com/localtunnel/localtunnel/issues/632
+	if ( pkg.name === 'localtunnel' && pkg.dependencies.axios === '0.21.4' ) {
+		pkg.dependencies.axios = '^1.6.0';
+	}
+
 	// Avoid annoying flip-flopping of sub-dep peer deps.
 	// https://github.com/localtunnel/localtunnel/issues/481
 	if ( pkg.name === 'localtunnel' ) {
@@ -60,12 +68,6 @@ function fixDeps( pkg ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6';
 	}
 
-	// Outdated dependency.
-	// No upstream bug link yet.
-	if ( pkg.name === 'svelte-navigator' && pkg.dependencies.svelte2tsx === '^0.1.151' ) {
-		pkg.dependencies.svelte2tsx = '^0.6.10';
-	}
-
 	// Missing dep or peer dep on @babel/runtime
 	// https://github.com/zillow/react-slider/issues/296
 	if (
@@ -76,14 +78,12 @@ function fixDeps( pkg ) {
 		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
-	// Typo in package.json caused a missing peer dep.
-	// Already fixed by https://github.com/yjs/y-webrtc/pull/48, not yet released.
-	// Already fixed by https://github.com/yjs/y-protocols/pull/12, not yet released.
-	if (
-		( pkg.name === 'y-webrtc' && pkg.version === '10.2.5' ) ||
-		( pkg.name === 'y-protocols' && pkg.version === '1.0.5' )
-	) {
-		pkg.peerDependencies.yjs = '^13.5.6';
+	// Apparently this package tried to switch from a dep to a peer dep, but screwed it up.
+	// The screwed-up-ness makes pnpm 8.15.2 behave differently from earlier versions.
+	// https://github.com/ajv-validator/ajv-formats/issues/80
+	if ( pkg.name === 'ajv-formats' && pkg.dependencies?.ajv && pkg.peerDependencies?.ajv ) {
+		delete pkg.dependencies.ajv;
+		delete pkg.peerDependenciesMeta?.ajv;
 	}
 
 	return pkg;
@@ -102,12 +102,6 @@ function fixPeerDeps( pkg ) {
 	const reactOldPkgs = new Set( [
 		// Still on 16.
 		'react-autosize-textarea', // @wordpress/block-editor <https://github.com/WordPress/gutenberg/issues/39619>
-
-		// Still on 17.
-		'reakit', // @wordpress/components <https://github.com/WordPress/gutenberg/issues/53278>
-		'reakit-system', // @wordpress/components → reakit
-		'reakit-utils', // @wordpress/components → reakit
-		'reakit-warning', // @wordpress/components → reakit
 	] );
 	if ( reactOldPkgs.has( pkg.name ) ) {
 		for ( const p of [ 'react', 'react-dom' ] ) {

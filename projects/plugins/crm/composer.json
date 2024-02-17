@@ -7,7 +7,7 @@
 		"codeception/module-asserts": "^2.0 || ^3.0",
 		"codeception/module-phpbrowser": "^2.0 || ^3.0",
 		"codeception/module-webdriver": "^2.0 || ^3.0 || ^4.0",
-		"codeception/module-db": "^2.0 || ^3.0",
+		"codeception/module-db": "^2.0 || 3.1.0 || ^3.1.2",
 		"codeception/module-filesystem": "^2.0 || ^3.0",
 		"codeception/util-universalframework": "^1.0",
 		"yoast/phpunit-polyfills": "1.1.0"
@@ -42,7 +42,7 @@
 		]
 	},
 	"config": {
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_3_0_alpha",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_4_1_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true,

@@ -160,11 +160,7 @@ class Highlander_Comments_Base {
 	 * @return int
 	 */
 	public function sort_comments_by_comment_date_gmt( $a, $b ) {
-		if ( $a->comment_date_gmt === $b->comment_date_gmt ) {
-			return 0;
-		}
-
-		return $a->comment_date_gmt < $b->comment_date_gmt ? -1 : 1;
+		return $a->comment_date_gmt <=> $b->comment_date_gmt;
 	}
 
 	/**

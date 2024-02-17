@@ -5,6 +5,7 @@ import {
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
+	PLAN_JETPACK_CREATOR_YEARLY,
 	getPlanClass,
 } from 'lib/plans/constants';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
@@ -21,6 +22,8 @@ import {
 	SUMMARY_SECTION_BY_ONBOARDING_NAME,
 	RECOMMENDATION_WIZARD_STEP,
 	ONBOARDING_SUPPORT_START_TIMESTAMP,
+	ONBOARDING_JETPACK_SOCIAL_ADVANCED,
+	ONBOARDING_JETPACK_SOCIAL_BASIC,
 } from 'recommendations/constants';
 import { combineReducers } from 'redux';
 import {
@@ -62,11 +65,14 @@ import {
 	getSitePurchases,
 	hasActiveProductPurchase,
 	hasActiveSecurityPurchase,
+	hasActiveCreatorPurchase,
 	siteHasFeature,
 	isFetchingSiteData,
 	hasActiveAntiSpamPurchase,
 	hasSecurityComparableLegacyPlan,
 	hasActiveBackupPurchase,
+	hasActiveSocialPurchase,
+	hasActiveCompletePurchase,
 } from 'state/site';
 import { isPluginActive } from 'state/site/plugins';
 import { sortByOnboardingPriority, getOnboardingNameByProductSlug } from './onboarding-utils';
@@ -355,7 +361,8 @@ const stepToNextStepByPath = {
 			'backup-activated': 'scan-activated',
 			'scan-activated': 'antispam-activated',
 			'antispam-activated': 'videopress-activated',
-			'videopress-activated': 'search-activated',
+			'videopress-activated': 'social-advanced-activated',
+			'social-advanced-activated': 'search-activated',
 			'search-activated': 'server-credentials',
 			'server-credentials': 'summary',
 		},
@@ -403,6 +410,17 @@ const stepToNextStepByPath = {
 			monitor: 'site-accelerator',
 			'site-accelerator': 'summary',
 		},
+		[ ONBOARDING_JETPACK_SOCIAL_BASIC ]: {
+			welcome__social_basic: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'summary',
+		},
+		[ ONBOARDING_JETPACK_SOCIAL_ADVANCED ]: {
+			welcome__social_advanced: 'welcome__social_image_generator',
+			welcome__social_image_generator: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'summary',
+		},
 		[ ONBOARDING_JETPACK_GOLDEN_TOKEN ]: {
 			welcome__golden_token: 'backup-activated',
 			'backup-activated': 'scan-activated',
@@ -441,9 +459,14 @@ export const stepToRoute = {
 	welcome__videopress: '#/recommendations/welcome-videopress',
 	welcome__search: '#/recommendations/welcome-search',
 	welcome__scan: '#/recommendations/welcome-scan',
+	welcome__social_basic: '#/recommendations/welcome-social-basic',
+	welcome__social_advanced: '#/recommendations/welcome-social-advanced',
+	welcome__social_image_generator: '#/recommendations/welcome-social-image-generator',
 	welcome__golden_token: '#/recommendations/welcome-golden-token',
 	'backup-activated': '#/recommendations/backup-activated',
 	'scan-activated': '#/recommendations/scan-activated',
+	'unlimited-sharing-activated': '#/recommendations/unlimited-sharing-activated',
+	'social-advanced-activated': '#/recommendations/social-advanced-activated',
 	'antispam-activated': '#/recommendations/antispam-activated',
 	'videopress-activated': '#/recommendations/videopress-activated',
 	'search-activated': '#/recommendations/search-activated',
@@ -551,6 +574,11 @@ export const getProductSlugForStep = ( state, step ) => {
 				return PLAN_JETPACK_BACKUP_T1_YEARLY;
 			}
 			break;
+		case 'newsletter':
+			if ( ! hasActiveCreatorPurchase( state ) ) {
+				return PLAN_JETPACK_CREATOR_YEARLY;
+			}
+			break;
 		case 'anti-spam':
 			if (
 				! isPluginActive( state, 'akismet/akismet.php' ) &&
@@ -627,6 +655,8 @@ const isStepEligibleToShow = ( state, step ) => {
 		// Onboarding specific steps (`-activated` and `welcome__`):
 		case 'backup-activated':
 		case 'scan-activated':
+		case 'unlimited-sharing-activated':
+		case 'social-advanced-activated':
 		case 'search-activated':
 		case 'welcome__complete':
 		case 'welcome__security':
@@ -635,6 +665,9 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'welcome__videopress':
 		case 'welcome__search':
 		case 'welcome__scan':
+		case 'welcome__social_basic':
+		case 'welcome__social_advanced':
+		case 'welcome__social_image_generator':
 		case 'welcome__backup':
 		case 'welcome__golden_token':
 			return true;
@@ -793,6 +826,7 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 		case 'boost':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'publicize':
+			return ! hasActiveSocialPurchase( state ) && ! hasActiveCompletePurchase( state );
 		case 'protect':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'anti-spam':
@@ -821,6 +855,8 @@ export const isOnboardingEligibleToShowInSummary = ( state, onboardingName ) => 
 		case ONBOARDING_JETPACK_VIDEOPRESS:
 		case ONBOARDING_JETPACK_SEARCH:
 		case ONBOARDING_JETPACK_SECURITY:
+		case ONBOARDING_JETPACK_SOCIAL_BASIC:
+		case ONBOARDING_JETPACK_SOCIAL_ADVANCED:
 			// Don't show plans that overlap with active plan: Complete
 			return ! viewedOnboardings.includes( ONBOARDING_JETPACK_COMPLETE );
 		case ONBOARDING_JETPACK_BACKUP:

@@ -175,6 +175,7 @@ git checkout -b prerelease
 if ! git push -u origin HEAD; then
 	die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
 fi
+GITBASE=$( git rev-parse --verify HEAD )
 
 # Loop through the projects and update the changelogs after building the arguments.
 for PLUGIN in "${!PROJECTS[@]}"; do
@@ -200,9 +201,27 @@ done
 read -r -s -p $'Edit all the changelog entries you want (in a separate terminal or your text editor of choice (make sure to save)), then press enter when finished to continue the release process.'
 echo ""
 
+for PLUGIN in "${!PROJECTS[@]}"; do
+	# check if the plugin even has a readme.txt file.
+	if [[ ! -e "$BASE/projects/$PLUGIN/readme.txt" ]]; then
+		yellow "$PLUGIN has no readme.txt file, skipping."
+		continue
+	fi
+	yellow "Updating the readme.txt file for $PLUGIN."
+	ARGS=()
+	# Add alpha and beta flags.
+	VERSION="${PROJECTS[$PLUGIN]}"
+	case $VERSION in
+		*-a* ) ARGS+=('-a');;
+		*-beta ) ARGS+=('-b');;
+		* ) ARGS+=('-s');;
+	esac
+	pnpm jetpack release "$PLUGIN" readme "${ARGS[@]}"
+done
+
 yellow "Committing changes."
 git add --all
-git commit -am "Changelog edits."
+git commit -am "Changelog and readme.txt edits."
 
 # If we're releasing Jetpack and it's a beta, amend the readme.txt
 if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" == *-beta ]]; then
@@ -236,6 +255,25 @@ if ! gh run watch "${BUILDID[0]}" --exit-status; then
 fi
 
 yellow "Build is complete."
+
+# Wait for new versions of any composer packages to be up.
+# We expect a new version when (1) the package is touched in this release and (2) it has no change entry files remaining.
+POLL_ARGS=()
+cd "$BASE"
+for PKGDIR in $(git -c core.quotepath=off diff --name-only "$GITBASE..HEAD" projects/packages/ | sed 's!^\(projects/packages/[^/]*\)/.*!\1!' | sort -u); do
+	cd "$BASE/$PKGDIR"
+	CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
+	if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
+		POLL_ARGS+=( "$( jq -r .name composer.json )=$( changelogger version current )" )
+	fi
+done
+cd "$BASE"
+if [[ ${#POLL_ARGS[@]} -gt 0 ]]; then
+	yellow "Waiting for packagist to get updated packages..."
+	tools/js-tools/await-packagist-updates.mjs "${POLL_ARGS[@]}"
+	yellow "Packagist is updated!"
+fi
+
 # Run tools/create-release-branch.sh to create a release branch for each project.
 for PREFIX in "${PREFIXES[@]}"; do
 	git checkout prerelease
@@ -268,6 +306,9 @@ fi
 git fetch
 git merge origin/trunk
 tools/fixup-project-versions.sh
+if [[ -n "$(git status --porcelain)" ]]; then
+	git commit -am 'Version bumps'
+fi
 git push
 PLUGINS_CHANGED=
 for PLUGIN in "${!PROJECTS[@]}"; do
@@ -281,7 +322,7 @@ rm .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
 
 yellow "Release script complete! Next steps: "
 echo -e "\t1. Merge the above PR into trunk."
-echo -e "\t2. On trunk, start a new branch and make any changes you want to CHANGELOG.md."
-echo -e "\t3. After merging the changelog edit PR, cherry pick that to the release branch."
-echo -e "\t4. After the changes make it to the mirror repo, conduct a GitHub release."
-echo -e "\t5. Then run ./tools/deploy-to-svn.sh <plugin-name> <tag> to deploy to SVN."
+echo -e "\t2. If this is NOT the Jetpack core plugin, the release will shortly be tagged to GitHub and released to SVN."
+echo -e "\t3. You can then smoke test the release and use .tools/stable-tag.sh <plugin> to update the stable tag, and you're done!"
+echo -e "\t4. If you are releasing Jetpack-the-plugin, after the changes make it to the mirror repo, conduct a GitHub release."
+echo -e "\t5. Then run ./tools/deploy-to-svn.sh <plugin-name> <tag> to deploy to SVN, smoke test, and flip stable tag."

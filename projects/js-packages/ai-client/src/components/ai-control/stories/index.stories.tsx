@@ -7,14 +7,18 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { REQUESTING_STATES } from '../../../types';
-import AIControl from '../index';
+import AIControl from '../index.js';
 /**
  * Types
  */
 import type { Meta } from '@storybook/react';
 
-export default {
+interface AIControlStoryMeta extends Meta< typeof AIControl > {
+	title?: string;
+	component?: React.ReactElement;
+}
+
+const meta: AIControlStoryMeta = {
 	title: 'JS Packages/AI Client/AI Control',
 	component: AIControl,
 	decorators: [
@@ -29,7 +33,7 @@ export default {
 			control: {
 				type: 'select',
 			},
-			options: REQUESTING_STATES,
+			options: [ 'init', 'requesting', 'suggesting', 'done', 'error' ],
 		},
 	},
 	parameters: {
@@ -65,3 +69,5 @@ const DefaultArgs = {
 
 export const Default = Template.bind( {} );
 Default.args = DefaultArgs;
+
+export default meta;

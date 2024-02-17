@@ -15,6 +15,7 @@ const selectors = {
 	getNotice: state => state.notice || null,
 	getThreatsAreFixing: state => state.threatsAreFixing || [],
 	hasRequiredPlan: state => state.hasRequiredPlan || false,
+	getOnboardingProgress: state => state.onboardingProgress || null,
 	getWaf: state => state.waf,
 };
 

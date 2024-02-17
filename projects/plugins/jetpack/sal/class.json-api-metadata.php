@@ -31,11 +31,11 @@ class WPCOM_JSON_API_Metadata {
 			return true;
 		}
 
-		if ( 0 === strpos( $key, 'geo_' ) ) {
+		if ( str_starts_with( $key, 'geo_' ) ) {
 			return true;
 		}
 
-		if ( 0 === strpos( $key, '_wpas_' ) ) {
+		if ( str_starts_with( $key, '_wpas_' ) ) {
 			return true;
 		}
 
@@ -65,11 +65,11 @@ class WPCOM_JSON_API_Metadata {
 			return false;
 		}
 
-		if ( 0 === strpos( $key, '_jetpack_' ) ) {
+		if ( str_starts_with( $key, '_jetpack_' ) ) {
 			return true;
 		}
 
-		if ( 0 === strpos( $key, '_elasticsearch_' ) ) {
+		if ( str_starts_with( $key, '_elasticsearch_' ) ) {
 			return true;
 		}
 

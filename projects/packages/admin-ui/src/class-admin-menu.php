@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.2.24';
+	const PACKAGE_VERSION = '0.3.2';
 
 	/**
 	 * Whether this class has been initialized
@@ -50,17 +50,17 @@ class Admin_Menu {
 	 */
 	private static function handle_akismet_menu() {
 		if ( class_exists( 'Akismet_Admin' ) ) {
-			// Prevent Akismet from adding a menu item.
 			add_action(
 				'admin_menu',
 				function () {
+					// Prevent Akismet from adding a menu item.
 					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+
+					// Add an Anti-spam menu item for Jetpack.
+					self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 				},
 				4
 			);
-
-			// Add an Anti-spam menu item for Jetpack.
-			self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 
 		}
 	}
@@ -104,7 +104,7 @@ class Admin_Menu {
 			function ( $a, $b ) {
 				$position_a = empty( $a['position'] ) ? 0 : $a['position'];
 				$position_b = empty( $b['position'] ) ? 0 : $b['position'];
-				$result     = $position_a - $position_b;
+				$result     = $position_a <=> $position_b;
 
 				if ( 0 === $result ) {
 					$result = strcmp( $a['menu_title'], $b['menu_title'] );

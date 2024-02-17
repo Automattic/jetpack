@@ -34,7 +34,7 @@
 	"attributes": {
 		"currency": {
 			"type": "string",
-			"default": "DEFAULT_CURRENCY"
+			"default": "USD"
 		},
 		"content": {
 			"type": "string",
@@ -101,6 +101,5 @@
 			"email": "jetpack@jetpack.com",
 			"featuredMediaUrl": "./simple-payments_example-1.jpg"
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }

@@ -131,4 +131,27 @@ class URL_Secret {
 	private function generate_secret() {
 		return wp_generate_password( 12, false );
 	}
+
+	/**
+	 * Generate secret for response.
+	 *
+	 * @param string $flow used to tell which flow generated the exception.
+	 * @return string
+	 */
+	public static function create_secret( $flow = 'generating_secret_failed' ) {
+		$secret = null;
+		try {
+
+			$secret = new self();
+			$secret->create();
+
+			if ( $secret->exists() ) {
+				$secret = $secret->get_secret();
+			}
+		} catch ( Exception $e ) {
+			// Track the error and proceed.
+			( new Tracking() )->record_user_event( $flow, array( 'current_url' => Urls::site_url() ) );
+		}
+		return $secret;
+	}
 }

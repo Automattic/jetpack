@@ -8,7 +8,6 @@ import { addFilter } from '@wordpress/hooks';
  * Internal dependencies
  */
 import metadata from '../../block.json';
-import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
 
 /*
@@ -55,7 +54,8 @@ export function isPossibleToExtendBlock(): boolean {
 	}
 
 	// Do not extend if there is an error getting the feature.
-	if ( AI_Assistant_Initial_State.errorCode ) {
+	const { errorCode } = select( 'wordpress-com/plans' )?.getAiAssistantFeature?.() || {};
+	if ( errorCode ) {
 		return false;
 	}
 

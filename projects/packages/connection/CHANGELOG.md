@@ -5,6 +5,70 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [2.3.0] - 2024-02-05
+### Added
+- Add rate limiter to the package versions endpoint calls. [#35379]
+
+### Changed
+- Adjust 'get_site_id()' method to return null if there's no blog ID. [#35004]
+- Adjust 'get_site_id()' method to return null if there's no blog ID. [#35006]
+- Jetpack Connection: Add jetpack_package_versions to Sync [#35409]
+- Updated package dependencies. [#35384]
+
+## [2.2.0] - 2024-01-18
+### Added
+- Adding support for IDC when site URL is an IP address. [#34753]
+
+### Changed
+- Adjust 'get_site_id()' method to return null if there's no blog ID. [#34976]
+
+## [2.1.1] - 2024-01-04
+### Changed
+- Updated package dependencies. [#34815]
+
+## [2.1.0] - 2023-12-03
+### Added
+- Added the welcome banner to My Jetpack. [#34384]
+- Updated XMLRPC endpoint 'jetpack.idcUrlValidation' to accept an argument specifying whether to attempt reusing existing URL secret. [#34262]
+
+### Changed
+- Updated package dependencies. [#34411]
+
+## [2.0.3] - 2023-11-24
+
+## [2.0.2] - 2023-11-21
+### Changed
+- Replaced usage of strpos() with str_contains(). [#34137]
+
+## [2.0.1] - 2023-11-21
+
+## [2.0.0] - 2023-11-20
+### Added
+- Confirm blog ID and access token were saved before proceeding with connection flow. [#34136]
+
+### Changed
+- Replace usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+
+### Fixed
+- Ensured that partner partners are passed on during the connection process, regardless of the plugin you use to connect. [#33832]
+
+## [1.60.1] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [1.60.0] - 2023-11-13
+### Added
+- Added a 'source' query param to the Jetpack connect URL. [#33984]
+
+## [1.59.0] - 2023-11-08
+### Added
+- Added a method to check if Jetpack is ready for uninstall cleanup. [#33920]
+
 ## [1.58.3] - 2023-11-03
 ### Fixed
 - Make sure scheme history option is an array. [#33905]
@@ -900,6 +964,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[2.3.1]: https://github.com/Automattic/jetpack-connection/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/Automattic/jetpack-connection/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/Automattic/jetpack-connection/compare/v2.1.1...v2.2.0
+[2.1.1]: https://github.com/Automattic/jetpack-connection/compare/v2.1.0...v2.1.1
+[2.1.0]: https://github.com/Automattic/jetpack-connection/compare/v2.0.3...v2.1.0
+[2.0.3]: https://github.com/Automattic/jetpack-connection/compare/v2.0.2...v2.0.3
+[2.0.2]: https://github.com/Automattic/jetpack-connection/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-connection/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-connection/compare/v1.60.1...v2.0.0
+[1.60.1]: https://github.com/Automattic/jetpack-connection/compare/v1.60.0...v1.60.1
+[1.60.0]: https://github.com/Automattic/jetpack-connection/compare/v1.59.0...v1.60.0
+[1.59.0]: https://github.com/Automattic/jetpack-connection/compare/v1.58.3...v1.59.0
 [1.58.3]: https://github.com/Automattic/jetpack-connection/compare/v1.58.2...v1.58.3
 [1.58.2]: https://github.com/Automattic/jetpack-connection/compare/v1.58.1...v1.58.2
 [1.58.1]: https://github.com/Automattic/jetpack-connection/compare/v1.58.0...v1.58.1

@@ -87,7 +87,7 @@ class Tiled_Gallery {
 
 					// Because URLs are already "photon", the photon function used short-circuits
 					// before ssl is added. Detect ssl and add is if necessary.
-					$is_ssl = ! empty( $src_parts[1] ) && false !== strpos( $src_parts[1], 'ssl=1' );
+					$is_ssl = ! empty( $src_parts[1] ) && str_contains( $src_parts[1], 'ssl=1' );
 
 					if ( ! $orig_width || ! $orig_height || ! $orig_src ) {
 						continue;

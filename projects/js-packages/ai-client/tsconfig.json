@@ -1,5 +1,14 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
-	// List all sources and source-containing subdirs.
-	"include": [ "./index.ts", "./src" ]
+	"include": [ "./src/**/*" ],
+	"compilerOptions": {
+		"typeRoots": [ "./node_modules/@types/", "src/*" ],
+		"sourceMap": false,
+		"forceConsistentCasingInFileNames": true,
+		"outDir": "./build/",
+		"noEmit": false,
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"declaration": true
+	}
 }

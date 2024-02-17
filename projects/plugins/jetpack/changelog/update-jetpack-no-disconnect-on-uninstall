@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Do not cleanup options on plugin uninstall if there are other connected plugins to let them stay connected.

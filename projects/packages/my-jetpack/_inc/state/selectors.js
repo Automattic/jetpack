@@ -38,12 +38,12 @@ export const getProduct = ( state, productId ) => {
 
 	product.pricingForUi.fullPricePerMonth =
 		product.pricingForUi.productTerm === 'year'
-			? Math.ceil( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100
+			? Math.round( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100
 			: product.pricingForUi.fullPrice;
 
 	product.pricingForUi.discountPricePerMonth =
 		product.pricingForUi.productTerm === 'year'
-			? Math.ceil( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100
+			? Math.round( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100
 			: product.pricingForUi.discountPrice;
 
 	return product;
@@ -77,9 +77,14 @@ const productSelectors = {
 	getProductsThatRequiresUserConnection,
 };
 
-const productDataSelectors = {
-	getProductData: state => state.productData?.items || {},
-	isFetchingProductData: state => state.productData?.isFetching || false,
+const backupRewindableEventsSelectors = {
+	getBackupRewindableEvents: state => state.backupRewindableEvents?.items || {},
+	isFetchingBackupRewindableEvents: state => state.backupRewindableEvents?.isFetching || false,
+};
+
+const countBackupItemsSelectors = {
+	getCountBackupItems: state => state.countBackupItems?.items || {},
+	isFetchingCountBackupItems: state => state.countBackupItems.isFetching || false,
 };
 
 const purchasesSelectors = {
@@ -147,17 +152,23 @@ const statsCountsSelectors = {
 	isFetchingStatsCounts,
 };
 
+const getWelcomeBannerHasBeenDismissed = state => {
+	return state.welcomeBanner?.hasBeenDismissed;
+};
+
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
 	...chatAvailabilitySelectors,
 	...chatAuthenticationSelectors,
-	...productDataSelectors,
 	...availableLicensesSelectors,
 	...noticeSelectors,
 	...pluginSelectors,
 	...productStatsSelectors,
+	...backupRewindableEventsSelectors,
+	...countBackupItemsSelectors,
 	...statsCountsSelectors,
+	getWelcomeBannerHasBeenDismissed,
 };
 
 export default selectors;

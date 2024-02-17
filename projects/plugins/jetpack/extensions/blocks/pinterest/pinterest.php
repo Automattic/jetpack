@@ -37,7 +37,7 @@ function pin_type( $url ) {
 		return '';
 	}
 
-	if ( substr( $path, 0, 5 ) === '/pin/' ) {
+	if ( str_starts_with( $path, '/pin/' ) ) {
 		return 'embedPin';
 	}
 

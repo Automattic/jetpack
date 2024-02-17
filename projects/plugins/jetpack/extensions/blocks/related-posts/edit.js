@@ -1,15 +1,16 @@
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, InspectorControls, InnerBlocks } from '@wordpress/block-editor';
 import { Path, SVG } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
+import { LoadingPostsGrid } from '../../shared/components/loading-posts-grid';
 import metadata from './block.json';
 import { RelatedPostsBlockControls, RelatedPostsInspectorControls } from './controls';
+import { useRelatedPosts } from './hooks/use-related-posts';
 import { useRelatedPostsStatus } from './hooks/use-status-toggle';
 import { InactiveRelatedPostsPlaceholder } from './inactive-placeholder';
-import { RelatedPostsSkeletonLoader } from './skeleton-loader';
 import './editor.scss';
 
 const featureName = metadata.name.replace( 'jetpack/', '' );
@@ -44,7 +45,7 @@ function PlaceholderPostEdit( props ) {
 						viewBox="0 0 350 200"
 					>
 						<title>{ __( 'Grey square', 'jetpack' ) }</title>
-						<Path d="M0 0h350v200H0z" fill="#8B8B96" fill-opacity=".1" />
+						<Path d="M0 0h350v200H0z" fill="#8B8B96" fillOpacity=".1" />
 					</SVG>
 					<SVG
 						className="jp-related-posts-i2__post-image-placeholder-icon"
@@ -100,13 +101,16 @@ function RelatedPostsEditItem( props ) {
 				{ props.post.title }
 			</a>
 			{ props.displayThumbnails && props.post.img && props.post.img.src && (
-				<a className="jp-related-posts-i2__post-img-link" href={ props.post.url }>
+				<a
+					className="jp-related-posts-i2__post-img-link"
+					href={ props.post.url }
+					target="_blank"
+					rel="nofollow noopener noreferrer"
+				>
 					<img
 						className="jp-related-posts-i2__post-img"
 						src={ props.post.img.src }
 						alt={ props.post.title }
-						rel="nofollow noopener noreferrer"
-						target="_blank"
 					/>
 				</a>
 			) }
@@ -170,10 +174,11 @@ export default function RelatedPostsEdit( props ) {
 
 	const isChangingRelatedPostsStatus = isChangingStatus || isUpdatingStatus;
 
-	const { posts, isInSiteEditor } = useSelect( select => {
+	const { posts, isLoading: isLoadingRelatedPosts } = useRelatedPosts( isEnabled );
+
+	const { isInSiteEditor } = useSelect( select => {
 		const currentPost = select( editorStore ).getCurrentPost();
 		return {
-			posts: currentPost?.[ 'jetpack-related-posts' ] ?? [],
 			isInSiteEditor: ! currentPost || Object.keys( currentPost ).length === 0,
 		};
 	} );
@@ -181,8 +186,8 @@ export default function RelatedPostsEdit( props ) {
 	const { instanceId } = useInstanceId( RelatedPostsEdit );
 	const { attributes, className, setAttributes } = props;
 
-	if ( isLoadingModules || isFetchingStatus ) {
-		return <RelatedPostsSkeletonLoader />;
+	if ( isLoadingModules || isFetchingStatus || isLoadingRelatedPosts ) {
+		return <LoadingPostsGrid />;
 	}
 
 	if ( ! isModuleActive || ! isEnabled ) {
@@ -196,16 +201,8 @@ export default function RelatedPostsEdit( props ) {
 		);
 	}
 
-	const {
-		displayAuthor,
-		displayContext,
-		displayDate,
-		displayHeadline,
-		displayThumbnails,
-		headline,
-		postLayout,
-		postsToShow,
-	} = attributes;
+	const { displayAuthor, displayContext, displayDate, displayThumbnails, postLayout, postsToShow } =
+		attributes;
 
 	// To prevent the block from crashing, we need to limit ourselves to the
 	// posts returned by the backend - so if we want 6 posts, but only 3 are
@@ -256,7 +253,10 @@ export default function RelatedPostsEdit( props ) {
 			</BlockControls>
 
 			<div className={ className } id={ `related-posts-${ instanceId }` }>
-				{ displayHeadline && <h3>{ headline }</h3> }
+				<InnerBlocks
+					allowedBlocks={ [ 'core/heading' ] }
+					template={ [ [ 'core/heading', { placeholder: __( 'Add a headline', 'jetpack' ) } ] ] }
+				/>
 				<div className={ previewClassName } data-layout={ postLayout }>
 					<RelatedPostsPreviewRows posts={ displayPosts } />
 				</div>

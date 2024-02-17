@@ -245,10 +245,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 				'content'                      => $message->content['message'],
 				'cta'                          => $message->CTA['message'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				'link'                         => $message->CTA['link'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				'tracks_impression_event_name' => $message->tracks['display']['name'],
-				'tracks_impression_cta_name'   => $message->tracks['display']['props']['cta_name'],
-				'tracks_click_event_name'      => $message->tracks['click']['name'],
-				'tracks_click_cta_name'        => $message->tracks['click']['props']['cta_name'],
+				'tracks_impression_event_name' => $message->tracks['display']['name'] ?? null,
+				'tracks_impression_cta_name'   => $message->tracks['display']['props']['cta_name'] ?? null,
+				'tracks_click_event_name'      => $message->tracks['click']['name'] ?? null,
+				'tracks_click_cta_name'        => $message->tracks['click']['props']['cta_name'] ?? null,
 				'dismissible'                  => $message->is_dismissible,
 				'feature_class'                => $message->feature_class,
 				'id'                           => $message->id,
@@ -351,7 +351,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
 		$this->update_submenus( $slug, $submenus_to_update );
-		add_submenu_page( 'users.php', esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
+		add_submenu_page( 'users.php', esc_attr__( 'Add New User', 'jetpack' ), __( 'Add New User', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
 		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
 	}
 

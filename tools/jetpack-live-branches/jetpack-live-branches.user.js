@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.30
+// @version      1.35
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
-// @connect      jurassic.ninja
+// @connect      betadownload.jetpack.me
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
+// @updateURL    https://github.com/Automattic/jetpack/raw/trunk/tools/jetpack-live-branches/jetpack-live-branches.user.js
+// @downloadURL  https://github.com/Automattic/jetpack/raw/trunk/tools/jetpack-live-branches/jetpack-live-branches.user.js
 // ==/UserScript==
 
 // Need to declare "jQuery" for linting within TamperMonkey, but in the monorepo it's already declared.
@@ -89,7 +91,6 @@
 
 		const host = 'https://jurassic.ninja';
 		const currentBranch = jQuery( '.head-ref:first' ).text();
-		const branchIsForked = currentBranch.includes( ':' );
 		const branchStatus = $( '.gh-header-meta .State' ).text().trim();
 		const repo = determineRepo();
 
@@ -99,13 +100,9 @@
 				<p><a target="_blank" rel="nofollow noopener" href="${ getLink()[ 0 ] }">
 					Test with <code>trunk</code> branch instead.
 				</a></p>
+				<p>Note: You need to be Logged in to WordPress.com to create a test site.</p>
 			`;
 			appendHtml( markdownBody, contents );
-		} else if ( branchIsForked ) {
-			appendHtml(
-				markdownBody,
-				"<p><strong>This branch can't be tested live because it comes from a forked version of this repo.</strong></p>"
-			);
 		} else if ( ! repo ) {
 			appendHtml(
 				markdownBody,
@@ -114,19 +111,20 @@
 		} else {
 			if ( ! pluginsList ) {
 				pluginsList = dofetch(
-					`${ host }/wp-json/jurassic.ninja/jetpack-beta/branches/${ repo }/${ currentBranch }`
+					// prettier-ignore
+					`https://betadownload.jetpack.me/query-branch.php?repo=${ encodeURIComponent( repo ) }&branch=${ encodeURIComponent( currentBranch ) }`
 				);
 			}
 			pluginsList
 				.then( body => {
 					const plugins = [];
 
-					if ( body.status === 'ok' ) {
+					if ( body.hasOwnProperty( 'plugins' ) ) {
 						const labels = new Set(
 							$.map( $( '.js-issue-labels a.IssueLabel' ), e => $( e ).data( 'name' ) )
 						);
-						Object.keys( body.data.plugins ).forEach( k => {
-							const data = body.data.plugins[ k ];
+						Object.keys( body.plugins ).forEach( k => {
+							const data = body.plugins[ k ];
 							plugins.push( {
 								name: `branches.${ k }`,
 								value: currentBranch,
@@ -149,14 +147,6 @@
 							);
 							return;
 						}
-					} else if ( body.code === 'rest_no_route' ) {
-						plugins.push( {
-							name: 'branch',
-							value: currentBranch,
-							label: 'Jetpack',
-							checked: true,
-							disabled: true,
-						} );
 					} else {
 						throw new Error( 'Invalid response from server' );
 					}
@@ -179,8 +169,8 @@
 									name: 'wp-debug-log',
 								},
 								{
-									label: 'Multisite based on subdomains',
-									name: 'subdomain_multisite',
+									label: 'Enable WordPress.com Sandbox Access',
+									name: 'dev-pool',
 								},
 								{
 									label: 'Multisite based on subdirectories',
@@ -284,6 +274,7 @@
 					<p>
 						<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
 					</p>
+					<p>Note: You need to be Logged in to WordPress.com to create a test site.</p>
 					`;
 					appendHtml( markdownBody, contents );
 					updateLink();

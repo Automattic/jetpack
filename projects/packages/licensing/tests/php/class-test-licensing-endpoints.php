@@ -21,35 +21,18 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	 *
 	 * @var WP_REST_Server
 	 */
-	private $server;
+	private static $server;
 
-	/**
-	 * Used to store a boolean for whether we've initialized licensing before running tests.
-	 *
-	 * @var boolean
-	 */
-	private $has_done_setup;
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+		$licensing = new Licensing();
+		$licensing->initialize(); // Ensure that licensing hooks are initialized so that we can register endpoints.
 
-	/**
-	 * Ensure that Licensing package has been setup and hooks have been registered.
-	 *
-	 * We could be using setupBeforeClass() here, but that has a conflict with our PHP 5.6 lint. So, using this workaround
-	 * and crying inside a bit. See: https://github.com/Automattic/jetpack/pull/23687#discussion_r838790636.
-	 *
-	 * @since 1.7.0
-	 */
-	public function maybe_do_setup() {
-		if ( ! $this->has_done_setup ) {
-			$licensing = new Licensing();
-			$licensing->initialize(); // Ensure that licensing hooks are initialized so that we can register endpoints.
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+		static::$server = $wp_rest_server;
 
-			global $wp_rest_server;
-			$wp_rest_server = new \WP_REST_Server();
-			$this->server   = $wp_rest_server;
-
-			$this->has_done_setup = true;
-			do_action( 'rest_api_init' ); // Now, register endpoints.
-		}
+		do_action( 'rest_api_init' ); // Now, register endpoints.
 	}
 
 	/**
@@ -110,7 +93,7 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 				$request->set_param( $key, $value );
 			}
 		}
-		return $this->server->dispatch( $request );
+		return static::$server->dispatch( $request );
 	}
 
 	/**
@@ -135,8 +118,6 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	 * @since 1.7.0
 	 */
 	public function test_licensing_error() {
-		$this->maybe_do_setup();
-
 		// Create a user and set it up as current.
 		$user = $this->create_and_get_user( 'administrator' );
 		$user->add_cap( 'jetpack_admin_page' );
@@ -144,7 +125,7 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 
 		// Should be empty by default.
 		$request  = new \WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
-		$response = $this->server->dispatch( $request );
+		$response = static::$server->dispatch( $request );
 		$this->assertResponseStatus( 200, $response );
 		$this->assertSame( '', $response->get_data() );
 
@@ -161,7 +142,7 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 
 		// Should return updated value.
 		$request  = new \WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
-		$response = $this->server->dispatch( $request );
+		$response = static::$server->dispatch( $request );
 		$this->assertResponseStatus( 200, $response );
 		$this->assertEquals( 'foo', $response->get_data() );
 	}

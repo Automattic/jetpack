@@ -88,7 +88,7 @@ class Videopress_Attachment_Metadata {
 	 */
 	public static function is_videopress_media( $item ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return 0 === strpos( $item->mime_type, 'video/' );
+			return str_starts_with( $item->mime_type, 'video/' );
 		}
 
 		// Else, we are in Jetpack and we need to check if the video is video/videopress.

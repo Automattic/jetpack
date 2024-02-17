@@ -48,6 +48,9 @@ function jetpack_setup_blogging_prompt_response( $post_id ) {
 	if ( $prompt ) {
 		update_post_meta( $post_id, '_jetpack_blogging_prompt_key', $prompt_id );
 		wp_add_post_tags( $post_id, array( 'dailyprompt', "dailyprompt-$prompt_id" ) );
+		if ( array_key_exists( 'bloganuary_id', $prompt ) ) {
+			wp_add_post_tags( $post_id, array( 'bloganuary', $prompt['bloganuary_id'] ) );
+		}
 	}
 }
 
@@ -118,6 +121,8 @@ function jetpack_get_blogging_prompt_by_id( $prompt_id ) {
 
 	$request = new WP_REST_Request( 'GET', $route );
 	$request->set_param( '_locale', $locale );
+	$request->set_param( 'force_year', gmdate( 'Y' ) );
+
 	$response = rest_do_request( $request );
 
 	if ( $response->is_error() || WP_Http::OK !== $response->get_status() ) {

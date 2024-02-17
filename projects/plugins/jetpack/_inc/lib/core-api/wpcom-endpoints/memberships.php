@@ -257,6 +257,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return WP_Error|array ['products']
 	 */
 	public function list_products( WP_REST_Request $request ) {
+		$query       = null;
 		$is_editable = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
 		$type        = isset( $request['type'] ) ? $request['type'] : null;
 
@@ -359,13 +360,42 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	public function get_status( \WP_REST_Request $request ) {
 		$product_type = $request['type'];
-		$source       = $request['source'];
-		$is_editable  = ! isset( $request['is_editable'] ) ? null : (bool) $request['is_editable'];
+
+		if ( ! empty( $request['source'] ) ) {
+			$source = sanitize_text_field( wp_unslash( $request['source'] ) );
+		} else {
+			$source = 'gutenberg';
+		}
+
+		$is_editable = ! isset( $request['is_editable'] ) ? null : (bool) $request['is_editable'];
 
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
-			$blog_id = get_current_blog_id();
-			return (array) get_memberships_settings_for_site( $blog_id, $product_type, $is_editable, $source );
+			$blog_id             = get_current_blog_id();
+			$membership_settings = get_memberships_settings_for_site( $blog_id, $product_type, $is_editable, $source );
+
+			if ( is_wp_error( $membership_settings ) ) {
+				// Get error messages from the $membership_settings.
+				$error_codes    = $membership_settings->get_error_codes();
+				$error_messages = array();
+
+				foreach ( $error_codes as $code ) {
+					$messages = $membership_settings->get_error_messages( $code );
+					foreach ( $messages as $message ) {
+						// Sanitize error message
+						$error_messages[] = esc_html( $message );
+					}
+				}
+
+				$error_messages_string = implode( ' ', $error_messages );
+				// translators: %s is a list of error messages.
+				$base_message = __( 'Could not get the membership settings due to the following error(s): %s', 'jetpack' );
+				$full_message = sprintf( $base_message, $error_messages_string );
+
+				return new WP_Error( 'membership_settings_error', $full_message, array( 'status' => 404 ) );
+			}
+
+			return (array) $membership_settings;
 		} else {
 			$payload = array(
 				'type'   => $request['type'],

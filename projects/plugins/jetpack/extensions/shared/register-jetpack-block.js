@@ -47,7 +47,7 @@ export default function registerJetpackBlock(
 
 	const prefixedName = jpPrefix + rawName;
 	const result = registerBlockType(
-		nameOrMetadata === 'object' ? nameOrMetadata : prefixedName,
+		typeof nameOrMetadata === 'object' ? nameOrMetadata : prefixedName,
 		settings
 	);
 

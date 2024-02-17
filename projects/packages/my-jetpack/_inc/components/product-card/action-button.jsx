@@ -9,6 +9,7 @@ import styles from './style.module.scss';
 export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',
 	INACTIVE: 'inactive',
+	MODULE_DISABLED: 'module_disabled',
 	ERROR: 'error',
 	ABSENT: 'plugin_absent',
 	ABSENT_WITH_PLAN: 'plugin_absent_with_plan',
@@ -24,6 +25,7 @@ const ActionButton = ( {
 	slug,
 	onActivate,
 	additionalActions,
+	primaryActionOverride,
 	onManage,
 	onFixConnection,
 	isFetching,
@@ -31,6 +33,8 @@ const ActionButton = ( {
 	isDeactivatingStandalone,
 	className,
 	onAdd,
+	onLearnMore,
+	upgradeInInterstitial,
 } ) => {
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState( {} );
@@ -53,33 +57,41 @@ const ActionButton = ( {
 		switch ( status ) {
 			case PRODUCT_STATUSES.ABSENT:
 			case PRODUCT_STATUSES.ABSENT_WITH_PLAN: {
-				const buttonText =
-					status === PRODUCT_STATUSES.ABSENT
-						? sprintf(
-								/* translators: placeholder is product name. */
-								__( 'Get %s', 'jetpack-my-jetpack' ),
-								name
-						  )
-						: sprintf(
-								/* translators: placeholder is product name. */
-								__( 'Install %s', 'jetpack-my-jetpack' ),
-								name
-						  );
+				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
 				return {
 					...buttonState,
 					href: `#/add-${ slug }`,
 					size: 'small',
-					variant: 'link',
+					variant: 'primary',
 					weight: 'regular',
 					label: buttonText,
-					onClick: null,
+					onClick: onLearnMore,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.ABSENT in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.ABSENT ] ),
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.ABSENT_WITH_PLAN in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ] ),
 				};
 			}
-			case PRODUCT_STATUSES.NEEDS_PURCHASE:
+			case PRODUCT_STATUSES.NEEDS_PURCHASE: {
+				return {
+					...buttonState,
+					href: purchaseUrl || `#/add-${ slug }`,
+					size: 'small',
+					variant: 'primary',
+					weight: 'regular',
+					label: __( 'Learn more', 'jetpack-my-jetpack' ),
+					onClick: onAdd,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.NEEDS_PURCHASE in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_PURCHASE ] ),
+				};
+			}
 			case PRODUCT_STATUSES.CAN_UPGRADE: {
 				const upgradeText = __( 'Upgrade', 'jetpack-my-jetpack' );
-				const purchaseText = __( 'Purchase', 'jetpack-my-jetpack' );
-				const buttonText = purchaseUrl ? upgradeText : purchaseText;
+				const purchaseText = __( 'Learn more', 'jetpack-my-jetpack' );
+				const buttonText = purchaseUrl || upgradeInInterstitial ? upgradeText : purchaseText;
 
 				return {
 					...buttonState,
@@ -89,6 +101,9 @@ const ActionButton = ( {
 					weight: 'regular',
 					label: buttonText,
 					onClick: onAdd,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.CAN_UPGRADE in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.CAN_UPGRADE ] ),
 				};
 			}
 			case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:
@@ -98,13 +113,14 @@ const ActionButton = ( {
 					size: 'small',
 					variant: 'primary',
 					weight: 'regular',
-					label: __( 'Start for free', 'jetpack-my-jetpack' ),
+					label: __( 'Learn more', 'jetpack-my-jetpack' ),
 					onClick: onAdd,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ] ),
 				};
 			case PRODUCT_STATUSES.ACTIVE: {
-				const viewText = __( 'View', 'jetpack-my-jetpack' );
-				const manageText = __( 'Manage', 'jetpack-my-jetpack' );
-				const buttonText = purchaseUrl ? viewText : manageText;
+				const buttonText = __( 'View', 'jetpack-my-jetpack' );
 
 				return {
 					...buttonState,
@@ -115,6 +131,9 @@ const ActionButton = ( {
 					weight: 'regular',
 					label: buttonText,
 					onClick: onManage,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.ACTIVE in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.ACTIVE ] ),
 				};
 			}
 			case PRODUCT_STATUSES.ERROR:
@@ -126,8 +145,12 @@ const ActionButton = ( {
 					weight: 'regular',
 					label: __( 'Fix connection', 'jetpack-my-jetpack' ),
 					onClick: onFixConnection,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.ERROR in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.ERROR ] ),
 				};
 			case PRODUCT_STATUSES.INACTIVE:
+			case PRODUCT_STATUSES.MODULE_DISABLED:
 				return {
 					...buttonState,
 					href: '',
@@ -136,22 +159,27 @@ const ActionButton = ( {
 					weight: 'regular',
 					label: __( 'Activate', 'jetpack-my-jetpack' ),
 					onClick: onActivate,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.INACTIVE in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.INACTIVE ] ),
 				};
 			default:
 				return null;
 		}
 	}, [
+		status,
 		buttonState,
-		isManageDisabled,
-		manageUrl,
-		name,
-		onActivate,
+		slug,
 		onAdd,
 		onFixConnection,
-		onManage,
+		onActivate,
+		onLearnMore,
 		purchaseUrl,
-		slug,
-		status,
+		upgradeInInterstitial,
+		isManageDisabled,
+		manageUrl,
+		onManage,
+		primaryActionOverride,
 	] );
 
 	const allActions = useMemo(
@@ -182,8 +210,8 @@ const ActionButton = ( {
 	}
 
 	const dropdown = hasAdditionalActions && (
-		<div className={ styles.dropdown }>
-			<ul className={ styles.dropdownMenu }>
+		<div className={ styles[ 'action-button-dropdown' ] }>
+			<ul className={ styles[ 'dropdown-menu' ] }>
 				{ [ ...additionalActions, getStatusAction() ].map( ( { label, isExternalLink }, index ) => {
 					const onDropdownMenuItemClick = () => {
 						setCurrentAction( allActions[ index ] );
@@ -193,14 +221,14 @@ const ActionButton = ( {
 					return (
 						<li key={ index }>
 							{ /* eslint-disable-next-line react/jsx-no-bind */ }
-							<button onClick={ onDropdownMenuItemClick } className={ styles.dropdownItem }>
-								<div className={ styles.dropdownItemLabel }>
+							<button onClick={ onDropdownMenuItemClick } className={ styles[ 'dropdown-item' ] }>
+								<div className={ styles[ 'dropdown-item-label' ] }>
 									{ label }
 									{ isExternalLink && <Icon icon={ external } size={ 16 } /> }
 								</div>
 
 								{ label === currentAction.label && (
-									<div className={ styles.activeActionCheckmark }>
+									<div className={ styles[ 'active-action-checkmark' ] }>
 										<Icon icon={ check } size={ 24 } fill="white" />
 									</div>
 								) }
@@ -216,8 +244,8 @@ const ActionButton = ( {
 		<>
 			<div
 				className={ cs(
-					styles.actionButton,
-					hasAdditionalActions ? styles.hasAdditionalActions : null
+					styles[ 'action-button' ],
+					hasAdditionalActions ? styles[ 'has-additional-actions' ] : null
 				) }
 			>
 				<Button { ...buttonState } { ...currentAction }>
@@ -226,7 +254,7 @@ const ActionButton = ( {
 				{ hasAdditionalActions && (
 					<button
 						className={ cs(
-							styles.dropdownChevron,
+							styles[ 'dropdown-chevron' ],
 							currentAction.variant === 'primary' ? styles.primary : styles.secondary
 						) }
 						onClick={ onChevronClick }

@@ -8,17 +8,17 @@ use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Image_CDN;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Performance_History\Performance_History;
 
 class Modules_Index {
 	/**
 	 * @var Module[] - Associative array of all Jetpack Boost modules.
 	 *
-	 * Example: [ 'critical_css' => Module, 'lazy_images' => Module ]
+	 * Example: [ 'critical_css' => Module, 'image_cdn' => Module ]
 	 */
 	protected $modules = array();
 
@@ -29,13 +29,13 @@ class Modules_Index {
 		Critical_CSS::class,
 		Cloud_CSS::class,
 		Image_Size_Analysis::class,
-		Lazy_Images::class,
 		Minify_JS::class,
 		Minify_CSS::class,
 		Render_Blocking_JS::class,
 		Image_Guide::class,
 		Image_CDN::class,
 		Performance_History::class,
+		Page_Cache::class,
 	);
 
 	/**
@@ -74,6 +74,18 @@ class Modules_Index {
 		return $available_modules;
 	}
 
+	public function is_module_enabled( $slug ) {
+		$available_modules = $this->available_modules();
+
+		if ( ! array_key_exists( $slug, $available_modules ) ) {
+			return false;
+		}
+
+		$module = $available_modules[ $slug ];
+
+		return $module->is_enabled();
+	}
+
 	/**
 	 * Get the lists of modules explicitly disabled from the 'jb-disable-modules' query string.
 	 * The parameter is a comma separated value list of module slug.
@@ -90,5 +102,9 @@ class Modules_Index {
 		}
 
 		return array();
+	}
+
+	public function get_feature_instance_by_slug( $slug ) {
+		return isset( $this->modules[ $slug ] ) ? $this->modules[ $slug ]->feature : false;
 	}
 }

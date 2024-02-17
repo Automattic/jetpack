@@ -1,7 +1,4 @@
-/**
- * Types
- */
-import { AiFeatureProps } from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import { PlanType } from '../../../../shared/use-plan-type';
 
 export type UsageBarProps = {
 	/**
@@ -13,8 +10,19 @@ export type UsageBarProps = {
 	 * True if the usage is over the limit.
 	 */
 	limitReached: boolean;
+
+	/**
+	 * True if an upgrade is required.
+	 */
+	requireUpgrade: boolean;
 };
-export type UsageControlProps = Pick<
-	AiFeatureProps,
-	'isOverLimit' | 'hasFeature' | 'requestsCount' | 'requestsLimit'
->;
+
+export type UsageControlProps = {
+	requestsCount: number;
+	requestsLimit: number;
+	isOverLimit: boolean;
+	planType: PlanType;
+	daysUntilReset: number;
+	requireUpgrade: boolean;
+	loading?: boolean;
+};

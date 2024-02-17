@@ -28,7 +28,7 @@ function register_block() {
 			array(
 				'render_callback' => __NAMESPACE__ . '\render_block',
 				'supports'        => array(
-					'__experimentalLayout' => array(
+					'layout' => array(
 						'allowSwitching'  => false,
 						'allowInheriting' => false,
 						'default'         => array(

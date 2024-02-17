@@ -31,6 +31,7 @@ Assets::add_resource_hint(
  * Add the main commenting system.
  */
 require __DIR__ . '/comments/comments.php';
+require __DIR__ . '/comments/subscription-modal-on-comment/class-jetpack-subscription-modal-on-comment.php';
 
 if ( is_admin() ) {
 	/**

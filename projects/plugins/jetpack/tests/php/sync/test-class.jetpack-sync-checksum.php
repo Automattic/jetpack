@@ -118,7 +118,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 
 		$prop = $reflection->getProperty( 'initialized_modules' );
 		$prop->setAccessible( true );
-		$prop->setValue( null );
+		$prop->setValue( null, null );
 
 		$this->sync_enabled_modules = $enabled_modules;
 		add_filter( 'jetpack_sync_modules', array( $this, 'sync_modules_filter' ), 100 );
@@ -126,7 +126,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		remove_filter( 'jetpack_sync_modules', array( $this, 'sync_modules_filter' ) );
 
 		// Clean-up.
-		$prop->setValue( null );
+		$prop->setValue( null, null );
 	}
 
 	/**

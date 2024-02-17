@@ -790,7 +790,7 @@ class csstidy { // phpcs:ignore
 
 										if ( empty( $this->sub_value_arr ) ) {
 											// Quote URLs in imports only if they're not already inside url() and not already quoted.
-											if ( substr( $this->sub_value, 0, 4 ) !== 'url(' ) {
+											if ( ! str_starts_with( $this->sub_value, 'url(' ) ) {
 												if ( ! ( substr( $this->sub_value, -1 ) === $this->sub_value[0] && in_array( $this->sub_value[0], array( "'", '"' ), true ) ) ) {
 													$this->sub_value = '"' . $this->sub_value . '"';
 												}
@@ -825,7 +825,7 @@ class csstidy { // phpcs:ignore
 
 							$this->optimise->subvalue();
 							if ( '' !== $this->sub_value ) {
-								if ( substr( $this->sub_value, 0, 6 ) === 'format' ) {
+								if ( str_starts_with( $this->sub_value, 'format' ) ) {
 									$format_strings = self::parse_string_list( substr( $this->sub_value, 7, -1 ) );
 									if ( ! $format_strings ) {
 										$this->sub_value = '';

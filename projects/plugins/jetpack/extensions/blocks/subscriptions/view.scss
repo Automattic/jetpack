@@ -16,13 +16,12 @@
 
 		.components-text-control__input,
 		p#subscribe-email input[type=email] {
-			border-top-right-radius: 0 !important;
-			border-bottom-right-radius: 0 !important;
+			border-start-end-radius: 0 !important;
+			border-end-end-radius: 0 !important;
 		}
-
-		&:not(.wp-block-jetpack-subscriptions__use-newline) .components-text-control__input {
-			border-right-width: 0 !important;
-		}
+	}
+	&:not(.wp-block-jetpack-subscriptions__use-newline) .components-text-control__input {
+		border-inline-end-width: 0 !important;
 	}
 }
 
@@ -33,15 +32,20 @@
 		flex-direction: column;
 	}
 
-	.is-not-subscriber {
-		.wp-block-jetpack-subscriptions__form,
-	form  {
+	&:not(.wp-block-jetpack-subscriptions__use-newline) 
+	{
+		.is-not-subscriber {
 			.wp-block-jetpack-subscriptions__form-elements {
 				display: flex;
 				align-items: flex-start;
 			}
 		}
+		p#subscribe-submit {
+			justify-content: center;
+			display: flex;
+		}
 	}
+
 	.wp-block-jetpack-subscriptions__form,
 	form  {
 		.wp-block-jetpack-subscriptions__textfield .components-text-control__input,
@@ -57,6 +61,7 @@
 			 */
 			white-space: nowrap !important;
 			min-width: auto !important;
+			cursor: pointer;
 		}
 
 		input[type="email"]::placeholder {
@@ -79,6 +84,7 @@
 			input[type="email"] {
 				width: 100%;
 				margin: 0;
+				height: auto;
 			}
 		}
 
@@ -92,7 +98,7 @@
 		.wp-block-jetpack-subscriptions__subscount {
 			margin: 8px 0;
 			font-size: 16px;
-			text-align: right;
+			text-align: end;
 		}
 	}
 
@@ -108,7 +114,7 @@
 		}
 
 		.wp-block-jetpack-subscriptions__subscount {
-			text-align: left;
+			text-align: start;
 		}
 	}
 }

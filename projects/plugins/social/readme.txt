@@ -1,8 +1,8 @@
 === Jetpack Social  ===
 Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk, danielpost
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
-Requires at least: 6.2
-Requires PHP: 5.6
+Requires at least: 6.3
+Requires PHP: 7.0
 Tested up to: 6.4
 Stable tag: 2.3.0
 License: GPLv2 or later
@@ -100,15 +100,21 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 2.3.0 - 2023-09-20
-#### Added
-- Add the change settings logic in Social for the auto conversion feature.
-
+### 4.0.0 - 2024-01-18
 #### Changed
-- Changed logic that disables the connections based on the auto-conversion feature.
-- General: remove WP 6.1 backwards compatibility checks.
-- General: update WordPress version requirements to WordPress 6.2.
-- Updated Jetpack submenu sort order so individual features are alpha-sorted.
-- Updated package dependencies. [#32803], [#32804],
-- Updated package dependencies.
+- Changed dismissed notices endpoint to be a core endpoint
+- Social: Changed the illustration on the admin page
+- Social: Refactored storing of feature options to use core functions
+- Split PublicizeForm component into smaller ones
+- Updated Jetpack Social activation landing page
+- Updated package dependencies. [#34559] [#34815]
+- Updated the design for Quick Share buttons and fixed its a11y
 
+#### Fixed
+- Fixed a bug with the initial state script
+- Fixed Jetpack Social scheduled post messaging
+
+== Upgrade Notice ==
+
+= 3.0.0 =
+Required for compatibility with Jetpack 12.9 and later.

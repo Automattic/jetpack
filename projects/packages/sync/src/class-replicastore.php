@@ -1306,7 +1306,6 @@ class Replicastore implements Replicastore_Interface {
 	 * @param bool   $perform_text_conversion If text fields should be converted to latin1 during the checksum calculation.
 	 *
 	 * @return array|WP_Error The checksum histogram.
-	 * @throws Exception Throws an exception if data validation fails inside `Table_Checksum` calls.
 	 */
 	public function checksum_histogram( $table, $buckets = null, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '', $only_range_edges = false, $detailed_drilldown = false, $perform_text_conversion = false ) {
 		global $wpdb;
@@ -1318,15 +1317,11 @@ class Replicastore implements Replicastore_Interface {
 			return new WP_Error( 'checksum_disabled', $ex->getMessage() );
 		}
 
-		// Validate / Determine Buckets.
-		if ( $buckets === null || $buckets < 1 ) {
-			$buckets = $this->calculate_buckets( $table, $start_id, $end_id );
+		try {
+			$range_edges = $checksum_table->get_range_edges( $start_id, $end_id );
+		} catch ( Exception $ex ) {
+			return new WP_Error( 'invalid_range_edges', '[' . $start_id . '-' . $end_id . ']: ' . $ex->getMessage() );
 		}
-		if ( is_wp_error( $buckets ) ) {
-			return $buckets;
-		}
-
-		$range_edges = $checksum_table->get_range_edges( $start_id, $end_id );
 
 		if ( $only_range_edges ) {
 			return $range_edges;
@@ -1338,12 +1333,21 @@ class Replicastore implements Replicastore_Interface {
 			return array();
 		}
 
+		// Validate / Determine Buckets.
+		if ( $buckets === null || $buckets < 1 ) {
+			$buckets = $this->calculate_buckets( $table, $object_count );
+		}
+
 		$bucket_size     = (int) ceil( $object_count / $buckets );
 		$previous_max_id = max( 0, $range_edges['min_range'] );
 		$histogram       = array();
 
 		do {
-			$ids_range = $checksum_table->get_range_edges( $previous_max_id, null, $bucket_size );
+			try {
+				$ids_range = $checksum_table->get_range_edges( $previous_max_id, null, $bucket_size );
+			} catch ( Exception $ex ) {
+				return new WP_Error( 'invalid_range_edges', '[' . $previous_max_id . '- ]: ' . $ex->getMessage() );
+			}
 
 			if ( empty( $ids_range['min_range'] ) || empty( $ids_range['max_range'] ) ) {
 				// Nothing to checksum here...
@@ -1401,20 +1405,10 @@ class Replicastore implements Replicastore_Interface {
 	 * Determine number of buckets to use in full table checksum.
 	 *
 	 * @param string $table Object Type.
-	 * @param int    $start_id Min Object ID.
-	 * @param int    $end_id Max Object ID.
-	 * @return int|WP_Error Number of Buckets to use.
+	 * @param int    $object_count Object count.
+	 * @return int Number of Buckets to use.
 	 */
-	private function calculate_buckets( $table, $start_id = null, $end_id = null ) {
-		// Get # of objects.
-		try {
-			$checksum_table = $this->get_table_checksum_instance( $table );
-		} catch ( Exception $ex ) {
-			return new WP_Error( 'checksum_disabled', $ex->getMessage() );
-		}
-		$range_edges  = $checksum_table->get_range_edges( $start_id, $end_id );
-		$object_count = $range_edges['item_count'];
-
+	private function calculate_buckets( $table, $object_count ) {
 		// Ensure no division by 0.
 		if ( 0 === (int) $object_count ) {
 			return 1;

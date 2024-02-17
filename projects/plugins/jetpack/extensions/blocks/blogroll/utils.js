@@ -2,13 +2,21 @@ import { createBlock } from '@wordpress/blocks';
 import PlaceholderSiteIcon from './placeholder-site-icon.svg';
 
 export function createBlockFromRecommendation( attrs ) {
+	let trimmedURL;
+	try {
+		trimmedURL = new URL( attrs?.url )?.host.replace( /^www\./, '' );
+	} catch ( e ) {
+		trimmedURL = attrs?.URL;
+	}
+
 	return createBlock( 'jetpack/blogroll-item', {
 		...attrs,
+		...( ! attrs.name && { name: trimmedURL } ),
 	} );
 }
 
 export function createBlockFromSubscription( subscription ) {
-	const { blog_id, site_icon, URL, name, description } = subscription;
+	const { blog_id, site_icon, URL, name, description, is_non_wpcom_site } = subscription;
 
 	return createBlockFromRecommendation( {
 		id: blog_id,
@@ -16,6 +24,7 @@ export function createBlockFromSubscription( subscription ) {
 		url: URL,
 		name,
 		description,
+		is_non_wpcom_site,
 	} );
 }
 

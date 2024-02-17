@@ -5,6 +5,169 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.12.2] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [5.12.1] - 2024-02-12
+### Changed
+- Make the 'Install the mobile app' task visible to Simple and Atomic. [#35465]
+
+## [5.12.0] - 2024-02-05
+### Added
+- Adds the completion logic for the Install the mobile app task to Atomic sites" [#35261]
+- Import: adds a banner to wp-admin linking to the Calypso import tool [#35351]
+- Register wp_block patterns from Dotcompatterns with blockTypes [#35337]
+
+### Changed
+- Updated package dependencies. [#35384]
+- Updated Readme to include Verbum issue board and clarify code syncing steps [#35318]
+- Verbum: Minify dynamic-loader script. [#35323]
+- Verbum: Use jetpack-assets package to register scripts using `.asset.php` file data. [#35323]
+- Verbum Comments blocks rollout to 50% of sites [#35446]
+
+### Fixed
+- Esnsure the submit event is fired by the comments form [#35388]
+- Verbum: Avoid copying PHP files into `src/build/verbum-comments/`. [#35323]
+
+## [5.11.0] - 2024-01-29
+### Security
+- Allow users to post HTML when blocks are enabled [#35276]
+
+### Added
+- Cache the response of the Domain List request, and harden the code [#35070]
+
+### Changed
+- Change Verbum Blocks sample size to 30% [#35255]
+- Hides the "Install the mobile app" task while the completion logic is not fully implemented [#35302]
+- Update Verbum README [#35252]
+
+### Fixed
+- Verbum cache buster depended on build_meta, which is only updated on production builds. It doesn't refresh during development, giving you a stale block-editor bundle. [#35243]
+
+## [5.10.0] - 2024-01-25
+### Added
+- Add Verbum Comments in jetpack-mu-wpcom plugin. [#35196]
+
+## [5.9.0] - 2024-01-22
+### Added
+- Added the completion logic for the 'Install the mobile app' task [#35110]
+- Adds the completion logic for the Verify Domain Email task [#35068]
+- Block theme previews: show an education modal when previewing a theme. [#34935]
+- Launchpad: Enabled to temporary dismiss a dismissible launchpad [#34889]
+
+### Changed
+- Dotcom patterns: use assembler v2 patterns in editor [#35081]
+- Newsletter launchpad: move email verify task above subscriber task [#35084]
+
+### Fixed
+- jetpack-mu-wpcom: Prevent get_plugin_data indirectly calling wptexturize. [#35087]
+
+## [5.8.2] - 2024-01-15
+### Added
+- Add the completion logic for the `front_page_updated` task [#34837]
+- Add the Verify Domain Email task [#34893]
+
+### Removed
+- Removes the `Set up your Professional Email` task [#34865]
+
+## [5.8.1] - 2024-01-08
+### Added
+- Adds the is_dismissible prop to the Launchpad task list definition. [#34839]
+
+## [5.8.0] - 2024-01-04
+### Added
+- Add WooCommerce setup task completion logic. [#34791]
+- Dashboard Link: Allow to customize the url via the query parameter. [#34836]
+
+### Changed
+- Launchpad: Rename the title of the setup_general to Give your site a name. [#34826]
+- Update launchpad methods docs. [#34829]
+- Update package dependencies. [#34815]
+- Use the Site Title task instead of the blogname_set task. [#34799]
+
+## [5.7.0] - 2024-01-02
+### Added
+- Added Sensei setup completion logic. [#34789]
+- Fixed the start page options modal still being visible. [#34824]
+
+### Changed
+- Block Patterns: Updated to use category name testimonials rather than quotes. [#34808]
+
+## [5.6.0] - 2023-12-25
+### Removed
+- Remove a nag for domains without a verified email [#34385]
+- Removed Launchpad task for domain email verification. [#34387]
+
+## [5.5.0] - 2023-12-15
+### Changed
+- Updates the WC visibility check to use the `is_plugin_active` function. [#34648]
+
+## [5.4.0] - 2023-12-14
+### Added
+- Add the Sensei and WooCommerce Setup Task, to allow us to retire the old checklist card. [#34551] [#34564]
+- Launchpad: Add context param to endpoint. [#34498]
+
+### Changed
+- Mark the setup_general task as complete based on whether blogname or blog description options changed. [#34579]
+
+## [5.3.0] - 2023-12-11
+### Added
+- Added editor error handling from ETK. [#34158]
+- Added initial JS and TS build logic. [#34158]
+- Added the Site Setup Launchpad, to allow us to retire the old checklist card. [#34320]
+- Launchpad: Added tasks for the new ai-assembler flow. [#34532]
+- Launchpad: Completed the plan tasks when the user purchses a plan. [#34480]
+- Launchpad: Completed the task, Personalize your site, when the user updates the site title, site tagline or site logo. [#34511]
+- Launchpad: Set up tasks for the new assembler-first flow. [#34451]
+
+### Changed
+- Launchpad: Added source to Earn stripe task. [#34448]
+
+## [5.2.0] - 2023-12-03
+### Changed
+- Launchpad: Updated link for paid offer task. [#34413]
+
+## [5.1.1] - 2023-11-30
+### Changed
+- Update url for launchpad task to add subscribe block to point to site editor with subscribe block docs open in the help center. [#34329]
+
+### Fixed
+- Added type check to prevent unnecessary warnings in Coming Soon logic [#34322]
+- Earn: Update link to plans page. [#34316]
+
+## [5.1.0] - 2023-11-24
+### Added
+- Added dynamic titles to task lists. [#34244]
+- Migrated Block Patterns. [#34162]
+
+### Changed
+- Replaced usage of strpos() with str_contains(). [#34137]
+- Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+
+### Fixed
+- Prevented fatal errors when filename is empty in the heif support feature. [#34062]
+
+## [5.0.0] - 2023-11-20
+### Added
+- Ensure enable subscribe modal task in launchpad. [#33909]
+- Launchpad: Add query parameter to the write three posts prompt. [#34160]
+
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [4.18.0] - 2023-11-09
+### Added
+- Take id_map in consideration when checking if a task is completed inside wpcom_launchpad_is_task_option_completed. [#34009]
+
+## [4.17.0] - 2023-11-08
+### Added
+- Added Launchpad tasks and task list to the Subscriber page. [#33948]
+
+### Changed
+- Updated the URL for the Add Subscribers launchpad task to trigger the "Add Subscribers" modal. [#33913]
+
 ## [4.16.2] - 2023-11-03
 ### Fixed
 - Launchpad hooks: Made more resilient against non-array values. [#33923]
@@ -418,6 +581,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.12.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.12.1...v5.12.2
+[5.12.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.12.0...v5.12.1
+[5.12.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.11.0...v5.12.0
+[5.11.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.10.0...v5.11.0
+[5.10.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.9.0...v5.10.0
+[5.9.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.2...v5.9.0
+[5.8.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.1...v5.8.2
+[5.8.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.0...v5.8.1
+[5.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.7.0...v5.8.0
+[5.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.6.0...v5.7.0
+[5.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.5.0...v5.6.0
+[5.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.4.0...v5.5.0
+[5.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.3.0...v5.4.0
+[5.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.2.0...v5.3.0
+[5.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.1.1...v5.2.0
+[5.1.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.1.0...v5.1.1
+[5.1.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.0.0...v5.1.0
+[5.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.18.0...v5.0.0
+[4.18.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.17.0...v4.18.0
+[4.17.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.16.2...v4.17.0
 [4.16.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.16.1...v4.16.2
 [4.16.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.16.0...v4.16.1
 [4.16.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.15.1...v4.16.0

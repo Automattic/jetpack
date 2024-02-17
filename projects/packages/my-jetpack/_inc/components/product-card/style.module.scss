@@ -15,18 +15,24 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;
-	margin-top: calc( var(--spacing-base) * 3 ); // 16px
+	margin-top: calc( var( --spacing-base ) * 3 ); // 16px
 	min-height: $actions-size;
 	flex-wrap: wrap;
+}
+
+.buttons {
+	display: flex;
+	justify-content: flex-start;
+	gap: var( --spacing-base );
 }
 
 .title {
 	width: 100%;
 	display: flex;
-	gap: var(--spacing-base);
+	gap: var( --spacing-base );
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: calc( var(--spacing-base) * 0.5 ); // 4px
+	margin-bottom: calc( var( --spacing-base ) * 0.5 ); // 4px
 
 	h3 {
 		font-weight: 700;
@@ -34,21 +40,19 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 	}
 }
 
-.actionButton {
+.action-button {
 	position: relative;
 	display: flex;
 
-	.dropdownChevron {
+	.dropdown-chevron {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-
 		border: 0.5px solid var( --jp-black );
-		box-shadow: inset 0 0 0 1px var(--jp-black);
+		box-shadow: inset 0 0 0 1px var( --jp-black );
 		border-top-right-radius: var( --jp-border-radius );
 		border-bottom-right-radius: var( --jp-border-radius );
 		cursor: pointer;
-
 		padding: 0;
 	}
 
@@ -64,23 +68,22 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 	}
 }
 
-.dropdown {
+.action-button-dropdown {
 	position: absolute;
-	top: calc( 100% + var(--spacing-base) );
+	top: calc( 100% + var( --spacing-base ) );
 	left: 0;
 	background: var( --jp-white );
 	border-radius: calc( var( --jp-border-radius ) / 2 );
 	box-shadow: 0px 1px 1px 0px $box-shadow-color, 0px 1px 1.5px 0px $box-shadow-color, 0px 2px 3px -0.5px $box-shadow-color;
-	padding: var(--spacing-base);
+	padding: var( --spacing-base );
 
-	.dropdownItem {
+	.dropdown-item {
 		display: flex;
 		align-items: center;
-		gap: calc( var(--spacing-base) * 7 ); // 56px
+		gap: calc( var( --spacing-base ) * 7 ); // 56px
 		background-color: var( --jp-white );
 		border: none;
-
-		padding: var(--spacing-base);
+		padding: var( --spacing-base );
 		cursor: pointer;
 		width: 100%;
 
@@ -89,22 +92,21 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 		}
 	}
 	
-	.dropdownItemLabel {
+	.dropdown-item-label {
 		display: flex;
 		align-items: center;
-		gap: calc( var(--spacing-base) * 0.5 );
-
+		gap: calc( var( --spacing-base ) * 0.5 );
 		font-size: var( --font-label );
 	}
 
-	.activeActionCheckmark {
+	.active-action-checkmark {
 		background-color: var( --jp-green-50 );
 		height: 25px;
 		width: 25px;
 	}
 }
 
-.hasAdditionalActions {
+.has-additional-actions {
 	a, button {
 		border-top-right-radius: 0;
 		border-bottom-right-radius: 0;
@@ -122,7 +124,7 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 		display: inline-block;
 		width: $status-size;
 		height: $status-size;
-		margin-right: var(--spacing-base);
+		margin-right: var( --spacing-base );
 		border-radius: 50%;
 	}
 
@@ -134,7 +136,7 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 	);
 
 	@each $status, $var in $statuses {
-		$color: var(#{$var});
+		$color: var( #{$var} );
 
 		&.#{$status} {
 			color: $color;

@@ -14,7 +14,7 @@ use Automattic\Jetpack\Assets;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.2.8';
+	const PACKAGE_VERSION = '0.3.2';
 
 	/**
 	 * Singleton.
@@ -399,11 +399,11 @@ final class Image_CDN {
 					// First, check the image tag. Note we only check for pixel sizes now; HTML4 percentages have never been correctly
 					// supported, so we stopped pretending to support them in JP 9.1.0.
 					if ( preg_match( '#[\s"\']width=["\']?([\d%]+)["\']?#i', $images['img_tag'][ $index ], $width_string ) ) {
-						$width = false === strpos( $width_string[1], '%' ) ? $width_string[1] : false;
+						$width = str_contains( $width_string[1], '%' ) ? false : $width_string[1];
 					}
 
 					if ( preg_match( '#[\s"\']height=["\']?([\d%]+)["\']?#i', $images['img_tag'][ $index ], $height_string ) ) {
-						$height = false === strpos( $height_string[1], '%' ) ? $height_string[1] : false;
+						$height = str_contains( $height_string[1], '%' ) ? false : $height_string[1];
 					}
 
 					// Detect WP registered image size from HTML class.
@@ -422,7 +422,7 @@ final class Image_CDN {
 					// WP Attachment ID, if uploaded to this site.
 					if (
 						preg_match( '#class=["\']?[^"\']*wp-image-([\d]+)[^"\']*["\']?#i', $images['img_tag'][ $index ], $attachment_id ) &&
-						0 === strpos( $src, $upload_dir['baseurl'] ) &&
+						str_starts_with( $src, $upload_dir['baseurl'] ) &&
 						/**
 						 * Filter whether an image using an attachment ID in its class has to be uploaded to the local site to go through Photon.
 						 *
@@ -511,7 +511,7 @@ final class Image_CDN {
 					}
 
 					// Build URL, first maybe removing WP's resized string so we pass the original image to Photon.
-					if ( ! $fullsize_url && 0 === strpos( $src, $upload_dir['baseurl'] ) ) {
+					if ( ! $fullsize_url && str_starts_with( $src, $upload_dir['baseurl'] ) ) {
 						$src = self::strip_image_dimensions_maybe( $src );
 					}
 
@@ -1296,10 +1296,10 @@ final class Image_CDN {
 
 		if (
 			(
-				false !== strpos( $route, 'wp/v2/media' )
+				str_contains( $route, 'wp/v2/media' )
 				&& 'edit' === $request->get_param( 'context' )
 			)
-			|| false !== strpos( $route, 'wpcom/v2/external-media/copy' )
+			|| str_contains( $route, 'wpcom/v2/external-media/copy' )
 			|| (bool) $request->get_header( 'x-wp-api-fetch-from-editor' )
 		) {
 			// Don't use `__return_true()`: Use something unique. See ::_override_image_downsize_in_rest_edit_context()

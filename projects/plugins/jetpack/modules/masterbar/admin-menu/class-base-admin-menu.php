@@ -66,7 +66,7 @@ abstract class Base_Admin_Menu {
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
-		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || isset( $_SERVER['REQUEST_URI'] ) && 0 === strpos( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || isset( $_SERVER['REQUEST_URI'] ) && str_starts_with( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
 		$this->domain         = ( new Status() )->get_site_suffix();
 
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
@@ -82,7 +82,7 @@ abstract class Base_Admin_Menu {
 			add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
 			// Do not inject core mobile toggle when the user wants to use the WP Admin interface.
-			if ( ! $this->use_wp_admin_interface( 'jetpack' ) ) {
+			if ( ! $this->use_wp_admin_interface() ) {
 				add_action( 'adminmenu', array( $this, 'inject_core_mobile_toggle' ) );
 			}
 		}
@@ -268,7 +268,7 @@ abstract class Base_Admin_Menu {
 		wp_style_add_data( 'jetpack-admin-menu', 'rtl', $this->is_rtl() );
 
 		// Load nav unification styles when the user isn't using wp-admin interface style.
-		if ( ! $this->use_wp_admin_interface( 'jetpack' ) ) {
+		if ( ! $this->use_wp_admin_interface() ) {
 			wp_enqueue_style(
 				'jetpack-admin-nav-unification',
 				plugins_url( 'admin-menu-nav-unification.css', __FILE__ ),
@@ -446,11 +446,11 @@ abstract class Base_Admin_Menu {
 			}
 
 			// If the hookname contain a URL than sanitize it by replacing invalid characters.
-			if ( false !== strpos( $menu_item[5], '://' ) ) {
+			if ( str_contains( $menu_item[5], '://' ) ) {
 				$menu_item[5] = preg_replace( '![:/.]+!', '_', $menu_item[5] );
 			}
 
-			if ( 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
+			if ( str_starts_with( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
 				$svg_items[]   = array(
 					'icon' => $menu_item[6],
 					'id'   => $menu_item[5],
@@ -556,7 +556,7 @@ abstract class Base_Admin_Menu {
 	 * @param array $item A menu or submenu array.
 	 */
 	public function is_item_visible( $item ) {
-		return ! isset( $item[4] ) || false === strpos( $item[4], self::HIDE_CSS_CLASS );
+		return ! isset( $item[4] ) || ! str_contains( $item[4], self::HIDE_CSS_CLASS );
 	}
 
 	/**
@@ -663,7 +663,7 @@ abstract class Base_Admin_Menu {
 				return self::UNKNOWN_VIEW;
 			}
 
-			$should_link_to_wp_admin = $this->should_link_to_wp_admin( $screen ) || $this->use_wp_admin_interface( $screen );
+			$should_link_to_wp_admin = $this->should_link_to_wp_admin( $screen ) || $this->use_wp_admin_interface();
 			return $should_link_to_wp_admin ? self::CLASSIC_VIEW : self::DEFAULT_VIEW;
 		}
 
@@ -779,29 +779,10 @@ abstract class Base_Admin_Menu {
 	/**
 	 * Whether the current user has indicated they want to use the wp-admin interface for the given screen.
 	 *
-	 * @param string $screen The current screen.
 	 * @return bool
 	 */
-	public function use_wp_admin_interface( $screen ) {
-		$screen_excluded = $this->is_excluded_wp_admin_interface_screen( $screen );
-		return ! $screen_excluded && 'wp-admin' === get_option( 'wpcom_admin_interface' );
-	}
-
-	/**
-	 * Returns whether we should default to wp_admin for the given screen.
-	 *
-	 * Screens that should not default to wp_admin when the wpcom_admin_interface is set.
-	 * This applies to screens that have both a wp-admin and a Calypso interface.
-	 *
-	 * @param string $screen The current screen.
-	 *
-	 * @return bool
-	 */
-	protected function is_excluded_wp_admin_interface_screen( $screen ) {
-		$excluded_screens = array(
-			'import.php',
-		);
-		return in_array( $screen, $excluded_screens, true );
+	public function use_wp_admin_interface() {
+		return 'wp-admin' === get_option( 'wpcom_admin_interface' );
 	}
 
 	/**

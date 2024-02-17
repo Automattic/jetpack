@@ -2,8 +2,8 @@
 <!-- This file configures everything except the list of rules. -->
 <!-- The separation is so .github/files/phpcompatibility-dev-phpcs.xml can use the same config with a different rule set. -->
 <ruleset>
-	<config name="minimum_supported_wp_version" value="6.2" />
-	<config name="testVersion" value="5.6-"/>
+	<config name="minimum_supported_wp_version" value="6.3" />
+	<config name="testVersion" value="7.0-"/>
 
 	<!-- Use our custom filter for `.phpcsignore` and `.phpcs.dir.xml` support. -->
 	<arg name="filter" value="vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php" />

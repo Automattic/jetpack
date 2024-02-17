@@ -525,13 +525,14 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 	const uid = userId || getUserId( state );
 	const purchaseToken = getPurchaseToken( state );
 	const calypsoEnv = getCalypsoEnv( state );
+	const blogID = getSiteId( state );
 
 	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
 		source += '-monthly';
 	}
 
 	const redirectArgs = {
-		site: getSiteRawUrl( state ),
+		site: blogID ?? getSiteRawUrl( state ),
 	};
 
 	if ( affiliateCode ) {
@@ -701,16 +702,6 @@ export function isBlazeDashboardEnabled( state ) {
 }
 
 /**
- * Returns true if Subscribe Modal can be used on the site.
- *
- * @param {object} state - Global state tree.
- * @returns {boolean} True if Subscription Modal is available on the site.
- */
-export function isSubscriptionModalEnabled( state ) {
-	return !! state.jetpack.initialState.isSubscriptionModalEnabled;
-}
-
-/**
  * Returns true if Jetpack's Pre-connection helpers are enabled.
  *
  * @param {object} state - Global state tree.
@@ -728,4 +719,24 @@ export function arePreConnectionHelpersEnabled( state ) {
  */
 export function getGutenbergState( state ) {
 	return state.jetpack.initialState.gutenbergInitialState;
+}
+
+/**
+ * Check if the Sharing block is available on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the Sharing block is available on the site.
+ */
+export function isSharingBlockAvailable( state ) {
+	return !! state.jetpack.initialState.siteData.isSharingBlockAvailable;
+}
+
+/**
+ * Get the Jetpack Manage info
+ *
+ * @param {object} state - Global state tree.
+ * @returns {object} Jetpack Manage info
+ */
+export function getJetpackManageInfo( state ) {
+	return state.jetpack.initialState.jetpackManage;
 }

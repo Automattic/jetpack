@@ -75,7 +75,7 @@ function load_assets( $attr, $content, $block ) {
 
 	$placeholder_site_icon = '';
 	$site_icon_html        = <<<HTML
-	<img src="$icon" alt="$name_attr" onerror="this.parentNode.classList.add('empty-site-icon')">
+	<img class="blogroll-item-image" src="$icon" alt="$name_attr" onerror="this.parentNode.classList.add('empty-site-icon')">
 HTML;
 
 	if ( empty( $icon ) ) {
@@ -118,7 +118,7 @@ HTML;
 
 	$subscribe_button_html = '';
 	$fieldset              = '';
-	$has_subscription_form = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$has_subscription_form = defined( 'IS_WPCOM' ) && IS_WPCOM && isset( $attr['is_non_wpcom_site'] ) && ! $attr['is_non_wpcom_site'];
 	$classes               = Blocks::classes( FEATURE_NAME, $attr );
 
 	if ( $has_subscription_form ) {

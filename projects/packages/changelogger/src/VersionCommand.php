@@ -12,7 +12,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use function Wikimedia\quietCall;
 
 /**
  * "Version" command for the changelogger tool CLI.
@@ -147,8 +146,9 @@ EOF
 				return 1;
 			}
 
-			Utils::error_clear_last();
-			$contents = quietCall( 'file_get_contents', $file );
+			error_clear_last();
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$contents = @file_get_contents( $file );
 			// @codeCoverageIgnoreStart
 			if ( ! is_string( $contents ) ) {
 				$err = error_get_last();

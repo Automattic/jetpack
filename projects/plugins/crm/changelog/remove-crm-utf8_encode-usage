@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Mail delivery: Removed usage of deprecated function utf8_encode

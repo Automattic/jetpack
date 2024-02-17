@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Quote Templates: Fix issue with notes field rendering HTML entities in some cases

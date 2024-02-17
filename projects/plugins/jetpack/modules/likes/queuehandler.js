@@ -200,87 +200,205 @@ function JetpackLikesMessageListener( event ) {
 			}
 			break;
 
+		case 'hideOtherGravatars': {
+			hideLikersPopover();
+			break;
+		}
+
 		case 'showOtherGravatars': {
 			const container = document.querySelector( '#likes-other-gravatars' );
+
 			if ( ! container ) {
 				break;
 			}
+
+			const newLayout = container.classList.contains( 'wpl-new-layout' );
 
 			const list = container.querySelector( 'ul' );
 
 			container.style.display = 'none';
 			list.innerHTML = '';
 
-			container
-				.querySelectorAll( '.likes-text span' )
-				.forEach( item => ( item.textContent = data.total ) );
+			if ( newLayout ) {
+				container
+					.querySelectorAll( '.likes-text span' )
+					.forEach( item => ( item.textContent = data.totalLikesLabel ) );
+			} else {
+				container
+					.querySelectorAll( '.likes-text span' )
+					.forEach( item => ( item.textContent = data.total ) );
+			}
 
-			( data.likers || [] ).forEach( liker => {
+			( data.likers || [] ).forEach( async ( liker, index ) => {
 				if ( liker.profile_URL.substr( 0, 4 ) !== 'http' ) {
 					// We only display gravatars with http or https schema
 					return;
 				}
 
 				const element = document.createElement( 'li' );
-				element.innerHTML = `
+				list.append( element );
+
+				if ( newLayout ) {
+					element.innerHTML = `
 					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-						<img src="${ encodeURI( liker.avatar_URL ) }"
+						<img src="${ liker.avatar_URL }"
+							alt=""
+							style="width: 28px; height: 28px;" />
+						<span></span>
+					</a>
+				`;
+				} else {
+					element.innerHTML = `
+					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
+						<img src="${ liker.avatar_URL }"
 							alt=""
 							style="width: 30px; height: 30px; padding-right: 3px;" />
 					</a>
 				`;
-
-				list.append( element );
+				}
 
 				// Add some extra attributes through native methods, to ensure strings are sanitized.
 				element.classList.add( liker.css_class );
-				element.querySelector( 'img' ).alt = liker.name;
+				element.querySelector( 'img' ).alt = data.avatarAltTitle.replace( '%s', liker.name );
+
+				if ( newLayout ) {
+					element.querySelector( 'span' ).innerText = liker.name;
+				}
+
+				if ( index === data.likers.length - 1 ) {
+					element.addEventListener( 'keydown', e => {
+						if ( e.key === 'Tab' && ! e.shiftKey ) {
+							e.preventDefault();
+							hideLikersPopover();
+
+							JetpackLikesPostMessage(
+								{ event: 'focusLikesCount', parent: data.parent },
+								window.frames[ 'likes-master' ]
+							);
+						}
+					} );
+				}
 			} );
 
-			const el = document.querySelector( `*[name='${ data.parent }']` );
-			const rect = el.getBoundingClientRect();
-			const win = el.ownerDocument.defaultView;
-			const offset = {
-				top: rect.top + win.pageYOffset,
-				left: rect.left + win.pageXOffset,
+			const positionPopup = function () {
+				const containerStyle = getComputedStyle( container );
+				const isRtl = containerStyle.direction === 'rtl';
+
+				const el = document.querySelector( `*[name='${ data.parent }']` );
+				const rect = el.getBoundingClientRect();
+				const win = el.ownerDocument.defaultView;
+				const offset = {
+					top: rect.top + win.pageYOffset,
+					left: rect.left + win.pageXOffset,
+				};
+
+				let containerLeft = 0;
+				if ( newLayout ) {
+					container.style.top = offset.top + data.position.top - 1 + 'px';
+
+					if ( isRtl ) {
+						const visibleAvatarsCount = data && data.likers ? Math.min( data.likers.length, 5 ) : 0;
+						// 24px is the width of the avatar + 4px is the padding between avatars
+						containerLeft = offset.left + data.position.left + 24 * visibleAvatarsCount + 4;
+						container.style.transform = 'translateX(-100%)';
+					} else {
+						containerLeft = offset.left + data.position.left;
+					}
+					container.style.left = containerLeft + 'px';
+				} else {
+					container.style.left = offset.left + data.position.left - 10 + 'px';
+					container.style.top = offset.top + data.position.top - 33 + 'px';
+				}
+
+				// Container width - padding
+				const initContainerWidth = data.width - 20;
+				const rowLength = Math.floor( initContainerWidth / 37 );
+				// # of rows + (avatar + avatar padding) + text above + container padding
+				let height = Math.ceil( data.likers.length / rowLength ) * 37 + 17 + 22;
+				if ( height > 204 ) {
+					height = 204;
+				}
+
+				if ( ! newLayout ) {
+					// Avatars + padding
+					const containerWidth = rowLength * 37 + 13;
+					container.style.height = height + 'px';
+					container.style.width = containerWidth + 'px';
+
+					const listWidth = rowLength * 37;
+					list.style.width = listWidth + 'px';
+				}
+
+				// If the popup is overflows viewport width, we should show it on the next line
+				if ( newLayout ) {
+					// Push it offscreen to calculated rendered width
+					container.style.left = '-9999px';
+					container.style.display = 'block';
+
+					// If the popup exceeds the viewport width,
+					// flip the position of the popup.
+					const containerWidth = container.offsetWidth;
+					const containerRight = containerLeft + containerWidth;
+					if ( containerRight > win.innerWidth ) {
+						containerLeft = rect.right - containerWidth;
+					}
+
+					// Set the container left
+					container.style.left = containerLeft + 'px';
+				} else {
+					container.style.display = 'block';
+				}
+				container.setAttribute( 'aria-hidden', 'false' );
 			};
 
-			container.style.left = offset.left + data.position.left - 10 + 'px';
-			container.style.top = offset.top + data.position.top - 33 + 'px';
+			positionPopup();
+			container.focus();
 
-			const rowLength = Math.floor( data.width / 37 );
-			let height = Math.ceil( data.likers.length / rowLength ) * 37 + 13;
-			if ( height > 204 ) {
-				height = 204;
-			}
+			const debounce = function ( func, wait ) {
+				var timeout;
+				return function () {
+					var context = this;
+					var args = arguments;
+					clearTimeout( timeout );
+					timeout = setTimeout( function () {
+						func.apply( context, args );
+					}, wait );
+				};
+			};
 
-			const containerWidth = rowLength * 37 - 7;
-			container.style.height = height + 'px';
-			container.style.width = containerWidth + 'px';
+			const debouncedPositionPopup = debounce( positionPopup, 100 );
 
-			const listWidth = rowLength * 37;
-			list.style.width = listWidth + 'px';
+			// Keep a reference of this function in the element itself
+			// so that we can destroy it later
+			container.__resizeHandler = debouncedPositionPopup;
 
-			container.style.display = 'block';
+			// When window is resized, resize the popup.
+			window.addEventListener( 'resize', debouncedPositionPopup );
 
-			const scrollbarWidth = list.offsetWidth - list.clientWidth;
-			if ( scrollbarWidth > 0 ) {
-				container.style.width = containerWidth + scrollbarWidth + 'px';
-				list.style.width = listWidth + scrollbarWidth + 'px';
-			}
+			container.focus();
 		}
 	}
 }
 
 window.addEventListener( 'message', JetpackLikesMessageListener );
 
-document.addEventListener( 'click', e => {
+function hideLikersPopover() {
 	const container = document.querySelector( '#likes-other-gravatars' );
 
-	if ( container && ! container.contains( e.target ) ) {
+	if ( container ) {
 		container.style.display = 'none';
+		container.setAttribute( 'aria-hidden', 'true' );
+
+		// Remove the resize event listener and cleanup.
+		const resizeHandler = container.__resizeHandler;
+		if ( resizeHandler ) {
+			window.removeEventListener( 'resize', resizeHandler );
+			delete container.__resizeHandler;
+		}
 	}
-} );
+}
+
+document.addEventListener( 'click', hideLikersPopover );
 
 function JetpackLikesWidgetQueueHandler() {
 	var wrapperID;

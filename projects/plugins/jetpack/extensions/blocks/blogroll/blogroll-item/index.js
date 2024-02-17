@@ -54,6 +54,10 @@ export const settings = {
 			type: 'string',
 			default: PlaceholderSiteIcon,
 		},
+		is_non_wpcom_site: {
+			type: 'boolean',
+			default: false,
+		},
 		url: {
 			type: 'string',
 		},

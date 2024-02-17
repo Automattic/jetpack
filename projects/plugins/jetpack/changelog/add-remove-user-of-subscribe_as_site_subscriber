@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Decouple tiers from subscribe_as_site_subscriber parameter

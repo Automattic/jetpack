@@ -94,7 +94,7 @@ class REST_Authentication_Test extends TestCase {
 
 		$this->manager->expects( $this->any() )
 			->method( 'verify_xml_rpc_signature' )
-			->will( $this->returnValue( $test_inputs['verified'] ) );
+			->willReturn( $test_inputs['verified'] );
 
 		$this->assertEquals( $expected_outputs['authenticate'], $this->rest_authentication->wp_rest_authenticate( '' ) );
 
@@ -304,7 +304,7 @@ class REST_Authentication_Test extends TestCase {
 
 		$this->manager->expects( $this->any() )
 			->method( 'verify_xml_rpc_signature' )
-			->will( $this->returnValue( $test_inputs['verified'] ) );
+			->willReturn( $test_inputs['verified'] );
 
 		$this->rest_authentication->wp_rest_authenticate( '' );
 
