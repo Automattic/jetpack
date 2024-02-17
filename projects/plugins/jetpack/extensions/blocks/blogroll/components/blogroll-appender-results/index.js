@@ -54,7 +54,15 @@ export default function BlogrollAppenderResults( { results, onSelect, searchInpu
 									onClick={ () => onSelect( result ) }
 								>
 									<div className="jetpack-blogroll__appender-result-image">
-										{ result.site_icon && <img src={ result.site_icon } alt={ result.name } /> }
+										{ result.site_icon && (
+											<img
+												src={ result.site_icon }
+												alt={ result.name }
+												onError={ event => {
+													event.target.parentNode.classList.add( 'empty-site-icon' );
+												} }
+											/>
+										) }
 									</div>
 									<div className="jetpack-blogroll__appender-result-text">
 										<span className="jetpack-blogroll__appender-result-title">{ result.name }</span>

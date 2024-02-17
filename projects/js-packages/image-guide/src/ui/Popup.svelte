@@ -234,6 +234,7 @@
 
 	.title {
 		font-weight: 600;
+		overflow-wrap: anywhere;
 	}
 	.explanation {
 		margin-top: 5px;

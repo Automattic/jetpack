@@ -23,23 +23,17 @@ const ConnectionScreenFooter = () => {
 					'jetpack-my-jetpack'
 				) }
 			</div>
-			<span className={ styles[ 'account-images' ] }>
-				<img
-					src={ wordpressLogo }
-					className={ styles.wordpress }
-					alt={ __( 'WordPress Logo', 'jetpack-my-jetpack' ) }
-				/>
-				<img
-					src={ googleLogo }
-					className={ styles.google }
-					alt={ __( 'Google Logo', 'jetpack-my-jetpack' ) }
-				/>
-				<img
-					src={ appleLogo }
-					className={ styles.apple }
-					alt={ __( 'Apple Logo', 'jetpack-my-jetpack' ) }
-				/>
-			</span>
+			<ul className={ styles[ 'account-images' ] }>
+				<li>
+					<img src={ wordpressLogo } className={ styles.wordpress } alt="WordPress.com" />
+				</li>
+				<li>
+					<img src={ googleLogo } className={ styles.google } alt="Google" />
+				</li>
+				<li>
+					<img src={ appleLogo } className={ styles.apple } alt="Apple" />
+				</li>
+			</ul>
 		</>
 	);
 };
@@ -52,7 +46,10 @@ const ConnectionScreen = () => {
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
 				<Col className={ styles[ 'relative-col' ] }>
-					<CloseLink className={ styles[ 'close-link' ] } />
+					<CloseLink
+						className={ styles[ 'close-link' ] }
+						accessibleName={ __( 'Go back to previous screen', 'jetpack-my-jetpack' ) }
+					/>
 				</Col>
 				<Col>
 					<ConnectScreen

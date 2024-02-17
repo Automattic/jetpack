@@ -1,17 +1,12 @@
-import {
-	getScoreLetter,
-	didScoresChange,
-	getScoreMovementPercentage,
-} from '@automattic/jetpack-boost-score-api';
+import { getScoreLetter, didScoresChange } from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, Button } from '@automattic/jetpack-components';
 import { sprintf, __ } from '@wordpress/i18n';
 import ContextTooltip from './context-tooltip/context-tooltip';
 import RefreshIcon from '$svg/refresh';
-import PopOut from './pop-out/pop-out';
 import PerformanceHistory from '$features/performance-history/performance-history';
 import ErrorNotice from '$features/error-notice/error-notice';
 import classNames from 'classnames';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
 import styles from './speed-score.module.scss';
@@ -19,6 +14,7 @@ import { useModulesState } from '$features/module/lib/stores';
 import { useCriticalCssState } from '$features/critical-css/lib/stores/critical-css-state';
 import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local-generator/local-generator-provider';
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
+import ErrorBoundary from '$features/error-boundary/error-boundary';
 
 const SpeedScore = () => {
 	const { site } = Jetpack_Boost;
@@ -41,16 +37,6 @@ const SpeedScore = () => {
 		[ data ]
 	);
 
-	const showScoreChangePopOut =
-		status === 'loaded' && ! scores.isStale && getScoreMovementPercentage( scores );
-
-	// Always load the score on mount.
-	useEffect( () => {
-		if ( site.online ) {
-			loadScore();
-		}
-	}, [ loadScore, site.online ] );
-
 	// Mark performance history data as stale when speed scores are loaded.
 	useEffect( () => {
 		if ( site.online && status === 'loaded' ) {
@@ -58,13 +44,24 @@ const SpeedScore = () => {
 		}
 	}, [ site.online, status ] );
 
+	// Ask the API to recompute the score.
+	const refreshScore = useCallback( async () => {
+		if ( site.online ) {
+			loadScore( true );
+		}
+	}, [ loadScore, site.online ] );
+
+	// Load speed scores on mount.
+	useEffect( () => {
+		if ( site.online ) {
+			loadScore();
+		}
+	}, [ loadScore, site.online ] );
+
+	// Refresh the score when something that can affect the score changes.
 	useDebouncedRefreshScore(
 		{ moduleStates, criticalCssCreated: cssState.created || 0, criticalCssIsGenerating },
-		async () => {
-			if ( site.online ) {
-				await loadScore( true ); // Force a refresh.
-			}
-		}
+		refreshScore
 	);
 
 	// translators: %s is a letter grade, e.g. "A" or "B"
@@ -144,10 +141,20 @@ const SpeedScore = () => {
 				</div>
 				{ site.online && <PerformanceHistory /> }
 			</div>
-
-			<PopOut scoreChange={ showScoreChangePopOut } />
 		</>
 	);
 };
 
-export default SpeedScore;
+export default () => {
+	return (
+		<ErrorBoundary
+			fallback={
+				<div className="jb-container">
+					<p>{ __( 'Failed to load Speed Score.', 'jetpack-boost' ) }</p>
+				</div>
+			}
+		>
+			<SpeedScore />
+		</ErrorBoundary>
+	);
+};

@@ -153,6 +153,8 @@ function register_block() {
 		add_action( 'manage_post_posts_custom_column', __NAMESPACE__ . '\render_newsletter_access_rows', 10, 2 );
 		add_action( 'admin_head', __NAMESPACE__ . '\newsletter_access_column_styles' );
 	}
+
+	add_action( 'init', __NAMESPACE__ . '\maybe_prevent_super_cache_caching' );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
@@ -896,6 +898,32 @@ function maybe_gate_existing_comments( $comment ) {
 }
 
 /**
+ * Is the Jetpack_Token_Subscription_Service class loaded
+ *
+ * @return bool
+ */
+function is_jetpack_token_subscription_service_loaded(): bool {
+	return class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service' );
+}
+
+/**
+ * Adds support for WP Super cache and Boost cache
+ */
+function maybe_prevent_super_cache_caching() {
+	// Prevents cached page to be served if the Membership cookie is present
+	if ( is_jetpack_token_subscription_service_loaded() ) {
+		do_action( 'wpsc_add_cookie', Jetpack_Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME );
+	}
+
+	if ( is_user_auth() ) {
+		// Do not cache the page if user is auth with Membership token
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true );
+		}
+	}
+}
+
+/**
  * Returns paywall content blocks
  *
  * @param string $post_access_level The newsletter access level.
@@ -1111,16 +1139,17 @@ function get_paywall_access_question( $post_access_level ) {
 /**
  * Returns true if user is auth for subscriptions check, otherwise returns false.
  *
- * @return boolean
+ * @return bool
  */
-function is_user_auth() {
+function is_user_auth(): bool {
 	if ( ( new Host() )->is_wpcom_simple() && is_user_logged_in() ) {
 		return true;
 	}
 	if ( current_user_can( 'manage_options' ) ) {
 		return true;
 	}
-	if ( class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service' ) ) {
+
+	if ( is_jetpack_token_subscription_service_loaded() ) {
 		if ( Jetpack_Token_Subscription_Service::has_token_from_cookie() ) {
 			return true;
 		}

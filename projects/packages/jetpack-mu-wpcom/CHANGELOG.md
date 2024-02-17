@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.12.2] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [5.12.1] - 2024-02-12
+### Changed
+- Make the 'Install the mobile app' task visible to Simple and Atomic. [#35465]
+
+## [5.12.0] - 2024-02-05
+### Added
+- Adds the completion logic for the Install the mobile app task to Atomic sites" [#35261]
+- Import: adds a banner to wp-admin linking to the Calypso import tool [#35351]
+- Register wp_block patterns from Dotcompatterns with blockTypes [#35337]
+
+### Changed
+- Updated package dependencies. [#35384]
+- Updated Readme to include Verbum issue board and clarify code syncing steps [#35318]
+- Verbum: Minify dynamic-loader script. [#35323]
+- Verbum: Use jetpack-assets package to register scripts using `.asset.php` file data. [#35323]
+- Verbum Comments blocks rollout to 50% of sites [#35446]
+
+### Fixed
+- Esnsure the submit event is fired by the comments form [#35388]
+- Verbum: Avoid copying PHP files into `src/build/verbum-comments/`. [#35323]
+
+## [5.11.0] - 2024-01-29
+### Security
+- Allow users to post HTML when blocks are enabled [#35276]
+
+### Added
+- Cache the response of the Domain List request, and harden the code [#35070]
+
+### Changed
+- Change Verbum Blocks sample size to 30% [#35255]
+- Hides the "Install the mobile app" task while the completion logic is not fully implemented [#35302]
+- Update Verbum README [#35252]
+
+### Fixed
+- Verbum cache buster depended on build_meta, which is only updated on production builds. It doesn't refresh during development, giving you a stale block-editor bundle. [#35243]
+
 ## [5.10.0] - 2024-01-25
 ### Added
 - Add Verbum Comments in jetpack-mu-wpcom plugin. [#35196]
@@ -541,6 +581,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.12.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.12.1...v5.12.2
+[5.12.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.12.0...v5.12.1
+[5.12.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.11.0...v5.12.0
+[5.11.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.10.0...v5.11.0
 [5.10.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.9.0...v5.10.0
 [5.9.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.2...v5.9.0
 [5.8.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.8.1...v5.8.2

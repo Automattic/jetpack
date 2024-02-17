@@ -31,8 +31,25 @@ export type PromptProp = PromptMessagesProp | string;
 /*
  * Data Flow types
  */
-export type { UseAiContextOptions } from './data-flow/use-ai-context';
-export type { RequestingErrorProps } from './hooks/use-ai-suggestions';
+export type { UseAiContextOptions } from './data-flow/use-ai-context.js';
+
+/*
+ * Hook types
+ */
+export type { RequestingErrorProps } from './hooks/use-ai-suggestions/index.js';
+export type {
+	UseAudioTranscriptionProps,
+	UseAudioTranscriptionReturn,
+} from './hooks/use-audio-transcription/index.js';
+export type {
+	UseTranscriptionPostProcessingProps,
+	UseTranscriptionPostProcessingReturn,
+	PostProcessingAction,
+} from './hooks/use-transcription-post-processing/index.js';
+/*
+ * Hook constants
+ */
+export { TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT } from './hooks/use-transcription-post-processing/index.js';
 
 /*
  * Requests types

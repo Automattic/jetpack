@@ -21,12 +21,6 @@ export const automatticAssignments = {
 		slack_id: 'C01B6KEJ5GE',
 		board_id: 'https://github.com/orgs/Automattic/projects/718',
 	},
-	Newsletter: {
-		team: 'Zap',
-		labels: [ '[Block] Subscriptions', '[Block] Paywall', '[Feature] Subscriptions' ],
-		slack_id: 'C02NQ4HMJKV',
-		board_id: 'https://github.com/orgs/Automattic/projects/657',
-	},
 	Reader: {
 		team: 'Loop',
 		labels: [ '[Feature] Reader' ],
@@ -74,13 +68,13 @@ export const automatticAssignments = {
 	'Blocks infrastructure': {
 		team: 'Vulcan',
 		labels: [ '[Package] Blocks', '[Focus] FSE', '[Focus] Blocks' ],
-		slack_id: 'CBG1CP4EN',
+		slack_id: 'C05PV073SG3',
 		board_id: 'https://github.com/orgs/Automattic/projects/778',
 	},
 	Connection: {
 		team: 'Vulcan',
 		labels: [ '[Package] Connection', '[Package] Identity Crisis', '[Package] Sync' ],
-		slack_id: 'CBG1CP4EN',
+		slack_id: 'C05PV073SG3',
 		board_id: 'https://github.com/orgs/Automattic/projects/778',
 	},
 	CRM: {
@@ -96,9 +90,16 @@ export const automatticAssignments = {
 		board_id: 'https://github.com/orgs/Automattic/projects/599',
 	},
 	'My Jetpack': {
-		team: 'Agora',
+		team: 'Jetpack MarTech',
 		labels: [ '[Package] My Jetpack' ],
-		slack_id: 'C02TQF5VAJD',
+		slack_id: 'C06CVN9QVFY',
+		board_id: 'https://github.com/orgs/Automattic/projects/724',
+	},
+	Newsletter: {
+		team: 'Zap',
+		labels: [ '[Block] Subscriptions', '[Block] Paywall' ],
+		slack_id: 'C02NQ4HMJKV',
+		board_id: 'https://github.com/orgs/Automattic/projects/657',
 	},
 	Protect: {
 		team: 'Scan',
@@ -109,7 +110,7 @@ export const automatticAssignments = {
 	'React Dashboard': {
 		team: 'Vulcan',
 		labels: [ 'Admin Page' ],
-		slack_id: 'CBG1CP4EN',
+		slack_id: 'C05PV073SG3',
 		board_id: 'https://github.com/orgs/Automattic/projects/778',
 	},
 	Search: {
@@ -148,6 +149,12 @@ export const automatticAssignments = {
 		labels: [ '[Plugin] Super Cache' ],
 		slack_id: 'C016BBAFHHS',
 		board_id: 'https://github.com/orgs/Automattic/projects/548',
+	},
+	Verbum: {
+		team: 'Vertex',
+		labels: [ '[mu wpcom Feature] Verbum Comments' ],
+		slack_id: 'C02T4NVL4JJ',
+		board_id: 'https://github.com/orgs/Automattic/projects/908/views/1',
 	},
 	VideoPress: {
 		team: 'Agora',

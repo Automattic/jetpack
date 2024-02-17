@@ -96,7 +96,6 @@ function render_block( $attr, $content, $block ) {
 		$domain       = $bloginfo->domain;
 		$reblog_param = $show_reblog_button ? '&amp;reblog=1' : '';
 		$src          = sprintf( '//widgets.wp.com/likes/index.html?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s&amp;block=1%7$s', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid, $new_layout, $reblog_param );
-		$headline     = '';
 
 		// provide the mapped domain when needed
 		if ( isset( $_SERVER['HTTP_HOST'] ) && strpos( sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ), '.wordpress.com' ) === false ) {
@@ -109,18 +108,12 @@ function render_block( $attr, $content, $block ) {
 		$url_parts = wp_parse_url( $url );
 		$domain    = $url_parts['host'];
 		$src       = sprintf( 'https://widgets.wp.com/likes/?ver=%1$s#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s&amp;block=1', rawurlencode( JETPACK__VERSION ), $blog_id, $post_id, $domain, $uniqid, $new_layout );
-		$headline  = sprintf(
-			/** This filter is already documented in modules/sharedaddy/sharing-service.php */
-			apply_filters( 'jetpack_sharing_headline_html', '<h3 class="sd-title">%s</h3>', esc_html__( 'Like this:', 'jetpack' ), 'likes' ),
-			esc_html__( 'Like this:', 'jetpack' )
-		);
 	}
 
 	$name    = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 	$wrapper = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 
 	$html = "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='" . esc_attr( $wrapper ) . "' data-src='" . esc_attr( $src ) . "' data-name='" . esc_attr( $name ) . "' data-title='" . esc_attr( $title ) . "'>"
-		. $headline
 		. "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . "</span></span> <span class='loading'>" . esc_html__( 'Loading...', 'jetpack' ) . '</span></div>'
 		. "<span class='sd-text-color'></span><a class='sd-link-color'></a>"
 		. '</div>';

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -74,7 +75,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$this->add_my_home_menu();
 		$this->remove_gutenberg_menu();
 
-		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
+		// We don't need the `My Mailboxes` when the interface is set to wp-admin or the site is a staging site,
+		if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' && ! get_option( 'wpcom_is_staging_site' ) ) {
 			$this->add_my_mailboxes_menu();
 		}
 
@@ -130,8 +132,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
 
-		remove_submenu_page( 'users.php', 'profile.php' );
-		add_submenu_page( 'users.php', esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me/', null );
+		// When the interface is not set to wp-admin, we replace the Profile submenu.
+		if ( ! $this->use_wp_admin_interface() ) {
+			remove_submenu_page( 'users.php', 'profile.php' );
+			add_submenu_page( 'users.php', esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me/', null );
+		}
 
 		// Users who can't 'list_users' will see "Profile" menu & "Profile > Account Settings" as submenu.
 		add_submenu_page( $slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
@@ -329,6 +334,26 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds Jetpack menu.
+	 */
+	public function add_jetpack_menu() {
+		// This is supposed to be the same as class-admin-menu but with a different position specified for the Jetpack menu.
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			parent::create_jetpack_menu( 2, false );
+		} else {
+			parent::add_jetpack_menu();
+		}
+
+		/**
+		 * Prevent duplicate menu items that link to Jetpack Backup.
+		 * Hide the one that's shown when the standalone backup plugin is not installed, since Jetpack Backup is already included in Atomic sites.
+		 *
+		 * @see https://github.com/Automattic/jetpack/pull/33955
+		 */
+		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+	}
+
+	/**
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
@@ -408,6 +433,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
+
+		// Hide Settings > Performance when the interface is set to wp-admin.
+		// This is due to these settings are mostly also available in Jetpack > Settings, in the Performance tab.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$this->hide_submenu_page( 'options-general.php', 'https://wordpress.com/settings/performance/' . $this->domain );
+		}
 	}
 
 	/**
@@ -416,10 +447,22 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_tools_menu() {
 		parent::add_tools_menu();
 
+		// Link the Tools menu to Available Tools when the interface is set to wp-admin.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Available Tools', 'jetpack' ), __( 'Available Tools', 'jetpack' ), 'edit_posts', 'tools.php', null, 0 );
+		}
+
 		/**
 		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
 		 */
 		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
+
+		/**
+		 * Adds the WordPress.com Github Deployments submenu under the main Tools menu.
+		 */
+		if ( apply_filters( 'jetpack_show_wpcom_github_deployments_menu', false ) ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Github Deployments', 'jetpack' ), __( 'Github Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 7 );
+		}
 	}
 
 	/**
@@ -494,10 +537,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// Show the notice for the following screens and map them to the Calypso page.
 		$screen_map = array(
-			'options-general'    => 'general',
-			'options-writing'    => 'writing',
-			'options-reading'    => 'reading',
-			'options-discussion' => 'discussion',
+			'options-general' => 'general',
+			'options-reading' => 'reading',
 		);
 
 		$mapped_screen = isset( $screen_map[ $current_screen->id ] )

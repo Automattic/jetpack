@@ -69,7 +69,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
 
 final class Data_Sync {
 
-	const PACKAGE_VERSION = '0.4.1-alpha';
+	const PACKAGE_VERSION = '0.4.2-alpha';
 
 	/**
 	 * @var Registry
@@ -150,6 +150,10 @@ final class Data_Sync {
 
 			if ( DS_Utils::is_debug() ) {
 				$data[ $key ]['log'] = $entry->get_parser()->get_log();
+			}
+
+			if ( DS_Utils::debug_disable( $key ) ) {
+				unset( $data[ $key ]['value'] );
 			}
 
 			if ( $entry->is( Lazy_Entry::class ) ) {

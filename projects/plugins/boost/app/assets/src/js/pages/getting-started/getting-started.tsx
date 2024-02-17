@@ -25,23 +25,26 @@ const GettingStarted: React.FC = () => {
 
 	const pricing = usePricing();
 	const premiumFeatures = usePremiumFeatures();
-	const isPremium = premiumFeatures !== false;
+	const isPremium = premiumFeatures.length > 0;
 
 	const { shouldGetStarted, markGettingStartedComplete } = useGettingStarted();
 	const [ , setCriticalCssState ] = useSingleModuleState( 'critical_css' );
 
-	const {
-		connection: { userConnected },
-		initializeConnection,
-	} = useConnection();
-
+	const { connection, initializeConnection } = useConnection();
+	const { userConnected, wpcomBlogId } = connection || {};
 	useEffect( () => {
 		if ( ! shouldGetStarted && selectedPlan ) {
 			// Go to the purchase flow if the user doesn't have a premium plan.
 			if ( ! isPremium && selectedPlan === 'premium' ) {
-				window.location.href = getUpgradeURL( domain, userConnected );
+				window.location.href = getUpgradeURL(
+					domain,
+					userConnected,
+					wpcomBlogId ? wpcomBlogId.toString() : null
+				);
 			} else {
-				setCriticalCssState( true );
+				if ( ! isPremium ) {
+					setCriticalCssState( true );
+				}
 				navigate( '/', { replace: true } );
 			}
 		}
@@ -53,6 +56,7 @@ const GettingStarted: React.FC = () => {
 		setCriticalCssState,
 		shouldGetStarted,
 		userConnected,
+		wpcomBlogId,
 	] );
 
 	async function initialize( plan: 'free' | 'premium' ) {
@@ -79,30 +83,35 @@ const GettingStarted: React.FC = () => {
 	}
 
 	return (
-		<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
-			<Header>
-				<ActivateLicense />
-			</Header>
+		pricing && (
+			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
+				<Header>
+					<ActivateLicense />
+				</Header>
 
-			<div className="jb-section jb-section--alt">
-				<div className="jb-container">
-					<div className={ styles[ 'pricing-table' ] }>
-						<BoostPricingTable
-							pricing={ pricing }
-							onPremiumCTA={ () => initialize( 'premium' ) }
-							onFreeCTA={ () => initialize( 'free' ) }
-							chosenFreePlan={ selectedPlan === 'free' }
-							chosenPaidPlan={ selectedPlan === 'premium' }
-						/>
-						{ snackbarMessage !== '' && (
-							<Snackbar children={ snackbarMessage } onDismiss={ () => setSnackbarMessage( '' ) } />
-						) }
+				<div className="jb-section jb-section--alt">
+					<div className="jb-container">
+						<div className={ styles[ 'pricing-table' ] }>
+							<BoostPricingTable
+								pricing={ pricing }
+								onPremiumCTA={ () => initialize( 'premium' ) }
+								onFreeCTA={ () => initialize( 'free' ) }
+								chosenFreePlan={ selectedPlan === 'free' }
+								chosenPaidPlan={ selectedPlan === 'premium' }
+							/>
+							{ snackbarMessage !== '' && (
+								<Snackbar
+									children={ snackbarMessage }
+									onDismiss={ () => setSnackbarMessage( '' ) }
+								/>
+							) }
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<Footer />
-		</div>
+				<Footer />
+			</div>
+		)
 	);
 };
 
