@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Replace   git push --set-upstream origin fix/verbum-subscription-modal-status-form-submission
+Create and use Preact signal for subscriptionModalStatus to fix issue of undefined value sent on comment submission.
