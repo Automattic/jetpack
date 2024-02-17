@@ -753,8 +753,9 @@ class Dashboard_REST_Controller {
 				continue;
 			}
 			$product = wc_get_product( $item['ID'] );
-			if ( $product ) {
-
+			if ( ! $product || ! $product instanceof WC_Product ) {
+				$posts[ $key ]['price'] = '';
+			} else {
 				$price              = $product->get_price();
 				$decimal_separator  = wc_get_price_decimal_separator();
 				$thousand_separator = wc_get_price_thousand_separator();
@@ -770,8 +771,6 @@ class Dashboard_REST_Controller {
 				$formatted_price = sprintf( $price_format, $currency_symbol, $price );
 
 				$posts[ $key ]['price'] = html_entity_decode( $formatted_price, ENT_COMPAT );
-			} else {
-				$posts[ $key ]['price'] = '';
 			}
 		}
 		return $posts;
