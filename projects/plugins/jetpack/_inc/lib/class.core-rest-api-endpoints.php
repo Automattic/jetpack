@@ -786,6 +786,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+
+		// Create a new category
+		register_rest_route(
+			'jetpack/v4',
+			'/categories/new',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::create_new_category',
+				'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			)
+		);
 	}
 
 	/**
@@ -839,6 +850,31 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_REST_Response( null, 302, array( 'location' => $request['redirect_url'] ) );
 		}
 		return new WP_Error( 'invalid-token', 'Invalid Token' );
+	}
+
+	/**
+	 * Creates a new category
+	 *
+	 * @param \WP_REST_Request $request The request object to create a new category.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public static function create_new_category( $request ) {
+		require_once ABSPATH . 'wp-admin/includes/taxonomy.php';
+		$body            = $request->get_json_params();
+		$new_category_id = wp_create_category( $body['name'], $body['parent'] );
+
+		if ( is_wp_error( $new_category_id ) ) {
+			return $new_category_id;
+		}
+
+		$new_category = get_term_by( 'term_id', $new_category_id, 'category' );
+
+		if ( ! $new_category || is_wp_error( $new_category ) ) {
+			return new WP_Error( 'new_category_error', 'An unexpected error occurred while creating the new category.', 500 );
+		}
+
+		return new WP_REST_Response( $new_category, 200 );
 	}
 
 	/**

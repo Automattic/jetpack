@@ -536,6 +536,10 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/site/backup/undo-event`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+		createNewCategory: newCategory =>
+			postRequest( `${ apiRoot }jetpack/v4/categories/new`, postParams, {
+				body: JSON.stringify( newCategory ),
+			} ),
 	};
 
 	/**
