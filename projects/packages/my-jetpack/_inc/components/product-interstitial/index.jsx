@@ -63,7 +63,7 @@ export default function ProductInterstitial( {
 	highlightLastFeature = false,
 } ) {
 	const { activate, detail } = useProduct( slug );
-	const { isUpgradableByBundle, tiers } = detail;
+	const { isUpgradableByBundle, tiers, wpcomProductSlug } = detail;
 
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
@@ -73,17 +73,24 @@ export default function ProductInterstitial( {
 	}, [ recordEvent, slug ] );
 
 	const trackProductClick = useCallback(
-		( customSlug = null ) => {
+		( isFreePlan = false, customSlug = null ) => {
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: customSlug ?? slug,
+				productSlug: ! isFreePlan ? wpcomProductSlug : '',
 			} );
 		},
-		[ recordEvent, slug ]
+		[ recordEvent, slug, wpcomProductSlug ]
 	);
 
-	const trackBundleClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: bundle } );
-	}, [ recordEvent, bundle ] );
+	const trackBundleClick = useCallback(
+		( isFreePlan = false ) => {
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: bundle,
+				productSlug: ! isFreePlan ? wpcomProductSlug : '',
+			} );
+		},
+		[ recordEvent, bundle, wpcomProductSlug ]
+	);
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 
