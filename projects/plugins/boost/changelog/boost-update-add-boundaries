@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Jetpack Boost: Improved error handling with ErrorBoundary around SpeedScore and Module components
