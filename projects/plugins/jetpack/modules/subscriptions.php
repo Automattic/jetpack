@@ -373,12 +373,12 @@ class Jetpack_Subscriptions {
 			'sm_enabled'
 		);
 
-		/** Email me whenever: Someone follows my blog */
+		/** Email me whenever: Someone subscribes to my blog */
 		/* @since 8.1 */
 
 		add_settings_section(
 			'notifications_section',
-			__( 'Someone follows my blog', 'jetpack' ),
+			__( 'Someone subscribes to my blog', 'jetpack' ),
 			array( $this, 'social_notifications_subscribe_section' ),
 			'discussion'
 		);
@@ -511,7 +511,7 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
-	 * Someone follows my blog section
+	 * Someone subscribes to my blog section
 	 *
 	 * @since 8.1
 	 */
@@ -537,7 +537,7 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
-	 * Someone follows my blog Toggle
+	 * Someone subscribes to my blog Toggle
 	 *
 	 * @since 8.1
 	 */
@@ -549,14 +549,14 @@ class Jetpack_Subscriptions {
 			<input type="checkbox" name="social_notifications_subscribe" id="social_notifications_subscribe" value="1" <?php checked( $checked ); ?> />
 			<?php
 				/* translators: this is a label for a setting that starts with "Email me whenever" */
-				esc_html_e( 'Someone follows my blog', 'jetpack' );
+				esc_html_e( 'Someone subscribes to my blog', 'jetpack' );
 			?>
 		</label>
 		<?php
 	}
 
 	/**
-	 * Validate "Someone follows my blog" option
+	 * Validate "Someone subscribes to my blog" option
 	 *
 	 * @since 8.1
 	 *
