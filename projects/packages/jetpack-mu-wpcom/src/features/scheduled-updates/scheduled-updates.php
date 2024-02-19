@@ -55,3 +55,38 @@ function jetpack_allowlist_scheduled_plugins( $update, $item ) {
 	return $update;
 }
 add_filter( 'auto_update_plugin', 'jetpack_allowlist_scheduled_plugins', 10, 2 );
+
+/**
+ * Registers the is_managed field for the plugin REST API.
+ */
+function jetpack_managed_extension_field() {
+	if ( ! Automattic\Jetpack\Current_Plan::supports( 'scheduled-updates' ) ) {
+		return;
+	}
+
+	register_rest_field(
+		'plugin',
+		'is_managed',
+		array(
+			/**
+			 * Populates the is_managed field.
+			 *
+			 * @see p9o2xV-3Nx-p2#comment-8728
+			 *
+			 * @param array $data Prepared response array.
+			 * @return bool
+			 */
+			'get_callback' => function ( $data ) {
+				$folder = strtok( $data['plugin'], '/' );
+				$target = readlink( WP_PLUGIN_DIR . '/' . $folder );
+
+				return $target && 0 === strpos( $target, '/wordpress/' );
+			},
+			'schema'       => array(
+				'description' => 'Whether the plugin is managed by the host.',
+				'type'        => 'boolean',
+			),
+		)
+	);
+}
+add_action( 'rest_api_init', 'jetpack_managed_extension_field' );
