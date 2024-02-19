@@ -22,8 +22,7 @@ use Jetpack_Gutenberg;
  */
 function register_block() {
 	if (
-		! defined( 'IS_WPCOM' )
-		&& ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
+		( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
 		&& ! ( new Status() )->is_offline_mode() )
 	) {
 		Blocks::jetpack_register_block(
