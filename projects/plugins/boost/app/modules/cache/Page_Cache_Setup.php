@@ -13,6 +13,7 @@ class Page_Cache_Setup {
 	public static function run_setup() {
 		$steps = array(
 			'verify_wp_content_writable',
+			'verify_permalink_setting',
 			'create_advanced_cache',
 			'add_wp_cache_define',
 		);
@@ -44,6 +45,17 @@ class Page_Cache_Setup {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Returns true if WordPress is using a proper permalink setup. WP_Error if not.
+	 */
+	private static function verify_permalink_setting() {
+		global $wp_rewrite;
+
+		if ( ! $wp_rewrite || ! $wp_rewrite->using_permalinks() ) {
+			return new \WP_Error( 'not-using-permalinks', 'This site does not appear to use permalinks' );
+		}
 	}
 
 	/**
