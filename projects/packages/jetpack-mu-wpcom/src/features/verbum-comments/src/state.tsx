@@ -103,4 +103,8 @@ export const subscriptionSettings: Signal< SubscriptionDetails > = signal( undef
  */
 export const commentParent = signal( 0 );
 
+/*
+ * Store the subscription modal status calculated for the user.
+ * Can be one of these values: 'showed', 'hidden_cookies_disabled', 'hidden_subscribe_not_enabled', 'hidden_views_limit' and 'hidden_already_subscribed'.
+ */
 export const subscribeModalStatus = signal( undefined );
