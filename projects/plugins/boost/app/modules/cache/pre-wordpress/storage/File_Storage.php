@@ -90,7 +90,7 @@ class File_Storage implements Storage {
 		if ( $handle ) {
 			// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			while ( false !== ( $file = readdir( $handle ) ) ) {
-				if ( $this->is_skipped_file( $file ) ) {
+				if ( $this->is_gc_skipped_file( $file ) ) {
 					// Skip and continue to next file
 					continue;
 				}
@@ -146,9 +146,9 @@ class File_Storage implements Storage {
 	}
 
 	/**
-	 * If the file doesn't matter.
+	 * If the file doesn't matter during garbage collection.
 	 */
-	private function is_skipped_file( $file ) {
+	private function is_gc_skipped_file( $file ) {
 		if ( $file === '.' || $file === '..' ) {
 			return true;
 		}
