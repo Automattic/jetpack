@@ -21,7 +21,7 @@ import { external } from '@wordpress/icons';
  * Internal dependencies
  */
 import oscilloscope from './assets/oscilloscope.svg';
-import useEditorInserter from './hooks/use-editor-inserter';
+import useTranscriptionInserter from './hooks/use-transcription-inserter';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function Oscilloscope( { audioURL } ) {
@@ -85,7 +85,7 @@ function AudioStatusPanel( { state, error = null, audioURL = null, duration = 0 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ActionButtons( { state, mediaControls, onError } ) {
 	const { start, pause, resume, stop, reset } = mediaControls ?? {};
-	const { upsertTranscription } = useEditorInserter();
+	const { upsertTranscription } = useTranscriptionInserter();
 
 	const { processTranscription } = useTranscriptionPostProcessing( {
 		feature: 'voice-to-content',

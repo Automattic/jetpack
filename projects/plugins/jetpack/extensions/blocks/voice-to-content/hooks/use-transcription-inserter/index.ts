@@ -7,12 +7,12 @@ import { useCallback, useRef } from '@wordpress/element';
 import debugFactory from 'debug';
 import MarkdownIt from 'markdown-it';
 
-const debug = debugFactory( 'voice-to-content:use-editor-inserter' );
+const debug = debugFactory( 'voice-to-content:use-transcription-inserter' );
 
 /**
- * The return value for the editor inserter hook.
+ * The return value for the transcription inserter hook.
  */
-export type UseEditorInserterReturn = {
+export type UseTranscriptionInserterReturn = {
 	upsertTranscription: ( transcription: string ) => void;
 };
 
@@ -26,9 +26,9 @@ const markdownConverter = new MarkdownIt( {
 /**
  * Hook to handle the insertion of the transcription into the editor.
  *
- * @returns {UseEditorInserterReturn} - Object with function to handle editor block upserting.
+ * @returns {UseTranscriptionInserterReturn} - Object with function to handle transcription upserting.
  */
-export default function useEditorInserter(): UseEditorInserterReturn {
+export default function useTranscriptionInserter(): UseTranscriptionInserterReturn {
 	const { replaceBlocks, insertBlocks } = useDispatch( 'core/block-editor' );
 
 	/*
