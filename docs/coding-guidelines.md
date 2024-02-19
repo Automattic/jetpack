@@ -97,6 +97,8 @@ For more information on how to use `$$next-version$$`, please see the [packages 
 - Use Gutenberg's [@wordpress/i18n](https://www.npmjs.com/package/@wordpress/i18n) package.
 - Use an appropriate unique text domain in your JS code.
 - Make use of [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain) when bundling to ensure i18n works in the published plugin.
+- When using TypeScript in Webpack, use `@babel/preset-typescript` rather than `ts-loader`.
+  - To generate `.d.ts` files, either `fork-ts-checker-webpack-plugin` or `tsc --emitDeclarationOnly` may be used.
 
 ## Where should my code live? 
 
