@@ -82,7 +82,7 @@ export default function useTranscriptionPostProcessing( {
 		[ setPostProcessingError, onError ]
 	);
 
-	const { request, stopSuggestion, suggestion } = useAiSuggestions( {
+	const { request, stopSuggestion } = useAiSuggestions( {
 		autoRequest: false,
 		onSuggestion: handleOnSuggestion,
 		onDone: handleOnDone,
@@ -94,14 +94,8 @@ export default function useTranscriptionPostProcessing( {
 		 * Stop the suggestion streaming.
 		 */
 		stopSuggestion();
-
-		/*
-		 * Publish the last state of the suggestion.
-		 */
-		setPostProcessingResult( suggestion );
-		onUpdate?.( suggestion );
-		onReady?.( suggestion );
-	}, [ stopSuggestion, onUpdate, onReady, suggestion ] );
+		setIsProcessingTranscription( false );
+	}, [ stopSuggestion, setIsProcessingTranscription ] );
 
 	const handleTranscriptionPostProcessing = useCallback(
 		( action: PostProcessingAction, transcription: string ) => {
