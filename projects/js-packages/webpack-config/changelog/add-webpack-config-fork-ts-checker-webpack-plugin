@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add an option to include `fork-ts-checker-webpack-plugin`. As this requires `typescript` as a peer dep, it needs to be explicitly enabled.

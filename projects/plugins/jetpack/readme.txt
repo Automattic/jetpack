@@ -326,7 +326,27 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.2-a.5 - 2024-02-14
+### 13.2-a.7 - 2024-02-19
+#### Enhancements
+- Added custom message textarea to send a message via email when adding new users
+- Add images while publishing on the web via the jetpack app
+- Add some extra margin around Stats settings toggles
+- Add support for Email stats
+- Comment: Add Goodreads embed block in Gutenberg.
+- SSO: Add user invite revoke row action in users table
+- SSO: improve messaging and account binding between local and wp.com users
+- SSO: Updated column heading and row background color when invitation is pending.
+- SSO: When creating a new users, mail the users with an invitation to WPCom.
+- We added the Welcome Email Message setting to Newsletter settings
+
+#### Improved compatibility
+- Add 'if_not_modified_since' to the update post endpoints this will help clients fails if the post has been updated since last retrieved
+- Add support for WP Super Cache and Boost Cache
+
+#### Bug fixes
+- Jetpack Google Fonts: Fix some Google fonts aren't displayed correctly on front end
+- Scan: ensure the Admin notice resources are always properly loaded.
+
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

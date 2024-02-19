@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid Fatal errors when saved stats data is a WP_Error object
