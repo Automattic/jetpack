@@ -72,7 +72,7 @@ class File_Storage implements Storage {
 
 		clearstatcache();
 
-		$count = $this->garbage_collect_directory( $this->root_path, $cache_duration );
+		$count = $this->delete_expired_files( $this->root_path, $cache_duration );
 
 		Logger::debug( "Garbage collected $count files" );
 	}
@@ -80,10 +80,10 @@ class File_Storage implements Storage {
 	/**
 	 * Recursively garbage collect a directory.
 	 *
-	 * @param string $directory      - The directory to garbage collect.
-	 * @param int    $cache_duration - The duration in seconds to keep files.
+	 * @param string $directory - The directory to garbage collect.
+	 * @param int    $file_ttl  - Specify number of seconds after which a file is considered expired.
 	 */
-	private function garbage_collect_directory( $directory, $cache_duration ) {
+	public function delete_expired_files( $directory, $file_ttl ) {
 		$count  = 0;
 		$now    = time();
 		$handle = is_readable( $directory ) && is_dir( $directory ) ? opendir( $directory ) : false;
@@ -104,12 +104,12 @@ class File_Storage implements Storage {
 
 				// Handle directories recursively.
 				if ( is_dir( $file_path ) ) {
-					$count += $this->garbage_collect_directory( $file_path, $cache_duration );
+					$count += $this->delete_expired_files( $file_path, $file_ttl );
 					continue;
 				}
 
 				$filemtime = filemtime( $file_path );
-				$expired   = ( $filemtime + $cache_duration ) <= $now;
+				$expired   = ( $filemtime + $file_ttl ) <= $now;
 				if ( $expired ) {
 					if ( $this->delete_file( $file_path ) ) {
 						++$count;
@@ -123,7 +123,7 @@ class File_Storage implements Storage {
 			// If the directory is empty after processing it's files, delete it.
 			$is_dir_empty = $this->is_dir_empty( $directory );
 			if ( is_wp_error( $is_dir_empty ) ) {
-				Logger::debug( 'Couldn\'t check directory emptiness: ' . $is_dir_empty->get_error_message() );
+				Logger::debug( 'Could not check directory emptiness: ' . $is_dir_empty->get_error_message() );
 				return $count;
 			}
 
