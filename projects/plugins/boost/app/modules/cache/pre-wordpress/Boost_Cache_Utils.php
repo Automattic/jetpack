@@ -9,7 +9,7 @@ class Boost_Cache_Utils {
 	/**
 	 * Recursively delete a directory.
 	 * @param string $dir - The directory to delete.
-	 * @param bool   $recurse - If false, only delete the files in the directory, do not recurse into subdirectories.
+	 * @param bool   $filter - The filter to use. '*' to delete all files in the given directory. '*\/' to delete everything in the given directory, recursively. '\/**\/' to delete a single file or directory in the given directory.
 	 * @return bool|WP_Error
 	 */
 	public static function delete_directory( $dir, $filter = null ) {
@@ -212,7 +212,6 @@ class Boost_Cache_Utils {
 	/**
 	 * Given a request_uri and its parameters, return the filename to use for this cached data. Does not include the file path.
 	 *
-	 * @param string $request_uri - The URI of this request (excluding GET parameters)
 	 * @param array  $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
 	 */
 	public static function get_request_filename( $parameters ) {
