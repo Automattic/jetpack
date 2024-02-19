@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Logger;
 
 class Garbage_Collection {
 	const GARBAGE_COLLECTION_ACTION   = 'jetpack_boost_cache_garbage_collection';
@@ -16,6 +17,7 @@ class Garbage_Collection {
 
 		$cache = new Boost_Cache();
 		add_action( self::GARBAGE_COLLECTION_ACTION, array( $cache->get_storage(), 'garbage_collect' ) );
+		add_action( self::GARBAGE_COLLECTION_ACTION, array( Logger::class, 'delete_old_logs' ) );
 	}
 
 	/**

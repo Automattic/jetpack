@@ -5,6 +5,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
 
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Storage\File_Storage;
+
 /**
  * A utility that manages logging for the boost cache.
  */
@@ -18,6 +20,11 @@ class Logger {
 	 * The header to place on top of every log file.
 	 */
 	const LOG_HEADER = "<?php die(); // This file is not intended to be accessed directly. ?>\n\n";
+
+	/**
+	 * The directory where log files are stored.
+	 */
+	const LOG_DIRECTORY = WP_CONTENT_DIR . '/boost-cache/logs';
 
 	/**
 	 * Get the singleton instance of the logger.
@@ -105,6 +112,13 @@ class Logger {
 	 */
 	private static function get_log_file() {
 		$today = gmdate( 'Y-m-d' );
-		return WP_CONTENT_DIR . "/boost-cache/logs/log-{$today}.log.php";
+		return self::LOG_DIRECTORY . "/log-{$today}.log.php";
+	}
+
+	public static function delete_old_logs() {
+		$storage = new File_Storage( 'logs' );
+
+		// Delete log files older than 24 hours.
+		$storage->delete_expired_files( self::LOG_DIRECTORY, 24 * 60 * 60 );
 	}
 }
