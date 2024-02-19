@@ -194,7 +194,12 @@ class Jetpack_Plugin_Compatibility {
 		// Print any notices about plugin deactivation.
 		add_action( 'admin_notices', array( $this, 'incompatible_plugin_notices' ) );
 		// Disable My Jetpack page.
-		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+		add_filter(
+			'jetpack_my_jetpack_should_initialize',
+			function () {
+				return function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
+			}
+		);
 	}
 
 	/**
