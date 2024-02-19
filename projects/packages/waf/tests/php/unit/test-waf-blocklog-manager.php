@@ -26,7 +26,7 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 
 		// Create a partial mock of Waf_Blocklog_Manager to mock update_daily_summary method
 		$mock = $this->getMockBuilder( Waf_Blocklog_Manager::class )
-			->onlyMethods( array( 'update_daily_summary' ) )
+			->setMethods( array( 'update_daily_summary' ) )
 			->getMock();
 
 		// Configure the mock to do nothing when update_daily_summary is called
