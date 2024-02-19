@@ -21,9 +21,11 @@ class Jetpack_Token_Subscription_Service extends Abstract_Token_Subscription_Ser
 	/**
 	 * Is the Jetpack_Options class available?
 	 *
+	 * @param int|null $user_id An optional user_id that can be used to determine service availability (defaults to checking if user is logged in if omitted).
 	 * @return bool Whether Jetpack_Options class exists.
 	 */
-	public static function available() {
+	public static function available( $user_id = null ) {
+		unset( $user_id ); // Not used in this class
 		return ( new Host() )->is_wpcom_simple() || class_exists( '\Jetpack_Options' );
 	}
 
