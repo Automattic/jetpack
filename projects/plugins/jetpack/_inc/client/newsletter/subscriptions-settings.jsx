@@ -21,6 +21,8 @@ import {
 import { getModule } from 'state/modules';
 import Textarea from '../components/textarea';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
+import TreeSelector from '../components/tree-selector';
+import sampleCategories from '../components/tree-selector/mock-data';
 
 const trackViewSubsClick = () => {
 	analytics.tracks.recordJetpackClick( 'manage-subscribers' );
@@ -214,6 +216,15 @@ function SubscriptionsSettings( props ) {
 							value={ welcomeMessage }
 							onChange={ changeWelcomeMessageState }
 						/>
+						<TreeSelector
+							items={ sampleCategories }
+							// eslint-disable-next-line
+							onSelect={ item => console.log( 'selected item', item ) }
+							// eslint-disable-next-line
+							onDeselect={ item => console.log( 'deselected item', item ) }
+							// eslint-disable-next-line
+							onChange={ item => console.log( 'checked items', item ) }
+						></TreeSelector>
 					</FormLabel>
 				</SettingsGroup>
 			</SettingsCard>

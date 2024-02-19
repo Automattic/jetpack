@@ -1,0 +1,8 @@
+ul.jp-tree-items {
+    list-style-type: none; /* Removes default list styling */
+    padding-left: 20px; /* Adds indentation to the whole list */
+}
+
+li.jp-tree-item {
+    margin-left: 20px; /* Adds indentation for each nested item */
+}
