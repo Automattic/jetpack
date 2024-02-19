@@ -7,6 +7,10 @@ import { isModuleFound as isModuleFoundSelector } from 'state/search';
 import NewsletterCategories from './newsletter-categories';
 import SubscriptionsSettings from './subscriptions-settings';
 
+//Check for feature flag
+const urlParams = new URLSearchParams( window.location.search );
+const isNewsletterCategoriesEnabled = urlParams.get( 'enable-newsletter-categories' ) === 'true';
+
 /**
  * Newsletter Section.
  *
@@ -42,7 +46,7 @@ function Subscriptions( props ) {
 			{ foundSubscriptions && (
 				<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
 			) }
-			<NewsletterCategories />
+			{ isNewsletterCategoriesEnabled && <NewsletterCategories /> }
 		</div>
 	);
 }
