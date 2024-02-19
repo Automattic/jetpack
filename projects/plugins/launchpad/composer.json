@@ -1,0 +1,66 @@
+{
+	"name": "automattic/jetpack-launchpad",
+	"description": "Jetpack Launchpad to quickly configure purchased products.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-config": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^4.1.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"@composer install",
+			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer install",
+			"@composer phpunit"
+		],
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build-production-concurrently"
+		],
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build-concurrently"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-launchpad",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-launchpad/compare/v${old}...v${new}"
+		},
+		"release-branch-prefix": "launchpad"
+	}
+}
