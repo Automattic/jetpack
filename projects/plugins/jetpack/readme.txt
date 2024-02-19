@@ -293,9 +293,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.1.1 - 2024-02-06
-#### Bug fixes
-- WooCommerce Analytics: resolve warning when enqueuing analytics script.
+### 13.1.2 - 2024-02-19
+#### Security Improvements
+- Like block: fix XSS vulnerability in avatar URL encoding.
 
 --------
 
