@@ -82,6 +82,7 @@ class File_Storage implements Storage {
 	 *
 	 * @param string $directory - The directory to garbage collect.
 	 * @param int    $file_ttl  - Specify number of seconds after which a file is considered expired.
+	 * @return int - The number of files deleted.
 	 */
 	public function delete_expired_files( $directory, $file_ttl ) {
 		$count  = 0;
@@ -128,8 +129,8 @@ class File_Storage implements Storage {
 			}
 
 			if ( $is_dir_empty ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
-				rmdir( $directory );
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+				@rmdir( $directory );
 			}
 		}
 
