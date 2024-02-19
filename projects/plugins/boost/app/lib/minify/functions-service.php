@@ -22,6 +22,11 @@ function jetpack_boost_page_optimize_service_request() {
 	$cache_dir = Config::get_cache_dir_path();
 	$use_cache = ! empty( $cache_dir );
 
+	// If handling the cache here, tell other caches not to.
+	if ( $use_cache && ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', true );
+	}
+
 	// Ensure the cache directory exists.
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
 	if ( $use_cache && ! is_dir( $cache_dir ) && ! mkdir( $cache_dir, 0775, true ) ) {
