@@ -49,7 +49,6 @@ class File_Storage implements Storage {
 		$directory = self::get_uri_directory( $request_uri );
 		$filename  = Boost_Cache_Utils::get_request_filename( $parameters );
 		$hash_path = $directory . $filename;
-		error_log( "hash_path: $hash_path" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
 		if ( file_exists( $hash_path ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
