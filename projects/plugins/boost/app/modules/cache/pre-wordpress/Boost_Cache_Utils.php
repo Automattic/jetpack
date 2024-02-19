@@ -12,8 +12,8 @@ class Boost_Cache_Utils {
 	 * @param bool   $recurse - If false, only delete the files in the directory, do not recurse into subdirectories.
 	 * @return bool|WP_Error
 	 */
-	public static function delete_directory( $dir, $recurse = true ) {
-		error_log( "delete directory: $dir " . (int) $recurse ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+	public static function delete_directory( $dir, $filter = null ) {
+		error_log( "delete directory: $dir $filter" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$dir = realpath( $dir );
 		if ( ! $dir ) {
 			// translators: %s is the directory that does not exist.
@@ -26,16 +26,52 @@ class Boost_Cache_Utils {
 			return new \WP_Error( 'invalid-directory', sprintf( __( 'Invalid directory %s', 'jetpack-boost' ), $dir ) );
 		}
 
-		$files = array_diff( scandir( $dir ), array( '.', '..' ) );
-		foreach ( $files as $file ) {
-			$file = $dir . '/' . $file;
-			if ( $recurse && is_dir( $file ) ) {
-				self::delete_directory( $file, $recurse );
+		if ( $filter === '*' ) { // all files in given directory
+			$files = array_diff( scandir( $dir ), array( '.', '..' ) );
+			foreach ( $files as $file ) {
+				$file = $dir . '/' . $file;
+				if ( is_file( $file ) ) {
+					error_log( "unlink: $file" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					@unlink( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink
+				}
+			}
+			return true;
+		} elseif ( $filter === '*/' ) { // everything in given directory, recursively.
+			$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $dir, \RecursiveDirectoryIterator::SKIP_DOTS ) );
+			foreach ( $iterator as $file ) {
+				if ( $file->isDir() ) {
+					error_log( 'rmdir: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+				} else {
+					error_log( 'unlink: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+				}
+			}
+			return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+		} elseif ( substr( $filter, 0, 4 ) === '/**/' ) { // a single file or directory in the given directory.
+			$path = substr( $filter, 4 );
+			if ( ! file_exists( $dir . $path ) ) {
+				return; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			}
+			if ( is_file( $dir . $path ) ) {
+				error_log( 'unlink: ' . $dir . $path ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				@unlink( $dir . $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+				return true;
 			} else {
-				wp_delete_file( $file );
+				$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $dir . $path, \RecursiveDirectoryIterator::SKIP_DOTS ) );
+				foreach ( $iterator as $file ) {
+					error_log( 'rmdir: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					if ( $file->isDir() ) {
+						error_log( 'rmdir: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+						@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+					} else {
+						error_log( 'unlink: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+						@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+					}
+				}
+				return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 			}
 		}
-		return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 	}
 
 	/**
@@ -64,16 +100,6 @@ class Boost_Cache_Utils {
 
 	public static function trailingslashit( $string ) {
 		return rtrim( $string, '/' ) . '/';
-	}
-
-	/**
-	 * Delete a single directory.
-	 * @param string $dir - The directory to delete.
-	 * @return bool
-	 */
-	public static function delete_single_directory( $dir ) {
-		error_log( "delete single directory: $dir" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		return self::delete_directory( $dir, false );
 	}
 
 	/**
@@ -181,5 +207,18 @@ class Boost_Cache_Utils {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Given a request_uri and its parameters, return the filename to use for this cached data. Does not include the file path.
+	 *
+	 * @param string $request_uri - The URI of this request (excluding GET parameters)
+	 * @param array  $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
+	 */
+	public static function get_request_filename( $parameters ) {
+
+		$key_components = apply_filters( 'boost_cache_key_components', $parameters );
+
+		return md5( json_encode( $key_components ) ) . '.html'; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 	}
 }
