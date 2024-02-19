@@ -27,7 +27,7 @@ class Garbage_Collection {
 		self::init();
 
 		if ( ! wp_next_scheduled( self::GARBAGE_COLLECTION_ACTION ) ) {
-			wp_schedule_event( time(), 'daily', self::GARBAGE_COLLECTION_ACTION );
+			wp_schedule_event( time(), self::GARBAGE_COLLECTION_INTERVAL, self::GARBAGE_COLLECTION_ACTION );
 		}
 	}
 
