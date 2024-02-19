@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Scan: ensure the Admin notice resources are always properly loaded.
