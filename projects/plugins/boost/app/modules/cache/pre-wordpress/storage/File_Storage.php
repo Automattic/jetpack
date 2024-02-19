@@ -91,7 +91,7 @@ class File_Storage implements Storage {
 	 * @param string $path - The path to delete.
 	 */
 	public function invalidate( $request_uri, $filter = '*' ) {
-		error_log( "invalidate: $request_uri" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( "invalidate: $request_uri $filter" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$path = $this->root_path . $request_uri;
 
 		return Boost_Cache_Utils::delete_directory( $path, $filter );
