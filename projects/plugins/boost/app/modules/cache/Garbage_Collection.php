@@ -24,8 +24,8 @@ class Garbage_Collection {
 	public static function install() {
 		self::init();
 
-		if ( ! wp_next_scheduled( 'jetpack_boost_garbage_collection' ) ) {
-			wp_schedule_event( time(), 'daily', 'jetpack_boost_garbage_collection' );
+		if ( ! wp_next_scheduled( self::GARBAGE_COLLECTION_ACTION ) ) {
+			wp_schedule_event( time(), 'daily', self::GARBAGE_COLLECTION_ACTION );
 		}
 	}
 
@@ -33,7 +33,7 @@ class Garbage_Collection {
 	 * Remove the garbage collection cron job.
 	 */
 	public static function uninstall() {
-		wp_clear_scheduled_hook( 'jetpack_boost_garbage_collection' );
+		wp_clear_scheduled_hook( self::GARBAGE_COLLECTION_ACTION );
 	}
 
 	/**
