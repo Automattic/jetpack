@@ -56,7 +56,7 @@ class Filesystem_Utils {
 				return $count;
 			}
 
-			if ( $is_dir_empty ) {
+			if ( $is_dir_empty === true ) {
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 				@rmdir( $directory );
 			}
