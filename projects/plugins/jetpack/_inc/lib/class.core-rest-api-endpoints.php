@@ -2657,6 +2657,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
+			'subscription_options'                 => array(
+				'description'       => esc_html__( 'Three options used in subscription email templates: \'invitation\', \'welcome\' and \'comment_follow\'.', 'jetpack' ),
+				'type'              => 'object',
+				'default'           => array(
+					'invitation'     => '',
+					'welcome'        => '',
+					'comment_follow' => '',
+				),
+				'validate_callback' => __CLASS__ . '::validate_subscription_options',
+				'jp_group'          => 'subscriptions',
+			),
 
 			// Related Posts.
 			'show_headline'                        => array(
@@ -3559,6 +3570,37 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$validate = self::validate_string( $array_item, $request, $param );
 			if ( is_wp_error( $validate ) ) {
 				return $validate;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Validates the subscription_options parameter.
+	 *
+	 * @param array $values Value to check.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_subscription_options( $values ) {
+		if ( is_object( $values ) ) {
+			return new WP_Error(
+				'invalid_param',
+				/* Translators: subscription_options is a variable name, and shouldn't be translated. */
+				esc_html__( 'subscription_options must be an object.', 'jetpack' )
+			);
+		}
+		foreach ( array_keys( $values ) as $key ) {
+			if ( ! in_array( $key, array( 'welcome', 'invitation', 'comment_follow' ), true ) ) {
+				return new WP_Error(
+					'invalid_param',
+					sprintf(
+						/* Translators: Placeholder is the invalid param being sent. */
+						esc_html__( '%s is not one of the allowed members of subscription_options.', 'jetpack' ),
+						$key
+					)
+				);
 			}
 		}
 
