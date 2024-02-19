@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useRef, useState } from '@wordpress/element';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -18,6 +18,7 @@ export type UseAudioTranscriptionReturn = {
 	isTranscribingAudio: boolean;
 	transcriptionError: string;
 	transcribeAudio: ( audio: Blob ) => void;
+	cancelTranscription: () => void;
 };
 
 /**
@@ -44,6 +45,25 @@ export default function useAudioTranscription( {
 	const [ transcriptionError, setTranscriptionError ] = useState< string >( '' );
 	const [ isTranscribingAudio, setIsTranscribingAudio ] = useState( false );
 
+	/**
+	 * Include an abort controller to cancel the transcription.
+	 */
+	const abortController = useRef< AbortController | null >( new AbortController() );
+
+	const handleAudioTranscriptionCancelled = useCallback( () => {
+		/*
+		 * Reset the transcription result and error.
+		 */
+		setTranscriptionResult( '' );
+		setTranscriptionError( '' );
+		setIsTranscribingAudio( false );
+
+		/*
+		 * Cancel the transcription.
+		 */
+		abortController.current.abort();
+	}, [ setTranscriptionResult, setTranscriptionError, setIsTranscribingAudio, abortController ] );
+
 	const handleAudioTranscription = useCallback(
 		( audio: Blob ) => {
 			debug( 'Transcribing audio' );
@@ -58,7 +78,7 @@ export default function useAudioTranscription( {
 			/**
 			 * Call the audio transcription library.
 			 */
-			transcribeAudio( audio, feature )
+			transcribeAudio( audio, feature, abortController.current.signal )
 				.then( transcriptionText => {
 					setTranscriptionResult( transcriptionText );
 					onReady?.( transcriptionText );
@@ -69,7 +89,13 @@ export default function useAudioTranscription( {
 				} )
 				.finally( () => setIsTranscribingAudio( false ) );
 		},
-		[ transcribeAudio, setTranscriptionResult, setTranscriptionError, setIsTranscribingAudio ]
+		[
+			transcribeAudio,
+			setTranscriptionResult,
+			setTranscriptionError,
+			setIsTranscribingAudio,
+			abortController,
+		]
 	);
 
 	return {
@@ -77,5 +103,6 @@ export default function useAudioTranscription( {
 		isTranscribingAudio,
 		transcriptionError,
 		transcribeAudio: handleAudioTranscription,
+		cancelTranscription: handleAudioTranscriptionCancelled,
 	};
 }
