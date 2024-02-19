@@ -22,8 +22,8 @@ function jetpack_boost_page_optimize_service_request() {
 	$cache_dir = Config::get_cache_dir_path();
 	$use_cache = ! empty( $cache_dir );
 
-	// If handling the cache here, tell other caches not to.
-	if ( $use_cache && ! defined( 'DONOTCACHEPAGE' ) ) {
+	// We handle the cache here, tell other caches not to.
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 		define( 'DONOTCACHEPAGE', true );
 	}
 
