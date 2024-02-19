@@ -60,17 +60,7 @@ class Blaze {
 	 * @return void
 	 */
 	public static function add_post_links_actions() {
-		if (
-			self::should_initialize()
-			/**
-			 * Allow third-party plugins to disable Blaze row actions.
-			 *
-			 * @since 0.16.0
-			 *
-			 * @param bool $blaze_post_actions_enabled Should Blaze row actions be enabled?
-			 */
-			&& apply_filters( 'jetpack_blaze_post_row_actions_enable', true )
-		) {
+		if ( self::should_initialize() ) {
 			add_filter( 'post_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 			add_filter( 'page_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 		}
@@ -309,10 +299,21 @@ class Blaze {
 	 * @return array
 	 */
 	public static function jetpack_blaze_row_action( $post_actions, $post ) {
-		$post_id = $post->ID;
+		/**
+		 * Allow third-party plugins to disable Blaze row actions.
+		 *
+		 * @since 0.16.0
+		 *
+		 * @param bool    $are_quick_links_enabled Should Blaze row actions be enabled.
+		 * @param WP_Post $post                    The current post in the post list table.
+		 */
+		$are_quick_links_enabled = apply_filters( 'jetpack_blaze_post_row_actions_enable', true, $post );
 
 		// Bail if we are not looking at one of the supported post types (post, page, or product).
-		if ( ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
+		if (
+			! $are_quick_links_enabled
+			|| ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true )
+		) {
 			return $post_actions;
 		}
 
@@ -326,7 +327,7 @@ class Blaze {
 			return $post_actions;
 		}
 
-		$blaze_url = self::get_campaign_management_url( $post_id );
+		$blaze_url = self::get_campaign_management_url( $post->ID );
 		$text      = __( 'Promote with Blaze', 'jetpack-blaze' );
 		$title     = get_the_title( $post );
 		$label     = sprintf(
