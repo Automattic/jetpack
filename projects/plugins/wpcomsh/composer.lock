@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2aab8bf570856518f077b7bccfb7fcb4",
+    "content-hash": "b78bb2097656be5fcb11eb95479b60f0",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -66,16 +66,16 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "v2.1.0",
+            "version": "v2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-assets.git",
-                "reference": "83980bb7efda9e64ee246a6e555e54ee66995bfa"
+                "reference": "fc98a9524b79c58891b01a1507e5abe021fd8a37"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/83980bb7efda9e64ee246a6e555e54ee66995bfa",
-                "reference": "83980bb7efda9e64ee246a6e555e54ee66995bfa",
+                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/fc98a9524b79c58891b01a1507e5abe021fd8a37",
+                "reference": "fc98a9524b79c58891b01a1507e5abe021fd8a37",
                 "shasum": ""
             },
             "require": {
@@ -117,9 +117,9 @@
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-assets/tree/v2.1.0"
+                "source": "https://github.com/Automattic/jetpack-assets/tree/v2.1.1"
             },
-            "time": "2024-02-05T17:56:29+00:00"
+            "time": "2024-02-13T19:25:58+00:00"
         },
         {
             "name": "automattic/jetpack-config",
@@ -218,20 +218,20 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v5.12.1",
+            "version": "v5.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "9649392e55e7444a3dd7760b1ec7083bb8234501"
+                "reference": "659eda942c4c829e921ad22d8b3dcb51ced64e4d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/9649392e55e7444a3dd7760b1ec7083bb8234501",
-                "reference": "9649392e55e7444a3dd7760b1ec7083bb8234501",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/659eda942c4c829e921ad22d8b3dcb51ced64e4d",
+                "reference": "659eda942c4c829e921ad22d8b3dcb51ced64e4d",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-assets": "^2.1.0",
+                "automattic/jetpack-assets": "^2.1.1",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -250,7 +250,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.12.x-dev"
+                    "dev-trunk": "5.13.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -268,9 +268,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.12.1"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v5.13.0"
             },
-            "time": "2024-02-12T19:44:55+00:00"
+            "time": "2024-02-19T18:49:25+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
@@ -2647,5 +2647,5 @@
         "php": ">=7.0.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
