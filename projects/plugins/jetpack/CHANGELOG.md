@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.1.2 - 2024-02-19
+### Security Improvements
+- Like block: fix XSS vulnerability in avatar URL encoding. [#35747]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Jetpack: readme.txt tweaks. [#35727]
+- Jetpack: redirect to the Jetpack page after multisite activation. [#35559]
+
 ## 13.2-a.5 - 2024-02-14
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Adds error messaging to endpoint when connected account for memberships cannot be loaded. [#35564]
