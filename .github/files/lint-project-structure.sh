@@ -188,6 +188,13 @@ for PROJECT in projects/*/*; do
 		echo "::error file=$PROJECT/tsconfig.json::The project should have either jsconfig.json or tsconfig.json, not both. Keep tsconfig if the project uses TypeScript, or jsconfig if the project is JS-only."
 	fi
 
+	# - We want to use @babel/preset-typescript (and fork-ts-checker-webpack-plugin or tsc for definition files) rather than ts-loader.
+	if [[ -e "$PROJECT/package.json" ]] && jq -e '.dependencies["ts-loader"] // .devDependencies["ts-loader"] // .optionalDependencies["ts-loader"]' "$PROJECT/package.json" >/dev/null; then
+		EXIT=1
+		LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["dependencies","ts-loader"] or . == ["devDependencies","ts-loader"] or . == ["optionalDependencies","ts-loader"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json" | head -1)
+		echo "::error file=$PROJECT/package.json${LINE}::For consistency we've settled on using \`@babel/preset-typescript\` (and \`fork-ts-checker-webpack-plugin\` or \`tsc\` for definition files) rather than \`ts-loader\`. Please switch to that."
+	fi
+
 	# - composer.json must exist.
 	if [[ ! -e "$PROJECT/composer.json" ]]; then
 		EXIT=1

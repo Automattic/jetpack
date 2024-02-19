@@ -7,8 +7,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { REQUESTING_STATES } from '../../../types';
-import AIControl from '../index';
+import AIControl from '../index.js';
 /**
  * Types
  */
@@ -34,7 +33,7 @@ const meta: AIControlStoryMeta = {
 			control: {
 				type: 'select',
 			},
-			options: REQUESTING_STATES,
+			options: [ 'init', 'requesting', 'suggesting', 'done', 'error' ],
 		},
 	},
 	parameters: {

@@ -151,7 +151,10 @@ class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 		$response['media'] = array();
 		while ( $media_query->have_posts() ) {
 			$media_query->the_post();
-			$response['media'][] = $this->format_item( $media_query->post );
+			// only include images.
+			if ( wp_attachment_is_image( $media_query->post->ID ) ) {
+				$response['media'][] = $this->format_item( $media_query->post );
+			}
 		}
 		$response['found'] = $media_query->found_posts;
 		$response['meta']  = array( 'next_page' => $media_query->paged + 1 );
@@ -165,17 +168,17 @@ class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 	private function format_item( $item ) {
 		return array(
 			'ID'         => $item->ID,
-			'url'        => get_permalink( $item ),
+			'url'        => wp_get_attachment_image_url( $item->ID, 'full', true ),
 			'date'       => get_date_from_gmt( $item->post_date_gmt ),
 			'name'       => get_the_title( $item ),
-			'file'       => basename( wp_get_attachment_image_url( $item->ID, 'full' ) ),
+			'file'       => basename( wp_get_attachment_url( $item->ID ) ),
 			'title'      => get_the_title( $item ),
 			'guid'       => get_the_guid( $item ),
 			'type'       => get_post_mime_type( $item ),
 			'caption'    => '',
 			'thumbnails' => array(
 				'thumbnail' => wp_get_attachment_image_url( $item->ID, 'thumbnail' ),
-				'large'     => wp_get_attachment_image_url( $item->ID, 'full' ),
+				'large'     => wp_get_attachment_image_url( $item->ID, 'large' ),
 			),
 		);
 	}
