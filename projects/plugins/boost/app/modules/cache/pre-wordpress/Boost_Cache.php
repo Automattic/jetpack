@@ -325,7 +325,7 @@ class Boost_Cache {
 		error_log( 'delete_cache_for_url: ' . $url ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$path = Boost_Cache_Utils::normalize_request_uri( $url );
 
-		return $this->storage->invalidate( $path, '*/' );
+		return $this->storage->invalidate( $path, '/*' );
 	}
 
 	/**

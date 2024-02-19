@@ -36,7 +36,7 @@ class Boost_Cache_Utils {
 				}
 			}
 			return true;
-		} elseif ( $filter === '*/' ) { // everything in given directory, recursively.
+		} elseif ( $filter === '/*' ) { // everything in given directory, recursively.
 			$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $dir, \RecursiveDirectoryIterator::SKIP_DOTS ) );
 			foreach ( $iterator as $file ) {
 				if ( $file->isDir() ) {
