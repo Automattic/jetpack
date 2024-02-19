@@ -5,6 +5,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
 
+use Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress\Filesystem_Utils;
+
 /*
  * Cache settings class.
  * Settings are stored in a file in the boost-cache directory.
@@ -120,7 +122,7 @@ class Boost_Cache_Settings {
 		$this->settings = array_merge( $this->settings, $settings );
 
 		$contents = "<?php die();\n/*\n * Configuration data for Jetpack Boost Cache. Do not edit.\n" . json_encode( $this->settings ) . "\n */"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-		$result   = Boost_Cache_Utils::write_to_file( $this->config_file, $contents );
+		$result   = Filesystem_Utils::write_to_file( $this->config_file, $contents );
 		if ( is_wp_error( $result ) ) {
 			$this->last_error = $result->get_error_message();
 			return false;

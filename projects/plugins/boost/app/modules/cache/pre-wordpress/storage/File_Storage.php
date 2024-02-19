@@ -5,6 +5,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Storage;
 
+use Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Logger;
 
@@ -33,11 +34,11 @@ class File_Storage implements Storage {
 		$directory = self::get_uri_directory( $request_uri );
 		$filename  = self::get_request_filename( $request_uri, $parameters );
 
-		if ( ! Boost_Cache_Utils::create_directory( $directory ) ) {
+		if ( ! Filesystem_Utils::create_directory( $directory ) ) {
 			return new \WP_Error( 'Could not create cache directory' );
 		}
 
-		return Boost_Cache_Utils::write_to_file( $directory . $filename, $data );
+		return Filesystem_Utils::write_to_file( $directory . $filename, $data );
 	}
 
 	/**
@@ -72,94 +73,9 @@ class File_Storage implements Storage {
 
 		clearstatcache();
 
-		$count = $this->delete_expired_files( $this->root_path, $cache_duration );
+		$count = Filesystem_Utils::delete_expired_files( $this->root_path, $cache_duration );
 
 		Logger::debug( "Garbage collected $count files" );
-	}
-
-	/**
-	 * Recursively garbage collect a directory.
-	 *
-	 * @param string $directory - The directory to garbage collect.
-	 * @param int    $file_ttl  - Specify number of seconds after which a file is considered expired.
-	 * @return int - The number of files deleted.
-	 */
-	public function delete_expired_files( $directory, $file_ttl ) {
-		$count  = 0;
-		$now    = time();
-		$handle = is_readable( $directory ) && is_dir( $directory ) ? opendir( $directory ) : false;
-		if ( $handle ) {
-			// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			while ( false !== ( $file = readdir( $handle ) ) ) {
-				if ( $file === '.' || $file === '..' ) {
-					// Skip and continue to next file
-					continue;
-				}
-
-				$file_path = $directory . '/' . $file;
-
-				if ( ! file_exists( $file_path ) ) {
-					// File doesn't exist, skip and continue to next file
-					continue;
-				}
-
-				// Handle directories recursively.
-				if ( is_dir( $file_path ) ) {
-					$count += $this->delete_expired_files( $file_path, $file_ttl );
-					continue;
-				}
-
-				$filemtime = filemtime( $file_path );
-				$expired   = ( $filemtime + $file_ttl ) <= $now;
-				if ( $expired ) {
-					if ( $this->delete_file( $file_path ) ) {
-						++$count;
-					} else {
-						Logger::debug( 'Could not delete file: ' . $file_path );
-					}
-				}
-			}
-			closedir( $handle );
-
-			// If the directory is empty after processing it's files, delete it.
-			$is_dir_empty = $this->is_dir_empty( $directory );
-			if ( is_wp_error( $is_dir_empty ) ) {
-				Logger::debug( 'Could not check directory emptiness: ' . $is_dir_empty->get_error_message() );
-				return $count;
-			}
-
-			if ( $is_dir_empty ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-				@rmdir( $directory );
-			}
-		}
-
-		return $count;
-	}
-
-	private function delete_file( $file_path ) {
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
-		$deletable = is_writable( $file_path );
-
-		if ( $deletable ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-			return unlink( $file_path );
-		}
-
-		return false;
-	}
-
-	/**
-	 * Check if a directory is empty.
-	 *
-	 * @param string $dir - The directory to check.
-	 */
-	private function is_dir_empty( $dir ) {
-		if ( ! is_readable( $dir ) ) {
-			return new \WP_Error( 'directory_not_readable', 'Directory is not readable' );
-		}
-
-		return ( count( scandir( $dir ) ) === 2 ); // All directories have '.' and '..'
 	}
 
 	/**

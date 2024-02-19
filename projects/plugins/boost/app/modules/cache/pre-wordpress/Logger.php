@@ -5,7 +5,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
 
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Storage\File_Storage;
+use Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress\Filesystem_Utils;
 
 /**
  * A utility that manages logging for the boost cache.
@@ -54,11 +54,11 @@ class Logger {
 		}
 
 		$directory = dirname( $log_file );
-		if ( ! Boost_Cache_Utils::create_directory( $directory ) ) {
+		if ( ! Filesystem_Utils::create_directory( $directory ) ) {
 			return new \WP_Error( 'Could not create boost cache log directory' );
 		}
 
-		return Boost_Cache_Utils::write_to_file( $log_file, self::LOG_HEADER );
+		return Filesystem_Utils::write_to_file( $log_file, self::LOG_HEADER );
 	}
 
 	/**
@@ -116,9 +116,6 @@ class Logger {
 	}
 
 	public static function delete_old_logs() {
-		$storage = new File_Storage( 'logs' );
-
-		// Delete log files older than 24 hours.
-		$storage->delete_expired_files( self::LOG_DIRECTORY, 24 * 60 * 60 );
+		Filesystem_Utils::delete_expired_files( self::LOG_DIRECTORY, 24 * 60 * 60 );
 	}
 }
