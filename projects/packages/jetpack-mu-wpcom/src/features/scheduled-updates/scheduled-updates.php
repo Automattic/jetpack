@@ -71,6 +71,9 @@ function jetpack_managed_extension_field() {
 			/**
 			 * Populates the is_managed field.
 			 *
+			 * Users could have their own plugins folder with symlinks pointing to it, so we need to check if the
+			 * link target is within the `/wordpress` directory to determine if the plugin is managed.
+			 *
 			 * @see p9o2xV-3Nx-p2#comment-8728
 			 *
 			 * @param array $data Prepared response array.
