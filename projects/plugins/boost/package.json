@@ -38,7 +38,6 @@
 		"@types/jquery": "3.5.25",
 		"@wordpress/i18n": "4.51.0",
 		"concurrently": "7.6.0",
-		"fork-ts-checker-webpack-plugin": "9.0.2",
 		"livereload": "0.9.3",
 		"postcss": "8.4.31",
 		"react": "18.2.0",
