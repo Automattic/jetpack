@@ -123,7 +123,12 @@ class File_Storage implements Storage {
 
 			// If the directory is empty after processing it's files, delete it.
 			$is_dir_empty = $this->is_dir_empty( $directory );
-			if ( $is_dir_empty && ! is_wp_error( $is_dir_empty ) ) {
+			if ( is_wp_error( $is_dir_empty ) ) {
+				Logger::debug( 'Couldn\'t check directory emptiness: ' . $is_dir_empty->get_error_message() );
+				return $count;
+			}
+
+			if ( $is_dir_empty ) {
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 				rmdir( $directory );
 			}
