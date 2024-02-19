@@ -575,17 +575,20 @@ class Jetpack_Memberships {
 	/**
 	 * Determines whether the current user is a paid subscriber and caches the result.
 	 *
-	 * @param array $valid_plan_ids An array of valid plan ids that the user could be subscribed to which would make the user able to view this content. Defaults to an empty array which will be filled with all newsletter plan IDs.
+	 * @param array    $valid_plan_ids An array of valid plan ids that the user could be subscribed to which would make the user able to view this content. Defaults to an empty array which will be filled with all newsletter plan IDs.
+	 * @param int|null $user_id An optional user_id that can be used to determine service availability (defaults to checking if user is logged in if omitted).
 	 * @return bool Whether the post can be viewed
 	 */
-	public static function user_is_paid_subscriber( $valid_plan_ids = array() ) {
-		$user_id = get_current_user_id();
+	public static function user_is_paid_subscriber( $valid_plan_ids = array(), $user_id = null ) {
+		if ( empty( $user_id ) ) {
+			$user_id = get_current_user_id();
+		}
 		if ( ! isset( self::$user_is_paid_subscriber_cache[ $user_id ] ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 			if ( empty( $valid_plan_ids ) ) {
 				$valid_plan_ids = self::get_all_newsletter_plan_ids();
 			}
-			$paywall            = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+			$paywall            = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service( $user_id );
 			$is_paid_subscriber = $paywall->visitor_can_view_content( $valid_plan_ids, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS );
 			self::$user_is_paid_subscriber_cache[ $user_id ] = $is_paid_subscriber;
 		}

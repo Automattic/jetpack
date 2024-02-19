@@ -17,11 +17,12 @@ class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Servi
 	/**
 	 * Is available()
 	 *
+	 * @param int|null $user_id An optional user_id that can be used to determine service availability (defaults to checking if user is logged in if omitted).
 	 * @return bool
 	 */
-	public static function available() {
+	public static function available( $user_id = null ) {
 		// Return available if the user is logged in and we are on WPCOM.
-		return defined( 'IS_WPCOM' ) && IS_WPCOM && is_user_logged_in();
+		return defined( 'IS_WPCOM' ) && IS_WPCOM && ( is_user_logged_in() || ! empty( $user_id ) );
 	}
 
 	/**
@@ -113,6 +114,7 @@ class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Servi
 	 * @return bool
 	 */
 	protected function user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, $post_id ) {
+		$user_id = is_user_logged_in() ? wp_get_current_user()->ID : $this->user_id;
 		/**
 		 * Filter the subscriptions attached to a specific user on a given site.
 		 *
@@ -122,7 +124,7 @@ class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Servi
 		 * @param int   $user_id The user's ID.
 		 * @param int   $site_id ID of the current site.
 		 */
-		$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), wp_get_current_user()->ID, $this->get_site_id() );
+		$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), $user_id, $this->get_site_id() );
 		// format the subscriptions so that they can be validated.
 		$subscriptions      = self::abbreviate_subscriptions( $subscriptions );
 		$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
