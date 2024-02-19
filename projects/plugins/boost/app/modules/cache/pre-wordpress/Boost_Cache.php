@@ -24,7 +24,7 @@ class Boost_Cache {
 	private $settings;
 
 	/**
-	 * @var Storage\File_Storage - The storage system used by Boost Cache.
+	 * @var Storage\Storage - The storage system used by Boost Cache.
 	 */
 	private $storage;
 
@@ -71,6 +71,8 @@ class Boost_Cache {
 
 	/**
 	 * Get the storage instance used by Boost Cache.
+	 *
+	 * @return Storage\Storage
 	 */
 	public function get_storage() {
 		return $this->storage;
