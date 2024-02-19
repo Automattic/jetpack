@@ -94,7 +94,7 @@ const Meta = () => {
 							<Exceptions
 								exceptions={ settings.exceptions.join( '\n' ) }
 								setExceptions={ setExceptions }
-								showErrorNotice={ query.isError }
+								showErrorNotice={ mutation.isError }
 							/>
 							<div className={ styles.section }>
 								<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
@@ -140,6 +140,10 @@ const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: Exc
 	useEffect( () => {
 		setInputValue( exceptions );
 	}, [ exceptions ] );
+
+	useEffect( () => {
+		setShowNotice( showErrorNotice );
+	}, [ showErrorNotice ] );
 
 	function save() {
 		setExceptions( inputValue );
