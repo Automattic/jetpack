@@ -90,7 +90,7 @@ class File_Storage implements Storage {
 		if ( $handle ) {
 			// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			while ( false !== ( $file = readdir( $handle ) ) ) {
-				if ( $this->is_gc_skipped_file( $file ) ) {
+				if ( $file === '.' || $file === '..' ) {
 					// Skip and continue to next file
 					continue;
 				}
@@ -110,13 +110,12 @@ class File_Storage implements Storage {
 
 				$filemtime = filemtime( $file_path );
 				$expired   = ( $filemtime + $cache_duration ) <= $now;
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
-				$deletable = is_writable( $file_path );
-
-				if ( $deletable && $expired ) {
-					// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-					unlink( $file_path );
-					++$count;
+				if ( $expired ) {
+					if ( $this->delete_file( $file_path ) ) {
+						++$count;
+					} else {
+						Logger::debug( 'Could not delete file: ' . $file_path );
+					}
 				}
 			}
 			closedir( $handle );
@@ -137,6 +136,18 @@ class File_Storage implements Storage {
 		return $count;
 	}
 
+	private function delete_file( $file_path ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+		$deletable = is_writable( $file_path );
+
+		if ( $deletable ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			return unlink( $file_path );
+		}
+
+		return false;
+	}
+
 	/**
 	 * Check if a directory is empty.
 	 *
@@ -148,17 +159,6 @@ class File_Storage implements Storage {
 		}
 
 		return ( count( scandir( $dir ) ) === 2 ); // All directories have '.' and '..'
-	}
-
-	/**
-	 * If the file doesn't matter during garbage collection.
-	 */
-	private function is_gc_skipped_file( $file ) {
-		if ( $file === '.' || $file === '..' ) {
-			return true;
-		}
-
-		return false;
 	}
 
 	/**
