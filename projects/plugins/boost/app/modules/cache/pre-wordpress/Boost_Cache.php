@@ -11,6 +11,7 @@ namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
  */
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 require_once __DIR__ . '/Boost_Cache_Utils.php';
+require_once __DIR__ . '/Filesystem_Utils.php';
 require_once __DIR__ . '/Logger.php';
 require_once __DIR__ . '/Request.php';
 require_once __DIR__ . '/storage/Storage.php';
