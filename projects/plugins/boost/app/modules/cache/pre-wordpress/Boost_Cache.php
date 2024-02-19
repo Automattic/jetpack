@@ -23,7 +23,7 @@ class Boost_Cache {
 	private $settings;
 
 	/**
-	 * @var Boost_Cache_Storage - The storage system used by Boost Cache.
+	 * @var Storage\File_Storage - The storage system used by Boost Cache.
 	 */
 	private $storage;
 
