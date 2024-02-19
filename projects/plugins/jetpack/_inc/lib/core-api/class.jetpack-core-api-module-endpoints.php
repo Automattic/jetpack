@@ -454,6 +454,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
+		$response['categories'] = get_categories( array( 'get' => 'all' ) );
+
 		foreach ( $settings as $setting => $properties ) {
 			switch ( $setting ) {
 				case 'lang_id':

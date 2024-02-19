@@ -6,6 +6,7 @@ import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import { withModuleSettingsFormHelpers } from '../components/module-settings/with-module-settings-form-helpers';
 import TextInput from '../components/text-input';
+import Textarea from '../components/textarea';
 
 const mapCategoriesIds = categorie => {
 	switch ( typeof categorie ) {
@@ -30,6 +31,7 @@ function NewsletterCategories( props ) {
 		isNewsletterCategoriesEnabled,
 		newsletterCategories,
 		updateFormStateOptionValue,
+		categories,
 	} = props;
 
 	const [ newCategories, setNewCategories ] = useState( '' );
@@ -59,9 +61,11 @@ function NewsletterCategories( props ) {
 					onChange={ handleEnagleNewsletterCategoriesToggleChange }
 					label={ __( 'Enable newsletter categories', 'jetpack' ) }
 				/>
-				Categories state:
+				All categories:
+				<Textarea disabled value={ JSON.stringify( categories ) } />
+				Checked categories (by ID):
 				<TextInput value={ categoriesValue } disabled />
-				New value:
+				New Checked categories value:
 				<TextInput value={ newCategories } onChange={ onCategoriesChange } />
 				<button onClick={ parseArray }>Parse array to state</button>
 			</SettingsGroup>
@@ -76,6 +80,7 @@ export default withModuleSettingsFormHelpers(
 				'wpcom_newsletter_categories_enabled'
 			),
 			newsletterCategories: ownProps.getOptionValue( 'wpcom_newsletter_categories' ),
+			categories: ownProps.getOptionValue( 'categories' ),
 		};
 	} )( NewsletterCategories )
 );
