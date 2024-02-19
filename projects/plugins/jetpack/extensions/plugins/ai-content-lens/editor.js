@@ -3,10 +3,13 @@ import { dispatch } from '@wordpress/data';
 import { store as editPostStore } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
+import debugFactory from 'debug';
 import metadata from '../../blocks/ai-assistant/block.json';
 import { isPossibleToExtendBlock } from '../../blocks/ai-assistant/extensions/ai-assistant';
 import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';
 import { aiExcerptPluginName, aiExcerptPluginSettings } from '.';
+
+const debug = debugFactory( 'jetpack-ai-content-lens:register-plugin' );
 
 export const AI_CONTENT_LENS = 'ai-content-lens';
 
@@ -14,7 +17,7 @@ const isAiAssistantSupportExtensionEnabled =
 	window?.Jetpack_Editor_Initial_State?.available_blocks[ 'ai-content-lens' ];
 
 const isPostEditor = getEditorType() === POST_EDITOR;
-
+debug( 'detected editor: ', getEditorType() );
 /**
  * Extend the editor with AI Content Lens features,
  * as long as the AI Assistant block is registered.
@@ -56,6 +59,7 @@ function extendAiContentLensFeatures( settings, name ) {
 
 // Filter only if the extension is enabled.
 if ( isAiAssistantSupportExtensionEnabled?.available && isPostEditor ) {
+	debug( 'register plugin extension' );
 	addFilter(
 		'blocks.registerBlockType',
 		'jetpack/ai-content-lens-features',
