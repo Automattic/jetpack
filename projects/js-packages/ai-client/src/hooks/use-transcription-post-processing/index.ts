@@ -25,6 +25,7 @@ export type UseTranscriptionPostProcessingReturn = {
 	isProcessingTranscription: boolean;
 	postProcessingError: string;
 	processTranscription: ( action: PostProcessingAction, transcription: string ) => void;
+	cancelTranscriptionProcessing: () => void;
 };
 
 /**
@@ -81,12 +82,26 @@ export default function useTranscriptionPostProcessing( {
 		[ setPostProcessingError, onError ]
 	);
 
-	const { request } = useAiSuggestions( {
+	const { request, stopSuggestion, suggestion } = useAiSuggestions( {
 		autoRequest: false,
 		onSuggestion: handleOnSuggestion,
 		onDone: handleOnDone,
 		onError: handleOnError,
 	} );
+
+	const handleTranscriptionPostProcessingCancel = useCallback( () => {
+		/*
+		 * Stop the suggestion streaming.
+		 */
+		stopSuggestion();
+
+		/*
+		 * Publish the last state of the suggestion.
+		 */
+		setPostProcessingResult( suggestion );
+		onUpdate?.( suggestion );
+		onReady?.( suggestion );
+	}, [ stopSuggestion, onUpdate, onReady, suggestion ] );
 
 	const handleTranscriptionPostProcessing = useCallback(
 		( action: PostProcessingAction, transcription: string ) => {
@@ -131,5 +146,6 @@ export default function useTranscriptionPostProcessing( {
 		isProcessingTranscription,
 		postProcessingError,
 		processTranscription: handleTranscriptionPostProcessing,
+		cancelTranscriptionProcessing: handleTranscriptionPostProcessingCancel,
 	};
 }
