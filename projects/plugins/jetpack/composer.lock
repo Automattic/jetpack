@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "34f68474053d8ca8db42a4fea83e3b25",
+	"content-hash": "459ff71654a9a8c879a806a316461236",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -2740,6 +2740,68 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Earn income by allowing Jetpack to display high quality ads.",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/woocommerce-analytics",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/woocommerce-analytics",
+				"reference": "1f2950cc7f0b34e4406a6973886a5f88c08a77b6"
+			},
+			"require": {
+				"automattic/jetpack-connection": "@dev",
+				"automattic/jetpack-constants": "@dev",
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"mirror-repo": "Automattic/woocommerce-analytics",
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/woocommerce-analytics/compare/v${old}...v${new}"
+				},
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"textdomain": "woocommerce-analytics",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-woocommerce-analytics.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"build-production": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"build-development": [
+					"echo 'Add your build step to composer.json, please!'"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Enhanced analytics for WooCommerce users.",
 			"transport-options": {
 				"relative": true
 			}
@@ -5649,6 +5711,7 @@
 		"automattic/jetpack-videopress": 20,
 		"automattic/jetpack-waf": 20,
 		"automattic/jetpack-wordads": 20,
+		"automattic/woocommerce-analytics": 20,
 		"automattic/jetpack-changelogger": 20
 	},
 	"prefer-stable": true,
