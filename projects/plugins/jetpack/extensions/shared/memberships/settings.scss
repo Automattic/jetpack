@@ -13,10 +13,12 @@
 }
 
 .jetpack-newsletter-access-radio-buttons {
+	input[type=radio] {
+		flex-shrink: 0;
+	}
+
 	label {
 		text-wrap: balance;
-		flex-shrink: 0;
-		margin-right: 12px;
 	}
 }
 
