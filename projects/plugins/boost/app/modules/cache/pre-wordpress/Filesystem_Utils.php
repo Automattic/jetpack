@@ -13,7 +13,6 @@ class Filesystem_Utils {
 	 * @return int - The number of files deleted.
 	 */
 	public static function delete_expired_files( $directory, $file_ttl ) {
-		// Clear the stat cache as filemtime() is effected by it.
 		clearstatcache();
 
 		$count  = 0;
