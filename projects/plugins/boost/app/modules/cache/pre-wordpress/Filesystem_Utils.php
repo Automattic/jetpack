@@ -5,13 +5,13 @@ namespace Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Logger;
 
 class Filesystem_Utils {
-		/**
-		 * Recursively garbage collect a directory.
-		 *
-		 * @param string $directory - The directory to garbage collect.
-		 * @param int    $file_ttl  - Specify number of seconds after which a file is considered expired.
-		 * @return int - The number of files deleted.
-		 */
+	/**
+	 * Recursively garbage collect a directory.
+	 *
+	 * @param string $directory - The directory to garbage collect.
+	 * @param int    $file_ttl  - Specify number of seconds after which a file is considered expired.
+	 * @return int - The number of files deleted.
+	 */
 	public static function delete_expired_files( $directory, $file_ttl ) {
 		$count  = 0;
 		$now    = time();
