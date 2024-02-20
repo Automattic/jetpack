@@ -8,15 +8,14 @@ class Filesystem_Utils {
 	/**
 	 * Recursively garbage collect a directory.
 	 *
-	 * @uses Filesystem_Utils::_delete_expired_files to do the actual work after clearing the stat cache.
 	 * @param string $directory - The directory to garbage collect.
 	 * @param int    $file_ttl  - Specify number of seconds after which a file is considered expired.
 	 * @return int - The number of files deleted.
 	 */
-	public static function delete_expired_files( $directory, $file_ttl ) {
+	public static function garbage_collect( $directory, $file_ttl ) {
 		clearstatcache();
 
-		return self::_delete_expired_files( $directory, $file_ttl );
+		return self::delete_expired_files( $directory, $file_ttl );
 	}
 
 	/**
@@ -26,7 +25,7 @@ class Filesystem_Utils {
 	 * @param int    $file_ttl  - Specify number of seconds after which a file is considered expired.
 	 * @return int - The number of files deleted.
 	 */
-	private static function _delete_expired_files( $directory, $file_ttl ) {
+	private static function delete_expired_files( $directory, $file_ttl ) {
 		$count  = 0;
 		$now    = time();
 		$handle = is_readable( $directory ) && is_dir( $directory ) ? opendir( $directory ) : false;
@@ -52,7 +51,7 @@ class Filesystem_Utils {
 
 			// Handle directories recursively.
 			if ( is_dir( $file_path ) ) {
-				$count += self::_delete_expired_files( $file_path, $file_ttl );
+				$count += self::delete_expired_files( $file_path, $file_ttl );
 				continue;
 			}
 

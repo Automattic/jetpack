@@ -71,7 +71,7 @@ class File_Storage implements Storage {
 			return false;
 		}
 
-		$count = Filesystem_Utils::delete_expired_files( $this->root_path, $cache_duration );
+		$count = Filesystem_Utils::garbage_collect( $this->root_path, $cache_duration );
 
 		Logger::debug( "Garbage collected $count files" );
 	}
