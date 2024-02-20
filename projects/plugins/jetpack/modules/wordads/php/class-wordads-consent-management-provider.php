@@ -80,14 +80,10 @@ class WordAds_Consent_Management_Provider {
 			)
 		);
 
-		$request_url = self::get_config_url();
 		wp_enqueue_script(
 			'cmp_config_script',
-			Assets::get_file_url_for_environment(
-				$request_url,
-				$request_url
-			),
-			array(),
+			esc_url( self::get_config_url() ),
+			array( 'cmp_script_loader' ),
 			JETPACK__VERSION,
 			false
 		);
