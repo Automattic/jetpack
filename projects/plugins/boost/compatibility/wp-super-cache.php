@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack_Boost\Compatibility\Super_Cache;
 
+use Automattic\Jetpack_Boost\Contracts\Changes_Output;
+use Automattic\Jetpack_Boost\Modules\Modules_Index;
+
 /**
  * Add WP Super Cache bypass query param to the URL.
  *
@@ -44,13 +47,22 @@ add_action( 'jetpack_boost_critical_css_generated', __NAMESPACE__ . '\clear_cach
 /**
  * Clear Super Cache's cache when a module is enabled or disabled.
  *
- * @param string $module The module slug.
+ * @param string $module_slug The module slug.
  * @param bool   $status The new status.
  */
-function module_status_updated( $module, $status ) {
+function module_status_updated( $module_slug, $status ) {
+	// Get a list of modules that can change the HTML output.
+	$output_changing_modules = Modules_Index::get_modules_implementing( Changes_Output::class );
+
 	// Special case: don't clear when enabling Critical or Cloud CSS, as they will
 	// be handled after generation.
-	if ( $status && ( $module === 'critical-css' || $module === 'cloud-css' ) ) {
+	if ( $status ) {
+		unset( $output_changing_modules['critical_css'] );
+		unset( $output_changing_modules['cloud_css'] );
+	}
+
+	$slugs = array_keys( $output_changing_modules );
+	if ( ! in_array( $module_slug, $slugs, true ) ) {
 		return;
 	}
 
