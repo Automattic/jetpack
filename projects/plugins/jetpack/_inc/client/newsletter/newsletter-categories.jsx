@@ -4,9 +4,16 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
+import {
+	isUnavailableInOfflineMode,
+	isUnavailableInSiteConnectionMode,
+	requiresConnection,
+} from 'state/connection';
 import { withModuleSettingsFormHelpers } from '../components/module-settings/with-module-settings-form-helpers';
 import TextInput from '../components/text-input';
 import Textarea from '../components/textarea';
+
+const SUBSCRIPTIONS_MODULE_NAME = 'subscriptions';
 
 const mapCategoriesIds = category => {
 	switch ( typeof category ) {
@@ -32,12 +39,14 @@ function NewsletterCategories( props ) {
 		newsletterCategories,
 		updateFormStateOptionValue,
 		categories,
+		isUnavailableDueOfflineMode,
+		isUnavailableDueSiteConnectionMode,
 	} = props;
 
 	const [ newCategories, setNewCategories ] = useState( '' );
 
 	const handleEnagleNewsletterCategoriesToggleChange = useCallback( () => {
-		updateFormStateModuleOption( 'subscriptions', 'wpcom_newsletter_categories_enabled' );
+		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'wpcom_newsletter_categories_enabled' );
 	}, [ updateFormStateModuleOption ] );
 
 	const categoriesValue = JSON.stringify( newsletterCategories.map( mapCategoriesIds ) );
@@ -55,8 +64,13 @@ function NewsletterCategories( props ) {
 
 	return (
 		<SettingsCard { ...props } module="subscriptions">
-			<SettingsGroup hasChild disableInOfflineMode disableInSiteConnectionMode>
+			<SettingsGroup
+				hasChild
+				disableInOfflineMode={ requiresConnection }
+				disableInSiteConnectionMode={ requiresConnection }
+			>
 				<ToggleControl
+					disabled={ isUnavailableDueOfflineMode || isUnavailableDueSiteConnectionMode }
 					checked={ isNewsletterCategoriesEnabled }
 					onChange={ handleEnagleNewsletterCategoriesToggleChange }
 					label={ __( 'Enable newsletter categories', 'jetpack' ) }
@@ -81,6 +95,12 @@ export default withModuleSettingsFormHelpers(
 			),
 			newsletterCategories: ownProps.getOptionValue( 'wpcom_newsletter_categories' ),
 			categories: ownProps.getOptionValue( 'categories' ),
+			requiresConnection: requiresConnection( state, SUBSCRIPTIONS_MODULE_NAME ),
+			isUnavailableDueOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
+			isUnavailableDueSiteConnectionMode: isUnavailableInSiteConnectionMode(
+				state,
+				SUBSCRIPTIONS_MODULE_NAME
+			),
 		};
 	} )( NewsletterCategories )
 );
