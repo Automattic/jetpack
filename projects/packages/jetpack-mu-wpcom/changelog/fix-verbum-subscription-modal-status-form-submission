@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Create and use Preact signal for subscriptionModalStatus to fix issue of undefined value sent on comment submission.
