@@ -3,7 +3,6 @@
  * Test class for WPCOM_REST_API_V2_Endpoint_Update_Schedules.
  *
  * @package automattic/scheduled-updates
- * @phpcs:disable PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations, WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
  */
 
 /**
@@ -29,8 +28,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	/**
 	 * Set up before class.
 	 */
-	public static function setUpBeforeClass(): void {
-		parent::setUpBeforeClass();
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 
 		new WPCOM_REST_API_V2_Endpoint_Update_Schedules();
 	}
@@ -150,7 +149,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 				),
 			)
 		);
-		$schedule_id = md5( serialize( $request->get_body_params()['plugins'] ) );
+		$schedule_id = $this->generate_schedule_id( $request->get_body_params()['plugins'] );
 
 		// Unauthenticated request.
 		$result = rest_do_request( $request );
@@ -274,7 +273,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			'gutenberg/gutenberg.php',
 			'custom-plugin/custom-plugin.php',
 		);
-		$schedule_id = md5( serialize( $plugins ) );
+		$schedule_id = $this->generate_schedule_id( $plugins );
 
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
 		update_option( 'jetpack_update_schedules', array( $plugins ) );
@@ -320,7 +319,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			'gutenberg/gutenberg.php',
 			'custom-plugin/custom-plugin.php',
 		);
-		$schedule_id = md5( serialize( $plugins ) );
+		$schedule_id = $this->generate_schedule_id( $plugins );
 
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
 		update_option( 'jetpack_update_schedules', array( $plugins ) );
@@ -366,7 +365,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 			'gutenberg/gutenberg.php',
 			'custom-plugin/custom-plugin.php',
 		);
-		$schedule_id = md5( serialize( $plugins ) );
+		$schedule_id = $this->generate_schedule_id( $plugins );
 
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
 		update_option( 'jetpack_update_schedules', array( $plugins ) );
@@ -395,5 +394,17 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertEmpty( get_option( 'jetpack_update_schedules' ) );
 		$this->assertFalse( wp_get_scheduled_event( 'jetpack_scheduled_update', $plugins ) );
+	}
+
+	/**
+	 * Generates a unique schedule ID.
+	 *
+	 * @see wp_schedule_event()
+	 *
+	 * @param array $args Schedule arguments.
+	 * @return string
+	 */
+	private function generate_schedule_id( $args ) {
+		return md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 	}
 }
