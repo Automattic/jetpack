@@ -101,7 +101,7 @@ class Woo_Sync_Background_Sync_Job {
 
 		// good to go?
 		if ( empty( $this->site_key ) || !is_array( $this->site_info ) ){
-			
+
 			return false;
 
 		}
@@ -119,7 +119,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-
 	/**
 	 * Returns full settings array from main settings class
 	 */
@@ -128,8 +127,6 @@ class Woo_Sync_Background_Sync_Job {
 		return $this->woosync()->settings->getAll();
 
 	}
-
-
 
 	/**
 	 * Returns 'local' or 'api'
@@ -153,7 +150,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-	
 	/**
 	 * If $this->debug is true, outputs passed string
 	 *
@@ -168,7 +164,6 @@ class Woo_Sync_Background_Sync_Job {
 		}
 
 	}
-
 
 	/**
 	 * Main job function: this will retrieve and import orders from WooCommerce into CRM. 
@@ -501,7 +496,7 @@ class Woo_Sync_Background_Sync_Job {
 
 				// if Domain
 				if ( $domain ) {
-					
+
 					$origin = $zbs->DAL->add_origin_prefix( $domain, 'domain' );
 
 				}
@@ -673,7 +668,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-
 	/**
 	 * Add or Update an order from WooCommerce
 	 *  (previously `add_order_from_id`)
@@ -737,7 +731,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-
 	/**
 	 * Set's a completion status for woo order imports
 	 *
@@ -761,7 +754,6 @@ class Woo_Sync_Background_Sync_Job {
 		return $status_bool;
 
 	}
-
 
 	/**
 	 * Returns a completion status for woo order imports
@@ -799,7 +791,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-
 	/**
 	 * Return current working page index (to resume from)
 	 *
@@ -811,16 +802,15 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-
 	/**
 	 * Adds or updates crm objects related to a processed woocommerce order
 	 *  (requires that the $order_data has been passed through `woocommerce_order_to_crm_objects`)
 	 *  Previously `import_woocommerce_order_from_order_data`
 	 *
 	 * @param array $crm_object_data (Woo Order data passed through `woocommerce_order_to_crm_objects`)
-	 * 
+	 *
 	 * @return int $transaction_id
-	 * 
+	 *
 	 */
 	public function import_crm_object_data( $crm_object_data ) {
 
@@ -1096,7 +1086,6 @@ class Woo_Sync_Background_Sync_Job {
 		return $transaction_id;
 
 	}
-
 
 	/**
 	 * Translates a local store order into an import-ready crm objects array
@@ -1476,7 +1465,7 @@ class Woo_Sync_Background_Sync_Job {
 
 			}
 
-			// Retrieve any WooCommerce Checkout metaa data & try to store it against contact if match custom fields
+			// Retrieve any WooCommerce Checkout metadata & try to store it against contact if match custom fields
 			// Returns array of WC_Meta_Data objects https://woocommerce.github.io/code-reference/classes/WC-Meta-Data.html
 			// Filters to support WooCommerce Checkout Field Editor, Field editor Pro etc.
 			/*
@@ -1969,7 +1958,6 @@ class Woo_Sync_Background_Sync_Job {
 		return apply_filters( 'jpcrm_woo_sync_order_data', $data );
 	}
 
-
 	/**
 	 * Translates an API order into an import-ready crm objects array
 	 *  previously `tidy_order_from_api`
@@ -2095,8 +2083,6 @@ class Woo_Sync_Background_Sync_Job {
 		);
 
 	}
-
-
 
 	/**
 	 * Attempts to return the percentage completed of a sync
@@ -2233,7 +2219,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-
 	/**
 	 * Filter contact data passed through the woo checkout
 	 * .. allows us to hook in support for things like WooCommerce Checkout Field Editor
@@ -2269,7 +2254,6 @@ class Woo_Sync_Background_Sync_Job {
 	    return $contact_data;
 
 	}
-
 
 	/**
 	 * Filter to add Checkout Field Editor custom fields support, where installed
@@ -2346,7 +2330,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	}
 
-	
 	/**
 	 * Filter to add Checkout Field Editor Pro (Checkout Manager) for WooCommerce support, where installed
 	 * https://wordpress.org/plugins/woo-checkout-field-editor-pro/
@@ -2519,7 +2502,6 @@ class Woo_Sync_Background_Sync_Job {
 	    return $contact_data;
 
 	}
-
 
 	/*
 	 * Catch site sync connection errors (and log count per site)
