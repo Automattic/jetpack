@@ -234,6 +234,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'_wpnonce'                 => $nonce,
 				);
 
+				$tracking->record_user_event( 'sso_user_invite_revoke', array( 'success' => 'false', 'error' => $error ) );
 				return self::create_error_notice_and_redirect( $query_params );
 			} elseif ( isset( $_GET['user_id'] ) ) {
 				$user_id = intval( wp_unslash( $_GET['user_id'] ) );
@@ -246,6 +247,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						'_wpnonce'                 => $nonce,
 					);
 
+					$tracking->record_user_event( 'sso_user_invite_revoke', array( 'success' => 'false', 'error' => $error ) );
 					return self::create_error_notice_and_redirect( $query_params );
 				}
 
@@ -256,6 +258,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						'jetpack-sso-invite-error' => $error,
 						'_wpnonce'                 => $nonce,
 					);
+					$tracking->record_user_event( 'sso_user_invite_revoke', array( 'success' => 'false', 'error' => $error ) );
 					return self::create_error_notice_and_redirect( $query_params );
 				}
 
@@ -265,8 +268,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				if ( ! $body->deleted ) {
 					$error                                    = 'invalid-invite-revoke';
 					$query_params['jetpack-sso-invite-error'] = $error;
+					$tracking->record_user_event( 'sso_user_invite_revoke', array( 'success' => 'false', 'error' => $error ) );
 				} else {
-					$success = true;
+					$tracking->record_user_event( 'sso_user_invite_revoke', array( 'success' => 'true' ) );
 				}
 
 				$query_params = array(
@@ -282,16 +286,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'jetpack-sso-invite-error' => $error,
 					'_wpnonce'                 => $nonce,
 				);
+				$tracking->record_user_event( 'sso_user_invite_revoke', array( 'success' => 'false', 'error' => $error ) );
 				return self::create_error_notice_and_redirect( $query_params );
 			}
-
-			$tracking->record_user_event(
-				'sso_user_invite_revoke',
-				array(
-					'success' => $success,
-					'error'   => $error,
-				)
-			);
 
 			wp_die();
 		}
