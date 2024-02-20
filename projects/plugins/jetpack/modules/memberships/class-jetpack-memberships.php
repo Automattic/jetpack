@@ -290,7 +290,7 @@ class Jetpack_Memberships {
 	 * @return string The error message rendered as HTML.
 	 */
 	public function render_button_error( $error ) {
-		if ( $this->user_can_edit() ) {
+		if ( static::user_can_edit() ) {
 			return '<div><strong>Jetpack Memberships Error: ' . $error->get_error_code() . '</strong><br />' . $error->get_error_message() . '</div>';
 		}
 		return '<div>Sorry! This product is not available for purchase at this time.</div><!-- Jetpack Memberships Error: ' . $error->get_error_code() . ' -->';

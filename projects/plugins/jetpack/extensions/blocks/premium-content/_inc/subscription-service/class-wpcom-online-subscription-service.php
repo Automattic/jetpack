@@ -127,7 +127,7 @@ class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Servi
 		$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), $user_id, $this->get_site_id() );
 		// format the subscriptions so that they can be validated.
 		$subscriptions      = self::abbreviate_subscriptions( $subscriptions );
-		$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
+		$is_paid_subscriber = static::validate_subscriptions( $valid_plan_ids, $subscriptions );
 
 		return $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id, $subscriptions );
 	}
