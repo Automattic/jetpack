@@ -25,6 +25,10 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 import TreeSelector from '../components/tree-selector';
 import sampleCategories from '../components/tree-selector/mock-data';
 
+//Check for feature flag
+const urlParams = new URLSearchParams( window.location.search );
+const isNewsletterCategoriesEnabled = urlParams.get( 'enable-newsletter-categories' ) === 'true';
+
 const trackViewSubsClick = () => {
 	analytics.tracks.recordJetpackClick( 'manage-subscribers' );
 };
