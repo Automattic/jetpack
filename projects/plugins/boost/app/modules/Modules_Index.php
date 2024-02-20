@@ -59,7 +59,7 @@ class Modules_Index {
 	 * @param string $interface - The interface to search for.
 	 * @return array - An array of module classes that implement the interface.
 	 */
-	public function get_modules_implementing( string $interface ): array {
+	public static function get_modules_implementing( string $interface ): array {
 		$matching_modules = array();
 
 		foreach ( self::MODULES as $module ) {
