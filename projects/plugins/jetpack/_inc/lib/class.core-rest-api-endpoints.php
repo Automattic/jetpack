@@ -2653,7 +2653,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'wpcom_newsletter_categories_enabled'  => array(
 				'description'       => esc_html__( 'Whether the newsletter categories are enabled or not', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 1,
+				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
