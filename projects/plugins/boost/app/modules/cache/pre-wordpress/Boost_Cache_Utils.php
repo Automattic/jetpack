@@ -5,14 +5,18 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
 
+define( 'JBCACHE_ALL', 1 ); // delete all files and directories in a given directory, recursively.
+define( 'JBCACHE_FILE', 2 ); // delete a single file or recursively delete a single directory in a given directory.
+define( 'JBCACHE_FILES', 3 ); // delete all files in a given directory.
+
 class Boost_Cache_Utils {
 	/**
 	 * Recursively delete a directory.
 	 * @param string $dir - The directory to delete.
-	 * @param bool   $filter - The filter to use. '*' to delete all files in the given directory. '*\/' to delete everything in the given directory, recursively. '\/**\/' to delete a single file or directory in the given directory.
+	 * @param bool   $filter - The filter to use. JBCACHE_FILES to delete all files in the given directory. JBCACHE_ALL to delete everything in the given directory, recursively. JBCACHE_FILE to delete a single file or directory in the given directory.
 	 * @return bool|WP_Error
 	 */
-	public static function delete_directory( $dir, $filter = null ) {
+	public static function delete_directory( $dir, $filter, $filename = '' ) {
 		error_log( "delete directory: $dir $filter" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$dir = realpath( $dir );
 		if ( ! $dir ) {
@@ -26,51 +30,58 @@ class Boost_Cache_Utils {
 			return new \WP_Error( 'invalid-directory', sprintf( __( 'Invalid directory %s', 'jetpack-boost' ), $dir ) );
 		}
 
-		if ( $filter === '*' ) { // all files in given directory
-			$files = array_diff( scandir( $dir ), array( '.', '..' ) );
-			foreach ( $files as $file ) {
-				$file = $dir . '/' . $file;
-				if ( is_file( $file ) ) {
-					error_log( "unlink: $file" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					@unlink( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink
-				}
-			}
-			return true;
-		} elseif ( $filter === '/*' ) { // everything in given directory, recursively.
-			$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $dir, \RecursiveDirectoryIterator::SKIP_DOTS ) );
-			foreach ( $iterator as $file ) {
-				if ( $file->isDir() ) {
-					error_log( 'rmdir: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-				} else {
-					error_log( 'unlink: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
-				}
-			}
-			return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-		} elseif ( substr( $filter, 0, 4 ) === '/**/' ) { // a single file or directory in the given directory.
-			$path = substr( $filter, 4 );
-			if ( ! file_exists( $dir . $path ) ) {
-				return; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			}
-			if ( is_file( $dir . $path ) ) {
-				error_log( 'unlink: ' . $dir . $path ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				@unlink( $dir . $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
-				return true;
-			} else {
-				$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $dir . $path, \RecursiveDirectoryIterator::SKIP_DOTS ) );
-				foreach ( $iterator as $file ) {
-					error_log( 'rmdir: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					if ( $file->isDir() ) {
-						error_log( 'rmdir: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-						@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-					} else {
-						error_log( 'unlink: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-						@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+		switch ( $filter ) {
+			case JBCACHE_ALL: // delete all files and directories in the given directory.
+				if ( is_dir( $dir ) === true ) {
+					$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $dir, \RecursiveDirectoryIterator::SKIP_DOTS ) );
+					foreach ( $iterator as $file ) {
+						if ( $file->isDir() ) {
+							error_log( 'rmdir: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+							@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+						} else {
+							error_log( 'unlink: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+							@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+						}
 					}
+					return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged, 
 				}
-				return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-			}
+				break;
+			case JBCACHE_FILE: // delete a single file or directory in the given directory.
+				if ( '' === $filename || ! file_exists( $dir . $filename ) ) {
+					return true;
+				}
+				if ( is_file( $dir . $filename ) ) {
+					error_log( 'unlink: ' . $dir . $filename ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					@unlink( $dir . $filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+					return true;
+				} else {
+					$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $dir . $filename, \RecursiveDirectoryIterator::SKIP_DOTS ) );
+					foreach ( $iterator as $file ) {
+						error_log( 'rmdir: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+						if ( $file->isDir() ) {
+							error_log( 'rmdir: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+							@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+						} else {
+							error_log( 'unlink: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+							@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+						}
+					}
+					return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+				}
+				break;
+			case JBCACHE_FILES: // delete all files in the given directory.
+				if ( is_dir( $dir ) === true ) {
+					$files = array_diff( scandir( $dir ), array( '.', '..' ) );
+					foreach ( $files as $file ) {
+						$file = $dir . '/' . $file;
+						if ( is_file( $file ) ) {
+							error_log( "unlink: $file" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+							@unlink( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink
+						}
+					}
+					return true;
+				}
+				break;
 		}
 	}
 

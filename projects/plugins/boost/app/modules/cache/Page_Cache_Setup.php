@@ -153,7 +153,7 @@ define( \'WP_CACHE\', true );',
 		self::delete_advanced_cache();
 		self::delete_wp_cache_constant();
 
-		$result = Boost_Cache_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache', '/*' );
+		$result = Boost_Cache_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache', JBCACHE_ALL );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}

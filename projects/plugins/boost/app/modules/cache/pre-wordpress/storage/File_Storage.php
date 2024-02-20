@@ -90,7 +90,7 @@ class File_Storage implements Storage {
 	 *
 	 * @param string $path - The path to delete.
 	 */
-	public function invalidate( $request_uri, $filter = '*' ) {
+	public function invalidate( $request_uri, $filter = JBCACHE_FILE ) {
 		error_log( "invalidate: $request_uri $filter" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $request_uri );
 
