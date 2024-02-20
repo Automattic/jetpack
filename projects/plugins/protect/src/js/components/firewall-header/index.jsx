@@ -165,13 +165,14 @@ const FirewallHeader = ( {
 	wafSupported,
 	oneDayStats,
 	thirtyDayStats,
+	jetpackWafShareData,
 	standaloneMode,
 } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	// TODO: Fix mobile display when value is too large
 	const oneDayArgs = {
-		className: hasRequiredPlan ? styles.active : styles.disabled,
+		className: ! hasRequiredPlan || ! jetpackWafShareData ? styles.disabled : styles.active,
 		icon: (
 			<span className={ styles[ 'stat-card-icon' ] }>
 				<Icon icon={ shield } />
@@ -189,13 +190,13 @@ const FirewallHeader = ( {
 				<span>{ __( 'Last 24 hours', 'jetpack-protect' ) }</span>
 			</span>
 		),
-		value: oneDayStats ? oneDayStats : 0,
+		value: hasRequiredPlan ? oneDayStats : 0,
 		variant: isSmall ? 'horizontal' : 'square',
 	};
 
 	// TODO: Fix mobile display when value is too large
 	const thirtyDayArgs = {
-		className: hasRequiredPlan ? styles.active : styles.disabled,
+		className: ! hasRequiredPlan || ! jetpackWafShareData ? styles.disabled : styles.active,
 		icon: (
 			<span className={ styles[ 'stat-card-icon' ] }>
 				<Icon icon={ chartBar } />
@@ -213,7 +214,7 @@ const FirewallHeader = ( {
 				<span>{ __( 'Last 30 days', 'jetpack-protect' ) }</span>
 			</span>
 		),
-		value: thirtyDayStats ? thirtyDayStats : 0,
+		value: hasRequiredPlan ? thirtyDayStats : 0,
 		variant: isSmall ? 'horizontal' : 'square',
 	};
 
@@ -293,10 +294,12 @@ const FirewallHeader = ( {
 					) }
 				</Col>
 				<Col>
-					<div className={ styles[ 'stat-card-wrapper' ] }>
-						<StatCard { ...oneDayArgs } />
-						<StatCard { ...thirtyDayArgs } />
-					</div>
+					{ wafSupported && (
+						<div className={ styles[ 'stat-card-wrapper' ] }>
+							<StatCard { ...oneDayArgs } />
+							<StatCard { ...thirtyDayArgs } />
+						</div>
+					) }
 				</Col>
 			</Container>
 		</AdminSectionHero>
@@ -311,6 +314,7 @@ const ConnectedFirewallHeader = () => {
 			standaloneMode,
 			automaticRulesAvailable,
 			bruteForceProtection,
+			jetpackWafShareData,
 		},
 		isToggling,
 		wafSupported,
@@ -320,8 +324,8 @@ const ConnectedFirewallHeader = () => {
 	const { hasRequiredPlan } = useProtectData();
 	const isSupportedWafFeatureEnabled = wafSupported ? isEnabled : bruteForceProtection;
 	const currentStatus = isSupportedWafFeatureEnabled ? 'on' : 'off';
-	const { blockedRequests } = stats;
-	const { oneDayStats, thirtyDayStats } = blockedRequests;
+	const { oneDayStats, thirtyDayStats } =
+		stats && stats.blockedRequests ? stats.blockedRequests : { oneDayStats: 0, thirtyDayStats: 0 };
 
 	return (
 		<FirewallHeader
@@ -335,6 +339,7 @@ const ConnectedFirewallHeader = () => {
 			wafSupported={ wafSupported }
 			oneDayStats={ oneDayStats }
 			thirtyDayStats={ thirtyDayStats }
+			jetpackWafShareData={ jetpackWafShareData }
 			standaloneMode={ standaloneMode }
 		/>
 	);

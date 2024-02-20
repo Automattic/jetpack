@@ -85,6 +85,11 @@ class Waf_Blocklog_Manager {
 	 * @return void
 	 */
 	public function update_daily_summary() {
+		$share_data = defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA;
+		if ( ! $share_data ) {
+			return;
+		}
+
 		$stats = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
 		$date  = gmdate( 'Y-m-d' );
 
