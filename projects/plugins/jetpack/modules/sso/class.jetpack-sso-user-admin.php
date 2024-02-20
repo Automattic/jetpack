@@ -2,8 +2,6 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Roles;
-use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 
 if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
@@ -48,22 +46,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			add_action( 'admin_print_styles-users.php', array( $this, 'jetpack_user_table_styles' ) );
 			add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_user_new_form_styles' ) );
 			add_filter( 'users_list_table_query_args', array( $this, 'set_user_query' ), 100, 1 );
-
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_tracks_scripts' ) );
-		}
-
-		public function enqueue_tracks_scripts() {
-			if ( self::can_use_analytics() ) {
-				Tracking::register_tracks_functions_scripts( true );
-			}
-		}
-
-		public static function can_use_analytics() {
-			$status     = new Status();
-			$connection = new Connection_Manager();
-			$tracking   = new Tracking( 'jetpack', $connection );
-
-			return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
 		}
 
 		/**
@@ -241,14 +223,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 			$tracking = new Tracking();
 			$success  = false;
+			$tracking->record_user_event( 'sso_user_invite_revoke', array( 'path' => 'old_settings' ) );
 
-			$tracking->record_user_event(
-				'sso_user_invite_revoke',
-				array(
-					'success' => false,
-					'error'   => 'testing',
-				)
-			);
 
 			if ( ! current_user_can( 'promote_users' ) ) {
 				$error        = 'invalid-revoke-permissions';
