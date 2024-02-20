@@ -25,6 +25,7 @@ import { GuidelineMessage } from './message.js';
  * Types
  */
 import type { RequestingStateProp } from '../../types.js';
+import type { ForwardRefRenderFunction, ReactElement } from 'react';
 type AiControlProps = {
 	disabled?: boolean;
 	value: string;
@@ -35,15 +36,15 @@ type AiControlProps = {
 	isTransparent?: boolean;
 	state?: RequestingStateProp;
 	showGuideLine?: boolean;
-	customFooter?: React.ReactElement;
+	customFooter?: ReactElement;
 	onChange?: ( newValue: string ) => void;
 	onSend?: ( currentValue: string ) => void;
 	onStop?: () => void;
 	onAccept?: () => void;
 	onDiscard?: () => void;
 	showRemove?: boolean;
-	bannerComponent?: React.ReactElement;
-	errorComponent?: React.ReactElement;
+	bannerComponent?: ReactElement;
+	errorComponent?: ReactElement;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -54,7 +55,7 @@ const noop = () => {};
  *
  * @param {AiControlProps} props       - Component props.
  * @param {React.MutableRefObject} ref - Ref to the component.
- * @returns {React.ReactElement}         Rendered component.
+ * @returns {ReactElement}         Rendered component.
  */
 export function AIControl(
 	{
@@ -77,8 +78,8 @@ export function AIControl(
 		bannerComponent = null,
 		errorComponent = null,
 	}: AiControlProps,
-	ref: React.MutableRefObject< null > // eslint-disable-line @typescript-eslint/ban-types
-): React.ReactElement {
+	ref: React.MutableRefObject< null >
+): ReactElement {
 	const promptUserInputRef = useRef( null );
 	const loading = state === 'requesting' || state === 'suggesting';
 	const [ editRequest, setEditRequest ] = React.useState( false );
@@ -283,4 +284,4 @@ export function AIControl(
 	);
 }
 
-export default forwardRef( AIControl );
+export default forwardRef( AIControl ) as ForwardRefRenderFunction< ReactElement, AiControlProps >;

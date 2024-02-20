@@ -61,7 +61,7 @@ type AiDataContextProviderProps = {
  *
  * @returns {AiDataContextProps} Context.
  */
-export const AiDataContext = createContext( {} as AiDataContextProps );
+export const AiDataContext = createContext( {} ) as React.Context< AiDataContextProps >;
 
 /**
  * AI Data Context Provider
