@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Add support for WP Super Cache and Boost Cache
