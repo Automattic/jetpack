@@ -1,4 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -47,9 +49,14 @@ export const Monitor = withModuleSettingsFormHelpers(
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ __(
-									'Get alerts if your site goes offline. Alerts are sent to your <a href="https://wordpress.com/me" target="_blank">WordPress.com account</a> email address.',
-									'jetpack'
+								{ createInterpolateElement(
+									__(
+										'Get alerts if your site goes offline. Alerts are sent to your <a>WordPress.com account</a> email address.',
+										'jetpack'
+									),
+									{
+										a: <ExternalLink href="https://wordpress.com/me/account" />,
+									}
 								) }
 							</span>
 						</ModuleToggle>
