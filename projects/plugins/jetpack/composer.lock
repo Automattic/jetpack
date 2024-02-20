@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "8a74d8af0df0f715f06f1a63a2a69f91",
+	"content-hash": "a34e5c9fab9b1b0b1fb6d0aefb551bb7",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -287,23 +287,23 @@
 		},
 		{
 			"name": "automattic/jetpack-backup",
-			"version": "v3.1.2",
+			"version": "v3.1.4.1",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/Automattic/jetpack-backup.git",
-				"reference": "adeed765aa5aba1f01c174bdbb908c8d8f8783d8"
+				"reference": "2c1a3c018ed41467b463441fb00e1f2ae2767de1"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/Automattic/jetpack-backup/zipball/adeed765aa5aba1f01c174bdbb908c8d8f8783d8",
-				"reference": "adeed765aa5aba1f01c174bdbb908c8d8f8783d8",
+				"url": "https://api.github.com/repos/Automattic/jetpack-backup/zipball/2c1a3c018ed41467b463441fb00e1f2ae2767de1",
+				"reference": "2c1a3c018ed41467b463441fb00e1f2ae2767de1",
 				"shasum": ""
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "^0.3.2",
 				"automattic/jetpack-assets": "^2.1.0",
 				"automattic/jetpack-autoloader": "^3.0.2",
-				"automattic/jetpack-backup-helper-script-manager": "^0.2.0",
+				"automattic/jetpack-backup-helper-script-manager": "^0.2.1.1",
 				"automattic/jetpack-composer-plugin": "^2.0.0",
 				"automattic/jetpack-config": "^2.0.0",
 				"automattic/jetpack-connection": "^2.3.0",
@@ -349,29 +349,29 @@
 			],
 			"description": "Tools to assist with backing up Jetpack sites.",
 			"support": {
-				"source": "https://github.com/Automattic/jetpack-backup/tree/v3.1.2"
+				"source": "https://github.com/Automattic/jetpack-backup/tree/v3.1.4.1"
 			},
-			"time": "2024-02-05T17:57:16+00:00"
+			"time": "2024-02-20T19:12:16+00:00"
 		},
 		{
 			"name": "automattic/jetpack-backup-helper-script-manager",
-			"version": "v0.2.0",
+			"version": "v0.2.1.1",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/Automattic/jetpack-backup-helper-script-manager.git",
-				"reference": "a38e285b0f707b80e7a3d75cb5bba6adb505494f"
+				"reference": "1c3a51b0f75f486fa6ecbf1ad5eeadd6ef267db8"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/Automattic/jetpack-backup-helper-script-manager/zipball/a38e285b0f707b80e7a3d75cb5bba6adb505494f",
-				"reference": "a38e285b0f707b80e7a3d75cb5bba6adb505494f",
+				"url": "https://api.github.com/repos/Automattic/jetpack-backup-helper-script-manager/zipball/1c3a51b0f75f486fa6ecbf1ad5eeadd6ef267db8",
+				"reference": "1c3a51b0f75f486fa6ecbf1ad5eeadd6ef267db8",
 				"shasum": ""
 			},
 			"require": {
 				"php": ">=7.0"
 			},
 			"require-dev": {
-				"automattic/jetpack-changelogger": "^4.0.5",
+				"automattic/jetpack-changelogger": "^4.1.0",
 				"automattic/wordbless": "@dev",
 				"yoast/phpunit-polyfills": "1.1.0"
 			},
@@ -400,9 +400,9 @@
 			],
 			"description": "Install / delete helper script for backup and transport server. Not visible to site owners.",
 			"support": {
-				"source": "https://github.com/Automattic/jetpack-backup-helper-script-manager/tree/v0.2.0"
+				"source": "https://github.com/Automattic/jetpack-backup-helper-script-manager/tree/v0.2.1.1"
 			},
-			"time": "2024-01-04T16:45:24+00:00"
+			"time": "2024-02-20T19:10:38+00:00"
 		},
 		{
 			"name": "automattic/jetpack-blaze",
@@ -1627,25 +1627,25 @@
 		},
 		{
 			"name": "automattic/jetpack-plans",
-			"version": "v0.4.1",
+			"version": "v0.4.2",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/Automattic/jetpack-plans.git",
-				"reference": "f12a14c3109745bb0c8435be4c8b0baf32b4c59d"
+				"reference": "16b349e39f611fb9412538faac6efb78095d8673"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/Automattic/jetpack-plans/zipball/f12a14c3109745bb0c8435be4c8b0baf32b4c59d",
-				"reference": "f12a14c3109745bb0c8435be4c8b0baf32b4c59d",
+				"url": "https://api.github.com/repos/Automattic/jetpack-plans/zipball/16b349e39f611fb9412538faac6efb78095d8673",
+				"reference": "16b349e39f611fb9412538faac6efb78095d8673",
 				"shasum": ""
 			},
 			"require": {
-				"automattic/jetpack-connection": "^2.2.0",
+				"automattic/jetpack-connection": "^2.3.0",
 				"php": ">=7.0"
 			},
 			"require-dev": {
-				"automattic/jetpack-changelogger": "^4.0.5",
-				"automattic/jetpack-status": "^2.0.2",
+				"automattic/jetpack-changelogger": "^4.1.0",
+				"automattic/jetpack-status": "^2.1.0",
 				"automattic/wordbless": "@dev",
 				"yoast/phpunit-polyfills": "1.1.0"
 			},
@@ -1674,9 +1674,9 @@
 			],
 			"description": "Fetch information about Jetpack Plans from wpcom",
 			"support": {
-				"source": "https://github.com/Automattic/jetpack-plans/tree/v0.4.1"
+				"source": "https://github.com/Automattic/jetpack-plans/tree/v0.4.2"
 			},
-			"time": "2024-01-18T15:06:16+00:00"
+			"time": "2024-02-12T19:44:45+00:00"
 		},
 		{
 			"name": "automattic/jetpack-plugins-installer",
