@@ -293,6 +293,11 @@ add_filter( 'jpcrm_system_assistant_jobs', 'jpcrm_add_woo_jobs_to_system_assista
 /**
  * Check if HPOS is enabled.
  *
+ * The feature was enabled in WooCommerce 7.1.
+ *
+ * For new stores created on or after 10 October 2023, this is enabled by default.
+ * https://woo.com/posts/platform-update-high-performance-order-storage-for-woocommerce/
+ *
  * @return bool Defaults to false.
  */
 function jpcrm_woosync_is_hpos_enabled() {
