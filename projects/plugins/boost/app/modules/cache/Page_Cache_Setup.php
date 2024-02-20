@@ -89,8 +89,9 @@ if ( ! file_exists( \'' . $boost_cache_filename . '\' ) ) {
 return;
 }
 require_once( \'' . $boost_cache_filename . '\');
-
-( new Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache() )->serve();
+$boost_cache = new Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache();
+$boost_cache->init_actions();
+$boost_cache->serve();
 ';
 
 		$write_advanced_cache = Filesystem_Utils::write_to_file( $advanced_cache_filename, $contents );

@@ -41,14 +41,12 @@ class Boost_Cache {
 		$home           = isset( $_SERVER['HTTP_HOST'] ) ? strtolower( $_SERVER['HTTP_HOST'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		$this->storage  = $storage ?? new Storage\File_Storage( $home );
 		$this->request  = Request::current();
-
-		$this->init_actions();
 	}
 
 	/**
 	 * Initialize the actions for the cache.
 	 */
-	protected function init_actions() {
+	public function init_actions() {
 		add_action( 'transition_post_status', array( $this, 'delete_on_post_transition' ), 10, 3 );
 		add_action( 'transition_comment_status', array( $this, 'delete_on_comment_transition' ), 10, 3 );
 		add_action( 'comment_post', array( $this, 'delete_on_comment_post' ), 10, 3 );
