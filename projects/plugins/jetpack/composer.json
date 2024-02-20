@@ -93,7 +93,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_1_2",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_1_3",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
