@@ -77,6 +77,42 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		 */
 		do_action_ref_array( 'jetpack_comments_loaded', array( $this ) );
 		add_action( 'after_setup_theme', array( $this, 'set_default_color_theme_based_on_theme_settings' ), 100 );
+		add_action( 'after_setup_theme', array( $this, 'manage_post_cookie' ), 100 );
+	}
+
+	/**
+	 * In order for comments to work properly for password-protected posts we need to set `wp-postpass` cookie to SameSite none.
+	 */
+	public function manage_post_cookie() {
+		if ( empty( $_COOKIE['verbum-wp-postpass'] ) ) {
+			foreach ( $_COOKIE as $name => $value ) {
+				if ( strpos( $name, 'wp-postpass' ) === 0 ) {
+					$expire = apply_filters( 'post_password_expires', time() + 10 * DAY_IN_SECONDS );
+					jetpack_shim_setcookie(
+						$name,
+						$value,
+						array(
+							'expires'  => $expire,
+							'samesite' => 'None',
+							'path'     => '/',
+							'domain'   => COOKIE_DOMAIN,
+							'secure'   => is_ssl(),
+						)
+					);
+					jetpack_shim_setcookie(
+						'verbum-wp-postpass',
+						'1',
+						array(
+							'expires'  => $expire,
+							'samesite' => 'None',
+							'path'     => '/',
+							'domain'   => COOKIE_DOMAIN,
+							'secure'   => is_ssl(),
+						)
+					);
+				}
+			}
+		}
 	}
 
 	/**
@@ -481,6 +517,7 @@ HTML;
 					<!--[if !IE]><!-->
 					<script>
 						document.addEventListener('DOMContentLoaded', function () {
+							console.log('alert123');
 							var commentForms = document.getElementsByClassName('jetpack_remote_comment');
 							for (var i = 0; i < commentForms.length; i++) {
 								commentForms[i].allowTransparency = <?php echo esc_html( $transparent ); ?>;
