@@ -57,14 +57,14 @@ class Modules_Index {
 	 * Get all modules that implement a specific interface.
 	 *
 	 * @param string $interface - The interface to search for.
-	 * @return array - An array of module classes that implement the interface.
+	 * @return array - An array of module classes indexed by slug that implement the interface.
 	 */
 	public static function get_modules_implementing( string $interface ): array {
 		$matching_modules = array();
 
 		foreach ( self::MODULES as $module ) {
 			if ( in_array( $interface, class_implements( $module ), true ) ) {
-				$matching_modules[] = $module;
+				$matching_modules[ $module::get_slug() ] = $module;
 			}
 		}
 
