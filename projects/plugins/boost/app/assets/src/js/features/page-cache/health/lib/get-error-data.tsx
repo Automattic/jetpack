@@ -23,6 +23,19 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			}
 		),
 	},
+	'not-using-permalinks': {
+		title: __( 'Your site is using Plain Permalinks', 'jetpack-boost' ),
+		message: createInterpolateElement(
+			__(
+				'This feature cannot be enabled because your site is using Plain Permalinks. Please switch to a different permalink structure in order to use the Page Cache. <link>Learn more.</link>',
+				'jetpack-boost'
+			),
+			{
+				// eslint-disable-next-line jsx-a11y/anchor-has-content
+				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
+			}
+		),
+	},
 	'advanced-cache-incompatible': {
 		title: __( 'Cache loader file already exists', 'jetpack-boost' ),
 		message: createInterpolateElement(

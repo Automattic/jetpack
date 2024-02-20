@@ -437,11 +437,21 @@ class WPCOM_Stats {
 		if ( $stats_cache ) {
 			$data = reset( $stats_cache );
 
-			if ( is_wp_error( $data ) ) {
+			if (
+				! is_array( $data )
+				|| empty( $data )
+				|| is_wp_error( $data )
+			) {
 				return $data;
 			}
 
-			$time = key( $data );
+			$time  = key( $data );
+			$views = $data[ $time ] ?? null;
+
+			// Bail if data is malformed.
+			if ( ! is_numeric( $time ) || ! is_array( $views ) ) {
+				return $data;
+			}
 
 			/** This filter is already documented in projects/packages/stats/src/class-wpcom-stats.php */
 			$expiration = apply_filters(
@@ -450,7 +460,7 @@ class WPCOM_Stats {
 			);
 
 			if ( ( time() - $time ) < $expiration ) {
-				return array_merge( array( 'cached_at' => $time ), $data[ $time ] );
+				return array_merge( array( 'cached_at' => $time ), $views );
 			}
 		}
 

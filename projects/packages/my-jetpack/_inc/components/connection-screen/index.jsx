@@ -59,6 +59,7 @@ const ConnectionScreen = () => {
 							'jetpack-my-jetpack'
 						) }
 						buttonLabel={ __( 'Connect your user account', 'jetpack-my-jetpack' ) }
+						loadingLabel={ __( 'Connecting your account…', 'jetpack-my-jetpack' ) }
 						apiRoot={ apiRoot }
 						apiNonce={ apiNonce }
 						images={ [ connectImage ] }
