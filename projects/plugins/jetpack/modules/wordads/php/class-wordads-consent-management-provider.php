@@ -68,15 +68,16 @@ class WordAds_Consent_Management_Provider {
 	 * Enqueues the main frontend Javascript.
 	 */
 	public static function enqueue_frontend_scripts() {
-		wp_enqueue_script(
+		Assets::register_script(
 			'cmp_script_loader',
-			Assets::get_file_url_for_environment(
-				'__inc/build/wordads/js/cmp-loader.min.js',
-				'modules/wordads/js/cmp-loader.js'
-			),
-			array(),
-			JETPACK__VERSION,
-			false
+			'_inc/build/wordads/js/cmp-loader.min.js',
+			JETPACK__PLUGIN_FILE,
+			array(
+				'nonmin_path'  => 'modules/wordads/js/cmp-loader.js',
+				'dependencies' => array(),
+				'enqueue'      => true,
+				'version'      => JETPACK__VERSION,
+			)
 		);
 
 		$request_url = self::get_config_url();
