@@ -517,7 +517,6 @@ HTML;
 					<!--[if !IE]><!-->
 					<script>
 						document.addEventListener('DOMContentLoaded', function () {
-							console.log('alert123');
 							var commentForms = document.getElementsByClassName('jetpack_remote_comment');
 							for (var i = 0; i < commentForms.length; i++) {
 								commentForms[i].allowTransparency = <?php echo esc_html( $transparent ); ?>;
