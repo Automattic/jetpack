@@ -1,28 +1,41 @@
 /**
- * Builds a nested tree structure from a flat array of objects with ID, parent, and name properties.
+ * Adds depth and parentNames property to an array of tree items.
  *
  * @param {Array} items - Array of objects containing at least ID, parent, and name.
- * @returns {Array} tree - Array of objects containing children as an array.
+ * @returns {Array} flatList - Array of objects including a depth property and an array of parent names.
  */
-function buildNestedTreeItems( items ) {
-	const map = {},
-		nestedTreeItems = [];
+function createFlatTreeItems( items ) {
+	const map = {};
+	const flatList = [];
 
 	// First pass: create a map of all items by their ID
 	items.forEach( item => {
 		map[ item.ID ] = { ...item, children: [] };
 	} );
 
-	// Second pass: build the nested tree items
+	// Second pass: populate children for each item
 	items.forEach( item => {
-		if ( item.parent === 0 ) {
-			nestedTreeItems.push( map[ item.ID ] );
-		} else if ( map[ item.parent ] ) {
-			map[ item.parent ].children.push( map[ item.ID ] );
+		if ( item.parent !== 0 && map[ item.parent ] ) {
+			map[ item.parent ].children.push( item.ID );
 		}
 	} );
 
-	return nestedTreeItems;
+	// Helper function to recursively process items, assign depth, and add to flat list
+	// Now also collects parent names
+	const processItem = ( id, depth, parentNames ) => {
+		const item = map[ id ];
+		const newItem = { ...item, depth, parentNames: [ ...parentNames ] };
+		flatList.push( newItem );
+		item.children.forEach( childId =>
+			processItem( childId, depth + 1, [ ...parentNames, item.name ] )
+		);
+	};
+
+	// Initialize processing for root items (those without parents or parent === 0)
+	items.filter( item => item.parent === 0 ).forEach( item => processItem( item.ID, 0, [] ) );
+
+	// Remove children property as it's not required in the output
+	return flatList.map( ( { children, ...item } ) => item );
 }
 
-export { buildNestedTreeItems };
+export { createFlatTreeItems };

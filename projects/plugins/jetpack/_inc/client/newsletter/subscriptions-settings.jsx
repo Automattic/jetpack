@@ -1,5 +1,6 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import Card from 'components/card';
@@ -113,6 +114,8 @@ function SubscriptionsSettings( props ) {
 		[ onOptionChange ]
 	);
 
+	const [ tempKeyword, setTempKeyword ] = useState( '' );
+
 	return (
 		<>
 			<SettingsCard { ...props } hideButton module={ SUBSCRIPTIONS_MODULE_NAME }>
@@ -216,15 +219,6 @@ function SubscriptionsSettings( props ) {
 							value={ welcomeMessage }
 							onChange={ changeWelcomeMessageState }
 						/>
-						<TreeSelector
-							items={ sampleCategories }
-							// eslint-disable-next-line
-							onSelect={ item => console.log( 'selected item', item ) }
-							// eslint-disable-next-line
-							onDeselect={ item => console.log( 'deselected item', item ) }
-							// eslint-disable-next-line
-							onChange={ item => console.log( 'checked items', item ) }
-						></TreeSelector>
 					</FormLabel>
 				</SettingsGroup>
 			</SettingsCard>

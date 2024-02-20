@@ -1,21 +1,23 @@
 import './style.scss';
 import { useEffect, useState } from '@wordpress/element';
-import { buildNestedTreeItems } from './utils';
-// import sampleCategories from './mock-data';
+import { createFlatTreeItems } from './utils';
 
 const TreeSelector = props => {
-	const { items, onSelect, onDeselect, onChange } = props;
+	const { items, onSelect, onDeselect, onChange, keyword = '' } = props;
+
+	const flatTreeItems = createFlatTreeItems( items );
+
+	const isSearching = keyword?.trim() !== '';
+
+	const filteredTreeItems = isSearching
+		? flatTreeItems.filter( item => item.name.toLowerCase().includes( keyword?.toLowerCase() ) )
+		: flatTreeItems;
 
 	const [ checkedItems, setCheckedItems ] = useState( [] );
-	const [ nestedTreeItems, setNestedTreeItems ] = useState( buildNestedTreeItems( items ) );
 
 	useEffect( () => {
 		onChange( checkedItems );
 	}, [ checkedItems, onChange ] );
-
-	useEffect( () => {
-		setNestedTreeItems( buildNestedTreeItems( items ) );
-	}, [ items ] );
 
 	const handleChange = item => e => {
 		const isChecked = e.target.checked;
@@ -36,7 +38,11 @@ const TreeSelector = props => {
 		return (
 			<ul className="jp-tree-items">
 				{ treeItems.map( item => (
-					<li key={ item.ID } className="jp-tree-item">
+					<li
+						key={ item.ID }
+						className="jp-tree-item"
+						style={ { marginLeft: isSearching ? 0 : item.depth * 25 } }
+					>
 						<input
 							type="checkbox"
 							id={ `jp-tree-item-${ item.ID }` }
@@ -44,15 +50,24 @@ const TreeSelector = props => {
 							checked={ checkedItems.some( checkedItem => checkedItem.ID === item.ID ) }
 							onChange={ handleChange( item ) }
 						/>
-						<label htmlFor={ `jp-tree-item-${ item.ID }` }>{ item.name }</label>
-						{ item.children && item.children.length > 0 && renderTreeItems( item.children ) }
+						<label htmlFor={ `jp-tree-item-${ item.ID }` }>
+							{ item.name }
+							{ isSearching && item.parentNames.length > 0 ? (
+								<>
+									&nbsp;
+									<small>({ [ ...item.parentNames, item.name ].join( ' > ' ) })</small>
+								</>
+							) : (
+								<></>
+							) }
+						</label>
 					</li>
 				) ) }
 			</ul>
 		);
 	};
 
-	return renderTreeItems( nestedTreeItems );
+	return renderTreeItems( filteredTreeItems );
 };
 
 export default TreeSelector;
