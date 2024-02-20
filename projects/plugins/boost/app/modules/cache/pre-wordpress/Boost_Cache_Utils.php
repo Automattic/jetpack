@@ -14,6 +14,7 @@ class Boost_Cache_Utils {
 	 * Recursively delete a directory.
 	 * @param string $dir - The directory to delete.
 	 * @param bool   $filter - The filter to use. JBCACHE_FILES to delete all files in the given directory. JBCACHE_ALL to delete everything in the given directory, recursively. JBCACHE_FILE to delete a single file or directory in the given directory.
+	 * @param string $filename - The filename to delete. Only used when $filter is JBCACHE_FILE.
 	 * @return bool|WP_Error
 	 */
 	public static function delete_directory( $dir, $filter, $filename = '' ) {

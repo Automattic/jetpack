@@ -107,6 +107,8 @@ class File_Storage implements Storage {
 	 * Delete all cached data for the given path.
 	 *
 	 * @param string $path - The path to delete.
+	 * @param string $filter - The filter to use for deleting files: JBCACHE_FILE, JBCACHE_FILES, JBCACHE_ALL.
+	 * @param string $filename - The filename to delete.
 	 */
 	public function invalidate( $request_uri, $filter = JBCACHE_FILE, $filename = '' ) {
 		error_log( "invalidate: $request_uri $filter" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
