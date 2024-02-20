@@ -17,12 +17,11 @@ class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Servi
 	/**
 	 * Is available()
 	 *
-	 * @param int|null $user_id An optional user_id that can be used to determine service availability (defaults to checking if user is logged in if omitted).
 	 * @return bool
 	 */
-	public static function available( $user_id = null ) {
+	public static function available() {
 		// Return available if the user is logged in and we are on WPCOM.
-		return defined( 'IS_WPCOM' ) && IS_WPCOM && ( is_user_logged_in() || ! empty( $user_id ) );
+		return defined( 'IS_WPCOM' ) && IS_WPCOM && is_user_logged_in();
 	}
 
 	/**
