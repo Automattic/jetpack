@@ -9,7 +9,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info, check } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
+import useAnalytics from '../../hooks/use-analytics';
 import cloud from './cloud.svg';
 import emptyAvatar from './empty-avatar.svg';
 import jetpack from './jetpack.svg';
@@ -63,10 +64,17 @@ const ConnectionStatusCard = props => {
 		redirectUri,
 	} );
 
+	const { recordEvent } = useAnalytics();
 	const [ isManageConnectionDialogOpen, setIsManageConnectionDialogOpen ] = useState( false );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
-	const handleConnectUser = onConnectUser || setUserIsConnecting;
+	const connectUserFn = onConnectUser || setUserIsConnecting;
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
+	const tracksEventData = useMemo( () => {
+		return {
+			isUserConnected: isUserConnected,
+			isRegistered: isRegistered,
+		};
+	}, [ isUserConnected, isRegistered ] );
 
 	/**
 	 * Open the Manage Connection Dialog.
@@ -74,9 +82,10 @@ const ConnectionStatusCard = props => {
 	const openManageConnectionDialog = useCallback(
 		e => {
 			e && e.preventDefault();
+			recordEvent( 'jetpack_myjetpack_connection_manage_dialog_click', tracksEventData );
 			setIsManageConnectionDialogOpen( true );
 		},
-		[ setIsManageConnectionDialogOpen ]
+		[ recordEvent, setIsManageConnectionDialogOpen, tracksEventData ]
 	);
 
 	/**
@@ -99,6 +108,19 @@ const ConnectionStatusCard = props => {
 		[ onDisconnected, setConnectionStatus ]
 	);
 
+	const onLearnMoreClick = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_connection_learnmore_link_click', tracksEventData );
+	}, [ recordEvent, tracksEventData ] );
+
+	const handleConnectUser = useCallback(
+		e => {
+			e && e.preventDefault();
+			recordEvent( 'jetpack_myjetpack_connection_connect_user_click', tracksEventData );
+			connectUserFn();
+		},
+		[ connectUserFn, recordEvent, tracksEventData ]
+	);
+
 	return (
 		<div className={ styles[ 'connection-status-card' ] }>
 			<H3>{ title }</H3>
@@ -110,6 +132,7 @@ const ConnectionStatusCard = props => {
 					variant="link"
 					weight="regular"
 					isExternalLink={ true }
+					onClick={ onLearnMoreClick }
 				>
 					{ __( 'Learn more about connections', 'jetpack-my-jetpack' ) }
 				</Button>
