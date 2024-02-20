@@ -55,12 +55,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 		// Get a list of modules that can change the HTML output.
 		$modules = Modules_Index::get_modules_implementing( Changes_Output::class );
 
-		$slugs = array_map(
-			function ( $module ) {
-				return $module::get_slug();
-			},
-			$modules
-		);
+		$slugs = array_keys( $modules );
 
 		if ( in_array( $module_slug, $slugs, true ) ) {
 			$this->invalidate_cache();
