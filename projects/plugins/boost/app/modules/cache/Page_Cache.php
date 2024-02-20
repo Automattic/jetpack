@@ -43,6 +43,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'handle_module_status_updated' ) );
 		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'invalidate_cache' ) );
+		add_action( 'jetpack_boost_critical_css_generated', array( $this, 'invalidate_cache' ) );
 	}
 
 	/**
