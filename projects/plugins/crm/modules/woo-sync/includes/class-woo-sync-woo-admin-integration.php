@@ -176,49 +176,11 @@ class Woo_Sync_Woo_Admin_Integration {
 			$order = wc_get_order( $order_or_post->ID );
 		}
 
+		$this->render_metabox_styles();
+
 		?>
 
 			<div class='zbs-crm-contact' style="margin-bottom:20px;">
-
-				<style>
-					.zbs-crm-contact{
-						text-align:center;
-					}
-					.zbs-custom-avatar{
-						border-radius: 50% !important;
-						max-width:80px;
-						text-align:center;
-						padding:10px;
-					}
-					.edit-contact-lin{
-						margin-top:10px !important;
-					}
-					.cust-email{
-						padding-bottom:10px;
-						padding-top:10px;
-						color: black;
-						font-weight:700;
-					}
-					.jpcrm-name{
-						font-weight:900;
-					}
-					.status{
-						margin-left: 0;
-						padding: 0.3em 0.78571429em;
-						display: inline-block;
-						border-radius: 5px;
-						margin-top: 3px;
-						margin-bottom: 3px;
-						font-size: 12px !important;
-						font-weight: 500;
-						background-color: #ccc;
-					}
-					.customer{
-						background-color: #21BA45 !important;
-						border-color: #21BA45 !important;
-						color: #FFFFFF !important;
-					}
-					</style>
 				<?php 
 
 					// the customer information pane
@@ -283,5 +245,54 @@ class Woo_Sync_Woo_Admin_Integration {
 			</div>
 		<?php
 		
+	}
+
+	/**
+	 * Renders metabox styles.
+	 *
+	 * It'd be better to move this to its own file, but putting it here for now.
+	 */
+	public function render_metabox_styles() {
+		?>
+		<style>
+		.zbs-crm-contact{
+			text-align:center;
+		}
+		.zbs-custom-avatar{
+			border-radius: 50% !important;
+			max-width:80px;
+			text-align:center;
+			padding:10px;
+		}
+		.edit-contact-lin{
+			margin-top:10px !important;
+		}
+		.cust-email{
+			padding-bottom:10px;
+			padding-top:10px;
+			color: black;
+			font-weight:700;
+		}
+		.jpcrm-name{
+			font-weight:900;
+		}
+		.status{
+			margin-left: 0;
+			padding: 0.3em 0.78571429em;
+			display: inline-block;
+			border-radius: 5px;
+			margin-top: 3px;
+			margin-bottom: 3px;
+			font-size: 12px !important;
+			font-weight: 500;
+			background-color: #ccc;
+		}
+		.customer{
+			background-color: #21BA45 !important;
+			border-color: #21BA45 !important;
+			color: #FFFFFF !important;
+		}
+		</style>
+		<?php
 	}
 }
