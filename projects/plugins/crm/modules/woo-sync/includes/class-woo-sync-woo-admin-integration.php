@@ -144,9 +144,7 @@ class Woo_Sync_Woo_Admin_Integration {
 	 * Add CRM meta boxes to Woo pages
 	 */
 	public function add_meta_boxes() {
-		global $zbs;
-
-		if ( $zbs->modules->woosync->is_hpos_enabled() ) {
+		if ( jpcrm_woosync_is_hpos_enabled() ) {
 			$screen = wc_get_page_screen_id( 'shop-order' );
 		} else {
 			$screen = array( 'shop_order', 'shop_subscription' );
@@ -171,7 +169,7 @@ class Woo_Sync_Woo_Admin_Integration {
 		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 		global $zbs;
-		if ( $zbs->modules->woosync->is_hpos_enabled() ) {
+		if ( jpcrm_woosync_is_hpos_enabled() ) {
 			$order = $order_or_post;
 		} else {
 			$order = wc_get_order( $order_or_post->ID );
