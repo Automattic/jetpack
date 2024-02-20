@@ -105,28 +105,30 @@ class Woo_Sync_Woo_Admin_Integration {
 				} else {
 					$order = wc_get_order( $order_or_post_id );
 				}
+
 				$email = $order->get_billing_email();
 
-				if ( ! empty( $email ) ) {
+				if ( empty( $email ) ) {
+					return;
+				}
 
-					$contact_id = zeroBS_getCustomerIDWithEmail( $email );
+				$contact_id = zeroBS_getCustomerIDWithEmail( $email );
 
-					if ( $contact_id > 0 ) {
+				if ( $contact_id > 0 ) {
 
-						// We have an email. Add in some actions.
-						echo '<div class="zbs-actions">';
-							$url = jpcrm_esc_link( 'view', $contact_id, 'zerobs_customer' );
-							echo '<a class="button button-primary" href="' . esc_url( $url ) . '">' . esc_html__( 'View Contact', 'zero-bs-crm' ) . '</a>';
-						echo '</div>';
+					// We have an email. Add in some actions.
+					echo '<div class="zbs-actions">';
+						$url = jpcrm_esc_link( 'view', $contact_id, 'zerobs_customer' );
+						echo '<a class="button button-primary" href="' . esc_url( $url ) . '">' . esc_html__( 'View Contact', 'zero-bs-crm' ) . '</a>';
+					echo '</div>';
 
-					} else {
+				} else {
 
-						echo '<div class="zbs-actions">';
-							$url = admin_url( 'admin.php?page=' . $zbs->modules->woosync->slugs['hub'] );
-							echo '<a class="button button-secondary" href="' . esc_url( $url ) . '">' . esc_html__( 'Add Contact', 'zero-bs-crm' ) . '</a>';
-						echo '</div>';
+					echo '<div class="zbs-actions">';
+						$url = admin_url( 'admin.php?page=' . $zbs->modules->woosync->slugs['hub'] );
+						echo '<a class="button button-secondary" href="' . esc_url( $url ) . '">' . esc_html__( 'Add Contact', 'zero-bs-crm' ) . '</a>';
+					echo '</div>';
 
-					}
 				}
 				break;
 		}
