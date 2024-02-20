@@ -1,6 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import Card from 'components/card';
 import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -49,25 +48,12 @@ export const Monitor = withModuleSettingsFormHelpers(
 						>
 							<span className="jp-form-toggle-explanation">
 								{ __(
-									'Get alerts if your site goes offline. We’ll let you know when it’s back up, too.',
+									'Get alerts if your site goes offline. Alerts are sent to your <a href="https://wordpress.com/me" target="_blank">WordPress.com account</a> email address.',
 									'jetpack'
 								) }
 							</span>
 						</ModuleToggle>
 					</SettingsGroup>
-					{ hasConnectedOwner && (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							onClick={ this.trackConfigureClick }
-							href={ getRedirectUrl( 'calypso-settings-security', {
-								site: this.props.blogID ?? this.props.siteRawUrl,
-							} ) }
-							target="_blank"
-						>
-							{ __( 'Configure your notification settings', 'jetpack' ) }
-						</Card>
-					) }
 
 					{ ! hasConnectedOwner && ! isOfflineMode && (
 						<ConnectUserBar
