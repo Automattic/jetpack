@@ -28,7 +28,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 *
 		 * @var $instance
 		 */
-		private static $tracking = null;
+		private $tracking = null;
 
 		/**
 		 * Constructor function.
