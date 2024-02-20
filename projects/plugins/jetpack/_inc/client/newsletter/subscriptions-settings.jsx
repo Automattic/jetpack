@@ -1,6 +1,5 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import Card from 'components/card';
@@ -22,12 +21,6 @@ import {
 import { getModule } from 'state/modules';
 import Textarea from '../components/textarea';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
-import TreeSelector from '../components/tree-selector';
-import sampleCategories from '../components/tree-selector/mock-data';
-
-//Check for feature flag
-const urlParams = new URLSearchParams( window.location.search );
-const isNewsletterCategoriesEnabled = urlParams.get( 'enable-newsletter-categories' ) === 'true';
 
 const trackViewSubsClick = () => {
 	analytics.tracks.recordJetpackClick( 'manage-subscribers' );
@@ -117,8 +110,6 @@ function SubscriptionsSettings( props ) {
 		},
 		[ onOptionChange ]
 	);
-
-	const [ tempKeyword, setTempKeyword ] = useState( '' );
 
 	return (
 		<>
