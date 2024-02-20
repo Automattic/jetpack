@@ -140,30 +140,43 @@ class Woo_Sync_Woo_Admin_Integration {
 		}
 	}
 
-
 	/**
 	 * Add CRM meta boxes to Woo pages
 	 */
-	public function add_meta_boxes(){
-		
-		add_meta_box( 
+	public function add_meta_boxes() {
+		global $zbs;
+
+		if ( $zbs->modules->woosync->is_hpos_enabled() ) {
+			$screen = wc_get_page_screen_id( 'shop-order' );
+		} else {
+			$screen = array( 'shop_order', 'shop_subscription' );
+		}
+
+		add_meta_box(
 			'zbs_crm_contact',
 			__( 'CRM Contact', 'zero-bs-crm' ),
 			array( $this, 'render_woo_order_page_contact_box' ),
-			['shop_order', 'shop_subscription'],
+			$screen,
 			'side',
 			'core'
 		);
-
 	}
-
 
 	/**
 	 * Renders HTML for contact metabox on Woo pages
+	 *
+	 * @param WC_Order|\WP_POST $order_or_post Order or post.
 	 */
-	public function render_woo_order_page_contact_box(){
+	public function render_woo_order_page_contact_box( $order_or_post ) {
 
-		global $zbs, $post; ?>
+		global $zbs;
+		if ( $zbs->modules->woosync->is_hpos_enabled() ) {
+			$order = $order_or_post;
+		} else {
+			$order = wc_get_order( $order_or_post->ID );
+		}
+
+		?>
 
 			<div class='zbs-crm-contact' style="margin-bottom:20px;">
 
@@ -204,13 +217,11 @@ class Woo_Sync_Woo_Admin_Integration {
 						background-color: #21BA45 !important;
 						border-color: #21BA45 !important;
 						color: #FFFFFF !important;
-										
 					}
 					</style>
 				<?php 
 
 					// the customer information pane
-					$order = wc_get_order( $post->ID );
 					$email = $order->get_billing_email();
 					if ( $email != '' ){
 
