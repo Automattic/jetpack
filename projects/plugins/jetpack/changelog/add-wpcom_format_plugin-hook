@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Adds a wpcom_format_plugin hook to the /plugins* endpoint
