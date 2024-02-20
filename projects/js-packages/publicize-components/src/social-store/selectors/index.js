@@ -4,7 +4,6 @@ import jetpackSettingSelectors from './jetpack-settings';
 import * as sharesData from './shares-data';
 import siteDataSelectors from './site-data';
 import socialImageGeneratorSettingsSelectors from './social-image-generator-settings';
-import socialNotesSettingsSelectors from './social-notes-settings';
 
 const selectors = {
 	...siteDataSelectors,
@@ -13,7 +12,6 @@ const selectors = {
 	...sharesData,
 	...socialImageGeneratorSettingsSelectors,
 	...autoConversionSettingsSelectors,
-	...socialNotesSettingsSelectors,
 };
 
 export default selectors;

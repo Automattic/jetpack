@@ -1,11 +1,10 @@
 import { select } from '@wordpress/data';
 import { SOCIAL_STORE_ID } from '../../social-store';
 import {
-	fetchSocialNotesSettings,
-	updateSocialNotesSettings as updateSocialNotesSettingsControl,
+	fetchJetpackSettings,
+	updateJetpackSettings as updateJetpackSettingsControl,
 } from '../controls';
-
-export const SET_SOCIAL_NOTES_SETTINGS = 'SET_SOCIAL_NOTES_SETTINGS';
+import { setJetpackSettings } from './jetpack-settings';
 
 /**
  * Yield actions to update settings
@@ -17,14 +16,14 @@ export const SET_SOCIAL_NOTES_SETTINGS = 'SET_SOCIAL_NOTES_SETTINGS';
 export function* updateSocialNotesSettings( settings ) {
 	try {
 		yield setUpdatingSocialNotesSettings();
-		yield setSocialNotesSettings( settings );
-		yield updateSocialNotesSettingsControl( settings );
-		const updatedSettings = yield fetchSocialNotesSettings();
-		yield setSocialNotesSettings( updatedSettings );
+		yield setJetpackSettings( settings );
+		yield updateJetpackSettingsControl( settings );
+		const updatedSettings = yield fetchJetpackSettings();
+		yield setJetpackSettings( updatedSettings );
 		return true;
 	} catch ( e ) {
 		const oldSettings = select( SOCIAL_STORE_ID ).getSocialNotesSettings();
-		yield setSocialNotesSettings( oldSettings );
+		yield setJetpackSettings( oldSettings );
 		return false;
 	} finally {
 		yield setUpdatingSocialNotesSettingsDone();
@@ -40,8 +39,8 @@ export function* updateSocialNotesSettings( settings ) {
 export function* refreshSocialNotesSettings() {
 	try {
 		yield setUpdatingSocialNotesSettings();
-		const updatedSettings = yield fetchSocialNotesSettings();
-		yield setSocialNotesSettings( updatedSettings );
+		const updatedSettings = yield fetchJetpackSettings();
+		yield setJetpackSettings( updatedSettings );
 		return true;
 	} catch ( e ) {
 		return false;
@@ -56,7 +55,7 @@ export function* refreshSocialNotesSettings() {
  * @returns {object} - an action object.
  */
 export function setUpdatingSocialNotesSettings() {
-	return setSocialNotesSettings( { isUpdating: true } );
+	return setJetpackSettings( { social_notes_is_updating: true } );
 }
 
 /**
@@ -65,21 +64,10 @@ export function setUpdatingSocialNotesSettings() {
  * @returns {object} - an action object.
  */
 export function setUpdatingSocialNotesSettingsDone() {
-	return setSocialNotesSettings( { isUpdating: false } );
-}
-
-/**
- * Set Social Notes settings action
- *
- * @param {object} options - Social Notes settings.
- * @returns {object} - an action object.
- */
-export function setSocialNotesSettings( options ) {
-	return { type: SET_SOCIAL_NOTES_SETTINGS, options };
+	return setJetpackSettings( { social_notes_is_updating: false } );
 }
 
 export default {
 	updateSocialNotesSettings,
-	setSocialNotesSettings,
 	refreshSocialNotesSettings,
 };

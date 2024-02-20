@@ -3,12 +3,10 @@ import { setAutoConversionSettings } from './actions/auto-conversion-settings';
 import { setConnections } from './actions/connection-data';
 import { setJetpackSettings } from './actions/jetpack-settings';
 import { setSocialImageGeneratorSettings } from './actions/social-image-generator-settings';
-import { setSocialNotesSettings } from './actions/social-notes-settings';
 import {
 	fetchJetpackSettings,
 	fetchSocialImageGeneratorSettings,
 	fetchAutoConversionSettings,
-	fetchSocialNotesSettings,
 } from './controls';
 
 /**
@@ -61,23 +59,6 @@ export function* getAutoConversionSettings() {
 		}
 	} catch ( e ) {
 		// TODO: Add proper error handling here
-		console.log( e ); // eslint-disable-line no-console
-	}
-}
-
-/**
- * Yield actions to get the Social Notes settings
- *
- * @yields {object} - an action object.
- * @returns {object} - an action object
- */
-export function* getSocialNotesSettings() {
-	try {
-		const settings = yield fetchSocialNotesSettings();
-		if ( settings ) {
-			return setSocialNotesSettings( settings );
-		}
-	} catch ( e ) {
 		console.log( e ); // eslint-disable-line no-console
 	}
 }

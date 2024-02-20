@@ -31,7 +31,7 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 
 	const toggleStatus = useCallback( () => {
 		const newOption = {
-			enabled: ! isEnabled,
+			social_notes_enabled: ! isEnabled,
 		};
 		const updatePromise = updateOptions( newOption );
 

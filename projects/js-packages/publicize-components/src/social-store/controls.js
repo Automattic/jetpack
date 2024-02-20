@@ -9,9 +9,6 @@ export const FETCH_AUTO_CONVERSION_SETTINGS = 'FETCH_AUTO_CONVERSION_SETTINGS';
 export const UPDATE_AUTO_CONVERSION_SETTINGS = 'UPDATE_AUTO_CONVERSION_SETTINGS';
 export const FETCH_JETPACK_SOCIAL_SETTINGS = 'FETCH_JETPACK_SOCIAL_SETTINGS';
 
-export const FETCH_SOCIAL_NOTES_SETTINGS = 'FETCH_SOCIAL_NOTES_SETTINGS';
-export const UPDATE_SOCIAL_NOTES_SETTINGS = 'UPDATE_SOCIAL_NOTES_SETTINGS';
-
 /**
  * fetchJetpackSettings action
  *
@@ -83,30 +80,6 @@ export const fetchJetpackSocialSettings = () => {
 };
 
 /**
- * fetchIsSocialNotesEnabled action
- *
- * @returns {object} - an action object.
- */
-export const fetchSocialNotesSettings = () => {
-	return {
-		type: FETCH_SOCIAL_NOTES_SETTINGS,
-	};
-};
-
-/**
- * updateIsSocialNotesEnabled action
- *
- * @param {*} settings - Social Notes enabled status.
- * @returns {object} - an action object.
- */
-export const updateSocialNotesSettings = settings => {
-	return {
-		type: UPDATE_SOCIAL_NOTES_SETTINGS,
-		settings,
-	};
-};
-
-/**
  * updateAutoConversionSettings action
  *
  * @param {*} settings - Auto conversion settings object.
@@ -161,18 +134,6 @@ export default {
 	[ FETCH_JETPACK_SOCIAL_SETTINGS ]: function () {
 		return apiFetch( {
 			path: '/wp/v2/settings?_fields=jetpack_social_autoconvert_images,jetpack_social_image_generator_settings',
-		} );
-	},
-	[ FETCH_SOCIAL_NOTES_SETTINGS ]: function () {
-		return apiFetch( {
-			path: '/jetpack/v4/social/social-notes',
-		} );
-	},
-	[ UPDATE_SOCIAL_NOTES_SETTINGS ]: function ( action ) {
-		return apiFetch( {
-			path: '/jetpack/v4/social/social-notes',
-			method: 'POST',
-			data: action.settings,
 		} );
 	},
 };
