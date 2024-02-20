@@ -25,13 +25,15 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Blog_Privacy;
 function robots_txt( string $output, $public ): string {
 	$public = (int) $public;
 
-	// If the site is completely private or already discouraging *all* bots, don't bother with the additional restrictions.
-	if ( -1 === $public || 0 === $public ) {
+	// If the site is completely private, don't bother with the additional restrictions.
+	if ( -1 === $public ) {
 		return $output;
 	}
 
+	// For blog_public=0, WP.com Disallows all user agents and Core does not (relying on <meta name="robots">).
+	// Always add Disallow blocks for blog_public=0 even on WP.com where it may be redundant.
 	// An option oddly named because of history.
-	if ( get_option( 'wpcom_data_sharing_opt_out' ) ) {
+	if ( 0 === $public || get_option( 'wpcom_data_sharing_opt_out' ) ) {
 		$ai_bots = array(
 			'Amazonbot',
 			'CCBot',
