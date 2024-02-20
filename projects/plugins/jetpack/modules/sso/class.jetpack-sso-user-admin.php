@@ -555,6 +555,21 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 				if ( 200 !== $response['response']['code'] ) {
 					$errors->add( 'invitation_not_sent', __( '<strong>Error</strong>: The user invitation email could not be sent, the user account was not created.', 'jetpack' ) );
+					$this->tracking->record_user_event(
+						'sso_user_new_user_invite_send',
+						array(
+							'success' => 'false',
+						)
+					);
+				} else {
+					$custom_message_sent = $new_user_request['message'] ? 'true' : 'false';
+					$this->tracking->record_user_event(
+						'sso_user_new_user_invite_send',
+						array(
+							'success'             => 'true',
+							'custom_message_sent' => $custom_message_sent,
+						)
+					);
 				}
 			}
 
