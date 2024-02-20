@@ -241,11 +241,18 @@ class VideoPressEdit extends Component {
 	}
 
 	getVideoURL() {
-		const { guid } = this.props.attributes;
+		const { guid, src } = this.props.attributes;
 		const { original } = this.state.metadata || {};
 		const { metadataToken } = this.state;
 
-		if ( ! guid || ! original ) {
+		// If video is not converted to VideoPress, return src.
+		if ( ! guid ) {
+			return src;
+		}
+
+		// Prevent crash caused by original value changing before it's defined.
+		// See: https://github.com/wordpress-mobile/WordPress-iOS/issues/20882
+		if ( ! original ) {
 			return;
 		}
 
