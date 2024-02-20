@@ -46,7 +46,7 @@ function NewsletterCategories( props ) {
 
 	const [ newCategories, setNewCategories ] = useState( '' );
 
-	const handleEnagleNewsletterCategoriesToggleChange = useCallback( () => {
+	const handleEnableNewsletterCategoriesToggleChange = useCallback( () => {
 		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'wpcom_newsletter_categories_enabled' );
 	}, [ updateFormStateModuleOption ] );
 
@@ -79,7 +79,7 @@ function NewsletterCategories( props ) {
 				<ToggleControl
 					disabled={ isUnavailableDueOfflineMode || isUnavailableDueSiteConnectionMode }
 					checked={ isNewsletterCategoriesEnabled }
-					onChange={ handleEnagleNewsletterCategoriesToggleChange }
+					onChange={ handleEnableNewsletterCategoriesToggleChange }
 					label={ __( 'Enable newsletter categories', 'jetpack' ) }
 				/>
 				All categories:
