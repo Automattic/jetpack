@@ -5,6 +5,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
 
+use Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress\Filesystem_Utils;
+
 /**
  * A utility that manages logging for the boost cache.
  */
@@ -18,6 +20,11 @@ class Logger {
 	 * The header to place on top of every log file.
 	 */
 	const LOG_HEADER = "<?php die(); // This file is not intended to be accessed directly. ?>\n\n";
+
+	/**
+	 * The directory where log files are stored.
+	 */
+	const LOG_DIRECTORY = WP_CONTENT_DIR . '/boost-cache/logs';
 
 	/**
 	 * Get the singleton instance of the logger.
@@ -47,11 +54,11 @@ class Logger {
 		}
 
 		$directory = dirname( $log_file );
-		if ( ! Boost_Cache_Utils::create_directory( $directory ) ) {
+		if ( ! Filesystem_Utils::create_directory( $directory ) ) {
 			return new \WP_Error( 'Could not create boost cache log directory' );
 		}
 
-		return Boost_Cache_Utils::write_to_file( $log_file, self::LOG_HEADER );
+		return Filesystem_Utils::write_to_file( $log_file, self::LOG_HEADER );
 	}
 
 	/**
@@ -105,6 +112,10 @@ class Logger {
 	 */
 	private static function get_log_file() {
 		$today = gmdate( 'Y-m-d' );
-		return WP_CONTENT_DIR . "/boost-cache/logs/log-{$today}.log.php";
+		return self::LOG_DIRECTORY . "/log-{$today}.log.php";
+	}
+
+	public static function delete_old_logs() {
+		Filesystem_Utils::garbage_collect( self::LOG_DIRECTORY, 24 * 60 * 60 );
 	}
 }

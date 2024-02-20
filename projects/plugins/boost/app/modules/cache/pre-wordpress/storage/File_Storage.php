@@ -5,7 +5,9 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Storage;
 
+use Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Logger;
 
 /**
  * File Storage - handles writing to disk, reading from disk, purging and pruning old content.
@@ -32,11 +34,11 @@ class File_Storage implements Storage {
 		$directory = self::get_uri_directory( $request_uri );
 		$filename  = self::get_request_filename( $request_uri, $parameters );
 
-		if ( ! Boost_Cache_Utils::create_directory( $directory ) ) {
+		if ( ! Filesystem_Utils::create_directory( $directory ) ) {
 			return new \WP_Error( 'Could not create cache directory' );
 		}
 
-		return Boost_Cache_Utils::write_to_file( $directory . $filename, $data );
+		return Filesystem_Utils::write_to_file( $directory . $filename, $data );
 	}
 
 	/**
@@ -56,6 +58,22 @@ class File_Storage implements Storage {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Garbage collect expired files.
+	 */
+	public function garbage_collect() {
+		$cache_duration = apply_filters( 'jetpack_boost_cache_duration', 3600 );
+
+		if ( $cache_duration === 0 ) {
+			// Garbage collection is disabled.
+			return false;
+		}
+
+		$count = Filesystem_Utils::garbage_collect( $this->root_path, $cache_duration );
+
+		Logger::debug( "Garbage collected $count files" );
 	}
 
 	/**
