@@ -14,22 +14,31 @@
  * @return bool true if the current user should see the github deployments menu
  */
 function wpcomsh_should_show_wpcom_github_deployments_menu() {
-	if ( defined( 'WPCOMSH_SHOW_WPCOM_github_deployments_MENU' ) ) {
-		return boolval( WPCOMSH_SHOW_WPCOM_GITHUB_DEPLOYMENTS_MENU );
-	}
+	return request_github_deployments_available();
+}
 
-	// Using user_login rather than ID here because user IDs on Atomic sites don't
-	// always match WPCOM user IDs. Logins might not be fullproof either, but
-	// they're probably better.
-	$allowed_users = array(
-		'mk9287',
-		'philipmjackson',
-		'vykesmac',
-		'zaguiini',
-		'paulopmt1',
-		'jeroenpfeil',
+add_filter( 'jetpack_show_wpcom_github_deployments_menu', 'wpcomsh_should_show_wpcom_github_deployments_menu' );
+
+/**
+ * Check if the GitHub Deployments feature is enabled for the given site.
+ * This is for testing purposes only.
+ */
+function request_github_deployments_available() {
+	$wpcom_blog_id = Jetpack_Options::get_option( 'id' );
+	$endpoint      = "/sites/{$wpcom_blog_id}/hosting/github/available";
+
+	$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+		$endpoint,
+		'v2',
+		array( 'method' => 'GET' ),
+		null,
+		'wpcom'
 	);
 
-	return in_array( wp_get_current_user()->get( 'user_login' ), $allowed_users, true );
+	if ( is_wp_error( $response ) || 200 !== $response['response']['code'] || empty( $response['body'] ) ) {
+		return false;
+	}
+
+	$response = json_decode( wp_remote_retrieve_body( $response ), true );
+	return $response['available'];
 }
-add_filter( 'jetpack_show_wpcom_github_deployments_menu', 'wpcomsh_should_show_wpcom_github_deployments_menu' );
