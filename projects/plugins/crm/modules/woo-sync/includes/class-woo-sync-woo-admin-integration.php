@@ -178,88 +178,65 @@ class Woo_Sync_Woo_Admin_Integration {
 		}
 
 		$this->render_metabox_styles();
-		?>
 
-		<div class="zbs-crm-contact" style="margin-bottom:20px;">
-			<?php
+		// the customer information pane
+		$email = $order->get_billing_email();
 
-			// the customer information pane
-			$email = $order->get_billing_email();
-
-			// No billing email found, so render message and return.
-			if ( empty( $email ) ) {
-				?>
+		// No billing email found, so render message and return.
+		if ( empty( $email ) ) {
+			?>
+			<div class="jpcrm-contact-metabox">
 				<div class="no-crm-contact">
 					<p style="margin-top:20px;">
 					<?php esc_html_e( 'Once you save your order to a customer with a billing email, the CRM contact card will display here.', 'zero-bs-crm' ); ?>
 					</p>
 				</div>
+			</div>
+			<?php
+			return;
+		}
+
+		// retrieve contact id
+		$contact_id = zeroBS_getCustomerIDWithEmail( $email );
+
+		// Can't find a contact under that email, so return.
+		if ( $contact_id <= 0 ) {
+			return;
+		}
+
+		// retrieve contact
+		$crm_contact               = $zbs->DAL->contacts->getContact( $contact_id );
+		$contact_name              = $zbs->DAL->contacts->getContactFullNameEtc( $contact_id, $crm_contact, array( false, false ) );
+		$contact_transaction_count = $zbs->DAL->specific_obj_type_count_for_assignee( $contact_id, ZBS_TYPE_TRANSACTION, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+		// check avatar mode
+		$avatar      = '';
+		$avatar_mode = zeroBSCRM_getSetting( 'avatarmode' );
+		if ( $avatar_mode !== 3 ) {
+			$avatar = zeroBS_customerAvatarHTML( $contact_id, $crm_contact, 100, 'ui small image centered' );
+		}
+		?>
+
+		<div class="jpcrm-contact-metabox">
+			<?php echo $avatar; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
+			<div id="panel-name"><span class="jpcrm-name"><?php echo esc_html( $contact_name ); ?></span></div>
+			<div id="panel-status" class="ui label status <?php echo esc_attr( strtolower( $crm_contact['status'] ) ); ?>">
+				<?php echo esc_html( $crm_contact['status'] ); ?>
+			</div>
+
+			<div>
 				<?php
-				return;
-			}
-
-			// retrieve contact id
-			$contact_id = zeroBS_getCustomerIDWithEmail( $email );
-
-			// Can't find a contact under that email, so return.
-			if ( $contact_id <= 0 ) {
-				return;
-			}
-
-			// retrieve contact
-			$crm_contact               = $zbs->DAL->contacts->getContact( $contact_id );
-			$contact_name              = $zbs->DAL->contacts->getContactFullNameEtc( $contact_id, $crm_contact, array( false, false ) );
-			$contact_transaction_count = $zbs->DAL->specific_obj_type_count_for_assignee( $contact_id, ZBS_TYPE_TRANSACTION, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-
-			// check avatar mode
-			$avatar      = '';
-			$avatar_mode = zeroBSCRM_getSetting( 'avatarmode' );
-			if ( $avatar_mode !== 3 ) {
-				$avatar = zeroBS_customerAvatarHTML( $contact_id, $crm_contact, 100, 'ui small image centered' );
-			}
-
-			// Render HTML
-			?>
-			<div class="customer-panel-header">
-				<div id="panel-customer-avatar">
-					<?php
-					echo $avatar; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					?>
-				</div>
-				<div id="panel-name"><span class="jpcrm-name"><?php echo esc_html( $contact_name ); ?></span></div>
-				<div id="panel-status" class="ui label status <?php echo esc_attr( strtolower( $crm_contact['status'] ) ); ?>">
-					<?php echo esc_html( $crm_contact['status'] ); ?>
-				</div>
-				<div class="simple-actions zbs-hide">
-					<a class="ui label circular"><i class="ui icon phone"></i></a>
-					<a class="ui label circular"><i class="ui icon envelope"></i></a>
-				</div>
+				echo esc_html( zeroBSCRM_prettifyLongInts( $contact_transaction_count ) . ' ' . ( $contact_transaction_count > 1 ? __( 'Transactions', 'zero-bs-crm' ) : __( 'Transaction', 'zero-bs-crm' ) ) );
+				?>
 			</div>
-
-			<div class="ui divider"></div>
-
-			<div class="total-paid-wrap">
-				<div class="total-paid cell">
-					<div class="heading">
-						<?php
-						echo esc_html( zeroBSCRM_prettifyLongInts( $contact_transaction_count ) . ' ' . ( $contact_transaction_count > 1 ? __( 'Transactions', 'zero-bs-crm' ) : __( 'Transaction', 'zero-bs-crm' ) ) );
-						?>
-					</div>
-				</div>
-			</div>
-
-			<div class="clear"></div>
-			<div class="ui divider"></div>
 
 			<div class="panel-left-info cust-email">
 				<i class="ui icon envelope outline"></i> <span class="panel-customer-email"><?php echo esc_html( $email ); ?></span>
 			</div>
 
 			<div class="panel-edit-contact">
-				<a class="edit-contact-link button button-primary" href="<?php echo esc_url( jpcrm_esc_link( 'view', $contact_id, 'zerobs_customer' ) ); ?>"><?php echo esc_html__( 'View Contact', 'zero-bs-crm' ); ?></a>
+				<a class="view-contact-link button button-primary" href="<?php echo esc_url( jpcrm_esc_link( 'view', $contact_id, 'zerobs_customer' ) ); ?>"><?php echo esc_html__( 'View Contact', 'zero-bs-crm' ); ?></a>
 			</div>
-
-			<div class="clear"></div>
 		</div>
 		<?php
 		// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -273,7 +250,8 @@ class Woo_Sync_Woo_Admin_Integration {
 	public function render_metabox_styles() {
 		?>
 		<style>
-		.zbs-crm-contact{
+		.jpcrm-contact-metabox{
+			margin: 20px 0;
 			text-align:center;
 		}
 		.zbs-custom-avatar{
@@ -282,8 +260,8 @@ class Woo_Sync_Woo_Admin_Integration {
 			text-align:center;
 			padding:10px;
 		}
-		.edit-contact-lin{
-			margin-top:10px !important;
+		.view-contact-link{
+			margin-top:10px;
 		}
 		.cust-email{
 			padding-bottom:10px;
