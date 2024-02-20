@@ -1,0 +1,11 @@
+@import '@automattic/jetpack-base-styles/style';
+
+ul.jp-tree-items {
+    list-style-type: none;
+}
+
+li.jp-tree-item {
+    small {
+        color: var( --jp-gray-40 );
+    }
+}

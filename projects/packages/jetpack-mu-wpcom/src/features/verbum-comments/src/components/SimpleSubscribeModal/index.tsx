@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'preact/hooks';
 import { translate } from '../../i18n';
-import { userInfo, userLoggedIn, commentUrl } from '../../state';
+import { userInfo, userLoggedIn, commentUrl, subscribeModalStatus } from '../../state';
 import { SimpleSubscribeModalProps } from '../../types';
 import {
 	getSubscriptionModalViewCount,
@@ -12,12 +12,7 @@ import { SimpleSubscribeModalLoggedIn, SimpleSubscribeSetModalShowLoggedIn } fro
 import { SimpleSubscribeModalLoggedOut } from './logged-out';
 import './style.scss';
 
-export const SimpleSubscribeModal = ( {
-	setSubscribeModalStatus,
-	subscribeModalStatus,
-	closeModalHandler,
-	email,
-}: SimpleSubscribeModalProps ) => {
+export const SimpleSubscribeModal = ( { closeModalHandler, email }: SimpleSubscribeModalProps ) => {
 	const [ subscribeState, setSubscribeState ] = useState<
 		'SUBSCRIBING' | 'LOADING' | 'SUBSCRIBED'
 	>();
@@ -60,18 +55,16 @@ export const SimpleSubscribeModal = ( {
 		// When not showing the modal, we check for modal conditions to show it.
 		// This is done to avoid subscriptionApi calls for logged out users.
 		if ( userLoggedIn.value ) {
-			return (
-				<SimpleSubscribeSetModalShowLoggedIn setSubscribeModalStatus={ setSubscribeModalStatus } />
-			);
+			return <SimpleSubscribeSetModalShowLoggedIn />;
 		}
 
 		// If the user is logged out, we don't need to check is already subscribed.
-		setSubscribeModalStatus( shouldShowSubscriptionModal( false, 0 ) );
+		subscribeModalStatus.value = shouldShowSubscriptionModal( false, 0 );
 		return null;
 	}
 
 	// We use the same logic as in the comment footer to know if the user is already subscribed.
-	if ( subscribeModalStatus !== 'showed' && commentUrl.value ) {
+	if ( subscribeModalStatus.value !== 'showed' && commentUrl.value ) {
 		closeModalHandler();
 		return null;
 	}
