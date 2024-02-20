@@ -43,6 +43,7 @@ function clear_cache() {
 	}
 }
 add_action( 'jetpack_boost_critical_css_generated', __NAMESPACE__ . '\clear_cache' );
+add_action( 'jetpack_boost_critical_css_invalidated', __NAMESPACE__ . '\clear_cache' );
 
 /**
  * Clear Super Cache's cache when a module is enabled or disabled.
