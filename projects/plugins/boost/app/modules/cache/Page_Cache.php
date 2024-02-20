@@ -41,7 +41,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	public function setup() {
 		Garbage_Collection::setup();
 
-		add_action( 'jetpack_boost_module_status_updated', array( $this, 'handle_module_status_updated' ) );
+		add_action( 'jetpack_boost_module_status_updated', array( $this, 'handle_module_status_updated' ), 10, 2 );
 		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'invalidate_cache' ) );
 		add_action( 'jetpack_boost_critical_css_generated', array( $this, 'invalidate_cache' ) );
 	}
@@ -51,11 +51,18 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	 *
 	 * @param string $module_slug The slug of the module that was updated.
 	 */
-	public function handle_module_status_updated( $module_slug ) {
+	public function handle_module_status_updated( $module_slug, $status ) {
 		// Get a list of modules that can change the HTML output.
-		$modules = Modules_Index::get_modules_implementing( Changes_Output::class );
+		$output_changing_modules = Modules_Index::get_modules_implementing( Changes_Output::class );
 
-		$slugs = array_keys( $modules );
+		// Special case: don't clear when enabling Critical or Cloud CSS, as they will
+		// be handled after generation.
+		if ( $status === true ) {
+			unset( $output_changing_modules['critical_css'] );
+			unset( $output_changing_modules['cloud_css'] );
+		}
+
+		$slugs = array_keys( $output_changing_modules );
 
 		if ( in_array( $module_slug, $slugs, true ) ) {
 			$this->invalidate_cache();
