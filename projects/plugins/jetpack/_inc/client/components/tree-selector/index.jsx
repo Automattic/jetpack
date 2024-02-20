@@ -1,9 +1,9 @@
+import { useCallback } from 'react';
 import './style.scss';
-import { useEffect, useState } from '@wordpress/element';
 import { createFlatTreeItems } from './utils';
 
 const TreeSelector = props => {
-	const { items, onSelect, onDeselect, onChange, keyword = '' } = props;
+	const { items, onChange, selectedItems, keyword = '' } = props;
 
 	const flatTreeItems = createFlatTreeItems( items );
 
@@ -13,61 +13,39 @@ const TreeSelector = props => {
 		? flatTreeItems.filter( item => item.name.toLowerCase().includes( keyword?.toLowerCase() ) )
 		: flatTreeItems;
 
-	const [ checkedItems, setCheckedItems ] = useState( [] );
+	const toggleCheckbox = useCallback(
+		id => () => onChange( id, ! selectedItems.includes( id ) ),
+		[ onChange, selectedItems ]
+	);
 
-	useEffect( () => {
-		onChange( checkedItems );
-	}, [ checkedItems, onChange ] );
+	const treeElements = filteredTreeItems.map( item => (
+		<li
+			key={ item.id }
+			className="jp-tree-item"
+			style={ { marginLeft: isSearching ? 0 : item.depth * 25 } }
+		>
+			<input
+				type="checkbox"
+				id={ `jp-tree-item-${ item.id }` }
+				name="jp-tree-item"
+				checked={ selectedItems.includes( item.id ) }
+				onChange={ toggleCheckbox( item.id ) }
+			/>
+			<label htmlFor={ `jp-tree-item-${ item.id }` }>
+				{ item.name }
+				{ isSearching && item.parentNames.length > 0 ? (
+					<>
+						&nbsp;
+						<small>({ [ ...item.parentNames, item.name ].join( ' > ' ) })</small>
+					</>
+				) : (
+					<></>
+				) }
+			</label>
+		</li>
+	) );
 
-	const handleChange = item => e => {
-		const isChecked = e.target.checked;
-
-		let newCheckedItems;
-		if ( isChecked ) {
-			newCheckedItems = [ ...checkedItems, item ];
-			onSelect( item );
-		} else {
-			newCheckedItems = checkedItems.filter( checkedItem => checkedItem.ID !== item.ID );
-			onDeselect( item );
-		}
-
-		setCheckedItems( newCheckedItems );
-	};
-
-	const renderTreeItems = treeItems => {
-		return (
-			<ul className="jp-tree-items">
-				{ treeItems.map( item => (
-					<li
-						key={ item.ID }
-						className="jp-tree-item"
-						style={ { marginLeft: isSearching ? 0 : item.depth * 25 } }
-					>
-						<input
-							type="checkbox"
-							id={ `jp-tree-item-${ item.ID }` }
-							name="jp-tree-item"
-							checked={ checkedItems.some( checkedItem => checkedItem.ID === item.ID ) }
-							onChange={ handleChange( item ) }
-						/>
-						<label htmlFor={ `jp-tree-item-${ item.ID }` }>
-							{ item.name }
-							{ isSearching && item.parentNames.length > 0 ? (
-								<>
-									&nbsp;
-									<small>({ [ ...item.parentNames, item.name ].join( ' > ' ) })</small>
-								</>
-							) : (
-								<></>
-							) }
-						</label>
-					</li>
-				) ) }
-			</ul>
-		);
-	};
-
-	return renderTreeItems( filteredTreeItems );
+	return <ul className="jp-tree-items">{ treeElements }</ul>;
 };
 
 export default TreeSelector;
