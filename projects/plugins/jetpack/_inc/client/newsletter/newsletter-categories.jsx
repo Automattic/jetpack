@@ -68,7 +68,7 @@ function NewsletterCategories( props ) {
 			{ ...props }
 			header={ __( 'Newsletter categories', 'jetpack' ) }
 			hideButton
-			module="subscriptions"
+			module={ SUBSCRIPTIONS_MODULE_NAME }
 		>
 			<SettingsGroup
 				hasChild
@@ -97,7 +97,7 @@ function NewsletterCategories( props ) {
 export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
-			subscriptionsModule: getModule( state, 'subscriptions' ),
+			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			isNewsletterCategoriesEnabled: ownProps.getOptionValue(
 				'wpcom_newsletter_categories_enabled'
 			),

@@ -113,7 +113,7 @@ function SubscriptionsSettings( props ) {
 
 	return (
 		<>
-			<SettingsCard { ...props } hideButton module="subscriptions">
+			<SettingsCard { ...props } hideButton module={ SUBSCRIPTIONS_MODULE_NAME }>
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode

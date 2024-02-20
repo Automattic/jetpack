@@ -4,6 +4,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
+import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 import NewsletterCategories from './newsletter-categories';
 import SubscriptionsSettings from './subscriptions-settings';
 
@@ -20,7 +21,7 @@ const isNewsletterCategoriesEnabled = urlParams.get( 'enable-newsletter-categori
 function Subscriptions( props ) {
 	const { active, isModuleFound, searchTerm, siteRawUrl, blogID } = props;
 
-	const foundSubscriptions = isModuleFound( 'subscriptions' );
+	const foundSubscriptions = isModuleFound( SUBSCRIPTIONS_MODULE_NAME );
 
 	if ( ! searchTerm && ! active ) {
 		return null;
