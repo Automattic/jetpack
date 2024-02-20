@@ -170,7 +170,6 @@ const FirewallHeader = ( {
 } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
-	// TODO: Fix mobile display when value is too large
 	const oneDayArgs = {
 		className: ! hasRequiredPlan || ! jetpackWafShareData ? styles.disabled : styles.active,
 		icon: (
@@ -194,7 +193,6 @@ const FirewallHeader = ( {
 		variant: isSmall ? 'horizontal' : 'square',
 	};
 
-	// TODO: Fix mobile display when value is too large
 	const thirtyDayArgs = {
 		className: ! hasRequiredPlan || ! jetpackWafShareData ? styles.disabled : styles.active,
 		icon: (
