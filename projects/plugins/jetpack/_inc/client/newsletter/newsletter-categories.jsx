@@ -46,7 +46,7 @@ function NewsletterCategories( props ) {
 
 	const [ newCategories, setNewCategories ] = useState( '' );
 
-	const handleEnagleNewsletterCategoriesToggleChange = useCallback( () => {
+	const handleEnableNewsletterCategoriesToggleChange = useCallback( () => {
 		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'wpcom_newsletter_categories_enabled' );
 	}, [ updateFormStateModuleOption ] );
 
