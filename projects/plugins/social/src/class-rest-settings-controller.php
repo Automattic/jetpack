@@ -56,25 +56,6 @@ class REST_Settings_Controller extends WP_REST_Controller {
 				),
 			)
 		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'social/social-notes',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'is_social_notes_enabled' ),
-					'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
-					'args'                => $this->get_endpoint_args_for_item_schema(),
-				),
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'enable_social_notes' ),
-					'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
-					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
-				),
-			)
-		);
 	}
 
 	/**
@@ -186,38 +167,6 @@ class REST_Settings_Controller extends WP_REST_Controller {
 				array( 'status' => 500 )
 			);
 		}
-
-		return rest_ensure_response( true );
-	}
-
-	/**
-	 * Checks if the social notes feature is enabled.
-	 *
-	 * @return WP_Error|\WP_HTTP_Response|\WP_REST_Response
-	 */
-	public function is_social_notes_enabled() {
-		$note = new Note();
-		return rest_ensure_response( $note->enabled() );
-	}
-
-	/**
-	 * Toggles the social notes feature.
-	 *
-	 * @param WP_REST_Request $request - REST Request.
-	 * @return WP_Error|\WP_HTTP_Response|\WP_REST_Response
-	 */
-	public function enable_social_notes( $request ) {
-		$enabled = $request->get_param( 'enabled' );
-		if ( ! is_bool( $enabled ) ) {
-			return new WP_Error(
-				'rest_invalid_param',
-				__( 'Invalid parameter', 'jetpack-social' ),
-				array( 'status' => 400 )
-			);
-		}
-
-		$note = new Note();
-		$note->set_enabled( $enabled );
 
 		return rest_ensure_response( true );
 	}
