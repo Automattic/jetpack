@@ -10,18 +10,26 @@
 		&.jp-settings-card__blocks-description {
 			margin-bottom: 0;
 		}
+
+		&.jp-settings-card__email-settings {
+			margin-bottom: 0.7rem;
+		}
 	}
+
 	fieldset p:last-child {
 		margin-bottom: 8px;
 	}
+
 	.form-toggle__label {
 		margin-top: rem( 4px );
 		margin-bottom: rem( 4px );
 	}
+
 	.form-toggle__switch {
 		float: left;
 		margin-top: 2px;
 	}
+
 	.jp-form-setting-explanation {
 		color: $gray-text-min;
 		display: block;
@@ -43,10 +51,13 @@
 			text-decoration: underline;
 		}
 	}
+
 	.dops-foldable-card & {
 		/* padding-bottom: 16px; */
 	}
-	.dops-card  {
+
+	.dops-card {
+		padding-top: 0.7rem;
 		padding-right: rem( 48px );
 	}
 
@@ -57,6 +68,7 @@
 		& + p {
 			margin-top: 2px;
 		}
+
 		& + span {
 			padding-top: 2px;
 			display: block;
@@ -79,5 +91,9 @@
 
 	&.foldable-wrapper > .dops-card {
 		padding: 0;
+	}
+
+	.email-settings__title {
+		margin-bottom: 0.3rem;
 	}
 }

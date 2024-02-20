@@ -4,7 +4,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
+import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
+import NewsletterCategories from './newsletter-categories';
 import SubscriptionsSettings from './subscriptions-settings';
+
+//Check for feature flag
+const urlParams = new URLSearchParams( window.location.search );
+const isNewsletterCategoriesEnabled = urlParams.get( 'enable-newsletter-categories' ) === 'true';
 
 /**
  * Newsletter Section.
@@ -15,7 +21,7 @@ import SubscriptionsSettings from './subscriptions-settings';
 function Subscriptions( props ) {
 	const { active, isModuleFound, searchTerm, siteRawUrl, blogID } = props;
 
-	const foundSubscriptions = isModuleFound( 'subscriptions' );
+	const foundSubscriptions = isModuleFound( SUBSCRIPTIONS_MODULE_NAME );
 
 	if ( ! searchTerm && ! active ) {
 		return null;
@@ -41,6 +47,7 @@ function Subscriptions( props ) {
 			{ foundSubscriptions && (
 				<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
 			) }
+			{ isNewsletterCategoriesEnabled && <NewsletterCategories /> }
 		</div>
 	);
 }

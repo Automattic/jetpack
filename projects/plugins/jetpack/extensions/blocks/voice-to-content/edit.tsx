@@ -21,6 +21,7 @@ import { external } from '@wordpress/icons';
  * Internal dependencies
  */
 import oscilloscope from './assets/oscilloscope.svg';
+import useTranscriptionInserter from './hooks/use-transcription-inserter';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function Oscilloscope( { audioURL } ) {
@@ -84,20 +85,24 @@ function AudioStatusPanel( { state, error = null, audioURL = null, duration = 0 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ActionButtons( { state, mediaControls, onError } ) {
 	const { start, pause, resume, stop, reset } = mediaControls ?? {};
+	const { upsertTranscription } = useTranscriptionInserter();
 
 	const { processTranscription } = useTranscriptionPostProcessing( {
 		feature: 'voice-to-content',
-		onReady: result => {
-			// eslint-disable-next-line no-console
-			console.log( 'Post-processing ready: ', result );
+		onReady: postProcessingResult => {
+			// Insert the content into the editor
+			upsertTranscription( postProcessingResult );
 		},
 		onError: error => {
 			// eslint-disable-next-line no-console
 			console.log( 'Post-processing error: ', error );
 		},
 		onUpdate: currentPostProcessingResult => {
-			// eslint-disable-next-line no-console
-			console.log( 'Post-processing update: ', currentPostProcessingResult );
+			/*
+			 * We can upsert partial results because the hook take care of replacing
+			 * the previous result with the new one.
+			 */
+			upsertTranscription( currentPostProcessingResult );
 		},
 	} );
 

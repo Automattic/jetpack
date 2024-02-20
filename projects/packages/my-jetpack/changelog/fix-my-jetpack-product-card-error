@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix wrong prop type passed to ConnectedProductCard

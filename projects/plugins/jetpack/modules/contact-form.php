@@ -45,10 +45,11 @@ require_once __DIR__ . '/contact-form/grunion-contact-form.php';
  * Expected to be removed in Jetpack 5.8 or if a security issue merits removing the old code sooner.
  *
  * @since 5.2.0
+ * @deprecated 13.2.0
  *
  * @param boolean $view Use new Editor View. Default true.
  */
-if ( is_admin() && apply_filters( 'tmp_grunion_allow_editor_view', true ) ) {
+if ( is_admin() && apply_filters_deprecated( 'tmp_grunion_allow_editor_view', array( true ), '13.2.0', '', 'This functionality will be removed in an upcoming version.' ) ) {
 	require_once __DIR__ . '/contact-form/grunion-editor-view.php';
 }
 

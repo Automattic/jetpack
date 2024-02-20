@@ -1,15 +1,9 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",
 	"include": [ "./src/*", "./src/utils/*" ],
 	"compilerOptions": {
 		"typeRoots": [ "./node_modules/@types/", "src/*" ],
 		"sourceMap": true,
-		"forceConsistentCasingInFileNames": true,
-		"outDir": "./build/",
-		"noEmit": false,
-		"declaration": true,
-		"module": "es6",
-		"target": "es5",
-		"moduleResolution": "nodenext"
+		"outDir": "./build/"
 	}
 }
