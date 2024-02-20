@@ -763,7 +763,9 @@ async function createComposerJson( composerJson, answers ) {
 			break;
 	}
 
-	composerJson.extra = sortByKey( composerJson.extra );
+	if ( composerJson.extra ) {
+		composerJson.extra = sortByKey( composerJson.extra );
+	}
 	composerJson.scripts = sortByKey( composerJson.scripts );
 }
 
