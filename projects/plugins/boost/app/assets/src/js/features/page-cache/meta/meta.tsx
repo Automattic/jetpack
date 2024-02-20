@@ -28,33 +28,33 @@ const Meta = () => {
 		} );
 	};
 
-	const setExceptions = ( newValue: string ) => {
+	const setBypassPatterns = ( newValue: string ) => {
 		if ( ! setSettings || ! settings ) {
 			return;
 		}
 
 		setSettings( {
 			...settings,
-			exceptions: newValue.split( '\n' ).map( item => item.trim() ),
+			bypassPatterns: newValue.split( '\n' ).map( item => item.trim() ),
 		} );
 	};
 
-	const totalExceptions = settings?.exceptions.length || 0;
+	const totalBypassPatterns = settings?.bypassPatterns.length || 0;
 
 	return (
 		<div className={ styles.wrapper }>
 			<div className={ styles.head }>
 				<div className={ styles.summary }>
-					{ totalExceptions === 0 && ! settings?.logging ? (
+					{ totalBypassPatterns === 0 && ! settings?.logging ? (
 						__( 'No exceptions or logging.', 'jetpack-boost' )
 					) : (
 						<>
-							{ totalExceptions > 0 ? (
+							{ totalBypassPatterns > 0 ? (
 								<>
 									{ sprintf(
-										/* translators: %d is the number of exceptions. */
-										_n( '%d exception.', '%d exceptions.', totalExceptions, 'jetpack-boost' ),
-										totalExceptions
+										/* translators: %d is the number of cache bypass patterns. */
+										_n( '%d exception.', '%d exceptions.', totalBypassPatterns, 'jetpack-boost' ),
+										totalBypassPatterns
 									) }
 								</>
 							) : (
@@ -91,9 +91,9 @@ const Meta = () => {
 				<div className={ styles.body }>
 					{ settings && (
 						<>
-							<Exceptions
-								exceptions={ settings.exceptions.join( '\n' ) }
-								setExceptions={ setExceptions }
+							<BypassPatterns
+								patterns={ settings.bypassPatterns.join( '\n' ) }
+								setPatterns={ setBypassPatterns }
 								showErrorNotice={ mutation.isError }
 							/>
 							<div className={ styles.section }>
@@ -124,14 +124,18 @@ const Meta = () => {
 
 export default Meta;
 
-type ExceptionsProps = {
-	exceptions: string;
-	setExceptions: ( newValue: string ) => void;
+type BypassPatternsProps = {
+	patterns: string;
+	setPatterns: ( newValue: string ) => void;
 	showErrorNotice: boolean;
 };
 
-const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: ExceptionsProps ) => {
-	const [ inputValue, setInputValue ] = useState( exceptions );
+const BypassPatterns = ( {
+	patterns,
+	setPatterns,
+	showErrorNotice = false,
+}: BypassPatternsProps ) => {
+	const [ inputValue, setInputValue ] = useState( patterns );
 	const [ showNotice, setShowNotice ] = useState( showErrorNotice );
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [ inputInvalid, setInputInvalid ] = useState( false ); // @todo - implement this
@@ -140,15 +144,15 @@ const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: Exc
 	const exclusionsLink = 'https://jetpack.com';
 
 	useEffect( () => {
-		setInputValue( exceptions );
-	}, [ exceptions ] );
+		setInputValue( patterns );
+	}, [ patterns ] );
 
 	useEffect( () => {
 		setShowNotice( showErrorNotice );
 	}, [ showErrorNotice ] );
 
 	function save() {
-		setExceptions( inputValue );
+		setPatterns( inputValue );
 	}
 
 	return (
@@ -195,7 +199,7 @@ const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: Exc
 					{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
 				</Notice>
 			) }
-			<Button disabled={ exceptions === inputValue } onClick={ save } className={ styles.button }>
+			<Button disabled={ patterns === inputValue } onClick={ save } className={ styles.button }>
 				{ __( 'Save', 'jetpack-boost' ) }
 			</Button>
 		</div>

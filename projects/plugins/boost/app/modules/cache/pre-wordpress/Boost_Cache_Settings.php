@@ -109,8 +109,8 @@ class Boost_Cache_Settings {
 	 *
 	 * @return array
 	 */
-	public function get_exceptions() {
-		return $this->get( 'exceptions', array() );
+	public function get_bypass_patterns() {
+		return $this->get( 'bypassPatterns', array() );
 	}
 
 	/**

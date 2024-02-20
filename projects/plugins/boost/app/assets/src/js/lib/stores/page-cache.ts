@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 export const PageCacheError = z.string();
 export const PageCache = z.object( {
-	exceptions: z.array( z.string() ),
+	bypassPatterns: z.array( z.string() ),
 	logging: z.boolean(),
 } );
 

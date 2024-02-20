@@ -83,7 +83,7 @@ class Request {
 			$request_uri = $this->request_uri;
 		}
 
-		$exceptions = Boost_Cache_Settings::get_instance()->get_exceptions();
+		$exceptions = Boost_Cache_Settings::get_instance()->get_bypass_patterns();
 		$exceptions = apply_filters( 'boost_cache_exceptions', $exceptions );
 
 		$exceptions[] = 'wp-.*\.php';
