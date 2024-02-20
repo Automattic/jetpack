@@ -179,7 +179,6 @@ function SubscriptionsSettings( props ) {
 					/>
 				) }
 			</SettingsCard>
-			<SubscriptionSettingsWelcomeMessage { ...props } />
 		</>
 	);
 }
