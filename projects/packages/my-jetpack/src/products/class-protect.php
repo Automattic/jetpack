@@ -218,6 +218,19 @@ class Protect extends Product {
 	}
 
 	/**
+	 * Checks if the site has a paid plan for the product
+	 *
+	 * @return bool
+	 */
+	public static function has_paid_plan_for_product() {
+		$scan_data = static::get_state_from_wpcom();
+		if ( is_wp_error( $scan_data ) ) {
+			return false;
+		}
+		return is_object( $scan_data ) && isset( $scan_data->state ) && 'unavailable' !== $scan_data->state;
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string

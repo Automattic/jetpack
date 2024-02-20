@@ -265,7 +265,7 @@ class Boost extends Product {
 	 *
 	 * @return boolean
 	 */
-	public static function has_required_plan() {
+	public static function has_paid_plan_for_product() {
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;
