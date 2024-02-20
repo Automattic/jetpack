@@ -68,12 +68,13 @@ function PlanExpiry( purchase ) {
  * @returns {object} PlanSectionHeader react component.
  */
 function PlanSectionHeader( { numberOfPurchases = 0 } ) {
+	const hasMultiplePurchase = numberOfPurchases > 0;
 	return (
 		<>
 			<H3>
-				{ numberOfPurchases <= 1
-					? __( 'Your plan', 'jetpack-my-jetpack' )
-					: __( 'Your plans', 'jetpack-my-jetpack' ) }
+				{ hasMultiplePurchase
+					? __( 'Your plans', 'jetpack-my-jetpack' )
+					: __( 'Your plan', 'jetpack-my-jetpack' ) }
 			</H3>
 			{ numberOfPurchases === 0 && (
 				<Text variant="body">{ __( 'Want to power up your Jetpack?', 'jetpack-my-jetpack' ) }</Text>
