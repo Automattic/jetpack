@@ -116,6 +116,6 @@ class Logger {
 	}
 
 	public static function delete_old_logs() {
-		Filesystem_Utils::garbage_collect( self::LOG_DIRECTORY, 24 * 60 * 60 );
+		Filesystem_Utils::delete_expired_files( self::LOG_DIRECTORY, 24 * 60 * 60 );
 	}
 }

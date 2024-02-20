@@ -12,20 +12,10 @@ class Filesystem_Utils {
 	 * @param int    $file_ttl  - Specify number of seconds after which a file is considered expired.
 	 * @return int - The number of files deleted.
 	 */
-	public static function garbage_collect( $directory, $file_ttl ) {
+	public static function delete_expired_files( $directory, $file_ttl ) {
+		// Clear the stat cache as filemtime() is effected by it.
 		clearstatcache();
 
-		return self::delete_expired_files( $directory, $file_ttl );
-	}
-
-	/**
-	 * Recursively garbage collect a directory.
-	 *
-	 * @param string $directory - The directory to garbage collect.
-	 * @param int    $file_ttl  - Specify number of seconds after which a file is considered expired.
-	 * @return int - The number of files deleted.
-	 */
-	private static function delete_expired_files( $directory, $file_ttl ) {
 		$count  = 0;
 		$now    = time();
 		$handle = is_readable( $directory ) && is_dir( $directory ) ? opendir( $directory ) : false;
