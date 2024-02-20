@@ -74,7 +74,7 @@ function NewsletterCategories( props ) {
 				<ToggleControl
 					disabled={ isUnavailableDueOfflineMode || isUnavailableDueSiteConnectionMode }
 					checked={ isNewsletterCategoriesEnabled }
-					onChange={ handleEnagleNewsletterCategoriesToggleChange }
+					onChange={ handleEnableNewsletterCategoriesToggleChange }
 					label={ __( 'Enable newsletter categories', 'jetpack' ) }
 				/>
 				All categories:
