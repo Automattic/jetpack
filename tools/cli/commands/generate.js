@@ -477,7 +477,7 @@ function generateJsPackage( answers, pkgDir ) {
 				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.base.json",';
 				break;
 			case 'ts-webpack':
-				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.tsc-definitions.json",';
+				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",';
 				break;
 			case 'ts-tsc':
 				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.tsc.json",';
