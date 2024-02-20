@@ -77,7 +77,21 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			try {
 				$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
 				if ( $has_pending_invite ) {
-					return self::revoke_wpcom_invite( $has_pending_invite );
+					$response_body = self::revoke_wpcom_invite( $has_pending_invite );
+
+					if ( ! $response_body->deleted ) {
+						$this->tracking->record_user_event(
+							'sso_user_invite_revoke',
+							array(
+								'success' => 'false',
+								'error'   => 'invalid-invite-revoke',
+							)
+						);
+					} else {
+						$this->tracking->record_user_event( 'sso_user_invite_revoke', array( 'success' => 'true' ) );
+					}
+
+					return $response_body;
 				}
 			} catch ( Exception $e ) {
 				return false;
