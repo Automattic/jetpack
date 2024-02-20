@@ -1670,7 +1670,7 @@ class Woo_Sync_Background_Sync_Job {
 			        	}
 
 			        }
-			        			        
+
 			    }
 
 				// attributes not yet translatable but originally referenced: `variation_id|tax_class|subtotal_tax`
@@ -1706,13 +1706,17 @@ class Woo_Sync_Background_Sync_Job {
 			if ( is_array( $fees ) && count( $fees ) > 0 ) {
 				foreach ( $fees as $fee ) {
 					if ( $fee instanceof \WC_Order_Item_Fee ) {
+						$value = $fee->get_amount( false );
+						if ( empty( $value ) ) {
+							$value = 0;
+						}
 						$new_line_item = array(
 							'order'    => $order_post_id, // passed as parameter to this function
 							'currency' => $order_currency,
 							'quantity' => 1,
-							'price'    => $fee->get_amount( false ),
-							'fee'      => $fee->get_amount( false ),
-							'total'    => $fee->get_amount( false ),
+							'price'    => $value,
+							'fee'      => $value,
+							'total'    => $value,
 							'title'    => esc_html__( 'Fee', 'zero-bs-crm' ),
 							'desc'     => $fee->get_name(),
 							'tax'      => $fee->get_total_tax(),
