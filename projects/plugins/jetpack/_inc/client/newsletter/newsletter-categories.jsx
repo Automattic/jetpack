@@ -8,14 +8,14 @@ import { withModuleSettingsFormHelpers } from '../components/module-settings/wit
 import TextInput from '../components/text-input';
 import Textarea from '../components/textarea';
 
-const mapCategoriesIds = categorie => {
-	switch ( typeof categorie ) {
+const mapCategoriesIds = category => {
+	switch ( typeof category ) {
 		case 'number':
-			return categorie;
+			return category;
 		case 'string':
-			return parseInt( categorie );
+			return parseInt( category );
 		case 'object':
-			return categorie.term_id;
+			return category.term_id;
 	}
 };
 
