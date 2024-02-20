@@ -11,6 +11,7 @@ namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
  */
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 require_once __DIR__ . '/Boost_Cache_Utils.php';
+require_once __DIR__ . '/Filesystem_Utils.php';
 require_once __DIR__ . '/Logger.php';
 require_once __DIR__ . '/Request.php';
 require_once __DIR__ . '/storage/Storage.php';
@@ -23,7 +24,7 @@ class Boost_Cache {
 	private $settings;
 
 	/**
-	 * @var Boost_Cache_Storage - The storage system used by Boost Cache.
+	 * @var Storage\Storage - The storage system used by Boost Cache.
 	 */
 	private $storage;
 
@@ -66,6 +67,15 @@ class Boost_Cache {
 		if ( ! $this->serve_cached() ) {
 			$this->ob_start();
 		}
+	}
+
+	/**
+	 * Get the storage instance used by Boost Cache.
+	 *
+	 * @return Storage\Storage
+	 */
+	public function get_storage() {
+		return $this->storage;
 	}
 
 	/**

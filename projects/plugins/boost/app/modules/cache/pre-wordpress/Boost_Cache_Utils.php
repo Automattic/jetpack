@@ -137,20 +137,6 @@ class Boost_Cache_Utils {
 	}
 
 	/**
-	 * Creates the directory if it doesn't exist.
-	 *
-	 * @param string $path - The path to the directory to create.
-	 */
-	public static function create_directory( $path ) {
-		if ( ! is_dir( $path ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.dir_mkdir_dirname, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-			return mkdir( $path, 0755, true );
-		}
-
-		return true;
-	}
-
-	/**
 	 * Returns true if the given directory is inside the boost-cache directory.
 	 * @param string $dir - The directory to check.
 	 * @return bool
@@ -181,29 +167,6 @@ class Boost_Cache_Utils {
 		}
 
 		return $request_uri;
-	}
-
-	/**
-	 * Writes data to a file.
-	 * This creates a temporary file first, then renames the file to the final filename.
-	 * This is done to prevent the file from being read while it is being written to.
-	 *
-	 * @param string $filename - The filename to write to.
-	 * @param string $data - The data to write to the file.
-	 * @return bool|WP_Error - true on sucess or WP_Error on failure.
-	 */
-	public static function write_to_file( $filename, $data ) {
-		$tmp_filename = $filename . uniqid( uniqid(), true ) . '.tmp';
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		if ( false === file_put_contents( $tmp_filename, $data ) ) {
-			return new \WP_Error( 'Could not write to tmp file: ' . $tmp_filename );
-		}
-
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
-		if ( ! rename( $tmp_filename, $filename ) ) {
-			return new \WP_Error( 'Could not rename tmp file to final file: ' . $filename );
-		}
-		return true;
 	}
 
 	/**
