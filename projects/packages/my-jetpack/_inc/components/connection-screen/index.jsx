@@ -46,7 +46,10 @@ const ConnectionScreen = () => {
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
 				<Col className={ styles[ 'relative-col' ] }>
-					<CloseLink className={ styles[ 'close-link' ] } />
+					<CloseLink
+						className={ styles[ 'close-link' ] }
+						accessibleName={ __( 'Go back to previous screen', 'jetpack-my-jetpack' ) }
+					/>
 				</Col>
 				<Col>
 					<ConnectScreen
@@ -55,6 +58,7 @@ const ConnectionScreen = () => {
 							'jetpack-my-jetpack'
 						) }
 						buttonLabel={ __( 'Connect your user account', 'jetpack-my-jetpack' ) }
+						loadingLabel={ __( 'Connecting your account…', 'jetpack-my-jetpack' ) }
 						apiRoot={ apiRoot }
 						apiNonce={ apiNonce }
 						images={ [ connectImage ] }

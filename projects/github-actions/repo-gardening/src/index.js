@@ -19,6 +19,11 @@ const ifNotFork = require( './utils/if-not-fork' );
 
 const automations = [
 	{
+		event: 'issues',
+		action: [ 'labeled', 'opened' ],
+		task: updateBoard,
+	},
+	{
 		event: 'pull_request_target',
 		action: [ 'opened', 'synchronize', 'edited' ],
 		task: ifNotFork( assignIssues ),
@@ -86,11 +91,6 @@ const automations = [
 		event: 'issues',
 		action: [ 'closed' ],
 		task: replyToCustomersReminder,
-	},
-	{
-		event: 'issues',
-		action: [ 'labeled', 'opened' ],
-		task: updateBoard,
 	},
 ];
 
