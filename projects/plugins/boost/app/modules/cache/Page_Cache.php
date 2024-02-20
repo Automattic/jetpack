@@ -2,10 +2,14 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
+use Automattic\Jetpack_Boost\Contracts\Changes_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
+use Automattic\Jetpack_Boost\Modules\Modules_Index;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 
 class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	/*
@@ -36,6 +40,30 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 
 	public function setup() {
 		Garbage_Collection::setup();
+
+		add_action( 'jetpack_boost_module_status_updated', array( $this, 'handle_module_status_updated' ) );
+	}
+
+	/**
+	 * Handles the module status updated event.
+	 *
+	 * @param string $module_slug The slug of the module that was updated.
+	 */
+	public function handle_module_status_updated( $module_slug ) {
+		// Get a list of modules that can change the HTML output.
+		$modules = Modules_Index::get_modules_implementing( Changes_Output::class );
+
+		$slugs = array_map(
+			function ( $module ) {
+				return $module::get_slug();
+			},
+			$modules
+		);
+
+		if ( in_array( $module_slug, $slugs, true ) ) {
+			$cache = new Boost_Cache();
+			$cache->get_storage()->invalidate( Boost_Cache_Utils::normalize_request_uri( home_url() ), '*' );
+		}
 	}
 
 	/**
