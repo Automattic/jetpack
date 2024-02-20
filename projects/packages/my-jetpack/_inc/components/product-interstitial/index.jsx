@@ -63,7 +63,7 @@ export default function ProductInterstitial( {
 	highlightLastFeature = false,
 } ) {
 	const { activate, detail } = useProduct( slug );
-	const { isUpgradableByBundle, tiers, wpcomProductSlug } = detail;
+	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
@@ -72,24 +72,40 @@ export default function ProductInterstitial( {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 	}, [ recordEvent, slug ] );
 
+	const getProductSlugForTrackEvent = useCallback(
+		( isFree = false ) => {
+			if ( isFree ) {
+				return '';
+			}
+			if ( slug === 'crm' ) {
+				return 'jetpack-crm';
+			}
+			if ( pricingForUi?.tiers?.upgraded?.wpcomProductSlug ) {
+				return pricingForUi.tiers.upgraded.wpcomProductSlug;
+			}
+			return pricingForUi.wpcomProductSlug;
+		},
+		[ slug, pricingForUi ]
+	);
+
 	const trackProductClick = useCallback(
 		( isFreePlan = false, customSlug = null ) => {
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: customSlug ?? slug,
-				productSlug: ! isFreePlan ? wpcomProductSlug : '',
+				productSlug: getProductSlugForTrackEvent( isFreePlan ),
 			} );
 		},
-		[ recordEvent, slug, wpcomProductSlug ]
+		[ recordEvent, slug, getProductSlugForTrackEvent ]
 	);
 
 	const trackBundleClick = useCallback(
 		( isFreePlan = false ) => {
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: bundle,
-				productSlug: ! isFreePlan ? wpcomProductSlug : '',
+				productSlug: getProductSlugForTrackEvent( isFreePlan ),
 			} );
 		},
-		[ recordEvent, bundle, wpcomProductSlug ]
+		[ recordEvent, bundle, getProductSlugForTrackEvent ]
 	);
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );

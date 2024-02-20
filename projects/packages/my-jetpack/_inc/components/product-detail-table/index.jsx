@@ -69,9 +69,9 @@ const ProductDetailTableColumn = ( {
 
 	// Register the click handler for the product button.
 	const onClick = useCallback( () => {
-		trackProductButtonClick();
+		trackProductButtonClick( isFree );
 		onProductButtonClick?.( runCheckout, detail, tier );
-	}, [ trackProductButtonClick, onProductButtonClick, runCheckout, detail, tier ] );
+	}, [ trackProductButtonClick, onProductButtonClick, runCheckout, detail, tier, isFree ] );
 
 	// Compute the price per month.
 	const price = fullPrice ? Math.round( ( fullPrice / 12 ) * 100 ) / 100 : null;
