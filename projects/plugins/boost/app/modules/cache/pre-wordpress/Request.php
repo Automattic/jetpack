@@ -83,11 +83,11 @@ class Request {
 			$request_uri = $this->request_uri;
 		}
 
-		$exceptions = Boost_Cache_Settings::get_instance()->get_bypass_patterns();
-		$exceptions = apply_filters( 'boost_cache_exceptions', $exceptions );
+		$bypass_patterns = Boost_Cache_Settings::get_instance()->get_bypass_patterns();
+		$bypass_patterns = apply_filters( 'boost_cache_bypass_patterns', $bypass_patterns );
 
-		$exceptions[] = 'wp-.*\.php';
-		foreach ( $exceptions as $expr ) {
+		$bypass_patterns[] = 'wp-.*\.php';
+		foreach ( $bypass_patterns as $expr ) {
 			if ( ! empty( $expr ) && preg_match( "~$expr~", $request_uri ) ) {
 				return true;
 			}
