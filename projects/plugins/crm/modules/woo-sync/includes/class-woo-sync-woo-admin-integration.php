@@ -168,6 +168,7 @@ class Woo_Sync_Woo_Admin_Integration {
 	 * @param WC_Order|\WP_POST $order_or_post Order or post.
 	 */
 	public function render_woo_order_page_contact_box( $order_or_post ) {
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 		global $zbs;
 		if ( $zbs->modules->woosync->is_hpos_enabled() ) {
@@ -177,74 +178,89 @@ class Woo_Sync_Woo_Admin_Integration {
 		}
 
 		$this->render_metabox_styles();
-
 		?>
 
-			<div class='zbs-crm-contact' style="margin-bottom:20px;">
-				<?php 
+		<div class="zbs-crm-contact" style="margin-bottom:20px;">
+			<?php
 
-					// the customer information pane
-					$email = $order->get_billing_email();
-					if ( $email != '' ){
+			// the customer information pane
+			$email = $order->get_billing_email();
+			if ( ! empty( $email ) ) {
 
-						// retrieve contact id
-						$contact_id = zeroBS_getCustomerIDWithEmail( $email );
-						
-						if ( $contact_id > 0 ){
+				// retrieve contact id
+				$contact_id = zeroBS_getCustomerIDWithEmail( $email );
 
-							// retrieve contact
-							$crm_contact = $zbs->DAL->contacts->getContact( $contact_id );
-							$contact_name = $zbs->DAL->contacts->getContactFullNameEtc( $contact_id, $crm_contact, array( false, false ) );
-							$contact_transaction_count = $zbs->DAL->specific_obj_type_count_for_assignee( $contact_id, ZBS_TYPE_TRANSACTION, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				if ( $contact_id > 0 ) {
 
-							// check avatar mode
-							$avatar = '';
-							$avatar_mode = zeroBSCRM_getSetting('avatarmode'); 
-             				if ( $avatar_mode !== 3 ) {
-             					$avatar = zeroBS_customerAvatarHTML( $contact_id, $crm_contact, 100, 'ui small image centered' );
-             				}
+					// retrieve contact
+					$crm_contact               = $zbs->DAL->contacts->getContact( $contact_id );
+					$contact_name              = $zbs->DAL->contacts->getContactFullNameEtc( $contact_id, $crm_contact, array( false, false ) );
+					$contact_transaction_count = $zbs->DAL->specific_obj_type_count_for_assignee( $contact_id, ZBS_TYPE_TRANSACTION, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-							// Render HTML
-							echo "<div class='customer-panel-header'>";
-								echo "<div id='panel-customer-avatar'>" . $avatar . "</div>";
-								echo "<div id='panel-name'><span class='jpcrm-name'>" . esc_html( $contact_name ) . "</span></div>";
-								echo "<div id='panel-status' class='ui label status " . esc_attr( strtolower( $crm_contact['status'] ) ) . "'>" . esc_html( $crm_contact['status'] ) . "</div>";
-								echo "<div class='simple-actions zbs-hide'>";
-									echo "<a class='ui label circular'><i class='ui icon phone'></i></a>";
-									echo "<a class='ui label circular'><i class='ui icon envelope'></i></a>";
-								echo "</div>";
-							echo "</div>";
+					// check avatar mode
+					$avatar      = '';
+					$avatar_mode = zeroBSCRM_getSetting( 'avatarmode' );
+					if ( $avatar_mode !== 3 ) {
+						$avatar = zeroBS_customerAvatarHTML( $contact_id, $crm_contact, 100, 'ui small image centered' );
+					}
 
-							echo "<div class='ui divider'></div>";
+					// Render HTML
+					?>
+					<div class="customer-panel-header">
+						<div id="panel-customer-avatar">
+							<?php
+							echo $avatar; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							?>
+						</div>
+						<div id="panel-name"><span class="jpcrm-name"><?php echo esc_html( $contact_name ); ?></span></div>
+						<div id="panel-status" class="ui label status <?php echo esc_attr( strtolower( $crm_contact['status'] ) ); ?>">
+							<?php echo esc_html( $crm_contact['status'] ); ?>
+						</div>
+						<div class="simple-actions zbs-hide">
+							<a class="ui label circular"><i class="ui icon phone"></i></a>
+							<a class="ui label circular"><i class="ui icon envelope"></i></a>
+						</div>
+					</div>
 
-							echo "<div class='total-paid-wrap'>";
-									echo "<div class='total-paid cell'><div class='heading'> " . esc_html( zeroBSCRM_prettifyLongInts( $contact_transaction_count) . ' ' . ( $contact_transaction_count > 1 ? __( 'Transactions', 'zero-bs-crm' ) : __( 'Transaction', 'zero-bs-crm' ) ) ) . "</div></div>";
-							echo "</div>";
+					<div class="ui divider"></div>
 
-							echo "<div class='clear'></div>";
-							echo "<div class='ui divider'></div>";
+					<div class="total-paid-wrap">
+						<div class="total-paid cell">
+							<div class="heading">
+								<?php
+								echo esc_html( zeroBSCRM_prettifyLongInts( $contact_transaction_count ) . ' ' . ( $contact_transaction_count > 1 ? __( 'Transactions', 'zero-bs-crm' ) : __( 'Transaction', 'zero-bs-crm' ) ) );
+								?>
+							</div>
+						</div>
+					</div>
 
-							echo "<div class='panel-left-info cust-email'>";
-								echo "<i class='ui icon envelope outline'></i> <span class='panel-customer-email'>" . esc_html( $email ) . "</span>";
-							echo "</div>";
+					<div class="clear"></div>
+					<div class="ui divider"></div>
 
-							echo "<div class='panel-edit-contact'>";
-								echo "<a class='edit-contact-link button button-primary' href='" . jpcrm_esc_link( 'view', $contact_id, 'zerobs_customer' ) . "'>" . esc_html__( 'View Contact', 'zero-bs-crm' ) . "</a>";
-							echo "</div>";
+					<div class="panel-left-info cust-email">
+						<i class="ui icon envelope outline"></i> <span class="panel-customer-email"><?php echo esc_html( $email ); ?></span>
+					</div>
 
-							echo "<div class='clear'></div>";
-						}
+					<div class="panel-edit-contact">
+						<a class="edit-contact-link button button-primary" href="<?php echo esc_url( jpcrm_esc_link( 'view', $contact_id, 'zerobs_customer' ) ); ?>"><?php echo esc_html__( 'View Contact', 'zero-bs-crm' ); ?></a>
+					</div>
 
-					} else {
-
-						echo "<div class='no-crm-contact'><p style='margin-top:20px;'>";
-							esc_html_e( "Once you save your order to a customer with a billing email the CRM contact card will display here.", 'zero-bs-crm' );
-						echo "</p></div>";
-
-					} ?>
-			</div>
+					<div class="clear"></div>
+					<?php
+				}
+			} else {
+				?>
+				<div class="no-crm-contact">
+					<p style="margin-top:20px;">
+					<?php esc_html_e( 'Once you save your order to a customer with a billing email, the CRM contact card will display here.', 'zero-bs-crm' ); ?>
+					</p>
+				</div>
+				<?php
+			}
+			?>
+		</div>
 		<?php
-		
+		 // phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
 	/**
