@@ -13,7 +13,7 @@ import React, { Component } from 'react';
 export const Monitor = withModuleSettingsFormHelpers(
 	class extends Component {
 		trackConfigureClick = () => {
-			analytics.tracks.recordJetpackClick( 'configure-monitor' );
+			analytics.tracks.recordJetpackClick( 'configure-monitor-email' );
 		};
 
 		render() {
@@ -55,7 +55,12 @@ export const Monitor = withModuleSettingsFormHelpers(
 										'jetpack'
 									),
 									{
-										a: <ExternalLink href="https://wordpress.com/me/account" />,
+										a: (
+											<ExternalLink
+												href="https://wordpress.com/me/account"
+												onClick={ this.trackConfigureClick }
+											/>
+										),
 									}
 								) }
 							</span>
