@@ -5,7 +5,6 @@
  * Example: https://public-api.wordpress.com/wpcom/v2/update-schedules
  *
  * @package automattic/scheduled-updates
- * @phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
  */
 
 /**
@@ -151,7 +150,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same time as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 
-			if ( md5( serialize( $schedule_args ) ) === md5( serialize( $request['plugins'] ) ) ) {
+			if ( $this->generate_schedule_id( $schedule_args ) === $this->generate_schedule_id( $request['plugins'] ) ) {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same plugins as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 		}
@@ -182,7 +181,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$schedules[] = $plugins;
 		update_option( 'jetpack_update_schedules', $schedules );
 
-		return rest_ensure_response( md5( serialize( $plugins ) ) );
+		return rest_ensure_response( $this->generate_schedule_id( $plugins ) );
 	}
 
 	/**
@@ -206,7 +205,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$event     = array();
 
 		foreach ( $schedules as $schedule_args ) {
-			if ( md5( serialize( $schedule_args ) ) === $request['schedule_id'] ) {
+			if ( $this->generate_schedule_id( $schedule_args ) === $request['schedule_id'] ) {
 				$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
 				break;
 			}
@@ -232,7 +231,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		foreach ( $schedules as $schedule_args ) {
 			$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
 
-			if ( md5( serialize( $schedule_args ) ) === $request['schedule_id'] ) {
+			if ( $this->generate_schedule_id( $schedule_args ) === $request['schedule_id'] ) {
 				continue;
 			}
 
@@ -240,7 +239,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same time as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 
-			if ( md5( serialize( $schedule_args ) ) === md5( serialize( $request['plugins'] ) ) ) {
+			if ( $this->generate_schedule_id( $schedule_args ) === $this->generate_schedule_id( $request['plugins'] ) ) {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same plugins as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 		}
@@ -263,7 +262,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$found     = array();
 
 		foreach ( $schedules as $key => $schedule_args ) {
-			if ( md5( serialize( $schedule_args ) ) === $request['schedule_id'] ) {
+			if ( $this->generate_schedule_id( $schedule_args ) === $request['schedule_id'] ) {
 				// We found the schedule to update.
 				$found = true;
 
@@ -309,7 +308,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$found     = array();
 
 		foreach ( $schedules as $key => $schedule_args ) {
-			if ( md5( serialize( $schedule_args ) ) === $request['schedule_id'] ) {
+			if ( $this->generate_schedule_id( $schedule_args ) === $request['schedule_id'] ) {
 				// We found the schedule to delete.
 				$found = true;
 
@@ -416,6 +415,18 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				),
 			),
 		);
+	}
+
+	/**
+	 * Generates a unique schedule ID.
+	 *
+	 * @see wp_schedule_event()
+	 *
+	 * @param array $args Schedule arguments.
+	 * @return string
+	 */
+	private function generate_schedule_id( $args ) {
+		return md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 	}
 }
 
