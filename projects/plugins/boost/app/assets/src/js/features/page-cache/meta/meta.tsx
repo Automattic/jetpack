@@ -35,11 +35,11 @@ const Meta = () => {
 
 		setSettings( {
 			...settings,
-			bypassPatterns: newValue.split( '\n' ).map( item => item.trim() ),
+			bypass_patterns: newValue.split( '\n' ).map( item => item.trim() ),
 		} );
 	};
 
-	const totalBypassPatterns = settings?.bypassPatterns.length || 0;
+	const totalBypassPatterns = settings?.bypass_patterns.length || 0;
 
 	return (
 		<div className={ styles.wrapper }>
@@ -92,7 +92,7 @@ const Meta = () => {
 					{ settings && (
 						<>
 							<BypassPatterns
-								patterns={ settings.bypassPatterns.join( '\n' ) }
+								patterns={ settings.bypass_patterns.join( '\n' ) }
 								setPatterns={ setBypassPatterns }
 								showErrorNotice={ mutation.isError }
 							/>

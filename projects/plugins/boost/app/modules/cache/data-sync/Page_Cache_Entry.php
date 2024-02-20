@@ -11,8 +11,8 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 		$cache_settings = Boost_Cache_Settings::get_instance();
 
 		$settings = array(
-			'bypassPatterns' => $cache_settings->get_bypass_patterns(),
-			'logging'        => $cache_settings->get_logging(),
+			'bypass_patterns' => $cache_settings->get_bypass_patterns(),
+			'logging'         => $cache_settings->get_logging(),
 		);
 
 		return $settings;
@@ -21,7 +21,7 @@ class Page_Cache_Entry implements Entry_Can_Get, Entry_Can_Set {
 	public function set( $value ) {
 		$cache_settings = Boost_Cache_Settings::get_instance();
 
-		$value['bypassPatterns'] = $this->sanitize_value( $value['bypassPatterns'] );
+		$value['bypass_patterns'] = $this->sanitize_value( $value['bypass_patterns'] );
 
 		$cache_settings->set( $value );
 	}

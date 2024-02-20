@@ -363,8 +363,8 @@ jetpack_boost_register_option(
 	'page_cache',
 	Schema::as_assoc_array(
 		array(
-			'bypassPatterns' => Schema::as_array( Schema::as_string() ),
-			'logging'        => Schema::as_boolean(),
+			'bypass_patterns' => Schema::as_array( Schema::as_string() ),
+			'logging'         => Schema::as_boolean(),
 		)
 	),
 	new Page_Cache_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE . '_page_cache' )

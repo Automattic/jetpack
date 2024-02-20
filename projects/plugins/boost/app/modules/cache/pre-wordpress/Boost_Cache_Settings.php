@@ -110,7 +110,7 @@ class Boost_Cache_Settings {
 	 * @return array
 	 */
 	public function get_bypass_patterns() {
-		return $this->get( 'bypassPatterns', array() );
+		return $this->get( 'bypass_patterns', array() );
 	}
 
 	/**
