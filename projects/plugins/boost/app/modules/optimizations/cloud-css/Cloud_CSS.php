@@ -40,8 +40,8 @@ class Cloud_CSS implements Pluggable, Has_Endpoints, Changes_Output {
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
+		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'handle_critical_css_invalidated' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
-		add_filter( 'critical_css_invalidated', array( $this, 'handle_critical_css_invalidated' ) );
 		add_filter( 'query_vars', array( '\Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator', 'add_generate_query_action_to_list' ) );
 
 		Generator::init();
