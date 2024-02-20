@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Voice to Content: Add hook to handle transcription insertion into the editor.

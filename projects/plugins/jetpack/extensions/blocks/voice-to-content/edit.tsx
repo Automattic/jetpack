@@ -8,6 +8,8 @@ import {
 	useMediaRecording,
 	useAudioTranscription,
 	UseAudioTranscriptionReturn,
+	useTranscriptionPostProcessing,
+	TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
 } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { Button, Modal, Icon, FormFileUpload } from '@wordpress/components';
@@ -19,6 +21,7 @@ import { external } from '@wordpress/icons';
  * Internal dependencies
  */
 import oscilloscope from './assets/oscilloscope.svg';
+import useTranscriptionInserter from './hooks/use-transcription-inserter';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function Oscilloscope( { audioURL } ) {
@@ -82,10 +85,31 @@ function AudioStatusPanel( { state, error = null, audioURL = null, duration = 0 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ActionButtons( { state, mediaControls, onError } ) {
 	const { start, pause, resume, stop, reset } = mediaControls ?? {};
+	const { upsertTranscription } = useTranscriptionInserter();
+
+	const { processTranscription } = useTranscriptionPostProcessing( {
+		feature: 'voice-to-content',
+		onReady: postProcessingResult => {
+			// Insert the content into the editor
+			upsertTranscription( postProcessingResult );
+		},
+		onError: error => {
+			// eslint-disable-next-line no-console
+			console.log( 'Post-processing error: ', error );
+		},
+		onUpdate: currentPostProcessingResult => {
+			/*
+			 * We can upsert partial results because the hook take care of replacing
+			 * the previous result with the new one.
+			 */
+			upsertTranscription( currentPostProcessingResult );
+		},
+	} );
 
 	const onTranscriptionReady = ( transcription: string ) => {
 		// eslint-disable-next-line no-console
 		console.log( 'Transcription ready: ', transcription );
+		processTranscription( TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT, transcription );
 	};
 
 	const onTranscriptionError = ( error: string ) => {
