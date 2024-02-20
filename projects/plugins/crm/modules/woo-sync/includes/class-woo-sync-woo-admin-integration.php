@@ -81,7 +81,7 @@ class Woo_Sync_Woo_Admin_Integration {
 
 			if ( $key === 'order_status' ) {
 				// Inserting after "Status" column
-				$rebuilt_columns['jpcrm'] = __( 'CRM Contact', 'zero-bs-crm' );
+				$rebuilt_columns['jpcrm_contact'] = __( 'CRM Contact', 'zero-bs-crm' );
 			}
 		}
 
@@ -92,15 +92,19 @@ class Woo_Sync_Woo_Admin_Integration {
 	 * HTML rendering of our custom orders view column content
 	 *
 	 * @param string $column Column slug.
-	 * @param int    $order_post_id Order post ID.
+	 * @param int    $order_or_post_id Order post ID.
 	 */
-	public function render_orders_column_content( $column, $order_post_id ) {
+	public function render_orders_column_content( $column, $order_or_post_id ) {
 
 		global $zbs;
 		switch ( $column ) {
 
-			case 'jpcrm':
-				$order = wc_get_order( $order_post_id );
+			case 'jpcrm_contact':
+				if ( jpcrm_woosync_is_hpos_enabled() ) {
+					$order = $order_or_post_id;
+				} else {
+					$order = wc_get_order( $order_or_post_id );
+				}
 				$email = $order->get_billing_email();
 
 				if ( ! empty( $email ) ) {
