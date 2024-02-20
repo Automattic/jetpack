@@ -286,7 +286,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				'sso_user_invite_revoke',
 				array(
 					'success' => $success,
-					'error'   => 'invalid-revoke-permissions',
+					'error'   => $error,
 				)
 			);
 
