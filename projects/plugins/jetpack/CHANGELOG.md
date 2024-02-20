@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.1.3 - 2024-02-20
+### Bug fixes
+- Backup: write helper script to ABSPATH by default to avoid backup failures. [#35508]
+
 ## 13.1.2 - 2024-02-19
 ### Security Improvements
 - Like block: fix XSS vulnerability in avatar URL encoding. [#35747]
