@@ -1706,10 +1706,14 @@ class Woo_Sync_Background_Sync_Job {
 			if ( is_array( $fees ) && count( $fees ) > 0 ) {
 				foreach ( $fees as $fee ) {
 					if ( $fee instanceof \WC_Order_Item_Fee ) {
+
 						$value = $fee->get_amount( false );
+
+						// Woo allows a fee's value to be an empty string, so account for that to prevent a PHP fatal.
 						if ( empty( $value ) ) {
 							$value = 0;
 						}
+
 						$new_line_item = array(
 							'order'    => $order_post_id, // passed as parameter to this function
 							'currency' => $order_currency,
