@@ -265,6 +265,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$plugin['log'] = $this->log[ $plugin_file ];
 		}
 
+		$plugin = apply_filters( 'wpcom_format_plugin', $plugin );
+
 		return $plugin;
 	}
 
