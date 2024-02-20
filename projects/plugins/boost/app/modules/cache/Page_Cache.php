@@ -42,6 +42,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 		Garbage_Collection::setup();
 
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'handle_module_status_updated' ) );
+		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'invalidate_cache' ) );
 	}
 
 	/**
@@ -61,9 +62,13 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 		);
 
 		if ( in_array( $module_slug, $slugs, true ) ) {
-			$cache = new Boost_Cache();
-			$cache->get_storage()->invalidate( Boost_Cache_Utils::normalize_request_uri( home_url() ), '*' );
+			$this->invalidate_cache();
 		}
+	}
+
+	public function invalidate_cache() {
+		$cache = new Boost_Cache();
+		$cache->get_storage()->invalidate( Boost_Cache_Utils::normalize_request_uri( home_url() ), '*' );
 	}
 
 	/**
