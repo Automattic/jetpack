@@ -1,0 +1,20 @@
+@import "$css/main/variables";
+
+.header {
+	display: flex;
+	align-items: center;
+}
+
+.copy-button:global(.components-button.is-link) {
+	margin-left: 2em;
+}
+
+.log-text {
+	margin-top: 32px;
+	overflow-x: auto;
+	overflow-y: clip;
+}
+
+.section {
+	border-top: 1px solid $gray_5;
+}
