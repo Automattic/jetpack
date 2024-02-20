@@ -265,7 +265,12 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$plugin['log'] = $this->log[ $plugin_file ];
 		}
 
-		$plugin = apply_filters( 'wpcom_format_plugin', $plugin );
+		/**
+		 * Filters the plugin output displayed in /plugins* endpoints.
+		 *
+		 * @param array $plugin Plugin information
+		 */
+		$plugin = apply_filters( 'jetpack_format_plugin', $plugin );
 
 		return $plugin;
 	}
@@ -375,6 +380,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$plugins = array_slice( $plugins, 0, (int) $args['limit'] );
 		}
 
+		$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+		if ( $is_atomic_site ) {
+			add_filter( 'jetpack_format_plugin', array( $this, 'filter_add_symlinked_field_to_plugin' ) );
+		}
+
 		return $plugins;
 	}
 
@@ -463,5 +473,15 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 */
 	protected function get_plugin_action_links( $plugin_file ) {
 		return Functions::get_plugins_action_links( $plugin_file );
+	}
+
+	/**
+	 * Adds a symlinked field to every plugin in /plugins* endpoint
+	 *
+	 * @param array $plugin Plugin information.
+	 */
+	public function filter_add_symlinked_field_to_plugin( $plugin ) {
+		$plugin['symlinked'] = false;
+		return $plugin;
 	}
 }
