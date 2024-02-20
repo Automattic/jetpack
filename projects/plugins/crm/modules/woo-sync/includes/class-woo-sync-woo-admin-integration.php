@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -16,7 +16,6 @@ defined( 'ZEROBSCRM_PATH' ) || exit;
  */
 class Woo_Sync_Woo_Admin_Integration {
 
-
 	/**
 	 * The single instance of the class.
 	 */
@@ -27,13 +26,10 @@ class Woo_Sync_Woo_Admin_Integration {
 	 * Note: This will effectively fire after core settings and modules loaded
 	 * ... effectively on tail end of `init`
 	 */
-	public function __construct( ) {
-
+	public function __construct() {
 		// Initialise Hooks
 		$this->init_hooks();
-
 	}
-		
 
 	/**
 	 * Main Class Instance.
@@ -42,7 +38,6 @@ class Woo_Sync_Woo_Admin_Integration {
 	 *
 	 * @since 2.0
 	 * @static
-	 * @see 
 	 * @return Woo_Sync_Woo_Admin_Integration main instance
 	 */
 	public static function instance() {
@@ -52,20 +47,23 @@ class Woo_Sync_Woo_Admin_Integration {
 		return self::$_instance;
 	}
 
-
 	/**
 	 * Initialise Hooks
 	 */
-	private function init_hooks( ) {
+	private function init_hooks() {
 
-		// Shop Orders: Add CRM column
-		add_filter( 'manage_edit-shop_order_columns', array( $this, 'append_orders_column' ), 20 );
-		add_action( 'manage_shop_order_posts_custom_column' , array( $this, 'render_orders_column_content' ), 20, 2 );
+		// Hook into Woo orders listview.
+		if ( jpcrm_woosync_is_hpos_enabled() ) {
+			add_filter( 'woocommerce_shop_order_list_table_columns', array( $this, 'append_orders_column' ) );
+			add_action( 'woocommerce_shop_order_list_table_custom_column', array( $this, 'render_orders_column_content' ), 20, 2 );
+		} else {
+			add_filter( 'manage_edit-shop_order_columns', array( $this, 'append_orders_column' ) );
+			add_action( 'manage_shop_order_posts_custom_column', array( $this, 'render_orders_column_content' ), 20, 2 );
+		}
 
-		// Add CRM meta boxes to Woo Pages
+		// Add CRM contact to Woo order page.
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 	}
-
 
 	/**
 	 * Add CRM contact column to Woo orders listview.
@@ -93,27 +91,25 @@ class Woo_Sync_Woo_Admin_Integration {
 	/**
 	 * HTML rendering of our custom orders view column content
 	 *
-	 * @param string $column
-	 * @param int $order_post_id
+	 * @param string $column Column slug.
+	 * @param int    $order_post_id Order post ID.
 	 */
 	public function render_orders_column_content( $column, $order_post_id ) {
 
 		global $zbs;
+		switch ( $column ) {
 
-		switch ( $column ){
-		
-			case 'jpcrm' :
-			
+			case 'jpcrm':
 				$order = wc_get_order( $order_post_id );
 				$email = $order->get_billing_email();
 
-				if ( $email != '' ){
+				if ( ! empty( $email ) ) {
 
-					$contact_id = zeroBS_getCustomerIDWithEmail($email);
+					$contact_id = zeroBS_getCustomerIDWithEmail( $email );
 
-					if ( $contact_id > 0 ){
+					if ( $contact_id > 0 ) {
 
-						//we have an email. Add in some actions
+						// We have an email. Add in some actions.
 						echo '<div class="zbs-actions">';
 							$url = jpcrm_esc_link( 'view', $contact_id, 'zerobs_customer' );
 							echo '<a class="button button-primary" href="' . esc_url( $url ) . '">' . esc_html__( 'View Contact', 'zero-bs-crm' ) . '</a>';
@@ -128,9 +124,7 @@ class Woo_Sync_Woo_Admin_Integration {
 
 					}
 				}
-
 				break;
-				
 		}
 	}
 
