@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import Card from 'components/card';
 import ConnectUserBar from 'components/connect-user-bar';
-import { FormLabel, FormFieldset } from 'components/forms';
+import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -19,7 +19,6 @@ import {
 	getSiteAdminUrl,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
-import Textarea from '../components/textarea';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
 const trackViewSubsClick = () => {
@@ -50,10 +49,8 @@ function SubscriptionsSettings( props ) {
 		siteAdminUrl,
 		themeStylesheet,
 		blogID,
-		onOptionChange,
 	} = props;
 
-	const welcomeMessage = props.getOptionValue( 'subscription_options' )?.welcome || '';
 	const subscribeModalEditorUrl =
 		siteAdminUrl && themeStylesheet
 			? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
@@ -100,16 +97,6 @@ function SubscriptionsSettings( props ) {
 		! isSubscriptionsActive ||
 		unavailableInOfflineMode ||
 		isSavingAnyOption( [ SUBSCRIPTIONS_MODULE_NAME ] );
-
-	const changeWelcomeMessageState = useCallback(
-		event => {
-			const subscriptionOptionEvent = {
-				target: { name: event.target.name, value: { welcome: event.target.value } },
-			};
-			onOptionChange( subscriptionOptionEvent );
-		},
-		[ onOptionChange ]
-	);
 
 	return (
 		<>
@@ -192,31 +179,7 @@ function SubscriptionsSettings( props ) {
 					/>
 				) }
 			</SettingsCard>
-			<SettingsCard
-				{ ...props }
-				header={ __( 'Messages', 'jetpack' ) }
-				module="subscriptions"
-				saveDisabled={ props.isSavingAnyOption( [ 'subscription_options' ] ) }
-			>
-				<SettingsGroup hasChild disableInOfflineMode module={ subscriptions }>
-					<p className="jp-settings-card__email-settings">
-						{ __(
-							'These settings change the emails sent from your site to your readers.',
-							'jetpack'
-						) }
-					</p>
-					<FormLabel>
-						<span className="jp-form-label-wide email-settings__title">
-							{ __( 'Welcome email message', 'jetpack' ) }
-						</span>
-						<Textarea
-							name={ 'subscription_options' }
-							value={ welcomeMessage }
-							onChange={ changeWelcomeMessageState }
-						/>
-					</FormLabel>
-				</SettingsGroup>
-			</SettingsCard>
+			<SubscriptionSettingsWelcomeMessage { ...props } />
 		</>
 	);
 }
