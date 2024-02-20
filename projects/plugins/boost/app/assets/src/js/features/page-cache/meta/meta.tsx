@@ -60,9 +60,8 @@ const Meta = () => {
 							) : (
 								__( 'No exceptions.', 'jetpack-boost' )
 							) }{ ' ' }
-							{ settings?.logging
-								? __( 'Logging activated.', 'jetpack-boost' )
-								: __( 'No logging.', 'jetpack-boost' ) }
+							{ settings?.logging && __( 'Logging activated.', 'jetpack-boost' ) }
+							{ ! settings?.logging && __( 'No logging.', 'jetpack-boost' ) }
 						</>
 					) }
 				</div>
