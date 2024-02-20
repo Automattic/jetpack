@@ -137,7 +137,7 @@ const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: Exc
 	const [ inputInvalid, setInputInvalid ] = useState( false ); // @todo - implement this
 
 	// @todo - add proper link.
-	const exclusionsLink = 'TBD';
+	const exclusionsLink = 'https://jetpack.com';
 
 	useEffect( () => {
 		setInputValue( exceptions );
