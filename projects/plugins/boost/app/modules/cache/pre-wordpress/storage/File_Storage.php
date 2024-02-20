@@ -92,7 +92,7 @@ class File_Storage implements Storage {
 	 */
 	public function invalidate( $request_uri, $filter = '*' ) {
 		error_log( "invalidate: $request_uri $filter" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		$path = $this->root_path . $request_uri;
+		$path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $request_uri );
 
 		return Boost_Cache_Utils::delete_directory( $path, $filter );
 	}

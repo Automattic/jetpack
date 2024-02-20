@@ -141,7 +141,7 @@ class Boost_Cache {
 				$this->delete_cache_for_post( get_post( $posts_page_id ) );
 			}
 		} else {
-			$this->storage->invalidate( Boost_Cache_Utils::normalize_request_uri( home_url() ), '*' );
+			$this->storage->invalidate( home_url(), '*' );
 			error_log( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 	}
@@ -208,7 +208,7 @@ class Boost_Cache {
 			 */
 			if ( isset( $parameters['cookies'] ) && ! empty( $parameters['cookies'] ) ) {
 				$this->storage->invalidate(
-					Boost_Cache_Utils::normalize_request_uri( get_permalink( $post->ID ) ),
+					get_permalink( $post->ID ),
 					'/**/' . Boost_Cache_Utils::get_request_filename( $this->request->get_parameters() )
 				);
 			}
@@ -323,9 +323,8 @@ class Boost_Cache {
 	 */
 	public function delete_cache_for_url( $url ) {
 		error_log( 'delete_cache_for_url: ' . $url ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		$path = Boost_Cache_Utils::normalize_request_uri( $url );
 
-		return $this->storage->invalidate( $path, '/*' );
+		return $this->storage->invalidate( $url, '/*' );
 	}
 
 	/**
