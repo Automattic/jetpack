@@ -463,6 +463,20 @@ class Woo_Sync {
 
 	}
 
+	/**
+	 * Check if HPOS is enabled.
+	 *
+	 * @return bool Defaults to false.
+	 */
+	public function is_hpos_enabled() {
+		global $zbs;
+
+		if ( $zbs->woocommerce_is_active() ) {
+			return \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
+		}
+		return false;
+	}
+
 
 	/**
 	 * Include filter buttons
