@@ -54,6 +54,7 @@ class Woo_Sync_Woo_Admin_Integration {
 
 		// Hook into Woo orders listview.
 		if ( jpcrm_woosync_is_hpos_enabled() ) {
+			// These hooks are available as of Woo 7.3.0 and are required for HPOS.
 			add_filter( 'woocommerce_shop_order_list_table_columns', array( $this, 'append_orders_column' ) );
 			add_action( 'woocommerce_shop_order_list_table_custom_column', array( $this, 'render_orders_column_content' ), 20, 2 );
 		} else {
