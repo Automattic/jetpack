@@ -64,7 +64,12 @@ function NewsletterCategories( props ) {
 	}, [] );
 
 	return (
-		<SettingsCard { ...props } module="subscriptions">
+		<SettingsCard
+			{ ...props }
+			header={ __( 'Newsletter categories', 'jetpack' ) }
+			hideButton
+			module="subscriptions"
+		>
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode={ requiresConnection }
