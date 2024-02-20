@@ -9,11 +9,11 @@ import {
 	isUnavailableInSiteConnectionMode,
 	requiresConnection,
 } from 'state/connection';
+import { getModule } from 'state/modules';
 import { withModuleSettingsFormHelpers } from '../components/module-settings/with-module-settings-form-helpers';
 import TextInput from '../components/text-input';
 import Textarea from '../components/textarea';
-
-const SUBSCRIPTIONS_MODULE_NAME = 'subscriptions';
+import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
 const mapCategoriesIds = category => {
 	switch ( typeof category ) {
@@ -41,6 +41,7 @@ function NewsletterCategories( props ) {
 		categories,
 		isUnavailableDueOfflineMode,
 		isUnavailableDueSiteConnectionMode,
+		subscriptionsModule,
 	} = props;
 
 	const [ newCategories, setNewCategories ] = useState( '' );
@@ -68,6 +69,7 @@ function NewsletterCategories( props ) {
 				hasChild
 				disableInOfflineMode={ requiresConnection }
 				disableInSiteConnectionMode={ requiresConnection }
+				module={ subscriptionsModule }
 			>
 				<ToggleControl
 					disabled={ isUnavailableDueOfflineMode || isUnavailableDueSiteConnectionMode }
@@ -90,6 +92,7 @@ function NewsletterCategories( props ) {
 export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
+			subscriptionsModule: getModule( state, 'subscriptions' ),
 			isNewsletterCategoriesEnabled: ownProps.getOptionValue(
 				'wpcom_newsletter_categories_enabled'
 			),
