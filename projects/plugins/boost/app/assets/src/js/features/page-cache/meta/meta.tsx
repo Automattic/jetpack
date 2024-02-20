@@ -151,12 +151,6 @@ const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: Exc
 		setExceptions( inputValue );
 	}
 
-	function showExample( event: React.MouseEvent ) {
-		event.preventDefault();
-
-		// @todo - add proper example.
-	}
-
 	return (
 		<div
 			className={ classNames( styles.section, {
@@ -186,7 +180,7 @@ const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: Exc
 					__( '<help>See an example</help> or <link>learn more</link>.', 'jetpack-boost' ),
 					{
 						// eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid
-						help: <a href="#" target="_blank" rel="noreferrer" onClick={ showExample } />,
+						help: <a href="#" target="_blank" rel="noreferrer" />,
 						// eslint-disable-next-line jsx-a11y/anchor-has-content
 						link: <a href={ exclusionsLink } target="_blank" rel="noreferrer" />,
 					}
