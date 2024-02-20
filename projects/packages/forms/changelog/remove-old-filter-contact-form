@@ -1,0 +1,4 @@
+Significance: patch
+Type: deprecated
+
+Deprecate the temporary tmp_grunion_allow_editor_view filter.

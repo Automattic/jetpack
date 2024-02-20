@@ -331,11 +331,21 @@ class Dashboard_REST_Controller {
 			unset( $req['sub_path'] );
 		}
 
-		return $this->request_as_user(
+		$response = $this->request_as_user(
 			sprintf( '/sites/%d/blaze/posts%s', $site_id, $this->build_subpath_with_query_strings( $req->get_params() ) ),
 			'v2',
 			array( 'method' => 'GET' )
 		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( isset( $response['posts'] ) && count( $response['posts'] ) > 0 ) {
+			$response['posts'] = $this->add_prices_in_posts( $response['posts'] );
+		}
+
+		return $response;
 	}
 
 	/**
@@ -379,7 +389,17 @@ class Dashboard_REST_Controller {
 			unset( $req['sub_path'] );
 		}
 
-		return $this->get_dsp_generic( sprintf( 'v1/wpcom/sites/%d/blaze/posts', $site_id ), $req );
+		$response = $this->get_dsp_generic( sprintf( 'v1/wpcom/sites/%d/blaze/posts', $site_id ), $req );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( isset( $response['results'] ) && count( $response['results'] ) > 0 ) {
+			$response['results'] = $this->add_prices_in_posts( $response['results'] );
+		}
+
+		return $response;
 	}
 
 	/**
@@ -707,6 +727,53 @@ class Dashboard_REST_Controller {
 			),
 			$req->get_body()
 		);
+	}
+
+	/**
+	 * Will check the posts for prices and add them to the posts array
+	 *
+	 * @param WP_REST_Request $posts The posts object.
+	 * @return array|WP_Error
+	 */
+	protected function add_prices_in_posts( $posts ) {
+
+		if ( ! function_exists( 'wc_get_product' ) ||
+			! function_exists( 'wc_get_price_decimal_separator' ) ||
+			! function_exists( 'wc_get_price_thousand_separator' ) ||
+			! function_exists( 'wc_get_price_decimals' ) ||
+			! function_exists( 'get_woocommerce_price_format' ) ||
+			! function_exists( 'get_woocommerce_currency_symbol' )
+		) {
+			return $posts;
+		}
+
+		foreach ( $posts as $key => $item ) {
+			if ( ! isset( $item['ID'] ) ) {
+				$posts[ $key ]['price'] = '';
+				continue;
+			}
+			$product = wc_get_product( $item['ID'] );
+			if ( ! $product || ! $product instanceof WC_Product ) {
+				$posts[ $key ]['price'] = '';
+			} else {
+				$price              = $product->get_price();
+				$decimal_separator  = wc_get_price_decimal_separator();
+				$thousand_separator = wc_get_price_thousand_separator();
+				$decimals           = wc_get_price_decimals();
+				$price_format       = get_woocommerce_price_format();
+				$currency_symbol    = get_woocommerce_currency_symbol();
+
+				// Convert to float to avoid issues on PHP 8.
+				$price           = (float) $price;
+				$negative        = $price < 0;
+				$price           = $negative ? $price * -1 : $price;
+				$price           = number_format( $price, $decimals, $decimal_separator, $thousand_separator );
+				$formatted_price = sprintf( $price_format, $currency_symbol, $price );
+
+				$posts[ $key ]['price'] = html_entity_decode( $formatted_price, ENT_COMPAT );
+			}
+		}
+		return $posts;
 	}
 
 	/**
