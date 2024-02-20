@@ -95,18 +95,11 @@ class WordAds_Consent_Management_Provider {
 	 * @return string The value to store in the opt-in cookie.
 	 */
 	private static function get_config_url() {
-		$locale      = strtolower( get_locale() ); // Defaults to en_US not en.
-		$request_url = 'https://public-api.wordpress.com/wpcom/v2/sites/' . self::get_blog_id() . '/cmp/configuration/' . $locale . '/?_jsonp=a8c_cmp_callback';
-		return $request_url;
-	}
-
-	/**
-	 * Get the blog ID.
-	 *
-	 * @return Object current blog id.
-	 */
-	private static function get_blog_id() {
-		return Jetpack_Options::get_option( 'id' );
+		return sprintf(
+			'https://public-api.wordpress.com/wpcom/v2/sites/%1$d/cmp/configuration/%2$s/?_jsonp=a8c_cmp_callback',
+			(int) Jetpack_Options::get_option( 'id' ),
+			strtolower( get_locale() ) // Defaults to en_US not en.
+		);
 	}
 
 	/**
