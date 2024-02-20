@@ -34,6 +34,17 @@
 				margin-top: 16px;
 			}
 
+			&.has-error {
+				textarea {
+					border-color: var( --red-40 );
+				}
+
+				.error-message {
+					display: block;
+					color: var( --red-40 );
+				}
+			}
+
 			.title {
 				margin-bottom: 16px;
 				font-size: 16px;
@@ -49,7 +60,11 @@
 				border-radius: 4px;
 				border: 1px solid var( --gray-10 );
 				background: var( --primary-white );
-				color: var( --gray-10 );
+				color: #000;
+			}
+
+			.error-message {
+				display: none;
 			}
 
 			.description {
@@ -61,8 +76,13 @@
 			}
 
 			label {
+				display: block;
 				font-size: 16px;
 				line-height: 1.5;
+
+				&:not(:last-child) {
+					margin-bottom: 8px;
+				}
 			}
 		}
 

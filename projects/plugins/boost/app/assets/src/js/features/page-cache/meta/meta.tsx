@@ -8,6 +8,7 @@ import styles from './meta.module.scss';
 import { useEffect, useState } from 'react';
 import { usePageCache } from '$lib/stores/page-cache';
 import { Link } from 'react-router-dom';
+import classNames from 'classnames';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
@@ -133,6 +134,8 @@ type ExceptionsProps = {
 const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: ExceptionsProps ) => {
 	const [ inputValue, setInputValue ] = useState( exceptions );
 	const [ showNotice, setShowNotice ] = useState( showErrorNotice );
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const [ inputInvalid, setInputInvalid ] = useState( false ); // @todo - implement this
 
 	// @todo - add proper link.
 	const exclusionsLink = 'TBD';
@@ -156,10 +159,24 @@ const Exceptions = ( { exceptions, setExceptions, showErrorNotice = false }: Exc
 	}
 
 	return (
-		<div className={ styles.section }>
+		<div
+			className={ classNames( styles.section, {
+				[ styles[ 'has-error' ] ]: inputInvalid,
+			} ) }
+		>
 			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
-			<p>{ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }</p>
-			<textarea value={ inputValue } rows={ 3 } onChange={ e => setInputValue( e.target.value ) } />
+			<label htmlFor="jb-cache-exceptions">
+				{ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }
+			</label>
+			<textarea
+				value={ inputValue }
+				rows={ 3 }
+				onChange={ e => setInputValue( e.target.value ) }
+				id="jb-cache-exceptions"
+			/>
+			<p className={ classNames( styles.description, styles[ 'error-message' ] ) }>
+				{ __( 'Error: Invalid format', 'jetpack-boost' ) }
+			</p>
 			<p className={ styles.description }>
 				{ __(
 					'Use (.*) to address multiple URLs under a given path. Be sure each URL path is in its own line.',
