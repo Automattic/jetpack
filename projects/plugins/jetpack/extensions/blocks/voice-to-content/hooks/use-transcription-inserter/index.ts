@@ -29,7 +29,7 @@ const markdownConverter = new MarkdownIt( {
  * @returns {UseTranscriptionInserterReturn} - Object with function to handle transcription upserting.
  */
 export default function useTranscriptionInserter(): UseTranscriptionInserterReturn {
-	const { updateBlockAttributes, insertBlock, replaceInnerBlocks } =
+	const { updateBlockAttributes, insertBlocks, replaceInnerBlocks } =
 		useDispatch( 'core/block-editor' );
 
 	/*
@@ -86,9 +86,14 @@ export default function useTranscriptionInserter(): UseTranscriptionInserterRetu
 					}
 				} else {
 					/*
-					 * The block is not there, insert it
+					 * The block is not there, insert it. Using the insertBlocks version since
+					 * it allows to manage the block focus after inserting, disabling the focus
+					 * on the inserted block. To do it, it's necessary to set index and rootClientId
+					 * as undefined so they are set to the default values. updateSelection is set to
+					 * true to stay as the default value. The last parameter is set to null to prevent
+					 * focusing the inserted block, the behavior we want.
 					 */
-					insertBlock( blocksFromHTML[ i ] );
+					insertBlocks( [ blocksFromHTML[ i ] ], undefined, undefined, true, null );
 
 					/*
 					 * Append the new block to the list of current blocks
@@ -97,7 +102,7 @@ export default function useTranscriptionInserter(): UseTranscriptionInserterRetu
 				}
 			}
 		},
-		[ currentBlocks, insertBlock, updateBlockAttributes, replaceInnerBlocks ]
+		[ currentBlocks, insertBlocks, updateBlockAttributes, replaceInnerBlocks ]
 	);
 
 	return {
