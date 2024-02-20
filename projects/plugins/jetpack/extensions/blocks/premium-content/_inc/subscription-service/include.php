@@ -66,7 +66,8 @@ function default_service( $service, $user_id = null ) {
 	}
 
 	// Prefer to use the WPCOM_Online_Subscription_Service if this code is executing on WPCOM.
-	if ( WPCOM_Online_Subscription_Service::available() || ! empty( $user_id ) ) {
+	$wpcom_available_but_user_is_not_logged_in = defined( 'IS_WPCOM' ) && IS_WPCOM && ! is_user_logged_in() && ! empty( $user_id );
+	if ( WPCOM_Online_Subscription_Service::available() || $wpcom_available_but_user_is_not_logged_in ) {
 		// Return the WPCOM Online subscription service when we are on WPCOM.
 		return new WPCOM_Online_Subscription_Service( $user_id );
 	}
