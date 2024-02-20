@@ -8,58 +8,76 @@ class Filesystem_Utils {
 	/**
 	 * Recursively garbage collect a directory.
 	 *
+	 * @uses Filesystem_Utils::_delete_expired_files to do the actual work after clearing the stat cache.
 	 * @param string $directory - The directory to garbage collect.
 	 * @param int    $file_ttl  - Specify number of seconds after which a file is considered expired.
 	 * @return int - The number of files deleted.
 	 */
 	public static function delete_expired_files( $directory, $file_ttl ) {
+		clearstatcache();
+
+		return self::_delete_expired_files( $directory, $file_ttl );
+	}
+
+	/**
+	 * Recursively garbage collect a directory.
+	 *
+	 * @param string $directory - The directory to garbage collect.
+	 * @param int    $file_ttl  - Specify number of seconds after which a file is considered expired.
+	 * @return int - The number of files deleted.
+	 */
+	private static function _delete_expired_files( $directory, $file_ttl ) {
 		$count  = 0;
 		$now    = time();
 		$handle = is_readable( $directory ) && is_dir( $directory ) ? opendir( $directory ) : false;
-		if ( $handle ) {
-			// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			while ( false !== ( $file = readdir( $handle ) ) ) {
-				if ( $file === '.' || $file === '..' ) {
-					// Skip and continue to next file
-					continue;
-				}
 
-				$file_path = $directory . '/' . $file;
+		// Could not open directory, exit early.
+		if ( ! $handle ) {
+			return $count;
+		}
 
-				if ( ! file_exists( $file_path ) ) {
-					// File doesn't exist, skip and continue to next file
-					continue;
-				}
-
-				// Handle directories recursively.
-				if ( is_dir( $file_path ) ) {
-					$count += self::delete_expired_files( $file_path, $file_ttl );
-					continue;
-				}
-
-				$filemtime = filemtime( $file_path );
-				$expired   = ( $filemtime + $file_ttl ) <= $now;
-				if ( $expired ) {
-					if ( self::delete_file( $file_path ) ) {
-						++$count;
-					} else {
-						Logger::debug( 'Could not delete file: ' . $file_path );
-					}
-				}
-			}
-			closedir( $handle );
-
-			// If the directory is empty after processing it's files, delete it.
-			$is_dir_empty = self::is_dir_empty( $directory );
-			if ( is_wp_error( $is_dir_empty ) ) {
-				Logger::debug( 'Could not check directory emptiness: ' . $is_dir_empty->get_error_message() );
-				return $count;
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		while ( false !== ( $file = readdir( $handle ) ) ) {
+			if ( $file === '.' || $file === '..' ) {
+				// Skip and continue to next file
+				continue;
 			}
 
-			if ( $is_dir_empty === true ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-				@rmdir( $directory );
+			$file_path = $directory . '/' . $file;
+
+			if ( ! file_exists( $file_path ) ) {
+				// File doesn't exist, skip and continue to next file
+				continue;
 			}
+
+			// Handle directories recursively.
+			if ( is_dir( $file_path ) ) {
+				$count += self::_delete_expired_files( $file_path, $file_ttl );
+				continue;
+			}
+
+			$filemtime = filemtime( $file_path );
+			$expired   = ( $filemtime + $file_ttl ) <= $now;
+			if ( $expired ) {
+				if ( self::delete_file( $file_path ) ) {
+					++$count;
+				} else {
+					Logger::debug( 'Could not delete file: ' . $file_path );
+				}
+			}
+		}
+		closedir( $handle );
+
+		// If the directory is empty after processing it's files, delete it.
+		$is_dir_empty = self::is_dir_empty( $directory );
+		if ( is_wp_error( $is_dir_empty ) ) {
+			Logger::debug( 'Could not check directory emptiness: ' . $is_dir_empty->get_error_message() );
+			return $count;
+		}
+
+		if ( $is_dir_empty === true ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+			@rmdir( $directory );
 		}
 
 		return $count;
