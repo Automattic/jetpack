@@ -68,33 +68,27 @@ class Woo_Sync_Woo_Admin_Integration {
 
 
 	/**
-	 * Append our CRM column to the WooCommerce orders view columns
-	 *  This should be fired via filter `manage_edit-shop_order_columns`
+	 * Add CRM contact column to Woo orders listview.
 	 *
-	 * @param array $columns
+	 * @param array $columns Listview columns.
 	 */
-	public function append_orders_column( $columns ){
+	public function append_orders_column( $columns ) {
 
 		$rebuilt_columns = array();
 
 		// Inserting columns to a specific location
-		foreach( $columns as $key => $column){
+		foreach ( $columns as $key => $column ) {
 
-			$rebuilt_columns[$key] = $column;
+			$rebuilt_columns[ $key ] = $column;
 
-			if ( $key ==  'order_status' ){
-
+			if ( $key === 'order_status' ) {
 				// Inserting after "Status" column
-				$rebuilt_columns['jpcrm'] = __( 'CRM Contact','zero-bs-crm');
-
+				$rebuilt_columns['jpcrm'] = __( 'CRM Contact', 'zero-bs-crm' );
 			}
-
 		}
 
 		return $rebuilt_columns;
-
 	}
-
 
 	/**
 	 * HTML rendering of our custom orders view column content
