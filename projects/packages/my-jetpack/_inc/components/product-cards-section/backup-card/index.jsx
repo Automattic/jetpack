@@ -26,19 +26,42 @@ const getIcon = slug => {
 
 const getStatRenderFn = stat =>
 	( {
-		// translators: %d is the number of comments
-		comment: val => sprintf( _n( '%d comment', '%d comments', val, 'jetpack-my-jetpack' ), val ),
-		// translators: %d is the number of posts
-		post: val => sprintf( _n( '%d post', '%d posts', val, 'jetpack-my-jetpack' ), val ),
-		// translators: %d is the number of pages
-		page: val => sprintf( _n( '%d page', '%d pages', val, 'jetpack-my-jetpack' ), val ),
-		// translators: %d is the number of images
-		image: val => sprintf( _n( '%d image', '%d images', val, 'jetpack-my-jetpack' ), val ),
-		// translators: %d is the number of videos
-		video: val => sprintf( _n( '%d video', '%d videos', val, 'jetpack-my-jetpack' ), val ),
+		comment: val =>
+			sprintf(
+				// translators: %d is the number of comments
+				_n( '%d comment', '%d comments', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		post: val =>
+			sprintf(
+				// translators: %d is the number of posts
+				_n( '%d post', '%d posts', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		page: val =>
+			sprintf(
+				// translators: %d is the number of pages
+				_n( '%d page', '%d pages', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		image: val =>
+			sprintf(
+				// translators: %d is the number of images
+				_n( '%d image', '%d images', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		video: val =>
+			sprintf(
+				// translators: %d is the number of videos
+				_n( '%d video', '%d videos', val, 'jetpack-my-jetpack' ),
+				val
+			),
 		audio: val =>
-			// translators: %d is the number of files
-			sprintf( _n( '%d audio file', '%d audio files', val, 'jetpack-my-jetpack' ), val ),
+			sprintf(
+				// translators: %d is the number of files
+				_n( '%d audio file', '%d audio files', val, 'jetpack-my-jetpack' ),
+				val
+			),
 	} )[ stat ] || ( val => `${ val } ${ stat }` );
 
 const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
