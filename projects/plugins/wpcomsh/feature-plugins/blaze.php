@@ -15,6 +15,7 @@ function wpcomsh_activate_blaze_module() {
 	if (
 		! defined( 'JETPACK__VERSION' )
 		|| ! class_exists( 'Jetpack' )
+		|| 'wp-admin' === get_option( 'wpcom_admin_interface' )
 	) {
 		return;
 	}
@@ -38,7 +39,7 @@ add_action( 'init', 'wpcomsh_activate_blaze_module', 0, 0 );
  * @return array
  */
 function wpcomsh_rm_blaze_module_list( $items ) {
-	if ( isset( $items['blaze'] ) ) {
+	if ( isset( $items['blaze'] ) && ! wpcom_is_nav_redesign_enabled() ) {
 		unset( $items['blaze'] );
 	}
 	return $items;
