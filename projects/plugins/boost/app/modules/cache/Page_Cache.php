@@ -35,7 +35,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	}
 
 	public function setup() {
-		Garbage_Collection::init();
+		Garbage_Collection::setup();
 	}
 
 	/**
@@ -43,7 +43,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	 */
 	public static function activate() {
 		Page_Cache_Setup::run_setup();
-		Garbage_Collection::install();
+		Garbage_Collection::activate();
 	}
 
 	/**
@@ -51,7 +51,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	 */
 	public static function deactivate() {
 		Page_Cache_Setup::deactivate();
-		Garbage_Collection::uninstall();
+		Garbage_Collection::deactivate();
 	}
 
 	public static function is_available() {

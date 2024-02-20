@@ -12,7 +12,7 @@ class Garbage_Collection {
 	/**
 	 * Register hooks.
 	 */
-	public static function init() {
+	public static function setup() {
 		add_filter( 'cron_schedules', array( self::class, 'add_cron_interval' ) );
 
 		$cache = new Boost_Cache();
@@ -23,8 +23,8 @@ class Garbage_Collection {
 	/**
 	 * Setup the garbage collection cron job.
 	 */
-	public static function install() {
-		self::init();
+	public static function activate() {
+		self::setup();
 
 		if ( ! wp_next_scheduled( self::ACTION ) ) {
 			wp_schedule_event( time(), self::INTERVAL_NAME, self::ACTION );
@@ -34,7 +34,7 @@ class Garbage_Collection {
 	/**
 	 * Remove the garbage collection cron job.
 	 */
-	public static function uninstall() {
+	public static function deactivate() {
 		wp_clear_scheduled_hook( self::ACTION );
 	}
 
