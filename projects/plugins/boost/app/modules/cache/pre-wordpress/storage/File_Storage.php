@@ -107,7 +107,7 @@ class File_Storage implements Storage {
 	 * Delete all cached data for the given path.
 	 *
 	 * @param string $path - The path to delete. File or directory.
-	 * @param string $type - defines what files/directories are deleted: FILE, FILES, ALL.
+	 * @param string $type - defines what files/directories are deleted: DELETE_FILE, DELETE_FILES, DELETE_ALL.
 	 */
 	public function invalidate( $path, $type ) {
 		error_log( "invalidate: $path $type" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
