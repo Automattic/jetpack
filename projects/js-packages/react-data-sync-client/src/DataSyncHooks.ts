@@ -380,7 +380,7 @@ export function useDataSyncSubset<
 		setIsError( mutation.isError );
 		setIsPending( mutation.isPending );
 		setIsSuccess( mutation.isSuccess );
-		if ( ! mutation.isError && ! mutation.isPending ) {
+		if ( mutation.isSuccess || mutation.isError ) {
 			setIsActive( false );
 		}
 	}, [ mutation.isError, mutation.isPending, isActive ] );
