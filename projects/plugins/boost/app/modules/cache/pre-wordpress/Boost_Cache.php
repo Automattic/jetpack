@@ -54,6 +54,7 @@ class Boost_Cache {
 		add_action( 'comment_post', array( $this, 'delete_on_comment_post' ), 10, 3 );
 		add_action( 'edit_comment', array( $this, 'delete_on_comment_edit' ), 10, 2 );
 		add_action( 'switch_theme', array( $this, 'delete_cache' ) );
+		add_action( 'wp_trash_post', array( $this, 'delete_on_post_trash' ), 10, 2 );
 	}
 
 	/**
@@ -248,6 +249,10 @@ class Boost_Cache {
 			return;
 		}
 
+		if ( $new_status === 'trash' ) {
+			return;
+		}
+
 		error_log( "delete_on_post_transition: $new_status, $old_status, {$post->ID}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
 		// Don't delete the cache for posts that weren't published and aren't published now
@@ -261,6 +266,21 @@ class Boost_Cache {
 		$this->delete_cache_for_post( $post );
 		$this->delete_cache_for_post_terms( $post );
 		$this->delete_cache_for_front_page();
+	}
+
+	/**
+	 * Delete the cache for the post if it was trashed.
+	 *
+	 * @param int $post_id - The id of the post.
+	 * @param string $old_status - The old status of the post.
+	 */
+	public function delete_on_post_trash( $post_id, $old_status ) {
+		if ( $this->is_published( $old_status ) ) {
+			$post = get_post( $post_id );
+			$this->delete_cache_for_post( $post );
+			$this->delete_cache_for_post_terms( $post );
+			$this->delete_cache_for_front_page();
+		}
 	}
 
 	/**
@@ -289,14 +309,6 @@ class Boost_Cache {
 		 * the post name. We need to get the post name from the post object.
 		 */
 		$permalink = get_permalink( $post->ID );
-		if ( strpos( $permalink, '?p=' ) !== false ) {
-			if ( ! function_exists( 'get_sample_permalink' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/post.php';
-			}
-			list( $permalink, $post_name ) = get_sample_permalink( $post );
-			$permalink                     = str_replace( array( '%postname%', '%pagename%' ), $post_name, $permalink );
-		}
-
 		error_log( "delete_cache_for_post: $permalink" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$this->delete_cache_for_url( $permalink );
 	}
