@@ -357,7 +357,7 @@ class Boost_Cache {
 		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 			define( 'DONOTCACHEPAGE', true );
 		}
-		error_log( 'Fatal error detected, caching disabled' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		Logger::debug( 'Fatal error detected, caching disabled' );
 		return $message;
 	}
 }
