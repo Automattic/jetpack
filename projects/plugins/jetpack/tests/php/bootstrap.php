@@ -95,6 +95,10 @@ function _manually_load_plugin() {
 	if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
 	}
+
+	if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
+		require __DIR__ . '/../../../../mu-plugins/wpcomsh.php';
+	}
 	require __DIR__ . '/../../jetpack.php';
 	$jetpack = Jetpack::init();
 	$jetpack->configure();
