@@ -444,7 +444,12 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		}
 
 		if ( ! empty( $token ) && false === headers_sent() ) {
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
+			$cookie_domain = COOKIE_DOMAIN;
+			if ( empty( $cookie_domain ) && ! empty( $_SERVER['HTTP_HOST'] ) ) {
+				$cookie_domain = '.' . wp_unslash( $_SERVER['HTTP_HOST'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			}
+
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', $cookie_domain, is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
 		}
 	}
 
