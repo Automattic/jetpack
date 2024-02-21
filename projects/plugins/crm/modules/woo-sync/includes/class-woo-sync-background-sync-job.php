@@ -1217,8 +1217,16 @@ class Woo_Sync_Background_Sync_Job {
 			// Force Woo order totals recalculation to ensure taxes were applied correctly
 			// Only force recalculation if the order is not paid yet
 			if ( $order->get_status() === 'pending' || $order->get_status() === 'on-hold' ) {
-				$order->calculate_totals();
-				$order->save();
+				try {
+					$order->calculate_totals();
+					$order->save();
+				} catch ( \TypeError $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+
+					/*
+					This is a Woo bug with empty fees: https://github.com/woocommerce/woocommerce/issues/44859
+					For now we'll just ignore it and carry on.
+					*/
+				}
 			}
 
 			$order_data = $order->get_data();
