@@ -112,17 +112,8 @@ const updateQueryStringParameter = function ( uri, key, value ) {
 export const setPurchaseResultCookie = function ( premiumContentJWTToken ) {
 	// We will set this in a cookie  - just in case. This will be reloaded in the refresh, when user clicks OK.
 	// But user can close the browser window before clicking OK. IN that case, we want to leave a cookie behind.
-	const domain = window.location.hostname;
-
 	document.cookie =
-		'wp-jp-premium-content-session' +
-		'=' +
-		premiumContentJWTToken +
-		'; expires=' +
-		0 +
-		'; path=/' +
-		'; domain=' +
-		domain;
+		'wp-jp-premium-content-session' + '=' + premiumContentJWTToken + '; expires=' + 0 + '; path=/';
 };
 
 export const reloadPageWithPremiumContentQueryString = function (
