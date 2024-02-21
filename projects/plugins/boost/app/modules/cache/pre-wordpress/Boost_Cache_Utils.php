@@ -13,29 +13,28 @@ class Boost_Cache_Utils {
 
 	/**
 	 * Recursively delete a directory.
-	 * @param string $dir - The directory to delete.
-	 * @param bool   $filter - The filter to use. FILES to delete all files in the given directory. ALL to delete everything in the given directory, recursively. FILE to delete a single file or directory in the given directory.
-	 * @param string $filename - The filename to delete. Only used when $filter is FILE.
+	 * @param string $path - The directory to delete.
+	 * @param bool   $type - The type of delete. FILES to delete all files in the given directory. ALL to delete everything in the given directory, recursively. FILE to delete a single file or directory in the given directory.
 	 * @return bool|WP_Error
 	 */
-	public static function delete( $dir, $filter, $filename = '' ) {
-		error_log( "delete directory: $dir $filter $filename" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		$dir = realpath( $dir );
-		if ( ! $dir ) {
+	public static function delete( $path, $type ) {
+		error_log( "delete directory: $path $type" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		$path = realpath( $path );
+		if ( ! $path ) {
 			// translators: %s is the directory that does not exist.
-			return new \WP_Error( 'directory-missing', sprintf( __( 'Directory does not exist: %s', 'jetpack-boost' ), $dir ) ); // realpath returns false if a file does not exist.
+			return new \WP_Error( 'directory-missing', sprintf( __( 'Directory does not exist: %s', 'jetpack-boost' ), $path ) ); // realpath returns false if a file does not exist.
 		}
 
 		// make sure that $dir is a directory inside WP_CONTENT . '/boost-cache/';
-		if ( self::is_boost_cache_directory( $dir ) === false ) {
+		if ( self::is_boost_cache_directory( $path ) === false ) {
 			// translators: %s is the directory that is invalid.
-			return new \WP_Error( 'invalid-directory', sprintf( __( 'Invalid directory %s', 'jetpack-boost' ), $dir ) );
+			return new \WP_Error( 'invalid-directory', sprintf( __( 'Invalid directory %s', 'jetpack-boost' ), $path ) );
 		}
 
-		switch ( $filter ) {
+		switch ( $type ) {
 			case self::ALL: // delete all files and directories in the given directory.
-				if ( is_dir( $dir ) === true ) {
-					$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $dir, \RecursiveDirectoryIterator::SKIP_DOTS ) );
+				if ( is_dir( $path ) === true ) {
+					$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ) );
 					foreach ( $iterator as $file ) {
 						if ( $file->isDir() ) {
 							error_log( 'rmdir: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -45,19 +44,19 @@ class Boost_Cache_Utils {
 							@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 						}
 					}
-					return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged, 
+					return @rmdir( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged,
 				}
 				break;
 			case self::FILE: // delete a single file or directory in the given directory.
-				if ( '' === $filename || ! file_exists( $dir . $filename ) ) {
+				if ( ! file_exists( $path ) ) {
 					return true;
 				}
-				if ( is_file( $dir . $filename ) ) {
-					error_log( 'unlink: ' . $dir . $filename ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					@unlink( $dir . $filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+				if ( is_file( $path ) ) {
+					error_log( 'unlink: ' . $path ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					@unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 					return true;
 				} else {
-					$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $dir . $filename, \RecursiveDirectoryIterator::SKIP_DOTS ) );
+					$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ) );
 					foreach ( $iterator as $file ) {
 						error_log( 'rmdir: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 						if ( $file->isDir() ) {
@@ -68,14 +67,14 @@ class Boost_Cache_Utils {
 							@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 						}
 					}
-					return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+					return @rmdir( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 				}
 				break;
 			case self::FILES: // delete all files in the given directory.
-				if ( is_dir( $dir ) === true ) {
-					$files = array_diff( scandir( $dir ), array( '.', '..' ) );
+				if ( is_dir( $path ) === true ) {
+					$files = array_diff( scandir( $path ), array( '.', '..' ) );
 					foreach ( $files as $file ) {
-						$file = $dir . '/' . $file;
+						$file = $path . '/' . $file;
 						if ( is_file( $file ) ) {
 							error_log( "unlink: $file" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 							@unlink( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink

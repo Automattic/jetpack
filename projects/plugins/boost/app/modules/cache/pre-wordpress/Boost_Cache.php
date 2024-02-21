@@ -217,12 +217,8 @@ class Boost_Cache {
 			 * message.
 			 */
 			if ( isset( $parameters['cookies'] ) && ! empty( $parameters['cookies'] ) ) {
-				$filename_hash = Boost_Cache_Utils::get_request_filename( $this->request->get_parameters() );
-				$this->storage->invalidate(
-					get_permalink( $post->ID ),
-					Boost_Cache_Utils::FILE,
-					$filename_hash
-				);
+				$filename = trailingslashit( get_permalink( $post->ID ) ) . Boost_Cache_Utils::get_request_filename( $this->request->get_parameters() );
+				$this->storage->invalidate( $filename, Boost_Cache_Utils::FILE );
 			}
 			return;
 		}

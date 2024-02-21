@@ -12,6 +12,6 @@ interface Storage {
 
 	public function write( $request_uri, $parameters, $data );
 	public function read( $request_uri, $parameters );
-	public function invalidate( $request_uri, $filter = '', $filename = '' );
+	public function invalidate( $request_uri, $type );
 	public function garbage_collect();
 }
