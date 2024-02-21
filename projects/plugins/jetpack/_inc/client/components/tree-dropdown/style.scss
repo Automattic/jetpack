@@ -17,6 +17,11 @@
 			border-radius: 4px 4px 0 0;
 		}
 
+		&.disabled {
+			svg, .tree-dropdown__tag {
+				opacity: 0.7;
+			}
+		}
 
 		.tree-dropdown__input {
 			flex-grow: 1;

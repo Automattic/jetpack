@@ -60,7 +60,11 @@ const TreeDropdown = props => {
 				{ tags.map( ( tag, index ) => (
 					<span key={ index } className="tree-dropdown__tag">
 						{ tag.name }
-						<button onClick={ handleDelete( tag ) } className="tree-dropdown__tag-remove-button">
+						<button
+							onClick={ handleDelete( tag ) }
+							className="tree-dropdown__tag-remove-button"
+							disabled={ disabled }
+						>
 							<Icon icon={ closeSmall } />
 						</button>
 					</span>
