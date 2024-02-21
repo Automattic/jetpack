@@ -348,21 +348,21 @@ export function useDataSyncAction<
 	} );
 }
 
-type PickedMutation< T > = UseMutationResult< T > & {
+type SubsetMutation< T > = UseMutationResult< T > & {
 	mutate: ( newValue: T ) => void;
 };
 export function useDataSyncSubset<
 	Schema extends z.ZodSchema,
 	Value extends z.infer< Schema >,
 	K extends keyof Value,
->( key: K, hook: DataSyncHook< Schema, Value > ): [ Value[ K ], PickedMutation< Value[ K ] > ] {
+>( key: K, hook: DataSyncHook< Schema, Value > ): [ Value[ K ], SubsetMutation< Value[ K ] > ] {
 	const [ query, mutation ] = hook;
 	const [ isPending, setIsPending ] = React.useState( false );
 	const [ isError, setIsError ] = React.useState( false );
 	const [ isActive, setIsActive ] = React.useState( false );
 	const [ isSuccess, setIsSuccess ] = React.useState( false );
 
-	const set = ( newValue: Value[ K ] ) => {
+	const mutate = ( newValue: Value[ K ] ) => {
 		if ( ! query.data ) {
 			return;
 		}
@@ -392,7 +392,7 @@ export function useDataSyncSubset<
 			isSuccess,
 			isPending,
 			isError,
-			mutate: set,
+			mutate,
 		},
 	];
 }
