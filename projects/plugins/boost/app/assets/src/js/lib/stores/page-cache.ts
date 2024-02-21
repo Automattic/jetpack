@@ -14,7 +14,7 @@ const PageCacheClear = z.object( {
 	message: z.string(),
 } );
 
-export function usePageCacheErrorDS() {
+export function usePageCacheError() {
 	const [ { data } ] = useDataSync( 'jetpack_boost_ds', 'page_cache_error', PageCacheError );
 
 	return data;
@@ -28,45 +28,30 @@ export function usePageCache() {
  * Hook which creates a callable action for running Page Cache setup.
  */
 export function useRunPageCacheSetupAction() {
-	return usePageCacheErrorAction( 'run-page-cache-setup', z.void() );
-}
-
-/**
- * Hook which creates a callable action for clearing Page Cache.
- */
-export function useClearPageCacheAction() {
-	return usePageCacheAction( 'clear-page-cache', z.void() );
-}
-
-function usePageCacheErrorAction<
-	ActionSchema extends z.ZodSchema,
-	ActionRequestData extends z.infer< ActionSchema >,
->( action: string, schema: ActionRequestData ) {
-	const responseSchema = z.void();
-
+	const action = 'run-page-cache-setup';
 	return useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
 		key: 'page_cache_error',
 		action_name: action,
 		schema: {
 			state: PageCacheError,
-			action_request: schema,
-			action_response: responseSchema,
+			action_request: z.void(),
+			action_response: z.void(),
 		},
 	} );
 }
 
-function usePageCacheAction<
-	ActionSchema extends z.ZodSchema,
-	ActionRequestData extends z.infer< ActionSchema >,
->( action: string, schema: ActionRequestData ) {
+/**
+ * Hook which creates a callable action for clearing Page Cache.
+ */
+export function useClearPageCacheAction() {
 	return useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
 		key: 'page_cache',
-		action_name: action,
+		action_name: 'clear-page-cache',
 		schema: {
 			state: PageCache,
-			action_request: schema,
+			action_request: z.void(),
 			action_response: PageCacheClear,
 		},
 	} );
