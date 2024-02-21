@@ -53,7 +53,7 @@ DB=`docker create \
   --env MYSQL_ROOT_PASSWORD=jfdsaf9wjfaospfopdsafjsda \
   --env MYSQL_DATABASE=wordpress --env MYSQL_USER=wp \
   --env MYSQL_PASSWORD=iojdgoisajsoife83489398f8ds9a \
-  mariadb:11`
+  mariadb:lts`
 
 WP=`docker create \
   --name ${PROJECT}_wp \
