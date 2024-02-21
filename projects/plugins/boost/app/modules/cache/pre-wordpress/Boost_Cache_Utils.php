@@ -5,11 +5,12 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
 
-define( 'JBCACHE_ALL', 1 ); // delete all files and directories in a given directory, recursively.
-define( 'JBCACHE_FILE', 2 ); // delete a single file or recursively delete a single directory in a given directory.
-define( 'JBCACHE_FILES', 3 ); // delete all files in a given directory.
-
 class Boost_Cache_Utils {
+
+	const JBCACHE_ALL   = 'delete-all'; // delete all files and directories in a given directory, recursively.
+	const JBCACHE_FILE  = 'delete-single'; // delete a single file or recursively delete a single directory in a given directory.
+	const JBCACHE_FILES = 'delete-files'; // delete all files in a given directory.
+
 	/**
 	 * Recursively delete a directory.
 	 * @param string $dir - The directory to delete.
@@ -18,7 +19,7 @@ class Boost_Cache_Utils {
 	 * @return bool|WP_Error
 	 */
 	public static function delete_directory( $dir, $filter, $filename = '' ) {
-		error_log( "delete directory: $dir $filter" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( "delete directory: $dir $filter $filename" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$dir = realpath( $dir );
 		if ( ! $dir ) {
 			// translators: %s is the directory that does not exist.
@@ -32,7 +33,7 @@ class Boost_Cache_Utils {
 		}
 
 		switch ( $filter ) {
-			case JBCACHE_ALL: // delete all files and directories in the given directory.
+			case self::JBCACHE_ALL: // delete all files and directories in the given directory.
 				if ( is_dir( $dir ) === true ) {
 					$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $dir, \RecursiveDirectoryIterator::SKIP_DOTS ) );
 					foreach ( $iterator as $file ) {
@@ -47,7 +48,7 @@ class Boost_Cache_Utils {
 					return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged, 
 				}
 				break;
-			case JBCACHE_FILE: // delete a single file or directory in the given directory.
+			case self::JBCACHE_FILE: // delete a single file or directory in the given directory.
 				if ( '' === $filename || ! file_exists( $dir . $filename ) ) {
 					return true;
 				}
@@ -70,7 +71,7 @@ class Boost_Cache_Utils {
 					return @rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 				}
 				break;
-			case JBCACHE_FILES: // delete all files in the given directory.
+			case self::JBCACHE_FILES: // delete all files in the given directory.
 				if ( is_dir( $dir ) === true ) {
 					$files = array_diff( scandir( $dir ), array( '.', '..' ) );
 					foreach ( $files as $file ) {

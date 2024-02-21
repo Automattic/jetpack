@@ -151,7 +151,7 @@ class Boost_Cache {
 				$this->delete_cache_for_post( get_post( $posts_page_id ) );
 			}
 		} else {
-			$this->storage->invalidate( home_url(), JBCACHE_FILES );
+			$this->storage->invalidate( home_url(), Boost_Cache_Utils::JBCACHE_FILES );
 			error_log( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 	}
@@ -220,7 +220,7 @@ class Boost_Cache {
 				$filename_hash = Boost_Cache_Utils::get_request_filename( $this->request->get_parameters() );
 				$this->storage->invalidate(
 					get_permalink( $post->ID ),
-					JBCACHE_FILE,
+					Boost_Cache_Utils::JBCACHE_FILE,
 					$filename_hash
 				);
 			}
@@ -336,7 +336,7 @@ class Boost_Cache {
 	public function delete_cache_for_url( $url ) {
 		error_log( 'delete_cache_for_url: ' . $url ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
-		return $this->storage->invalidate( $url, JBCACHE_ALL );
+		return $this->storage->invalidate( $url, Boost_Cache_Utils::JBCACHE_ALL );
 	}
 
 	/**
