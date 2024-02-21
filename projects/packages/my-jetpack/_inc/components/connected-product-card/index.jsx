@@ -92,7 +92,7 @@ const ConnectedProductCard = ( {
 
 		installStandalonePlugin()
 			.then( () => {
-				window?.location?.reload();
+				setInstallingStandalone( false );
 			} )
 			.catch( () => {
 				setInstallingStandalone( false );

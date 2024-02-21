@@ -33,6 +33,7 @@ const ActionButton = ( {
 	isDeactivatingStandalone,
 	className,
 	onAdd,
+	onInstall,
 	onLearnMore,
 	upgradeInInterstitial,
 } ) => {
@@ -55,8 +56,7 @@ const ActionButton = ( {
 
 	const getStatusAction = useCallback( () => {
 		switch ( status ) {
-			case PRODUCT_STATUSES.ABSENT:
-			case PRODUCT_STATUSES.ABSENT_WITH_PLAN: {
+			case PRODUCT_STATUSES.ABSENT: {
 				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
 				return {
 					...buttonState,
@@ -69,6 +69,18 @@ const ActionButton = ( {
 					...( primaryActionOverride &&
 						PRODUCT_STATUSES.ABSENT in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.ABSENT ] ),
+				};
+			}
+			case PRODUCT_STATUSES.ABSENT_WITH_PLAN: {
+				const buttonText = __( 'Install Plugin', 'jetpack-my-jetpack' );
+				return {
+					...buttonState,
+					href: '',
+					size: 'small',
+					variant: 'primary',
+					weight: 'regular',
+					label: buttonText,
+					onClick: onInstall,
 					...( primaryActionOverride &&
 						PRODUCT_STATUSES.ABSENT_WITH_PLAN in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ] ),
@@ -173,6 +185,7 @@ const ActionButton = ( {
 		onAdd,
 		onFixConnection,
 		onActivate,
+		onInstall,
 		onLearnMore,
 		purchaseUrl,
 		upgradeInInterstitial,

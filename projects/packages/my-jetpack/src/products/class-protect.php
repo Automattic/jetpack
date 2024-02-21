@@ -7,8 +7,11 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Jetpack_Options;
+use WP_Error;
 
 /**
  * Class responsible for handling the Protect product
@@ -99,6 +102,33 @@ class Protect extends Product {
 			__( 'Check plugin and theme version status', 'jetpack-my-jetpack' ),
 			__( 'Easy to navigate and use', 'jetpack-my-jetpack' ),
 		);
+	}
+
+	/**
+	 * Hits the wpcom api to check scan status.
+	 *
+	 * @todo Maybe add caching.
+	 *
+	 * @return Object|WP_Error
+	 */
+	private static function get_state_from_wpcom() {
+		static $status = null;
+
+		if ( $status !== null ) {
+			return $status;
+		}
+
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/scan', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'scan_state_fetch_failed' );
+		}
+
+		$body   = wp_remote_retrieve_body( $response );
+		$status = json_decode( $body );
+		return $status;
 	}
 
 	/**
@@ -215,6 +245,19 @@ class Protect extends Product {
 				),
 			),
 		);
+	}
+
+	/**
+	 * Checks if the site has a paid plan for the product
+	 *
+	 * @return bool
+	 */
+	public static function has_paid_plan_for_product() {
+		$scan_data = static::get_state_from_wpcom();
+		if ( is_wp_error( $scan_data ) ) {
+			return false;
+		}
+		return is_object( $scan_data ) && isset( $scan_data->state ) && 'unavailable' !== $scan_data->state;
 	}
 
 	/**
