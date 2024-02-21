@@ -295,6 +295,13 @@ const welcomeBanner = ( state = {}, action ) => {
 	}
 };
 
+const userStats = ( state = {}, action ) => {
+	switch ( action.type ) {
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	products,
 	backupRewindableEvents,
@@ -308,6 +315,7 @@ const reducers = combineReducers( {
 	stats,
 	statsCounts,
 	welcomeBanner,
+	userStats,
 } );
 
 export default reducers;

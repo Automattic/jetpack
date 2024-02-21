@@ -143,6 +143,29 @@ const getStatsCounts = state => {
 	return state.statsCounts?.data;
 };
 
+const getUserStats = state => {
+	return state.userStats;
+};
+
+const getGuessUserType = state => {
+	const { modules, purchases, features, plugins, isSiteConnected, isUserConnected } =
+		getUserStats( state );
+
+	if ( purchases.length === 0 ) {
+		if ( ! isUserConnected || ! isSiteConnected || modules.length === 0 || plugins.length === 1 ) {
+			return 'brand-new';
+		}
+
+		return 'new';
+	}
+
+	if ( purchases.length === 1 || features.length < 10 ) {
+		return 'settling-in';
+	}
+
+	return 'established';
+};
+
 const isFetchingStatsCounts = state => {
 	return state.statsCounts?.isFetching || false;
 };
@@ -169,6 +192,7 @@ const selectors = {
 	...countBackupItemsSelectors,
 	...statsCountsSelectors,
 	getWelcomeBannerHasBeenDismissed,
+	getGuessUserType,
 };
 
 export default selectors;
