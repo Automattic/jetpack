@@ -348,9 +348,14 @@ export function useDataSyncAction<
 	} );
 }
 
-type SubsetMutation< T > = UseMutationResult< T > & {
+type SubsetMutation< T > = {
 	mutate: ( newValue: T ) => void;
+	isSuccess: boolean;
+	isPending: boolean;
+	isError: boolean;
+	error: Error | null;
 };
+
 export function useDataSyncSubset<
 	Schema extends z.ZodSchema,
 	Value extends z.infer< Schema >,
@@ -361,6 +366,7 @@ export function useDataSyncSubset<
 	const [ isError, setIsError ] = React.useState( false );
 	const [ isActive, setIsActive ] = React.useState( false );
 	const [ isSuccess, setIsSuccess ] = React.useState( false );
+	const [ error, setError ] = React.useState< unknown >( null );
 
 	const mutate = ( newValue: Value[ K ] ) => {
 		if ( ! query.data ) {
@@ -380,6 +386,7 @@ export function useDataSyncSubset<
 		setIsError( mutation.isError );
 		setIsPending( mutation.isPending );
 		setIsSuccess( mutation.isSuccess );
+		setError( mutation.error );
 		if ( mutation.isSuccess || mutation.isError ) {
 			setIsActive( false );
 		}
@@ -388,10 +395,10 @@ export function useDataSyncSubset<
 	return [
 		query.data?.[ key ],
 		{
-			...mutation,
 			isSuccess,
 			isPending,
 			isError,
+			error,
 			mutate,
 		},
 	];
