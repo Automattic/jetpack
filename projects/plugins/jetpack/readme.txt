@@ -4,7 +4,7 @@ Tags: Security, backup, Woo, malware, scan, performance
 Stable tag: 13.1.2
 Requires at least: 6.3
 Requires PHP: 7.0
-Tested up to: 6.4
+Tested up to: 6.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
