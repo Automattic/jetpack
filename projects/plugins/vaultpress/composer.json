@@ -50,6 +50,7 @@
 		"version-constants": {
 			"VAULTPRESS__VERSION": "vaultpress.php"
 		},
-		"wp-plugin-slug": "vaultpress"
+		"wp-plugin-slug": "vaultpress",
+		"wp-svn-autopublish": true
 	}
 }
