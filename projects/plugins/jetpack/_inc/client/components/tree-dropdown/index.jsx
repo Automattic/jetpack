@@ -17,7 +17,7 @@ const TreeDropdown = props => {
 	);
 
 	const tags = useMemo(
-		() => selectedItems?.map( id => items.find( item => item.id === id ) ) || [],
+		() => selectedItems?.map( id => items.find( item => item.id === id ) ).filter( Boolean ) || [],
 		[ selectedItems, items ]
 	);
 
