@@ -83,11 +83,6 @@ class Jetpack_Likes {
 
 		$active = Jetpack::get_active_modules();
 
-		if ( ! in_array( 'sharedaddy', $active, true ) && ! in_array( 'publicize', $active, true ) ) {
-			// we don't have a sharing page yet.
-			add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
-		}
-
 		if ( in_array( 'publicize', $active, true ) && ! in_array( 'sharedaddy', $active, true ) ) {
 			// we have a sharing page but not the global options area.
 			add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );

@@ -1,8 +1,11 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
 import styles from '../health.module.scss';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
-const cacheIssuesLink = 'TBD'; // @todo - add proper link here.
+const cacheIssuesLink = ( issue: string ) => {
+	return getRedirectUrl( `jb-cache-issue-${ issue }` );
+};
 
 const messages: { [ key: string ]: { title: string; message: React.ReactNode } } = {
 	'wp-content-not-writable': {
@@ -18,8 +21,14 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			),
 			{
 				code: <code className={ styles.nowrap } />,
-				// eslint-disable-next-line jsx-a11y/anchor-has-content
-				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'wp-content-not-writable' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
 			}
 		),
 	},
@@ -31,8 +40,14 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 				'jetpack-boost'
 			),
 			{
-				// eslint-disable-next-line jsx-a11y/anchor-has-content
-				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'not-using-permalinks' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
 			}
 		),
 	},
@@ -49,8 +64,14 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			),
 			{
 				code: <code className={ styles.nowrap } />,
-				// eslint-disable-next-line jsx-a11y/anchor-has-content
-				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'advanced-cache-incompatible' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
 			}
 		),
 	},
@@ -67,8 +88,14 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			),
 			{
 				code: <code className={ styles.nowrap } />,
-				// eslint-disable-next-line jsx-a11y/anchor-has-content
-				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'unable-to-write-to-advanced-cache' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
 			}
 		),
 	},
@@ -88,8 +115,14 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			),
 			{
 				code: <code className={ styles.nowrap } />,
-				// eslint-disable-next-line jsx-a11y/anchor-has-content
-				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'wp-cache-defined-not-true' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
 			}
 		),
 	},

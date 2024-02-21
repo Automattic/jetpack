@@ -454,6 +454,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
+		$response['categories'] = get_categories( array( 'get' => 'all' ) );
+
 		foreach ( $settings as $setting => $properties ) {
 			switch ( $setting ) {
 				case 'lang_id':
@@ -981,6 +983,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'stb_enabled':
 				case 'stc_enabled':
 				case 'sm_enabled':
+				case 'wpcom_newsletter_categories_enabled':
 					// Convert the false value to 0. This allows the option to be updated if it doesn't exist yet.
 					$sub_value = $value ? $value : 0;
 					$updated   = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;

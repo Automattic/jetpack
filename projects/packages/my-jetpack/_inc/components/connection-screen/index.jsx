@@ -1,5 +1,6 @@
 import { Container, Col, AdminPage, getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen } from '@automattic/jetpack-connection';
+import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import React from 'react';
@@ -23,7 +24,11 @@ const ConnectionScreenFooter = () => {
 					'jetpack-my-jetpack'
 				) }
 			</div>
-			<ul className={ styles[ 'account-images' ] }>
+			{ /*
+				Since the list style type is set to none, `role=list` is required for VoiceOver (on Safari) to announce the list.
+				See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
+			*/ }
+			<ul className={ styles[ 'account-images' ] } role="list">
 				<li>
 					<img src={ wordpressLogo } className={ styles.wordpress } alt="WordPress.com" />
 				</li>
@@ -66,7 +71,11 @@ const ConnectionScreen = () => {
 						from="my-jetpack"
 						redirectUri={ returnToPage }
 					>
-						<ul>
+						{ /*
+						Since the list style type is set to none, `role=list` is required for VoiceOver (on Safari) to announce the list.
+						See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
+						*/ }
+						<ul role="list">
 							<li>{ __( 'Receive instant downtime alerts', 'jetpack-my-jetpack' ) }</li>
 							<li>
 								{ __( 'Automatically share your content on social media', 'jetpack-my-jetpack' ) }
@@ -88,6 +97,12 @@ const ConnectionScreen = () => {
 								>
 									{ __( 'See all Jetpack features', 'jetpack-my-jetpack' ) }
 									<Icon icon={ external } />
+									<VisuallyHidden as="span">
+										{
+											/* translators: accessibility text */
+											__( '(opens in a new tab)', 'jetpack-my-jetpack' )
+										}
+									</VisuallyHidden>
 								</a>
 							</li>
 						</ul>

@@ -47,11 +47,6 @@ class Jetpack_Publicize {
 		if ( $this->in_jetpack ) {
 			Jetpack::enable_module_configurable( __FILE__ );
 
-			// if sharedaddy isn't active, the sharing menu hasn't been added yet.
-			if ( $this->modules->is_active( 'publicize' ) && ! $this->modules->is_active( 'sharedaddy' ) ) {
-				add_action( 'admin_menu', array( &$publicize_ui, 'sharing_menu' ) );
-			}
-
 			/*
 			 * The Publicize Options array does not currently have UI since it is being added
 			 * for a specific purpose and not part of a broader Publicize sprint.
