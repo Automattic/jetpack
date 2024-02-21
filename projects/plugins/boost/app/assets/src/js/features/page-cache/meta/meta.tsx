@@ -10,44 +10,24 @@ import { usePageCache } from '$lib/stores/page-cache';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import { MutationNotice } from '$features/ui';
+import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
-	const [ query, mutation ] = usePageCache();
+	const pageCache = usePageCache();
 
-	const settings = query?.data;
-	const setSettings = mutation.mutate;
-
-	const setLogging = ( newValue: boolean ) => {
-		if ( ! setSettings || ! settings ) {
-			return;
-		}
-
-		setSettings( {
-			...settings,
-			logging: newValue,
-		} );
-	};
-
-	const setBypassPatterns = ( newValue: string ) => {
-		if ( ! setSettings || ! settings ) {
-			return;
-		}
-
-		setSettings( {
-			...settings,
-			bypass_patterns: newValue.split( '\n' ).map( item => item.trim() ),
-		} );
-	};
-
-	const totalBypassPatterns = settings?.bypass_patterns.length || 0;
-
+	const [ logging, mutateLogging ] = useDataSyncSubset( 'logging', pageCache );
+	const [ bypassPatterns, mutateBypassPatterns ] = useDataSyncSubset(
+		'bypass_patterns',
+		pageCache
+	);
+	const totalBypassPatterns = bypassPatterns?.length || 0;
 	return (
 		<div className={ styles.wrapper }>
-			<MutationNotice { ...mutation } />
+			<MutationNotice { ...mutateBypassPatterns } />
 			<div className={ styles.head }>
 				<div className={ styles.summary }>
-					{ totalBypassPatterns === 0 && ! settings?.logging ? (
+					{ totalBypassPatterns === 0 && ! logging ? (
 						__( 'No exceptions or logging.', 'jetpack-boost' )
 					) : (
 						<>
@@ -62,8 +42,8 @@ const Meta = () => {
 							) : (
 								__( 'No exceptions.', 'jetpack-boost' )
 							) }{ ' ' }
-							{ settings?.logging && __( 'Logging activated.', 'jetpack-boost' ) }
-							{ ! settings?.logging && __( 'No logging.', 'jetpack-boost' ) }
+							{ logging && __( 'Logging activated.', 'jetpack-boost' ) }
+							{ ! logging && __( 'No logging.', 'jetpack-boost' ) }
 						</>
 					) }
 				</div>
@@ -91,33 +71,33 @@ const Meta = () => {
 			</div>
 			{ isExpanded && (
 				<div className={ styles.body }>
-					{ settings && (
-						<>
-							<BypassPatterns
-								patterns={ settings.bypass_patterns.join( '\n' ) }
-								setPatterns={ setBypassPatterns }
-								showErrorNotice={ mutation.isError }
-							/>
-							<div className={ styles.section }>
-								<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
-								<label htmlFor="cache-logging">
-									<input
-										type="checkbox"
-										id="cache-logging"
-										checked={ settings.logging }
-										onChange={ event => setLogging( event.target.checked ) }
-									/>{ ' ' }
-									{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
-									{ settings.logging && (
-										<>
-											{ ' ' }
-											<Link to="/cache-debug-log">{ __( 'See Logs', 'jetpack-boost' ) }</Link>
-										</>
-									) }
-								</label>
-							</div>
-						</>
-					) }
+					<>
+						<BypassPatterns
+							patterns={ bypassPatterns.join( '\n' ) }
+							setPatterns={ patterns =>
+								mutateBypassPatterns.mutate( patterns.split( '\n' ).map( item => item.trim() ) )
+							}
+							showErrorNotice={ mutateBypassPatterns.isError }
+						/>
+						<div className={ styles.section }>
+							<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
+							<label htmlFor="cache-logging">
+								<input
+									type="checkbox"
+									id="cache-logging"
+									checked={ logging }
+									onChange={ event => mutateLogging.mutate( event.target.checked ) }
+								/>{ ' ' }
+								{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
+								{ logging && (
+									<>
+										{ ' ' }
+										<Link to="/cache-debug-log">{ __( 'See Logs', 'jetpack-boost' ) }</Link>
+									</>
+								) }
+							</label>
+						</div>
+					</>
 				</div>
 			) }
 		</div>
