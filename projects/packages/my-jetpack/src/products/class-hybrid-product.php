@@ -26,6 +26,15 @@ abstract class Hybrid_Product extends Product {
 	public static $has_standalone_plugin = true;
 
 	/**
+	 * For Hybrid products, we can use either the standalone or Jetpack plugin
+	 *
+	 * @return bool
+	 */
+	public static function is_plugin_installed() {
+		return parent::is_plugin_installed() || parent::is_jetpack_plugin_installed();
+	}
+
+	/**
 	 * Checks whether the Product is active
 	 *
 	 * @return boolean
@@ -141,7 +150,7 @@ abstract class Hybrid_Product extends Product {
 		 * Activate the module as well, if the user has a plan
 		 * or the product does not require a plan to work
 		 */
-		if ( static::has_required_plan() ) {
+		if ( static::has_required_plan() && isset( static::$module_name ) ) {
 			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
 
 			if ( ! $module_activation ) {
