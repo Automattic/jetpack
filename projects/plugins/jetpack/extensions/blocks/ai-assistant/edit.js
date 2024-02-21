@@ -87,7 +87,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const requestsRemaining = Math.max( requestsLimit - requestsCount, 0 );
 
 	const { autosaveAndRedirect } = useAICheckout();
-	const { planType } = usePlanType( currentTier );
+	const planType = usePlanType( currentTier );
 
 	const focusOnPrompt = () => {
 		/*
