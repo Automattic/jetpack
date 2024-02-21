@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
-use Automattic\Jetpack_Boost\Contracts\Changes_Output;
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
@@ -16,7 +16,7 @@ use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
 
-class Cloud_CSS implements Pluggable, Has_Endpoints, Changes_Output {
+class Cloud_CSS implements Pluggable, Has_Endpoints, Changes_Page_Output {
 
 	/**
 	 * Critical CSS storage class instance.

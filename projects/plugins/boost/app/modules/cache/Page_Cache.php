@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
-use Automattic\Jetpack_Boost\Contracts\Changes_Output;
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
@@ -53,7 +53,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	 */
 	public function handle_module_status_updated( $module_slug, $status ) {
 		// Get a list of modules that can change the HTML output.
-		$output_changing_modules = Modules_Index::get_modules_implementing( Changes_Output::class );
+		$output_changing_modules = Modules_Index::get_modules_implementing( Changes_Page_Output::class );
 
 		// Special case: don't clear when enabling Critical or Cloud CSS, as they will
 		// be handled after generation.

@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Compatibility\Super_Cache;
 
-use Automattic\Jetpack_Boost\Contracts\Changes_Output;
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 
 /**
@@ -53,7 +53,7 @@ add_action( 'jetpack_boost_critical_css_invalidated', __NAMESPACE__ . '\clear_ca
  */
 function module_status_updated( $module_slug, $status ) {
 	// Get a list of modules that can change the HTML output.
-	$output_changing_modules = Modules_Index::get_modules_implementing( Changes_Output::class );
+	$output_changing_modules = Modules_Index::get_modules_implementing( Changes_Page_Output::class );
 
 	// Special case: don't clear when enabling Critical or Cloud CSS, as they will
 	// be handled after generation.
