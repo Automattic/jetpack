@@ -28,6 +28,13 @@ export function useRunPageCacheSetupAction() {
 	return usePageCacheErrorAction( 'run-page-cache-setup', z.void() );
 }
 
+/**
+ * Hook which creates a callable action for clearing Page Cache.
+ */
+export function useClearPageCacheAction() {
+	return usePageCacheAction( 'clear-page-cache', z.void() );
+}
+
 function usePageCacheErrorAction<
 	ActionSchema extends z.ZodSchema,
 	ActionRequestData extends z.infer< ActionSchema >,
@@ -40,6 +47,24 @@ function usePageCacheErrorAction<
 		action_name: action,
 		schema: {
 			state: PageCacheError,
+			action_request: schema,
+			action_response: responseSchema,
+		},
+	} );
+}
+
+function usePageCacheAction<
+	ActionSchema extends z.ZodSchema,
+	ActionRequestData extends z.infer< ActionSchema >,
+>( action: string, schema: ActionRequestData ) {
+	const responseSchema = z.boolean();
+
+	return useDataSyncAction( {
+		namespace: 'jetpack_boost_ds',
+		key: 'page_cache',
+		action_name: action,
+		schema: {
+			state: PageCache,
 			action_request: schema,
 			action_response: responseSchema,
 		},

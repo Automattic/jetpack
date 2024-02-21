@@ -1,18 +1,22 @@
 import { Button, Notice } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
+import { Snackbar } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
 import Lightning from '$svg/lightning';
 import styles from './meta.module.scss';
 import { useEffect, useState } from 'react';
-import { usePageCache } from '$lib/stores/page-cache';
+import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const [ query, mutation ] = usePageCache();
+	const [ clearingCache, setClearingCache ] = useState( false );
+	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
+	const runClearPageCacheAction = useClearPageCacheAction();
 
 	const settings = query?.data;
 	const setSettings = mutation.mutate;
@@ -39,32 +43,56 @@ const Meta = () => {
 		} );
 	};
 
+	const clearPageCache = () => {
+		setClearingCache( true );
+		setSnackbarMessage( '' ); // Hide any previous snackbar message.
+		runClearPageCacheAction.mutate();
+	};
+
+	useEffect( () => {
+		if (
+			clearingCache &&
+			( runClearPageCacheAction.isSuccess || runClearPageCacheAction.isError )
+		) {
+			setClearingCache( false );
+			setSnackbarMessage( __( 'Cache Cleared.', 'jetpack-boost' ) );
+		}
+	}, [ clearingCache, runClearPageCacheAction ] );
+
 	const totalBypassPatterns = settings?.bypass_patterns.length || 0;
+
+	const getSummary = () => {
+		if ( clearingCache ) {
+			return __( 'Clearing cache…', 'jetpack-boost' );
+		}
+
+		if ( totalBypassPatterns === 0 && ! settings?.logging ) {
+			return __( 'No exceptions or logging.', 'jetpack-boost' );
+		}
+
+		return (
+			<>
+				{ totalBypassPatterns > 0 ? (
+					<>
+						{ sprintf(
+							/* translators: %d is the number of cache bypass patterns. */
+							_n( '%d exception.', '%d exceptions.', totalBypassPatterns, 'jetpack-boost' ),
+							totalBypassPatterns
+						) }
+					</>
+				) : (
+					__( 'No exceptions.', 'jetpack-boost' )
+				) }{ ' ' }
+				{ settings?.logging && __( 'Logging activated.', 'jetpack-boost' ) }
+				{ ! settings?.logging && __( 'No logging.', 'jetpack-boost' ) }
+			</>
+		);
+	};
 
 	return (
 		<div className={ styles.wrapper }>
 			<div className={ styles.head }>
-				<div className={ styles.summary }>
-					{ totalBypassPatterns === 0 && ! settings?.logging ? (
-						__( 'No exceptions or logging.', 'jetpack-boost' )
-					) : (
-						<>
-							{ totalBypassPatterns > 0 ? (
-								<>
-									{ sprintf(
-										/* translators: %d is the number of cache bypass patterns. */
-										_n( '%d exception.', '%d exceptions.', totalBypassPatterns, 'jetpack-boost' ),
-										totalBypassPatterns
-									) }
-								</>
-							) : (
-								__( 'No exceptions.', 'jetpack-boost' )
-							) }{ ' ' }
-							{ settings?.logging && __( 'Logging activated.', 'jetpack-boost' ) }
-							{ ! settings?.logging && __( 'No logging.', 'jetpack-boost' ) }
-						</>
-					) }
-				</div>
+				<div className={ styles.summary }>{ getSummary() }</div>
 				<div className={ styles.actions }>
 					<Button
 						variant="link"
@@ -72,6 +100,8 @@ const Meta = () => {
 						weight="regular"
 						iconSize={ 16 }
 						icon={ <Lightning /> }
+						onClick={ clearPageCache }
+						disabled={ clearingCache }
 					>
 						{ __( 'Clear Cache', 'jetpack-boost' ) }
 					</Button>{ ' ' }
@@ -117,6 +147,9 @@ const Meta = () => {
 						</>
 					) }
 				</div>
+			) }
+			{ snackbarMessage !== '' && (
+				<Snackbar children={ snackbarMessage } onDismiss={ () => setSnackbarMessage( '' ) } />
 			) }
 		</div>
 	);
