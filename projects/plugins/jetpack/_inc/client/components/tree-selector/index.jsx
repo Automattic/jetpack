@@ -26,7 +26,7 @@ const TreeSelector = props => {
 			style={ { marginLeft: isSearching ? 0 : item.depth * 25 } }
 		>
 			<CheckboxControl
-				id={ `jp-tree-item-${ item.ID }` }
+				id={ `jp-tree-item-${ item.id }` }
 				name="jp-tree-item"
 				checked={ selectedItems.includes( item.id ) }
 				onChange={ toggleCheckbox( item.id ) }
