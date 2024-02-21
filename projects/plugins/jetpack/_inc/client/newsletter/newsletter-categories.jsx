@@ -41,6 +41,7 @@ function NewsletterCategories( props ) {
 		isUnavailableDueSiteConnectionMode,
 		subscriptionsModule,
 		updateFormStateAndSaveOptionValue,
+		isSavingAnyOption,
 	} = props;
 
 	const handleEnableNewsletterCategoriesToggleChange = useCallback( () => {
@@ -103,6 +104,7 @@ function NewsletterCategories( props ) {
 					items={ mappedCategories }
 					selectedItems={ checkedCategoriesIds }
 					onChange={ onSelectedCategoryChange }
+					disabled={ isSavingAnyOption( [ 'wpcom_newsletter_categories' ] ) }
 				/>
 				<p>{ __( 'Add New Category', 'jetpack' ) }</p>
 			</SettingsGroup>

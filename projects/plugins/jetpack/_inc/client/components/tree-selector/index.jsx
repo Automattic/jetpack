@@ -3,7 +3,7 @@ import './style.scss';
 import { createFlatTreeItems } from './utils';
 
 const TreeSelector = props => {
-	const { items, onChange, selectedItems, keyword = '' } = props;
+	const { items, onChange, selectedItems, disabled, keyword = '' } = props;
 
 	const flatTreeItems = createFlatTreeItems( items );
 
@@ -30,6 +30,7 @@ const TreeSelector = props => {
 				name="jp-tree-item"
 				checked={ selectedItems.includes( item.id ) }
 				onChange={ toggleCheckbox( item.id ) }
+				disabled={ disabled }
 			/>
 			<label htmlFor={ `jp-tree-item-${ item.id }` }>
 				{ item.name }

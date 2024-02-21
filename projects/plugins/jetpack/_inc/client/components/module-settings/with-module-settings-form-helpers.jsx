@@ -56,15 +56,11 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		};
 
 		updateFormStateAndSaveOptionValue = ( optionMaybeOptions, optionValue = undefined ) => {
-			this.props.updateOptions( this.state.options ).then( () => {
-				if ( 'string' === typeof optionMaybeOptions ) {
-					optionMaybeOptions = { [ optionMaybeOptions ]: optionValue };
-				}
-				const newOptions = {
-					...this.state.options,
-					...optionMaybeOptions,
-				};
-				this.setState( { options: newOptions } );
+			if ( 'string' === typeof optionMaybeOptions ) {
+				optionMaybeOptions = { [ optionMaybeOptions ]: optionValue };
+			}
+			this.props.updateOptions( { ...this.state.options, ...optionMaybeOptions } ).then( () => {
+				this.setState( { options: { ...this.state.options, ...optionMaybeOptions } } );
 			} );
 		};
 
