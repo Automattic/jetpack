@@ -11,10 +11,13 @@ import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import { Snackbar } from '@wordpress/components';
 
-const SettingsStatusNotice = ( mutation: {
+const MutationNotice = ( mutation: {
 	isSuccess: boolean;
 	isError: boolean;
 	isPending: boolean;
+	savingMessage?: string;
+	errorMessage?: string;
+	successMessage?: string;
 } ) => {
 	const [ showSnackbar, setShowSnackbar ] = useState( false );
 	const [ snackbarContent, setSnackbarContent ] = useState( '' );
@@ -28,20 +31,30 @@ const SettingsStatusNotice = ( mutation: {
 		if ( mutation.isPending && ! mutation.isSuccess ) {
 			timeoutId = setTimeout( () => {
 				setShowSnackbar( true );
-				setSnackbarContent( __( 'Saving…', 'jetpack-boost' ) );
+				setSnackbarContent( mutation.savingMessage || __( 'Saving…', 'jetpack-boost' ) );
 				setSnackbarType( 'success' );
 			}, 50 );
 		} else if ( mutation.isSuccess ) {
 			setShowSnackbar( true );
-			setSnackbarContent( __( 'Settings saved successfully.', 'jetpack-boost' ) );
+			setSnackbarContent( mutation.successMessage || __( 'Changes saved.', 'jetpack-boost' ) );
 			setSnackbarType( 'success' );
 		} else if ( mutation.isError ) {
 			setShowSnackbar( true );
-			setSnackbarContent( __( 'Failed to save settings.', 'jetpack-boost' ) );
+			setSnackbarContent(
+				mutation.errorMessage ||
+					__( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' )
+			);
 			setSnackbarType( 'error' );
 		}
 		return () => clearTimeout( timeoutId );
-	}, [ mutation.isSuccess, mutation.isError, mutation.isPending ] );
+	}, [
+		mutation.isSuccess,
+		mutation.isError,
+		mutation.isPending,
+		mutation.savingMessage,
+		mutation.errorMessage,
+		mutation.successMessage,
+	] );
 
 	return (
 		<>
@@ -87,7 +100,7 @@ const Meta = () => {
 
 	return (
 		<div className={ styles.wrapper }>
-			<SettingsStatusNotice { ...mutation } />
+			<MutationNotice { ...mutation } />
 			<div className={ styles.head }>
 				<div className={ styles.summary }>
 					{ totalBypassPatterns === 0 && ! settings?.logging ? (
