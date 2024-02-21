@@ -2,7 +2,7 @@ import { ToggleControl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
 	isUnavailableInOfflineMode,
@@ -11,8 +11,7 @@ import {
 } from 'state/connection';
 import { getModule } from 'state/modules';
 import { withModuleSettingsFormHelpers } from '../components/module-settings/with-module-settings-form-helpers';
-import TextInput from '../components/text-input';
-import Textarea from '../components/textarea';
+import TreeSelector from '../components/tree-selector';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
 const mapCategoriesIds = category => {
@@ -37,31 +36,44 @@ function NewsletterCategories( props ) {
 		updateFormStateModuleOption,
 		isNewsletterCategoriesEnabled,
 		newsletterCategories,
-		updateFormStateOptionValue,
 		categories,
 		isUnavailableDueOfflineMode,
 		isUnavailableDueSiteConnectionMode,
 		subscriptionsModule,
+		updateFormStateAndSaveOptionValue,
+		isSavingAnyOption,
 	} = props;
-
-	const [ newCategories, setNewCategories ] = useState( '' );
 
 	const handleEnableNewsletterCategoriesToggleChange = useCallback( () => {
 		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'wpcom_newsletter_categories_enabled' );
 	}, [ updateFormStateModuleOption ] );
 
-	const categoriesValue = JSON.stringify( newsletterCategories.map( mapCategoriesIds ) );
-	const parseArray = useCallback( () => {
-		try {
-			updateFormStateOptionValue( 'wpcom_newsletter_categories', JSON.parse( newCategories ) );
-		} catch ( error ) {
-			alert( 'Invalid JSON' );
-		}
-	}, [ newCategories, updateFormStateOptionValue ] );
+	const checkedCategoriesIds = newsletterCategories.map( mapCategoriesIds );
 
-	const onCategoriesChange = useCallback( e => {
-		setNewCategories( e.target.value );
-	}, [] );
+	const mappedCategories = useMemo(
+		() =>
+			categories.map( category => ( {
+				...category,
+				name: category.cat_name,
+				id: category.term_id,
+			} ) ),
+		[ categories ]
+	);
+
+	const onSelectedCategoryChange = useCallback(
+		( id, checkedValue ) => {
+			let newCheckedCategoriesIds;
+			if ( checkedValue ) {
+				if ( ! checkedCategoriesIds.includes( id ) ) {
+					newCheckedCategoriesIds = [ ...checkedCategoriesIds, id ].sort( ( a, b ) => a - b );
+				}
+			} else {
+				newCheckedCategoriesIds = checkedCategoriesIds.filter( category => category !== id );
+			}
+			updateFormStateAndSaveOptionValue( 'wpcom_newsletter_categories', newCheckedCategoriesIds );
+		},
+		[ checkedCategoriesIds, updateFormStateAndSaveOptionValue ]
+	);
 
 	return (
 		<SettingsCard
@@ -72,23 +84,29 @@ function NewsletterCategories( props ) {
 		>
 			<SettingsGroup
 				hasChild
-				disableInOfflineMode={ requiresConnection }
-				disableInSiteConnectionMode={ requiresConnection }
+				disableInOfflineMode
+				disableInSiteConnectionMode
 				module={ subscriptionsModule }
 			>
+				<p>
+					{ __(
+						'Newsletter categories allow visitors to subscribe only to specific topics. When enabled, only posts published under the categories selected below will be emailed to your subscribers.',
+						'jetpack'
+					) }
+				</p>
 				<ToggleControl
 					disabled={ isUnavailableDueOfflineMode || isUnavailableDueSiteConnectionMode }
 					checked={ isNewsletterCategoriesEnabled }
 					onChange={ handleEnableNewsletterCategoriesToggleChange }
 					label={ __( 'Enable newsletter categories', 'jetpack' ) }
 				/>
-				All categories:
-				<Textarea disabled value={ JSON.stringify( categories ) } />
-				Checked categories (by ID):
-				<TextInput value={ categoriesValue } disabled />
-				New Checked categories value:
-				<TextInput value={ newCategories } onChange={ onCategoriesChange } />
-				<button onClick={ parseArray }>Parse array to state</button>
+				<TreeSelector
+					items={ mappedCategories }
+					selectedItems={ checkedCategoriesIds }
+					onChange={ onSelectedCategoryChange }
+					disabled={ isSavingAnyOption( [ 'wpcom_newsletter_categories' ] ) }
+				/>
+				<p>{ __( 'Add New Category', 'jetpack' ) }</p>
 			</SettingsGroup>
 		</SettingsCard>
 	);
