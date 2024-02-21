@@ -8,7 +8,7 @@
 		'DOMContentLoaded',
 		function() {
 			// Update Publish label used to populate Customizer save options.
-			var choices = window._wpCustomizeSettings.changeset.statusChoices;
+			var choices = window._wpCustomizeSettings?.changeset?.statusChoices ?? [];
 			for ( var i = 0; i < choices.length; ++i ) {
 				if ( 'publish' === choices[i].status ) {
 					choices[i].label = window._wpCustomizeControlsL10nSitePrivate.publish;
