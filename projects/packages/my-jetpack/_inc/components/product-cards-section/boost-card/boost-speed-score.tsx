@@ -11,7 +11,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import { useBoostTooltipCopy } from './use-boost-tooltip-copy';
 import type { FC } from 'react';
 
 import './style.scss';
@@ -73,8 +72,6 @@ const BoostSpeedScore: FC = () => {
 		}
 	};
 
-	const tooltipCopy = useBoostTooltipCopy( { speedLetterGrade } );
-
 	const handleTooltipMouseEnter = useCallback( () => {
 		setIsTooltipVisible( true );
 	}, [ setIsTooltipVisible ] );
@@ -82,14 +79,6 @@ const BoostSpeedScore: FC = () => {
 	const handleTooltipMouseLeave = useCallback( () => {
 		setIsTooltipVisible( false );
 	}, [ setIsTooltipVisible ] );
-
-	const handleTooltipOpen = useCallback( () => {
-		setIsTooltipVisible( true );
-	}, [] );
-
-	const handleTooltipClose = useCallback( () => {
-		setIsTooltipVisible( false );
-	}, [] );
 
 	useEffect( () => {
 		// Use cache scores if they are less than 21 days old.
@@ -132,7 +121,13 @@ const BoostSpeedScore: FC = () => {
 												{ __( 'Site speed performance:', 'jetpack-my-jetpack' ) }&nbsp;
 												{ speedLetterGrade }
 											</p>
-											<p className={ 'boost-score-tooltip__content' }>{ tooltipCopy }</p>
+											<p className={ 'boost-score-tooltip__content' }>
+												{ __(
+													'You are one step away from making your site blazing fast. A one-second' +
+														'improvement in loading times can increase your site traffic by 10%.',
+													'jetpack-my-jetpack'
+												) }
+											</p>
 										</Popover>
 									) }
 								</button>
