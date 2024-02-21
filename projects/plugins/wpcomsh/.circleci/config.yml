@@ -11,7 +11,7 @@ version: 2
 
 job-references:
   mariadb_image: &mariadb_image
-    circleci/mariadb:10.3.23
+    cimg/mariadb:10.3.36
 
   setup_environment: &setup_environment
     name: "Setup Environment Variables"
