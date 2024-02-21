@@ -386,10 +386,6 @@ class Initializer {
 	public static function should_initialize() {
 		$should = true;
 
-		if ( is_multisite() ) {
-			$should = false;
-		}
-
 		/**
 		 * Allows filtering whether My Jetpack should be initialized.
 		 *
