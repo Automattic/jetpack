@@ -673,7 +673,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "8f53628f970ba5bc8912232a574aa439e7236311"
+                "reference": "a6696f57f2f6f29f4a6930727ae5063c4e89fab4"
             },
             "require": {
                 "php": ">=7.0"
@@ -693,7 +693,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.0.x-dev"
+                    "dev-trunk": "2.1.x-dev"
                 }
             },
             "autoload": {
