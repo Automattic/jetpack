@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Do not initialize My Jetpack when in Offline mode.
