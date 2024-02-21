@@ -97,7 +97,7 @@ function _manually_load_plugin() {
 	}
 
 	if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
-		require __DIR__ . '/../../../../mu-plugins/wpcomsh.php';
+		require __DIR__ . '/../../../../mu-plugins/wpcomsh/wpcomsh.php';
 	}
 	require __DIR__ . '/../../jetpack.php';
 	$jetpack = Jetpack::init();
