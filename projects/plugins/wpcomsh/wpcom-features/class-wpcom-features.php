@@ -948,7 +948,7 @@ class WPCOM_Features {
 		 * @see pcmemI-2O3-p2
 		 */
 		self::SCHEDULED_UPDATES                 => array(
-			// phpcs:ignore WordPress.Arrays.ArrayDeclarationSpacing.SpaceInEmptyArray
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 
 		/*
