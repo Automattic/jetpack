@@ -13,11 +13,23 @@ namespace Automattic\Jetpack\Post_List;
 class Post_List {
 
 	const PACKAGE_VERSION = '0.5.1';
+	const FEATURE         = 'enhanced_post_list';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
 	 */
 	public static function configure() {
+		add_post_type_support( 'post', self::FEATURE );
+		add_post_type_support( 'page', self::FEATURE );
+		self::setup();
+	}
+
+	/**
+	 * Convenience function to create an instance of the class and register the
+	 * filters and actions. It allows for the feature to be set up without adding
+	 * support for posts and pages.
+	 */
+	public static function setup() {
 		$post_list = self::get_instance();
 		$post_list->register();
 	}
@@ -82,7 +94,7 @@ class Post_List {
 	 */
 	public function maybe_customize_columns( $post_type ) {
 		// Add the thumbnail column if this is specifically "Posts" or "Pages".
-		if ( in_array( $post_type, array( 'post', 'page' ), true ) ) {
+		if ( post_type_supports( $post_type, self::FEATURE ) ) {
 			// Add the thumbnail column to the "Posts" admin table.
 			add_filter( 'manage_posts_columns', array( $this, 'add_thumbnail_column' ), 10, 2 );
 			add_action( 'manage_posts_custom_column', array( $this, 'populate_thumbnail_rows' ), 10, 2 );
@@ -229,7 +241,7 @@ class Post_List {
 	 * @return array    The columns to hide by default.
 	 */
 	public function adjust_default_columns( $cols, $screen ) {
-		if ( ! ( 'edit' === $screen->base && in_array( $screen->post_type, array( 'post', 'page' ), true ) ) ) {
+		if ( ! ( 'edit' === $screen->base && post_type_supports( $screen->post_type, self::FEATURE ) ) ) {
 			return $cols;
 		}
 
