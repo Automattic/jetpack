@@ -17,21 +17,26 @@ class Post_List {
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
+	 *
+	 * @return Post_List Post_List instance.
 	 */
 	public static function configure() {
 		add_post_type_support( 'post', self::FEATURE );
 		add_post_type_support( 'page', self::FEATURE );
-		self::setup();
+		return self::setup();
 	}
 
 	/**
 	 * Convenience function to create an instance of the class and register the
 	 * filters and actions. It allows for the feature to be set up without adding
 	 * support for posts and pages.
+	 *
+	 * @return Post_List Post_List instance.
 	 */
 	public static function setup() {
 		$post_list = self::get_instance();
 		$post_list->register();
+		return $post_list;
 	}
 
 	/**
