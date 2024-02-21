@@ -53,6 +53,7 @@ class Boost_Cache {
 		add_action( 'edit_comment', array( $this, 'delete_on_comment_edit' ), 10, 2 );
 		add_action( 'switch_theme', array( $this, 'delete_cache' ) );
 		add_action( 'wp_trash_post', array( $this, 'delete_on_post_trash' ), 10, 2 );
+		add_filter( 'wp_php_error_message', array( $this, 'disable_caching_on_error' ) );
 	}
 
 	/**
@@ -350,5 +351,13 @@ class Boost_Cache {
 	 */
 	public function delete_cache() {
 		return $this->delete_cache_for_url( home_url() );
+	}
+
+	public function disable_caching_on_error( $message ) {
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true );
+		}
+		Logger::debug( 'Fatal error detected, caching disabled' );
+		return $message;
 	}
 }
