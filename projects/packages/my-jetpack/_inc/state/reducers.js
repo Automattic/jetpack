@@ -295,7 +295,7 @@ const welcomeBanner = ( state = {}, action ) => {
 	}
 };
 
-const userStats = ( state = {}, action ) => {
+const lifecycleStats = ( state = {}, action ) => {
 	switch ( action.type ) {
 		default:
 			return state;
@@ -315,7 +315,7 @@ const reducers = combineReducers( {
 	stats,
 	statsCounts,
 	welcomeBanner,
-	userStats,
+	lifecycleStats,
 } );
 
 export default reducers;

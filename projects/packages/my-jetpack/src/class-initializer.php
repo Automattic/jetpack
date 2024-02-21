@@ -215,7 +215,7 @@ class Initializer {
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				'userIsNewToJetpack'     => self::is_jetpack_user_new(),
-				'userStats'              => array(
+				'lifecycleStats'         => array(
 					'jetpackPlugins'  => self::get_installed_jetpack_plugins(),
 					'isSiteConnected' => self::is_site_connected(),
 					'isUserConnected' => self::is_user_connected(),

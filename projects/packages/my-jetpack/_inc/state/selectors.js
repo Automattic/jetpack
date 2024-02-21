@@ -147,7 +147,7 @@ const getUserStats = state => {
 	return state.userStats;
 };
 
-const getGuessUserType = state => {
+const getGuessedSiteLifecycleStatus = state => {
 	const { modules, purchases, features, plugins, isSiteConnected, isUserConnected } =
 		getUserStats( state );
 
@@ -192,7 +192,7 @@ const selectors = {
 	...countBackupItemsSelectors,
 	...statsCountsSelectors,
 	getWelcomeBannerHasBeenDismissed,
-	getGuessUserType,
+	getGuessedSiteLifecycleStatus,
 };
 
 export default selectors;
