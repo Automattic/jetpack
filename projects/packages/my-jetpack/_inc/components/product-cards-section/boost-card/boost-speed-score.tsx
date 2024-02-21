@@ -142,7 +142,7 @@ const BoostSpeedScore: FC = () => {
 											</p>
 											<p className={ 'boost-score-tooltip__content' }>
 												{ __(
-													'You are one step away from making your site blazing fast. A one-second' +
+													'You are one step away from making your site blazing fast. A one-second ' +
 														'improvement in loading times can increase your site traffic by 10%.',
 													'jetpack-my-jetpack'
 												) }
