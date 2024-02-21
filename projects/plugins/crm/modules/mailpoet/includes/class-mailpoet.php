@@ -143,9 +143,6 @@ class Mailpoet {
 			// Initialise Hooks
 			$this->init_hooks();
 
-			// Add Filter buttons
-			$this->include_filter_buttons();
-
 			// Autoload page AJAX
 			$this->load_ajax();
 
@@ -263,7 +260,10 @@ class Mailpoet {
 		// Add MailPoet related info to CRM external source infobox
 		add_filter( 'zbs_external_source_infobox_line', array( $this, 'override_crm_external_source_infobox' ), 10, 2 );
 
-		// Hook in to Contact, Invoice, and Transaction query generation and add the quickfilter
+		// Add listview filters.
+		add_filter( 'jpcrm_listview_filters', array( $this, 'add_listview_filters' ) );
+
+		// Hook in to Contact query generation to support quickfilter
 		add_filter( 'jpcrm_contact_query_quickfilter', array( $this, 'contact_query_quickfilter_addition' ), 10, 2 );
 
 		// Hook in to new contact log creation and add string manipulation
@@ -367,38 +367,15 @@ class Mailpoet {
 
 	}
 
-
 	/**
-	 * Include filter buttons
-	 * (Note, requires `contact_query_quickfilter_addition()` to be hooked into `jpcrm_contact_query_quickfilter`)
+	 * Adds items to listview filter using `jpcrm_listview_filters` hook.
+	 *
+	 * @param array $listview_filters Listview filters.
 	 */
-	public function include_filter_buttons(){
-
-		global $zbs, $zeroBSCRM_filterbuttons_customer;
-
-		// Add 'is Mailpoet subscriber' filter button to 'all options' for contact
-  		$zeroBSCRM_filterbuttons_customer['all']['mailpoet_subscriber'] = array( __( 'MailPoet', 'zero-bs-crm' ) );
-
-  		// get current list view filters
-        $custom_views = $zbs->settings->get( 'customviews2' );
-
-  		// If we've only just activated MailPoet,
-  		// we add the customer filter button to the users selected filters by default (once)
-  		if ( !isset( $custom_views['customer_filters']['mailpoet_subscriber'] ) && !$this->settings->get( 'has_added_mailpoetfilter', false ) ){
-
-  			// add in our filter
-  			$custom_views['customer_filters']['mailpoet_subscriber'] = array( __( 'MailPoet', 'zero-bs-crm' ) );
-
-  			// save
-			$zbs->settings->update( 'customviews2', $custom_views );
-
-			// flag so we don't keep re-adding if user removes from selection
-  			$this->settings->update( 'has_added_mailpoetfilter', true );
-
-  		}
-
+	public function add_listview_filters( $listview_filters ) {
+		$listview_filters[ ZBS_TYPE_CONTACT ]['general']['mailpoet_subscriber'] = __( 'MailPoet', 'zero-bs-crm' );
+		return $listview_filters;
 	}
-
 
 	/**
 	 * Hook in to Contact query generation and add the quickfilter
