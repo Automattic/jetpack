@@ -702,23 +702,19 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
             #} Quick filters - adapted from DAL1 (probs can be slicker)
             if (is_array($quickFilters) && count($quickFilters) > 0){
 
-                // cycle through
-                foreach ($quickFilters as $qFilter){
+				// cycle through
+				foreach ( $quickFilters as $quick_filter ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-										// Pre-DAL3 we used firm status's for quotes, now we infer:
-                    if ($qFilter == 'status_accepted'){
-
-                    	$wheres['quickfilterstatus'] = array('zbsq_accepted','>','0');
-
-                    }
-                    if ($qFilter == 'status_notaccepted'){
-
-                    	$wheres['quickfilterstatus'] = array('zbsq_accepted','<','1');
-
-                    }
-
-                }
-
+					if ( $quick_filter === 'status_accepted' ) {
+						$wheres['quickfilterstatus']  = array( 'zbsq_accepted', '>', '0' );
+						$wheres['quickfilterstatus2'] = array( 'zbsq_template', '>', '0' );
+					} elseif ( $quick_filter === 'status_notaccepted' ) {
+						$wheres['quickfilterstatus']  = array( 'zbsq_accepted', '<=', '0' );
+						$wheres['quickfilterstatus2'] = array( 'zbsq_template', '>', '0' );
+					} elseif ( $quick_filter === 'status_draft' ) {
+						$wheres['quickfilterstatus'] = array( 'zbsq_template', '<=', '0' );
+					}
+				}
             } // / quickfilters
 
 			#} Any additionalWhereArr?
