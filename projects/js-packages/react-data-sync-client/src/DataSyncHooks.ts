@@ -360,7 +360,7 @@ export function useDataSyncSubset<
 	Schema extends z.ZodSchema,
 	Value extends z.infer< Schema >,
 	K extends keyof Value,
->( key: K, hook: DataSyncHook< Schema, Value > ): [ Value[ K ], SubsetMutation< Value[ K ] > ] {
+>( hook: DataSyncHook< Schema, Value >, key: K ): [ Value[ K ], SubsetMutation< Value[ K ] > ] {
 	const [ query, mutation ] = hook;
 	const [ isPending, setIsPending ] = React.useState( false );
 	const [ isError, setIsError ] = React.useState( false );

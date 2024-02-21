@@ -16,11 +16,12 @@ const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const pageCache = usePageCache();
 
-	const [ logging, mutateLogging ] = useDataSyncSubset( 'logging', pageCache );
+	const [ logging, mutateLogging ] = useDataSyncSubset( pageCache, 'logging' );
 	const [ bypassPatterns, mutateBypassPatterns ] = useDataSyncSubset(
-		'bypass_patterns',
-		pageCache
+		pageCache,
+		'bypass_patterns'
 	);
+
 	const totalBypassPatterns = bypassPatterns?.length || 0;
 	return (
 		<div className={ styles.wrapper }>
