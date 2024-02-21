@@ -347,3 +347,31 @@ export function useDataSyncAction<
 		...mutationOptions,
 	} );
 }
+
+type PickedMutation< T > = UseMutationResult< T > & {
+	mutate: ( newValue: T ) => void;
+};
+export function useDataSyncPick<
+	Schema extends z.ZodSchema,
+	Value extends z.infer< Schema >,
+	K extends keyof Value,
+>( key: K, hook: DataSyncHook< Schema, Value > ): [ Value[ K ], PickedMutation< Value[ K ] > ] {
+	const [ query, mutation ] = hook;
+	const set = ( newValue: Value[ K ] ) => {
+		if ( ! query.data ) {
+			return;
+		}
+		mutation.mutate( {
+			...query.data,
+			[ key ]: newValue,
+		} );
+	};
+
+	return [
+		query.data?.[ key ],
+		{
+			...mutation,
+			mutate: set,
+		},
+	];
+}
