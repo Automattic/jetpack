@@ -3,3 +3,4 @@ Type: fixed
 
 Listviews: Object status filters now correctly reflect current status options.
 Listviews: Overhaul of listview filter logic.
+Quotes: Add Draft listview filter.
