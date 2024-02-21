@@ -94,7 +94,7 @@ class Dashboard_Config_Data {
 			return array(
 				'ID'         => 1000,
 				'username'   => 'no-user',
-				'localeSlug' => $this->get_site_locale(),
+				'localeSlug' => $this->get_locale(),
 				'site_count' => 1,
 			);
 		}
@@ -103,7 +103,7 @@ class Dashboard_Config_Data {
 			'ID'         => $user_data['ID'],
 			'username'   => $user_data['login'],
 			'email'      => $user_data['email'],
-			'localeSlug' => $this->get_site_locale(),
+			'localeSlug' => $this->get_locale(),
 			'site_count' => 1,
 		);
 	}
@@ -132,15 +132,15 @@ class Dashboard_Config_Data {
 	}
 
 	/**
-	 * Get locale acceptable by Calypso.
+	 * Get the user's locale acceptable by Calypso.
 	 */
-	protected function get_site_locale() {
+	protected function get_locale() {
 		/**
 		 * In WP, locales are formatted as LANGUAGE_REGION, for example `en`, `en_US`, `es_AR`,
 		 * but Calypso expects language-region, e.g. `en-us`, `en`,  `es-ar`. So we need to convert
 		 * them to lower case and replace the underscore with a dash.
 		 */
-		$locale = strtolower( get_locale() );
+		$locale = strtolower( get_user_locale() );
 		$locale = str_replace( '_', '-', $locale );
 
 		return $locale;

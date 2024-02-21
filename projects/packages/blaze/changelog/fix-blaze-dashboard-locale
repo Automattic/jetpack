@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Changes to use the user's locale to render the dashboard
