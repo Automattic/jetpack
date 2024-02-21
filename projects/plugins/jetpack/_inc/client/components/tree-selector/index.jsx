@@ -1,3 +1,4 @@
+import { CheckboxControl } from '@wordpress/components';
 import { useCallback } from 'react';
 import './style.scss';
 import { createFlatTreeItems } from './utils';
@@ -24,9 +25,8 @@ const TreeSelector = props => {
 			className="jp-tree-item"
 			style={ { marginLeft: isSearching ? 0 : item.depth * 25 } }
 		>
-			<input
-				type="checkbox"
-				id={ `jp-tree-item-${ item.id }` }
+			<CheckboxControl
+				id={ `jp-tree-item-${ item.ID }` }
 				name="jp-tree-item"
 				checked={ selectedItems.includes( item.id ) }
 				onChange={ toggleCheckbox( item.id ) }
