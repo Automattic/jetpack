@@ -2105,6 +2105,9 @@ importers:
       '@wordpress/components':
         specifier: 26.0.0
         version: 26.0.0(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/compose':
+        specifier: 6.28.0
+        version: 6.28.0(react@18.2.0)
       '@wordpress/data':
         specifier: 9.21.0
         version: 9.21.0(react@18.2.0)
