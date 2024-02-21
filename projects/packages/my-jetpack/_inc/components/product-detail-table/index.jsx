@@ -55,6 +55,7 @@ const ProductDetailTableColumn = ( {
 		introductoryOffer,
 		isFree,
 		wpcomProductSlug,
+		quantity = null,
 	} = tiersPricingForUi[ tier ];
 
 	// Set up the checkout workflow hook.
@@ -65,6 +66,7 @@ const ProductDetailTableColumn = ( {
 		connectAfterCheckout: true,
 		siteSuffix,
 		useBlogIdSuffix: true,
+		quantity,
 	} );
 
 	// Register the click handler for the product button.
