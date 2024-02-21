@@ -10,6 +10,7 @@ import {
 	requiresConnection,
 } from 'state/connection';
 import { getModule } from 'state/modules';
+import Card from '../components/card';
 import { withModuleSettingsFormHelpers } from '../components/module-settings/with-module-settings-form-helpers';
 import TreeSelector from '../components/tree-selector';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
@@ -106,8 +107,15 @@ function NewsletterCategories( props ) {
 					onChange={ onSelectedCategoryChange }
 					disabled={ isSavingAnyOption( [ 'wpcom_newsletter_categories' ] ) }
 				/>
-				<p>{ __( 'Add New Category', 'jetpack' ) }</p>
 			</SettingsGroup>
+			<Card
+				compact
+				className="jp-settings-card__configure-link"
+				href="/wp-admin/edit-tags.php?taxonomy=category"
+				target="_blank"
+			>
+				{ __( 'Add New Category', 'jetpack' ) }
+			</Card>
 		</SettingsCard>
 	);
 }
