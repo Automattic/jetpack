@@ -364,7 +364,6 @@ export function useDataSyncSubset<
 	const [ query, mutation ] = hook;
 	const [ isPending, setIsPending ] = React.useState( false );
 	const [ isError, setIsError ] = React.useState( false );
-	const [ isActive, setIsActive ] = React.useState( false );
 	const [ isSuccess, setIsSuccess ] = React.useState( false );
 	const [ error, setError ] = React.useState< unknown >( null );
 
@@ -372,7 +371,7 @@ export function useDataSyncSubset<
 		if ( ! query.data ) {
 			return;
 		}
-		setIsActive( true );
+		setIsPending( true );
 		mutation.mutate( {
 			...query.data,
 			[ key ]: newValue,
@@ -380,17 +379,16 @@ export function useDataSyncSubset<
 	};
 
 	useEffect( () => {
-		if ( ! isActive ) {
+		if ( ! isPending ) {
 			return;
 		}
 		setIsError( mutation.isError );
-		setIsPending( mutation.isPending );
 		setIsSuccess( mutation.isSuccess );
 		setError( mutation.error );
 		if ( mutation.isSuccess || mutation.isError ) {
-			setIsActive( false );
+			setIsPending( false );
 		}
-	}, [ mutation.isError, mutation.isPending, isActive ] );
+	}, [ mutation.isError, mutation.error, mutation.isSuccess, isPending ] );
 
 	return [
 		query.data?.[ key ],
