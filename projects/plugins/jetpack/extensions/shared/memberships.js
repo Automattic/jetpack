@@ -114,8 +114,8 @@ export const setPurchaseResultCookie = function ( premiumContentJWTToken ) {
 	// But user can close the browser window before clicking OK. IN that case, we want to leave a cookie behind.
 	const hostname = window.location.hostname;
 	let domain = hostname;
-	if ( 'wordpress.com' === hostname ) {
-		domain = '.wordpress.com';
+	if ( hostname.indexOf( 'wordpress.com' ) !== -1 ) {
+		domain = '.' + hostname;
 	}
 
 	document.cookie =
