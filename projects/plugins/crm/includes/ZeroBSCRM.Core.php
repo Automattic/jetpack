@@ -238,6 +238,13 @@ final class ZeroBSCRM {
 	public $external_sources = null;
 
 	/**
+	 * Listview filters
+	 *
+	 * @var array Jetpack CRM External Sources
+	 */
+	public $listview_filters = array();
+
+	/**
 	 * Settings Object
 	 *
 	 * @var Jetpack CRM Settings Object
@@ -1899,6 +1906,9 @@ final class ZeroBSCRM {
 		// This action should replace after_zerobscrm_extsources_init when we refactor load order in this class.
 		// initially used by advanced segments to add custom field segment condition classes after the class is declared in jpcrm-segment-conditions.php
 		do_action( 'jpcrm_post_init' );
+
+		$default_listview_filters = array();
+		$this->listview_filters   = apply_filters( 'jpcrm_listview_filters', $default_listview_filters );
 
 		// this allows us to do stuff (e.g. redirect based on a condition) prior to headers being sent
 		$this->catch_preheader_interrupts();
