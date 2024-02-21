@@ -5,6 +5,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
 
+use Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress\Filesystem_Utils;
+
 /*
  * Cache settings class.
  * Settings are stored in a file in the boost-cache directory.
@@ -15,6 +17,15 @@ class Boost_Cache_Settings {
 	private $last_error      = '';
 	private $config_file_path;
 	private $config_file;
+
+	/**
+	 * An uninitialized config holds these settings.
+	 */
+	private $default_settings = array(
+		'enabled'    => true,
+		'exceptions' => array(),
+		'logging'    => false,
+	);
 
 	private function __construct() {
 		$this->config_file_path = WP_CONTENT_DIR . '/boost-cache/';
@@ -45,7 +56,7 @@ class Boost_Cache_Settings {
 		}
 
 		if ( ! file_exists( $this->config_file ) ) {
-			if ( ! $this->set( array( 'enabled' => false ) ) ) {
+			if ( ! $this->set( $this->default_settings ) ) {
 				return false;
 			}
 		}
@@ -98,8 +109,17 @@ class Boost_Cache_Settings {
 	 *
 	 * @return array
 	 */
-	public function get_excluded_urls() {
-		return $this->get( 'excluded_urls', array() );
+	public function get_bypass_patterns() {
+		return $this->get( 'bypass_patterns', array() );
+	}
+
+	/**
+	 * Returns whether logging is enabled or not.
+	 *
+	 * @return bool
+	 */
+	public function get_logging() {
+		return $this->get( 'logging', false );
 	}
 
 	/*
@@ -120,7 +140,7 @@ class Boost_Cache_Settings {
 		$this->settings = array_merge( $this->settings, $settings );
 
 		$contents = "<?php die();\n/*\n * Configuration data for Jetpack Boost Cache. Do not edit.\n" . json_encode( $this->settings ) . "\n */"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-		$result   = Boost_Cache_Utils::write_to_file( $this->config_file, $contents );
+		$result   = Filesystem_Utils::write_to_file( $this->config_file, $contents );
 		if ( is_wp_error( $result ) ) {
 			$this->last_error = $result->get_error_message();
 			return false;
