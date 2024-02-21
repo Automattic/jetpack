@@ -35,6 +35,10 @@ const TreeDropdown = props => {
 		e => {
 			if ( e.key === 'Backspace' && ! inputValue ) {
 				removeTag( tags[ tags.length - 1 ] );
+			} else if ( e.key === 'Escape' ) {
+				setIsDropdownVisible( false );
+				setInputValue( '' );
+				inputRef.current.blur();
 			}
 		},
 		[ inputValue, removeTag, tags ]
