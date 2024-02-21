@@ -33,7 +33,7 @@ We encourage you to ask for help at any point. We want your first experience wit
 
 ## Translate the plugin
 
-If you speak a foreign language, you can help translate Jetpack into your own language. [here is how.](/docs/translations.md)
+If you speak a foreign language, you can help translate Jetpack into your own language. [Here is how.](/docs/translations.md)
 
 ## License
 
