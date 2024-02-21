@@ -1,16 +1,66 @@
+import { __ } from '@wordpress/i18n';
+import React, { useCallback } from 'react';
+import useAnalytics from '../../hooks/use-analytics';
+import { useProduct } from '../../hooks/use-product';
 import useStatsCounts from '../../hooks/use-stats-counts';
+import ProductCard from '../connected-product-card';
+import { PRODUCT_STATUSES } from '../product-card/action-button';
 import StatsCards from './cards';
-/**
- * StatsSection component that renders the Stats cards, passing down the stats counts from the store.
- *
- * @returns {object} The StatsSection component.
- */
+
 const StatsSection = () => {
+	const slug = 'stats';
+	const { detail } = useProduct( slug );
+	const { status } = detail;
+	const initialState = 'undefined' === typeof window ? {} : window.myJetpackInitialState;
+	const userIsAdmin = 'object' === typeof initialState && Number( initialState.userIsAdmin ) === 1;
 	const { statsCounts } = useStatsCounts();
 	const counts = statsCounts?.past_seven_days || {};
 	const previousCounts = statsCounts?.between_past_eight_and_fifteen_days || {};
+	const { recordEvent } = useAnalytics();
 
-	return <StatsCards counts={ counts } previousCounts={ previousCounts } />;
+	/**
+	 * Called when "See detailed stats" button is clicked.
+	 */
+	const onDetailedStatsClick = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_stats_card_seedetailedstats_click', {
+			product: slug,
+		} );
+	}, [ recordEvent ] );
+
+	const shouldShowSecondaryButton = useCallback(
+		() => !! ( status === PRODUCT_STATUSES.CAN_UPGRADE ),
+		[ status ]
+	);
+
+	const viewStatsButton = {
+		href: 'admin.php?page=stats',
+		label: __( 'View detailed stats', 'jetpack-my-jetpack' ),
+		onClick: onDetailedStatsClick,
+		shouldShowButton: shouldShowSecondaryButton,
+	};
+
+	// Override the primary action button to read "View detailed stats" instead
+	// of the default text, "View".
+	const primaryActionOverride = {
+		[ PRODUCT_STATUSES.ACTIVE ]: {
+			label: __( 'View detailed stats', 'jetpack-my-jetpack' ),
+		},
+		[ PRODUCT_STATUSES.ERROR ]: {
+			label: __( 'Connect Jetpack to use Stats', 'jetpack-my-jetpack' ),
+		},
+	};
+
+	return (
+		<ProductCard
+			admin={ userIsAdmin }
+			slug={ slug }
+			primaryActionOverride={ primaryActionOverride }
+			secondaryAction={ viewStatsButton }
+			showMenu
+		>
+			<StatsCards counts={ counts } previousCounts={ previousCounts } />
+		</ProductCard>
+	);
 };
 
 export default StatsSection;

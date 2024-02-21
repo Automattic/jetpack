@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Boost - use wp_trash_post when clearing the cache so the permalink is preserved and cache files cleared.

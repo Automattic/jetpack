@@ -14,6 +14,7 @@ import { useModulesState } from '$features/module/lib/stores';
 import { useCriticalCssState } from '$features/critical-css/lib/stores/critical-css-state';
 import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local-generator/local-generator-provider';
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
+import ErrorBoundary from '$features/error-boundary/error-boundary';
 
 const SpeedScore = () => {
 	const { site } = Jetpack_Boost;
@@ -144,4 +145,16 @@ const SpeedScore = () => {
 	);
 };
 
-export default SpeedScore;
+export default () => {
+	return (
+		<ErrorBoundary
+			fallback={
+				<div className="jb-container">
+					<p>{ __( 'Failed to load Speed Score.', 'jetpack-boost' ) }</p>
+				</div>
+			}
+		>
+			<SpeedScore />
+		</ErrorBoundary>
+	);
+};

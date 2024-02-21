@@ -1,4 +1,5 @@
 import { numberFormat, Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { VisuallyHidden } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Gridicon from 'gridicons';
@@ -23,24 +24,45 @@ const getIcon = slug => {
 	}
 };
 
-const getTitle = slug => {
-	switch ( slug ) {
-		case 'comment':
-			return 'Comments';
-		case 'post':
-			return 'Posts';
-		case 'page':
-			return 'Pages';
-		case 'image':
-			return 'Images';
-		case 'video':
-			return 'Videos';
-		case 'audio':
-			return 'Audio Files';
-		default:
-			return slug;
-	}
-};
+const getStatRenderFn = stat =>
+	( {
+		comment: val =>
+			sprintf(
+				// translators: %d is the number of comments
+				_n( '%d comment', '%d comments', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		post: val =>
+			sprintf(
+				// translators: %d is the number of posts
+				_n( '%d post', '%d posts', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		page: val =>
+			sprintf(
+				// translators: %d is the number of pages
+				_n( '%d page', '%d pages', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		image: val =>
+			sprintf(
+				// translators: %d is the number of images
+				_n( '%d image', '%d images', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		video: val =>
+			sprintf(
+				// translators: %d is the number of videos
+				_n( '%d video', '%d videos', val, 'jetpack-my-jetpack' ),
+				val
+			),
+		audio: val =>
+			sprintf(
+				// translators: %d is the number of files
+				_n( '%d audio file', '%d audio files', val, 'jetpack-my-jetpack' ),
+				val
+			),
+	} )[ stat ] || ( val => `${ val } ${ stat }` );
 
 const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
 	if ( ! lastRewindableEventTime ) {
@@ -206,31 +228,39 @@ const NoBackupsValueSection = ( { admin, slug } ) => {
 	return (
 		<ProductCard admin={ admin } slug={ slug } showMenu isDataLoading={ isFetching }>
 			<div className={ styles[ 'no-backup-stats' ] }>
-				<div className={ styles[ 'main-stats' ] }>
-					{ sortedData.slice( 0, itemsToShow ).map( ( item, i ) => {
+				{ /* role="list" is required for VoiceOver on Safari */ }
+				{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
+				<ul className={ styles[ 'main-stats' ] } role="list">
+					{ sortedData.map( ( item, i ) => {
 						const itemSlug = item[ 0 ].split( '_' )[ 1 ];
 						const value = item[ 1 ];
 
 						return (
-							<div
+							<li
 								className={ classNames( styles[ 'main-stat' ], `main-stat-${ i }` ) }
 								key={ i + itemSlug }
-								title={ getTitle( itemSlug ) }
 							>
-								{ getIcon( itemSlug ) }
-								<span>{ numberFormat( value, shortenedNumberConfig ) }</span>
-							</div>
+								<>
+									{ i < itemsToShow && (
+										<span className={ classNames( styles[ 'visual-stat' ] ) } aria-hidden="true">
+											{ getIcon( itemSlug ) }
+											<span>{ numberFormat( value, shortenedNumberConfig ) }</span>
+										</span>
+									) }
+									<VisuallyHidden>{ getStatRenderFn( itemSlug )( value ) }</VisuallyHidden>
+								</>
+							</li>
 						);
 					} ) }
-				</div>
+				</ul>
 
 				{ moreValue > 0 && (
-					<p className={ styles[ 'more-stats' ] }>
+					<span className={ styles[ 'more-stats' ] } aria-hidden="true">
 						{
 							// translators: %s is the number of items that are not shown
 							sprintf( __( '+%s more', 'jetpack-my-jetpack' ), moreValue )
 						}
-					</p>
+					</span>
 				) }
 			</div>
 		</ProductCard>
