@@ -26,9 +26,11 @@ function should_load_wpcom_command_palette() {
  * @return string
  */
 function get_wpcom_command_palette_config_js() {
-	$site_id = Jetpack_Options::get_option( 'id' );
+	$site_id        = Jetpack_Options::get_option( 'id' );
+	$admin_user     = current_user_can( 'manage_options' ) ? 'true' : 'false';
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
 
-	return "var commandPaletteConfig = { siteId: $site_id };";
+	return "var commandPaletteConfig = { siteId: $site_id, is_admin: $admin_user, is_atomic: $is_atomic_site };";
 }
 
 /**
