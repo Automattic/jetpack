@@ -358,7 +358,15 @@ export const Ads = withModuleSettingsFormHelpers(
 							</FormFieldset>
 						) }
 					</SettingsGroup>
-					<SettingsGroup>
+					<SettingsGroup
+						support={ {
+							text: __(
+								'Show a cookie banner to all EU and UK site visitors prompting them to consent to their personal data being used to personalize the ads they see. Without proper consents EU/UK visitors will only see lower paying non-personalized ads.',
+								'jetpack'
+							),
+							link: getRedirectUrl( 'jetpack-support-ads' ),
+						} }
+					>
 						<ToggleControl
 							checked={ wordads_cmp_enabled }
 							disabled={
