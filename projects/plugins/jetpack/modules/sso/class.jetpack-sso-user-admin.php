@@ -41,6 +41,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			add_action( 'admin_notices', array( $this, 'handle_invitation_results' ) );
 			add_action( 'admin_post_jetpack_invite_user_to_wpcom', array( $this, 'invite_user_to_wpcom' ) );
 			add_action( 'admin_post_jetpack_revoke_invite_user_to_wpcom', array( $this, 'handle_request_revoke_invite' ) );
+			add_action( 'admin_post_jetpack_resend_invite_user_to_wpcom', array( $this, 'handle_request_resend_invite' ) );
 			add_action( 'admin_print_styles-users.php', array( $this, 'jetpack_user_table_styles' ) );
 			add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_user_new_form_styles' ) );
 			add_filter( 'users_list_table_query_args', array( $this, 'set_user_query' ), 100, 1 );
@@ -86,6 +87,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			if ( $_GET['jetpack-sso-invite-user'] === 'success' ) {
 				return wp_admin_notice( __( 'User was invited successfully!', 'jetpack' ), array( 'type' => 'success' ) );
 			}
+			if ( $_GET['jetpack-sso-invite-user'] === 'reinvited-success' ) {
+				return wp_admin_notice( __( 'User was re-invited successfully!', 'jetpack' ), array( 'type' => 'success' ) );
+			}
 
 			if ( $_GET['jetpack-sso-invite-user'] === 'successful-revoke' ) {
 				return wp_admin_notice( __( 'User invite revoked successfully.', 'jetpack' ), array( 'type' => 'success' ) );
@@ -113,8 +117,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 		/**
 		 * Invites a user to connect to WordPress.com to allow them to log in via SSO.
+		 *
+		 * @param bool $is_reinvite Whether the invite is a re-invite or not.
 		 */
-		public function invite_user_to_wpcom() {
+		public function invite_user_to_wpcom( $is_reinvite = false ) {
 			check_admin_referer( 'jetpack-sso-invite-user', 'invite_nonce' );
 			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
 
@@ -164,10 +170,11 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				);
 
 				// access the first item since we're inviting one user.
-				$body = json_decode( $response['body'] )[0];
+				$body                 = json_decode( $response['body'] )[0];
+				$success_message_type = $is_reinvite ? 'reinvited-success' : 'success';
 
 				$query_params = array(
-					'jetpack-sso-invite-user' => $body->success ? 'success' : 'failed',
+					'jetpack-sso-invite-user' => $body->success ? $success_message_type : 'failed',
 					'_wpnonce'                => $nonce,
 				);
 
@@ -213,10 +220,34 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		}
 
 		/**
-		 * Handles logic to revoke user invite.
+		 * Handles revoke user invite.
 		 */
 		public function handle_request_revoke_invite() {
-			check_admin_referer( 'jetpack-sso-revoke-user-invite', 'revoke_invite_nonce' );
+			$action = 'jetpack-sso-revoke-user-invite';
+			$nonce  = 'revoke_invite_nonce';
+			self::revoke_user_invitation( $action, $nonce );
+		}
+
+		/**
+		 * Handles resend user invite.
+		 */
+		public function handle_request_resend_invite() {
+			$action      = 'jetpack-sso-resend-user-invite';
+			$nonce       = 'resend_invite_nonce';
+			$is_reinvite = true;
+
+			self::revoke_user_invitation( $action, $nonce );
+			self::invite_user_to_wpcom( $is_reinvite );
+		}
+
+		/**
+		 * Handles the logic to revokes a user's invitation.
+		 *
+		 * @param string $action The action to perform.
+		 * @param string $wp_nonce The nonce to verify.
+		 */
+		public function revoke_user_invitation( $action, $wp_nonce ) {
+			check_admin_referer( $action, $wp_nonce );
 			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
 
 			if ( ! current_user_can( 'promote_users' ) ) {
@@ -270,7 +301,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				);
 				return self::create_error_notice_and_redirect( $query_params );
 			}
-			wp_die();
 		}
 
 		/**
@@ -298,6 +328,24 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						admin_url( 'admin-post.php' )
 					),
 					esc_html__( 'Revoke invite', 'jetpack' )
+				);
+			}
+			if ( current_user_can( 'edit_users' ) && $has_pending_invite ) {
+				$nonce                        = wp_create_nonce( 'jetpack-sso-resend-user-invite' );
+				$invite_nonce                 = wp_create_nonce( 'jetpack-sso-invite-user' );
+				$actions['sso_resend_invite'] = sprintf(
+					'<a class="jetpack-sso-resend-invite-action" href="%s">%s</a>',
+					add_query_arg(
+						array(
+							'action'              => 'jetpack_resend_invite_user_to_wpcom',
+							'user_id'             => $user_id,
+							'resend_invite_nonce' => $nonce,
+							'invite_nonce'        => $invite_nonce,
+							'invite_id'           => $has_pending_invite,
+						),
+						admin_url( 'admin-post.php' )
+					),
+					esc_html__( 'Resend invite', 'jetpack' )
 				);
 			}
 
