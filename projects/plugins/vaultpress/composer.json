@@ -8,12 +8,12 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {
-		"automattic/jetpack-logo": "@dev",
-		"automattic/jetpack-autoloader": "@dev"
+		"automattic/jetpack-logo": "^2.0.0",
+		"automattic/jetpack-autoloader": "^3.0.2"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
-		"automattic/jetpack-changelogger": "@dev"
+		"automattic/jetpack-changelogger": "^4.1.0"
 	},
 	"scripts": {
 		"phpunit": [
@@ -23,15 +23,7 @@
 			"@composer phpunit"
 		]
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
