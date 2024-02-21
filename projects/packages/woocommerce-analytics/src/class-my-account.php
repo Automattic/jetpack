@@ -12,7 +12,7 @@ namespace Automattic\Woocommerce_Analytics;
  */
 class My_Account {
 
-	use WooAnalyticsTrait;
+	use Woo_Analytics_Trait;
 
 	/**
 	 * Constructor.

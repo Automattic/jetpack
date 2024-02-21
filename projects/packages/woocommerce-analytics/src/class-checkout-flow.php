@@ -15,7 +15,7 @@ use WC_Product;
  */
 class Checkout_Flow {
 
-	use WooAnalyticsTrait;
+	use Woo_Analytics_Trait;
 
 	/**
 	 * Constructor.

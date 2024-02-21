@@ -18,7 +18,7 @@ class Universal {
 	/**
 	 * Trait to handle common analytics functions.
 	 */
-	use WooAnalyticsTrait;
+	use Woo_Analytics_Trait;
 
 	/**
 	 * Constructor.

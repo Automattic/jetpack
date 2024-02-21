@@ -1,6 +1,6 @@
 <?php
 /**
- * WooAnalyticsTrait
+ * Woo_Analytics_Trait
  *
  * @package automattic/woocommerce-analytics
  */
@@ -16,7 +16,7 @@ use WC_Product;
 /**
  * Common functionality for WooCommerce Analytics classes.
  */
-trait WooAnalyticsTrait {
+trait Woo_Analytics_Trait {
 	/**
 	 * Saves whether the cart/checkout templates are in use based on WC Blocks version.
 	 *
