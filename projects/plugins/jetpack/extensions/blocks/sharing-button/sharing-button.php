@@ -181,7 +181,7 @@ function add_block_to_single_posts_template( $hooked_block_types, $relative_posi
 		return $hooked_block_types;
 	}
 
-	// Proceed if the user has toggle the auto-addition in Jetpack settings.
+	// Proceed if the user has toggled the auto-addition in Jetpack settings.
 	if ( ! get_option( 'jetpack_sharing_buttons_auto_add' ) ) {
 		return $hooked_block_types;
 	}
@@ -244,13 +244,14 @@ add_filter( 'hooked_block_types', __NAMESPACE__ . '\add_block_to_single_posts_te
  * @since $$next-version$$
  *
  * @param array                   $parsed_hooked_block The parsed block array for the given hooked block type.
+ * @param string                  $hooked_block_type   The hooked block type name.
  * @param string                  $relative_position   The relative position of the hooked block.
  * @param array                   $parsed_anchor_block The anchor block, in parsed block array format.
  * @param WP_Block_Template|array $context             The block template, template part, or pattern that the anchor block.
  *
  * @return array
  */
-function add_default_services_to_block( $parsed_hooked_block, $relative_position, $parsed_anchor_block, $context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+function add_default_services_to_block( $parsed_hooked_block, $hooked_block_type, $relative_position, $parsed_anchor_block, $context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	// Is the hooked block adjacent to the anchor block?
 	if ( 'after' !== $relative_position ) {
 		return $parsed_hooked_block;
@@ -311,4 +312,4 @@ function add_default_services_to_block( $parsed_hooked_block, $relative_position
 		),
 	);
 }
-add_filter( 'hooked_block_' . PARENT_BLOCK_NAME, __NAMESPACE__ . '\add_default_services_to_block', 10, 4 );
+add_filter( 'hooked_block_' . PARENT_BLOCK_NAME, __NAMESPACE__ . '\add_default_services_to_block', 10, 5 );
