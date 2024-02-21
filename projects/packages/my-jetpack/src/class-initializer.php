@@ -24,6 +24,7 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
+use Jetpack_Core_API_Site_Endpoint;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -214,6 +215,14 @@ class Initializer {
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				'userIsNewToJetpack'     => self::is_jetpack_user_new(),
+				'userStats'              => array(
+					'jetpackPlugins'  => self::get_installed_jetpack_plugins(),
+					'isSiteConnected' => self::is_site_connected(),
+					'isUserConnected' => self::is_user_connected(),
+					'purchases'       => self::get_purchases(),
+					'modules'         => self::get_active_modules(),
+					'features'        => self::get_active_features(),
+				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
@@ -244,6 +253,96 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * Get product slugs of the active purchases
+	 *
+	 * @return array
+	 */
+	public static function get_purchases() {
+		$purchases = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases ) ) {
+			return array();
+		}
+
+		return array_map(
+			function ( $purchase ) {
+				return $purchase->product_slug;
+			},
+			$purchases
+		);
+	}
+
+	/**
+	 * Get installed Jetpack plugins
+	 *
+	 * @return array
+	 */
+	public static function get_installed_jetpack_plugins() {
+		$plugin_slugs = array_keys( Plugins_Installer::get_plugins() );
+		$plugin_slugs = array_map(
+			static function ( $slug ) {
+				$parts = explode( '/', $slug );
+				if ( empty( $parts ) ) {
+					return '';
+				}
+				// Return the last segment of the filepath without the PHP extension
+				return str_replace( '.php', '', $parts[ count( $parts ) - 1 ] );
+			},
+			$plugin_slugs
+		);
+
+		return array_values( array_intersect( self::JETPACK_PLUGIN_SLUGS, $plugin_slugs ) );
+	}
+
+	/**
+	 * Get active modules (except ones enabled by default)
+	 *
+	 * @return array
+	 */
+	public static function get_active_modules() {
+		$modules        = new Modules();
+		$active_modules = $modules->get_active();
+
+		// if the Jetpack plugin is active, filter out the modules that are active by default
+		if ( class_exists( 'Jetpack' ) && ! empty( $active_modules ) ) {
+			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
+		}
+		return $active_modules;
+	}
+
+	/**
+	 * Get features that can be used on the website (through purchases or free features)
+	 *
+	 * @return array
+	 */
+	public static function get_active_features() {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php';
+		$payload       = Jetpack_Core_API_Site_Endpoint::get_features();
+		$features_json = json_decode( $payload->data['data'] );
+
+		return $features_json->active;
+	}
+
+	/**
+	 * Determine if this Jetpack site is connected to our backend
+	 *
+	 * @return bool
+	 */
+	public static function is_site_connected() {
+		$connection = new Connection_Manager();
+		return $connection->is_connected();
+	}
+
+	/**
+	 * Determine if this Jetpack site has a user connected
+	 *
+	 * @return bool
+	 */
+	public static function is_user_connected() {
+		$connection = new Connection_Manager();
+		return $connection->is_user_connected();
 	}
 
 	/**
