@@ -9,63 +9,7 @@ import { useEffect, useState } from 'react';
 import { usePageCache } from '$lib/stores/page-cache';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
-import { Snackbar } from '@wordpress/components';
-
-const MutationNotice = ( mutation: {
-	isSuccess: boolean;
-	isError: boolean;
-	isPending: boolean;
-	savingMessage?: string;
-	errorMessage?: string;
-	successMessage?: string;
-} ) => {
-	const [ showSnackbar, setShowSnackbar ] = useState( false );
-	const [ snackbarContent, setSnackbarContent ] = useState( '' );
-	const [ snackbarType, setSnackbarType ] = useState< 'success' | 'error' >( 'success' );
-
-	useEffect( () => {
-		let timeoutId: ReturnType< typeof setTimeout >;
-
-		// If mutation is pending, show a "Saving…" message.
-		// But only if saving takes more than 50ms to avoid FOLC(Flash of Loading Content).
-		if ( mutation.isPending && ! mutation.isSuccess ) {
-			timeoutId = setTimeout( () => {
-				setShowSnackbar( true );
-				setSnackbarContent( mutation.savingMessage || __( 'Saving…', 'jetpack-boost' ) );
-				setSnackbarType( 'success' );
-			}, 50 );
-		} else if ( mutation.isSuccess ) {
-			setShowSnackbar( true );
-			setSnackbarContent( mutation.successMessage || __( 'Changes saved.', 'jetpack-boost' ) );
-			setSnackbarType( 'success' );
-		} else if ( mutation.isError ) {
-			setShowSnackbar( true );
-			setSnackbarContent(
-				mutation.errorMessage ||
-					__( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' )
-			);
-			setSnackbarType( 'error' );
-		}
-		return () => clearTimeout( timeoutId );
-	}, [
-		mutation.isSuccess,
-		mutation.isError,
-		mutation.isPending,
-		mutation.savingMessage,
-		mutation.errorMessage,
-		mutation.successMessage,
-	] );
-
-	return (
-		<>
-			{ showSnackbar && (
-				<Snackbar type={ snackbarType } onDismiss={ () => setShowSnackbar( false ) }>
-					{ snackbarContent }
-				</Snackbar>
-			) }
-		</>
-	);
-};
+import { MutationNotice } from '$features/ui';
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
