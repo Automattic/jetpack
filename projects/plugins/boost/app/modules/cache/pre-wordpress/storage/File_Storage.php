@@ -113,6 +113,10 @@ class File_Storage implements Storage {
 		error_log( "invalidate: $path $type" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
 
-		return Boost_Cache_Utils::delete( $normalized_path, $type );
+		if ( is_dir( $normalized_path ) ) {
+			return Boost_Cache_Utils::delete_directory( $normalized_path, $type );
+		} else {
+			return Filesystem_Utils::delete_file( $normalized_path );
+		}
 	}
 }
