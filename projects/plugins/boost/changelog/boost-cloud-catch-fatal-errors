@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Boost - catch fatal errors and don't cache them.

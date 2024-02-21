@@ -41,19 +41,19 @@ class Boost_Cache {
 		$home           = isset( $_SERVER['HTTP_HOST'] ) ? strtolower( $_SERVER['HTTP_HOST'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		$this->storage  = $storage ?? new Storage\File_Storage( $home );
 		$this->request  = Request::current();
-
-		$this->init_actions();
 	}
 
 	/**
 	 * Initialize the actions for the cache.
 	 */
-	protected function init_actions() {
+	public function init_actions() {
 		add_action( 'transition_post_status', array( $this, 'delete_on_post_transition' ), 10, 3 );
 		add_action( 'transition_comment_status', array( $this, 'delete_on_comment_transition' ), 10, 3 );
 		add_action( 'comment_post', array( $this, 'delete_on_comment_post' ), 10, 3 );
 		add_action( 'edit_comment', array( $this, 'delete_on_comment_edit' ), 10, 2 );
 		add_action( 'switch_theme', array( $this, 'delete_cache' ) );
+		add_action( 'wp_trash_post', array( $this, 'delete_on_post_trash' ), 10, 2 );
+		add_filter( 'wp_php_error_message', array( $this, 'disable_caching_on_error' ) );
 	}
 
 	/**
@@ -142,17 +142,17 @@ class Boost_Cache {
 		if ( get_option( 'show_on_front' ) === 'page' ) {
 			$front_page_id = get_option( 'page_on_front' ); // static page
 			if ( $front_page_id ) {
-				error_log( 'delete_cache_for_front_page: deleting front page cache' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				Logger::debug( 'delete_cache_for_front_page: deleting front page cache' );
 				$this->delete_cache_for_post( get_post( $front_page_id ) );
 			}
 			$posts_page_id = get_option( 'page_for_posts' ); // posts page
 			if ( $posts_page_id ) {
-				error_log( 'delete_cache_for_front_page: deleting posts page cache' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				Logger::debug( 'delete_cache_for_front_page: deleting posts page cache' );
 				$this->delete_cache_for_post( get_post( $posts_page_id ) );
 			}
 		} else {
-			$this->storage->invalidate_home_page( Boost_Cache_Utils::normalize_request_uri( home_url() ) );
-			error_log( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			$this->storage->invalidate( home_url(), Boost_Cache_Utils::DELETE_FILES );
+			Logger::debug( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) );
 		}
 	}
 
@@ -167,10 +167,10 @@ class Boost_Cache {
 		if ( $new_status === $old_status ) {
 			return;
 		}
-		error_log( "delete_on_comment_transition: $new_status, $old_status" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		Logger::debug( "delete_on_comment_transition: $new_status, $old_status" );
 
 		if ( $new_status !== 'approved' && $old_status !== 'approved' ) {
-			error_log( 'delete_on_comment_transition: comment not approved' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			Logger::debug( 'delete_on_comment_transition: comment not approved' );
 			return;
 		}
 
@@ -203,13 +203,23 @@ class Boost_Cache {
 	 */
 	public function delete_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
 		$post = get_post( $commentdata['comment_post_ID'] );
-
+		Logger::debug( "delete_on_comment_post: $comment_id, $comment_approved, {$post->ID}" );
 		/**
 		 * If a comment is not approved, we only need to delete the cache for
 		 * this post for this visitor so the unmoderated comment is shown to them.
 		 */
 		if ( $comment_approved !== 1 ) {
-			$this->storage->invalidate_single_visitor( Boost_Cache_Utils::normalize_request_uri( get_permalink( $post->ID ) ), $this->request->get_parameters() );
+			$parameters = $this->request->get_parameters();
+			/**
+			 * if there are no cookies, then visitor did not click "remember me".
+			 * No need to delete the cache for this visitor as they'll be
+			 * redirected to a page with a hash in the URL for the moderation
+			 * message.
+			 */
+			if ( isset( $parameters['cookies'] ) && ! empty( $parameters['cookies'] ) ) {
+				$filename = trailingslashit( get_permalink( $post->ID ) ) . Boost_Cache_Utils::get_request_filename( $parameters );
+				$this->storage->invalidate( $filename, Boost_Cache_Utils::DELETE_FILE );
+			}
 			return;
 		}
 
@@ -238,19 +248,38 @@ class Boost_Cache {
 			return;
 		}
 
-		error_log( "delete_on_post_transition: $new_status, $old_status, {$post->ID}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-
-		// Don't delete the cache for posts that weren't published and aren't published now
-		if ( ! $this->is_published( $new_status ) && ! $this->is_published( $old_status ) ) {
-			error_log( 'delete_on_post_transition: not published' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		if ( $new_status === 'trash' ) {
 			return;
 		}
 
-		error_log( "delete_on_post_transition: deleting post {$post->ID}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		Logger::debug( "delete_on_post_transition: $new_status, $old_status, {$post->ID}" );
+
+		// Don't delete the cache for posts that weren't published and aren't published now
+		if ( ! $this->is_published( $new_status ) && ! $this->is_published( $old_status ) ) {
+			Logger::debug( 'delete_on_post_transition: not published' );
+			return;
+		}
+
+		Logger::debug( "delete_on_post_transition: deleting post {$post->ID}" );
 
 		$this->delete_cache_for_post( $post );
 		$this->delete_cache_for_post_terms( $post );
 		$this->delete_cache_for_front_page();
+	}
+
+	/**
+	 * Delete the cache for the post if it was trashed.
+	 *
+	 * @param int $post_id - The id of the post.
+	 * @param string $old_status - The old status of the post.
+	 */
+	public function delete_on_post_trash( $post_id, $old_status ) {
+		if ( $this->is_published( $old_status ) ) {
+			$post = get_post( $post_id );
+			$this->delete_cache_for_post( $post );
+			$this->delete_cache_for_post_terms( $post );
+			$this->delete_cache_for_front_page();
+		}
 	}
 
 	/**
@@ -279,15 +308,7 @@ class Boost_Cache {
 		 * the post name. We need to get the post name from the post object.
 		 */
 		$permalink = get_permalink( $post->ID );
-		if ( strpos( $permalink, '?p=' ) !== false ) {
-			if ( ! function_exists( 'get_sample_permalink' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/post.php';
-			}
-			list( $permalink, $post_name ) = get_sample_permalink( $post );
-			$permalink                     = str_replace( array( '%postname%', '%pagename%' ), $post_name, $permalink );
-		}
-
-		error_log( "delete_cache_for_post: $permalink" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		Logger::debug( "delete_cache_for_post: $permalink" );
 		$this->delete_cache_for_url( $permalink );
 	}
 
@@ -320,10 +341,9 @@ class Boost_Cache {
 	 * @param string $url - The url to delete the cache for.
 	 */
 	public function delete_cache_for_url( $url ) {
-		error_log( 'delete_cache_for_url: ' . $url ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		$path = Boost_Cache_Utils::normalize_request_uri( $url );
+		Logger::debug( 'delete_cache_for_url: ' . $url );
 
-		return $this->storage->invalidate( $path );
+		return $this->storage->invalidate( $url, Boost_Cache_Utils::DELETE_ALL );
 	}
 
 	/**
@@ -331,5 +351,13 @@ class Boost_Cache {
 	 */
 	public function delete_cache() {
 		return $this->delete_cache_for_url( home_url() );
+	}
+
+	public function disable_caching_on_error( $message ) {
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true );
+		}
+		Logger::debug( 'Fatal error detected, caching disabled' );
+		return $message;
 	}
 }
