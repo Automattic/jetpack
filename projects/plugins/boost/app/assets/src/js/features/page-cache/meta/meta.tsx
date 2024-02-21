@@ -9,6 +9,50 @@ import { useEffect, useState } from 'react';
 import { usePageCache } from '$lib/stores/page-cache';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
+import { Snackbar } from '@wordpress/components';
+
+const SettingsStatusNotice = ( mutation: {
+	isSuccess: boolean;
+	isError: boolean;
+	isPending: boolean;
+} ) => {
+	const [ showSnackbar, setShowSnackbar ] = useState( false );
+	const [ snackbarContent, setSnackbarContent ] = useState( '' );
+	const [ snackbarType, setSnackbarType ] = useState< 'success' | 'error' >( 'success' );
+
+	useEffect( () => {
+		let timeoutId: ReturnType< typeof setTimeout >;
+
+		// If mutation is pending, show a "Saving…" message.
+		// But only if saving takes more than 50ms to avoid FOLC(Flash of Loading Content).
+		if ( mutation.isPending && ! mutation.isSuccess ) {
+			timeoutId = setTimeout( () => {
+				setShowSnackbar( true );
+				setSnackbarContent( __( 'Saving…', 'jetpack-boost' ) );
+				setSnackbarType( 'success' );
+			}, 50 );
+		} else if ( mutation.isSuccess ) {
+			setShowSnackbar( true );
+			setSnackbarContent( __( 'Settings saved successfully.', 'jetpack-boost' ) );
+			setSnackbarType( 'success' );
+		} else if ( mutation.isError ) {
+			setShowSnackbar( true );
+			setSnackbarContent( __( 'Failed to save settings.', 'jetpack-boost' ) );
+			setSnackbarType( 'error' );
+		}
+		return () => clearTimeout( timeoutId );
+	}, [ mutation.isSuccess, mutation.isError, mutation.isPending ] );
+
+	return (
+		<>
+			{ showSnackbar && (
+				<Snackbar type={ snackbarType } onDismiss={ () => setShowSnackbar( false ) }>
+					{ snackbarContent }
+				</Snackbar>
+			) }
+		</>
+	);
+};
 
 const Meta = () => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
@@ -43,6 +87,7 @@ const Meta = () => {
 
 	return (
 		<div className={ styles.wrapper }>
+			<SettingsStatusNotice { ...mutation } />
 			<div className={ styles.head }>
 				<div className={ styles.summary }>
 					{ totalBypassPatterns === 0 && ! settings?.logging ? (
