@@ -30,15 +30,6 @@ class Sharing_Admin {
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
-		/**
-		 * The following action is commented out since it creates an entry to a legacy page.
-		 *
-		 * This menu item was previously hidden via https://github.com/Automattic/jetpack/pull/1960
-		 * but now we are preventing its registration altogether.
-		 *
-		 * add_action( 'admin_menu', array( $this, 'subscription_menu' ) );
-		 */
-
 		// Insert our CSS and JS
 		add_action( 'load-settings_page_sharing', array( $this, 'sharing_head' ) );
 
