@@ -155,9 +155,6 @@ class Woo_Sync {
 		// Initialise Hooks
 		$this->init_hooks();
 
-		// Add Filter buttons
-		$this->include_filter_buttons();
-
 		// Autoload page AJAX
 		$this->load_ajax();
 
@@ -344,7 +341,10 @@ class Woo_Sync {
 		// Pay invoice via WooCommerce checkout button
 		add_filter( 'zbs_woo_pay_invoice', array( $this, 'render_pay_via_woo_checkout_button' ), 20 );
 
-		// Hook in to Contact, Invoice, and Transaction query generation and add the quickfilter
+		// Add listview filters.
+		add_filter( 'jpcrm_listview_filters', array( $this, 'add_listview_filters' ) );
+
+		// Hook in to Contact, Invoice, and Transaction query generation to support quickfilter
 		add_filter( 'jpcrm_contact_query_quickfilter', array( $this, 'contact_query_quickfilter_addition' ), 10, 2 );
 		add_filter( 'jpcrm_invoice_query_quickfilter', array( $this, 'invoice_query_quickfilter_addition' ), 10, 2 );
 		add_filter( 'jpcrm_transaction_query_quickfilter', array( $this, 'transaction_query_quickfilter_addition' ), 10, 2 );
@@ -463,66 +463,17 @@ class Woo_Sync {
 
 	}
 
-
 	/**
-	 * Include filter buttons
-	 * (Note, requires `contact_query_quickfilter_addition()` to be hooked into `jpcrm_contact_query_quickfilter`)
+	 * Adds items to listview filter using `jpcrm_listview_filters` hook.
+	 *
+	 * @param array $listview_filters Listview filters.
 	 */
-	public function include_filter_buttons(){
-
-		global $zbs, $zeroBSCRM_filterbuttons_customer;
-
-		// Add 'is woo customer' filter button to 'all options' for contact
-  		$zeroBSCRM_filterbuttons_customer['all']['woo_customer'] = array( __( 'WooCommerce', 'zero-bs-crm' ) );
-
-  		// get current list view filters
-        $custom_views = $zbs->settings->get( 'customviews2' );
-
-  		// If we've only just activated WooSync,
-  		// we add the customer filter button to the users selected filters by default (once)
-  		if ( !isset( $custom_views['customer_filters']['woo_customer'] ) && !$this->settings->get( 'has_added_woofilter', false ) ){
-
-  			// add in our filter
-  			$custom_views['customer_filters']['woo_customer'] = array( __( 'WooCommerce', 'zero-bs-crm' ) );
-
-  			// save
-			$zbs->settings->update( 'customviews2', $custom_views );
-
-			// flag so we don't keep re-adding if user removes from selection
-  			$this->settings->update( 'has_added_woofilter', true );
-
-  		}
-
-  		// ... we also add the transaction filter button to the users selected filters by default (once)
-  		if ( !isset( $custom_views['transaction_filters']['woo_transaction'] ) && !$this->settings->get( 'has_added_woo_transaction_filter', false ) ){
-
-  			// add in our filter
-  			$custom_views['transaction_filters']['woo_transaction'] = array( __( 'WooCommerce', 'zero-bs-crm' ) );
-
-  			// save
-			$zbs->settings->update( 'customviews2', $custom_views );
-
-			// flag so we don't keep re-adding if user removes from selection
-  			$this->settings->update( 'has_added_woo_transaction_filter', true );
-
-  		}
-
-  		// ... we also add the invoice filter button to the users selected filters by default (once)
-  		if ( !isset( $custom_views['invoice_filters']['woo_invoice'] ) && !$this->settings->get( 'has_added_woo_invoice_filter', false ) ){
-
-  			// add in our filter
-  			$custom_views['invoice_filters']['woo_invoice'] = array( __( 'WooCommerce', 'zero-bs-crm' ) );
-
-  			// save
-			$zbs->settings->update( 'customviews2', $custom_views );
-
-			// flag so we don't keep re-adding if user removes from selection
-  			$this->settings->update( 'has_added_woo_invoice_filter', true );
-
-  		}
-
+	public function add_listview_filters( $listview_filters ) {
+		$listview_filters[ZBS_TYPE_CONTACT]['general']['woo_customer']        = __( 'WooCommerce', 'zero-bs-crm' );
+		$listview_filters[ZBS_TYPE_TRANSACTION]['general']['woo_transaction'] = __( 'WooCommerce', 'zero-bs-crm' );
+		$listview_filters[ZBS_TYPE_INVOICE]['general']['woo_invoice']         = __( 'WooCommerce', 'zero-bs-crm' );
+		return $listview_filters;
 	}
-
 
 	/**
 	 * Hook in to Contact query generation and add the quickfilter
