@@ -151,7 +151,7 @@ class Boost_Cache {
 				$this->delete_cache_for_post( get_post( $posts_page_id ) );
 			}
 		} else {
-			$this->storage->invalidate_home_page( Boost_Cache_Utils::normalize_request_uri( home_url() ) );
+			$this->storage->invalidate( home_url(), Boost_Cache_Utils::DELETE_FILES );
 			error_log( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 	}
@@ -203,13 +203,23 @@ class Boost_Cache {
 	 */
 	public function delete_on_comment_post( $comment_id, $comment_approved, $commentdata ) {
 		$post = get_post( $commentdata['comment_post_ID'] );
-
+		error_Log( "delete_on_comment_post: $comment_id, $comment_approved, {$post->ID}" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		/**
 		 * If a comment is not approved, we only need to delete the cache for
 		 * this post for this visitor so the unmoderated comment is shown to them.
 		 */
 		if ( $comment_approved !== 1 ) {
-			$this->storage->invalidate_single_visitor( Boost_Cache_Utils::normalize_request_uri( get_permalink( $post->ID ) ), $this->request->get_parameters() );
+			$parameters = $this->request->get_parameters();
+			/**
+			 * if there are no cookies, then visitor did not click "remember me".
+			 * No need to delete the cache for this visitor as they'll be
+			 * redirected to a page with a hash in the URL for the moderation
+			 * message.
+			 */
+			if ( isset( $parameters['cookies'] ) && ! empty( $parameters['cookies'] ) ) {
+				$filename = trailingslashit( get_permalink( $post->ID ) ) . Boost_Cache_Utils::get_request_filename( $parameters );
+				$this->storage->invalidate( $filename, Boost_Cache_Utils::DELETE_FILE );
+			}
 			return;
 		}
 
@@ -321,9 +331,8 @@ class Boost_Cache {
 	 */
 	public function delete_cache_for_url( $url ) {
 		error_log( 'delete_cache_for_url: ' . $url ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		$path = Boost_Cache_Utils::normalize_request_uri( $url );
 
-		return $this->storage->invalidate( $path );
+		return $this->storage->invalidate( $url, Boost_Cache_Utils::DELETE_ALL );
 	}
 
 	/**

@@ -18,6 +18,15 @@ class Boost_Cache_Settings {
 	private $config_file_path;
 	private $config_file;
 
+	/**
+	 * An uninitialized config holds these settings.
+	 */
+	private $default_settings = array(
+		'enabled'    => true,
+		'exceptions' => array(),
+		'logging'    => false,
+	);
+
 	private function __construct() {
 		$this->config_file_path = WP_CONTENT_DIR . '/boost-cache/';
 		$this->config_file      = $this->config_file_path . 'config.php';
@@ -47,7 +56,7 @@ class Boost_Cache_Settings {
 		}
 
 		if ( ! file_exists( $this->config_file ) ) {
-			if ( ! $this->set( array( 'enabled' => false ) ) ) {
+			if ( ! $this->set( $this->default_settings ) ) {
 				return false;
 			}
 		}
@@ -100,8 +109,17 @@ class Boost_Cache_Settings {
 	 *
 	 * @return array
 	 */
-	public function get_excluded_urls() {
-		return $this->get( 'excluded_urls', array() );
+	public function get_bypass_patterns() {
+		return $this->get( 'bypass_patterns', array() );
+	}
+
+	/**
+	 * Returns whether logging is enabled or not.
+	 *
+	 * @return bool
+	 */
+	public function get_logging() {
+		return $this->get( 'logging', false );
 	}
 
 	/*
