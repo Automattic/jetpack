@@ -5,13 +5,7 @@ namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
-
-/*
- * This code is shared between the autoloaded Module and advanced-cache.php loaded code.
- */
-require_once __DIR__ . '/Boost_Cache_Utils.php';
-require_once __DIR__ . '/Boost_Cache_Settings.php';
-require_once __DIR__ . '/Page_Cache_Setup.php';
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 
 class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	/*
@@ -40,13 +34,16 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 		register_uninstall_hook( JETPACK_BOOST_PATH, array( Page_Cache_Setup::class, 'uninstall' ) );
 	}
 
-	public function setup() {}
+	public function setup() {
+		Garbage_Collection::setup();
+	}
 
 	/**
 	 * Runs the setup when the feature is activated.
 	 */
 	public static function activate() {
 		Page_Cache_Setup::run_setup();
+		Garbage_Collection::activate();
 	}
 
 	/**
@@ -54,6 +51,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	 */
 	public static function deactivate() {
 		Page_Cache_Setup::deactivate();
+		Garbage_Collection::deactivate();
 	}
 
 	public static function is_available() {

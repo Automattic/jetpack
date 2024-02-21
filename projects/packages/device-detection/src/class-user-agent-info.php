@@ -1564,6 +1564,20 @@ class User_Agent_Info {
 			'cloudflare-alwaysonline',
 			'cookieinformationscanner', // p1699315886066389-slack-C0438NHCLSY
 			'facebookexternalhit', // https://www.facebook.com/externalhit_uatext.php
+			'feedburner',
+			'yacybot', // http://yacy.net/bot.html
+			'trendictionbot',  // http://www.trendiction.de/bot;
+			'elisabot',
+			'linkfluence', // http://linkfluence.com/
+			'semrushbot', // https://www.semrush.com/bot/
+			'archive.org_bot', // http://archive.org/details/archive.org_bot
+			'ezlynxbot', // https://www.ezoic.com/bot
+			'siteauditbot', // https://www.semrush.com/bot/
+			'snapchat', // https://developers.snap.com/robots
+			'applebot', // https://support.apple.com/en-ca/HT204683
+			'bne.es_bot', // https://www.bne.es/es/colecciones/archivo-web-espanola/aviso-webmasters
+			'google-safety;', // https://www.google.com/bot.html
+			'mojeekbot', // https://www.mojeek.com/bot.html
 		);
 
 		foreach ( $bot_agents as $bot_agent ) {

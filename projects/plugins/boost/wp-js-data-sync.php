@@ -19,7 +19,9 @@ use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Data_Sync\Page_Cache_Entry;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Data_Sync_Actions\Run_Setup;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Logger;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
@@ -344,6 +346,7 @@ jetpack_boost_register_readonly_option( 'connection', array( new Connection(), '
 jetpack_boost_register_readonly_option( 'pricing', array( Premium_Pricing::class, 'get_yearly_pricing' ) );
 jetpack_boost_register_readonly_option( 'premium_features', array( Premium_Features::class, 'get_features' ) );
 jetpack_boost_register_readonly_option( 'super_cache', array( Super_Cache_Info::class, 'get_info' ) );
+jetpack_boost_register_readonly_option( 'cache_debug_log', array( new Logger(), 'read' ) );
 
 jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback( false ), new Getting_Started_Entry() );
 
@@ -355,3 +358,14 @@ jetpack_boost_register_option(
 );
 
 jetpack_boost_register_action( 'page_cache_error', 'run-page-cache-setup', Schema::as_void(), new Run_Setup() );
+
+jetpack_boost_register_option(
+	'page_cache',
+	Schema::as_assoc_array(
+		array(
+			'bypass_patterns' => Schema::as_array( Schema::as_string() ),
+			'logging'         => Schema::as_boolean(),
+		)
+	),
+	new Page_Cache_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE . '_page_cache' )
+);

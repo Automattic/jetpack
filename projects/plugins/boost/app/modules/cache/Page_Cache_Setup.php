@@ -2,6 +2,9 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
+use Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress\Filesystem_Utils;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
+
 class Page_Cache_Setup {
 
 	/**
@@ -11,6 +14,7 @@ class Page_Cache_Setup {
 	public static function run_setup() {
 		$steps = array(
 			'verify_wp_content_writable',
+			'verify_permalink_setting',
 			'create_advanced_cache',
 			'add_wp_cache_define',
 		);
@@ -45,6 +49,17 @@ class Page_Cache_Setup {
 	}
 
 	/**
+	 * Returns true if WordPress is using a proper permalink setup. WP_Error if not.
+	 */
+	private static function verify_permalink_setting() {
+		global $wp_rewrite;
+
+		if ( ! $wp_rewrite || ! $wp_rewrite->using_permalinks() ) {
+			return new \WP_Error( 'not-using-permalinks', 'This site does not appear to use permalinks' );
+		}
+	}
+
+	/**
 	 * Creates the advanced-cache.php file.
 	 *
 	 * Returns true if the files were setup correctly, or WP_Error if there was a problem.
@@ -67,7 +82,7 @@ class Page_Cache_Setup {
 			}
 		}
 
-		$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . basename( dirname( plugin_dir_path( __FILE__ ), 3 ) ) . '/app/modules/cache/Boost_Cache.php';
+		$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . basename( dirname( plugin_dir_path( __FILE__ ), 3 ) ) . '/app/modules/cache/pre-wordpress/Boost_Cache.php';
 		$contents             = '<?php
 // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE . ' - ' . Page_Cache::ADVANCED_CACHE_VERSION . '
 if ( ! file_exists( \'' . $boost_cache_filename . '\' ) ) {
@@ -75,10 +90,10 @@ return;
 }
 require_once( \'' . $boost_cache_filename . '\');
 
-( new Automattic\Jetpack_Boost\Modules\Page_Cache\Boost_Cache() )->serve();
+( new Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache() )->serve();
 ';
 
-		$write_advanced_cache = Boost_Cache_Utils::write_to_file( $advanced_cache_filename, $contents );
+		$write_advanced_cache = Filesystem_Utils::write_to_file( $advanced_cache_filename, $contents );
 		if ( is_wp_error( $write_advanced_cache ) ) {
 			return new \WP_Error( 'unable-to-write-to-advanced-cache', $write_advanced_cache->get_error_message() );
 		}
@@ -139,7 +154,7 @@ define( \'WP_CACHE\', true );',
 		self::delete_advanced_cache();
 		self::delete_wp_cache_constant();
 
-		$result = Boost_Cache_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache' );
+		$result = Boost_Cache_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache', Boost_Cache_Utils::DELETE_ALL );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
