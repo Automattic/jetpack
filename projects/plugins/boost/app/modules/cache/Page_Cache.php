@@ -71,7 +71,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 
 	public function invalidate_cache() {
 		$cache = new Boost_Cache();
-		$cache->get_storage()->invalidate( Boost_Cache_Utils::normalize_request_uri( home_url() ), '*' );
+		$cache->get_storage()->invalidate( home_url(), Boost_Cache_Utils::DELETE_ALL );
 	}
 
 	/**
