@@ -208,6 +208,8 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Adds the 'sharing' menu to the settings menu.
 	 * Only ran if sharedaddy and publicize are not already active.
+	 *
+	 * @deprecated
 	 */
 	public function sharing_menu() {
 		add_submenu_page( 'options-general.php', esc_html__( 'Sharing Settings', 'jetpack' ), esc_html__( 'Sharing', 'jetpack' ), 'manage_options', 'sharing', array( $this, 'sharing_page' ) );

@@ -63,6 +63,8 @@ class Publicize_UI {
 
 	/**
 	 * If the ShareDaddy plugin is not active we need to add the sharing settings page to the menu still
+	 *
+	 * @deprecated
 	 */
 	public function sharing_menu() {
 		add_submenu_page(
