@@ -11,7 +11,7 @@ import {
 } from 'state/connection';
 import { getModule } from 'state/modules';
 import { withModuleSettingsFormHelpers } from '../components/module-settings/with-module-settings-form-helpers';
-import TreeSelector from '../components/tree-selector';
+import TreeDropdown from '../components/tree-dropdown';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
 const mapCategoriesIds = category => {
@@ -100,7 +100,7 @@ function NewsletterCategories( props ) {
 					onChange={ handleEnableNewsletterCategoriesToggleChange }
 					label={ __( 'Enable newsletter categories', 'jetpack' ) }
 				/>
-				<TreeSelector
+				<TreeDropdown
 					items={ mappedCategories }
 					selectedItems={ checkedCategoriesIds }
 					onChange={ onSelectedCategoryChange }
