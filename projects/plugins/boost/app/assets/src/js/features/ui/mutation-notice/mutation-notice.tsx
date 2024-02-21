@@ -26,14 +26,13 @@ import { __ } from '@wordpress/i18n';
  * 	const [ data, mutation ] = useDataSync(...);
  * 	<MutationNotice { ...mutation } />
  * ```
- *
+ * @param props
  * @param props.isSuccess      Whether the mutation was successful.
  * @param props.isError        Whether the mutation failed.
  * @param props.isPending      Whether the mutation is pending.
  * @param props.savingMessage  The message to show when the mutation is pending.
  * @param props.errorMessage   The message to show when the mutation failed.
  * @param props.successMessage The message to show when the mutation was successful.
- * @param props
  */
 export const MutationNotice = ( props: {
 	isSuccess: boolean;
@@ -49,8 +48,7 @@ export const MutationNotice = ( props: {
 
 	const savingMessage = props.savingMessage || __( 'Saving…', 'jetpack-boost' );
 	const errorMessage =
-		props.errorMessage ||
-		__( 'An error occurred while saving changes.', 'jetpack-boost' );
+		props.errorMessage || __( 'An error occurred while saving changes.', 'jetpack-boost' );
 	const successMessage = props.successMessage || __( 'Changes saved.', 'jetpack-boost' );
 
 	useEffect( () => {
@@ -94,6 +92,5 @@ export const MutationNotice = ( props: {
 	);
 };
 
-
 // This is a pure component, so we can use React.memo to avoid unnecessary re-renders.
-export default React.memo(MutationNotice);
+export default React.memo( MutationNotice );
