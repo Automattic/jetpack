@@ -456,7 +456,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/blaze",
-				"reference": "85f1131961a441450703ac2d4ea3d239b076be3b"
+				"reference": "bfdacc73c97e46d2d229ef23b0b1ef3f0e84172e"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -484,7 +484,7 @@
 					"link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.17.x-dev"
+					"dev-trunk": "0.18.x-dev"
 				},
 				"textdomain": "jetpack-blaze",
 				"version-constants": {
@@ -1001,7 +1001,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/device-detection",
-				"reference": "8f53628f970ba5bc8912232a574aa439e7236311"
+				"reference": "a6696f57f2f6f29f4a6930727ae5063c4e89fab4"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -1021,7 +1021,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.0.x-dev"
+					"dev-trunk": "2.1.x-dev"
 				}
 			},
 			"autoload": {
@@ -2456,7 +2456,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "b590950d3b87d0be552d7e9a99bd746d73a1c8d5"
+				"reference": "dec31f79e5cf8945b45b67e13b386184d0775c7a"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2488,7 +2488,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.6.x-dev"
+					"dev-trunk": "2.7.x-dev"
 				}
 			},
 			"autoload": {

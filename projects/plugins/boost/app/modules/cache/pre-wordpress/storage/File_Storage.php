@@ -5,7 +5,9 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Storage;
 
+use Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Logger;
 
 /**
  * File Storage - handles writing to disk, reading from disk, purging and pruning old content.
@@ -30,13 +32,13 @@ class File_Storage implements Storage {
 	 */
 	public function write( $request_uri, $parameters, $data ) {
 		$directory = self::get_uri_directory( $request_uri );
-		$filename  = self::get_request_filename( $request_uri, $parameters );
+		$filename  = Boost_Cache_Utils::get_request_filename( $parameters );
 
-		if ( ! Boost_Cache_Utils::create_directory( $directory ) ) {
+		if ( ! Filesystem_Utils::create_directory( $directory ) ) {
 			return new \WP_Error( 'Could not create cache directory' );
 		}
 
-		return Boost_Cache_Utils::write_to_file( $directory . $filename, $data );
+		return Filesystem_Utils::write_to_file( $directory . $filename, $data );
 	}
 
 	/**
@@ -47,15 +49,31 @@ class File_Storage implements Storage {
 	 */
 	public function read( $request_uri, $parameters ) {
 		$directory = self::get_uri_directory( $request_uri );
-		$filename  = self::get_request_filename( $request_uri, $parameters );
-		$full_path = $directory . $filename;
+		$filename  = Boost_Cache_Utils::get_request_filename( $parameters );
+		$hash_path = $directory . $filename;
 
-		if ( file_exists( $full_path ) ) {
+		if ( file_exists( $hash_path ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
-			return file_get_contents( $full_path );
+			return file_get_contents( $hash_path );
 		}
 
 		return false;
+	}
+
+	/**
+	 * Garbage collect expired files.
+	 */
+	public function garbage_collect() {
+		$cache_duration = apply_filters( 'jetpack_boost_cache_duration', 3600 );
+
+		if ( $cache_duration === 0 ) {
+			// Garbage collection is disabled.
+			return false;
+		}
+
+		$count = Filesystem_Utils::delete_expired_files( $this->root_path, $cache_duration );
+
+		Logger::debug( "Garbage collected $count files" );
 	}
 
 	/**
@@ -66,23 +84,6 @@ class File_Storage implements Storage {
 	 */
 	private function get_uri_directory( $request_uri ) {
 		return Boost_Cache_Utils::trailingslashit( $this->root_path . self::sanitize_path( $request_uri ) );
-	}
-
-	/**
-	 * Given a request_uri and its parameters, return the filename to use for this cached data. Does not include the file path.
-	 *
-	 * @param string $request_uri - The URI of this request (excluding GET parameters)
-	 * @param array  $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
-	 */
-	private function get_request_filename( $request_uri, $parameters ) {
-		$key_components = array(
-			'request_uri' => $request_uri,
-			'parameters'  => $parameters,
-		);
-
-		$key_components = apply_filters( 'boost_cache_key_components', $key_components );
-
-		return md5( json_encode( $key_components ) ) . '.html'; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 	}
 
 	/**
@@ -105,53 +106,17 @@ class File_Storage implements Storage {
 	/**
 	 * Delete all cached data for the given path.
 	 *
-	 * @param string $path - The path to delete.
+	 * @param string $path - The path to delete. File or directory.
+	 * @param string $type - defines what files/directories are deleted: DELETE_FILE, DELETE_FILES, DELETE_ALL.
 	 */
-	public function invalidate( $path ) {
-		error_log( "invalidate: $path" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		$path = $this->sanitize_path( $path );
-		$dir  = $this->root_path . $path;
+	public function invalidate( $path, $type ) {
+		error_log( "invalidate: $path $type" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
 
-		if ( Boost_Cache_Utils::is_boost_cache_directory( $dir ) ) {
-			return Boost_Cache_Utils::delete_directory( $dir );
+		if ( in_array( $type, array( Boost_Cache_Utils::DELETE_FILES, Boost_Cache_Utils::DELETE_ALL ), true ) && is_dir( $normalized_path ) ) {
+			return Boost_Cache_Utils::delete_directory( $normalized_path, $type );
+		} elseif ( $type === Boost_Cache_Utils::DELETE_FILE ) {
+			return Filesystem_Utils::delete_file( $normalized_path );
 		}
-
-		return false;
-	}
-
-	/**
-	 * Given a request_uri and its parameters, delete the cached data for this request.
-	 *
-	 * @param string $request_uri - The URI of this request (excluding GET parameters)
-	 * @param array  $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
-	 */
-	public function invalidate_single_visitor( $request_uri, $parameters ) {
-		$directory = self::get_uri_directory( $request_uri );
-		$filename  = self::get_request_filename( $request_uri, $parameters );
-		$full_path = $directory . $filename;
-		error_log( 'Deleting ' . $full_path . ' from cache' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-
-		if ( file_exists( $full_path ) ) {
-			return wp_delete_file( $full_path );
-		}
-
-		return false;
-	}
-
-	/**
-	 * Delete the cached files for the home page, and any paged archives.
-	 */
-	public function invalidate_home_page( $dir ) {
-		$dir = $this->root_path . Boost_Cache_Utils::sanitize_file_path( $dir );
-
-		if ( Boost_Cache_Utils::is_boost_cache_directory( $dir ) ) {
-			if ( is_dir( $dir . '/page' ) ) {
-				Boost_Cache_Utils::delete_directory( $dir . '/page' );
-			}
-			error_log( "invalidate_home_page: $dir" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			return Boost_Cache_Utils::delete_single_directory( $dir );
-		}
-
-		return false;
 	}
 }
