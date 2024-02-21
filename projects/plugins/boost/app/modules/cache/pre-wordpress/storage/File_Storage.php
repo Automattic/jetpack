@@ -115,8 +115,10 @@ class File_Storage implements Storage {
 
 		if ( in_array( $type, array( Boost_Cache_Utils::DELETE_FILES, Boost_Cache_Utils::DELETE_ALL ), true ) && is_dir( $normalized_path ) ) {
 			return Boost_Cache_Utils::delete_directory( $normalized_path, $type );
-		} elseif ( $type === Boost_Cache_Utils::DELETE_FILE ) {
+		} elseif ( $type === Boost_Cache_Utils::DELETE_FILE && is_file( $normalized_path ) ) {
 			return Filesystem_Utils::delete_file( $normalized_path );
+		} else {
+			return true; // no cache file or directory to delete.
 		}
 	}
 }
