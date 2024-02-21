@@ -114,6 +114,6 @@ class File_Storage implements Storage {
 		error_log( "invalidate: $request_uri $filter $filename" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $request_uri );
 
-		return Boost_Cache_Utils::delete_directory( $path, $filter, $filename );
+		return Boost_Cache_Utils::delete( $path, $filter, $filename );
 	}
 }

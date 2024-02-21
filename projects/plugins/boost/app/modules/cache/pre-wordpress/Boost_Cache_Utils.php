@@ -18,7 +18,7 @@ class Boost_Cache_Utils {
 	 * @param string $filename - The filename to delete. Only used when $filter is JBCACHE_FILE.
 	 * @return bool|WP_Error
 	 */
-	public static function delete_directory( $dir, $filter, $filename = '' ) {
+	public static function delete( $dir, $filter, $filename = '' ) {
 		error_log( "delete directory: $dir $filter $filename" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$dir = realpath( $dir );
 		if ( ! $dir ) {
