@@ -35,7 +35,7 @@ domReady( () => {
 	if ( getQueryArg( window.location.search, 'jetpackSidebarIsOpen' ) === 'true' ) {
 		dispatch( 'core/interface' ).enableComplementaryArea(
 			'core/edit-post',
-			'jetpack-social-sidebar/jetpack-social'
+			'jetpack-social/jetpack-social'
 		);
 	}
 } );
