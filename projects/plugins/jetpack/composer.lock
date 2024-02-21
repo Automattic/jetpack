@@ -1946,7 +1946,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/post-list",
-				"reference": "9ae1d7e7fc798fbdc910960aa1d2d18e88e3bf56"
+				"reference": "d163b29e9f11af83ba2995fcec0106df86345c7e"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1972,7 +1972,7 @@
 					"link-template": "https://github.com/automattic/jetpack-post-list/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.5.x-dev"
+					"dev-trunk": "0.6.x-dev"
 				}
 			},
 			"autoload": {

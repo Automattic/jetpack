@@ -16,7 +16,7 @@
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-plans": "@dev",
-		"automattic/jetpack-post-list": "^0.5.0@dev"
+		"automattic/jetpack-post-list": "@dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
