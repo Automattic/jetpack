@@ -3,6 +3,7 @@ import {
 	useDataSync,
 	useDataSyncAction,
 } from '@automattic/jetpack-react-data-sync-client';
+import { useState } from 'react';
 import { z } from 'zod';
 
 export const PageCacheError = z.string();
@@ -45,7 +46,8 @@ export function useRunPageCacheSetupAction() {
  * Hook which creates a callable action for clearing Page Cache.
  */
 export function useClearPageCacheAction() {
-	return useDataSyncAction( {
+	const [ message, setMessage ] = useState( '' );
+	const action = useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
 		key: 'page_cache',
 		action_name: 'clear-page-cache',
@@ -54,7 +56,16 @@ export function useClearPageCacheAction() {
 			action_request: z.void(),
 			action_response: PageCacheClear,
 		},
+		callbacks: {
+			onResult: result => {
+				if ( result.message ) {
+					setMessage( result.message );
+				}
+			},
+		},
 	} );
+
+	return [ message, action ] as const;
 }
 
 // When page cache is enabled, page cache error needs to be invalidated,

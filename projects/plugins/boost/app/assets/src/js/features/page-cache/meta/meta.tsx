@@ -21,8 +21,7 @@ const Meta = () => {
 		pageCache,
 		'bypass_patterns'
 	);
-
-	const runClearPageCacheAction = useClearPageCacheAction();
+	const [ clearedCacheMessage, runClearPageCacheAction ] = useClearPageCacheAction();
 
 	const clearPageCache = () => {
 		runClearPageCacheAction.mutate();
@@ -65,7 +64,7 @@ const Meta = () => {
 				{ ...runClearPageCacheAction }
 				savingMessage={ __( 'Clearing cache…', 'jetpack-boost' ) }
 				errorMessage={ __( 'Unable to clear cache.', 'jetpack-boost' ) }
-				successMessage={ __( 'Cache cleared.', 'jetpack-boost' ) }
+				successMessage={ clearedCacheMessage || __( 'Cache cleared.', 'jetpack-boost' ) }
 			/>
 			<div className={ styles.head }>
 				<div className={ styles.summary }>{ getSummary() }</div>
