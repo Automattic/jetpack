@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Returns true when deleting cache files and there aren't any. A small fix.
+
+
