@@ -29,10 +29,10 @@ function get_wpcom_command_palette_config_js() {
 	$host         = new Automattic\Jetpack\Status\Host();
 	$data         = array(
 		'siteId'       => Jetpack_Options::get_option( 'id' ),
-		'isAdmin'      => current_user_can( 'manage_options' ) ? 'true' : 'false',
-		'isAtomic'     => $host->is_woa_site() ? 'true' : 'false',
-		'isSimple'     => $host->is_wpcom_simple() ? 'true' : 'false',
-		'isSelfHosted' => ! $host->is_wpcom_platform() ? 'true' : 'false',
+		'isAdmin'      => current_user_can( 'manage_options' ),
+		'isAtomic'     => $host->is_woa_site(),
+		'isSimple'     => $host->is_wpcom_simple(),
+		'isSelfHosted' => ! $host->is_wpcom_platform(),
 	);
 	$encoded_data = wp_json_encode( $data );
 
