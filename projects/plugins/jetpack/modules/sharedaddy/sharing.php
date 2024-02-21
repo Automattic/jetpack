@@ -10,7 +10,6 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
 	define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -123,27 +122,21 @@ class Sharing_Admin {
 	}
 
 	/**
-	 * Register Sharing settings menu page.
-	 *
-	 * We only need to register it on self-hosted sites, in offline mode.
+	 * Register Sharing settings menu page in offline mode.
 	 */
 	public function subscription_menu() {
-		// Hide the menu on the wpcom platform.
-		if ( ( new Host() )->is_wpcom_platform() ) {
+		if ( ! ( new Status() )->is_offline_mode() ) {
 			return;
 		}
 
-		// Register it only on self-hosted sites, in offline mode.
-		if ( Jetpack::is_module_active( 'sharedaddy' ) && ( new Status() )->is_offline_mode() ) {
-			add_submenu_page(
-				'options-general.php',
-				__( 'Sharing Settings', 'jetpack' ),
-				__( 'Sharing', 'jetpack' ),
-				'manage_options',
-				'sharing',
-				array( $this, 'wrapper_admin_page' )
-			);
-		}
+		add_submenu_page(
+			'options-general.php',
+			__( 'Sharing Settings', 'jetpack' ),
+			__( 'Sharing', 'jetpack' ),
+			'manage_options',
+			'sharing',
+			array( $this, 'wrapper_admin_page' )
+		);
 	}
 
 	/**
