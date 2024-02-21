@@ -30,20 +30,6 @@ $border_radius: math.div($bar-height, 2);
 }
 
 .boost-score-tooltip {
-    // position: absolute;
-    // top: 0;
-    // //right: 50%;
-    // right: 0;
-    // z-index: -10;
-    // width: 24px;
-    // height: 24px;
-    // pointer-events:none;
-    // @media (min-width: 783px) {
-    //     //top: 50%;
-    //     top: 0;
-    //     right: 0;
-    // }
-
     &__heading {
         font-size: var(--font-title-small);
         line-height: 30px;
