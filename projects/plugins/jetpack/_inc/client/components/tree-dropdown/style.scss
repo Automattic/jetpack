@@ -1,0 +1,92 @@
+@import '../../scss/calypso-colors';
+
+.tree-dropdown {
+	.tree-dropdown__input-container {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 6px;
+		border: solid 1px $gray-5;
+		border-radius: 4px;
+		min-height: 40px;
+		padding: 4px 8px;
+
+		&.active {
+			border-color: var(--jp-green);
+			box-shadow: 0px 0px 0px 2px var(--jp-green-5), 0px 7px 15px 0px #00000026;
+			border-radius: 4px 4px 0 0;
+		}
+
+
+		.tree-dropdown__input {
+			flex-grow: 1;
+			padding: 0;
+
+			&, &:focus {
+				border: none;
+				box-shadow: none;
+			}
+		}
+
+		.tree-dropdown__tag {
+			display: flex;
+			gap: 4px;
+			height: 24px;
+			background-color: $white;
+			border: solid 1px $gray-80;
+			border-radius: 12px;
+			padding: 2px 4px 2px 8px;
+			margin: 3px 0;
+			font-size: 0.75rem;
+		}
+
+		.tree-dropdown__tag-remove-button {
+			background: none;
+			border: none;
+			padding: 0;
+
+			&, svg {
+				width: 18px;
+				height: 18px;
+			}
+		}
+	}
+
+	.tree-dropdown__dropdown-container {
+		position: relative;
+
+		.tree-dropdown__dropdown {
+			position: absolute;
+			top: 100%;
+			width: 100%;
+			padding: 8px;
+			background-color: $white;
+			border: solid 1px var(--jp-green);
+			border-top: none;
+			border-radius: 0 0 4px 4px;
+			box-shadow: 0px 0px 0px 2px var(--jp-green-5), 0px 10px 15px 0px #00000026;
+			z-index: 1000;
+
+			&::before {
+				content: '';
+				position: absolute;
+				top: -5px;
+				left: -1px;
+				right: -1px;
+				height: 5px;
+				background-color: $white;
+				border-left: solid 1px var(--jp-green);
+				border-right: solid 1px var(--jp-green);
+			}
+
+			ul.jp-tree-items {
+				max-height: 370px;
+				overflow-y: auto;
+			}
+
+			li.jp-tree-item {
+				margin-right: 8px;
+			}
+		}
+	}
+}
