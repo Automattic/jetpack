@@ -20,6 +20,7 @@ use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Data_Sync\Page_Cache_Entry;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Data_Sync_Actions\Clear_Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Data_Sync_Actions\Run_Setup;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Logger;
 
@@ -369,3 +370,5 @@ jetpack_boost_register_option(
 	),
 	new Page_Cache_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE . '_page_cache' )
 );
+
+jetpack_boost_register_action( 'page_cache', 'clear-page-cache', Schema::as_void(), new Clear_Page_Cache() );
