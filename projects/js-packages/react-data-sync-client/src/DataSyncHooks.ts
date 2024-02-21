@@ -357,10 +357,7 @@ export function useDataSyncSubset<
 	K extends keyof Value,
 >( key: K, hook: DataSyncHook< Schema, Value > ): [ Value[ K ], SubsetMutation< Value[ K ] > ] {
 	const [ query, mutation ] = hook;
-	const [ isPending, setIsPending ] = React.useState( false );
-	const [ isError, setIsError ] = React.useState( false );
 	const [ isActive, setIsActive ] = React.useState( false );
-	const [ isSuccess, setIsSuccess ] = React.useState( false );
 
 	const mutate = ( newValue: Value[ K ] ) => {
 		if ( ! query.data ) {
@@ -374,24 +371,25 @@ export function useDataSyncSubset<
 	};
 
 	useEffect( () => {
-		if ( ! isActive ) {
-			return;
-		}
-		setIsError( mutation.isError );
-		setIsPending( mutation.isPending );
-		setIsSuccess( mutation.isSuccess );
 		if ( mutation.isSuccess || mutation.isError ) {
 			setIsActive( false );
 		}
-	}, [ mutation.isError, mutation.isPending, isActive ] );
+	}, [ mutation.isSuccess, mutation.isError ] );
+
+	const mutationProxy = new Proxy( mutation, {
+		get( target, prop, receiver ) {
+			// If not active, return undefined for all except the mutate function
+			if ( ! isActive && prop !== 'mutate' ) {
+				return undefined;
+			}
+			return Reflect.get( target, prop, receiver );
+		},
+	} );
 
 	return [
 		query.data?.[ key ],
 		{
-			...mutation,
-			isSuccess,
-			isPending,
-			isError,
+			...mutationProxy,
 			mutate,
 		},
 	];
