@@ -390,6 +390,11 @@ class Initializer {
 			$should = false;
 		}
 
+		// All options presented in My Jetpack require a connection to WordPress.com.
+		if ( ( new Status() )->is_offline_mode() ) {
+			$should = false;
+		}
+
 		/**
 		 * Allows filtering whether My Jetpack should be initialized.
 		 *
