@@ -10,6 +10,9 @@ export const PageCache = z.object( {
 	bypass_patterns: z.array( z.string() ),
 	logging: z.boolean(),
 } );
+const PageCacheClear = z.object( {
+	message: z.string(),
+} );
 
 export function usePageCacheErrorDS() {
 	const [ { data } ] = useDataSync( 'jetpack_boost_ds', 'page_cache_error', PageCacheError );
@@ -57,8 +60,6 @@ function usePageCacheAction<
 	ActionSchema extends z.ZodSchema,
 	ActionRequestData extends z.infer< ActionSchema >,
 >( action: string, schema: ActionRequestData ) {
-	const responseSchema = z.boolean();
-
 	return useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
 		key: 'page_cache',
@@ -66,7 +67,7 @@ function usePageCacheAction<
 		schema: {
 			state: PageCache,
 			action_request: schema,
-			action_response: responseSchema,
+			action_response: PageCacheClear,
 		},
 	} );
 }

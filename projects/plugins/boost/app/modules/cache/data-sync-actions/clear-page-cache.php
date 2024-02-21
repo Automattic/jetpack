@@ -17,7 +17,21 @@ class Clear_Page_Cache implements Data_Sync_Action {
 	 * @param \WP_REST_Request $_request The request object.
 	 */
 	public function handle( $_data, $_request ) {
-		$cache = new Boost_Cache();
-		return $cache->delete_cache();
+		$cache  = new Boost_Cache();
+		$delete = $cache->delete_cache();
+
+		if ( is_wp_error( $delete ) ) {
+			return array(
+				'message' => __( 'Cache already cleared.', 'jetpack-boost' ),
+			);
+		}
+
+		if ( $delete ) {
+			return array(
+				'message' => __( 'Cache cleared.', 'jetpack-boost' ),
+			);
+		}
+
+		return new \WP_Error( 'unable-to-clear-cache', __( 'Unable to clear cache.', 'jetpack-boost' ) );
 	}
 }

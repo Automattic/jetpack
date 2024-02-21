@@ -50,14 +50,16 @@ const Meta = () => {
 	};
 
 	useEffect( () => {
-		if (
-			clearingCache &&
-			( runClearPageCacheAction.isSuccess || runClearPageCacheAction.isError )
-		) {
+		if ( clearingCache ) {
 			setClearingCache( false );
-			setSnackbarMessage( __( 'Cache Cleared.', 'jetpack-boost' ) );
 		}
-	}, [ clearingCache, runClearPageCacheAction ] );
+
+		if ( runClearPageCacheAction.isSuccess ) {
+			setSnackbarMessage( __( 'Cache Cleared.', 'jetpack-boost' ) );
+		} else if ( runClearPageCacheAction.isError ) {
+			setSnackbarMessage( __( 'Unable to clear cache.', 'jetpack-boost' ) );
+		}
+	}, [ clearingCache, runClearPageCacheAction.isSuccess, runClearPageCacheAction.isError ] );
 
 	const totalBypassPatterns = settings?.bypass_patterns.length || 0;
 
