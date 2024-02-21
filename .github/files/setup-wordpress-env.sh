@@ -165,7 +165,7 @@ if [[ "$WITH_WPCOMSH" == true ]]; then
 	echo "::group::Installing wpcomsh into WordPress"
 
 	mkdir "/tmp/wordpress-$WP_BRANCH/src/wp-content/mu-plugins"
-	cp -r "$MONOREPO_BASE/projects/plugins/wpcomsh/src" "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/wpcomsh"
+	cp -r "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/wpcomsh/src" "/tmp/wordpress-$WP_BRANCH/src/wp-content/mu-plugins/wpcomsh"
 
 	echo "::endgroup::"
 fi
