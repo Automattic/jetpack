@@ -7,6 +7,10 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import transcribeAudio from '../../audio-transcription/index.js';
+/**
+ * Types
+ */
+import type { CancelablePromise } from '../../types.js';
 
 const debug = debugFactory( 'jetpack-ai-client:use-audio-transcription' );
 
@@ -17,7 +21,7 @@ export type UseAudioTranscriptionReturn = {
 	transcriptionResult: string;
 	isTranscribingAudio: boolean;
 	transcriptionError: string;
-	transcribeAudio: ( audio: Blob ) => void;
+	transcribeAudio: ( audio: Blob ) => CancelablePromise;
 };
 
 /**
@@ -58,16 +62,26 @@ export default function useAudioTranscription( {
 			/**
 			 * Call the audio transcription library.
 			 */
-			transcribeAudio( audio, feature )
+			const promise: CancelablePromise = transcribeAudio( audio, feature )
 				.then( transcriptionText => {
+					if ( promise.canceled ) {
+						return;
+					}
+
 					setTranscriptionResult( transcriptionText );
 					onReady?.( transcriptionText );
 				} )
 				.catch( error => {
+					if ( promise.canceled ) {
+						return;
+					}
+
 					setTranscriptionError( error.message );
 					onError?.( error.message );
 				} )
 				.finally( () => setIsTranscribingAudio( false ) );
+
+			return promise;
 		},
 		[ transcribeAudio, setTranscriptionResult, setTranscriptionError, setIsTranscribingAudio ]
 	);
