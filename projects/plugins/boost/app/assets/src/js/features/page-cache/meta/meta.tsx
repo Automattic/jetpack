@@ -1,6 +1,5 @@
 import { Button, Notice } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { Snackbar } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
@@ -23,32 +22,16 @@ const Meta = () => {
 		'bypass_patterns'
 	);
 
-	const [ clearingCache, setClearingCache ] = useState( false );
-	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
 	const runClearPageCacheAction = useClearPageCacheAction();
 
 	const clearPageCache = () => {
-		setClearingCache( true );
-		setSnackbarMessage( '' ); // Hide any previous snackbar message.
 		runClearPageCacheAction.mutate();
 	};
-
-	useEffect( () => {
-		if ( clearingCache ) {
-			setClearingCache( false );
-		}
-
-		if ( runClearPageCacheAction.isSuccess ) {
-			setSnackbarMessage( __( 'Cache Cleared.', 'jetpack-boost' ) );
-		} else if ( runClearPageCacheAction.isError ) {
-			setSnackbarMessage( __( 'Unable to clear cache.', 'jetpack-boost' ) );
-		}
-	}, [ clearingCache, runClearPageCacheAction.isSuccess, runClearPageCacheAction.isError ] );
 
 	const totalBypassPatterns = bypassPatterns?.length || 0;
 
 	const getSummary = () => {
-		if ( clearingCache ) {
+		if ( runClearPageCacheAction.isPending ) {
 			return __( 'Clearing cache…', 'jetpack-boost' );
 		}
 
@@ -78,6 +61,12 @@ const Meta = () => {
 	return (
 		<div className={ styles.wrapper }>
 			<MutationNotice { ...mutateBypassPatterns } />
+			<MutationNotice
+				{ ...runClearPageCacheAction }
+				savingMessage={ __( 'Clearing cache…', 'jetpack-boost' ) }
+				errorMessage={ __( 'Unable to clear cache.', 'jetpack-boost' ) }
+				successMessage={ __( 'Cache cleared.', 'jetpack-boost' ) }
+			/>
 			<div className={ styles.head }>
 				<div className={ styles.summary }>{ getSummary() }</div>
 				<div className={ styles.actions }>
@@ -88,7 +77,7 @@ const Meta = () => {
 						iconSize={ 16 }
 						icon={ <Lightning /> }
 						onClick={ clearPageCache }
-						disabled={ clearingCache }
+						disabled={ runClearPageCacheAction.isPending }
 					>
 						{ __( 'Clear Cache', 'jetpack-boost' ) }
 					</Button>{ ' ' }
@@ -134,9 +123,6 @@ const Meta = () => {
 						</div>
 					</>
 				</div>
-			) }
-			{ snackbarMessage !== '' && (
-				<Snackbar children={ snackbarMessage } onDismiss={ () => setSnackbarMessage( '' ) } />
 			) }
 		</div>
 	);

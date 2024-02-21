@@ -20,7 +20,7 @@ class Clear_Page_Cache implements Data_Sync_Action {
 		$cache  = new Boost_Cache();
 		$delete = $cache->delete_cache();
 
-		if ( is_wp_error( $delete ) ) {
+		if ( $delete === null || is_wp_error( $delete ) ) {
 			return array(
 				'message' => __( 'Cache already cleared.', 'jetpack-boost' ),
 			);
