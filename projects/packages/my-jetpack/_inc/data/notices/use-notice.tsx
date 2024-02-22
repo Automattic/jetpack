@@ -1,5 +1,5 @@
 import { useContext, useEffect } from '@wordpress/element';
-import { NoticeContext } from '../../context/noticeContext';
+import { NoticeContext } from '../../context/notices/noticeContext';
 
 const useNotice = ( { message, options, isError } ) => {
 	const { setCurrentNotice } = useContext( NoticeContext ) || {};

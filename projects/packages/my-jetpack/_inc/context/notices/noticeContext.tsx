@@ -1,11 +1,8 @@
 import { createContext, useState } from '@wordpress/element';
 import React from 'react';
-import type { Dispatch, SetStateAction } from 'react';
+import { NoticeContextType } from './types';
 
-export const NoticeContext = createContext< {
-	currentNotice: { message: string; options: { status: string } };
-	setCurrentNotice: Dispatch< SetStateAction< { message: string; options: { status: string } } > >;
-} | null >( null );
+export const NoticeContext = createContext< NoticeContextType | null >( null );
 
 const NoticeContextProvider = ( { children } ) => {
 	const [ currentNotice, setCurrentNotice ] = useState( {

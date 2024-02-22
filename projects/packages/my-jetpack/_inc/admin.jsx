@@ -28,7 +28,7 @@ import {
 	StatsInterstitial,
 } from './components/product-interstitial';
 import RedeemTokenScreen from './components/redeem-token-screen';
-import NoticeContextProvider from './context/noticeContext';
+import NoticeContextProvider from './context/notices/noticeContext';
 import { initStore } from './state/store';
 import './style.module.scss';
 

@@ -20,7 +20,7 @@ import classnames from 'classnames';
 /*
  * Internal dependencies
  */
-import { NoticeContext } from '../../context/noticeContext';
+import { NoticeContext } from '../../context/notices/noticeContext';
 import useAnalytics from '../../hooks/use-analytics';
 import useChatAuthentication from '../../hooks/use-chat-authentication';
 import useChatAvailability from '../../hooks/use-chat-availability';
