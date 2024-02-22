@@ -29,7 +29,7 @@ const Index = () => {
 	const requestRegenerateCriticalCss = () => {
 		regenerateCssAction.mutate();
 	};
-	const { canResizeImages } = Jetpack_Boost;
+	const { canResizeImages, site } = Jetpack_Boost;
 
 	const premiumFeatures = usePremiumFeatures();
 
@@ -127,12 +127,23 @@ const Index = () => {
 					</>
 				}
 				description={
-					<p>
-						{ __(
-							'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
-							'jetpack-boost'
+					<>
+						<p>
+							{ __(
+								'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
+								'jetpack-boost'
+							) }
+						</p>
+						{ site.isAtomic && (
+							<Notice
+								level="warning"
+								title={ __( 'Page Cache is unavailable', 'jetpack-boost' ) }
+								hideCloseButton={ true }
+							>
+								<p>{ __( 'Your website already has a page cache running on it powered by WordPress.com.', 'jetpack-boost' ) }</p>
+							</Notice>
 						) }
-					</p>
+					</>
 				}
 				onEnable={ invalidatePageCacheError }
 				onDisable={ invalidatePageCacheError }
