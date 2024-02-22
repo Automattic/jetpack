@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Do not cache _jb_static URLs in other caches, if we're doing it ourselves
-
-

@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.11.0] - 2024-02-22
+### Added
+- Adding accesible text for external links on connection page and footer [#35733]
+
+### Changed
+- change status and action of My Jetpack cards when plugin is missing [#35718]
+- ESlint: disabled redundant role rule [#35800]
+- My Jetpack: add product slugs to click events on interstitials [#35740]
+- My Jetpack: let tier data pass on quantity data to checkout process for proper checkout URL crafting [#35817]
+- Updated package dependencies. [#35793]
+
+### Fixed
+- Backup Card: made stats readable by screen readers [#35786]
+- Connection Screen: make VoiceOver announce lists as such [#35736]
+- Do not initialize My Jetpack when in Offline mode. [#35807]
+- Fix wrong prop type passed to ConnectedProductCard [#35789]
+
 ## [4.10.0] - 2024-02-19
 ### Added
 - Add Boost Speed Score into My Jetpack Boost product card [#35606]
@@ -1254,6 +1271,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.10.0...4.11.0
 [4.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.9.2...4.10.0
 [4.9.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.9.1...4.9.2
 [4.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.9.0...4.9.1

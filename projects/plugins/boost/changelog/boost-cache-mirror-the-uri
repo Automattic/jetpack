@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Boost: mirror the REQUEST_URI when storing cache files.

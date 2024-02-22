@@ -180,9 +180,24 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.0.2 - 2024-01-31
+### 3.1.0-beta - 2024-02-22
+#### Added
+- Cache: Added a Page Cache module.
+- Defer JS: Automatically exclude JSON-LD schemas.
+- Speed Scores: Added support for annotating points of time in the speed score history graph.
+
+#### Changed
+- General: Better error handling for invalid data when running wp-admin pages.
+- General: Improved error handling with ErrorBoundary around SpeedScore and Module components.
+- General: Indicate compatibility with the upcoming version of WordPress, 6.5.
+- General: Enabled React.StrictMode for development.
+- General: Switch to using Blog ID links instead of site slugs in checkout flow.
+
 #### Fixed
-- General: Fixed an issue with compatibility file
+- Critical CSS: Prevent missing archive pages from breaking the generation process.
+- General: Prevent missing pricing information from affecting the getting started flow.
+- Image Size Analysis: Update summary groups to align with status icons.
+- JS and CSS concat: Ensure minification is enabled.
 
 --------
 

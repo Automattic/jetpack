@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Boost: consolidate writing to files in one function, write_to_file()

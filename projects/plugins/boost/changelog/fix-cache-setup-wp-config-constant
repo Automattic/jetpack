@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix not adding WP_CACHE to wp-config.php in some cases.
-
-

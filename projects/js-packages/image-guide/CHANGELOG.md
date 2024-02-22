@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.6] - 2024-02-22
+### Changed
+- Make build usable in projects using tsc with `moduleResolution` set to 'nodenext'. [#35453]
+- Updated targets in build configuration to better match supported browsers. [#35764]
+
+### Fixed
+- Fix image name causing image to go outside details panel. [#35309]
+
 ## [0.5.5] - 2024-01-22
 ### Changed
 - Updated package dependencies. [#34427]
@@ -88,6 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Minor package.json change - removing private entry.
 
+[0.5.6]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.5...v0.5.6
 [0.5.5]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.2...v0.5.3
