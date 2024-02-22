@@ -129,11 +129,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "b8a0cf59c3c659744598532778e99dbeab71ea0f"
+                "reference": "91b7f5b17f68bf8be7c6973b4b9dcd399d387bad"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
-                "automattic/scheduled-updates": "^0.1.0@dev",
+                "automattic/scheduled-updates": "@dev",
                 "php": ">=7.0"
             },
             "require-dev": {
