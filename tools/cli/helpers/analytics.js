@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import axios from 'axios';
 import Configstore from 'configstore';
 import enquirer from 'enquirer';
 
@@ -53,9 +52,13 @@ export async function tracks( eventName = 'uncategorized' ) {
 	}
 
 	try {
-		await axios.post(
-			'https://public-api.wordpress.com/rest/v1.1/tracks/record?http_envelope=1',
-			{
+		await fetch( 'https://public-api.wordpress.com/rest/v1.1/tracks/record?http_envelope=1', {
+			method: 'POST',
+			headers: {
+				'User-Agent': 'Node.js Jetpack CLI',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify( {
 				commonProps: {
 					_ul: 'jetpackisbestpack',
 					uuid: configStore.get( 'uuid' ),
@@ -65,14 +68,8 @@ export async function tracks( eventName = 'uncategorized' ) {
 						_en: baseEventName + eventName,
 					},
 				],
-			},
-			{
-				headers: {
-					'User-Agent': 'Node.js Jetpack CLI',
-					'Content-Type': 'application/json',
-				},
-			}
-		);
+			} ),
+		} );
 	} catch ( error ) {
 		console.error( error );
 	}
