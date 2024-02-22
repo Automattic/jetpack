@@ -169,7 +169,7 @@ export default function PlansSection() {
 
 	return (
 		<div className={ styles.container }>
-			<PlanSectionHeader purchases={ numberOfPurchases } />
+			<PlanSectionHeader numberOfPurchases={ numberOfPurchases } />
 
 			<div className={ styles.purchasesSection }>
 				{ isDataLoaded &&
@@ -177,7 +177,7 @@ export default function PlansSection() {
 						<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
 					) ) }
 			</div>
-			{ userIsAdmin && <PlanSectionFooter purchases={ numberOfPurchases } /> }
+			{ userIsAdmin && <PlanSectionFooter numberOfPurchases={ numberOfPurchases } /> }
 		</div>
 	);
 }
