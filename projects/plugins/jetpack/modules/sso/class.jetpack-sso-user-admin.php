@@ -112,7 +112,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					case 'empty-invite':
 						return wp_admin_notice( __( 'There is no previous invite for this user', 'jetpack' ), array( 'type' => 'error' ) );
 					case 'invalid-invite':
-						return wp_admin_notice( __( 'Tried to reinvite an user with an invite that doesn&#8217;t exist.', 'jetpack' ), array( 'type' => 'error' ) );
+						return wp_admin_notice( __( 'Attempted to send a new invitation to a user using an invite that doesn&#8217;t exist.', 'jetpack' ), array( 'type' => 'error' ) );
 					default:
 						return wp_admin_notice( __( 'An error has occurred when inviting the user to the site.', 'jetpack' ), array( 'type' => 'error' ) );
 				}
