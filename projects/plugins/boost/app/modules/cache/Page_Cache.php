@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
@@ -92,6 +93,12 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	}
 
 	public static function is_available() {
+		// Disable Page Cache on Atomic.
+		// It already has caching enabled.
+		if ( ( new Host() )->is_woa_site() ) {
+			return false;
+		}
+
 		return true;
 	}
 
