@@ -1,22 +1,22 @@
 /**
  * Adds depth and parentNames property to an array of tree items.
  *
- * @param {Array} items - Array of objects containing at least ID, parent, and name.
+ * @param {Array} items - Array of objects containing at least id, parent, and name.
  * @returns {Array} flatList - Array of objects including a depth property and an array of parent names.
  */
 function createFlatTreeItems( items ) {
 	const map = {};
 	const flatList = [];
 
-	// First pass: create a map of all items by their ID
+	// First pass: create a map of all items by their id
 	items.forEach( item => {
-		map[ item.ID ] = { ...item, children: [] };
+		map[ item.id ] = { ...item, children: [] };
 	} );
 
 	// Second pass: populate children for each item
 	items.forEach( item => {
 		if ( item.parent !== 0 && map[ item.parent ] ) {
-			map[ item.parent ].children.push( item.ID );
+			map[ item.parent ].children.push( item.id );
 		}
 	} );
 
@@ -32,7 +32,7 @@ function createFlatTreeItems( items ) {
 	};
 
 	// Initialize processing for root items (those without parents or parent === 0)
-	items.filter( item => item.parent === 0 ).forEach( item => processItem( item.ID, 0, [] ) );
+	items.filter( item => item.parent === 0 ).forEach( item => processItem( item.id, 0, [] ) );
 
 	// Remove children property as it's not required in the output
 	return flatList.map( ( { children, ...item } ) => item );

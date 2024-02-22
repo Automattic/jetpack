@@ -454,7 +454,6 @@ class Main extends React.Component {
 					Since the list style type is set to none, `role=list` is required for VoiceOver (on Safari) to announce the list.
 					See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
 					*/ }
-					{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
 					<ul role="list">
 						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
 						<li>{ __( 'Automatically share your content on social media', 'jetpack' ) }</li>
@@ -524,7 +523,6 @@ class Main extends React.Component {
 					Since the list style type is set to none, `role=list` is required for VoiceOver (on Safari) to announce the list.
 					See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
 					*/ }
-					{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
 					<ul role="list">
 						<li>{ __( 'Measure your impact with Jetpack Stats', 'jetpack' ) }</li>
 						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>

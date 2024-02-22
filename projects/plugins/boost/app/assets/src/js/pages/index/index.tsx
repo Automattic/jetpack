@@ -120,7 +120,12 @@ const Index = () => {
 			</Module>
 			<Module
 				slug="page_cache"
-				title={ __( 'Cache Site Pages', 'jetpack-boost' ) }
+				title={
+					<>
+						{ __( 'Cache Site Pages', 'jetpack-boost' ) }
+						<span className={ styles.beta }>Beta</span>
+					</>
+				}
 				description={
 					<p>
 						{ __(
@@ -211,12 +216,7 @@ const Index = () => {
 			<div className={ styles.settings }>
 				<Module
 					slug="image_guide"
-					title={
-						<>
-							{ __( 'Image Guide', 'jetpack-boost' ) }
-							<span className={ styles.beta }>Beta</span>
-						</>
-					}
+					title={ __( 'Image Guide', 'jetpack-boost' ) }
 					description={
 						<>
 							<p>

@@ -297,6 +297,19 @@ abstract class Product {
 	}
 
 	/**
+	 * Checks whether the site has a paid plan for the product
+	 * This ignores free products, it only checks if there is a purchase that supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_paid_plan_for_product() {
+		// TODO: this is not always the same.
+		// There should be checks on each individual product class for paid plans if the product has a free offering
+		// For products with no free offering, checking has_required_plan works fine
+		return static::has_required_plan();
+	}
+
+	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the tiers
 	 *
 	 * @return array Key/value pairs of tier slugs and whether they are supported or not.
@@ -365,7 +378,7 @@ abstract class Product {
 	public static function get_status() {
 		if ( ! static::is_plugin_installed() ) {
 			$status = 'plugin_absent';
-			if ( static::has_required_plan() ) {
+			if ( static::has_paid_plan_for_product() ) {
 				$status = 'plugin_absent_with_plan';
 			}
 		} elseif ( static::is_active() ) {
@@ -579,5 +592,45 @@ abstract class Product {
 		$filenames = self::JETPACK_PLUGIN_FILENAME;
 
 		self::filter_action_links( $filenames );
+	}
+
+	/**
+	 * Install and activate the standalone plugin in the case it's missing.
+	 *
+	 * @return boolean|WP_Error
+	 */
+	public static function install_and_activate_standalone() {
+		/**
+		 * Check for the presence of the standalone plugin, ignoring Jetpack presence.
+		 *
+		 * If the standalone plugin is not installed and the user can install plugins, proceed with the installation.
+		 */
+		if ( ! static::is_plugin_installed() ) {
+			/**
+			 * Check for permissions
+			 */
+			if ( ! current_user_can( 'install_plugins' ) ) {
+				return new WP_Error( 'not_allowed', __( 'You are not allowed to install plugins on this site.', 'jetpack-my-jetpack' ) );
+			}
+
+			/**
+			 * Install the plugin
+			 */
+			$installed = Plugins_Installer::install_plugin( static::get_plugin_slug() );
+			if ( is_wp_error( $installed ) ) {
+				return $installed;
+			}
+		}
+
+		/**
+		 * Activate the installed plugin
+		 */
+		$result = static::activate_plugin();
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return true;
 	}
 }
