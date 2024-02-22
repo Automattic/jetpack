@@ -21,6 +21,7 @@ import {
 	userLoggedIn,
 	commentUrl,
 	commentParent,
+	subscribeModalStatus,
 } from './state';
 import {
 	classNames,
@@ -37,13 +38,6 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 	const formRef = useRef< HTMLFormElement >( null );
 	const [ showMessage, setShowMessage ] = useState( '' );
 	const [ isErrorMessage, setIsErrorMessage ] = useState( false );
-	const [ subscribeModalStatus, setSubscribeModalStatus ] = useState<
-		| 'showed'
-		| 'hidden_cookies_disabled'
-		| 'hidden_subscribe_not_enabled'
-		| 'hidden_views_limit'
-		| 'hidden_already_subscribed'
-	>();
 
 	const commentTextarea = useRef< HTMLTextAreaElement >();
 	const [ email, setEmail ] = useState( '' );
@@ -131,7 +125,7 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 			setEmail( formData.get( 'email' ) as string );
 		}
 
-		formData.set( 'verbum_show_subscription_modal', subscribeModalStatus );
+		formData.set( 'verbum_show_subscription_modal', subscribeModalStatus.value );
 
 		const response = await fetch( formAction, {
 			method: 'POST',
@@ -242,12 +236,7 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 			<CommentFooter toggleTray={ handleTrayToggle } />
 			<CommentMessage message={ showMessage } isError={ isErrorMessage } />
 			{ VerbumComments.enableSubscriptionModal && (
-				<SimpleSubscribeModal
-					setSubscribeModalStatus={ setSubscribeModalStatus }
-					subscribeModalStatus={ subscribeModalStatus }
-					closeModalHandler={ closeModalHandler }
-					email={ email }
-				/>
+				<SimpleSubscribeModal closeModalHandler={ closeModalHandler } email={ email } />
 			) }
 		</>
 	);

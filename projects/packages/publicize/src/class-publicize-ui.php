@@ -52,17 +52,17 @@ class Publicize_UI {
 		}
 
 		// Assets (css, js).
-		add_action( 'load-settings_page_sharing', array( $this, 'load_assets' ) );
 		add_action( 'admin_head-post.php', array( $this, 'post_page_metabox_assets' ) );
 		add_action( 'admin_head-post-new.php', array( $this, 'post_page_metabox_assets' ) );
 
 		// Management of publicize (sharing screen, ajax/lightbox popup, and metabox on post screen).
-		add_action( 'pre_admin_screen_sharing', array( $this, 'admin_page' ) );
 		add_action( 'post_submitbox_misc_actions', array( $this, 'post_page_metabox' ) );
 	}
 
 	/**
 	 * If the ShareDaddy plugin is not active we need to add the sharing settings page to the menu still
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public function sharing_menu() {
 		add_submenu_page(
@@ -77,6 +77,8 @@ class Publicize_UI {
 
 	/**
 	 * Add admin page with wrapper.
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public function wrapper_admin_page() {
 		if ( class_exists( 'Jetpack_Admin_Page' ) ) {
@@ -86,6 +88,8 @@ class Publicize_UI {
 
 	/**
 	 * Management page to load if Sharedaddy is not active so the 'pre_admin_screen_sharing' action exists.
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public function management_page() {
 		?>
@@ -104,6 +108,8 @@ class Publicize_UI {
 	/**
 	 * Styling for the sharing screen and popups
 	 * JS for the options and switching
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public function load_assets() {
 		if ( class_exists( 'Jetpack_Admin_Page' ) ) {
@@ -114,6 +120,8 @@ class Publicize_UI {
 	/**
 	 * Lists the current user's publicized accounts for the blog
 	 * looks exactly like Publicize v1 for now, UI and functionality updates will come after the move to keyring
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public function admin_page() {
 		?>

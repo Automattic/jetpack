@@ -52,21 +52,21 @@ class Backup extends Hybrid_Product {
 	public static $has_standalone_plugin = true;
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'VaultPress Backup', 'jetpack-my-jetpack' );
+		return 'VaultPress Backup';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' );
+		return 'Jetpack VaultPress Backup';
 	}
 
 	/**

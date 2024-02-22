@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Boost - only caching html pages so we should make sure we're only caching html pages
+
+

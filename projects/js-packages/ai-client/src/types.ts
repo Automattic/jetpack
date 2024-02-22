@@ -41,6 +41,15 @@ export type {
 	UseAudioTranscriptionProps,
 	UseAudioTranscriptionReturn,
 } from './hooks/use-audio-transcription/index.js';
+export type {
+	UseTranscriptionPostProcessingProps,
+	UseTranscriptionPostProcessingReturn,
+	PostProcessingAction,
+} from './hooks/use-transcription-post-processing/index.js';
+/*
+ * Hook constants
+ */
+export { TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT } from './hooks/use-transcription-post-processing/index.js';
 
 /*
  * Requests types
@@ -68,6 +77,16 @@ export const AI_MODEL_GPT_3_5_Turbo_16K = 'gpt-3.5-turbo-16k' as const;
 export const AI_MODEL_GPT_4 = 'gpt-4' as const;
 
 export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo_16K | typeof AI_MODEL_GPT_4;
+
+/*
+ * Media recording types
+ */
+export type { RecordingState } from './hooks/use-media-recording/index.js';
+
+/*
+ * Utility types
+ */
+export type CancelablePromise< T = void > = Promise< T > & { canceled?: boolean };
 
 // Connection initial state
 // @todo: it should be provided by the connection package
