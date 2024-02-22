@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
+import MessagesSetting from './messages-setting';
 import NewsletterCategories from './newsletter-categories';
 import SubscriptionsSettings from './subscriptions-settings';
 
@@ -47,6 +48,7 @@ function Subscriptions( props ) {
 			{ foundSubscriptions && (
 				<SubscriptionsSettings siteRawUrl={ siteRawUrl } blogID={ blogID } />
 			) }
+			<MessagesSetting { ...props } />
 			{ isNewsletterCategoriesEnabled && <NewsletterCategories /> }
 		</div>
 	);
