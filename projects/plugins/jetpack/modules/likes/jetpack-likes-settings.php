@@ -219,6 +219,8 @@ class Jetpack_Likes_Settings {
 	 * Provides a sharing page with the sharing_global_options hook
 	 * so we can display the setting.
 	 * Only ran if sharedaddy and publicize are not already active.
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public function sharing_page() {
 		$this->updated_message();
@@ -237,6 +239,8 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * Returns the settings have been saved message.
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public function updated_message() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ignoring since we are just displaying that the settings have been saved and not making  any other changes to the site.
@@ -247,6 +251,8 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * Returns just the "sharing buttons" w/ like option block, so it can be inserted into different sharing page contexts
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public function sharing_block() {
 		?>
