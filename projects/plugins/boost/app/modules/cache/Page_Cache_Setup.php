@@ -84,7 +84,7 @@ class Page_Cache_Setup {
 			}
 		}
 
-		$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . basename( dirname( plugin_dir_path( __FILE__ ), 3 ) ) . '/app/modules/cache/pre-wordpress/Boost_Cache.php';
+		$boost_cache_filename = JETPACK_BOOST_DIR_PATH . '/app/modules/cache/pre-wordpress/Boost_Cache.php';
 		$contents             = '<?php
 // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE . ' - ' . Page_Cache::ADVANCED_CACHE_VERSION . '
 if ( ! file_exists( \'' . $boost_cache_filename . '\' ) ) {
