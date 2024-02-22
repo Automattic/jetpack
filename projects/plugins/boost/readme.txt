@@ -187,6 +187,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - Speed Scores: Added support for annotating points of time in the speed score history graph.
 
 #### Changed
+- Image Guide: Removed beta flag
 - General: Better error handling for invalid data when running wp-admin pages.
 - General: Improved error handling with ErrorBoundary around SpeedScore and Module components.
 - General: Indicate compatibility with the upcoming version of WordPress, 6.5.
