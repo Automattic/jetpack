@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Social\Note;
 use WorDBless\BaseTestCase;
 
 /**
@@ -56,7 +57,7 @@ class Jetpack_Social_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Testh that the Publicize package isn't ensured without a user connection
+	 * Test that the Publicize package isn't ensured without a user connection
 	 */
 	public function test_publicize_not_configured() {
 		$connection_manager = $this->createMock( Connection_Manager::class );
@@ -70,5 +71,24 @@ class Jetpack_Social_Test extends BaseTestCase {
 		do_action( 'plugins_loaded' );
 
 		$this->assertSame( 0, did_action( 'jetpack_feature_publicize_enabled' ) );
+	}
+
+	/**
+	 * Test the social notes feature.
+	 */
+	public function test_social_notes() {
+		$note = new Note();
+		$note->init();
+		$this->assertEmpty( get_option( Note::FLUSH_REWRITE_RULES_FLUSHED ) );
+		update_option( Note::JETPACK_SOCIAL_NOTE_CPT, true );
+		$note->init();
+		$this->assertTrue( get_option( Note::FLUSH_REWRITE_RULES_FLUSHED ) );
+		$note->toggle_enabled_status();
+		$this->assertFalse( $note->enabled() );
+		$note->init();
+		$this->assertEmpty( get_option( Note::FLUSH_REWRITE_RULES_FLUSHED ) );
+		$note->toggle_enabled_status();
+		$note->init();
+		$this->assertTrue( get_option( Note::FLUSH_REWRITE_RULES_FLUSHED ) );
 	}
 }

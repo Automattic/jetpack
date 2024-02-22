@@ -18,6 +18,7 @@ function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 					<Button variant="link" onClick={ open } style={ { padding: 0 } }>
 						<figure>
 							<img
+								class="blogroll-item-image"
 								onError={ event => {
 									event.target.parentNode.classList.add( 'empty-site-icon' );
 								} }

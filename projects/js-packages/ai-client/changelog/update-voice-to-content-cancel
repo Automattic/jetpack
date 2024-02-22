@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Voice to Content: Make transcriptions cancelable and add onProcess callback

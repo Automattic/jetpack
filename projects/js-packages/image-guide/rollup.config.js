@@ -69,7 +69,15 @@ export default {
 
 		svelteSVG(),
 		svelte( {
-			preprocess: sveltePreprocess( { sourceMap: ! production } ),
+			preprocess: sveltePreprocess( {
+				sourceMap: ! production,
+				typescript: {
+					compilerOptions: {
+						module: 'esnext',
+						moduleResolution: 'bundler',
+					},
+				},
+			} ),
 			compilerOptions: {
 				// enable run-time checks when not in production
 				dev: ! production,

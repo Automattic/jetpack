@@ -10,18 +10,18 @@ import React, { useCallback, useState } from 'react';
  */
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
-import ProductCard, { PRODUCT_STATUSES } from '../product-card';
+import ProductCard from '../product-card';
 
 const ConnectedProductCard = ( {
 	admin,
 	slug,
 	children,
 	isDataLoading,
-	showMenu = false,
 	Description = null,
 	additionalActions = null,
-	menuItems = [],
+	secondaryAction = null,
 	upgradeInInterstitial = false,
+	primaryActionOverride,
 } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
@@ -33,39 +33,11 @@ const ConnectedProductCard = ( {
 		installStandalonePlugin,
 		deactivateStandalonePlugin,
 	} = useProduct( slug );
-	const {
-		name,
-		description: defaultDescription,
-		requiresUserConnection,
-		standalonePluginInfo,
-		status,
-	} = detail;
+	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
 	const [ installingStandalone, setInstallingStandalone ] = useState( false );
 	const [ deactivatingStandalone, setDeactivatingStandalone ] = useState( false );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
-
-	/* Menu Handling */
-	const hasStandalonePlugin = standalonePluginInfo?.hasStandalonePlugin;
-	const isStandaloneInstalled = standalonePluginInfo?.isStandaloneInstalled;
-	const isStandaloneActive = standalonePluginInfo?.isStandaloneActive;
-	const showActivateOption = hasStandalonePlugin && isStandaloneInstalled && ! isStandaloneActive;
-	const showDeactivateOption = hasStandalonePlugin && isStandaloneInstalled && isStandaloneActive;
-	const showInstallOption = hasStandalonePlugin && ! isStandaloneInstalled;
-	const isConnected = isRegistered && isUserConnected;
-	const isAbsent =
-		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
-
-	const menuIsActive =
-		showMenu && // The menu is enabled for the product AND
-		! isAbsent && // product status is not absent AND
-		status !== PRODUCT_STATUSES.ERROR && // product status is not error AND
-		isConnected && // the site is connected AND
-		( menuItems?.length > 0 || // Show custom menus, if present
-			showActivateOption || // Show install | activate options for standalone plugin
-			showDeactivateOption || // Show deactivate option for standalone plugin
-			showInstallOption );
-	/* End Menu Handling */
 
 	/*
 	 * Redirect only if connected
@@ -90,7 +62,7 @@ const ConnectedProductCard = ( {
 
 		installStandalonePlugin()
 			.then( () => {
-				window?.location?.reload();
+				setInstallingStandalone( false );
 			} )
 			.catch( () => {
 				setInstallingStandalone( false );
@@ -132,13 +104,10 @@ const ConnectedProductCard = ( {
 			isDeactivatingStandalone={ deactivatingStandalone }
 			onDeactivate={ deactivate }
 			additionalActions={ additionalActions }
+			primaryActionOverride={ primaryActionOverride }
+			secondaryAction={ secondaryAction }
 			slug={ slug }
 			onActivate={ handleActivate }
-			showMenu={ menuIsActive }
-			menuItems={ menuItems }
-			showActivateOption={ showActivateOption }
-			showDeactivateOption={ showDeactivateOption }
-			showInstallOption={ showInstallOption }
 			onInstallStandalone={ handleInstallStandalone }
 			onActivateStandalone={ handleInstallStandalone }
 			onDeactivateStandalone={ handleDeactivateStandalone }
@@ -154,9 +123,9 @@ ConnectedProductCard.propTypes = {
 	admin: PropTypes.bool.isRequired,
 	slug: PropTypes.string.isRequired,
 	isDataLoading: PropTypes.bool,
-	showMenu: PropTypes.bool,
 	additionalActions: PropTypes.array,
-	menuItems: PropTypes.array,
+	primaryActionOverride: PropTypes.object,
+	secondaryAction: PropTypes.object,
 };
 
 export default ConnectedProductCard;

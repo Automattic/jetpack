@@ -92,7 +92,7 @@ export default function MyJetpackScreen() {
 	// Check using the global state instead of Redux so it only has effect after refreshing the page
 	const welcomeBannerHasBeenDismissed =
 		window?.myJetpackInitialState?.welcomeBanner.hasBeenDismissed;
-	const isStatsModuleActive = window?.myJetpackInitialState?.isStatsModuleActive === '1';
+	const { showJetpackStatsCard = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
 	const jetpackManage = window?.myJetpackInitialState?.jetpackManage;
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -150,7 +150,7 @@ export default function MyJetpackScreen() {
 							<GlobalNotice message={ message } options={ options } clean={ clean } />
 						</Col>
 					) }
-					{ isStatsModuleActive && (
+					{ showJetpackStatsCard && (
 						<Col
 							className={ classnames( {
 								[ styles.stats ]: statsDetails?.status !== PRODUCT_STATUSES.ERROR,

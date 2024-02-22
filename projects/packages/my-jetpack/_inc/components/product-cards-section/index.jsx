@@ -9,12 +9,8 @@ import CrmCard from './crm-card';
 import ProtectCard from './protect-card';
 import SearchCard from './search-card';
 import SocialCard from './social-card';
-import StatsCard from './stats-card';
 import styles from './style.module.scss';
 import VideopressCard from './videopress-card';
-
-// flag for enabling stats card.
-const { showJetpackStatsCard = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
 
 /**
  * Product cards section component.
@@ -29,7 +25,7 @@ const ProductCardsSection = () => {
 		boost: BoostCard,
 		search: SearchCard,
 		videopress: VideopressCard,
-		stats: showJetpackStatsCard ? StatsCard : null,
+		// Stats card is shown in the <StatsSection/> component.
 		crm: CrmCard,
 		creator: CreatorCard,
 		social: SocialCard,

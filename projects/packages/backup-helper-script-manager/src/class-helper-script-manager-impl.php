@@ -9,7 +9,7 @@
 // order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
 // to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
 // are installed, or in some other cases).
-namespace Automattic\Jetpack\Backup\V0001;
+namespace Automattic\Jetpack\Backup\V0002;
 
 use Exception;
 use WP_Error;
@@ -123,9 +123,21 @@ class Helper_Script_Manager_Impl {
 
 		$locations = array();
 
-		// Prioritize trying to write to "wp-content/" and "wp-content/uploads/" first, because those locations are
-		// expected to be writable more often (unlike ABSPATH), and ABSPATH on some setups might have a weird value
-		// which doesn't point to document root.
+		// Prioritize ABSPATH first, because even though ABSPATH constant's value might be weird sometimes, it's the
+		// path where the PHP scripts will be most likely be able to get executed.
+
+		try {
+			if ( Throw_On_Errors::t_is_dir( ABSPATH ) ) {
+				$abspath_dir               = Throw_On_Errors::t_realpath( ABSPATH );
+				$locations[ $abspath_dir ] = $abspath_url;
+			}
+		} catch ( Exception $exception ) {
+			$locations[ ABSPATH ] = new WP_Error(
+				'abspath_missing',
+				'Unable to access WordPress root "' . ABSPATH . '": ' . $exception->getMessage(),
+				array( 'status' => 500 )
+			);
+		}
 
 		try {
 			if ( Throw_On_Errors::t_is_dir( WP_CONTENT_DIR ) ) {
@@ -176,19 +188,6 @@ class Helper_Script_Manager_Impl {
 			$locations[ $wp_uploads_dir ] = new WP_Error(
 				'uploads_path_missing',
 				'Unable to access uploads path "' . $wp_uploads_dir . '"' . $exception->getMessage(),
-				array( 'status' => 500 )
-			);
-		}
-
-		try {
-			if ( Throw_On_Errors::t_is_dir( ABSPATH ) ) {
-				$abspath_dir               = Throw_On_Errors::t_realpath( ABSPATH );
-				$locations[ $abspath_dir ] = $abspath_url;
-			}
-		} catch ( Exception $exception ) {
-			$locations[ ABSPATH ] = new WP_Error(
-				'abspath_missing',
-				'Unable to access WordPress root "' . ABSPATH . '": ' . $exception->getMessage(),
 				array( 'status' => 500 )
 			);
 		}

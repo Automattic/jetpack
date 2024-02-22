@@ -41,6 +41,35 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test image size extract in src filename
+	 *
+	 * @covers Jetpack_PostImages::from_html
+	 */
+	public function test_from_html_size() {
+		$s = "<img src='img-2300x1300.jpg' />";
+
+		$result = Jetpack_PostImages::from_html( $s );
+
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
+		$this->assertEquals( 2300, $result[0]['src_width'] );
+		$this->assertEquals( 1300, $result[0]['src_height'] );
+	}
+
+	/**
+	 * Test ignoring unrealistic image sizes from src filename
+	 *
+	 * @covers Jetpack_PostImages::from_html
+	 */
+	public function test_from_html_no_size() {
+		$s = "<img src='img-851958915511220x220.jpg' />";
+
+		$result = Jetpack_PostImages::from_html( $s );
+
+		$this->assertEquals( array(), $result );
+	}
+
+	/**
 	 * @author scotchfield
 	 * @covers Jetpack_PostImages::from_slideshow
 	 * @since 3.2

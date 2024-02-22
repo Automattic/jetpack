@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './thumbnail.module.scss';
 
 interface ThumbnailProps {
 	url?: string;
@@ -13,15 +14,9 @@ const Thumbnail: React.FC< ThumbnailProps > = ( { url, title, width, height } ) 
 	} as React.CSSProperties;
 
 	return url && title ? (
-		<img
-			src={ url }
-			alt={ title }
-			width={ width }
-			height={ height }
-			className="jb-thumbnail__image"
-		/>
+		<img src={ url } alt={ title } width={ width } height={ height } className={ styles.image } />
 	) : (
-		<div className="jb-thumbnail__placeholder" style={ thumbnailStyle } />
+		<div className={ styles.placeholder } style={ thumbnailStyle } />
 	);
 };
 

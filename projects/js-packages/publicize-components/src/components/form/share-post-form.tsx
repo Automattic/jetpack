@@ -11,7 +11,8 @@ export const SharePostForm: React.FC = () => {
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 
-	const { isEnhancedPublishingEnabled, isSocialImageGeneratorAvailable } = usePublicizeConfig();
+	const { isEnhancedPublishingEnabled, isSocialImageGeneratorAvailable, isJetpackSocialNote } =
+		usePublicizeConfig();
 
 	const shouldDisableMediaPicker =
 		isSocialImageGeneratorAvailable && isSocialImageGeneratorEnabledForPost;
@@ -22,7 +23,9 @@ export const SharePostForm: React.FC = () => {
 
 	return (
 		<>
-			<MessageBoxControl maxLength={ maxLength } onChange={ updateMessage } message={ message } />
+			{ ! isJetpackSocialNote && (
+				<MessageBoxControl maxLength={ maxLength } onChange={ updateMessage } message={ message } />
+			) }
 			{ isEnhancedPublishingEnabled && (
 				<MediaSection
 					disabled={ shouldDisableMediaPicker }

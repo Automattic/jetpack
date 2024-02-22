@@ -70,7 +70,6 @@
 	},
 	"supports": {
 		"align": [ "left", "center", "right" ],
-		"multiple": false,
 		"anchor": true,
 		"__experimentalExposeControlsToChildren": true,
 		"layout": {

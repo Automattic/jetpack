@@ -35,12 +35,13 @@ add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 /**
  * Related Posts block render callback.
  *
- * @param array  $attributes Array containing the Button block attributes.
- * @param string $content    The Button block content.
+ * @param array    $attributes Array containing the Button block attributes.
+ * @param string   $content    The block content.
+ * @param WP_Block $block    The block object.
  *
  * @return string
  */
-function render_block( $attributes, $content ) {
+function render_block( $attributes, $content, $block ) {
 	// If the Related Posts module is not active, don't render the block.
 	if (
 		! ( new Host() )->is_wpcom_simple()
@@ -59,5 +60,5 @@ function render_block( $attributes, $content ) {
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
 	}
 
-	return \Jetpack_RelatedPosts::init()->render_block( $attributes, $content );
+	return \Jetpack_RelatedPosts::init()->render_block( $attributes, $content, $block );
 }

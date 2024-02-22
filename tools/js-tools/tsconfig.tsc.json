@@ -1,0 +1,14 @@
+// Configuration for when you use tsc to produce JS from TS instead of webpack and @babel/preset-typescript,
+// Note that when using tsc directly you'll probably also have to manually handle @wordpress/* packages and i18n if necessary.
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		"declaration": true,
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"noEmit": false,
+
+		// Conservative target since tsc doesn't do babel's transpilation. Feel free to override this.
+		"target": "es6"
+	}
+}

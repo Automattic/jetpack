@@ -458,10 +458,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
 
 		/**
-		 * Adds the WordPress.com Github Deployments submenu under the main Tools menu.
+		 * Adds the WordPress.com GitHub Deployments submenu under the main Tools menu.
 		 */
 		if ( apply_filters( 'jetpack_show_wpcom_github_deployments_menu', false ) ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'Github Deployments', 'jetpack' ), __( 'Github Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 7 );
+			add_submenu_page( 'tools.php', esc_attr__( 'GitHub Deployments', 'jetpack' ), __( 'GitHub Deployments', 'jetpack' ), 'manage_options', 'https://wordpress.com/github-deployments/' . $this->domain, null, 7 );
 		}
 	}
 
@@ -575,17 +575,5 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		} else {
 			parent::add_appearance_menu();
 		}
-	}
-
-	/**
-	 * Adds a dashboard switcher to the list of screen meta links of the current page.
-	 */
-	public function add_dashboard_switcher() {
-		// When the interface is set to wp-admin, do not show the dashboard switcher.
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-			return;
-		}
-
-		parent::add_dashboard_switcher();
 	}
 }

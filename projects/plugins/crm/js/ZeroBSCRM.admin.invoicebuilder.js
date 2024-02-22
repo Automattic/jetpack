@@ -1569,10 +1569,8 @@ function zbscrm_JS_calc_amount_due() {
 			// get
 			var v = jQuery( '.zbs-partial-value', ele ).text();
 
-			var label = jQuery( '.zlabel', ele ).text();
-
 			// detect +-
-			var multiplier = 1; // gets turned to -1 if negative ()
+			var multiplier = 1; // gets turned to -1 if negotive ()
 
 			// got -?
 			if ( v.includes( '(' ) ) {
@@ -1581,11 +1579,10 @@ function zbscrm_JS_calc_amount_due() {
 			}
 			v = parseFloat( v ) * multiplier;
 
-			if (  label.includes( 'Refund' ) || label.includes( 'Credit' ) ) {
-				amount_due -= Math.abs( v );
-			} else {
-				amount_due -= v;
-			}
+			// debug console.log('amount:',[jQuery('.zbs-partial-value',ele).text(),amount_due,v]);
+
+			// do it :)
+			amount_due -= v;
 		} );
 
 		jQuery( '#inv-amount-due' ).html( amount_due.toFixed( zbs_root.currencyOptions.noOfDecimals ) );

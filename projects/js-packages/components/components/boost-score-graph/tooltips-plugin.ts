@@ -20,13 +20,14 @@ export function tooltipsPlugin( periods ) {
 	 * @param {object} _opts - Options for the uPlot instance.
 	 */
 	function init( u, _opts ) {
-		const over = u.over;
+		const container = u.over;
 		reactDom = ReactDOM.createRoot( reactRoot );
 		reactRoot.style.position = 'absolute';
 		reactRoot.style.bottom = -20 + 'px';
 		reactRoot.style.translate = '-50% calc( 100% - 20px )';
+		reactRoot.style.zIndex = '1000';
 
-		over.appendChild( reactRoot );
+		container.appendChild( reactRoot );
 
 		/**
 		 * Hides all tooltips.
@@ -42,21 +43,15 @@ export function tooltipsPlugin( periods ) {
 			reactRoot.style.display = null;
 		}
 
-		over.addEventListener( 'mouseleave', () => {
+		container.addEventListener( 'mouseleave', () => {
 			if ( ! u.cursor._lock ) {
 				hideTips();
 			}
 		} );
 
-		over.addEventListener( 'mouseenter', () => {
+		container.addEventListener( 'mouseenter', () => {
 			showTips();
 		} );
-
-		if ( u.cursor.left < 0 ) {
-			hideTips();
-		} else {
-			showTips();
-		}
 	}
 
 	/**

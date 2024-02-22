@@ -10,9 +10,9 @@
 // order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
 // to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
 // are installed, or in some other cases).
-namespace Automattic\Jetpack\Transport_Helper\V0001;
+namespace Automattic\Jetpack\Transport_Helper\V0002;
 
-use Automattic\Jetpack\Backup\V0001\Helper_Script_Manager;
+use Automattic\Jetpack\Backup\V0002\Helper_Script_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_Error;
 use WP_REST_Request;

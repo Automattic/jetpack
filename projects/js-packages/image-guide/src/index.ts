@@ -1,7 +1,7 @@
-import { Dimensions, FetchFn, MeasurableImage, Weight } from './MeasurableImage';
-import { TracksCallback } from './analytics';
-import { getMeasurableImages } from './find-image-elements';
-import { setupLoadListener } from './initialize';
+import { Dimensions, FetchFn, MeasurableImage, Weight } from './MeasurableImage.js';
+import { TracksCallback } from './analytics.js';
+import { getMeasurableImages } from './find-image-elements.js';
+import { setupLoadListener } from './initialize.js';
 import AdminBarToggle from './ui/AdminBarToggle.svelte';
 
 export { MeasurableImage, getMeasurableImages };

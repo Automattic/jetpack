@@ -15,5 +15,5 @@ export type PricingSchema = z.infer< typeof PricingSchema >;
 export const usePricing = () => {
 	const [ { data } ] = useDataSync( 'jetpack_boost_ds', 'pricing', PricingSchema );
 
-	return data as PricingSchema;
+	return data;
 };
