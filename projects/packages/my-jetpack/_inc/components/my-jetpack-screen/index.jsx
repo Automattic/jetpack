@@ -160,7 +160,7 @@ export default function MyJetpackScreen() {
 							<GlobalNotice
 								message={ globalNoticeMessage }
 								options={ globalNoticeOptions }
-								clean={ clean ?? null }
+								clean={ clean }
 							/>
 						</Col>
 					) }
