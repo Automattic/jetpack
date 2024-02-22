@@ -64,7 +64,7 @@
 		}
 
 		input[type="email"]::placeholder,
-		input[type="email"]:disabled::placeholder {
+		input[type="email"]:disabled {
 			color: currentColor;
 			opacity: .5;
 		}
