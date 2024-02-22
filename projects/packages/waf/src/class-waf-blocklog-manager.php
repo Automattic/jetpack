@@ -38,7 +38,7 @@ class Waf_Blocklog_Manager {
 	/**
 	 * Connect to WordPress database.
 	 */
-	private function connect_to_wordpress_db() {
+	private static function connect_to_wordpress_db() {
 		if ( ! file_exists( JETPACK_WAF_WPCONFIG ) ) {
 			return;
 		}
@@ -59,8 +59,8 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @param array $log_data Log data.
 	 */
-	private function write_blocklog_row( $log_data ) {
-		$conn = $this->connect_to_wordpress_db();
+	private static function write_blocklog_row( $log_data ) {
+		$conn = self::connect_to_wordpress_db();
 
 		if ( ! $conn ) {
 			return;
@@ -84,7 +84,7 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return void
 	 */
-	public function update_daily_summary() {
+	private static function update_daily_summary() {
 		$share_data = defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA;
 		if ( ! $share_data ) {
 			return;
@@ -100,7 +100,7 @@ class Waf_Blocklog_Manager {
 		++$stats[ $date ];
 
 		// Prune stats to keep only the last 30 days.
-		$stats = $this->prune_stats( $stats );
+		$stats = self::prune_stats( $stats );
 
 		update_option( 'jetpack_waf_blocklog_daily_summary', $stats );
 	}
@@ -111,7 +111,7 @@ class Waf_Blocklog_Manager {
 	 * @param array $stats The array of stats to prune.
 	 * @return array Pruned stats array.
 	 */
-	private function prune_stats( $stats ) {
+	private static function prune_stats( $stats ) {
 		$pruned_stats  = array();
 		$one_month_ago = gmdate( 'Y-m-d', strtotime( '-30 days' ) );
 
@@ -163,7 +163,7 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return void
 	 */
-	public function write_blocklog( $rule_id, $reason ) {
+	public static function write_blocklog( $rule_id, $reason ) {
 		$log_data              = array();
 		$log_data['rule_id']   = $rule_id;
 		$log_data['reason']    = $reason;
@@ -186,7 +186,7 @@ class Waf_Blocklog_Manager {
 			}
 		}
 
-		$this->write_blocklog_row( $log_data );
-		$this->update_daily_summary();
+		self::write_blocklog_row( $log_data );
+		self::update_daily_summary();
 	}
 }

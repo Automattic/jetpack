@@ -268,8 +268,7 @@ class Waf_Runtime {
 			$reason = $this->sanitize_output( $reason );
 		}
 
-		$waf_blocklog_manager = new Waf_Blocklog_Manager();
-		$waf_blocklog_manager->write_blocklog( $rule_id, $reason );
+		Waf_Blocklog_Manager::write_blocklog( $rule_id, $reason );
 		error_log( "Jetpack WAF Blocked Request\t$action\t$rule_id\t$status_code\t$reason" );
 		header( "X-JetpackWAF-Blocked: $status_code - rule $rule_id" );
 		if ( defined( 'JETPACK_WAF_MODE' ) && 'normal' === JETPACK_WAF_MODE ) {
