@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-boost",
-	"version": "3.1.0-alpha",
+	"version": "3.1.0-beta",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
@@ -34,7 +34,7 @@
 		"@babel/core": "7.23.5",
 		"@babel/preset-env": "7.23.5",
 		"@babel/preset-react": "7.23.3",
-		"@storybook/react": "7.6.5",
+		"@storybook/react": "7.6.17",
 		"@types/jquery": "3.5.25",
 		"@wordpress/i18n": "4.51.0",
 		"concurrently": "7.6.0",

@@ -41,6 +41,11 @@ type UseMediaRecordingReturn = {
 	 */
 	onError: ( err: string | Error ) => void;
 
+	/**
+	 * The processing handler
+	 */
+	onProcessing: () => void;
+
 	controls: {
 		/**
 		 * `start` recording handler
@@ -227,6 +232,11 @@ export default function useMediaRecording( {
 		setState( 'error' );
 	}, [] );
 
+	// manually set the state to `processing` for the file upload case
+	const onProcessing = useCallback( () => {
+		setState( 'processing' );
+	}, [] );
+
 	/**
 	 * `start` event listener for the media recorder instance.
 	 */
@@ -310,6 +320,7 @@ export default function useMediaRecording( {
 		error,
 		duration,
 		onError,
+		onProcessing,
 
 		controls: {
 			start,

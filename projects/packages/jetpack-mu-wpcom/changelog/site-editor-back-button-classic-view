@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Don't override Site Editor's back button URL for sites with classic view enabled.

@@ -15,8 +15,7 @@ import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
-import PageCacheMeta from '$features/page-cache/meta/meta';
-import PageCacheHealth from '$features/page-cache/health/health';
+import PageCache from '$features/page-cache/page-cache';
 import { invalidatePageCacheError } from '$lib/stores/page-cache';
 
 const Index = () => {
@@ -121,7 +120,12 @@ const Index = () => {
 			</Module>
 			<Module
 				slug="page_cache"
-				title={ __( 'Cache Site Pages', 'jetpack-boost' ) }
+				title={
+					<>
+						{ __( 'Cache Site Pages', 'jetpack-boost' ) }
+						<span className={ styles.beta }>Beta</span>
+					</>
+				}
 				description={
 					<p>
 						{ __(
@@ -133,8 +137,7 @@ const Index = () => {
 				onEnable={ invalidatePageCacheError }
 				onDisable={ invalidatePageCacheError }
 			>
-				<PageCacheMeta />
-				<PageCacheHealth />
+				<PageCache />
 			</Module>
 			<Module
 				slug="render_blocking_js"
@@ -213,12 +216,7 @@ const Index = () => {
 			<div className={ styles.settings }>
 				<Module
 					slug="image_guide"
-					title={
-						<>
-							{ __( 'Image Guide', 'jetpack-boost' ) }
-							<span className={ styles.beta }>Beta</span>
-						</>
-					}
+					title={ __( 'Image Guide', 'jetpack-boost' ) }
 					description={
 						<>
 							<p>
