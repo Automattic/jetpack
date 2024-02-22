@@ -64,7 +64,7 @@ class Page_Cache_Setup {
 	 *
 	 * Returns true if the files were setup correctly, or WP_Error if there was a problem.
 	 *
-	 * @return bool|WP_Error
+	 * @return bool|\WP_Error
 	 */
 	private static function create_advanced_cache() {
 		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
@@ -82,8 +82,12 @@ class Page_Cache_Setup {
 			}
 		}
 
-		$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . basename( dirname( plugin_dir_path( __FILE__ ), 3 ) ) . '/app/modules/cache/pre-wordpress/Boost_Cache.php';
-		$contents             = '<?php
+		$plugin_dir_name      = untrailingslashit( str_replace( JETPACK_BOOST_PLUGIN_FILENAME, '', JETPACK_BOOST_PLUGIN_BASE ) );
+		$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . $plugin_dir_name . '/app/modules/cache/pre-wordpress/Boost_Cache.php';
+		if ( ! file_exists( $boost_cache_filename ) ) {
+			return new \WP_Error( 'boost-cache-file-not-found', 'Boost_Cache.php not found' );
+		}
+		$contents = '<?php
 // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE . ' - ' . Page_Cache::ADVANCED_CACHE_VERSION . '
 if ( ! file_exists( \'' . $boost_cache_filename . '\' ) ) {
 return;
