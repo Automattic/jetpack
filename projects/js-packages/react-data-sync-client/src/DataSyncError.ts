@@ -49,6 +49,13 @@ export class DataSyncError extends Error {
 	 * It's only called when `window.datasync_debug` is set to `true`.
 	 */
 	private debugMessage() {
+		if ( this.info.error instanceof DOMException && this.info.error.name === 'AbortError' ) {
+			console.warn(
+				`DataSync: ${ this.info.method ?? '<unknown>' } ${ this.info.location }  request aborted.`
+			);
+			return;
+		}
+
 		const info = this.info;
 		const key = `${ info.namespace }.${ info.key }`;
 
@@ -118,6 +125,10 @@ export class DataSyncError extends Error {
 				}
 				console.groupEnd();
 			}
+		} else if ( info.error ) {
+			console.groupCollapsed( `%c🚨 Error`, style.group );
+			console.error( info.error );
+			console.groupEnd();
 		}
 
 		console.groupCollapsed( `%c🪲 Debug`, style.group );

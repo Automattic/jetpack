@@ -617,17 +617,21 @@ jQuery( function($) {
 			$title = '';
 		}
 
+		$is_social_note = 'jetpack-social-note' === get_post_type( $post->ID );
+
 		$all_done = $all_done || $all_connections_done;
 
 		?>
 
 			</ul>
 
-			<label for="wpas-title"><?php esc_html_e( 'Custom Message:', 'jetpack-publicize-pkg' ); ?></label>
-			<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
-			<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo esc_textarea( $title ); ?></textarea>
-			<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack-publicize-pkg' ); ?></a>
-			<input type="hidden" name="wpas[0]" value="1" />
+			<?php if ( ! $is_social_note ) : ?>
+				<label for="wpas-title"><?php esc_html_e( 'Custom Message:', 'jetpack-publicize-pkg' ); ?></label>
+				<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
+				<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo esc_textarea( $title ); ?></textarea>
+				<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack-publicize-pkg' ); ?></a>
+				<input type="hidden" name="wpas[0]" value="1" />
+			<?php endif; ?>
 		</div>
 
 		<div id="pub-connection-needs-media"></div>

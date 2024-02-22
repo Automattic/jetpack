@@ -28,8 +28,6 @@ export function handleIframeResult( eventFromIframe ) {
 }
 
 export function showModal( url ) {
-	window.scrollTo( 0, 0 );
-
 	// prevent double scroll bars. We use the entire viewport for the modal so we need to hide overflow on the body element.
 	document.body.classList.add( 'modal-open' );
 
@@ -64,9 +62,6 @@ export function showModal( url ) {
 
 	window.addEventListener( 'message', handleIframeResult, false );
 	dialog.showModal();
-
-	// This line has to come after the modal has opened otherwise Firefox doesn't scroll to the top.
-	window.scrollTo( 0, 0 );
 }
 
 function setUpModal( button ) {
@@ -96,10 +91,10 @@ export const initializeMembershipButtons = selector => {
 	} );
 };
 
-const tokenCookieName = 'jp-premium-content-session';
+const tokenCookieName = 'wp-jp-premium-content-session';
 const getTokenFromCookie = function () {
 	const value = `; ${ document.cookie }`;
-	const parts = value.split( `; ${ tokenCookieName } = ` );
+	const parts = value.split( `; ${ tokenCookieName }=` );
 	if ( parts.length === 2 ) {
 		return parts.pop().split( ';' ).shift();
 	}
@@ -121,7 +116,7 @@ export const setPurchaseResultCookie = function ( premiumContentJWTToken ) {
 	const domain = '.' + hostname;
 
 	document.cookie =
-		'jp-premium-content-session' +
+		'wp-jp-premium-content-session' +
 		'=' +
 		premiumContentJWTToken +
 		'; expires=' +

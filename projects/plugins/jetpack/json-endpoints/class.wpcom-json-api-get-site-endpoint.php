@@ -988,7 +988,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		// render additional options.
-		if ( $response->options ) {
+		if ( isset( $response->options ) && $response->options ) {
 			$wpcom_options_response = $this->render_option_keys( self::$jetpack_response_option_additions );
 
 			// Remove heic from jetpack (and atomic) sites so that the iOS app know to convert the file format into a JPEG.

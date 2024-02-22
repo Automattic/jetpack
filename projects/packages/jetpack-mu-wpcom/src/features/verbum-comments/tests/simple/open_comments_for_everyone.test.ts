@@ -6,17 +6,25 @@ test( 'Simple: open_comments_for_everyone - Anonymous', async ( { page } ) => {
 	const randomComment = createRandomComment();
 
 	await page.goto( sites.simple.open_comments_for_everyone + '#respond' );
+	// Handle cookie consent
+	try {
+		await page
+			.frameLocator( '#cmp-app-container iframe' )
+			.getByRole( 'button', { name: 'I Agree!' } )
+			.click();
+	} catch ( e ) {}
+
 	const existingAnonComments = await page.getByText( 'Anonymous' ).count();
 	await page.goto( sites.simple.open_comments_for_everyone + '#respond' );
-	await page.getByPlaceholder( 'Write a Comment...' ).click();
-	await page.getByPlaceholder( 'Write a Comment...' ).type( randomComment );
-	await expect( page.getByRole( 'button', { name: 'Reply' } ) ).toBeVisible();
+	await page.getByPlaceholder( 'Write a comment...' ).click();
+	await page.getByPlaceholder( 'Write a comment...' ).pressSequentially( randomComment );
+	await expect( page.getByRole( 'button', { name: 'Comment' } ) ).toBeVisible();
 	await expect( page.locator( '#comment-form__verbum' ) ).toContainText(
-		'Leave a reply. (log in optional)'
+		'Leave a comment. (log in optional)'
 	);
-	await page.getByRole( 'button', { name: 'Reply' } ).click();
-	await expect( page.locator( '#comment-form__verbum' ) ).toContainText( 'Never miss a beat!' );
-	await page.getByRole( 'button', { name: 'Close' } ).click();
+	await page.getByRole( 'button', { name: 'Comment' } ).click();
+	await page.getByText( 'Continue reading' ).click();
+
 	await expect( page.getByText( randomComment ) ).toBeVisible();
 	await expect( page.getByText( 'Anonymous' ) ).toHaveCount( existingAnonComments + 1 );
 } );

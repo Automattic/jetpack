@@ -1,7 +1,7 @@
 import { forwardRef, type TargetedEvent } from 'preact/compat';
 import { useEffect, useState } from 'preact/hooks';
 import { translate } from '../i18n';
-import { commentValue } from '../state';
+import { commentParent, commentValue } from '../state';
 import { classNames, isFastConnection } from '../utils';
 import { EditorPlaceholder } from './editor-placeholder';
 
@@ -107,7 +107,11 @@ export const CommentInputField = forwardRef(
 								width: '100%',
 								overflow: 'hidden',
 							} }
-							placeholder={ translate( 'Write a comment...' ) }
+							placeholder={
+								commentParent.value
+									? translate( 'Write a reply...' )
+									: translate( 'Write a comment...' )
+							}
 						></textarea>
 					</>
 				</div>

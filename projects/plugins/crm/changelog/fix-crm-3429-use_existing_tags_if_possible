@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tags: Use existing tags if possible when using helper functions to create objects.

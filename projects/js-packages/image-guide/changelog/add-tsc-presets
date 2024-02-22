@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Updated targets in build configuration to better match supported browsers.

@@ -115,6 +115,23 @@ On Atomic Sites: Sync the Verbum code changes to your sandbox and sandbox `jetpa
 2. To initiate a Simple Site deployment, follow these instructions: [PCYsg-Osp-p2#simple-deployment]. The Jetpack release team (#jetpack-release) will also do a daily deployment for any merged changes, if you do not initiate a manual deployment.
 3. To initate a WoA deployment, follow these instructions: [PCYsg-Osp-p2#woa-deployment]. A new version of `jetpack-mu-wpcom` will be released weekly, if you do not initiate a manual deployment.
 
+### Testing
+
+#### Setup
+
+1. Please sandbox the following sites before running the tests
+	- jetpack.wordpress.com
+	- e2esiteopencommentstoeveryone.wordpress.com
+	- e2ecommentauthormustfilloutnameandemail.wordpress.com
+	- e2eusersmustberegisteredandloggedintocomment.wordpress.com
+
+2. Run `npx playwright install` to install the browsers needed.
+
+The tests live in /tests folder. To run them, you can run `pnpm run e2e-tests`.
+
+If you want to watch the tests unfold, you can run `npx playwright test --ui --config src/features/verbum-comments/playwright.config.ts`.
+
 ### Where to track new Verbum Issues
 
 If you stumble upon any issues or have any suggestions for possible changes to Verbum, you can find the relevant project board here: https://github.com/orgs/Automattic/projects/908/views/1.
+

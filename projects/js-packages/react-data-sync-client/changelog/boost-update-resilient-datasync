@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WP JS DataSync: Try to prevent fatal errors in production as much as possible.

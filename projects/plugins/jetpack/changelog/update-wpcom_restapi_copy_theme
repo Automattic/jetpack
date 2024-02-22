@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-wpcom_restapi_copy_theme_plugin_actions: Fix PHP 8.1 fatals related to static calls on non-static

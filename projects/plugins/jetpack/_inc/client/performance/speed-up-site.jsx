@@ -1,5 +1,6 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
+import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -11,7 +12,8 @@ import { connect } from 'react-redux';
 import { isOfflineMode } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { getGutenbergState } from '../state/initial-state';
+import { getGutenbergState, isAtomicSite } from '../state/initial-state';
+import { isPluginActive } from '../state/site/plugins';
 
 const SpeedUpSite = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -234,55 +236,68 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 					module="performance-speed"
 				>
 					{ ( foundPhoton || foundAssetCdn ) && (
-						<SettingsGroup
-							hasChild
-							support={ {
-								link: getRedirectUrl( 'jetpack-support-site-accelerator' ),
-							} }
-						>
-							<p>
-								{ __(
-									'Load pages faster by allowing Jetpack to optimize your images and serve your images and static files (like CSS and JavaScript) from our global network of servers.',
-									'jetpack'
+						<>
+							<SettingsGroup
+								hasChild
+								support={ {
+									link: getRedirectUrl( 'jetpack-support-site-accelerator' ),
+								} }
+							>
+								<p>
+									{ __(
+										'Load pages faster by allowing Jetpack to optimize your images and serve your images and static files (like CSS and JavaScript) from our global network of servers.',
+										'jetpack'
+									) }
+								</p>
+								{ canAppearInSearch && (
+									<ToggleControl
+										checked={ siteAcceleratorStatus }
+										toggling={ togglingSiteAccelerator }
+										onChange={ this.handleSiteAcceleratorChange }
+										disabled={ ! canDisplaySiteAcceleratorSettings }
+										label={ __( 'Enable site accelerator', 'jetpack' ) }
+									/>
 								) }
-							</p>
-							{ canAppearInSearch && (
-								<ToggleControl
-									checked={ siteAcceleratorStatus }
-									toggling={ togglingSiteAccelerator }
-									onChange={ this.handleSiteAcceleratorChange }
-									disabled={ ! canDisplaySiteAcceleratorSettings }
-									label={ __( 'Enable site accelerator', 'jetpack' ) }
-								/>
+								<FormFieldset>
+									{ foundPhoton && (
+										<ModuleToggle
+											slug="photon"
+											disabled={ this.props.isUnavailableInOfflineMode( 'photon' ) }
+											activated={ this.props.getOptionValue( 'photon' ) }
+											toggling={ this.props.isSavingAnyOption( 'photon' ) }
+											toggleModule={ this.toggleModule }
+										>
+											<span className="jp-form-toggle-explanation">
+												{ __( 'Speed up image load times', 'jetpack' ) }
+											</span>
+										</ModuleToggle>
+									) }
+									{ foundAssetCdn && (
+										<ModuleToggle
+											slug="photon-cdn"
+											activated={ this.props.getOptionValue( 'photon-cdn' ) }
+											toggling={ this.props.isSavingAnyOption( 'photon-cdn' ) }
+											toggleModule={ this.toggleModule }
+										>
+											<span className="jp-form-toggle-explanation">
+												{ __( 'Speed up static file load times', 'jetpack' ) }
+											</span>
+										</ModuleToggle>
+									) }
+								</FormFieldset>
+							</SettingsGroup>
+							{ this.props.isAtomicSite && this.props.isPageOptimizeActive && (
+								<CompactCard
+									className="jp-settings-card__configure-link"
+									href={ `${ this.props.siteAdminUrl }admin.php?page=page-optimize` }
+								>
+									{ __(
+										'Optimize JS and CSS for faster page load and render in the browser.',
+										'jetpack'
+									) }
+								</CompactCard>
 							) }
-							<FormFieldset>
-								{ foundPhoton && (
-									<ModuleToggle
-										slug="photon"
-										disabled={ this.props.isUnavailableInOfflineMode( 'photon' ) }
-										activated={ this.props.getOptionValue( 'photon' ) }
-										toggling={ this.props.isSavingAnyOption( 'photon' ) }
-										toggleModule={ this.toggleModule }
-									>
-										<span className="jp-form-toggle-explanation">
-											{ __( 'Speed up image load times', 'jetpack' ) }
-										</span>
-									</ModuleToggle>
-								) }
-								{ foundAssetCdn && (
-									<ModuleToggle
-										slug="photon-cdn"
-										activated={ this.props.getOptionValue( 'photon-cdn' ) }
-										toggling={ this.props.isSavingAnyOption( 'photon-cdn' ) }
-										toggleModule={ this.toggleModule }
-									>
-										<span className="jp-form-toggle-explanation">
-											{ __( 'Speed up static file load times', 'jetpack' ) }
-										</span>
-									</ModuleToggle>
-								) }
-							</FormFieldset>
-						</SettingsGroup>
+						</>
 					) }
 				</SettingsCard>
 			);
@@ -297,5 +312,7 @@ export default connect( state => {
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		gutenbergInfo: getGutenbergState( state ),
+		isAtomicSite: isAtomicSite( state ),
+		isPageOptimizeActive: isPluginActive( state, 'page-optimize/page-optimize.php' ),
 	};
 } )( SpeedUpSite );

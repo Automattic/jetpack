@@ -14,7 +14,7 @@ class Getting_Started_Entry implements Entry_Can_Get, Entry_Can_Set {
 	/**
 	 * Determines if the user should be shown the Getting Started page.
 	 */
-	public function get() {
+	public function get( $fallback = false ) {
 		// No point in showing the page if the site is offline, it's probably localhost.
 		if ( ( new Status() )->is_offline_mode() ) {
 			return false;
@@ -31,7 +31,10 @@ class Getting_Started_Entry implements Entry_Can_Get, Entry_Can_Set {
 		}
 
 		// For all other cases, the page should be shown only if the flag is set. It indicates that it's a new site.
-		return \get_option( $this->option_key, false );
+		if ( $fallback !== false ) {
+			return \get_option( $this->option_key, $fallback );
+		}
+		return \get_option( $this->option_key );
 	}
 
 	public function set( $value ) {

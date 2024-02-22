@@ -398,7 +398,20 @@ class WPCOM_Stats {
 
 		// To reduce size in storage: store with time as key, store JSON encoded data.
 		$cached_value = is_wp_error( $wpcom_stats ) ? $wpcom_stats : wp_json_encode( $wpcom_stats );
-		$expiration   = self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS;
+
+		/**
+		 * Filters the expiration time for the stats cache.
+		 *
+		 * @module stats
+		 *
+		 * @since 0.10.0
+		 *
+		 * @param int $expiration The expiration time in minutes.
+		 */
+		$expiration = apply_filters(
+			'jetpack_fetch_stats_cache_expiration',
+			self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
+		);
 		set_transient( $transient_name, array( time() => $cached_value ), $expiration );
 
 		return $wpcom_stats;
@@ -424,15 +437,30 @@ class WPCOM_Stats {
 		if ( $stats_cache ) {
 			$data = reset( $stats_cache );
 
-			if ( is_wp_error( $data ) ) {
+			if (
+				! is_array( $data )
+				|| empty( $data )
+				|| is_wp_error( $data )
+			) {
 				return $data;
 			}
 
-			$time       = key( $data );
-			$expiration = self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS;
+			$time  = key( $data );
+			$views = $data[ $time ] ?? null;
+
+			// Bail if data is malformed.
+			if ( ! is_numeric( $time ) || ! is_array( $views ) ) {
+				return $data;
+			}
+
+			/** This filter is already documented in projects/packages/stats/src/class-wpcom-stats.php */
+			$expiration = apply_filters(
+				'jetpack_fetch_stats_cache_expiration',
+				self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
+			);
 
 			if ( ( time() - $time ) < $expiration ) {
-				return array_merge( array( 'cached_at' => $time ), $data[ $time ] );
+				return array_merge( array( 'cached_at' => $time ), $views );
 			}
 		}
 

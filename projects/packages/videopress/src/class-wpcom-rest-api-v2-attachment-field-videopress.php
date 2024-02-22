@@ -125,7 +125,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field {
 	 * @return string
 	 */
 	public function get_videopress_guid( $attachment_id, $blog_id ) {
-		return video_get_info_by_blogpostid( $blog_id, $attachment_id )->guid;
+		return video_get_info_by_blogpostid( $blog_id, $attachment_id )->guid ?? '';
 	}
 
 	/**

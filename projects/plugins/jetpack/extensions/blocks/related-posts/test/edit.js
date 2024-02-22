@@ -81,6 +81,12 @@ useSelect.mockImplementation( cb => {
 	} ) );
 } );
 
+jest.mock( '@wordpress/block-editor', () => ( {
+	...jest.requireActual( '@wordpress/block-editor' ),
+	useBlockProps: jest.fn(),
+	InnerBlocks: jest.fn(),
+} ) );
+
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
 	useInstanceId: () => ( {

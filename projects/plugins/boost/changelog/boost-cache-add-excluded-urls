@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Boost: add an excluded URL list to container regex to exclude URLs to cache.

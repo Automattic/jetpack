@@ -117,7 +117,7 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-end;
-	color: var( --jp-text-color);
+	color: var( --jp-black );
 }
 
 .price {
@@ -128,7 +128,7 @@
 	}
 
 	&.is-old {
-		color: var( --jp-gray-20);
+		color: var( --jp-gray-20 );
 
 		&:after {
 			content: " ";

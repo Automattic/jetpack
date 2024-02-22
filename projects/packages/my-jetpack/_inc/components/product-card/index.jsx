@@ -14,13 +14,17 @@ import styles from './style.module.scss';
 export const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.ACTIVE ]: __( 'Active', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.INACTIVE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.MODULE_DISABLED ]: __( 'Module disabled', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.ERROR ]: __( 'Error', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.ABSENT ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ]: __( 'Needs Plugin', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.ERROR ]: __( 'Needs connection', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.CAN_UPGRADE ]: __( 'Active', 'jetpack-my-jetpack' ),
 };
 
 /* eslint-disable react/jsx-no-bind */
+// Menu component
 const Menu = ( {
 	items = [],
 	showInstall = false,
@@ -128,6 +132,44 @@ Menu.defaultProps = {
 	showDeactivate: false,
 };
 
+// SecondaryButton component
+const SecondaryButton = props => {
+	const { label, shouldShowButton } = props;
+
+	if ( ! shouldShowButton() ) {
+		return false;
+	}
+
+	return <Button { ...props }>{ label }</Button>;
+};
+
+SecondaryButton.propTypes = {
+	href: PropTypes.string,
+	size: PropTypes.oneOf( [ 'normal', 'small' ] ),
+	variant: PropTypes.oneOf( [ 'primary', 'secondary', 'link', 'tertiary' ] ),
+	weight: PropTypes.oneOf( [ 'bold', 'regular' ] ),
+	label: PropTypes.string,
+	shouldShowButton: PropTypes.func,
+	onClick: PropTypes.func,
+	positionFirst: PropTypes.bool,
+	isExternalLink: PropTypes.bool,
+	icon: PropTypes.node,
+	iconSize: PropTypes.number,
+	disabled: PropTypes.bool,
+	isLoading: PropTypes.bool,
+	className: PropTypes.string,
+};
+
+SecondaryButton.defaultProps = {
+	size: 'small',
+	variant: 'secondary',
+	weight: 'regular',
+	label: __( 'Learn more', 'jetpack-my-jetpack' ),
+	shouldShowButton: () => true,
+	positionFirst: false,
+};
+
+// ProductCard component
 const ProductCard = props => {
 	const {
 		name,
@@ -140,6 +182,8 @@ const ProductCard = props => {
 		isDeactivatingStandalone,
 		slug,
 		additionalActions,
+		primaryActionOverride,
+		secondaryAction,
 		children,
 		// Menu Related
 		showMenu = false,
@@ -171,12 +215,16 @@ const ProductCard = props => {
 	/**
 	 * Calls the passed function onActivate after firing Tracks event
 	 */
-	const activateHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
-			product: slug,
-		} );
-		onActivate();
-	}, [ slug, onActivate, recordEvent ] );
+	const activateHandler = useCallback(
+		event => {
+			event.preventDefault();
+			recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
+				product: slug,
+			} );
+			onActivate();
+		},
+		[ slug, onActivate, recordEvent ]
+	);
 
 	/**
 	 * Calls the passed function onAdd after firing Tracks event
@@ -217,22 +265,30 @@ const ProductCard = props => {
 	/**
 	 * Use a Tracks event to count a standalone plugin install request
 	 */
-	const installStandaloneHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
-			product: slug,
-		} );
-		onInstallStandalone();
-	}, [ slug, onInstallStandalone, recordEvent ] );
+	const installStandaloneHandler = useCallback(
+		event => {
+			event.preventDefault();
+			recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
+				product: slug,
+			} );
+			onInstallStandalone();
+		},
+		[ slug, onInstallStandalone, recordEvent ]
+	);
 
 	/**
 	 * Use a Tracks event to count a standalone plugin activation request
 	 */
-	const activateStandaloneHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_activate_standalone_plugin_click', {
-			product: slug,
-		} );
-		onActivateStandalone();
-	}, [ slug, onActivateStandalone, recordEvent ] );
+	const activateStandaloneHandler = useCallback(
+		event => {
+			event.preventDefault();
+			recordEvent( 'jetpack_myjetpack_product_card_activate_standalone_plugin_click', {
+				product: slug,
+			} );
+			onActivateStandalone();
+		},
+		[ slug, onActivateStandalone, recordEvent ]
+	);
 
 	/**
 	 * Use a Tracks event to count a standalone plugin deactivation menu click
@@ -271,24 +327,32 @@ const ProductCard = props => {
 			) }
 
 			<div className={ styles.actions }>
-				<ActionButton
-					{ ...props }
-					onActivate={ activateHandler }
-					onFixConnection={ fixConnectionHandler }
-					onManage={ manageHandler }
-					onAdd={ addHandler }
-					onLearnMore={ learnMoreHandler }
-					className={ styles.button }
-					additionalActions={ additionalActions }
-				/>
-				{ ! isAbsent && (
-					<Status
-						status={ status }
-						isFetching={ isDeactivatingStandalone }
-						isInstallingStandalone={ isInstallingStandalone }
-						isDeactivatingStandalone={ isFetching }
+				<div className={ styles.buttons }>
+					{ secondaryAction && secondaryAction?.positionFirst && (
+						<SecondaryButton { ...secondaryAction } />
+					) }
+					<ActionButton
+						{ ...props }
+						onActivate={ activateHandler }
+						onFixConnection={ fixConnectionHandler }
+						onManage={ manageHandler }
+						onAdd={ addHandler }
+						onInstall={ installStandaloneHandler }
+						onLearnMore={ learnMoreHandler }
+						className={ styles.button }
+						additionalActions={ additionalActions }
+						primaryActionOverride={ primaryActionOverride }
 					/>
-				) }
+					{ secondaryAction && ! secondaryAction?.positionFirst && (
+						<SecondaryButton { ...secondaryAction } />
+					) }
+				</div>
+				<Status
+					status={ status }
+					isFetching={ isDeactivatingStandalone }
+					isInstallingStandalone={ isInstallingStandalone }
+					isDeactivatingStandalone={ isFetching }
+				/>
 			</div>
 		</Card>
 	);
@@ -317,6 +381,8 @@ ProductCard.propTypes = {
 		} )
 	),
 	additionalActions: PropTypes.array,
+	primaryActionOverride: PropTypes.object,
+	secondaryAction: PropTypes.object,
 	onInstallStandalone: PropTypes.func,
 	onActivateStandalone: PropTypes.func,
 	onDeactivateStandalone: PropTypes.func,

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+React DataSync Client: Improve error resitance. Added new debugging features and improvements to existing functionality.

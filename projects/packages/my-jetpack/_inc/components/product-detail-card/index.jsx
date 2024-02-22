@@ -218,7 +218,7 @@ const ProductDetailCard = ( {
 	}, [ onClick, trackButtonClick, mainCheckoutRedirect, detail ] );
 
 	const trialClickHandler = useCallback( () => {
-		trackButtonClick( wpcomFreeProductSlug );
+		trackButtonClick( true, wpcomFreeProductSlug );
 		onClick?.( trialCheckoutRedirect );
 	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug ] );
 
@@ -308,10 +308,10 @@ const ProductDetailCard = ( {
 				{ needsPurchase && discountPrice && (
 					<>
 						<div className={ styles[ 'price-container' ] }>
+							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 							{ discountPrice < price && (
 								<Price value={ price } currency={ currencyCode } isOld={ true } />
 							) }
-							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 						</div>
 						<Text className={ styles[ 'price-description' ] }>{ priceDescription }</Text>
 					</>

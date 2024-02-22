@@ -10,6 +10,7 @@ import ConnectScreenVisual from './visual';
  * @param {object} props -- The properties.
  * @param {string?} props.title -- The Title.
  * @param {string?} props.buttonLabel -- The Connect Button label.
+ * @param {string?} props.loadingLabel -- The text read by screen readers when connecting.
  * @param {string} props.apiRoot -- API root.
  * @param {string} props.apiNonce -- API nonce.
  * @param {string} props.registrationNonce -- Registration nonce.
@@ -27,6 +28,7 @@ import ConnectScreenVisual from './visual';
 const ConnectScreen = ( {
 	title,
 	buttonLabel,
+	loadingLabel,
 	apiRoot,
 	apiNonce,
 	registrationNonce,
@@ -66,6 +68,7 @@ const ConnectScreen = ( {
 			images={ images }
 			assetBaseUrl={ assetBaseUrl }
 			buttonLabel={ buttonLabel }
+			loadingLabel={ loadingLabel }
 			handleButtonClick={ handleRegisterSite }
 			displayButtonError={ displayButtonError }
 			errorCode={ errorCode }
@@ -82,6 +85,7 @@ const ConnectScreen = ( {
 ConnectScreen.propTypes = {
 	title: PropTypes.string,
 	buttonLabel: PropTypes.string,
+	loadingLabel: PropTypes.string,
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
 	registrationNonce: PropTypes.string.isRequired,

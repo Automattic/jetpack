@@ -152,6 +152,10 @@ final class Data_Sync {
 				$data[ $key ]['log'] = $entry->get_parser()->get_log();
 			}
 
+			if ( DS_Utils::debug_disable( $key ) ) {
+				unset( $data[ $key ]['value'] );
+			}
+
 			if ( $entry->is( Lazy_Entry::class ) ) {
 				$data[ $key ]['lazy'] = true;
 			}

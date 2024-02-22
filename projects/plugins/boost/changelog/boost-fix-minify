@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+JS and CSS concat: Fix minification

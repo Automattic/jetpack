@@ -137,7 +137,7 @@ class Masterbar {
 			update_user_option( $this->user_id, 'jetpack_admin_menu_link_destination', $this->user_data['use_wp_admin_links'] ? '1' : '0' );
 		}
 		// If Atomic, store and install user locale.
-		if ( $this->site_woa ) {
+		if ( $this->site_woa && 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
 			$this->user_locale = $this->get_jetpack_locale( $this->user_locale );
 			$this->install_locale( $this->user_locale );
 			update_user_option( $this->user_id, 'locale', $this->user_locale, true );
@@ -214,6 +214,7 @@ class Masterbar {
 
 		// Hides and replaces the language dropdown for the current user, on WoA.
 		if ( $this->site_woa &&
+			'wp-admin' !== get_option( 'wpcom_admin_interface' ) &&
 			defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE ) {
 			add_action( 'user_edit_form_tag', array( $this, 'hide_language_dropdown' ) );
 			add_action( 'personal_options', array( $this, 'replace_language_dropdown' ), 9 );

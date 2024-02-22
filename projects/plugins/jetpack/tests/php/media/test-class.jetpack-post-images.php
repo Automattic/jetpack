@@ -18,6 +18,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$this->assertIsArray( $result );
 		$this->assertNotEmpty( $result );
 		$this->assertEquals( 'Alt Text.', $result[0]['alt_text'] );
+		$this->assertEquals( 200, $result[0]['src_width'] );
+		$this->assertEquals( 200, $result[0]['src_height'] );
 	}
 
 	/**
@@ -34,6 +36,37 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$this->assertIsArray( $result );
 		$this->assertNotEmpty( $result );
 		$this->assertEquals( 'Alt Text.', $result[0]['alt_text'] );
+		$this->assertEquals( 200, $result[0]['src_width'] );
+		$this->assertEquals( 200, $result[0]['src_height'] );
+	}
+
+	/**
+	 * Test image size extract in src filename
+	 *
+	 * @covers Jetpack_PostImages::from_html
+	 */
+	public function test_from_html_size() {
+		$s = "<img src='img-2300x1300.jpg' />";
+
+		$result = Jetpack_PostImages::from_html( $s );
+
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
+		$this->assertEquals( 2300, $result[0]['src_width'] );
+		$this->assertEquals( 1300, $result[0]['src_height'] );
+	}
+
+	/**
+	 * Test ignoring unrealistic image sizes from src filename
+	 *
+	 * @covers Jetpack_PostImages::from_html
+	 */
+	public function test_from_html_no_size() {
+		$s = "<img src='img-851958915511220x220.jpg' />";
+
+		$result = Jetpack_PostImages::from_html( $s );
+
+		$this->assertEquals( array(), $result );
 	}
 
 	/**
@@ -56,20 +89,98 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Create a post with a gallery shortcode containing a few images attached to the post.
+	 *
+	 * @since 13.2.0
+	 *
+	 * @return array $post_info {
+	 * An array of information about our post.
+	 *  @type int   $post_id  Post ID.
+	 *  @type array $img_urls Image URLs we'll look to extract.
+	 * }
+	 */
+	protected function get_post_with_gallery_shortcode() {
+		$img_urls       = array(
+			'image.jpg'  => 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/image.jpg',
+			'image2.jpg' => 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/image2.jpg',
+		);
+		$img_dimensions = array(
+			'width'  => 300,
+			'height' => 250,
+		);
+		$alt_text       = 'An image in a gallery shortcode';
+
+		// Create post.
+		$post_id = self::factory()->post->create();
+		// Attach images.
+		foreach ( $img_urls as $img_name => $img_url ) {
+			$attachment_id = self::factory()->attachment->create_object(
+				$img_name,
+				$post_id,
+				array(
+					'post_mime_type' => 'image/jpeg',
+					'post_type'      => 'attachment',
+				)
+			);
+			wp_update_attachment_metadata( $attachment_id, $img_dimensions );
+			update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
+
+			// Update our array to store attachment IDs. We'll need them later.
+			$img_urls[ $attachment_id ] = wp_get_attachment_url( $attachment_id );
+			unset( $img_urls[ $img_name ] );
+		}
+
+		// Gallery markup.
+		$gallery_html = sprintf(
+			'[gallery ids="%s"]',
+			implode( ',', array_keys( $img_urls ) )
+		);
+		wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => $gallery_html,
+			)
+		);
+
+		return array(
+			'post_id'  => $post_id,
+			'img_urls' => array_values( $img_urls ),
+		);
+	}
+
+	/**
 	 * @author scotchfield
 	 * @covers Jetpack_PostImages::from_gallery
 	 * @since 3.2
 	 */
 	public function test_from_gallery_is_array() {
-		$post_id = self::factory()->post->create(
-			array(
-				'post_content' => '[gallery 1,2,3]',
-			)
-		);
+		$post_info = $this->get_post_with_gallery_shortcode();
 
-		$images = Jetpack_PostImages::from_gallery( $post_id );
+		$images = Jetpack_PostImages::from_gallery( $post_info['post_id'] );
 
 		$this->assertIsArray( $images );
+	}
+
+	/**
+	 * @author robfelty
+	 * @covers Jetpack_PostImages::from_gallery
+	 * @since 13.2
+	 */
+	public function test_from_gallery_is_correct_array() {
+		$post_info = $this->get_post_with_gallery_shortcode();
+
+		$images   = Jetpack_PostImages::from_gallery( $post_info['post_id'] );
+		$alt_text = 'An image in a gallery shortcode';
+
+		$this->assertIsArray( $images );
+		$this->assertCount( 2, $images );
+		$this->assertEquals( $post_info['img_urls'][0], $images[0]['src'] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
+		$this->assertEquals( $alt_text, $images[0]['alt_text'] );
+		$this->assertEquals( $post_info['img_urls'][1], $images[1]['src'] );
+		$this->assertEquals( 300, $images[1]['src_width'] );
+		$this->assertEquals( 250, $images[1]['src_height'] );
 	}
 
 	/**
@@ -82,7 +193,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$img_name       = 'image.jpg';
 		$alt_text       = 'Alt Text.';
 		$img_dimensions = array(
-			'width'  => 250,
+			'width'  => 300,
 			'height' => 250,
 		);
 
@@ -99,7 +210,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
 
 		$img_url  = wp_get_attachment_url( $attachment_id );
-		$img_html = '<img src="' . $img_url . '" width="250" height="250" alt="' . $alt_text . '"/>';
+		$img_html = '<img src="' . $img_url . '" width="300" height="250" alt="' . $alt_text . '"/>';
 
 		wp_update_post(
 			array(
@@ -112,6 +223,54 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$this->assertCount( 1, $images );
 		$this->assertEquals( $img_url, $images[0]['src'] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
+		$this->assertEquals( $alt_text, $images[0]['alt_text'] );
+	}
+
+	/**
+	 * @author robfelty
+	 * @covers Jetpack_PostImages::from_attachment
+	 * @since 13.2
+	 */
+	public function test_from_attachment_without_meta_is_correct_array() {
+		$img_name = 'image-250x200.jpg';
+		$alt_text = '250 x 200 image.';
+
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_object(
+			$img_name,
+			$post_id,
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+			)
+		);
+		$img_meta      = array(
+			'width'  => 1024,
+			'height' => 768,
+		);
+		wp_update_attachment_metadata( $attachment_id, $img_meta );
+		update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
+
+		$img_url  = wp_get_attachment_url( $attachment_id );
+		$img_html = '<img src="' . $img_url . '" alt="' . $alt_text . '"/>';
+
+		wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => $img_html,
+			)
+		);
+
+		add_filter( 'jetpack_postimages_ignore_minimum_dimensions', '__return_true', 66 );
+		$images = Jetpack_PostImages::from_html( $post_id );
+		remove_filter( 'jetpack_postimages_ignore_minimum_dimensions', '__return_true', 66 );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( $img_url, $images[0]['src'] );
+		$this->assertEquals( 250, $images[0]['src_width'] );
+		$this->assertEquals( 200, $images[0]['src_height'] );
 		$this->assertEquals( $alt_text, $images[0]['alt_text'] );
 	}
 
@@ -130,7 +289,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$img_name       = 'image.jpg';
 		$alt_text       = 'Alt Text.';
 		$img_dimensions = array(
-			'width'  => 250,
+			'width'  => 300,
 			'height' => 250,
 		);
 
@@ -205,6 +364,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$this->assertEquals( $post_info['img_url'], $images[0]['src'] );
 		$this->assertEquals( $post_info['alt_text'], $images[0]['alt_text'] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
 	}
 
 	/**
@@ -243,7 +404,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			'image2.jpg' => 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/image2.jpg',
 		);
 		$img_dimensions = array(
-			'width'  => 250,
+			'width'  => 300,
 			'height' => 250,
 		);
 
@@ -311,6 +472,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$this->assertEquals( $images[0]['src'], $post_info['img_urls'][0] );
 		$this->assertEquals( $images[1]['src'], $post_info['img_urls'][1] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
 	}
 
 	/**
@@ -346,7 +509,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$img_name       = 'image.jpg';
 		$alt_text       = 'Alt Text.';
 		$img_dimensions = array(
-			'width'  => 250,
+			'width'  => 300,
 			'height' => 250,
 		);
 
@@ -423,6 +586,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$this->assertEquals( $post_info['img_url'], $images[0]['src'] );
 		$this->assertEquals( $post_info['alt_text'], $images[0]['alt_text'] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
 	}
 
 	/**

@@ -18,10 +18,7 @@ function LikeEdit( { attributes, setAttributes } ) {
 		} );
 	};
 
-	const learnMoreUrl =
-		isAtomicSite() || isSimpleSite()
-			? 'https://wordpress.com/support/likes/'
-			: 'https://jetpack.com/support/likes/';
+	const isJetpackSite = ! isAtomicSite() && ! isSimpleSite();
 
 	const avatars = [ avatar1, avatar2, avatar3 ];
 
@@ -30,9 +27,13 @@ function LikeEdit( { attributes, setAttributes } ) {
 	return (
 		<div { ...blockProps }>
 			<InspectorControls key="like-inspector">
-				<div className="wp-block-jetpack-like__learn-more">
-					<ExternalLink href={ learnMoreUrl }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>
-				</div>
+				{ isJetpackSite && (
+					<div className="wp-block-jetpack-like__learn-more">
+						<ExternalLink href={ 'https://jetpack.com/support/likes/' }>
+							{ __( 'Learn more', 'jetpack' ) }
+						</ExternalLink>
+					</div>
+				) }
 				{ isSimpleSite() && (
 					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 						<ToggleControl

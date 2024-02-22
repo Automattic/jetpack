@@ -66,6 +66,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			array(
 				'description'                 => __( 'Shows your most viewed posts and pages.', 'jetpack' ),
 				'customize_selective_refresh' => true,
+				'show_instance_in_rest'       => true,
 			)
 		);
 

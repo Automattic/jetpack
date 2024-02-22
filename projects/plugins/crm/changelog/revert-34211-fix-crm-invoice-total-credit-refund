@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Invoices: Changing total amount calculation in preview and pdf when refunds or credit notes are applied, back to pre 6.4.0 implementation.

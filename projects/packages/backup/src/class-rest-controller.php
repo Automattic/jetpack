@@ -10,7 +10,7 @@
 // order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
 // to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
 // are installed, or in some other cases).
-namespace Automattic\Jetpack\Backup\V0001;
+namespace Automattic\Jetpack\Backup\V0002;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Rest_Authentication;

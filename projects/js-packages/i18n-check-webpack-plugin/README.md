@@ -78,19 +78,11 @@ const
 	/* translators: This is a good example. */
 	example = __( 'Example', 'domain' );
 ```
-In some cases even the assignment may be dropped. In that case, you can attach the comment directly to the function call, or inside a multi-line function call:
+In some cases even the assignment may be dropped. In that case, you can attach the comment directly to the function call:
 ```js
 const example =
 	/* translators: This is a good example. */
 	__( 'Example', 'domain' );
-
-const example2 = __(
-	/* translators: This is a good example. */
-	'Example',
-	'domain'
-);
-
-const example3 = __( /* translators: This won't work. The comment must be on a line after the `__(`. */ 'Example', 'domain' );
 ```
 
 Similarly in jsx, a comment placed like this may wind up misplaced:

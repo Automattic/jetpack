@@ -245,10 +245,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 				'content'                      => $message->content['message'],
 				'cta'                          => $message->CTA['message'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				'link'                         => $message->CTA['link'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				'tracks_impression_event_name' => $message->tracks['display']['name'],
-				'tracks_impression_cta_name'   => $message->tracks['display']['props']['cta_name'],
-				'tracks_click_event_name'      => $message->tracks['click']['name'],
-				'tracks_click_cta_name'        => $message->tracks['click']['props']['cta_name'],
+				'tracks_impression_event_name' => $message->tracks['display']['name'] ?? null,
+				'tracks_impression_cta_name'   => $message->tracks['display']['props']['cta_name'] ?? null,
+				'tracks_click_event_name'      => $message->tracks['click']['name'] ?? null,
+				'tracks_click_cta_name'        => $message->tracks['click']['props']['cta_name'] ?? null,
 				'dismissible'                  => $message->is_dismissible,
 				'feature_class'                => $message->feature_class,
 				'id'                           => $message->id,

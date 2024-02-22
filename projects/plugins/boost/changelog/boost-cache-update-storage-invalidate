@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Boost: rearrange how Storage invalidate() function operates

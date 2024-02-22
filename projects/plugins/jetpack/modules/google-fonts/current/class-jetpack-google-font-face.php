@@ -60,7 +60,7 @@ class Jetpack_Google_Font_Face {
 		$this->collect_global_styles_fonts();
 		$this->fonts_in_use = array_values( array_unique( $this->fonts_in_use, SORT_STRING ) );
 		foreach ( $fonts as $font_family => $font_faces ) {
-			if ( in_array( _wp_to_kebab_case( $font_family ), $this->fonts_in_use, true ) ) {
+			if ( in_array( $this->format_font( $font_family ), $this->fonts_in_use, true ) ) {
 				$fonts_to_print[ $font_family ] = $font_faces;
 			}
 		}
@@ -125,7 +125,19 @@ class Jetpack_Google_Font_Face {
 	 * @param string $font_slug The font slug.
 	 */
 	public function add_font( $font_slug ) {
-		$this->fonts_in_use[] = _wp_to_kebab_case( $font_slug );
+		$this->fonts_in_use[] = $this->format_font( $font_slug );
+	}
+
+	/**
+	 * Format the given font slug.
+	 *
+	 * @example "ABeeZee" formats to "abeezee"
+	 * @example "ADLaM Display" formats to "adlam-display"
+	 * @param string $font_slug The font slug.
+	 * @return string The formatted font slug.
+	 */
+	public function format_font( $font_slug ) {
+		return _wp_to_kebab_case( strtolower( $font_slug ) );
 	}
 
 	/**

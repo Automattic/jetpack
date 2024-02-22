@@ -150,6 +150,9 @@ module.exports = {
 				},
 			},
 		],
+		// Redundant roles are sometimes necessary for screen reader support. For instance, VoiceOver
+		// on Safari requires `role=list` to announce the list if the style is overwritten.
+		'jsx-a11y/no-redundant-roles': 0,
 		// Disabled rules for now. Ideally we should resolve all the errors these rules create.
 		'wpcalypso/redux-no-bound-selectors': 0,
 		'jsx-a11y/anchor-has-content': 0,

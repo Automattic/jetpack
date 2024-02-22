@@ -31,35 +31,17 @@ export default function useConnectionWatcher() {
 	);
 
 	const needsUserConnectionMessage =
-		productsThatRequiresUserConnection.length > 1
-			? __(
+		productsThatRequiresUserConnection.length === 1
+			? oneProductMessage
+			: __(
 					'Some products need a user connection to WordPress.com to be able to work.',
 					'jetpack-my-jetpack'
-			  )
-			: oneProductMessage;
-	const needsSiteConnectionMessage = __(
-		'Some products need a connection to WordPress.com to be able to work.',
-		'jetpack-my-jetpack'
-	);
+			  );
 
 	useEffect( () => {
-		if ( ! isSiteConnected ) {
-			setGlobalNotice( needsSiteConnectionMessage, {
-				status: 'warning',
-				actions: [
-					{
-						label: __( 'Connect your site to fix this', 'jetpack-my-jetpack' ),
-						onClick: navToConnection,
-						variant: 'link',
-						noDefaultClasses: true,
-					},
-				],
-			} );
-			return;
-		}
-		if ( requiresUserConnection ) {
+		if ( ! isSiteConnected || requiresUserConnection ) {
 			setGlobalNotice( needsUserConnectionMessage, {
-				status: 'error',
+				status: 'warning',
 				actions: [
 					{
 						label: __( 'Connect your user account to fix this', 'jetpack-my-jetpack' ),
@@ -71,7 +53,6 @@ export default function useConnectionWatcher() {
 		}
 	}, [
 		isSiteConnected,
-		needsSiteConnectionMessage,
 		needsUserConnectionMessage,
 		requiresUserConnection,
 		navToConnection,

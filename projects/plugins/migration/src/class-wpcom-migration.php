@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Backup\V0001\Jetpack_Backup;
+use Automattic\Jetpack\Backup\V0002\Jetpack_Backup;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;

@@ -7,21 +7,21 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import askQuestion from '../../ask-question';
+import askQuestion from '../../ask-question/index.js';
 import {
 	ERROR_MODERATION,
 	ERROR_NETWORK,
 	ERROR_QUOTA_EXCEEDED,
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
-} from '../../types';
+} from '../../types.js';
 /**
  * Types & constants
  */
-import type { AskQuestionOptionsArgProps } from '../../ask-question';
-import type SuggestionsEventSource from '../../suggestions-event-source';
-import type { PromptProp, SuggestionErrorCode } from '../../types';
-import type { RequestingStateProp } from '../../types';
+import type { AskQuestionOptionsArgProps } from '../../ask-question/index.js';
+import type SuggestionsEventSource from '../../suggestions-event-source/index.js';
+import type { PromptProp, SuggestionErrorCode } from '../../types.js';
+import type { RequestingStateProp } from '../../types.js';
 
 export type RequestingErrorProps = {
 	/*

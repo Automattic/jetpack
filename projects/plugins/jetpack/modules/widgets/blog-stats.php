@@ -33,6 +33,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 			'classname'                   => 'blog-stats',
 			'description'                 => esc_html__( 'Show a hit counter for your blog.', 'jetpack' ),
 			'customize_selective_refresh' => true,
+			'show_instance_in_rest'       => true,
 		);
 		parent::__construct(
 			'blog-stats',

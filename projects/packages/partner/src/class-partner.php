@@ -2,7 +2,7 @@
 /**
  * Jetpack Partner utilities.
  *
- * @deprecated $$next-version$$
+ * @deprecated 2.0.0
  * @see automattic/jetpack-connection
  *
  * @package automattic/jetpack-partner

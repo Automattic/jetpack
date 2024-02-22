@@ -1,4 +1,5 @@
 import { createBlock } from '@wordpress/blocks';
+import { addFilter } from '@wordpress/hooks';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import metadata from './block.json';
 import edit from './edit';
@@ -25,4 +26,15 @@ registerJetpackBlockFromMetadata( metadata, {
 			},
 		],
 	},
+} );
+
+addFilter( 'blocks.registerBlockType', 'jetpack-subscriber-login-nav-item', ( settings, name ) => {
+	if ( name === 'core/navigation' ) {
+		return {
+			...settings,
+			allowedBlocks: [ ...( settings.allowedBlocks ?? [] ), 'jetpack/subscriber-login' ],
+		};
+	}
+
+	return settings;
 } );

@@ -1,4 +1,4 @@
-<?php 
+<?php // phpcs:disable
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -463,7 +463,6 @@ class Woo_Sync {
 
 	}
 
-
 	/**
 	 * Include filter buttons
 	 * (Note, requires `contact_query_quickfilter_addition()` to be hooked into `jpcrm_contact_query_quickfilter`)
@@ -882,26 +881,39 @@ class Woo_Sync {
 			}
 		}
 
-		if ( $invoice_id > 0 ) {
-
-			$api = $this->get_invoice_meta( $invoice_id, 'api' );
-			$order_post_id = $this->get_invoice_meta( $invoice_id, 'order_post_id' );
-
-			// intercept pay button and set to pay via woo checkout
-			if ( empty( $api ) && ! empty( $order_post_id ) ) {
-				remove_filter( 'invoicing_pro_paypal_button', 'zeroBSCRM_paypalbutton', 1 );
-				remove_filter( 'invoicing_pro_stripe_button', 'zeroBSCRM_stripebutton', 1 );
-				$order        = wc_get_order( $order_post_id );
-				$payment_page = $order->get_checkout_payment_url();
-				$res          = '<h3>' . __( 'Pay Invoice', 'zero-bs-crm' ) . '</h3>';
-				$res         .= '<a href="' . esc_url( $payment_page ) . '" class="ui button btn">' . __( 'Pay Now', 'zero-bs-crm' ) . '</a>';
-
-				return $res;
-			}
-
-			return $invoice_id;
-			
+		// blatantly wrong invoice ID
+		if ( $invoice_id <= 0 ) {
+			return false;
 		}
+
+		$api = $this->get_invoice_meta( $invoice_id, 'api' );
+		$order_post_id = $this->get_invoice_meta( $invoice_id, 'order_post_id' );
+
+		// intercept pay button and set to pay via woo checkout
+		if ( empty( $api ) && ! empty( $order_post_id ) ) {
+			remove_filter( 'invoicing_pro_paypal_button', 'zeroBSCRM_paypalbutton', 1 );
+			remove_filter( 'invoicing_pro_stripe_button', 'zeroBSCRM_stripebutton', 1 );
+			$order        = wc_get_order( $order_post_id );
+
+			// Order no longer exists (probably deleted).
+			if ( ! $order ) {
+				// show an error if an invoice admin
+				if ( zeroBSCRM_permsInvoices() ) {
+					$admin_alert  = '<b>' . esc_html__( 'Admin note', 'zero-bs-crm' ) . ':</b> ';
+					$admin_alert .= esc_html__( 'WooCommerce order no longer exists, so unable to generate payment link.', 'zero-bs-crm' );
+					return $admin_alert;
+				} else {
+					return false;
+				}
+			}
+			$payment_page = $order->get_checkout_payment_url();
+			$res          = '<h3>' . __( 'Pay Invoice', 'zero-bs-crm' ) . '</h3>';
+			$res         .= '<a href="' . esc_url( $payment_page ) . '" class="ui button btn">' . __( 'Pay Now', 'zero-bs-crm' ) . '</a>';
+
+			return $res;
+		}
+
+		return $invoice_id;
 
 	}
 
@@ -909,7 +921,9 @@ class Woo_Sync {
 
 	/**
 	 * Append WooCommerce products to CRM product index (used on invoice editor)
-	 *  Applied via filter `zbs_invpro_productindex`
+	 * Applied via filter `zbs_invpro_productindex`
+	 *
+	 * This is not HPOS-friendly and will need a rework prior to enabling.
 	 *
 	 * @param array $crm_product_index
 	 */
@@ -1495,19 +1509,21 @@ class Woo_Sync {
 
 							$log[] = 'connection verified';
 
-							// if legit, add as site							
-							$new_sync_site = $this->add_sync_site( array(
-			        			
-					            'mode'           => JPCRM_WOO_SYNC_MODE_API,
-					            'domain'         => $transient_check_domain,
-					            'key'            => $key,
-					            'secret'         => $secret,
-					            'prefix'         => ''
-
-					        ));
+							// if legit, add as site
+							$new_sync_site = $this->add_sync_site(
+								array(
+									'mode'   => JPCRM_WOO_SYNC_MODE_API,
+									'domain' => $transient_check_domain,
+									'key'    => $key,
+									'secret' => $secret,
+									'prefix' => '',
+								)
+							);
 
 							// add option to flag newly added to UI
-							set_transient( 'jpcrm_woo_newly_authenticated', $new_sync_site['site_key'], 600 );
+							if ( $new_sync_site ) {
+								set_transient( 'jpcrm_woo_newly_authenticated', $new_sync_site['site_key'], 600 );
+							}
 
 						} else {
 
@@ -1831,104 +1847,92 @@ class Woo_Sync {
 	 */
 	public function add_sync_site( $args=array() ){
 
-        // ============ LOAD ARGS ===============
-        $defaultArgs = array(
+		// ============ LOAD ARGS ===============
+		$defaultArgs = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-        	'site_key'       => '', // if none is passed, domain will be used to generate
+			'site_key' => '', // if none is passed, domain will be used to generate
+			'mode'     => -1,
+			'domain'   => '',
+			'key'      => '',
+			'secret'   => '',
+			'prefix'   => '',
+			'paused'   => false, // if set to non-false site will not sync (typically pass timestamp of time paused)
 
-            'mode'           => -1,
-            'domain'         => '',
-            'key'            => '',
-            'secret'         => '',
-            'prefix'         => '',
-
-            'paused'         => false, // if set to non-false site will not sync (typically pass timestamp of time paused)
-
-        ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }        
-        // ============ / LOAD ARGS =============
+		); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } } // phpcs:ignore
+		// ============ / LOAD ARGS =============
 
 		// get existing (but side-step the woo local check because that can cause an infinite loop)
 		$pre_state = $this->skip_local_woo_check;
 		$this->skip_local_woo_check = true;
-		$sync_sites = $this->get_active_sync_sites( 'default' );
+
 		$this->skip_local_woo_check = $pre_state;
 
-        // basic validation
-        if ( !in_array( $mode, array( JPCRM_WOO_SYNC_MODE_LOCAL, JPCRM_WOO_SYNC_MODE_API ) ) ){
-        	return false;
-        }
-        if ( isset( $sync_sites[ $site_key ] ) ){
-        	return false;
-        }
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		// basic validation
+		if ( ! in_array( $mode, array( JPCRM_WOO_SYNC_MODE_LOCAL, JPCRM_WOO_SYNC_MODE_API ), true ) ) {
+			return false;
+		}
 
-	    
-        // if no site key, attempt to generate one:
-        if ( empty( $site_key ) ){
+		// if no site key, attempt to generate one:
+		if ( empty( $site_key ) ) {
 
-			if ( $mode == JPCRM_WOO_SYNC_MODE_LOCAL ){
-				
+			if ( $mode === JPCRM_WOO_SYNC_MODE_LOCAL ) {
 				$site_key = 'local';
+			} elseif ( ! empty( $domain ) ) {
 
-				// if local and already have a local, error?
-		        if ( isset( $sync_sites[ $site_key ] ) ){
-		        	return false;
-		        }
+				$site_key = $this->generate_site_key( $domain );
 
 			} else {
 
-				if ( !empty( $domain ) ){
-					
-					$site_key = $this->generate_site_key( $domain );
-
-				} else {
-
-					// external site setup without a domain ¯\_(ツ)_/¯
-					$site_key = $this->generate_site_key( 'no_domain' );
-
-				}
+				// external site setup without a domain ¯\_(ツ)_/¯
+				$site_key = $this->generate_site_key( 'no_domain' );
 
 			}
 
-			// any luck?
-			if ( empty( $site_key ) ){
+			$sync_sites = $this->get_active_sync_sites( 'default' );
 
+			if (
+				// error generating key
+				empty( $site_key )
+				// site key already exists
+				|| isset( $sync_sites[ $site_key ] )
+				// domain already exists
+				|| in_array( $domain, array_column( $sync_sites, 'domain' ), true )
+				) {
 				return false;
-
 			}
 
 		}
 
-        
-        // add
-        $sync_sites[ $site_key ] = array(
+		// add
+		$sync_sites[ $site_key ] = array(
+			'mode'                  => $mode,
+			'domain'                => $domain,
+			'key'                   => $key,
+			'secret'                => $secret,
+			'prefix'                => $prefix,
 
-            'mode'           => $mode,
-            'domain'         => $domain,
-            'key'            => $key,
-            'secret'         => $secret,
-            'prefix'         => $prefix,
+			// tracking
+			'last_sync_fired'       => -1,
+			'resume_from_page'      => 1,
+			'total_order_count'     => 0,
+			'total_customer_count'  => 0,
+			'first_import_complete' => false,
+		);
 
-            // tracking
-            'last_sync_fired'        => -1,
-            'resume_from_page'       => 1,
-            'total_order_count'      => 0,
-            'total_customer_count'   => 0,
-            'first_import_complete'  => false,
+		// pause, if present
+		if ( $paused ) {
 
-        );
+			$sync_sites[ $site_key ]['paused'] = $paused;
 
-        // pause, if present
-        if ( $paused ){
+		}
+		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-        	$sync_sites[ $site_key ][ 'paused' ] = $paused;
+		// save
+		$this->settings->update( 'sync_sites', $sync_sites );
 
-        }
-
-        // save
-        $this->settings->update( 'sync_sites', $sync_sites );
-
-        // add the sitekey (which may have been autogenerated above) and return
-        $sync_sites[ $site_key ]['site_key'] = $site_key;
+		// add the sitekey (which may have been autogenerated above) and return
+		$sync_sites[ $site_key ]['site_key'] = $site_key;
 		return $sync_sites[ $site_key ];
 
 	}

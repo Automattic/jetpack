@@ -164,6 +164,7 @@ class Waf_Runner {
 			Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME => get_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ),
 			self::SHARE_DATA_OPTION_NAME                 => get_option( self::SHARE_DATA_OPTION_NAME ),
 			'bootstrap_path'                             => self::get_bootstrap_file_path(),
+			'standalone_mode'                            => self::get_standalone_mode_status(),
 			'automatic_rules_available'                  => (bool) self::automatic_rules_available(),
 			'brute_force_protection'                     => (bool) Brute_Force_Protection::is_enabled(),
 		);
@@ -177,6 +178,15 @@ class Waf_Runner {
 	private static function get_bootstrap_file_path() {
 		$bootstrap = new Waf_Standalone_Bootstrap();
 		return $bootstrap->get_bootstrap_file_path();
+	}
+
+	/**
+	 * Get WAF standalone mode status
+	 *
+	 * @return bool|array True if WAF standalone mode is enabled, false otherwise.
+	 */
+	public static function get_standalone_mode_status() {
+		return defined( 'JETPACK_WAF_RUN' ) && JETPACK_WAF_RUN === 'preload';
 	}
 
 	/**

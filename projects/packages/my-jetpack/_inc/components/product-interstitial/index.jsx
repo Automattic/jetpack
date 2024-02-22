@@ -63,7 +63,7 @@ export default function ProductInterstitial( {
 	highlightLastFeature = false,
 } ) {
 	const { activate, detail } = useProduct( slug );
-	const { isUpgradableByBundle, tiers } = detail;
+	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
@@ -72,18 +72,41 @@ export default function ProductInterstitial( {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 	}, [ recordEvent, slug ] );
 
-	const trackProductClick = useCallback(
-		( customSlug = null ) => {
-			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
-				product: customSlug ?? slug,
-			} );
+	const getProductSlugForTrackEvent = useCallback(
+		( isFree = false ) => {
+			if ( isFree ) {
+				return '';
+			}
+			if ( slug === 'crm' ) {
+				return 'jetpack-crm';
+			}
+			if ( pricingForUi?.tiers?.upgraded?.wpcomProductSlug ) {
+				return pricingForUi.tiers.upgraded.wpcomProductSlug;
+			}
+			return pricingForUi.wpcomProductSlug;
 		},
-		[ recordEvent, slug ]
+		[ slug, pricingForUi ]
 	);
 
-	const trackBundleClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: bundle } );
-	}, [ recordEvent, bundle ] );
+	const trackProductClick = useCallback(
+		( isFreePlan = false, customSlug = null ) => {
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: customSlug ?? slug,
+				productSlug: getProductSlugForTrackEvent( isFreePlan ),
+			} );
+		},
+		[ recordEvent, slug, getProductSlugForTrackEvent ]
+	);
+
+	const trackBundleClick = useCallback(
+		( isFreePlan = false ) => {
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: bundle,
+				productSlug: getProductSlugForTrackEvent( isFreePlan ),
+			} );
+		},
+		[ recordEvent, bundle, getProductSlugForTrackEvent ]
+	);
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 
@@ -104,6 +127,14 @@ export default function ProductInterstitial( {
 					? product?.pricingForUi?.tiers?.[ tier ]?.isFree
 					: product?.pricingForUi?.isFree;
 				const needsPurchase = ! isFree && ! hasRequiredPlan;
+
+				// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
+				// This is done because CRM is not part of the WP billing system
+				// and we can't send them to checkout like we can with the rest of the products
+				if ( product.pluginSlug === 'zero-bs-crm' && ! hasRequiredPlan ) {
+					window.location.href = 'https://jetpackcrm.com/pricing/';
+					return;
+				}
 
 				// If no purchase is needed, redirect the user to the product screen.
 				if ( ! needsPurchase ) {
@@ -399,7 +430,12 @@ export function SearchInterstitial() {
  */
 export function StatsInterstitial() {
 	return (
-		<ProductInterstitial slug="stats" installsPlugin={ true }>
+		<ProductInterstitial
+			slug="stats"
+			directCheckout={ true }
+			installsPlugin={ true }
+			ctaButtonLabel={ __( 'Get Stats', 'jetpack-my-jetpack' ) }
+		>
 			<img
 				src={ statsImage }
 				alt={ __(
