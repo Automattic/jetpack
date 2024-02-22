@@ -38,21 +38,21 @@ class Extras extends Product {
 	public static $requires_user_connection = false;
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Extras', 'jetpack-my-jetpack' );
+		return 'Extras';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Extras', 'jetpack-my-jetpack' );
+		return 'Jetpack Extras';
 	}
 
 	/**
