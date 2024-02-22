@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Updated package.json
+Fix code formatting/linting
