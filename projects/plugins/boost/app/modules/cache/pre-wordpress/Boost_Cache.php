@@ -244,8 +244,10 @@ class Boost_Cache {
 	 * @param WP_Post $post - The post that transitioned.
 	 */
 	public function delete_on_post_transition( $new_status, $old_status, $post ) {
-		// Special case: edits to wp_template can affect the whole site.
-		if ( $post->post_type === 'wp_template' ) {
+		// Special case: Delete cache if the post type can effect the whole site.
+		$special_post_types = array( 'wp_template', 'wp_template_part', 'wp_global_styles' );
+		if ( in_array( $post->post_type, $special_post_types, true ) ) {
+			Logger::debug( 'delete_on_post_transition: special post type ' . $post->post_type );
 			$this->delete_cache();
 			return;
 		}
