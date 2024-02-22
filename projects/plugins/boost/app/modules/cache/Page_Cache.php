@@ -91,9 +91,6 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	}
 
 	public static function is_available() {
-		if ( ! defined( 'BOOST_CACHE' ) ) {
-			return false;
-		}
 		return true;
 	}
 
