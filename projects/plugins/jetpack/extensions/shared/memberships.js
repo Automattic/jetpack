@@ -118,15 +118,7 @@ export const setPurchaseResultCookie = function ( premiumContentJWTToken ) {
 	const isSimpleSite = hostname.endsWith( '.wordpress.com' );
 	const domain = isSimpleSite ? '.' + hostname : '';
 
-	document.cookie =
-		'wp-jp-premium-content-session' +
-		'=' +
-		premiumContentJWTToken +
-		'; expires=' +
-		date.toGMTString() +
-		'; path=/' +
-		'; domain=' +
-		domain;
+	document.cookie = `wp-jp-premium-content-session=${ premiumContentJWTToken }; expires=${ date.toGMTString() }; path=/; domain=${ domain }`;
 };
 
 export const reloadPageWithPremiumContentQueryString = function (
