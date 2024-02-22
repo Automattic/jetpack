@@ -4,16 +4,11 @@
 import { PlainText } from '@wordpress/block-editor';
 import { Button, ButtonGroup } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
-import {
-	forwardRef,
-	useImperativeHandle,
-	useRef,
-	useEffect,
-	useCallback,
-} from '@wordpress/element';
+import { useImperativeHandle, useRef, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall, check, arrowUp, trash, reusableBlock } from '@wordpress/icons';
 import classNames from 'classnames';
+import { forwardRef } from 'react';
 import React from 'react';
 /**
  * Internal dependencies
@@ -25,7 +20,7 @@ import { GuidelineMessage } from './message.js';
  * Types
  */
 import type { RequestingStateProp } from '../../types.js';
-import type { ForwardRefRenderFunction, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 type AiControlProps = {
 	disabled?: boolean;
 	value: string;
@@ -284,4 +279,4 @@ export function AIControl(
 	);
 }
 
-export default forwardRef( AIControl ) as ForwardRefRenderFunction< ReactElement, AiControlProps >;
+export default forwardRef( AIControl );
