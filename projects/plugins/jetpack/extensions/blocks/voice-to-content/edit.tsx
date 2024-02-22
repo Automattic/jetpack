@@ -2,8 +2,6 @@
  * External dependencies
  */
 import {
-	micIcon,
-	playerPauseIcon,
 	useMediaRecording,
 	useAudioTranscription,
 	UseAudioTranscriptionReturn,
@@ -12,7 +10,7 @@ import {
 } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { createBlock } from '@wordpress/blocks';
-import { Button, Modal, Icon, FormFileUpload } from '@wordpress/components';
+import { Button, Modal, Icon } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -20,94 +18,9 @@ import { external } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import ActionButtons from './components/action-buttons';
 import AudioStatusPanel from './components/audio-status-panel';
 import useTranscriptionInserter from './hooks/use-transcription-inserter';
-/**
- * Types
- */
-import type { CancelablePromise } from '@automattic/jetpack-ai-client';
-
-function ActionButtons( { state, mediaControls, onUpload, onCancelRecording } ) {
-	const { start, pause, resume, stop, reset } = mediaControls ?? {};
-	const cancelUpload = useRef( () => {} );
-
-	const recordingHandler = useCallback( () => {
-		if ( [ 'inactive', 'error' ].includes( state ) ) {
-			start?.( 1000 ); // Stream audio on 1 second intervals
-		} else if ( state === 'recording' ) {
-			pause?.();
-		} else if ( state === 'paused' ) {
-			resume?.();
-		}
-	}, [ state, start, pause, resume ] );
-
-	const doneHandler = useCallback( () => {
-		stop?.();
-	}, [ stop ] );
-
-	const cancelHandler = () => {
-		cancelUpload.current?.();
-		onCancelRecording?.();
-		reset?.();
-	};
-
-	const handleUpload = event => {
-		const transcriptionProcess: CancelablePromise = onUpload( event );
-		cancelUpload.current = () => {
-			transcriptionProcess.canceled = true;
-		};
-	};
-
-	let buttonLabel = __( 'Begin recording', 'jetpack' );
-	if ( state === 'recording' ) {
-		buttonLabel = __( 'Pause recording', 'jetpack' );
-	} else if ( state === 'paused' ) {
-		buttonLabel = __( 'Resume recording', 'jetpack' );
-	}
-
-	return (
-		<div className="jetpack-ai-voice-to-content__action-buttons">
-			{ [ 'inactive', 'recording', 'paused', 'error' ].includes( state ) && (
-				<Button
-					className="jetpack-ai-voice-to-content__button"
-					icon={ state === 'recording' ? playerPauseIcon : micIcon }
-					variant="secondary"
-					onClick={ recordingHandler }
-				>
-					{ buttonLabel }
-				</Button>
-			) }
-			{ [ 'inactive', 'error' ].includes( state ) && (
-				<FormFileUpload
-					accept="audio/*"
-					onChange={ handleUpload }
-					variant="secondary"
-					className="jetpack-ai-voice-to-content__button"
-				>
-					{ __( 'Upload audio', 'jetpack' ) }
-				</FormFileUpload>
-			) }
-			{ [ 'recording', 'paused' ].includes( state ) && (
-				<Button
-					className="jetpack-ai-voice-to-content__button"
-					variant="primary"
-					onClick={ doneHandler }
-				>
-					{ __( 'Done', 'jetpack' ) }
-				</Button>
-			) }
-			{ [ 'recording', 'paused', 'processing' ].includes( state ) && (
-				<Button
-					className="jetpack-ai-voice-to-content__button"
-					variant="secondary"
-					onClick={ cancelHandler }
-				>
-					{ __( 'Cancel', 'jetpack' ) }
-				</Button>
-			) }
-		</div>
-	);
-}
 
 export default function VoiceToContentEdit( { clientId } ) {
 	const dispatch: {
