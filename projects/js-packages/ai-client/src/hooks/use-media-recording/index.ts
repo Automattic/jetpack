@@ -7,7 +7,7 @@ import { useRef, useState, useEffect, useCallback } from '@wordpress/element';
  */
 export type RecordingState = 'inactive' | 'recording' | 'paused' | 'processing' | 'error';
 type UseMediaRecordingProps = {
-	onDone?: ( blob: Blob, url: string ) => void;
+	onDone?: ( blob: Blob ) => void;
 };
 
 type UseMediaRecordingReturn = {
@@ -20,11 +20,6 @@ type UseMediaRecordingReturn = {
 	 * The recorded blob
 	 */
 	blob: Blob | null;
-
-	/**
-	 * The recorded blob url
-	 */
-	url: string | null;
 
 	/**
 	 * The error message
@@ -265,8 +260,7 @@ export default function useMediaRecording( {
 	function onStopListener(): void {
 		setState( 'processing' );
 		const lastBlob = getBlob();
-		const url = URL.createObjectURL( lastBlob );
-		onDone?.( lastBlob, url );
+		onDone?.( lastBlob );
 
 		// Clear the recorded chunks
 		recordedChunks.length = 0;
@@ -328,7 +322,6 @@ export default function useMediaRecording( {
 	return {
 		state,
 		blob,
-		url: blob ? URL.createObjectURL( blob ) : null,
 		error,
 		duration,
 		analyser: analyser.current,
