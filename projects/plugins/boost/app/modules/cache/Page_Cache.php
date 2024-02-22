@@ -86,7 +86,6 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	 * Runs cleanup when the feature is deactivated.
 	 */
 	public static function deactivate() {
-		Page_Cache_Setup::deactivate();
 		Garbage_Collection::deactivate();
 	}
 
