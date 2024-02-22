@@ -31,21 +31,21 @@ class Security extends Module_Product {
 	public static $module_name = 'security';
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return _x( 'Security', 'Jetpack product name', 'jetpack-my-jetpack' );
+		return 'Security';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return _x( 'Security', 'Jetpack product name', 'jetpack-my-jetpack' );
+		return 'Jetpack Security';
 	}
 
 	/**

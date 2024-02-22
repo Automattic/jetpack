@@ -18,7 +18,7 @@ import {
 	CRMInterstitial,
 	CreatorInterstitial,
 	ExtrasInterstitial,
-	JetpackAIInterstitial,
+	JetpackAiInterstitial,
 	ProtectInterstitial,
 	ScanInterstitial,
 	SocialInterstitial,
@@ -58,7 +58,7 @@ const MyJetpack = () => (
 				<Route path="/add-boost" element={ <BoostInterstitial /> } />
 				<Route path="/add-crm" element={ <CRMInterstitial /> } />
 				<Route path="/add-creator" element={ <CreatorInterstitial /> } />
-				<Route path="/add-jetpack-ai" element={ <JetpackAIInterstitial /> } />
+				<Route path="/add-jetpack-ai" element={ <JetpackAiInterstitial /> } />
 				<Route path="/add-extras" element={ <ExtrasInterstitial /> } />
 				<Route path="/add-protect" element={ <ProtectInterstitial /> } />
 				<Route path="/add-scan" element={ <ScanInterstitial /> } />

@@ -463,7 +463,6 @@ class Woo_Sync {
 
 	}
 
-
 	/**
 	 * Include filter buttons
 	 * (Note, requires `contact_query_quickfilter_addition()` to be hooked into `jpcrm_contact_query_quickfilter`)
@@ -922,7 +921,9 @@ class Woo_Sync {
 
 	/**
 	 * Append WooCommerce products to CRM product index (used on invoice editor)
-	 *  Applied via filter `zbs_invpro_productindex`
+	 * Applied via filter `zbs_invpro_productindex`
+	 *
+	 * This is not HPOS-friendly and will need a rework prior to enabling.
 	 *
 	 * @param array $crm_product_index
 	 */

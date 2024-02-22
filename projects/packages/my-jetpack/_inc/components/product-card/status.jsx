@@ -9,6 +9,8 @@ const getStatusClassName = status => {
 		case PRODUCT_STATUSES.ACTIVE:
 		case PRODUCT_STATUSES.CAN_UPGRADE:
 			return styles.active;
+		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
+			return styles.warning;
 		case PRODUCT_STATUSES.INACTIVE:
 		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 		case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:

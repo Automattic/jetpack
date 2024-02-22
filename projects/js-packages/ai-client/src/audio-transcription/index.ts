@@ -7,6 +7,10 @@ import debugFactory from 'debug';
  */
 import apiFetch from '../api-fetch/index.js';
 import requestJwt from '../jwt/index.js';
+/**
+ * Types
+ */
+import { CancelablePromise } from '../types.js';
 
 const debug = debugFactory( 'jetpack-ai-client:audio-transcription' );
 
@@ -32,7 +36,8 @@ export default async function transcribeAudio(
 	audio: Blob,
 	feature?: string,
 	requestAbortSignal?: AbortSignal
-): Promise< string > {
+	// @ts-expect-error Promises are not cancelable by default
+): CancelablePromise< string > {
 	debug( 'Transcribing audio: %o. Feature: %o', audio, feature );
 
 	// Get a token to use the transcription service

@@ -5,26 +5,21 @@ import { useRef, useState, useEffect, useCallback } from '@wordpress/element';
 /*
  * Types
  */
-type RecordingStateProp = 'inactive' | 'recording' | 'paused' | 'processing' | 'error';
+export type RecordingState = 'inactive' | 'recording' | 'paused' | 'processing' | 'error';
 type UseMediaRecordingProps = {
-	onDone?: ( blob: Blob, url: string ) => void;
+	onDone?: ( blob: Blob ) => void;
 };
 
 type UseMediaRecordingReturn = {
 	/**
 	 * The current recording state
 	 */
-	state: RecordingStateProp;
+	state: RecordingState;
 
 	/**
 	 * The recorded blob
 	 */
 	blob: Blob | null;
-
-	/**
-	 * The recorded blob url
-	 */
-	url: string | null;
 
 	/**
 	 * The error message
@@ -37,9 +32,19 @@ type UseMediaRecordingReturn = {
 	duration: number;
 
 	/**
+	 * The audio analyser node
+	 */
+	analyser?: AnalyserNode;
+
+	/**
 	 * The error handler
 	 */
 	onError: ( err: string | Error ) => void;
+
+	/**
+	 * The processing handler
+	 */
+	onProcessing: () => void;
 
 	controls: {
 		/**
@@ -86,7 +91,7 @@ export default function useMediaRecording( {
 	const mediaRecordRef = useRef( null );
 
 	// Recording state: `inactive`, `recording`, `paused`, `processing`, `error`
-	const [ state, setState ] = useState< RecordingStateProp >( 'inactive' );
+	const [ state, setState ] = useState< RecordingState >( 'inactive' );
 
 	// reference to the paused state to be used in the `onDataAvailable` event listener,
 	// as the `mediaRecordRef.current.state` is already `inactive` when the recorder is stopped,
@@ -103,6 +108,8 @@ export default function useMediaRecording( {
 	const recordedChunks = useRef< Array< Blob > >( [] ).current;
 
 	const [ error, setError ] = useState< string | null >( null );
+
+	const analyser = useRef< AnalyserNode >( null );
 
 	/**
 	 * Get the recorded blob.
@@ -201,13 +208,18 @@ export default function useMediaRecording( {
 			return;
 		}
 
+		const audioCtx = new AudioContext();
+		analyser.current = audioCtx.createAnalyser();
+
 		const constraints = { audio: true };
 
 		navigator.mediaDevices
 			.getUserMedia( constraints )
 			.then( stream => {
-				mediaRecordRef.current = new MediaRecorder( stream );
+				const source = audioCtx.createMediaStreamSource( stream );
+				source.connect( analyser.current );
 
+				mediaRecordRef.current = new MediaRecorder( stream );
 				mediaRecordRef.current.addEventListener( 'start', onStartListener );
 				mediaRecordRef.current.addEventListener( 'stop', onStopListener );
 				mediaRecordRef.current.addEventListener( 'pause', onPauseListener );
@@ -227,6 +239,11 @@ export default function useMediaRecording( {
 		setState( 'error' );
 	}, [] );
 
+	// manually set the state to `processing` for the file upload case
+	const onProcessing = useCallback( () => {
+		setState( 'processing' );
+	}, [] );
+
 	/**
 	 * `start` event listener for the media recorder instance.
 	 */
@@ -243,8 +260,7 @@ export default function useMediaRecording( {
 	function onStopListener(): void {
 		setState( 'processing' );
 		const lastBlob = getBlob();
-		const url = URL.createObjectURL( lastBlob );
-		onDone?.( lastBlob, url );
+		onDone?.( lastBlob );
 
 		// Clear the recorded chunks
 		recordedChunks.length = 0;
@@ -306,10 +322,11 @@ export default function useMediaRecording( {
 	return {
 		state,
 		blob,
-		url: blob ? URL.createObjectURL( blob ) : null,
 		error,
 		duration,
+		analyser: analyser.current,
 		onError,
+		onProcessing,
 
 		controls: {
 			start,
