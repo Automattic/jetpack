@@ -113,7 +113,8 @@ export const setPurchaseResultCookie = function ( premiumContentJWTToken ) {
 	// We will set this in a cookie  - just in case. This will be reloaded in the refresh, when user clicks OK.
 	// But user can close the browser window before clicking OK. IN that case, we want to leave a cookie behind.
 	const hostname = window.location.hostname;
-	const domain = '.' + hostname;
+	const isSimpleSite = hostname.endsWith( '.wordpress.com' );
+	const domain = isSimpleSite ? '.' + hostname : '';
 
 	document.cookie =
 		'wp-jp-premium-content-session' +
