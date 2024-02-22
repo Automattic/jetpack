@@ -85,24 +85,70 @@ class Waf_Blocklog_Manager {
 	 * @return void
 	 */
 	private static function update_daily_summary() {
-		$share_data = defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA;
-		if ( ! $share_data ) {
+		if ( ! defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA ) {
 			return;
 		}
 
-		$stats = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
-		$date  = gmdate( 'Y-m-d' );
+		$option_name = 'jetpack_waf_blocklog_daily_summary';
+		$date        = gmdate( 'Y-m-d' );
 
-		if ( ! isset( $stats[ $date ] ) ) {
-			$stats[ $date ] = 0;
+		if ( function_exists( 'get_option' ) && function_exists( 'update_option' ) ) {
+			$stats = get_option( $option_name, array() );
+
+			if ( ! isset( $stats[ $date ] ) ) {
+				$stats[ $date ] = 0;
+			}
+			++$stats[ $date ];
+
+			// Prune stats to keep only the last 30 days.
+			$stats = self::prune_stats( $stats );
+
+			update_option( $option_name, $stats );
+		} else {
+			$conn = self::connect_to_wordpress_db();
+			if ( ! $conn ) {
+				return;
+			}
+
+			global $table_prefix;
+
+			// Fetch the current stats
+			$result = $conn->query(
+				sprintf(
+					"SELECT option_value FROM %soptions WHERE option_name = '%s'",
+					$conn->real_escape_string( $table_prefix ),
+					$conn->real_escape_string( $option_name )
+				)
+			);
+
+			$stats = array();
+			if ( $result ) {
+				$row   = $result->fetch_assoc();
+				$stats = $row ? unserialize( $row['option_value'] ) : array();
+				$result->free();
+			}
+
+			// Increment today's stats or initialize them
+			if ( ! isset( $stats[ $date ] ) ) {
+				$stats[ $date ] = 0;
+			}
+			++$stats[ $date ];
+
+			// Prune stats to keep only the last 30 days
+			$stats = self::prune_stats( $stats );
+
+			// Update the option in the database
+			$updated_value = serialize( $stats );
+			$conn->query(
+				sprintf(
+					"INSERT INTO %soptions (option_name, option_value) VALUES ('%s', '%s') ON DUPLICATE KEY UPDATE option_value = '%s'",
+					$conn->real_escape_string( $table_prefix ),
+					$conn->real_escape_string( $option_name ),
+					$conn->real_escape_string( $updated_value ),
+					$conn->real_escape_string( $updated_value )
+				)
+			);
 		}
-
-		++$stats[ $date ];
-
-		// Prune stats to keep only the last 30 days.
-		$stats = self::prune_stats( $stats );
-
-		update_option( 'jetpack_waf_blocklog_daily_summary', $stats );
 	}
 
 	/**
