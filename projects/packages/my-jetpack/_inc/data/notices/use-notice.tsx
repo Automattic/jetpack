@@ -1,4 +1,4 @@
-import { useContext, useEffect } from '@wordpress/element';
+import { useContext, useEffect } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
 
 const useNotice = ( { message, options, isError } ) => {

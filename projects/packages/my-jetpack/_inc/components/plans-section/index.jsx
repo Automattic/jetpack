@@ -1,7 +1,6 @@
 import { Text, H3, Title, Button } from '@automattic/jetpack-components';
-import { useCallback } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback } from 'react';
 import usePurchases from '../../data/purchases/use-purchases';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';

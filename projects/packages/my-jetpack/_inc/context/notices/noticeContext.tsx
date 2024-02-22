@@ -1,5 +1,4 @@
-import { createContext, useState } from '@wordpress/element';
-import React from 'react';
+import React, { createContext, useState } from 'react';
 import { NoticeContextType } from './types';
 
 export const NoticeContext = createContext< NoticeContextType | null >( null );

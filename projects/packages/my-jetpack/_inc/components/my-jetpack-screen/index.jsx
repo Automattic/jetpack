@@ -13,10 +13,10 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { Icon, Notice, Path, SVG } from '@wordpress/components';
-import { useContext, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import classnames from 'classnames';
+import { useContext, useEffect, useState } from 'react';
 /*
  * Internal dependencies
  */

@@ -11,13 +11,13 @@ const cacheKey = REST_API_SITE_PURCHASES_QUERY_KEY;
 const usePurchases: () => UseQueryResult< Array< Purchase >, Error > = () => {
 	const queryResult = useQuery( {
 		queryKey: [ cacheKey ],
-		queryFn: async () =>
-			( await apiFetch( { path: REST_API_SITE_PURCHASES_ENDPOINT } ) ) as Array< Purchase >,
+		queryFn: () =>
+			apiFetch( { path: REST_API_SITE_PURCHASES_ENDPOINT } ) as Promise< Array< Purchase > >,
 		refetchOnWindowFocus: false,
 		refetchIntervalInBackground: false,
 	} );
 
-	const { isError } = queryResult;
+	const { isError, isLoading } = queryResult;
 
 	useNotice( {
 		message: __(
@@ -25,7 +25,7 @@ const usePurchases: () => UseQueryResult< Array< Purchase >, Error > = () => {
 			'jetpack-my-jetpack'
 		),
 		options: { status: 'error' },
-		isError,
+		isError: ! isLoading && isError,
 	} );
 
 	return queryResult;
