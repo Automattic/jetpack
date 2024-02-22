@@ -123,11 +123,6 @@ class Request {
 			return false;
 		}
 
-		if ( $this->is_url_excluded() ) {
-			Logger::debug( 'Url excluded, not cached!' ); // phpcs:ignore -- This is a debug message
-			return false;
-		}
-
 		if ( function_exists( 'is_user_logged_in' ) && is_user_logged_in() ) {
 			return false;
 		}
@@ -145,6 +140,11 @@ class Request {
 		}
 
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] !== 'GET' ) {
+			return false;
+		}
+
+		if ( $this->is_url_excluded() ) {
+			Logger::debug( 'Url excluded, not cached!' ); // phpcs:ignore -- This is a debug message
 			return false;
 		}
 
