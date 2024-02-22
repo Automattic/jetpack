@@ -5,7 +5,7 @@ import { useRef, useState, useEffect, useCallback } from '@wordpress/element';
 /*
  * Types
  */
-type RecordingStateProp = 'inactive' | 'recording' | 'paused' | 'processing' | 'error';
+export type RecordingState = 'inactive' | 'recording' | 'paused' | 'processing' | 'error';
 type UseMediaRecordingProps = {
 	onDone?: ( blob: Blob, url: string ) => void;
 };
@@ -14,7 +14,7 @@ type UseMediaRecordingReturn = {
 	/**
 	 * The current recording state
 	 */
-	state: RecordingStateProp;
+	state: RecordingState;
 
 	/**
 	 * The recorded blob
@@ -91,7 +91,7 @@ export default function useMediaRecording( {
 	const mediaRecordRef = useRef( null );
 
 	// Recording state: `inactive`, `recording`, `paused`, `processing`, `error`
-	const [ state, setState ] = useState< RecordingStateProp >( 'inactive' );
+	const [ state, setState ] = useState< RecordingState >( 'inactive' );
 
 	// reference to the paused state to be used in the `onDataAvailable` event listener,
 	// as the `mediaRecordRef.current.state` is already `inactive` when the recorder is stopped,
