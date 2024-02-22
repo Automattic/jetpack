@@ -24,18 +24,7 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 		define( 'JETPACK_WAF_WPCONFIG', $tmp_dir . '/wp-config.php' );
 		define( 'JETPACK_WAF_SHARE_DATA', true );
 
-		// Create a partial mock of Waf_Blocklog_Manager to mock update_daily_summary method
-		$mock = $this->getMockBuilder( Waf_Blocklog_Manager::class )
-			->setMethods( array( 'update_daily_summary' ) )
-			->getMock();
-
-		// Configure the mock to do nothing when update_daily_summary is called
-		$mock->expects( $this->once() )
-			->method( 'update_daily_summary' )
-			->with()
-			->willReturn( null );
-
-		$mock->write_blocklog( 1337, 'test block' );
+		Waf_Blocklog_Manager::write_blocklog( 1337, 'test block' );
 		$file_content = file_get_contents( $waf_log_path );
 
 		$this->assertTrue( file_exists( $waf_log_path ) );
