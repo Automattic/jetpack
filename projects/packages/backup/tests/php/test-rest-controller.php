@@ -537,4 +537,19 @@ class Test_REST_Controller extends TestCase {
 
 		return $value;
 	}
+
+	/**
+	 * Testing the existence of `/jetpack/v4/orders/(?P<id>\d+)/backup endpoint.
+	 * No WooCommerce code available.
+	 */
+	public function test_backup_order_endpoint_no_wc_code() {
+
+		$order_id = 1;
+
+		$request = new WP_REST_Request( 'GET', "/jetpack/v4/orders/{$order_id}/backup" );
+
+		$response = $this->dispatch_request_signed_with_blog_token( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+	}
 }
