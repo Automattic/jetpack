@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Use JETPACK_BOOST_DIR_PATH constant for advance cache file
+
+
