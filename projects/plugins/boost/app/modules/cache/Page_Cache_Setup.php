@@ -85,7 +85,12 @@ class Page_Cache_Setup {
 		}
 
 		$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . basename( dirname( plugin_dir_path( __FILE__ ), 3 ) ) . '/app/modules/cache/pre-wordpress/Boost_Cache.php';
-		$contents             = '<?php
+
+		if ( ! file_exists( $boost_cache_filename ) ) {
+			return new \WP_Error( 'boost-cache-file-not-found', 'Boost_Cache.php not found' );
+		}
+
+		$contents = '<?php
 // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE . ' - ' . Page_Cache::ADVANCED_CACHE_VERSION . '
 if ( ! file_exists( \'' . $boost_cache_filename . '\' ) ) {
 return;
