@@ -80,6 +80,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	public static function activate() {
 		Page_Cache_Setup::run_setup();
 		Garbage_Collection::activate();
+		Boost_Cache_Settings::get_instance()->set( array( 'enabled' => true ) );
 	}
 
 	/**
@@ -87,6 +88,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	 */
 	public static function deactivate() {
 		Garbage_Collection::deactivate();
+		Boost_Cache_Settings::get_instance()->set( array( 'enabled' => false ) );
 	}
 
 	public static function is_available() {
