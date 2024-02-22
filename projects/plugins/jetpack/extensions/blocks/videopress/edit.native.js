@@ -207,7 +207,7 @@ class VideoPressEdit extends Component {
 		const { createErrorNotice, setAttributes } = this.props;
 
 		if ( isURL( url ) ) {
-			setAttributes( { id: url, src: url } );
+			setAttributes( { id: undefined, src: url } );
 		} else {
 			createErrorNotice( __( 'Invalid URL.', 'jetpack' ) );
 		}
