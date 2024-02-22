@@ -37,6 +37,11 @@ type UseMediaRecordingReturn = {
 	duration: number;
 
 	/**
+	 * The audio analyser node
+	 */
+	analyser?: AnalyserNode;
+
+	/**
 	 * The error handler
 	 */
 	onError: ( err: string | Error ) => void;
@@ -108,6 +113,8 @@ export default function useMediaRecording( {
 	const recordedChunks = useRef< Array< Blob > >( [] ).current;
 
 	const [ error, setError ] = useState< string | null >( null );
+
+	const analyser = useRef< AnalyserNode >( null );
 
 	/**
 	 * Get the recorded blob.
@@ -206,13 +213,18 @@ export default function useMediaRecording( {
 			return;
 		}
 
+		const audioCtx = new AudioContext();
+		analyser.current = audioCtx.createAnalyser();
+
 		const constraints = { audio: true };
 
 		navigator.mediaDevices
 			.getUserMedia( constraints )
 			.then( stream => {
-				mediaRecordRef.current = new MediaRecorder( stream );
+				const source = audioCtx.createMediaStreamSource( stream );
+				source.connect( analyser.current );
 
+				mediaRecordRef.current = new MediaRecorder( stream );
 				mediaRecordRef.current.addEventListener( 'start', onStartListener );
 				mediaRecordRef.current.addEventListener( 'stop', onStopListener );
 				mediaRecordRef.current.addEventListener( 'pause', onPauseListener );
@@ -319,6 +331,7 @@ export default function useMediaRecording( {
 		url: blob ? URL.createObjectURL( blob ) : null,
 		error,
 		duration,
+		analyser: analyser.current,
 		onError,
 		onProcessing,
 
