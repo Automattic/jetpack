@@ -144,7 +144,7 @@ class Request {
 		}
 
 		if ( $this->is_url_excluded() ) {
-			Logger::debug( 'Url excluded, not cached!' ); // phpcs:ignore -- This is a debug message
+			Logger::debug( 'Url excluded, not cached!' );
 			return false;
 		}
 
