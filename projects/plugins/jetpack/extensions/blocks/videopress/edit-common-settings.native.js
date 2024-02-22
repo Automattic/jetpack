@@ -6,9 +6,12 @@ import { useMemo, useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 
 const options = [
-	{ value: 'auto', label: __( 'Auto', 'jetpack' ) },
-	{ value: 'metadata', label: __( 'Metadata', 'jetpack' ) },
-	{ value: 'none', label: _x( 'None', 'Preload value', 'jetpack' ) },
+	{ value: 'auto', label: _x( 'Auto', 'VideoPress preload setting', 'jetpack' ) },
+	{
+		value: 'metadata',
+		label: _x( 'Metadata', 'VideoPress preload setting', 'jetpack' ),
+	},
+	{ value: 'none', label: _x( 'None', 'VideoPress preload setting', 'jetpack' ) },
 ];
 
 const VideoSettings = ( { setAttributes, attributes } ) => {
@@ -60,13 +63,13 @@ const VideoSettings = ( { setAttributes, attributes } ) => {
 			/>
 			<ToggleControl
 				__nextHasNoMarginBottom
-				label={ __( 'Playback controls', 'jetpack' ) }
+				label={ __( 'Playback Controls', 'jetpack' ) }
 				onChange={ toggleFactory.controls }
 				checked={ !! controls }
 			/>
 			<ToggleControl
 				__nextHasNoMarginBottom
-				label={ __( 'Play inline', 'jetpack' ) }
+				label={ __( 'Play Inline', 'jetpack' ) }
 				onChange={ toggleFactory.playsinline }
 				checked={ !! playsinline }
 			/>
