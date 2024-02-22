@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-	AudioDurationDisplay,
 	micIcon,
 	playerPauseIcon,
 	useMediaRecording,
@@ -21,76 +20,12 @@ import { external } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import Oscilloscope from './components/oscilloscope';
+import AudioStatusPanel from './components/audio-status-panel';
 import useTranscriptionInserter from './hooks/use-transcription-inserter';
 /**
  * Types
  */
-import type { CancelablePromise, RecordingState } from '@automattic/jetpack-ai-client';
-
-function AudioStatusPanel( {
-	state,
-	error = null,
-	analyser,
-	duration = 0,
-}: {
-	state: RecordingState;
-	error: string;
-	analyser: AnalyserNode;
-	duration: number;
-} ) {
-	if ( state === 'inactive' ) {
-		return (
-			<div className="jetpack-ai-voice-to-content__information">
-				{ __( 'File size limit: 25MB. Recording time limit: 25 minutes.', 'jetpack' ) }
-			</div>
-		);
-	}
-
-	if ( state === 'recording' ) {
-		return (
-			<div className="jetpack-ai-voice-to-content__audio">
-				<AudioDurationDisplay
-					className="jetpack-ai-voice-to-content__audio--duration"
-					duration={ duration }
-				/>
-				<Oscilloscope analyser={ analyser } paused={ false } />
-				<span className="jetpack-ai-voice-to-content__information">
-					{ __( 'Recording…', 'jetpack' ) }
-				</span>
-			</div>
-		);
-	}
-
-	if ( state === 'paused' ) {
-		return (
-			<div className="jetpack-ai-voice-to-content__audio">
-				<AudioDurationDisplay
-					className="jetpack-ai-voice-to-content__audio--duration"
-					duration={ duration }
-				/>
-				<Oscilloscope analyser={ analyser } paused={ true } />
-				<span className="jetpack-ai-voice-to-content__information">
-					{ __( 'Paused', 'jetpack' ) }
-				</span>
-			</div>
-		);
-	}
-
-	if ( state === 'processing' ) {
-		return (
-			<div className="jetpack-ai-voice-to-content__information">
-				{ __( 'Uploading and transcribing audio…', 'jetpack' ) }
-			</div>
-		);
-	}
-
-	if ( state === 'error' ) {
-		return <div className="jetpack-ai-voice-to-content__information--error">{ error }</div>;
-	}
-
-	return null;
-}
+import type { CancelablePromise } from '@automattic/jetpack-ai-client';
 
 function ActionButtons( { state, mediaControls, onUpload, onCancelRecording } ) {
 	const { start, pause, resume, stop, reset } = mediaControls ?? {};
