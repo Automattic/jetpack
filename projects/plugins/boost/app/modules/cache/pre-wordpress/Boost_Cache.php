@@ -120,6 +120,12 @@ class Boost_Cache {
 	 */
 	public function ob_callback( $buffer ) {
 		if ( strlen( $buffer ) > 0 && $this->request->is_cacheable() ) {
+
+			if ( false === stripos( $buffer, '</html>' ) ) {
+				Logger::debug( 'Closing HTML tag not found, not caching' );
+				return $buffer;
+			}
+
 			$result = $this->storage->write( $this->request->get_uri(), $this->request->get_parameters(), $buffer );
 
 			if ( is_wp_error( $result ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
