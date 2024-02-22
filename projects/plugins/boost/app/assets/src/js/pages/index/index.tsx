@@ -24,6 +24,7 @@ const Index = () => {
 
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
+	const [ pageCache ] = useSingleModuleState( 'page_cache' );
 
 	const regenerateCssAction = useRegenerateCriticalCssAction();
 	const requestRegenerateCriticalCss = () => {
@@ -286,7 +287,7 @@ const Index = () => {
 				</Module>
 			</div>
 
-			<SuperCacheInfo />
+			{ ! pageCache?.active && <SuperCacheInfo /> }
 		</div>
 	);
 };
