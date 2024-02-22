@@ -355,10 +355,10 @@ jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback
 jetpack_boost_register_option(
 	'page_cache_error',
 	Schema::as_string()
-		->nullable()
+			->nullable()
 );
 
-jetpack_boost_register_action( 'page_cache_error', 'run-page-cache-setup', Schema::as_void(), new Run_Setup() );
+jetpack_boost_register_action( 'page_cache', 'run-setup', Schema::as_void(), new Run_Setup() );
 
 jetpack_boost_register_option(
 	'page_cache',

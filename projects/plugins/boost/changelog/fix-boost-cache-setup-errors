@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Boost: Enhanced error handling for page cache setup and refactored related code for clarity.
