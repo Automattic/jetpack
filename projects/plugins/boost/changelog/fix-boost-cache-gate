@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Removed BOOST_CACHE gate. No changelog needed, as the same fix is going into 3.1.0
+
+
