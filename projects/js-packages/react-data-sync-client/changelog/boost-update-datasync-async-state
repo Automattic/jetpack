@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-React DataSync Client: Use abortController to control mutation requests

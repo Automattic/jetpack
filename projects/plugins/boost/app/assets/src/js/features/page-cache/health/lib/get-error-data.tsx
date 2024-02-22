@@ -1,8 +1,11 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
 import styles from '../health.module.scss';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
-const cacheIssuesLink = 'TBD'; // @todo - add proper link here.
+const cacheIssuesLink = ( issue: string ) => {
+	return getRedirectUrl( `jb-cache-issue-${ issue }` );
+};
 
 const messages: { [ key: string ]: { title: string; message: React.ReactNode } } = {
 	'wp-content-not-writable': {
@@ -18,8 +21,33 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			),
 			{
 				code: <code className={ styles.nowrap } />,
-				// eslint-disable-next-line jsx-a11y/anchor-has-content
-				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'wp-content-not-writable' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
+			}
+		),
+	},
+	'not-using-permalinks': {
+		title: __( 'Your site is using Plain Permalinks', 'jetpack-boost' ),
+		message: createInterpolateElement(
+			__(
+				'This feature cannot be enabled because your site is using Plain Permalinks. Please switch to a different permalink structure in order to use the Page Cache. <link>Learn more.</link>',
+				'jetpack-boost'
+			),
+			{
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'not-using-permalinks' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
 			}
 		),
 	},
@@ -36,8 +64,14 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			),
 			{
 				code: <code className={ styles.nowrap } />,
-				// eslint-disable-next-line jsx-a11y/anchor-has-content
-				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'advanced-cache-incompatible' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
 			}
 		),
 	},
@@ -54,8 +88,14 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			),
 			{
 				code: <code className={ styles.nowrap } />,
-				// eslint-disable-next-line jsx-a11y/anchor-has-content
-				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'unable-to-write-to-advanced-cache' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
 			}
 		),
 	},
@@ -75,8 +115,14 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			),
 			{
 				code: <code className={ styles.nowrap } />,
-				// eslint-disable-next-line jsx-a11y/anchor-has-content
-				link: <a href={ cacheIssuesLink } target="_blank" rel="noopener noreferrer" />,
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'wp-cache-defined-not-true' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
 			}
 		),
 	},
@@ -112,12 +158,14 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			}
 		),
 	},
-	default: {
-		title: __( 'Unknown error', 'jetpack-boost' ),
-		message: __( 'An unknown error ocurred.', 'jetpack-boost' ),
-	},
 };
 
 export default ( status: string ) => {
-	return messages[ status ] || messages.default;
+	if ( status in messages ) {
+		return messages[ status ];
+	}
+	return {
+		title: __( 'Unknown error', 'jetpack-boost' ),
+		message: status,
+	};
 };

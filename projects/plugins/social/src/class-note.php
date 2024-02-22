@@ -37,7 +37,8 @@ class Note {
 	 * Things to do on admin_init.
 	 */
 	public function admin_init_actions() {
-		add_action( 'current_screen', array( $this, 'add_filters_and_actions_for_screen' ) );
+		\Automattic\Jetpack\Post_List\Post_List::setup();
+		add_action( 'current_screen', array( $this, 'add_filters_and_actions_for_screen' ), 5 );
 	}
 
 	/**
@@ -51,6 +52,18 @@ class Note {
 		}
 
 		add_filter( 'the_title', array( $this, 'override_empty_title' ), 10, 2 );
+		add_filter( 'jetpack_post_list_display_share_action', array( $this, 'show_share_action' ), 10, 2 );
+	}
+
+	/**
+	 * Used as a filter to determine if we should show the share action on the post list screen.
+	 *
+	 * @param bool   $show_share The current filter value.
+	 * @param string $post_type The current post type on the post list screen.
+	 * @return bool Whether to show the share action.
+	 */
+	public function show_share_action( $show_share, $post_type ) {
+		return self::JETPACK_SOCIAL_NOTE_CPT === $post_type || $show_share;
 	}
 
 	/**
@@ -96,7 +109,7 @@ class Note {
 			),
 			'show_in_rest'  => true,
 			'has_archive'   => true,
-			'supports'      => array( 'editor', 'thumbnail', 'publicize', 'activitypub' ),
+			'supports'      => array( 'editor', 'thumbnail', 'publicize', 'enhanced_post_list', 'activitypub' ),
 			'menu_icon'     => 'dashicons-welcome-write-blog',
 			'rewrite'       => array( 'slug' => 'sn' ),
 			'template'      => array(

@@ -8,24 +8,37 @@ import {
 	useMediaRecording,
 	useAudioTranscription,
 	UseAudioTranscriptionReturn,
+	useTranscriptionPostProcessing,
+	TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
 } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
+import { createBlock } from '@wordpress/blocks';
 import { Button, Modal, Icon, FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import oscilloscope from './assets/oscilloscope.svg';
+import Oscilloscope from './components/oscilloscope';
+import useTranscriptionInserter from './hooks/use-transcription-inserter';
+/**
+ * Types
+ */
+import type { CancelablePromise, RecordingState } from '@automattic/jetpack-ai-client';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function Oscilloscope( { audioURL } ) {
-	return <img src={ oscilloscope } alt="" />;
-}
-
-function ContextualRow( { state, error = null, audioURL = null } ) {
+function AudioStatusPanel( {
+	state,
+	error = null,
+	analyser,
+	duration = 0,
+}: {
+	state: RecordingState;
+	error: string;
+	analyser: AnalyserNode;
+	duration: number;
+} ) {
 	if ( state === 'inactive' ) {
 		return (
 			<div className="jetpack-ai-voice-to-content__information">
@@ -39,9 +52,9 @@ function ContextualRow( { state, error = null, audioURL = null } ) {
 			<div className="jetpack-ai-voice-to-content__audio">
 				<AudioDurationDisplay
 					className="jetpack-ai-voice-to-content__audio--duration"
-					url={ audioURL }
+					duration={ duration }
 				/>
-				<Oscilloscope audioURL={ audioURL } />
+				<Oscilloscope analyser={ analyser } paused={ false } />
 				<span className="jetpack-ai-voice-to-content__information">
 					{ __( 'Recording…', 'jetpack' ) }
 				</span>
@@ -54,9 +67,9 @@ function ContextualRow( { state, error = null, audioURL = null } ) {
 			<div className="jetpack-ai-voice-to-content__audio">
 				<AudioDurationDisplay
 					className="jetpack-ai-voice-to-content__audio--duration"
-					url={ audioURL }
+					duration={ duration }
 				/>
-				<Oscilloscope audioURL={ audioURL } />
+				<Oscilloscope analyser={ analyser } paused={ true } />
 				<span className="jetpack-ai-voice-to-content__information">
 					{ __( 'Paused', 'jetpack' ) }
 				</span>
@@ -64,7 +77,7 @@ function ContextualRow( { state, error = null, audioURL = null } ) {
 		);
 	}
 
-	if ( state === 'transcribing' ) {
+	if ( state === 'processing' ) {
 		return (
 			<div className="jetpack-ai-voice-to-content__information">
 				{ __( 'Uploading and transcribing audio…', 'jetpack' ) }
@@ -79,27 +92,12 @@ function ContextualRow( { state, error = null, audioURL = null } ) {
 	return null;
 }
 
-function ActionButtons( { state, mediaControls } ) {
-	const { start, pause, resume, stop } = mediaControls ?? {};
-
-	const onTranscriptionReady = ( transcription: string ) => {
-		// eslint-disable-next-line no-console
-		console.log( 'Transcription ready: ', transcription );
-	};
-
-	const onTranscriptionError = ( error: string ) => {
-		// eslint-disable-next-line no-console
-		console.log( 'Transcription error: ', error );
-	};
-
-	const { transcribeAudio }: UseAudioTranscriptionReturn = useAudioTranscription( {
-		feature: 'voice-to-content',
-		onReady: onTranscriptionReady,
-		onError: onTranscriptionError,
-	} );
+function ActionButtons( { state, mediaControls, onUpload, onCancelRecording } ) {
+	const { start, pause, resume, stop, reset } = mediaControls ?? {};
+	const cancelUpload = useRef( () => {} );
 
 	const recordingHandler = useCallback( () => {
-		if ( state === 'inactive' ) {
+		if ( [ 'inactive', 'error' ].includes( state ) ) {
 			start?.( 1000 ); // Stream audio on 1 second intervals
 		} else if ( state === 'recording' ) {
 			pause?.();
@@ -108,19 +106,21 @@ function ActionButtons( { state, mediaControls } ) {
 		}
 	}, [ state, start, pause, resume ] );
 
-	const uploadHandler = event => {
-		if ( event.currentTarget.files.length > 0 ) {
-			const file = event.currentTarget.files[ 0 ];
-			transcribeAudio( file );
-		}
-	};
-
 	const doneHandler = useCallback( () => {
 		stop?.();
 	}, [ stop ] );
 
 	const cancelHandler = () => {
-		throw new Error( 'Not implemented' );
+		cancelUpload.current?.();
+		onCancelRecording?.();
+		reset?.();
+	};
+
+	const handleUpload = event => {
+		const transcriptionProcess: CancelablePromise = onUpload( event );
+		cancelUpload.current = () => {
+			transcriptionProcess.canceled = true;
+		};
 	};
 
 	let buttonLabel = __( 'Begin recording', 'jetpack' );
@@ -145,7 +145,7 @@ function ActionButtons( { state, mediaControls } ) {
 			{ [ 'inactive', 'error' ].includes( state ) && (
 				<FormFileUpload
 					accept="audio/*"
-					onChange={ uploadHandler }
+					onChange={ handleUpload }
 					variant="secondary"
 					className="jetpack-ai-voice-to-content__button"
 				>
@@ -161,7 +161,7 @@ function ActionButtons( { state, mediaControls } ) {
 					{ __( 'Done', 'jetpack' ) }
 				</Button>
 			) }
-			{ [ 'recording', 'paused', 'transcribing' ].includes( state ) && (
+			{ [ 'recording', 'paused', 'processing' ].includes( state ) && (
 				<Button
 					className="jetpack-ai-voice-to-content__button"
 					variant="secondary"
@@ -175,20 +175,14 @@ function ActionButtons( { state, mediaControls } ) {
 }
 
 export default function VoiceToContentEdit( { clientId } ) {
-	const { state, controls, url } = useMediaRecording( {
-		onDone: blob => {
-			console.log( 'Blob created: ', blob ); // eslint-disable-line no-console
-		},
-	} );
-
-	const error = null;
-
-	const dispatch = useDispatch( 'core/block-editor' );
+	const dispatch: {
+		removeBlock: ( id: number ) => void;
+		insertBlock: ( block: object ) => void;
+	} = useDispatch( 'core/block-editor' );
+	const cancelRecording = useRef( () => {} );
+	const [ transcription, setTranscription ] = useState( null );
 
 	const destroyBlock = useCallback( () => {
-		// eslint-disable-next-line no-console
-		console.log( 'VTC: destroy' );
-
 		// Remove the block from the editor
 		setTimeout( () => {
 			dispatch.removeBlock( clientId );
@@ -196,9 +190,68 @@ export default function VoiceToContentEdit( { clientId } ) {
 	}, [ dispatch, clientId ] );
 
 	const handleClose = () => {
-		// eslint-disable-next-line no-console
-		console.log( 'VTC: close' );
 		destroyBlock();
+	};
+
+	const { upsertTranscription } = useTranscriptionInserter();
+
+	const { processTranscription } = useTranscriptionPostProcessing( {
+		feature: 'voice-to-content',
+		onReady: postProcessingResult => {
+			// Insert the content into the editor
+			upsertTranscription( postProcessingResult );
+			handleClose();
+		},
+		onError: error => {
+			// Use the transcription instead for a partial result
+			if ( transcription ) {
+				dispatch.insertBlock( createBlock( 'core/paragraph', { content: transcription } ) );
+			}
+			// eslint-disable-next-line no-console
+			console.log( 'Post-processing error: ', error );
+			handleClose();
+		},
+		onUpdate: currentPostProcessingResult => {
+			/*
+			 * We can upsert partial results because the hook takes care of replacing
+			 * the previous result with the new one.
+			 */
+			upsertTranscription( currentPostProcessingResult );
+		},
+	} );
+
+	const onTranscriptionReady = ( content: string ) => {
+		// eslint-disable-next-line no-console
+		console.log( 'Transcription ready: ', content );
+		setTranscription( content );
+		processTranscription( TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT, content );
+	};
+
+	const onTranscriptionError = ( error: string ) => {
+		onError( error );
+	};
+
+	const { transcribeAudio }: UseAudioTranscriptionReturn = useAudioTranscription( {
+		feature: 'voice-to-content',
+		onReady: onTranscriptionReady,
+		onError: onTranscriptionError,
+	} );
+
+	const { state, controls, error, onError, onProcessing, duration, analyser } = useMediaRecording( {
+		onDone: lastBlob => {
+			const promise = transcribeAudio( lastBlob );
+			cancelRecording.current = () => {
+				promise.canceled = true;
+			};
+		},
+	} );
+
+	const uploadHandler = event => {
+		if ( event.currentTarget.files.length > 0 ) {
+			onProcessing();
+			const file = event.currentTarget.files[ 0 ];
+			return transcribeAudio( file );
+		}
 	};
 
 	// To avoid a wrong TS warning
@@ -220,9 +273,19 @@ export default function VoiceToContentEdit( { clientId } ) {
 							) }
 						</span>
 						<div className="jetpack-ai-voice-to-content__contextual-row">
-							<ContextualRow state={ state } audioURL={ url } error={ error } />
+							<AudioStatusPanel
+								state={ state }
+								error={ error }
+								duration={ duration }
+								analyser={ analyser }
+							/>
 						</div>
-						<ActionButtons state={ state } mediaControls={ controls } />
+						<ActionButtons
+							state={ state }
+							mediaControls={ controls }
+							onUpload={ uploadHandler }
+							onCancelRecording={ cancelRecording.current }
+						/>
 					</div>
 					<div className="jetpack-ai-voice-to-content__footer">
 						<Button

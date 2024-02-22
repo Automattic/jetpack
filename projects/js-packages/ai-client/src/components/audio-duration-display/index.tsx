@@ -1,18 +1,14 @@
 /*
- * External dependencies
- */
-import { useState, useEffect } from '@wordpress/element';
-/*
  * Internal dependencies
  */
-import { formatTime, getDuration } from './lib/media.js';
+import { formatTime } from './lib/media.js';
 /*
  * Types
  */
 import type React from 'react';
 
 type AudioDurationDisplayProps = {
-	url: string;
+	duration: number;
 	className?: string | null;
 };
 
@@ -23,17 +19,8 @@ type AudioDurationDisplayProps = {
  * @returns {React.ReactElement}              Rendered component.
  */
 export default function AudioDurationDisplay( {
-	url,
+	duration,
 	className,
 }: AudioDurationDisplayProps ): React.ReactElement {
-	const [ duration, setDuration ] = useState( 0 );
-	useEffect( () => {
-		if ( ! url ) {
-			return;
-		}
-
-		getDuration( url ).then( setDuration );
-	}, [ url ] );
-
 	return <span className={ className }>{ formatTime( duration, { addDecimalPart: false } ) }</span>;
 }

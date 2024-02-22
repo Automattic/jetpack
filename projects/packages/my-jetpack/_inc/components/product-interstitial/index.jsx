@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -20,8 +19,6 @@ import ProductDetailTable from '../product-detail-table';
 import boostImage from './boost.png';
 import crmImage from './crm.png';
 import extrasImage from './extras.png';
-import { JetpackAIInterstitialMoreRequests } from './jetpack-ai/more-requests';
-import jetpackAiImage from './jetpack-ai.png';
 import searchImage from './search.png';
 import socialImage from './social.png';
 import statsImage from './stats.png';
@@ -63,7 +60,7 @@ export default function ProductInterstitial( {
 	highlightLastFeature = false,
 } ) {
 	const { activate, detail } = useProduct( slug );
-	const { isUpgradableByBundle, tiers } = detail;
+	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
@@ -72,18 +69,41 @@ export default function ProductInterstitial( {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 	}, [ recordEvent, slug ] );
 
-	const trackProductClick = useCallback(
-		( customSlug = null ) => {
-			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
-				product: customSlug ?? slug,
-			} );
+	const getProductSlugForTrackEvent = useCallback(
+		( isFree = false ) => {
+			if ( isFree ) {
+				return '';
+			}
+			if ( slug === 'crm' ) {
+				return 'jetpack-crm';
+			}
+			if ( pricingForUi?.tiers?.upgraded?.wpcomProductSlug ) {
+				return pricingForUi.tiers.upgraded.wpcomProductSlug;
+			}
+			return pricingForUi.wpcomProductSlug;
 		},
-		[ recordEvent, slug ]
+		[ slug, pricingForUi ]
 	);
 
-	const trackBundleClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: bundle } );
-	}, [ recordEvent, bundle ] );
+	const trackProductClick = useCallback(
+		( isFreePlan = false, customSlug = null ) => {
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: customSlug ?? slug,
+				productSlug: getProductSlugForTrackEvent( isFreePlan ),
+			} );
+		},
+		[ recordEvent, slug, getProductSlugForTrackEvent ]
+	);
+
+	const trackBundleClick = useCallback(
+		( isFreePlan = false ) => {
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: bundle,
+				productSlug: getProductSlugForTrackEvent( isFreePlan ),
+			} );
+		},
+		[ recordEvent, bundle, getProductSlugForTrackEvent ]
+	);
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 
@@ -291,48 +311,11 @@ export function ExtrasInterstitial() {
 }
 
 /**
- * JetpackAIInterstitial component
+ * JetpackAiInterstitial component
  *
- * @returns {object} JetpackAIInterstitial react component.
+ * @returns {object} JetpackAiInterstitial react component.
  */
-export function JetpackAIInterstitial() {
-	const slug = 'jetpack-ai';
-	const { detail } = useProduct( slug );
-	const { onClickGoBack } = useGoBack( { slug } );
-	const { isRegistered } = useConnection();
-
-	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ] || null;
-
-	if ( isRegistered && ! nextTier ) {
-		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
-	}
-
-	const { hasRequiredPlan } = detail;
-	const ctaLabel = hasRequiredPlan ? __( 'Upgrade Jetpack AI', 'jetpack-my-jetpack' ) : null;
-
-	// Default to 100 requests if the site is not registered/connected.
-	const nextTierValue = isRegistered ? nextTier?.value : 100;
-	// Decide the quantity value for the upgrade, but ignore the unlimited tier.
-	const quantity = nextTierValue !== 1 ? nextTierValue : null;
-
-	// Highlight the last feature in the table for all the tiers except the unlimited one.
-	const highlightLastFeature = nextTier?.value !== 1;
-
-	return (
-		<ProductInterstitial
-			slug="jetpack-ai"
-			installsPlugin={ true }
-			imageContainerClassName={ styles.aiImageContainer }
-			ctaButtonLabel={ ctaLabel }
-			hideTOS={ true }
-			quantity={ quantity }
-			directCheckout={ hasRequiredPlan }
-			highlightLastFeature={ highlightLastFeature }
-		>
-			<img src={ jetpackAiImage } alt="Jetpack AI" />
-		</ProductInterstitial>
-	);
-}
+export { default as JetpackAiInterstitial } from './jetpack-ai';
 
 /**
  * ProtectInterstitial component

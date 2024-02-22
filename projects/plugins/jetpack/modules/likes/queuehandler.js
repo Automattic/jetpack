@@ -241,7 +241,7 @@ function JetpackLikesMessageListener( event ) {
 				if ( newLayout ) {
 					element.innerHTML = `
 					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-						<img src="${ liker.avatar_URL }"
+						<img src="${ encodeURI( liker.avatar_URL ) }"
 							alt=""
 							style="width: 28px; height: 28px;" />
 						<span></span>
@@ -250,7 +250,7 @@ function JetpackLikesMessageListener( event ) {
 				} else {
 					element.innerHTML = `
 					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-						<img src="${ liker.avatar_URL }"
+						<img src="${ encodeURI( liker.avatar_URL ) }"
 							alt=""
 							style="width: 30px; height: 30px; padding-right: 3px;" />
 					</a>
