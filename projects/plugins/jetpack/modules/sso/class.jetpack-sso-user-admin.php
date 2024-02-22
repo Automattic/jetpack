@@ -644,39 +644,41 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @return string
 		 */
 		public function jetpack_show_connection_status( $val, $col, $user_id ) {
-			if ( 'user_jetpack' === $col && Jetpack::connection()->is_user_connected( $user_id ) ) {
-				$connection_html = sprintf(
-					'<span title="%1$s" class="jetpack-sso-invitation">%2$s</span>',
-					esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack' ),
-					esc_html__( 'Connected', 'jetpack' )
-				);
-				return $connection_html;
-			} else {
-				$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
-				if ( $has_pending_invite ) {
+			if ( 'user_jetpack' === $col ) {
+				if ( Jetpack::connection()->is_user_connected( $user_id ) ) {
 					$connection_html = sprintf(
-						'<span title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</span>',
-						esc_attr__( 'This user didn&#8217;t accept the invitation to join this site yet.', 'jetpack' ),
-						esc_html__( 'Pending invite', 'jetpack' )
+						'<span title="%1$s" class="jetpack-sso-invitation">%2$s</span>',
+						esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack' ),
+						esc_html__( 'Connected', 'jetpack' )
+					);
+					return $connection_html;
+				} else {
+					$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
+					if ( $has_pending_invite ) {
+						$connection_html = sprintf(
+							'<span title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</span>',
+							esc_attr__( 'This user didn&#8217;t accept the invitation to join this site yet.', 'jetpack' ),
+							esc_html__( 'Pending invite', 'jetpack' )
+						);
+						return $connection_html;
+					}
+					$nonce           = wp_create_nonce( 'jetpack-sso-invite-user' );
+					$connection_html = sprintf(
+					// Using formmethod and formaction because we can't nest forms and have to submit using the main form.
+						'<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a><span title="%3$s" class="sso-disconnected-user-icon dashicons dashicons-warning"></span>',
+						add_query_arg(
+							array(
+								'user_id'      => $user_id,
+								'invite_nonce' => $nonce,
+								'action'       => 'jetpack_invite_user_to_wpcom',
+							),
+							admin_url( 'admin-post.php' )
+						),
+						esc_html__( 'Send invite', 'jetpack' ),
+						esc_attr__( 'This user doesn&#8217;t have a WP.com account and, with your current site settings, won&#8217;t be able to log in. Request them to create a WP.com account to be able to function normally.', 'jetpack' )
 					);
 					return $connection_html;
 				}
-				$nonce           = wp_create_nonce( 'jetpack-sso-invite-user' );
-				$connection_html = sprintf(
-				// Using formmethod and formaction because we can't nest forms and have to submit using the main form.
-					'<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a><span title="%3$s" class="sso-disconnected-user-icon dashicons dashicons-warning"></span>',
-					add_query_arg(
-						array(
-							'user_id'      => $user_id,
-							'invite_nonce' => $nonce,
-							'action'       => 'jetpack_invite_user_to_wpcom',
-						),
-						admin_url( 'admin-post.php' )
-					),
-					esc_html__( 'Send invite', 'jetpack' ),
-					esc_attr__( 'This user doesn&#8217;t have a WP.com account and, with your current site settings, won&#8217;t be able to log in. Request them to create a WP.com account to be able to function normally.', 'jetpack' )
-				);
-				return $connection_html;
 			}
 		}
 
