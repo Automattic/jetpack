@@ -129,7 +129,7 @@ export default function MyJetpackScreen() {
 		return null;
 	}
 
-	const globalNoticeMessage = message ? message : messageDeprecated;
+	const globalNoticeMessage = message ?? messageDeprecated;
 	const globalNoticeOptions = options?.status ? options : optionsDeprecated;
 
 	return (
