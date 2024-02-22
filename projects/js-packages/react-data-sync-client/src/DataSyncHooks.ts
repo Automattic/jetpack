@@ -9,7 +9,7 @@ import {
 	QueryClientProvider,
 } from '@tanstack/react-query';
 import React from 'react';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 import { DataSyncError } from './DataSyncError';
@@ -346,4 +346,58 @@ export function useDataSyncAction<
 		...mutationConfigDefaults,
 		...mutationOptions,
 	} );
+}
+
+type SubsetMutation< T > = {
+	mutate: ( newValue: T ) => void;
+	isSuccess: boolean;
+	isPending: boolean;
+	isError: boolean;
+	error: Error | null;
+};
+
+export function useDataSyncSubset<
+	Schema extends z.ZodSchema,
+	Value extends z.infer< Schema >,
+	K extends keyof Value,
+>( hook: DataSyncHook< Schema, Value >, key: K ): [ Value[ K ], SubsetMutation< Value[ K ] > ] {
+	const [ query, mutation ] = hook;
+	const [ isPending, setIsPending ] = React.useState( false );
+	const [ isError, setIsError ] = React.useState( false );
+	const [ isSuccess, setIsSuccess ] = React.useState( false );
+	const [ error, setError ] = React.useState< unknown >( null );
+
+	const mutate = ( newValue: Value[ K ] ) => {
+		if ( ! query.data ) {
+			return;
+		}
+		setIsPending( true );
+		mutation.mutate( {
+			...query.data,
+			[ key ]: newValue,
+		} );
+	};
+
+	useEffect( () => {
+		if ( ! isPending ) {
+			return;
+		}
+		setIsError( mutation.isError );
+		setIsSuccess( mutation.isSuccess );
+		setError( mutation.error );
+		if ( mutation.isSuccess || mutation.isError ) {
+			setIsPending( false );
+		}
+	}, [ mutation.isError, mutation.error, mutation.isSuccess, isPending ] );
+
+	return [
+		query.data?.[ key ],
+		{
+			isSuccess,
+			isPending,
+			isError,
+			error,
+			mutate,
+		},
+	];
 }

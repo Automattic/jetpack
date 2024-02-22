@@ -43,6 +43,10 @@ if ( ! defined( 'JETPACK_BOOST_PLUGIN_BASE' ) ) {
 	define( 'JETPACK_BOOST_PLUGIN_BASE', plugin_basename( __FILE__ ) );
 }
 
+if ( ! defined( 'JETPACK_BOOST_PLUGIN_FILENAME' ) ) {
+	define( 'JETPACK_BOOST_PLUGIN_FILENAME', basename( __FILE__ ) );
+}
+
 if ( ! defined( 'JETPACK_BOOST_REST_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_REST_NAMESPACE', 'jetpack-boost/v1' );
 }

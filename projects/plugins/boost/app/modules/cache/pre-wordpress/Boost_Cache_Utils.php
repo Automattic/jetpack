@@ -18,7 +18,7 @@ class Boost_Cache_Utils {
 	 * @return bool|WP_Error
 	 */
 	public static function delete_directory( $path, $type ) {
-		error_log( "delete directory: $path $type" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		Logger::debug( "delete directory: $path $type" );
 		$path = realpath( $path );
 		if ( ! $path ) {
 			// translators: %s is the directory that does not exist.
@@ -40,10 +40,10 @@ class Boost_Cache_Utils {
 				$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ) );
 				foreach ( $iterator as $file ) {
 					if ( $file->isDir() ) {
-						error_log( 'rmdir: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+						Logger::debug( 'rmdir: ' . $file->getPathname() );
 						@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 					} else {
-						error_log( 'unlink: ' . $file->getPathname() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+						Logger::debug( 'unlink: ' . $file->getPathname() );
 						@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 					}
 				}
@@ -54,7 +54,7 @@ class Boost_Cache_Utils {
 				foreach ( $files as $file ) {
 					$file = $path . '/' . $file;
 					if ( is_file( $file ) ) {
-						error_log( "unlink: $file" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+						Logger::debug( "unlink: $file" );
 						@unlink( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink
 					}
 				}
