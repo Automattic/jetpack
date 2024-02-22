@@ -28,8 +28,6 @@ class Page_Cache_Setup {
 			}
 		}
 
-		opcache_reset(); // Clear the opcode cache to make the file changes take effect.
-
 		jetpack_boost_ds_set( 'page_cache_error', '' );
 
 		return true;
@@ -97,10 +95,13 @@ $boost_cache->serve();
 ';
 
 		$write_advanced_cache = Filesystem_Utils::write_to_file( $advanced_cache_filename, $contents );
+
 		if ( is_wp_error( $write_advanced_cache ) ) {
 			return new \WP_Error( 'unable-to-write-to-advanced-cache', $write_advanced_cache->get_error_message() );
 		}
-
+		if ( function_exists( 'opcache_invalidate' ) ) {
+			opcache_invalidate( $advanced_cache_filename, true );
+		}
 		return true;
 	}
 
@@ -134,7 +135,9 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		if ( $result === false ) {
 			return new \WP_Error( 'wp-config-not-writable', 'Could not write to wp-config.php' );
 		}
-
+		if ( function_exists( 'opcache_invalidate' ) ) {
+			opcache_invalidate( ABSPATH . 'wp-config.php', true );
+		}
 		return true;
 	}
 
@@ -145,8 +148,6 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	public static function deactivate() {
 		self::delete_advanced_cache();
 		self::delete_wp_cache_constant();
-
-		opcache_reset(); // Clear the opcode cache to make the file changes take effect.
 
 		return true;
 	}
@@ -180,6 +181,9 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		if ( strpos( $content, Page_Cache::ADVANCED_CACHE_SIGNATURE ) !== false ) {
 			wp_delete_file( $advanced_cache_filename );
 		}
+		if ( function_exists( 'opcache_invalidate' ) ) {
+			opcache_invalidate( $advanced_cache_filename, true );
+		}
 	}
 
 	/**
@@ -201,5 +205,8 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		}
 		$content = implode( '', $lines );
 		file_put_contents( ABSPATH . 'wp-config.php', $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		if ( function_exists( 'opcache_invalidate' ) ) {
+			opcache_invalidate( ABSPATH . 'wp-config.php', true );
+		}
 	}
 }
