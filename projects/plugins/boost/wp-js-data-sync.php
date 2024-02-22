@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
@@ -37,7 +38,7 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
  */
 function jetpack_boost_register_option( $key, $parser, $entry = null ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-			->register( $key, $parser, $entry );
+	         ->register( $key, $parser, $entry );
 }
 
 /**
@@ -52,7 +53,7 @@ function jetpack_boost_register_option( $key, $parser, $entry = null ) {
 
 function jetpack_boost_register_action( $key, $action_name, $request_schema, $instance ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-			->register_action( $key, $action_name, $request_schema, $instance );
+	         ->register_action( $key, $action_name, $request_schema, $instance );
 }
 
 /**
@@ -69,8 +70,8 @@ function jetpack_boost_register_readonly_option( $key, $callback ) {
  */
 function jetpack_boost_ds_entry( $key ) {
 	return Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-					->get_registry()
-					->get_entry( $key );
+	                ->get_registry()
+	                ->get_entry( $key );
 }
 
 function jetpack_boost_ds_get( $key ) {
@@ -355,10 +356,10 @@ jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback
 jetpack_boost_register_option(
 	'page_cache_error',
 	Schema::as_string()
-		->nullable()
+	      ->nullable()
 );
 
-jetpack_boost_register_action( 'page_cache_error', 'run-page-cache-setup', Schema::as_void(), new Run_Setup() );
+jetpack_boost_register_action( 'page_cache', 'run-setup', Schema::as_void(), new Run_Setup() );
 
 jetpack_boost_register_option(
 	'page_cache',
