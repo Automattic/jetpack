@@ -190,6 +190,7 @@ class Initializer {
 			)
 		);
 		$modules             = new Modules();
+		$connection          = new Connection_Manager();
 		$speed_score_history = new Speed_Score_History( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
 		wp_localize_script(
 			'my_jetpack_main_app',
@@ -217,8 +218,8 @@ class Initializer {
 				'userIsNewToJetpack'     => self::is_jetpack_user_new(),
 				'lifecycleStats'         => array(
 					'jetpackPlugins'  => self::get_installed_jetpack_plugins(),
-					'isSiteConnected' => self::is_site_connected(),
-					'isUserConnected' => self::is_user_connected(),
+					'isSiteConnected' => $connection->is_connected(),
+					'isUserConnected' => $connection->is_user_connected(),
 					'purchases'       => self::get_purchases(),
 					'modules'         => self::get_active_modules(),
 					'features'        => self::get_active_features(),
@@ -323,26 +324,6 @@ class Initializer {
 		$features_json = json_decode( $payload->data['data'] );
 
 		return $features_json->active;
-	}
-
-	/**
-	 * Determine if this Jetpack site is connected to our backend
-	 *
-	 * @return bool
-	 */
-	public static function is_site_connected() {
-		$connection = new Connection_Manager();
-		return $connection->is_connected();
-	}
-
-	/**
-	 * Determine if this Jetpack site has a user connected
-	 *
-	 * @return bool
-	 */
-	public static function is_user_connected() {
-		$connection = new Connection_Manager();
-		return $connection->is_user_connected();
 	}
 
 	/**
