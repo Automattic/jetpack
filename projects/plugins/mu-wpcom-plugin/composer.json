@@ -4,8 +4,7 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-mu-wpcom": "@dev",
-		"automattic/scheduled-updates": "@dev"
+		"automattic/jetpack-mu-wpcom": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
@@ -47,6 +46,6 @@
 		]
 	},
 	"config": {
-		"autoloader-suffix": "d9d132a783958a00a2c7cccff60ca42d_jetpack_mu_wpcom_pluginⓥ2_1_0_alpha"
+		"autoloader-suffix": "d9d132a783958a00a2c7cccff60ca42d_jetpack_mu_wpcom_pluginⓥ2_0_24_alpha"
 	}
 }

@@ -1,4 +1,5 @@
-Significance: minor
-Type: added
+Significance: patch
+Type: changed
+Comment: Updated composer.lock.
 
-Add Scheduled Updates package
+
