@@ -60,7 +60,7 @@ class Boost_Cache {
 	 * Serve the cached page if it exists, otherwise start output buffering.
 	 */
 	public function serve() {
-		if ( ! $this->request->is_cacheable() ) {
+		if ( ! $this->settings->get_enabled() || ! $this->request->is_cacheable() ) {
 			return;
 		}
 
