@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import Card from 'components/card';
 import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -12,7 +13,7 @@ import React, { Component } from 'react';
 export const Monitor = withModuleSettingsFormHelpers(
 	class extends Component {
 		trackConfigureClick = () => {
-			analytics.tracks.recordJetpackClick( 'configure-monitor' );
+			analytics.tracks.recordJetpackClick( 'configure-monitor-email' );
 		};
 
 		render() {
@@ -48,26 +49,23 @@ export const Monitor = withModuleSettingsFormHelpers(
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ __(
-									'Get alerts if your site goes offline. We’ll let you know when it’s back up, too.',
-									'jetpack'
+								{ createInterpolateElement(
+									__(
+										'Get alerts if your site goes offline. Alerts are sent to your <a>WordPress.com account</a> email address.',
+										'jetpack'
+									),
+									{
+										a: (
+											<ExternalLink
+												href="https://wordpress.com/me/account"
+												onClick={ this.trackConfigureClick }
+											/>
+										),
+									}
 								) }
 							</span>
 						</ModuleToggle>
 					</SettingsGroup>
-					{ hasConnectedOwner && (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							onClick={ this.trackConfigureClick }
-							href={ getRedirectUrl( 'calypso-settings-security', {
-								site: this.props.blogID ?? this.props.siteRawUrl,
-							} ) }
-							target="_blank"
-						>
-							{ __( 'Configure your notification settings', 'jetpack' ) }
-						</Card>
-					) }
 
 					{ ! hasConnectedOwner && ! isOfflineMode && (
 						<ConnectUserBar

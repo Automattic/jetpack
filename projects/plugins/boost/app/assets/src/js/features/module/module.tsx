@@ -2,6 +2,8 @@ import { ToggleControl } from '@automattic/jetpack-components';
 import { useEffect } from 'react';
 import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
+import ErrorBoundary from '$features/error-boundary/error-boundary';
+import { __ } from '@wordpress/i18n';
 
 type ModuleProps = {
 	title: React.ReactNode;
@@ -75,4 +77,22 @@ const Module = ( {
 	);
 };
 
-export default Module;
+export default ( props: ModuleProps ) => {
+	return (
+		<ErrorBoundary
+			fallback={
+				<div>
+					<div className={ styles.content }>
+						<h3>{ props.title }</h3>
+
+						<div className={ styles.description }>
+							{ __( `Failed to load module.`, 'jetpack-boost' ) }
+						</div>
+					</div>
+				</div>
+			}
+		>
+			<Module { ...props } />
+		</ErrorBoundary>
+	);
+};

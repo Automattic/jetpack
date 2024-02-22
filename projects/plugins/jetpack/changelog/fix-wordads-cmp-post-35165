@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WordAds: ensure the new CMP banner can be loaded in production environments.

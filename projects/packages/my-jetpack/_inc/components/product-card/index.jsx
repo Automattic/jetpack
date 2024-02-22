@@ -18,7 +18,7 @@ export const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ABSENT ]: __( 'Inactive', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ]: __( 'Needs Plugin', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ERROR ]: __( 'Needs connection', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.CAN_UPGRADE ]: __( 'Active', 'jetpack-my-jetpack' ),
 };
@@ -215,12 +215,16 @@ const ProductCard = props => {
 	/**
 	 * Calls the passed function onActivate after firing Tracks event
 	 */
-	const activateHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
-			product: slug,
-		} );
-		onActivate();
-	}, [ slug, onActivate, recordEvent ] );
+	const activateHandler = useCallback(
+		event => {
+			event.preventDefault();
+			recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
+				product: slug,
+			} );
+			onActivate();
+		},
+		[ slug, onActivate, recordEvent ]
+	);
 
 	/**
 	 * Calls the passed function onAdd after firing Tracks event
@@ -261,22 +265,30 @@ const ProductCard = props => {
 	/**
 	 * Use a Tracks event to count a standalone plugin install request
 	 */
-	const installStandaloneHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
-			product: slug,
-		} );
-		onInstallStandalone();
-	}, [ slug, onInstallStandalone, recordEvent ] );
+	const installStandaloneHandler = useCallback(
+		event => {
+			event.preventDefault();
+			recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
+				product: slug,
+			} );
+			onInstallStandalone();
+		},
+		[ slug, onInstallStandalone, recordEvent ]
+	);
 
 	/**
 	 * Use a Tracks event to count a standalone plugin activation request
 	 */
-	const activateStandaloneHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_activate_standalone_plugin_click', {
-			product: slug,
-		} );
-		onActivateStandalone();
-	}, [ slug, onActivateStandalone, recordEvent ] );
+	const activateStandaloneHandler = useCallback(
+		event => {
+			event.preventDefault();
+			recordEvent( 'jetpack_myjetpack_product_card_activate_standalone_plugin_click', {
+				product: slug,
+			} );
+			onActivateStandalone();
+		},
+		[ slug, onActivateStandalone, recordEvent ]
+	);
 
 	/**
 	 * Use a Tracks event to count a standalone plugin deactivation menu click
@@ -325,6 +337,7 @@ const ProductCard = props => {
 						onFixConnection={ fixConnectionHandler }
 						onManage={ manageHandler }
 						onAdd={ addHandler }
+						onInstall={ installStandaloneHandler }
 						onLearnMore={ learnMoreHandler }
 						className={ styles.button }
 						additionalActions={ additionalActions }

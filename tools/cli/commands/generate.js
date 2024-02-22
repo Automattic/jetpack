@@ -172,12 +172,21 @@ export function getQuestions( type ) {
 					value: 'development',
 				},
 			],
+			skip() {
+				if ( type === 'js-packages' ) {
+					// https://github.com/enquirer/enquirer/issues/298
+					this.state._choices = this.state.choices;
+					return true;
+				}
+				return false;
+			},
 		},
 		{
 			type: 'confirm',
 			name: 'wordbless',
 			message: 'Do you plan to use WordPress core functions in your PHPUnit tests?',
 			initial: false,
+			skip: type === 'js-packages',
 		},
 		{
 			type: 'confirm',
@@ -187,7 +196,38 @@ export function getQuestions( type ) {
 		},
 	];
 	const packageQuestions = [];
-	const jsPackageQuestions = [];
+	const jsPackageQuestions = [
+		{
+			type: 'select',
+			name: 'typescript',
+			message: 'Which best describes this package?',
+			choices: [
+				{
+					message: 'This JS-only package will be source-only, no bundling or minification.',
+					value: 'js-src',
+				},
+				{
+					message:
+						'This JS-only package will contain pre-built code, bundled and minified using webpack.',
+					value: 'js-webpack',
+				},
+				{
+					message: 'This TypeScript package will be source-only, no built version.',
+					value: 'ts-src',
+				},
+				{
+					message:
+						'This TypeScript package will contain pre-built code, bundled and minified using webpack.',
+					value: 'ts-webpack',
+				},
+				{
+					message:
+						'This TypeScript package will contain pre-built code, built using tsc (no bundling or minification).',
+					value: 'ts-tsc',
+				},
+			],
+		},
+	];
 	const pluginQuestions = [
 		{
 			type: 'select',
@@ -305,6 +345,7 @@ export async function generateProject(
 			);
 			break;
 		case 'js-package':
+			generateJsPackage( answers, projDir );
 			break;
 		case 'plugin':
 			generatePlugin( answers, projDir );
@@ -416,6 +457,110 @@ function generatePlugin( answers, pluginDir ) {
 }
 
 /**
+ * Generate js-package files
+ *
+ * @param {object} answers - Answers from questions.
+ * @param {string} pkgDir - Github action directory path.
+ */
+function generateJsPackage( answers, pkgDir ) {
+	const ts = answers.typescript.startsWith( 'ts' );
+	let filename, opts, xtends;
+
+	if ( ts ) {
+		filename = 'tsconfig.json';
+		opts = {
+			typeRoots: [ './node_modules/@types/', 'src/*' ],
+			outDir: './build/',
+		};
+		switch ( answers.typescript ) {
+			case 'ts-src':
+				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.base.json",';
+				break;
+			case 'ts-webpack':
+				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",';
+				break;
+			case 'ts-tsc':
+				xtends = '\n\t"extends": "jetpack-js-tools/tsconfig.tsc.json",';
+				break;
+		}
+
+		fs.renameSync( path.join( pkgDir, '/src/index.jsx' ), path.join( pkgDir, '/src/index.ts' ) );
+	} else {
+		filename = 'jsconfig.json';
+		opts = {
+			jsx: 'react',
+		};
+		xtends = '';
+	}
+	writeToFile(
+		path.join( pkgDir, filename ),
+		`{${ xtends }
+			"compilerOptions": ${ JSON.stringify( opts, null, '\t' ).replace( /\n/g, '\n\t\t\t' ) },
+			// List all sources and source-containing subdirs.
+			"include": [ "./src" ]
+		}
+		`.replace( /^\t\t/gm, '' )
+	);
+
+	if ( answers.typescript.endsWith( '-webpack' ) ) {
+		writeToFile(
+			pkgDir + '/webpack.config.cjs',
+			`const path = require( 'path' );
+			const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+
+			module.exports = {
+				entry: './src/index.${ ts ? 'ts' : 'jsx' }',
+				mode: jetpackWebpackConfig.mode,
+				devtool: jetpackWebpackConfig.devtool,
+				output: {
+					...jetpackWebpackConfig.output,
+					path: path.resolve( __dirname, 'build' ),
+				},
+				optimization: {
+					...jetpackWebpackConfig.optimization,
+				},
+				resolve: {
+					...jetpackWebpackConfig.resolve,
+				},
+				module: {
+					strictExportPresence: true,
+					rules: [
+						// ${ ts ? 'Transpile JavaScript and TypeScript' : 'Transpile JavaScript' }
+						jetpackWebpackConfig.TranspileRule( {
+							exclude: /node_modules\\//,
+						} ),
+
+						// Transpile @automattic/jetpack-* in node_modules too.
+						jetpackWebpackConfig.TranspileRule( {
+							includeNodeModules: [ '@automattic/jetpack-' ],
+						} ),
+
+						// Handle CSS.
+						jetpackWebpackConfig.CssRule(),
+
+						// Handle images.
+						jetpackWebpackConfig.FileRule(),
+					],
+				},
+				plugins: [${
+					ts
+						? `
+					...jetpackWebpackConfig.StandardPlugins( {
+						// Generate \`.d.ts\` files per tsconfig settings.
+						ForkTSCheckerPlugin: {},
+					} ),
+				`
+						: `
+					...jetpackWebpackConfig.StandardPlugins(),
+				`
+				}],
+			};
+			`.replace( /^\t\t\t/gm, '' )
+		);
+	}
+}
+
+/**
  * Generate github action files
  *
  * @param {object} answers - Answers from questions.
@@ -478,8 +623,10 @@ function createPackageJson( packageJson, answers ) {
 			.join( ' ' );
 
 	if ( answers.type === 'js-package' ) {
+		const ts = answers.typescript.startsWith( 'ts' );
+
 		packageJson.exports = {
-			'.': './index.jsx',
+			'.': `./src/index.${ ts ? 'ts' : 'jsx' }`,
 			'./state': './src/state',
 			'./action-types': './src/state/action-types',
 		};
@@ -487,15 +634,45 @@ function createPackageJson( packageJson, answers ) {
 			test: 'jest tests',
 		};
 
-		// Extract the version of jest currently in use for the dependency.
-		const yamlFile = yaml.load(
-			fs.readFileSync( new URL( '../../../pnpm-lock.yaml', import.meta.url ), 'utf8' )
-		);
-		const jestVersion = Object.keys( yamlFile.packages ).reduce( ( value, cur ) => {
-			const ver = cur.match( /^\/jest\/([^_]+)/ )?.[ 1 ];
-			return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
-		}, null );
-		packageJson.devDependencies.jest = jestVersion || '*';
+		packageJson.devDependencies.jest = findVersionFromPnpmLock( 'jest' );
+
+		if ( answers.typescript.endsWith( '-webpack' ) ) {
+			packageJson.devDependencies[ '@automattic/jetpack-webpack-config' ] = 'workspace:*';
+			packageJson.devDependencies.webpack = findVersionFromPnpmLock( 'webpack' );
+			packageJson.devDependencies[ 'webpack-cli' ] = findVersionFromPnpmLock( 'webpack-cli' );
+			packageJson.scripts = {
+				...packageJson.scripts,
+				build: 'pnpm run clean && pnpm exec webpack',
+				clean: 'rm -rf build/',
+			};
+			packageJson.exports = {
+				'.': {
+					'jetpack:src': './src/index.' + ( ts ? 'ts' : 'jsx' ),
+					types: ts ? './build/index.d.ts' : undefined,
+					default: './build/index.js',
+				},
+			};
+		}
+		if ( ts ) {
+			packageJson.devDependencies.typescript = findVersionFromPnpmLock( 'typescript' );
+			if ( answers.typescript === 'ts-tsc' ) {
+				packageJson.scripts = {
+					...packageJson.scripts,
+					build: 'pnpm run clean && pnpm exec tsc --pretty',
+					clean: 'rm -rf build/',
+				};
+				packageJson.exports = {
+					'.': {
+						'jetpack:src': './src/index.ts',
+						types: './build/index.d.ts',
+						default: './build/index.js',
+					},
+				};
+			}
+		}
+
+		packageJson.devDependencies = sortByKey( packageJson.devDependencies );
+		packageJson.scripts = sortByKey( packageJson.scripts );
 	}
 }
 
@@ -572,10 +749,24 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.extra.changelogger.versioning = answers.versioningMethod;
 			break;
 		case 'js-package':
+			delete composerJson[ 'require-dev' ][ 'yoast/phpunit-polyfills' ];
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
 			};
+			if ( ! answers.typescript.endsWith( '-src' ) ) {
+				composerJson.scripts = {
+					...composerJson.scripts,
+					'build-development': [ 'pnpm run build' ],
+					'build-production': [ 'NODE_ENV=production pnpm run build' ],
+				};
+			}
+			break;
 	}
+
+	if ( composerJson.extra ) {
+		composerJson.extra = sortByKey( composerJson.extra );
+	}
+	composerJson.scripts = sortByKey( composerJson.scripts );
 }
 
 /**
@@ -760,7 +951,7 @@ function createReadMeTxt( answers ) {
 		'Tags: jetpack, stuff\n' +
 		'Requires at least: 6.3\n' +
 		'Requires PHP: 7.0\n' +
-		'Tested up to: 6.4\n' +
+		'Tested up to: 6.5\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
@@ -801,4 +992,41 @@ function writeToFile( file, content ) {
 	} catch ( err ) {
 		console.error( chalk.red( `Ah, couldn't write to the file.` ), err );
 	}
+}
+
+/**
+ * Find JS package version from pnpm-lock.
+ *
+ * @param {string} pkg - package we're looking for.
+ * @returns {string} Version number or '*'
+ */
+function findVersionFromPnpmLock( pkg ) {
+	if ( ! findVersionFromPnpmLock.packages ) {
+		findVersionFromPnpmLock.packages = yaml.load(
+			fs.readFileSync( new URL( '../../../pnpm-lock.yaml', import.meta.url ), 'utf8' )
+		).packages;
+	}
+
+	const version = Object.keys( findVersionFromPnpmLock.packages ).reduce( ( value, cur ) => {
+		if ( ! cur.startsWith( '/' + pkg + '@' ) ) {
+			return value;
+		}
+		const ver = cur.substring( pkg.length + 2 ).replace( /\(.*/, '' );
+		return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
+	}, null );
+	return version || '*';
+}
+
+/**
+ * Sort a JS object by key.
+ *
+ * @param {object} obj - input object
+ * @returns {object} sorted object
+ */
+function sortByKey( obj ) {
+	const ret = {};
+	for ( const k of Object.keys( obj ).sort() ) {
+		ret[ k ] = obj[ k ];
+	}
+	return ret;
 }

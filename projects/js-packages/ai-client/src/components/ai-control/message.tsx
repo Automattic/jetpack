@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
 	warning,
@@ -79,6 +79,38 @@ export function GuidelineMessage(): React.ReactElement {
 				),
 				{
 					link: <ExternalLink href="https://automattic.com/ai-guidelines" />,
+				}
+			) }
+		</Message>
+	);
+}
+
+/**
+ * React component to render a upgrade message.
+ *
+ * @param {number} requestsRemaining - Number of requests remaining.
+ * @returns {React.ReactElement } - Message component.
+ */
+export function UpgradeMessage( {
+	requestsRemaining,
+	onUpgradeClick,
+}: {
+	requestsRemaining: number;
+	onUpgradeClick: () => void;
+} ): React.ReactElement {
+	return (
+		<Message severity={ MESSAGE_SEVERITY_INFO }>
+			{ createInterpolateElement(
+				sprintf(
+					// translators: %1$d: number of requests remaining
+					__(
+						'You have %1$d free requests remaining. <link>Upgrade</link> and avoid interruptions',
+						'jetpack-ai-client'
+					),
+					requestsRemaining
+				),
+				{
+					link: <Button variant="link" onClick={ onUpgradeClick } />,
 				}
 			) }
 		</Message>

@@ -28,6 +28,11 @@ add_filter(
 			}
 		}
 
+		// On sites with Classic view, don't override the dashboard link.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			return $settings;
+		}
+
 		if ( ! empty( $_GET['wp_theme_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			// Point the `<` link to the theme showcase when previewing a theme.
 			$settings['__experimentalDashboardLink'] = $calypso_origin . '/themes/' . wpcom_get_site_slug();

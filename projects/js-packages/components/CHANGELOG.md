@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.48.3] - 2024-02-19
+### Added
+- Added support for annotations in graph [#34978]
+
 ## [0.48.2] - 2024-02-13
 ### Changed
 - Updated package dependencies. [#35608]
@@ -941,6 +945,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.48.3]: https://github.com/Automattic/jetpack-components/compare/0.48.2...0.48.3
 [0.48.2]: https://github.com/Automattic/jetpack-components/compare/0.48.1...0.48.2
 [0.48.1]: https://github.com/Automattic/jetpack-components/compare/0.48.0...0.48.1
 [0.48.0]: https://github.com/Automattic/jetpack-components/compare/0.47.0...0.48.0

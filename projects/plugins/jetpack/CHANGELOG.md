@@ -2,6 +2,64 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.2-a.7 - 2024-02-19
+### Enhancements
+- Added custom message textarea to send a message via email when adding new users [#35277]
+- Add images while publishing on the web via the jetpack app [#35583]
+- Add some extra margin around Stats settings toggles [#35720]
+- Add support for Email stats [#35703]
+- Comment: Add Goodreads embed block in Gutenberg. [#33395]
+- SSO: Add user invite revoke row action in users table [#35277]
+- SSO: improve messaging and account binding between local and wp.com users [#35277]
+- SSO: Updated column heading and row background color when invitation is pending. [#35277]
+- SSO: When creating a new users, mail the users with an invitation to WPCom. [#35277]
+- We added the Welcome Email Message setting to Newsletter settings [#35621]
+
+### Improved compatibility
+- Add 'if_not_modified_since' to the update post endpoints this will help clients fails if the post has been updated since last retrieved [#35526]
+- Add support for WP Super Cache and Boost Cache [#35598]
+
+### Bug fixes
+- Jetpack Google Fonts: Fix some Google fonts aren't displayed correctly on front end [#35706]
+- Scan: ensure the Admin notice resources are always properly loaded. [#35648]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add caching for user invites [#35277]
+- Added price in blaze/posts endpoint [#35066]
+- Add jetpack_newsletters_publishing_default_frequency to Sync [#35672]
+- Adds a standalone mode indicator to the Firewall settings [#34854]
+- Blaze: display post links for products. [#35730]
+- Email notifications: update from "follows" to "subscribes" [#35755]
+- Fix message translation content [#35277]
+- Improve column by renaming and adding icon [#35277]
+- Jetpack AI: Add transcription post-processing example to Voice-to-Content block. [#35734]
+- Jetpack AI: include audio transcription usage example to Voice-to-Content block. [#35691]
+- Jetpack AI Voice to content: Update to modal UI [#35698]
+- Move user customization to seperate file [#35277]
+- Persist user-new.php custom message form field after submission with errors [#35277]
+- Related Posts: remove duplicated HTML attributes [#35686]
+- Rename status column to sso status and add tooltip [#35277]
+- Replace question mark icon [#35277]
+- SSO: revoke invites sent to users upon users deletion [#35277]
+- Trigger user invitation for new users [#35277]
+- update readme [#35671]
+- Update users table ssorow background colors [#35277]
+- Voice to Content: Add states and refactor duration calculation [#35717]
+
+## 13.1.2 - 2024-02-19
+### Security Improvements
+- Like block: fix XSS vulnerability in avatar URL encoding. [#35747]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Jetpack: readme.txt tweaks. [#35727]
+- Jetpack: redirect to the Jetpack page after multisite activation. [#35559]
+
+## 13.2-a.5 - 2024-02-14
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adds error messaging to endpoint when connected account for memberships cannot be loaded. [#35564]
+- Like block: Update block's Learn more link logic [#35641]
+- Make Jetpack redirect to the Jetpack page after multisite activation. [#35559]
+
 ## 13.2-a.3 - 2024-02-13
 ### Enhancements
 - Blaze: remove "Promote with Blaze" links appearing in the Posts list when the Blaze feature is enabled. You can still go to Tools > Advertising to create and manage Blaze campaigns on your site. [#35586]

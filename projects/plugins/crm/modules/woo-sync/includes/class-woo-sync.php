@@ -463,7 +463,6 @@ class Woo_Sync {
 
 	}
 
-
 	/**
 	 * Include filter buttons
 	 * (Note, requires `contact_query_quickfilter_addition()` to be hooked into `jpcrm_contact_query_quickfilter`)
@@ -882,26 +881,39 @@ class Woo_Sync {
 			}
 		}
 
-		if ( $invoice_id > 0 ) {
-
-			$api = $this->get_invoice_meta( $invoice_id, 'api' );
-			$order_post_id = $this->get_invoice_meta( $invoice_id, 'order_post_id' );
-
-			// intercept pay button and set to pay via woo checkout
-			if ( empty( $api ) && ! empty( $order_post_id ) ) {
-				remove_filter( 'invoicing_pro_paypal_button', 'zeroBSCRM_paypalbutton', 1 );
-				remove_filter( 'invoicing_pro_stripe_button', 'zeroBSCRM_stripebutton', 1 );
-				$order        = wc_get_order( $order_post_id );
-				$payment_page = $order->get_checkout_payment_url();
-				$res          = '<h3>' . __( 'Pay Invoice', 'zero-bs-crm' ) . '</h3>';
-				$res         .= '<a href="' . esc_url( $payment_page ) . '" class="ui button btn">' . __( 'Pay Now', 'zero-bs-crm' ) . '</a>';
-
-				return $res;
-			}
-
-			return $invoice_id;
-			
+		// blatantly wrong invoice ID
+		if ( $invoice_id <= 0 ) {
+			return false;
 		}
+
+		$api = $this->get_invoice_meta( $invoice_id, 'api' );
+		$order_post_id = $this->get_invoice_meta( $invoice_id, 'order_post_id' );
+
+		// intercept pay button and set to pay via woo checkout
+		if ( empty( $api ) && ! empty( $order_post_id ) ) {
+			remove_filter( 'invoicing_pro_paypal_button', 'zeroBSCRM_paypalbutton', 1 );
+			remove_filter( 'invoicing_pro_stripe_button', 'zeroBSCRM_stripebutton', 1 );
+			$order        = wc_get_order( $order_post_id );
+
+			// Order no longer exists (probably deleted).
+			if ( ! $order ) {
+				// show an error if an invoice admin
+				if ( zeroBSCRM_permsInvoices() ) {
+					$admin_alert  = '<b>' . esc_html__( 'Admin note', 'zero-bs-crm' ) . ':</b> ';
+					$admin_alert .= esc_html__( 'WooCommerce order no longer exists, so unable to generate payment link.', 'zero-bs-crm' );
+					return $admin_alert;
+				} else {
+					return false;
+				}
+			}
+			$payment_page = $order->get_checkout_payment_url();
+			$res          = '<h3>' . __( 'Pay Invoice', 'zero-bs-crm' ) . '</h3>';
+			$res         .= '<a href="' . esc_url( $payment_page ) . '" class="ui button btn">' . __( 'Pay Now', 'zero-bs-crm' ) . '</a>';
+
+			return $res;
+		}
+
+		return $invoice_id;
 
 	}
 
@@ -909,7 +921,9 @@ class Woo_Sync {
 
 	/**
 	 * Append WooCommerce products to CRM product index (used on invoice editor)
-	 *  Applied via filter `zbs_invpro_productindex`
+	 * Applied via filter `zbs_invpro_productindex`
+	 *
+	 * This is not HPOS-friendly and will need a rework prior to enabling.
 	 *
 	 * @param array $crm_product_index
 	 */

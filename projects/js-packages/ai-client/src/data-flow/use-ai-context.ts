@@ -5,13 +5,13 @@ import { useCallback, useContext, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { ERROR_RESPONSE, RequestingErrorProps } from '../types';
-import { AiDataContext } from '.';
+import { ERROR_RESPONSE, RequestingErrorProps } from '../types.js';
+import { AiDataContext } from './index.js';
 /**
  * Types & constants
  */
-import type { AiDataContextProps } from './context';
-import type { AskQuestionOptionsArgProps } from '../ask-question';
+import type { AiDataContextProps } from './context.js';
+import type { AskQuestionOptionsArgProps } from '../ask-question/index.js';
 
 export type UseAiContextOptions = {
 	/*

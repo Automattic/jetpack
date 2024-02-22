@@ -167,6 +167,7 @@ class Defaults {
 		'videopress_private_enabled_for_site',
 		'wordads_ccpa_enabled',
 		'wordads_ccpa_privacy_policy_url',
+		'wordads_cmp_enabled',
 		'wordads_custom_adstxt',
 		'wordads_custom_adstxt_enabled',
 		'wordads_display_archive',
@@ -195,6 +196,7 @@ class Defaults {
 		'jetpack_verbum_subscription_modal',
 		'jetpack_blocks_disabled',
 		'jetpack_package_versions',
+		'jetpack_newsletters_publishing_default_frequency',
 	);
 
 	/**

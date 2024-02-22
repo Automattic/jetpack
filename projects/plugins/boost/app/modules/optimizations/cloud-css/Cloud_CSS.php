@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
@@ -15,7 +16,7 @@ use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
 
-class Cloud_CSS implements Pluggable, Has_Endpoints {
+class Cloud_CSS implements Pluggable, Has_Endpoints, Changes_Page_Output {
 
 	/**
 	 * Critical CSS storage class instance.
@@ -39,8 +40,8 @@ class Cloud_CSS implements Pluggable, Has_Endpoints {
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
+		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'handle_critical_css_invalidated' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
-		add_filter( 'critical_css_invalidated', array( $this, 'handle_critical_css_invalidated' ) );
 		add_filter( 'query_vars', array( '\Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator', 'add_generate_query_action_to_list' ) );
 
 		Generator::init();

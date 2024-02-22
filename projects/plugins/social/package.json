@@ -49,6 +49,7 @@
 		"@babel/core": "7.23.5",
 		"@babel/preset-env": "7.23.5",
 		"@babel/runtime": "7.23.5",
+		"@csstools/postcss-global-data": "2.1.1",
 		"@testing-library/dom": "9.3.4",
 		"@testing-library/react": "14.2.0",
 		"@types/react": "18.2.33",

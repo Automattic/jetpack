@@ -55,6 +55,15 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 			return true;
 		};
 
+		updateFormStateAndSaveOptionValue = ( optionMaybeOptions, optionValue = undefined ) => {
+			if ( 'string' === typeof optionMaybeOptions ) {
+				optionMaybeOptions = { [ optionMaybeOptions ]: optionValue };
+			}
+			this.props.updateOptions( { ...this.state.options, ...optionMaybeOptions } ).then( () => {
+				this.setState( { options: { ...this.state.options, ...optionMaybeOptions } } );
+			} );
+		};
+
 		/**
 		 * Receives an option and the module it depends on.
 		 * If the module is active, only the option is added to the list of form values to send.
@@ -199,12 +208,14 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 					onSubmit={ this.onSubmit }
 					onOptionChange={ this.onOptionChange }
 					updateFormStateOptionValue={ this.updateFormStateOptionValue }
+					updateFormStateAndSaveOptionValue={ this.updateFormStateAndSaveOptionValue }
 					toggleModuleNow={ this.toggleModuleNow }
 					updateFormStateModuleOption={ this.updateFormStateModuleOption }
 					shouldSaveButtonBeDisabled={ this.shouldSaveButtonBeDisabled }
 					isSavingAnyOption={ this.isSavingAnyOption }
 					isDirty={ this.isDirty }
 					resetFormStateOption={ this.resetFormStateOption }
+					optionsState={ this.state.options }
 					{ ...this.props }
 				/>
 			);

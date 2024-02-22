@@ -261,6 +261,27 @@ class Boost extends Product {
 	}
 
 	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_paid_plan_for_product() {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				// Boost is available as standalone bundle and as part of the Complete plan.
+				if ( strpos( $purchase->product_slug, 'jetpack_boost' ) !== false || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string

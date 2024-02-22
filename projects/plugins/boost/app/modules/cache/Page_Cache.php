@@ -2,16 +2,14 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
-
-/*
- * This code is shared between the autoloaded Module and advanced-cache.php loaded code.
- */
-require_once __DIR__ . '/Boost_Cache_Utils.php';
-require_once __DIR__ . '/Boost_Cache_Settings.php';
-require_once __DIR__ . '/Page_Cache_Setup.php';
+use Automattic\Jetpack_Boost\Modules\Modules_Index;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
+use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 
 class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	/*
@@ -30,7 +28,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	const ADVANCED_CACHE_VERSION = 'v0.0.2';
 
 	/*
-	 * @var array - The settings for the page cache.
+	 * @var Boost_Cache_Settings - The settings for the page cache.
 	 */
 	private $settings;
 
@@ -40,13 +38,48 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 		register_uninstall_hook( JETPACK_BOOST_PATH, array( Page_Cache_Setup::class, 'uninstall' ) );
 	}
 
-	public function setup() {}
+	public function setup() {
+		Garbage_Collection::setup();
+
+		add_action( 'jetpack_boost_module_status_updated', array( $this, 'handle_module_status_updated' ), 10, 2 );
+		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'invalidate_cache' ) );
+		add_action( 'jetpack_boost_critical_css_generated', array( $this, 'invalidate_cache' ) );
+	}
+
+	/**
+	 * Handles the module status updated event.
+	 *
+	 * @param string $module_slug The slug of the module that was updated.
+	 */
+	public function handle_module_status_updated( $module_slug, $status ) {
+		// Get a list of modules that can change the HTML output.
+		$output_changing_modules = Modules_Index::get_modules_implementing( Changes_Page_Output::class );
+
+		// Special case: don't clear when enabling Critical or Cloud CSS, as they will
+		// be handled after generation.
+		if ( $status === true ) {
+			unset( $output_changing_modules['critical_css'] );
+			unset( $output_changing_modules['cloud_css'] );
+		}
+
+		$slugs = array_keys( $output_changing_modules );
+
+		if ( in_array( $module_slug, $slugs, true ) ) {
+			$this->invalidate_cache();
+		}
+	}
+
+	public function invalidate_cache() {
+		$cache = new Boost_Cache();
+		$cache->get_storage()->invalidate( home_url(), Boost_Cache_Utils::DELETE_ALL );
+	}
 
 	/**
 	 * Runs the setup when the feature is activated.
 	 */
 	public static function activate() {
 		Page_Cache_Setup::run_setup();
+		Garbage_Collection::activate();
 	}
 
 	/**
@@ -54,6 +87,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	 */
 	public static function deactivate() {
 		Page_Cache_Setup::deactivate();
+		Garbage_Collection::deactivate();
 	}
 
 	public static function is_available() {
