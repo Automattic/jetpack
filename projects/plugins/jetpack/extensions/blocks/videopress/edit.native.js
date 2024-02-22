@@ -170,7 +170,7 @@ class VideoPressEdit extends Component {
 			setAttributes( { url: payload.mediaUrl } );
 		}
 		if ( ! this.state.isUploadInProgress ) {
-			this.setState( { isUploadInProgress: true } );
+			this.setState( { isUploadInProgress: true, isUploadFailed: false } );
 		}
 	}
 
