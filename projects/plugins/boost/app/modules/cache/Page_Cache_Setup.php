@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
-use Automattic\Jetpack\IdentityCrisis\Exception;
 use Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 
@@ -85,7 +84,7 @@ class Page_Cache_Setup {
 			}
 		}
 
-		$plugin_dir_name = untrailingslashit( str_replace( JETPACK_BOOST_PLUGIN_FILENAME, '', JETPACK_BOOST_PLUGIN_BASE ) );
+		$plugin_dir_name      = untrailingslashit( str_replace( JETPACK_BOOST_PLUGIN_FILENAME, '', JETPACK_BOOST_PLUGIN_BASE ) );
 		$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . $plugin_dir_name . '/app/modules/cache/pre-wordpress/Boost_Cache.php';
 		if ( ! file_exists( $boost_cache_filename ) ) {
 			return new \WP_Error( 'boost-cache-file-not-found', 'Boost_Cache.php not found' );
