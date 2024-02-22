@@ -46,6 +46,12 @@ const MessagesSetting = props => {
 						onChange={ changeWelcomeMessageState }
 					/>
 				</FormLabel>
+				<p className="jp-form-setting-explanation">
+					{ __(
+						'You can use plain text or HTML tags in this textarea for formatting.',
+						'jetpack'
+					) }
+				</p>
 			</SettingsGroup>
 		</SettingsCard>
 	);
