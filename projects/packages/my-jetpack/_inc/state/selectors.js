@@ -151,22 +151,26 @@ const getGuessedSiteLifecycleStatus = state => {
 	const { modules, purchases, features, plugins, isSiteConnected, isUserConnected } =
 		getUserStats( state );
 
-	// 'new' = no purchases or less than 3 features or less than 3 modules
-	if ( purchases.length === 0 || features.length < 3 || modules.length < 3 ) {
-		// 'brand-new' = 'new' + (no user or site connection, or no modules, or only one plugin)
-		if ( ! isUserConnected || ! isSiteConnected || modules.length === 0 || plugins.length === 1 ) {
+	// 'new' = no purchases + less than 3 features + less than 3 modules
+	if ( purchases.length === 0 && features.length < 3 && modules.length < 3 ) {
+		// 'brand-new' = 'new' + (no user or site connection + no modules + only one plugin)
+		if (
+			( ! isUserConnected || ! isSiteConnected ) &&
+			modules.length === 0 &&
+			plugins.length === 1
+		) {
 			return 'brand-new';
 		}
 
 		return 'new';
 	}
 
-	// 'settling-in' = 1 purchase or less than 10 features
-	if ( purchases.length === 1 || features.length < 10 ) {
+	// 'settling-in' = 1 purchase and less than 10 features
+	if ( purchases.length === 1 && features.length < 10 ) {
 		return 'settling-in';
 	}
 
-	// 'established' = 2 or more purchases and 10 or more features
+	// 'established' = 2 or more purchases and 10 or more features and 3 or more modules
 	return 'established';
 };
 
