@@ -41,7 +41,7 @@ function NewsletterCategories( props ) {
 		isUnavailableDueOfflineMode,
 		isUnavailableDueSiteConnectionMode,
 		subscriptionsModule,
-		updateFormStateAndSaveOptionValue,
+		updateFormStateOptionValue,
 		isSavingAnyOption,
 	} = props;
 
@@ -71,16 +71,15 @@ function NewsletterCategories( props ) {
 			} else {
 				newCheckedCategoriesIds = checkedCategoriesIds.filter( category => category !== id );
 			}
-			updateFormStateAndSaveOptionValue( 'wpcom_newsletter_categories', newCheckedCategoriesIds );
+			updateFormStateOptionValue( 'wpcom_newsletter_categories', newCheckedCategoriesIds );
 		},
-		[ checkedCategoriesIds, updateFormStateAndSaveOptionValue ]
+		[ checkedCategoriesIds, updateFormStateOptionValue ]
 	);
 
 	return (
 		<SettingsCard
 			{ ...props }
 			header={ __( 'Newsletter categories', 'jetpack' ) }
-			hideButton
 			module={ SUBSCRIPTIONS_MODULE_NAME }
 		>
 			<SettingsGroup
