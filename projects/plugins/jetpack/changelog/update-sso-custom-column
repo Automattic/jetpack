@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix a bug in showing custom columns in the users table
