@@ -23,14 +23,25 @@ class Scheduled_Updates {
 	 * Initialize the class.
 	 */
 	public static function init() {
-		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-		if ( ! ( method_exists( 'Automattic\Jetpack\Current_Plan', 'supports' ) && Current_Plan::supports( 'scheduled-updates', true ) ) ) {
-			// phpcs:ignore
-			// return; TODO: Uncomment this line when the feature is available.
+		if ( ! ( method_exists( 'Automattic\Jetpack\Current_Plan', 'supports' ) && Current_Plan::supports( 'scheduled-updates' ) ) ) {
+			return;
 		}
+
+		static::load_rest_api_endpoints();
 
 		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'jetpack_run_scheduled_update' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'jetpack_allowlist_scheduled_plugins' ), 10, 2 );
+	}
+
+	/**
+	 * Load the REST API endpoints.
+	 */
+	public static function load_rest_api_endpoints() {
+		if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
+			return;
+		}
+
+		require_once __DIR__ . '/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-update-schedules.php';
 	}
 
 	/**
