@@ -444,7 +444,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		}
 
 		if ( ! empty( $token ) && false === headers_sent() ) {
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
 		}
 	}
 
