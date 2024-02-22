@@ -118,7 +118,7 @@ class File_Storage implements Storage {
 		} elseif ( $type === Boost_Cache_Utils::DELETE_FILE && is_file( $normalized_path ) ) {
 			return Filesystem_Utils::delete_file( $normalized_path );
 		} else {
-			return true; // no cache file or directory to delete.
+			return new \WP_Error( 'no-cache-files-to-delete', 'No cache files to delete.' );
 		}
 	}
 }
