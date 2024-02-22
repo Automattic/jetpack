@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Speed Scores: Added support for annotating points of time in the speed score history graph. [#34978]
 
 ### Changed
+- Image Guide: Removed beta flag [#35846]
 - General: Better error handling for invalid data when running wp-admin pages. [#35361]
 - General: Improved error handling with ErrorBoundary around SpeedScore and Module components. [#35543]
 - General: Indicate compatibility with the upcoming version of WordPress, 6.5. [#35820]
