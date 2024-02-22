@@ -162,6 +162,7 @@ const ProductCard = props => {
 	/**
 	 * Use a Tracks event to count a standalone plugin activation request
 	 */
+	// eslint-disable-next-line no-unused-vars
 	const activateStandaloneHandler = useCallback(
 		event => {
 			event.preventDefault();
@@ -176,6 +177,7 @@ const ProductCard = props => {
 	/**
 	 * Use a Tracks event to count a standalone plugin deactivation click
 	 */
+	// eslint-disable-next-line no-unused-vars
 	const deactivateStandaloneHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_deactivate_standalone_plugin_click', {
 			product: slug,
