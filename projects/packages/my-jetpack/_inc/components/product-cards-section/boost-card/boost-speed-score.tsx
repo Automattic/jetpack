@@ -6,7 +6,7 @@ import {
 import { Spinner, BoostScoreBar } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect, useState } from 'react';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
@@ -19,7 +19,7 @@ const BoostSpeedScore: FC = () => {
 	const { recordEvent } = useAnalytics();
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( '' );
-	const [ daysSinceTested, setDaysSinceTested ] = useState( 1 );
+	const [ , setDaysSinceTested ] = useState( 1 );
 	const [ averageSpeedScore, setAverageSpeedScore ] = useState( 0 );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
 	const [ isTooltipVisible, setIsTooltipVisible ] = useState( false );
@@ -76,23 +76,6 @@ const BoostSpeedScore: FC = () => {
 	};
 
 	const tooltipCopy = useBoostTooltipCopy( { speedLetterGrade } );
-
-	// Maybe we'll use this in a follup PR? In the tooltip? TODO: remove me.
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const getSinceTestedText = useCallback( () => {
-		switch ( daysSinceTested ) {
-			case 0:
-				return __( 'Your site was tested in the last 24 hours', 'jetpack-my-jetpack' );
-			case 1:
-				return __( 'Your site was tested yesterday', 'jetpack-my-jetpack' );
-			default:
-				return sprintf(
-					// translators: %s is the number of days since the site was last tested.
-					__( 'Your site was tested %s days ago', 'jetpack-my-jetpack' ),
-					daysSinceTested
-				);
-		}
-	}, [ daysSinceTested ] );
 
 	const handleTooltipMouseEnter = useCallback( () => {
 		setIsTooltipVisible( true );
