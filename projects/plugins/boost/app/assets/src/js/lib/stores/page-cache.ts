@@ -1,8 +1,4 @@
-import {
-	invalidateQuery,
-	useDataSync,
-	useDataSyncAction,
-} from '@automattic/jetpack-react-data-sync-client';
+import { useDataSync, useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
 import { useState } from 'react';
 import { z } from 'zod';
 
@@ -16,9 +12,7 @@ const PageCacheClear = z.object( {
 } );
 
 export function usePageCacheError() {
-	const [ { data } ] = useDataSync( 'jetpack_boost_ds', 'page_cache_error', PageCacheError );
-
-	return data;
+	return useDataSync( 'jetpack_boost_ds', 'page_cache_error', PageCacheError );
 }
 
 export function usePageCache() {
@@ -66,10 +60,4 @@ export function useClearPageCacheAction() {
 	} );
 
 	return [ message, action ] as const;
-}
-
-// When page cache is enabled, page cache error needs to be invalidated,
-// so we can get the updated error message from the last setup run.
-export function invalidatePageCacheError() {
-	invalidateQuery( 'page_cache_error' );
 }

@@ -6,9 +6,9 @@ import ErrorBoundary from '$features/error-boundary/error-boundary';
 import ErrorNotice from '$features/error-notice/error-notice';
 
 const PageCache = () => {
-	const pageCacheError = usePageCacheError();
+	const [ pageCacheError ] = usePageCacheError();
 
-	return <>{ pageCacheError ? <Health error={ pageCacheError } /> : <Meta /> }</>;
+	return <>{ pageCacheError.data ? <Health error={ pageCacheError.data } /> : <Meta /> }</>;
 };
 
 export default () => {
