@@ -65,9 +65,13 @@ class Logger {
 	 * Add a debug message to the log file after doing necessary checks.
 	 */
 	public static function debug( $message ) {
+		$settings = Boost_Cache_Settings::get_instance();
+		if ( ! $settings->get_logging() ) {
+			return;
+		}
+
 		$logger = self::get_instance();
 
-		// TODO: Check to make sure that logging is enabled in the settings.
 		// TODO: Check to make sure that current request IP is allowed to create logs.
 
 		if ( ! is_wp_error( $logger ) ) {
