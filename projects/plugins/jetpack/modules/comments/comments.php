@@ -77,42 +77,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		 */
 		do_action_ref_array( 'jetpack_comments_loaded', array( $this ) );
 		add_action( 'after_setup_theme', array( $this, 'set_default_color_theme_based_on_theme_settings' ), 100 );
-		add_action( 'after_setup_theme', array( $this, 'manage_post_cookie' ), 100 );
-	}
-
-	/**
-	 * In order for comments to work properly for password-protected posts we need to set `wp-postpass` cookie to SameSite none.
-	 */
-	public function manage_post_cookie() {
-		if ( empty( $_COOKIE['verbum-wp-postpass'] ) ) {
-			foreach ( $_COOKIE as $name => $value ) {
-				if ( strpos( $name, 'wp-postpass' ) === 0 ) {
-					$expire = apply_filters( 'post_password_expires', time() + 10 * DAY_IN_SECONDS );
-					jetpack_shim_setcookie(
-						$name,
-						$value,
-						array(
-							'expires'  => $expire,
-							'samesite' => 'None',
-							'path'     => '/',
-							'domain'   => COOKIE_DOMAIN,
-							'secure'   => is_ssl(),
-						)
-					);
-					jetpack_shim_setcookie(
-						'verbum-wp-postpass',
-						'1',
-						array(
-							'expires'  => $expire,
-							'samesite' => 'None',
-							'path'     => '/',
-							'domain'   => COOKIE_DOMAIN,
-							'secure'   => is_ssl(),
-						)
-					);
-				}
-			}
-		}
 	}
 
 	/**
@@ -550,6 +514,25 @@ HTML;
 		}
 		?>
 		<script type="text/javascript">
+			<?php
+			$postpass_cookie_key = 'wp-postpass_' . COOKIEHASH;
+
+			if ( ! empty( $_COOKIE[ $postpass_cookie_key ] ) ) {
+//				phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+				$postpass_cookie_value = $_COOKIE[ $postpass_cookie_key ]; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+				$verbum_post_cookie    = ! empty( $_COOKIE['verbum-wp-postpass'] ) ? $_COOKIE['verbum-wp-postpass'] : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+
+				if ( $postpass_cookie_value !== $verbum_post_cookie ) :
+					?>
+					const expireTimeDate = new Date( Date.now() + 10 * 86400000 );
+					document.cookie = "<?php echo $postpass_cookie_key; ?>=<?php echo $postpass_cookie_value; ?>; SameSite=None; Secure=True; path=/;expires=" + expireTimeDate.toGMTString();
+					document.cookie = "verbum-wp-postpass=<?php echo $postpass_cookie_value; ?>; SameSite=None; Secure=True; path=/;expires=" + expireTimeDate.toGMTString();
+					<?php
+				endif;
+//				phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
+			?>
+
 			const iframe = document.getElementById( 'jetpack_remote_comment' );
 			<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
 			const watchReply = function() {
