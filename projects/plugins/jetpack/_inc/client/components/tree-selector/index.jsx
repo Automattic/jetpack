@@ -1,3 +1,5 @@
+import { CheckboxControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import './style.scss';
 import { createFlatTreeItems } from './utils';
@@ -24,8 +26,7 @@ const TreeSelector = props => {
 			className="jp-tree-item"
 			style={ { marginLeft: isSearching ? 0 : item.depth * 25 } }
 		>
-			<input
-				type="checkbox"
+			<CheckboxControl
 				id={ `jp-tree-item-${ item.id }` }
 				name="jp-tree-item"
 				checked={ selectedItems.includes( item.id ) }
@@ -46,7 +47,17 @@ const TreeSelector = props => {
 		</li>
 	) );
 
-	return <ul className="jp-tree-items">{ treeElements }</ul>;
+	return (
+		<ul className="jp-tree-items">
+			{ isSearching && filteredTreeItems.length === 0 ? (
+				<li className="jp-tree-item jp-tree-item__no-results">
+					<span>{ __( 'Nothing found', 'jetpack' ) }</span>
+				</li>
+			) : (
+				treeElements
+			) }
+		</ul>
+	);
 };
 
 export default TreeSelector;

@@ -1,4 +1,4 @@
-import { ToggleControl } from '@automattic/jetpack-components';
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -10,8 +10,9 @@ import {
 	requiresConnection,
 } from 'state/connection';
 import { getModule } from 'state/modules';
+import Card from '../components/card';
 import { withModuleSettingsFormHelpers } from '../components/module-settings/with-module-settings-form-helpers';
-import TreeSelector from '../components/tree-selector';
+import TreeDropdown from '../components/tree-dropdown';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
 const mapCategoriesIds = category => {
@@ -40,7 +41,7 @@ function NewsletterCategories( props ) {
 		isUnavailableDueOfflineMode,
 		isUnavailableDueSiteConnectionMode,
 		subscriptionsModule,
-		updateFormStateAndSaveOptionValue,
+		updateFormStateOptionValue,
 		isSavingAnyOption,
 	} = props;
 
@@ -70,23 +71,30 @@ function NewsletterCategories( props ) {
 			} else {
 				newCheckedCategoriesIds = checkedCategoriesIds.filter( category => category !== id );
 			}
-			updateFormStateAndSaveOptionValue( 'wpcom_newsletter_categories', newCheckedCategoriesIds );
+			updateFormStateOptionValue( 'wpcom_newsletter_categories', newCheckedCategoriesIds );
 		},
-		[ checkedCategoriesIds, updateFormStateAndSaveOptionValue ]
+		[ checkedCategoriesIds, updateFormStateOptionValue ]
 	);
 
 	return (
 		<SettingsCard
 			{ ...props }
 			header={ __( 'Newsletter categories', 'jetpack' ) }
-			hideButton
 			module={ SUBSCRIPTIONS_MODULE_NAME }
+			saveDisabled={ isSavingAnyOption( [ 'subscription_options' ] ) }
 		>
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
 				disableInSiteConnectionMode
 				module={ subscriptionsModule }
+				support={ {
+					text: __(
+						'When you add a new category, your existing subscribers will be automatically subscribed to it.',
+						'jetpack'
+					),
+					link: getRedirectUrl( 'jetpack-support-subscriptions' ),
+				} }
 			>
 				<p>
 					{ __(
@@ -100,14 +108,21 @@ function NewsletterCategories( props ) {
 					onChange={ handleEnableNewsletterCategoriesToggleChange }
 					label={ __( 'Enable newsletter categories', 'jetpack' ) }
 				/>
-				<TreeSelector
+				<TreeDropdown
 					items={ mappedCategories }
 					selectedItems={ checkedCategoriesIds }
 					onChange={ onSelectedCategoryChange }
 					disabled={ isSavingAnyOption( [ 'wpcom_newsletter_categories' ] ) }
 				/>
-				<p>{ __( 'Add New Category', 'jetpack' ) }</p>
 			</SettingsGroup>
+			<Card
+				compact
+				className="jp-settings-card__configure-link"
+				href="/wp-admin/edit-tags.php?taxonomy=category"
+				target="_blank"
+			>
+				{ __( 'Add New Category', 'jetpack' ) }
+			</Card>
 		</SettingsCard>
 	);
 }

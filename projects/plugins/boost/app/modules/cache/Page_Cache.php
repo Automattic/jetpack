@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
@@ -80,20 +81,24 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	public static function activate() {
 		Page_Cache_Setup::run_setup();
 		Garbage_Collection::activate();
+		Boost_Cache_Settings::get_instance()->set( array( 'enabled' => true ) );
 	}
 
 	/**
 	 * Runs cleanup when the feature is deactivated.
 	 */
 	public static function deactivate() {
-		Page_Cache_Setup::deactivate();
 		Garbage_Collection::deactivate();
+		Boost_Cache_Settings::get_instance()->set( array( 'enabled' => false ) );
 	}
 
 	public static function is_available() {
-		if ( ! defined( 'BOOST_CACHE' ) ) {
+		// Disable Page Cache on Atomic.
+		// It already has caching enabled.
+		if ( ( new Host() )->is_woa_site() ) {
 			return false;
 		}
+
 		return true;
 	}
 

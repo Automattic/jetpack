@@ -2108,6 +2108,9 @@ importers:
       classnames:
         specifier: 2.3.2
         version: 2.3.2
+      debug:
+        specifier: 4.3.4
+        version: 4.3.4
       gridicons:
         specifier: 3.4.1
         version: 3.4.1(react@18.2.0)

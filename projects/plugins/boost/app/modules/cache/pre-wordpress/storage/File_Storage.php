@@ -110,13 +110,15 @@ class File_Storage implements Storage {
 	 * @param string $type - defines what files/directories are deleted: DELETE_FILE, DELETE_FILES, DELETE_ALL.
 	 */
 	public function invalidate( $path, $type ) {
-		error_log( "invalidate: $path $type" ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		Logger::debug( "invalidate: $path $type" );
 		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
 
 		if ( in_array( $type, array( Boost_Cache_Utils::DELETE_FILES, Boost_Cache_Utils::DELETE_ALL ), true ) && is_dir( $normalized_path ) ) {
 			return Boost_Cache_Utils::delete_directory( $normalized_path, $type );
-		} elseif ( $type === Boost_Cache_Utils::DELETE_FILE ) {
+		} elseif ( $type === Boost_Cache_Utils::DELETE_FILE && is_file( $normalized_path ) ) {
 			return Filesystem_Utils::delete_file( $normalized_path );
+		} else {
+			return new \WP_Error( 'no-cache-files-to-delete', 'No cache files to delete.' );
 		}
 	}
 }

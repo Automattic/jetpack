@@ -158,12 +158,14 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			}
 		),
 	},
-	default: {
-		title: __( 'Unknown error', 'jetpack-boost' ),
-		message: __( 'An unknown error ocurred.', 'jetpack-boost' ),
-	},
 };
 
 export default ( status: string ) => {
-	return messages[ status ] || messages.default;
+	if ( status in messages ) {
+		return messages[ status ];
+	}
+	return {
+		title: __( 'Unknown error', 'jetpack-boost' ),
+		message: status,
+	};
 };
