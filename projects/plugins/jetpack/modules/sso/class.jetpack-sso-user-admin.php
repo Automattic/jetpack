@@ -163,7 +163,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'wpcom'
 				);
 
-				if ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
+				$response_code = $response['response']['code'];
+
+				if ( isset( $response_code ) && 200 !== $response_code ) {
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
 						'jetpack-sso-invite-error' => 'invalid_request',
