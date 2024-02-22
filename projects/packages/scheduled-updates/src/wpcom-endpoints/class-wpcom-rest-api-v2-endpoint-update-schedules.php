@@ -150,7 +150,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same time as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 
-			if ( $this->generate_schedule_id( $schedule_args ) === $this->generate_schedule_id( $request['plugins'] ) ) {
+			if ( $this->generate_schedule_id( $schedule_args ) === $this->generate_schedule_id( array( $request['plugins'] ) ) ) {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same plugins as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 		}
@@ -172,7 +172,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$schedule = $request['schedule'];
 		$plugins  = $request['plugins'];
 
-		$event = wp_schedule_event( $schedule['timestamp'], $schedule['interval'], 'jetpack_scheduled_update', $plugins, true );
+		$event = wp_schedule_event( $schedule['timestamp'], $schedule['interval'], 'jetpack_scheduled_update', array( $plugins ), true );
 		if ( is_wp_error( $event ) ) {
 			return $event;
 		}
@@ -239,7 +239,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same time as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 
-			if ( $this->generate_schedule_id( $schedule_args ) === $this->generate_schedule_id( $request['plugins'] ) ) {
+			if ( $this->generate_schedule_id( $schedule_args ) === $this->generate_schedule_id( array( $request['plugins'] ) ) ) {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same plugins as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 		}
