@@ -58,12 +58,14 @@ function load_assets( $attributes ) {
 		return;
 	}
 
+	$wpcom_stats = new WPCOM_Stats();
+
 	if ( $attributes['statsOption'] === 'post' ) {
 		// Cache in post meta to prevent wp_options blowing up when retrieving views
 		// for multiple posts simultaneously (eg. when inserted into template).
 		$cache_in_meta = true;
-		$data          = convert_stats_array_to_object(
-			( new WPCOM_Stats() )->get_post_views(
+		$data          = $wpcom_stats->convert_stats_array_to_object(
+			$wpcom_stats->get_post_views(
 				get_the_ID(),
 				array( 'fields' => 'views' ),
 				$cache_in_meta
@@ -74,8 +76,8 @@ function load_assets( $attributes ) {
 			$stats = $data->views;
 		}
 	} else {
-		$data = convert_stats_array_to_object(
-			( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) )
+		$data = $wpcom_stats->convert_stats_array_to_object(
+			$wpcom_stats->get_stats( array( 'fields' => 'stats' ) )
 		);
 
 		if ( $attributes['statsData'] === 'views' && isset( $data->stats->views ) ) {
