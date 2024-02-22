@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Deprecate the sharing_menu method of the Publicize_UI class.

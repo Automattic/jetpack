@@ -139,6 +139,9 @@ export const Ads = withModuleSettingsFormHelpers(
 				'wordads_ccpa_privacy_policy_url',
 				'wordads'
 			);
+
+			const wordads_cmp_enabled = this.props.getOptionValue( 'wordads_cmp_enabled', 'wordads' );
+
 			const isSubDirSite = this.props.siteRawUrl.indexOf( '::' ) !== -1;
 			return (
 				<SettingsCard
@@ -354,6 +357,27 @@ export const Ads = withModuleSettingsFormHelpers(
 								</span>
 							</FormFieldset>
 						) }
+					</SettingsGroup>
+					<SettingsGroup
+						support={ {
+							text: __(
+								'Show a cookie banner to all EU and UK site visitors prompting them to consent to their personal data being used to personalize the ads they see. Without proper consents EU/UK visitors will only see lower paying non-personalized ads.',
+								'jetpack'
+							),
+							link: getRedirectUrl( 'jetpack-support-ads' ),
+						} }
+					>
+						<ToggleControl
+							checked={ wordads_cmp_enabled }
+							disabled={
+								! isAdsActive ||
+								unavailableInOfflineMode ||
+								this.props.isSavingAnyOption( [ 'wordads' ] )
+							}
+							toggling={ this.props.isSavingAnyOption( [ 'wordads_cmp_enabled' ] ) }
+							onChange={ this.handleChange( 'wordads_cmp_enabled' ) }
+							label={ __( 'Enable GDPR Consent Banner', 'jetpack' ) }
+						/>
 					</SettingsGroup>
 					{ ! isSubDirSite && this.renderAdsTxtSection() }
 					{ ! unavailableInOfflineMode && isAdsActive && (

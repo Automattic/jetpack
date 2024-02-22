@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Adjust build to work with `tsc` and `moduleResolution:nodenext`.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooSync: Detect and support WooCommerce HPOS configuration.

@@ -24,6 +24,7 @@ const ConnectScreenVisual = props => {
 		displayButtonError,
 		errorCode,
 		buttonIsLoading,
+		loadingLabel,
 		footer,
 		isOfflineMode,
 		logo,
@@ -83,6 +84,9 @@ const ConnectScreenVisual = props => {
 					isLoading={ buttonIsLoading }
 					isDisabled={ isOfflineMode }
 				/>
+				<span className="jp-connection__connect-screen__loading-message" role="status">
+					{ buttonIsLoading ? loadingLabel : '' }
+				</span>
 
 				{ footer && <div className="jp-connection__connect-screen__footer">{ footer }</div> }
 			</div>
@@ -109,6 +113,8 @@ ConnectScreenVisual.propTypes = {
 	errorCode: PropTypes.string,
 	/** Whether the button is loading or not. */
 	buttonIsLoading: PropTypes.bool,
+	/** Text read by screen readers after the button is activated */
+	loadingLabel: PropTypes.string,
 	/** Node that will be rendered after ToS */
 	footer: PropTypes.node,
 	/** Whether the site is in offline mode. */
@@ -120,6 +126,7 @@ ConnectScreenVisual.propTypes = {
 ConnectScreenVisual.defaultProps = {
 	isLoading: false,
 	buttonIsLoading: false,
+	loadingLabel: __( 'Loading', 'jetpack' ),
 	displayButtonError: false,
 	errorCode: null,
 	handleButtonClick: () => {},
