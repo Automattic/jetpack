@@ -1,6 +1,16 @@
 @import '../../scss/calypso-colors';
 
 .tree-dropdown {
+	opacity: 1;
+  max-height: none;
+  transition: opacity 0.3s, max-height 0.3s ease-in-out;
+
+	&--hidden {
+		opacity: 0;
+    max-height: 0;
+    transition: opacity 0.3s, max-height 0.3s ease-in-out;
+	}
+
 	.tree-dropdown__input-container {
 		display: flex;
 		flex-wrap: wrap;

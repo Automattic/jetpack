@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import TreeSelector from '../tree-selector';
 
 const TreeDropdown = props => {
-	const { items, onChange, selectedItems, disabled } = props;
+	const { items, onChange, selectedItems, disabled, hidden } = props;
 	const [ inputValue, setInputValue ] = useState( '' );
 	const [ isDropdownVisible, setIsDropdownVisible ] = useState( false );
 	const dropdownRef = useRef( null );
@@ -57,8 +57,10 @@ const TreeDropdown = props => {
 		};
 	}, [ handleClickOutside ] );
 
+	const treeDropdownClass = `tree-dropdown ${ hidden ? 'tree-dropdown--hidden' : '' }`;
+
 	return (
-		<div className="tree-dropdown" ref={ dropdownRef }>
+		<div className={ treeDropdownClass } ref={ dropdownRef }>
 			<div className={ className }>
 				<Icon icon={ search } />
 				{ tags.map( ( tag, index ) => (

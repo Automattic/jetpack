@@ -106,6 +106,7 @@ function NewsletterCategories( props ) {
 					selectedItems={ checkedCategoriesIds }
 					onChange={ onSelectedCategoryChange }
 					disabled={ isSavingAnyOption( [ 'wpcom_newsletter_categories' ] ) }
+					hidden={ ! isNewsletterCategoriesEnabled }
 				/>
 			</SettingsGroup>
 			<Card
