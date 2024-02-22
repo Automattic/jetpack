@@ -7,7 +7,7 @@ import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Textarea from '../components/textarea';
 
-const EmailWelcomeMessageSetting = props => {
+const MessagesSetting = props => {
 	const { getOptionValue, isSavingAnyOption, moduleName, onOptionChange } = props;
 
 	const changeWelcomeMessageState = useCallback(
@@ -59,5 +59,5 @@ export default withModuleSettingsFormHelpers(
 			moduleName: ownProps.moduleName,
 			onOptionChange: ownProps.onOptionChange,
 		};
-	} )( EmailWelcomeMessageSetting )
+	} )( MessagesSetting )
 );
