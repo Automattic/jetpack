@@ -163,6 +163,15 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'wpcom'
 				);
 
+				if ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
+					$query_params = array(
+						'jetpack-sso-invite-user'  => 'failed',
+						'jetpack-sso-invite-error' => 'invalid_request',
+						'_wpnonce'                 => $nonce,
+					);
+					return self::create_error_notice_and_redirect( $query_params );
+				}
+
 				// access the first item since we're inviting one user.
 				$body = json_decode( $response['body'] )[0];
 
@@ -171,11 +180,11 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'_wpnonce'                => $nonce,
 				);
 
-				if ( ! $body->success ) {
-					$query_params = array(
-						'jetpack-sso-invite-error' => $body->errors[0],
-					);
+				if ( ! $body->success && $body->errors ) {
+					$response_error                           = array_keys( (array) $body->errors );
+					$query_params['jetpack-sso-invite-error'] = $response_error[0];
 				}
+
 				return self::create_error_notice_and_redirect( $query_params );
 			} else {
 				$query_params = array(
@@ -251,8 +260,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					return self::create_error_notice_and_redirect( $query_params );
 				}
 
-				$invite_id    = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
-				$body         = self::revoke_wpcom_invite( $invite_id );
+				$invite_id = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
+				$body      = self::revoke_wpcom_invite( $invite_id );
+
 				$query_params = array(
 					'jetpack-sso-invite-user' => $body->deleted ? 'successful-revoke' : 'failed',
 					'_wpnonce'                => $nonce,
