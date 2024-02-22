@@ -101,7 +101,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 						>
 							<p>
 								{ __(
-									'Enable Jetpack Social and connect your social accounts to automatically share your content with your followers with a single click. When you publish a post, you will be able to share that on all connected accounts.',
+									'Enable Jetpack Social and connect your social accounts to automatically share your content with your followers with a single click. When you publish a post, you will be able to share it on all connected accounts.',
 									'jetpack'
 								) }
 							</p>
