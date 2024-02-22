@@ -1,4 +1,4 @@
-import { ToggleControl } from '@automattic/jetpack-components';
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -88,6 +88,13 @@ function NewsletterCategories( props ) {
 				disableInOfflineMode
 				disableInSiteConnectionMode
 				module={ subscriptionsModule }
+				support={ {
+					text: __(
+						'When you add a new category, your existing subscribers will be automatically subscribed to it.',
+						'jetpack'
+					),
+					link: getRedirectUrl( 'jetpack-support-subscriptions' ),
+				} }
 			>
 				<p>
 					{ __(
