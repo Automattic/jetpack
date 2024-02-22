@@ -124,7 +124,7 @@ $boost_cache->serve();
 		$content = preg_replace(
 			'#^<\?php#',
 			'<?php
-define( \'WP_CACHE\', true );',
+define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			$content
 		);
 
@@ -188,7 +188,7 @@ define( \'WP_CACHE\', true );',
 		$lines = file( ABSPATH . 'wp-config.php' );
 		$found = false;
 		foreach ( $lines as $key => $line ) {
-			if ( preg_match( '#define\s*\(\s*[\'"]WP_CACHE[\'"]#', $line ) === 1 ) {
+			if ( preg_match( '#define\s*\(\s*[\'"]WP_CACHE[\'"]#', $line ) === 1 && strpos( $line, Page_Cache::ADVANCED_CACHE_SIGNATURE ) !== false ) {
 				unset( $lines[ $key ] );
 				$found = true;
 			}
