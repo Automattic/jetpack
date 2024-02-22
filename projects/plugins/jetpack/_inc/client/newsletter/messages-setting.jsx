@@ -5,10 +5,12 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
+import { getModule } from 'state/modules';
 import Textarea from '../components/textarea';
+import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
 const MessagesSetting = props => {
-	const { getOptionValue, isSavingAnyOption, moduleName, onOptionChange } = props;
+	const { getOptionValue, isSavingAnyOption, subscriptionsModule, onOptionChange } = props;
 
 	const changeWelcomeMessageState = useCallback(
 		event => {
@@ -26,10 +28,15 @@ const MessagesSetting = props => {
 		<SettingsCard
 			{ ...props }
 			header={ __( 'Messages', 'jetpack' ) }
-			module={ moduleName }
+			module={ SUBSCRIPTIONS_MODULE_NAME }
 			saveDisabled={ isSavingAnyOption( [ 'subscription_options' ] ) }
 		>
-			<SettingsGroup hasChild disableInOfflineMode module={ moduleName }>
+			<SettingsGroup
+				hasChild
+				disableInOfflineMode
+				disableInSiteConnectionMode
+				module={ subscriptionsModule }
+			>
 				<p className="jp-settings-card__email-settings">
 					{ __(
 						'These settings change the emails sent from your site to your readers.',
@@ -54,6 +61,7 @@ const MessagesSetting = props => {
 export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
+			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			getOptionValue: ownProps.getOptionValue,
 			isSavingAnyOption: ownProps.isSavingAnyOption,
 			moduleName: ownProps.moduleName,

@@ -81,6 +81,7 @@ function NewsletterCategories( props ) {
 			{ ...props }
 			header={ __( 'Newsletter categories', 'jetpack' ) }
 			module={ SUBSCRIPTIONS_MODULE_NAME }
+			saveDisabled={ isSavingAnyOption( [ 'subscription_options' ] ) }
 		>
 			<SettingsGroup
 				hasChild
