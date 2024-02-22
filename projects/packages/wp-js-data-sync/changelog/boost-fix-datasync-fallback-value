@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-WP JS Data Sync: Added tests for fallback values and fixed `Type_Literal` value handling in the schema parser.
