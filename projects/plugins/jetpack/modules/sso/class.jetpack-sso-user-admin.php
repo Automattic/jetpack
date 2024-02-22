@@ -343,69 +343,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		}
 
 		/**
-		 * Handles the logic to revokes a user's invitation.
-		 *
-		 * @param string $action The action to perform.
-		 * @param string $wp_nonce The nonce to verify.
-		 */
-		public function revoke_user_invitation( $action, $wp_nonce ) {
-			check_admin_referer( $action, $wp_nonce );
-			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
-
-			if ( ! current_user_can( 'promote_users' ) ) {
-				$query_params = array(
-					'jetpack-sso-invite-user'  => 'failed',
-					'jetpack-sso-invite-error' => 'invalid-revoke-permissions',
-					'_wpnonce'                 => $nonce,
-				);
-
-				return self::create_error_notice_and_redirect( $query_params );
-			} elseif ( isset( $_GET['user_id'] ) ) {
-				$user_id = intval( wp_unslash( $_GET['user_id'] ) );
-				$user    = get_user_by( 'id', $user_id );
-
-				if ( ! $user ) {
-
-					$query_params = array(
-						'jetpack-sso-invite-user'  => 'failed',
-						'jetpack-sso-invite-error' => 'invalid-user-revoke',
-						'_wpnonce'                 => $nonce,
-					);
-
-					return self::create_error_notice_and_redirect( $query_params );
-				}
-
-				if ( ! isset( $_GET['invite_id'] ) ) {
-					$query_params = array(
-						'jetpack-sso-invite-user'  => 'failed',
-						'jetpack-sso-invite-error' => 'invalid-invite-revoke',
-						'_wpnonce'                 => $nonce,
-					);
-					return self::create_error_notice_and_redirect( $query_params );
-				}
-
-				$invite_id    = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
-				$body         = self::revoke_wpcom_invite( $invite_id );
-				$query_params = array(
-					'jetpack-sso-invite-user' => $body->deleted ? 'successful-revoke' : 'failed',
-					'_wpnonce'                => $nonce,
-				);
-
-				if ( ! $body->deleted ) {
-					$query_params['jetpack-sso-invite-error'] = 'invalid-invite-revoke';
-				}
-				return self::create_error_notice_and_redirect( $query_params );
-			} else {
-				$query_params = array(
-					'jetpack-sso-invite-user'  => 'failed',
-					'jetpack-sso-invite-error' => 'invalid-user-revoke',
-					'_wpnonce'                 => $nonce,
-				);
-				return self::create_error_notice_and_redirect( $query_params );
-			}
-		}
-
-		/**
 		 * Adds 'Revoke invite' link to user table row actions.
 		 * Removes 'Reset password' link.
 		 *
