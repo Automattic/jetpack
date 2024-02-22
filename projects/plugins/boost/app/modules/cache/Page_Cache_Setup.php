@@ -28,6 +28,8 @@ class Page_Cache_Setup {
 			}
 		}
 
+		opcache_reset(); // Clear the opcode cache to make the file changes take effect.
+
 		jetpack_boost_ds_set( 'page_cache_error', '' );
 
 		return true;
@@ -144,6 +146,8 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		self::delete_advanced_cache();
 		self::delete_wp_cache_constant();
 
+		opcache_reset(); // Clear the opcode cache to make the file changes take effect.
+
 		return true;
 	}
 
@@ -152,8 +156,7 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	 * Fired when the plugin is uninstalled.
 	 */
 	public static function uninstall() {
-		self::delete_advanced_cache();
-		self::delete_wp_cache_constant();
+		self::deactivate();
 
 		$result = Boost_Cache_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache', Boost_Cache_Utils::DELETE_ALL );
 		if ( is_wp_error( $result ) ) {
