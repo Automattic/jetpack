@@ -3,7 +3,7 @@
  * This file is loaded by advanced-cache.php, and so cannot rely on autoloading.
  */
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
 /*
  * Require all pre-wordpress files here. These files aren't autoloaded as they are loaded before WordPress is fully initialized.
@@ -157,7 +157,7 @@ class Boost_Cache {
 				$this->delete_cache_for_post( get_post( $posts_page_id ) );
 			}
 		} else {
-			$this->storage->invalidate( home_url(), Boost_Cache_Utils::DELETE_FILES );
+			$this->storage->invalidate( home_url(), Filesystem_Utils::DELETE_FILES );
 			Logger::debug( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) );
 		}
 	}
@@ -223,8 +223,8 @@ class Boost_Cache {
 			 * message.
 			 */
 			if ( isset( $parameters['cookies'] ) && ! empty( $parameters['cookies'] ) ) {
-				$filename = trailingslashit( get_permalink( $post->ID ) ) . Boost_Cache_Utils::get_request_filename( $parameters );
-				$this->storage->invalidate( $filename, Boost_Cache_Utils::DELETE_FILE );
+				$filename = trailingslashit( get_permalink( $post->ID ) ) . Filesystem_Utils::get_request_filename( $parameters );
+				$this->storage->invalidate( $filename, Filesystem_Utils::DELETE_FILE );
 			}
 			return;
 		}
@@ -357,7 +357,7 @@ class Boost_Cache {
 	public function delete_cache_for_url( $url ) {
 		Logger::debug( 'delete_cache_for_url: ' . $url );
 
-		return $this->storage->invalidate( $url, Boost_Cache_Utils::DELETE_ALL );
+		return $this->storage->invalidate( $url, Filesystem_Utils::DELETE_ALL );
 	}
 
 	/**
