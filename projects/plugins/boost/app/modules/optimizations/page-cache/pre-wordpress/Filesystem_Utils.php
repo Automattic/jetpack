@@ -1,8 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress;
-
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Logger;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
 class Filesystem_Utils {
 	/**

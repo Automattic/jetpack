@@ -1,9 +1,9 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
-use Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress\Filesystem_Utils;
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 
 class Page_Cache_Setup {
 
@@ -83,7 +83,7 @@ class Page_Cache_Setup {
 		}
 
 		$plugin_dir_name      = untrailingslashit( str_replace( JETPACK_BOOST_PLUGIN_FILENAME, '', JETPACK_BOOST_PLUGIN_BASE ) );
-		$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . $plugin_dir_name . '/app/modules/cache/pre-wordpress/Boost_Cache.php';
+		$boost_cache_filename = WP_CONTENT_DIR . '/plugins/' . $plugin_dir_name . '/app/modules/optimizations/page-cache/pre-wordpress/Boost_Cache.php';
 		if ( ! file_exists( $boost_cache_filename ) ) {
 			return new \WP_Error( 'boost-cache-file-not-found', 'Boost_Cache.php not found' );
 		}
@@ -93,7 +93,7 @@ if ( ! file_exists( \'' . $boost_cache_filename . '\' ) ) {
 return;
 }
 require_once( \'' . $boost_cache_filename . '\');
-$boost_cache = new Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache();
+$boost_cache = new Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache();
 $boost_cache->init_actions();
 $boost_cache->serve();
 ';
