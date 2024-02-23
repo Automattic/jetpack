@@ -26,6 +26,7 @@ import {
 	VideoPressInterstitial,
 	StatsInterstitial,
 } from './components/product-interstitial';
+import JetpackAiProductPage from './components/product-interstitial/jetpack-ai/product-page';
 import RedeemTokenScreen from './components/redeem-token-screen';
 import { initStore } from './state/store';
 import './style.module.scss';
@@ -70,6 +71,7 @@ const MyJetpack = () => (
 					<Route path="/add-license" element={ <AddLicenseScreen /> } />
 				) }
 				<Route path="/redeem-token" element={ <RedeemTokenScreen /> } />
+				<Route path="/jetpack-ai" element={ <JetpackAiProductPage /> } />
 			</Routes>
 		</HashRouter>
 	</ThemeProvider>
