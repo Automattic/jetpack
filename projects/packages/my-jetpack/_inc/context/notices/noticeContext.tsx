@@ -1,15 +1,20 @@
 import React, { createContext, useState } from 'react';
 import { NoticeContextType } from './types';
 
-export const NoticeContext = createContext< NoticeContextType | null >( null );
+const defaultNotice = {
+	message: '',
+	options: {
+		status: '',
+	},
+};
+
+export const NoticeContext = createContext< NoticeContextType >( {
+	currentNotice: defaultNotice,
+	setCurrentNotice: null,
+} );
 
 const NoticeContextProvider = ( { children } ) => {
-	const [ currentNotice, setCurrentNotice ] = useState( {
-		message: '',
-		options: {
-			status: '',
-		},
-	} );
+	const [ currentNotice, setCurrentNotice ] = useState( defaultNotice );
 
 	return (
 		<NoticeContext.Provider

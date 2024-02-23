@@ -2,7 +2,7 @@ import { useContext, useEffect } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
 
 const useNotice = ( { message, options, isError } ) => {
-	const { setCurrentNotice } = useContext( NoticeContext ) || {};
+	const { setCurrentNotice } = useContext( NoticeContext );
 
 	useEffect( () => {
 		if ( isError ) {

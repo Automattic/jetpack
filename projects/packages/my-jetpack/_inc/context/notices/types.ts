@@ -9,5 +9,5 @@ export type NoticeType = {
 
 export type NoticeContextType< T = NoticeType > = {
 	currentNotice: T;
-	setCurrentNotice: Dispatch< SetStateAction< T > >;
+	setCurrentNotice: Dispatch< SetStateAction< T > > | null;
 };
