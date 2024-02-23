@@ -38,7 +38,7 @@ import { ActivityIndicator, View, TouchableWithoutFeedback, Text } from 'react-n
 import VideoCommonSettings from './edit-common-settings';
 import SvgIconRetry from './icon-retry';
 import style from './style.scss';
-import { pickGUIDFromUrl } from './utils';
+import { pickGUIDFromUrl, createVideoPressEmbedBlock } from './utils';
 
 const ICON_TYPE = {
 	PLACEHOLDER: 'placeholder',
@@ -204,9 +204,18 @@ class VideoPressEdit extends Component {
 	}
 
 	onSelectURL( url ) {
-		const { createErrorNotice, setAttributes } = this.props;
+		const { createErrorNotice, setAttributes, onReplace } = this.props;
 
 		if ( isURL( url ) ) {
+			// Check if there's an embed block that handles this URL.
+			const embedBlock = createVideoPressEmbedBlock( {
+				attributes: { url },
+			} );
+			if ( undefined !== embedBlock ) {
+				onReplace( embedBlock );
+				return;
+			}
+
 			setAttributes( { id: undefined, src: url } );
 		} else {
 			createErrorNotice( __( 'Invalid URL.', 'jetpack' ) );
