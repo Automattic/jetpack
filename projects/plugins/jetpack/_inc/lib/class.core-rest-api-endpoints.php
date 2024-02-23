@@ -2841,6 +2841,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'sanitize_text_field',
 				'jp_group'          => 'wordads',
 			),
+			'wordads_cmp_enabled'                  => array(
+				'description'       => esc_html__( 'Enable GDPR Consent Management Banner for WordAds', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'wordads',
+			),
 
 			// Google Analytics.
 			'google_analytics_tracking_id'         => array(

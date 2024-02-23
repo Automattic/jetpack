@@ -78,6 +78,16 @@ export const AI_MODEL_GPT_4 = 'gpt-4' as const;
 
 export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo_16K | typeof AI_MODEL_GPT_4;
 
+/*
+ * Media recording types
+ */
+export type { RecordingState } from './hooks/use-media-recording/index.js';
+
+/*
+ * Utility types
+ */
+export type CancelablePromise< T = void > = Promise< T > & { canceled?: boolean };
+
 // Connection initial state
 // @todo: it should be provided by the connection package
 interface JPConnectionInitialState {
