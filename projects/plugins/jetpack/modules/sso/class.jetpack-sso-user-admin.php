@@ -730,12 +730,20 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			}
 
 			.sso-disconnected-user-icon {
-				margin-left: 5px;
+				margin-left: 4px;
 				cursor: pointer;
 				background: gray;
 				border-radius: 10px;
-				color: white;
 			}
+
+			.sso-disconnected-user-icon.dashicons {
+				font-size: 1rem;
+				height: 1rem;
+				width: 1rem;
+				background-color: #9D6E00;
+				color: #F5F1E1;
+			}
+
 		</style>
 			<?php
 		}
