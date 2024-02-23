@@ -17,6 +17,7 @@ use WP_REST_Server;
  * Registers the REST routes for Social.
  */
 class REST_Social_Note_Controller extends WP_REST_Controller {
+	const SOCIAL_SHARES_POST_META_KEY = '_publicize_shares';
 	/**
 	 * Registers the REST routes for Social.
 	 *
@@ -30,8 +31,8 @@ class REST_Social_Note_Controller extends WP_REST_Controller {
 			array(
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'update_post_meta' ),
-					'permission_callback' => array( $this, 'update_post_meta_permission_callback' ),
+					'callback'            => array( $this, 'update_post_shares_meta' ),
+					'permission_callback' => array( $this, 'update_post_shares_meta_permission_callback' ),
 					'args'                => array(
 						'post_id' => array(
 							'type'     => 'integer',
@@ -41,8 +42,8 @@ class REST_Social_Note_Controller extends WP_REST_Controller {
 							'type'       => 'object',
 							'required'   => true,
 							'properties' => array(
-								'_publicize_done_external' => array(
-									'type'     => 'object',
+								'_publicize_shares' => array(
+									'type'     => 'array',
 									'required' => true,
 								),
 							),
@@ -58,19 +59,16 @@ class REST_Social_Note_Controller extends WP_REST_Controller {
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 */
-	public function update_post_meta( $request ) {
+	public function update_post_shares_meta( $request ) {
 		$request_body = $request->get_json_params();
 
 		$post_id   = $request_body['post_id'];
-		$post_meta = (array) $request_body['meta'];
+		$post_meta = $request_body['meta'];
 		$post      = get_post( $post_id );
 
-		if ( $post && $post->post_type === Note::JETPACK_SOCIAL_NOTE_CPT && $post->post_status === 'publish' ) {
-			if ( isset( $post_meta['_publicize_done_external'] ) ) {
-				update_post_meta( $post_id, '_publicize_done_external', $post_meta['_publicize_done_external'] );
-			}
+		if ( $post && $post->post_type === Note::JETPACK_SOCIAL_NOTE_CPT && $post->post_status === 'publish' && isset( $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] ) ) {
+			update_post_meta( $post_id, self::SOCIAL_SHARES_POST_META_KEY, $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] );
 			return rest_ensure_response( new \WP_REST_Response() );
-
 		}
 
 		return new WP_Error(
@@ -83,7 +81,7 @@ class REST_Social_Note_Controller extends WP_REST_Controller {
 	/**
 	 * Permissions callback.
 	 */
-	public function update_post_meta_permission_callback() {
+	public function update_post_shares_meta_permission_callback() {
 		if ( Rest_Authentication::is_signed_with_blog_token() ) {
 			return true;
 		}
