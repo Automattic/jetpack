@@ -126,7 +126,7 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Experimental tool to add AI to your editor', 'jetpack-my-jetpack' );
+		return __( 'The most powerful AI tool for WordPress', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -336,7 +336,7 @@ class Jetpack_Ai extends Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		return '';
+		return '/wp-admin/admin.php?page=my-jetpack#/add-jetpack-ai';
 	}
 
 	/**
