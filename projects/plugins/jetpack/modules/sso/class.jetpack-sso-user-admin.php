@@ -29,7 +29,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			add_action( 'delete_user', array( 'Jetpack_SSO_Helpers', 'delete_connection_for_user' ) );
 			// If the user has no errors on creation, send an invite to WordPress.com.
 			add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
-			add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'send_wp_mail_new_user' ) );
+			add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'should_send_wp_mail_new_user' ) );
 			add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
 			add_action( 'user_new_form', array( $this, 'render_wpcom_invite_checkbox' ), 1 );
 			add_action( 'user_new_form', array( $this, 'render_custom_email_message_form_field' ), 1 );
@@ -434,7 +434,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 									<span><?php esc_html_e( 'Invite user', 'jetpack' ); ?></span>
 								</legend>
 								<label for="invite_user_wpcom">
-									<input name="invite_user_wpcom" type="checkbox" id="invite_user_wpcom">
+									<input name="invite_user_wpcom" type="checkbox" id="invite_user_wpcom" checked>
 									<?php esc_html_e( 'Invite user to WordPress.com', 'jetpack' ); ?>
 								</label>
 							</fieldset>
@@ -481,7 +481,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 *
 		 * @return boolean Indicating if the core invitation main should be sent.
 		 */
-		public function send_wp_mail_new_user() {
+		public function should_send_wp_mail_new_user() {
 			return empty( $_POST['invite_user_wpcom'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		}
 
@@ -497,7 +497,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			if ( ! $update ) {
 				$valid_nonce = isset( $_POST['_wpnonce_create-user'] ) ? wp_verify_nonce( $_POST['_wpnonce_create-user'], 'create-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
 
-				if ( empty( $_POST['invite_user_wpcom'] ) ) {
+				if ( $this->should_send_wp_mail_new_user() ) {
 					return $errors;
 				}
 
