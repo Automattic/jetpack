@@ -15,8 +15,7 @@
 	},
 	"scripts": {
 		"build-development": "NODE_ENV=development pnpm run storybook:build",
-		"build-production": "NODE_ENV=production pnpm run storybook:build",
-		"test-js": "pnpm run test"
+		"build-production": "NODE_ENV=production pnpm run storybook:build"
 	},
 	"repositories": [
 		{
