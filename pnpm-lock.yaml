@@ -850,8 +850,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-extension-utils
       '@automattic/social-previews':
-        specifier: 2.0.1-beta.11
-        version: 2.0.1-beta.11(@babel/runtime@7.23.8)(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.0.1-beta.12
+        version: 2.0.1-beta.12(@babel/runtime@7.23.8)(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/annotations':
         specifier: 2.51.0
         version: 2.51.0(react@18.2.0)
@@ -4423,8 +4423,8 @@ packages:
       - vite
     dev: false
 
-  /@automattic/social-previews@2.0.1-beta.11(@babel/runtime@7.23.8)(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-we827gIleoJS/8rJDotE2/dQT+l0ULr1T9nwTmX1Q3JzaDi5N7AJv2oDMP3CZAEgXEA41cWugbkSZyYdwNB8lQ==}
+  /@automattic/social-previews@2.0.1-beta.12(@babel/runtime@7.23.8)(@types/react@18.2.33)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-C97GhuCVp9k3ELadGpn3NcL1xs6+nbKTn0b0kzh+0/0W+ZT4FYutkmolLTAilYOnX/r3peY3KMoy39Bn+pGBkg==}
     peerDependencies:
       '@babel/runtime': ^7.23.8
       react: ^18.2.0
