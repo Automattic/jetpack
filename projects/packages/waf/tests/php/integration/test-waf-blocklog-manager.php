@@ -11,7 +11,7 @@ use Automattic\Jetpack\Waf\Waf_Constants;
 /**
  * Integration tests for the WAF blocklog manager.
  */
-final class WafBlocklogManagerTest extends WorDBless\BaseTestCase {
+final class WafBlocklogManagerIntegrationTest extends WorDBless\BaseTestCase {
 
 	/**
 	 * Test setup.
