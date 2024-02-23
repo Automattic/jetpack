@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "bc5fc11b3cbc875c514274f46b8d2139",
+	"content-hash": "0dd6601ce5d17fc926d4f0e587c5d9f3",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -1233,6 +1233,68 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Handle installation of plugins from WP.org",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/jetpack-post-list",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/post-list",
+				"reference": "d163b29e9f11af83ba2995fcec0106df86345c7e"
+			},
+			"require": {
+				"automattic/jetpack-assets": "@dev",
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"automattic/wordbless": "@dev",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"mirror-repo": "Automattic/jetpack-post-list",
+				"textdomain": "jetpack-post-list",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-post-list.php"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/automattic/jetpack-post-list/compare/v${old}...v${new}"
+				},
+				"branch-alias": {
+					"dev-trunk": "0.6.x-dev"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Enhance the classic view of the Admin section of your WordPress site",
 			"transport-options": {
 				"relative": true
 			}
@@ -4666,6 +4728,7 @@
 		"automattic/jetpack-sync": 20,
 		"automattic/jetpack-status": 20,
 		"automattic/jetpack-plans": 20,
+		"automattic/jetpack-post-list": 20,
 		"automattic/jetpack-changelogger": 20
 	},
 	"prefer-stable": true,

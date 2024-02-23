@@ -21,19 +21,24 @@ import { external } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import oscilloscope from './assets/oscilloscope.svg';
+import Oscilloscope from './components/oscilloscope';
 import useTranscriptionInserter from './hooks/use-transcription-inserter';
 /**
  * Types
  */
-import type { CancelablePromise } from '@automattic/jetpack-ai-client';
+import type { CancelablePromise, RecordingState } from '@automattic/jetpack-ai-client';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function Oscilloscope( { audioURL } ) {
-	return <img src={ oscilloscope } alt="" />;
-}
-
-function AudioStatusPanel( { state, error = null, audioURL = null, duration = 0 } ) {
+function AudioStatusPanel( {
+	state,
+	error = null,
+	analyser,
+	duration = 0,
+}: {
+	state: RecordingState;
+	error: string;
+	analyser: AnalyserNode;
+	duration: number;
+} ) {
 	if ( state === 'inactive' ) {
 		return (
 			<div className="jetpack-ai-voice-to-content__information">
@@ -49,7 +54,7 @@ function AudioStatusPanel( { state, error = null, audioURL = null, duration = 0 
 					className="jetpack-ai-voice-to-content__audio--duration"
 					duration={ duration }
 				/>
-				<Oscilloscope audioURL={ audioURL } />
+				<Oscilloscope analyser={ analyser } paused={ false } />
 				<span className="jetpack-ai-voice-to-content__information">
 					{ __( 'Recording…', 'jetpack' ) }
 				</span>
@@ -64,7 +69,7 @@ function AudioStatusPanel( { state, error = null, audioURL = null, duration = 0 
 					className="jetpack-ai-voice-to-content__audio--duration"
 					duration={ duration }
 				/>
-				<Oscilloscope audioURL={ audioURL } />
+				<Oscilloscope analyser={ analyser } paused={ true } />
 				<span className="jetpack-ai-voice-to-content__information">
 					{ __( 'Paused', 'jetpack' ) }
 				</span>
@@ -232,7 +237,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 		onError: onTranscriptionError,
 	} );
 
-	const { state, controls, url, error, onError, onProcessing, duration } = useMediaRecording( {
+	const { state, controls, error, onError, onProcessing, duration, analyser } = useMediaRecording( {
 		onDone: lastBlob => {
 			const promise = transcribeAudio( lastBlob );
 			cancelRecording.current = () => {
@@ -270,9 +275,9 @@ export default function VoiceToContentEdit( { clientId } ) {
 						<div className="jetpack-ai-voice-to-content__contextual-row">
 							<AudioStatusPanel
 								state={ state }
-								audioURL={ url }
 								error={ error }
 								duration={ duration }
+								analyser={ analyser }
 							/>
 						</div>
 						<ActionButtons
