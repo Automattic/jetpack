@@ -127,6 +127,7 @@
 			width: 100%;
 			background-color: $white;	
 			z-index: 1000;
+			padding: 8px;
 
 			&.visible {
 				animation: dropdown-slide-down 500ms;
