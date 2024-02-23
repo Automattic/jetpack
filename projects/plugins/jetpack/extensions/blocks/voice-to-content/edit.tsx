@@ -94,6 +94,15 @@ export default function VoiceToContentEdit( { clientId } ) {
 		},
 	} );
 
+	// Destructure controls
+	const {
+		start: controlStart,
+		pause: controlPause,
+		resume: controlResume,
+		stop: controlStop,
+		reset: controlReset,
+	} = controls;
+
 	const onUploadHandler = useCallback(
 		event => {
 			if ( event.currentTarget.files.length > 0 ) {
@@ -110,24 +119,24 @@ export default function VoiceToContentEdit( { clientId } ) {
 
 	const onCancelHandler = useCallback( () => {
 		cancelTranscription.current?.();
-		controls.reset();
-	}, [ controls ] );
+		controlReset();
+	}, [ controlReset ] );
 
 	const onRecordHandler = useCallback( () => {
-		controls.start( 1000 ); // Stream audio on 1 second intervals
-	}, [ controls ] );
+		controlStart( 1000 ); // Stream audio on 1 second intervals
+	}, [ controlStart ] );
 
 	const onPauseHandler = useCallback( () => {
-		controls.pause();
-	}, [ controls ] );
+		controlPause();
+	}, [ controlPause ] );
 
 	const onResumeHandler = useCallback( () => {
-		controls.resume();
-	}, [ controls ] );
+		controlResume();
+	}, [ controlResume ] );
 
 	const onDoneHandler = useCallback( () => {
-		controls.stop();
-	}, [ controls ] );
+		controlStop();
+	}, [ controlStop ] );
 
 	// To avoid a wrong TS warning
 	const iconProps = { className: 'icon' };
