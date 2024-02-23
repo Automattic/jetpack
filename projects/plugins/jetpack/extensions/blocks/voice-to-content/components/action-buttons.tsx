@@ -5,10 +5,6 @@ import { micIcon, playerPauseIcon } from '@automattic/jetpack-ai-client';
 import { Button, FormFileUpload } from '@wordpress/components';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-/**
- * Types
- */
-import type { CancelablePromise } from '@automattic/jetpack-ai-client';
 
 export default function ActionButtons( {
 	state,
@@ -27,13 +23,6 @@ export default function ActionButtons( {
 		cancelUpload.current?.();
 		onCancelRecording?.();
 		reset?.();
-	};
-
-	const handleUpload = event => {
-		const transcriptionProcess: CancelablePromise = onUpload( event );
-		cancelUpload.current = () => {
-			transcriptionProcess.canceled = true;
-		};
 	};
 
 	return (
@@ -71,7 +60,7 @@ export default function ActionButtons( {
 			{ [ 'inactive', 'error' ].includes( state ) && (
 				<FormFileUpload
 					accept="audio/*"
-					onChange={ handleUpload }
+					onChange={ onUpload }
 					variant="secondary"
 					className="jetpack-ai-voice-to-content__button"
 				>

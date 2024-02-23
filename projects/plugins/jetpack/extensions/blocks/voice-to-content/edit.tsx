@@ -94,13 +94,16 @@ export default function VoiceToContentEdit( { clientId } ) {
 		},
 	} );
 
-	const uploadHandler = event => {
-		if ( event.currentTarget.files.length > 0 ) {
-			onProcessing();
-			const file = event.currentTarget.files[ 0 ];
-			return transcribeAudio( file );
-		}
-	};
+	const onUploadHandler = useCallback(
+		event => {
+			if ( event.currentTarget.files.length > 0 ) {
+				onProcessing();
+				const file = event.currentTarget.files[ 0 ];
+				return transcribeAudio( file );
+			}
+		},
+		[ onProcessing, transcribeAudio ]
+	);
 
 	const onRecordHandler = useCallback( () => {
 		controls.start( 1000 ); // Stream audio on 1 second intervals
@@ -147,7 +150,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 						<ActionButtons
 							state={ state }
 							mediaControls={ controls }
-							onUpload={ uploadHandler }
+							onUpload={ onUploadHandler }
 							onCancelRecording={ cancelRecording.current }
 							onRecord={ onRecordHandler }
 							onPause={ onPauseHandler }
