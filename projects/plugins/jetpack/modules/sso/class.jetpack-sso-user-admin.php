@@ -26,7 +26,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * Constructor function.
 		 */
 		public function __construct() {
-			add_action( 'delete_user', array( 'Jetpack_SSO_Helpers', 'delete_connection_for_user' ) );
 			// If the user has no errors on creation, send an invite to WordPress.com.
 			add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
 			// Don't send core invitation email when SSO is activated. They will get an email from WP.com.
@@ -171,7 +170,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'wpcom'
 				);
 
-				if ( is_wp_error( $response ) ) {
+				$status_code = wp_remote_retrieve_response_code( $response );
+
+				if ( is_wp_error( $response ) || 200 !== $status_code ) {
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
 						'jetpack-sso-invite-error' => 'invalid_request',
@@ -226,13 +227,14 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				'wpcom'
 			);
 
-			if ( is_wp_error( $response ) ) {
+			$status_code = wp_remote_retrieve_response_code( $response );
+			if ( is_wp_error( $response ) || 200 !== $status_code ) {
 				return $response;
 			}
 
 			return array(
 				'body'        => json_decode( $response['body'] ),
-				'status_code' => json_decode( $response['response']['code'] ),
+				'status_code' => json_decode( $status_code ),
 			);
 		}
 
@@ -278,7 +280,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				$invite_id = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
 				$response  = self::revoke_wpcom_invite( $invite_id );
 
-				if ( is_wp_error( $response ) ) {
+				$status_code = wp_remote_retrieve_response_code( $response ) ? wp_remote_retrieve_response_code( $response ) : $response['status_code'];
+
+				if ( is_wp_error( $response ) || 200 !== $status_code ) {
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
 						'jetpack-sso-invite-error' => '', // general error message
@@ -577,7 +581,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					)
 				);
 
-				if ( is_wp_error( $response ) ) {
+				$status_code = wp_remote_retrieve_response_code( $response );
+				if ( is_wp_error( $response ) || 200 !== $status_code ) {
 					$errors->add( 'invitation_not_sent', __( '<strong>Error</strong>: The user invitation email could not be sent, the user account was not created.', 'jetpack' ) );
 				}
 			}
@@ -710,11 +715,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				'wpcom'
 			);
 
-			if ( is_wp_error( $response ) ) {
-				return false;
-			}
+			$status_code = wp_remote_retrieve_response_code( $response );
 
-			if ( 200 !== $response['response']['code'] ) {
+			if ( is_wp_error( $response ) || 200 !== $status_code ) {
 				return false;
 			}
 
