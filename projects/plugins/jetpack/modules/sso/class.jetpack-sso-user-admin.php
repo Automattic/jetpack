@@ -163,6 +163,15 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'wpcom'
 				);
 
+				if ( is_wp_error( $response ) ) {
+					$query_params = array(
+						'jetpack-sso-invite-user'  => 'failed',
+						'jetpack-sso-invite-error' => 'invalid_request',
+						'_wpnonce'                 => $nonce,
+					);
+					return self::create_error_notice_and_redirect( $query_params );
+				}
+
 				// access the first item since we're inviting one user.
 				$body = json_decode( $response['body'] )[0];
 
@@ -171,11 +180,11 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'_wpnonce'                => $nonce,
 				);
 
-				if ( ! $body->success ) {
-					$query_params = array(
-						'jetpack-sso-invite-error' => $body->errors[0],
-					);
+				if ( ! $body->success && $body->errors ) {
+					$response_error                           = array_keys( (array) $body->errors );
+					$query_params['jetpack-sso-invite-error'] = $response_error[0];
 				}
+
 				return self::create_error_notice_and_redirect( $query_params );
 			} else {
 				$query_params = array(
@@ -209,7 +218,14 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				'wpcom'
 			);
 
-			return json_decode( $response['body'] );
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			return array(
+				'body'        => json_decode( $response['body'] ),
+				'status_code' => json_decode( $response['response']['code'] ),
+			);
 		}
 
 		/**
@@ -251,14 +267,24 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					return self::create_error_notice_and_redirect( $query_params );
 				}
 
-				$invite_id    = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
-				$body         = self::revoke_wpcom_invite( $invite_id );
+				$invite_id = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
+				$response  = self::revoke_wpcom_invite( $invite_id );
+
+				if ( is_wp_error( $response ) ) {
+					$query_params = array(
+						'jetpack-sso-invite-user'  => 'failed',
+						'jetpack-sso-invite-error' => '', // general error message
+						'_wpnonce'                 => $nonce,
+					);
+					return self::create_error_notice_and_redirect( $query_params );
+				}
+
+				$body         = $response['body'];
 				$query_params = array(
 					'jetpack-sso-invite-user' => $body->deleted ? 'successful-revoke' : 'failed',
 					'_wpnonce'                => $nonce,
 				);
-
-				if ( ! $body->deleted ) {
+				if ( ! $body->deleted ) { // no invite was deleted, probably it does not exist
 					$query_params['jetpack-sso-invite-error'] = 'invalid-invite-revoke';
 				}
 				return self::create_error_notice_and_redirect( $query_params );
@@ -464,7 +490,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					)
 				);
 
-				if ( 200 !== $response['response']['code'] ) {
+				if ( is_wp_error( $response ) ) {
 					$errors->add( 'invitation_not_sent', __( '<strong>Error</strong>: The user invitation email could not be sent, the user account was not created.', 'jetpack' ) );
 				}
 			}
@@ -596,6 +622,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				null,
 				'wpcom'
 			);
+
 			if ( is_wp_error( $response ) ) {
 				return false;
 			}
@@ -617,39 +644,41 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @return string
 		 */
 		public function jetpack_show_connection_status( $val, $col, $user_id ) {
-			if ( 'user_jetpack' === $col && Jetpack::connection()->is_user_connected( $user_id ) ) {
-				$connection_html = sprintf(
-					'<span title="%1$s" class="jetpack-sso-invitation">%2$s</span>',
-					esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack' ),
-					esc_html__( 'Connected', 'jetpack' )
-				);
-				return $connection_html;
-			} else {
-				$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
-				if ( $has_pending_invite ) {
+			if ( 'user_jetpack' === $col ) {
+				if ( Jetpack::connection()->is_user_connected( $user_id ) ) {
 					$connection_html = sprintf(
-						'<span title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</span>',
-						esc_attr__( 'This user didn&#8217;t accept the invitation to join this site yet.', 'jetpack' ),
-						esc_html__( 'Pending invite', 'jetpack' )
+						'<span title="%1$s" class="jetpack-sso-invitation">%2$s</span>',
+						esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack' ),
+						esc_html__( 'Connected', 'jetpack' )
+					);
+					return $connection_html;
+				} else {
+					$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
+					if ( $has_pending_invite ) {
+						$connection_html = sprintf(
+							'<span title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</span>',
+							esc_attr__( 'This user didn&#8217;t accept the invitation to join this site yet.', 'jetpack' ),
+							esc_html__( 'Pending invite', 'jetpack' )
+						);
+						return $connection_html;
+					}
+					$nonce           = wp_create_nonce( 'jetpack-sso-invite-user' );
+					$connection_html = sprintf(
+					// Using formmethod and formaction because we can't nest forms and have to submit using the main form.
+						'<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a><span title="%3$s" class="sso-disconnected-user-icon dashicons dashicons-warning"></span>',
+						add_query_arg(
+							array(
+								'user_id'      => $user_id,
+								'invite_nonce' => $nonce,
+								'action'       => 'jetpack_invite_user_to_wpcom',
+							),
+							admin_url( 'admin-post.php' )
+						),
+						esc_html__( 'Send invite', 'jetpack' ),
+						esc_attr__( 'This user doesn&#8217;t have a WP.com account and, with your current site settings, won&#8217;t be able to log in. Request them to create a WP.com account to be able to function normally.', 'jetpack' )
 					);
 					return $connection_html;
 				}
-				$nonce           = wp_create_nonce( 'jetpack-sso-invite-user' );
-				$connection_html = sprintf(
-				// Using formmethod and formaction because we can't nest forms and have to submit using the main form.
-					'<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a><span title="%3$s" class="sso-disconnected-user-icon dashicons dashicons-warning"></span>',
-					add_query_arg(
-						array(
-							'user_id'      => $user_id,
-							'invite_nonce' => $nonce,
-							'action'       => 'jetpack_invite_user_to_wpcom',
-						),
-						admin_url( 'admin-post.php' )
-					),
-					esc_html__( 'Send invite', 'jetpack' ),
-					esc_attr__( 'This user doesn&#8217;t have a WP.com account and, with your current site settings, won&#8217;t be able to log in. Request them to create a WP.com account to be able to function normally.', 'jetpack' )
-				);
-				return $connection_html;
 			}
 		}
 

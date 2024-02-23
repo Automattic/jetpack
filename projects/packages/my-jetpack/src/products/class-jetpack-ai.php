@@ -58,21 +58,21 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'AI', 'jetpack-my-jetpack' );
+		return 'AI';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack AI', 'jetpack-my-jetpack' );
+		return 'Jetpack AI';
 	}
 
 	/**
