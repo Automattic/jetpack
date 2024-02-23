@@ -21,16 +21,11 @@ export type UseAudioTranscriptionReturn = {
 	transcriptionResult: string;
 	isTranscribingAudio: boolean;
 	transcriptionError: string;
-	transcribeAudio: ( audio: Blob ) => CancelablePromise;
-};
-
-/**
- * The props for the audio transcription hook.
- */
-export type UseAudioTranscriptionProps = {
-	feature: string;
-	onReady?: ( transcription: string ) => void;
-	onError?: ( error: string ) => void;
+	transcribeAudio: (
+		audio: Blob,
+		onReady?: ( transcription: string ) => void,
+		onError?: ( error: string ) => void
+	) => CancelablePromise;
 };
 
 /**
@@ -39,17 +34,17 @@ export type UseAudioTranscriptionProps = {
  * @param {string} feature - The feature name that is calling the transcription.
  * @returns {UseAudioTranscriptionReturn} - Object with properties to get the transcription data.
  */
-export default function useAudioTranscription( {
-	feature,
-	onReady,
-	onError,
-}: UseAudioTranscriptionProps ): UseAudioTranscriptionReturn {
+export default function useAudioTranscription( feature: string ): UseAudioTranscriptionReturn {
 	const [ transcriptionResult, setTranscriptionResult ] = useState< string >( '' );
 	const [ transcriptionError, setTranscriptionError ] = useState< string >( '' );
 	const [ isTranscribingAudio, setIsTranscribingAudio ] = useState( false );
 
 	const handleAudioTranscription = useCallback(
-		( audio: Blob ) => {
+		(
+			audio: Blob,
+			onReady?: ( transcription: string ) => void,
+			onError?: ( error: string ) => void
+		) => {
 			debug( 'Transcribing audio' );
 
 			/**
@@ -83,7 +78,13 @@ export default function useAudioTranscription( {
 
 			return promise;
 		},
-		[ transcribeAudio, setTranscriptionResult, setTranscriptionError, setIsTranscribingAudio ]
+		[
+			feature,
+			transcribeAudio,
+			setTranscriptionResult,
+			setTranscriptionError,
+			setIsTranscribingAudio,
+		]
 	);
 
 	return {

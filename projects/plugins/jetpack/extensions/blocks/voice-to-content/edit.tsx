@@ -68,24 +68,25 @@ export default function VoiceToContentEdit( { clientId } ) {
 		},
 	} );
 
-	const onTranscriptionReady = ( content: string ) => {
+	const onTranscriptionReady = useCallback(
+		( content: string ) => {
+			// eslint-disable-next-line no-console
+			console.log( 'Transcription ready: ', content );
+			setTranscription( content );
+			processTranscription( TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT, content );
+		},
+		[ setTranscription, processTranscription ]
+	);
+
+	const onTranscriptionError = useCallback( ( error: string ) => {
 		// eslint-disable-next-line no-console
-		console.log( 'Transcription ready: ', content );
-		setTranscription( content );
-		processTranscription( TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT, content );
-	};
+		console.log( 'Transcription error: ', error );
+	}, [] );
 
-	const onTranscriptionError = ( error: string ) => {
-		onError( error );
-	};
+	const { transcribeAudio }: UseAudioTranscriptionReturn =
+		useAudioTranscription( 'voice-to-content' );
 
-	const { transcribeAudio }: UseAudioTranscriptionReturn = useAudioTranscription( {
-		feature: 'voice-to-content',
-		onReady: onTranscriptionReady,
-		onError: onTranscriptionError,
-	} );
-
-	const { state, controls, error, onError, onProcessing, duration, analyser } = useMediaRecording( {
+	const { state, controls, error, onProcessing, duration, analyser } = useMediaRecording( {
 		onDone: lastBlob => {
 			// When recording is done, set the audio to be transcribed
 			onAudioHandler( lastBlob );
@@ -96,13 +97,13 @@ export default function VoiceToContentEdit( { clientId } ) {
 		( audio: Blob ) => {
 			if ( audio ) {
 				onProcessing();
-				const promise = transcribeAudio( audio );
+				const promise = transcribeAudio( audio, onTranscriptionReady, onTranscriptionError );
 				cancelTranscription.current = () => {
 					promise.canceled = true;
 				};
 			}
 		},
-		[ transcribeAudio, onProcessing ]
+		[ transcribeAudio, onProcessing, onTranscriptionReady, onTranscriptionError ]
 	);
 
 	// Destructure controls
