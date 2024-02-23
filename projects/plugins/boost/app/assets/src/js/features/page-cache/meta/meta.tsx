@@ -1,4 +1,4 @@
-import { Button, Notice } from '@automattic/jetpack-components';
+import { Button, IconTooltip, Notice } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import ChevronDown from '$svg/chevron-down';
@@ -179,7 +179,7 @@ const BypassPatterns = ( {
 			<p className={ classNames( styles.description, styles[ 'error-message' ] ) }>
 				{ __( 'Error: Invalid format', 'jetpack-boost' ) }
 			</p>
-			<p className={ styles.description }>
+			<div className={ styles.description }>
 				{ __(
 					'Use (.*) to address multiple URLs under a given path. Be sure each URL path is in its own line.',
 					'jetpack-boost'
@@ -188,13 +188,12 @@ const BypassPatterns = ( {
 				{ createInterpolateElement(
 					__( '<help>See an example</help> or <link>learn more</link>.', 'jetpack-boost' ),
 					{
-						// eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid
-						help: <a href="#" target="_blank" rel="noreferrer" />,
+						help: <BypassPatternsExample />,
 						// eslint-disable-next-line jsx-a11y/anchor-has-content
 						link: <a href={ exclusionsLink } target="_blank" rel="noreferrer" />,
 					}
 				) }
-			</p>
+			</div>
 			{ showNotice && (
 				<Notice
 					level="error"
@@ -207,6 +206,43 @@ const BypassPatterns = ( {
 			<Button disabled={ patterns === inputValue } onClick={ save } className={ styles.button }>
 				{ __( 'Save', 'jetpack-boost' ) }
 			</Button>
+		</div>
+	);
+};
+
+const BypassPatternsExample = () => {
+	const [ show, setShow ] = useState( false );
+
+	return (
+		<div className={ styles[ 'example-wrapper' ] }>
+			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
+			<a
+				href="#"
+				className={ styles[ 'example-button' ] }
+				onClick={ e => {
+					e.preventDefault();
+					setShow( ! show );
+				} }
+			>
+				{ __( 'See an example', 'jetpack-boost' ) }
+			</a>
+			<div className={ styles[ 'tooltip-wrapper' ] }>
+				<IconTooltip
+					placement="bottom-start"
+					popoverAnchorStyle="wrapper"
+					forceShow={ show }
+					offset={ -10 }
+					className={ styles.tooltip }
+				>
+					<strong>{ __( 'Example:', 'jetpack-boost' ) }</strong>
+					<br />
+					checkout
+					<br />
+					gallery/.*
+					<br />
+					specific-page
+				</IconTooltip>
+			</div>
 		</div>
 	);
 };

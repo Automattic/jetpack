@@ -91,3 +91,21 @@
 		}
 	}
 }
+
+.example-wrapper {
+	position: relative;
+	display: inline;
+
+	.example-button {
+		position: relative;
+		z-index: 10;
+	}
+
+	.tooltip-wrapper {
+		position: absolute;
+		top: 0;
+		left: -10px;
+		z-index: 9;
+	}
+}
+
