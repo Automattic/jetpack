@@ -820,6 +820,31 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Load any patterns we may have defined in our patterns directory.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_patterns() {
+		if ( ! self::should_load() ) {
+			return;
+		}
+
+		// Define a common "Jetpack" pattern category.
+		register_block_pattern_category(
+			'jetpack',
+			array( 'label' => 'Jetpack' )
+		);
+
+		// include any files in the patterns directory.
+		$pattern_files = glob( JETPACK__PLUGIN_DIR . 'extensions/patterns/*.php' );
+		foreach ( $pattern_files as $pattern ) {
+			include_once $pattern;
+		}
+	}
+
+	/**
 	 * Loads PHP components of block editor extensions.
 	 *
 	 * @since 8.9.0
