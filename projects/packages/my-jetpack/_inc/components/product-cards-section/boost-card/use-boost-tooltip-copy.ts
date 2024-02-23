@@ -46,6 +46,16 @@ export function useBoostTooltipCopy( { speedLetterGrade } ) {
 						'Your site is fast! Boost is working to enhance your performance with automated tools.',
 						'jetpack-my-jetpack'
 					);
+				case 'B':
+				case 'C':
+				case 'D':
+				case 'E':
+				case 'F':
+					// This case is here to prevent build optimization minification breaking the build.
+					return __(
+						'Visit the Boost dashboard to view your historical speed scores and manage your product settings.',
+						'jetpack-my-jetpack'
+					);
 				default:
 					return __(
 						'Visit the Boost dashboard to view your historical speed scores and manage your product settings.',
