@@ -235,4 +235,13 @@ class Waf_Blocklog_Manager {
 		self::write_blocklog_row( $log_data );
 		self::update_daily_summary();
 	}
+
+	/**
+	 * Gets the path to the waf-blocklog file.
+	 *
+	 * @return string The waf-blocklog file path.
+	 */
+	public static function get_blocklog_file_path() {
+		return trailingslashit( JETPACK_WAF_DIR ) . 'waf-blocklog';
+	}
 }
