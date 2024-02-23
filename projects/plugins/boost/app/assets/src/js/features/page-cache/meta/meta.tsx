@@ -57,9 +57,12 @@ const Meta = () => {
 		);
 	};
 
-	const mutationNoticeMessage = logging
-		? __( 'Logging enabled.', 'jetpack-boost' )
-		: __( 'Logging disabled.', 'jetpack-boost' );
+	let mutationNoticeMessage;
+	if ( logging ) {
+		mutationNoticeMessage = __( 'Logging enabled.', 'jetpack-boost' );
+	} else {
+		mutationNoticeMessage = __( 'Logging disabled.', 'jetpack-boost' );
+	}
 
 	return (
 		<div className={ styles.wrapper }>
