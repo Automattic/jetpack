@@ -16,6 +16,9 @@ use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
  */
 class Jetpack_Ai extends Product {
 
+	const CURRENT_TIER_SLUG  = 'free';
+	const UPGRADED_TIER_SLUG = 'upgraded';
+
 	/**
 	 * The product slug
 	 *
@@ -73,6 +76,83 @@ class Jetpack_Ai extends Product {
 	 */
 	public static function get_title() {
 		return 'Jetpack AI';
+	}
+
+	/**
+	 * Get the product's available tiers
+	 *
+	 * @return string[] Slugs of the available tiers
+	 */
+	public static function get_tiers() {
+		if ( ! apply_filters( 'my_jetpack_use_new_ai_page', false ) ) {
+			return array();
+		}
+		return array(
+			self::UPGRADED_TIER_SLUG,
+			self::CURRENT_TIER_SLUG,
+		);
+	}
+
+	/**
+	 * Get the internationalized comparison of free vs upgraded features
+	 *
+	 * @return array[] Protect features comparison
+	 */
+	public static function get_features_by_tier() {
+		if ( ! apply_filters( 'my_jetpack_use_new_ai_page', false ) ) {
+			return array();
+		}
+		$current_tier        = self::get_current_usage_tier();
+		$current_description = $current_tier === 0
+			? __( 'Up to 20 requests', 'jetpack-my-jetpack' )
+			/* translators: number of requests */
+			: sprintf( __( 'Up to %d requests per month', 'jetpack-my-jetpack' ), $current_tier );
+		$next_tier        = self::get_next_usage_tier();
+		$next_description = $next_tier === null
+			? __( 'Let\'s get in touch', 'jetpack-my-jetpack' )
+			/* translators: number of requests */
+			: sprintf( __( 'Up to %d requests per month', 'jetpack-my-jetpack' ), $next_tier );
+
+		return array(
+			array(
+				'name'  => __( 'Number of requests', 'jetpack-my-jetpack' ),
+				'info'  => array(
+					'title'   => __( 'Requests', 'jetpack-my-jetpack' ),
+					'content' => __( 'Increase your monthly request limit. Upgrade now and have the option to further increase your requests with additional upgrades.', 'jetpack-my-jetpack' ),
+				),
+				'tiers' => array(
+					self::CURRENT_TIER_SLUG  => array(
+						'included'    => true,
+						'description' => $current_description,
+					),
+					self::UPGRADED_TIER_SLUG => array(
+						'included'    => true,
+						'description' => $next_description,
+					),
+				),
+			),
+			array(
+				'name'  => __( 'Generate and edit content', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::CURRENT_TIER_SLUG  => array( 'included' => true ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Build forms from prompts', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::CURRENT_TIER_SLUG  => array( 'included' => true ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Get feedback on posts', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::CURRENT_TIER_SLUG  => array( 'included' => true ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+		);
 	}
 
 	/**
@@ -268,12 +348,43 @@ class Jetpack_Ai extends Product {
 	public static function get_pricing_for_ui() {
 		$next_tier = self::get_next_usage_tier();
 
-		return array_merge(
-			array(
-				'available'          => true,
-				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+		if ( ! apply_filters( 'my_jetpack_use_new_ai_page', false ) ) {
+			return array_merge(
+				array(
+					'available'          => true,
+					'wpcom_product_slug' => static::get_wpcom_product_slug(),
+				),
+				self::get_pricing_for_ui_by_usage_tier( $next_tier )
+			);
+		}
+
+		$current_tier           = self::get_current_usage_tier();
+		$current_call_to_action = $current_tier === 0
+			? __( 'Continue for free', 'jetpack-my-jetpack' )
+			: __( 'I\'m fine with my plan, thanks', 'jetpack-my-jetpack' );
+		$next_call_to_action    = $next_tier === null
+			? __( 'Contact Us', 'jetpack-my-jetpack' )
+			: __( 'Upgrade', 'jetpack-my-jetpack' );
+
+		return array(
+			'tiers' => array(
+				self::CURRENT_TIER_SLUG  => array_merge(
+					self::get_pricing_for_ui_by_usage_tier( $current_tier ),
+					array(
+						'available'      => true,
+						'is_free'        => true,
+						'call_to_action' => $current_call_to_action,
+					)
+				),
+				self::UPGRADED_TIER_SLUG => array_merge(
+					self::get_pricing_for_ui_by_usage_tier( $next_tier ),
+					array(
+						'wpcom_product_slug' => static::get_wpcom_product_slug(),
+						'quantity'           => $next_tier,
+						'call_to_action'     => $next_call_to_action,
+					)
+				),
 			),
-			self::get_pricing_for_ui_by_usage_tier( $next_tier )
 		);
 	}
 
@@ -345,6 +456,15 @@ class Jetpack_Ai extends Product {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_checkout_url() {
+		return '/wp-admin/admin.php?page=my-jetpack#/jetpack-ai';
 	}
 
 	/**
