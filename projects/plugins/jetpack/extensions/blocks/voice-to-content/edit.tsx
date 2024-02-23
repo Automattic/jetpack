@@ -27,7 +27,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 		removeBlock: ( id: number ) => void;
 		insertBlock: ( block: object ) => void;
 	} = useDispatch( 'core/block-editor' );
-	const cancelRecording = useRef( () => {} );
+	const cancelTranscription = useRef( () => {} );
 	const [ transcription, setTranscription ] = useState( null );
 
 	const destroyBlock = useCallback( () => {
@@ -88,7 +88,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 	const { state, controls, error, onError, onProcessing, duration, analyser } = useMediaRecording( {
 		onDone: lastBlob => {
 			const promise = transcribeAudio( lastBlob );
-			cancelRecording.current = () => {
+			cancelTranscription.current = () => {
 				promise.canceled = true;
 			};
 		},
@@ -99,11 +99,19 @@ export default function VoiceToContentEdit( { clientId } ) {
 			if ( event.currentTarget.files.length > 0 ) {
 				onProcessing();
 				const file = event.currentTarget.files[ 0 ];
-				return transcribeAudio( file );
+				const promise = transcribeAudio( file );
+				cancelTranscription.current = () => {
+					promise.canceled = true;
+				};
 			}
 		},
 		[ onProcessing, transcribeAudio ]
 	);
+
+	const onCancelHandler = useCallback( () => {
+		cancelTranscription.current?.();
+		controls.reset();
+	}, [ controls ] );
 
 	const onRecordHandler = useCallback( () => {
 		controls.start( 1000 ); // Stream audio on 1 second intervals
@@ -149,9 +157,8 @@ export default function VoiceToContentEdit( { clientId } ) {
 						</div>
 						<ActionButtons
 							state={ state }
-							mediaControls={ controls }
 							onUpload={ onUploadHandler }
-							onCancelRecording={ cancelRecording.current }
+							onCancel={ onCancelHandler }
 							onRecord={ onRecordHandler }
 							onPause={ onPauseHandler }
 							onResume={ onResumeHandler }

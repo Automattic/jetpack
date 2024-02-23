@@ -3,28 +3,17 @@
  */
 import { micIcon, playerPauseIcon } from '@automattic/jetpack-ai-client';
 import { Button, FormFileUpload } from '@wordpress/components';
-import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 export default function ActionButtons( {
 	state,
-	mediaControls,
 	onUpload,
-	onCancelRecording,
+	onCancel,
 	onRecord,
 	onPause,
 	onResume,
 	onDone,
 } ) {
-	const { reset } = mediaControls ?? {};
-	const cancelUpload = useRef( () => {} );
-
-	const onCancel = () => {
-		cancelUpload.current?.();
-		onCancelRecording?.();
-		reset?.();
-	};
-
 	return (
 		<div className="jetpack-ai-voice-to-content__action-buttons">
 			{ [ 'inactive', 'error' ].includes( state ) && (
