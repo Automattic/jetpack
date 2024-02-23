@@ -16,13 +16,10 @@ export default function ActionButtons( {
 	onUpload,
 	onCancelRecording,
 	onRecord,
+	onPause,
 } ) {
-	const { pause, resume, stop, reset } = mediaControls ?? {};
+	const { resume, stop, reset } = mediaControls ?? {};
 	const cancelUpload = useRef( () => {} );
-
-	const onPause = useCallback( () => {
-		pause?.();
-	}, [ pause ] );
 
 	const onResume = useCallback( () => {
 		resume?.();

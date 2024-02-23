@@ -106,6 +106,10 @@ export default function VoiceToContentEdit( { clientId } ) {
 		controls.start( 1000 ); // Stream audio on 1 second intervals
 	}, [ controls ] );
 
+	const onPauseHandler = useCallback( () => {
+		controls.pause();
+	}, [ controls ] );
+
 	// To avoid a wrong TS warning
 	const iconProps = { className: 'icon' };
 
@@ -138,6 +142,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 							onUpload={ uploadHandler }
 							onCancelRecording={ cancelRecording.current }
 							onRecord={ onRecordHandler }
+							onPause={ onPauseHandler }
 						/>
 					</div>
 					<div className="jetpack-ai-voice-to-content__footer">
