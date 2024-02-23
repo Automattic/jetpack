@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 
 class Page_Cache_Setup {
