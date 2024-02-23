@@ -108,11 +108,11 @@ class Admin_Bar_Notice {
 		Assets::register_script(
 			self::SCRIPT_NAME,
 			'_inc/build/scan/admin-bar-notice.min.js',
-			__FILE__,
+			JETPACK__PLUGIN_FILE,
 			array(
 				'in_footer'    => true,
 				'strategy'     => 'defer',
-				'nonmin_path'  => '_inc/build/scan/admin-bar-notice.js',
+				'nonmin_path'  => 'modules/scan/admin-bar-notice.js',
 				'dependencies' => array( 'admin-bar' ),
 				'version'      => self::SCRIPT_VERSION,
 				'enqueue'      => true,

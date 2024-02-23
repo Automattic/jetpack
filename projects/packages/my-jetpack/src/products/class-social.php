@@ -55,21 +55,21 @@ class Social extends Hybrid_Product {
 	);
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Social', 'jetpack-my-jetpack' );
+		return 'Social';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Social', 'jetpack-my-jetpack' );
+		return 'Jetpack Social';
 	}
 
 	/**

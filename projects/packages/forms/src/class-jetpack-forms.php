@@ -15,7 +15,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '0.30.5';
+	const PACKAGE_VERSION = '0.30.6-alpha';
 
 	/**
 	 * Load the contact form module.
@@ -30,7 +30,7 @@ class Jetpack_Forms {
 			$dashboard->init();
 		}
 
-		if ( is_admin() && apply_filters( 'tmp_grunion_allow_editor_view', true ) ) {
+		if ( is_admin() && apply_filters_deprecated( 'tmp_grunion_allow_editor_view', array( true ), '0.30.5', '', 'This functionality will be removed in an upcoming version.' ) ) {
 			add_action( 'current_screen', '\Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks' );
 		}
 

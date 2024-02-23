@@ -454,6 +454,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
+		$response['categories'] = get_categories( array( 'get' => 'all' ) );
+
 		foreach ( $settings as $setting => $properties ) {
 			switch ( $setting ) {
 				case 'lang_id':
@@ -981,6 +983,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'stb_enabled':
 				case 'stc_enabled':
 				case 'sm_enabled':
+				case 'wpcom_newsletter_categories_enabled':
 					// Convert the false value to 0. This allows the option to be updated if it doesn't exist yet.
 					$sub_value = $value ? $value : 0;
 					$updated   = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
@@ -988,6 +991,49 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'jetpack_blocks_disabled':
 					$updated = (bool) get_option( $option ) !== (bool) $value ? update_option( $option, (bool) $value ) : true;
+					break;
+
+				case 'subscription_options':
+					if ( ! is_array( $value ) ) {
+						break;
+					}
+
+					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome' );
+					$filtered_value = array_filter(
+						$value,
+						function ( $key ) use ( $allowed_keys ) {
+							return in_array( $key, $allowed_keys, true );
+						},
+						ARRAY_FILTER_USE_KEY
+					);
+
+					if ( empty( $filtered_value ) ) {
+						break;
+					}
+
+					array_walk_recursive(
+						$filtered_value,
+						function ( &$value ) {
+							$value = wp_kses(
+								$value,
+								array(
+									'a' => array(
+										'href' => array(),
+									),
+								)
+							);
+						}
+					);
+
+					$old_subscription_options = get_option( 'subscription_options' );
+					if ( ! is_array( $old_subscription_options ) ) {
+						$old_subscription_options = array();
+					}
+					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
+
+					if ( update_option( $option, $new_subscription_options ) ) {
+						$updated[ $option ] = true;
+					}
 					break;
 
 				default:

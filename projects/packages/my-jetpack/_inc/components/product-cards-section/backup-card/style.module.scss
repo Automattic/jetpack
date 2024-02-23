@@ -14,8 +14,15 @@
         display: flex;
         align-items: center;
         gap: 2px;
+        margin: 0;
 
         font-size: var(--font-body-small);
+    }
+
+    .visual-stat{
+        display: flex;
+        align-items: center;
+        gap: 2px;
     }
 
     .more-stats {

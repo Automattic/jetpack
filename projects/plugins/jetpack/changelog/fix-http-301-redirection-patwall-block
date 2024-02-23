@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Subscriptions: Prevents the HTTP 301 redirection in Paywall block
