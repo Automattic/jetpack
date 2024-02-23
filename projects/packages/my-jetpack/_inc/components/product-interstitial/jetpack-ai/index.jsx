@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { AdminPage, Col, Container, JetpackLogo } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import debugFactory from 'debug';
 /**
@@ -9,11 +10,13 @@ import debugFactory from 'debug';
 import ProductInterstitial from '../';
 import { useGoBack } from '../../../hooks/use-go-back';
 import { useProduct } from '../../../hooks/use-product';
+import GoBackLink from '../../go-back-link';
+import AiTierDetailTable from '../../product-detail-table/jetpack-ai';
 import jetpackAiImage from '../jetpack-ai.png';
 import { JetpackAIInterstitialMoreRequests } from './more-requests';
 import styles from './style.module.scss';
 
-const debug = debugFactory( 'my-jetpack:jetpack-ai-interstitial' );
+const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai' );
 /**
  * JetpackAiInterstitial component
  *
@@ -33,7 +36,7 @@ export default function JetpackAiInterstitial() {
 		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
 	}
 
-	const { hasRequiredPlan } = detail;
+	const { tiers, hasRequiredPlan } = detail;
 
 	// Default to 100 requests if the site is not registered/connected.
 	const nextTierValue = isRegistered ? nextTier?.value : 100;
@@ -43,7 +46,24 @@ export default function JetpackAiInterstitial() {
 	// Highlight the last feature in the table for all the tiers except the unlimited one.
 	const highlightLastFeature = nextTier?.value !== 1;
 
-	return (
+	return tiers && tiers.length ? (
+		<AdminPage showHeader={ false } showBackground={ false }>
+			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+				<Col className={ styles[ 'product-interstitial__product-header' ] }>
+					<JetpackLogo />
+					<div className={ styles[ 'product-interstitial__product-header-name' ] }>
+						AI Assistant
+					</div>
+				</Col>
+				<Col className={ styles[ 'product-interstitial__header' ] }>
+					<GoBackLink onClick={ onClickGoBack } />
+				</Col>
+				<Col>
+					<AiTierDetailTable />
+				</Col>
+			</Container>
+		</AdminPage>
+	) : (
 		<ProductInterstitial
 			slug="jetpack-ai"
 			installsPlugin={ true }
