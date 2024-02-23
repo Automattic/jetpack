@@ -37,7 +37,7 @@ function register_block() {
 	 * @todo: remove when WordPress 6.5 is the minimum required version.
 	 */
 	global $wp_version;
-	if ( version_compare( $wp_version, '6.5', '>=' ) ) {
+	if ( version_compare( $wp_version, '6.5-beta2', '>=' ) ) {
 		add_filter( 'hooked_block_types', __NAMESPACE__ . '\add_block_to_single_posts_template', 10, 4 );
 		add_filter( 'hooked_block_' . PARENT_BLOCK_NAME, __NAMESPACE__ . '\add_default_services_to_block', 10, 5 );
 	}
