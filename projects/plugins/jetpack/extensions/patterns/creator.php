@@ -59,8 +59,8 @@ function register_pattern() {
 	register_block_pattern(
 		'jetpack-creator',
 		array(
-			'title'      => __( 'Registration Form', 'jetpack' ),
-			'blockTypes' => array( 'jetpack/contact-form' ),
+			'title'      => __( 'Creator tools', 'jetpack' ),
+			'blockTypes' => array( 'core/post-content' ),
 			'categories' => array( 'jetpack' ),
 			'keywords'   => array(
 				__( 'like', 'jetpack' ),
