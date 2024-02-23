@@ -37,8 +37,8 @@ function load_assets( $attr ) {
 
 	if ( isset( $attr['link'] ) && isset( $attr['id'] ) ) {
 		wp_enqueue_script(
-			'jetpack-goodreads-' . $attr['id'],
-			$attr['link'],
+			'jetpack-goodreads-' . esc_attr( $attr['id'] ),
+			esc_url( $attr['link'] ),
 			array(),
 			JETPACK__VERSION,
 			true
