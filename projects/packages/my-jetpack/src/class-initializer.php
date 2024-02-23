@@ -54,6 +54,24 @@ class Initializer {
 		'jetpack-search',
 	);
 
+	// See: fbhepr%2Skers%2Sjcpbz%2Sjc%2Qpbagrag%2Szh%2Qcyhtvaf%2Sjcpbz%2Qsrngherf%2Spynff%2Qjcpbz%2Qsrngherf.cuc%3Se%3Q2r964nn6%26zb%3Q267%26sv%3Q14%2314-og
+	const JETPACK_DEFAULT_FEATURES = array(
+		'advanced-seo',
+		'social-previews',
+		'cdn',
+		'donations',
+		'jetpack-dashboard',
+		'recurring-payments',
+		'republicize',
+		'security-settings',
+		'seo-preview-tools',
+		'send-a-message',
+		'social-previews',
+		'upload-audio-files',
+		'upload-video-files',
+		'whatsapp-button',
+	);
+
 	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
 
 	/**
@@ -323,7 +341,8 @@ class Initializer {
 		$payload       = Jetpack_Core_API_Site_Endpoint::get_features();
 		$features_json = json_decode( $payload->data['data'] );
 
-		return $features_json->active;
+		// We only want to return the features that are not enabled by default
+		return array_diff( $features_json->active, self::JETPACK_DEFAULT_FEATURES );
 	}
 
 	/**
