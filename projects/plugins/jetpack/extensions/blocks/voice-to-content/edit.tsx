@@ -12,7 +12,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { createBlock } from '@wordpress/blocks';
 import { Button, Modal, Icon } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 /**
@@ -68,23 +68,12 @@ export default function VoiceToContentEdit( { clientId } ) {
 		},
 	} );
 
-	const onTranscriptionReady = useCallback(
-		( content: string ) => {
-			// eslint-disable-next-line no-console
-			console.log( 'Transcription ready: ', content );
-			setTranscription( content );
-			processTranscription( TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT, content );
-		},
-		[ setTranscription, processTranscription ]
-	);
-
-	const onTranscriptionError = useCallback( ( error: string ) => {
-		// eslint-disable-next-line no-console
-		console.log( 'Transcription error: ', error );
-	}, [] );
-
-	const { transcribeAudio }: UseAudioTranscriptionReturn =
-		useAudioTranscription( 'voice-to-content' );
+	const {
+		transcribeAudio,
+		isTranscriptionReady,
+		transcriptionResult,
+		transcriptionError,
+	}: UseAudioTranscriptionReturn = useAudioTranscription( 'voice-to-content' );
 
 	const { state, controls, error, onProcessing, duration, analyser } = useMediaRecording( {
 		onDone: lastBlob => {
@@ -93,17 +82,42 @@ export default function VoiceToContentEdit( { clientId } ) {
 		},
 	} );
 
+	/*
+	 * React to transcription results
+	 */
+	useEffect( () => {
+		if ( isTranscriptionReady ) {
+			// eslint-disable-next-line no-console
+			console.log( 'Transcription ready: ', transcriptionResult );
+			setTranscription( transcriptionResult );
+			processTranscription(
+				TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
+				transcriptionResult
+			);
+		}
+	}, [ isTranscriptionReady, transcriptionResult, processTranscription ] );
+
+	/*
+	 * React to transcription errors
+	 */
+	useEffect( () => {
+		if ( transcriptionError ) {
+			// eslint-disable-next-line no-console
+			console.log( 'Transcription error: ', transcriptionError );
+		}
+	}, [ transcriptionError ] );
+
 	const onAudioHandler = useCallback(
 		( audio: Blob ) => {
 			if ( audio ) {
 				onProcessing();
-				const promise = transcribeAudio( audio, onTranscriptionReady, onTranscriptionError );
+				const promise = transcribeAudio( audio );
 				cancelTranscription.current = () => {
 					promise.canceled = true;
 				};
 			}
 		},
-		[ transcribeAudio, onProcessing, onTranscriptionReady, onTranscriptionError ]
+		[ transcribeAudio, onProcessing ]
 	);
 
 	// Destructure controls

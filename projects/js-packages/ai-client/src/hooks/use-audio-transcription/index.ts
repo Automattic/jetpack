@@ -21,11 +21,8 @@ export type UseAudioTranscriptionReturn = {
 	transcriptionResult: string;
 	isTranscribingAudio: boolean;
 	transcriptionError: string;
-	transcribeAudio: (
-		audio: Blob,
-		onReady?: ( transcription: string ) => void,
-		onError?: ( error: string ) => void
-	) => CancelablePromise;
+	isTranscriptionReady: boolean;
+	transcribeAudio: ( audio: Blob ) => CancelablePromise;
 };
 
 /**
@@ -38,20 +35,18 @@ export default function useAudioTranscription( feature: string ): UseAudioTransc
 	const [ transcriptionResult, setTranscriptionResult ] = useState< string >( '' );
 	const [ transcriptionError, setTranscriptionError ] = useState< string >( '' );
 	const [ isTranscribingAudio, setIsTranscribingAudio ] = useState( false );
+	const [ isTranscriptionReady, setIsTranscriptionReady ] = useState( false );
 
 	const handleAudioTranscription = useCallback(
-		(
-			audio: Blob,
-			onReady?: ( transcription: string ) => void,
-			onError?: ( error: string ) => void
-		) => {
+		( audio: Blob ) => {
 			debug( 'Transcribing audio' );
 
 			/**
-			 * Reset the transcription result and error.
+			 * Reset the transcription state.
 			 */
 			setTranscriptionResult( '' );
 			setTranscriptionError( '' );
+			setIsTranscriptionReady( false );
 			setIsTranscribingAudio( true );
 
 			/**
@@ -64,7 +59,7 @@ export default function useAudioTranscription( feature: string ): UseAudioTransc
 					}
 
 					setTranscriptionResult( transcriptionText );
-					onReady?.( transcriptionText );
+					setIsTranscriptionReady( true );
 				} )
 				.catch( error => {
 					if ( promise.canceled ) {
@@ -72,7 +67,6 @@ export default function useAudioTranscription( feature: string ): UseAudioTransc
 					}
 
 					setTranscriptionError( error.message );
-					onError?.( error.message );
 				} )
 				.finally( () => setIsTranscribingAudio( false ) );
 
@@ -84,6 +78,7 @@ export default function useAudioTranscription( feature: string ): UseAudioTransc
 			setTranscriptionResult,
 			setTranscriptionError,
 			setIsTranscribingAudio,
+			setIsTranscriptionReady,
 		]
 	);
 
@@ -91,6 +86,7 @@ export default function useAudioTranscription( feature: string ): UseAudioTransc
 		transcriptionResult,
 		isTranscribingAudio,
 		transcriptionError,
+		isTranscriptionReady,
 		transcribeAudio: handleAudioTranscription,
 	};
 }
