@@ -1,19 +1,13 @@
 import { __ } from '@wordpress/i18n';
 import Header from '$layout/header/header';
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
-import { z } from 'zod';
 import Footer from '$layout/footer/footer';
 import styles from './cache-debug-log.module.scss';
 import classNames from 'classnames';
 import { CopyToClipboard } from '@automattic/jetpack-components';
+import { useDebugLog } from '$features/page-cache/lib/stores';
 
 const CacheDebugLog = () => {
-	const [ { data: debugLog } ] = useDataSync( 'jetpack_boost_ds', 'cache_debug_log', z.string(), {
-		query: {
-			// Keep refreshing the logs every 10 seconds
-			refetchInterval: 10000,
-		},
-	} );
+	const [ { data: debugLog } ] = useDebugLog();
 
 	return (
 		<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
