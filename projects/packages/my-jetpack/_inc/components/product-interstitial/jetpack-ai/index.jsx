@@ -3,6 +3,7 @@
  */
 import { AdminPage, Col, Container, JetpackLogo } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
+import classnames from 'classnames';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -41,18 +42,32 @@ export default function JetpackAiInterstitial() {
 
 	return tiers && tiers.length ? (
 		<AdminPage showHeader={ false } showBackground={ false }>
-			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col className={ styles[ 'product-interstitial__product-header' ] }>
-					<JetpackLogo />
-					<div className={ styles[ 'product-interstitial__product-header-name' ] }>
-						AI Assistant
+			<Container
+				fluid
+				horizontalSpacing={ 3 }
+				horizontalGap={ 3 }
+				className={ styles[ 'product-interstitial__container' ] }
+			>
+				<Col className={ styles[ 'product-interstitial__section' ] }>
+					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
+						<GoBackLink onClick={ onClickGoBack } />
+					</div>
+					<div
+						className={ classnames(
+							styles[ 'product-interstitial__section-wrapper-wide' ],
+							styles[ 'product-interstitial__product-header' ]
+						) }
+					>
+						<JetpackLogo />
+						<div className={ styles[ 'product-interstitial__product-header-name' ] }>
+							AI Assistant
+						</div>
 					</div>
 				</Col>
-				<Col className={ styles[ 'product-interstitial__header' ] }>
-					<GoBackLink onClick={ onClickGoBack } />
-				</Col>
-				<Col>
-					<AiTierDetailTable />
+				<Col className={ styles[ 'product-interstitial__section' ] }>
+					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
+						<AiTierDetailTable />
+					</div>
 				</Col>
 			</Container>
 		</AdminPage>
