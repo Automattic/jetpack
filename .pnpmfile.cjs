@@ -86,6 +86,13 @@ function fixDeps( pkg ) {
 		delete pkg.peerDependenciesMeta?.ajv;
 	}
 
+	// Missing deps.
+	// https://github.com/storybookjs/test-runner/issues/414
+	if ( pkg.name === '@storybook/test-runner' ) {
+		pkg.dependencies.semver ??= '*';
+		pkg.dependencies[ 'detect-package-manager' ] ??= '*';
+	}
+
 	return pkg;
 }
 
