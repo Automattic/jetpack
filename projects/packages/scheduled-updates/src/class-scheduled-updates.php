@@ -47,9 +47,9 @@ class Scheduled_Updates {
 	/**
 	 * Run the scheduled update.
 	 *
-	 * @param array $plugins List of plugins to update.
+	 * @param string ...$plugins The plugins to update.
 	 */
-	public static function jetpack_run_scheduled_update( $plugins = array() ) {
+	public static function jetpack_run_scheduled_update( ...$plugins ) {
 		$available_updates = get_site_transient( 'update_plugins' );
 		$plugins_to_update = array();
 
