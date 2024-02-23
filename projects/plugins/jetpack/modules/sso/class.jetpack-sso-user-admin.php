@@ -29,9 +29,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			add_action( 'delete_user', array( 'Jetpack_SSO_Helpers', 'delete_connection_for_user' ) );
 			// If the user has no errors on creation, send an invite to WordPress.com.
 			add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
-			// Don't send core invitation email when SSO is activated. They will get an email from WP.com.
-			add_filter( 'wp_send_new_user_notification_to_user', '__return_false' );
+			add_filter( 'wp_send_new_user_notification_to_user', array( $this, 'should_send_wp_mail_new_user' ) );
 			add_action( 'user_new_form', array( $this, 'render_invitation_email_message' ) );
+			add_action( 'user_new_form', array( $this, 'render_wpcom_invite_checkbox' ), 1 );
 			add_action( 'user_new_form', array( $this, 'render_custom_email_message_form_field' ), 1 );
 			add_action( 'delete_user_form', array( $this, 'render_invitations_notices_for_deleted_users' ) );
 			add_action( 'delete_user', array( $this, 'revoke_user_invite' ) );
@@ -416,6 +416,36 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		}
 
 		/**
+		 * Render WordPress.com invite checkbox for new user registration.
+		 *
+		 * @param string $type The type of new user form the hook follows.
+		 */
+		public function render_wpcom_invite_checkbox( $type ) {
+			if ( $type === 'add-new-user' ) {
+				?>
+				<table class="form-table">
+					<tr class="form-field">
+						<th scope="row">
+							<label for="invite_user_wpcom"><?php esc_html_e( 'Invite user:', 'jetpack' ); ?></label>
+						</th>
+						<td>
+							<fieldset>
+								<legend class="screen-reader-text">
+									<span><?php esc_html_e( 'Invite user', 'jetpack' ); ?></span>
+								</legend>
+								<label for="invite_user_wpcom">
+									<input name="invite_user_wpcom" type="checkbox" id="invite_user_wpcom" checked>
+									<?php esc_html_e( 'Invite user to WordPress.com', 'jetpack' ); ?>
+								</label>
+							</fieldset>
+						</td>
+					</tr>
+				</table>
+				<?php
+			}
+		}
+
+		/**
 		 * Render the custom email message form field for new user registration.
 		 *
 		 * @param string $type The type of new user form the hook follows.
@@ -446,6 +476,16 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		}
 
 		/**
+		 * Conditionally disable the core invitation email.
+		 * It should be sent when SSO is disabled or when admins opt-out of WordPress.com invites intentionally.
+		 *
+		 * @return boolean Indicating if the core invitation main should be sent.
+		 */
+		public function should_send_wp_mail_new_user() {
+			return empty( $_POST['invite_user_wpcom'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		}
+
+		/**
 		 * Send user invitation to WordPress.com if user has no errors.
 		 *
 		 * @param WP_Error $errors The WP_Error object.
@@ -456,6 +496,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		public function send_wpcom_mail_user_invite( $errors, $update, $user ) {
 			if ( ! $update ) {
 				$valid_nonce = isset( $_POST['_wpnonce_create-user'] ) ? wp_verify_nonce( $_POST['_wpnonce_create-user'], 'create-user' ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+
+				if ( $this->should_send_wp_mail_new_user() ) {
+					return $errors;
+				}
 
 				if ( $valid_nonce && ! empty( $_POST['custom_email_message'] ) && strlen( sanitize_text_field( wp_unslash( $_POST['custom_email_message'] ) ) ) > 500 ) {
 					$errors->add( 'custom_email_message', __( '<strong>Error</strong>: The custom message is too long. Please keep it under 500 characters.', 'jetpack' ) );
@@ -644,39 +688,41 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @return string
 		 */
 		public function jetpack_show_connection_status( $val, $col, $user_id ) {
-			if ( 'user_jetpack' === $col && Jetpack::connection()->is_user_connected( $user_id ) ) {
-				$connection_html = sprintf(
-					'<span title="%1$s" class="jetpack-sso-invitation">%2$s</span>',
-					esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack' ),
-					esc_html__( 'Connected', 'jetpack' )
-				);
-				return $connection_html;
-			} else {
-				$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
-				if ( $has_pending_invite ) {
+			if ( 'user_jetpack' === $col ) {
+				if ( Jetpack::connection()->is_user_connected( $user_id ) ) {
 					$connection_html = sprintf(
-						'<span title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</span>',
-						esc_attr__( 'This user didn&#8217;t accept the invitation to join this site yet.', 'jetpack' ),
-						esc_html__( 'Pending invite', 'jetpack' )
+						'<span title="%1$s" class="jetpack-sso-invitation">%2$s</span>',
+						esc_attr__( 'This user is connected and can log-in to this site.', 'jetpack' ),
+						esc_html__( 'Connected', 'jetpack' )
+					);
+					return $connection_html;
+				} else {
+					$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
+					if ( $has_pending_invite ) {
+						$connection_html = sprintf(
+							'<span title="%1$s" class="jetpack-sso-invitation sso-pending-invite">%2$s</span>',
+							esc_attr__( 'This user didn&#8217;t accept the invitation to join this site yet.', 'jetpack' ),
+							esc_html__( 'Pending invite', 'jetpack' )
+						);
+						return $connection_html;
+					}
+					$nonce           = wp_create_nonce( 'jetpack-sso-invite-user' );
+					$connection_html = sprintf(
+					// Using formmethod and formaction because we can't nest forms and have to submit using the main form.
+						'<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a><span title="%3$s" class="sso-disconnected-user-icon dashicons dashicons-warning"></span>',
+						add_query_arg(
+							array(
+								'user_id'      => $user_id,
+								'invite_nonce' => $nonce,
+								'action'       => 'jetpack_invite_user_to_wpcom',
+							),
+							admin_url( 'admin-post.php' )
+						),
+						esc_html__( 'Send invite', 'jetpack' ),
+						esc_attr__( 'This user doesn&#8217;t have a WP.com account and, with your current site settings, won&#8217;t be able to log in. Request them to create a WP.com account to be able to function normally.', 'jetpack' )
 					);
 					return $connection_html;
 				}
-				$nonce           = wp_create_nonce( 'jetpack-sso-invite-user' );
-				$connection_html = sprintf(
-				// Using formmethod and formaction because we can't nest forms and have to submit using the main form.
-					'<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a><span title="%3$s" class="sso-disconnected-user-icon dashicons dashicons-warning"></span>',
-					add_query_arg(
-						array(
-							'user_id'      => $user_id,
-							'invite_nonce' => $nonce,
-							'action'       => 'jetpack_invite_user_to_wpcom',
-						),
-						admin_url( 'admin-post.php' )
-					),
-					esc_html__( 'Send invite', 'jetpack' ),
-					esc_attr__( 'This user doesn&#8217;t have a WP.com account and, with your current site settings, won&#8217;t be able to log in. Request them to create a WP.com account to be able to function normally.', 'jetpack' )
-				);
-				return $connection_html;
 			}
 		}
 
@@ -728,12 +774,20 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			}
 
 			.sso-disconnected-user-icon {
-				margin-left: 5px;
+				margin-left: 4px;
 				cursor: pointer;
 				background: gray;
 				border-radius: 10px;
-				color: white;
 			}
+
+			.sso-disconnected-user-icon.dashicons {
+				font-size: 1rem;
+				height: 1rem;
+				width: 1rem;
+				background-color: #9D6E00;
+				color: #F5F1E1;
+			}
+
 		</style>
 			<?php
 		}

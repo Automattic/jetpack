@@ -2,7 +2,7 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { GoldenTokenModal } from '@automattic/jetpack-licensing';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import usePurchases from '../../hooks/use-purchases';
+import usePurchases from '../../data/purchases/use-purchases';
 import { includesLifetimePurchase } from '../../utils/is-lifetime-purchase';
 
 /**
@@ -17,10 +17,11 @@ export default function RedeemTokenScreen() {
 		userConnectionData?.currentUser?.wpcomUser?.display_name ||
 		userConnectionData?.currentUser?.wpcomUser?.login ||
 		userConnectionData?.currentUser?.username;
-	const { isFetchingPurchases, purchases } = usePurchases();
+	const { isLoading, data: purchases } = usePurchases();
+
 	const tokenRedeemed = includesLifetimePurchase( purchases );
 
-	if ( isFetchingPurchases ) {
+	if ( isLoading ) {
 		return <>{ __( 'Checking gold status…', 'jetpack-my-jetpack' ) }</>;
 	}
 
