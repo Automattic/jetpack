@@ -314,8 +314,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			check_admin_referer( 'jetpack-sso-revoke-user-invite', 'revoke_invite_nonce' );
 			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
 
-			self::$tracking->record_user_event( 'sso_user_invite_revoke', array( 'path' => 'old_settings' ) );
-
 			if ( ! current_user_can( 'promote_users' ) ) {
 				$error        = 'invalid-revoke-permissions';
 				$query_params = array(
