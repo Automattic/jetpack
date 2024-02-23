@@ -3,7 +3,7 @@
  */
 import { micIcon, playerPauseIcon } from '@automattic/jetpack-ai-client';
 import { Button, FormFileUpload } from '@wordpress/components';
-import { useCallback, useRef } from '@wordpress/element';
+import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Types
@@ -18,13 +18,10 @@ export default function ActionButtons( {
 	onRecord,
 	onPause,
 	onResume,
+	onDone,
 } ) {
-	const { stop, reset } = mediaControls ?? {};
+	const { reset } = mediaControls ?? {};
 	const cancelUpload = useRef( () => {} );
-
-	const onDone = useCallback( () => {
-		stop?.();
-	}, [ stop ] );
 
 	const onCancel = () => {
 		cancelUpload.current?.();

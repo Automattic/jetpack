@@ -114,6 +114,10 @@ export default function VoiceToContentEdit( { clientId } ) {
 		controls.resume();
 	}, [ controls ] );
 
+	const onDoneHandler = useCallback( () => {
+		controls.stop();
+	}, [ controls ] );
+
 	// To avoid a wrong TS warning
 	const iconProps = { className: 'icon' };
 
@@ -148,6 +152,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 							onRecord={ onRecordHandler }
 							onPause={ onPauseHandler }
 							onResume={ onResumeHandler }
+							onDone={ onDoneHandler }
 						/>
 					</div>
 					<div className="jetpack-ai-voice-to-content__footer">
