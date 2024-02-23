@@ -518,11 +518,11 @@ HTML;
 			$postpass_cookie_key = 'wp-postpass_' . COOKIEHASH;
 
 			if ( ! empty( $_COOKIE[ $postpass_cookie_key ] ) ) {
-//				phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-				$postpass_cookie_value = $_COOKIE[ $postpass_cookie_key ]; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-				$verbum_post_cookie    = ! empty( $_COOKIE['verbum-wp-postpass'] ) ? $_COOKIE['verbum-wp-postpass'] : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+				$postpass_cookie_value = wp_unslash( $_COOKIE[ $postpass_cookie_key ] ); //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$verbum_post_cookie    = ! empty( $_COOKIE['verbum-wp-postpass'] ) ? wp_unslash( $_COOKIE['verbum-wp-postpass'] ) : ''; //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 				if ( $postpass_cookie_value !== $verbum_post_cookie ) :
+//				phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 					?>
 					const expireTimeDate = new Date( Date.now() + 10 * 86400000 );
 					document.cookie = "<?php echo $postpass_cookie_key; ?>=<?php echo $postpass_cookie_value; ?>; SameSite=None; Secure=True; path=/;expires=" + expireTimeDate.toGMTString();
