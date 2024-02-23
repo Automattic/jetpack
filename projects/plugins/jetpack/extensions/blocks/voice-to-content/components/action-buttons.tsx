@@ -10,13 +10,15 @@ import { __ } from '@wordpress/i18n';
  */
 import type { CancelablePromise } from '@automattic/jetpack-ai-client';
 
-export default function ActionButtons( { state, mediaControls, onUpload, onCancelRecording } ) {
-	const { start, pause, resume, stop, reset } = mediaControls ?? {};
+export default function ActionButtons( {
+	state,
+	mediaControls,
+	onUpload,
+	onCancelRecording,
+	onRecord,
+} ) {
+	const { pause, resume, stop, reset } = mediaControls ?? {};
 	const cancelUpload = useRef( () => {} );
-
-	const onRecord = useCallback( () => {
-		start?.( 1000 ); // Stream audio on 1 second intervals
-	}, [ start ] );
 
 	const onPause = useCallback( () => {
 		pause?.();

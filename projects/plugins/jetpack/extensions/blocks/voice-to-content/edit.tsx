@@ -102,6 +102,10 @@ export default function VoiceToContentEdit( { clientId } ) {
 		}
 	};
 
+	const onRecordHandler = useCallback( () => {
+		controls.start( 1000 ); // Stream audio on 1 second intervals
+	}, [ controls ] );
+
 	// To avoid a wrong TS warning
 	const iconProps = { className: 'icon' };
 
@@ -133,6 +137,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 							mediaControls={ controls }
 							onUpload={ uploadHandler }
 							onCancelRecording={ cancelRecording.current }
+							onRecord={ onRecordHandler }
 						/>
 					</div>
 					<div className="jetpack-ai-voice-to-content__footer">
