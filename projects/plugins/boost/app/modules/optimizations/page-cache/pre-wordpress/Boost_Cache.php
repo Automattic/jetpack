@@ -3,7 +3,7 @@
  * This file is loaded by advanced-cache.php, and so cannot rely on autoloading.
  */
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
 /*
  * Require all pre-wordpress files here. These files aren't autoloaded as they are loaded before WordPress is fully initialized.

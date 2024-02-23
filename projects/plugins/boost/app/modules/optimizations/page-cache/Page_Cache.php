@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
@@ -8,9 +8,9 @@ use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache;
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 
 class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	/*
