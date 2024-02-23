@@ -87,12 +87,23 @@ export default function VoiceToContentEdit( { clientId } ) {
 
 	const { state, controls, error, onError, onProcessing, duration, analyser } = useMediaRecording( {
 		onDone: lastBlob => {
-			const promise = transcribeAudio( lastBlob );
-			cancelTranscription.current = () => {
-				promise.canceled = true;
-			};
+			// When recording is done, set the audio to be transcribed
+			onAudioHandler( lastBlob );
 		},
 	} );
+
+	const onAudioHandler = useCallback(
+		( audio: Blob ) => {
+			if ( audio ) {
+				onProcessing();
+				const promise = transcribeAudio( audio );
+				cancelTranscription.current = () => {
+					promise.canceled = true;
+				};
+			}
+		},
+		[ transcribeAudio, onProcessing ]
+	);
 
 	// Destructure controls
 	const {
@@ -106,15 +117,11 @@ export default function VoiceToContentEdit( { clientId } ) {
 	const onUploadHandler = useCallback(
 		event => {
 			if ( event.currentTarget.files.length > 0 ) {
-				onProcessing();
 				const file = event.currentTarget.files[ 0 ];
-				const promise = transcribeAudio( file );
-				cancelTranscription.current = () => {
-					promise.canceled = true;
-				};
+				onAudioHandler( file );
 			}
 		},
-		[ onProcessing, transcribeAudio ]
+		[ onAudioHandler ]
 	);
 
 	const onCancelHandler = useCallback( () => {
