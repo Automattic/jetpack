@@ -216,7 +216,7 @@ jobs:
   storybook-test:
     name: Storybook validation
     runs-on: ubuntu-latest
-    timeout: 20 # 2024-02-23 Wild guess
+    timeout-minutes: 20 # 2024-02-23 Wild guess
     steps:
       - uses: actions/checkout@v4
 
