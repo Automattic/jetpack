@@ -41,23 +41,36 @@ export default function ActionButtons( { state, mediaControls, onUpload, onCance
 		};
 	};
 
-	let buttonLabel = __( 'Begin recording', 'jetpack' );
-	if ( state === 'recording' ) {
-		buttonLabel = __( 'Pause recording', 'jetpack' );
-	} else if ( state === 'paused' ) {
-		buttonLabel = __( 'Resume recording', 'jetpack' );
-	}
-
 	return (
 		<div className="jetpack-ai-voice-to-content__action-buttons">
-			{ [ 'inactive', 'recording', 'paused', 'error' ].includes( state ) && (
+			{ [ 'inactive', 'error' ].includes( state ) && (
 				<Button
 					className="jetpack-ai-voice-to-content__button"
-					icon={ state === 'recording' ? playerPauseIcon : micIcon }
+					icon={ micIcon }
 					variant="secondary"
 					onClick={ recordingHandler }
 				>
-					{ buttonLabel }
+					{ __( 'Begin recording', 'jetpack' ) }
+				</Button>
+			) }
+			{ [ 'recording' ].includes( state ) && (
+				<Button
+					className="jetpack-ai-voice-to-content__button"
+					icon={ playerPauseIcon }
+					variant="secondary"
+					onClick={ recordingHandler }
+				>
+					{ __( 'Pause recording', 'jetpack' ) }
+				</Button>
+			) }
+			{ [ 'paused' ].includes( state ) && (
+				<Button
+					className="jetpack-ai-voice-to-content__button"
+					icon={ micIcon }
+					variant="secondary"
+					onClick={ recordingHandler }
+				>
+					{ __( 'Resume recording', 'jetpack' ) }
 				</Button>
 			) }
 			{ [ 'inactive', 'error' ].includes( state ) && (
