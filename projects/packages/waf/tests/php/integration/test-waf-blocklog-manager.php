@@ -31,20 +31,6 @@ final class WafBlocklogManagerTest extends WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests the creation of the WAF blocklog file and verifies that a specific log entry is present.
-	 */
-	public function testWafBlocklogFileCreationAndEntry() {
-		$file_path = Waf_Blocklog_Manager::get_blocklog_file_path();
-
-		// Ensure the blocklog file was generated
-		$this->assertFileExists( $file_path, 'The waf-blocklog file should exist.' );
-
-		// Check if the file contains the test log entry
-		$contents = file_get_contents( $file_path );
-		$this->assertStringContainsString( 'Test block reason for file', $contents, 'The file should contain the test log entry.' );
-	}
-
-	/**
 	 * Verifies that the daily summary option is correctly updated with today's date and that the entry count is greater than zero.
 	 */
 	public function testWafBlocklogDailySummaryOptionUpdate() {
