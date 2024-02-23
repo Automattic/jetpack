@@ -16,8 +16,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"storybook:build": "storybook build -c ./storybook -o ./docs",
-		"storybook:dev": "storybook dev -c ./storybook -p 50240",
-		"test": "jest tests/"
+		"storybook:dev": "storybook dev -c ./storybook -p 50240"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:*",
