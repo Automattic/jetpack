@@ -30,7 +30,7 @@ export default function ActionButtons( { state, mediaControls, onUpload, onCance
 		stop?.();
 	}, [ stop ] );
 
-	const cancelHandler = () => {
+	const onCancel = () => {
 		cancelUpload.current?.();
 		onCancelRecording?.();
 		reset?.();
@@ -98,7 +98,7 @@ export default function ActionButtons( { state, mediaControls, onUpload, onCance
 				<Button
 					className="jetpack-ai-voice-to-content__button"
 					variant="secondary"
-					onClick={ cancelHandler }
+					onClick={ onCancel }
 				>
 					{ __( 'Cancel', 'jetpack' ) }
 				</Button>
