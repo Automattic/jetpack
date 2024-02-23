@@ -6,9 +6,6 @@ import { REST_API_SITE_DISMISS_BANNER, REST_API_SITE_PRODUCTS_ENDPOINT } from '.
 /*
  * Action constants
  */
-const SET_PURCHASES_IS_FETCHING = 'SET_PURCHASES_IS_FETCHING';
-const FETCH_PURCHASES = 'FETCH_PURCHASES';
-const SET_PURCHASES = 'SET_PURCHASES';
 const SET_AVAILABLE_LICENSES_IS_FETCHING = 'SET_AVAILABLE_LICENSES_IS_FETCHING';
 const FETCH_AVAILABLE_LICENSES = 'FETCH_AVAILABLE_LICENSES';
 const SET_AVAILABLE_LICENSES = 'SET_AVAILABLE_LICENSES';
@@ -38,10 +35,6 @@ const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
 const SET_PRODUCT_STATS = 'SET_PRODUCT_STATS';
 const SET_IS_FETCHING_PRODUCT_STATS = 'SET_IS_FETCHING_PRODUCT_STATS';
 
-const setPurchasesIsFetching = isFetching => {
-	return { type: SET_PURCHASES_IS_FETCHING, isFetching };
-};
-
 const setChatAvailabilityIsFetching = isFetching => {
 	return { type: SET_CHAT_AVAILABILITY_IS_FETCHING, isFetching };
 };
@@ -60,14 +53,6 @@ const setCountBackupItemsIsFetching = isFetching => {
 
 const setStatsCountsIsFetching = isFetching => {
 	return { type: SET_STATS_COUNTS_IS_FETCHING, isFetching };
-};
-
-const fetchPurchases = () => {
-	return { type: FETCH_PURCHASES };
-};
-
-const setPurchases = purchases => {
-	return { type: SET_PURCHASES, purchases };
 };
 
 const setChatAvailability = chatAvailability => {
@@ -328,11 +313,8 @@ const noticeActions = {
 };
 
 const actions = {
-	setPurchasesIsFetching,
 	setChatAvailabilityIsFetching,
 	setChatAuthenticationIsFetching,
-	fetchPurchases,
-	setPurchases,
 	setChatAvailability,
 	setChatAuthentication,
 	setAvailableLicensesIsFetching,
@@ -352,9 +334,6 @@ const actions = {
 };
 
 export {
-	SET_PURCHASES_IS_FETCHING,
-	FETCH_PURCHASES,
-	SET_PURCHASES,
 	SET_AVAILABLE_LICENSES_IS_FETCHING,
 	FETCH_AVAILABLE_LICENSES,
 	SET_AVAILABLE_LICENSES,

@@ -48,7 +48,7 @@ const Module = ( {
 	}, [] );
 
 	// Don't show unavailable modules
-	if ( ! isModuleAvailable ) {
+	if ( ! isModuleAvailable && slug !== 'page_cache' ) {
 		return null;
 	}
 
