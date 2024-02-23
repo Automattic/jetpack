@@ -245,7 +245,7 @@ jobs:
           CHANGED=$( .github/files/list-changed-projects.sh )
           PROJECTS=$( node -e 'const r = { "js-packages/storybook": true }; for ( const p of require( "./projects/js-packages/storybook/storybook/projects.js" ) ) { const m = p.match( /\/projects\/([^/]+\/[^/]+)(?:$|\/)/ ); m && ( r[ m[1] ] = true ); } console.log( JSON.stringify( r ) );' )
 
-          ANY=$( jq --argjson changed "$CHANGED" --arg projects "$PROJECTS" -n '$changed | with_entries( select( $projects[ .key ] ) ) | any' )
+          ANY=$( jq --argjson changed "$CHANGED" --argjson projects "$PROJECTS" -n '$changed | with_entries( select( $projects[ .key ] ) ) | any' )
           echo "any=${ANY}" >> "$GITHUB_OUTPUT"
 
       - name: Build storybook
