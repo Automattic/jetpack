@@ -25,7 +25,7 @@ const CacheDebugLog = () => {
 						<CopyToClipboard
 							buttonStyle="icon-text"
 							className={ styles[ 'copy-button' ] }
-							textToCopy={ debugLog as string }
+							textToCopy={ debugLog || '' }
 							variant="link"
 							weight="regular"
 						>
