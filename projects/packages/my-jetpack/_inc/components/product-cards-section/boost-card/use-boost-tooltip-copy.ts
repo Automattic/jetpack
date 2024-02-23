@@ -58,7 +58,8 @@ export function useBoostTooltipCopy( { speedLetterGrade } ) {
 					);
 				default:
 					return __(
-						'Visit the Boost dashboard to view your historical speed scores and manage your product settings.',
+						'Visit the Boost dashboard to view your historical speed scores and manage ' +
+							'your product settings.',
 						'jetpack-my-jetpack'
 					);
 			}
