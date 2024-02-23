@@ -73,11 +73,10 @@ class Blaze {
 	 * @return bool
 	 */
 	public static function is_dashboard_enabled() {
-		$is_dashboard_enabled          = true;
-		$wpcom_is_nav_redesign_enabled = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
+		$is_dashboard_enabled = true;
 
-		// On WordPress.com sites, the dashboard is not needed if the nav redesign is not enabled.
-		if ( ! $wpcom_is_nav_redesign_enabled && ( new Host() )->is_wpcom_platform() ) {
+		// On WordPress.com sites, the dashboard is not needed if the admin interface style is not wp-admin.
+		if ( ( new Host() )->is_wpcom_platform() && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 			$is_dashboard_enabled = false;
 		}
 
@@ -125,13 +124,16 @@ class Blaze {
 			);
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		} elseif ( ( new Host() )->is_wpcom_platform() ) {
-			$domain      = ( new Jetpack_Status() )->get_site_suffix();
-			$page_suffix = add_submenu_page(
+			$domain                  = ( new Jetpack_Status() )->get_site_suffix();
+			$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+			$page_suffix             = add_submenu_page(
 				'tools.php',
 				esc_attr__( 'Advertising', 'jetpack-blaze' ),
 				__( 'Advertising', 'jetpack-blaze' ),
 				'manage_options',
-				'https://wordpress.com/advertising/' . $domain,
+				$uses_wp_admin_interface
+					? 'tools.php?page=advertising'
+					: 'https://wordpress.com/advertising/' . $domain,
 				null,
 				1
 			);
