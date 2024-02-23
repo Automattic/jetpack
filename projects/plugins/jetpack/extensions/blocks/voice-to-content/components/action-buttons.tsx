@@ -26,7 +26,7 @@ export default function ActionButtons( { state, mediaControls, onUpload, onCance
 		resume?.();
 	}, [ resume ] );
 
-	const doneHandler = useCallback( () => {
+	const onDone = useCallback( () => {
 		stop?.();
 	}, [ stop ] );
 
@@ -89,7 +89,7 @@ export default function ActionButtons( { state, mediaControls, onUpload, onCance
 				<Button
 					className="jetpack-ai-voice-to-content__button"
 					variant="primary"
-					onClick={ doneHandler }
+					onClick={ onDone }
 				>
 					{ __( 'Done', 'jetpack' ) }
 				</Button>
