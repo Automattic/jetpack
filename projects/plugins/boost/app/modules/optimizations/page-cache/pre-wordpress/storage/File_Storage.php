@@ -32,7 +32,7 @@ class File_Storage implements Storage {
 	 */
 	public function write( $request_uri, $parameters, $data ) {
 		$directory = self::get_uri_directory( $request_uri );
-		$filename  = Boost_Cache_Utils::get_request_filename( $parameters );
+		$filename  = Filesystem_Utils::get_request_filename( $parameters );
 
 		if ( ! Filesystem_Utils::create_directory( $directory ) ) {
 			return new \WP_Error( 'Could not create cache directory' );
@@ -49,7 +49,7 @@ class File_Storage implements Storage {
 	 */
 	public function read( $request_uri, $parameters ) {
 		$directory = self::get_uri_directory( $request_uri );
-		$filename  = Boost_Cache_Utils::get_request_filename( $parameters );
+		$filename  = Filesystem_Utils::get_request_filename( $parameters );
 		$hash_path = $directory . $filename;
 
 		if ( file_exists( $hash_path ) ) {
@@ -113,9 +113,9 @@ class File_Storage implements Storage {
 		Logger::debug( "invalidate: $path $type" );
 		$normalized_path = $this->root_path . Boost_Cache_Utils::normalize_request_uri( $path );
 
-		if ( in_array( $type, array( Boost_Cache_Utils::DELETE_FILES, Boost_Cache_Utils::DELETE_ALL ), true ) && is_dir( $normalized_path ) ) {
-			return Boost_Cache_Utils::delete_directory( $normalized_path, $type );
-		} elseif ( $type === Boost_Cache_Utils::DELETE_FILE && is_file( $normalized_path ) ) {
+		if ( in_array( $type, array( Filesystem_Utils::DELETE_FILES, Filesystem_Utils::DELETE_ALL ), true ) && is_dir( $normalized_path ) ) {
+			return Filesystem_Utils::delete_directory( $normalized_path, $type );
+		} elseif ( $type === Filesystem_Utils::DELETE_FILE && is_file( $normalized_path ) ) {
 			return Filesystem_Utils::delete_file( $normalized_path );
 		} else {
 			return new \WP_Error( 'no-cache-files-to-delete', 'No cache files to delete.' );

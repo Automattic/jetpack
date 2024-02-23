@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 
 class Page_Cache_Setup {
@@ -163,7 +162,7 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	public static function uninstall() {
 		self::deactivate();
 
-		$result = Boost_Cache_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache', Boost_Cache_Utils::DELETE_ALL );
+		$result = Filesystem_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache', Filesystem_Utils::DELETE_ALL );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
