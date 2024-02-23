@@ -661,7 +661,7 @@ class REST_Controller {
 		}
 
 		if ( empty( $order ) ) {
-			// TODO What if legacy is in use or if it is an old plugin?
+			// No order in HPOS
 			return new WP_Error( 'order_not_found', __( 'Order not found ', 'jetpack-backup-pkg' ), array( 'status' => 404 ) );
 		}
 
