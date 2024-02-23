@@ -26,7 +26,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	/**
 	 * The full signature including the current version, to verify the Advanced-cache file is current.
 	 */
-	const ADVANCED_CACHE_VERSION = 'v0.0.2';
+	const ADVANCED_CACHE_VERSION = 'v0.0.3';
 
 	/*
 	 * @var Boost_Cache_Settings - The settings for the page cache.
