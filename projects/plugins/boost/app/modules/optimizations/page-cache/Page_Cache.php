@@ -35,8 +35,6 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 
 	public function __construct() {
 		$this->settings = Boost_Cache_Settings::get_instance();
-		register_deactivation_hook( JETPACK_BOOST_PATH, array( Page_Cache_Setup::class, 'deactivate' ) );
-		register_uninstall_hook( JETPACK_BOOST_PATH, array( Page_Cache_Setup::class, 'uninstall' ) );
 	}
 
 	public function setup() {
