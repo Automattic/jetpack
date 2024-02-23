@@ -214,7 +214,7 @@ jobs:
           retention-days: 7
 
   storybook-test:
-    name: Storybook validation
+    name: Storybook tests
     runs-on: ubuntu-latest
     timeout-minutes: 20 # 2024-02-23 Wild guess
     steps:
@@ -230,8 +230,6 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
-        with:
-          php: false
 
       - name: Monorepo install
         run: |
