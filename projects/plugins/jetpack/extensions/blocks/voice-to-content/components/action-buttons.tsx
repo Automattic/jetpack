@@ -14,12 +14,6 @@ export default function ActionButtons( { state, mediaControls, onUpload, onCance
 	const { start, pause, resume, stop, reset } = mediaControls ?? {};
 	const cancelUpload = useRef( () => {} );
 
-	const recordingHandler = useCallback( () => {
-		if ( state === 'paused' ) {
-			resume?.();
-		}
-	}, [ state, resume ] );
-
 	const onRecord = useCallback( () => {
 		start?.( 1000 ); // Stream audio on 1 second intervals
 	}, [ start ] );
@@ -27,6 +21,10 @@ export default function ActionButtons( { state, mediaControls, onUpload, onCance
 	const onPause = useCallback( () => {
 		pause?.();
 	}, [ pause ] );
+
+	const onResume = useCallback( () => {
+		resume?.();
+	}, [ resume ] );
 
 	const doneHandler = useCallback( () => {
 		stop?.();
@@ -72,7 +70,7 @@ export default function ActionButtons( { state, mediaControls, onUpload, onCance
 					className="jetpack-ai-voice-to-content__button"
 					icon={ micIcon }
 					variant="secondary"
-					onClick={ recordingHandler }
+					onClick={ onResume }
 				>
 					{ __( 'Resume recording', 'jetpack' ) }
 				</Button>
