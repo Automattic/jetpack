@@ -10,7 +10,7 @@ use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 
 class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	/*
@@ -70,7 +70,7 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 
 	public function invalidate_cache() {
 		$cache = new Boost_Cache();
-		$cache->get_storage()->invalidate( home_url(), Boost_Cache_Utils::DELETE_ALL );
+		$cache->get_storage()->invalidate( home_url(), Filesystem_Utils::DELETE_ALL );
 	}
 
 	/**
