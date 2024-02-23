@@ -198,6 +198,30 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 	}
 
+	public function connect_mock( $args ) {
+		$action = isset( $args[0] ) ? $args[0] : null;
+		if ( ! in_array( $action, array( 'blog', 'user', 'clear' ), true ) ) {
+			/* translators: %s is a command like "prompt" */
+			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
+		}
+
+		switch ( $action ) {
+			case 'blog':
+				Jetpack_Options::update_option( 'id', '12345' );
+				( new Connection_Manager( 'jetpack' ) )->get_tokens()->update_blog_token( 'blog.token' );
+				break;
+			case 'user':
+				( new Connection_Manager( 'jetpack' ) )->get_tokens()->update_user_token( 1, 'user.token.1', true );
+				break;
+			case 'clear':
+				Jetpack_Options::delete_option( 'id' );
+				Jetpack_Options::delete_option( 'master_user' );
+				Jetpack_Options::delete_option( 'user_tokens' );
+				Jetpack_Options::delete_option( 'blog_token' );
+				break;
+		}
+	}
+
 	/**
 	 * Disconnect Jetpack Blogs or Users
 	 *
