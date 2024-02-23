@@ -79,6 +79,17 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				if ( $has_pending_invite ) {
 					$response_body = self::revoke_wpcom_invite( $has_pending_invite );
 
+					if ( is_wp_error( $response_body ) ) {
+						$this->tracking->record_user_event(
+							'sso_user_invite_revoke',
+							array(
+								'success' => 'false',
+								'error'   => 'invalid-revoke-api-error',
+							)
+						);
+						return $response_body;
+					}
+
 					if ( ! $response_body->deleted ) {
 						$this->tracking->record_user_event(
 							'sso_user_invite_revoke',
@@ -129,6 +140,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						return wp_admin_notice( __( 'Tried to revoke an invite that doesn&#8217;t exist.', 'jetpack' ), array( 'type' => 'error' ) );
 					case 'invalid-revoke-permissions':
 						return wp_admin_notice( __( 'You don&#8217;t have permission to revoke invites.', 'jetpack' ), array( 'type' => 'error' ) );
+					case 'invalid-revoke-api-error':
+						return wp_admin_notice( __( 'An error has occurred when revoking the user invite.', 'jetpack' ), array( 'type' => 'error' ) );
 					default:
 						return wp_admin_notice( __( 'An error has occurred when inviting the user to the site.', 'jetpack' ), array( 'type' => 'error' ) );
 				}
@@ -204,10 +217,19 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				);
 
 				if ( is_wp_error( $response ) ) {
+					$error        = 'invalid-invite-api-error';
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
-						'jetpack-sso-invite-error' => 'invalid_request',
+						'jetpack-sso-invite-error' => $error,
 						'_wpnonce'                 => $nonce,
+					);
+
+					$this->tracking->record_user_event(
+						'sso_user_invite_send',
+						array(
+							'success' => 'false',
+							'error'   => $error,
+						)
 					);
 					return self::create_error_notice_and_redirect( $query_params );
 				}
@@ -223,6 +245,15 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				if ( ! $body->success && $body->errors ) {
 					$response_error                           = array_keys( (array) $body->errors );
 					$query_params['jetpack-sso-invite-error'] = $response_error[0];
+					$this->tracking->record_user_event(
+						'sso_user_invite_send',
+						array(
+							'success' => 'false',
+							'error'   => $response_error[0],
+						)
+					);
+				} else {
+					$this->tracking->record_user_event( 'sso_user_invite_send', array( 'success' => 'true' ) );
 				}
 
 				return self::create_error_notice_and_redirect( $query_params );
@@ -343,10 +374,18 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				$response  = self::revoke_wpcom_invite( $invite_id );
 
 				if ( is_wp_error( $response ) ) {
+					$error        = 'invalid-revoke-api-error';
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
-						'jetpack-sso-invite-error' => '', // general error message
+						'jetpack-sso-invite-error' => $error, // general error message
 						'_wpnonce'                 => $nonce,
+					);
+					$this->tracking->record_user_event(
+						'sso_user_invite_revoke',
+						array(
+							'success' => 'false',
+							'error'   => $error,
+						)
 					);
 					return self::create_error_notice_and_redirect( $query_params );
 				}
@@ -357,7 +396,17 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'_wpnonce'                => $nonce,
 				);
 				if ( ! $body->deleted ) { // no invite was deleted, probably it does not exist
-					$query_params['jetpack-sso-invite-error'] = 'invalid-invite-revoke';
+					$error                                    = 'invalid-invite-revoke';
+					$query_params['jetpack-sso-invite-error'] = $error;
+					$this->tracking->record_user_event(
+						'sso_user_invite_revoke',
+						array(
+							'success' => 'false',
+							'error'   => $error,
+						)
+					);
+				} else {
+					$this->tracking->record_user_event( 'sso_user_invite_revoke', array( 'success' => 'true' ) );
 				}
 				return self::create_error_notice_and_redirect( $query_params );
 			} else {
