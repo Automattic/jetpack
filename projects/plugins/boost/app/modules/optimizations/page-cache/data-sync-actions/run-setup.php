@@ -1,9 +1,9 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Data_Sync_Actions;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Page_Cache_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 
 /**
  * Critical CSS Action: request regeneration.

@@ -3,11 +3,11 @@
  * This file may be called before WordPress is fully initialized. See the README file for info.
  */
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Storage;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Storage;
 
-use Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress\Filesystem_Utils;
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Logger;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
 /**
  * File Storage - handles writing to disk, reading from disk, purging and pruning old content.

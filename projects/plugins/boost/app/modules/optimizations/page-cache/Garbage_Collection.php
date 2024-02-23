@@ -1,9 +1,9 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache;
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Logger;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
 class Garbage_Collection {
 	const ACTION        = 'jetpack_boost_cache_garbage_collection';

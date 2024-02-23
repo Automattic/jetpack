@@ -3,7 +3,7 @@
  * This file may be called before WordPress is fully initialized. See the README file for info.
  */
 
-namespace Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
 class Boost_Cache_Utils {
 
