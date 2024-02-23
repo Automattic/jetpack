@@ -66,7 +66,7 @@ class Filesystem_Utils {
 	 * @return bool
 	 */
 	public static function is_boost_cache_directory( $dir ) {
-		$dir = self::sanitize_file_path( $dir );
+		$dir = Boost_Cache_Utils::sanitize_file_path( $dir );
 		return strpos( $dir, WP_CONTENT_DIR . '/boost-cache' ) !== false;
 	}
 
