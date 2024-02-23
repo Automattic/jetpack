@@ -28,7 +28,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 *
 		 * @var $instance
 		 */
-		private $tracking = null;
+		private static $tracking = null;
 
 		/**
 		 * Constructor function.
@@ -53,7 +53,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_user_new_form_styles' ) );
 			add_filter( 'users_list_table_query_args', array( $this, 'set_user_query' ), 100, 1 );
 
-			$this->tracking = new Tracking();
+			self::$tracking = new Tracking();
 		}
 
 		/**
@@ -80,7 +80,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					$response_body = self::revoke_wpcom_invite( $has_pending_invite );
 
 					if ( is_wp_error( $response_body ) ) {
-						$this->tracking->record_user_event(
+						self::$tracking->record_user_event(
 							'sso_user_invite_revoke',
 							array(
 								'success' => 'false',
@@ -91,7 +91,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					}
 
 					if ( ! $response_body->deleted ) {
-						$this->tracking->record_user_event(
+						self::$tracking->record_user_event(
 							'sso_user_invite_revoke',
 							array(
 								'success' => 'false',
@@ -99,7 +99,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 							)
 						);
 					} else {
-						$this->tracking->record_user_event( 'sso_user_invite_revoke', array( 'success' => 'true' ) );
+						self::$tracking->record_user_event( 'sso_user_invite_revoke', array( 'success' => 'true' ) );
 					}
 
 					return $response_body;
@@ -163,7 +163,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'_wpnonce'                 => $nonce,
 				);
 
-				$this->tracking->record_user_event(
+				self::$tracking->record_user_event(
 					'sso_user_invite_send',
 					array(
 						'success' => 'false',
@@ -184,7 +184,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						'_wpnonce'                 => $nonce,
 					);
 
-					$this->tracking->record_user_event(
+					self::$tracking->record_user_event(
 						'sso_user_invite_send',
 						array(
 							'success' => 'false',
@@ -224,7 +224,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						'_wpnonce'                 => $nonce,
 					);
 
-					$this->tracking->record_user_event(
+					self::$tracking->record_user_event(
 						'sso_user_invite_send',
 						array(
 							'success' => 'false',
@@ -245,7 +245,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				if ( ! $body->success && $body->errors ) {
 					$response_error                           = array_keys( (array) $body->errors );
 					$query_params['jetpack-sso-invite-error'] = $response_error[0];
-					$this->tracking->record_user_event(
+					self::$tracking->record_user_event(
 						'sso_user_invite_send',
 						array(
 							'success' => 'false',
@@ -253,7 +253,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						)
 					);
 				} else {
-					$this->tracking->record_user_event( 'sso_user_invite_send', array( 'success' => 'true' ) );
+					self::$tracking->record_user_event( 'sso_user_invite_send', array( 'success' => 'true' ) );
 				}
 
 				return self::create_error_notice_and_redirect( $query_params );
@@ -264,7 +264,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'jetpack-sso-invite-error' => $error,
 					'_wpnonce'                 => $nonce,
 				);
-				$this->tracking->record_user_event(
+				self::$tracking->record_user_event(
 					'sso_user_invite_send',
 					array(
 						'success' => 'false',
@@ -314,7 +314,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			check_admin_referer( 'jetpack-sso-revoke-user-invite', 'revoke_invite_nonce' );
 			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
 
-			$this->tracking->record_user_event( 'sso_user_invite_revoke', array( 'path' => 'old_settings' ) );
+			self::$tracking->record_user_event( 'sso_user_invite_revoke', array( 'path' => 'old_settings' ) );
 
 			if ( ! current_user_can( 'promote_users' ) ) {
 				$error        = 'invalid-revoke-permissions';
@@ -324,7 +324,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'_wpnonce'                 => $nonce,
 				);
 
-				$this->tracking->record_user_event(
+				self::$tracking->record_user_event(
 					'sso_user_invite_revoke',
 					array(
 						'success' => 'false',
@@ -343,7 +343,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						'_wpnonce'                 => $nonce,
 					);
 
-					$this->tracking->record_user_event(
+					self::$tracking->record_user_event(
 						'sso_user_invite_revoke',
 						array(
 							'success' => 'false',
@@ -360,7 +360,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						'jetpack-sso-invite-error' => $error,
 						'_wpnonce'                 => $nonce,
 					);
-					$this->tracking->record_user_event(
+					self::$tracking->record_user_event(
 						'sso_user_invite_revoke',
 						array(
 							'success' => 'false',
@@ -380,7 +380,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						'jetpack-sso-invite-error' => $error, // general error message
 						'_wpnonce'                 => $nonce,
 					);
-					$this->tracking->record_user_event(
+					self::$tracking->record_user_event(
 						'sso_user_invite_revoke',
 						array(
 							'success' => 'false',
@@ -398,7 +398,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				if ( ! $body->deleted ) { // no invite was deleted, probably it does not exist
 					$error                                    = 'invalid-invite-revoke';
 					$query_params['jetpack-sso-invite-error'] = $error;
-					$this->tracking->record_user_event(
+					self::$tracking->record_user_event(
 						'sso_user_invite_revoke',
 						array(
 							'success' => 'false',
@@ -406,7 +406,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						)
 					);
 				} else {
-					$this->tracking->record_user_event( 'sso_user_invite_revoke', array( 'success' => 'true' ) );
+					self::$tracking->record_user_event( 'sso_user_invite_revoke', array( 'success' => 'true' ) );
 				}
 				return self::create_error_notice_and_redirect( $query_params );
 			} else {
@@ -416,7 +416,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'jetpack-sso-invite-error' => $error,
 					'_wpnonce'                 => $nonce,
 				);
-				$this->tracking->record_user_event(
+				self::$tracking->record_user_event(
 					'sso_user_invite_revoke',
 					array(
 						'success' => 'false',
@@ -666,7 +666,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 				if ( is_wp_error( $response ) ) {
 					$errors->add( 'invitation_not_sent', __( '<strong>Error</strong>: The user invitation email could not be sent, the user account was not created.', 'jetpack' ) );
-					$this->tracking->record_user_event(
+					self::$tracking->record_user_event(
 						'sso_user_new_user_invite_send',
 						array(
 							'success' => 'false',
@@ -674,7 +674,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					);
 				} else {
 					$custom_message_sent = $new_user_request['message'] ? 'true' : 'false';
-					$this->tracking->record_user_event(
+					self::$tracking->record_user_event(
 						'sso_user_new_user_invite_send',
 						array(
 							'success'             => 'true',
