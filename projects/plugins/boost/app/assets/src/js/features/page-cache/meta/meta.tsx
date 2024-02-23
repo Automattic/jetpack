@@ -57,9 +57,14 @@ const Meta = () => {
 		);
 	};
 
+	const mutationNoticeMessage = logging
+		? __( 'Logging enabled.', 'jetpack-boost' )
+		: __( 'Logging disabled.', 'jetpack-boost' );
+
 	return (
 		<div className={ styles.wrapper }>
 			<MutationNotice { ...mutateBypassPatterns } />
+			<MutationNotice { ...mutateLogging } successMessage={ mutationNoticeMessage } />
 			<MutationNotice
 				{ ...runClearPageCacheAction }
 				savingMessage={ __( 'Clearing cache…', 'jetpack-boost' ) }
