@@ -15,7 +15,7 @@
 }
 
 #createuser .form-field [type=checkbox] {
-	width: auto;
+	width: 1rem;
 }
 
 #custom_email_message_description {
