@@ -1,0 +1,28 @@
+.newsletter-colapsable {
+    transition: max-height 500ms;
+    max-height: 60px;
+        
+    &.hide {
+        max-height: 0px;
+        overflow: hidden;
+    }
+}
+
+.tree-dropdown-colapsable {
+	grid-template-rows: 1fr;
+	transition: grid-template-rows 500ms;
+	display: grid;
+	  
+	&.hide {
+		grid-template-rows: 0fr;
+		opacity: 1;
+	}
+
+	ul {
+		overflow: hidden;
+	  }
+
+	  &.tree-dropdown {
+		overflow: hidden;
+	}
+}
