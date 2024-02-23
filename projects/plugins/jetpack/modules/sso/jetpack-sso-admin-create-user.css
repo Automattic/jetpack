@@ -14,6 +14,10 @@
 	width: 25em;
 }
 
+#createuser .form-field [type=checkbox] {
+	width: auto;
+}
+
 #custom_email_message_description {
 	max-width: 25rem;
 	color: #646970;
