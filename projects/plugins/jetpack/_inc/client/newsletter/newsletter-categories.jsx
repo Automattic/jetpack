@@ -1,6 +1,7 @@
 import './style.scss';
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import React, { useCallback, useMemo } from 'react';
@@ -110,7 +111,9 @@ function NewsletterCategories( props ) {
 					label={ __( 'Enable newsletter categories', 'jetpack' ) }
 				/>
 				<div
-					className={ `newsletter-colapsable ${ ! isNewsletterCategoriesEnabled ? 'hide' : '' }` }
+					className={ classNames( 'newsletter-colapsable', {
+						hide: ! isNewsletterCategoriesEnabled,
+					} ) }
 				>
 					<TreeDropdown
 						items={ mappedCategories }
@@ -120,7 +123,11 @@ function NewsletterCategories( props ) {
 					/>
 				</div>
 			</SettingsGroup>
-			<div className={ `newsletter-colapsable ${ ! isNewsletterCategoriesEnabled ? 'hide' : '' }` }>
+			<div
+				className={ classNames( 'newsletter-card-colapsable', {
+					hide: ! isNewsletterCategoriesEnabled,
+				} ) }
+			>
 				<Card
 					compact
 					className="jp-settings-card__configure-link"
