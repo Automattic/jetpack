@@ -12,12 +12,11 @@
  */
 function wpcom_add_wpcom_menu_item() {
 	if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
-		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 		add_menu_page(
-			esc_attr__( 'WordPress.com', 'jetpack-mu-wpcom' ),
-			esc_attr__( 'WordPress.com', 'jetpack-mu-wpcom' ),
+			esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
+			esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
 			'manage_options',
-			"https://wordpress.com/home/$domain",
+			'https://wordpress.com/sites',
 			null,
 			'dashicons-arrow-left-alt2',
 			0
