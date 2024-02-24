@@ -93,7 +93,7 @@ describe( 'GoodreadsEdit', () => {
 
 		const attributes = {
 			...defaultAttributes,
-			goodreadsId: '1176283',
+			goodreadsId: 1176283,
 			userInput: 'https://www.goodreads.com/user/show/1176283-matt-mullenweg',
 		};
 		render( <GoodreadsEdit { ...{ ...defaultProps, attributes } } /> );

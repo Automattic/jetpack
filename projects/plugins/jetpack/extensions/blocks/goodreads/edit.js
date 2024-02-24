@@ -31,7 +31,7 @@ const GoodreadsEdit = props => {
 			}
 
 			if ( goodreadsUserId && ! isError ) {
-				setAttributes( { goodreadsId: goodreadsUserId.toString() } );
+				setAttributes( { goodreadsId: goodreadsUserId } );
 				setRequestLink();
 			}
 		}
