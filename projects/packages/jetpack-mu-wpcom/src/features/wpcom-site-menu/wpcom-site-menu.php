@@ -152,7 +152,7 @@ add_action( 'admin_menu', 'wpcom_add_wpcom_menu_item' );
 function wpcom_wpcom_menu_item_css() {
 	?>
 	<style>
-		.toplevel_page_wpcom-hosting-menu .wp-submenu .wp-first-item{
+		.toplevel_page_wpcom-hosting-menu .wp-submenu .wp-first-item {
 			display: none;
 		}
 	</style>
