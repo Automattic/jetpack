@@ -9,6 +9,17 @@
 
 /**
  * Add a WordPress.com menu item to the wp-admin sidebar menu.
+ *
+ * Of note, we need the $parent_slug so that we can link the submenu items to the parent menu item. Using a URL
+ * for the slug doesn't appear to work when registering submenus. Because we use the parent slug in the top
+ * level menu item, we need to find a solution to link that menu out to WordPress.com.
+ *
+ * We accomplish this by:
+ *
+ * - Adding a submenu item that links to /sites.
+ * - Hiding that submenu item with CSS.
+ *
+ * This works because the top level menu item links to wherever the submenu item links to.
  */
 function wpcom_add_wpcom_menu_item() {
 	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
@@ -127,7 +138,7 @@ function wpcom_add_wpcom_menu_item() {
 		null
 	);
 
-	// By default, WordPress adds a submenu item for the parent menu item. We don't want that.
+	// By default, WordPress adds a submenu item for the parent menu item, which we don't want.
 	remove_submenu_page(
 		$parent_slug,
 		$parent_slug
