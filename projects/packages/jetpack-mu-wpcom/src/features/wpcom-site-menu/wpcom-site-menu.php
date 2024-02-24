@@ -13,8 +13,8 @@
 function wpcom_add_wpcom_menu_item() {
 	if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
 		add_menu_page(
-			esc_attr__( 'WordPress.com', 'jetpack-mu-wpcom' ),
-			esc_attr__( 'WordPress.com', 'jetpack-mu-wpcom' ),
+			esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
+			esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
 			'manage_options',
 			'https://wordpress.com/sites',
 			null,
