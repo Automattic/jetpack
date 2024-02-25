@@ -26,8 +26,38 @@ function wpcom_add_wpcom_menu_item() {
 		return;
 	}
 
+	global $menu;
+
 	$parent_slug = 'wpcom-hosting-menu';
 	$domain      = wp_parse_url( home_url(), PHP_URL_HOST );
+
+	add_menu_page(
+		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'https://wordpress.com/sites',
+		null,
+		'dashicons-arrow-left-alt2',
+		0
+	);
+
+	// Position a separator below the WordPress.com menu item.
+	// Inspired by https://github.com/Automattic/jetpack/blob/b6b6e86c5491869782857141ca48168dfa195635/projects/plugins/jetpack/modules/masterbar/admin-menu/class-base-admin-menu.php#L239
+	$separator = array(
+		'',
+		'manage_options',
+		wp_unique_id( 'separator-custom-' ),
+		'',
+		'wp-menu-separator',
+	);
+
+	$position = 0;
+	if ( isset( $menu[ "$position" ] ) ) {
+		$position            = $position + substr( base_convert( md5( $separator[2] . $separator[0] ), 16, 10 ), -5 ) * 0.00001;
+		$menu[ "$position" ] = $separator; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	} else {
+		$menu[ "$position" ] = $separator; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	}
 
 	add_menu_page(
 		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
