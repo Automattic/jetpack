@@ -456,8 +456,8 @@
 						cursor: default;
 
 						&:disabled {
-							background-color: white;
-							border: 1px solid var(--verbum-content-background-color);
+							background-color: var(--verbum-content-background-color);
+							border: 1px solid var(--verbum-border-color);
 							color: #a7aaad;
 						}
 
