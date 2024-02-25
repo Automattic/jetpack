@@ -31,7 +31,7 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_menu_page(
 		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ) . ' <span class="dashicons dashicons-external" style="float: right;"></span>',
 		'manage_options',
 		$parent_slug,
 		null,
@@ -41,10 +41,10 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'My Home', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'My Home', 'jetpack-mu-wpcom' ),
 		'manage_options',
-		esc_url( 'https://wordpress.com/sites' ),
+		esc_url( "https://wordpress.com/home/$domain" ),
 		null
 	);
 
@@ -59,6 +59,15 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
+		esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		esc_url( "https://wordpress.com/add-ons/$domain" ),
+		null
+	);
+
+	add_submenu_page(
+		$parent_slug,
 		esc_attr__( 'Domains', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Domains', 'jetpack-mu-wpcom' ),
 		'manage_options',
@@ -68,8 +77,8 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Email', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Email', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Emails', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Emails', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/email/$domain" ),
 		null
@@ -95,8 +104,8 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Site Monitoring', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Site Monitoring', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Monitoring', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Monitoring', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/site-monitoring/$domain" ),
 		null
@@ -104,19 +113,10 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Earn', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Earn', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/earn/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Podcasting', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Podcasting', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/settings/podcasting/$domain" ),
 		null
 	);
 
@@ -145,17 +145,3 @@ function wpcom_add_wpcom_menu_item() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_wpcom_menu_item' );
-
-/**
- * Add CSS to hide the first submenu item.
- */
-function wpcom_wpcom_menu_item_css() {
-	?>
-	<style>
-		.toplevel_page_wpcom-hosting-menu .wp-submenu .wp-first-item {
-			display: none;
-		}
-	</style>
-	<?php
-}
-add_action( 'admin_head', 'wpcom_wpcom_menu_item_css' );
