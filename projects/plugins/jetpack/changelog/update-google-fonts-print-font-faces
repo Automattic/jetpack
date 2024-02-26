@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Google Fonts: Update the implement of print_font_faces as the value of WP_Font_Face_Resolver::get_fonts_from_theme_json may be an indexed array
