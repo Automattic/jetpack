@@ -46,30 +46,22 @@ export function usePageCacheSetup() {
 			action_request: z.void(),
 			action_response: PageCacheError.or( z.literal( true ) ),
 		},
+		mutationOptions: {
+			onError: error => {
+				if ( error instanceof DataSyncError ) {
+					return setError( error.info() );
+				}
+				const standardizedError = standardizeError( error );
+				setError( {
+					code: 'unknown_error',
+					message: standardizedError.message || 'Unknown error occurred.',
+				} );
+			},
+			onSuccess: () => {
+				setError( null );
+			},
+		},
 	} );
-
-	// If cache setup encounters an error,
-	// standardize it and set it to the Page Cache Error store.
-	useEffect( () => {
-		if ( pageCacheSetup.isError && pageCacheSetup.error ) {
-			if ( pageCacheSetup.error instanceof DataSyncError ) {
-				return setError( pageCacheSetup.error.info() );
-			}
-			const standardizedError = standardizeError( pageCacheSetup.error );
-			setError( {
-				code: 'unknown_error',
-				message: standardizedError.message || 'Unknown error occurred.',
-			} );
-		}
-	}, [ pageCacheSetup.isError, pageCacheSetup.error, setError ] );
-
-	// If cache setup is successful, clear the error.
-	useEffect( () => {
-		if ( pageCacheSetup.isSuccess ) {
-			setError( null );
-		}
-	}, [ pageCacheSetup.isSuccess, setError ] );
-
 	return [ pageCacheSetup, pageCacheError ] as const;
 }
 
