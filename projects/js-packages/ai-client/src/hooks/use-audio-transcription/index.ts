@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useState, useRef } from '@wordpress/element';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -22,6 +22,7 @@ export type UseAudioTranscriptionReturn = {
 	isTranscribingAudio: boolean;
 	transcriptionError: string;
 	transcribeAudio: ( audio: Blob ) => CancelablePromise;
+	cancelTranscription: () => void;
 };
 
 /**
@@ -48,6 +49,11 @@ export default function useAudioTranscription( {
 	const [ transcriptionError, setTranscriptionError ] = useState< string >( '' );
 	const [ isTranscribingAudio, setIsTranscribingAudio ] = useState( false );
 
+	/**
+	 * Include an abort controller to cancel the transcription.
+	 */
+	const abortController = useRef< AbortController | null >( new AbortController() );
+
 	const handleAudioTranscription = useCallback(
 		( audio: Blob ) => {
 			debug( 'Transcribing audio' );
@@ -62,7 +68,11 @@ export default function useAudioTranscription( {
 			/**
 			 * Call the audio transcription library.
 			 */
-			const promise: CancelablePromise = transcribeAudio( audio, feature )
+			const promise: CancelablePromise = transcribeAudio(
+				audio,
+				feature,
+				abortController.current.signal
+			)
 				.then( transcriptionText => {
 					if ( promise.canceled ) {
 						return;
@@ -86,10 +96,25 @@ export default function useAudioTranscription( {
 		[ transcribeAudio, setTranscriptionResult, setTranscriptionError, setIsTranscribingAudio ]
 	);
 
+	const handleAudioTranscriptionCancelled = useCallback( () => {
+		/*
+		 * Reset the transcription result and error.
+		 */
+		setTranscriptionResult( '' );
+		setTranscriptionError( '' );
+		setIsTranscribingAudio( false );
+
+		/*
+		 * Cancel the transcription.
+		 */
+		abortController.current.abort();
+	}, [ setTranscriptionResult, setTranscriptionError, setIsTranscribingAudio ] );
+
 	return {
 		transcriptionResult,
 		isTranscribingAudio,
 		transcriptionError,
 		transcribeAudio: handleAudioTranscription,
+		cancelTranscription: handleAudioTranscriptionCancelled,
 	};
 }
