@@ -57,8 +57,7 @@ function wpcom_load_command_palette() {
 		'command-palette-styles',
 		'//widgets.wp.com/command-palette/build.css',
 		array(),
-		$version,
-		true
+		$version
 	);
 }
 add_action( 'admin_enqueue_scripts', 'wpcom_load_command_palette', 99999 );
