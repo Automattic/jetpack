@@ -34,7 +34,7 @@ class Logger {
 
 		$instance          = new Logger();
 		$prepared_log_file = $instance->prepare_file();
-		if ( is_wp_error( $prepared_log_file ) ) {
+		if ( Boost_Cache_Error::is_error( $prepared_log_file ) ) {
 			return $prepared_log_file;
 		}
 
@@ -53,7 +53,7 @@ class Logger {
 
 		$directory = dirname( $log_file );
 		if ( ! Filesystem_Utils::create_directory( $directory ) ) {
-			return new \WP_Error( 'Could not create boost cache log directory' );
+			return new Boost_Cache_Error( 'could-not-create-log-dir', 'Could not create boost cache log directory' );
 		}
 
 		return Filesystem_Utils::write_to_file( $log_file, self::LOG_HEADER );
@@ -72,7 +72,7 @@ class Logger {
 
 		// TODO: Check to make sure that current request IP is allowed to create logs.
 
-		if ( ! is_wp_error( $logger ) ) {
+		if ( ! Boost_Cache_Error::is_error( $logger ) ) {
 			$logger->log( $message );
 		}
 	}
