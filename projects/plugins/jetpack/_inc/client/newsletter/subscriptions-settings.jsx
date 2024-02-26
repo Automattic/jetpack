@@ -196,7 +196,7 @@ function SubscriptionsSettings( props ) {
 									'jetpack_subscriptions_subscribe_post_end_enabled',
 								] ) }
 								onChange={ handleSubscribePostEndToggleChange }
-								label={ __( 'End of each post', 'jetpack' ) }
+								label="End of each post"
 							/>
 						</FormFieldset>
 					</SettingsGroup>
