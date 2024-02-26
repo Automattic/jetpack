@@ -776,6 +776,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 */
 		public function create_error_notice_and_redirect( $query_params ) {
 			$ref = wp_get_referer();
+			if ( empty( $ref ) ) {
+				$ref = network_admin_url( 'users.php' );
+			}
+
 			$url = add_query_arg(
 				$query_params,
 				$ref
