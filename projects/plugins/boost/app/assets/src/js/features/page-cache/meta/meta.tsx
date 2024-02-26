@@ -62,16 +62,18 @@ const Meta = () => {
 
 	return (
 		<div className={ styles.wrapper }>
-			<MutationNotice { ...mutateBypassPatterns } />
+			<MutationNotice { ...mutateBypassPatterns } mutationId="update-bypass-patterns" />
 			<MutationNotice
 				{ ...mutateLogging }
 				successMessage={ logging ? loggingEnabledMessage : loggingDisabledMessage }
+				mutationId="update-logging"
 			/>
 			<MutationNotice
 				{ ...runClearPageCacheAction }
 				savingMessage={ __( 'Clearing cache…', 'jetpack-boost' ) }
 				errorMessage={ __( 'Unable to clear cache.', 'jetpack-boost' ) }
 				successMessage={ clearedCacheMessage || __( 'Cache cleared.', 'jetpack-boost' ) }
+				mutationId="clear-page-cache"
 			/>
 			<div className={ styles.head }>
 				<div className={ styles.summary }>{ getSummary() }</div>
