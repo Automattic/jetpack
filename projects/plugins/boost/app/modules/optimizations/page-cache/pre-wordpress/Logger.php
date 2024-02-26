@@ -25,6 +25,11 @@ class Logger {
 	const LOG_DIRECTORY = WP_CONTENT_DIR . '/boost-cache/logs';
 
 	/**
+	 * The Process Identifier used by this Logger instance.
+	 */
+	private static $pid = null;
+
+	/**
 	 * Get the singleton instance of the logger.
 	 */
 	public static function get_instance() {
@@ -40,6 +45,15 @@ class Logger {
 
 		self::$instance = $instance;
 		return $instance;
+	}
+
+	private function __construct() {
+		if ( function_exists( 'getmypid' ) ) {
+			$this->pid = getmypid();
+		} else {
+			// Where PID is not available, use the microtime of the first log of the session.
+			$this->pid = microtime( true );
+		}
 	}
 
 	/**
@@ -85,7 +99,7 @@ class Logger {
 	public function log( $message ) {
 		$request     = Request::current();
 		$request_uri = htmlspecialchars( $request->get_uri(), ENT_QUOTES, 'UTF-8' );
-		$line        = gmdate( 'H:i:s' ) . ' ' . getmypid() . "\t{$request_uri}\t\t{$message}" . PHP_EOL;
+		$line        = gmdate( 'H:i:s' ) . " {$this->pid}\t{$request_uri}\t\t{$message}" . PHP_EOL;
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( $line, 3, $this->get_log_file() );
 	}
@@ -95,8 +109,9 @@ class Logger {
 	 *
 	 * @return string
 	 */
-	public function read() {
-		$log_file = $this->get_log_file();
+	public static function read() {
+		$instance = self::get_instance();
+		$log_file = $instance->get_log_file();
 
 		if ( ! file_exists( $log_file ) ) {
 			return '';

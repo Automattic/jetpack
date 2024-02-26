@@ -67,12 +67,12 @@ class Jetpack_Recommendations {
 	 *
 	 * @since 9.3.0
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.2
 	 *
 	 * @return bool
 	 */
 	public static function is_banner_enabled() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-13.2' );
 		return false;
 	}
 
