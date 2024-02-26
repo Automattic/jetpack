@@ -89,12 +89,14 @@ class Scheduled_Updates {
 	 * @return bool
 	 */
 	public static function allowlist_scheduled_plugins( $update, $item ) {
-		// TODO: Check if we're in a scheduled update request from Jetpack_Autoupdates.
-		$schedules = get_option( 'jetpack_update_schedules', array() );
 
-		foreach ( $schedules as $plugins ) {
-			if ( in_array( $item->slug, $plugins, true ) ) {
-				return true;
+		if ( isset( $item->is_scheduled_updates ) && $item->is_scheduled_updates ) {
+			$schedules = get_option( 'jetpack_update_schedules', array() );
+
+			foreach ( $schedules as $plugins ) {
+				if ( in_array( $item->slug, $plugins, true ) ) {
+					return true;
+				}
 			}
 		}
 
