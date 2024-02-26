@@ -44,11 +44,7 @@ export default function useAudioTranscription( {
 	const [ transcriptionResult, setTranscriptionResult ] = useState< string >( '' );
 	const [ transcriptionError, setTranscriptionError ] = useState< string >( '' );
 	const [ isTranscribingAudio, setIsTranscribingAudio ] = useState( false );
-
-	/**
-	 * Include an abort controller to cancel the transcription.
-	 */
-	const abortController = useRef< AbortController | null >( new AbortController() );
+	const abortController = useRef< AbortController >( null );
 
 	const handleAudioTranscription = useCallback(
 		( audio: Blob ) => {
@@ -61,17 +57,25 @@ export default function useAudioTranscription( {
 			setTranscriptionError( '' );
 			setIsTranscribingAudio( true );
 
+			/*
+			 * Create an AbortController to cancel the transcription.
+			 */
+			const controller = new AbortController();
+			abortController.current = controller;
+
 			/**
 			 * Call the audio transcription library.
 			 */
-			transcribeAudio( audio, feature, abortController.current.signal )
+			transcribeAudio( audio, feature, controller.signal )
 				.then( transcriptionText => {
 					setTranscriptionResult( transcriptionText );
 					onReady?.( transcriptionText );
 				} )
 				.catch( error => {
-					setTranscriptionError( error.message );
-					onError?.( error.message );
+					if ( ! controller.signal.aborted ) {
+						setTranscriptionError( error.message );
+						onError?.( error.message );
+					}
 				} )
 				.finally( () => setIsTranscribingAudio( false ) );
 		},
@@ -80,17 +84,16 @@ export default function useAudioTranscription( {
 
 	const handleAudioTranscriptionCancelled = useCallback( () => {
 		/*
+		 * Cancel the transcription.
+		 */
+		abortController.current?.abort();
+		/*
 		 * Reset the transcription result and error.
 		 */
 		setTranscriptionResult( '' );
 		setTranscriptionError( '' );
 		setIsTranscribingAudio( false );
-
-		/*
-		 * Cancel the transcription.
-		 */
-		abortController.current.abort();
-	}, [ setTranscriptionResult, setTranscriptionError, setIsTranscribingAudio ] );
+	}, [ abortController, setTranscriptionResult, setTranscriptionError, setIsTranscribingAudio ] );
 
 	return {
 		transcriptionResult,
