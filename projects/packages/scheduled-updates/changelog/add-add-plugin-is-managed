@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds IsManaged key to plugins list via a filter
