@@ -1457,6 +1457,11 @@
 				return; // don't run if the default gallery functions weren't used
 			}
 
+			const images = gallery.querySelectorAll( settings.imgSelector );
+			if ( ! images.length ) {
+				return; // don't run if we found no images in the gallery (somehow it has images that aren't in the media library?)
+			}
+
 			initializeCarousel();
 
 			if ( carousel.isOpen ) {
@@ -1493,7 +1498,7 @@
 			carousel.overlay.style.opacity = 1;
 			carousel.overlay.style.display = 'block';
 
-			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
+			initCarouselSlides( images, settings.startIndex );
 
 			swiper = new window.Swiper670( '.jp-carousel-swiper-container', {
 				centeredSlides: true,

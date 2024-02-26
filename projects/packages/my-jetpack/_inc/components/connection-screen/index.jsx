@@ -28,7 +28,6 @@ const ConnectionScreenFooter = () => {
 				Since the list style type is set to none, `role=list` is required for VoiceOver (on Safari) to announce the list.
 				See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
 			*/ }
-			{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
 			<ul className={ styles[ 'account-images' ] } role="list">
 				<li>
 					<img src={ wordpressLogo } className={ styles.wordpress } alt="WordPress.com" />
@@ -76,7 +75,6 @@ const ConnectionScreen = () => {
 						Since the list style type is set to none, `role=list` is required for VoiceOver (on Safari) to announce the list.
 						See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
 						*/ }
-						{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
 						<ul role="list">
 							<li>{ __( 'Receive instant downtime alerts', 'jetpack-my-jetpack' ) }</li>
 							<li>

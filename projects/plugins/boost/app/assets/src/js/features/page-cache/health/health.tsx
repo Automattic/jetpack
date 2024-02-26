@@ -1,5 +1,5 @@
 import { Button, Notice } from '@automattic/jetpack-components';
-import { useRunPageCacheSetupAction } from '$lib/stores/page-cache';
+import { usePageCacheSetup } from '$lib/stores/page-cache';
 import getErrorData from './lib/get-error-data';
 import { __ } from '@wordpress/i18n';
 
@@ -8,7 +8,7 @@ type HealthProps = {
 };
 
 const Health = ( { error }: HealthProps ) => {
-	const runPageCacheSetupAction = useRunPageCacheSetupAction();
+	const runPageCacheSetupAction = usePageCacheSetup();
 
 	const requestRunSetup = () => {
 		runPageCacheSetupAction.mutate();

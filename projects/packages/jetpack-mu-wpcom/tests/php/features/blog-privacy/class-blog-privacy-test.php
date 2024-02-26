@@ -34,7 +34,13 @@ class Blog_Privacy_Test extends \WorDBless\BaseTestCase {
 User-agent: Amazonbot
 Disallow: /
 
+User-agent: anthropic-ai
+Disallow: /
+
 User-agent: CCBot
+Disallow: /
+
+User-agent: ClaudeBot
 Disallow: /
 
 User-agent: FacebookBot
@@ -75,13 +81,13 @@ AI_BLOCKS;
 		yield 'discourage search, no discourage AI' => array(
 			'blog_public'                => '0',
 			'wpcom_data_sharing_opt_out' => null,
-			'expected'                   => 'TEST',
+			'expected'                   => "TEST\n$ai_blocks",
 		);
 
 		yield 'discourage search, discourage AI' => array(
 			'blog_public'                => '0',
 			'wpcom_data_sharing_opt_out' => '1',
-			'expected'                   => 'TEST', // We already discourage all user agents.
+			'expected'                   => "TEST\n$ai_blocks",
 		);
 
 		yield 'private, no discourage AI' => array(

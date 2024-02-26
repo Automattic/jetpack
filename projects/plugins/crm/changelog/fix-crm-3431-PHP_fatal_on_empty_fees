@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooSync: Catch PHP error if order has empty fee value.

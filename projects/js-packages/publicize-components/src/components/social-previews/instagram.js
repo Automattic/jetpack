@@ -11,14 +11,14 @@ import { SOCIAL_STORE_ID, CONNECTION_SERVICE_INSTAGRAM_BUSINESS } from '../../so
  * @returns {React.ReactNode} The Instagram tab component.
  */
 export function Instagram( props ) {
-	const { title, image, media } = props;
+	const { title, image, media, description } = props;
 	const { username: name, profileImage } = useSelect( select =>
 		select( SOCIAL_STORE_ID ).getConnectionProfileDetails( CONNECTION_SERVICE_INSTAGRAM_BUSINESS )
 	);
 
 	const { message: text } = useSocialMediaMessage();
 
-	const caption = text || title;
+	const caption = text || title || description;
 
 	return (
 		<InstagramPreviews

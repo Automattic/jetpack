@@ -10,8 +10,8 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Image_CDN;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
-use Automattic\Jetpack_Boost\Modules\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Performance_History\Performance_History;
 
 class Modules_Index {
@@ -51,6 +51,24 @@ class Modules_Index {
 				$this->modules[ $slug ] = new Module( new $module() );
 			}
 		}
+	}
+
+	/**
+	 * Get all modules that implement a specific interface.
+	 *
+	 * @param string $interface - The interface to search for.
+	 * @return array - An array of module classes indexed by slug that implement the interface.
+	 */
+	public static function get_modules_implementing( string $interface ): array {
+		$matching_modules = array();
+
+		foreach ( self::MODULES as $module ) {
+			if ( in_array( $interface, class_implements( $module ), true ) ) {
+				$matching_modules[ $module::get_slug() ] = $module;
+			}
+		}
+
+		return $matching_modules;
 	}
 
 	public function available_modules() {
