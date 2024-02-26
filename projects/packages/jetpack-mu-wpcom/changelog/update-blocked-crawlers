@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add Anthropic UAs to list of crawlers to block.
