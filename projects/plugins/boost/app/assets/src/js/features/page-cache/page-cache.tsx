@@ -5,7 +5,6 @@ import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { MutationNotice } from '$features/ui';
-import { useEffect } from 'react';
 
 const PageCache = () => {
 	const pageCacheSetup = usePageCacheSetup();

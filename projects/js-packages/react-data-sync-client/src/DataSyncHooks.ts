@@ -11,7 +11,7 @@ import {
 	useIsMutating,
 } from '@tanstack/react-query';
 import React from 'react';
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 import { DataSyncError } from './DataSyncError';
