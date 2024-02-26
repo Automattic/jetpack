@@ -3666,7 +3666,7 @@ add_filter( 'option_preload_cache_counter', 'option_preload_cache_counter' );
 function check_up_on_preloading() {
 	$value = get_option( 'preload_cache_counter' );
 	if ( is_array( $value ) && $value['c'] > 0 && ( time() - $value['t'] ) > 3600 && false === wp_next_scheduled( 'wp_cache_preload_hook' ) ) {
-		wp_schedule_single_event( time() + 30, 'wp_cache_preload_hook' );
+		wp_schedule_single_event( time() + 5, 'wp_cache_preload_hook' );
 	}
 }
 add_action( 'init', 'check_up_on_preloading' ); // sometimes preloading stops working. Kickstart it.
