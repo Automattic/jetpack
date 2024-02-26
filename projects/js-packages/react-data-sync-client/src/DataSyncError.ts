@@ -44,6 +44,10 @@ export class DataSyncError extends Error {
 		Object.setPrototypeOf( this, DataSyncError.prototype );
 	}
 
+	public isAborted(): boolean {
+		return this.errorData.status === 'aborted';
+	}
+
 	/**
 	 * This is a helper method to log and format DataSync errors in the console.
 	 * It's only called when `window.datasync_debug` is set to `true`.
