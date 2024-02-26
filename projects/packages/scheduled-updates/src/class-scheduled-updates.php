@@ -91,10 +91,11 @@ class Scheduled_Updates {
 	public static function allowlist_scheduled_plugins( $update, $item ) {
 
 		if ( isset( $item->is_scheduled_updates ) && $item->is_scheduled_updates ) {
+
 			$schedules = get_option( 'jetpack_update_schedules', array() );
 
 			foreach ( $schedules as $plugins ) {
-				if ( in_array( $item->slug, $plugins, true ) ) {
+				if ( isset( $item->plugin ) && in_array( $item->plugin, $plugins, true ) ) {
 					return true;
 				}
 			}
