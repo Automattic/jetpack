@@ -45,8 +45,5 @@
 		"manageSubscriptionsLabel": {
 			"type": "string"
 		}
-	},
-	"blockHooks": {
-		"core/navigation": "lastChild"
 	}
 }
