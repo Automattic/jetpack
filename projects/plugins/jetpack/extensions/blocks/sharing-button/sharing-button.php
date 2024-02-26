@@ -177,7 +177,7 @@ add_action( 'template_redirect', __NAMESPACE__ . '\sharing_process_requests', 9 
 /**
  * Automatically add the Sharing Buttons block to the end of the Single Posts template.
  *
- * @since $$next-version$$
+ * @since 13.2
  *
  * @param array                   $hooked_block_types The list of hooked block types.
  * @param string                  $relative_position  The relative position of the hooked blocks. Can be one of 'before', 'after', 'first_child', or 'last_child'.
@@ -251,7 +251,7 @@ function add_block_to_single_posts_template( $hooked_block_types, $relative_posi
 /**
  * Add default services to the block we add to the post content by default.
  *
- * @since $$next-version$$
+ * @since 13.2
  *
  * @param array                   $parsed_hooked_block The parsed block array for the given hooked block type.
  * @param string                  $hooked_block_type   The hooked block type name.

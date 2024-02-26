@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Stats: switch our stats fetching methods to use data conversion method from package.
