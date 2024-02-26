@@ -42,7 +42,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 
 	const { upsertTranscription } = useTranscriptionInserter();
 
-	const { processTranscription } = useTranscriptionPostProcessing( {
+	const { processTranscription, cancelTranscriptionProcessing } = useTranscriptionPostProcessing( {
 		feature: 'voice-to-content',
 		onReady: postProcessingResult => {
 			// Insert the content into the editor
@@ -123,8 +123,9 @@ export default function VoiceToContentEdit( { clientId } ) {
 
 	const onCancelHandler = useCallback( () => {
 		cancelTranscription();
+		cancelTranscriptionProcessing();
 		controlReset();
-	}, [ cancelTranscription, controlReset ] );
+	}, [ cancelTranscription, cancelTranscriptionProcessing, controlReset ] );
 
 	const onRecordHandler = useCallback( () => {
 		controlStart( 1000 ); // Stream audio on 1 second intervals
