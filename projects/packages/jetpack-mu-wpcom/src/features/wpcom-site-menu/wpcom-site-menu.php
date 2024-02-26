@@ -49,7 +49,10 @@ add_action( 'admin_menu', 'wpcom_add_wpcom_menu_item' );
  * @return bool
  */
 function wpcom_site_menu_should_show_notice() {
-	if ( get_option( 'wpcom_site_menu_notice_dismisses' ) ) {
+	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+		return false;
+	}
+	if ( get_option( 'wpcom_site_menu_notice_dismissed' ) ) {
 		return false;
 	}
 
@@ -61,7 +64,7 @@ function wpcom_site_menu_should_show_notice() {
  * Add a notice to the admin menu to inform users about the new WordPress.com menu item.
  */
 function wpcom_add_hosting_menu_intro_notice() {
-	if ( ! wpcom_site_menu_should_show_notice() ) {
+	if ( ! wpcom_site_menu_should_show_notice() || ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
 	?>
@@ -150,7 +153,7 @@ add_action( 'admin_footer', 'wpcom_add_hosting_menu_intro_notice_dismiss' );
  * Acts as the AJAX callback to set an option for dismissing the admin notice.
  */
 function wpcom_site_menu_handle_dismiss_notice() {
-	update_option( 'wpcom_site_menu_notice_dismisses', 1 );
+	update_option( 'wpcom_site_menu_notice_dismissed', 1 );
 	wp_die();
 }
 add_action( 'wp_ajax_dismiss_wpcom_site_menu_intro_notice', 'wpcom_site_menu_handle_dismiss_notice' );
