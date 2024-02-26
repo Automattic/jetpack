@@ -16,6 +16,7 @@ import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/store
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCache from '$features/page-cache/page-cache';
+import { usePageCacheSetup } from '$lib/stores/page-cache';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -32,6 +33,7 @@ const Index = () => {
 
 	const premiumFeatures = usePremiumFeatures();
 
+	const [ pageCacheSetup ] = usePageCacheSetup();
 	return (
 		<div className="jb-container--narrow">
 			<Module
@@ -125,6 +127,7 @@ const Index = () => {
 						<span className={ styles.beta }>Beta</span>
 					</>
 				}
+				onEnable={ () => pageCacheSetup.mutate() }
 				description={
 					<p>
 						{ __(
