@@ -31,6 +31,7 @@ class Scheduled_Updates {
 
 		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'jetpack_run_scheduled_update' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'jetpack_allowlist_scheduled_plugins' ), 10, 2 );
+		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
 	}
 
 	/**
@@ -96,5 +97,66 @@ class Scheduled_Updates {
 		}
 
 		return $update;
+	}
+
+	/**
+	 * Filters the HTML of the auto-updates setting for each plugin in the Plugins list table.
+	 *
+	 * @param string $html        The HTML of the plugin's auto-update column content,
+	 *                            including toggle auto-update action links and
+	 *                            time to next update.
+	 * @param string $plugin_file Path to the plugin file relative to the plugin directory.
+	 */
+	public static function show_scheduled_updates( $html, $plugin_file ) {
+		$schedules = get_option( 'jetpack_update_schedules', array() );
+
+		$schedule = false;
+		foreach ( $schedules as $plugins ) {
+			if ( in_array( $plugin_file, $plugins, true ) ) {
+				$schedule = wp_get_scheduled_event( 'jetpack_scheduled_update', $plugins );
+				break;
+			}
+		}
+
+		// Plugin is not part of an update schedule.
+		if ( ! $schedule ) {
+			return $html;
+		}
+
+		if ( DAY_IN_SECONDS === $schedule->interval ) {
+			$html = sprintf(
+				/* translators: %s is the time of day. Daily at 10 am. */
+				esc_html__( 'Daily at %s.', 'jetpack-scheduled-updates' ),
+				date_i18n( get_option( 'time_format' ), $schedule->timestamp )
+			);
+		} else {
+			// Not getting smart about passing in weekdays makes it easier to translate.
+			$weekdays = array(
+				/* translators: %s is the time of day. Sundays at 10 am. */
+				__( 'Sundays at %s.', 'jetpack-scheduled-updates' ),
+				/* translators: %s is the time of day. Mondays at 10 am. */
+				__( 'Mondays at %s.', 'jetpack-scheduled-updates' ),
+				/* translators: %s is the time of day. Tuesdays at 10 am. */
+				__( 'Tuesdays at %s.', 'jetpack-scheduled-updates' ),
+				/* translators: %s is the time of day. Wednesdays at 10 am. */
+				__( 'Wednesdays at %s.', 'jetpack-scheduled-updates' ),
+				/* translators: %s is the time of day. Thursdays at 10 am. */
+				__( 'Thursdays at %s.', 'jetpack-scheduled-updates' ),
+				/* translators: %s is the time of day. Fridays at 10 am. */
+				__( 'Fridays at %s.', 'jetpack-scheduled-updates' ),
+				/* translators: %s is the time of day. Saturdays at 10 am. */
+				__( 'Saturdays at %s.', 'jetpack-scheduled-updates' ),
+			);
+
+			$html = sprintf(
+				$weekdays[ date_i18n( 'N', $schedule->timestamp ) ],
+				date_i18n( get_option( 'time_format' ), $schedule->timestamp )
+			);
+		}
+
+		$html  = '<p style="margin: 0 0 8px">' . $html . '</p>';
+		$html .= '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack#jetpack-autoupdates' ) ) . '">' . esc_html__( 'Edit', 'jetpack-scheduled-updates' ) . '</a>';
+
+		return $html;
 	}
 }
