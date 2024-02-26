@@ -792,7 +792,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						)
 					);
 				} else {
-					$custom_message_sent = $new_user_request['message'] ? 'true' : 'false';
+					$custom_message_sent = isset( $new_user_request['message'] ) ? 'true' : 'false';
 					self::$tracking->record_user_event(
 						'sso_user_new_user_invite_send',
 						array(
