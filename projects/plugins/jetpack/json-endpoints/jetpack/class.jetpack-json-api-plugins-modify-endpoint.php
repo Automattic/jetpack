@@ -171,7 +171,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 		$args = $this->input();
 
-		if ( is_array( $args ) && ( isset( $args['autoupdate'] ) || isset( $args['autoupdate_translations'] ) ) ) {
+		if ( is_array( $args ) && ( isset( $args['autoupdate'] ) || isset( $args['autoupdate_translations'] ) || isset( $args['is_scheduled_updates'] ) ) ) {
 			$this->needed_capabilities = 'update_plugins';
 		}
 
@@ -186,8 +186,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	public function default_action() {
 		$args = $this->input();
 
-		if ( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) ) {
-			if ( $args['autoupdate'] ) {
+		if ( ( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) ) || $this->is_scheduled_updates ) {
+			if ( $args['autoupdate'] && ! $this->is_scheduled_updates ) {
 				$this->autoupdate_on();
 			} else {
 				$this->autoupdate_off();
@@ -383,7 +383,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	 */
 	protected function update() {
 		$query_args = $this->query_args();
-		if ( isset( $query_args['autoupdate'] ) && $query_args['autoupdate'] ) {
+		if ( isset( $query_args['autoupdate'] ) && $query_args['autoupdate'] || $this->is_scheduled_updates ) {
 			Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 		}
 		wp_clean_plugins_cache( false );
@@ -421,6 +421,10 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			if ( ! in_array( $plugin, $plugin_updates_needed, true ) ) {
 				$this->log[ $plugin ][] = __( 'No update needed', 'jetpack' );
 				continue;
+			}
+
+			if ( $this->is_scheduled_updates ) {
+				$update_plugins->response[ $plugin ]->is_scheduled_updates = true;
 			}
 
 			// Rely on WP_Automatic_Updater class to check if a plugin item should be updated if it is a Jetpack autoupdate request.
