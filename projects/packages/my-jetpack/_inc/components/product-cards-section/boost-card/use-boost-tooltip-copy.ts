@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
+import usePurchases from '../../../data/purchases/use-purchases';
 import { useProduct } from '../../../hooks/use-product';
-import usePurchases from '../../../hooks/use-purchases';
 
 const JETPACK_BOOST_PRODUCTS = [
 	'jetpack_boost_bi_yearly',
@@ -17,9 +17,9 @@ const JETPACK_BOOST_PRODUCTS = [
  */
 export function useBoostTooltipCopy( { speedLetterGrade } ) {
 	const slug = 'boost';
-	const { purchases, isFetchingPurchases } = usePurchases();
+	const { data: purchases, isLoading } = usePurchases();
 	const hasBoostPaidPlan = useMemo( () => {
-		if ( isFetchingPurchases ) {
+		if ( isLoading ) {
 			return false;
 		}
 		if ( ! purchases?.length ) {
@@ -30,7 +30,7 @@ export function useBoostTooltipCopy( { speedLetterGrade } ) {
 			purchases.filter( purchase => JETPACK_BOOST_PRODUCTS.includes( purchase.product_slug ) )
 				.length > 0
 		);
-	}, [ isFetchingPurchases, purchases ] );
+	}, [ isLoading, purchases ] );
 
 	const { detail } = useProduct( slug );
 	const { isPluginActive } = detail;
