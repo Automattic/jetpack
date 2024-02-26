@@ -295,7 +295,7 @@ class VideoPressEdit extends Component {
 			></MediaUpload>
 		);
 
-		const isSourcePresent = src || ( guid && id );
+		const isSourcePresent = src || guid;
 		if ( ! isSourcePresent ) {
 			return (
 				<View style={ style.container }>
