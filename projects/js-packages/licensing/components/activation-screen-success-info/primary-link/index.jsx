@@ -1,20 +1,33 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Spinner, getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
+import useActivePlugins from '../../../hooks/use-active-plugins';
 import { getProductGroup } from '../../activation-screen/utils';
 
 import './style.scss';
 
 const PrimaryLink = props => {
-	const { currentRecommendationsStep, siteAdminUrl, siteRawUrl, productId, activePlugins } = props;
+	const { currentRecommendationsStep, siteAdminUrl, siteRawUrl, productId } = props;
+	const [ activePlugins, isFetching ] = useActivePlugins();
+
+	const isPluginActive = pluginName =>
+		activePlugins.map( plugin => plugin.name ).includes( pluginName );
 
 	const productGroup = getProductGroup( productId );
-	const isJetpackActive = activePlugins.includes( 'Jetpack' );
-	const isJetpackSocialActive = activePlugins.includes( 'Jetpack Social' );
+	const isJetpackActive = isPluginActive( 'Jetpack' );
+	const isJetpackSocialActive = isPluginActive( 'Jetpack Social' );
 	const isJetpackSocialProduct =
 		productGroup === 'jetpack_social_advanced' || productGroup === 'jetpack_social_basic';
+
+	if ( isFetching ) {
+		return (
+			<Button className="jp-license-activation-screen-success-info--button">
+				<Spinner />
+			</Button>
+		);
+	}
 
 	if ( isJetpackSocialProduct && ( isJetpackActive || isJetpackSocialActive ) ) {
 		return (

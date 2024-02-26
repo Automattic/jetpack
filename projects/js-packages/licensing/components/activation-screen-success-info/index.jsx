@@ -18,7 +18,7 @@ import './style.scss';
  * @returns {React.Component} The `ActivationSuccessInfo` component.
  */
 const ActivationSuccessInfo = props => {
-	const { productId, siteRawUrl, siteAdminUrl, currentRecommendationsStep, activePlugins } = props;
+	const { productId, siteRawUrl, siteAdminUrl, currentRecommendationsStep } = props;
 	return (
 		<div className="jp-license-activation-screen-success-info">
 			<div className="jp-license-activation-screen-success-info--content">
@@ -31,7 +31,6 @@ const ActivationSuccessInfo = props => {
 					siteAdminUrl={ siteAdminUrl }
 					siteRawUrl={ siteRawUrl }
 					productId={ productId }
-					activePlugins={ activePlugins }
 				/>
 				<ProductLink siteRawUrl={ siteRawUrl } productId={ productId } />
 			</div>
