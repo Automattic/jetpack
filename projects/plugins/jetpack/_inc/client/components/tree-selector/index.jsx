@@ -1,7 +1,6 @@
 import { CheckboxControl } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import { useCallback, useMemo } from 'react';
+import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 import './style.scss';
 import { createFlatTreeItems } from './utils';
 
@@ -48,25 +47,12 @@ const TreeSelector = props => {
 		</li>
 	) );
 
-	const noResultsMessage = useMemo(
-		() => (
-			<span>
-				{ createInterpolateElement(
-					// translators: %s is the keyword being searched
-					sprintf( __( 'No results found for <b>%s</b>.', 'jetpack' ), keyword ),
-					{
-						b: <b />,
-					}
-				) }
-			</span>
-		),
-		[ keyword ]
-	);
-
 	return (
 		<ul className="jp-tree-items">
 			{ isSearching && filteredTreeItems.length === 0 ? (
-				<li className="jp-tree-item jp-tree-item__no-results">{ noResultsMessage }</li>
+				<li className="jp-tree-item jp-tree-item__no-results">
+					<span>{ __( 'Nothing found', 'jetpack' ) }</span>
+				</li>
 			) : (
 				treeElements
 			) }

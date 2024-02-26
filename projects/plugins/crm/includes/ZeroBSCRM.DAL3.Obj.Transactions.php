@@ -252,7 +252,26 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
         #} =========== / LOAD ARGS =============
 
 			$this->events_manager = new Events_Manager();
+
+			add_filter( 'jpcrm_listview_filters', array( $this, 'add_listview_filters' ) );
     }
+
+		/**
+		 * Adds items to listview filter using `jpcrm_listview_filters` hook.
+		 *
+		 * @param array $listview_filters Listview filters.
+		 */
+		public function add_listview_filters( $listview_filters ) {
+			global $zbs;
+			// Add statuses if enabled.
+			if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
+				$statuses = zeroBSCRM_getTransactionsStatuses( true );
+				foreach ( $statuses as $status ) {
+					$listview_filters[ ZBS_TYPE_TRANSACTION ]['status'][ 'status_' . $status ] = $status;
+				}
+			}
+			return $listview_filters;
+		}
 
     // ===============================================================================
     // ===========   TRANSACTION  =======================================================
