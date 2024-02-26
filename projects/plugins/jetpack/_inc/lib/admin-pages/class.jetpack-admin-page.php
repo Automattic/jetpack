@@ -51,7 +51,7 @@ abstract class Jetpack_Admin_Page {
 	 *
 	 * @var bool
 	 *
-	 * @deprecated $$next-version$$ Use `$this->block_page_rendering_for_idc()` instead.
+	 * @deprecated 13.2 Use `$this->block_page_rendering_for_idc()` instead.
 	 */
 	public static $block_page_rendering_for_idc;
 
