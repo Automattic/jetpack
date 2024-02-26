@@ -60,6 +60,11 @@ const automaticallyUpdatedContext = (
 	</span>
 );
 
+const pageCacheContext = __(
+	'Page caching speeds up load times by storing a copy of each web page on the first visit, allowing subsequent visits to be served instantly. This reduces server load and improves user experience by delivering content faster, without waiting for the page to be generated again.',
+	'jetpack-boost'
+);
+
 const imageCdnContext = __(
 	`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.`,
 	'jetpack-boost'
@@ -146,6 +151,15 @@ export const boostFeatureList: FeatureItem[] = [
 				tooltipInfo={ __( 'Fine-tune image quality settings to your liking.', 'jetpack-boost' ) }
 			/>
 		),
+	},
+	{
+		description: {
+			name: __( 'Page Cache', 'jetpack-boost' ),
+			tooltipInfo: pageCacheContext,
+			tooltipPlacement: 'bottom-start',
+		},
+		free: <PricingTableItem isIncluded={ true } />,
+		premium: <PricingTableItem isIncluded={ true } />,
 	},
 	{
 		description: {
