@@ -155,14 +155,14 @@ abstract class Product {
 	}
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	abstract public static function get_name();
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */

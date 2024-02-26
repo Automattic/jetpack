@@ -392,8 +392,61 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         #} =========== / LOAD ARGS =============
 
 			$this->events_manager = new Events_Manager();
-
+			add_filter( 'jpcrm_listview_filters', array( $this, 'add_listview_filters' ) );
     }
+
+		/**
+		 * Adds items to listview filter using `jpcrm_listview_filters` hook.
+		 *
+		 * @param array $listview_filters Listview filters.
+		 */
+		public function add_listview_filters( $listview_filters ) {
+			global $zbs;
+
+			// Add "assigned"/"not assigned" filters.
+			$listview_filters[ ZBS_TYPE_CONTACT ]['general']['assigned_to_me'] = __( 'Assigned to me', 'zero-bs-crm' );
+			$listview_filters[ ZBS_TYPE_CONTACT ]['general']['not_assigned']   = __( 'Not assigned', 'zero-bs-crm' );
+
+			$quick_filter_settings = $zbs->settings->get( 'quickfiltersettings' );
+
+			// Add 'not-contacted-in-x-days'.
+			if ( ! empty( $quick_filter_settings['notcontactedinx'] ) && $quick_filter_settings['notcontactedinx'] > 0 ) {
+				$days = (int) $quick_filter_settings['notcontactedinx'];
+				$listview_filters[ ZBS_TYPE_CONTACT ]['general'][ 'notcontactedin' . $days ] = sprintf(
+					// translators: %s is the number of days
+					__( 'Not Contacted in %s days', 'zero-bs-crm' ),
+					$days
+				);
+			}
+
+			// Add 'olderthan-x-days'.
+			if ( ! empty( $quick_filter_settings['olderthanx'] ) && $quick_filter_settings['olderthanx'] > 0 ) {
+				$days = (int) $quick_filter_settings['olderthanx'];
+				$listview_filters[ ZBS_TYPE_CONTACT ]['general'][ 'olderthan' . $days ] = sprintf(
+					// translators: %s is the number of days
+					__( 'Older than %s days', 'zero-bs-crm' ),
+					$days
+				);
+			}
+
+			// Add statuses if enabled.
+			if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
+				$statuses = zeroBSCRM_getCustomerStatuses( true );
+				foreach ( $statuses as $status ) {
+					$listview_filters[ ZBS_TYPE_CONTACT ]['status'][ 'status_' . $status ] = $status;
+				}
+			}
+
+			// Add segments if enabled.
+			if ( $zbs->settings->get( 'filtersfromsegments' ) === 1 ) {
+				$segments = $zbs->DAL->segments->getSegments( -1, 100, 0, false, '', '', 'zbsseg_name', 'ASC' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				foreach ( $segments as $segment ) {
+					$listview_filters[ ZBS_TYPE_CONTACT ]['segment'][ 'segment_' . $segment['slug'] ] = $segment['name'];
+				}
+			}
+
+			return $listview_filters;
+		}
 
     // generic get Company (by ID)
     // Super simplistic wrapper used by edit page etc. (generically called via dal->contacts->getSingle etc.)

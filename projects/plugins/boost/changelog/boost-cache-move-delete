@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Move filesystem related methods and const from Boost_Cache_Utils.php
+
+

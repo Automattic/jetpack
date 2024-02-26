@@ -44,9 +44,14 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_first_posts_stream_helpers' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_command_palette' ) );
 
-		// This feature runs only on simple sites
+		// This feature runs only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+		}
+
+		// Features that only run on WoA sites.
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_atomic_only_features' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -266,10 +271,19 @@ class Jetpack_Mu_Wpcom {
 				$blog_id = intval( $_GET['blogid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			}
 			if ( self::should_disable_comment_experience( $blog_id ) ) {
-				return false;
+				return;
 			}
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
+		}
+	}
+
+	/**
+	 * Load features that only run on WoA sites.
+	 */
+	public static function load_atomic_only_features() {
+		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
+			Scheduled_Updates::init();
 		}
 	}
 
