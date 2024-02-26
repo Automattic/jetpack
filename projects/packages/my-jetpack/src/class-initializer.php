@@ -24,7 +24,6 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
-use Jetpack_Core_API_Site_Endpoint;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -52,24 +51,6 @@ class Initializer {
 		'jetpack-social',
 		'jetpack-videopress',
 		'jetpack-search',
-	);
-
-	// See: fbhepr%2Skers%2Sjcpbz%2Sjc%2Qpbagrag%2Szh%2Qcyhtvaf%2Sjcpbz%2Qsrngherf%2Spynff%2Qjcpbz%2Qsrngherf.cuc%3Se%3Q2r964nn6%26zb%3Q267%26sv%3Q14%2314-og
-	const JETPACK_DEFAULT_FEATURES = array(
-		'advanced-seo',
-		'social-previews',
-		'cdn',
-		'donations',
-		'jetpack-dashboard',
-		'recurring-payments',
-		'republicize',
-		'security-settings',
-		'seo-preview-tools',
-		'send-a-message',
-		'social-previews',
-		'upload-audio-files',
-		'upload-video-files',
-		'whatsapp-button',
 	);
 
 	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
@@ -240,7 +221,6 @@ class Initializer {
 					'isUserConnected' => $connection->is_user_connected(),
 					'purchases'       => self::get_purchases(),
 					'modules'         => self::get_active_modules(),
-					'features'        => self::get_active_features(),
 				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
@@ -329,20 +309,6 @@ class Initializer {
 			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
 		}
 		return $active_modules;
-	}
-
-	/**
-	 * Get features that can be used on the website (through purchases or free features)
-	 *
-	 * @return array
-	 */
-	public static function get_active_features() {
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php';
-		$payload       = Jetpack_Core_API_Site_Endpoint::get_features();
-		$features_json = json_decode( $payload->data['data'] );
-
-		// We only want to return the features that are not enabled by default
-		return array_diff( $features_json->active, self::JETPACK_DEFAULT_FEATURES );
 	}
 
 	/**

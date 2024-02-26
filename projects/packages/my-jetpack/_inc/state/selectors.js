@@ -143,16 +143,16 @@ const getStatsCounts = state => {
 	return state.statsCounts?.data;
 };
 
-const getUserStats = state => {
-	return state.userStats;
+const getLifecycleStats = state => {
+	return state.lifecycleStats;
 };
 
 const getGuessedSiteLifecycleStatus = state => {
-	const { modules, purchases, features, plugins, isSiteConnected, isUserConnected } =
-		getUserStats( state );
+	const { modules, purchases, plugins, isSiteConnected, isUserConnected } =
+		getLifecycleStats( state );
 
-	// 'new' = no purchases + less than 3 features + less than 3 modules
-	if ( purchases.length === 0 && features.length < 3 && modules.length < 3 ) {
+	// 'new' = no purchases + less than 3 modules
+	if ( purchases.length === 0 && modules.length < 3 ) {
 		// 'brand-new' = 'new' + (no user or site connection + no modules + only one plugin)
 		if (
 			( ! isUserConnected || ! isSiteConnected ) &&
@@ -165,12 +165,12 @@ const getGuessedSiteLifecycleStatus = state => {
 		return 'new';
 	}
 
-	// 'settling-in' = 1 purchase and less than 10 features
-	if ( purchases.length === 1 && features.length < 10 ) {
+	// 'settling-in' = 1 purchase and less than 10 modules
+	if ( purchases.length === 1 && modules.length < 10 ) {
 		return 'settling-in';
 	}
 
-	// 'established' = 2 or more purchases and 10 or more features and 3 or more modules
+	// 'established' = 2 or more purchases and 10 or more modules
 	return 'established';
 };
 
