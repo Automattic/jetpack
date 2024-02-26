@@ -63,21 +63,21 @@ class Videopress extends Hybrid_Product {
 	public static $has_standalone_plugin = true;
 
 	/**
-	 * Get the internationalized product name
+	 * Get the product name
 	 *
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'VideoPress', 'jetpack-my-jetpack' );
+		return 'VideoPress';
 	}
 
 	/**
-	 * Get the internationalized product title
+	 * Get the product title
 	 *
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack VideoPress', 'jetpack-my-jetpack' );
+		return 'Jetpack VideoPress';
 	}
 
 	/**

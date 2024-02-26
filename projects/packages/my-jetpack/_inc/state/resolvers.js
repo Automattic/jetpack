@@ -4,13 +4,11 @@
 import restApi from '@automattic/jetpack-api';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { PRODUCT_STATUSES } from '../components/product-card';
 import {
-	REST_API_SITE_PURCHASES_ENDPOINT,
 	REST_API_SITE_PRODUCTS_ENDPOINT,
 	REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
@@ -53,29 +51,6 @@ const myJetpackResolvers = {
 				}
 			},
 	},
-
-	getPurchases:
-		() =>
-		async ( { dispatch } ) => {
-			dispatch.setPurchasesIsFetching( true );
-
-			try {
-				dispatch.setPurchases( await apiFetch( { path: REST_API_SITE_PURCHASES_ENDPOINT } ) );
-				dispatch.setPurchasesIsFetching( false );
-			} catch ( error ) {
-				dispatch.setPurchasesIsFetching( false );
-				error.code !== 'not_connected' &&
-					dispatch.setGlobalNotice(
-						__(
-							'There was an error fetching your purchases information. Check your site connectivity and try again.',
-							'jetpack-my-jetpack'
-						),
-						{
-							status: 'error',
-						}
-					);
-			}
-		},
 
 	getChatAvailability:
 		() =>

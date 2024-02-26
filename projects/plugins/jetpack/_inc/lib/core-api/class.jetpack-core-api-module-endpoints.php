@@ -1622,16 +1622,12 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			$range = 'day';
 		}
 
-		if ( ! function_exists( 'convert_stats_array_to_object' ) ) {
-			require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
-		}
-
 		$wpcom_stats = new WPCOM_Stats();
 		switch ( $range ) {
 
 			// This is always called first on page load.
 			case 'day':
-				$initial_stats = convert_stats_array_to_object( $wpcom_stats->get_stats() );
+				$initial_stats = $wpcom_stats->convert_stats_array_to_object( $wpcom_stats->get_stats() );
 				return rest_ensure_response(
 					array(
 						'general' => $initial_stats,
@@ -1645,7 +1641,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			case 'week':
 				return rest_ensure_response(
 					array(
-						'week' => convert_stats_array_to_object(
+						'week' => $wpcom_stats->convert_stats_array_to_object(
 							$wpcom_stats->get_visits(
 								array(
 									'unit'     => 'week',
@@ -1658,7 +1654,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			case 'month':
 				return rest_ensure_response(
 					array(
-						'month' => convert_stats_array_to_object(
+						'month' => $wpcom_stats->convert_stats_array_to_object(
 							$wpcom_stats->get_visits(
 								array(
 									'unit'     => 'month',
