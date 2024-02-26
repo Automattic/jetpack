@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
-use Automattic\Jetpack\IdentityCrisis\Exception;
 use Automattic\Jetpack_Boost\Modules\Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 
@@ -23,7 +22,7 @@ class Page_Cache_Setup {
 		foreach ( $steps as $step ) {
 			$result = self::$step();
 			if ( is_wp_error( $result ) ) {
-				return false;
+				return $result;
 			}
 		}
 		return true;
