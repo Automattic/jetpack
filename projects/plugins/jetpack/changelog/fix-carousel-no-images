@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Carousel: don't open if no images are found in the gallery.
