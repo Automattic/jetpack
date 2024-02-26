@@ -54,6 +54,38 @@ class Boost_Cache {
 		add_action( 'switch_theme', array( $this, 'delete_cache' ) );
 		add_action( 'wp_trash_post', array( $this, 'delete_on_post_trash' ), 10, 2 );
 		add_filter( 'wp_php_error_message', array( $this, 'disable_caching_on_error' ) );
+
+		/**
+		 * Delete all cache.
+		 *
+		 * Allow third-party plugins to clear all cache.
+		 */
+		add_action( 'clear_page_cache_all', array( $this, 'delete_cache' ) );
+
+		/**
+		 * Delete cache for homepage and paged archives.
+		 *
+		 * Allow third-party plugins to clear front-page cache.
+		 */
+		add_action( 'clear_page_cache_front_page', array( $this, 'delete_cache_for_front_page' ) );
+
+		/**
+		 * Delete cache for a specific URL.
+		 *
+		 * Allow third-party plugins to clear the cache for a specific URL.
+		 *
+		 * @param string $url - The URL to delete the cache for.
+		 */
+		add_action( 'clear_page_cache_url', array( $this, 'delete_cache_for_url' ) );
+
+		/**
+		 * Delete cache for a specific post.
+		 *
+		 * Allow third-party plugins to clear the cache for a specific post.
+		 *
+		 * @param int $post_id - The ID of the post to delete the cache for.
+		 */
+		add_action( 'clear_page_cache_post', array( $this, 'delete_cache_by_post_id' ) );
 	}
 
 	/**
@@ -159,6 +191,18 @@ class Boost_Cache {
 		} else {
 			$this->storage->invalidate( home_url(), Filesystem_Utils::DELETE_FILES );
 			Logger::debug( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) );
+		}
+	}
+
+	/**
+	 * Delete the cache for the given post.
+	 *
+	 * @param int $post_id - The ID of the post to delete the cache for.
+	 */
+	public function delete_cache_by_post_id( $post_id ) {
+		$post = get_post( $post_id );
+		if ( $post ) {
+			$this->delete_cache_for_post( $post );
 		}
 	}
 
