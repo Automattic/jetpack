@@ -1742,7 +1742,7 @@ function filter_stats_array_add_jp_version( $kvs ) {
  * @return WP_Error|Object|null
  */
 function convert_stats_array_to_object( $stats_array ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\WPCOM_Stats->convert_stats_array_to_object' );
+	_deprecated_function( __FUNCTION__, 'jetpack-13.2', 'Automattic\Jetpack\Stats\WPCOM_Stats->convert_stats_array_to_object' );
 
 	return ( new WPCOM_Stats() )->convert_stats_array_to_object( $stats_array );
 }
