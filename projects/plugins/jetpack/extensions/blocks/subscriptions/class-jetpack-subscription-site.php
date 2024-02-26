@@ -110,8 +110,7 @@ class Jetpack_Subscription_Site {
 				$is_post_content_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/post-content';
 				if ( $is_post_content_anchor_block && ( $relative_position === 'after' || $relative_position === 'before' ) ) {
 					$attrs = array(
-						'className' => 'wp-block-jetpack-subscriptions__subscribe_post_end',
-						'layout'    => array(
+						'layout' => array(
 							'type'           => 'flex',
 							'orientation'    => 'vertical',
 							'justifyContent' => 'stretch',
@@ -126,7 +125,7 @@ class Jetpack_Subscription_Site {
 						'attrs'        => $attrs,
 						'innerBlocks'  => array( $hooked_block ),
 						'innerContent' => array(
-							'<div class="wp-block-group wp-block-jetpack-subscriptions__subscribe_post_end">
+							'<div class="wp-block-group">
 								<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"300"}},"className":"has-text-align-center"} -->
 								<p class="has-text-align-center" style="font-style:normal;font-weight:300">
 									<em>Aliquam a ullamcorper lorem<br>Integer at tempus nibh</em>
