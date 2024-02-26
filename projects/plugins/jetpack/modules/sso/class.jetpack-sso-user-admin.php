@@ -78,9 +78,11 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			try {
 				$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
 				if ( $has_pending_invite ) {
-					$response_body = self::revoke_wpcom_invite( $has_pending_invite );
 
-					if ( is_wp_error( $response_body ) ) {
+					$response    = self::revoke_wpcom_invite( $has_pending_invite );
+					$status_code = wp_remote_retrieve_response_code( $response );
+
+					if ( is_wp_error( $response ) && ( ! empty( $status_code ) && 200 !== $status_code ) ) {
 						self::$tracking->record_user_event(
 							'sso_user_invite_revoke',
 							array(
@@ -88,10 +90,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 								'error'   => 'invalid-revoke-api-error',
 							)
 						);
-						return $response_body;
+						return $response;
 					}
 
-					if ( ! $response_body->deleted ) {
+					if ( ! $response->deleted ) {
 						self::$tracking->record_user_event(
 							'sso_user_invite_revoke',
 							array(
@@ -103,7 +105,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						self::$tracking->record_user_event( 'sso_user_invite_revoke', array( 'success' => 'true' ) );
 					}
 
-					return $response_body;
+					return $response;
 				}
 			} catch ( Exception $e ) {
 				return false;
@@ -386,7 +388,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 				$status_code = wp_remote_retrieve_response_code( $response );
 
-				if ( is_wp_error( $response ) || 200 !== $status_code ) {
+				if ( is_wp_error( $response ) || ( ! empty( $status_code ) && 200 !== $status_code ) ) {
 					$error        = 'invalid-revoke-api-error';
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
