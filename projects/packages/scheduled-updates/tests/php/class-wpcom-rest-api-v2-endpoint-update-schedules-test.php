@@ -436,6 +436,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
+	 * Test delete_item with invalid schedule ID.
+	 *
+	 * @covers ::delete_item
+	 */
+	public function test_delete_invalid_item() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'DELETE', '/wpcom/v2/update-schedules/' . $this->generate_schedule_id( array() ) );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 404, $result->get_status() );
+		$this->assertSame( 'rest_invalid_schedule', $result->get_data()['code'] );
+	}
+
+	/**
 	 * Generates a unique schedule ID.
 	 *
 	 * @see wp_schedule_event()

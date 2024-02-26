@@ -306,13 +306,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 */
 	public function delete_item( $request ) {
 		$schedules = get_option( 'jetpack_update_schedules', array() );
-		$found     = array();
+		$event     = array();
 
 		foreach ( $schedules as $key => $schedule_args ) {
 			if ( $this->generate_schedule_id( $schedule_args ) === $request['schedule_id'] ) {
-				// We found the schedule to delete.
-				$found = true;
-
 				$event  = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
 				$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $schedule_args, true );
 				if ( is_wp_error( $result ) ) {
@@ -325,8 +322,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			}
 		}
 
-		if ( ! $found ) {
-			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 400 ) );
+		if ( empty( $event ) ) {
+			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
 		}
 
 		update_option( 'jetpack_update_schedules', $schedules );
