@@ -10936,7 +10936,7 @@ packages:
     peerDependencies:
       react: ^18.0.0
     dependencies:
-      '@babel/runtime': 7.23.5
+      '@babel/runtime': 7.23.8
       '@types/mousetrap': 1.6.15
       '@wordpress/deprecated': 3.54.0
       '@wordpress/dom': 3.54.0
