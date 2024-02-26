@@ -281,7 +281,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				$invite_id = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
 				$response  = self::revoke_wpcom_invite( $invite_id );
 
-				$status_code = wp_remote_retrieve_response_code( $response ) ? wp_remote_retrieve_response_code( $response ) : $response['status_code'];
+				$status_code = wp_remote_retrieve_response_code( $response );
 
 				if ( is_wp_error( $response ) || 200 !== $status_code ) {
 					$query_params = array(
@@ -318,6 +318,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		public function handle_request_resend_invite() {
 			check_admin_referer( 'jetpack-sso-resend-user-invite', 'resend_invite_nonce' );
 			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
+
 			if ( ! current_user_can( 'create_users' ) ) {
 				$query_params = array(
 					'jetpack-sso-invite-user'  => 'failed',
@@ -340,10 +341,10 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					),
 					'wpcom'
 				);
-				$body        = json_decode( $response['body'] );
-				$status_code = json_decode( $response['response']['code'] );
 
-				if ( 200 !== $status_code ) {
+				$status_code = wp_remote_retrieve_response_code( $response );
+
+				if ( is_wp_error( $response ) || 200 !== $status_code ) {
 					$message_type = $status_code === 404 ? 'invalid-invite' : ''; // empty is the general error message
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
@@ -352,16 +353,13 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					);
 					return self::create_error_notice_and_redirect( $query_params );
 				}
+
+				$body         = json_decode( $response['body'] );
 				$query_params = array(
 					'jetpack-sso-invite-user' => $body->success ? 'reinvited-success' : 'failed',
 					'_wpnonce'                => $nonce,
 				);
 
-				if ( ! $body->success ) {
-					$query_params = array(
-						'jetpack-sso-invite-error' => $body->errors[0],
-					);
-				}
 				return self::create_error_notice_and_redirect( $query_params );
 			} else {
 				$query_params = array(
