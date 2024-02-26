@@ -719,7 +719,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 							admin_url( 'admin-post.php' )
 						),
 						esc_html__( 'Send invite', 'jetpack' ),
-						esc_attr__( 'This user doesn&#8217;t have a WP.com account and, with your current site settings, won&#8217;t be able to log in. Request them to create a WP.com account to be able to function normally.', 'jetpack' )
+						esc_attr__( 'This user doesn&#8217;t have an SSO connection to WordPress.com. Invite them to the site to increase security and improve their experience.', 'jetpack' )
 					);
 					return $connection_html;
 				}
