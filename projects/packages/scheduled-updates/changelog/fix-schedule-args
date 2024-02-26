@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fix up cron callback and schedule generation to make schedule execution work
