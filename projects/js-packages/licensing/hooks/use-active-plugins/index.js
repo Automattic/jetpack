@@ -21,8 +21,9 @@ export default function useActivePlugins() {
 			setActivePlugins( fetchedActivePlugins );
 		} catch {
 			setActivePlugins( [] );
+		} finally {
+			setIsFetching( false );
 		}
-		setIsFetching( false );
 	}, [] );
 
 	useEffect( () => {
