@@ -82,7 +82,7 @@ export default function useAudioTranscription( {
 		[ transcribeAudio, setTranscriptionResult, setTranscriptionError, setIsTranscribingAudio ]
 	);
 
-	const handleAudioTranscriptionCancelled = useCallback( () => {
+	const handleAudioTranscriptionCancel = useCallback( () => {
 		/*
 		 * Cancel the transcription.
 		 */
@@ -100,6 +100,6 @@ export default function useAudioTranscription( {
 		isTranscribingAudio,
 		transcriptionError,
 		transcribeAudio: handleAudioTranscription,
-		cancelTranscription: handleAudioTranscriptionCancelled,
+		cancelTranscription: handleAudioTranscriptionCancel,
 	};
 }
