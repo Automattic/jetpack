@@ -29,11 +29,13 @@ type AudioTranscriptionResponse = {
  *
  * @param {Blob} audio - The audio to be transcribed, from a recording or from a file.
  * @param {string} feature - The feature name that is calling the transcription.
+ * @param {AbortSignal} requestAbortSignal - The signal to abort the request.
  * @returns {Promise<string>} - The promise of a string containing the transcribed audio.
  */
 export default async function transcribeAudio(
 	audio: Blob,
-	feature?: string
+	feature?: string,
+	requestAbortSignal?: AbortSignal
 	// @ts-expect-error Promises are not cancelable by default
 ): CancelablePromise< string > {
 	debug( 'Transcribing audio: %o. Feature: %o', audio, feature );
@@ -63,6 +65,7 @@ export default async function transcribeAudio(
 			method: 'POST',
 			body: formData,
 			headers,
+			signal: requestAbortSignal ?? undefined,
 		} );
 
 		debug( 'Transcription response: %o', response );
