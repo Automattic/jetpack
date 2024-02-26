@@ -552,7 +552,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		public function jetpack_user_connected_th( $columns ) {
 			$columns['user_jetpack'] = sprintf(
 				'<span title="%1$s">%2$s [?]</span>',
-				esc_attr__( 'Jetpack SSO is required for a seamless and secure experience on WordPress.com. Join millions of WordPress users who trust us to keep their accounts safe.', 'jetpack' ),
+				esc_attr__( 'Jetpack SSO allows a seamless and secure experience on WordPress.com. Join millions of WordPress users who trust us to keep their accounts safe.', 'jetpack' ),
 				esc_html__( 'SSO Status', 'jetpack' )
 			);
 			return $columns;
