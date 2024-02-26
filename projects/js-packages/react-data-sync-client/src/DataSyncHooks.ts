@@ -50,7 +50,7 @@ type DataSyncConfig< Schema extends z.ZodSchema, Value extends z.infer< Schema >
  */
 type DataSyncHook< Schema extends z.ZodSchema, Value extends z.infer< Schema > > = [
 	UseQueryResult< Value >,
-	UseMutationResult< Value >,
+	UseMutationResult< Value, DataSyncError | Error, Value >,
 ];
 
 /**
