@@ -16,10 +16,11 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 		),
 		'allow_jetpack_site_auth' => true,
 		'request_format'          => array(
-			'action'       => '(string) Possible values are \'update\'',
-			'autoupdate'   => '(bool) Whether or not to automatically update the plugin',
-			'active'       => '(bool) Activate or deactivate the plugin',
-			'network_wide' => '(bool) Do action network wide (default value: false)',
+			'action'               => '(string) Possible values are \'update\'',
+			'autoupdate'           => '(bool) Whether or not to automatically update the plugin',
+			'active'               => '(bool) Activate or deactivate the plugin',
+			'network_wide'         => '(bool) Do action network wide (default value: false)',
+			'is_scheduled_updates' => '(bool) If the update is happening as a result of a scheduled update event',
 		),
 		'query_parameters'        => array(
 			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
@@ -381,7 +382,6 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	 * @return bool|WP_Error
 	 */
 	protected function update() {
-
 		$query_args = $this->query_args();
 		if ( isset( $query_args['autoupdate'] ) && $query_args['autoupdate'] ) {
 			Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
