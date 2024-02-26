@@ -1,0 +1,42 @@
+@use "sass:math";
+
+$bar_height: 24px;
+$border_radius: math.div($bar-height, 2);
+
+.mj-boost-speed-score__grade {
+    font-size: var(--font-body-small);
+    line-height: $bar_height;
+    display: flex;
+    justify-content: space-between;
+    column-gap: 1em;
+    margin: 8px 0 8px;
+    &--letter {
+        font-size: var(--font-title-small);
+        font-weight: bold;
+        line-height: $bar_height;
+        color: var(--jp-green);
+    }
+}
+
+.mj-boost-speed-score__bar {
+    .jb-score-bar__label {
+        display: none;
+    }
+
+    .jb-score-bar__filler {
+        border-radius: $border_radius;
+        min-width: 49px;
+    }
+
+    .jb-score-bar__bounds {
+        height: $bar_height;
+        border-radius: $border_radius;
+        margin-left: 0;
+    }
+
+    .jb-score-bar__score {
+        width: $bar-height + 6px;
+        height: $bar-height;
+        border-radius: $border_radius;
+    }
+}

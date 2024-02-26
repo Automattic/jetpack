@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Sharing: automatically add the Sharing Buttons block to the single post and page templates on sites using a block-based theme.

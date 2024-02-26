@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Verbum: Ensure colour contrast for disabled button is a11y-friendly.

@@ -32,8 +32,7 @@
 		flex-direction: column;
 	}
 
-	&:not(.wp-block-jetpack-subscriptions__use-newline) 
-	{
+	&:not(.wp-block-jetpack-subscriptions__use-newline) {
 		.is-not-subscriber {
 			.wp-block-jetpack-subscriptions__form-elements {
 				display: flex;
@@ -47,7 +46,7 @@
 	}
 
 	.wp-block-jetpack-subscriptions__form,
-	form  {
+	form {
 		.wp-block-jetpack-subscriptions__textfield .components-text-control__input,
 		.wp-block-jetpack-subscriptions__button,
 		input[type="email"],
@@ -64,7 +63,8 @@
 			cursor: pointer;
 		}
 
-		input[type="email"]::placeholder {
+		input[type="email"]::placeholder,
+		input[type="email"]:disabled {
 			color: currentColor;
 			opacity: .5;
 		}

@@ -950,11 +950,11 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 
 	// == Lineitem table > Column headers
 	// generate a templated customer info table
-	$table_headers = zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbs_invoice_hours_or_quantity, $template );
+	$table_headers = zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbs_invoice_hours_or_quantity );
 
 	// == Lineitem table > Line items
 	// generate a templated lineitems
-	$line_items = zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines, $template );
+	$line_items = zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines );
 
 	// == Lineitem table > Totals
 	// due to withTotals parameter on get above, we now don't need ot calc anything here, just expose
@@ -964,7 +964,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	if ( $invsettings['invtax'] != 0 || $invsettings['invpandp'] != 0 || $invsettings['invdis'] != 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 		$totals_table .= '<tr class="total-top">';
 		$totals_table .= '<td  class="bord bord-l" style="text-align:right; width: 80%; text-transform: uppercase;">' . esc_html__( 'Subtotal', 'zero-bs-crm' ) . '</td>';
-		$totals_table .= '<td class="bord row-amount" class="bord" style="text-align:right; "><span class="zbs-totals">';
+		$totals_table .= '<td class="bord row-amount" style="text-align:right; "><span class="zbs-totals">';
 		if ( isset( $invoice['net'] ) && ! empty( $invoice['net'] ) ) {
 			$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['net'] ) );
 		} else {
@@ -988,7 +988,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 
 			$totals_table .= '-' . esc_html( zeroBSCRM_formatCurrency( $invoice['totals']['discount'] ) );
 
-			$totals_table .= '</td>';
+			$totals_table .= '</span></td>';
 			$totals_table .= '</tr>';
 		}
 	}
@@ -1003,7 +1003,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 		} else {
 			$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 		}
-		$totals_table .= '</td>';
+		$totals_table .= '</span></td>';
 		$totals_table .= '</tr>';
 	}
 
@@ -1033,7 +1033,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 				} else {
 					$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 				}
-				$totals_table .= '</td>';
+				$totals_table .= '</span></td>';
 				$totals_table .= '</tr>';
 			}
 		} else {
@@ -1047,7 +1047,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 			} else {
 				$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 			}
-			$totals_table .= '</td>';
+			$totals_table .= '</span></td>';
 			$totals_table .= '</tr>';
 		}
 	}
@@ -1117,7 +1117,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	}
 
 	$partials_table .= '<tr class="zbs_grand_total' . $balance_hide . '">';
-	$partials_table .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</td>';
+	$partials_table .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</span></td>';
 	$partials_table .= '<td class="bord row-amount"><span class="zbs-subtotal-value">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</span></td>';
 	$partials_table .= '</tr>';
 	$partials_table .= '</table>';
@@ -1521,88 +1521,27 @@ function jpcrm_invoicing_generate_invoice_custom_fields_lines( $invoice, $templa
 
 // Used to generate specific part of invoice pdf: (Lineitem row in inv table)
 // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
-function zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines = array(), $template = 'pdf' ) {
+function zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines = array() ) {
+
+	if ( empty( $invlines ) ) {
+		return '';
+	}
 
 	$line_item_html = '';
+	foreach ( $invlines as $invline ) {
 
-	switch ( $template ) {
-
-		case 'pdf':
-			if ( $invlines != '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-				$i = 1;
-				foreach ( $invlines as $invline ) {
-
-					$line_item_html .=
-						'<tr>
-						<td style="width:55%;"><div class="item-name">' . esc_html( $invline['title'] ) . '</div><div class="item-description">' . nl2br( esc_html( $invline['desc'] ) ) . '</div></td>
-						<td style="width:15%;text-align:center;" class="cen">' . esc_html( zeroBSCRM_format_quantity( $invline['quantity'] ) ) . '</td>
-						<td style="width:15%;text-align:center;" class="cen">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
-						<td style="width:15%;text-align:right;" class="row-amount">' . esc_html( zeroBSCRM_formatCurrency( $invline['net'] ) ) . '</td>
-						</tr>';
-
-					++$i;
-
-				}
-			}
-
-			break;
-
-		case 'portal':
-			if ( $invlines != '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-				$i = 1;
-				foreach ( $invlines as $invline ) {
-
-					$line_item_html .=
-						'<tbody class="zbs-item-block" data-tableid="' . esc_attr( $i ) . '" id="tblock' . esc_attr( $i ) . '">
-						<tr class="top-row">
-						<td style="width:50%">' . esc_html( $invline['title'] ) . '<br/><span class="dz">' . nl2br( esc_html( $invline['desc'] ) ) . '</span></td>
-						<td style="width:15%;text-align:center;" rowspan="3" class="cen">' . esc_html( zeroBSCRM_format_quantity( $invline['quantity'] ) ) . '</td>
-						<td style="width:15%;text-align:center;" rowspan="3"class="cen">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
-						<td style="width:15%;text-align:right;" rowspan="3" class="row-amount">' . esc_html( zeroBSCRM_formatCurrency( $invline['net'] ) ) . '</td>
-						</tr>
-						</tbody>';
-
-					++$i;
-				}
-			}
-
-			break;
-
-		case 'notification':
-			if ( $invlines != '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-				$i = 1;
-				foreach ( $invlines as $invline ) {
-
-					$line_item_html = '<tbody class="zbs-item-block" data-tableid="' . esc_attr( $i ) . '" id="tblock' . esc_attr( $i ) . '">';
-					foreach ( $invlines as $invline ) {
-
-						$line_item_html .= '
-							<tr class="top-row">
-							<td style="width:70%;font-weight:bold">' . esc_html( $invline['title'] ) . '</td>
-							<td style="width:7.5%;text-align:center;" rowspan="3" class="cen">' . esc_html( $invline['quantity'] ) . '</td>
-							<td style="width:7.5%;text-align:center;" rowspan="3"class="cen">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
-							<td style="width:7.5%;text-align:right;" rowspan="3" class="row-amount">' . esc_html( zeroBSCRM_formatCurrency( $invline['net'] ) ) . '</td>
-							</tr>
-							<tr class="bottom-row">
-							<td colspan="4" class="tapad">' . esc_html( $invline['desc'] ) . '</td>
-							</tr>
-							<tr class="add-row"></tr>';
-
-						++$i;
-					}
-
-					$line_item_html .= '</tbody>';
-
-					++$i;
-				}
-			}
-
-			break;
-
+		$line_item_html .= '
+			<tr class="jpcrm-invoice-lineitem">
+			<td class="jpcrm-invoice-lineitem-description"><span class="title">' . esc_html( $invline['title'] ) . '</span><br/><span class="subtitle">' . nl2br( esc_html( $invline['desc'] ) ) . '</span></td>
+			<td class="jpcrm-invoice-lineitem-quantity">' . esc_html( zeroBSCRM_format_quantity( $invline['quantity'] ) ) . '</td>
+			<td class="jpcrm-invoice-lineitem-price">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
+			<td class="jpcrm-invoice-lineitem-amount">' . esc_html( zeroBSCRM_formatCurrency( $invline['net'] ) ) . '</td>
+			</tr>';
 	}
 
 	return $line_item_html;
 }
+
 // Used to generate specific part of invoice pdf: (pay button)
 function zeroBSCRM_invoicing_generateInvPart_payButton( $invoice_id = -1, $status = '', $template = 'pdf' ) { // phpcs:ignore Squiz.Commenting.FunctionComment.WrongStyle
 
@@ -1650,50 +1589,19 @@ function zeroBSCRM_invoicing_generateInvPart_payButton( $invoice_id = -1, $statu
 }
 // Used to generate specific part of invoice pdf: (table headers)
 // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
-function zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbs_invoice_hours_or_quantity = 1, $template = 'pdf' ) {
+function zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbs_invoice_hours_or_quantity = 1 ) {
+	$table_headers  = '<tr>';
+	$table_headers .= '<th class="jpcrm-invoice-lineitem-description">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</th>';
 
-	$table_headers = '';
-
-	switch ( $template ) {
-
-		case 'pdf':
-			$table_headers = '<th style="text-align:left;"><span class="table-title">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</span></th>';
-
-			if ( $zbs_invoice_hours_or_quantity == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-				$table_headers .= '<th id="zbs_inv_qoh"><span class="table-title">' . esc_html__( 'Quantity', 'zero-bs-crm' ) . '</th>';
-				$table_headers .= '<th id="zbs_inv_por"><span class="table-title">' . esc_html__( 'Price', 'zero-bs-crm' ) . '</th>';
-			} else {
-				$table_headers .= '<th id="zbs_inv_qoh"><span class="table-title">' . esc_html__( 'Hours', 'zero-bs-crm' ) . '</th>';
-				$table_headers .= '<th id="zbs_inv_por"><span class="table-title">' . esc_html__( 'Rate', 'zero-bs-crm' ) . '</th>';
-			}
-			$table_headers .= '<th style="text-align: right;"><span class="table-title">' . esc_html__( 'Amount', 'zero-bs-crm' ) . '</span></th>';
-
-			break;
-
-		case 'portal':
-			$table_headers = '<th class="left">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</th>';
-
-			if ( $zbs_invoice_hours_or_quantity == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-					$table_headers .= '<th class="cen" id="zbs_inv_qoh">' . esc_html__( 'Quantity', 'zero-bs-crm' ) . '</th>';
-					$table_headers .= '<th class="cen" id="zbs_inv_por">' . esc_html__( 'Price', 'zero-bs-crm' ) . '</th>';
-			} else {
-					$table_headers .= '<th class="cen" id="zbs_inv_qoh"> ' . esc_html__( 'Hours', 'zero-bs-crm' ) . '</th>';
-					$table_headers .= '<th class="cen" id="zbs_inv_por">' . esc_html__( 'Rate', 'zero-bs-crm' ) . '</th>';
-			}
-
-			$table_headers .= '<th class="ri">' . esc_html__( 'Amount', 'zero-bs-crm' ) . '</th>';
-
-			break;
-
-		case 'notification':
-			if ( $zbs_invoice_hours_or_quantity == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-				$table_headers = '<th class="left">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Quantity', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Price', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Total', 'zero-bs-crm' ) . '</th>';
-			} else {
-				$table_headers = '<th class="left">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Hours', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Rate', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Total', 'zero-bs-crm' ) . '</th>';
-			}
-
-			break;
+	if ( $zbs_invoice_hours_or_quantity == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		$table_headers .= '<th class="jpcrm-invoice-lineitem-quantity">' . esc_html__( 'Quantity', 'zero-bs-crm' ) . '</th>';
+		$table_headers .= '<th class="jpcrm-invoice-lineitem-price">' . esc_html__( 'Price', 'zero-bs-crm' ) . '</th>';
+	} else {
+		$table_headers .= '<th class="jpcrm-invoice-lineitem-quantity">' . esc_html__( 'Hours', 'zero-bs-crm' ) . '</th>';
+		$table_headers .= '<th class="jpcrm-invoice-lineitem-price">' . esc_html__( 'Rate', 'zero-bs-crm' ) . '</th>';
 	}
+	$table_headers .= '<th class="jpcrm-invoice-lineitem-amount">' . esc_html__( 'Amount', 'zero-bs-crm' ) . '</th>';
 
+	$table_headers .= '</tr>';
 	return $table_headers;
 }

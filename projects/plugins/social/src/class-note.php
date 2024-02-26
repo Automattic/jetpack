@@ -18,7 +18,7 @@ class Note {
 	 * Check if the feature is enabled.
 	 */
 	public function enabled() {
-		return get_option( self::JETPACK_SOCIAL_NOTE_CPT );
+		return (bool) get_option( self::JETPACK_SOCIAL_NOTE_CPT );
 	}
 
 	/**
@@ -37,7 +37,8 @@ class Note {
 	 * Things to do on admin_init.
 	 */
 	public function admin_init_actions() {
-		add_action( 'current_screen', array( $this, 'add_filters_and_actions_for_screen' ) );
+		\Automattic\Jetpack\Post_List\Post_List::setup();
+		add_action( 'current_screen', array( $this, 'add_filters_and_actions_for_screen' ), 5 );
 	}
 
 	/**
@@ -51,6 +52,18 @@ class Note {
 		}
 
 		add_filter( 'the_title', array( $this, 'override_empty_title' ), 10, 2 );
+		add_filter( 'jetpack_post_list_display_share_action', array( $this, 'show_share_action' ), 10, 2 );
+	}
+
+	/**
+	 * Used as a filter to determine if we should show the share action on the post list screen.
+	 *
+	 * @param bool   $show_share The current filter value.
+	 * @param string $post_type The current post type on the post list screen.
+	 * @return bool Whether to show the share action.
+	 */
+	public function show_share_action( $show_share, $post_type ) {
+		return self::JETPACK_SOCIAL_NOTE_CPT === $post_type || $show_share;
 	}
 
 	/**
@@ -71,8 +84,8 @@ class Note {
 	 */
 	public function register_cpt() {
 		$args = array(
-			'public'       => true,
-			'labels'       => array(
+			'public'        => true,
+			'labels'        => array(
 				'name'                  => esc_html__( 'Social Notes', 'jetpack-social' ),
 				'singular_name'         => esc_html__( 'Social Note', 'jetpack-social' ),
 				'menu_name'             => esc_html__( 'Social Notes', 'jetpack-social' ),
@@ -94,11 +107,20 @@ class Note {
 				'items_list_navigation' => esc_html__( 'Notes list navigation', 'jetpack-social' ),
 				'items_list'            => esc_html__( 'Notes list', 'jetpack-social' ),
 			),
-			'show_in_rest' => true,
-			'has_archive'  => true,
-			'supports'     => array( 'editor', 'thumbnail', 'publicize', 'activitypub' ),
-			'menu_icon'    => 'dashicons-welcome-write-blog',
-			'rewrite'      => array( 'slug' => 'sn' ),
+			'show_in_rest'  => true,
+			'has_archive'   => true,
+			'supports'      => array( 'editor', 'thumbnail', 'publicize', 'enhanced_post_list', 'activitypub' ),
+			'menu_icon'     => 'dashicons-welcome-write-blog',
+			'rewrite'       => array( 'slug' => 'sn' ),
+			'template'      => array(
+				array(
+					'core/paragraph',
+					array(
+						'placeholder' => __( "What's on your mind?", 'jetpack-social' ),
+					),
+				),
+			),
+			'template_lock' => 'all',
 		);
 		register_post_type( self::JETPACK_SOCIAL_NOTE_CPT, $args );
 		self::maybe_flush_rewrite_rules();
@@ -117,10 +139,16 @@ class Note {
 	}
 
 	/**
-	 * Toggle whether or not the Notes feature is enabled.
+	 * Set whether or not the Notes feature is enabled.
+	 *
+	 * @param boolean $enabled Whether or not the Notes feature is enabled.
 	 */
-	public function toggle_enabled_status() {
-		if ( ! self::enabled() ) {
+	public function set_enabled( $enabled ) {
+		if ( $enabled === self::enabled() ) {
+			return;
+		}
+
+		if ( $enabled ) {
 			update_option( self::JETPACK_SOCIAL_NOTE_CPT, true );
 		} else {
 			delete_option( self::JETPACK_SOCIAL_NOTE_CPT );

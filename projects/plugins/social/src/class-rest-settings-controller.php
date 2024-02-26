@@ -110,6 +110,10 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			$data['show_pricing_page'] = Jetpack_Social::should_show_pricing_page();
 		}
 
+		if ( rest_is_field_included( 'social_notes_enabled', $fields ) ) {
+			$data['social_notes_enabled'] = ( new Note() )->enabled();
+		}
+
 		return $this->prepare_item_for_response( $data, $request );
 	}
 
@@ -136,6 +140,9 @@ class REST_Settings_Controller extends WP_REST_Controller {
 					break;
 				case 'show_pricing_page':
 					update_option( Jetpack_Social::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, (int) $params[ $name ] );
+					break;
+				case 'social_notes_enabled':
+					( new Note() )->set_enabled( (bool) $params[ $name ] );
 					break;
 			}
 		}
@@ -204,13 +211,18 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			'title'      => 'system_status',
 			'type'       => 'object',
 			'properties' => array(
-				'publicize_active'  => array(
+				'publicize_active'     => array(
 					'description' => __( 'Is the publicize module enabled?', 'jetpack-social' ),
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'show_pricing_page' => array(
+				'show_pricing_page'    => array(
 					'description' => __( 'Should we show the pricing page?', 'jetpack-social' ),
+					'type'        => 'boolean',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'social_notes_enabled' => array(
+					'description' => __( 'Is the social notes feature enabled?', 'jetpack-social' ),
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),

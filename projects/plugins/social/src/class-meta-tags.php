@@ -255,7 +255,11 @@ class Meta_Tags {
 		$tags = array();
 
 		if ( empty( $data->post_title ) ) {
-			$tags['og:title'] = __( '(no title)', 'jetpack-social' );
+			if ( $data->post_type === Note::JETPACK_SOCIAL_NOTE_CPT ) {
+				$tags['og:title'] = substr( get_the_excerpt(), 0, 50 );
+			} else {
+				$tags['og:title'] = __( '(no title)', 'jetpack-social' );
+			}
 		} else {
 			/** This filter is documented in core/src/wp-includes/post-template.php */
 			$tags['og:title'] = wp_kses( apply_filters( 'the_title', $data->post_title, $data->ID ), array() );

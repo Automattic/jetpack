@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+
+Invoices: Standardize line item code.
+Invoices: Allow long line item descriptions in email.

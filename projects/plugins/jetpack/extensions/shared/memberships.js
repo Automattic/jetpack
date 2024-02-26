@@ -94,7 +94,7 @@ export const initializeMembershipButtons = selector => {
 const tokenCookieName = 'wp-jp-premium-content-session';
 const getTokenFromCookie = function () {
 	const value = `; ${ document.cookie }`;
-	const parts = value.split( `; ${ tokenCookieName } = ` );
+	const parts = value.split( `; ${ tokenCookieName }=` );
 	if ( parts.length === 2 ) {
 		return parts.pop().split( ';' ).shift();
 	}

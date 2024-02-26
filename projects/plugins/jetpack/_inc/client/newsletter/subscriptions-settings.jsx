@@ -20,6 +20,7 @@ import {
 	isSubscriptionSiteEnabled,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
+import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
 const trackViewSubsClick = () => {
 	analytics.tracks.recordJetpackClick( 'manage-subscribers' );
@@ -63,15 +64,15 @@ function SubscriptionsSettings( props ) {
 			: null;
 
 	const handleSubscribeToBlogToggleChange = useCallback( () => {
-		updateFormStateModuleOption( 'subscriptions', 'stb_enabled' );
+		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'stb_enabled' );
 	}, [ updateFormStateModuleOption ] );
 
 	const handleSubscribeToCommentToggleChange = useCallback( () => {
-		updateFormStateModuleOption( 'subscriptions', 'stc_enabled' );
+		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'stc_enabled' );
 	}, [ updateFormStateModuleOption ] );
 
 	const handleSubscribeModalToggleChange = useCallback( () => {
-		updateFormStateModuleOption( 'subscriptions', 'sm_enabled' );
+		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'sm_enabled' );
 	}, [ updateFormStateModuleOption ] );
 
 	const handleSubscribePostEndToggleChange = useCallback( () => {
@@ -100,34 +101,36 @@ function SubscriptionsSettings( props ) {
 	};
 
 	const isDisabled =
-		! isSubscriptionsActive || unavailableInOfflineMode || isSavingAnyOption( [ 'subscriptions' ] );
+		! isSubscriptionsActive ||
+		unavailableInOfflineMode ||
+		isSavingAnyOption( [ SUBSCRIPTIONS_MODULE_NAME ] );
 
 	return (
-		<SettingsCard { ...props } hideButton module="subscriptions">
-			<SettingsGroup
-				hasChild
-				disableInOfflineMode
-				disableInSiteConnectionMode
-				module={ subscriptions }
-				support={ {
-					text: __(
-						'Allows readers to subscribe to your posts or comments, and receive notifications of new content by email.',
-						'jetpack'
-					),
-					link: getRedirectUrl( 'jetpack-support-subscriptions' ),
-				} }
-			>
-				<ModuleToggle
-					slug="subscriptions"
-					disabled={ unavailableInOfflineMode }
-					activated={ isSubscriptionsActive }
-					toggling={ isSavingAnyOption( 'subscriptions' ) }
-					toggleModule={ toggleModuleNow }
+		<>
+			<SettingsCard { ...props } hideButton module={ SUBSCRIPTIONS_MODULE_NAME }>
+				<SettingsGroup
+					hasChild
+					disableInOfflineMode
+					disableInSiteConnectionMode
+					module={ subscriptions }
+					support={ {
+						text: __(
+							'Allows readers to subscribe to your posts or comments, and receive notifications of new content by email.',
+							'jetpack'
+						),
+						link: getRedirectUrl( 'jetpack-support-subscriptions' ),
+					} }
 				>
-					<span className="jp-form-toggle-explanation">{ subscriptions.description }</span>
-				</ModuleToggle>
-				{
-					<>
+					<ModuleToggle
+						slug="subscriptions"
+						disabled={ unavailableInOfflineMode }
+						activated={ isSubscriptionsActive }
+						toggling={ isSavingAnyOption( SUBSCRIPTIONS_MODULE_NAME ) }
+						toggleModule={ toggleModuleNow }
+					>
+						<span className="jp-form-toggle-explanation">{ subscriptions.description }</span>
+					</ModuleToggle>
+					{
 						<FormFieldset>
 							<ToggleControl
 								checked={ isSubscriptionsActive && isStbEnabled }
@@ -170,9 +173,7 @@ function SubscriptionsSettings( props ) {
 									</>
 								) }
 							</p>
-						</FormFieldset>
-						{ isSubscriptionSiteFeatureEnabled && (
-							<FormFieldset>
+							{ isSubscriptionSiteFeatureEnabled && (
 								<ToggleControl
 									checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
 									disabled={ isDisabled }
@@ -180,21 +181,21 @@ function SubscriptionsSettings( props ) {
 									onChange={ handleSubscribePostEndToggleChange }
 									label={ __( 'Add Subscribe block at the end of each post', 'jetpack' ) }
 								/>
-							</FormFieldset>
-						) }
-					</>
-				}
-			</SettingsGroup>
-			{ getSubClickableCard() }
+							) }
+						</FormFieldset>
+					}
+				</SettingsGroup>
+				{ getSubClickableCard() }
 
-			{ ! isLinked && ! isOffline && (
-				<ConnectUserBar
-					feature="subscriptions"
-					featureLabel={ __( 'Newsletter', 'jetpack' ) }
-					text={ __( 'Connect to manage your subscriptions settings.', 'jetpack' ) }
-				/>
-			) }
-		</SettingsCard>
+				{ ! isLinked && ! isOffline && (
+					<ConnectUserBar
+						feature="subscriptions"
+						featureLabel={ __( 'Newsletter', 'jetpack' ) }
+						text={ __( 'Connect to manage your subscriptions settings.', 'jetpack' ) }
+					/>
+				) }
+			</SettingsCard>
+		</>
 	);
 }
 
@@ -203,9 +204,9 @@ export default withModuleSettingsFormHelpers(
 		return {
 			isLinked: isCurrentUserLinked( state ),
 			isOffline: isOfflineMode( state ),
-			isSubscriptionsActive: ownProps.getOptionValue( 'subscriptions' ),
-			unavailableInOfflineMode: isUnavailableInOfflineMode( state, 'subscriptions' ),
-			subscriptions: getModule( state, 'subscriptions' ),
+			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
+			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
+			subscriptions: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			isStbEnabled: ownProps.getOptionValue( 'stb_enabled' ),
 			isStcEnabled: ownProps.getOptionValue( 'stc_enabled' ),
 			isSmEnabled: ownProps.getOptionValue( 'sm_enabled' ),

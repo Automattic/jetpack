@@ -2,6 +2,24 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.48.4] - 2024-02-22
+### Added
+- Adding accesible text for external links on connection page and footer [#35733]
+
+### Changed
+- Updated package dependencies. [#35793]
+
+### Fixed
+- Jetpack Logo: prevent VoiceOver on Safari from reading SVG content [#35752]
+
+## [0.48.3] - 2024-02-19
+### Added
+- Added support for annotations in graph [#34978]
+
+## [0.48.2] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
 ## [0.48.1] - 2024-02-05
 ### Changed
 - Update clicking an icon tooltip to cause the tooltip to show/hide instead of always showing. [#35312]
@@ -937,6 +955,9 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.48.4]: https://github.com/Automattic/jetpack-components/compare/0.48.3...0.48.4
+[0.48.3]: https://github.com/Automattic/jetpack-components/compare/0.48.2...0.48.3
+[0.48.2]: https://github.com/Automattic/jetpack-components/compare/0.48.1...0.48.2
 [0.48.1]: https://github.com/Automattic/jetpack-components/compare/0.48.0...0.48.1
 [0.48.0]: https://github.com/Automattic/jetpack-components/compare/0.47.0...0.48.0
 [0.47.0]: https://github.com/Automattic/jetpack-components/compare/0.46.0...0.47.0

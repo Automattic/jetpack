@@ -285,8 +285,50 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
         ); foreach ($defaultArgs as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS =============
 
+			add_filter( 'jpcrm_listview_filters', array( $this, 'add_listview_filters' ) );
 
     }
+
+	/**
+	 * Adds items to listview filter using `jpcrm_listview_filters` hook.
+	 *
+	 * @param array $listview_filters Listview filters.
+	 */
+	public function add_listview_filters( $listview_filters ) {
+		global $zbs;
+
+		$quick_filter_settings = $zbs->settings->get( 'quickfiltersettings' );
+
+		// Add 'not-contacted-in-x-days'.
+		if ( ! empty( $quick_filter_settings['notcontactedinx'] ) && $quick_filter_settings['notcontactedinx'] > 0 ) {
+			$days = (int) $quick_filter_settings['notcontactedinx'];
+			$listview_filters[ ZBS_TYPE_COMPANY ]['general'][ 'notcontactedin' . $days ] = sprintf(
+				// translators: %s is the number of days
+				__( 'Not Contacted in %s days', 'zero-bs-crm' ),
+				$days
+			);
+		}
+
+		// Add 'olderthan-x-days'.
+		if ( ! empty( $quick_filter_settings['olderthanx'] ) && $quick_filter_settings['olderthanx'] > 0 ) {
+			$days = (int) $quick_filter_settings['olderthanx'];
+			$listview_filters[ ZBS_TYPE_COMPANY ]['general'][ 'olderthan' . $days ] = sprintf(
+				// translators: %s is the number of days
+				__( 'Older than %s days', 'zero-bs-crm' ),
+				$days
+			);
+		}
+
+		// Add statuses if enabled.
+		if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
+			$statuses = zeroBSCRM_getCompanyStatuses();
+			foreach ( $statuses as $status ) {
+				$listview_filters[ ZBS_TYPE_COMPANY ]['status'][ 'status_' . $status ] = $status;
+			}
+		}
+
+		return $listview_filters;
+	}
 
     // generic get Company (by ID)
     // Super simplistic wrapper used by edit page etc. (generically called via dal->contacts->getSingle etc.)

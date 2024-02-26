@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.2.0 - 2024-02-19
+### Added
+- Add an option to include `fork-ts-checker-webpack-plugin`. As this requires `typescript` as a peer dep, it needs to be explicitly enabled. [#35476]
+- Add `resolve.extensionAlias` with entries for tsc compatibility. [#35453]
+
+### Changed
+- Sort plugins in documentation and code. [#35476]
+
+## 3.1.2 - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
 ## 3.1.1 - 2024-02-05
 ### Changed
 - Updated package dependencies. [#35384]

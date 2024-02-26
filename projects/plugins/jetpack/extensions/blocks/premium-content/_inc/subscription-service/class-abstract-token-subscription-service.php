@@ -472,7 +472,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	private function token_from_request() {
 		$token = null;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['token'] ) ) {
+		if ( isset( $_GET['token'] ) && is_string( $_GET['token'] ) ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 			if ( preg_match( '/^[a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)?$/', $_GET['token'], $matches ) ) {
 				// token matches a valid JWT token pattern.

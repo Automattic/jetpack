@@ -15,6 +15,8 @@ import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
+import PageCache from '$features/page-cache/page-cache';
+import { invalidatePageCacheError } from '$lib/stores/page-cache';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -22,12 +24,13 @@ const Index = () => {
 
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
+	const [ pageCache ] = useSingleModuleState( 'page_cache' );
 
 	const regenerateCssAction = useRegenerateCriticalCssAction();
 	const requestRegenerateCriticalCss = () => {
 		regenerateCssAction.mutate();
 	};
-	const { canResizeImages } = Jetpack_Boost;
+	const { canResizeImages, site } = Jetpack_Boost;
 
 	const premiumFeatures = usePremiumFeatures();
 
@@ -117,6 +120,38 @@ const Index = () => {
 				<CloudCssMeta />
 			</Module>
 			<Module
+				slug="page_cache"
+				title={
+					<>
+						{ __( 'Cache Site Pages', 'jetpack-boost' ) }
+						<span className={ styles.beta }>Beta</span>
+					</>
+				}
+				description={
+					<>
+						<p>
+							{ __(
+								'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
+								'jetpack-boost'
+							) }
+						</p>
+						{ site.isAtomic && (
+							<Notice
+								level="warning"
+								title={ __( 'Page Cache is unavailable', 'jetpack-boost' ) }
+								hideCloseButton={ true }
+							>
+								<p>{ __( 'Your website already has a page cache running on it powered by WordPress.com.', 'jetpack-boost' ) }</p>
+							</Notice>
+						) }
+					</>
+				}
+				onEnable={ invalidatePageCacheError }
+				onDisable={ invalidatePageCacheError }
+			>
+				<PageCache />
+			</Module>
+			<Module
 				slug="render_blocking_js"
 				title={ __( 'Defer Non-Essential JavaScript', 'jetpack-boost' ) }
 				description={
@@ -193,12 +228,7 @@ const Index = () => {
 			<div className={ styles.settings }>
 				<Module
 					slug="image_guide"
-					title={
-						<>
-							{ __( 'Image Guide', 'jetpack-boost' ) }
-							<span className={ styles.beta }>Beta</span>
-						</>
-					}
+					title={ __( 'Image Guide', 'jetpack-boost' ) }
 					description={
 						<>
 							<p>
@@ -268,7 +298,7 @@ const Index = () => {
 				</Module>
 			</div>
 
-			<SuperCacheInfo />
+			{ ! pageCache?.active && <SuperCacheInfo /> }
 		</div>
 	);
 };

@@ -6,8 +6,8 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import { getErrorData } from '../hooks/use-ai-suggestions';
-import requestJwt from '../jwt';
+import { getErrorData } from '../hooks/use-ai-suggestions/index.js';
+import requestJwt from '../jwt/index.js';
 /*
  * Types & constants
  */
@@ -19,13 +19,13 @@ import {
 	ERROR_RESPONSE,
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
-} from '../types';
+} from '../types.js';
 import type {
 	AiModelTypeProp,
 	PromptMessagesProp,
 	PromptProp,
 	SuggestionErrorCode,
-} from '../types';
+} from '../types.js';
 
 type SuggestionsEventSourceConstructorArgs = {
 	url?: string;

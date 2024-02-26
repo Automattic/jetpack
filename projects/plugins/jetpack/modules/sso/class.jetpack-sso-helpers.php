@@ -366,6 +366,66 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 			// Extracting the "path" part of the URL, because we don't need the `site_url` part.
 			return str_ireplace( $site_url, '', $login_url );
 		}
+
+		/**
+		 * Clear the cookies that store the profile information for the last
+		 * WPCOM user to connect.
+		 */
+		public static function clear_wpcom_profile_cookies() {
+			if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ] ) ) {
+				setcookie(
+					'jetpack_sso_wpcom_name_' . COOKIEHASH,
+					' ',
+					time() - YEAR_IN_SECONDS,
+					COOKIEPATH,
+					COOKIE_DOMAIN,
+					is_ssl(),
+					true
+				);
+			}
+
+			if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ] ) ) {
+				setcookie(
+					'jetpack_sso_wpcom_gravatar_' . COOKIEHASH,
+					' ',
+					time() - YEAR_IN_SECONDS,
+					COOKIEPATH,
+					COOKIE_DOMAIN,
+					is_ssl(),
+					true
+				);
+			}
+		}
+
+		/**
+		 * Remove an SSO connection for a user.
+		 *
+		 * @param int $user_id The local user id.
+		 */
+		public static function delete_connection_for_user( $user_id ) {
+			$wpcom_user_id = get_user_meta( $user_id, 'wpcom_user_id', true );
+			if ( ! $wpcom_user_id ) {
+				return;
+			}
+
+			$xml = new Jetpack_IXR_Client(
+				array(
+					'wpcom_user_id' => $user_id,
+				)
+			);
+			$xml->query( 'jetpack.sso.removeUser', $wpcom_user_id );
+
+			if ( $xml->isError() ) {
+				return false;
+			}
+
+			// Clean up local data stored for SSO.
+			delete_user_meta( $user_id, 'wpcom_user_id' );
+			delete_user_meta( $user_id, 'wpcom_user_data' );
+			self::clear_wpcom_profile_cookies();
+
+			return $xml->getResponse();
+		}
 	}
 
 endif;
