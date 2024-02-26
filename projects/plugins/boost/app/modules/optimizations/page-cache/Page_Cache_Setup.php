@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
+use Exception;
 
 class Page_Cache_Setup {
 
@@ -97,11 +98,12 @@ $boost_cache->init_actions();
 $boost_cache->serve();
 ';
 
-		$write_advanced_cache = Filesystem_Utils::write_to_file( $advanced_cache_filename, $contents );
-
-		if ( is_wp_error( $write_advanced_cache ) ) {
-			return new \WP_Error( 'unable-to-write-to-advanced-cache', $write_advanced_cache->get_error_message() );
+		try {
+			Filesystem_Utils::write_to_file( $advanced_cache_filename, $contents );
+		} catch ( \Exception $exception ) {
+			return new \WP_Error( 'unable-to-write-to-advanced-cache', $exception->getMessage() );
 		}
+
 		if ( function_exists( 'opcache_invalidate' ) ) {
 			opcache_invalidate( $advanced_cache_filename, true );
 		}
@@ -162,9 +164,10 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	public static function uninstall() {
 		self::deactivate();
 
-		$result = Filesystem_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache', Filesystem_Utils::DELETE_ALL );
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		try {
+			Filesystem_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache', Filesystem_Utils::DELETE_ALL );
+		} catch ( Exception $exception ) {
+			return new \WP_Error( 'unable-to-delete-boost-cache', $exception->getMessage() );
 		}
 
 		return true;

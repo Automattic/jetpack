@@ -126,12 +126,11 @@ class Boost_Cache {
 				return $buffer;
 			}
 
-			$result = $this->storage->write( $this->request->get_uri(), $this->request->get_parameters(), $buffer );
-
-			if ( is_wp_error( $result ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-				Logger::debug( 'Error writing cache file: ' . $result->get_error_message() );
-			} else {
+			try {
+				$this->storage->write( $this->request->get_uri(), $this->request->get_parameters(), $buffer );
 				Logger::debug( 'Cache file created' );
+			} catch ( \Exception $exception ) {
+				Logger::debug( 'Error writing cache file: ' . $exception->getMessage() );
 			}
 		}
 
@@ -157,8 +156,12 @@ class Boost_Cache {
 				$this->delete_cache_for_post( get_post( $posts_page_id ) );
 			}
 		} else {
-			$this->storage->invalidate( home_url(), Filesystem_Utils::DELETE_FILES );
 			Logger::debug( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) );
+			try {
+				$this->storage->invalidate( home_url(), Filesystem_Utils::DELETE_FILES );
+			} catch ( \Exception $exception ) {
+				Logger::debug( 'Could not invalidate cache: ' . $exception->getMessage() );
+			}
 		}
 	}
 
@@ -224,7 +227,12 @@ class Boost_Cache {
 			 */
 			if ( isset( $parameters['cookies'] ) && ! empty( $parameters['cookies'] ) ) {
 				$filename = trailingslashit( get_permalink( $post->ID ) ) . Filesystem_Utils::get_request_filename( $parameters );
-				$this->storage->invalidate( $filename, Filesystem_Utils::DELETE_FILE );
+
+				try {
+					$this->storage->invalidate( $filename, Filesystem_Utils::DELETE_FILE );
+				} catch ( \Exception $exception ) {
+					Logger::debug( 'Could not invalidate cache: ' . $exception->getMessage() );
+				}
 			}
 			return;
 		}
@@ -353,15 +361,24 @@ class Boost_Cache {
 	 * Delete the cache for the given url.
 	 *
 	 * @param string $url - The url to delete the cache for.
+	 * @throws \Exception
+	 * @return bool
 	 */
 	public function delete_cache_for_url( $url ) {
 		Logger::debug( 'delete_cache_for_url: ' . $url );
+		try {
+			return $this->storage->invalidate( $url, Filesystem_Utils::DELETE_ALL );
+		} catch ( \Exception $exception ) {
+			Logger::debug( 'Could not invalidate cache: ' . $exception->getMessage() );
+		}
 
-		return $this->storage->invalidate( $url, Filesystem_Utils::DELETE_ALL );
+		return false;
 	}
 
 	/**
 	 * Delete the entire cache.
+	 * @throws \Exception
+	 * @return bool
 	 */
 	public function delete_cache() {
 		return $this->delete_cache_for_url( home_url() );

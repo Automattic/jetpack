@@ -29,16 +29,17 @@ class File_Storage implements Storage {
 	 * @param string $request_uri - The URI of this request (excluding GET parameters)
 	 * @param array  $parameters  - An associative array of all the things that make this request special/different. Includes GET parameters and COOKIEs normally.
 	 * @param string $data        - The data to write to disk.
+	 * @throws \Exception
 	 */
 	public function write( $request_uri, $parameters, $data ) {
 		$directory = self::get_uri_directory( $request_uri );
 		$filename  = Filesystem_Utils::get_request_filename( $parameters );
 
 		if ( ! Filesystem_Utils::create_directory( $directory ) ) {
-			return new \WP_Error( 'Could not create cache directory' );
+			throw new \Exception( 'Failed to create cache directory' );
 		}
 
-		return Filesystem_Utils::write_to_file( $directory . $filename, $data );
+		Filesystem_Utils::write_to_file( $directory . $filename, $data );
 	}
 
 	/**
@@ -108,6 +109,8 @@ class File_Storage implements Storage {
 	 *
 	 * @param string $path - The path to delete. File or directory.
 	 * @param string $type - defines what files/directories are deleted: DELETE_FILE, DELETE_FILES, DELETE_ALL.
+	 * @throws \Exception
+	 * @return void
 	 */
 	public function invalidate( $path, $type ) {
 		Logger::debug( "invalidate: $path $type" );
@@ -117,8 +120,6 @@ class File_Storage implements Storage {
 			return Filesystem_Utils::delete_directory( $normalized_path, $type );
 		} elseif ( $type === Filesystem_Utils::DELETE_FILE && is_file( $normalized_path ) ) {
 			return Filesystem_Utils::delete_file( $normalized_path );
-		} else {
-			return new \WP_Error( 'no-cache-files-to-delete', 'No cache files to delete.' );
 		}
 	}
 }

@@ -26,37 +26,37 @@ class Logger {
 
 	/**
 	 * Get the singleton instance of the logger.
+	 *
+	 * @throws \Exception
 	 */
 	public static function get_instance() {
 		if ( self::$instance !== null ) {
 			return self::$instance;
 		}
 
-		$instance          = new Logger();
-		$prepared_log_file = $instance->prepare_file();
-		if ( is_wp_error( $prepared_log_file ) ) {
-			return $prepared_log_file;
-		}
-
+		$instance = new Logger();
+		$instance->prepare_file();
 		self::$instance = $instance;
 		return $instance;
 	}
 
 	/**
 	 * Ensure that the log file exists, and if not, create it.
+	 *
+	 * @throws \Exception
 	 */
 	private function prepare_file() {
 		$log_file = $this->get_log_file();
 		if ( file_exists( $log_file ) ) {
-			return true;
+			return;
 		}
 
 		$directory = dirname( $log_file );
 		if ( ! Filesystem_Utils::create_directory( $directory ) ) {
-			return new \WP_Error( 'Could not create boost cache log directory' );
+			throw new \Exception( 'Failed to create boost-cache log directory' );
 		}
 
-		return Filesystem_Utils::write_to_file( $log_file, self::LOG_HEADER );
+		Filesystem_Utils::write_to_file( $log_file, self::LOG_HEADER );
 	}
 
 	/**
@@ -68,12 +68,12 @@ class Logger {
 			return;
 		}
 
-		$logger = self::get_instance();
-
-		// TODO: Check to make sure that current request IP is allowed to create logs.
-
-		if ( ! is_wp_error( $logger ) ) {
+		try {
+			$logger = self::get_instance();
 			$logger->log( $message );
+		} catch ( \Exception $exception ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'Could not write to boost-cache debug log: ' . $exception->getMessage() );
 		}
 	}
 

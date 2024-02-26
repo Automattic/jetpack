@@ -12,24 +12,24 @@ class Filesystem_Utils {
 	 * Recursively delete a directory.
 	 * @param string $path - The directory to delete.
 	 * @param bool   $type - The type of delete. DELETE_FILES to delete all files in the given directory. DELETE_ALL to delete everything in the given directory, recursively.
-	 * @return bool|WP_Error
+	 * @throws \Exception
 	 */
 	public static function delete_directory( $path, $type ) {
 		Logger::debug( "delete directory: $path $type" );
 		$path = realpath( $path );
 		if ( ! $path ) {
 			// translators: %s is the directory that does not exist.
-			return new \WP_Error( 'directory-missing', sprintf( __( 'Directory does not exist: %s', 'jetpack-boost' ), $path ) ); // realpath returns false if a file does not exist.
+			throw new \Exception( sprintf( 'Directory does not exist: %s', $path ) ); // realpath returns false if a file does not exist.
 		}
 
 		// make sure that $dir is a directory inside WP_CONTENT . '/boost-cache/';
 		if ( self::is_boost_cache_directory( $path ) === false ) {
 			// translators: %s is the directory that is invalid.
-			return new \WP_Error( 'invalid-directory', sprintf( __( 'Invalid directory %s', 'jetpack-boost' ), $path ) );
+			throw new \Exception( sprintf( 'Invalid directory %s', $path ) );
 		}
 
 		if ( ! is_dir( $path ) ) {
-			return new \WP_Error( 'not-a-directory', __( 'Not a directory', 'jetpack-boost' ) );
+			throw new \Exception( 'Not a directory' );
 		}
 
 		switch ( $type ) {
@@ -57,7 +57,6 @@ class Filesystem_Utils {
 				}
 				break;
 		}
-		return true;
 	}
 
 	/**
@@ -133,9 +132,10 @@ class Filesystem_Utils {
 		closedir( $handle );
 
 		// If the directory is empty after processing it's files, delete it.
-		$is_dir_empty = self::is_dir_empty( $directory );
-		if ( is_wp_error( $is_dir_empty ) ) {
-			Logger::debug( 'Could not check directory emptiness: ' . $is_dir_empty->get_error_message() );
+		try {
+			$is_dir_empty = self::is_dir_empty( $directory );
+		} catch ( \Exception $exception ) {
+			Logger::debug( 'Could not check directory emptiness: ' . $exception->getMessage() );
 			return $count;
 		}
 
@@ -183,10 +183,11 @@ class Filesystem_Utils {
 	 * Check if a directory is empty.
 	 *
 	 * @param string $dir - The directory to check.
+	 * @throws \Exception
 	 */
 	public static function is_dir_empty( $dir ) {
 		if ( ! is_readable( $dir ) ) {
-			return new \WP_Error( 'directory_not_readable', 'Directory is not readable' );
+			throw new \Exception( 'directory_not_readable', 'Directory is not readable' );
 		}
 
 		return ( count( scandir( $dir ) ) === 2 ); // All directories have '.' and '..'
@@ -199,19 +200,19 @@ class Filesystem_Utils {
 	 *
 	 * @param string $filename - The filename to write to.
 	 * @param string $data - The data to write to the file.
-	 * @return bool|WP_Error - true on sucess or WP_Error on failure.
+	 * @throws \Exception
+	 * @return void
 	 */
 	public static function write_to_file( $filename, $data ) {
 		$tmp_filename = $filename . uniqid( uniqid(), true ) . '.tmp';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		if ( false === file_put_contents( $tmp_filename, $data ) ) {
-			return new \WP_Error( 'Could not write to tmp file: ' . $tmp_filename );
+			throw new \Exception( 'Failed to write to tmp file ' . $tmp_filename );
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
 		if ( ! rename( $tmp_filename, $filename ) ) {
-			return new \WP_Error( 'Could not rename tmp file to final file: ' . $filename );
+			throw new \Exception( 'Failed to rename tmp file to final file ' . $filename );
 		}
-		return true;
 	}
 }

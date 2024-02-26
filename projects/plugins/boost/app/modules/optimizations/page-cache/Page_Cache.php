@@ -11,6 +11,7 @@ use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
 class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	/*
@@ -70,7 +71,12 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 
 	public function invalidate_cache() {
 		$cache = new Boost_Cache();
-		$cache->get_storage()->invalidate( home_url(), Filesystem_Utils::DELETE_ALL );
+
+		try {
+			$cache->get_storage()->invalidate( home_url(), Filesystem_Utils::DELETE_ALL );
+		} catch ( \Exception $exception ) {
+			Logger::debug( 'Could not invalidate cache: ' . $exception->getMessage() );
+		}
 	}
 
 	/**
@@ -79,7 +85,11 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	public static function activate() {
 		Page_Cache_Setup::run_setup();
 		Garbage_Collection::activate();
-		Boost_Cache_Settings::get_instance()->set( array( 'enabled' => true ) );
+		try {
+			Boost_Cache_Settings::get_instance()->set( array( 'enabled' => true ) );
+		} catch ( \Exception $exception ) {
+			Logger::debug( 'Could not enable cache: ' . $exception->getMessage() );
+		}
 	}
 
 	/**
@@ -87,7 +97,11 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	 */
 	public static function deactivate() {
 		Garbage_Collection::deactivate();
-		Boost_Cache_Settings::get_instance()->set( array( 'enabled' => false ) );
+		try {
+			Boost_Cache_Settings::get_instance()->set( array( 'enabled' => false ) );
+		} catch ( \Exception $exception ) {
+			Logger::debug( 'Could not disable cache: ' . $exception->getMessage() );
+		}
 	}
 
 	public static function is_available() {
