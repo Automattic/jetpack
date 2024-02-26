@@ -1,11 +1,11 @@
-import { PricingTableItem, getRedirectUrl } from '@automattic/jetpack-components';
+import { PricingTable, PricingTableItem, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import {
-	PricingTableItemProps,
-	PricingTableProps,
-} from '../../../../../../../../../js-packages/components/components/pricing-table/types';
-import { ReactElement } from 'react';
+import React, { ReactElement } from 'react';
+
+type PricingTableItemProps = React.ComponentProps< typeof PricingTableItem >;
+type PricingTableProps = React.ComponentProps< typeof PricingTable >;
+
 const cssOptimizationContext = __(
 	'Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as Critical CSS.',
 	'jetpack-boost'
