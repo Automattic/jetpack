@@ -25,17 +25,26 @@ function wpcom_is_nav_redesign_enabled() {
  * which enables the nav redesign by default.
  */
 function override_wpcom_menu_to_wpcalypso() {
-	global $menu;
+	global $menu, $submenu;
 
-	if ( ! wpcom_is_nav_redesign_enabled() ) {
+	$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
+		? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
+		: defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
+
+	if ( ! $is_proxied ) {
 		return;
 	}
 
 	$wpcom_menu_position = 0;
 	if ( isset( $menu[ $wpcom_menu_position ] ) ) {
-		$wpcom_menu                   = $menu[ $wpcom_menu_position ];
-		$wpcom_menu[2]                = str_replace( 'https://wordpress.com/', 'https://wpcalypso.wordpress.com/', $wpcom_menu[2] );
-		$menu[ $wpcom_menu_position ] = $wpcom_menu; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$menu[ $wpcom_menu_position ][2] = str_replace( 'https://wordpress.com/', 'https://wpcalypso.wordpress.com/', $menu[ $wpcom_menu_position ][2] ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	}
+
+	$parent_slug = 'wpcom-hosting-menu';
+
+	foreach ( $submenu[ $parent_slug ] as &$menu_item ) {
+		$menu_item[2] = str_replace( 'https://wordpress.com/', 'https://wpcalypso.wordpress.com/', $menu_item[2] );
+
 	}
 }
-add_action( 'admin_menu', 'override_wpcom_menu_to_wpcalypso', 99999 );
+add_action( 'admin_menu', 'override_wpcom_menu_to_wpcalypso', PHP_INT_MAX );
