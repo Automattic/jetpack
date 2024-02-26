@@ -374,7 +374,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		}
 
 		/**
-		 * Adds 'Revoke invite' link to user table row actions.
+		 * Adds 'Revoke invite' and 'Resend invite' link to user table row actions.
 		 * Removes 'Reset password' link.
 		 *
 		 * @param array   $actions - User row actions.
