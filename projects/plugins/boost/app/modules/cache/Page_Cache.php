@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Modules\Page_Cache;
 
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
-use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
@@ -11,7 +10,7 @@ use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\Modules\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 
-class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
+class Page_Cache implements Pluggable, Has_Deactivate {
 	/*
 	 * @var array - The errors that occurred when removing the cache.
 	 */
@@ -72,15 +71,6 @@ class Page_Cache implements Pluggable, Has_Activate, Has_Deactivate {
 	public function invalidate_cache() {
 		$cache = new Boost_Cache();
 		$cache->get_storage()->invalidate( home_url(), Boost_Cache_Utils::DELETE_ALL );
-	}
-
-	/**
-	 * Runs the setup when the feature is activated.
-	 */
-	public static function activate() {
-		Page_Cache_Setup::run_setup();
-		Garbage_Collection::activate();
-		Boost_Cache_Settings::get_instance()->set( array( 'enabled' => true ) );
 	}
 
 	/**
