@@ -12,7 +12,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { createBlock } from '@wordpress/blocks';
 import { Button, Modal, Icon } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useRef, useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 /**
@@ -27,7 +27,6 @@ export default function VoiceToContentEdit( { clientId } ) {
 		removeBlock: ( id: number ) => void;
 		insertBlock: ( block: object ) => void;
 	} = useDispatch( 'core/block-editor' );
-	const cancelTranscription = useRef( () => {} );
 	const [ transcription, setTranscription ] = useState( null );
 
 	const destroyBlock = useCallback( () => {
@@ -79,11 +78,12 @@ export default function VoiceToContentEdit( { clientId } ) {
 		onError( error );
 	};
 
-	const { transcribeAudio }: UseAudioTranscriptionReturn = useAudioTranscription( {
-		feature: 'voice-to-content',
-		onReady: onTranscriptionReady,
-		onError: onTranscriptionError,
-	} );
+	const { transcribeAudio, cancelTranscription }: UseAudioTranscriptionReturn =
+		useAudioTranscription( {
+			feature: 'voice-to-content',
+			onReady: onTranscriptionReady,
+			onError: onTranscriptionError,
+		} );
 
 	const { state, controls, error, onError, onProcessing, duration, analyser } = useMediaRecording( {
 		onDone: lastBlob => {
@@ -96,10 +96,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 		( audio: Blob ) => {
 			if ( audio ) {
 				onProcessing();
-				const promise = transcribeAudio( audio );
-				cancelTranscription.current = () => {
-					promise.canceled = true;
-				};
+				transcribeAudio( audio );
 			}
 		},
 		[ transcribeAudio, onProcessing ]
@@ -125,9 +122,9 @@ export default function VoiceToContentEdit( { clientId } ) {
 	);
 
 	const onCancelHandler = useCallback( () => {
-		cancelTranscription.current?.();
+		cancelTranscription();
 		controlReset();
-	}, [ controlReset ] );
+	}, [ cancelTranscription, controlReset ] );
 
 	const onRecordHandler = useCallback( () => {
 		controlStart( 1000 ); // Stream audio on 1 second intervals
