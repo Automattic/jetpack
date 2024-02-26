@@ -188,7 +188,7 @@ const BypassPatterns = ( {
 				{ createInterpolateElement(
 					__( '<help>See an example</help> or <link>learn more</link>.', 'jetpack-boost' ),
 					{
-						help: <BypassPatternsExample />,
+						help: <BypassPatternsExample children={ null } />, // children are passed after the interpolation.
 						// eslint-disable-next-line jsx-a11y/anchor-has-content
 						link: <a href={ exclusionsLink } target="_blank" rel="noreferrer" />,
 					}
@@ -210,7 +210,11 @@ const BypassPatterns = ( {
 	);
 };
 
-const BypassPatternsExample = () => {
+type BypassPatternsExampleProps = {
+	children: React.ReactNode;
+};
+
+const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 	const [ show, setShow ] = useState( false );
 
 	return (
@@ -224,7 +228,7 @@ const BypassPatternsExample = () => {
 					setShow( ! show );
 				} }
 			>
-				{ __( 'See an example', 'jetpack-boost' ) }
+				{ children }
 			</a>
 			<div className={ styles[ 'tooltip-wrapper' ] }>
 				<IconTooltip
