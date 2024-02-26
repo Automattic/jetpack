@@ -17,7 +17,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.2.0-alpha';
 
 	/**
 	 * Initialize the class.
