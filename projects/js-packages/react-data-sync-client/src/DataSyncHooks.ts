@@ -194,7 +194,6 @@ export function useDataSync<
 /**
  * Use React Query mutations to dispatch custom DataSync Actions.
  */
-
 export type DataSyncActionConfig<
 	ActionRequestSchema extends z.ZodSchema,
 	ActionRequestData extends z.infer< ActionRequestSchema >,
@@ -287,7 +286,7 @@ export function useDataSyncAction<
 	ActionResult,
 	CurrentState
 > ) {
-	const mutationKey = buildQueryKey( key, params );
+	const mutationKey = buildQueryKey( `${ key }_${ action_name }`, params );
 	const datasync = new DataSync( namespace, key, schema.state );
 	const mutationConfigDefaults: UseMutationOptions<
 		ActionResult,
