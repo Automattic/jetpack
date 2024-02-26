@@ -66,11 +66,18 @@ function wpcom_add_hosting_menu_intro_notice() {
 	}
 	?>
 	<style>
+
+		body.no-js .wpcom-site-menu-intro-notice {
+			display: none !important;
+		}
 		.wpcom-site-menu-intro-notice {
+			display: none !important;
 			padding: 8px 12px;
-			width: 100%;
 		}
 
+		.wrap > .wpcom-site-menu-intro-notice {
+			display: flex !important;
+		}
 		.wpcom-site-menu-intro-notice.notice.notice-info {
 			border-left-color: #3858e9;
 			display: flex;
