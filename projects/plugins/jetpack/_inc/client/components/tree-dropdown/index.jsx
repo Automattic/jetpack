@@ -68,6 +68,7 @@ const TreeDropdown = props => {
 							onClick={ handleDelete( tag ) }
 							className="tree-dropdown__tag-remove-button"
 							disabled={ disabled }
+							type="button"
 						>
 							<Icon icon={ closeSmall } />
 						</button>

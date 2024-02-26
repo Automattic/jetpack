@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Voice to Content: refactor ActionButtons component to not handle logic on it, relying just on state and events

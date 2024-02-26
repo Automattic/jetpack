@@ -52,6 +52,11 @@ type AutoConversionSettingsSelectors = {
 	isAutoConversionSettingsUpdating: () => boolean;
 };
 
+type SocialNotesSettingsSelectors = {
+	isSocialNotesEnabled: () => boolean;
+	isSocialNotesSettingsUpdating: () => boolean;
+};
+
 /**
  * Types of the Social Store selectors.
  *
@@ -62,4 +67,5 @@ export type SocialStoreSelectors = JetpackSettingsSelectors &
 	SharesDataSelectors &
 	SiteDataSelectors &
 	SocialImageGeneratorSettingsSelectors &
-	AutoConversionSettingsSelectors;
+	AutoConversionSettingsSelectors &
+	SocialNotesSettingsSelectors;
