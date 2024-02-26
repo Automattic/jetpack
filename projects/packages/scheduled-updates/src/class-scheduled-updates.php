@@ -28,9 +28,10 @@ class Scheduled_Updates {
 		}
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_rest_api_endpoints' ), 20 );
-		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ) );
-		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
+		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'jetpack_run_scheduled_update' ) );
+		add_filter( 'auto_update_plugin', array( __CLASS__, 'jetpack_allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
+		add_filter( 'all_plugins', array( __CLASS__, 'jetpack_scheduled_updates_add_symlink_to_plugin_list' ) );
 	}
 
 	/**
@@ -150,5 +151,23 @@ class Scheduled_Updates {
 		$html .= '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack#jetpack-autoupdates' ) ) . '">' . esc_html__( 'Edit', 'jetpack-scheduled-updates' ) . '</a>';
 
 		return $html;
+	}
+
+	/**
+	 * Adds an IsManaged key to each plugin in the plugins array. This returns whether
+	 * the plugin is managed under Atomic.
+	 *
+	 * @param array $plugin_list The list of plugins.
+	 */
+	public static function jetpack_scheduled_updates_add_symlink_to_plugin_list( $plugin_list ) {
+		foreach ( $plugin_list as $plugin_key => $plugin_data ) {
+			$folder     = WP_PLUGIN_DIR . '/' . strtok( $plugin_key, '/' );
+			$target     = is_link( $folder ) ? readlink( $folder ) : false;
+			$is_managed = $target && false !== strpos( $target, '/wordpress/' );
+
+			$plugin_list[ $plugin_key ]['IsManaged'] = $is_managed;
+		}
+
+		return $plugin_list;
 	}
 }
