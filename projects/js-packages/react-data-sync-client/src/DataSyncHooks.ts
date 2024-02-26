@@ -8,6 +8,7 @@ import {
 	useMutation,
 	QueryClientProvider,
 	useMutationState,
+	useIsMutating,
 } from '@tanstack/react-query';
 import React from 'react';
 import { useState, useRef, useEffect, useMemo } from 'react';
@@ -351,6 +352,10 @@ export function useDataSyncAction<
 		return mutation;
 	}, [ namespace, key, action_name ] );
 
+	const isMutationPending = useIsMutating( {
+		mutationKey,
+	} );
+
 	const mutationStates = useMutationState( {
 		filters: {
 			mutationKey,
@@ -358,16 +363,12 @@ export function useDataSyncAction<
 		},
 	} );
 
-	const isPending = mutationStates.some( state => 'pending' === state.status );
-	const isSuccess = mutationStates.some( state => 'success' === state.status );
-	const isError = mutationStates.some( state => 'error' === state.status );
+	const isPending = isMutationPending > 0;
+	const isSuccess = ! isPending && mutationStates.some( state => 'success' === state.status );
+	const isError = ! isPending && mutationStates.some( state => 'error' === state.status );
+	const isIdle = ! isPending && ! isSuccess && ! isError;
 	const error = mutationStates.find( state => state.error )?.error ?? null;
 	const data = mutationStates.find( state => state.data )?.data ?? null;
-	const [ isIdle, setIsIdle ] = useState( ! isPending && ! isSuccess && ! isError );
-
-	useEffect( () => {
-		setIsIdle( ! isPending && ! isSuccess && ! isError );
-	}, [ isPending, isSuccess, isError ] );
 
 	return {
 		...dedupedMutation,
