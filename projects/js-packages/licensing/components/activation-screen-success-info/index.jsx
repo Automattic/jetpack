@@ -43,7 +43,6 @@ ActivationSuccessInfo.propTypes = {
 	productId: PropTypes.number,
 	siteAdminUrl: PropTypes.string,
 	currentRecommendationsStep: PropTypes.string,
-	activePlugins: PropTypes.array,
 };
 
 export default ActivationSuccessInfo;
