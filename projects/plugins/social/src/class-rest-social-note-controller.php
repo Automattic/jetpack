@@ -27,18 +27,14 @@ class REST_Social_Note_Controller extends WP_REST_Controller {
 	public function register_rest_routes() {
 		register_rest_route(
 			'jetpack/v4',
-			'/social/update-post-meta',
+			'/social/shares/post/(?P<id>\d+)',
 			array(
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'update_post_shares_meta' ),
-					'permission_callback' => array( $this, 'update_post_shares_meta_permission_callback' ),
+					'callback'            => array( $this, 'update_post_shares' ),
+					'permission_callback' => array( $this, 'update_post_shares_permission_callback' ),
 					'args'                => array(
-						'post_id' => array(
-							'type'     => 'integer',
-							'required' => true,
-						),
-						'meta'    => array(
+						'meta' => array(
 							'type'       => 'object',
 							'required'   => true,
 							'properties' => array(
@@ -55,14 +51,14 @@ class REST_Social_Note_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Update the post meta
+	 * Update the post with information about shares.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 */
-	public function update_post_shares_meta( $request ) {
+	public function update_post_shares( $request ) {
 		$request_body = $request->get_json_params();
 
-		$post_id   = $request_body['post_id'];
+		$post_id   = $request->get_param( 'id' );
 		$post_meta = $request_body['meta'];
 		$post      = get_post( $post_id );
 
@@ -81,7 +77,7 @@ class REST_Social_Note_Controller extends WP_REST_Controller {
 	/**
 	 * Permissions callback.
 	 */
-	public function update_post_shares_meta_permission_callback() {
+	public function update_post_shares_permission_callback() {
 		if ( Rest_Authentication::is_signed_with_blog_token() ) {
 			return true;
 		}
