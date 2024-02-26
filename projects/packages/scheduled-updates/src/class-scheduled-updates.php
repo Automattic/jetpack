@@ -17,7 +17,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.2.1-alpha';
 
 	/**
 	 * Initialize the class.
@@ -27,10 +27,9 @@ class Scheduled_Updates {
 			return;
 		}
 
-		static::load_rest_api_endpoints();
-
-		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'jetpack_run_scheduled_update' ) );
-		add_filter( 'auto_update_plugin', array( __CLASS__, 'jetpack_allowlist_scheduled_plugins' ), 10, 2 );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_rest_api_endpoints' ), 20 );
+		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ) );
+		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
 	}
 
@@ -50,7 +49,7 @@ class Scheduled_Updates {
 	 *
 	 * @param string ...$plugins List of plugins to update.
 	 */
-	public static function jetpack_run_scheduled_update( ...$plugins ) {
+	public static function run_scheduled_update( ...$plugins ) {
 		$available_updates = get_site_transient( 'update_plugins' );
 		$plugins_to_update = array();
 
@@ -79,7 +78,7 @@ class Scheduled_Updates {
 	 * @param object    $item   The update offer.
 	 * @return bool
 	 */
-	public static function jetpack_allowlist_scheduled_plugins( $update, $item ) {
+	public static function allowlist_scheduled_plugins( $update, $item ) {
 		// TODO: Check if we're in a scheduled update request from Jetpack_Autoupdates.
 		$schedules = get_option( 'jetpack_update_schedules', array() );
 
