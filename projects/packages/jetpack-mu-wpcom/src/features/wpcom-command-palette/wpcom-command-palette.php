@@ -39,9 +39,7 @@ function wpcom_load_command_palette() {
 		$version,
 		true
 	);
-	wp_localize_script(
-		$command_palette_js_handle,
-		'commandPaletteConfig',
+	$data = wp_json_encode(
 		array(
 			'siteId'       => Jetpack_Options::get_option( 'id' ),
 			'isAdmin'      => current_user_can( 'manage_options' ),
@@ -49,6 +47,11 @@ function wpcom_load_command_palette() {
 			'isSimple'     => $host->is_wpcom_simple(),
 			'isSelfHosted' => ! $host->is_wpcom_platform(),
 		)
+	);
+	wp_add_inline_script(
+		$command_palette_js_handle,
+		"var commandPaletteConfig = $data;",
+		'before'
 	);
 	wp_enqueue_style(
 		'command-palette-styles',
