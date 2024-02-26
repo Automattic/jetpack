@@ -63,7 +63,7 @@ class Jetpack_Subscription_Site {
 			return;
 		}
 
-		if ( ! wp_is_block_theme() ) { // Fallback for classit themes.
+		if ( ! wp_is_block_theme() ) { // Fallback for classic themes.
 			add_filter(
 				'the_content',
 				function ( $content ) {
@@ -106,7 +106,7 @@ class Jetpack_Subscription_Site {
 
 		add_filter(
 			'hooked_block_jetpack/subscriptions',
-			function ( $hooked_block, $relative_position, $anchor_block ) {
+			function ( $hooked_block, $hooked_block_type, $relative_position, $anchor_block ) {
 				$is_post_content_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/post-content';
 				if ( $is_post_content_anchor_block && ( $relative_position === 'after' || $relative_position === 'before' ) ) {
 					$attrs = array(
@@ -141,7 +141,7 @@ class Jetpack_Subscription_Site {
 				return $hooked_block;
 			},
 			10,
-			3
+			4
 		);
 	}
 }
