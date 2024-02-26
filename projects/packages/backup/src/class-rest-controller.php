@@ -651,11 +651,11 @@ class REST_Controller {
 		$order_operational_data = array();
 		$order_meta             = array();
 
-		if ( ! class_exists( 'Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore' ) ) {
+		if ( ! class_exists( OrdersTableDataStore::class ) ) {
 			return new WP_Error( 'order_not_allowed', __( 'Not allowed to get the order with current configuration', 'jetpack-backup-pkg' ), array( 'status' => 403 ) );
 		}
 
-		if ( method_exists( 'Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore', 'get_orders_table_name' ) ) {
+		if ( method_exists( OrdersTableDataStore::class, 'get_orders_table_name' ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
 			$order = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_orders_table_name() . '` WHERE id = %s', $order_id ) );
 		}
@@ -665,17 +665,17 @@ class REST_Controller {
 			return new WP_Error( 'order_not_found', __( 'Order not found ', 'jetpack-backup-pkg' ), array( 'status' => 404 ) );
 		}
 
-		if ( method_exists( 'Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore', 'get_addresses_table_name' ) ) {
+		if ( method_exists( OrdersTableDataStore::class, 'get_addresses_table_name' ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
 			$order_addresses = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_addresses_table_name() . '` WHERE order_id = %s', $order_id ) );
 		}
 
-		if ( method_exists( 'Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore', 'get_operational_data_table_name' ) ) {
+		if ( method_exists( OrdersTableDataStore::class, 'get_operational_data_table_name' ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
 			$order_operational_data = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_operational_data_table_name() . '` WHERE order_id = %s', $order_id ) );
 		}
 
-		if ( method_exists( 'Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore', 'get_meta_table_name' ) ) {
+		if ( method_exists( OrdersTableDataStore::class, 'get_meta_table_name' ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
 			$order_meta = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_meta_table_name() . '` WHERE order_id = %s', $order_id ) );
 		}
