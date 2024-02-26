@@ -48,11 +48,11 @@ class Logger {
 	}
 
 	private function __construct() {
-		// If we cannot query the real process_id, use the timestamp of the request / first log of the request instead.
-		if ( function_exists( 'getmypid' ) ) {
+		if ( function_exists( 'getmyxpid' ) ) {
 			$this->pid = getmypid();
 		} else {
-			$this->pid = time();
+			// Where PID is not available, use the microtime of the first log of the session.
+			$this->pid = microtime( true );
 		}
 	}
 
