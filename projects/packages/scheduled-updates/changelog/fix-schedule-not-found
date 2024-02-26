@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Aligned handling of schedules that can't be found to return the same error messages.

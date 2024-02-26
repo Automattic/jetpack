@@ -310,6 +310,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
+	 * Test get_item with invalid schedule ID.
+	 *
+	 * @covers ::get_item
+	 */
+	public function test_get_invalid_item() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . $this->generate_schedule_id( array() ) );
+		$result  = rest_do_request( $request );
+
+		$this->assertSame( 404, $result->get_status() );
+		$this->assertSame( 'rest_invalid_schedule', $result->get_data()['code'] );
+	}
+
+	/**
 	 * Test update item.
 	 *
 	 * @covers ::update_item
@@ -353,6 +368,30 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( $schedule_id, $result->get_data() );
+	}
+
+	/**
+	 * Test update_item with invalid schedule ID.
+	 *
+	 * @covers ::update_item
+	 */
+	public function test_update_invalid_item() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $this->generate_schedule_id( array() ) );
+		$request->set_body_params(
+			array(
+				'plugins'  => array(),
+				'schedule' => array(
+					'timestamp' => strtotime( 'next Tuesday 9:00' ),
+					'interval'  => 'daily',
+				),
+			)
+		);
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 404, $result->get_status() );
+		$this->assertSame( 'rest_invalid_schedule', $result->get_data()['code'] );
 	}
 
 	/**
