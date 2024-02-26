@@ -400,7 +400,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					esc_html__( 'Revoke invite', 'jetpack' )
 				);
 			}
-			if ( current_user_can( 'edit_users' ) && $has_pending_invite ) {
+			if ( current_user_can( 'promote_users' ) && $has_pending_invite ) {
 				$nonce                        = wp_create_nonce( 'jetpack-sso-resend-user-invite' );
 				$actions['sso_resend_invite'] = sprintf(
 					'<a class="jetpack-sso-resend-invite-action" href="%s">%s</a>',
