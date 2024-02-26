@@ -402,7 +402,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			}
 			if ( current_user_can( 'edit_users' ) && $has_pending_invite ) {
 				$nonce                        = wp_create_nonce( 'jetpack-sso-resend-user-invite' );
-				$invite_nonce                 = wp_create_nonce( 'jetpack-sso-invite-user' );
 				$actions['sso_resend_invite'] = sprintf(
 					'<a class="jetpack-sso-resend-invite-action" href="%s">%s</a>',
 					add_query_arg(
@@ -410,7 +409,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 							'action'              => 'jetpack_resend_invite_user_to_wpcom',
 							'user_id'             => $user_id,
 							'resend_invite_nonce' => $nonce,
-							'invite_nonce'        => $invite_nonce,
 							'invite_id'           => $has_pending_invite,
 						),
 						admin_url( 'admin-post.php' )
