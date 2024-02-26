@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Post actions: rename Copy action to Duplicate, which is clearer
