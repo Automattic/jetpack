@@ -26,6 +26,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * Constructor function.
 		 */
 		public function __construct() {
+			add_action( 'delete_user', array( 'Jetpack_SSO_Helpers', 'delete_connection_for_user' ) );
 			// If the user has no errors on creation, send an invite to WordPress.com.
 			add_filter( 'user_profile_update_errors', array( $this, 'send_wpcom_mail_user_invite' ), 10, 3 );
 			// Don't send core invitation email when SSO is activated. They will get an email from WP.com.
