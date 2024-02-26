@@ -58,7 +58,7 @@ class Jetpack_Subscription_Site {
 	 * @return viod
 	 */
 	protected function handle_subscribe_block_post_end_placement() {
-		$subscribe_post_end_enabled = get_option( 'jetpack_subscribe_post_end_enabled', false );
+		$subscribe_post_end_enabled = get_option( 'jetpack_subscriptions_subscribe_post_end_enabled', false );
 		if ( ! $subscribe_post_end_enabled ) {
 			return;
 		}
