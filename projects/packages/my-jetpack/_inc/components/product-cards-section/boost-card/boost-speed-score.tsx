@@ -19,7 +19,6 @@ const BoostSpeedScore: FC = () => {
 	const { recordEvent } = useAnalytics();
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( '' );
-	const [ , setDaysSinceTested ] = useState( 1 );
 	const [ averageSpeedScore, setAverageSpeedScore ] = useState( 0 );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
 	const [ isTooltipVisible, setIsTooltipVisible ] = useState( false );
@@ -39,7 +38,6 @@ const BoostSpeedScore: FC = () => {
 		setSpeedLetterGrade(
 			getScoreLetter( cachedSpeedScores.scores.mobile, cachedSpeedScores.scores.desktop )
 		);
-		setDaysSinceTested( calculateDaysSince( cachedSpeedScores.timestamp * 1000 ) );
 	};
 
 	const getSpeedScores = async () => {
@@ -54,7 +52,6 @@ const BoostSpeedScore: FC = () => {
 			const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
 			setSpeedLetterGrade( scoreLetter );
 			setAverageSpeedScore( getAverageSpeedScore( scores.current.mobile, scores.current.desktop ) );
-			setDaysSinceTested( 0 );
 			setIsLoading( false );
 		} catch ( err ) {
 			recordEvent( 'jetpack_boost_speed_score_error', {
