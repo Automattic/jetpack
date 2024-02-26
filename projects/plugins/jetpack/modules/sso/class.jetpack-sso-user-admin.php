@@ -483,21 +483,49 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						'jetpack-sso-invite-error' => $message_type,
 						'_wpnonce'                 => $nonce,
 					);
+					self::$tracking->record_user_event(
+						'sso_user_invite_resend',
+						array(
+							'success' => 'false',
+							'error'   => $message_type,
+						)
+					);
 					return self::create_error_notice_and_redirect( $query_params );
 				}
 
-				$body         = json_decode( $response['body'] );
-				$query_params = array(
-					'jetpack-sso-invite-user' => $body->success ? 'reinvited-success' : 'failed',
+				$body                    = json_decode( $response['body'] );
+				$invite_response_message = $body->success ? 'reinvited-success' : 'failed';
+				$query_params            = array(
+					'jetpack-sso-invite-user' => $invite_response_message,
 					'_wpnonce'                => $nonce,
 				);
 
+				if ( ! $body->success ) {
+					self::$tracking->record_user_event(
+						'sso_user_invite_resend',
+						array(
+							'success' => 'false',
+							'error'   => $invite_response_message,
+						)
+					);
+				} else {
+					self::$tracking->record_user_event( 'sso_user_invite_resend', array( 'success' => 'true' ) );
+				}
+
 				return self::create_error_notice_and_redirect( $query_params );
 			} else {
+				$error        = 'empty-invite';
 				$query_params = array(
 					'jetpack-sso-invite-user'  => 'failed',
 					'jetpack-sso-invite-error' => 'empty-invite',
 					'_wpnonce'                 => $nonce,
+				);
+				self::$tracking->record_user_event(
+					'sso_user_invite_resend',
+					array(
+						'success' => 'false',
+						'error'   => $error,
+					)
 				);
 				return self::create_error_notice_and_redirect( $query_params );
 			}
@@ -839,7 +867,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						'wpcom'
 					);
 
-					if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
+					$status_code = wp_remote_retrieve_response_code( $response );
+
+					if ( ! is_wp_error( $response ) && 200 === $status_code ) {
 						$body                 = json_decode( $response['body'], true );
 						self::$cached_invites = array_merge( self::$cached_invites, $body );
 					}
