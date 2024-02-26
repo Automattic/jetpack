@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Use php exceptions instead of WP_Error for pre-wordpress code
+
+
