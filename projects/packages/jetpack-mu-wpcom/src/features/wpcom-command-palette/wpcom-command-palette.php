@@ -46,6 +46,7 @@ function wpcom_load_command_palette() {
 			'isAtomic'     => $host->is_woa_site(),
 			'isSimple'     => $host->is_wpcom_simple(),
 			'isSelfHosted' => ! $host->is_wpcom_platform(),
+			'capabilities' => get_userdata( get_current_user_id() )->allcaps,
 		)
 	);
 	wp_add_inline_script(
