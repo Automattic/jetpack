@@ -114,7 +114,7 @@ In order for WordPress to load the test site correctly, you'll need to access th
 - Run `bin/create-github-release.sh` to build a new release zip and create a GitHub release. This reads the version number to use for the build from `wpcomsh.php`, which is set in the first step.
 - You can view your [successful release here](https://github.com/Automattic/wpcomsh/releases).
 - New versions are deployed when our monitoring detects its release.
-  - Note: You can monitor [#atomic](https://a8c.slack.com/archives/C7YPW6K40) channel to see when the new version is deployed.
+  - Note: You can monitor [#atomic-alerts](https://a8c.slack.com/archives/C05GLGHLM8U) channel to see when the new version is deployed.
 
 #### Deploying new languages
 
@@ -317,7 +317,7 @@ Allow the showing of notices on the frontend. Currently we are showing:
 
 ### GitHub Deploy
 
-Includes a simple REST API for the pet6gk-G-p2. Atomic sites that are connected to a GitHub repo will receive `git push` webhook events via WPCOM which are then forwarded onto the connected Atomic site so it can pull down the latest code from GitHub. The WPCOMSH code is also responsible for generating a log file which is returned back to WPCOM and displayed in the Calypso UI at `/hosting-config/:atomic-site`. 
+Includes a simple REST API for the pet6gk-G-p2. Atomic sites that are connected to a GitHub repo will receive `git push` webhook events via WPCOM which are then forwarded onto the connected Atomic site so it can pull down the latest code from GitHub. The WPCOMSH code is also responsible for generating a log file which is returned back to WPCOM and displayed in the Calypso UI at `/hosting-config/:atomic-site`.
 
 ### Site Monitoring
 
