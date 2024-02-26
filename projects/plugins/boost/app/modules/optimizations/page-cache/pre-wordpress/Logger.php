@@ -48,7 +48,7 @@ class Logger {
 	}
 
 	private function __construct() {
-		if ( function_exists( 'getmyxpid' ) ) {
+		if ( function_exists( 'getmypid' ) ) {
 			$this->pid = getmypid();
 		} else {
 			// Where PID is not available, use the microtime of the first log of the session.
