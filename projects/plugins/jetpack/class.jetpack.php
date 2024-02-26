@@ -8,11 +8,9 @@
  */
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Nonce_Handler;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -751,9 +749,6 @@ class Jetpack {
 		// Returns HTTPS support status.
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
 
-		// TODO: the conneciton banner has been deprecated - this can be removed in 13.1+
-		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
-
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 
 		/**
@@ -1148,26 +1143,6 @@ class Jetpack {
 	public function jetpack_track_last_sync_callback( $params ) {
 		_deprecated_function( __METHOD__, 'jetpack-9.8', '\Automattic\Jetpack\JITMS\JITM->jetpack_track_last_sync_callback' );
 		return Automattic\Jetpack\JITMS\JITM::get_instance()->jetpack_track_last_sync_callback( $params );
-	}
-
-	/**
-	 * Jetpack Connection banner callback function.
-	 *
-	 * @return void
-	 */
-	public function jetpack_connection_banner_callback() {
-		check_ajax_referer( 'jp-connection-banner-nonce', 'nonce' );
-
-		// Disable the banner dismiss functionality if the pre-connection prompt helpers filter is set.
-		if (
-			isset( $_REQUEST['dismissBanner'] ) &&
-			! Jetpack_Connection_Banner::force_display()
-		) {
-			Jetpack_Options::update_option( 'dismissed_connection_banner', 1 );
-			wp_send_json_success();
-		}
-
-		wp_die();
 	}
 
 	/**
@@ -2969,7 +2944,6 @@ p {
 		self::load_modules();
 
 		Jetpack_Options::delete_option( 'do_activate' );
-		Jetpack_Options::delete_option( 'dismissed_connection_banner' );
 	}
 
 	/**
@@ -3363,11 +3337,6 @@ p {
 			// Artificially throw errors in certain specific cases during plugin activation.
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
 		}
-
-		// Add custom column in wp-admin/users.php to show whether user is linked.
-		add_filter( 'manage_users_columns', array( $this, 'jetpack_icon_user_connected' ) );
-		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_user_connected_icon' ), 10, 3 );
-		add_action( 'admin_print_styles', array( $this, 'jetpack_user_col_style' ) );
 	}
 
 	/**
@@ -3756,15 +3725,6 @@ p {
 	}
 
 	/**
-	 * Enqueues the jetpack-icons style.
-	 *
-	 * @return void
-	 */
-	public function admin_menu_css() {
-		wp_enqueue_style( 'jetpack-icons' );
-	}
-
-	/**
 	 * Add action links for the Jetpack plugin.
 	 *
 	 * @param array $actions Plugin actions.
@@ -3780,51 +3740,6 @@ p {
 		}
 
 		return $actions;
-	}
-
-	/**
-	 * Add an activation modal to the plugins page and the main dashboard.
-	 *
-	 * @param string $hook The current admin page.
-	 *
-	 * @return void
-	 */
-	public function activate_dialog( $hook ) {
-		/*
-		 * We do not need it on other plugin pages,
-		 * or when Jetpack is already connected.
-		 */
-		if (
-			! in_array( $hook, array( 'plugins.php', 'index.php' ), true )
-			|| self::is_connection_ready()
-		) {
-			return;
-		}
-
-		// add an activation script that will pick up deactivation actions for the Jetpack plugin.
-		Assets::register_script(
-			'jetpack-full-activation-modal-js',
-			'_inc/build/activation-modal.js',
-			JETPACK__PLUGIN_FILE,
-			array(
-				'enqueue'      => true,
-				'in_footer'    => true,
-				'textdomain'   => 'jetpack',
-				'dependencies' => array(
-					'wp-polyfill',
-					'wp-components',
-				),
-			)
-		);
-
-		// Add objects to be passed to the initial state of the app.
-		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-		wp_add_inline_script( 'jetpack-full-activation-modal-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_minimal_state() ) ) . '"));', 'before' );
-
-		// Adds Connection package initial state.
-		Connection_Initial_State::render_script( 'jetpack-full-activation-modal-js' );
-
-		add_action( 'admin_notices', array( $this, 'jetpack_plugin_portal_containers' ) );
 	}
 
 	/**
@@ -6035,6 +5950,10 @@ endif;
 				'replacement' => null,
 				'version'     => 'jetpack-12.7.0',
 			),
+			'jetpack_pre_connection_prompt_helpers'        => array(
+				'replacement' => null,
+				'version'     => 'jetpack-13.2.0',
+			),
 		);
 
 		foreach ( $filter_deprecated_list as $tag => $args ) {
@@ -6410,65 +6329,6 @@ endif;
 
 		return $sorted;
 	}
-
-	/**
-	 * Adds a "blank" column in the user admin table to display indication of user connection.
-	 *
-	 * @param array $columns User list table columns.
-	 *
-	 * @return array
-	 */
-	public function jetpack_icon_user_connected( $columns ) {
-		$columns['user_jetpack'] = '';
-		return $columns;
-	}
-
-	/**
-	 * Show Jetpack icon if the user is linked.
-	 *
-	 * @param string $val HTML for the icon.
-	 * @param string $col User list table column.
-	 * @param int    $user_id User ID.
-	 *
-	 * @return string
-	 */
-	public function jetpack_show_user_connected_icon( $val, $col, $user_id ) {
-		if ( 'user_jetpack' === $col && self::connection()->is_user_connected( $user_id ) ) {
-			$jetpack_logo = new Jetpack_Logo();
-			$emblem_html  = sprintf(
-				'<a title="%1$s" class="jp-emblem-user-admin">%2$s</a>',
-				esc_attr__( 'This user is linked and ready to fly with Jetpack.', 'jetpack' ),
-				$jetpack_logo->get_jp_emblem()
-			);
-			return $emblem_html;
-		}
-
-		return $val;
-	}
-
-	/**
-	 * Style the Jetpack user column
-	 */
-	public function jetpack_user_col_style() {
-		global $current_screen;
-		if ( ! empty( $current_screen->base ) && 'users' === $current_screen->base ) {
-			?>
-			<style>
-				.fixed .column-user_jetpack {
-					width: 21px;
-				}
-				.jp-emblem-user-admin svg {
-					width: 20px;
-					height: 20px;
-				}
-				.jp-emblem-user-admin path {
-					fill: #069e08;
-				}
-			</style>
-			<?php
-		}
-	}
-
 	/**
 	 * Checks if Akismet is active and working.
 	 *

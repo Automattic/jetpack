@@ -13,6 +13,7 @@ use Automattic\Jetpack\Tracking;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-user-admin.php';
 
 /**
  * Module Name: Secure Sign On
@@ -41,16 +42,17 @@ class Jetpack_SSO {
 	private function __construct() {
 
 		self::$instance = $this;
+		new Jetpack_SSO_User_Admin();
 
 		add_action( 'admin_init', array( $this, 'maybe_authorize_user_after_sso' ), 1 );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'login_init', array( $this, 'login_init' ) );
-		add_action( 'delete_user', array( $this, 'delete_connection_for_user' ) );
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
 		add_action( 'login_form_logout', array( $this, 'store_wpcom_profile_cookies_on_logout' ) );
-		add_action( 'jetpack_unlinked_user', array( $this, 'delete_connection_for_user' ) );
+		add_action( 'jetpack_unlinked_user', array( 'Jetpack_SSO_Helpers', 'delete_connection_for_user' ) );
+
 		add_action( 'jetpack_site_before_disconnected', array( static::class, 'disconnect' ) );
 		add_action( 'wp_login', array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
 
@@ -119,7 +121,7 @@ class Jetpack_SSO {
 		if ( ! empty( $errors->errors['loggedout'] ) ) {
 			$logout_message = wp_kses(
 				sprintf(
-					/* translators: %1$s is a link to the WordPress.com account settings page. */
+				/* translators: %1$s is a link to the WordPress.com account settings page. */
 					__( 'If you are on a shared computer, remember to also <a href="%1$s">log out of WordPress.com</a>.', 'jetpack' ),
 					'https://wordpress.com/me'
 				),
@@ -143,7 +145,7 @@ class Jetpack_SSO {
 
 		if ( 1 === (int) $current_user->jetpack_force_logout ) {
 			delete_user_meta( $current_user->ID, 'jetpack_force_logout' );
-			self::delete_connection_for_user( $current_user->ID );
+			Jetpack_SSO_Helpers::delete_connection_for_user( $current_user->ID );
 			wp_logout();
 			wp_safe_redirect( wp_login_url() );
 			exit;
@@ -180,7 +182,7 @@ class Jetpack_SSO {
 		if ( $user instanceof WP_User ) {
 			$user = wp_set_current_user( $user->ID );
 			update_user_meta( $user->ID, 'jetpack_force_logout', '1' );
-			self::delete_connection_for_user( $user->ID );
+			Jetpack_SSO_Helpers::delete_connection_for_user( $user->ID );
 			return true;
 		}
 		return false;
@@ -320,10 +322,10 @@ class Jetpack_SSO {
 			<input
 				type="checkbox"
 				name="jetpack_sso_require_two_step"
-				<?php checked( Jetpack_SSO_Helpers::is_two_step_required() ); ?>
-				<?php disabled( Jetpack_SSO_Helpers::is_require_two_step_checkbox_disabled() ); ?>
+		<?php checked( Jetpack_SSO_Helpers::is_two_step_required() ); ?>
+		<?php disabled( Jetpack_SSO_Helpers::is_require_two_step_checkbox_disabled() ); ?>
 			>
-			<?php esc_html_e( 'Require Two-Step Authentication', 'jetpack' ); ?>
+		<?php esc_html_e( 'Require Two-Step Authentication', 'jetpack' ); ?>
 		</label>
 		<?php
 	}
@@ -352,10 +354,10 @@ class Jetpack_SSO {
 				<input
 					type="checkbox"
 					name="jetpack_sso_match_by_email"
-					<?php checked( Jetpack_SSO_Helpers::match_by_email() ); ?>
-					<?php disabled( Jetpack_SSO_Helpers::is_match_by_email_checkbox_disabled() ); ?>
+			<?php checked( Jetpack_SSO_Helpers::match_by_email() ); ?>
+			<?php disabled( Jetpack_SSO_Helpers::is_match_by_email_checkbox_disabled() ); ?>
 				>
-				<?php esc_html_e( 'Match by Email', 'jetpack' ); ?>
+		<?php esc_html_e( 'Match by Email', 'jetpack' ); ?>
 			</label>
 		<?php
 	}
@@ -510,7 +512,7 @@ class Jetpack_SSO {
 
 		setcookie(
 			'jetpack_sso_original_request',
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sniff misses the wrapping esc_url_raw().
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sniff misses the wrapping esc_url_raw().
 			esc_url_raw( set_url_scheme( ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) ) ),
 			time() + HOUR_IN_SECONDS,
 			COOKIEPATH,
@@ -540,47 +542,47 @@ class Jetpack_SSO {
 		}
 
 		$display_name = ! empty( $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ] )
-			? sanitize_text_field( wp_unslash( $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ] ) )
-			: false;
+		? sanitize_text_field( wp_unslash( $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ] ) )
+		: false;
 		$gravatar     = ! empty( $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ] )
-			? esc_url_raw( wp_unslash( $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ] ) )
-			: false;
+		? esc_url_raw( wp_unslash( $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ] ) )
+		: false;
 
 		?>
 		<div id="jetpack-sso-wrap">
-			<?php
-				/**
-				 * Allow extension above Jetpack's SSO form.
-				 *
-				 * @module sso
-				 *
-				 * @since 8.6.0
-				 */
-				do_action( 'jetpack_sso_login_form_above_wpcom' );
+		<?php
+		/**
+		 * Allow extension above Jetpack's SSO form.
+		 *
+		 * @module sso
+		 *
+		 * @since 8.6.0
+		 */
+		do_action( 'jetpack_sso_login_form_above_wpcom' );
 
-			if ( $display_name && $gravatar ) :
-				?>
+		if ( $display_name && $gravatar ) :
+			?>
 				<div id="jetpack-sso-wrap__user">
 					<img width="72" height="72" src="<?php echo esc_html( $gravatar ); ?>" />
 
 					<h2>
-						<?php
-						echo wp_kses(
-							/* translators: %s a user display name. */
-							sprintf( __( 'Log in as <span>%s</span>', 'jetpack' ), esc_html( $display_name ) ),
-							array( 'span' => true )
-						);
-						?>
+				<?php
+				echo wp_kses(
+					/* translators: %s a user display name. */
+					sprintf( __( 'Log in as <span>%s</span>', 'jetpack' ), esc_html( $display_name ) ),
+					array( 'span' => true )
+				);
+				?>
 					</h2>
 				</div>
 
-			<?php endif; ?>
+				<?php endif; ?>
 
 
 			<div id="jetpack-sso-wrap__action">
-				<?php echo $this->build_sso_button( array(), 'is_primary' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
+					<?php echo $this->build_sso_button( array(), 'is_primary' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
 
-				<?php if ( $display_name && $gravatar ) : ?>
+					<?php if ( $display_name && $gravatar ) : ?>
 					<a rel="nofollow" class="jetpack-sso-wrap__reauth" href="<?php echo esc_url( $this->build_sso_button_url( array( 'force_reauth' => '1' ) ) ); ?>">
 						<?php esc_html_e( 'Log in as a different WordPress.com user', 'jetpack' ); ?>
 					</a>
@@ -610,18 +612,18 @@ class Jetpack_SSO {
 				<?php endif; ?>
 			</div>
 
-			<?php
-				/**
-				 * Allow extension below Jetpack's SSO form.
-				 *
-				 * @module sso
-				 *
-				 * @since 8.6.0
-				 */
-				do_action( 'jetpack_sso_login_form_below_wpcom' );
+					<?php
+					/**
+					 * Allow extension below Jetpack's SSO form.
+					 *
+					 * @module sso
+					 *
+					 * @since 8.6.0
+					 */
+					do_action( 'jetpack_sso_login_form_below_wpcom' );
 
-			if ( ! Jetpack_SSO_Helpers::should_hide_login_form() ) :
-				?>
+					if ( ! Jetpack_SSO_Helpers::should_hide_login_form() ) :
+						?>
 					<div class="jetpack-sso-or">
 						<span><?php esc_html_e( 'Or', 'jetpack' ); ?></span>
 					</div>
@@ -637,39 +639,9 @@ class Jetpack_SSO {
 						esc_html_e( 'Log in with WordPress.com', 'jetpack' )
 						?>
 					</a>
-			<?php endif; ?>
+					<?php endif; ?>
 		</div>
-		<?php
-	}
-
-	/**
-	 * Clear the cookies that store the profile information for the last
-	 * WPCOM user to connect.
-	 */
-	public static function clear_wpcom_profile_cookies() {
-		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_name_' . COOKIEHASH ] ) ) {
-			setcookie(
-				'jetpack_sso_wpcom_name_' . COOKIEHASH,
-				' ',
-				time() - YEAR_IN_SECONDS,
-				COOKIEPATH,
-				COOKIE_DOMAIN,
-				is_ssl(),
-				true
-			);
-		}
-
-		if ( isset( $_COOKIE[ 'jetpack_sso_wpcom_gravatar_' . COOKIEHASH ] ) ) {
-			setcookie(
-				'jetpack_sso_wpcom_gravatar_' . COOKIEHASH,
-				' ',
-				time() - YEAR_IN_SECONDS,
-				COOKIEPATH,
-				COOKIE_DOMAIN,
-				is_ssl(),
-				true
-			);
-		}
+				<?php
 	}
 
 	/**
@@ -678,7 +650,7 @@ class Jetpack_SSO {
 	 * @since 4.8.0
 	 */
 	public static function clear_cookies_after_login() {
-		self::clear_wpcom_profile_cookies();
+		Jetpack_SSO_Helpers::clear_wpcom_profile_cookies();
 		if ( isset( $_COOKIE['jetpack_sso_nonce'] ) ) {
 			setcookie(
 				'jetpack_sso_nonce',
@@ -723,38 +695,8 @@ class Jetpack_SSO {
 	 */
 	public static function disconnect() {
 		if ( Jetpack::connection()->is_user_connected() ) {
-			static::delete_connection_for_user( get_current_user_id() );
+			Jetpack_SSO_Helpers::delete_connection_for_user( get_current_user_id() );
 		}
-	}
-
-	/**
-	 * Remove an SSO connection for a user.
-	 *
-	 * @param int $user_id The local user id.
-	 */
-	public static function delete_connection_for_user( $user_id ) {
-		$wpcom_user_id = get_user_meta( $user_id, 'wpcom_user_id', true );
-		if ( ! $wpcom_user_id ) {
-			return;
-		}
-
-		$xml = new Jetpack_IXR_Client(
-			array(
-				'wpcom_user_id' => $user_id,
-			)
-		);
-		$xml->query( 'jetpack.sso.removeUser', $wpcom_user_id );
-
-		if ( $xml->isError() ) {
-			return false;
-		}
-
-		// Clean up local data stored for SSO.
-		delete_user_meta( $user_id, 'wpcom_user_id' );
-		delete_user_meta( $user_id, 'wpcom_user_data' );
-		self::clear_wpcom_profile_cookies();
-
-		return $xml->getResponse();
 	}
 
 	/**
@@ -762,8 +704,8 @@ class Jetpack_SSO {
 	 */
 	public static function request_initial_nonce() {
 		$nonce = ! empty( $_COOKIE['jetpack_sso_nonce'] )
-			? sanitize_key( wp_unslash( $_COOKIE['jetpack_sso_nonce'] ) )
-			: false;
+		? sanitize_key( wp_unslash( $_COOKIE['jetpack_sso_nonce'] ) )
+		: false;
 
 		if ( ! $nonce ) {
 			$xml = new Jetpack_IXR_Client();
@@ -904,8 +846,8 @@ class Jetpack_SSO {
 				}
 
 				$user_found_with = $new_user_override_role
-					? 'user_created_new_user_override'
-					: 'user_created_users_can_register';
+				? 'user_created_new_user_override'
+				: 'user_created_users_can_register';
 			} else {
 				$tracking->record_user_event(
 					'sso_login_failed',
@@ -991,7 +933,7 @@ class Jetpack_SSO {
 
 			add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
 			wp_safe_redirect(
-				/** This filter is documented in core/src/wp-login.php */
+			/** This filter is documented in core/src/wp-login.php */
 				apply_filters( 'login_redirect', $redirect_to, $_request_redirect_to, $user )
 			);
 			exit;
@@ -1016,7 +958,7 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Retreive the admin profile page URL.
+	 * Retrieve the admin profile page URL.
 	 */
 	public static function profile_page_url() {
 		return admin_url( 'profile.php' );
@@ -1032,8 +974,8 @@ class Jetpack_SSO {
 	public function build_sso_button( $args = array(), $is_primary = false ) {
 		$url     = $this->build_sso_button_url( $args );
 		$classes = $is_primary
-			? 'jetpack-sso button button-primary'
-			: 'jetpack-sso button';
+		? 'jetpack-sso button button-primary'
+		: 'jetpack-sso button';
 
 		return sprintf(
 			'<a rel="nofollow" href="%1$s" class="%2$s">%3$s %4$s</a>',
@@ -1080,7 +1022,7 @@ class Jetpack_SSO {
 		if ( empty( $reauth ) ) {
 			$sso_redirect = $this->build_sso_url( $args );
 		} else {
-			self::clear_wpcom_profile_cookies();
+			Jetpack_SSO_Helpers::clear_wpcom_profile_cookies();
 			$sso_redirect = $this->build_reauth_and_sso_url( $args );
 		}
 

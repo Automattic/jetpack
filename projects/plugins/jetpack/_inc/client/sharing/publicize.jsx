@@ -81,7 +81,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ _x( 'Jetpack Social connections', 'Settings header', 'jetpack' ) }
+					header={ _x( 'Jetpack Social', 'Settings header', 'jetpack' ) }
 					module="publicize"
 					hideButton
 				>
@@ -101,7 +101,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 						>
 							<p>
 								{ __(
-									'Connect your website to the social media networks you use and share your content across all your social accounts with a single click. When you publish a post, it will appear on all connected accounts.',
+									'Enable Jetpack Social and connect your social accounts to automatically share your content with your followers with a single click. When you publish a post, you will be able to share it on all connected accounts.',
 									'jetpack'
 								) }
 							</p>

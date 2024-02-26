@@ -731,3 +731,33 @@ i.icon.child:before {
 		}
 	}
 }
+
+.jpcrm-invoice-lineitem-description {
+	text-align: left;
+}
+
+.jpcrm-invoice-lineitem-quantity,
+.jpcrm-invoice-lineitem-price,
+.jpcrm-invoice-lineitem-amount {
+	text-align: right;
+}
+
+#jpcrm-invoice-lineitems {
+	.jpcrm-invoice-lineitem-description {
+		width: 50%;
+
+		.title {
+			font-weight: bold;
+		}
+		.subtitle {
+			font-size: 13px;
+			font-style: italic;
+		}
+	}
+
+	.jpcrm-invoice-lineitem-quantity,
+	.jpcrm-invoice-lineitem-price,
+	.jpcrm-invoice-lineitem-amount {
+		width: 15%;
+	}
+}
