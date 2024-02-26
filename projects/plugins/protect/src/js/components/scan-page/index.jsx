@@ -133,7 +133,7 @@ const ScanPage = () => {
 										<span>{ __( 'Scanning your site…', 'jetpack-protect' ) }</span>
 									</Col>
 									<Col>
-										<H3 style={ { textWrap: 'pretty' } }>
+										<H3 style={ { textWrap: 'balance' } }>
 											{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
 										</H3>
 										{ currentProgress !== null && currentProgress >= 0 && (
