@@ -12,8 +12,7 @@ const JETPACK_BOOST_PRODUCTS = [
 /**
  * Gets the tooltip copy based on the Boost letter grade and other factors.
  *
- * @param {object} props - Component props.
- * @param {string} props.speedLetterGrade - The Boost speed letter grade.
+ * @param {string} speedLetterGrade - The Boost speed letter grade.
  * @returns {React.ReactElement | string} A translated JSX Element or string.
  */
 export function useBoostTooltipCopy( { speedLetterGrade } ) {
@@ -21,7 +20,7 @@ export function useBoostTooltipCopy( { speedLetterGrade } ) {
 	const { data: purchases, isLoading } = usePurchases();
 	const hasBoostPaidPlan = useMemo( () => {
 		if ( isLoading ) {
-			return null;
+			return false;
 		}
 		if ( ! purchases?.length ) {
 			return false;
