@@ -16,10 +16,11 @@ import { Icon, Notice, Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import classnames from 'classnames';
-import React, { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 /*
  * Internal dependencies
  */
+import { NoticeContext } from '../../context/notices/noticeContext';
 import useAnalytics from '../../hooks/use-analytics';
 import useChatAuthentication from '../../hooks/use-chat-authentication';
 import useChatAvailability from '../../hooks/use-chat-availability';
@@ -36,7 +37,7 @@ import StatsSection from '../stats-section';
 import WelcomeBanner from '../welcome-banner';
 import styles from './styles.module.scss';
 
-const GlobalNotice = ( { message, options, clean } ) => {
+const GlobalNotice = ( { message, options, clean = null } ) => {
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 
 	/*
@@ -94,7 +95,13 @@ export default function MyJetpackScreen() {
 		window?.myJetpackInitialState?.welcomeBanner.hasBeenDismissed;
 	const { showJetpackStatsCard = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
 	const jetpackManage = window?.myJetpackInitialState?.jetpackManage;
-	const { message, options, clean } = useGlobalNotice();
+
+	// This way of handling Global notices in redux is being deprecated.
+	// This will be removed when all state that uses global notices has been migrated to tanstack useQuery
+	const { message: messageDeprecated, options: optionsDeprecated, clean } = useGlobalNotice();
+
+	const { currentNotice } = useContext( NoticeContext );
+	const { message, options } = currentNotice || {};
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
 	const { detail: statsDetails } = useProduct( 'stats' );
@@ -122,6 +129,9 @@ export default function MyJetpackScreen() {
 		return null;
 	}
 
+	const globalNoticeMessage = message ?? messageDeprecated;
+	const globalNoticeOptions = options?.status ? options : optionsDeprecated;
+
 	return (
 		<AdminPage siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }>
 			<IDCModal />
@@ -145,9 +155,13 @@ export default function MyJetpackScreen() {
 							<ConnectionError />
 						</Col>
 					) }
-					{ message && ( welcomeBannerHasBeenDismissed || ! isNewUser ) && (
+					{ globalNoticeMessage && ( welcomeBannerHasBeenDismissed || ! isNewUser ) && (
 						<Col>
-							<GlobalNotice message={ message } options={ options } clean={ clean } />
+							<GlobalNotice
+								message={ globalNoticeMessage }
+								options={ globalNoticeOptions }
+								clean={ clean }
+							/>
 						</Col>
 					) }
 					{ showJetpackStatsCard && (
