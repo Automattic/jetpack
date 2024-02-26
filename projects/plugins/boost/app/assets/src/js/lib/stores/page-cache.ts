@@ -34,7 +34,7 @@ export function usePageCache() {
  * Hook which creates a callable action for running Page Cache setup.
  */
 export function usePageCacheSetup() {
-	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
+	const [ , pageCacheErrorMutation ] = usePageCacheError();
 	const setError = pageCacheErrorMutation.mutate;
 
 	const pageCacheSetup = useDataSyncAction( {
@@ -62,7 +62,7 @@ export function usePageCacheSetup() {
 			},
 		},
 	} );
-	return [ pageCacheSetup, pageCacheError ] as const;
+	return pageCacheSetup;
 }
 
 /**

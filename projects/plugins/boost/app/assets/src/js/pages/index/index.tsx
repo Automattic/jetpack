@@ -33,7 +33,9 @@ const Index = () => {
 
 	const premiumFeatures = usePremiumFeatures();
 
-	const [ pageCacheSetup ] = usePageCacheSetup();
+	const pageCacheSetup = usePageCacheSetup();
+	const [ , pageCacheErrorMutation ] = usePageCacheError();
+
 	return (
 		<div className="jb-container--narrow">
 			<Module
