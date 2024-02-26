@@ -82,6 +82,14 @@ const BoostSpeedScore: FC = () => {
 		setIsTooltipVisible( false );
 	}, [ setIsTooltipVisible ] );
 
+	const handleTooltipMouseEnter = useCallback( () => {
+		setIsTooltipVisible( true );
+	}, [ setIsTooltipVisible ] );
+
+	const handleTooltipMouseLeave = useCallback( () => {
+		setIsTooltipVisible( false );
+	}, [ setIsTooltipVisible ] );
+
 	useEffect( () => {
 		// Use cache scores if they are less than 21 days old.
 		if (
