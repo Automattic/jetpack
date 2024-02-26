@@ -21,8 +21,16 @@ export type UseAudioTranscriptionReturn = {
 	transcriptionResult: string;
 	isTranscribingAudio: boolean;
 	transcriptionError: string;
-	isTranscriptionReady: boolean;
 	transcribeAudio: ( audio: Blob ) => CancelablePromise;
+};
+
+/**
+ * The props for the audio transcription hook.
+ */
+export type UseAudioTranscriptionProps = {
+	feature: string;
+	onReady?: ( transcription: string ) => void;
+	onError?: ( error: string ) => void;
 };
 
 /**
@@ -31,22 +39,24 @@ export type UseAudioTranscriptionReturn = {
  * @param {string} feature - The feature name that is calling the transcription.
  * @returns {UseAudioTranscriptionReturn} - Object with properties to get the transcription data.
  */
-export default function useAudioTranscription( feature: string ): UseAudioTranscriptionReturn {
+export default function useAudioTranscription( {
+	feature,
+	onReady,
+	onError,
+}: UseAudioTranscriptionProps ): UseAudioTranscriptionReturn {
 	const [ transcriptionResult, setTranscriptionResult ] = useState< string >( '' );
 	const [ transcriptionError, setTranscriptionError ] = useState< string >( '' );
 	const [ isTranscribingAudio, setIsTranscribingAudio ] = useState( false );
-	const [ isTranscriptionReady, setIsTranscriptionReady ] = useState( false );
 
 	const handleAudioTranscription = useCallback(
 		( audio: Blob ) => {
 			debug( 'Transcribing audio' );
 
 			/**
-			 * Reset the transcription state.
+			 * Reset the transcription result and error.
 			 */
 			setTranscriptionResult( '' );
 			setTranscriptionError( '' );
-			setIsTranscriptionReady( false );
 			setIsTranscribingAudio( true );
 
 			/**
@@ -59,7 +69,7 @@ export default function useAudioTranscription( feature: string ): UseAudioTransc
 					}
 
 					setTranscriptionResult( transcriptionText );
-					setIsTranscriptionReady( true );
+					onReady?.( transcriptionText );
 				} )
 				.catch( error => {
 					if ( promise.canceled ) {
@@ -67,26 +77,19 @@ export default function useAudioTranscription( feature: string ): UseAudioTransc
 					}
 
 					setTranscriptionError( error.message );
+					onError?.( error.message );
 				} )
 				.finally( () => setIsTranscribingAudio( false ) );
 
 			return promise;
 		},
-		[
-			feature,
-			transcribeAudio,
-			setTranscriptionResult,
-			setTranscriptionError,
-			setIsTranscribingAudio,
-			setIsTranscriptionReady,
-		]
+		[ transcribeAudio, setTranscriptionResult, setTranscriptionError, setIsTranscribingAudio ]
 	);
 
 	return {
 		transcriptionResult,
 		isTranscribingAudio,
 		transcriptionError,
-		isTranscriptionReady,
 		transcribeAudio: handleAudioTranscription,
 	};
 }
