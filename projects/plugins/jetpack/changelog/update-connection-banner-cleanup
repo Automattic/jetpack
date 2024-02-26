@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Connection flow: remove deprecated files, functions, and images that are not needed anymore now that we do not display connection banners outside of the Jetpack connection screen.
