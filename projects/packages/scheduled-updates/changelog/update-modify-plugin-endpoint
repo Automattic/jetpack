@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Pass is_scheduled_updats property in the filter to identify our requests
