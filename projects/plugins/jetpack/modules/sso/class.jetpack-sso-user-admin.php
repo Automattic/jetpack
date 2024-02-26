@@ -113,6 +113,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						return wp_admin_notice( __( 'There is no previous invite for this user', 'jetpack' ), array( 'type' => 'error' ) );
 					case 'invalid-invite':
 						return wp_admin_notice( __( 'Attempted to send a new invitation to a user using an invite that doesn&#8217;t exist.', 'jetpack' ), array( 'type' => 'error' ) );
+					case 'error-revoke':
+						return wp_admin_notice( __( 'An error has occurred when revoking the invite for the user.', 'jetpack' ), array( 'type' => 'error' ) );
 					default:
 						return wp_admin_notice( __( 'An error has occurred when inviting the user to the site.', 'jetpack' ), array( 'type' => 'error' ) );
 				}
@@ -286,7 +288,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				if ( is_wp_error( $response ) || 200 !== $status_code ) {
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
-						'jetpack-sso-invite-error' => '', // general error message
+						'jetpack-sso-invite-error' => 'error-revoke',
 						'_wpnonce'                 => $nonce,
 					);
 					return self::create_error_notice_and_redirect( $query_params );
