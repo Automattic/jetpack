@@ -37,27 +37,5 @@ function render_block( $attr, $content ) {
 		return '';
 	}
 
-	// Add the services list to the block.
-	$services = array(
-		'print',
-		'facebook',
-		'linkedin',
-		'mail',
-		'mastodon',
-		'pinterest',
-		'pocket',
-		'reddit',
-		'telegram',
-		'tumblr',
-		'whatsapp',
-		'x',
-		'nextdoor',
-	);
-	wp_add_inline_script(
-		'jetpack-block-sharing-button',
-		'var jetpack_sharing_buttons_services = ' . wp_json_encode( $services, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
-		'before'
-	);
-
 	return $content;
 }
