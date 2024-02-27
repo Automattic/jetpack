@@ -78,7 +78,7 @@ function load_assets( $attr, $content ) {
 		/**
 		 * Filters the display of the Cookie-consent Block e.g by GDPR CMP banner on WordAds sites.
 		 *
-		 * @since $$next-version$$
+		 * @since 13.2
 		 *
 		 * @param bool $disable_cookie_consent_block Whether to disable the Cookie-consent Block.
 		 */

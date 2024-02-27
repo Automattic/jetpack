@@ -85,10 +85,17 @@ const TreeDropdown = props => {
 					disabled={ disabled }
 				/>
 			</div>
-
-			{ isDropdownVisible && (
-				<div className="tree-dropdown__dropdown-container">
-					<div className="tree-dropdown__dropdown">
+			<div className="tree-dropdown__dropdown-container">
+				<div
+					className={ classNames( 'tree-dropdown__dropdown', {
+						visible: isDropdownVisible,
+					} ) }
+				>
+					<div
+						className={ classNames( 'tree-dropdown-colapsable', {
+							hide: ! isDropdownVisible,
+						} ) }
+					>
 						<TreeSelector
 							items={ items }
 							selectedItems={ selectedItems }
@@ -98,7 +105,7 @@ const TreeDropdown = props => {
 						/>
 					</div>
 				</div>
-			) }
+			</div>
 		</div>
 	);
 };
