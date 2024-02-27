@@ -60,7 +60,7 @@ class Boost_Cache {
 		 *
 		 * Allow third-party plugins to clear all cache.
 		 */
-		add_action( 'clear_page_cache_all', array( $this, 'delete_cache' ) );
+		add_action( 'jetpack_boost_clear_page_cache_all', array( $this, 'delete_cache' ) );
 
 		/**
 		 * Delete cache for homepage and paged archives.
