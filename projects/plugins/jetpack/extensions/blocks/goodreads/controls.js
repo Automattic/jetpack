@@ -101,7 +101,7 @@ export function GoodreadsInspectorControls( { attributes, setAttributes } ) {
 	);
 }
 
-export function GoodreadsBlockControls( { attributes, setAttributes, setDisplayPreview } ) {
+export function GoodreadsBlockControls( { attributes, setAttributes } ) {
 	const { style } = attributes;
 	const layoutControls = [
 		{
@@ -123,7 +123,7 @@ export function GoodreadsBlockControls( { attributes, setAttributes, setDisplayP
 			<ToolbarButton
 				label={ __( 'Edit URL', 'jetpack' ) }
 				icon="edit"
-				onClick={ () => setDisplayPreview( false ) }
+				onClick={ () => setAttributes( { goodreadsId: '' } ) }
 			/>
 			<ToolbarGroup controls={ layoutControls } />
 		</>
