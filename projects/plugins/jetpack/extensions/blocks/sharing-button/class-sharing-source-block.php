@@ -570,7 +570,7 @@ class Share_Print_Block extends Sharing_Source_Block {
 }
 
 /**
- * Print button.
+ * Native Share button (relying on the Web Share API).
  */
 class Share_Native_Block extends Sharing_Source_Block {
 	/**
