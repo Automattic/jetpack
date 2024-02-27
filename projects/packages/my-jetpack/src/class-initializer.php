@@ -35,7 +35,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.12.1-alpha';
+	const PACKAGE_VERSION = '4.13.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -189,6 +189,7 @@ class Initializer {
 			)
 		);
 		$modules             = new Modules();
+		$connection          = new Connection_Manager();
 		$speed_score_history = new Speed_Score_History( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
 		wp_localize_script(
 			'my_jetpack_main_app',
@@ -214,6 +215,13 @@ class Initializer {
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				'userIsNewToJetpack'     => self::is_jetpack_user_new(),
+				'lifecycleStats'         => array(
+					'jetpackPlugins'  => self::get_installed_jetpack_plugins(),
+					'isSiteConnected' => $connection->is_connected(),
+					'isUserConnected' => $connection->is_user_connected(),
+					'purchases'       => self::get_purchases(),
+					'modules'         => self::get_active_modules(),
+				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
@@ -244,6 +252,63 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * Get product slugs of the active purchases
+	 *
+	 * @return array
+	 */
+	public static function get_purchases() {
+		$purchases = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases ) ) {
+			return array();
+		}
+
+		return array_map(
+			function ( $purchase ) {
+				return $purchase->product_slug;
+			},
+			$purchases
+		);
+	}
+
+	/**
+	 * Get installed Jetpack plugins
+	 *
+	 * @return array
+	 */
+	public static function get_installed_jetpack_plugins() {
+		$plugin_slugs = array_keys( Plugins_Installer::get_plugins() );
+		$plugin_slugs = array_map(
+			static function ( $slug ) {
+				$parts = explode( '/', $slug );
+				if ( empty( $parts ) ) {
+					return '';
+				}
+				// Return the last segment of the filepath without the PHP extension
+				return str_replace( '.php', '', $parts[ count( $parts ) - 1 ] );
+			},
+			$plugin_slugs
+		);
+
+		return array_values( array_intersect( self::JETPACK_PLUGIN_SLUGS, $plugin_slugs ) );
+	}
+
+	/**
+	 * Get active modules (except ones enabled by default)
+	 *
+	 * @return array
+	 */
+	public static function get_active_modules() {
+		$modules        = new Modules();
+		$active_modules = $modules->get_active();
+
+		// if the Jetpack plugin is active, filter out the modules that are active by default
+		if ( class_exists( 'Jetpack' ) && ! empty( $active_modules ) ) {
+			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
+		}
+		return $active_modules;
 	}
 
 	/**

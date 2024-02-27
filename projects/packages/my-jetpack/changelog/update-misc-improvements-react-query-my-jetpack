@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Refactor react-query to reduce code repetition

@@ -7,11 +7,9 @@ import {
 	useQuery,
 	useMutation,
 	QueryClientProvider,
-	useMutationState,
-	useIsMutating,
 } from '@tanstack/react-query';
 import React from 'react';
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef, useEffect } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 import { DataSyncError } from './DataSyncError';
@@ -343,42 +341,10 @@ export function useDataSyncAction<
 		},
 	};
 
-	const mutation = useMutation< DataSyncMutation< CurrentState >, unknown, ActionRequestData >( {
+	return useMutation< DataSyncMutation< CurrentState >, unknown, ActionRequestData >( {
 		...mutationConfigDefaults,
 		...mutationOptions,
 	} );
-
-	const dedupedMutation = useMemo( () => {
-		return mutation;
-	}, [ namespace, key, action_name ] );
-
-	const isMutationPending = useIsMutating( {
-		mutationKey,
-	} );
-
-	const mutationStates = useMutationState( {
-		filters: {
-			mutationKey,
-			exact: true,
-		},
-	} );
-
-	const isPending = isMutationPending > 0;
-	const isSuccess = ! isPending && mutationStates.some( state => 'success' === state.status );
-	const isError = ! isPending && mutationStates.some( state => 'error' === state.status );
-	const isIdle = ! isPending && ! isSuccess && ! isError;
-	const error = mutationStates.find( state => state.error )?.error ?? null;
-	const data = mutationStates.find( state => state.data )?.data ?? null;
-
-	return {
-		...dedupedMutation,
-		isIdle,
-		isPending,
-		isSuccess,
-		isError,
-		error,
-		data,
-	};
 }
 
 type SubsetMutation< T > = {
