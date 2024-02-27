@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Pass is_scheduled_updats property in the filter to identify our requests
+Scheduled updates: Change the `jetpack_allowlist_scheduled_plugins` function to include a check for the `SCHEDULED_AUTOUPDATE` constant. This allows us to identify requests coming from scheduled updates and include the relevant plugins when the `auto_update_plugin` hook is triggered.
