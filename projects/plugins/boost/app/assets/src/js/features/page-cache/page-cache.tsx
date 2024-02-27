@@ -1,39 +1,34 @@
 import { __ } from '@wordpress/i18n';
 import Meta from '$features/page-cache/meta/meta';
 import Health from '$features/page-cache/health/health';
-import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
+import { PageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { MutationNotice } from '$features/ui';
 
-const PageCache = () => {
-	const pageCacheSetup = usePageCacheSetup();
-	const [ pageCacheError ] = usePageCacheError();
+type Props = {
+	setup: ReturnType< typeof usePageCacheSetup >;
+	error?: PageCacheError;
+};
 
+const PageCache = ( { setup, error }: Props ) => {
 	return (
 		<>
 			<MutationNotice
 				mutationId="page-cache-setup"
-				isPending={ pageCacheSetup.isPending }
-				isError={ pageCacheSetup.isError }
-				isSuccess={ pageCacheSetup.isSuccess && ! pageCacheError.data }
+				isPending={ setup.isPending }
+				isError={ setup.isError }
+				isSuccess={ setup.isSuccess && ! error }
 				savingMessage={ __( 'Setting up cache…', 'jetpack-boost' ) }
 				errorMessage={ __( 'An error occurred while setting up cache.', 'jetpack-boost' ) }
 				successMessage={ __( 'Cache setup complete.', 'jetpack-boost' ) }
 			/>
-			{ pageCacheError.data ? (
-				<Health
-					setupCache={ () => pageCacheSetup.mutate() }
-					error={ pageCacheError.data.message }
-				/>
-			) : (
-				<Meta />
-			) }
+			{ error ? <Health setupCache={ () => setup.mutate() } error={ error.message } /> : <Meta /> }
 		</>
 	);
 };
 
-export default () => {
+export default ( props: Props ) => {
 	return (
 		<ErrorBoundary
 			fallback={
@@ -43,7 +38,7 @@ export default () => {
 				/>
 			}
 		>
-			<PageCache />
+			<PageCache { ...props } />
 		</ErrorBoundary>
 	);
 };
