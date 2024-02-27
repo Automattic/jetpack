@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Improved error handling and response formatting in DataSync client and PHP classes.

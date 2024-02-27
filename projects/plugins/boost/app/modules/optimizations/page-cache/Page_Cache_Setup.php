@@ -29,14 +29,9 @@ class Page_Cache_Setup {
 			}
 
 			if ( is_wp_error( $result ) ) {
-				jetpack_boost_ds_set( 'page_cache_error', $result->get_error_code() );
-
-				return false;
+				return $result;
 			}
 		}
-
-		jetpack_boost_ds_set( 'page_cache_error', '' );
-
 		return true;
 	}
 
