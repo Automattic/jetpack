@@ -80,7 +80,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 				if ( $has_pending_invite ) {
 					$response = self::send_revoke_wpcom_invite( $has_pending_invite );
-					$event    = 'sso_user_invite_revoke';
+					$event    = 'sso_user_invite_revoked';
 
 					if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 						self::$tracking->record_user_event(
@@ -168,7 +168,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		public function invite_user_to_wpcom() {
 			check_admin_referer( 'jetpack-sso-invite-user', 'invite_nonce' );
 			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
-			$event = 'sso_user_invite_send';
+			$event = 'sso_user_invite_sent';
 			if ( ! current_user_can( 'create_users' ) ) {
 				$error        = 'invalid-user-permissions';
 				$query_params = array(
@@ -318,7 +318,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		public function handle_request_revoke_invite() {
 			check_admin_referer( 'jetpack-sso-revoke-user-invite', 'revoke_invite_nonce' );
 			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
-			$event = 'sso_user_invite_revoke';
+			$event = 'sso_user_invite_revoked';
 			if ( ! current_user_can( 'promote_users' ) ) {
 				$error        = 'invalid-revoke-permissions';
 				$query_params = array(
@@ -770,7 +770,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					)
 				);
 
-				$event               = 'sso_user_new_user_invite_send';
+				$event               = 'sso_new_user_invite_sent';
 				$custom_message_sent = isset( $new_user_request['message'] ) ? 'true' : 'false';
 
 				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
