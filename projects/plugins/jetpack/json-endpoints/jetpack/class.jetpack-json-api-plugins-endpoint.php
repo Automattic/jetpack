@@ -42,7 +42,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 *
 	 * @var boolean
 	 */
-	protected $is_scheduled_updates = false;
+	protected $is_scheduled_update = false;
 
 	/**
 	 * Response format.
@@ -128,7 +128,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			return $error;
 		}
 
-		$error = $this->validate_scheduled_updates();
+		$error = $this->validate_scheduled_update();
 		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
@@ -434,16 +434,16 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	/**
-	 * Validates if scheduled updates are allowed based on the current plan.
+	 * Validates if scheduled update are allowed based on the current plan.
 	 *
-	 * @return bool|WP_Error True if scheduled updates are allowed or not provided, WP_Error otherwise.
+	 * @return bool|WP_Error True if scheduled update are allowed or not provided, WP_Error otherwise.
 	 */
-	protected function validate_scheduled_updates() {
+	protected function validate_scheduled_update() {
 		$args = $this->input();
 
-		if ( isset( $args['is_scheduled_updates'] ) && $args['is_scheduled_updates'] ) {
+		if ( isset( $args['is_scheduled_update'] ) && $args['is_scheduled_update'] ) {
 			if ( Current_Plan::supports( 'scheduled-updates' ) ) {
-				$this->is_scheduled_updates = true;
+				$this->is_scheduled_update = true;
 			} else {
 				return new WP_Error( 'unauthorized', __( 'This user is not authorized to perform a scheduled update event', 'jetpack' ), 403 );
 			}
