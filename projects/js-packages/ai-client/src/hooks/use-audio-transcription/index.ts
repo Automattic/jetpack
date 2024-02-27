@@ -1,16 +1,12 @@
 /**
  * External dependencies
  */
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useState, useRef } from '@wordpress/element';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
 import transcribeAudio from '../../audio-transcription/index.js';
-/**
- * Types
- */
-import type { CancelablePromise } from '../../types.js';
 
 const debug = debugFactory( 'jetpack-ai-client:use-audio-transcription' );
 
@@ -21,7 +17,8 @@ export type UseAudioTranscriptionReturn = {
 	transcriptionResult: string;
 	isTranscribingAudio: boolean;
 	transcriptionError: string;
-	transcribeAudio: ( audio: Blob ) => CancelablePromise;
+	transcribeAudio: ( audio: Blob ) => void;
+	cancelTranscription: () => void;
 };
 
 /**
@@ -47,6 +44,7 @@ export default function useAudioTranscription( {
 	const [ transcriptionResult, setTranscriptionResult ] = useState< string >( '' );
 	const [ transcriptionError, setTranscriptionError ] = useState< string >( '' );
 	const [ isTranscribingAudio, setIsTranscribingAudio ] = useState( false );
+	const abortController = useRef< AbortController >( null );
 
 	const handleAudioTranscription = useCallback(
 		( audio: Blob ) => {
@@ -59,37 +57,49 @@ export default function useAudioTranscription( {
 			setTranscriptionError( '' );
 			setIsTranscribingAudio( true );
 
+			/*
+			 * Create an AbortController to cancel the transcription.
+			 */
+			const controller = new AbortController();
+			abortController.current = controller;
+
 			/**
 			 * Call the audio transcription library.
 			 */
-			const promise: CancelablePromise = transcribeAudio( audio, feature )
+			transcribeAudio( audio, feature, controller.signal )
 				.then( transcriptionText => {
-					if ( promise.canceled ) {
-						return;
-					}
-
 					setTranscriptionResult( transcriptionText );
 					onReady?.( transcriptionText );
 				} )
 				.catch( error => {
-					if ( promise.canceled ) {
-						return;
+					if ( ! controller.signal.aborted ) {
+						setTranscriptionError( error.message );
+						onError?.( error.message );
 					}
-
-					setTranscriptionError( error.message );
-					onError?.( error.message );
 				} )
 				.finally( () => setIsTranscribingAudio( false ) );
-
-			return promise;
 		},
 		[ transcribeAudio, setTranscriptionResult, setTranscriptionError, setIsTranscribingAudio ]
 	);
+
+	const handleAudioTranscriptionCancel = useCallback( () => {
+		/*
+		 * Cancel the transcription.
+		 */
+		abortController.current?.abort();
+		/*
+		 * Reset the transcription result and error.
+		 */
+		setTranscriptionResult( '' );
+		setTranscriptionError( '' );
+		setIsTranscribingAudio( false );
+	}, [ abortController, setTranscriptionResult, setTranscriptionError, setIsTranscribingAudio ] );
 
 	return {
 		transcriptionResult,
 		isTranscribingAudio,
 		transcriptionError,
 		transcribeAudio: handleAudioTranscription,
+		cancelTranscription: handleAudioTranscriptionCancel,
 	};
 }

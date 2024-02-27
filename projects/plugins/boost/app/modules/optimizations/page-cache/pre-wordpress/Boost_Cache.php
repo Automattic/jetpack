@@ -157,7 +157,7 @@ class Boost_Cache {
 				$this->delete_cache_for_post( get_post( $posts_page_id ) );
 			}
 		} else {
-			$this->storage->invalidate( home_url(), Boost_Cache_Utils::DELETE_FILES );
+			$this->storage->invalidate( home_url(), Filesystem_Utils::DELETE_FILES );
 			Logger::debug( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) );
 		}
 	}
@@ -223,8 +223,8 @@ class Boost_Cache {
 			 * message.
 			 */
 			if ( isset( $parameters['cookies'] ) && ! empty( $parameters['cookies'] ) ) {
-				$filename = trailingslashit( get_permalink( $post->ID ) ) . Boost_Cache_Utils::get_request_filename( $parameters );
-				$this->storage->invalidate( $filename, Boost_Cache_Utils::DELETE_FILE );
+				$filename = trailingslashit( get_permalink( $post->ID ) ) . Filesystem_Utils::get_request_filename( $parameters );
+				$this->storage->invalidate( $filename, Filesystem_Utils::DELETE_FILE );
 			}
 			return;
 		}
@@ -279,6 +279,7 @@ class Boost_Cache {
 		$this->delete_cache_for_post( $post );
 		$this->delete_cache_for_post_terms( $post );
 		$this->delete_cache_for_front_page();
+		$this->delete_cache_for_author( $post->post_author );
 	}
 
 	/**
@@ -293,6 +294,7 @@ class Boost_Cache {
 			$this->delete_cache_for_post( $post );
 			$this->delete_cache_for_post_terms( $post );
 			$this->delete_cache_for_front_page();
+			$this->delete_cache_for_author( $post->post_author );
 		}
 	}
 
@@ -350,6 +352,22 @@ class Boost_Cache {
 	}
 
 	/**
+	 * Delete the entire cache for the author's archive page.
+	 *
+	 * @param int $author_id - The id of the author.
+	 * @return bool|WP_Error - True if the cache was deleted, WP_Error otherwise.
+	 */
+	public function delete_cache_for_author( $author_id ) {
+		$author = get_userdata( $author_id );
+		if ( ! $author ) {
+			return;
+		}
+
+		$author_link = get_author_posts_url( $author_id, $author->user_nicename );
+		return $this->delete_cache_for_url( $author_link );
+	}
+
+	/**
 	 * Delete the cache for the given url.
 	 *
 	 * @param string $url - The url to delete the cache for.
@@ -357,7 +375,7 @@ class Boost_Cache {
 	public function delete_cache_for_url( $url ) {
 		Logger::debug( 'delete_cache_for_url: ' . $url );
 
-		return $this->storage->invalidate( $url, Boost_Cache_Utils::DELETE_ALL );
+		return $this->storage->invalidate( $url, Filesystem_Utils::DELETE_ALL );
 	}
 
 	/**

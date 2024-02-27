@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
@@ -69,53 +67,13 @@ class Jetpack_Recommendations {
 	 *
 	 * @since 9.3.0
 	 *
+	 * @deprecated 13.2
+	 *
 	 * @return bool
 	 */
 	public static function is_banner_enabled() {
-		// Shortcircuit early if the recommendations are not enabled at all.
-		if ( ! self::is_enabled() ) {
-			return false;
-		}
-
-		$recommendations_banner_enabled = Jetpack_Options::get_option( 'recommendations_banner_enabled', null );
-
-		// If the option is already set, just return the cached value.
-		// Otherwise calculate it and store it before returning it.
-		if ( null !== $recommendations_banner_enabled ) {
-			return $recommendations_banner_enabled;
-		}
-
-		if ( ! Jetpack::connection()->is_connected() ) {
-			return new WP_Error( 'site_not_connected', esc_html__( 'Site not connected.', 'jetpack' ) );
-		}
-
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		$request_path = sprintf( '/sites/%s/jetpack-recommendations/site-registered-date', $blog_id );
-		$result       = Client::wpcom_json_api_request_as_blog(
-			$request_path,
-			2,
-			array(
-				'headers' => array( 'content-type' => 'application/json' ),
-			),
-			null,
-			'wpcom'
-		);
-
-		$body = json_decode( wp_remote_retrieve_body( $result ) );
-		if ( 200 === wp_remote_retrieve_response_code( $result ) ) {
-			$site_registered_date = $body->site_registered_date;
-		} else {
-			$connection           = new Connection_Manager( 'jetpack' );
-			$site_registered_date = $connection->get_assumed_site_creation_date();
-		}
-
-		$recommendations_start_date     = gmdate( 'Y-m-d H:i:s', strtotime( '2020-12-01 00:00:00' ) );
-		$recommendations_banner_enabled = $site_registered_date > $recommendations_start_date;
-
-		Jetpack_Options::update_option( 'recommendations_banner_enabled', $recommendations_banner_enabled );
-
-		return $recommendations_banner_enabled;
+		_deprecated_function( __METHOD__, 'jetpack-13.2' );
+		return false;
 	}
 
 	/**
@@ -440,7 +398,6 @@ class Jetpack_Recommendations {
 
 		$setup_wizard_status = Jetpack_Options::get_option( 'setup_wizard_status' );
 		if ( 'completed' === $setup_wizard_status ) {
-			Jetpack_Options::update_option( 'recommendations_banner_enabled', false );
 			Jetpack_Options::update_option( 'recommendations_step', 'setup-wizard-completed' );
 		}
 	}

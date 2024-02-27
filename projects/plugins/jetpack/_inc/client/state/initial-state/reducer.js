@@ -702,16 +702,6 @@ export function isBlazeDashboardEnabled( state ) {
 }
 
 /**
- * Returns true if Jetpack's Pre-connection helpers are enabled.
- *
- * @param {object} state - Global state tree.
- * @returns {boolean} True if pre-connection helpers are enabled.
- */
-export function arePreConnectionHelpersEnabled( state ) {
-	return !! state.jetpack.initialState.preConnectionHelpers;
-}
-
-/**
  * Returns information about the Gutenberg plugin and its Interactivity API support.
  *
  * @param {object} state - Global state tree.
