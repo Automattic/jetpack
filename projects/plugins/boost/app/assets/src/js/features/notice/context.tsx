@@ -6,8 +6,12 @@ type Notice = {
 	message: string;
 };
 
+type Notices = {
+	[ key: string ]: Notice;
+};
+
 type NoticeContextType = {
-	notices: Notice[];
+	notices: Notices;
 	setNotice: ( notice: Notice ) => void;
 	removeNotice: ( id: string ) => void;
 };
@@ -19,26 +23,22 @@ type NoticeProviderProps = {
 };
 
 export const NoticeProvider = ( { children }: NoticeProviderProps ) => {
-	const [ notices, setNotices ] = useState< Notice[] >( [] );
+	const [ notices, setNotices ] = useState< Notices >( {} );
 
 	const setNotice = useCallback( ( notice: Notice ) => {
-		setNotices( prevNotices => {
-			const existingIndex = prevNotices.findIndex( n => n.id === notice.id );
-			if ( existingIndex > -1 ) {
-				// Notice exists, update it
-				const updatedNotices = [ ...prevNotices ];
-				updatedNotices[ existingIndex ] = notice;
-
-				return updatedNotices;
-			}
-
-			// Notice doesn't exist, add it
-			return [ ...prevNotices, notice ];
-		} );
+		setNotices( ( prevNotices: Notices ) => ( {
+			...prevNotices,
+			[ notice.id ]: notice, // Add or update the notice by its ID
+		} ) );
 	}, [] );
 
 	const removeNotice = useCallback( ( id: string ) => {
-		setNotices( prevNotices => prevNotices.filter( notice => notice.id !== id ) );
+		setNotices( ( prevNotices: Notices ) => {
+			const updatedNotices = { ...prevNotices };
+			delete updatedNotices[ id ]; // Remove the notice by its ID
+
+			return updatedNotices;
+		} );
 	}, [] );
 
 	return (
@@ -48,7 +48,7 @@ export const NoticeProvider = ( { children }: NoticeProviderProps ) => {
 	);
 };
 
-export const useNotices = () => {
+export const useNotices = (): NoticeContextType => {
 	const context = useContext( NoticeContext );
 	if ( ! context ) {
 		throw new Error( 'useNotices must be used within a NoticeProvider' );

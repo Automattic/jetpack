@@ -8,9 +8,9 @@ const NoticeManager = () => {
 	const { notices, removeNotice } = useNotices();
 
 	return (
-		notices.length > 0 && (
+		Object.keys( notices ).length > 0 && (
 			<div className={ classNames( 'stackable-snackbars', styles.wrapper ) }>
-				{ notices.map( notice => (
+				{ Object.values( notices ).map( notice => (
 					<Snackbar
 						type={ notice.type }
 						key={ notice.id }
