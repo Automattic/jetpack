@@ -206,7 +206,7 @@ class VideoPressEdit extends Component {
 	onSelectURL( url ) {
 		const { createErrorNotice, setAttributes, onReplace } = this.props;
 
-		if ( isURL( url ) ) {
+		if ( isURL( url ) && /^https?:/.test( getProtocol( url ) ) ) {
 			// Check if there's an embed block that handles this URL.
 			const embedBlock = createVideoPressEmbedBlock( {
 				attributes: { url },
