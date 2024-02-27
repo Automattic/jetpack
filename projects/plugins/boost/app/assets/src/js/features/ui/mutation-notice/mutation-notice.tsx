@@ -55,21 +55,21 @@ export const MutationNotice = ( {
 	errorMessage = __( 'An error occurred while saving changes.', 'jetpack-boost' ),
 	successMessage = __( 'Changes saved.', 'jetpack-boost' ),
 }: MutationNoticeProps ) => {
-	const { addOrUpdateNotice, removeNotice } = useNotices();
+	const { setNotice, removeNotice } = useNotices();
 
 	useEffect( () => {
 		if ( isPending && ! isSuccess ) {
-			addOrUpdateNotice( { id: mutationId, type: 'pending', message: savingMessage } );
+			setNotice( { id: mutationId, type: 'pending', message: savingMessage } );
 		} else if ( isSuccess ) {
-			addOrUpdateNotice( { id: mutationId, type: 'success', message: successMessage } );
+			setNotice( { id: mutationId, type: 'success', message: successMessage } );
 		} else if ( isError ) {
-			addOrUpdateNotice( { id: mutationId, type: 'error', message: errorMessage } );
+			setNotice( { id: mutationId, type: 'error', message: errorMessage } );
 		}
 
 		// Cleanup function to remove notice when the component unmounts or if the mutationId changes
 		return () => removeNotice( mutationId );
 	}, [
-		addOrUpdateNotice,
+		setNotice,
 		removeNotice,
 		isSuccess,
 		isError,

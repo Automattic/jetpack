@@ -8,7 +8,7 @@ type Notice = {
 
 type NoticeContextType = {
 	notices: Notice[];
-	addOrUpdateNotice: ( notice: Notice ) => void;
+	setNotice: ( notice: Notice ) => void;
 	removeNotice: ( id: string ) => void;
 };
 
@@ -21,7 +21,7 @@ type NoticeProviderProps = {
 export const NoticeProvider = ( { children }: NoticeProviderProps ) => {
 	const [ notices, setNotices ] = useState< Notice[] >( [] );
 
-	const addOrUpdateNotice = useCallback( ( notice: Notice ) => {
+	const setNotice = useCallback( ( notice: Notice ) => {
 		setNotices( prevNotices => {
 			const existingIndex = prevNotices.findIndex( n => n.id === notice.id );
 			if ( existingIndex > -1 ) {
@@ -42,7 +42,7 @@ export const NoticeProvider = ( { children }: NoticeProviderProps ) => {
 	}, [] );
 
 	return (
-		<NoticeContext.Provider value={ { notices, addOrUpdateNotice, removeNotice } }>
+		<NoticeContext.Provider value={ { notices, setNotice, removeNotice } }>
 			{ children }
 		</NoticeContext.Provider>
 	);
