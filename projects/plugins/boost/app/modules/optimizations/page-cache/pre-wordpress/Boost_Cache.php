@@ -85,7 +85,7 @@ class Boost_Cache {
 		 *
 		 * @param int $post_id - The ID of the post to delete the cache for.
 		 */
-		add_action( 'clear_page_cache_post', array( $this, 'delete_cache_by_post_id' ) );
+		add_action( 'jetpack_boost_clear_page_cache_post', array( $this, 'delete_cache_by_post_id' ) );
 	}
 
 	/**
