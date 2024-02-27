@@ -9,6 +9,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPres
  * Require all pre-wordpress files here. These files aren't autoloaded as they are loaded before WordPress is fully initialized.
  * pre-wordpress files assume all other pre-wordpress files are loaded here.
  */
+require_once __DIR__ . '/Boost_Cache_Actions.php';
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 require_once __DIR__ . '/Boost_Cache_Utils.php';
 require_once __DIR__ . '/Filesystem_Utils.php';
@@ -54,38 +55,6 @@ class Boost_Cache {
 		add_action( 'switch_theme', array( $this, 'delete_cache' ) );
 		add_action( 'wp_trash_post', array( $this, 'delete_on_post_trash' ), 10, 2 );
 		add_filter( 'wp_php_error_message', array( $this, 'disable_caching_on_error' ) );
-
-		/**
-		 * Delete all cache.
-		 *
-		 * Allow third-party plugins to clear all cache.
-		 */
-		add_action( 'jetpack_boost_clear_page_cache_all', array( $this, 'delete_cache' ) );
-
-		/**
-		 * Delete cache for homepage and paged archives.
-		 *
-		 * Allow third-party plugins to clear front-page cache.
-		 */
-		add_action( 'jetpack_boost_clear_page_cache_home', array( $this, 'delete_cache_for_front_page' ) );
-
-		/**
-		 * Delete cache for a specific URL.
-		 *
-		 * Allow third-party plugins to clear the cache for a specific URL.
-		 *
-		 * @param string $url - The URL to delete the cache for.
-		 */
-		add_action( 'jetpack_boost_clear_page_cache_url', array( $this, 'delete_cache_for_url' ) );
-
-		/**
-		 * Delete cache for a specific post.
-		 *
-		 * Allow third-party plugins to clear the cache for a specific post.
-		 *
-		 * @param int $post_id - The ID of the post to delete the cache for.
-		 */
-		add_action( 'jetpack_boost_clear_page_cache_post', array( $this, 'delete_cache_by_post_id' ) );
 	}
 
 	/**
@@ -200,7 +169,7 @@ class Boost_Cache {
 	 * @param int $post_id - The ID of the post to delete the cache for.
 	 */
 	public function delete_cache_by_post_id( $post_id ) {
-		$post = get_post( $post_id );
+		$post = get_post( (int) $post_id );
 		if ( $post ) {
 			$this->delete_cache_for_post( $post );
 		}
