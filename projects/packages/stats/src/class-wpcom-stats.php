@@ -496,7 +496,7 @@ class WPCOM_Stats {
 	/**
 	 * Convert stats array to object after sanity checking the array is valid.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @param  array $stats_array The stats array.
 	 * @return WP_Error|Object|null
