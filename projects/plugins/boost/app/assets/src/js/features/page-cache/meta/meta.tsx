@@ -104,7 +104,7 @@ const Meta = () => {
 						/>
 						<div className={ styles.section }>
 							<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
-							<label htmlFor="cache-logging">
+							<label htmlFor="cache-logging" className={ styles[ 'logging-toggle' ] }>
 								<input
 									type="checkbox"
 									id="cache-logging"
@@ -112,13 +112,11 @@ const Meta = () => {
 									onChange={ event => mutateLogging.mutate( event.target.checked ) }
 								/>{ ' ' }
 								{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
-								{ logging && (
-									<>
-										{ ' ' }
-										<Link to="/cache-debug-log">{ __( 'See Logs', 'jetpack-boost' ) }</Link>
-									</>
-								) }
 							</label>
+							{ logging && (
+								<Link to="/cache-debug-log">{ __( 'See Logs', 'jetpack-boost' ) }</Link>
+							) }
+							<div className={ styles.clearfix } />
 						</div>
 					</>
 				</div>
