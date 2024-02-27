@@ -39,6 +39,13 @@ if ( typeof window !== 'undefined' ) {
 					if ( link?.href && isWebShareAPIEnabled( { url: link.href } ) ) {
 						navigator.share( { url: link.href } );
 					} else {
+						const [ tooltip ] = document.getElementsByClassName( 'tooltiptext' );
+						if ( tooltip && tooltip.style ) {
+							tooltip.style.display = 'initial';
+							setTimeout( () => {
+								tooltip.style.display = 'none';
+							}, 2000 );
+						}
 						navigator?.clipboard?.writeText( link.href );
 					}
 					return;

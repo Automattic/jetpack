@@ -83,6 +83,10 @@ function render_block( $attr, $content, $block ) {
 		esc_html__( 'Share on %s', 'jetpack' ),
 		esc_html( $title )
 	);
+	$block_class_name = 'jetpack-sharing-button__list-item';
+	if ( $service_name === 'share' ) {
+		$block_class_name .= ' tooltip';
+	}
 
 	$styles = array();
 	if (
@@ -104,7 +108,7 @@ function render_block( $attr, $content, $block ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	$component  = '<li class="jetpack-sharing-button__list-item">';
+	$component  = '<li class="' . esc_html( $block_class_name ) . '">';
 	$component .= sprintf(
 		'<a href="%1$s" target="_blank" rel="nofollow noopener noreferrer" class="%2$s" style="%3$s" data-service="%4$s" data-shared="%5$s" aria-label="%6$s">',
 		esc_url( $link_url ),
@@ -116,6 +120,9 @@ function render_block( $attr, $content, $block ) {
 	);
 	$component .= $style_type !== 'text' ? $icon : '';
 	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . esc_html( $title ) . '</span>';
+	if ( $service_name === 'share' ) {
+		$component .= '<span class="tooltiptext">' . esc_html__( 'Copied to clipboard', 'jetpack' ) . '</span>';
+	}
 	$component .= '</a>';
 	$component .= '</li>';
 
