@@ -8,8 +8,9 @@ import React, { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
+import useProduct from '../../data/products/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { useProduct } from '../../hooks/use-product';
+import { useProduct as useProductDeprecated } from '../../hooks/use-product';
 import ProductCard from '../product-card';
 
 const ConnectedProductCard = ( {
@@ -25,14 +26,9 @@ const ConnectedProductCard = ( {
 } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
-	const {
-		detail,
-		activate,
-		deactivate,
-		isFetching,
-		installStandalonePlugin,
-		deactivateStandalonePlugin,
-	} = useProduct( slug );
+	const { activate, deactivate, installStandalonePlugin, deactivateStandalonePlugin, isFetching } =
+		useProductDeprecated( slug );
+	const { detail } = useProduct( slug );
 	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
 	const [ installingStandalone, setInstallingStandalone ] = useState( false );
 	const [ deactivatingStandalone, setDeactivatingStandalone ] = useState( false );

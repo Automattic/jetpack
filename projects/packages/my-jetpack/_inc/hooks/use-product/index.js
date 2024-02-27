@@ -21,16 +21,12 @@ export function useProduct( productId ) {
 		installStandalonePluginForProduct,
 		deactivateStandalonePluginForProduct,
 	} = useDispatch( STORE_ID );
-	const detail = useSelect( select => select( STORE_ID ).getProduct( productId ) );
 
 	return {
 		activate: () => activateProduct( productId ),
 		deactivate: () => deactivateProduct( productId ),
 		deactivateStandalonePlugin: () => deactivateStandalonePluginForProduct( productId ),
 		installStandalonePlugin: () => installStandalonePluginForProduct( productId ),
-		productsList: useSelect( select => select( STORE_ID ).getProducts() ),
-		detail,
-		isActive: detail.status === 'active',
 		isFetching: useSelect( select => select( STORE_ID ).isFetching( productId ) ),
 		stats: useSelect( select => select( STORE_ID ).getProductStats( productId ) ),
 	};

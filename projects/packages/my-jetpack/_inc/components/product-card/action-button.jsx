@@ -2,8 +2,8 @@ import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import cs from 'classnames';
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
-import { useProduct } from '../../hooks/use-product';
+import { useCallback, useState, useEffect, useMemo } from 'react';
+import useProduct from '../../data/products/use-product';
 import styles from './style.module.scss';
 
 export const PRODUCT_STATUSES = {

@@ -1,8 +1,9 @@
 import { ProductOffer } from '@automattic/jetpack-components';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
+import useProduct from '../../data/products/use-product';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import { useProduct } from '../../hooks/use-product';
+import { useProduct as useProductDeprecated } from '../../hooks/use-product';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 
 /**
@@ -16,7 +17,8 @@ import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
  * @returns {object}                          ConnectedProductOffer react component.
  */
 const ConnectedProductOffer = ( { slug, onClick, trackButtonClick, ...rest } ) => {
-	const { detail, isFetching } = useProduct( slug );
+	const { detail } = useProduct( slug );
+	const { isFetching } = useProductDeprecated( slug );
 	const {
 		title,
 		longDescription,

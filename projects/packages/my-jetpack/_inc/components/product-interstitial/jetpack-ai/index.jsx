@@ -7,8 +7,8 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import ProductInterstitial from '../';
+import useProduct from '../../../data/products/use-product';
 import { useGoBack } from '../../../hooks/use-go-back';
-import { useProduct } from '../../../hooks/use-product';
 import jetpackAiImage from '../jetpack-ai.png';
 import { JetpackAIInterstitialMoreRequests } from './more-requests';
 import styles from './style.module.scss';
@@ -25,7 +25,7 @@ export default function JetpackAiInterstitial() {
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { isRegistered } = useConnection();
 	debug( detail );
-	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ] || null;
+	const nextTier = detail?.aiAssistantFeature?.nextTier || null;
 
 	if ( isRegistered && ! nextTier ) {
 		debug( 'user is on top tier' );

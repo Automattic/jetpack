@@ -9,9 +9,9 @@ import {
 	REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
 	REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
 } from '../../../data/constants';
-import useSimpleQuery from '../../../data/use-simple-query';
+import useProduct from '../../../data/products/use-product';
+import useSimpleQuery from '../../../data/use-simple->query';
 import useAnalytics from '../../../hooks/use-analytics';
-import { useProduct } from '../../../hooks/use-product';
 import ProductCard from '../../connected-product-card';
 import { PRODUCT_STATUSES } from '../../product-card/action-button';
 import styles from './style.module.scss';

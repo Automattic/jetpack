@@ -17,8 +17,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useCallback } from 'react';
+import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
-import { useProduct } from '../../hooks/use-product';
+import { useProduct as useProductDeprecated } from '../../hooks/use-product';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
@@ -87,7 +88,9 @@ const ProductDetailCard = ( {
 	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackCheckoutUri } =
 		window?.myJetpackInitialState ?? {};
 
-	const { detail, isFetching } = useProduct( slug );
+	const { detail } = useProduct( slug );
+	const { isFetching } = useProductDeprecated( slug );
+
 	const {
 		name,
 		title,

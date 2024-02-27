@@ -9,10 +9,11 @@ import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
+import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { useProduct } from '../../hooks/use-product';
+import { useProduct as useProductDeprecated } from '../../hooks/use-product';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
@@ -59,7 +60,8 @@ export default function ProductInterstitial( {
 	directCheckout = false,
 	highlightLastFeature = false,
 } ) {
-	const { activate, detail } = useProduct( slug );
+	const { activate } = useProductDeprecated( slug );
+	const { detail } = useProduct( slug );
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
