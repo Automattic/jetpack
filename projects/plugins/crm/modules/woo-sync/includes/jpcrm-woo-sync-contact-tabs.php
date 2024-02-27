@@ -354,89 +354,76 @@ class Woo_Sync_Contact_Tabs {
         }
     }
 
+	/**
+	 * Retrieves any Woo Subscriptions against a contact
+	 *
+	 * @param int $object_id Contact ID.
+	 */
+	private function get_contact_subscriptions( $object_id = -1 ) {
 
-    /**
-     * Retrieves any Woo Subscriptions against a contact
-     *
-     * @var int contactID
-     */
-    private function get_contact_subscriptions( $object_id = -1 ){
+		$return = array();
 
-        $return = array();
+		if ( $object_id > 0 ) {
 
-        if ( $object_id > 0 ){
+			$subscription_user_ids  = array();
+			$subscription_email_ids = array();
 
-            $subscription_user_ids = array();
-            $subscription_email_ids = array();
+			// 1 - get the subscription IDs for the attached wp user (array_1)
+			$user_id = zeroBS_getCustomerWPID( $object_id );
+			if ( $user_id > 0 ) {
+				$subscription_user_ids = \WCS_Customer_Store::instance()->get_users_subscription_ids( $user_id );
+			}
 
-            // 1 - get the subscription IDs for the attached wp user (array_1)
-            $user_id = zeroBS_getCustomerWPID($object_id);
-            if ($user_id > 0){ 
+			// 2 - find subs for all emails (inc aliases) #3.0.12+ of core
+			if ( function_exists( 'zeroBS_customerEmails' ) ) {
 
-                $subscription_user_ids = \WCS_Customer_Store::instance()->get_users_subscription_ids( $user_id );
+				// multi, inc aliases
+				$emails = zeroBS_customerEmails( $object_id );
+				if ( is_array( $emails ) ) {
 
-            }
-            
-            // 2 - find subs for all emails (inc aliases) #3.0.12+ of core
-            if ( function_exists( 'zeroBS_customerEmails' ) ){
+					foreach ( $emails as $email ) {
 
-                // multi, inc aliases
-                $emails = zeroBS_customerEmails( $object_id );
-                if ( is_array( $emails ) ){
+						$subscription_ids = $this->get_subscriptions_by_email( $email );
 
-                    foreach ( $emails as $email ){
+						// add any to the stack
+						if ( is_array( $subscription_ids ) ) {
 
-                        $subscription_ids = $this->get_subscriptions_by_email( $email );
+							foreach ( $subscription_ids as $id ) {
 
-                        // add any to the stack
-                        if ( is_array( $subscription_ids ) ){
-                            
-                            foreach ( $subscription_ids as $id ){
-                            
-                                $subscription_email_ids[] = $id;
-                            
-                            }
+								$subscription_email_ids[] = $id;
 
-                        }
+							}
+						}
+					}
+				}
+			} else {
 
-                    }
+				// subscription IDs for the main EMAIL  (array_2)
+				$contact_email          = zeroBS_customerEmail( $object_id );
+				$subscription_email_ids = $this->get_subscriptions_by_email( $contact_email );
 
-                }
+			}
 
+			// 3 - remove any duplicate IDs between array_1 and array_2
+			$subscription_ids = array_unique( array_merge( $subscription_user_ids, $subscription_email_ids ), SORT_REGULAR );
 
-            } else {
+			// 4 - get the subscriptions from the combined IDs
+			$return = array(
+				'data' => $this->get_subscriptions_by_id_array( $subscription_ids ),
+			);
 
-                // subscription IDs for the main EMAIL  (array_2)
-                $contact_email = zeroBS_customerEmail($object_id);
-                $subscription_email_ids = $this->get_subscriptions_by_email($contact_email);
+			// 5 - return the new array of subscriptions
+			if ( count( $return['data'] ) > 0 ) {
 
-            }
+					$return['message'] = 'success';
 
-            // 3 - remove any duplicate IDs between array_1 and array_2
-            $subscription_ids = array_unique( array_merge( $subscription_user_ids, $subscription_email_ids ), SORT_REGULAR );
+			} else {
+				$return['message'] = 'notfound';
+			}
+		}
 
-            // 4 - get the subscriptions from the combined IDs
-            $return = array(
-                'data' => $this->get_subscriptions_by_id_array( $subscription_ids )
-            );
-
-            // 5 - return the new array of subscriptions
-            if ( count( $return['data'] ) > 0){
-
-                $return['message'] = 'success';
-
-            } else {
-
-                $return['message'] = 'notfound';
-
-            }
-        
-        }
-
-        return $return;
-
-    }
-
+		return $return;
+	}
 
     /**
      * Turns out that wcs_get_users_subscriptions runs from userIDs and we need a variant from email
