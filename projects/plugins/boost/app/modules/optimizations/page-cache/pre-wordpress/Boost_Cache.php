@@ -67,7 +67,7 @@ class Boost_Cache {
 		 *
 		 * Allow third-party plugins to clear front-page cache.
 		 */
-		add_action( 'clear_page_cache_home', array( $this, 'delete_cache_for_front_page' ) );
+		add_action( 'jetpack_boost_clear_page_cache_home', array( $this, 'delete_cache_for_front_page' ) );
 
 		/**
 		 * Delete cache for a specific URL.
