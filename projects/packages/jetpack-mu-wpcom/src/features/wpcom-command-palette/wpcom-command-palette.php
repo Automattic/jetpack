@@ -43,13 +43,14 @@ function wpcom_load_command_palette() {
 	$is_p2_site = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $site_id );
 	$data       = wp_json_encode(
 		array(
-			'siteId'       => $site_id,
-			'isAdmin'      => current_user_can( 'manage_options' ),
-			'isAtomic'     => $host->is_woa_site(),
-			'isSimple'     => $host->is_wpcom_simple(),
-			'isSelfHosted' => ! $host->is_wpcom_platform(),
-			'capabilities' => get_userdata( get_current_user_id() )->allcaps,
-			'isP2'         => $is_p2_site,
+			'siteId'           => $site_id,
+			'isAdmin'          => current_user_can( 'manage_options' ),
+			'isAtomic'         => $host->is_woa_site(),
+			'isSimple'         => $host->is_wpcom_simple(),
+			'isSelfHosted'     => ! $host->is_wpcom_platform(),
+			'capabilities'     => get_userdata( get_current_user_id() )->allcaps,
+			'isP2'             => $is_p2_site,
+			'shouldUseWpAdmin' => 'wp-admin' === get_option( 'wpcom_admin_interface' ),
 		)
 	);
 	wp_add_inline_script(
