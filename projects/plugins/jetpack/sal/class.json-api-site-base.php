@@ -1552,6 +1552,26 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Returns an array of reasons why the site is considered commercial.
+	 *
+	 * @return array|null
+	 */
+	public function get_is_commercial_reasons() {
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			return null;
+		}
+		$es_args   = array(
+			'response_timeout' => 60,
+			'name'             => 'site-profiles',
+			'blog_id'          => $this->blog_id,
+			'size'             => 1,
+			'query'            => array( 'term' => array( 'blog_id' => $this->blog_id ) ),
+		);
+		$es_search = es_api_search_index( $es_args, 'site-profiles' );
+		return isset( $es_search['results']['hits'][0]['_source'] ) ? $es_search['results']['hits'][0]['_source'] : null;
+	}
+
+	/**
 	 * Returns the site's interface selection e.g. calypso vs. wp-admin
 	 *
 	 * @return string
