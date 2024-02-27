@@ -119,7 +119,7 @@ export default function () {
 										height="157"
 										src="https://videopress.com/embed/GdXmtVtW?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F02%2Fimage-37.png%3Fw%3D560"
 										frameborder="0"
-										allowfullscreen
+										allowFullScreen
 										allow="clipboard-write"
 										title={ videoTitle1 }
 									></iframe>
@@ -151,7 +151,7 @@ export default function () {
 										height="157"
 										src="https://videopress.com/embed/GdXmtVtW?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F02%2Fimage-38.png%3Fw%3D560"
 										frameborder="0"
-										allowfullscreen
+										allowFullScreen
 										allow="clipboard-write"
 										title={ videoTitle2 }
 									></iframe>
@@ -183,7 +183,7 @@ export default function () {
 										height="157"
 										src="https://videopress.com/embed/GdXmtVtW?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F02%2Fimage-39.png%3Fw%3D560"
 										frameborder="0"
-										allowfullscreen
+										allowFullScreen
 										allow="clipboard-write"
 										title={ videoTitle3 }
 									></iframe>
