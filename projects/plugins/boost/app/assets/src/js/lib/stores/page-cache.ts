@@ -4,7 +4,7 @@ import {
 	useDataSync,
 	useDataSyncAction,
 } from '@automattic/jetpack-react-data-sync-client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 
 export const PageCacheError = z
