@@ -67,7 +67,7 @@ class Boost_Cache {
 		 *
 		 * Allow third-party plugins to clear front-page cache.
 		 */
-		add_action( 'clear_page_cache_front_page', array( $this, 'delete_cache_for_front_page' ) );
+		add_action( 'clear_page_cache_home', array( $this, 'delete_cache_for_front_page' ) );
 
 		/**
 		 * Delete cache for a specific URL.
@@ -176,7 +176,7 @@ class Boost_Cache {
 	 *
 	 * @param WP_Post $post - The post that should be deleted.
 	 */
-	protected function delete_cache_for_front_page() {
+	public function delete_cache_for_front_page() {
 		if ( get_option( 'show_on_front' ) === 'page' ) {
 			$front_page_id = get_option( 'page_on_front' ); // static page
 			if ( $front_page_id ) {
