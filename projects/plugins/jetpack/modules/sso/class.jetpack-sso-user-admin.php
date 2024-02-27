@@ -86,8 +86,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						self::$tracking->record_user_event(
 							$event,
 							array(
-								'success' => 'false',
-								'error'   => 'invalid-revoke-api-error',
+								'success'       => 'false',
+								'error_message' => 'invalid-revoke-api-error',
 							)
 						);
 						return $response;
@@ -99,8 +99,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						self::$tracking->record_user_event(
 							$event,
 							array(
-								'success' => 'false',
-								'error'   => 'invalid-invite-revoke',
+								'success'       => 'false',
+								'error_message' => 'invalid-invite-revoke',
 							)
 						);
 					} else {
@@ -180,8 +180,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				self::$tracking->record_user_event(
 					$event,
 					array(
-						'success' => 'false',
-						'error'   => $error,
+						'success'       => 'false',
+						'error_message' => $error,
 					)
 				);
 				return self::create_error_notice_and_redirect( $query_params );
@@ -201,8 +201,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					self::$tracking->record_user_event(
 						$event,
 						array(
-							'success' => 'false',
-							'error'   => $reason,
+							'success'       => 'false',
+							'error_message' => $reason,
 						)
 					);
 					return self::create_error_notice_and_redirect( $query_params );
@@ -241,8 +241,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					self::$tracking->record_user_event(
 						$event,
 						array(
-							'success' => 'false',
-							'error'   => $error,
+							'success'       => 'false',
+							'error_message' => $error,
 						)
 					);
 					return self::create_error_notice_and_redirect( $query_params );
@@ -262,8 +262,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					self::$tracking->record_user_event(
 						$event,
 						array(
-							'success' => 'false',
-							'error'   => $response_error[0],
+							'success'       => 'false',
+							'error_message' => $response_error[0],
 						)
 					);
 				} else {
@@ -281,8 +281,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				self::$tracking->record_user_event(
 					$event,
 					array(
-						'success' => 'false',
-						'error'   => $error,
+						'success'       => 'false',
+						'error_message' => $error,
 					)
 				);
 				return self::create_error_notice_and_redirect( $query_params );
@@ -330,8 +330,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				self::$tracking->record_user_event(
 					$event,
 					array(
-						'success' => 'false',
-						'error'   => $error,
+						'success'       => 'false',
+						'error_message' => $error,
 					)
 				);
 				return self::create_error_notice_and_redirect( $query_params );
@@ -349,8 +349,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					self::$tracking->record_user_event(
 						$event,
 						array(
-							'success' => 'false',
-							'error'   => $error,
+							'success'       => 'false',
+							'error_message' => $error,
 						)
 					);
 					return self::create_error_notice_and_redirect( $query_params );
@@ -366,8 +366,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					self::$tracking->record_user_event(
 						$event,
 						array(
-							'success' => 'false',
-							'error'   => $error,
+							'success'       => 'false',
+							'error_message' => $error,
 						)
 					);
 					return self::create_error_notice_and_redirect( $query_params );
@@ -386,8 +386,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					self::$tracking->record_user_event(
 						$event,
 						array(
-							'success' => 'false',
-							'error'   => $error,
+							'success'       => 'false',
+							'error_message' => $error,
 						)
 					);
 					return self::create_error_notice_and_redirect( $query_params );
@@ -404,8 +404,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					self::$tracking->record_user_event(
 						$event,
 						array(
-							'success' => 'false',
-							'error'   => $error,
+							'success'       => 'false',
+							'error_message' => $error,
 						)
 					);
 				} else {
@@ -422,8 +422,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				self::$tracking->record_user_event(
 					$event,
 					array(
-						'success' => 'false',
-						'error'   => $error,
+						'success'       => 'false',
+						'error_message' => $error,
 					)
 				);
 				return self::create_error_notice_and_redirect( $query_params );
@@ -474,8 +474,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					self::$tracking->record_user_event(
 						$event,
 						array(
-							'success' => 'false',
-							'error'   => $message_type,
+							'success'       => 'false',
+							'error_message' => $message_type,
 						)
 					);
 					return self::create_error_notice_and_redirect( $query_params );
@@ -492,8 +492,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					self::$tracking->record_user_event(
 						$event,
 						array(
-							'success' => 'false',
-							'error'   => $invite_response_message,
+							'success'       => 'false',
+							'error_message' => $invite_response_message,
 						)
 					);
 				} else {
@@ -511,8 +511,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				self::$tracking->record_user_event(
 					$event,
 					array(
-						'success' => 'false',
-						'error'   => $error,
+						'success'       => 'false',
+						'error_message' => $error,
 					)
 				);
 				return self::create_error_notice_and_redirect( $query_params );
