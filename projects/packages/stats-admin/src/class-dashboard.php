@@ -118,13 +118,29 @@ class Dashboard {
 	 * Initialize the admin resources.
 	 */
 	public function admin_init() {
+		add_action( 'script_loader_tag', array( $this, 'add_sentry_crossorigin' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+	}
+
+	/**
+	 * Add crossorigin attribute to Sentry script tag.
+	 *
+	 * @param string $tag The script tag.
+	 * @param string $handle The script handle.
+	 * @return string
+	 */
+	public function add_sentry_crossorigin( $tag, $handle ) {
+		if ( 'jp-stats-dashboard-sentry' === $handle ) {
+			$tag = str_replace( '></script>', ' crossorigin="anonymous"></script>', $tag );
+		}
+		return $tag;
 	}
 
 	/**
 	 * Load the admin scripts.
 	 */
 	public function load_admin_scripts() {
+		wp_enqueue_script( 'jp-stats-dashboard-sentry', 'https://js.sentry-cdn.com/332d216a4d31158057fb5277cd48f438.min.js', array(), 'evergreen', true );
 		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'build.min', array( 'config_variable_name' => 'jetpackStatsOdysseyAppConfigData' ) );
 	}
 }
