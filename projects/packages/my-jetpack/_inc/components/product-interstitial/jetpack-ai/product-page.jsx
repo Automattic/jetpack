@@ -29,7 +29,7 @@ export default function () {
 		'jetpack-my-jetpack'
 	);
 	const videoTitle2 = __( 'Build forms using prompts', 'jetpack-my-jetpack' );
-	const videoTitle3 = __( 'Get feedback on ', 'jetpack-my-jetpack' );
+	const videoTitle3 = __( 'Get feedback on posts', 'jetpack-my-jetpack' );
 
 	const onCreateClick = useCallback( () => {
 		// console.log( 'click' );
