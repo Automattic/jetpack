@@ -49,6 +49,11 @@ class Jetpack_Subscription_Site {
 	 * @return bool
 	 */
 	protected function is_subscription_site_feature_enabled() {
+		/**
+		 * Allows to enable the Subscription Site feature.
+		 *
+		 * @param bool $enabled Whether to enable the Subscription Site feature or not. Default false.
+		 */
 		return (bool) apply_filters( 'jetpack_subscription_site_enabled', false );
 	}
 
