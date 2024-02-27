@@ -415,58 +415,57 @@ class Woo_Sync_Contact_Tabs {
 		return $return;
 	}
 
-    /**
-     * Turns out that wcs_get_users_subscriptions runs from userIDs and we need a variant from email
-     */
-    private function get_subscriptions_by_id_array( $subscription_ids ){
+	/**
+	 * Turns out that wcs_get_users_subscriptions runs from userIDs and we need a variant from email
+	 *
+	 * @param array $subscription_ids Subscription IDs.
+	 */
+	private function get_subscriptions_by_id_array( $subscription_ids ) {
 
-        $subscriptions = array();
-        foreach ( $subscription_ids as $subscription_id ) {
-            $subscription = wcs_get_subscription( $subscription_id );
+		$subscriptions = array();
+		foreach ( $subscription_ids as $subscription_id ) {
+			$subscription = wcs_get_subscription( $subscription_id );
 
-            if ( $subscription ) {
-                $subscriptions[ $subscription_id ] = $subscription;
-            }
-        }
+			if ( $subscription ) {
+				$subscriptions[ $subscription_id ] = $subscription;
+			}
+		}
 
-        return $subscriptions;
+		return $subscriptions;
+	}
 
-    }
+	/**
+	 * Get subs by email
+	 *
+	 * @param string $email Customer email.
+	 */
+	private function get_subscriptions_by_email( $email = '' ) {
 
+		if ( empty( $email ) ) {
+			return array();
+		}
 
-    /**
-     * Get subs by email
-     */
-    private function get_subscriptions_by_email($email = ''){
-        
-        if ( empty( $email ) ) {
+		$query = new \WP_Query();
 
-            return array();
-
-        }
-
-        $query = new \WP_Query();
-
-        return $query->query( array(
-
-            'post_type'           => 'shop_subscription',
-            'posts_per_page'      => -1,
-            'post_status'         => 'any',
-            'orderby'             => array(
-                'date' => 'DESC',
-                'ID'   => 'DESC',
-            ),
-            'fields'              => 'ids',
-            'no_found_rows'       => true,
-            'ignore_sticky_posts' => true,
-            'meta_query'          => array(
-                array(
-                    'key'   => '_billing_email',
-                    'value' => $email,
-                ),
-            ),
-
-        ));        
-
-    }
+		return $query->query(
+			array(
+				'post_type'           => 'shop_subscription',
+				'posts_per_page'      => -1,
+				'post_status'         => 'any',
+				'orderby'             => array(
+					'date' => 'DESC',
+					'ID'   => 'DESC',
+				),
+				'fields'              => 'ids',
+				'no_found_rows'       => true,
+				'ignore_sticky_posts' => true,
+				'meta_query'          => array(
+					array(
+						'key'   => '_billing_email',
+						'value' => $email,
+					),
+				),
+			)
+		);
+	}
 }
