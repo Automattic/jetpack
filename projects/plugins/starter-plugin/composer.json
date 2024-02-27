@@ -13,7 +13,7 @@
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-sync": "@dev",
-		"automattic/mailpoet-email-engine-renderer": "dev-trunk"
+		"automattic/mailpoet-email-engine-renderer": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
