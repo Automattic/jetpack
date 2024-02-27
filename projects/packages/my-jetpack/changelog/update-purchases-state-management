@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Updating purchases state to use data query instead of redux

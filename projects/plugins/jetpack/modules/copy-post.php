@@ -13,6 +13,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets\Logo;
+
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 /**
@@ -28,6 +30,7 @@ class Jetpack_Copy_Post {
 	 */
 	public function __construct() {
 		if ( 'edit.php' === $GLOBALS['pagenow'] ) {
+			add_action( 'admin_head', array( $this, 'print_inline_styles' ) );
 			add_filter( 'post_row_actions', array( $this, 'add_row_action' ), 10, 2 );
 			add_filter( 'page_row_actions', array( $this, 'add_row_action' ), 10, 2 );
 			return;
@@ -37,6 +40,26 @@ class Jetpack_Copy_Post {
 			add_action( 'wp_insert_post', array( $this, 'update_post_data' ), 10, 3 );
 			add_filter( 'pre_option_default_post_format', '__return_empty_string' );
 		}
+	}
+
+	/**
+	 * Echos inline styles for the Jetpack logo.
+	 *
+	 * @return void
+	 */
+	public function print_inline_styles() {
+		echo '
+			<style id="jetpack-copy-post-styles">
+				#jetpack-logo__icon {
+					height: 14px;
+					width: 14px;
+					vertical-align: text-bottom;
+				}
+				#jetpack-logo__icon path {
+					fill: inherit;
+				}
+			</style>
+		';
 	}
 
 	/**
@@ -308,19 +331,22 @@ class Jetpack_Copy_Post {
 			return $actions;
 		}
 
-		$edit_url    = add_query_arg(
+		$edit_url = add_query_arg(
 			array(
 				'post_type'    => $post->post_type,
 				'jetpack-copy' => $post->ID,
 			),
 			admin_url( 'post-new.php' )
 		);
-		$edit_action = array(
+
+		$jetpack_logo = new Logo();
+		$edit_action  = array(
 			'jetpack-copy' => sprintf(
-				'<a href="%s" aria-label="%s">%s</a>',
+				'<a href="%1$s" aria-label="%2$s">%3$s %4$s</a>',
 				esc_url( $edit_url ),
-				esc_attr__( 'Copy this post.', 'jetpack' ),
-				esc_html__( 'Copy', 'jetpack' )
+				esc_attr__( 'Copy this post with Jetpack', 'jetpack' ),
+				esc_html__( 'Copy', 'jetpack' ),
+				$jetpack_logo->get_jp_emblem()
 			),
 		);
 

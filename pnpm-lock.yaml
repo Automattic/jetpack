@@ -2108,6 +2108,9 @@ importers:
       '@wordpress/components':
         specifier: 26.0.0
         version: 26.0.0(@types/react@18.2.55)(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/compose':
+        specifier: 6.28.0
+        version: 6.28.0(react@18.2.0)
       '@wordpress/data':
         specifier: 9.21.0
         version: 9.21.0(react@18.2.0)
@@ -12103,7 +12106,7 @@ packages:
     peerDependencies:
       react: ^18.0.0
     dependencies:
-      '@babel/runtime': 7.23.5
+      '@babel/runtime': 7.23.8
       '@types/mousetrap': 1.6.15
       '@wordpress/deprecated': 3.51.0
       '@wordpress/dom': 3.51.0
