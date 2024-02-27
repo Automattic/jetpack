@@ -148,6 +148,8 @@ export default function VoiceToContentEdit( { clientId } ) {
 	// To avoid a wrong TS warning
 	const iconProps = { className: 'icon' };
 
+	const transcriptionState = isCreatingTranscription ? 'processing' : state;
+
 	return (
 		<Modal
 			onRequestClose={ handleClose }
@@ -165,14 +167,14 @@ export default function VoiceToContentEdit( { clientId } ) {
 						</span>
 						<div className="jetpack-ai-voice-to-content__contextual-row">
 							<AudioStatusPanel
-								state={ isCreatingTranscription ? 'processing' : state }
+								state={ transcriptionState }
 								error={ error }
 								duration={ duration }
 								analyser={ analyser }
 							/>
 						</div>
 						<ActionButtons
-							state={ isCreatingTranscription ? 'processing' : state }
+							state={ transcriptionState }
 							onUpload={ onUploadHandler }
 							onCancel={ onCancelHandler }
 							onRecord={ onRecordHandler }
