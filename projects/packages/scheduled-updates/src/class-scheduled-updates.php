@@ -170,4 +170,25 @@ class Scheduled_Updates {
 
 		return $plugin_list;
 	}
+
+	/**
+	 * Allow plugins that are part of scheduled updates to be updated automatically.
+	 *
+	 * @param bool|null $update Whether to update. The value of null is internally used
+	 *                          to detect whether nothing has hooked into this filter.
+	 * @param object    $item   The update offer.
+	 * @return bool
+	 */
+	public static function jetpack_allowlist_scheduled_plugins( $update, $item ) {
+		// TODO: Check if we're in a scheduled update request from Jetpack_Autoupdates.
+		$schedules = get_option( 'jetpack_update_schedules', array() );
+
+		foreach ( $schedules as $plugins ) {
+			if ( in_array( $item->slug, $plugins, true ) ) {
+				return true;
+			}
+		}
+
+		return $update;
+	}
 }
