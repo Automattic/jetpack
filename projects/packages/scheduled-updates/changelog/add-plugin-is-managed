@@ -1,0 +1,6 @@
+Significance: minor
+Type: added
+
+Adds IsManaged key to plugins list via a filter.
+
+This adds a key `isManaged` to the return value of `get_plugins()`. isManaged is true if the plugin is managed on Atomic, i.e. it is symlinked and it's target points to a `wordpress` directory. This is used by scheduled updates to understand if the plugin can be updated or not.
