@@ -186,7 +186,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	public function default_action() {
 		$args = $this->input();
 
-		if ( ( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) ) || $this->is_scheduled_updates ) {
+		if ( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) ) {
 			if ( $args['autoupdate'] && ! $this->is_scheduled_updates ) {
 				$this->autoupdate_on();
 			} else {
