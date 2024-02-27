@@ -1,6 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
-import usePurchases from '../../../data/purchases/use-purchases';
+import { REST_API_SITE_PURCHASES_ENDPOINT } from '../../../data/constants';
+import { Purchase } from '../../../data/types';
+import useSimpleQuery from '../../../data/use-simple-query';
 import { useProduct } from '../../../hooks/use-product';
 
 const JETPACK_BOOST_PRODUCTS = [
@@ -17,7 +19,10 @@ const JETPACK_BOOST_PRODUCTS = [
  */
 export function useBoostTooltipCopy( { speedLetterGrade } ) {
 	const slug = 'boost';
-	const { data: purchases, isLoading } = usePurchases();
+	const { data: purchases, isLoading }: { data: Array< Purchase >; isLoading: boolean } =
+		useSimpleQuery( 'purchases', {
+			path: REST_API_SITE_PURCHASES_ENDPOINT,
+		} );
 	const hasBoostPaidPlan = useMemo( () => {
 		if ( isLoading ) {
 			return false;
