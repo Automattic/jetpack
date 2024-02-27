@@ -210,8 +210,8 @@ class Woo_Sync_Contact_Tabs {
 			$price        = $order->get_formatted_order_total();
 			$name         = '';
 			$sub_link     = admin_url( "post.php?post={$order_id}&action=edit" );
-			$created      = zeroBSCRM_date_i18n( zeroBSCRM_getDateFormat(), strtotime( $date_created ), true, false );
-			$next         = zeroBSCRM_date_i18n( zeroBSCRM_getDateFormat(), strtotime( $date_renew ), true, false );
+			$created      = jpcrm_uts_to_date_str( strtotime( $date_created ) );
+			$next         = jpcrm_uts_to_date_str( strtotime( $date_renew ) );
 
 			$html .= '<tr>';
 			$html .= '<td><a href="' . esc_url( $sub_link ) . '">' . $name . __( ' Subscription #', 'zero-bs-crm' ) . $order_id . '</a></td>';
@@ -262,12 +262,12 @@ class Woo_Sync_Contact_Tabs {
 		foreach ( $memberships as $membership ) {
 
 			// populate fields
-			$member_id      = $membership->id;
-			$status         = $this->display_membership_status( $membership->get_status() );
-			$name           = $membership->plan->name;
-			$date_expires   = $membership->get_end_date( 'Y-m-d H:i:s' );
-			$date_created   = $membership->get_start_date();
-			$created        = zeroBSCRM_date_i18n( zeroBSCRM_getDateFormat(), strtotime( $date_created ), true, false );
+			$member_id    = $membership->id;
+			$status       = $this->display_membership_status( $membership->get_status() );
+			$name         = $membership->plan->name;
+			$date_expires = $membership->get_end_date( 'Y-m-d H:i:s' );
+			$date_created = $membership->get_start_date();
+			$created      = jpcrm_uts_to_date_str( strtotime( $date_created ) );
 
 			if ( empty( $date_expires ) ) {
 
@@ -275,7 +275,7 @@ class Woo_Sync_Contact_Tabs {
 
 			} else {
 
-				$expires = zeroBSCRM_date_i18n( zeroBSCRM_getDateFormat(), strtotime( $date_expires ), true, false );
+				$expires = jpcrm_uts_to_date_str( strtotime( $date_expires ) );
 
 			}
 
