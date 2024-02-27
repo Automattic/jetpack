@@ -42,30 +42,31 @@ export default function VoiceToContentEdit( { clientId } ) {
 
 	const { upsertTranscription } = useTranscriptionInserter();
 
-	const { processTranscription, cancelTranscriptionProcessing } = useTranscriptionPostProcessing( {
-		feature: 'voice-to-content',
-		onReady: postProcessingResult => {
-			// Insert the content into the editor
-			upsertTranscription( postProcessingResult );
-			handleClose();
-		},
-		onError: error => {
-			// Use the transcription instead for a partial result
-			if ( transcription ) {
-				dispatch.insertBlock( createBlock( 'core/paragraph', { content: transcription } ) );
-			}
-			// eslint-disable-next-line no-console
-			console.log( 'Post-processing error: ', error );
-			handleClose();
-		},
-		onUpdate: currentPostProcessingResult => {
-			/*
-			 * We can upsert partial results because the hook takes care of replacing
-			 * the previous result with the new one.
-			 */
-			upsertTranscription( currentPostProcessingResult );
-		},
-	} );
+	const { processTranscription, cancelTranscriptionProcessing, isProcessingTranscription } =
+		useTranscriptionPostProcessing( {
+			feature: 'voice-to-content',
+			onReady: postProcessingResult => {
+				// Insert the content into the editor
+				upsertTranscription( postProcessingResult );
+				handleClose();
+			},
+			onError: error => {
+				// Use the transcription instead for a partial result
+				if ( transcription ) {
+					dispatch.insertBlock( createBlock( 'core/paragraph', { content: transcription } ) );
+				}
+				// eslint-disable-next-line no-console
+				console.log( 'Post-processing error: ', error );
+				handleClose();
+			},
+			onUpdate: currentPostProcessingResult => {
+				/*
+				 * We can upsert partial results because the hook takes care of replacing
+				 * the previous result with the new one.
+				 */
+				upsertTranscription( currentPostProcessingResult );
+			},
+		} );
 
 	const onTranscriptionReady = ( content: string ) => {
 		// eslint-disable-next-line no-console
@@ -78,14 +79,16 @@ export default function VoiceToContentEdit( { clientId } ) {
 		onError( error );
 	};
 
-	const { transcribeAudio, cancelTranscription }: UseAudioTranscriptionReturn =
+	const { transcribeAudio, cancelTranscription, isTranscribingAudio }: UseAudioTranscriptionReturn =
 		useAudioTranscription( {
 			feature: 'voice-to-content',
 			onReady: onTranscriptionReady,
 			onError: onTranscriptionError,
 		} );
 
-	const { state, controls, error, onError, onProcessing, duration, analyser } = useMediaRecording( {
+	const isCreatingTranscription = isTranscribingAudio || isProcessingTranscription;
+
+	const { state, controls, error, onError, duration, analyser } = useMediaRecording( {
 		onDone: lastBlob => {
 			// When recording is done, set the audio to be transcribed
 			onAudioHandler( lastBlob );
@@ -95,11 +98,10 @@ export default function VoiceToContentEdit( { clientId } ) {
 	const onAudioHandler = useCallback(
 		( audio: Blob ) => {
 			if ( audio ) {
-				onProcessing();
 				transcribeAudio( audio );
 			}
 		},
-		[ transcribeAudio, onProcessing ]
+		[ transcribeAudio ]
 	);
 
 	// Destructure controls
@@ -163,6 +165,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 						</span>
 						<div className="jetpack-ai-voice-to-content__contextual-row">
 							<AudioStatusPanel
+								isCreatingTranscription={ isCreatingTranscription }
 								state={ state }
 								error={ error }
 								duration={ duration }
@@ -170,6 +173,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 							/>
 						</div>
 						<ActionButtons
+							isCreatingTranscription={ isCreatingTranscription }
 							state={ state }
 							onUpload={ onUploadHandler }
 							onCancel={ onCancelHandler }
