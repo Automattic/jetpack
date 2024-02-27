@@ -374,34 +374,24 @@ class Woo_Sync_Contact_Tabs {
 				$subscription_user_ids = \WCS_Customer_Store::instance()->get_users_subscription_ids( $user_id );
 			}
 
-			// 2 - find subs for all emails (inc aliases) #3.0.12+ of core
-			if ( function_exists( 'zeroBS_customerEmails' ) ) {
+			// 2 - find subs for all emails (inc aliases)
+			$emails = zeroBS_customerEmails( $object_id );
+			if ( is_array( $emails ) ) {
 
-				// multi, inc aliases
-				$emails = zeroBS_customerEmails( $object_id );
-				if ( is_array( $emails ) ) {
+				foreach ( $emails as $email ) {
 
-					foreach ( $emails as $email ) {
+					$subscription_ids = $this->get_subscriptions_by_email( $email );
 
-						$subscription_ids = $this->get_subscriptions_by_email( $email );
+					// add any to the stack
+					if ( is_array( $subscription_ids ) ) {
 
-						// add any to the stack
-						if ( is_array( $subscription_ids ) ) {
+						foreach ( $subscription_ids as $id ) {
 
-							foreach ( $subscription_ids as $id ) {
+							$subscription_email_ids[] = $id;
 
-								$subscription_email_ids[] = $id;
-
-							}
 						}
 					}
 				}
-			} else {
-
-				// subscription IDs for the main EMAIL  (array_2)
-				$contact_email          = zeroBS_customerEmail( $object_id );
-				$subscription_email_ids = $this->get_subscriptions_by_email( $contact_email );
-
 			}
 
 			// 3 - remove any duplicate IDs between array_1 and array_2
