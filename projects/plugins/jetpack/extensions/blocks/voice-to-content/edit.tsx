@@ -165,16 +165,14 @@ export default function VoiceToContentEdit( { clientId } ) {
 						</span>
 						<div className="jetpack-ai-voice-to-content__contextual-row">
 							<AudioStatusPanel
-								isCreatingTranscription={ isCreatingTranscription }
-								state={ state }
+								state={ isCreatingTranscription ? 'processing' : state }
 								error={ error }
 								duration={ duration }
 								analyser={ analyser }
 							/>
 						</div>
 						<ActionButtons
-							isCreatingTranscription={ isCreatingTranscription }
-							state={ state }
+							state={ isCreatingTranscription ? 'processing' : state }
 							onUpload={ onUploadHandler }
 							onCancel={ onCancelHandler }
 							onRecord={ onRecordHandler }

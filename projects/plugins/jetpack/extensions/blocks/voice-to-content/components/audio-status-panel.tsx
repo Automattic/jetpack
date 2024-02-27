@@ -10,29 +10,19 @@ import Oscilloscope from './oscilloscope';
 /**
  * Types
  */
-import type { RecordingState } from '@automattic/jetpack-ai-client';
+import type { TranscriptionState } from '@automattic/jetpack-ai-client';
 
 export default function AudioStatusPanel( {
-	isCreatingTranscription = false,
 	state,
 	error = null,
 	analyser,
 	duration = 0,
 }: {
-	isCreatingTranscription: boolean;
-	state: RecordingState;
+	state: TranscriptionState;
 	error: string;
 	analyser: AnalyserNode;
 	duration: number;
 } ) {
-	if ( isCreatingTranscription ) {
-		return (
-			<div className="jetpack-ai-voice-to-content__information">
-				{ __( 'Uploading and transcribing audio…', 'jetpack' ) }
-			</div>
-		);
-	}
-
 	if ( state === 'inactive' ) {
 		return (
 			<div className="jetpack-ai-voice-to-content__information">
@@ -67,6 +57,14 @@ export default function AudioStatusPanel( {
 				<span className="jetpack-ai-voice-to-content__information">
 					{ __( 'Paused', 'jetpack' ) }
 				</span>
+			</div>
+		);
+	}
+
+	if ( state === 'processing' ) {
+		return (
+			<div className="jetpack-ai-voice-to-content__information">
+				{ __( 'Uploading and transcribing audio…', 'jetpack' ) }
 			</div>
 		);
 	}

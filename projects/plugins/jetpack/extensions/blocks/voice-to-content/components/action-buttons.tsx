@@ -6,7 +6,6 @@ import { Button, FormFileUpload } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 export default function ActionButtons( {
-	isCreatingTranscription,
 	state,
 	onUpload,
 	onCancel,
@@ -17,7 +16,7 @@ export default function ActionButtons( {
 } ) {
 	return (
 		<div className="jetpack-ai-voice-to-content__action-buttons">
-			{ ! isCreatingTranscription && [ 'inactive', 'error' ].includes( state ) && (
+			{ [ 'inactive', 'error' ].includes( state ) && (
 				<Button
 					className="jetpack-ai-voice-to-content__button"
 					icon={ micIcon }
@@ -27,7 +26,7 @@ export default function ActionButtons( {
 					{ __( 'Begin recording', 'jetpack' ) }
 				</Button>
 			) }
-			{ ! isCreatingTranscription && [ 'recording' ].includes( state ) && (
+			{ [ 'recording' ].includes( state ) && (
 				<Button
 					className="jetpack-ai-voice-to-content__button"
 					icon={ playerPauseIcon }
@@ -37,7 +36,7 @@ export default function ActionButtons( {
 					{ __( 'Pause recording', 'jetpack' ) }
 				</Button>
 			) }
-			{ ! isCreatingTranscription && [ 'paused' ].includes( state ) && (
+			{ [ 'paused' ].includes( state ) && (
 				<Button
 					className="jetpack-ai-voice-to-content__button"
 					icon={ micIcon }
@@ -47,7 +46,7 @@ export default function ActionButtons( {
 					{ __( 'Resume recording', 'jetpack' ) }
 				</Button>
 			) }
-			{ ! isCreatingTranscription && [ 'inactive', 'error' ].includes( state ) && (
+			{ [ 'inactive', 'error' ].includes( state ) && (
 				<FormFileUpload
 					accept="audio/*"
 					onChange={ onUpload }
@@ -57,7 +56,7 @@ export default function ActionButtons( {
 					{ __( 'Upload audio', 'jetpack' ) }
 				</FormFileUpload>
 			) }
-			{ ! isCreatingTranscription && [ 'recording', 'paused' ].includes( state ) && (
+			{ [ 'recording', 'paused' ].includes( state ) && (
 				<Button
 					className="jetpack-ai-voice-to-content__button"
 					variant="primary"
@@ -66,16 +65,7 @@ export default function ActionButtons( {
 					{ __( 'Done', 'jetpack' ) }
 				</Button>
 			) }
-			{ ! isCreatingTranscription && [ 'recording', 'paused' ].includes( state ) && (
-				<Button
-					className="jetpack-ai-voice-to-content__button"
-					variant="secondary"
-					onClick={ onCancel }
-				>
-					{ __( 'Cancel', 'jetpack' ) }
-				</Button>
-			) }
-			{ isCreatingTranscription && (
+			{ [ 'recording', 'paused', 'processing' ].includes( state ) && (
 				<Button
 					className="jetpack-ai-voice-to-content__button"
 					variant="secondary"
