@@ -3,7 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { REST_API_SITE_PURCHASES_ENDPOINT, REST_API_SITE_PURCHASES_QUERY_KEY } from '../constants';
 import useNotice from '../notices/use-notice';
-import type { Purchase } from '../../../global';
+import type { Purchase } from '../types';
 import type { UseQueryResult } from '@tanstack/react-query';
 
 const cacheKey = REST_API_SITE_PURCHASES_QUERY_KEY;
