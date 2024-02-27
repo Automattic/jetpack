@@ -3,7 +3,6 @@ import useGetProductData from './use-get-product-data';
 
 type useProductType = ( productId: string ) => {
 	detail: ProductCamelCase;
-	isFetching: boolean;
 };
 
 const useProduct: useProductType = productId => {
@@ -12,7 +11,6 @@ const useProduct: useProductType = productId => {
 	return {
 		detail: product,
 		isActive: product.status === 'active',
-		isFetching: false,
 	};
 };
 
