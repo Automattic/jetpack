@@ -132,6 +132,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		remove_all_actions( 'comment_form_before' );
 
 		// Selfishly add only our actions back to the comment form.
+		add_action( 'comment_form_before', array( $this, 'manage_post_cookie' ) );
 		add_action( 'comment_form_before', array( $this, 'comment_form_before' ) );
 		add_action( 'comment_form_after', array( $this, 'comment_form_after' ), 1 ); // Set very early since we remove everything outputed before our action.
 
@@ -155,6 +156,47 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		add_filter( 'get_avatar', array( $this, 'get_avatar' ), 10, 4 );
 		// Fix comment reply link when `comment_registration` is required.
 		add_filter( 'comment_reply_link', array( $this, 'comment_reply_link' ), 10, 4 );
+	}
+
+	/**
+	 * In order for comments to work properly for password-protected posts we need to set `wp-postpass` cookie to SameSite none.
+	 */
+	public function manage_post_cookie() {
+		$postpass_cookie_key = 'wp-postpass_' . COOKIEHASH;
+
+		if ( empty( $_COOKIE[ $postpass_cookie_key ] ) ) {
+			return;
+		}
+
+		$postpass_cookie_value = sanitize_text_field( wp_unslash( $_COOKIE[ $postpass_cookie_key ] ) );
+
+		if ( empty( $_COOKIE['verbum-wp-postpass'] ) || ( $_COOKIE['verbum-wp-postpass'] !== $postpass_cookie_value ) ) {
+			$expire = apply_filters( 'post_password_expires', time() + 10 * DAY_IN_SECONDS );
+
+			jetpack_shim_setcookie(
+				$postpass_cookie_key,
+				$postpass_cookie_value,
+				array(
+					'expires'  => $expire,
+					'samesite' => 'None',
+					'path'     => '/',
+					'domain'   => COOKIE_DOMAIN,
+					'secure'   => is_ssl(),
+				)
+			);
+
+			jetpack_shim_setcookie(
+				'verbum-wp-postpass',
+				$postpass_cookie_value,
+				array(
+					'expires'  => $expire,
+					'samesite' => 'None',
+					'path'     => '/',
+					'domain'   => COOKIE_DOMAIN,
+					'secure'   => is_ssl(),
+				)
+			);
+		}
 	}
 
 	/**

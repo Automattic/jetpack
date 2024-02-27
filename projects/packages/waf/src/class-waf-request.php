@@ -254,6 +254,24 @@ class Waf_Request {
 	}
 
 	/**
+	 * Return the basename part of the request
+	 *
+	 * @example for 'https://wordpress.com/some/page.php?id=5', return 'page.php'
+	 * @return string
+	 */
+	public function get_basename() {
+		// Get the filename part of the request
+		$filename = $this->get_filename();
+		// Normalize slashes
+		$filename = str_replace( '\\', '/', $filename );
+		// Remove trailing slashes
+		$filename = rtrim( $filename, '/' );
+		// Return the basename
+		$offset = strrpos( $filename, '/' );
+		return $offset !== false ? substr( $filename, $offset + 1 ) : $filename;
+	}
+
+	/**
 	 * Return the query string. If present, it will be prefixed with '?'. Otherwise, it will be an empty string.
 	 *
 	 * @return string

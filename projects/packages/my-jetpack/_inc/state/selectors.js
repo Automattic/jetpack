@@ -87,11 +87,6 @@ const countBackupItemsSelectors = {
 	isFetchingCountBackupItems: state => state.countBackupItems.isFetching || false,
 };
 
-const purchasesSelectors = {
-	getPurchases: state => state.purchases?.items || [],
-	isRequestingPurchases: state => state.purchases?.isFetching || false,
-};
-
 const chatAvailabilitySelectors = {
 	getChatAvailability: state => state.chatAvailability.isAvailable,
 	isRequestingChatAvailability: state => state.chatAvailability.isFetching,
@@ -158,7 +153,6 @@ const getWelcomeBannerHasBeenDismissed = state => {
 
 const selectors = {
 	...productSelectors,
-	...purchasesSelectors,
 	...chatAvailabilitySelectors,
 	...chatAuthenticationSelectors,
 	...availableLicensesSelectors,

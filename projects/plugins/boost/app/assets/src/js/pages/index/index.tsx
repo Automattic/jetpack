@@ -24,12 +24,13 @@ const Index = () => {
 
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
+	const [ pageCache ] = useSingleModuleState( 'page_cache' );
 
 	const regenerateCssAction = useRegenerateCriticalCssAction();
 	const requestRegenerateCriticalCss = () => {
 		regenerateCssAction.mutate();
 	};
-	const { canResizeImages } = Jetpack_Boost;
+	const { canResizeImages, site } = Jetpack_Boost;
 
 	const premiumFeatures = usePremiumFeatures();
 
@@ -132,12 +133,23 @@ const Index = () => {
 				onEnable={ () => pageCacheSetup.mutate() }
 				onDisable={ () => pageCacheErrorMutation.mutate( null ) }
 				description={
-					<p>
-						{ __(
-							'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
-							'jetpack-boost'
+					<>
+						<p>
+							{ __(
+								'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
+								'jetpack-boost'
+							) }
+						</p>
+						{ site.isAtomic && (
+							<Notice
+								level="warning"
+								title={ __( 'Page Cache is unavailable', 'jetpack-boost' ) }
+								hideCloseButton={ true }
+							>
+								<p>{ __( 'Your website already has a page cache running on it powered by WordPress.com.', 'jetpack-boost' ) }</p>
+							</Notice>
 						) }
-					</p>
+					</>
 				}
 			>
 				<PageCache />
@@ -289,7 +301,7 @@ const Index = () => {
 				</Module>
 			</div>
 
-			<SuperCacheInfo />
+			{ ! pageCache?.active && <SuperCacheInfo /> }
 		</div>
 	);
 };

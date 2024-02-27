@@ -684,9 +684,16 @@ class zeroBSCRM_list{
 	public function draw_listview_header( $listview_filters ) {
 		global $zbs;
 
-		$filter_var       = 'zeroBSCRM_filterbuttons_' . $this->objType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$all_quickfilters = ( empty( $GLOBALS[ $filter_var ]['all'] ) ? array() : $GLOBALS[ $filter_var ]['all'] );
-		$all_tags         = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$all_quickfilters = array_key_exists( $this->objTypeID, $zbs->listview_filters ) ? $zbs->listview_filters[ $this->objTypeID ] : array(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+		$quickfilter_category_count = count( $all_quickfilters );
+		$quickfilter_categories     = array(
+			'general' => __( 'General', 'zero-bs-crm' ),
+			'status'  => __( 'Status', 'zero-bs-crm' ),
+			'segment' => __( 'Segment', 'zero-bs-crm' ),
+		);
+
+		$all_tags = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(
 				'objtypeid'    => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				'excludeEmpty' => false,
@@ -709,11 +716,20 @@ class zeroBSCRM_list{
 			<header-item>
 				<?php
 				// add quickfilters filter if current object has quickfilters
-				if ( count( $all_quickfilters ) > 0 ) {
+				if ( $quickfilter_category_count > 0 ) {
 					echo '<select class="filter-dropdown' . ( ! empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '" data-filtertype="quickfilters">';
 					echo '<option disabled selected>' . esc_html__( 'Select filter', 'zero-bs-crm' ) . '</option>';
-					foreach ( $all_quickfilters as $filter_slug => $filter_data ) {
-						echo '<option value="' . esc_attr( $filter_slug ) . '">' . esc_html( $filter_data[0] ) . '</option>';
+					foreach ( $all_quickfilters as $category => $filters ) {
+						if ( $quickfilter_category_count > 1 ) {
+							$category_label = array_key_exists( $category, $quickfilter_categories ) ? $quickfilter_categories[ $category ] : $category;
+							echo '<optgroup label="' . esc_attr( $category_label ) . '">';
+						}
+						foreach ( $filters as $filter_slug => $filter_label ) {
+							echo '<option value="' . esc_attr( $filter_slug ) . '">' . esc_html( $filter_label ) . '</option>';
+						}
+						if ( $quickfilter_category_count > 1 ) {
+							echo '</optgroup>';
+						}
 					}
 					echo '</select>';
 					echo '<div class="jpcrm-current-filter' . ( empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '">';
