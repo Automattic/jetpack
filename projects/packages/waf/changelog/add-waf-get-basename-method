@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Added a method to the WAF package for parsing basenames.
+
+

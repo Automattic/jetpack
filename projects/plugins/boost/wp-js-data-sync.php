@@ -347,7 +347,7 @@ jetpack_boost_register_readonly_option( 'connection', array( new Connection(), '
 jetpack_boost_register_readonly_option( 'pricing', array( Premium_Pricing::class, 'get_yearly_pricing' ) );
 jetpack_boost_register_readonly_option( 'premium_features', array( Premium_Features::class, 'get_features' ) );
 jetpack_boost_register_readonly_option( 'super_cache', array( Super_Cache_Info::class, 'get_info' ) );
-jetpack_boost_register_readonly_option( 'cache_debug_log', array( new Logger(), 'read' ) );
+jetpack_boost_register_readonly_option( 'cache_debug_log', array( Logger::class, 'read' ) );
 
 jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback( false ), new Getting_Started_Entry() );
 

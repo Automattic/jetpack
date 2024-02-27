@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Backup\V0002\Helper_Script_Manager;
+use Automattic\Jetpack\Backup\V0003\Helper_Script_Manager;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Sync\Sender;
 
