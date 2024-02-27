@@ -165,7 +165,7 @@ const getGuessedSiteLifecycleStatus = state => {
 		return 'settling-in';
 	}
 
-	// 'established' = 2 or more purchases and 10 or more modules
+	// 'established' = 2 or more purchases or 10 or more modules
 	return 'established';
 };
 
