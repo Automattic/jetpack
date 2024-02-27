@@ -17,6 +17,7 @@ require_once __DIR__ . '/Request.php';
 require_once __DIR__ . '/storage/Storage.php';
 require_once __DIR__ . '/storage/File_Storage.php';
 
+// Define how many seconds the cache should last for each cached page.
 if ( ! defined( 'JETPACK_BOOST_CACHE_DURATION' ) ) {
 	define( 'JETPACK_BOOST_CACHE_DURATION', 3600 );
 }
