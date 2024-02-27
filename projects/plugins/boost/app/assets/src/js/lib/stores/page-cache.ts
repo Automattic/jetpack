@@ -15,6 +15,8 @@ export const PageCacheError = z
 	} )
 	.nullable();
 
+export type PageCacheError = z.infer< typeof PageCacheError >;
+
 export const PageCache = z.object( {
 	bypass_patterns: z.array( z.string() ),
 	logging: z.boolean(),
