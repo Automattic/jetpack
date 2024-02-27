@@ -110,6 +110,7 @@ class Jetpack_Social {
 
 		// Add REST routes
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Settings_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Social_Note_Controller(), 'register_rest_routes' ) );
 
 		// Add block editor assets
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_editor_scripts' ) );
