@@ -74,7 +74,6 @@ PrimaryLink.propTypes = {
 	siteAdminUrl: PropTypes.string.isRequired,
 	currentRecommendationsStep: PropTypes.string,
 	siteRawUrl: PropTypes.string.isRequired,
-	activePlugins: PropTypes.array,
 };
 
 export { PrimaryLink };
