@@ -1,7 +1,5 @@
 import { combineReducers } from '@wordpress/data';
 import {
-	SET_PURCHASES,
-	SET_PURCHASES_IS_FETCHING,
 	SET_CHAT_AVAILABILITY,
 	SET_CHAT_AUTHENTICATION,
 	SET_CHAT_AVAILABILITY_IS_FETCHING,
@@ -116,25 +114,6 @@ const countBackupItems = ( state = {}, action ) => {
 			return {
 				...state,
 				items: action?.backupItems || {},
-			};
-
-		default:
-			return state;
-	}
-};
-
-const purchases = ( state = {}, action ) => {
-	switch ( action.type ) {
-		case SET_PURCHASES_IS_FETCHING:
-			return {
-				...state,
-				isFetching: action.isFetching,
-			};
-
-		case SET_PURCHASES:
-			return {
-				...state,
-				items: action?.purchases || [],
 			};
 
 		default:
@@ -295,11 +274,17 @@ const welcomeBanner = ( state = {}, action ) => {
 	}
 };
 
+const lifecycleStats = ( state = {}, action ) => {
+	switch ( action.type ) {
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	products,
 	backupRewindableEvents,
 	countBackupItems,
-	purchases,
 	chatAvailability,
 	chatAuthentication,
 	availableLicenses,
@@ -308,6 +293,7 @@ const reducers = combineReducers( {
 	stats,
 	statsCounts,
 	welcomeBanner,
+	lifecycleStats,
 } );
 
 export default reducers;

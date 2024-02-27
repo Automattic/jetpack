@@ -3642,7 +3642,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'invalid_param',
 				sprintf(
 					/* Translators: Placeholder is a parameter name. */
-					esc_html__( '%s must be a object.', 'jetpack' ),
+					esc_html__( '%s must be an object.', 'jetpack' ),
 					$param
 				)
 			);

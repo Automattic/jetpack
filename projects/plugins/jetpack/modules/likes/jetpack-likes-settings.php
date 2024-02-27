@@ -209,7 +209,7 @@ class Jetpack_Likes_Settings {
 	 * Adds the 'sharing' menu to the settings menu.
 	 * Only ran if sharedaddy and publicize are not already active.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.2
 	 */
 	public function sharing_menu() {
 		add_submenu_page( 'options-general.php', esc_html__( 'Sharing Settings', 'jetpack' ), esc_html__( 'Sharing', 'jetpack' ), 'manage_options', 'sharing', array( $this, 'sharing_page' ) );
@@ -220,7 +220,7 @@ class Jetpack_Likes_Settings {
 	 * so we can display the setting.
 	 * Only ran if sharedaddy and publicize are not already active.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.2
 	 */
 	public function sharing_page() {
 		$this->updated_message();
@@ -240,7 +240,7 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Returns the settings have been saved message.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.2
 	 */
 	public function updated_message() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ignoring since we are just displaying that the settings have been saved and not making  any other changes to the site.
@@ -252,7 +252,7 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Returns just the "sharing buttons" w/ like option block, so it can be inserted into different sharing page contexts
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.2
 	 */
 	public function sharing_block() {
 		?>

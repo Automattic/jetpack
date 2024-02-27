@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+RNMobile: Fix edge case where block could sometimes mistakenly appear empty.

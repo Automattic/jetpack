@@ -2,6 +2,65 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.2-a.9 - 2024-02-26
+### Enhancements
+- Ads Settings: Include option to toggle GDPR Consent Banner [#35205]
+- Blaze: Enable the Dashboard behind the feature flag [#35724]
+- Blog Stats Block: Remove check that prevented testing on WP.com sites. [#35751]
+- Improve SSO send invite hover copy [#35879]
+- Privacy: Add preliminary support for WordAds Consent Management Provider [#35165]
+- Sharing: automatically add the Sharing Buttons block to the single post and page templates on sites using a block-based theme. [#35542]
+- WordAds: Add additional states to US Privacy law opt-out [#35765]
+
+### Improved compatibility
+- General: the plugin is now compatible with the upcoming WordPress release, version 6.5. [#35820]
+
+### Bug fixes
+- Carousel: don't open if no images are found in the gallery. [#35788]
+- Subscribe block: improve disabled placeholder state theme colour compatibility [#35813]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add a button to allow admins to re-send invites [#35833]
+- Add checkbox for opting out of inviting users to WordPress [#35902]
+- Add link to newsletter settings, still under feature flag. [#35825]
+- Add save button to newsletter settings. Still under feature flag. [#35861]
+- Add upgrade message for free tier [#35794]
+- Changed SSO heading tooltip [#35948]
+- Changes newsletter paid subscriber label to nowrap [#35690]
+- Connection flow: remove deprecated files, functions, and images that are not needed anymore now that we do not display connection banners outside of the Jetpack connection screen. [#35873]
+- Connection Screen: make VoiceOver announce lists as such [#35736]
+- Contact Form: deprecate temporary tmp_grunion_allow_editor_view filter. [#35584]
+- ESlint: disable redundant role rule [#35800]
+- Extracted Subscription Welcome Email into its own component [#35774]
+- Fix a bug in showing custom columns in the users table [#35882]
+- Fix spelling error on validation message. [#35909]
+- Google Fonts: Update the implement of print_font_faces as the value of WP_Font_Face_Resolver::get_fonts_from_theme_json may be an indexed array [#35890]
+- Improve SSO invite user error handling [#35850]
+- Interaction on newsletter categories. Work in progress under feature flag. [#35799]
+- Remove Settings > Sharing menu item registered by Publicize, and Likes. [#35810]
+- Remove unstable post editor check in AI Excerpt [#35875]
+- RNMobile: Enable support for editing v5 of the VideoPress block in the Jetpack app. [#35637]
+- Security Monitor: remove link to notifications and add link to wordpress account [#35769]
+- Sharing Block: only hook block on WordPress 6.5+ [#35905]
+- Social: Changed name of the social settings card [#35812]
+- SSO user invitation checkbox css change [#35907]
+- Stats: switch our stats fetching methods to use data conversion method from package. [#35865]
+- Subscriptions: Prevents the HTTP 301 redirection in Paywall block [#35852]
+- Top Posts Block: make available on WordPress.com Simple. [#35866]
+- TreeSelector: Added tree selector component. [#35749]
+- Update SSO users table pending invite icon styling [#35878]
+- Voice to Content: Add hook to handle transcription insertion into the editor. [#35761]
+- Voice to Content: avoid replacing blocks when inserting transcription into editor. [#35790]
+- Voice to Content: Make transcriptions cancelable and link upload button to processing state [#35737]
+- Voice to Content: refactor ActionButtons component to not handle logic on it, relying just on state and events [#35914]
+- Voice to Content: Update oscilloscope component [#35877]
+- WordAds: ensure the new CMP banner can be loaded in production environments. [#35791]
+- Wordpress.com Tools Menu: Update Github Deployments submenu copy [#35759]
+
+## 13.1.3 - 2024-02-20
+### Bug fixes
+- Backup: write helper script to ABSPATH by default to avoid backup failures. [#35508]
+
 ## 13.2-a.7 - 2024-02-19
 ### Enhancements
 - Added custom message textarea to send a message via email when adding new users [#35277]

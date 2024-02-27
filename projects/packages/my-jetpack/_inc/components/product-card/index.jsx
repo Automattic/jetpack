@@ -23,13 +23,13 @@ export const PRODUCT_STATUSES_LABELS = {
 
 // SecondaryButton component
 const SecondaryButton = props => {
-	const { label, shouldShowButton } = props;
+	const { shouldShowButton, positionFirst, ...buttonProps } = props;
 
 	if ( ! shouldShowButton() ) {
 		return false;
 	}
 
-	return <Button { ...props }>{ label }</Button>;
+	return <Button { ...buttonProps }>{ buttonProps.label }</Button>;
 };
 
 SecondaryButton.propTypes = {
