@@ -33,13 +33,16 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr ) {
-	/*
-	 * Enqueue necessary scripts and styles.
-	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	if ( isset( $attr['link'] ) ) {
-		wp_enqueue_script( 'goodreads-block', $attr['link'], array(), JETPACK__VERSION, true );
+	if ( isset( $attr['link'] ) && isset( $attr['id'] ) ) {
+		wp_enqueue_script(
+			'jetpack-goodreads-' . esc_attr( $attr['id'] ),
+			esc_url_raw( $attr['link'] ),
+			array(),
+			JETPACK__VERSION,
+			true
+		);
 	}
 
 	return sprintf(

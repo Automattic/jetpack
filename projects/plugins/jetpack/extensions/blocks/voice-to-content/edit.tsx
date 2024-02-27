@@ -12,7 +12,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { createBlock } from '@wordpress/blocks';
 import { Button, Modal, Icon } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useRef, useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 /**
@@ -27,7 +27,6 @@ export default function VoiceToContentEdit( { clientId } ) {
 		removeBlock: ( id: number ) => void;
 		insertBlock: ( block: object ) => void;
 	} = useDispatch( 'core/block-editor' );
-	const cancelTranscription = useRef( () => {} );
 	const [ transcription, setTranscription ] = useState( null );
 
 	const destroyBlock = useCallback( () => {
@@ -43,7 +42,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 
 	const { upsertTranscription } = useTranscriptionInserter();
 
-	const { processTranscription } = useTranscriptionPostProcessing( {
+	const { processTranscription, cancelTranscriptionProcessing } = useTranscriptionPostProcessing( {
 		feature: 'voice-to-content',
 		onReady: postProcessingResult => {
 			// Insert the content into the editor
@@ -79,20 +78,29 @@ export default function VoiceToContentEdit( { clientId } ) {
 		onError( error );
 	};
 
-	const { transcribeAudio }: UseAudioTranscriptionReturn = useAudioTranscription( {
-		feature: 'voice-to-content',
-		onReady: onTranscriptionReady,
-		onError: onTranscriptionError,
-	} );
+	const { transcribeAudio, cancelTranscription }: UseAudioTranscriptionReturn =
+		useAudioTranscription( {
+			feature: 'voice-to-content',
+			onReady: onTranscriptionReady,
+			onError: onTranscriptionError,
+		} );
 
 	const { state, controls, error, onError, onProcessing, duration, analyser } = useMediaRecording( {
 		onDone: lastBlob => {
-			const promise = transcribeAudio( lastBlob );
-			cancelTranscription.current = () => {
-				promise.canceled = true;
-			};
+			// When recording is done, set the audio to be transcribed
+			onAudioHandler( lastBlob );
 		},
 	} );
+
+	const onAudioHandler = useCallback(
+		( audio: Blob ) => {
+			if ( audio ) {
+				onProcessing();
+				transcribeAudio( audio );
+			}
+		},
+		[ transcribeAudio, onProcessing ]
+	);
 
 	// Destructure controls
 	const {
@@ -106,21 +114,18 @@ export default function VoiceToContentEdit( { clientId } ) {
 	const onUploadHandler = useCallback(
 		event => {
 			if ( event.currentTarget.files.length > 0 ) {
-				onProcessing();
 				const file = event.currentTarget.files[ 0 ];
-				const promise = transcribeAudio( file );
-				cancelTranscription.current = () => {
-					promise.canceled = true;
-				};
+				onAudioHandler( file );
 			}
 		},
-		[ onProcessing, transcribeAudio ]
+		[ onAudioHandler ]
 	);
 
 	const onCancelHandler = useCallback( () => {
-		cancelTranscription.current?.();
+		cancelTranscription();
+		cancelTranscriptionProcessing();
 		controlReset();
-	}, [ controlReset ] );
+	}, [ cancelTranscription, cancelTranscriptionProcessing, controlReset ] );
 
 	const onRecordHandler = useCallback( () => {
 		controlStart( 1000 ); // Stream audio on 1 second intervals
