@@ -77,16 +77,29 @@ const ConnectionStatusCard = props => {
 	}, [ isUserConnected, isRegistered ] );
 
 	/**
-	 * Open the Manage Connection Dialog.
+	 * Open the Manage Connection Dialog, and register the connection type as part of the Tracks event recorded
 	 */
 	const openManageConnectionDialog = useCallback(
-		e => {
+		connectionType => e => {
 			e && e.preventDefault();
-			recordEvent( 'jetpack_myjetpack_connection_manage_dialog_click', tracksEventData );
+			recordEvent( 'jetpack_myjetpack_connection_manage_dialog_click', {
+				...tracksEventData,
+				connectionType,
+			} );
 			setIsManageConnectionDialogOpen( true );
 		},
 		[ recordEvent, setIsManageConnectionDialogOpen, tracksEventData ]
 	);
+
+	/**
+	 * Open the Manage User Connection Dialog.
+	 */
+	const openManageUserConnectionDialog = openManageConnectionDialog( 'user' );
+
+	/**
+	 * Open the Manage Site Connection Dialog.
+	 */
+	const openManageSiteConnectionDialog = openManageConnectionDialog( 'site' );
 
 	/**
 	 * Close the Manage Connection Dialog.
@@ -166,7 +179,7 @@ const ConnectionStatusCard = props => {
 				) : (
 					<>
 						<ConnectionListItem
-							onClick={ openManageConnectionDialog }
+							onClick={ openManageSiteConnectionDialog }
 							text={ __( 'Site connected.', 'jetpack-my-jetpack' ) }
 							actionText={
 								isUserConnected && userConnectionData.currentUser?.isMaster
@@ -176,7 +189,7 @@ const ConnectionStatusCard = props => {
 						/>
 						{ isUserConnected && (
 							<ConnectionListItem
-								onClick={ openManageConnectionDialog }
+								onClick={ openManageUserConnectionDialog }
 								actionText={ __( 'Manage', 'jetpack-my-jetpack' ) }
 								text={ sprintf(
 									/* translators: first placeholder is user name, second is either the (Owner) string or an empty string */
