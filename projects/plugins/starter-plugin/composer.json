@@ -23,7 +23,8 @@
 	},
 	"autoload": {
 		"classmap": [
-			"src/"
+			"src/",
+			"vendor/automattic/mailpoet-email-engine-renderer/"
 		]
 	},
 	"scripts": {
