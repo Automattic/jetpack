@@ -13,6 +13,7 @@ const PageCache = () => {
 	return (
 		<>
 			<MutationNotice
+				mutationId="page-cache-setup"
 				isPending={ pageCacheSetup.isPending }
 				isError={ pageCacheSetup.isError }
 				isSuccess={ pageCacheSetup.isSuccess && ! pageCacheError.data }
