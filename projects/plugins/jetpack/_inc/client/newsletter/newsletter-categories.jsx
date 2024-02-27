@@ -1,4 +1,4 @@
-import { ToggleControl } from '@automattic/jetpack-components';
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -41,7 +41,7 @@ function NewsletterCategories( props ) {
 		isUnavailableDueOfflineMode,
 		isUnavailableDueSiteConnectionMode,
 		subscriptionsModule,
-		updateFormStateAndSaveOptionValue,
+		updateFormStateOptionValue,
 		isSavingAnyOption,
 	} = props;
 
@@ -71,23 +71,30 @@ function NewsletterCategories( props ) {
 			} else {
 				newCheckedCategoriesIds = checkedCategoriesIds.filter( category => category !== id );
 			}
-			updateFormStateAndSaveOptionValue( 'wpcom_newsletter_categories', newCheckedCategoriesIds );
+			updateFormStateOptionValue( 'wpcom_newsletter_categories', newCheckedCategoriesIds );
 		},
-		[ checkedCategoriesIds, updateFormStateAndSaveOptionValue ]
+		[ checkedCategoriesIds, updateFormStateOptionValue ]
 	);
 
 	return (
 		<SettingsCard
 			{ ...props }
 			header={ __( 'Newsletter categories', 'jetpack' ) }
-			hideButton
 			module={ SUBSCRIPTIONS_MODULE_NAME }
+			saveDisabled={ isSavingAnyOption( [ 'subscription_options' ] ) }
 		>
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
 				disableInSiteConnectionMode
 				module={ subscriptionsModule }
+				support={ {
+					text: __(
+						'When you add a new category, your existing subscribers will be automatically subscribed to it.',
+						'jetpack'
+					),
+					link: getRedirectUrl( 'jetpack-support-subscriptions' ),
+				} }
 			>
 				<p>
 					{ __(

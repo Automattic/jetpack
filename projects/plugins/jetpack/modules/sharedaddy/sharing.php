@@ -29,6 +29,7 @@ class Sharing_Admin {
 		require_once WP_SHARING_PLUGIN_DIR . 'sharing-service.php';
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'admin_menu', array( $this, 'subscription_menu' ) );
 
 		// Insert our CSS and JS
 		add_action( 'load-settings_page_sharing', array( $this, 'sharing_head' ) );
@@ -121,24 +122,18 @@ class Sharing_Admin {
 	}
 
 	/**
-	 * Register Sharing settings menu page.
+	 * Register Sharing settings menu page in offline mode.
 	 */
 	public function subscription_menu() {
-		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-			$active = Jetpack::get_active_modules();
-			if (
-				! in_array( 'publicize', $active, true )
-				&& ! current_user_can( 'manage_options' )
-			) {
-				return;
-			}
+		if ( ! ( new Status() )->is_offline_mode() ) {
+			return;
 		}
 
 		add_submenu_page(
 			'options-general.php',
 			__( 'Sharing Settings', 'jetpack' ),
 			__( 'Sharing', 'jetpack' ),
-			'publish_posts',
+			'manage_options',
 			'sharing',
 			array( $this, 'wrapper_admin_page' )
 		);

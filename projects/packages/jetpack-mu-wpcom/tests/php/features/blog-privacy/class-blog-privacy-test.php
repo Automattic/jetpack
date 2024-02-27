@@ -34,7 +34,13 @@ class Blog_Privacy_Test extends \WorDBless\BaseTestCase {
 User-agent: Amazonbot
 Disallow: /
 
+User-agent: anthropic-ai
+Disallow: /
+
 User-agent: CCBot
+Disallow: /
+
+User-agent: ClaudeBot
 Disallow: /
 
 User-agent: FacebookBot

@@ -28,11 +28,11 @@ export function usePageCache() {
 /**
  * Hook which creates a callable action for running Page Cache setup.
  */
-export function useRunPageCacheSetupAction() {
-	const action = 'run-page-cache-setup';
+export function usePageCacheSetup() {
+	const action = 'run-setup';
 	return useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
-		key: 'page_cache_error',
+		key: 'page_cache',
 		action_name: action,
 		schema: {
 			state: PageCacheError,
