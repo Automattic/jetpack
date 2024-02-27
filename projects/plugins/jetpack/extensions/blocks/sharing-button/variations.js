@@ -89,6 +89,14 @@ export const variations = [
 		title: 'Nextdoor',
 		icon: <SocialIcon icon={ 'nextdoor' } size={ 24 } />,
 	},
+	{
+		name: 'share',
+		attributes: { service: 'share', label: 'Share' },
+		title: 'Native Share',
+		icon: <SocialIcon icon={ 'share' } size={ 24 } />,
+		//TODO: we can add link in the future to proper documentation
+		description: 'Share with native tools on users device or copying to clipboard otherwise',
+	},
 ];
 
 variations.forEach( variation => {

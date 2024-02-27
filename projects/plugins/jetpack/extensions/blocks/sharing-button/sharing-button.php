@@ -143,6 +143,7 @@ function get_services() {
 		'mastodon'  => Share_Mastodon_Block::class,
 		'nextdoor'  => Share_Nextdoor_Block::class,
 		'x'         => Share_X_Block::class,
+		'share'     => Share_Native_Block::class,
 	);
 
 	return $services;
