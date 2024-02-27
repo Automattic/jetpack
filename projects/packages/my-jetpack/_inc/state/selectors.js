@@ -77,16 +77,6 @@ const productSelectors = {
 	getProductsThatRequiresUserConnection,
 };
 
-const backupRewindableEventsSelectors = {
-	getBackupRewindableEvents: state => state.backupRewindableEvents?.items || {},
-	isFetchingBackupRewindableEvents: state => state.backupRewindableEvents?.isFetching || false,
-};
-
-const countBackupItemsSelectors = {
-	getCountBackupItems: state => state.countBackupItems?.items || {},
-	isFetchingCountBackupItems: state => state.countBackupItems.isFetching || false,
-};
-
 const chatAvailabilitySelectors = {
 	getChatAvailability: state => state.chatAvailability.isAvailable,
 	isRequestingChatAvailability: state => state.chatAvailability.isFetching,
@@ -159,8 +149,6 @@ const selectors = {
 	...noticeSelectors,
 	...pluginSelectors,
 	...productStatsSelectors,
-	...backupRewindableEventsSelectors,
-	...countBackupItemsSelectors,
 	...statsCountsSelectors,
 	getWelcomeBannerHasBeenDismissed,
 };

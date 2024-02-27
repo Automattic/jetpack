@@ -23,12 +23,6 @@ const SET_STATS_COUNTS = 'SET_STATS_COUNTS';
 const SET_DISMISSED_WELCOME_BANNER_IS_FETCHING = 'SET_DISMISSED_WELCOME_BANNER_IS_FETCHING';
 const SET_DISMISSED_WELCOME_BANNER = 'SET_DISMISSED_WELCOME_BANNER';
 
-const SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING = 'SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING';
-const SET_BACKUP_REWINDABLE_EVENTS = 'SET_BACKUP_REWINDABLE_EVENTS';
-
-const SET_COUNT_BACKUP_ITEMS = 'SET_COUNT_BACKUP_ITEMS';
-const SET_COUNT_BACKUP_ITEMS_IS_FETCHING = 'SET_COUNT_BACKUP_ITEMS_IS_FETCHING';
-
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
 const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
 
@@ -41,14 +35,6 @@ const setChatAvailabilityIsFetching = isFetching => {
 
 const setChatAuthenticationIsFetching = isFetching => {
 	return { type: SET_CHAT_AUTHENTICATION_IS_FETCHING, isFetching };
-};
-
-const setBackupRewindableEventsIsFetching = isFetching => {
-	return { type: SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING, isFetching };
-};
-
-const setCountBackupItemsIsFetching = isFetching => {
-	return { type: SET_COUNT_BACKUP_ITEMS_IS_FETCHING, isFetching };
 };
 
 const setStatsCountsIsFetching = isFetching => {
@@ -76,16 +62,6 @@ const setAvailableLicenses = availableLicenses => {
 };
 
 const setProduct = product => ( { type: SET_PRODUCT, product } );
-
-const setBackupRewindableEvents = rewindableEvents => ( {
-	type: SET_BACKUP_REWINDABLE_EVENTS,
-	rewindableEvents,
-} );
-
-const setCountBackupItems = backupItems => ( {
-	type: SET_COUNT_BACKUP_ITEMS,
-	backupItems,
-} );
 
 const setStatsCounts = statsCounts => ( { type: SET_STATS_COUNTS, statsCounts } );
 
@@ -322,10 +298,6 @@ const actions = {
 	setAvailableLicenses,
 	setProductStats,
 	setIsFetchingProductStats,
-	setBackupRewindableEvents,
-	setBackupRewindableEventsIsFetching,
-	setCountBackupItems,
-	setCountBackupItemsIsFetching,
 	setStatsCounts,
 	setStatsCountsIsFetching,
 	dismissWelcomeBanner,
@@ -350,10 +322,6 @@ export {
 	SET_CHAT_AVAILABILITY_IS_FETCHING,
 	SET_CHAT_AUTHENTICATION,
 	SET_CHAT_AUTHENTICATION_IS_FETCHING,
-	SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING,
-	SET_BACKUP_REWINDABLE_EVENTS,
-	SET_COUNT_BACKUP_ITEMS_IS_FETCHING,
-	SET_COUNT_BACKUP_ITEMS,
 	SET_STATS_COUNTS_IS_FETCHING,
 	SET_STATS_COUNTS,
 	SET_DISMISSED_WELCOME_BANNER_IS_FETCHING,

@@ -5,9 +5,9 @@ import classNames from 'classnames';
 import Gridicon from 'gridicons';
 import PropTypes from 'prop-types';
 import { useEffect, useState, useMemo } from 'react';
+import useBackupRewindableEvents from '../../../data/backups/use-backup-rewindable-events';
+import useCountBackupItems from '../../../data/backups/use-count-backup-items';
 import useAnalytics from '../../../hooks/use-analytics';
-import useBackupRewindableEvents from '../../../hooks/use-backup-rewindable-events';
-import useCountBackupItems from '../../../hooks/use-count-backup-items';
 import { useProduct } from '../../../hooks/use-product';
 import ProductCard from '../../connected-product-card';
 import { PRODUCT_STATUSES } from '../../product-card/action-button';
@@ -129,7 +129,7 @@ const BackupCard = ( { admin } ) => {
 };
 
 const WithBackupsValueSection = ( { admin, slug } ) => {
-	const { backupRewindableEvents, fetchingBackupRewindableEvents } = useBackupRewindableEvents();
+	const { data: backupRewindableEvents, isLoading } = useBackupRewindableEvents();
 	const lastRewindableEventTime = backupRewindableEvents?.last_rewindable_event?.published;
 	const lastRewindableEvent = backupRewindableEvents?.last_rewindable_event;
 	const undoBackupId = backupRewindableEvents?.undo_backup_id;
@@ -169,7 +169,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 			admin={ admin }
 			slug={ slug }
 			showMenu
-			isDataLoading={ fetchingBackupRewindableEvents }
+			isDataLoading={ isLoading }
 			Description={ lastRewindableEvent ? WithBackupsDescription : null }
 			additionalActions={ lastRewindableEvent ? [ undoAction ] : [] }
 		>
@@ -185,8 +185,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 
 const NoBackupsValueSection = ( { admin, slug } ) => {
 	const [ itemsToShow, setItemsToShow ] = useState( 3 );
-	const { countBackupItems: siteData, fetchingCountBackupItems: isFetching } =
-		useCountBackupItems();
+	const { data: siteData, isLoading } = useCountBackupItems();
 
 	const sortedData = useMemo( () => {
 		const data = [];
@@ -226,7 +225,7 @@ const NoBackupsValueSection = ( { admin, slug } ) => {
 	const shortenedNumberConfig = { maximumFractionDigits: 1, notation: 'compact' };
 
 	return (
-		<ProductCard admin={ admin } slug={ slug } showMenu isDataLoading={ isFetching }>
+		<ProductCard admin={ admin } slug={ slug } showMenu isDataLoading={ isLoading }>
 			<div className={ styles[ 'no-backup-stats' ] }>
 				{ /* role="list" is required for VoiceOver on Safari */ }
 				{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
