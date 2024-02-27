@@ -146,7 +146,12 @@ const Index = () => {
 								title={ __( 'Page Cache is unavailable', 'jetpack-boost' ) }
 								hideCloseButton={ true }
 							>
-								<p>{ __( 'Your website already has a page cache running on it powered by WordPress.com.', 'jetpack-boost' ) }</p>
+								<p>
+									{ __(
+										'Your website already has a page cache running on it powered by WordPress.com.',
+										'jetpack-boost'
+									) }
+								</p>
 							</Notice>
 						) }
 					</>
