@@ -130,6 +130,13 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
+	 * Get the URL where the user should be redirected after checkout
+	 */
+	public static function get_post_checkout_url() {
+		self::get_manage_url();
+	}
+
+	/**
 	 * Get the product princing details
 	 *
 	 * @return array Pricing details
@@ -225,12 +232,5 @@ class Backup extends Hybrid_Product {
 	 */
 	public static function is_active() {
 		return parent::is_active() && static::has_required_plan();
-	}
-
-	/**
-	 * Get the URL where the user should be redirected after checkout
-	 */
-	public static function get_post_checkout_url() {
-		self::get_manage_url();
 	}
 }
