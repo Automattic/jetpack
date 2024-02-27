@@ -560,6 +560,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		 * @since $$next-version$$
 		 *
 		 * @param bool  $is_dtp_fb_post Is this for a Facebook import?
+		 * @param array $input          Whole input.
 		 * @param array $media_files    File upload data.
 		 * @param array $media_urls     URLs to fetch.
 		 * @param array $media_attrs    Attributes corresponding to each entry in `$media_files`/`$media_urls`.
@@ -567,7 +568,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		 *  - media_ids: IDs created, by index in `$media_files`/`$media_urls`.
 		 *  - errors: Errors encountered, by index in `$media_files`/`$media_urls`.
 		 */
-		do_action( 'jetpack_dtp_fb_media', $is_dtp_fb_post, $media_files, $media_urls, $media_attrs, $media_results );
+		do_action( 'jetpack_dtp_fb_media', $is_dtp_fb_post, $input, $media_files, $media_urls, $media_attrs, $media_results );
 
 		if ( $new ) {
 			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
