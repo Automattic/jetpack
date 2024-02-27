@@ -386,6 +386,9 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		if ( isset( $query_args['autoupdate'] ) && $query_args['autoupdate'] || $this->is_scheduled_updates ) {
 			Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 		}
+		if ( $this->is_scheduled_updates ) {
+			Constants::set_constant( 'SCHEDULED_AUTOUPDATE', true );
+		}
 		wp_clean_plugins_cache( false );
 		ob_start();
 		wp_update_plugins(); // Check for Plugin updates
