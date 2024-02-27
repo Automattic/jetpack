@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+
+WooSync: No longer shows today as renewal date if subscription has no renewal date set.
+WooSync: Modernize code.
