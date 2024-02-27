@@ -35,7 +35,7 @@ const Index = () => {
 	const premiumFeatures = usePremiumFeatures();
 
 	const pageCacheSetup = usePageCacheSetup();
-	const [ , pageCacheErrorMutation ] = usePageCacheError();
+	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
 
 	return (
 		<div className="jb-container--narrow">
@@ -157,7 +157,7 @@ const Index = () => {
 					</>
 				}
 			>
-				<PageCache />
+				<PageCache setup={ pageCacheSetup } error={ pageCacheError.data } />
 			</Module>
 			<Module
 				slug="render_blocking_js"
