@@ -90,7 +90,7 @@ class Scheduled_Updates {
 	 */
 	public static function allowlist_scheduled_plugins( $update, $item ) {
 
-		if ( isset( $item->is_scheduled_updates ) && $item->is_scheduled_updates ) {
+		if ( Constants::get_constant( 'SCHEDULED_AUTOUPDATE' ) ) {
 
 			$schedules = get_option( 'jetpack_update_schedules', array() );
 
