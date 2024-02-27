@@ -856,9 +856,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						'wpcom'
 					);
 
-					$status_code = wp_remote_retrieve_response_code( $response );
-
-					if ( ! is_wp_error( $response ) && 200 === $status_code ) {
+					if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 						$body                 = json_decode( $response['body'], true );
 						self::$cached_invites = array_merge( self::$cached_invites, $body );
 					}
