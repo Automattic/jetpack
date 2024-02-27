@@ -13,7 +13,7 @@
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-sync": "@dev",
-		"automattic/mailpoet-email-engine-renderer": "@dev"
+		"automattic/mailpoet-email-engine-renderer": "4.44.1"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
@@ -59,7 +59,7 @@
 			"type": "package",
 			"package": {
 				"name": "automattic/mailpoet-email-engine-renderer",
-				"version": "dev-trunk",
+				"version": "4.44.1",
 				"source": {
 					"url": "https://plugins.svn.wordpress.org/mailpoet/trunk/lib/EmailEditor/Engine/Renderer/",
 					"type": "svn",

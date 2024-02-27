@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ea32fd8f1a290badce9cc5b73561fc6f",
+    "content-hash": "39e231821c3d27438ad4b8499e39c145",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1463,7 +1463,7 @@
         },
         {
             "name": "automattic/mailpoet-email-engine-renderer",
-            "version": "dev-trunk",
+            "version": "4.44.1",
             "source": {
                 "type": "svn",
                 "url": "https://plugins.svn.wordpress.org/mailpoet/trunk/lib/EmailEditor/Engine/Renderer/",
@@ -4596,7 +4596,6 @@
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-plugins-installer": 20,
         "automattic/jetpack-sync": 20,
-        "automattic/mailpoet-email-engine-renderer": 20,
         "automattic/jetpack-changelogger": 20
     },
     "prefer-stable": true,
