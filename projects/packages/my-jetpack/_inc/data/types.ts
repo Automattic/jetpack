@@ -85,4 +85,115 @@ export type BackupCountStats = {
 	total_image_count: number;
 	total_video_count: number;
 	total_audio_count: number;
+}
+
+export type Product = {
+	class: string;
+	description: string;
+	disclaimers: Array< string[] >;
+	features: string[];
+	features_by_tier: Array< string >;
+	has_required_plan: boolean;
+	has_required_tier: Array< string >;
+	is_bundle: boolean;
+	is_plugin_active: boolean;
+	is_upgradable_by_bundle: string[];
+	long_description: string;
+	manage_url: string;
+	name: string;
+	plugin_slug: string;
+	post_activation_url: string;
+	post_checkout_url?: string;
+	pricing_for_ui?: {
+		available: boolean;
+		wpcom_product_slug: string;
+		product_term: string;
+		currency_code: string;
+		full_price: number;
+		discount_price: number;
+		coupon_discount: number;
+		is_introductory_offer: boolean;
+		introductory_offer?: {
+			cost_per_interval: number;
+			interval_count: number;
+			interval_unit: string;
+			should_prorate_when_offer_ends: boolean;
+			transition_after_renewal_count: number;
+			usage_limit?: number;
+		};
+	};
+	purchase_url?: string;
+	requires_user_connection: boolean;
+	slug: string;
+	standalone_plugin_info: {
+		has_standalone_plugin: boolean;
+		is_standalone_installed: boolean;
+		is_standalone_active: boolean;
+	};
+	status: string;
+	supported_products: string[];
+	tiers: string[];
+	title: string;
+	wpcom_product_slug: string;
+};
+
+export type MyJetpackInitialState = {
+	siteSuffix: string;
+	latestBoostSpeedScores: {
+		scores: {
+			desktop: number;
+			mobile: number;
+		};
+		theme: string;
+		timestamp: number;
+	};
+	IDCContainerID: string;
+	adminUrl: string;
+	blogID: string;
+	fileSystemWriteAccess: 'yes' | 'no';
+	isStatsModuleActive: string;
+	isUserFromKnownHost: string;
+	jetpackManage: {
+		isAgencyAccount: boolean;
+		isEnabled: boolean;
+	};
+	loadAddLicenseScreen: string;
+	myJetpackCheckoutUri: string;
+	myJetpackFlags: {
+		showJetpackStatsCard: boolean;
+		videoPressStats: boolean;
+	};
+	myJetpackUrl: string;
+	myJetpackVersion: string;
+	plugins: {
+		[ key: string ]: {
+			Name: string;
+			PluginURI: string;
+			Version: string;
+			Title: string;
+			Description: string;
+			Author: string;
+			AuthorName: string;
+			AuthorURI: string;
+			DomainPath: string;
+			textDomain: string;
+			RequiresPHP: string;
+			RequiresWP: string;
+			UpdateURI: string;
+			Network: boolean;
+			active: boolean;
+		};
+	};
+	products: {
+		items: Array< Product >;
+	};
+	purchases: {
+		items: Array< Purchase >;
+	};
+	topJetpackMenuItemUrl: string;
+	userIsAdmin: string;
+	userIsNewToJetpack: string;
+	welcomeBanner: {
+		hasBeenDismissed: boolean;
+	};
 };
