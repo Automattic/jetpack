@@ -229,9 +229,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'wpcom'
 				);
 
-				$status_code = wp_remote_retrieve_response_code( $response );
-
-				if ( is_wp_error( $response ) || 200 !== $status_code ) {
+				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 					$error        = 'invalid-invite-api-error';
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
@@ -465,7 +463,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 				$status_code = wp_remote_retrieve_response_code( $response );
 
-				if ( is_wp_error( $response ) || 200 !== $status_code ) {
+				if ( 200 !== $status_code ) {
 					$message_type = $status_code === 404 ? 'invalid-invite' : ''; // empty is the general error message
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
@@ -771,8 +769,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					)
 				);
 
-				$status_code = wp_remote_retrieve_response_code( $response );
-				if ( is_wp_error( $response ) || 200 !== $status_code ) {
+				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 					$errors->add( 'invitation_not_sent', __( '<strong>Error</strong>: The user invitation email could not be sent, the user account was not created.', 'jetpack' ) );
 					self::$tracking->record_user_event(
 						'sso_user_new_user_invite_send',
@@ -920,9 +917,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				'wpcom'
 			);
 
-			$status_code = wp_remote_retrieve_response_code( $response );
-
-			if ( is_wp_error( $response ) || 200 !== $status_code ) {
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 				return false;
 			}
 
