@@ -17,6 +17,10 @@ require_once __DIR__ . '/Request.php';
 require_once __DIR__ . '/storage/Storage.php';
 require_once __DIR__ . '/storage/File_Storage.php';
 
+if ( ! defined( 'JETPACK_BOOST_CACHE_DURATION' ) ) {
+	define( 'JETPACK_BOOST_CACHE_DURATION', 3600 );
+}
+
 class Boost_Cache {
 	/**
 	 * @var Boost_Cache_Settings - The settings for the page cache.

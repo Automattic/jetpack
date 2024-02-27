@@ -64,14 +64,12 @@ class File_Storage implements Storage {
 	 * Garbage collect expired files.
 	 */
 	public function garbage_collect() {
-		$cache_duration = apply_filters( 'jetpack_boost_cache_duration', 3600 );
-
-		if ( $cache_duration === 0 ) {
+		if ( JETPACK_BOOST_CACHE_DURATION === 0 ) {
 			// Garbage collection is disabled.
 			return false;
 		}
 
-		$count = Filesystem_Utils::delete_expired_files( $this->root_path, $cache_duration );
+		$count = Filesystem_Utils::delete_expired_files( $this->root_path, JETPACK_BOOST_CACHE_DURATION );
 
 		Logger::debug( "Garbage collected $count files" );
 	}
