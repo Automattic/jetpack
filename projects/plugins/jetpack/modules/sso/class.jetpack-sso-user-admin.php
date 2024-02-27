@@ -169,20 +169,13 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			check_admin_referer( 'jetpack-sso-invite-user', 'invite_nonce' );
 			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
 			$event = 'sso_user_invite_sent';
+
 			if ( ! current_user_can( 'create_users' ) ) {
 				$error        = 'invalid-user-permissions';
 				$query_params = array(
 					'jetpack-sso-invite-user'  => 'failed',
 					'jetpack-sso-invite-error' => $error,
 					'_wpnonce'                 => $nonce,
-				);
-
-				self::$tracking->record_user_event(
-					$event,
-					array(
-						'success'       => 'false',
-						'error_message' => $error,
-					)
 				);
 				return self::create_error_notice_and_redirect( $query_params );
 			} elseif ( isset( $_GET['user_id'] ) ) {
@@ -327,13 +320,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'_wpnonce'                 => $nonce,
 				);
 
-				self::$tracking->record_user_event(
-					$event,
-					array(
-						'success'       => 'false',
-						'error_message' => $error,
-					)
-				);
 				return self::create_error_notice_and_redirect( $query_params );
 			} elseif ( isset( $_GET['user_id'] ) ) {
 				$user_id = intval( wp_unslash( $_GET['user_id'] ) );
