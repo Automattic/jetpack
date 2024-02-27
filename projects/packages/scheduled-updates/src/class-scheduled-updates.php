@@ -28,10 +28,10 @@ class Scheduled_Updates {
 		}
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_rest_api_endpoints' ), 20 );
-		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'jetpack_run_scheduled_update' ) );
-		add_filter( 'auto_update_plugin', array( __CLASS__, 'jetpack_allowlist_scheduled_plugins' ), 10, 2 );
+		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ) );
+		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
-		add_filter( 'all_plugins', array( __CLASS__, 'jetpack_scheduled_updates_add_symlink_to_plugin_list' ) );
+		add_filter( 'all_plugins', array( __CLASS__, 'add_is_managed_to_plugin_list' ) );
 	}
 
 	/**
@@ -50,7 +50,7 @@ class Scheduled_Updates {
 	 *
 	 * @param string ...$plugins List of plugins to update.
 	 */
-	public static function jetpack_run_scheduled_update( ...$plugins ) {
+	public static function run_scheduled_update( ...$plugins ) {
 		$available_updates = get_site_transient( 'update_plugins' );
 		$plugins_to_update = array();
 
@@ -79,7 +79,7 @@ class Scheduled_Updates {
 	 * @param object    $item   The update offer.
 	 * @return bool
 	 */
-	public static function jetpack_allowlist_scheduled_plugins( $update, $item ) {
+	public static function allowlist_scheduled_plugins( $update, $item ) {
 		// TODO: Check if we're in a scheduled update request from Jetpack_Autoupdates.
 		$schedules = get_option( 'jetpack_update_schedules', array() );
 
@@ -159,7 +159,7 @@ class Scheduled_Updates {
 	 *
 	 * @param array $plugin_list The list of plugins.
 	 */
-	public static function jetpack_scheduled_updates_add_symlink_to_plugin_list( $plugin_list ) {
+	public static function add_is_managed_to_plugin_list( $plugin_list ) {
 		foreach ( $plugin_list as $plugin_key => $plugin_data ) {
 			$folder     = WP_PLUGIN_DIR . '/' . strtok( $plugin_key, '/' );
 			$target     = is_link( $folder ) ? readlink( $folder ) : false;
