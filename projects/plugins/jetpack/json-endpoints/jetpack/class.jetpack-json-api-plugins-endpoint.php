@@ -445,7 +445,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			if ( Current_Plan::supports( 'scheduled-updates' ) ) {
 				$this->is_scheduled_update = true;
 			} else {
-				return new WP_Error( 'unauthorized', __( 'This user is not authorized to perform a scheduled update event', 'jetpack' ), 403 );
+				return new WP_Error( 'unauthorized', __( 'Scheduled updates are not available on your current plan. Please upgrade to a plan that supports scheduled updates to use this feature.', 'jetpack' ), 403 );
 			}
 		}
 
