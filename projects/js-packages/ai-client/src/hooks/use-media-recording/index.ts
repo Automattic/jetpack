@@ -2,11 +2,10 @@
  * External dependencies
  */
 import { useRef, useState, useEffect, useCallback } from '@wordpress/element';
-
 /*
  * Types
  */
-type RecordingStateProp = 'inactive' | 'recording' | 'paused';
+export type RecordingState = 'inactive' | 'recording' | 'paused' | 'processing' | 'error';
 type UseMediaRecordingProps = {
 	onDone?: ( blob: Blob ) => void;
 };
@@ -15,7 +14,7 @@ type UseMediaRecordingReturn = {
 	/**
 	 * The current recording state
 	 */
-	state: RecordingStateProp;
+	state: RecordingState;
 
 	/**
 	 * The recorded blob
@@ -23,29 +22,56 @@ type UseMediaRecordingReturn = {
 	blob: Blob | null;
 
 	/**
-	 * The recorded blob url
+	 * The error message
 	 */
-	url: string | null;
+	error: string | null;
 
 	/**
-	 * `start` recording handler
+	 * The duration of the recorded audio
 	 */
-	start: ( timeslice?: number ) => void;
+	duration: number;
 
 	/**
-	 * `pause` recording handler
+	 * The audio analyser node
 	 */
-	pause: () => void;
+	analyser?: AnalyserNode;
 
 	/**
-	 * `resume` recording handler
+	 * The error handler
 	 */
-	resume: () => void;
+	onError: ( err: string | Error ) => void;
 
 	/**
-	 * `stop` recording handler
+	 * The processing handler
 	 */
-	stop: () => void;
+	onProcessing: () => void;
+
+	controls: {
+		/**
+		 * `start` recording handler
+		 */
+		start: ( timeslice?: number ) => void;
+
+		/**
+		 * `pause` recording handler
+		 */
+		pause: () => void;
+
+		/**
+		 * `resume` recording handler
+		 */
+		resume: () => void;
+
+		/**
+		 * `stop` recording handler
+		 */
+		stop: () => void;
+
+		/**
+		 * `reset` recording handler
+		 */
+		reset: () => void;
+	};
 };
 
 type MediaRecorderEvent = {
@@ -64,14 +90,26 @@ export default function useMediaRecording( {
 	// Reference to the media recorder instance
 	const mediaRecordRef = useRef( null );
 
-	// Recording state: `inactive`, `recording`, `paused`
-	const [ state, setState ] = useState< RecordingStateProp >( 'inactive' );
+	// Recording state: `inactive`, `recording`, `paused`, `processing`, `error`
+	const [ state, setState ] = useState< RecordingState >( 'inactive' );
+
+	// reference to the paused state to be used in the `onDataAvailable` event listener,
+	// as the `mediaRecordRef.current.state` is already `inactive` when the recorder is stopped,
+	// and the event listener does not react to state changes
+	const isPaused = useRef< boolean >( false );
+
+	const recordStartTimestamp = useRef< number >( 0 );
+	const [ duration, setDuration ] = useState< number >( 0 );
 
 	// The recorded blob
 	const [ blob, setBlob ] = useState< Blob | null >( null );
 
 	// Store the recorded chunks
 	const recordedChunks = useRef< Array< Blob > >( [] ).current;
+
+	const [ error, setError ] = useState< string | null >( null );
+
+	const analyser = useRef< AnalyserNode >( null );
 
 	/**
 	 * Get the recorded blob.
@@ -86,6 +124,8 @@ export default function useMediaRecording( {
 
 	// `start` recording handler
 	const start = useCallback( ( timeslice: number ) => {
+		clearData();
+
 		if ( ! timeslice ) {
 			return mediaRecordRef?.current?.start();
 		}
@@ -93,22 +133,115 @@ export default function useMediaRecording( {
 		if ( timeslice < 100 ) {
 			timeslice = 100; // set minimum timeslice to 100ms
 		}
+
+		// Record the start time
+		recordStartTimestamp.current = Date.now();
+
 		mediaRecordRef?.current?.start( timeslice );
 	}, [] );
 
 	// `pause` recording handler
 	const pause = useCallback( () => {
+		isPaused.current = true;
 		mediaRecordRef?.current?.pause();
+
+		// Calculate the duration of the recorded audio from the start time
+		setDuration( currentDuration => currentDuration + Date.now() - recordStartTimestamp.current );
 	}, [] );
 
 	// `resume` recording handler
 	const resume = useCallback( () => {
+		isPaused.current = false;
 		mediaRecordRef?.current?.resume();
+
+		// Record the start time
+		recordStartTimestamp.current = Date.now();
 	}, [] );
 
 	// `stop` recording handler
 	const stop = useCallback( () => {
 		mediaRecordRef?.current?.stop();
+
+		if ( state === 'recording' ) {
+			// Calculate the duration of the recorded audio from the start time
+			setDuration( currentDuration => currentDuration + Date.now() - recordStartTimestamp.current );
+		}
+	}, [] );
+
+	// clears the recording state
+	const clearData = useCallback( () => {
+		recordedChunks.length = 0;
+		setBlob( null );
+		setError( null );
+		setDuration( 0 );
+		isPaused.current = false;
+		recordStartTimestamp.current = 0;
+	}, [] );
+
+	// removes the event listeners
+	const clearListeners = useCallback( () => {
+		/*
+		 * mediaRecordRef is not defined when
+		 * the getUserMedia API is not supported,
+		 * or when the user has not granted access
+		 */
+		if ( ! mediaRecordRef?.current ) {
+			return;
+		}
+
+		mediaRecordRef.current.removeEventListener( 'start', onStartListener );
+		mediaRecordRef.current.removeEventListener( 'stop', onStopListener );
+		mediaRecordRef.current.removeEventListener( 'pause', onPauseListener );
+		mediaRecordRef.current.removeEventListener( 'resume', onResumeListener );
+		mediaRecordRef.current.removeEventListener( 'dataavailable', onDataAvailableListener );
+		mediaRecordRef.current = null;
+	}, [] );
+
+	// resets the recording state, initializing the media recorder instance
+	const reset = useCallback( () => {
+		setState( 'inactive' );
+		clearData();
+		clearListeners();
+
+		// Check if the getUserMedia API is supported
+		if ( ! navigator.mediaDevices?.getUserMedia ) {
+			return;
+		}
+
+		const audioCtx = new AudioContext();
+		analyser.current = audioCtx.createAnalyser();
+
+		const constraints = { audio: true };
+
+		navigator.mediaDevices
+			.getUserMedia( constraints )
+			.then( stream => {
+				const source = audioCtx.createMediaStreamSource( stream );
+				source.connect( analyser.current );
+
+				mediaRecordRef.current = new MediaRecorder( stream );
+				mediaRecordRef.current.addEventListener( 'start', onStartListener );
+				mediaRecordRef.current.addEventListener( 'stop', onStopListener );
+				mediaRecordRef.current.addEventListener( 'pause', onPauseListener );
+				mediaRecordRef.current.addEventListener( 'resume', onResumeListener );
+				mediaRecordRef.current.addEventListener( 'dataavailable', onDataAvailableListener );
+			} )
+			.catch( err => {
+				// @todo: handle error
+				throw err;
+			} );
+	}, [] );
+
+	// stops the recording and sets the error state
+	const onError = useCallback( ( err: string | Error ) => {
+		stop();
+		setError( typeof err === 'string' ? err : err.message );
+		setState( 'error' );
+	}, [] );
+
+	// manually set the state to `processing` for the file upload case
+	const onProcessing = useCallback( () => {
+		setState( 'processing' );
 	}, [] );
 
 	/**
@@ -120,12 +253,14 @@ export default function useMediaRecording( {
 
 	/**
 	 * `stop` event listener for the media recorder instance.
+	 * Happens after the last `dataavailable` event.
 	 *
 	 * @returns {void}
 	 */
 	function onStopListener(): void {
-		setState( 'inactive' );
-		onDone?.( getBlob() );
+		setState( 'processing' );
+		const lastBlob = getBlob();
+		onDone?.( lastBlob );
 
 		// Clear the recorded chunks
 		recordedChunks.length = 0;
@@ -162,58 +297,43 @@ export default function useMediaRecording( {
 
 		// Create and store the Blob for the recorded chunks
 		setBlob( getBlob() );
+
+		// If the recorder was paused, it is the last data available event, so we do not update the duration
+		if ( ! isPaused.current ) {
+			setDuration( currentDuration => {
+				const now = Date.now();
+				const difference = now - recordStartTimestamp.current;
+				// Update the start time
+				recordStartTimestamp.current = now;
+				return currentDuration + difference;
+			} );
+		}
 	}
 
-	// Create media recorder instance
+	// Remove listeners and clear the recorded chunks
 	useEffect( () => {
-		// Check if the getUserMedia API is supported
-		if ( ! navigator.mediaDevices?.getUserMedia ) {
-			return;
-		}
+		reset();
 
-		const constraints = { audio: true };
-
-		navigator.mediaDevices
-			.getUserMedia( constraints )
-			.then( stream => {
-				mediaRecordRef.current = new MediaRecorder( stream );
-
-				mediaRecordRef.current.addEventListener( 'start', onStartListener );
-				mediaRecordRef.current.addEventListener( 'stop', onStopListener );
-				mediaRecordRef.current.addEventListener( 'pause', onPauseListener );
-				mediaRecordRef.current.addEventListener( 'resume', onResumeListener );
-				mediaRecordRef.current.addEventListener( 'dataavailable', onDataAvailableListener );
-			} )
-			.catch( err => {
-				// @todo: handle error
-				throw err;
-			} );
 		return () => {
-			/*
-			 * mediaRecordRef is not defined when
-			 * the getUserMedia API is not supported,
-			 * or when the user has not granted access
-			 */
-			if ( ! mediaRecordRef?.current ) {
-				return;
-			}
-
-			mediaRecordRef.current.removeEventListener( 'start', onStartListener );
-			mediaRecordRef.current.removeEventListener( 'stop', onStopListener );
-			mediaRecordRef.current.removeEventListener( 'pause', onPauseListener );
-			mediaRecordRef.current.removeEventListener( 'resume', onResumeListener );
-			mediaRecordRef.current.removeEventListener( 'dataavailable', onDataAvailableListener );
+			clearListeners();
 		};
 	}, [] );
 
 	return {
 		state,
 		blob,
-		url: blob ? URL.createObjectURL( blob ) : null,
+		error,
+		duration,
+		analyser: analyser.current,
+		onError,
+		onProcessing,
 
-		start,
-		pause,
-		resume,
-		stop,
+		controls: {
+			start,
+			pause,
+			resume,
+			stop,
+			reset,
+		},
 	};
 }

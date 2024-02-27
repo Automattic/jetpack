@@ -110,17 +110,6 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 				$company_transactions_value = $company['transactions_total'];
 			}
 
-			// pre dal 3 did this way
-			if ( ! $zbs->isDAL3() ) {
-
-				// calc'd each individually
-				// never used (pre dal3) $companyTotalValue = zeroBS_companyTotalValue($id, $company['invoices'],$company['transactions'])
-				// never used (pre dal3) $companyQuotesValue = zeroBS_companyQuotesValue($id, $company['quotes']);
-				$company_invoices_value     = zeroBS_companyInvoicesValue( $id, $company['invoices'] );
-				$company_transactions_value = zeroBS_companyTransactionsValue( $id, $company['transactions'] );
-
-			}
-
 			// put screen options out
 			zeroBSCRM_screenOptionsPanel();
 

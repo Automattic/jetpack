@@ -2,10 +2,11 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_JS;
 
-class Minify_JS implements Pluggable {
+class Minify_JS implements Pluggable, Changes_Page_Output {
 
 	public static $default_excludes = array( 'jquery', 'jquery-core', 'underscore', 'backbone' );
 

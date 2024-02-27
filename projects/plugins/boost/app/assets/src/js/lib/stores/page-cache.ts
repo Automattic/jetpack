@@ -1,45 +1,95 @@
+import { standardizeError } from '$lib/utils/standardize-error';
 import {
-	invalidateQuery,
+	DataSyncError,
 	useDataSync,
 	useDataSyncAction,
 } from '@automattic/jetpack-react-data-sync-client';
+import { useState } from 'react';
 import { z } from 'zod';
+import { __ } from '@wordpress/i18n';
 
-export const PageCacheError = z.string();
+export const PageCacheError = z
+	.object( {
+		code: z.string(),
+		message: z.string(),
+	} )
+	.nullable();
 
-export function usePageCacheErrorDS() {
-	const [ { data } ] = useDataSync( 'jetpack_boost_ds', 'page_cache_error', PageCacheError );
+export type PageCacheError = z.infer< typeof PageCacheError >;
 
-	return data;
+export const PageCache = z.object( {
+	bypass_patterns: z.array( z.string() ),
+	logging: z.boolean(),
+} );
+const PageCacheClear = z.object( {
+	message: z.string(),
+} );
+
+export function usePageCacheError() {
+	return useDataSync( 'jetpack_boost_ds', 'page_cache_error', PageCacheError );
+}
+
+export function usePageCache() {
+	return useDataSync( 'jetpack_boost_ds', 'page_cache', PageCache );
 }
 
 /**
  * Hook which creates a callable action for running Page Cache setup.
  */
-export function useRunPageCacheSetupAction() {
-	return usePageCacheErrorAction( 'run-page-cache-setup', z.void() );
-}
+export function usePageCacheSetup() {
+	const [ , pageCacheErrorMutation ] = usePageCacheError();
+	const setError = pageCacheErrorMutation.mutate;
 
-function usePageCacheErrorAction<
-	ActionSchema extends z.ZodSchema,
-	ActionRequestData extends z.infer< ActionSchema >,
->( action: string, schema: ActionRequestData ) {
-	const responseSchema = z.void();
-
-	return useDataSyncAction( {
+	const pageCacheSetup = useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
-		key: 'page_cache_error',
-		action_name: action,
+		key: 'page_cache',
+		action_name: 'run-setup',
 		schema: {
-			state: PageCacheError,
-			action_request: schema,
-			action_response: responseSchema,
+			state: PageCache,
+			action_request: z.void(),
+			action_response: PageCacheError.or( z.literal( true ) ),
+		},
+		mutationOptions: {
+			onError: error => {
+				if ( error instanceof DataSyncError ) {
+					return setError( error.info() );
+				}
+				const standardizedError = standardizeError( error );
+				setError( {
+					code: 'unknown_error',
+					message: standardizedError.message || __( 'Unknown error occurred.', 'jetpack-boost' ),
+				} );
+			},
+			onSuccess: () => {
+				setError( null );
+			},
 		},
 	} );
+	return pageCacheSetup;
 }
 
-// When page cache is enabled, page cache error needs to be invalidated,
-// so we can get the updated error message from the last setup run.
-export function invalidatePageCacheError() {
-	invalidateQuery( 'page_cache_error' );
+/**
+ * Hook which creates a callable action for clearing Page Cache.
+ */
+export function useClearPageCacheAction() {
+	const [ message, setMessage ] = useState( '' );
+	const action = useDataSyncAction( {
+		namespace: 'jetpack_boost_ds',
+		key: 'page_cache',
+		action_name: 'clear-page-cache',
+		schema: {
+			state: PageCache,
+			action_request: z.void(),
+			action_response: PageCacheClear,
+		},
+		callbacks: {
+			onResult: result => {
+				if ( result.message ) {
+					setMessage( result.message );
+				}
+			},
+		},
+	} );
+
+	return [ message, action ] as const;
 }

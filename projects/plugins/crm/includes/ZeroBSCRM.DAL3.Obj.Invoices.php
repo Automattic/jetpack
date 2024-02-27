@@ -182,8 +182,32 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
         #} =========== / LOAD ARGS =============
 
 			$this->events_manager = new Events_Manager();
+
+			add_filter( 'jpcrm_listview_filters', array( $this, 'add_listview_filters' ) );
     }
 
+		/**
+		 * Adds items to listview filter using `jpcrm_listview_filters` hook.
+		 *
+		 * @param array $listview_filters Listview filters.
+		 */
+		public function add_listview_filters( $listview_filters ) {
+			global $zbs;
+			// Add statuses if enabled.
+			if ( $zbs->settings->get( 'filtersfromstatus' ) === 1 ) {
+				$statuses = array(
+					'draft'   => __( 'Draft', 'zero-bs-crm' ),
+					'unpaid'  => __( 'Unpaid', 'zero-bs-crm' ),
+					'paid'    => __( 'Paid', 'zero-bs-crm' ),
+					'overdue' => __( 'Overdue', 'zero-bs-crm' ),
+					'deleted' => __( 'Deleted', 'zero-bs-crm' ),
+				);
+				foreach ( $statuses as $status_slug => $status_label ) {
+					$listview_filters[ ZBS_TYPE_INVOICE ]['status'][ 'status_' . $status_slug ] = $status_label;
+				}
+			}
+			return $listview_filters;
+		}
 
     // ===============================================================================
     // ===========   INVOICE  =======================================================

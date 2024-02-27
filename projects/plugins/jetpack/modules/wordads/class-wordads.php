@@ -19,6 +19,7 @@ require_once WORDADS_ROOT . '/php/class-wordads-api.php';
 require_once WORDADS_ROOT . '/php/class-wordads-cron.php';
 require_once WORDADS_ROOT . '/php/class-wordads-california-privacy.php';
 require_once WORDADS_ROOT . '/php/class-wordads-ccpa-do-not-sell-link-widget.php';
+require_once WORDADS_ROOT . '/php/class-wordads-consent-management-provider.php';
 
 /**
  * Primary WordAds class.
@@ -179,6 +180,7 @@ class WordAds {
 
 		if ( is_admin() ) {
 			WordAds_California_Privacy::init_ajax_actions();
+			WordAds_Consent_Management_Provider::init_ajax_actions();
 		}
 	}
 
@@ -205,6 +207,11 @@ class WordAds {
 		// Include California Privacy Act related features if enabled.
 		if ( $this->params->options['wordads_ccpa_enabled'] ) {
 			WordAds_California_Privacy::init();
+		}
+
+		// Initialize CMP  if enabled.
+		if ( isset( $this->params->options['wordads_cmp_enabled'] ) && $this->params->options['wordads_cmp_enabled'] ) {
+			WordAds_Consent_Management_Provider::init();
 		}
 
 		if ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
@@ -363,7 +370,7 @@ class WordAds {
 		$is_logged_in = is_user_logged_in() ? '1' : '0';
 		?>
 		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
-			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', uloggedin: <?php echo esc_js( $is_logged_in ); ?>, amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?>, ad: { label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' }, reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' } } };
+			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', uloggedin: <?php echo esc_js( $is_logged_in ); ?>, amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?>, ad: { label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' }, reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' }, privacySettings: { text: '<?php echo esc_js( __( 'Privacy', 'jetpack' ) ); ?>', onClick: function() { window.__tcfapi && window.__tcfapi('showUi'); } } } };
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
@@ -742,6 +749,7 @@ JS;
 						},
 						privacySettings: {
 							text: '{$privacy_settings_text}',
+							onClick: function() { window.__tcfapi && window.__tcfapi('showUi'); },
 						}
 					}
 				});

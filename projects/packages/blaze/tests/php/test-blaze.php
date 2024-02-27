@@ -138,23 +138,6 @@ class Test_Blaze extends BaseTestCase {
 	}
 
 	/**
-	 * Tests whether Post row actions can be disabled via a filter.
-	 *
-	 * @covers Automattic\Jetpack\Blaze::add_post_links_actions
-	 */
-	public function test_post_row_removed_filter() {
-		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
-
-		wp_set_current_user( $this->admin_id );
-		add_filter( 'jetpack_blaze_post_row_actions_enable', '__return_false' );
-		add_filter( 'jetpack_blaze_enabled', '__return_true' );
-		Blaze::add_post_links_actions();
-
-		$this->assertFalse( has_action( 'post_row_actions' ) );
-		add_filter( 'jetpack_blaze_enabled', '__return_false' );
-	}
-
-	/**
 	 * Test if the admin menu is added for admins when we force Blaze to be enabled.
 	 *
 	 * @covers Automattic\Jetpack\Blaze::enable_blaze_menu

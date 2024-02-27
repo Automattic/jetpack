@@ -60,17 +60,7 @@ class Blaze {
 	 * @return void
 	 */
 	public static function add_post_links_actions() {
-		if (
-			self::should_initialize()
-			/**
-			 * Allow third-party plugins to disable Blaze row actions.
-			 *
-			 * @since 0.16.0
-			 *
-			 * @param bool $blaze_post_actions_enabled Should Blaze row actions be enabled?
-			 */
-			&& apply_filters( 'jetpack_blaze_post_row_actions_enable', true )
-		) {
+		if ( self::should_initialize() ) {
 			add_filter( 'post_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 			add_filter( 'page_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 		}
@@ -78,15 +68,16 @@ class Blaze {
 
 	/**
 	 * Is the wp-admin Dashboard enabled?
-	 * That dashboard is not available or necessary on WordPress.com sites.
+	 * That dashboard is not available or necessary on WordPress.com sites when the nav redesign is disabled.
 	 *
 	 * @return bool
 	 */
 	public static function is_dashboard_enabled() {
-		$is_dashboard_enabled = true;
+		$is_dashboard_enabled          = true;
+		$wpcom_is_nav_redesign_enabled = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
 
-		// On WordPress.com sites, the dashboard is not needed.
-		if ( ( new Host() )->is_wpcom_platform() ) {
+		// On WordPress.com sites, the dashboard is not needed if the nav redesign is not enabled.
+		if ( ! $wpcom_is_nav_redesign_enabled && ( new Host() )->is_wpcom_platform() ) {
 			$is_dashboard_enabled = false;
 		}
 
@@ -101,12 +92,22 @@ class Blaze {
 	}
 
 	/**
+	 * Is the Woo Blaze plugin active?
+	 * The dashboard provided by that plugin takes precedence over Jetpack Blaze
+	 *
+	 * @return bool
+	 */
+	public static function is_woo_blaze_active() {
+		return is_plugin_active( 'woocommerce/woocommerce.php' ) && is_plugin_active( 'woo-blaze/woo-blaze.php' );
+	}
+
+	/**
 	 * Enable the Blaze menu.
 	 *
 	 * @return void
 	 */
 	public static function enable_blaze_menu() {
-		if ( ! self::should_initialize() ) {
+		if ( ! self::should_initialize() || self::is_woo_blaze_active() ) {
 			return;
 		}
 
@@ -249,17 +250,24 @@ class Blaze {
 	 * - Calypso Links
 	 * - wp-admin Links if access to the wp-admin Blaze Dashboard is enabled.
 	 *
-	 * @param int $post_id Post ID.
+	 * @param int|string $post_id Post ID.
 	 *
 	 * @return array An array with the link, and whether this is a Calypso or a wp-admin link.
 	 */
 	public static function get_campaign_management_url( $post_id ) {
-		if ( self::is_dashboard_enabled() ) {
-			$admin_url = admin_url( 'tools.php?page=advertising' );
+		$is_woo_blaze_active = self::is_woo_blaze_active();
+
+		if ( self::is_dashboard_enabled() || $is_woo_blaze_active ) {
+			// Woo Blaze uses a different admin section and path prefix
+			$admin_section     = $is_woo_blaze_active ? 'admin.php' : 'tools.php';
+			$blaze_path_prefix = $is_woo_blaze_active ? 'wc-blaze' : 'advertising';
+
+			$admin_url = admin_url( sprintf( '%1$s?page=%2$s', $admin_section, $blaze_path_prefix ) );
 			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
 			$blaze_url = sprintf(
-				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',
+				'%1$s#!/%2$s/posts/promote/post-%3$s/%4$s',
 				$admin_url,
+				$blaze_path_prefix,
 				esc_attr( $post_id ),
 				$hostname
 			);
@@ -292,10 +300,21 @@ class Blaze {
 	 * @return array
 	 */
 	public static function jetpack_blaze_row_action( $post_actions, $post ) {
-		$post_id = $post->ID;
+		/**
+		 * Allow third-party plugins to disable Blaze row actions.
+		 *
+		 * @since 0.16.0
+		 *
+		 * @param bool    $are_quick_links_enabled Should Blaze row actions be enabled.
+		 * @param WP_Post $post                    The current post in the post list table.
+		 */
+		$are_quick_links_enabled = apply_filters( 'jetpack_blaze_post_row_actions_enable', true, $post );
 
 		// Bail if we are not looking at one of the supported post types (post, page, or product).
-		if ( ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
+		if (
+			! $are_quick_links_enabled
+			|| ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true )
+		) {
 			return $post_actions;
 		}
 
@@ -309,7 +328,7 @@ class Blaze {
 			return $post_actions;
 		}
 
-		$blaze_url = self::get_campaign_management_url( $post_id );
+		$blaze_url = self::get_campaign_management_url( $post->ID );
 		$text      = __( 'Promote with Blaze', 'jetpack-blaze' );
 		$title     = get_the_title( $post );
 		$label     = sprintf(
@@ -374,9 +393,7 @@ class Blaze {
 			self::SCRIPT_HANDLE,
 			'blazeInitialState',
 			array(
-				'adminUrl'           => esc_url( admin_url() ),
-				'isDashboardEnabled' => self::is_dashboard_enabled(),
-				'siteFragment'       => ( new Jetpack_Status() )->get_site_suffix(),
+				'blazeUrlTemplate' => self::get_campaign_management_url( '__POST_ID__' ),
 			)
 		);
 	}

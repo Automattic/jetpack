@@ -437,11 +437,21 @@ class WPCOM_Stats {
 		if ( $stats_cache ) {
 			$data = reset( $stats_cache );
 
-			if ( is_wp_error( $data ) ) {
+			if (
+				! is_array( $data )
+				|| empty( $data )
+				|| is_wp_error( $data )
+			) {
 				return $data;
 			}
 
-			$time = key( $data );
+			$time  = key( $data );
+			$views = $data[ $time ] ?? null;
+
+			// Bail if data is malformed.
+			if ( ! is_numeric( $time ) || ! is_array( $views ) ) {
+				return $data;
+			}
 
 			/** This filter is already documented in projects/packages/stats/src/class-wpcom-stats.php */
 			$expiration = apply_filters(
@@ -450,7 +460,7 @@ class WPCOM_Stats {
 			);
 
 			if ( ( time() - $time ) < $expiration ) {
-				return array_merge( array( 'cached_at' => $time ), $data[ $time ] );
+				return array_merge( array( 'cached_at' => $time ), $views );
 			}
 		}
 
@@ -481,5 +491,25 @@ class WPCOM_Stats {
 		}
 
 		return json_decode( $response_body, true );
+	}
+
+	/**
+	 * Convert stats array to object after sanity checking the array is valid.
+	 *
+	 * @since 0.11.0
+	 *
+	 * @param  array $stats_array The stats array.
+	 * @return WP_Error|Object|null
+	 */
+	public function convert_stats_array_to_object( $stats_array ) {
+
+		if ( is_wp_error( $stats_array ) ) {
+			return $stats_array;
+		}
+		$encoded_array = wp_json_encode( $stats_array );
+		if ( ! $encoded_array ) {
+			return new WP_Error( 'stats_encoding_error', 'Failed to encode stats array' );
+		}
+		return json_decode( $encoded_array );
 	}
 }

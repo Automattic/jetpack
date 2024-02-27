@@ -2,6 +2,117 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.2-a.9 - 2024-02-26
+### Enhancements
+- Ads Settings: Include option to toggle GDPR Consent Banner [#35205]
+- Blaze: Enable the Dashboard behind the feature flag [#35724]
+- Blog Stats Block: Remove check that prevented testing on WP.com sites. [#35751]
+- Improve SSO send invite hover copy [#35879]
+- Privacy: Add preliminary support for WordAds Consent Management Provider [#35165]
+- Sharing: automatically add the Sharing Buttons block to the single post and page templates on sites using a block-based theme. [#35542]
+- WordAds: Add additional states to US Privacy law opt-out [#35765]
+
+### Improved compatibility
+- General: the plugin is now compatible with the upcoming WordPress release, version 6.5. [#35820]
+
+### Bug fixes
+- Carousel: don't open if no images are found in the gallery. [#35788]
+- Subscribe block: improve disabled placeholder state theme colour compatibility [#35813]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add a button to allow admins to re-send invites [#35833]
+- Add checkbox for opting out of inviting users to WordPress [#35902]
+- Add link to newsletter settings, still under feature flag. [#35825]
+- Add save button to newsletter settings. Still under feature flag. [#35861]
+- Add upgrade message for free tier [#35794]
+- Changed SSO heading tooltip [#35948]
+- Changes newsletter paid subscriber label to nowrap [#35690]
+- Connection flow: remove deprecated files, functions, and images that are not needed anymore now that we do not display connection banners outside of the Jetpack connection screen. [#35873]
+- Connection Screen: make VoiceOver announce lists as such [#35736]
+- Contact Form: deprecate temporary tmp_grunion_allow_editor_view filter. [#35584]
+- ESlint: disable redundant role rule [#35800]
+- Extracted Subscription Welcome Email into its own component [#35774]
+- Fix a bug in showing custom columns in the users table [#35882]
+- Fix spelling error on validation message. [#35909]
+- Google Fonts: Update the implement of print_font_faces as the value of WP_Font_Face_Resolver::get_fonts_from_theme_json may be an indexed array [#35890]
+- Improve SSO invite user error handling [#35850]
+- Interaction on newsletter categories. Work in progress under feature flag. [#35799]
+- Remove Settings > Sharing menu item registered by Publicize, and Likes. [#35810]
+- Remove unstable post editor check in AI Excerpt [#35875]
+- RNMobile: Enable support for editing v5 of the VideoPress block in the Jetpack app. [#35637]
+- Security Monitor: remove link to notifications and add link to wordpress account [#35769]
+- Sharing Block: only hook block on WordPress 6.5+ [#35905]
+- Social: Changed name of the social settings card [#35812]
+- SSO user invitation checkbox css change [#35907]
+- Stats: switch our stats fetching methods to use data conversion method from package. [#35865]
+- Subscriptions: Prevents the HTTP 301 redirection in Paywall block [#35852]
+- Top Posts Block: make available on WordPress.com Simple. [#35866]
+- TreeSelector: Added tree selector component. [#35749]
+- Update SSO users table pending invite icon styling [#35878]
+- Voice to Content: Add hook to handle transcription insertion into the editor. [#35761]
+- Voice to Content: avoid replacing blocks when inserting transcription into editor. [#35790]
+- Voice to Content: Make transcriptions cancelable and link upload button to processing state [#35737]
+- Voice to Content: refactor ActionButtons component to not handle logic on it, relying just on state and events [#35914]
+- Voice to Content: Update oscilloscope component [#35877]
+- WordAds: ensure the new CMP banner can be loaded in production environments. [#35791]
+- Wordpress.com Tools Menu: Update Github Deployments submenu copy [#35759]
+
+## 13.1.3 - 2024-02-20
+### Bug fixes
+- Backup: write helper script to ABSPATH by default to avoid backup failures. [#35508]
+
+## 13.2-a.7 - 2024-02-19
+### Enhancements
+- Added custom message textarea to send a message via email when adding new users [#35277]
+- Add images while publishing on the web via the jetpack app [#35583]
+- Add some extra margin around Stats settings toggles [#35720]
+- Add support for Email stats [#35703]
+- Comment: Add Goodreads embed block in Gutenberg. [#33395]
+- SSO: Add user invite revoke row action in users table [#35277]
+- SSO: improve messaging and account binding between local and wp.com users [#35277]
+- SSO: Updated column heading and row background color when invitation is pending. [#35277]
+- SSO: When creating a new users, mail the users with an invitation to WPCom. [#35277]
+- We added the Welcome Email Message setting to Newsletter settings [#35621]
+
+### Improved compatibility
+- Add 'if_not_modified_since' to the update post endpoints this will help clients fails if the post has been updated since last retrieved [#35526]
+- Add support for WP Super Cache and Boost Cache [#35598]
+
+### Bug fixes
+- Jetpack Google Fonts: Fix some Google fonts aren't displayed correctly on front end [#35706]
+- Scan: ensure the Admin notice resources are always properly loaded. [#35648]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add caching for user invites [#35277]
+- Added price in blaze/posts endpoint [#35066]
+- Add jetpack_newsletters_publishing_default_frequency to Sync [#35672]
+- Adds a standalone mode indicator to the Firewall settings [#34854]
+- Blaze: display post links for products. [#35730]
+- Email notifications: update from "follows" to "subscribes" [#35755]
+- Fix message translation content [#35277]
+- Improve column by renaming and adding icon [#35277]
+- Jetpack AI: Add transcription post-processing example to Voice-to-Content block. [#35734]
+- Jetpack AI: include audio transcription usage example to Voice-to-Content block. [#35691]
+- Jetpack AI Voice to content: Update to modal UI [#35698]
+- Move user customization to seperate file [#35277]
+- Persist user-new.php custom message form field after submission with errors [#35277]
+- Related Posts: remove duplicated HTML attributes [#35686]
+- Rename status column to sso status and add tooltip [#35277]
+- Replace question mark icon [#35277]
+- SSO: revoke invites sent to users upon users deletion [#35277]
+- Trigger user invitation for new users [#35277]
+- update readme [#35671]
+- Update users table ssorow background colors [#35277]
+- Voice to Content: Add states and refactor duration calculation [#35717]
+
+## 13.1.2 - 2024-02-19
+### Security Improvements
+- Like block: fix XSS vulnerability in avatar URL encoding. [#35747]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Jetpack: readme.txt tweaks. [#35727]
+- Jetpack: redirect to the Jetpack page after multisite activation. [#35559]
+
 ## 13.2-a.5 - 2024-02-14
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Adds error messaging to endpoint when connected account for memberships cannot be loaded. [#35564]

@@ -2,92 +2,196 @@
  * External dependencies
  */
 import {
-	AudioDurationDisplay,
-	micIcon,
-	playerPauseIcon,
 	useMediaRecording,
+	useAudioTranscription,
+	UseAudioTranscriptionReturn,
+	useTranscriptionPostProcessing,
+	TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
 } from '@automattic/jetpack-ai-client';
-import { useBlockProps } from '@wordpress/block-editor';
-import { Placeholder, Button } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { ThemeProvider } from '@automattic/jetpack-components';
+import { createBlock } from '@wordpress/blocks';
+import { Button, Modal, Icon } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { external } from '@wordpress/icons';
+/**
+ * Internal dependencies
+ */
+import ActionButtons from './components/action-buttons';
+import AudioStatusPanel from './components/audio-status-panel';
+import useTranscriptionInserter from './hooks/use-transcription-inserter';
 
-function AudioPlayer( { src, state } ) {
-	if ( ! src ) {
-		return null;
-	}
+export default function VoiceToContentEdit( { clientId } ) {
+	const dispatch: {
+		removeBlock: ( id: number ) => void;
+		insertBlock: ( block: object ) => void;
+	} = useDispatch( 'core/block-editor' );
+	const [ transcription, setTranscription ] = useState( null );
 
-	if ( state !== 'inactive' ) {
-		return null;
-	}
+	const destroyBlock = useCallback( () => {
+		// Remove the block from the editor
+		setTimeout( () => {
+			dispatch.removeBlock( clientId );
+		}, 100 );
+	}, [ dispatch, clientId ] );
 
-	return <audio controls src={ src } />; // eslint-disable-line jsx-a11y/media-has-caption
-}
+	const handleClose = () => {
+		destroyBlock();
+	};
 
-export default function VoiceToContentEdit() {
-	const { state, start, pause, stop, resume, url } = useMediaRecording( {
-		onDone: blob => {
-			console.log( 'Blob created: ', blob ); // eslint-disable-line no-console
+	const { upsertTranscription } = useTranscriptionInserter();
+
+	const { processTranscription, cancelTranscriptionProcessing } = useTranscriptionPostProcessing( {
+		feature: 'voice-to-content',
+		onReady: postProcessingResult => {
+			// Insert the content into the editor
+			upsertTranscription( postProcessingResult );
+			handleClose();
+		},
+		onError: error => {
+			// Use the transcription instead for a partial result
+			if ( transcription ) {
+				dispatch.insertBlock( createBlock( 'core/paragraph', { content: transcription } ) );
+			}
+			// eslint-disable-next-line no-console
+			console.log( 'Post-processing error: ', error );
+			handleClose();
+		},
+		onUpdate: currentPostProcessingResult => {
+			/*
+			 * We can upsert partial results because the hook takes care of replacing
+			 * the previous result with the new one.
+			 */
+			upsertTranscription( currentPostProcessingResult );
 		},
 	} );
 
-	const recordingHandler = useCallback( () => {
-		if ( state === 'inactive' ) {
-			start( 1000 ); // stream audio every second
-		} else if ( state === 'recording' ) {
-			pause();
-		} else if ( state === 'paused' ) {
-			resume();
-		}
-	}, [ state, start, pause, resume ] );
+	const onTranscriptionReady = ( content: string ) => {
+		// eslint-disable-next-line no-console
+		console.log( 'Transcription ready: ', content );
+		setTranscription( content );
+		processTranscription( TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT, content );
+	};
 
-	let buttonLabel = __( 'Begin recording', 'jetpack' );
-	if ( state === 'recording' ) {
-		buttonLabel = __( 'Pause recording', 'jetpack' );
-	} else if ( state === 'paused' ) {
-		buttonLabel = __( 'Resume recording', 'jetpack' );
-	}
+	const onTranscriptionError = ( error: string ) => {
+		onError( error );
+	};
 
-	const blockProps = useBlockProps();
+	const { transcribeAudio, cancelTranscription }: UseAudioTranscriptionReturn =
+		useAudioTranscription( {
+			feature: 'voice-to-content',
+			onReady: onTranscriptionReady,
+			onError: onTranscriptionError,
+		} );
+
+	const { state, controls, error, onError, onProcessing, duration, analyser } = useMediaRecording( {
+		onDone: lastBlob => {
+			// When recording is done, set the audio to be transcribed
+			onAudioHandler( lastBlob );
+		},
+	} );
+
+	const onAudioHandler = useCallback(
+		( audio: Blob ) => {
+			if ( audio ) {
+				onProcessing();
+				transcribeAudio( audio );
+			}
+		},
+		[ transcribeAudio, onProcessing ]
+	);
+
+	// Destructure controls
+	const {
+		start: controlStart,
+		pause: controlPause,
+		resume: controlResume,
+		stop: controlStop,
+		reset: controlReset,
+	} = controls;
+
+	const onUploadHandler = useCallback(
+		event => {
+			if ( event.currentTarget.files.length > 0 ) {
+				const file = event.currentTarget.files[ 0 ];
+				onAudioHandler( file );
+			}
+		},
+		[ onAudioHandler ]
+	);
+
+	const onCancelHandler = useCallback( () => {
+		cancelTranscription();
+		cancelTranscriptionProcessing();
+		controlReset();
+	}, [ cancelTranscription, cancelTranscriptionProcessing, controlReset ] );
+
+	const onRecordHandler = useCallback( () => {
+		controlStart( 1000 ); // Stream audio on 1 second intervals
+	}, [ controlStart ] );
+
+	const onPauseHandler = useCallback( () => {
+		controlPause();
+	}, [ controlPause ] );
+
+	const onResumeHandler = useCallback( () => {
+		controlResume();
+	}, [ controlResume ] );
+
+	const onDoneHandler = useCallback( () => {
+		controlStop();
+	}, [ controlStop ] );
+
+	// To avoid a wrong TS warning
+	const iconProps = { className: 'icon' };
 
 	return (
-		<div { ...blockProps }>
-			<Placeholder
-				icon="microphone"
-				label="AI: Voice to content"
-				instructions={ __(
-					'Transform your spoken words into publish-ready content with AI.',
-					'jetpack'
-				) }
-				className="jetpack-ai-voice-to-content"
-			>
-				<div className="jetpack-ai-voice-to-content__player">
-					<strong>
-						<AudioDurationDisplay url={ url } />
-					</strong>
-					<AudioPlayer state={ state } src={ url } />
+		<Modal
+			onRequestClose={ handleClose }
+			title={ __( 'Jetpack AI Voice to content', 'jetpack' ) }
+			className="jetpack-ai-voice-to-content__modal"
+		>
+			<ThemeProvider>
+				<div className="jetpack-ai-voice-to-content__wrapper">
+					<div className="jetpack-ai-voice-to-content__body">
+						<span className="jetpack-ai-voice-to-content__description">
+							{ __(
+								'Transform your spoken words into a post ready to publish with AI.',
+								'jetpack'
+							) }
+						</span>
+						<div className="jetpack-ai-voice-to-content__contextual-row">
+							<AudioStatusPanel
+								state={ state }
+								error={ error }
+								duration={ duration }
+								analyser={ analyser }
+							/>
+						</div>
+						<ActionButtons
+							state={ state }
+							onUpload={ onUploadHandler }
+							onCancel={ onCancelHandler }
+							onRecord={ onRecordHandler }
+							onPause={ onPauseHandler }
+							onResume={ onResumeHandler }
+							onDone={ onDoneHandler }
+						/>
+					</div>
+					<div className="jetpack-ai-voice-to-content__footer">
+						<Button
+							variant="link"
+							className="jetpack-ai-voice-to-content__feedback-button"
+							href="https://a8c.slack.com/archives/C054LN8RNVA" // Jetpack AI Slack channel
+							target="_blank"
+						>
+							<span>{ __( 'Provide feedback', 'jetpack' ) }</span>
+							<Icon icon={ external } { ...iconProps } />
+						</Button>
+					</div>
 				</div>
-
-				<div className="jetpack-ai-voice-to-content__recorder">
-					<Button
-						className="jetpack-ai-voice-to-content__record-button"
-						icon={ state === 'recording' ? playerPauseIcon : micIcon }
-						iconPosition="right"
-						variant="primary"
-						onClick={ recordingHandler }
-					>
-						{ buttonLabel }
-					</Button>
-					<Button
-						className="jetpack-ai-voice-to-content__done-button"
-						variant="primary"
-						onClick={ stop }
-						disabled={ state === 'inactive' }
-					>
-						{ __( 'Done', 'jetpack' ) }
-					</Button>
-				</div>
-			</Placeholder>
-		</div>
+			</ThemeProvider>
+		</Modal>
 	);
 }

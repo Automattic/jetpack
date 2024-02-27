@@ -213,6 +213,35 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * Test Waf_Request::get_basename()
+	 */
+	public function testGetBasename() {
+		$_SERVER['REQUEST_URI'] = 'https://wordpress.com/some/file?test';
+		$request                = new Waf_Request();
+		$this->assertSame( 'file', $request->get_basename() );
+		// test with a root path request
+		$_SERVER['REQUEST_URI'] = 'https://wordpress.com/';
+		$request                = new Waf_Request();
+		$this->assertSame( '', $request->get_basename() );
+		// test with a relative root path request
+		$_SERVER['REQUEST_URI'] = '/';
+		$request                = new Waf_Request();
+		$this->assertSame( '', $request->get_basename() );
+		// test with encoded characters
+		$_SERVER['REQUEST_URI'] = 'https://wordpress.com/some/filé.php?test';
+		$request                = new Waf_Request();
+		$this->assertSame( 'filé.php', $request->get_basename() );
+		// test with trailing slash
+		$_SERVER['REQUEST_URI'] = 'https://wordpress.com/some/file/?test';
+		$request                = new Waf_Request();
+		$this->assertSame( 'file', $request->get_basename() );
+		// test with single period
+		$_SERVER['REQUEST_URI'] = 'https://wordpress.com/.';
+		$request                = new Waf_Request();
+		$this->assertSame( '.', $request->get_basename() );
+	}
+
+	/**
 	 * Test Waf_Request::get_query_string()
 	 */
 	public function testGetQueryString() {
