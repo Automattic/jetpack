@@ -76,7 +76,7 @@ class Boost_Cache {
 		 *
 		 * @param string $url - The URL to delete the cache for.
 		 */
-		add_action( 'clear_page_cache_url', array( $this, 'delete_cache_for_url' ) );
+		add_action( 'jetpack_boost_clear_page_cache_url', array( $this, 'delete_cache_for_url' ) );
 
 		/**
 		 * Delete cache for a specific post.
