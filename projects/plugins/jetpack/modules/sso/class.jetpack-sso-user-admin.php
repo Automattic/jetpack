@@ -77,12 +77,11 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		public function revoke_user_invite( $user_id ) {
 			try {
 				$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
+
 				if ( $has_pending_invite ) {
+					$response = self::send_revoke_wpcom_invite( $has_pending_invite );
 
-					$response    = self::revoke_wpcom_invite( $has_pending_invite );
-					$status_code = wp_remote_retrieve_response_code( $response );
-
-					if ( is_wp_error( $response ) && ( ! empty( $status_code ) && 200 !== $status_code ) ) {
+					if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 						self::$tracking->record_user_event(
 							'sso_user_invite_revoke',
 							array(
@@ -93,7 +92,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						return $response;
 					}
 
-					if ( ! $response->deleted ) {
+					$body = json_decode( $response['body'] );
+
+					if ( ! $body->deleted ) {
 						self::$tracking->record_user_event(
 							'sso_user_invite_revoke',
 							array(
@@ -295,11 +296,11 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 *
 		 * @param string $invite_id The ID of the invite to revoke.
 		 */
-		public function revoke_wpcom_invite( $invite_id ) {
+		public function send_revoke_wpcom_invite( $invite_id ) {
 			$blog_id = Jetpack_Options::get_option( 'id' );
 
-			$url      = '/sites/' . $blog_id . '/invites/delete';
-			$response = Client::wpcom_json_api_request_as_user(
+			$url = '/sites/' . $blog_id . '/invites/delete';
+			return Client::wpcom_json_api_request_as_user(
 				$url,
 				'v2',
 				array(
@@ -309,16 +310,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'invite_ids' => array( $invite_id ),
 				),
 				'wpcom'
-			);
-
-			$status_code = wp_remote_retrieve_response_code( $response );
-			if ( is_wp_error( $response ) || 200 !== $status_code ) {
-				return $response;
-			}
-
-			return array(
-				'body'        => json_decode( $response['body'] ),
-				'status_code' => json_decode( $status_code ),
 			);
 		}
 
@@ -384,11 +375,9 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				}
 
 				$invite_id = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
-				$response  = self::revoke_wpcom_invite( $invite_id );
+				$response  = self::send_revoke_wpcom_invite( $invite_id );
 
-				$status_code = wp_remote_retrieve_response_code( $response );
-
-				if ( is_wp_error( $response ) || ( ! empty( $status_code ) && 200 !== $status_code ) ) {
+				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 					$error        = 'invalid-revoke-api-error';
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
@@ -405,7 +394,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					return self::create_error_notice_and_redirect( $query_params );
 				}
 
-				$body         = $response['body'];
+				$body         = json_decode( $response['body'] );
 				$query_params = array(
 					'jetpack-sso-invite-user' => $body->deleted ? 'successful-revoke' : 'failed',
 					'_wpnonce'                => $nonce,
