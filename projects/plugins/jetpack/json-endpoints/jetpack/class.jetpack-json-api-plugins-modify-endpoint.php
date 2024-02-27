@@ -171,7 +171,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 		$args = $this->input();
 
-		if ( is_array( $args ) && ( isset( $args['autoupdate'] ) || isset( $args['autoupdate_translations'] ) || isset( $args['is_scheduled_update'] ) ) ) {
+		if ( is_array( $args ) && ( isset( $args['autoupdate'] ) || isset( $args['autoupdate_translations'] ) ) ) {
 			$this->needed_capabilities = 'update_plugins';
 		}
 
