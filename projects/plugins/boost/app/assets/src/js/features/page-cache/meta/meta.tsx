@@ -114,7 +114,9 @@ const Meta = () => {
 								{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
 							</label>
 							{ logging && (
-								<Link to="/cache-debug-log">{ __( 'See Logs', 'jetpack-boost' ) }</Link>
+								<Link className={ styles[ 'see-logs-link' ] } to="/cache-debug-log">
+									{ __( 'See Logs', 'jetpack-boost' ) }
+								</Link>
 							) }
 							<div className={ styles.clearfix } />
 						</div>
