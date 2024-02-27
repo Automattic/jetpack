@@ -54,7 +54,10 @@ class Jetpack_Subscription_Site {
 		 *
 		 * @param bool $enabled Whether to enable the Subscription Site feature or not. Default false.
 		 */
-		return (bool) apply_filters( 'jetpack_subscription_site_enabled', false );
+		$subscription_site_enabled = (bool) apply_filters( 'jetpack_subscription_site_enabled', false );
+
+		global $wp_version;
+		return $subscription_site_enabled && version_compare( $wp_version, '6.5-beta2', '>=' );
 	}
 
 	/**
