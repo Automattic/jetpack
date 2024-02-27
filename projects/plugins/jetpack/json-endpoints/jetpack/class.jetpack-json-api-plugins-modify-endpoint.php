@@ -187,7 +187,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		$args = $this->input();
 
 		if ( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) ) {
-			if ( $args['autoupdate'] && ! $this->is_scheduled_update ) {
+			if ( $args['autoupdate'] ) {
 				$this->autoupdate_on();
 			} else {
 				$this->autoupdate_off();
