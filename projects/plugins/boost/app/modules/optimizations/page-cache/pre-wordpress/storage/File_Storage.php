@@ -53,8 +53,21 @@ class File_Storage implements Storage {
 		$hash_path = $directory . $filename;
 
 		if ( file_exists( $hash_path ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
-			return file_get_contents( $hash_path );
+			$filemtime = filemtime( $hash_path );
+			$expired   = ( $filemtime + JETPACK_BOOST_CACHE_DURATION ) <= time();
+
+			// If file exists and is not expired, return the file contents.
+			if ( ! $expired ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
+				return file_get_contents( $hash_path );
+			}
+
+			// If file exists but is expired, delete it.
+			if ( Filesystem_Utils::delete_file( $hash_path ) ) {
+				Logger::debug( "Deleted expired file: $hash_path" );
+			} else {
+				Logger::debug( "Could not delete expired file: $hash_path" );
+			}
 		}
 
 		return false;
