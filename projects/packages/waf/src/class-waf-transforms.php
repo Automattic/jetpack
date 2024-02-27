@@ -12,6 +12,14 @@ namespace Automattic\Jetpack\Waf;
  */
 class Waf_Transforms {
 	/**
+	 * Characters to match when trimming a string.
+	 * Emulates `std::isspace` used by ModSecurity.
+	 *
+	 * @see https://en.cppreference.com/w/cpp/string/byte/isspace
+	 */
+	const TRIM_CHARS = " \n\r\t\v\f";
+
+	/**
 	 * Decode a Base64-encoded string.
 	 *
 	 * @param string $value value to be decoded.
@@ -307,7 +315,7 @@ class Waf_Transforms {
 	 * @return string
 	 */
 	public function trim_left( $value ) {
-		return ltrim( $value );
+		return ltrim( $value, self::TRIM_CHARS );
 	}
 
 	/**
@@ -317,7 +325,7 @@ class Waf_Transforms {
 	 * @return string
 	 */
 	public function trim_right( $value ) {
-		return rtrim( $value );
+		return rtrim( $value, self::TRIM_CHARS );
 	}
 
 	/**
@@ -327,7 +335,7 @@ class Waf_Transforms {
 	 * @return string
 	 */
 	public function trim( $value ) {
-		return trim( $value );
+		return trim( $value, self::TRIM_CHARS );
 	}
 
 	/**

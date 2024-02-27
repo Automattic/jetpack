@@ -2,9 +2,6 @@
  * External dependencies
  */
 import {
-	AudioDurationDisplay,
-	micIcon,
-	playerPauseIcon,
 	useMediaRecording,
 	useAudioTranscription,
 	UseAudioTranscriptionReturn,
@@ -13,7 +10,7 @@ import {
 } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { createBlock } from '@wordpress/blocks';
-import { Button, Modal, Icon, FormFileUpload } from '@wordpress/components';
+import { Button, Modal, Icon } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -21,165 +18,16 @@ import { external } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import Oscilloscope from './components/oscilloscope';
+import ActionButtons from './components/action-buttons';
+import AudioStatusPanel from './components/audio-status-panel';
 import useTranscriptionInserter from './hooks/use-transcription-inserter';
-/**
- * Types
- */
-import type { CancelablePromise, RecordingState } from '@automattic/jetpack-ai-client';
-
-function AudioStatusPanel( {
-	state,
-	error = null,
-	analyser,
-	duration = 0,
-}: {
-	state: RecordingState;
-	error: string;
-	analyser: AnalyserNode;
-	duration: number;
-} ) {
-	if ( state === 'inactive' ) {
-		return (
-			<div className="jetpack-ai-voice-to-content__information">
-				{ __( 'File size limit: 25MB. Recording time limit: 25 minutes.', 'jetpack' ) }
-			</div>
-		);
-	}
-
-	if ( state === 'recording' ) {
-		return (
-			<div className="jetpack-ai-voice-to-content__audio">
-				<AudioDurationDisplay
-					className="jetpack-ai-voice-to-content__audio--duration"
-					duration={ duration }
-				/>
-				<Oscilloscope analyser={ analyser } paused={ false } />
-				<span className="jetpack-ai-voice-to-content__information">
-					{ __( 'Recording…', 'jetpack' ) }
-				</span>
-			</div>
-		);
-	}
-
-	if ( state === 'paused' ) {
-		return (
-			<div className="jetpack-ai-voice-to-content__audio">
-				<AudioDurationDisplay
-					className="jetpack-ai-voice-to-content__audio--duration"
-					duration={ duration }
-				/>
-				<Oscilloscope analyser={ analyser } paused={ true } />
-				<span className="jetpack-ai-voice-to-content__information">
-					{ __( 'Paused', 'jetpack' ) }
-				</span>
-			</div>
-		);
-	}
-
-	if ( state === 'processing' ) {
-		return (
-			<div className="jetpack-ai-voice-to-content__information">
-				{ __( 'Uploading and transcribing audio…', 'jetpack' ) }
-			</div>
-		);
-	}
-
-	if ( state === 'error' ) {
-		return <div className="jetpack-ai-voice-to-content__information--error">{ error }</div>;
-	}
-
-	return null;
-}
-
-function ActionButtons( { state, mediaControls, onUpload, onCancelRecording } ) {
-	const { start, pause, resume, stop, reset } = mediaControls ?? {};
-	const cancelUpload = useRef( () => {} );
-
-	const recordingHandler = useCallback( () => {
-		if ( [ 'inactive', 'error' ].includes( state ) ) {
-			start?.( 1000 ); // Stream audio on 1 second intervals
-		} else if ( state === 'recording' ) {
-			pause?.();
-		} else if ( state === 'paused' ) {
-			resume?.();
-		}
-	}, [ state, start, pause, resume ] );
-
-	const doneHandler = useCallback( () => {
-		stop?.();
-	}, [ stop ] );
-
-	const cancelHandler = () => {
-		cancelUpload.current?.();
-		onCancelRecording?.();
-		reset?.();
-	};
-
-	const handleUpload = event => {
-		const transcriptionProcess: CancelablePromise = onUpload( event );
-		cancelUpload.current = () => {
-			transcriptionProcess.canceled = true;
-		};
-	};
-
-	let buttonLabel = __( 'Begin recording', 'jetpack' );
-	if ( state === 'recording' ) {
-		buttonLabel = __( 'Pause recording', 'jetpack' );
-	} else if ( state === 'paused' ) {
-		buttonLabel = __( 'Resume recording', 'jetpack' );
-	}
-
-	return (
-		<div className="jetpack-ai-voice-to-content__action-buttons">
-			{ [ 'inactive', 'recording', 'paused', 'error' ].includes( state ) && (
-				<Button
-					className="jetpack-ai-voice-to-content__button"
-					icon={ state === 'recording' ? playerPauseIcon : micIcon }
-					variant="secondary"
-					onClick={ recordingHandler }
-				>
-					{ buttonLabel }
-				</Button>
-			) }
-			{ [ 'inactive', 'error' ].includes( state ) && (
-				<FormFileUpload
-					accept="audio/*"
-					onChange={ handleUpload }
-					variant="secondary"
-					className="jetpack-ai-voice-to-content__button"
-				>
-					{ __( 'Upload audio', 'jetpack' ) }
-				</FormFileUpload>
-			) }
-			{ [ 'recording', 'paused' ].includes( state ) && (
-				<Button
-					className="jetpack-ai-voice-to-content__button"
-					variant="primary"
-					onClick={ doneHandler }
-				>
-					{ __( 'Done', 'jetpack' ) }
-				</Button>
-			) }
-			{ [ 'recording', 'paused', 'processing' ].includes( state ) && (
-				<Button
-					className="jetpack-ai-voice-to-content__button"
-					variant="secondary"
-					onClick={ cancelHandler }
-				>
-					{ __( 'Cancel', 'jetpack' ) }
-				</Button>
-			) }
-		</div>
-	);
-}
 
 export default function VoiceToContentEdit( { clientId } ) {
 	const dispatch: {
 		removeBlock: ( id: number ) => void;
 		insertBlock: ( block: object ) => void;
 	} = useDispatch( 'core/block-editor' );
-	const cancelRecording = useRef( () => {} );
+	const cancelTranscription = useRef( () => {} );
 	const [ transcription, setTranscription ] = useState( null );
 
 	const destroyBlock = useCallback( () => {
@@ -240,19 +88,55 @@ export default function VoiceToContentEdit( { clientId } ) {
 	const { state, controls, error, onError, onProcessing, duration, analyser } = useMediaRecording( {
 		onDone: lastBlob => {
 			const promise = transcribeAudio( lastBlob );
-			cancelRecording.current = () => {
+			cancelTranscription.current = () => {
 				promise.canceled = true;
 			};
 		},
 	} );
 
-	const uploadHandler = event => {
-		if ( event.currentTarget.files.length > 0 ) {
-			onProcessing();
-			const file = event.currentTarget.files[ 0 ];
-			return transcribeAudio( file );
-		}
-	};
+	// Destructure controls
+	const {
+		start: controlStart,
+		pause: controlPause,
+		resume: controlResume,
+		stop: controlStop,
+		reset: controlReset,
+	} = controls;
+
+	const onUploadHandler = useCallback(
+		event => {
+			if ( event.currentTarget.files.length > 0 ) {
+				onProcessing();
+				const file = event.currentTarget.files[ 0 ];
+				const promise = transcribeAudio( file );
+				cancelTranscription.current = () => {
+					promise.canceled = true;
+				};
+			}
+		},
+		[ onProcessing, transcribeAudio ]
+	);
+
+	const onCancelHandler = useCallback( () => {
+		cancelTranscription.current?.();
+		controlReset();
+	}, [ controlReset ] );
+
+	const onRecordHandler = useCallback( () => {
+		controlStart( 1000 ); // Stream audio on 1 second intervals
+	}, [ controlStart ] );
+
+	const onPauseHandler = useCallback( () => {
+		controlPause();
+	}, [ controlPause ] );
+
+	const onResumeHandler = useCallback( () => {
+		controlResume();
+	}, [ controlResume ] );
+
+	const onDoneHandler = useCallback( () => {
+		controlStop();
+	}, [ controlStop ] );
 
 	// To avoid a wrong TS warning
 	const iconProps = { className: 'icon' };
@@ -282,9 +166,12 @@ export default function VoiceToContentEdit( { clientId } ) {
 						</div>
 						<ActionButtons
 							state={ state }
-							mediaControls={ controls }
-							onUpload={ uploadHandler }
-							onCancelRecording={ cancelRecording.current }
+							onUpload={ onUploadHandler }
+							onCancel={ onCancelHandler }
+							onRecord={ onRecordHandler }
+							onPause={ onPauseHandler }
+							onResume={ onResumeHandler }
+							onDone={ onDoneHandler }
 						/>
 					</div>
 					<div className="jetpack-ai-voice-to-content__footer">

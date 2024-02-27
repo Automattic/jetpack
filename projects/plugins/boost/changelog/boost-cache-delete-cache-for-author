@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Boost: delete cached Author pages when pages are edited

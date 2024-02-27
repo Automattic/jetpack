@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Changed list of characters matched for WAF trim operators.
+
+
