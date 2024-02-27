@@ -58,16 +58,23 @@ export const MutationNotice = ( {
 	const { setNotice, removeNotice } = useNotices();
 
 	useEffect( () => {
+		let timeout: number;
 		if ( isPending && ! isSuccess ) {
 			setNotice( { id: mutationId, type: 'pending', message: savingMessage } );
 		} else if ( isSuccess ) {
 			setNotice( { id: mutationId, type: 'success', message: successMessage } );
+			timeout = setTimeout( () => {
+				removeNotice( mutationId );
+			}, 5000 );
 		} else if ( isError ) {
 			setNotice( { id: mutationId, type: 'error', message: errorMessage } );
 		}
 
 		// Cleanup function to remove notice when the component unmounts or if the mutationId changes
-		return () => removeNotice( mutationId );
+		return () => {
+			clearTimeout( timeout );
+			removeNotice( mutationId );
+		};
 	}, [
 		setNotice,
 		removeNotice,
