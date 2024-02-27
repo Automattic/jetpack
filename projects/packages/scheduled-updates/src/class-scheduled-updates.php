@@ -50,7 +50,7 @@ class Scheduled_Updates {
 	 *
 	 * @param string ...$plugins List of plugins to update.
 	 */
-	public static function run_scheduled_update( ...$plugins ) {
+	public static function jetpack_run_scheduled_update( ...$plugins ) {
 		$available_updates = get_site_transient( 'update_plugins' );
 		$plugins_to_update = array();
 
@@ -79,7 +79,7 @@ class Scheduled_Updates {
 	 * @param object    $item   The update offer.
 	 * @return bool
 	 */
-	public static function allowlist_scheduled_plugins( $update, $item ) {
+	public static function jetpack_allowlist_scheduled_plugins( $update, $item ) {
 		// TODO: Check if we're in a scheduled update request from Jetpack_Autoupdates.
 		$schedules = get_option( 'jetpack_update_schedules', array() );
 
@@ -169,26 +169,5 @@ class Scheduled_Updates {
 		}
 
 		return $plugin_list;
-	}
-
-	/**
-	 * Allow plugins that are part of scheduled updates to be updated automatically.
-	 *
-	 * @param bool|null $update Whether to update. The value of null is internally used
-	 *                          to detect whether nothing has hooked into this filter.
-	 * @param object    $item   The update offer.
-	 * @return bool
-	 */
-	public static function jetpack_allowlist_scheduled_plugins( $update, $item ) {
-		// TODO: Check if we're in a scheduled update request from Jetpack_Autoupdates.
-		$schedules = get_option( 'jetpack_update_schedules', array() );
-
-		foreach ( $schedules as $plugins ) {
-			if ( in_array( $item->slug, $plugins, true ) ) {
-				return true;
-			}
-		}
-
-		return $update;
 	}
 }
