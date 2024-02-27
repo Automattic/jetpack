@@ -181,13 +181,12 @@ class Woo_Sync_Contact_Tabs {
 	 */
 	private function generate_subscriptions_tab_html( $object_id = -1 ) {
 
-		$contact_has_subscriptions = false;
+		$subscriptions = array();
 		if ( zeroBSCRM_getClientPortalUserID( $object_id ) > 0 ) {
 			// Retrieve any subs against the main email or aliases.
-			$subscriptions             = $this->get_contact_subscriptions( $object_id );
-			$contact_has_subscriptions = ( 'success' === $subscriptions['message'] && count( $subscriptions['data'] ) > 0 );
+			$subscriptions = $this->get_contact_subscriptions( $object_id );
 		}
-		if ( ! $contact_has_subscriptions ) {
+		if ( count( $subscriptions ) === 0 ) {
 			return '<div class="ui message info blue"><i class="ui icon info circle"></i>' . __( 'This contact does not have any WooCommerce Subscriptions yet.', 'zero-bs-crm' ) . '</div>';
 		}
 
@@ -203,7 +202,7 @@ class Woo_Sync_Contact_Tabs {
 		$html .= '</tr></thead>';
 		$html .= '<tbody>';
 
-		foreach ( $subscriptions['data'] as $order_id ) {
+		foreach ( $subscriptions as $order_id ) {
 			$order        = wc_get_order( $order_id );
 			$status       = $order->get_status();
 			$date_created = $order->get_date_created();
@@ -360,7 +359,7 @@ class Woo_Sync_Contact_Tabs {
 	 */
 	private function get_contact_subscriptions( $object_id = -1 ) {
 
-		$return = array();
+		$subscription_ids = array();
 
 		if ( $object_id > 0 ) {
 
@@ -397,14 +396,8 @@ class Woo_Sync_Contact_Tabs {
 
 			// 3 - remove any duplicate IDs between array_1 and array_2
 			$subscription_ids = array_unique( array_merge( $subscription_ids_by_user, $subscription_ids_by_email ), SORT_REGULAR );
-
-			// 4 - get the subscriptions from the combined IDs
-			$return = array(
-				'data'    => $subscription_ids,
-				'message' => count( $subscription_ids ) > 0 ? 'success' : 'notfound',
-			);
 		}
 
-		return $return;
+		return $subscription_ids;
 	}
 }
