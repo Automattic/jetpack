@@ -6,6 +6,7 @@ import {
 } from '@automattic/jetpack-react-data-sync-client';
 import { useState } from 'react';
 import { z } from 'zod';
+import { __ } from '@wordpress/i18n';
 
 export const PageCacheError = z
 	.object( {
@@ -54,7 +55,7 @@ export function usePageCacheSetup() {
 				const standardizedError = standardizeError( error );
 				setError( {
 					code: 'unknown_error',
-					message: standardizedError.message || 'Unknown error occurred.',
+					message: standardizedError.message || __( 'Unknown error occurred.', 'jetpack-boost' ),
 				} );
 			},
 			onSuccess: () => {
