@@ -27,7 +27,7 @@ class Logger {
 	/**
 	 * The Process Identifier used by this Logger instance.
 	 */
-	private static $pid = null;
+	private $pid = null;
 
 	/**
 	 * Get the singleton instance of the logger.
