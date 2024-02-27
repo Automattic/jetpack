@@ -51,6 +51,12 @@ class Woo_Sync_Woo_Admin_Integration {
 	 * Initialise Hooks
 	 */
 	private function init_hooks() {
+		global $zbs;
+
+		// Abort if Woo isn't active.
+		if ( ! $zbs->woocommerce_is_active() ) {
+			return;
+		}
 
 		// Hook into Woo orders listview.
 		if ( jpcrm_woosync_is_hpos_enabled() ) {
