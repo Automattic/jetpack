@@ -358,7 +358,7 @@ jetpack_boost_register_option(
 			->nullable()
 );
 
-jetpack_boost_register_action( 'page_cache', 'run-setup', Schema::as_void(), new Run_Setup() );
+jetpack_boost_register_action( 'page_cache_error', 'run-setup', Schema::as_void(), new Run_Setup() );
 
 jetpack_boost_register_option(
 	'page_cache',
