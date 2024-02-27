@@ -25,13 +25,12 @@ add_filter( 'jetpack_show_wpcom_github_deployments_menu', 'wpcomsh_should_show_w
  */
 function request_github_deployments_available() {
 	$wpcom_blog_id = Jetpack_Options::get_option( 'id' );
-	$endpoint      = "/sites/{$wpcom_blog_id}/hosting/github/available";
-
-	$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+	$endpoint      = '/hosting/github/available';
+	$response      = Jetpack_Client::wpcom_json_api_request_as_blog(
 		$endpoint,
 		'v2',
 		array( 'method' => 'GET' ),
-		null,
+		array( 'blog_id' => $wpcom_blog_id ),
 		'wpcom'
 	);
 
