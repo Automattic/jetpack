@@ -280,6 +280,7 @@ class Boost_Cache {
 		$this->delete_cache_for_post( $post );
 		$this->delete_cache_for_post_terms( $post );
 		$this->delete_cache_for_front_page();
+		$this->delete_cache_for_author( $post->post_author );
 	}
 
 	/**
@@ -294,6 +295,7 @@ class Boost_Cache {
 			$this->delete_cache_for_post( $post );
 			$this->delete_cache_for_post_terms( $post );
 			$this->delete_cache_for_front_page();
+			$this->delete_cache_for_author( $post->post_author );
 		}
 	}
 
@@ -348,6 +350,22 @@ class Boost_Cache {
 				$this->delete_cache_for_url( $link );
 			}
 		}
+	}
+
+	/**
+	 * Delete the entire cache for the author's archive page.
+	 *
+	 * @param int $author_id - The id of the author.
+	 * @return bool|WP_Error - True if the cache was deleted, WP_Error otherwise.
+	 */
+	public function delete_cache_for_author( $author_id ) {
+		$author = get_userdata( $author_id );
+		if ( ! $author ) {
+			return;
+		}
+
+		$author_link = get_author_posts_url( $author_id, $author->user_nicename );
+		return $this->delete_cache_for_url( $author_link );
 	}
 
 	/**
