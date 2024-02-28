@@ -99,11 +99,22 @@ class Logger {
 	 * @param string $message - The message to write to the log file.
 	 */
 	public function log( $message ) {
-		$request     = Request::current();
-		$request_uri = htmlspecialchars( $request->get_uri(), ENT_QUOTES, 'UTF-8' );
-		$line        = gmdate( 'H:i:s' ) . " {$this->pid}\t{$request_uri}\t\t{$message}" . PHP_EOL;
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$request_uri = htmlspecialchars( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '<unknown request uri>', ENT_QUOTES, 'UTF-8' );
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+		$line = json_encode(
+			array(
+				'time' => gmdate( 'Y-m-d H:i:s' ),
+				'pid'  => $this->pid,
+				'uri'  => $request_uri,
+				'msg'  => $message,
+				'uid'  => uniqid(), // Uniquely identify this log line.
+			)
+		);
+
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( $line, 3, $this->get_log_file() );
+		error_log( $line . PHP_EOL, 3, $this->get_log_file() );
 	}
 
 	/**
@@ -126,7 +137,35 @@ class Logger {
 
 		// Get the content after skipping the LOG_HEADER.
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		return file_get_contents( $log_file, false, null, strlen( self::LOG_HEADER ) ) ?? '';
+		$logs  = file_get_contents( $log_file, false, null, strlen( self::LOG_HEADER ) ) ?? '';
+		$logs  = explode( PHP_EOL, $logs );
+		$lines = array();
+
+		foreach ( $logs as $log ) {
+			$line = json_decode( $log, true );
+			if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $line ) ) {
+				continue;
+			}
+
+			// The current log format requires time, pid, uri, and msg.
+			if ( ! isset( $line['time'] ) || ! isset( $line['pid'] ) || ! isset( $line['uri'] ) || ! isset( $line['msg'] ) ) {
+				continue;
+			}
+
+			$info = sprintf(
+				'[%s] [%s] ',
+				$line['time'],
+				$line['pid']
+			);
+
+			$formatted = $info . $line['uri'];
+			// Add msg to the next line offset by the length of the info string.
+			$formatted .= PHP_EOL . str_repeat( ' ', strlen( $info ) ) . $line['msg'];
+
+			$lines[] = $formatted;
+		}
+
+		return implode( PHP_EOL, $lines );
 	}
 
 	/**
