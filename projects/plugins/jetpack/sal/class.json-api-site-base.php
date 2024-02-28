@@ -1557,7 +1557,16 @@ abstract class SAL_Site {
 	 * @return array|null
 	 */
 	public function get_is_commercial_reasons() {
-		return get_option( '_jetpack_site_is_commercial_reason', array() );
+		$reasons = get_option( '_jetpack_site_is_commercial_reason', array() );
+
+		// Add override as reason if blog has the commercial stickers.
+		if ( empty( $reasons ) && $this->is_commercial() ) {
+			return array( 'manual-override' );
+		} elseif ( empty( $reasons ) ) {
+			return array();
+		}
+
+		return $reasons;
 	}
 
 	/**
