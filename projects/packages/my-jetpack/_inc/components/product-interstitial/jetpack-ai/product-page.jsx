@@ -53,9 +53,10 @@ export default function () {
 	const hasUnlimited = currentTier?.value === 1;
 	const isFree = currentTier?.value === 0;
 	const hasPaidTier = ! isFree && ! hasUnlimited;
-	const shouldContactUs = hasPaidTier && ! nextTier;
+	const shouldContactUs = ! hasUnlimited && hasPaidTier && ! nextTier;
 	const freeRequestsLeft = isFree && 20 - allTimeRequests >= 0 ? 20 - allTimeRequests : 0;
-	const showCurrentUsage = hasPaidTier && ! hasUnlimited && ! isFree;
+	const showCurrentUsage = hasPaidTier && ! isFree;
+	const showAllTimeUsage = hasPaidTier || hasUnlimited;
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
 
 	const navigateToPricingTable = useMyJetpackNavigate( '/add-jetpack-ai' );
@@ -113,7 +114,7 @@ export default function () {
 									'jetpack-my-jetpack'
 								) }
 							</div>
-							{ ! hasUnlimited && (
+							{ ! shouldContactUs && (
 								<Button
 									variant="primary"
 									onClick={ upgradeClickHandler }
@@ -123,37 +124,42 @@ export default function () {
 								</Button>
 							) }
 							{ shouldContactUs && (
-								<Button href={ contactHref } onClick={ contactClickHandler }>
+								<Button
+									variant="primary"
+									onClick={ contactClickHandler }
+									href={ contactHref }
+									className={ styles[ 'product-interstitial__hero-cta' ] }
+								>
 									{ __( 'Contact Us', 'jetpack-my-jetpack' ) }
 								</Button>
 							) }
 						</div>
 						<div className={ styles[ 'product-interstitial__hero-side' ] }>
-							{ showCurrentUsage && currentTier?.value && (
-								<>
-									<Card className={ styles[ 'stats-card' ] }>
-										<AiIcon />
-										<div>
-											<div className={ styles[ 'product-interstitial__stats-card-text' ] }>
-												{ __( 'Requests for this month', 'jetpack-my-jetpack' ) }
-											</div>
-											<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
-												{ currentTier.value - usage[ 'requests-count' ] }
-											</div>
+							{ showCurrentUsage && (
+								<Card className={ styles[ 'stats-card' ] }>
+									<AiIcon />
+									<div>
+										<div className={ styles[ 'product-interstitial__stats-card-text' ] }>
+											{ __( 'Requests for this month', 'jetpack-my-jetpack' ) }
 										</div>
-									</Card>
-									<Card className={ styles[ 'stats-card' ] }>
-										<Icon icon={ check } className={ styles[ 'stats-card-icon-check' ] } />
-										<div>
-											<div className={ styles[ 'product-interstitial__stats-card-text' ] }>
-												{ __( 'All-time requests used', 'jetpack-my-jetpack' ) }
-											</div>
-											<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
-												{ allTimeRequests }
-											</div>
+										<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
+											{ currentTier.value - usage[ 'requests-count' ] }
 										</div>
-									</Card>
-								</>
+									</div>
+								</Card>
+							) }
+							{ showAllTimeUsage && (
+								<Card className={ styles[ 'stats-card' ] }>
+									<Icon icon={ check } className={ styles[ 'stats-card-icon-check' ] } />
+									<div>
+										<div className={ styles[ 'product-interstitial__stats-card-text' ] }>
+											{ __( 'All-time requests used', 'jetpack-my-jetpack' ) }
+										</div>
+										<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
+											{ allTimeRequests }
+										</div>
+									</div>
+								</Card>
 							) }
 							{ isFree && (
 								<Card className={ styles[ 'stats-card' ] }>
