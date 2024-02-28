@@ -31,6 +31,7 @@ function wpcom_load_command_palette() {
 	$command_palette_js_handle = 'command-palette-script';
 	$version                   = gmdate( 'Ymd' );
 	$host                      = new Automattic\Jetpack\Status\Host();
+	$jetpack_status            = new Automattic\Jetpack\Status();
 
 	wp_enqueue_script(
 		$command_palette_js_handle,
@@ -48,6 +49,8 @@ function wpcom_load_command_palette() {
 			'isSimple'         => $host->is_wpcom_simple(),
 			'isSelfHosted'     => ! $host->is_wpcom_platform(),
 			'isStaging'        => (bool) get_option( 'wpcom_is_staging_site' ),
+			'isPrivate'        => $jetpack_status->is_private_site(),
+			'isComingSoon'     => $jetpack_status->is_coming_soon(),
 			'capabilities'     => get_userdata( get_current_user_id() )->allcaps,
 			'isP2'             => $is_p2_site,
 			'shouldUseWpAdmin' => 'wp-admin' === get_option( 'wpcom_admin_interface' ),
