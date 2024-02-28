@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: change loading and error state handling on media recording hook.
