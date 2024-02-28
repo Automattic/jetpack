@@ -5,40 +5,40 @@ import useGetProductData from './use-get-product-data';
 import type { ProductSnakeCase } from '../types';
 import type { UseMutateFunction } from '@tanstack/react-query';
 
-const useActivate: ( productId: string ) => {
-	activate: UseMutateFunction;
+const useInstallStandalonePlugin: ( productId: string ) => {
+	install: UseMutateFunction;
 	isPending: boolean;
 } = productId => {
 	const { product, refetch } = useGetProductData( productId );
 
-	const { mutate: activate, isPending } = useSimpleMutation(
-		'activateProduct',
+	const { mutate: install, isPending } = useSimpleMutation(
+		'installPlugin',
 		{
-			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
+			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }/install-standalone`,
 			method: 'POST',
 		},
 		{
-			onSuccess: () =>
-				// Update product data after activation.
+			onSuccess: () => {
 				refetch().then( refetchQueryResult => {
 					const { data: refetchedProduct } = refetchQueryResult;
 
 					window.myJetpackInitialState.products.items[ productId ] =
 						refetchedProduct as ProductSnakeCase;
-				} ),
+				} );
+			},
 		},
 		null,
 		sprintf(
 			// translators: %$1s: Jetpack Product name
-			__( 'Failed to activate %1$s. Please try again', 'jetpack-my-jetpack' ),
+			__( 'Failed to install standalone plugin for %1$s. Please try again', 'jetpack-my-jetpack' ),
 			product.name
 		)
 	);
 
 	return {
-		activate,
+		install,
 		isPending,
 	};
 };
 
-export default useActivate;
+export default useInstallStandalonePlugin;

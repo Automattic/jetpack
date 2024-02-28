@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
@@ -15,11 +15,7 @@ import { STORE_ID } from '../../state/store';
  * @returns {object}         - Site product data.
  */
 export function useProduct( productId ) {
-	const { installStandalonePluginForProduct } = useDispatch( STORE_ID );
-
 	return {
-		installStandalonePlugin: () => installStandalonePluginForProduct( productId ),
-		isFetching: useSelect( select => select( STORE_ID ).isFetching( productId ) ),
 		stats: useSelect( select => select( STORE_ID ).getProductStats( productId ) ),
 	};
 }

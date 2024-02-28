@@ -1,7 +1,5 @@
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
-import { __, sprintf } from '@wordpress/i18n';
-import { REST_API_SITE_DISMISS_BANNER, REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
+import { REST_API_SITE_DISMISS_BANNER } from './constants';
 
 /*
  * Action constants
@@ -87,63 +85,6 @@ function setIsFetchingProduct( productId, isFetching ) {
 }
 
 /**
- * Side effect action that will trigger
- * the standalone plugin installation on the server.
- *
- * @param {string} productId - My Jetpack product ID.
- * @returns {Promise}        - Promise which resolves when the product plugin is installed.
- */
-const installStandalonePluginForProduct = productId => async store => {
-	const { select, dispatch, registry } = store;
-	return await new Promise( ( resolve, reject ) => {
-		// Check valid product.
-		const isValid = select.isValidProduct( productId );
-
-		if ( ! isValid ) {
-			const message = __( 'Invalid product name', 'jetpack-my-jetpack' );
-			const error = new Error( message );
-
-			dispatch( setRequestProductError( productId, error ) );
-			dispatch( setGlobalNotice( message, { status: 'error', isDismissible: true } ) );
-			reject( error );
-			return;
-		}
-
-		/** Processing... */
-		dispatch( setIsFetchingProduct( productId, true ) );
-
-		// Install product standalone plugin.
-		return apiFetch( {
-			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }/install-standalone`,
-			method: 'POST',
-		} )
-			.then( freshProduct => {
-				dispatch( setIsFetchingProduct( productId, false ) );
-				dispatch( setProduct( freshProduct ) );
-				registry.dispatch( CONNECTION_STORE_ID ).refreshConnectedPlugins();
-				resolve( freshProduct?.standalone_plugin_info );
-			} )
-			.catch( error => {
-				const { name } = select.getProduct( productId );
-				const message = sprintf(
-					// translators: %$1s: Jetpack Product name; %$2s: Original error message
-					__(
-						'Failed to install standalone plugin for %1$s: %2$s. Please try again',
-						'jetpack-my-jetpack'
-					),
-					name,
-					error.message
-				);
-
-				dispatch( setIsFetchingProduct( productId, false ) );
-				dispatch( setRequestProductError( productId, error ) );
-				dispatch( setGlobalNotice( message, { status: 'error', isDismissible: true } ) );
-				reject( error );
-			} );
-	} );
-};
-
-/**
  * Request to set the welcome banner as dismissed
  *
  * @returns {Promise} - Promise which resolves when the banner is dismissed.
@@ -175,7 +116,6 @@ const setIsFetchingProductStats = ( productId, isFetching ) => {
 
 const productActions = {
 	setProduct,
-	installStandalonePluginForProduct,
 	setIsFetchingProduct,
 	setRequestProductError,
 	setProductStatus,

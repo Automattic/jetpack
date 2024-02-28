@@ -9,9 +9,9 @@ import { useCallback, useState } from 'react';
  * Internal dependencies
  */
 import useActivate from '../../data/products/use-activate';
+import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
 import useProduct from '../../data/products/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { useProduct as useProductDeprecated } from '../../hooks/use-product';
 import ProductCard from '../product-card';
 
 const ConnectedProductCard = ( {
@@ -27,8 +27,8 @@ const ConnectedProductCard = ( {
 } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
-	const { installStandalonePlugin } = useProductDeprecated( slug );
-	const { activate, isPending } = useActivate( slug );
+	const { install: installStandalonePlugin, isInstalling } = useInstallStandalonePlugin( slug );
+	const { activate, isActivating } = useActivate( slug );
 	const { detail } = useProduct( slug );
 	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
 	const [ installingStandalone, setInstallingStandalone ] = useState( false );
@@ -82,7 +82,7 @@ const ConnectedProductCard = ( {
 			Description={ Description ? Description : DefaultDescription }
 			status={ status }
 			admin={ admin }
-			isFetching={ isPending }
+			isFetching={ isActivating || isInstalling }
 			isDataLoading={ isDataLoading }
 			isInstallingStandalone={ installingStandalone }
 			additionalActions={ additionalActions }
