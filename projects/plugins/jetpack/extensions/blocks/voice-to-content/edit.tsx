@@ -3,16 +3,12 @@
  */
 import {
 	useMediaRecording,
-	useAudioTranscription,
-	UseAudioTranscriptionReturn,
-	useTranscriptionPostProcessing,
 	TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
 } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { createBlock } from '@wordpress/blocks';
 import { Button, Modal, Icon } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useRef } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 /**
@@ -20,14 +16,13 @@ import { external } from '@wordpress/icons';
  */
 import ActionButtons from './components/action-buttons';
 import AudioStatusPanel from './components/audio-status-panel';
+import useTranscriptionCreator from './hooks/use-transcription-creator';
 import useTranscriptionInserter from './hooks/use-transcription-inserter';
 
 export default function VoiceToContentEdit( { clientId } ) {
 	const dispatch: {
 		removeBlock: ( id: number ) => void;
-		insertBlock: ( block: object ) => void;
 	} = useDispatch( 'core/block-editor' );
-	const transcription = useRef( null );
 
 	const destroyBlock = useCallback( () => {
 		// Remove the block from the editor
@@ -41,54 +36,22 @@ export default function VoiceToContentEdit( { clientId } ) {
 	};
 
 	const { upsertTranscription } = useTranscriptionInserter();
-
-	const { processTranscription, cancelTranscriptionProcessing, isProcessingTranscription } =
-		useTranscriptionPostProcessing( {
-			feature: 'voice-to-content',
-			onReady: postProcessingResult => {
-				// Insert the content into the editor
-				upsertTranscription( postProcessingResult );
+	const { isCreatingTranscription, createTranscription, cancelTranscription } =
+		useTranscriptionCreator( {
+			onReady: ( content: string ) => {
+				// When transcription is ready, insert it into the editor
+				upsertTranscription( content );
 				handleClose();
 			},
-			onError: error => {
-				// Use the transcription instead for a partial result
-				if ( transcription.current ) {
-					dispatch.insertBlock(
-						createBlock( 'core/paragraph', { content: transcription.current } )
-					);
-				}
-				// eslint-disable-next-line no-console
-				console.log( 'Post-processing error: ', error );
-				handleClose();
+			onUpdate: ( content: string ) => {
+				// When transcription is updated, insert it into the editor
+				upsertTranscription( content );
 			},
-			onUpdate: currentPostProcessingResult => {
-				/*
-				 * We can upsert partial results because the hook takes care of replacing
-				 * the previous result with the new one.
-				 */
-				upsertTranscription( currentPostProcessingResult );
+			onError: ( error: string ) => {
+				// When transcription fails, show an error message
+				onError( error );
 			},
 		} );
-
-	const onTranscriptionReady = ( content: string ) => {
-		// eslint-disable-next-line no-console
-		console.log( 'Transcription ready: ', content );
-		transcription.current = content;
-		processTranscription( TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT, content );
-	};
-
-	const onTranscriptionError = ( error: string ) => {
-		onError( error );
-	};
-
-	const { transcribeAudio, cancelTranscription, isTranscribingAudio }: UseAudioTranscriptionReturn =
-		useAudioTranscription( {
-			feature: 'voice-to-content',
-			onReady: onTranscriptionReady,
-			onError: onTranscriptionError,
-		} );
-
-	const isCreatingTranscription = isTranscribingAudio || isProcessingTranscription;
 
 	const { state, controls, error, onError, duration, analyser } = useMediaRecording( {
 		onDone: lastBlob => {
@@ -100,10 +63,10 @@ export default function VoiceToContentEdit( { clientId } ) {
 	const onAudioHandler = useCallback(
 		( audio: Blob ) => {
 			if ( audio ) {
-				transcribeAudio( audio );
+				createTranscription( audio, TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT );
 			}
 		},
-		[ transcribeAudio ]
+		[ createTranscription ]
 	);
 
 	// Destructure controls
@@ -127,9 +90,8 @@ export default function VoiceToContentEdit( { clientId } ) {
 
 	const onCancelHandler = useCallback( () => {
 		cancelTranscription();
-		cancelTranscriptionProcessing();
 		controlReset();
-	}, [ cancelTranscription, cancelTranscriptionProcessing, controlReset ] );
+	}, [ cancelTranscription, controlReset ] );
 
 	const onRecordHandler = useCallback( () => {
 		controlStart( 1000 ); // Stream audio on 1 second intervals
