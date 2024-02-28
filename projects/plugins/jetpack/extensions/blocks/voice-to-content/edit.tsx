@@ -4,7 +4,9 @@
 import {
 	useMediaRecording,
 	useAudioValidation,
+	RecordingState,
 	TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
+	TranscriptionState,
 } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { Button, Modal, Icon } from '@wordpress/components';
@@ -19,6 +21,30 @@ import ActionButtons from './components/action-buttons';
 import AudioStatusPanel from './components/audio-status-panel';
 import useTranscriptionCreator from './hooks/use-transcription-creator';
 import useTranscriptionInserter from './hooks/use-transcription-inserter';
+
+/**
+ * Helper to determine the state of the transcription.
+ *
+ * @param {boolean} isCreatingTranscription - The transcription creation state
+ * @param {boolean} isValidatingAudio - The audio validation state
+ * @param {RecordingState} recordingState - The recording state
+ * @returns {TranscriptionState} - The transcription state
+ */
+const transcriptionStateHelper = (
+	isCreatingTranscription: boolean,
+	isValidatingAudio: boolean,
+	recordingState: RecordingState
+): TranscriptionState => {
+	if ( isValidatingAudio ) {
+		return 'validating';
+	}
+
+	if ( isCreatingTranscription ) {
+		return 'processing';
+	}
+
+	return recordingState;
+};
 
 export default function VoiceToContentEdit( { clientId } ) {
 	const [ audio, setAudio ] = useState< Blob >( null );
@@ -133,7 +159,11 @@ export default function VoiceToContentEdit( { clientId } ) {
 	// To avoid a wrong TS warning
 	const iconProps = { className: 'icon' };
 
-	const transcriptionState = isCreatingTranscription || isValidatingAudio ? 'processing' : state;
+	const transcriptionState = transcriptionStateHelper(
+		isCreatingTranscription,
+		isValidatingAudio,
+		state
+	);
 
 	return (
 		<Modal
