@@ -1,4 +1,5 @@
 import SocialIcon from 'social-logos';
+import SMSIcon from './components/sms-icon';
 
 export const variations = [
 	{
@@ -89,6 +90,12 @@ export const variations = [
 		title: 'Nextdoor',
 		icon: <SocialIcon icon={ 'nextdoor' } size={ 24 } />,
 	},
+	{
+		name: 'sms',
+		attributes: { service: 'sms', label: 'SMS' },
+		title: 'SMS',
+		icon: <SMSIcon />,
+	},
 ];
 
 variations.forEach( variation => {
@@ -98,6 +105,9 @@ variations.forEach( variation => {
 	variation.isActive = ( blockAttributes, variationAttributes ) =>
 		blockAttributes.service === variationAttributes.service;
 } );
+
+export const getIconByService = service =>
+	variations.find( variation => variation.attributes.service === service )?.icon;
 
 export default variations;
 

@@ -16,7 +16,7 @@ if ( typeof window !== 'undefined' ) {
 					return;
 				}
 
-				if ( service === 'mail' ) {
+				if ( service === 'mail' || service === 'sms' ) {
 					return;
 				}
 

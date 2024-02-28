@@ -504,6 +504,62 @@ class Share_Email_Block extends Sharing_Source_Block {
 }
 
 /**
+ * Handle the display of the sms sharing button.
+ */
+class Share_SMS_Block extends Sharing_Source_Block {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'sms';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return _x( 'SMS', 'as sharing source', 'jetpack' );
+	}
+
+	/**
+	 * Get the URL for the link.
+	 *
+	 * @param int         $post_id         Post ID.
+	 * @param string      $query           Additional query arguments to add to the link. They should be in 'foo=bar&baz=1' format.
+	 * @param bool|string $id              Sharing ID to include in the data-shared attribute.
+	 * @param array       $data_attributes The keys are used as additional attribute names with 'data-' prefix.
+	 *                                     The values are used as the attribute values.
+	 * @return object Link related data (url and data_attributes);
+	 */
+	public function get_link( $post_id, $query = '', $id = false, $data_attributes = array() ) {
+		// We don't need to open new window, so we set it to false.
+		$id = false;
+
+		$post_title = $this->get_share_title( $post_id );
+		$post_url   = $this->get_share_url( $post_id );
+
+		/** This filter is documented in plugins/jetpack/modules/sharedaddy/sharedaddy.php */
+		$email_subject = sprintf( '[%s] %s', __( 'Shared Post', 'jetpack' ), $post_title );
+
+		$sms_query = sprintf(
+			'?subject=%s&body=%s&share=sms',
+			rawurlencode( $email_subject ),
+			rawurlencode( $post_url )
+		);
+
+		$url             = $this->get_url( 'sms:', $sms_query, $id );
+		$data_attributes = $this->get_data_attributes( $id );
+
+		return array(
+			'url'             => $url,
+			'data_attributes' => $data_attributes,
+		);
+	}
+}
+
+/**
  * Facebook sharing button.
  */
 class Share_Facebook_Block extends Sharing_Source_Block {
