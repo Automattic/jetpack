@@ -132,12 +132,12 @@ const BackupCard = ( { admin } ) => {
 };
 
 const WithBackupsValueSection = ( { admin, slug } ) => {
-	const { data: backupRewindableEvents, isLoading } = useSimpleQuery( 'backup history', {
+	const { data, isLoading } = useSimpleQuery( 'backup history', {
 		path: REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
 	} );
-	const lastRewindableEventTime = backupRewindableEvents?.last_rewindable_event?.published;
-	const lastRewindableEvent = backupRewindableEvents?.last_rewindable_event;
-	const undoBackupId = backupRewindableEvents?.undo_backup_id;
+	const lastRewindableEvent = data?.last_rewindable_event;
+	const lastRewindableEventTime = lastRewindableEvent?.published;
+	const undoBackupId = data?.undo_backup_id;
 	const { recordEvent } = useAnalytics();
 
 	const handleUndoClick = () => {

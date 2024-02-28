@@ -69,7 +69,7 @@ export type Purchase = {
 	check_dns: boolean;
 };
 
-export type BackupRewindableEvents = {
+export type BackupRewindableEvent = {
 	last_rewindable_event?: {
 		gridicon: string;
 		summary: string;
