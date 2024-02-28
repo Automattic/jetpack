@@ -65,7 +65,7 @@ class Jetpack_Subscription_Site {
 	 * @return bool
 	 */
 	protected function is_post_accessible_by_everyone() {
-		if ( ! class_exists( 'Jetpack_Memberships' ) ) {
+		if ( ! class_exists( 'Jetpack_Memberships' ) || ! class_exists( 'Abstract_Token_Subscription_Service' ) ) {
 			return true;
 		}
 
