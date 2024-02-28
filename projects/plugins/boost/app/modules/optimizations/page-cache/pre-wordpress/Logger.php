@@ -111,8 +111,13 @@ class Logger {
 	 */
 	public static function read() {
 		$instance = self::get_instance();
-		$log_file = $instance->get_log_file();
 
+		// If we failed to set up a Logger instance (e.g.: unwriteable directory), return the error as log content.
+		if ( Boost_Cache_Error::is_error( $instance ) ) {
+			return $instance->get_error_message();
+		}
+
+		$log_file = $instance->get_log_file();
 		if ( ! file_exists( $log_file ) ) {
 			return '';
 		}
