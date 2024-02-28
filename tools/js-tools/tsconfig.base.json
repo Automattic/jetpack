@@ -16,13 +16,7 @@
 		// Note that when using tsc directly you'll probably also have to manually handle @wordpress/* packages and i18n if necessary.
 		"module": "esnext",
 		"moduleResolution": "bundler",
-		"noEmit": true,
-		// CSS Modules
-		"plugins": [
-			{
-				"name": "typescript-plugin-css-modules"
-			}
-		]
+		"noEmit": true
 	},
 	"files": [ "./custom.d.ts" ]
 }
