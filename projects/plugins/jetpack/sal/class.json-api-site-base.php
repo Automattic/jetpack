@@ -1562,7 +1562,7 @@ abstract class SAL_Site {
 		// Add override as reason if blog has the commercial stickers.
 		if ( empty( $reasons ) && $this->is_commercial() ) {
 			return array( 'manual-override' );
-		} elseif ( empty( $reasons ) ) {
+		} elseif ( empty( $reasons ) || ! is_array( $reasons ) ) {
 			return array();
 		}
 
