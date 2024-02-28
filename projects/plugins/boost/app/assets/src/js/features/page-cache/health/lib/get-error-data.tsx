@@ -190,7 +190,6 @@ type FormattedError = {
 	message: React.ReactNode;
 };
 function getErrorData( status?: PageCacheError ): false | FormattedError {
-	// Fall back to unknown error if no status
 	if ( ! status ) {
 		return false;
 	}
