@@ -58,6 +58,7 @@
 		"sort-package-json": "1.50.0",
 		"svelte": "3.58.0",
 		"typescript": "5.0.4",
+		"typescript-plugin-css-modules": "5.1.0",
 		"yaml": "2.2.2"
 	}
 }
