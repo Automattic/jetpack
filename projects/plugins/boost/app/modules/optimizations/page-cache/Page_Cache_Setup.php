@@ -19,6 +19,7 @@ class Page_Cache_Setup {
 			'create_settings_file',
 			'create_advanced_cache',
 			'add_wp_cache_define',
+			'enable_caching',
 		);
 
 		foreach ( $steps as $step ) {
@@ -33,6 +34,16 @@ class Page_Cache_Setup {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Enable caching step of setup.
+	 *
+	 * @return Boost_Cache_Error|true - True on success, error otherwise.
+	 */
+	private static function enable_caching() {
+		$settings = Boost_Cache_Settings::get_instance();
+		return $settings->set( array( 'enabled' => true ) );
 	}
 
 	/**
