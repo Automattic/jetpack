@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WP Super Cache: bail if the request uri isn't set. It means the plugin isn't configured yet.
