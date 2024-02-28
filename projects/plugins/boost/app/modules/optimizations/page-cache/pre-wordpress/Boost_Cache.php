@@ -96,12 +96,21 @@ class Boost_Cache {
 
 		$cached = $this->storage->read( $this->request->get_uri(), $this->request->get_parameters() );
 		if ( is_string( $cached ) ) {
+			$this->send_header( 'X-Jetpack-Boost-Cache: hit' );
 			Logger::debug( 'Serving cached page' );
-			echo $cached . '<!-- cached -->'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $cached; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			die();
 		}
 
+		$this->send_header( 'X-Jetpack-Boost-Cache: miss' );
+
 		return false;
+	}
+
+	private function send_header( $header ) {
+		if ( ! headers_sent() ) {
+			header( $header );
+		}
 	}
 
 	/**
