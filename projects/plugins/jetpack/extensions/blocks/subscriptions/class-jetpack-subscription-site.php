@@ -8,6 +8,9 @@
 
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+use Jetpack_Memberships;
+
 /**
  * Jetpack_Subscription_Site class.
  */
@@ -57,6 +60,19 @@ class Jetpack_Subscription_Site {
 	}
 
 	/**
+	 * Returns true if post is accessible by everyone
+	 *
+	 * @return bool
+	 */
+	protected function is_post_accessible_by_everyone() {
+		if ( ! class_exists( 'Jetpack_Memberships' ) ) {
+			return true;
+		}
+
+		return Jetpack_Memberships::get_post_access_level() === Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+	}
+
+	/**
 	 * Handles Subscribe block placement at the end of each post.
 	 *
 	 * @return viod
@@ -72,7 +88,12 @@ class Jetpack_Subscription_Site {
 				'the_content',
 				function ( $content ) {
 					// Check if we're inside the main loop in a single Post.
-					if ( is_singular() && in_the_loop() && is_main_query() ) {
+					if (
+						is_singular() &&
+						in_the_loop() &&
+						is_main_query() &&
+						$this->is_post_accessible_by_everyone()
+					) {
 						return $content . '
 	<!-- wp:group {"className":"wp-block-jetpack-subscriptions__subscribe_post_end","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
 	<div class="wp-block-group wp-block-jetpack-subscriptions__subscribe_post_end">
@@ -98,7 +119,11 @@ class Jetpack_Subscription_Site {
 		add_filter(
 			'hooked_block_types',
 			function ( $hooked_blocks, $relative_position, $anchor_block ) {
-				if ( $anchor_block === 'core/post-content' && $relative_position === 'after' ) {
+				if (
+					$anchor_block === 'core/post-content' &&
+					$relative_position === 'after' &&
+					$this->is_post_accessible_by_everyone()
+				) {
 					$hooked_blocks[] = 'jetpack/subscriptions';
 				}
 
