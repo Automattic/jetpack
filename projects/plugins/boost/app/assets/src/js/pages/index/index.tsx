@@ -16,7 +16,7 @@ import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/store
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCache from '$features/page-cache/page-cache';
-import { invalidatePageCacheError } from '$lib/stores/page-cache';
+import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -33,6 +33,9 @@ const Index = () => {
 	const { canResizeImages, site } = Jetpack_Boost;
 
 	const premiumFeatures = usePremiumFeatures();
+
+	const pageCacheSetup = usePageCacheSetup();
+	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
 
 	return (
 		<div className="jb-container--narrow">
@@ -127,6 +130,8 @@ const Index = () => {
 						<span className={ styles.beta }>Beta</span>
 					</>
 				}
+				onEnable={ () => pageCacheSetup.mutate() }
+				onDisable={ () => pageCacheErrorMutation.mutate( null ) }
 				description={
 					<>
 						<p>
@@ -151,10 +156,8 @@ const Index = () => {
 						) }
 					</>
 				}
-				onEnable={ invalidatePageCacheError }
-				onDisable={ invalidatePageCacheError }
 			>
-				<PageCache />
+				<PageCache setup={ pageCacheSetup } error={ pageCacheError.data } />
 			</Module>
 			<Module
 				slug="render_blocking_js"

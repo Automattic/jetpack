@@ -198,13 +198,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scheduled-updates",
-                "reference": "18ab06e2a6efbcee909885e814271e5feadf1d97"
+                "reference": "9be90d23b55e43e40816ff79dbd2d65b1c392fc8"
             },
             "require": {
                 "php": ">=7.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-plans": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.1.0"
             },

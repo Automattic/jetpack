@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Block: display the right message when user is not connected on a site using the standalone plugin.

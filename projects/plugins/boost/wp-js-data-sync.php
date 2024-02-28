@@ -354,8 +354,12 @@ jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback
 // Page Cache error
 jetpack_boost_register_option(
 	'page_cache_error',
-	Schema::as_string()
-			->nullable()
+	Schema::as_assoc_array(
+		array(
+			'code'    => Schema::as_string(),
+			'message' => Schema::as_string(),
+		)
+	)->nullable()
 );
 
 jetpack_boost_register_action( 'page_cache', 'run-setup', Schema::as_void(), new Run_Setup() );
