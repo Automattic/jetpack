@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+allow post-checkout URL to be updated as run-time

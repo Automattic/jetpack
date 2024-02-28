@@ -203,7 +203,7 @@ class Initializer {
 				),
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
-				'myJetpackCheckoutUri'   => 'admin.php?page=my-jetpack',
+				'myJetpackCheckoutUri'   => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'             => ( new Status() )->get_site_suffix(),
 				'blogID'                 => Connection_Manager::get_site_id( true ),

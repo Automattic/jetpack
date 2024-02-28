@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Sharing: only enqueue extra JavaScript when a Sharing Block is inserted on the page.

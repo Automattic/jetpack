@@ -61,9 +61,9 @@ export default function ProductInterstitial( {
 } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
-
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
+	const { myJetpackCheckoutUri } = window?.myJetpackInitialState ?? {};
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -109,46 +109,60 @@ export default function ProductInterstitial( {
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
+			let postCheckoutUrl = product?.postCheckoutUrl
+				? product?.postCheckoutUrl
+				: myJetpackCheckoutUri;
+
 			if ( product?.isBundle || directCheckout ) {
 				// Get straight to the checkout page.
 				checkout?.();
 				return;
 			}
 
-			activate().finally( () => {
-				const postActivationUrl = product?.postActivationUrl;
-				const hasRequiredPlan = tier
-					? product?.hasRequiredTier?.[ tier ]
-					: product?.hasRequiredPlan;
-				const isFree = tier
-					? product?.pricingForUi?.tiers?.[ tier ]?.isFree
-					: product?.pricingForUi?.isFree;
-				const needsPurchase = ! isFree && ! hasRequiredPlan;
+			activate()
+				// After product activation, we'll re-check the post-checkout redirect
+				// If the product is active, it may (very likely is) different
+				.then( activatedProduct => {
+					postCheckoutUrl = activatedProduct?.post_checkout_url
+						? activatedProduct.post_checkout_url
+						: myJetpackCheckoutUri;
+				} )
+				.finally( () => {
+					const postActivationUrl = product?.postActivationUrl;
+					const hasRequiredPlan = tier
+						? product?.hasRequiredTier?.[ tier ]
+						: product?.hasRequiredPlan;
+					const isFree = tier
+						? product?.pricingForUi?.tiers?.[ tier ]?.isFree
+						: product?.pricingForUi?.isFree;
+					const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-				// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
-				// This is done because CRM is not part of the WP billing system
-				// and we can't send them to checkout like we can with the rest of the products
-				if ( product.pluginSlug === 'zero-bs-crm' && ! hasRequiredPlan ) {
-					window.location.href = 'https://jetpackcrm.com/pricing/';
-					return;
-				}
-
-				// If no purchase is needed, redirect the user to the product screen.
-				if ( ! needsPurchase ) {
-					if ( postActivationUrl ) {
-						window.location.href = postActivationUrl;
+					// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
+					// This is done because CRM is not part of the WP billing system
+					// and we can't send them to checkout like we can with the rest of the products
+					if ( product.pluginSlug === 'zero-bs-crm' && ! hasRequiredPlan ) {
+						window.location.href = 'https://jetpackcrm.com/pricing/';
 						return;
 					}
 
-					// Fall back to the My Jetpack overview page.
-					return navigateToMyJetpackOverviewPage();
-				}
+					// If no purchase is needed, redirect the user to the product screen.
+					if ( ! needsPurchase ) {
+						if ( postActivationUrl ) {
+							window.location.href = postActivationUrl;
+							return;
+						}
 
-				// Redirect to the checkout page.
-				checkout?.();
-			} );
+						// Fall back to the My Jetpack overview page.
+						return navigateToMyJetpackOverviewPage();
+					}
+
+					// Redirect to the checkout page.
+					// First parameter is an event placeholder
+					// We pass the redirect URL directly here to avoid needing to update the useProductCheckoutWorkflow state
+					checkout?.( null, postCheckoutUrl );
+				} );
 		},
-		[ directCheckout, activate, navigateToMyJetpackOverviewPage ]
+		[ directCheckout, activate, navigateToMyJetpackOverviewPage, myJetpackCheckoutUri ]
 	);
 
 	return (
