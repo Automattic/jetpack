@@ -1,5 +1,7 @@
+import './style.scss';
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import React, { useCallback, useMemo } from 'react';
@@ -108,21 +110,33 @@ function NewsletterCategories( props ) {
 					onChange={ handleEnableNewsletterCategoriesToggleChange }
 					label={ __( 'Enable newsletter categories', 'jetpack' ) }
 				/>
-				<TreeDropdown
-					items={ mappedCategories }
-					selectedItems={ checkedCategoriesIds }
-					onChange={ onSelectedCategoryChange }
-					disabled={ isSavingAnyOption( [ 'wpcom_newsletter_categories' ] ) }
-				/>
+				<div
+					className={ classNames( 'newsletter-colapsable', {
+						hide: ! isNewsletterCategoriesEnabled,
+					} ) }
+				>
+					<TreeDropdown
+						items={ mappedCategories }
+						selectedItems={ checkedCategoriesIds }
+						onChange={ onSelectedCategoryChange }
+						disabled={ isSavingAnyOption( [ 'wpcom_newsletter_categories' ] ) }
+					/>
+				</div>
 			</SettingsGroup>
-			<Card
-				compact
-				className="jp-settings-card__configure-link"
-				href="/wp-admin/edit-tags.php?taxonomy=category"
-				target="_blank"
+			<div
+				className={ classNames( 'newsletter-card-colapsable', {
+					hide: ! isNewsletterCategoriesEnabled,
+				} ) }
 			>
-				{ __( 'Add New Category', 'jetpack' ) }
-			</Card>
+				<Card
+					compact
+					className="jp-settings-card__configure-link"
+					href="/wp-admin/edit-tags.php?taxonomy=category"
+					target="_blank"
+				>
+					{ __( 'Add New Category', 'jetpack' ) }
+				</Card>
+			</div>
 		</SettingsCard>
 	);
 }

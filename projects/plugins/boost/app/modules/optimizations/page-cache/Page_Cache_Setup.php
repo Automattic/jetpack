@@ -23,15 +23,11 @@ class Page_Cache_Setup {
 
 		foreach ( $steps as $step ) {
 			$result = self::$step();
-			if ( Boost_Cache_Error::is_error( $result ) ) {
-				jetpack_boost_ds_set( 'page_cache_error', $result->get_error_code() );
 
-				return false;
+			if ( Boost_Cache_Error::is_error( $result ) ) {
+				return $result;
 			}
 		}
-
-		jetpack_boost_ds_set( 'page_cache_error', '' );
-
 		return true;
 	}
 
