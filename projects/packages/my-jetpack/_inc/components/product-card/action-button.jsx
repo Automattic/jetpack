@@ -30,7 +30,6 @@ const ActionButton = ( {
 	onFixConnection,
 	isFetching,
 	isInstallingStandalone,
-	isDeactivatingStandalone,
 	className,
 	onAdd,
 	onInstall,
@@ -43,7 +42,7 @@ const ActionButton = ( {
 	const { manageUrl, purchaseUrl } = detail;
 	const isManageDisabled = ! manageUrl;
 
-	const isBusy = isFetching || isInstallingStandalone || isDeactivatingStandalone;
+	const isBusy = isFetching || isInstallingStandalone;
 	const hasAdditionalActions = additionalActions?.length > 0;
 
 	const buttonState = useMemo( () => {

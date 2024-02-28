@@ -8,6 +8,7 @@ import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
+import useActivate from '../../data/products/use-activate';
 import useProduct from '../../data/products/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct as useProductDeprecated } from '../../hooks/use-product';
@@ -26,11 +27,11 @@ const ConnectedProductCard = ( {
 } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
-	const { installStandalonePlugin, deactivateStandalonePlugin } = useProductDeprecated( slug );
-	const { detail, activate, deactivate, isFetching } = useProduct( slug );
+	const { installStandalonePlugin } = useProductDeprecated( slug );
+	const { activate, isPending } = useActivate( slug );
+	const { detail } = useProduct( slug );
 	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
 	const [ installingStandalone, setInstallingStandalone ] = useState( false );
-	const [ deactivatingStandalone, setDeactivatingStandalone ] = useState( false );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 
@@ -64,18 +65,6 @@ const ConnectedProductCard = ( {
 			} );
 	}, [ installStandalonePlugin ] );
 
-	const handleDeactivateStandalone = useCallback( () => {
-		setDeactivatingStandalone( true );
-
-		deactivateStandalonePlugin()
-			.then( () => {
-				window?.location?.reload();
-			} )
-			.catch( () => {
-				setDeactivatingStandalone( false );
-			} );
-	}, [ deactivateStandalonePlugin ] );
-
 	const DefaultDescription = () => {
 		// Replace the last space with a non-breaking space to prevent widows
 		const cardDescription = defaultDescription.replace( /\s(?=[^\s]*$)/, '\u00A0' );
@@ -93,11 +82,9 @@ const ConnectedProductCard = ( {
 			Description={ Description ? Description : DefaultDescription }
 			status={ status }
 			admin={ admin }
-			isFetching={ isFetching }
+			isFetching={ isPending }
 			isDataLoading={ isDataLoading }
 			isInstallingStandalone={ installingStandalone }
-			isDeactivatingStandalone={ deactivatingStandalone }
-			onDeactivate={ deactivate }
 			additionalActions={ additionalActions }
 			primaryActionOverride={ primaryActionOverride }
 			secondaryAction={ secondaryAction }
@@ -105,7 +92,6 @@ const ConnectedProductCard = ( {
 			onActivate={ handleActivate }
 			onInstallStandalone={ handleInstallStandalone }
 			onActivateStandalone={ handleInstallStandalone }
-			onDeactivateStandalone={ handleDeactivateStandalone }
 			upgradeInInterstitial={ upgradeInInterstitial }
 		>
 			{ children }

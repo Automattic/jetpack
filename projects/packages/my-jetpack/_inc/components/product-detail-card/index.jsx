@@ -19,7 +19,6 @@ import classnames from 'classnames';
 import React, { useCallback } from 'react';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
-import { useProduct as useProductDeprecated } from '../../hooks/use-product';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
@@ -71,6 +70,7 @@ function Price( { value, currency, isOld } ) {
  * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
  * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature of the list of features
+ * @param {boolean} [props.isFetching]           - Whether the product is being fetched
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( {
@@ -84,12 +84,12 @@ const ProductDetailCard = ( {
 	hideTOS = false,
 	quantity = null,
 	highlightLastFeature = false,
+	isFetching = false,
 } ) => {
 	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackCheckoutUri } =
 		window?.myJetpackInitialState ?? {};
 
 	const { detail } = useProduct( slug );
-	const { isFetching } = useProductDeprecated( slug );
 
 	const {
 		name,

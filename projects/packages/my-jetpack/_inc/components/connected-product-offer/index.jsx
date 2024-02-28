@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useCallback } from 'react';
 import useProduct from '../../data/products/use-product';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import { useProduct as useProductDeprecated } from '../../hooks/use-product';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 
 /**
@@ -18,7 +17,6 @@ import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
  */
 const ConnectedProductOffer = ( { slug, onClick, trackButtonClick, ...rest } ) => {
 	const { detail } = useProduct( slug );
-	const { isFetching } = useProductDeprecated( slug );
 	const {
 		title,
 		longDescription,
@@ -69,7 +67,7 @@ const ConnectedProductOffer = ( { slug, onClick, trackButtonClick, ...rest } ) =
 			hasRequiredPlan={ hasRequiredPlan }
 			onAdd={ clickHandler }
 			addProductUrl={ onClick ? undefined : addProductUrl }
-			isLoading={ isFetching }
+			isLoading={ false }
 			{ ...rest }
 		/>
 	);

@@ -2,24 +2,23 @@ import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import useGetProductData from './use-get-product-data';
 import type { ProductSnakeCase } from '../types';
-import type { UseMutationResult } from '@tanstack/react-query';
+import type { UseMutateFunction } from '@tanstack/react-query';
 
-const useActivate: ( productId: string, status: 'activate' | 'deactivate' ) => UseMutationResult = (
-	productId,
-	status
-) => {
+const useActivate: ( productId: string ) => {
+	activate: UseMutateFunction;
+	isPending: boolean;
+} = productId => {
 	const { refetch } = useGetProductData( productId );
-	const method = status === 'activate' ? 'POST' : 'DELETE';
 
-	const queryResult = useSimpleMutation(
-		`${ status }product`,
+	const { mutate: activate, isPending } = useSimpleMutation(
+		`$activateProduct`,
 		{
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
-			method,
+			method: 'POST',
 		},
 		{
 			onSuccess: () =>
-				// Update product data after activation/deactivation.
+				// Update product data after activation.
 				refetch().then( refetchQueryResult => {
 					const { data: refetchedProduct } = refetchQueryResult;
 
@@ -29,7 +28,10 @@ const useActivate: ( productId: string, status: 'activate' | 'deactivate' ) => U
 		}
 	);
 
-	return queryResult;
+	return {
+		activate,
+		isPending: isPending,
+	};
 };
 
 export default useActivate;
