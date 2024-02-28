@@ -577,7 +577,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	private function delete_product_from_wpcom( $product_id, $cancel_subscriptions = false ) {
 		$product = $this->find_product_from_wpcom( $product_id ); // prevents running outside of wpcom
-		$result  = $product->delete( $cancel_subscriptions ? 'CANCEL_SUBSCRIPTIONS' : 'KEEP_SUBSCRIPTIONS' );
+		$result  = $product->delete( $cancel_subscriptions ? Memberships_Product::CANCEL_SUBSCRIPTIONS : Memberships_Product::KEEP_SUBSCRIPTIONS );
 		if ( is_wp_error( $result ) ) {
 			throw new \Exception( $result->get_error_message() );
 		}
