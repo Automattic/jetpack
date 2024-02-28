@@ -95,6 +95,10 @@ class Page_Cache_Setup {
 		if ( file_exists( $advanced_cache_filename ) ) {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
+			if ( strpos( $content, 'WP SUPER CACHE' ) !== false ) {
+				return new \WP_Error( 'advanced-cache-for-super-cache', 'advanced-cache.php exists, but belongs to WP Super Cache.' );
+			}
+
 			if ( strpos( $content, Page_Cache::ADVANCED_CACHE_SIGNATURE ) === false ) {
 				return new \WP_Error( 'advanced-cache-incompatible', 'advanced-cache.php exists, but belongs to another plugin/system.' );
 			}
