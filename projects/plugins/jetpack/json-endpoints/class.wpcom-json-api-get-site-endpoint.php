@@ -207,6 +207,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'can_blaze',
 		'wpcom_site_setup',
 		'is_commercial',
+		'is_commercial_reasons',
 		'wpcom_admin_interface',
 	);
 
@@ -278,6 +279,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wpcom_production_blog_id',
 		'wpcom_staging_blog_ids',
 		'is_commercial',
+		'is_commercial_reasons',
 		'wpcom_admin_interface',
 	);
 
@@ -915,6 +917,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'is_commercial':
 					$options[ $key ] = $site->is_commercial();
+					break;
+				case 'is_commercial_reasons':
+					$options[ $key ] = $site->get_is_commercial_reasons();
 					break;
 				case 'wpcom_admin_interface':
 					$options[ $key ] = $site->get_wpcom_admin_interface();

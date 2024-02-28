@@ -35,7 +35,7 @@ function wpcom_add_wpcom_menu_item() {
 		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
 		'manage_options',
-		'https://wordpress.com/sites',
+		localized_wpcom_url( 'https://wordpress.com/sites' ),
 		null,
 		'dashicons-arrow-left-alt2',
 		0
