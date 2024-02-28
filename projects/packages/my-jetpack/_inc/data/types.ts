@@ -68,3 +68,21 @@ export type Purchase = {
 	total_refund_text: string;
 	check_dns: boolean;
 };
+
+export type BackupRewindableEvents = {
+	last_rewindable_event?: {
+		gridicon: string;
+		summary: string;
+		published: string;
+	};
+	undo_backup_id?: string;
+};
+
+export type BackupCountStats = {
+	total_post_count: number;
+	total_page_count: number;
+	total_comment_count: number;
+	total_image_count: number;
+	total_video_count: number;
+	total_audio_count: number;
+};
