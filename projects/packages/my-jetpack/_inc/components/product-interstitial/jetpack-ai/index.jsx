@@ -3,6 +3,7 @@
  */
 import { AdminPage, Col, Container, JetpackLogo } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
+import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import debugFactory from 'debug';
 /**
@@ -48,7 +49,7 @@ export default function JetpackAiInterstitial() {
 	const highlightLastFeature = nextTier?.value !== 1;
 
 	return tiers && tiers.length ? (
-		<AdminPage showHeader={ false } showBackground={ false }>
+		<AdminPage showHeader={ false } showBackground={ true }>
 			<Container
 				fluid
 				horizontalSpacing={ 3 }
@@ -67,7 +68,7 @@ export default function JetpackAiInterstitial() {
 					>
 						<JetpackLogo />
 						<div className={ styles[ 'product-interstitial__product-header-name' ] }>
-							AI Assistant
+							{ __( 'AI Assistant', 'jetpack-my-jetpack' ) }
 						</div>
 					</div>
 				</Col>
