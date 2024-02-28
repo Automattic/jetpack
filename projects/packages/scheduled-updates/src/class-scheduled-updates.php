@@ -23,11 +23,21 @@ class Scheduled_Updates {
 	 * Initialize the class.
 	 */
 	public static function init() {
+		/*
+		 * We want to load the REST API endpoints in all environments.
+		 * On WP.com they're needed for registering the routes with public-api and pass-through to self-hosted sites.
+		 */
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_rest_api_endpoints' ), 20 );
+
+		// Never load on Simple sites.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return;
+		}
+
 		if ( ! ( method_exists( 'Automattic\Jetpack\Current_Plan', 'supports' ) && Current_Plan::supports( 'scheduled-updates' ) ) ) {
 			return;
 		}
 
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_rest_api_endpoints' ), 20 );
 		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );

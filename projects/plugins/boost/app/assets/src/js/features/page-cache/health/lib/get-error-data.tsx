@@ -2,12 +2,37 @@ import { __, sprintf } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
 import styles from '../health.module.scss';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { PageCacheError } from '$lib/stores/page-cache';
 
 const cacheIssuesLink = ( issue: string ) => {
 	return getRedirectUrl( `jb-cache-issue-${ issue }` );
 };
 
 const messages: { [ key: string ]: { title: string; message: React.ReactNode } } = {
+	'failed-settings-write': {
+		title: __( 'Boost Cache settings file not writable', 'jetpack-boost' ),
+		message: createInterpolateElement(
+			sprintf(
+				// translators: %s refers to wp-content.
+				__(
+					`This feature cannot be enabled because <code>%s</code> is not writable. <link>Learn more.</link>`,
+					'jetpack-boost'
+				),
+				'wp-content/boost-cache/config.php'
+			),
+			{
+				code: <code className={ styles.nowrap } />,
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'failed-settings-write' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
+			}
+		),
+	},
 	'wp-content-not-writable': {
 		title: 'wp-content not writable',
 		message: createInterpolateElement(
@@ -160,12 +185,34 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 	},
 };
 
-export default ( status: string ) => {
-	if ( status in messages ) {
-		return messages[ status ];
+type FormattedError = {
+	title: string;
+	message: React.ReactNode;
+};
+function getErrorData( status?: PageCacheError ): FormattedError {
+	// Fall back to unknown error if no status
+	if ( ! status ) {
+		return {
+			title: __( 'Unknown error', 'jetpack-boost' ),
+			message: __( 'An unknown error occurred.', 'jetpack-boost' ),
+		};
+	}
+
+	// Try to find a message based on status code
+	const code = typeof status === 'string' ? status : status.code;
+	if ( code in messages ) {
+		return messages[ code ];
+	}
+
+	// Unrecognized error code:
+	let title = __( 'Unknown error', 'jetpack-boost' );
+	if ( status.code && status.code !== status.message ) {
+		title += ` (${ status.code })`;
 	}
 	return {
-		title: __( 'Unknown error', 'jetpack-boost' ),
-		message: status,
+		title,
+		message: status.message,
 	};
-};
+}
+
+export default getErrorData;

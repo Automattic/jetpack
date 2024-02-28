@@ -232,6 +232,13 @@ const welcomeBanner = ( state = {}, action ) => {
 	}
 };
 
+const lifecycleStats = ( state = {}, action ) => {
+	switch ( action.type ) {
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	products,
 	chatAvailability,
@@ -242,6 +249,7 @@ const reducers = combineReducers( {
 	stats,
 	statsCounts,
 	welcomeBanner,
+	lifecycleStats,
 } );
 
 export default reducers;

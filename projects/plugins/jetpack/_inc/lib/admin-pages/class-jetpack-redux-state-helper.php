@@ -49,6 +49,7 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_initial_state() {
 		global $is_safari;
+		global $wp_version;
 
 		// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page.
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
@@ -245,6 +246,7 @@ class Jetpack_Redux_State_Helper {
 			'isBlazeDashboardEnabled'     => Blaze::is_dashboard_enabled(),
 			'socialInitialState'          => self::get_publicize_initial_state(),
 			'gutenbergInitialState'       => self::get_gutenberg_initial_state(),
+			'isSubscriptionSiteEnabled'   => apply_filters( 'jetpack_subscription_site_enabled', false ) && version_compare( $wp_version, '6.5-beta2', '>=' ),
 		);
 	}
 

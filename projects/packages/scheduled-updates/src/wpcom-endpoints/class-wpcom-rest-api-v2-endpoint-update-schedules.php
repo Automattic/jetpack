@@ -100,9 +100,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * Permission check for retrieving schedules.
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public function get_items_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
 		return current_user_can( 'update_plugins' );
 	}
 
@@ -132,10 +136,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function create_item_permissions_check( $request ) {
-		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-		if ( ! ( method_exists( 'Automattic\Jetpack\Current_Plan', 'supports' ) && Automattic\Jetpack\Current_Plan::supports( 'scheduled-updates', true ) ) ) {
-			// phpcs:ignore
-			// return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
+		if ( ! ( method_exists( 'Automattic\Jetpack\Current_Plan', 'supports' ) && Automattic\Jetpack\Current_Plan::supports( 'scheduled-updates' ) ) ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
 		$schedules = get_option( 'jetpack_update_schedules', array() );
@@ -188,9 +194,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * Permission check for retrieving a specific schedule.
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public function get_item_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
 		return current_user_can( 'update_plugins' );
 	}
 
@@ -221,10 +231,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function update_item_permissions_check( $request ) {
-		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-		if ( ! ( method_exists( 'Automattic\Jetpack\Current_Plan', 'supports' ) && Automattic\Jetpack\Current_Plan::supports( 'scheduled-updates', true ) ) ) {
-			// phpcs:ignore
-			// return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
+		if ( ! ( method_exists( 'Automattic\Jetpack\Current_Plan', 'supports' ) && Automattic\Jetpack\Current_Plan::supports( 'scheduled-updates' ) ) ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
 		$schedules = get_option( 'jetpack_update_schedules', array() );
@@ -291,9 +303,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * Permission check for deleting a specific schedule.
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public function delete_item_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
 		return current_user_can( 'update_plugins' );
 	}
 
