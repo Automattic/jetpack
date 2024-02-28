@@ -230,4 +230,8 @@ interface Window {
 		siteSuffix: string;
 		connectionErrors: Array< string | object >;
 	};
+	myJetpackRest?: {
+		apiRoot: string;
+		apiNonce: string;
+	};
 }

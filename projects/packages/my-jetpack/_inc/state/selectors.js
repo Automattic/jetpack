@@ -97,11 +97,6 @@ const chatAuthenticationSelectors = {
 	isRequestingChatAuthentication: state => state.chatAuthentication.isFetching,
 };
 
-const availableLicensesSelectors = {
-	getAvailableLicenses: state => state.availableLicenses?.items || [],
-	isFetchingAvailableLicenses: state => state.availableLicenses?.isFetching || false,
-};
-
 const pluginSelectors = {
 	hasStandalonePluginInstalled: state =>
 		Object.values( state.plugins ).filter(
@@ -186,7 +181,6 @@ const selectors = {
 	...productSelectors,
 	...chatAvailabilitySelectors,
 	...chatAuthenticationSelectors,
-	...availableLicensesSelectors,
 	...noticeSelectors,
 	...pluginSelectors,
 	...productStatsSelectors,

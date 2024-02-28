@@ -4,8 +4,6 @@ import {
 	SET_CHAT_AUTHENTICATION,
 	SET_CHAT_AVAILABILITY_IS_FETCHING,
 	SET_CHAT_AUTHENTICATION_IS_FETCHING,
-	SET_AVAILABLE_LICENSES,
-	SET_AVAILABLE_LICENSES_IS_FETCHING,
 	SET_PRODUCT,
 	SET_PRODUCT_STATUS,
 	SET_IS_FETCHING_PRODUCT,
@@ -159,25 +157,6 @@ const chatAuthentication = ( state = { isFetching: false, jwt: false }, action )
 	}
 };
 
-const availableLicenses = ( state = {}, action ) => {
-	switch ( action.type ) {
-		case SET_AVAILABLE_LICENSES_IS_FETCHING:
-			return {
-				...state,
-				isFetching: action.isFetching,
-			};
-
-		case SET_AVAILABLE_LICENSES:
-			return {
-				...state,
-				items: action?.availableLicenses || [],
-			};
-
-		default:
-			return state;
-	}
-};
-
 const notices = ( state = { global: {} }, action ) => {
 	switch ( action.type ) {
 		case SET_GLOBAL_NOTICE: {
@@ -287,7 +266,6 @@ const reducers = combineReducers( {
 	countBackupItems,
 	chatAvailability,
 	chatAuthentication,
-	availableLicenses,
 	notices,
 	plugins,
 	stats,

@@ -6,9 +6,6 @@ import { REST_API_SITE_DISMISS_BANNER, REST_API_SITE_PRODUCTS_ENDPOINT } from '.
 /*
  * Action constants
  */
-const SET_AVAILABLE_LICENSES_IS_FETCHING = 'SET_AVAILABLE_LICENSES_IS_FETCHING';
-const FETCH_AVAILABLE_LICENSES = 'FETCH_AVAILABLE_LICENSES';
-const SET_AVAILABLE_LICENSES = 'SET_AVAILABLE_LICENSES';
 const SET_IS_FETCHING_PRODUCT = 'SET_IS_FETCHING_PRODUCT';
 const SET_PRODUCT = 'SET_PRODUCT';
 const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
@@ -61,18 +58,6 @@ const setChatAvailability = chatAvailability => {
 
 const setChatAuthentication = chatAuthentication => {
 	return { type: SET_CHAT_AUTHENTICATION, chatAuthentication };
-};
-
-const setAvailableLicensesIsFetching = isFetching => {
-	return { type: SET_AVAILABLE_LICENSES_IS_FETCHING, isFetching };
-};
-
-const fetchAvailableLicenses = () => {
-	return { type: FETCH_AVAILABLE_LICENSES };
-};
-
-const setAvailableLicenses = availableLicenses => {
-	return { type: SET_AVAILABLE_LICENSES, availableLicenses };
 };
 
 const setProduct = product => ( { type: SET_PRODUCT, product } );
@@ -317,9 +302,6 @@ const actions = {
 	setChatAuthenticationIsFetching,
 	setChatAvailability,
 	setChatAuthentication,
-	setAvailableLicensesIsFetching,
-	fetchAvailableLicenses,
-	setAvailableLicenses,
 	setProductStats,
 	setIsFetchingProductStats,
 	setBackupRewindableEvents,
@@ -334,9 +316,6 @@ const actions = {
 };
 
 export {
-	SET_AVAILABLE_LICENSES_IS_FETCHING,
-	FETCH_AVAILABLE_LICENSES,
-	SET_AVAILABLE_LICENSES,
 	SET_PRODUCT,
 	SET_PRODUCT_REQUEST_ERROR,
 	ACTIVATE_PRODUCT,
