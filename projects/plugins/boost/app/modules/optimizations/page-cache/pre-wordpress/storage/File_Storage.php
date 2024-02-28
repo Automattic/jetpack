@@ -5,6 +5,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Storage;
 
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
@@ -35,7 +36,7 @@ class File_Storage implements Storage {
 		$filename  = Filesystem_Utils::get_request_filename( $parameters );
 
 		if ( ! Filesystem_Utils::create_directory( $directory ) ) {
-			return new \WP_Error( 'Could not create cache directory' );
+			return new Boost_Cache_Error( 'cannot-create-cache-dir', 'Could not create cache directory' );
 		}
 
 		return Filesystem_Utils::write_to_file( $directory . $filename, $data );
@@ -53,8 +54,21 @@ class File_Storage implements Storage {
 		$hash_path = $directory . $filename;
 
 		if ( file_exists( $hash_path ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
-			return file_get_contents( $hash_path );
+			$filemtime = filemtime( $hash_path );
+			$expired   = ( $filemtime + JETPACK_BOOST_CACHE_DURATION ) <= time();
+
+			// If file exists and is not expired, return the file contents.
+			if ( ! $expired ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
+				return file_get_contents( $hash_path );
+			}
+
+			// If file exists but is expired, delete it.
+			if ( Filesystem_Utils::delete_file( $hash_path ) ) {
+				Logger::debug( "Deleted expired file: $hash_path" );
+			} else {
+				Logger::debug( "Could not delete expired file: $hash_path" );
+			}
 		}
 
 		return false;
@@ -64,14 +78,12 @@ class File_Storage implements Storage {
 	 * Garbage collect expired files.
 	 */
 	public function garbage_collect() {
-		$cache_duration = apply_filters( 'jetpack_boost_cache_duration', 3600 );
-
-		if ( $cache_duration === 0 ) {
+		if ( JETPACK_BOOST_CACHE_DURATION === 0 ) {
 			// Garbage collection is disabled.
 			return false;
 		}
 
-		$count = Filesystem_Utils::delete_expired_files( $this->root_path, $cache_duration );
+		$count = Filesystem_Utils::delete_expired_files( $this->root_path, JETPACK_BOOST_CACHE_DURATION );
 
 		Logger::debug( "Garbage collected $count files" );
 	}
@@ -118,7 +130,7 @@ class File_Storage implements Storage {
 		} elseif ( $type === Filesystem_Utils::DELETE_FILE && is_file( $normalized_path ) ) {
 			return Filesystem_Utils::delete_file( $normalized_path );
 		} else {
-			return new \WP_Error( 'no-cache-files-to-delete', 'No cache files to delete.' );
+			return new Boost_Cache_Error( 'no-cache-files-to-delete', 'No cache files to delete.' );
 		}
 	}
 }
