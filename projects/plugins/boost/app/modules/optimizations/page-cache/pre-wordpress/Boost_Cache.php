@@ -9,6 +9,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPres
  * Require all pre-wordpress files here. These files aren't autoloaded as they are loaded before WordPress is fully initialized.
  * pre-wordpress files assume all other pre-wordpress files are loaded here.
  */
+require_once __DIR__ . '/Boost_Cache_Actions.php';
 require_once __DIR__ . '/Boost_Cache_Error.php';
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 require_once __DIR__ . '/Boost_Cache_Utils.php';
@@ -145,7 +146,7 @@ class Boost_Cache {
 	 *
 	 * @param WP_Post $post - The post that should be deleted.
 	 */
-	protected function delete_cache_for_front_page() {
+	public function delete_cache_for_front_page() {
 		if ( get_option( 'show_on_front' ) === 'page' ) {
 			$front_page_id = get_option( 'page_on_front' ); // static page
 			if ( $front_page_id ) {
@@ -160,6 +161,18 @@ class Boost_Cache {
 		} else {
 			$this->storage->invalidate( home_url(), Filesystem_Utils::DELETE_FILES );
 			Logger::debug( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) );
+		}
+	}
+
+	/**
+	 * Delete the cache for the given post.
+	 *
+	 * @param int $post_id - The ID of the post to delete the cache for.
+	 */
+	public function delete_cache_by_post_id( $post_id ) {
+		$post = get_post( (int) $post_id );
+		if ( $post ) {
+			$this->delete_cache_for_post( $post );
 		}
 	}
 
