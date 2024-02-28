@@ -12,6 +12,8 @@ import debugFactory from 'debug';
 
 const debug = debugFactory( 'voice-to-content:use-transcription-creator' );
 
+const VOICE_TO_CONTENT_FEATURE = 'voice-to-content';
+
 /**
  * The props for the transcription creator hook.
  */
@@ -41,7 +43,6 @@ export default function useTranscriptionCreator( {
 	onUpdate,
 	onError,
 }: UseTranscriptionCreatorProps ): UseTranscriptionCreatorReturn {
-	const VOICE_TO_CONTENT_FEATURE = 'voice-to-content';
 	const transcription = useRef< string >( null );
 	const postProcessingAction = useRef< PostProcessingAction >( null );
 
