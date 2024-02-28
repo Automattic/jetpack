@@ -93,7 +93,7 @@ export type CancelablePromise< T = void > = Promise< T > & { canceled?: boolean 
 /*
  * Transcription types
  */
-export type TranscriptionState = RecordingState | 'processing' | 'error';
+export type TranscriptionState = RecordingState | 'validating' | 'processing' | 'error';
 
 // Connection initial state
 // @todo: it should be provided by the connection package
