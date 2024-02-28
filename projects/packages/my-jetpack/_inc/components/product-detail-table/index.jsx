@@ -14,8 +14,8 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback, useMemo } from 'react';
-import { useProduct } from '../../hooks/use-product';
+import { useCallback, useMemo } from 'react';
+import useProduct from '../../data/products/use-product';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 
 /**
