@@ -17,6 +17,7 @@ import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCache from '$features/page-cache/page-cache';
 import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
+import Health from '$features/page-cache/health/health';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -131,7 +132,6 @@ const Index = () => {
 					</>
 				}
 				onEnable={ () => pageCacheSetup.mutate() }
-				onDisable={ () => pageCacheErrorMutation.mutate( null ) }
 				description={
 					<>
 						<p>
@@ -154,10 +154,15 @@ const Index = () => {
 								</p>
 							</Notice>
 						) }
+						<Health
+							error={ pageCacheError.data }
+							setError={ pageCacheErrorMutation.mutate }
+							setup={ pageCacheSetup }
+						/>
 					</>
 				}
 			>
-				<PageCache setup={ pageCacheSetup } error={ pageCacheError.data } />
+				<PageCache />
 			</Module>
 			<Module
 				slug="render_blocking_js"

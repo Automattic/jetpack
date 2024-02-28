@@ -358,6 +358,7 @@ jetpack_boost_register_option(
 		array(
 			'code'    => Schema::as_string(),
 			'message' => Schema::as_string(),
+			'dismissed' => Schema::as_boolean()->fallback( false ),
 		)
 	)->nullable()
 );
