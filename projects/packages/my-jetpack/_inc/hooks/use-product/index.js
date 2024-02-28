@@ -15,17 +15,9 @@ import { STORE_ID } from '../../state/store';
  * @returns {object}         - Site product data.
  */
 export function useProduct( productId ) {
-	const {
-		activateProduct,
-		deactivateProduct,
-		installStandalonePluginForProduct,
-		deactivateStandalonePluginForProduct,
-	} = useDispatch( STORE_ID );
+	const { installStandalonePluginForProduct } = useDispatch( STORE_ID );
 
 	return {
-		activate: () => activateProduct( productId ),
-		deactivate: () => deactivateProduct( productId ),
-		deactivateStandalonePlugin: () => deactivateStandalonePluginForProduct( productId ),
 		installStandalonePlugin: () => installStandalonePluginForProduct( productId ),
 		isFetching: useSelect( select => select( STORE_ID ).isFetching( productId ) ),
 		stats: useSelect( select => select( STORE_ID ).getProductStats( productId ) ),
