@@ -2290,11 +2290,15 @@ function wpsc_check_advanced_cache() {
 	global $wpsc_advanced_cache_filename;
 
 	$ret = true;
+	$boost_advanced_cache = false;
 	$other_advanced_cache = false;
 	if ( file_exists( $wpsc_advanced_cache_filename ) ) {
 		$file = file_get_contents( $wpsc_advanced_cache_filename );
 		if ( strpos( $file, "WP SUPER CACHE 0.8.9.1" ) || strpos( $file, "WP SUPER CACHE 1.2" ) ) {
 			return true;
+		} elseif ( strpos( $file, 'Boost Cache Plugin' ) ) {
+			$boost_advanced_cache = true;
+			$ret                  = false;
 		} else {
 			$other_advanced_cache = true;
 			$ret = wp_cache_create_advanced_cache();
@@ -2304,7 +2308,10 @@ function wpsc_check_advanced_cache() {
 	}
 
 	if ( false == $ret ) {
-		if ( $other_advanced_cache ) {
+		if ( $boost_advanced_cache ) {
+			echo '<div style="width: 50%" class="notice notice-error"><h2>' . esc_html__( 'You are using Page Caching on Jetpack Boost', 'wp-super-cache' ) . '</h2>';
+			echo '<p>' . esc_html__( 'It appears that Jetpack Boost Cache is currently enabled. If you wish to use WP Super Cache, please deactivate Jetpack Boost first, activate caching with WP Super Cache, and then reactivate Jetpack Boost.', 'wp-super-cache' ) . '</p>';
+		} elseif ( $other_advanced_cache ) {
 			echo '<div style="width: 50%" class="notice notice-error"><h2>' . __( 'Warning! You may not be allowed to use this plugin on your site.', 'wp-super-cache' ) . "</h2>";
 			echo '<p>' .
 				sprintf(
