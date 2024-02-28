@@ -19,6 +19,7 @@ import PageCache from '$features/page-cache/page-cache';
 import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
 import Health from '$features/page-cache/health/health';
 import { MutationNotice } from '$features/ui';
+import { useNotices } from '$features/notice/context';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -27,6 +28,8 @@ const Index = () => {
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
 	const [ pageCache ] = useSingleModuleState( 'page_cache' );
+
+	const { removeNotice } = useNotices();
 
 	const [ showEnablingPageCacheNotice, setShowEnablingPageCacheNotice ] = useState( false );
 
@@ -151,6 +154,8 @@ const Index = () => {
 
 					if ( ! pageCache?.active ) {
 						setShowEnablingPageCacheNotice( true );
+						// hide page cache setup notice when enabling
+						removeNotice( 'page-cache-setup' );
 					}
 				} }
 				onEnable={ () => {
