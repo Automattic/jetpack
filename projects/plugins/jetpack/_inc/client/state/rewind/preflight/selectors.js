@@ -6,6 +6,10 @@ import { PreflightTestStatus } from './constants';
  * @returns {Array} Preflight statuses
  */
 export const getPreflightStatus = state => {
+	if ( ! state.jetpack.rewind.preflight.featureEnabled ) {
+		return PreflightTestStatus.FAILED;
+	}
+
 	return state.jetpack.rewind.preflight.overallStatus || PreflightTestStatus.PENDING;
 };
 
