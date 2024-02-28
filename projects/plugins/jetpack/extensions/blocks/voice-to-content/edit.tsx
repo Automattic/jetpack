@@ -8,7 +8,7 @@ import {
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { Button, Modal, Icon } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 /**
@@ -20,6 +20,8 @@ import useTranscriptionCreator from './hooks/use-transcription-creator';
 import useTranscriptionInserter from './hooks/use-transcription-inserter';
 
 export default function VoiceToContentEdit( { clientId } ) {
+	const [ audio, setAudio ] = useState< Blob >( null );
+
 	const dispatch: {
 		removeBlock: ( id: number ) => void;
 	} = useDispatch( 'core/block-editor' );
@@ -61,13 +63,23 @@ export default function VoiceToContentEdit( { clientId } ) {
 	} );
 
 	const onAudioHandler = useCallback(
-		( audio: Blob ) => {
-			if ( audio ) {
-				createTranscription( audio, TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT );
+		( audioFile: Blob ) => {
+			if ( audioFile ) {
+				setAudio( audioFile );
 			}
 		},
-		[ createTranscription ]
+		[ setAudio ]
 	);
+
+	/**
+	 * When the audio changes, create the transcription. In the future,
+	 * we can trigger this action (and others) from a button in the UI.
+	 */
+	useEffect( () => {
+		if ( audio ) {
+			createTranscription( audio, TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT );
+		}
+	}, [ audio, createTranscription ] );
 
 	// Destructure controls
 	const {
