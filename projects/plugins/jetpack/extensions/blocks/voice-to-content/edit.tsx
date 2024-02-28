@@ -3,6 +3,7 @@
  */
 import {
 	useMediaRecording,
+	useAudioValidation,
 	TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
 } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
@@ -36,6 +37,8 @@ export default function VoiceToContentEdit( { clientId } ) {
 	const handleClose = () => {
 		destroyBlock();
 	};
+
+	const { isValidatingAudio, validateAudio } = useAudioValidation();
 
 	const { upsertTranscription } = useTranscriptionInserter();
 	const { isCreatingTranscription, createTranscription, cancelTranscription } =
@@ -77,9 +80,15 @@ export default function VoiceToContentEdit( { clientId } ) {
 	 */
 	useEffect( () => {
 		if ( audio ) {
-			createTranscription( audio, TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT );
+			validateAudio(
+				audio,
+				() => {
+					createTranscription( audio, TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT );
+				},
+				onError
+			);
 		}
-	}, [ audio, createTranscription ] );
+	}, [ audio, validateAudio, createTranscription, onError ] );
 
 	// Destructure controls
 	const {
@@ -124,7 +133,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 	// To avoid a wrong TS warning
 	const iconProps = { className: 'icon' };
 
-	const transcriptionState = isCreatingTranscription ? 'processing' : state;
+	const transcriptionState = isCreatingTranscription || isValidatingAudio ? 'processing' : state;
 
 	return (
 		<Modal
