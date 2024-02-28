@@ -4,7 +4,7 @@
 import { Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import PropTypes from 'prop-types';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -26,9 +26,8 @@ const ConnectedProductCard = ( {
 } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
-	const { activate, deactivate, installStandalonePlugin, deactivateStandalonePlugin, isFetching } =
-		useProductDeprecated( slug );
-	const { detail } = useProduct( slug );
+	const { installStandalonePlugin, deactivateStandalonePlugin } = useProductDeprecated( slug );
+	const { detail, activate, deactivate, isFetching } = useProduct( slug );
 	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
 	const [ installingStandalone, setInstallingStandalone ] = useState( false );
 	const [ deactivatingStandalone, setDeactivatingStandalone ] = useState( false );

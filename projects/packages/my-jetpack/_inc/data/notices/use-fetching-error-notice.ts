@@ -1,11 +1,11 @@
 import { __, sprintf } from '@wordpress/i18n';
 import useNotice from './use-notice';
 
-export const useFetchingErrorNotice = (
+export const useFetchingErrorNotice: (
 	infoName: string,
 	isError: boolean,
 	overrideMessage?: string
-) => {
+) => void = ( infoName, isError, overrideMessage ) => {
 	useNotice( {
 		message:
 			overrideMessage ??

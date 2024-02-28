@@ -1,7 +1,13 @@
 import { useContext, useEffect } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
 
-const useNotice = ( { message, options, isError } ) => {
+type NoticeType = {
+	message: string;
+	options: { status: string };
+	isError: boolean;
+};
+
+const useNotice: ( notice: NoticeType ) => void = ( { message, options, isError } ) => {
 	const { setCurrentNotice } = useContext( NoticeContext );
 
 	useEffect( () => {
