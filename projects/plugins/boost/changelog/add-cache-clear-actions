@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Cache: Added actions that third party code can trigger to clear cache.
