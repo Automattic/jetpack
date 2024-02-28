@@ -19,6 +19,7 @@ class Page_Cache_Setup {
 			'create_settings_file',
 			'create_advanced_cache',
 			'add_wp_cache_define',
+			'enable_caching',
 		);
 
 		foreach ( $steps as $step ) {
@@ -33,6 +34,16 @@ class Page_Cache_Setup {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Enable caching step of setup.
+	 *
+	 * @return Boost_Cache_Error|true - True on success, error otherwise.
+	 */
+	private static function enable_caching() {
+		$settings = Boost_Cache_Settings::get_instance();
+		return $settings->set( array( 'enabled' => true ) );
 	}
 
 	/**
@@ -83,6 +94,10 @@ class Page_Cache_Setup {
 
 		if ( file_exists( $advanced_cache_filename ) ) {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+			if ( strpos( $content, 'WP SUPER CACHE' ) !== false ) {
+				return new \WP_Error( 'advanced-cache-for-super-cache', 'advanced-cache.php exists, but belongs to WP Super Cache.' );
+			}
 
 			if ( strpos( $content, Page_Cache::ADVANCED_CACHE_SIGNATURE ) === false ) {
 				return new \WP_Error( 'advanced-cache-incompatible', 'advanced-cache.php exists, but belongs to another plugin/system.' );
