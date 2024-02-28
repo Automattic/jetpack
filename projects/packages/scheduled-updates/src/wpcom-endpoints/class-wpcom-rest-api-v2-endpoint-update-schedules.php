@@ -12,6 +12,13 @@
  */
 class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	/**
+	 * The pattern for a plugin basename.
+	 *
+	 * @var string
+	 */
+	const PATTERN = '[^.\/]+(?:\/[^.\/]+)?';
+
+	/**
 	 * The namespace of this controller's route.
 	 *
 	 * @var string
@@ -123,7 +130,14 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$events    = array();
 
 		foreach ( $schedules as $schedule_args ) {
-			$events[] = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
+			$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args['plugins'] );
+
+			$events[] = array(
+				'name'      => $schedule_args['name'],
+				'timestamp' => $event->timestamp, // Next run.
+				'interval'  => $event->schedule,
+				'plugins'   => $schedule_args['plugins'],
+			);
 		}
 
 		return rest_ensure_response( $events );
@@ -150,13 +164,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		foreach ( $schedules as $schedule_args ) {
-			$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
+			$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args['plugins'] );
 
 			if ( $request['schedule']['timestamp'] === $event->timestamp ) {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same time as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 
-			if ( $this->generate_schedule_id( $schedule_args ) === $this->generate_schedule_id( $request['plugins'] ) ) {
+			if ( $this->generate_schedule_id( $schedule_args['plugins'] ) === $this->generate_schedule_id( $request['plugins'] ) ) {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same plugins as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 		}
@@ -184,7 +198,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		}
 
 		$schedules   = get_option( 'jetpack_update_schedules', array() );
-		$schedules[] = $plugins;
+		$schedules[] = array(
+			'name'    => $request['name'],
+			'plugins' => $plugins,
+		);
 		update_option( 'jetpack_update_schedules', $schedules );
 
 		return rest_ensure_response( $this->generate_schedule_id( $plugins ) );
@@ -215,8 +232,15 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$event     = array();
 
 		foreach ( $schedules as $schedule_args ) {
-			if ( $this->generate_schedule_id( $schedule_args ) === $request['schedule_id'] ) {
-				$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
+			if ( $this->generate_schedule_id( $schedule_args['plugins'] ) === $request['schedule_id'] ) {
+				$scheduled_event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args['plugins'] );
+
+				$event = array(
+					'name'      => $schedule_args['name'],
+					'timestamp' => $scheduled_event->timestamp, // Next run.
+					'interval'  => $scheduled_event->schedule,
+					'plugins'   => $schedule_args['plugins'],
+				);
 				break;
 			}
 		}
@@ -245,9 +269,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 
 		$schedules = get_option( 'jetpack_update_schedules', array() );
 		foreach ( $schedules as $schedule_args ) {
-			$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
+			$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args['plugins'] );
 
-			if ( $this->generate_schedule_id( $schedule_args ) === $request['schedule_id'] ) {
+			if ( $this->generate_schedule_id( $schedule_args['plugins'] ) === $request['schedule_id'] ) {
 				continue;
 			}
 
@@ -255,7 +279,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same time as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 
-			if ( $this->generate_schedule_id( $schedule_args ) === $this->generate_schedule_id( $request['plugins'] ) ) {
+			if ( $this->generate_schedule_id( $schedule_args['plugins'] ) === $this->generate_schedule_id( $request['plugins'] ) ) {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same plugins as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 		}
@@ -278,9 +302,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$event     = array();
 
 		foreach ( $schedules as $key => $schedule_args ) {
-			if ( $this->generate_schedule_id( $schedule_args ) === $request['schedule_id'] ) {
-				$event  = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
-				$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $schedule_args, true );
+			if ( $this->generate_schedule_id( $schedule_args['plugins'] ) === $request['schedule_id'] ) {
+				$event  = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args['plugins'] );
+				$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $schedule_args['plugins'], true );
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}
@@ -325,9 +349,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$event     = array();
 
 		foreach ( $schedules as $key => $schedule_args ) {
-			if ( $this->generate_schedule_id( $schedule_args ) === $request['schedule_id'] ) {
-				$event  = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
-				$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $schedule_args, true );
+			if ( $this->generate_schedule_id( $schedule_args['plugins'] ) === $request['schedule_id'] ) {
+				$event  = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args['plugins'] );
+				$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $schedule_args['plugins'], true );
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}
@@ -348,6 +372,30 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 
 	/**
+	 * Checks that the "plugin" parameter is a valid path.
+	 *
+	 * @param string $file The plugin file parameter.
+	 * @return bool
+	 */
+	public function validate_plugin_param( $file ) {
+		if ( ! is_string( $file ) || ! preg_match( '/' . self::PATTERN . '/u', $file ) ) {
+			return false;
+		}
+
+		return 0 === validate_file( plugin_basename( $file ) );
+	}
+
+	/**
+	 * Sanitizes the "plugin" parameter to be a proper plugin file with ".php" appended.
+	 *
+	 * @param string $file The plugin file parameter.
+	 * @return string
+	 */
+	public function sanitize_plugin_param( $file ) {
+		return plugin_basename( sanitize_text_field( $file . '.php' ) );
+	}
+
+	/**
 	 * Retrieves the update schedule's schema, conforming to JSON Schema.
 	 *
 	 * @return array Item schema data.
@@ -362,28 +410,23 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			'title'      => 'update-schedule',
 			'type'       => 'object',
 			'properties' => array(
-				'hook'      => array(
-					'description' => 'The hook name.',
+				'name'      => array(
+					'description' => 'Name of the schedule.',
 					'type'        => 'string',
-					'readonly'    => true,
 				),
 				'timestamp' => array(
 					'description' => 'Unix timestamp (UTC) for when to next run the event.',
 					'type'        => 'integer',
 					'readonly'    => true,
 				),
-				'schedule'  => array(
+				'interval'  => array(
 					'description' => 'How often the event should subsequently recur.',
 					'type'        => 'string',
 					'enum'        => array( 'daily', 'weekly' ),
 				),
-				'args'      => array(
+				'plugins'   => array(
 					'description' => 'The plugins to be updated on this schedule.',
 					'type'        => 'array',
-				),
-				'interval'  => array(
-					'description' => 'The interval time in seconds for the schedule.',
-					'type'        => 'integer',
 				),
 			),
 		);
@@ -400,10 +443,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 */
 	public function get_object_params() {
 		return array(
+			'name'     => array(
+				'description' => 'Name of the schedule.',
+				'type'        => 'string',
+				'required'    => true,
+			),
 			'plugins'  => array(
 				'description' => 'List of plugin slugs to update.',
 				'type'        => 'array',
 				'required'    => false,
+				'items'       => array(
+					'type'              => 'string',
+					'pattern'           => self::PATTERN,
+					'validate_callback' => array( $this, 'validate_plugin_param' ),
+					'sanitize_callback' => array( $this, 'sanitize_plugin_param' ),
+				),
 			),
 			'themes'   => array(
 				'description' => 'List of theme slugs to update.',

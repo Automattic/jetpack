@@ -103,27 +103,37 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		);
 		wp_schedule_event( strtotime( 'next Tuesday 9:00' ), 'daily', 'jetpack_scheduled_update', array( 'hello-dolly/hello-dolly.php' ) );
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
-		update_option( 'jetpack_update_schedules', array( array( 'hello-dolly/hello-dolly.php' ), $plugins ) );
+		update_option(
+			'jetpack_update_schedules',
+			array(
+				array(
+					'name'    => 'Schedule 1',
+					'plugins' => array( 'hello-dolly/hello-dolly.php' ),
+				),
+				array(
+					'name'    => 'Schedule 2',
+					'plugins' => $plugins,
+				),
+			)
+		);
 
 		// Successful request.
 		$result = rest_do_request( $request );
 
 		$this->assertSame( 200, $result->get_status() );
-		$this->assertEquals(
+		$this->assertSame(
 			array(
-				(object) array(
-					'hook'      => 'jetpack_scheduled_update',
-					'args'      => array( 'hello-dolly/hello-dolly.php' ),
+				array(
+					'name'      => 'Schedule 1',
 					'timestamp' => strtotime( 'next Tuesday 9:00' ),
-					'schedule'  => 'daily',
-					'interval'  => DAY_IN_SECONDS,
+					'interval'  => 'daily',
+					'plugins'   => array( 'hello-dolly/hello-dolly.php' ),
 				),
-				(object) array(
-					'hook'      => 'jetpack_scheduled_update',
-					'args'      => $plugins,
+				array(
+					'name'      => 'Schedule 2',
 					'timestamp' => strtotime( 'next Monday 8:00' ),
-					'schedule'  => 'weekly',
-					'interval'  => WEEK_IN_SECONDS,
+					'interval'  => 'weekly',
+					'plugins'   => $plugins,
 				),
 			),
 			$result->get_data()
@@ -139,9 +149,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
+				'name'     => 'Schedule 1',
 				'plugins'  => array(
-					'gutenberg/gutenberg.php',
-					'custom-plugin/custom-plugin.php',
+					'gutenberg/gutenberg',
+					'custom-plugin/custom-plugin',
 				),
 				'schedule' => array(
 					'timestamp' => strtotime( 'next Monday 8:00' ),
@@ -174,6 +185,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		// Can't create a schedule for the same time again.
 		$request->set_body_params(
 			array(
+				'name'     => 'Schedule 1',
 				'plugins'  => array(
 					'gutenberg/gutenberg.php',
 					'custom-plugin/custom-plugin.php',
@@ -203,16 +215,22 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		);
 
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
-		update_option( 'jetpack_update_schedules', array( $plugins ) );
+		update_option(
+			'jetpack_update_schedules',
+			array(
+				array(
+					'name'    => 'Schedule 1',
+					'plugins' => $plugins,
+				),
+			)
+		);
 
 		// Can't create a schedule for the same time again.
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
-				'plugins'  => array(
-					'gutenberg/gutenberg.php',
-					'custom-plugin/custom-plugin.php',
-				),
+				'name'     => 'Schedule 1',
+				'plugins'  => $plugins,
 				'schedule' => array(
 					'timestamp' => strtotime( 'next Monday 8:00' ),
 					'interval'  => 'weekly',
@@ -247,6 +265,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
 			array(
+				'name'     => 'Schedule 1',
 				'plugins'  => array(
 					'gutenberg/gutenberg.php',
 					'custom-plugin/custom-plugin.php',
@@ -276,7 +295,15 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$schedule_id = $this->generate_schedule_id( $plugins );
 
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
-		update_option( 'jetpack_update_schedules', array( $plugins ) );
+		update_option(
+			'jetpack_update_schedules',
+			array(
+				array(
+					'name'    => 'Schedule 1',
+					'plugins' => $plugins,
+				),
+			)
+		);
 
 		// Unauthenticated request.
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/' . $schedule_id );
@@ -298,12 +325,11 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertEquals(
-			(object) array(
-				'hook'      => 'jetpack_scheduled_update',
-				'args'      => $plugins,
+			array(
+				'name'      => 'Schedule 1',
+				'plugins'   => $plugins,
 				'timestamp' => strtotime( 'next Monday 8:00' ),
-				'schedule'  => 'weekly',
-				'interval'  => WEEK_IN_SECONDS,
+				'interval'  => 'weekly',
 			),
 			$result->get_data()
 		);
@@ -337,12 +363,21 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$schedule_id = $this->generate_schedule_id( $plugins );
 
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
-		update_option( 'jetpack_update_schedules', array( $plugins ) );
+		update_option(
+			'jetpack_update_schedules',
+			array(
+				array(
+					'name'    => 'Schedule 1',
+					'plugins' => $plugins,
+				),
+			)
+		);
 
 		// Unauthenticated request.
 		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $schedule_id );
 		$request->set_body_params(
 			array(
+				'name'     => 'Schedule 1',
 				'plugins'  => $plugins,
 				'schedule' => array(
 					'timestamp' => strtotime( 'next Tuesday 9:00' ),
@@ -381,6 +416,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/update-schedules/' . $this->generate_schedule_id( array() ) );
 		$request->set_body_params(
 			array(
+				'name'     => 'Schedule 1',
 				'plugins'  => array(),
 				'schedule' => array(
 					'timestamp' => strtotime( 'next Tuesday 9:00' ),
@@ -407,7 +443,15 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$schedule_id = $this->generate_schedule_id( $plugins );
 
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
-		update_option( 'jetpack_update_schedules', array( $plugins ) );
+		update_option(
+			'jetpack_update_schedules',
+			array(
+				array(
+					'name'    => 'Schedule 1',
+					'plugins' => $plugins,
+				),
+			)
+		);
 
 		// Unauthenticated request.
 		wp_set_current_user( 0 );

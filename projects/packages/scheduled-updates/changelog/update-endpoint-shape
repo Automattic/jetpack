@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Updates Schedule endpoint now accepts a name parameter and returns an array with the information needed to display schedules in Calypso
