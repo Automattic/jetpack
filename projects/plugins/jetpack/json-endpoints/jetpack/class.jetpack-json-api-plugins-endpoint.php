@@ -42,7 +42,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 *
 	 * @var boolean
 	 */
-	protected $schedule_update = false;
+	protected $scheduled_update = false;
 
 	/**
 	 * Response format.
@@ -434,16 +434,16 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	/**
-	 * Validates if scheduled update are allowed based on the current plan.
+	 * Validates if scheduled updates are allowed based on the current plan.
 	 *
-	 * @return bool|WP_Error True if scheduled update are allowed or not provided, WP_Error otherwise.
+	 * @return bool|WP_Error True if scheduled updates are allowed or not provided, WP_Error otherwise.
 	 */
 	protected function validate_scheduled_update() {
 		$args = $this->input();
 
 		if ( isset( $args['schedule_update'] ) && $args['schedule_update'] ) {
 			if ( Current_Plan::supports( 'scheduled-updates' ) ) {
-				$this->schedule_update = true;
+				$this->scheduled_update = true;
 			} else {
 				return new WP_Error( 'unauthorized', __( 'Scheduled updates are not available on your current plan. Please upgrade to a plan that supports scheduled updates to use this feature.', 'jetpack' ), 403 );
 			}
