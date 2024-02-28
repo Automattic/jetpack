@@ -1,12 +1,22 @@
+import { standardizeError } from '$lib/utils/standardize-error';
 import {
-	invalidateQuery,
+	DataSyncError,
 	useDataSync,
 	useDataSyncAction,
 } from '@automattic/jetpack-react-data-sync-client';
 import { useState } from 'react';
 import { z } from 'zod';
+import { __ } from '@wordpress/i18n';
 
-export const PageCacheError = z.string();
+export const PageCacheError = z
+	.object( {
+		code: z.string(),
+		message: z.string(),
+	} )
+	.nullable();
+
+export type PageCacheError = z.infer< typeof PageCacheError >;
+
 export const PageCache = z.object( {
 	bypass_patterns: z.array( z.string() ),
 	logging: z.boolean(),
@@ -16,9 +26,7 @@ const PageCacheClear = z.object( {
 } );
 
 export function usePageCacheError() {
-	const [ { data } ] = useDataSync( 'jetpack_boost_ds', 'page_cache_error', PageCacheError );
-
-	return data;
+	return useDataSync( 'jetpack_boost_ds', 'page_cache_error', PageCacheError );
 }
 
 export function usePageCache() {
@@ -29,17 +37,35 @@ export function usePageCache() {
  * Hook which creates a callable action for running Page Cache setup.
  */
 export function usePageCacheSetup() {
-	const action = 'run-setup';
-	return useDataSyncAction( {
+	const [ , pageCacheErrorMutation ] = usePageCacheError();
+	const setError = pageCacheErrorMutation.mutate;
+
+	const pageCacheSetup = useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
 		key: 'page_cache',
-		action_name: action,
+		action_name: 'run-setup',
 		schema: {
-			state: PageCacheError,
+			state: PageCache,
 			action_request: z.void(),
-			action_response: z.void(),
+			action_response: PageCacheError.or( z.literal( true ) ),
+		},
+		mutationOptions: {
+			onError: error => {
+				if ( error instanceof DataSyncError ) {
+					return setError( error.info() );
+				}
+				const standardizedError = standardizeError( error );
+				setError( {
+					code: 'unknown_error',
+					message: standardizedError.message || __( 'Unknown error occurred.', 'jetpack-boost' ),
+				} );
+			},
+			onSuccess: () => {
+				setError( null );
+			},
 		},
 	} );
+	return pageCacheSetup;
 }
 
 /**
@@ -66,10 +92,4 @@ export function useClearPageCacheAction() {
 	} );
 
 	return [ message, action ] as const;
-}
-
-// When page cache is enabled, page cache error needs to be invalidated,
-// so we can get the updated error message from the last setup run.
-export function invalidatePageCacheError() {
-	invalidateQuery( 'page_cache_error' );
 }

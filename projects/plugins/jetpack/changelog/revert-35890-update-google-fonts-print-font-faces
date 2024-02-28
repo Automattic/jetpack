@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Revert 35890 to resolve the font display issue

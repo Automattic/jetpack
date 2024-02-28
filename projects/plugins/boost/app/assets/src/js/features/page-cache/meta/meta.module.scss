@@ -90,4 +90,39 @@
 			margin-top: 16px;
 		}
 	}
+
+	.see-logs-link {
+		font-size: 16px;
+		line-height: 1.5;
+	}
+
+	.logging-toggle {
+		margin-right: 1em;
+		float: left;
+	}
+	
+	.clearfix {
+		clear: both;
+	}
+}
+
+.example-wrapper {
+	position: relative;
+	display: inline;
+
+	.example-button {
+		position: relative;
+		z-index: 10;
+	}
+
+	.tooltip-wrapper {
+		position: absolute;
+		top: 0;
+		left: -10px;
+		z-index: 9;
+
+		.tooltip :global(.icon-tooltip-container .components-popover__content) {
+			width: 150px;
+		}
+	}
 }
