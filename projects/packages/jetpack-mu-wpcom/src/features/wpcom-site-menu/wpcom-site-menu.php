@@ -35,7 +35,9 @@ function wpcom_add_wpcom_menu_item() {
 		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'All Sites', 'jetpack-mu-wpcom' ),
 		'manage_options',
-		localized_wpcom_url( 'https://wordpress.com/sites' ),
+		// The URL does not need localizing as it's logged-in Calypso URL, thus respecting user's own locale.
+		// phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
+		'https://wordpress.com/sites',
 		null,
 		'dashicons-arrow-left-alt2',
 		0
