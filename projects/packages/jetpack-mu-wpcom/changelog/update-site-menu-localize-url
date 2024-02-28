@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Use localized_wpcom_url per PHPCS-CHANGED WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
+
+
