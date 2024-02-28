@@ -715,8 +715,21 @@ class REST_Controller {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error(
+				'wp_error_fetch_preflight',
+				$response->get_error_message(),
+				array( 'status' => 500 )
+			);
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				'http_error_fetch_preflight',
+				wp_remote_retrieve_response_message( $response ),
+				array( 'status' => $response_code )
+			);
 		}
 
 		$body = json_decode( $response['body'], true );
