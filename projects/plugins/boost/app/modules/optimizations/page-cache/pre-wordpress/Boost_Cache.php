@@ -9,6 +9,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPres
  * Require all pre-wordpress files here. These files aren't autoloaded as they are loaded before WordPress is fully initialized.
  * pre-wordpress files assume all other pre-wordpress files are loaded here.
  */
+require_once __DIR__ . '/Boost_Cache_Error.php';
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 require_once __DIR__ . '/Boost_Cache_Utils.php';
 require_once __DIR__ . '/Filesystem_Utils.php';
@@ -128,7 +129,7 @@ class Boost_Cache {
 
 			$result = $this->storage->write( $this->request->get_uri(), $this->request->get_parameters(), $buffer );
 
-			if ( is_wp_error( $result ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+			if ( $result instanceof Boost_Cache_Error ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 				Logger::debug( 'Error writing cache file: ' . $result->get_error_message() );
 			} else {
 				Logger::debug( 'Cache file created' );

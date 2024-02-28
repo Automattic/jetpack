@@ -5,6 +5,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Storage;
 
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
@@ -35,7 +36,7 @@ class File_Storage implements Storage {
 		$filename  = Filesystem_Utils::get_request_filename( $parameters );
 
 		if ( ! Filesystem_Utils::create_directory( $directory ) ) {
-			return new \WP_Error( 'Could not create cache directory' );
+			return new Boost_Cache_Error( 'cannot-create-cache-dir', 'Could not create cache directory' );
 		}
 
 		return Filesystem_Utils::write_to_file( $directory . $filename, $data );
@@ -118,7 +119,7 @@ class File_Storage implements Storage {
 		} elseif ( $type === Filesystem_Utils::DELETE_FILE && is_file( $normalized_path ) ) {
 			return Filesystem_Utils::delete_file( $normalized_path );
 		} else {
-			return new \WP_Error( 'no-cache-files-to-delete', 'No cache files to delete.' );
+			return new Boost_Cache_Error( 'no-cache-files-to-delete', 'No cache files to delete.' );
 		}
 	}
 }

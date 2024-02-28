@@ -39,7 +39,7 @@ class Logger {
 
 		$instance          = new Logger();
 		$prepared_log_file = $instance->prepare_file();
-		if ( is_wp_error( $prepared_log_file ) ) {
+		if ( $prepared_log_file instanceof Boost_Cache_Error ) {
 			return $prepared_log_file;
 		}
 
@@ -67,7 +67,7 @@ class Logger {
 
 		$directory = dirname( $log_file );
 		if ( ! Filesystem_Utils::create_directory( $directory ) ) {
-			return new \WP_Error( 'Could not create boost cache log directory' );
+			return new Boost_Cache_Error( 'could-not-create-log-dir', 'Could not create boost cache log directory' );
 		}
 
 		return Filesystem_Utils::write_to_file( $log_file, self::LOG_HEADER );
@@ -86,9 +86,11 @@ class Logger {
 
 		// TODO: Check to make sure that current request IP is allowed to create logs.
 
-		if ( ! is_wp_error( $logger ) ) {
-			$logger->log( $message );
+		if ( $logger instanceof Boost_Cache_Error ) {
+			return;
 		}
+
+		$logger->log( $message );
 	}
 
 	/**
@@ -111,8 +113,13 @@ class Logger {
 	 */
 	public static function read() {
 		$instance = self::get_instance();
-		$log_file = $instance->get_log_file();
 
+		// If we failed to set up a Logger instance (e.g.: unwriteable directory), return the error as log content.
+		if ( $instance instanceof Boost_Cache_Error ) {
+			return $instance->get_error_message();
+		}
+
+		$log_file = $instance->get_log_file();
 		if ( ! file_exists( $log_file ) ) {
 			return '';
 		}
