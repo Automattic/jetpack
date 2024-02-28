@@ -18,6 +18,7 @@ use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
 
+require_once __DIR__ . '/class-jetpack-subscription-site.php';
 require_once __DIR__ . '/constants.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
@@ -155,6 +156,8 @@ function register_block() {
 	}
 
 	add_action( 'init', __NAMESPACE__ . '\maybe_prevent_super_cache_caching' );
+
+	Jetpack_Subscription_Site::init()->handle_subscribe_block_placements();
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
