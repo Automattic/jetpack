@@ -12,7 +12,6 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPres
 class Boost_Cache_Settings {
 	private static $instance = null;
 	private $settings        = array();
-	private $last_error      = '';
 	private $config_file_path;
 	private $config_file;
 
@@ -20,15 +19,14 @@ class Boost_Cache_Settings {
 	 * An uninitialized config holds these settings.
 	 */
 	private $default_settings = array(
-		'enabled'    => true,
-		'exceptions' => array(),
-		'logging'    => false,
+		'enabled'         => false,
+		'bypass_patterns' => array(),
+		'logging'         => false,
 	);
 
 	private function __construct() {
 		$this->config_file_path = WP_CONTENT_DIR . '/boost-cache/';
 		$this->config_file      = $this->config_file_path . 'config.php';
-		$this->init_settings();
 	}
 
 	/**
@@ -39,57 +37,89 @@ class Boost_Cache_Settings {
 	public static function get_instance() {
 		if ( self::$instance === null ) {
 			self::$instance = new Boost_Cache_Settings();
+			self::$instance->init_settings();
 		}
 
 		return self::$instance;
 	}
 
-	/*
-	 * Load the settings from the config file, if available.
+	/**
+	 * Ensure a settings file exists, if one isn't there already.
+	 * @return mixed - True on success, or a Boost_Cache_Error on failure.
 	 */
-	private function init_settings() {
-
+	public function create_settings_file() {
 		if ( ! file_exists( $this->config_file_path ) ) {
-			mkdir( $this->config_file_path, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+			if ( ! Filesystem_Utils::create_directory( $this->config_file_path ) ) {
+				return new Boost_Cache_Error( 'failed-settings-write', 'Failed to create settings directory at ' . $this->config_file_path );
+			}
 		}
 
 		if ( ! file_exists( $this->config_file ) ) {
-			if ( ! $this->set( $this->default_settings ) ) {
-				return false;
+			$write_result = $this->set( $this->default_settings );
+			if ( $write_result instanceof Boost_Cache_Error ) {
+				return $write_result;
 			}
 		}
 
-		$lines = file( $this->config_file );
-		if ( count( $lines ) < 4 ) {
-			$this->last_error = 'Invalid config file';
-			return false;
+		return true;
+	}
+
+	/**
+	 * If an error occurs while reading the options, it will be impossible to ever log this to the Boost Cache logs.
+	 * So, if WP_DEBUG is enabled write it to the error_log instead.
+	 *
+	 * @param string $message - The message to log.
+	 */
+	private function log_init_error( $message ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		}
+	}
+
+	/*
+	 * Load the settings from the config file, if available. Falls back to defaults if not.
+	 */
+	private function init_settings() {
+		$this->settings = $this->default_settings;
+
+		// If no settings file exists yet, don't try to create one until we are writing a value.
+		if ( ! file_exists( $this->config_file ) ) {
+			return;
 		}
 
-		$settings = null;
+		$lines = @file( $this->config_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( empty( $lines ) || count( $lines ) < 4 ) {
+			$this->log_init_error( 'Invalid config file at ' . $this->config_file );
+			return;
+		}
+
+		$file_settings = null;
 		foreach ( $lines as $line ) {
 			if ( strpos( $line, '{' ) !== false ) {
-				$settings = json_decode( $line, true );
+				$file_settings = json_decode( $line, true );
 				break;
 			}
 		}
-		if ( ! is_array( $settings ) ) {
-			$this->last_error = 'Invalid config file';
+
+		if ( ! is_array( $file_settings ) ) {
+			$this->log_init_error( 'Invalid config file at ' . $this->config_file );
 			return false;
 		}
-		$this->settings = $settings;
+
+		$this->settings = $file_settings;
 	}
 
 	/*
 	 * Returns the value of the given setting.
 	 *
 	 * @param string $setting - The setting to get.
-	 * @return mixed - The value of the setting, or false if the setting does not exist. Call get_last_error() to get the error message.
+	 * @return mixed - The value of the setting, or the default if the setting does not exist.
 	 */
 	public function get( $setting, $default = false ) {
 		if ( ! isset( $this->settings[ $setting ] ) ) {
-			$this->last_error = 'Setting not found';
 			return $default;
 		}
+
 		return $this->settings[ $setting ];
 	}
 
@@ -127,41 +157,32 @@ class Boost_Cache_Settings {
 	 * Example:
 	 * $result = $this->set( array( 'enabled' => true ) );
 	 *
-	 * @return bool - true if the settings were saved, false otherwise. Call get_last_error() to get the error message.
+	 * @return mixed - true if the settings were saved, Boost_Cache_Error otherwise.
 	 */
 	public function set( $settings ) {
+		// If the settings file does not exist, attempt to create one.
+		if ( ! file_exists( $this->config_file_path ) ) {
+			$result = $this->create_settings_file();
+			if ( $result instanceof Boost_Cache_Error ) {
+				return $result;
+			}
+		}
+
 		if ( ! is_writable( $this->config_file_path ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
-			$this->last_error = 'Config file is not writable';
-			return false;
+			$error = new Boost_Cache_Error( 'failed-settings-write', 'Could not write to the config file at ' . $this->config_file_path );
+			Logger::debug( $error->get_error_message() );
+			return $error;
 		}
 
 		$this->settings = array_merge( $this->settings, $settings );
 
 		$contents = "<?php die();\n/*\n * Configuration data for Jetpack Boost Cache. Do not edit.\n" . json_encode( $this->settings ) . "\n */"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 		$result   = Filesystem_Utils::write_to_file( $this->config_file, $contents );
-		if ( is_wp_error( $result ) ) {
-			$this->last_error = $result->get_error_message();
-			return false;
-		} else {
-			return true;
+		if ( $result instanceof Boost_Cache_Error ) {
+			Logger::debug( $result->get_error_message() );
+			return new Boost_Cache_Error( 'failed-settings-write', 'Failed to write settings file: ' . $result->get_error_message() );
 		}
-	}
 
-	/*
-	 * Returns the last error message generated by get() or set().
-	 * This is required because WP_Error may not be available.
-	 *
-	 * @return string
-	 */
-	public function get_last_error() {
-		return $this->last_error;
-	}
-
-	/*
-	 * Resets the last error message.
-	 * Once you get the last_error, it should be reset, or it will be returned again.
-	 */
-	public function reset_last_error() {
-		$this->last_error = '';
+		return true;
 	}
 }
