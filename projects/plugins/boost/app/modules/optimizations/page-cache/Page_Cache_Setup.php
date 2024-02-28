@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 
 class Page_Cache_Setup {
@@ -14,12 +16,18 @@ class Page_Cache_Setup {
 		$steps = array(
 			'verify_wp_content_writable',
 			'verify_permalink_setting',
+			'create_settings_file',
 			'create_advanced_cache',
 			'add_wp_cache_define',
 		);
 
 		foreach ( $steps as $step ) {
 			$result = self::$step();
+
+			if ( $result instanceof Boost_Cache_Error ) {
+				return $result->to_wp_error();
+			}
+
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
@@ -51,6 +59,16 @@ class Page_Cache_Setup {
 		if ( ! $wp_rewrite || ! $wp_rewrite->using_permalinks() ) {
 			return new \WP_Error( 'not-using-permalinks', 'This site does not appear to use permalinks' );
 		}
+	}
+
+	/**
+	 * Create a settings file, if one does not already exist.
+	 *
+	 * @return bool|\WP_Error
+	 */
+	private static function create_settings_file() {
+		$result = Boost_Cache_Settings::get_instance()->create_settings_file();
+		return $result;
 	}
 
 	/**
@@ -93,13 +111,14 @@ $boost_cache->serve();
 ';
 
 		$write_advanced_cache = Filesystem_Utils::write_to_file( $advanced_cache_filename, $contents );
-
-		if ( is_wp_error( $write_advanced_cache ) ) {
+		if ( $write_advanced_cache instanceof Boost_Cache_Error ) {
 			return new \WP_Error( 'unable-to-write-to-advanced-cache', $write_advanced_cache->get_error_message() );
 		}
+
 		if ( function_exists( 'opcache_invalidate' ) ) {
 			opcache_invalidate( $advanced_cache_filename, true );
 		}
+
 		return true;
 	}
 
@@ -133,9 +152,11 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		if ( $result === false ) {
 			return new \WP_Error( 'wp-config-not-writable', 'Could not write to wp-config.php' );
 		}
+
 		if ( function_exists( 'opcache_invalidate' ) ) {
 			opcache_invalidate( ABSPATH . 'wp-config.php', true );
 		}
+
 		return true;
 	}
 
@@ -158,8 +179,8 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		self::deactivate();
 
 		$result = Filesystem_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache', Filesystem_Utils::DELETE_ALL );
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		if ( $result instanceof Boost_Cache_Error ) {
+			return $result->to_wp_error();
 		}
 
 		return true;
