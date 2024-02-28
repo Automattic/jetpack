@@ -169,7 +169,7 @@ class Boost_Cache_Settings {
 		}
 
 		if ( ! is_writable( $this->config_file_path ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
-			$error = new Boost_Cache_Error( 'cache-config-not-writable', 'Could not write to the config file at ' . $this->config_file_path );
+			$error = new Boost_Cache_Error( 'failed-settings-write', 'Could not write to the config file at ' . $this->config_file_path );
 			Logger::debug( $error->get_error_message() );
 			return $error;
 		}
@@ -180,7 +180,7 @@ class Boost_Cache_Settings {
 		$result   = Filesystem_Utils::write_to_file( $this->config_file, $contents );
 		if ( $result instanceof Boost_Cache_Error ) {
 			Logger::debug( $result->get_error_message() );
-			return new Boost_Cache_Error( 'cache-config-not-writable', 'Failed to write settings file: ' . $result->get_error_message() );
+			return new Boost_Cache_Error( 'failed-settings-write', 'Failed to write settings file: ' . $result->get_error_message() );
 		}
 
 		return true;

@@ -182,22 +182,6 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			}
 		),
 	},
-	'cache-config-not-writable': {
-		title: __( 'Cache config file not writable', 'jetpack-boost' ),
-		message: createInterpolateElement(
-			sprintf(
-				// translators: %d refers to the path of wp-config.php.
-				__(
-					`This feature cannot be enabled because <code>%s</code> is not writable. This needs to be resolved before caching can be enabled.`,
-					'jetpack-boost'
-				),
-				'wp-content/boost-cache/config.php'
-			),
-			{
-				code: <code className={ styles.nowrap } />,
-			}
-		),
-	},
 };
 
 export default ( status: string ) => {
