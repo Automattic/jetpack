@@ -15,8 +15,6 @@ import type { AiFeatureProps, PlanStateProps } from './types';
 const store = 'wordpress-com/plans';
 
 const wordpressPlansStore = createReduxStore( store, {
-	__experimentalUseThunks: true,
-
 	actions,
 
 	reducer,
