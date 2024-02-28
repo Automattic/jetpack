@@ -20,7 +20,7 @@ class Boost_Cache_Settings {
 	 */
 	private $default_settings = array(
 		'enabled'         => false,
-		`bypass_patterns' => [],
+		'bypass_patterns' => array(),
 		'logging'         => false,
 	);
 
