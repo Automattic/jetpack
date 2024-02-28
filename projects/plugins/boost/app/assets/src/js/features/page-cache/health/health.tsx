@@ -16,16 +16,18 @@ const Health = ( { setup, error, setError }: HealthProps ) => {
 	// Was there a problem trying to setup cache?
 	const errorData = getErrorData( error );
 	useEffect( () => {
-		if ( error && pageCache?.active ) {
+		if ( setup?.isError && error && pageCache?.active ) {
 			setPageCache( false );
 		}
-	} );
+	}, [ setup?.isError, error, pageCache, setPageCache ] );
 	return (
 		<>
 			{ setup && (
 				<MutationNotice
 					mutationId="page-cache-setup"
-					isPending={ setup.isPending }
+					isPending={
+						setup.isPending || ( !! pageCache?.active && ( ! error || !! error.dismissed ) )
+					}
 					isError={ setup.isError }
 					isSuccess={ setup.isSuccess && ! error }
 					savingMessage={ __( 'Setting up cache…', 'jetpack-boost' ) }

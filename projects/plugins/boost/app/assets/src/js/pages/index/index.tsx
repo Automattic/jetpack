@@ -131,7 +131,9 @@ const Index = () => {
 						<span className={ styles.beta }>Beta</span>
 					</>
 				}
-				onEnable={ () => pageCacheSetup.mutate() }
+				onEnable={ () => {
+					pageCacheSetup.mutate();
+				} }
 				description={
 					<>
 						<p>
@@ -162,7 +164,7 @@ const Index = () => {
 					</>
 				}
 			>
-				<PageCache />
+				{ ! pageCacheError.data && ! pageCacheSetup.isError && <PageCache /> }
 			</Module>
 			<Module
 				slug="render_blocking_js"

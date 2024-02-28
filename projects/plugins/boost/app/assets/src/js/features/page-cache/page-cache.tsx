@@ -63,78 +63,80 @@ const Meta = () => {
 	const loggingDisabledMessage = __( 'Logging disabled.', 'jetpack-boost' );
 
 	return (
-		<div className={ styles.wrapper }>
-			<MutationNotice { ...mutateBypassPatterns } mutationId="update-bypass-patterns" />
-			<MutationNotice
-				{ ...mutateLogging }
-				successMessage={ logging ? loggingEnabledMessage : loggingDisabledMessage }
-				mutationId="update-logging"
-			/>
-			<MutationNotice
-				{ ...runClearPageCacheAction }
-				savingMessage={ __( 'Clearing cache…', 'jetpack-boost' ) }
-				errorMessage={ __( 'Unable to clear cache.', 'jetpack-boost' ) }
-				successMessage={ clearedCacheMessage || __( 'Cache cleared.', 'jetpack-boost' ) }
-				mutationId="clear-page-cache"
-			/>
-			<div className={ styles.head }>
-				<div className={ styles.summary }>{ getSummary() }</div>
-				<div className={ styles.actions }>
-					<Button
-						variant="link"
-						size="small"
-						weight="regular"
-						iconSize={ 16 }
-						icon={ <Lightning /> }
-						onClick={ clearPageCache }
-						disabled={ runClearPageCacheAction.isPending }
-					>
-						{ __( 'Clear Cache', 'jetpack-boost' ) }
-					</Button>{ ' ' }
-					<Button
-						variant="link"
-						size="small"
-						weight="regular"
-						iconSize={ 16 }
-						icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
-						onClick={ () => setIsExpanded( ! isExpanded ) }
-					>
-						{ __( 'Show Options', 'jetpack-boost' ) }
-					</Button>
+		pageCache && (
+			<div className={ styles.wrapper }>
+				<MutationNotice { ...mutateBypassPatterns } mutationId="update-bypass-patterns" />
+				<MutationNotice
+					{ ...mutateLogging }
+					successMessage={ logging ? loggingEnabledMessage : loggingDisabledMessage }
+					mutationId="update-logging"
+				/>
+				<MutationNotice
+					{ ...runClearPageCacheAction }
+					savingMessage={ __( 'Clearing cache…', 'jetpack-boost' ) }
+					errorMessage={ __( 'Unable to clear cache.', 'jetpack-boost' ) }
+					successMessage={ clearedCacheMessage || __( 'Cache cleared.', 'jetpack-boost' ) }
+					mutationId="clear-page-cache"
+				/>
+				<div className={ styles.head }>
+					<div className={ styles.summary }>{ getSummary() }</div>
+					<div className={ styles.actions }>
+						<Button
+							variant="link"
+							size="small"
+							weight="regular"
+							iconSize={ 16 }
+							icon={ <Lightning /> }
+							onClick={ clearPageCache }
+							disabled={ runClearPageCacheAction.isPending }
+						>
+							{ __( 'Clear Cache', 'jetpack-boost' ) }
+						</Button>{ ' ' }
+						<Button
+							variant="link"
+							size="small"
+							weight="regular"
+							iconSize={ 16 }
+							icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
+							onClick={ () => setIsExpanded( ! isExpanded ) }
+						>
+							{ __( 'Show Options', 'jetpack-boost' ) }
+						</Button>
+					</div>
 				</div>
+				{ isExpanded && (
+					<div className={ styles.body }>
+						<>
+							<BypassPatterns
+								patterns={ bypassPatterns.join( '\n' ) }
+								setPatterns={ patterns =>
+									mutateBypassPatterns.mutate( patterns.split( '\n' ).map( item => item.trim() ) )
+								}
+								showErrorNotice={ mutateBypassPatterns.isError }
+							/>
+							<div className={ styles.section }>
+								<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
+								<label htmlFor="cache-logging" className={ styles[ 'logging-toggle' ] }>
+									<input
+										type="checkbox"
+										id="cache-logging"
+										checked={ logging }
+										onChange={ event => mutateLogging.mutate( event.target.checked ) }
+									/>{ ' ' }
+									{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
+								</label>
+								{ logging && (
+									<Link className={ styles[ 'see-logs-link' ] } to="/cache-debug-log">
+										{ __( 'See Logs', 'jetpack-boost' ) }
+									</Link>
+								) }
+								<div className={ styles.clearfix } />
+							</div>
+						</>
+					</div>
+				) }
 			</div>
-			{ isExpanded && (
-				<div className={ styles.body }>
-					<>
-						<BypassPatterns
-							patterns={ bypassPatterns.join( '\n' ) }
-							setPatterns={ patterns =>
-								mutateBypassPatterns.mutate( patterns.split( '\n' ).map( item => item.trim() ) )
-							}
-							showErrorNotice={ mutateBypassPatterns.isError }
-						/>
-						<div className={ styles.section }>
-							<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
-							<label htmlFor="cache-logging" className={ styles[ 'logging-toggle' ] }>
-								<input
-									type="checkbox"
-									id="cache-logging"
-									checked={ logging }
-									onChange={ event => mutateLogging.mutate( event.target.checked ) }
-								/>{ ' ' }
-								{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
-							</label>
-							{ logging && (
-								<Link className={ styles[ 'see-logs-link' ] } to="/cache-debug-log">
-									{ __( 'See Logs', 'jetpack-boost' ) }
-								</Link>
-							) }
-							<div className={ styles.clearfix } />
-						</div>
-					</>
-				</div>
-			) }
-		</div>
+		)
 	);
 };
 
