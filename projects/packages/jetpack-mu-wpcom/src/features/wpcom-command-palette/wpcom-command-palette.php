@@ -44,7 +44,6 @@ function wpcom_load_command_palette() {
 	$data       = wp_json_encode(
 		array(
 			'siteId'           => $site_id,
-			'isAdmin'          => current_user_can( 'manage_options' ),
 			'isAtomic'         => $host->is_woa_site(),
 			'isSimple'         => $host->is_wpcom_simple(),
 			'isSelfHosted'     => ! $host->is_wpcom_platform(),
@@ -52,6 +51,7 @@ function wpcom_load_command_palette() {
 			'capabilities'     => get_userdata( get_current_user_id() )->allcaps,
 			'isP2'             => $is_p2_site,
 			'shouldUseWpAdmin' => 'wp-admin' === get_option( 'wpcom_admin_interface' ),
+			'siteHostname'     => wpcom_get_site_slug(),
 		)
 	);
 	wp_add_inline_script(
