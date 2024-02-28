@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 
 class Page_Cache_Setup {
@@ -14,22 +16,34 @@ class Page_Cache_Setup {
 		$steps = array(
 			'verify_wp_content_writable',
 			'verify_permalink_setting',
+			'create_settings_file',
 			'create_advanced_cache',
 			'add_wp_cache_define',
+			'enable_caching',
 		);
 
 		foreach ( $steps as $step ) {
 			$result = self::$step();
-			if ( is_wp_error( $result ) ) {
-				jetpack_boost_ds_set( 'page_cache_error', $result->get_error_code() );
 
-				return false;
+			if ( $result instanceof Boost_Cache_Error ) {
+				return $result->to_wp_error();
+			}
+
+			if ( is_wp_error( $result ) ) {
+				return $result;
 			}
 		}
-
-		jetpack_boost_ds_set( 'page_cache_error', '' );
-
 		return true;
+	}
+
+	/**
+	 * Enable caching step of setup.
+	 *
+	 * @return Boost_Cache_Error|true - True on success, error otherwise.
+	 */
+	private static function enable_caching() {
+		$settings = Boost_Cache_Settings::get_instance();
+		return $settings->set( array( 'enabled' => true ) );
 	}
 
 	/**
@@ -59,6 +73,16 @@ class Page_Cache_Setup {
 	}
 
 	/**
+	 * Create a settings file, if one does not already exist.
+	 *
+	 * @return bool|\WP_Error
+	 */
+	private static function create_settings_file() {
+		$result = Boost_Cache_Settings::get_instance()->create_settings_file();
+		return $result;
+	}
+
+	/**
 	 * Creates the advanced-cache.php file.
 	 *
 	 * Returns true if the files were setup correctly, or WP_Error if there was a problem.
@@ -70,6 +94,10 @@ class Page_Cache_Setup {
 
 		if ( file_exists( $advanced_cache_filename ) ) {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+			if ( strpos( $content, 'WP SUPER CACHE' ) !== false ) {
+				return new \WP_Error( 'advanced-cache-for-super-cache', 'advanced-cache.php exists, but belongs to WP Super Cache.' );
+			}
 
 			if ( strpos( $content, Page_Cache::ADVANCED_CACHE_SIGNATURE ) === false ) {
 				return new \WP_Error( 'advanced-cache-incompatible', 'advanced-cache.php exists, but belongs to another plugin/system.' );
@@ -98,13 +126,14 @@ $boost_cache->serve();
 ';
 
 		$write_advanced_cache = Filesystem_Utils::write_to_file( $advanced_cache_filename, $contents );
-
-		if ( is_wp_error( $write_advanced_cache ) ) {
+		if ( $write_advanced_cache instanceof Boost_Cache_Error ) {
 			return new \WP_Error( 'unable-to-write-to-advanced-cache', $write_advanced_cache->get_error_message() );
 		}
+
 		if ( function_exists( 'opcache_invalidate' ) ) {
 			opcache_invalidate( $advanced_cache_filename, true );
 		}
+
 		return true;
 	}
 
@@ -138,9 +167,11 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		if ( $result === false ) {
 			return new \WP_Error( 'wp-config-not-writable', 'Could not write to wp-config.php' );
 		}
+
 		if ( function_exists( 'opcache_invalidate' ) ) {
 			opcache_invalidate( ABSPATH . 'wp-config.php', true );
 		}
+
 		return true;
 	}
 
@@ -163,8 +194,8 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		self::deactivate();
 
 		$result = Filesystem_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache', Filesystem_Utils::DELETE_ALL );
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		if ( $result instanceof Boost_Cache_Error ) {
+			return $result->to_wp_error();
 		}
 
 		return true;

@@ -17,6 +17,7 @@ import {
 	currentThemeIsBlockTheme,
 	currentThemeStylesheet,
 	getSiteAdminUrl,
+	isSubscriptionSiteEnabled,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
@@ -40,6 +41,8 @@ function SubscriptionsSettings( props ) {
 		isStbEnabled,
 		isStcEnabled,
 		isSmEnabled,
+		isSubscribePostEndEnabled,
+		isSubscriptionSiteFeatureEnabled,
 		isSubscriptionsActive,
 		siteRawUrl,
 		subscriptions,
@@ -70,6 +73,13 @@ function SubscriptionsSettings( props ) {
 
 	const handleSubscribeModalToggleChange = useCallback( () => {
 		updateFormStateModuleOption( SUBSCRIPTIONS_MODULE_NAME, 'sm_enabled' );
+	}, [ updateFormStateModuleOption ] );
+
+	const handleSubscribePostEndToggleChange = useCallback( () => {
+		updateFormStateModuleOption(
+			SUBSCRIPTIONS_MODULE_NAME,
+			'jetpack_subscriptions_subscribe_post_end_enabled'
+		);
 	}, [ updateFormStateModuleOption ] );
 
 	const getSubClickableCard = () => {
@@ -169,6 +179,29 @@ function SubscriptionsSettings( props ) {
 						</FormFieldset>
 					}
 				</SettingsGroup>
+
+				{ isSubscriptionsActive && isSubscriptionSiteFeatureEnabled && (
+					<SettingsGroup
+						hasChild
+						disableInOfflineMode
+						disableInSiteConnectionMode
+						module={ subscriptions }
+					>
+						<p>Enable automatic insertion of the Subscribe block into the theme</p>
+						<FormFieldset>
+							<ToggleControl
+								checked={ isSubscriptionsActive && isSubscribePostEndEnabled }
+								disabled={ isDisabled }
+								toggling={ isSavingAnyOption( [
+									'jetpack_subscriptions_subscribe_post_end_enabled',
+								] ) }
+								onChange={ handleSubscribePostEndToggleChange }
+								label="End of each post"
+							/>
+						</FormFieldset>
+					</SettingsGroup>
+				) }
+
 				{ getSubClickableCard() }
 
 				{ ! isLinked && ! isOffline && (
@@ -194,6 +227,10 @@ export default withModuleSettingsFormHelpers(
 			isStbEnabled: ownProps.getOptionValue( 'stb_enabled' ),
 			isStcEnabled: ownProps.getOptionValue( 'stc_enabled' ),
 			isSmEnabled: ownProps.getOptionValue( 'sm_enabled' ),
+			isSubscribePostEndEnabled: ownProps.getOptionValue(
+				'jetpack_subscriptions_subscribe_post_end_enabled'
+			),
+			isSubscriptionSiteFeatureEnabled: isSubscriptionSiteEnabled( state ),
 			isBlockTheme: currentThemeIsBlockTheme( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			themeStylesheet: currentThemeStylesheet( state ),
