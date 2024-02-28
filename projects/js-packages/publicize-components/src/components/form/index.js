@@ -20,15 +20,13 @@ import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-rest
 import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conversion-settings';
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { CONNECTION_SERVICE_INSTAGRAM_BUSINESS, store as socialStore } from '../../social-store';
-import { getSupportedAdditionalConnections } from '../../utils';
+import { store as socialStore } from '../../social-store';
 import { AdvancedPlanNudge } from './advanced-plan-nudge';
 import { AutoConversionNotice } from './auto-conversion-notice';
 import { BrokenConnectionsNotice } from './broken-connections-notice';
 import { ConnectionsList } from './connections-list';
 import { EnabledConnectionsNotice } from './enabled-connections-notice';
 import { InstagramNoMediaNotice } from './instagram-no-media-notice';
-import { InstagramSupportedNotice } from './instagram-supported-notice';
 import { ShareCountInfo } from './share-count-info';
 import { SharePostForm } from './share-post-form';
 import { UnsupportedConnectionsNotice } from './unsupported-connections-notice';
@@ -47,19 +45,12 @@ export default function PublicizeForm() {
 	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan, connectionsAdminUrl } =
 		usePublicizeConfig();
 
-	const hasInstagramConnection = connections.some(
-		connection => connection.service_name === 'instagram-business'
-	);
 	const { numberOfSharesRemaining } = useSelect( select => {
 		return {
 			showShareLimits: select( socialStore ).showShareLimits(),
 			numberOfSharesRemaining: select( socialStore ).numberOfSharesRemaining(),
 		};
 	}, [] );
-	const shouldShowInstagramNotice =
-		! hasInstagramConnection &&
-		getSupportedAdditionalConnections().includes( CONNECTION_SERVICE_INSTAGRAM_BUSINESS ) &&
-		shouldShowNotice( NOTICES.instagram );
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
@@ -123,18 +114,14 @@ export default function PublicizeForm() {
 						) ) }
 				</>
 			) : (
-				! shouldShowInstagramNotice && (
-					<PanelRow>
-						<ExternalLink href={ connectionsAdminUrl }>
-							{ __( 'Connect an account', 'jetpack' ) }
-						</ExternalLink>
-					</PanelRow>
-				)
+				<PanelRow>
+					<ExternalLink href={ connectionsAdminUrl }>
+						{ __( 'Connect an account', 'jetpack' ) }
+					</ExternalLink>
+				</PanelRow>
 			) }
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
-					{ shouldShowInstagramNotice && <InstagramSupportedNotice /> }
-
 					{ isPublicizeEnabled && hasEnabledConnections && <SharePostForm /> }
 					<AdvancedPlanNudge />
 				</Fragment>

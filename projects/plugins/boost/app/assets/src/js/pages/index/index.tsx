@@ -16,7 +16,7 @@ import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/store
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCache from '$features/page-cache/page-cache';
-import { invalidatePageCacheError } from '$lib/stores/page-cache';
+import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -24,6 +24,7 @@ const Index = () => {
 
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
+	const [ pageCache ] = useSingleModuleState( 'page_cache' );
 
 	const regenerateCssAction = useRegenerateCriticalCssAction();
 	const requestRegenerateCriticalCss = () => {
@@ -32,6 +33,9 @@ const Index = () => {
 	const { canResizeImages, site } = Jetpack_Boost;
 
 	const premiumFeatures = usePremiumFeatures();
+
+	const pageCacheSetup = usePageCacheSetup();
+	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
 
 	return (
 		<div className="jb-container--narrow">
@@ -126,6 +130,8 @@ const Index = () => {
 						<span className={ styles.beta }>Beta</span>
 					</>
 				}
+				onEnable={ () => pageCacheSetup.mutate() }
+				onDisable={ () => pageCacheErrorMutation.mutate( null ) }
 				description={
 					<>
 						<p>
@@ -140,15 +146,18 @@ const Index = () => {
 								title={ __( 'Page Cache is unavailable', 'jetpack-boost' ) }
 								hideCloseButton={ true }
 							>
-								<p>{ __( 'Your website already has a page cache running on it powered by WordPress.com.', 'jetpack-boost' ) }</p>
+								<p>
+									{ __(
+										'Your website already has a page cache running on it powered by WordPress.com.',
+										'jetpack-boost'
+									) }
+								</p>
 							</Notice>
 						) }
 					</>
 				}
-				onEnable={ invalidatePageCacheError }
-				onDisable={ invalidatePageCacheError }
 			>
-				<PageCache />
+				<PageCache setup={ pageCacheSetup } error={ pageCacheError.data } />
 			</Module>
 			<Module
 				slug="render_blocking_js"
@@ -297,7 +306,7 @@ const Index = () => {
 				</Module>
 			</div>
 
-			<SuperCacheInfo />
+			{ ! pageCache?.active && <SuperCacheInfo /> }
 		</div>
 	);
 };

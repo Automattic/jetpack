@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Atomic i18n: Fix mixed translations after WordPress.com user locale switch

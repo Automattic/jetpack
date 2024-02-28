@@ -2664,6 +2664,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
+			'jetpack_subscriptions_subscribe_post_end_enabled' => array(
+				'description'       => esc_html__( 'Add Subscribe block at the end of each post.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
 			'social_notifications_subscribe'       => array(
 				'description'       => esc_html__( 'Send email notification when someone subscribes to my blog', 'jetpack' ),
 				'type'              => 'boolean',
@@ -3642,7 +3649,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'invalid_param',
 				sprintf(
 					/* Translators: Placeholder is a parameter name. */
-					esc_html__( '%s must be a object.', 'jetpack' ),
+					esc_html__( '%s must be an object.', 'jetpack' ),
 					$param
 				)
 			);
