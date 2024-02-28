@@ -198,7 +198,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scheduled-updates",
-                "reference": "7e5dcbdcf8977200ccf1201bea501de7c3559348"
+                "reference": "dfd9f527692091535d2959930461894c6c91864c"
             },
             "require": {
                 "php": ">=7.0"
