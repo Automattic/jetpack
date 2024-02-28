@@ -170,7 +170,7 @@ const DefaultUpgradePrompt = ( { placement = null }: UpgradePromptProps ): React
  *
  * @returns {React.ReactNode} the Nudge component with the prompt.
  */
-const VIPUpgradePrompt = (): React.ReactNode => {
+const VIPUpgradePrompt = (): React.JSX.Element => {
 	return (
 		<Nudge
 			buttonText={ null }
