@@ -61,12 +61,15 @@ export default function useTranscriptionCreator( {
 			},
 		} );
 
-	const onTranscriptionReady = ( content: string ) => {
-		transcription.current = content;
-		if ( postProcessingAction.current ) {
-			processTranscription( postProcessingAction.current, content );
-		}
-	};
+	const onTranscriptionReady = useCallback(
+		( content: string ) => {
+			transcription.current = content;
+			if ( postProcessingAction.current ) {
+				processTranscription( postProcessingAction.current, content );
+			}
+		},
+		[ processTranscription ]
+	);
 
 	const { transcribeAudio, cancelTranscription, isTranscribingAudio }: UseAudioTranscriptionReturn =
 		useAudioTranscription( {
