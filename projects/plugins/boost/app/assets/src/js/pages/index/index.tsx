@@ -139,7 +139,7 @@ const Index = () => {
 						} );
 					}
 				} }
-				onEnable={ async () => {
+				onEnable={ () => {
 					pageCacheSetup.mutate();
 				} }
 				description={
