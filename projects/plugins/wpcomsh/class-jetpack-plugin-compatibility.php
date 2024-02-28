@@ -34,6 +34,7 @@ class Jetpack_Plugin_Compatibility {
 		'plugins-garbage-collector/plugins-garbage-collector.php' => '"plugins-garbage-collector" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'post-type-switcher/post-type-switcher.php'        => '"post-type-switcher" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'reset-wp/reset-wp.php'                            => '"reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'reset/data_reset.php'                             => '"reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'secure-file-manager/secure-file-manager.php'      => '"secure-file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'ultimate-reset/ultimate-reset.php'                => '"ultimate-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'ultimate-wp-reset/ultimate-wordpress-reset.php'   => '"ultimate-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
