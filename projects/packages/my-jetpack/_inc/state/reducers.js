@@ -1,9 +1,5 @@
 import { combineReducers } from '@wordpress/data';
 import {
-	SET_CHAT_AVAILABILITY,
-	SET_CHAT_AUTHENTICATION,
-	SET_CHAT_AVAILABILITY_IS_FETCHING,
-	SET_CHAT_AUTHENTICATION_IS_FETCHING,
 	SET_AVAILABLE_LICENSES,
 	SET_AVAILABLE_LICENSES_IS_FETCHING,
 	SET_PRODUCT,
@@ -114,44 +110,6 @@ const countBackupItems = ( state = {}, action ) => {
 			return {
 				...state,
 				items: action?.backupItems || {},
-			};
-
-		default:
-			return state;
-	}
-};
-
-const chatAvailability = ( state = { isFetching: false, isAvailable: false }, action ) => {
-	switch ( action.type ) {
-		case SET_CHAT_AVAILABILITY_IS_FETCHING:
-			return {
-				...state,
-				isFetching: action.isFetching,
-			};
-
-		case SET_CHAT_AVAILABILITY:
-			return {
-				...state,
-				isAvailable: action?.chatAvailability?.is_available,
-			};
-
-		default:
-			return state;
-	}
-};
-
-const chatAuthentication = ( state = { isFetching: false, jwt: false }, action ) => {
-	switch ( action.type ) {
-		case SET_CHAT_AUTHENTICATION_IS_FETCHING:
-			return {
-				...state,
-				isFetching: action.isFetching,
-			};
-
-		case SET_CHAT_AUTHENTICATION:
-			return {
-				...state,
-				jwt: action?.chatAuthentication?.user?.jwt,
 			};
 
 		default:
@@ -285,8 +243,6 @@ const reducers = combineReducers( {
 	products,
 	backupRewindableEvents,
 	countBackupItems,
-	chatAvailability,
-	chatAuthentication,
 	availableLicenses,
 	notices,
 	plugins,

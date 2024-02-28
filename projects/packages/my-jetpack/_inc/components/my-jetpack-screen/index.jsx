@@ -21,9 +21,12 @@ import { useContext, useEffect, useState } from 'react';
  * Internal dependencies
  */
 import { NoticeContext } from '../../context/notices/noticeContext';
+import {
+	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
+	REST_API_CHAT_AVAILABILITY_ENDPOINT,
+} from '../../data/constants';
+import useSimpleQuery from '../../data/use-simple-query';
 import useAnalytics from '../../hooks/use-analytics';
-import useChatAuthentication from '../../hooks/use-chat-authentication';
-import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
 import { useProduct } from '../../hooks/use-product';
@@ -103,11 +106,18 @@ export default function MyJetpackScreen() {
 	const { currentNotice } = useContext( NoticeContext );
 	const { message, options } = currentNotice || {};
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
+	const { data: isAvailable, isLoading: isChatAvailabilityLoading } = useSimpleQuery(
+		'chat availability',
+		{
+			path: REST_API_CHAT_AVAILABILITY_ENDPOINT,
+		}
+	);
 	const { detail: statsDetails } = useProduct( 'stats' );
-	const { jwt, isFetchingChatAuthentication } = useChatAuthentication();
+	const { data: jwt, isLoading: isJwtLoading } = useSimpleQuery( 'chat authentication', {
+		path: REST_API_CHAT_AUTHENTICATION_ENDPOINT,
+	} );
 	const shouldShowZendeskChatWidget =
-		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
+		! isJwtLoading && ! isChatAvailabilityLoading && isAvailable && jwt;
 	const isNewUser = window?.myJetpackInitialState?.userIsNewToJetpack === '1';
 
 	const { recordEvent } = useAnalytics();
