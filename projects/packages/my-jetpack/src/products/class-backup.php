@@ -133,7 +133,7 @@ class Backup extends Hybrid_Product {
 	 * Get the URL where the user should be redirected after checkout
 	 */
 	public static function get_post_checkout_url() {
-		self::get_manage_url();
+		return self::get_manage_url();
 	}
 
 	/**
