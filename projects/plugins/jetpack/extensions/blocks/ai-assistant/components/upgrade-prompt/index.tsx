@@ -29,7 +29,7 @@ const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
  * @param {UpgradePromptProps} props - Component props.
  * @returns {React.ReactNode} the Nudge component with the prompt.
  */
-const DefaultUpgradePrompt = ( { placement = null }: UpgradePromptProps ): React.ReactNode => {
+const DefaultUpgradePrompt = ( { placement = null }: UpgradePromptProps ): React.JSX.Element => {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
 	const canUpgrade = canUserPurchasePlan();
 	const {
