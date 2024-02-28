@@ -237,7 +237,7 @@ add_filter( 'jpcrm_system_assistant_jobs', 'jpcrm_add_woo_jobs_to_system_assista
  * @return bool Defaults to false.
  */
 function jpcrm_woosync_is_hpos_enabled() {
-	if ( class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) ) {
+	if ( class_exists( '\Automattic\WooCommerce\Utilities\OrderUtil' ) ) {
 		return \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
 	}
 	return false;

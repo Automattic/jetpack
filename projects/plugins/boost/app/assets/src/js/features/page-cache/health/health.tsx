@@ -1,19 +1,14 @@
 import { Button, Notice } from '@automattic/jetpack-components';
-import { usePageCacheSetup } from '$lib/stores/page-cache';
 import getErrorData from './lib/get-error-data';
 import { __ } from '@wordpress/i18n';
+import { type PageCacheError } from '$lib/stores/page-cache';
 
 type HealthProps = {
-	error: string;
+	error: PageCacheError;
+	setupCache: () => void;
 };
 
-const Health = ( { error }: HealthProps ) => {
-	const runPageCacheSetupAction = usePageCacheSetup();
-
-	const requestRunSetup = () => {
-		runPageCacheSetupAction.mutate();
-	};
-
+const Health = ( { error, setupCache }: HealthProps ) => {
 	// Was there a problem trying to setup cache?
 	const errorData = getErrorData( error );
 	if ( errorData ) {
@@ -23,7 +18,7 @@ const Health = ( { error }: HealthProps ) => {
 				hideCloseButton={ true }
 				title={ errorData.title }
 				actions={ [
-					<Button size="small" weight="regular" onClick={ requestRunSetup } key="try-again">
+					<Button size="small" weight="regular" onClick={ setupCache } key="try-again">
 						{ __( 'Try again', 'jetpack-boost' ) }
 					</Button>,
 				] }
