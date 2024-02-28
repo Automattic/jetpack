@@ -96,7 +96,7 @@ class Boost_Cache {
 		if ( is_string( $cached ) ) {
 			header( 'X-Jetpack-Boost-Cache: hit' );
 			Logger::debug( 'Serving cached page' );
-			echo $cached . '<!-- cached -->'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $cached; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			die();
 		}
 
