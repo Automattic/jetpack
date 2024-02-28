@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add endpoint to query backup preflight checks

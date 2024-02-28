@@ -2,6 +2,23 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.2-a.11 - 2024-02-27
+### Enhancements
+- Real time backups: Add endpoints orders to be used in real-time backups jetpack [#35649]
+
+### Bug fixes
+- Atomic i18n: Fix mixed translations after WordPress.com user locale switch [#35750]
+- Goodreads Block: fix error when adding multiple blocks to the same page. [#35876]
+- Revert 35890 to resolve the font display issue [#35983]
+- Sharing: only enqueue extra JavaScript when a Sharing Block is inserted on the page. [#35955]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add slide up/down animation to categories. [#35887]
+- Copy Post: Add Jetpack Logo to row action link [#35552]
+- RNMobile: Detect and avoid invalid media URLs in VideoPress v5 block [#35961]
+- RNMobile: Fix edge case where block could sometimes mistakenly appear empty. [#35957]
+- Voice to Content: refactor hook usage and handle request canceling [#35923]
+
 ## 13.2-a.9 - 2024-02-26
 ### Enhancements
 - Ads Settings: Include option to toggle GDPR Consent Banner [#35205]

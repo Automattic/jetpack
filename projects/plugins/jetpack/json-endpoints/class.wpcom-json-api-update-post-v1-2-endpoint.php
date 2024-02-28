@@ -557,7 +557,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		 *
 		 * @see p1709028174665519-slack-CDLH4C1UZ
 		 *
-		 * @since $$next-version$$
+		 * @since 13.2
 		 *
 		 * @param bool  $is_dtp_fb_post Is this for a Facebook import?
 		 * @param int   $blog_id        Blog ID.
