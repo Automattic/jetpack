@@ -8,6 +8,30 @@ const cacheIssuesLink = ( issue: string ) => {
 };
 
 const messages: { [ key: string ]: { title: string; message: React.ReactNode } } = {
+	'failed-settings-write': {
+		title: __( 'Boost Cache settings file not writable', 'jetpack-boost' ),
+		message: createInterpolateElement(
+			sprintf(
+				// translators: %s refers to wp-content.
+				__(
+					`This feature cannot be enabled because <code>%s</code> is not writable. <link>Learn more.</link>`,
+					'jetpack-boost'
+				),
+				'wp-content/boost-cache/config.php'
+			),
+			{
+				code: <code className={ styles.nowrap } />,
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'failed-settings-write' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
+			}
+		),
+	},
 	'wp-content-not-writable': {
 		title: 'wp-content not writable',
 		message: createInterpolateElement(
