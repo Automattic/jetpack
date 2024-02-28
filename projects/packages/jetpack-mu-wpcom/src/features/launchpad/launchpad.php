@@ -287,8 +287,25 @@ function wpcom_launchpad_get_task_list_definitions() {
 
 	$extended_task_list_definitions = apply_filters( 'wpcom_launchpad_extended_task_list_definitions', array() );
 
+	$all_task_list_definitions = array(
+		'all' => array(
+			'get_title' => function () {
+				return __( 'All steps for your site', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'  => array_unique(
+				array_merge(
+					...array_map(
+						function ( $task_list ) {
+							return $task_list['task_ids']; },
+						array_values( $core_task_list_definitions )
+					)
+				)
+			),
+		),
+	);
+
 	// As for tasks, we can decide what overrides we allow later.
-	return array_merge( $extended_task_list_definitions, $core_task_list_definitions );
+	return array_merge( $extended_task_list_definitions, $core_task_list_definitions, $all_task_list_definitions );
 }
 
 /**
