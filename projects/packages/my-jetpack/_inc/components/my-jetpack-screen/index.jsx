@@ -106,16 +106,20 @@ export default function MyJetpackScreen() {
 	const { currentNotice } = useContext( NoticeContext );
 	const { message, options } = currentNotice || {};
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const { data: isAvailable, isLoading: isChatAvailabilityLoading } = useSimpleQuery(
+	const { data: availabilityData, isLoading: isChatAvailabilityLoading } = useSimpleQuery(
 		'chat availability',
 		{
 			path: REST_API_CHAT_AVAILABILITY_ENDPOINT,
 		}
 	);
 	const { detail: statsDetails } = useProduct( 'stats' );
-	const { data: jwt, isLoading: isJwtLoading } = useSimpleQuery( 'chat authentication', {
+	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery( 'chat authentication', {
 		path: REST_API_CHAT_AUTHENTICATION_ENDPOINT,
 	} );
+
+	const isAvailable = availabilityData?.is_available;
+	const jwt = authData?.user?.jwt;
+
 	const shouldShowZendeskChatWidget =
 		! isJwtLoading && ! isChatAvailabilityLoading && isAvailable && jwt;
 	const isNewUser = window?.myJetpackInitialState?.userIsNewToJetpack === '1';
