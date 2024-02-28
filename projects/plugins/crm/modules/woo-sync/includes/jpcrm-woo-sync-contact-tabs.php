@@ -374,7 +374,7 @@ class Woo_Sync_Contact_Tabs {
 					'return'      => 'ids',
 				);
 
-				$subscription_ids_by_user = wc_get_orders( $args );
+				$subscription_ids = wc_get_orders( $args );
 			}
 
 			// 2 - find subs for all emails (inc aliases)
@@ -394,11 +394,12 @@ class Woo_Sync_Contact_Tabs {
 					);
 
 					$subscription_ids_by_email = wc_get_orders( $args );
+					$subscription_ids          = array_merge( $subscription_ids, $subscription_ids_by_email );
 				}
 			}
 
 			// 3 - remove any duplicate IDs between array_1 and array_2
-			$subscription_ids = array_unique( array_merge( $subscription_ids_by_user, $subscription_ids_by_email ), SORT_REGULAR );
+			$subscription_ids = array_unique( $subscription_ids, SORT_REGULAR );
 		}
 
 		return $subscription_ids;
