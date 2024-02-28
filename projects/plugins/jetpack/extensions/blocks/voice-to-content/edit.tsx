@@ -12,7 +12,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { createBlock } from '@wordpress/blocks';
 import { Button, Modal, Icon } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 /**
@@ -27,7 +27,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 		removeBlock: ( id: number ) => void;
 		insertBlock: ( block: object ) => void;
 	} = useDispatch( 'core/block-editor' );
-	const [ transcription, setTranscription ] = useState( null );
+	const transcription = useRef( null );
 
 	const destroyBlock = useCallback( () => {
 		// Remove the block from the editor
@@ -52,8 +52,10 @@ export default function VoiceToContentEdit( { clientId } ) {
 			},
 			onError: error => {
 				// Use the transcription instead for a partial result
-				if ( transcription ) {
-					dispatch.insertBlock( createBlock( 'core/paragraph', { content: transcription } ) );
+				if ( transcription.current ) {
+					dispatch.insertBlock(
+						createBlock( 'core/paragraph', { content: transcription.current } )
+					);
 				}
 				// eslint-disable-next-line no-console
 				console.log( 'Post-processing error: ', error );
@@ -71,7 +73,7 @@ export default function VoiceToContentEdit( { clientId } ) {
 	const onTranscriptionReady = ( content: string ) => {
 		// eslint-disable-next-line no-console
 		console.log( 'Transcription ready: ', content );
-		setTranscription( content );
+		transcription.current = content;
 		processTranscription( TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT, content );
 	};
 
