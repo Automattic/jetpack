@@ -33,9 +33,7 @@ const Health = ( { setup, error, setError }: HealthProps ) => {
 			{ setup && (
 				<MutationNotice
 					mutationId="page-cache-setup"
-					isPending={
-						setup.isPending || ( !! pageCache?.active && ( ! error || !! error.dismissed ) )
-					}
+					isPending={ setup.isPending }
 					isError={ setup.isError }
 					isSuccess={ setup.isSuccess && ! error }
 					savingMessage={ __( 'Setting up cache…', 'jetpack-boost' ) }
