@@ -42,7 +42,7 @@ export function usePageCacheSetup() {
 
 	const pageCacheSetup = useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
-		key: 'page_cache_error',
+		key: 'page_cache',
 		action_name: 'run-setup',
 		schema: {
 			state: PageCache,

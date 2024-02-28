@@ -56,7 +56,7 @@ class Boost_Cache_Settings {
 
 		if ( ! file_exists( $this->config_file ) ) {
 			$write_result = $this->set( $this->default_settings );
-			if ( Boost_Cache_Error::is_error( $write_result ) ) {
+			if ( $write_result instanceof Boost_Cache_Error ) {
 				return new Boost_Cache_Error( 'failed-settings-write', 'Failed to create settings file at ' . $this->config_file . ': ' . $write_result->get_error_message() );
 			}
 		}
@@ -163,7 +163,7 @@ class Boost_Cache_Settings {
 		// If the settings file does not exist, attempt to create one.
 		if ( ! file_exists( $this->config_file_path ) ) {
 			$result = $this->create_settings_file();
-			if ( Boost_Cache_Error::is_error( $result ) ) {
+			if ( $result instanceof Boost_Cache_Error ) {
 				return $result;
 			}
 		}
@@ -178,7 +178,7 @@ class Boost_Cache_Settings {
 
 		$contents = "<?php die();\n/*\n * Configuration data for Jetpack Boost Cache. Do not edit.\n" . json_encode( $this->settings ) . "\n */"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 		$result   = Filesystem_Utils::write_to_file( $this->config_file, $contents );
-		if ( Boost_Cache_Error::is_error( $result ) ) {
+		if ( $result instanceof Boost_Cache_Error ) {
 			Logger::debug( $result->get_error_message() );
 			return $result;
 		}

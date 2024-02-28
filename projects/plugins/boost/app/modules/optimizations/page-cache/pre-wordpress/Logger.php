@@ -39,7 +39,7 @@ class Logger {
 
 		$instance          = new Logger();
 		$prepared_log_file = $instance->prepare_file();
-		if ( Boost_Cache_Error::is_error( $prepared_log_file ) ) {
+		if ( $prepared_log_file instanceof Boost_Cache_Error ) {
 			return $prepared_log_file;
 		}
 
@@ -86,9 +86,11 @@ class Logger {
 
 		// TODO: Check to make sure that current request IP is allowed to create logs.
 
-		if ( ! Boost_Cache_Error::is_error( $logger ) ) {
-			$logger->log( $message );
+		if ( $logger instanceof Boost_Cache_Error ) {
+			return;
 		}
+
+		$logger->log( $message );
 	}
 
 	/**
@@ -113,7 +115,7 @@ class Logger {
 		$instance = self::get_instance();
 
 		// If we failed to set up a Logger instance (e.g.: unwriteable directory), return the error as log content.
-		if ( Boost_Cache_Error::is_error( $instance ) ) {
+		if ( $instance instanceof Boost_Cache_Error ) {
 			return $instance->get_error_message();
 		}
 

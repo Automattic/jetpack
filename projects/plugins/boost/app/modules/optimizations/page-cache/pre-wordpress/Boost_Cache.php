@@ -134,7 +134,7 @@ class Boost_Cache {
 
 			$result = $this->storage->write( $this->request->get_uri(), $this->request->get_parameters(), $buffer );
 
-			if ( Boost_Cache_Error::is_error( $result ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+			if ( $result instanceof Boost_Cache_Error ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 				Logger::debug( 'Error writing cache file: ' . $result->get_error_message() );
 			} else {
 				Logger::debug( 'Cache file created' );

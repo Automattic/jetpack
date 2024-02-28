@@ -24,7 +24,11 @@ class Page_Cache_Setup {
 		foreach ( $steps as $step ) {
 			$result = self::$step();
 
-			if ( Boost_Cache_Error::is_error( $result ) ) {
+			if ( $result instanceof Boost_Cache_Error ) {
+				return $result->to_wp_error();
+			}
+
+			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
 		}
@@ -107,13 +111,14 @@ $boost_cache->serve();
 ';
 
 		$write_advanced_cache = Filesystem_Utils::write_to_file( $advanced_cache_filename, $contents );
-
-		if ( Boost_Cache_Error::is_error( $write_advanced_cache ) ) {
+		if ( $write_advanced_cache instanceof Boost_Cache_Error ) {
 			return new \WP_Error( 'unable-to-write-to-advanced-cache', $write_advanced_cache->get_error_message() );
 		}
+
 		if ( function_exists( 'opcache_invalidate' ) ) {
 			opcache_invalidate( $advanced_cache_filename, true );
 		}
+
 		return true;
 	}
 
@@ -147,9 +152,11 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		if ( $result === false ) {
 			return new \WP_Error( 'wp-config-not-writable', 'Could not write to wp-config.php' );
 		}
+
 		if ( function_exists( 'opcache_invalidate' ) ) {
 			opcache_invalidate( ABSPATH . 'wp-config.php', true );
 		}
+
 		return true;
 	}
 
@@ -172,8 +179,8 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		self::deactivate();
 
 		$result = Filesystem_Utils::delete_directory( WP_CONTENT_DIR . '/boost-cache', Filesystem_Utils::DELETE_ALL );
-		if ( Boost_Cache_Error::is_error( $result ) ) {
-			return $result;
+		if ( $result instanceof Boost_Cache_Error ) {
+			return $result->to_wp_error();
 		}
 
 		return true;

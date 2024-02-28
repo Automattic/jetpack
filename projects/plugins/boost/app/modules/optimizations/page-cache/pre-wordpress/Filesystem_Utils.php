@@ -134,7 +134,7 @@ class Filesystem_Utils {
 
 		// If the directory is empty after processing it's files, delete it.
 		$is_dir_empty = self::is_dir_empty( $directory );
-		if ( Boost_Cache_Error::is_error( $is_dir_empty ) ) {
+		if ( $is_dir_empty instanceof Boost_Cache_Error ) {
 			Logger::debug( 'Could not check directory emptiness: ' . $is_dir_empty->get_error_message() );
 			return $count;
 		}

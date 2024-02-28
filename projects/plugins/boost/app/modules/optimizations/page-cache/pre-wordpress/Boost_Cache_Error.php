@@ -6,10 +6,13 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
 /**
- * A class to represent an error state. Deliberately offers part of the WP_Error API, so that WP_Errors
- * can be treated as Boost_Cache_Errors safely.
+ * A replacement for WP_Error when working in a Pre_WordPress setting.
  *
- * Use this in any code which runs before WP_Error may be defined.
+ * This class deliberately offers a similar API to WP_Error for familiarity. All Pre_WordPress functions
+ * which may return an error object use this class to represent an Error state.
+ *
+ * If you call a Pre_WordPress function after loading WordPress, use to_wp_error to convert these
+ * objects to a standard WP_Error object.
  */
 class Boost_Cache_Error {
 
@@ -46,16 +49,21 @@ class Boost_Cache_Error {
 	}
 
 	/**
-	 * Call this static method to determine if a target object looks like a WP_Error or a Boost_Cache_Error
-	 * object. After this check, it is safe to call get_error_message or get_error_code on it.
+	 * Convert to a WP_Error.
+	 *
+	 * When calling a Pre_WordPress function from a WordPress context, use this method to convert
+	 * any resultant errors to WP_Errors for interfacing with other WordPress APIs.
+	 *
+	 * **Warning** - this function should only be called if WordPress has been loaded!
 	 */
-	public static function is_error( $target ) {
-		if ( class_exists( '\WP_Error' ) ) {
-			if ( $target instanceof \WP_Error ) {
-				return true;
+	public function to_wp_error() {
+		if ( ! class_exists( '\WP_Error' ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'Warning: Boost_Cache_Error::to_wp_error called from a Pre-WordPress context' );
 			}
 		}
 
-		return $target instanceof self;
+		return new \WP_Error( $this->get_error_code(), $this->get_error_message() );
 	}
 }
