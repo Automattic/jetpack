@@ -131,7 +131,15 @@ const Index = () => {
 						<span className={ styles.beta }>Beta</span>
 					</>
 				}
-				onEnable={ () => {
+				onBeforeToggle={ () => {
+					if ( pageCacheError.data && pageCacheError.data.dismissed !== true ) {
+						pageCacheErrorMutation.mutate( {
+							...pageCacheError.data,
+							dismissed: true,
+						} );
+					}
+				} }
+				onEnable={ async () => {
 					pageCacheSetup.mutate();
 				} }
 				description={

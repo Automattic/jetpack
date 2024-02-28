@@ -3,7 +3,7 @@ import getErrorData from './lib/get-error-data';
 import { __ } from '@wordpress/i18n';
 import { usePageCacheSetup, type PageCacheError } from '$lib/stores/page-cache';
 import { MutationNotice } from '$features/ui';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSingleModuleState } from '$features/module/lib/stores';
 type HealthProps = {
 	error?: PageCacheError;
@@ -15,11 +15,19 @@ const Health = ( { setup, error, setError }: HealthProps ) => {
 	const [ pageCache, setPageCache ] = useSingleModuleState( 'page_cache' );
 	// Was there a problem trying to setup cache?
 	const errorData = getErrorData( error );
+
+	const [ canReset, setCanReset ] = useState( false );
 	useEffect( () => {
-		if ( setup?.isError && error && pageCache?.active ) {
+		if ( setup?.isError && error && ! error.dismissed ) {
+			setCanReset( true );
+		}
+	}, [ setup?.isError, error, setCanReset ] );
+	useEffect( () => {
+		if ( canReset ) {
+			setCanReset( false );
 			setPageCache( false );
 		}
-	}, [ setup?.isError, error, pageCache, setPageCache ] );
+	}, [ canReset, setCanReset, setPageCache ] );
 	return (
 		<>
 			{ setup && (
