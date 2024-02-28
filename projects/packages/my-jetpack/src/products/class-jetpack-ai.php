@@ -1,6 +1,6 @@
 <?php
 /**
- * Boost product
+ * AI product
  *
  * @package my-jetpack
  */
@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
@@ -310,24 +311,7 @@ class Jetpack_Ai extends Product {
 	 * @return boolean
 	 */
 	public static function has_required_plan() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_product_slug() ) ) {
-					return true;
-				}
-				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_monthly_product_slug() ) ) {
-					return true;
-				}
-				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_bi_yearly_product_slug() ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return Current_Plan::supports( 'ai-assistant', true );
 	}
 
 	/**

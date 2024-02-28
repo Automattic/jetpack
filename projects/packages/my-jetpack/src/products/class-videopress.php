@@ -165,6 +165,6 @@ class Videopress extends Hybrid_Product {
 	 */
 	public static function has_required_plan() {
 		// using second argument `true` to force fetching from wpcom
-		return Current_Plan::supports( 'videopress-1tb-storage', true );
+		return Current_Plan::supports( 'videopress', true );
 	}
 }
