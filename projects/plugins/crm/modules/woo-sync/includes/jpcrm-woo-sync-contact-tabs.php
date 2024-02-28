@@ -358,6 +358,7 @@ class Woo_Sync_Contact_Tabs {
 	 * @param int $object_id Contact ID.
 	 */
 	private function get_contact_subscriptions( $object_id = -1 ) {
+		$all_sub_statuses = array_keys( wcs_get_subscription_statuses() );
 
 		$subscription_ids = array();
 
@@ -368,6 +369,7 @@ class Woo_Sync_Contact_Tabs {
 			if ( $user_id > 0 ) {
 				$args = array(
 					'customer_id' => $user_id,
+					'status'      => $all_sub_statuses,
 					'type'        => 'shop_subscription',
 					'return'      => 'ids',
 				);
@@ -386,6 +388,7 @@ class Woo_Sync_Contact_Tabs {
 
 					$args = array(
 						'billing_email' => $email,
+						'status'        => $all_sub_statuses,
 						'type'          => 'shop_subscription',
 						'return'        => 'ids',
 					);
