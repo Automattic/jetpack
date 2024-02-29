@@ -426,6 +426,21 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 
 			return $xml->getResponse();
 		}
+
+		/**
+		 * Check if we should load Jetpack_SSO_User_Admin.
+		 *
+		 * @return bool
+		 */
+		public static function should_enable_sso_user_admin() {
+			if ( class_exists( 'WooCommerce' ) ) {
+				return false;
+			}
+			if ( Jetpack_Options::get_option( 'sso_user_admin_load' ) === 'disabled' ) {
+				return false;
+			}
+			return true;
+		}
 	}
 
 endif;
