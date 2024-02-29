@@ -42,14 +42,7 @@ const VideoPressSave = CoreVideoSave => props => {
 		 * @see https://github.com/WordPress/gutenberg/blob/c5f9bd88125282a0c35f887cc8d835f065893112/packages/editor/src/hooks/generated-class-name.js#L42
 		 * @see https://github.com/Automattic/wp-calypso/pull/30546#issuecomment-463637946
 		 */
-		// Rename `playsinline` to `playsInline` to conform the block schema of core Video block.
-		const { playsinline: videoPressPlayinline, ...restAttributes } = props.attributes;
-		const coreVideoAttributes = { ...restAttributes, playsInline: playsinline };
-
-		return CoreVideoSave( {
-			...props,
-			attributes: coreVideoAttributes,
-		} );
+		return CoreVideoSave( props );
 	}
 
 	const url = getVideoPressUrl( guid, {
