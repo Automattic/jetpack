@@ -20,6 +20,8 @@ import {
 import { isOfflineMode } from 'state/connection';
 import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
+import { PreflightTestStatus } from 'state/rewind/preflight/constants';
+import { getPreflightStatus } from 'state/rewind/preflight/selectors';
 import { getScanStatus } from 'state/scan';
 import { getSitePlan, siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/site/plugins';
@@ -84,10 +86,17 @@ class ProStatus extends React.Component {
 	}
 
 	getProActions = ( type, feature ) => {
+		const { preflightStatus } = this.props;
+
 		let status = '',
 			message = false,
 			action = false,
 			actionUrl = '';
+
+		if ( type === 'rewind_connected' && preflightStatus === PreflightTestStatus.SUCCESS ) {
+			return <Status status="active" />;
+		}
+
 		switch ( type ) {
 			case 'threats':
 				status = 'error';
@@ -293,5 +302,6 @@ export default connect( state => {
 		scanStatus: getScanStatus( state ),
 		purchasedVaultPressBackups: siteHasFeature( state, 'vaultpress-backups' ),
 		purchasedVaultPressScan: siteHasFeature( state, 'vaultpress-security-scanning' ),
+		preflightStatus: getPreflightStatus( state ),
 	};
 } )( ProStatus );
