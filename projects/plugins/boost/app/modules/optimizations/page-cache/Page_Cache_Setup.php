@@ -10,7 +10,7 @@ class Page_Cache_Setup {
 
 	/**
 	 * Runs setup steps and returns whether setup was successful or not.
-	 * @return bool
+	 * @return bool|\WP_Error
 	 */
 	public static function run_setup() {
 		$steps = array(
@@ -54,7 +54,7 @@ class Page_Cache_Setup {
 		$result   = file_put_contents( $filename, 'test' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		wp_delete_file( $filename );
 
-		if ( $result === false ) {
+		if ( $result !== false ) {
 			return new \WP_Error( 'wp-content-not-writable', 'wp-content directory is not writeable' );
 		}
 
