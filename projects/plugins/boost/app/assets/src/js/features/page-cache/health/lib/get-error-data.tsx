@@ -10,7 +10,7 @@ const cacheIssuesLink = ( issue: string ) => {
 
 const messages: { [ key: string ]: { title: string; message: React.ReactNode } } = {
 	'failed-settings-write': {
-		title: __( 'Settings File Unavailable for Updates', 'jetpack-boost' ),
+		title: __( 'The settings file cannot be updated', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			__(
 				`This feature cannot be enabled because Jetpack Boost cannot update its settings. To learn more about this, please <link>click here.</link>`,
