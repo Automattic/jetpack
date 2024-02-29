@@ -98,7 +98,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		title: __( 'Existing Cache System Detected', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			__(
-				`We noticed you're using WP Super Cache, which has created a specific file on your site that prevents Jetpack Boost's caching feature from being activated. For the best performance and to avoid conflicts, please consider deactivating WP Super Cache before enabling this feature. <link>Find out more about this recommendation.</link>`,
+				`WP Super Cache has been detected on your site. That plugin must be deactivated before the caching feature in Jetpack Boost can be activated. To learn more, <link>click here.</link>`,
 				'jetpack-boost'
 			),
 			{
