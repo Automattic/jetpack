@@ -57,7 +57,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		),
 	},
 	'not-using-permalinks': {
-		title: __( 'Update Needed for Permalink Settings', 'jetpack-boost' ),
+		title: __( 'Permalink settings must be updated', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			__(
 				'To activate this feature, your site needs to use a different URL structure instead of the current Plain (default) permalinks. To learn more, please <link>please click here.</link>',
