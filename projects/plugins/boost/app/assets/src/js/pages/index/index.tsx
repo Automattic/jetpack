@@ -154,6 +154,10 @@ const Index = () => {
 				}
 				onBeforeToggle={ status => {
 					setIsPageCacheSettingUp( status );
+					if ( status === false ) {
+						removePageCacheNotice();
+						pageCacheSetup.reset();
+					}
 					if ( pageCacheError.data && pageCacheError.data.dismissed !== true ) {
 						pageCacheErrorMutation.mutate( {
 							...pageCacheError.data,
@@ -163,9 +167,6 @@ const Index = () => {
 				} }
 				onEnable={ () => {
 					pageCacheSetup.mutate();
-				} }
-				onDisable={ () => {
-					removePageCacheNotice();
 				} }
 				description={
 					<>
