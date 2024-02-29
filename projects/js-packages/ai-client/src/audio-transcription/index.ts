@@ -54,7 +54,7 @@ export default async function transcribeAudio(
 		} ).then( response => {
 			debug( 'Transcription response: %o', response );
 			if ( response.ok ) {
-				return response.json().then( data => data.text );
+				return response.json().then( data => data?.text );
 			}
 			return response.json().then( data => Promise.reject( data ) );
 		} );
