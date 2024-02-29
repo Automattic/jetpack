@@ -87,20 +87,3 @@ export type { RecordingState } from './hooks/use-media-recording/index.js';
  * Utility types
  */
 export type CancelablePromise< T = void > = Promise< T > & { canceled?: boolean };
-
-// Connection initial state
-// @todo: it should be provided by the connection package
-interface JPConnectionInitialState {
-	apiNonce: string;
-	siteSuffix: string;
-	connectionStatus: {
-		isActive: boolean;
-	};
-}
-
-// Global
-declare global {
-	interface Window {
-		JP_CONNECTION_INITIAL_STATE: JPConnectionInitialState;
-	}
-}
