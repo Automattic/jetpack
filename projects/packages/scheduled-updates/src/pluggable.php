@@ -51,6 +51,7 @@ if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
 		$events = array();
 		foreach ( $crons as $timestamp => $cron ) {
 			if ( isset( $cron[ $hook ] ) ) {
+				$key             = key( $cron[ $hook ] );
 				$scheduled_event = array_pop( $cron[ $hook ] );
 
 				$event = (object) array(
@@ -63,7 +64,7 @@ if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
 					$event->interval = $scheduled_event['interval'];
 				}
 
-				$events[] = $event;
+				$events[ $key ] = $event;
 			}
 		}
 
