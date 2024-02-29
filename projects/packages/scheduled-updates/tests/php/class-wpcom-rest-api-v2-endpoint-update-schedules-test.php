@@ -103,7 +103,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		);
 		wp_schedule_event( strtotime( 'next Tuesday 9:00' ), 'daily', 'jetpack_scheduled_update', array( 'hello-dolly/hello-dolly.php' ) );
 		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
-		update_option( 'jetpack_update_schedules', array( array( 'hello-dolly/hello-dolly.php' ), $plugins ) );
 
 		// Successful request.
 		$result = rest_do_request( $request );
@@ -111,14 +110,14 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertEquals(
 			array(
-				(object) array(
+				$this->generate_schedule_id( array( 'hello-dolly/hello-dolly.php' ) ) => (object) array(
 					'hook'      => 'jetpack_scheduled_update',
 					'args'      => array( 'hello-dolly/hello-dolly.php' ),
 					'timestamp' => strtotime( 'next Tuesday 9:00' ),
 					'schedule'  => 'daily',
 					'interval'  => DAY_IN_SECONDS,
 				),
-				(object) array(
+				$this->generate_schedule_id( $plugins ) => (object) array(
 					'hook'      => 'jetpack_scheduled_update',
 					'args'      => $plugins,
 					'timestamp' => strtotime( 'next Monday 8:00' ),
@@ -140,8 +139,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => array(
-					'gutenberg/gutenberg.php',
 					'custom-plugin/custom-plugin.php',
+					'gutenberg/gutenberg.php',
 				),
 				'schedule' => array(
 					'timestamp' => strtotime( 'next Monday 8:00' ),
@@ -175,8 +174,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$request->set_body_params(
 			array(
 				'plugins'  => array(
-					'gutenberg/gutenberg.php',
 					'custom-plugin/custom-plugin.php',
+					'gutenberg/gutenberg.php',
 				),
 				'schedule' => array(
 					'timestamp' => strtotime( 'next Monday 8:00' ),
@@ -331,8 +330,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	 */
 	public function test_update_item() {
 		$plugins     = array(
-			'gutenberg/gutenberg.php',
 			'custom-plugin/custom-plugin.php',
+			'gutenberg/gutenberg.php',
 		);
 		$schedule_id = $this->generate_schedule_id( $plugins );
 
@@ -431,7 +430,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertTrue( $result->get_data() );
 
-		$this->assertEmpty( get_option( 'jetpack_update_schedules' ) );
 		$this->assertFalse( wp_get_scheduled_event( 'jetpack_scheduled_update', $plugins ) );
 	}
 

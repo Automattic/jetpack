@@ -14,8 +14,8 @@ if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
 	 * This should really be in Core, and until it is, we'll define it here in a forward-compatible way.
 	 *
 	 * @param string $hook Action hook of the event.
-	 * @return object[]|false {
-	 *     Array of event objects. False if no events exist for the hook.
+	 * @return object[]|array {
+	 *     Array of event objects. Empty array if no events exist for the hook.
 	 *
 	 *     @type string       $hook      Action hook to execute when the event is run.
 	 *     @type int          $timestamp Unix timestamp (UTC) for when to next run the event.
@@ -45,7 +45,7 @@ if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
 
 		$crons = _get_cron_array();
 		if ( empty( $crons ) ) {
-			return false;
+			return array();
 		}
 
 		$events = array();
@@ -66,10 +66,6 @@ if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
 
 				$events[ $key ] = $event;
 			}
-		}
-
-		if ( empty( $events ) ) {
-			return false;
 		}
 
 		return $events;
