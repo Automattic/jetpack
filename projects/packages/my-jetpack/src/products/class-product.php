@@ -159,7 +159,7 @@ abstract class Product {
 	/**
 	 * Collect the site's active features
 	 *
-	 * @return WP_Error|null
+	 * @return WP_Error|array
 	 */
 	private static function get_site_features_from_wpcom() {
 		static $features = null;
@@ -189,12 +189,17 @@ abstract class Product {
 	 * @param string $feature - the feature to check for.
 	 * @return bool
 	 */
-	public static function does_site_have_feature( $feature = null ) {
+	public static function does_site_have_feature( $feature ) {
 		if ( ! $feature ) {
 			return false;
 		}
 
-		return in_array( $feature, self::get_site_features_from_wpcom(), true );
+		$features = self::get_site_features_from_wpcom();
+		if ( is_wp_error( $features ) ) {
+			return false;
+		}
+
+		return in_array( $feature, $features, true );
 	}
 
 	/**
