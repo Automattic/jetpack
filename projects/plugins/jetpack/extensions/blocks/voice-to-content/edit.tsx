@@ -122,10 +122,10 @@ export default function VoiceToContentEdit( { clientId } ) {
 				( audioInfo: ValidatedAudioInformation ) => {
 					// Track the transcription event
 					tracks.recordEvent( 'jetpack_ai_voice_to_content_transcription_started', {
-						action: TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
+						post_processing_action: TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
 						type: audioInfo.isFile ? 'upload' : 'record',
-						duration: audioInfo.duration,
-						file_size: audioInfo.size,
+						audio_duration: audioInfo.duration,
+						audio_file_size: audioInfo.size,
 					} );
 
 					createTranscription( audio, TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT );
