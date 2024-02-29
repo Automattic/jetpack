@@ -12,7 +12,7 @@ type ModuleProps = {
 	slug: string;
 	toggle?: boolean;
 	onEnable?: () => void;
-	onBeforeToggle?: () => void;
+	onBeforeToggle?: ( newStatus: boolean ) => void;
 	onDisable?: () => void;
 	onMountEnable?: () => void;
 };
@@ -40,7 +40,7 @@ const Module = ( {
 
 	const handleToggle = () => {
 		if ( onBeforeToggle ) {
-			onBeforeToggle();
+			onBeforeToggle( ! isModuleActive );
 		}
 		setStatus( ! isModuleActive );
 	};

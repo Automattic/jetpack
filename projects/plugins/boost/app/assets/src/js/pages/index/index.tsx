@@ -3,7 +3,7 @@ import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
-import { createInterpolateElement, useState } from '@wordpress/element';
+import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
@@ -38,6 +38,7 @@ const Index = () => {
 
 	const pageCacheSetup = usePageCacheSetup();
 	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
+	const [ isPageCacheSettingUp, setIsPageCacheSettingUp ] = useState( false );
 
 	useMutationNotice(
 		'page-cache-setup',
@@ -46,8 +47,17 @@ const Index = () => {
 			errorMessage: __( 'An error occurred while setting up cache.', 'jetpack-boost' ),
 			successMessage: __( 'Cache setup complete.', 'jetpack-boost' ),
 		},
-		pageCacheSetup
+		{
+			...pageCacheSetup,
+			isPending: isPageCacheSettingUp || pageCacheSetup.isPending,
+		}
 	);
+
+	useEffect( () => {
+		if ( pageCacheSetup.isPending ) {
+			setIsPageCacheSettingUp( false );
+		}
+	}, [ pageCacheSetup.isPending ] );
 
 	return (
 		<div className="jb-container--narrow">
@@ -142,7 +152,8 @@ const Index = () => {
 						<span className={ styles.beta }>Beta</span>
 					</>
 				}
-				onBeforeToggle={ () => {
+				onBeforeToggle={ status => {
+					setIsPageCacheSettingUp( status );
 					if ( pageCacheError.data && pageCacheError.data.dismissed !== true ) {
 						pageCacheErrorMutation.mutate( {
 							...pageCacheError.data,
