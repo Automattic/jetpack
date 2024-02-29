@@ -118,7 +118,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		title: __( 'File Update Needed for Activation', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			__(
-				`Jetpack Boost can't activate this feature because it doesn't have permission to update a necessary file on your site. To fix this and enable the feature, the file needs to be made editable. <link>Click here for step-by-step instructions.</link>`,
+				`Jetpack Boost cannot activate this feature because it does not have permission to update a necessary file on your site. To learn more, please <link>click here.</link>`,
 				'jetpack-boost'
 			),
 			{
