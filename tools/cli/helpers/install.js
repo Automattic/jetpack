@@ -19,6 +19,32 @@ async function hasLockFile( project, lockFile ) {
 }
 
 /**
+ * Test if a composer lockfile exists and is valid.
+ *
+ * @param {string} project - Project slug.
+ * @returns {boolean} - Whether the lock file exists and is valid.
+ */
+async function isComposerLockOk( project ) {
+	const cwd = projectDir( project );
+	if ( ( await fs.access( cwd + '/composer.lock' ).catch( () => false ) ) === false ) {
+		return false;
+	}
+	try {
+		await execa(
+			'composer',
+			[ 'validate', '--check-lock', '--no-check-all', '--no-check-publish' ],
+			{ cwd: cwd, stdout: 'ignore' }
+		);
+		return true;
+	} catch ( e ) {
+		if ( e.exitCode === 2 ) {
+			return false;
+		}
+		throw e;
+	}
+}
+
+/**
  * Get the directory for a slug.
  *
  * @param {string} project - Project slug.
@@ -51,6 +77,7 @@ export async function needsPnpmInstall( project ) {
  * @param {string} pkgMgr - Package manager.
  * @param {object} argv - Argv object.
  * @param {boolean} argv.production - Whether this is a production install.
+ * @param {boolean} argv.useUncommittedComposerLock - Whether to use uncommitted composer.lock files when valid.
  * @returns {string[]} Args to pass to the package manager.
  */
 export async function getInstallArgs( project, pkgMgr, argv ) {
@@ -59,7 +86,13 @@ export async function getInstallArgs( project, pkgMgr, argv ) {
 	// For composer, choose 'install' or 'update' depending on whether the lockfile is checked in.
 	// For pnpm, the lockfile is always checked in thanks to the workspace thing.
 	if ( pkgMgr === 'composer' ) {
-		args.push( ( await hasLockFile( project, 'composer.lock' ) ) ? 'install' : 'update' );
+		if ( await hasLockFile( project, 'composer.lock' ) ) {
+			args.push( 'install' );
+		} else if ( argv.useUncommittedComposerLock && ( await isComposerLockOk( project ) ) ) {
+			args.push( 'install' );
+		} else {
+			args.push( 'update' );
+		}
 		if ( project.startsWith( 'plugins/' ) && argv.production ) {
 			args.push( '-o', '--no-dev', '--classmap-authoritative', '--prefer-dist' );
 		}
