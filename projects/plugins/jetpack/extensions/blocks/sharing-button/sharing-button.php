@@ -65,28 +65,37 @@ function render_block( $attr, $content, $block ) {
 		$post_id
 	);
 
-	$services        = get_services();
-	$service         = new $services[ $service_name ]( $service_name, array() );
-	$link_props      = $service->get_link(
-		$post_id,
-		'share=' . esc_attr( $service_name ) . '&nb=1',
-		esc_attr( $data_shared )
-	);
-	$link_url        = $link_props['url'];
-	$link_classes    = sprintf(
-		'jetpack-sharing-button__button style-%1$s share-%2$s',
-		$style_type,
-		$service_name
-	);
+	$services = get_services();
+	$service  = new $services[ $service_name ]( $service_name, array() );
+
 	$link_aria_label = sprintf(
 		/* translators: %s refers to a string representation of sharing service, e.g. Facebook  */
 		esc_html__( 'Share on %s', 'jetpack' ),
 		esc_html( $title )
 	);
+
+	$link_props = $service->get_link(
+		$post_id,
+		'share=' . esc_attr( $service_name ) . '&nb=1',
+		false,
+		esc_attr( $data_shared )
+	);
+
 	$block_class_name = 'jetpack-sharing-button__list-item';
+
 	if ( $service_name === 'share' ) {
 		$block_class_name .= ' tooltip';
+		/* translators: aria label for SMS sharing button */
+		$link_aria_label = esc_html__( 'Share using Native tools', 'jetpack' );
+		$link_props      = $service->get_link( $post_id );
 	}
+
+	$link_url     = $link_props['url'];
+	$link_classes = sprintf(
+		'jetpack-sharing-button__button style-%1$s share-%2$s',
+		$style_type,
+		$service_name
+	);
 
 	$styles = array();
 	if (
@@ -118,10 +127,11 @@ function render_block( $attr, $content, $block ) {
 		esc_attr( $data_shared ),
 		esc_attr( $link_aria_label )
 	);
+
 	$component .= $style_type !== 'text' ? $icon : '';
 	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . esc_html( $title ) . '</span>';
 	if ( $service_name === 'share' ) {
-		$component .= '<span class="tooltiptext">' . esc_html__( 'Copied to clipboard', 'jetpack' ) . '</span>';
+		$component .= '<span class="tooltiptext" aria-live="assertive" arial-label="Hello">' . esc_html__( 'Copied to clipboard', 'jetpack' ) . '</span>';
 	}
 	$component .= '</a>';
 	$component .= '</li>';
