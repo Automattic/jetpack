@@ -231,6 +231,7 @@ class Initializer {
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
+				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'welcomeBanner'          => array(
 					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
 				),
