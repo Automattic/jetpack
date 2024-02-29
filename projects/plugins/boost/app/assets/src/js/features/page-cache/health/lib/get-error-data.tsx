@@ -79,7 +79,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		title: __( 'Existing Cache System Detected', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			__(
-				`This feature cannot be enabled because your site is already using a caching system, installed by another plugin or your hosting provider. For a unified optimization experience with Jetpack Boost, please deactivate the current caching solution by disabling the plugin or contacting your hosting support for assistance. If you already did that, click 'Try again' to activate Boost's caching. <link>Learn More.</link>`,
+				`This feature cannot be enabled because your site is already using a caching system, installed by another plugin or your hosting provider. For a unified optimization experience with Jetpack Boost, please deactivate the current caching solution by disabling the plugin or contacting your hosting support for assistance. If you already did that, try enabling caching again. <link>Learn More.</link>`,
 				'jetpack-boost'
 			),
 			{
