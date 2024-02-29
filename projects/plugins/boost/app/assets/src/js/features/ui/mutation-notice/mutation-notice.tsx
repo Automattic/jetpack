@@ -17,22 +17,19 @@ type MutationNoticeMessages = {
 };
 
 /**
- * Mutation Notice: A component that shows a notice when a mutation is pending, successful or failed.
+ * Mutation Notice: A hook for showing a notice when a mutation is pending, successful or failed.
  *
  * Usage:
  * ```tsx
- *	 <MutationNotice
- *		 mutationId="unique-mutation-id"
- *		 isSuccess={ mutation.isSuccess }
- *		 isError={ mutation.isError }
- *		 isPending={ mutation.isPending }
- *		 savingMessage={ __( 'Saving…', 'jetpack-boost' ) }
- *		 errorMessage={ __(
- *		 'An error occurred while saving changes. Please, try again.',
- *		 'jetpack-boost'
- *		 ) }
- *		 successMessage={ __( 'Changes saved.', 'jetpack-boost' ) }
- *		 />
+ *	useMutationNotice( {
+ *		"unique-mutation-id",
+ *		mutationState,
+ *		{
+ *			savingMessage: 'Saving…',
+ *			errorMessage: 'An error occurred while saving changes. Please, try again.',
+ *			successMessage: 'Changes saved.',
+ *		}
+ *	} );
  * ```
  *
  * Usage when you don't need to customize the messages:
@@ -41,16 +38,9 @@ type MutationNoticeMessages = {
  * 	const [ data, mutation ] = useDataSync(...);
  * 	<MutationNotice { ...mutation } />
  * ```
- * @param mutationId
- * @param props.mutationId        The unique identifier for the mutation.
- * @param props.isSuccess         Whether the mutation was successful.
- * @param props.isError           Whether the mutation failed.
- * @param props.isPending         Whether the mutation is pending.
- * @param messages
- * @param messages.savingMessage  The message to show when the mutation is pending.
- * @param messages.errorMessage   The message to show when the mutation failed.
- * @param messages.successMessage The message to show when the mutation was successful.
- * @param mutationState
+ * @param mutationId    A unique identifier for the mutation notice.
+ * @param mutationState An object representing the current state of the mutation.
+ * @param messages      An object containing custom messages for different states of the mutation.
  */
 export const useMutationNotice = (
 	mutationId: string,
@@ -66,15 +56,9 @@ export const useMutationNotice = (
 			'jetpack-boost'
 		),
 		successMessage: __( 'Changes saved.', 'jetpack-boost' ),
-
 	};
 
-	const {
-		savingMessage,
-		errorMessage,
-		successMessage,
-	} = {...defaultMessages, ...messages};
-
+	const { savingMessage, errorMessage, successMessage } = { ...defaultMessages, ...messages };
 
 	const { isSuccess, isError, isPending, isIdle, reset } = useMemo( () => {
 		const mutationStateDefaults = {
@@ -92,7 +76,7 @@ export const useMutationNotice = (
 
 	useEffect( () => {
 		let timeout: number;
-		if( isIdle && hasNotice( mutationId ) ) {
+		if ( isIdle && hasNotice( mutationId ) ) {
 			removeNotice( mutationId );
 		}
 		if ( isPending && ! isSuccess ) {
@@ -124,7 +108,6 @@ export const useMutationNotice = (
 		reset,
 		hasNotice,
 	] );
-
 };
 
 // This is a pure component, so we can use React.memo to avoid unnecessary re-renders.
