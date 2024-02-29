@@ -134,7 +134,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		),
 	},
 	'wp-cache-defined-not-true': {
-		title: __( 'Caching Constant Requires Adjustment', 'jetpack-boost' ),
+		title: __( 'The WordPress cache constant must be updated', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			sprintf(
 				// translators: %1$s refers to the cache constant (WP_CACHE). %2$s refers to what it isn't set to (true).
