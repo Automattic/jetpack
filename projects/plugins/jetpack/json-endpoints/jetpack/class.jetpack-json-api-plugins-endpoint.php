@@ -441,7 +441,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	protected function validate_scheduled_update() {
 		$args = $this->input();
 
-		if ( isset( $args['schedule_update'] ) && $args['schedule_update'] ) {
+		if ( isset( $args['scheduled_update'] ) && $args['scheduled_update'] ) {
 			if ( Current_Plan::supports( 'scheduled-updates' ) ) {
 				$this->scheduled_update = true;
 			} else {
