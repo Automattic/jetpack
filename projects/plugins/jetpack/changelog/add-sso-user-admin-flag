@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Disable sso user admin if WooCommerce is enabled or sso_user_admin_load site option is set to disabled
+Disable sso user admin if sso_user_admin_load site option is set to disabled
