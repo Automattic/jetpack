@@ -114,7 +114,7 @@ export default function () {
 									'jetpack-my-jetpack'
 								) }
 							</div>
-							{ ! shouldContactUs && (
+							{ ! shouldContactUs && ! hasUnlimited && (
 								<Button
 									variant="primary"
 									onClick={ upgradeClickHandler }
