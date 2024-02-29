@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+RNMobile: Ensure playsInline setting always conforms to Video block schema.

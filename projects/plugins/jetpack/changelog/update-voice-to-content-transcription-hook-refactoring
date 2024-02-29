@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Voice to Content: move transcription to a dedicated hook so the block code becomes more simple

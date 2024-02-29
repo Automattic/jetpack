@@ -9,6 +9,8 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPres
  * Require all pre-wordpress files here. These files aren't autoloaded as they are loaded before WordPress is fully initialized.
  * pre-wordpress files assume all other pre-wordpress files are loaded here.
  */
+require_once __DIR__ . '/Boost_Cache_Actions.php';
+require_once __DIR__ . '/Boost_Cache_Error.php';
 require_once __DIR__ . '/Boost_Cache_Settings.php';
 require_once __DIR__ . '/Boost_Cache_Utils.php';
 require_once __DIR__ . '/Filesystem_Utils.php';
@@ -94,12 +96,21 @@ class Boost_Cache {
 
 		$cached = $this->storage->read( $this->request->get_uri(), $this->request->get_parameters() );
 		if ( is_string( $cached ) ) {
+			$this->send_header( 'X-Jetpack-Boost-Cache: hit' );
 			Logger::debug( 'Serving cached page' );
-			echo $cached . '<!-- cached -->'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $cached; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			die();
 		}
 
+		$this->send_header( 'X-Jetpack-Boost-Cache: miss' );
+
 		return false;
+	}
+
+	private function send_header( $header ) {
+		if ( ! headers_sent() ) {
+			header( $header );
+		}
 	}
 
 	/**
@@ -133,7 +144,7 @@ class Boost_Cache {
 
 			$result = $this->storage->write( $this->request->get_uri(), $this->request->get_parameters(), $buffer );
 
-			if ( is_wp_error( $result ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+			if ( $result instanceof Boost_Cache_Error ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 				Logger::debug( 'Error writing cache file: ' . $result->get_error_message() );
 			} else {
 				Logger::debug( 'Cache file created' );
@@ -149,7 +160,7 @@ class Boost_Cache {
 	 *
 	 * @param WP_Post $post - The post that should be deleted.
 	 */
-	protected function delete_cache_for_front_page() {
+	public function delete_cache_for_front_page() {
 		if ( get_option( 'show_on_front' ) === 'page' ) {
 			$front_page_id = get_option( 'page_on_front' ); // static page
 			if ( $front_page_id ) {
@@ -164,6 +175,18 @@ class Boost_Cache {
 		} else {
 			$this->storage->invalidate( home_url(), Filesystem_Utils::DELETE_FILES );
 			Logger::debug( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) );
+		}
+	}
+
+	/**
+	 * Delete the cache for the given post.
+	 *
+	 * @param int $post_id - The ID of the post to delete the cache for.
+	 */
+	public function delete_cache_by_post_id( $post_id ) {
+		$post = get_post( (int) $post_id );
+		if ( $post ) {
+			$this->delete_cache_for_post( $post );
 		}
 	}
 

@@ -17,17 +17,27 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.2.1-alpha';
+	const PACKAGE_VERSION = '0.3.0-alpha';
 
 	/**
 	 * Initialize the class.
 	 */
 	public static function init() {
+		/*
+		 * We want to load the REST API endpoints in all environments.
+		 * On WP.com they're needed for registering the routes with public-api and pass-through to self-hosted sites.
+		 */
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_rest_api_endpoints' ), 20 );
+
+		// Never load on Simple sites.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return;
+		}
+
 		if ( ! ( method_exists( 'Automattic\Jetpack\Current_Plan', 'supports' ) && Current_Plan::supports( 'scheduled-updates' ) ) ) {
 			return;
 		}
 
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_rest_api_endpoints' ), 20 );
 		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
@@ -79,12 +89,13 @@ class Scheduled_Updates {
 	 * @return bool
 	 */
 	public static function allowlist_scheduled_plugins( $update, $item ) {
-		// TODO: Check if we're in a scheduled update request from Jetpack_Autoupdates.
-		$schedules = get_option( 'jetpack_update_schedules', array() );
+		if ( Constants::get_constant( 'SCHEDULED_AUTOUPDATE' ) ) {
+			$schedules = get_option( 'jetpack_update_schedules', array() );
 
-		foreach ( $schedules as $plugins ) {
-			if ( in_array( $item->slug, $plugins, true ) ) {
-				return true;
+			foreach ( $schedules as $plugins ) {
+				if ( isset( $item->plugin ) && in_array( $item->plugin, $plugins, true ) ) {
+					return true;
+				}
 			}
 		}
 

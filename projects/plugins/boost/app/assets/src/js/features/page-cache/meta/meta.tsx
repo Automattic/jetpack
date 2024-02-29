@@ -113,7 +113,7 @@ const Meta = () => {
 						/>
 						<div className={ styles.section }>
 							<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
-							<label htmlFor="cache-logging">
+							<label htmlFor="cache-logging" className={ styles[ 'logging-toggle' ] }>
 								<input
 									type="checkbox"
 									id="cache-logging"
@@ -121,13 +121,13 @@ const Meta = () => {
 									onChange={ event => mutateLogging.mutate( event.target.checked ) }
 								/>{ ' ' }
 								{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
-								{ logging && (
-									<>
-										{ ' ' }
-										<Link to="/cache-debug-log">{ __( 'See Logs', 'jetpack-boost' ) }</Link>
-									</>
-								) }
 							</label>
+							{ logging && (
+								<Link className={ styles[ 'see-logs-link' ] } to="/cache-debug-log">
+									{ __( 'See Logs', 'jetpack-boost' ) }
+								</Link>
+							) }
+							<div className={ styles.clearfix } />
 						</div>
 					</>
 				</div>
@@ -157,6 +157,27 @@ const BypassPatterns = ( {
 	// @todo - add proper link.
 	const exclusionsLink = 'https://jetpack.com';
 
+	const validateInputValue = ( value: string ) => {
+		setInputValue( value );
+		setInputInvalid( ! validatePatterns( value ) );
+	};
+
+	const validatePatterns = ( value: string ) => {
+		const lines = value
+			.split( '\n' )
+			.map( line => line.trim() )
+			.filter( line => line.trim() !== '' );
+
+		// check if it's a valid regex
+		try {
+			lines.forEach( line => new RegExp( line ) );
+		} catch ( e ) {
+			return false;
+		}
+
+		return true;
+	};
+
 	useEffect( () => {
 		setInputValue( patterns );
 	}, [ patterns ] );
@@ -182,7 +203,7 @@ const BypassPatterns = ( {
 			<textarea
 				value={ inputValue }
 				rows={ 3 }
-				onChange={ e => setInputValue( e.target.value ) }
+				onChange={ e => validateInputValue( e.target.value ) }
 				id="jb-cache-exceptions"
 			/>
 			<p className={ classNames( styles.description, styles[ 'error-message' ] ) }>
@@ -212,7 +233,11 @@ const BypassPatterns = ( {
 					{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
 				</Notice>
 			) }
-			<Button disabled={ patterns === inputValue } onClick={ save } className={ styles.button }>
+			<Button
+				disabled={ patterns === inputValue || inputInvalid }
+				onClick={ save }
+				className={ styles.button }
+			>
 				{ __( 'Save', 'jetpack-boost' ) }
 			</Button>
 		</div>

@@ -1,9 +1,10 @@
 import { Button, Notice } from '@automattic/jetpack-components';
 import getErrorData from './lib/get-error-data';
 import { __ } from '@wordpress/i18n';
+import { type PageCacheError } from '$lib/stores/page-cache';
 
 type HealthProps = {
-	error: string;
+	error: PageCacheError;
 	setupCache: () => void;
 };
 

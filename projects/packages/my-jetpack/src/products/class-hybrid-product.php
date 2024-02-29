@@ -118,12 +118,11 @@ abstract class Hybrid_Product extends Product {
 			}
 		}
 
-		if ( ! empty( static::$module_name ) ) {
-			if ( ! static::has_required_plan() ) {
-				// translators: %s is the product name. e.g. Jetpack Search.
-				return new WP_Error( 'not_supported', sprintf( __( 'Your plan does not support %s.', 'jetpack-my-jetpack' ), static::get_title() ) );
-			}
+		// Only activate the module if the plan supports it
+		// We don't want to throw an error for a missing plan here since we try activation before purchase
+		if ( static::has_required_plan() && ! empty( static::$module_name ) ) {
 			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
+
 			if ( ! $module_activation ) {
 				return new WP_Error( 'module_activation_failed', __( 'Error activating Jetpack module', 'jetpack-my-jetpack' ) );
 			}

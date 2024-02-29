@@ -11,6 +11,17 @@ namespace Automattic\Jetpack\Waf;
  * Waf_Transforms class
  */
 class Waf_Transforms {
+
+	/**
+	 * Decode a Base64-encoded string. This runs the decode without strict mode, to match Modsecurity's 'base64DecodeExt' transform function.
+	 *
+	 * @param string $value value to be decoded.
+	 * @return string
+	 */
+	public function base64_decode_ext( $value ) {
+		return base64_decode( $value );
+	}
+
 	/**
 	 * Characters to match when trimming a string.
 	 * Emulates `std::isspace` used by ModSecurity.
@@ -20,13 +31,13 @@ class Waf_Transforms {
 	const TRIM_CHARS = " \n\r\t\v\f";
 
 	/**
-	 * Decode a Base64-encoded string.
+	 * Decode a Base64-encoded string. This runs the decode with strict mode, to match Modsecurity's 'base64Decode' transform function.
 	 *
 	 * @param string $value value to be decoded.
 	 * @return string
 	 */
 	public function base64_decode( $value ) {
-		return base64_decode( $value );
+		return base64_decode( $value, true );
 	}
 
 	/**
