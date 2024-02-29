@@ -27,8 +27,9 @@ const ConnectedProductCard = ( {
 } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
-	const { install: installStandalonePlugin, isInstalling } = useInstallStandalonePlugin( slug );
-	const { activate, isActivating } = useActivate( slug );
+	const { install: installStandalonePlugin, isPending: isInstalling } =
+		useInstallStandalonePlugin( slug );
+	const { activate, isPending: isActivating } = useActivate( slug );
 	const { detail } = useProduct( slug );
 	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
 	const [ installingStandalone, setInstallingStandalone ] = useState( false );

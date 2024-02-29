@@ -1,15 +1,14 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
-import useGetProductData from './use-get-product-data';
-import type { ProductSnakeCase } from '../types';
+import useStateProduct from './use-state-product';
 import type { UseMutateFunction } from '@tanstack/react-query';
 
 const useActivate: ( productId: string ) => {
 	activate: UseMutateFunction;
 	isPending: boolean;
 } = productId => {
-	const { product, refetch } = useGetProductData( productId );
+	const { product, refetch } = useStateProduct( productId );
 
 	const { mutate: activate, isPending } = useSimpleMutation(
 		'activateProduct',
@@ -18,14 +17,10 @@ const useActivate: ( productId: string ) => {
 			method: 'POST',
 		},
 		{
-			onSuccess: () =>
-				// Update product data after activation.
-				refetch().then( refetchQueryResult => {
-					const { data: refetchedProduct } = refetchQueryResult;
-
-					window.myJetpackInitialState.products.items[ productId ] =
-						refetchedProduct as ProductSnakeCase;
-				} ),
+			onSuccess: async () => {
+				// Await the refetch so the loading state is pending until this returns
+				await refetch();
+			},
 		},
 		null,
 		sprintf(

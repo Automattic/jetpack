@@ -1,15 +1,14 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
-import useGetProductData from './use-get-product-data';
-import type { ProductSnakeCase } from '../types';
+import useStateProduct from './use-state-product';
 import type { UseMutateFunction } from '@tanstack/react-query';
 
 const useInstallStandalonePlugin: ( productId: string ) => {
 	install: UseMutateFunction;
 	isPending: boolean;
 } = productId => {
-	const { product, refetch } = useGetProductData( productId );
+	const { product, refetch } = useStateProduct( productId );
 
 	const { mutate: install, isPending } = useSimpleMutation(
 		'installPlugin',
@@ -18,13 +17,8 @@ const useInstallStandalonePlugin: ( productId: string ) => {
 			method: 'POST',
 		},
 		{
-			onSuccess: () => {
-				refetch().then( refetchQueryResult => {
-					const { data: refetchedProduct } = refetchQueryResult;
-
-					window.myJetpackInitialState.products.items[ productId ] =
-						refetchedProduct as ProductSnakeCase;
-				} );
+			onSuccess: async () => {
+				await refetch();
 			},
 		},
 		null,

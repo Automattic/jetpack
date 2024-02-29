@@ -2,8 +2,8 @@ import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import useSimpleQuery from '../use-simple-query';
 import mapObjectKeysToCamel from '../utils/to-camel';
 import useAllProducts from './use-all-products';
-import type { ProductCamelCase } from '../types';
-import type { UseQueryResult } from '@tanstack/react-query';
+import type { ProductCamelCase, ProductSnakeCase } from '../types';
+import type { RefetchOptions, QueryObserverResult } from '@tanstack/react-query';
 
 const getFullPricePerMonth = ( product: ProductCamelCase ) => {
 	return product.pricingForUi.productTerm === 'year'
@@ -17,7 +17,8 @@ const getDiscountPricePerMonth = ( product: ProductCamelCase ) => {
 		: product.pricingForUi.discountPrice;
 };
 
-const useRefetchProduct = ( productId: string ) => {
+// Create query to fetch new product data from the server
+const useFetchProduct = ( productId: string ) => {
 	const queryResult = useSimpleQuery(
 		'product',
 		{
@@ -29,17 +30,27 @@ const useRefetchProduct = ( productId: string ) => {
 	return queryResult;
 };
 
-const useGetProductData: ( productId: string ) => {
+// Fetch the product data from the server and update the global state
+const refetchProduct: (
+	productId: string,
+	refetch: ( options?: RefetchOptions ) => Promise< QueryObserverResult< unknown, Error > >
+) => Promise< void > = async ( productId, refetch ) => {
+	return await refetch().then( refetchQueryResult => {
+		const { data: refetchedProduct } = refetchQueryResult;
+
+		window.myJetpackInitialState.products.items[ productId ] = refetchedProduct as ProductSnakeCase;
+	} );
+};
+
+const useStateProduct: ( productId: string ) => {
 	product: ProductCamelCase;
-	refetch: ( options?: {
-		throwOnError?: boolean;
-		cancelRefetch?: boolean;
-	} ) => Promise< UseQueryResult >;
+	refetch: () => Promise< void >;
 	isLoading: boolean;
 } = productId => {
 	const allProducts = useAllProducts();
 	const product = allProducts?.[ productId ];
 	const camelProduct = mapObjectKeysToCamel( product );
+	const { refetch, isLoading } = useFetchProduct( productId );
 
 	camelProduct.features = camelProduct.features || [];
 	camelProduct.supportedProducts = camelProduct.supportedProducts || [];
@@ -47,13 +58,11 @@ const useGetProductData: ( productId: string ) => {
 	camelProduct.pricingForUi.fullPricePerMonth = getFullPricePerMonth( camelProduct );
 	camelProduct.pricingForUi.discountPricePerMonth = getDiscountPricePerMonth( camelProduct );
 
-	const { refetch, isLoading } = useRefetchProduct( productId );
-
 	return {
 		product: camelProduct,
-		refetch,
+		refetch: () => refetchProduct( productId, refetch ),
 		isLoading,
 	};
 };
 
-export default useGetProductData;
+export default useStateProduct;
