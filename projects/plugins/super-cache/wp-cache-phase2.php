@@ -3132,6 +3132,11 @@ function wpsc_post_transition( $new_status, $old_status, $post ) {
 		return;
 	}
 
+	// Allow plugins to reject cache clears for specific posts.
+	if ( ! apply_filters( 'wp_super_cache_clear_post_cache', true, $post ) ) {
+		return;
+	}
+
 	if ( ( $old_status === 'private' || $old_status === 'publish' ) && $new_status !== 'publish' ) { // post unpublished
 		if ( ! function_exists( 'get_sample_permalink' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/post.php';
@@ -3237,6 +3242,11 @@ function wp_cache_post_change( $post_id ) {
 	$post  = get_post( $post_id );
 	$ptype = is_object( $post ) ? get_post_type_object( $post->post_type ) : null;
 	if ( empty( $ptype ) || ! $ptype->public ) {
+		return $post_id;
+	}
+
+	// Allow plugins to reject cache clears for specific posts.
+	if ( ! apply_filters( 'wp_super_cache_clear_post_cache', true, $post ) ) {
 		return $post_id;
 	}
 
