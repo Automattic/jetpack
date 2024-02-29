@@ -25,21 +25,27 @@ type NoticeProviderProps = {
 export const NoticeProvider = ( { children }: NoticeProviderProps ) => {
 	const [ notices, setNotices ] = useState< Notices >( {} );
 
-	const setNotice = useCallback( ( notice: MutationNotice ) => {
-		setNotices( ( prevNotices: Notices ) => ( {
-			...prevNotices,
-			[ notice.id ]: notice, // Add or update the notice by its ID
-		} ) );
-	}, [] );
+	const setNotice = useCallback(
+		( notice: MutationNotice ) => {
+			setNotices( ( prevNotices: Notices ) => ( {
+				...prevNotices,
+				[ notice.id ]: notice, // Add or update the notice by its ID
+			} ) );
+		},
+		[ setNotices ]
+	);
 
-	const removeNotice = useCallback( ( id: string ) => {
-		setNotices( ( prevNotices: Notices ) => {
-			const updatedNotices = { ...prevNotices };
-			delete updatedNotices[ id ]; // Remove the notice by its ID
+	const removeNotice = useCallback(
+		( id: string ) => {
+			setNotices( ( prevNotices: Notices ) => {
+				const updatedNotices = { ...prevNotices };
+				delete updatedNotices[ id ]; // Remove the notice by its ID
 
-			return updatedNotices;
-		} );
-	}, [] );
+				return updatedNotices;
+			} );
+		},
+		[ setNotices ]
+	);
 
 	return (
 		<NoticeContext.Provider value={ { notices, setNotice, removeNotice } }>
