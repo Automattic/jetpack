@@ -220,6 +220,7 @@
 		flex-direction: column;
 		gap: var(--spacing-base);
 		flex: 1;
+		min-width: 280px;
 
 		.product-interstitial__usage-videos-heading {
 			font-size: 20px;
