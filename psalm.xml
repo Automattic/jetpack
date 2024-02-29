@@ -8,7 +8,7 @@
 >
 	<projectFiles>
 		<directory name="." />
-		<ignoreFiles>
+		<ignoreFiles allowMissingFiles="true">
 			<directory name="projects/*/*/jetpack_vendor" />
 			<directory name="projects/*/*/node_modules" />
 			<directory name="projects/*/*/vendor" />
