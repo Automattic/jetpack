@@ -88,7 +88,7 @@
 		"phpcs:lint:required": "Run phpcs on files that are not excluded by bin/phpcs-excludelist.json.",
 		"psalm:check": "Run psalm.",
 		"psalm:fix": "Run psalm with --alter to fix fixable errors.",
-		"psalm:update-baseline": "Clean up baseline file to resolve UnusedBaseline errors.",
+		"psalm:update-baseline": "Clean up baseline file to resolve UnusedBaselineEntry errors.",
 		"php:autofix": "DEPRECATED. Use `composer phpcs:fix` instead.",
 		"php:changed": "DEPRECATED. Use `composer phpcs:changed` instead.",
 		"php:lint:errors": "DEPRECATED. Use `composer phpcs:lint:errors` instead.",
