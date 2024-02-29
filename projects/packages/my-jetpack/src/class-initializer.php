@@ -102,9 +102,6 @@ class Initializer {
 		// Add "Activity Log" menu item.
 		Activitylog::init();
 
-		// Add "Jetpack Manage" menu item.
-		Jetpack_Manage::init();
-
 		/**
 		 * Fires after the My Jetpack package is initialized
 		 *
