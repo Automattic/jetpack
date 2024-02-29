@@ -16,10 +16,11 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 		),
 		'allow_jetpack_site_auth' => true,
 		'request_format'          => array(
-			'action'       => '(string) Possible values are \'update\'',
-			'autoupdate'   => '(bool) Whether or not to automatically update the plugin',
-			'active'       => '(bool) Activate or deactivate the plugin',
-			'network_wide' => '(bool) Do action network wide (default value: false)',
+			'action'           => '(string) Possible values are \'update\'',
+			'autoupdate'       => '(bool) Whether or not to automatically update the plugin',
+			'active'           => '(bool) Activate or deactivate the plugin',
+			'network_wide'     => '(bool) Do action network wide (default value: false)',
+			'scheduled_update' => '(bool) If the update is happening as a result of a scheduled update event',
 		),
 		'query_parameters'        => array(
 			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
@@ -381,10 +382,12 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	 * @return bool|WP_Error
 	 */
 	protected function update() {
-
 		$query_args = $this->query_args();
-		if ( isset( $query_args['autoupdate'] ) && $query_args['autoupdate'] ) {
+		if ( isset( $query_args['autoupdate'] ) && $query_args['autoupdate'] || $this->scheduled_update ) {
 			Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
+		}
+		if ( $this->scheduled_update ) {
+			Constants::set_constant( 'SCHEDULED_AUTOUPDATE', true );
 		}
 		wp_clean_plugins_cache( false );
 		ob_start();
@@ -408,9 +411,12 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		remove_action( 'upgrader_process_complete', 'wp_version_check' );
 		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
 
+		// Set the lock timeout to 15 minutes if it's scheduled update, otherwise default to one hour.
+		$lock_release_timeout = $this->scheduled_update ? 15 * MINUTE_IN_SECONDS : null;
+
 		// Early return if unable to obtain auto_updater lock.
 		// @see https://github.com/WordPress/wordpress-develop/blob/66469efa99e7978c8824e287834135aa9842e84f/src/wp-admin/includes/class-wp-automatic-updater.php#L453.
-		if ( Constants::get_constant( 'JETPACK_PLUGIN_AUTOUPDATE' ) && ! WP_Upgrader::create_lock( 'auto_updater' ) ) {
+		if ( Constants::get_constant( 'JETPACK_PLUGIN_AUTOUPDATE' ) && ! WP_Upgrader::create_lock( 'auto_updater', $lock_release_timeout ) ) {
 			return new WP_Error( 'update_fail', __( 'Updates are already in progress.', 'jetpack' ), 400 );
 		}
 
@@ -430,7 +436,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 			// Establish per plugin lock.
 			$plugin_slug = Jetpack_Autoupdate::get_plugin_slug( $plugin );
-			if ( ! WP_Upgrader::create_lock( 'jetpack_' . $plugin_slug ) ) {
+			if ( ! WP_Upgrader::create_lock( 'jetpack_' . $plugin_slug, $lock_release_timeout ) ) {
 				continue;
 			}
 

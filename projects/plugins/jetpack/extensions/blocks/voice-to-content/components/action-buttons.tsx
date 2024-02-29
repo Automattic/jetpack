@@ -16,7 +16,7 @@ export default function ActionButtons( {
 } ) {
 	return (
 		<div className="jetpack-ai-voice-to-content__action-buttons">
-			{ [ 'inactive', 'error' ].includes( state ) && (
+			{ [ 'inactive', 'error', 'validating' ].includes( state ) && (
 				<Button
 					className="jetpack-ai-voice-to-content__button"
 					icon={ micIcon }
@@ -46,7 +46,7 @@ export default function ActionButtons( {
 					{ __( 'Resume recording', 'jetpack' ) }
 				</Button>
 			) }
-			{ [ 'inactive', 'error' ].includes( state ) && (
+			{ [ 'inactive', 'error', 'validating' ].includes( state ) && (
 				<FormFileUpload
 					accept="audio/*"
 					onChange={ onUpload }
