@@ -78,12 +78,12 @@ We've built a few extras for Jetpack CRM, but they're mostly offering functional
 * [Advanced Segments](https://jetpackcrm.com/product/advanced-segments/)
 * [Client Portal Pro](https://jetpackcrm.com/product/client-portal-pro/)
 * [Invoicing Pro](https://jetpackcrm.com/product/invoicing-pro/)
-* [Gravity Forms](https://jetpackcrm.com/product/gravity-forms/ (Contact forms))
-* [Contact Form 7](https://jetpackcrm.com/product/contact-form-7/ (Contact forms))
-* [AWeber](https://jetpackcrm.com/product/aweber-connect/ (Email marketing))
-* [ConvertKit](https://jetpackcrm.com/product/convertkit/ (Email marketing))
+* [Gravity Forms](https://jetpackcrm.com/product/gravity-forms/) (Contact forms)
+* [Contact Form 7](https://jetpackcrm.com/product/contact-form-7/) (Contact forms)
+* [AWeber](https://jetpackcrm.com/product/aweber-connect/) (Email marketing)
+* [ConvertKit](https://jetpackcrm.com/product/convertkit/) (Email marketing)
 * [PayPal Sync](https://jetpackcrm.com/product/paypal-sync/)
-* [Twilio](https://jetpackcrm.com/product/twilio/ (for SMS Sending))
+* [Twilio](https://jetpackcrm.com/product/twilio/) (for SMS Sending)
 * [Plus many more...](https://jetpackcrm.com/extensions/)
 
 👉 **[View all of the CRM Extensions](https://jetpackcrm.com/extensions)**
