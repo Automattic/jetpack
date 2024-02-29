@@ -537,15 +537,12 @@ class Share_SMS_Block extends Sharing_Source_Block {
 		// We don't need to open new window, so we set it to false.
 		$id = false;
 
-		$post_title = $this->get_share_title( $post_id );
-		$post_url   = $this->get_share_url( $post_id );
+		$post_url = $this->get_share_url( $post_id );
 
 		/** This filter is documented in plugins/jetpack/modules/sharedaddy/sharedaddy.php */
-		$email_subject = sprintf( '[%s] %s', __( 'Shared Post', 'jetpack' ), $post_title );
 
 		$sms_query = sprintf(
-			'?subject=%s&body=%s&share=sms',
-			rawurlencode( $email_subject ),
+			'?body=%s&share=sms',
 			rawurlencode( $post_url )
 		);
 
