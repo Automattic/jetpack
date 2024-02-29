@@ -4,7 +4,7 @@
 import { Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import PropTypes from 'prop-types';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
@@ -32,7 +32,6 @@ const ConnectedProductCard = ( {
 	const { activate, isPending: isActivating } = useActivate( slug );
 	const { detail } = useProduct( slug );
 	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
-	const [ installingStandalone, setInstallingStandalone ] = useState( false );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 
@@ -55,15 +54,7 @@ const ConnectedProductCard = ( {
 	] );
 
 	const handleInstallStandalone = useCallback( () => {
-		setInstallingStandalone( true );
-
-		installStandalonePlugin()
-			.then( () => {
-				setInstallingStandalone( false );
-			} )
-			.catch( () => {
-				setInstallingStandalone( false );
-			} );
+		installStandalonePlugin();
 	}, [ installStandalonePlugin ] );
 
 	const DefaultDescription = () => {
@@ -85,7 +76,7 @@ const ConnectedProductCard = ( {
 			admin={ admin }
 			isFetching={ isActivating || isInstalling }
 			isDataLoading={ isDataLoading }
-			isInstallingStandalone={ installingStandalone }
+			isInstallingStandalone={ isInstalling }
 			additionalActions={ additionalActions }
 			primaryActionOverride={ primaryActionOverride }
 			secondaryAction={ secondaryAction }

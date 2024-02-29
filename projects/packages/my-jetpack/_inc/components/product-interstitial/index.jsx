@@ -61,7 +61,7 @@ export default function ProductInterstitial( {
 	highlightLastFeature = false,
 } ) {
 	const { detail } = useProduct( slug );
-	const { activate, isPending } = useActivate( slug );
+	const { activate, isPending: isActivating } = useActivate( slug );
 
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
@@ -198,6 +198,7 @@ export default function ProductInterstitial( {
 							clickHandler={ clickHandler }
 							onProductButtonClick={ clickHandler }
 							trackProductButtonClick={ trackProductClick }
+							isFetching={ isActivating }
 						/>
 					) : (
 						<Container
@@ -218,7 +219,7 @@ export default function ProductInterstitial( {
 									hideTOS={ hideTOS }
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
-									isFetching={ isPending }
+									isFetching={ isActivating }
 								/>
 							</Col>
 							<Col
@@ -235,7 +236,7 @@ export default function ProductInterstitial( {
 										className={ isUpgradableByBundle ? styles.container : null }
 										quantity={ quantity }
 										highlightLastFeature={ highlightLastFeature }
-										isFetching={ isPending }
+										isFetching={ isActivating }
 									/>
 								) : (
 									children
