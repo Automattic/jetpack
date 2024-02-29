@@ -46,6 +46,8 @@ export type {
 	UseTranscriptionPostProcessingReturn,
 	PostProcessingAction,
 } from './hooks/use-transcription-post-processing/index.js';
+export type { UseAudioValidationReturn } from './hooks/use-audio-validation/index.js';
+
 /*
  * Hook constants
  */
@@ -91,7 +93,7 @@ export type CancelablePromise< T = void > = Promise< T > & { canceled?: boolean 
 /*
  * Transcription types
  */
-export type TranscriptionState = RecordingState | 'processing' | 'error';
+export type TranscriptionState = RecordingState | 'validating' | 'processing' | 'error';
 
 // Connection initial state
 // @todo: it should be provided by the connection package

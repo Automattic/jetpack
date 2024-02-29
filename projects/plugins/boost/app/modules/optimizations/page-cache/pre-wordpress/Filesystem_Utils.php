@@ -19,17 +19,17 @@ class Filesystem_Utils {
 		$path = realpath( $path );
 		if ( ! $path ) {
 			// translators: %s is the directory that does not exist.
-			return new Boost_Cache_Error( 'directory-missing', sprintf( __( 'Directory does not exist: %s', 'jetpack-boost' ), $path ) ); // realpath returns false if a file does not exist.
+			return new Boost_Cache_Error( 'directory-missing', 'Directory does not exist: ' . $path ); // realpath returns false if a file does not exist.
 		}
 
 		// make sure that $dir is a directory inside WP_CONTENT . '/boost-cache/';
 		if ( self::is_boost_cache_directory( $path ) === false ) {
 			// translators: %s is the directory that is invalid.
-			return new Boost_Cache_Error( 'invalid-directory', sprintf( __( 'Invalid directory %s', 'jetpack-boost' ), $path ) );
+			return new Boost_Cache_Error( 'invalid-directory', 'Invalid directory %s' . $path );
 		}
 
 		if ( ! is_dir( $path ) ) {
-			return new Boost_Cache_Error( 'not-a-directory', __( 'Not a directory', 'jetpack-boost' ) );
+			return new Boost_Cache_Error( 'not-a-directory', 'Not a directory' );
 		}
 
 		switch ( $type ) {
