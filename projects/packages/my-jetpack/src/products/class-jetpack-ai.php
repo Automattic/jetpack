@@ -552,7 +552,6 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function add_ai_block( $content, $post ) {
-		wplog( 'executing filter: content' );
 		if ( isset( $_GET['use_ai_block'] ) && isset( $_GET['_wpnonce'] )
 			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'ai-assistant-content-nonce' )
 			&& current_user_can( 'edit_post', $post->ID )
