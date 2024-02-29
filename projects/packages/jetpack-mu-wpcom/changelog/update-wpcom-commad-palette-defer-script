@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+The Command Palette loads the script with a `defer` strategy now to improve the performance.
