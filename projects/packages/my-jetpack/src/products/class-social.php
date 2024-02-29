@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status\Host;
@@ -147,7 +146,7 @@ class Social extends Hybrid_Product {
 		// For atomic sites, do a feature check to see if the republicize feature is available
 		// This feature is available by default on all Jetpack sites
 		if ( ( new Host() )->is_woa_site() ) {
-			Current_Plan::supports( 'republicize', true );
+			static::does_site_have_feature( 'republicize' );
 		}
 
 		$purchases_data = Wpcom_Products::get_site_current_purchases();

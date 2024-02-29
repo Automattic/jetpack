@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
@@ -311,7 +310,7 @@ class Jetpack_Ai extends Product {
 	 * @return boolean
 	 */
 	public static function has_required_plan() {
-		return Current_Plan::supports( 'ai-assistant', true );
+		return static::does_site_have_feature( 'ai-assistant' );
 	}
 
 	/**
