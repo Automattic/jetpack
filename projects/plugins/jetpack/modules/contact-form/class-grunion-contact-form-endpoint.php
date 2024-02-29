@@ -6,6 +6,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint;
+
 if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
 
 	/**
@@ -22,18 +24,10 @@ if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
 		 * @param  WP_REST_Request $request Full details about the request.
 		 * @return WP_Error|boolean
 		 */
-		public function get_items_permissions_check( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		public function get_items_permissions_check( $request ) {
 			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint->get_items_permissions_check' );
 
-			if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
-				return new WP_Error(
-					'rest_cannot_view',
-					esc_html__( 'Sorry, you cannot view this resource.', 'jetpack' ),
-					array( 'status' => 401 )
-				);
-			}
-
-			return true;
+			return ( new Contact_Form_Endpoint() )->get_items_permissions_check( $request );
 		}
 
 		/**
@@ -43,18 +37,10 @@ if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
 		 * @param  WP_REST_Request $request Full details about the request.
 		 * @return WP_Error|boolean
 		 */
-		public function get_item_permissions_check( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		public function get_item_permissions_check( $request ) {
 			_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint->get_item_permissions_check' );
 
-			if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
-				return new WP_Error(
-					'rest_cannot_view',
-					esc_html__( 'Sorry, you cannot view this resource.', 'jetpack' ),
-					array( 'status' => 401 )
-				);
-			}
-
-			return true;
+			return ( new Contact_Form_Endpoint() )->get_item_permissions_check( $request );
 		}
 	}
 
