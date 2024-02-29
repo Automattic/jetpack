@@ -160,10 +160,13 @@ const BypassPatterns = ( {
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
 		setInputInvalid( ! validatePatterns( value ) );
-	}
+	};
 
 	const validatePatterns = ( value: string ) => {
-		const lines = value.split( '\n' ).map( line => line.trim() ).filter( line => line.trim() !== '' );
+		const lines = value
+			.split( '\n' )
+			.map( line => line.trim() )
+			.filter( line => line.trim() !== '' );
 
 		// check if it's a valid regex
 		try {
@@ -173,7 +176,7 @@ const BypassPatterns = ( {
 		}
 
 		return true;
-	}
+	};
 
 	useEffect( () => {
 		setInputValue( patterns );
@@ -230,7 +233,11 @@ const BypassPatterns = ( {
 					{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
 				</Notice>
 			) }
-			<Button disabled={ patterns === inputValue || inputInvalid } onClick={ save } className={ styles.button }>
+			<Button
+				disabled={ patterns === inputValue || inputInvalid }
+				onClick={ save }
+				className={ styles.button }
+			>
 				{ __( 'Save', 'jetpack-boost' ) }
 			</Button>
 		</div>

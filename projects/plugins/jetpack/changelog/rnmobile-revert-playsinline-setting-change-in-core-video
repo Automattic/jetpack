@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+RNMobile: Revert change to the way playsInline attribute is saved, prevent regression on web.
