@@ -6002,9 +6002,6 @@
     </UnusedParam>
   </file>
   <file src="projects/packages/scheduled-updates/tests/php/bootstrap.php">
-    <MissingFile>
-      <code><![CDATA[require_once __DIR__ . '/../../vendor/autoload.php']]></code>
-    </MissingFile>
     <UndefinedClass>
       <code><![CDATA[\WorDBless\Load]]></code>
     </UndefinedClass>
@@ -7914,12 +7911,6 @@
       <code><![CDATA[$result]]></code>
       <code><![CDATA[$result]]></code>
     </UndefinedDocblockClass>
-    <UndefinedFunction>
-      <code><![CDATA[videopress_get_transcoding_status( $post_id )]]></code>
-      <code><![CDATA[videopress_make_media_upload_path( $video_blog_id )]]></code>
-      <code><![CDATA[videopress_make_resumable_upload_path( $video_blog_id )]]></code>
-      <code><![CDATA[videopress_update_meta_data( $post_id )]]></code>
-    </UndefinedFunction>
     <UnevaluatedCode>
       <code><![CDATA[return;]]></code>
       <code><![CDATA[return;]]></code>
@@ -9261,11 +9252,6 @@
     <UnusedClass>
       <code><![CDATA[Woocommerce_Analytics]]></code>
     </UnusedClass>
-  </file>
-  <file src="projects/packages/woocommerce-analytics/tests/php/bootstrap.php">
-    <MissingFile>
-      <code><![CDATA[require_once __DIR__ . '/../../vendor/autoload.php']]></code>
-    </MissingFile>
   </file>
   <file src="projects/packages/wordads/src/class-package.php">
     <PossiblyUnusedMethod>
@@ -32257,51 +32243,30 @@
       <code><![CDATA[array_to_xml_attr_string]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-image-fallback.php">
-    <DuplicateClass>
-      <code><![CDATA[Jetpack_Sitemap_Buffer_Image]]></code>
-    </DuplicateClass>
-  </file>
   <file src="projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-image.php">
-    <PossiblyUnusedParam>
-      <code><![CDATA[$byte_limit]]></code>
-      <code><![CDATA[$item_limit]]></code>
-      <code><![CDATA[$time]]></code>
-    </PossiblyUnusedParam>
-  </file>
-  <file src="projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-master-fallback.php">
-    <DuplicateClass>
-      <code><![CDATA[Jetpack_Sitemap_Buffer_Master]]></code>
-    </DuplicateClass>
+    <UndefinedConstant>
+      <code><![CDATA[JETPACK__VERSION]]></code>
+    </UndefinedConstant>
   </file>
   <file src="projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-master.php">
-    <PossiblyUnusedParam>
-      <code><![CDATA[$byte_limit]]></code>
-      <code><![CDATA[$item_limit]]></code>
-      <code><![CDATA[$time]]></code>
-    </PossiblyUnusedParam>
+    <UndefinedConstant>
+      <code><![CDATA[JETPACK__VERSION]]></code>
+    </UndefinedConstant>
   </file>
   <file src="projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-news.php">
-    <DuplicateClass>
-      <code><![CDATA[Jetpack_Sitemap_Buffer_News]]></code>
-    </DuplicateClass>
-  </file>
-  <file src="projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-page-fallback.php">
-    <DuplicateClass>
-      <code><![CDATA[Jetpack_Sitemap_Buffer_Page]]></code>
-    </DuplicateClass>
+    <UndefinedConstant>
+      <code><![CDATA[JETPACK__VERSION]]></code>
+    </UndefinedConstant>
   </file>
   <file src="projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-page.php">
-    <PossiblyUnusedParam>
-      <code><![CDATA[$byte_limit]]></code>
-      <code><![CDATA[$item_limit]]></code>
-      <code><![CDATA[$time]]></code>
-    </PossiblyUnusedParam>
+    <UndefinedConstant>
+      <code><![CDATA[JETPACK__VERSION]]></code>
+    </UndefinedConstant>
   </file>
   <file src="projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-video.php">
-    <DuplicateClass>
-      <code><![CDATA[Jetpack_Sitemap_Buffer_Video]]></code>
-    </DuplicateClass>
+    <UndefinedConstant>
+      <code><![CDATA[JETPACK__VERSION]]></code>
+    </UndefinedConstant>
   </file>
   <file src="projects/plugins/jetpack/modules/sitemaps/sitemap-buffer.php">
     <NoValue>
@@ -39559,9 +39524,6 @@ HTML;
     </UnusedClass>
   </file>
   <file src="tools/cli/helpers/doc-parser/runner.php">
-    <MissingFile>
-      <code><![CDATA[require __DIR__ . '/vendor/autoload.php']]></code>
-    </MissingFile>
     <UndefinedClass>
       <code><![CDATA[Markdown]]></code>
     </UndefinedClass>
