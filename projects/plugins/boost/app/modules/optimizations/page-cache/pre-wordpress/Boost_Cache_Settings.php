@@ -19,9 +19,9 @@ class Boost_Cache_Settings {
 	 * An uninitialized config holds these settings.
 	 */
 	private $default_settings = array(
-		'enabled'    => true,
-		'exceptions' => array(),
-		'logging'    => false,
+		'enabled'         => false,
+		'bypass_patterns' => array(),
+		'logging'         => false,
 	);
 
 	private function __construct() {

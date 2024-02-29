@@ -238,6 +238,15 @@ class Boost extends Product {
 	}
 
 	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_checkout_url() {
+		return self::get_manage_url();
+	}
+
+	/**
 	 * Get the product princing details
 	 *
 	 * @return array Pricing details

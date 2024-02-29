@@ -474,7 +474,8 @@ abstract class Product {
 			return true;
 		}
 
-		if ( ! static::is_plugin_installed() ) {
+		// Default to installing the standalone plugin for the product
+		if ( ! self::is_plugin_installed() ) {
 			$installed = Plugins_Installer::install_plugin( static::get_plugin_slug() );
 			if ( is_wp_error( $installed ) ) {
 				return $installed;

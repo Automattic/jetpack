@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Cache: Detect WP Super Cache and customize advanced-cache.php exists message.
