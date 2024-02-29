@@ -358,25 +358,26 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.4.0 - 2024-01-23
-#### Added
-- Database: Added preliminary support for SQLite.
-- Settings: Add setting to fine tune the Total Value field calculation for contacts and companies.
+### 6.4.1 - 2024-02-29
+#### Changed
+- General: Indicate compatibility with WordPress 6.5.
+- Invoices: Total amount calculation in preview and pdf when refunds or credit notes are applied are back to pre-6.4.0 implementation.
 
 #### Fixed
-- Backend: Add fallback for dev site detection.
-- Contacts: Updated default statuses.
-- Custom fields: More robust fallbacks for slug creation.
-- Dashboard: Adjust queries for SQLite compatibility.
-- REST API: Allow calls when not using pretty permalinks.
-- Database: Ensure logs table is initiated with all columns.
-- Fixed: Escape output in typeaheads.
-- Invoices: Fixed total amount in preview and pdf when refunds or credit notes are applied.
-- Jetpack Forms: Detect and process custom date fields correctly.
-- Custom fields: Gracefully handle invalid date field data.
-- Listview: Better output escaping in listviews.
-- System Assistant: Fix broken links on some tasks.
-- Migrations: Fix issue where task_offset_fix migration would not mark as complete on some timezones.
-- Templates: Ensure file paths are valid before trying to load.
-- Transactions: Better support for SQLite.
+- Client Portal: Admin banners are now more consistent across screens.
+- Client Portal: Catch error if Woo order associated with invoice is deleted.
+- Invoices: Standardize line item code.
+  Invoices: Allow long line item descriptions in email.
+- Listviews: Object status filters now correctly reflect current status options.
+  Listviews: Overhaul of listview filter logic.
+  Quotes: Add Draft listview filter.
+- Segments: Allow floats in all numeric segment conditions.
+  Segments: Fix output if segment has an error.
+- Tags: Use existing tags if possible when using helper functions to create objects.
+- WooSync: Catch PHP error if order has empty fee value.
+- WooSync: Detect and support WooCommerce HPOS configuration.
+- WooSync: No longer shows today as renewal date if subscription has no renewal date set.
+  WooSync: Modernize code.
+- WooSync: Remove broken link from settings page.
+  WooSync: Prevent addition of the same site more than once.
 
