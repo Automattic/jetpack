@@ -23,7 +23,7 @@ const PageCache = ( { setup, error }: Props ) => {
 				errorMessage={ __( 'An error occurred while setting up cache.', 'jetpack-boost' ) }
 				successMessage={ __( 'Cache setup complete.', 'jetpack-boost' ) }
 			/>
-			{ error ? <Health setupCache={ () => setup.mutate() } error={ error.message } /> : <Meta /> }
+			{ error ? <Health setupCache={ () => setup.mutate() } error={ error } /> : <Meta /> }
 		</>
 	);
 };

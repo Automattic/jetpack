@@ -31,12 +31,18 @@ class WP_Core_Provider extends Provider {
 
 		$front_page = get_option( 'page_on_front' );
 		if ( ! empty( $front_page ) ) {
-			$urls['front_page'] = (array) get_permalink( $front_page );
+			$permalink = get_permalink( $front_page );
+			if ( ! empty( $permalink ) ) {
+				$urls['front_page'] = array( $permalink );
+			}
 		}
 
 		$posts_page = get_option( 'page_for_posts' );
 		if ( ! empty( $posts_page ) ) {
-			$urls['posts_page'] = (array) get_permalink( $posts_page );
+			$permalink = get_permalink( $front_page );
+			if ( ! empty( $permalink ) ) {
+				$urls['posts_page'] = array( $permalink );
+			}
 		} else {
 			$urls['posts_page'] = (array) home_url( '/' );
 		}
