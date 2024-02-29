@@ -60,7 +60,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		title: __( 'Update Needed for Permalink Settings', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			__(
-				'To activate this feature, your site needs to use a different URL structure instead of the current Plain (default) permalinks. Changing this setting required for your site to work with our Page Cache feature. For guidance on updating your Permalink settings, <link>please click here.</link>',
+				'To activate this feature, your site needs to use a different URL structure instead of the current Plain (default) permalinks. To learn more, please <link>please click here.</link>',
 				'jetpack-boost'
 			),
 			{
