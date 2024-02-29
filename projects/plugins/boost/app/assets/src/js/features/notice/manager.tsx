@@ -14,7 +14,7 @@ const Notice = ( { notice, onDismiss }: NoticeProps ) => {
 			if ( notice.type !== 'pending' ) {
 				onDismiss();
 			}
-		}, 2000 );
+		}, 5000 );
 
 		return () => clearTimeout( timer );
 	}, [ onDismiss, notice ] );
