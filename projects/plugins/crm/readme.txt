@@ -84,7 +84,6 @@ We've built a few extras for Jetpack CRM, but they're mostly offering functional
 * [ConvertKit](https://jetpackcrm.com/product/convertkit/) (Email marketing)
 * [PayPal Sync](https://jetpackcrm.com/product/paypal-sync/)
 * [Twilio](https://jetpackcrm.com/product/twilio/) (for SMS Sending)
-* [Plus many more...](https://jetpackcrm.com/extensions/)
 
 👉 **[View all of the CRM Extensions](https://jetpackcrm.com/extensions)**
 
