@@ -1,6 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Tracking;
 
 if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 	require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
@@ -21,6 +22,13 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * @var $cached_invites
 		 */
 		private static $cached_invites = null;
+
+		/**
+		 * Instance of JetPack Tracking.
+		 *
+		 * @var $instance
+		 */
+		private static $tracking = null;
 
 		/**
 		 * Constructor function.
@@ -45,6 +53,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			add_action( 'admin_print_styles-users.php', array( $this, 'jetpack_user_table_styles' ) );
 			add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_user_new_form_styles' ) );
 			add_filter( 'users_list_table_query_args', array( $this, 'set_user_query' ), 100, 1 );
+
+			self::$tracking = new Tracking();
 		}
 
 		/**
@@ -67,8 +77,37 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		public function revoke_user_invite( $user_id ) {
 			try {
 				$has_pending_invite = self::has_pending_wpcom_invite( $user_id );
+
 				if ( $has_pending_invite ) {
-					return self::revoke_wpcom_invite( $has_pending_invite );
+					$response = self::send_revoke_wpcom_invite( $has_pending_invite );
+					$event    = 'sso_user_invite_revoked';
+
+					if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+						self::$tracking->record_user_event(
+							$event,
+							array(
+								'success'       => 'false',
+								'error_message' => 'invalid-revoke-api-error',
+							)
+						);
+						return $response;
+					}
+
+					$body = json_decode( $response['body'] );
+
+					if ( ! $body->deleted ) {
+						self::$tracking->record_user_event(
+							$event,
+							array(
+								'success'       => 'false',
+								'error_message' => 'invalid-invite-revoke',
+							)
+						);
+					} else {
+						self::$tracking->record_user_event( $event, array( 'success' => 'true' ) );
+					}
+
+					return $response;
 				}
 			} catch ( Exception $e ) {
 				return false;
@@ -115,6 +154,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						return wp_admin_notice( __( 'Attempted to send a new invitation to a user using an invite that doesn&#8217;t exist.', 'jetpack' ), array( 'type' => 'error' ) );
 					case 'error-revoke':
 						return wp_admin_notice( __( 'An error has occurred when revoking the invite for the user.', 'jetpack' ), array( 'type' => 'error' ) );
+					case 'invalid-revoke-api-error':
+						return wp_admin_notice( __( 'An error has occurred when revoking the user invite.', 'jetpack' ), array( 'type' => 'error' ) );
 					default:
 						return wp_admin_notice( __( 'An error has occurred when inviting the user to the site.', 'jetpack' ), array( 'type' => 'error' ) );
 				}
@@ -127,11 +168,13 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		public function invite_user_to_wpcom() {
 			check_admin_referer( 'jetpack-sso-invite-user', 'invite_nonce' );
 			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
+			$event = 'sso_user_invite_sent';
 
 			if ( ! current_user_can( 'create_users' ) ) {
+				$error        = 'invalid-user-permissions';
 				$query_params = array(
 					'jetpack-sso-invite-user'  => 'failed',
-					'jetpack-sso-invite-error' => 'invalid-user-permissions',
+					'jetpack-sso-invite-error' => $error,
 					'_wpnonce'                 => $nonce,
 				);
 				return self::create_error_notice_and_redirect( $query_params );
@@ -148,6 +191,13 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						'_wpnonce'                 => $nonce,
 					);
 
+					self::$tracking->record_user_event(
+						$event,
+						array(
+							'success'       => 'false',
+							'error_message' => $reason,
+						)
+					);
 					return self::create_error_notice_and_redirect( $query_params );
 				}
 
@@ -173,13 +223,20 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					'wpcom'
 				);
 
-				$status_code = wp_remote_retrieve_response_code( $response );
-
-				if ( is_wp_error( $response ) || 200 !== $status_code ) {
+				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+					$error        = 'invalid-invite-api-error';
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
-						'jetpack-sso-invite-error' => 'invalid_request',
+						'jetpack-sso-invite-error' => $error,
 						'_wpnonce'                 => $nonce,
+					);
+
+					self::$tracking->record_user_event(
+						$event,
+						array(
+							'success'       => 'false',
+							'error_message' => $error,
+						)
 					);
 					return self::create_error_notice_and_redirect( $query_params );
 				}
@@ -195,14 +252,31 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				if ( ! $body->success && $body->errors ) {
 					$response_error                           = array_keys( (array) $body->errors );
 					$query_params['jetpack-sso-invite-error'] = $response_error[0];
+					self::$tracking->record_user_event(
+						$event,
+						array(
+							'success'       => 'false',
+							'error_message' => $response_error[0],
+						)
+					);
+				} else {
+					self::$tracking->record_user_event( $event, array( 'success' => 'true' ) );
 				}
 
 				return self::create_error_notice_and_redirect( $query_params );
 			} else {
+				$error        = 'invalid-user';
 				$query_params = array(
 					'jetpack-sso-invite-user'  => 'failed',
-					'jetpack-sso-invite-error' => 'invalid-user',
+					'jetpack-sso-invite-error' => $error,
 					'_wpnonce'                 => $nonce,
+				);
+				self::$tracking->record_user_event(
+					$event,
+					array(
+						'success'       => 'false',
+						'error_message' => $error,
+					)
 				);
 				return self::create_error_notice_and_redirect( $query_params );
 			}
@@ -214,11 +288,11 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 *
 		 * @param string $invite_id The ID of the invite to revoke.
 		 */
-		public function revoke_wpcom_invite( $invite_id ) {
+		public function send_revoke_wpcom_invite( $invite_id ) {
 			$blog_id = Jetpack_Options::get_option( 'id' );
 
-			$url      = '/sites/' . $blog_id . '/invites/delete';
-			$response = Client::wpcom_json_api_request_as_user(
+			$url = '/sites/' . $blog_id . '/invites/delete';
+			return Client::wpcom_json_api_request_as_user(
 				$url,
 				'v2',
 				array(
@@ -229,16 +303,6 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				),
 				'wpcom'
 			);
-
-			$status_code = wp_remote_retrieve_response_code( $response );
-			if ( is_wp_error( $response ) || 200 !== $status_code ) {
-				return $response;
-			}
-
-			return array(
-				'body'        => json_decode( $response['body'] ),
-				'status_code' => json_decode( $status_code ),
-			);
 		}
 
 		/**
@@ -247,11 +311,12 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		public function handle_request_revoke_invite() {
 			check_admin_referer( 'jetpack-sso-revoke-user-invite', 'revoke_invite_nonce' );
 			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
-
+			$event = 'sso_user_invite_revoked';
 			if ( ! current_user_can( 'promote_users' ) ) {
+				$error        = 'invalid-revoke-permissions';
 				$query_params = array(
 					'jetpack-sso-invite-user'  => 'failed',
-					'jetpack-sso-invite-error' => 'invalid-revoke-permissions',
+					'jetpack-sso-invite-error' => $error,
 					'_wpnonce'                 => $nonce,
 				);
 
@@ -259,58 +324,97 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			} elseif ( isset( $_GET['user_id'] ) ) {
 				$user_id = intval( wp_unslash( $_GET['user_id'] ) );
 				$user    = get_user_by( 'id', $user_id );
-
 				if ( ! $user ) {
-
+					$error        = 'invalid-user-revoke';
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
-						'jetpack-sso-invite-error' => 'invalid-user-revoke',
+						'jetpack-sso-invite-error' => $error,
 						'_wpnonce'                 => $nonce,
 					);
 
+					self::$tracking->record_user_event(
+						$event,
+						array(
+							'success'       => 'false',
+							'error_message' => $error,
+						)
+					);
 					return self::create_error_notice_and_redirect( $query_params );
 				}
 
 				if ( ! isset( $_GET['invite_id'] ) ) {
+					$error        = 'invalid-invite-revoke';
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
-						'jetpack-sso-invite-error' => 'invalid-invite-revoke',
+						'jetpack-sso-invite-error' => $error,
 						'_wpnonce'                 => $nonce,
+					);
+					self::$tracking->record_user_event(
+						$event,
+						array(
+							'success'       => 'false',
+							'error_message' => $error,
+						)
 					);
 					return self::create_error_notice_and_redirect( $query_params );
 				}
 
 				$invite_id = sanitize_text_field( wp_unslash( $_GET['invite_id'] ) );
-				$response  = self::revoke_wpcom_invite( $invite_id );
+				$response  = self::send_revoke_wpcom_invite( $invite_id );
 
-				$status_code = wp_remote_retrieve_response_code( $response );
-
-				if ( is_wp_error( $response ) || 200 !== $status_code ) {
+				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+					$error        = 'invalid-revoke-api-error';
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
-						'jetpack-sso-invite-error' => 'error-revoke',
+						'jetpack-sso-invite-error' => $error, // general error message
 						'_wpnonce'                 => $nonce,
+					);
+					self::$tracking->record_user_event(
+						$event,
+						array(
+							'success'       => 'false',
+							'error_message' => $error,
+						)
 					);
 					return self::create_error_notice_and_redirect( $query_params );
 				}
 
-				$body         = $response['body'];
+				$body         = json_decode( $response['body'] );
 				$query_params = array(
 					'jetpack-sso-invite-user' => $body->deleted ? 'successful-revoke' : 'failed',
 					'_wpnonce'                => $nonce,
 				);
 				if ( ! $body->deleted ) { // no invite was deleted, probably it does not exist
-					$query_params['jetpack-sso-invite-error'] = 'invalid-invite-revoke';
+					$error                                    = 'invalid-invite-revoke';
+					$query_params['jetpack-sso-invite-error'] = $error;
+					self::$tracking->record_user_event(
+						$event,
+						array(
+							'success'       => 'false',
+							'error_message' => $error,
+						)
+					);
+				} else {
+					self::$tracking->record_user_event( $event, array( 'success' => 'true' ) );
 				}
 				return self::create_error_notice_and_redirect( $query_params );
 			} else {
+				$error        = 'invalid-user-revoke';
 				$query_params = array(
 					'jetpack-sso-invite-user'  => 'failed',
-					'jetpack-sso-invite-error' => 'invalid-user-revoke',
+					'jetpack-sso-invite-error' => $error,
 					'_wpnonce'                 => $nonce,
+				);
+				self::$tracking->record_user_event(
+					$event,
+					array(
+						'success'       => 'false',
+						'error_message' => $error,
+					)
 				);
 				return self::create_error_notice_and_redirect( $query_params );
 			}
+
 			wp_die();
 		}
 
@@ -320,7 +424,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		public function handle_request_resend_invite() {
 			check_admin_referer( 'jetpack-sso-resend-user-invite', 'resend_invite_nonce' );
 			$nonce = wp_create_nonce( 'jetpack-sso-invite-user' );
-
+			$event = 'sso_user_invite_resend';
 			if ( ! current_user_can( 'create_users' ) ) {
 				$query_params = array(
 					'jetpack-sso-invite-user'  => 'failed',
@@ -346,28 +450,56 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 
 				$status_code = wp_remote_retrieve_response_code( $response );
 
-				if ( is_wp_error( $response ) || 200 !== $status_code ) {
+				if ( 200 !== $status_code ) {
 					$message_type = $status_code === 404 ? 'invalid-invite' : ''; // empty is the general error message
 					$query_params = array(
 						'jetpack-sso-invite-user'  => 'failed',
 						'jetpack-sso-invite-error' => $message_type,
 						'_wpnonce'                 => $nonce,
 					);
+					self::$tracking->record_user_event(
+						$event,
+						array(
+							'success'       => 'false',
+							'error_message' => $message_type,
+						)
+					);
 					return self::create_error_notice_and_redirect( $query_params );
 				}
 
-				$body         = json_decode( $response['body'] );
-				$query_params = array(
-					'jetpack-sso-invite-user' => $body->success ? 'reinvited-success' : 'failed',
+				$body                    = json_decode( $response['body'] );
+				$invite_response_message = $body->success ? 'reinvited-success' : 'failed';
+				$query_params            = array(
+					'jetpack-sso-invite-user' => $invite_response_message,
 					'_wpnonce'                => $nonce,
 				);
 
+				if ( ! $body->success ) {
+					self::$tracking->record_user_event(
+						$event,
+						array(
+							'success'       => 'false',
+							'error_message' => $invite_response_message,
+						)
+					);
+				} else {
+					self::$tracking->record_user_event( $event, array( 'success' => 'true' ) );
+				}
+
 				return self::create_error_notice_and_redirect( $query_params );
 			} else {
+				$error        = 'empty-invite';
 				$query_params = array(
 					'jetpack-sso-invite-user'  => 'failed',
 					'jetpack-sso-invite-error' => 'empty-invite',
 					'_wpnonce'                 => $nonce,
+				);
+				self::$tracking->record_user_event(
+					$event,
+					array(
+						'success'       => 'false',
+						'error_message' => $error,
+					)
 				);
 				return self::create_error_notice_and_redirect( $query_params );
 			}
@@ -624,9 +756,25 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 					)
 				);
 
-				$status_code = wp_remote_retrieve_response_code( $response );
-				if ( is_wp_error( $response ) || 200 !== $status_code ) {
+				$event               = 'sso_new_user_invite_sent';
+				$custom_message_sent = isset( $new_user_request['message'] ) ? 'true' : 'false';
+
+				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 					$errors->add( 'invitation_not_sent', __( '<strong>Error</strong>: The user invitation email could not be sent, the user account was not created.', 'jetpack' ) );
+					self::$tracking->record_user_event(
+						$event,
+						array(
+							'success' => 'false',
+						)
+					);
+				} else {
+					self::$tracking->record_user_event(
+						$event,
+						array(
+							'success'             => 'true',
+							'custom_message_sent' => $custom_message_sent,
+						)
+					);
 				}
 			}
 
@@ -694,7 +842,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 						'wpcom'
 					);
 
-					if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
+					if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 						$body                 = json_decode( $response['body'], true );
 						self::$cached_invites = array_merge( self::$cached_invites, $body );
 					}
@@ -758,9 +906,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				'wpcom'
 			);
 
-			$status_code = wp_remote_retrieve_response_code( $response );
-
-			if ( is_wp_error( $response ) || 200 !== $status_code ) {
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 				return false;
 			}
 

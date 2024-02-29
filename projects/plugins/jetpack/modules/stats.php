@@ -243,9 +243,8 @@ function stats_admin_menu() {
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( ( new Host() )->is_woa_site() || ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) {
+	if ( ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) {
 		// Show old Jetpack Stats interface for:
-		// - Atomic sites.
 		// - When the "enable_odyssey_stats" option is disabled.
 		// - When being shown in the adminbar outside of wp-admin.
 		$hook = Admin_Menu::add_menu( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );

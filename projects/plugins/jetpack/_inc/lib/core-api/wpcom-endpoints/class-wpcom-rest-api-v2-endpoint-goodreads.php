@@ -51,7 +51,7 @@ class WPCOM_REST_API_V2_Endpoint_Goodreads extends WP_REST_Controller {
 	 *
 	 * @param \WP_REST_Request $request request object.
 	 *
-	 * @return int Goodreads user ID (or 404 if not found).
+	 * @return \WP_Error|int Goodreads user ID (or 404 error if not found).
 	 */
 	public function get_goodreads_user_id( $request ) {
 		$profile_id = $request->get_param( 'id' );
@@ -60,7 +60,7 @@ class WPCOM_REST_API_V2_Endpoint_Goodreads extends WP_REST_Controller {
 		$not_found  = new WP_Error( 'not_found', 'Goodreads user not found.', array( 'status' => 404 ) );
 
 		if ( is_wp_error( $response ) ) {
-			return $not_found;
+			return $response;
 		}
 
 		$body    = wp_remote_retrieve_body( $response );
