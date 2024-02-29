@@ -23,6 +23,7 @@ import {
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
 import { isFetchingSiteData } from 'state/site';
+import QueryBackupPreflightStatus from '../components/data/query-backup-preflight-status';
 import QuerySiteProducts from '../components/data/query-site-products';
 import { RECOMMENDATION_WIZARD_STEP } from './constants';
 import { ProductPurchased } from './product-purchased';
@@ -206,6 +207,7 @@ const RecommendationsComponent = props => {
 			<QuerySiteDiscount />
 			<QuerySiteProducts />
 			<QueryIntroOffers />
+			<QueryBackupPreflightStatus />
 			{ isLoading ? (
 				<div className="jp-recommendations__loading">
 					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />

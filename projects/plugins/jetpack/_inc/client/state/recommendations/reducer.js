@@ -75,6 +75,8 @@ import {
 	hasActiveCompletePurchase,
 } from 'state/site';
 import { isPluginActive } from 'state/site/plugins';
+import { getPreflightStatus } from '../rewind/preflight';
+import { PreflightTestStatus } from '../rewind/preflight/constants';
 import { sortByOnboardingPriority, getOnboardingNameByProductSlug } from './onboarding-utils';
 
 const mergeArrays = ( x, y ) => {
@@ -930,6 +932,7 @@ export const getSummaryPrimarySections = state => {
 export const getSidebarCardSlug = state => {
 	const sitePlan = getSitePlan( state );
 	const rewindStatus = getRewindStatus( state );
+	const preflightStatus = getPreflightStatus( state );
 
 	const rewindState = rewindStatus.state;
 
@@ -941,12 +944,15 @@ export const getSidebarCardSlug = state => {
 		return 'upsell';
 	}
 
-	if ( 'awaiting_credentials' === rewindState && ! siteHasFeature( state, 'scan' ) ) {
-		return 'one-click-restores';
+	if (
+		[ 'active', 'provisioning' ].includes( rewindState ) ||
+		preflightStatus === PreflightTestStatus.SUCCESS
+	) {
+		return 'manage-security';
 	}
 
-	if ( [ 'active', 'provisioning' ].includes( rewindState ) ) {
-		return 'manage-security';
+	if ( 'awaiting_credentials' === rewindState && ! siteHasFeature( state, 'scan' ) ) {
+		return 'one-click-restores';
 	}
 
 	return 'download-app';
