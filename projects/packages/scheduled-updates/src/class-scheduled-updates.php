@@ -23,6 +23,8 @@ class Scheduled_Updates {
 	 * Initialize the class.
 	 */
 	public static function init() {
+		require_once __DIR__ . '/pluggable.php';
+
 		/*
 		 * We want to load the REST API endpoints in all environments.
 		 * On WP.com they're needed for registering the routes with public-api and pass-through to self-hosted sites.
