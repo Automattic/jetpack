@@ -16,7 +16,7 @@
 	display: none;
 }
 .jetpack-goodreads-legacy-widget div[class^="gr_custom_each_container"] {
-	/* customize each in.jetpack-goodreads-legacy-widget dividual book container here */
+	/* customize each individual book container here */
 	width: 100%;
 	clear: both;
 	margin-bottom: 10px;
