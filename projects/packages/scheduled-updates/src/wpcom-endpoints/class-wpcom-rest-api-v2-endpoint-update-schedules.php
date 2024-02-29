@@ -187,6 +187,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$schedules[] = $plugins;
 		update_option( 'jetpack_update_schedules', $schedules );
 
+		$this->add_jetpack_monitor();
+
 		return rest_ensure_response( $this->generate_schedule_id( $plugins ) );
 	}
 
@@ -441,6 +443,27 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 */
 	private function generate_schedule_id( $args ) {
 		return md5( serialize( $args ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+	}
+
+	/**
+	 * Adds wp-cron to the Jetpack Monitor.
+	 *
+	 * @return array|WP_Error
+	 */
+	private function add_jetpack_monitor() {
+		return ( new Automattic\Jetpack\Connection\Client() )->wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/jetpack-monitor-settings', \Jetpack_Options::get_option( 'id' ) ),
+			'2',
+			array( 'method' => 'POST' ),
+			array(
+				'urls' => array(
+					array(
+						'check_interval' => 5,
+						'monitor_url'    => site_url( 'wp-cron.php' ),
+					),
+				),
+			)
+		);
 	}
 }
 
