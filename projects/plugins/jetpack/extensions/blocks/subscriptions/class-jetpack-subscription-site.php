@@ -8,7 +8,6 @@
 
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Jetpack_Memberships;
 
 /**
@@ -60,19 +59,16 @@ class Jetpack_Subscription_Site {
 	}
 
 	/**
-	 * Returns true if post is accessible by everyone
+	 * Returns true if current user can view the post.
 	 *
 	 * @return bool
 	 */
-	protected function is_post_accessible_by_everyone() {
-		if (
-			! class_exists( 'Jetpack_Memberships' ) ||
-			! class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service' )
-		) {
+	protected function user_can_view_post() {
+		if ( ! class_exists( 'Jetpack_Memberships' ) ) {
 			return true;
 		}
 
-		return Jetpack_Memberships::get_post_access_level() === Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+		return Jetpack_Memberships::user_can_view_post();
 	}
 
 	/**
@@ -95,7 +91,7 @@ class Jetpack_Subscription_Site {
 						is_singular() &&
 						in_the_loop() &&
 						is_main_query() &&
-						$this->is_post_accessible_by_everyone()
+						$this->user_can_view_post()
 					) {
 						return $content . '
 	<!-- wp:group {"className":"wp-block-jetpack-subscriptions__subscribe_post_end","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
@@ -125,7 +121,7 @@ class Jetpack_Subscription_Site {
 				if (
 					$anchor_block === 'core/post-content' &&
 					$relative_position === 'after' &&
-					$this->is_post_accessible_by_everyone()
+					$this->user_can_view_post()
 				) {
 					$hooked_blocks[] = 'jetpack/subscriptions';
 				}
