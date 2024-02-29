@@ -60,10 +60,6 @@ export default function VoiceToContentEdit( { clientId } ) {
 		}, 100 );
 	}, [ dispatch, clientId ] );
 
-	const handleClose = () => {
-		destroyBlock();
-	};
-
 	const { isValidatingAudio, validateAudio } = useAudioValidation();
 
 	const { upsertTranscription } = useTranscriptionInserter();
@@ -83,6 +79,11 @@ export default function VoiceToContentEdit( { clientId } ) {
 				onError( error );
 			},
 		} );
+
+	const handleClose = () => {
+		cancelTranscription();
+		destroyBlock();
+	};
 
 	const { state, controls, error, onError, duration, analyser } = useMediaRecording( {
 		onDone: lastBlob => {
@@ -170,6 +171,8 @@ export default function VoiceToContentEdit( { clientId } ) {
 			onRequestClose={ handleClose }
 			title={ __( 'Jetpack AI Voice to content', 'jetpack' ) }
 			className="jetpack-ai-voice-to-content__modal"
+			shouldCloseOnEsc={ false }
+			shouldCloseOnClickOutside={ false }
 		>
 			<ThemeProvider>
 				<div className="jetpack-ai-voice-to-content__wrapper">
