@@ -47,7 +47,7 @@ export const useMutationNotice = (
 	mutationState: MutationNoticeState | null = null,
 	messages: MutationNoticeMessages = {}
 ) => {
-	const { setNotice, hasNotice, removeNotice } = useNotices();
+	const { setNotice, removeNotice } = useNotices();
 
 	const defaultMessages = {
 		savingMessage: __( 'Saving…', 'jetpack-boost' ),
@@ -75,9 +75,6 @@ export const useMutationNotice = (
 	}, [ mutationState ] );
 
 	useEffect( () => {
-		if ( isIdle && hasNotice( mutationId ) ) {
-			removeNotice( mutationId );
-		}
 		if ( isPending && ! isSuccess ) {
 			setNotice( { id: mutationId, type: 'pending', message: savingMessage } );
 		} else if ( isSuccess ) {
