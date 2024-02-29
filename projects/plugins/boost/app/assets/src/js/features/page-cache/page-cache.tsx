@@ -159,6 +159,27 @@ const BypassPatterns = ( {
 	// @todo - add proper link.
 	const exclusionsLink = 'https://jetpack.com';
 
+	const validateInputValue = ( value: string ) => {
+		setInputValue( value );
+		setInputInvalid( ! validatePatterns( value ) );
+	};
+
+	const validatePatterns = ( value: string ) => {
+		const lines = value
+			.split( '\n' )
+			.map( line => line.trim() )
+			.filter( line => line.trim() !== '' );
+
+		// check if it's a valid regex
+		try {
+			lines.forEach( line => new RegExp( line ) );
+		} catch ( e ) {
+			return false;
+		}
+
+		return true;
+	};
+
 	useEffect( () => {
 		setInputValue( patterns );
 	}, [ patterns ] );
@@ -184,7 +205,7 @@ const BypassPatterns = ( {
 			<textarea
 				value={ inputValue }
 				rows={ 3 }
-				onChange={ e => setInputValue( e.target.value ) }
+				onChange={ e => validateInputValue( e.target.value ) }
 				id="jb-cache-exceptions"
 			/>
 			<p className={ classNames( styles.description, styles[ 'error-message' ] ) }>
@@ -214,7 +235,11 @@ const BypassPatterns = ( {
 					{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
 				</Notice>
 			) }
-			<Button disabled={ patterns === inputValue } onClick={ save } className={ styles.button }>
+			<Button
+				disabled={ patterns === inputValue || inputInvalid }
+				onClick={ save }
+				className={ styles.button }
+			>
 				{ __( 'Save', 'jetpack-boost' ) }
 			</Button>
 		</div>

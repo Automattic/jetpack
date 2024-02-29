@@ -575,7 +575,7 @@ class REST_Controller {
 		$params   = array_merge( array( 'force' => 'wpcom' ), $req->get_params() );
 		$response = wp_remote_get(
 			sprintf(
-				'%s/rest/v1.2/sites/%d/posts?%s',
+				'%s/rest/v1.1/sites/%d/posts?%s',
 				Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'resource_id' ),

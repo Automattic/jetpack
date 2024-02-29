@@ -100,6 +100,30 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			}
 		),
 	},
+	'advanced-cache-for-super-cache': {
+		title: __( 'Cache loader file already exists', 'jetpack-boost' ),
+		message: createInterpolateElement(
+			sprintf(
+				// translators: %s refers to the path of the cache loader file.
+				__(
+					`This feature cannot be enabled because <code>%s</code> was found on your site. It was created by WP Super Cache. Please uninstall WP Super Cache to use this module.`,
+					'jetpack-boost'
+				),
+				'wp-content/advanced-cache.php'
+			),
+			{
+				code: <code className={ styles.nowrap } />,
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'advanced-cache-for-super-cache' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
+			}
+		),
+	},
 	'unable-to-write-to-advanced-cache': {
 		title: __( 'Could not write to cache loader file', 'jetpack-boost' ),
 		message: createInterpolateElement(
