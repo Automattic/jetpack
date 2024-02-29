@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Voice to Content: change the way the processing and error states are handled, and ensure proper error handling.

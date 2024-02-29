@@ -121,6 +121,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'wpcom_newsletter_categories'             => '(array) Array of post category ids that are marked as newsletter categories',
 			'wpcom_newsletter_categories_enabled'     => '(bool) Whether the newsletter categories are enabled or not',
 			'sm_enabled'                              => '(bool) Whether the newsletter Subscribe Modal is enabled or not',
+			'jetpack_subscriptions_subscribe_post_end_enabled' => '(bool) Whether adding Subscribe block at the end of each post is enabled or not',
 			'wpcom_gifting_subscription'              => '(bool) Whether gifting is enabled for non auto-renew sites',
 			'wpcom_reader_views_enabled'              => '(bool) Whether showing post views in WordPress.com Reader is enabled for the site',
 			'wpcom_subscription_emails_use_excerpt'   => '(bool) Whether site subscription emails (e.g. New Post email notification) will use post excerpts',

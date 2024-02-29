@@ -167,8 +167,10 @@ const ProductDetailCard = ( {
 	const { run: trialCheckoutRedirect, hasCheckoutStarted: hasTrialCheckoutStarted } =
 		useProductCheckoutWorkflow( {
 			productSlug: wpcomFreeProductSlug,
-			redirectUrl: myJetpackCheckoutUri,
+			redirectUrl: checkoutRedirectUrl,
 			siteSuffix,
+			adminUrl,
+			connectAfterCheckout: true,
 			from: 'my-jetpack',
 			quantity,
 			useBlogIdSuffix: true,
@@ -218,9 +220,9 @@ const ProductDetailCard = ( {
 	}, [ onClick, trackButtonClick, mainCheckoutRedirect, detail ] );
 
 	const trialClickHandler = useCallback( () => {
-		trackButtonClick( true, wpcomFreeProductSlug );
-		onClick?.( trialCheckoutRedirect );
-	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug ] );
+		trackButtonClick( true, wpcomFreeProductSlug, detail );
+		onClick?.( trialCheckoutRedirect, detail );
+	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug, detail ] );
 
 	const disclaimerClickHandler = useCallback(
 		id => {
