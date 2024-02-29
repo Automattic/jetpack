@@ -38,7 +38,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			sprintf(
 				// translators: %s refers to wp-content.
 				__(
-					`This feature cannot be enabled because due to a filesystem permission issue Boost cannot create or modify files in <code>%s</code>. To get help solving this problem <link>click here.</link>`,
+					`This feature cannot be enabled because Jetpack Boost cannot create or modify files in <code>%s</code>. To learn more about this, please <link>click here.</link>`,
 					'jetpack-boost'
 				),
 				'wp-content'
