@@ -12,7 +12,7 @@ describe( 'GoodreadsEdit', () => {
 		goodreadsId: '',
 		id: '',
 		link: '',
-		orderOption: 'a',
+		orderOption: 'd',
 		shelfOption: 'read',
 		showAuthor: true,
 		showCover: true,
@@ -75,7 +75,6 @@ describe( 'GoodreadsEdit', () => {
 
 		const attributes = {
 			...defaultAttributes,
-			goodreadsId: '1176283',
 			userInput: 'https://www.goodreads.com/user/show/1176283-matt-mullenweg',
 		};
 		render( <GoodreadsEdit { ...{ ...defaultProps, attributes } } /> );
@@ -94,7 +93,7 @@ describe( 'GoodreadsEdit', () => {
 
 		const attributes = {
 			...defaultAttributes,
-			goodreadsId: '1176283',
+			goodreadsId: 1176283,
 			userInput: 'https://www.goodreads.com/user/show/1176283-matt-mullenweg',
 		};
 		render( <GoodreadsEdit { ...{ ...defaultProps, attributes } } /> );

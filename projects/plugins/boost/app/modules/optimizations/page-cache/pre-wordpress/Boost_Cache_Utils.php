@@ -74,7 +74,7 @@ class Boost_Cache_Utils {
 		$request_uri = parse_url( $request_uri, PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 		if ( empty( $request_uri ) ) {
 			$request_uri = '/';
-		} elseif ( substr( $request_uri, -1 ) !== '/' ) {
+		} elseif ( substr( $request_uri, -1 ) !== '/' && ! is_file( ABSPATH . $request_uri ) ) {
 			$request_uri .= '/';
 		}
 

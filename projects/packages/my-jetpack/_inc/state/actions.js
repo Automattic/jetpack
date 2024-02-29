@@ -6,9 +6,6 @@ import { REST_API_SITE_DISMISS_BANNER, REST_API_SITE_PRODUCTS_ENDPOINT } from '.
 /*
  * Action constants
  */
-const SET_PURCHASES_IS_FETCHING = 'SET_PURCHASES_IS_FETCHING';
-const FETCH_PURCHASES = 'FETCH_PURCHASES';
-const SET_PURCHASES = 'SET_PURCHASES';
 const SET_AVAILABLE_LICENSES_IS_FETCHING = 'SET_AVAILABLE_LICENSES_IS_FETCHING';
 const FETCH_AVAILABLE_LICENSES = 'FETCH_AVAILABLE_LICENSES';
 const SET_AVAILABLE_LICENSES = 'SET_AVAILABLE_LICENSES';
@@ -38,10 +35,6 @@ const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
 const SET_PRODUCT_STATS = 'SET_PRODUCT_STATS';
 const SET_IS_FETCHING_PRODUCT_STATS = 'SET_IS_FETCHING_PRODUCT_STATS';
 
-const setPurchasesIsFetching = isFetching => {
-	return { type: SET_PURCHASES_IS_FETCHING, isFetching };
-};
-
 const setChatAvailabilityIsFetching = isFetching => {
 	return { type: SET_CHAT_AVAILABILITY_IS_FETCHING, isFetching };
 };
@@ -60,14 +53,6 @@ const setCountBackupItemsIsFetching = isFetching => {
 
 const setStatsCountsIsFetching = isFetching => {
 	return { type: SET_STATS_COUNTS_IS_FETCHING, isFetching };
-};
-
-const fetchPurchases = () => {
-	return { type: FETCH_PURCHASES };
-};
-
-const setPurchases = purchases => {
-	return { type: SET_PURCHASES, purchases };
 };
 
 const setChatAvailability = chatAvailability => {
@@ -158,7 +143,7 @@ function setIsFetchingProduct( productId, isFetching ) {
  * @param {object}   store.registry - Redux registry.
  * @returns {Promise}               - Promise which resolves when the product status is updated.
  */
-function requestProductStatus( productId, data, { select, dispatch, registry } ) {
+function requestProduct( productId, data, { select, dispatch, registry } ) {
 	return new Promise( ( resolve, reject ) => {
 		// Check valid product.
 		const isValid = select.isValidProduct( productId );
@@ -185,7 +170,7 @@ function requestProductStatus( productId, data, { select, dispatch, registry } )
 				dispatch( setIsFetchingProduct( productId, false ) );
 				dispatch( setProduct( freshProduct ) );
 				registry.dispatch( CONNECTION_STORE_ID ).refreshConnectedPlugins();
-				resolve( freshProduct?.status );
+				resolve( freshProduct );
 			} )
 			.catch( error => {
 				const { name } = select.getProduct( productId );
@@ -211,7 +196,7 @@ function requestProductStatus( productId, data, { select, dispatch, registry } )
  * @returns {Promise}        - Promise which resolves when the product status is activated.
  */
 const activateProduct = productId => async store => {
-	return await requestProductStatus( productId, { activate: true }, store );
+	return await requestProduct( productId, { activate: true }, store );
 };
 
 /**
@@ -222,7 +207,7 @@ const activateProduct = productId => async store => {
  * @returns {Promise}        - Promise which resolves when the product plugin is deactivated.
  */
 const deactivateStandalonePluginForProduct = productId => async store => {
-	return await requestProductStatus( productId, { activate: false }, store );
+	return await requestProduct( productId, { activate: false }, store );
 };
 
 /**
@@ -328,11 +313,8 @@ const noticeActions = {
 };
 
 const actions = {
-	setPurchasesIsFetching,
 	setChatAvailabilityIsFetching,
 	setChatAuthenticationIsFetching,
-	fetchPurchases,
-	setPurchases,
 	setChatAvailability,
 	setChatAuthentication,
 	setAvailableLicensesIsFetching,
@@ -352,9 +334,6 @@ const actions = {
 };
 
 export {
-	SET_PURCHASES_IS_FETCHING,
-	FETCH_PURCHASES,
-	SET_PURCHASES,
 	SET_AVAILABLE_LICENSES_IS_FETCHING,
 	FETCH_AVAILABLE_LICENSES,
 	SET_AVAILABLE_LICENSES,

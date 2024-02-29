@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "cb548692a25289be781837d41ad083261c99e9bd"
+                "reference": "b191c34a0e21f625069eab0c054d8827b9542dfa"
             },
             "require": {
                 "php": ">=7.0"
@@ -85,7 +85,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-admin-menu.php"
@@ -1047,7 +1047,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "cd2abb7246ef3cbccfdfe5ca4b68a4581f0c8586"
+                "reference": "2475331cc29709ee844d2f99340199e6e3fa0f00"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1080,7 +1080,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.12.x-dev"
+                    "dev-trunk": "4.13.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"

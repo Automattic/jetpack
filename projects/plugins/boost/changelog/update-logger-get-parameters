@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Boost: add the $_GET parameters to the data logged

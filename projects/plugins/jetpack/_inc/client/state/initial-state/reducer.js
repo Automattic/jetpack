@@ -702,16 +702,6 @@ export function isBlazeDashboardEnabled( state ) {
 }
 
 /**
- * Returns true if Jetpack's Pre-connection helpers are enabled.
- *
- * @param {object} state - Global state tree.
- * @returns {boolean} True if pre-connection helpers are enabled.
- */
-export function arePreConnectionHelpersEnabled( state ) {
-	return !! state.jetpack.initialState.preConnectionHelpers;
-}
-
-/**
  * Returns information about the Gutenberg plugin and its Interactivity API support.
  *
  * @param {object} state - Global state tree.
@@ -739,4 +729,14 @@ export function isSharingBlockAvailable( state ) {
  */
 export function getJetpackManageInfo( state ) {
 	return state.jetpack.initialState.jetpackManage;
+}
+
+/**
+ * Returns true if Subscription Site feature is enabled on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if Subscription Site feature is enabled on the site.
+ */
+export function isSubscriptionSiteEnabled( state ) {
+	return !! state.jetpack.initialState.isSubscriptionSiteEnabled;
 }

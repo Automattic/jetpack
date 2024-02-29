@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Cache: Save log lines as json for better presentation

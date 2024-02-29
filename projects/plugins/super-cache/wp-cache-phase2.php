@@ -390,6 +390,11 @@ function wp_cache_postload() {
 	global $cache_enabled, $wp_super_cache_late_init;
 	global $wp_cache_request_uri;
 
+	if ( empty( $wp_cache_request_uri ) ) {
+		wp_cache_debug( 'wp_cache_postload: no request uri configured. Not running.' );
+		return false;
+	}
+
 	// have to sanitize here because formatting.php is loaded after wp_cache_request_uri is set
 	$wp_cache_request_uri = esc_url_raw( wp_unslash( $wp_cache_request_uri ) );
 

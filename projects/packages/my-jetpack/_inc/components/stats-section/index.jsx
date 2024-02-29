@@ -11,8 +11,7 @@ const StatsSection = () => {
 	const slug = 'stats';
 	const { detail } = useProduct( slug );
 	const { status } = detail;
-	const initialState = 'undefined' === typeof window ? {} : window.myJetpackInitialState;
-	const userIsAdmin = 'object' === typeof initialState && Number( initialState.userIsAdmin ) === 1;
+	const isAdmin = !! window?.myJetpackInitialState?.userIsAdmin;
 	const { statsCounts } = useStatsCounts();
 	const counts = statsCounts?.past_seven_days || {};
 	const previousCounts = statsCounts?.between_past_eight_and_fifteen_days || {};
@@ -52,7 +51,7 @@ const StatsSection = () => {
 
 	return (
 		<ProductCard
-			admin={ userIsAdmin }
+			admin={ isAdmin }
 			slug={ slug }
 			primaryActionOverride={ primaryActionOverride }
 			secondaryAction={ viewStatsButton }

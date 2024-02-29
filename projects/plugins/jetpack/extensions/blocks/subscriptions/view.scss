@@ -119,3 +119,12 @@
 	}
 }
 
+// Styles for the Subscribe block post end placement for classic themes
+.wp-block-jetpack-subscriptions__subscribe_post_end {
+	margin: 2em auto !important;
+	gap: 0 !important;
+
+	& > p {
+		margin-bottom: 0.8em !important;
+	}
+}
