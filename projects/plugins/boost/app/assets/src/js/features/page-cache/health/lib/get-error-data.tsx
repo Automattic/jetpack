@@ -13,7 +13,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		title: __( 'Settings File Unavailable for Updates', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			__(
-				`We can't turn on this feature because Jetpack Boost can't update its settings in a specific file on your site. This usually happens when the site's file permissions don't allow modifications. For help on making the file editable and enabling this feature, please <link>click here.</link>`,
+				`This feature cannot be enabled because Jetpack Boost cannot update its settings. To learn more about this, please <link>click here.</link>`,
 				'jetpack-boost'
 			),
 			{
