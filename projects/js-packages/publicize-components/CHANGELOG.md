@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.48.1] - 2024-02-27
+### Changed
+- Update dependencies. [#35170]
+
+## [0.48.0] - 2024-02-26
+### Added
+- Added toggle to Social admin page for the Social Notes [#35681]
+
+### Changed
+- Added description to social previews for titleless posts [#35728]
+
+### Removed
+- Removed a notice to tell users that instagram is new nad can be connected [#35860]
+
 ## [0.47.1] - 2024-02-13
 ### Changed
 - Updated package dependencies. [#35608]
@@ -590,6 +604,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.48.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.48.0...v0.48.1
+[0.48.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.47.1...v0.48.0
 [0.47.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.47.0...v0.47.1
 [0.47.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.46.0...v0.47.0
 [0.46.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.45.2...v0.46.0

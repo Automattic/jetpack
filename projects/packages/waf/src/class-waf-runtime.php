@@ -419,7 +419,7 @@ class Waf_Runtime {
 					);
 					break;
 				case 'request_basename':
-					$value = basename( $this->request->get_filename() );
+					$value = $this->request->get_basename();
 					break;
 				case 'request_body':
 					$value = $this->request->get_body();

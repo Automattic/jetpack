@@ -143,7 +143,7 @@ function setIsFetchingProduct( productId, isFetching ) {
  * @param {object}   store.registry - Redux registry.
  * @returns {Promise}               - Promise which resolves when the product status is updated.
  */
-function requestProductStatus( productId, data, { select, dispatch, registry } ) {
+function requestProduct( productId, data, { select, dispatch, registry } ) {
 	return new Promise( ( resolve, reject ) => {
 		// Check valid product.
 		const isValid = select.isValidProduct( productId );
@@ -170,7 +170,7 @@ function requestProductStatus( productId, data, { select, dispatch, registry } )
 				dispatch( setIsFetchingProduct( productId, false ) );
 				dispatch( setProduct( freshProduct ) );
 				registry.dispatch( CONNECTION_STORE_ID ).refreshConnectedPlugins();
-				resolve( freshProduct?.status );
+				resolve( freshProduct );
 			} )
 			.catch( error => {
 				const { name } = select.getProduct( productId );
@@ -196,7 +196,7 @@ function requestProductStatus( productId, data, { select, dispatch, registry } )
  * @returns {Promise}        - Promise which resolves when the product status is activated.
  */
 const activateProduct = productId => async store => {
-	return await requestProductStatus( productId, { activate: true }, store );
+	return await requestProduct( productId, { activate: true }, store );
 };
 
 /**
@@ -207,7 +207,7 @@ const activateProduct = productId => async store => {
  * @returns {Promise}        - Promise which resolves when the product plugin is deactivated.
  */
 const deactivateStandalonePluginForProduct = productId => async store => {
-	return await requestProductStatus( productId, { activate: false }, store );
+	return await requestProduct( productId, { activate: false }, store );
 };
 
 /**

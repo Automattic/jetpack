@@ -551,6 +551,26 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			add_filter( 'rest_api_allowed_public_metadata', array( $this, 'dtp_fb_allowed_metadata' ) );
 		}
 
+		/**
+		 * Log Media details for a Post creation request.
+		 * Temporary logging for media data.
+		 *
+		 * @see p1709028174665519-slack-CDLH4C1UZ
+		 *
+		 * @since 13.2
+		 *
+		 * @param bool  $is_dtp_fb_post Is this for a Facebook import?
+		 * @param int   $blog_id        Blog ID.
+		 * @param array $input          Whole input.
+		 * @param array $media_files    File upload data.
+		 * @param array $media_urls     URLs to fetch.
+		 * @param array $media_attrs    Attributes corresponding to each entry in `$media_files`/`$media_urls`.
+		 * @param array $media_results
+		 *  - media_ids: IDs created, by index in `$media_files`/`$media_urls`.
+		 *  - errors: Errors encountered, by index in `$media_files`/`$media_urls`.
+		 */
+		do_action( 'jetpack_dtp_fb_media', $is_dtp_fb_post, $blog_id, $input, $media_files, $media_urls, $media_attrs, $media_results );
+
 		if ( $new ) {
 			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
 				switch ( ( $has_media + $has_media_by_url ) ) {

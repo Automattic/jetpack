@@ -39,11 +39,44 @@ function should_customize_nav( $admin_menu_class ) {
 }
 
 /**
+ * Hides the Customizer menu items when the block theme is active by removing the dotcom-specific actions.
+ * They are not needed for block themes.
+ *
+ * @see https://github.com/Automattic/jetpack/pull/36017
+ */
+function hide_customizer_menu_on_block_theme() {
+	add_action(
+		'init',
+		function () {
+			if ( wp_is_block_theme() ) {
+				remove_action( 'customize_register', 'add_logotool_button', 20 );
+				remove_action( 'customize_register', 'footercredits_register', 99 );
+				remove_action( 'customize_register', 'wpcom_disable_customizer_site_icon', 20 );
+
+				if ( class_exists( '\Jetpack_Fonts' ) ) {
+					$jetpack_fonts_instance = \Jetpack_Fonts::get_instance();
+					remove_action( 'customize_register', array( $jetpack_fonts_instance, 'register_controls' ) );
+					remove_action( 'customize_register', array( $jetpack_fonts_instance, 'maybe_prepopulate_option' ), 0 );
+				}
+
+				remove_action( 'customize_register', array( 'Jetpack_Fonts_Typekit', 'maybe_override_for_advanced_mode' ), 20 );
+
+				remove_action( 'customize_register', 'Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control' );
+
+				remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
+			}
+		}
+	);
+}
+
+/**
  * Gets the name of the class that customizes the admin menu.
  *
  * @return string Class name.
  */
 function get_admin_menu_class() {
+	hide_customizer_menu_on_block_theme();
+
 	// WordPress.com Atomic sites.
 	if ( ( new Host() )->is_woa_site() ) {
 

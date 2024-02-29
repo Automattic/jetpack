@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-added a "use WC_Product" to include this in the post fetching endpoint for blaze

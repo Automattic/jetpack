@@ -29,7 +29,13 @@ const TreeDropdown = props => {
 
 	const removeTag = useCallback( tag => onChange( tag.id, false ), [ onChange ] );
 
-	const handleDelete = useCallback( tag => () => removeTag( tag ), [ removeTag ] );
+	const handleDelete = useCallback(
+		tag => e => {
+			e.stopPropagation();
+			removeTag( tag );
+		},
+		[ removeTag ]
+	);
 
 	const handleInputKeyDown = useCallback(
 		e => {
@@ -57,9 +63,15 @@ const TreeDropdown = props => {
 		};
 	}, [ handleClickOutside ] );
 
+	const onVisibleAreaClick = useCallback( () => {
+		showDropdown();
+		inputRef.current.focus();
+	}, [ showDropdown, inputRef ] );
+
 	return (
 		<div className="tree-dropdown" ref={ dropdownRef }>
-			<div className={ className }>
+			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
+			<div className={ className } onClick={ onVisibleAreaClick }>
 				<Icon icon={ search } />
 				{ tags.map( ( tag, index ) => (
 					<span key={ index } className="tree-dropdown__tag">
@@ -85,10 +97,17 @@ const TreeDropdown = props => {
 					disabled={ disabled }
 				/>
 			</div>
-
-			{ isDropdownVisible && (
-				<div className="tree-dropdown__dropdown-container">
-					<div className="tree-dropdown__dropdown">
+			<div className="tree-dropdown__dropdown-container">
+				<div
+					className={ classNames( 'tree-dropdown__dropdown', {
+						visible: isDropdownVisible,
+					} ) }
+				>
+					<div
+						className={ classNames( 'tree-dropdown-colapsable', {
+							hide: ! isDropdownVisible,
+						} ) }
+					>
 						<TreeSelector
 							items={ items }
 							selectedItems={ selectedItems }
@@ -98,7 +117,7 @@ const TreeDropdown = props => {
 						/>
 					</div>
 				</div>
-			) }
+			</div>
 		</div>
 	);
 };

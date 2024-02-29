@@ -3,16 +3,15 @@
  */
 import {
 	useMediaRecording,
-	useAudioTranscription,
-	UseAudioTranscriptionReturn,
-	useTranscriptionPostProcessing,
+	useAudioValidation,
+	RecordingState,
 	TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
+	TranscriptionState,
 } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { createBlock } from '@wordpress/blocks';
 import { Button, Modal, Icon } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 /**
@@ -20,15 +19,39 @@ import { external } from '@wordpress/icons';
  */
 import ActionButtons from './components/action-buttons';
 import AudioStatusPanel from './components/audio-status-panel';
+import useTranscriptionCreator from './hooks/use-transcription-creator';
 import useTranscriptionInserter from './hooks/use-transcription-inserter';
 
+/**
+ * Helper to determine the state of the transcription.
+ *
+ * @param {boolean} isCreatingTranscription - The transcription creation state
+ * @param {boolean} isValidatingAudio - The audio validation state
+ * @param {RecordingState} recordingState - The recording state
+ * @returns {TranscriptionState} - The transcription state
+ */
+const transcriptionStateHelper = (
+	isCreatingTranscription: boolean,
+	isValidatingAudio: boolean,
+	recordingState: RecordingState
+): TranscriptionState => {
+	if ( isValidatingAudio ) {
+		return 'validating';
+	}
+
+	if ( isCreatingTranscription ) {
+		return 'processing';
+	}
+
+	return recordingState;
+};
+
 export default function VoiceToContentEdit( { clientId } ) {
+	const [ audio, setAudio ] = useState< Blob >( null );
+
 	const dispatch: {
 		removeBlock: ( id: number ) => void;
-		insertBlock: ( block: object ) => void;
 	} = useDispatch( 'core/block-editor' );
-	const cancelTranscription = useRef( () => {} );
-	const [ transcription, setTranscription ] = useState( null );
 
 	const destroyBlock = useCallback( () => {
 		// Remove the block from the editor
@@ -41,58 +64,57 @@ export default function VoiceToContentEdit( { clientId } ) {
 		destroyBlock();
 	};
 
+	const { isValidatingAudio, validateAudio } = useAudioValidation();
+
 	const { upsertTranscription } = useTranscriptionInserter();
+	const { isCreatingTranscription, createTranscription, cancelTranscription } =
+		useTranscriptionCreator( {
+			onReady: ( content: string ) => {
+				// When transcription is ready, insert it into the editor
+				upsertTranscription( content );
+				handleClose();
+			},
+			onUpdate: ( content: string ) => {
+				// When transcription is updated, insert it into the editor
+				upsertTranscription( content );
+			},
+			onError: ( error: string ) => {
+				// When transcription fails, show an error message
+				onError( error );
+			},
+		} );
 
-	const { processTranscription } = useTranscriptionPostProcessing( {
-		feature: 'voice-to-content',
-		onReady: postProcessingResult => {
-			// Insert the content into the editor
-			upsertTranscription( postProcessingResult );
-			handleClose();
-		},
-		onError: error => {
-			// Use the transcription instead for a partial result
-			if ( transcription ) {
-				dispatch.insertBlock( createBlock( 'core/paragraph', { content: transcription } ) );
-			}
-			// eslint-disable-next-line no-console
-			console.log( 'Post-processing error: ', error );
-			handleClose();
-		},
-		onUpdate: currentPostProcessingResult => {
-			/*
-			 * We can upsert partial results because the hook takes care of replacing
-			 * the previous result with the new one.
-			 */
-			upsertTranscription( currentPostProcessingResult );
-		},
-	} );
-
-	const onTranscriptionReady = ( content: string ) => {
-		// eslint-disable-next-line no-console
-		console.log( 'Transcription ready: ', content );
-		setTranscription( content );
-		processTranscription( TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT, content );
-	};
-
-	const onTranscriptionError = ( error: string ) => {
-		onError( error );
-	};
-
-	const { transcribeAudio }: UseAudioTranscriptionReturn = useAudioTranscription( {
-		feature: 'voice-to-content',
-		onReady: onTranscriptionReady,
-		onError: onTranscriptionError,
-	} );
-
-	const { state, controls, error, onError, onProcessing, duration, analyser } = useMediaRecording( {
+	const { state, controls, error, onError, duration, analyser } = useMediaRecording( {
 		onDone: lastBlob => {
-			const promise = transcribeAudio( lastBlob );
-			cancelTranscription.current = () => {
-				promise.canceled = true;
-			};
+			// When recording is done, set the audio to be transcribed
+			onAudioHandler( lastBlob );
 		},
 	} );
+
+	const onAudioHandler = useCallback(
+		( audioFile: Blob ) => {
+			if ( audioFile ) {
+				setAudio( audioFile );
+			}
+		},
+		[ setAudio ]
+	);
+
+	/**
+	 * When the audio changes, create the transcription. In the future,
+	 * we can trigger this action (and others) from a button in the UI.
+	 */
+	useEffect( () => {
+		if ( audio ) {
+			validateAudio(
+				audio,
+				() => {
+					createTranscription( audio, TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT );
+				},
+				onError
+			);
+		}
+	}, [ audio, validateAudio, createTranscription, onError ] );
 
 	// Destructure controls
 	const {
@@ -106,21 +128,17 @@ export default function VoiceToContentEdit( { clientId } ) {
 	const onUploadHandler = useCallback(
 		event => {
 			if ( event.currentTarget.files.length > 0 ) {
-				onProcessing();
 				const file = event.currentTarget.files[ 0 ];
-				const promise = transcribeAudio( file );
-				cancelTranscription.current = () => {
-					promise.canceled = true;
-				};
+				onAudioHandler( file );
 			}
 		},
-		[ onProcessing, transcribeAudio ]
+		[ onAudioHandler ]
 	);
 
 	const onCancelHandler = useCallback( () => {
-		cancelTranscription.current?.();
+		cancelTranscription();
 		controlReset();
-	}, [ controlReset ] );
+	}, [ cancelTranscription, controlReset ] );
 
 	const onRecordHandler = useCallback( () => {
 		controlStart( 1000 ); // Stream audio on 1 second intervals
@@ -141,6 +159,12 @@ export default function VoiceToContentEdit( { clientId } ) {
 	// To avoid a wrong TS warning
 	const iconProps = { className: 'icon' };
 
+	const transcriptionState = transcriptionStateHelper(
+		isCreatingTranscription,
+		isValidatingAudio,
+		state
+	);
+
 	return (
 		<Modal
 			onRequestClose={ handleClose }
@@ -158,14 +182,14 @@ export default function VoiceToContentEdit( { clientId } ) {
 						</span>
 						<div className="jetpack-ai-voice-to-content__contextual-row">
 							<AudioStatusPanel
-								state={ state }
+								state={ transcriptionState }
 								error={ error }
 								duration={ duration }
 								analyser={ analyser }
 							/>
 						</div>
 						<ActionButtons
-							state={ state }
+							state={ transcriptionState }
 							onUpload={ onUploadHandler }
 							onCancel={ onCancelHandler }
 							onRecord={ onRecordHandler }
