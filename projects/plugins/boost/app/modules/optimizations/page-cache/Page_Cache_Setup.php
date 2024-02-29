@@ -10,7 +10,7 @@ class Page_Cache_Setup {
 
 	/**
 	 * Runs setup steps and returns whether setup was successful or not.
-	 * @return bool
+	 * @return bool|\WP_Error
 	 */
 	public static function run_setup() {
 		$steps = array(
