@@ -9,10 +9,14 @@
 	<projectFiles>
 		<directory name="." />
 		<ignoreFiles allowMissingFiles="true">
+			<!-- Unfortunately we can't just do like `**/vendor`, because that makes it recursively scan and it gets lost in a symlink loop. -->
 			<directory name="projects/*/*/jetpack_vendor" />
 			<directory name="projects/*/*/node_modules" />
 			<directory name="projects/*/*/vendor" />
 			<directory name="projects/*/*/wordpress" />
+			<directory name="tools/**/vendor" />
+			<!-- Other dirs to ignore -->
+			<directory name="projects/packages/autoloader/tests/php/tmp" />
 			<directory name="tools/docker" />
 			<directory name="node_modules" />
 			<directory name="vendor" />
