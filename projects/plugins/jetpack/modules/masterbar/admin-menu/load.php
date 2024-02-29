@@ -41,6 +41,8 @@ function should_customize_nav( $admin_menu_class ) {
 /**
  * Hides the Customizer menu items when the block theme is active by removing the dotcom-specific actions.
  * They are not needed for block themes.
+ *
+ * @see https://github.com/Automattic/jetpack/pull/36017
  */
 function hide_customizer_menu_on_block_theme() {
 	add_action(

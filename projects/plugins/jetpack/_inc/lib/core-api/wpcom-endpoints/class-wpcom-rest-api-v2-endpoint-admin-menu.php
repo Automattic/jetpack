@@ -98,6 +98,8 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	/**
 	 * Hides the Customizer menu items when the block theme is active by removing the dotcom-specific actions.
 	 * They are not needed for block themes.
+	 *
+	 * @see https://github.com/Automattic/jetpack/pull/36017
 	 */
 	private function hide_customizer_menu_on_block_theme() {
 		if ( wp_is_block_theme() ) {
