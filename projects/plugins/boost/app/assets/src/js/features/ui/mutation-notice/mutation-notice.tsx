@@ -75,7 +75,7 @@ export const useMutationNotice = (
 	}, [ mutationState ] );
 
 	useEffect( () => {
-		if ( isPending && ! isSuccess ) {
+		if ( isPending ) {
 			setNotice( { id: mutationId, type: 'pending', message: savingMessage } );
 		} else if ( isSuccess ) {
 			setNotice( { id: mutationId, type: 'success', message: successMessage } );
