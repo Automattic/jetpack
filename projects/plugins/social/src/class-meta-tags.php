@@ -238,6 +238,26 @@ class Meta_Tags {
 	}
 
 	/**
+	 * To set a custom OG:title for social notes.
+	 */
+	public function get_og_title_for_social_notes() {
+		$text   = wp_strip_all_tags( get_the_excerpt() );
+		$length = 55;
+		if ( strlen( $text ) <= $length ) {
+			return $text;
+		}
+
+		$trimmed_text   = substr( $text, 0, $length );
+		$last_space_pos = strrpos( $trimmed_text, ' ' );
+
+		if ( $last_space_pos !== false ) {
+			$trimmed_text = substr( $trimmed_text, 0, $last_space_pos );
+		}
+
+		return $trimmed_text . '...';
+	}
+
+	/**
 	 * Render meta tags in head.
 	 *
 	 * @param WP_Post|null $post The post to render the tags for.
@@ -256,7 +276,7 @@ class Meta_Tags {
 
 		if ( empty( $data->post_title ) ) {
 			if ( $data->post_type === Note::JETPACK_SOCIAL_NOTE_CPT ) {
-				$tags['og:title'] = substr( get_the_excerpt(), 0, 50 );
+				$tags['og:title'] = $this->get_og_title_for_social_notes();
 			} else {
 				$tags['og:title'] = __( '(no title)', 'jetpack-social' );
 			}
