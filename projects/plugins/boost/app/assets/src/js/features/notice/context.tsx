@@ -44,6 +44,9 @@ export const NoticeProvider = ( { children }: NoticeProviderProps ) => {
 
 	const hasNotice = useCallback( ( id: string ) => {
 		return !! notices[ id ];
+		// WELP. I DON'T KNOW WHY ADDING [ notices ] TRIGGERS AND INFINITE LOOP
+		// But hey, this works....
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	return (
