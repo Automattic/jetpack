@@ -17,7 +17,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.2.2-alpha';
+	const PACKAGE_VERSION = '0.3.0-alpha';
 
 	/**
 	 * Initialize the class.
@@ -89,12 +89,13 @@ class Scheduled_Updates {
 	 * @return bool
 	 */
 	public static function allowlist_scheduled_plugins( $update, $item ) {
-		// TODO: Check if we're in a scheduled update request from Jetpack_Autoupdates.
-		$schedules = get_option( 'jetpack_update_schedules', array() );
+		if ( Constants::get_constant( 'SCHEDULED_AUTOUPDATE' ) ) {
+			$schedules = get_option( 'jetpack_update_schedules', array() );
 
-		foreach ( $schedules as $plugins ) {
-			if ( in_array( $item->slug, $plugins, true ) ) {
-				return true;
+			foreach ( $schedules as $plugins ) {
+				if ( isset( $item->plugin ) && in_array( $item->plugin, $plugins, true ) ) {
+					return true;
+				}
 			}
 		}
 

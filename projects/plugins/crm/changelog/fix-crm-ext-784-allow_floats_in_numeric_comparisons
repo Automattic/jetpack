@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Segments: Allow floats in all numeric segment conditions.

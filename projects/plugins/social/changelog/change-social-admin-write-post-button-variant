@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Changed the admin page 'Write a post' button to primary if the site has connections
