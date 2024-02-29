@@ -63,6 +63,16 @@
 			"@phpcs:fix:required",
 			"@phpcs:lint:required"
 		],
+		"psalm:check": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm jetpack install --no-pnpm-install --use-uncommitted-composer-lock --all && psalm"
+		],
+		"psalm:fix": [
+			"@psalm:check --alter"
+		],
+		"psalm:update-baseline": [
+			"@psalm:check --update-baseline"
+		],
 		"test-js": [
 			"cd tools/cli && pnpm test"
 		]
@@ -76,6 +86,9 @@
 		"phpcs:lint": "Run phpcs.",
 		"phpcs:lint:errors": "Run phpcs, exiting with failure only if errors were encountered.",
 		"phpcs:lint:required": "Run phpcs on files that are not excluded by bin/phpcs-excludelist.json.",
+		"psalm:check": "Run psalm.",
+		"psalm:fix": "Run psalm with --alter to fix fixable errors.",
+		"psalm:update-baseline": "Clean up baseline file to resolve UnusedBaseline errors.",
 		"php:autofix": "DEPRECATED. Use `composer phpcs:fix` instead.",
 		"php:changed": "DEPRECATED. Use `composer phpcs:changed` instead.",
 		"php:lint:errors": "DEPRECATED. Use `composer phpcs:lint:errors` instead.",
