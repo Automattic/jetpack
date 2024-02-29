@@ -159,7 +159,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		),
 	},
 	'page-cache-root-dir-not-writable': {
-		title: __( 'Cache Directory Needs Permission Change', 'jetpack-boost' ),
+		title: __( 'Cannot create files in cache directory', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			sprintf(
 				// translators: %s refers to the cache directory.
