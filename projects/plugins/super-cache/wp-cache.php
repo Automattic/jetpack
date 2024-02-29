@@ -2310,8 +2310,8 @@ function wpsc_check_advanced_cache() {
 			// translators: %s is the filename of the advanced-cache.php file
 			echo '<p>' . sprintf( esc_html__( 'The file %s was created by the Jetpack Boost plugin.', 'wp-super-cache' ), esc_html( $wpsc_advanced_cache_filename ) ) . '</p>';
 			echo '<p>' . esc_html__( 'You can use Jetpack Boost and WP Super Cache at the same time but only if the Cache Site Pages module in Boost is disabled. To use WP Super Cache for caching:', 'wp-super-cache' ) . '</p>';
-			// translators: %s is a link to the plugins page
-			echo '<ol><li>' . sprintf( esc_html__( 'Deactivate Jetpack Boost on the <a href="%s">Plugins</a> page.', 'wp-super-cache' ), esc_url( admin_url( 'plugins.php' ) ) ) . '</li>';
+			// translators: %s is a html link to the plugins page
+			echo '<ol><li>' . sprintf( esc_html__( 'Deactivate Jetpack Boost on the %s page.', 'wp-super-cache' ), '<a href="' . esc_url( admin_url( 'plugins.php' ) ) . '">' . esc_html__( 'Plugins', 'wp-super-cache' ) . '</a>' ) . '</li>';
 			echo '<li>' . esc_html__( 'Reload this page to configure WP Super Cache.', 'wp-super-cache' ) . '</li>';
 			echo '<li>' . esc_html__( 'Activate the Jetpack Boost plugin again.', 'wp-super-cache' ) . '</li>';
 			echo '</ol>';
