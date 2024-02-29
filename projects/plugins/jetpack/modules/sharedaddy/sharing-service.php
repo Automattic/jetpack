@@ -109,6 +109,7 @@ class Sharing_Service {
 			'mastodon'         => 'Share_Mastodon',
 			'nextdoor'         => 'Share_Nextdoor',
 			'x'                => 'Share_X',
+			'bluesky'          => 'Share_Bluesky',
 			// deprecated.
 			'skype'            => 'Share_Skype',
 		);
