@@ -75,7 +75,6 @@ export const useMutationNotice = (
 	}, [ mutationState ] );
 
 	useEffect( () => {
-		let timeout: number;
 		if ( isIdle && hasNotice( mutationId ) ) {
 			removeNotice( mutationId );
 		}
@@ -83,17 +82,9 @@ export const useMutationNotice = (
 			setNotice( { id: mutationId, type: 'pending', message: savingMessage } );
 		} else if ( isSuccess ) {
 			setNotice( { id: mutationId, type: 'success', message: successMessage } );
-			timeout = setTimeout( () => {
-				reset();
-			}, 5000 );
 		} else if ( isError ) {
 			setNotice( { id: mutationId, type: 'error', message: errorMessage } );
 		}
-
-		// Cleanup function to remove notice when the component unmounts or if the mutationId changes
-		return () => {
-			clearTimeout( timeout );
-		};
 	}, [
 		mutationId,
 		setNotice,
@@ -106,7 +97,6 @@ export const useMutationNotice = (
 		isPending,
 		isIdle,
 		reset,
-		hasNotice,
 	] );
 };
 
