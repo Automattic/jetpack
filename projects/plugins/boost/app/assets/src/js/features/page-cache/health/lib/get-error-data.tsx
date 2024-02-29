@@ -10,18 +10,13 @@ const cacheIssuesLink = ( issue: string ) => {
 
 const messages: { [ key: string ]: { title: string; message: React.ReactNode } } = {
 	'failed-settings-write': {
-		title: __( 'Boost Cache settings file not writable', 'jetpack-boost' ),
+		title: __( 'Settings File Unavailable for Updates', 'jetpack-boost' ),
 		message: createInterpolateElement(
-			sprintf(
-				// translators: %s refers to wp-content.
-				__(
-					`This feature cannot be enabled because <code>%s</code> is not writable. <link>Learn more.</link>`,
-					'jetpack-boost'
-				),
-				'wp-content/boost-cache/config.php'
+			__(
+				`We can't turn on this feature because Jetpack Boost can't update its settings in a specific file on your site. This usually happens when the site's file permissions don't allow modifications. For help on making the file editable and enabling this feature, please <link>click here.</link>`,
+				'jetpack-boost'
 			),
 			{
-				code: <code className={ styles.nowrap } />,
 				link: (
 					// eslint-disable-next-line jsx-a11y/anchor-has-content
 					<a
@@ -34,12 +29,16 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		),
 	},
 	'wp-content-not-writable': {
-		title: 'wp-content not writable',
+		title: sprintf(
+			// translators: %s refers to wp-content.
+			__( `Your site's %s folder doesn't allow updates`, 'jetpack-boost' ),
+			'wp-content'
+		),
 		message: createInterpolateElement(
 			sprintf(
 				// translators: %s refers to wp-content.
 				__(
-					`This feature cannot be enabled because <code>%s</code> is not writable. <link>Learn more.</link>`,
+					`This feature cannot be enabled because due to a filesystem permission issue Boost cannot create or modify files in <code>%s</code>. To get help solving this problem <link>click here.</link>`,
 					'jetpack-boost'
 				),
 				'wp-content'
@@ -58,10 +57,10 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		),
 	},
 	'not-using-permalinks': {
-		title: __( 'Your site is using Plain Permalinks', 'jetpack-boost' ),
+		title: __( 'Update Needed for Permalink Settings', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			__(
-				'This feature cannot be enabled because your site is using Plain Permalinks. Please switch to a different permalink structure in order to use the Page Cache. <link>Learn more.</link>',
+				'To activate this feature, your site needs to use a different URL structure instead of the current Plain (default) permalinks. Changing this setting required for your site to work with our Page Cache feature. For guidance on updating your Permalink settings, <link>please click here.</link>',
 				'jetpack-boost'
 			),
 			{
@@ -77,18 +76,13 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		),
 	},
 	'advanced-cache-incompatible': {
-		title: __( 'Cache loader file already exists', 'jetpack-boost' ),
+		title: __( 'Existing Cache System Detected!', 'jetpack-boost' ),
 		message: createInterpolateElement(
-			sprintf(
-				// translators: %s refers to the path of the cache loader file.
-				__(
-					`This feature cannot be enabled because <code>%s</code> was found on your site. It was created by another plugin, or your hosting provider. Please remove it to use this module. <link>Learn more.</link>`,
-					'jetpack-boost'
-				),
-				'wp-content/advanced-cache.php'
+			__(
+				`We can't enable the feature because your site is already using a different caching system, possibly installed by another plugin or your hosting provider. For a unified optimization experience with Jetpack Boost, please deactivate the current caching solution by disabling the plugin or contacting the hosting for assistance. If you already did that, click 'Try again' to activate Boost's caching. <link>Learn More.</link>`,
+				'jetpack-boost'
 			),
 			{
-				code: <code className={ styles.nowrap } />,
 				link: (
 					// eslint-disable-next-line jsx-a11y/anchor-has-content
 					<a
@@ -101,15 +95,11 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		),
 	},
 	'advanced-cache-for-super-cache': {
-		title: __( 'Cache loader file already exists', 'jetpack-boost' ),
+		title: __( 'Existing Cache System Detected!', 'jetpack-boost' ),
 		message: createInterpolateElement(
-			sprintf(
-				// translators: %s refers to the path of the cache loader file.
-				__(
-					`This feature cannot be enabled because <code>%s</code> was found on your site. It was created by WP Super Cache. Please uninstall WP Super Cache to use this module.`,
-					'jetpack-boost'
-				),
-				'wp-content/advanced-cache.php'
+			__(
+				`We noticed you're using WP Super Cache, which has created a specific file on your site that prevents Jetpack Boost's caching feature from being activated. For the best performance and to avoid conflicts, please consider deactivating WP Super Cache before enabling this feature. <link>Find out more about this recommendation.</link>`,
+				'jetpack-boost'
 			),
 			{
 				code: <code className={ styles.nowrap } />,
@@ -125,18 +115,13 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		),
 	},
 	'unable-to-write-to-advanced-cache': {
-		title: __( 'Could not write to cache loader file', 'jetpack-boost' ),
+		title: __( 'File Update Needed for Activation', 'jetpack-boost' ),
 		message: createInterpolateElement(
-			sprintf(
-				// translators: %s refers to the path of the cache loader file.
-				__(
-					`This feature cannot be enabled because <code>%s</code> is not writable. <link>Learn more.</link>`,
-					'jetpack-boost'
-				),
-				'wp-content/advanced-cache.php'
+			__(
+				`Jetpack Boost can't activate this feature because it doesn't have permission to update a necessary file on your site. To fix this and enable the feature, the file needs to be made editable. <link>Click here for step-by-step instructions.</link>`,
+				'jetpack-boost'
 			),
 			{
-				code: <code className={ styles.nowrap } />,
 				link: (
 					// eslint-disable-next-line jsx-a11y/anchor-has-content
 					<a
@@ -149,18 +134,16 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		),
 	},
 	'wp-cache-defined-not-true': {
-		title: __( 'Cache constant not set to true', 'jetpack-boost' ),
+		title: __( 'Caching Constant Requires Adjustment', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			sprintf(
-				// translators: %1$s refers to the cache constant (WP_CACHE), %2$s refers to what it isn't set to (true), %3$s refers to what the value should be set to (true).
+				// translators: %1$s refers to the cache constant (WP_CACHE). %2$s refers to what it isn't set to (true).
 				__(
-					`<code>%1$s</code> has already been defined, but is not set to <code>%2$s</code>. To use caching, it needs to be set to <code>%3$s</code>. <link>Learn more.</link>`,
+					`Jetpack Boost needs a specific setting to be activated for caching to work properly. Currently, the setting named <code>%1$s</code> is not correctly configured on your site. It should be set to <code>%2$s</code> to enable caching. <link>Click here for easy instructions on how to fix this.</link>`,
 					'jetpack-boost'
 				),
 				'WP_CACHE',
-				'true',
-				'true',
-				'wp-content/advanced-cache.php'
+				'true'
 			),
 			{
 				code: <code className={ styles.nowrap } />,
@@ -176,12 +159,12 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		),
 	},
 	'page-cache-root-dir-not-writable': {
-		title: __( 'Cache directory is not writable', 'jetpack-boost' ),
+		title: __( 'Cache Directory Needs Permission Change', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			sprintf(
-				// translators: %d refers to the path of the cache directory.
+				// translators: %s refers to the cache directory.
 				__(
-					`This feature cannot be enabled because the cache directory (<code>%s</code>) is not writable. This needs to be resolved before caching can be enabled.`,
+					`Jetpack Boost can't enable caching because it doesn't have permission to write to the cache directory at <code>%s</code>. To fix this, the directory needs to be made writable. This change is necessary for caching to work and speed up your site.`,
 					'jetpack-boost'
 				),
 				'wp-content/boost-cache'
@@ -192,18 +175,26 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		),
 	},
 	'wp-config-not-writable': {
-		title: __( 'wp-config.php not writable', 'jetpack-boost' ),
+		title: __( 'Configuration File Permissions Needed', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			sprintf(
-				// translators: %d refers to the path of wp-config.php.
+				// translators: %s refers to wp-config.php.
 				__(
-					`This feature cannot be enabled because <code>%s</code> is not writable. This needs to be resolved before caching can be enabled.`,
+					`Jetpack Boost can't enable caching because the <code>%s</code> file is not writable. This file must be writable to activate caching, which speeds up your site. For instructions on how to make this change, <link>please click here.</link>`,
 					'jetpack-boost'
 				),
 				'wp-config.php'
 			),
 			{
 				code: <code className={ styles.nowrap } />,
+				link: (
+					// eslint-disable-next-line jsx-a11y/anchor-has-content
+					<a
+						href={ cacheIssuesLink( 'wp-config-not-writable' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
 			}
 		),
 	},
