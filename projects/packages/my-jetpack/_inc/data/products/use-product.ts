@@ -1,7 +1,7 @@
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import useSimpleQuery from '../use-simple-query';
 import mapObjectKeysToCamel from '../utils/to-camel';
-import type { ProductCamelCase, ProductSnakeCase } from '../types';
+import type { ProductCamelCase, ProductSnakeCase, StateProducts } from '../types';
 import type { RefetchOptions, QueryObserverResult } from '@tanstack/react-query';
 
 const getFullPricePerMonth = ( product: ProductCamelCase ) => {
@@ -16,7 +16,7 @@ const getDiscountPricePerMonth = ( product: ProductCamelCase ) => {
 		: product.pricingForUi.discountPrice;
 };
 
-const useAllProducts: () => Window[ 'myJetpackInitialState' ][ 'products' ][ 'items' ] = () => {
+export const useAllProducts: () => StateProducts = () => {
 	const initialState = window?.myJetpackInitialState;
 	const products = initialState?.products?.items || {};
 

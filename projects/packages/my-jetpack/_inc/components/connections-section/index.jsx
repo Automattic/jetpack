@@ -1,8 +1,6 @@
-import { useSelect } from '@wordpress/data';
-import React from 'react';
+import useProductsThatRequireUserConnection from '../../data/products/use-products-that-require-user-connection';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { STORE_ID } from '../../state/store';
 import ConnectionStatusCard from '../connection-status-card';
 
 /**
@@ -14,9 +12,7 @@ export default function ConnectionsSection() {
 	const { apiRoot, apiNonce, topJetpackMenuItemUrl, connectedPlugins } = useMyJetpackConnection();
 	const navigate = useMyJetpackNavigate( '/connection' );
 	const onDisconnected = () => document?.location?.reload( true ); // TODO: replace with a better experience.
-	const productsThatRequiresUserConnection = useSelect( select =>
-		select( STORE_ID ).getProductsThatRequiresUserConnection()
-	);
+	const productsThatRequireUserConnection = useProductsThatRequireUserConnection();
 
 	return (
 		<ConnectionStatusCard
@@ -25,7 +21,7 @@ export default function ConnectionsSection() {
 			redirectUri={ topJetpackMenuItemUrl }
 			onConnectUser={ navigate }
 			connectedPlugins={ connectedPlugins }
-			requiresUserConnection={ productsThatRequiresUserConnection.length > 0 }
+			requiresUserConnection={ productsThatRequireUserConnection.length > 0 }
 			// eslint-disable-next-line react/jsx-no-bind
 			onDisconnected={ onDisconnected }
 		/>

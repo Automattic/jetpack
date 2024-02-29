@@ -137,4 +137,5 @@ export type ProductCamelCase = {
 	wpcomProductSlug: string;
 };
 
-export type ProductSnakeCase = Window[ 'myJetpackInitialState' ][ 'products' ][ 'items' ][ string ];
+export type StateProducts = Window[ 'myJetpackInitialState' ][ 'products' ][ 'items' ];
+export type ProductSnakeCase = StateProducts[ string ];

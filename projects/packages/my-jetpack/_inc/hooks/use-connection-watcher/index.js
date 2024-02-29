@@ -1,6 +1,7 @@
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect } from 'react';
+import useProductsThatRequireUserConnection from '../../data/products/use-products-that-require-user-connection';
 import { STORE_ID } from '../../state/store';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 import useMyJetpackNavigate from '../use-my-jetpack-navigate';
@@ -13,9 +14,7 @@ import useMyJetpackNavigate from '../use-my-jetpack-navigate';
 export default function useConnectionWatcher() {
 	const navToConnection = useMyJetpackNavigate( '/connection' );
 	const { setGlobalNotice } = useDispatch( STORE_ID );
-	const productsThatRequiresUserConnection = useSelect( select =>
-		select( STORE_ID ).getProductsThatRequiresUserConnection()
-	);
+	const productsThatRequiresUserConnection = useProductsThatRequireUserConnection();
 	const { isSiteConnected, hasConnectedOwner, isUserConnected } = useMyJetpackConnection();
 
 	const requiresUserConnection =
