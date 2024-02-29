@@ -7,6 +7,7 @@ import { Icon, backup } from '@wordpress/icons';
 import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
+import QueryBackupPreflightStatus from 'components/data/query-backup-preflight-status';
 import QueryBackupUndoEvent from 'components/data/query-backup-undo-event';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import JetpackBanner from 'components/jetpack-banner';
@@ -28,6 +29,8 @@ import {
 } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { isWoASite, getPartnerCoupon, showBackups } from 'state/initial-state';
+import { PreflightTestStatus } from 'state/rewind/preflight/constants';
+import { getPreflightStatus } from 'state/rewind/preflight/selectors';
 import { siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import BackupGettingStarted from './backup-getting-started';
@@ -289,7 +292,9 @@ class DashBackups extends Component {
 	}
 
 	getRewindContent() {
-		const { hasRealTimeBackups, rewindStatus, siteRawUrl, backupUndoEventLoaded } = this.props;
+		const { hasRealTimeBackups, rewindStatus, siteRawUrl, backupUndoEventLoaded, preflightStatus } =
+			this.props;
+
 		const buildAction = ( url, message, trackingName ) => (
 			<Card
 				compact
@@ -310,6 +315,40 @@ class DashBackups extends Component {
 				feature: 'rewind',
 				content: message,
 			} );
+
+		if ( rewindStatus === 'active' || preflightStatus === PreflightTestStatus.SUCCESS ) {
+			if ( backupUndoEventLoaded ) {
+				return this.renderUndo();
+			}
+
+			/* Avoid ternary as code minification will break translation function. :( */
+			let message = __( 'We are backing up your site daily.', 'jetpack' );
+			if ( hasRealTimeBackups ) {
+				message = createInterpolateElement(
+					__(
+						'Every change you make will be backed up, in real-time, as you edit your site. <ExternalLink>Learn More</ExternalLink>',
+						'jetpack'
+					),
+					{
+						ExternalLink: (
+							<ExternalLink
+								href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
+								target="_blank"
+								rel="noopener noreferrer"
+								onClick={ this.trackBackupsClick( 'realtime-learn-more-link' ) }
+							></ExternalLink>
+						),
+					}
+				);
+			}
+
+			return (
+				<React.Fragment>
+					{ buildCard( message ) }
+					{ this.renderManageBackupsLinks() }
+				</React.Fragment>
+			);
+		}
 
 		switch ( rewindStatus ) {
 			case 'provisioning':
@@ -334,39 +373,6 @@ class DashBackups extends Component {
 						) }
 					</React.Fragment>
 				);
-			case 'active': {
-				if ( backupUndoEventLoaded ) {
-					return this.renderUndo();
-				}
-
-				/* Avoid ternary as code minification will break translation function. :( */
-				let message = __( 'We are backing up your site daily.', 'jetpack' );
-				if ( hasRealTimeBackups ) {
-					message = createInterpolateElement(
-						__(
-							'Every change you make will be backed up, in real-time, as you edit your site. <ExternalLink>Learn More</ExternalLink>',
-							'jetpack'
-						),
-						{
-							ExternalLink: (
-								<ExternalLink
-									href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
-									target="_blank"
-									rel="noopener noreferrer"
-									onClick={ this.trackBackupsClick( 'realtime-learn-more-link' ) }
-								></ExternalLink>
-							),
-						}
-					);
-				}
-
-				return (
-					<React.Fragment>
-						{ buildCard( message ) }
-						{ this.renderManageBackupsLinks() }
-					</React.Fragment>
-				);
-			}
 		}
 
 		return false;
@@ -507,6 +513,7 @@ class DashBackups extends Component {
 		return (
 			<div>
 				<QueryVaultPressData />
+				<QueryBackupPreflightStatus />
 				{ this.props.rewindStatus === 'active' && <QueryBackupUndoEvent /> }
 				{ this.renderFromRewindStatus() }
 				{ this.renderGettingStartedVideo() }
@@ -532,6 +539,7 @@ export default connect(
 			backupUndoEvent: getBackupUndoEvent( state ),
 			backupUndoEventLoaded: hasLoadedBackupUndoEvent( state ),
 			backupUndoEventIsFetching: isFetchingBackupUndoEvent( state ),
+			preflightStatus: getPreflightStatus( state ),
 		};
 	},
 	dispatch => ( {
