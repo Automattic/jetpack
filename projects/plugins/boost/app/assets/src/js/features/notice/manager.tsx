@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Snackbar } from '@wordpress/components';
 import { MutationNotice, useNotices } from './context';
 import styles from './manager.module.scss';
@@ -11,11 +11,13 @@ type NoticeProps = {
 const Notice = ( { notice, onDismiss }: NoticeProps ) => {
 	useEffect( () => {
 		const timer = setTimeout( () => {
-			onDismiss();
+			if ( notice.type !== 'pending' ) {
+				onDismiss();
+			}
 		}, 2000 );
 
 		return () => clearTimeout( timer );
-	}, [ onDismiss ] );
+	}, [ onDismiss, notice ] );
 
 	return (
 		<Snackbar type={ notice.type } key={ notice.id } onDismiss={ onDismiss }>
