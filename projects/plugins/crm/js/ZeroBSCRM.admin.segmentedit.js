@@ -537,6 +537,12 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 				case 'less':
 				case 'largerequal':
 				case 'lessequal':
+					html +=
+						'<input type="text" class="zbs-segment-edit-var-condition-value jpcrm-inputmask-float" value="' +
+						jpcrm.esc_attr( v ) +
+						'" />';
+						break;
+
 				case 'nextdays':
 				case 'previousdays':
 					html +=
