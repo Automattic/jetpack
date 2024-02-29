@@ -50,7 +50,7 @@ type DataSyncConfig< Schema extends z.ZodSchema, Value extends z.infer< Schema >
  */
 type DataSyncHook< Schema extends z.ZodSchema, Value extends z.infer< Schema > > = [
 	UseQueryResult< Value >,
-	UseMutationResult< Value >,
+	UseMutationResult< Value, DataSyncError | Error, Value >,
 ];
 
 /**
@@ -165,7 +165,7 @@ export function useDataSync<
 			return { previousValue, optimisticValue: value };
 		},
 		onError: ( err, _, context ) => {
-			if ( err instanceof DataSyncError && err.info.status === 'aborted' ) {
+			if ( err instanceof DataSyncError && err.isAborted() ) {
 				// If the request was aborted, this means that another mutation
 				// has already been dispatched and has already updated
 				// the optimistic value, so there's nothing to revert.
@@ -179,7 +179,7 @@ export function useDataSync<
 		},
 		onSettled: ( _, error ) => {
 			// Clear the abortController on either success or failure that is not an abort
-			if ( ! error || ( error instanceof DataSyncError && error.info.status !== 'aborted' ) ) {
+			if ( ! error || ( error instanceof DataSyncError && ! error.isAborted() ) ) {
 				abortController.current = null;
 			}
 		},
@@ -194,7 +194,6 @@ export function useDataSync<
 /**
  * Use React Query mutations to dispatch custom DataSync Actions.
  */
-
 export type DataSyncActionConfig<
 	ActionRequestSchema extends z.ZodSchema,
 	ActionRequestData extends z.infer< ActionRequestSchema >,
@@ -287,7 +286,7 @@ export function useDataSyncAction<
 	ActionResult,
 	CurrentState
 > ) {
-	const mutationKey = buildQueryKey( key, params );
+	const queryKey = buildQueryKey( key, params );
 	const datasync = new DataSync( namespace, key, schema.state );
 	const mutationConfigDefaults: UseMutationOptions<
 		ActionResult,
@@ -297,7 +296,7 @@ export function useDataSyncAction<
 			previousValue: CurrentState;
 		}
 	> = {
-		mutationKey,
+		mutationKey: queryKey,
 		mutationFn: async ( value: ActionRequestData ) => {
 			const result = await datasync.ACTION(
 				action_name,
@@ -305,40 +304,40 @@ export function useDataSyncAction<
 				schema.action_response
 			);
 			try {
-				const currentValue = queryClient.getQueryData< CurrentState >( mutationKey );
+				const currentValue = queryClient.getQueryData< CurrentState >( queryKey );
 				const processedResult = await callbacks.onResult( result, currentValue );
 
 				const data =
 					processedResult === undefined ? currentValue : schema.state.parse( processedResult );
 				if ( processedResult !== undefined ) {
-					queryClient.setQueryData( mutationKey, data );
+					queryClient.setQueryData( queryKey, data );
 				}
 				return data;
 			} catch ( e ) {
-				return queryClient.getQueryData( mutationKey );
+				return queryClient.getQueryData( queryKey );
 			}
 		},
 		onMutate: async ( requestData: ActionRequestData ) => {
 			// Cancel any outgoing refetches
 			// (so they don't overwrite our optimistic update)
-			await queryClient.cancelQueries( { queryKey: mutationKey } );
+			await queryClient.cancelQueries( { queryKey: queryKey } );
 
 			// Snapshot the previous value
-			const previousValue = queryClient.getQueryData< CurrentState >( mutationKey );
+			const previousValue = queryClient.getQueryData< CurrentState >( queryKey );
 
 			if ( callbacks.optimisticUpdate ) {
 				const value = await callbacks.optimisticUpdate( requestData, previousValue );
-				queryClient.setQueryData( mutationKey, value );
+				queryClient.setQueryData( queryKey, value );
 			}
 
 			// Return a context object with the snapshotted value
 			return { previousValue };
 		},
 		onError: ( _, __, context ) => {
-			queryClient.setQueryData( mutationKey, context.previousValue );
+			queryClient.setQueryData( queryKey, context.previousValue );
 		},
 		onSettled: () => {
-			queryClient.invalidateQueries( { queryKey: mutationKey } );
+			queryClient.invalidateQueries( { queryKey } );
 		},
 	};
 

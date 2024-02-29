@@ -1,6 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { Snackbar } from '@wordpress/components';
+import React, { useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
+import { useNotices } from '$features/notice/context';
+
+type MutationNoticeProps = {
+	mutationId: string;
+	isSuccess: boolean;
+	isError: boolean;
+	isPending: boolean;
+	savingMessage?: string;
+	errorMessage?: string;
+	successMessage?: string;
+};
 
 /**
  * Mutation Notice: A component that shows a notice when a mutation is pending, successful or failed.
@@ -8,6 +18,7 @@ import { __ } from '@wordpress/i18n';
  * Usage:
  * ```tsx
  *	 <MutationNotice
+ *		 mutationId="unique-mutation-id"
  *		 isSuccess={ mutation.isSuccess }
  *		 isError={ mutation.isError }
  *		 isPending={ mutation.isPending }
@@ -27,6 +38,7 @@ import { __ } from '@wordpress/i18n';
  * 	<MutationNotice { ...mutation } />
  * ```
  * @param props
+ * @param props.mutationId     The unique identifier for the mutation.
  * @param props.isSuccess      Whether the mutation was successful.
  * @param props.isError        Whether the mutation failed.
  * @param props.isPending      Whether the mutation is pending.
@@ -34,62 +46,48 @@ import { __ } from '@wordpress/i18n';
  * @param props.errorMessage   The message to show when the mutation failed.
  * @param props.successMessage The message to show when the mutation was successful.
  */
-export const MutationNotice = ( props: {
-	isSuccess: boolean;
-	isError: boolean;
-	isPending: boolean;
-	savingMessage?: string;
-	errorMessage?: string;
-	successMessage?: string;
-} ) => {
-	const [ showSnackbar, setShowSnackbar ] = useState( false );
-	const [ snackbarContent, setSnackbarContent ] = useState( '' );
-	const [ snackbarType, setSnackbarType ] = useState< 'success' | 'error' >( 'success' );
-
-	const savingMessage = props.savingMessage || __( 'Saving…', 'jetpack-boost' );
-	const errorMessage =
-		props.errorMessage || __( 'An error occurred while saving changes.', 'jetpack-boost' );
-	const successMessage = props.successMessage || __( 'Changes saved.', 'jetpack-boost' );
+export const MutationNotice = ( {
+	mutationId,
+	isSuccess,
+	isError,
+	isPending,
+	savingMessage = __( 'Saving…', 'jetpack-boost' ),
+	errorMessage = __( 'An error occurred while saving changes.', 'jetpack-boost' ),
+	successMessage = __( 'Changes saved.', 'jetpack-boost' ),
+}: MutationNoticeProps ) => {
+	const { setNotice, removeNotice } = useNotices();
 
 	useEffect( () => {
-		let timeoutId: ReturnType< typeof setTimeout >;
-
-		// If mutation is pending, show a "Saving…" message.
-		// But only if saving takes more than 50ms to avoid FOLC(Flash of Loading Content).
-		if ( props.isPending && ! props.isSuccess ) {
-			timeoutId = setTimeout( () => {
-				setShowSnackbar( true );
-				setSnackbarContent( savingMessage );
-			}, 50 );
-			setSnackbarType( 'success' );
-		} else if ( props.isSuccess ) {
-			setShowSnackbar( true );
-			setSnackbarContent( successMessage );
-			setSnackbarType( 'success' );
-		} else if ( props.isError ) {
-			setShowSnackbar( true );
-			setSnackbarContent( errorMessage );
-			setSnackbarType( 'error' );
+		let timeout: number;
+		if ( isPending && ! isSuccess ) {
+			setNotice( { id: mutationId, type: 'pending', message: savingMessage } );
+		} else if ( isSuccess ) {
+			setNotice( { id: mutationId, type: 'success', message: successMessage } );
+			timeout = setTimeout( () => {
+				removeNotice( mutationId );
+			}, 5000 );
+		} else if ( isError ) {
+			setNotice( { id: mutationId, type: 'error', message: errorMessage } );
 		}
-		return () => clearTimeout( timeoutId );
+
+		// Cleanup function to remove notice when the component unmounts or if the mutationId changes
+		return () => {
+			clearTimeout( timeout );
+			removeNotice( mutationId );
+		};
 	}, [
-		props.isSuccess,
-		props.isError,
-		props.isPending,
+		setNotice,
+		removeNotice,
+		isSuccess,
+		isError,
+		isPending,
 		savingMessage,
 		errorMessage,
 		successMessage,
+		mutationId,
 	] );
 
-	return (
-		<>
-			{ showSnackbar && (
-				<Snackbar type={ snackbarType } onDismiss={ () => setShowSnackbar( false ) }>
-					{ snackbarContent }
-				</Snackbar>
-			) }
-		</>
-	);
+	return null;
 };
 
 // This is a pure component, so we can use React.memo to avoid unnecessary re-renders.
