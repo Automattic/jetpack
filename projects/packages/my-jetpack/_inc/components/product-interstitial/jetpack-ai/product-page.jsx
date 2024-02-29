@@ -62,6 +62,7 @@ export default function () {
 	const showCurrentUsage = hasPaidTier && ! isFree;
 	const showAllTimeUsage = hasPaidTier || hasUnlimited;
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
+	const newPostURL = 'post-new.php?use_ai_block=1&_wpnonce=' + window?.jetpackAi?.nonce;
 
 	const showRenewalNotice = isOverLimit && hasPaidTier;
 	const showUpgradeNotice = isOverLimit && isFree;
@@ -93,10 +94,6 @@ export default function () {
 
 	const navigateToPricingTable = useMyJetpackNavigate( '/add-jetpack-ai' );
 	const { recordEvent } = useAnalytics();
-
-	const onCreateClick = useCallback( () => {
-		// console.log( 'click' );
-	}, [] );
 
 	const contactClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_ai_upgrade_contact_us', { placement: 'product-page' } );
@@ -267,7 +264,7 @@ export default function () {
 									<Button
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
 										icon={ plus }
-										onClick={ onCreateClick }
+										href={ newPostURL }
 									>
 										{ __( 'Create new post', 'jetpack-my-jetpack' ) }
 									</Button>
@@ -298,7 +295,8 @@ export default function () {
 									<Button
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
 										icon={ help }
-										onClick={ onCreateClick }
+										target="_blank"
+										href="https://jetpack.com/support/jetpack-blocks/contact-form/#forms-with-ai"
 									>
 										{ __( 'Learn about forms', 'jetpack-my-jetpack' ) }
 									</Button>
@@ -329,7 +327,8 @@ export default function () {
 									<Button
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
 										icon={ help }
-										onClick={ onCreateClick }
+										target="_blank"
+										href="https://jetpack.com/support/jetpack-blocks/jetpack-ai-assistant-block/"
 									>
 										{ __( 'Learn more', 'jetpack-my-jetpack' ) }
 									</Button>
