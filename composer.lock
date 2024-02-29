@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c709442418b9ad7c6a4f8354e44fdf7b",
+    "content-hash": "b136ec160ff9ed037b1c36f63f799034",
     "packages": [],
     "packages-dev": [
         {
@@ -1015,16 +1015,16 @@
         },
         {
             "name": "humanmade/psalm-plugin-wordpress",
-            "version": "3.1.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/psalm/psalm-plugin-wordpress.git",
-                "reference": "693c1731f37481d8c3ac36751a3acb9ec564ec14"
+                "reference": "0130a4ef9e598f25ae6e4075a50143869b62e5bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/psalm/psalm-plugin-wordpress/zipball/693c1731f37481d8c3ac36751a3acb9ec564ec14",
-                "reference": "693c1731f37481d8c3ac36751a3acb9ec564ec14",
+                "url": "https://api.github.com/repos/psalm/psalm-plugin-wordpress/zipball/0130a4ef9e598f25ae6e4075a50143869b62e5bb",
+                "reference": "0130a4ef9e598f25ae6e4075a50143869b62e5bb",
                 "shasum": ""
             },
             "require": {
@@ -1040,6 +1040,7 @@
                 "phpunit/phpunit": "^9.0",
                 "psalm/plugin-phpunit": "^0.18.4"
             },
+            "default-branch": true,
             "type": "psalm-plugin",
             "extra": {
                 "psalm": {
@@ -1072,7 +1073,7 @@
                 "issues": "https://github.com/psalm/psalm-plugin-wordpress/issues",
                 "source": "https://github.com/psalm/psalm-plugin-wordpress"
             },
-            "time": "2024-02-18T11:50:01+00:00"
+            "time": "2024-02-29T11:38:28+00:00"
         },
         {
             "name": "mediawiki/mediawiki-codesniffer",
@@ -3405,7 +3406,8 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "automattic/jetpack-codesniffer": 20,
-        "automattic/jetpack-phpcs-filter": 20
+        "automattic/jetpack-phpcs-filter": 20,
+        "humanmade/psalm-plugin-wordpress": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
