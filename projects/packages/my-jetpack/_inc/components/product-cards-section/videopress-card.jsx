@@ -4,18 +4,21 @@
 import { numberFormat } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
+import { REST_API_VIDEOPRESS_FEATURED_STATS } from '../../data/constants';
+import useSimpleQuery from '../../data/use-simple-query';
 /**
  * Internal dependencies
  */
-import { useProduct } from '../../hooks/use-product';
 import ProductCard from '../connected-product-card';
 import { SingleContextualInfo, ChangePercentageContext } from './contextual-card-info';
 
 const useVideoPressStats = () => {
-	const { stats } = useProduct( 'videopress' );
+	const {
+		data: stats,
+		isLoading,
+		isError,
+	} = useSimpleQuery( 'videopressStats', { path: REST_API_VIDEOPRESS_FEATURED_STATS } );
 
-	const loading = stats === undefined;
-	const hasError = stats === null;
 	const views = stats?.data?.views ?? {};
 	const { previous = null, current = null } = views;
 	const currentFormatted =
@@ -36,8 +39,8 @@ const useVideoPressStats = () => {
 	}
 
 	return {
-		loading,
-		hasError,
+		isLoading,
+		isError,
 		currentFormatted,
 		change,
 		changePercentage,
