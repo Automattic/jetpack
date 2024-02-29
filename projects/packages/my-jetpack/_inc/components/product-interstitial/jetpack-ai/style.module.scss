@@ -40,18 +40,22 @@
 	max-width: 1128px;
 	margin: 0 auto;
 	flex-wrap: wrap;
+	gap: calc( var( --spacing-base ) * 6 );
 
-	@media only screen and (max-width: 960px) {
+	@media only screen and (max-width: 1366px) {
 		padding-left: calc( var( --spacing-base ) * 3 );
 		padding-right: calc( var( --spacing-base ) * 3 );
 	}
 
 	.product-interstitial__hero-content {
-		margin-right: 1.5rem;
 		flex: 1;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
+
+		@media screen and ( min-width: 960px ) {
+			max-width: 70%;
+		}
 
 		.product-interstitial__hero-heading {
 			font-size: 36px;
@@ -76,12 +80,14 @@
 
 	.product-interstitial__hero-side {
 		display: flex;
-		flex: 1;
 		gap: calc(var(--spacing-base)* 3);
 		align-items: center;
 		flex-wrap: wrap;
 		justify-content: flex-end;
-		margin: calc( var( --spacing-base ) * 6 ) 0;
+
+		@media only screen and (max-width: 430px) {
+			flex: 1;
+		}
 	}
 
 	// stolen from stats-section
@@ -152,7 +158,7 @@
 		max-width: 744px;
 		margin: 0 auto;
 
-		@media only screen and (max-width: 960px) {
+		@media only screen and (max-width: 1366px) {
 			padding-left: calc( var( --spacing-base ) * 3 );
 			padding-right: calc( var( --spacing-base ) * 3 );
 		}
@@ -161,6 +167,11 @@
 	.product-interstitial__section-wrapper-wide {
 		max-width: 1128px;
 		margin: 0 auto;
+
+		@media only screen and (max-width: 960px) {
+			padding-left: calc( var( --spacing-base ) * 3 );
+			padding-right: calc( var( --spacing-base ) * 3 );
+		}
 	}
 
 	.product-interstitial__section-heading {
@@ -209,6 +220,7 @@
 		flex-direction: column;
 		gap: var(--spacing-base);
 		flex: 1;
+		min-width: 280px;
 
 		.product-interstitial__usage-videos-heading {
 			font-size: 20px;
