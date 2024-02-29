@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Instanciate the Boost Score API (new Speed_Score()) in My Jetpack.
