@@ -1,6 +1,5 @@
 import { Notice } from '@automattic/jetpack-components';
 import getErrorData from './lib/get-error-data';
-import { __ } from '@wordpress/i18n';
 import { usePageCacheSetup, type PageCacheError } from '$lib/stores/page-cache';
 import { useEffect, useState } from 'react';
 import { useSingleModuleState } from '$features/module/lib/stores';
