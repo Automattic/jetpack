@@ -175,7 +175,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		),
 	},
 	'wp-config-not-writable': {
-		title: __( 'Configuration File Permissions Needed', 'jetpack-boost' ),
+		title: __( 'The configuration file cannot be updated', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			sprintf(
 				// translators: %s refers to wp-config.php.
