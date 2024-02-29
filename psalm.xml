@@ -22,6 +22,8 @@
 			<directory name="tools/docker" />
 			<directory name="node_modules" />
 			<directory name="vendor" />
+			<!-- Igor says all these fallbacks should go away. For now, at least don't scan them so psalm doesn't get confused. -->
+			<file name="projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-*-fallback.php" />
 		</ignoreFiles>
 	</projectFiles>
 	<plugins>
