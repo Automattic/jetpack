@@ -611,11 +611,9 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	/**
 	 * Get additional fields data for Checkout and Post-Checkout events.
 	 *
-	 * @param WC_Order|null $order The order object or null if we don't have an order.
-	 *
-	 * return array An array containing the additional fields data.
+	 * @return array Additional fields data.
 	 */
-	private function get_additional_fields_data( $order = null ) {
+	private function get_additional_fields_data() {
 		$data = array();
 
 		if ( class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && class_exists( 'Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields' ) ) {
@@ -625,31 +623,17 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			$fields_data                  = array_map(
 				function ( $field_key, $field ) use ( $additional_fields_controller ) {
 					return array(
-						$field_key,
-						$additional_fields_controller->get_field_location( $field_key ),
-						$field['type'],
-						$field['required'] ? '1' : '0',
+						'key'      => $field_key,
+						'location' => $additional_fields_controller->get_field_location( $field_key ),
+						'type'     => $field['type'],
+						'required' => $field['required'] ? '1' : '0',
+						'label'    => $field['label'],
 					);
 				},
 				array_keys( $additional_fields ),
 				$additional_fields
 			);
 
-			if ( $order ) {
-				$fields_data = array_map(
-					function ( $field ) use ( $additional_fields_controller, $order ) {
-						// For additional and contact, they have the default group, which is ''.
-						$field_group = $field[1] === 'address' ? 'shipping' : '';
-						$field[]     = $additional_fields_controller->get_field_from_order( $field[0], $order, $field_group );
-						// If we have no value in shipping, try billing.
-						if ( $field[1] === 'address' && ! $field[4] ) {
-							$field[4] = $additional_fields_controller->get_field_from_order( $field[0], $order, 'billing' );
-						}
-						return $field;
-					},
-					$fields_data
-				);
-			}
 			$data = array(
 				'fields_count' => $fields_count,
 				'fields'       => wp_json_encode( $fields_data ),

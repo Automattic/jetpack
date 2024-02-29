@@ -109,7 +109,7 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 			$checkout_page_used = 'No';
 		}
 
-		$fields_data = $this->get_additional_fields_data( $order );
+		$fields_data = $this->get_additional_fields_data();
 
 		$data = array(
 			'coupon_used'                               => $coupon_used,

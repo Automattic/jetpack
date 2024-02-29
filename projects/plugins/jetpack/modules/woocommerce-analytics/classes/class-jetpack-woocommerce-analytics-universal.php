@@ -365,7 +365,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			$checkout_page_contains_checkout_shortcode = '1';
 		}
 
-		$fields_data = $this->get_additional_fields_data( $order );
+		$fields_data = $this->get_additional_fields_data();
 
 		// loop through products in the order and queue a purchase event.
 		foreach ( $order->get_items() as $order_item ) {
