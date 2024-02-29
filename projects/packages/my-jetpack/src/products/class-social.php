@@ -146,7 +146,7 @@ class Social extends Hybrid_Product {
 		// For atomic sites, do a feature check to see if the republicize feature is available
 		// This feature is available by default on all Jetpack sites
 		if ( ( new Host() )->is_woa_site() ) {
-			static::does_site_have_feature( 'republicize' );
+			return static::does_site_have_feature( 'republicize' );
 		}
 
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
