@@ -1,17 +1,24 @@
 <?xml version="1.0"?>
-<psalm
-    errorLevel="7"
-    resolveFromConfigFile="true"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="https://getpsalm.org/schema/config"
-    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
-    findUnusedBaselineEntry="true"
-    findUnusedCode="true"
+<psalm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://getpsalm.org/schema/config" xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+	phpVersion="7.0"
+	errorLevel="7"
+	resolveFromConfigFile="true"
+	findUnusedBaselineEntry="true"
+	findUnusedCode="true"
 >
-    <projectFiles>
-        <directory name="."/>
-        <ignoreFiles>
-            <directory name="vendor"/>
-        </ignoreFiles>
-    </projectFiles>
-<plugins><pluginClass class="PsalmWordPress\Plugin"/></plugins></psalm>
+	<projectFiles>
+		<directory name="." />
+		<ignoreFiles>
+			<directory name="projects/*/*/jetpack_vendor" />
+			<directory name="projects/*/*/node_modules" />
+			<directory name="projects/*/*/vendor" />
+			<directory name="projects/*/*/wordpress" />
+			<directory name="tools/docker" />
+			<directory name="node_modules" />
+			<directory name="vendor" />
+		</ignoreFiles>
+	</projectFiles>
+	<plugins>
+		<pluginClass class="PsalmWordPress\Plugin" />
+	</plugins>
+</psalm>
