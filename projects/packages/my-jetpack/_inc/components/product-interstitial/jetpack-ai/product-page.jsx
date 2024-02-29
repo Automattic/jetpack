@@ -66,30 +66,30 @@ export default function () {
 	const showRenewalNotice = isOverLimit && hasPaidTier;
 	const showUpgradeNotice = isOverLimit && isFree;
 
-	const noticeTitle = showRenewalNotice
-		? __( "You've reached your request limit for this month", 'jetpack-my-jetpack' )
-		: __( "You've used all your free requests", 'jetpack-my-jetpack' );
+	const renewalNoticeTitle = __(
+		"You've reached your request limit for this month",
+		'jetpack-my-jetpack'
+	);
+	const upgradeNoticeTitle = __( "You've used all your free requests", 'jetpack-my-jetpack' );
 
-	const noticeBody = showRenewalNotice
-		? sprintf(
-				// translators: %d is the number of days left in the month.
-				__(
-					'Wait for %d days to reset your limit, or upgrade now to a higher tier for additional requests and keep your work moving forward.',
-					'jetpack-my-jetpack'
-				),
-				Math.floor( ( new Date( usage[ 'next-start' ] ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
-		  )
-		: __(
-				'Reach for More with Jetpack AI! Upgrade now for additional requests and keep your momentum going.',
-				'jetpack-my-jetpack'
-		  );
-	const noticeCta = showRenewalNotice
-		? sprintf(
-				// translators: %s is the next upgrade value
-				__( 'Get %s requests', 'jetpack-my-jetpack' ),
-				nextTier?.value || 'more'
-		  )
-		: __( 'Upgrade now', 'jetpack-my-jetpack' );
+	const renewalNoticeBody = sprintf(
+		// translators: %d is the number of days left in the month.
+		__(
+			'Wait for %d days to reset your limit, or upgrade now to a higher tier for additional requests and keep your work moving forward.',
+			'jetpack-my-jetpack'
+		),
+		Math.floor( ( new Date( usage[ 'next-start' ] ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
+	);
+	const upgradeNoticeBody = __(
+		'Reach for More with Jetpack AI! Upgrade now for additional requests and keep your momentum going.',
+		'jetpack-my-jetpack'
+	);
+	const renewalNoticeCta = sprintf(
+		// translators: %s is the next upgrade value
+		__( 'Get %s requests', 'jetpack-my-jetpack' ),
+		nextTier?.value || 'more'
+	);
+	const upgradeNoticeCta = __( 'Upgrade now', 'jetpack-my-jetpack' );
 
 	const navigateToPricingTable = useMyJetpackNavigate( '/add-jetpack-ai' );
 	const { recordEvent } = useAnalytics();
@@ -224,14 +224,14 @@ export default function () {
 								<Notice
 									actions={ [
 										<Button isPrimary onClick={ upgradeClickHandler }>
-											{ noticeCta }
+											{ showRenewalNotice ? renewalNoticeCta : upgradeNoticeCta }
 										</Button>,
 									] }
 									onClose={ onNoticeClose }
 									level={ showRenewalNotice ? 'warning' : 'error' }
-									title={ noticeTitle }
+									title={ showRenewalNotice ? renewalNoticeTitle : upgradeNoticeTitle }
 								>
-									{ noticeBody }
+									{ showRenewalNotice ? renewalNoticeBody : upgradeNoticeBody }
 								</Notice>
 							</div>
 						) }
