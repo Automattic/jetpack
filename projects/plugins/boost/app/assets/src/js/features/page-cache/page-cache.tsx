@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
-import { MutationNotice } from '$features/ui';
+import { useMutationNotice } from '$features/ui';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import ErrorNotice from '$features/error-notice/error-notice';
@@ -61,23 +61,28 @@ const Meta = () => {
 
 	const loggingEnabledMessage = __( 'Logging enabled.', 'jetpack-boost' );
 	const loggingDisabledMessage = __( 'Logging disabled.', 'jetpack-boost' );
+	useMutationNotice( 'update-bypass-patterns', undefined, mutateBypassPatterns );
+	useMutationNotice(
+		'update-logging',
+		{
+			successMessage: logging ? loggingEnabledMessage : loggingDisabledMessage,
+		},
+		mutateLogging
+	);
+
+	useMutationNotice(
+		'clear-page-cache',
+		{
+			savingMessage: __( 'Clearing cache…', 'jetpack-boost' ),
+			errorMessage: __( 'Unable to clear cache.', 'jetpack-boost' ),
+			successMessage: clearedCacheMessage || __( 'Cache cleared.', 'jetpack-boost' ),
+		},
+		runClearPageCacheAction
+	);
 
 	return (
 		pageCache && (
 			<div className={ styles.wrapper }>
-				<MutationNotice { ...mutateBypassPatterns } mutationId="update-bypass-patterns" />
-				<MutationNotice
-					{ ...mutateLogging }
-					successMessage={ logging ? loggingEnabledMessage : loggingDisabledMessage }
-					mutationId="update-logging"
-				/>
-				<MutationNotice
-					{ ...runClearPageCacheAction }
-					savingMessage={ __( 'Clearing cache…', 'jetpack-boost' ) }
-					errorMessage={ __( 'Unable to clear cache.', 'jetpack-boost' ) }
-					successMessage={ clearedCacheMessage || __( 'Cache cleared.', 'jetpack-boost' ) }
-					mutationId="clear-page-cache"
-				/>
 				<div className={ styles.head }>
 					<div className={ styles.summary }>{ getSummary() }</div>
 					<div className={ styles.actions }>

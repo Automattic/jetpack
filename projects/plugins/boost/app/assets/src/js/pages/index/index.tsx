@@ -3,7 +3,7 @@ import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
-import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
+import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
@@ -18,8 +18,7 @@ import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCache from '$features/page-cache/page-cache';
 import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
 import Health from '$features/page-cache/health/health';
-import { MutationNotice } from '$features/ui';
-import { useNotices } from '$features/notice/context';
+import { useMutationNotice } from '$features/ui';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -28,10 +27,6 @@ const Index = () => {
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
 	const [ pageCache ] = useSingleModuleState( 'page_cache' );
-
-	const { removeNotice } = useNotices();
-
-	const [ showEnablingPageCacheNotice, setShowEnablingPageCacheNotice ] = useState( false );
 
 	const regenerateCssAction = useRegenerateCriticalCssAction();
 	const requestRegenerateCriticalCss = () => {
@@ -44,12 +39,15 @@ const Index = () => {
 	const pageCacheSetup = usePageCacheSetup();
 	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
 
-	// hide the enabling page cache notice when setup is ran
-	useEffect( () => {
-		if ( pageCacheSetup.isPending ) {
-			setShowEnablingPageCacheNotice( false );
-		}
-	}, [ pageCacheSetup.isPending ] );
+	useMutationNotice(
+		'page-cache-setup',
+		{
+			savingMessage: __( 'Setting up cache…', 'jetpack-boost' ),
+			errorMessage: __( 'An error occurred while setting up cache.', 'jetpack-boost' ),
+			successMessage: __( 'Cache setup complete.', 'jetpack-boost' ),
+		},
+		pageCacheSetup
+	);
 
 	return (
 		<div className="jb-container--narrow">
@@ -151,12 +149,6 @@ const Index = () => {
 							dismissed: true,
 						} );
 					}
-
-					if ( ! pageCache?.active ) {
-						setShowEnablingPageCacheNotice( true );
-						// hide page cache setup notice when enabling
-						removeNotice( 'page-cache-setup' );
-					}
 				} }
 				onEnable={ () => {
 					pageCacheSetup.mutate();
@@ -188,15 +180,6 @@ const Index = () => {
 							setError={ pageCacheErrorMutation.mutate }
 							setup={ pageCacheSetup }
 						/>
-						{ showEnablingPageCacheNotice && (
-							<MutationNotice
-								mutationId="module-page-cache-enable"
-								isPending={ true }
-								isError={ false }
-								isSuccess={ false }
-								savingMessage={ __( 'Enabling page cache…', 'jetpack-boost' ) }
-							/>
-						) }
 					</>
 				}
 			>

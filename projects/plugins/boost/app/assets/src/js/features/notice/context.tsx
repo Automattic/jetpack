@@ -14,6 +14,7 @@ type NoticeContextType = {
 	notices: Notices;
 	setNotice: ( notice: Notice ) => void;
 	removeNotice: ( id: string ) => void;
+	hasNotice: ( id: string ) => boolean;
 };
 
 const NoticeContext = createContext< NoticeContextType | undefined >( undefined );
@@ -41,8 +42,12 @@ export const NoticeProvider = ( { children }: NoticeProviderProps ) => {
 		} );
 	}, [] );
 
+	const hasNotice = useCallback( ( id: string ) => {
+		return !! notices[ id ];
+	}, [] );
+
 	return (
-		<NoticeContext.Provider value={ { notices, setNotice, removeNotice } }>
+		<NoticeContext.Provider value={ { notices, setNotice, removeNotice, hasNotice } }>
 			{ children }
 		</NoticeContext.Provider>
 	);

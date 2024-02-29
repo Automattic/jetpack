@@ -1,12 +1,16 @@
-import React, { useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useNotices } from '$features/notice/context';
 
-type MutationNoticeProps = {
-	mutationId: string;
+export type MutationNoticeState = {
 	isSuccess: boolean;
 	isError: boolean;
 	isPending: boolean;
+	isIdle: boolean;
+	reset?: () => void;
+};
+
+type MutationNoticeMessages = {
 	savingMessage?: string;
 	errorMessage?: string;
 	successMessage?: string;
@@ -37,34 +41,55 @@ type MutationNoticeProps = {
  * 	const [ data, mutation ] = useDataSync(...);
  * 	<MutationNotice { ...mutation } />
  * ```
- * @param props
- * @param props.mutationId     The unique identifier for the mutation.
- * @param props.isSuccess      Whether the mutation was successful.
- * @param props.isError        Whether the mutation failed.
- * @param props.isPending      Whether the mutation is pending.
- * @param props.savingMessage  The message to show when the mutation is pending.
- * @param props.errorMessage   The message to show when the mutation failed.
- * @param props.successMessage The message to show when the mutation was successful.
+ * @param mutationId
+ * @param props.mutationId        The unique identifier for the mutation.
+ * @param props.isSuccess         Whether the mutation was successful.
+ * @param props.isError           Whether the mutation failed.
+ * @param props.isPending         Whether the mutation is pending.
+ * @param messages
+ * @param messages.savingMessage  The message to show when the mutation is pending.
+ * @param messages.errorMessage   The message to show when the mutation failed.
+ * @param messages.successMessage The message to show when the mutation was successful.
+ * @param mutationState
  */
-export const MutationNotice = ( {
-	mutationId,
-	isSuccess,
-	isError,
-	isPending,
-	savingMessage = __( 'Saving…', 'jetpack-boost' ),
-	errorMessage = __( 'An error occurred while saving changes.', 'jetpack-boost' ),
-	successMessage = __( 'Changes saved.', 'jetpack-boost' ),
-}: MutationNoticeProps ) => {
-	const { setNotice, removeNotice } = useNotices();
+export const useMutationNotice = (
+	mutationId: string,
+	messages?: MutationNoticeMessages,
+	mutationState: MutationNoticeState | null = null
+) => {
+	const { setNotice, hasNotice, removeNotice } = useNotices();
+	const {
+		savingMessage = messages?.savingMessage ?? __( 'Saving…', 'jetpack-boost' ),
+		errorMessage = messages?.errorMessage ?? __( 'An error occurred while saving changes.', 'jetpack-boost' ),
+		successMessage = messages?.successMessage ?? __( 'Changes saved.', 'jetpack-boost' ),
+	} = messages ?? {};
+
+
+	const { isSuccess, isError, isPending, isIdle, reset } = useMemo( () => {
+		const mutationStateDefaults = {
+			isSuccess: false,
+			isError: false,
+			isPending: false,
+			isIdle: false,
+			reset: () => {},
+		};
+		return {
+			...mutationStateDefaults,
+			...mutationState,
+		};
+	}, [ mutationState ] );
 
 	useEffect( () => {
 		let timeout: number;
+		if( isIdle && hasNotice( mutationId ) ) {
+			removeNotice( mutationId );
+		}
 		if ( isPending && ! isSuccess ) {
 			setNotice( { id: mutationId, type: 'pending', message: savingMessage } );
 		} else if ( isSuccess ) {
 			setNotice( { id: mutationId, type: 'success', message: successMessage } );
 			timeout = setTimeout( () => {
-				removeNotice( mutationId );
+				reset();
 			}, 5000 );
 		} else if ( isError ) {
 			setNotice( { id: mutationId, type: 'error', message: errorMessage } );
@@ -73,22 +98,23 @@ export const MutationNotice = ( {
 		// Cleanup function to remove notice when the component unmounts or if the mutationId changes
 		return () => {
 			clearTimeout( timeout );
-			removeNotice( mutationId );
 		};
 	}, [
+		mutationId,
 		setNotice,
 		removeNotice,
-		isSuccess,
-		isError,
-		isPending,
 		savingMessage,
 		errorMessage,
 		successMessage,
-		mutationId,
+		isSuccess,
+		isError,
+		isPending,
+		isIdle,
+		reset,
+		hasNotice,
 	] );
 
-	return null;
 };
 
 // This is a pure component, so we can use React.memo to avoid unnecessary re-renders.
-export default React.memo( MutationNotice );
+export default useMutationNotice;
