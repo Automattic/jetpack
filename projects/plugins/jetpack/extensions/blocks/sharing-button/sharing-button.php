@@ -131,7 +131,7 @@ function render_block( $attr, $content, $block ) {
 	$component .= $style_type !== 'text' ? $icon : '';
 	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . esc_html( $title ) . '</span>';
 	if ( $service_name === 'share' ) {
-		$component .= '<span class="tooltiptext" aria-live="assertive" arial-label="Hello">' . esc_html__( 'Copied to clipboard', 'jetpack' ) . '</span>';
+		$component .= '<span class="tooltiptext" aria-live="assertive">' . esc_html__( 'Copied to clipboard', 'jetpack' ) . '</span>';
 	}
 	$component .= '</a>';
 	$component .= '</li>';
