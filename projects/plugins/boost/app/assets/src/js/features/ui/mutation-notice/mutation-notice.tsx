@@ -95,6 +95,8 @@ export const useMutationNotice = (
 		isIdle,
 		reset,
 	] );
+
+	return [ () => removeNotice( mutationId ) ];
 };
 
 // This is a pure component, so we can use React.memo to avoid unnecessary re-renders.

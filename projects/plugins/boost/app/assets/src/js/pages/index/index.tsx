@@ -40,7 +40,7 @@ const Index = () => {
 	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
 	const [ isPageCacheSettingUp, setIsPageCacheSettingUp ] = useState( false );
 
-	useMutationNotice(
+	const [ removePageCacheNotice ] = useMutationNotice(
 		'page-cache-setup',
 		{
 			...pageCacheSetup,
@@ -163,6 +163,9 @@ const Index = () => {
 				} }
 				onEnable={ () => {
 					pageCacheSetup.mutate();
+				} }
+				onDisable={ () => {
+					removePageCacheNotice();
 				} }
 				description={
 					<>
