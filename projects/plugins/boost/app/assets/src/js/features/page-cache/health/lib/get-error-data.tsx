@@ -76,7 +76,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 		),
 	},
 	'advanced-cache-incompatible': {
-		title: __( 'Existing Cache System Detected!', 'jetpack-boost' ),
+		title: __( 'Existing Cache System Detected', 'jetpack-boost' ),
 		message: createInterpolateElement(
 			__(
 				`We can't enable the feature because your site is already using a different caching system, possibly installed by another plugin or your hosting provider. For a unified optimization experience with Jetpack Boost, please deactivate the current caching solution by disabling the plugin or contacting the hosting for assistance. If you already did that, click 'Try again' to activate Boost's caching. <link>Learn More.</link>`,
