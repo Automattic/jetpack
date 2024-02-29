@@ -43,13 +43,13 @@ const Index = () => {
 	useMutationNotice(
 		'page-cache-setup',
 		{
+			...pageCacheSetup,
+			isPending: isPageCacheSettingUp || pageCacheSetup.isPending,
+		},
+		{
 			savingMessage: __( 'Setting up cache…', 'jetpack-boost' ),
 			errorMessage: __( 'An error occurred while setting up cache.', 'jetpack-boost' ),
 			successMessage: __( 'Cache setup complete.', 'jetpack-boost' ),
-		},
-		{
-			...pageCacheSetup,
-			isPending: isPageCacheSettingUp || pageCacheSetup.isPending,
 		}
 	);
 

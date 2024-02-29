@@ -61,24 +61,16 @@ const Meta = () => {
 
 	const loggingEnabledMessage = __( 'Logging enabled.', 'jetpack-boost' );
 	const loggingDisabledMessage = __( 'Logging disabled.', 'jetpack-boost' );
-	useMutationNotice( 'update-bypass-patterns', undefined, mutateBypassPatterns );
-	useMutationNotice(
-		'update-logging',
-		{
-			successMessage: logging ? loggingEnabledMessage : loggingDisabledMessage,
-		},
-		mutateLogging
-	);
+	useMutationNotice( 'update-bypass-patterns', mutateBypassPatterns );
+	useMutationNotice( 'update-logging', mutateLogging, {
+		successMessage: logging ? loggingEnabledMessage : loggingDisabledMessage,
+	} );
 
-	useMutationNotice(
-		'clear-page-cache',
-		{
-			savingMessage: __( 'Clearing cache…', 'jetpack-boost' ),
-			errorMessage: __( 'Unable to clear cache.', 'jetpack-boost' ),
-			successMessage: clearedCacheMessage || __( 'Cache cleared.', 'jetpack-boost' ),
-		},
-		runClearPageCacheAction
-	);
+	useMutationNotice( 'clear-page-cache', runClearPageCacheAction, {
+		savingMessage: __( 'Clearing cache…', 'jetpack-boost' ),
+		errorMessage: __( 'Unable to clear cache.', 'jetpack-boost' ),
+		successMessage: clearedCacheMessage || __( 'Cache cleared.', 'jetpack-boost' ),
+	} );
 
 	return (
 		pageCache && (

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useNotices } from '$features/notice/context';
 
@@ -54,15 +54,26 @@ type MutationNoticeMessages = {
  */
 export const useMutationNotice = (
 	mutationId: string,
-	messages?: MutationNoticeMessages,
-	mutationState: MutationNoticeState | null = null
+	mutationState: MutationNoticeState | null = null,
+	messages: MutationNoticeMessages = {}
 ) => {
 	const { setNotice, hasNotice, removeNotice } = useNotices();
+
+	const defaultMessages = {
+		savingMessage: __( 'Saving…', 'jetpack-boost' ),
+		errorMessage: __(
+			'An error occurred while saving changes. Please, try again.',
+			'jetpack-boost'
+		),
+		successMessage: __( 'Changes saved.', 'jetpack-boost' ),
+
+	};
+
 	const {
-		savingMessage = messages?.savingMessage ?? __( 'Saving…', 'jetpack-boost' ),
-		errorMessage = messages?.errorMessage ?? __( 'An error occurred while saving changes.', 'jetpack-boost' ),
-		successMessage = messages?.successMessage ?? __( 'Changes saved.', 'jetpack-boost' ),
-	} = messages ?? {};
+		savingMessage,
+		errorMessage,
+		successMessage,
+	} = {...defaultMessages, ...messages};
 
 
 	const { isSuccess, isError, isPending, isIdle, reset } = useMemo( () => {
