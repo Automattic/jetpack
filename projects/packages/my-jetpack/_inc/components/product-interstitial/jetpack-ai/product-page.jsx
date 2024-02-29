@@ -1,20 +1,31 @@
 /**
  * External dependencies
  */
-import { AdminPage, Col, Container, JetpackLogo, AiIcon } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	Col,
+	Container,
+	JetpackLogo,
+	AiIcon,
+	getRedirectUrl,
+} from '@automattic/jetpack-components';
 import { Button, Card } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
 import classnames from 'classnames';
+import debugFactory from 'debug';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import useAnalytics from '../../../hooks/use-analytics';
 import { useGoBack } from '../../../hooks/use-go-back';
+import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../../hooks/use-product';
 import GoBackLink from '../../go-back-link';
 import styles from './style.module.scss';
 
+const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-page' );
 /**
  * Product Page for Jetpack AI
  * @returns {object} React component for the product page
@@ -22,7 +33,7 @@ import styles from './style.module.scss';
 export default function () {
 	const { onClickGoBack } = useGoBack( 'jetpack-ai' );
 	const { detail } = useProduct( 'jetpack-ai' );
-	const { description } = detail;
+	const { description, 'ai-assistant-feature': aiAssistantFeature } = detail;
 
 	const videoTitle1 = __(
 		'Generate and edit content faster with Jetpack AI Assistant',
@@ -31,9 +42,43 @@ export default function () {
 	const videoTitle2 = __( 'Build forms using prompts', 'jetpack-my-jetpack' );
 	const videoTitle3 = __( 'Get feedback on posts', 'jetpack-my-jetpack' );
 
+	debug( aiAssistantFeature );
+	const {
+		'requests-count': allTimeRequests,
+		'current-tier': currentTier,
+		'next-tier': nextTier,
+		'usage-period': usage,
+	} = aiAssistantFeature || {};
+
+	const hasUnlimited = currentTier?.value === 1;
+	const isFree = currentTier?.value === 0;
+	const hasPaidTier = ! isFree && ! hasUnlimited;
+	const shouldContactUs = ! hasUnlimited && hasPaidTier && ! nextTier;
+	const freeRequestsLeft = isFree && 20 - allTimeRequests >= 0 ? 20 - allTimeRequests : 0;
+	const showCurrentUsage = hasPaidTier && ! isFree;
+	const showAllTimeUsage = hasPaidTier || hasUnlimited;
+	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
+
+	const navigateToPricingTable = useMyJetpackNavigate( '/add-jetpack-ai' );
+	const { recordEvent } = useAnalytics();
+
 	const onCreateClick = useCallback( () => {
 		// console.log( 'click' );
 	}, [] );
+
+	const contactClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_ai_upgrade_contact_us', { placement: 'product-page' } );
+	}, [ recordEvent ] );
+
+	const upgradeClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_ai_upgrade_button', {
+			placement: 'product-page',
+			context: 'my-jetpack',
+			current_tier_slug: currentTier?.slug || '',
+			requests_count: allTimeRequests,
+		} );
+		navigateToPricingTable();
+	}, [ recordEvent, allTimeRequests, currentTier, navigateToPricingTable ] );
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ true }>
@@ -69,37 +114,66 @@ export default function () {
 									'jetpack-my-jetpack'
 								) }
 							</div>
-							<Button
-								variant="primary"
-								onClick={ onCreateClick }
-								className={ styles[ 'product-interstitial__hero-cta' ] }
-							>
-								{ __( 'Get more requests', 'jetpack-my-jetpack' ) }
-							</Button>
+							{ ! shouldContactUs && ! hasUnlimited && (
+								<Button
+									variant="primary"
+									onClick={ upgradeClickHandler }
+									className={ styles[ 'product-interstitial__hero-cta' ] }
+								>
+									{ __( 'Get more requests', 'jetpack-my-jetpack' ) }
+								</Button>
+							) }
+							{ shouldContactUs && (
+								<Button
+									variant="primary"
+									onClick={ contactClickHandler }
+									href={ contactHref }
+									className={ styles[ 'product-interstitial__hero-cta' ] }
+								>
+									{ __( 'Contact Us', 'jetpack-my-jetpack' ) }
+								</Button>
+							) }
 						</div>
 						<div className={ styles[ 'product-interstitial__hero-side' ] }>
-							<Card className={ styles[ 'stats-card' ] }>
-								<AiIcon />
-								<div>
-									<div className={ styles[ 'product-interstitial__stats-card-text' ] }>
-										{ __( 'Requests for this month', 'jetpack-my-jetpack' ) }
+							{ showCurrentUsage && (
+								<Card className={ styles[ 'stats-card' ] }>
+									<AiIcon />
+									<div>
+										<div className={ styles[ 'product-interstitial__stats-card-text' ] }>
+											{ __( 'Requests for this month', 'jetpack-my-jetpack' ) }
+										</div>
+										<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
+											{ currentTier.value - usage[ 'requests-count' ] }
+										</div>
 									</div>
-									<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
-										{ '234' }
+								</Card>
+							) }
+							{ showAllTimeUsage && (
+								<Card className={ styles[ 'stats-card' ] }>
+									<Icon icon={ check } className={ styles[ 'stats-card-icon-check' ] } />
+									<div>
+										<div className={ styles[ 'product-interstitial__stats-card-text' ] }>
+											{ __( 'All-time requests used', 'jetpack-my-jetpack' ) }
+										</div>
+										<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
+											{ allTimeRequests }
+										</div>
 									</div>
-								</div>
-							</Card>
-							<Card className={ styles[ 'stats-card' ] }>
-								<Icon icon={ check } className={ styles[ 'stats-card-icon-check' ] } />
-								<div>
-									<div className={ styles[ 'product-interstitial__stats-card-text' ] }>
-										{ __( 'All-time requests used', 'jetpack-my-jetpack' ) }
+								</Card>
+							) }
+							{ isFree && (
+								<Card className={ styles[ 'stats-card' ] }>
+									<Icon icon={ check } className={ styles[ 'stats-card-icon-check' ] } />
+									<div>
+										<div className={ styles[ 'product-interstitial__stats-card-text' ] }>
+											{ __( 'Free requests available', 'jetpack-my-jetpack' ) }
+										</div>
+										<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
+											{ freeRequestsLeft }
+										</div>
 									</div>
-									<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
-										{ '234' }
-									</div>
-								</div>
-							</Card>
+								</Card>
+							) }
 						</div>
 					</div>
 				</Col>
