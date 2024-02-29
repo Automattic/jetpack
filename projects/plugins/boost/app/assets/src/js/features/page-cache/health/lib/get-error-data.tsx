@@ -180,7 +180,7 @@ const messages: { [ key: string ]: { title: string; message: React.ReactNode } }
 			sprintf(
 				// translators: %s refers to wp-config.php.
 				__(
-					`Jetpack Boost can't enable caching because the <code>%s</code> file is not writable. This file must be writable to activate caching, which speeds up your site. For instructions on how to make this change, <link>please click here.</link>`,
+					`The configuration file, <code>%s</code>, is not writable. This file must be writable to activate caching. For instructions on how to make this change, <link>please click here.</link>`,
 					'jetpack-boost'
 				),
 				'wp-config.php'
