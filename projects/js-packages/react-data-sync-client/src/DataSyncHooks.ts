@@ -286,7 +286,7 @@ export function useDataSyncAction<
 	ActionResult,
 	CurrentState
 > ) {
-	const mutationKey = buildQueryKey( `${ key }_${ action_name }`, params );
+	const queryKey = buildQueryKey( key, params );
 	const datasync = new DataSync( namespace, key, schema.state );
 	const mutationConfigDefaults: UseMutationOptions<
 		ActionResult,
@@ -296,7 +296,7 @@ export function useDataSyncAction<
 			previousValue: CurrentState;
 		}
 	> = {
-		mutationKey,
+		mutationKey: queryKey,
 		mutationFn: async ( value: ActionRequestData ) => {
 			const result = await datasync.ACTION(
 				action_name,
@@ -304,40 +304,40 @@ export function useDataSyncAction<
 				schema.action_response
 			);
 			try {
-				const currentValue = queryClient.getQueryData< CurrentState >( mutationKey );
+				const currentValue = queryClient.getQueryData< CurrentState >( queryKey );
 				const processedResult = await callbacks.onResult( result, currentValue );
 
 				const data =
 					processedResult === undefined ? currentValue : schema.state.parse( processedResult );
 				if ( processedResult !== undefined ) {
-					queryClient.setQueryData( mutationKey, data );
+					queryClient.setQueryData( queryKey, data );
 				}
 				return data;
 			} catch ( e ) {
-				return queryClient.getQueryData( mutationKey );
+				return queryClient.getQueryData( queryKey );
 			}
 		},
 		onMutate: async ( requestData: ActionRequestData ) => {
 			// Cancel any outgoing refetches
 			// (so they don't overwrite our optimistic update)
-			await queryClient.cancelQueries( { queryKey: mutationKey } );
+			await queryClient.cancelQueries( { queryKey: queryKey } );
 
 			// Snapshot the previous value
-			const previousValue = queryClient.getQueryData< CurrentState >( mutationKey );
+			const previousValue = queryClient.getQueryData< CurrentState >( queryKey );
 
 			if ( callbacks.optimisticUpdate ) {
 				const value = await callbacks.optimisticUpdate( requestData, previousValue );
-				queryClient.setQueryData( mutationKey, value );
+				queryClient.setQueryData( queryKey, value );
 			}
 
 			// Return a context object with the snapshotted value
 			return { previousValue };
 		},
 		onError: ( _, __, context ) => {
-			queryClient.setQueryData( mutationKey, context.previousValue );
+			queryClient.setQueryData( queryKey, context.previousValue );
 		},
 		onSettled: () => {
-			queryClient.invalidateQueries( { queryKey: mutationKey } );
+			queryClient.invalidateQueries( { queryKey } );
 		},
 	};
 
