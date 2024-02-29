@@ -7,10 +7,13 @@ import { Spinner, BoostScoreBar } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useEffect, useState } from 'react';
+import { arrowUp, Icon } from '@wordpress/icons';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
+import { useProduct } from '../../../hooks/use-product';
+import { PRODUCT_STATUSES } from '../../product-card/action-button';
 import { useBoostTooltipCopy } from './use-boost-tooltip-copy';
 import type { FC } from 'react';
 
@@ -20,13 +23,21 @@ const BoostSpeedScore: FC = () => {
 	const { recordEvent } = useAnalytics();
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( '' );
-	const [ averageSpeedScore, setAverageSpeedScore ] = useState( 0 );
+	const [ averageSpeedScore, setAverageSpeedScore ] = useState< number | null >( null );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
 	const [ isTooltipVisible, setIsTooltipVisible ] = useState( false );
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
 	const { siteUrl = '', latestBoostSpeedScores } = getMyJetpackWindowInitialState();
 	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
+	const slug = 'boost';
+	const { detail } = useProduct( slug );
+	const { status } = detail;
+	const isBoostActive =
+		status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
+
+	const TODAYS_SCORE_CACHE_KEY = 'MyJetpackTodaysBoostScore';
+	const DAY_IN_MILLISECONDS = 86400000;
 
 	const getAverageSpeedScore = ( mobileScore, desktopScore ) => {
 		return Math.round( ( mobileScore + desktopScore ) / 2 );
@@ -41,18 +52,63 @@ const BoostSpeedScore: FC = () => {
 		);
 	};
 
+	const setTodaysScoreCache = ( score: number, letter: string ) => {
+		const now = new Date();
+
+		const storageItem = {
+			score: score,
+			letter: letter,
+			expiry: now.getTime() + DAY_IN_MILLISECONDS,
+		};
+		localStorage.setItem( TODAYS_SCORE_CACHE_KEY, JSON.stringify( storageItem ) );
+	};
+
+	const getTodaysScoreCache = (): { score: number; letter: string } => {
+		const storageItem = localStorage.getItem( TODAYS_SCORE_CACHE_KEY );
+
+		if ( ! storageItem ) {
+			return null;
+		}
+
+		const item: { score: number; letter: string; expiry: number } = JSON.parse( storageItem );
+		const now = new Date();
+
+		// compare the expiry time of the item with the current time
+		if ( now.getTime() > item.expiry ) {
+			// If the item is expired, delete the item from storage
+			localStorage.removeItem( TODAYS_SCORE_CACHE_KEY );
+			return null;
+		}
+		return item;
+	};
+
 	const getSpeedScores = async () => {
 		if ( ! isSiteConnected ) {
+			// Don't show the Boost Score
 			setIsSpeedScoreError( true );
 			return;
 		}
 
+		// First look if today's score is cached in localStorage.
+		const todaysCachedScore = getTodaysScoreCache();
+		if ( todaysCachedScore ) {
+			setAverageSpeedScore( todaysCachedScore.score );
+			setSpeedLetterGrade( todaysCachedScore.letter );
+			return;
+		}
+
+		// If scores not cached, fetch the scores.
 		setIsLoading( true );
 		try {
 			const scores = await requestSpeedScores( true, apiRoot, siteUrl, apiNonce );
+			const speedScoreAverage = getAverageSpeedScore(
+				scores.current.mobile,
+				scores.current.desktop
+			);
 			const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
+			setTodaysScoreCache( speedScoreAverage, scoreLetter );
+			setAverageSpeedScore( speedScoreAverage );
 			setSpeedLetterGrade( scoreLetter );
-			setAverageSpeedScore( getAverageSpeedScore( scores.current.mobile, scores.current.desktop ) );
 			setIsLoading( false );
 		} catch ( err ) {
 			recordEvent( 'jetpack_boost_speed_score_error', {
@@ -61,11 +117,11 @@ const BoostSpeedScore: FC = () => {
 				error: err,
 			} );
 
-			// If error, use cached speed scores if they exist
+			// If error, use the cached "latest" speed scores if they exist
 			if ( latestBoostSpeedScores && latestBoostSpeedScores.scores ) {
 				setScoresFromCache( latestBoostSpeedScores );
 			} else {
-				// Hide score bars if error and no cached scores
+				// Hide Boost scores if error and no cached scores
 				setIsSpeedScoreError( true );
 			}
 
@@ -73,7 +129,23 @@ const BoostSpeedScore: FC = () => {
 		}
 	};
 
-	const tooltipCopy = useBoostTooltipCopy( { speedLetterGrade } );
+	const boostScoreIncrease = useMemo( () => {
+		if ( ! latestBoostSpeedScores || ! averageSpeedScore ) {
+			return null;
+		}
+		const { scores } = latestBoostSpeedScores;
+		const { mobile, desktop } = scores;
+		const latestScoresAverage = getAverageSpeedScore( mobile, desktop );
+
+		// Only return an increase. Don't return a negative value (decrease).
+		if ( averageSpeedScore < latestScoresAverage ) {
+			return null;
+		}
+
+		return averageSpeedScore - latestScoresAverage;
+	}, [ averageSpeedScore, latestBoostSpeedScores ] );
+
+	const tooltipCopy = useBoostTooltipCopy( { speedLetterGrade, boostScoreIncrease } );
 
 	const handleTooltipMouseEnter = useCallback( () => {
 		setIsTooltipVisible( true );
@@ -84,12 +156,16 @@ const BoostSpeedScore: FC = () => {
 	}, [ setIsTooltipVisible ] );
 
 	useEffect( () => {
-		// Use cache scores if they are less than 21 days old.
-		if (
-			latestBoostSpeedScores &&
-			calculateDaysSince( latestBoostSpeedScores.timestamp * 1000 ) < 21
-		) {
-			setScoresFromCache( latestBoostSpeedScores );
+		if ( latestBoostSpeedScores ) {
+			if ( isBoostActive ) {
+				getSpeedScores();
+			} else if ( calculateDaysSince( latestBoostSpeedScores.timestamp * 1000 ) < 14 ) {
+				// When Boost plugin is not installed or activated, use cache scores if they are less than 2 weeks old (14 days).
+				setScoresFromCache( latestBoostSpeedScores );
+			} else {
+				// Boost is not active and cached scores are older than 2 weeks.
+				getSpeedScores();
+			}
 		} else {
 			getSpeedScores();
 		}
@@ -132,7 +208,13 @@ const BoostSpeedScore: FC = () => {
 						</div>
 						<div className="mj-boost-speed-score__bar">
 							<BoostScoreBar
-								score={ averageSpeedScore }
+								score={
+									averageSpeedScore ||
+									getAverageSpeedScore(
+										latestBoostSpeedScores.scores.mobile,
+										latestBoostSpeedScores.scores.desktop
+									)
+								}
 								active={ averageSpeedScore > 0 }
 								isLoading={ isLoading }
 								showPrevScores={ false }
@@ -140,6 +222,12 @@ const BoostSpeedScore: FC = () => {
 								noBoostScoreTooltip={ null }
 							/>
 						</div>
+						{ !! boostScoreIncrease && (
+							<div className="mj-boost-speed-score__increase">
+								<Icon size={ 18 } icon={ arrowUp } />
+								<span>{ boostScoreIncrease }</span>
+							</div>
+						) }
 					</>
 				) }
 			</div>
