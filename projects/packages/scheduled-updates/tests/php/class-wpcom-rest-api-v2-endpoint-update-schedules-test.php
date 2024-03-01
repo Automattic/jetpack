@@ -184,7 +184,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	/**
 	 * Can't have multiple schedules for the same time.
 	 *
-	 * @covers ::create_item_permissions_check
+	 * @covers ::validate_schedule
 	 */
 	public function test_creating_schedules_for_same_time() {
 		$plugins = array(
@@ -216,7 +216,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	/**
 	 * Can't have more than two schedules.
 	 *
-	 * @covers ::create_item_permissions_check
+	 * @covers ::validate_schedule
 	 */
 	public function test_creating_more_than_two_schedules() {
 		$plugins = array(
@@ -242,6 +242,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 				),
 			)
 		);
+
+		wp_set_current_user( $this->admin_id );
 		$result = rest_do_request( $request );
 
 		$this->assertSame( 403, $result->get_status() );
