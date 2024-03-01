@@ -155,10 +155,24 @@ class Filesystem_Utils {
 	public static function create_directory( $path ) {
 		if ( ! is_dir( $path ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.dir_mkdir_dirname, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir, WordPress.PHP.NoSilencedErrors.Discouraged
-			return @mkdir( $path, 0755, true );
+			$dir_created = @mkdir( $path, 0755, true );
+
+			if ( $dir_created ) {
+				self::create_empty_index_file( $path );
+			}
+
+			return $dir_created;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Create an empty index.php file in the given directory.
+	 * This is done to prevent directory listing.
+	 */
+	private static function create_empty_index_file( $path ) {
+		return self::write_to_file( $path . '/index.php', '<?php' . PHP_EOL . '// Silence is golden' );
 	}
 
 	/**
