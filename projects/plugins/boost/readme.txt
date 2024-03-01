@@ -183,13 +183,20 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.1.0-beta-2 - 2024-02-23
+### 3.1.0-beta-2 - 2024-03-01
 #### Added
+- Cache: Include GET parameters in the Added the GET parameters to the data logged.
+- Cache: Added actions that third party code can trigger to clear cache.
 - Cache: Added a Page Cache module.
+- Cache: Added header indicating cache hit or miss.
+- Cache: Added page-cache to the feature list in getting-started page.
+- Cache: Detect WP Super Cache and customize advanced-cache.php exists message.
 - Defer JS: Automatically exclude JSON-LD schemas.
 - Speed Scores: Added support for annotating points of time in the speed score history graph.
 
 #### Changed
+- Cache: Save log lines as json for better presentation.
+- Cache: Updated error messages to make them user-friendlier.
 - General: Better error handling for invalid data when running wp-admin pages.
 - General: Enabled React.StrictMode for development.
 - General: Improved error handling with ErrorBoundary around SpeedScore and Module components.
@@ -198,9 +205,15 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - Image Guide: Removed beta flag
 
 #### Fixed
+- Boost: Invalidate Author pages when pages are edited.
+- Cache: Restore error message formatting.
+- Cache: Stop serving expired cache files.
+- Critical CSS: Prevent errors when page_for_posts misconfigured.
 - Critical CSS: Prevent missing archive pages from breaking the generation process.
 - General: Prevent missing pricing information from affecting the getting started flow.
 - Image Size Analysis: Update summary groups to align with status icons.
+- Improved error handling and response formatting in DataSync client and PHP classes. Simplified page cache setup in Jetpack Boost.
+- Jetpack Boost: Enhanced page cache module state management and error messaging.
 - JS and CSS concat: Ensure minification is enabled.
 
 --------

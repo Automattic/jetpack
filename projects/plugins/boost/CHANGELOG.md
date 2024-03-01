@@ -5,13 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.1.0-beta-2] - 2024-02-23
+## [3.1.0-beta-2] - 2024-03-01
 ### Added
+- Cache: Include GET parameters in the Added the GET parameters to the data logged. [#35985]
+- Cache: Added actions that third party code can trigger to clear cache. [#35946]
 - Cache: Added a Page Cache module. [#35042]
+- Cache: Added header indicating cache hit or miss. [#36008]
+- Cache: Added page-cache to the feature list in getting-started page. [#35950]
+- Cache: Detect WP Super Cache and customize advanced-cache.php exists message. [#36018]
 - Defer JS: Automatically exclude JSON-LD schemas. [#35417]
 - Speed Scores: Added support for annotating points of time in the speed score history graph. [#34978]
 
 ### Changed
+- Cache: Save log lines as json for better presentation. [#36011]
+- Cache: Updated error messages to make them user-friendlier. [#36048]
 - General: Better error handling for invalid data when running wp-admin pages. [#35361]
 - General: Enabled React.StrictMode for development. [#35330]
 - General: Improved error handling with ErrorBoundary around SpeedScore and Module components. [#35543]
@@ -20,9 +27,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Image Guide: Removed beta flag
 
 ### Fixed
+- Boost: Invalidate Author pages when pages are edited. [#35942]
+- Cache: Restore error message formatting. [#36015]
+- Cache: Stop serving expired cache files. [#35978]
+- Critical CSS: Prevent errors when page_for_posts misconfigured. [#36007]
 - Critical CSS: Prevent missing archive pages from breaking the generation process. [#35561]
 - General: Prevent missing pricing information from affecting the getting started flow. [#35347]
 - Image Size Analysis: Update summary groups to align with status icons. [#35419]
+- Improved error handling and response formatting in DataSync client and PHP classes. Simplified page cache setup in Jetpack Boost. [#35962]
+- Jetpack Boost: Enhanced page cache module state management and error messaging. [#36022]
 - JS and CSS concat: Ensure minification is enabled. [#35498]
 
 ## [3.0.2] - 2024-01-31
