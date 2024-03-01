@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Class responsible for handling the Social product
@@ -142,6 +143,12 @@ class Social extends Hybrid_Product {
 	 * @return boolean
 	 */
 	public static function has_required_plan() {
+		// For atomic sites, do a feature check to see if the republicize feature is available
+		// This feature is available by default on all Jetpack sites
+		if ( ( new Host() )->is_woa_site() ) {
+			return static::does_site_have_feature( 'republicize' );
+		}
+
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;

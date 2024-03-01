@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Client Portal: Catch error if Woo order associated with invoice is deleted.

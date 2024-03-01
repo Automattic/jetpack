@@ -3,12 +3,13 @@
 /**
  * Jetpack Boost Active Modules
  *
- * Since the speed scores API will only be used in the Jetpack plugin if Jetpack Boost is uninstalled
- * all we need is to pass along this placeholder class for the modules that essentially tells the API
- * the user doesn't have any Boost modules active.
+ * Since the speed scores API will be used in the Jetpack plugin and in the My Jetpack, if Jetpack Boost
+ * is uninstalled, all we need is to pass along this placeholder class for the modules that essentially
+ * tells the API the user doesn't have any Boost modules active.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack/boost_speed_score
  */
+namespace Automattic\Jetpack\Boost_Speed_Score;
 
 /**
  * Jetpack Boost Modules
