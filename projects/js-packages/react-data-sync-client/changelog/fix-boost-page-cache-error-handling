@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+DataSync: Add `isIdle` and `reset` to DataSyncSubset
