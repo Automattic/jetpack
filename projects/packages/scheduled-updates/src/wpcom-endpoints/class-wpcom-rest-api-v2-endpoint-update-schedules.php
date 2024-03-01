@@ -169,6 +169,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $event;
 		}
 
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+
 		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
 			// Remove the plugins that are now updated on a schedule from the auto-update list.
 			$auto_update_plugins = get_option( 'auto_update_plugins', array() );
@@ -280,6 +282,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
+
+		require_once ABSPATH . 'wp-admin/includes/update.php';
 
 		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
 			// Add the plugins that are no longer updated on a schedule to the auto-update list.
