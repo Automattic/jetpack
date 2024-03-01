@@ -100,6 +100,7 @@ class Defaults {
 		'jetpack_sync_settings_taxonomies_blacklist',
 		'jetpack_sync_settings_dedicated_sync_enabled', // is Dedicated Sync flow enabled.
 		'jetpack_sync_settings_custom_queue_table_enabled', // is custom queue table enabled.
+		'jetpack_sync_settings_use_rest_api_for_sending', // is sync rest api used for sending.
 		'jetpack_testimonial',
 		'jetpack_testimonial_posts_per_page',
 		'jetpack_wga',
