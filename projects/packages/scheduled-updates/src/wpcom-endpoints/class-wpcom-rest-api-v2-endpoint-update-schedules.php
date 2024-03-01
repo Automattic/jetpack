@@ -327,10 +327,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$plugins = $request['plugins'];
 		usort( $plugins, 'strnatcasecmp' );
 
+		$editable_methods  = explode( ', ', WP_REST_Server::EDITABLE );
+		$is_update_request = in_array( $request->get_method(), $editable_methods, true );
+
 		foreach ( $events as $key => $event ) {
 
 			// We'll update this schedule, so none of the checks apply.
-			if ( 'PUT' === $request->get_method() && $key === $request['schedule_id'] ) {
+			if ( $is_update_request && $key === $request['schedule_id'] ) {
 				continue;
 			}
 
