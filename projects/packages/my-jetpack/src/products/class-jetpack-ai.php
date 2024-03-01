@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
@@ -502,5 +503,62 @@ class Jetpack_Ai extends Product {
 	 */
 	private static function is_site_connected() {
 		return ( new Connection_Manager() )->is_connected();
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * NOTE: this method is the only thing that resembles an initialization for the product.
+	 *
+	 * @return void
+	 */
+	public static function extend_plugin_action_links() {
+		add_action( 'admin_enqueue_scripts', array( static::class, 'admin_enqueue_scripts' ) );
+		add_filter( 'default_content', array( static::class, 'add_ai_block' ), 10, 2 );
+	}
+
+	/**
+	 * Enqueue the AI Assistant script
+	 *
+	 * The script is just a global variable used for the nonce, needed for the create post link.
+	 *
+	 * @return void
+	 */
+	public static function admin_enqueue_scripts() {
+		wp_register_script(
+			'my_jetpack_ai_app',
+			false,
+			array(),
+			Initializer::PACKAGE_VERSION,
+			array( 'in_footer' => true )
+		);
+		wp_localize_script(
+			'my_jetpack_ai_app',
+			'jetpackAi',
+			array(
+				'nonce' => wp_create_nonce( 'ai-assistant-content-nonce' ),
+			)
+		);
+		wp_enqueue_script( 'my_jetpack_ai_app' );
+	}
+
+	/**
+	 * Add AI block to the post content
+	 *
+	 * Used only from the link on the product page, the filter will insert an AI Assistant block in the post content.
+	 *
+	 * @param string  $content The post content.
+	 * @param WP_Post $post The post object.
+	 * @return string
+	 */
+	public static function add_ai_block( $content, $post ) {
+		if ( isset( $_GET['use_ai_block'] ) && isset( $_GET['_wpnonce'] )
+			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'ai-assistant-content-nonce' )
+			&& current_user_can( 'edit_post', $post->ID )
+			&& '' === $content
+		) {
+			return '<!-- wp:jetpack/ai-assistant /-->';
+		}
+		return $content;
 	}
 }

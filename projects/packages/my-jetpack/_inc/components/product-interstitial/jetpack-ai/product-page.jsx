@@ -47,7 +47,7 @@ export default function () {
 
 	debug( aiAssistantFeature );
 	const {
-		'requests-count': allTimeRequests,
+		'requests-count': allTimeRequests = 0,
 		'current-tier': currentTier,
 		'next-tier': nextTier,
 		'usage-period': usage,
@@ -57,14 +57,20 @@ export default function () {
 	const hasUnlimited = currentTier?.value === 1;
 	const isFree = currentTier?.value === 0;
 	const hasPaidTier = ! isFree && ! hasUnlimited;
-	const shouldContactUs = ! hasUnlimited && hasPaidTier && ! nextTier;
+	const shouldContactUs = ! hasUnlimited && hasPaidTier && ! nextTier && currentTier;
 	const freeRequestsLeft = isFree && 20 - allTimeRequests >= 0 ? 20 - allTimeRequests : 0;
-	const showCurrentUsage = hasPaidTier && ! isFree;
+	const showCurrentUsage = hasPaidTier && ! isFree && usage;
 	const showAllTimeUsage = hasPaidTier || hasUnlimited;
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
+	const newPostURL = 'post-new.php?use_ai_block=1&_wpnonce=' + window?.jetpackAi?.nonce;
 
 	const showRenewalNotice = isOverLimit && hasPaidTier;
 	const showUpgradeNotice = isOverLimit && isFree;
+
+	const currentTierValue = currentTier?.value || 0;
+	const currentUsage = usage?.[ 'requests-count' ] || 0;
+	const tierRequestsLeft =
+		currentTierValue - currentUsage >= 0 ? currentTierValue - currentUsage : 0;
 
 	const renewalNoticeTitle = __(
 		"You've reached your request limit for this month",
@@ -78,7 +84,7 @@ export default function () {
 			'Wait for %d days to reset your limit, or upgrade now to a higher tier for additional requests and keep your work moving forward.',
 			'jetpack-my-jetpack'
 		),
-		Math.floor( ( new Date( usage[ 'next-start' ] ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
+		Math.floor( ( new Date( usage?.[ 'next-start' ] ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
 	);
 	const upgradeNoticeBody = __(
 		'Reach for More with Jetpack AI! Upgrade now for additional requests and keep your momentum going.',
@@ -93,10 +99,6 @@ export default function () {
 
 	const navigateToPricingTable = useMyJetpackNavigate( '/add-jetpack-ai' );
 	const { recordEvent } = useAnalytics();
-
-	const onCreateClick = useCallback( () => {
-		// console.log( 'click' );
-	}, [] );
 
 	const contactClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_ai_upgrade_contact_us', { placement: 'product-page' } );
@@ -181,9 +183,7 @@ export default function () {
 											{ __( 'Requests for this month', 'jetpack-my-jetpack' ) }
 										</div>
 										<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
-											{ currentTier.value - usage[ 'requests-count' ] >= 0
-												? currentTier.value - usage[ 'requests-count' ]
-												: 0 }
+											{ tierRequestsLeft }
 										</div>
 									</div>
 								</Card>
@@ -267,7 +267,7 @@ export default function () {
 									<Button
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
 										icon={ plus }
-										onClick={ onCreateClick }
+										href={ newPostURL }
 									>
 										{ __( 'Create new post', 'jetpack-my-jetpack' ) }
 									</Button>
@@ -298,7 +298,8 @@ export default function () {
 									<Button
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
 										icon={ help }
-										onClick={ onCreateClick }
+										target="_blank"
+										href="https://jetpack.com/support/jetpack-blocks/contact-form/#forms-with-ai"
 									>
 										{ __( 'Learn about forms', 'jetpack-my-jetpack' ) }
 									</Button>
@@ -329,7 +330,8 @@ export default function () {
 									<Button
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
 										icon={ help }
-										onClick={ onCreateClick }
+										target="_blank"
+										href="https://jetpack.com/support/jetpack-blocks/jetpack-ai-assistant-block/"
 									>
 										{ __( 'Learn more', 'jetpack-my-jetpack' ) }
 									</Button>
