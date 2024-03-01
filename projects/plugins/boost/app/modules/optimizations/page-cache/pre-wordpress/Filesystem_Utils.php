@@ -39,8 +39,8 @@ class Filesystem_Utils {
 					if ( $file->isDir() ) {
 						Logger::debug( 'rmdir: ' . $file->getPathname() );
 						@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-					} elseif ( $file->getFilename() !== 'index.php' ) {
-						// Delete all files except index.php. index.php is used to prevent directory listing.
+					} elseif ( $file->getFilename() !== 'index.html' ) {
+						// Delete all files except index.html. index.html is used to prevent directory listing.
 						Logger::debug( 'unlink: ' . $file->getPathname() );
 						@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 					}
@@ -48,8 +48,8 @@ class Filesystem_Utils {
 				@rmdir( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged,
 				break;
 			case self::DELETE_FILES: // delete all files in the given directory.
-				// Files to delete are all files in the given directory, except index.php. index.php is used to prevent directory listing.
-				$files = array_diff( scandir( $path ), array( '.', '..', 'index.php' ) );
+				// Files to delete are all files in the given directory, except index.html. index.html is used to prevent directory listing.
+				$files = array_diff( scandir( $path ), array( '.', '..', 'index.html' ) );
 				foreach ( $files as $file ) {
 					$file = $path . '/' . $file;
 					if ( is_file( $file ) ) {
@@ -104,7 +104,7 @@ class Filesystem_Utils {
 
 		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 		while ( false !== ( $file = readdir( $handle ) ) ) {
-			if ( $file === '.' || $file === '..' || $file === 'index.php' ) {
+			if ( $file === '.' || $file === '..' || $file === 'index.html' ) {
 				// Skip and continue to next file
 				continue;
 			}
@@ -142,8 +142,8 @@ class Filesystem_Utils {
 		}
 
 		if ( $is_dir_empty === true ) {
-			// Directory is considered empty even if it has an index.php file. Delete it it first.
-			self::delete_file( $directory . '/index.php' );
+			// Directory is considered empty even if it has an index.html file. Delete it it first.
+			self::delete_file( $directory . '/index.html' );
 
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 			@rmdir( $directory );
@@ -173,14 +173,14 @@ class Filesystem_Utils {
 	}
 
 	/**
-	 * Create an empty index.php file in the given directory.
+	 * Create an empty index.html file in the given directory.
 	 * This is done to prevent directory listing.
 	 */
 	private static function create_empty_index_files( $path ) {
 		if ( self::is_boost_cache_directory( $path ) ) {
-			self::write_to_file( $path . '/index.php', '<?php' . PHP_EOL . '// Silence is golden' );
+			self::write_to_file( $path . '/index.html', '' );
 
-			// Create an empty index.php file in the parent directory as well.
+			// Create an empty index.html file in the parent directory as well.
 			self::create_empty_index_files( dirname( $path ) );
 		}
 	}
@@ -213,7 +213,7 @@ class Filesystem_Utils {
 			return new Boost_Cache_Error( 'directory_not_readable', 'Directory is not readable' );
 		}
 
-		$files = array_diff( scandir( $dir ), array( '.', '..', 'index.php' ) );
+		$files = array_diff( scandir( $dir ), array( '.', '..', 'index.html' ) );
 		return empty( $files );
 	}
 
