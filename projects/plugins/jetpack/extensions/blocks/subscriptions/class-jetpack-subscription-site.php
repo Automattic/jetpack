@@ -144,23 +144,39 @@ class Jetpack_Subscription_Site {
 							'justifyContent' => 'stretch',
 						),
 					);
+
 					if ( ! empty( $anchor_block['attrs']['layout']['type'] ) ) {
 						$attrs['layout']['type'] = $anchor_block['attrs']['layout']['type'];
 					}
+
+					// translators: %s is the name of the site.
+					$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
+					$subscribe_text          = __( 'Subscribe to get latest posts to your email.', 'jetpack' );
+					$inner_content_begin     = <<<HTML
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"0px","bottom":"0px","left":"0px","right":"0px"},"margin":{"top":"32px","bottom":"32px"}},"border":{"width":"0px","style":"none"}},"className":"has-border-color","layout":{"type":"default"}} -->
+<div class="wp-block-group has-border-color" style="border-style:none;border-width:0px;margin-top:32px;margin-bottom:32px;padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px">
+	<!-- wp:separator {"style":{"spacing":{"margin":{"top":"var:preset|spacing|40","bottom":"64px"}}},"className":"is-style-wide"} -->
+	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" style="margin-top:var(--wp--preset--spacing--40);margin-bottom:64px"/>
+	<!-- /wp:separator -->
+
+	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
+	<h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px;font-size:26px;font-style:normal;font-weight:600">$discover_more_from_text</h2>
+	<!-- /wp:heading -->
+
+	<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"top":"4px","bottom":"0px"}}}} -->
+	<p class="has-text-align-center" style="margin-top:4px;margin-bottom:0px;font-size:15px">$subscribe_text</p>
+	<!-- /wp:paragraph -->
+HTML;
+					$inner_content_end       = '</div>';
 
 					return array(
 						'blockName'    => 'core/group',
 						'attrs'        => $attrs,
 						'innerBlocks'  => array( $hooked_block ),
 						'innerContent' => array(
-							'<div class="wp-block-group">
-								<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"300"}},"className":"has-text-align-center"} -->
-								<p class="has-text-align-center" style="font-style:normal;font-weight:300">
-									<em>Aliquam a ullamcorper lorem<br>Integer at tempus nibh</em>
-								</p>
-								<!-- /wp:paragraph -->',
+							$inner_content_begin,
 							null,
-							'</div>',
+							$inner_content_end,
 						),
 					);
 				}
