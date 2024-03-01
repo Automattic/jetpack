@@ -53,12 +53,13 @@ function load_assets( $attributes ) {
 			return sprintf(
 				'<p>%s</p>',
 				sprintf(
-					/* translators: placeholder is a link that says "Stats module". */
-					esc_html__( 'Please enable the %s in Jetpack to use this block.', 'jetpack' ),
+					/* translators: placeholder is a link that says "enable Jetpack Stats". */
+					esc_html__( 'Please %s to use this block.', 'jetpack' ),
 					'<a href="' .
 						esc_url( admin_url( 'admin.php?page=jetpack_modules&module_tag=Jetpack%20Stats' ) ) .
 						'">' .
-						esc_html__( 'Stats module', 'jetpack' ) .
+						/* translators: appears in string that says "Please enable Jetpack Stats". */
+						esc_html__( 'enable Jetpack Stats', 'jetpack' ) .
 					'</a>'
 				)
 			);
