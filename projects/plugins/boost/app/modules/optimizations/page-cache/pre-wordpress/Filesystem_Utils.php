@@ -104,7 +104,7 @@ class Filesystem_Utils {
 
 		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 		while ( false !== ( $file = readdir( $handle ) ) ) {
-			if ( $file === '.' || $file === '..' ) {
+			if ( $file === '.' || $file === '..' || $file === 'index.php' ) {
 				// Skip and continue to next file
 				continue;
 			}
@@ -142,6 +142,9 @@ class Filesystem_Utils {
 		}
 
 		if ( $is_dir_empty === true ) {
+			// Directory is considered empty even if it has an index.php file. Delete it it first.
+			self::delete_file( $directory . '/index.php' );
+
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 			@rmdir( $directory );
 		}
@@ -210,7 +213,8 @@ class Filesystem_Utils {
 			return new Boost_Cache_Error( 'directory_not_readable', 'Directory is not readable' );
 		}
 
-		return ( count( scandir( $dir ) ) === 2 ); // All directories have '.' and '..'
+		$files = array_diff( scandir( $dir ), array( '.', '..', 'index.php' ) );
+		return empty( $files );
 	}
 
 	/**
