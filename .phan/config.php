@@ -27,6 +27,7 @@ return array(
 	// Thus, both first-party and third-party code being used by
 	// your application should be included in this list.
 	'directory_list'                  => array(
+		'vendor/skaut/wordpress-stubs/stubs',
 		'projects',
 	),
 
@@ -40,6 +41,7 @@ return array(
 	. '|/vendor/.*'
 	. '|/wordpress/.*'
 	. '|node_modules/.*'
+	. '|preprocessors/.*'
 	. '@',
 
 	// A directory list that defines files that will be excluded
@@ -55,5 +57,6 @@ return array(
 	// and `exclude_analysis_directory_list` arrays.
 	'exclude_analysis_directory_list' => array(
 		'vendor/',
+		'vendor/skaut/wordpress-stubs/stubs',
 	),
 );
