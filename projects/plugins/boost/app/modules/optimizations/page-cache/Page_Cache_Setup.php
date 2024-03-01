@@ -141,15 +141,12 @@ $boost_cache->serve();
 	 * Adds the WP_CACHE define to wp-config.php
 	 */
 	private static function add_wp_cache_define() {
-		$config_file = ABSPATH . 'wp-config.php';
-
-		// Look for wp-config.php in the parent directory if it's not in the root of the site.
-		if ( ! file_exists( $config_file ) ) {
+		// Fomd the wp-config.php file.
+		if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
+			$config_file = ABSPATH . 'wp-config.php';
+		} elseif ( file_exists( dirname( ABSPATH ) . '/wp-config.php' ) && ! file_exists( dirname( ABSPATH ) . '/wp-settings.php' ) ) {
 			$config_file = dirname( ABSPATH ) . '/wp-config.php';
-		}
-
-		// If we still can't find it, return an error.
-		if ( ! file_exists( $config_file ) ) {
+		} else {
 			return new \WP_Error( 'wp-config-not-found' );
 		}
 
