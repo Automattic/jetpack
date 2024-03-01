@@ -3,7 +3,8 @@ workflows:
   main:
     jobs:
       - php74-build
-      - php8-build
+      - php80-build
+      - php81-build
       - public-access
       - private-access
 
@@ -11,7 +12,7 @@ version: 2
 
 job-references:
   mariadb_image: &mariadb_image
-    cimg/mariadb:10.3.36
+    cimg/mariadb:10.11
 
   setup_environment: &setup_environment
     name: "Setup Environment Variables"
@@ -22,10 +23,7 @@ job-references:
   install_dependencies: &install_dependencies
     name: "Install Dependencies"
     command: |
-      sudo apt-get update && sudo apt-get install subversion
-      sudo -E docker-php-ext-install mysqli
-      sudo sh -c "printf '\ndeb http://ftp.us.debian.org/debian sid main\n' >> /etc/apt/sources.list"
-      sudo apt-get update && sudo apt-get -y purge -o APT::Immediate-Configure=false libgcc-8-dev && sudo apt-get install rsync mariadb-client-10.3
+      sudo apt-get update && sudo apt-get install subversion mariadb-client rsync
 
   php_job: &php_job
     environment:
@@ -38,8 +36,8 @@ job-references:
       - run:
           name: "Run Tests"
           command: |
-            composer global require "phpunit/phpunit=^7.5" --ignore-platform-reqs
-            composer global require "yoast/phpunit-polyfills=^1.0.1" --ignore-platform-reqs
+            composer global require "phpunit/phpunit=^9.6" --ignore-platform-reqs --dev
+            composer global require "yoast/phpunit-polyfills" --ignore-platform-reqs --dev
             rm -rf $WP_TESTS_DIR $WP_CORE_DIR
             bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 latest
             echo "Building wpcomsh"
@@ -59,13 +57,19 @@ jobs:
   php74-build:
     <<: *php_job
     docker:
-      - image: circleci/php:7.4-buster
+      - image: cimg/php:7.4
       - image: *mariadb_image
 
-  php8-build:
+  php80-build:
     <<: *php_job
     docker:
-      - image: circleci/php:8.0-buster
+      - image: cimg/php:8.0
+      - image: *mariadb_image
+
+  php81-build:
+    <<: *php_job
+    docker:
+      - image: cimg/php:8.1
       - image: *mariadb_image
 
   public-access:
