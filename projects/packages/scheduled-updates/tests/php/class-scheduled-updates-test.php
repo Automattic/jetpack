@@ -55,33 +55,58 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		// Clean up the temporary plugin directory
 		$this->wp_filesystem->rmdir( $this->plugin_dir, true );
 
+		// Clean up the plugins cache created by get_plugins()
+		wp_cache_delete( 'plugins', 'plugins' );
+
 		parent::tear_down_wordbless();
 	}
 
 	/**
-	 * Simulate and test both managed and unmanaged plugins
+	 * Simulate and test unmanaged plugins
 	 *
 	 * @covers ::add_is_managed_extension_field
 	 */
-	public function test_mixed_plugins() {
+	public function test_unmanaged_plugins() {
 		// direct
-		$plugin_name = '1-direct-plugin';
+		$plugin_name = 'direct-plugin';
 		$this->wp_filesystem->mkdir( "$this->plugin_dir/$plugin_name" );
 		$this->populate_file_with_plugin_header( "$this->plugin_dir/$plugin_name/$plugin_name.php", 'direct-plugin' );
 
-		// managed
-		$plugin_name = '2-managed-plugin';
+		// make sure the directory exists
+		$this->assertTrue( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
+
+		$request       = new WP_REST_Request( 'GET', '/wp/v2/plugins' );
+		$result        = rest_do_request( $request );
+		$plugin_result = $result->get_data()[0];
+
+		$this->assertSame( 'direct-plugin', $plugin_result['textdomain'] );
+		$this->assertSame( false, $plugin_result['is_managed'] );
+	}
+
+	/**
+	 * Simulate and test managed plugins
+	 *
+	 * @covers ::add_is_managed_extension_field
+	 */
+	public function test_managed_plugins() {
+		// managed, we simulate a symlink to a subdirectory inside a wp directory
+		$plugin_name = 'managed-plugin';
 		$target_dir  = "$this->plugin_dir/wordpress";
 		$this->wp_filesystem->mkdir( $target_dir );
 		$this->wp_filesystem->mkdir( "$target_dir/$plugin_name" );
 		$this->populate_file_with_plugin_header( "$target_dir/$plugin_name/$plugin_name.php", 'managed-plugin' );
 		symlink( "$target_dir/$plugin_name", "$this->plugin_dir/$plugin_name" );
 
-		$request = new WP_REST_Request( 'GET', '/wp/v2/plugins' );
+		// make sure the symlink exists
+		$this->assertFalse( $this->wp_filesystem->is_dir( "$this->plugin_dir/direct-plugin" ) );
+		$this->assertTrue( is_link( "$this->plugin_dir/managed-plugin" ) );
 
-		$result = rest_do_request( $request );
-		$this->assertSame( false, $result->get_data()[0]['is_managed'] );
-		$this->assertSame( true, $result->get_data()[1]['is_managed'] );
+		$request       = new WP_REST_Request( 'GET', '/wp/v2/plugins' );
+		$result        = rest_do_request( $request );
+		$plugin_result = $result->get_data()[0];
+
+		$this->assertSame( 'managed-plugin', $plugin_result['textdomain'] );
+		$this->assertSame( true, $plugin_result['is_managed'] );
 	}
 
 	/**
