@@ -165,8 +165,7 @@ HTML;
 					$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
 					$subscribe_text          = __( 'Subscribe to get latest posts to your email.', 'jetpack' );
 					$inner_content_begin     = <<<HTML
-<!-- wp:group {"style":{"spacing":{"padding":{"top":"0px","bottom":"0px","left":"0px","right":"0px"},"margin":{"top":"32px","bottom":"32px"}},"border":{"width":"0px","style":"none"}},"className":"has-border-color","layout":{"type":"default"}} -->
-<div class="wp-block-group has-border-color" style="border-style:none;border-width:0px;margin-top:32px;margin-bottom:32px;padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px">
+<div class="wp-block-group">
 	<!-- wp:separator {"style":{"spacing":{"margin":{"top":"var:preset|spacing|40","bottom":"64px"}}},"className":"is-style-wide"} -->
 	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" style="margin-top:var(--wp--preset--spacing--40);margin-bottom:64px"/>
 	<!-- /wp:separator -->
