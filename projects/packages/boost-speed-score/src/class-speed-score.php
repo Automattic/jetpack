@@ -23,7 +23,7 @@ if ( ! defined( 'JETPACK_BOOST_REST_PREFIX' ) ) {
  */
 class Speed_Score {
 
-	const PACKAGE_VERSION = '0.3.5-alpha';
+	const PACKAGE_VERSION = '0.3.5';
 
 	/**
 	 * An instance of Automatic\Jetpack_Boost\Modules\Modules_Setup passed to the constructor
