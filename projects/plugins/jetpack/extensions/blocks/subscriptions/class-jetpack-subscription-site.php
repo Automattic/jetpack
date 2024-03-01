@@ -93,17 +93,29 @@ class Jetpack_Subscription_Site {
 						is_main_query() &&
 						$this->user_can_view_post()
 					) {
-						return $content . '
-	<!-- wp:group {"className":"wp-block-jetpack-subscriptions__subscribe_post_end","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
-	<div class="wp-block-group wp-block-jetpack-subscriptions__subscribe_post_end">
-		<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"300"}},"className":"has-text-align-center"} -->
-		<p class="has-text-align-center" style="font-style:normal;font-weight:300">
-			<em>Aliquam a ullamcorper lorem<br>Integer at tempus nibh</em>
-		</p>
-		<!-- /wp:paragraph -->
-		<!-- wp:jetpack/subscriptions /-->
-	</div>
-	<!-- /wp:group -->';
+						// translators: %s is the name of the site.
+						$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
+						$subscribe_text          = __( 'Subscribe to get latest posts to your email.', 'jetpack' );
+
+						return $content . <<<HTML
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"0px","bottom":"0px","left":"0px","right":"0px"},"margin":{"top":"32px","bottom":"32px"}},"border":{"width":"0px","style":"none"}},"className":"has-border-color","layout":{"type":"default"}} -->
+<div class="wp-block-group has-border-color" style="border-style:none;border-width:0px;margin-top:32px;margin-bottom:32px;padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px">
+	<!-- wp:separator {"className":"is-style-wide"} -->
+	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" />
+	<!-- /wp:separator -->
+
+	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
+	<h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px;font-size:26px;font-style:normal;font-weight:600">$discover_more_from_text</h2>
+	<!-- /wp:heading -->
+
+	<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"top":"10px","bottom":"10px"}}}} -->
+	<p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:15px">$subscribe_text</p>
+	<!-- /wp:paragraph -->
+
+	<!-- wp:jetpack/subscriptions /-->
+</div>
+<!-- /wp:group -->
+HTML;
 					}
 
 					return $content;
