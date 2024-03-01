@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Cache: Stop serving expired cache files
