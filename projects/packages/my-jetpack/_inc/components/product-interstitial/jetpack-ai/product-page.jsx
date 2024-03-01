@@ -8,13 +8,14 @@ import {
 	JetpackLogo,
 	AiIcon,
 	getRedirectUrl,
+	Notice,
 } from '@automattic/jetpack-components';
 import { Button, Card } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
 import classnames from 'classnames';
 import debugFactory from 'debug';
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -26,6 +27,7 @@ import GoBackLink from '../../go-back-link';
 import styles from './style.module.scss';
 
 const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-page' );
+
 /**
  * Product Page for Jetpack AI
  * @returns {object} React component for the product page
@@ -34,6 +36,7 @@ export default function () {
 	const { onClickGoBack } = useGoBack( 'jetpack-ai' );
 	const { detail } = useProduct( 'jetpack-ai' );
 	const { description, 'ai-assistant-feature': aiAssistantFeature } = detail;
+	const [ showNotice, setShowNotice ] = useState( false );
 
 	const videoTitle1 = __(
 		'Generate and edit content faster with Jetpack AI Assistant',
@@ -48,6 +51,7 @@ export default function () {
 		'current-tier': currentTier,
 		'next-tier': nextTier,
 		'usage-period': usage,
+		'is-over-limit': isOverLimit,
 	} = aiAssistantFeature || {};
 
 	const hasUnlimited = currentTier?.value === 1;
@@ -58,6 +62,34 @@ export default function () {
 	const showCurrentUsage = hasPaidTier && ! isFree;
 	const showAllTimeUsage = hasPaidTier || hasUnlimited;
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
+
+	const showRenewalNotice = isOverLimit && hasPaidTier;
+	const showUpgradeNotice = isOverLimit && isFree;
+
+	const renewalNoticeTitle = __(
+		"You've reached your request limit for this month",
+		'jetpack-my-jetpack'
+	);
+	const upgradeNoticeTitle = __( "You've used all your free requests", 'jetpack-my-jetpack' );
+
+	const renewalNoticeBody = sprintf(
+		// translators: %d is the number of days left in the month.
+		__(
+			'Wait for %d days to reset your limit, or upgrade now to a higher tier for additional requests and keep your work moving forward.',
+			'jetpack-my-jetpack'
+		),
+		Math.floor( ( new Date( usage[ 'next-start' ] ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
+	);
+	const upgradeNoticeBody = __(
+		'Reach for More with Jetpack AI! Upgrade now for additional requests and keep your momentum going.',
+		'jetpack-my-jetpack'
+	);
+	const renewalNoticeCta = sprintf(
+		// translators: %s is the next upgrade value
+		__( 'Get %s requests', 'jetpack-my-jetpack' ),
+		nextTier?.value || 'more'
+	);
+	const upgradeNoticeCta = __( 'Upgrade now', 'jetpack-my-jetpack' );
 
 	const navigateToPricingTable = useMyJetpackNavigate( '/add-jetpack-ai' );
 	const { recordEvent } = useAnalytics();
@@ -79,6 +111,12 @@ export default function () {
 		} );
 		navigateToPricingTable();
 	}, [ recordEvent, allTimeRequests, currentTier, navigateToPricingTable ] );
+
+	const onNoticeClose = useCallback( () => setShowNotice( false ), [] );
+
+	useEffect( () => {
+		setShowNotice( showRenewalNotice || showUpgradeNotice );
+	}, [ showRenewalNotice, showUpgradeNotice ] );
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ true }>
@@ -143,7 +181,9 @@ export default function () {
 											{ __( 'Requests for this month', 'jetpack-my-jetpack' ) }
 										</div>
 										<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
-											{ currentTier.value - usage[ 'requests-count' ] }
+											{ currentTier.value - usage[ 'requests-count' ] >= 0
+												? currentTier.value - usage[ 'requests-count' ]
+												: 0 }
 										</div>
 									</div>
 								</Card>
@@ -179,6 +219,22 @@ export default function () {
 				</Col>
 				<Col className={ styles[ 'product-interstitial__section' ] }>
 					<div className={ styles[ 'product-interstitial__section-wrapper' ] }>
+						{ showNotice && (
+							<div className={ styles[ 'product-interstitial__ai-notice' ] }>
+								<Notice
+									actions={ [
+										<Button isPrimary onClick={ upgradeClickHandler }>
+											{ showRenewalNotice ? renewalNoticeCta : upgradeNoticeCta }
+										</Button>,
+									] }
+									onClose={ onNoticeClose }
+									level={ showRenewalNotice ? 'warning' : 'error' }
+									title={ showRenewalNotice ? renewalNoticeTitle : upgradeNoticeTitle }
+								>
+									{ showRenewalNotice ? renewalNoticeBody : upgradeNoticeBody }
+								</Notice>
+							</div>
+						) }
 						<h2 className={ styles[ 'product-interstitial__section-heading' ] }>
 							{ __( 'AI Features', 'jetpack-my-jetpack' ) }
 						</h2>
