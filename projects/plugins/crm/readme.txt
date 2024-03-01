@@ -367,17 +367,17 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 - Client Portal: Admin banners are now more consistent across screens.
 - Client Portal: Catch error if Woo order associated with invoice is deleted.
 - Invoices: Standardize line item code.
-  Invoices: Allow long line item descriptions in email.
+- Invoices: Allow long line item descriptions in email.
 - Listviews: Object status filters now correctly reflect current status options.
-  Listviews: Overhaul of listview filter logic.
-  Quotes: Add Draft listview filter.
+- Listviews: Overhaul of listview filter logic.
+- Quotes: Add Draft listview filter.
 - Segments: Allow floats in all numeric segment conditions.
-  Segments: Fix output if segment has an error.
+- Segments: Fix output if segment has an error.
 - Tags: Use existing tags if possible when using helper functions to create objects.
 - WooSync: Catch PHP error if order has empty fee value.
 - WooSync: Detect and support WooCommerce HPOS configuration.
 - WooSync: No longer shows today as renewal date if subscription has no renewal date set.
-  WooSync: Modernize code.
+- WooSync: Modernize code.
 - WooSync: Remove broken link from settings page.
-  WooSync: Prevent addition of the same site more than once.
+- WooSync: Prevent addition of the same site more than once.
 
