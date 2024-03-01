@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Shortcodes_Ustream extends WP_UnitTestCase {
 	/**
 	 * Verify that [ustream] and [ustreamsocial] exists.
 	 *
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_ustream_exists() {
 		$this->assertTrue( shortcode_exists( 'ustream' ) );
@@ -18,7 +18,7 @@ class WP_Test_Jetpack_Shortcodes_Ustream extends WP_UnitTestCase {
 	/**
 	 * Verify that executing ustream doesn't return the same content.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_ustream() {
 		$content           = '[ustream]';
@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Shortcodes_Ustream extends WP_UnitTestCase {
 	/**
 	 * Verify that executing ustreamsocial doesn't return the same content.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_ustreamsocial() {
 		$content           = '[ustreamsocial]';
@@ -42,7 +42,7 @@ class WP_Test_Jetpack_Shortcodes_Ustream extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the shortcode returns a Ustream video.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_ustream_video() {
 		$id      = '1524';
@@ -56,7 +56,7 @@ class WP_Test_Jetpack_Shortcodes_Ustream extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the shortcode returns a Ustream video.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_ustream_social_stream() {
 		$id      = '12980237';

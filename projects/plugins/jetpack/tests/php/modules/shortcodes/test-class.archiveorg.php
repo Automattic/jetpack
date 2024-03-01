@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Shortcodes_ArchiveOrg extends WP_UnitTestCase {
 	/**
 	 * Verify that [archiveorg] and [archiveorg-book] exists.
 	 *
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_exists() {
 		$this->assertTrue( shortcode_exists( 'archiveorg' ) );
@@ -18,7 +18,7 @@ class WP_Test_Jetpack_Shortcodes_ArchiveOrg extends WP_UnitTestCase {
 	/**
 	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes() {
 		$content           = '[archiveorg]';
@@ -35,7 +35,7 @@ class WP_Test_Jetpack_Shortcodes_ArchiveOrg extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the archiveorg shortcode returns a single ArchiveOrg element.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcode_single_element() {
 		$id                = 'Wonderfu1958';
@@ -48,7 +48,7 @@ class WP_Test_Jetpack_Shortcodes_ArchiveOrg extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the archiveorg-book shortcode returns an ArchiveOrg book.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcode_book() {
 		$id                = 'goodytwoshoes00newyiala';

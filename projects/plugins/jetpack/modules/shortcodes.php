@@ -165,7 +165,7 @@ if ( ! function_exists( 'jetpack_shortcode_get_videopress_id' ) ) {
 /**
  * Common element attributes parsing and sanitizing for src, width and height.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array $attrs  With original values.
  *

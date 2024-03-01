@@ -88,7 +88,7 @@ class VideoPress_Video {
 	 * Video description
 	 *
 	 * @var string
-	 * @since 4.4
+	 * @since 4.4​
 	 */
 	public $description;
 

@@ -251,7 +251,7 @@ class Connection {
 	 *
 	 * @see   https://github.com/WP-API/WP-API/commit/7ba0ae6fe4f605d5ffe4ee85b1cd5f9fb46900a6
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @return int
 	 */

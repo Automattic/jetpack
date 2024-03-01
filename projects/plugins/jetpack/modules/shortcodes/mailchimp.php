@@ -14,7 +14,7 @@
 /**
  * Register [mailchimp_subscriber_popup] shortcode and add a filter to 'pre_kses' queue to reverse MailChimp embed to shortcode.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  */
 function jetpack_mailchimp_subscriber_popup() {
 	add_shortcode(
@@ -42,7 +42,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 /**
  * Class MailChimp_Subscriber_Popup
  *
- * @since 4.5.0
+ * @since 4.5.0​
  */
 class MailChimp_Subscriber_Popup {
 
@@ -82,7 +82,7 @@ class MailChimp_Subscriber_Popup {
 	/**
 	 * Runs the whole reversal.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param string $content Post Content.
 	 *
@@ -129,7 +129,7 @@ class MailChimp_Subscriber_Popup {
 	/**
 	 * Builds the actual shortcode based on passed in attributes.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array $attrs A valid list of attributes (gets matched against self::$allowed_config and self::$allowed_js_vars).
 	 *
@@ -156,7 +156,7 @@ class MailChimp_Subscriber_Popup {
 	/**
 	 * Parses the shortcode back out to embedded information.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array $lcase_attrs Lowercase shortcode attributes.
 	 *

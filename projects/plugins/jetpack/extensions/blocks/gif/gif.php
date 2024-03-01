@@ -2,7 +2,7 @@
 /**
  * GIF Block.
  *
- * @since 7.0.0
+ * @since 7.0.0​
  *
  * @package automattic/jetpack
  */

@@ -70,7 +70,7 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * Setup the various hooks needed for the plugin to take over search duties.
 	 *
-	 * @since 5.0.0
+	 * @since 5.0.0​
 	 */
 	public function init_hooks() {
 		if ( ! is_admin() ) {
@@ -153,7 +153,7 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * Bypass the normal Search query since we will run it with instant search.
 	 *
-	 * @since 8.3.0
+	 * @since 8.3.0​
 	 *
 	 * @param array    $posts Current array of posts (still pre-query).
 	 * @param WP_Query $query The WP_Query being filtered.
@@ -180,7 +180,7 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * Run the aggregations API query for any filtering
 	 *
-	 * @since 8.3.0
+	 * @since 8.3.0​
 	 */
 	public function fetch_search_result_if_empty() {
 		if ( ! empty( $this->search_result ) ) {
@@ -209,7 +209,7 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * Run an instant search on the WordPress.com public API.
 	 *
-	 * @since 8.3.0
+	 * @since 8.3.0​
 	 *
 	 * @param array $args Args conforming to the WP.com v1.3/sites/<blog_id>/search endpoint.
 	 *
@@ -255,7 +255,7 @@ class Instant_Search extends Classic_Search {
 			 *
 			 * @module search
 			 *
-			 * @since  5.6.0
+			 * @since 5.6.0​
 			 *
 			 * @param array Array containing the response code and response from the failed search query
 			 */
@@ -297,7 +297,7 @@ class Instant_Search extends Classic_Search {
 		 *
 		 * @module search
 		 *
-		 * @since  5.0.0
+		 * @since 5.0.0​
 		 * @since  5.8.0 This action now fires on all queries instead of just successful queries.
 		 *
 		 * @param array $query Array of information about the query performed
@@ -313,7 +313,7 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * Get the raw Aggregation results from the Elasticsearch response.
 	 *
-	 * @since  8.4.0
+	 * @since 8.4.0​
 	 *
 	 * @return array Array of Aggregations performed on the search.
 	 */
@@ -329,7 +329,7 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * Automatically configure necessary settings for instant search
 	 *
-	 * @since  8.3.0
+	 * @since 8.3.0​
 	 */
 	public function auto_config_search() {
 		$this->auto_config_excluded_post_types();
@@ -353,7 +353,7 @@ class Instant_Search extends Classic_Search {
 	 * Automatically copy configured search widgets from theme sidebar to the overlay sidebar.
 	 * If there's nothing to copy, we create one.
 	 *
-	 * @since  8.8.0
+	 * @since 8.8.0​
 	 */
 	public function auto_config_overlay_sidebar_widgets() {
 		$sidebars                               = get_option( 'sidebars_widgets', array() );
@@ -636,7 +636,7 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * Autoconfig search by adding filter widgets
 	 *
-	 * @since  8.4.0
+	 * @since 8.4.0​
 	 *
 	 * @return array Array of config settings for search widget.
 	 */
@@ -711,7 +711,7 @@ class Instant_Search extends Classic_Search {
 	 * Automatically configure post types to exclude from one of the search widgets.
 	 * Used primarily for backward compatibility with older Jetpack plugins, which used to store excluded post type configuration within the Jetpack Search plugin instead of as an option.
 	 *
-	 * @since  8.8.0
+	 * @since 8.8.0​
 	 */
 	public function auto_config_excluded_post_types() {
 		// if `excluded_post_types` exists, then we do nothing.

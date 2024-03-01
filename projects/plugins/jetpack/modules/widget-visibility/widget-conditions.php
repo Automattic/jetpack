@@ -350,7 +350,7 @@ class Jetpack_Widget_Conditions {
 			 *
 			 * @see https://developer.wordpress.org/reference/functions/get_taxonomies/
 			 *
-			 * @since 5.3.0
+			 * @since 5.3.0​
 			 *
 			 * @module widget-visibility
 			 *
@@ -1120,7 +1120,7 @@ class Jetpack_Widget_Conditions {
 	 * Upgrade routine to go through all widgets and move the Post Type
 	 * setting to its newer location.
 	 *
-	 * @since 4.7.1
+	 * @since 4.7.1​
 	 */
 	public static function migrate_post_type_rules() {
 		global $wp_registered_widgets;

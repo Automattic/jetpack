@@ -316,7 +316,7 @@ BODY;
 	 * Test the AMP-compatible [instagram] shortcode on an AMP endpoint.
 	 *
 	 * @dataProvider get_instagram_amp_data
-	 * @since 8.0.0
+	 * @since 8.0.0​
 	 *
 	 * @param string $shortcode_content The shortcode content, as entered in the editor.
 	 * @param string $expected The expected return value of the function.
@@ -336,7 +336,7 @@ BODY;
 	 * Test that the AMP [instagram] shortcode logic doesn't run on a non-AMP endpoint.
 	 *
 	 * @dataProvider get_instagram_amp_data
-	 * @since 8.0.0
+	 * @since 8.0.0​
 	 *
 	 * @param string $shortcode_content The shortcode as entered in the editor.
 	 */

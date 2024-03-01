@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Shortcodes_Brightcove extends WP_UnitTestCase {
 	/**
 	 * Verify that [brightcove] exists.
 	 *
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_brightcove_exists() {
 		$this->assertTrue( shortcode_exists( 'brightcove' ) );
@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Shortcodes_Brightcove extends WP_UnitTestCase {
 	/**
 	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_brightcove() {
 		$content = '[brightcove]';
@@ -31,7 +31,7 @@ class WP_Test_Jetpack_Shortcodes_Brightcove extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the shortcode returns a Brightcove player.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_brightcove_video_id() {
 		$video_id   = '68143720001';

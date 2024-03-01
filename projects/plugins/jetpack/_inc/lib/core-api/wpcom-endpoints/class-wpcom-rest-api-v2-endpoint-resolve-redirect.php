@@ -3,13 +3,13 @@
  * REST API endpoint for resolving URL redirects.
  *
  * @package automattic/jetpack
- * @since 8.0.0
+ * @since 8.0.0​
  */
 
 /**
  * Resolve URL redirects.
  *
- * @since 8.0.0
+ * @since 8.0.0​
  */
 class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 	/**

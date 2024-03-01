@@ -231,7 +231,7 @@ class Masterbar {
 		/**
 		 * Whether we should sign out from wpcom too when signing out from the masterbar.
 		 *
-		 * @since 5.9.0
+		 * @since 5.9.0​
 		 *
 		 * @param bool $masterbar_should_logout_from_wpcom True by default.
 		 */
@@ -245,7 +245,7 @@ class Masterbar {
 			/**
 			 * Hook into the log out event happening from the Masterbar.
 			 *
-			 * @since 5.1.0
+			 * @since 5.1.0​
 			 * @since 7.9.0 Added the $wpcom_user_id parameter to the action.
 			 *
 			 * @module masterbar
@@ -261,7 +261,7 @@ class Masterbar {
 	/**
 	 * Adds CSS classes to admin body tag.
 	 *
-	 * @since 5.1
+	 * @since 5.1​
 	 *
 	 * @param string $admin_body_classes CSS classes that will be added.
 	 *
@@ -1528,7 +1528,7 @@ class Masterbar {
 			/**
 			 * Fires when menu items are added to the masterbar "My Sites" menu.
 			 *
-			 * @since 5.4.0
+			 * @since 5.4.0​
 			 */
 			do_action( 'jetpack_masterbar' );
 		}

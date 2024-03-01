@@ -42,7 +42,7 @@ add_shortcode( 'googleapps', 'googleapps_shortcode' );
 /**
  * Reverse iframe embed to shortcode mapping HTML attributes to shortcode attributes.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param string $content Post content.
  *
@@ -135,7 +135,7 @@ function googleapps_embed_to_shortcode( $content ) {
 /**
  * Parse shortcode attributes and output a Google Docs embed.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array $atts Shortcode attributes.
  *
@@ -197,7 +197,7 @@ function googleapps_shortcode( $atts ) {
 /**
  * Check that the domain blogs to a Google Apps domain.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param string $domain Google subdomain.
  * @param string $dir    Subdirectory of the shared URL.
@@ -230,7 +230,7 @@ function googleapps_validate_domain_and_dir( $domain, $dir ) {
 /**
  * Get the name of the service we'll be embedding.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param string $domain Google subdomain.
  * @param string $dir    Subdirectory of the shared URL.

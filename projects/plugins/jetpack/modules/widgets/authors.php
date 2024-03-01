@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * 2. The number of posts to be displayed per author (defaults to 0)
  * 3. Avatar size
  *
- * @since 4.5.0
+ * @since 4.5.0​
  */
 class Jetpack_Widget_Authors extends WP_Widget {
 	/**
@@ -46,7 +46,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	/**
 	 * Enqueue stylesheet to adapt the widget to various themes.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function enqueue_style() {
 		wp_register_style( 'jetpack-authors-widget', plugins_url( 'authors/style.css', __FILE__ ), array(), '20161228' );
@@ -101,7 +101,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		 *
 		 * @deprecated 7.7.0 Use jetpack_widget_authors_params instead.
 		 *
-		 * @since 4.5.0
+		 * @since 4.5.0​
 		 *
 		 * @param array $default_excluded_authors Array of user ID's that will be excluded
 		 */
@@ -115,7 +115,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		 *
 		 * @module widgets
 		 *
-		 * @since 7.7.0
+		 * @since 7.7.0​
 		 *
 		 * @param array $get_author_params Array of params used in `get_user`
 		 */
@@ -141,7 +141,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		 *
 		 * @module widgets
 		 *
-		 * @since 4.5.0
+		 * @since 4.5.0​
 		 *
 		 * @param string|array $default_post_type type(s) of posts to count for the widget.
 		 */

@@ -3,7 +3,7 @@
  * A message logger for the Jetpack Sitemap module.
  *
  * @package automattic/jetpack
- * @since 4.8.0
+ * @since 4.8.0​
  */
 
 /**
@@ -13,7 +13,7 @@
  * as a "unique" ID string. Calling the report() method writes a message
  * to the PHP error log as well as the ID string for easier grepping.
  *
- * @since 4.8.0
+ * @since 4.8.0​
  */
 class Jetpack_Sitemap_Logger {
 	/**
@@ -21,7 +21,7 @@ class Jetpack_Sitemap_Logger {
 	 * for the messages written by an individual generation phase.
 	 *
 	 * @access private
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 * @var string $key The key string.
 	 */
 	private $key;
@@ -30,7 +30,7 @@ class Jetpack_Sitemap_Logger {
 	 * The birth time of this object in microseconds.
 	 *
 	 * @access private
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 * @var int $starttime The birth time.
 	 */
 	private $starttime;
@@ -39,7 +39,7 @@ class Jetpack_Sitemap_Logger {
 	 * Initializes a new logger object.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param string $message An optional message string to be written to the debug log on initialization.
 	 */
@@ -55,7 +55,7 @@ class Jetpack_Sitemap_Logger {
 	 * Writes a string to the debug log, including the logger's ID string.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param string  $message  The string to be written to the log.
 	 * @param boolean $is_error If true, $message will be logged even if JETPACK_DEV_DEBUG is not enabled.
@@ -75,7 +75,7 @@ class Jetpack_Sitemap_Logger {
 	 * Writes the elapsed lifetime of the logger to the debug log, with an optional message.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param string $message The optional message string. Default is the empty string.
 	 */

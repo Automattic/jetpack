@@ -12,7 +12,7 @@ add_shortcode( 'sitemap', 'jetpack_sitemap_shortcode' );
 /**
  * Renders a tree of pages.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @return string
  */

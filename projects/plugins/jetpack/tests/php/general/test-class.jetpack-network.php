@@ -140,7 +140,7 @@ if ( is_multisite() ) :
 		 *
 		 * @author igmoweb
 		 * @covers Jetpack_Options::is_network_option
-		 * @since 4.8
+		 * @since 4.8​
 		 */
 		public function test_is_network_option() {
 			$network_options = Jetpack_Options::get_option_names( 'network' );
@@ -155,7 +155,7 @@ if ( is_multisite() ) :
 		 *
 		 * @author igmoweb
 		 * @covers Jetpack_Options::update_option
-		 * @since 4.8
+		 * @since 4.8​
 		 */
 		public function test_update_file_data_network_options() {
 			$value = array( 'just', 'a', 'sample' );
@@ -175,7 +175,7 @@ if ( is_multisite() ) :
 		 *
 		 * @author igmoweb
 		 * @covers Jetpack_Options::get_option_and_ensure_autoload
-		 * @since 4.8
+		 * @since 4.8​
 		 */
 		public function test_delete_file_data_network_options() {
 			$value = array( 'just', 'a', 'sample' );
@@ -189,7 +189,7 @@ if ( is_multisite() ) :
 		 *
 		 * @author igmoweb
 		 * @covers Jetpack_Options::delete_option
-		 * @since 4.8
+		 * @since 4.8​
 		 */
 		public function test_get_network_option_and_ensure_autoload() {
 			$default = array( 'just', 'a', 'sample' );

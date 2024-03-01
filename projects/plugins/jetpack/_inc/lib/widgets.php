@@ -633,7 +633,7 @@ class Jetpack_Widgets {
 	/**
 	 * Method used to sort widgets
 	 *
-	 * @since 5.4
+	 * @since 5.4​
 	 *
 	 * @param array $a A normalized array representing a widget.
 	 * @param array $b A normalized array representing a widget.

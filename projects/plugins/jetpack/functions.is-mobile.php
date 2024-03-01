@@ -27,7 +27,7 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 		 * Passing a truthy value to the filter will short-circuit determining the
 		 * mobile type, returning the passed value instead.
 		 *
-		 * @since  4.2.0
+		 * @since 4.2.0​
 		 *
 		 * @param bool|string $matches Boolean if current UA matches $kind or not. If
 		 *                             $return_matched_agent is true, should return the UA string
@@ -59,7 +59,7 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 		/**
 		 * Filter the value of jetpack_is_mobile
 		 *
-		 * @since  4.2.0
+		 * @since 4.2.0​
 		 *
 		 * @param bool|string $matches Boolean if current UA matches $kind or not. If
 		 *                             $return_matched_agent is true, should return the UA string

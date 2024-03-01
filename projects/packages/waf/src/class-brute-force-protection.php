@@ -763,7 +763,7 @@ class Brute_Force_Protection {
 		 *
 		 * @module protect
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param bool false Should we allow all logins for the current ip? Default: false
 		 */
@@ -1001,7 +1001,7 @@ class Brute_Force_Protection {
 		 *
 		 * @module protect
 		 *
-		 * @since 4.0.4
+		 * @since 4.0.4​
 		 *
 		 * @param int $timeout Max time (in seconds) to wait for a response.
 		 */

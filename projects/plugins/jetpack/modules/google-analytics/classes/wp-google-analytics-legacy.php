@@ -128,7 +128,7 @@ class Jetpack_Google_Analytics_Legacy {
 		/**
 		 * Allow for additional elements to be added to the classic Google Analytics queue (_gaq) array
 		 *
-		 * @since 5.4.0
+		 * @since 5.4.0​
 		 *
 		 * @param array $custom_vars Array of classic Google Analytics queue elements
 		 */

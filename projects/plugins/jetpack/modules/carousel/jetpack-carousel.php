@@ -168,7 +168,7 @@ class Jetpack_Carousel {
 	/**
 	 * Returns the value of the applied jp_carousel_maybe_disable_single_images filter
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @return bool - Should Carousel be disabled for single images? Default to false.
 	 */
@@ -178,7 +178,7 @@ class Jetpack_Carousel {
 		 *
 		 * @module carousel
 		 *
-		 * @since 4.5.0
+		 * @since 4.5.0​
 		 *
 		 * @param bool false Should Carousel be disabled for single images? Default to false.
 		 */
@@ -188,7 +188,7 @@ class Jetpack_Carousel {
 	/**
 	 * Returns the value of the applied jp_carousel_load_for_images_linked_to_file filter
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @return bool - Should Carousel be enabled for single images linking to 'Media File'? Default to false.
 	 */
@@ -199,7 +199,7 @@ class Jetpack_Carousel {
 		 *
 		 * @module carousel
 		 *
-		 * @since 4.5.0
+		 * @since 4.5.0​
 		 *
 		 * @param bool false Should Carousel be enabled for single images linking to 'Media File'? Default to false.
 		 */
@@ -309,7 +309,7 @@ class Jetpack_Carousel {
 	/**
 	 * Check if the content of a post uses gallery blocks. To be used by 'the_content' filter.
 	 *
-	 * @since 6.8.0
+	 * @since 6.8.0​
 	 * @deprecated since 11.3 We now hook into the 'block_render_{block_name}' hook to add markup.
 	 *
 	 * @param string $content Post content.
@@ -484,7 +484,7 @@ class Jetpack_Carousel {
 			 *
 			 * @module carousel
 			 *
-			 * @since 4.3.2
+			 * @since 4.3.2​
 			 *
 			 * @param bool Enable Jetpack Carousel stat collection. Default false.
 			 */

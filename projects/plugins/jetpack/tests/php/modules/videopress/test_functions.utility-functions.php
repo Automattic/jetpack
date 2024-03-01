@@ -16,7 +16,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	 * Tests a helper function to get the post by guid, when there is no post found.
 	 *
 	 * @covers ::videopress_get_post_by_guid
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 */
 	public function test_no_post_found_videopress_get_post_by_guid() {
 		$this->assertFalse( videopress_get_post_by_guid( wp_generate_uuid4() ) );
@@ -25,7 +25,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	/**
 	 * Gets the test data for test_non_cached_videopress_get_post_by_guid().
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 *
 	 * @return array The test data.
 	 */
@@ -50,7 +50,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_data_test_video_non_cached
 	 * @covers ::videopress_get_post_by_guid
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 *
 	 * @param callable    $callback The callback to get the caching.
 	 * @param bool        $should_cache_object Whether the entire WP_Post should be cached, or simply the post ID.
@@ -81,7 +81,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	/**
 	 * Gets the test data for test_cached_videopress_get_post_by_guid().
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 *
 	 * @return array The test data.
 	 */
@@ -107,7 +107,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_data_test_video_cached
 	 * @covers ::videopress_get_post_by_guid
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 *
 	 * @param callable    $callback The callback to set the caching.
 	 * @param bool        $should_cache_object Whether the entire WP_Post should be cached, or simply the post ID.
@@ -136,7 +136,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	/**
 	 * Gets the test data for test_cached_invalid_videopress_get_post_by_guid().
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 *
 	 * @return array The test data.
 	 */
@@ -157,7 +157,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_data_cached_invalid
 	 * @covers ::videopress_get_post_by_guid
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 *
 	 * @param mixed $invalid_cached_value A cached value that should be ignored.
 	 */
@@ -203,7 +203,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	 * Tests a helper function to get the post id by guid.
 	 *
 	 * @covers ::videopress_get_post_id_by_guid
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 */
 	public function test_non_cached_videopress_get_post_id_by_guid() {
 		$guid           = wp_generate_uuid4();
@@ -224,7 +224,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	 *
 	 * @author kraftbj
 	 * @covers ::jetpack_videopress_flash_embed_filter
-	 * @since 8.1.0
+	 * @since 8.1.0​
 	 */
 	public function test_jetpack_videopress_flash_embed_filter_flash() {
 		$content  = '<p><embed src="http://v.wordpress.com/YtfS78jH" type="application/x-shockwave-flash" width="600" height="338"></embed></p>';

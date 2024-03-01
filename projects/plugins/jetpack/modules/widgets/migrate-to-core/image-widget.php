@@ -2,7 +2,7 @@
 /**
  * Migration from Jetpack's Image Widget to WordPress' Core Image Widget.
  *
- * @since 4.9
+ * @since 4.9​
  *
  * @package automattic/jetpack
  */

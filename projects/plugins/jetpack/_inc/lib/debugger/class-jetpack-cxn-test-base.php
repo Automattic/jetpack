@@ -21,7 +21,7 @@ use Automattic\Jetpack\Status;
 /**
  * "Unit Tests" for the Jetpack connection.
  *
- * @since 7.1.0
+ * @since 7.1.0​
  */
 class Jetpack_Cxn_Test_Base {
 
@@ -59,7 +59,7 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Adds a new test to the Jetpack Connection Testing suite.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 * @since 7.3.0 Adds name parameter and returns WP_Error on failure.
 	 *
 	 * @param callable $callable Test to add to queue.
@@ -93,7 +93,7 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Lists all tests to run.
 	 *
-	 * @since 7.3.0
+	 * @since 7.3.0​
 	 *
 	 * @param string $type Optional. Core Site Health type: 'direct' or 'async'. All by default.
 	 * @param string $group Optional. A specific testing group. All by default.
@@ -124,7 +124,7 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Run a specific test.
 	 *
-	 * @since 7.3.0
+	 * @since 7.3.0​
 	 *
 	 * @param string $name Name of test.
 	 *
@@ -160,7 +160,7 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Returns the full results array.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 * @since 7.3.0 Add 'type'
 	 *
 	 * @param string $type  Test type, async or direct.
@@ -196,7 +196,7 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Returns the status of the connection suite.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 * @since 7.3.0 Add 'type'
 	 *
 	 * @param string $type  Test type, async or direct. Optional, direct all tests.
@@ -220,7 +220,7 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Return array of failed test messages.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 * @since 7.3.0 Add 'type'
 	 *
 	 * @param string $type  Test type, direct or async.
@@ -334,7 +334,7 @@ class Jetpack_Cxn_Test_Base {
 	 * - action_label: bool|string The label for the recommended action. Default: false.
 	 * - show_in_site_health: bool True if the test should be shown on the Site Health page. Default: true
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 *
 	 * @param array $args Arguments to override defaults.
 	 *
@@ -355,7 +355,7 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Provides defaults for test arguments.
 	 *
-	 * @since 8.5.0
+	 * @since 8.5.0​
 	 *
 	 * @return array Result defaults.
 	 */
@@ -375,7 +375,7 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Provide WP_CLI friendly testing results.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 * @since 7.3.0 Add 'type'
 	 *
 	 * @param string $type  Test type, direct or async.
@@ -414,7 +414,7 @@ class Jetpack_Cxn_Test_Base {
 	 *
 	 * Specifically not asking for a testing group since we're opinionated that Site Heath should see all.
 	 *
-	 * @since 7.3.0
+	 * @since 7.3.0​
 	 *
 	 * @return array Array of test results
 	 */
@@ -475,7 +475,7 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Provide single WP Error instance of all failures.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 * @since 7.3.0 Add 'type'
 	 *
 	 * @param string $type  Test type, direct or async.

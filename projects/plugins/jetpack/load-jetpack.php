@@ -11,7 +11,7 @@
  * in every place where assets are enqueued. The filter is added at priority 9 to be overridden
  * by any default priority filter that runs after it.
  *
- * @since 6.2.0
+ * @since 6.2.0​
  *
  * @return boolean
  *

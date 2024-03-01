@@ -117,7 +117,7 @@ class Jetpack_AMP_Support {
 		/**
 		 * Returns true if the current request should return valid AMP content.
 		 *
-		 * @since 6.2.0
+		 * @since 6.2.0​
 		 *
 		 * @param boolean $is_amp_request Is this request supposed to return valid AMP content?
 		 */
@@ -175,7 +175,7 @@ class Jetpack_AMP_Support {
 	/**
 	 * Add Jetpack stats pixel.
 	 *
-	 * @since 6.2.1
+	 * @since 6.2.1​
 	 */
 	public static function add_stats_pixel() {
 		if ( ! has_action( 'wp_footer', array( Stats_Tracking_Pixel::class, 'add_amp_pixel' ) ) ) {
@@ -189,7 +189,7 @@ class Jetpack_AMP_Support {
 	/**
 	 * Add publisher and image metadata to legacy AMP post.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 *
 	 * @param array   $metadata Metadata array.
 	 * @param WP_Post $post     Post.
@@ -210,7 +210,7 @@ class Jetpack_AMP_Support {
 	/**
 	 * Add blavatar to legacy AMP post metadata.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 *
 	 * @param array $metadata Metadata.
 	 *
@@ -242,7 +242,7 @@ class Jetpack_AMP_Support {
 	/**
 	 * Add image to legacy AMP post metadata.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 *
 	 * @param array   $metadata Metadata.
 	 * @param WP_Post $post     Post.
@@ -294,7 +294,7 @@ class Jetpack_AMP_Support {
 	/**
 	 * Add fallback image to legacy AMP post metadata.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 *
 	 * @param array $metadata Metadata.
 	 * @return array Metadata.
@@ -330,7 +330,7 @@ class Jetpack_AMP_Support {
 	/**
 	 * Extract image dimensions via wpcom/imagesize, only on WPCOM
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 *
 	 * @param array $dimensions Dimensions.
 	 * @return array Dimensions.

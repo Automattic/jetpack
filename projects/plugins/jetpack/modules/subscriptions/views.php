@@ -92,7 +92,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	/**
 	 * Enqueue the form's CSS.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function enqueue_style() {
 		wp_register_style(

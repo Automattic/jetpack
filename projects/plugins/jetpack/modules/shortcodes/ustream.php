@@ -18,7 +18,7 @@ add_shortcode( 'ustreamsocial', 'ustreamsocial_shortcode' );
 /**
  * Parse shortcode arguments and render output for ustream single video.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array $atts array of user-supplied arguments.
  *
@@ -98,7 +98,7 @@ function ustream_shortcode( $atts ) {
 /**
  * Parse shortcode arguments and render output for ustream's Social Stream.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array $atts array of user-supplied arguments.
  *

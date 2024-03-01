@@ -125,7 +125,7 @@ function slideshare_shortcode( $atts ) {
 	 *
 	 * @module shortcodes
 	 *
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 *
 	 * @param string $player The iframe to return.
 	 * @param array  $atts   The attributes specified in the shortcode.

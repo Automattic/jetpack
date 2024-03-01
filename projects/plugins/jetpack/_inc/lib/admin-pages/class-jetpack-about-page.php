@@ -537,7 +537,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	/**
 	 * Fetch anonymous data about A12s from wpcom: total count, number of countries, languages spoken.
 	 *
-	 * @since 7.4
+	 * @since 7.4​
 	 *
 	 * @return array $data
 	 */
@@ -573,7 +573,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	/**
 	 * Compile and display a list of avatars for A12s that gave their permission.
 	 *
-	 * @since 7.3
+	 * @since 7.3​
 	 */
 	public function display_gravatars() {
 		$hashes = array(

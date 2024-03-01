@@ -3,7 +3,7 @@
  * Memberships: API to communicate with "product" database.
  *
  * @package    Jetpack
- * @since      7.3.0
+ * @since 7.3.0​
  */
 
 use Automattic\Jetpack\Connection\Client;

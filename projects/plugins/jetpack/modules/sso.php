@@ -556,7 +556,7 @@ class Jetpack_SSO {
 		 *
 		 * @module sso
 		 *
-		 * @since 8.6.0
+		 * @since 8.6.0​
 		 */
 		do_action( 'jetpack_sso_login_form_above_wpcom' );
 
@@ -618,7 +618,7 @@ class Jetpack_SSO {
 					 *
 					 * @module sso
 					 *
-					 * @since 8.6.0
+					 * @since 8.6.0​
 					 */
 					do_action( 'jetpack_sso_login_form_below_wpcom' );
 
@@ -647,7 +647,7 @@ class Jetpack_SSO {
 	/**
 	 * Clear cookies that are no longer needed once the user has logged in.
 	 *
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 */
 	public static function clear_cookies_after_login() {
 		Jetpack_SSO_Helpers::clear_wpcom_profile_cookies();

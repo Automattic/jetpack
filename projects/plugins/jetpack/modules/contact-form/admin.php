@@ -1108,7 +1108,7 @@ function grunion_delete_spam_feedbacks() {
 	 *
 	 * @module contact-form
 	 *
-	 * @since 8.7.0
+	 * @since 8.7.0​
 	 *
 	 * @param int $delete_limit Number of spam to process at once. Default to 25.
 	 */

@@ -5,7 +5,7 @@ use Automattic\Jetpack\Connection\Client;
 /**
  * VideoPress edit attachment screen
  *
- * @since 4.1
+ * @since 4.1​
  */
 class VideoPress_Edit_Attachment {
 

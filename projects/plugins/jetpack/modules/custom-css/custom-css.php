@@ -7,7 +7,7 @@ use Automattic\Jetpack\Assets;
 /**
  * Alternate Custom CSS source for 4.7 compat.
  *
- * @since 4.4.2
+ * @since 4.4.2​
  *
  * @package automattic/jetpack
  */
@@ -762,7 +762,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		 *
 		 * @module custom-css
 		 *
-		 * @since 4.4.2
+		 * @since 4.4.2​
 		 *
 		 * @param $wp_customize The WP_Customize object.
 		 */

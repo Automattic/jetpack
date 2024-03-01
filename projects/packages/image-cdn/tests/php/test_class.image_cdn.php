@@ -983,7 +983,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 *
 	 * @author ebinnion
 	 * @covers Image_CDN::filter_the_content
-	 * @since 5.6.0
+	 * @since 5.6.0​
 	 */
 	public function test_image_cdn_filter_the_content_does_not_remove_width_height_when_both_known() {
 		list( $sample_html ) = $this->get_image_cdn_sample_content( 'a-tags-without-images.html' );
@@ -1004,7 +1004,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 *
 	 * @author ebinnion
 	 * @covers Image_CDN::filter_the_content
-	 * @since 5.6.0
+	 * @since 5.6.0​
 	 */
 	public function test_image_cdn_filter_the_content_does_not_have_width_height_when_at_least_one_not_known() {
 		$sample_html      = '<img class="aligncenter  wp-image-6372" title="Tube Bomber salmon dry fly" alt="Tube Bomber salmon dry fly" src="http://www.fishmadman.com/pages/wp-content/uploads/2012/02/Rav-fra-2004-2009-11-1024x611.jpg" width="631" />';
@@ -1022,7 +1022,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * @author ebinnion
 	 * @covers Image_CDN::filter_the_content
 	 * @dataProvider photon_attributes_when_filtered_data_provider
-	 * @since 5.6.0
+	 * @since 5.6.0​
 	 *
 	 * @param callable $filter_callback Filter callback.
 	 * @param bool     $has_attributes If the attributes are filtered.
@@ -1057,7 +1057,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 *
 	 * @author mmtr
 	 * @covers Image_CDN::filter_the_content
-	 * @since 8.0.0
+	 * @since 8.0.0​
 	 */
 	public function test_image_cdn_filter_the_content_ignores_data_width_and_data_height_attributes() {
 		$sample_html      = '<img src="http://example.com/test.png" class="test" data-width="100" data-height="200" />';
@@ -1074,7 +1074,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 *
 	 * @author mmtr
 	 * @covers Image_CDN::filter_the_content
-	 * @since 8.0.0
+	 * @since 8.0.0​
 	 */
 	public function test_image_cdn_filter_the_content_parses_width_height_when_no_spaces_between_attributes() {
 		$sample_html      = '<img src="http://example.com/test.png" class="test"width="100"height="200" />';
@@ -1181,7 +1181,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * @author westonruter
 	 * @covers Image_CDN::filter_the_content
 	 * @dataProvider photon_attributes_when_amp_response
-	 * @since 7.6.0
+	 * @since 7.6.0​
 	 *
 	 * @param string $sample_html Sample HTML.
 	 * @param string $photon_src  Photon URL suffix (after the subdomain).
@@ -1224,7 +1224,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * @author westonruter
 	 * @covers Image_CDN::filter_the_content
 	 * @covers Jetpack_AMP_Support::filter_image_cdn_post_image_args_for_stories
-	 * @since 7.6.0
+	 * @since 7.6.0​
 	 * @todo Move to Jetpack
 	 */
 	public function test_image_cdn_filter_the_content_for_amp_story() {

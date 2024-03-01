@@ -15,7 +15,7 @@ if ( ! shortcode_exists( 'spotify' ) ) {
 /**
  * Parse shortcode arguments and render its output.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array  $atts    Shortcode attributes.
  * @param string $content Post Content.
@@ -79,7 +79,7 @@ function jetpack_spotify_shortcode( $atts = array(), $content = '' ) {
  * The core WordPress embed functionality only works with URLs
  * Modified version of WP_Embed::autoembed()
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param string $content Post content.
  *
@@ -108,7 +108,7 @@ add_filter( 'the_content', 'jetpack_spotify_embed_ids', 7 );
 /**
  * Call shortcode with ID provided by matching pattern.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array $matches Array of matches for Spofify links.
  *

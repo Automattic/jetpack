@@ -8,7 +8,7 @@ class WP_Test_Functions_Global extends WP_UnitTestCase {
 	 * Test string returned by jetpack_deprecated_function
 	 *
 	 * @covers ::jetpack_get_future_removed_version
-	 * @since 8.8.0
+	 * @since 8.8.0​
 	 * @dataProvider jetpack_deprecated_function_versions
 	 *
 	 * @param string $version  Version number passed to the function.

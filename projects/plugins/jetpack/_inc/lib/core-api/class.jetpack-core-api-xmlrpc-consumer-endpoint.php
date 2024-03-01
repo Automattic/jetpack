@@ -21,7 +21,7 @@ abstract class Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * Constructor.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @param Jetpack_IXR_Client $xmlrpc Jetpack_IXR_Client instance.
 	 */
@@ -32,7 +32,7 @@ abstract class Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * Checks if the site is public and returns the result.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @return Boolean $is_public
 	 */

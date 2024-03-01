@@ -62,7 +62,7 @@ class Image_CDN_Core {
 			 *
 			 * @module photon
 			 *
-			 * @since 4.1.0
+			 * @since 4.1.0​
 			 *
 			 * @param bool false Result of Automattic\Jetpack\Status->is_offline_mode().
 			 */

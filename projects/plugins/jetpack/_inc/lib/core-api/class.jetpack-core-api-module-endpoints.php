@@ -23,7 +23,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 	 * Check if the module requires the site to be publicly accessible from WPCOM.
 	 * If the site meets this requirement, the module is activated. Otherwise an error is returned.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
@@ -45,7 +45,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 	/**
 	 * If it's a valid Jetpack module, activate it.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @param string|WP_REST_Request $request It's a WP_REST_Request when called from endpoint /module/<slug>/*
 	 *                                        and a string when called from Jetpack_Core_API_Data->update_data.
@@ -107,7 +107,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 	/**
 	 * If it's a valid Jetpack module, deactivate it.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @param string|WP_REST_Request $request It's a WP_REST_Request when called from endpoint /module/<slug>/*
 	 *                                        and a string when called from Jetpack_Core_API_Data->update_data.
@@ -168,7 +168,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 	/**
 	 * Check that the current user has permissions to manage Jetpack modules.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @return bool
 	 */
@@ -190,7 +190,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @return bool|Array|WP_Error a resulting value or object, or an error.
 	 */
@@ -205,7 +205,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	/**
 	 * Get a list of all Jetpack modules and their information.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @return array Array of Jetpack modules.
 	 */
@@ -233,7 +233,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	/**
 	 * Activate a list of valid Jetpack modules.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
@@ -323,7 +323,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	 * A WordPress REST API permission callback method that accepts a request object and decides
 	 * if the current user has enough privileges to act.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -342,7 +342,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
  * Class that manages updating of Jetpack module options and general Jetpack settings or retrieving module data.
  * If no module is specified, all module settings are retrieved/updated.
  *
- * @since 4.3.0
+ * @since 4.3.0​
  * @since 4.4.0 Renamed Jetpack_Core_API_Module_Endpoint from to Jetpack_Core_API_Data.
  *
  * @author Automattic
@@ -356,7 +356,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 * Process request by returning the module or updating it.
 	 * If no module is specified, settings for all modules are assumed.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @param WP_REST_Request $request WP API request.
 	 *
@@ -377,7 +377,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * Get information about a specific and valid Jetpack module.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
@@ -427,7 +427,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * Get information about all Jetpack module options and settings.
 	 *
-	 * @since 4.6.0
+	 * @since 4.6.0​
 	 *
 	 * @return WP_REST_Response $response
 	 */
@@ -522,7 +522,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * Decode the special HTML characters in a certain value.
 	 *
-	 * @since 5.8
+	 * @since 5.8​
 	 *
 	 * @param string $value Value to decode.
 	 *
@@ -535,7 +535,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * If it's a valid Jetpack module and configuration parameters have been sent, update it.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
@@ -1098,7 +1098,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * Perform tasks in the site based on onboarding choices.
 	 *
-	 * @since 5.4.0
+	 * @since 5.4.0​
 	 *
 	 * @param array $data Onboarding choices made by user.
 	 *
@@ -1388,7 +1388,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * Check if user is allowed to perform the update.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -1461,7 +1461,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	/**
 	 * Decide against which service to check the key.
 	 *
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param WP_REST_Request $request WP API request.
 	 *
@@ -1482,7 +1482,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	/**
 	 * Get number of blocked intrusion attempts.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @return mixed|WP_Error Number of blocked attempts if protection is enabled. Otherwise, a WP_Error instance with the corresponding error.
 	 */
@@ -1501,7 +1501,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	/**
 	 * Get number of spam messages blocked by Akismet.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @return int|string Number of spam blocked by Akismet. Otherwise, an error message.
 	 */
@@ -1517,7 +1517,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	/**
 	 * Verify the Akismet API key.
 	 *
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param string $api_key Optional API key to check.
 	 *
@@ -1557,7 +1557,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	/**
 	 * Check if Akismet class file exists and if class is loaded.
 	 *
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @return bool|WP_Error Returns true if class file exists and class is loaded, WP_Error otherwise.
 	 */
@@ -1576,7 +1576,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	/**
 	 * Is Akismet registered and active?
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @return bool|WP_Error True if Akismet is active and registered. Otherwise, a WP_Error instance with the corresponding error.
 	 */
@@ -1601,7 +1601,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	/**
 	 * Get stats data for this site
 	 *
-	 * @since 4.1.0
+	 * @since 4.1.0​
 	 *
 	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
@@ -1671,7 +1671,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	/**
 	 * Get date of last downtime.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @return mixed|WP_Error Number of days since last downtime. Otherwise, a WP_Error instance with the corresponding error.
 	 */
@@ -1708,7 +1708,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	/**
 	 * Get services that this site is verified with.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @return mixed|WP_Error List of services that verified this site. Otherwise, a WP_Error instance with the corresponding error.
 	 */
@@ -1799,7 +1799,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	/**
 	 * Get VaultPress site data including, among other things, the date of the last backup if it was completed.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @return mixed|WP_Error VaultPress site data. Otherwise, a WP_Error instance with the corresponding error.
 	 */
@@ -1864,7 +1864,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 * A WordPress REST API permission callback method that accepts a request object and
 	 * decides if the current user has enough privileges to act.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 *
 	 * @return bool does a current user have enough privileges.
 	 */
@@ -1878,7 +1878,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 /**
  * Actions performed only when Gravatar Hovercards is activated through the endpoint call.
  *
- * @since 4.3.1
+ * @since 4.3.1​
  */
 function jetpack_do_after_gravatar_hovercards_activation() {
 
@@ -1890,7 +1890,7 @@ add_action( 'jetpack_activate_module_gravatar-hovercards', 'jetpack_do_after_gra
 /**
  * Actions performed only when Gravatar Hovercards is activated through the endpoint call.
  *
- * @since 4.3.1
+ * @since 4.3.1​
  */
 function jetpack_do_after_gravatar_hovercards_deactivation() {
 
@@ -1902,7 +1902,7 @@ add_action( 'jetpack_deactivate_module_gravatar-hovercards', 'jetpack_do_after_g
 /**
  * Actions performed only when Markdown is activated through the endpoint call.
  *
- * @since 4.7.0
+ * @since 4.7.0​
  */
 function jetpack_do_after_markdown_activation() {
 

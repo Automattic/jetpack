@@ -3,7 +3,7 @@
  * Compatibility functions for the Creative Mail plugin.
  * https://wordpress.org/plugins/creative-mail-by-constant-contact/
  *
- * @since 8.9.0
+ * @since 8.9.0​
  *
  * @package automattic/jetpack
  */
@@ -107,7 +107,7 @@ function error_notice() {
 /**
  * Set some options when first activating the plugin via Jetpack.
  *
- * @since 8.9.0
+ * @since 8.9.0​
  *
  * @param string $plugin_file Plugin file.
  * @param string $source      Where did the plugin installation originate.

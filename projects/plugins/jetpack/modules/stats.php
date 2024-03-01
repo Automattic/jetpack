@@ -833,7 +833,7 @@ function stats_convert_image_urls( $html ) {
 /**
  * Callback for preg_replace_callback used in stats_convert_chart_urls()
  *
- * @since 5.6.0
+ * @since 5.6.0​
  *
  * @param  array $matches The matches resulting from the preg_replace_callback call.
  * @return string          The admin url for the chart.
@@ -1626,7 +1626,7 @@ function stats_get_from_restapi( $args = array(), $resource = '' ) {
 /**
  * Load CSS needed for Stats column width in WP-Admin area.
  *
- * @since 4.7.0
+ * @since 4.7.0​
  */
 function jetpack_stats_load_admin_css() {
 	?>
@@ -1643,7 +1643,7 @@ function jetpack_stats_load_admin_css() {
  *
  * @param array $columns An array of column names.
  *
- * @since 4.7.0
+ * @since 4.7.0​
  *
  * @return mixed
  */
@@ -1692,7 +1692,7 @@ function jetpack_stats_post_table( $columns ) {
  * @param string $column  The name of the column to display.
  * @param int    $post_id The current post ID.
  *
- * @since 4.7.0
+ * @since 4.7.0​
  *
  * @return mixed
  */

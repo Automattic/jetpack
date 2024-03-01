@@ -62,7 +62,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 		 *
 		 * @module photon-cdn
 		 *
-		 * @since 6.6.0
+		 * @since 6.6.0​
 		 *
 		 * @param array $values array( $version  = core assets version, i.e. 4.9.8, $locale = desired locale )
 		 */
@@ -175,7 +175,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 		 *
 		 * @module photon-cdn
 		 *
-		 * @since 6.6.0
+		 * @since 6.6.0​
 		 *
 		 * @param array $values array( $slug = the plugin repository slug, i.e. jetpack, $version = the plugin version, i.e. 6.6 )
 		 */
@@ -243,7 +243,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 		 *
 		 * @module photon-cdn
 		 *
-		 * @since 6.6.0
+		 * @since 6.6.0​
 		 *
 		 * @param array $assets The assets array for the plugin.
 		 * @param string $version The version of the plugin being requested.
@@ -327,7 +327,7 @@ class Jetpack_Photon_Static_Assets_CDN {
  *
  * @module photon-cdn
  *
- * @since 6.7.0
+ * @since 6.7.0​
  *
  * @param false bool Should the Asset CDN be blocked? False by default.
  */

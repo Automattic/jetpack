@@ -71,7 +71,7 @@ class Jetpack_Twitter_Cards {
 			 *
 			 * @module sharedaddy
 			 *
-			 * @since 5.9.0
+			 * @since 5.9.0​
 			 *
 			 * @param string $str Default image URL.
 			 */

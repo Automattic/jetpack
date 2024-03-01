@@ -557,7 +557,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 * theme to be FSE compatible. The plugin can also be explicitly disabled via the
 	 * a8c_disable_full_site_editing filter.
 	 *
-	 * @since 7.7.0
+	 * @since 7.7.0​
 	 *
 	 * @return bool true if full site editing is currently active.
 	 */
@@ -574,7 +574,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 * the current theme does not need to be FSE compatible. The plugin can also be explicitly
 	 * disabled via the a8c_disable_full_site_editing filter.
 	 *
-	 * @since 8.1.0
+	 * @since 8.1.0​
 	 *
 	 * @return bool true if site is eligible for full site editing
 	 */

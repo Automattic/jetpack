@@ -32,7 +32,7 @@ add_action( 'jetpack_activate_module_sitemaps', 'jetpack_sitemap_on_activate' );
 /**
  * Run when Sitemaps module is activated.
  *
- * @since 4.8.0
+ * @since 4.8.0​
  */
 function jetpack_sitemap_on_activate() {
 	wp_clear_scheduled_hook( 'jp_sitemap_cron_hook' );

@@ -15,7 +15,7 @@ add_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'maybe_create_lin
  * Helper class for identifying and parsing known HTML embeds (iframe, object, embed, etc. elements), then converting them to shortcodes.
  * For unknown HTML embeds, the class still tries to convert them to plain links so that at least something is preserved instead of having the entire element stripped by KSES.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  */
 class Filter_Embedded_HTML_Objects {
 	/**
@@ -66,7 +66,7 @@ class Filter_Embedded_HTML_Objects {
 	/**
 	 * Store tokens found in Syntax Highlighter.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @var array
 	 */
@@ -75,7 +75,7 @@ class Filter_Embedded_HTML_Objects {
 	/**
 	 * Capture tokens found in Syntax Highlighter and collect them in self::$sh_unfiltered_content_tokens.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array $match Array of Syntax Highlighter matches.
 	 *

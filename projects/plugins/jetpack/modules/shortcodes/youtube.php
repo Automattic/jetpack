@@ -412,7 +412,7 @@ function youtube_id( $url ) {
 /**
  * Gets the args present in the YouTube shortcode URL.
  *
- * @since 8.0.0
+ * @since 8.0.0​
  *
  * @param array $url The parsed URL of the shortcode.
  *
@@ -452,7 +452,7 @@ add_shortcode( 'youtube', 'youtube_shortcode' );
  *
  * Calculates the width and height, taking $content_width into consideration.
  *
- * @since 8.0.0
+ * @since 8.0.0​
  *
  * @param array $query_args The query args of the URL.
  *

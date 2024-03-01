@@ -14,7 +14,7 @@ class Jetpack_Core_API_Widget_Endpoint {
 	/**
 	 * Get information about a widget that is supported by this endpoint.
 	 *
-	 * @since 5.5.0
+	 * @since 5.5.0​
 	 *
 	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
@@ -54,7 +54,7 @@ class Jetpack_Core_API_Widget_Endpoint {
 	 * Check that the current user has permissions to view widget information.
 	 * For the currently supported widget there are no permissions required.
 	 *
-	 * @since 5.5.0
+	 * @since 5.5.0​
 	 *
 	 * @return bool
 	 */

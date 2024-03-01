@@ -422,7 +422,7 @@ abstract class SAL_Site {
 		 *
 		 * @module json-api
 		 *
-		 * @since 6.4.0
+		 * @since 6.4.0​
 		 *
 		 * @param bool is_automated_transfer( $this->blog_id )
 		 * @param int  $blog_id Blog identifier.
@@ -927,7 +927,7 @@ abstract class SAL_Site {
 			 *
 			 * @module json-api
 			 *
-			 * @since 8.2.0
+			 * @since 8.2.0​
 			 *
 			 * @param bool $view_hosting Can site access Hosting section. Default to false.
 			 */
@@ -1288,7 +1288,7 @@ abstract class SAL_Site {
 		 *
 		 * @module json-api
 		 *
-		 * @since 6.4.0
+		 * @since 6.4.0​
 		 *
 		 * @param bool has_site_pending_automated_transfer( $this->blog_id )
 		 * @param int  $blog_id Blog identifier.

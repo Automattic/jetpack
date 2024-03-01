@@ -10,7 +10,7 @@ use Automattic\Jetpack\Redirect;
 /**
  * Notify user that VaultPress has been disabled. Hide VaultPress notice that requested attention.
  *
- * @since 5.8
+ * @since 5.8​
  */
 function jetpack_vaultpress_rewind_enabled_notice() {
 	// The deactivation is performed here because there may be pages that admin_init runs on,
@@ -49,7 +49,7 @@ function jetpack_vaultpress_rewind_enabled_notice() {
 /**
  * If Backup & Scan is enabled, remove its entry in sidebar, deactivate VaultPress, and show a notification.
  *
- * @since 5.8
+ * @since 5.8​
  */
 function jetpack_vaultpress_rewind_check() {
 	if (

@@ -2,7 +2,7 @@
 /**
  * Google Calendar Block.
  *
- * @since 8.3.0
+ * @since 8.3.0​
  *
  * @package automattic/jetpack
  */

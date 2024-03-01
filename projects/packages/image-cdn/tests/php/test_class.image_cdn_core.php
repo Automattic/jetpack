@@ -72,7 +72,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_no_filter
 	 */
 	public function test_photon_url_no_filter_http() {
@@ -87,7 +87,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_no_filter
 	 */
 	public function test_photon_url_no_filter_http_to_http() {
@@ -102,7 +102,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_no_filter
 	 */
 	public function test_photon_url_no_filter_photonized_https() {
@@ -114,7 +114,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_no_filter
 	 */
 	public function test_photon_url_no_filter_photonized_http() {
@@ -126,7 +126,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_no_filter
 	 */
 	public function test_photon_url_no_filter_photonized_https_to_http() {
@@ -138,7 +138,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_http() {
@@ -151,7 +151,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_http_to_http() {
@@ -164,7 +164,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_photonized_http() {
@@ -177,7 +177,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_photonized_https() {
@@ -190,7 +190,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_photonized_http_to_https() {
@@ -203,7 +203,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_http() {
@@ -216,7 +216,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_http_to_http() {
@@ -229,7 +229,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_photonized_http() {
@@ -242,7 +242,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_photonized_https() {
@@ -255,7 +255,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_photonized_to_https() {
@@ -268,7 +268,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url_scheme
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_valid_url_null_scheme() {
@@ -280,7 +280,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url_scheme
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_valid_url_invalid_scheme() {
@@ -292,7 +292,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url_scheme
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_valid_url_valid_scheme() {
@@ -304,7 +304,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url_scheme
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_valid_url_network_path_scheme() {
@@ -316,7 +316,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url_scheme
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_invalid_url_null_scheme() {
@@ -328,7 +328,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url_scheme
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_invalid_url_invalid_scheme() {
@@ -340,7 +340,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url_scheme
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_invalid_url_valid_scheme() {
@@ -354,7 +354,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	 *
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::banned_domains
-	 * @since  5.0.0
+	 * @since 5.0.0​
 	 * @group  Image_CDN_Core::banned_domains
 	 * @dataProvider get_photon_domains
 	 *

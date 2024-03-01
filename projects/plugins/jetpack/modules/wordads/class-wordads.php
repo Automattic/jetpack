@@ -114,7 +114,7 @@ class WordAds {
 	 *
 	 * @return boolean True if supported AMP request
 	 *
-	 * @since 7.5.0
+	 * @since 7.5.0​
 	 */
 	public static function is_amp() {
 		return class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
@@ -136,7 +136,7 @@ class WordAds {
 	 * @param  mixed  $default (optional).
 	 * @return option or $default if not set
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function option( $option, $default = false ) {
 		if ( ! isset( $this->params->options[ $option ] ) ) {
@@ -151,7 +151,7 @@ class WordAds {
 	 *
 	 * @return array      array with ad tags
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 */
 	public function get_ad_tags() {
 		return self::$ad_tag_ids;
@@ -162,7 +162,7 @@ class WordAds {
 	 *
 	 * @return string the special css for solo units
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 */
 	public function get_solo_unit_css() {
 		return self::$solo_unit_css;
@@ -171,7 +171,7 @@ class WordAds {
 	/**
 	 * Instantiate the plugin
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function __construct() {
 		add_action( 'wp', array( $this, 'init' ) );
@@ -187,7 +187,7 @@ class WordAds {
 	/**
 	 * Code to run on WordPress 'init' hook
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function init() {
 		require_once WORDADS_ROOT . '/php/class-wordads-params.php';
@@ -229,7 +229,7 @@ class WordAds {
 			 *
 			 * @module wordads
 			 *
-			 * @since 6.1.0
+			 * @since 6.1.0​
 			 *
 			 * @param string WordAds_API::get_wordads_ads_txt() The contents of the ads.txt file.
 			 */
@@ -247,7 +247,7 @@ class WordAds {
 	 *
 	 * @return boolean true if load came from infinite scroll
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public static function is_infinite_scroll() {
 		return class_exists( 'The_Neverending_Home_Page' ) && The_Neverending_Home_Page::got_infinity();
@@ -256,7 +256,7 @@ class WordAds {
 	/**
 	 * Add the actions/filters to insert the ads. Checks for mobile or desktop.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	private function insert_adcode() {
 		add_filter( 'wp_resource_hints', array( $this, 'resource_hints' ), 10, 2 );
@@ -272,7 +272,7 @@ class WordAds {
 		 *
 		 * @module wordads
 		 *
-		 * @since 5.8.0
+		 * @since 5.8.0​
 		 *
 		 * @param bool True to disable ads in `the_content`
 		 */
@@ -287,7 +287,7 @@ class WordAds {
 		 *
 		 * @module wordads
 		 *
-		 * @since 5.8.0
+		 * @since 5.8.0​
 		 *
 		 * @param bool True to disable ads in `the_excerpt`
 		 */
@@ -308,7 +308,7 @@ class WordAds {
 	/**
 	 * Register desktop scripts and styles
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function enqueue_scripts() {
 		wp_enqueue_style(
@@ -322,7 +322,7 @@ class WordAds {
 	/**
 	 * Add the IPW resource hints
 	 *
-	 * @since 7.9
+	 * @since 7.9​
 	 *
 	 * @param array  $hints Domains for hinting.
 	 * @param string $relation_type Resource type.
@@ -382,7 +382,7 @@ class WordAds {
 	/**
 	 * IPONWEB scripts in <head>
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function insert_head_iponweb() {
 		if ( self::is_amp() ) {
@@ -403,7 +403,7 @@ class WordAds {
 	/**
 	 * Insert the ad onto the page
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param string $content HTML content.
 	 */
@@ -417,7 +417,7 @@ class WordAds {
 		 *
 		 * @module wordads
 		 *
-		 * @since 4.5.0
+		 * @since 4.5.0​
 		 *
 		 * @param bool true Should the in post unit be disabled. Default to false.
 		 */
@@ -434,7 +434,7 @@ class WordAds {
 	 * Insert an inline ad into a post content
 	 * Used for rendering the `wordads` shortcode.
 	 *
-	 * @since 6.1.0
+	 * @since 6.1.0​
 	 *
 	 * @param string $content HTML content.
 	 */
@@ -448,7 +448,7 @@ class WordAds {
 		 *
 		 * @module wordads
 		 *
-		 * @since 4.5.0
+		 * @since 4.5.0​
 		 *
 		 * @param bool true Should the in post unit be disabled. Default to false.
 		 */
@@ -465,7 +465,7 @@ class WordAds {
 	/**
 	 * Inserts ad into header
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function insert_header_ad() {
 		/**
@@ -473,7 +473,7 @@ class WordAds {
 		 *
 		 * @module wordads
 		 *
-		 * @since 4.5.0
+		 * @since 4.5.0​
 		 *
 		 * @param bool true Should the header unit be disabled. Default to false.
 		 */
@@ -527,7 +527,7 @@ class WordAds {
 	 *
 	 * @param string $content Content of the page.
 	 *
-	 * @since 7.5.0
+	 * @since 7.5.0​
 	 */
 	public function insert_header_ad_amp( $content ) {
 
@@ -544,7 +544,7 @@ class WordAds {
 	 * @param  string $adstxt The ads.txt being filtered.
 	 * @return string         Filtered ads.txt with custom entries, if applicable.
 	 *
-	 * @since 6.5.0
+	 * @since 6.5.0​
 	 */
 	public function insert_custom_adstxt( $adstxt ) {
 		if ( ! $this->option( 'wordads_custom_adstxt_enabled' ) ) {
@@ -607,7 +607,7 @@ class WordAds {
 	 * @param  int $width  Width.
 	 * @return string
 	 *
-	 * @since 8.7
+	 * @since 8.7​
 	 */
 	public function get_amp_snippet( $height, $width ) {
 		$height         = esc_attr( $height + 15 ); // this will ensure enough padding for "Report this ad".
@@ -634,7 +634,7 @@ HTML;
 	 *
 	 * @return string
 	 *
-	 * @since 5.7
+	 * @since 5.7​
 	 */
 	public function get_ad_snippet( $section_id, $height, $width, $location = '', $css = '' ) {
 		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
@@ -696,7 +696,7 @@ HTML;
 	 * @param  string $relocate    location to be moved after the fact for themes without required hook.
 	 * @return string
 	 *
-	 * @since 8.7
+	 * @since 8.7​
 	 */
 	public function get_dynamic_ad_snippet( $section_id, $form_factor = 'square', $location = '', $relocate = '' ) {
 		$div_id = 'atatags-' . $section_id . '-' . uniqid();
@@ -766,7 +766,7 @@ HTML;
 	 * @param  array  $css_classes CSS classes.
 	 * @return string The supporting ad unit div.
 	 *
-	 * @since 7.1
+	 * @since 7.1​
 	 */
 	public function get_ad_div( $spot, $snippet, array $css_classes = array() ) {
 		if ( strpos( strtolower( $spot ), 'amp' ) === false && ! 'inline' === $spot ) {
@@ -802,7 +802,7 @@ HTML;
 	 *
 	 * @return true if we should bail (don't insert ads)
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function should_bail() {
 		return ! $this->option( 'wordads_approved' ) || (bool) $this->option( 'wordads_unsafe' );
@@ -814,7 +814,7 @@ HTML;
 	 * @param  string $unit mrec, widesky, or leaderboard.
 	 * @return string       markup for HTML5 house ad
 	 *
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function get_house_ad( $unit = 'mrec' ) {
 
@@ -850,7 +850,7 @@ HTML;
 	/**
 	 * Activation hook actions
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public static function activate() {
 		WordAds_API::update_wordads_status_from_api();

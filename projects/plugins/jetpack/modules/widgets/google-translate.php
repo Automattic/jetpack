@@ -130,7 +130,7 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 			 *
 			 * @module widgets
 			 *
-			 * @since 5.5.0
+			 * @since 5.5.0​
 			 *
 			 * @param string $layout layout of the Google Translate Widget.
 			 */

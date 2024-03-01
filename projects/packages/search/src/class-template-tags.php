@@ -11,14 +11,14 @@ namespace Automattic\Jetpack\Search;
  * Class that has various methods for outputting functionality into a theme that doesn't support widgets.
  * Additionally the widget itself makes use of these class.
  *
- * @since 5.8.0
+ * @since 5.8.0​
  */
 class Template_Tags {
 
 	/**
 	 * Renders all available filters that can be used to filter down search results on the frontend.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array $filters    The available filters for the current query.
 	 * @param array $post_types An array of post types to make filterable.
@@ -89,7 +89,7 @@ class Template_Tags {
 	/**
 	 * Renders a single filter that can be applied to the current search.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array $filter             The filter to render.
 	 * @param array $default_post_types The default post types for this filter.
@@ -155,7 +155,7 @@ class Template_Tags {
 	/**
 	 * Renders a single filter for instant search.
 	 *
-	 * @since 8.3.0
+	 * @since 8.3.0​
 	 *
 	 * @param array $filter             The filter to render.
 	 */
@@ -251,7 +251,7 @@ class Template_Tags {
 	/**
 	 * Outputs the search widget's title.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param string $title        The widget's title.
 	 * @param string $before_title The HTML tag to display before the title.
@@ -265,7 +265,7 @@ class Template_Tags {
 	/**
 	 * Responsible for rendering the search box within our widget on the frontend.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array  $post_types Array of post types to limit search results to.
 	 * @param string $orderby    How to order the search results.
@@ -297,7 +297,7 @@ class Template_Tags {
 	/**
 	 * Modifies an HTML form to add some additional hidden fields.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param string $form   The form HTML to modify.
 	 * @param array  $fields Array of hidden fields to add. Key is field name and value is the field value.
@@ -328,7 +328,7 @@ class Template_Tags {
 	/**
 	 * Internal method for filtering out non-post_type filters.
 	 *
-	 * @since 5.8.0
+	 * @since 5.8.0​
 	 *
 	 * @param array $filter Filter object.
 	 *

@@ -533,7 +533,7 @@ class Error_Handler {
 	 *
 	 * This is used to hook into a couple of filters that expect true to not short circuit the disconnection flow
 	 *
-	 * @since 8.9.0
+	 * @since 8.9.0​
 	 *
 	 * @param mixed $check The input sent by the filter.
 	 * @return boolean
@@ -658,7 +658,7 @@ class Error_Handler {
 	/**
 	 * Prints a generic error notice for all connection errors
 	 *
-	 * @since 8.9.0
+	 * @since 8.9.0​
 	 *
 	 * @return void
 	 */
@@ -680,7 +680,7 @@ class Error_Handler {
 		 *
 		 * Return an empty value to disable the message.
 		 *
-		 * @since 8.9.0
+		 * @since 8.9.0​
 		 *
 		 * @param string $message The error message.
 		 * @param array  $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
@@ -692,7 +692,7 @@ class Error_Handler {
 		 *
 		 * If you want to disable the default message from being displayed, return an emtpy value in the jetpack_connection_error_notice_message filter.
 		 *
-		 * @since 8.9.0
+		 * @since 8.9.0​
 		 *
 		 * @param array $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
 		 */
@@ -712,7 +712,7 @@ class Error_Handler {
 	/**
 	 * Adds the error message to the Jetpack React Dashboard
 	 *
-	 * @since 8.9.0
+	 * @since 8.9.0​
 	 *
 	 * @param array $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
 	 * @return array

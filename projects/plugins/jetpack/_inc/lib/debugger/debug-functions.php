@@ -8,7 +8,7 @@
 /**
  * Test runner for Core's Site Health module.
  *
- * @since 7.3.0
+ * @since 7.3.0​
  */
 function jetpack_debugger_ajax_local_testing_suite() {
 	check_ajax_referer( 'health-check-site-status' );
@@ -21,7 +21,7 @@ function jetpack_debugger_ajax_local_testing_suite() {
 /**
  * Adds the Jetpack Local Testing Suite to the Core Site Health system.
  *
- * @since 7.3.0
+ * @since 7.3.0​
  *
  * @param array $core_tests Array of tests from Core's Site Health.
  *

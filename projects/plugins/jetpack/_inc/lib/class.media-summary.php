@@ -281,7 +281,7 @@ class Jetpack_Media_Summary {
 		/**
 		 * Allow a theme or plugin to inspect and ultimately change the media summary.
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param array $data The calculated media summary data.
 		 * @param int $post_id The id of the post this data applies to.

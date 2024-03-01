@@ -3,7 +3,7 @@
  * Tests for the Jetpack_Sitemap_Stylist class.
  *
  * @package automattic/jetpack
- * @since 4.7.0
+ * @since 4.7.0​
  */
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-stylist.php';
@@ -11,7 +11,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-stylist.php';
 /**
  * Test class for Jetpack_Sitemap_Stylist.
  *
- * @since 4.7.0
+ * @since 4.7.0​
  */
 class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 
@@ -20,7 +20,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Stylist::sitemap_xsl
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_stylist_sitemap_xsl_is_valid() {
 		// The sitemap xsl.
@@ -35,7 +35,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Stylist::sitemap_xsl
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_stylist_sitemap_xsl_is_xsl_stylesheet() {
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::sitemap_xsl() );
@@ -52,7 +52,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Stylist::sitemap_index_xsl
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_stylist_sitemap_index_xsl_is_valid() {
 		// The sitemap index xsl.
@@ -67,7 +67,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Stylist::sitemap_index_xsl
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_stylist_sitemap_index_xsl_is_xsl_stylesheet() {
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::sitemap_index_xsl() );
@@ -84,7 +84,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Stylist::image_sitemap_xsl
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_stylist_image_sitemap_xsl_is_valid() {
 		// The image sitemap xsl.
@@ -99,7 +99,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Stylist::image_sitemap_xsl
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_stylist_image_sitemap_xsl_is_xsl_stylesheet() {
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::image_sitemap_xsl() );
@@ -116,7 +116,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Stylist::news_sitemap_xsl
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_stylist_news_sitemap_xsl_is_valid() {
 		// The news sitemap xsl.
@@ -131,7 +131,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	 *
 	 * @covers Jetpack_Sitemap_Stylist::news_sitemap_xsl
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_stylist_news_sitemap_xsl_is_xsl_stylesheet() {
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::news_sitemap_xsl() );

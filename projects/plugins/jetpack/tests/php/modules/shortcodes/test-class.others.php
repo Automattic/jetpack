@@ -27,7 +27,7 @@ class WP_Test_Jetpack_Shortcodes_Others extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_odesli_data
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 *
 	 * @param string $embed_link The link we're trying to embed, as pasted in the editor.
 	 * @param string $expected   The expected return value of the function.

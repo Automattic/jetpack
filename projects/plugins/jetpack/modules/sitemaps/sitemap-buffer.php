@@ -5,7 +5,7 @@
  * class abstracts the details of constructing these lists while
  * maintaining the constraints.
  *
- * @since 4.8.0
+ * @since 4.8.0​
  * @package automattic/jetpack
  */
 
@@ -20,7 +20,7 @@
  * 3. each item has a timestamp, and we need to keep track
  *      of the most recent timestamp of the items in the list.
  *
- * @since 4.8.0
+ * @since 4.8.0​
  */
 abstract class Jetpack_Sitemap_Buffer {
 
@@ -28,7 +28,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * Largest number of items the buffer can hold.
 	 *
 	 * @access protected
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 * @var int $item_capacity The item capacity.
 	 */
 	protected $item_capacity;
@@ -37,7 +37,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * Largest number of bytes the buffer can hold.
 	 *
 	 * @access protected
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 * @var int $byte_capacity The byte capacity.
 	 */
 	protected $byte_capacity;
@@ -46,7 +46,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * Flag which detects when the buffer is full.
 	 *
 	 * @access protected
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 * @var bool $is_full_flag The flag value. This flag is set to false on construction and only flipped to true if we've tried to add something and failed.
 	 */
 	protected $is_full_flag;
@@ -55,7 +55,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * Flag which detects when the buffer is empty.
 	 *
 	 * @access protected
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 * @var bool $is_empty_flag The flag value. This flag is set to true on construction and only flipped to false if we've tried to add something and succeeded.
 	 */
 	protected $is_empty_flag;
@@ -64,7 +64,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * The most recent timestamp seen by the buffer.
 	 *
 	 * @access protected
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 * @var string $timestamp Must be in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	protected $timestamp;
@@ -73,7 +73,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * The DOM document object that is currently being used to construct the XML doc.
 	 *
 	 * @access protected
-	 * @since 5.3.0
+	 * @since 5.3.0​
 	 * @var DOMDocument $doc
 	 */
 	protected $doc = null;
@@ -83,7 +83,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * the get_root_element getter method instead.
 	 *
 	 * @access protected
-	 * @since 5.3.0
+	 * @since 5.3.0​
 	 * @var DOMElement $doc
 	 */
 	protected $root = null;
@@ -91,7 +91,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	/**
 	 * Helper class to construct sitemap paths.
 	 *
-	 * @since 5.3.0
+	 * @since 5.3.0​
 	 * @protected
 	 * @var Jetpack_Sitemap_Finder
 	 */
@@ -100,7 +100,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	/**
 	 * Construct a new Jetpack_Sitemap_Buffer.
 	 *
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param int    $item_limit The maximum size of the buffer in items.
 	 * @param int    $byte_limit The maximum size of the buffer in bytes.
@@ -121,7 +121,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * Returns a DOM element that contains all sitemap elements.
 	 *
 	 * @access protected
-	 * @since 5.3.0
+	 * @since 5.3.0​
 	 * @return DOMElement $root
 	 */
 	abstract protected function get_root_element();
@@ -132,7 +132,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * we set is_full_flag to true. If $item is null,
 	 * don't do anything and report success.
 	 *
-	 * @since 5.3.0
+	 * @since 5.3.0​
 	 *
 	 * @param array $array The item to be added.
 	 *
@@ -163,7 +163,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	/**
 	 * Retrieve the contents of the buffer.
 	 *
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @return string The contents of the buffer (with the footer included).
 	 */
@@ -178,7 +178,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	/**
 	 * Retrieve the document object.
 	 *
-	 * @since 5.3.0
+	 * @since 5.3.0​
 	 * @return DOMDocument $doc
 	 */
 	public function get_document() {
@@ -188,7 +188,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	/**
 	 * Detect whether the buffer is full.
 	 *
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @return bool True if the buffer is full, false otherwise.
 	 */
@@ -199,7 +199,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	/**
 	 * Detect whether the buffer is empty.
 	 *
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @return bool True if the buffer is empty, false otherwise.
 	 */
@@ -213,7 +213,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	/**
 	 * Update the timestamp of the buffer.
 	 *
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @param string $new_time A datetime string in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
@@ -224,7 +224,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	/**
 	 * Retrieve the timestamp of the buffer.
 	 *
-	 * @since 4.8.0
+	 * @since 4.8.0​
 	 *
 	 * @return string A datetime string in 'YYYY-MM-DD hh:mm:ss' format.
 	 */

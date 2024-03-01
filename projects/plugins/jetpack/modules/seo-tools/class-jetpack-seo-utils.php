@@ -33,7 +33,7 @@ class Jetpack_SEO_Utils {
 		 *
 		 * @module seo-tools
 		 *
-		 * @since 5.0.0
+		 * @since 5.0.0​
 		 *
 		 * @param bool True if SEO Tools should be disabled, false otherwise.
 		 */
@@ -94,7 +94,7 @@ class Jetpack_SEO_Utils {
 		 *
 		 * @module seo-tools
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param int Maximum length of front page meta description. Defaults to 300.
 		 */

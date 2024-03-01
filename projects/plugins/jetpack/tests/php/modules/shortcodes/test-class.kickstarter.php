@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Shortcodes_Kickstarter extends WP_UnitTestCase {
 	/**
 	 * Verify that [kickstarter] exists.
 	 *
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_kickstarter_exists() {
 		$this->assertTrue( shortcode_exists( 'kickstarter' ) );
@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Shortcodes_Kickstarter extends WP_UnitTestCase {
 	/**
 	 * Verify that executing the shortcode doesn't return the same content but empty, since it has no attributes.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_kickstarter() {
 		$content = '[kickstarter]';
@@ -31,7 +31,7 @@ class WP_Test_Jetpack_Shortcodes_Kickstarter extends WP_UnitTestCase {
 	/**
 	 * Verify that executing shortcode with an invalid URL fails.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_kickstarter_invalid_url() {
 		$content = '[kickstarter url="https://kikstarter.com"]';
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Shortcodes_Kickstarter extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the shortcode returns a Kickstarter link.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_kickstarter_image() {
 		$this->markTestSkipped();

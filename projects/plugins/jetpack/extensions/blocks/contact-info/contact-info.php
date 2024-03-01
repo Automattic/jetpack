@@ -2,7 +2,7 @@
 /**
  * Contact Info block and its child blocks.
  *
- * @since 7.1.0
+ * @since 7.1.0​
  *
  * @package automattic/jetpack
  */

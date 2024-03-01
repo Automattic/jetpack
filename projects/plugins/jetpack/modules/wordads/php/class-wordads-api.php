@@ -11,7 +11,7 @@ use Automattic\Jetpack\Status;
 /**
  * Methods for accessing data through the WPCOM REST API
  *
- * @since 4.5.0
+ * @since 4.5.0​
  */
 class WordAds_API {
 
@@ -20,7 +20,7 @@ class WordAds_API {
 	 *
 	 * @return array|WP_Error Array of site status values, or WP_Error if no response from the API.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public static function get_wordads_status() {
 		global $wordads_status_response;
@@ -57,7 +57,7 @@ class WordAds_API {
 	/**
 	 * Grab WordAds status from WP.com API and store as option
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public static function update_wordads_status_from_api() {
 		$status = self::get_wordads_status();
@@ -78,7 +78,7 @@ class WordAds_API {
 	 *
 	 * @return array string contents of the ads.txt file.
 	 *
-	 * @since 6.1.0
+	 * @since 6.1.0​
 	 */
 	public static function get_wordads_ads_txt() {
 		global $wordads_status_response;

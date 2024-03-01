@@ -164,7 +164,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 		/**
 		 * Events_Manager instance. Manages CRM events.
 		 *
-		 * @since 6.2.0
+		 * @since 6.2.0​
 		 *
 		 * @var Events_Manager
 		 */

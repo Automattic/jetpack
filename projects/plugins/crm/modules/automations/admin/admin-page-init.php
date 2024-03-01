@@ -15,7 +15,7 @@ use Automattic\Jetpack\Assets;
 /**
  * The main initializing function.
  *
- * @since 6.2.0
+ * @since 6.2.0​
  *
  * @return void
  */
@@ -26,7 +26,7 @@ function initialize_admin_page() {
 /**
  * Actions to run on admin init
  *
- * @since 6.2.0
+ * @since 6.2.0​
  *
  * @return void
  */
@@ -37,7 +37,7 @@ function admin_init() {
 /**
  * Enqueues the React app bundle.
  *
- * @since 6.2.0
+ * @since 6.2.0​
  *
  * @return void
  */
@@ -59,7 +59,7 @@ function enqueue_admin_scripts() {
 /**
  * Initial state to be served with the React app.
  *
- * @since 6.2.0
+ * @since 6.2.0​
  *
  * @return string
  */
@@ -67,7 +67,7 @@ function render_initial_state() {
 	/**
 	 * Allow external plugins to modify Automations UI hydration data.
 	 *
-	 * @since 6.1.0
+	 * @since 6.1.0​
 	 *
 	 * @param array {
 	 *     Array of default data we need to render our React UI.

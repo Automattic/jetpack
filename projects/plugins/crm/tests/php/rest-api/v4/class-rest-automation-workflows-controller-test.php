@@ -399,7 +399,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	 * prune those data to make it easier to compare the original workflow and
 	 * the response.
 	 *
-	 * @since 6.2.0
+	 * @since 6.2.0​
 	 *
 	 * @param array $workflow_data The returned workflow data.
 	 * @return array The pruned workflow data.

@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class to include elements to modify Related Posts look in Customizer.
  *
- * @since 4.4.0
+ * @since 4.4.0​
  */
 class Jetpack_Related_Posts_Customize {
 
@@ -31,7 +31,7 @@ class Jetpack_Related_Posts_Customize {
 	/**
 	 * Class initialization.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function __construct() {
 		if ( ! wp_is_block_theme() ) {
@@ -43,7 +43,7 @@ class Jetpack_Related_Posts_Customize {
 	/**
 	 * Initialize Customizer controls.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 *
 	 * @param WP_Customize_Manager $wp_customize Customizer instance.
 	 */
@@ -117,7 +117,7 @@ class Jetpack_Related_Posts_Customize {
 	/**
 	 * Callback that outputs the headline based on user choice.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public static function render_callback() {
 		echo Jetpack_RelatedPosts::init()->get_headline(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- content escaped in get_headline method
@@ -126,7 +126,7 @@ class Jetpack_Related_Posts_Customize {
 	/**
 	 * Check whether the current post contains a Related Posts block.
 	 *
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 *
 	 * @return bool
 	 */
@@ -143,7 +143,7 @@ class Jetpack_Related_Posts_Customize {
 	 * Will return `false` if the current post contains a Related Posts block,
 	 * because in that case we want to hide the Customizer controls.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 *
 	 * @return bool
 	 */
@@ -159,7 +159,7 @@ class Jetpack_Related_Posts_Customize {
 	 * Will return `false` if the current post contains a Related Posts block,
 	 * because in that case we want to hide the Customizer controls.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 *
 	 * @return bool
 	 */
@@ -173,7 +173,7 @@ class Jetpack_Related_Posts_Customize {
 	/**
 	 * Return list of options to modify.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 *
 	 * @param object $wp_customize Instance of WP Customizer.
 	 *
@@ -193,7 +193,7 @@ class Jetpack_Related_Posts_Customize {
 		 *
 		 * @module related-posts
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param array $options Array of options used to display Related Posts in the Customizer.
 		 */
@@ -274,7 +274,7 @@ class Jetpack_Related_Posts_Customize {
 	/**
 	 * Enqueue assets for Customizer controls.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function customize_controls_enqueue_scripts() {
 		wp_enqueue_script(
@@ -293,7 +293,7 @@ class Jetpack_Related_Posts_Customize {
 /**
  * Control that displays a message in Customizer.
  *
- * @since 4.4.0
+ * @since 4.4.0​
  * @todo break this out into its own file.
  */
 class Jetpack_Message_Control extends WP_Customize_Control { // phpcs:ignore
@@ -301,7 +301,7 @@ class Jetpack_Message_Control extends WP_Customize_Control { // phpcs:ignore
 	/**
 	 * Render the message.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 */
 	public function render_content() {
 		echo '<p class="description">' . esc_html( $this->description ) . '</p>';

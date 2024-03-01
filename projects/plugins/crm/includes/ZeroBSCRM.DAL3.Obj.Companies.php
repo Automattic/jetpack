@@ -384,7 +384,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 	 *
 	 * @throws Exception     Catches and handles exceptions, logging SQL errors.
 	 *
-	 * @since  6.2.0
+	 * @since 6.2.0​
 	 */
 	public function get_company_id_by_name( $name ) {
 		global $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase

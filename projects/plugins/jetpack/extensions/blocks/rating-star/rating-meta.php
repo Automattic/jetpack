@@ -2,7 +2,7 @@
 /**
  * Utilities for the rating block.
  *
- * @since 8.0.0
+ * @since 8.0.0​
  *
  * @package automattic/jetpack
  */

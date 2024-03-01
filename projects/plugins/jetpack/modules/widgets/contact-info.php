@@ -133,7 +133,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 					/**
 					 * Set a Google Maps API Key.
 					 *
-					 * @since 4.1.0
+					 * @since 4.1.0​
 					 *
 					 * @param string $api_key Google Maps API Key
 					 */

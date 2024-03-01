@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 	/**
 	 * Verify that [spotify] exists.
 	 *
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_spotify_exists() {
 		$this->assertTrue( shortcode_exists( 'spotify' ) );
@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 	/**
 	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_spotify() {
 		$content = '[spotify]';
@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the shortcode returns a Spotify player based on the ID.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_spotify_player_id() {
 		$track_id = '55fQ9iIkC2qajnlvI1iMWO';
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the shortcode returns a Spotify player based on the URL.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_spotify_player_url() {
 		$track_id  = '55fQ9iIkC2qajnlvI1iMWO';
@@ -59,7 +59,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 	/**
 	 * Verify that content like "spotify:track:55fQ9iIkC2qajnlvI1iMWO" on its own line, it will be converted to a player.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_spotify_player_content() {
 		$track_id = '55fQ9iIkC2qajnlvI1iMWO';
@@ -72,7 +72,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 	/**
 	 * Verify that content like "spotify:track:55fQ9iIkC2qajnlvI1iMWO" that is not in its own line, won't be converted to a player.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_spotify_player_content_no_line() {
 		$track_id = '55fQ9iIkC2qajnlvI1iMWO';
@@ -85,7 +85,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 	/**
 	 * Verify that content like "spotify:track:55fQ9iIkC2qajnlvI1iMWO" on its own line, not preceded by an HTML tag, will be converted to a player.
 	 *
-	 * @since 8.6.0
+	 * @since 8.6.0​
 	 */
 	public function test_shortcodes_spotify_player_content_no_html() {
 		$track_id = '55fQ9iIkC2qajnlvI1iMWO';

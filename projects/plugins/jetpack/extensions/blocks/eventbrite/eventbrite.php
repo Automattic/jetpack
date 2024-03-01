@@ -2,7 +2,7 @@
 /**
  * Eventbrite Block.
  *
- * @since 8.2.0
+ * @since 8.2.0​
  *
  * @package automattic/jetpack
  */

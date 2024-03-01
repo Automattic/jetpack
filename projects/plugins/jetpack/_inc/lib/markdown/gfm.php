@@ -66,7 +66,7 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 		 *
 		 * @module markdown
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param boolean $preserve_shortcodes Defaults to $this->preserve_shortcodes.
 		 */

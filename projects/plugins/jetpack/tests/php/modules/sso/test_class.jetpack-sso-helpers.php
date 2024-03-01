@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../../../modules/sso/class.jetpack-sso-helpers.php';
 /**
  * Testing functions in Jetpack_SSO_Helpers class.
  *
- * @since 4.1.0
+ * @since 4.1.0​
  */
 class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 

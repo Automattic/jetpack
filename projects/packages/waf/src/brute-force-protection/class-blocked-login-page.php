@@ -89,7 +89,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 		 *
 		 * @module protect
 		 *
-		 * @since 5.6.0
+		 * @since 5.6.0​
 		 *
 		 * @param bool $can_send_recovery_emails Defaults to true.
 		 */
@@ -107,7 +107,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	/**
 	 * Gets the URL that redirects to the support page on unblocking
 	 *
-	 * @since 8.5.0
+	 * @since 8.5.0​
 	 *
 	 * @return string
 	 */

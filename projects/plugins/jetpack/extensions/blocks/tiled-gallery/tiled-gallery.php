@@ -3,7 +3,7 @@
  * Tiled Gallery block.
  * Relies on Photon, but can be used even when the module is not active.
  *
- * @since 6.9.0
+ * @since 6.9.0​
  *
  * @package automattic/jetpack
  */
@@ -19,7 +19,7 @@ use Jetpack_Gutenberg;
 /**
  * Jetpack Tiled Gallery Block class
  *
- * @since 7.3
+ * @since 7.3​
  */
 class Tiled_Gallery {
 	/* Values for building srcsets */
@@ -155,7 +155,7 @@ class Tiled_Gallery {
 		 *
 		 * @module tiled-gallery
 		 *
-		 * @since 6.9.0
+		 * @since 6.9.0​
 		 *
 		 * @param string $content Tiled Gallery block content.
 		 */

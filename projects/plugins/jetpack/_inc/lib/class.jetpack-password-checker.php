@@ -95,7 +95,7 @@ class Jetpack_Password_Checker {
 		 * each user. For example, you can add passwords from known password databases to avoid compromised
 		 * password usage.
 		 *
-		 * @since 7.2.0
+		 * @since 7.2.0​
 		 *
 		 * @param array $restricted_passwords strings that are forbidden for use as passwords.
 		 */
@@ -144,7 +144,7 @@ class Jetpack_Password_Checker {
 		 * Filters Jetpack's password strength enforcement settings. You can modify the minimum
 		 * entropy bits requirement using this filter.
 		 *
-		 * @since 7.2.0
+		 * @since 7.2.0​
 		 *
 		 * @param array $minimum_entropy_bits minimum entropy bits requirement.
 		 */
@@ -271,7 +271,7 @@ class Jetpack_Password_Checker {
 		 * Filters Jetpack's password strength enforcement settings. You can determine the tests run
 		 * and their order based on whatever criteria you wish to specify.
 		 *
-		 * @since 7.2.0
+		 * @since 7.2.0​
 		 *
 		 * @param array $minimum_entropy_bits minimum entropy bits requirement.
 		 */

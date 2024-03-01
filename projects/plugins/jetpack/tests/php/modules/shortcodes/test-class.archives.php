@@ -42,7 +42,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	/**
 	 * Gets the test data for test_shortcodes_archives_format_option().
 	 *
-	 * @since 8.5.0
+	 * @since 8.5.0​
 	 *
 	 * @return array The test data.
 	 */

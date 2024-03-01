@@ -71,7 +71,7 @@ function Markdown($text) {
  * Returns the length of $text loosely counting the number of UTF-8 characters with regular expression.
  * Used by the Markdown_Parser class when mb_strlen is not available.
  *
- * @since 5.9
+ * @since 5.9​
  *
  * @return string Length of the multibyte string
  *

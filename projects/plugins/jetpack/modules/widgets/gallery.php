@@ -502,7 +502,7 @@ function jetpack_gallery_widget_init() {
 	 *
 	 * @module widgets
 	 *
-	 * @since 5.5.0
+	 * @since 5.5.0​
 	 *
 	 * @param bool false Whether to force-enable the gallery widget
 	 */

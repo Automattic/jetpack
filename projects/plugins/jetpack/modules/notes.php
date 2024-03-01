@@ -116,7 +116,7 @@ class Jetpack_Notifications {
 			 *
 			 * @module notes
 			 *
-			 * @since 4.8.0
+			 * @since 4.8.0​
 			 *
 			 * @param bool true Should notifications be displayed in RTL style. Defaults to false.
 			 */

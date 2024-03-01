@@ -30,7 +30,7 @@ class Jetpack_Brightcove_Shortcode {
 	/**
 	 * Parse shortcode arguments and render its output.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array $atts Shortcode parameters.
 	 *
@@ -55,7 +55,7 @@ class Jetpack_Brightcove_Shortcode {
 	 * However, since we want to determine whether to call convert_to_legacy_studio() or convert_to_new_studio() via passed parameters, we still need to parse the two properly.
 	 * See https://jetpack.wp-a2z.org/oik_api/shortcode_new_to_old_params/
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array $atts Shortcode parameters.
 	 *
@@ -71,7 +71,7 @@ class Jetpack_Brightcove_Shortcode {
 			 *
 			 * @module shortcodes
 			 *
-			 * @since 4.5.0
+			 * @since 4.5.0​
 			 *
 			 * @param string $params String of shortcode parameters.
 			 */
@@ -87,7 +87,7 @@ class Jetpack_Brightcove_Shortcode {
 	/**
 	 * Check that it has legacy attributes.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array $atts Shortcode parameters.
 	 *
@@ -101,7 +101,7 @@ class Jetpack_Brightcove_Shortcode {
 	/**
 	 * Convert to latest player format.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array $atts Shortcode parameters.
 	 *
@@ -140,7 +140,7 @@ class Jetpack_Brightcove_Shortcode {
 	 * [brightcove exp=627045696&vid=1415670151] for the older player and backward compatibility
 	 * [brightcove exp=1463233149&vref=1601200825] for the new player
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 *
 	 * @param array $atts Shortcode parameters.
 	 *

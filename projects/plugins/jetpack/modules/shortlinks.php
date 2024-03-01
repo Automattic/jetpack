@@ -125,7 +125,7 @@ function wpme_get_shortlink_handler( $shortlink, $id, $context, $allow_slugs ) {
 /**
  * Add Shortlinks to the REST API responses.
  *
- * @since 6.9.0
+ * @since 6.9.0​
  *
  * @action rest_api_init
  * @uses register_rest_field, wpme_rest_get_shortlink
@@ -162,7 +162,7 @@ function wpme_rest_register_shortlinks() {
 /**
  * Get the shortlink of a post.
  *
- * @since 6.9.0
+ * @since 6.9.0​
  *
  * @param array $object Details of current post.
  *

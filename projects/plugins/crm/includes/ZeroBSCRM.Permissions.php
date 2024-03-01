@@ -587,7 +587,7 @@ function zeroBSCRM_permsObjType( $obj_type_id = -1 ) { // phpcs:ignore WordPress
 /**
  * Determine if a user is allowed to manage contacts.
  *
- * @since 6.1.0
+ * @since 6.1.0​
  *
  * @param WP_User $user The WP User to check permission access for.
  * @param int     $contact_id (Optional) The ID of the CRM contact.
@@ -597,7 +597,7 @@ function jpcrm_can_user_manage_contacts( WP_User $user, $contact_id = null ) {
 	/**
 	 * Allow third party plugins to modify the permission conditions for contacts.
 	 *
-	 * @since 6.1.0
+	 * @since 6.1.0​
 	 *
 	 * @param boolean  $allowed A boolean that represents the permission state.
 	 * @param WP_User  $user The WP User to check permission access for.

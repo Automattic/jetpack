@@ -162,7 +162,7 @@ class Jetpack_Calypsoify {
 	/**
 	 * Return whether a post type should display the Gutenberg/block editor.
 	 *
-	 * @since 6.7.0
+	 * @since 6.7.0​
 	 *
 	 * @param string $post_type Post type.
 	 */

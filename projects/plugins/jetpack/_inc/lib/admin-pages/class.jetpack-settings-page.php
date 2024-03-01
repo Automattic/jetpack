@@ -173,7 +173,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	/**
 	 * Load styles for static page.
 	 *
-	 * @since 4.3.0
+	 * @since 4.3.0​
 	 */
 	public function additional_styles() {
 		Jetpack_Admin_Page::load_wrapper_styles();

@@ -2,7 +2,7 @@
 /**
  * Memberships block.
  *
- * @since 7.3.0
+ * @since 7.3.0​
  *
  * @package automattic/jetpack
  */

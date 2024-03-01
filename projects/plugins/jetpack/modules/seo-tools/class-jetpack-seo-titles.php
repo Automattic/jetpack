@@ -237,7 +237,7 @@ class Jetpack_SEO_Titles {
 		 *
 		 * @module seo-tools
 		 *
-		 * @since 4.4.0
+		 * @since 4.4.0​
 		 *
 		 * @param array List of conflicted theme names. Defaults to empty array.
 		 */

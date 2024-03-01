@@ -41,7 +41,7 @@ class Jetpack_Geo_Location {
 	/**
 	 * Whether dashicons are enqueued.
 	 *
-	 * @since 6.6.0
+	 * @since 6.6.0​
 	 *
 	 * @var bool
 	 */

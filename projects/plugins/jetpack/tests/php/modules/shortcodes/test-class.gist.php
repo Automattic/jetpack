@@ -27,7 +27,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	 *
 	 * @covers ::github_gist_shortcode
 	 *
-	 * @since 6.6.0
+	 * @since 6.6.0​
 	 */
 	public function test_shortcodes_gist_exists() {
 		$this->assertTrue( shortcode_exists( 'gist' ) );
@@ -38,7 +38,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	 *
 	 * @covers ::github_gist_shortcode
 	 *
-	 * @since 6.6.0
+	 * @since 6.6.0​
 	 */
 	public function test_shortcodes_gist() {
 		$content = '[gist]';

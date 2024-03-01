@@ -714,7 +714,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					/**
 					 * Allow newer versions of this endpoint to filter in additional fields for Google Analytics
 					 *
-					 * @since 5.4.0
+					 * @since 5.4.0​
 					 *
 					 * @param array $wga Associative array of existing Google Analytics settings.
 					 * @param array $value Associative array of new Google Analytics settings passed to the endpoint.
@@ -923,7 +923,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						 *
 						 * @module json-api
 						 *
-						 * @since 4.10
+						 * @since 4.10​
 						 */
 						if ( delete_option( $key ) || apply_filters( 'rest_api_site_icon_cleared', false ) ) {
 							$updated[ $key ] = null;

@@ -17,7 +17,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 /**
  * Register Getty as oembed provider. Add filter to reverse iframes to shortcode. Register [getty] shortcode.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  * @since 5.8.0 removed string parameter.
  */
 function jetpack_getty_enable_embeds() {
@@ -40,7 +40,7 @@ function jetpack_getty_enable_embeds() {
  *
  * @module shortcodes
  *
- * @since 5.8.0
+ * @since 5.8.0​
  *
  * @see WP_oEmbed::fetch
  *
@@ -82,7 +82,7 @@ function getty_add_oembed_endpoint_caller( $provider ) {
 /**
  * Compose shortcode based on Getty iframes.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param string $content Post content.
  *
@@ -189,7 +189,7 @@ function wpcom_shortcodereverse_getty( $content ) {
 /**
  * Parse shortcode arguments and render its output.
  *
- * @since 4.5.0
+ * @since 4.5.0​
  *
  * @param array  $atts    Shortcode parameters.
  * @param string $content Content enclosed by shortcode tags.

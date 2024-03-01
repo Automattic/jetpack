@@ -8,7 +8,7 @@
 /**
  * Provides methods for dealing with module overrides.
  *
- * @since 5.9.0
+ * @since 5.9.0​
  */
 class Jetpack_Modules_Overrides {
 	/**

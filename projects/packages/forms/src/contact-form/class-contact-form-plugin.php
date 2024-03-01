@@ -83,7 +83,7 @@ class Contact_Form_Plugin {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 6.1.0
+		 * @since 6.1.0​
 		 *
 		 * @param array $feedback_ids list of feedback post ID
 		 */
@@ -97,7 +97,7 @@ class Contact_Form_Plugin {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 6.1.0
+		 * @since 6.1.0​
 		 *
 		 * @param array $feedback_ids list of feedback post ID
 		 */
@@ -536,7 +536,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Display the count of new feedback entries received. It's reset when user visits the Feedback screen.
 	 *
-	 * @since 4.1.0
+	 * @since 4.1.0​
 	 *
 	 * @param object $screen Information about the current screen.
 	 */
@@ -1222,7 +1222,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Registers the personal data exporter.
 	 *
-	 * @since 6.1.1
+	 * @since 6.1.1​
 	 *
 	 * @param  array $exporters An array of personal data exporters.
 	 *
@@ -1240,7 +1240,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Registers the personal data eraser.
 	 *
-	 * @since 6.1.1
+	 * @since 6.1.1​
 	 *
 	 * @param  array $erasers An array of personal data erasers.
 	 *
@@ -1258,7 +1258,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Exports personal data.
 	 *
-	 * @since 6.1.1
+	 * @since 6.1.1​
 	 *
 	 * @param  string $email  Email address.
 	 * @param  int    $page   Page to export.
@@ -1276,7 +1276,7 @@ class Contact_Form_Plugin {
 	 * while protecting against future core API changes.
 	 *
 	 * @internal
-	 * @since 6.5
+	 * @since 6.5​
 	 *
 	 * @param  string $email    Email address.
 	 * @param  int    $page     Page to export.
@@ -1333,7 +1333,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Erases personal data.
 	 *
-	 * @since 6.1.1
+	 * @since 6.1.1​
 	 *
 	 * @param  string $email Email address.
 	 * @param  int    $page  Page to erase.
@@ -1351,7 +1351,7 @@ class Contact_Form_Plugin {
 	 * while protecting against future core API changes.
 	 *
 	 * @internal
-	 * @since 6.5
+	 * @since 6.5​
 	 *
 	 * @param  string $email    Email address.
 	 * @param  int    $page     Page to erase.
@@ -1373,7 +1373,7 @@ class Contact_Form_Plugin {
 			/**
 			 * Filters whether to erase a particular Feedback post.
 			 *
-			 * @since 6.3.0
+			 * @since 6.3.0​
 			 *
 			 * @param bool|string $prevention_message Whether to apply erase the Feedback post (bool).
 			 *                                        Custom prevention message (string). Default true.
@@ -1428,7 +1428,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Queries personal data by email address.
 	 *
-	 * @since 6.1.1
+	 * @since 6.1.1​
 	 *
 	 * @param  string $email        Email address.
 	 * @param  int    $per_page     Post IDs per page. Default is `250`.
@@ -1470,7 +1470,7 @@ class Contact_Form_Plugin {
 	/**
 	 * Filters searches by email address.
 	 *
-	 * @since 6.1.1
+	 * @since 6.1.1​
 	 *
 	 * @param  string $search SQL where clause.
 	 *

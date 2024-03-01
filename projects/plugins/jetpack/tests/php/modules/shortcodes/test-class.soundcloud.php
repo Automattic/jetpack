@@ -57,7 +57,7 @@ class WP_Test_Jetpack_Shortcodes_Soundcloud extends WP_UnitTestCase {
 	/**
 	 * Test single tracks with no height specified.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function tests_shortcodes_soundcloud_single_track_no_height() {
 		$content = '[soundcloud url="https://soundcloud.com/closetorgan/paul-is-dead"]';
@@ -71,7 +71,7 @@ class WP_Test_Jetpack_Shortcodes_Soundcloud extends WP_UnitTestCase {
 	/**
 	 * Tests albums with no height specified.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function tests_shortcodes_soundcloud_album_no_height() {
 		$content = '[soundcloud url="https://soundcloud.com/closetorgan/sets/smells-like-lynx-africa-private"]';
@@ -85,7 +85,7 @@ class WP_Test_Jetpack_Shortcodes_Soundcloud extends WP_UnitTestCase {
 	/**
 	 * Tests albums with a custom color.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function tests_shortcodes_soundcloud_album_custom_color() {
 		$content = '[soundcloud url="https://soundcloud.com/closetorgan/sets/smells-like-lynx-africa-private" color="00cc11"]';
@@ -124,7 +124,7 @@ class WP_Test_Jetpack_Shortcodes_Soundcloud extends WP_UnitTestCase {
 	 * Tests the shortcode output on an AMP endpoint.
 	 *
 	 * @covers ::soundcloud_shortcode
-	 * @since 8.0.0
+	 * @since 8.0.0​
 	 */
 	public function tests_shortcodes_soundcloud_amp() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

@@ -3,7 +3,7 @@
  * Tests for the Jetpack_Sitemap_Librarian class.
  *
  * @package automattic/jetpack
- * @since 4.7.0
+ * @since 4.7.0​
  */
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-constants.php';
@@ -13,7 +13,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-librarian.php';
  * Test class for Jetpack_Sitemap_Librarian.
  *
  * @covers Jetpack_Sitemap_Librarian
- * @since 4.7.0
+ * @since 4.7.0​
  */
 class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 
@@ -21,7 +21,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 * Constructor does not throw a fatal error.
 	 *
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_librarian_constructor() {
 		$librarian = new Jetpack_Sitemap_Librarian(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 * Getting an unset row returns null.
 	 *
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_librarian_get_unset_row_is_null() {
 		$librarian = new Jetpack_Sitemap_Librarian();
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 * Deleting an unset row returns false.
 	 *
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_librarian_delete_unset_row_returns_false() {
 		$librarian = new Jetpack_Sitemap_Librarian();
@@ -56,7 +56,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 * Deleting a set row returns true.
 	 *
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_librarian_delete_set_row_returns_true() {
 		$librarian = new Jetpack_Sitemap_Librarian();
@@ -69,7 +69,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 * Getting a set row is the identity(ish).
 	 *
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_librarian_set_then_get_is_identity() {
 		$librarian = new Jetpack_Sitemap_Librarian();
@@ -91,7 +91,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	/**
 	 * Setting the same name/type twice overwrites old data.
 	 *
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_librarian_set_then_set_overwrites_data() {
 		$librarian    = new Jetpack_Sitemap_Librarian();
@@ -114,7 +114,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 * Getting the text of a set row is the identity.
 	 *
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_librarian_set_then_get_text_is_identity() {
 		$librarian = new Jetpack_Sitemap_Librarian();
@@ -134,7 +134,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 * Delete contiguously named rows.
 	 *
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 4.7.0​
 	 */
 	public function test_sitemap_librarian_delete_contiguously_named_rows() {
 		$librarian = new Jetpack_Sitemap_Librarian();

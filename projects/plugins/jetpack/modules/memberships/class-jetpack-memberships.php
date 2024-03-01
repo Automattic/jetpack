@@ -3,7 +3,7 @@
  * Jetpack_Memberships: wrapper for memberships functions.
  *
  * @package    Jetpack
- * @since      7.3.0
+ * @since 7.3.0​
  */
 
 use Automattic\Jetpack\Blocks;

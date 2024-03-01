@@ -158,7 +158,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		 *
 		 * @module widgets
 		 *
-		 * @since 6.9.0
+		 * @since 6.9.0​
 		 *
 		 * @param bool false Should the Twitter Timeline use the DNT attribute? Default to false.
 		 */

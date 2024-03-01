@@ -212,7 +212,7 @@ class Jetpack_Simple_Payments {
 		/**
 		 * Can be used by plugin authors to disable the conflicting output of Simple Payments.
 		 *
-		 * @since 6.3.0
+		 * @since 6.3.0​
 		 *
 		 * @param bool True if Simple Payments should be disabled, false otherwise.
 		 */

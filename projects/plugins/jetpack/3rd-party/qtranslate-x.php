@@ -8,7 +8,7 @@
 /**
  * Prevent qTranslate X from redirecting REST calls.
  *
- * @since 5.3
+ * @since 5.3​
  *
  * @param string $url_lang Language URL to redirect to.
  * @param string $url_orig Original URL.

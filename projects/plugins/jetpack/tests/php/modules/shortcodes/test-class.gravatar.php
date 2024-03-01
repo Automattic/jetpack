@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 	/**
 	 * Verify that [gravatar] exists.
 	 *
-	 * @since  4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_gravatar_exists() {
 		$this->assertTrue( shortcode_exists( 'gravatar' ) );
@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 	/**
 	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_gravatar() {
 		$content = '[gravatar]';
@@ -31,7 +31,7 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the Gravatar shortcode returns an avatar image.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_gravatar_image() {
 		$content = "[gravatar email='user@example.org' size='48']";
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the Gravatar profile shortcode returns a profile.
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_gravatar_profile() {
 		$email   = 'user@example.org';
@@ -85,7 +85,7 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the Gravatar profile shortcode returns a profile using user id
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_gravatar_user_id() {
 		$user    = self::factory()->user->create_and_get( array( 'user_email' => 'user@example.org' ) );
@@ -114,7 +114,7 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 	/**
 	 * Verify that rendering the Gravatar profile shortcode returns a profile using user id
 	 *
-	 * @since 4.5.0
+	 * @since 4.5.0​
 	 */
 	public function test_shortcodes_gravatar_no_profile() {
 		$user    = self::factory()->user->create_and_get( array( 'user_email' => 'user@example.org' ) );

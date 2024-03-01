@@ -121,7 +121,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	/**
 	 * Check that no markup is returned when an invalid image ID is used.
 	 *
-	 * @since 8.5.0
+	 * @since 8.5.0​
 	 */
 	public function test_shortcodes_slideshow_no_valid_id() {
 		$content = sprintf( '[gallery type="slideshow" size="thumbnail" ids="%d"]', PHP_INT_MAX );
@@ -156,7 +156,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_slideshow_shortcode_amp
 	 * @covers Jetpack_Slideshow_Shortcode::shortcode_callback()
-	 * @since 8.5.0
+	 * @since 8.5.0​
 	 *
 	 * @param string $shortcode The initial shortcode.
 	 * @param string $expected  The expected markup, after processing the shortcode.

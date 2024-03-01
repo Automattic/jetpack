@@ -3,7 +3,7 @@
  * REST API endpoint for the Instagram connections.
  *
  * @package automattic/jetpack
- * @since 8.5.0
+ * @since 8.5.0​
  */
 
 use Automattic\Jetpack\Connection\Client;
@@ -12,7 +12,7 @@ use Automattic\Jetpack\Connection\Manager;
 /**
  * Instagram connections helper API.
  *
- * @since 8.5
+ * @since 8.5​
  */
 class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 	/**

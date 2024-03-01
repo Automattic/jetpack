@@ -25,7 +25,7 @@ use Automattic\Jetpack\Status\Host;
  *
  * @see register_block_type
  *
- * @since 6.7.0
+ * @since 6.7.0​
  *
  * @param string $slug Slug of the block.
  * @param array  $args Arguments that are passed into register_block_type.
@@ -90,7 +90,7 @@ class Jetpack_Gutenberg {
 	 * @param array  $version_requirements An array containing the required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
 	 * @param string $slug The slug of the block or plugin that has the gutenberg version requirement.
 	 *
-	 * @since 8.3.0
+	 * @since 8.3.0​
 	 *
 	 * @return boolean True if the version of gutenberg required by the block or plugin is available.
 	 */
@@ -200,7 +200,7 @@ class Jetpack_Gutenberg {
 				 * When this is changed to default to `true`, you should also update `modules/memberships/class-jetpack-memberships.php`
 				 * See https://github.com/Automattic/jetpack/pull/13394#pullrequestreview-293063378
 				 *
-				 * @since 7.7.0
+				 * @since 7.7.0​
 				 *
 				 * @param boolean
 				 */
@@ -252,7 +252,7 @@ class Jetpack_Gutenberg {
 		/**
 		 * Filter to select Gutenberg blocks directory
 		 *
-		 * @since 6.9.0
+		 * @since 6.9.0​
 		 *
 		 * @param string default: '_inc/blocks/'
 		 */
@@ -362,7 +362,7 @@ class Jetpack_Gutenberg {
 		 * `Jetpack_Gutenberg::set_extension_unavailable()` (if the block or plugin should not be registered
 		 * but marked as unavailable).
 		 *
-		 * @since 7.0.0
+		 * @since 7.0.0​
 		 */
 		do_action( 'jetpack_register_gutenberg_extensions' );
 
@@ -401,7 +401,7 @@ class Jetpack_Gutenberg {
 			/**
 			 * Filter the list of block editor extensions that are available through Jetpack.
 			 *
-			 * @since 7.0.0
+			 * @since 7.0.0​
 			 *
 			 * @param array
 			 */
@@ -414,7 +414,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Check if an extension/block is already registered
 	 *
-	 * @since 7.2
+	 * @since 7.2​
 	 *
 	 * @param string $slug Name of extension/block to check.
 	 *
@@ -427,7 +427,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Check if Gutenberg editor is available
 	 *
-	 * @since 6.7.0
+	 * @since 6.7.0​
 	 *
 	 * @return bool
 	 */
@@ -441,7 +441,7 @@ class Jetpack_Gutenberg {
 	 * Loading blocks and plugins is enabled by default and may be disabled via filter:
 	 *   add_filter( 'jetpack_gutenberg', '__return_false' );
 	 *
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 *
 	 * @return bool
 	 */
@@ -457,7 +457,7 @@ class Jetpack_Gutenberg {
 		/**
 		 * Filter to disable Gutenberg blocks
 		 *
-		 * @since 6.5.0
+		 * @since 6.5.0​
 		 *
 		 * @param bool true Whether to load Gutenberg blocks
 		 */
@@ -519,7 +519,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string $type Slug of the block.
 	 *
-	 * @since 7.2.0
+	 * @since 7.2.0​
 	 *
 	 * @return void
 	 */
@@ -555,7 +555,7 @@ class Jetpack_Gutenberg {
 	 * @param array  $script_dependencies Script dependencies. Will be merged with automatically
 	 *                             detected script dependencies from the webpack build.
 	 *
-	 * @since 7.2.0
+	 * @since 7.2.0​
 	 *
 	 * @return void
 	 */
@@ -629,7 +629,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Load Gutenberg editor assets
 	 *
-	 * @since 6.7.0
+	 * @since 6.7.0​
 	 *
 	 * @return void
 	 */
@@ -795,7 +795,7 @@ class Jetpack_Gutenberg {
 	 * and can consequently be loaded outside of the usual modules.
 	 * We will look for such modules in the extensions/ directory.
 	 *
-	 * @since 7.1.0
+	 * @since 7.1.0​
 	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {
@@ -822,7 +822,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Loads PHP components of block editor extensions.
 	 *
-	 * @since 8.9.0
+	 * @since 8.9.0​
 	 */
 	public static function load_block_editor_extensions() {
 		if ( self::should_load() ) {
@@ -852,7 +852,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Get CSS classes for a block.
 	 *
-	 * @since 7.7.0
+	 * @since 7.7.0​
 	 *
 	 * @param string $slug  Block slug.
 	 * @param array  $attr  Block attributes.
@@ -869,7 +869,7 @@ class Jetpack_Gutenberg {
 	 * Determine whether a site should use the default set of blocks, or a custom set.
 	 * Possible variations are currently beta, experimental, and production.
 	 *
-	 * @since 8.1.0
+	 * @since 8.1.0​
 	 *
 	 * @return string $block_varation production|beta|experimental
 	 */
@@ -890,7 +890,7 @@ class Jetpack_Gutenberg {
 		/**
 		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
 		*
-		* @since 6.9.0
+		* @since 6.9.0​
 		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
 		*
 		* @param boolean
@@ -920,7 +920,7 @@ class Jetpack_Gutenberg {
 		/**
 		* Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
 		*
-		* @since 6.9.0
+		* @since 6.9.0​
 		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
 		*
 		* @param boolean
@@ -951,7 +951,7 @@ class Jetpack_Gutenberg {
 		 * Allow customizing the variation of blocks in use on a site.
 		 * Overwrites any previously set values, whether by constant or filter.
 		 *
-		 * @since 8.1.0
+		 * @since 8.1.0​
 		 *
 		 * @param string $block_variation Can be beta, experimental, and production. Defaults to production.
 		 */
@@ -961,7 +961,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Get a list of extensions available for the variation you chose.
 	 *
-	 * @since 8.1.0
+	 * @since 8.1.0​
 	 *
 	 * @param obj    $preset_extensions_manifest List of extensions available in Jetpack.
 	 * @param string $blocks_variation           Subset of blocks. production|beta|experimental.
@@ -1010,7 +1010,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Validate a URL used in a SSR block.
 	 *
-	 * @since 8.3.0
+	 * @since 8.3.0​
 	 *
 	 * @param string $url      URL saved as an attribute in block.
 	 * @param array  $allowed  Array of allowed hosts for that block, or regexes to check against.
@@ -1077,7 +1077,7 @@ class Jetpack_Gutenberg {
 	 * Determines whether a preview of the block with an upgrade nudge should
 	 * be displayed for admins on the site frontend.
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 *
 	 * @param array $availability_for_block The availability for the block.
 	 *
@@ -1094,7 +1094,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Output an UpgradeNudge Component on the frontend of a site.
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 *
 	 * @param string $plan The plan that users need to purchase to make the block work.
 	 *
@@ -1112,7 +1112,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Output a notice within a block.
 	 *
-	 * @since 8.6.0
+	 * @since 8.6.0​
 	 *
 	 * @param string $message Notice we want to output.
 	 * @param string $status  Status of the notice. Can be one of success, info, warning, error. info by default.

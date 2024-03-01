@@ -520,7 +520,7 @@ class Modules {
 		/**
 		 * Filters the path of a modules.
 		 *
-		 * @since 7.4.0
+		 * @since 7.4.0​
 		 *
 		 * @param array $return The absolute path to a module's root php file
 		 * @param string $slug The module slug
@@ -564,7 +564,7 @@ class Modules {
 			 * @since 1.9.0
 			 *
 			 * @param string $module Module slug.
-			 * @param boolean $success whether the module was activated. @since 4.2
+			 * @param boolean $success whether the module was activated. @since 4.2​
 			 */
 			do_action( 'jetpack_activate_module', $module, $success );
 			/**
@@ -582,7 +582,7 @@ class Modules {
 			/**
 			 * Fired after a module has been deactivated.
 			 *
-			 * @since 4.2.0
+			 * @since 4.2.0​
 			 *
 			 * @param string $module Module slug.
 			 * @param boolean $success whether the module was deactivated.

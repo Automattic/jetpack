@@ -439,7 +439,7 @@ if (
 						/**
 						 * Hook into the Crowdsignal shortcode before rendering.
 						 *
-						 * @since 8.4.0
+						 * @since 8.4.0​
 						 *
 						 * @param int $poll Poll ID.
 						 */

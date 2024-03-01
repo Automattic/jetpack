@@ -1072,7 +1072,7 @@ EXPECTED;
 	/**
 	 * Tests login URL only adds redirect param when redirect param is in original request.
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 * @return void
 	 */
 	public function test_login_url_add_redirect() {
@@ -1088,7 +1088,7 @@ EXPECTED;
 	/**
 	 * Tests login redirect sending users to Calypso when redirect param is set.
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 * @return void
 	 */
 	public function test_login_init_redirect() {
@@ -1122,7 +1122,7 @@ EXPECTED;
 	/**
 	 * Tests getting the correct Calypso host.
 	 *
-	 * @since 8.4.0
+	 * @since 8.4.0​
 	 * @return void
 	 */
 	public function test_get_calypso_host() {

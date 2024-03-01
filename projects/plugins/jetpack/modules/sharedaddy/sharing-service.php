@@ -1065,7 +1065,7 @@ function sharing_display( $text = '', $echo = false ) {
 	 *
 	 * @module sharedaddy
 	 *
-	 * @since 7.3.0
+	 * @since 7.3.0​
 	 *
 	 * @param string $sharing_ajax_action_name Name of the Sharing buttons' Ajax action.
 	 */
@@ -1108,7 +1108,7 @@ function sharing_display( $text = '', $echo = false ) {
 					 *
 					 * @module sharedaddy
 					 *
-					 * @since 4.4.0
+					 * @since 4.4.0​
 					 *
 					 * @param string $sharing_headline Sharing headline structure.
 					 * @param string $global['sharing_label'] Sharing title.

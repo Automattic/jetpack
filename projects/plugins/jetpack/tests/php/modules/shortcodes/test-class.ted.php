@@ -199,7 +199,7 @@ BODY;
 	 * @author scotchfield
 	 * @covers ::shortcode_ted
 	 * @group external-http
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcodes_ted_id_via_oembed_http_request() {
 		$ted_id  = '1969';

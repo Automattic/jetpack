@@ -44,7 +44,7 @@ require_once __DIR__ . '/contact-form/grunion-contact-form.php';
  * Please note this filter and the old UI will be removed in the future.
  * Expected to be removed in Jetpack 5.8 or if a security issue merits removing the old code sooner.
  *
- * @since 5.2.0
+ * @since 5.2.0​
  * @deprecated 13.2.0
  *
  * @param boolean $view Use new Editor View. Default true.

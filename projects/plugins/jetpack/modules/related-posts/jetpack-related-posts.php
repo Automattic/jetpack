@@ -190,7 +190,7 @@ class Jetpack_RelatedPosts {
 	/**
 	 * Render insertion point.
 	 *
-	 * @since 4.2.0
+	 * @since 4.2.0​
 	 *
 	 * @return string
 	 */
@@ -548,7 +548,7 @@ EOT;
 	/**
 	 * Parse a numeric GET variable to an array of values.
 	 *
-	 * @since 6.9.0
+	 * @since 6.9.0​
 	 *
 	 * @uses absint
 	 *
@@ -1956,7 +1956,7 @@ EOT;
 				/**
 				 * Filter each Related Post Heading structure.
 				 *
-				 * @since 4.0.0
+				 * @since 4.0.0​
 				 *
 				 * @param string $str Related Post Heading structure. Default to h4.
 				 */
@@ -2017,7 +2017,7 @@ EOT;
 	/**
 	 * Add Related Posts to the REST API Post response.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 *
 	 * @action rest_api_init
 	 * @uses register_rest_field, self::rest_get_related_posts
@@ -2042,7 +2042,7 @@ EOT;
 	 * Build an array of Related Posts.
 	 * By default returns cached results that are stored for up to 12 hours.
 	 *
-	 * @since 4.4.0
+	 * @since 4.4.0​
 	 *
 	 * @param array $object Details of current post.
 	 *

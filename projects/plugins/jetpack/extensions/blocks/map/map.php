@@ -2,7 +2,7 @@
 /**
  * Map block.
  *
- * @since 6.8.0
+ * @since 6.8.0​
  *
  * @package automattic/jetpack
  */

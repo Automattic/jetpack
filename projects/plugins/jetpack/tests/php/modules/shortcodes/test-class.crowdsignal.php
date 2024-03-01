@@ -56,7 +56,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 	/**
 	 * Test a basic legacy Polldaddy poll.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcodes_polldaddy_poll() {
 		$id      = 9541291;
@@ -77,7 +77,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 	/**
 	 * Test a basic Crowdsignal poll.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcodes_crowdsignal_poll() {
 		$id      = 9541291;
@@ -98,7 +98,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 	/**
 	 * Test a Crowdsignal slider poll (sticks to the bottom right corner of the page).
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcodes_crowdsignal_poll_slider() {
 		$id      = 9541291;
@@ -119,7 +119,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 	/**
 	 * Test a basic legacy Polldaddy survey.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcodes_polldaddy_survey() {
 		$id      = '7676FB1FF2B56CE9';
@@ -140,7 +140,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 	/**
 	 * Test a basic Crowdsignal survey.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcodes_crowdsignal_survey() {
 		$id      = '7676FB1FF2B56CE9';
@@ -161,7 +161,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 	/**
 	 * Test a Crowdsignal survey in an iFrame.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcodes_crowdsignal_survey_iframe() {
 		$id      = '7676FB1FF2B56CE9';
@@ -181,7 +181,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 	/**
 	 * Test a Crowdsignal survey in an iFrame, using a custom domain name, and a custom title.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcodes_crowdsignal_survey_iframe_customdomain() {
 		$id      = '7676FB1FF2B56CE9';
@@ -214,7 +214,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 	/**
 	 * Test a basic legacy Polldaddy rating.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcodes_polldaddy_rating() {
 		global $post;
@@ -241,7 +241,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 	/**
 	 * Test a basic Crowdsignal rating.
 	 *
-	 * @since 7.4.0
+	 * @since 7.4.0​
 	 */
 	public function test_shortcodes_crowdsignal_rating() {
 		global $post;

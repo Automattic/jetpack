@@ -8,7 +8,7 @@
 /**
  * Widget for inserting an ad into your sidebar
  *
- * @since 4.5.0
+ * @since 4.5.0​
  */
 class WordAds_Sidebar_Widget extends WP_Widget {
 
