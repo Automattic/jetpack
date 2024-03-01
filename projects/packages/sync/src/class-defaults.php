@@ -1324,4 +1324,11 @@ class Defaults {
 	 * @var int Bool-ish. Default 0.
 	 */
 	public static $default_custom_queue_table_enabled = 0;
+
+	/**
+	 * Default for using rest api to send data for Sync.
+	 *
+	 * @var int Bool-ish. Default 0.
+	 */
+	public static $default_use_rest_api_for_sending = 0;
 }

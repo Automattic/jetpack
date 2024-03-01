@@ -61,6 +61,7 @@ class Settings {
 		'checksum_disable'                       => true,
 		'dedicated_sync_enabled'                 => true,
 		'custom_queue_table_enabled'             => true,
+		'use_rest_api_for_sending'               => true,
 	);
 
 	/**
@@ -677,5 +678,17 @@ class Settings {
 	 */
 	public static function is_custom_queue_table_enabled() {
 		return (bool) self::get_setting( 'custom_queue_table_enabled' );
+	}
+
+	/**
+	 * Whether to use sync rest api or not
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return boolean Whether to use sync rest api or not.
+	 */
+	public static function is_use_rest_api_for_sending() {
+		return (bool) self::get_setting( 'use_rest_api_for_sending' );
 	}
 }
