@@ -1581,9 +1581,9 @@ abstract class SAL_Site {
 	/**
 	 * Returns whether the site is part of the classic view early release.
 	 *
-	 * @return string
+	 * @return bool
 	 **/
 	public function get_wpcom_classic_early_release() {
-		return (string) get_option( 'wpcom_classic_early_release' );
+		return ! empty( get_option( 'wpcom_classic_early_release' ) );
 	}
 }
