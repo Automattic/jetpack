@@ -35,6 +35,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 				'classname'                   => 'widget_goodreads',
 				'description'                 => __( 'Display your books from Goodreads', 'jetpack' ),
 				'customize_selective_refresh' => true,
+				'show_instance_in_rest'       => true,
 			)
 		);
 		// For user input sanitization and display.
