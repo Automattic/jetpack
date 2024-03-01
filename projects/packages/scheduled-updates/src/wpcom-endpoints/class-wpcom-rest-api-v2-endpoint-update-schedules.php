@@ -169,6 +169,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return $event;
 		}
 
+		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
+			// Remove the plugins that are now updated on a schedule from the auto-update list.
+			$auto_update_plugins = get_option( 'auto_update_plugins', array() );
+			$auto_update_plugins = array_diff( $auto_update_plugins, $plugins );
+			update_option( 'auto_update_plugins', $auto_update_plugins );
+		}
+
 		return rest_ensure_response( $this->generate_schedule_id( $plugins ) );
 	}
 
@@ -272,6 +279,14 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $event->args, true );
 		if ( is_wp_error( $result ) ) {
 			return $result;
+		}
+
+		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
+			// Add the plugins that are no longer updated on a schedule to the auto-update list.
+			$auto_update_plugins = get_option( 'auto_update_plugins', array() );
+			$auto_update_plugins = array_unique( array_merge( $auto_update_plugins, $event->args ) );
+			usort( $auto_update_plugins, 'strnatcasecmp' );
+			update_option( 'auto_update_plugins', $auto_update_plugins );
 		}
 
 		return rest_ensure_response( true );
