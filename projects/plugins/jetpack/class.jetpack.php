@@ -6761,7 +6761,8 @@ endif;
 				$redirect_url = static::admin_url( 'page=jetpack' );
 			} elseif ( is_network_admin() ) {
 				$redirect_url = admin_url( 'network/admin.php?page=jetpack' );
-			} elseif ( My_Jetpack_Initializer::should_initialize() && get_query_var( 'page' ) !== 'jetpack' ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			} elseif ( My_Jetpack_Initializer::should_initialize() && ! ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) ) {
 				$redirect_url = static::admin_url( 'page=my-jetpack' );
 			} else {
 				$redirect_url = static::admin_url( 'page=jetpack' );
