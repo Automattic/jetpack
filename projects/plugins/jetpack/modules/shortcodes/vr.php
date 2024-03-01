@@ -138,13 +138,6 @@ function jetpack_vr_viewer_shortcode( $atts ) {
 		$atts
 	);
 
-	// We offer a few ways to specify the URL.
-	if ( $params[0] ) {
-		$params['url'] = $params[0];
-	} elseif ( $params['src'] ) {
-		$params['url'] = $params['src'];
-	}
-
 	$url_params = jetpack_vr_viewer_get_viewer_url_params( $params );
 	if ( $url_params ) {
 		return jetpack_vr_viewer_get_html( $url_params );

@@ -2,3 +2,13 @@ parameters:
         level: 1
         paths:
             - .
+        excludePaths:
+            - projects/*/*/jetpack_vendor
+            - projects/*/*/node_modules
+            - projects/*/*/vendor
+            - projects/*/*/wordpress
+            - tools/**/vendor
+            - projects/packages/autoloader/tests/php/tmp
+            - tools/docker
+            - node_modules
+            - vendor

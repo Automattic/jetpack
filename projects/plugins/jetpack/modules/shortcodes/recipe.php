@@ -326,9 +326,7 @@ class Jetpack_Recipes {
 			'recipe-image'
 		);
 		$src  = $atts['image'];
-		if ( ! empty( $atts[0] ) ) {
-			$src = $atts[0];
-		}
+
 		return self::output_image_html( $src );
 	}
 

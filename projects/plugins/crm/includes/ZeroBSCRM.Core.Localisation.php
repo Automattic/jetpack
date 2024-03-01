@@ -633,9 +633,6 @@ function zeroBSCRM_getTimezoneOffset() {
 
 	return get_option( 'gmt_offset' );
 }
-function zeroBSCRM_getCurrentTime() {
-	return current_time();
-}
 
 	// } Date time formats
 	// http://wordpress.stackexchange.com/questions/591/how-to-get-the-date-format-and-time-format-settings-for-use-in-my-template
