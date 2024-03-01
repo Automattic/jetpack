@@ -161,10 +161,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			}
 		}
 
-		if ( ! empty( $request['themes'] ) ) {
-			return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not schedule theme updates at this time.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
-		}
-
 		return current_user_can( 'update_plugins' );
 	}
 
@@ -250,10 +246,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			}
 		}
 
-		if ( ! empty( $request['themes'] ) ) {
-			return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not schedule theme updates at this time.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
-		}
-
 		return current_user_can( 'update_plugins' );
 	}
 
@@ -334,6 +326,20 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	}
 
 	/**
+	 * Checks that the "themes" parameter is empty.
+	 *
+	 * @param array $themes List of themes to update.
+	 * @return bool|WP_Error
+	 */
+	public function validate_themes_param( $themes ) {
+		if ( ! empty( $themes ) ) {
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not schedule theme updates at this time.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Retrieves the update schedule's schema, conforming to JSON Schema.
 	 *
 	 * @return array Item schema data.
@@ -398,9 +404,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				),
 			),
 			'themes'   => array(
-				'description' => 'List of theme slugs to update.',
-				'type'        => 'array',
-				'required'    => false,
+				'description'       => 'List of theme slugs to update.',
+				'type'              => 'array',
+				'required'          => false,
+				'validate_callback' => array( $this, 'validate_themes_param' ),
 			),
 			'schedule' => array(
 				'description' => 'Update schedule.',
