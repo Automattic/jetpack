@@ -257,7 +257,7 @@ const AiTierDetailTable = () => {
 	const { recordEvent } = useAnalytics();
 	useEffect( () => {
 		debug( 'recording visit' );
-		// recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
+		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 	}, [ recordEvent ] );
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
