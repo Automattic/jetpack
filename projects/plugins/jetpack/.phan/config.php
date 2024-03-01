@@ -67,5 +67,6 @@ return array(
 	'exclude_analysis_directory_list' => array(
 		'jetpack_vendor',
 		'vendor',
+		"$root/vendor",
 	),
 );
