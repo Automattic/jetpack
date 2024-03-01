@@ -6761,7 +6761,6 @@ endif;
 				$redirect_url = static::admin_url( 'page=jetpack' );
 			} elseif ( is_network_admin() ) {
 				$redirect_url = admin_url( 'network/admin.php?page=jetpack' );
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			} elseif ( My_Jetpack_Initializer::should_initialize() ) {
 				$redirect_url = static::admin_url( 'page=my-jetpack' );
 			} else {
