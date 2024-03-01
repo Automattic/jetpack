@@ -4,11 +4,10 @@
 import {
 	useMediaRecording,
 	useAudioValidation,
-	RecordingState,
 	TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
-	TranscriptionState,
 } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Modal, Icon } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
@@ -21,6 +20,14 @@ import ActionButtons from './components/action-buttons';
 import AudioStatusPanel from './components/audio-status-panel';
 import useTranscriptionCreator from './hooks/use-transcription-creator';
 import useTranscriptionInserter from './hooks/use-transcription-inserter';
+/**
+ * Types
+ */
+import type {
+	RecordingState,
+	TranscriptionState,
+	ValidatedAudioInformation,
+} from '@automattic/jetpack-ai-client';
 
 /**
  * Helper to determine the state of the transcription.
@@ -59,6 +66,9 @@ export default function VoiceToContentEdit( { clientId } ) {
 			dispatch.removeBlock( clientId );
 		}, 100 );
 	}, [ dispatch, clientId ] );
+
+	// Track the usage of the feature
+	const { tracks } = useAnalytics();
 
 	const { isValidatingAudio, validateAudio } = useAudioValidation();
 
@@ -109,13 +119,21 @@ export default function VoiceToContentEdit( { clientId } ) {
 		if ( audio ) {
 			validateAudio(
 				audio,
-				() => {
+				( audioInfo: ValidatedAudioInformation ) => {
+					// Track the transcription event
+					tracks.recordEvent( 'jetpack_ai_voice_to_content_transcription_started', {
+						post_processing_action: TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT,
+						type: audioInfo.isFile ? 'upload' : 'record',
+						audio_duration: audioInfo.duration,
+						audio_file_size: audioInfo.size,
+					} );
+
 					createTranscription( audio, TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT );
 				},
 				onError
 			);
 		}
-	}, [ audio, validateAudio, createTranscription, onError ] );
+	}, [ audio, tracks, validateAudio, createTranscription, onError ] );
 
 	// Destructure controls
 	const {
