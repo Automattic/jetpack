@@ -139,6 +139,10 @@ class Request {
 			return false;
 		}
 
+		if ( $this->is_bypassed_extension() ) {
+			return false;
+		}
+
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] !== 'GET' ) {
 			return false;
 		}
@@ -163,6 +167,31 @@ class Request {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Returns true if the request appears to be for something with a known file extension that is not
+	 * usually HTML. e.g.:
+	 * - *.txt (including robots.txt, license.txt)
+	 * - *.ico (favicon.ico)
+	 * - *.jpg, *.png, *.webm (image files).
+	 */
+	public function is_bypassed_extension() {
+		$file_extension = pathinfo( $this->request_uri, PATHINFO_EXTENSION );
+
+		return in_array(
+			$file_extension,
+			array(
+				'txt',
+				'ico',
+				'jpg',
+				'jpeg',
+				'png',
+				'webp',
+				'gif',
+			),
+			true
+		);
 	}
 
 	/**
