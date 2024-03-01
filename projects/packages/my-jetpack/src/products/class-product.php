@@ -7,8 +7,10 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Plugins_Installer;
+use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -152,6 +154,52 @@ abstract class Product {
 			'class'                    => static::class,
 			'post_checkout_url'        => static::get_post_checkout_url(),
 		);
+	}
+
+	/**
+	 * Collect the site's active features
+	 *
+	 * @return WP_Error|array
+	 */
+	private static function get_site_features_from_wpcom() {
+		static $features = null;
+
+		if ( $features !== null ) {
+			return $features;
+		}
+
+		$site_id  = Jetpack_Options::get_option( 'id' );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/features', $site_id ), '1.1' );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'site_features_fetch_failed' );
+		}
+
+		$body           = wp_remote_retrieve_body( $response );
+		$feature_return = json_decode( $body );
+		$features       = $feature_return->active;
+
+		return $features;
+	}
+
+	/**
+	 * Check to see if the site has a feature
+	 * This will check the features provided by the site plans and products (including free ones)
+	 *
+	 * @param string $feature - the feature to check for.
+	 * @return bool
+	 */
+	public static function does_site_have_feature( $feature ) {
+		if ( ! $feature ) {
+			return false;
+		}
+
+		$features = self::get_site_features_from_wpcom();
+		if ( is_wp_error( $features ) ) {
+			return false;
+		}
+
+		return in_array( $feature, $features, true );
 	}
 
 	/**

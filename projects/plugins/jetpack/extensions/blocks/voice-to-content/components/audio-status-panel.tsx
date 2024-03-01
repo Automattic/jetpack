@@ -69,6 +69,14 @@ export default function AudioStatusPanel( {
 		);
 	}
 
+	if ( state === 'validating' ) {
+		return (
+			<div className="jetpack-ai-voice-to-content__information">
+				{ __( 'Validating audio…', 'jetpack' ) }
+			</div>
+		);
+	}
+
 	if ( state === 'error' ) {
 		return <div className="jetpack-ai-voice-to-content__information--error">{ error }</div>;
 	}

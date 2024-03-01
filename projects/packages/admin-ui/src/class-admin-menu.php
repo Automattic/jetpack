@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.3.2';
+	const PACKAGE_VERSION = '0.4.0-alpha';
 
 	/**
 	 * Whether this class has been initialized
@@ -39,6 +39,7 @@ class Admin_Menu {
 			self::$initialized = true;
 			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
+			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 		}
 	}
 
@@ -66,7 +67,7 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Callback to the admin_menu hook that will register the enqueued menu items
+	 * Callback to the admin_menu and network_admin_menu hooks that will register the enqueued menu items
 	 *
 	 * @return void
 	 */
