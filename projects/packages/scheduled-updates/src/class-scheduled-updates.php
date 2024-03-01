@@ -39,6 +39,7 @@ class Scheduled_Updates {
 		}
 
 		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
 	}
@@ -161,5 +162,38 @@ class Scheduled_Updates {
 		$html .= '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack#jetpack-autoupdates' ) ) . '">' . esc_html__( 'Edit', 'jetpack-scheduled-updates' ) . '</a>';
 
 		return $html;
+	}
+
+	/**
+	 * Registers the is_managed field for the plugin REST API.
+	 */
+	public static function add_is_managed_extension_field() {
+		register_rest_field(
+			'plugin',
+			'is_managed',
+			array(
+				/**
+				* Populates the is_managed field.
+				*
+				* Users could have their own plugins folder with symlinks pointing to it, so we need to check if the
+				* link target is within the `/wordpress` directory to determine if the plugin is managed.
+				*
+				* @see p9o2xV-3Nx-p2#comment-8728
+				*
+				* @param array $data Prepared response array.
+				* @return bool
+				*/
+				'get_callback' => function ( $data ) {
+					$folder = WP_PLUGIN_DIR . '/' . strtok( $data['plugin'], '/' );
+					$target = is_link( $folder ) ? readlink( $folder ) : false;
+
+					return $target && false !== strpos( $target, '/wordpress/' );
+				},
+				'schema'       => array(
+					'description' => 'Whether the plugin is managed by the host.',
+					'type'        => 'boolean',
+				),
+			)
+		);
 	}
 }
