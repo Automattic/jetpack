@@ -141,7 +141,17 @@ $boost_cache->serve();
 	 * Adds the WP_CACHE define to wp-config.php
 	 */
 	private static function add_wp_cache_define() {
-		$content = file_get_contents( ABSPATH . 'wp-config.php' );
+		// Find the wp-config.php file.
+		if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
+			$config_file = ABSPATH . 'wp-config.php';
+		} elseif ( file_exists( dirname( ABSPATH ) . '/wp-config.php' ) && ! file_exists( dirname( ABSPATH ) . '/wp-settings.php' ) ) {
+			$config_file = dirname( ABSPATH ) . '/wp-config.php';
+		} else {
+			return new \WP_Error( 'wp-config-not-found' );
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$content = file_get_contents( $config_file );
 		if ( preg_match( '#^\s*define\s*\(\s*[\'"]WP_CACHE[\'"]#m', $content ) === 1 ) {
 			/*
 			 * wp-settings.php checks "if ( WP_CACHE )" so it may be truthy and
@@ -163,13 +173,13 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			$content
 		);
 
-		$result = file_put_contents( ABSPATH . 'wp-config.php', $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$result = file_put_contents( $config_file, $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		if ( $result === false ) {
 			return new \WP_Error( 'wp-config-not-writable' );
 		}
 
 		if ( function_exists( 'opcache_invalidate' ) ) {
-			opcache_invalidate( ABSPATH . 'wp-config.php', true );
+			opcache_invalidate( $config_file, true );
 		}
 
 		return true;

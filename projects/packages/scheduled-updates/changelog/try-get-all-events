@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added a Cron API function to retrieve all events scheduled for a specified hook.

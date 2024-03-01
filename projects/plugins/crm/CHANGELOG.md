@@ -5,6 +5,29 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.4.1] - 2024-02-29
+### Changed
+- General: Indicate compatibility with WordPress 6.5. [#35820]
+- Invoices: Total amount calculation in preview and pdf when refunds or credit notes are applied are back to pre-6.4.0 implementation. [#35569]
+
+### Fixed
+- Client Portal: Admin banners are now more consistent across screens. [#35575]
+- Client Portal: Catch error if Woo order associated with invoice is deleted. [#35689]
+- Invoices: Standardize line item code.
+  Invoices: Allow long line item descriptions in email. [#35700]
+- Listviews: Object status filters now correctly reflect current status options.
+  Listviews: Overhaul of listview filter logic.
+  Quotes: Add Draft listview filter. [#35827]
+- Segments: Allow floats in all numeric segment conditions. [#36047]
+  Segments: Fix output if segment has an error. [#36003]
+- Tags: Use existing tags if possible when using helper functions to create objects. [#35738]
+- WooSync: Catch PHP error if order has empty fee value. [#35802]
+- WooSync: Detect and support WooCommerce HPOS configuration. [#35797]
+- WooSync: No longer shows today as renewal date if subscription has no renewal date set.
+  WooSync: Modernize code.
+- WooSync: Remove broken link from settings page.
+  WooSync: Prevent addition of the same site more than once. [#35576]
+
 ## [6.4.0] - 2024-01-23
 ### Added
 - Database: Added preliminary support for SQLite. [#34868]
@@ -292,6 +315,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added a migration to remove outdated AKA lines
 
 [5.5.4-a.1]: https://github.com/Automattic/jetpack-crm/compare/v5.5.3...v5.5.4-a.1
+[6.4.1]: https://github.com/Automattic/jetpack-crm/compare/6.4.0...6.4.1
 [6.4.0]: https://github.com/Automattic/jetpack-crm/compare/6.3.2...6.4.0
 [6.3.2]: https://github.com/Automattic/jetpack-crm/compare/6.3.1...6.3.2
 [6.3.1]: https://github.com/Automattic/jetpack-crm/compare/6.3.0...6.3.1
