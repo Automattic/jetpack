@@ -7,10 +7,20 @@
  * @package automattic/scheduled-updates
  */
 
+// Load dependencies.
+require_once dirname( __DIR__ ) . '/pluggable.php';
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Update_Schedules
  */
 class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
+	/**
+	 * The pattern for a plugin basename.
+	 *
+	 * @var string
+	 */
+	const PATTERN = '[^.\/]+(?:\/[^.\/]+)?';
+
 	/**
 	 * The namespace of this controller's route.
 	 *
@@ -113,20 +123,11 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	/**
 	 * Returns a list of update schedules.
 	 *
-	 * Checks the jetpack_update_schedules option for saved schedule ids and retries scheduled events with the `jetpack_scheduled_update` hook.
-	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$schedules = get_option( 'jetpack_update_schedules', array() );
-		$events    = array();
-
-		foreach ( $schedules as $schedule_args ) {
-			$events[] = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
-		}
-
-		return rest_ensure_response( $events );
+		return rest_ensure_response( wp_get_scheduled_events( 'jetpack_scheduled_update' ) );
 	}
 
 	/**
@@ -144,19 +145,18 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
-		$schedules = get_option( 'jetpack_update_schedules', array() );
-		if ( count( $schedules ) >= 2 ) {
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		if ( count( $events ) >= 2 ) {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create more than two schedules at this time.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
-		foreach ( $schedules as $schedule_args ) {
-			$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
-
+		foreach ( $events as $event ) {
 			if ( $request['schedule']['timestamp'] === $event->timestamp ) {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same time as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 
-			if ( $this->generate_schedule_id( $schedule_args ) === $this->generate_schedule_id( $request['plugins'] ) ) {
+			usort( $request['plugins'], 'strnatcasecmp' );
+			if ( $event->args === $request['plugins'] ) {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same plugins as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 		}
@@ -177,15 +177,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	public function create_item( $request ) {
 		$schedule = $request['schedule'];
 		$plugins  = $request['plugins'];
+		usort( $plugins, 'strnatcasecmp' );
 
 		$event = wp_schedule_event( $schedule['timestamp'], $schedule['interval'], 'jetpack_scheduled_update', $plugins, true );
 		if ( is_wp_error( $event ) ) {
 			return $event;
 		}
-
-		$schedules   = get_option( 'jetpack_update_schedules', array() );
-		$schedules[] = $plugins;
-		update_option( 'jetpack_update_schedules', $schedules );
 
 		return rest_ensure_response( $this->generate_schedule_id( $plugins ) );
 	}
@@ -211,21 +208,13 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error The scheduled event or a WP_Error if the schedule could not be found.
 	 */
 	public function get_item( $request ) {
-		$schedules = get_option( 'jetpack_update_schedules', array() );
-		$event     = array();
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
 
-		foreach ( $schedules as $schedule_args ) {
-			if ( $this->generate_schedule_id( $schedule_args ) === $request['schedule_id'] ) {
-				$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
-				break;
-			}
-		}
-
-		if ( empty( $event ) ) {
+		if ( empty( $events[ $request['schedule_id'] ] ) ) {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
 		}
 
-		return rest_ensure_response( $event );
+		return rest_ensure_response( $events[ $request['schedule_id'] ] );
 	}
 
 	/**
@@ -243,11 +232,11 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
-		$schedules = get_option( 'jetpack_update_schedules', array() );
-		foreach ( $schedules as $schedule_args ) {
-			$event = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
+		foreach ( $events as $key => $event ) {
 
-			if ( $this->generate_schedule_id( $schedule_args ) === $request['schedule_id'] ) {
+			// We'll update this schedule, so none of the checks apply.
+			if ( $key === $request['schedule_id'] ) {
 				continue;
 			}
 
@@ -255,7 +244,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same time as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 
-			if ( $this->generate_schedule_id( $schedule_args ) === $this->generate_schedule_id( $request['plugins'] ) ) {
+			usort( $request['plugins'], 'strnatcasecmp' );
+			if ( $event->args === $request['plugins'] ) {
 				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same plugins as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 		}
@@ -274,27 +264,9 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error The updated event or a WP_Error if the schedule could not be found.
 	 */
 	public function update_item( $request ) {
-		$schedules = get_option( 'jetpack_update_schedules', array() );
-		$event     = array();
-
-		foreach ( $schedules as $key => $schedule_args ) {
-			if ( $this->generate_schedule_id( $schedule_args ) === $request['schedule_id'] ) {
-				$event  = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
-				$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $schedule_args, true );
-				if ( is_wp_error( $result ) ) {
-					return $result;
-				}
-
-				// Remove the old schedule.
-				unset( $schedules[ $key ] );
-				update_option( 'jetpack_update_schedules', $schedules );
-
-				break;
-			}
-		}
-
-		if ( empty( $event ) ) {
-			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
+		$deleted = $this->delete_item( $request );
+		if ( is_wp_error( $deleted ) ) {
+			return $deleted;
 		}
 
 		return $this->create_item( $request );
@@ -321,30 +293,44 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function delete_item( $request ) {
-		$schedules = get_option( 'jetpack_update_schedules', array() );
-		$event     = array();
+		$events = wp_get_scheduled_events( 'jetpack_scheduled_update' );
 
-		foreach ( $schedules as $key => $schedule_args ) {
-			if ( $this->generate_schedule_id( $schedule_args ) === $request['schedule_id'] ) {
-				$event  = wp_get_scheduled_event( 'jetpack_scheduled_update', $schedule_args );
-				$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $schedule_args, true );
-				if ( is_wp_error( $result ) ) {
-					return $result;
-				}
-
-				// Remove the old schedule.
-				unset( $schedules[ $key ] );
-				break;
-			}
-		}
-
-		if ( empty( $event ) ) {
+		if ( ! isset( $events[ $request['schedule_id'] ] ) ) {
 			return new WP_Error( 'rest_invalid_schedule', __( 'The schedule could not be found.', 'jetpack-scheduled-updates' ), array( 'status' => 404 ) );
 		}
 
-		update_option( 'jetpack_update_schedules', $schedules );
+		$event = $events[ $request['schedule_id'] ];
+
+		$result = wp_unschedule_event( $event->timestamp, 'jetpack_scheduled_update', $event->args, true );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
 
 		return rest_ensure_response( true );
+	}
+
+	/**
+	 * Checks that the "plugin" parameter is a valid path.
+	 *
+	 * @param string $file The plugin file parameter.
+	 * @return bool
+	 */
+	public function validate_plugin_param( $file ) {
+		if ( ! is_string( $file ) || ! preg_match( '/' . self::PATTERN . '/u', $file ) ) {
+			return false;
+		}
+
+		return 0 === validate_file( plugin_basename( $file ) );
+	}
+
+	/**
+	 * Sanitizes the "plugin" parameter to be a proper plugin file with ".php" appended.
+	 *
+	 * @param string $file The plugin file parameter.
+	 * @return string
+	 */
+	public function sanitize_plugin_param( $file ) {
+		return plugin_basename( sanitize_text_field( $file . '.php' ) );
 	}
 
 	/**
@@ -404,6 +390,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 				'description' => 'List of plugin slugs to update.',
 				'type'        => 'array',
 				'required'    => false,
+				'items'       => array(
+					'type'              => 'string',
+					'pattern'           => self::PATTERN,
+					'validate_callback' => array( $this, 'validate_plugin_param' ),
+					'sanitize_callback' => array( $this, 'sanitize_plugin_param' ),
+				),
 			),
 			'themes'   => array(
 				'description' => 'List of theme slugs to update.',
