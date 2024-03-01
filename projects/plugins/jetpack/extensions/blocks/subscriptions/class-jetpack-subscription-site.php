@@ -149,17 +149,13 @@ HTML;
 			function ( $hooked_block, $hooked_block_type, $relative_position, $anchor_block ) {
 				$is_post_content_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/post-content';
 				if ( $is_post_content_anchor_block && ( $relative_position === 'after' || $relative_position === 'before' ) ) {
-					$attrs = array(
-						'layout' => array(
-							'type'           => 'flex',
-							'orientation'    => 'vertical',
-							'justifyContent' => 'stretch',
-						),
-					);
-
-					if ( ! empty( $anchor_block['attrs']['layout']['type'] ) ) {
-						$attrs['layout']['type'] = $anchor_block['attrs']['layout']['type'];
-					}
+					$attrs = isset( $anchor_block['attrs']['layout']['type'] )
+						? array(
+							'layout' => array(
+								'type' => $anchor_block['attrs']['layout']['type'],
+							),
+						)
+						: array();
 
 					// translators: %s is the name of the site.
 					$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
