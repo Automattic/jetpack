@@ -59,13 +59,18 @@ export default function () {
 	const hasPaidTier = ! isFree && ! hasUnlimited;
 	const shouldContactUs = ! hasUnlimited && hasPaidTier && ! nextTier;
 	const freeRequestsLeft = isFree && 20 - allTimeRequests >= 0 ? 20 - allTimeRequests : 0;
-	const showCurrentUsage = hasPaidTier && ! isFree;
+	const showCurrentUsage = hasPaidTier && ! isFree && usage;
 	const showAllTimeUsage = hasPaidTier || hasUnlimited;
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
 	const newPostURL = 'post-new.php?use_ai_block=1&_wpnonce=' + window?.jetpackAi?.nonce;
 
 	const showRenewalNotice = isOverLimit && hasPaidTier;
 	const showUpgradeNotice = isOverLimit && isFree;
+
+	const currentTierValue = currentTier?.value || 0;
+	const currentUsage = usage?.[ 'requests-count' ] || 0;
+	const tierRequestsLeft =
+		currentTierValue - currentUsage >= 0 ? currentTierValue - currentUsage : 0;
 
 	const renewalNoticeTitle = __(
 		"You've reached your request limit for this month",
@@ -178,9 +183,7 @@ export default function () {
 											{ __( 'Requests for this month', 'jetpack-my-jetpack' ) }
 										</div>
 										<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
-											{ currentTier.value - usage[ 'requests-count' ] >= 0
-												? currentTier.value - usage[ 'requests-count' ]
-												: 0 }
+											{ tierRequestsLeft }
 										</div>
 									</div>
 								</Card>
