@@ -158,7 +158,7 @@ class Filesystem_Utils {
 			$dir_created = @mkdir( $path, 0755, true );
 
 			if ( $dir_created ) {
-				self::create_empty_index_file( $path );
+				self::create_empty_index_files( $path );
 			}
 
 			return $dir_created;
@@ -171,8 +171,13 @@ class Filesystem_Utils {
 	 * Create an empty index.php file in the given directory.
 	 * This is done to prevent directory listing.
 	 */
-	private static function create_empty_index_file( $path ) {
-		return self::write_to_file( $path . '/index.php', '<?php' . PHP_EOL . '// Silence is golden' );
+	private static function create_empty_index_files( $path ) {
+		if ( self::is_boost_cache_directory( $path ) ) {
+			self::write_to_file( $path . '/index.php', '<?php' . PHP_EOL . '// Silence is golden' );
+
+			// Create an empty index.php file in the parent directory as well.
+			self::create_empty_index_files( dirname( $path ) );
+		}
 	}
 
 	/**
