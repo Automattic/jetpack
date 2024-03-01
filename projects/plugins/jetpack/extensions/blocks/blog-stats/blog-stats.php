@@ -56,7 +56,7 @@ function load_assets( $attributes ) {
 					/* translators: placeholder is a link that says "Stats module". */
 					esc_html__( 'Please enable the %s in Jetpack to use this block.', 'jetpack' ),
 					'<a href="' .
-						esc_url( admin_url( 'admin.php?page=jetpack_modules&s=Stats' ) ) .
+						esc_url( admin_url( 'admin.php?page=jetpack_modules&module_tag=Jetpack%20Stats' ) ) .
 						'">' .
 						esc_html__( 'Stats module', 'jetpack' ) .
 					'</a>'
@@ -66,8 +66,6 @@ function load_assets( $attributes ) {
 
 		return;
 	}
-
-	$stats = 0;
 
 	// For when there's no post ID - eg. search pages.
 	if ( $attributes['statsOption'] === 'post' && ! get_the_ID() ) {
@@ -81,6 +79,7 @@ function load_assets( $attributes ) {
 		return;
 	}
 
+	$stats       = 0;
 	$wpcom_stats = new WPCOM_Stats();
 
 	if ( $attributes['statsOption'] === 'post' ) {
