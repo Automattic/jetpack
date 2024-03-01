@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Cache: Prevent directory listing in cache directories
