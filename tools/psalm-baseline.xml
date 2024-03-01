@@ -8310,9 +8310,6 @@
     <UndefinedDocblockClass>
       <code><![CDATA[$result]]></code>
     </UndefinedDocblockClass>
-    <UndefinedFunction>
-      <code><![CDATA[videopress_get_post_id_by_guid( $guid )]]></code>
-    </UndefinedFunction>
     <UnevaluatedCode>
       <code><![CDATA[$cleaned = 0;]]></code>
       <code><![CDATA[$now = current_time( 'timestamp' );]]></code>
@@ -25391,220 +25388,6 @@
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
     </NoValue>
-    <ParseError>
-      <code><![CDATA[public static function activate_plugin( $request ) {
-		/*
-		 * We need an "active" status parameter to be passed to the request
-		 * just like the core plugins endpoind we'll eventually switch to.
-		 */
-		if ( empty( $request['status'] ) || 'active' !== $request['status'] ) {
-			return new WP_Error(
-				'missing_status_parameter',
-				esc_html__( 'Status parameter missing.', 'jetpack' ),
-				array( 'status' => 403 )
-			);
-		}
-
-		$plugins = Plugins_Installer::get_plugins();
-
-		if ( empty( $plugins ) ) {
-			return new WP_Error( 'no_plugins_found', esc_html__( 'This site has no plugins.', 'jetpack' ), array( 'status' => 404 ) );
-		}
-
-		if ( empty( $request['plugin'] ) ) {
-			return new WP_Error( 'no_plugin_specified', esc_html__( 'You did not specify a plugin.', 'jetpack' ), array( 'status' => 404 ) );
-		}
-
-		$plugin = $request['plugin'] . '.php';
-
-		// Is the plugin installed?
-		if ( ! array_key_exists( $plugin, $plugins ) ) {
-			return new WP_Error(
-				'plugin_not_found',
-				esc_html(
-					sprintf(
-						/* translators: placeholder is a plugin slug. */
-						__( 'Plugin %s is not installed.', 'jetpack' ),
-						$plugin
-					)
-				),
-				array( 'status' => 404 )
-			);
-		}
-
-		// Is the plugin active already?
-		$status = Plugins_Installer::get_plugin_status( $plugin );
-		if ( in_array( $status, array( 'active', 'network-active' ), true ) ) {
-			return new WP_Error(
-				'plugin_already_active',
-				esc_html(
-					sprintf(
-						/* translators: placeholder is a plugin slug. */
-						__( 'Plugin %s is already active.', 'jetpack' ),
-						$plugin
-					)
-				),
-				array( 'status' => 404 )
-			);
-		}
-
-		// Now try to activate the plugin.
-		$activated = activate_plugin( $plugin );
-
-		if ( is_wp_error( $activated ) ) {
-			return $activated;
-		} else {
-			$source = ! empty( $request['source'] ) ? stripslashes( $request['source'] ) : 'rest_api';
-			/**
-			 * Fires when Jetpack installs a plugin for you.
-			 *
-			 * @since 8.9.0
-			 *
-			 * @param string $plugin_file Plugin file.
-			 * @param string $source      Where did the plugin installation originate.
-			 */
-			do_action( 'jetpack_activated_plugin', $plugin, $source );
-			return rest_ensure_response(
-				array(
-					'code'    => 'success',
-					'message' => sprintf(
-						/* translators: placeholder is a plugin name. */
-						esc_html__( 'Activated %s', 'jetpack' ),
-						$plugin
-					),
-				)
-			);
-		}
-	}]]></code>
-      <code><![CDATA[public static function get_scan_state() {
-		$scan_state = self::scan_state();
-
-		if ( ! is_wp_error( $scan_state ) ) {
-			if ( ( new Host() )->is_woa_site() && ! empty( $scan_state->threats ) ) {
-				$scan_state->threats = array();
-			}
-			return rest_ensure_response(
-				array(
-					'code'    => 'success',
-					'message' => esc_html__( 'Scan state correctly received.', 'jetpack' ),
-					'data'    => wp_json_encode( $scan_state ),
-				)
-			);
-		}
-
-		if ( $scan_state->get_error_code() === 'scan_state_fetch_failed' ) {
-			return new WP_Error( 'scan_state_fetch_failed', esc_html__( 'Failed fetching rewind data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
-		}
-
-		if ( $scan_state->get_error_code() === 'site_id_missing' ) {
-			return new WP_Error( 'site_id_missing', esc_html__( 'The ID of this site does not exist.', 'jetpack' ), array( 'status' => 404 ) );
-		}
-
-		return new WP_Error(
-			'error_get_rewind_data',
-			esc_html__( 'Could not retrieve Scan state.', 'jetpack' ),
-			array( 'status' => 500 )
-		);
-	}]]></code>
-      <code><![CDATA[public static function install_plugin( $request ) {
-		$plugin = stripslashes( $request['slug'] );
-
-		// Let's make sure the plugin isn't already installed.
-		$plugin_id = Plugins_Installer::get_plugin_id_by_slug( $plugin );
-
-		// If not installed, let's install now.
-		if ( ! $plugin_id ) {
-			$result = Plugins_Installer::install_plugin( $plugin );
-
-			if ( is_wp_error( $result ) ) {
-				return new WP_Error(
-					'install_plugin_failed',
-					sprintf(
-						/* translators: %1$s: plugin name. -- %2$s: error message. */
-						__( 'Unable to install %1$s: %2$s ', 'jetpack' ),
-						$plugin,
-						$result->get_error_message()
-					),
-					array( 'status' => 500 )
-				);
-			}
-		}
-
-		/*
-		 * We may want to activate the plugin as well.
-		 * Let's check for the status parameter in the request to find out.
-		 * If none was passed (or something other than active), let's return now.
-		 */
-		if ( empty( $request['status'] ) || 'active' !== $request['status'] ) {
-			return rest_ensure_response(
-				array(
-					'code'    => 'success',
-					'message' => esc_html(
-						sprintf(
-							/* translators: placeholder is a plugin name. */
-							__( 'Installed %s', 'jetpack' ),
-							$plugin
-						)
-					),
-				)
-			);
-		}
-
-		/*
-		 * Proceed with plugin activation.
-		 * Let's check again for the plugin's ID if we don't already have it.
-		 */
-		if ( ! $plugin_id ) {
-			$plugin_id = Plugins_Installer::get_plugin_id_by_slug( $plugin );
-			if ( ! $plugin_id ) {
-				return new WP_Error(
-					'unable_to_determine_installed_plugin',
-					__( 'Unable to determine what plugin was installed.', 'jetpack' ),
-					array( 'status' => 500 )
-				);
-			}
-		}
-
-		$source      = ! empty( $request['source'] ) ? stripslashes( $request['source'] ) : 'rest_api';
-		$plugin_args = array(
-			'plugin' => substr( $plugin_id, 0, - 4 ),
-			'status' => 'active',
-			'source' => $source,
-		);
-		return self::activate_plugin( $plugin_args );
-	}]]></code>
-      <code><![CDATA[public static function scan_state() {
-
-		if ( ! isset( $_GET['_cacheBuster'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$scan_state = get_transient( 'jetpack_scan_state' );
-			if ( ! empty( $scan_state ) ) {
-				return $scan_state;
-			}
-		}
-		$site_id = Jetpack_Options::get_option( 'id' );
-
-		if ( ! $site_id ) {
-			return new WP_Error( 'site_id_missing' );
-		}
-		// The default timeout was too short in come cases.
-		add_filter( 'http_request_timeout', array( __CLASS__, 'increase_timeout_30' ), PHP_INT_MAX - 1 );
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/scan', $site_id ) . '?force=wpcom', '2', array(), null, 'wpcom' );
-		remove_filter( 'http_request_timeout', array( __CLASS__, 'increase_timeout_30' ), PHP_INT_MAX - 1 );
-
-		if ( wp_remote_retrieve_response_code( $response ) !== 200 ) {
-			return new WP_Error( 'scan_state_fetch_failed' );
-		}
-
-		$body   = wp_remote_retrieve_body( $response );
-		$result = json_decode( $body );
-		set_transient( 'jetpack_scan_state', $result, 30 * MINUTE_IN_SECONDS );
-
-		return $result;
-	}]]></code>
-      <code><![CDATA[public static function validate_activate_plugin( $value, $request, $param ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return 'active' === $value;
-	}]]></code>
-    </ParseError>
     <PossiblyUnusedMethod>
       <code><![CDATA[activate_crm_extensions_permission_check]]></code>
       <code><![CDATA[activate_crm_jetpack_forms_extension]]></code>
@@ -25635,7 +25418,7 @@
       <code><![CDATA[get_site_discount]]></code>
       <code><![CDATA[get_user_connection_data]]></code>
       <code><![CDATA[get_user_tracking_settings]]></code>
-      <code><![CDATA[increase_timeout_30]]></code>
+      <code><![CDATA[install_plugin]]></code>
       <code><![CDATA[is_site_verified_and_token]]></code>
       <code><![CDATA[jetpack_connection_test]]></code>
       <code><![CDATA[jetpack_connection_test_for_external]]></code>
@@ -25654,6 +25437,7 @@
       <code><![CDATA[update_recommendations_step]]></code>
       <code><![CDATA[update_settings_permission_check]]></code>
       <code><![CDATA[update_user_tracking_settings]]></code>
+      <code><![CDATA[validate_activate_plugin]]></code>
       <code><![CDATA[validate_alphanum]]></code>
       <code><![CDATA[validate_array]]></code>
       <code><![CDATA[validate_custom_service]]></code>
@@ -25689,6 +25473,8 @@
       <code><![CDATA[$param]]></code>
       <code><![CDATA[$param]]></code>
       <code><![CDATA[$param]]></code>
+      <code><![CDATA[$param]]></code>
+      <code><![CDATA[$request]]></code>
       <code><![CDATA[$request]]></code>
       <code><![CDATA[$request]]></code>
       <code><![CDATA[$request]]></code>
@@ -25708,7 +25494,9 @@
       <code><![CDATA[$request]]></code>
     </PossiblyUnusedParam>
     <PossiblyUnusedReturnValue>
+      <code><![CDATA[WP_REST_Response|WP_Error]]></code>
       <code><![CDATA[array]]></code>
+      <code><![CDATA[int]]></code>
     </PossiblyUnusedReturnValue>
     <UndefinedConstant>
       <code><![CDATA[JETPACK__DEBUGGER_PUBLIC_KEY]]></code>
@@ -26446,24 +26234,6 @@
     </HookInvalidArgs>
   </file>
   <file src="projects/plugins/jetpack/_inc/lib/debugger/class-jetpack-cxn-test-base.php">
-    <NoValue>
-      <code><![CDATA[$args]]></code>
-      <code><![CDATA[$args]]></code>
-    </NoValue>
-    <ParseError>
-      <code><![CDATA[private static function test_result_defaults() {
-		return array(
-			'name'                => 'unnamed_test',
-			'label'               => false,
-			'short_description'   => false,
-			'long_description'    => false,
-			'severity'            => false,
-			'action'              => false,
-			'action_label'        => false,
-			'show_in_site_health' => true,
-		);
-	}]]></code>
-    </ParseError>
     <PossiblyUnusedMethod>
       <code><![CDATA[informational_test]]></code>
     </PossiblyUnusedMethod>
@@ -26476,16 +26246,6 @@
     <UndefinedConstant>
       <code><![CDATA[JETPACK__DEBUGGER_PUBLIC_KEY]]></code>
     </UndefinedConstant>
-    <UnevaluatedCode>
-      <code><![CDATA[$args['pass'] = 'informational';]]></code>
-      <code><![CDATA[$args['pass'] = 'skipped';]]></code>
-      <code><![CDATA[return $args;]]></code>
-      <code><![CDATA[return $args;]]></code>
-    </UnevaluatedCode>
-    <UnusedVariable>
-      <code><![CDATA[$args]]></code>
-      <code><![CDATA[$args]]></code>
-    </UnusedVariable>
   </file>
   <file src="projects/plugins/jetpack/_inc/lib/debugger/class-jetpack-cxn-tests.php">
     <PossiblyUnusedMethod>
@@ -26841,318 +26601,25 @@
     <MissingFile>
       <code><![CDATA[require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php']]></code>
     </MissingFile>
-    <ParseError>
-      <code><![CDATA[public static function blocks_variation() {
-		// Default to production blocks.
-		$block_varation = 'production';
-
-		/*
-		 * Prefer to use this JETPACK_BLOCKS_VARIATION constant
-		 * or the jetpack_blocks_variation filter
-		 * to set the block variation in your code.
-		 */
-		$default = Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' );
-		if ( ! empty( $default ) && in_array( $default, array( 'beta', 'experimental', 'production' ), true ) ) {
-			$block_varation = $default;
-		}
-
-		/**
-		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
-		*
-		* @since 6.9.0
-		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
-		*
-		* @param boolean
-		*/
-		$is_beta = apply_filters_deprecated(
-			'jetpack_load_beta_blocks',
-			array( false ),
-			'jetpack-11.8.0',
-			'jetpack_blocks_variation'
-		);
-
-		/*
-		 * Switch to beta blocks if you use the JETPACK_BETA_BLOCKS constant
-		 * or the deprecated jetpack_load_beta_blocks filter.
-		 * This only applies when not using the newer JETPACK_BLOCKS_VARIATION constant.
-		 */
-		if (
-			empty( $default )
-			&& (
-				$is_beta
-				|| Constants::is_true( 'JETPACK_BETA_BLOCKS' )
-			)
-		) {
-			$block_varation = 'beta';
-		}
-
-		/**
-		* Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
-		*
-		* @since 6.9.0
-		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
-		*
-		* @param boolean
-		*/
-		$is_experimental = apply_filters_deprecated(
-			'jetpack_load_experimental_blocks',
-			array( false ),
-			'jetpack-11.8.0',
-			'jetpack_blocks_variation'
-		);
-
-		/*
-		 * Switch to experimental blocks if you use the JETPACK_EXPERIMENTAL_BLOCKS constant
-		 * or the deprecated jetpack_load_experimental_blocks filter.
-		 * This only applies when not using the newer JETPACK_BLOCKS_VARIATION constant.
-		 */
-		if (
-			empty( $default )
-			&& (
-				$is_experimental
-				|| Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' )
-			)
-		) {
-			$block_varation = 'experimental';
-		}
-
-		/**
-		 * Allow customizing the variation of blocks in use on a site.
-		 * Overwrites any previously set values, whether by constant or filter.
-		 *
-		 * @since 8.1.0
-		 *
-		 * @param string $block_variation Can be beta, experimental, and production. Defaults to production.
-		 */
-		return apply_filters( 'jetpack_blocks_variation', $block_varation );
-	}]]></code>
-      <code><![CDATA[public static function get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation ) {
-		$preset_extensions = isset( $preset_extensions_manifest->{ $blocks_variation } )
-				? (array) $preset_extensions_manifest->{ $blocks_variation }
-				: array();
-
-		/*
-		 * Experimental and Beta blocks need the production blocks as well.
-		 */
-		if (
-			'experimental' === $blocks_variation
-			|| 'beta' === $blocks_variation
-		) {
-			$production_extensions = isset( $preset_extensions_manifest->production )
-				? (array) $preset_extensions_manifest->production
-				: array();
-
-			$preset_extensions = array_unique( array_merge( $preset_extensions, $production_extensions ) );
-		}
-
-		/*
-		 * Beta blocks need the experimental blocks as well.
-		 *
-		 * If you've chosen to see Beta blocks,
-		 * we want to make all blocks available to you:
-		 * - Production
-		 * - Experimental
-		 * - Beta
-		 */
-		if ( 'beta' === $blocks_variation ) {
-			$production_extensions = isset( $preset_extensions_manifest->experimental )
-				? (array) $preset_extensions_manifest->experimental
-				: array();
-
-			$preset_extensions = array_unique( array_merge( $preset_extensions, $production_extensions ) );
-		}
-
-		return $preset_extensions;
-	}]]></code>
-      <code><![CDATA[public static function is_gutenberg_version_available( $version_requirements, $slug ) {
-		global $wp_version;
-
-		// Bail if we don't at least have the gutenberg version requirement, the WP version is optional.
-		if ( empty( $version_requirements['gutenberg'] ) ) {
-			return false;
-		}
-
-		// If running a local dev build of gutenberg plugin GUTENBERG_DEVELOPMENT_MODE is set so assume correct version.
-		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
-			return true;
-		}
-
-		$version_available = false;
-
-		// If running a production build of the gutenberg plugin then GUTENBERG_VERSION is set, otherwise if WP version
-		// with required version of Gutenberg is known check that.
-		if ( defined( 'GUTENBERG_VERSION' ) ) {
-			$version_available = version_compare( GUTENBERG_VERSION, $version_requirements['gutenberg'], '>=' );
-		} elseif ( ! empty( $version_requirements['wp'] ) ) {
-			$version_available = version_compare( $wp_version, $version_requirements['wp'], '>=' );
-		}
-
-		if ( ! $version_available ) {
-			self::set_extension_unavailable(
-				$slug,
-				'incorrect_gutenberg_version',
-				array(
-					'required_feature' => $slug,
-					'required_version' => $version_requirements,
-					'current_version'  => array(
-						'wp'        => $wp_version,
-						'gutenberg' => defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null,
-					),
-				)
-			);
-		}
-
-		return $version_available;
-	}]]></code>
-      <code><![CDATA[public static function load_block_editor_extensions() {
-		if ( self::should_load() ) {
-			// Block editor extensions to load.
-			$extensions_to_load = array(
-				'extended-blocks',
-				'plugins',
-			);
-
-			// Collect the extension paths.
-			foreach ( $extensions_to_load as $extension_to_load ) {
-				$extensions_folder = glob( JETPACK__PLUGIN_DIR . 'extensions/' . $extension_to_load . '/*' );
-
-				// Require each of the extension files, in case it exists.
-				foreach ( $extensions_folder as $extension_folder ) {
-					$name                = basename( $extension_folder );
-					$extension_file_path = JETPACK__PLUGIN_DIR . 'extensions/' . $extension_to_load . '/' . $name . '/' . $name . '.php';
-
-					if ( file_exists( $extension_file_path ) ) {
-						include_once $extension_file_path;
-					}
-				}
-			}
-		}
-	}]]></code>
-      <code><![CDATA[public static function notice( $message, $status = 'info', $classes = '' ) {
-		if (
-			empty( $message )
-			|| ! in_array( $status, array( 'success', 'info', 'warning', 'error' ), true )
-		) {
-			return '';
-		}
-
-		$color = '';
-		switch ( $status ) {
-			case 'success':
-				$color = '#00a32a';
-				break;
-			case 'warning':
-				$color = '#dba617';
-				break;
-			case 'error':
-				$color = '#d63638';
-				break;
-			case 'info':
-			default:
-				$color = '#72aee6';
-				break;
-		}
-
-		return sprintf(
-			'<div class="jetpack-block__notice %1$s %3$s" style="border-left:5px solid %4$s;padding:1em;background-color:#f8f9f9;">%2$s</div>',
-			esc_attr( $status ),
-			wp_kses(
-				$message,
-				array(
-					'br' => array(),
-					'p'  => array(),
-					'a'  => array(
-						'href'   => array(),
-						'target' => array(),
-						'rel'    => array(),
-					),
-				)
-			),
-			esc_attr( $classes ),
-			sanitize_hex_color( $color )
-		);
-	}]]></code>
-      <code><![CDATA[public static function should_show_frontend_preview( $availability_for_block ) {
-		return (
-			isset( $availability_for_block['details']['required_plan'] )
-			&& current_user_can( 'manage_options' )
-			&& ! is_feed()
-		);
-	}]]></code>
-      <code><![CDATA[public static function upgrade_nudge( $plan ) {
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/components.php';
-		return Jetpack_Components::render_upgrade_nudge(
-			array(
-				'plan' => $plan,
-			)
-		);
-	}]]></code>
-      <code><![CDATA[public static function validate_block_embed_url( $url, $allowed = array(), $is_regex = false ) {
-		if (
-			empty( $url )
-			|| ! is_array( $allowed )
-			|| empty( $allowed )
-		) {
-			return false;
-		}
-
-		$url_components = wp_parse_url( $url );
-
-		// Bail early if we cannot find a host.
-		if ( empty( $url_components['host'] ) ) {
-			return false;
-		}
-
-		// Normalize URL.
-		$url = sprintf(
-			'%s://%s%s%s',
-			isset( $url_components['scheme'] ) ? $url_components['scheme'] : 'https',
-			$url_components['host'],
-			isset( $url_components['path'] ) ? $url_components['path'] : '/',
-			isset( $url_components['query'] ) ? '?' . $url_components['query'] : ''
-		);
-
-		if ( ! empty( $url_components['fragment'] ) ) {
-			$url = $url . '#' . rawurlencode( $url_components['fragment'] );
-		}
-
-		/*
-		 * If we're using an allowed list of hosts,
-		 * check if the URL belongs to one of the domains allowed for that block.
-		 */
-		if (
-			false === $is_regex
-			&& in_array( $url_components['host'], $allowed, true )
-		) {
-			return $url;
-		}
-
-		/*
-		 * If we are using an array of regexes to check against,
-		 * loop through that.
-		 */
-		if ( true === $is_regex ) {
-			foreach ( $allowed as $regex ) {
-				if ( 1 === preg_match( $regex, $url ) ) {
-					return $url;
-				}
-			}
-		}
-
-		return false;
-	}]]></code>
-    </ParseError>
     <PossiblyUnusedMethod>
       <code><![CDATA[block_classes]]></code>
       <code><![CDATA[init]]></code>
       <code><![CDATA[is_gutenberg_available]]></code>
+      <code><![CDATA[is_gutenberg_version_available]]></code>
       <code><![CDATA[reset]]></code>
       <code><![CDATA[share_items]]></code>
     </PossiblyUnusedMethod>
+    <PossiblyUnusedParam>
+      <code><![CDATA[$blocks_variation]]></code>
+      <code><![CDATA[$preset_extensions_manifest]]></code>
+    </PossiblyUnusedParam>
     <PossiblyUnusedReturnValue>
       <code><![CDATA[string]]></code>
     </PossiblyUnusedReturnValue>
     <UndefinedConstant>
+      <code><![CDATA[JETPACK__PLUGIN_DIR]]></code>
+      <code><![CDATA[JETPACK__PLUGIN_DIR]]></code>
+      <code><![CDATA[JETPACK__PLUGIN_DIR]]></code>
       <code><![CDATA[JETPACK__PLUGIN_DIR]]></code>
       <code><![CDATA[JETPACK__PLUGIN_DIR]]></code>
       <code><![CDATA[JETPACK__PLUGIN_DIR]]></code>
@@ -27166,25 +26633,20 @@
       <code><![CDATA[JETPACK__PLUGIN_FILE]]></code>
       <code><![CDATA[JETPACK__VERSION]]></code>
     </UndefinedConstant>
+    <UndefinedDocblockClass>
+      <code><![CDATA[obj]]></code>
+    </UndefinedDocblockClass>
     <UnusedMethod>
       <code><![CDATA[prepend_block_prefix]]></code>
     </UnusedMethod>
+    <UnusedVariable>
+      <code><![CDATA[$color]]></code>
+    </UnusedVariable>
   </file>
   <file src="projects/plugins/jetpack/class.jetpack-heartbeat.php">
-    <ParseError>
-      <code><![CDATA[public function add_stats_to_heartbeat( $stats ) {
-
-		if ( ! Jetpack::is_connection_ready() ) {
-			return $stats;
-		}
-
-		$jetpack_stats = self::generate_stats_array();
-
-		return array_merge( $stats, $jetpack_stats );
-	}]]></code>
-    </ParseError>
     <PossiblyUnusedReturnValue>
       <code><![CDATA[Jetpack_Heartbeat]]></code>
+      <code><![CDATA[array]]></code>
     </PossiblyUnusedReturnValue>
     <UndefinedConstant>
       <code><![CDATA[JETPACK__VERSION]]></code>
@@ -27265,59 +26727,6 @@
     <InvalidParamDefault>
       <code><![CDATA[string]]></code>
     </InvalidParamDefault>
-    <ParseError>
-      <code><![CDATA[private static function get_images_from_block( $images, $block, $html_info, $width, $height ) {
-		/**
-		 * Parse content from Core Image blocks.
-		 * If it is an image block for an image hosted on our site, it will have an ID.
-		 * If it does not have an ID, let `from_html` parse that content later,
-		 * and extract an image if it has size parameters.
-		 */
-		if (
-			'core/image' === $block['blockName']
-			&& ! empty( $block['attrs']['id'] )
-		) {
-			$images[] = self::get_attachment_data( $block['attrs']['id'], $html_info['post_url'], $width, $height );
-		} elseif (
-			'core/media-text' === $block['blockName']
-			&& ! empty( $block['attrs']['mediaId'] )
-		) {
-			$images[] = self::get_attachment_data( $block['attrs']['mediaId'], $html_info['post_url'], $width, $height );
-		} elseif (
-			/**
-			 * Parse content from Core Gallery blocks as well from Jetpack's Tiled Gallery and Slideshow blocks.
-			 * Gallery blocks include the ID of each one of the images in the gallery.
-			 */
-			in_array( $block['blockName'], array( 'core/gallery', 'jetpack/tiled-gallery', 'jetpack/slideshow' ), true )
-			&& ! empty( $block['attrs']['ids'] )
-		) {
-			foreach ( $block['attrs']['ids'] as $img_id ) {
-				$images[] = self::get_attachment_data( $img_id, $html_info['post_url'], $width, $height );
-			}
-		} elseif (
-			/**
-			 * Parse content from Jetpack's Story block.
-			 */
-			'jetpack/story' === $block['blockName']
-			&& ! empty( $block['attrs']['mediaFiles'] )
-		) {
-			foreach ( $block['attrs']['mediaFiles'] as $media_file ) {
-				if ( ! empty( $media_file['id'] ) ) {
-					$images[] = self::get_attachment_data( $media_file['id'], $html_info['post_url'], $width, $height );
-				}
-			}
-		}
-
-		return $images;
-	}]]></code>
-      <code><![CDATA[private static function is_nested_block( $block ) {
-		if ( ! empty( $block['innerBlocks'] ) ) {
-			return true;
-		}
-
-		return false;
-	}]]></code>
-    </ParseError>
     <PossiblyUnusedParam>
       <code><![CDATA[$height]]></code>
       <code><![CDATA[$width]]></code>
@@ -27452,27 +26861,6 @@
     <NoValue>
       <code><![CDATA[return $sorted;]]></code>
     </NoValue>
-    <ParseError>
-      <code><![CDATA[public static function get_calypso_host() {
-		$calypso_env = ( new Host() )->get_calypso_env();
-		switch ( $calypso_env ) {
-			case 'development':
-				return 'http://calypso.localhost:3000/';
-			case 'wpcalypso':
-				return 'https://wpcalypso.wordpress.com/';
-			case 'horizon':
-				return 'https://horizon.wordpress.com/';
-			default:
-				return 'https://wordpress.com/';
-		}
-	}]]></code>
-      <code><![CDATA[public static function is_active_and_not_offline_mode() {
-		if ( ! self::is_connection_ready() || ( new Status() )->is_offline_mode() ) {
-			return false;
-		}
-		return true;
-	}]]></code>
-    </ParseError>
     <PossiblyUnusedMethod>
       <code><![CDATA[absolutize_css_urls]]></code>
       <code><![CDATA[add_wpcom_to_allowed_redirect_hosts]]></code>
@@ -28750,11 +28138,9 @@
     <UndefinedDocblockClass>
       <code><![CDATA[array|obj]]></code>
     </UndefinedDocblockClass>
-    <UndefinedFunction>
-      <code><![CDATA['jetpack_deprecated_file']]></code>
-      <code><![CDATA['jetpack_deprecated_function']]></code>
-      <code><![CDATA[jetpack_deprecated_function( __FUNCTION__, 'Automattic/Jetpack/Status/Host::is_woa_site', 'jetpack-10.3.0' )]]></code>
-    </UndefinedFunction>
+    <UnusedParam>
+      <code><![CDATA[$message]]></code>
+    </UnusedParam>
   </file>
   <file src="projects/plugins/jetpack/functions.opengraph.php">
     <HookInvalidArgs>
@@ -30770,41 +30156,6 @@
       <code><![CDATA[$settings['footer_widgets']]]></code>
       <code><![CDATA[$sidebar_ids]]></code>
     </NoValue>
-    <ParseError>
-      <code><![CDATA[public function add_mejs_config( $scripts_data ) {
-		foreach ( $scripts_data as $key => $data ) {
-			if ( 'mediaelement-core' === $data['handle'] ) {
-				$mejs_settings = array(
-					'pluginPath'  => includes_url( 'js/mediaelement/', 'relative' ),
-					'classPrefix' => 'mejs-',
-					'stretching'  => 'responsive',
-				);
-
-				$scripts_data[ $key ]['extra_data'] = sprintf(
-					'window.%s = %s',
-					'_wpmejsSettings',
-					wp_json_encode( apply_filters( 'mejs_settings', $mejs_settings ) )
-				);
-			}
-		}
-		return $scripts_data;
-	}]]></code>
-      <code><![CDATA[public function init_customizer_assets() {
-		// Add our scripts.
-		wp_register_script(
-			'the-neverending-homepage-customizer',
-			Assets::get_file_url_for_environment(
-				'_inc/build/infinite-scroll/infinity-customizer.min.js',
-				'modules/infinite-scroll/infinity-customizer.js'
-			),
-			array( 'jquery', 'customize-base' ),
-			JETPACK__VERSION . '-is5.0.0', // Added for ability to cachebust on WP.com.
-			true
-		);
-
-		wp_enqueue_script( 'the-neverending-homepage-customizer' );
-	}]]></code>
-    </ParseError>
     <PossiblyUnusedMethod>
       <code><![CDATA[action_wp_head]]></code>
       <code><![CDATA[render]]></code>
@@ -30828,6 +30179,7 @@
       <code><![CDATA[AMP_Options_Manager]]></code>
     </UndefinedClass>
     <UndefinedConstant>
+      <code><![CDATA[JETPACK__VERSION]]></code>
       <code><![CDATA[JETPACK__VERSION]]></code>
     </UndefinedConstant>
     <UnusedVariable>
@@ -31985,33 +31337,6 @@
     <ParadoxicalCondition>
       <code><![CDATA['nutrition']]></code>
     </ParadoxicalCondition>
-    <ParseError>
-      <code><![CDATA[private static function kses_tags() {
-		$allowedtags = wp_kses_allowed_html( 'post' );
-		// Create an array of all the tags we'd like to add the itemprop attribute to.
-		$tags = array( 'li', 'ol', 'ul', 'img', 'p', 'h3', 'time', 'span' );
-		foreach ( $tags as $tag ) {
-			if ( ! isset( $allowedtags[ $tag ] ) ) {
-				$allowedtags[ $tag ] = array();
-			}
-			$allowedtags[ $tag ]['class']    = array();
-			$allowedtags[ $tag ]['itemprop'] = array();
-			$allowedtags[ $tag ]['datetime'] = array();
-		}
-
-		// Allow the handler <a on=""> in AMP.
-		$allowedtags['a']['on'] = array();
-
-		// Allow itemscope and itemtype for divs.
-		if ( ! isset( $allowedtags['div'] ) ) {
-			$allowedtags['div'] = array();
-		}
-		$allowedtags['div']['class']     = array();
-		$allowedtags['div']['itemscope'] = array();
-		$allowedtags['div']['itemtype']  = array();
-		return $allowedtags;
-	}]]></code>
-    </ParseError>
     <PossiblyUnusedReturnValue>
       <code><![CDATA[string]]></code>
       <code><![CDATA[string]]></code>
@@ -32142,7 +31467,6 @@
 		$content,
 		'vimeo'
 	)]]></code>
-      <code><![CDATA[jetpack_shortcode_get_vimeo_dimensions( $attr, $args )]]></code>
       <code><![CDATA[shortcode_new_to_old_params( $atts )]]></code>
     </UndefinedFunction>
   </file>
@@ -32193,8 +31517,6 @@
       <code><![CDATA[A8C\Display_Context\get_current_context()]]></code>
       <code><![CDATA[jetpack_get_youtube_id( $url )]]></code>
       <code><![CDATA[jetpack_preg_replace_callback_outside_tags( '!(?:\n|\A)https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'youtube_link_callback', $content, 'youtube.com/' )]]></code>
-      <code><![CDATA[jetpack_shortcode_youtube_args( $url )]]></code>
-      <code><![CDATA[jetpack_shortcode_youtube_dimensions( $args )]]></code>
       <code><![CDATA[shortcode_new_to_old_params( $atts )]]></code>
     </UndefinedFunction>
   </file>
@@ -32542,57 +31864,9 @@
     <InvalidParamDefault>
       <code><![CDATA[array]]></code>
     </InvalidParamDefault>
-    <ParseError>
-      <code><![CDATA[public function set_social_notifications_subscribe() {
-		if ( false === get_option( 'social_notifications_subscribe' ) ) {
-			add_option( 'social_notifications_subscribe', 'off' );
-		}
-	}]]></code>
-      <code><![CDATA[public function social_notifications_subscribe_field() {
-		$checked = (int) ( 'on' === get_option( 'social_notifications_subscribe', 'on' ) );
-		?>
-
-		<label>
-			<input type="checkbox" name="social_notifications_subscribe" id="social_notifications_subscribe" value="1" <?php checked( $checked ); ?> />
-			<?php
-				/* translators: this is a label for a setting that starts with "Email me whenever" */
-				esc_html_e( 'Someone subscribes to my blog', 'jetpack' );
-			?>
-		</label>
-		<?php
-	}]]></code>
-      <code><![CDATA[public function social_notifications_subscribe_section() {
-		// Atypical usage here. We emit jquery to move subscribe notification checkbox to be with the rest of the email notification settings.
-		?>
-		<script type="text/javascript">
-			jQuery( function( $ )  {
-				var table = $( '#social_notifications_subscribe' ).parents( 'table:first' ),
-					header = table.prevAll( 'h2:first' ),
-					newParent = $( '#moderation_notify' ).parent( 'label' ).parent();
-
-				if ( ! table.length || ! header.length || ! newParent.length ) {
-					return;
-				}
-
-				newParent.append( '<br/>' ).append( table.end().parent( 'label' ).siblings().andSelf() );
-				header.remove();
-				table.remove();
-			} );
-		</script>
-		<?php
-	}]]></code>
-      <code><![CDATA[public function social_notifications_subscribe_validate( $input ) {
-		// If it's not set (was unchecked during form submission) or was set to off (during option update), return 'off'.
-		if ( ! $input || 'off' === $input ) {
-			return 'off';
-		}
-
-		// Otherwise we return 'on'.
-		return 'on';
-	}]]></code>
-    </ParseError>
     <PossiblyUnusedMethod>
       <code><![CDATA[first_published_status_meta_auth_callback]]></code>
+      <code><![CDATA[social_notifications_subscribe_validate]]></code>
       <code><![CDATA[validate_settings]]></code>
     </PossiblyUnusedMethod>
     <PossiblyUnusedParam>
@@ -34361,114 +33635,14 @@
       <code><![CDATA[get_page_type_ipw]]></code>
       <code><![CDATA[should_show]]></code>
     </NullReference>
-    <ParseError>
-      <code><![CDATA[public function get_amp_snippet( $height, $width ) {
-		$height         = esc_attr( $height + 15 ); // this will ensure enough padding for "Report this ad".
-		$width          = esc_attr( $width );
-		$amp_section_id = esc_attr( self::get_amp_section_id() );
-		$site_id        = esc_attr( $this->params->blog_id );
-		return <<<HTML
-		<amp-ad width="$width" height="$height"
-		    type="pubmine"
-		    data-siteid="$site_id"
-		    data-section="$amp_section_id">
-		</amp-ad>
-HTML;
-	}]]></code>
-      <code><![CDATA[public function get_dynamic_ad_snippet( $section_id, $form_factor = 'square', $location = '', $relocate = '' ) {
-		$div_id = 'atatags-' . $section_id . '-' . uniqid();
-		$div_id = esc_attr( $div_id );
-
-		// Default form factor.
-		$form_factor_id = self::$form_factor_ids['square'];
-		if ( isset( self::$form_factor_ids[ $form_factor ] ) ) {
-			$form_factor_id = self::$form_factor_ids[ $form_factor ];
-		}
-
-		$loc_id = 100;
-		if ( isset( self::$ad_location_ids[ $location ] ) ) {
-			$loc_id = self::$ad_location_ids[ $location ];
-		}
-
-		$form_factor_id        = esc_js( $form_factor_id );
-		$advertisements_text   = esc_js( __( 'Advertisements', 'jetpack' ) );
-		$report_ad_text        = esc_js( __( 'Report this ad', 'jetpack' ) );
-		$privacy_settings_text = esc_js( __( 'Privacy settings', 'jetpack' ) );
-
-		$relocate_script = '';
-		if ( ! empty( $relocate ) ) {
-			$selector        = wp_json_encode( $relocate );
-			$relocate_script = <<<JS
-			<script type="text/javascript">
-			var adNode       = document.getElementById( '{$div_id}' );
-			var selector     = {$selector};
-			var relocateNode = document.querySelector( selector );
-			relocateNode.parentNode.insertBefore( adNode, relocateNode );
-			</script>
-JS;
-		}
-
-		return <<<HTML
-		<div id="{$div_id}"></div>
-		{$relocate_script}
-		<script>
-			__ATA.cmd.push(function() {
-				__ATA.initDynamicSlot({
-					id: '{$div_id}',
-					location: {$loc_id},
-					formFactor: '{$form_factor_id}',
-					label: {
-						text: '{$advertisements_text}',
-					},
-					creative: {
-						reportAd: {
-							text: '{$report_ad_text}',
-						},
-						privacySettings: {
-							text: '{$privacy_settings_text}',
-							onClick: function() { window.__tcfapi && window.__tcfapi('showUi'); },
-						}
-					}
-				});
-			});
-		</script>
-HTML;
-	}]]></code>
-      <code><![CDATA[public function resource_hints( $hints, $relation_type ) {
-		if ( 'dns-prefetch' === $relation_type ) {
-			$hints[] = '//s.pubmine.com';
-			$hints[] = '//x.bidswitch.net';
-			$hints[] = '//static.criteo.net';
-			$hints[] = '//ib.adnxs.com';
-			$hints[] = '//aax.amazon-adsystem.com';
-			$hints[] = '//bidder.criteo.com';
-			$hints[] = '//cas.criteo.com';
-			$hints[] = '//gum.criteo.com';
-			$hints[] = '//ads.pubmatic.com';
-			$hints[] = '//gads.pubmatic.com';
-			$hints[] = '//tpc.googlesyndication.com';
-			$hints[] = '//ad.doubleclick.net';
-			$hints[] = '//googleads.g.doubleclick.net';
-			$hints[] = '//www.googletagservices.com';
-			$hints[] = '//cdn.switchadhub.com';
-			$hints[] = '//delivery.g.switchadhub.com';
-			$hints[] = '//delivery.swid.switchadhub.com';
-		}
-
-		return $hints;
-	}]]></code>
-    </ParseError>
     <PossiblyUnusedMethod>
       <code><![CDATA[get_ad_snippet]]></code>
       <code><![CDATA[get_ad_tags]]></code>
-      <code><![CDATA[get_amp_section_id]]></code>
       <code><![CDATA[get_solo_unit_css]]></code>
       <code><![CDATA[insert_inline_ad]]></code>
     </PossiblyUnusedMethod>
-    <PossiblyUnusedProperty>
-      <code><![CDATA[$form_factor_ids]]></code>
-    </PossiblyUnusedProperty>
     <PossiblyUnusedReturnValue>
+      <code><![CDATA[array]]></code>
       <code><![CDATA[string]]></code>
     </PossiblyUnusedReturnValue>
     <UndefinedDocblockClass>
@@ -34867,14 +34041,6 @@ HTML;
     </PossiblyUnusedMethod>
   </file>
   <file src="projects/plugins/jetpack/sal/class.json-api-site-jetpack.php">
-    <ParseError>
-      <code><![CDATA[public function is_fse_eligible() {
-		if ( ! Jetpack::is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) ) {
-			return false;
-		}
-		return function_exists( '\A8C\FSE\is_site_eligible_for_full_site_editing' ) && \A8C\FSE\is_site_eligible_for_full_site_editing();
-	}]]></code>
-    </ParseError>
     <PossiblyUnusedMethod>
       <code><![CDATA[allowed_file_types]]></code>
       <code><![CDATA[get_ak_vp_bundle_enabled]]></code>
@@ -34900,6 +34066,7 @@ HTML;
       <code><![CDATA[is_core_site_editor_enabled]]></code>
       <code><![CDATA[is_following]]></code>
       <code><![CDATA[is_fse_active]]></code>
+      <code><![CDATA[is_fse_eligible]]></code>
       <code><![CDATA[is_headstart_fresh]]></code>
       <code><![CDATA[is_jetpack_connection]]></code>
       <code><![CDATA[is_mapped_domain]]></code>
@@ -35510,7 +34677,9 @@ HTML;
   <file src="projects/plugins/jetpack/tests/php/general/test_class.functions.global.php">
     <PossiblyUnusedParam>
       <code><![CDATA[$expected]]></code>
+      <code><![CDATA[$expected]]></code>
       <code><![CDATA[$headers]]></code>
+      <code><![CDATA[$version]]></code>
     </PossiblyUnusedParam>
     <UndefinedClass>
       <code><![CDATA[WP_UnitTestCase]]></code>
@@ -36305,6 +35474,11 @@ HTML;
     </UnusedClass>
   </file>
   <file src="projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.dailymotion.php">
+    <PossiblyUnusedParam>
+      <code><![CDATA[$expected]]></code>
+      <code><![CDATA[$shortcode_content]]></code>
+      <code><![CDATA[$shortcode_content]]></code>
+    </PossiblyUnusedParam>
     <UndefinedClass>
       <code><![CDATA[WP_UnitTestCase]]></code>
     </UndefinedClass>
@@ -36400,8 +35574,11 @@ HTML;
       <code><![CDATA[$atts]]></code>
       <code><![CDATA[$expected]]></code>
       <code><![CDATA[$expected]]></code>
+      <code><![CDATA[$expected]]></code>
       <code><![CDATA[$original]]></code>
       <code><![CDATA[$response]]></code>
+      <code><![CDATA[$shortcode_content]]></code>
+      <code><![CDATA[$shortcode_content]]></code>
       <code><![CDATA[$url]]></code>
       <code><![CDATA[$url]]></code>
     </PossiblyUnusedParam>
@@ -36445,6 +35622,10 @@ HTML;
     </UnusedClass>
   </file>
   <file src="projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.others.php">
+    <PossiblyUnusedParam>
+      <code><![CDATA[$embed_link]]></code>
+      <code><![CDATA[$expected]]></code>
+    </PossiblyUnusedParam>
     <UndefinedClass>
       <code><![CDATA[WP_UnitTestCase]]></code>
     </UndefinedClass>
@@ -36469,6 +35650,10 @@ HTML;
     </UnusedClass>
   </file>
   <file src="projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.recipe.php">
+    <PossiblyUnusedParam>
+      <code><![CDATA[$expected]]></code>
+      <code><![CDATA[$shortcode]]></code>
+    </PossiblyUnusedParam>
     <UndefinedClass>
       <code><![CDATA[WP_UnitTestCase]]></code>
     </UndefinedClass>
@@ -36506,6 +35691,10 @@ HTML;
     </UnusedClass>
   </file>
   <file src="projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.slideshow.php">
+    <PossiblyUnusedParam>
+      <code><![CDATA[$expected]]></code>
+      <code><![CDATA[$shortcode]]></code>
+    </PossiblyUnusedParam>
     <UndefinedClass>
       <code><![CDATA[WP_UnitTestCase]]></code>
     </UndefinedClass>
@@ -36560,7 +35749,10 @@ HTML;
   <file src="projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.tweet.php">
     <PossiblyUnusedParam>
       <code><![CDATA[$args]]></code>
+      <code><![CDATA[$expected]]></code>
       <code><![CDATA[$response]]></code>
+      <code><![CDATA[$shortcode_content]]></code>
+      <code><![CDATA[$shortcode_content]]></code>
       <code><![CDATA[$url]]></code>
     </PossiblyUnusedParam>
     <UndefinedClass>
@@ -36799,7 +35991,15 @@ HTML;
   <file src="projects/plugins/jetpack/tests/php/modules/videopress/test_functions.utility-functions.php">
     <PossiblyUnusedParam>
       <code><![CDATA[$actual]]></code>
+      <code><![CDATA[$cache_group]]></code>
+      <code><![CDATA[$cache_group]]></code>
+      <code><![CDATA[$cache_key_base]]></code>
+      <code><![CDATA[$callback]]></code>
+      <code><![CDATA[$callback]]></code>
       <code><![CDATA[$expected]]></code>
+      <code><![CDATA[$invalid_cached_value]]></code>
+      <code><![CDATA[$should_cache_object]]></code>
+      <code><![CDATA[$should_cache_object]]></code>
     </PossiblyUnusedParam>
     <UndefinedClass>
       <code><![CDATA[WP_UnitTestCase]]></code>
@@ -38389,7 +37589,7 @@ HTML;
     <InvalidGlobal>
       <code><![CDATA[global $update_mod_rewrite_rules_error;]]></code>
       <code><![CDATA[global $valid_nonce;]]></code>
-      <code><![CDATA[global $wp_cache_mod_rewrite, $wp_cache_mfunc_enabled, $wp_cache_mobile_enabled;]]></code>
+      <code><![CDATA[global $wp_cache_mod_rewrite, $wp_cache_mfunc_enabled, $wp_cache_mobile_enabled, $cache_enabled, $cache_path, $cache_time_interval, $cache_schedule_type;]]></code>
     </InvalidGlobal>
     <UndefinedFunction>
       <code><![CDATA[add_mod_rewrite_rules()]]></code>
@@ -38407,19 +37607,14 @@ HTML;
       <code><![CDATA[$admin_url]]></code>
       <code><![CDATA[$cache_acceptable_files]]></code>
       <code><![CDATA[$cache_compression]]></code>
-      <code><![CDATA[$cache_enabled]]></code>
       <code><![CDATA[$cache_gc_email_me]]></code>
       <code><![CDATA[$cache_max_time]]></code>
       <code><![CDATA[$cache_page_secret]]></code>
       <code><![CDATA[$cache_page_secret]]></code>
-      <code><![CDATA[$cache_path]]></code>
       <code><![CDATA[$cache_rebuild_files]]></code>
       <code><![CDATA[$cache_rejected_uri]]></code>
       <code><![CDATA[$cache_schedule_interval]]></code>
-      <code><![CDATA[$cache_schedule_type]]></code>
-      <code><![CDATA[$cache_schedule_type]]></code>
       <code><![CDATA[$cache_scheduled_time]]></code>
-      <code><![CDATA[$cache_time_interval]]></code>
       <code><![CDATA[$is_nginx]]></code>
       <code><![CDATA[$super_cache_enabled]]></code>
       <code><![CDATA[$super_cache_enabled]]></code>
