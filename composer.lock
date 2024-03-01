@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5f3470f634f308a218d668db50aa30a0",
+    "content-hash": "b96001bf438582f23d3bec8d16ba1abc",
     "packages": [],
     "packages-dev": [
         {
@@ -979,6 +979,53 @@
             "time": "2022-02-21T12:50:22+00:00"
         },
         {
+            "name": "php-stubs/wordpress-stubs",
+            "version": "v6.4.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-stubs/wordpress-stubs.git",
+                "reference": "6105bdab2f26c0204fe90ecc53d5684754550e8f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/6105bdab2f26c0204fe90ecc53d5684754550e8f",
+                "reference": "6105bdab2f26c0204fe90ecc53d5684754550e8f",
+                "shasum": ""
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+                "nikic/php-parser": "^4.13",
+                "php": "^7.4 || ~8.0.0",
+                "php-stubs/generator": "^0.8.3",
+                "phpdocumentor/reflection-docblock": "^5.3",
+                "phpstan/phpstan": "^1.10.49",
+                "phpunit/phpunit": "^9.5",
+                "szepeviktor/phpcs-psr-12-neutron-hybrid-ruleset": "^0.11"
+            },
+            "suggest": {
+                "paragonie/sodium_compat": "Pure PHP implementation of libsodium",
+                "symfony/polyfill-php80": "Symfony polyfill backporting some PHP 8.0+ features to lower PHP versions",
+                "szepeviktor/phpstan-wordpress": "WordPress extensions for PHPStan"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "WordPress function and class declaration stubs for static analysis.",
+            "homepage": "https://github.com/php-stubs/wordpress-stubs",
+            "keywords": [
+                "PHPStan",
+                "static analysis",
+                "wordpress"
+            ],
+            "support": {
+                "issues": "https://github.com/php-stubs/wordpress-stubs/issues",
+                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.4.3"
+            },
+            "time": "2024-02-11T18:56:19+00:00"
+        },
+        {
             "name": "phpcompatibility/php-compatibility",
             "version": "9.3.5",
             "source": {
@@ -1798,65 +1845,6 @@
                 "wiki": "https://github.com/sirbrillig/phpcs-variable-analysis/wiki"
             },
             "time": "2023-08-05T23:46:11+00:00"
-        },
-        {
-            "name": "skaut/wordpress-stubs",
-            "version": "2.8.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/skaut/wordpress-stubs.git",
-                "reference": "3f9146120192be70023c8cd410af33959948ced3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/skaut/wordpress-stubs/zipball/3f9146120192be70023c8cd410af33959948ced3",
-                "reference": "3f9146120192be70023c8cd410af33959948ced3",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.0 || ^8.0"
-            },
-            "require-dev": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-                "phan/phan": "^5.0",
-                "phpstan/phpstan": "^1.4",
-                "slevomat/coding-standard": "^8.14",
-                "squizlabs/php_codesniffer": "^3.0",
-                "wp-coding-standards/wpcs": "^3.0"
-            },
-            "suggest": {
-                "phan/phan": "A static analyzer for PHP",
-                "phpstan/phpstan": "PHPStan - PHP Static Analysis Tool"
-            },
-            "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marek Dědič",
-                    "email": "developer@dedic.eu"
-                }
-            ],
-            "description": "High quality stubs for WordPress functions and classes",
-            "homepage": "https://github.com/skaut/wordpress-stubs",
-            "keywords": [
-                "PHPStan",
-                "WordPress stubs",
-                "phan",
-                "stub",
-                "stubs",
-                "wordpress",
-                "wordpress plugin",
-                "wordpress theme"
-            ],
-            "support": {
-                "issues": "https://github.com/skaut/wordpress-stubs/issues",
-                "source": "https://github.com/skaut/wordpress-stubs",
-                "wiki": "https://github.com/skaut/wordpress-stubs/wiki"
-            },
-            "time": "2023-12-23T22:25:39+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
