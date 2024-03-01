@@ -39,7 +39,8 @@ class Filesystem_Utils {
 					if ( $file->isDir() ) {
 						Logger::debug( 'rmdir: ' . $file->getPathname() );
 						@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-					} else {
+					} elseif ( $file->getFilename() !== 'index.php' ) {
+						// Delete all files except index.php. index.php is used to prevent directory listing.
 						Logger::debug( 'unlink: ' . $file->getPathname() );
 						@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 					}
@@ -47,7 +48,8 @@ class Filesystem_Utils {
 				@rmdir( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged,
 				break;
 			case self::DELETE_FILES: // delete all files in the given directory.
-				$files = array_diff( scandir( $path ), array( '.', '..' ) );
+				// Files to delete are all files in the given directory, except index.php. index.php is used to prevent directory listing.
+				$files = array_diff( scandir( $path ), array( '.', '..', 'index.php' ) );
 				foreach ( $files as $file ) {
 					$file = $path . '/' . $file;
 					if ( is_file( $file ) ) {
