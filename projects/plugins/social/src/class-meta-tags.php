@@ -254,7 +254,7 @@ class Meta_Tags {
 			$trimmed_text = substr( $trimmed_text, 0, $last_space_pos );
 		}
 
-		return $trimmed_text . '...';
+		return $trimmed_text . "\u{2026}";
 	}
 
 	/**
