@@ -95,7 +95,7 @@ class Jetpack_Subscription_Site {
 					) {
 						// translators: %s is the name of the site.
 						$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
-						$subscribe_text          = __( 'Subscribe to get latest posts to your email.', 'jetpack' );
+						$subscribe_text          = __( 'Subscribe to get the latest posts to your email.', 'jetpack' );
 
 						return $content . <<<HTML
 <!-- wp:group {"style":{"spacing":{"padding":{"top":"0px","bottom":"0px","left":"0px","right":"0px"},"margin":{"top":"32px","bottom":"32px"}},"border":{"width":"0px","style":"none"}},"className":"has-border-color","layout":{"type":"default"}} -->
@@ -159,11 +159,11 @@ HTML;
 
 					// translators: %s is the name of the site.
 					$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
-					$subscribe_text          = __( 'Subscribe to get latest posts to your email.', 'jetpack' );
+					$subscribe_text          = __( 'Subscribe to get the latest posts to your email.', 'jetpack' );
 					$inner_content_begin     = <<<HTML
 <div class="wp-block-group">
-	<!-- wp:separator {"style":{"spacing":{"margin":{"top":"var:preset|spacing|40","bottom":"64px"}}},"className":"is-style-wide"} -->
-	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" style="margin-top:var(--wp--preset--spacing--40);margin-bottom:64px"/>
+	<!-- wp:separator {"style":{"spacing":{"margin":{"top":"var:preset|spacing|40","bottom":"48px"}}},"className":"is-style-wide"} -->
+	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide" style="margin-top:var(--wp--preset--spacing--40);margin-bottom:48px"/>
 	<!-- /wp:separator -->
 
 	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
