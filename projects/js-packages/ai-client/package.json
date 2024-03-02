@@ -43,7 +43,7 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@microsoft/fetch-event-source": "2.0.1",
-		"@types/react": "18.2.33",
+		"@types/react": "18.2.61",
 		"@wordpress/api-fetch": "6.49.0",
 		"@wordpress/block-editor": "12.20.0",
 		"@wordpress/components": "27.0.0",
