@@ -23,7 +23,7 @@
 	"type": "module",
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.23.5",
+		"@babel/core": "7.24.0",
 		"@babel/plugin-transform-react-jsx": "7.23.4",
 		"@jest/globals": "29.7.0",
 		"@storybook/addon-actions": "7.6.17",
