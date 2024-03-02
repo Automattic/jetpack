@@ -12,8 +12,8 @@
 	"devDependencies": {
 		"@automattic/eslint-changed": "workspace:*",
 		"@automattic/eslint-config-target-es": "workspace:*",
-		"@babel/core": "7.23.5",
-		"@babel/eslint-parser": "7.23.3",
+		"@babel/core": "7.24.0",
+		"@babel/eslint-parser": "7.23.10",
 		"@babel/preset-react": "7.23.3",
 		"@babel/preset-typescript": "7.23.3",
 		"@octokit/auth-token": "4.0.0",
