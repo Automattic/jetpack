@@ -61,18 +61,18 @@
 		"ai-assistant-usage-panel",
 		"sharing-button",
 		"sharing-buttons",
-		"ai-content-lens"
+		"ai-content-lens",
+		"blog-stats",
+		"top-posts",
+		"goodreads"
 	],
 	"beta": [
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"recipe",
-		"goodreads",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"voice-to-content",
-		"blog-stats",
-		"top-posts",
 		"ai-assistant-backend-prompts",
 		"ai-logo-generator"
 	],
