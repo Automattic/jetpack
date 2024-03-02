@@ -10,60 +10,51 @@
 $root = dirname( __DIR__, 4 );
 
 return array(
-	// Supported values: `'5.6'`, `'7.0'`, `'7.1'`, `'7.2'`, `'7.3'`,
-	// `'7.4'`, `'8.0'`, `'8.1'`, `null`.
-	// If this is set to `null`,
-	// then Phan assumes the PHP version which is closest to the minor version
-	// of the php executable used to execute Phan.
-	//
-	// Note that the **only** effect of choosing `'5.6'` is to infer
-	// that functions removed in php 7.0 exist.
-	// (See `backward_compatibility_checks` for additional options)
-	'target_php_version'              => '7.0',
+	// Versions of PHP to check with.
+	'minimum_target_php_version'      => '7.0',
+	'target_php_version'              => '8.2',
 
-	// A list of directories that should be parsed for class and
-	// method information. After excluding the directories
-	// defined in exclude_analysis_directory_list, the remaining
-	// files will be statically analyzed for errors.
-	//
-	// Thus, both first-party and third-party code being used by
-	// your application should be included in this list.
+	// Apparently this is only useful when upgrading from php 5, not for 7-to-8.
+	'backward_compatibility_checks'   => false,
+
+	// Plugins to enable.
+	'plugins'                         => array(
+		'PHPUnitNotDeadCodePlugin',
+	),
+
+	// Directories and individual files to parse (and, by default, analyze).
 	'directory_list'                  => array(
 		'.',
 	),
 	'file_list'                       => array(
 		"$root/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php",
+		"$root/vendor/php-stubs/wordpress-tests-stubs/wordpress-tests-stubs.php",
+		"$root/vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php",
+		"$root/vendor/php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php",
+		"$root/vendor/php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php",
 	),
 
-	// A regex used to match every file name that you want to
-	// exclude from parsing. Actual value will exclude every
-	// "test", "tests", "Test" and "Tests" folders found in
-	// "vendor/" directory.
+	// Regex to exclude files from parsing.
 	'exclude_file_regex'              => '@^\./(?:' . implode(
 		'|',
 		array(
+			// Ignore any `test`, `tests`, `Test`, `Tests`, `wordpress`, `jetpack_vendor`, `vendor`, and `node_modules` inside `vendor` and `jetpack_vendor`.
+			// Most of these are probably from our intra-monorepo symlinks.
 			'(?:jetpack_)?vendor/.*/(tests?|Tests?|wordpress|(?:jetpack_)?vendor|node_modules)/',
+			// Other stuff to ignore.
 			'node_modules/',
 			'tests/e2e/node_modules/',
 			'\.cache/',
 		)
 	) . ')@',
 
+	// Specific files to exclude from parsing.
 	'exclude_file_list'               => array(
 		'modules/custom-css/custom-css/preprocessors/lessc.inc.php',
 	),
 
-	// A directory list that defines files that will be excluded
-	// from static analysis, but whose class and method
-	// information should be included.
-	//
-	// Generally, you'll want to include the directories for
-	// third-party code (such as "vendor/") in this list.
-	//
-	// n.b.: If you'd like to parse but not analyze 3rd
-	// party code, directories containing that code
-	// should be added to both the `directory_list`
-	// and `exclude_analysis_directory_list` arrays.
+	// List directories that will be excluded from analysis (but will still be parsed).
+	// Note anything here needs to be listed in `directory_list` or `file_list` to be parsed in the first place.
 	'exclude_analysis_directory_list' => array(
 		'jetpack_vendor',
 		'vendor',
