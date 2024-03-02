@@ -29,7 +29,7 @@
 		"@storybook/addon-actions": "7.6.17",
 		"@storybook/blocks": "7.6.17",
 		"@storybook/react": "7.6.17",
-		"@testing-library/react": "14.2.0",
+		"@testing-library/react": "14.2.1",
 		"@types/jest": "29.5.12",
 		"@types/react": "18.2.33",
 		"@wordpress/babel-plugin-import-jsx-pragma": "4.35.0",
