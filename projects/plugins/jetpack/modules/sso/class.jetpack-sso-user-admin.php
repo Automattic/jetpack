@@ -669,7 +669,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 				<table class="form-table">
 					<tr class="form-field">
 						<th scope="row">
-							<label for="invite_user_wpcom"><?php esc_html_e( 'Invite user:', 'jetpack' ); ?></label>
+							<label for="invite_user_wpcom"><?php esc_html_e( 'Invite user', 'jetpack' ); ?></label>
 						</th>
 						<td>
 							<fieldset>
