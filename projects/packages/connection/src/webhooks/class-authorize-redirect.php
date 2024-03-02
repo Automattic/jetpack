@@ -18,6 +18,12 @@ use Jetpack_Network;
  * Authorize_Redirect Webhook handler class.
  */
 class Authorize_Redirect {
+	/**
+	 * The Connection Manager object.
+	 *
+	 * @var Manager
+	 */
+	private $connection;
 
 	/**
 	 * Constructs the object

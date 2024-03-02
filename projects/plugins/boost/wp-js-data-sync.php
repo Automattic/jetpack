@@ -347,15 +347,20 @@ jetpack_boost_register_readonly_option( 'connection', array( new Connection(), '
 jetpack_boost_register_readonly_option( 'pricing', array( Premium_Pricing::class, 'get_yearly_pricing' ) );
 jetpack_boost_register_readonly_option( 'premium_features', array( Premium_Features::class, 'get_features' ) );
 jetpack_boost_register_readonly_option( 'super_cache', array( Super_Cache_Info::class, 'get_info' ) );
-jetpack_boost_register_readonly_option( 'cache_debug_log', array( new Logger(), 'read' ) );
+jetpack_boost_register_readonly_option( 'cache_debug_log', array( Logger::class, 'read' ) );
 
 jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback( false ), new Getting_Started_Entry() );
 
 // Page Cache error
 jetpack_boost_register_option(
 	'page_cache_error',
-	Schema::as_string()
-			->nullable()
+	Schema::as_assoc_array(
+		array(
+			'code'      => Schema::as_string(),
+			'message'   => Schema::as_string(),
+			'dismissed' => Schema::as_boolean()->fallback( false ),
+		)
+	)->nullable()
 );
 
 jetpack_boost_register_action( 'page_cache', 'run-setup', Schema::as_void(), new Run_Setup() );

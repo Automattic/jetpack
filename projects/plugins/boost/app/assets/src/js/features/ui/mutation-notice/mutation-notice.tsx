@@ -1,23 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { Snackbar } from '@wordpress/components';
+import { useEffect, useMemo } from 'react';
 import { __ } from '@wordpress/i18n';
+import { useNotices } from '$features/notice/context';
+
+export type MutationNoticeState = {
+	isSuccess: boolean;
+	isError: boolean;
+	isPending: boolean;
+	isIdle: boolean;
+	reset?: () => void;
+};
+
+type MutationNoticeMessages = {
+	savingMessage?: string;
+	errorMessage?: string;
+	successMessage?: string;
+};
 
 /**
- * Mutation Notice: A component that shows a notice when a mutation is pending, successful or failed.
+ * Mutation Notice: A hook for showing a notice when a mutation is pending, successful or failed.
  *
  * Usage:
  * ```tsx
- *	 <MutationNotice
- *		 isSuccess={ mutation.isSuccess }
- *		 isError={ mutation.isError }
- *		 isPending={ mutation.isPending }
- *		 savingMessage={ __( 'Saving…', 'jetpack-boost' ) }
- *		 errorMessage={ __(
- *		 'An error occurred while saving changes. Please, try again.',
- *		 'jetpack-boost'
- *		 ) }
- *		 successMessage={ __( 'Changes saved.', 'jetpack-boost' ) }
- *		 />
+ *	useMutationNotice( {
+ *		"unique-mutation-id",
+ *		mutationState,
+ *		{
+ *			savingMessage: 'Saving…',
+ *			errorMessage: 'An error occurred while saving changes. Please, try again.',
+ *			successMessage: 'Changes saved.',
+ *		}
+ *	} );
  * ```
  *
  * Usage when you don't need to customize the messages:
@@ -26,71 +38,66 @@ import { __ } from '@wordpress/i18n';
  * 	const [ data, mutation ] = useDataSync(...);
  * 	<MutationNotice { ...mutation } />
  * ```
- * @param props
- * @param props.isSuccess      Whether the mutation was successful.
- * @param props.isError        Whether the mutation failed.
- * @param props.isPending      Whether the mutation is pending.
- * @param props.savingMessage  The message to show when the mutation is pending.
- * @param props.errorMessage   The message to show when the mutation failed.
- * @param props.successMessage The message to show when the mutation was successful.
+ * @param mutationId    A unique identifier for the mutation notice.
+ * @param mutationState An object representing the current state of the mutation.
+ * @param messages      An object containing custom messages for different states of the mutation.
  */
-export const MutationNotice = ( props: {
-	isSuccess: boolean;
-	isError: boolean;
-	isPending: boolean;
-	savingMessage?: string;
-	errorMessage?: string;
-	successMessage?: string;
-} ) => {
-	const [ showSnackbar, setShowSnackbar ] = useState( false );
-	const [ snackbarContent, setSnackbarContent ] = useState( '' );
-	const [ snackbarType, setSnackbarType ] = useState< 'success' | 'error' >( 'success' );
+export const useMutationNotice = (
+	mutationId: string,
+	mutationState: MutationNoticeState | null = null,
+	messages: MutationNoticeMessages = {}
+) => {
+	const { setNotice, removeNotice } = useNotices();
 
-	const savingMessage = props.savingMessage || __( 'Saving…', 'jetpack-boost' );
-	const errorMessage =
-		props.errorMessage || __( 'An error occurred while saving changes.', 'jetpack-boost' );
-	const successMessage = props.successMessage || __( 'Changes saved.', 'jetpack-boost' );
+	const defaultMessages = {
+		savingMessage: __( 'Saving…', 'jetpack-boost' ),
+		errorMessage: __(
+			'An error occurred while saving changes. Please, try again.',
+			'jetpack-boost'
+		),
+		successMessage: __( 'Changes saved.', 'jetpack-boost' ),
+	};
+
+	const { savingMessage, errorMessage, successMessage } = { ...defaultMessages, ...messages };
+
+	const { isSuccess, isError, isPending, isIdle, reset } = useMemo( () => {
+		const mutationStateDefaults = {
+			isSuccess: false,
+			isError: false,
+			isPending: false,
+			isIdle: false,
+			reset: () => {},
+		};
+		return {
+			...mutationStateDefaults,
+			...mutationState,
+		};
+	}, [ mutationState ] );
 
 	useEffect( () => {
-		let timeoutId: ReturnType< typeof setTimeout >;
-
-		// If mutation is pending, show a "Saving…" message.
-		// But only if saving takes more than 50ms to avoid FOLC(Flash of Loading Content).
-		if ( props.isPending && ! props.isSuccess ) {
-			timeoutId = setTimeout( () => {
-				setShowSnackbar( true );
-				setSnackbarContent( savingMessage );
-			}, 50 );
-			setSnackbarType( 'success' );
-		} else if ( props.isSuccess ) {
-			setShowSnackbar( true );
-			setSnackbarContent( successMessage );
-			setSnackbarType( 'success' );
-		} else if ( props.isError ) {
-			setShowSnackbar( true );
-			setSnackbarContent( errorMessage );
-			setSnackbarType( 'error' );
+		if ( isPending ) {
+			setNotice( { id: mutationId, type: 'pending', message: savingMessage } );
+		} else if ( isSuccess ) {
+			setNotice( { id: mutationId, type: 'success', message: successMessage } );
+		} else if ( isError ) {
+			setNotice( { id: mutationId, type: 'error', message: errorMessage } );
 		}
-		return () => clearTimeout( timeoutId );
 	}, [
-		props.isSuccess,
-		props.isError,
-		props.isPending,
+		mutationId,
+		setNotice,
+		removeNotice,
 		savingMessage,
 		errorMessage,
 		successMessage,
+		isSuccess,
+		isError,
+		isPending,
+		isIdle,
+		reset,
 	] );
 
-	return (
-		<>
-			{ showSnackbar && (
-				<Snackbar type={ snackbarType } onDismiss={ () => setShowSnackbar( false ) }>
-					{ snackbarContent }
-				</Snackbar>
-			) }
-		</>
-	);
+	return [ () => removeNotice( mutationId ) ];
 };
 
 // This is a pure component, so we can use React.memo to avoid unnecessary re-renders.
-export default React.memo( MutationNotice );
+export default useMutationNotice;

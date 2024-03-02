@@ -12,24 +12,24 @@ class Filesystem_Utils {
 	 * Recursively delete a directory.
 	 * @param string $path - The directory to delete.
 	 * @param bool   $type - The type of delete. DELETE_FILES to delete all files in the given directory. DELETE_ALL to delete everything in the given directory, recursively.
-	 * @return bool|WP_Error
+	 * @return bool|Boost_Cache_Error
 	 */
 	public static function delete_directory( $path, $type ) {
 		Logger::debug( "delete directory: $path $type" );
 		$path = realpath( $path );
 		if ( ! $path ) {
 			// translators: %s is the directory that does not exist.
-			return new \WP_Error( 'directory-missing', sprintf( __( 'Directory does not exist: %s', 'jetpack-boost' ), $path ) ); // realpath returns false if a file does not exist.
+			return new Boost_Cache_Error( 'directory-missing', 'Directory does not exist: ' . $path ); // realpath returns false if a file does not exist.
 		}
 
 		// make sure that $dir is a directory inside WP_CONTENT . '/boost-cache/';
 		if ( self::is_boost_cache_directory( $path ) === false ) {
 			// translators: %s is the directory that is invalid.
-			return new \WP_Error( 'invalid-directory', sprintf( __( 'Invalid directory %s', 'jetpack-boost' ), $path ) );
+			return new Boost_Cache_Error( 'invalid-directory', 'Invalid directory %s' . $path );
 		}
 
 		if ( ! is_dir( $path ) ) {
-			return new \WP_Error( 'not-a-directory', __( 'Not a directory', 'jetpack-boost' ) );
+			return new Boost_Cache_Error( 'not-a-directory', 'Not a directory' );
 		}
 
 		switch ( $type ) {
@@ -39,7 +39,8 @@ class Filesystem_Utils {
 					if ( $file->isDir() ) {
 						Logger::debug( 'rmdir: ' . $file->getPathname() );
 						@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
-					} else {
+					} elseif ( $file->getFilename() !== 'index.html' ) {
+						// Delete all files except index.html. index.html is used to prevent directory listing.
 						Logger::debug( 'unlink: ' . $file->getPathname() );
 						@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
 					}
@@ -47,7 +48,8 @@ class Filesystem_Utils {
 				@rmdir( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged,
 				break;
 			case self::DELETE_FILES: // delete all files in the given directory.
-				$files = array_diff( scandir( $path ), array( '.', '..' ) );
+				// Files to delete are all files in the given directory, except index.html. index.html is used to prevent directory listing.
+				$files = array_diff( scandir( $path ), array( '.', '..', 'index.html' ) );
 				foreach ( $files as $file ) {
 					$file = $path . '/' . $file;
 					if ( is_file( $file ) ) {
@@ -102,7 +104,7 @@ class Filesystem_Utils {
 
 		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 		while ( false !== ( $file = readdir( $handle ) ) ) {
-			if ( $file === '.' || $file === '..' ) {
+			if ( $file === '.' || $file === '..' || $file === 'index.html' ) {
 				// Skip and continue to next file
 				continue;
 			}
@@ -134,12 +136,15 @@ class Filesystem_Utils {
 
 		// If the directory is empty after processing it's files, delete it.
 		$is_dir_empty = self::is_dir_empty( $directory );
-		if ( is_wp_error( $is_dir_empty ) ) {
+		if ( $is_dir_empty instanceof Boost_Cache_Error ) {
 			Logger::debug( 'Could not check directory emptiness: ' . $is_dir_empty->get_error_message() );
 			return $count;
 		}
 
 		if ( $is_dir_empty === true ) {
+			// Directory is considered empty even if it has an index.html file. Delete it it first.
+			self::delete_file( $directory . '/index.html' );
+
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
 			@rmdir( $directory );
 		}
@@ -154,11 +159,30 @@ class Filesystem_Utils {
 	 */
 	public static function create_directory( $path ) {
 		if ( ! is_dir( $path ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.dir_mkdir_dirname, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-			return mkdir( $path, 0755, true );
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.dir_mkdir_dirname, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir, WordPress.PHP.NoSilencedErrors.Discouraged
+			$dir_created = @mkdir( $path, 0755, true );
+
+			if ( $dir_created ) {
+				self::create_empty_index_files( $path );
+			}
+
+			return $dir_created;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Create an empty index.html file in the given directory.
+	 * This is done to prevent directory listing.
+	 */
+	private static function create_empty_index_files( $path ) {
+		if ( self::is_boost_cache_directory( $path ) ) {
+			self::write_to_file( $path . '/index.html', '' );
+
+			// Create an empty index.html file in the parent directory as well.
+			self::create_empty_index_files( dirname( $path ) );
+		}
 	}
 
 	/**
@@ -186,10 +210,11 @@ class Filesystem_Utils {
 	 */
 	public static function is_dir_empty( $dir ) {
 		if ( ! is_readable( $dir ) ) {
-			return new \WP_Error( 'directory_not_readable', 'Directory is not readable' );
+			return new Boost_Cache_Error( 'directory_not_readable', 'Directory is not readable' );
 		}
 
-		return ( count( scandir( $dir ) ) === 2 ); // All directories have '.' and '..'
+		$files = array_diff( scandir( $dir ), array( '.', '..', 'index.html' ) );
+		return empty( $files );
 	}
 
 	/**
@@ -199,18 +224,18 @@ class Filesystem_Utils {
 	 *
 	 * @param string $filename - The filename to write to.
 	 * @param string $data - The data to write to the file.
-	 * @return bool|WP_Error - true on sucess or WP_Error on failure.
+	 * @return bool|Boost_Cache_Error - true on sucess or Boost_Cache_Error on failure.
 	 */
 	public static function write_to_file( $filename, $data ) {
 		$tmp_filename = $filename . uniqid( uniqid(), true ) . '.tmp';
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		if ( false === file_put_contents( $tmp_filename, $data ) ) {
-			return new \WP_Error( 'Could not write to tmp file: ' . $tmp_filename );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( false === @file_put_contents( $tmp_filename, $data ) ) {
+			return new Boost_Cache_Error( 'could-not-write', 'Could not write to tmp file: ' . $tmp_filename );
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
 		if ( ! rename( $tmp_filename, $filename ) ) {
-			return new \WP_Error( 'Could not rename tmp file to final file: ' . $filename );
+			return new Boost_Cache_Error( 'could-not-rename', 'Could not rename tmp file to final file: ' . $filename );
 		}
 		return true;
 	}

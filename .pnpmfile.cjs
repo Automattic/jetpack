@@ -15,9 +15,9 @@ function fixDeps( pkg ) {
 	// https://github.com/Automattic/wp-calypso/pull/87350
 	if (
 		pkg.name === '@automattic/social-previews' &&
-		pkg.dependencies?.[ '@wordpress/components' ] === '^25.10.0'
+		pkg.dependencies?.[ '@wordpress/components' ] === '^26.0.1'
 	) {
-		pkg.dependencies[ '@wordpress/components' ] = '^26.0.0';
+		pkg.dependencies[ '@wordpress/components' ] = '>=26.0.1';
 	}
 
 	// Missing dep or peer dep on react.
