@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Adds an is_managed key to the wp/v2 sites/%s/plugins API. This key checks if the plugin is managed on Atomic by verifying if it's symlinked.

@@ -24,14 +24,14 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '6.4.0';
+	public $version = '6.4.1';
 
 	/**
 	 * WordPress version tested with.
 	 *
 	 * @var string
 	 */
-	public $wp_tested = '6.3';
+	public $wp_tested = '6.5';
 
 	/**
 	 * WordPress update API version.

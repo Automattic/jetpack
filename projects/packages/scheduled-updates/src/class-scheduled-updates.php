@@ -17,18 +17,29 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.2.1-alpha';
+	const PACKAGE_VERSION = '0.3.0-alpha';
 
 	/**
 	 * Initialize the class.
 	 */
 	public static function init() {
+		/*
+		 * We want to load the REST API endpoints in all environments.
+		 * On WP.com they're needed for registering the routes with public-api and pass-through to self-hosted sites.
+		 */
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_rest_api_endpoints' ), 20 );
+
+		// Never load on Simple sites.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return;
+		}
+
 		if ( ! ( method_exists( 'Automattic\Jetpack\Current_Plan', 'supports' ) && Current_Plan::supports( 'scheduled-updates' ) ) ) {
 			return;
 		}
 
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_rest_api_endpoints' ), 20 );
 		add_action( 'jetpack_scheduled_update', array( __CLASS__, 'run_scheduled_update' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'add_is_managed_extension_field' ) );
 		add_filter( 'auto_update_plugin', array( __CLASS__, 'allowlist_scheduled_plugins' ), 10, 2 );
 		add_filter( 'plugin_auto_update_setting_html', array( __CLASS__, 'show_scheduled_updates' ), 10, 2 );
 	}
@@ -79,12 +90,13 @@ class Scheduled_Updates {
 	 * @return bool
 	 */
 	public static function allowlist_scheduled_plugins( $update, $item ) {
-		// TODO: Check if we're in a scheduled update request from Jetpack_Autoupdates.
-		$schedules = get_option( 'jetpack_update_schedules', array() );
+		if ( Constants::get_constant( 'SCHEDULED_AUTOUPDATE' ) ) {
+			$schedules = get_option( 'jetpack_update_schedules', array() );
 
-		foreach ( $schedules as $plugins ) {
-			if ( in_array( $item->slug, $plugins, true ) ) {
-				return true;
+			foreach ( $schedules as $plugins ) {
+				if ( isset( $item->plugin ) && in_array( $item->plugin, $plugins, true ) ) {
+					return true;
+				}
 			}
 		}
 
@@ -150,5 +162,38 @@ class Scheduled_Updates {
 		$html .= '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack#jetpack-autoupdates' ) ) . '">' . esc_html__( 'Edit', 'jetpack-scheduled-updates' ) . '</a>';
 
 		return $html;
+	}
+
+	/**
+	 * Registers the is_managed field for the plugin REST API.
+	 */
+	public static function add_is_managed_extension_field() {
+		register_rest_field(
+			'plugin',
+			'is_managed',
+			array(
+				/**
+				* Populates the is_managed field.
+				*
+				* Users could have their own plugins folder with symlinks pointing to it, so we need to check if the
+				* link target is within the `/wordpress` directory to determine if the plugin is managed.
+				*
+				* @see p9o2xV-3Nx-p2#comment-8728
+				*
+				* @param array $data Prepared response array.
+				* @return bool
+				*/
+				'get_callback' => function ( $data ) {
+					$folder = WP_PLUGIN_DIR . '/' . strtok( $data['plugin'], '/' );
+					$target = is_link( $folder ) ? readlink( $folder ) : false;
+
+					return $target && false !== strpos( $target, '/wordpress/' );
+				},
+				'schema'       => array(
+					'description' => 'Whether the plugin is managed by the host.',
+					'type'        => 'boolean',
+				),
+			)
+		);
 	}
 }

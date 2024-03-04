@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Real time backups: Fix getting more than one row in the related orders table

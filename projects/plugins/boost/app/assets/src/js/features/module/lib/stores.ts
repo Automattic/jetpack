@@ -27,13 +27,15 @@ export const useSingleModuleState = (
 				return;
 			}
 
+			const newState: ModulesState[ string ] = {
+				available: data?.[ moduleSlug ]?.available ?? false,
+				active: state,
+			};
+
 			mutate(
 				{
 					...data,
-					[ moduleSlug ]: {
-						...data?.[ moduleSlug ],
-						active: state,
-					},
+					[ moduleSlug ]: newState,
 				},
 				{
 					onSuccess: moduleStates => {
