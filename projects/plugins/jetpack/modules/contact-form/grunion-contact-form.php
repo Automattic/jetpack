@@ -709,7 +709,7 @@ class Grunion_Contact_Form_Plugin {
 	public static function form_posts_dropdown( $selected_id ) {
 		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::form_posts_dropdown' );
 
-		return Contact_Form_Plugin::form_posts_dropdown( $selected_id );
+		Contact_Form_Plugin::form_posts_dropdown( $selected_id );
 	}
 
 	/**
