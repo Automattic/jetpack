@@ -52,15 +52,13 @@ function load_assets( $attributes ) {
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			return sprintf(
 				'<p>%s</p>',
-				sprintf(
-					/* translators: placeholder is a link that says "enable Jetpack Stats". */
-					esc_html__( 'Please %s to use this block.', 'jetpack' ),
-					'<a href="' .
-						esc_url( admin_url( 'admin.php?page=jetpack_modules&module_tag=Jetpack%20Stats' ) ) .
-						'">' .
-						/* translators: appears in string that says "Please enable Jetpack Stats". */
-						esc_html__( 'enable Jetpack Stats', 'jetpack' ) .
-					'</a>'
+				wp_kses(
+					sprintf(
+						/* translators: placeholder %s is a link to enable Jetpack Stats.. */
+						__( 'Please <a href="%s">enable Jetpack Stats</a> to use this block.', 'jetpack' ),
+						esc_url( admin_url( 'admin.php?page=jetpack_modules&module_tag=Jetpack%20Stats' ) )
+					),
+					array( 'a' => array( 'href' => array() ) )
 				)
 			);
 		}
