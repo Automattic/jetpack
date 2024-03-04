@@ -730,7 +730,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/compat",
-				"reference": "f4f7ce8049517a48f18094107b0b27f632227e75"
+				"reference": "d602d0487adba4e922aed6279fe10a16714b1218"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -750,16 +750,8 @@
 					"link-template": "https://github.com/Automattic/jetpack-compat/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.0.x-dev"
+					"dev-trunk": "3.0.x-dev"
 				}
-			},
-			"autoload": {
-				"files": [
-					"functions.php"
-				],
-				"classmap": [
-					"legacy"
-				]
 			},
 			"license": [
 				"GPL-2.0-or-later"
