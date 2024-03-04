@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Boost: added Cache activation function to set up caching if it's enabled
