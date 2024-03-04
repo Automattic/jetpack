@@ -140,6 +140,7 @@ class Jetpack_Boost {
 		// Make sure user sees the "Get Started" when first time opening.
 		( new Getting_Started_Entry() )->set( true );
 		Analytics::record_user_event( 'activate_plugin' );
+		Page_Cache_Setup::activate();
 	}
 
 	/**

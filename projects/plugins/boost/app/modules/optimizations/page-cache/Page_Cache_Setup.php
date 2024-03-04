@@ -186,6 +186,18 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		return true;
 	}
 
+	/**
+	 * Creates the advanced-cache.php file and adds the WP_CACHE define to wp-config.php
+	 * Fired when the plugin is activated.
+	 */
+	public static function activate() {
+		$settings = Boost_Cache_Settings::get_instance();
+		if ( $settings->get_enabled() ) {
+			self::run_setup();
+		}
+		return true;
+	}
+
 	/*
 	 * Removes the boost-cache directory, removing all cached files and the config file.
 	 * Fired when the plugin is uninstalled.
