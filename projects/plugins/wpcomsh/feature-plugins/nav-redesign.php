@@ -6,7 +6,7 @@
  */
 
 /**
- * Whether to enable the nav redesign. Can be overridden by the `is_nav_redesign_enabled` filter.
+ * Whether to enable the nav redesign.
  *
  * @return bool True if the nav redesign is enabled, false otherwise.
  */
@@ -15,10 +15,12 @@ function wpcom_is_nav_redesign_enabled() {
 		? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
 		: defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
 
-	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+	$uses_wp_admin_interface      = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+	$is_included_in_early_release = ! empty( get_option( 'wpcom_classic_early_release' ) );
 
-	return apply_filters( 'is_nav_redesign_enabled', $is_proxied && $uses_wp_admin_interface );
+	return $uses_wp_admin_interface && ( $is_proxied || $is_included_in_early_release );
 }
+add_filter( 'is_nav_redesign_enabled', 'wpcom_is_nav_redesign_enabled' );
 
 /**
  * Temporarily override the `< WordPress.com` menu to link wpcalypso.wordpress.com,
