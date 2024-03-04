@@ -77,16 +77,6 @@ const productSelectors = {
 	getProductsThatRequiresUserConnection,
 };
 
-const backupRewindableEventsSelectors = {
-	getBackupRewindableEvents: state => state.backupRewindableEvents?.items || {},
-	isFetchingBackupRewindableEvents: state => state.backupRewindableEvents?.isFetching || false,
-};
-
-const countBackupItemsSelectors = {
-	getCountBackupItems: state => state.countBackupItems?.items || {},
-	isFetchingCountBackupItems: state => state.countBackupItems.isFetching || false,
-};
-
 const availableLicensesSelectors = {
 	getAvailableLicenses: state => state.availableLicenses?.items || [],
 	isFetchingAvailableLicenses: state => state.availableLicenses?.isFetching || false,
@@ -178,8 +168,6 @@ const selectors = {
 	...noticeSelectors,
 	...pluginSelectors,
 	...productStatsSelectors,
-	...backupRewindableEventsSelectors,
-	...countBackupItemsSelectors,
 	...statsCountsSelectors,
 	getWelcomeBannerHasBeenDismissed,
 	getGuessedSiteLifecycleStatus,
