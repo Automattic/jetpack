@@ -18,10 +18,17 @@ use Jetpack_Gutenberg;
  * registration if we need to.
  */
 function register_block() {
-	Blocks::jetpack_register_block(
-		__DIR__,
-		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
-	);
+	/**
+	 * Register the block only if we are on an A8C P2 site.
+	 */
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		if ( function_exists( 'wpcom_is_automattic_p2_site' ) && wpcom_is_automattic_p2_site() ) {
+			Blocks::jetpack_register_block(
+				__DIR__,
+				array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+			);
+		}
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
