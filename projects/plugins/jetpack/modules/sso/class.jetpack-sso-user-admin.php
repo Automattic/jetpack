@@ -677,8 +677,8 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 										name="invite_user_wpcom" 
 										type="checkbox" 
 										id="invite_user_wpcom" 
-										<?php echo ! class_exists( 'WooCommerce' ) ? esc_attr( 'checked="checked"' ) : ''; ?>"
-									>
+										<?php checked( ! class_exists( 'WooCommerce' ) ); ?>
+										>
 									<?php esc_html_e( 'Invite user to WordPress.com', 'jetpack' ); ?>
 								</label>
 							</fieldset>
