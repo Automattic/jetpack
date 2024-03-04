@@ -65,9 +65,17 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: "Enable Phan's automatic fixing.",
 		} )
+		.option( 'allow-polyfill-parser', {
+			type: 'boolean',
+			description: "Allow Phan's polyfill parser. May cause false positives.",
+		} )
+		.option( 'force-polyfill-parser', {
+			type: 'boolean',
+			description: "Force Phan's polyfill parser. May cause false positives.",
+		} )
 		.option( 'include-analysis-file-list', {
 			type: 'string',
-			description: 'Passed through to Phan.',
+			description: 'Comma-separated list of files to analyze.',
 		} );
 }
 
@@ -81,6 +89,59 @@ export async function handler( argv ) {
 		if ( argv.project[ 0 ].indexOf( '/' ) < 0 ) {
 			argv.type = argv.project[ 0 ];
 			argv.project = [];
+		}
+	}
+
+	const checkFilesByProject = {};
+	if ( argv[ 'include-analysis-file-list' ] ) {
+		for ( const f of argv[ 'include-analysis-file-list' ]
+			.split( ',' )
+			.map( v => path.relative( process.cwd(), v ) ) ) {
+			if ( ! f.startsWith( 'projects/' ) ) {
+				argv.project.push( 'monorepo' );
+				checkFilesByProject.monorepo ??= [];
+				checkFilesByProject.monorepo.push( f );
+				continue;
+			}
+			const m = f.match( /^projects\/([^/]+\/[^/]+)\/(.+)$/ );
+			if ( m ) {
+				checkFilesByProject[ m[ 1 ] ] ??= [];
+				checkFilesByProject[ m[ 1 ] ].push( m[ 2 ] );
+				continue;
+			}
+			console.error(
+				chalk.red(
+					`Ignoring --include-analysis-file-list file ${ f }, as it doesn't seem to belong to anything`
+				)
+			);
+		}
+
+		argv.all = false;
+		if ( argv.project.length > 0 ) {
+			for ( const p of argv.project.filter( v => ! checkFilesByProject[ v ] ) ) {
+				console.error(
+					chalk.red(
+						`Ignoring project ${ p }, as no file in --include-analysis-file-list is included in it`
+					)
+				);
+			}
+			for ( const p of Object.keys( checkFilesByProject ).filter(
+				v => argv.project.indexOf( v ) < 0
+			) ) {
+				for ( const f of checkFilesByProject[ p ] ) {
+					console.error(
+						chalk.red(
+							`Ignoring --include-analysis-file-list file ${ f }, as its project ${ p } is not listed`
+						)
+					);
+				}
+				delete checkFilesByProject[ p ];
+			}
+		}
+		argv.project = Object.keys( checkFilesByProject );
+		if ( argv.project.length === 0 ) {
+			console.error( chalk.red( `Everything was ignored` ) );
+			return;
 		}
 	}
 
@@ -124,6 +185,7 @@ export async function handler( argv ) {
 		'--require-config-exists',
 		'--analyze-twice',
 		'--output-mode=json',
+		'--disable-cache', // Only relevant for the polyfill parser.
 	];
 	if ( ! argv.v ) {
 		phanArgs.push( '--progress-bar' );
@@ -140,7 +202,7 @@ export async function handler( argv ) {
 	if ( argv.updateBaseline ) {
 		phanArgs.push( '--save-baseline=.phan/baseline.php' );
 	}
-	for ( const arg of [ 'include-analysis-file-list', 'automatic-fix' ] ) {
+	for ( const arg of [ 'automatic-fix', 'allow-polyfill-parser', 'force-polyfill-parser' ] ) {
 		if ( typeof argv[ arg ] === 'string' ) {
 			phanArgs.push( '--' + arg, argv[ arg ] );
 		} else if ( argv[ arg ] === true ) {
@@ -157,6 +219,10 @@ export async function handler( argv ) {
 			console.error( chalk.red( `Project ${ project } does not exist!` ) );
 			continue;
 		}
+
+		const projectPhanArgs = checkFilesByProject[ project ]
+			? [ ...phanArgs, '--include-analysis-file-list', checkFilesByProject[ project ].join( ',' ) ]
+			: phanArgs;
 
 		// Composer install.
 		tasks.push( {
@@ -181,7 +247,7 @@ export async function handler( argv ) {
 					task: async ( ctx, task ) => {
 						let stdout = '';
 						try {
-							const proc = execa( phanPath, phanArgs, {
+							const proc = execa( phanPath, projectPhanArgs, {
 								cwd: projectDir( project ),
 								buffer: false,
 								stdio: [ 'ignore', 'pipe', argv.v ? 'inherit' : 'pipe' ],
