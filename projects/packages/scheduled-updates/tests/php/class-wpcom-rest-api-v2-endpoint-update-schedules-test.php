@@ -60,6 +60,18 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	}
 
 	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
+
+		wp_delete_user( $this->admin_id );
+		wp_delete_user( $this->editor_id );
+
+		wp_clear_scheduled_hook( 'jetpack_scheduled_update' );
+	}
+
+	/**
 	 * Test get_items.
 	 *
 	 * @covers ::get_items
@@ -184,7 +196,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	/**
 	 * Can't have multiple schedules for the same time.
 	 *
-	 * @covers ::create_item_permissions_check
+	 * @covers ::validate_schedule
 	 */
 	public function test_creating_schedules_for_same_time() {
 		$plugins = array(
@@ -216,17 +228,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	/**
 	 * Can't have more than two schedules.
 	 *
-	 * @covers ::create_item_permissions_check
+	 * @covers ::validate_schedule
 	 */
 	public function test_creating_more_than_two_schedules() {
-		$plugins = array(
-			'gutenberg/gutenberg.php',
-			'custom-plugin/custom-plugin.php',
-		);
-
 		// Create two schedules.
-		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
-		wp_schedule_event( strtotime( 'next Tuesday 9:00' ), 'daily', 'jetpack_scheduled_update', $plugins );
+		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', array( 'gutenberg/gutenberg.php' ) );
+		wp_schedule_event( strtotime( 'next Tuesday 9:00' ), 'daily', 'jetpack_scheduled_update', array( 'custom-plugin/custom-plugin.php' ) );
 
 		// Number 3.
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
@@ -242,6 +249,8 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 				),
 			)
 		);
+
+		wp_set_current_user( $this->admin_id );
 		$result = rest_do_request( $request );
 
 		$this->assertSame( 403, $result->get_status() );
