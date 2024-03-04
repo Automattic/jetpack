@@ -1512,6 +1512,16 @@ function wp_cache_phase2() {
 		return false;
 	}
 
+	if ( ob_get_level() > 0 ) {
+		global $wp_super_cache_late_init;
+		$ob_warning = 'Already in an output buffer. Check your plugins, themes, mu-plugins, and other custom code. Exit.';
+		if ( isset( $wp_super_cache_late_init ) && $wp_super_cache_late_init ) {
+			$ob_warning = 'Late init enabled. Disable it. ' . $ob_warning;
+		}
+		wp_cache_debug( 'wp_cache_phase2: ' . $ob_warning );
+		return;
+	}
+
 	wp_cache_debug( 'In WP Cache Phase 2', 5 );
 
 	$wp_cache_gmt_offset   = get_option( 'gmt_offset' ); // caching for later use when wpdb is gone. https://wordpress.org/support/topic/224349

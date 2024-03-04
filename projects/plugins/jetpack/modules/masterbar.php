@@ -22,11 +22,7 @@ require __DIR__ . '/masterbar/masterbar/class-masterbar.php';
 require __DIR__ . '/masterbar/admin-color-schemes/class-admin-color-schemes.php';
 require __DIR__ . '/masterbar/inline-help/class-inline-help.php';
 
-$is_proxied = isset( $_SERVER['A8C_PROXIED_REQUEST'] )
-			? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
-			: defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
-
-$should_use_nav_redesign = apply_filters( 'is_nav_redesign_enabled', $is_proxied && get_option( 'wpcom_admin_interface' ) === 'wp-admin' );
+$should_use_nav_redesign = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
 
 if ( ! $should_use_nav_redesign ) {
 	new Masterbar();
