@@ -6,6 +6,10 @@ const getLifecycleStats = state => {
 	return state.lifecycleStats;
 };
 
+const noticeSelectors = {
+	getGlobalNotice: state => state.notices?.global,
+};
+
 const getGuessedSiteLifecycleStatus = state => {
 	const { modules, purchases, plugins, isSiteConnected, isUserConnected } =
 		getLifecycleStats( state );
@@ -48,6 +52,7 @@ const getWelcomeBannerHasBeenDismissed = state => {
 
 const selectors = {
 	...statsCountsSelectors,
+	...noticeSelectors,
 	getWelcomeBannerHasBeenDismissed,
 	getGuessedSiteLifecycleStatus,
 };

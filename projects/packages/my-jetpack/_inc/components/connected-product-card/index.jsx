@@ -53,10 +53,6 @@ const ConnectedProductCard = ( {
 		navigateToConnectionPage,
 	] );
 
-	const handleInstallStandalone = useCallback( () => {
-		installStandalonePlugin();
-	}, [ installStandalonePlugin ] );
-
 	const DefaultDescription = () => {
 		// Replace the last space with a non-breaking space to prevent widows
 		const cardDescription = defaultDescription.replace( /\s(?=[^\s]*$)/, '\u00A0' );
@@ -82,8 +78,8 @@ const ConnectedProductCard = ( {
 			secondaryAction={ secondaryAction }
 			slug={ slug }
 			onActivate={ handleActivate }
-			onInstallStandalone={ handleInstallStandalone }
-			onActivateStandalone={ handleInstallStandalone }
+			onInstallStandalone={ installStandalonePlugin }
+			onActivateStandalone={ installStandalonePlugin }
 			upgradeInInterstitial={ upgradeInInterstitial }
 		>
 			{ children }

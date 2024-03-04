@@ -10,7 +10,7 @@ import {
 	REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
 } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
-import useSimpleQuery from '../../../data/use-simple->query';
+import useSimpleQuery from '../../../data/use-simple-query';
 import useAnalytics from '../../../hooks/use-analytics';
 import ProductCard from '../../connected-product-card';
 import { PRODUCT_STATUSES } from '../../product-card/action-button';

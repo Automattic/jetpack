@@ -1,13 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import { useProduct } from '../../../hooks/use-product';
+import useProduct from '../../../data/products/use-product';
 
-/**
- * Gets the tooltip copy based on the Boost letter grade and other factors.
- *
- * @param {string} speedLetterGrade - The Boost speed letter grade.
- * @returns {string} A translated JSX Element or string.
- */
-export function useBoostTooltipCopy( { speedLetterGrade } ): string {
+export const useBoostTooltipCopy = ( { speedLetterGrade } ): string => {
 	const slug = 'boost';
 	const { detail } = useProduct( slug );
 	const { isPluginActive, hasPaidPlanForProduct } = detail;
@@ -76,4 +70,4 @@ export function useBoostTooltipCopy( { speedLetterGrade } ): string {
 				'jetpack-my-jetpack'
 			);
 	}
-}
+};

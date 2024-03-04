@@ -1,12 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useFetchingErrorNotice } from './notices/use-fetching-error-notice';
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query';
+import type { UseMutationOptions } from '@tanstack/react-query';
 import type { APIFetchOptions } from '@wordpress/api-fetch';
-
-interface Options extends UseMutationOptions {
-	onSuccess?: ( data: unknown ) => void;
-}
 
 /*
  * Simple wrapper for useQuery that handles error notices.
@@ -19,11 +15,11 @@ interface Options extends UseMutationOptions {
 const useSimpleMutation = < T >(
 	name: string,
 	query: APIFetchOptions,
-	options?: Partial< Options >,
+	options?: Pick< UseMutationOptions, 'onSuccess' >,
 	explicitKey?: string,
 	errorMessage?: string
-): UseMutationResult< unknown > => {
-	const mutationResult = useMutation( {
+) => {
+	const mutationResult = useMutation< T >( {
 		mutationKey: [ name, explicitKey ],
 		mutationFn: () => apiFetch< T >( query ),
 		...options,
@@ -31,7 +27,11 @@ const useSimpleMutation = < T >(
 
 	const { isError, isPending } = mutationResult;
 
-	useFetchingErrorNotice( name, ! isPending && isError, errorMessage );
+	useFetchingErrorNotice( {
+		infoName: name,
+		isError: ! isPending && isError,
+		overrideMessage: errorMessage,
+	} );
 
 	return mutationResult;
 };

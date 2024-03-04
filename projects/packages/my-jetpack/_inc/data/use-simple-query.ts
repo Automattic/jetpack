@@ -1,12 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useFetchingErrorNotice } from './notices/use-fetching-error-notice';
-import type { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
 import type { APIFetchOptions } from '@wordpress/api-fetch';
-
-interface Options extends UseQueryOptions {
-	enabled?: boolean;
-}
 
 /*
  * Simple wrapper for useQuery that handles error notices.
@@ -19,11 +15,11 @@ interface Options extends UseQueryOptions {
 const useSimpleQuery = < T >(
 	name: string,
 	query: APIFetchOptions,
-	options?: Partial< Options >,
+	options?: Pick< UseQueryOptions, 'enabled' >,
 	explicitKey?: string,
 	errorMessage?: string
-): UseQueryResult< unknown > => {
-	const queryResult = useQuery( {
+) => {
+	const queryResult = useQuery< T >( {
 		queryKey: [ name, explicitKey ],
 		queryFn: () => apiFetch< T >( query ),
 		refetchOnWindowFocus: false,
@@ -32,7 +28,12 @@ const useSimpleQuery = < T >(
 	} );
 
 	const { isError, isLoading } = queryResult;
-	useFetchingErrorNotice( name, ! isLoading && isError, errorMessage );
+
+	useFetchingErrorNotice( {
+		infoName: name,
+		isError: ! isLoading && isError,
+		overrideMessage: errorMessage,
+	} );
 
 	return queryResult;
 };

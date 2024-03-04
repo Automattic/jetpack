@@ -7,7 +7,7 @@ import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 
 /**
  * Product Detail component.
- * ToDo: rename event handler properties.
+ * ToDo: Remove this component, it is not being used
  *
  * @param {object} props                    - Component props.
  * @param {string} props.slug               - Product slug

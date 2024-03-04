@@ -2,12 +2,13 @@
 // This supports conversion from kebab-case and snake_case to camelCase
 const mapObjectKeysToCamel = ( item: unknown ) => {
 	if ( Array.isArray( item ) ) {
-		return item.map( ( el: unknown ) => mapObjectKeysToCamel( el ) );
+		return item.map( el => mapObjectKeysToCamel( el ) );
 	} else if ( typeof item === 'function' || item !== Object( item ) ) {
 		return item;
 	}
+
 	return Object.fromEntries(
-		Object.entries( item as unknown ).map( ( [ key, value ]: [ string, unknown ] ) => [
+		Object.entries( item ).map( ( [ key, value ]: [ string, unknown ] ) => [
 			key.replace( /([-_][a-z])/gi, c => c.toUpperCase().replace( /[-_]/g, '' ) ),
 			mapObjectKeysToCamel( value ),
 		] )

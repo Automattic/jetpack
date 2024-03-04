@@ -1,4 +1,5 @@
-import useProductsThatRequireUserConnection from '../../data/products/use-products-that-require-user-connection';
+import { useAllProducts } from '../../data/products/use-product';
+import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import ConnectionStatusCard from '../connection-status-card';
@@ -11,8 +12,9 @@ import ConnectionStatusCard from '../connection-status-card';
 export default function ConnectionsSection() {
 	const { apiRoot, apiNonce, topJetpackMenuItemUrl, connectedPlugins } = useMyJetpackConnection();
 	const navigate = useMyJetpackNavigate( '/connection' );
+	const products = useAllProducts();
 	const onDisconnected = () => document?.location?.reload( true ); // TODO: replace with a better experience.
-	const productsThatRequireUserConnection = useProductsThatRequireUserConnection();
+	const productsThatRequireUserConnection = getProductSlugsThatRequireUserConnection( products );
 
 	return (
 		<ConnectionStatusCard

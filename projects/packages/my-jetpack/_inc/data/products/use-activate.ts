@@ -2,12 +2,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import useProduct from './use-product';
-import type { UseMutateFunction } from '@tanstack/react-query';
 
-const useActivate: ( productId: string ) => {
-	activate: UseMutateFunction;
-	isPending: boolean;
-} = productId => {
+const useActivate = ( productId: string ) => {
 	const { detail, refetch } = useProduct( productId );
 
 	const { mutate: activate, isPending } = useSimpleMutation(
