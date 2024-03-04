@@ -1518,8 +1518,8 @@ function wp_cache_phase2() {
 	if ( ob_get_level() > 1 ) {
 		global $wp_super_cache_late_init;
 		wp_cache_debug( '***********************************************************************************' );
-		wp_cache_debug( '* An output buffer has been detected. Check your plugins, themes, mu-plugins,     *' );
-		wp_cache_debug( '* and other custom code as this may interfere with caching.                       *' );
+		wp_cache_debug( '* An extra output buffer has been detected. Check your plugins, themes,           *' );
+		wp_cache_debug( '* mu-plugins, and other custom code as this may interfere with caching.           *' );
 
 		if ( isset( $wp_super_cache_late_init ) && $wp_super_cache_late_init ) {
 			wp_cache_debug( '* Late init is enabled. This allows third-party code to run before WP Super Cache *' );
