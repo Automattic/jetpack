@@ -14,19 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Client Portal: Admin banners are now more consistent across screens. [#35575]
 - Client Portal: Catch error if Woo order associated with invoice is deleted. [#35689]
 - Invoices: Standardize line item code.
-  Invoices: Allow long line item descriptions in email. [#35700]
+- Invoices: Allow long line item descriptions in email. [#35700]
 - Listviews: Object status filters now correctly reflect current status options.
-  Listviews: Overhaul of listview filter logic.
-  Quotes: Add Draft listview filter. [#35827]
+- Listviews: Overhaul of listview filter logic.
+- Quotes: Add Draft listview filter. [#35827]
 - Segments: Allow floats in all numeric segment conditions. [#36047]
-  Segments: Fix output if segment has an error. [#36003]
+- Segments: Fix output if segment has an error. [#36003]
 - Tags: Use existing tags if possible when using helper functions to create objects. [#35738]
 - WooSync: Catch PHP error if order has empty fee value. [#35802]
 - WooSync: Detect and support WooCommerce HPOS configuration. [#35797]
 - WooSync: No longer shows today as renewal date if subscription has no renewal date set.
-  WooSync: Modernize code.
+- WooSync: Modernize code.
 - WooSync: Remove broken link from settings page.
-  WooSync: Prevent addition of the same site more than once. [#35576]
+- WooSync: Prevent addition of the same site more than once. [#35576]
 
 ## [6.4.0] - 2024-01-23
 ### Added
