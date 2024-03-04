@@ -61,7 +61,7 @@ class Settings {
 		'checksum_disable'                       => true,
 		'dedicated_sync_enabled'                 => true,
 		'custom_queue_table_enabled'             => true,
-		'wpcom_rest_api_enabled'               => true,
+		'wpcom_rest_api_enabled'                 => true,
 	);
 
 	/**
