@@ -129,10 +129,7 @@ $boost_cache->serve();
 		if ( $write_advanced_cache instanceof Boost_Cache_Error ) {
 			return new \WP_Error( 'unable-to-write-to-advanced-cache', $write_advanced_cache->get_error_code() );
 		}
-
-		if ( function_exists( 'opcache_invalidate' ) ) {
-			opcache_invalidate( $advanced_cache_filename, true );
-		}
+		self::clear_opcache( $advanced_cache_filename );
 
 		return true;
 	}
@@ -169,14 +166,11 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			$content
 		);
 
-		$result = file_put_contents( $config_file, $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		if ( $result === false ) {
+		$result = Filesystem_Utils::write_to_file( $config_file, $content );
+		if ( $result instanceof Boost_Cache_Error ) {
 			return new \WP_Error( 'wp-config-not-writable' );
 		}
-
-		if ( function_exists( 'opcache_invalidate' ) ) {
-			opcache_invalidate( $config_file, true );
-		}
+		self::clear_opcache( $config_file );
 
 		return true;
 	}
@@ -221,9 +215,8 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		if ( strpos( $content, Page_Cache::ADVANCED_CACHE_SIGNATURE ) !== false ) {
 			wp_delete_file( $advanced_cache_filename );
 		}
-		if ( function_exists( 'opcache_invalidate' ) ) {
-			opcache_invalidate( $advanced_cache_filename, true );
-		}
+
+		self::clear_opcache( $advanced_cache_filename );
 	}
 
 	/**
@@ -249,10 +242,8 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			return;
 		}
 		$content = implode( '', $lines );
-		file_put_contents( $config_file, $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		if ( function_exists( 'opcache_invalidate' ) ) {
-			opcache_invalidate( $config_file, true );
-		}
+		Filesystem_Utils::write_to_file( $config_file, $content );
+		self::clear_opcache( $config_file );
 	}
 
 	/**
@@ -263,11 +254,20 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	private static function find_wp_config() {
 		if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
 			return ABSPATH . 'wp-config.php';
-			// While checking one directory up, check for wp-settings.php as well similar to WordPress core, to avoid nested WordPress installations.
 		} elseif ( file_exists( dirname( ABSPATH ) . '/wp-config.php' ) && ! file_exists( dirname( ABSPATH ) . '/wp-settings.php' ) ) {
+			// While checking one directory up, check for wp-settings.php as well similar to WordPress core, to avoid nested WordPress installations.
 			return dirname( ABSPATH ) . '/wp-config.php';
 		}
 
 		return false;
+	}
+
+	/**
+	 * Clear opcache for a file.
+	 */
+	private static function clear_opcache( $file ) {
+		if ( function_exists( 'opcache_invalidate' ) ) {
+			opcache_invalidate( $file, true );
+		}
 	}
 }
