@@ -191,8 +191,7 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	 * Fired when the plugin is activated.
 	 */
 	public static function activate() {
-		$settings = Boost_Cache_Settings::get_instance();
-		if ( $settings->get_enabled() ) {
+		if ( Boost_Cache_Settings::get_instance()->get_enabled() ) {
 			self::run_setup();
 		}
 		return true;
