@@ -65,10 +65,7 @@ function render_block( $attr, $content, $block ) {
 		$post_id
 	);
 
-	$services = get_services();
-	if ( ! array_key_exists( $service_name, $services ) ) {
-		return '';
-	}
+	$services        = get_services();
 	$service         = new $services[ $service_name ]( $service_name, array() );
 	$link_props      = $service->get_link(
 		$post_id,
