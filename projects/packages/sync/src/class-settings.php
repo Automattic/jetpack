@@ -61,6 +61,7 @@ class Settings {
 		'checksum_disable'                       => true,
 		'dedicated_sync_enabled'                 => true,
 		'custom_queue_table_enabled'             => true,
+		'wpcom_rest_api_enabled'                 => true,
 	);
 
 	/**
@@ -677,5 +678,17 @@ class Settings {
 	 */
 	public static function is_custom_queue_table_enabled() {
 		return (bool) self::get_setting( 'custom_queue_table_enabled' );
+	}
+
+	/**
+	 * Whether wpcom rest api is enabled.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return boolean Whether wpcom rest api is enabled.
+	 */
+	public static function is_wpcom_rest_api_enabled() {
+		return (bool) self::get_setting( 'wpcom_rest_api_enabled' );
 	}
 }
