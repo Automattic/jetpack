@@ -47,7 +47,26 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function load_assets( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	$stats = 0;
+	// For when Stats has been disabled subsequent to inserting the block.
+	if ( ! \Jetpack::is_module_active( 'stats' ) ) {
+		if ( current_user_can( 'edit_theme_options' ) ) {
+			return sprintf(
+				'<p>%s</p>',
+				sprintf(
+					/* translators: placeholder is a link that says "enable Jetpack Stats". */
+					esc_html__( 'Please %s to use this block.', 'jetpack' ),
+					'<a href="' .
+						esc_url( admin_url( 'admin.php?page=jetpack_modules&module_tag=Jetpack%20Stats' ) ) .
+						'">' .
+						/* translators: appears in string that says "Please enable Jetpack Stats". */
+						esc_html__( 'enable Jetpack Stats', 'jetpack' ) .
+					'</a>'
+				)
+			);
+		}
+
+		return;
+	}
 
 	// For when there's no post ID - eg. search pages.
 	if ( $attributes['statsOption'] === 'post' && ! get_the_ID() ) {
@@ -61,6 +80,7 @@ function load_assets( $attributes ) {
 		return;
 	}
 
+	$stats       = 0;
 	$wpcom_stats = new WPCOM_Stats();
 
 	if ( $attributes['statsOption'] === 'post' ) {

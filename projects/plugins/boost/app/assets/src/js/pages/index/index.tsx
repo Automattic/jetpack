@@ -3,7 +3,7 @@ import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import { Notice, getRedirectUrl } from '@automattic/jetpack-components';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
@@ -17,6 +17,8 @@ import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 import Upgraded from '$features/ui/upgraded/upgraded';
 import PageCache from '$features/page-cache/page-cache';
 import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
+import Health from '$features/page-cache/health/health';
+import { useMutationNotice } from '$features/ui';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -36,6 +38,26 @@ const Index = () => {
 
 	const pageCacheSetup = usePageCacheSetup();
 	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
+	const [ isPageCacheSettingUp, setIsPageCacheSettingUp ] = useState( false );
+
+	const [ removePageCacheNotice ] = useMutationNotice(
+		'page-cache-setup',
+		{
+			...pageCacheSetup,
+			isPending: isPageCacheSettingUp || pageCacheSetup.isPending,
+		},
+		{
+			savingMessage: __( 'Setting up cache…', 'jetpack-boost' ),
+			errorMessage: __( 'An error occurred while setting up cache.', 'jetpack-boost' ),
+			successMessage: __( 'Cache setup complete.', 'jetpack-boost' ),
+		}
+	);
+
+	useEffect( () => {
+		if ( pageCacheSetup.isPending ) {
+			setIsPageCacheSettingUp( false );
+		}
+	}, [ pageCacheSetup.isPending ] );
 
 	return (
 		<div className="jb-container--narrow">
@@ -130,8 +152,22 @@ const Index = () => {
 						<span className={ styles.beta }>Beta</span>
 					</>
 				}
-				onEnable={ () => pageCacheSetup.mutate() }
-				onDisable={ () => pageCacheErrorMutation.mutate( null ) }
+				onBeforeToggle={ status => {
+					setIsPageCacheSettingUp( status );
+					if ( status === false ) {
+						removePageCacheNotice();
+						pageCacheSetup.reset();
+					}
+					if ( pageCacheError.data && pageCacheError.data.dismissed !== true ) {
+						pageCacheErrorMutation.mutate( {
+							...pageCacheError.data,
+							dismissed: true,
+						} );
+					}
+				} }
+				onEnable={ () => {
+					pageCacheSetup.mutate();
+				} }
 				description={
 					<>
 						<p>
@@ -154,10 +190,15 @@ const Index = () => {
 								</p>
 							</Notice>
 						) }
+						<Health
+							error={ pageCacheError.data }
+							setError={ pageCacheErrorMutation.mutate }
+							setup={ pageCacheSetup }
+						/>
 					</>
 				}
 			>
-				<PageCache setup={ pageCacheSetup } error={ pageCacheError.data } />
+				{ ! pageCacheError.data && ! pageCacheSetup.isError && <PageCache /> }
 			</Module>
 			<Module
 				slug="render_blocking_js"
