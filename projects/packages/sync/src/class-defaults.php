@@ -181,6 +181,7 @@ class Defaults {
 		'wp_mobile_featured_images',
 		'wp_page_for_privacy_policy',
 		'wpcom_ai_site_prompt',
+		'wpcom_classic_early_release',
 		'wpcom_featured_image_in_email',
 		'wpcom_gifting_subscription',
 		'wpcom_is_fse_activated',
