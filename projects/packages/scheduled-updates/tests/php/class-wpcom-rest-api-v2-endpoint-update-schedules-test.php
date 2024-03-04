@@ -478,13 +478,22 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 	 */
 	public function test_updating_autoupdate_plugins_on_delete() {
 		$auto_update = array( 'hello-dolly/hello-dolly.php' );
-		$plugins     = array(
+		$plugins_1   = array( 'custom-plugin/custom-plugin.php' );
+		$plugins_2   = array(
 			'custom-plugin/custom-plugin.php',
 			'gutenberg/gutenberg.php',
 		);
-		$schedule_id = $this->generate_schedule_id( $plugins );
 
-		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins );
+		// Existing auto-update list and deleted plugins that are not part of other schedules.
+		$expected_result = array(
+			'gutenberg/gutenberg.php',
+			'hello-dolly/hello-dolly.php',
+		);
+
+		$schedule_id = $this->generate_schedule_id( $plugins_2 );
+
+		wp_schedule_event( strtotime( 'next Tuesday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins_1 );
+		wp_schedule_event( strtotime( 'next Monday 8:00' ), 'weekly', 'jetpack_scheduled_update', $plugins_2 );
 
 		update_option( 'auto_update_plugins', $auto_update );
 
@@ -492,7 +501,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		wp_set_current_user( $this->admin_id );
 		rest_do_request( $request );
 
-		$this->assertEquals( array_merge( $plugins, $auto_update ), get_option( 'auto_update_plugins' ) );
+		$this->assertSame( $expected_result, get_option( 'auto_update_plugins' ) );
 	}
 
 	/**

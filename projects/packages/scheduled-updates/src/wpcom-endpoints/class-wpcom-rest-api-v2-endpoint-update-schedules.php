@@ -286,9 +286,17 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 		require_once ABSPATH . 'wp-admin/includes/update.php';
 
 		if ( wp_is_auto_update_enabled_for_type( 'plugin' ) ) {
+			unset( $events[ $request['schedule_id'] ] );
+
+			// Find the plugins that are not part of any other schedule.
+			$plugins = $event->args;
+			foreach ( wp_list_pluck( $events, 'args' ) as $args ) {
+				$plugins = array_diff( $plugins, $args );
+			}
+
 			// Add the plugins that are no longer updated on a schedule to the auto-update list.
 			$auto_update_plugins = get_option( 'auto_update_plugins', array() );
-			$auto_update_plugins = array_unique( array_merge( $auto_update_plugins, $event->args ) );
+			$auto_update_plugins = array_unique( array_merge( $auto_update_plugins, $plugins ) );
 			usort( $auto_update_plugins, 'strnatcasecmp' );
 			update_option( 'auto_update_plugins', $auto_update_plugins );
 		}
