@@ -53,29 +53,25 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 			add_action( 'admin_post_jetpack_resend_invite_user_to_wpcom', array( $this, 'handle_request_resend_invite' ) );
 			add_action( 'admin_print_styles-users.php', array( $this, 'jetpack_user_table_styles' ) );
 			add_filter( 'users_list_table_query_args', array( $this, 'set_user_query' ), 100, 1 );
-			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+			add_action( 'admin_print_styles-user-new.php', array( $this, 'jetpack_new_users_styles' ) );
 
 			self::$tracking = new Tracking();
 		}
 
 		/**
 		 * Enqueue assets for user-new.php.
-		 *
-		 * @param string $hook The current admin page.
 		 */
-		public function admin_enqueue_scripts( $hook ) {
-			if ( 'user-new.php' === $hook ) {
-				Assets::register_script(
-					'jetpack-sso-admin-create-user',
-					'modules/sso/jetpack-sso-admin-create-user.js',
-					JETPACK__PLUGIN_FILE,
-					array(
-						'strategy'  => 'defer',
-						'in_footer' => true,
-					)
-				);
-				Assets::enqueue_script( 'jetpack-sso-admin-create-user' );
-			}
+		public function jetpack_new_users_styles() {
+			Assets::register_script(
+				'jetpack-sso-admin-create-user',
+				'modules/sso/jetpack-sso-admin-create-user.js',
+				JETPACK__PLUGIN_FILE,
+				array(
+					'strategy'  => 'defer',
+					'in_footer' => true,
+				)
+			);
+			Assets::enqueue_script( 'jetpack-sso-admin-create-user' );
 		}
 
 		/**
