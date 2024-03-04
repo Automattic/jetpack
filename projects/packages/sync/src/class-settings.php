@@ -681,12 +681,12 @@ class Settings {
 	}
 
 	/**
-	 * Whether to use sync rest api or not
+	 * Whether wpcom rest api is enabled.
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return boolean Whether to use sync rest api or not.
+	 * @return boolean Whether wpcom rest api is enabled.
 	 */
 	public static function is_wpcom_rest_api_enabled() {
 		return (bool) self::get_setting( 'wpcom_rest_api_enabled' );

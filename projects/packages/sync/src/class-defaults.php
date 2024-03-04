@@ -1326,7 +1326,7 @@ class Defaults {
 	public static $default_custom_queue_table_enabled = 0;
 
 	/**
-	 * Default for using rest api to send data for Sync.
+	 * Default for enabling wpcom rest api for Sync.
 	 *
 	 * @var int Bool-ish. Default 0.
 	 */
