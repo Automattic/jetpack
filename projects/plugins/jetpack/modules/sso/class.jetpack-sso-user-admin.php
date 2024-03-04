@@ -722,6 +722,7 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		/**
 		 * Conditionally disable the core invitation email.
 		 * It should be sent when SSO is disabled or when admins opt-out of WordPress.com invites intentionally.
+		 * If the "Send User Notification" checkbox is checked, the core invitation email should be sent.
 		 *
 		 * @return boolean Indicating if the core invitation main should be sent.
 		 */
