@@ -19,7 +19,7 @@ import GoBackLink from '../go-back-link';
  */
 export default function AddLicenseScreen() {
 	const { recordEvent } = useAnalytics();
-	const { data: availableLicenses = [], isLoading: fetchingAvailableLicenses } = useJetpackApiQuery(
+	const { data: availableLicenses = [], isLoading } = useJetpackApiQuery(
 		'available licenses',
 		async api => {
 			const result = await api.getUserLicenses();
@@ -55,7 +55,7 @@ export default function AddLicenseScreen() {
 					<ActivationScreen
 						currentRecommendationsStep={ null }
 						availableLicenses={ availableLicenses }
-						fetchingAvailableLicenses={ fetchingAvailableLicenses }
+						fetchingAvailableLicenses={ isLoading }
 						onActivationSuccess={ handleActivationSuccess }
 						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
 						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
