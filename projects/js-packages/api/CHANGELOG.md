@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.17.1] - 2024-03-04
+### Changed
+- Updated package dependencies. [#36095]
+
 ## [0.17.0] - 2024-03-01
 ### Added
 - Add endpoint to query backup preflight checks [#36032]
@@ -302,6 +306,7 @@
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
 
+[0.17.1]: https://github.com/Automattic/jetpack-api/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/Automattic/jetpack-api/compare/v0.16.10...v0.17.0
 [0.16.10]: https://github.com/Automattic/jetpack-api/compare/v0.16.9...v0.16.10
 [0.16.9]: https://github.com/Automattic/jetpack-api/compare/v0.16.8...v0.16.9

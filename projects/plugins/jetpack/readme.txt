@@ -326,15 +326,30 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.2-a.11 - 2024-02-27
+### 13.2-beta - 2024-03-04
 #### Enhancements
+- Ads Settings: Include option to toggle GDPR Consent Banner
+- Blaze: Enable the Dashboard behind the feature flag
+- Blog Stats block: Add message on the frontend when the Stats module is disabled.
+- Blog Stats Block: Remove check that prevented testing on WP.com sites.
+- Dashboard: link to Odyssey Stats for Atomic sites
+- Goodreads Block: Add transform from Legacy Widget.
+- Improve SSO send invite hover copy
+- Privacy: Add preliminary support for WordAds Consent Management Provider
 - Real time backups: Add endpoints orders to be used in real-time backups jetpack
+- Sharing: automatically add the Sharing Buttons block to the single post and page templates on sites using a block-based theme.
+- WordAds: Add additional states to US Privacy law opt-out
+
+#### Improved compatibility
+- General: the plugin is now compatible with the upcoming WordPress release, version 6.5.
 
 #### Bug fixes
 - Atomic i18n: Fix mixed translations after WordPress.com user locale switch
+- Carousel: don't open if no images are found in the gallery.
 - Goodreads Block: fix error when adding multiple blocks to the same page.
 - Revert 35890 to resolve the font display issue
 - Sharing: only enqueue extra JavaScript when a Sharing Block is inserted on the page.
+- Subscribe block: improve disabled placeholder state theme colour compatibility
 
 --------
 
