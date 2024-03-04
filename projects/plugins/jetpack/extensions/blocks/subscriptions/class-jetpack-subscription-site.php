@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
+use Jetpack_Memberships;
+
 /**
  * Jetpack_Subscription_Site class.
  */
@@ -57,6 +59,19 @@ class Jetpack_Subscription_Site {
 	}
 
 	/**
+	 * Returns true if current user can view the post.
+	 *
+	 * @return bool
+	 */
+	protected function user_can_view_post() {
+		if ( ! class_exists( 'Jetpack_Memberships' ) ) {
+			return true;
+		}
+
+		return Jetpack_Memberships::user_can_view_post();
+	}
+
+	/**
 	 * Handles Subscribe block placement at the end of each post.
 	 *
 	 * @return viod
@@ -72,7 +87,12 @@ class Jetpack_Subscription_Site {
 				'the_content',
 				function ( $content ) {
 					// Check if we're inside the main loop in a single Post.
-					if ( is_singular() && in_the_loop() && is_main_query() ) {
+					if (
+						is_singular() &&
+						in_the_loop() &&
+						is_main_query() &&
+						$this->user_can_view_post()
+					) {
 						return $content . '
 	<!-- wp:group {"className":"wp-block-jetpack-subscriptions__subscribe_post_end","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
 	<div class="wp-block-group wp-block-jetpack-subscriptions__subscribe_post_end">
@@ -98,7 +118,11 @@ class Jetpack_Subscription_Site {
 		add_filter(
 			'hooked_block_types',
 			function ( $hooked_blocks, $relative_position, $anchor_block ) {
-				if ( $anchor_block === 'core/post-content' && $relative_position === 'after' ) {
+				if (
+					$anchor_block === 'core/post-content' &&
+					$relative_position === 'after' &&
+					$this->user_can_view_post()
+				) {
 					$hooked_blocks[] = 'jetpack/subscriptions';
 				}
 

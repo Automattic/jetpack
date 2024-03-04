@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add blog id and post id to connection params

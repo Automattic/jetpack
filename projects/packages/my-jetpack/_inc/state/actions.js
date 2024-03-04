@@ -11,20 +11,10 @@ const SET_PRODUCT = 'SET_PRODUCT';
 const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
 const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
-const SET_CHAT_AVAILABILITY_IS_FETCHING = 'SET_CHAT_AVAILABILITY_IS_FETCHING';
-const SET_CHAT_AVAILABILITY = 'SET_CHAT_AVAILABILITY';
-const SET_CHAT_AUTHENTICATION_IS_FETCHING = 'SET_CHAT_AUTHENTICATION_IS_FETCHING';
-const SET_CHAT_AUTHENTICATION = 'SET_CHAT_AUTHENTICATION';
 const SET_STATS_COUNTS_IS_FETCHING = 'SET_STATS_COUNTS_IS_FETCHING';
 const SET_STATS_COUNTS = 'SET_STATS_COUNTS';
 const SET_DISMISSED_WELCOME_BANNER_IS_FETCHING = 'SET_DISMISSED_WELCOME_BANNER_IS_FETCHING';
 const SET_DISMISSED_WELCOME_BANNER = 'SET_DISMISSED_WELCOME_BANNER';
-
-const SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING = 'SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING';
-const SET_BACKUP_REWINDABLE_EVENTS = 'SET_BACKUP_REWINDABLE_EVENTS';
-
-const SET_COUNT_BACKUP_ITEMS = 'SET_COUNT_BACKUP_ITEMS';
-const SET_COUNT_BACKUP_ITEMS_IS_FETCHING = 'SET_COUNT_BACKUP_ITEMS_IS_FETCHING';
 
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
 const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
@@ -32,45 +22,11 @@ const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
 const SET_PRODUCT_STATS = 'SET_PRODUCT_STATS';
 const SET_IS_FETCHING_PRODUCT_STATS = 'SET_IS_FETCHING_PRODUCT_STATS';
 
-const setChatAvailabilityIsFetching = isFetching => {
-	return { type: SET_CHAT_AVAILABILITY_IS_FETCHING, isFetching };
-};
-
-const setChatAuthenticationIsFetching = isFetching => {
-	return { type: SET_CHAT_AUTHENTICATION_IS_FETCHING, isFetching };
-};
-
-const setBackupRewindableEventsIsFetching = isFetching => {
-	return { type: SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING, isFetching };
-};
-
-const setCountBackupItemsIsFetching = isFetching => {
-	return { type: SET_COUNT_BACKUP_ITEMS_IS_FETCHING, isFetching };
-};
-
 const setStatsCountsIsFetching = isFetching => {
 	return { type: SET_STATS_COUNTS_IS_FETCHING, isFetching };
 };
 
-const setChatAvailability = chatAvailability => {
-	return { type: SET_CHAT_AVAILABILITY, chatAvailability };
-};
-
-const setChatAuthentication = chatAuthentication => {
-	return { type: SET_CHAT_AUTHENTICATION, chatAuthentication };
-};
-
 const setProduct = product => ( { type: SET_PRODUCT, product } );
-
-const setBackupRewindableEvents = rewindableEvents => ( {
-	type: SET_BACKUP_REWINDABLE_EVENTS,
-	rewindableEvents,
-} );
-
-const setCountBackupItems = backupItems => ( {
-	type: SET_COUNT_BACKUP_ITEMS,
-	backupItems,
-} );
 
 const setStatsCounts = statsCounts => ( { type: SET_STATS_COUNTS, statsCounts } );
 
@@ -128,7 +84,7 @@ function setIsFetchingProduct( productId, isFetching ) {
  * @param {object}   store.registry - Redux registry.
  * @returns {Promise}               - Promise which resolves when the product status is updated.
  */
-function requestProductStatus( productId, data, { select, dispatch, registry } ) {
+function requestProduct( productId, data, { select, dispatch, registry } ) {
 	return new Promise( ( resolve, reject ) => {
 		// Check valid product.
 		const isValid = select.isValidProduct( productId );
@@ -155,7 +111,7 @@ function requestProductStatus( productId, data, { select, dispatch, registry } )
 				dispatch( setIsFetchingProduct( productId, false ) );
 				dispatch( setProduct( freshProduct ) );
 				registry.dispatch( CONNECTION_STORE_ID ).refreshConnectedPlugins();
-				resolve( freshProduct?.status );
+				resolve( freshProduct );
 			} )
 			.catch( error => {
 				const { name } = select.getProduct( productId );
@@ -181,7 +137,7 @@ function requestProductStatus( productId, data, { select, dispatch, registry } )
  * @returns {Promise}        - Promise which resolves when the product status is activated.
  */
 const activateProduct = productId => async store => {
-	return await requestProductStatus( productId, { activate: true }, store );
+	return await requestProduct( productId, { activate: true }, store );
 };
 
 /**
@@ -192,7 +148,7 @@ const activateProduct = productId => async store => {
  * @returns {Promise}        - Promise which resolves when the product plugin is deactivated.
  */
 const deactivateStandalonePluginForProduct = productId => async store => {
-	return await requestProductStatus( productId, { activate: false }, store );
+	return await requestProduct( productId, { activate: false }, store );
 };
 
 /**
@@ -298,16 +254,8 @@ const noticeActions = {
 };
 
 const actions = {
-	setChatAvailabilityIsFetching,
-	setChatAuthenticationIsFetching,
-	setChatAvailability,
-	setChatAuthentication,
 	setProductStats,
 	setIsFetchingProductStats,
-	setBackupRewindableEvents,
-	setBackupRewindableEventsIsFetching,
-	setCountBackupItems,
-	setCountBackupItemsIsFetching,
 	setStatsCounts,
 	setStatsCountsIsFetching,
 	dismissWelcomeBanner,
@@ -325,14 +273,6 @@ export {
 	CLEAN_GLOBAL_NOTICE,
 	SET_PRODUCT_STATS,
 	SET_IS_FETCHING_PRODUCT_STATS,
-	SET_CHAT_AVAILABILITY,
-	SET_CHAT_AVAILABILITY_IS_FETCHING,
-	SET_CHAT_AUTHENTICATION,
-	SET_CHAT_AUTHENTICATION_IS_FETCHING,
-	SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING,
-	SET_BACKUP_REWINDABLE_EVENTS,
-	SET_COUNT_BACKUP_ITEMS_IS_FETCHING,
-	SET_COUNT_BACKUP_ITEMS,
 	SET_STATS_COUNTS_IS_FETCHING,
 	SET_STATS_COUNTS,
 	SET_DISMISSED_WELCOME_BANNER_IS_FETCHING,
