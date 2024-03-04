@@ -51,7 +51,7 @@ class Page_Cache_Setup {
 	 */
 	private static function verify_wp_content_writable() {
 		$filename = WP_CONTENT_DIR . '/' . uniqid() . '.txt';
-		$result   = file_put_contents( $filename, 'test' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$result   = @file_put_contents( $filename, 'test' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 		wp_delete_file( $filename );
 
 		if ( $result === false ) {
