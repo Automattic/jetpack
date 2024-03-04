@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Properly remove WP_CACHE constant while uninstalling boost
+
+

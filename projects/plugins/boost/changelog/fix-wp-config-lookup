@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed lookup of wp-config.php while setting up cache
+
+

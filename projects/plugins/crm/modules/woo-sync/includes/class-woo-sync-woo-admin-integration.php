@@ -51,6 +51,12 @@ class Woo_Sync_Woo_Admin_Integration {
 	 * Initialise Hooks
 	 */
 	private function init_hooks() {
+		global $zbs;
+
+		// Abort if Woo isn't active.
+		if ( ! $zbs->woocommerce_is_active() ) {
+			return;
+		}
 
 		// Hook into Woo orders listview.
 		if ( jpcrm_woosync_is_hpos_enabled() ) {
@@ -137,20 +143,28 @@ class Woo_Sync_Woo_Admin_Integration {
 	 * Add CRM meta boxes to Woo pages
 	 */
 	public function add_meta_boxes() {
-		if ( jpcrm_woosync_is_hpos_enabled() ) {
-			$screen = wc_get_page_screen_id( 'shop-order' );
-		} else {
-			$screen = array( 'shop_order', 'shop_subscription' );
+
+		// Gather Woo screens where we'll want to add metaboxes.
+		$screens_to_use = array();
+		$woo_screens    = array( 'shop_order', 'shop_subscription' );
+		foreach ( $woo_screens as $woo_screen ) {
+			$potential_screen = wc_get_page_screen_id( $woo_screen );
+			if ( ! empty( $potential_screen ) ) {
+				$screens_to_use[] = $potential_screen;
+			}
 		}
 
-		add_meta_box(
-			'zbs_crm_contact',
-			__( 'CRM Contact', 'zero-bs-crm' ),
-			array( $this, 'render_woo_order_page_contact_box' ),
-			$screen,
-			'side',
-			'core'
-		);
+		// Currently if Woo is active we should at least have the orders page, but that could change.
+		if ( ! empty( $screens_to_use ) ) {
+			add_meta_box(
+				'zbs_crm_contact',
+				__( 'CRM Contact', 'zero-bs-crm' ),
+				array( $this, 'render_woo_order_page_contact_box' ),
+				$screens_to_use,
+				'side',
+				'core'
+			);
+		}
 	}
 
 	/**
