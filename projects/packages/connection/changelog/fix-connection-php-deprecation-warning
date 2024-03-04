@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Webhook class: avoid PHP warning with PHP 8.2

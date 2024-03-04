@@ -38,7 +38,10 @@ function wpcom_load_command_palette() {
 		'//widgets.wp.com/command-palette/build.min.js',
 		array(),
 		$version,
-		true
+		array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		)
 	);
 	$site_id    = Jetpack_Options::get_option( 'id' );
 	$is_p2_site = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $site_id );

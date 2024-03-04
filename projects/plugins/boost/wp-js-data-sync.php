@@ -356,8 +356,9 @@ jetpack_boost_register_option(
 	'page_cache_error',
 	Schema::as_assoc_array(
 		array(
-			'code'    => Schema::as_string(),
-			'message' => Schema::as_string(),
+			'code'      => Schema::as_string(),
+			'message'   => Schema::as_string(),
+			'dismissed' => Schema::as_boolean()->fallback( false ),
 		)
 	)->nullable()
 );

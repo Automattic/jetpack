@@ -51,7 +51,7 @@ class Page_Cache_Setup {
 	 */
 	private static function verify_wp_content_writable() {
 		$filename = WP_CONTENT_DIR . '/' . uniqid() . '.txt';
-		$result   = file_put_contents( $filename, 'test' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$result   = @file_put_contents( $filename, 'test' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 		wp_delete_file( $filename );
 
 		if ( $result === false ) {
@@ -129,10 +129,7 @@ $boost_cache->serve();
 		if ( $write_advanced_cache instanceof Boost_Cache_Error ) {
 			return new \WP_Error( 'unable-to-write-to-advanced-cache', $write_advanced_cache->get_error_code() );
 		}
-
-		if ( function_exists( 'opcache_invalidate' ) ) {
-			opcache_invalidate( $advanced_cache_filename, true );
-		}
+		self::clear_opcache( $advanced_cache_filename );
 
 		return true;
 	}
@@ -141,7 +138,13 @@ $boost_cache->serve();
 	 * Adds the WP_CACHE define to wp-config.php
 	 */
 	private static function add_wp_cache_define() {
-		$content = file_get_contents( ABSPATH . 'wp-config.php' );
+		$config_file = self::find_wp_config();
+		if ( $config_file === false ) {
+			return new \WP_Error( 'wp-config-not-found' );
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$content = file_get_contents( $config_file );
 		if ( preg_match( '#^\s*define\s*\(\s*[\'"]WP_CACHE[\'"]#m', $content ) === 1 ) {
 			/*
 			 * wp-settings.php checks "if ( WP_CACHE )" so it may be truthy and
@@ -163,14 +166,11 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			$content
 		);
 
-		$result = file_put_contents( ABSPATH . 'wp-config.php', $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		if ( $result === false ) {
+		$result = Filesystem_Utils::write_to_file( $config_file, $content );
+		if ( $result instanceof Boost_Cache_Error ) {
 			return new \WP_Error( 'wp-config-not-writable' );
 		}
-
-		if ( function_exists( 'opcache_invalidate' ) ) {
-			opcache_invalidate( ABSPATH . 'wp-config.php', true );
-		}
+		self::clear_opcache( $config_file );
 
 		return true;
 	}
@@ -215,9 +215,8 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		if ( strpos( $content, Page_Cache::ADVANCED_CACHE_SIGNATURE ) !== false ) {
 			wp_delete_file( $advanced_cache_filename );
 		}
-		if ( function_exists( 'opcache_invalidate' ) ) {
-			opcache_invalidate( $advanced_cache_filename, true );
-		}
+
+		self::clear_opcache( $advanced_cache_filename );
 	}
 
 	/**
@@ -226,7 +225,12 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	 * @return WP_Error if an error occurred.
 	 */
 	public static function delete_wp_cache_constant() {
-		$lines = file( ABSPATH . 'wp-config.php' );
+		$config_file = self::find_wp_config();
+		if ( $config_file === false ) {
+			return;
+		}
+
+		$lines = file( $config_file );
 		$found = false;
 		foreach ( $lines as $key => $line ) {
 			if ( preg_match( '#define\s*\(\s*[\'"]WP_CACHE[\'"]#', $line ) === 1 && strpos( $line, Page_Cache::ADVANCED_CACHE_SIGNATURE ) !== false ) {
@@ -238,9 +242,32 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			return;
 		}
 		$content = implode( '', $lines );
-		file_put_contents( ABSPATH . 'wp-config.php', $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		Filesystem_Utils::write_to_file( $config_file, $content );
+		self::clear_opcache( $config_file );
+	}
+
+	/**
+	 * Find location of wp-config.php file.
+	 *
+	 * @return string|false - The path to the wp-config.php file, or false if it was not found.
+	 */
+	private static function find_wp_config() {
+		if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
+			return ABSPATH . 'wp-config.php';
+		} elseif ( file_exists( dirname( ABSPATH ) . '/wp-config.php' ) && ! file_exists( dirname( ABSPATH ) . '/wp-settings.php' ) ) {
+			// While checking one directory up, check for wp-settings.php as well similar to WordPress core, to avoid nested WordPress installations.
+			return dirname( ABSPATH ) . '/wp-config.php';
+		}
+
+		return false;
+	}
+
+	/**
+	 * Clear opcache for a file.
+	 */
+	private static function clear_opcache( $file ) {
 		if ( function_exists( 'opcache_invalidate' ) ) {
-			opcache_invalidate( ABSPATH . 'wp-config.php', true );
+			opcache_invalidate( $file, true );
 		}
 	}
 }

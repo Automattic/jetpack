@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: publish audio information on the validation success callback of the audio validation hook. 
