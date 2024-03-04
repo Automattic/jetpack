@@ -334,3 +334,17 @@ function wpcomsh_maybe_remove_jetpack_dashboard_menu_item() {
 	remove_submenu_page( 'jetpack', 'jetpack#/dashboard' );
 }
 add_action( 'admin_menu', 'wpcomsh_maybe_remove_jetpack_dashboard_menu_item', 1000 ); // Jetpack uses 998.
+
+/**
+ * Remove Jetpack > Manage menu item as part of the wpcom navigation redesign.
+ * For more context, see 5824-gh-Automattic/dotcom-forge.
+ */
+function wpcomsh_remove_jetpack_manage_menu_item() {
+	if ( ! class_exists( 'Jetpack' ) || ! class_exists( 'Jetpack_Options' ) || ! wpcom_is_nav_redesign_enabled() ) {
+		return;
+	}
+	$blog_id = Jetpack_Options::get_option( 'id' );
+	remove_submenu_page( 'jetpack', 'https://jetpack.com/redirect/?source=cloud-manage-dashboard-wp-menu&#038;site=' . $blog_id );
+}
+
+add_action( 'admin_menu', 'wpcomsh_remove_jetpack_manage_menu_item', 1001 ); // Automattic\Jetpack\Admin_UI\Admin_Menu uses 1000.
