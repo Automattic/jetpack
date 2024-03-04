@@ -724,11 +724,13 @@ if ( ! class_exists( 'Jetpack_SSO_User_Admin' ) ) :
 		 * It should be sent when SSO is disabled or when admins opt-out of WordPress.com invites intentionally.
 		 * If the "Send User Notification" checkbox is checked, the core invitation email should be sent.
 		 *
+		 * @param boolean $send_wp_email Whether the core invitation email should be sent.
+		 *
 		 * @return boolean Indicating if the core invitation main should be sent.
 		 */
-		public function should_send_wp_mail_new_user() {
+		public function should_send_wp_mail_new_user( $send_wp_email ) {
 			if ( ! isset( $_POST['invite_user_wpcom'] ) && isset( $_POST['send_user_notification'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				return true;
+				return $send_wp_email;
 			}
 			return false;
 		}
