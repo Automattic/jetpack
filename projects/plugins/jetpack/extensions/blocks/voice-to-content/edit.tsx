@@ -9,7 +9,7 @@ import {
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Modal, Icon } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
@@ -23,6 +23,7 @@ import useTranscriptionInserter from './hooks/use-transcription-inserter';
 /**
  * Types
  */
+import type { Block } from '../ai-assistant/lib/utils/compare-blocks';
 import type {
 	RecordingState,
 	TranscriptionState,
@@ -56,16 +57,20 @@ const transcriptionStateHelper = (
 export default function VoiceToContentEdit( { clientId } ) {
 	const [ audio, setAudio ] = useState< Blob >( null );
 
-	const dispatch: {
-		removeBlock: ( id: number ) => void;
-	} = useDispatch( 'core/block-editor' );
+	const { removeBlock } = useDispatch( 'core/block-editor' ) as {
+		removeBlock: ( id: string ) => void;
+	};
+
+	const { getBlocks } = useSelect( select => select( 'core/editor' ), [] ) as {
+		getBlocks: () => Block[];
+	};
 
 	const destroyBlock = useCallback( () => {
 		// Remove the block from the editor
 		setTimeout( () => {
-			dispatch.removeBlock( clientId );
+			removeBlock( clientId );
 		}, 100 );
-	}, [ dispatch, clientId ] );
+	}, [ removeBlock, clientId ] );
 
 	// Track the usage of the feature
 	const { tracks } = useAnalytics();
@@ -78,6 +83,17 @@ export default function VoiceToContentEdit( { clientId } ) {
 			onReady: ( content: string ) => {
 				// When transcription is ready, insert it into the editor
 				upsertTranscription( content );
+
+				// Then check if there is a single empty paragraph block before the transcription and remove it
+				// This is to ensure the P2 title is correct as it's based on the first block
+				const blocks = getBlocks();
+				// One block is the voice-to-content block itself, so we check the first two blocks
+				for ( let i = 0; i < 2; i++ ) {
+					if ( blocks[ i ].name === 'core/paragraph' && blocks[ i ].attributes.content === '' ) {
+						removeBlock( blocks[ i ].clientId );
+					}
+				}
+
 				handleClose();
 			},
 			onUpdate: ( content: string ) => {
