@@ -326,15 +326,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.2-a.11 - 2024-02-27
+### 13.2-beta - 2024-03-04
 #### Enhancements
-- Real time backups: Add endpoints orders to be used in real-time backups jetpack
-
-#### Bug fixes
-- Atomic i18n: Fix mixed translations after WordPress.com user locale switch
-- Goodreads Block: fix error when adding multiple blocks to the same page.
-- Revert 35890 to resolve the font display issue
-- Sharing: only enqueue extra JavaScript when a Sharing Block is inserted on the page.
+- Blog Stats block: Add message on the frontend when the Stats module is disabled.
+- Dashboard: link to Odyssey Stats for Atomic sites
+- Goodreads Block: Add transform from Legacy Widget.
 
 --------
 
