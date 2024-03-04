@@ -859,12 +859,9 @@ class Dashboard_REST_Controller {
 			}
 		}
 
-		$response_body['code']   = $error_code;
-		$response_body['status'] = $response_code;
-
-		if ( ! isset( $response_body['errorMessage'] ) ) {
-			$response_body['errorMessage'] = 'Unknown remote error';
-		}
+		$response_body['code']         = $error_code;
+		$response_body['status']       = $response_code;
+		$response_body['errorMessage'] = $response_body['errorMessage'] ?? 'Unknown remote error';
 
 		return new \WP_REST_Response( $response_body, $response_code );
 	}
