@@ -206,11 +206,6 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
-	 * Class uses singleton pattern; use Grunion_Contact_Form_Plugin::init() to initialize.
-	 */
-	protected function __construct() {}
-
-	/**
 	 * Prevent 'contact-form-styles' script from being concatenated.
 	 *
 	 * @deprecated 13.3 See Automattic\Jetpack\Forms\ContactForm
@@ -529,7 +524,7 @@ class Grunion_Contact_Form_Plugin {
 	public function insert_feedback_filter( $data, $postarr ) {
 		_deprecated_function( __METHOD__, 'jetpack-13.3', 'Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->insert_feedback_filter' );
 
-		return self::$instance->insert_feedback_filter();
+		return self::$instance->insert_feedback_filter( $data, $postarr );
 	}
 
 	/**
@@ -990,18 +985,6 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
-	 * Returns a string of HTML <option> items from an array of posts
-	 */
-	protected static function get_feedbacks_as_options() {}
-
-	/**
-	 * Get the names of all the form's fields
-	 *
-	 * @deprecated As this is no longer necessary as of the CSV export rewrite. - 2015-12-29
-	 */
-	protected function get_field_names() {}
-
-	/**
 	 * Parse the contact form fields.
 	 *
 	 * @deprecated 13.3 Use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin->parse_fields_from_content
@@ -1013,13 +996,6 @@ class Grunion_Contact_Form_Plugin {
 
 		return Contact_Form_Plugin::parse_fields_from_content( $post_id );
 	}
-
-	/**
-	 * Creates a valid csv row from a post id
-	 *
-	 * @deprecated This is no longer needed, as of the CSV export rewrite.
-	 */
-	protected static function make_csv_row_from_feedback() {}
 
 	/**
 	 * Get the IP address.
