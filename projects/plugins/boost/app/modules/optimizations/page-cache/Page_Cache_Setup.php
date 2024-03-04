@@ -141,12 +141,8 @@ $boost_cache->serve();
 	 * Adds the WP_CACHE define to wp-config.php
 	 */
 	private static function add_wp_cache_define() {
-		// Find the wp-config.php file.
-		if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
-			$config_file = ABSPATH . 'wp-config.php';
-		} elseif ( file_exists( dirname( ABSPATH ) . '/wp-config.php' ) && ! file_exists( dirname( ABSPATH ) . '/wp-settings.php' ) ) {
-			$config_file = dirname( ABSPATH ) . '/wp-config.php';
-		} else {
+		$config_file = self::find_wp_config();
+		if ( $config_file === false ) {
 			return new \WP_Error( 'wp-config-not-found' );
 		}
 
@@ -236,7 +232,12 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	 * @return WP_Error if an error occurred.
 	 */
 	public static function delete_wp_cache_constant() {
-		$lines = file( ABSPATH . 'wp-config.php' );
+		$config_file = self::find_wp_config();
+		if ( $config_file === false ) {
+			return;
+		}
+
+		$lines = file( $config_file );
 		$found = false;
 		foreach ( $lines as $key => $line ) {
 			if ( preg_match( '#define\s*\(\s*[\'"]WP_CACHE[\'"]#', $line ) === 1 && strpos( $line, Page_Cache::ADVANCED_CACHE_SIGNATURE ) !== false ) {
@@ -248,9 +249,25 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			return;
 		}
 		$content = implode( '', $lines );
-		file_put_contents( ABSPATH . 'wp-config.php', $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $config_file, $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		if ( function_exists( 'opcache_invalidate' ) ) {
-			opcache_invalidate( ABSPATH . 'wp-config.php', true );
+			opcache_invalidate( $config_file, true );
 		}
+	}
+
+	/**
+	 * Find location of wp-config.php file.
+	 *
+	 * @return string|false - The path to the wp-config.php file, or false if it was not found.
+	 */
+	private static function find_wp_config() {
+		if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
+			return ABSPATH . 'wp-config.php';
+			// While checking one directory up, check for wp-settings.php as well similar to WordPress core, to avoid nested WordPress installations.
+		} elseif ( file_exists( dirname( ABSPATH ) . '/wp-config.php' ) && ! file_exists( dirname( ABSPATH ) . '/wp-settings.php' ) ) {
+			return dirname( ABSPATH ) . '/wp-config.php';
+		}
+
+		return false;
 	}
 }
