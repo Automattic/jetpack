@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WP Super Cache - fix the wp_super_cache_clear_post_cache so the homepage cache isn't deleted too.

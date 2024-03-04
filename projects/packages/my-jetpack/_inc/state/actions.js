@@ -14,10 +14,6 @@ const SET_PRODUCT = 'SET_PRODUCT';
 const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
 const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
-const SET_CHAT_AVAILABILITY_IS_FETCHING = 'SET_CHAT_AVAILABILITY_IS_FETCHING';
-const SET_CHAT_AVAILABILITY = 'SET_CHAT_AVAILABILITY';
-const SET_CHAT_AUTHENTICATION_IS_FETCHING = 'SET_CHAT_AUTHENTICATION_IS_FETCHING';
-const SET_CHAT_AUTHENTICATION = 'SET_CHAT_AUTHENTICATION';
 const SET_STATS_COUNTS_IS_FETCHING = 'SET_STATS_COUNTS_IS_FETCHING';
 const SET_STATS_COUNTS = 'SET_STATS_COUNTS';
 const SET_DISMISSED_WELCOME_BANNER_IS_FETCHING = 'SET_DISMISSED_WELCOME_BANNER_IS_FETCHING';
@@ -35,14 +31,6 @@ const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
 const SET_PRODUCT_STATS = 'SET_PRODUCT_STATS';
 const SET_IS_FETCHING_PRODUCT_STATS = 'SET_IS_FETCHING_PRODUCT_STATS';
 
-const setChatAvailabilityIsFetching = isFetching => {
-	return { type: SET_CHAT_AVAILABILITY_IS_FETCHING, isFetching };
-};
-
-const setChatAuthenticationIsFetching = isFetching => {
-	return { type: SET_CHAT_AUTHENTICATION_IS_FETCHING, isFetching };
-};
-
 const setBackupRewindableEventsIsFetching = isFetching => {
 	return { type: SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING, isFetching };
 };
@@ -53,14 +41,6 @@ const setCountBackupItemsIsFetching = isFetching => {
 
 const setStatsCountsIsFetching = isFetching => {
 	return { type: SET_STATS_COUNTS_IS_FETCHING, isFetching };
-};
-
-const setChatAvailability = chatAvailability => {
-	return { type: SET_CHAT_AVAILABILITY, chatAvailability };
-};
-
-const setChatAuthentication = chatAuthentication => {
-	return { type: SET_CHAT_AUTHENTICATION, chatAuthentication };
 };
 
 const setAvailableLicensesIsFetching = isFetching => {
@@ -313,10 +293,6 @@ const noticeActions = {
 };
 
 const actions = {
-	setChatAvailabilityIsFetching,
-	setChatAuthenticationIsFetching,
-	setChatAvailability,
-	setChatAuthentication,
 	setAvailableLicensesIsFetching,
 	fetchAvailableLicenses,
 	setAvailableLicenses,
@@ -346,10 +322,6 @@ export {
 	CLEAN_GLOBAL_NOTICE,
 	SET_PRODUCT_STATS,
 	SET_IS_FETCHING_PRODUCT_STATS,
-	SET_CHAT_AVAILABILITY,
-	SET_CHAT_AVAILABILITY_IS_FETCHING,
-	SET_CHAT_AUTHENTICATION,
-	SET_CHAT_AUTHENTICATION_IS_FETCHING,
 	SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING,
 	SET_BACKUP_REWINDABLE_EVENTS,
 	SET_COUNT_BACKUP_ITEMS_IS_FETCHING,

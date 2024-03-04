@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Lazy Images: remove module now that it has been deprecated for a few releases.
