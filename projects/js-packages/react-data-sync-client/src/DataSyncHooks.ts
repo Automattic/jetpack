@@ -286,7 +286,7 @@ export function useDataSyncAction<
 	ActionResult,
 	CurrentState
 > ) {
-	const mutationKey = buildQueryKey( `${ key }_${ action_name }`, params );
+	const queryKey = buildQueryKey( key, params );
 	const datasync = new DataSync( namespace, key, schema.state );
 	const mutationConfigDefaults: UseMutationOptions<
 		ActionResult,
@@ -296,7 +296,7 @@ export function useDataSyncAction<
 			previousValue: CurrentState;
 		}
 	> = {
-		mutationKey,
+		mutationKey: queryKey,
 		mutationFn: async ( value: ActionRequestData ) => {
 			const result = await datasync.ACTION(
 				action_name,
@@ -304,40 +304,40 @@ export function useDataSyncAction<
 				schema.action_response
 			);
 			try {
-				const currentValue = queryClient.getQueryData< CurrentState >( mutationKey );
+				const currentValue = queryClient.getQueryData< CurrentState >( queryKey );
 				const processedResult = await callbacks.onResult( result, currentValue );
 
 				const data =
 					processedResult === undefined ? currentValue : schema.state.parse( processedResult );
 				if ( processedResult !== undefined ) {
-					queryClient.setQueryData( mutationKey, data );
+					queryClient.setQueryData( queryKey, data );
 				}
 				return data;
 			} catch ( e ) {
-				return queryClient.getQueryData( mutationKey );
+				return queryClient.getQueryData( queryKey );
 			}
 		},
 		onMutate: async ( requestData: ActionRequestData ) => {
 			// Cancel any outgoing refetches
 			// (so they don't overwrite our optimistic update)
-			await queryClient.cancelQueries( { queryKey: mutationKey } );
+			await queryClient.cancelQueries( { queryKey: queryKey } );
 
 			// Snapshot the previous value
-			const previousValue = queryClient.getQueryData< CurrentState >( mutationKey );
+			const previousValue = queryClient.getQueryData< CurrentState >( queryKey );
 
 			if ( callbacks.optimisticUpdate ) {
 				const value = await callbacks.optimisticUpdate( requestData, previousValue );
-				queryClient.setQueryData( mutationKey, value );
+				queryClient.setQueryData( queryKey, value );
 			}
 
 			// Return a context object with the snapshotted value
 			return { previousValue };
 		},
 		onError: ( _, __, context ) => {
-			queryClient.setQueryData( mutationKey, context.previousValue );
+			queryClient.setQueryData( queryKey, context.previousValue );
 		},
 		onSettled: () => {
-			queryClient.invalidateQueries( { queryKey: mutationKey } );
+			queryClient.invalidateQueries( { queryKey } );
 		},
 	};
 
@@ -349,10 +349,12 @@ export function useDataSyncAction<
 
 type SubsetMutation< T > = {
 	mutate: ( newValue: T ) => void;
+	isIdle: boolean;
 	isSuccess: boolean;
 	isPending: boolean;
 	isError: boolean;
 	error: Error | null;
+	reset: () => void;
 };
 
 export function useDataSyncSubset<
@@ -364,18 +366,30 @@ export function useDataSyncSubset<
 	const [ isPending, setIsPending ] = React.useState( false );
 	const [ isError, setIsError ] = React.useState( false );
 	const [ isSuccess, setIsSuccess ] = React.useState( false );
+	const [ isIdle, setIsIdle ] = React.useState( true );
 	const [ error, setError ] = React.useState< unknown >( null );
 
-	const mutate = ( newValue: Value[ K ] ) => {
-		if ( ! query.data ) {
-			return;
-		}
-		setIsPending( true );
-		mutation.mutate( {
-			...query.data,
-			[ key ]: newValue,
-		} );
-	};
+	const mutate = React.useCallback(
+		( newValue: Value[ K ] ) => {
+			if ( ! query.data ) {
+				return;
+			}
+			setIsPending( true );
+			mutation.mutate( {
+				...query.data,
+				[ key ]: newValue,
+			} );
+		},
+		[ query.data, mutation, key ]
+	);
+
+	const reset = React.useCallback( () => {
+		setIsPending( false );
+		setIsError( false );
+		setIsSuccess( false );
+		setIsIdle( true );
+		setError( null );
+	}, [] );
 
 	useEffect( () => {
 		if ( ! isPending ) {
@@ -392,11 +406,13 @@ export function useDataSyncSubset<
 	return [
 		query.data?.[ key ],
 		{
+			isIdle,
 			isSuccess,
 			isPending,
 			isError,
 			error,
 			mutate,
+			reset,
 		},
 	];
 }

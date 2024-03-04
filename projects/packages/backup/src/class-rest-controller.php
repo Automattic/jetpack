@@ -221,6 +221,17 @@ class REST_Controller {
 				'permission_callback' => __CLASS__ . '::backup_permissions_callback',
 			)
 		);
+
+		// Fetch backup preflight status
+		register_rest_route(
+			'jetpack/v4',
+			'/site/backup/preflight',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_preflight',
+				'permission_callback' => __NAMESPACE__ . '\Jetpack_Backup::backups_permissions_callback',
+			)
+		);
 	}
 
 	/**
@@ -667,17 +678,17 @@ class REST_Controller {
 
 		if ( method_exists( OrdersTableDataStore::class, 'get_addresses_table_name' ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
-			$order_addresses = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_addresses_table_name() . '` WHERE order_id = %s', $order_id ) );
+			$order_addresses = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_addresses_table_name() . '` WHERE order_id = %s', $order_id ) );
 		}
 
 		if ( method_exists( OrdersTableDataStore::class, 'get_operational_data_table_name' ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
-			$order_operational_data = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_operational_data_table_name() . '` WHERE order_id = %s', $order_id ) );
+			$order_operational_data = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_operational_data_table_name() . '` WHERE order_id = %s', $order_id ) );
 		}
 
 		if ( method_exists( OrdersTableDataStore::class, 'get_meta_table_name' ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
-			$order_meta = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_meta_table_name() . '` WHERE order_id = %s', $order_id ) );
+			$order_meta = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM `' . OrdersTableDataStore::get_meta_table_name() . '` WHERE order_id = %s', $order_id ) );
 		}
 
 		return array(
@@ -686,6 +697,43 @@ class REST_Controller {
 			'order_operational_data' => (array) $order_operational_data,
 			'order_meta'             => (array) $order_meta,
 		);
+	}
+
+	/**
+	 * Fetch backup preflight status
+	 *
+	 * @return array
+	 */
+	public static function get_site_backup_preflight() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/rewind/preflight?force=wpcom',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error(
+				'wp_error_fetch_preflight',
+				$response->get_error_message(),
+				array( 'status' => 500 )
+			);
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				'http_error_fetch_preflight',
+				wp_remote_retrieve_response_message( $response ),
+				array( 'status' => $response_code )
+			);
+		}
+
+		$body = json_decode( $response['body'], true );
+		return rest_ensure_response( $body );
 	}
 
 	/**

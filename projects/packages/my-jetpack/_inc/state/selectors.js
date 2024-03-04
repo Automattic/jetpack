@@ -77,16 +77,6 @@ const productSelectors = {
 	getProductsThatRequiresUserConnection,
 };
 
-const chatAvailabilitySelectors = {
-	getChatAvailability: state => state.chatAvailability.isAvailable,
-	isRequestingChatAvailability: state => state.chatAvailability.isFetching,
-};
-
-const chatAuthenticationSelectors = {
-	getChatAuthentication: state => state.chatAuthentication.jwt,
-	isRequestingChatAuthentication: state => state.chatAuthentication.isFetching,
-};
-
 const availableLicensesSelectors = {
 	getAvailableLicenses: state => state.availableLicenses?.items || [],
 	isFetchingAvailableLicenses: state => state.availableLicenses?.isFetching || false,
@@ -174,8 +164,6 @@ const getWelcomeBannerHasBeenDismissed = state => {
 
 const selectors = {
 	...productSelectors,
-	...chatAvailabilitySelectors,
-	...chatAuthenticationSelectors,
 	...availableLicensesSelectors,
 	...noticeSelectors,
 	...pluginSelectors,

@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Boost_Speed_Score\Jetpack_Boost_Modules;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -35,7 +37,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.13.0-alpha';
+	const PACKAGE_VERSION = '4.14.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -81,6 +83,10 @@ class Initializer {
 		if ( self::is_licensing_ui_enabled() ) {
 			Licensing::instance()->initialize();
 		}
+
+		// Initialize Boost Speed Score
+		$boost_modules = Jetpack_Boost_Modules::init();
+		new Speed_Score( $boost_modules, 'jetpack-my-jetpack' );
 
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
@@ -203,7 +209,7 @@ class Initializer {
 				),
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
-				'myJetpackCheckoutUri'   => 'admin.php?page=my-jetpack',
+				'myJetpackCheckoutUri'   => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'             => ( new Status() )->get_site_suffix(),
 				'blogID'                 => Connection_Manager::get_site_id( true ),
@@ -225,6 +231,7 @@ class Initializer {
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
+				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'welcomeBanner'          => array(
 					'hasBeenDismissed' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
 				),
