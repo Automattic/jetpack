@@ -104,12 +104,14 @@ function NewsletterCategories( props ) {
 						'jetpack'
 					) }
 				</p>
-				<ToggleControl
-					disabled={ isUnavailableDueOfflineMode || isUnavailableDueSiteConnectionMode }
-					checked={ isNewsletterCategoriesEnabled }
-					onChange={ handleEnableNewsletterCategoriesToggleChange }
-					label={ __( 'Enable newsletter categories', 'jetpack' ) }
-				/>
+				<div className="newsletter-categories-toggle-wrapper">
+					<ToggleControl
+						disabled={ isUnavailableDueOfflineMode || isUnavailableDueSiteConnectionMode }
+						checked={ isNewsletterCategoriesEnabled }
+						onChange={ handleEnableNewsletterCategoriesToggleChange }
+						label={ __( 'Enable newsletter categories', 'jetpack' ) }
+					/>
+				</div>
 				<div
 					className={ classNames( 'newsletter-colapsable', {
 						hide: ! isNewsletterCategoriesEnabled,

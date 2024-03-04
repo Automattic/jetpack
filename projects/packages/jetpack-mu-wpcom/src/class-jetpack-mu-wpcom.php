@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.14.2-alpha';
+	const PACKAGE_VERSION = '5.15.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -40,6 +40,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_command_palette' ) );
 
 		// This feature runs only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -251,5 +252,14 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
 		}
+	}
+
+	/**
+	 * Load WPCOM Command Palette.
+	 *
+	 * @return void
+	 */
+	public static function load_wpcom_command_palette() {
+		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
 	}
 }
