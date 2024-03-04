@@ -86,6 +86,17 @@ function fixDeps( pkg ) {
 		delete pkg.peerDependenciesMeta?.ajv;
 	}
 
+	// Types packages have outdated deps. Reset all their `@wordpress/*` deps to star-version,
+	// which pnpm should 🤞 dedupe to match whatever is in use elsewhere in the monorepo.
+	// https://github.com/Automattic/jetpack/pull/35904#discussion_r1508681777
+	if ( pkg.name.startsWith( '@types/wordpress__' ) && pkg.dependencies ) {
+		for ( const k of Object.keys( pkg.dependencies ) ) {
+			if ( k.startsWith( '@wordpress/' ) ) {
+				pkg.dependencies[ k ] = '*';
+			}
+		}
+	}
+
 	return pkg;
 }
 
