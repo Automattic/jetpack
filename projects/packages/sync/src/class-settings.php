@@ -688,7 +688,7 @@ class Settings {
 	 *
 	 * @return boolean Whether to use sync rest api or not.
 	 */
-	public static function is_use_rest_api_for_sending() {
-		return (bool) self::get_setting( 'use_rest_api_for_sending' );
+	public static function is_wpcom_rest_api_enabled() {
+		return (bool) self::get_setting( 'wpcom_rest_api_enabled' );
 	}
 }
