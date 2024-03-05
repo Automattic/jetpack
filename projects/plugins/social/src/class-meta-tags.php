@@ -241,17 +241,30 @@ class Meta_Tags {
 	 * To set a custom OG:title for social notes.
 	 */
 	public function get_og_title_for_social_notes() {
-		$text   = wp_strip_all_tags( get_the_excerpt() );
+		$text = wp_strip_all_tags( get_the_excerpt() );
+
 		$length = 55;
 		if ( strlen( $text ) <= $length ) {
 			return $text;
 		}
 
-		$trimmed_text   = substr( $text, 0, $length );
-		$last_space_pos = strrpos( $trimmed_text, ' ' );
+		$words   = str_word_count( $text, 2 );
+		$indices = array_keys( $words );
 
-		if ( $last_space_pos !== false ) {
-			$trimmed_text = substr( $trimmed_text, 0, $last_space_pos );
+		$trimmed_text = '';
+		// There is only one word that is longer than 55 characters.
+		if ( count( $indices ) === 1 ) {
+			$trimmed_text = substr( $text, 0, $length );
+		} else {
+			$substring_index = 0;
+			foreach ( $indices as $current_index ) {
+				$current_length  = $current_index + strlen( $words[ $current_index ] );
+				$substring_index = $current_index;
+				if ( $current_length > $length ) {
+					break;
+				}
+			}
+			$trimmed_text = substr( $text, 0, $substring_index - 1 );
 		}
 
 		return $trimmed_text . "\u{2026}";
