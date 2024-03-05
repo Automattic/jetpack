@@ -4,9 +4,6 @@ import { REST_API_SITE_DISMISS_BANNER } from './constants';
 /*
  * Action constants
  */
-const SET_AVAILABLE_LICENSES_IS_FETCHING = 'SET_AVAILABLE_LICENSES_IS_FETCHING';
-const FETCH_AVAILABLE_LICENSES = 'FETCH_AVAILABLE_LICENSES';
-const SET_AVAILABLE_LICENSES = 'SET_AVAILABLE_LICENSES';
 const SET_STATS_COUNTS_IS_FETCHING = 'SET_STATS_COUNTS_IS_FETCHING';
 const SET_STATS_COUNTS = 'SET_STATS_COUNTS';
 const SET_DISMISSED_WELCOME_BANNER_IS_FETCHING = 'SET_DISMISSED_WELCOME_BANNER_IS_FETCHING';
@@ -17,18 +14,6 @@ const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
 
 const setStatsCountsIsFetching = isFetching => {
 	return { type: SET_STATS_COUNTS_IS_FETCHING, isFetching };
-};
-
-const setAvailableLicensesIsFetching = isFetching => {
-	return { type: SET_AVAILABLE_LICENSES_IS_FETCHING, isFetching };
-};
-
-const fetchAvailableLicenses = () => {
-	return { type: FETCH_AVAILABLE_LICENSES };
-};
-
-const setAvailableLicenses = availableLicenses => {
-	return { type: SET_AVAILABLE_LICENSES, availableLicenses };
 };
 
 const setStatsCounts = statsCounts => ( { type: SET_STATS_COUNTS, statsCounts } );
@@ -77,9 +62,6 @@ const noticeActions = {
 };
 
 const actions = {
-	setAvailableLicensesIsFetching,
-	fetchAvailableLicenses,
-	setAvailableLicenses,
 	setStatsCounts,
 	setStatsCountsIsFetching,
 	dismissWelcomeBanner,
@@ -87,9 +69,6 @@ const actions = {
 };
 
 export {
-	SET_AVAILABLE_LICENSES_IS_FETCHING,
-	FETCH_AVAILABLE_LICENSES,
-	SET_AVAILABLE_LICENSES,
 	SET_GLOBAL_NOTICE,
 	CLEAN_GLOBAL_NOTICE,
 	SET_STATS_COUNTS_IS_FETCHING,
