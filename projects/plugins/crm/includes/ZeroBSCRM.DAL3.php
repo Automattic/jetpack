@@ -7246,77 +7246,112 @@ class zbsDAL {
         // + 
         // feed in params
         // GENERIC helper for all queries :)
-        public function buildWheres($wheres=array(),$whereStr='',$params=array(),$andOr='AND',$includeInitialWHERE=true){
+        public function buildWheres(
+			$wheres              = array(),
+			$whereStr            = '',
+			$params              = array(),
+			$andOr               = 'AND',
+			$includeInitialWHERE =true
+		){
+            $ret = array(
+				'where'  => $whereStr,
+				'params' => $params
+			);
 
-            $ret = array('where'=>$whereStr,'params'=>$params); if ($andOr != 'AND' && $andOr != 'OR') $andOr = 'AND';
+			if ( $andOr != 'AND' && $andOr != 'OR' ) {
+				$andOr = 'AND';
+			}
 
-              // clear empty direct
-              if (isset($wheres['direct']) && is_array($wheres['direct']) && count($wheres['direct']) == 0) unset($wheres['direct']);
+			// clear empty direct
+			if (
+				isset( $wheres['direct'] )
+				&& is_array( $wheres['direct'] )
+				&& 0 == count( $wheres['direct'] )
+			) {
+				unset( $wheres['direct'] );
+			}
 
-            if (is_array($wheres) && count($wheres) > 0) foreach ($wheres as $key => $whereArr) {
+            if ( is_array( $wheres ) && count( $wheres ) > 0 ) {
+				foreach ($wheres as $key => $whereArr) {
 
-                if (empty($ret['where']) && $includeInitialWHERE) $ret['where'].= ' WHERE ';
+					if (
+						empty($ret['where'] )
+						&& $includeInitialWHERE
+					) {
+						$ret['where'] .= ' WHERE ';
+					}
 
-                // Where's are passed 2 ways, "direct":
-                // array(SQL,array(params))
-                if ($key == 'direct'){
+					// Where's are passed 2 ways, "direct":
+					// array(SQL,array(params))
+					if ( $key == 'direct' ) {
 
-                    // several under 1 direct
-                    foreach ($whereArr as $directWhere){
+						// several under 1 direct
+						foreach ( $whereArr as $directWhere ) {
 
-                        if (isset($directWhere[0]) && isset($directWhere[1])){
+							if (
+								isset( $directWhere[0] )
+								&& isset($directWhere[1])
+							) {
 
-                        	// multi-direct ANDor
-			                if (!empty($ret['where']) && $ret['where'] != ' WHERE '){
-			                    $ret['where'] .= ' '.$andOr.' ';
-			                }
-                            
-                            // ++ query
-                            $ret['where'] .= $directWhere[0];
+								// multi-direct ANDor
+								if ( ! empty( $ret['where'] ) && $ret['where'] != ' WHERE ' ) {
+									$ret['where'] .= ' ' . $andOr . ' ';
+								}
 
-                            // ++ params (any number, if set)
-                            if (is_array($directWhere[1]))
-                                foreach ($directWhere[1] as $x) $ret['params'][] = $x;
-                            else
-                                $ret['params'][] = $directWhere[1];
-                        }
+								// ++ query
+								$ret['where'] .= $directWhere[0];
 
-                    }
+								// ++ params (any number, if set)
+								if ( is_array($directWhere[1]) ) {
+									foreach ($directWhere[1] as $x) {
+										$ret['params'][] = $x;
+									}
+								} else {
+									$ret['params'][] = $directWhere[1];
+								}
+							}
 
-                } else {
+						}
 
-                    if (!empty($ret['where']) && $ret['where'] != ' WHERE '){
-                        $ret['where'] .= ' '.$andOr.' ';
-                    }
+					} else {
 
-                    // Other way:
-                    // irrelevantKEY => array(fieldname,operator,comparisonval,array(params))
-                    // e.g. array('ID','=','%d',array(123))
-                    // e.g. array('ID','IN','(SUBSELECT)',array(123))
+						if ( ! empty( $ret['where'] ) && $ret['where'] != ' WHERE ' ){
+							$ret['where'] .= ' '.$andOr.' ';
+						}
 
-                    // build where (e.g. "X = Y" or "Z IN (1,2,3)")
-                    $ret['where'] .= $whereArr[0]. ' '.$whereArr[1].' '.$whereArr[2];
+						// Other way:
+						// irrelevantKEY => array(fieldname,operator,comparisonval,array(params))
+						// e.g. array('ID','=','%d',array(123))
+						// e.g. array('ID','IN','(SUBSELECT)',array(123))
 
-                    // ++ params (any number, if set)
-                    if (isset($whereArr[3])) {
-                        if (is_array($whereArr[3]))
-                            foreach ($whereArr[3] as $x) $ret['params'][] = $x;
-                        else
-                            $ret['params'][] = $whereArr[3];
-                    }
+						// build where (e.g. "X = Y" or "Z IN (1,2,3)")
+						$ret['where'] .= $whereArr[0] . ' ' . $whereArr[1] . ' ' . $whereArr[2];
 
-                    /* legacy
+						// ++ params (any number, if set)
+						if ( isset( $whereArr[3] ) ) {
+							if ( is_array( $whereArr[3] ) ) {
+								foreach ( $whereArr[3] as $x ) {
+									$ret['params'][] = $x;
+								}
+							} else {
+								$ret['params'][] = $whereArr[3];
+							}
+						}
 
-                    // add in - NOTE: this is TRUSTING key + whereArr[0]
-                    $ret['where'] .= $key.' '.$whereArr[0].' '.$whereArr[2];
+						/* legacy
 
-                    // feed in params
-                    $ret['params'][] = $whereArr[1];
-                    */
+						// add in - NOTE: this is TRUSTING key + whereArr[0]
+						$ret['where'] .= $key.' '.$whereArr[0].' '.$whereArr[2];
 
-                }
+						// feed in params
+						$ret['params'][] = $whereArr[1];
+						*/
 
-            }
+					}
+
+				}
+
+			}
 
             return $ret;
         }
