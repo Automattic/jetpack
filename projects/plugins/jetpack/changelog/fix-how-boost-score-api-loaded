@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Move Jetpack_Boost_Modules class to the boost-score-api package.

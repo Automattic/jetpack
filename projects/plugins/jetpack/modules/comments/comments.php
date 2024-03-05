@@ -556,50 +556,52 @@ HTML;
 		}
 		?>
 		<script type="text/javascript">
-			const iframe = document.getElementById( 'jetpack_remote_comment' );
-			<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
-			const watchReply = function() {
-				// Check addComment._Jetpack_moveForm to make sure we don't monkey-patch twice.
-				if ( 'undefined' !== typeof addComment && ! addComment._Jetpack_moveForm ) {
-					// Cache the Core function.
-					addComment._Jetpack_moveForm = addComment.moveForm;
-					const commentParent = document.getElementById( 'comment_parent' );
-					const cancel = document.getElementById( 'cancel-comment-reply-link' );
+			(function () {
+				const iframe = document.getElementById( 'jetpack_remote_comment' );
+				<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
+				const watchReply = function() {
+					// Check addComment._Jetpack_moveForm to make sure we don't monkey-patch twice.
+					if ( 'undefined' !== typeof addComment && ! addComment._Jetpack_moveForm ) {
+						// Cache the Core function.
+						addComment._Jetpack_moveForm = addComment.moveForm;
+						const commentParent = document.getElementById( 'comment_parent' );
+						const cancel = document.getElementById( 'cancel-comment-reply-link' );
 
-					function tellFrameNewParent ( commentParentValue ) {
-						const url = new URL( iframe.src );
-						if ( commentParentValue ) {
-							url.searchParams.set( 'replytocom', commentParentValue )
-						} else {
-							url.searchParams.delete( 'replytocom' );
-						}
-						if( iframe.src !== url.href ) {
-							iframe.src = url.href;
-						}
-					};
+						function tellFrameNewParent ( commentParentValue ) {
+							const url = new URL( iframe.src );
+							if ( commentParentValue ) {
+								url.searchParams.set( 'replytocom', commentParentValue )
+							} else {
+								url.searchParams.delete( 'replytocom' );
+							}
+							if( iframe.src !== url.href ) {
+								iframe.src = url.href;
+							}
+						};
 
-					cancel.addEventListener( 'click', function () {
-						tellFrameNewParent( false );
-					} );
+						cancel.addEventListener( 'click', function () {
+							tellFrameNewParent( false );
+						} );
 
-					addComment.moveForm = function ( _, parentId ) {
-						tellFrameNewParent( parentId );
-						return addComment._Jetpack_moveForm.apply( null, arguments );
-					};
+						addComment.moveForm = function ( _, parentId ) {
+							tellFrameNewParent( parentId );
+							return addComment._Jetpack_moveForm.apply( null, arguments );
+						};
+					}
 				}
-			}
-			document.addEventListener( 'DOMContentLoaded', watchReply );
-			// In WP 6.4+, the script is loaded asynchronously, so we need to wait for it to load before we monkey-patch the functions it introduces.
-			document.querySelector('#comment-reply-js')?.addEventListener( 'load', watchReply );
+				document.addEventListener( 'DOMContentLoaded', watchReply );
+				// In WP 6.4+, the script is loaded asynchronously, so we need to wait for it to load before we monkey-patch the functions it introduces.
+				document.querySelector('#comment-reply-js')?.addEventListener( 'load', watchReply );
 
-			<?php endif; ?>
+				<?php endif; ?>
 
-			window.addEventListener( 'message', function ( event ) {
-				if ( event.origin !== 'https://jetpack.wordpress.com' ) {
-					return;
-				}
-				iframe.style.height = event.data + 'px';
-			});
+				window.addEventListener( 'message', function ( event ) {
+					if ( event.origin !== 'https://jetpack.wordpress.com' ) {
+						return;
+					}
+					iframe.style.height = event.data + 'px';
+				});
+			})();
 		</script>
 		<?php
 	}

@@ -100,6 +100,7 @@ class Defaults {
 		'jetpack_sync_settings_taxonomies_blacklist',
 		'jetpack_sync_settings_dedicated_sync_enabled', // is Dedicated Sync flow enabled.
 		'jetpack_sync_settings_custom_queue_table_enabled', // is custom queue table enabled.
+		'jetpack_sync_settings_wpcom_rest_api_enabled', // is wpcom rest api enabled.
 		'jetpack_testimonial',
 		'jetpack_testimonial_posts_per_page',
 		'jetpack_wga',
@@ -181,6 +182,7 @@ class Defaults {
 		'wp_mobile_featured_images',
 		'wp_page_for_privacy_policy',
 		'wpcom_ai_site_prompt',
+		'wpcom_classic_early_release',
 		'wpcom_featured_image_in_email',
 		'wpcom_gifting_subscription',
 		'wpcom_is_fse_activated',
@@ -1323,4 +1325,11 @@ class Defaults {
 	 * @var int Bool-ish. Default 0.
 	 */
 	public static $default_custom_queue_table_enabled = 0;
+
+	/**
+	 * Default for enabling wpcom rest api for Sync.
+	 *
+	 * @var int Bool-ish. Default 0.
+	 */
+	public static $default_wpcom_rest_api_enabled = 0;
 }
