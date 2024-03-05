@@ -2297,6 +2297,7 @@ class Jetpack {
 			'wpcc'             => 'sso', // Closed out in 2.6 -- SSO provides the same functionality.
 			'gplus-authorship' => null,  // Closed out in 3.2 -- Google dropped support.
 			'minileven'        => null,  // Closed out in 8.3 -- Responsive themes are common now, and so is AMP.
+			'lazy-images'      => null, // Closed out in 12.8 -- WordPress core now has native lazy loading.
 		);
 
 		// Don't activate SSO if they never completed activating WPCC.

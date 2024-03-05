@@ -1512,6 +1512,16 @@ function wp_cache_phase2() {
 		return false;
 	}
 
+	if ( ob_get_level() > 0 ) {
+		global $wp_super_cache_late_init;
+		$ob_warning = 'Already in an output buffer. Check your plugins, themes, mu-plugins, and other custom code. Exit.';
+		if ( isset( $wp_super_cache_late_init ) && $wp_super_cache_late_init ) {
+			$ob_warning = 'Late init enabled. Disable it. ' . $ob_warning;
+		}
+		wp_cache_debug( 'wp_cache_phase2: ' . $ob_warning );
+		return;
+	}
+
 	wp_cache_debug( 'In WP Cache Phase 2', 5 );
 
 	$wp_cache_gmt_offset   = get_option( 'gmt_offset' ); // caching for later use when wpdb is gone. https://wordpress.org/support/topic/224349
@@ -3132,6 +3142,11 @@ function wpsc_post_transition( $new_status, $old_status, $post ) {
 		return;
 	}
 
+	// Allow plugins to reject cache clears for specific posts.
+	if ( ! apply_filters( 'wp_super_cache_clear_post_cache', true, $post ) ) {
+		return;
+	}
+
 	if ( ( $old_status === 'private' || $old_status === 'publish' ) && $new_status !== 'publish' ) { // post unpublished
 		if ( ! function_exists( 'get_sample_permalink' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/post.php';
@@ -3237,6 +3252,11 @@ function wp_cache_post_change( $post_id ) {
 	$post  = get_post( $post_id );
 	$ptype = is_object( $post ) ? get_post_type_object( $post->post_type ) : null;
 	if ( empty( $ptype ) || ! $ptype->public ) {
+		return $post_id;
+	}
+
+	// Allow plugins to reject cache clears for specific posts.
+	if ( ! apply_filters( 'wp_super_cache_clear_post_cache', true, $post ) ) {
 		return $post_id;
 	}
 

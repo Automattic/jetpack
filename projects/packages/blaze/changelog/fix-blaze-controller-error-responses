@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixes the response body for the errors returned by the Blaze controller
