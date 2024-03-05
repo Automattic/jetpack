@@ -122,3 +122,6 @@ register_deactivation_hook( __FILE__, array( 'Jetpack_VideoPress_Plugin', 'plugi
 
 // Main plugin class.
 new Jetpack_VideoPress_Plugin();
+
+// force videopress update and use new ai page
+add_filter( 'my_jetpack_use_new_ai_page', '__return_true' );
