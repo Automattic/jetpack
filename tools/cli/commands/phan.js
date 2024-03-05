@@ -92,6 +92,7 @@ export function builder( yargs ) {
 					)
 				);
 			}
+			return true;
 		} );
 }
 
