@@ -17,7 +17,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.3.0';
+	const PACKAGE_VERSION = '0.3.1-alpha';
 
 	/**
 	 * Initialize the class.
@@ -185,9 +185,9 @@ class Scheduled_Updates {
 				*/
 				'get_callback' => function ( $data ) {
 					$folder = WP_PLUGIN_DIR . '/' . strtok( $data['plugin'], '/' );
-					$target = is_link( $folder ) ? readlink( $folder ) : false;
+					$target = is_link( $folder ) ? realpath( $folder ) : false;
 
-					return $target && false !== strpos( $target, '/wordpress/' );
+					return $target && 0 === strpos( $target, '/wordpress/' );
 				},
 				'schema'       => array(
 					'description' => 'Whether the plugin is managed by the host.',
