@@ -17,6 +17,9 @@ $config = make_phan_config(
 		'exclude_file_regex' => array(
 			// For the monorepo itself, we want to exclude all the projects. Those are processed individually instead.
 			'projects/',
+			// This also should be analyzed separately.
+			// @todo Do so.
+			'tools/cli/helpers/doc-parser/',
 			// Ignore stuff in various subdirs too.
 			'.*/node_modules/',
 			'tools/docker/',
@@ -26,8 +29,5 @@ $config = make_phan_config(
 
 // Rm duplicate.
 $config['file_list'] = array_diff( $config['file_list'], array( __DIR__ . '/config.base.php' ) );
-
-// Additional vendor dir.
-$config['exclude_analysis_directory_list'][] = 'tools/cli/helpers/doc-parser/vendor/';
 
 return $config;

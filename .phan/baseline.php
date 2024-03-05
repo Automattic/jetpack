@@ -16,7 +16,6 @@ return [
     // PhanRedefineFunction : 4 occurrences
     // PhanTypeMismatchArgument : 3 occurrences
     // PhanUndeclaredConstant : 3 occurrences
-    // PhanTypeArraySuspicious : 2 occurrences
     // PhanTypeConversionFromArray : 2 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanUndeclaredClassConstant : 2 occurrences
@@ -24,7 +23,6 @@ return [
     // PhanMisspelledAnnotation : 1 occurrence
     // PhanNoopNew : 1 occurrence
     // PhanParamTooFewInternalUnpack : 1 occurrence
-    // PhanTypeArraySuspiciousNullable : 1 occurrence
     // PhanTypeMismatchArgumentInternal : 1 occurrence
     // PhanUndeclaredProperty : 1 occurrence
     // PhanUndeclaredTypeProperty : 1 occurrence
@@ -36,7 +34,6 @@ return [
         '.github/files/test-plugin-update/mu-plugin.php' => ['PhanRedefineFunction'],
         'tools/check-changelogger-use.php' => ['PhanRedefineFunction', 'PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal'],
         'tools/class-jetpack-phpcs-exclude-filter.php' => ['PhanUndeclaredProperty'],
-        'tools/cli/helpers/doc-parser/runner.php' => ['PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable'],
         'tools/e2e-commons/plugins/e2e-beta-autoupdate-api.php' => ['PhanNoopNew', 'PhanUndeclaredClassMethod', 'PhanUndeclaredConstant'],
         'tools/e2e-commons/plugins/e2e-plan-data-interceptor.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
         'tools/e2e-commons/plugins/e2e-plugin-updater.php' => ['PhanTypeMismatchReturn', 'PhanUndeclaredConstant'],
