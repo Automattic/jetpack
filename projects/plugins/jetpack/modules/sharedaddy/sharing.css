@@ -399,10 +399,10 @@ body .sd-content ul li.share-custom.no-icon a span {
 	content: '\f10f';
 }
 .sd-social-official .sd-content li.share-bluesky a:before {
-	color: #1583fe;
+	color: #0085ff;
 }
 .sd-social-icon .sd-content ul li[class*='share-'].share-bluesky a.sd-button {
-	background: #1583fe;
+	background: #0085ff;
 	color: #fff !important;
 }
 

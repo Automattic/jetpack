@@ -49,6 +49,7 @@
 		margin-bottom: 0;
 		color: #fff;
 
+		&.share-bluesky { background: var( --color-bluesky ); }
 		&.share-x { background: #000; }
 		&.share-print { background: #c5c2c2; }
 		&.share-reddit { background: var( --color-reddit ); }
