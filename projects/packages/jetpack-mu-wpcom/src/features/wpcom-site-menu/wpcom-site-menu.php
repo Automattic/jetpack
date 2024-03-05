@@ -298,7 +298,7 @@ add_action( 'wp_ajax_dismiss_wpcom_site_menu_intro_notice', 'wpcom_site_menu_han
  */
 function hide_customizer_menu_on_block_theme() {
 	$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
-	if ( ! $is_wpcom && wp_is_block_theme() ) {
+	if ( ! $is_wpcom && wp_is_block_theme() && ! is_customize_preview() ) {
 		remove_action( 'customize_register', 'add_logotool_button', 20 );
 		remove_action( 'customize_register', 'footercredits_register', 99 );
 		remove_action( 'customize_register', 'wpcom_disable_customizer_site_icon', 20 );
