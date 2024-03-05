@@ -9,13 +9,14 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS;
 
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
 
 /**
  * Class Render_Blocking_JS
  */
-class Render_Blocking_JS implements Pluggable {
+class Render_Blocking_JS implements Pluggable, Changes_Page_Output {
 	/**
 	 * Holds the script tags removed from the output buffer.
 	 *
@@ -219,8 +220,8 @@ class Render_Blocking_JS implements Pluggable {
 			'~<!--.*?-->~si',
 
 			// Scripts with types that do not execute complex code. Moving them down can be dangerous
-			// and does not benefit performance. Includes types: application/json and importmap.
-			'~<script\s+[^\>]*type=(?<q>["\']*)(application/json|importmap)\k<q>.*?>.*?</script>~si',
+			// and does not benefit performance. Includes types: application/json, application/ld+json and importmap.
+			'~<script\s+[^\>]*type=(?<q>["\']*)(application\/(ld\+)?json|importmap)\k<q>.*?>.*?<\/script>~si',
 		);
 
 		return preg_replace_callback(

@@ -41,10 +41,6 @@
 			"type": "boolean",
 			"default": true
 		},
-		"displayHeadline": {
-			"type": "boolean",
-			"default": false
-		},
 		"displayThumbnails": {
 			"type": "boolean",
 			"default": false
@@ -52,10 +48,6 @@
 		"displayContext": {
 			"type": "boolean",
 			"default": false
-		},
-		"headline": {
-			"type": "string",
-			"default": ""
 		},
 		"postsToShow": {
 			"type": "number",
@@ -67,10 +59,8 @@
 			"postLayout": "grid",
 			"displayAuthor": false,
 			"displayDate": true,
-			"displayHeadline": false,
 			"displayThumbnails": true,
 			"displayContext": false,
-			"headline": "",
 			"postsToShow": 2
 		}
 	}

@@ -1,5 +1,5 @@
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, InspectorControls, InnerBlocks } from '@wordpress/block-editor';
 import { Path, SVG } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -45,7 +45,7 @@ function PlaceholderPostEdit( props ) {
 						viewBox="0 0 350 200"
 					>
 						<title>{ __( 'Grey square', 'jetpack' ) }</title>
-						<Path d="M0 0h350v200H0z" fill="#8B8B96" fill-opacity=".1" />
+						<Path d="M0 0h350v200H0z" fill="#8B8B96" fillOpacity=".1" />
 					</SVG>
 					<SVG
 						className="jp-related-posts-i2__post-image-placeholder-icon"
@@ -201,16 +201,8 @@ export default function RelatedPostsEdit( props ) {
 		);
 	}
 
-	const {
-		displayAuthor,
-		displayContext,
-		displayDate,
-		displayHeadline,
-		displayThumbnails,
-		headline,
-		postLayout,
-		postsToShow,
-	} = attributes;
+	const { displayAuthor, displayContext, displayDate, displayThumbnails, postLayout, postsToShow } =
+		attributes;
 
 	// To prevent the block from crashing, we need to limit ourselves to the
 	// posts returned by the backend - so if we want 6 posts, but only 3 are
@@ -261,7 +253,10 @@ export default function RelatedPostsEdit( props ) {
 			</BlockControls>
 
 			<div className={ className } id={ `related-posts-${ instanceId }` }>
-				{ displayHeadline && <h3>{ headline }</h3> }
+				<InnerBlocks
+					allowedBlocks={ [ 'core/heading' ] }
+					template={ [ [ 'core/heading', { placeholder: __( 'Add a headline', 'jetpack' ) } ] ] }
+				/>
 				<div className={ previewClassName } data-layout={ postLayout }>
 					<RelatedPostsPreviewRows posts={ displayPosts } />
 				</div>

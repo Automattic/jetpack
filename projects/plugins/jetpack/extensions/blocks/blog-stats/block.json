@@ -4,7 +4,7 @@
 	"name": "jetpack/blog-stats",
 	"title": "Blog Stats",
 	"description": "Show a stats counter for your blog.",
-	"keywords": [ "views", "hits", "analytics", "counter" ],
+	"keywords": [ "views", "hits", "analytics", "counter", "visitors" ],
 	"version": "1.0",
 	"textdomain": "jetpack",
 	"category": "grow",
@@ -30,6 +30,10 @@
 	"attributes": {
 		"label": {
 			"type": "string"
+		},
+		"statsData": {
+			"type": "string",
+			"default": "views"
 		},
 		"statsOption": {
 			"type": "string",

@@ -1,5 +1,9 @@
 import restApi from '@automattic/jetpack-api';
-import { getScoreLetter, requestSpeedScores } from '@automattic/jetpack-boost-score-api';
+import {
+	getScoreLetter,
+	requestSpeedScores,
+	calculateDaysSince,
+} from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -112,21 +116,6 @@ const DashBoost = ( {
 
 			setIsLoading( false );
 		}
-	};
-
-	const calculateDaysSince = timestamp => {
-		// Create Date objects for the provided timestamp and the current date
-		const providedDate = new Date( timestamp );
-		const currentDate = new Date();
-
-		// Calculate the difference in milliseconds between the two dates
-		const differenceInMilliseconds = currentDate - providedDate;
-
-		// Convert milliseconds to days
-		const millisecondsInADay = 24 * 60 * 60 * 1000;
-		const differenceInDays = Math.floor( differenceInMilliseconds / millisecondsInADay );
-
-		return differenceInDays;
 	};
 
 	useEffect( () => {

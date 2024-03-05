@@ -96,16 +96,15 @@ class DashStatsBottom extends Component {
 					<div className="jp-at-a-glance__stats-ctas">
 						{
 							// Only show link for non-atomic Jetpack sites.
-							! this.props.isWoASite &&
-								createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
-									button: (
-										<Button
-											href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
-											onClick={ this.trackViewDetailedStats }
-											primary
-										/>
-									),
-								} )
+							createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
+								button: (
+									<Button
+										href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
+										onClick={ this.trackViewDetailedStats }
+										primary
+									/>
+								),
+							} )
 						}
 						{ ! this.props.isLinked && this.props.userCanConnectAccount && (
 							<ConnectButton

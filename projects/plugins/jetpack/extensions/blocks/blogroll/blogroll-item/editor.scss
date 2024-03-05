@@ -15,13 +15,13 @@
 				background: url('../placeholder-site-icon.svg');
 				background-size: cover;
 
-				img {
+				.blogroll-item-image {
 					display: none;
 				}
 			}
 		}
 
-	img {
+	.blogroll-item-image {
 		border-radius: 50%;
 		width: 48px;
 		height: 48px;

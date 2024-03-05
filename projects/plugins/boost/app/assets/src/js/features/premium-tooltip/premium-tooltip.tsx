@@ -1,6 +1,6 @@
+import { IconTooltip } from '@automattic/jetpack-components';
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { Tooltip } from '$features/ui';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './premium-tooltip.module.scss';
 import { useNavigate } from 'react-router-dom';
@@ -15,13 +15,18 @@ const PremiumTooltip = () => {
 		navigate( '/upgrade' );
 	}
 	return (
-		<Tooltip title={ __( 'Manual Critical CSS regeneration', 'jetpack-boost' ) }>
-			<p className={ styles.paragraph }>
-				{ __(
-					'Actions that could change your CSS or HTML structure include, but are not limited to:',
-					'jetpack-boost'
-				) }
-			</p>
+		<IconTooltip
+			title={ __( 'Manual Critical CSS regeneration', 'jetpack-boost' ) }
+			placement={ 'bottom' }
+			className={ styles.tooltip }
+			iconSize={ 22 }
+			wide={ true }
+			offset={ 12 }
+		>
+			{ __(
+				'Actions that could change your CSS or HTML structure include, but are not limited to:',
+				'jetpack-boost'
+			) }
 			<ul className={ styles.list }>
 				<li>{ __( 'Making theme changes.', 'jetpack-boost' ) }</li>
 				<li>{ __( 'Writing a new post/page.', 'jetpack-boost' ) }</li>
@@ -45,15 +50,13 @@ const PremiumTooltip = () => {
 					) }
 				</li>
 			</ul>
-			<p className={ `${ styles.paragraph } ${ styles[ 'last-paragraph' ] }` }>
-				{ __( 'If you’d like automatic Critical CSS regeneration', 'jetpack-boost' ) }
-				<br />
-				{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-				<a href="#" onClick={ showBenefits } className={ styles.link }>
-					{ __( 'Upgrade now', 'jetpack-boost' ) }
-				</a>
-			</p>
-		</Tooltip>
+			{ __( 'If you’d like automatic Critical CSS regeneration', 'jetpack-boost' ) }
+			<br />
+			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
+			<a href="#" onClick={ showBenefits }>
+				{ __( 'Upgrade now', 'jetpack-boost' ) }
+			</a>
+		</IconTooltip>
 	);
 };
 

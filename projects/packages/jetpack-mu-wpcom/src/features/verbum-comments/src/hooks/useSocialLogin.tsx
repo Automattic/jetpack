@@ -66,9 +66,10 @@ export default function useSocialLogin() {
 
 	const login = async ( service: string ) => {
 		const { connectURL } = VerbumComments;
+		const broadcastChannel = new BroadcastChannel( 'verbum_post_message' );
 
 		const loginWindow = window.open(
-			`${ connectURL }&service=${ service }`,
+			`${ connectURL }&blog_id=${ VerbumComments.siteId }&post_id=${ VerbumComments.postId }&service=${ service }`,
 			'VerbumCommentsLogin',
 			`status=0,toolbar=0,location=1,menubar=0,directories=0,resizable=1,scrollbars=0${ serviceData[ service ].popup }`
 		);
@@ -93,11 +94,17 @@ export default function useSocialLogin() {
 					highlanderNonce.value = event.data.nonce;
 				}
 				window.removeEventListener( 'message', waitForLogin );
+
+				// Ensure that the login window is closed after success
+				if ( ! loginWindow?.closed ) {
+					loginWindow.close();
+				}
 			}
 		};
 
 		// Listen for login data
 		window.addEventListener( 'message', waitForLogin );
+		broadcastChannel.addEventListener( 'message', waitForLogin );
 
 		// Clean up loginWindow to reset activeService
 		const loginClosed = setInterval( () => {
@@ -105,6 +112,8 @@ export default function useSocialLogin() {
 				clearInterval( loginClosed );
 				setLoginWindowRef( undefined );
 				window.removeEventListener( 'message', waitForLogin );
+				broadcastChannel.removeEventListener( 'message', waitForLogin );
+				broadcastChannel.close();
 			}
 		}, 100 );
 

@@ -32,7 +32,11 @@ class Archive_Provider extends Provider {
 			$post_types = array_intersect( $post_types, $context_post_types );
 		}
 		foreach ( $post_types as $post_type ) {
-			$links[ $post_type ][] = get_post_type_archive_link( $post_type );
+			$link = get_post_type_archive_link( $post_type );
+
+			if ( ! empty( $link ) ) {
+				$links[ $post_type ][] = $link;
+			}
 		}
 
 		return $links;

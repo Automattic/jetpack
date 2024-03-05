@@ -20,7 +20,7 @@ const Upgrade: React.FC = () => {
 		recordBoostEventAndRedirect(
 			getUpgradeURL(
 				siteDomain,
-				connection.userConnected,
+				connection?.userConnected,
 				connection?.wpcomBlogId ? connection?.wpcomBlogId.toString() : null
 			),
 			'checkout_from_pricing_page_in_plugin'

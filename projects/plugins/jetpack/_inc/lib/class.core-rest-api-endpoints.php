@@ -2643,6 +2643,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
+			'wpcom_newsletter_categories'          => array(
+				'description'       => esc_html__( 'Array of post category ids that are marked as newsletter categories', 'jetpack' ),
+				'type'              => 'array',
+				'default'           => array(),
+				'validate_callback' => __CLASS__ . '::validate_array',
+				'jp_group'          => 'subscriptions',
+			),
+			'wpcom_newsletter_categories_enabled'  => array(
+				'description'       => esc_html__( 'Whether the newsletter categories are enabled or not', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
 			'sm_enabled'                           => array(
 				'description'       => esc_html__( 'Show popup Subscribe modal to readers.', 'jetpack' ),
 				'type'              => 'boolean',
@@ -2650,11 +2664,29 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
-			'social_notifications_subscribe'       => array(
-				'description'       => esc_html__( 'Send email notification when someone follows my blog', 'jetpack' ),
+			'jetpack_subscriptions_subscribe_post_end_enabled' => array(
+				'description'       => esc_html__( 'Add Subscribe block at the end of each post.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'social_notifications_subscribe'       => array(
+				'description'       => esc_html__( 'Send email notification when someone subscribes to my blog', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'subscription_options'                 => array(
+				'description'       => esc_html__( 'Three options used in subscription email templates: \'invitation\', \'welcome\' and \'comment_follow\'.', 'jetpack' ),
+				'type'              => 'object',
+				'default'           => array(
+					'invitation'     => '',
+					'welcome'        => '',
+					'comment_follow' => '',
+				),
+				'validate_callback' => __CLASS__ . '::validate_subscription_options',
 				'jp_group'          => 'subscriptions',
 			),
 
@@ -2814,6 +2846,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_string',
 				'sanitize_callback' => 'sanitize_text_field',
+				'jp_group'          => 'wordads',
+			),
+			'wordads_cmp_enabled'                  => array(
+				'description'       => esc_html__( 'Enable GDPR Consent Management Banner for WordAds', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'wordads',
 			),
 
@@ -3562,6 +3601,59 @@ class Jetpack_Core_Json_Api_Endpoints {
 			}
 		}
 
+		return true;
+	}
+
+	/**
+	 * Validates the subscription_options parameter.
+	 *
+	 * @param array $values Value to check.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_subscription_options( $values ) {
+		if ( is_object( $values ) ) {
+			return new WP_Error(
+				'invalid_param',
+				/* Translators: subscription_options is a variable name, and shouldn't be translated. */
+				esc_html__( 'subscription_options must be an object.', 'jetpack' )
+			);
+		}
+		foreach ( array_keys( $values ) as $key ) {
+			if ( ! in_array( $key, array( 'welcome', 'invitation', 'comment_follow' ), true ) ) {
+				return new WP_Error(
+					'invalid_param',
+					sprintf(
+						/* Translators: Placeholder is the invalid param being sent. */
+						esc_html__( '%s is not one of the allowed members of subscription_options.', 'jetpack' ),
+						$key
+					)
+				);
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is an array.
+	 *
+	 * @param array           $values Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to the endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_array( $values, $request, $param ) {
+		if ( ! is_array( $values ) ) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* Translators: Placeholder is a parameter name. */
+					esc_html__( '%s must be an object.', 'jetpack' ),
+					$param
+				)
+			);
+		}
 		return true;
 	}
 

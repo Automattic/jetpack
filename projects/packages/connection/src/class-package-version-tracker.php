@@ -85,13 +85,43 @@ class Package_Version_Tracker {
 	}
 
 	/**
-	 * Updates the package versions:
+	 * Updates the package versions option.
+	 *
+	 * @param array $package_versions The package versions.
+	 */
+	protected function update_package_versions_option( $package_versions ) {
+		if ( ! $this->is_sync_enabled() ) {
+			$this->update_package_versions_via_remote_request( $package_versions );
+			return;
+		}
+
+		update_option( self::PACKAGE_VERSION_OPTION, $package_versions );
+	}
+
+	/**
+	 * Whether Jetpack Sync is enabled.
+	 *
+	 * @return boolean true if Sync is present and enabled, false otherwise
+	 */
+	protected function is_sync_enabled() {
+		if ( class_exists( 'Automattic\Jetpack\Sync\Settings' ) && \Automattic\Jetpack\Sync\Settings::is_sync_enabled() ) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Fallback for updating the package versions via a remote request when Sync is not present.
+	 *
+	 * Updates the package versions as follows:
 	 *   - Sends the updated package versions to wpcom.
 	 *   - Updates the 'jetpack_package_versions' option.
 	 *
 	 * @param array $package_versions The package versions.
 	 */
-	protected function update_package_versions_option( $package_versions ) {
+	protected function update_package_versions_via_remote_request( $package_versions ) {
 		$connection = new Manager();
 		if ( ! $connection->is_connected() ) {
 			return;

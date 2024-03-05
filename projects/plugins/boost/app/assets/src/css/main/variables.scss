@@ -26,6 +26,8 @@ $gray: $gray_50;
 $blue_50: #2271b1;
 $blue_60: #135e96;
 
+$red_40: #e65054;
+
 $jetpack_green_0: #f0f2eb;
 $jetpack_green_5: #d0e6b8;
 $jetpack_green_10: #9dd977;
@@ -41,6 +43,7 @@ $jetpack_green_100: #001c09;
 
 $red_50: #d63638;
 $orange_20: #faa754;
+$yellow_20: #DEB100;
 $jetpack_green: $jetpack_green_50;
 
 $padding: 48px;
@@ -72,6 +75,7 @@ $spacing-unit: 8px;
 	--gray: #{$gray};
 	--blue-50: #{$blue_50};
 	--blue-60: #{$blue_60};
+	--red-40: #{$red_40};
 	--jetpack-green-0: #{$jetpack_green_0};
 	--jetpack-green-5: #{$jetpack_green_5};
 	--jetpack-green-10: #{$jetpack_green_10};
@@ -84,4 +88,5 @@ $spacing-unit: 8px;
 	--jetpack-green-80: #{$jetpack_green_80};
 	--jetpack-green-90: #{$jetpack_green_90};
 	--jetpack-green-100: #{$jetpack_green_100};
+	--jp-yellow-20: #{$yellow_20};
 }

@@ -28,6 +28,11 @@
 	}
 }
 
+.editor-styles-wrapper .wp-block-jetpack-sharing-buttons {
+	gap: 0;
+	padding-inline-start: 0;
+}
+
 ul.jetpack-sharing-buttons__services-list.has-background {
     padding: 1.25em 2.375em;
 }

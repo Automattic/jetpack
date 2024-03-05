@@ -4,7 +4,7 @@
 // order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
 // to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
 // are installed, or in some other cases).
-namespace Automattic\Jetpack\Backup\V0001;
+namespace Automattic\Jetpack\Backup\V0003;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use PHPUnit\Framework\TestCase;
@@ -65,7 +65,7 @@ class Test_REST_Controller extends TestCase {
 		wp_set_current_user( 0 );
 
 		// Register REST routes.
-		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0001\\REST_Controller', 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0003\\REST_Controller', 'register_rest_routes' ) );
 
 		do_action( 'rest_api_init' );
 	}
@@ -536,5 +536,20 @@ class Test_REST_Controller extends TestCase {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Testing the existence of `/jetpack/v4/orders/(?P<id>\d+)/backup endpoint.
+	 * No WooCommerce code available.
+	 */
+	public function test_backup_order_endpoint_no_wc_code() {
+
+		$order_id = 1;
+
+		$request = new WP_REST_Request( 'GET', "/jetpack/v4/orders/{$order_id}/backup" );
+
+		$response = $this->dispatch_request_signed_with_blog_token( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
 	}
 }

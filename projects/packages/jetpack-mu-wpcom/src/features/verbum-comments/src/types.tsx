@@ -83,13 +83,6 @@ export type EmailSubscriptionResponse = {
 export interface SimpleSubscribeModalProps {
 	closeModalHandler: () => void;
 	email: string;
-	setSubscribeModalStatus?: ( string ) => void;
-	subscribeModalStatus?:
-		| 'showed'
-		| 'hidden_cookies_disabled'
-		| 'hidden_subscribe_not_enabled'
-		| 'hidden_views_limit'
-		| 'hidden_already_subscribed';
 	subscribeState?: string;
 	setSubscribeState?: ( boolean ) => void;
 	setHasIframe?: ( boolean ) => void;

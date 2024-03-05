@@ -1,32 +1,36 @@
 /*
  * Core library exports
  */
-export { default as requestJwt } from './jwt';
-export { default as SuggestionsEventSource } from './suggestions-event-source';
-export { default as askQuestion } from './ask-question';
+export { default as requestJwt } from './jwt/index.js';
+export { default as SuggestionsEventSource } from './suggestions-event-source/index.js';
+export { default as askQuestion } from './ask-question/index.js';
+export { default as transcribeAudio } from './audio-transcription/index.js';
 
 /*
  * Hooks
  */
-export { default as useAiSuggestions } from './hooks/use-ai-suggestions';
-export { default as useMediaRecording } from './hooks/use-media-recording';
+export { default as useAiSuggestions } from './hooks/use-ai-suggestions/index.js';
+export { default as useMediaRecording } from './hooks/use-media-recording/index.js';
+export { default as useAudioTranscription } from './hooks/use-audio-transcription/index.js';
+export { default as useTranscriptionPostProcessing } from './hooks/use-transcription-post-processing/index.js';
+export { default as useAudioValidation } from './hooks/use-audio-validation/index.js';
 
 /*
  * Components: Icons
  */
-export * from './icons';
+export * from './icons/index.js';
 
 /*
  * Components
  */
-export * from './components';
+export * from './components/index.js';
 
 /*
  * Contexts
  */
-export * from './data-flow';
+export * from './data-flow/index.js';
 
 /*
  * Types
  */
-export * from './types';
+export * from './types.js';

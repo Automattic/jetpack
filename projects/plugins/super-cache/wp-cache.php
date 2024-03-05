@@ -2289,22 +2289,33 @@ function wp_cache_create_advanced_cache() {
 function wpsc_check_advanced_cache() {
 	global $wpsc_advanced_cache_filename;
 
-	$ret = true;
+	$ret                  = false;
 	$other_advanced_cache = false;
 	if ( file_exists( $wpsc_advanced_cache_filename ) ) {
 		$file = file_get_contents( $wpsc_advanced_cache_filename );
 		if ( strpos( $file, "WP SUPER CACHE 0.8.9.1" ) || strpos( $file, "WP SUPER CACHE 1.2" ) ) {
 			return true;
+		} elseif ( strpos( $file, 'Boost Cache Plugin' ) !== false ) {
+			$other_advanced_cache = 'BOOST';
 		} else {
 			$other_advanced_cache = true;
-			$ret = wp_cache_create_advanced_cache();
 		}
 	} else {
 		$ret = wp_cache_create_advanced_cache();
 	}
 
 	if ( false == $ret ) {
-		if ( $other_advanced_cache ) {
+		if ( $other_advanced_cache === 'BOOST' ) {
+			echo '<div style="width: 50%" class="notice notice-error"><h2>' . esc_html__( 'Warning! Jetpack Boost Cache Detected', 'wp-super-cache' ) . '</h2>';
+			// translators: %s is the filename of the advanced-cache.php file
+			echo '<p>' . sprintf( esc_html__( 'The file %s was created by the Jetpack Boost plugin.', 'wp-super-cache' ), esc_html( $wpsc_advanced_cache_filename ) ) . '</p>';
+			echo '<p>' . esc_html__( 'You can use Jetpack Boost and WP Super Cache at the same time but only if the Cache Site Pages module in Boost is disabled. To use WP Super Cache for caching:', 'wp-super-cache' ) . '</p>';
+			// translators: %s is a html link to the plugins page
+			echo '<ol><li>' . sprintf( esc_html__( 'Deactivate Jetpack Boost on the %s page.', 'wp-super-cache' ), '<a href="' . esc_url( admin_url( 'plugins.php' ) ) . '">' . esc_html__( 'Plugins', 'wp-super-cache' ) . '</a>' ) . '</li>';
+			echo '<li>' . esc_html__( 'Reload this page to configure WP Super Cache.', 'wp-super-cache' ) . '</li>';
+			echo '<li>' . esc_html__( 'Activate the Jetpack Boost plugin again.', 'wp-super-cache' ) . '</li>';
+			echo '</ol>';
+		} elseif ( $other_advanced_cache ) {
 			echo '<div style="width: 50%" class="notice notice-error"><h2>' . __( 'Warning! You may not be allowed to use this plugin on your site.', 'wp-super-cache' ) . "</h2>";
 			echo '<p>' .
 				sprintf(
@@ -3665,27 +3676,11 @@ add_filter( 'option_preload_cache_counter', 'option_preload_cache_counter' );
 
 function check_up_on_preloading() {
 	$value = get_option( 'preload_cache_counter' );
-	if ( is_array( $value ) && $value[ 'c' ] > 0 && ( time() - $value[ 't' ] ) > 3600 && false == wp_next_scheduled( 'wp_cache_preload_hook' ) ) {
-		if ( is_admin() ) {
-			if ( get_option( 'wpsc_preload_restart_email' ) < ( time() - 86400 ) ) {
-				wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Preload may have stalled.', 'wp-super-cache' ), get_bloginfo( 'url' ) ), sprintf( __( "Preload has been restarted.\n%s", 'wp-super-cache' ), admin_url( "options-general.php?page=wpsupercache" ) ) );
-				update_option( 'wpsc_preload_restart_email', time() );
-			}
-			add_action( 'admin_notices', 'wpsc_preload_restart_notice' );
-		}
-		wp_schedule_single_event( time() + 30, 'wp_cache_preload_hook' );
+	if ( is_array( $value ) && $value['c'] > 0 && ( time() - $value['t'] ) > 3600 && false === wp_next_scheduled( 'wp_cache_preload_hook' ) ) {
+		wp_schedule_single_event( time() + 5, 'wp_cache_preload_hook' );
 	}
 }
 add_action( 'init', 'check_up_on_preloading' ); // sometimes preloading stops working. Kickstart it.
-
-function wpsc_preload_restart_notice() {
-
-	if ( false == wpsupercache_site_admin() )
-		return false;
-	if ( ! isset( $_GET[ 'page' ] ) || $_GET[ 'page' ] != 'wpsupercache' )
-		return false;
-	echo '<div class="notice notice-error"><p>' . __( 'Warning! WP Super Cache preload was interrupted but has been restarted.', 'wp-super-cache' ) . '</p></div>';
-}
 
 function wp_cache_disable_plugin( $delete_config_file = true ) {
 	global $wp_rewrite;

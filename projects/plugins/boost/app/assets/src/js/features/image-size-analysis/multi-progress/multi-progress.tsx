@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, { MouseEventHandler } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
 import OtherGroupContext from '$features/image-size-analysis/other-group-context/other-group-context';
@@ -7,6 +8,8 @@ import { Spinner } from '$features/ui';
 import WarningIcon from '$svg/warning-outline';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { Link } from 'react-router-dom';
+import styles from './multi-progress.module.scss';
+
 interface ReportProgress {
 	group: isaGroupKeys;
 	issue_count?: number;
@@ -51,10 +54,10 @@ const MaybeLink: React.FC< MaybeLinkProps > = ( {
 
 const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => {
 	return (
-		<div className="jb-multi-progress">
+		<div className={ styles[ 'multi-progress' ] }>
 			{ reportProgress.map( ( report, index ) => (
-				<div key={ index } className="jb-entry">
-					<div className="jb-progress">
+				<div key={ index } className={ styles.entry }>
+					<div className={ styles.progress }>
 						<ProgressBar progress={ report.progress } />
 					</div>
 
@@ -69,16 +72,17 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => 
 							trackEventProps={ report.group }
 						>
 							<span
-								className={ `jb-bubble ${ report.done ? 'done' : '' } ${
-									report.has_issues ? 'has-issues' : ''
-								}` }
+								className={ classNames( styles.bubble, {
+									[ styles.done ]: report.done,
+									[ styles[ 'has-issues' ] ]: report.has_issues,
+								} ) }
 							>
 								{ report.has_issues ? <WarningIcon /> : report.done ? '✓' : index + 1 }
 							</span>
 						</MaybeLink>
 					) }
 
-					<div className="jb-category-name">
+					<div className={ styles.category }>
 						<MaybeLink
 							isLink={ report.has_issues }
 							className="jb-navigator-link"
@@ -92,7 +96,11 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => 
 					</div>
 
 					{ ( report.done || report.has_issues ) && (
-						<div className={ `jb-status ${ report.has_issues ? 'has-issues' : '' }` }>
+						<div
+							className={ classNames( styles.status, {
+								[ styles[ 'has-issues' ] ]: report.has_issues,
+							} ) }
+						>
 							<MaybeLink
 								isLink={ report.has_issues }
 								className="jb-navigator-link"

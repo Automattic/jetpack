@@ -22,7 +22,12 @@ require __DIR__ . '/masterbar/masterbar/class-masterbar.php';
 require __DIR__ . '/masterbar/admin-color-schemes/class-admin-color-schemes.php';
 require __DIR__ . '/masterbar/inline-help/class-inline-help.php';
 
-new Masterbar();
+$should_use_nav_redesign = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
+
+if ( ! $should_use_nav_redesign ) {
+	new Masterbar();
+}
+
 new Admin_Color_Schemes();
 
 if ( ( new Host() )->is_woa_site() ) {
@@ -42,6 +47,6 @@ if ( ( new Host() )->is_woa_site() ) {
  *
  * @param bool $load_admin_menu_class Load Jetpack's custom admin menu functionality. Default to false.
  */
-if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
+if ( ! $should_use_nav_redesign && apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
 	require_once __DIR__ . '/masterbar/admin-menu/load.php';
 }

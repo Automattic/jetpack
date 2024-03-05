@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Issue references: do not gather support references in Pull Requests, only in issues.

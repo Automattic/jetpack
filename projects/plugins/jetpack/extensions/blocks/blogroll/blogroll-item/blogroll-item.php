@@ -75,7 +75,7 @@ function load_assets( $attr, $content, $block ) {
 
 	$placeholder_site_icon = '';
 	$site_icon_html        = <<<HTML
-	<img src="$icon" alt="$name_attr" onerror="this.parentNode.classList.add('empty-site-icon')">
+	<img class="blogroll-item-image" src="$icon" alt="$name_attr" onerror="this.parentNode.classList.add('empty-site-icon')">
 HTML;
 
 	if ( empty( $icon ) ) {

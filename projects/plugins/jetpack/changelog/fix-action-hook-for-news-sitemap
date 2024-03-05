@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Sitemaps: Use wp_loaded filter hook instead of init filter hook to load the permalinks for the sitemaps, Which will allow plugins and other hooks to load.

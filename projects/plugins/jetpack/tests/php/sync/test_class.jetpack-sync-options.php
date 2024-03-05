@@ -114,6 +114,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'default_ping_status'                          => 'pineapple',
 			'sticky_posts'                                 => 'pineapple',
 			'blog_public'                                  => 0,
+			'wpcom_data_sharing_opt_out'                   => false,
 			'default_pingback_flag'                        => 'pineapple',
 			'require_name_email'                           => 'pineapple',
 			'close_comments_for_old_posts'                 => 'pineapple',
@@ -210,6 +211,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wordads_custom_adstxt_enabled'                => false,
 			'wordads_ccpa_enabled'                         => false,
 			'wordads_ccpa_privacy_policy_url'              => 'pineapple',
+			'wordads_cmp_enabled'                          => false,
 			'woocommerce_custom_orders_table_enabled'      => false,
 			'site_user_type'                               => wp_json_encode( array( 1 => 'pineapple' ) ),
 			'site_segment'                                 => 'pineapple',
@@ -223,6 +225,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_sync_non_blocking'                    => false,
 			'jetpack_sync_settings_dedicated_sync_enabled' => false,
 			'jetpack_sync_settings_custom_queue_table_enabled' => false,
+			'jetpack_sync_settings_wpcom_rest_api_enabled' => false,
 			'jetpack_sync_settings_comment_meta_whitelist' => array( 'jetpack', 'pineapple' ),
 			'jetpack_sync_settings_post_meta_whitelist'    => array( 'jetpack', 'pineapple' ),
 			'jetpack_sync_settings_post_types_blacklist'   => array( 'jetpack', 'pineapple' ),
@@ -245,6 +248,9 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_verbum_subscription_modal'            => true,
 			'jetpack_blocks_disabled'                      => false,
 			'wpcom_ai_site_prompt'                         => '',
+			'wpcom_classic_early_release'                  => true,
+			'jetpack_package_versions'                     => array(),
+			'jetpack_newsletters_publishing_default_frequency' => 'weekly',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

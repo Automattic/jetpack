@@ -21,6 +21,7 @@ import {
 	userLoggedIn,
 	commentUrl,
 	commentParent,
+	subscribeModalStatus,
 } from './state';
 import {
 	classNames,
@@ -34,15 +35,9 @@ import type { VerbumComments } from './types';
 import './style.scss';
 
 const Verbum = ( { siteId }: VerbumComments ) => {
+	const formRef = useRef< HTMLFormElement >( null );
 	const [ showMessage, setShowMessage ] = useState( '' );
 	const [ isErrorMessage, setIsErrorMessage ] = useState( false );
-	const [ subscribeModalStatus, setSubscribeModalStatus ] = useState<
-		| 'showed'
-		| 'hidden_cookies_disabled'
-		| 'hidden_subscribe_not_enabled'
-		| 'hidden_views_limit'
-		| 'hidden_already_subscribed'
-	>();
 
 	const commentTextarea = useRef< HTMLTextAreaElement >();
 	const [ email, setEmail ] = useState( '' );
@@ -61,6 +56,18 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 	const handleBeforeUnload = useCallback( ( event: BeforeUnloadEvent ) => {
 		event.preventDefault();
 		event.returnValue = '';
+	}, [] );
+
+	useEffect( () => {
+		formRef.current = document.getElementById( 'commentform' ) as HTMLFormElement | null;
+
+		if ( formRef.current ) {
+			formRef.current.addEventListener( 'submit', handleCommentSubmit );
+			return () => {
+				formRef.current.removeEventListener( 'submit', handleCommentSubmit );
+			};
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	useEffect( () => {
@@ -110,18 +117,15 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		event.preventDefault();
 		setShowMessage( '' );
 
-		const formAction = document.querySelector( '#commentform' ).getAttribute( 'action' );
-
-		const formElement = document.querySelector( '#commentform' ) as HTMLFormElement;
-
-		const formData = new FormData( formElement );
+		const formAction = formRef.current.getAttribute( 'action' );
+		const formData = new FormData( formRef.current );
 
 		// if formData email address is set, set the newUserEmail state
 		if ( formData.get( 'email' ) ) {
 			setEmail( formData.get( 'email' ) as string );
 		}
 
-		formData.set( 'verbum_show_subscription_modal', subscribeModalStatus );
+		formData.set( 'verbum_show_subscription_modal', subscribeModalStatus.value );
 
 		const response = await fetch( formAction, {
 			method: 'POST',
@@ -151,8 +155,8 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		// If no error message and not redirect, we re-submit the form as usual instead of using fetch.
 		setIgnoreSubscriptionModal( true );
 		isSavingComment.value = false;
-		const submitFormFunction = Object.getPrototypeOf( formElement ).submit;
-		submitFormFunction.call( formElement );
+		const submitFormFunction = Object.getPrototypeOf( formRef.current ).submit;
+		submitFormFunction.call( formRef.current );
 	};
 
 	const handleCommentSubmit = async event => {
@@ -229,15 +233,10 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 					/>
 				) }
 			</div>
-			<CommentFooter toggleTray={ handleTrayToggle } handleOnSubmitClick={ handleCommentSubmit } />
+			<CommentFooter toggleTray={ handleTrayToggle } />
 			<CommentMessage message={ showMessage } isError={ isErrorMessage } />
 			{ VerbumComments.enableSubscriptionModal && (
-				<SimpleSubscribeModal
-					setSubscribeModalStatus={ setSubscribeModalStatus }
-					subscribeModalStatus={ subscribeModalStatus }
-					closeModalHandler={ closeModalHandler }
-					email={ email }
-				/>
+				<SimpleSubscribeModal closeModalHandler={ closeModalHandler } email={ email } />
 			) }
 		</>
 	);

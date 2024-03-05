@@ -52,17 +52,17 @@ class Publicize_UI {
 		}
 
 		// Assets (css, js).
-		add_action( 'load-settings_page_sharing', array( $this, 'load_assets' ) );
 		add_action( 'admin_head-post.php', array( $this, 'post_page_metabox_assets' ) );
 		add_action( 'admin_head-post-new.php', array( $this, 'post_page_metabox_assets' ) );
 
 		// Management of publicize (sharing screen, ajax/lightbox popup, and metabox on post screen).
-		add_action( 'pre_admin_screen_sharing', array( $this, 'admin_page' ) );
 		add_action( 'post_submitbox_misc_actions', array( $this, 'post_page_metabox' ) );
 	}
 
 	/**
 	 * If the ShareDaddy plugin is not active we need to add the sharing settings page to the menu still
+	 *
+	 * @deprecated 0.42.3
 	 */
 	public function sharing_menu() {
 		add_submenu_page(
@@ -77,6 +77,8 @@ class Publicize_UI {
 
 	/**
 	 * Add admin page with wrapper.
+	 *
+	 * @deprecated 0.42.3
 	 */
 	public function wrapper_admin_page() {
 		if ( class_exists( 'Jetpack_Admin_Page' ) ) {
@@ -86,6 +88,8 @@ class Publicize_UI {
 
 	/**
 	 * Management page to load if Sharedaddy is not active so the 'pre_admin_screen_sharing' action exists.
+	 *
+	 * @deprecated 0.42.3
 	 */
 	public function management_page() {
 		?>
@@ -104,6 +108,8 @@ class Publicize_UI {
 	/**
 	 * Styling for the sharing screen and popups
 	 * JS for the options and switching
+	 *
+	 * @deprecated 0.42.3
 	 */
 	public function load_assets() {
 		if ( class_exists( 'Jetpack_Admin_Page' ) ) {
@@ -114,6 +120,8 @@ class Publicize_UI {
 	/**
 	 * Lists the current user's publicized accounts for the blog
 	 * looks exactly like Publicize v1 for now, UI and functionality updates will come after the move to keyring
+	 *
+	 * @deprecated 0.42.3
 	 */
 	public function admin_page() {
 		?>
@@ -617,17 +625,21 @@ jQuery( function($) {
 			$title = '';
 		}
 
+		$is_social_note = 'jetpack-social-note' === get_post_type( $post->ID );
+
 		$all_done = $all_done || $all_connections_done;
 
 		?>
 
 			</ul>
 
-			<label for="wpas-title"><?php esc_html_e( 'Custom Message:', 'jetpack-publicize-pkg' ); ?></label>
-			<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
-			<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo esc_textarea( $title ); ?></textarea>
-			<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack-publicize-pkg' ); ?></a>
-			<input type="hidden" name="wpas[0]" value="1" />
+			<?php if ( ! $is_social_note ) : ?>
+				<label for="wpas-title"><?php esc_html_e( 'Custom Message:', 'jetpack-publicize-pkg' ); ?></label>
+				<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
+				<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo esc_textarea( $title ); ?></textarea>
+				<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack-publicize-pkg' ); ?></a>
+				<input type="hidden" name="wpas[0]" value="1" />
+			<?php endif; ?>
 		</div>
 
 		<div id="pub-connection-needs-media"></div>

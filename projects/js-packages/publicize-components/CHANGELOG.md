@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.48.2] - 2024-03-04
+### Changed
+- Update dependencies. [#36113]
+- Updated package dependencies.
+
+### Removed
+- Removed the flow to reconnect a broken social connection from the editor. [#35343]
+
+## [0.48.1] - 2024-02-27
+### Changed
+- Update dependencies. [#35170]
+
+## [0.48.0] - 2024-02-26
+### Added
+- Added toggle to Social admin page for the Social Notes [#35681]
+
+### Changed
+- Added description to social previews for titleless posts [#35728]
+
+### Removed
+- Removed a notice to tell users that instagram is new nad can be connected [#35860]
+
+## [0.47.1] - 2024-02-13
+### Changed
+- Updated package dependencies. [#35608]
+
+## [0.47.0] - 2024-02-12
+### Changed
+- Change editor layout for social notes [#35536]
+
+## [0.46.0] - 2024-02-05
+### Added
+- Add blog ID to the initial state. [#35006]
+
+### Changed
+- Updated package dependencies.
+
 ## [0.45.2] - 2024-01-29
 ### Changed
 - Update dependencies. [#35170]
@@ -575,6 +612,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.48.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.48.1...v0.48.2
+[0.48.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.48.0...v0.48.1
+[0.48.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.47.1...v0.48.0
+[0.47.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.47.0...v0.47.1
+[0.47.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.46.0...v0.47.0
+[0.46.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.45.2...v0.46.0
 [0.45.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.45.1...v0.45.2
 [0.45.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.45.0...v0.45.1
 [0.45.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.44.2...v0.45.0

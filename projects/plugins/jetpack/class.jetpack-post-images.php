@@ -519,7 +519,7 @@ class Jetpack_PostImages {
 			$width  = (int) $image_tag->getAttribute( 'width' );
 			$height = (int) $image_tag->getAttribute( 'height' );
 			if ( 0 === $width && 0 === $height ) {
-				preg_match( '/-([0-9]+)x([0-9]+)\.(?:jpg|jpeg|png|gif|webp)$/i', $img_src, $matches );
+				preg_match( '/-([0-9]{1,5})x([0-9]{1,5})\.(?:jpg|jpeg|png|gif|webp)$/i', $img_src, $matches );
 				if ( ! empty( $matches[1] ) ) {
 					$width = (int) $matches[1];
 				}

@@ -69,10 +69,12 @@ class Data_Settings {
 			'jetpack_sync_settings_taxonomies_blacklist',
 			'jetpack_sync_settings_dedicated_sync_enabled',
 			'jetpack_sync_settings_custom_queue_table_enabled',
+			'jetpack_sync_settings_wpcom_rest_api_enabled',
 			/**
 			 * Connection related options
 			 */
 			'jetpack_connection_active_plugins',
+			'jetpack_package_versions',
 			/**
 			 * Generic site options
 			 */

@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
-import { guideState } from './stores/GuideState';
-import { MeasurableImageStore } from './stores/MeasurableImageStore';
+import { guideState } from './stores/GuideState.js';
+import { MeasurableImageStore } from './stores/MeasurableImageStore.js';
 
 /**
  * Image properties sent to tracks.

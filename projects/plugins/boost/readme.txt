@@ -3,7 +3,7 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dili
 Donate link: https://automattic.com
 Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
-Tested up to: 6.4
+Tested up to: 6.5
 Requires PHP: 7.0
 Stable tag: 3.0.2
 License: GPLv2 or later
@@ -41,17 +41,19 @@ Currently, the plugin has 6 performance modules available:
 
    Read more about critical CSS generation at [web.dev](https://jetpack.com/redirect/?source=jetpack-boost-critical-css)
 
-2. *Defer Non-Essential Javascript* moves some tasks to after the page loads, so that important visual information can be seen sooner and your website loads quicker.
+2. *Page Cache* speeds up your site by saving pages as static files. These files are quickly served to visitors, reducing load times and enhancing user experience.
+
+3. *Defer Non-Essential Javascript* moves some tasks to after the page loads, so that important visual information can be seen sooner and your website loads quicker.
 
    Read more about deferring javascript at [web.dev](https://jetpack.com/redirect/?source=jetpack-boost-defer-js)
 
-3. *Image Guide* is a must-have feature for anyone who wants to optimize the images on their website. With this guide, you can ensure that the images on your site are the right size and dimensions, which is critical for improving user experience, page speed, and site ranking. Following the tips and best practices outlined in the guide, you can reduce image file sizes and speed up your site. Check out our [support page](https://jetpack.com/support/jetpack-boost/image-performance-guide/) to learn more about this feature and how it can help you achieve a faster and smoother website experience for your users.
+4. *Image Guide* is a must-have feature for anyone who wants to optimize the images on their website. With this guide, you can ensure that the images on your site are the right size and dimensions, which is critical for improving user experience, page speed, and site ranking. Following the tips and best practices outlined in the guide, you can reduce image file sizes and speed up your site. Check out our [support page](https://jetpack.com/support/jetpack-boost/image-performance-guide/) to learn more about this feature and how it can help you achieve a faster and smoother website experience for your users.
 
-4. *Image CDN* allows your site to serve automatically-resized images in modern web formats directly from Jetpack's worldwide Content Delivery Network.
+5. *Image CDN* allows your site to serve automatically-resized images in modern web formats directly from Jetpack's worldwide Content Delivery Network.
 
    Read more about Image CDNs at [web.dev](https://web.dev/image-cdns/)
 
-5. *Concatenate and Minify CSS and JS* combines and shrinks your JavaScript and CSS resources to reduce the number and size of requests to your server, ensuring your content loads faster.
+6. *Concatenate and Minify CSS and JS* combines and shrinks your JavaScript and CSS resources to reduce the number and size of requests to your server, ensuring your content loads faster.
 
    Read more about minifying files at [web.dev](https://web.dev/minify-css/)
 
@@ -74,6 +76,7 @@ Jetpack Boost makes small changes to the way that data is sent from your WordPre
 Jetpack Boost includes a growing number of separate features which can be turned on individually to improve your site’s performance. These include:
 
 * **Optimize CSS Loading**: This feature determines the most important CSS that your site needs to display your site’s initial content as quickly as possible, and embeds it directly into your site header.
+* **Page Cache**: This feature stores your website's pages as static HTML files, bypassing the need for dynamic generation. This means visitors receive pages faster, reducing wait times and improving overall site performance.
 * **Defer Non-Essential JavaScript**: This feature forces all of the JavaScript which is not deemed essential to displaying your site to load after your site’s main content has been loaded.
 * **Image CDN**: This feature automatically resizes images to a more appropriate size for your visitors' screens, converts them to modern image formats, and serves them from Jetpack's worldwide network of servers.
 * **Concatenate JS**: This feature reduces the size of your JavaScript resources, and automatically combines them into fewer files, allowing your site to load faster with fewer requests.
@@ -180,9 +183,26 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.0.2 - 2024-01-31
+### 3.1.1-beta - 2024-03-01
+#### Added
+- Cache: Added a Page Cache module.
+- Defer JS: Automatically exclude JSON-LD schemas.
+- Speed Scores: Added support for annotating points of time in the speed score history graph.
+
+#### Changed
+- Image Guide: Removed beta flag
+- General: Better error handling for invalid data when running wp-admin pages.
+- General: Improved error handling.
+- General: Indicate compatibility with the upcoming version of WordPress, 6.5.
+- General: Enabled React.StrictMode for development.
+- General: Switch to using Blog ID links instead of site slugs in checkout flow.
+
 #### Fixed
-- General: Fixed an issue with compatibility file
+- Critical CSS: Prevent errors when page_for_posts misconfigured.
+- Critical CSS: Prevent missing archive pages from breaking the generation process.
+- General: Prevent missing pricing information from affecting the getting started flow.
+- Image Size Analysis: Update summary groups to align with status icons.
+- JS and CSS concat: Ensure minification is enabled.
 
 --------
 

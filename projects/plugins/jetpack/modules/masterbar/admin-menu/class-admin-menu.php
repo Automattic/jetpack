@@ -58,7 +58,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 */
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
 		$force_default_view = in_array( $screen, array( 'users.php', 'options-general.php' ), true );
-		$use_wp_admin       = $this->use_wp_admin_interface( $screen );
+		$use_wp_admin       = $this->use_wp_admin_interface();
 
 		// When no preferred view has been set for "Users > All Users" or "Settings > General", keep the previous
 		// behavior that forced the default view regardless of the global preference.

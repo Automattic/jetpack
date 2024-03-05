@@ -8,7 +8,7 @@ import { useCallback } from 'react';
 export function useSuperCacheDS() {
 	const [ { data } ] = useDataSync( 'jetpack_boost_ds', 'super_cache', SuperCacheInfo );
 
-	return data as SuperCacheInfo;
+	return data;
 }
 
 /**

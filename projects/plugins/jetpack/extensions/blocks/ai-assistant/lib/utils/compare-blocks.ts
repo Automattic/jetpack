@@ -1,5 +1,7 @@
 export type Block = {
-	attributes?: object;
+	attributes?: {
+		[ key: string ]: unknown;
+	};
 	clientId?: string;
 	innerBlocks?: Block[];
 	isValid?: boolean;
