@@ -67,11 +67,11 @@ export function builder( yargs ) {
 		} )
 		.option( 'allow-polyfill-parser', {
 			type: 'boolean',
-			description: "Allow Phan's polyfill parser. May cause false positives.",
+			description: "Allow Phan's polyfill parser. May cause false positives and false negatives.",
 		} )
 		.option( 'force-polyfill-parser', {
 			type: 'boolean',
-			description: "Force Phan's polyfill parser. May cause false positives.",
+			description: "Force Phan's polyfill parser. May cause false positives and false negatives.",
 		} )
 		.option( 'debug', {
 			type: 'boolean',
@@ -80,6 +80,18 @@ export function builder( yargs ) {
 		.option( 'include-analysis-file-list', {
 			type: 'string',
 			description: 'Comma-separated list of files to analyze.',
+		} )
+		.check( argv => {
+			if (
+				argv.updateBaseline &&
+				( argv[ 'allow-polyfill-parser' ] || argv[ 'force-polyfill-parser' ] )
+			) {
+				throw new Error(
+					chalk.red(
+						'Cannot use --update-baseline along with --allow-polyfill-parser or --force-polyfill-parser.\nThe polyfill parser has false negatives, which saved to the baseline would cause trouble in CI.'
+					)
+				);
+			}
 		} );
 }
 
