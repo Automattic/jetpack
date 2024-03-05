@@ -17,7 +17,7 @@ const useVideoPressStats = () => {
 		data: stats,
 		isLoading,
 		isError,
-	} = useSimpleQuery( 'videopress stats', { path: REST_API_VIDEOPRESS_FEATURED_STATS } );
+	} = useSimpleQuery( 'videopressStats', { path: REST_API_VIDEOPRESS_FEATURED_STATS } );
 
 	const views = stats?.data?.views ?? {};
 	const { previous = null, current = null } = views;
