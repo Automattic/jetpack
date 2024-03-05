@@ -12,18 +12,18 @@ use Automattic\Jetpack\Assets;
 /**
  * Grunion editor view class.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View
+ * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View
  */
 class Grunion_Editor_View {
 
 	/**
 	 * Add hooks according to screen.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks
 	 * @param WP_Screen $screen Data about current screen.
 	 */
 	public static function add_hooks( $screen ) {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks' );
 
 		if ( isset( $screen->base ) && 'post' === $screen->base ) {
 			add_action( 'admin_notices', array( __CLASS__, 'handle_editor_view_js' ) );
@@ -34,10 +34,10 @@ class Grunion_Editor_View {
 	/**
 	 * Admin header.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::admin_head
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::admin_head
 	 */
 	public static function admin_head() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::admin_head' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::admin_head' );
 
 		remove_action( 'media_buttons', 'grunion_media_button', 999 );
 		add_action( 'media_buttons', array( __CLASS__, 'grunion_media_button' ), 999 );
@@ -46,10 +46,10 @@ class Grunion_Editor_View {
 	/**
 	 * Render the grunion media button.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::grunion_media_button
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::grunion_media_button
 	 */
 	public static function grunion_media_button() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::grunion_media_button' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::grunion_media_button' );
 
 		$title = __( 'Add Contact Form', 'jetpack' );
 		?>
@@ -65,12 +65,12 @@ class Grunion_Editor_View {
 	/**
 	 * Get external plugins.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_external_plugins
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_external_plugins
 	 * @param array $plugin_array - the plugin array.
 	 * @return array
 	 */
 	public static function mce_external_plugins( $plugin_array ) {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_external_plugins' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_external_plugins' );
 
 		$plugin_array['grunion_form'] = Assets::get_file_url_for_environment(
 			'_inc/build/contact-form/js/tinymce-plugin-form-button.min.js',
@@ -82,12 +82,12 @@ class Grunion_Editor_View {
 	/**
 	 * MCE buttons.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_buttons
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_buttons
 	 * @param array $buttons - the buttons.
 	 * @return array
 	 */
 	public static function mce_buttons( $buttons ) {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_buttons' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::mce_buttons' );
 
 		$size     = count( $buttons );
 		$buttons1 = array_slice( $buttons, 0, $size - 1 );
@@ -102,10 +102,10 @@ class Grunion_Editor_View {
 	/**
 	 * WordPress Shortcode Editor View JS Code
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::handle_editor_view_js
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::handle_editor_view_js
 	 */
 	public static function handle_editor_view_js() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::handle_editor_view_js' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::handle_editor_view_js' );
 
 		add_action( 'admin_print_footer_scripts', array( __CLASS__, 'editor_view_js_templates' ), 1 );
 		add_filter( 'mce_external_plugins', array( __CLASS__, 'mce_external_plugins' ) );
@@ -151,10 +151,10 @@ class Grunion_Editor_View {
 	/**
 	 * JS Templates.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::editor_view_js_templates
+	 * @deprecated jetpack-$$next-version$$ Use Automattic\Jetpack\Forms\ContactForm\Editor_View::editor_view_js_templates
 	 */
 	public static function editor_view_js_templates() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::editor_view_js_templates' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Forms\ContactForm\Editor_View::editor_view_js_templates' );
 		?>
 <script type="text/html" id="tmpl-grunion-contact-form">
 	<form class="card jetpack-contact-form-shortcode-preview" action='#' method='post' class='contact-form commentsblock' onsubmit="return false;">
