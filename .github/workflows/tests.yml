@@ -264,7 +264,7 @@ jobs:
       - name: Pnpm install
         run: pnpm install
       - name: Run phan
-        run: jetpack phan --all -v --update-baseline --format github
+        run: pnpm jetpack phan --all -v --update-baseline --format github
       - name: Check baselines
         run: |
           # Anything changed (with a side of printing the diff)
