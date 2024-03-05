@@ -20,6 +20,6 @@ export const useFetchingErrorNotice = ( { infoName, isError, overrideMessage }: 
 				infoName
 			),
 		options: { status: 'error' },
-		isError,
+		shouldShow: isError,
 	} );
 };

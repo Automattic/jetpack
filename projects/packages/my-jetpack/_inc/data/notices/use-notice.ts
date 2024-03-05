@@ -1,22 +1,17 @@
 import { useContext, useEffect } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
+import type { NoticeType } from '../../context/notices/types';
 
-type Notice = {
-	message: string;
-	options: { status: string };
-	isError: boolean;
-};
-
-const useNotice = ( { message, options, isError }: Notice ) => {
+const useNotice = ( { message, options, shouldShow = true }: NoticeType ) => {
 	const { setCurrentNotice } = useContext( NoticeContext );
 
 	useEffect( () => {
-		if ( isError ) {
+		if ( shouldShow ) {
 			setCurrentNotice?.( { message, options } );
 		}
 		// We only want to update the notice if isError changes
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ isError ] );
+	}, [ shouldShow, message ] );
 };
 
 export default useNotice;

@@ -1,10 +1,14 @@
-import React, { createContext, useState } from 'react';
+import { createContext, useState } from 'react';
 import { NoticeContextType } from './types';
 
 const defaultNotice = {
 	message: '',
 	options: {
 		status: '',
+	},
+	actions: {
+		label: '',
+		onClick: () => {},
 	},
 };
 
