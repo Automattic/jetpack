@@ -1102,7 +1102,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             // NOTE: this is ONLY for use where a sql query is 1 time use, otherwise add as argument
             // ... for later use, (above)
             // PLEASE do not use the or switch without discussing case with WH
-            'additionalWhereArr' => false, 
+			'additionalWhereArr'         => false,
+			'additional_joins'           => false,
             'whereCase'          => 'AND' // DEFAULT = AND
 
 
@@ -1359,6 +1360,12 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             }
 
         #} ============ / PRE-QUERY ===========
+
+			if ( ! empty( $additional_joins ) ) {
+				list( $joinQ, $join_params ) = $this->DAL()->build_joins( $additional_joins, $whereCase === 'AND' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
+				$params = array_merge( $params, $join_params );
+			}
 
         #} Build query
         $query = "SELECT contact.*".$extraSelect." FROM ".$ZBSCRM_t['contacts'].' as contact'.$joinQ;
