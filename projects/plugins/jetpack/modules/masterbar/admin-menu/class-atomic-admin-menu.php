@@ -191,19 +191,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds the site switcher link if user has more than one site.
 	 */
 	public function add_browse_sites_link() {
-		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
-			add_menu_page(
-				esc_attr__( 'All Sites', 'jetpack' ),
-				esc_attr__( 'All Sites', 'jetpack' ),
-				'manage_options',
-				'https://wordpress.com/sites',
-				null,
-				'dashicons-arrow-left-alt2',
-				0
-			);
-			return;
-		}
-
 		$site_count = get_user_option( 'wpcom_site_count' );
 		if ( ! $site_count || $site_count < 2 ) {
 			return;
