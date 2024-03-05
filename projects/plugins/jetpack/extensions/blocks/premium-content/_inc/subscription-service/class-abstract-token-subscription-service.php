@@ -451,16 +451,22 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Clear the auth cookie.
 	 *
+	 * @param string $cookie_domain Domain to remove cookie from.
+	 *
 	 * @return void
 	 */
-	public static function clear_token_cookie() {
+	public static function clear_token_cookie( $cookie_domain = '' ) {
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			return;
 		}
 
 		if ( self::has_token_from_cookie() ) {
 			unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', time() - DAY_IN_SECONDS, '/', COOKIE_DOMAIN, is_ssl(), true );
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', COOKIE_DOMAIN, is_ssl(), true );
+
+			if ( ! empty( $cookie_domain ) ) {
+				setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', $cookie_domain, is_ssl(), true );
+			}
 		}
 	}
 
