@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, performance
-Stable tag: 13.1.3
+Stable tag: 13.2
 Requires at least: 6.3
 Requires PHP: 7.0
 Tested up to: 6.5
@@ -326,30 +326,32 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.2-beta - 2024-03-04
-#### Enhancements
-- Ads Settings: Include option to toggle GDPR Consent Banner
-- Blaze: Enable the Dashboard behind the feature flag
-- Blog Stats block: Add message on the frontend when the Stats module is disabled.
-- Blog Stats Block: Remove check that prevented testing on WP.com sites.
-- Dashboard: link to Odyssey Stats for Atomic sites
-- Goodreads Block: Add transform from Legacy Widget.
-- Improve SSO send invite hover copy
-- Privacy: Add preliminary support for WordAds Consent Management Provider
-- Real time backups: Add endpoints orders to be used in real-time backups jetpack
-- Sharing: automatically add the Sharing Buttons block to the single post and page templates on sites using a block-based theme.
-- WordAds: Add additional states to US Privacy law opt-out
+### 13.2 - 2024-03-05
+### Enhancements
+- Three legacy Jetpack widgets are now available as new blocks:
+	- Blog Stats block: easily display visitor stats data on a global or per post basis.
+	- Top Posts and Pages block: provides a quick way to display the most popular content on your site.
+	- Goodreads block: showcase books from the shelves of a Goodreads profile.
+- Jetpack mobile app: now provides a seamless way to upload images from your mobile device while publishing on the web. [#35583]
+- Jetpack SSO: various improvements made to enhance inviting and managing users. [#35277]
 
-#### Improved compatibility
-- General: the plugin is now compatible with the upcoming WordPress release, version 6.5.
+### Improved compatibility
+- Blaze: remove "Promote with Blaze" links appearing in the Posts list when the Blaze feature is enabled. You can still go to Tools > Advertising to create and manage Blaze campaigns on your site. [#35586]
+- General: the plugin is now compatible with the upcoming WordPress release, version 6.5. [#35820]
+- Subscriptions block: add support for WP Super Cache and Boost Cache. [#35598]
+- WordAds: add additional states to US Privacy law opt-out. [#35765]
+- WordAds: include option to toggle GDPR Consent Banner. [#35205]
+- WPcom API: add 'if_not_modified_since' to the update post endpoint which will help clients determine if the post has been updated since last retrieved. [#35526]
 
-#### Bug fixes
-- Atomic i18n: Fix mixed translations after WordPress.com user locale switch
-- Carousel: don't open if no images are found in the gallery.
-- Goodreads Block: fix error when adding multiple blocks to the same page.
-- Revert 35890 to resolve the font display issue
-- Sharing: only enqueue extra JavaScript when a Sharing Block is inserted on the page.
-- Subscribe block: improve disabled placeholder state theme colour compatibility
+### Bug fixes
+- Carousel: don't open carousel if no images are found in the gallery. [#35788]
+- Jetpack Google Fonts: fix bug where some Google fonts aren't displayed correctly on front end. [#35706]
+- Memberships: disable scroll to top when memberships subscribe popup is opened. [#35553]
+- Sharing block: only enqueue extra JavaScript when a Sharing Block is inserted on the page. [#35955]
+- Sharing buttons: small adjustments to default button styles. [#35521]
+- Subscribe block: improve disabled placeholder state theme colour compatibility. [#35813]
+- WooCommerce Analytics: avoid error when trying to pay for a deleted product. [#35566]
+- WPcom i18n: fix mixed translations after WordPress.com user locale switch. [#35750]
 
 --------
 
