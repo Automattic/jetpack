@@ -198,7 +198,6 @@ export default function ProductInterstitial( {
 							clickHandler={ clickHandler }
 							onProductButtonClick={ clickHandler }
 							trackProductButtonClick={ trackProductClick }
-							isFetching={ isActivating }
 						/>
 					) : (
 						<Container

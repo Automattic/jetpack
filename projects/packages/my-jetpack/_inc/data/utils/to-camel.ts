@@ -1,18 +1,17 @@
-// Recursively map all object keys to camelCase
-// This supports conversion from kebab-case and snake_case to camelCase
-const mapObjectKeysToCamel = ( item: unknown ) => {
-	if ( Array.isArray( item ) ) {
-		return item.map( el => mapObjectKeysToCamel( el ) );
-	} else if ( typeof item === 'function' || item !== Object( item ) ) {
-		return item;
-	}
+import { ToCamelCase } from '../types';
 
-	return Object.fromEntries(
-		Object.entries( item ).map( ( [ key, value ]: [ string, unknown ] ) => [
-			key.replace( /([-_][a-z])/gi, c => c.toUpperCase().replace( /[-_]/g, '' ) ),
-			mapObjectKeysToCamel( value ),
-		] )
-	);
+const mapObjectKeysToCamel = < T >( item: T ): ToCamelCase< T > => {
+	if ( Array.isArray( item ) ) {
+		return item.map( el => mapObjectKeysToCamel( el ) ) as ToCamelCase< T >;
+	} else if ( typeof item === 'object' && item !== null ) {
+		return Object.fromEntries(
+			Object.entries( item ).map( ( [ key, value ] ) => [
+				key.replace( /([-_][a-z])/gi, c => c.toUpperCase().replace( /[-_]/g, '' ) ),
+				mapObjectKeysToCamel( value ),
+			] )
+		) as ToCamelCase< T >;
+	}
+	return item as ToCamelCase< T >;
 };
 
 export default mapObjectKeysToCamel;

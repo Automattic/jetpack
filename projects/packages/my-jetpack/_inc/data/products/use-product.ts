@@ -48,6 +48,9 @@ const refetchProduct = async (
 };
 
 const prepareProductData = ( product: ProductSnakeCase ) => {
+	// The mapObjectKeysToCamel is typed correctly, however we are adding new fields
+	// to the product object that don't exist on the global state object
+	// Therefore we still need to cast the object to the correct type
 	const camelProduct = mapObjectKeysToCamel( product ) as ProductCamelCase;
 
 	camelProduct.features = camelProduct.features || [];
